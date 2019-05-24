@@ -42,5 +42,10 @@ public interface Entity<EK extends EntityKey<EK>>{
 	void addDatabeansForQualifierPrefixUnchecked(String subEntityTableName,
 			Collection<? extends Databean<?,?>> databeans);
 
-	int getNumDatabeans();
+	long getNumDatabeans();
+
+	default boolean notEmpty(){
+		return getNumDatabeans() > 0;
+	}
+
 }

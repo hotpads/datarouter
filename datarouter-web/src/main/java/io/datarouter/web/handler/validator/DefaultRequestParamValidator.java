@@ -21,4 +21,5 @@ public abstract class DefaultRequestParamValidator extends RequestParamValidator
 	public Class<Object> getParameterClass(){
 		return Object.class;
 	}
+
 }

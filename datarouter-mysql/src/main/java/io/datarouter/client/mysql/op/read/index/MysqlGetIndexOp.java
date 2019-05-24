@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
-import io.datarouter.client.mysql.node.MysqlReaderNode;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.op.read.MysqlGetOpExecutor;
@@ -35,6 +34,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class MysqlGetIndexOp<
 		PK extends PrimaryKey<PK>,
@@ -47,7 +47,7 @@ extends BaseMysqlOp<List<IE>>{
 
 	private final MysqlGetOpExecutor mysqlGetOpExecutor;
 	private final Config config;
-	private final MysqlReaderNode<PK,D,F> mainNode;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final DatabeanFielder<IK,IE> indexFielder;
 	private final IE indexEntry;
@@ -55,12 +55,13 @@ extends BaseMysqlOp<List<IE>>{
 	private final Supplier<IE> indexEntrySupplier;
 	private final String opName;
 
-	public MysqlGetIndexOp(Datarouter datarouter, MysqlGetOpExecutor mysqlGetOpExecutor, MysqlReaderNode<PK,D,F> node,
-			MysqlFieldCodecFactory fieldCodecFactory, String opName, Config config, Supplier<IE> indexEntrySupplier,
-			Supplier<IF> indexFielderSupplier, Collection<IK> uniqueKeys){
-		super(datarouter, node.getClientNames(), Isolation.DEFAULT, true);
+	public MysqlGetIndexOp(Datarouter datarouter, MysqlGetOpExecutor mysqlGetOpExecutor,
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, MysqlFieldCodecFactory fieldCodecFactory, String opName,
+			Config config, Supplier<IE> indexEntrySupplier, Supplier<IF> indexFielderSupplier,
+			Collection<IK> uniqueKeys){
+		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.mysqlGetOpExecutor = mysqlGetOpExecutor;
-		this.mainNode = node;
+		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.opName = opName;
 		this.config = config;
@@ -72,8 +73,8 @@ extends BaseMysqlOp<List<IE>>{
 
 	@Override
 	public List<IE> runOnce(){
-		return mysqlGetOpExecutor.execute(mainNode, opName, uniqueKeys, config, indexFielder.getFields(indexEntry),
-				this::select, getConnection(mainNode.getFieldInfo().getClientId().getName()));
+		return mysqlGetOpExecutor.execute(fieldInfo, opName, uniqueKeys, config, indexFielder.getFields(
+				indexEntry), this::select, getConnection(fieldInfo.getClientId()));
 	}
 
 	private List<IE> select(PreparedStatement ps){

@@ -23,9 +23,7 @@ import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.client.Client;
 import io.datarouter.storage.client.ClientTableNodeNames;
-import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
 
 public abstract class BasePhysicalEntityNode<
@@ -37,12 +35,9 @@ implements PhysicalEntityNode<EK,E>{
 	protected final EntityFieldInfo<EK,E> entityFieldInfo;
 	private final ClientTableNodeNames clientTableNodeNames;//currently acting as a cache of superclass fields
 	private final Map<String,SubEntitySortedMapStorageReaderNode<EK,?,?,?>> nodeByQualifierPrefix;
-	private final DatarouterClients datarouterClients;
 
-	public BasePhysicalEntityNode(DatarouterClients datarouterClients, EntityNodeParams<EK,E> entityNodeParams,
-			ClientTableNodeNames clientTableNodeNames){
+	public BasePhysicalEntityNode(EntityNodeParams<EK,E> entityNodeParams, ClientTableNodeNames clientTableNodeNames){
 		super(clientTableNodeNames.getNodeName());
-		this.datarouterClients = datarouterClients;
 		this.entityFieldInfo = new EntityFieldInfo<>(entityNodeParams);
 		this.clientTableNodeNames = clientTableNodeNames;
 		this.nodeByQualifierPrefix = new HashMap<>();
@@ -55,11 +50,6 @@ implements PhysicalEntityNode<EK,E>{
 	void register(SubEntitySortedMapStorageReaderNode<EK,PK,D,F> subEntityNode){
 		super.register(subEntityNode);
 		nodeByQualifierPrefix.put(subEntityNode.getEntityNodePrefix(), subEntityNode);
-	}
-
-	@Override
-	public Client getClient(){
-		return datarouterClients.getClient(getClientName());
 	}
 
 	@Override

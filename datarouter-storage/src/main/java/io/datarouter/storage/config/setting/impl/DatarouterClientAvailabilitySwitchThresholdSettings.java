@@ -15,12 +15,13 @@
  */
 package io.datarouter.storage.config.setting.impl;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
@@ -34,11 +35,11 @@ public class DatarouterClientAvailabilitySwitchThresholdSettings extends Setting
 	public DatarouterClientAvailabilitySwitchThresholdSettings(SettingFinder finder){
 		super(finder, "datarouter.availability.switchThreshold.");
 
-		this.switchThresholdByClientName = new HashMap<>();
+		this.switchThresholdByClientName = new ConcurrentHashMap<>();
 	}
 
-	public Setting<Integer> getSwitchThreshold(String clientName){
-		return switchThresholdByClientName.computeIfAbsent(clientName, name -> registerInteger(name, 0));
+	public Setting<Integer> getSwitchThreshold(ClientId clientId){
+		return switchThresholdByClientName.computeIfAbsent(clientId.getName(), name -> registerInteger(name, 0));
 	}
 
 }

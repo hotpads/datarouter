@@ -18,11 +18,11 @@ package io.datarouter.web.dispatcher;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.web.browse.DatabeanViewerHandler;
 import io.datarouter.web.browse.DatarouterClientHandler;
+import io.datarouter.web.browse.DatarouterHomepageHandler;
 import io.datarouter.web.browse.DeleteNodeDataHandler;
 import io.datarouter.web.browse.GetNodeDataHandler;
-import io.datarouter.web.browse.RoutersHandler;
+import io.datarouter.web.browse.NodeSearchHandler;
 import io.datarouter.web.browse.ViewNodeDataHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.IpDetectionHandler;
@@ -35,29 +35,23 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 @Singleton
 public class DatarouterWebRouteSet extends BaseRouteSet{
 
-	//TODO PathNodes
-	public static final String CLIENTS = "clients";
-
-	// TODO PathNodes
-	public static final String
-			PATH_datarouter = "/" + DatarouterWebPaths.DATAROUTER,
-			PATH_clients = PATH_datarouter + "/" + CLIENTS;
-
 	@Inject
 	public DatarouterWebRouteSet(DatarouterWebPaths paths){
 		super(paths.datarouter);
-		handle(paths.datarouter.toSlashedString() + "|" + paths.datarouter.toSlashedString() + "/")
-				.withHandler(RoutersHandler.class);
-		// example: /datarouter/data/fadafa/adfadfafqe/abc or /datarouter/data/fadafa/adfadfafqe/abc.1341 or
-		// /datarouter/data/fadafa/adfadfafqe/abbc_2152
-		handle(paths.datarouter.data.toSlashedString() + REGEX_TWO_DIRECTORY_PLUS).withHandler(
-				DatabeanViewerHandler.class);
-		handleDir(paths.datarouter.memory).withHandler(MemoryMonitoringHandler.class);
-		handleDir(paths.datarouter.executors).withHandler(ExecutorsMonitoringHandler.class);
+		handle(paths.datarouter.toSlashedStringWithTrailingSlash() + "?")
+				.withHandler(DatarouterHomepageHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+		handleDir(paths.datarouter.memory)
+				.withHandler(MemoryMonitoringHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+		handleDir(paths.datarouter.executors)
+				.withHandler(ExecutorsMonitoringHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
 		handleDir(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);
 		handle(paths.datarouter.nodes.deleteData).withHandler(DeleteNodeDataHandler.class);
 		handle(paths.datarouter.nodes.getData).withHandler(GetNodeDataHandler.class);
-		handle(paths.datarouter.clients).withHandler(DatarouterClientHandler.class);
+		handle(paths.datarouter.nodes.search).withHandler(NodeSearchHandler.class);
+		handleDir(paths.datarouter.client).withHandler(DatarouterClientHandler.class);
 		handle(paths.datarouter.ipDetection).withHandler(IpDetectionHandler.class).allowAnonymous();
 		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();
 
@@ -67,14 +61,7 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.datarouterAdmin);
+		return rule.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
 	}
 
-	public static class DatarouterWebRouteSetPackageTests extends BaseRouteSetPackageTests{
-
-		public DatarouterWebRouteSetPackageTests(){
-			super("io.datarouter.web.dispatcher.DatarouterWebRouteSet", DatarouterWebRouteSet.class);
-		}
-
-	}
 }

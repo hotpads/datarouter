@@ -34,7 +34,7 @@ import io.datarouter.web.user.DatarouterUserDao;
 import io.datarouter.web.user.DatarouterUserNodes;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettingRoot;
 import io.datarouter.web.user.cache.DatarouterUserByUsernameCache;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.session.DatarouterSession;
@@ -49,7 +49,7 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 	@Inject
 	private DatarouterUserNodes userNodes;
 	@Inject
-	private DatarouterSamlSettings samlSettings;
+	private DatarouterSamlSettingRoot samlSettings;
 	@Inject
 	private DatarouterUserByUsernameCache datarouterUserByUsernameCache;
 	@Inject

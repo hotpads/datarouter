@@ -36,7 +36,7 @@ public abstract class BaseRoutersIntegrationTests{
 	//can be used to trigger schema-updates for the whole project
 	@Test
 	public void testInitClients(){
-		clients.getAllClients();
+		clients.initAllClients();
 	}
 
 	@AfterClass

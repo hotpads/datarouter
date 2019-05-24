@@ -15,12 +15,11 @@
  */
 package io.datarouter.storage.callsite;
 
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
@@ -30,7 +29,7 @@ public class CallsiteStat{
 	private static final String DAO_CALLSITE_INDICATOR = "dao";
 	private static final int DAO_CALLSITE_INDICATOR_LENGTH = Math.max(CallsiteReportHeader.type.length(),
 			DAO_CALLSITE_INDICATOR.length());
-	private static final Set<String> HIDE_TIME_METHODS = new HashSet<>(Arrays.asList("scanKeys", "scan"));
+	private static final Set<String> HIDE_TIME_METHODS = SetTool.of("scanKeys", "scan");
 
 	private CallsiteStatKey key;
 	private String datarouterMethodName;
@@ -129,10 +128,12 @@ public class CallsiteStat{
 
 
 	public static class CallsiteCountComparator implements Comparator<CallsiteStat>{
+
 		@Override
 		public int compare(CallsiteStat callsiteA, CallsiteStat callsiteB){
 			return callsiteA.count.compareTo(callsiteB.count);
 		}
+
 	}
 
 	public static class CallsiteDurationComparator implements Comparator<CallsiteStat>{

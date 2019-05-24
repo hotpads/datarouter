@@ -24,14 +24,16 @@ import io.datarouter.storage.trace.tracer.DatarouterTracer;
 
 public abstract class TracedCheckedCallable<V> implements Callable<V>{
 
-	protected final String threadName;
+	protected final String traceThreadName;
 	protected final Thread parentThread;
-	protected final Tracer parentCtx;
+	protected final Tracer parentTracer;
+	private final long queueTimeMs;
 
-	public TracedCheckedCallable(String threadName){
-		this.threadName = threadName;
+	public TracedCheckedCallable(String traceThreadName){
+		this.traceThreadName = traceThreadName;
 		this.parentThread = Thread.currentThread();
-		this.parentCtx = TracerThreadLocal.get();
+		this.parentTracer = TracerThreadLocal.get();
+		this.queueTimeMs = System.currentTimeMillis(); // approximate queue time with task creation time
 	}
 
 	@Override
@@ -42,18 +44,18 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 			//probably don't do this because i think it screws things up with CallerRuns strategy.  need to investigate
 //			currentThread.setName(threadName);
 
-			boolean hasParent = parentCtx != null; //no use tracing if there's no parent to give them to.
+			boolean hasParent = parentTracer != null; //no use tracing if there's no parent to give them to.
 
 			//when the parent runs the callable
-			boolean isParent = parentThread.getId() == Thread.currentThread().getId();
+			boolean isParent = parentThread.getId() == currentThread.getId();
 			boolean shouldStartNestedTrace = hasParent && !isParent;
 
 			DatarouterTracer ctx = null;
 			if(shouldStartNestedTrace){
-				ctx = new DatarouterTracer(parentCtx.getServerName(), parentCtx.getTraceId(), parentCtx
+				ctx = new DatarouterTracer(parentTracer.getServerName(), parentTracer.getTraceId(), parentTracer
 						.getCurrentThreadId());
 				TracerThreadLocal.bindToThread(ctx);
-				TracerTool.createAndStartThread(ctx, threadName);
+				TracerTool.createAndStartThread(ctx, traceThreadName, queueTimeMs);
 			}
 
 			V result = wrappedCall();
@@ -63,8 +65,8 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 
 			if(shouldStartNestedTrace){
 				TracerTool.finishThread(TracerThreadLocal.get());
-				parentCtx.getThreads().addAll(ctx.getThreads());
-				parentCtx.getSpans().addAll(ctx.getSpans());
+				parentTracer.getThreads().addAll(ctx.getThreads());
+				parentTracer.getSpans().addAll(ctx.getSpans());
 				TracerThreadLocal.clearFromThread();
 			}
 

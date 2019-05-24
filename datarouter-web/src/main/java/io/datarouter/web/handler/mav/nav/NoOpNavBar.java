@@ -15,8 +15,12 @@
  */
 package io.datarouter.web.handler.mav.nav;
 
-public class NoOpNavBar extends NavBar{
+import java.util.Optional;
+
+public class NoOpNavBar extends AppNavBar{
+
 	public NoOpNavBar(){
-		super("", "");
+		super("", "", Optional.empty());
 	}
+
 }

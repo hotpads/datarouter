@@ -19,10 +19,9 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.type.index.ManagedNode;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 
 public abstract class BaseManagedNode<
 		PK extends PrimaryKey<PK>,
@@ -33,13 +32,13 @@ public abstract class BaseManagedNode<
 implements ManagedNode<PK,D,IK,IE,IF>{
 
 	private final String name;
-	protected final DatabeanFieldInfo<IK,IE,IF> fieldInfo;
+	protected final IndexEntryFieldInfo<IK,IE,IF> fieldInfo;
 	protected final IndexedMapStorage<PK,D> node;
 
-	public BaseManagedNode(IndexedMapStorage<PK,D> node, NodeParams<IK,IE,IF> params, String name){
+	public BaseManagedNode(IndexedMapStorage<PK,D> node, IndexEntryFieldInfo<IK,IE,IF> fieldInfo, String name){
 		this.node = node;
 		this.name = name;
-		this.fieldInfo = new DatabeanFieldInfo<>(params);
+		this.fieldInfo = fieldInfo;
 	}
 
 	@Override
@@ -48,7 +47,7 @@ implements ManagedNode<PK,D,IK,IE,IF>{
 	}
 
 	@Override
-	public DatabeanFieldInfo<IK,IE,IF> getFieldInfo(){
+	public IndexEntryFieldInfo<IK,IE,IF> getFieldInfo(){
 		return fieldInfo;
 	}
 

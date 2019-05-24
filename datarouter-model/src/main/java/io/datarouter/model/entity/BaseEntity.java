@@ -17,7 +17,7 @@ package io.datarouter.model.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
+import java.util.SortedSet;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.entity.EntityKey;
@@ -50,7 +50,7 @@ implements Entity<EK>, Comparable<BaseEntity<EK>>{
 	}
 
 	@Override
-	public int getNumDatabeans(){
+	public long getNumDatabeans(){
 		return entitySections.countDatabeans();
 	}
 
@@ -66,9 +66,9 @@ implements Entity<EK>, Comparable<BaseEntity<EK>>{
 		entitySections.addAll(qualifierPrefix, databeans);
 	}
 
-	//custom table name
+	// custom table name
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
-	Set<D> getDatabeansForQualifierPrefix(Class<D> databeanClass, String qualifierPrefix){
+	SortedSet<D> getDatabeansForQualifierPrefix(Class<D> databeanClass, String qualifierPrefix){
 		return entitySections.get(qualifierPrefix, databeanClass);
 	}
 

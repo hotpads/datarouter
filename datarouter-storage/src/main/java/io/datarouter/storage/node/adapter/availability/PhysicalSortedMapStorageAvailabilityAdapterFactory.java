@@ -25,6 +25,7 @@ import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.availability.mixin.PhysicalMapStorageAvailabilityAdapterMixin;
 import io.datarouter.storage.node.adapter.availability.mixin.PhysicalSortedStorageAvailabilityAdapterMixin;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class PhysicalSortedMapStorageAvailabilityAdapterFactory{
 
@@ -52,6 +53,11 @@ public class PhysicalSortedMapStorageAvailabilityAdapterFactory{
 
 		private PhysicalSortedMapStorageAvailabilityAdapter(N backingNode){
 			super(datarouterClientAvailabilitySettingsProvider, backingNode);
+		}
+
+		@Override
+		public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+			return PhysicalAdapterMixin.super.getFieldInfo();
 		}
 
 	}

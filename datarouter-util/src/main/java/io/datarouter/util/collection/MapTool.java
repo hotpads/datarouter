@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.tuple.Pair;
 
 public class MapTool{
 
@@ -153,6 +154,17 @@ public class MapTool{
 		Map<K,V> map = new LinkedHashMap<>();
 		for(T element : elements){
 			map.put(keyMapper.apply(element), valueMapper.apply(element));
+		}
+		return map;
+	}
+
+	/*------------------------- static map building -------------------------*/
+
+	@SafeVarargs
+	public static <K,V> Map<K,V> of(Pair<K,V>...entries){
+		Map<K,V> map = new HashMap<>();
+		for(Pair<K,V> entry : entries){
+			map.put(entry.getLeft(), entry.getRight());
 		}
 		return map;
 	}

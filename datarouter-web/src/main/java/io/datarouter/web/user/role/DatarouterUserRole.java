@@ -18,18 +18,18 @@ package io.datarouter.web.user.role;
 import org.testng.annotations.Guice;
 
 import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.web.test.DatarouterWebTestModuleFactory;
+import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleEnum;
 
-//TODO make all capps
 public enum DatarouterUserRole implements RoleEnum<DatarouterUserRole>{
-	admin("admin"),
-	apiUser("apiUser"),
-	datarouterAdmin("datarouterAdmin"),
-	docUser("docUser"),
-	requestor("requestor"),
-	user("user"),
+	ADMIN("admin"),
+	API_USER("apiUser"),
+	DATAROUTER_ADMIN("datarouterAdmin"),
+	DATAROUTER_MONITORING("datarouterMonitoring"),
+	DOC_USER("docUser"),
+	REQUESTOR("requestor"),
+	USER("user"),
 	;
 
 	private final Role role;
@@ -62,7 +62,7 @@ public enum DatarouterUserRole implements RoleEnum<DatarouterUserRole>{
 		return DatarouterRoleEnumIntegrationTests.class;
 	}
 
-	@Guice(moduleFactory = DatarouterWebTestModuleFactory.class)
+	@Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
 	public static class DatarouterRoleEnumIntegrationTests extends RoleEnumIntegrationTests{
 	}
 

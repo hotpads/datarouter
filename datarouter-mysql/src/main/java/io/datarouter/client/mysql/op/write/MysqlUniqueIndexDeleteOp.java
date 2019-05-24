@@ -30,7 +30,7 @@ import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
 
 public class MysqlUniqueIndexDeleteOp<
@@ -40,28 +40,26 @@ public class MysqlUniqueIndexDeleteOp<
 extends BaseMysqlOp<Integer>{
 
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
-	private final PhysicalNode<PK,D,F> node;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final Collection<? extends UniqueKey<PK>> uniqueKeys;
 	private final Config config;
 
 	public MysqlUniqueIndexDeleteOp(Datarouter datarouter, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			PhysicalNode<PK,D,F> node, Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		super(datarouter, node.getClientNames(), Isolation.DEFAULT, shouldAutoCommit(uniqueKeys));
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, shouldAutoCommit(uniqueKeys));
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
-		this.node = node;
+		this.fieldInfo = fieldInfo;
 		this.uniqueKeys = uniqueKeys;
 		this.config = config;
 	}
 
 	@Override
 	public Integer runOnce(){
-		Connection connection = getConnection(node.getFieldInfo().getClientId().getName());
-		PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, node.getFieldInfo()
-				.getTableName(), uniqueKeys, MysqlTableOptions.make(node.getFieldInfo()))
-				.toPreparedStatement(connection);
+		Connection connection = getConnection(fieldInfo.getClientId());
+		PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, fieldInfo.getTableName(),
+				uniqueKeys, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(connection);
 		return MysqlTool.update(statement);
 	}
-
 
 	private static boolean shouldAutoCommit(Collection<?> keys){
 		return CollectionTool.size(keys) <= 1;

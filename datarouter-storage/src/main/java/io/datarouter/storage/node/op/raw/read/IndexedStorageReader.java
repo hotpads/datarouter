@@ -28,7 +28,8 @@ import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.IndexedOps;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 /**
@@ -45,6 +46,7 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	public static final String OP_getByIndex = "getByIndex";
 	public static final String OP_getIndexRange = "getIndexRange";
 	public static final String OP_getIndexKeyRange = "getIndexKeyRange";
+	public static final String OP_getByIndexRange = "getByIndexRange";
 	public static final String OP_scanIndex = "scanIndex";
 	public static final String OP_scanByIndex = "scanByIndex";
 	public static final String OP_scanIndexKeys = "scanIndexKeys";
@@ -56,29 +58,30 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo);
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo);
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<D> getMultiByIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo);
+	List<D> getMultiByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo);
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Iterable<IE> scanMultiIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config);
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Iterable<D> scanMultiByIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config);
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Iterable<IK> scanMultiIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config);
 
 	/*---------------------------- sub-interfaces ---------------------------*/

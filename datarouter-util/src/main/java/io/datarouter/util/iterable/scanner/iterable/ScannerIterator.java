@@ -29,7 +29,6 @@ public class ScannerIterator<T> implements Iterator<T>{
 		this.scanner = scanner;
 	}
 
-
 	@Override
 	public boolean hasNext(){
 		if(peeked != null){
@@ -54,7 +53,6 @@ public class ScannerIterator<T> implements Iterator<T>{
 			peeked = null;
 		}
 		return ret;
-
 	}
 
 	@Override

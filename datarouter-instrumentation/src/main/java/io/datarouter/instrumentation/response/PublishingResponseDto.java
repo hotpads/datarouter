@@ -39,7 +39,7 @@ public class PublishingResponseDto{
 	}
 
 	public void assertSuccess(){
-		if(!success){
+		if(success == null || !success){
 			throw new RuntimeException(message);
 		}
 	}

@@ -157,4 +157,5 @@ public abstract class BaseMapStorageIntegrationTests{
 			deleteRecord(bean);
 		}
 	}
+
 }

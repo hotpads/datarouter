@@ -24,9 +24,9 @@ import io.datarouter.model.index.unique.UniqueIndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.type.index.ManagedUniqueIndexNode;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
 
 public class TxnManagedUniqueIndexNode<
@@ -38,8 +38,9 @@ public class TxnManagedUniqueIndexNode<
 extends BaseManagedIndexNode<PK,D,IK,IE,IF>
 implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
-	public TxnManagedUniqueIndexNode(IndexedMapStorage<PK,D> node, NodeParams<IK,IE,IF> params, String name){
-		super(node, params, name);
+	public TxnManagedUniqueIndexNode(IndexedMapStorage<PK,D> node, IndexEntryFieldInfo<IK,IE,IF> fieldInfo,
+			String name){
+		super(node, fieldInfo, name);
 	}
 
 	@Override

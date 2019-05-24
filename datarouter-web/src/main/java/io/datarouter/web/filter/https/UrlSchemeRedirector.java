@@ -35,6 +35,7 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
 import io.datarouter.web.port.PortIdentifier.TestPortIdentifier;
+import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
 public class UrlSchemeRedirector{
@@ -67,11 +68,9 @@ public class UrlSchemeRedirector{
 		HttpServletRequest request = (HttpServletRequest)req;
 		int port = request.getServerPort();
 		String servletContextName = request.getContextPath();
-		String path = request.getServletPath();
-		String pathInfo = StringTool.nullSafe(request.getPathInfo());
 		String queryString = StringTool.nullSafe(request.getQueryString());
 
-		String contextSpecificPath = path + pathInfo;
+		String contextSpecificPath = RequestTool.getPath(request);
 		if(StringTool.notEmpty(queryString)){
 			contextSpecificPath += "?" + queryString;
 		}

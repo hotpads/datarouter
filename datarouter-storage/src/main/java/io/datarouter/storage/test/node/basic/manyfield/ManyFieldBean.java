@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.test.node.basic.manyfield;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +28,8 @@ import java.util.Objects;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.imp.LocalDateField;
+import io.datarouter.model.field.imp.LocalDateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.array.BooleanArrayField;
@@ -48,6 +52,8 @@ import io.datarouter.model.field.imp.comparable.DoubleField;
 import io.datarouter.model.field.imp.comparable.DoubleFieldKey;
 import io.datarouter.model.field.imp.comparable.FloatField;
 import io.datarouter.model.field.imp.comparable.FloatFieldKey;
+import io.datarouter.model.field.imp.comparable.InstantField;
+import io.datarouter.model.field.imp.comparable.InstantFieldKey;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
@@ -92,7 +98,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Float floatField;
 	private Double doubleField;
 	private Date longDateField;
+	private LocalDate localDateField;
 	private LocalDateTime localDateTimeField;
+	private Instant instantField;
 	private Character characterField;
 	private String stringField;
 	private Integer varIntField;
@@ -122,7 +130,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final FloatFieldKey floatField = new FloatFieldKey("floatField");
 		public static final DoubleFieldKey doubleField = new DoubleFieldKey("doubleField");
 		public static final LongDateFieldKey longDateField = new LongDateFieldKey("longDateField");
+		public static final LocalDateFieldKey localDateField = new LocalDateFieldKey("localDateField");
 		public static final LocalDateTimeFieldKey localDateTimeField = new LocalDateTimeFieldKey("localDateTimeField");
+		public static final InstantFieldKey instantField = new InstantFieldKey("instantField");
 		public static final CharacterFieldKey characterField = new CharacterFieldKey("characterField");
 		public static final StringFieldKey stringField = new StringFieldKey("stringField")
 				.withSize(CommonFieldSizes.MAX_KEY_LENGTH_UTF8MB4);
@@ -178,7 +188,13 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(ObjectTool.notEquals(longDateField, that.longDateField)){
 			return false;
 		}
+		if(ObjectTool.notEquals(localDateField, that.localDateField)){
+			return false;
+		}
 		if(ObjectTool.notEquals(localDateTimeField, that.localDateTimeField)){
+			return false;
+		}
+		if(ObjectTool.notEquals(instantField, that.instantField)){
 			return false;
 		}
 		if(ObjectTool.notEquals(characterField, that.characterField)){
@@ -248,7 +264,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new FloatField(FieldKeys.floatField, databean.floatField),
 					new DoubleField(FieldKeys.doubleField, databean.doubleField),
 					new LongDateField(FieldKeys.longDateField, databean.longDateField),
+					new LocalDateField(FieldKeys.localDateField, databean.localDateField),
 					new LocalDateTimeField(FieldKeys.localDateTimeField, databean.localDateTimeField),
+					new InstantField(FieldKeys.instantField, databean.instantField),
 					new CharacterField(FieldKeys.characterField, databean.characterField),
 					new StringField(FieldKeys.stringField, databean.stringField),
 					new VarIntField(FieldKeys.varIntField, databean.varIntField),
@@ -478,12 +496,28 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		this.longDateField = longDateField;
 	}
 
+	public LocalDate getLocalDateField(){
+		return localDateField;
+	}
+
+	public void setLocalDateField(LocalDate localDateField){
+		this.localDateField = localDateField;
+	}
+
 	public LocalDateTime getDateTimeField(){
 		return localDateTimeField;
 	}
 
 	public void setDateTimeField(LocalDateTime dateTimeField){
 		this.localDateTimeField = dateTimeField;
+	}
+
+	public Instant getInstantField(){
+		return instantField;
+	}
+
+	public void setInstantField(Instant instantField){
+		this.instantField = instantField;
 	}
 
 	public Integer getVarIntField(){

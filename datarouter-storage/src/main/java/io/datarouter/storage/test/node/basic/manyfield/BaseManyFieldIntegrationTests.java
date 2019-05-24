@@ -16,6 +16,8 @@
 package io.datarouter.storage.test.node.basic.manyfield;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +35,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
-import io.datarouter.storage.test.DatarouterStorageTestModuleFactory;
+import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 import io.datarouter.util.array.ArrayTool;
@@ -42,7 +44,7 @@ import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.collection.ListTool;
 
-@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
 public abstract class BaseManyFieldIntegrationTests{
 
 	@Inject
@@ -215,6 +217,18 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
+	public void testLocalDate(){
+		ManyFieldBean bean = new ManyFieldBean();
+		LocalDate val = LocalDate.now();
+		bean.setLocalDateField(val);
+		mapNode.put(bean, null);
+
+		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
+		Assert.assertEquals(roundTripped.getLocalDateField(), bean.getLocalDateField());
+		Assert.assertTrue(val.equals(roundTripped.getLocalDateField()));
+	}
+
+	@Test
 	public void testLocalDateTime(){
 		ManyFieldBean bean = new ManyFieldBean();
 		// LocalDateTime.now() uses the system clock as default so it will always get fractional seconds up to 3 digits
@@ -240,12 +254,24 @@ public abstract class BaseManyFieldIntegrationTests{
 		to 3 digits so the value of the LocalDateTime retrieved from the database will not be equal to the
 		LocalDateTime saved */
 		LocalDateTime localDateTimeWithNano = LocalDateTime.of(2015, 12, 24, 2, 3, 4, 423060750);
-		LocalDateTime localDateTimeTruncated = LocalDateTime.of(2015, 12, 24, 2, 3, 4, 423000000);
+		LocalDateTime localDateTimeTruncated = LocalDateTime.of(2015, 12, 24, 2, 3, 4, 423060000);
 		bean.setDateTimeField(localDateTimeWithNano);
 		mapNode.put(bean, null);
 		ManyFieldBean roundTripped3 = mapNode.get(bean.getKey(), null);
 		Assert.assertNotEquals(localDateTimeWithNano, localDateTimeTruncated);
 		Assert.assertEquals(roundTripped3.getDateTimeField(), localDateTimeTruncated);
+	}
+
+	@Test
+	public void testInstant(){
+		Instant instant = Instant.now();
+		ManyFieldBean bean = new ManyFieldBean();
+		bean.setInstantField(instant);
+		mapNode.put(bean, null);
+
+		ManyFieldBean roundTripped = mapNode.get(bean.getKey(), null);
+		Assert.assertEquals(roundTripped.getInstantField(), bean.getInstantField());
+		Assert.assertEquals(roundTripped.getInstantField(), instant);
 	}
 
 	@Test

@@ -16,7 +16,6 @@
 package io.datarouter.storage.client;
 
 public enum ClientInitMode{
-
 	lazy,
 	eager,
 	;

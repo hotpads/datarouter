@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.user.session;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -42,27 +43,13 @@ public interface CurrentUserSessionInfo{
 	}
 
 	/**
-	 * Gets the username of the current user, most commonly the email address
-	 */
-	default Optional<String> getUsername(ServletRequest request){
-		return getSession(request).map(Session::getUsername);
-	}
-
-	/**
 	 * Gets the username or an alternate value
 	 */
 	default String getNonEmptyUsernameOrElse(ServletRequest request, String other){
-		return getUsername(request)
+		return getSession(request)
+				.map(Session::getUsername)
 				.filter(StringTool::notEmpty)
 				.orElse(other);
-	}
-
-	default Optional<String> getToken(ServletRequest request){
-		return getSession(request).map(Session::getUserToken);
-	}
-
-	default Optional<Long> getId(ServletRequest request){
-		return getSession(request).map(Session::getUserId);
 	}
 
 	Optional<? extends Session> getSession(ServletRequest request);
@@ -88,6 +75,19 @@ public interface CurrentUserSessionInfo{
 	 */
 	default boolean hasRole(ServletRequest request, RoleEnum<?> role){
 		return hasRole(request, role.getRole());
+	}
+
+	default boolean hasAnyRole(ServletRequest request, Collection<Role> targetRoles){
+		Set<Role> roles = getRoles(request);
+		return targetRoles.stream()
+				.anyMatch(roles::contains);
+	}
+
+	default boolean hasAnyRoleEnum(ServletRequest request, Collection<RoleEnum<?>> targetRoles){
+		Set<Role> roles = getRoles(request);
+		return targetRoles.stream()
+				.map(RoleEnum::getRole)
+				.anyMatch(roles::contains);
 	}
 
 }

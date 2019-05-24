@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.config.setting.DatarouterClusterSettings;
+import io.datarouter.storage.config.setting.DatarouterClusterSettingRoot;
 import io.datarouter.util.EmailTool;
 
 @Singleton
@@ -31,12 +31,12 @@ public class DatarouterAdministratorEmailService{
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private DatarouterClusterSettings datarouterClusterSettings;
+	private DatarouterClusterSettingRoot datarouterClusterSettingRoot;
 
 	public List<String> getAdministratorEmailAddresses(){
 		List<String> administrators = new ArrayList<>();
 		administrators.add(datarouterProperties.getAdministratorEmail());
-		administrators.addAll(datarouterClusterSettings.additionalAdministratorsCsv.get());
+		administrators.addAll(datarouterClusterSettingRoot.additionalAdministratorsCsv.get());
 		return administrators;
 	}
 

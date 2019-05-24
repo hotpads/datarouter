@@ -17,22 +17,45 @@ package io.datarouter.web.browse;
 
 import javax.inject.Inject;
 
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 
 public class DatarouterClientHandler extends BaseHandler{
 
 	@Inject
 	private DatarouterClientWebInspectorRegistry datarouterClientWebInspectorRegistry;
+	@Inject
+	private DatarouterClients datarouterClients;
+	@Inject
+	private DatarouterWebPaths paths;
 
 	@Handler
-	public Mav inspectClient(String clientType){
+	public Mav inspectClient(String clientName){
+		String clientType = datarouterClients.getClientTypeInstance(datarouterClients.getClientId(clientName))
+				.getName();
 		return datarouterClientWebInspectorRegistry.get(clientType)
 				.map(inspector -> inspector.inspectClient(params))
 				.orElseGet(() -> new MessageMav("Can't inspect " + clientType + ". Make sure it registers a "
 						+ DatarouterClientWebInspector.class.getSimpleName() + " in "
 						+ DatarouterClientWebInspectorRegistry.class.getSimpleName() + "."));
+	}
+
+	@Handler
+	public Mav initClient(String clientName){
+		ClientId clientId = datarouterClients.getClientId(clientName);
+		datarouterClients.getClientManager(clientId).initClient(clientId);
+		return new InContextRedirectMav(request, paths.datarouter);
+	}
+
+	@Handler
+	public Mav initAllClients(){
+		datarouterClients.initAllClients();
+		return new InContextRedirectMav(request, paths.datarouter);
 	}
 
 }

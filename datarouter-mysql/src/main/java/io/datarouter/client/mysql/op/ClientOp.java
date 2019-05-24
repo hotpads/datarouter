@@ -15,10 +15,10 @@
  */
 package io.datarouter.client.mysql.op;
 
-import java.util.List;
+import io.datarouter.storage.client.ClientId;
 
 public interface ClientOp{
 
-	List<String> getClientNames();
+	ClientId getClientId();
 
 }

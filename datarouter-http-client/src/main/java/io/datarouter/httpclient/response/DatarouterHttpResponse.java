@@ -15,7 +15,6 @@
  */
 package io.datarouter.httpclient.response;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -24,15 +23,13 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import io.datarouter.httpclient.client.HttpRetryTool;
 
 /**
  * This class is an abstraction over the HttpResponse that handles several of the expected HTTP failures
  */
 public class DatarouterHttpResponse{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpResponse.class);
 
 	private final HttpResponse response;
 	private final List<Cookie> cookies;
@@ -46,7 +43,6 @@ public class DatarouterHttpResponse{
 		this.cookies = context.getCookieStore().getCookies();
 		if(response != null){
 			this.statusCode = response.getStatusLine().getStatusCode();
-			this.entity = "";
 
 			HttpEntity httpEntity = response.getEntity();
 			if(httpEntity == null){
@@ -56,13 +52,7 @@ public class DatarouterHttpResponse{
 				httpEntityConsumer.accept(httpEntity);
 				return;
 			}
-			try{
-				this.entity = EntityUtils.toString(httpEntity);
-			}catch(IOException e){
-				logger.error("Exception occurred while reading HTTP response entity", e);
-			}finally{
-				EntityUtils.consumeQuietly(httpEntity);
-			}
+			this.entity = HttpRetryTool.entityToString(httpEntity).orElse("");
 		}
 	}
 

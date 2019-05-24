@@ -15,19 +15,21 @@
  */
 package io.datarouter.web.handler.documentation;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,10 +41,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.internal.UnsafeAllocator;
 
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.util.serialization.CompatibleDateTypeAdapter;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -55,7 +59,15 @@ import io.datarouter.web.handler.types.optional.OptionalParameter;
 public class DocumentationHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DocumentationHandler.class);
 
+	private static final Set<String> hiddenSecParams = SetTool.of(
+			SecurityParameters.CSRF_IV,
+			SecurityParameters.CSRF_TOKEN,
+			SecurityParameters.SIGNATURE);
+
+	private static final UnsafeAllocator UNSAFE_ALLOCATOR = UnsafeAllocator.create();
+
 	private static final Gson gson = new GsonBuilder()
+			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
 			.serializeNulls()
 			.setPrettyPrinting()
 			.create();
@@ -63,27 +75,28 @@ public class DocumentationHandler extends BaseHandler{
 	@Inject
 	private DatarouterWebFiles files;
 
-	private List<DocumentedEndpoint> buildDocumentation(String apiUrlContext, BaseRouteSet... routeSets){
+	private List<DocumentedEndpointJspDto> buildDocumentation(String apiUrlContext, BaseRouteSet... routeSets){
 		return Arrays.stream(routeSets)
 				.map(BaseRouteSet::getDispatchRules)
 				.flatMap(Collection::stream)
 				.filter(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
 				.map(this::buildEndpointDocumentation)
 				.flatMap(List::stream)
-				.sorted(Comparator.comparing(DocumentedEndpoint::getUrl))
+				.sorted(Comparator.comparing(DocumentedEndpointJspDto::getUrl))
 				.collect(Collectors.toList());
 	}
 
 	protected Mav createDocumentationMav(String apiName, String apiUrlContext, BaseRouteSet... routeSets){
-		List<DocumentedEndpoint> endpoints = buildDocumentation(apiUrlContext, routeSets);
+		List<DocumentedEndpointJspDto> endpoints = buildDocumentation(apiUrlContext, routeSets);
 		Mav model = new Mav(files.jsp.docs.dispatcherDocsJsp);
 		model.put("endpoints", endpoints);
 		model.put("apiName", apiName);
+		model.put("hideAuth", false);
 		return model;
 	}
 
-	private List<DocumentedEndpoint> buildEndpointDocumentation(DispatchRule rule){
-		List<DocumentedEndpoint> endpoints = new ArrayList<>();
+	private List<DocumentedEndpointJspDto> buildEndpointDocumentation(DispatchRule rule){
+		List<DocumentedEndpointJspDto> endpoints = new ArrayList<>();
 		Class<? extends BaseHandler> handler = rule.getHandlerClass();
 		while(handler != null && !handler.getName().equals(BaseHandler.class.getName())){
 			for(Method method : handler.getDeclaredMethods()){
@@ -92,25 +105,30 @@ public class DocumentationHandler extends BaseHandler{
 				}
 				String urlSuffix = method.getAnnotation(Handler.class).defaultHandler() ? "" : "/" + method.getName();
 				String url = rule.getPattern().pattern().replace(BaseRouteSet.REGEX_ONE_DIRECTORY, "") + urlSuffix;
-				List<DocumentedParameter> parameters = new ArrayList<>();
+				List<DocumentedParameterJspDto> parameters = new ArrayList<>();
 				String description = method.getAnnotation(Handler.class).description();
 				parameters.addAll(createApplicableSecurityParameters(rule));
 				parameters.addAll(createMethodParameters(method));
 
-				Type genericReturnType = method.getGenericReturnType();
-				String response;
-				if(genericReturnType == Void.TYPE){
-					response = null;
+				Type responseType = method.getGenericReturnType();
+				String responseExample;
+				if(responseType == Void.TYPE){
+					responseExample = null;
 				}else{
 					try{
-						Object responseExample = createBestExample(genericReturnType, new HashSet<>());
-						response = gson.toJson(responseExample);
+						Object responseObject = createBestExample(responseType, new HashSet<>());
+						responseExample = gson.toJson(responseObject);
 					}catch(Exception e){
-						response = "Impossible to render";
-						logger.warn("Could not create response example for {}", genericReturnType, e);
+						responseExample = "Impossible to render";
+						logger.warn("Could not create response example for {}", responseType, e);
 					}
 				}
-				DocumentedEndpoint endpoint = new DocumentedEndpoint(url, parameters, description, response);
+				Optional<Class<?>> clazz = responseType instanceof Class ? Optional.of((Class<?>)responseType)
+						: Optional.empty();
+				String responseTypeString = clazz.map(Class::getSimpleName).orElse(responseType.toString());
+				DocumentedResponseJspDto response = new DocumentedResponseJspDto(responseTypeString, responseExample);
+				DocumentedEndpointJspDto endpoint = new DocumentedEndpointJspDto(url, parameters, description,
+						response);
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
@@ -118,8 +136,8 @@ public class DocumentationHandler extends BaseHandler{
 		return endpoints;
 	}
 
-	private List<DocumentedParameter> createMethodParameters(Method method){
-		List<DocumentedParameter> methodParameters = new ArrayList<>();
+	private List<DocumentedParameterJspDto> createMethodParameters(Method method){
+		List<DocumentedParameterJspDto> methodParameters = new ArrayList<>();
 		Parameter[] parameters = method.getParameters();
 		for(Parameter parameter : parameters){
 			String description = null;
@@ -137,7 +155,7 @@ public class DocumentationHandler extends BaseHandler{
 		return methodParameters;
 	}
 
-	private List<DocumentedParameter> createApplicableSecurityParameters(DispatchRule rule){
+	private List<DocumentedParameterJspDto> createApplicableSecurityParameters(DispatchRule rule){
 		List<String> applicableSecurityParameterNames = new ArrayList<>();
 		if(rule.hasSignature()){
 			applicableSecurityParameterNames.add(SecurityParameters.SIGNATURE);
@@ -154,21 +172,28 @@ public class DocumentationHandler extends BaseHandler{
 				.collect(Collectors.toList());
 	}
 
-	private DocumentedParameter createDocumentedParameter(String parameterName, Type parameterType,
+	private DocumentedParameterJspDto createDocumentedParameter(String parameterName, Type parameterType,
 			boolean requestBody, String description){
-		DocumentedParameter documentedParameter = new DocumentedParameter();
+		DocumentedParameterJspDto documentedParameter = new DocumentedParameterJspDto();
 		documentedParameter.name = parameterName;
 		Type type = OptionalParameter.getOptionalInternalType(parameterType);
-		documentedParameter.type = type instanceof Class ? ((Class<?>)type).getSimpleName() : type.toString();
+		Optional<Class<?>> clazz = type instanceof Class ? Optional.of((Class<?>)type) : Optional.empty();
+		documentedParameter.type = clazz.map(Class::getSimpleName).orElse(type.toString());
 		try{
-			documentedParameter.example = gson.toJson(createBestExample(type, new HashSet<>()));
+			if(!clazz.map(cls -> Number.class.isAssignableFrom(cls)).orElse(false)
+					&& !clazz.map(cls -> String.class.isAssignableFrom(cls)).orElse(false)
+					&& !clazz.map(cls -> Boolean.class.isAssignableFrom(cls)).orElse(false)
+					&& !clazz.map(cls -> cls.isPrimitive()).orElse(false)){
+				documentedParameter.example = gson.toJson(createBestExample(type, new HashSet<>()));
+			}
 		}catch(Exception e){
-			logger.warn("Could not create parameter example for {}", type, e);
+			logger.warn("Could not create parameter example {} for {}", type, parameterName, e);
 		}
 		documentedParameter.required = !(parameterType instanceof Class) || !OptionalParameter.class.isAssignableFrom(
 				(Class<?>)parameterType);
 		documentedParameter.requestBody = requestBody;
 		documentedParameter.description = description;
+		documentedParameter.hidden = hiddenSecParams.contains(parameterName);
 		return documentedParameter;
 	}
 
@@ -179,9 +204,24 @@ public class DocumentationHandler extends BaseHandler{
 		if(type instanceof ParameterizedType){
 			ParameterizedType parameterizedType = (ParameterizedType)type;
 			Class<?> rawType = (Class<?>)parameterizedType.getRawType();
-			if(Collection.class.isAssignableFrom(rawType)){
+			if(List.class.isAssignableFrom(rawType)){
 				return Arrays.asList(createBestExample(parameterizedType.getActualTypeArguments()[0], SetTool
 						.concatenate(parents, type)));
+			}
+			if(Set.class.isAssignableFrom(rawType) || Collection.class.isAssignableFrom(rawType)){
+				return Collections.singleton(createBestExample(parameterizedType.getActualTypeArguments()[0], SetTool
+						.concatenate(parents, type)));
+			}
+			if(Map.class.isAssignableFrom(rawType)){
+				Object key = createBestExample(parameterizedType.getActualTypeArguments()[0], SetTool.concatenate(
+						parents, type));
+				Object value = createBestExample(parameterizedType.getActualTypeArguments()[1], SetTool.concatenate(
+						parents, type));
+				return Collections.singletonMap(key, value);
+			}
+			if(Optional.class.isAssignableFrom(rawType)){
+				return Optional.of(createBestExample(parameterizedType.getActualTypeArguments()[0], SetTool.concatenate(
+						parents, type)));
 			}
 			if(AutoBuildable.class.isAssignableFrom(rawType)){
 				AutoBuildable autoBuildable = ReflectionTool.create(rawType.asSubclass(AutoBuildable.class));
@@ -198,50 +238,55 @@ public class DocumentationHandler extends BaseHandler{
 			array[0] = createBestExample(clazz.getComponentType(), SetTool.concatenate(parents, type));
 			return array;
 		}
+		if(clazz.isPrimitive()){
+			if(type == Boolean.TYPE){ // boolean is the only primitive that doesnt support 0
+				return false;
+			}
+			return 0;
+		}
+		if(clazz == Boolean.class){
+			return false;
+		}
+		if(clazz == String.class){
+			return "";
+		}
+		if(clazz == Date.class){
+			return new Date();
+		}
+		if(clazz == Integer.class){
+			return 0;
+		}
+		if(clazz == Long.class){
+			return 0L;
+		}
 		Object example = createWithNulls(clazz);
 		for(Field field : clazz.getDeclaredFields()){
 			if(clazz.equals(field.getType())){
 				continue;
 			}
+			if(Modifier.isStatic(field.getModifiers())){
+				continue;
+			}
+			field.setAccessible(true);
 			try{
-				field.set(example, createBestExample(field.getType(), SetTool.concatenate(parents, type)));
+				Object fieldExample = createBestExample(field.getGenericType(), SetTool.concatenate(parents, type));
+				try{
+					field.set(example, fieldExample);
+				}catch(Exception e){
+					logger.warn("error setting {}", field, e);
+				}
 			}catch(Exception e){
-				// Excepted to not been able to set some field (ex inside String)
+				logger.warn("error creating {}", type, e);
 			}
 		}
 		return example;
 	}
 
 	private static Object createWithNulls(Class<?> type){
-		Constructor<?>[] constructors = type.getDeclaredConstructors();
-		Optional<Constructor<?>> noArgConstructor = Arrays.stream(constructors)
-				.filter(constructor -> constructor.getParameterTypes().length == 0)
-				.findAny();
-		Constructor<?> constructor;
-		Object[] args;
-		if(noArgConstructor.isPresent()){
-			constructor = noArgConstructor.get();
-			args = new Object[0];
-		}else{
-			constructor = constructors[0];
-			args = Arrays.stream(constructor.getParameterTypes())
-					.map(argType -> {
-						if(!argType.isPrimitive()){
-							return null;
-						}
-						if(argType == Boolean.TYPE){ // boolean is the only primitive that doesnt support 0
-							return false;
-						}
-						return 0;
-					})
-					.toArray();
-		}
 		try{
-			constructor.setAccessible(true);
-			return constructor.newInstance(args);
-		}catch(InstantiationException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e){
-			throw new RuntimeException("cannot call " + constructor, e);
+			return UNSAFE_ALLOCATOR.newInstance(type);
+		}catch(Exception e){
+			throw new RuntimeException("cannot call instanciate " + type, e);
 		}
 	}
 

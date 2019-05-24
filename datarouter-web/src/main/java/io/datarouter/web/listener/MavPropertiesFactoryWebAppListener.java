@@ -22,6 +22,7 @@ import io.datarouter.web.handler.mav.MavPropertiesFactory;
 
 @Singleton
 public class MavPropertiesFactoryWebAppListener extends DatarouterWebAppListener{
+
 	public static final String SERVLET_CONTEXT_ATTRIBUTE_NAME = "mavPropertiesFactory";
 
 	@Inject

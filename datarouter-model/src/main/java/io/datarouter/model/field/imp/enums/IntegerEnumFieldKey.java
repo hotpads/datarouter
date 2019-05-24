@@ -22,7 +22,7 @@ import io.datarouter.util.lang.ReflectionTool;
 
 public class IntegerEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<E>{
 
-	private E sampleValue;
+	private final E sampleValue;
 
 	public IntegerEnumFieldKey(String name, Class<E> enumClass){
 		super(name, enumClass);

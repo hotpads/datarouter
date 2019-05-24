@@ -30,7 +30,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.iterable.BatchingIterable;
 
@@ -40,15 +40,17 @@ public class MysqlDeleteOp<
 		F extends DatabeanFielder<PK,D>>
 extends BaseMysqlOp<Long>{
 
-	private final PhysicalNode<PK,D,F> node;
+	private static final int BATCH_SIZE = 100;
+
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
 	private final Collection<PK> keys;
 	private final Config config;
 
-	public MysqlDeleteOp(Datarouter datarouter, PhysicalNode<PK,D,F> node,
+	public MysqlDeleteOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder, Collection<PK> keys, Config config){
-		super(datarouter, node.getClientNames(), Isolation.DEFAULT, shouldAutoCommit(keys));
-		this.node = node;
+		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, shouldAutoCommit(keys));
+		this.fieldInfo = fieldInfo;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
 		this.keys = keys;
 		this.config = Config.nullSafe(config);
@@ -56,12 +58,11 @@ extends BaseMysqlOp<Long>{
 
 	@Override
 	public Long runOnce(){
-		Connection connection = getConnection(node.getFieldInfo().getClientId().getName());
+		Connection connection = getConnection(fieldInfo.getClientId());
 		long numModified = 0;
-		for(List<PK> keyBatch : new BatchingIterable<>(keys, config.getIterateBatchSize())){
-			PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, node.getFieldInfo()
-					.getTableName(), keyBatch, MysqlTableOptions.make(node.getFieldInfo()))
-					.toPreparedStatement(connection);
+		for(List<PK> keyBatch : new BatchingIterable<>(keys, config.optInputBatchSize().orElse(BATCH_SIZE))){
+			PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, fieldInfo.getTableName(),
+					keyBatch, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(connection);
 			numModified += MysqlTool.update(statement);
 		}
 		return numModified;

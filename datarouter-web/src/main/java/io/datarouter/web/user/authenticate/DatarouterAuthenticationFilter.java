@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -59,14 +58,6 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private DatarouterUserNodes userNodes;
 	@Inject
 	private DatarouterSessionManager sessionManager;
-
-	@Override
-	public void init(FilterConfig filterConfig){
-	}
-
-	@Override
-	public void destroy(){
-	}
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain) throws IOException,
@@ -118,7 +109,9 @@ public class DatarouterAuthenticationFilter implements Filter{
 		try{
 			return new URL(referrerString);
 		}catch(MalformedURLException e){
-			throw new IllegalArgumentException("invalid referer:" + referrerString);
+			// some referrers (like android-app://com.google.android.gm) are not valid URL: don't fail, just log
+			logger.warn("invalid referer: {}", referrerString, e);
+			return null;
 		}
 	}
 

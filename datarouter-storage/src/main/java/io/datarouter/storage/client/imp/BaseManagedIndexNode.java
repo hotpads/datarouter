@@ -22,9 +22,10 @@ import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.type.index.base.BaseManagedNode;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class BaseManagedIndexNode
@@ -35,16 +36,16 @@ public class BaseManagedIndexNode
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseManagedNode<PK,D,IK,IE,IF>{
 
-	public BaseManagedIndexNode(IndexedMapStorage<PK,D> node, NodeParams<IK,IE,IF> params, String name){
-		super(node, params, name);
+	public BaseManagedIndexNode(IndexedMapStorage<PK,D> node, IndexEntryFieldInfo<IK,IE,IF> fieldInfo, String name){
+		super(node, fieldInfo, name);
 	}
 
-	public Iterable<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
-		return node.scanMultiIndex(fieldInfo, ranges, config);
+	public Scanner<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
+		return Scanner.of(node.scanMultiIndex(fieldInfo, ranges, config));
 	}
 
-	public Iterable<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
-		return node.scanMultiIndexKeys(fieldInfo, ranges, config);
+	public Scanner<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
+		return Scanner.of(node.scanMultiIndexKeys(fieldInfo, ranges, config));
 	}
 
 	public Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){

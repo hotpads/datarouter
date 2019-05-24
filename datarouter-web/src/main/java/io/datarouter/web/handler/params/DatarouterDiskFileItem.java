@@ -22,7 +22,6 @@ import org.apache.commons.fileupload.disk.DiskFileItem;
 import io.datarouter.util.string.StringTool;
 
 //allows defaultCharset customization
-@SuppressWarnings("serial")
 class DatarouterDiskFileItem extends DiskFileItem{
 
 	private String defaultCharset = DiskFileItem.DEFAULT_CHARSET;
@@ -38,6 +37,7 @@ class DatarouterDiskFileItem extends DiskFileItem{
 		return StringTool.notEmpty(charset) ? charset : defaultCharset;
 	}
 
+	@Override
 	public void setDefaultCharset(String defaultCharset){
 		this.defaultCharset = defaultCharset;
 	}
@@ -46,4 +46,5 @@ class DatarouterDiskFileItem extends DiskFileItem{
 	public File getTempFile(){
 		return super.getTempFile();
 	}
+
 }

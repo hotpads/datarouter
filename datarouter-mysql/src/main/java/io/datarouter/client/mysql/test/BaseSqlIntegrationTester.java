@@ -37,7 +37,7 @@ public abstract class BaseSqlIntegrationTester{
 	@BeforeClass
 	public void beforeClass(){
 		Assert.assertNotNull(routers);
-		clients.getAllClients();
+		clients.initAllClients();
 	}
 
 	@AfterClass

@@ -15,25 +15,21 @@
  */
 package io.datarouter.storage;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.NavigableSet;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.client.Client;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.client.LazyClientProvider;
-import io.datarouter.storage.config.guice.DatarouterStorageExecutorGuiceModule;
+import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterWriteBehindScheduler;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.router.Router;
@@ -51,37 +47,26 @@ public class Datarouter{
 	//injected
 	private final DatarouterClients clients;
 	private final DatarouterNodes nodes;
-	private final ExecutorService executorService;//for async client init and monitoring
-	private final ScheduledExecutorService writeBehindScheduler;
-	private final ExecutorService writeBehindExecutor;
+	private final DatarouterWriteBehindScheduler writeBehindScheduler;
+	private final DatarouterWriteBehindExecutor writeBehindExecutor;
 	private final RouterClasses routerClasses;
 
-	private SortedSet<Router> routers;
-
 	@Inject
-	public Datarouter(
-			DatarouterClients clients,
-			DatarouterNodes nodes,
-			@Named(DatarouterStorageExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService,
-			@Named(DatarouterStorageExecutorGuiceModule.POOL_writeBehindExecutor) ExecutorService writeBehindExecutor,
-			@Named(DatarouterStorageExecutorGuiceModule.POOL_writeBehindScheduler) ScheduledExecutorService
-				writeBehindScheduler, RouterClasses routerClasses){
-		this.executorService = executorService;
+	public Datarouter(DatarouterClients clients, DatarouterNodes nodes,
+			DatarouterWriteBehindExecutor writeBehindExecutor, DatarouterWriteBehindScheduler writeBehindScheduler,
+			RouterClasses routerClasses){
 		this.clients = clients;
 		this.nodes = nodes;
 		this.writeBehindExecutor = writeBehindExecutor;
 		this.writeBehindScheduler = writeBehindScheduler;
 		this.routerClasses = routerClasses;
-		this.routers = new TreeSet<>();
-
-		this.nodes.registerDatarouter(this);
 	}
 
 	public synchronized void registerConfigFile(String configFilePath){
 		clients.registerConfigFile(configFilePath);
 	}
 
-	public Stream<LazyClientProvider> registerClientIds(Collection<ClientId> clientIds){
+	public List<ClientId> registerClientIds(Collection<ClientId> clientIds){
 		return clients.registerClientIds(clientIds);
 	}
 
@@ -90,10 +75,6 @@ public class Datarouter{
 			throw new IllegalArgumentException("Unknown router: " + router.getClass().getSimpleName()
 					+ ". Please register it in RouterClasses or have it implement TestRouter if only used for tests");
 		}
-		if(routers.contains(router)){
-			throw new RuntimeException(router.getName() + " router has already been registered");
-		}
-		routers.add(router);
 	}
 
 	public void initializeEagerClients(){
@@ -102,53 +83,18 @@ public class Datarouter{
 
 	public void shutdown(){
 		clients.shutdown();
-		executorService.shutdown();
 	}
 
 
 	/*------------------------------- methods--------------------------------*/
 
-	public Router getRouter(String name){
-		for(Router router : routers){
-			if(name.equals(router.getName())){
-				return router;
-			}
-		}
-		return null;
-	}
-
-	public List<Client> getClients(){
-		SortedSet<Client> clients = new TreeSet<>();
-		for(Router router : routers){
-			for(Client client : router.getAllClients()){
-				clients.add(client);
-			}
-		}
-		return new ArrayList<>(clients);
-	}
-
-	public Router getRouterForClient(Client client){
-		for(Router router : routers){
-			for(Client c : router.getAllClients()){
-				if(c == client){
-					return router;
-				}
-			}
-		}
-		return null;
-	}
-
 	public NavigableSet<PhysicalNode<?,?,?>> getWritableNodes(){
-		NavigableSet<PhysicalNode<?,?,?>> writableNodes = new TreeSet<>();
-		for(Router router : routers){
-			for(ClientId clientId : router.getClientIds()){
-				if(!clientId.getWritable()){
-					continue;
-				}
-				writableNodes.addAll(getNodes().getPhysicalNodesForClient(clientId.getName()));
-			}
-		}
-		return writableNodes;
+		return clients.getClientIds().stream()
+				.filter(ClientId::getWritable)
+				.map(ClientId::getName)
+				.map(nodes::getPhysicalNodesForClient)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toCollection(TreeSet::new));
 	}
 
 	public DatarouterClients getClientPool(){
@@ -157,14 +103,6 @@ public class Datarouter{
 
 	public DatarouterNodes getNodes(){
 		return nodes;
-	}
-
-	public SortedSet<Router> getRouters(){
-		return routers;
-	}
-
-	public ExecutorService getExecutorService(){
-		return executorService;
 	}
 
 	public ExecutorService getWriteBehindExecutor(){

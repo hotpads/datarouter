@@ -15,17 +15,19 @@
  */
 package io.datarouter.client.mysql;
 
+import java.util.Collections;
+
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
-import io.datarouter.inject.guice.BaseModule;
+import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 
-public class DatarouterMysqlGuiceModule extends BaseModule{
+public class DatarouterMysqlGuiceModule extends BaseGuiceModule{
 
 	@Override
 	protected void configure(){
 		install(new DatarouterWebGuiceModule());
-		bindOptional(MysqlFieldCodecFactory.class).setDefault().to(StandardMysqlFieldCodecFactory.class);
+		bindActualInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
 	}
 
 }

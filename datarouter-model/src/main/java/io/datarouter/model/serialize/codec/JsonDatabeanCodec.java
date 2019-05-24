@@ -64,4 +64,5 @@ public class JsonDatabeanCodec implements StringDatabeanCodec{
 	public String getCollectionSuffix(){
 		return "]";
 	}
+
 }

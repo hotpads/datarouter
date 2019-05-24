@@ -15,11 +15,13 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 @SuppressWarnings("serial")
 public class Http404NotFoundException extends HttpException{
 
-	private static final int CODE = 404;
-	private static final String MESSAGE = "Not Found";
+	private static final int CODE = HttpStatusCode.SC_404_NOT_FOUND.getStatusCode();
+	private static final String MESSAGE = HttpStatusCode.SC_404_NOT_FOUND.getMessage();
 
 	public Http404NotFoundException(){
 		super(MESSAGE, CODE);

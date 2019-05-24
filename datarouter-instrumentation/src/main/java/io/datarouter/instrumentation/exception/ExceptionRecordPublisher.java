@@ -20,7 +20,6 @@ import io.datarouter.instrumentation.response.PublishingResponseDto;
 public interface ExceptionRecordPublisher{
 
 	PublishingResponseDto addExceptionRecord(ExceptionRecordBatchDto exceptionRecordBatchDto);
-
 	PublishingResponseDto addHttpRequest(HttpRequestRecordBatchDto httpRecordRequestBatchDto);
 
 }

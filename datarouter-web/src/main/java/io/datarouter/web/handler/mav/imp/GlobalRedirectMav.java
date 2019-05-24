@@ -25,7 +25,7 @@ public class GlobalRedirectMav extends Mav{
 		setGlobalRedirectUrl(url, shouldAppendModelQueryParams);
 	}
 
-	public GlobalRedirectMav(String url, Map<String, Object> model){
+	public GlobalRedirectMav(String url, Map<String,Object> model){
 		this(url, true);
 		putAll(model);
 	}

@@ -22,13 +22,12 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.google.common.base.Preconditions;
-
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
 import io.datarouter.storage.trace.databean.TraceKey;
+import io.datarouter.util.Require;
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ReflectionTool;
@@ -43,8 +42,7 @@ public class PrimaryKeyPercentCodec{
 	}
 
 	public static <PK extends PrimaryKey<PK>> String encodeMulti(Iterable<PK> pks, char delimiter){
-		Preconditions.checkArgument(PercentFieldCodec.isValidExternalSeparator(delimiter), "invalid delimiter:"
-				+ delimiter);
+		Require.isTrue(PercentFieldCodec.isValidExternalSeparator(delimiter), "invalid delimiter:" + delimiter);
 		return StreamTool.stream(pks)
 				.map(PrimaryKeyPercentCodec::encode)
 				.collect(Collectors.joining(Character.toString(delimiter)));
@@ -86,7 +84,9 @@ public class PrimaryKeyPercentCodec{
 
 		private static SortedBeanKey
 				SBK_0 = new SortedBeanKey("abc", "def", 3, "ghi"),
-				SBK_1 = new SortedBeanKey("%ab/", "d&^f", 3, "g_-hi");
+				SBK_1 = new SortedBeanKey("%ab/", "d&^f", 3, "g_-hi"),
+				SBK_NULL = new SortedBeanKey(null, null, 0, "c"),
+				SBK_EMPTY_STRING = new SortedBeanKey("", "", 0, "c");
 
 		private static List<SortedBeanKey> SBK_MULTI = Arrays.asList(SBK_0, SBK_1);
 
@@ -135,6 +135,13 @@ public class PrimaryKeyPercentCodec{
 			String encoded = encodeMulti(SBK_MULTI, delimiter);
 			List<SortedBeanKey> decoded = decodeMulti(SortedBeanKey.class, delimiter, encoded);
 			Assert.assertEquals(decoded, SBK_MULTI);
+		}
+
+		@Test
+		public void testNullsBecomeEmptyStrings(){
+			String encoded = encode(SBK_NULL);
+			SortedBeanKey decoded = decode(SortedBeanKey.class, encoded);
+			Assert.assertEquals(decoded, SBK_EMPTY_STRING);
 		}
 	}
 

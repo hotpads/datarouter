@@ -21,4 +21,5 @@ public abstract class IntegerRequestParamValidator extends RequestParamValidator
 	public Class<Integer> getParameterClass(){
 		return Integer.class;
 	}
+
 }

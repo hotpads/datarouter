@@ -15,16 +15,9 @@
  */
 package io.datarouter.storage.router;
 
-import java.io.IOException;
-import java.util.List;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.client.Client;
-import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.RouterOptions;
 import io.datarouter.storage.node.Node;
 
 /**
@@ -46,29 +39,9 @@ import io.datarouter.storage.node.Node;
  * The router does not "own" a Client, it merely keeps a ClientId reference to each Client. Clients are owned by
  * Datarouter, and there is no penalty for using a Client in multiple routers.
  */
-public interface Router extends Comparable<Router>{
-
-	/*----------------------------- methods ---------------------------------*/
-
-	String getConfigLocation();
-	RouterOptions getRouterOptions();
+public interface Router{
 
 	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
 	N register(N node);
-
-	void registerWithContext() throws IOException;
-
-	/*----------------------------- getting clients -------------------------*/
-
-	List<ClientId> getClientIds();
-	List<String> getClientNames();
-	Client getClient(String clientName);
-	ClientType<?> getClientType(String clientName);
-	List<Client> getAllClients();
-
-
-	/*----------------------------- get/set ---------------------------------*/
-
-	String getName();
 
 }

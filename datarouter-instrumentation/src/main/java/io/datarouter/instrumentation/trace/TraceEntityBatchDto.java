@@ -24,4 +24,5 @@ public class TraceEntityBatchDto{
 	public TraceEntityBatchDto(List<TraceEntityDto> batch){
 		this.batch = batch;
 	}
+
 }

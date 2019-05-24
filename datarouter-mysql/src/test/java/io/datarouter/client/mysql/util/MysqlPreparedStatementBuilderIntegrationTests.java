@@ -24,8 +24,8 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.client.mysql.DatarouterMysqlTestModuleFactory;
-import io.datarouter.client.mysql.connection.MysqlConnectionPoolFactory;
+import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
+import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.ddl.domain.MysqlCharacterSet;
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
@@ -39,7 +39,7 @@ import io.datarouter.model.key.BaseKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.tuple.Range;
 
-@Guice(moduleFactory = DatarouterMysqlTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class MysqlPreparedStatementBuilderIntegrationTests{
 
 	private static final Config CONFIG = new Config().setLimit(10).setOffset(5);
@@ -49,8 +49,8 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 			.withCollation(MysqlCollation.utf8_bin)
 			.build();
 	private static final MysqlTableOptions CONNECTION_OPTIONS = new MysqlTableOptionsBuilder()
-			.withCharacterSet(MysqlConnectionPoolFactory.CHARACTER_SET_CONNECTION)
-			.withCollation(MysqlConnectionPoolFactory.COLLATION_CONNECTION)
+			.withCharacterSet(MysqlConnectionPoolHolder.CHARACTER_SET_CONNECTION)
+			.withCollation(MysqlConnectionPoolHolder.COLLATION_CONNECTION)
 			.build();
 
 	private static final TestKey KEY_1 = new TestKey(42, "baz");

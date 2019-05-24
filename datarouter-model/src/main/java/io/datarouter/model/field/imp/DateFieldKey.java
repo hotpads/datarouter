@@ -22,7 +22,7 @@ import io.datarouter.model.field.encoding.FieldGeneratorType;
 
 public class DateFieldKey extends PrimitiveFieldKey<Date>{
 
-	private static final int DEFAULT_DECIMAL_SECONDS = 3;//match java's millisecond precision
+	private static final int DEFAULT_DECIMAL_SECONDS = 3;// match java's millisecond precision
 
 	private final int numDecimalSeconds;
 

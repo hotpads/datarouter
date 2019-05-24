@@ -35,4 +35,5 @@ public class OptionalDouble extends OptionalParameter<Double>{
 	public OptionalParameter<Double> fromString(String stringValue){
 		return new OptionalDouble(NumberTool.getDoubleNullSafe(stringValue, null));
 	}
+
 }

@@ -15,7 +15,7 @@
  */
 package io.datarouter.storage.test.node.basic.sorted;
 
-import java.util.Collection;
+import java.util.SortedSet;
 
 import io.datarouter.model.entity.BaseEntity;
 
@@ -31,8 +31,7 @@ public class SortedBeanEntity extends BaseEntity<SortedBeanEntityKey>{
 		super(key);
 	}
 
-
-	public Collection<SortedBean> getSortedBeans(){
+	public SortedSet<SortedBean> getSortedBeans(){
 		return getDatabeansForQualifierPrefix(SortedBean.class, QUALIFIER_PREFIX_SortedBean);
 	}
 

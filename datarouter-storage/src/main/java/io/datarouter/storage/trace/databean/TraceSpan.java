@@ -42,18 +42,6 @@ public class TraceSpan extends BaseTraceSpan<TraceEntityKey,TraceSpanKey,TraceTh
 
 	}
 
-	public TraceSpanDto toDto(){
-		return new TraceSpanDto(
-				getKey().getEntityKey().getTraceEntityId(),
-				getKey().getThreadId(),
-				getKey().getSequence(),
-				getParentSequence(),
-				getName(),
-				getInfo(),
-				getCreated(),
-				getDuration());
-	}
-
 	@Override
 	public Class<TraceSpanKey> getKeyClass(){
 		return TraceSpanKey.class;

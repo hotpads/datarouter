@@ -96,7 +96,7 @@ public class DoubleByteTool{
 		return out;
 	}
 
-	public static class Tests{
+	public static class DoubleByteToolTests{
 
 		@Test
 		public void testComparableBytes(){

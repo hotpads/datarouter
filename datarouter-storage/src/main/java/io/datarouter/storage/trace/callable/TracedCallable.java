@@ -17,8 +17,8 @@ package io.datarouter.storage.trace.callable;
 
 public abstract class TracedCallable<V> extends TracedCheckedCallable<V>{
 
-	public TracedCallable(String threadName){
-		super(threadName);
+	public TracedCallable(String traceThreadName){
+		super(traceThreadName);
 	}
 
 	@Override

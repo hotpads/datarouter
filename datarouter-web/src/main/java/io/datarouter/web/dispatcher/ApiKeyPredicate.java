@@ -15,8 +15,10 @@
  */
 package io.datarouter.web.dispatcher;
 
+import javax.servlet.http.HttpServletRequest;
+
 public interface ApiKeyPredicate{
 
-	boolean check(DispatchRule rule, String apiKey);
+	boolean check(DispatchRule rule, HttpServletRequest request);
 
 }

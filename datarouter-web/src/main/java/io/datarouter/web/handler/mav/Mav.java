@@ -25,6 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.httpclient.response.HttpStatusCode;
 import io.datarouter.util.string.StringTool;
 
 public class Mav{
@@ -39,7 +40,7 @@ public class Mav{
 	private String contentType = "text/html; charset=utf-8";
 	private Map<String,Object> model = new HashMap<>();
 	private String globalRedirectUrl;
-	private int statusCode = 200;
+	private int statusCode = HttpStatusCode.SC_200_OK.getStatusCode();
 
 	/*---------------------------- constructors -----------------------------*/
 

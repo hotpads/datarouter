@@ -18,24 +18,27 @@ package io.datarouter.client.mysql.execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.client.mysql.TxnClient;
+import io.datarouter.client.mysql.TxnClientManager;
 import io.datarouter.client.mysql.op.TxnOp;
 import io.datarouter.model.exception.DataAccessException;
-import io.datarouter.storage.client.Client;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientManager;
+import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.ConnectionHandle;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.collection.CollectionTool;
 
 public abstract class BaseTxnExecutor<T>
 extends BaseClientExecutor
 implements TxnExecutor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseTxnExecutor.class);
 
+	private final DatarouterClients datarouterClients;
 	private final TxnOp<T> parallelTxnOp;
 
 	public BaseTxnExecutor(DatarouterClients datarouterClients, TxnOp<T> parallelTxnOp){
 		super(datarouterClients, parallelTxnOp);
+		this.datarouterClients = datarouterClients;
 		this.parallelTxnOp = parallelTxnOp;
 	}
 
@@ -43,49 +46,52 @@ implements TxnExecutor{
 
 	@Override
 	public void beginTxns(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if(!(client instanceof TxnClient)){
-				continue;
-			}
-			TxnClient txnClient = (TxnClient)client;
-			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
-			if(connectionHandle.isOutermostHandle()){
-				txnClient.beginTxn(parallelTxnOp.getIsolation(), parallelTxnOp.isAutoCommit());
-			}
-			DatarouterCounters.incClient(txnClient.getType(), "beginTxn", txnClient.getName(), 1L);
+		ClientId clientId = parallelTxnOp.getClientId();
+		ClientManager clientManager = datarouterClients.getClientManager(clientId);
+		if(!(clientManager instanceof TxnClientManager)){
+			return;
 		}
+		TxnClientManager txnClientManager = (TxnClientManager)clientManager;
+		ConnectionHandle connectionHandle = txnClientManager.getExistingHandle(clientId);
+		if(connectionHandle.isOutermostHandle()){
+			txnClientManager.beginTxn(clientId, parallelTxnOp.getIsolation(), parallelTxnOp.isAutoCommit());
+		}
+		ClientType<?,?> clientType = datarouterClients.getClientTypeInstance(clientId);
+		DatarouterCounters.incClient(clientType, "beginTxn", clientId.getName(), 1L);
 	}
 
 	@Override
 	public void commitTxns(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if(!(client instanceof TxnClient)){
-				continue;
-			}
-			TxnClient txnClient = (TxnClient)client;
-			ConnectionHandle connectionHandle = txnClient.getExistingHandle();
-			if(connectionHandle.isOutermostHandle()){
-				txnClient.commitTxn();
-			}
-			DatarouterCounters.incClient(txnClient.getType(), "commitTxn", txnClient.getName(), 1L);
+		ClientId clientId = parallelTxnOp.getClientId();
+		ClientManager clientManager = datarouterClients.getClientManager(clientId);
+		if(!(clientManager instanceof TxnClientManager)){
+			return;
 		}
+		TxnClientManager txnClientManager = (TxnClientManager)clientManager;
+		ConnectionHandle connectionHandle = txnClientManager.getExistingHandle(clientId);
+		if(connectionHandle.isOutermostHandle()){
+			txnClientManager.commitTxn(clientId);
+		}
+		ClientType<?,?> clientType = datarouterClients.getClientTypeInstance(clientId);
+		DatarouterCounters.incClient(clientType, "commitTxn", clientId.getName(), 1L);
 	}
 
 	@Override
 	public void rollbackTxns(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if(!(client instanceof TxnClient)){
-				continue;
-			}
-			TxnClient txnClient = (TxnClient)client;
-			try{
-				txnClient.rollbackTxn();
-				DatarouterCounters.incClient(txnClient.getType(), "rollbackTxn", txnClient.getName(), 1L);
-			}catch(Exception e){
-				logger.warn("", e);
-				throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:" + txnClient
-						.getExistingHandle(), e);
-			}
+		ClientId clientId = parallelTxnOp.getClientId();
+		ClientManager clientManager = datarouterClients.getClientManager(clientId);
+		if(!(clientManager instanceof TxnClientManager)){
+			return;
+		}
+		TxnClientManager txnClientManager = (TxnClientManager)clientManager;
+		try{
+			txnClientManager.rollbackTxn(clientId);
+			ClientType<?,?> clientType = datarouterClients.getClientTypeInstance(clientId);
+			DatarouterCounters.incClient(clientType, "rollbackTxn", clientId.getName(), 1L);
+		}catch(Exception e){
+			logger.warn("", e);
+			ConnectionHandle connectionHandle = txnClientManager.getExistingHandle(clientId);
+			throw new DataAccessException("EXCEPTION THROWN DURING ROLLBACK OF SINGLE TXN:" + connectionHandle, e);
 		}
 	}
 

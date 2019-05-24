@@ -28,4 +28,5 @@ public class Twin<T> extends Pair<T,T>{
 	public static <T> Twin<T> createTwin(T left, T right){
 		return new Twin<>(left, right);
 	}
+
 }

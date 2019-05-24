@@ -15,14 +15,15 @@
  */
 package io.datarouter.storage.node.factory;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import com.google.common.base.Preconditions;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
@@ -40,12 +41,12 @@ public class EntityNodeFactory{
 	@Inject
 	private DatarouterInjector injector;
 
-	public <EK extends EntityKey<EK>,E extends Entity<EK>>
-	EntityNode<EK,E> create(String clientName, Router router, EntityNodeParams<EK,E> params){
-		ClientType<?> clientType = clients.getClientTypeInstance(clientName);
-		Preconditions.checkNotNull(clientType, "clientType not found for clientName:" + clientName);
+	public <EK extends EntityKey<EK>,E extends Entity<EK>> EntityNode<EK,E> create(ClientId clientId, Router router,
+			EntityNodeParams<EK,E> params){
+		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
+		Objects.requireNonNull(clientType, "clientType not found for clientId:" + clientId);
 		ClientNodeFactory clientNodeFactory = injector.getInstance(clientType.getClientNodeFactoryClass());
-		EntityNode<EK,E> entityNode = clientNodeFactory.createEntityNode(nodeFactory, router, params, clientName);
+		EntityNode<EK,E> entityNode = clientNodeFactory.createEntityNode(nodeFactory, router, params, clientId);
 		return entityNode;
 	}
 

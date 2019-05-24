@@ -15,11 +15,12 @@
  */
 package io.datarouter.storage.setting;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.string.StringTool;
@@ -65,10 +66,10 @@ public class SettingRoot extends SettingNode{
 		return null;
 	}
 
-	public List<SettingNode> getRootNodesOrdered(){
-		List<SettingNode> list = new ArrayList<>(rootNodes);
-		Collections.reverse(list);//TODO make this tree-aware
-		return list;
+	public List<SettingNode> getRootNodesSortedByShortName(){
+		return rootNodes.stream()
+				.sorted(Comparator.comparing(SettingNode::getShortName))
+				.collect(Collectors.toList());
 	}
 
 	public CachedSetting<?> getSettingByName(String name){
@@ -86,9 +87,8 @@ public class SettingRoot extends SettingNode{
 
 	public boolean isRecognizedRootName(String rootNameWithoutTrailingDot){
 		return rootNodes.stream()
-				.filter(rootNode -> rootNode.getShortName().equals(rootNameWithoutTrailingDot))
-				.findAny()
-				.isPresent();
+				.map(SettingNode::getShortName)
+				.anyMatch(shortName -> shortName.equals(rootNameWithoutTrailingDot));
 	}
 
 }

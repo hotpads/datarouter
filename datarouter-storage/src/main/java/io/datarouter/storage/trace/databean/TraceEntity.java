@@ -29,14 +29,17 @@ public class TraceEntity extends BaseTraceEntity<TraceEntityKey>{
 		super(key);
 	}
 
+	@Override
 	public Trace getTrace(){
 		return CollectionTool.getFirst(getDatabeansForQualifierPrefix(Trace.class, QUALIFIER_PREFIX_Trace));
 	}
 
+	@Override
 	public ArrayList<TraceThread> getTraceThreads(){
 		return getListDatabeansForQualifierPrefix(TraceThread.class, QUALIFIER_PREFIX_TraceThread);
 	}
 
+	@Override
 	public ArrayList<TraceSpan> getTraceSpans(){
 		return getListDatabeansForQualifierPrefix(TraceSpan.class, QUALIFIER_PREFIX_TraceSpan);
 	}

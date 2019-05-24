@@ -25,6 +25,7 @@ import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySet
 import io.datarouter.storage.exception.UnavailableException;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public interface PhysicalSortedStorageAvailabilityAdapterMixin<
@@ -39,7 +40,7 @@ extends SortedStorage<PK,D>{
 	UnavailableException makeUnavailableException();
 
 	@Override
-	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scanKeysMulti(ranges, config);
 		}
@@ -47,7 +48,7 @@ extends SortedStorage<PK,D>{
 	}
 
 	@Override
-	default Iterable<PK> scanKeys(Range<PK> range, Config config){
+	default Scanner<PK> scanKeys(Range<PK> range, Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scanKeys(range, config);
 		}
@@ -55,7 +56,7 @@ extends SortedStorage<PK,D>{
 	}
 
 	@Override
-	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scanMulti(ranges, config);
 		}
@@ -63,7 +64,7 @@ extends SortedStorage<PK,D>{
 	}
 
 	@Override
-	default Iterable<D> scan(Range<PK> range, Config config){
+	default Scanner<D> scan(Range<PK> range, Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scan(range, config);
 		}

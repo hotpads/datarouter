@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.datarouter.client.mysql.connection.MysqlConnectionPoolFactory.MysqlConnectionPool;
+import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
 import io.datarouter.client.mysql.ddl.domain.CharSequenceSqlColumn;
 import io.datarouter.client.mysql.ddl.domain.MysqlCharacterSet;
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;

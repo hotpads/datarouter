@@ -19,7 +19,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 
 public interface ManagedNode<
 		PK extends PrimaryKey<PK>,
@@ -29,6 +29,6 @@ public interface ManagedNode<
 		IF extends DatabeanFielder<IK,IE>>{
 
 	String getName();
-	DatabeanFieldInfo<IK,IE,IF> getFieldInfo();
+	IndexEntryFieldInfo<IK,IE,IF> getFieldInfo();
 
 }

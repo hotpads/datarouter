@@ -45,6 +45,7 @@ public class Trace extends BaseTrace<TraceEntityKey,TraceKey,Trace>{
 		return TraceKey.class;
 	}
 
+	@Override
 	public TraceDto toDto(){
 		return new TraceDto(
 				getTraceId(),

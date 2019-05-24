@@ -22,26 +22,22 @@ import java.util.function.UnaryOperator;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.node.MysqlNode;
-import io.datarouter.client.mysql.op.read.MysqlGetOpExecutor;
-import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
+import io.datarouter.client.mysql.node.MysqlNodeManager;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.client.imp.BaseClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
 import io.datarouter.storage.client.imp.WrappedSubEntityNodeFactory;
-import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.availability.PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
+import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalIndexedSortedMapStorageSanitizationAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 
@@ -49,20 +45,12 @@ import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndex
 public class MysqlClientNodeFactory extends BaseClientNodeFactory{
 
 	@Inject
-	private Datarouter datarouter;
-	@Inject
-	private MysqlFieldCodecFactory fieldCodecFactory;
-	@Inject
-	private MysqlGetOpExecutor mysqlGetOpExecutor;
-	@Inject
-	private DatarouterClients datarouterClients;
-	@Inject
-	private DatarouterNodes datarouterNodes;
-	@Inject
-	private MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
-	@Inject
 	private PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory
 			physicalIndexedSortedMapStorageAvailabilityAdapterFactory;
+	@Inject
+	private MysqlClientType mysqlClientType;
+	@Inject
+	private MysqlNodeManager mysqlNodeManager;
 
 	public class MysqlWrappedNodeFactory<
 			PK extends PrimaryKey<PK>,
@@ -72,13 +60,13 @@ public class MysqlClientNodeFactory extends BaseClientNodeFactory{
 
 		@Override
 		public PhysicalIndexedSortedMapStorageNode<PK,D,F> createNode(NodeParams<PK,D,F> nodeParams){
-			return new MysqlNode<>(nodeParams, fieldCodecFactory, datarouter, mysqlGetOpExecutor,
-					datarouterClients, datarouterNodes, mysqlPreparedStatementBuilder);
+			return new MysqlNode<>(nodeParams, mysqlClientType, mysqlNodeManager);
 		}
 
 		@Override
 		public List<UnaryOperator<PhysicalIndexedSortedMapStorageNode<PK,D,F>>> getAdapters(){
 			return Arrays.asList(
+					PhysicalIndexedSortedMapStorageSanitizationAdapter::new,
 					PhysicalIndexedSortedMapStorageCounterAdapter::new,
 					physicalIndexedSortedMapStorageAvailabilityAdapterFactory::create,
 					PhysicalIndexedSortedMapStorageCallsiteAdapter::new);

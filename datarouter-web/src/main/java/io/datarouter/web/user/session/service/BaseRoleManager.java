@@ -92,7 +92,7 @@ public abstract class BaseRoleManager implements RoleManager{
 
 	protected abstract Set<Role> getSuperRoles();
 	protected abstract Set<Role> getDefaultRoles();
-	protected abstract Set<Role> getAdminRoles();
+	protected abstract Set<Role> getAdminRoles(); // TODO rename to getDatarotuerRoles
 
 	protected Map<String,Set<Role>> getConfigurableRoleGroups(){
 		return Collections.emptyMap();

@@ -40,19 +40,6 @@ public class TraceThread extends BaseTraceThread<TraceEntityKey,TraceThreadKey,T
 
 	}
 
-	public TraceThreadDto toDto(){
-		return new TraceThreadDto(
-				getKey().getTraceId(),
-				getKey().getThreadId(),
-				getParentId(),
-				getName(),
-				getInfo(),
-				getServerId(),
-				getCreated(),
-				getQueuedDuration(),
-				getRunningDuration());
-	}
-
 	@Override
 	public Class<TraceThreadKey> getKeyClass(){
 		return TraceThreadKey.class;

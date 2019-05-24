@@ -19,16 +19,16 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
-import io.datarouter.client.mysql.DatarouterMysqlTestModuleFactory;
+import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
+import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
-import io.datarouter.web.test.DatarouterTestClientIds;
 
-@Guice(moduleFactory = DatarouterMysqlTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class MysqlSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.mysql0, false);
+		setup(DatarouterMysqlTestClientids.MYSQL, false);
 	}
 
 	@AfterClass

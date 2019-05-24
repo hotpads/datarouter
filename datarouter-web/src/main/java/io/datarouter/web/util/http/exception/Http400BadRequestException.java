@@ -15,11 +15,13 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 @SuppressWarnings("serial")
 public class Http400BadRequestException extends HttpException{
 
-	private static final int CODE = 400;
-	private static final String MESSAGE = "Bad Request";
+	private static final int CODE = HttpStatusCode.SC_400_BAD_REQUEST.getStatusCode();
+	private static final String MESSAGE = HttpStatusCode.SC_400_BAD_REQUEST.getMessage();
 
 	public Http400BadRequestException(){
 		super(MESSAGE, CODE);

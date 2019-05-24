@@ -21,4 +21,5 @@ public abstract class StringRequestParamValidator extends RequestParamValidator<
 	public Class<String> getParameterClass(){
 		return String.class;
 	}
+
 }

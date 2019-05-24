@@ -34,11 +34,18 @@ extends QueueStorageWriter<PK,D>, GroupQueueStorageReader<PK,D>{
 
 	List<D> pollMulti(Config config);
 
+	public interface GroupQueueStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	extends GroupQueueStorage<PK,D>, QueueStorageWriterNode<PK,D,F>{
+	}
+
 	public interface PhysicalGroupQueueStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	extends GroupQueueStorage<PK,D>,PhysicalQueueStorageWriterNode<PK,D,F>{
+	extends GroupQueueStorageNode<PK,D,F>, PhysicalQueueStorageWriterNode<PK,D,F>{
 	}
 
 }

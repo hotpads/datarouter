@@ -31,12 +31,14 @@ import org.slf4j.LoggerFactory;
 
 import com.mysql.cj.exceptions.MysqlErrorNumbers;
 
-import io.datarouter.client.mysql.connection.MysqlConnectionPoolFactory.MysqlConnectionPool;
+import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
+import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
 import io.datarouter.client.mysql.ddl.domain.MysqlCharacterSet;
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
 import io.datarouter.client.mysql.ddl.domain.MysqlRowFormat;
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
 import io.datarouter.client.mysql.ddl.domain.SqlTable;
+import io.datarouter.client.mysql.ddl.generate.Ddl;
 import io.datarouter.client.mysql.ddl.generate.SqlAlterTableGeneratorFactory;
 import io.datarouter.client.mysql.ddl.generate.SqlAlterTableGeneratorFactory.SqlAlterTableGenerator;
 import io.datarouter.client.mysql.ddl.generate.SqlCreateTableGenerator;
@@ -44,6 +46,8 @@ import io.datarouter.client.mysql.ddl.generate.imp.ConnectionSqlTableGenerator;
 import io.datarouter.client.mysql.ddl.generate.imp.FieldSqlTableGenerator;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.model.field.Field;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.type.index.ManagedNode;
@@ -51,7 +55,6 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.util.lazy.Lazy;
 import io.datarouter.util.timer.PhaseTimer;
-import io.datarouter.util.tuple.Pair;
 
 @Singleton
 public class SingleTableSchemaUpdateFactory{
@@ -65,32 +68,33 @@ public class SingleTableSchemaUpdateFactory{
 	private SqlAlterTableGeneratorFactory sqlAlterTableGeneratorFactory;
 	@Inject
 	private SchemaUpdateOptions schemaUpdateOptions;
+	@Inject
+	private MysqlConnectionPoolHolder mysqlConnectionPoolHolder;
 
-	public class SingleTableSchemaUpdate implements Callable<Optional<String>>{
+	public class SingleTableSchemaUpdate implements Callable<Optional<SchemaUpdateResult>>{
 
 		private static final int CONSOLE_WIDTH = 80;
 
-		private final String clientName;
-		private final MysqlConnectionPool connectionPool;
+		private final ClientId clientId;
 		private final Lazy<List<String>> existingTableNames;
 		private final PhysicalNode<?,?,?> physicalNode;
 
-		public SingleTableSchemaUpdate(String clientName, MysqlConnectionPool connectionPool,
-				Lazy<List<String>> existingTableNames, PhysicalNode<?,?,?> physicalNode){
-			this.clientName = clientName;
-			this.connectionPool = connectionPool;
+		public SingleTableSchemaUpdate(ClientId clientId, Lazy<List<String>> existingTableNames,
+				PhysicalNode<?,?,?> physicalNode){
+			this.clientId = clientId;
 			this.existingTableNames = existingTableNames;
 			this.physicalNode = physicalNode;
 		}
 
 		@Override
-		public Optional<String> call(){
-			if(schemaUpdateOptions.getIgnoreClients().contains(clientName) || !connectionPool.isWritable()){
+		public Optional<SchemaUpdateResult> call(){
+			MysqlConnectionPool connectionPool = mysqlConnectionPoolHolder.getConnectionPool(clientId);
+			if(schemaUpdateOptions.getIgnoreClients().contains(clientId.getName()) || !clientId.getWritable()){
 				return Optional.empty();
 			}
 
 			String tableName = physicalNode.getFieldInfo().getTableName();
-			String currentTableAbsoluteName = clientName + "." + tableName;
+			String currentTableAbsoluteName = clientId.getName() + "." + tableName;
 			if(schemaUpdateOptions.getIgnoreTables().contains(currentTableAbsoluteName)){
 				return Optional.empty();
 			}
@@ -101,7 +105,7 @@ public class SingleTableSchemaUpdateFactory{
 			List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
 			Map<String, List<Field<?>>> indexes = Collections.emptyMap();
 			Map<String, List<Field<?>>> uniqueIndexes = fieldInfo.getUniqueIndexes();
-			MysqlTableOptions mysqlTableOptions = MysqlTableOptions.make(fieldInfo);
+			MysqlTableOptions mysqlTableOptions = MysqlTableOptions.make(fieldInfo.getSampleFielder());
 			MysqlCollation collation = mysqlTableOptions.getCollation();
 			MysqlCharacterSet characterSet = mysqlTableOptions.getCharacterSet();
 			MysqlRowFormat rowFormat = mysqlTableOptions.getRowFormat();
@@ -115,15 +119,14 @@ public class SingleTableSchemaUpdateFactory{
 
 			SqlTable requested = fieldSqlTableGenerator.generate(tableName, primaryKeyFields,
 					nonKeyFields, collation, characterSet, rowFormat, indexes, uniqueIndexes);
-			Optional<String> printedSchemaUpdate = Optional.empty();
 			boolean exists = existingTableNames.get().contains(tableName);
 			if(!exists){
-				String ddl = sqlCreateTableGenerator.generateDdl(requested, schemaName);
+				String createDdl = sqlCreateTableGenerator.generateDdl(requested, schemaName);
 				if(schemaUpdateOptions.getCreateTables(false)){
 					logger.info(generateFullWidthMessage("Creating the table " + tableName));
-					logger.info(ddl);
+					logger.info(createDdl);
 					try{
-						MysqlTool.execute(connectionPool, ddl);
+						MysqlTool.execute(connectionPool, createDdl);
 						logger.info(generateFullWidthMessage("Created " + tableName));
 					}catch(RuntimeException e){
 						Throwable cause = e.getCause();
@@ -137,35 +140,39 @@ public class SingleTableSchemaUpdateFactory{
 						logger.warn(generateFullWidthMessage("Did not create " + tableName
 								+ " because it already exists"));
 					}
-				}else{
-					logger.info(generateFullWidthMessage("Please Execute SchemaUpdate"));
-					logger.info(ddl);
-					printedSchemaUpdate = Optional.of(ddl);
+					return Optional.empty();
 				}
-			}else{
-				SqlTable executeCurrent = ConnectionSqlTableGenerator.generate(connectionPool, tableName, schemaName);
-				SqlAlterTableGenerator executeAlterTableGenerator = sqlAlterTableGeneratorFactory
-						.new SqlAlterTableGenerator(executeCurrent, requested, schemaName);
-				//execute the alter table
-				Pair<Optional<String>,Optional<String>> ddl = executeAlterTableGenerator.generateDdl();
-				if(ddl.getLeft().isPresent()){
-					PhaseTimer alterTableTimer = new PhaseTimer();
-					logger.info(generateFullWidthMessage("Executing " + getClass().getSimpleName() + " SchemaUpdate"));
-					logger.info(ddl.getLeft().get());
-					MysqlTool.execute(connectionPool, ddl.getLeft().get());
-					alterTableTimer.add("Completed SchemaUpdate for " + tableName);
-					logger.info(generateFullWidthMessage(alterTableTimer.toString()));
-				}
-
-				//print the alter table
-				if(ddl.getRight().isPresent()){
-					logger.info(generateFullWidthMessage("Please Execute SchemaUpdate"));
-					printedSchemaUpdate = ddl.getRight();
-					logger.info(ddl.getRight().get());
-					logger.info(generateFullWidthMessage("Thank You"));
-				}
+				logger.info(generateFullWidthMessage("Please Execute SchemaUpdate"));
+				logger.info(createDdl);
+				return Optional.of(new SchemaUpdateResult(createDdl, tableName + " creation is required"));
 			}
-			return printedSchemaUpdate;
+			SqlTable executeCurrent = ConnectionSqlTableGenerator.generate(connectionPool, tableName, schemaName);
+			SqlAlterTableGenerator executeAlterTableGenerator = sqlAlterTableGeneratorFactory
+					.new SqlAlterTableGenerator(executeCurrent, requested, schemaName);
+			//execute the alter table
+			Ddl ddl = executeAlterTableGenerator.generateDdl();
+			if(ddl.executeStatement.isPresent()){
+				PhaseTimer alterTableTimer = new PhaseTimer();
+				logger.info(generateFullWidthMessage("Executing " + getClass().getSimpleName() + " SchemaUpdate"));
+				logger.info(ddl.executeStatement.get());
+				MysqlTool.execute(connectionPool, ddl.executeStatement.get());
+				alterTableTimer.add("Completed SchemaUpdate for " + tableName);
+				logger.info(generateFullWidthMessage(alterTableTimer.toString()));
+			}
+
+
+			if(!ddl.printStatement.isPresent()){
+				return Optional.empty();
+			}
+			logger.info(generateFullWidthMessage("Please Execute SchemaUpdate"));
+			logger.info(ddl.printStatement.get());
+			logger.info(generateFullWidthMessage("Thank You"));
+
+			String errorMessage = null;
+			if(ddl.preventStartUp){
+				errorMessage = "an alter on " + tableName + " is required";
+			}
+			return Optional.of(new SchemaUpdateResult(ddl.printStatement.get(), errorMessage));
 		}
 
 		private String generateFullWidthMessage(String message){

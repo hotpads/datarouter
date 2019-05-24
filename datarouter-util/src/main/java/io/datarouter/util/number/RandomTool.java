@@ -85,4 +85,5 @@ public class RandomTool{
 	public static int getRandomNonZeroPercent(){
 		return getRandomIntBetweenTwoNumbers(1, 100);
 	}
+
 }

@@ -17,6 +17,7 @@ package io.datarouter.web.browse;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,16 +31,18 @@ import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
+import io.datarouter.web.handler.types.optional.OptionalInteger;
 import io.datarouter.web.util.http.RequestTool;
 
 public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ViewNodeDataHandler.class);
+
+	private static final String PARAM_outputBatchSize = "outputBatchSize";
 
 	@Override
 	protected PathNode getFormPath(){
@@ -64,8 +67,10 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 			return mav;
 		}
 		mav.put("browseSortedData", true);
-		limit = params.optionalInteger(PARAM_limit).orElse(100);
-		mav.put(PARAM_limit, 100);
+
+		limit = mav.put(PARAM_limit, params.optionalInteger(PARAM_limit).orElse(100));
+		int outputBatchSize = mav.put(PARAM_outputBatchSize, params.optionalInteger(PARAM_outputBatchSize).orElse(10));
+
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
 		String startAfterKeyString = RequestTool.get(request, PARAM_startAfterKey, null);
 
@@ -77,43 +82,49 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		}
 
 		boolean startInclusive = true;
-		Config config = new Config().setIterateBatchSize(10).setLimit(limit);
-		Iterable<D> databeanIterable = sortedNode.scan(new Range<>(startAfterKey, startInclusive, null, true),
-				config);
-		List<D> databeans = ListTool.createArrayList(databeanIterable, limit);
+		Config config = new Config().setOutputBatchSize(outputBatchSize).setLimit(limit);
+		Range<PK> range = new Range<>(startAfterKey, startInclusive, null, true);
+		List<D> databeans = sortedNode.stream(range, config)
+				.collect(Collectors.toList());
 
 		addDatabeansToMav(mav, databeans);
 		return mav;
 	}
 
 	@Handler
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Mav countKeys(){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Mav countKeys(
+			OptionalInteger batchSize,
+			OptionalInteger logBatchSize,
+			OptionalInteger limit){
 		showForm();
 		if(!(node instanceof SortedStorageWriter<?,?>)){
 			return new MessageMav("Cannot browse unsorted node");
 		}
 		@SuppressWarnings("unchecked")
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
-		int iterateBatchSize = params.optionalInteger("iterateBatchSize", 1000);
 		Iterable<PK> iterable = sortedNode.scanKeys(null, new Config()
-				.setIterateBatchSize(iterateBatchSize)
+				.setOutputBatchSize(batchSize.orElse(1000))
+				.setLimit(limit.orElse(Integer.MAX_VALUE))
 				.setScannerCaching(false) //disabled due to BigTable bug?
 				.setTimeout(1, TimeUnit.MINUTES)
 				.setNumAttempts(1));
-		int printBatchSize = 1000;
+		int printBatchSize = logBatchSize.orElse(100_000);
 		long count = 0;
 		PK last = null;
 		long startMs = System.currentTimeMillis() - 1;
 		long batchStartMs = System.currentTimeMillis() - 1;
 		for(PK pk : iterable){
 			if(ComparableTool.lt(pk, last)){
-				logger.warn(pk + " was < " + last);// shouldn't happen, but seems to once in 10mm times
+				logger.warn("{} was < {}", pk, last);// shouldn't happen, but seems to once in 10mm times
 			}
 			++count;
 			if(count > 0 && count % printBatchSize == 0){
 				long batchMs = System.currentTimeMillis() - batchStartMs;
 				double batchAvgRps = printBatchSize * 1000 / Math.max(1, batchMs);
-				logger.warn(NumberFormatter.addCommas(count) + " " + pk.toString() + " @" + batchAvgRps + "rps");
+				logger.warn("{} {} @{}rps",
+						NumberFormatter.addCommas(count),
+						pk.toString(),
+						NumberFormatter.addCommas(batchAvgRps));
 				batchStartMs = System.currentTimeMillis();
 			}
 			last = pk;
@@ -123,8 +134,10 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		}
 		long ms = System.currentTimeMillis() - startMs;
 		double avgRps = count * 1000 / ms;
-		String message = "finished at " + NumberFormatter.addCommas(count) + " " + last.toString() + " @" + avgRps
-				+ "rps";
+		String message = String.format("finished at %s %s @%srps",
+				NumberFormatter.addCommas(count),
+				last.toString(),
+				NumberFormatter.addCommas(avgRps));
 		logger.warn(message);
 		return new MessageMav(message);
 	}

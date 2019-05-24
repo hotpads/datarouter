@@ -1,148 +1,193 @@
 const { Router, Redirect, Route, IndexRoute, Link, browserHistory } = ReactRouter;
 
-const BASE_PATH = CONTEXT_PATH + "/admin/accounts/";
+const Fetch = {
+	fetchJson: (...args) => fetch(...args).then(response => response.json()),
+	fetchOnly: (...args) => fetch(...args),
+	get: (url) => Fetch.fetchJson(url, {
+		method: 'GET',
+		credentials: 'same-origin',
+	}),
+	post: (url, data, returnsJson = true) => Fetch[returnsJson ? 'fetchJson' : 'fetchOnly'](url, {
+		method: 'POST',
+		body: $.param(data),
+		credentials: 'same-origin',
+		headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
+	})
+}
 
-const postHeaders = {
-	'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-};
-
-const compareAccounts = (accountA, accountB) => accountA.key.accountName < accountB.key.accountName ? -1 : 1;
-
-const buttonStyle = {'margin':'0 5px'};
+const SubmitButton = ({compact, className='', ...props}) => (
+	<input
+		type="submit"
+		className={`btn btn-default ${compact ? 'btn-xs' : ''} ${className}`}
+		style={compact ? {margin: '0 5px'} : {}}
+		{...props}
+	/>
+)
 
 class AddAccountForm extends React.Component{
 	constructor(props){
-		super(props);
-		this.state = {
-			accountName: ''
-		};
-		this.handleChange = this.handleChange.bind(this);
-		this.submitForm = this.submitForm.bind(this);
+		super(props)
+		this.state = {accountName: ''}
 	}
 
-	handleChange(event){
-		this.setState({accountName: event.target.value});
+	handleChange = (event) => {
+		this.setState({accountName: event.target.value})
 	}
 
-	submitForm(event){
-		event.preventDefault();
-		this.props.addAccount(this.state.accountName);
+	submitForm = (event) => {
+		event.preventDefault()
+		this.props.addAccount(this.state.accountName)
 	}
-	
+
 	render(){
 		return (
-				<form>
-					<div className="form-group">
-						<label>Account Name</label>
-						<input type="text"
-								className="form-control"
-								value={this.state.accountName}
-								onChange={this.handleChange} />
-					</div> 
-					<input type="submit"
-							className="btn btn-default"
-							onClick={this.submitForm}
-							disabled={this.state.accountName == ''}
-							value="Create account" />
-				</form>
-		);
+			<form>
+				<div className="form-group">
+					<label>Account Name</label>
+					<div className="input-group">
+						<input type="text" className="form-control" value={this.state.accountName} onChange={this.handleChange} />
+						<span className="input-group-btn">
+							<SubmitButton
+								className="form-control-static btn-primary"
+								onClick={this.submitForm}
+								disabled={!this.state.accountName}
+								value="Create account"
+							/>
+						</span>
+					</div>
+				</div>
+			</form>
+		)
 	}
 }
-class AccountList extends React.Component{
-	render(){
-		return (
-				<table className="table table-condensed">
-					<thead>
-						<tr>
-							<th>Account name</th>
-							<th>API key</th>
-							<th>Secret key</th>
-							<th>Last used</th>
-							<th></th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{this.props.accounts.map(account =>
-							<tr key={account.key.accountName}>
-								<td>{account.key.accountName}</td>
-								<td>{account.apiKey}</td>
-								<td>{account.secretKey}</td>
-								<td>{account.lastUsed}</td>
-								<td>
-									<Link to={BASE_PATH + "details/" + account.key.accountName}>
-										<span className="glyphicon glyphicon-pencil"></span>
-									</Link>
-								</td>
-								<td>
-									<a onClick={() => this.props.deleteAccount(account.key.accountName)}>
-										<span className="glyphicon glyphicon-remove"></span>
-									</a>
-								</td>
-							</tr>
+
+const AccountTable = ({accountDetails, deleteAccount}) => (
+	<table className="sortable table table-condensed table-striped">
+		<thead>
+			<tr>
+				<th>Account name</th>
+				<th>API key</th>
+				<th>Secret key</th>
+				<th>Last used</th>
+				<th>Permissions</th>
+				<th />
+				<th />
+			</tr>
+		</thead>
+		<tbody>
+			{accountDetails.map(({account, permissions}) => (
+				<tr key={account.key.accountName}>
+					<td>{account.key.accountName}</td>
+					<td>{account.apiKey}</td>
+					<td>{account.secretKey}</td>
+					<td>{account.lastUsed}</td>
+					<td className={permissions.length > 0 ? '' : 'warning'}>
+						{permissions.length > 0 ? (
+							<span
+								data-toggle="tooltip"
+								title={`Permissions for ${account.key.accountName}:\n`
+									+ permissions
+										.map((permission, idx) => `${idx+1}. ${permission.endpoint}`)
+										.join('\n')}
+								className="badge"
+							>
+								{permissions.length}
+							</span>
+						) : (
+							'No permissions'
 						)}
-					</tbody>
-				</table>
-		);
-	}
-}
+					</td>
+					<td>
+						<Link to={REACT_BASE_PATH + "details/" + account.key.accountName}>
+							<span className="glyphicon glyphicon-pencil"></span>
+						</Link>
+					</td>
+					<td>
+						<a onClick={() => deleteAccount(account.key.accountName)}>
+							<span className="glyphicon glyphicon-remove"></span>
+						</a>
+					</td>
+				</tr>
+			))}
+		</tbody>
+	</table>
+)
+
 class Accounts extends React.Component{
 	constructor(props){
-		super(props);
-		this.state = {
-			accounts: []
-		};
-		this.addAccount = this.addAccount.bind(this);
-		this.deleteAccount = this.deleteAccount.bind(this);
+		super(props)
+		this.state = {accountDetails: []}
 	}
 
 	componentWillMount(){
-		fetch('list', {
-			credentials: 'same-origin'
-		}).then((response) => response.json())
-		.then((accounts) => this.setState({accounts}));
+		Fetch.get('list').then(accountDetails => this.setState({accountDetails}))
 	}
 
-	addAccount(accountName){
-		fetch('add', {
-			credentials: 'same-origin',
-			method: 'POST',
-			headers: postHeaders,
-			body: $.param({accountName: accountName})
-		}).then((response) => response.json())
-		.then((account) => {
-			var accounts = this.state.accounts.concat([account]);
-			accounts.sort(compareAccounts);
-			this.setState({accounts});
-		});
+	addAccount = (accountName) => {
+		Fetch.post('add', {accountName}).then(newAccountDetail => {
+			const newAccountDetails = [...this.state.accountDetails, newAccountDetail]
+			newAccountDetails.sort(({account: accountA}, {account: accountB}) =>
+				accountA.key.accountName < accountB.key.accountName ? -1 : 1)
+			this.setState({accountDetails: newAccountDetails})
+		})
 	}
 
-	deleteAccount(accountName){
-		fetch('delete', {
-			credentials: 'same-origin',
-			method: 'POST',
-			headers: postHeaders,
-			body: $.param({accountName: accountName})
-		}).then(() => {
-			var accounts = this.state.accounts.filter((account) => account.key.accountName != accountName);
-			this.setState({accounts});
-		});
+	deleteAccount = (accountName) => {
+		if(confirm(`Are you sure you want to delete the account named: \n${accountName}?`)){
+			Fetch.post('delete', {accountName}, false).then(() => {
+				const accountPredicate = ({account}) => account.key.accountName != accountName
+				this.setState({accountDetails: this.state.accountDetails.filter(accountPredicate)})
+			})
+		}
 	}
 
 	render(){
-		return ( 
-				<div>
-					<AddAccountForm addAccount={this.addAccount} />
-					<AccountList 
-							accounts={this.state.accounts}
-							deleteAccount={this.deleteAccount}
-							resetApiKey={this.resetApiKey}
-							resetSecretKey={this.resetSecretKey}
-					/>
-				</div>
-		);
+		return (
+			<div>
+				<AccountTable
+					accountDetails={this.state.accountDetails}
+					deleteAccount={this.deleteAccount}
+					resetApiKey={this.resetApiKey}
+					resetSecretKey={this.resetSecretKey}
+				/>
+				<AddAccountForm addAccount={this.addAccount} />
+			</div>
+		)
 	}
 }
+
+const AccountDetailsBreakdown = ({
+	generateApiKey,
+	resetApiKeyToDefault,
+	generateSecretKey,
+	resetSecretKeyToDefault,
+	isServerTypeDev,
+	account
+}) => (
+	<dl>
+		<dt>Name</dt>
+		<dd>{account.key.accountName}</dd>
+		<dt>API key</dt>
+		<dd>
+			<code style={{marginRight: '1em'}}>{account.apiKey}</code>
+			<SubmitButton compact onClick={generateApiKey} value="Generate Key" />
+			{!!isServerTypeDev && <SubmitButton compact onClick={resetApiKeyToDefault} value="Reset to Default" />}
+		</dd>
+		<dt>Secret key</dt>
+		<dd>
+			<code style={{marginRight: '1em'}}>{account.secretKey}</code>
+			<SubmitButton compact onClick={generateSecretKey} value="Generate Key" />
+			{!!isServerTypeDev && <SubmitButton compact onClick={resetSecretKeyToDefault} value="Reset to Default" />}
+		</dd>
+		<dt>Created</dt>
+		<dd>{account.created}</dd>
+		<dt>Creator</dt>
+		<dd>{account.creator}</dd>
+		<dt>Last used</dt>
+		<dd>{account.lastUsed || '-'}</dd>
+	</dl>
+)
+
 class AccountDetails extends React.Component{
 	constructor(props){
 		super(props);
@@ -151,228 +196,143 @@ class AccountDetails extends React.Component{
 			availableEndpoints: [],
 			selectedEndpoint: null,
 			isServerTypeDev:false
-		};
-		this.handleSelectEndpoint = this.handleSelectEndpoint.bind(this);
-		this.handleAddPermission = this.handleAddPermission.bind(this);
-		this.deletePermission = this.deletePermission.bind(this);
-		this.resetApiKeyToDefault = this.resetApiKeyToDefault.bind(this);
-		this.resetSecretKeyToDefault = this.resetSecretKeyToDefault.bind(this);
-		this.generateApiKey = this.generateApiKey.bind(this);
-		this.generateSecretKey = this.generateSecretKey.bind(this);
+		}
 	}
-	
+
 	componentWillMount(){
-		fetch('getDetails?accountName=' + this.props.params.accountName, {
-			credentials: 'same-origin',
-			method: 'GET',
-		}).then(response => response.json())
-		.then(details => {
-			this.setState({details});
-		});
-		
-		fetch('getAvailableEndpoints', {
-			credentials: 'same-origin',
-			method: 'GET',
-		}).then(response => response.json())
-		.then(availableEndpoints => {
-			this.setState({availableEndpoints, selectedEndpoint: availableEndpoints[0]});
-		});
+		Fetch.get('getDetails?accountName=' + this.props.params.accountName)
+			.then(details => this.setState({details}))
 
-		fetch('isServerTypeDev', {
-			credentials: 'same-origin',
-			method: 'GET',
-		}).then(response => response.json())
-		.then(isServerTypeDev => {
-			this.setState({isServerTypeDev});
-		});
-	}
+		Fetch.get('getAvailableEndpoints')
+			.then(availableEndpoints => this.setState({availableEndpoints, selectedEndpoint: availableEndpoints[0]}))
 
-	resetApiKeyToDefault(){
-		this.updateAccount('resetApiKeyToDefault');
-	}
-
-	resetSecretKeyToDefault(){
-		this.updateAccount('resetSecretKeyToDefault');
-	}
-
-	generateApiKey(){
-		this.updateAccount('generateApiKey');
-	}
-
-	generateSecretKey(){
-		this.updateAccount('generateSecretKey');
+		Fetch.get('isServerTypeDev')
+			.then(isServerTypeDev => this.setState({isServerTypeDev}))
 	}
 
 	updateAccount(endpoint){
-		fetch(endpoint, {
-			credentials: 'same-origin',
-			method: 'POST',
-			headers: postHeaders,
-			body: $.param({accountName: this.state.details.account.key.accountName})
-		}).then(response => response.json())
-		.then(details => {
-			this.setState({details});
-		});
+		Fetch.post(endpoint, {accountName: this.state.details.account.key.accountName})
+			.then(details => this.setState({details}))
 	}
-	
-	handleSelectEndpoint(event){
-		console.log(event.target.value);
+
+	resetApiKeyToDefault = () => {
+		this.updateAccount('resetApiKeyToDefault');
+	}
+
+	resetSecretKeyToDefault = () => {
+		this.updateAccount('resetSecretKeyToDefault');
+	}
+
+	generateApiKey = () => {
+		this.updateAccount('generateApiKey');
+	}
+
+	generateSecretKey = () => {
+		this.updateAccount('generateSecretKey');
+	}
+
+	handleSelectEndpoint = (event) => {
 		this.setState({selectedEndpoint: event.target.value});
 	}
-	
-	handleAddPermission(event){
+
+	handleAddPermission = (event) => {
 		event.preventDefault();
-		fetch('addPermission', {
-			credentials: 'same-origin',
-			method: 'POST',
-			headers: postHeaders,
-			body: $.param({
-				accountName: this.state.details.account.key.accountName,
-				endpoint: this.state.selectedEndpoint,
-			})
-		}).then(response => response.json())
-		.then(details => {
-			this.setState({details});
-		});
+		const accountName = this.state.details.account.key.accountName
+		const endpoint = this.state.selectedEndpoint
+		Fetch.post('addPermission', {accountName, endpoint})
+			.then(details => this.setState({details}))
 	}
-	
-	deletePermission(endpoint){
-		fetch('deletePermission', {
-			credentials: 'same-origin',
-			method: 'POST',
-			headers: postHeaders,
-			body: $.param({
-				accountName: this.state.details.account.key.accountName,
-				endpoint: endpoint
-			})
-		}).then(response => response.json())
-		.then(details => {
-			this.setState({details});
-		});
+
+	deletePermission = (endpoint) => {
+		const accountName = this.state.details.account.key.accountName
+		Fetch.post('deletePermission', {accountName, endpoint})
+			.then(details => this.setState({details}))
 	}
-	
+
 	render(){
+		const backButton = <Link className="btn btn-default" to={REACT_BASE_PATH + "manage"}>Back</Link>
+
+		if (!this.state.details)
+			return backButton
+
+		const {
+			details,
+			details: {permissions},
+			selectedEndpoint,
+			isServerTypeDev,
+			availableEndpoints
+		} = this.state
+
 		return (
 			<div>
-				{this.state.details == null ||
-					<div style={{marginBottom: "10px"}}>
-						<dl>
-							<dt>Name</dt>
-							<dd>{this.state.details.account.key.accountName}</dd>
-							<dt>API key</dt>
-							<dd>
-								{this.state.details.account.apiKey}
-								<input type="submit"
-										style={buttonStyle}
-										className="btn btn-default btn-xs"
-										onClick={this.generateApiKey}
-										value="Generate Key" />
-								{this.state.isServerTypeDev == true &&
-										<input type="submit"
-											style={buttonStyle}
-											className="btn btn-default btn-xs"
-											onClick={this.resetApiKeyToDefault}
-											value="Reset to Default" />
-								}
-							</dd>
-							<dt>Secret key</dt>
-							<dd>
-								{this.state.details.account.secretKey}
-								<input type="submit"
-										style={buttonStyle}
-										className="btn btn-default btn-xs"
-										onClick={this.generateSecretKey}
-										value="Generate Key" />
-								{this.state.isServerTypeDev == true &&
-									<input type="submit"
-										style={buttonStyle}
-										className="btn btn-default btn-xs"
-										onClick={this.resetSecretKeyToDefault}
-										value="Reset to Default" />
-								}
-							</dd>
-							<dt>Created</dt>
-							<dd>
-							{this.state.details.account.created}
-							</dd>
-							<dt>Creator</dt>
-							<dd>
-							{this.state.details.account.creator}
-							</dd>
-							<dt>Last used</dt>
-							<dd>
-							{this.state.details.account.lastUsed}
-							</dd>
-						</dl>
-						{this.state.availableEndpoints.length == 0 ||
-							<div>
-								<h3>Permissions</h3>
-								<form>
-									<div className="form-group">
-										<label>Endpoint</label>
-										<select 
-												className="form-control" 
-												value={this.state.selectedEndpoint == null ? ""
-														: this.state.selectedEndpoint}
-												onChange={this.handleSelectEndpoint}>
-											{this.state.availableEndpoints.map(endpoint => 
-												<option key={endpoint} value={endpoint}>
-													{endpoint}
-												</option>
-											)}
-										</select>
-									</div>
-									<input type="submit" 
-											className="btn btn-default" 
+				<AccountDetailsBreakdown
+					generateApiKey={this.generateApiKey}
+					resetApiKeyToDefault={this.resetApiKeyToDefault}
+					generateSecretKey={this.generateSecretKey}
+					resetSecretKeyToDefault={this.resetSecretKeyToDefault}
+					isServerTypeDev={isServerTypeDev}
+					account={details.account}
+				/>
+				{!!availableEndpoints.length &&
+					<div>
+						<h3>Permissions {!permissions.length && <span className="small bg-warning">(This account has no permissions)</span>}</h3>
+						<form>
+							<div className="form-group">
+								<label>Endpoint</label>
+								<div className="input-group">
+									<select className="form-control" value={selectedEndpoint || ""} onChange={this.handleSelectEndpoint}>
+										{availableEndpoints.map(endpoint =>
+											<option key={endpoint} value={endpoint}>
+												{endpoint}
+											</option>
+										)}
+									</select>
+									<span className="input-group-btn">
+										<SubmitButton
+											className="form-control-static btn-primary"
 											onClick={this.handleAddPermission}
-											value="Add permission" />
-								</form>
-								{this.state.details.permissions.length == 0 ||
-									<table className="table table-condensed">
-										<thead>
-											<tr>
-												<th>Endpoint</th>
-												<th></th>
-											</tr>
-										</thead>
-										<tbody>
-											{this.state.details.permissions.map(permission => 
-												<tr key={permission.endpoint}>
-													<td>
-														{permission.endpoint == "all"  ? "All endpoints" 
-																: permission.endpoint}
-													</td>
-													<td>
-														<span 
-																className="glyphicon glyphicon-remove"
-																onClick={() => this.deletePermission(
-																		permission.endpoint)}
-														>
-														</span>
-													</td>
-												</tr>
-											)}
-										</tbody>
-									</table>
-								}
+											value="Add permission"
+										/>
+									</span>
+								</div>
 							</div>
+						</form>
+						{permissions.length == 0 ||
+							<table className="table table-condensed">
+								<thead>
+									<tr>
+										<th>Endpoint</th>
+										<th />
+									</tr>
+								</thead>
+								<tbody>
+									{permissions.map(({endpoint}) =>
+										<tr key={endpoint}>
+											<td>{endpoint == "all" ? "All endpoints" : endpoint}</td>
+											<td className="text-right">
+												<span className="glyphicon glyphicon-remove" onClick={() => this.deletePermission(endpoint)} />
+											</td>
+										</tr>
+									)}
+								</tbody>
+							</table>
 						}
 					</div>
 				}
-				<Link className="btn btn-default" to={BASE_PATH + "manage"}>Back</Link>
+				<Link className="btn btn-default" to={REACT_BASE_PATH + "manage"}>Back</Link>
 			</div>
-		);
+		)
 	}
 }
 
 ReactDOM.render(
-	<div className="container">
-		<h1>Accounts</h1>
+	<div className="container-fluid">
+		<h1>DatarouterAccounts</h1>
 		<Router history={browserHistory}>
-	        <Route path={BASE_PATH + "manage"} component={Accounts} />
-	        <Route path={BASE_PATH + "details/:accountName"} component={AccountDetails} />
-			<Redirect from="*" to={BASE_PATH + "manage"} />
-	    </Router>
+			<Route path={REACT_BASE_PATH + "manage"} component={Accounts} />
+			<Route path={REACT_BASE_PATH + "details/:accountName"} component={AccountDetails} />
+			<Redirect from="*" to={REACT_BASE_PATH + "manage"} />
+		</Router>
 	</div>,
 	document.getElementById('app')
-);
+)

@@ -16,63 +16,43 @@
 package io.datarouter.client.mysql.op;
 
 import java.sql.Connection;
-import java.util.Collection;
-import java.util.List;
 
-import io.datarouter.client.mysql.MysqlConnectionClient;
+import io.datarouter.client.mysql.MysqlConnectionClientManager;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.Client;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientManager;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.op.aware.ConnectionAware;
 
 public abstract class BaseMysqlOp<T> implements TxnOp<T>, ConnectionAware{
 
-	private Datarouter datarouter;
-	private List<String> clientNames;
-	private Isolation isolation;
-	private boolean autoCommit;
+	private final Datarouter datarouter;
+	private final Isolation isolation;
+	private final boolean autoCommit;
+	protected final ClientId clientId;
 
-	public BaseMysqlOp(Datarouter datarouter, List<String> clientNames, Isolation isolation, boolean autoCommit){
+	public BaseMysqlOp(Datarouter datarouter, ClientId clientId, Isolation isolation, boolean autoCommit){
 		this.datarouter = datarouter;
-		this.clientNames = clientNames;
+		this.clientId = clientId;
 		this.isolation = isolation;
 		this.autoCommit = autoCommit;
 	}
 
-	public BaseMysqlOp(Datarouter datarouter, List<String> clientNames){
-		this(datarouter, clientNames, Isolation.DEFAULT, false);
+	public BaseMysqlOp(Datarouter datarouter, ClientId clientId){
+		this(datarouter, clientId, Isolation.DEFAULT, false);
 	}
 
 	@Override
-	public Connection getConnection(String clientName){
-		Client client = datarouter.getClientPool().getClient(clientName);
-		if(client == null){
-			return null;
-		}
-		if(client instanceof MysqlConnectionClient){
-			MysqlConnectionClient mysqlConnectionClient = (MysqlConnectionClient)client;
-			Connection connection = mysqlConnectionClient.getExistingConnection();
-			return connection;
+	public Connection getConnection(ClientId clientId){
+		ClientManager clientManager = datarouter.getClientPool().getClientManager(clientId);
+		if(clientManager instanceof MysqlConnectionClientManager){
+			MysqlConnectionClientManager mysqlConnectionClientManager = (MysqlConnectionClientManager)clientManager;
+			return mysqlConnectionClientManager.getExistingConnection(clientId);
 		}
 		return null;
 	}
 
 	/*------------------ abstract methods default to no-op ----------------- */
-
-	@Override
-	public T runOnce(){
-		return null;
-	}
-
-	@Override
-	public T runOncePerClient(Client client){
-		return null;
-	}
-
-	@Override
-	public T mergeResults(T fromOnce, Collection<T> fromEachClient){
-		return fromOnce;
-	}
 
 	@Override
 	@Deprecated
@@ -81,8 +61,8 @@ public abstract class BaseMysqlOp<T> implements TxnOp<T>, ConnectionAware{
 	}
 
 	@Override
-	public List<String> getClientNames(){
-		return clientNames;
+	public ClientId getClientId(){
+		return clientId;
 	}
 
 	@Override

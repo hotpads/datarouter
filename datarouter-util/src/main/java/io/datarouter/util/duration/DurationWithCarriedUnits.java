@@ -72,7 +72,6 @@ public class DurationWithCarriedUnits{
 				++appended;
 			}
 			return sb.toString();
-//			return Join.join(delimiter, units);
 		}
 		return LESS_THAN_ONE + " " + maxPrecision.getDisplay();
 	}

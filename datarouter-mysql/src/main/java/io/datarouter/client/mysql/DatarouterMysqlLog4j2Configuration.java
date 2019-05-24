@@ -42,6 +42,9 @@ public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 				"%d %-5level [%t] %logger{36}:%line - %msg%n%rEx");
 		addAppender(callsiteAppender);
 		addLoggerConfig(CallsiteRecorder.class.getName(), Level.TRACE, false, callsiteAppender);
+
+		// hiding an warn logger in java 11 https://bugs.mysql.com/bug.php?id=93590
+		addLoggerConfig("MySQL", Level.ERROR, false, getAppender(DatarouterLog4j2Configuration.CONSOLE_APPENDER_NAME));
 	}
 
 }

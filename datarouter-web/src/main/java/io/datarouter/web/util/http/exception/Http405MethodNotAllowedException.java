@@ -15,11 +15,13 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 @SuppressWarnings("serial")
 public class Http405MethodNotAllowedException extends HttpException{
 
-	private static final int CODE = 405;
-	private static final String MESSAGE = "Method Not Allowed";
+	private static final int CODE = HttpStatusCode.SC_405_METHOD_NOT_ALLOWED.getStatusCode();
+	private static final String MESSAGE = HttpStatusCode.SC_405_METHOD_NOT_ALLOWED.getMessage();
 
 	public Http405MethodNotAllowedException(){
 		super(MESSAGE, CODE);

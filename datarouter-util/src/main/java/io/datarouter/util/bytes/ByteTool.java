@@ -230,7 +230,7 @@ public class ByteTool{
 
 	/*------------------------- tests ---------------------------------------*/
 
-	public static class Tests{
+	public static class ByteToolTests{
 		@Test
 		public void testToUnsignedByte(){
 			Assert.assertEquals(toUnsignedByte(0), -128);

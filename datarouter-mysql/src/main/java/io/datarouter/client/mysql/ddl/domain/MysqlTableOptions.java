@@ -16,7 +16,6 @@
 package io.datarouter.client.mysql.ddl.domain;
 
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 
 public class MysqlTableOptions{
 
@@ -76,8 +75,7 @@ public class MysqlTableOptions{
 
 	}
 
-	public static MysqlTableOptions make(DatabeanFieldInfo<?,?,?> fieldInfo){
-		DatabeanFielder<?,?> fielder = fieldInfo.getSampleFielder();
+	public static MysqlTableOptions make(DatabeanFielder<?,?> fielder){
 		MysqlTableOptionsBuilder builder = new MysqlTableOptionsBuilder();
 		fielder.getOption(MysqlCharacterSet.KEY).ifPresent(builder::withCharacterSet);
 		fielder.getOption(MysqlCollation.KEY).ifPresent(builder::withCollation);

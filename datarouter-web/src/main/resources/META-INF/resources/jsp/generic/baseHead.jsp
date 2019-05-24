@@ -13,7 +13,7 @@
 		paths: {
 			'jquery' : 'jquery/jquery',
 			'jquery-ui' : 'jquery/jquery-ui',
-			'bootstrap' : 'bootstrap/js/bootstrap',
+			'bootstrap' : 'bootstrap/v3/js/bootstrap',
 			'multiple-select': 'jee-assets/multiple-select/multiple-select',
 			'dygraph' : 'dygraph/dygraph-combined',
 			'dygraph-extra' : 'dygraph/dygraph-extra',

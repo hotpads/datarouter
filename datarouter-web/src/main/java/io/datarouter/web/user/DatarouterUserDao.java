@@ -88,7 +88,7 @@ public class DatarouterUserDao{
 		Set<Role> userRoles = ArrayTool.mapToSet(roleManager::getRoleFromPersistentString, userRoleStrings);
 		Collection<Role> validRoles = roleManager.getConferrableRoles(currentUser.getRoles());
 		userRoles.retainAll(validRoles);
-		userRoles.add(DatarouterUserRole.requestor.getRole());// everyone should have this
+		userRoles.add(DatarouterUserRole.REQUESTOR.getRole());// everyone should have this
 		return userRoles;
 	}
 
@@ -110,7 +110,7 @@ public class DatarouterUserDao{
 	}
 
 	public boolean isAdmin(DatarouterUser user){
-		return user.getRoles().contains(DatarouterUserRole.datarouterAdmin.getRole());
+		return user.getRoles().contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
 	}
 
 }

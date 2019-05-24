@@ -36,6 +36,7 @@ import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 public abstract class NavBar implements DispatcherServletListener{
+
 	private final String logoSrc;
 	private final String logoAlt;
 	private List<NavBarMenuItem> menuItems;
@@ -51,7 +52,8 @@ public abstract class NavBar implements DispatcherServletListener{
 	}
 
 	protected NavBar(String logoSrc, String logoAlt, Optional<DatarouterAuthenticationConfig> authenticationConfig){
-		this(logoSrc, logoAlt, authenticationConfig.isPresent());
+		this(logoSrc, logoAlt, authenticationConfig.map(DatarouterAuthenticationConfig::useDatarouterAuthentication)
+				.orElse(false));
 	}
 
 	protected NavBar(String logoSrc, String logoAlt){
@@ -112,6 +114,14 @@ public abstract class NavBar implements DispatcherServletListener{
 			};
 		}
 
+		public static NavBar getEmptyOptionalAuthNavBar(){
+			return new NavBar(SRC, ALT, Optional.empty()){
+				{
+					dispatcherServlets = Arrays.asList(DispatcherServletTestServlet.getTestServlet());
+				}
+			};
+		}
+
 		@Test
 		private void testConstruction(){
 			NavBar navBar = getNoAuthNavBar();
@@ -122,6 +132,9 @@ public abstract class NavBar implements DispatcherServletListener{
 
 			navBar = getAuthNavBar();
 			Assert.assertTrue(navBar.useDatarouterAuthentication);
+
+			navBar = getEmptyOptionalAuthNavBar();
+			Assert.assertFalse(navBar.useDatarouterAuthentication);
 		}
 
 		@Test

@@ -12,25 +12,15 @@
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<div class="container-fluid">
 		<ol class="breadcrumb">
 			<li><a href="${contextPath}/datarouter">Datarouter Home</a></li>
-			<li>
-				<a href="${contextPath}/datarouter?submitAction=inspectRouter&routerName=${param.routerName}">
-					Router: ${param.routerName}
-				</a>
-			</li>
 			<li>node: <b>${node.name}</b></li>
 		</ol>
-		<a href="${contextPath}/datarouter/nodes/deleteData?routerName=${param.routerName}&nodeName=${node.name}">Delete databean</a>
-		<a href="${contextPath}/datarouter/nodes/getData?routerName=${param.routerName}&nodeName=${node.name}">Get databean</a>
+		<a href="${contextPath}/datarouter/nodes/deleteData?nodeName=${node.name}">Delete databean</a>
+		<a href="${contextPath}/datarouter/nodes/getData?nodeName=${node.name}">Get databean</a>
 		<h3>Browse databeans</h3>
 		<form method="get" action="?">
-			<div class="form-group">
-				<label>Router</label>
-				<input name="routerName" value="${param.routerName}" type="text" class="form-control" />
-			</div>
 			<div class="form-group">
 				<label>Node</label>
 				<input name="nodeName" value="${node.name}" type="text" class="form-control" />
@@ -49,7 +39,11 @@
 				<input name="startAfterKey" value="${startAfterKey}" type="text" class="form-control" />
 			</div>
 			<div class="form-group">
-				<label>Limit:</label>
+				<label>outputBatchSize:</label>
+				<input name="outputBatchSize" value="${outputBatchSize}" type="text" class="form-control" />
+			</div>
+			<div class="form-group">
+				<label>limit:</label>
 				<input name="limit" value="${limit}" type="text" class="form-control" />
 			</div>
 			<input type="submit" class="btn btn-success"/>
@@ -62,14 +56,14 @@
 			<ul class="pager">
 				<c:if test="${not empty startAfterKey}">
 					<li>
-						<a href="?routerName=${param.routerName}&nodeName=${param.nodeName}&startAfterKey=&limit=${limit}">
+						<a href="?nodeName=${param.nodeName}&startAfterKey=&limit=${limit}">
 							Start
 						</a>
 					</li>
 				</c:if>
 				<c:if test="${not empty accesDatabeans}">
 					<li>
-						<a href="?routerName=${param.routerName}&nodeName=${param.nodeName}${accesDatabeans}">
+						<a href="?nodeName=${param.nodeName}${accesDatabeans}">
 							Next
 						</a>
 					</li>
@@ -126,7 +120,7 @@
 								</c:if>
 							</c:forEach>
 							<td>
-								<a href="${contextPath}/datarouter/nodes/deleteData?routerName=${param.routerName}&nodeName=${node.name}${fieldKeys[status.index]}">
+								<a href="${contextPath}/datarouter/nodes/deleteData?nodeName=${node.name}${fieldKeys[status.index]}">
 									<span class="glyphicon glyphicon-trash"/>
 								</a>
 							</td>
@@ -140,14 +134,14 @@
 			<ul class="pager">
 				<c:if test="${not empty startAfterKey}">
 					<li>
-						<a href="?routerName=${param.routerName}&nodeName=${param.nodeName}&startAfterKey=&limit=${limit}">
+						<a href="?nodeName=${param.nodeName}&startAfterKey=&limit=${limit}">
 							Start
 						</a>
 					</li>
 				</c:if>
 				<c:if test="${not empty accesDatabeans}">
 					<li>
-						<a href="?routerName=${param.routerName}&nodeName=${param.nodeName}${accesDatabeans}">
+						<a href="?nodeName=${param.nodeName}${accesDatabeans}">
 							Next
 						</a>
 					</li>

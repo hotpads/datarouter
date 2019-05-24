@@ -90,6 +90,15 @@ public class SetTool{
 		return Collections.unmodifiableSet(result);
 	}
 
+	public static <T> SortedSet<T> unmodifiableTreeSet(Collection<T> items){
+		return Collections.unmodifiableSortedSet(new TreeSet<>(items));
+	}
+
+	@SafeVarargs
+	public static <T> Set<T> of(T...items){
+		return new HashSet<>(Arrays.asList(items));
+	}
+
 	public static class SetToolTests{
 
 		@Test

@@ -106,6 +106,7 @@ public class EnumTool{
 
 
 	public static class EnumToolTests{
+
 		private enum Fruit implements DisplayablePersistentString, StringEnum<Fruit>{
 			UNKNOWN("Unknown", "unknown"),
 			APPLE("Apple", "apple"),

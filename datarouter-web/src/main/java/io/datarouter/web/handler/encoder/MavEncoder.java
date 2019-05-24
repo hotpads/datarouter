@@ -16,19 +16,32 @@
 package io.datarouter.web.handler.encoder;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Optional;
 
+import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.datarouter.instrumentation.trace.TraceSpanFinisher;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
+import io.datarouter.web.util.ExceptionService;
 import io.datarouter.web.util.http.ResponseTool;
 
 public class MavEncoder implements HandlerEncoder{
+
+	@Inject
+	private ExceptionService exceptionService;
+	@Inject
+	private ExceptionHandlingConfig exceptionHandlingConfig;
 
 	@Override
 	public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
@@ -59,11 +72,13 @@ public class MavEncoder implements HandlerEncoder{
 					+ ".  Make sure context has crossContext=true enabled.");
 		}
 		RequestDispatcher dispatcher = targetContext.getRequestDispatcher(viewName);
-		dispatcher.include(request, response);
+		try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), "RequestDispatcher.include")){
+			dispatcher.include(request, response);
+		}
 	}
 
 	@Override
-	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
+	public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
 			HttpServletResponse response, HttpServletRequest request){
 		sendErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage(), response);
 	}
@@ -76,6 +91,30 @@ public class MavEncoder implements HandlerEncoder{
 
 	private void sendErrorResponse(int statusCode, String errorMessage, HttpServletResponse response){
 		ResponseTool.sendError(response, statusCode, errorMessage);
+	}
+
+	@Override
+	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Exception exception,
+			Optional<String> exceptionId)
+	throws IOException{
+		PrintWriter out = response.getWriter();
+		if(exceptionHandlingConfig.shouldDisplayStackTrace(request, exception)){
+			response.setContentType("text/html");
+			try{
+				response.resetBuffer();
+			}catch(IllegalStateException e){
+				// ignore resetBuffer error for committed response
+			}
+			out.println("<html><body>");
+			exceptionId
+					.map(exceptionHandlingConfig::buildExceptionLinkForCurrentServer)
+					.ifPresent(link -> out.println("<a href=\"" + link + "\">exception record</a>"));
+			out.println("<pre>");
+			out.println(exceptionService.getStackTraceStringForHtmlPreBlock(exception));
+			out.println("</pre></body></html>");
+		}else{
+			exceptionId.ifPresent(id -> out.println("Error " + id));
+		}
 	}
 
 }

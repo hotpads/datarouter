@@ -21,12 +21,11 @@ import java.util.Optional;
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 
+import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 
 @SuppressWarnings("serial")
 public class DatarouterHttpResponseException extends DatarouterHttpException{
-
-	public static final String X_EXCEPTION_ID = "x-eid";
 
 	private final DatarouterHttpResponse response;
 
@@ -37,7 +36,7 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 
 	private static String buildMessage(DatarouterHttpResponse response, Duration duration){
 		String message = "HTTP response returned with status code " + response.getStatusCode();
-		Header header = response.getFirstHeader(X_EXCEPTION_ID);
+		Header header = response.getFirstHeader(HttpHeaders.X_EXCEPTION_ID);
 		if(header != null){
 			message += " and exception id " + header.getValue();
 		}
@@ -67,7 +66,7 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 	}
 
 	public Optional<String> getExceptionId(){
-		Header header = response.getFirstHeader(X_EXCEPTION_ID);
+		Header header = response.getFirstHeader(HttpHeaders.X_EXCEPTION_ID);
 		return Optional.ofNullable(header).map(Header::getValue);
 	}
 

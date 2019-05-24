@@ -23,9 +23,8 @@ import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 
-import io.datarouter.util.iterable.scanner.BatchingScanner;
+import io.datarouter.util.iterable.scanner.BatchScanner;
 import io.datarouter.util.iterable.scanner.Scanner;
 
 public class ReaderTool{
@@ -83,9 +82,9 @@ public class ReaderTool{
 
 	/*------------------------- scanners ------------------------------------*/
 
-	public static Scanner<List<String>> scanFileLinesInBatches(String fullPath, int batchSize){
+	public static BatchScanner<String> scanFileLinesInBatches(String fullPath, int batchSize){
 		BufferedReader bufferedReader = createNewBufferedFileReader(fullPath);
-		return new BatchingScanner<>(new ReaderScanner(bufferedReader), batchSize);
+		return new ReaderScanner(bufferedReader).batch(batchSize);
 	}
 
 	public static class ReaderScanner implements Scanner<String>{

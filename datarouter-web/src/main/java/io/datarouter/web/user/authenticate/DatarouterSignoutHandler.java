@@ -21,7 +21,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettingRoot;
 import io.datarouter.web.user.authenticate.saml.SamlService;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 
@@ -32,7 +32,7 @@ public class DatarouterSignoutHandler extends BaseHandler{
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
-	private DatarouterSamlSettings samlSettings;
+	private DatarouterSamlSettingRoot samlSettings;
 	@Inject
 	private SamlService samlService;
 

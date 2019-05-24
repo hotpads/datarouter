@@ -31,8 +31,6 @@ import java.util.function.Supplier;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.Sets;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
@@ -50,6 +48,7 @@ import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.bytes.ByteRange;
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.collection.CollectionTool;
+import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
@@ -64,7 +63,6 @@ public class FieldSetTool{
 				break;
 			}
 			++numNonNullFields;
-
 		}
 		return numNonNullFields;
 	}
@@ -86,7 +84,7 @@ public class FieldSetTool{
 
 		Map<String,Field<?>> leftMap = generateFieldMap(left);
 		Map<String,Field<?>> rightMap = generateFieldMap(right);
-		for(String key : Sets.union(leftMap.keySet(), rightMap.keySet())){
+		for(String key : SetTool.union(leftMap.keySet(), rightMap.keySet())){
 			Field<?> leftField = leftMap.get(key);
 			Field<?> rightField = rightMap.get(key);
 

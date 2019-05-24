@@ -15,37 +15,23 @@
  */
 package io.datarouter.web.dispatcher;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 
 import org.testng.annotations.Test;
-
-import io.datarouter.inject.DatarouterInjector;
 
 public abstract class BaseDispatcherServletTests{
 
 	@Inject
-	private DatarouterInjector injector;
-
-	protected abstract Class<? extends DispatcherServlet> getDispatcherServletClass();
+	private DispatcherServletTestService dispatcherServletTestService;
 
 	protected ServletConfig getServletConfig(){
 		return null;
 	}
 
 	@Test
-	public void testHandlerInjection() throws ServletException{
-		DispatcherServlet servlet = injector.getInstance(getDispatcherServletClass());
-		servlet.init(getServletConfig());
-		servlet.getRouteSets().stream()
-				.map(BaseRouteSet::getDispatchRules)
-				.flatMap(List::stream)
-				.map(DispatchRule::getHandlerClass)
-				.filter(handler -> !NonEagerInitHandler.class.isAssignableFrom(handler))
-				.forEach(injector::getInstance);
+	public void testHandlerInjection(){
+		dispatcherServletTestService.testHandlerInjection(getServletConfig());
 	}
 
 }

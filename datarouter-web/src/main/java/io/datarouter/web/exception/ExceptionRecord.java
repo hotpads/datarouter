@@ -34,14 +34,15 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 	}
 
 	public ExceptionRecord(String appName, String serverName, String stackTrace, String type, String appVersion,
-			String exceptionLocation, String methodName, Integer lineNumber){
+			String exceptionLocation, String methodName, Integer lineNumber, String callOrigin){
 		this(System.currentTimeMillis(), appName, serverName, stackTrace, type, appVersion, exceptionLocation,
-				methodName, lineNumber);
+				methodName, lineNumber, callOrigin);
 	}
 
 	public ExceptionRecord(long dateMs, String appName, String serverName, String stackTrace, String type,
-			String appVersion, String exceptionLocation, String methodName, Integer lineNumber){
-		super(dateMs, appName, serverName, stackTrace, type, appVersion, exceptionLocation, methodName, lineNumber);
+			String appVersion, String exceptionLocation, String methodName, Integer lineNumber, String callOrigin){
+		super(dateMs, appName, serverName, stackTrace, type, appVersion, exceptionLocation, methodName, lineNumber,
+				callOrigin);
 		this.key = ExceptionRecordKey.generate();
 	}
 
@@ -76,7 +77,8 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 				getAppVersion(),
 				getExceptionLocation(),
 				getMethodName(),
-				getLineNumber());
+				getLineNumber(),
+				getCallOrigin());
 	}
 
 }

@@ -37,7 +37,7 @@ import io.datarouter.web.user.DatarouterPermissionRequestDao;
 import io.datarouter.web.user.DatarouterUserDao;
 import io.datarouter.web.user.DatarouterUserEditService;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettingRoot;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.session.CurrentUserSessionInfo;
@@ -58,7 +58,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private WebappName webappName;
 	@Inject
-	private DatarouterSamlSettings samlSettings;
+	private DatarouterSamlSettingRoot samlSettings;
 	@Inject
 	private DatarouterEmailService datarouterEmailService;
 	@Inject
@@ -142,7 +142,8 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	}
 
 	private Mav noDatarouterAuthenticationMav(){
-		logger.warn("{} went to non-DR permission request page.", currentUserSessionInfo.getUsername(request).get());
+		logger.warn("{} went to non-DR permission request page.", currentUserSessionInfo.getRequiredSession(request)
+				.getUsername());
 		return new MessageMav("This is only available when using datarouter authentication. Please email "
 				+ datarouterProperties.getAdministratorEmail() + " for assistance.");
 	}

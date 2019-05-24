@@ -18,7 +18,7 @@ package io.datarouter.web.handler;
 import java.util.Collections;
 import java.util.List;
 
-import io.datarouter.web.util.http.HttpHeaders;
+import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.web.util.http.RequestTool;
 
 public class IpDetectionHandler extends BaseHandler{

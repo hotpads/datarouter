@@ -26,16 +26,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.security.CsrfValidator;
-import io.datarouter.httpclient.security.SecurityParameters;
-import io.datarouter.httpclient.security.SecurityValidationResult;
-import io.datarouter.httpclient.security.SignatureValidator;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
+import io.datarouter.web.security.CsrfValidator;
+import io.datarouter.web.security.SecurityValidationResult;
+import io.datarouter.web.security.SignatureValidator;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.user.session.service.Role;
@@ -94,8 +93,10 @@ public class DispatchRule{
 		return this;
 	}
 
-	public <T extends RoleEnum<T>> DispatchRule allowRoles(RoleEnum<?>... roles){
-		Stream.of(roles).map(RoleEnum::getRole).forEach(allowedRoles::add);
+	public DispatchRule allowRoles(RoleEnum<?>... roles){
+		Stream.of(roles)
+				.map(RoleEnum::getRole)
+				.forEach(allowedRoles::add);
 		return this;
 	}
 
@@ -178,9 +179,7 @@ public class DispatchRule{
 	}
 
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){
-		String apiKeyCandidate = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
-		boolean result = apiKeyPredicate == null || apiKeyCandidate != null
-				&& apiKeyPredicate.check(this, apiKeyCandidate);
+		boolean result = apiKeyPredicate == null || apiKeyPredicate.check(this, request);
 		String message = "API key check failed";
 		if(!result){
 			logFailure(message, request);

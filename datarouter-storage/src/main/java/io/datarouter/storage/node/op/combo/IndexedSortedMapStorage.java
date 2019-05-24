@@ -37,6 +37,7 @@ extends IndexedMapStorage<PK,D>,
 			IndexedSortedMapStorageReaderNode<PK,D,F>,
 			IndexedSortedMapStorageWriterNode<PK,D,F>{
 	}
+
 	public interface PhysicalIndexedSortedMapStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,

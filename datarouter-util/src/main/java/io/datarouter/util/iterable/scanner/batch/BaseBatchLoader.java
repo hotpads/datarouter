@@ -71,4 +71,9 @@ implements BatchLoader<T>{
 	protected T getLast(){
 		return CollectionTool.getLast(batch);
 	}
+
+	@Override
+	public void cleanup(){
+	}
+
 }

@@ -20,23 +20,21 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.client.mysql.DatarouterMysqlTestModuleFactory;
-import io.datarouter.client.mysql.ddl.domain.MysqlCharacterSet;
-import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
+import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
 import io.datarouter.client.mysql.exception.DuplicateEntrySqlException;
+import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.test.node.basic.manyfield.BaseManyFieldIntegrationTests;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
-import io.datarouter.web.test.DatarouterTestClientIds;
 
-@Guice(moduleFactory = DatarouterMysqlTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class MysqlManyFieldIntegrationTests extends BaseManyFieldIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.mysql0, MysqlManyFieldTypeBeanFielder::new);
+		setup(DatarouterMysqlTestClientids.MYSQL, MysqlManyFieldTypeBeanFielder::new);
 	}
 
 	@Test
@@ -54,13 +52,6 @@ public class MysqlManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 	}
 
 	public static class MysqlManyFieldTypeBeanFielder extends ManyFieldTypeBeanFielder{
-
-		@Override
-		public void configure(){
-			addOption(MysqlCharacterSet.utf8mb4);
-			addOption(MysqlCollation.utf8mb4_bin);
-		}
-
 	}
 
 }

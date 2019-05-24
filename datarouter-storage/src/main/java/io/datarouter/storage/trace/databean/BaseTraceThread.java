@@ -95,6 +95,19 @@ extends BaseDatabean<PK,D>{
 		this.runningDuration = dto.getRunningDuration();
 	}
 
+	public TraceThreadDto toDto(){
+		return new TraceThreadDto(
+				getKey().getTraceId(),
+				getKey().getThreadId(),
+				getParentId(),
+				getName(),
+				getInfo(),
+				getServerId(),
+				getCreated(),
+				getQueuedDuration(),
+				getRunningDuration());
+	}
+
 	/*------------------------------- methods -------------------------------*/
 
 	@Override
@@ -104,10 +117,6 @@ extends BaseDatabean<PK,D>{
 
 	public Date getTime(){
 		return new Date(created);
-	}
-
-	public Long getTotalDuration(){
-		return getQueuedDuration() + getRunningDuration();
 	}
 
 	/*------------------------------- get/set -------------------------------*/

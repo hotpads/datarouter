@@ -35,4 +35,5 @@ public class OptionalBoolean extends OptionalParameter<Boolean>{
 	public OptionalParameter<Boolean> fromString(String stringValue){
 		return new OptionalBoolean(BooleanTool.isBoolean(stringValue) ? BooleanTool.isTrue(stringValue) : null);
 	}
+
 }

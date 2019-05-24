@@ -109,7 +109,8 @@ public class SamlTool{
 	private static final RandomIdentifierGenerationStrategy secureRandomIdGenerator =
 			new RandomIdentifierGenerationStrategy();
 
-	private static final String ROLE_GROUP_ATTRIBUTE_NAME = "groupAttributes";
+	public static final String ROLE_GROUP_ATTRIBUTE_NAME = "groupAttributes";
+	public static final String ROLE_ATTRIBUTE_NAME = "roleAttributes";
 
 	public static final String DEFAULT_ENTITY_ID = "https://datarouter.io";
 
@@ -319,12 +320,12 @@ public class SamlTool{
 		return issuer;
 	}
 
-	public static Stream<String> streamGroupNameValues(Assertion assertion){
+	public static Stream<String> streamAttributeValuesByName(String attributeName, Assertion assertion){
 		return assertion.getAttributeStatements()
 				.stream()
 				.map(AttributeStatement::getAttributes)
 				.flatMap(List::stream)
-				.filter(attribute -> ROLE_GROUP_ATTRIBUTE_NAME.equals(attribute.getName()))
+				.filter(attribute -> attributeName.equals(attribute.getName()))
 				.map(Attribute::getAttributeValues)
 				.flatMap(List::stream)
 				.filter(xmlObject -> xmlObject instanceof XSString)

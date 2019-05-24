@@ -44,9 +44,9 @@ public class PrefixFieldSetComparatorTests{
 		SortedBeanKey endOfRangeKey = new SortedBeanKey("a", "c", 2, null);
 		SortedBeanKey candidateKey = new SortedBeanKey("a", "c", 2, "d");
 		Assert.assertTrue(FieldSetRangeFilter.isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey
-				.getFields(), true, NODE_NAME));
+				.getFields(), true));
 		Assert.assertFalse(FieldSetRangeFilter.isCandidateBeforeEndOfRange(candidateKey.getFields(), endOfRangeKey
-				.getFields(), false, NODE_NAME));
+				.getFields(), false));
 	}
 
 	@Test

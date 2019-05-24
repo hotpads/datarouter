@@ -27,5 +27,4 @@ public interface UniqueIndexNode<
 		IK extends PrimaryKey<IK>,
 		IE extends UniqueIndexEntry<IK,IE,PK,D>>
 extends UniqueIndexReader<PK,D,IK,IE>, UniqueIndexWriter<PK,D,IK>{
-
 }

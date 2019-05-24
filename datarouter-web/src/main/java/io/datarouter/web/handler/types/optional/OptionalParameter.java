@@ -18,16 +18,21 @@ package io.datarouter.web.handler.types.optional;
 import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import com.google.common.collect.ImmutableSet;
-
+import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.lang.ReflectionTool;
 
 public abstract class OptionalParameter<T>{
-	private static final ImmutableSet<Class<? extends OptionalParameter<?>>> OPTIONAL_PARAMATER_TYPES = ImmutableSet.of(
-			OptionalBoolean.class, OptionalDouble.class, OptionalInteger.class, OptionalLong.class,
+
+	private static final Set<Class<? extends OptionalParameter<?>>> OPTIONAL_PARAMATER_TYPES = SetTool.of(
+			OptionalBoolean.class,
+			OptionalDouble.class,
+			OptionalInteger.class,
+			OptionalLong.class,
 			OptionalString.class);
 
 	protected final Optional<T> opt;
@@ -71,6 +76,10 @@ public abstract class OptionalParameter<T>{
 
 	public T get(){
 		return opt.get();
+	}
+
+	public void ifPresent(Consumer<? super T> consumer){
+		opt.ifPresent(consumer);
 	}
 
 	public boolean isPresent(){

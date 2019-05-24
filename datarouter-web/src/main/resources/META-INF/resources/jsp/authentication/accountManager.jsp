@@ -10,12 +10,13 @@
 	<%@ include file="/WEB-INF/jsp/generic/head.jsp"%>
 	<script>
 		const CONTEXT_PATH = "${contextPath}";
+		const REACT_BASE_PATH = CONTEXT_PATH + "${path}/";
+		require(["sorttable"]);
 	</script>
 	<script type="text/babel" src="${contextPath}/js/accountManager.js"></script>
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<%@ include file="/WEB-INF/jsp/menu/navbar.jsp"%>
 	<div id="app"></div>
 </body>
 </html>

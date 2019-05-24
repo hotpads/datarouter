@@ -15,41 +15,48 @@
  */
 package io.datarouter.storage.router;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 import javax.inject.Singleton;
 
 @Singleton
-public class RouterClasses implements Supplier<Set<Class<? extends Router>>>{
+public class RouterClasses implements Supplier<List<Class<? extends Router>>>{
 
-	private final Set<Class<? extends Router>> classes;
+	private final List<Class<? extends Router>> classes;
 
 	public RouterClasses(){
-		classes = new HashSet<>();
+		this.classes = new ArrayList<>();
 	}
 
 	@SafeVarargs
 	public RouterClasses(Class<? extends Router>... routerClassVarArgs){
-		this(new HashSet<>(), routerClassVarArgs);
+		this(Arrays.asList(routerClassVarArgs));
 	}
 
-	@SafeVarargs
-	public RouterClasses(Set<Class<? extends Router>> routerList, Class<? extends Router>... routerClassVarArgs){
-		this.classes = new HashSet<>(routerList);
-		this.classes.addAll(Arrays.asList(routerClassVarArgs));
+	public RouterClasses(Collection<Class<? extends Router>> routerClasses){
+		this.classes = new ArrayList<>();
+		routerClasses.forEach(this::add);
 	}
 
 	@Override
-	public Set<Class<? extends Router>> get(){
+	public List<Class<? extends Router>> get(){
 		return classes;
 	}
 
 	public RouterClasses add(Class<? extends Router> routerClass){
+		requireUnique(routerClass);
 		classes.add(routerClass);
 		return this;
+	}
+
+	private void requireUnique(Class<? extends Router> routerClass){
+		if(classes.contains(routerClass)){
+			throw new IllegalArgumentException(routerClass.getCanonicalName() + " has already been registered");
+		}
 	}
 
 }

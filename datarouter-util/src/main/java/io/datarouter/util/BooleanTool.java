@@ -15,32 +15,17 @@
  */
 package io.datarouter.util;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.collection.SetTool;
+
 public class BooleanTool{
 
-	private static final Set<String> TRUE_VALUES = new HashSet<>();
-	private static final Set<String> FALSE_VALUES = new HashSet<>();
-
-	static{
-		TRUE_VALUES.add("true");
-		TRUE_VALUES.add("1");
-		TRUE_VALUES.add("t");
-		TRUE_VALUES.add("yes");
-		TRUE_VALUES.add("y");
-		TRUE_VALUES.add("on");
-
-		FALSE_VALUES.add("false");
-		FALSE_VALUES.add("0");
-		FALSE_VALUES.add("f");
-		FALSE_VALUES.add("no");
-		FALSE_VALUES.add("n");
-		FALSE_VALUES.add("off");
-	}
+	private static final Set<String> TRUE_VALUES = SetTool.of("true", "1", "t", "yes", "y", "on");
+	private static final Set<String> FALSE_VALUES = SetTool.of("false", "0", "f", "no", "n", "off");
 
 	public static boolean isTrue(String input){
 		if(input == null){
@@ -92,7 +77,8 @@ public class BooleanTool{
 		return b1 == null && b2 == null || isTrue(b1) && isTrue(b2) || isFalse(b1) && isFalse(b2);
 	}
 
-	public class DrBooleanToolTests{
+	public class BooleanToolTests{
+
 		@Test
 		public void testNullSafeSame(){
 			Assert.assertEquals(nullSafeSame(null, null), true);
@@ -103,5 +89,7 @@ public class BooleanTool{
 			Assert.assertEquals(nullSafeSame(false, null), false);
 			Assert.assertEquals(nullSafeSame(null, false), false);
 		}
+
 	}
+
 }

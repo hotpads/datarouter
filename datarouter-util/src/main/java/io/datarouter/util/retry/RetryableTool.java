@@ -27,13 +27,13 @@ import io.datarouter.util.exception.InterruptedRuntimeException;
 public class RetryableTool{
 	private static final Logger logger = LoggerFactory.getLogger(RetryableTool.class);
 
-	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, final int numAttempts,
-			final long initialBackoffMs, boolean logExceptions){
+	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, int numAttempts, long initialBackoffMs,
+			boolean logExceptions){
 		return tryNTimesWithBackoffUnchecked(callable, numAttempts, initialBackoffMs, logExceptions, $ -> true);
 	}
 
-	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, final int numAttempts,
-			final long initialBackoffMs, boolean logExceptions, Predicate<T> succesCondition){
+	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, int numAttempts, long initialBackoffMs,
+			boolean logExceptions, Predicate<T> succesCondition){
 		long backoffMs = initialBackoffMs;
 		for(int attemptNum = 1; attemptNum <= numAttempts && !Thread.interrupted(); ++attemptNum){
 			try{

@@ -11,7 +11,6 @@
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<%@ include file="/WEB-INF/jsp/menu/navbar.jsp"%>
 	<div id="app"></div>
 </body>
 </html>

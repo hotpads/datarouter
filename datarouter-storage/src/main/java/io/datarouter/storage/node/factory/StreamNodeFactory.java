@@ -55,10 +55,9 @@ public class StreamNodeFactory{
 	}
 
 	private StreamClientNodeFactory getClientType(NodeParams<?,?,?> params){
-		String clientName = params.getClientId().getName();
-		ClientType<?> clientType = clients.getClientTypeInstance(clientName);
+		ClientType<?,?> clientType = clients.getClientTypeInstance(params.getClientId());
 		if(clientType == null){
-			throw new NullPointerException("clientType not found for clientName:" + clientName);
+			throw new NullPointerException("clientType not found for clientName:" + params.getClientId().getName());
 		}
 		return (StreamClientNodeFactory)clientType;
 	}

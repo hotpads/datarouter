@@ -20,28 +20,36 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
 
 public class TypedProperties{
 
-	private List<Properties> propertiesList;
+	private final List<Properties> propertiesList;
+
+	public TypedProperties(){
+		this.propertiesList = new ArrayList<>();
+	}
 
 	public TypedProperties(Collection<Properties> propertiesList){
 		this.propertiesList = new ArrayList<>(propertiesList);
 	}
 
 	public TypedProperties(String path){
+		this();
 		Properties properties = PropertiesTool.parse(path);
 		if(properties != null){
-			this.propertiesList = ListTool.wrap(properties);
+			this.propertiesList.add(properties);
 		}
 	}
 
+	public void addProperties(Properties properties){
+		propertiesList.add(properties);
+	}
 
 	/*------------------------- defaultable ---------------------------------*/
 
@@ -86,57 +94,25 @@ public class TypedProperties{
 		return Integer.valueOf(val);
 	}
 
-	public Short getShort(String key){
-		String val = getString(key);
-		if(StringTool.isEmpty(val)){
-			return null;
-		}
-		return Short.valueOf(val);
-	}
-
-	public Long getLong(String key){
-		String val = getString(key);
-		if(StringTool.isEmpty(val)){
-			return null;
-		}
-		return Long.valueOf(val);
-	}
-
-	public Float getFloat(String key){
-		String val = getString(key);
-		if(StringTool.isEmpty(val)){
-			return null;
-		}
-		return Float.valueOf(val);
-	}
-
-	public Double getDouble(String key){
-		String val = getString(key);
-		if(StringTool.isEmpty(val)){
-			return null;
-		}
-		return Double.valueOf(val);
-	}
-
-	public InetSocketAddress getInetSocketAddress(String hostnameAndPort){
+	public Optional<InetSocketAddress> optInetSocketAddress(String hostnameAndPort){
 		String val = getString(hostnameAndPort);
 		if(StringTool.isEmpty(val)){
-			return null;
+			return Optional.empty();
 		}
 		String[] hostnameAndPortTokens = val.split(":");
 		String hostname = hostnameAndPortTokens[0];
 		int port = Integer.valueOf(hostnameAndPortTokens[1]);
-		return new InetSocketAddress(hostname, port);
+		return Optional.of(new InetSocketAddress(hostname, port));
 	}
 
 	/*------------------------- required ------------------------------------*/
 
 	public String getRequiredString(String key){
-		String str = getString(key);
-		if(str == null){
-			throw new IllegalArgumentException("cannot find required String " + key);
-		}
-		return str;
+		return Objects.requireNonNull(getString(key), "cannot find required String " + key);
+	}
+
+	public int getRequiredInteger(String key){
+		return Objects.requireNonNull(getInteger(key), "cannot find required Integer " + key);
 	}
 
 	/*------------------------- basic ---------------------------------------*/
@@ -144,4 +120,5 @@ public class TypedProperties{
 	public List<Properties> getUnmodifiablePropertiesList(){
 		return Collections.unmodifiableList(propertiesList);
 	}
+
 }

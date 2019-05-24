@@ -15,8 +15,11 @@
  */
 package io.datarouter.web.handler.encoder;
 
+import javax.inject.Singleton;
+
 import io.datarouter.web.handler.types.DefaultDecoder;
 
+@Singleton
 public class OptionalContainerDecoder extends DefaultDecoder{
 
 	public OptionalContainerDecoder(){

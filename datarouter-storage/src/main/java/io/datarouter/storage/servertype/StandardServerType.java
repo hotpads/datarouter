@@ -65,4 +65,9 @@ public enum StandardServerType implements ServerType, DisplayablePersistentStrin
 		return isProduction;
 	}
 
+	@Override
+	public ServerType getWebServerType(){
+		return DEV;
+	}
+
 }

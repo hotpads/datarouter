@@ -15,20 +15,19 @@
  */
 package io.datarouter.util.iterable.scanner;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.scanner.imp.ListBackedSortedScanner;
-import io.datarouter.util.iterable.scanner.iterable.SingleUseScannerIterable;
 
 public class ListBackedSortedScannerTests{
 
-	private final List<Integer> originalList = Arrays.asList(1,3,8);
+	private final ArrayList<Integer> originalList = ListTool.createArrayList(1, 3, 8);
 	private final int advanceBy = 2;
 
 	@Test
@@ -46,7 +45,7 @@ public class ListBackedSortedScannerTests{
 	@Test
 	public void testFullIteration(){
 		ListBackedSortedScanner<Integer> scanner = new ListBackedSortedScanner<>(originalList);
-		Iterator<Integer> iterator = new SingleUseScannerIterable<>(scanner).iterator();
+		Iterator<Integer> iterator = scanner.iterator();
 		Assert.assertTrue(iterator.hasNext());
 		Assert.assertEquals(iterator.next().intValue(), 1);
 		Assert.assertTrue(iterator.hasNext());
@@ -59,34 +58,34 @@ public class ListBackedSortedScannerTests{
 	@Test
 	public void testFullIterationWithTool(){
 		ListBackedSortedScanner<Integer> scanner = new ListBackedSortedScanner<>(originalList);
-		List<Integer> result = IterableTool.asList(new SingleUseScannerIterable<>(scanner));
+		List<Integer> result = scanner.list();
 		Assert.assertEquals(result, originalList);
 	}
 
 	@Test
-	public void testAdvanceByScan(){
+	public void testSkipScan(){
 		ListBackedSortedScanner<Integer> scanner = new ListBackedSortedScanner<>(originalList);
-		scanner.advanceBy(advanceBy);
+		scanner.skip(advanceBy);
 		Assert.assertTrue(scanner.advance());
 		Assert.assertEquals(scanner.getCurrent().intValue(), 8);
 		Assert.assertFalse(scanner.advance());
 	}
 
 	@Test
-	public void testAdvanceByIteration(){
+	public void testSkipIteration(){
 		ListBackedSortedScanner<Integer> scanner = new ListBackedSortedScanner<>(originalList);
-		scanner.advanceBy(advanceBy);
-		Iterator<Integer> iterator = new SingleUseScannerIterable<>(scanner).iterator();
+		scanner.skip(advanceBy);
+		Iterator<Integer> iterator = scanner.iterator();
 		Assert.assertTrue(iterator.hasNext());
 		Assert.assertEquals(iterator.next().intValue(), 8);
 		Assert.assertFalse(iterator.hasNext());
 	}
 
 	@Test
-	public void testAdvanceByIterationAfter(){
+	public void testSkipIterationAfter(){
 		ListBackedSortedScanner<Integer> scanner = new ListBackedSortedScanner<>(originalList);
-		Iterator<Integer> iterator = new SingleUseScannerIterable<>(scanner).iterator();
-		scanner.advanceBy(advanceBy);
+		Iterator<Integer> iterator = scanner.iterator();
+		scanner.skip(advanceBy);
 		Assert.assertTrue(iterator.hasNext());
 		Assert.assertEquals(iterator.next().intValue(), 8);
 		Assert.assertFalse(iterator.hasNext());

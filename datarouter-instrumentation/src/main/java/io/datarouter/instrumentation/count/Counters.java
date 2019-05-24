@@ -23,11 +23,10 @@ import java.util.ArrayList;
  */
 public class Counters{
 
-	public static final long
-			MS_IN_SECOND = Duration.ofSeconds(1).toMillis(),
-			MS_IN_MINUTE = Duration.ofMinutes(1).toMillis(),
-			MS_IN_HOUR = Duration.ofHours(1).toMillis(),
-			MS_IN_DAY = Duration.ofDays(1).toMillis();
+	public static final long MS_IN_SECOND = Duration.ofSeconds(1).toMillis();
+	public static final long MS_IN_MINUTE = Duration.ofMinutes(1).toMillis();
+	public static final long MS_IN_HOUR = Duration.ofHours(1).toMillis();
+	public static final long MS_IN_DAY = Duration.ofDays(1).toMillis();
 
 	public static String getSuffix(long periodMs){
 		if(periodMs >= MS_IN_DAY){

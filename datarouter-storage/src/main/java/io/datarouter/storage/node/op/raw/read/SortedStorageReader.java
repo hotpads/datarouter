@@ -30,7 +30,7 @@ import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.op.util.SortedStorageCountingTool;
 import io.datarouter.storage.util.KeyRangeTool;
-import io.datarouter.util.StreamTool;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 /**
@@ -51,11 +51,13 @@ extends NodeOps<PK,D>{
 	public static final String OP_scan = "scan";
 	public static final String OP_scanMulti = "scanMulti";
 
-	Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config);
-	Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config);
+	/*-------------------------------- scan multi ---------------------------------*/
 
-	/*------------------------ default interface methods --------------------*/
+	Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config);
 
+	default Stream<D> streamMulti(Collection<Range<PK>> ranges, Config config){
+		return scanMulti(ranges, config).stream();
+	}
 
 	/*-------------------------------- scan ---------------------------------*/
 
@@ -75,70 +77,76 @@ extends NodeOps<PK,D>{
 	 * returning all rows in the range to the client where the client can then filter. A predicate push-down feature may
 	 * be added, but it will likely use a separate interface method.
 	 */
-	default Iterable<D> scan(final Range<PK> range, final Config config){
+	default Scanner<D> scan(final Range<PK> range, final Config config){
 		return scanMulti(Arrays.asList(Range.nullSafe(range)), config);
 	}
 
-	default Iterable<PK> scanKeys(final Range<PK> range, final Config config){
+	default Stream<D> stream(Range<PK> range, Config config){
+		return scan(range, config).stream();
+	}
+
+	/*-------------------------------- scan keys multi ------------------------------*/
+
+	Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config);
+
+	default Stream<PK> streamKeysMulti(Collection<Range<PK>> ranges, Config config){
+		return scanKeysMulti(ranges, config).stream();
+	}
+
+	/*-------------------------------- scan keys ------------------------------*/
+
+	default Scanner<PK> scanKeys(final Range<PK> range, final Config config){
 		return scanKeysMulti(Arrays.asList(Range.nullSafe(range)), config);
 	}
 
-	/*-------------------------------- stream -------------------------------*/
-
-	default Stream<D> stream(Range<PK> range, Config config){
-		return StreamTool.stream(scan(range, config));
-	}
-
-	default Stream<D> streamMulti(Collection<Range<PK>> ranges, Config config){
-		return StreamTool.stream(scanMulti(ranges, config));
-	}
-
 	default Stream<PK> streamKeys(Range<PK> range, Config config){
-		return StreamTool.stream(scanKeys(range, config));
+		return scanKeys(range, config).stream();
 	}
 
-	default Stream<PK> streamKeysMulti(Collection<Range<PK>> ranges, Config config){
-		return StreamTool.stream(scanKeysMulti(ranges, config));
+	/*-------------------------------- prefix -------------------------------*/
+
+	default Iterable<D> scanWithPrefix(PK prefix, Config config){
+		return scan(KeyRangeTool.forPrefix(prefix), config);
+	}
+
+	default Stream<D> streamWithPrefix(PK prefix, Config config){
+		return scan(KeyRangeTool.forPrefix(prefix), config).stream();
+	}
+
+	/*-------------------------------- prefix keys -------------------------------*/
+
+	default Scanner<PK> scanKeysWithPrefix(PK prefix, Config config){
+		return scanKeys(KeyRangeTool.forPrefix(prefix), config);
+	}
+
+	default Stream<PK> streamKeysWithPrefix(PK prefix, Config config){
+		return scanKeys(KeyRangeTool.forPrefix(prefix), config).stream();
+	}
+
+	/*-------------------------------- prefixes -------------------------------*/
+
+	default Scanner<D> scanWithPrefixes(Collection<PK> prefixes, Config config){
+		return scanMulti(getRangesFromPrefixes(prefixes), config);
+	}
+
+	default Stream<D> streamWithPrefixes(Collection<PK> prefixes, Config config){
+		return scanWithPrefixes(prefixes, config).stream();
+	}
+
+	/*-------------------------------- prefixes keys -------------------------------*/
+
+	default Scanner<PK> scanKeysWithPrefixes(Collection<PK> prefixes, Config config){
+		return scanKeysMulti(getRangesFromPrefixes(prefixes), config);
+	}
+
+	default Stream<PK> streamKeysWithPrefixes(Collection<PK> prefixes, Config config){
+		return scanKeysMulti(getRangesFromPrefixes(prefixes), config).stream();
 	}
 
 	/*-------------------------------- count --------------------------------*/
 
 	default long count(Range<PK> range){
 		return SortedStorageCountingTool.count(this, range);
-	}
-
-	/*-------------------------------- prefix -------------------------------*/
-
-	default Stream<PK> streamKeysWithPrefix(PK prefix, Config config){
-		return streamKeys(KeyRangeTool.forPrefix(prefix), config);
-	}
-
-	default Stream<D> streamWithPrefix(PK prefix, Config config){
-		return stream(KeyRangeTool.forPrefix(prefix), config);
-	}
-
-	default Iterable<PK> scanKeysWithPrefix(PK prefix, Config config){
-		return scanKeys(KeyRangeTool.forPrefix(prefix), config);
-	}
-
-	default Iterable<D> scanWithPrefix(PK prefix, Config config){
-		return scan(KeyRangeTool.forPrefix(prefix), config);
-	}
-
-	default Stream<PK> streamKeysWithPrefixes(Collection<PK> prefixes, Config config){
-		return streamKeysMulti(getRangesFromPrefixes(prefixes), config);
-	}
-
-	default Stream<D> streamWithPrefixes(Collection<PK> prefixes, Config config){
-		return StreamTool.stream(scanWithPrefixes(prefixes, config));
-	}
-
-	default Iterable<PK> scanKeysWithPrefixes(Collection<PK> prefixes, Config config){
-		return scanKeysMulti(getRangesFromPrefixes(prefixes), config);
-	}
-
-	default Iterable<D> scanWithPrefixes(Collection<PK> prefixes, Config config){
-		return scanMulti(getRangesFromPrefixes(prefixes), config);
 	}
 
 	/*---------------------------- static methods ---------------------------*/

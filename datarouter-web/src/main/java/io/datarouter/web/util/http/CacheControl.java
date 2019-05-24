@@ -17,17 +17,16 @@ package io.datarouter.web.util.http;
 
 public class CacheControl{
 
-	public static final String
-			PUBLIC = "public",
-			PRIVATE = "private",
-			NO_CACHE = "no-cache",
-			NO_STORE = "no-store",
-			NO_TRANSFORM = "no-transform",
-			MUST_REVALIDATE = "must-revalidate",
-			PROXY_REVALIDATE = "proxy-revalidate";
+	public static final String PUBLIC = "public";
+	public static final String PRIVATE = "private";
+	public static final String NO_CACHE = "no-cache";
+	public static final String NO_STORE = "no-store";
+	public static final String NO_TRANSFORM = "no-transform";
+	public static final String MUST_REVALIDATE = "must-revalidate";
+	public static final String PROXY_REVALIDATE = "proxy-revalidate";
 
-	private static final String MAX_AGE = "max-age",
-			S_MAX_AGE = "s-maxage";
+	private static final String MAX_AGE = "max-age";
+	private static final String S_MAX_AGE = "s-maxage";
 
 	public static final String maxAge(int numSeconds){
 		return MAX_AGE + "=" + numSeconds;

@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.user.session.service;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -24,6 +23,7 @@ import java.util.Set;
 import javax.inject.Singleton;
 
 import io.datarouter.util.array.ArrayTool;
+import io.datarouter.util.collection.SetTool;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
@@ -36,12 +36,12 @@ public class DatarouterRoleManager extends BaseRoleManager{
 
 	@Override
 	public Set<Role> getConferrableRoles(Collection<Role> userRoles){
-		if(userRoles.contains(DatarouterUserRole.datarouterAdmin.getRole())){
+		if(userRoles.contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole())){
 			return getAllRoles();
 		}
-		if(userRoles.contains(DatarouterUserRole.admin.getRole())){
+		if(userRoles.contains(DatarouterUserRole.ADMIN.getRole())){
 			Set<Role> roles = getAllRoles();
-			roles.remove(DatarouterUserRole.datarouterAdmin.getRole());
+			roles.remove(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
 			return roles;
 		}
 		return new HashSet<>(userRoles);
@@ -54,13 +54,15 @@ public class DatarouterRoleManager extends BaseRoleManager{
 
 	@Override
 	protected Set<Role> getDefaultRoles(){
-		return Collections.singleton(DatarouterUserRole.requestor.getRole());
+		return Collections.singleton(DatarouterUserRole.REQUESTOR.getRole());
 	}
 
 	@Override
 	protected Set<Role> getAdminRoles(){
-		return new HashSet<>(Arrays.asList(DatarouterUserRole.admin.getRole(), DatarouterUserRole.datarouterAdmin
-				.getRole()));
+		return SetTool.of(
+				DatarouterUserRole.ADMIN.getRole(),
+				DatarouterUserRole.DATAROUTER_ADMIN.getRole(),
+				DatarouterUserRole.DATAROUTER_MONITORING.getRole());
 	}
 
 }

@@ -15,9 +15,7 @@
  */
  package io.datarouter.storage.node;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -34,20 +32,12 @@ import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 public interface Node<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 extends Comparable<Node<PK,D,F>>{
 
-	//used by a couple places that need access to methods on the wrapped node
-	PhysicalNode<PK,D,F> getPhysicalNodeIfApplicable();
-
 	String getName();
 	DatabeanFieldInfo<PK,D,F> getFieldInfo();
-
-	Set<String> getAllNames();
-	List<String> getClientNames();
 	List<ClientId> getClientIds();
 	boolean usesClient(String clientName);
-	List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys);
 	List<? extends PhysicalNode<PK,D,F>> getPhysicalNodes();
 	List<? extends PhysicalNode<PK,D,F>> getPhysicalNodesForClient(String clientName);
-	Node<PK,D,F> getMaster();
 	List<? extends Node<PK,D,F>> getChildNodes();
 
 }

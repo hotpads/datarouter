@@ -35,4 +35,5 @@ public class OptionalLong extends OptionalParameter<Long>{
 	public OptionalParameter<Long> fromString(String stringValue){
 		return new OptionalLong(NumberTool.getLongNullSafe(stringValue, null));
 	}
+
 }

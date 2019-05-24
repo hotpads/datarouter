@@ -18,25 +18,31 @@ package io.datarouter.client.mysql.scan;
 import java.util.Collection;
 import java.util.List;
 
-import io.datarouter.client.mysql.node.MysqlReaderOps;
+import io.datarouter.client.mysql.node.MysqlNodeManager;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.op.scan.BaseNodeScanner;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.tuple.Range;
 
-public class MysqlPrimaryKeyScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends BaseNodeScanner<PK,PK>{
+public class MysqlPrimaryKeyScanner<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+extends BaseNodeScanner<PK,PK>{
 
-	private final MysqlReaderOps<PK,D,?> mysqlReaderOps;
+	private final MysqlNodeManager mysqlNodeManager;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 
-	public MysqlPrimaryKeyScanner(MysqlReaderOps<PK,D,?> mysqlReaderOps, Collection<Range<PK>> ranges, Config config){
-		super(ranges, config);
-		this.mysqlReaderOps = mysqlReaderOps;
+	public MysqlPrimaryKeyScanner(MysqlNodeManager mysqlNodeManager, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<Range<PK>> ranges, Config config, boolean caseInsensitive){
+		super(ranges, config, caseInsensitive);
+		this.mysqlNodeManager = mysqlNodeManager;
+		this.fieldInfo = fieldInfo;
 	}
 
 	@Override
 	protected List<PK> doLoad(Collection<Range<PK>> ranges, Config config){
-		return mysqlReaderOps.getKeysInRanges(ranges, config);
+		return mysqlNodeManager.getKeysInRanges(fieldInfo, ranges, config);
 	}
 
 	@Override

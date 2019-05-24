@@ -32,10 +32,9 @@ import io.datarouter.util.bytes.IntegerByteTool;
 public abstract class BaseEntityPartitioner<EK extends EntityKey<EK>>
 implements EntityPartitioner<EK>{
 
-	private static final int
-		MIN_PARTITIONS = 1,
-		MAX_ONE_BYTE_NUM_PARTITIONS = 256,
-		MAX_PARTITIONS = 1 << 16;
+	private static final int MIN_PARTITIONS = 1;
+	private static final int MAX_ONE_BYTE_NUM_PARTITIONS = 256;
+	private static final int MAX_PARTITIONS = 1 << 16;
 
 	private List<Integer> allPartitions;
 	private ArrayList<byte[]> allPrefixes;

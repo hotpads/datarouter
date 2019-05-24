@@ -127,7 +127,8 @@ public class IpTool{
 		return isIpAddressInSubnets(dottedDecimalIp, LOOPBACK_RANGE);
 	}
 
-	public static class Tests{
+	public static class IpToolTests{
+
 		@Test
 		public void testGetDottedDecimal(){
 			Assert.assertEquals(getDottedDecimal(0L), "0.0.0.0");

@@ -16,6 +16,7 @@
 package io.datarouter.web.handler.encoder;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -32,8 +33,11 @@ public interface HandlerEncoder{
 	void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
 			HttpServletRequest request) throws ServletException, IOException;
 
-	void sendExceptionResponse(HandledException exception, ServletContext servletContext, HttpServletResponse response,
-			HttpServletRequest request) throws ServletException, IOException;
+	void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
+			HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException;
+
+	void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Exception exception,
+			Optional<String> exceptionId) throws IOException;
 
 	void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
 			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request)

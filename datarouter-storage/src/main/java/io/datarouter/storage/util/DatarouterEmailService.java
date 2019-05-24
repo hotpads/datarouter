@@ -34,7 +34,8 @@ import org.testng.annotations.Test;
 
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.setting.impl.DatarouterEmailSettings;
-import io.datarouter.storage.test.DatarouterStorageTestModuleFactory;
+import io.datarouter.storage.config.setting.impl.DatarouterEmailSettings.DatarouterEmailHostDetails;
+import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -62,17 +63,21 @@ public class DatarouterEmailService{
 
 	public void sendEmail(String fromEmail, String toEmail, String subject, String body, boolean html)
 	throws MessagingException{
+		if(!datarouterEmailSettings.sendDatarouterEmails.get()){
+			return;
+		}
 		Properties props = new Properties();
-		if(StringTool.notNullNorEmpty(datarouterEmailSettings.smtpPassword.get())){
+		DatarouterEmailHostDetails emailHostDetails = datarouterEmailSettings.getDatarouterEmailHostDetails();
+		if(StringTool.notNullNorEmpty(emailHostDetails.smtpPassword)){
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.starttls.enable", "true");
 		}
+		String host = StringTool.nullIfEmpty(emailHostDetails.smtpHost);
+		int port = emailHostDetails.smtpPort;
+		String username = StringTool.nullIfEmpty(emailHostDetails.smtpUsername);
+		String password = StringTool.nullIfEmpty(emailHostDetails.smtpPassword);
 		Session session = Session.getInstance(props);
 		try(Transport transport = session.getTransport()){
-			String username = StringTool.nullIfEmpty(datarouterEmailSettings.smtpUsername.get());
-			String password = StringTool.nullIfEmpty(datarouterEmailSettings.smtpPassword.get());
-			String host = StringTool.nullIfEmpty(datarouterEmailSettings.smtpHost.get());
-			Integer port = datarouterEmailSettings.smtpPort.get();
 			transport.connect(host, port, username, password);
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(fromEmail));
@@ -86,7 +91,7 @@ public class DatarouterEmailService{
 		}
 	}
 
-	@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
+	@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
 	public static class DatarouterEmailServiceIntegrartionTester{
 
 		@Inject

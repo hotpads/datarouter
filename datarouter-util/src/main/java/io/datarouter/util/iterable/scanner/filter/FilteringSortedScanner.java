@@ -15,6 +15,8 @@
  */
 package io.datarouter.util.iterable.scanner.filter;
 
+import java.util.function.Predicate;
+
 import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.iterable.scanner.sorted.BaseSortedScanner;
 
@@ -25,12 +27,12 @@ import io.datarouter.util.iterable.scanner.sorted.BaseSortedScanner;
  */
 public class FilteringSortedScanner<T extends Comparable<? super T>> extends BaseSortedScanner<T>{
 
-	protected Scanner<T> scanner;
-	protected Filter<T> filter;
+	private final Scanner<T> scanner;
+	private final Predicate<T> predicate;
 
-	public FilteringSortedScanner(Scanner<T> scanner, Filter<T> filter){
+	public FilteringSortedScanner(Scanner<T> scanner, Predicate<T> predicate){
 		this.scanner = scanner;
-		this.filter = filter;
+		this.predicate = predicate;
 	}
 
 	@Override
@@ -41,7 +43,7 @@ public class FilteringSortedScanner<T extends Comparable<? super T>> extends Bas
 				return false;
 			}
 		//if current doesn't pass the filter, move to the next one
-		}while(FilterTool.excludes(filter, scanner.getCurrent()));
+		}while(!predicate.test(scanner.getCurrent()));
 		return true;//current passed the filter, so indicate that our advance was successful
 	}
 
@@ -49,4 +51,5 @@ public class FilteringSortedScanner<T extends Comparable<? super T>> extends Bas
 	public T getCurrent(){
 		return scanner.getCurrent();
 	}
+
 }

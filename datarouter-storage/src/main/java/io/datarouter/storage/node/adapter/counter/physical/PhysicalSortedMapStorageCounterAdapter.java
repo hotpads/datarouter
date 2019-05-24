@@ -23,6 +23,7 @@ import io.datarouter.storage.node.adapter.counter.BaseCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.mixin.MapStorageCounterAdapterMixin;
 import io.datarouter.storage.node.adapter.counter.mixin.SortedStorageCounterAdapterMixin;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.PhysicalSortedMapStorageNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class PhysicalSortedMapStorageCounterAdapter<
 		PK extends PrimaryKey<PK>,
@@ -37,6 +38,11 @@ implements PhysicalSortedMapStorageNode<PK,D,F>,
 
 	public PhysicalSortedMapStorageCounterAdapter(N backingNode){
 		super(backingNode);
+	}
+
+	@Override
+	public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+		return PhysicalAdapterMixin.super.getFieldInfo();
 	}
 
 }

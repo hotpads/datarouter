@@ -26,40 +26,25 @@ import org.slf4j.LoggerFactory;
 public class DatarouterHttpRetryHandler implements HttpRequestRetryHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpRetryHandler.class);
 
-	public static final String RETRY_SAFE_ATTRIBUTE = "retrySafe";
-	public static final int DEFAULT_RETRY_COUNT = 2;
+	private final int retryCount;
 
-	private int retryCount;
-	private boolean logOnRetry;
-
-	public DatarouterHttpRetryHandler(){
-		retryCount = DEFAULT_RETRY_COUNT;
+	public DatarouterHttpRetryHandler(int retryCount){
+		this.retryCount = retryCount;
 	}
 
 	@Override
 	public boolean retryRequest(IOException exception, int executionCount, HttpContext context){
-		if(logOnRetry){
-			HttpClientContext clientContext = HttpClientContext.adapt(context);
+		HttpClientContext clientContext = HttpClientContext.adapt(context);
+		boolean willRetry = HttpRetryTool.shouldRetry(context, executionCount, retryCount);
+		if(willRetry){
 			logger.warn("Request {} failure Nº {}", clientContext.getRequest().getRequestLine(), executionCount,
 					exception);
+		}else{
+			// don't log everything, caller will get details in an Exception
+			logger.warn("Request {} failure Nº {} (final)", clientContext.getRequest().getRequestLine(),
+					executionCount);
 		}
-		Object retrySafe = context.getAttribute(RETRY_SAFE_ATTRIBUTE);
-		if(retrySafe == null || !(retrySafe instanceof Boolean) || !(Boolean)retrySafe || executionCount > retryCount){
-			return false;
-		}
-		return true;
-	}
-
-	public int getRetryCount(){
-		return retryCount;
-	}
-
-	public void setRetryCount(int retryCount){
-		this.retryCount = retryCount;
-	}
-
-	public void setLogOnRetry(boolean logOnRetry){
-		this.logOnRetry = logOnRetry;
+		return willRetry;
 	}
 
 }

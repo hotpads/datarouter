@@ -21,8 +21,7 @@ import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.enums.StringEnum;
 import io.datarouter.util.lang.ReflectionTool;
 
-public class StringEnumFieldKey<E extends StringEnum<E>>
-extends BaseFieldKey<E>{
+public class StringEnumFieldKey<E extends StringEnum<E>> extends BaseFieldKey<E>{
 
 	private static final int DEFAULT_MAX_SIZE = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;
 

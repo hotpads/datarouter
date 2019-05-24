@@ -16,13 +16,8 @@
 package io.datarouter.storage.node.type.indexing.base;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -33,9 +28,7 @@ import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.op.raw.index.IndexListener;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.collection.SetTool;
 
 public abstract class BaseIndexingNode<
 		PK extends PrimaryKey<PK>,
@@ -68,14 +61,6 @@ extends BaseNode<PK,D,F>{
 	}
 
 	@Override
-	public Set<String> getAllNames(){
-		Set<String> names = new HashSet<>();
-		names.addAll(CollectionTool.nullSafe(getName()));
-		names.addAll(CollectionTool.nullSafe(mainNode.getAllNames()));
-		return names;
-	}
-
-	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodes(){
 		List<PhysicalNode<PK,D,F>> all = new LinkedList<>();
 		all.addAll(ListTool.nullSafe(mainNode.getPhysicalNodes()));
@@ -90,13 +75,6 @@ extends BaseNode<PK,D,F>{
 	}
 
 	@Override
-	public List<String> getClientNames(){
-		SortedSet<String> clientNames = new TreeSet<>();
-		SetTool.nullSafeSortedAddAll(clientNames, mainNode.getClientNames());
-		return new ArrayList<>(clientNames);
-	}
-
-	@Override
 	public List<ClientId> getClientIds(){
 		return mainNode.getClientIds();
 	}
@@ -107,20 +85,8 @@ extends BaseNode<PK,D,F>{
 	}
 
 	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys){
-		Set<String> clientNames = new HashSet<>();
-		clientNames.addAll(CollectionTool.nullSafe(mainNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys)));
-		return new ArrayList<>(clientNames);
-	}
-
-	@Override
 	public List<N> getChildNodes(){
 		return ListTool.wrap(mainNode);
-	}
-
-	@Override
-	public Node<PK,D,F> getMaster(){
-		return this;
 	}
 
 	public N getBackingNode(){
@@ -130,4 +96,5 @@ extends BaseNode<PK,D,F>{
 	public List<IndexListener<PK,D>> getIndexNodes(){
 		return indexListeners;
 	}
+
 }

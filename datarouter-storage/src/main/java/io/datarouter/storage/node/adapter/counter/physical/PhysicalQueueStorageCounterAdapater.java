@@ -27,6 +27,7 @@ import io.datarouter.storage.node.op.raw.QueueStorage;
 import io.datarouter.storage.node.op.raw.QueueStorage.PhysicalQueueStorageNode;
 import io.datarouter.storage.node.op.raw.read.QueueStorageReader;
 import io.datarouter.storage.queue.QueueMessage;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class PhysicalQueueStorageCounterAdapater<
 		PK extends PrimaryKey<PK>,
@@ -78,6 +79,11 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 	public Iterable<D> pollUntilEmpty(Config config){
 		counter.count(QueueStorage.OP_pollUntilEmpty);
 		return backingNode.pollUntilEmpty(config);
+	}
+
+	@Override
+	public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+		return PhysicalAdapterMixin.super.getFieldInfo();
 	}
 
 }

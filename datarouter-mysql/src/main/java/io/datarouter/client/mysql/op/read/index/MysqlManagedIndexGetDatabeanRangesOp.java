@@ -20,22 +20,24 @@ import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.List;
 
+import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
 import io.datarouter.client.mysql.util.MysqlTool;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.Client;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.tuple.Range;
 
@@ -49,39 +51,45 @@ public class MysqlManagedIndexGetDatabeanRangesOp<
 extends BaseMysqlOp<List<D>>{
 
 	private final Collection<Range<IK>> ranges;
-	private final PhysicalNode<PK,D,F> node;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
 	private final Config config;
-	private final DatabeanFieldInfo<IK,IE,IF> fieldInfo;
+	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo;
+	private final MysqlClientType mysqlClientType;
 
-	public MysqlManagedIndexGetDatabeanRangesOp(Datarouter datarouter, PhysicalNode<PK,D,F> node,
+	public MysqlManagedIndexGetDatabeanRangesOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			DatabeanFieldInfo<IK,IE,IF> fieldInfo, Collection<Range<IK>> ranges, Config config){
-		super(datarouter, node.getClientNames(), Isolation.DEFAULT, true);
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config,
+			MysqlClientType mysqlClientType){
+		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.ranges = ranges;
-		this.node = node;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
 		this.config = config;
-		this.fieldInfo = fieldInfo;
+		this.indexEntryFieldInfo = indexEntryFieldInfo;
+		this.databeanFieldInfo = fieldInfo;
+		this.mysqlClientType = mysqlClientType;
 	}
 
 	@Override
 	public List<D> runOnce(){
-		Client client = node.getClient();
-		String tableName = node.getFieldInfo().getTableName();
-		String indexName = fieldInfo.getTableName();
+		String tableName = databeanFieldInfo.getTableName();
+		String indexName = indexEntryFieldInfo.getIndexName();
 		String nodeName = tableName + "." + indexName;
-		String opName = IndexedStorageReader.OP_getIndexKeyRange;
-		Connection connection = getConnection(node.getFieldInfo().getClientId().getName());
-		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, tableName, node.getFieldInfo()
-				.getFields(), ranges, fieldInfo.getPrimaryKeyFields(), indexName, MysqlTableOptions.make(fieldInfo))
-				.toPreparedStatement(connection);
-		List<D> result = MysqlTool.selectDatabeans(fieldCodecFactory, node.getFieldInfo(), statement);
-		DatarouterCounters.incClientNodeCustom(client.getType(), opName + " selects", client.getName(), nodeName, 1L);
-		DatarouterCounters.incClientNodeCustom(client.getType(), opName + " rows", client.getName(), nodeName, result
-				.size());
+		String opName = IndexedStorageReader.OP_getByIndexRange;
+		Connection connection = getConnection(databeanFieldInfo.getClientId());
+		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, tableName, databeanFieldInfo
+				.getFields(), ranges, indexEntryFieldInfo.getPrimaryKeyFields(), indexName, MysqlTableOptions.make(
+				databeanFieldInfo.getSampleFielder())).toPreparedStatement(connection);
+		List<D> result = MysqlTool.selectDatabeans(fieldCodecFactory, databeanFieldInfo.getDatabeanSupplier(),
+				databeanFieldInfo.getFields(), statement);
+		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", databeanFieldInfo.getClientId()
+				.getName(), nodeName, 1L);
+		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", databeanFieldInfo.getClientId()
+				.getName(), nodeName, result.size());
+		TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[" + ranges.size() + " ranges, " + result.size()
+				+ " databeans]");
 		return result;
 	}
 

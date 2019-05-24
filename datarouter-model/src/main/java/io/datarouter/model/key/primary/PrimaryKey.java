@@ -15,7 +15,6 @@
  */
 package io.datarouter.model.key.primary;
 
-
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.PrimaryKeyFielder;
 
@@ -39,5 +38,4 @@ import io.datarouter.model.serialize.fielder.PrimaryKeyFielder;
  */
 public interface PrimaryKey<PK extends PrimaryKey<PK>>
 extends UniqueKey<PK>, PrimaryKeyFielder<PK>{
-
 }

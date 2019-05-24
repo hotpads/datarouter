@@ -26,6 +26,7 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
+import io.datarouter.util.collection.CollectionTool;
 
 public interface EntityNode<
 		EK extends EntityKey<EK>,
@@ -38,7 +39,11 @@ public interface EntityNode<
 
 	Collection<Node<?,?,?>> getSubEntityNodes();
 
-	E getEntity(EK entityKey, Config config);
+	List<E> getEntities(Collection<EK> entityKeys, Config paramConfig);
+
+	default E getEntity(EK entityKey, Config config){
+		return CollectionTool.getFirst(getEntities(Arrays.asList(entityKey), config));
+	}
 
 	void deleteMultiEntities(Collection<EK> entityKeys, Config config);
 
@@ -46,7 +51,6 @@ public interface EntityNode<
 		deleteMultiEntities(Arrays.asList(entityKey), config);
 	}
 
-	// unsorted
 	List<EK> listEntityKeys(EK startKey, boolean startKeyInclusive, Config config);
 
 }

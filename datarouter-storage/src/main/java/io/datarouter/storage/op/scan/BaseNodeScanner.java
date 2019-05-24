@@ -23,6 +23,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.collection.CollectionTool;
@@ -33,25 +36,36 @@ public abstract class BaseNodeScanner<
 		PK extends PrimaryKey<PK>,
 		T extends Comparable<? super T>>//T should be either PK or D
 extends BaseBatchBackedScanner<T,T>{
+	private static final Logger logger = LoggerFactory.getLogger(BaseNodeScanner.class);
 
-	private static final int RANGE_BATCH_SIZE = 10;
+	private static final int DEFAULT_RANGE_BATCH_SIZE = 10;
+	private static final int DEFAULT_OUTPUT_BATCH_SIZE = 100;
 
 	private final NavigableSet<Range<PK>> ranges;
 	private final Config config;
+	private final int rangeBatchSize;
 
 	private long resultCount;
 	private SortedSet<Range<PK>> currentRanges;
 	private Config batchConfig;
 
-	public BaseNodeScanner(Collection<Range<PK>> ranges, Config config){
+	public BaseNodeScanner(Collection<Range<PK>> ranges, Config config, boolean caseInsensitive){
+		this.config = Config.nullSafe(config);
+		this.rangeBatchSize = this.config.optInputBatchSize().orElse(DEFAULT_RANGE_BATCH_SIZE);
 		this.ranges = ranges.stream()
 				.filter(Range::notEmpty)
 				.collect(Collectors.toCollection(TreeSet::new));
+		if(ranges.size() > 1 && caseInsensitive){
+			logger.warn("scan multi on case insensitive table " + ranges.stream()
+					.filter(Range::hasStart)
+					.map(Range::getStart)
+					.map(PK::getClass)
+					.findAny());
+		}
 		this.currentRanges = new TreeSet<>();
-		for(int i = 0; i < RANGE_BATCH_SIZE && !this.ranges.isEmpty(); i++){
+		for(int i = 0; i < this.rangeBatchSize && !this.ranges.isEmpty(); i++){
 			currentRanges.add(this.ranges.pollFirst());
 		}
-		this.config = Config.nullSafe(config);
 		this.noMoreBatches = false;
 		this.resultCount = 0;
 		this.batchConfig = this.config.getDeepCopy();
@@ -110,7 +124,7 @@ extends BaseBatchBackedScanner<T,T>{
 			}
 		}
 
-		int batchConfigLimit = this.config.getIterateBatchSize();
+		int batchConfigLimit = this.config.optOutputBatchSize().orElse(DEFAULT_OUTPUT_BATCH_SIZE);
 		if(this.config.getLimit() != null && this.config.getLimit() - resultCount < batchConfigLimit){
 			batchConfigLimit = (int) (this.config.getLimit() - resultCount);
 		}
@@ -119,7 +133,7 @@ extends BaseBatchBackedScanner<T,T>{
 		currentBatch = doLoad(currentRanges, batchConfig);
 		while(currentBatch.isEmpty() && !ranges.isEmpty()){
 			currentRanges.clear();
-			for(int i = 0; i < RANGE_BATCH_SIZE && !ranges.isEmpty(); i++){
+			for(int i = 0; i < this.rangeBatchSize && !ranges.isEmpty(); i++){
 				currentRanges.add(ranges.pollFirst());
 			}
 			currentBatch = doLoad(currentRanges, batchConfig);

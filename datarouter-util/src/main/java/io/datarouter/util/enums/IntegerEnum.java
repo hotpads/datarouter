@@ -15,10 +15,16 @@
  */
 package io.datarouter.util.enums;
 
+import java.util.Optional;
+
 public interface IntegerEnum<E> extends Comparable<E>{
 
 	Integer getPersistentInteger();
 	E fromPersistentInteger(Integer value);
+
+	default Optional<E> fromPersistentIntegerOptional(Integer value){
+		return Optional.ofNullable(fromPersistentInteger(value));
+	}
 
 	static <E extends IntegerEnum<E>> E fromPersistentIntegerSafe(E sampleValue, Integer persistentInteger){
 		if(persistentInteger == null){

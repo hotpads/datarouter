@@ -39,7 +39,7 @@ public class Params{
 
 	public Params(HttpServletRequest request){
 		this.request = request;
-		paramsMap = RequestTool.getParamMap(request);
+		this.paramsMap = RequestTool.getParamMap(request);
 	}
 
 	public String required(String key){
@@ -51,7 +51,7 @@ public class Params{
 	}
 
 	public Optional<String> optionalNotEmpty(String key){
-		return optional(key).map(String::trim).filter(StringTool::notEmpty);
+		return optional(key).filter(StringTool::notEmptyNorWhitespace);
 	}
 
 	public Boolean requiredBoolean(String key){
@@ -59,7 +59,9 @@ public class Params{
 	}
 
 	public Boolean optionalBoolean(String key, Boolean defaultValue){
-		return optional(key).map(BooleanTool::isTrue).orElse(defaultValue);
+		return optional(key)
+				.map(BooleanTool::isTrue)
+				.orElse(defaultValue);
 	}
 
 	public Optional<Boolean> optionalBoolean(String key){
@@ -87,7 +89,7 @@ public class Params{
 
 	public Optional<Long> optionalLongSafeParsing(String key){
 		return optional(key)
-				.map(value -> NumberTool.getLongNullSafe(value,null))
+				.map(value -> NumberTool.getLongNullSafe(value, null))
 				.filter(Objects::nonNull);
 	}
 
@@ -111,7 +113,9 @@ public class Params{
 	}
 
 	public Double optionalDouble(String key, Double defaultValue){
-		return optional(key).map(Double::valueOf).orElse(defaultValue);
+		return optional(key)
+				.map(Double::valueOf)
+				.orElse(defaultValue);
 	}
 
 	public List<String> optionalCsvList(String key, List<String> defaultValue){
@@ -119,7 +123,10 @@ public class Params{
 	}
 
 	public List<String> optionalList(String key, String delimiter, List<String> defaultValue){
-		return optional(key).map(str -> str.split(delimiter)).map(Arrays::asList).orElse(defaultValue);
+		return optional(key)
+				.map(str -> str.split(delimiter))
+				.map(Arrays::asList)
+				.orElse(defaultValue);
 	}
 
 	public Optional<String[]> optionalArray(String key){

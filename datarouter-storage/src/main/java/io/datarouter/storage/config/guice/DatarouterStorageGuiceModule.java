@@ -16,30 +16,28 @@
 package io.datarouter.storage.config.guice;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.inject.guice.BaseModule;
+import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.inject.guice.GuiceInjector;
-import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.config.setting.DatarouterClusterSettings;
+import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.storage.config.setting.DatarouterClusterSettingRoot;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
 
-public class DatarouterStorageGuiceModule extends BaseModule{
+public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 
 	@Override
 	protected void configure(){
-		install(new DatarouterStorageExecutorGuiceModule());
-
 		bind(DatarouterInjector.class).to(GuiceInjector.class);
-		bind(DatarouterSettings.class).to(DatarouterClusterSettings.class);
+		bind(DatarouterSettings.class).to(DatarouterClusterSettingRoot.class);
 
-		bindOptional(SettingFinder.class).setDefault().to(MemorySettingFinder.class);
+		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 
 		// Necessary explicit bindings when dealing with child injectors
 		bind(GuiceInjector.class);
 		bind(DatarouterNodes.class);
-		bind(DatarouterClients.class);
+		bind(ClientOptions.class);
 	}
 
 }

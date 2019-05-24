@@ -16,45 +16,40 @@
 package io.datarouter.util.iterable.scanner.imp;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.iterable.scanner.sorted.BaseSortedScanner;
 
-// Currently only used in tests.
+/**
+ * Users of this class can assume it will keep RandomAccess performance, currently implemented with ArrayList
+ */
 public class ListBackedSortedScanner<T extends Comparable<? super T>>
 extends BaseSortedScanner<T>{
 
-	protected ArrayList<T> list;
-	protected int currentIndex;
+	private final ArrayList<T> sortedItems;
+	private int currentIndex;
 
-	public ListBackedSortedScanner(Iterable<T> ins){
-		if(ins instanceof ArrayList){
-			this.list = (ArrayList<T>)ins;
-		}else{
-			this.list = IterableTool.createArrayListFromIterable(ins);
-		}
-		Collections.sort(this.list);
+	public ListBackedSortedScanner(ArrayList<T> sortedItems){
+		this.sortedItems = sortedItems;
 		this.currentIndex = -1;
 	}
 
 	@Override
 	public boolean advance(){
 		++currentIndex;
-		return currentIndex < list.size();
+		return currentIndex < sortedItems.size();
 	}
 
+	/**
+	 * Exception is thrown at invalid index, like before calling advance() or calling it too many times.
+	 */
 	@Override
 	public T getCurrent(){
-		if(currentIndex < 0 || currentIndex >= list.size()){
-			return null;
-		}
-		return list.get(currentIndex);
+		return sortedItems.get(currentIndex);
 	}
 
 	@Override
 	public String toString(){
-		return ListBackedSortedScanner.class.getSimpleName() + "[" + currentIndex + ":" + list.get(currentIndex) + "]";
+		return getClass().getSimpleName() + "[" + currentIndex + ":" + sortedItems.get(currentIndex) + "]";
 	}
 
 }

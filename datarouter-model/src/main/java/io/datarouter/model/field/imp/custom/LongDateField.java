@@ -27,6 +27,9 @@ public class LongDateField extends BasePrimitiveField<Date>{
 		super(key, value);
 	}
 
+	/**
+	 * @return the "long" format for persistence.  Note that getValueString() returns the human-readable date
+	 */
 	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
@@ -40,7 +43,6 @@ public class LongDateField extends BasePrimitiveField<Date>{
 		if(StringTool.isEmpty(str) || "null".equals(str)){
 			return null;
 		}
-		//		return DateTool.parseUserInputDate(s,null);
 		return new Date(Long.valueOf(str));
 	}
 

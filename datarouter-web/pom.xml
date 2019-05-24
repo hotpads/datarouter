@@ -18,15 +18,16 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.9</version>
+		<version>0.0.10</version>
+		<relativePath>../datarouter-parent</relativePath>
 	</parent>
-	
+
 	<artifactId>datarouter-web</artifactId>
-	
+
 	<name>datarouter-web</name>
 	<description>datarouter-web</description>
 
@@ -44,12 +45,12 @@
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-http-client</artifactId>
-			<version>0.0.9</version>
+			<version>0.0.10</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-storage</artifactId>
-			<version>0.0.9</version>
+			<version>0.0.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.web</groupId>
@@ -71,7 +72,6 @@
 			<artifactId>guice-servlet</artifactId>
 			<version>${guice-version}</version>
 			<exclusions>
-				<!-- prefer recent version from datarouter-model -> datarouter-storage -->
 				<exclusion>
 					<groupId>com.google.guava</groupId>
 					<artifactId>guava</artifactId>
@@ -81,19 +81,18 @@
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
-			<version>1.3.3</version>
+			<version>1.4</version>
 		</dependency>
 		<dependency>
-			<groupId>com.squareup</groupId>
-			<artifactId>javapoet</artifactId>
-			<version>1.11.1</version>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.opensaml</groupId>
 			<artifactId>opensaml-saml-impl</artifactId>
 			<version>${opensaml.version}</version>
 			<exclusions>
-				<!-- prefer recent version from datarouter-model -> datarouter-storage -->
 				<exclusion>
 					<groupId>com.google.guava</groupId>
 					<artifactId>guava</artifactId>

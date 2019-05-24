@@ -82,7 +82,7 @@ public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 		throw new NotImplementedException();
 	}
 
-	public static class Tests{
+	public static class PrimitiveIntegerArrayFieldTests{
 
 		@Test
 		public void testByteSerialization(){

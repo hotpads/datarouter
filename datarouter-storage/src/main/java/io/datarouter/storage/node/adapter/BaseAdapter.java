@@ -15,9 +15,7 @@
  */
 package io.datarouter.storage.node.adapter;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -41,16 +39,6 @@ implements Node<PK,D,F>{
 	}
 
 	@Override
-	public Node<PK,D,F> getMaster(){
-		return backingNode.getMaster();
-	}
-
-	@Override
-	public PhysicalNode<PK,D,F> getPhysicalNodeIfApplicable(){
-		return backingNode.getPhysicalNodeIfApplicable();
-	}
-
-	@Override
 	public String getName(){
 		return backingNode.getName();
 	}
@@ -61,16 +49,6 @@ implements Node<PK,D,F>{
 	}
 
 	@Override
-	public Set<String> getAllNames(){
-		return backingNode.getAllNames();
-	}
-
-	@Override
-	public List<String> getClientNames(){
-		return backingNode.getClientNames();
-	}
-
-	@Override
 	public List<ClientId> getClientIds(){
 		return backingNode.getClientIds();
 	}
@@ -78,11 +56,6 @@ implements Node<PK,D,F>{
 	@Override
 	public boolean usesClient(String clientName){
 		return backingNode.usesClient(clientName);
-	}
-
-	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys){
-		return backingNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys);
 	}
 
 	@Override

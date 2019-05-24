@@ -28,7 +28,7 @@ public class TestDatabeanWithTxnManagedIndexRouter extends DatarouterTestDatabea
 
 	public TestDatabeanWithTxnManagedIndexRouter(Datarouter datarouter, TestDatarouterProperties datarouterProperties,
 			NodeFactory nodeFactory, DatarouterSettings datarouterSettings, ClientId clientId){
-		super(datarouter, datarouterProperties, "txnManagedIndexTest", nodeFactory, datarouterSettings, clientId,
+		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings, clientId,
 				"TestDatabeanWithTxnManagedIndex");
 
 		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(backingMapNode,

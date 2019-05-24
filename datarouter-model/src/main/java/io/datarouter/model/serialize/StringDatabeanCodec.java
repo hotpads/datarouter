@@ -24,21 +24,21 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 
 public interface StringDatabeanCodec{
 
-	public <PK extends PrimaryKey<PK>,
+	<PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	String toString(D databean, F fielder);
 
-	public <PK extends PrimaryKey<PK>,
+	<PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	D fromString(String string, F fielder, Supplier<D> databeanSupplier);
 
-	public String getCollectionSeparator();
-	public String getCollectionPrefix();
-	public String getCollectionSuffix();
+	String getCollectionSeparator();
+	String getCollectionPrefix();
+	String getCollectionSuffix();
 
-	public <PK extends PrimaryKey<PK>,
+	<PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	List<D> fromStringMulti(String string, F fielder, Supplier<D> databeanSupplier);

@@ -30,11 +30,11 @@ import io.datarouter.storage.router.Router;
 
 public interface ClientNodeFactory{
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	PhysicalNode<PK,D,F> createWrappedNode(NodeParams<PK,D,F> nodeParams);
 
 	<EK extends EntityKey<EK>,E extends Entity<EK>> EntityNode<EK,E> createEntityNode(NodeFactory nodeFactory,
-			Router router, EntityNodeParams<EK,E> entityNodeParams, String clientName);
+			Router router, EntityNodeParams<EK,E> entityNodeParams, ClientId clientId);
 
 	<EK extends EntityKey<EK>,
 			E extends Entity<EK>,

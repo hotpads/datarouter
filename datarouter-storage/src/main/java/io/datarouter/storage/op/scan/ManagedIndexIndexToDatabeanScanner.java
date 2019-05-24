@@ -27,14 +27,16 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.util.iterable.BatchingIterable;
 import io.datarouter.util.iterable.IterableTool;
-import io.datarouter.util.iterable.scanner.sorted.BaseHoldingScanner;
+import io.datarouter.util.iterable.scanner.BaseScanner;
 
 public class ManagedIndexIndexToDatabeanScanner<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		IK extends PrimaryKey<IK>,
 		IE extends IndexEntry<IK,IE,PK,D>>
-extends BaseHoldingScanner<D>{
+extends BaseScanner<D>{
+
+	private static final int DEFAULT_BATCH_SIZE = 100;
 
 	private final MapStorageReader<PK,D> mainNode;
 	private final Iterator<List<IE>> indexEntryBatchIterator;
@@ -47,7 +49,7 @@ extends BaseHoldingScanner<D>{
 			Config config){
 		this.mainNode = mainNode;
 		this.config = config;
-		Integer batchSize = Config.nullSafe(config).getIterateBatchSize();
+		int batchSize = Config.nullSafe(config).optInputBatchSize().orElse(DEFAULT_BATCH_SIZE);
 		BatchingIterable<IE> batchingIndexIterable = new BatchingIterable<>(indexIterable, batchSize);
 		this.indexEntryBatchIterator = batchingIndexIterable.iterator();
 	}

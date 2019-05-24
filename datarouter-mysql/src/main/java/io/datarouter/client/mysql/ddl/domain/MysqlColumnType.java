@@ -43,7 +43,7 @@ public enum MysqlColumnType{
 	// Date and Time Type Overview
 	DATE(false, false, false),
 	DATETIME(true, false, false),
-	TIMESTAMP(false, false, false),
+	TIMESTAMP(true, false, false),
 	TIME(false, false, false),
 	YEAR(false, false, false),
 

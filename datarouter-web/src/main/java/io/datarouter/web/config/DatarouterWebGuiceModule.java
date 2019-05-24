@@ -15,25 +15,22 @@
  */
 package io.datarouter.web.config;
 
-import javax.inject.Singleton;
-
 import com.google.gson.Gson;
 import com.google.inject.TypeLiteral;
-import com.google.inject.multibindings.OptionalBinder;
 import com.google.inject.name.Names;
-import com.google.inject.servlet.ServletModule;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
-import io.datarouter.web.config.guice.DatarouterWebExecutorGuiceModule;
+import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.mav.DatarouterMavPropertiesFactoryConfig;
 import io.datarouter.web.handler.mav.MavPropertiesFactoryConfig;
-import io.datarouter.web.handler.mav.nav.NavBar;
+import io.datarouter.web.handler.mav.nav.AppNavBar;
+import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
 import io.datarouter.web.user.DatarouterUserNodes;
@@ -52,12 +49,11 @@ import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserInfo;
 import io.datarouter.web.user.session.service.UserSessionService;
 
-public class DatarouterWebGuiceModule extends ServletModule{
+public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
 	@Override
 	protected void configureServlets(){
 		install(new DatarouterStorageGuiceModule());
-		install(new DatarouterWebExecutorGuiceModule());
 
 		bind(ServletContextProvider.class).toInstance(new ServletContextProvider(getServletContext()));
 		bind(JsonSerializer.class)
@@ -67,31 +63,21 @@ public class DatarouterWebGuiceModule extends ServletModule{
 				.annotatedWith(Names.named(CompoundPortIdentifier.COMPOUND_PORT_IDENTIFIER))
 				.to(CompoundPortIdentifier.class);
 
-		bindOptional(DatarouterAuthenticationConfig.class).setDefault().to(BaseDatarouterAuthenticationConfig.class);
-		bindOptional(DatarouterUserNodes.class).setDefault().to(NoOpDatarouterUserNodes.class);
-		bindOptional(new TypeLiteral<RoleEnum<? extends RoleEnum<?>>>(){})
-				.setDefault()
-				.toInstance(DatarouterUserRole.admin);
-		bindOptional(CurrentUserSessionInfo.class).setDefault().to(DatarouterCurrentUserSessionInfo.class);
-		bindOptional(UserInfo.class).setDefault().to(DatarouterUserInfo.class);
-		bindOptional(ExceptionRecorder.class);
-		bindOptional(MavPropertiesFactoryConfig.class).setDefault().to(DatarouterMavPropertiesFactoryConfig.class);
-		bindOptional(NavBar.class);
-		bindOptional(RoleManager.class).setDefault().to(DatarouterRoleManager.class);
-		bindOptional(SamlRegistrar.class);
-		bindOptional(SettingFinder.class).setDefault().to(MemorySettingFinder.class);
-		bindOptional(UserSessionService.class).setDefault().to(DatarouterUserSessionService.class);
+		bindDefault(DatarouterAuthenticationConfig.class, BaseDatarouterAuthenticationConfig.class);
+		bindDefault(DatarouterUserNodes.class, NoOpDatarouterUserNodes.class);
+		bindDefaultInstance(new TypeLiteral<RoleEnum<? extends RoleEnum<?>>>(){}, DatarouterUserRole.ADMIN);
+		bindDefault(CurrentUserSessionInfo.class, DatarouterCurrentUserSessionInfo.class);
+		bindDefault(UserInfo.class, DatarouterUserInfo.class);
+		optionalBinder(ExceptionRecorder.class);
+		bindDefault(MavPropertiesFactoryConfig.class, DatarouterMavPropertiesFactoryConfig.class);
+		optionalBinder(AppNavBar.class);
+		bindDefault(RoleManager.class, DatarouterRoleManager.class);
+		optionalBinder(SamlRegistrar.class);
+		bindDefault(SettingFinder.class, MemorySettingFinder.class);
+		bindDefault(UserSessionService.class, DatarouterUserSessionService.class);
 
 		// define as singleton for everybody
-		bind(Gson.class).in(Singleton.class);
-	}
-
-	private <T> OptionalBinder<T> bindOptional(Class<T> type){
-		return OptionalBinder.newOptionalBinder(binder(), type);
-	}
-
-	private <T> OptionalBinder<T> bindOptional(TypeLiteral<T> type){
-		return OptionalBinder.newOptionalBinder(binder(), type);
+		bind(Gson.class).toInstance(GsonTool.GSON);
 	}
 
 }

@@ -105,8 +105,8 @@ public class ResultMergeTool{
 		return out;
 	}
 
-	public static <T extends Comparable<? super T>,C extends Collection<T>>
-	ArrayList<T> mergeIntoListAndSort(C objA, Collection<? extends C> bs){
+	public static <T extends Comparable<? super T>,C extends Collection<T>> ArrayList<T> mergeIntoListAndSort(C objA,
+			Collection<? extends C> bs){
 		ArrayList<T> out = new ArrayList<>();
 		out.addAll(CollectionTool.nullSafe(objA));
 		for(C b : CollectionTool.nullSafe(bs)){

@@ -15,8 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.txn.txnapp;
 
-import java.util.List;
-
 import org.testng.Assert;
 
 import io.datarouter.client.mysql.execution.SessionExecutor;
@@ -26,38 +24,39 @@ import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestRouter;
 import io.datarouter.client.mysql.test.client.txn.TxnBean;
 import io.datarouter.client.mysql.test.client.txn.TxnBeanKey;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.Client;
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ConnectionHandle;
-import io.datarouter.storage.client.type.ConnectionClient;
+import io.datarouter.storage.client.type.ConnectionClientManager;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 
 public class TestNestedTxn extends BaseMysqlOp<Void>{
 
 	private final Datarouter datarouter;
-	private final List<String> clientNames;
+	private final ClientId clientId;
 	private final Isolation isolation;
 	private final DatarouterTxnTestRouter router;
 
-	public TestNestedTxn(Datarouter datarouter, List<String> clientNames, Isolation isolation, boolean autoCommit,
+	public TestNestedTxn(Datarouter datarouter, ClientId clientId, Isolation isolation, boolean autoCommit,
 			DatarouterTxnTestRouter router){
-		super(datarouter, clientNames, isolation, autoCommit);
+		super(datarouter, clientId, isolation, autoCommit);
 		this.datarouter = datarouter;
-		this.clientNames = clientNames;
+		this.clientId = clientId;
 		this.isolation = isolation;
 		this.router = router;
 	}
 
 	@Override
-	public Void runOncePerClient(Client client){
-		ConnectionClient connectionClient = (ConnectionClient)client;
-		ConnectionHandle handle = connectionClient.getExistingHandle();
+	public Void runOnce(){
+		ConnectionClientManager clientManager = (ConnectionClientManager)datarouter.getClientPool().getClientManager(
+				clientId);
+		ConnectionHandle handle = clientManager.getExistingHandle(clientId);
 
 		TxnBean outer = new TxnBean("outer");
 		router.txnBean().put(outer, null);
 		Assert.assertTrue(router.txnBean().exists(outer.getKey(), null));
 
-		SessionExecutor.run(new InnerTxn(datarouter, clientNames, isolation, false, router, handle));
+		SessionExecutor.run(new InnerTxn(datarouter, clientId, isolation, false, router, handle));
 
 		TxnBean outer2 = new TxnBean(outer.getId());
 		router.txnBean().put(outer2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
@@ -69,18 +68,23 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 
 		private final DatarouterTxnTestRouter router;
 		private final ConnectionHandle outerHandle;
+		private final Datarouter datarouter;
+		private final ClientId clientId;
 
-		public InnerTxn(Datarouter datarouter, List<String> clientNames, Isolation isolation, boolean autoCommit,
+		public InnerTxn(Datarouter datarouter, ClientId clientId, Isolation isolation, boolean autoCommit,
 				DatarouterTxnTestRouter router, ConnectionHandle outerHandle){
-			super(datarouter, clientNames, isolation, autoCommit);
+			super(datarouter, clientId, isolation, autoCommit);
+			this.datarouter = datarouter;
+			this.clientId = clientId;
 			this.router = router;
 			this.outerHandle = outerHandle;
 		}
 
 		@Override
-		public Void runOncePerClient(Client client){
-			ConnectionClient connectionClient = (ConnectionClient)client;
-			ConnectionHandle handle = connectionClient.getExistingHandle();
+		public Void runOnce(){
+			ConnectionClientManager clientManager = (ConnectionClientManager)datarouter.getClientPool()
+					.getClientManager(clientId);
+			ConnectionHandle handle = clientManager.getExistingHandle(clientId);
 			Assert.assertEquals(handle, outerHandle);
 
 			String name = "inner_txn";

@@ -20,9 +20,10 @@ import java.util.concurrent.Callable;
 import io.datarouter.util.iterable.scanner.Scanner;
 
 public interface BatchLoader<T>
-extends Callable<BatchLoader<T>>, Scanner<T>{
+extends Callable<BatchLoader<T>>,Scanner<T>{
 
 	boolean isLastBatch();
 	BatchLoader<T> getNextLoader();
+	void cleanup();
 
 }

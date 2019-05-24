@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -36,15 +37,15 @@ import io.datarouter.web.util.PasswordTool;
 
 @Singleton
 public class DatarouterUserCreationService{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterUserEditService.class);
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterUserCreationService.class);
 
 	public static final long ADMIN_ID = 1L;
 
-	private static final Set<Role> DEFAULT_ADMIN_ROLES = new HashSet<>(Arrays.asList(
-			DatarouterUserRole.datarouterAdmin.getRole(),
-			DatarouterUserRole.admin.getRole(),
-			DatarouterUserRole.user.getRole(),
-			DatarouterUserRole.apiUser.getRole()));
+	private static final Set<Role> DEFAULT_ADMIN_ROLES = SetTool.of(
+			DatarouterUserRole.DATAROUTER_ADMIN.getRole(),
+			DatarouterUserRole.ADMIN.getRole(),
+			DatarouterUserRole.USER.getRole(),
+			DatarouterUserRole.API_USER.getRole());
 
 	@Inject
 	private DatarouterProperties datarouterProperties;
@@ -71,7 +72,7 @@ public class DatarouterUserCreationService{
 	}
 
 	public DatarouterUser createAutomaticUser(String username, String description){
-		return createAutomaticUser(username, description, new HashSet<>(Arrays.asList(DatarouterUserRole.requestor
+		return createAutomaticUser(username, description, new HashSet<>(Arrays.asList(DatarouterUserRole.REQUESTOR
 				.getRole())));
 	}
 
@@ -81,7 +82,7 @@ public class DatarouterUserCreationService{
 
 	private DatarouterUser createAutomaticUser(String username, String description, Set<Role> roles,
 			boolean shouldPersist){
-		roles.add(DatarouterUserRole.requestor.getRole());
+		roles.add(DatarouterUserRole.REQUESTOR.getRole());
 		DatarouterUser user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.AUTO, null);
 		populateManualFields(user, username, roles, true);

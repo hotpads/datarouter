@@ -32,7 +32,9 @@ extends KeyedListField<V,L,ListFieldKey<V,L>>{
 
 	@Override
 	public String getStringEncodedValue(){
-		return Optional.ofNullable(value).map(GsonTool.GSON::toJson).orElse(null);
+		return Optional.ofNullable(value)
+				.map(GsonTool.GSON::toJson)
+				.orElse(null);
 	}
-}
 
+}

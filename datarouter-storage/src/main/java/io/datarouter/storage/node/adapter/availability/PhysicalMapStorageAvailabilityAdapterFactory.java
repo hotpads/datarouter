@@ -24,6 +24,7 @@ import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySet
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.availability.mixin.PhysicalMapStorageAvailabilityAdapterMixin;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class PhysicalMapStorageAvailabilityAdapterFactory{
 
@@ -50,6 +51,11 @@ public class PhysicalMapStorageAvailabilityAdapterFactory{
 
 		private PhysicalMapStorageAvailabilityAdapter(N backingNode){
 			super(datarouterClientAvailabilitySettingsProvider, backingNode);
+		}
+
+		@Override
+		public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+			return PhysicalAdapterMixin.super.getFieldInfo();
 		}
 
 	}

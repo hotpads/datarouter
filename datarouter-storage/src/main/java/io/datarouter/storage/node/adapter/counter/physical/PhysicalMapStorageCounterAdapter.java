@@ -22,6 +22,7 @@ import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.counter.BaseCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.mixin.MapStorageCounterAdapterMixin;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class PhysicalMapStorageCounterAdapter<
 		PK extends PrimaryKey<PK>,
@@ -35,6 +36,11 @@ implements PhysicalMapStorageNode<PK,D,F>,
 
 	public PhysicalMapStorageCounterAdapter(N backingNode){
 		super(backingNode);
+	}
+
+	@Override
+	public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+		return PhysicalAdapterMixin.super.getFieldInfo();
 	}
 
 }

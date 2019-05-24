@@ -17,11 +17,11 @@ package io.datarouter.util.iterable.scanner.iterable;
 
 import java.util.Iterator;
 
-import io.datarouter.util.iterable.scanner.sorted.BaseHoldingScanner;
+import io.datarouter.util.iterable.scanner.BaseScanner;
 
-public class IteratorScanner<T> extends BaseHoldingScanner<T>{
+public class IteratorScanner<T> extends BaseScanner<T>{
 
-	private Iterator<T> iterator;
+	private final Iterator<T> iterator;
 
 	public IteratorScanner(Iterator<T> iterator){
 		this.iterator = iterator;
@@ -35,4 +35,5 @@ public class IteratorScanner<T> extends BaseHoldingScanner<T>{
 		}
 		return false;
 	}
+
 }

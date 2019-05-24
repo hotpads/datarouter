@@ -154,7 +154,7 @@ public class ArrayTool{
 		return Arrays.copyOf(ins, size);
 	}
 
-	public static class Tests{
+	public static class ArrayToolTests{
 
 		@Test
 		public void simpleCompare(){

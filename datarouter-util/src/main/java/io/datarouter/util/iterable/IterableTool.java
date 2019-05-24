@@ -21,10 +21,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -36,8 +34,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.StreamTool;
-import io.datarouter.util.iterable.scanner.iterable.SingleUseScannerIterable;
-import io.datarouter.util.iterable.scanner.sorted.BaseHoldingScanner;
 
 public class IterableTool{
 
@@ -135,33 +131,7 @@ public class IterableTool{
 		return list;
 	}
 
-	public static <T> Iterable<T> dedupeSortedIterator(final Iterator<T> iterator){
-		return new SingleUseScannerIterable<>(new BaseHoldingScanner<T>(){
-			@Override
-			public boolean advance(){
-				T candidate = current;
-				while(iterator.hasNext() && Objects.equals(candidate, current)){
-					candidate = iterator.next();
-				}
-				if(Objects.equals(candidate, current)){
-					return false;
-				}
-				current = candidate;
-				return true;
-			}
-		});
-	}
-
 	public static class IterableToolTests{
-
-		@Test
-		public void testDedupeSortedIterator(){
-			List<Integer> sortedIntsWithDupes = Arrays.asList(0, 0, 1, 2, 3, 3, 4, 5, 9, 20, 20);
-			Iterator<Integer> sortedIntsDeduped = new TreeSet<>(sortedIntsWithDupes).iterator();
-			for(Integer integer : dedupeSortedIterator(sortedIntsWithDupes.iterator())){
-				Assert.assertEquals(integer, sortedIntsDeduped.next());
-			}
-		}
 
 		@Test
 		public void testMap(){

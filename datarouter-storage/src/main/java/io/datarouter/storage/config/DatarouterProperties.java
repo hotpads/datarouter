@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.config;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.InetAddress;
@@ -33,14 +35,14 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 import io.datarouter.storage.config.profile.ConfigProfile;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.util.Require;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.properties.PropertiesTool;
+import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
 
 public abstract class DatarouterProperties{
@@ -50,6 +52,7 @@ public abstract class DatarouterProperties{
 	private static final String CONFIG_DIRECTORY = "config.directory";
 
 	private static final String ENVIRONMENT = "environment";
+	private static final String ENVIRONMENT_DOMAIN = "environmentDomain";
 	private static final String CONFIG_PROFILE = "configProfile";
 	private static final String SERVER_PUBLIC_IP = "server.publicIp";
 	private static final String SERVER_PRIVATE_IP = "server.privateIp";
@@ -57,16 +60,20 @@ public abstract class DatarouterProperties{
 	private static final String SERVER_TYPE = "server.type";
 	private static final String SERVER_CLUSTER_DOMAINS = "server.clusterDomains";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
+	private static final String EC2_HYPERVISOR_UUID_FILE = "/sys/hypervisor/uuid";
 	protected static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
 
-	private static final String EC2_PRIVATE_IP_URL = "http://instance-data/latest/meta-data/local-ipv4";
-	private static final String EC2_PUBLIC_IP_URL = "http://instance-data/latest/meta-data/public-ipv4";
+	private static final String EC2_INSTANCE_IDENTITY_DOCUMENT_URL =
+			"http://169.254.169.254/latest/dynamic/instance-identity/document";
+	private static final String EC2_PRIVATE_IP_URL = "http://169.254.169.254/latest/meta-data/local-ipv4";
+	private static final String EC2_PUBLIC_IP_URL = "http://169.254.169.254/latest/meta-data/public-ipv4";
 
 	private final String webappName;
 	protected final String configDirectory;
 	protected final String configFileLocation;
 
 	private final String environment;
+	private final String environmentDomain;
 	private final String configProfile;
 	private final String serverName;
 	private final ServerType serverType;
@@ -87,7 +94,7 @@ public abstract class DatarouterProperties{
 			String configDirectory, boolean directoryRequired, boolean directoryFromJvmArg, String filename,
 			boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
-		Preconditions.checkState(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
+		Require.isTrue(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
 
 		this.webappName = webappName;
 
@@ -101,12 +108,12 @@ public abstract class DatarouterProperties{
 				logSource(CONFIG_DIRECTORY, configDirectory, "constant");
 			}
 		}else{
-			Preconditions.checkState(!directoryRequired, "configDirectory required but not found");
+			Require.isTrue(!directoryRequired, "configDirectory required but not found");
 		}
 
 		//find configPath
 		if(StringTool.isEmpty(filename)){
-			Preconditions.checkState(!fileRequired);
+			Require.isTrue(!fileRequired);
 			this.configFileLocation = null;
 		}else{
 			this.configFileLocation = configDirectory + "/" + filename;
@@ -127,66 +134,52 @@ public abstract class DatarouterProperties{
 		}
 
 		//find remaining fields
-		this.environment = findEnvironment(configFileProperties);
+		this.environment = findProperty(configFileProperties, ENVIRONMENT);
+		this.environmentDomain = findProperty(configFileProperties, ENVIRONMENT_DOMAIN);
 		this.configProfile = findConfigProfile(configFileProperties);
 		this.serverName = findServerName(configFileProperties);
-		this.serverType = serverTypeOptions.fromPersistentString(findServerTypeString(configFileProperties));
-		this.administratorEmail = findAdministratorEmail(configFileProperties);
+		this.serverType = serverTypeOptions.fromPersistentString(findProperty(configFileProperties, SERVER_TYPE));
+		this.administratorEmail = findProperty(configFileProperties, ADMINISTRATOR_EMAIL);
 		this.privateIp = findPrivateIp(configFileProperties);
 		this.publicIp = findPublicIp(configFileProperties);
 		this.clusterDomains = findClusterDomains(configFileProperties);
-		this.internalConfigDirectory = findInternalConfigDirectory(configFileProperties);
+		this.internalConfigDirectory = findProperty(configFileProperties, INTERNAL_CONFIG_DIRECTORY);
 	}
 
 	/*--------------- methods to find config values -----------------*/
 
 	//prefer jvmArg then configFile
-	private String findEnvironment(Optional<Properties> configFileProperties){
-		Optional<String> jvmValue = getJvmArg(ENVIRONMENT);
+	private String findProperty(Optional<Properties> configFileProperties, String propertyName){
+		Optional<String> jvmValue = getJvmArg(propertyName);
 		if(jvmValue.isPresent()){
 			return jvmValue.get();
 		}
 		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(ENVIRONMENT));
+			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(propertyName));
 			if(value.isPresent()){
-				logSource(ENVIRONMENT, value.get(), configFileLocation);
+				logSource(propertyName, value.get(), configFileLocation);
 				return value.get();
 			}
 		}
-		logger.error("couldn't find {}", ENVIRONMENT);
+		logger.error("couldn't find {}", propertyName);
 		return null;
 	}
 
-	//prefer jvmArg then configFile
 	private String findConfigProfile(Optional<Properties> configFileProperties){
-		Optional<String> jvmValue = getJvmArg(CONFIG_PROFILE);
-		if(jvmValue.isPresent()){
-			return jvmValue.get();
-		}
-		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(CONFIG_PROFILE));
-			if(value.isPresent()){
-				logSource(CONFIG_PROFILE, value.get(), configFileLocation);
-				return value.get();
-			}
+		String configProfile = findProperty(configFileProperties, CONFIG_PROFILE);
+		if(configProfile != null){
+			return configProfile;
 		}
 		String defaultValue = ConfigProfile.DEVELOPMENT.get().getPersistentString();
 		logger.error("couldn't find {}, defaulting to {}", CONFIG_PROFILE, defaultValue);
 		return defaultValue;
 	}
 
-	//prefer configFile then hostname
+	//prefer jvmArg, then configFile, then hostname
 	private String findServerName(Optional<Properties> configFileProperties){
-		Optional<String> jvmValue = getJvmArg(SERVER_NAME);
-		if(jvmValue.isPresent()){
-			return jvmValue.get();
-		}
-		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_NAME));
-			if(value.isPresent()){
-				logSource(SERVER_NAME, value.get(), configFileLocation);
-				return value.get();
-			}
+		String serverName = findProperty(configFileProperties, SERVER_NAME);
+		if(serverName != null){
+			return serverName;
 		}
 		try{
 			String hostname = InetAddress.getLocalHost().getHostName();
@@ -202,55 +195,13 @@ public abstract class DatarouterProperties{
 		}
 	}
 
-	//prefer jvmArg then configFile
-	private String findServerTypeString(Optional<Properties> configFileProperties){
-		Optional<String> jvmValue = getJvmArg(SERVER_TYPE);
-		if(jvmValue.isPresent()){
-			return jvmValue.get();
-		}
-		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_TYPE));
-			if(value.isPresent()){
-				logSource(SERVER_TYPE, value.get(), configFileLocation);
-				return value.get();
-			}
-		}
-		logger.error("couldn't find {}", SERVER_TYPE);
-		return null;
-	}
-
-	//prefer jvmArg then configFile
-	private String findAdministratorEmail(Optional<Properties> configFileProperties){
-		Optional<String> jvmValue = getJvmArg(ADMINISTRATOR_EMAIL);
-		if(jvmValue.isPresent()){
-			return jvmValue.get();
-		}
-		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
-					ADMINISTRATOR_EMAIL));
-			if(value.isPresent()){
-				logSource(ADMINISTRATOR_EMAIL, value.get(), configFileLocation);
-				return value.get();
-			}
-		}
-		logger.error("couldn't find {}", ADMINISTRATOR_EMAIL);
-		return null;
-	}
-
 	//prefer jvmArg, configFile then api call
 	private String findPrivateIp(Optional<Properties> configFileProperties){
-		Optional<String> jvmValue = getJvmArg(SERVER_PRIVATE_IP);
-		if(jvmValue.isPresent()){
-			return jvmValue.get();
+		String privateIp = findProperty(configFileProperties, SERVER_PRIVATE_IP);
+		if(privateIp != null){
+			return privateIp;
 		}
-		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PRIVATE_IP));
-			if(value.isPresent()){
-				logSource(SERVER_PRIVATE_IP, value.get(), configFileLocation);
-				return value.get();
-			}
-		}
-		if(isEc2()){
+		if(isEc2(false)){
 			Optional<String> ip = curl(EC2_PRIVATE_IP_URL, true);
 			if(ip.isPresent()){
 				logSource(SERVER_PRIVATE_IP, ip.get(), EC2_PRIVATE_IP_URL);
@@ -263,18 +214,11 @@ public abstract class DatarouterProperties{
 
 	//prefer jvmArg, then, configFile then api call
 	private String findPublicIp(Optional<Properties> configFileProperties){
-		Optional<String> jvmValue = getJvmArg(SERVER_PUBLIC_IP);
-		if(jvmValue.isPresent()){
-			return jvmValue.get();
+		String publicIp = findProperty(configFileProperties, SERVER_PUBLIC_IP);
+		if(publicIp != null){
+			return publicIp;
 		}
-		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(SERVER_PUBLIC_IP));
-			if(value.isPresent()){
-				logSource(SERVER_PUBLIC_IP, value.get(), configFileLocation);
-				return value.get();
-			}
-		}
-		if(isEc2()){
+		if(isEc2(false)){
 			Optional<String> ip = curl(EC2_PUBLIC_IP_URL, true);
 			if(ip.isPresent()){
 				logSource(SERVER_PUBLIC_IP, ip.get(), EC2_PUBLIC_IP_URL);
@@ -301,24 +245,6 @@ public abstract class DatarouterProperties{
 		}
 		logger.error("couldn't find {}", SERVER_CLUSTER_DOMAINS);
 		return Collections.emptyList();
-	}
-
-	//prefer jvmArg then configFile
-	private String findInternalConfigDirectory(Optional<Properties> configFileProperties){
-		Optional<String> jvmValue = getJvmArg(INTERNAL_CONFIG_DIRECTORY);
-		if(jvmValue.isPresent()){
-			return jvmValue.get();
-		}
-		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
-					INTERNAL_CONFIG_DIRECTORY));
-			if(value.isPresent()){
-				logSource(INTERNAL_CONFIG_DIRECTORY, value.get(), configFileLocation);
-				return value.get();
-			}
-		}
-		logger.error("couldn't find {}", INTERNAL_CONFIG_DIRECTORY);
-		return null;
 	}
 
 	/*------------------- private -------------------------*/
@@ -348,9 +274,17 @@ public abstract class DatarouterProperties{
 		logger.warn("found {}={} from -D{} JVM arg", name, value, jvmArgName);
 	}
 
-	//TODO http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
-	private boolean isEc2(){
-		return curl(EC2_PRIVATE_IP_URL, false).isPresent();
+	//https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
+	public boolean isEc2(boolean logError){
+		String ec2HypervisorUuid = "";
+		try{
+			ec2HypervisorUuid = FileTool.readFile(new File(EC2_HYPERVISOR_UUID_FILE));
+		}catch(IOException e){
+			if(logError){
+				logger.error("error reading EC2 hypervisor UUID file {}", e);
+			}
+		}
+		return ec2HypervisorUuid.startsWith("ec2") && curl(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, false).isPresent();
 	}
 
 	private Optional<String> curl(String location, boolean logError){
@@ -393,6 +327,12 @@ public abstract class DatarouterProperties{
 		return "/config/" + internalConfigDirectory + "/" + filename;
 	}
 
+	public Optional<Ec2InstanceDetailsDto> getEc2InstanceDetails(){
+		Optional<String> ec2InstanceIdentityDocumentResponse = curl(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, false);
+		return ec2InstanceIdentityDocumentResponse.map(json -> GsonTool.GSON.fromJson(json,
+				Ec2InstanceDetailsDto.class));
+	}
+
 	/*---------------- getters -------------------*/
 
 	public String getServerName(){
@@ -429,6 +369,10 @@ public abstract class DatarouterProperties{
 
 	public String getEnvironment(){
 		return environment;
+	}
+
+	public String getEnvironmentDomain(){
+		return environmentDomain;
 	}
 
 	public String getConfigProfile(){

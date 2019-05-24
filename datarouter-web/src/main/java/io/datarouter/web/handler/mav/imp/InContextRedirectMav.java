@@ -39,4 +39,8 @@ public class InContextRedirectMav extends GlobalRedirectMav{
 		super(request.getContextPath() + inContextUrl, model);
 	}
 
+	public InContextRedirectMav(HttpServletRequest request, PathNode pathNode, Map<String,Object> model){
+		super(request.getContextPath() + pathNode.toSlashedString(), model);
+	}
+
 }

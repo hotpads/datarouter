@@ -30,12 +30,14 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
+import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.handler.TestApiHandler.FooBar;
+import io.datarouter.web.util.http.MockHttpServletRequestBuilder;
 
 public class DefaultDecoderTests{
 
-	private static final DefaultDecoder decoder = new DefaultDecoder(new GsonJsonSerializer());
+	private static final DefaultDecoder decoder = new DefaultDecoder(new GsonJsonSerializer(GsonTool.GSON));
 
 	private static final String firstname = "Goulven";
 	private static final String lastname = "Cornec";
@@ -62,7 +64,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testBefore() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("before");
-		HttpServletRequest request = new HttpRequestBuilder().build();
+		HttpServletRequest request = new MockHttpServletRequestBuilder().build();
 		Object[] args = decoder.decode(request, method);
 		Assert.assertEquals(args.length, 0);
 	}
@@ -70,7 +72,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testHello() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("hello", String.class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withParameter("_first_name", firstname)
 				.build();
 		Object[] args = decoder.decode(request, method);
@@ -81,7 +83,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testHi() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("hi", String.class, String.class, Boolean.TYPE);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withParameter("firstname", firstname)
 				.withParameter("lastname", lastname)
 				.withParameter("english", booleanValue.toString())
@@ -96,7 +98,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testDescribe() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("describe", FooBar.class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withParameter("fooBar", "{firstField:'" + firstname + "',intField:" + intValue + ",created:'"
 						+ createdString + "'}")
 				.build();
@@ -113,7 +115,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testCount() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("count", Collection.class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withParameter("fooBars", "[{firstField:'" + firstname + "',intField:" + intValue + ",created:'"
 						+ createdString + "'}]")
 				.build();
@@ -133,7 +135,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testSize() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("size", List.class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withBody("[{},{}]")
 				.build();
 		Object[] args = decoder.decode(request, method);
@@ -146,7 +148,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testLength() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("length", String.class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withBody(kenavo)
 				.build();
 		Object[] args = decoder.decode(request, method);
@@ -157,7 +159,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testSumInBase() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("sumInBase", int[].class, Integer.TYPE);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withBody(Arrays.toString(intArray))
 				.withParameter("base", Integer.toString(base))
 				.build();
@@ -170,7 +172,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testTimeContains() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("timeContains", Set.class, String.class, String.class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withBody(Arrays.toString(stringArray))
 				.withParameter("needle", stringArray[2])
 				.build();
@@ -184,7 +186,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testPrimitiveFormEncodedArrays() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("printPrimitiveIntArray", int[].class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withArrayParameter("numbers[]", "1", "2", "3")
 				.build();
 
@@ -197,7 +199,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testObjectFormEncodedArrays() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("printIntegerObjectArray", Integer[].class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withArrayParameter("numbers[]", "1", "2", "3")
 				.build();
 
@@ -210,7 +212,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testSingleElementFormEncodedArray() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("printIntegerObjectArray", Integer[].class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withArrayParameter("numbers[]", "1")
 				.build();
 
@@ -223,7 +225,7 @@ public class DefaultDecoderTests{
 	@Test
 	public void testNoParamNameFormEncodedArray() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("printPrimitiveIntArrayNoParamName", int[].class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withArrayParameter("numbers[]", "1", "2", "3")
 				.build();
 
@@ -237,7 +239,7 @@ public class DefaultDecoderTests{
 	public void testComplexFormEncodedArray() throws NoSuchMethodException, SecurityException{
 		Method method = TestApiHandler.class.getMethod("printComplicatedArrayParams", int[].class, Integer[].class,
 				int[].class);
-		HttpServletRequest request = new HttpRequestBuilder()
+		HttpServletRequest request = new MockHttpServletRequestBuilder()
 				.withArrayParameter("foo", "1", "2", "3")
 				.withParameter("bar", "[1,2]")
 				.withArrayParameter("baz[]", "1")

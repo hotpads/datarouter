@@ -20,6 +20,7 @@ import java.security.KeyPair;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,7 +59,7 @@ import io.datarouter.web.user.session.service.UserSessionService;
  * To configure SAML:<ol>
  * <li>Bind implementations of {@link UserSessionService} and {@link RoleManager}.</li>
  * <li>Serve {@link SamlAssertionConsumerServlet} (BEFORE /*). <li>
- * Add {@link DatarouterSamlSettings} to your settings and set it up appropriately.</li>
+ * Add {@link DatarouterSamlSettingRoot} to your settings and set it up appropriately.</li>
  * </ol>
  */
 @Singleton
@@ -67,7 +68,7 @@ public class SamlService{
 
 	private static final String SAML_RESPONSE = "SAMLResponse";
 
-	private final DatarouterSamlSettings samlSettings;
+	private final DatarouterSamlSettingRoot samlSettings;
 	private final UserSessionService userSessionService;
 	private final RoleManager roleManager;
 	private final Optional<SamlRegistrar> samlRegistrar;
@@ -75,7 +76,7 @@ public class SamlService{
 	private final DatarouterSamlRouter samlRouter;
 
 	@Inject
-	public SamlService(DatarouterSamlSettings samlSettings, UserSessionService userSessionService,
+	public SamlService(DatarouterSamlSettingRoot samlSettings, UserSessionService userSessionService,
 			RoleManager roleManager, Optional<SamlRegistrar> jitSamlRegistrar, DatarouterSamlRouter samlRouter){
 		this.samlSettings = samlSettings;
 		this.userSessionService = userSessionService;
@@ -183,16 +184,20 @@ public class SamlService{
 	}
 
 	private Set<Role> determineRoles(Assertion assertion, Map<String,String> attributeToRoleGroupIdMap){
-		if(!samlSettings.shouldAllowRoleGroups.get()){
-			// if groups are turned off, only return roles that every user should have
-			return roleManager.getRolesForDefaultGroup();
-		}
-		return SetTool.union(roleManager.getRolesForDefaultGroup(), SamlTool.streamGroupNameValues(assertion)
+		Set<Role> rolesForDefaultGroup = roleManager.getRolesForDefaultGroup();
+		List<Role> rolesForGroupAttributes = SamlTool.streamAttributeValuesByName(SamlTool.ROLE_GROUP_ATTRIBUTE_NAME,
+				assertion)
 				.map(attributeToRoleGroupIdMap::get)
 				.filter(Objects::nonNull)
 				.map(roleManager::getRolesForGroup)
 				.flatMap(Set::stream)
-				.collect(Collectors.toSet()));
+				.collect(Collectors.toList());
+		List<Role> rolesForRoleAttributes = SamlTool.streamAttributeValuesByName(SamlTool.ROLE_ATTRIBUTE_NAME,
+				assertion)
+				.map(roleManager::getRoleFromPersistentString)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		return SetTool.union(rolesForDefaultGroup, rolesForGroupAttributes, rolesForRoleAttributes);
 	}
 
 	private void redirectAfterAuthentication(HttpServletRequest request, HttpServletResponse response,

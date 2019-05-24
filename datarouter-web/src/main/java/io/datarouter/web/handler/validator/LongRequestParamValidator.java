@@ -21,4 +21,5 @@ public abstract class LongRequestParamValidator extends RequestParamValidator<Lo
 	public Class<Long> getParameterClass(){
 		return Long.class;
 	}
+
 }

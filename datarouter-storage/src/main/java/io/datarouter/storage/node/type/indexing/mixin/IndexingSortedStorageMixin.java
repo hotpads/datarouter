@@ -25,6 +25,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.storage.node.op.raw.SortedStorage.SortedStorageNode;
 import io.datarouter.storage.node.op.raw.index.IndexListener;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public interface IndexingSortedStorageMixin<
@@ -38,12 +39,12 @@ extends SortedStorage<PK,D>{
 	List<IndexListener<PK,D>> getIndexNodes();
 
 	@Override
-	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		return getBackingNode().scanKeysMulti(ranges, config);
 	}
 
 	@Override
-	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		return getBackingNode().scanMulti(ranges, config);
 	}
 

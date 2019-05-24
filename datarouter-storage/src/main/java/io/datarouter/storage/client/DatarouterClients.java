@@ -18,33 +18,24 @@ package io.datarouter.storage.client;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.storage.config.guice.DatarouterStorageExecutorGuiceModule;
-import io.datarouter.storage.node.DatarouterNodes;
+import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterClientFactoryExecutor;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.string.StringTool;
@@ -61,41 +52,30 @@ import io.datarouter.util.tuple.Pair;
 public class DatarouterClients{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterClients.class);
 
-	public static final String CLIENT_default = "default";
-	public static final String PREFIX_clients = "clients";
-	public static final String PREFIX_client = "client.";
-	public static final String PARAM_forceInitMode = ".forceInitMode";
-	public static final String PARAM_initMode = ".initMode";
-
 	//injected
-	private final DatarouterNodes datarouterNodes;
 	private final ClientTypeRegistry clientTypeRegistry;
-	private final ExecutorService executorService;
+	private final DatarouterClientFactoryExecutor executorService;
 	private final DatarouterInjector datarouterInjector;
+	private final ClientOptions clientOptions;
+	private final ClientInitializationTracker clientInitializationTracker;
 
 	//not injected
 	private final Set<String> configFilePaths;
-	private final List<Properties> multiProperties;
 	private final Map<String,ClientId> clientIdByClientName;
-	private final Map<String,LazyClientProvider> lazyClientProviderByName;
-
-	private RouterOptions routerOptions;
 
 	/*---------------------------- constructors ---------------------------- */
 
 	@Inject
-	public DatarouterClients(DatarouterNodes datarouterNodes, ClientTypeRegistry clientTypeRegistry,
-			@Named(DatarouterStorageExecutorGuiceModule.POOL_datarouterExecutor) ExecutorService executorService,
-			DatarouterInjector datarouterInjector){
-		this.datarouterNodes = datarouterNodes;
+	public DatarouterClients(ClientTypeRegistry clientTypeRegistry, DatarouterClientFactoryExecutor executorService,
+			DatarouterInjector datarouterInjector, ClientOptions clientOptions,
+			ClientInitializationTracker clientInitializationTracker){
 		this.clientTypeRegistry = clientTypeRegistry;
 		this.executorService = executorService;
 		this.datarouterInjector = datarouterInjector;
+		this.clientOptions = clientOptions;
+		this.clientInitializationTracker = clientInitializationTracker;
 		this.configFilePaths = new TreeSet<>();
-		this.multiProperties = new ArrayList<>();
 		this.clientIdByClientName = new TreeMap<>();
-		this.lazyClientProviderByName = new ConcurrentHashMap<>();
-		this.routerOptions = new RouterOptions(multiProperties);
 	}
 
 	public void registerConfigFile(String configFilePath){
@@ -103,53 +83,45 @@ public class DatarouterClients{
 			configFilePaths.add(configFilePath);
 			Pair<Properties,URL> propertiesAndLocation = PropertiesTool.parseAndGetLocation(configFilePath);
 			logger.warn("got properties from {}", propertiesAndLocation.getRight());
-			multiProperties.add(propertiesAndLocation.getLeft());
-			routerOptions = new RouterOptions(multiProperties);
+			clientOptions.addProperties(propertiesAndLocation.getLeft());
 		}
 	}
 
-	public Stream<LazyClientProvider> registerClientIds(Collection<ClientId> clientIdsToAdd){
+	public List<ClientId> registerClientIds(Collection<ClientId> clientIdsToAdd){
 		clientIdsToAdd.forEach(clientId -> clientIdByClientName.put(clientId.getName(), clientId));
 		return clientIdsToAdd.stream()
-				.map(this::initClientFactoryIfNull);
+				.filter(clientInitializationTracker::isInitialized)
+				.collect(Collectors.toList());
 	}
 
 	/*----------------------------- initialize ----------------------------- */
 
 	public void initializeEagerClients(){
-		getClients(getClientNamesRequiringEagerInitialization());
+		initClientsInParallel(getClientNamesRequiringEagerInitialization());
 	}
 
-	public ClientType<?> getClientTypeInstance(String clientName){
-		String clientTypeName = routerOptions.getClientType(clientName);
-		Preconditions.checkNotNull(clientTypeName, "clientType not found for clientName=%s", clientName);
-		ClientType<?> clientType = clientTypeRegistry.get(clientTypeName);
-		Preconditions.checkNotNull(clientType, "implementation not found for client type=%s", clientTypeName);
+	public ClientType<?,?> getClientTypeInstance(ClientId clientId){
+		String clientTypeName = clientOptions.getClientType(clientId);
+		Objects.requireNonNull(clientTypeName, "clientType not found for clientName=" + clientId.getName());
+		ClientType<?,?> clientType = clientTypeRegistry.get(clientTypeName);
+		Objects.requireNonNull(clientType, "implementation not found for client type=" + clientTypeName);
 		return clientType;
 	}
 
-	private synchronized LazyClientProvider initClientFactoryIfNull(ClientId clientId){
-		return lazyClientProviderByName.computeIfAbsent(clientId.getName(), clientName -> {
-			ClientType<?> clientTypeInstance = getClientTypeInstance(clientName);
-			ClientFactory clientFactory = datarouterInjector.getInstance(clientTypeInstance.getClientFactoryClass());
-			return new LazyClientProvider(clientFactory, clientId, datarouterNodes);
-		});
+	public ClientManager getClientManager(ClientId clientId){
+		return datarouterInjector.getInstance(getClientTypeInstance(clientId).getClientManagerClass());
 	}
-
 
 	/*------------------------------ shutdown ------------------------------ */
 
 	//TODO shutdown clients in parallel
 	public void shutdown(){
-		for(LazyClientProvider lazyClientProvider : lazyClientProviderByName.values()){
-			if(!lazyClientProvider.isInitialized()){
-				continue;
-			}
-			Client client = lazyClientProvider.call();
+		for(ClientId clientId : clientInitializationTracker.getInitializedClients()){
+			ClientManager clientManager = getClientManager(clientId);
 			try{
-				client.shutdown();
+				clientManager.shutdown(clientId);
 			}catch(Exception e){
-				logger.warn("swallowing exception while shutting down client " + client.getName(), e);
+				logger.warn("swallowing exception while shutting down client " + clientId, e);
 			}
 		}
 	}
@@ -157,29 +129,12 @@ public class DatarouterClients{
 
 	/*------------------------------ getNames ------------------------------ */
 
-	private Collection<String> getClientNamesRequiringEagerInitialization(){
-		// TODO remove this clients.forceInitMode has we already have client.default.initMode DATAROUTER-1027
-		String forceInitModeString = PropertiesTool.getFirstOccurrence(multiProperties, PREFIX_clients
-				+ PARAM_forceInitMode);
-		ClientInitMode forceInitMode = ClientInitMode.fromString(forceInitModeString, null);
-		if(forceInitMode != null){
-			if(ClientInitMode.eager == forceInitMode){
-				return getClientNames();
-			}
-			return Collections.emptyList();
-		}
-
-		String defaultInitModeString = PropertiesTool.getFirstOccurrence(multiProperties, PREFIX_client
-				+ CLIENT_default + PARAM_initMode);
-		ClientInitMode defaultInitMode = ClientInitMode.fromString(defaultInitModeString, ClientInitMode.lazy);
-
-		List<String> clientNamesRequiringEagerInitialization = new ArrayList<>();
-		for(String name : getClientNames()){
-			String clientInitModeString = PropertiesTool.getFirstOccurrence(multiProperties, PREFIX_client + name
-					+ PARAM_initMode);
-			ClientInitMode mode = ClientInitMode.fromString(clientInitModeString, defaultInitMode);
+	private Collection<ClientId> getClientNamesRequiringEagerInitialization(){
+		List<ClientId> clientNamesRequiringEagerInitialization = new ArrayList<>();
+		for(ClientId clientId : getClientIds()){
+			ClientInitMode mode = clientOptions.getInitMode(clientId, ClientInitMode.lazy);
 			if(ClientInitMode.eager == mode){
-				clientNamesRequiringEagerInitialization.add(name);
+				clientNamesRequiringEagerInitialization.add(clientId);
 			}
 		}
 		return clientNamesRequiringEagerInitialization;
@@ -192,46 +147,25 @@ public class DatarouterClients{
 		return clientIdByClientName.get(clientName);
 	}
 
-	public Set<String> getClientNames(){
-		return clientIdByClientName.keySet();
+	public Collection<ClientId> getClientIds(){
+		return clientIdByClientName.values();
 	}
 
-	public List<Properties> getMultiProperties(){
-		return multiProperties;
+	public Map<Boolean,List<ClientId>> getClientNamesByInitialized(){
+		return getClientIds().stream()
+				.collect(Collectors.groupingBy(clientInitializationTracker::isInitialized, Collectors.toList()));
 	}
 
-	public Map<Boolean,List<String>> getClientNamesByInitialized(){
-		Function<Entry<String,LazyClientProvider>,Boolean> isInitialized = entry -> entry.getValue().isInitialized();
-		return lazyClientProviderByName.entrySet().stream()
-				.collect(Collectors.groupingBy(isInitialized, Collectors.mapping(Entry::getKey, Collectors.toList())));
+	public void initAllClients(){
+		initClientsInParallel(getClientIds());
 	}
 
-	public Client getClient(String clientName){
-		return lazyClientProviderByName.get(clientName).call();
-	}
-
-	public List<Client> getClients(Collection<String> clientNames){
-		List<Client> clients = new ArrayList<>();
-		List<LazyClientProvider> providers = new ArrayList<>();//TODO don't create until needed
-		for(String clientName : clientNames){
-			LazyClientProvider provider = lazyClientProviderByName.get(clientName);
-			Objects.requireNonNull(provider, "LazyClientProvider cannot be null for clientName=" + clientName);
-			if(provider.isInitialized()){
-				clients.add(provider.call());//these can be added immediately (normal code path)
-			}else{
-				providers.add(provider);//these must be initialized first
-			}
+	private void initClientsInParallel(Collection<ClientId> clientIds){
+		List<Future<?>> futures = new ArrayList<>();
+		for(ClientId clientId : clientIds){
+			futures.add(executorService.submit(() -> getClientManager(clientId).initClient(clientId)));
 		}
-		clients.addAll(FutureTool.submitAndGetAll(providers, executorService));
-		return clients;
-	}
-
-	public List<Client> getAllClients(){
-		return getClients(getClientNames());
-	}
-
-	public Map<String,LazyClientProvider> getLazyClientProviderByName(){
-		return lazyClientProviderByName;
+		FutureTool.getAllVaried(futures);
 	}
 
 }

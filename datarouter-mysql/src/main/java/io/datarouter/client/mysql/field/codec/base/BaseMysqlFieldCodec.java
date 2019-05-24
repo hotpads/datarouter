@@ -17,7 +17,7 @@ package io.datarouter.client.mysql.field.codec.base;
 
 import java.sql.ResultSet;
 
-import io.datarouter.client.mysql.connection.MysqlConnectionPoolFactory;
+import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.model.field.Field;
@@ -53,9 +53,9 @@ public abstract class BaseMysqlFieldCodec<T,F extends Field<T>> implements Mysql
 			return false;
 		}
 		boolean characterSetConnectionMismatch = mysqlTableOptions
-				.getCharacterSet() != MysqlConnectionPoolFactory.CHARACTER_SET_CONNECTION;
+				.getCharacterSet() != MysqlConnectionPoolHolder.CHARACTER_SET_CONNECTION;
 		boolean collationConnectionMismatch = mysqlTableOptions
-				.getCollation() != MysqlConnectionPoolFactory.COLLATION_CONNECTION;
+				.getCollation() != MysqlConnectionPoolHolder.COLLATION_CONNECTION;
 		// literals only benefit from introducer if the column's settings differ from the connection's settings
 		return characterSetConnectionMismatch || collationConnectionMismatch;
 	}

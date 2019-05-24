@@ -27,7 +27,8 @@ public class Config implements Cloneable{
 
 	/*---------------------------- static vars ------------------------------*/
 
-	public static final int DEFAULT_ITERATE_BATCH_SIZE = 100;
+	public static final int DEFAULT_INPUT_BATCH_SIZE = 100;
+	public static final int DEFAULT_OUTPUT_BATCH_SIZE = 100;
 	public static final Boolean DEFAULT_CACHE_OK = true;
 
 	/*-------------------------------- fields -------------------------------*/
@@ -41,13 +42,14 @@ public class Config implements Cloneable{
 
 	//put options
 	private PutMethod putMethod = PutMethod.DEFAULT_PUT_METHOD;
-	private Boolean ignoreNullFields = false;
+	private Boolean ignoreNullFields;
 	private Integer commitBatchSize;
 	private Boolean persistentPut = true;
 
 	//table scans
-	private Boolean scannerCaching = true;
-	private Integer iterateBatchSize = DEFAULT_ITERATE_BATCH_SIZE;
+	private Boolean scannerCaching;
+	private Integer inputBatchSize;
+	private Integer outputBatchSize;
 
 	//error handling
 	private Boolean ignoreException;
@@ -57,8 +59,8 @@ public class Config implements Cloneable{
 	private Integer numAttempts;//do not set default here.  do it per-client
 
 	//paging
-	private Integer limit;
-	private Integer offset;
+	private Integer limit;//TODO use Long
+	private Integer offset;//TODO use Long
 
 	//caching
 	private Boolean cacheOk = DEFAULT_CACHE_OK;
@@ -107,7 +109,8 @@ public class Config implements Cloneable{
 			.setPersistentPut(persistentPut)
 
 			.setScannerCaching(scannerCaching)
-			.setIterateBatchSize(iterateBatchSize)
+			.setInputBatchSize(inputBatchSize)
+			.setOutputBatchSize(outputBatchSize)
 
 			.setIgnoreException(ignoreException)
 
@@ -160,19 +163,35 @@ public class Config implements Cloneable{
 		return offset;
 	}
 
+	public Integer getOffsetOrUse(int alternative){
+		if(offset != null){
+			return offset;
+		}
+		return alternative;
+	}
+
 	public Config setOffset(Integer offset){
 		this.offset = offset;
 		return this;
 	}
 
-	/*------------------------ iterate batch size ---------------------------*/
+	/*------------------------ batch size ---------------------------*/
 
-	public Integer getIterateBatchSize(){
-		return iterateBatchSize;
+	public Optional<Integer> optInputBatchSize(){
+		return Optional.ofNullable(inputBatchSize);
 	}
 
-	public Config setIterateBatchSize(Integer iterateBatchSize){
-		this.iterateBatchSize = iterateBatchSize;
+	public Config setInputBatchSize(Integer inputBatchSize){
+		this.inputBatchSize = inputBatchSize;
+		return this;
+	}
+
+	public Optional<Integer> optOutputBatchSize(){
+		return Optional.ofNullable(outputBatchSize);
+	}
+
+	public Config setOutputBatchSize(Integer outputBatchSize){
+		this.outputBatchSize = outputBatchSize;
 		return this;
 	}
 
@@ -276,8 +295,8 @@ public class Config implements Cloneable{
 
 	/*--------------------------- ignore null fields ------------------------*/
 
-	public Boolean getIgnoreNullFields(){
-		return ignoreNullFields;
+	public Optional<Boolean> optIgnoreNullFields(){
+		return Optional.ofNullable(ignoreNullFields);
 	}
 
 	public Config setIgnoreNullFields(Boolean ignoreNullFields){
@@ -287,8 +306,8 @@ public class Config implements Cloneable{
 
 	/*------------------------- scanner caching -----------------------------*/
 
-	public Boolean getScannerCaching(){
-		return scannerCaching;
+	public Optional<Boolean> optScannerCaching(){
+		return Optional.ofNullable(scannerCaching);
 	}
 
 	public Config setScannerCaching(Boolean scannerCaching){

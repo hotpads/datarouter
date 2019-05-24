@@ -27,7 +27,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.client.mysql.DatarouterMysqlTestModuleFactory;
+import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
+import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.client.mysql.test.client.insert.DatarouterPutOpTestRouter;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBean;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBeanKey;
@@ -39,9 +40,8 @@ import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.util.tuple.Pair;
-import io.datarouter.web.test.DatarouterTestClientIds;
 
-@Guice(moduleFactory = DatarouterMysqlTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class PutOpIntegrationTests{
 
 	@Inject
@@ -58,7 +58,7 @@ public class PutOpIntegrationTests{
 	@BeforeClass
 	public void beforeClass(){
 		router = new DatarouterPutOpTestRouter(datarouterProperties, datarouter, datarouterSettings, nodeFactory,
-				DatarouterTestClientIds.mysql0);
+				DatarouterMysqlTestClientids.MYSQL);
 		resetTable();
 	}
 
@@ -168,7 +168,7 @@ public class PutOpIntegrationTests{
 		int testBatchSize = 10;
 		int totalCount = (int) (testBatchSize * 2.5);
 		Config config = new Config()
-				.setIterateBatchSize(testBatchSize)
+				.setInputBatchSize(testBatchSize)
 				.setPutMethod(PutMethod.INSERT_ON_DUPLICATE_UPDATE);
 		List<PutOpTestBean> databeans = new ArrayList<>();
 		for(int count = 0; count < totalCount; count++){

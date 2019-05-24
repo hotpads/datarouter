@@ -28,7 +28,7 @@ public class TestDatabeanWithManagedIndexRouter extends DatarouterTestDatabeanWi
 
 	public TestDatabeanWithManagedIndexRouter(Datarouter datarouter, TestDatarouterProperties datarouterProperties,
 			NodeFactory nodeFactory, DatarouterSettings datarouterSettings, ClientId clientId){
-		super(datarouter, datarouterProperties, "managedIndexTest", nodeFactory, datarouterSettings, clientId,
+		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings, clientId,
 				"TestDatabeanWithManagedIndex");
 		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(backingMapNode,
 				TestDatabeanWithManagedIndexByBFielder.class, TestDatabeanWithManagedIndexByBar.class, false));

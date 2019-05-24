@@ -53,6 +53,16 @@ public class NumberTool{
 		return Math.max(n1, n2);
 	}
 
+	public static final boolean isPositive(Integer in){
+		if(in == null){
+			return false;
+		}
+		if(in <= 0){
+			return false;
+		}
+		return true;
+	}
+
 	/*------------------------- numeric null safe ---------------------------*/
 
 	public static Integer nullSafe(Integer in){
@@ -149,7 +159,8 @@ public class NumberTool{
 
 	/*------------------------- tests ---------------------------------------*/
 
-	public static class Tests{
+	public static class NumberToolTests{
+
 		@Test
 		public void testIsNullOrZero(){
 			Byte byt = 0;
@@ -225,6 +236,7 @@ public class NumberTool{
 			Assert.assertEquals(limitLongToIntRange(minIntValueMinusOne), Integer.MIN_VALUE);
 			Assert.assertEquals(limitLongToIntRange(minIntValuePlusOne), Integer.MIN_VALUE + 1);
 		}
+
 	}
 
 }

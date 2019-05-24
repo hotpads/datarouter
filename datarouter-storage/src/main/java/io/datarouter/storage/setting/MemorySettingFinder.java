@@ -26,8 +26,8 @@ public class MemorySettingFinder implements SettingFinder{
 	private final String configProfile;
 	private final ServerType serverType;
 	private final String serverName;
-	//protected so subclasses can modify the settings
-	protected final Map<String, Object> settings;
+	// protected so subclasses can modify the settings
+	protected final Map<String,Object> settings;
 
 	public MemorySettingFinder(){
 		this(null, null, null);

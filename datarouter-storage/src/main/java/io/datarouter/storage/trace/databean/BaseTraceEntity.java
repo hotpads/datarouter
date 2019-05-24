@@ -15,10 +15,12 @@
  */
 package io.datarouter.storage.trace.databean;
 
+import java.util.ArrayList;
+
 import io.datarouter.model.entity.BaseEntity;
 import io.datarouter.model.key.entity.base.BaseEntityKey;
 
-public class BaseTraceEntity<EK extends BaseEntityKey<EK>> extends BaseEntity<EK>{
+public abstract class BaseTraceEntity<EK extends BaseEntityKey<EK>> extends BaseEntity<EK>{
 
 	// BaseEntity relies on these to store databeans, so they must be used by TraceNodes to add databeans to the entity
 	public static final String QUALIFIER_PREFIX_Trace = "T";
@@ -32,5 +34,11 @@ public class BaseTraceEntity<EK extends BaseEntityKey<EK>> extends BaseEntity<EK
 	public BaseTraceEntity(EK key){
 		super(key);
 	}
+
+	public abstract BaseTrace<?,?,?> getTrace();
+
+	public abstract ArrayList<? extends BaseTraceThread<?,?,?>> getTraceThreads();
+
+	public abstract ArrayList<? extends BaseTraceSpan<?,?,?,?>> getTraceSpans();
 
 }

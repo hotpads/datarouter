@@ -22,6 +22,7 @@ import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.callsite.BaseCallsiteAdapter;
 import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageReaderCallsiteAdapterMixin;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader.PhysicalMapStorageReaderNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class PhysicalMapStorageReaderCallsiteAdapter<
 		PK extends PrimaryKey<PK>,
@@ -35,6 +36,11 @@ implements PhysicalMapStorageReaderNode<PK,D,F>,
 
 	public PhysicalMapStorageReaderCallsiteAdapter(N backingNode){
 		super(backingNode);
+	}
+
+	@Override
+	public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+		return PhysicalAdapterMixin.super.getFieldInfo();
 	}
 
 }

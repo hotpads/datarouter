@@ -43,9 +43,8 @@ public abstract class DatarouterTestDatabeanWithIndexRouter extends BaseRouter i
 			TestDatabeanWithManagedIndexByBar> byB;
 
 	public DatarouterTestDatabeanWithIndexRouter(Datarouter datarouter, TestDatarouterProperties datarouterProperties,
-			String routerName, NodeFactory nodeFactory, DatarouterSettings datarouterSettings, ClientId clientId,
-			String tableName){
-		super(datarouter, datarouterProperties, routerName, nodeFactory, datarouterSettings);
+			NodeFactory nodeFactory, DatarouterSettings datarouterSettings, ClientId clientId, String tableName){
+		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
 		mainNode = backingMapNode = create(clientId, TestDatabean::new, TestDatabeanFielder::new)
 				.withTableName(tableName)
 				.buildAndRegister();

@@ -38,9 +38,10 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
+import io.datarouter.httpclient.json.HttpClientGsonTool;
 import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.httpclient.security.DefaultCsrfValidator;
-import io.datarouter.httpclient.security.DefaultSignatureValidator;
+import io.datarouter.httpclient.security.CsrfGenerator;
+import io.datarouter.httpclient.security.SignatureGenerator;
 
 public class DatarouterHttpClientBuilder{
 
@@ -48,32 +49,34 @@ public class DatarouterHttpClientBuilder{
 
 	private static final int DEFAULT_MAX_TOTAL_CONNECTION = 100;
 	private static final int DEFAULT_MAX_CONNECTION_PER_ROUTE = 100;
+	private static final JsonSerializer DEFAULT_SERIALIZER = new GsonJsonSerializer(HttpClientGsonTool.GSON);
 
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int maxTotalConnections;
 	private int maxConnectionsPerRoute;
 	private Optional<Integer> validateAfterInactivityMs = Optional.empty();
 	private HttpClientBuilder httpClientBuilder;
-	private DatarouterHttpRetryHandler retryHandler;
+	private int retryCount;
 	private JsonSerializer jsonSerializer;
 	private CloseableHttpClient customHttpClient;
-	private DefaultSignatureValidator signatureValidator;
-	private DefaultCsrfValidator csrfValidator;
+	private SignatureGenerator signatureGenerator;
+	private CsrfGenerator csrfGenerator;
 	private Supplier<String> apiKeySupplier;
 	private DatarouterHttpClientConfig config;
 	private boolean ignoreSsl;
 
 	public DatarouterHttpClientBuilder(){
-		this.retryHandler = new DatarouterHttpRetryHandler();
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
 		this.maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTION;
 		this.maxConnectionsPerRoute = DEFAULT_MAX_CONNECTION_PER_ROUTE;
 		this.httpClientBuilder = HttpClientBuilder.create()
-				.setRetryHandler(retryHandler)
 				.setRedirectStrategy(new LaxRedirectStrategy());
+		this.retryCount = HttpRetryTool.DEFAULT_RETRY_COUNT;
 	}
 
 	public DatarouterHttpClient build(){
+		httpClientBuilder.setRetryHandler(new DatarouterHttpRetryHandler(retryCount));
+		httpClientBuilder.setServiceUnavailableRetryStrategy(new DatarouterServiceUnavailableRetryStrategy(retryCount));
 		RequestConfig defaultRequestConfig = RequestConfig.custom()
 				.setCookieSpec(CookieSpecs.STANDARD)
 				.setConnectTimeout(timeoutMs)
@@ -115,17 +118,17 @@ public class DatarouterHttpClientBuilder{
 			config = new DatarouterHttpClientDefaultConfig();
 		}
 		if(jsonSerializer == null){
-			jsonSerializer = new GsonJsonSerializer();
+			jsonSerializer = DEFAULT_SERIALIZER;
 		}
-		return new StandardDatarouterHttpClient(builtHttpClient, this.jsonSerializer, this.signatureValidator,
-				this.csrfValidator, this.apiKeySupplier, this.config, connectionManager);
+		return new StandardDatarouterHttpClient(builtHttpClient, this.jsonSerializer, this.signatureGenerator,
+				this.csrfGenerator, this.apiKeySupplier, this.config, connectionManager);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(int retryCount){
 		if(customHttpClient != null){
 			throw new UnsupportedOperationException("You cannot change the retry count of a custom http client");
 		}
-		this.retryHandler.setRetryCount(retryCount);
+		this.retryCount = retryCount;
 		return this;
 	}
 
@@ -139,13 +142,13 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
-	public DatarouterHttpClientBuilder setSignatureValidator(DefaultSignatureValidator signatureValidator){
-		this.signatureValidator = signatureValidator;
+	public DatarouterHttpClientBuilder setSignatureGenerator(SignatureGenerator signatureGenerator){
+		this.signatureGenerator = signatureGenerator;
 		return this;
 	}
 
-	public DatarouterHttpClientBuilder setCsrfValidator(DefaultCsrfValidator csrfValidator){
-		this.csrfValidator = csrfValidator;
+	public DatarouterHttpClientBuilder setCsrfGenerator(CsrfGenerator csrfGenerator){
+		this.csrfGenerator = csrfGenerator;
 		return this;
 	}
 
@@ -181,11 +184,6 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClientBuilder setRedirectStrategy(RedirectStrategy redirectStrategy){
 		httpClientBuilder.setRedirectStrategy(redirectStrategy);
-		return this;
-	}
-
-	public DatarouterHttpClientBuilder setLogOnRetry(boolean logOnRetry){
-		retryHandler.setLogOnRetry(logOnRetry);
 		return this;
 	}
 

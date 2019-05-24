@@ -33,7 +33,9 @@ public class CronExpressionTool{
 	/*--------------- validate -------------------*/
 
 	public static boolean hasUnevenInterval(int buckets, String cronPart){
-		return parseInterval(cronPart).map(interval -> buckets % interval != 0).orElse(false);
+		return parseInterval(cronPart)
+				.map(interval -> buckets % interval != 0)
+				.orElse(false);
 	}
 
 	/*--------------- parse -------------------*/
@@ -66,6 +68,7 @@ public class CronExpressionTool{
 	/*--------------- test -------------------*/
 
 	public static class CronExpressionToolTests{
+
 		@Test
 		public void testParseInterval(){
 			Assert.assertEquals(parseInterval("7"), Optional.empty());

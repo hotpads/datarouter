@@ -50,7 +50,7 @@ public class SortedBeanEntityNode{
 
 	public SortedBeanEntityNode(EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory, Router router,
 			ClientId clientId, EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams){
-		this.entity = entityNodeFactory.create(clientId.getName(), router, entityNodeParams);
+		this.entity = entityNodeFactory.create(clientId, router, entityNodeParams);
 		this.sortedBean = router.register(nodeFactory.subEntityNode(entityNodeParams, clientId, SortedBean::new,
 				SortedBeanFielder::new, SortedBeanEntity.QUALIFIER_PREFIX_SortedBean));
 		entity.register(sortedBean);

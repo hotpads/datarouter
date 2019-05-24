@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.monitoring.exception;
 
-import java.util.Date;
 import java.util.Map;
 
 public class ExceptionDto{
@@ -28,9 +27,10 @@ public class ExceptionDto{
 
 	public String appVersion;
 	public String errorLocation;
-	public Date receivedAt;
+	public Long receivedAtMs;
 	public String methodName;
 	public Integer lineNumber;
+	public String callOrigin;
 
 	public String httpMethod;
 	public Map<String,String[]> httpParams;

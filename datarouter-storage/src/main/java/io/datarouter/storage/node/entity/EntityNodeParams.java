@@ -31,9 +31,8 @@ public class EntityNodeParams<
 	private final Supplier<EntityPartitioner<EK>> entityPartitionerSupplier;
 	private final String entityTableName;
 
-	public EntityNodeParams(String nodeName, Class<EK> entityKeyClass,
-			Supplier<E> entitySupplier, Supplier<EntityPartitioner<EK>> entityPartitionerSupplier,
-			String entityTableName){
+	public EntityNodeParams(String nodeName, Class<EK> entityKeyClass, Supplier<E> entitySupplier,
+			Supplier<EntityPartitioner<EK>> entityPartitionerSupplier, String entityTableName){
 		this.nodeName = nodeName;
 		this.entityKeyClass = entityKeyClass;
 		this.entitySupplier = entitySupplier;

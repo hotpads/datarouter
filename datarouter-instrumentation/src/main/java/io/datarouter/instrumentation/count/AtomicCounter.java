@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class AtomicCounter implements CountCollectorPeriod{
+
 	public static final Integer INITIAL_CAPACITY = 512;//try to set higher than est num counters
 
 	private final long startTimeMs;
@@ -109,4 +110,5 @@ public class AtomicCounter implements CountCollectorPeriod{
 	public void stopAndFlushAll(){
 		//no-op
 	}
+
 }

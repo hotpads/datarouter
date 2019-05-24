@@ -24,6 +24,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.callsite.CallsiteAdapter;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public interface SortedStorageReaderCallsiteAdapterMixin<
@@ -36,7 +37,7 @@ extends SortedStorageReader<PK,D>, CallsiteAdapter{
 	N getBackingNode();
 
 	@Override
-	default Iterable<PK> scanKeys(Range<PK> range, Config config){
+	default Scanner<PK> scanKeys(Range<PK> range, Config config){
 		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
@@ -47,7 +48,7 @@ extends SortedStorageReader<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
@@ -58,7 +59,7 @@ extends SortedStorageReader<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default Iterable<D> scan(Range<PK> range, Config config){
+	default Scanner<D> scan(Range<PK> range, Config config){
 		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
@@ -69,7 +70,7 @@ extends SortedStorageReader<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{

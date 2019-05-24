@@ -16,9 +16,12 @@
 package io.datarouter.util.bytes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -28,6 +31,8 @@ import io.datarouter.util.array.ArrayTool;
  * methods for converting ints into bytes
  */
 public class IntegerByteTool{
+	private static final Logger logger = LoggerFactory.getLogger(IntegerByteTool.class);
+
 	private static final int NULL = Integer.MIN_VALUE;
 
 	/*
@@ -109,8 +114,11 @@ public class IntegerByteTool{
 		}
 		byte[] out = new byte[4 * valuesWithNulls.size()];
 		for(int i = 0; i < valuesWithNulls.size(); ++i){
-			System.arraycopy(getBytesNullable(valuesWithNulls.get(i)), 0, out, i * 4, 4);
+			byte[] bytesNullable = getBytesNullable(valuesWithNulls.get(i));
+			logger.debug(Arrays.toString(bytesNullable)); // fix java 9 jit
+			System.arraycopy(bytesNullable, 0, out, i * 4, 4);
 		}
+		logger.info(Arrays.toString(out));
 		return out;
 	}
 

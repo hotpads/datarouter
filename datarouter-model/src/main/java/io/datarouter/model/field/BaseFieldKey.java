@@ -27,8 +27,8 @@ import io.datarouter.util.exception.NotImplementedException;
 public abstract class BaseFieldKey<T>
 implements FieldKey<T>{
 
-	protected final String name;//the name of the java field
-	protected final String columnName;//defaults to name if not specified
+	protected final String name;// the name of the java field
+	protected final String columnName;// defaults to name if not specified
 	protected final boolean nullable;
 	protected final FieldGeneratorType fieldGeneratorType;
 	protected final T defaultValue;
@@ -52,7 +52,7 @@ implements FieldKey<T>{
 		this(name, TypeToken.get(valueType), defaultValue);
 	}
 
-	//use java field name for columnName
+	// use java field name for columnName
 	private BaseFieldKey(String name, boolean nullable, TypeToken<T> valueType, FieldGeneratorType fieldGeneratorType){
 		this(name, name, nullable, valueType, fieldGeneratorType, null);
 	}

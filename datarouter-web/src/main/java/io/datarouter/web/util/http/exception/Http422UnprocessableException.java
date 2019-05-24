@@ -15,11 +15,13 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 @SuppressWarnings("serial")
 public class Http422UnprocessableException extends HttpException{
 
-	private static final int CODE = 422;
-	private static final String MESSAGE = "Unprocessable Entity";
+	private static final int CODE = HttpStatusCode.SC_422_UNPROCESSABLE_ENTITY.getStatusCode();
+	private static final String MESSAGE = HttpStatusCode.SC_422_UNPROCESSABLE_ENTITY.getMessage();
 
 	public Http422UnprocessableException(){
 		super(MESSAGE, CODE);

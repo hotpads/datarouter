@@ -63,7 +63,7 @@ implements IndexListener<PK,D>{
 		}
 		IE indexEntry = createIndexEntry();
 		if(indexEntry instanceof KeyIndexEntry){
-			((KeyIndexEntry<IK,IE,PK,D>)indexEntry).fromPrimaryKey(key);
+			fromPrimaryKey(indexEntry, key);
 			indexNode.delete(indexEntry.getKey(), config);
 		}else{
 			throw new IllegalArgumentException("Unable to find index from PK, please call "
@@ -124,7 +124,7 @@ implements IndexListener<PK,D>{
 		for(PK key : IterableTool.nullSafe(primaryKeys)){
 			IE indexEntry = createIndexEntry();
 			if(indexEntry instanceof UniqueKeyIndexEntry){
-				((UniqueKeyIndexEntry<IK,IE,PK,D>)indexEntry).fromPrimaryKey(key);
+				fromPrimaryKey(indexEntry, key);
 				indexEntries.add(indexEntry);
 			}else{
 				throw new IllegalArgumentException("Unable to find index from PK, please call "
@@ -142,6 +142,12 @@ implements IndexListener<PK,D>{
 			indexEntries.addAll(CollectionTool.nullSafe(indexEntriesFromSingleDatabean));
 		}
 		return indexEntries;
+	}
+
+	private void fromPrimaryKey(IE indexEntry, PK primaryKey){
+		@SuppressWarnings("unchecked")
+		KeyIndexEntry<?,?,PK,?> keyIndexEntry = (KeyIndexEntry<?,?,PK,?>)indexEntry;
+		keyIndexEntry.fromPrimaryKey(primaryKey);
 	}
 
 }

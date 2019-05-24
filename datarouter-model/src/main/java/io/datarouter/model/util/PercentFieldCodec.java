@@ -79,7 +79,7 @@ public class PercentFieldCodec{
 
 
 	public static String encodeFields(List<Field<?>> fields){
-		Stream<String> fieldValues = fields.stream().map(Field::getValueString);
+		Stream<String> fieldValues = fields.stream().map(Field::getStringEncodedValue);
 		return encode(fieldValues);
 	}
 

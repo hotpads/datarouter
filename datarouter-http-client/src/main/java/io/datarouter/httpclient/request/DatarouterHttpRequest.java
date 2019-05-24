@@ -21,13 +21,17 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
@@ -38,7 +42,6 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPatch;
@@ -57,12 +60,17 @@ import io.datarouter.httpclient.client.DatarouterHttpClientConfig;
 public class DatarouterHttpRequest{
 
 	private static final String CONTENT_TYPE = "Content-Type";
+	private static final Set<HttpRequestMethod> METHODS_ALLOWING_ENTITY = new HashSet<>(Arrays.asList(
+			HttpRequestMethod.DELETE,
+			HttpRequestMethod.PATCH,
+			HttpRequestMethod.POST,
+			HttpRequestMethod.PUT));
 
 	private final HttpRequestMethod method;
 	private final String path;
 	private boolean retrySafe;
-	private Integer timeoutMs;
-	private Long futureTimeoutMs;
+	private Duration timeout;
+	private Duration futureTimeout;
 	private HttpEntity entity;
 	private String fragment;
 	private Map<String,List<String>> headers;
@@ -140,11 +148,15 @@ public class DatarouterHttpRequest{
 		if(entity != null && canHaveEntity()){
 			((HttpEntityEnclosingRequest) request).setEntity(entity);
 		}
-		if(timeoutMs != null || proxy != null){
+		if(timeout != null || proxy != null){
 			Builder builder = RequestConfig.custom();
 			builder.setCookieSpec(CookieSpecs.STANDARD);
-			if(timeoutMs != null){
-				builder.setConnectTimeout(timeoutMs).setConnectionRequestTimeout(timeoutMs).setSocketTimeout(timeoutMs);
+			if(timeout != null){
+				int requestTimeout = (int)timeout.toMillis();
+				builder
+						.setConnectTimeout(requestTimeout)
+						.setConnectionRequestTimeout(requestTimeout)
+						.setSocketTimeout(requestTimeout);
 			}
 			if(proxy != null){
 				builder.setProxy(proxy);
@@ -159,7 +171,7 @@ public class DatarouterHttpRequest{
 	private HttpRequestBase getRequest(String url){
 		switch(method){
 		case DELETE:
-			return new HttpDelete(url);
+			return new DatarouterHttpDeleteRequestWithEntity(url);
 		case GET:
 			return new HttpGet(url);
 		case HEAD:
@@ -279,10 +291,10 @@ public class DatarouterHttpRequest{
 	}
 
 	/**
-	 * Entities only exist in HttpPut, HttpPatch, HttpPost
+	 * Entities only exist in HttpPut, HttpPatch, HttpPost, DatarouterHttpDeleteRequestWithEntity
 	 */
 	public boolean canHaveEntity(){
-		return method == HttpRequestMethod.PATCH || method == HttpRequestMethod.POST || method == HttpRequestMethod.PUT;
+		return METHODS_ALLOWING_ENTITY.contains(method);
 	}
 
 	/**
@@ -421,21 +433,21 @@ public class DatarouterHttpRequest{
 		return retrySafe;
 	}
 
-	public Integer getTimeoutMs(){
-		return timeoutMs;
+	public Duration getTimeout(){
+		return timeout;
 	}
 
-	public DatarouterHttpRequest setTimeoutMs(Integer timeoutMs){
-		this.timeoutMs = timeoutMs;
+	public DatarouterHttpRequest setTimeout(Duration timeout){
+		this.timeout = timeout;
 		return this;
 	}
 
-	public Long getFutureTimeoutMs(){
-		return futureTimeoutMs;
+	public Duration getFutureTimeout(){
+		return futureTimeout;
 	}
 
-	public DatarouterHttpRequest setFutureTimeoutMs(Long futureTimeoutMs){
-		this.futureTimeoutMs = futureTimeoutMs;
+	public DatarouterHttpRequest setFutureTimeout(Duration futureTimeout){
+		this.futureTimeout = futureTimeout;
 		return this;
 	}
 

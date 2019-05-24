@@ -29,9 +29,11 @@ public class ExceptionRecordDto{
 	public final String exceptionLocation;
 	public final String methodName;
 	public final Integer lineNumber;
+	public final String callOrigin;
 
 	public ExceptionRecordDto(String id, Date created, String appName, String serverName, String stackTrace,
-			String type, String appVersion, String exceptionLocation, String methodName, Integer lineNumber){
+			String type, String appVersion, String exceptionLocation, String methodName, Integer lineNumber,
+			String callOrigin){
 		this.id = id;
 		this.created = created;
 		this.appName = appName;
@@ -42,6 +44,7 @@ public class ExceptionRecordDto{
 		this.exceptionLocation = exceptionLocation;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
+		this.callOrigin = callOrigin;
 	}
 
 }

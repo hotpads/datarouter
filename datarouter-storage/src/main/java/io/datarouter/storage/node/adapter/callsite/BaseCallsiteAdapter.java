@@ -34,7 +34,8 @@ public abstract class BaseCallsiteAdapter<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends Node<PK,D,F>>
-extends BaseAdapter<PK,D,F,N> implements CallsiteAdapter{
+extends BaseAdapter<PK,D,F,N>
+implements CallsiteAdapter{
 
 	private final Setting<Boolean> recordCallsites;
 

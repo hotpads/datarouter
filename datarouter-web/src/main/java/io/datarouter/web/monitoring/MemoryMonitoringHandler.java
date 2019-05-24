@@ -36,7 +36,7 @@ import io.datarouter.util.DateTool;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.bytes.ByteUnitTool;
 import io.datarouter.util.collection.CollectorTool;
-import io.datarouter.util.duration.Duration;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.dispatcher.NonEagerInitHandler;
@@ -74,7 +74,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		Map<String,GitPropertiesJspDto> gitDetailedLibraries = loadedLibraries.gitDetailedLibraries.entrySet().stream()
 				.collect(CollectorTool.toMap(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue())));
 		mav.put("startTime", DateTool.format(PATTERN, startTime));
-		mav.put("upTime", new Duration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
+		mav.put("upTime", new DatarouterDuration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
 		mav.put("serverName", datarouterProperties.getServerName());
 		mav.put("serverVersion", servletContext.getServerInfo());
 		mav.put("javaVersion", SystemTool.getJavaVersion());
@@ -180,13 +180,13 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 		private String name;
 		private long collectionCount;
-		private Duration collectionTime;
+		private DatarouterDuration collectionTime;
 		private String[] memoryPoolNames;
 
 		public GarbageCollectorForDisplay(GarbageCollectorMXBean garbageCollectorMxBean){
 			name = garbageCollectorMxBean.getName();
 			collectionCount = garbageCollectorMxBean.getCollectionCount();
-			collectionTime = new Duration(garbageCollectorMxBean.getCollectionTime(), TimeUnit.MILLISECONDS);
+			collectionTime = new DatarouterDuration(garbageCollectorMxBean.getCollectionTime(), TimeUnit.MILLISECONDS);
 			memoryPoolNames = garbageCollectorMxBean.getMemoryPoolNames();
 		}
 
@@ -198,7 +198,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 			return collectionCount;
 		}
 
-		public Duration getCollectionTime(){
+		public DatarouterDuration getCollectionTime(){
 			return collectionTime;
 		}
 

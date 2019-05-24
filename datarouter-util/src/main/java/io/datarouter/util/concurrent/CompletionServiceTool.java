@@ -55,6 +55,7 @@ public class CompletionServiceTool{
 	}
 
 	private static class ResultIterator<T> implements Iterator<T>{
+
 		private final CompletionService<T> completionService;
 		private final Iterator<? extends Callable<T>> callableIterator;
 		private final Set<Future<T>> runningFutures;

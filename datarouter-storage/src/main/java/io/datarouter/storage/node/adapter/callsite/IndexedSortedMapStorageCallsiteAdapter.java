@@ -23,12 +23,13 @@ import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageReaderCallsit
 import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageWriterCallsiteAdapterMixin;
 import io.datarouter.storage.node.adapter.callsite.mixin.SortedStorageReaderCallsiteAdapterMixin;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 
 public class IndexedSortedMapStorageCallsiteAdapter<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
-		N extends IndexedSortedMapStorageNode<PK,D,F>>
+		N extends PhysicalIndexedSortedMapStorageNode<PK,D,F>>
 extends BaseCallsiteAdapter<PK,D,F,N>
 implements IndexedSortedMapStorageNode<PK,D,F>,
 		MapStorageWriterCallsiteAdapterMixin<PK,D,F,N>,

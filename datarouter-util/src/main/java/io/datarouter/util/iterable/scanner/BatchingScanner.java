@@ -25,21 +25,21 @@ import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.scanner.imp.ListBackedSortedScanner;
 
-public class BatchingScanner<T> implements Scanner<List<T>>{
+public class BatchingScanner<T> implements BatchScanner<T>{
 
-	private Scanner<T> scanner;
-	private int batchSize;
-	private List<T> batch;
+	private final Scanner<T> scanner;
+	private final int batchSize;
+	private ArrayList<T> batch;
 
 	public BatchingScanner(Scanner<T> scanner, int batchSize){
 		this.scanner = scanner;
-		this.batch = new ArrayList<>();
 		this.batchSize = batchSize;
+		this.batch = new ArrayList<>(batchSize);
 	}
 
 	@Override
 	public boolean advance(){
-		batch = new ArrayList<>();
+		batch = new ArrayList<>(batchSize);
 		while(!fullBatch()){
 			if(!scanner.advance()){
 				break;
@@ -50,7 +50,7 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 	}
 
 	@Override
-	public List<T> getCurrent(){
+	public ArrayList<T> getCurrent(){
 		return batch;
 	}
 
@@ -69,7 +69,7 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 
 		@Test
 		public void testPartialBatch(){
-			List<Integer> ints = ListTool.createArrayList(0, 1);
+			ArrayList<Integer> ints = ListTool.createArrayList(0, 1);
 			Scanner<Integer> scanner = new ListBackedSortedScanner<>(ints);
 			BatchingScanner<Integer> batchingScanner = new BatchingScanner<>(scanner, 3);
 			Assert.assertTrue(batchingScanner.advance());
@@ -82,7 +82,7 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 
 		@Test
 		public void testMultipleBatches(){
-			List<Integer> ints = ListTool.createArrayList(0, 1, 2, 3, 4, 5, 6, 7);
+			ArrayList<Integer> ints = ListTool.createArrayList(0, 1, 2, 3, 4, 5, 6, 7);
 			Scanner<Integer> scanner = new ListBackedSortedScanner<>(ints);
 			BatchingScanner<Integer> batchingScanner = new BatchingScanner<>(scanner, 3);
 			List<List<Integer>> batches = new ArrayList<>();
@@ -95,4 +95,5 @@ public class BatchingScanner<T> implements Scanner<List<T>>{
 			Assert.assertEquals(batches.get(2).size(), 2);
 		}
 	}
+
 }

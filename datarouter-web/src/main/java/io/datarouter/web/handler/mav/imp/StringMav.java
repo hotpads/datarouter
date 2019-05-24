@@ -23,11 +23,11 @@ public class StringMav extends Mav{
 	private static final String VAR_NAME = "string";
 
 	public StringMav(){
-		super(DatarouterWebFiles.JSP_StringMav);
+		super(new DatarouterWebFiles().jsp.generic.stringJsp);
 	}
 
 	public StringMav(String string){
-		super(DatarouterWebFiles.JSP_StringMav);
+		super(new DatarouterWebFiles().jsp.generic.stringJsp);
 		put(VAR_NAME, string);
 	}
 

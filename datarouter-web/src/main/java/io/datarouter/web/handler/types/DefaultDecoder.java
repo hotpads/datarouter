@@ -34,11 +34,14 @@ import org.testng.annotations.Test;
 import com.google.gson.JsonSyntaxException;
 
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.instrumentation.trace.TraceSpanFinisher;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
-import io.datarouter.web.test.DatarouterWebTestModuleFactory;
+import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
@@ -125,23 +128,28 @@ public class DefaultDecoder implements HandlerDecoder{
 	}
 
 	private Object decode(String string, Type type){
-		//this prevents empty strings from being decoded as null by gson
-		Object obj;
-		try{
-			obj = deserializer.deserialize(string, type);
-		}catch(JsonSyntaxException e){
-			//If the JSON is malformed and String is expected, just assign the string
-			if(type.equals(String.class)){
-				return string;
+		try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), "DefaultDecoder deserialize")){
+			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[" + string.length() + " characters]");
+			// this prevents empty strings from being decoded as null by gson
+			Object obj;
+			try{
+				obj = deserializer.deserialize(string, type);
+			}catch(JsonSyntaxException e){
+				// If the JSON is malformed and String is expected, just assign the string
+				if(type.equals(String.class)){
+					return string;
+				}
+				throw new RuntimeException("failed to decode " + string + " to a " + type, e);
 			}
-			throw new RuntimeException("failed to decode " + string + " to a " + type, e);
+			// deserialized successfully as null, but we want empty string instead of null for consistency with Params
+			if(obj == null && type.equals(String.class) && !"null".equals(string)){
+				return "";
+			}
+			if(obj == null){
+				throw new RuntimeException("could not decode " + string + " to a non null " + type);
+			}
+			return obj;
 		}
-		//deserialized successfully as null, but we want empty string instead of null for consistency with Params
-		//(unless it actually is null...)
-		if(string != null && obj == null && type.equals(String.class) && !"null".equals(string)){
-			return "";
-		}
-		return obj;
 	}
 
 	private static long countRequestBodyParam(Parameter[] parameters){
@@ -157,7 +165,7 @@ public class DefaultDecoder implements HandlerDecoder{
 				.count();
 	}
 
-	@Guice(moduleFactory = DatarouterWebTestModuleFactory.class)
+	@Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
 	public static class DefaultDecoderTests{
 		@Inject
 		private DefaultDecoder defaultDecoder;
@@ -170,12 +178,26 @@ public class DefaultDecoder implements HandlerDecoder{
 			Assert.assertEquals(defaultDecoder.decode("\"", String.class), "\"");
 			Assert.assertEquals(defaultDecoder.decode("\" ", String.class), "\" ");
 			Assert.assertEquals(defaultDecoder.decode("\" \"", String.class), " ");
-			Assert.assertEquals(defaultDecoder.decode("null", String.class), null);
-			Assert.assertEquals(defaultDecoder.decode(null, String.class), null);
 			Assert.assertEquals(defaultDecoder.decode("nulls", String.class), "nulls");
 			Assert.assertEquals(defaultDecoder.decode("\"correct json\"", String.class), "correct json");
-			Assert.assertEquals(defaultDecoder.decode("", Integer.class), null);
-			Assert.assertEquals(defaultDecoder.decode(" ", Integer.class), null);
+		}
+
+		@Test
+		public void preventNullDecoding(){
+			assertFail(() -> defaultDecoder.decode("null", String.class));
+			assertFail(() -> defaultDecoder.decode(null, String.class));
+			assertFail(() -> defaultDecoder.decode("", Integer.class));
+			assertFail(() -> defaultDecoder.decode(" ", Integer.class));
+		}
+
+		private void assertFail(Runnable runnable){
+			try{
+				runnable.run();
+				Assert.fail();
+			}catch(Exception e){
+				// expected
+			}
 		}
 	}
+
 }

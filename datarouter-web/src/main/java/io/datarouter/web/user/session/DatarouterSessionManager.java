@@ -27,12 +27,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
+import io.datarouter.web.util.RequestAttributeKey;
+import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.CookieTool;
 
 @Singleton
 public class DatarouterSessionManager{
 
-	public static final String REQUEST_ATTRIBUTE_NAME = "datarouterSession";
+	public static final RequestAttributeKey<DatarouterSession> DATAROUTER_SESSION_ATTRIBUTE = new RequestAttributeKey<>(
+			"datarouterSession");
 	private static final int TARGET_URL_COOKIE_EXPIRATION_SECONDS = 30 * 60;
 
 	@Inject
@@ -97,11 +100,11 @@ public class DatarouterSessionManager{
 	/*--------------------- update session from request ---------------------*/
 
 	public static void addToRequest(ServletRequest request, DatarouterSession userSession){
-		request.setAttribute(REQUEST_ATTRIBUTE_NAME, userSession);
+		RequestAttributeTool.set(request, DATAROUTER_SESSION_ATTRIBUTE, userSession);
 	}
 
 	public static Optional<DatarouterSession> getFromRequest(ServletRequest request){
-		return Optional.ofNullable((DatarouterSession)request.getAttribute(REQUEST_ATTRIBUTE_NAME));
+		return RequestAttributeTool.get(request, DATAROUTER_SESSION_ATTRIBUTE);
 	}
 
 }

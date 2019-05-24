@@ -28,7 +28,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class MysqlDeleteAllOp<
 		PK extends PrimaryKey<PK>,
@@ -36,19 +36,19 @@ public class MysqlDeleteAllOp<
 		F extends DatabeanFielder<PK,D>>
 extends BaseMysqlOp<Integer>{
 
-	private final PhysicalNode<PK,D,F> node;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final Config config;
 
-	public MysqlDeleteAllOp(Datarouter datarouter, PhysicalNode<PK,D,F> node, Config config){
-		super(datarouter, node.getClientNames(), Isolation.DEFAULT, true);
-		this.node = node;
+	public MysqlDeleteAllOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Config config){
+		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
+		this.fieldInfo = fieldInfo;
 		this.config = config;
 	}
 
 	@Override
 	public Integer runOnce(){
-		String sql = SqlBuilder.deleteAll(config, node.getFieldInfo().getTableName());
-		Connection connection = getConnection(node.getFieldInfo().getClientId().getName());
+		String sql = SqlBuilder.deleteAll(config, fieldInfo.getTableName());
+		Connection connection = getConnection(fieldInfo.getClientId());
 		PreparedStatement statement = new DatarouterMysqlStatement().append(sql).toPreparedStatement(connection);
 		return MysqlTool.update(statement);
 	}

@@ -50,9 +50,9 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterruptedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeException;
-import io.datarouter.httpclient.security.DefaultCsrfValidator;
-import io.datarouter.httpclient.security.DefaultSignatureValidator;
+import io.datarouter.httpclient.security.CsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
+import io.datarouter.httpclient.security.SignatureGenerator;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 
@@ -64,20 +64,19 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 
 	private final CloseableHttpClient httpClient;
 	private final JsonSerializer jsonSerializer;
-	private final DefaultSignatureValidator signatureValidator;
-	private final DefaultCsrfValidator csrfValidator;
+	private final SignatureGenerator signatureGenerator;
+	private final CsrfGenerator csrfGenerator;
 	private final Supplier<String> apiKeySupplier;
 	private final DatarouterHttpClientConfig config;
 	private final PoolingHttpClientConnectionManager connectionManager;
 
 	StandardDatarouterHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
-			DefaultSignatureValidator signatureValidator, DefaultCsrfValidator csrfValidator,
-			Supplier<String> apiKeySupplier, DatarouterHttpClientConfig config,
-			PoolingHttpClientConnectionManager connectionManager){
+			SignatureGenerator signatureGenerator, CsrfGenerator csrfGenerator, Supplier<String> apiKeySupplier,
+			DatarouterHttpClientConfig config, PoolingHttpClientConnectionManager connectionManager){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
-		this.signatureValidator = signatureValidator;
-		this.csrfValidator = csrfValidator;
+		this.signatureGenerator = signatureGenerator;
+		this.csrfGenerator = csrfGenerator;
 		this.apiKeySupplier = apiKeySupplier;
 		this.config = config;
 		this.connectionManager = connectionManager;
@@ -127,7 +126,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		setSecurityProperties(request);
 
 		HttpClientContext context = new HttpClientContext();
-		context.setAttribute(DatarouterHttpRetryHandler.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
+		context.setAttribute(HttpRetryTool.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 		CookieStore cookieStore = new BasicCookieStore();
 		for(BasicClientCookie cookie : request.getCookies()){
 			cookieStore.addCookie(cookie);
@@ -166,31 +165,31 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 
 	private void setSecurityProperties(DatarouterHttpRequest request){
 		Map<String,String> params = new HashMap<>();
-		if(csrfValidator != null){
-			String csrfIv = DefaultCsrfValidator.generateCsrfIv();
+		if(csrfGenerator != null){
+			String csrfIv = csrfGenerator.generateCsrfIv();
 			params.put(SecurityParameters.CSRF_IV, csrfIv);
-			params.put(SecurityParameters.CSRF_TOKEN, csrfValidator.generateCsrfToken(csrfIv));
+			params.put(SecurityParameters.CSRF_TOKEN, csrfGenerator.generateCsrfToken(csrfIv));
 		}
 		if(apiKeySupplier != null){
 			params.put(SecurityParameters.API_KEY, apiKeySupplier.get());
 		}
 		if(request.canHaveEntity() && request.getEntity() == null){
 			params = request.addPostParams(params).getFirstPostParams();
-			if(signatureValidator != null && !params.isEmpty()){
-				String signature = signatureValidator.getHexSignature(request.getFirstPostParams());
+			if(signatureGenerator != null && !params.isEmpty()){
+				String signature = signatureGenerator.getHexSignature(request.getFirstPostParams());
 				request.addPostParam(SecurityParameters.SIGNATURE, signature);
 			}
 			request.setEntity(request.getFirstPostParams());
 		}else if(request.getMethod() == HttpRequestMethod.GET){
 			params = request.addGetParams(params).getFirstGetParams();
-			if(signatureValidator != null && !params.isEmpty()){
-				String signature = signatureValidator.getHexSignature(request.getFirstGetParams());
+			if(signatureGenerator != null && !params.isEmpty()){
+				String signature = signatureGenerator.getHexSignature(request.getFirstGetParams());
 				request.addGetParam(SecurityParameters.SIGNATURE, signature);
 			}
 		}else{
 			request.addHeaders(params);
-			if(signatureValidator != null && request.getEntity() != null){
-				String signature = signatureValidator.getHexSignature(request.getFirstGetParams(), request.getEntity());
+			if(signatureGenerator != null && request.getEntity() != null){
+				String signature = signatureGenerator.getHexSignature(request.getFirstGetParams(), request.getEntity());
 				request.addHeader(SecurityParameters.SIGNATURE, signature);
 			}
 		}

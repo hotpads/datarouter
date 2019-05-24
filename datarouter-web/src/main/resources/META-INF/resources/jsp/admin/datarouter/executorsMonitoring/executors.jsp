@@ -115,7 +115,6 @@
 </head>
 <body class="input-no-margin">
 	<%@ include file="/jsp/menu/common-navbar.jsp"%>
-	<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 	<div class="auto-centered-container">
 		<h1>Executors</h1>
 		<label>Auto refresh <input type="checkbox" id="auto-refresh" checked /></label>

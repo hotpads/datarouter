@@ -35,7 +35,7 @@ public class DatarouterMapStorageTestRouter extends BaseRouter implements TestRo
 
 	public DatarouterMapStorageTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			NodeFactory nodeFactory, ClientId clientId, DatarouterSettings datarouterSettings, boolean entity){
-		super(datarouter, datarouterProperties, "datarouterMapStorageTest", nodeFactory, datarouterSettings);
+		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
 
 		if(entity){
 			mapStorageNode = new MapStorageEntityNode(nodeFactory, this, clientId).mapStorageNode;

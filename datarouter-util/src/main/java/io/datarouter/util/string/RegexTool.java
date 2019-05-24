@@ -33,13 +33,16 @@ public class RegexTool{
 		return (brackets ? "[" : "") + characterClass + (brackets ? "]" : "");
 	}
 
-	public static class Tests{
+	public static class RegexToolTests{
+
 		@Test
 		public void testMakeCharacterClassFromRange(){
 			Assert.assertEquals(makeCharacterClassFromRange(1, 0, true), "[]");
 			Assert.assertEquals(makeCharacterClassFromRange(0, 2, true), "[\\u0000\\u0001\\u0002]");
-			Assert.assertEquals("01a,2  .3 smells 4".replaceAll(makeCharacterClassFromRange(49, 51,
-					true), ""), "0a,  . smells 4");
+			Assert.assertEquals("01a,2  .3 smells 4".replaceAll(makeCharacterClassFromRange(49, 51, true), ""),
+					"0a,  . smells 4");
 		}
+
 	}
+
 }

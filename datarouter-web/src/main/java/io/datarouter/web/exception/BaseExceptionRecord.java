@@ -48,6 +48,7 @@ extends BaseDatabean<PK,D>{
 	private String exceptionLocation;
 	private String methodName;
 	private Integer lineNumber;
+	private String callOrigin;
 
 	public static class FieldKeys{
 		public static final DateFieldKey created = new DateFieldKey("created");
@@ -59,6 +60,7 @@ extends BaseDatabean<PK,D>{
 		public static final StringFieldKey exceptionLocation = new StringFieldKey("exceptionLocation");
 		public static final StringFieldKey methodName = new StringFieldKey("methodName");
 		public static final IntegerFieldKey lineNumber = new IntegerFieldKey("lineNumber");
+		public static final StringFieldKey callOrigin = new StringFieldKey("callOrigin");
 	}
 
 	public abstract static class BaseExceptionRecordFielder<
@@ -79,8 +81,9 @@ extends BaseDatabean<PK,D>{
 					new StringField(FieldKeys.type, databean.getType()),
 					new StringField(FieldKeys.appVersion, databean.getAppVersion()),
 					new StringField(FieldKeys.exceptionLocation, databean.getExceptionLocation()),
-					new StringField(FieldKeys.methodName, databean.getExceptionLocation()),
-					new IntegerField(FieldKeys.lineNumber, databean.getLineNumber()));
+					new StringField(FieldKeys.methodName, databean.getMethodName()),
+					new IntegerField(FieldKeys.lineNumber, databean.getLineNumber()),
+					new StringField(FieldKeys.callOrigin, databean.getCallOrigin()));
 			}
 	}
 
@@ -88,13 +91,13 @@ extends BaseDatabean<PK,D>{
 	public BaseExceptionRecord(){}
 
 	public BaseExceptionRecord(String appName, String serverName, String stackTrace, String type, String appVersion,
-			String exceptionLocation, String methodName, Integer lineNumber){
+			String exceptionLocation, String methodName, Integer lineNumber, String callOrigin){
 		this(System.currentTimeMillis(), appName, serverName, stackTrace, type, appVersion, exceptionLocation,
-				methodName, lineNumber);
+				methodName, lineNumber, callOrigin);
 	}
 
 	public BaseExceptionRecord(long dateMs, String appName, String serverName, String stackTrace, String type,
-			String appVersion, String exceptionLocation, String methodName, Integer lineNumber){
+			String appVersion, String exceptionLocation, String methodName, Integer lineNumber, String callOrigin){
 		this.created = new Date(dateMs);
 		this.appName = appName;
 		this.serverName = serverName;
@@ -104,6 +107,7 @@ extends BaseDatabean<PK,D>{
 		this.exceptionLocation = exceptionLocation;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
+		this.callOrigin = callOrigin;
 	}
 
 	public BaseExceptionRecord(ExceptionRecordDto exceptionRecordDto){
@@ -116,6 +120,7 @@ extends BaseDatabean<PK,D>{
 		this.exceptionLocation = exceptionRecordDto.exceptionLocation;
 		this.methodName = exceptionRecordDto.methodName;
 		this.lineNumber = exceptionRecordDto.lineNumber;
+		this.callOrigin = exceptionRecordDto.callOrigin;
 	}
 
 
@@ -162,6 +167,10 @@ extends BaseDatabean<PK,D>{
 
 	public Integer getLineNumber(){
 		return lineNumber;
+	}
+
+	public String getCallOrigin(){
+		return callOrigin;
 	}
 
 }

@@ -108,16 +108,16 @@ public class NavBarMenuItem{
 
 		private static final HttpServletRequest anonRequest = DatarouterSessionMock.getAnonymousHttpServletRequest();
 		private static final HttpServletRequest userRequest = DatarouterSession.DatarouterSessionMock
-				.getHttpServletRequestWithSessionRoles(DatarouterUserRole.user);
+				.getHttpServletRequestWithSessionRoles(DatarouterUserRole.USER);
 		private static final HttpServletRequest allDatarouterRolesRequest = DatarouterSessionMock
 				.getAllDatarouterUserRolesHttpServletRequest();
 
 		//constants
 		private static final String ANON_REQ_HREF = BaseRouteSet.BaseRouteSetTests.ANON_PATH;
 		private static final String USER_REQ_HREF = BaseRouteSet.BaseRouteSetTests.getPathForRole(DatarouterUserRole
-				.user);
+				.USER);
 		private static final String DR_ADMIN_REQ_HREF = BaseRouteSet.BaseRouteSetTests.getPathForRole(
-				DatarouterUserRole.datarouterAdmin);
+				DatarouterUserRole.DATAROUTER_ADMIN);
 
 		private static final String SINGLE_HREF = "href";
 		private static final String SINGLE_TEXT = "text";

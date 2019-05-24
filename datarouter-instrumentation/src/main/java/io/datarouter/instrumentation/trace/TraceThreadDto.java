@@ -52,6 +52,12 @@ public class TraceThreadDto{
 		runningDuration = System.currentTimeMillis() - queuedDuration - created;
 	}
 
+	public Long getTotalDuration(){
+		long queued = queuedDuration == null ? 0 : queuedDuration;
+		long running = runningDuration == null ? 0 : runningDuration;
+		return queued + running;
+	}
+
 	public String getTraceId(){
 		return traceId;
 	}
@@ -123,6 +129,5 @@ public class TraceThreadDto{
 	public void setRunningDuration(Long runningDuration){
 		this.runningDuration = runningDuration;
 	}
-
 
 }

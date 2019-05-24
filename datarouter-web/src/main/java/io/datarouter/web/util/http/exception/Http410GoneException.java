@@ -15,12 +15,13 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 @SuppressWarnings("serial")
 public class Http410GoneException extends HttpException{
 
-	private static final int CODE = 410;
-	private static final String MESSAGE = "Gone";
-
+	private static final int CODE = HttpStatusCode.SC_410_GONE.getStatusCode();
+	private static final String MESSAGE = HttpStatusCode.SC_410_GONE.getMessage();
 	public Http410GoneException(){
 		super(MESSAGE, CODE);
 	}

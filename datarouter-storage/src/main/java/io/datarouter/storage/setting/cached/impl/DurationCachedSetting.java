@@ -19,17 +19,18 @@ import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.type.DurationSetting;
-import io.datarouter.util.duration.Duration;
+import io.datarouter.util.duration.DatarouterDuration;
 
-public class DurationCachedSetting extends CachedSetting<Duration> implements DurationSetting{
+public class DurationCachedSetting extends CachedSetting<DatarouterDuration> implements DurationSetting{
 
-	public DurationCachedSetting(SettingFinder finder, String name, DefaultSettingValue<Duration> defaultValue){
+	public DurationCachedSetting(SettingFinder finder, String name,
+			DefaultSettingValue<DatarouterDuration> defaultValue){
 		super(finder, name, defaultValue);
 	}
 
 	@Override
 	public boolean isValid(String value){
-		return Duration.isDuration(value);
+		return DatarouterDuration.isDuration(value);
 	}
 
 }

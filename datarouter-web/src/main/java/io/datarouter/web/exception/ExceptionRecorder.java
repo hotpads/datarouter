@@ -23,14 +23,13 @@ import io.datarouter.storage.exception.ExceptionCategory;
 
 public interface ExceptionRecorder{
 
-	Optional<ExceptionRecord> tryRecordException(Throwable exception, String fallbackLocation);
-	Optional<ExceptionRecord> tryRecordException(Throwable exception, String fallbackLocation,
-			ExceptionCategory category);
+	Optional<ExceptionRecord> tryRecordException(Throwable exception, String callOrigin);
+	Optional<ExceptionRecord> tryRecordException(Throwable exception, String callOrigin, ExceptionCategory category);
 	ExceptionRecord recordException(Throwable exception, ExceptionCategory category, String location, String methodName,
-			Integer lineNumber);
-	Optional<ExceptionRecord> tryRecordExceptionAndHttpRequest(Throwable exception, String fallbackLocation,
+			Integer lineNumber, String callOrigin);
+	Optional<ExceptionRecord> tryRecordExceptionAndHttpRequest(Throwable exception, String callOrigin,
 			HttpServletRequest request);
 	ExceptionRecord recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
-			Integer lineNumber, HttpServletRequest request);
+			Integer lineNumber, HttpServletRequest request, String callOrigin);
 
 }

@@ -36,4 +36,5 @@ public class BooleanArrayFieldKey extends ListFieldKey<Boolean,List<Boolean>>{
 	public BooleanArrayField createValueField(final List<Boolean> value){
 		return new BooleanArrayField(this, value);
 	}
+
 }

@@ -17,7 +17,7 @@ package io.datarouter.model.field;
 
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public abstract class PrimitiveFieldKey<T extends Comparable<T>> extends BaseFieldKey<T>{
+public abstract class PrimitiveFieldKey<T extends Comparable<? super T>> extends BaseFieldKey<T>{
 
 	public PrimitiveFieldKey(String name, Class<T> valueType){
 		super(name, valueType);

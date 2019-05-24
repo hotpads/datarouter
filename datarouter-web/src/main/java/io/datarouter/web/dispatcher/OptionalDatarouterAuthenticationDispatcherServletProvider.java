@@ -32,8 +32,8 @@ implements Provider<Optional<DispatcherServlet>>{
 	@Inject
 	public OptionalDatarouterAuthenticationDispatcherServletProvider(DatarouterAuthenticationConfig config,
 			DispatcherServlet dispatcherServlet){
-		this.dispatcherServlet = config.useDatarouterAuthentication() ? Optional.of(dispatcherServlet) : Optional
-				.empty();
+		this.dispatcherServlet = config.useDatarouterAuthentication() ? Optional.of(dispatcherServlet)
+				: Optional.empty();
 	}
 
 	@Override

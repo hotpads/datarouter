@@ -51,4 +51,5 @@ public abstract class BaseCached<T> implements Supplier<T>{
 	}
 
 	protected abstract boolean isExpired();
+
 }

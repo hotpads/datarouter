@@ -15,11 +15,13 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 @SuppressWarnings("serial")
 public class Http503ServiceUnavailableException extends HttpException{
 
-	private static final int CODE = 503;
-	private static final String MESSAGE = "Service Unavailable";
+	private static final int CODE = HttpStatusCode.SC_503_SERVICE_UNAVAILABLE.getStatusCode();
+	private static final String MESSAGE = HttpStatusCode.SC_503_SERVICE_UNAVAILABLE.getMessage();
 
 	public Http503ServiceUnavailableException(){
 		super(MESSAGE, CODE);

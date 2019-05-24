@@ -15,13 +15,13 @@
  */
 package io.datarouter.model.field.imp.array;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.exception.NotImplementedException;
 
@@ -69,8 +69,11 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 	}
 
 	public static String encode(List<String> inputs, String separator){
-		if(CollectionTool.isEmpty(inputs)){
+		if(inputs == null){
 			return null;
+		}
+		if(inputs.isEmpty()){
+			return "";
 		}
 		for(String input : inputs){
 			if(input == null){
@@ -87,16 +90,37 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 		if(input == null){
 			return null;
 		}
+		if("".equals(input)){
+			return new ArrayList<>();
+		}
 		return ListTool.create(input.split(separator));
 	}
 
-	public static class Tests{
+	public static class DelimitedStringArrayFieldTests{
 
 		@Test
 		public void testRoundTrip(){
 			List<String> inputs = ListTool.createArrayList("abc", "xyz", "def");
 			String encoded = encode(inputs, ",");
 			Assert.assertEquals(encoded, "abc,xyz,def");
+			List<String> decoded = decode(encoded, ",");
+			Assert.assertEquals(decoded, inputs);
+		}
+
+		@Test
+		public void testRoundTripNull(){
+			List<String> input = null;
+			String encoded = encode(input, ",");
+			Assert.assertEquals(encoded, null);
+			List<String> decoded = decode(encoded, ",");
+			Assert.assertEquals(decoded, input);
+		}
+
+		@Test
+		public void testRoundTripEmpty(){
+			List<String> inputs = new ArrayList<>();
+			String encoded = encode(inputs, ",");
+			Assert.assertEquals(encoded, "");
 			List<String> decoded = decode(encoded, ",");
 			Assert.assertEquals(decoded, inputs);
 		}

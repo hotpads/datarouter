@@ -28,7 +28,8 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
 import io.datarouter.storage.node.type.index.ManagedNode;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> implements IndexedSortedMapStorage<PK,D>{
@@ -74,13 +75,13 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 	}
 
 	@Override
-	public Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		return new EmptySortedScannerIterable<>();
+	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+		return Scanner.empty();
 	}
 
 	@Override
-	public Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		return new EmptySortedScannerIterable<>();
+	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+		return Scanner.empty();
 	}
 
 	@Override
@@ -105,7 +106,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		return Collections.emptyList();
 	}
 
@@ -113,7 +114,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<D> getMultiByIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		return Collections.emptyList();
 	}
 
@@ -125,27 +126,27 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Iterable<IE> scanMultiIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		return new EmptySortedScannerIterable<>();
+		return Scanner.empty();
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Iterable<D> scanMultiByIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		return new EmptySortedScannerIterable<>();
+		return Scanner.empty();
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Iterable<IK> scanMultiIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		return new EmptySortedScannerIterable<>();
+		return Scanner.empty();
 	}
 
 	@Override

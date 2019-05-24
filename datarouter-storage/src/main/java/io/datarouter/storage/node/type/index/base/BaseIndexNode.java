@@ -16,9 +16,7 @@
 package io.datarouter.storage.node.type.index.base;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
@@ -31,7 +29,6 @@ import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.collection.SetTool;
 
 public abstract class BaseIndexNode<
 		PK extends PrimaryKey<PK>,
@@ -41,7 +38,6 @@ public abstract class BaseIndexNode<
 		IF extends DatabeanFielder<IK,IE>,
 		N extends Node<IK,IE,IF>>
 extends BaseNode<IK,IE,IF>{
-
 
 	/*----------------------------- node pass through -----------------------*/
 
@@ -59,23 +55,8 @@ extends BaseNode<IK,IE,IF>{
 	}
 
 	@Override
-	public List<String> getClientNames(){
-		return indexNode.getClientNames();
-	}
-
-	@Override
 	public List<ClientId> getClientIds(){
 		return indexNode.getClientIds();
-	}
-
-	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<IK> keys){
-		return indexNode.getClientNamesForPrimaryKeysForSchemaUpdate(keys);
-	}
-
-	@Override
-	public Node<IK,IE,IF> getMaster(){
-		return indexNode.getMaster();
 	}
 
 	@Override
@@ -89,13 +70,6 @@ extends BaseNode<IK,IE,IF>{
 	@Override
 	public String getName(){
 		return indexNode == null ? null : indexNode.getName();
-	}
-
-	@Override
-	public Set<String> getAllNames(){
-		Set<String> names = SetTool.wrap(getName());
-		names.addAll(indexNode.getAllNames());
-		return names;
 	}
 
 	@Override
@@ -116,4 +90,5 @@ extends BaseNode<IK,IE,IF>{
 	public N getBackingNode(){
 		return indexNode;
 	}
+
 }

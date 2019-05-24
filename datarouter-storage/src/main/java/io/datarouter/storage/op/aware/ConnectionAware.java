@@ -17,9 +17,10 @@ package io.datarouter.storage.op.aware;
 
 import java.sql.Connection;
 
+import io.datarouter.storage.client.ClientId;
+
 public interface ConnectionAware{
 
-	//TODO replace with a generic datarouter connection interface
-	Connection getConnection(String clientName);
+	Connection getConnection(ClientId clientId);
 
 }

@@ -27,10 +27,11 @@ import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,6 +49,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.collection.CollectionTool;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.exception.NotImplementedException;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
@@ -63,6 +65,8 @@ import io.datarouter.web.handler.validator.DefaultRequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorResponseDto;
+import io.datarouter.web.util.RequestAttributeKey;
+import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.RequestTool;
 
 /*
@@ -70,6 +74,13 @@ import io.datarouter.web.util.http.RequestTool;
  */
 public abstract class BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(BaseHandler.class);
+
+	public static final RequestAttributeKey<Date> REQUEST_RECEIVED_AT = new RequestAttributeKey<>("receivedAt");
+	public static final RequestAttributeKey<String> REQUEST_DURATION_STRING = new RequestAttributeKey<>(
+			"durationString");
+	public static final RequestAttributeKey<HandlerEncoder> HANDLER_ENCODER_ATTRIBUTE = new RequestAttributeKey<>(
+			"handlerEncoder");
+	public static final RequestAttributeKey<String> HANDLER_METHOD_NAME = new RequestAttributeKey<>("handlerName");
 
 	private static final String DEFAULT_HANDLER_METHOD_NAME = "noHandlerFound";
 	private static final String MISSING_PARAMETERS_HANDLER_METHOD_NAME = "handleMissingParameters";
@@ -98,14 +109,17 @@ public abstract class BaseHandler{
 	 */
 	@SuppressWarnings("unused")
 	private Object noHandlerFound(){
-		MessageMav mav = new MessageMav("no default handler method found in " + getClass().getSimpleName()
-				+ ", please specify " + handlerMethodParamName());
+		String message = "no default handler method found in " + getClass().getSimpleName() + ", please specify "
+				+ handlerMethodParamName();
+		logger.warn(message);
+		MessageMav mav = new MessageMav(message);
 		mav.setStatusCode(HttpServletResponse.SC_NOT_FOUND);
 		return mav;
 	}
 
 	protected Object handleMissingParameters(List<String> missingParameters, String methodName){
-		String message = "missing parameters for " + methodName + ": " + String.join(", ", missingParameters);
+		String message = "missing parameters for " + getClass().getSimpleName() + "." + methodName + ": " + String.join(
+				", ", missingParameters);
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		throw new RuntimeException(message);
 	}
@@ -188,8 +202,11 @@ public abstract class BaseHandler{
 			Pair<Method,Object[]> handlerMethodAndArgs = getHandlerMethodAndArgs();
 			Method method = handlerMethodAndArgs.getLeft();
 			Object[] args = handlerMethodAndArgs.getRight();
+			String fullyQualifiedMethodName = method.getDeclaringClass().getName() + "." + method.getName();
+			RequestAttributeTool.set(request, HANDLER_METHOD_NAME, fullyQualifiedMethodName);
 
 			HandlerEncoder encoder = getHandlerEncoder(method);
+			RequestAttributeTool.set(request, HANDLER_ENCODER_ATTRIBUTE, encoder);
 			Optional<RequestParamValidatorErrorResponseDto> errorResponseDtoOptional = validateRequestParamValidators(
 					method, args);
 			if(errorResponseDtoOptional.isPresent()){
@@ -205,7 +222,7 @@ public abstract class BaseHandler{
 
 	private Pair<Method,Object[]> getHandlerMethodAndArgs(){
 		String methodName = handlerMethodName();
-		Collection<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName)
+		List<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName)
 				.stream()
 				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
 				.collect(Collectors.toList());
@@ -214,8 +231,9 @@ public abstract class BaseHandler{
 				request);
 		Method method = pair.getLeft();
 		Object[] args = pair.getRight();
+
+		Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
 		if(method == null){
-			Optional<Method> defaultHandlerMethod = getDefaultHandlerMethod();
 			if(defaultHandlerMethod.isPresent()){
 				pair = handlerTypingHelper.findMethodByName(Collections.singletonList(defaultHandlerMethod.get()),
 						defaultHandlerDecoder, request);
@@ -224,8 +242,8 @@ public abstract class BaseHandler{
 			}
 		}
 		if(method == null){
-			if(CollectionTool.notEmpty(possibleMethods)){
-				Method desiredMethod = CollectionTool.getFirst(possibleMethods);
+			if(CollectionTool.notEmpty(possibleMethods) || defaultHandlerMethod.isPresent()){
+				Method desiredMethod = possibleMethods.isEmpty() ? defaultHandlerMethod.get() : possibleMethods.get(0);
 				List<String> missingParameters = getMissingParameterNames(desiredMethod);
 				args = new Object[]{missingParameters, desiredMethod.getName()};
 
@@ -264,17 +282,15 @@ public abstract class BaseHandler{
 			if(cause instanceof HandledException){
 				HandledException handledException = (HandledException)cause;
 				Exception exception = (Exception)cause;//don't allow HandledExceptions to be Throwable
-				String exceptionLocation = getClass().getName() + "/" + method.getName();
-				exceptionRecorder
-						.ifPresent(recorder -> {
-							try{
-								recorder.recordExceptionAndHttpRequest(exception, exceptionLocation, null,
-										null, request);
-							}catch(Exception recordingException){
-								logger.warn("Error recording exception", recordingException);
-							}
-						});
-				encoder.sendExceptionResponse(handledException, servletContext, response, request);
+				exceptionRecorder.ifPresent(recorder -> {
+					try{
+						recorder.recordExceptionAndHttpRequest(exception, getClass().getName(), method.getName(),
+								null, request, null);
+					}catch(Exception recordingException){
+						logger.warn("Error recording exception", recordingException);
+					}
+				});
+				encoder.sendHandledExceptionResponse(handledException, servletContext, response, request);
 				logger.warn("returning {} : {}", handledException.getHttpResponseCode(), cause.getMessage());
 				return;
 			}
@@ -283,6 +299,11 @@ public abstract class BaseHandler{
 			}
 			throw new RuntimeException(cause);
 		}
+		RequestAttributeTool.get(request, REQUEST_RECEIVED_AT)
+				.map(receivedAt -> System.currentTimeMillis() - receivedAt.getTime())
+				.map(durationMs -> new DatarouterDuration(durationMs, TimeUnit.MILLISECONDS))
+				.map(DatarouterDuration::toString)
+				.ifPresent(durationStr -> RequestAttributeTool.set(request, REQUEST_DURATION_STRING, durationStr));
 		encoder.finishRequest(result, servletContext, response, request);
 	}
 
@@ -383,7 +404,7 @@ public abstract class BaseHandler{
 		}
 
 		@Override
-		public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
+		public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
 				HttpServletResponse response, HttpServletRequest request){
 			throw new NotImplementedException();
 		}
@@ -391,6 +412,12 @@ public abstract class BaseHandler{
 		@Override
 		public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
 				ServletContext servletContext, HttpServletResponse response, HttpServletRequest request){
+			throw new NotImplementedException();
+		}
+
+		@Override
+		public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response,
+				Exception exception, Optional<String> exceptionId){
 			throw new NotImplementedException();
 		}
 	}
@@ -417,4 +444,5 @@ public abstract class BaseHandler{
 			Assert.assertEquals(getLastPathSegment("https://fake.url/t/rep/?querystring=path/path"), "rep");
 		}
 	}
+
 }

@@ -21,6 +21,7 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.entity.EntityNode;
@@ -35,7 +36,7 @@ public abstract class BaseClientNodeFactory implements ClientNodeFactory{
 
 	@Override
 	public <EK extends EntityKey<EK>,E extends Entity<EK>>EntityNode<EK,E> createEntityNode(NodeFactory nodeFactory,
-			Router router, EntityNodeParams<EK,E> entityNodeParams, String clientName){
+			Router router, EntityNodeParams<EK,E> entityNodeParams, ClientId clientId){
 		throw new UnsupportedOperationException();
 	}
 

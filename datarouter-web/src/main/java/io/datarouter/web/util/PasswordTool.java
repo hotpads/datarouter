@@ -18,15 +18,14 @@ package io.datarouter.web.util;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.util.Base64;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.bytes.StringByteTool;
-
 public class PasswordTool{
+
 	/*
 	 * http://howtodoinjava.com/2013/07/22/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
 	 */
@@ -46,12 +45,12 @@ public class PasswordTool{
 		try{
 			sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
 		}catch(NoSuchAlgorithmException | NoSuchProviderException e){
-			throw new RuntimeException("error in SecureRandom.getInstance()");
+			throw new RuntimeException(e);
 		}
 		byte[] salt = new byte[16];
 		sr.nextBytes(salt);
-		byte[] base64Salt = Base64.encodeBase64URLSafe(salt);
-		return StringByteTool.fromUtf8Bytes(base64Salt);
+		// no padding for consistency with previously used org.apache.commons.codec.binary.Base64.encodeBase64URLSafe
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(salt);
 	}
 
 	public static class PasswordToolTests{

@@ -16,6 +16,7 @@
 package io.datarouter.util;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.Random;
 
 import de.huxhorn.sulky.ulid.ULID;
@@ -73,6 +74,10 @@ public class UlidTool{
 
 	public static Instant getInstant(String ulid){
 		return Instant.ofEpochMilli(ULID.parseULID(ulid).timestamp());
+	}
+
+	public static Date getDateFromUlid(String ulid){
+		 return Date.from(getInstant(ulid));
 	}
 
 }

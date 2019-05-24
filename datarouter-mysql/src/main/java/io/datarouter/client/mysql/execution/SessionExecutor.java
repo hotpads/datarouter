@@ -17,36 +17,35 @@ package io.datarouter.client.mysql.execution;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
 import com.mysql.cj.jdbc.exceptions.MySQLTransactionRollbackException;
 
-import io.datarouter.client.mysql.MysqlClient;
+import io.datarouter.client.mysql.MysqlConnectionClientManager;
 import io.datarouter.client.mysql.op.TxnOp;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
-import io.datarouter.storage.client.Client;
+import io.datarouter.model.exception.DataAccessException;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientManager;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.op.executor.impl.SessionExecutorPleaseRetryException;
-import io.datarouter.util.StreamTool;
+import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.string.StringTool;
 
-public class SessionExecutor<T>extends BaseTxnExecutor<T> implements Callable<T>{
+public class SessionExecutor<T> extends BaseTxnExecutor<T> implements Callable<T>{
 	private static final Logger logger = LoggerFactory.getLogger(SessionExecutor.class);
 
 	private static final String READ_ONLY_ERROR_MESSAGE = "The MySQL server is running with the --read-only option"
 			+ " so it cannot execute this statement";
 
-	public static final Set<Class<?>> ROLLED_BACK_EXCEPTION_SIMPLE_NAMES = ImmutableSet.of(
+	public static final Set<Class<?>> ROLLED_BACK_EXCEPTION_SIMPLE_NAMES = SetTool.of(
 			MySQLTransactionRollbackException.class);
 
 	private final TxnOp<T> parallelTxnOp;
@@ -67,32 +66,31 @@ public class SessionExecutor<T>extends BaseTxnExecutor<T> implements Callable<T>
 
 	@Override
 	public T call(){
-		T onceResult;
-		Collection<T> clientResults = new LinkedList<>();
-		Collection<Client> clients = getClients();
 		try{
 			startTrace();
 			reserveConnections();
 			beginTxns();
 
 			//begin user code
-			onceResult = parallelTxnOp.runOnce();
-			for(Client client : clients){  //TODO threading
-				T clientResult = parallelTxnOp.runOncePerClient(client);
-				clientResults.add(clientResult);
-			}
+			T result = parallelTxnOp.runOnce();
 			//end user code
 
 			commitTxns();
-			return parallelTxnOp.mergeResults(onceResult, clientResults);
+			return result;
 
 		}catch(Exception e){
-			if(e instanceof SQLException && e.getMessage().equals(READ_ONLY_ERROR_MESSAGE)){
-				List<Connection> badConnections = clients.stream()
-						.flatMap(StreamTool.instancesOf(MysqlClient.class))
-						.map(MysqlClient::getExistingConnection)
-						.collect(Collectors.toList());
-				logger.warn("read only mode detected, need to discard the connection(s) {}", badConnections);
+			if(e instanceof DataAccessException){
+				Throwable cause = e.getCause();
+				if(cause instanceof SQLException && cause.getMessage().equals(READ_ONLY_ERROR_MESSAGE)){
+					List<Connection> badConnections = new ArrayList<>();
+					ClientId clientId = parallelTxnOp.getClientId();
+					ClientManager clientManager = parallelTxnOp.getDatarouterClients().getClientManager(clientId);
+					if(clientManager instanceof MysqlConnectionClientManager){
+						badConnections.add(((MysqlConnectionClientManager)clientManager).getExistingConnection(
+								clientId));
+					}
+					logger.warn("read only mode detected, need to discard the connection(s) {}", badConnections);
+				}
 			}
 			if(wasRolledBackAndShouldRetry(e)){
 				//make sure MysqlRollbackRetryingCallable catches this particular exception

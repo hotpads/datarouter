@@ -41,8 +41,7 @@ extends NodeOps<PK,D>{
 	void putMulti(Collection<D> databeans, Config config);
 
 	default void putStream(Stream<D> databeans, Config config){
-		int iterateBatchSize = Config.nullSafe(config).getIterateBatchSize();
-		StreamTool.batch(databeans, iterateBatchSize)
+		StreamTool.batch(databeans, Config.nullSafe(config).optInputBatchSize().orElse(100))
 				.forEach(batch -> putMulti(batch, config));
 	}
 

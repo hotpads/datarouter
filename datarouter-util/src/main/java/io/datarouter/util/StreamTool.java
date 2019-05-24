@@ -76,6 +76,10 @@ public class StreamTool{
 		return StreamSupport.stream(new BatchingSpliterator<>(stream.spliterator(), batchSize), false);
 	}
 
+	public static <T> Stream<List<T>> batch(Iterable<T> iterable, int batchSize){
+		return batch(stream(iterable), batchSize);
+	}
+
 	/**
 	 * For filtering by and mapping stream to stream of a subtype. Example:
 	 * <pre>animals.stream()
@@ -139,6 +143,7 @@ public class StreamTool{
 	/*--------------------------- Tests --------------------------------*/
 
 	public static class StreamToolTests{
+
 		@Test
 		public void testStreamFromNull(){
 			Stream<?> stream = stream((Iterable<?>)null);

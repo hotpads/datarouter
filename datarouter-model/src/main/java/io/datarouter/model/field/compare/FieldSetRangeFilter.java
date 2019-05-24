@@ -15,33 +15,20 @@
  */
 package io.datarouter.model.field.compare;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldSet;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.tuple.Range;
 
 /*
  * Some scans return extra results that we need to filter out
  */
 public class FieldSetRangeFilter{
-
-	public static <FS extends FieldSet<?>> List<FS> filter(Iterable<FS> candidates, Range<? extends FS> range,
-			String nodeName){
-		List<FS> matches = new ArrayList<>();
-		for(FS candidate : IterableTool.nullSafe(candidates)){
-			if(include(candidate, range, nodeName)){
-				matches.add(candidate);
-			}
-		}
-		return matches;
-	}
-
 
 	public static <FS extends FieldSet<?>> boolean include(FieldSet<?> candidate, Range<? extends FS> range,
 			String nodeName){
@@ -54,7 +41,7 @@ public class FieldSetRangeFilter{
 		boolean matchesEnd = true;
 		if(range.hasEnd()){
 			matchesEnd = isCandidateBeforeEndOfRange(candidate.getFields(), range.getEnd().getFields(), range
-					.getEndInclusive(), nodeName);
+					.getEndInclusive());
 		}
 
 		return matchesStart && matchesEnd;
@@ -105,7 +92,7 @@ public class FieldSetRangeFilter{
 
 
 	public static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields, List<Field<?>> endOfRangeFields,
-			boolean inclusive, String nodeName){
+			boolean inclusive){
 		if(endOfRangeFields == null){
 			return true;
 		}
@@ -120,10 +107,7 @@ public class FieldSetRangeFilter{
 			++counter;
 			@SuppressWarnings("rawtypes")
 			Field candidate = candidateIterator.next();
-			if(candidate.getValue() == null){
-				throw new IllegalArgumentException("currently don't support nulls in node=" + nodeName + " candidate="
-						+ candidateFields);
-			}
+			Objects.requireNonNull(candidate.getValue(), "currently don't support nulls, candidate=" + candidateFields);
 			@SuppressWarnings("rawtypes")
 			Field endOfRange = endOfRangeIterator.next();
 			if(endOfRange.getValue() == null){

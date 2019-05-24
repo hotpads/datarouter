@@ -15,9 +15,6 @@
  */
 package io.datarouter.client.mysql.op;
 
-import java.util.Collection;
-
-import io.datarouter.storage.client.Client;
 import io.datarouter.storage.client.DatarouterClients;
 
 public interface TxnOp<T> extends ClientOp{
@@ -27,7 +24,5 @@ public interface TxnOp<T> extends ClientOp{
 	@Deprecated
 	DatarouterClients getDatarouterClients();
 	T runOnce();
-	T runOncePerClient(Client client);
-	T mergeResults(T onceResult, Collection<T> clientResults);
 
 }

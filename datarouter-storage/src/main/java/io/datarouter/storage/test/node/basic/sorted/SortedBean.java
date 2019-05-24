@@ -93,8 +93,16 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 		return f1;
 	}
 
+	public Long getF2(){
+		return f2;
+	}
+
 	public String getF3(){
 		return f3;
+	}
+
+	public Double getF4(){
+		return f4;
 	}
 
 	@Override

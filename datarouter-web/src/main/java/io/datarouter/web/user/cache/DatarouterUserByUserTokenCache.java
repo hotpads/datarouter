@@ -15,23 +15,29 @@
  */
 package io.datarouter.web.user.cache;
 
+import java.time.Duration;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.web.cache.LookupCacheFactory;
-import io.datarouter.web.cache.LookupCacheFactory.LookupCacheFactoryConfig;
+import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
+import io.datarouter.util.cache.LoadingCacheWrapper;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.user.DatarouterUserNodes;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 
 @Singleton
-public class DatarouterUserByUserTokenCache extends BaseDatarouterUserLookupCacheWrapper<String>{
+public class DatarouterUserByUserTokenCache extends LoadingCacheWrapper<String,DatarouterUser>{
 
 	@Inject
-	public DatarouterUserByUserTokenCache(DatarouterUserNodes userNodes, LookupCacheFactory lookupCacheFactory){
-		super(lookupCacheFactory, new LookupCacheFactoryConfig<String,DatarouterUser>()
-				.withLookup(key -> userNodes.getUserNode().lookupUnique(new DatarouterUserByUserTokenLookup(key), null))
-				.withExceptionFunction(key -> new InvalidCredentialsException("userToken not found (" + key + ")")));
+	public DatarouterUserByUserTokenCache(DatarouterUserNodes userNodes){
+		super(new LoadingCacheBuilder<String,DatarouterUser>()
+				.withLoadingFunction(key -> userNodes.getUserNode().lookupUnique(
+						new DatarouterUserByUserTokenLookup(key), null))
+				.withExpireTtl(Duration.ofSeconds(6))
+				.withExceptionFunction(key -> new InvalidCredentialsException("userToken not found (" + key + ")"))
+				.build());
 	}
+
 }

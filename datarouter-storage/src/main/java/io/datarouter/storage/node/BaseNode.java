@@ -18,7 +18,6 @@ package io.datarouter.storage.node;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.util.ComparableTool;
 
@@ -28,7 +27,7 @@ public abstract class BaseNode<
 		F extends DatabeanFielder<PK,D>>
 implements Node<PK,D,F>{
 
-	protected final DatabeanFieldInfo<PK,D,F> fieldInfo;
+	private final DatabeanFieldInfo<PK,D,F> fieldInfo;
 
 	public BaseNode(NodeParams<PK,D,F> params){
 		try{
@@ -38,11 +37,6 @@ implements Node<PK,D,F>{
 					.getDatabeanName() + ". Check that the primary key is instantiated in the databean constructor.",
 					probablyNoPkInstantiated);
 		}
-	}
-
-	@Override
-	public PhysicalNode<PK,D,F> getPhysicalNodeIfApplicable(){
-		return null;//let actual PhysicalNodes override this
 	}
 
 	@Override

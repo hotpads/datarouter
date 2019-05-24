@@ -233,7 +233,7 @@ code in terms of clearing the cache, but more importantly in terms of knowing th
 a complicated data model. Lazy-loading of a databeans relatives is also complex, leading to many unexpected slow queries 
 in places you don’t expect them.
 
-Datarouter loads and loads and stores your data more explicitly and lets you hold onto a collection of databeans in the 
+Datarouter loads and stores your data more explicitly and lets you hold onto a collection of databeans in the 
 application if you choose, which is more predictable and debuggable and doesn’t tie your code to a specific ORM.
 
 ### Multiple databases
@@ -259,4 +259,4 @@ necessary, are explicitly coded into the application forcing you think ahead of 
 it easier to reason about which tables can be split apart. Datarouter provides a master/slave abstraction that can be 
 inserted without changing business logic. Queries that are ok with stale data can pass a `slaveOk` parameter even if no 
 slave databases exist yet. The caching layer is accessed with the same put, get, and delete operations as the RDBMS, 
-making it easy to insert caching without changing the business logic
+making it easy to insert caching without changing the business logic.

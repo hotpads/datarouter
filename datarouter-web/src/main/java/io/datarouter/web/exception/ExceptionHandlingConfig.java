@@ -28,4 +28,6 @@ public interface ExceptionHandlingConfig{
 	String getHtmlErrorMessage(Exception exception);
 	boolean isDevServer();
 
+	String buildExceptionLinkForCurrentServer(String exceptionRecordId);
+
 }

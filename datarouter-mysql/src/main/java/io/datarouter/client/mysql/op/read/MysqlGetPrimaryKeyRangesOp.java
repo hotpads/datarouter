@@ -20,9 +20,9 @@ import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.List;
 
+import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
-import io.datarouter.client.mysql.node.MysqlReaderNode;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
@@ -32,9 +32,9 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.Client;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
@@ -45,37 +45,38 @@ public class MysqlGetPrimaryKeyRangesOp<
 		F extends DatabeanFielder<PK,D>>
 extends BaseMysqlOp<List<PK>>{
 
-	private final MysqlReaderNode<PK,D,F> node;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
 	private final Collection<Range<PK>> ranges;
 	private final Config config;
+	private final MysqlClientType mysqlClientType;
 
-	public MysqlGetPrimaryKeyRangesOp(Datarouter datarouter, MysqlReaderNode<PK,D,F> node,
+	public MysqlGetPrimaryKeyRangesOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			Collection<Range<PK>> ranges, Config config){
-		super(datarouter, node.getClientNames(), Isolation.DEFAULT, true);
-		this.node = node;
+			Collection<Range<PK>> ranges, Config config, MysqlClientType mysqlClientType){
+		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
+		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
 		this.ranges = ranges;
 		this.config = config;
+		this.mysqlClientType = mysqlClientType;
 	}
 
 	@Override
 	public List<PK> runOnce(){
-		Client client = node.getClient();
 		String opName = SortedStorageReader.OP_getKeysInRange;
-		Connection connection = getConnection(node.getFieldInfo().getClientId().getName());
-		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, node.getFieldInfo()
-				.getTableName(), node.getFieldInfo().getPrimaryKeyFields(), ranges, node.getFieldInfo()
-				.getPrimaryKeyFields(), SqlBuilder.PRIMARY_KEY_INDEX_NAME, MysqlTableOptions.make(node.getFieldInfo()))
+		Connection connection = getConnection(fieldInfo.getClientId());
+		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, fieldInfo.getTableName(),
+				fieldInfo.getPrimaryKeyFields(), ranges, fieldInfo.getPrimaryKeyFields(),
+				SqlBuilder.PRIMARY_KEY_INDEX_NAME, MysqlTableOptions.make(fieldInfo.getSampleFielder()))
 				.toPreparedStatement(connection);
-		List<PK> result = MysqlTool.selectPrimaryKeys(fieldCodecFactory, node.getFieldInfo(), statement);
-		DatarouterCounters.incClientNodeCustom(client.getType(), opName + " selects", client.getName(), node.getName(),
-				1L);
-		DatarouterCounters.incClientNodeCustom(client.getType(), opName + " rows", client.getName(), node.getName(),
-				CollectionTool.size(result));
+		List<PK> result = MysqlTool.selectPrimaryKeys(fieldCodecFactory, fieldInfo, statement);
+		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId().getName(),
+				fieldInfo.getNodeName(), 1L);
+		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),
+				fieldInfo.getNodeName(), CollectionTool.size(result));
 		return result;
 	}
 

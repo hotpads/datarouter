@@ -39,7 +39,6 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.iterable.IterableTool;
-import io.datarouter.web.handler.types.HttpRequestBuilder;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserKey;
@@ -47,6 +46,7 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleEnum;
 import io.datarouter.web.user.session.service.Session;
+import io.datarouter.web.util.http.MockHttpServletRequestBuilder;
 
 /*
  * A single user may have multiple sessions via different computers, browsers, tabs, etc.  Create one of these for each
@@ -235,22 +235,22 @@ implements Serializable, Session{
 	public static final class DatarouterSessionMock{
 
 		public static HttpServletRequest getAnonymousHttpServletRequest(){
-			return new HttpRequestBuilder()
-					.withAttribute(DatarouterSessionManager.REQUEST_ATTRIBUTE_NAME, buildSessionWithRoles(
+			return new MockHttpServletRequestBuilder()
+					.withAttribute(DatarouterSessionManager.DATAROUTER_SESSION_ATTRIBUTE, buildSessionWithRoles(
 							(DatarouterUserRole[])null))
 					.build();
 		}
 
 		public static HttpServletRequest getAllDatarouterUserRolesHttpServletRequest(){
-			return new HttpRequestBuilder()
-					.withAttribute(DatarouterSessionManager.REQUEST_ATTRIBUTE_NAME, buildSessionWithRoles(
+			return new MockHttpServletRequestBuilder()
+					.withAttribute(DatarouterSessionManager.DATAROUTER_SESSION_ATTRIBUTE, buildSessionWithRoles(
 							DatarouterUserRole.values()))
 					.build();
 		}
 
 		public static HttpServletRequest getHttpServletRequestWithSessionRoles(RoleEnum<?>... roles){
-			return new HttpRequestBuilder()
-					.withAttribute(DatarouterSessionManager.REQUEST_ATTRIBUTE_NAME, buildSessionWithRoles(roles))
+			return new MockHttpServletRequestBuilder()
+					.withAttribute(DatarouterSessionManager.DATAROUTER_SESSION_ATTRIBUTE, buildSessionWithRoles(roles))
 					.build();
 		}
 

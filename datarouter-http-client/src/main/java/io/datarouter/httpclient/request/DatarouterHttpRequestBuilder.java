@@ -32,7 +32,7 @@ public class DatarouterHttpRequestBuilder{
 		this.httpClient = httpClient;
 	}
 
-	/*---------- get ------------*/
+	/*--------------------------------- get ---------------------------------*/
 
 	public DatarouterHttpRequest createGet(String path){
 		return new DatarouterHttpRequest(HttpRequestMethod.GET, buildUrl(path), true);
@@ -42,7 +42,7 @@ public class DatarouterHttpRequestBuilder{
 		return createGet(pathNode.toSlashedString());
 	}
 
-	/*---------- post ------------*/
+	/*------------------------ post without retries--------------------------*/
 
 	public DatarouterHttpRequest createPost(PathNode pathNode){
 		return createPost(pathNode.toSlashedString());
@@ -62,7 +62,27 @@ public class DatarouterHttpRequestBuilder{
 		return request;
 	}
 
-	/*---------- put ------------*/
+	/*------------------------- post with retries----------------------------*/
+
+	public DatarouterHttpRequest createPostWithRetries(PathNode pathNode){
+		return createPostWithRetries(pathNode.toSlashedString());
+	}
+
+	public DatarouterHttpRequest createPostWithRetries(PathNode pathNode, Object entityDto){
+		return createPostWithRetries(pathNode.toSlashedString(), entityDto);
+	}
+
+	public DatarouterHttpRequest createPostWithRetries(String path){
+		return new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path), true);
+	}
+
+	public DatarouterHttpRequest createPostWithRetries(String path, Object entityDto){
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path), true);
+		httpClient.setEntityDto(request, entityDto);
+		return request;
+	}
+
+	/*-------------------------------- put ----------------------------------*/
 
 	public DatarouterHttpRequest createPut(String path){
 		return new DatarouterHttpRequest(HttpRequestMethod.PUT, buildUrl(path), true);
@@ -72,7 +92,7 @@ public class DatarouterHttpRequestBuilder{
 		return new DatarouterHttpRequest(HttpRequestMethod.DELETE, buildUrl(path), true);
 	}
 
-	/*---------- other ------------*/
+	/*------------------------------- other ---------------------------------*/
 
 	public String buildUrl(String path){
 		URI endpointUrl = settings.getEndpointUrl();

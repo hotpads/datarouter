@@ -16,12 +16,6 @@
 package io.datarouter.storage.trace.databean;
 
 import java.util.Collection;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import io.datarouter.util.iterable.IterableTool;
 
 public class TraceTool{
 
@@ -36,20 +30,5 @@ public class TraceTool{
 				.sum();
 	}
 
-	public static<EK extends BaseTraceEntityKey<EK>,
-			PK extends BaseTraceSpanKey<EK,PK>,
-			TK extends BaseTraceThreadKey<EK,TK>,
-			D extends BaseTraceSpan<EK,PK,TK,D>>
-	SortedMap<TK,SortedSet<D>> getSpansByThreadKey(Collection<D> spans){
-		SortedMap<TK,SortedSet<D>> out = new TreeMap<>();
-		for(D span : IterableTool.nullSafe(spans)){
-			TK threadKey = span.getThreadKey();
-			if(out.get(threadKey) == null){
-				out.put(threadKey, new TreeSet<D>());
-			}
-			out.get(threadKey).add(span);
-		}
-		return out;
-	}
 
 }

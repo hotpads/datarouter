@@ -29,6 +29,10 @@ public class ScalingThreadPoolExecutor extends ThreadPoolExecutor{
 
 	private AtomicInteger activeCount;
 
+	public ScalingThreadPoolExecutor(ThreadGroup group, String name, int maxThreadCount){
+		this(0, maxThreadCount, 1, TimeUnit.MINUTES, ExecutorTool.createNamedThreadFactory(group, name));
+	}
+
 	public ScalingThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
 			ThreadFactory threadFactory){
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ScalingThreadPoolExecutorQueue(), threadFactory,
@@ -83,4 +87,5 @@ public class ScalingThreadPoolExecutor extends ThreadPoolExecutor{
 			}
 		}
 	}
+
 }

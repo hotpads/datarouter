@@ -20,19 +20,10 @@ import java.util.Objects;
 
 public class ObjectTool{
 
-	public static <T> void requireEquals(T first, T second){
-		if(notEquals(first, second)){
-			throw new IllegalArgumentException(first + " does not equal " + second);
-		}
-	}
-
-	public static <T> void requireNotEquals(T first, T second){
-		if(Objects.equals(first, second)){
-			throw new IllegalArgumentException(first + " equals " + second);
-		}
-	}
-
-	public static <T> boolean notEquals(T first, T second){
+	/**
+	 * Note this method may hide the IDEs ability to warn about unlikely comparisons
+	 */
+	public static boolean notEquals(Object first, Object second){
 		return !Objects.equals(first, second);
 	}
 

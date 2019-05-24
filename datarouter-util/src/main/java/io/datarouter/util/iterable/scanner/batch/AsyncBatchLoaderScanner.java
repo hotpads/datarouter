@@ -32,7 +32,7 @@ import io.datarouter.util.iterable.scanner.sorted.BaseSortedScanner;
 public class AsyncBatchLoaderScanner<T extends Comparable<? super T>>
 extends BaseSortedScanner<T>{
 
-	private ExecutorService executorService;
+	private final ExecutorService executorService;
 	private Future<BatchLoader<T>> currentBatchFuture;
 	private Future<BatchLoader<T>> loadingBatchFuture;
 	private boolean didInitialPrefetch = false;
@@ -71,6 +71,14 @@ extends BaseSortedScanner<T>{
 	}
 
 	@Override
+	public void cleanup(){
+		BatchLoader<T> currentBatch = getCurrentLoader();
+		if(currentBatch != null){
+			currentBatch.cleanup();
+		}
+	}
+
+	@Override
 	public T getCurrent(){
 		BatchLoader<T> currentBatch = getCurrentLoader();
 		if(currentBatch == null){
@@ -106,6 +114,7 @@ extends BaseSortedScanner<T>{
 	/*------------------------- get/set -------------------------------------*/
 
 	public static class BatchingSortedScannerTests{
+
 		private static final int MULTIPLIER = 3;
 		private List<Integer> createTestArray(int numElements){
 			List<Integer> testArray = new ArrayList<>();

@@ -15,11 +15,13 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 @SuppressWarnings("serial")
 public class Http408RequestTimeoutException extends HttpException{
 
-	private static final int CODE = 408;
-	private static final String MESSAGE = "Request Timeout";
+	private static final int CODE = HttpStatusCode.SC_408_REQUEST_TIMEOUT.getStatusCode();
+	private static final String MESSAGE = HttpStatusCode.SC_408_REQUEST_TIMEOUT.getMessage();
 
 	public Http408RequestTimeoutException(){
 		super(MESSAGE, CODE);

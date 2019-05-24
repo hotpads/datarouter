@@ -15,35 +15,19 @@
  */
 package io.datarouter.web.config;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
-
 import io.datarouter.httpclient.path.PathNode;
-import io.datarouter.util.SystemTool;
-import io.datarouter.util.io.FileTool;
+import io.datarouter.web.file.DatarouterFilesTests;
+import io.datarouter.web.file.FilesRoot;
 
 @Singleton
-public class DatarouterWebFiles extends PathNode{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterWebFiles.class);
-
-	public static final String ROOT_IN_WEBAPP = "/src/main/resources/META-INF/resources";
-
-	public static final String JSP_CodeMav = "/jsp/generic/code.jsp";
-	public static final String JSP_JsonMav = "/jsp/generic/json.jsp";
-	public static final String JSP_MessageMav = "/jsp/generic/message.jsp";
-	public static final String JSP_StringMav = "/jsp/generic/string.jsp";
+public class DatarouterWebFiles extends FilesRoot{
 
 	public final AutocompleteFiles autocomplete = branch(AutocompleteFiles::new, "autocomplete");
 	public final BootstrapFiles bootstrap = branch(BootstrapFiles::new, "bootstrap");
+	public final FontAwesomeFiles fontAwesome = branch(FontAwesomeFiles::new, "font-awesome");
 	public final CssFiles css = branch(CssFiles::new, "css");
 	public final DygraphFiles dygraph = branch(DygraphFiles::new, "dygraph");
 	public final JeeAssetsFiles jeeAssets = branch(JeeAssetsFiles::new, "jee-assets");
@@ -60,17 +44,59 @@ public class DatarouterWebFiles extends PathNode{
 	}
 
 	public static class BootstrapFiles extends PathNode{
-		public final BootstrapCssFiles css = branch(BootstrapCssFiles::new, "css");
-		public final BootstrapFontsFiles fonts = branch(BootstrapFontsFiles::new, "fonts");
-		public final BootstrapJsFiles js = branch(BootstrapJsFiles::new, "js");
+		public final Bootstrap3Files v3 = branch(Bootstrap3Files::new, "v3");
+		public final Bootstrap4Files v4 = branch(Bootstrap4Files::new, "v4");
 	}
 
-	public static class BootstrapCssFiles extends PathNode{
+	public static class Bootstrap3Files extends PathNode{
+		public final Bootstrap3CssFiles css = branch(Bootstrap3CssFiles::new, "css");
+		public final Bootstrap3FontsFiles fonts = branch(Bootstrap3FontsFiles::new, "fonts");
+		public final Bootstrap3JsFiles js = branch(Bootstrap3JsFiles::new, "js");
+	}
+
+	public static class Bootstrap4Files extends PathNode{
+		public final Bootstrap4CssFiles css = branch(Bootstrap4CssFiles::new, "css");
+		public final Bootstrap4JsFiles js = branch(Bootstrap4JsFiles::new, "js");
+	}
+
+	public static class Bootstrap4CssFiles extends PathNode{
+		public final PathNode bootstrapCss = leaf("bootstrap.min.css");
+	}
+
+	public static class Bootstrap4JsFiles extends PathNode{
+		public final PathNode bootstrapJs = leaf("bootstrap.bundle.min.js");
+	}
+
+	public static class FontAwesomeFiles extends PathNode{
+		public final PathNode css = branch(FontAwesomeCssFiles::new, "css");
+		public final PathNode webfonts = branch(FontAwesomeWebfontFiles::new, "webfonts");
+	}
+
+	public static class FontAwesomeCssFiles extends PathNode{
+		public final PathNode fontAwesomeBaseCss = leaf("fontawesome.min.css");
+		public final PathNode fontAwesomeRegularCss = leaf("regular.min.css");
+		public final PathNode fontAwesomeSolidCss = leaf("solid.min.css");
+	}
+
+	public static class FontAwesomeWebfontFiles extends PathNode{
+		public final PathNode fontAwesomeRegularFontEot = leaf("fa-regular-400.eot");
+		public final PathNode fontAwesomeRegularFontSvg = leaf("fa-regular-400.svg");
+		public final PathNode fontAwesomeRegularFontTtf = leaf("fa-regular-400.ttf");
+		public final PathNode fontAwesomeRegularFontWoff = leaf("fa-regular-400.woff");
+		public final PathNode fontAwesomeRegularFontWoff2 = leaf("fa-regular-400.woff2");
+		public final PathNode fontAwesomeSolidFontEot = leaf("fa-solid-900.eot");
+		public final PathNode fontAwesomeSolidFontSvg = leaf("fa-solid-900.svg");
+		public final PathNode fontAwesomeSolidFontTtf = leaf("fa-solid-900.ttf");
+		public final PathNode fontAwesomeSolidFontWoff = leaf("fa-solid-900.woff");
+		public final PathNode fontAwesomeSolidFontWoff2 = leaf("fa-solid-900.woff2");
+	}
+
+	public static class Bootstrap3CssFiles extends PathNode{
 		public final PathNode bootstrapThemeCss = leaf("bootstrap-theme.css");
 		public final PathNode bootstrapCss = leaf("bootstrap.css");
 	}
 
-	public static class BootstrapFontsFiles extends PathNode{
+	public static class Bootstrap3FontsFiles extends PathNode{
 		public final PathNode glyphiconsHalflingsRegularEot = leaf("glyphicons-halflings-regular.eot");
 		public final PathNode glyphiconsHalflingsRegularSvg = leaf("glyphicons-halflings-regular.svg");
 		public final PathNode glyphiconsHalflingsRegularTtf = leaf("glyphicons-halflings-regular.ttf");
@@ -78,12 +104,13 @@ public class DatarouterWebFiles extends PathNode{
 		public final PathNode glyphiconsHalflingsRegularWoff2 = leaf("glyphicons-halflings-regular.woff2");
 	}
 
-	public static class BootstrapJsFiles extends PathNode{
+	public static class Bootstrap3JsFiles extends PathNode{
 		public final PathNode bootstrapJs = leaf("bootstrap.js");
 	}
 
 	public static class CssFiles extends PathNode{
 		public final PathNode commonCss = leaf("common.css");
+		public final PathNode newCommonCss = leaf("new-common.css");
 	}
 
 	public static class DygraphFiles extends PathNode{
@@ -94,6 +121,7 @@ public class DatarouterWebFiles extends PathNode{
 	public static class JeeAssetsFiles extends PathNode{
 		public final JeeAssetsMultipleSelectFiles multipleSelect = branch(JeeAssetsMultipleSelectFiles::new,
 				"multiple-select");
+		public final PathNode datarouterLogoPng = leaf("datarouter-logo.png");
 	}
 
 	public static class JeeAssetsMultipleSelectFiles extends PathNode{
@@ -111,20 +139,23 @@ public class DatarouterWebFiles extends PathNode{
 	}
 
 	public static class JqueryImagesFiles extends PathNode{
-//		ui-bg_diagonals-thick_18_b81900_40x40.png
-//		ui-bg_glass_100_f6f6f6_1x400.png
-//		ui-bg_gloss-wave_35_f6a828_500x100.png
-//		ui-icons_222222_256x240.png
-//		ui-icons_ffd27a_256x240.png
-//		ui-bg_diagonals-thick_20_666666_40x40.png
-//		ui-bg_glass_100_fdf5ce_1x400.png
-//		ui-bg_highlight-soft_100_eeeeee_1x100.png
-//		ui-icons_228ef1_256x240.png
-//		ui-icons_ffffff_256x240.png
-//		ui-bg_flat_10_000000_40x100.png
-//		ui-bg_glass_65_ffffff_1x400.png
-//		ui-bg_highlight-soft_75_ffe45c_1x100.png
-//		ui-icons_ef8c08_256x240.png
+		public final PathNode uiBgDiagonalsThick18b8190040x40Png = leaf("ui-bg_diagonals-thick_18_b81900_40x40.png");
+		public final PathNode uiBgDiagonalsThick2066666640x40Png = leaf("ui-bg_diagonals-thick_20_666666_40x40.png");
+		public final PathNode uiBgGlass100f6f6f61x400Png = leaf("ui-bg_glass_100_f6f6f6_1x400.png");
+		public final PathNode uiBgGlass100fdf5ce1x400Png = leaf("ui-bg_glass_100_fdf5ce_1x400.png");
+		public final PathNode uiBgGlass65ffffff1x400Png = leaf("ui-bg_glass_65_ffffff_1x400.png");
+
+		public final PathNode uiIcons222222256x240Png = leaf("ui-icons_222222_256x240.png");
+		public final PathNode uiIconsffd27a256x240Png = leaf("ui-icons_ffd27a_256x240.png");
+		public final PathNode uiIcons228ef1256x240Png = leaf("ui-icons_228ef1_256x240.png");
+		public final PathNode uiIconsffffff256x240Png = leaf("ui-icons_ffffff_256x240.png");
+		public final PathNode uiIconsef8c08256x240Png = leaf("ui-icons_ef8c08_256x240.png");
+
+		public final PathNode uiBgHighlightSoft100eeeeee1x100Png = leaf("ui-bg_highlight-soft_100_eeeeee_1x100.png");
+		public final PathNode uiBgHighlightSoft75ffe45c1x100Png = leaf("ui-bg_highlight-soft_75_ffe45c_1x100.png");
+
+		public final PathNode uiBgGlossWave35f6a828500x100Png = leaf("ui-bg_gloss-wave_35_f6a828_500x100.png");
+		public final PathNode uiBgFlat1000000040x100Png = leaf("ui-bg_flat_10_000000_40x100.png");
 	}
 
 	public static class JqueryFloatThread203Files extends PathNode{
@@ -139,6 +170,7 @@ public class DatarouterWebFiles extends PathNode{
 		public final JsUtilFiles util = branch(JsUtilFiles::new, "util");
 		public final PathNode accountManagerJs = leaf("accountManager.js");
 		public final PathNode coreCommonJs = leaf("core-common.js");
+		public final PathNode viewUsersJsx = leaf("viewUsers.jsx");
 	}
 
 	public static class JsUtilFiles extends PathNode{
@@ -158,7 +190,6 @@ public class DatarouterWebFiles extends PathNode{
 	public static class JspAdminFiles extends PathNode{
 		public final JspAdminDatarouterFiles datarouter = branch(JspAdminDatarouterFiles::new, "datarouter");
 		public final PathNode deleteNodeDataJsp = leaf("deleteNodeData.jsp");
-		public final PathNode viewDatabeanJsp = leaf("viewDatabean.jsp");
 		public final PathNode viewNodeDataJsp = leaf("viewNodeData.jsp");
 		public final PathNode getNodeDataJsp = leaf("getNodeData.jsp");
 	}
@@ -167,19 +198,12 @@ public class DatarouterWebFiles extends PathNode{
 		public final PathNode datarouterMenuJsp = leaf("datarouterMenu.jsp");
 		public final JspAdminDatarouterExecutorsMonitoringFiles executorsMonitoring = branch(
 				JspAdminDatarouterExecutorsMonitoringFiles::new, "executorsMonitoring");
-		public final JspAdminDatarouterMemoryFiles memory = branch(JspAdminDatarouterMemoryFiles::new, "memory");
 		public final JspAdminDatarouterMemoryStatsFiles memoryStats = branch(JspAdminDatarouterMemoryStatsFiles::new,
 				"memoryStats");
-		public final PathNode routerSummaryJsp = leaf("routerSummary.jsp");
-		public final PathNode thresholdSettingsJsp = leaf("thresholdSettings.jsp");//TODO move to webapp-utils
 	}
 
 	public static class JspAdminDatarouterExecutorsMonitoringFiles extends PathNode{
 		public final PathNode executorsJsp = leaf("executors.jsp");
-	}
-
-	public static class JspAdminDatarouterMemoryFiles extends PathNode{
-		public final PathNode memoryClientSummaryJsp = leaf("memoryClientSummary.jsp");//TODO move to datarouter-memory
 	}
 
 	public static class JspAdminDatarouterMemoryStatsFiles extends PathNode{
@@ -201,6 +225,7 @@ public class DatarouterWebFiles extends PathNode{
 
 	public static class JspCssFiles extends PathNode{
 		public final PathNode cssImportJspf = leaf("css-import.jspf");
+		public final PathNode newCssImportJspf = leaf("new-css-import.jspf");
 	}
 
 	public static class JspDocsFiles extends PathNode{
@@ -209,18 +234,18 @@ public class DatarouterWebFiles extends PathNode{
 
 	public static class JspGenericFiles extends PathNode{
 		public final PathNode baseHeadJsp = leaf("baseHead.jsp");
+		public final PathNode newBaseHeadJsp = leaf("newBaseHead.jsp");
 		public final PathNode codeJsp = leaf("code.jsp");
 		public final PathNode datarouterHeadJsp = leaf("datarouterHead.jsp");
 		public final PathNode jsonJsp = leaf("json.jsp");
 		public final PathNode messageJsp = leaf("message.jsp");
-		public final PathNode navbarJsp = leaf("navbar.jspf");
 		public final PathNode preludeJsp = leaf("prelude.jspf");
 		public final PathNode stringJsp = leaf("string.jsp");
 	}
 
 	public static class JspMenuFiles extends PathNode{
 		public final PathNode commonNavbarJsp = leaf("common-navbar.jsp");
-		public final PathNode drNavbarJsp = leaf("dr-navbar.jsp");
+		public final PathNode newCommonNavbarJsp = leaf("new-common-navbar.jsp");
 	}
 
 
@@ -241,44 +266,11 @@ public class DatarouterWebFiles extends PathNode{
 		public final PathNode sorttableJs = leaf("sorttable.js");
 	}
 
-
-	@Guice
-	public static class DatarouterWebFilesTests{
+	public static class DatarouterWebFilesTests extends DatarouterFilesTests{
 
 		@Inject
-		private DatarouterWebFiles files;
-
-		@Test
-		public void printPaths(){
-			files.paths().stream()
-					.map(PathNode::toSlashedString)
-					.forEach(logger::warn);
-		}
-
-		@Test
-		public void testAuroraInstances(){
-			Assert.assertEquals("/autocomplete/autocomplete.js",
-					files.autocomplete.autocompleteJs.toSlashedString());
-		}
-
-		@Test
-		public void testConstants(){
-			Assert.assertEquals(JSP_CodeMav, files.jsp.generic.codeJsp.toSlashedString());
-			Assert.assertEquals(JSP_JsonMav, files.jsp.generic.jsonJsp.toSlashedString());
-			Assert.assertEquals(JSP_MessageMav, files.jsp.generic.messageJsp.toSlashedString());
-			Assert.assertEquals(JSP_StringMav, files.jsp.generic.stringJsp.toSlashedString());
-		}
-
-		@Test(enabled = false)
-		public void testFilesExist(){
-			String root = SystemTool.getUserHome() + "/workspace/datarouter/datarouter-web"
-					+ DatarouterWebFiles.ROOT_IN_WEBAPP;
-			files.paths().stream()
-					.map(PathNode::toSlashedString)
-					.map(root::concat)
-					.map(Paths::get)
-					.map(Path::toFile)
-					.forEach(FileTool::requireExists);
+		protected DatarouterWebFilesTests(DatarouterWebFiles files){
+			super(files);
 		}
 
 	}

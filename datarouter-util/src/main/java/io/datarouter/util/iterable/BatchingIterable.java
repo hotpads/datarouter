@@ -26,8 +26,8 @@ import org.testng.annotations.Test;
 
 public class BatchingIterable<T> implements Iterable<List<T>>{
 
-	private Iterable<T> iterable;
-	private int batchSize;
+	private final Iterable<T> iterable;
+	private final int batchSize;
 
 	// Nov 10 2016: this is causing a seg fault
 	// Jun 20 2017: no seg fault in the unit test

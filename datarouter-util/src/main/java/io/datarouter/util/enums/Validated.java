@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Validated<T>{
+
 	private List<String> errors = new ArrayList<>();
 	private T value;
 
@@ -59,4 +60,5 @@ public class Validated<T>{
 	public List<String> getErrors(){
 		return errors;
 	}
+
 }

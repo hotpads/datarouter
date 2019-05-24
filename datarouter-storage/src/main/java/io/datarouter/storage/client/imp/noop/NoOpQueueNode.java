@@ -22,15 +22,15 @@ import java.util.List;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.op.raw.GroupQueueStorage;
-import io.datarouter.storage.queue.GroupQueueMessage;
+import io.datarouter.storage.node.op.raw.QueueStorage;
+import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.storage.queue.QueueMessageKey;
 
 public class NoOpQueueNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
 extends NoOpNode<PK,D>
-implements GroupQueueStorage<PK,D>{
+implements QueueStorage<PK,D>{
 
 	@Override
 	public void ack(QueueMessageKey key, Config config){
@@ -41,22 +41,32 @@ implements GroupQueueStorage<PK,D>{
 	}
 
 	@Override
-	public GroupQueueMessage<PK,D> peek(Config config){
+	public QueueMessage<PK,D> peek(Config config){
 		return null;
 	}
 
 	@Override
-	public List<GroupQueueMessage<PK,D>> peekMulti(Config config){
+	public List<QueueMessage<PK,D>> peekMulti(Config config){
 		return Collections.emptyList();
 	}
 
 	@Override
-	public Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
+	public Iterable<QueueMessage<PK,D>> peekUntilEmpty(Config config){
 		return Collections.emptyList();
+	}
+
+	@Override
+	public D poll(Config config){
+		return null;
 	}
 
 	@Override
 	public List<D> pollMulti(Config config){
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Iterable<D> pollUntilEmpty(Config config){
 		return Collections.emptyList();
 	}
 

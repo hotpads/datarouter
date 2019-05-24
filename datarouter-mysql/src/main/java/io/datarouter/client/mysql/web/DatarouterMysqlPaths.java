@@ -19,11 +19,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.httpclient.path.PathsRoot;
 import io.datarouter.web.config.DatarouterWebPaths;
-import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 
 @Singleton
-public class DatarouterMysqlPaths extends PathNode{
+public class DatarouterMysqlPaths extends PathNode implements PathsRoot{
 
 	public final DatarouterPaths datarouter;
 
@@ -33,7 +33,7 @@ public class DatarouterMysqlPaths extends PathNode{
 	}
 
 	public static class DatarouterPaths extends PathNode{
-		public final ClientsPaths clients = branch(ClientsPaths::new, DatarouterWebRouteSet.CLIENTS);
+		public final ClientsPaths clients = branch(ClientsPaths::new, "cilents");
 	}
 
 	public static class ClientsPaths extends PathNode{

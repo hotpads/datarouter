@@ -18,6 +18,7 @@ package io.datarouter.httpclient.client;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,12 +37,13 @@ import org.testng.annotations.Test;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
+import io.datarouter.httpclient.response.HttpStatusCode;
 import io.datarouter.httpclient.response.exception.DatarouterHttpConnectionAbortedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeException;
-import io.datarouter.httpclient.security.DefaultCsrfValidator;
-import io.datarouter.httpclient.security.DefaultSignatureValidator;
+import io.datarouter.httpclient.security.DefaultCsrfGenerator;
+import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 
 public class DatarouterHttpClientIntegrationTests{
@@ -56,7 +58,7 @@ public class DatarouterHttpClientIntegrationTests{
 	private static class SimpleHttpResponseServer extends Thread{
 
 		private volatile boolean done = false;
-		private volatile int status = 200;
+		private volatile int status = HttpStatusCode.SC_200_OK.getStatusCode();
 		private volatile int sleepMs = 0;
 		private volatile String response = "hello world";
 
@@ -129,7 +131,7 @@ public class DatarouterHttpClientIntegrationTests{
 		try{
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
 			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, false)
-					.setTimeoutMs(100);
+					.setTimeout(Duration.ofMillis(100));
 			client.executeChecked(request);
 		}finally{
 			server.setResponseDelay(0);
@@ -145,7 +147,8 @@ public class DatarouterHttpClientIntegrationTests{
 
 	@Test(expectedExceptions = DatarouterHttpConnectionAbortedException.class)
 	public void testInvalidRequestHeader() throws DatarouterHttpException{
-		server.setResponse(301, "301 status code throws exception when not provided a location header");
+		server.setResponse(HttpStatus.SC_MOVED_PERMANENTLY,
+				"301 status code throws exception when not provided a location header");
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
 		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, false);
 		client.executeChecked(request);
@@ -157,7 +160,7 @@ public class DatarouterHttpClientIntegrationTests{
 		try{
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().setRetryCount(10).build();
 			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, true)
-					.setTimeoutMs(100);
+					.setTimeout(Duration.ofMillis(100));
 			client.executeChecked(request);
 		}finally{
 			server.setResponseDelay(0);
@@ -223,13 +226,13 @@ public class DatarouterHttpClientIntegrationTests{
 		String cipherKey = "kirg king kind " + UUID.randomUUID().toString();
 		String apiKey = "apiKey advanced placement incremental key " + UUID.randomUUID().toString();
 
-		DefaultSignatureValidator signatureValidator = new DefaultSignatureValidator(() -> salt);
-		DefaultCsrfValidator csrfValidator = new DefaultCsrfValidator(() -> cipherKey);
+		DefaultSignatureGenerator signatureGenerator = new DefaultSignatureGenerator(() -> salt);
+		DefaultCsrfGenerator csrfGenerator = new DefaultCsrfGenerator(() -> cipherKey);
 		Supplier<String> apiKeySupplier = () -> apiKey;
 
 		client = new DatarouterHttpClientBuilder()
-				.setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator)
+				.setSignatureGenerator(signatureGenerator)
+				.setCsrfGenerator(csrfGenerator)
 				.setApiKeySupplier(apiKeySupplier).build();
 
 		Map<String,String> params = new HashMap<>();
@@ -252,9 +255,10 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
 		client = new DatarouterHttpClientBuilder()
-				.setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator)
-				.setApiKeySupplier(apiKeySupplier).build();
+				.setSignatureGenerator(signatureGenerator)
+				.setCsrfGenerator(csrfGenerator)
+				.setApiKeySupplier(apiKeySupplier)
+				.build();
 
 		// entity enclosing request with no entity or params cannot be signed
 		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, false);
@@ -267,8 +271,11 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
 
-		client = new DatarouterHttpClientBuilder().setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator).setApiKeySupplier(apiKeySupplier).build();
+		client = new DatarouterHttpClientBuilder()
+				.setSignatureGenerator(signatureGenerator)
+				.setCsrfGenerator(csrfGenerator)
+				.setApiKeySupplier(apiKeySupplier)
+				.build();
 
 		// entity enclosing request already with an entity cannot be signed, even with params
 		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL, false)
@@ -284,9 +291,10 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
 
 		client = new DatarouterHttpClientBuilder()
-				.setSignatureValidator(signatureValidator)
-				.setCsrfValidator(csrfValidator)
-				.setApiKeySupplier(apiKeySupplier).build();
+				.setSignatureGenerator(signatureGenerator)
+				.setCsrfGenerator(csrfGenerator)
+				.setApiKeySupplier(apiKeySupplier)
+				.build();
 
 		// entity enclosing request is signed with entity from post params
 		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, false).addPostParams(params);
@@ -300,7 +308,9 @@ public class DatarouterHttpClientIntegrationTests{
 		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
 
 		// test equivalence classes
-		client = new DatarouterHttpClientBuilder().setCsrfValidator(csrfValidator).build();
+		client = new DatarouterHttpClientBuilder()
+				.setCsrfGenerator(csrfGenerator)
+				.build();
 
 		request = new DatarouterHttpRequest(HttpRequestMethod.PUT, URL, false).addPostParams(params);
 		response = client.execute(request);

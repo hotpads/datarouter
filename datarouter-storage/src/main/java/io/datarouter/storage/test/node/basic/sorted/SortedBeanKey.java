@@ -61,7 +61,7 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 		return new SortedBeanKey(ek.getFoo(), ek.getBar(), null, null);
 	}
 
-	SortedBeanKey(){
+	public SortedBeanKey(){
 	}
 
 	public SortedBeanKey(String foo, String bar, Integer baz, String qux){

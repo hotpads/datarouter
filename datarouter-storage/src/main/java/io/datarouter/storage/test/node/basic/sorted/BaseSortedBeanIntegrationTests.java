@@ -24,18 +24,14 @@ import org.testng.annotations.Guice;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.storage.test.DatarouterStorageTestModuleFactory;
+import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.storage.test.TestDatarouterProperties;
-import io.datarouter.util.iterable.BatchingIterable;
-import io.datarouter.util.iterable.IterableTool;
 
-@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
 public abstract class BaseSortedBeanIntegrationTests{
 
 	@Inject
@@ -54,26 +50,33 @@ public abstract class BaseSortedBeanIntegrationTests{
 	protected List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
 
 	protected void setup(ClientId clientId, boolean entity){
-		router = new DatarouterSortedNodeTestRouter(datarouterProperties, datarouter, datarouterSettings,
-				entityNodeFactory, SortedBeanEntityNode.ENTITY_NODE_PARAMS_1, nodeFactory, clientId, entity);
+		router = new DatarouterSortedNodeTestRouter(
+				datarouterProperties,
+				datarouter,
+				datarouterSettings,
+				entityNodeFactory,
+				SortedBeanEntityNode.ENTITY_NODE_PARAMS_1,
+				nodeFactory,
+				clientId,
+				entity);
 		sortedNode = router.sortedBeanNode;
-
 		resetTable(true);
 	}
 
 	protected void resetTable(boolean force){
-		long numExistingDatabeans = IterableTool.count(sortedNode.scan(null, null));
+		long numExistingDatabeans = count();
 		if(!force && SortedBeans.TOTAL_RECORDS == numExistingDatabeans){
 			return;
 		}
-
 		sortedNode.deleteAll(null);
-		Assert.assertEquals(sortedNode.stream(null, null).count(), 0);
+		Assert.assertEquals(count(), 0);
+		sortedNode.putStream(allBeans.stream(), null);
+		Assert.assertEquals(count(), SortedBeans.TOTAL_RECORDS);
+	}
 
-		for(List<SortedBean> batch : new BatchingIterable<>(allBeans, 1000)){
-			sortedNode.putMulti(batch, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
-		}
-		Assert.assertEquals(sortedNode.stream(null, null).count(), SortedBeans.TOTAL_RECORDS);
+	protected long count(){
+		return sortedNode.streamKeys(null, null)
+				.count();
 	}
 
 }

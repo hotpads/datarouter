@@ -16,23 +16,21 @@
 package io.datarouter.storage.node.type.physical.base;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.BaseNode;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.collection.SetTool;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public abstract class BasePhysicalNode<
 		PK extends PrimaryKey<PK>,
@@ -41,37 +39,18 @@ public abstract class BasePhysicalNode<
 extends BaseNode<PK,D,F>
 implements PhysicalNode<PK,D,F>{
 
-	public BasePhysicalNode(NodeParams<PK,D,F> params){
+	private final ClientType<?,?> clientType;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
+
+	public BasePhysicalNode(NodeParams<PK,D,F> params, ClientType<?,?> clientType){
 		super(params);
+		this.clientType = clientType;
+		this.fieldInfo = new PhysicalDatabeanFieldInfo<>(params);
 	}
 
 	@Override
 	public final String getName(){
-		String name = getFieldInfo().getClientId().getName() + "." + getFieldInfo().getTableName();
-		if(getFieldInfo().getEntityNodePrefix() != null){
-			return name + "." + getFieldInfo().getEntityNodePrefix();
-		}
-		return name;
-	}
-
-	@Override
-	public PhysicalNode<PK,D,F> getPhysicalNodeIfApplicable(){
-		return this;
-	}
-
-	@Override
-	public List<String> getClientNamesForPrimaryKeysForSchemaUpdate(Collection<PK> keys){
-		return ListTool.createLinkedList(fieldInfo.getClientId().getName());
-	}
-
-	@Override
-	public Set<String> getAllNames(){
-		return SetTool.wrap(getName());
-	}
-
-	@Override
-	public List<String> getClientNames(){
-		return Collections.singletonList(getFieldInfo().getClientId().getName());
+		return fieldInfo.getNodeName();
 	}
 
 	@Override
@@ -80,13 +59,13 @@ implements PhysicalNode<PK,D,F>{
 	}
 
 	@Override
-	public boolean usesClient(String clientName){
-		return Objects.equals(getFieldInfo().getClientId().getName(), clientName);
+	public ClientId getClientId(){
+		return getFieldInfo().getClientId();
 	}
 
 	@Override
-	public Node<PK,D,F> getMaster(){
-		return null;
+	public boolean usesClient(String clientName){
+		return Objects.equals(getFieldInfo().getClientId().getName(), clientName);
 	}
 
 	@Override
@@ -113,6 +92,16 @@ implements PhysicalNode<PK,D,F>{
 	@Override
 	public String toString(){
 		return this.getName();
+	}
+
+	@Override
+	public ClientType<?,?> getClientType(){
+		return clientType;
+	}
+
+	@Override
+	public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+		return fieldInfo;
 	}
 
 }

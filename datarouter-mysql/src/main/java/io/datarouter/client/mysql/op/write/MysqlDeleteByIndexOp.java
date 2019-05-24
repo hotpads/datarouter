@@ -31,7 +31,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.iterable.BatchingIterable;
 
@@ -42,15 +42,15 @@ public class MysqlDeleteByIndexOp<
 		IK extends PrimaryKey<IK>>
 extends BaseMysqlOp<Long>{
 
-	private final PhysicalNode<PK,D,F> node;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
 	private final Config config;
 	private final Collection<IK> entryKeys;
 
-	public MysqlDeleteByIndexOp(Datarouter datarouter, PhysicalNode<PK,D,F> node,
+	public MysqlDeleteByIndexOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder, Collection<IK> entryKeys, Config config){
-		super(datarouter, node.getClientNames(), Isolation.DEFAULT, shouldAutoCommit(entryKeys));
-		this.node = node;
+		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, shouldAutoCommit(entryKeys));
+		this.fieldInfo = fieldInfo;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
 		this.entryKeys = entryKeys;
 		this.config = config;
@@ -58,17 +58,15 @@ extends BaseMysqlOp<Long>{
 
 	@Override
 	public Long runOnce(){
-		Connection connection = getConnection(node.getFieldInfo().getClientId().getName());
+		Connection connection = getConnection(fieldInfo.getClientId());
 		long numModified = 0;
 		for(List<IK> batch : new BatchingIterable<>(entryKeys, MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
-			PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, node.getFieldInfo()
-					.getTableName(), batch, MysqlTableOptions.make(node.getFieldInfo()))
-					.toPreparedStatement(connection);
+			PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, fieldInfo.getTableName(),
+					batch, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(connection);
 			numModified += MysqlTool.update(statement);
 		}
 		return numModified;
 	}
-
 
 	private static <IK extends PrimaryKey<IK>> boolean shouldAutoCommit(Collection<IK> keys){
 		return CollectionTool.size(keys) <= 1;

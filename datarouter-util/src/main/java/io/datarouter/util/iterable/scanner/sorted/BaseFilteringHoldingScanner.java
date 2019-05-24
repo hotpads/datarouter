@@ -17,9 +17,11 @@ package io.datarouter.util.iterable.scanner.sorted;
 
 import java.util.Iterator;
 
-public abstract class BaseFilteringHoldingScanner<T> extends BaseHoldingScanner<T>{
+import io.datarouter.util.iterable.scanner.BaseScanner;
 
-	private Iterator<T> input;
+public abstract class BaseFilteringHoldingScanner<T> extends BaseScanner<T>{
+
+	private final Iterator<T> input;
 
 	public BaseFilteringHoldingScanner(Iterator<T> input){
 		this.input = input;

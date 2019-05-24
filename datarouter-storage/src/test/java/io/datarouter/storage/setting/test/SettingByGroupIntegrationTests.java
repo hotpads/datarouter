@@ -23,9 +23,9 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.storage.setting.SettingByGroup;
-import io.datarouter.storage.test.DatarouterStorageTestModuleFactory;
+import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 
-@Guice(moduleFactory = DatarouterStorageTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
 public class SettingByGroupIntegrationTests{
 
 	@Inject

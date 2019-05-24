@@ -242,7 +242,8 @@ public class ListTool{
 
 	/*-------------------------------- test ---------------------------------*/
 
-	public static class Tests{
+	public static class ListToolTests{
+
 		@Test
 		public void copyOfRange(){
 			List<Integer> resultA = ListTool.createLinkedList(1, 2, 3, 4, 5);

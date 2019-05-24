@@ -27,19 +27,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileUploadException;
 
-import io.datarouter.httpclient.security.SecurityValidationResult;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.ServletContextProvider;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.params.MultipartParams;
 import io.datarouter.web.handler.params.Params;
+import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettingRoot;
 import io.datarouter.web.user.authenticate.saml.SamlService;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
+import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.ResponseTool;
 
 @Singleton
@@ -58,7 +59,7 @@ public class Dispatcher{
 	@Inject
 	private SamlService samlService;
 	@Inject
-	private DatarouterSamlSettings samlSettings;
+	private DatarouterSamlSettingRoot samlSettings;
 
 	public RoutingResult handleRequestIfUrlMatch(HttpServletRequest request, HttpServletResponse response,
 			BaseRouteSet routeSet) throws ServletException{
@@ -85,6 +86,8 @@ public class Dispatcher{
 				handler = injector.getInstance(rule.getHandlerClass());
 				handler.setDefaultHandlerEncoder(rule.getDefaultHandlerEncoder());
 				handler.setDefaultHandlerDecoder(rule.getDefaultHandlerDecoder());
+				RequestAttributeTool.set(request, BaseHandler.HANDLER_ENCODER_ATTRIBUTE, injector.getInstance(rule
+						.getDefaultHandlerEncoder()));
 				break;
 			}
 		}
@@ -131,7 +134,7 @@ public class Dispatcher{
 			}
 			return;
 		}
-		if(session.map(sessionObj -> sessionObj.hasRole(DatarouterUserRole.requestor)).orElse(false)){
+		if(session.map(sessionObj -> sessionObj.hasRole(DatarouterUserRole.REQUESTOR)).orElse(false)){
 			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, request.getContextPath()
 					+ authenticationConfig.getPermissionRequestPath() + "?deniedUrl=" + request.getRequestURL());
 			return;

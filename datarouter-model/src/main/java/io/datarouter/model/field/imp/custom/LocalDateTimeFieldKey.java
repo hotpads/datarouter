@@ -17,12 +17,10 @@ package io.datarouter.model.field.imp.custom;
 
 import java.time.LocalDateTime;
 
-import io.datarouter.model.field.BaseFieldKey;
+import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class LocalDateTimeFieldKey extends BaseFieldKey<LocalDateTime>{
-
-	private static final int DEFAULT_NUM_FRACTIONAL_SECONDS = 3;
+public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime>{
 
 	private final int numFractionalSeconds;
 
@@ -31,7 +29,7 @@ public class LocalDateTimeFieldKey extends BaseFieldKey<LocalDateTime>{
 	 */
 	public LocalDateTimeFieldKey(String name){
 		super(name, LocalDateTime.class);
-		this.numFractionalSeconds = DEFAULT_NUM_FRACTIONAL_SECONDS;
+		this.numFractionalSeconds = 6;
 	}
 
 	private LocalDateTimeFieldKey(String name, String columnName, boolean nullable,

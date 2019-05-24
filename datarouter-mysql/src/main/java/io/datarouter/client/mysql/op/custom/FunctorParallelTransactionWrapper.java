@@ -15,17 +15,16 @@
  */
 package io.datarouter.client.mysql.op.custom;
 
-import java.util.List;
-
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.ClientId;
 
 public class FunctorParallelTransactionWrapper extends BaseMysqlOp<Void>{
 
 	private final Runnable func;
 
-	public FunctorParallelTransactionWrapper(Datarouter datarouter, List<String> clientNames, Runnable func){
-		super(datarouter, clientNames);
+	public FunctorParallelTransactionWrapper(Datarouter datarouter, ClientId clientId, Runnable func){
+		super(datarouter, clientId);
 		this.func = func;
 	}
 

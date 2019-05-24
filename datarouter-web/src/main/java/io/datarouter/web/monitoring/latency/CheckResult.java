@@ -20,21 +20,21 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 
-import io.datarouter.util.duration.Duration;
+import io.datarouter.util.duration.DatarouterDuration;
 
 public class CheckResult{
 
 	private final long dateMs;
 	private final Optional<String> failureMessage;
-	private final Optional<Duration> latency;
+	private final Optional<DatarouterDuration> latency;
 
-	private CheckResult(long dateMs, Optional<String> failureMessage, Optional<Duration> latency){
+	private CheckResult(long dateMs, Optional<String> failureMessage, Optional<DatarouterDuration> latency){
 		this.dateMs = dateMs;
 		this.failureMessage = failureMessage;
 		this.latency = latency;
 	}
 
-	public static CheckResult newSuccess(long dateMs, Duration latency){
+	public static CheckResult newSuccess(long dateMs, DatarouterDuration latency){
 		return new CheckResult(dateMs, Optional.empty(), Optional.of(latency));
 	}
 
@@ -56,7 +56,7 @@ public class CheckResult{
 
 	}
 
-	public Optional<Duration> getLatency(){
+	public Optional<DatarouterDuration> getLatency(){
 		return latency;
 	}
 
@@ -77,11 +77,31 @@ public class CheckResult{
 	@Override
 	public String toString(){
 		if(failureMessage.isPresent()){
-			return "Failure " + new Duration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS) + " ago: "
-					+ failureMessage.get();
+			return "Failure " + new DatarouterDuration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS)
+					+ " ago: " + failureMessage.get();
 		}
-		return getLatencyString() + " (" + new Duration(System.currentTimeMillis() - dateMs, TimeUnit.MILLISECONDS)
-				+ " ago)";
+		return getLatencyString() + " (" + new DatarouterDuration(System.currentTimeMillis() - dateMs,
+				TimeUnit.MILLISECONDS) + " ago)";
+	}
+
+	public static class CheckResultJspDto{
+
+		private final CheckResult checkResult;
+		private final String graphLink;
+
+		public CheckResultJspDto(CheckResult checkResult, String graphLink){
+			this.checkResult = checkResult;
+			this.graphLink = graphLink;
+		}
+
+		public String getCssClass(){
+			return checkResult == null ? null : checkResult.getCssClass();
+		}
+
+		public String getGraphLink(){
+			return graphLink;
+		}
+
 	}
 
 }

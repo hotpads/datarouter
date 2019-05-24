@@ -52,4 +52,5 @@ public class ListBackedBatchLoader<T> extends BaseBatchLoader<T>{
 		updateBatch(newBatch);
 		return this;
 	}
+
 }

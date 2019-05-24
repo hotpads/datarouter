@@ -15,10 +15,16 @@
  */
 package io.datarouter.util.enums;
 
+import java.util.Optional;
+
 public interface StringEnum<E>
 extends Comparable<E>, PersistentString{
 
 	E fromPersistentString(String string);
+
+	default Optional<E> fromPersistentStringOptional(String string){
+		return Optional.ofNullable(fromPersistentString(string));
+	}
 
 	static <E extends StringEnum<E>> E fromPersistentStringSafe(E sampleValue, String persistentString){
 		if(persistentString == null){
@@ -32,4 +38,5 @@ extends Comparable<E>, PersistentString{
 		}
 		return enumValue;
 	}
+
 }

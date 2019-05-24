@@ -23,7 +23,7 @@ public class CodeMav extends Mav{
 	private static final String VAR_NAME = "code";
 
 	public CodeMav(String code){
-		super(DatarouterWebFiles.JSP_CodeMav);
+		super(new DatarouterWebFiles().jsp.generic.codeJsp);
 		put(VAR_NAME, code);
 	}
 

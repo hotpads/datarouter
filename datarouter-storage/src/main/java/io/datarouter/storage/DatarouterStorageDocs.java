@@ -15,7 +15,7 @@
  */
 package io.datarouter.storage;
 
-import io.datarouter.storage.client.Client;
+import io.datarouter.storage.client.ClientManager;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
@@ -40,7 +40,7 @@ import io.datarouter.storage.router.Router;
 public class DatarouterStorageDocs{
 
 	//storing data
-	Client client;
+	ClientManager clientManager;
 	Node node;
 	PhysicalNode physicalNode;
 	Router router;

@@ -24,4 +24,5 @@ public class CompletableFutureTool{
 		future.completeExceptionally(throwable);
 		return future;
 	}
+
 }

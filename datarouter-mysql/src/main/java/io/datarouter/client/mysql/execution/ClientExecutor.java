@@ -15,13 +15,7 @@
  */
 package io.datarouter.client.mysql.execution;
 
-import java.util.List;
-
-import io.datarouter.storage.client.Client;
-
 public interface ClientExecutor{
-
-	List<Client> getClients();
 
 	void reserveConnections();
 	void releaseConnections();

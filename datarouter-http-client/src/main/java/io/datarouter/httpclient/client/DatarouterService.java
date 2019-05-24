@@ -37,6 +37,10 @@ public interface DatarouterService{
 		return getPublicDomain() != null;
 	}
 
+	default boolean hasPrivateDomain(){
+		return getPrivateDomain() != null;
+	}
+
 	default String getContextPath(){
 		return getContextName() == null ? "" : "/" + getContextName();
 	}

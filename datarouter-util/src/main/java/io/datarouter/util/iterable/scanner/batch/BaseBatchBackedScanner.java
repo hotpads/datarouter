@@ -18,10 +18,10 @@ package io.datarouter.util.iterable.scanner.batch;
 import java.util.List;
 
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.scanner.sorted.BaseHoldingScanner;
+import io.datarouter.util.iterable.scanner.BaseScanner;
 
 //can store anything in currentBatch.  subclass will translate B -> T later
-public abstract class BaseBatchBackedScanner<T,B> extends BaseHoldingScanner<T>{
+public abstract class BaseBatchBackedScanner<T,B> extends BaseScanner<T>{
 
 	//used during iteration
 	protected List<B> currentBatch;

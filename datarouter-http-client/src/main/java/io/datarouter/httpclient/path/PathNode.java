@@ -64,6 +64,10 @@ public class PathNode{
 		return toSlashedStringAfter(null);
 	}
 
+	public String toSlashedStringWithTrailingSlash(){
+		return toSlashedString() + "/";
+	}
+
 	public static List<PathNode> nodesAfter(PathNode after, PathNode through){
 		List<PathNode> nodes = new ArrayList<>();
 		PathNode cursor = through;
@@ -77,6 +81,10 @@ public class PathNode{
 
 	public String toSlashedStringAfter(PathNode after){
 		return toSlashedString(nodesAfter(after, this));
+	}
+
+	public static boolean isLeaf(PathNode pathNode){
+		return !pathNode.paths().isEmpty();
 	}
 
 	@Override
@@ -99,8 +107,8 @@ public class PathNode{
 		return Objects.equals(toSlashedString(), other.toSlashedString());
 	}
 
-	//purposefully not usable to avoid unwanted dependencies
-	//TODO make this usable for things like unit test output
+	// purposefully not usable to avoid unwanted dependencies
+	// TODO make this usable for things like unit test output
 	@Override
 	public String toString(){
 		throw new RuntimeException("PathNode::toString is unusable to avoid unwanted dependencies. PathNode.value="

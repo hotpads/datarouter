@@ -15,10 +15,10 @@
  */
 package io.datarouter.storage.client;
 
-public interface ClientType<CF extends ClientNodeFactory>{
+public interface ClientType<CF extends ClientNodeFactory,CM extends ClientManager>{
 
 	String getName();
-	Class<? extends ClientFactory> getClientFactoryClass();
 	Class<CF> getClientNodeFactoryClass();
+	Class<CM> getClientManagerClass();
 
 }

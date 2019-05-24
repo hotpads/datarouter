@@ -54,4 +54,9 @@ public class SimpleServerType implements ServerType{
 		return isProduction;
 	}
 
+	@Override
+	public ServerType getWebServerType(){
+		return this;
+	}
+
 }

@@ -25,15 +25,13 @@ import io.datarouter.storage.util.DatarouterCounters;
 @Singleton
 public class HandlerCounters{
 
-	private static final String
-			PREFIX = DatarouterCounters.PREFIX,
-			HANDLER = "handler",
-			CALL = "call",
-			CLASS = "class",
-			PACKAGED_CLASS = "packagedClass",
-			METHOD = "method",
-			PACKAGED_METHOD = "packagedMethod";
-
+	private static final String PREFIX = DatarouterCounters.PREFIX;
+	private static final String HANDLER = "handler";
+	private static final String CALL = "call";
+	private static final String CLASS = "class";
+	private static final String PACKAGED_CLASS = "packagedClass";
+	private static final String METHOD = "method";
+	private static final String PACKAGED_METHOD = "packagedMethod";
 
 	public void incMethodInvocation(BaseHandler handler, Method method){
 		incInternal(CALL);

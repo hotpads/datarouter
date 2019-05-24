@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.storage.util.DatarouterAdministratorEmailService;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettingRoot;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserHistory;
 import io.datarouter.web.user.databean.DatarouterUserHistory.DatarouterUserChangeType;
@@ -45,7 +45,7 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterAdministratorEmailService adminEmailService;
 	@Inject
-	private DatarouterSamlSettings samlSettings;
+	private DatarouterSamlSettingRoot samlSettings;
 	@Inject
 	private DatarouterUserHistoryService userHistoryService;
 	@Inject

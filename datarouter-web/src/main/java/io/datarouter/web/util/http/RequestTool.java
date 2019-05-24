@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -46,25 +47,26 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.httpclient.security.UrlConstants;
+import io.datarouter.instrumentation.trace.TraceSpanFinisher;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.net.IpTool;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.timer.ThreadSafePhaseTimer;
 import io.datarouter.util.tuple.DefaultableMap;
-import io.datarouter.web.handler.types.HttpRequestBuilder;
 
 public class RequestTool{
 	private static final Logger logger = LoggerFactory.getLogger(RequestTool.class);
 
-	private static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
 	private static final String HEADER_VALUE_DELIMITER = ", ";
 	private static final String[] PRIVATE_NETS = {"10.0.0.0/8", "172.16.0.0/12"};
 
+	public static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
 	public static final String SUBMIT_ACTION = "submitAction";
 	public static final String REQUEST_PHASE_TIMER = "requestPhaseTimer";
 
@@ -290,12 +292,6 @@ public class RequestTool{
 		}
 	}
 
-	public static void setAttributes(HttpServletRequest request, Map<String,Object> attributeMap){
-		for(String key : CollectionTool.nullSafe(attributeMap.keySet())){
-			request.setAttribute(key, attributeMap.get(key));
-		}
-	}
-
 	/**
 	 * get the parameters of a request in a DefaultableHashMap
 	 */
@@ -310,8 +306,8 @@ public class RequestTool{
 	}
 
 	public static <M extends Map<String,String>> M getParameterMap(M map, HttpServletRequest request){
-		for(Object paramName : request.getParameterMap().keySet()){
-			map.put((String)paramName, request.getParameter((String)paramName));
+		for(Entry<String,String[]> param : request.getParameterMap().entrySet()){
+			map.put(param.getKey(), param.getValue()[0]);
 		}
 		return map;
 	}
@@ -411,7 +407,7 @@ public class RequestTool{
 		return getRequestUriWithQueryString(request.getRequestURI(), request.getQueryString());
 	}
 
-	private static String getRequestUriWithQueryString(String uri, String queryString){
+	public static String getRequestUriWithQueryString(String uri, String queryString){
 		return uri + (queryString == null ? "" : "?" + queryString);
 	}
 
@@ -490,13 +486,7 @@ public class RequestTool{
 					+ " path=" + getPath(request));
 			logger.debug("", new Exception());
 		}
-
-		//no x-forwarded-for, use ip straight from http request
-		String remoteAddr = request.getRemoteAddr();
-		if("127.0.0.1".equals(remoteAddr)){//dev server
-			remoteAddr = "209.63.146.244"; //535 Mission st office's ip
-		}
-		return remoteAddr;
+		return request.getRemoteAddr();
 	}
 
 	private static Optional<String> getLastNonInternalIp(List<String> headerValues){
@@ -517,7 +507,8 @@ public class RequestTool{
 	}
 
 	public static String getBodyAsString(ServletRequest request){
-		try(InputStream inputStream = request.getInputStream()){
+		try(InputStream inputStream = request.getInputStream(); TraceSpanFinisher finisher = TracerTool
+				.startSpan(TracerThreadLocal.get(), "RequestTool getBodyAsString")){
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			byte[] buffer = new byte[1024];
 			int length;
@@ -526,7 +517,9 @@ public class RequestTool{
 			}
 			String charsetName = Optional.ofNullable(request.getCharacterEncoding())
 					.orElse(StandardCharsets.UTF_8.name());
-			return result.toString(charsetName);
+			String string = result.toString(charsetName);
+			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[" + string.length() + " characters]");
+			return string;
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
@@ -540,21 +533,13 @@ public class RequestTool{
 		}
 	}
 
-	public static ThreadSafePhaseTimer getOrSetPhaseTimer(HttpServletRequest request){
-		ThreadSafePhaseTimer result = request == null ? null
-				: (ThreadSafePhaseTimer)request.getAttribute(REQUEST_PHASE_TIMER);
-		if(result == null){
-			result = new ThreadSafePhaseTimer(REQUEST_PHASE_TIMER);
-			if(request != null){
-				request.setAttribute(REQUEST_PHASE_TIMER, result);
-			}
-		}
-		return result;
-	}
-
 	public static boolean isAjax(HttpServletRequest request){
 		String xRequestedWith = request.getHeader(HttpHeaders.X_REQUESTED_WITH);
 		return "XMLHttpRequest".equalsIgnoreCase(xRequestedWith);
+	}
+
+	public static String getRequestUriWithoutContextPath(HttpServletRequest request){
+		return request.getRequestURI().substring(request.getContextPath().length());
 	}
 
 	public static class RequestToolTests{
@@ -632,34 +617,35 @@ public class RequestTool{
 		@Test
 		public void testGetIpAddress(){
 			// haproxy -> node -> haproxy -> tomcat
-			HttpServletRequest request = new HttpRequestBuilder()
+			HttpServletRequest request = new MockHttpServletRequestBuilder()
 					.withHeader(HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP)
 					.withHeader(HttpHeaders.X_CLIENT_IP, PUBLIC_IP)
 					.build();
 			// alb -> haproxy -> node -> haproxy -> tomcat
 			Assert.assertEquals(getIpAddress(request), PUBLIC_IP);
-			request = new HttpRequestBuilder()
+			request = new MockHttpServletRequestBuilder()
 					.withHeader(HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP)
 					.withHeader(HttpHeaders.X_CLIENT_IP, PUBLIC_IP + HEADER_VALUE_DELIMITER + PRIVATE_IP)
 					.build();
 			Assert.assertEquals(getIpAddress(request), PUBLIC_IP);
 			// haproxy -> tomcat
-			request = new HttpRequestBuilder()
+			request = new MockHttpServletRequestBuilder()
 					.withHeader(HttpHeaders.X_FORWARDED_FOR, PUBLIC_IP)
 					.build();
 			Assert.assertEquals(getIpAddress(request), PUBLIC_IP);
 			// alb -> haproxy -> tomcat
-			request = new HttpRequestBuilder()
+			request = new MockHttpServletRequestBuilder()
 					.withHeader(HttpHeaders.X_FORWARDED_FOR, PUBLIC_IP + HEADER_VALUE_DELIMITER + PRIVATE_IP)
 					.build();
 			Assert.assertEquals(getIpAddress(request), PUBLIC_IP);
 			// alb -> haproxy -> tomcat with two separate headers
-			request = new HttpRequestBuilder()
+			request = new MockHttpServletRequestBuilder()
 					.withHeader(HttpHeaders.X_FORWARDED_FOR, PUBLIC_IP)
 					.withHeader(HttpHeaders.X_FORWARDED_FOR, PRIVATE_IP)
 					.build();
 			Assert.assertEquals(getIpAddress(request), PUBLIC_IP);
 		}
+
 	}
 
 }

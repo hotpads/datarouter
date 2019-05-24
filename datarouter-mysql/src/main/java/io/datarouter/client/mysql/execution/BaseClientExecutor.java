@@ -15,18 +15,17 @@
  */
 package io.datarouter.client.mysql.execution;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.mysql.op.ClientOp;
 import io.datarouter.model.exception.DataAccessException;
-import io.datarouter.storage.client.Client;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientManager;
+import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.client.type.ConnectionClient;
+import io.datarouter.storage.client.type.ConnectionClientManager;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.collection.CollectionTool;
 
 public abstract class BaseClientExecutor implements ClientExecutor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseClientExecutor.class);
@@ -39,43 +38,35 @@ public abstract class BaseClientExecutor implements ClientExecutor{
 		this.parallelClientOp = parallelClientOp;
 	}
 
-
-	@Override
-	public List<Client> getClients(){
-		return datarouterClients.getClients(parallelClientOp.getClientNames());
-	}
-
-	/*------------------------------ txn code -------------------------------*/
-
 	@Override
 	public void reserveConnections(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if(!(client instanceof ConnectionClient)){
-				continue;
-			}
-			ConnectionClient connectionClient = (ConnectionClient)client;
-			connectionClient.reserveConnection();
-			DatarouterCounters.incClient(connectionClient.getType(), "reserveConnection", connectionClient.getName(),
-					1L);
+		ClientId clientId = parallelClientOp.getClientId();
+		ClientManager clientManager = datarouterClients.getClientManager(clientId);
+		if(!(clientManager instanceof ConnectionClientManager)){
+			return;
 		}
+		ConnectionClientManager connectionClientManager = (ConnectionClientManager)clientManager;
+		connectionClientManager.reserveConnection(clientId);
+		ClientType<?,?> clientType = datarouterClients.getClientTypeInstance(clientId);
+		DatarouterCounters.incClient(clientType, "reserveConnection", clientId.getName(), 1L);
 	}
 
 	@Override
 	public void releaseConnections(){
-		for(Client client : CollectionTool.nullSafe(getClients())){
-			if(!(client instanceof ConnectionClient)){
-				continue;
-			}
-			ConnectionClient connectionClient = (ConnectionClient)client;
-			try{
-				connectionClient.releaseConnection();
-				DatarouterCounters.incClient(connectionClient.getType(), "releaseConnection", connectionClient
-						.getName(), 1L);
-			}catch(Exception e){
-				logger.warn("", e);
-				throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"
-						+ connectionClient.getExistingHandle(), e);
-			}
+		ClientId clientId = parallelClientOp.getClientId();
+		ClientManager clientManager = datarouterClients.getClientManager(clientId);
+		if(!(clientManager instanceof ConnectionClientManager)){
+			return;
+		}
+		ConnectionClientManager connectionClientManager = (ConnectionClientManager)clientManager;
+		try{
+			connectionClientManager.releaseConnection(clientId);
+			ClientType<?,?> clientType = datarouterClients.getClientTypeInstance(clientId);
+			DatarouterCounters.incClient(clientType, "releaseConnection", clientId.getName(), 1L);
+		}catch(Exception e){
+			logger.warn("", e);
+			throw new DataAccessException("EXCEPTION THROWN DURING RELEASE OF SINGLE CONNECTION, handle now=:"
+					+ connectionClientManager.getExistingHandle(clientId), e);
 		}
 	}
 

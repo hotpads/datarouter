@@ -18,8 +18,10 @@ package io.datarouter.storage.node.adapter;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.client.Client;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public interface PhysicalAdapterMixin<
 		PK extends PrimaryKey<PK>,
@@ -31,8 +33,18 @@ extends PhysicalNode<PK,D,F>{
 	N getBackingNode();
 
 	@Override
-	default Client getClient(){
-		return getBackingNode().getClient();
+	default ClientType<?,?> getClientType(){
+		return getBackingNode().getClientType();
+	}
+
+	@Override
+	default ClientId getClientId(){
+		return getBackingNode().getClientId();
+	}
+
+	@Override
+	default PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+		return getBackingNode().getFieldInfo();
 	}
 
 }

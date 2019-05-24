@@ -37,7 +37,7 @@ public class DatarouterCounters{
 
 	/*------------ node -------------------*/
 
-	public static void incOp(ClientType<?> type, String key){
+	public static void incOp(ClientType<?,?> type, String key){
 		incInternal(AGGREGATION_op, type, key, 1L);
 	}
 
@@ -50,7 +50,7 @@ public class DatarouterCounters{
 	}
 
 	// allow node implementations to add whatever counts they want, prefixing them with "custom"
-	public static void incClientNodeCustom(ClientType<?> type, String key, String clientName, String nodeName,
+	public static void incClientNodeCustom(ClientType<?,?> type, String key, String clientName, String nodeName,
 			long delta){
 		incClient(type, key, clientName, delta);
 		String compoundKey = clientName + " " + nodeName + " custom " + key;
@@ -58,8 +58,8 @@ public class DatarouterCounters{
 	}
 
 	public static void incFromCounterAdapter(PhysicalNode<?,?,?> physicalNode, String key, long delta){
-		ClientType<?> clientType = physicalNode.getClient().getType();
-		String clientName = physicalNode.getClient().getName();
+		ClientType<?,?> clientType = physicalNode.getClientType();
+		String clientName = physicalNode.getClientId().getName();
 		String nodeName = physicalNode.getName();
 		incClient(clientType, key, clientName, delta);
 		String compoundKey = clientName + " " + nodeName + " " + key;
@@ -68,14 +68,15 @@ public class DatarouterCounters{
 
 	/*------------ client -------------------*/
 
-	public static void incClient(ClientType<?> type, String key, String clientName, long delta){
+	public static void incClient(ClientType<?,?> type, String key, String clientName, long delta){
 		incInternal(AGGREGATION_op, type, key, delta);
 		String compoundKey = clientName + " " + key;
 		incInternal(AGGREGATION_client, type, compoundKey, delta);
 	}
 	/*------------ table -------------------*/
 
-	public static void incClientTable(ClientType<?> type, String key, String clientName, String tableName, long delta){
+	public static void incClientTable(ClientType<?,?> type, String key, String clientName, String tableName,
+			long delta){
 		incClient(type, key, clientName, delta);
 		String compoundKey = clientName + " " + tableName + " " + key;
 		incInternal(AGGREGATION_table, type, compoundKey, delta);
@@ -91,7 +92,7 @@ public class DatarouterCounters{
 
 	/*------------ private -------------------*/
 
-	private static void incInternal(String aggregationLevel, ClientType<?> clientType, String key, long delta){
+	private static void incInternal(String aggregationLevel, ClientType<?,?> clientType, String key, long delta){
 		String clientTypeString = clientType != null ? clientType.getName() : CLIENT_TYPE_virtual;
 		incInternalStringWithClientType(aggregationLevel, clientTypeString, key, delta);
 	}

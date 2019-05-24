@@ -20,4 +20,5 @@ import java.lang.reflect.Type;
 public interface TypeProvider{
 
 	Type get();
+
 }

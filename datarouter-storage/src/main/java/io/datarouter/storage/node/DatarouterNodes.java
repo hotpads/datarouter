@@ -15,33 +15,25 @@
  */
 package io.datarouter.storage.node;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
-
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.TreeMultimap;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.collection.CollectionTool;
+import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 /**
  * Nodes is a registry of all Nodes in a Datarouter. It ensures that no two nodes try to share the same name. It can be
@@ -54,35 +46,23 @@ public class DatarouterNodes{
 
 	private final SortedSet<Node<?,?,?>> topLevelNodes;
 	private final Map<String,Node<?,?,?>> nodeByName;
-	private final Multimap<String,Node<?,?,?>> topLevelNodesByRouterName;
-	private final Map<Node<?,?,?>,String> routerNameByNode;
-	private final Map<String,Set<ClientId>> clientIdsByRouterName;
 	private final Map<String,Map<String,PhysicalNode<?,?,?>>> physicalNodeByTableNameByClientName;
-	private Datarouter datarouter;
 
 	/*---------------------------- constructor ------------------------------*/
 
 	DatarouterNodes(){
 		this.topLevelNodes = new ConcurrentSkipListSet<>();
 		this.nodeByName = new ConcurrentSkipListMap<>();
-		this.topLevelNodesByRouterName = Multimaps.synchronizedMultimap(TreeMultimap.create());
-		this.routerNameByNode = new ConcurrentSkipListMap<>();
-		this.clientIdsByRouterName = new ConcurrentSkipListMap<>();
 		this.physicalNodeByTableNameByClientName = new ConcurrentSkipListMap<>();
-	}
-
-	public void registerDatarouter(Datarouter datarouter){
-		this.datarouter = datarouter;
 	}
 
 	/*------------------------------ methods --------------------------------*/
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
-	N register(String routerName, N node){
-		ensureDuplicateNamesReferToSameNode(routerName, node);
+	N register(N node){
+		ensureDuplicateNamesReferToSameNode(node);
 		List<Node<?,?,?>> nodeWithDescendants = NodeTool.getNodeAndDescendants(node);
-		this.topLevelNodes.add(node);
-		this.topLevelNodesByRouterName.put(routerName, node);
+		topLevelNodes.add(node);
 		for(Node<?,?,?> nodeOrDescendant : nodeWithDescendants){
 			nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
 			if(nodeOrDescendant instanceof PhysicalNode<?,?,?>){
@@ -92,8 +72,6 @@ public class DatarouterNodes{
 				physicalNodeByTableNameByClientName.computeIfAbsent(clientName, k -> new TreeMap<>()).put(tableName,
 						physicalNode);
 			}
-			routerNameByNode.put(nodeOrDescendant, routerName);
-			clientIdsByRouterName.computeIfAbsent(routerName, k -> new TreeSet<>()).addAll(node.getClientIds());
 		}
 
 		return node;
@@ -115,74 +93,49 @@ public class DatarouterNodes{
 		return (N)getNode(nodeName);
 	}
 
-	public List<ClientId> getClientIdsForRouter(String routerName){
-		return new ArrayList<>(CollectionTool.nullSafe(clientIdsByRouterName.get(routerName)));
-	}
-
 	public Set<Class<?>> getTypesForClient(String clientName){
-		Set<Class<?>> types = new HashSet<>();
-		for(Node<?,?,?> node : nodeByName.values()){
-			if(node.usesClient(clientName)){
-				types.add(node.getFieldInfo().getSampleDatabean().getClass());
-			}
-		}
-		return types;
+		return nodeByName.values().stream()
+				.filter(node -> node.usesClient(clientName))
+				.map(Node::getFieldInfo)
+				.map(DatabeanFieldInfo::getSampleDatabean)
+				.map(Databean::getClass)
+				.collect(Collectors.toSet());
 	}
 
 	public Collection<PhysicalNode<?,?,?>> getPhysicalNodesForClient(String clientName){
-		SortedSet<PhysicalNode<?,?,?>> physicalNodesForClient = new TreeSet<>();
-		for(Node<?,?,?> node : topLevelNodes){
-			List<? extends PhysicalNode<?,?,?>> physicalNodesForNode = node.getPhysicalNodesForClient(clientName);
-			for(PhysicalNode<?,?,?> physicalNode : physicalNodesForNode){
-				physicalNodesForClient.add(physicalNode);
-			}
-		}
-		return physicalNodesForClient;
+		return topLevelNodes.stream()
+				.map(node -> node.getPhysicalNodesForClient(clientName))
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
 	}
 
 	public List<String> getTableNamesForClient(String clientName){
-		Set<String> tableNames = new TreeSet<>();
-		for(PhysicalNode<?,?,?> physicalNode : getPhysicalNodesForClient(clientName)){
-			tableNames.add(physicalNode.getFieldInfo().getTableName());
-		}
-		return new ArrayList<>(tableNames);
+		return getPhysicalNodesForClient(clientName).stream()
+				.map(PhysicalNode::getFieldInfo)
+				.map(PhysicalDatabeanFieldInfo::getTableName)
+				.distinct()
+				.collect(Collectors.toList());
 	}
 
-	public List<String> getTableNamesForRouterAndClient(String routerName, String clientName){
-		List<String> tableNames = new ArrayList<>();
-		for(PhysicalNode<?,?,?> physicalNode : getPhysicalNodesForClient(clientName)){
-			if(Objects.equals(routerNameByNode.get(physicalNode), routerName)){
-				tableNames.add(physicalNode.getFieldInfo().getTableName());
-			}
-		}
-		return tableNames;
-	}
-
-	private void ensureDuplicateNamesReferToSameNode(String routerName, Node<?,?,?> node){
+	private void ensureDuplicateNamesReferToSameNode(Node<?,?,?> node){
 		String thisName = node.getName();
 		Node<?,?,?> existingNode = nodeByName.get(thisName);
 		if(existingNode == null || existingNode == node){
 			return;
 		}
-		String existingRouter = findFqRouterClassName(routerNameByNode.get(node));
-		String newRouter = findFqRouterClassName(routerName);
 		String existingNodeSimpleName = existingNode.getClass().getSimpleName();
 		throw new IllegalArgumentException("different node with this name already exists:" + thisName + "["
-				+ existingNodeSimpleName + "] in " + existingRouter + ". Add attempted by " + newRouter);
+				+ existingNodeSimpleName + "].");
 	}
 
-	private String findFqRouterClassName(String routerName){
-		return datarouter.getRouter(routerName).getClass().getName();
-	}
-
-	public PhysicalNode<?,?,?> getPhyiscalNodeForClientAndTable(String clientName, String tableName){
+	public PhysicalNode<?,?,?> getPhysicalNodeForClientAndTable(String clientName, String tableName){
 		return physicalNodeByTableNameByClientName.getOrDefault(clientName, Collections.emptyMap()).get(tableName);
 	}
 
 	/*------------------------------ get/set --------------------------------*/
 
-	public Multimap<String,Node<?,?,?>> getTopLevelNodesByRouterName(){
-		return topLevelNodesByRouterName;
+	public SortedSet<Node<?,?,?>> getTopLevelNodes(){
+		return topLevelNodes;
 	}
 
 }

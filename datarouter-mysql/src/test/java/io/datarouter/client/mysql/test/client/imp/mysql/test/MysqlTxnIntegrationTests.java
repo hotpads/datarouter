@@ -18,16 +18,16 @@ package io.datarouter.client.mysql.test.client.imp.mysql.test;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
-import io.datarouter.client.mysql.DatarouterMysqlTestModuleFactory;
+import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
+import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.client.mysql.test.client.txn.test.BaseTxnIntegrationTests;
-import io.datarouter.web.test.DatarouterTestClientIds;
 
-@Guice(moduleFactory = DatarouterMysqlTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class MysqlTxnIntegrationTests extends BaseTxnIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.mysql0);
+		setup(DatarouterMysqlTestClientids.MYSQL);
 		resetTable();
 	}
 }

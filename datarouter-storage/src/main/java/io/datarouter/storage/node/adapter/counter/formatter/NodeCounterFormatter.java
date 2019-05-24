@@ -29,12 +29,12 @@ public class NodeCounterFormatter<
 		N extends Node<PK,D,F>>{
 
 	private final N node;
-	private final PhysicalNode<PK,D,F> physicalNode;//may be null
+	private final PhysicalNode<?,?,?> physicalNode;// may be null
 
 	public NodeCounterFormatter(N node){
 		this.node = node;
 		if(node instanceof PhysicalNode){
-			this.physicalNode = (PhysicalNode<PK,D,F>)node;
+			this.physicalNode = (PhysicalNode<?,?,?>)node;
 		}else{
 			this.physicalNode = null;
 		}

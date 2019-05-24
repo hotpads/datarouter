@@ -24,8 +24,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.google.common.base.Preconditions;
-
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.cached.impl.BooleanCachedSetting;
 import io.datarouter.storage.setting.cached.impl.CommaSeparatedStringCachedSetting;
@@ -34,7 +32,8 @@ import io.datarouter.storage.setting.cached.impl.DurationCachedSetting;
 import io.datarouter.storage.setting.cached.impl.IntegerCachedSetting;
 import io.datarouter.storage.setting.cached.impl.LongCachedSetting;
 import io.datarouter.storage.setting.cached.impl.StringCachedSetting;
-import io.datarouter.util.duration.Duration;
+import io.datarouter.util.Require;
+import io.datarouter.util.duration.DatarouterDuration;
 
 public abstract class SettingNode{
 
@@ -61,7 +60,7 @@ public abstract class SettingNode{
 
 	// "a.b.c." -> "a.b."
 	public static String findParentName(String name){
-		Preconditions.checkArgument(name.endsWith("."), "invalid name %s", name);
+		Require.isTrue(name.endsWith("."), "invalid name " + name);
 		name = name.substring(0, name.lastIndexOf("."));
 		if(!name.contains(".")){
 			return "";
@@ -77,6 +76,9 @@ public abstract class SettingNode{
 	}
 
 	protected <S extends CachedSetting<?>> S register(S setting){
+		if(settings.containsKey(setting.getName())){
+			throw new IllegalArgumentException(setting.getName() + " has already been registered.");
+		}
 		settings.put(setting.getName(), setting);
 		return setting;
 	}
@@ -193,7 +195,7 @@ public abstract class SettingNode{
 		return registerDoubles(name, defaultTo(defaultValue));
 	}
 
-	public DurationCachedSetting registerDuration(String name, Duration defaultValue){
+	public DurationCachedSetting registerDuration(String name, DatarouterDuration defaultValue){
 		return registerDurations(name, defaultTo(defaultValue));
 	}
 
@@ -228,7 +230,7 @@ public abstract class SettingNode{
 		return register(new DoubleCachedSetting(finder, getName() + name, defaultValue));
 	}
 
-	public DurationCachedSetting registerDurations(String name, DefaultSettingValue<Duration> defaultValue){
+	public DurationCachedSetting registerDurations(String name, DefaultSettingValue<DatarouterDuration> defaultValue){
 		return register(new DurationCachedSetting(finder, getName() + name, defaultValue));
 	}
 

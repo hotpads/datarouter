@@ -17,12 +17,13 @@ package io.datarouter.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -38,47 +39,22 @@ import io.datarouter.util.duration.DurationWithCarriedUnits;
 
 public final class DateTool{
 
-	public static final int
-			MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000,
-			MILLISECONDS_IN_HOUR = 60 * 60 * 1000,
-			MILLISECONDS_IN_MINUTE = 60 * 1000,
-			MILLISECONDS_IN_SECOND = 1000;
+	public static final int MILLISECONDS_IN_DAY = (int) Duration.ofDays(1).toMillis();
+	public static final int MILLISECONDS_IN_HOUR = (int) Duration.ofHours(1).toMillis();
+	public static final int MILLISECONDS_IN_MINUTE = (int) Duration.ofMinutes(1).toMillis();
+	public static final int MILLISECONDS_IN_SECOND = (int) Duration.ofSeconds(1).toMillis();
 
-	public static final int
-			SUNDAY_INDEX = 1,
-			MONDAY_INDEX = 2,
-			TUESDAY_INDEX = 3,
-			WEDNESDAY_INDEX = 4,
-			THURSDAY_INDEX = 5,
-			FRIDAY_INDEX = 6,
-			SATURDAY_INDEX = 7;
+	public static final int SUNDAY_INDEX = 1;
+	public static final int MONDAY_INDEX = 2;
+	public static final int TUESDAY_INDEX = 3;
+	public static final int WEDNESDAY_INDEX = 4;
+	public static final int THURSDAY_INDEX = 5;
+	public static final int FRIDAY_INDEX = 6;
+	public static final int SATURDAY_INDEX = 7;
 
-	public static final List<String>
-			DAY_ABBREVIATIONS = new ArrayList<>(),
-			MONTH_ABBREVIATIONS = new ArrayList<>();
-
-	static{
-		DAY_ABBREVIATIONS.add("Sun");
-		DAY_ABBREVIATIONS.add("Mon");
-		DAY_ABBREVIATIONS.add("Tue");
-		DAY_ABBREVIATIONS.add("Wed");
-		DAY_ABBREVIATIONS.add("Thu");
-		DAY_ABBREVIATIONS.add("Fri");
-		DAY_ABBREVIATIONS.add("Sat");
-
-		MONTH_ABBREVIATIONS.add("Jan");
-		MONTH_ABBREVIATIONS.add("Feb");
-		MONTH_ABBREVIATIONS.add("Mar");
-		MONTH_ABBREVIATIONS.add("Apr");
-		MONTH_ABBREVIATIONS.add("May");
-		MONTH_ABBREVIATIONS.add("Jun");
-		MONTH_ABBREVIATIONS.add("Jul");
-		MONTH_ABBREVIATIONS.add("Aug");
-		MONTH_ABBREVIATIONS.add("Sep");
-		MONTH_ABBREVIATIONS.add("Oct");
-		MONTH_ABBREVIATIONS.add("Nov");
-		MONTH_ABBREVIATIONS.add("Dec");
-	}
+	public static final List<String> DAY_ABBREVIATIONS = Arrays.asList("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+	public static final List<String> MONTH_ABBREVIATIONS = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+			"Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
 	public static final DateTimeFormatter JAVA_TIME_INTERNET_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 

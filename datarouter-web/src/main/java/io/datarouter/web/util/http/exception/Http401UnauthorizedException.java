@@ -15,11 +15,13 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 @SuppressWarnings("serial")
 public class Http401UnauthorizedException extends HttpException{
 
-	private static final int CODE = 401;
-	private static final String MESSAGE = "Unauthorized";
+	private static final int CODE = HttpStatusCode.SC_401_UNATHORIZED.getStatusCode();
+	private static final String MESSAGE = HttpStatusCode.SC_401_UNATHORIZED.getMessage();
 
 	public Http401UnauthorizedException(){
 		super(MESSAGE, CODE);

@@ -38,7 +38,7 @@ public class DatarouterSortedNodeTestRouter extends BaseRouter implements TestRo
 			DatarouterSettings datarouterSettings, EntityNodeFactory entityNodeFactory,
 			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams, NodeFactory nodeFactory,
 			ClientId clientId, boolean entity){
-		super(datarouter, datarouterProperties, "datarouterSortedNodeTest", nodeFactory, datarouterSettings);
+		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
 
 		String tableName = TABLE_NAME_SortedBean;
 		if(entity){

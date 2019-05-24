@@ -41,11 +41,18 @@ extends StorageWriter<PK,D>{
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 
+	public interface QueueStorageWriterNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	extends QueueStorageWriter<PK,D>, StorageWriterNode<PK,D,F>{
+	}
+
 	public interface PhysicalQueueStorageWriterNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	extends QueueStorageWriter<PK,D>,PhysicalNode<PK,D,F>{
+	extends QueueStorageWriterNode<PK,D,F>, PhysicalNode<PK,D,F>{
 	}
 
 }

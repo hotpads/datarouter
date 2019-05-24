@@ -22,7 +22,8 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.9</version>
+		<version>0.0.10</version>
+		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 	
 	<artifactId>datarouter-logging</artifactId>
@@ -36,8 +37,6 @@
 			<artifactId>javax.inject</artifactId>
 			<version>1</version>
 		</dependency>
-		<!-- logging -->
-		<!-- http://saltnlight5.blogspot.com/2013/08/how-to-configure-slf4j-with-different.html -->
 		<dependency><!-- Route slf4j to log4j2 -->
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>

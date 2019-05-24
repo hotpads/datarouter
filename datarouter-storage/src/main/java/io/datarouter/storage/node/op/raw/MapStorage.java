@@ -24,7 +24,10 @@ import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
 public interface MapStorage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 extends MapStorageReader<PK,D>, MapStorageWriter<PK,D>{
 
-	public interface MapStorageNode<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public interface MapStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	extends MapStorage<PK,D>, MapStorageReaderNode<PK,D,F>, MapStorageWriterNode<PK,D,F>{
 	}
 

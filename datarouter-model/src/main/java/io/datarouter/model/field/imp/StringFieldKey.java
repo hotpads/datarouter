@@ -61,4 +61,5 @@ public class StringFieldKey extends BaseFieldKey<String>{
 	public StringField createValueField(final String value){
 		return new StringField(this, value);
 	}
+
 }

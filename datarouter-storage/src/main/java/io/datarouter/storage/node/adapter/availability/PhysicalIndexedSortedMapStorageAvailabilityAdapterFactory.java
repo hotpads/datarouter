@@ -27,6 +27,7 @@ import io.datarouter.storage.node.adapter.availability.mixin.PhysicalIndexedStor
 import io.datarouter.storage.node.adapter.availability.mixin.PhysicalMapStorageAvailabilityAdapterMixin;
 import io.datarouter.storage.node.adapter.availability.mixin.PhysicalSortedStorageAvailabilityAdapterMixin;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 @Singleton
 public class PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory{
@@ -56,6 +57,11 @@ public class PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory{
 
 		private PhysicalIndexedSortedMapStorageAvailabilityAdapter(N backingNode){
 			super(datarouterClientAvailabilitySettingsProvider, backingNode);
+		}
+
+		@Override
+		public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+			return PhysicalAdapterMixin.super.getFieldInfo();
 		}
 
 	}

@@ -20,8 +20,8 @@ import java.util.function.Function;
 
 public class ConverterIterator<I,O> implements Iterator<O>{
 
-	private Iterator<I> inputIterator;
-	private Function<I,O> function;
+	private final Iterator<I> inputIterator;
+	private final Function<I,O> function;
 
 	public ConverterIterator(Iterator<I> inputIterator, Function<I,O> function){
 		this.inputIterator = inputIterator;

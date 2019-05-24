@@ -30,7 +30,7 @@ import io.datarouter.storage.op.scan.ManagedIndexIndexToDatabeanScanner;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.IterableTool;
-import io.datarouter.util.iterable.scanner.iterable.SingleUseScannerIterable;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class ManualMultiIndexNode<
@@ -86,18 +86,17 @@ implements MultiIndexNode<PK, D, IK, IE>{
 	}
 
 	@Override
-	public Iterable<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
+	public Scanner<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
 		return indexNode.scanMulti(ranges, config);
 	}
 
 	@Override
 	public Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
-		return new SingleUseScannerIterable<>(new ManagedIndexIndexToDatabeanScanner<>(mainNode, scanMulti(ranges,
-				config), config));
+		return new ManagedIndexIndexToDatabeanScanner<>(mainNode, scanMulti(ranges, config), config);
 	}
 
 	@Override
-	public Iterable<IK> scanKeysMulti(Collection<Range<IK>> range, Config config){
+	public Scanner<IK> scanKeysMulti(Collection<Range<IK>> range, Config config){
 		return indexNode.scanKeysMulti(range, config);
 	}
 

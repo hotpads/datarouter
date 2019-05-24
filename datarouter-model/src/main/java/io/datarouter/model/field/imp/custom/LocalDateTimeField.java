@@ -23,43 +23,38 @@ import java.time.format.DateTimeFormatter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.model.field.BaseField;
-import io.datarouter.model.field.Field;
-import io.datarouter.model.field.FieldKey;
-import io.datarouter.util.ComparableTool;
+import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.bytes.ShortByteTool;
 import io.datarouter.util.string.StringTool;
 
 /**
  * LocalDateTime stores the value of nanoseconds in a range from 0 to 999,999,999.
- *  However, the MySql.DateTime column type cannot handle this level of granularity
- *  (it can handle at most 6 digits of fractional seconds).
+ * However, the MySQL DATETIME column type cannot handle this level of granularity
+ * (it can handle at most 6 digits of fractional seconds).
  *
- *  LocalDateTimeField defaults to a truncation of the LocalDateTime nanosecond value of up to 3 fractional seconds
- *  as this corresponds to the fractional seconds granularity of System.currentTimeMillis() and LocalDateTime.now().
- *  This is the recommended use, but can be overridden to store the full value.
+ * LocalDateTimeField defaults to a truncation of the LocalDateTime nanosecond value of up to 3 fractional seconds
+ * as this corresponds to the fractional seconds granularity of System.currentTimeMillis() and LocalDateTime.now().
+ * This is the recommended use, but can be overridden to store the full value.
  *
- *  A LocalDateTime object created using LocalDateTime::of might not be equivalent to a LocalDateTime retrieved from
- *  MySql because of the truncation of nanoseconds. Use .now() or use the LocalDateTime::of method that
- *  ignores the nanoseconds field
- *  */
-public class LocalDateTimeField extends BaseField<LocalDateTime>{
+ * A LocalDateTime object created using LocalDateTime::of might not be equivalent to a LocalDateTime retrieved from
+ * MySQL because of the truncation of nanoseconds. Use .now() or use the LocalDateTime::of method that
+ * ignores the nanoseconds field
+ *
+ */
+public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime>{
 
 	private static final int NUM_BYTES = 15;
 	private static final int TOTAL_NUM_FRACTIONAL_SECONDS = 9;
-	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSS";
+	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-
-	private final LocalDateTimeFieldKey key;
 
 	public LocalDateTimeField(LocalDateTimeFieldKey key, LocalDateTime value){
 		this(null, key, value);
 	}
 
 	public LocalDateTimeField(String prefix, LocalDateTimeFieldKey key, LocalDateTime value){
-		super(prefix, value);
-		this.key = key;
+		super(prefix, key, value);
 		this.setValue(getTruncatedLocalDateTime(value));
 	}
 
@@ -80,20 +75,6 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 	}
 
 	@Override
-	public FieldKey<LocalDateTime> getKey(){
-		return key;
-	}
-
-	//same as BasePrimitiveField. should LocalDateTimeField extends BasePrimitiveField ?
-	@Override
-	public int compareTo(Field<LocalDateTime> other){
-		if(other == null){
-			return -1;
-		}
-		return ComparableTool.nullFirstCompareTo(value, other.getValue());
-	}
-
-	@Override
 	public String getStringEncodedValue(){
 		if(value == null){
 			return null;
@@ -106,8 +87,7 @@ public class LocalDateTimeField extends BaseField<LocalDateTime>{
 		if(StringTool.isNullOrEmpty(str)){
 			return null;
 		}
-		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
-		return dateTime;
+		return LocalDateTime.parse(str, formatter);
 	}
 
 	@Override

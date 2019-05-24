@@ -192,7 +192,7 @@ public class StringTool{
 		return input + repeat(padding, charsToGo);
 	}
 
-	public static String concatenate(Collection<? extends Object> objects, String delimiter){
+	public static String concatenate(Collection<?> objects, String delimiter){
 		if(CollectionTool.isEmpty(objects)){
 			return null;
 		}
@@ -329,6 +329,12 @@ public class StringTool{
 			Pattern dot = Pattern.compile("\\.");
 			while((secondDot = number.indexOf('.', number.indexOf('.') + 1)) > 0){
 				number = dot.matcher(number.substring(0, secondDot)).replaceAll("") + number.substring(secondDot);
+			}
+			if(number.length() > 1){
+				number = number.substring(0, 1) + number.substring(1).replaceAll("-", "");
+			}
+			if("-".equals(number)){
+				return "";
 			}
 		}
 		return number;
@@ -542,6 +548,9 @@ public class StringTool{
 			Assert.assertEquals(enforceNumeric("5.0.0."), "50.0");
 			Assert.assertEquals(enforceNumeric("."), "");
 			Assert.assertEquals(enforceNumeric("ABC400,000DEF"), "400000");
+			Assert.assertEquals(enforceNumeric("-"), "");
+			Assert.assertEquals(enforceNumeric("555-555-5555"), "5555555555");
+			Assert.assertEquals(enforceNumeric("-555-555-5555"), "-5555555555");
 		}
 
 		@Test

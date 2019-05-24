@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
-import io.datarouter.client.mysql.node.MysqlReaderNode;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -37,37 +37,42 @@ import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.iterable.BatchingIterable;
 
 @Singleton
 public class MysqlGetOpExecutor{
 
+	private static final int BATCH_SIZE = 100;
+
 	@Inject
 	private MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
+	@Inject
+	private MysqlClientType mysqlClientType;
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,
 			T extends Comparable<? super T>>
-	List<T> execute(MysqlReaderNode<PK,D,F> node, String opName, Collection<? extends FieldSet<?>> keys, Config config,
-			List<Field<?>> selectFields, Function<PreparedStatement,List<T>> select, Connection connection){
-		DatabeanFieldInfo<PK,D,F> fieldInfo = node.getFieldInfo();
+	List<T> execute(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, String opName, Collection<? extends FieldSet<?>> keys,
+			Config config, List<Field<?>> selectFields, Function<PreparedStatement,List<T>> select,
+			Connection connection){
 		List<? extends FieldSet<?>> dedupedSortedKeys = keys.stream()
 				.distinct()
 				.sorted()
 				.collect(Collectors.toList());
 		List<T> result = new ArrayList<>(keys.size());
 		for(List<? extends FieldSet<?>> keyBatch : new BatchingIterable<>(dedupedSortedKeys, config
-				.getIterateBatchSize())){
+				.optInputBatchSize().orElse(BATCH_SIZE))){
 			PreparedStatement ps = mysqlPreparedStatementBuilder.getMulti(config, fieldInfo.getTableName(),
-					selectFields, keyBatch, MysqlTableOptions.make(fieldInfo)).toPreparedStatement(connection);
-			DatarouterCounters.incClientNodeCustom(node.getClient().getType(), opName + " selects", fieldInfo
-					.getClientId().getName(), node.getName(), 1L);
+					selectFields, keyBatch, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(
+					connection);
+			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId()
+					.getName(), fieldInfo.getNodeName(), 1L);
 
 			List<T> resultBatch = select.apply(ps);
 
-			DatarouterCounters.incClientNodeCustom(node.getClient().getType(), opName + " rows", fieldInfo
-					.getClientId().getName(), node.getName(), result.size());
+			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),
+					fieldInfo.getNodeName(), result.size());
 			result.addAll(resultBatch);
 		}
 		TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[got " + result.size() + "/" + keys.size() + "]");

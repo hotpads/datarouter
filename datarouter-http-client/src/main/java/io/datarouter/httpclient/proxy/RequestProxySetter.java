@@ -19,6 +19,6 @@ import io.datarouter.httpclient.request.DatarouterHttpRequest;
 
 public interface RequestProxySetter{
 
-	void setProxyOnRequest(DatarouterHttpRequest request, String hostScheme);
+	void setProxyOnRequest(DatarouterHttpRequest request);
 
 }

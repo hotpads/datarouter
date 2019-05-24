@@ -22,14 +22,13 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.client.mysql.factory.MysqlClientFactory;
 import io.datarouter.client.mysql.web.MysqlWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.ClientTypeRegistry;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
 
 @Singleton
-public class MysqlClientType implements ClientType<MysqlClientNodeFactory>{
+public class MysqlClientType implements ClientType<MysqlClientNodeFactory,MysqlClientManager>{
 
 	private static final String NAME = "mysql";
 
@@ -44,16 +43,16 @@ public class MysqlClientType implements ClientType<MysqlClientNodeFactory>{
 	}
 
 	@Override
-	public Class<MysqlClientFactory> getClientFactoryClass(){
-		return MysqlClientFactory.class;
-	}
-
-	@Override
 	public Class<MysqlClientNodeFactory> getClientNodeFactoryClass(){
 		return MysqlClientNodeFactory.class;
 	}
 
-	@Guice(moduleFactory = DatarouterMysqlTestModuleFactory.class)
+	@Override
+	public Class<MysqlClientManager> getClientManagerClass(){
+		return MysqlClientManager.class;
+	}
+
+	@Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 	public static class MysqlClientTypeIntegrationTests{
 		@Inject
 		private ClientTypeRegistry clientTypeRegistry;

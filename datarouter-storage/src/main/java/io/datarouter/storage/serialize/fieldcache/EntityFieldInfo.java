@@ -74,4 +74,5 @@ public class EntityFieldInfo<
 	public Supplier<E> getEntitySupplier(){
 		return entitySupplier;
 	}
+
 }

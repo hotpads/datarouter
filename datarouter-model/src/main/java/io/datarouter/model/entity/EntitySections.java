@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -54,9 +53,9 @@ public class EntitySections<EK extends EntityKey<EK>>{
 				Collections.emptySortedSet());
 	}
 
-	public int countDatabeans(){
+	public long countDatabeans(){
 		return backingMap.values().stream()
-				.mapToInt(Set::size)
+				.mapToInt(Collection::size)
 				.sum();
 	}
 

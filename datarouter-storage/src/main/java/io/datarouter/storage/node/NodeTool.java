@@ -16,11 +16,27 @@
 package io.datarouter.storage.node;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.node.adapter.BaseAdapter;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.iterable.IterableTool;
 
 public class NodeTool{
+
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	PhysicalNode<PK,D,F> extractSinglePhysicalNode(Node<PK,D,F> node){
+		Iterator<? extends PhysicalNode<PK,D,F>> physicalNodes = node.getPhysicalNodes().iterator();
+		PhysicalNode<PK,D,F> physicalNode = physicalNodes.next();
+		if(physicalNodes.hasNext()){
+			throw new RuntimeException(node + " has multiple physical nodes, you need to pick one");
+		}
+		return physicalNode;
+	}
 
 	public static List<Node<?,?,?>> getNodeAndDescendants(Node<?,?,?> parent){
 		List<Node<?,?,?>> nodes = new ArrayList<>();
@@ -34,6 +50,13 @@ public class NodeTool{
 		for(Node<?,?,?> child : IterableTool.nullSafe(children)){
 			addNodeAndDescendants(nodes, child);
 		}
+	}
+
+	public static Node<?,?,?> getUnderlyingNode(Node<?,?,?> node){
+		while(node instanceof BaseAdapter){
+			node = ((BaseAdapter<?,?,?,?>)node).getUnderlyingNode();
+		}
+		return node;
 	}
 
 }

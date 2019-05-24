@@ -33,4 +33,5 @@ public class OptionalString extends OptionalParameter<String>{
 	public OptionalParameter<String> fromString(String stringValue){
 		return new OptionalString(stringValue);
 	}
+
 }

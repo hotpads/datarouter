@@ -15,11 +15,13 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 @SuppressWarnings("serial")
 public class Http403ForbiddenException extends HttpException{
 
-	private static final int CODE = 403;
-	private static final String MESSAGE = "Forbidden";
+	private static final int CODE = HttpStatusCode.SC_403_FORBIDDEN.getStatusCode();
+	private static final String MESSAGE = HttpStatusCode.SC_403_FORBIDDEN.getMessage();
 
 	public Http403ForbiddenException(){
 		super(MESSAGE, CODE);

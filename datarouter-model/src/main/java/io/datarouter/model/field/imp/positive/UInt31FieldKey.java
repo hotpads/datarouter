@@ -34,8 +34,6 @@ public class UInt31FieldKey extends PrimitiveFieldKey<Integer>{
 		return new UInt31Field(this, value);
 	}
 
-	/*-------------------- with -------------------------*/
-
 	public UInt31FieldKey withColumnName(String columnNameOverride){
 		return new UInt31FieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
 	}

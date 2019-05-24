@@ -15,17 +15,19 @@
  */
 package io.datarouter.web.monitoring.latency;
 
+import io.datarouter.storage.client.ClientId;
+
 public class DatarouterClientLatencyCheck extends LatencyCheck{
 
-	private final String clientName;
+	private final ClientId clientId;
 
-	public DatarouterClientLatencyCheck(String name, Runnable check, String clientName){
+	public DatarouterClientLatencyCheck(String name, Runnable check, ClientId clientId){
 		super(name, check);
-		this.clientName = clientName;
+		this.clientId = clientId;
 	}
 
-	public String getClientName(){
-		return clientName;
+	public ClientId getClientId(){
+		return clientId;
 	}
 
 }

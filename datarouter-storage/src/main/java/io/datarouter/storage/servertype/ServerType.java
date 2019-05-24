@@ -25,10 +25,19 @@ public interface ServerType{
 	public static final String UNKNOWN = "unknown";
 	public static final String DEV = "dev";
 
+	ServerType getWebServerType();
+
+	default ServerType getJobServerType(){
+		return getWebServerType();
+	}
+
+	default ServerType getJobletServerType(){
+		return getJobServerType();
+	}
+
 	List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames();
 
 	ServerType fromPersistentString(String str);
-
 	String getPersistentString();
 
 	boolean isProduction();

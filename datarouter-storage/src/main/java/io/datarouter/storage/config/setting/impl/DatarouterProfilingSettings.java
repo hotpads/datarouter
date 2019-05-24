@@ -27,7 +27,6 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 public class DatarouterProfilingSettings extends SettingNode{
 
 	public final CachedSetting<Boolean> saveCounts;
-	public final CachedSetting<Boolean> bufferCountsInSqs;//currently need to restart webapp after changing
 	public final CachedSetting<Boolean> drainSqsCounts;
 	public final CachedSetting<Boolean> runMetricsAggregationJob;
 	public final CachedSetting<Boolean> runServerMonitoringJob;
@@ -36,13 +35,13 @@ public class DatarouterProfilingSettings extends SettingNode{
 	public final CachedSetting<Boolean> saveHttpClientsMetrics;
 	public final CachedSetting<Boolean> runAvailabilitySwitchJob;
 	public final CachedSetting<Boolean> saveTomcatPoolMetrics;
+	public final CachedSetting<Boolean> saveDirectMemory;
 
 	@Inject
 	public DatarouterProfilingSettings(SettingFinder finder){
 		super(finder, "datarouter.profiling.");
 
 		saveCounts = registerBoolean("saveCounts", true);
-		bufferCountsInSqs = registerBoolean("bufferCountsInSqs", false);
 		drainSqsCounts = registerBooleans("drainSqsCounts", defaultTo(false))
 				.setProfileDefault(ConfigProfile.DEVELOPMENT, true);
 		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", false);
@@ -52,6 +51,7 @@ public class DatarouterProfilingSettings extends SettingNode{
 		saveHttpClientsMetrics = registerBoolean("saveHttpClientsMetrics", false);
 		runAvailabilitySwitchJob = registerBoolean("runAvailabilitySwitchJob", false);
 		saveTomcatPoolMetrics = registerBoolean("saveTomcatPoolMetrics", false);
+		saveDirectMemory = registerBoolean("saveDirectMemory", true);
 	}
 
 }

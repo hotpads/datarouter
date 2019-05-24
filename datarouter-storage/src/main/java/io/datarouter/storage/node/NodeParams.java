@@ -58,10 +58,10 @@ public class NodeParams<
 	//for external sqs
 	private final String queueUrl;
 
-	public NodeParams(ClientId clientId, String parentName, Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier, Integer schemaVersion, String physicalName, String namespace,
-			String entityNodePrefix, String remoteRouterName, String remoteNodeName, Setting<Boolean> recordCallsites,
-			String streamName, String queueUrl){
+	private NodeParams(ClientId clientId, String parentName, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier,
+			Integer schemaVersion, String physicalName, String namespace, String entityNodePrefix,
+			String remoteRouterName, String remoteNodeName, Setting<Boolean> recordCallsites, String streamName,
+			String queueUrl){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
@@ -134,11 +134,6 @@ public class NodeParams<
 		public NodeParamsBuilder<PK,D,F> withEntity(String entityTableName, String entityNodePrefix){
 			this.physicalName = entityTableName;
 			this.entityNodePrefix = entityNodePrefix;
-			return this;
-		}
-
-		public NodeParamsBuilder<PK,D,F> withProxyDestination(String remoteRouterName){
-			this.physicalName = remoteRouterName;
 			return this;
 		}
 

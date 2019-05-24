@@ -18,6 +18,7 @@ package io.datarouter.web.user.authenticate.config;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -25,114 +26,81 @@ import javax.servlet.http.HttpServletRequest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.google.common.base.Preconditions;
-
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.user.DatarouterCookieKeys;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 
 public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticationConfig{
-
-	private static final String PATH_home = "/";
-	protected static final String PATH_keepalive = "/keepalive";
-	private static final String PATH_datarouter = "/datarouter";
-	private static final String PATH_shutdown = "/shutdown";
-
-	private static final String PATH_signup = "/signup";
-	private static final String PATH_signupSubmit = PATH_signup + "/submit";
-	private static final String PATH_signin = "/signin";
-	private static final String PATH_signinSubmit = PATH_signin + "/submit";
-	private static final String PATH_signout = "/signout";
-
-	private static final String PATH_resetPassword = "/resetPassword";
-	private static final String PATH_resetPasswordSubmit = "/resetPasswordSubmit";
-
-	private static final String PATH_admin = "/admin";
-	private static final String PATH_viewUsers = PATH_admin + "/viewUsers";
-	private static final String PATH_listUsers = PATH_admin + "/listUsers";
-	private static final String PATH_createUser = PATH_admin + "/createUser";
-	private static final String PATH_createUserSubmit = PATH_admin + "/createUserSubmit";
-	private static final String PATH_editUser = PATH_admin + "/editUser";
-	private static final String PATH_editUserSubmit = PATH_admin + "/editUserSubmit";
-	private static final String PATH_accountManager = PATH_admin + "/accounts";
-
-	private static final String PARAM_username = "username";
-	private static final String PARAM_password = "password";
-	private static final String PARAM_userRoles = "userRoles";
-	private static final String PARAM_enabled = "isEnabled";
-	private static final String PARAM_userId = "userId";
-	private static final String PARAM_signature = "signature";
-	private static final String PARAM_nonce = "nonce";
-	private static final String PARAM_timestamp = "timestamp";
-
-	private static final String JSP_home = "/WEB-INF/jsp/home.jsp";//file doesn't exist in datarouter-web
 
 	@Inject
 	private WebappName webappName;
 	@Inject
 	private DatarouterWebFiles files;
 	@Inject
-	private DatarouterAuthenticationSettings datarouterAuthenticationSettings;
+	private DatarouterWebPaths paths;
+	@Inject
+	private DatarouterAuthenticationSettingRoot datarouterAuthenticationSettingRoot;
 
 	@Override
 	public String getHomePath(){
-		return PATH_home;
+		return "/";
 	}
 
 	@Override
 	public String getKeepAlivePath(){
-		return PATH_keepalive;
+		return paths.keepalive.toSlashedString();
 	}
 
 	@Override
 	public String getDatarouterPath(){
-		return PATH_datarouter;
+		return paths.datarouter.toSlashedString();
 	}
 
 	@Override
 	public String getShutdownPath(){
-		return PATH_datarouter + PATH_shutdown;
+		return paths.datarouter.shutdown.toSlashedString();
 	}
 
 	/*--------------------------- signin/out/up -----------------------------*/
 
 	@Override
 	public String getSignupPath(){
-		return PATH_signup;
+		return paths.signup.toSlashedString();
 	}
 
 	@Override
 	public String getSignupSubmitPath(){
-		return PATH_signupSubmit;
+		return paths.signup.submit.toSlashedString();
 	}
 
 	@Override
 	public String getSigninPath(){
-		return PATH_signin;
+		return paths.signin.toSlashedString();
 	}
 
 	@Override
 	public String getSigninSubmitPath(){
-		return PATH_signinSubmit;
+		return paths.signin.submit.toSlashedString();
 	}
 
 	@Override
 	public String getSignoutPath(){
-		return PATH_signout;
+		return paths.signout.toSlashedString();
 	}
 
 	/*------------------------------ password -------------------------------*/
 
 	@Override
 	public String getResetPasswordPath(){
-		return PATH_resetPassword;
+		return paths.resetPassword.toSlashedString();
 	}
 
 	@Override
 	public String getResetPasswordSubmitPath(){
-		return PATH_resetPasswordSubmit;
+		return paths.resetPasswordSubmit.toSlashedString();
 	}
 
 	/*------------------------------- admin ---------------------------------*/
@@ -140,91 +108,91 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 
 	@Override
 	public String getAdminPath(){
-		return PATH_admin;
+		return paths.admin.toSlashedString();
 	}
 
 	@Override
 	public String getViewUsersPath(){
-		return PATH_viewUsers;
+		return paths.admin.viewUsers.toSlashedString();
 	}
 
 	@Override
 	public String getListUsersPath(){
-		return PATH_listUsers;
+		return paths.admin.listUsers.toSlashedString();
 	}
 
 	@Override
 	public String getCreateUserPath(){
-		return PATH_createUser;
+		return paths.admin.createUser.toSlashedString();
 	}
 
 	@Override
 	public String getCreateUserSubmitPath(){
-		return PATH_createUserSubmit;
+		return paths.admin.createUserSubmit.toSlashedString();
 	}
 
 	@Override
 	public String getEditUserPath(){
-		return PATH_editUser;
+		return paths.admin.editUser.toSlashedString();
 	}
 
 	@Override
 	public String getEditUserSubmitPath(){
-		return PATH_editUserSubmit;
+		return paths.admin.editUserSubmit.toSlashedString();
 	}
 
 	@Override
 	public String getAccountManagerPath(){
-		return PATH_accountManager;
+		return paths.admin.accounts.toSlashedString();
 	}
 
 	/*------------------------------- params --------------------------------*/
 
 	@Override
 	public String getUsernameParam(){
-		return PARAM_username;
+		return "username";
 	}
 
 	@Override
 	public String getPasswordParam(){
-		return PARAM_password;
+		return "password";
 	}
 
 	@Override
 	public String getUserRolesParam(){
-		return PARAM_userRoles;
+		return "userRoles";
 	}
 
 	@Override
 	public String getEnabledParam(){
-		return PARAM_enabled;
+		return "isEnabled";
 	}
 
 	@Override
 	public String getUserIdParam(){
-		return PARAM_userId;
+		return "userId";
 	}
 
 	@Override
 	public String getSignatureParam(){
-		return PARAM_signature;
+		return "signature";
 	}
 
 	@Override
 	public String getNonceParam(){
-		return PARAM_nonce;
+		return "nonce";
 	}
 
 	@Override
 	public String getTimestampParam(){
-		return PARAM_timestamp;
+		return "timestamp";
 	}
 
 	/*-------------------------------- jsp ----------------------------------*/
 
 	@Override
 	public String getHomeJsp(){
-		return JSP_home;
+		return "/WEB-INF/jsp/home.jsp";
 	}
 
 	@Override
@@ -261,12 +229,12 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 
 	@Override
 	public final Duration getUserTokenTimeoutDuration(){
-		return datarouterAuthenticationSettings.userTokenTimeoutDuration.get().toJavaDuration();
+		return datarouterAuthenticationSettingRoot.userTokenTimeoutDuration.get().toJavaDuration();
 	}
 
 	@Override
 	public final Duration getSessionTokenTimeoutDuration(){
-		return datarouterAuthenticationSettings.sessionTokenTimeoutDuration.get().toJavaDuration();
+		return datarouterAuthenticationSettingRoot.sessionTokenTimeoutDuration.get().toJavaDuration();
 	}
 
 	@Override
@@ -298,7 +266,7 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	}
 
 	public static String normalizePath(String rawPath){
-		Preconditions.checkNotNull(rawPath);
+		Objects.requireNonNull(rawPath);
 		String path = rawPath.trim().toLowerCase();
 		//not scrubbing out duplicate slashes.  should we?
 		if(path.length() > 1 && path.endsWith("/")){

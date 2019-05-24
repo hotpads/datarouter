@@ -54,6 +54,7 @@ public class ByteUnitTool{
 	/*------------------------- tests ---------------------------------------*/
 
 	public static class ByteUnitToolTests{
+
 		@Test
 		public void testFileSizeUnit(){
 			long step1024 = 1024;
@@ -128,4 +129,5 @@ public class ByteUnitTool{
 			Assert.assertEquals(ByteUnitType.TiB.getNumBytes() - ByteUnitType.TB.getNumBytes(), 99511627776L);
 		}
 	}
+
 }

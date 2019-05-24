@@ -17,7 +17,6 @@ package io.datarouter.storage.config.stream;
 
 public interface DatarouterStreamSubscriberAccessorSetter{
 
-	void setDatarouterStreamSubscriberAccessor(
-			DatarouterStreamSubscriberAccessor datarouterStreamSubscriberAccessor);
+	void setDatarouterStreamSubscriberAccessor(DatarouterStreamSubscriberAccessor datarouterStreamSubscriberAccessor);
 
 }

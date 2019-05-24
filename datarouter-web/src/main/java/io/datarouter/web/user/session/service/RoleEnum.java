@@ -36,7 +36,7 @@ public interface RoleEnum<T> extends StringEnum<T>{
 		private RoleEnum<? extends RoleEnum<?>> roles;
 
 		@Test
-		public final void testRoleEnumContainsNecessaryBaseRolePersistentStrings(){
+		private final void testRoleEnumContainsNecessaryBaseRolePersistentStrings(){
 			for(DatarouterUserRole baseRole : DatarouterUserRole.values()){
 				String baseString = baseRole.getPersistentString();
 				try{

@@ -15,12 +15,15 @@
  */
 package io.datarouter.client.mysql.web;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.web.file.DatarouterFilesTests;
+import io.datarouter.web.file.FilesRoot;
 
 @Singleton
-public class DatarouterMysqlFiles extends PathNode{
+public class DatarouterMysqlFiles extends FilesRoot{
 
 	public final JspFiles jsp = branch(JspFiles::new, "jsp");
 
@@ -38,6 +41,15 @@ public class DatarouterMysqlFiles extends PathNode{
 
 	public static class MysqlFiles extends PathNode{
 		public final PathNode mysqlClientSummaryJsp = leaf("mysqlClientSummary.jsp");
+	}
+
+	public static class DatarouterMysqlFilesTests extends DatarouterFilesTests{
+
+		@Inject
+		protected DatarouterMysqlFilesTests(DatarouterMysqlFiles files){
+			super(files);
+		}
+
 	}
 
 }

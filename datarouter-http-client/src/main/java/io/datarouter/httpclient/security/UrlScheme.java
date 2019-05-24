@@ -18,7 +18,8 @@ package io.datarouter.httpclient.security;
 public enum UrlScheme{
 	HTTP("http"),
 	HTTPS("https"),
-	ANY("any");
+	ANY("any"),
+	;
 
 	private final String stringRepresentation;
 

@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.datarouter.client.mysql.connection.MysqlConnectionPoolFactory.MysqlConnectionPool;
+import com.mysql.cj.log.Slf4JLogger;
+
+import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.model.databean.Databean;
@@ -34,6 +36,7 @@ import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 
@@ -44,7 +47,7 @@ public class MysqlTool{
 	public static Connection openConnection(String hostname, int port, String database, String user, String password){
 		try{
 			String url = "jdbc:mysql://" + hostname + ":" + port + "/" + StringTool.nullSafe(database) + "?user="
-					+ user + "&password=" + password;
+					+ user + "&password=" + password + "&logger=" + Slf4JLogger.class.getName();
 			return DriverManager.getConnection(url);
 		}catch(Exception e){
 			throw new RuntimeException("failed to connect hostname=" + hostname + " port=" + port + " database="
@@ -96,16 +99,15 @@ public class MysqlTool{
 		}
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-			List<D> selectDatabeans(MysqlFieldCodecFactory fieldCodecFactory, DatabeanFieldInfo<PK,D,F> fieldInfo,
-					PreparedStatement ps){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	List<D> selectDatabeans(MysqlFieldCodecFactory fieldCodecFactory, Supplier<D> databeanSupplier,
+			List<Field<?>> fields, PreparedStatement ps){
 		try{
 			ps.execute();
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
-				D databean = fieldSetFromMysqlResultSetUsingReflection(fieldCodecFactory,
-						fieldInfo.getDatabeanSupplier(), fieldInfo.getFields(), rs);
+				D databean = fieldSetFromMysqlResultSetUsingReflection(fieldCodecFactory, databeanSupplier, fields, rs);
 				databeans.add(databean);
 			}
 			return databeans;
@@ -120,7 +122,7 @@ public class MysqlTool{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<IK> selectIndexEntryKeys(MysqlFieldCodecFactory fieldCodecFactory, DatabeanFieldInfo<IK,IE,IF> fieldInfo,
+	List<IK> selectIndexEntryKeys(MysqlFieldCodecFactory fieldCodecFactory, IndexEntryFieldInfo<IK,IE,IF> fieldInfo,
 			PreparedStatement ps){
 		try{
 			ps.execute();

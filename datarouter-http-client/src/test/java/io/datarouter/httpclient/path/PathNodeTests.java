@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 public class PathNodeTests{
 
 	public static class TestPaths extends PathNode{
+
 		public final BPaths aa = branch(BPaths::new, "aa");
 
 		public static class BPaths extends PathNode{
@@ -32,6 +33,7 @@ public class PathNodeTests{
 		public static class CPaths extends PathNode{
 			public final PathNode cc = leaf("cc");
 		}
+
 	}
 
 	@Test
@@ -40,6 +42,14 @@ public class PathNodeTests{
 		Assert.assertEquals(paths.aa.toSlashedString(), "/aa");
 		Assert.assertEquals(paths.aa.bb.toSlashedString(), "/aa/bb");
 		Assert.assertEquals(paths.aa.bb.cc.toSlashedString(), "/aa/bb/cc");
+	}
+
+	@Test
+	public void testToSlashedStringWithEndingSlash(){
+		TestPaths paths = new TestPaths();
+		Assert.assertEquals(paths.aa.toSlashedStringWithTrailingSlash(), "/aa/");
+		Assert.assertEquals(paths.aa.bb.toSlashedStringWithTrailingSlash(), "/aa/bb/");
+		Assert.assertEquals(paths.aa.bb.cc.toSlashedStringWithTrailingSlash(), "/aa/bb/cc/");
 	}
 
 	@Test

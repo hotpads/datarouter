@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.io.ReaderTool;
-import io.datarouter.util.iterable.scanner.Scanner;
+import io.datarouter.util.iterable.scanner.BatchScanner;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 
@@ -51,7 +51,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 	@Override
 	public String call(){
 		//aggregate
-		Scanner<List<String>> scanner = ReaderTool.scanFileLinesInBatches(logPath, 1000);
+		BatchScanner<String> scanner = ReaderTool.scanFileLinesInBatches(logPath, 1000);
 		int numLines = 0;
 		Date firstDate = new Date(Long.MAX_VALUE);
 		Date lastDate = new Date(0);

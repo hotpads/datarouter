@@ -25,9 +25,9 @@ import io.datarouter.util.string.StringTool;
 
 public abstract class BaseField<T> implements Field<T>{
 
-	private static final Map<String, java.lang.reflect.Field> columnNameToFieldMap = new ConcurrentHashMap<>();
+	private static final Map<String,java.lang.reflect.Field> COLUMN_NAME_TO_FIELD_MAP = new ConcurrentHashMap<>();
 
-	private String prefix;//ignore if not needed
+	private String prefix;// ignore if not needed
 	protected T value;
 
 	/*---------------------------- constructor ------------------------------*/
@@ -73,13 +73,13 @@ public abstract class BaseField<T> implements Field<T>{
 		try{
 			Object nestedFieldSet = FieldTool.getNestedFieldSet(targetFieldSet, this);
 			String cacheKey = getFieldCacheKey(targetFieldSet, nestedFieldSet);
-			java.lang.reflect.Field javaField = columnNameToFieldMap.get(cacheKey);
+			java.lang.reflect.Field javaField = COLUMN_NAME_TO_FIELD_MAP.get(cacheKey);
 			if(javaField == null){
 				javaField = ReflectionTool.getDeclaredFieldFromAncestors(nestedFieldSet.getClass(), getKey().getName());
 				if(javaField == null){
 					throw new RuntimeException(getKey().getName() + " doesn't exist in " + nestedFieldSet.getClass());
 				}
-				columnNameToFieldMap.put(cacheKey, javaField);
+				COLUMN_NAME_TO_FIELD_MAP.put(cacheKey, javaField);
 			}
 			javaField.set(nestedFieldSet, fieldValue);
 		}catch(Exception e){

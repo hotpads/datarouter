@@ -33,7 +33,7 @@ import io.datarouter.util.string.StringTool;
 public class DatarouterTracer implements Tracer{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterTracer.class);
 
-	private static final int MAX_SPANS = 100;
+	private static final int MAX_SPANS = 200;
 	private static final int MAX_THREADS = 100;
 
 	private final String serverName;
@@ -65,13 +65,13 @@ public class DatarouterTracer implements Tracer{
 	}
 
 	@Override
-	public void createAndStartThread(String name){
-		createThread(name);
+	public void createAndStartThread(String name, long queueTimeMs){
+		createThread(name, queueTimeMs);
 		startThread();
 	}
 
 	@Override
-	public void createThread(String name){
+	public void createThread(String name, long queueTimeMs){
 		String traceId = getTraceId();
 		if(traceId == null){
 			return;
@@ -84,7 +84,7 @@ public class DatarouterTracer implements Tracer{
 				parentId,
 				getServerName(),
 				name,
-				System.currentTimeMillis());
+				queueTimeMs);
 		setCurrentThread(thread);
 	}
 
@@ -113,12 +113,14 @@ public class DatarouterTracer implements Tracer{
 		}
 		TraceThreadDto thread = getCurrentThread();
 		thread.markFinish();
-		if(getThreads().size() < MAX_THREADS){
-			getThreads().add(thread);
-			setCurrentThread(null);
-		}else{
-			logger.debug("cannot add thread, max capacity reached traceId={}", traceId);
+		setCurrentThread(null);
+		synchronized(this){
+			if(getThreads().size() < MAX_THREADS){
+				getThreads().add(thread);
+				return;
+			}
 		}
+		logger.debug("cannot add thread, max capacity reached traceId={}", traceId);
 	}
 
 
@@ -160,13 +162,15 @@ public class DatarouterTracer implements Tracer{
 		if(getCurrentSpan() == null){
 			return;
 		}
-		getCurrentSpan().markFinish();
-		if(getSpans().size() < MAX_SPANS){
-			getSpans().add(getCurrentSpan());
-			popSpanFromStack();
-		}else{
-			logger.debug("cannot add span, max capacity traceId={}", traceId);
+		TraceSpanDto span = popSpanFromStack();
+		span.markFinish();
+		synchronized(this){
+			if(getSpans().size() < MAX_SPANS){
+				getSpans().add(span);
+				return;
+			}
 		}
+		logger.debug("cannot add span, max capacity traceId={}", traceId);
 	}
 
 	/*---------------------------- private TraceSpan ------------------------*/

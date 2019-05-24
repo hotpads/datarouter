@@ -16,13 +16,13 @@
 package io.datarouter.storage.setting.type;
 
 import io.datarouter.storage.setting.Setting;
-import io.datarouter.util.duration.Duration;
+import io.datarouter.util.duration.DatarouterDuration;
 
-public interface DurationSetting extends Setting<Duration>{
+public interface DurationSetting extends Setting<DatarouterDuration>{
 
 	@Override
-	default Duration parseStringValue(String stringValue){
-		return new Duration(stringValue);
+	default DatarouterDuration parseStringValue(String stringValue){
+		return new DatarouterDuration(stringValue);
 	}
 
 }

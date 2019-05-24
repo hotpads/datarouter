@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class SortedBeans{
 
@@ -87,13 +88,25 @@ public class SortedBeans{
 					for(int d = 0; d < NUM_ELEMENTS; ++d){
 						SortedBean bean = new SortedBean(
 								as.get(a), bs.get(b), cs.get(c), ds.get(d),
-								"string so hbase has at least one field", null, null, null);
+								"v1",//include at least one non-null value field
+								null,
+								null,
+								null);
 						beans.add(bean);
 					}
 				}
 			}
 		}
 		return beans;
+	}
+
+	public static List<SortedBeanEntityKey> generateEntityKeys(){
+		return generatedSortedBeans().stream()
+				.map(SortedBean::getKey)
+				.map(SortedBeanKey::getEntityKey)
+				.distinct()
+				.sorted()
+				.collect(Collectors.toList());
 	}
 
 }

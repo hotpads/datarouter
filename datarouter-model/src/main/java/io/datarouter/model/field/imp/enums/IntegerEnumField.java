@@ -21,8 +21,7 @@ import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.IntegerEnum;
 
-public class IntegerEnumField<E extends IntegerEnum<E>>
-extends BaseField<E>{
+public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	private final IntegerEnumFieldKey<E> key;
 

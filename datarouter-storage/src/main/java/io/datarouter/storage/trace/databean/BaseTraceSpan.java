@@ -91,6 +91,18 @@ extends BaseDatabean<PK,D>{
 		this.duration = dto.getDuration();
 	}
 
+	public TraceSpanDto toDto(){
+		return new TraceSpanDto(
+				getKey().getEntityKey().getTraceEntityId(),
+				getKey().getThreadId(),
+				getKey().getSequence(),
+				getParentSequence(),
+				getName(),
+				getInfo(),
+				getCreated(),
+				getDuration());
+	}
+
 	/*------------------------------- methods -------------------------------*/
 
 	@Override

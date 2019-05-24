@@ -16,11 +16,14 @@
 package io.datarouter.httpclient.client;
 
 import java.net.URI;
+import java.time.Duration;
 
 public interface DatarouterHttpClientSettings{
 
 	URI getEndpointUrl();
 	String getApiKey();
 	String getPrivateKey();
+	Duration getTimeout();
+	Integer getNumRetries();
 
 }

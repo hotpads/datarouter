@@ -18,8 +18,8 @@ package io.datarouter.client.mysql.exception;
 @SuppressWarnings("serial")
 public class DuplicateEntrySqlException extends RuntimeException{
 
-	public DuplicateEntrySqlException(Throwable cause){
-		super(cause);
+	public DuplicateEntrySqlException(String message, Throwable cause){
+		super(message, cause);
 	}
 
 }

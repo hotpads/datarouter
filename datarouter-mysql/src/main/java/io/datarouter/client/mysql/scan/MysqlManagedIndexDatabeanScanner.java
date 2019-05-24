@@ -18,14 +18,15 @@ package io.datarouter.client.mysql.scan;
 import java.util.Collection;
 import java.util.List;
 
-import io.datarouter.client.mysql.node.MysqlReaderOps;
+import io.datarouter.client.mysql.node.MysqlNodeManager;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.op.scan.BaseNodeScanner;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
@@ -38,13 +39,16 @@ public class MysqlManagedIndexDatabeanScanner<
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseNodeScanner<IK,D>{
 
-	private final MysqlReaderOps<PK,D,F> mysqlReaderOps;
-	private final DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo;
+	private final MysqlNodeManager mysqlNodeManager;
+	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 
-	public MysqlManagedIndexDatabeanScanner(MysqlReaderOps<PK,D,F> mysqlReaderOps,
-			DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config){
-		super(ranges, config);
-		this.mysqlReaderOps = mysqlReaderOps;
+	public MysqlManagedIndexDatabeanScanner(MysqlNodeManager mysqlNodeManager,
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges, Config config, boolean caseInsensitive){
+		super(ranges, config, caseInsensitive);
+		this.mysqlNodeManager = mysqlNodeManager;
+		this.fieldInfo = fieldInfo;
 		this.indexEntryFieldInfo = indexEntryFieldInfo;
 	}
 
@@ -55,7 +59,7 @@ extends BaseNodeScanner<IK,D>{
 
 	@Override
 	protected List<D> doLoad(Collection<Range<IK>> ranges, Config config){
-		return mysqlReaderOps.getIndexDatabeanRanges(ranges, config, indexEntryFieldInfo);
+		return mysqlNodeManager.getIndexDatabeanRanges(fieldInfo, ranges, config, indexEntryFieldInfo);
 	}
 
 	@Override

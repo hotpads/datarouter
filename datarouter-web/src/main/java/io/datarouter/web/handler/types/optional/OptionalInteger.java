@@ -35,4 +35,5 @@ public class OptionalInteger extends OptionalParameter<Integer>{
 	public OptionalParameter<Integer> fromString(String stringValue){
 		return new OptionalInteger(NumberTool.parseIntegerFromNumberString(stringValue, null));
 	}
+
 }

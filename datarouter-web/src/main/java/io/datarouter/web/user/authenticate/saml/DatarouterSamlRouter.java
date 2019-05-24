@@ -25,6 +25,7 @@ import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.router.BaseRouter;
+import io.datarouter.storage.router.BaseRouterParams;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl.SamlAuthnRequestRedirectUrlFielder;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
@@ -32,12 +33,10 @@ import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
 @Singleton
 public class DatarouterSamlRouter extends BaseRouter{
 
-	public static class DatarouterSamlRouterParams{
-
-		private final ClientId clientId;
+	public static class DatarouterSamlRouterParams extends BaseRouterParams{
 
 		public DatarouterSamlRouterParams(ClientId clientId){
-			this.clientId = clientId;
+			super(clientId);
 		}
 
 	}
@@ -50,7 +49,7 @@ public class DatarouterSamlRouter extends BaseRouter{
 	@Inject
 	public DatarouterSamlRouter(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSettings datarouterSettings,
 			DatarouterSamlRouterParams params, DatarouterProperties datarouterProperties){
-		super(datarouter, datarouterProperties, "datarouterSaml", nodeFactory, datarouterSettings);
+		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
 
 		samlAuthnRequestRedirectUrl = createAndRegister(params.clientId, SamlAuthnRequestRedirectUrl::new,
 				SamlAuthnRequestRedirectUrlFielder::new);

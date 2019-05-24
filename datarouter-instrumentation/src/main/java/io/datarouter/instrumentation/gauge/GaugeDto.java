@@ -15,24 +15,20 @@
  */
 package io.datarouter.instrumentation.gauge;
 
-import java.util.Date;
-
-import io.datarouter.instrumentation.count.CountDto;
-
 public class GaugeDto{
 
 	public final String name;
 	public final String serviceName;
 	public final String serverName;
-	public final Date periodStartTime;
+	public final String ulid;
 	public final Long value;
 
-	public GaugeDto(CountDto dto){
-		this.name = dto.name;
-		this.serviceName = dto.serviceName;
-		this.serverName = dto.serverName;
-		this.periodStartTime = dto.periodStartTime;
-		this.value = dto.value;
+	public GaugeDto(String name, String serviceName, String serverName, String ulid, Long value){
+		this.name = name;
+		this.serviceName = serviceName;
+		this.serverName = serverName;
+		this.ulid = ulid;
+		this.value = value;
 	}
 
 }

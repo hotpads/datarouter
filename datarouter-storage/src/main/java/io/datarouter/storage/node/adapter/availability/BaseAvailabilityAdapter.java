@@ -50,8 +50,8 @@ extends BaseAdapter<PK,D,F,N>{
 	}
 
 	public AvailabilitySettingNode getAvailability(){
-		return datarouterClientAvailabilitySettingsProvider.get().getAvailabilityForClientName(getBackingNode()
-				.getClient().getName());
+		return datarouterClientAvailabilitySettingsProvider.get().getAvailabilityForClientId(getBackingNode()
+				.getClientId());
 	}
 
 }

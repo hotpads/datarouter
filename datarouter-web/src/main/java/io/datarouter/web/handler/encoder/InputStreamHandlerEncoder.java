@@ -18,6 +18,7 @@ package io.datarouter.web.handler.encoder;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -56,7 +57,7 @@ public class InputStreamHandlerEncoder implements HandlerEncoder{
 	}
 
 	@Override
-	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
+	public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
 			HttpServletResponse response, HttpServletRequest request){
 		sendErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage(), response);
 	}
@@ -69,6 +70,12 @@ public class InputStreamHandlerEncoder implements HandlerEncoder{
 
 	private void sendErrorResponse(int statusCode, String errorMessage, HttpServletResponse response){
 		ResponseTool.sendError(response, statusCode, errorMessage);
+	}
+
+	@Override
+	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Exception exception,
+			Optional<String> exceptionId){
+		sendErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage(), response);
 	}
 
 }

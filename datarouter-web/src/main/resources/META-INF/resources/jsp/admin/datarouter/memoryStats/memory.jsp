@@ -110,7 +110,6 @@
 </head>
 <body class="input-no-margin">
 <%@ include file="/jsp/menu/common-navbar.jsp"%>
-<%@ include file="/jsp/menu/dr-navbar.jsp"%>
 <div class="auto-centered-container">
 	<div class="block">
 		<h2>Server</h2>

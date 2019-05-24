@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,9 +29,8 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
-import com.google.common.base.Preconditions;
-
 public class MultipartParams extends Params{
+
 	private final HttpServletRequest request;
 	private final Map<String,FileItem> filesMap;
 	private final List<FileItem> fileItems;
@@ -41,9 +41,9 @@ public class MultipartParams extends Params{
 		this.request = request;
 		this.filesMap = new LinkedHashMap<>();
 		this.defaultCharset = defaultCharset == null ? null : defaultCharset.displayName();
-		paramsMap.clear();
-		fileItems = new ServletFileUpload(newDiskItemFactory()).parseRequest(this.request);
+		this.fileItems = new ServletFileUpload(newDiskItemFactory()).parseRequest(this.request);
 		for(FileItem item : fileItems){
+			// paramsMap already contents the query params, we still need to add the form params
 			if(item.isFormField()){
 				paramsMap.put(item.getFieldName(), item.getString());
 			}else{
@@ -54,7 +54,7 @@ public class MultipartParams extends Params{
 
 	@Override
 	public FileItem requiredFile(String key){
-		return Preconditions.checkNotNull(filesMap.get(key));
+		return Objects.requireNonNull(filesMap.get(key));
 	}
 
 	@Override
@@ -79,4 +79,5 @@ public class MultipartParams extends Params{
 		}
 		return new DiskFileItemFactory();
 	}
+
 }

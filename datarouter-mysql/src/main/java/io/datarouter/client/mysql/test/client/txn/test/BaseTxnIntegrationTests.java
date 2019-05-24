@@ -35,7 +35,6 @@ import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.test.TestDatarouterProperties;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.IterableTool;
 
 public abstract class BaseTxnIntegrationTests{
@@ -84,8 +83,8 @@ public abstract class BaseTxnIntegrationTests{
 		int numExceptions = 0;
 		String beanPrefix = "a";
 		try{
-			SessionExecutor.run(new TestInsertRollback(datarouter, ListTool.wrap(clientId.getName()),
-					Isolation.readCommitted, router, beanPrefix));
+			SessionExecutor.run(new TestInsertRollback(datarouter, clientId, Isolation.readCommitted, router,
+					beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
@@ -114,8 +113,8 @@ public abstract class BaseTxnIntegrationTests{
 		node.put(bean, null);
 		Assert.assertTrue(router.txnBean().exists(bean.getKey(), null));
 		try{
-			SessionExecutor.run(new TestMultiInsertRollback(datarouter, ListTool.wrap(clientId.getName()),
-					Isolation.readCommitted, router, beanPrefix));
+			SessionExecutor.run(new TestMultiInsertRollback(datarouter, clientId, Isolation.readCommitted, router,
+					beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
@@ -132,8 +131,7 @@ public abstract class BaseTxnIntegrationTests{
 	public void testNestedTxn(){
 		int numExceptions = 0;
 		try{
-			SessionExecutor.run(new TestNestedTxn(datarouter, ListTool.wrap(clientId.getName()),
-					Isolation.readCommitted, false, router));
+			SessionExecutor.run(new TestNestedTxn(datarouter, clientId, Isolation.readCommitted, false, router));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}

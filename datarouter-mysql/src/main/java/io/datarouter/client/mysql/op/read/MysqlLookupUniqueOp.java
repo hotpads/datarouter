@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
-import io.datarouter.client.mysql.node.MysqlReaderNode;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlTool;
@@ -30,6 +29,7 @@ import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class MysqlLookupUniqueOp<
 		PK extends PrimaryKey<PK>,
@@ -39,16 +39,16 @@ extends BaseMysqlOp<List<D>>{
 
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final MysqlGetOpExecutor mysqlGetOpExecutor;
-	private final MysqlReaderNode<PK,D,F> node;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final String opName;
 	private final Collection<? extends UniqueKey<PK>> keys;
 	private final Config config;
 
 	public MysqlLookupUniqueOp(Datarouter datarouter, MysqlFieldCodecFactory fieldCodecFactory,
-			MysqlGetOpExecutor mysqlGetOpExecutor, MysqlReaderNode<PK,D,F> node, String opName,
+			MysqlGetOpExecutor mysqlGetOpExecutor, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, String opName,
 			Collection<? extends UniqueKey<PK>> keys, Config config){
-		super(datarouter, node.getClientNames(), Isolation.DEFAULT, true);
-		this.node = node;
+		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
+		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.opName = opName;
 		this.keys = keys;
@@ -58,12 +58,12 @@ extends BaseMysqlOp<List<D>>{
 
 	@Override
 	public List<D> runOnce(){
-		return mysqlGetOpExecutor.execute(node, opName, keys, config, node.getFieldInfo().getFields(), this::select,
-				getConnection(node.getFieldInfo().getClientId().getName()));
+		return mysqlGetOpExecutor.execute(fieldInfo, opName, keys, config, fieldInfo.getFields(), this::select,
+				getConnection(fieldInfo.getClientId()));
 	}
 
 	private List<D> select(PreparedStatement ps){
-		return MysqlTool.selectDatabeans(fieldCodecFactory, node.getFieldInfo(), ps);
+		return MysqlTool.selectDatabeans(fieldCodecFactory, fieldInfo.getDatabeanSupplier(), fieldInfo.getFields(), ps);
 	}
 
 }

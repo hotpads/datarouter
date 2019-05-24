@@ -27,14 +27,108 @@
 	.boolean { color: red; }
 	.null { color: magenta; }
 	.key { color: black; }
+	.panel{
+		position: relative;
+	}
+	.panel-anchor{
+		position: absolute;
+		right: 100%;
+		color: #eee;
+	}
+	.panel-anchor:hover{
+		color: gray;
+		text-decoration: none !important;
+	}
+	.panel-anchor:active, .active{
+		color: #007bff !important;
+	}
 	</style>
 	<script type="text/javascript">
+
+		function fetchCsrf(obj) {
+			var url = window.location.href + "/getCsrfIv?" + $.param(obj);
+			var req = {
+				method: 'GET'
+			};
+			return fetch(url, req);
+		}
+
+		function fetchSignature(theParams, requestBody){
+			var url = window.location.href + "/getSignature?" + $.param(theParams);
+			if(requestBody != null){
+				var req = {
+					method : 'POST',
+					body : requestBody
+				}
+			}else {
+				var req = {
+					method: 'GET'
+				};
+			}
+			return fetch(url, req);
+		}
+
+		function getJson(response){
+			return response.json();
+		}
+
+		function getParameters(paramRowClass, hideAuth) {
+			var paramMap = {};
+			var requestBody;
+			var needsCsrf = false;
+			var needsSignature = false;
+			$('.' + paramRowClass).each(function (index, tableRow) {
+				var paramName = $(tableRow).find('td.paramName').data('name');
+				var paramValueInput = $(tableRow).find('.paramValue');
+				var paramValue = paramValueInput.val();
+				if (paramValueInput.is("textarea")) {
+					requestBody = paramValue;
+				}else if(paramName === "csrfIv" && hideAuth === 'true'){
+					needsCsrf = true;
+				}else if(paramName === "signature" && hideAuth === 'true'){
+					needsSignature = true;
+				}else if (paramValue) {
+					paramMap[paramName] = paramValue;
+				}
+			});
+			var result = {};
+			if(needsCsrf && needsSignature){
+				result = fetchCsrf(paramMap)
+					.then(getJson)
+					.then(params => fetchSignature(params, requestBody))
+					.then(getJson);
+			}else if(needsCsrf){
+				result = fetchCsrf(paramMap).then(getJson);
+			}else if(needsSignature){
+				result = fetchSignature(paramMap).then(getJson);
+			}else{
+				result = Promise.resolve(paramMap);
+			}
+			return result;
+		}
+
+		function getBody(paramRowClass){
+			var requestBody;
+			$('.' + paramRowClass).each(function (index, tableRow) {
+				var paramValueInput = $(tableRow).find('.paramValue');
+				var paramValue = paramValueInput.val();
+				if (paramValueInput.is("textarea")) {
+					requestBody = paramValue;
+					return;
+				}
+			});
+			return requestBody;
+
+		}
+
 	require(['jquery', 'bootstrap'], function() {
-		callApi = function(paramRowClass, loopIndex, url){
+		callApi = function(paramRowClass, loopIndex, url, hideAuth){
+			let promise = getParameters(paramRowClass, hideAuth);
+			promise.then(function(params){
 			var responseDivId = 'responseDiv' + loopIndex;
 			$("#" + responseDivId).hide();
-			var params = '';
-			var requestBody;
+			var requestBody = getBody(paramRowClass);
+			console.log("request body", requestBody);
 			var requestUrlId = 'requestUrl' + loopIndex;
 			var requestBodyId = 'requestBody' + loopIndex;
 			var jsonResponseId = 'jsonResponse' + loopIndex;
@@ -45,19 +139,7 @@
 			document.getElementById(requestBodyId).innerHTML = '';
 			document.getElementById(responseCodeId).innerHTML = '';
 			document.getElementById(responseHeaderId).innerHTML = '';
-			$('.' + paramRowClass).each(function(index, tableRow){
-				var paramName = $(tableRow).find('td.paramName').data('name');
-				var paramValueInput = $(tableRow).find('.paramValue');
-				var paramValue = paramValueInput.val();
-				if(paramValueInput.is("textarea")){
-					requestBody = paramValue;
-					return;
-				}
-				if(paramValue){
-					var paramContent = (index == 0 ? '' : '&') + paramName + '=' + encodeURIComponent(paramValue);
-					params += paramContent;
-				}
-			});
+
 			var options;
 			if(requestBody != null){
 				options = {
@@ -66,24 +148,28 @@
 					contentType: 'application/json'
 				};
 			}
-			var requestUrl = '${contextPath}' + url + (params ? '?' + params : '');
+
+			var requestUrl = '${contextPath}' + url + "?" + $.param(params);
+			console.log("url  =", requestUrl);
 			$.ajax(requestUrl, options)
-			.complete(function(request){
-				$("#" + responseDivId).show();
-				if(request.getResponseHeader("content-type") == 'application/json'){
-					var json = JSON.stringify(JSON.parse(request.responseText), undefined, 2);
-					document.getElementById(jsonResponseId).innerHTML = syntaxHighlight(json);
-				}else{
-					document.getElementById(jsonResponseId).innerHTML = request.responseText;
-				}
-				document.getElementById(requestUrlId).innerHTML = getFullRequestUrl(requestUrl);
-				document.getElementById(responseCodeId).innerHTML = request.status;
-				document.getElementById(responseHeaderId).innerHTML = request.getAllResponseHeaders();
-				if(requestBody !== undefined){
-					document.getElementById(requestBodyId).innerHTML = requestBody;
-				}
+				.complete(function(request){
+					$("#" + responseDivId).show();
+					if(request.getResponseHeader("content-type") == 'application/json'){
+						var json = JSON.stringify(JSON.parse(request.responseText), undefined, 2);
+						document.getElementById(jsonResponseId).innerHTML = syntaxHighlight(json);
+					}else{
+						document.getElementById(jsonResponseId).innerHTML = request.responseText;
+					}
+					document.getElementById(requestUrlId).innerHTML = getFullRequestUrl(requestUrl);
+					document.getElementById(responseCodeId).innerHTML = request.status;
+					document.getElementById(responseHeaderId).innerHTML = request.getAllResponseHeaders();
+					if(requestBody !== undefined){
+						document.getElementById(requestBodyId).innerHTML = requestBody;
+					}
+				});
 			});
 		}
+
 		function getFullRequestUrl(partialUrl){
 			if(location.origin === undefined){
 				return partialUrl;
@@ -109,6 +195,22 @@
 				return '<span class="' + cls + '">' + match + '</span>';
 			});
 		}
+
+		$(function(){
+			$('a[data-toggle="collapse"]').click(function(){
+				if($(this).parents('.panel').find('.panel-collapse').hasClass('in')){
+					history.pushState(null, null, window.location.href.replace(/#.*/, ''))
+				}else{
+					history.pushState(null, null, '#' + $(this).data('url'))
+				}
+			})
+
+			const urlOnPageLoad = window.location.hash.slice(1);
+			if(urlOnPageLoad){
+				// browser should already have scrolled this element into view
+				$('[data-url="' + urlOnPageLoad + '"]').click()
+			}
+		})
 	});
 	</script>
 </head>
@@ -127,17 +229,17 @@
 				<c:set var="responseCodeId" value="responseCode${loop.index}"></c:set>
 				<c:set var="responseHeaderId" value="responseHeader${loop.index}"></c:set>
 				<c:set var="rowClass" value="rowClass${loop.index}"></c:set>
-				<div class="panel panel-default" id="${panelId}">
+				<div class="panel panel-default" id="${endpoint.url}">
 					<div class="panel-heading">
-						 <h4 class="panel-title">
+						<h4 class="panel-title">
 							<div class="clearfix">
 								<span style="float: left;">
-									<a data-parent="#accordion" data-toggle="collapse" data-target="#${collapseId}">
+									<a data-parent="#accordion" data-toggle="collapse" data-target="#${collapseId}" data-url="${endpoint.url}">
 										${endpoint.url}
 									</a>
-								</span> 
+								</span>
 								<span style="float: right;">${endpoint.description}</span>
-							</div>	
+							</div>
 						</h4>
 					</div>
 					<div id="${collapseId}" class="panel-collapse collapse">
@@ -154,6 +256,9 @@
 										</tr>
 										<c:forEach var="parameter" items="${endpoint.parameters}">
 											<c:choose>
+												<c:when test="${hideAuth && parameter.hidden}">
+													<c:set var="note" value="(Automatically Configured)"></c:set>
+												</c:when>
 												<c:when test="${parameter.required}">
 													<c:set var="note" value="(required)"></c:set>
 												</c:when>
@@ -172,9 +277,14 @@
 														</c:otherwise>
 													</c:choose>
 												</td>
-												<c:if test="${apiKey != null && parameter.name.equals(apiKeyParameterName)}">
-													<c:set var="predefinedValue" value="${apiKey}"></c:set>
-												</c:if>
+												<c:choose>
+													<c:when test="${apiKey != null && parameter.name.equals(apiKeyParameterName)}">
+														<c:set var="predefinedValue" value="${apiKey}"></c:set>
+													</c:when>
+													<c:otherwise>
+														<c:set var="predefinedValue" value=""></c:set>
+													</c:otherwise>
+												</c:choose>
 												<td>
 													<c:choose>
 														<c:when test="${parameter.requestBody}">
@@ -185,9 +295,12 @@
 														</c:otherwise>
 													</c:choose>
 												</td>
-												<td> ${parameter.type} 
-													<c:if test="${parameter.description != null}">
+												<td> ${parameter.type}
+													<c:if test="${not empty parameter.description}">
 														; ${parameter.description}
+													</c:if>
+													<c:if test="${not empty parameter.example}">
+														<pre>${parameter.example}</pre>
 													</c:if>
 												</td>
 											</tr>
@@ -197,14 +310,17 @@
 								<c:otherwise>None</c:otherwise>
 							</c:choose>
 							<h3>Response</h3>
+							${endpoint.response.type}
 							<c:if test="${empty endpoint.response}">
 								Nothing
 							</c:if>
-							<c:if test="${not empty endpoint.response}">
-								<pre>${endpoint.response}</pre>
+							<c:if test="${not empty endpoint.response.example}">
+								<pre>${endpoint.response.example}</pre>
 							</c:if>
 							<div>
-								<button class="table-box" id="sendRequest" type="button" class="btn btn-primary" onclick="callApi('${rowClass}','${loop.index}','${endpoint.url}')">Try It Out</button>
+								<button class="table-box" id="sendRequest" type="button" class="btn btn-primary"
+										onclick="callApi('${rowClass}','${loop.index}','${endpoint.url}',
+												'${hideAuth}')">Try It Out</button>
 							</div>
 							<div id="${responseDivId}" style="display:none;">
 								<h3>Response</h3>

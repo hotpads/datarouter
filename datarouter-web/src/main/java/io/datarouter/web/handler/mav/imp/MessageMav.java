@@ -20,10 +20,10 @@ import io.datarouter.web.handler.mav.Mav;
 
 public class MessageMav extends Mav{
 
-	private static final String VAR_NAME = "message";
+	public static final String VAR_NAME = "message";
 
 	public MessageMav(String message){
-		super(DatarouterWebFiles.JSP_MessageMav);
+		super(new DatarouterWebFiles().jsp.generic.messageJsp);
 		put(VAR_NAME, message);
 	}
 

@@ -18,8 +18,10 @@ package io.datarouter.storage.node.type.physical;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.client.Client;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.Node;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 /**
  * A PhysicalNode is a node backed by a specific location like a database table, a memcached namespace, an in-memory
@@ -33,6 +35,9 @@ public interface PhysicalNode<
 		F extends DatabeanFielder<PK,D>>
 extends Node<PK,D,F>{
 
-	Client getClient();
+	ClientType<?,?> getClientType();
+	ClientId getClientId();
+	@Override
+	PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo();
 
 }

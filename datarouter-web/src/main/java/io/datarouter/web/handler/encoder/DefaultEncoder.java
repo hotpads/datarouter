@@ -17,6 +17,7 @@ package io.datarouter.web.handler.encoder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,6 +26,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.entity.ContentType;
+
+import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
@@ -63,9 +67,9 @@ public class DefaultEncoder implements HandlerEncoder{
 	}
 
 	@Override
-	public void sendExceptionResponse(HandledException exception, ServletContext servletContext,
+	public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
 			HttpServletResponse response, HttpServletRequest request) throws IOException{
-		jsonEncoder.sendExceptionResponse(exception, servletContext, response, request);
+		jsonEncoder.sendHandledExceptionResponse(exception, servletContext, response, request);
 	}
 
 	@Override
@@ -73,6 +77,32 @@ public class DefaultEncoder implements HandlerEncoder{
 			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request)
 	throws IOException{
 		jsonEncoder.sendInvalidRequestParamResponse(errorResponseDto, servletContext, response, request);
+	}
+
+	@Override
+	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Exception exception,
+			Optional<String> exceptionId) throws IOException{
+		if(shouldSendHtml(request)){
+			mavEncoder.sendExceptionResponse(request, response, exception, exceptionId);
+		}else{
+			jsonEncoder.sendExceptionResponse(request, response, exception, exceptionId);
+		}
+	}
+
+	protected boolean shouldSendHtml(HttpServletRequest request){
+		String accept = request.getHeader(HttpHeaders.ACCEPT);
+		if(accept == null){
+			return true;
+		}
+		int jsonIndex = accept.indexOf(ContentType.APPLICATION_JSON.getMimeType());
+		if(jsonIndex == -1){
+			return true;
+		}
+		int htmlIndex = accept.indexOf(ContentType.TEXT_HTML.getMimeType());
+		if(htmlIndex == -1){
+			return false;
+		}
+		return htmlIndex < jsonIndex;
 	}
 
 }

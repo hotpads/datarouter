@@ -36,7 +36,7 @@ public class DatarouterPutOpTestRouter extends BaseRouter implements TestRouter{
 	@Inject
 	public DatarouterPutOpTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, datarouterProperties, "datarouterPutOpTest", nodeFactory, datarouterSettings);
+		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
 
 		this.putOptTest = createAndRegister(clientId, PutOpTestBean::new, PutOpTestBeanFielder::new);
 	}

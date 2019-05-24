@@ -27,7 +27,8 @@ public class MapStorageCounterAdapter<
 		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageNode<PK,D,F>>
 extends BaseCounterAdapter<PK,D,F,N>
-implements MapStorageNode<PK,D,F>, MapStorageCounterAdapterMixin<PK,D,F,N>{
+implements MapStorageNode<PK,D,F>,
+		MapStorageCounterAdapterMixin<PK,D,F,N>{
 
 	public MapStorageCounterAdapter(N backingNode){
 		super(backingNode);

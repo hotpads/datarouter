@@ -24,7 +24,7 @@ import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestRouter;
 import io.datarouter.client.mysql.test.client.txn.TxnBean;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.Client;
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.collection.ListTool;
 
 public class TestMultiInsertRollback extends BaseMysqlOp<Void>{
@@ -32,15 +32,15 @@ public class TestMultiInsertRollback extends BaseMysqlOp<Void>{
 	private final DatarouterTxnTestRouter router;
 	private final String beanPrefix;
 
-	public TestMultiInsertRollback(Datarouter datarouter, List<String> clientNames, Isolation isolation,
+	public TestMultiInsertRollback(Datarouter datarouter, ClientId clientId, Isolation isolation,
 			DatarouterTxnTestRouter router, String beanPrefix){
-		super(datarouter, clientNames, isolation, false);
+		super(datarouter, clientId, isolation, false);
 		this.router = router;
 		this.beanPrefix = beanPrefix;
 	}
 
 	@Override
-	public Void runOncePerClient(Client client){
+	public Void runOnce(){
 		List<TxnBean> beans = ListTool.create(
 				new TxnBean(beanPrefix + "2"),
 				new TxnBean(beanPrefix + "3"));

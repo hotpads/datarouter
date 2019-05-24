@@ -16,10 +16,12 @@
 package io.datarouter.util.enums;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import io.datarouter.util.ComparableTool;
@@ -67,38 +69,49 @@ public class DatarouterEnumTool{
 	/*------------------------- methods -------------------------------------*/
 
 	public static <T extends IntegerEnum<T>> T getEnumFromInteger(T[] values, Integer value, T defaultEnum){
-		if(value == null){
-			return defaultEnum;
-		}
-		for(T type : values){
-			if(type.getPersistentInteger().equals(value)){
-				return type;
-			}
-		}
-		return defaultEnum;
+		return getEnumFromIntegerOptional(values, value).orElse(defaultEnum);
 	}
 
-	public static <T extends PersistentString> T getEnumFromString(T[] enumEntries, String value, T defaultEnum,
+	public static <T extends IntegerEnum<T>> Optional<T> getEnumFromIntegerOptional(T[] values, Integer value){
+		if(value == null){
+			return Optional.empty();
+		}
+		return Arrays.stream(values)
+				.filter(type -> type.getPersistentInteger().equals(value))
+				.findFirst();
+	}
+
+	public static <T extends PersistentString> T getEnumFromString(T[] values, String value, T defaultEnum,
 			boolean caseSensitive){
-		for(T enumEntry : enumEntries){
+		return getEnumFromStringOptional(values, value, caseSensitive).orElse(defaultEnum);
+	}
+
+	public static <T extends PersistentString> T getEnumFromString(T[] values, String value, T defaultEnum){
+		return getEnumFromStringOptional(values, value, true).orElse(defaultEnum);
+	}
+
+	public static <T extends PersistentString> Optional<T> getEnumFromStringOptional(T[] values, String value){
+		return getEnumFromStringOptional(values, value, true);
+	}
+
+	public static <T extends PersistentString> Optional<T> getEnumFromStringOptional(T[] values, String value,
+			boolean caseSensitive){
+		for(T enumEntry : values){
 			String persistentString = enumEntry.getPersistentString();
 			if(persistentString == null){
 				if(value == null){
-					return enumEntry;
+					return Optional.of(enumEntry);
 				}
 				continue;
 			}
 			if(caseSensitive && persistentString.equals(value)
 					|| !caseSensitive && persistentString.equalsIgnoreCase(value)){
-				return enumEntry;
+				return Optional.of(enumEntry);
 			}
 		}
-		return defaultEnum;
+		return Optional.empty();
 	}
 
-	public static <T extends PersistentString> T getEnumFromString(T[] values, String value, T defaultEnum){
-		return getEnumFromString(values, value, defaultEnum, true);
-	}
 
 	/*------------------------- multiple values -----------------------------*/
 

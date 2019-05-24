@@ -30,7 +30,6 @@ import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.BasePrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Range;
 
 public class KeyRangeTool{
@@ -41,7 +40,7 @@ public class KeyRangeTool{
 
 	public static <PK extends PrimaryKey<PK>> Range<PK> forPrefixWithWildcard(String prefixString,
 			KeyWithStringFieldSuffixProvider<PK> keyWithStringFieldSuffixProvider){
-		if(StringTool.isEmpty(prefixString)){
+		if(prefixString == null){
 			return forPrefix(keyWithStringFieldSuffixProvider.createWithSuffixStringField(null));
 		}
 		String endString = incrementLastChar(prefixString);
@@ -51,11 +50,18 @@ public class KeyRangeTool{
 	}
 
 	public static String incrementLastChar(String string){
-		if(StringTool.isEmpty(string)){
+		if(string == null){
 			return null;
+		}else if(string.isEmpty()){
+			return String.valueOf(Character.MIN_VALUE);
 		}
 		int lastCharPos = string.length() - 1;
-		return string.substring(0, lastCharPos) + (char) (string.charAt(lastCharPos) + 1);
+		char lastChar = string.charAt(lastCharPos);
+		if(lastChar == Character.MAX_VALUE){
+			// edge case where the last character can't be incremented
+			return string + Character.MIN_VALUE;
+		}
+		return string.substring(0, lastCharPos) + (char) (lastChar + 1);
 	}
 
 	public interface KeyWithStringFieldSuffixProvider<PK extends PrimaryKey<PK>>{
@@ -90,8 +96,20 @@ public class KeyRangeTool{
 		}
 
 		@Test
+		public void testIncrementLastCharWithNullString(){
+			Assert.assertNull(incrementLastChar(null));
+		}
+
+		@Test
 		public void testIncrementLastCharWithEmptyString(){
-			Assert.assertNull(incrementLastChar(""));
+			Assert.assertEquals(incrementLastChar(""), String.valueOf('\u0000'));
+		}
+
+		@Test
+		public void testIncrementLastCharEdgeCase(){
+			String input = "foo" + Character.MAX_VALUE;
+			String expected = input + Character.MIN_VALUE;
+			Assert.assertEquals(incrementLastChar(input), expected);
 		}
 
 		private class TestKey extends BasePrimaryKey<TestKey>{

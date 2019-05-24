@@ -49,4 +49,5 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>>{
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
 		return 0;
 	}
+
 }

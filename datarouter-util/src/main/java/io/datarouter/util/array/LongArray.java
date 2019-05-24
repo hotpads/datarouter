@@ -421,7 +421,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 
 	}
 
-	public static class Tests{
+	public static class LongArrayTests{
 
 		private List<Long> list = new LongArray();
 		private int max = 150;

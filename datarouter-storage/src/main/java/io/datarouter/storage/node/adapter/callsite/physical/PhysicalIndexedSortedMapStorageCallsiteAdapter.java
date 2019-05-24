@@ -25,6 +25,7 @@ import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageReaderCallsit
 import io.datarouter.storage.node.adapter.callsite.mixin.MapStorageWriterCallsiteAdapterMixin;
 import io.datarouter.storage.node.adapter.callsite.mixin.SortedStorageReaderCallsiteAdapterMixin;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class PhysicalIndexedSortedMapStorageCallsiteAdapter<
 		PK extends PrimaryKey<PK>,
@@ -39,9 +40,13 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 		IndexedStorageCallsiteAdapterMixin<PK,D,F,N>,
 		PhysicalAdapterMixin<PK,D,F,N>{
 
-
 	public PhysicalIndexedSortedMapStorageCallsiteAdapter(N backingNode){
 		super(backingNode);
+	}
+
+	@Override
+	public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
+		return PhysicalAdapterMixin.super.getFieldInfo();
 	}
 
 }

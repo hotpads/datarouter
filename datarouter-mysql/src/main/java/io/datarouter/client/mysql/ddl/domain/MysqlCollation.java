@@ -17,6 +17,7 @@ package io.datarouter.client.mysql.ddl.domain;
 
 import io.datarouter.model.serialize.fielder.FielderConfigKey;
 import io.datarouter.model.serialize.fielder.FielderConfigValue;
+import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.util.string.StringTool;
 
 public enum MysqlCollation implements FielderConfigValue<MysqlCollation>{
@@ -130,6 +131,13 @@ public enum MysqlCollation implements FielderConfigValue<MysqlCollation>{
 	@Override
 	public FielderConfigKey<MysqlCollation> getKey(){
 		return KEY;
+	}
+
+	public static boolean isCaseInsensitive(DatabeanFieldInfo<?,?,?> fieldInfo){
+		return fieldInfo.getSampleFielder().getOption(KEY)
+				.map(MysqlCollation::name)
+				.map(str -> str.endsWith("ci"))
+				.orElse(false); // assume default collation is not ci
 	}
 
 }

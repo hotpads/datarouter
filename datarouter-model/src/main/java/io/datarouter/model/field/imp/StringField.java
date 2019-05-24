@@ -76,7 +76,7 @@ public class StringField extends BaseField<String>{
 		byte[] dataBytes = getBytes();
 		if(ArrayTool.containsUnsorted(dataBytes, SEPARATOR)){
 			throw new IllegalArgumentException("String cannot contain separator byteVal=" + SEPARATOR + ", stringBytes="
-					+ Arrays.toString(dataBytes) + ", string=" + value);
+					+ Arrays.toString(dataBytes) + ", string=" + value + ", key=" + key);
 		}
 		if(ArrayTool.isEmpty(dataBytes)){
 			return new byte[]{SEPARATOR};
@@ -95,8 +95,7 @@ public class StringField extends BaseField<String>{
 			}
 		}
 		int numBytes = bytes.length - offset;
-		return numBytes >= 0 ? numBytes : 0; //not sure where the separator went.  schema change or corruption?
-//		throw new IllegalArgumentException("separator not found for bytes:"+new String(bytes));
+		return numBytes >= 0 ? numBytes : 0;
 	}
 
 	@Override
@@ -107,18 +106,14 @@ public class StringField extends BaseField<String>{
 
 	@Override
 	public String fromBytesWithSeparatorButDoNotSet(byte[] bytes, int offset){
-		int lengthIncludingSeparator = numBytesWithSeparator(bytes, offset);
-		if(lengthIncludingSeparator <= 0){
-			throw new RuntimeException("lengthIncludingSeparator=" + lengthIncludingSeparator + ", but should be >= 1");
+		int lengthWithPossibleSeparator = numBytesWithSeparator(bytes, offset);
+		if(lengthWithPossibleSeparator == 0){
+			return "";
 		}
-		boolean lastByteIsSeparator = bytes[offset + lengthIncludingSeparator - 1] == SEPARATOR;
-		int lengthWithoutSeparator = lengthIncludingSeparator;
-		if(lastByteIsSeparator){
-			--lengthWithoutSeparator;
-		}
-		if(lengthWithoutSeparator == -1){
-			lengthWithoutSeparator = 0;
-		}
+		int lastByteIndex = offset + lengthWithPossibleSeparator - 1;
+		boolean lastByteIsSeparator = bytes[lastByteIndex] == SEPARATOR;
+		int lengthWithoutSeparator = lastByteIsSeparator ? lengthWithPossibleSeparator - 1
+				: lengthWithPossibleSeparator;
 		return new String(bytes, offset, lengthWithoutSeparator, StandardCharsets.UTF_8);
 	}
 

@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.router;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
@@ -29,11 +27,8 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.Client;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.LazyClientProvider;
-import io.datarouter.storage.client.RouterOptions;
+import io.datarouter.storage.client.ClientManager;
 import io.datarouter.storage.client.imp.TxnManagedUniqueIndexNode;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.setting.DatarouterSettings;
@@ -47,128 +42,46 @@ import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
 import io.datarouter.storage.node.type.index.UniqueIndexNode;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
+import io.datarouter.util.OptionalTool;
 import io.datarouter.util.concurrent.FutureTool;
 
-public abstract class BaseRouter
-implements Router, NodeSupport{
+public abstract class BaseRouter implements Router, NodeSupport{
 
 	public static final String MODE_development = "development";
 	public static final String MODE_production = "production";
 
-	protected final Datarouter datarouter;
-
-	private final String configLocation;
-	private final String name;
-	private final RouterOptions routerOptions;
+	private final Datarouter datarouter;
 	private final BaseNodeFactory nodeFactory;
 	private final DatarouterSettings datarouterSettings;
 
-	public BaseRouter(Datarouter datarouter, DatarouterProperties datarouterProperties, String name,
-			BaseNodeFactory nodeFactory, DatarouterSettings datarouterSettings){
+	public BaseRouter(Datarouter datarouter, DatarouterProperties datarouterProperties, BaseNodeFactory nodeFactory,
+			DatarouterSettings datarouterSettings){
 		this.datarouter = datarouter;
-		this.configLocation = datarouterProperties.getDatarouterPropertiesFileLocation();
-		this.name = name;
 		this.datarouterSettings = datarouterSettings;
-		this.routerOptions = new RouterOptions(getConfigLocation());
-		this.datarouter.registerConfigFile(getConfigLocation());
 		this.nodeFactory = nodeFactory;
-		registerWithContext();
+		datarouter.registerConfigFile(datarouterProperties.getDatarouterPropertiesFileLocation());
+		datarouter.register(this);
 	}
 
 	/*---------------------------- methods ----------------------------------*/
 
 	@Override
-	public final String getConfigLocation(){
-		return configLocation;
-	}
-
-	@Override
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
 	N register(N node){
-		datarouter.getNodes().register(name, node);
-		datarouter.registerClientIds(node.getClientIds())
-				.filter(LazyClientProvider::isInitialized)
-				.map(LazyClientProvider::call)
-				.flatMap(client -> node.getPhysicalNodesForClient(client.getName()).stream()
-							.map(client::notifyNodeRegistration))
-				.forEach(FutureTool::get);
+		datarouter.getNodes().register(node);
+		for(ClientId clientId : datarouter.registerClientIds(node.getClientIds())){
+			ClientManager clientManager = datarouter.getClientPool().getClientManager(clientId);
+			node.getPhysicalNodesForClient(clientId.getName()).stream()
+					.map(clientManager::notifyNodeRegistration)
+					.map(FutureTool::get)
+					.flatMap(OptionalTool::stream)
+					.map(result -> result.errorMessage)
+					.flatMap(OptionalTool::stream)
+					.findFirst()
+					.ifPresent($ -> clientManager.sendEmail());
+		}
 		return node;
-	}
-
-	@Override
-	public void registerWithContext(){
-		datarouter.register(this);
-	}
-
-	/*---------------------------- getting clients --------------------------*/
-
-	@Override
-	public List<ClientId> getClientIds(){
-		return datarouter.getNodes().getClientIdsForRouter(name);
-	}
-
-	@Override
-	public List<String> getClientNames(){
-		return ClientId.getNames(getClientIds());
-	}
-
-	@Override
-	public Client getClient(String clientName){
-		return datarouter.getClientPool().getClient(clientName);
-	}
-
-	@Override
-	public ClientType<?> getClientType(String clientName){
-		return datarouter.getClientPool().getClientTypeInstance(clientName);
-	}
-
-	@Override
-	public List<Client> getAllClients(){
-		return datarouter.getClientPool().getClients(getClientNames());
-	}
-
-	/*---------------------------- object -----------------------------------*/
-
-	@Override
-	public String toString(){
-		return name;
-	}
-
-	@Override
-	public int compareTo(Router otherDatarouter){
-		return getName().compareTo(otherDatarouter.getName());
-	}
-
-	@Override
-	public int hashCode(){
-		return Objects.hashCode(name);
-	}
-
-	@Override
-	public boolean equals(Object obj){
-		if(this == obj){
-			return true;
-		}
-		if(obj == null){
-			return false;
-		}
-		if(!(obj instanceof BaseRouter)){
-			return false;
-		}
-		BaseRouter other = (BaseRouter)obj;
-		return Objects.equals(name, other.name);
-	}
-
-	/*---------------------------- get/set ----------------------------------*/
-
-	@Override
-	public String getName(){
-		return name;
-	}
-
-	@Override
-	public RouterOptions getRouterOptions(){
-		return routerOptions;
 	}
 
 	/* Node building */
@@ -215,6 +128,34 @@ implements Router, NodeSupport{
 			N extends NodeOps<PK,D>>
 	N createAndRegisterSubEntity(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 		return new SubEntityNodeBuilder<>(clientId, databeanSupplier, fielderSupplier).buildAndRegister();
+	}
+
+	protected <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	QueueNodeBuilder<PK,D,F> createSingleQueue(ClientId clientId, Supplier<D> databeanSupplier,
+			Supplier<F> fielderSupplier){
+		return new SingleQueueNodeBuilder<>(clientId, databeanSupplier, fielderSupplier);
+	}
+
+	protected <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	QueueNodeBuilder<PK,D,F> createGroupQueue(ClientId clientId, Supplier<D> databeanSupplier,
+			Supplier<F> fielderSupplier){
+		return new GroupQueueNodeBuilder<>(clientId, databeanSupplier, fielderSupplier);
+	}
+
+	protected <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends NodeOps<PK,D>>
+	N createAndRegisterGroupQueue(ClientId clientId, Supplier<D> databeanSupplier,
+			Supplier<F> fielderSupplier){
+		return new GroupQueueNodeBuilder<>(clientId, databeanSupplier, fielderSupplier).buildAndRegister();
 	}
 
 	protected class SubEntityNodeBuilder<
@@ -344,26 +285,103 @@ implements Router, NodeSupport{
 		private final Supplier<IE> databeanSupplier;
 		private final Supplier<IF> fielderSupplier;
 		private final IndexedMapStorage<PK,D> backingNode;
-		private String tableName;
+		private String indexName;
 
 		public ManagedNodeBuilder(Class<IK> indexEntryKeyClass, Supplier<IE> databeanSupplier,
 				Supplier<IF> fielderSupplier, IndexedMapStorage<PK,D> backingNode){
 			this.databeanSupplier = databeanSupplier;
 			this.fielderSupplier = fielderSupplier;
 			this.backingNode = backingNode;
-			this.tableName = indexEntryKeyClass.getSimpleName();
+			this.indexName = indexEntryKeyClass.getSimpleName();
 		}
 
 		public ManagedNodeBuilder<PK,D,IK,IE,IF> withTableName(String tableName){
-			this.tableName = tableName;
+			this.indexName = tableName;
 			return this;
 		}
 
 		public UniqueIndexNode<PK,D,IK,IE> build(){
-			NodeParams<IK,IE,IF> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
-					.withTableName(tableName)
-					.build();
-			return backingNode.registerManaged(new TxnManagedUniqueIndexNode<>(backingNode, params, tableName));
+			IndexEntryFieldInfo<IK,IE,IF> fieldInfo = new IndexEntryFieldInfo<>(indexName, databeanSupplier,
+					fielderSupplier);
+			return backingNode.registerManaged(new TxnManagedUniqueIndexNode<>(backingNode, fieldInfo, indexName));
+		}
+
+	}
+
+	protected abstract class QueueNodeBuilder<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>{
+
+		protected final ClientId clientId;
+		protected final Supplier<D> databeanSupplier;
+		protected final Supplier<F> fielderSupplier;
+
+		protected String queueName;
+		protected String namespace;
+		protected String queueUrl;
+
+		private QueueNodeBuilder(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
+			this.clientId = clientId;
+			this.databeanSupplier = databeanSupplier;
+			this.fielderSupplier = fielderSupplier;
+		}
+
+		public QueueNodeBuilder<PK,D,F> withQueueName(String queueName){
+			this.queueName = queueName;
+			return this;
+		}
+
+		public QueueNodeBuilder<PK,D,F> withNamespace(String namespace){
+			this.namespace = namespace;
+			return this;
+		}
+
+		public QueueNodeBuilder<PK,D,F> withQueueUrl(String queueUrl){
+			this.queueUrl = queueUrl;
+			return this;
+		}
+
+		protected abstract <N extends NodeOps<PK,D>> N build();
+
+		public <N extends NodeOps<PK,D>> N buildAndRegister(){
+			return register(build());
+		}
+
+	}
+
+	protected class SingleQueueNodeBuilder<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	extends QueueNodeBuilder<PK,D,F>{
+
+		private SingleQueueNodeBuilder(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
+			super(clientId, databeanSupplier, fielderSupplier);
+		}
+
+		@Override
+		public <N extends NodeOps<PK,D>> N build(){
+			return nodeFactory.createSingleQueueNode(clientId, databeanSupplier, queueName, fielderSupplier, namespace,
+					queueUrl);
+		}
+
+	}
+
+	protected class GroupQueueNodeBuilder<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	extends QueueNodeBuilder<PK,D,F>{
+
+		private GroupQueueNodeBuilder(ClientId clientId, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
+			super(clientId, databeanSupplier, fielderSupplier);
+		}
+
+		@Override
+		public <N extends NodeOps<PK,D>> N build(){
+			return nodeFactory.createGroupQueueNode(clientId, databeanSupplier, queueName, fielderSupplier, namespace,
+					queueUrl);
 		}
 
 	}

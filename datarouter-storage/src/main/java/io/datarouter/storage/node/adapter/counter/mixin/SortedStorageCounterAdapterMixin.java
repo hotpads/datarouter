@@ -25,6 +25,7 @@ import io.datarouter.storage.node.adapter.counter.CounterAdapter;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.storage.node.op.raw.SortedStorage.SortedStorageNode;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public interface SortedStorageCounterAdapterMixin<
@@ -37,28 +38,28 @@ extends SortedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	//Reader
 
 	@Override
-	default Iterable<PK> scanKeys(Range<PK> range, Config config){
+	default Scanner<PK> scanKeys(Range<PK> range, Config config){
 		String opName = SortedStorageReader.OP_scanKeys;
 		getCounter().count(opName);
 		return getBackingNode().scanKeys(range, config);
 	}
 
 	@Override
-	default Iterable<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		String opName = SortedStorageReader.OP_scanKeysMulti;
 		getCounter().count(opName);
 		return getBackingNode().scanKeysMulti(ranges, config);
 	}
 
 	@Override
-	default Iterable<D> scan(Range<PK> range, Config config){
+	default Scanner<D> scan(Range<PK> range, Config config){
 		String opName = SortedStorageReader.OP_scan;
 		getCounter().count(opName);
 		return getBackingNode().scan(range, config);
 	}
 
 	@Override
-	default Iterable<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		String opName = SortedStorageReader.OP_scanMulti;
 		getCounter().count(opName);
 		return getBackingNode().scanMulti(ranges, config);

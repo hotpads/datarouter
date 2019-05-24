@@ -19,7 +19,6 @@ import java.util.Map;
 
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
-import io.datarouter.storage.client.Client;
 
 public interface PhysicalEntityNode<
 		EK extends EntityKey<EK>,
@@ -30,7 +29,5 @@ extends EntityNode<EK,E>{
 	String getTableName();
 
 	Map<String,? extends SubEntitySortedMapStorageReaderNode<EK,?,?,?>> getNodeByQualifierPrefix();
-
-	Client getClient();
 
 }

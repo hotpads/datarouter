@@ -9,7 +9,6 @@
 </head>
 <body>
 <%@ include file="/jsp/menu/common-navbar.jsp"%>
-<%@ include file="/WEB-INF/jsp/menu/navbar.jsp"%>
 <div class="container-fluid">
 	<div>
 		<p>Welcome to ${appName}. <a href="${contextPath}/signout">Sign out</a></p>

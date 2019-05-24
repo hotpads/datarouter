@@ -7,7 +7,6 @@
 </head>
 <body>
 	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<%@ include file="/WEB-INF/jsp/menu/navbar.jsp"%>
 	<div class="container">
 		<h2>Admin: Reset Password</h2>
 		<c:choose>

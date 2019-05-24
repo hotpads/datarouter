@@ -24,6 +24,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -48,7 +49,7 @@ import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.exception.BaseExceptionRecord;
 import io.datarouter.web.exception.BaseExceptionRecordKey;
-import io.datarouter.web.util.http.HttpHeaders;
+import io.datarouter.web.util.http.RecordedHttpHeaders;
 
 public abstract class BaseHttpRequestRecord<
 		PK extends BaseHttpRequestRecordKey<PK>,
@@ -217,7 +218,7 @@ extends BaseDatabean<PK,D>{
 
 	public BaseHttpRequestRecord(Date receivedAt, String exceptionRecordId, String httpMethod, String httpParams,
 			String protocol, String hostname, int port, String contextPath, String path, String queryString,
-			byte[] binaryBody, String ip, String sessionRoles, String userToken, HttpHeaders headersWrapper){
+			byte[] binaryBody, String ip, String sessionRoles, String userToken, RecordedHttpHeaders headersWrapper){
 		this.created = new Date();
 		this.receivedAt = receivedAt;
 		if(receivedAt != null){
@@ -307,9 +308,9 @@ extends BaseDatabean<PK,D>{
 
 	public BaseHttpRequestRecord(ExceptionDto dto, String exceptionRecordId){
 		this.created = new Date(dto.dateMs);
-		this.receivedAt = dto.receivedAt;
-		if(receivedAt != null){
-			this.duration = created.getTime() - receivedAt.getTime();
+		if(dto.receivedAtMs != null){
+			this.receivedAt = new Date(dto.receivedAtMs);
+			this.duration = dto.dateMs - dto.receivedAtMs;
 		}
 		this.exceptionRecordId = exceptionRecordId;
 		this.httpMethod = dto.httpMethod;
@@ -319,7 +320,7 @@ extends BaseDatabean<PK,D>{
 		this.port = dto.port;
 		this.path = dto.path;
 		this.queryString = dto.queryString;
-		this.binaryBody = dto.body.getBytes();
+		this.binaryBody = dto.body == null ? null : dto.body.getBytes();
 		this.ip = dto.ip;
 		this.userRoles = dto.userRoles;
 		this.userToken = dto.userToken;
@@ -586,54 +587,35 @@ extends BaseDatabean<PK,D>{
 	}
 
 	public void trimContentType(){
-		if(contentType == null){
-			return;
-		}
-		int size = FieldKeys.contentType.getSize();
-		int originalLength = contentType.length();
-		if(originalLength > size){
-			contentType = StringTool.trimToSize(contentType, size);
-			logger.warn("Trimmed contentType to {} from {} for sqs, exceptionRecordId={}", size, originalLength,
-					exceptionRecordId);
-		}
+		trimField(FieldKeys.contentType, contentType);
 	}
 
 	public void trimAcceptCharset(){
-		if(acceptCharset == null){
-			return;
-		}
-		int size = FieldKeys.acceptCharset.getSize();
-		int originalLength = acceptCharset.length();
-		if(originalLength > size){
-			acceptCharset = StringTool.trimToSize(acceptCharset, size);
-			logger.warn("Trimmed acceptCharset to {} from {}, exceptionRecordId={}", size, originalLength,
-					exceptionRecordId);
-		}
+		trimField(FieldKeys.acceptCharset, acceptCharset);
 	}
 
 	public void trimXForwardedFor(){
-		if(xForwardedFor == null){
-			return;
-		}
-		int size = FieldKeys.xForwardedFor.getSize();
-		int originalLength = xForwardedFor.length();
-		if(originalLength > size){
-			xForwardedFor = StringTool.trimToSize(xForwardedFor, size);
-			logger.warn("Trimmed xForwardedFor to {} from {}, exceptionRecordId={}", size, originalLength,
-					exceptionRecordId);
-		}
+		trimField(FieldKeys.xForwardedFor, xForwardedFor);
 	}
 
 	public void trimPath(){
-		if(path == null){
+		trimField(FieldKeys.path, path);
+	}
+
+	public void trimAcceptLanguage(){
+		trimField(FieldKeys.acceptLanguage, acceptLanguage);
+	}
+
+	private void trimField(StringFieldKey fieldKey, String field){
+		if(field == null){
 			return;
 		}
-		int size = FieldKeys.path.getSize();
-		int originalLength = path.length();
-		if(originalLength > size){
-			path = StringTool.trimToSize(path, size);
-			logger.warn("Trimmed path to {} from {}, exceptionRecordId={}", size, originalLength,
-					exceptionRecordId);
+		int fieldSize = fieldKey.getSize();
+		int fieldValueLength = field.length();
+		if(fieldValueLength > fieldSize){
+			field = StringTool.trimToSize(field, fieldSize);
+			logger.warn("Trimmed {} to {} from {}, exceptionRecordId={}", fieldKey.getName(), fieldSize,
+					fieldValueLength, exceptionRecordId);
 		}
 	}
 

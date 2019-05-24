@@ -18,6 +18,7 @@ package io.datarouter.web.dispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.tuple.Pair;
-import io.datarouter.web.handler.mav.nav.NavBar;
+import io.datarouter.web.handler.mav.nav.AppNavBar;
+import io.datarouter.web.handler.mav.nav.DatarouterNavBar;
 
 @SuppressWarnings("serial")
 public abstract class DispatcherServlet extends HttpServlet{
@@ -40,7 +42,9 @@ public abstract class DispatcherServlet extends HttpServlet{
 	@Inject
 	private Dispatcher dispatcher;
 	@Inject
-	private Optional<NavBar> navBar;
+	private Optional<AppNavBar> appNavBar;
+	@Inject
+	private DatarouterNavBar datarouterNavBar;
 
 	private List<BaseRouteSet> routeSets = new ArrayList<>();
 
@@ -60,17 +64,23 @@ public abstract class DispatcherServlet extends HttpServlet{
 
 	protected List<DispatcherServletListener> getInitListeners(){
 		List<DispatcherServletListener> initListerners = new ArrayList<>();
-		navBar.ifPresent(initListerners::add);
+		appNavBar.ifPresent(initListerners::add);
+		initListerners.add(datarouterNavBar);
 		return initListerners;
 	}
 
-	protected final void register(BaseRouteSet routeSet){
-		routeSets.add(routeSet);
+	protected final void register(BaseRouteSet newRouteSet){
+		routeSets.add(newRouteSet);
+	}
+
+	protected final void register(Collection<BaseRouteSet> newRouteSets){
+		newRouteSets.forEach(this::register);
 	}
 
 	protected final void eagerlyInitRouteSet(BaseRouteSet routeSet){
 		// init handlers once, as a sort of eager health check
-		Optional.ofNullable(routeSet.getDefaultHandlerClass()).map(injector::getInstance);
+		Optional.ofNullable(routeSet.getDefaultHandlerClass())
+				.map(injector::getInstance);
 		routeSet.getDispatchRules().stream()
 				.map(DispatchRule::getHandlerClass)
 				.distinct()

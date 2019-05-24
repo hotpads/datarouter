@@ -17,6 +17,8 @@
 
 <c:set var="tomcatWebApps" value="${mavProperties.getTomcatWebApps()}" />
 <c:set var="webAppNavBar" value="${mavProperties.getNavBar()}" />
+<c:set var="datarouterNavBar" value="${mavProperties.getDatarouterNavBar()}" />
+<c:set var="isDatarouterPage" value="${mavProperties.isDatarouterPage()}" />
 
 <%-- prevent jsessionid to be added to url when using c:url --%>
 <%@ page session="false" %>

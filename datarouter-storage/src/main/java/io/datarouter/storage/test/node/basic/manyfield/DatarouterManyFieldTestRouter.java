@@ -40,7 +40,7 @@ public class DatarouterManyFieldTestRouter extends BaseRouter implements TestRou
 	public DatarouterManyFieldTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId,
 			Supplier<ManyFieldTypeBeanFielder> fielderSupplier){
-		super(datarouter, datarouterProperties, "datarouterManyFieldTestRouter", nodeFactory, datarouterSettings);
+		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
 
 		manyFieldTypeBeanNode = create(clientId, ManyFieldBean::new, fielderSupplier)
 				.withSchemaVersion(new Random().nextInt())

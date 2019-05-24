@@ -17,18 +17,22 @@ package io.datarouter.storage.client;
 
 public class ClientTableNodeNames{
 
-	private final String clientName;
+	private final ClientId clientId;
 	private final String tableName;
 	private final String nodeName;
 
-	public ClientTableNodeNames(String clientName, String tableName, String nodeName){
-		this.clientName = clientName;
+	public ClientTableNodeNames(ClientId clientId, String tableName, String nodeName){
+		this.clientId = clientId;
 		this.tableName = tableName;
 		this.nodeName = nodeName;
 	}
 
+	public ClientId getClientId(){
+		return clientId;
+	}
+
 	public String getClientName(){
-		return clientName;
+		return clientId.getName();
 	}
 
 	public String getTableName(){
@@ -43,7 +47,7 @@ public class ClientTableNodeNames{
 	public int hashCode(){
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((clientName == null) ? 0 : clientName.hashCode());
+		result = prime * result + ((clientId == null) ? 0 : clientId.hashCode());
 		result = prime * result + ((nodeName == null) ? 0 : nodeName.hashCode());
 		result = prime * result + ((tableName == null) ? 0 : tableName.hashCode());
 		return result;
@@ -62,11 +66,11 @@ public class ClientTableNodeNames{
 			return false;
 		}
 		ClientTableNodeNames other = (ClientTableNodeNames)obj;
-		if(clientName == null){
-			if(other.clientName != null){
+		if(clientId == null){
+			if(other.clientId != null){
 				return false;
 			}
-		}else if(!clientName.equals(other.clientName)){
+		}else if(!clientId.equals(other.clientId)){
 			return false;
 		}
 		if(nodeName == null){
@@ -89,7 +93,7 @@ public class ClientTableNodeNames{
 
 	@Override
 	public String toString(){
-		return "ClientTableNodeNames [clientName=" + clientName + ", tableName=" + tableName + ", nodeName=" + nodeName
+		return "ClientTableNodeNames [clientId=" + clientId + ", tableName=" + tableName + ", nodeName=" + nodeName
 				+ "]";
 	}
 

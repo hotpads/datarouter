@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.node.MysqlReaderNode;
@@ -28,16 +29,17 @@ import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
 import io.datarouter.client.mysql.util.MysqlTool;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.Client;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.iterable.BatchingIterable;
 
@@ -50,43 +52,47 @@ public class MysqlGetByIndexOp<
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseMysqlOp<List<D>>{
 
-	private final PhysicalNode<PK,D,F> node;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
-	private final Collection<IK> entryKeys;
+	private final Collection<IK> indexKeys;
 	private final Config config;
-	private final DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo;
+	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
+	private final MysqlClientType mysqlClientType;
 
-	public MysqlGetByIndexOp(Datarouter datarouter, PhysicalNode<PK,D,F> node, MysqlFieldCodecFactory fieldCodecFactory,
-			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<IK> entryKeys, Config config){
-		super(datarouter, node.getClientNames(), Isolation.DEFAULT, true);
-		this.node = node;
+	public MysqlGetByIndexOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			MysqlFieldCodecFactory fieldCodecFactory, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
+			MysqlClientType mysqlClientType, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<IK> indexKeys, Config config){
+		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
+		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
+		this.mysqlClientType = mysqlClientType;
 		this.indexEntryFieldInfo = indexEntryFieldInfo;
-		this.entryKeys = entryKeys;
+		this.indexKeys = indexKeys;
 		this.config = config;
 	}
 
 	@Override
 	public List<D> runOnce(){
-		Connection connection = getConnection(node.getFieldInfo().getClientId().getName());
+		Connection connection = getConnection(fieldInfo.getClientId());
+		String opName = IndexedStorageReader.OP_getByIndex;
+		String tableName = fieldInfo.getTableName();
+		String indexName = indexEntryFieldInfo.getIndexName();
+		String nodeName = tableName + "." + indexName;
 		List<D> result = new ArrayList<>();
-		for(List<IK> batch : new BatchingIterable<>(entryKeys, MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
-			Client client = node.getClient();
-			String opName = IndexedStorageReader.OP_getByIndex;
-			String tableName = node.getFieldInfo().getTableName();
-			String indexName = indexEntryFieldInfo.getTableName();
-			String nodeName = tableName + "." + indexName;
-			DatarouterCounters.incClientNodeCustom(client.getType(), opName + " selects", client.getName(), nodeName,
-					1L);
+		for(List<IK> batch : new BatchingIterable<>(indexKeys, MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
+			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId()
+					.getName(), nodeName, 1L);
 			PreparedStatement statement = mysqlPreparedStatementBuilder.getWithPrefixes(config, tableName, indexName,
-					node.getFieldInfo().getFields(), batch, null, MysqlTableOptions.make(node.getFieldInfo()))
+					fieldInfo.getFields(), batch, null, MysqlTableOptions.make(fieldInfo.getSampleFielder()))
 					.toPreparedStatement(connection);
-			List<D> batchResult = MysqlTool.selectDatabeans(fieldCodecFactory, node.getFieldInfo(), statement);
-			DatarouterCounters.incClientNodeCustom(client.getType(), opName + " rows", client.getName(), nodeName,
-					result.size());
+			List<D> batchResult = MysqlTool.selectDatabeans(fieldCodecFactory, fieldInfo.getDatabeanSupplier(),
+					fieldInfo.getFields(), statement);
+			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),
+					nodeName, result.size());
+			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[got " + result.size() + "/" + batch.size() + "]");
 			result.addAll(batchResult);
 		}
 		return result;

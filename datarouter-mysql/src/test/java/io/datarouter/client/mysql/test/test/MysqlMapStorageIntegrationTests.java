@@ -18,15 +18,15 @@ package io.datarouter.client.mysql.test.test;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
-import io.datarouter.client.mysql.DatarouterMysqlTestModuleFactory;
+import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
+import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.storage.test.node.basic.map.BaseMapStorageIntegrationTests;
-import io.datarouter.web.test.DatarouterTestClientIds;
 
-@Guice(moduleFactory = DatarouterMysqlTestModuleFactory.class)
+@Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class MysqlMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterTestClientIds.mysql0, false);
+		setup(DatarouterMysqlTestClientids.MYSQL, false);
 	}
 }

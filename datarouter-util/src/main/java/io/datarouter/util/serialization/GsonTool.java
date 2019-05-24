@@ -15,10 +15,15 @@
  */
 package io.datarouter.util.serialization;
 
+import java.util.Date;
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class GsonTool{
 
-	public static final Gson GSON = new Gson();
+	public static final Gson GSON = new GsonBuilder()
+			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
+			.create();
 
 }

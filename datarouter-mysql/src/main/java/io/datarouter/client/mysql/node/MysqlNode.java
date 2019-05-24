@@ -17,87 +17,69 @@ package io.datarouter.client.mysql.node;
 
 import java.util.Collection;
 
-import io.datarouter.client.mysql.execution.MysqlOpRetryTool;
-import io.datarouter.client.mysql.execution.SessionExecutor;
-import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
-import io.datarouter.client.mysql.node.mixin.MysqlIndexedStorageWriterMixin;
-import io.datarouter.client.mysql.node.mixin.MysqlMapStorageWriterMixin;
-import io.datarouter.client.mysql.node.mixin.MysqlSortedStorageWriterMixin;
-import io.datarouter.client.mysql.op.read.MysqlGetOpExecutor;
-import io.datarouter.client.mysql.op.write.MysqlPutOp;
-import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
-import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.DatarouterNodes;
-import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
-import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
-import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
 
 public class MysqlNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends MysqlReaderNode<PK,D,F>
-implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
-		MysqlIndexedStorageWriterMixin<PK,D,F>,
-		MysqlSortedStorageWriterMixin<PK,D,F>,
-		MysqlMapStorageWriterMixin<PK,D,F>{
+implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 
-	private final Datarouter datarouter;
-	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
+	private final MysqlNodeManager mysqlNodeManager;
 
-	public MysqlNode(NodeParams<PK,D,F> params, MysqlFieldCodecFactory fieldCodecFactory, Datarouter datarouter,
-			MysqlGetOpExecutor mysqlGetOpExecutor, DatarouterClients datarouterClients,
-			DatarouterNodes datarouterNodes, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder){
-		super(params, fieldCodecFactory, datarouter, datarouterClients, datarouterNodes, mysqlGetOpExecutor,
-				mysqlPreparedStatementBuilder);
-		this.datarouter = datarouter;
-		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
-	}
-
-	@Override
-	public Node<PK,D,F> getMaster(){
-		return this;
-	}
-
-	@Override
-	public MysqlPreparedStatementBuilder getMysqlPreparedStatementBuilder(){
-		return mysqlPreparedStatementBuilder;
+	public MysqlNode(NodeParams<PK,D,F> params, MysqlClientType mysqlClientType, MysqlNodeManager mysqlNodeManager){
+		super(params, mysqlClientType, mysqlNodeManager);
+		this.mysqlNodeManager = mysqlNodeManager;
 	}
 
 	/*------------------------- MapStorageWriter methods --------------------*/
 
 	@Override
 	public void put(D databean, Config config){
-		String opName = MapStorageWriter.OP_put;
-		MysqlPutOp<PK,D,F> op = new MysqlPutOp<>(datarouter, this, mysqlPreparedStatementBuilder, ListTool.wrap(
-				databean), config);
-		MysqlOpRetryTool.tryNTimes(new SessionExecutor<>(datarouter.getClientPool(), op, getTraceName(opName)), config);
+		mysqlNodeManager.put(getFieldInfo(), databean, config);
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		String opName = MapStorageWriter.OP_putMulti;
-		if(CollectionTool.isEmpty(databeans)){
-			return;// avoid starting txn
-		}
-		TracerTool.appendToSpanInfo(TracerThreadLocal.get(), String.valueOf(CollectionTool.size(databeans)));
-		MysqlPutOp<PK,D,F> op = new MysqlPutOp<>(datarouter, this, mysqlPreparedStatementBuilder, databeans, config);
-		MysqlOpRetryTool.tryNTimes(new SessionExecutor<>(datarouter.getClientPool(), op, getTraceName(opName)), config);
+		mysqlNodeManager.putMulti(getFieldInfo(), databeans, config);
 	}
 
 	@Override
-	public Datarouter getDatarouter(){
-		return datarouter;
+	public void delete(PK key, Config config){
+		mysqlNodeManager.delete(getFieldInfo(), key, config);
+	}
+
+	@Override
+	public void deleteMulti(Collection<PK> keys, Config config){
+		mysqlNodeManager.deleteMulti(getFieldInfo(), keys, config);
+	}
+
+	@Override
+	public void deleteAll(Config config){
+		mysqlNodeManager.deleteAll(getFieldInfo(), config);
+	}
+
+	@Override
+	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
+		mysqlNodeManager.deleteUnique(getFieldInfo(), uniqueKey, config);
+	}
+
+	@Override
+	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+		mysqlNodeManager.deleteMultiUnique(getFieldInfo(), uniqueKeys, config);
+	}
+
+	@Override
+	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+		mysqlNodeManager.deleteByIndex(getFieldInfo(), keys, config);
 	}
 
 }

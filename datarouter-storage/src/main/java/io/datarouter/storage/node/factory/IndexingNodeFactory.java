@@ -24,8 +24,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.imp.NoTxnManagedUniqueIndexNode;
 import io.datarouter.storage.client.imp.TxnManagedUniqueIndexNode;
-import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage;
@@ -37,6 +35,7 @@ import io.datarouter.storage.node.type.index.ManualMultiIndexNode;
 import io.datarouter.storage.node.type.index.ManualUniqueIndexNode;
 import io.datarouter.storage.node.type.indexing.IndexingMapStorageNode;
 import io.datarouter.storage.node.type.indexing.IndexingSortedMapStorageNode;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.util.lang.ReflectionTool;
 
 public class IndexingNodeFactory{
@@ -115,13 +114,12 @@ public class IndexingNodeFactory{
 			IF extends DatabeanFielder<IK,IE>>
 	ManagedUniqueIndexNode<PK,D,IK,IE,IF> newManagedUnique(IndexedMapStorage<PK, D> backingNode,
 			Supplier<IF> indexFielderSupplier, Supplier<IE> indexEntrySupplier, boolean manageTxn, String indexName){
-		NodeParams<IK,IE,IF> params = new NodeParamsBuilder<>(indexEntrySupplier, indexFielderSupplier)
-				.withTableName(indexName)
-				.build();
+		IndexEntryFieldInfo<IK,IE,IF> fieldInfo = new IndexEntryFieldInfo<>(indexName, indexEntrySupplier,
+				indexFielderSupplier);
 		if(manageTxn){
-			return new TxnManagedUniqueIndexNode<>(backingNode, params, indexName);
+			return new TxnManagedUniqueIndexNode<>(backingNode, fieldInfo, indexName);
 		}
-		return new NoTxnManagedUniqueIndexNode<>(backingNode, params, indexName);
+		return new NoTxnManagedUniqueIndexNode<>(backingNode, fieldInfo, indexName);
 	}
 
 	/**

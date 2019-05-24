@@ -47,8 +47,16 @@ extends Comparable<Field<T>>,
 
 	int getValueHashCode();
 
+	/**
+	 * @return a human-readable string for use in toString() methods.  Should not be used for persistence.
+	 */
 	String getValueString();
+
+	/**
+	 * Parse the result of StringEncodedField::parseStringEncodedValueButDoNotSet and apply to the current object
+	 */
 	void fromString(String string);
+
 	String getPreparedStatementValue();
 
 }

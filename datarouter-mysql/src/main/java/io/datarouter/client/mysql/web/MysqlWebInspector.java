@@ -17,11 +17,13 @@ package io.datarouter.client.mysql.web;
 
 import javax.inject.Inject;
 
-import io.datarouter.client.mysql.MysqlClient;
+import io.datarouter.client.mysql.MysqlClientManager;
+import io.datarouter.client.mysql.MysqlClientType;
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
-import io.datarouter.web.browse.dto.RouterParamsFactory;
-import io.datarouter.web.browse.dto.RouterParamsFactory.RouterParams;
+import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
+import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory.DatarouterWebRequestParams;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.params.Params;
 
@@ -30,16 +32,20 @@ public class MysqlWebInspector implements DatarouterClientWebInspector{
 	@Inject
 	private DatarouterNodes nodes;
 	@Inject
-	private RouterParamsFactory routerParamsFactory;
+	private DatarouterWebRequestParamsFactory datarouterWebRequestParamsFactory;
 	@Inject
 	private DatarouterMysqlFiles files;
+	@Inject
+	private DatarouterInjector injector;
 
 	@Override
 	public Mav inspectClient(Params params){
-		RouterParams<MysqlClient> routerParams = routerParamsFactory.new RouterParams<>(params, MysqlClient.class);
+		DatarouterWebRequestParams<MysqlClientType> routerParams = datarouterWebRequestParamsFactory
+				.new DatarouterWebRequestParams<>(params, MysqlClientType.class);
 		Mav mav = new Mav(files.jsp.admin.datarouter.mysql.mysqlClientSummaryJsp);
-		mav.put("clientStats", routerParams.getClient().getStats());
-		mav.put("nodes", nodes.getPhysicalNodesForClient(routerParams.getClientName()));
+		MysqlClientManager clientManager = injector.getInstance(routerParams.getClientType().getClientManagerClass());
+		mav.put("clientStats", clientManager.getStats(routerParams.getClientId()));
+		mav.put("nodes", nodes.getPhysicalNodesForClient(routerParams.getClientId().getName()));
 		return mav;
 	}
 

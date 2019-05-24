@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import io.datarouter.util.collection.CollectionTool;
 
 public class DatarouterEnumToolTests{
+
 	private enum SomeType implements StringEnum<SomeType>{
 		LARGE, CONDO, RENTAL, SALE, SUBLET;
 		@Override

@@ -27,7 +27,7 @@ import io.datarouter.util.string.StringTool;
 
 public final class FileTool{
 
-	private static final List<String> staticFilesExtensions = Stream.of("ttf", "css", "js", "html", "pdf", "png",
+	private static final List<String> STATIC_FILE_EXTENSIONS = Stream.of("ttf", "css", "js", "html", "pdf", "png",
 			"jpg", "jpeg", "swf", "woff", "woff2", "map", "jsx")
 			.map("."::concat)
 			.collect(Collectors.toList());
@@ -67,7 +67,7 @@ public final class FileTool{
 	}
 
 	public static boolean hasAStaticFileExtension(String path){
-		for(String extension : staticFilesExtensions){
+		for(String extension : STATIC_FILE_EXTENSIONS){
 			if(path.endsWith(extension)){
 				return true;
 			}

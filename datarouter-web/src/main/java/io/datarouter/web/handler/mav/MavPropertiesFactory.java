@@ -24,31 +24,34 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.util.lazy.Lazy;
-import io.datarouter.web.handler.mav.nav.NavBar;
+import io.datarouter.web.handler.mav.nav.AppNavBar;
+import io.datarouter.web.handler.mav.nav.DatarouterNavBar;
 import io.datarouter.web.listener.TomcatWebAppNamesWebAppListener;
 
 @Singleton
 public class MavPropertiesFactory{
 
 	private final MavPropertiesFactoryConfig config;
-	private final Lazy<Map<String, String>> tomcatWebApps;
-	private final Optional<NavBar> navbar;
+	private final Lazy<Map<String,String>> tomcatWebApps;
+	private final Optional<AppNavBar> appNavBar;
+	private final DatarouterNavBar datarouterNavBar;
 
 	@Inject
 	public MavPropertiesFactory(TomcatWebAppNamesWebAppListener webAppsListener, MavPropertiesFactoryConfig config,
-			Optional<NavBar> navBar){
+			Optional<AppNavBar> appNavBar, DatarouterNavBar datarouterNavBar){
 		this.config = config;
 		this.tomcatWebApps = Lazy.of(webAppsListener::getTomcatWebApps);
-		this.navbar = navBar;
+		this.appNavBar = appNavBar;
+		this.datarouterNavBar = datarouterNavBar;
 	}
 
 	public MavProperties get(HttpServletRequest request){
 		return new MavProperties(request, config.getCssVersion(), config.getJsVersion(), config.getIsAdmin(request),
-				tomcatWebApps.get(), navbar, config.getIsProduction());
+				tomcatWebApps.get(), appNavBar, config.getIsProduction(), datarouterNavBar);
 	}
 
 	public static class MavProperties{
-		//attribute keys
+		// attribute keys
 		private static final String CONTEXT_PATH = "contextPath";
 		private static final String BASE_PATH = "basePath";
 		private static final String FULL_PATH = "fullPath";
@@ -63,22 +66,25 @@ public class MavPropertiesFactory{
 		private final int jsVersion;
 		private final boolean isAdmin;
 		private final boolean isProduction;
-		private final Map<String, String> tomcatWebApps;
-		private final Optional<NavBar> navBar;
+		private final Map<String,String> tomcatWebApps;
+		private final Optional<AppNavBar> appNavBar;
+		private final DatarouterNavBar datarouterNavBar;
 
 		private MavProperties(HttpServletRequest request, int cssVersion, int jsVersion, boolean isAdmin,
-				Map<String, String> tomcatWebApps, Optional<NavBar> navBar, boolean isProduction){
+				Map<String,String> tomcatWebApps, Optional<AppNavBar> appNavBar,
+				boolean isProduction, DatarouterNavBar datarouterNavBar){
 			this.request = request;
 			this.cssVersion = cssVersion;
 			this.jsVersion = jsVersion;
 			this.isAdmin = isAdmin;
 			this.tomcatWebApps = tomcatWebApps;
-			this.navBar = navBar;
+			this.appNavBar = appNavBar;
 			this.isProduction = isProduction;
+			this.datarouterNavBar = datarouterNavBar;
 		}
 
-		public Map<String, Object> getAttributes(){
-			Map<String, Object> attributes = new TreeMap<>();
+		public Map<String,Object> getAttributes(){
+			Map<String,Object> attributes = new TreeMap<>();
 			attributes.put(CONTEXT_PATH, getContextPath());
 			attributes.put(BASE_PATH, getBasePath());
 			attributes.put(FULL_PATH, getFullPath());
@@ -113,16 +119,26 @@ public class MavPropertiesFactory{
 			return isAdmin;
 		}
 
-		public Map<String, String> getTomcatWebApps(){
+		public Map<String,String> getTomcatWebApps(){
 			return tomcatWebApps;
 		}
 
-		public NavBar getNavBar(){
-			return navBar.orElse(null);
+		public AppNavBar getNavBar(){
+			return appNavBar.orElse(null);
+		}
+
+		public DatarouterNavBar getDatarouterNavBar(){
+			return datarouterNavBar;
 		}
 
 		public Boolean getIsProduction(){
 			return isProduction;
 		}
+
+		public boolean isDatarouterPage(){
+			return request.getRequestURI().contains("datarouter");
+		}
+
 	}
+
 }

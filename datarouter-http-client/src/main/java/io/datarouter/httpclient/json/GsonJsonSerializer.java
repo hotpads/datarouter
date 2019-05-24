@@ -17,10 +17,8 @@ package io.datarouter.httpclient.json;
 
 import java.lang.reflect.Type;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
@@ -31,10 +29,7 @@ public class GsonJsonSerializer implements JsonSerializer{
 
 	private final Gson gson;
 
-	public GsonJsonSerializer(){
-		this(new Gson());
-	}
-
+	@Inject
 	public GsonJsonSerializer(Gson gson){
 		this.gson = gson;
 	}
@@ -54,35 +49,6 @@ public class GsonJsonSerializer implements JsonSerializer{
 			throw new JsonParseException("Failed to deserialize string=\"" + toDeserialize + "\" to type="
 					+ returnType, e);
 		}
-	}
-
-
-	public static class GsonJsonSerializerTests{
-
-		private static final GsonJsonSerializer gsonJsonSerializer = new GsonJsonSerializer();
-
-		@Test(expectedExceptions = JsonSyntaxException.class)
-		public void deserializeExpectJsonSyntaxExceptionTest(){
-			gsonJsonSerializer.deserialize("{\"integer:", Dto.class);
-		}
-
-		@Test(expectedExceptions = JsonParseException.class)
-		public void deserializeJsonParseExceptionTest(){
-			gsonJsonSerializer.deserialize("{\"integer\":0.3,\"string\":\"bla\"}", Dto.class);
-		}
-
-		@Test
-		public void deserializeTest(){
-			Assert.assertNotNull(gsonJsonSerializer.deserialize("{\"integer\":1,\"string\":\"bla\"}", Dto.class));
-		}
-
-	}
-
-	private static class Dto{
-		@SuppressWarnings("unused")
-		public Integer integer;
-		@SuppressWarnings("unused")
-		public String string;
 	}
 
 }

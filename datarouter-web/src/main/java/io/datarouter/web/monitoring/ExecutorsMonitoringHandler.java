@@ -15,16 +15,17 @@
  */
 package io.datarouter.web.monitoring;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.concurrent.ExecutorService;
+import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import io.datarouter.inject.InstanceRegistry;
-import io.datarouter.util.StreamTool;
+import io.datarouter.util.concurrent.DatarouterExecutorService;
 import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebFiles;
@@ -48,9 +49,13 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 
 	@Handler(encoder = JsonEncoder.class)
 	public Collection<TextExecutor> getExecutors(){
-		Collection<ExecutorService> executors = instanceRegistry.getAllInstancesOfType(ExecutorService.class);
-		return executors.stream()
-				.flatMap(StreamTool.instancesOf(ThreadPoolExecutor.class))
+		List<ThreadPoolExecutor> allThreadPoolExecutors = new ArrayList<>();
+		instanceRegistry.getAllInstancesOfType(ThreadPoolExecutor.class)
+				.forEach(allThreadPoolExecutors::add);
+		instanceRegistry.getAllInstancesOfType(DatarouterExecutorService.class).stream()
+				.map(DatarouterExecutorService::getThreadPoolExecutor)
+				.forEach(allThreadPoolExecutors::add);
+		return allThreadPoolExecutors.stream()
 				.map(TextExecutor::new)
 				.sorted(Comparator.comparing(executor -> StringTool.nullSafe(executor.name)))
 				.collect(Collectors.toList());

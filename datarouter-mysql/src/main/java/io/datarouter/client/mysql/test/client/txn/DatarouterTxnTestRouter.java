@@ -36,7 +36,7 @@ public class DatarouterTxnTestRouter extends BaseRouter implements TestRouter{
 	@Inject
 	public DatarouterTxnTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
 			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, datarouterProperties, "datarouterTxnTestRouter", nodeFactory, datarouterSettings);
+		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
 
 		txnBean = createAndRegister(clientId, TxnBean::new, TxnBeanFielder::new);
 	}

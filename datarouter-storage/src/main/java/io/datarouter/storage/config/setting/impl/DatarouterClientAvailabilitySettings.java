@@ -15,14 +15,13 @@
  */
 package io.datarouter.storage.config.setting.impl;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
@@ -38,25 +37,22 @@ public class DatarouterClientAvailabilitySettings extends SettingNode{
 	public static final String READ = "read";
 	public static final String WRITE = "write";
 
-	private final Map<String,AvailabilitySettingNode> availabilityByClientName;
-	private final DatarouterClients clients;
+	private final Map<ClientId,AvailabilitySettingNode> availabilityByClientName;
 
 	@Inject
-	public DatarouterClientAvailabilitySettings(SettingFinder finder, DatarouterClients clients,
+	public DatarouterClientAvailabilitySettings(SettingFinder finder,
 			DatarouterClientAvailabilitySwitchThresholdSettings clientAvailabilitySwitchThresholdSettings){
 		super(finder, SETTING_PREFIX);
-		this.clients = clients;
-		availabilityByClientName = new HashMap<>();
+		availabilityByClientName = new ConcurrentHashMap<>();
 
 		registerChild(clientAvailabilitySwitchThresholdSettings);
 	}
 
-	public AvailabilitySettingNode getAvailabilityForClientName(String clientName){
-		ClientId clientId = clients.getClientId(clientName);
+	public AvailabilitySettingNode getAvailabilityForClientId(ClientId clientId){
 		if(clientId == null){
-			return new AvailabilitySettingNode(this, clientName, false);
+			return new AvailabilitySettingNode(this, clientId, false);
 		}
-		return availabilityByClientName.computeIfAbsent(clientName, name -> new AvailabilitySettingNode(this, name,
+		return availabilityByClientName.computeIfAbsent(clientId, name -> new AvailabilitySettingNode(this, name,
 				clientId.getDisableable()));
 	}
 
@@ -65,9 +61,9 @@ public class DatarouterClientAvailabilitySettings extends SettingNode{
 		public final Setting<Boolean> read;
 		public final Setting<Boolean> write;
 
-		public AvailabilitySettingNode(DatarouterClientAvailabilitySettings availabilitySettings, String clientName,
+		public AvailabilitySettingNode(DatarouterClientAvailabilitySettings availabilitySettings, ClientId clientId,
 				boolean disableable){
-			super(availabilitySettings.finder, availabilitySettings.getName() + clientName + ".");
+			super(availabilitySettings.finder, availabilitySettings.getName() + clientId.getName() + ".");
 
 			if(disableable){
 				availabilitySettings.registerChild(this);

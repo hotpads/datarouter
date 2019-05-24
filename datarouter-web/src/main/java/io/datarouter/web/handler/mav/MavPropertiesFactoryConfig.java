@@ -28,6 +28,6 @@ public interface MavPropertiesFactoryConfig{
 	}
 
 	boolean getIsAdmin(HttpServletRequest request);
-
 	boolean getIsProduction();
+
 }

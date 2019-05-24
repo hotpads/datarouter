@@ -29,7 +29,8 @@ import io.datarouter.storage.exception.UnavailableException;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.op.raw.IndexedStorage.PhysicalIndexedStorageNode;
 import io.datarouter.storage.node.type.index.ManagedNode;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
+import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public interface PhysicalIndexedStorageAvailabilityAdapterMixin<
@@ -63,7 +64,7 @@ extends IndexedStorage<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK, IE, IF> indexEntryFieldInfo){
 		if(getAvailability().read.get()){
 			return getBackingNode().getMultiFromIndex(keys, config, indexEntryFieldInfo);
 		}
@@ -74,7 +75,7 @@ extends IndexedStorage<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	List<D> getMultiByIndex(Collection<IK> keys, Config config, DatabeanFieldInfo<IK, IE, IF> indexEntryFieldInfo){
+	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK, IE, IF> indexEntryFieldInfo){
 		if(getAvailability().read.get()){
 			return getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 		}
@@ -85,7 +86,7 @@ extends IndexedStorage<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Iterable<IE> scanMultiIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
@@ -97,7 +98,7 @@ extends IndexedStorage<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Iterable<D> scanMultiByIndex(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
@@ -109,7 +110,7 @@ extends IndexedStorage<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Iterable<IK> scanMultiIndexKeys(DatabeanFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		if(getAvailability().read.get()){
 			return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);

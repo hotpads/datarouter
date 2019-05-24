@@ -17,7 +17,7 @@ package io.datarouter.instrumentation.trace;
 
 import java.util.List;
 
-//naming of this class and its method is temporary.  will be migrated to better names
+// TODO migrate to a better class name
 public interface Tracer{
 
 	String getServerName();
@@ -27,8 +27,8 @@ public interface Tracer{
 
 	Long getCurrentThreadId();
 
-	void createAndStartThread(String name);
-	void createThread(String name);
+	void createAndStartThread(String name, long queueTimeMs);
+	void createThread(String name, long queueTimeMs);
 	void startThread();
 	void appendToThreadInfo(String text);
 	void finishThread();

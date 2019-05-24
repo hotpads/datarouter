@@ -29,6 +29,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.storage.client.imp.QueueClientNodeFactory;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
@@ -54,7 +55,7 @@ public abstract class BaseNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends PhysicalNode<PK,D,F>>
 	N create(NodeParams<PK,D,F> params){
-		ClientType<?> clientType = getClientTypeInstance(params.getClientId());
+		ClientType<?,?> clientType = getClientTypeInstance(params.getClientId());
 		ClientNodeFactory clientNodeFactory = getClientFactories(clientType);
 		return cast(clientNodeFactory.createWrappedNode(params));
 	}
@@ -64,7 +65,7 @@ public abstract class BaseNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends Node<PK,D,F>>
 	N createSubEntity(EntityNodeParams<PK,DefaultEntity<PK>> entityNodeParams, NodeParams<PK,D,F> params){
-		ClientType<?> clientType = getClientTypeInstance(params.getClientId());
+		ClientType<?,?> clientType = getClientTypeInstance(params.getClientId());
 		ClientNodeFactory clientNodeFactory = getClientFactories(clientType);
 		return cast(clientNodeFactory.createWrappedSubEntityNode(entityNodeParams, params));
 	}
@@ -123,17 +124,50 @@ public abstract class BaseNodeFactory{
 			ClientId clientId,
 			NodeParamsBuilder<PK,D,F> paramsBuilder){
 		NodeParams<PK,D,F> nodeParams = paramsBuilder.build();
-		ClientType<?> clientType = getClientTypeInstance(clientId);
+		ClientType<?,?> clientType = getClientTypeInstance(clientId);
 		ClientNodeFactory clientNodeFactory = getClientFactories(clientType);
 		return cast(clientNodeFactory.createWrappedSubEntityNode(entityNodeParams, nodeParams));
 	}
 
-	private ClientType<?> getClientTypeInstance(ClientId clientId){
-		String clientName = clientId.getName();
-		return clients.getClientTypeInstance(clientName);
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D,F>>
+	N createSingleQueueNode(ClientId clientId, Supplier<D> databeanSupplier, String queueName,
+			Supplier<F> fielderSupplier, String namespace, String queueUrl){
+		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
+				.withClientId(clientId)
+				.withTableName(queueName)
+				.withNamespace(namespace)
+				.withQueueUrl(queueUrl)
+				.build();
+		ClientType<?,?> clientType = getClientTypeInstance(clientId);
+		QueueClientNodeFactory clientFactories = (QueueClientNodeFactory) getClientFactories(clientType);
+		return cast(clientFactories.createSingleQueueNode(params));
 	}
 
-	private ClientNodeFactory getClientFactories(ClientType<?> clientType){
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D,F>>
+	N createGroupQueueNode(ClientId clientId, Supplier<D> databeanSupplier, String queueName,
+			Supplier<F> fielderSupplier, String namespace, String queueUrl){
+		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
+				.withClientId(clientId)
+				.withTableName(queueName)
+				.withNamespace(namespace)
+				.withQueueUrl(queueUrl)
+				.build();
+		ClientType<?,?> clientType = getClientTypeInstance(clientId);
+		QueueClientNodeFactory clientFactories = (QueueClientNodeFactory) getClientFactories(clientType);
+		return cast(clientFactories.createGroupQueueNode(params));
+	}
+
+	private ClientType<?,?> getClientTypeInstance(ClientId clientId){
+		return clients.getClientTypeInstance(clientId);
+	}
+
+	private ClientNodeFactory getClientFactories(ClientType<?,?> clientType){
 		return injector.getInstance(clientType.getClientNodeFactoryClass());
 	}
 

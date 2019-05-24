@@ -26,9 +26,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.client.mysql.factory.MysqlClientFactory;
-import io.datarouter.client.mysql.factory.MysqlOptionsFactory;
-import io.datarouter.client.mysql.factory.MysqlOptionsFactory.MysqlOptions;
+import io.datarouter.client.mysql.factory.MysqlOptions;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
@@ -39,7 +37,7 @@ public class DatabaseCreator{
 	private static final Logger logger = LoggerFactory.getLogger(DatabaseCreator.class);
 
 	@Inject
-	private MysqlOptionsFactory mysqlOptionsFactory;
+	private MysqlOptions mysqlOptions;
 	@Inject
 	private SchemaUpdateOptions schemaUpdateOptions;
 
@@ -49,11 +47,9 @@ public class DatabaseCreator{
 				|| !schemaUpdateOptions.getCreateDatabases(true) && !schemaUpdateOptions.getCreateDatabases(false)){
 			return;
 		}
-		MysqlOptions defaultMysqlOptions = mysqlOptionsFactory.new MysqlOptions(MysqlClientFactory.POOL_DEFAULT);
-		MysqlOptions mysqlOptions = mysqlOptionsFactory.new MysqlOptions(clientId.getName());
-		String url = mysqlOptions.url();
-		String user = mysqlOptions.user(defaultMysqlOptions.user("root"));
-		String password = mysqlOptions.password(defaultMysqlOptions.password(""));
+		String url = mysqlOptions.url(clientId);
+		String user = mysqlOptions.user(clientId.getName(), "root");
+		String password = mysqlOptions.password(clientId.getName(), "");
 		String hostname = StringTool.getStringBeforeLastOccurrence(':',url);
 		String portDatabaseString = StringTool.getStringAfterLastOccurrence(':',url);
 		int port = Integer.parseInt(StringTool.getStringBeforeLastOccurrence('/',portDatabaseString));

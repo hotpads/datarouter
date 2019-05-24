@@ -152,7 +152,7 @@ public class PhaseTimer{
 		this.name = name;
 	}
 
-	public static class Tests{
+	public static class PhaseTimerTests{
 
 		@Test
 		public void testToString() throws Exception{
