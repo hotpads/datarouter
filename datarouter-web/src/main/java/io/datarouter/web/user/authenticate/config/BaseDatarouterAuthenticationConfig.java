@@ -42,7 +42,7 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	@Inject
 	private DatarouterWebPaths paths;
 	@Inject
-	private DatarouterAuthenticationSettingRoot datarouterAuthenticationSettingRoot;
+	private DatarouterAuthenticationSettings authenticationSettings;
 
 	@Override
 	public String getHomePath(){
@@ -229,12 +229,12 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 
 	@Override
 	public final Duration getUserTokenTimeoutDuration(){
-		return datarouterAuthenticationSettingRoot.userTokenTimeoutDuration.get().toJavaDuration();
+		return authenticationSettings.userTokenTimeoutDuration.get().toJavaDuration();
 	}
 
 	@Override
 	public final Duration getSessionTokenTimeoutDuration(){
-		return datarouterAuthenticationSettingRoot.sessionTokenTimeoutDuration.get().toJavaDuration();
+		return authenticationSettings.sessionTokenTimeoutDuration.get().toJavaDuration();
 	}
 
 	@Override

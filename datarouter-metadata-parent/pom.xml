@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metadata-parent</artifactId>
-	<version>0.0.10</version>
+	<version>0.0.11</version>
 	<packaging>pom</packaging>
 
 	<name>datarouter-metadata-parent</name>
@@ -45,6 +45,18 @@
 		<developer>
 			<name>Clément Guillaume</name>
 			<email>cguillaume@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Pranav Bheda</name>
+			<email>pranavb@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Matt Corgan</name>
+			<email>mcorgan@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>

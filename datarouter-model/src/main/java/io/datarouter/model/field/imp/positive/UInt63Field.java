@@ -22,7 +22,7 @@ import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.string.StringTool;
 
-public class UInt63Field extends BasePrimitiveField<Long>{
+public class UInt63Field extends BasePrimitiveField<Long,UInt63FieldKey>{
 
 	private static final Random random = new Random();
 

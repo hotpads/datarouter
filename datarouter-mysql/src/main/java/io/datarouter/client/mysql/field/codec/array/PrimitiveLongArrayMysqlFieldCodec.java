@@ -22,12 +22,10 @@ import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseMysqlFieldCodec;
 import io.datarouter.model.field.imp.array.PrimitiveLongArrayField;
-import io.datarouter.util.exception.NotImplementedException;
 
-public class PrimitiveLongArrayMysqlFieldCodec
-extends BaseMysqlFieldCodec<long[],PrimitiveLongArrayField>{
+public class PrimitiveLongArrayMysqlFieldCodec extends BaseMysqlFieldCodec<long[],PrimitiveLongArrayField>{
 
-	public PrimitiveLongArrayMysqlFieldCodec(){//no-arg for reflection
+	public PrimitiveLongArrayMysqlFieldCodec(){
 		this(null);
 	}
 
@@ -35,25 +33,24 @@ extends BaseMysqlFieldCodec<long[],PrimitiveLongArrayField>{
 		super(field);
 	}
 
-
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public long[] fromMysqlResultSetButDoNotSet(ResultSet rs){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public MysqlColumnType getMysqlColumnType(){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 }

@@ -28,8 +28,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.StreamTool;
-import io.datarouter.util.exception.InterruptedRuntimeException;
 
 public class CompletionServiceTool{
 
@@ -81,14 +82,14 @@ public class CompletionServiceTool{
 		public T next(){
 			Future<T> future = null;
 			T result;
-			try{
+			try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "waitFor ResultIterator.completionService.take")){
 				future = completionService.take();
 				result = future.get();
 			}catch(InterruptedException e){
 				runningFutures.forEach(runningFuture -> runningFuture.cancel(true));
 				runningFutures.clear();
 				Thread.currentThread().interrupt();
-				throw new InterruptedRuntimeException(e);
+				throw new RuntimeException(e);
 			}catch(ExecutionException e){
 				throw new RuntimeException(e);
 			}finally{

@@ -15,6 +15,8 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import java.util.Optional;
+
 public class TraceSpanDto{
 
 	private String traceId;
@@ -72,6 +74,10 @@ public class TraceSpanDto{
 
 	public Integer getParentSequence(){
 		return parentSequence;
+	}
+
+	public Integer getParentSequenceOrMinusOne(){
+		return Optional.ofNullable(parentSequence).orElse(-1);
 	}
 
 	public void setParentSequence(Integer parentSequence){

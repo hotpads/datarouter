@@ -21,12 +21,10 @@ import javax.inject.Singleton;
 import io.datarouter.client.mysql.test.client.txn.TxnBean.TxnBeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.router.BaseRouter;
 import io.datarouter.storage.router.TestRouter;
-import io.datarouter.storage.test.TestDatarouterProperties;
 
 @Singleton
 public class DatarouterTxnTestRouter extends BaseRouter implements TestRouter{
@@ -34,11 +32,10 @@ public class DatarouterTxnTestRouter extends BaseRouter implements TestRouter{
 	private final SortedMapStorage<TxnBeanKey,TxnBean> txnBean;
 
 	@Inject
-	public DatarouterTxnTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
-			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
+	public DatarouterTxnTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId){
+		super(datarouter);
 
-		txnBean = createAndRegister(clientId, TxnBean::new, TxnBeanFielder::new);
+		txnBean = nodeFactory.create(clientId, TxnBean::new, TxnBeanFielder::new).buildAndRegister();
 	}
 
 	public SortedMapStorage<TxnBeanKey,TxnBean> txnBean(){

@@ -47,7 +47,7 @@
 		</form>
 	);
 	const Nodes = ({ nodes }) => (
-		<table className="table table-striped table-bordered table-hover table-condensed">
+		<table className="table table-striped table-bordered table-hover table-sm">
 			<thead>
 				<tr>
 					<th>node name</th>
@@ -73,7 +73,7 @@
 							<a href={CONTEXT_PATH + "/datarouter/nodewatch/rowCountChart"
 									+ "?submitAction=viewRowCountChartWithNodeName&nodeName=" 
 									+ encodeURIComponent(node.name)}>
-								<span className="glyphicon glyphicon-signal"></span>
+								<i className="fas fa-signal"></i>
 							</a>
 						</td>
 						<td>
@@ -148,19 +148,19 @@
 	</script>
 </head>
 <body>
-	<%@ include file="/jsp/menu/common-navbar.jsp" %>
-	<div class="container-fluid">
+	<%@ include file="/jsp/menu/new-common-navbar.jsp" %>
+	<div class="container-fluid my-3">
 		<div class="row">
-			<div class="col-xs-12 col-sm-6">
-				<table class="table table-striped table-bordered table-hover table-condensed">
-					<caption>Server Info</caption>
+			<div class="col-12 col-sm-6">
+				<table class="table table-striped table-bordered table-sm">
+					<caption style="caption-side: top">Server Info</caption>
 					<tr>
 						<td>configDirectory</td>
 						<td>${configDirectory}</td>
 					</tr>
 					<tr>
-						<td>configProfile</td>
-						<td>${configProfile}</td>
+						<td>environmentType</td>
+						<td>${environmentType}</td>
 					</tr>
 					<tr>
 						<td>environment</td>
@@ -188,9 +188,9 @@
 					</tr>
 				</table>
 			</div>
-			<div class="col-xs-12 col-sm-6">
-				<table class="table table-striped table-bordered table-hover table-condensed">
-					<caption>
+			<div class="col-12 col-sm-6">
+				<table class="table table-striped table-bordered table-sm">
+					<caption style="caption-side: top">
 						Clients 
 						<c:if test="${hasUninitializedClients}">
 							[<a href="${contextPath}${initAllClientsPath}">init remaining clients</a>]
@@ -231,8 +231,8 @@
 				</table>
 			</div>
 		</div>
-		<div class="row">
-			<div id="nodeSearch" class="col-xs-12"></div>
+		<div class="row mt-3">
+			<div id="nodeSearch" class="col-12"></div>
 		</div>
 	</div>
 </body>

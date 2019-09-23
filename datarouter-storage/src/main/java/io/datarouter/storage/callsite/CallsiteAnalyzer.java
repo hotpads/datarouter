@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.io.ReaderTool;
-import io.datarouter.util.iterable.scanner.BatchScanner;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 
@@ -51,30 +50,26 @@ public class CallsiteAnalyzer implements Callable<String>{
 	@Override
 	public String call(){
 		//aggregate
-		BatchScanner<String> scanner = ReaderTool.scanFileLinesInBatches(logPath, 1000);
 		int numLines = 0;
 		Date firstDate = new Date(Long.MAX_VALUE);
 		Date lastDate = new Date(0);
-		while(scanner.advance()){
-			List<String> batch = scanner.getCurrent();
-			for(String line : batch){
-				++numLines;
-				CallsiteRecord record = CallsiteRecord.fromLogLine(line);
-				if(ComparableTool.lt(record.getTimestamp(), firstDate)){
-					firstDate = record.getTimestamp();
-				}
-				if(ComparableTool.gt(record.getTimestamp(), lastDate)){
-					lastDate = record.getTimestamp();
-				}
-				CallsiteStat stat = new CallsiteStat(record.getCallsite(), record.getNodeName(),
-						record.getDatarouterMethodName(), 1L, record.getDurationNs(), record.getNumItems());
-				if(!aggregateStatByKey.containsKey(stat.getKey())){
-					aggregateStatByKey.put(stat.getKey(), stat);
-				}
-				aggregateStatByKey.get(stat.getKey()).addMetrics(stat);
-				if(numLines % 100000 == 0){
-					logger.warn("scanned " + NumberFormatter.addCommas(numLines) + " in " + logPath);
-				}
+		for(String line : ReaderTool.scanFileLines(logPath)){
+			++numLines;
+			CallsiteRecord record = CallsiteRecord.fromLogLine(line);
+			if(ComparableTool.lt(record.getTimestamp(), firstDate)){
+				firstDate = record.getTimestamp();
+			}
+			if(ComparableTool.gt(record.getTimestamp(), lastDate)){
+				lastDate = record.getTimestamp();
+			}
+			CallsiteStat stat = new CallsiteStat(record.getCallsite(), record.getNodeName(),
+					record.getDatarouterMethodName(), 1L, record.getDurationNs(), record.getNumItems());
+			if(!aggregateStatByKey.containsKey(stat.getKey())){
+				aggregateStatByKey.put(stat.getKey(), stat);
+			}
+			aggregateStatByKey.get(stat.getKey()).addMetrics(stat);
+			if(numLines % 100000 == 0){
+				logger.warn("scanned " + NumberFormatter.addCommas(numLines) + " in " + logPath);
 			}
 		}
 
@@ -87,7 +82,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 		StringBuilder sb = new StringBuilder();
 		int numDaoCallsites = CallsiteStat.countDaoCallsites(stats);
 		long numSeconds = (lastDate.getTime() - firstDate.getTime()) / 1000;
-		double callsPerSec = (double)numLines / (double)numSeconds;
+		double callsPerSec = (double)numLines / numSeconds;
 		sb.append("          path: " + logPath + "\n");
 		sb.append(" file size (B): " + NumberFormatter.addCommas(new File(logPath).length()) + "\n");
 		sb.append("         lines: " + NumberFormatter.addCommas(numLines) + "\n");

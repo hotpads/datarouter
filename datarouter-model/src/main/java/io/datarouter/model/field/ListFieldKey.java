@@ -21,8 +21,9 @@ import com.google.gson.reflect.TypeToken;
 
 public abstract class ListFieldKey<
 		V extends Comparable<V>,
-		L extends List<V>>
-extends BaseFieldKey<L>{
+		L extends List<V>,
+		K extends ListFieldKey<V,L,K>>
+extends BaseFieldKey<L,K>{
 
 	public ListFieldKey(String name, TypeToken<L> valueType){
 		super(name, valueType);

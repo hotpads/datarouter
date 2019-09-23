@@ -73,7 +73,7 @@ public abstract class NavBar implements DispatcherServletListener{
 	}
 
 	public List<NavBarMenuItem> getMenuItems(HttpServletRequest request){
-		return IterableTool.filter(menuItems, item -> item.isAllowed(request));
+		return IterableTool.include(menuItems, item -> item.isAllowed(request));
 	}
 
 	@Override

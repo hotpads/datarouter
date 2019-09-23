@@ -44,10 +44,6 @@ public class ExecutorTool{
 		return (ThreadPoolExecutor)Executors.newCachedThreadPool(threadFactory);
 	}
 
-	public static ScalingThreadPoolExecutor createScalingPool(ThreadGroup parentGroup, String name, int maxThreadCount){
-		return new ScalingThreadPoolExecutor(parentGroup, name, maxThreadCount);
-	}
-
 	public static ThreadPoolExecutor createCached(ThreadGroup threadGroup, String name){
 		ThreadFactory threadFactory = createNamedThreadFactory(threadGroup, name);
 		return (ThreadPoolExecutor)Executors.newCachedThreadPool(threadFactory);

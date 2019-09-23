@@ -53,7 +53,6 @@ import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.OptionalTool;
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.lang.ReflectionTool;
@@ -85,6 +84,8 @@ public class LatencyMonitoringService{
 	private DatarouterClientAvailabilitySwitchThresholdSettings switchThresholdSettings;
 	@Inject
 	private ClientInitializationTracker clientInitializationTracker;
+	@Inject
+	private LatencyMonitoringGraphLink latencyMonitoringGraphLink;
 
 	private final Map<String,Deque<CheckResult>> lastResultsByName = new ConcurrentHashMap<>();
 
@@ -112,7 +113,7 @@ public class LatencyMonitoringService{
 		metrics.save(METRIC_PREFIX + check.name + " failure durationUs", duration.to(TimeUnit.MICROSECONDS));
 		Counters.inc(METRIC_PREFIX + check.name + " failure");
 		addCheckResult(check, CheckResult.newFailure(System.currentTimeMillis(), exception.getMessage()));
-		logger.info("{} failed - {}", check.name, duration, exception);
+		logger.warn("{} failed - {}", check.name, duration, exception);
 	}
 
 	public Map<String,CheckResult> getLastResultByName(){
@@ -142,7 +143,7 @@ public class LatencyMonitoringService{
 		return lastResultsByName.entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
 			OptionalDouble average = entry.getValue().stream()
 					.map(CheckResult::getLatency)
-					.flatMap(OptionalTool::stream)
+					.flatMap(Optional::stream)
 					.limit(nb)
 					.mapToLong(duration -> duration.to(TimeUnit.NANOSECONDS))
 					.average();
@@ -166,16 +167,10 @@ public class LatencyMonitoringService{
 	}
 
 	public String getGraphLink(String checkName){
-		String webApps = datarouterService.getName();
+		String webapps = datarouterService.getName();
 		String servers = datarouterProperties.getServerName();
 		String counters = METRIC_PREFIX + checkName;
-		// TODO remove
-		return "/analytics/counters?submitAction=viewCounters"
-				+ "&webApps=" + webApps
-				+ "&servers=" + servers
-				+ "&periods=5000"
-				+ "&counters=" + counters
-				+ "&frequency=period";
+		return latencyMonitoringGraphLink.getGraphLink(webapps, servers, counters);
 	}
 
 	public String getGraphLinkForDatarouterClient(ClientId clientId){
@@ -206,8 +201,11 @@ public class LatencyMonitoringService{
 					PhysicalNode<?,?,?> node = findFirst.get();
 					if(node instanceof PhysicalMapStorageNode){
 						PhysicalMapStorageNode<?,?,?> ms = (PhysicalMapStorageNode<?,?,?>)node;
-						checks.add(new DatarouterClientLatencyCheck(LatencyMonitoringService.DR_CLIENT_PREFIX + clientId
-								+ LatencyMonitoringService.MS_CHECK_SUFIX, makeGet(ms), clientId));
+						checks.add(new DatarouterClientLatencyCheck(
+								LatencyMonitoringService.DR_CLIENT_PREFIX + clientId + LatencyMonitoringService
+									.MS_CHECK_SUFIX,
+								makeGet(ms),
+								clientId));
 					}
 				}
 			}
@@ -223,8 +221,10 @@ public class LatencyMonitoringService{
 		checks.addAll(clientInitializationTracker.getInitializedClients().stream()
 				.filter(clientId -> clients.getClientManager(clientId).monitorLatency())
 				.flatMap(mapClientIdToFirstSortedStorageNode)
-				.map(pair -> new DatarouterClientLatencyCheck(getCheckNameForDatarouterClient(pair.getLeft()),
-						() -> pair.getRight().streamKeys(null, ONLY_FIRST).findFirst(), pair.getLeft()))
+				.map(pair -> new DatarouterClientLatencyCheck(
+						getCheckNameForDatarouterClient(pair.getLeft()),
+						() -> pair.getRight().scanKeys(ONLY_FIRST).findFirst(),
+						pair.getLeft()))
 				.collect(Collectors.toList()));
 		return checks;
 	}
@@ -233,7 +233,7 @@ public class LatencyMonitoringService{
 		PhysicalDatabeanFieldInfo<PK,?,?> fieldInfo = node.getFieldInfo();
 		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
 		// assumes the node will complete a valid RPC for a PK with null fields
-		return () -> node.exists(pk, null);
+		return () -> node.exists(pk);
 	}
 
 }

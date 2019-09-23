@@ -25,11 +25,11 @@ import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
-import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> implements IndexedSortedMapStorage<PK,D>{

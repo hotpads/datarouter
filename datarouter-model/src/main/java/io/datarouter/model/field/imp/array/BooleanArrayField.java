@@ -21,7 +21,7 @@ import io.datarouter.model.field.BaseListField;
 import io.datarouter.util.bytes.BooleanByteTool;
 import io.datarouter.util.serialization.GsonTool;
 
-public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>>{
+public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>,BooleanArrayFieldKey>{
 
 	public BooleanArrayField(BooleanArrayFieldKey key, List<Boolean> value){
 		super(key, value);

@@ -25,34 +25,33 @@ import io.datarouter.util.array.ArrayTool;
  *
  * can contain convenience methods for comparing, printing, cloning,
  * spawning new arrays, copying to other arrays, etc.
- *
  */
 public class ByteRange implements Comparable<ByteRange>{
 
-	/*------------------------- fields --------------------------------------*/
-
-	//not making these final.  intention is to reuse objects of this class
+	// not making these final. intention is to reuse objects of this class
 	private byte[] bytes;
 	private int offset;
 	private int length;
 	private int hash = 0;
 
-
-	/*------------------------- constructors --------------------------------*/
-
 	public ByteRange(byte[] bytes){
 		set(bytes);
+	}
+
+	public ByteRange(byte[] bytes, int offset){
+		set(bytes, offset);
 	}
 
 	public ByteRange(byte[] bytes, int offset, int length){
 		set(bytes, offset, length);
 	}
 
-
-	/*------------------------- methods -------------------------------------*/
-
 	private ByteRange set(byte[] bytes){
 		return set(bytes, 0, bytes.length);
+	}
+
+	private ByteRange set(byte[] bytes, int offset){
+		return set(bytes, offset, bytes.length - offset);
 	}
 
 	private ByteRange set(byte[] bytes, int offset, int length){
@@ -92,8 +91,6 @@ public class ByteRange implements Comparable<ByteRange>{
 		return ByteBuffer.wrap(bytes, offset, length);
 	}
 
-	/*------------------------- standard methods ----------------------------*/
-
 	@Override
 	public boolean equals(Object thatObject){
 		if(this == thatObject){
@@ -130,8 +127,6 @@ public class ByteRange implements Comparable<ByteRange>{
 		return ByteTool.bitwiseCompare(bytes, offset, length,
 				other.bytes, other.offset, other.length);
 	}
-
-	/*------------------------- getters -------------------------------------*/
 
 	public byte[] getBytes(){
 		return bytes;

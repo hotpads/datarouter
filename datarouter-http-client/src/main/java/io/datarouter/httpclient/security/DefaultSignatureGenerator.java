@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -40,28 +42,19 @@ public class DefaultSignatureGenerator implements SignatureGenerator{
 	}
 
 	@Override
-	public String getHexSignature(Map<String,String> params, HttpEntity entity){
-		byte[] signature = sign(params, entity);
-		return Hex.encodeHexString(signature);
+	public RequestSignatureDto getHexSignature(Map<String,String> params, HttpEntity entity){
+		return getHexSignatureWithoutSettingParameterOrder(new TreeMap<>(params), entity);
 	}
 
 	@Override
-	public String getHexSignature(Map<String,String> params){
-		byte[] signature = sign(params);
-		return Hex.encodeHexString(signature);
+	public RequestSignatureDto getHexSignature(Map<String,String> params){
+		return getHexSignatureWithoutSettingParameterOrder(new TreeMap<>(params), null);
 	}
 
-	public byte[] sign(Map<String,String> map){
-		return signWithoutSettingParameterOrder(new TreeMap<>(map), null);
-	}
-
-	public byte[] sign(Map<String,String> map, HttpEntity entity){
-		return signWithoutSettingParameterOrder(new TreeMap<>(map), entity);
-	}
-
-	private byte[] signWithoutSettingParameterOrder(Map<String,String> map, HttpEntity entity){
+	public RequestSignatureDto getHexSignatureWithoutSettingParameterOrder(Map<String,String> map, HttpEntity entity){
 		// TODO signature length should be constant. currently signature length is proportional to number of parameters.
 		ByteArrayOutputStream signature = new ByteArrayOutputStream();
+		List<String> partToEncode = new ArrayList<>();
 		try{
 			MessageDigest md = MessageDigest.getInstance(HASHING_ALGORITHM);
 			for(Entry<String,String> entry : map.entrySet()){
@@ -72,6 +65,7 @@ public class DefaultSignatureGenerator implements SignatureGenerator{
 				String value = entry.getValue();
 				String keyValue = parameterName.concat(value == null ? "" : value);
 				String keyValueSalt = keyValue.concat(saltSupplier.get());
+				partToEncode.add(keyValue + obfuscate(saltSupplier.get()));
 				md.update(keyValueSalt.getBytes(StandardCharsets.UTF_8));
 				signature.write(md.digest());
 			}
@@ -84,12 +78,16 @@ public class DefaultSignatureGenerator implements SignatureGenerator{
 		}catch(IOException | NoSuchAlgorithmException e){
 			throw new RuntimeException(e);
 		}
-		return signature.toByteArray();
+		return new RequestSignatureDto(Hex.encodeHexString(signature.toByteArray()), partToEncode);
 	}
 
-	public String getHexSignatureWithoutSettingParameterOrder(Map<String,String> params, HttpEntity entity){
-		byte[] signature = signWithoutSettingParameterOrder(params, entity);
-		return Hex.encodeHexString(signature);
+	private static String obfuscate(String string){
+		char[] value = new char[string.length()];
+		int limitToHide = string.length() - 4;
+		for(int i = 0; i < string.length(); i++){
+			value[i] = i < limitToHide ? '*' : string.charAt(i);
+		}
+		return new String(value);
 	}
 
 }

@@ -32,8 +32,7 @@ public class MysqlOpRetryTool{
 	/* This executes the query config.getNumAttempts() times. Then for each attempt, it will retry rollbacks a fixed
 	 * number of times (NUM_ROLLBACK_ATTEMPTS - 1). If config.getNumAttempts() is 2 and NUM_ROLLBACK_ATTEMPTS is 3, then
 	 * we may start 6 txns */
-	public static <T> T tryNTimes(SessionExecutor<T> opCallable, Config config){
-		config = Config.nullSafe(config);
+	public static <T> T tryNTimes(SessionExecutorCallable<T> opCallable, Config config){
 		MysqlRollbackRetryingCallable<T> retryingCallable = new MysqlRollbackRetryingCallable<>(opCallable,
 				NUM_ROLLBACK_ATTEMPTS, ROLLBACK_BACKOFF_MS);
 		int numAttempts = config.getNumAttemptsOrUse(DEFAULT_NUM_ATTEMPTS);

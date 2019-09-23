@@ -15,6 +15,7 @@
  */
 package io.datarouter.logging;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -75,8 +76,8 @@ public abstract class BaseLog4j2Configuration{
 	protected final void registerParent(Class<? extends BaseLog4j2Configuration> clazz){
 		BaseLog4j2Configuration configuration;
 		try{
-			configuration = clazz.newInstance();
-		}catch(InstantiationException | IllegalAccessException e){
+			configuration = clazz.getDeclaredConstructor().newInstance();
+		}catch(InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e){
 			throw new RuntimeException(e);
 		}
 		for(Appender appender : configuration.getAppenders()){

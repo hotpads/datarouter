@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
+import io.datarouter.web.security.SecurityValidationResult;
 
 public class RawStringEncoder implements HandlerEncoder{
 
@@ -57,6 +58,11 @@ public class RawStringEncoder implements HandlerEncoder{
 			Optional<String> exceptionId)
 	throws IOException{
 		sendErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.getMessage(), response);
+	}
+
+	@Override
+	public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+			SecurityValidationResult securityValidationResult){
 	}
 
 }

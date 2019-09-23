@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,7 +51,6 @@ import org.testng.annotations.Test;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.duration.DatarouterDuration;
-import io.datarouter.util.exception.NotImplementedException;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -61,10 +61,12 @@ import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.handler.types.HandlerTypingHelper;
 import io.datarouter.web.handler.types.Param;
+import io.datarouter.web.handler.types.optional.OptionalParameter;
 import io.datarouter.web.handler.validator.DefaultRequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorResponseDto;
+import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.RequestTool;
@@ -82,8 +84,13 @@ public abstract class BaseHandler{
 			"handlerEncoder");
 	public static final RequestAttributeKey<String> HANDLER_METHOD_NAME = new RequestAttributeKey<>("handlerName");
 
+	private static final Pattern LAST_SEGMENT_PATTERN = Pattern.compile("[^?]*/([^/?]+)[/?]?.*");
 	private static final String DEFAULT_HANDLER_METHOD_NAME = "noHandlerFound";
+	private static final Method DEFAULT_HANDLER_METHOD = ReflectionTool.getDeclaredMethodIncludingAncestors(
+			BaseHandler.class, DEFAULT_HANDLER_METHOD_NAME, String.class);
 	private static final String MISSING_PARAMETERS_HANDLER_METHOD_NAME = "handleMissingParameters";
+	private static final Method MISSING_PARAMETERS_HANDLER_METHOD = ReflectionTool.getDeclaredMethodIncludingAncestors(
+			BaseHandler.class, MISSING_PARAMETERS_HANDLER_METHOD_NAME, List.class, String.class);
 
 	@Inject
 	private HandlerTypingHelper handlerTypingHelper;
@@ -108,9 +115,9 @@ public abstract class BaseHandler{
 	 * Used via reflection, see {@link #DEFAULT_HANDLER_METHOD_NAME}
 	 */
 	@SuppressWarnings("unused")
-	private Object noHandlerFound(){
-		String message = "no default handler method found in " + getClass().getSimpleName() + ", please specify "
-				+ handlerMethodParamName();
+	private Object noHandlerFound(String methodName){
+		String message = "no method named " + methodName + " or default method found in " + getClass().getSimpleName()
+				+ ", please specify " + handlerMethodParamName();
 		logger.warn(message);
 		MessageMav mav = new MessageMav(message);
 		mav.setStatusCode(HttpServletResponse.SC_NOT_FOUND);
@@ -146,7 +153,7 @@ public abstract class BaseHandler{
 			Parameter parameter = parameters[index];
 			String parameterName = parameter.getName();
 			Optional<?> optionalParameterValue = HandlerTool.getParameterValue(args[index]);
-			if(!optionalParameterValue.isPresent()){
+			if(optionalParameterValue.isEmpty()){
 				continue;
 			}
 			Object parameterValue = optionalParameterValue.get();
@@ -246,13 +253,10 @@ public abstract class BaseHandler{
 				Method desiredMethod = possibleMethods.isEmpty() ? defaultHandlerMethod.get() : possibleMethods.get(0);
 				List<String> missingParameters = getMissingParameterNames(desiredMethod);
 				args = new Object[]{missingParameters, desiredMethod.getName()};
-
-				methodName = MISSING_PARAMETERS_HANDLER_METHOD_NAME;
-				method = ReflectionTool.getDeclaredMethodIncludingAncestors(getClass(), methodName, List.class,
-						String.class);
+				method = MISSING_PARAMETERS_HANDLER_METHOD;
 			}else{
-				methodName = DEFAULT_HANDLER_METHOD_NAME;
-				method = ReflectionTool.getDeclaredMethodIncludingAncestors(getClass(), methodName);
+				args = new Object[]{methodName};
+				method = DEFAULT_HANDLER_METHOD;
 			}
 		}
 		return new Pair<>(method, Optional.ofNullable(args).orElse(new Object[]{}));
@@ -305,9 +309,14 @@ public abstract class BaseHandler{
 				.map(DatarouterDuration::toString)
 				.ifPresent(durationStr -> RequestAttributeTool.set(request, REQUEST_DURATION_STRING, durationStr));
 		encoder.finishRequest(result, servletContext, response, request);
+		postProcess(result);
 	}
 
 	/*---------------- optionally override these -----------------*/
+
+	protected void postProcess(@SuppressWarnings("unused") Object result){
+		//override if necessary
+	}
 
 	private boolean permitted(){
 		//allow everyone by default
@@ -317,14 +326,13 @@ public abstract class BaseHandler{
 	}
 
 	private String handlerMethodName(){
-		String fullPath = RequestTool.getPath(request);
-		String lastPathSegment = getLastPathSegment(fullPath);
-		return params.optional(handlerMethodParamName()).orElse(lastPathSegment);
+		return params.optional(handlerMethodParamName())
+				.orElseGet(() -> getLastPathSegment(RequestTool.getPath(request)));
 	}
 
 	private Optional<Method> getDefaultHandlerMethod(){
 		Optional<Method> defaultHandlerMethod = getDefaultHandlerMethodForClass(getClass());
-		if(!defaultHandlerMethod.isPresent()){
+		if(defaultHandlerMethod.isEmpty()){
 			for(Class<?> cls : ReflectionTool.getAllSuperClassesAndInterfaces(getClass())){
 				defaultHandlerMethod = getDefaultHandlerMethodForClass(cls);
 				if(defaultHandlerMethod.isPresent()){
@@ -347,7 +355,7 @@ public abstract class BaseHandler{
 		if(uri == null){
 			return "";
 		}
-		return uri.replaceAll("[^?]*/([^/?]+)[/?]?.*", "$1");
+		return LAST_SEGMENT_PATTERN.matcher(uri).replaceAll("$1");
 	}
 
 	private String handlerMethodParamName(){
@@ -356,6 +364,7 @@ public abstract class BaseHandler{
 
 	private List<String> getMissingParameterNames(Method method){
 		return Stream.of(method.getParameters())
+				.filter(parameter -> !OptionalParameter.class.isAssignableFrom(parameter.getType()))
 				.map(Parameter::getName)
 				.filter(param -> !params.toMap().keySet().contains(param))
 				.collect(Collectors.toList());
@@ -400,33 +409,40 @@ public abstract class BaseHandler{
 		@Override
 		public void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
 				HttpServletRequest request){
-			throw new NotImplementedException();
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
 				HttpServletResponse response, HttpServletRequest request){
-			throw new NotImplementedException();
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
 				ServletContext servletContext, HttpServletResponse response, HttpServletRequest request){
-			throw new NotImplementedException();
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response,
 				Exception exception, Optional<String> exceptionId){
-			throw new NotImplementedException();
+			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+				SecurityValidationResult securityValidationResult){
+			throw new UnsupportedOperationException();
+		}
+
 	}
 
 	public static class NullHandlerDecoder implements HandlerDecoder{
 
 		@Override
 		public Object[] decode(HttpServletRequest request, Method method){
-			throw new NotImplementedException();
+			throw new UnsupportedOperationException();
 		}
 	}
 

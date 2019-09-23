@@ -19,7 +19,7 @@ import io.datarouter.model.field.BaseFieldKey;
 import io.datarouter.util.enums.IntegerEnum;
 import io.datarouter.util.lang.ReflectionTool;
 
-public class VarIntEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<E>{
+public class VarIntEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<E,VarIntEnumFieldKey<E>>{
 
 	private final Class<E> enumClass;
 	private final E sampleValue;

@@ -46,7 +46,6 @@ import io.datarouter.web.user.session.service.SessionBasedUser;
 
 public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUser> implements SessionBasedUser{
 
-	private DatarouterUserKey key;
 	private String username;
 	private String userToken;
 	private String passwordSalt;
@@ -88,7 +87,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		}
 
 		@Override
-		public Map<String, List<Field<?>>> getUniqueIndexes(DatarouterUser databean){
+		public Map<String,List<Field<?>>> getUniqueIndexes(DatarouterUser databean){
 			Map<String,List<Field<?>>> indexesByName = new TreeMap<>();
 			indexesByName.put("unique_username", new DatarouterUserByUsernameLookup(null).getFields());
 			indexesByName.put("unique_userToken", new DatarouterUserByUserTokenLookup(null).getFields());
@@ -98,11 +97,11 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	}
 
 	public DatarouterUser(){
-		this.key = new DatarouterUserKey();
+		super(new DatarouterUserKey());
 	}
 
 	public DatarouterUser(Long id){
-		this.key = new DatarouterUserKey(id);
+		super(new DatarouterUserKey(id));
 	}
 
 	public DatarouterUser(Long id, String username){
@@ -115,12 +114,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		return DatarouterUserKey.class;
 	}
 
-	@Override
-	public DatarouterUserKey getKey(){
-		return this.key;
-	}
-
 	public static class DatarouterUserByUsernameLookup extends BaseStringUniqueKey<DatarouterUserKey>{
+
 		public DatarouterUserByUsernameLookup(String username){
 			super(username);
 		}
@@ -133,9 +128,11 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	}
 
 	public static class DatarouterUserByUserTokenLookup extends BaseStringUniqueKey<DatarouterUserKey>{
+
 		public DatarouterUserByUserTokenLookup(String userToken){
 			super(userToken);
 		}
+
 		@Override
 		public List<Field<?>> getFields(){
 			return Arrays.asList(
@@ -206,11 +203,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 
 	@Override
 	public Long getId(){
-		return this.key.getId();
-	}
-
-	public void setId(Long id){
-		this.key.setId(id);
+		return getKey().getId();
 	}
 
 	public String getPasswordSalt(){

@@ -29,11 +29,11 @@ import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.BatchingIterable;
 
 public class MysqlDeleteByIndexOp<
 		PK extends PrimaryKey<PK>,
@@ -58,9 +58,9 @@ extends BaseMysqlOp<Long>{
 
 	@Override
 	public Long runOnce(){
-		Connection connection = getConnection(fieldInfo.getClientId());
+		Connection connection = getConnection();
 		long numModified = 0;
-		for(List<IK> batch : new BatchingIterable<>(entryKeys, MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
+		for(List<IK> batch : Scanner.of(entryKeys).batch(MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, fieldInfo.getTableName(),
 					batch, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(connection);
 			numModified += MysqlTool.update(statement);

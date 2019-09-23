@@ -45,7 +45,10 @@ extends MapStorage<PK,D>{
 		getBackingNode().delete(key, config);
 	}
 
-	//this method is not used right now but added it for completion
+	default void deleteDatabean(D databean){
+		deleteDatabean(databean, new Config());
+	}
+
 	default void deleteDatabean(D databean, Config config){
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onDeleteDatabean(databean, config);
@@ -67,6 +70,10 @@ extends MapStorage<PK,D>{
 			indexNode.onDeleteMulti(keys, config);
 		}
 		getBackingNode().deleteMulti(keys, config);
+	}
+
+	default void deleteMultiDatabeans(Collection<D> databeans){
+		deleteMultiDatabeans(databeans, new Config());
 	}
 
 	default void deleteMultiDatabeans(Collection<D> databeans, Config config){

@@ -59,9 +59,9 @@ public class DefaultSignatureValidatorTests{
 
 	@Test
 	public void testSettingParameterOrder(){
-		String originalSignature = generator.getHexSignature(params);
+		String originalSignature = generator.getHexSignature(params).signature;
 		Map<String,String> reorderedParams = new HashMap<>(params);
-		String reorderedSignature = generator.getHexSignature(reorderedParams);
+		String reorderedSignature = generator.getHexSignature(reorderedParams).signature;
 
 		Assert.assertEquals(originalSignature, reorderedSignature);
 	}
@@ -69,14 +69,14 @@ public class DefaultSignatureValidatorTests{
 	@Test
 	public void testCheckHexSignatureEntity(){
 		StringEntity entity = new StringEntity("{ 'key': 'value' }", StandardCharsets.UTF_8);
-		String hexSignature = generator.getHexSignature(params, entity);
+		String hexSignature = generator.getHexSignature(params, entity).signature;
 		Assert.assertTrue(validator.checkHexSignature(params, entity, hexSignature));
 		Assert.assertFalse(validator.checkHexSignature(params, null, hexSignature));
 	}
 
 	@Test
 	public void testValidateFormPost(){
-		String hexSignature = generator.getHexSignature(params);
+		String hexSignature = generator.getHexSignature(params).signature;
 		MockHttpServletRequestBuilder requestBuilder = new MockHttpServletRequestBuilder()
 				.withHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.getMimeType())
 				.withMethod("POST")
@@ -93,7 +93,7 @@ public class DefaultSignatureValidatorTests{
 	public void testValidateJsonPost(){
 		String body = "{ 'key': 'value' }";
 		StringEntity entity = new StringEntity(body, StandardCharsets.UTF_8);
-		String hexSignature = generator.getHexSignature(params, entity);
+		String hexSignature = generator.getHexSignature(params, entity).signature;
 		MockHttpServletRequestBuilder requestBuilder = new MockHttpServletRequestBuilder()
 				.withBody(body)
 				.withHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())

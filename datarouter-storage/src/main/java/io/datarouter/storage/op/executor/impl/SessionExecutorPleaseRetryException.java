@@ -16,7 +16,7 @@
 package io.datarouter.storage.op.executor.impl;
 
 @SuppressWarnings("serial")
-public class SessionExecutorPleaseRetryException extends RuntimeException{
+public class SessionExecutorPleaseRetryException extends Exception{
 
 	public SessionExecutorPleaseRetryException(Throwable cause){
 		super(cause);

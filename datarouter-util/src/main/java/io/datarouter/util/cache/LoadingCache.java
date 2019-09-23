@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -95,10 +96,12 @@ public class LoadingCache<K,V>{
 	}
 
 	public synchronized Optional<V> get(K key){
+		Objects.requireNonNull(key, "Key may not be null in LoadingCache");
 		return getInternal(key);
 	}
 
 	public synchronized V getOrThrows(K key){
+		Objects.requireNonNull(key, "Key may not be null in LoadingCache");
 		return getInternal(key)
 				.orElseThrow(() -> exceptionFunction.apply(key));
 	}
@@ -111,6 +114,7 @@ public class LoadingCache<K,V>{
 	 * @return whether the value exists in the cache before inserting
 	 */
 	public synchronized boolean load(K key){
+		Objects.requireNonNull(key, "Key may not be null in LoadingCache");
 		return put(key, loadingFunction.apply(key));
 	}
 
@@ -121,6 +125,7 @@ public class LoadingCache<K,V>{
 	 * @return whether the key exists in the cache
 	 */
 	public synchronized boolean contains(K key){
+		Objects.requireNonNull(key, "Key may not be null in LoadingCache");
 		return getIfNotExpired(key) != null;
 	}
 
@@ -151,15 +156,14 @@ public class LoadingCache<K,V>{
 	private Optional<V> getInternal(K key){
 		CachedObject<V> object = getIfNotExpired(key);
 		if(object != null){
-			return Optional.ofNullable(getIfNotExpired(key))
-					.map(cachedObject -> cachedObject.value);
+			return Optional.of(object.value);
 		}
 		load(key);
 		object = getIfNotExpired(key);
 		if(object == null){
 			return Optional.empty();
 		}
-		return Optional.ofNullable(object.value);
+		return Optional.of(object.value);
 	}
 
 	private synchronized CachedObject<V> getIfNotExpired(K key){

@@ -16,6 +16,7 @@
 package io.datarouter.storage.node.adapter.callsite;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -24,7 +25,6 @@ import io.datarouter.storage.callsite.CallsiteRecorder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.adapter.BaseAdapter;
-import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.LineOfCode;
@@ -37,7 +37,7 @@ public abstract class BaseCallsiteAdapter<
 extends BaseAdapter<PK,D,F,N>
 implements CallsiteAdapter{
 
-	private final Setting<Boolean> recordCallsites;
+	private final Supplier<Boolean> recordCallsites;
 
 	public BaseCallsiteAdapter(N backingNode){
 		super(backingNode);

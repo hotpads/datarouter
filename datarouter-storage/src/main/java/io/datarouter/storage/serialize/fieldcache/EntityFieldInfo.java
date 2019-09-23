@@ -15,14 +15,14 @@
  */
 package io.datarouter.storage.serialize.fieldcache;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.model.entity.Entity;
+import io.datarouter.model.field.Field;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
-import io.datarouter.model.key.entity.base.NoOpEntityPartitioner;
 import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.util.lang.ReflectionTool;
 
 public class EntityFieldInfo<
 		EK extends EntityKey<EK>,
@@ -30,26 +30,21 @@ public class EntityFieldInfo<
 
 	public static final byte ENTITY_PREFIX_TERMINATOR = 0;
 
-	private String entityTableName;
-	private Class<EK> entityKeyClass;
-	private EK sampleEntityKey;
-	private EntityPartitioner<EK> entityPartitioner;
-	private Supplier<E> entitySupplier;
-
+	private final String entityTableName;
+	private final Supplier<EK> entityKeySupplier;
+	private final EK sampleEntityKey;
+	private final EntityPartitioner<EK> entityPartitioner;
+	private final Supplier<E> entitySupplier;
+	private final List<Field<?>> entityKeyFields;
 
 	public EntityFieldInfo(EntityNodeParams<EK,E> params){
 		this.entityTableName = params.getEntityTableName();
-		this.entityKeyClass = params.getEntityKeyClass();
-		this.sampleEntityKey = ReflectionTool.create(entityKeyClass);
-		Supplier<EntityPartitioner<EK>> entityPartitionerSupplier = params.getEntityPartitionerSupplier();
-		if(entityPartitionerSupplier == null){
-			this.entityPartitioner = new NoOpEntityPartitioner<>();
-		}else{
-			this.entityPartitioner = entityPartitionerSupplier.get();
-		}
+		this.entityKeySupplier = params.getEntityKeySupplier();
+		this.sampleEntityKey = entityKeySupplier.get();
+		this.entityPartitioner = params.getEntityPartitionerSupplier().get();
 		this.entitySupplier = params.getEntitySupplier();
+		this.entityKeyFields = entityKeySupplier.get().getFields();
 	}
-
 
 	public static byte getEntityPrefixTerminator(){
 		return ENTITY_PREFIX_TERMINATOR;
@@ -59,8 +54,8 @@ public class EntityFieldInfo<
 		return entityTableName;
 	}
 
-	public Class<EK> getEntityKeyClass(){
-		return entityKeyClass;
+	public Supplier<EK> getEntityKeySupplier(){
+		return entityKeySupplier;
 	}
 
 	public EK getSampleEntityKey(){
@@ -73,6 +68,10 @@ public class EntityFieldInfo<
 
 	public Supplier<E> getEntitySupplier(){
 		return entitySupplier;
+	}
+
+	public List<Field<?>> getEntityKeyFields(){
+		return entityKeyFields;
 	}
 
 }

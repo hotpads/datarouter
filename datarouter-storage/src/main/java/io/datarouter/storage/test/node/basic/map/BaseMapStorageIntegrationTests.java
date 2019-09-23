@@ -29,10 +29,9 @@ import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage;
-import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanKey;
@@ -40,19 +39,17 @@ import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanKey;
 public abstract class BaseMapStorageIntegrationTests{
 
 	@Inject
-	private TestDatarouterProperties datarouterProperties;
-	@Inject
 	private Datarouter datarouter;
 	@Inject
 	private NodeFactory nodeFactory;
 	@Inject
-	private DatarouterSettings datarouterSettings;
+	private WideNodeFactory wideNodeFactory;
 
 	private MapStorage<MapStorageBeanKey,MapStorageBean> mapStorageNode;
 
 	protected void setup(ClientId clientId, boolean entity){
-		mapStorageNode = new DatarouterMapStorageTestRouter(datarouterProperties, datarouter, nodeFactory, clientId,
-				datarouterSettings, entity).mapStorageNode;
+		mapStorageNode = new DatarouterMapStorageTestRouter(datarouter, nodeFactory, wideNodeFactory, clientId,
+				entity).mapStorageNode;
 	}
 
 	@AfterClass
@@ -63,11 +60,11 @@ public abstract class BaseMapStorageIntegrationTests{
 	@Test
 	public void testGet(){
 		List<MapStorageBean> beans = initBeans(1000);
-		mapStorageNode.putMulti(beans, null);
+		mapStorageNode.putMulti(beans);
 		final int sampleEveryN = 29;
 		for(int i = 0; i < beans.size(); i += sampleEveryN){
 			MapStorageBean bean = beans.get(i);
-			MapStorageBean roundTripped = mapStorageNode.get(bean.getKey(), null);
+			MapStorageBean roundTripped = mapStorageNode.get(bean.getKey());
 			Assert.assertEquals(roundTripped, bean);
 		}
 		deleteRecords(beans);
@@ -76,10 +73,10 @@ public abstract class BaseMapStorageIntegrationTests{
 	@Test
 	public void testGetMulti(){
 		List<MapStorageBean> beans = initBeans(10);
-		mapStorageNode.putMulti(beans, null);
+		mapStorageNode.putMulti(beans);
 
 		List<MapStorageBeanKey> keys = DatabeanTool.getKeys(beans);
-		List<MapStorageBean> roundTripped = mapStorageNode.getMulti(keys, null);
+		List<MapStorageBean> roundTripped = mapStorageNode.getMulti(keys);
 		Assert.assertEquals(roundTripped.size(), beans.size());
 
 		for(MapStorageBean bean : beans){
@@ -94,13 +91,13 @@ public abstract class BaseMapStorageIntegrationTests{
 		List<MapStorageBean> beans = initBeans(10);
 
 		for(MapStorageBean bean : beans){
-			Assert.assertFalse(mapStorageNode.exists(bean.getKey(), null));
+			Assert.assertFalse(mapStorageNode.exists(bean.getKey()));
 		}
 
-		mapStorageNode.putMulti(beans, null);
+		mapStorageNode.putMulti(beans);
 
 		for(MapStorageBean bean : beans){
-			Assert.assertTrue(mapStorageNode.exists(bean.getKey(), null));
+			Assert.assertTrue(mapStorageNode.exists(bean.getKey()));
 		}
 
 		deleteRecords(beans);
@@ -110,13 +107,13 @@ public abstract class BaseMapStorageIntegrationTests{
 	public void testBlankDatabeanPut(){
 		MapStorageBean blankDatabean = new MapStorageBean(null);
 		MapStorageBean nonBlankDatabean = new MapStorageBean("a");
-		mapStorageNode.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean), null);
-		MapStorageBean roundTrippedBlank = mapStorageNode.get(blankDatabean.getKey(), null);
+		mapStorageNode.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean));
+		MapStorageBean roundTrippedBlank = mapStorageNode.get(blankDatabean.getKey());
 		new MapStorageBeanFielder().getNonKeyFields(roundTrippedBlank).stream()
 				.map(Field::getValue)
 				.forEach(Assert::assertNull);
-		mapStorageNode.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)), null);
-		Assert.assertNull(mapStorageNode.get(blankDatabean.getKey(), null));
+		mapStorageNode.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)));
+		Assert.assertNull(mapStorageNode.get(blankDatabean.getKey()));
 	}
 
 
@@ -126,11 +123,11 @@ public abstract class BaseMapStorageIntegrationTests{
 		MapStorageBean bean1 = new MapStorageBean(); // not inserted to db
 		MapStorageBean bean2 = new MapStorageBean();
 
-		mapStorageNode.put(bean0, null);
-		mapStorageNode.put(bean2, null);
+		mapStorageNode.put(bean0);
+		mapStorageNode.put(bean2);
 
 		List<MapStorageBeanKey> keysToGet = Arrays.asList(bean0.getKey(), bean1.getKey(), bean2.getKey());
-		List<MapStorageBeanKey> keysGotten = mapStorageNode.getKeys(keysToGet, null);
+		List<MapStorageBeanKey> keysGotten = mapStorageNode.getKeys(keysToGet);
 
 		Assert.assertTrue(keysGotten.contains(bean0.getKey()));
 		Assert.assertFalse(keysGotten.contains(bean1.getKey()));
@@ -149,7 +146,7 @@ public abstract class BaseMapStorageIntegrationTests{
 	}
 
 	private void deleteRecord(MapStorageBean bean){
-		mapStorageNode.delete(bean.getKey(), null);
+		mapStorageNode.delete(bean.getKey());
 	}
 
 	private void deleteRecords(List<MapStorageBean> beans){

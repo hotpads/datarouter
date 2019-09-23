@@ -30,6 +30,15 @@ public interface UniqueIndexWriter<
 	public static final String OP_deleteMultiUnique = "deleteMultiUnique";
 
 	void deleteUnique(IK indexKey, Config config);
+
+	default void deleteUnique(IK indexKey){
+		deleteUnique(indexKey, new Config());
+	}
+
 	void deleteMultiUnique(Collection<IK> uniqueKeys, Config config);
+
+	default void deleteMultiUnique(Collection<IK> uniqueKeys){
+		deleteMultiUnique(uniqueKeys, new Config());
+	}
 
 }

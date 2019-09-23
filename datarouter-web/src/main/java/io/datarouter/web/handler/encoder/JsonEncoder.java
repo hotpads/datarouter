@@ -26,12 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
+import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.http.ResponseTool;
 import io.datarouter.web.util.http.exception.HttpExceptionTool;
@@ -56,9 +56,9 @@ public class JsonEncoder implements HandlerEncoder{
 	}
 
 	protected String serialize(Object result){
-		try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), "JsonEncoder serialize")){
+		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "JsonEncoder serialize")){
 			String string = jsonSerializer.serialize(result);
-			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[" + string.length() + " characters]");
+			TracerTool.appendToSpanInfo("characters", string.length());
 			return string;
 		}
 	}
@@ -136,6 +136,12 @@ public class JsonEncoder implements HandlerEncoder{
 	protected Optional<Object> buildSimpleErrorObject(Exception exception, int httpStatusCode,
 			Optional<String> exceptionId){
 		return exceptionId.map(SimpleError::new);
+	}
+
+	@SuppressWarnings("unused")
+	@Override
+	public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+			SecurityValidationResult securityValidationResult) throws IOException{
 	}
 
 	private static class DetailedError{

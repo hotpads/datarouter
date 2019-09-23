@@ -17,16 +17,16 @@ package io.datarouter.model.field;
 
 import io.datarouter.util.ComparableTool;
 
-public abstract class BasePrimitiveField<T extends Comparable<? super T>>
+public abstract class BasePrimitiveField<T extends Comparable<? super T>,K extends PrimitiveFieldKey<T,K>>
 extends BaseField<T>{
 
-	private final PrimitiveFieldKey<T> key;
+	private final K key;
 
-	public BasePrimitiveField(PrimitiveFieldKey<T> key, T value){
+	public BasePrimitiveField(K key, T value){
 		this(null, key, value);
 	}
 
-	public BasePrimitiveField(String prefix, PrimitiveFieldKey<T> key, T value){
+	public BasePrimitiveField(String prefix, K key, T value){
 		super(prefix, value);
 		this.key = key;
 	}

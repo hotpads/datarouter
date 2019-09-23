@@ -35,11 +35,12 @@ import io.datarouter.web.handler.params.MultipartParams;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettingRoot;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
+import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.ResponseTool;
 
@@ -47,6 +48,8 @@ import io.datarouter.web.util.http.ResponseTool;
 public class Dispatcher{
 
 	private static final String JSESSIONID_PATH_PARAM = ";jsessionid=";
+
+	public static final RequestAttributeKey<Boolean> TRANSMITS_PII = new RequestAttributeKey<>("transmitsPii");
 
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
@@ -59,10 +62,10 @@ public class Dispatcher{
 	@Inject
 	private SamlService samlService;
 	@Inject
-	private DatarouterSamlSettingRoot samlSettings;
+	private DatarouterSamlSettings samlSettings;
 
 	public RoutingResult handleRequestIfUrlMatch(HttpServletRequest request, HttpServletResponse response,
-			BaseRouteSet routeSet) throws ServletException{
+			BaseRouteSet routeSet) throws ServletException, IOException{
 		String uri = request.getRequestURI();
 		if(!uri.startsWith(servletContextProvider.get().getContextPath() + routeSet.getUrlPrefix())){
 			return RoutingResult.NOT_FOUND;
@@ -77,6 +80,8 @@ public class Dispatcher{
 				SecurityValidationResult securityCheckResult = rule.applySecurityValidation(request);
 				request = securityCheckResult.getWrappedRequest();
 				if(!securityCheckResult.isSuccess()){
+					injector.getInstance(rule.getDefaultHandlerEncoder()).sendForbiddenResponse(request, response,
+							securityCheckResult);
 					return RoutingResult.FORBIDDEN;
 				}
 				if(authenticationConfig.useDatarouterAuthentication() && !rule.checkRoles(request)){
@@ -88,6 +93,7 @@ public class Dispatcher{
 				handler.setDefaultHandlerDecoder(rule.getDefaultHandlerDecoder());
 				RequestAttributeTool.set(request, BaseHandler.HANDLER_ENCODER_ATTRIBUTE, injector.getInstance(rule
 						.getDefaultHandlerEncoder()));
+				RequestAttributeTool.set(request, TRANSMITS_PII, rule.doesTransmitPii());
 				break;
 			}
 		}

@@ -23,7 +23,6 @@ import org.testng.annotations.Test;
 
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.exception.NotImplementedException;
 
 public class DelimitedStringArrayField extends KeyedListField<String,List<String>, DelimitedStringArrayFieldKey>{
 
@@ -65,7 +64,7 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	public static String encode(List<String> inputs, String separator){

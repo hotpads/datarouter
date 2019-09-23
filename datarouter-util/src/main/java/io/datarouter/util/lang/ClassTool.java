@@ -15,9 +15,6 @@
  */
 package io.datarouter.util.lang;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.string.StringTool;
 
 public class ClassTool{
@@ -100,20 +97,4 @@ public class ClassTool{
 				|| boxed.equals(classA) && boxed.equals(classB);
 	}
 
-
-	public static class ClassToolTests{
-
-		@Test
-		public void testIsEquivalentBoxedType(){
-			Assert.assertTrue(isEquivalentBoxedType(int.class, int.class));
-			Assert.assertTrue(isEquivalentBoxedType(int.class, Integer.class));
-			Assert.assertTrue(isEquivalentBoxedType(Integer.class, int.class));
-			Assert.assertTrue(isEquivalentBoxedType(Integer.class, Integer.class));
-
-			Assert.assertFalse(isEquivalentBoxedType(long.class, int.class));
-			Assert.assertFalse(isEquivalentBoxedType(long.class, Integer.class));
-			Assert.assertFalse(isEquivalentBoxedType(String.class, String.class));//not primitive
-		}
-
-	}
 }

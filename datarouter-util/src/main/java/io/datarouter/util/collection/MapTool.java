@@ -15,19 +15,13 @@
  */
 package io.datarouter.util.collection;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.string.StringTool;
@@ -127,7 +121,6 @@ public class MapTool{
 		return map;
 	}
 
-
 	/*------------------------- transform -----------------------------------*/
 
 	/**
@@ -167,55 +160,6 @@ public class MapTool{
 			map.put(entry.getLeft(), entry.getRight());
 		}
 		return map;
-	}
-
-	/*------------------------- tests ----------------------------------------*/
-
-	public static class MapToolTests{
-
-		@Test
-		public void getMapFromString(){
-			String string = "key1: val1;key2: val2";
-			Map<String,String> res = MapTool.getMapFromString(string, ";", ": ");
-			Assert.assertEquals(res.size(), 2);
-			Assert.assertEquals(res.get("key2"), "val2");
-		}
-
-		@Test
-		public void testGetByKeyMapper(){
-			List<String> strings = Arrays.asList("aaa", "b", "ca", "eeee", "ca");
-			AtomicLong counterA = new AtomicLong(0);
-			Function<String,String> valueMapper = str -> {
-				if(str.contains("a")){
-					return counterA.incrementAndGet() + "a";
-				}
-				if(str.contains("b")){
-					return "b";
-				}
-				return str;
-			};
-			Map<Integer,String> containsByLength = MapTool.getBy(strings, String::length, valueMapper);
-			Assert.assertEquals(containsByLength.keySet(), Arrays.asList(3, 1, 2, 4));
-			Assert.assertEquals(containsByLength.values(), Arrays.asList("1a", "b", "3a", "eeee"));
-		}
-
-		@Test
-		public void testGetByNullableKeyValueMapper(){
-			List<String> strings = Arrays.asList("aaa", "b", "ca", "eeee", "ca");
-			AtomicLong counterA = new AtomicLong(0);
-			Function<String,String> valueMapper = str -> {
-				if(str.contains("a")){
-					return counterA.incrementAndGet() + "a";
-				}
-				if(str.contains("b")){
-					return "b";
-				}
-				return null;
-			};
-			Map<Integer,String> containsByLength = MapTool.getByNullable(strings, String::length, valueMapper);
-			Assert.assertEquals(containsByLength.keySet(), Arrays.asList(3, 1, 2, 4));
-			Assert.assertEquals(containsByLength.values(), Arrays.asList("1a", "b", "3a", null));
-		}
 	}
 
 }

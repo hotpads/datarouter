@@ -5,231 +5,180 @@
 	<title>Memory Statistic</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<style type="text/css">
-		body {
-			padding-right: 0;
-			padding-left: 0;
+		table.definition{
+			white-space: nowrap;
+			width: 100%;
+			letter-spacing: .2px; /*increases readability*/
 		}
-		.property{
-			display: inline-block;
-			width: 130px;
-			text-align: left;
-			vertical-align: top;
+		table.definition tr td:first-child{
+			font-weight: bold;
 		}
-		.value{
-			display: inline-block;
-			width: 120px;
-			overflow-wrap: break-word
+		table.definition.light tr.sub td:first-child,
+		table.definition.light tr.sub-2 td:first-child{
+			font-weight: normal;
 		}
-		.tree-level-1:before, .tree-level-2:before{
+		table.definition tr td:nth-child(2){
+			text-align: right;
+		}
+		table.definition tr.sub td:first-child:before{
 			content: '\21B3';
 			padding: 0 5px;
 		}
-		.tree-level-1:before{
-			padding-left: 5px;
-		}
-		.tree-level-2:before{
-			padding-left: 20px;
-		}
-		.block {
-			display: inline-block;
-			margin: 0 20px 20px;
-			text-align: right;
-			vertical-align: top;
-		}
-		.block h6, .block h5, .block h4, .block h3, .block h2, .block h1{
-			margin: 10px 0 0;
-		}
-		.auto-centered-container {
-			text-align: center;
-		}
-		h6, h5, h4, h3, h2, h1{
-			text-align: left;
-		}
-		.panel-heading {
-			text-align: left;
-		}
-		.no-value-on-0 .tree-level-0{
-			width: 500px;
-		}
-		.alert{
-			width: 255px;
-			margin-top: 20px;
+		table.definition tr.sub-2 td:first-child:before{
+			content: '\21B3';
+			padding: 0 5px 0 calc(1rem + 5px);
 		}
 	</style>
 	<script>
 	require(['jquery'], function($){
+		function createDefinitionTr(label, value, sub = false){
+			return $('<tr>').addClass(sub ? 'sub' : '')
+				.append($('<td>').append(label))
+				.append($('<td>').append(value))
+		}
+
+		function createDefinitionTrLabel(label){
+			return $('<tr>')
+				.append($('<td>').attr('colspan', '2').append(label))
+		}
+
 		$(function(){
 			$('#loading-example-btn').click(function(){
 				if(!confirm('Do you really to run the garbage collector on ${serverName}')){
 					return false;
 				}
-				var btn = $(this);
-				btn.button('loading');
-				var start = new Date().getTime();
-				var interval = setInterval(function() {
-					var diff = new Date().getTime() - start;
-					btn.text('In progress ' + Math.round(diff/100)/10 + 's');
-				}, 100);
-				$.get("${contextPath}/datarouter/memory/garbageCollector?serverName=${serverName}")
-						.done(function(response){
-							window.clearInterval(interval);
-							btn.text('Run garbage collector').button('reset');
-							btn.siblings().remove();
-							if(response.success){
-								var title = $('<h3>').text('Previous manual run');
-								var timeLabel = $('<span>').addClass('property tree-level-0').text('Time');
-								var timeValue = $('<span>').addClass('value')
-										.text(response.duration/1000 + 's');
-								var resultDiv = $('<div>').css('text-align', 'right')
-										.append(title)
-										.append(timeLabel).append(timeValue).append($('<br>'));
-								response.effects.forEach(function(effect){
-									var effectNameLabel = $('<span>').addClass('property tree-level-0')
-											.text(effect.name);
-									var effectNameValue = $('<span>').addClass('value');
-									var savedLabel = $('<span>').addClass('property tree-level-1').text('Memory saved');
-									var savedValue = $('<span>').addClass('value').text(effect.saved);
-									var pctLabel = $('<span>').addClass('property tree-level-1').text('Percentage');
-									var pctValue = $('<span>').addClass('value')
-											.text(Math.round(100 * effect.pct) + '%');
-									resultDiv.append(effectNameLabel).append(effectNameValue).append($('<br>'))
-											.append(savedLabel).append(savedValue).append($('<br>'))
-											.append(pctLabel).append(pctValue).append($('<br>'));
-								});
-								btn.parent().append(resultDiv);
-							}else{
-								btn.parent().append($('<div>').addClass('alert alert-danger')
-										.text('The request came from another server. ' 
-												+ 'Are you sure you are on an server specific url?'));
-							}
-						});
-			});
-		});
-	});
+				$('#garbage-collector-error').remove()
+				const btn = $(this).button('loading')
+				btn.siblings('.garbage-collector-results').remove()
+				const start = new Date().getTime()
+				const interval = setInterval(function() {
+					var diff = new Date().getTime() - start
+					btn.text('In progress ' + Math.round(diff/100)/10 + 's')
+				}, 100)
+				$.get("${contextPath}/datarouter/memory/garbageCollector?serverName=${serverName}").done(function(response){
+					window.clearInterval(interval)
+					btn.text('Run garbage collector').button('reset')
+					if(response.success){
+						btn.after($('<div>').addClass('garbage-collector-results card p-2 mb-2')
+							.append($('<h5>').text('Previous manual run'))
+							.append($('<table>').addClass('definition light').append(
+								$('<tbody>')
+									.append(createDefinitionTr('Time', response.duration/1000 + 's'))
+									.append(response.effects.reduce((agg, effect) => [
+										...agg, 
+										createDefinitionTrLabel(effect.name),
+										createDefinitionTr('Memory saved', effect.saved, true),
+										createDefinitionTr('Percentage', Math.round(100 * effect.pct) + '%', true)
+									], [])))))
+					}else{
+						$('#page-container').before(
+							$('<div>')
+								.attr('id', 'garbage-collector-error')
+								.addClass('alert alert-danger rounded-0')
+								.text('The request came from another server. Are you sure you are on an server specific url?'))
+					}
+				})
+			})
+		})
+	})
 	</script>
 </head>
 <body class="input-no-margin">
-<%@ include file="/jsp/menu/common-navbar.jsp"%>
-<div class="auto-centered-container">
-	<div class="block">
-		<h2>Server</h2>
-		<span class="property tree-level-0">Start time</span>
-		<span class="value">${startTime}</span>
-		<br>
-		<span class="property tree-level-0">Up time</span>
-		<span class="value">${upTime}</span>
-		<br>
-		<span class="property tree-level-0">Name</span>
-		<span class="value">${serverName}</span>
-		<br>
-		<span class="property tree-level-0" style="width:85px">Web server</span>
-		<span class="value"  style="width:165px">${serverVersion}</span>
-		<br>
-		<span class="property tree-level-0">Java version</span>
-		<span class="value" title="${jvmVersion}">${javaVersion}</span>
-		<br>
-		<span class="property tree-level-0">Web application</span>
-		<span class="value">${appName}</span>
-		<br>
-		<span class="property tree-level-0" title="${gitDescribeShort}">Version</span>
-		<span class="value"></span>
-		<br>
-		<span class="property tree-level-1">Branch</span>
-		<span class="value">${gitBranch}</span>
-		<br>
-		<span class="property tree-level-1">Commit</span>
-		<span class="value" title="${gitCommitTime} by ${gitCommitUserName}">${gitCommit}</span>
-		<br>
-		<span class="property tree-level-1">Build time</span>
-		<span class="value">${buildTime}</span>
-		<br>
-		<span class="property tree-level-1">Build id</span>
-		<span class="value">${buildId}</span>
-		<br>
-	</div>
-	<div class="block">
-		<h2>Threads</h2>
-		<span class="property tree-level-0">processors</span>
-		<span class="value">${procNumber}</span>
-		<br>
-		<span class="property tree-level-0">thread</span>
-		<span class="value">${threadCount}</span>
-		<br>
-		<span class="property tree-level-1">daemon</span>
-		<span class="value">${daemon}</span>
-		<br>
-		<span class="property tree-level-1">non daemon</span>
-		<span class="value">${nonDaemon}</span>
-		<br>
-		<span class="property tree-level-0">peak</span>
-		<span class="value">${peak}</span>
-		<br>
-		<span class="property tree-level-0">started</span>
-		<span class="value">${started}</span>
-		<br>
-	</div>
-	<div class="block">
-		<h2>Memory</h2>
-		<div class="panel-group" id="accordion">
-			<c:set var="name" value="Heap"/>
-			<c:set var="escapedName" value="Heap"/>
-			<c:set var="defaultVisible" value="in"/>
-			<c:set var="total" value="${heap}"/>
-			<c:set var="pools" value="${heaps}"/>
-			<%@ include file="memoryPool.jsp" %>
-
-			<c:set var="name" value="Non-Heap"/>
-			<c:set var="escapedName" value="Non-Heap"/>
-			<c:set var="defaultVisible" value=""/>
-			<c:set var="total" value="${nonHeap}"/>
-			<c:set var="pools" value="${nonHeaps}"/>
-			<%@ include file="memoryPool.jsp" %>
+<%@ include file="/jsp/menu/new-common-navbar.jsp"%>
+<div class="container-fluid my-2 my-md-5" style="max-width: 1400px" id="page-container">
+	<div class="row">
+		<div class="col-12 col-md-6 col-xl-3 my-3 my-xs-0">
+			<h2>Server</h2>
+			<table class="definition">
+			<tbody>
+				<tr><td>Start time</td><td>${startTime}</td></tr>
+				<tr><td>Up time</td><td>${upTime}</td></tr>
+				<tr><td>Name</td><td>${serverName}</td></tr>
+				<tr><td>Web server</td><td>${serverVersion}</td></tr>
+				<tr title="${jvmVersion}"><td>Java version</td><td>${javaVersion}</td></tr>
+				<tr><td>Web application</td><td>${appName}</td></tr>
+				<tr title="${gitDescribeShort}"><td colspan="2">Version</td></tr>
+				<tr class="sub"><td>Branch</td><td>${gitBranch}</td></tr>
+				<tr class="sub" title="${gitCommitTime} by ${gitCommitUserName}"><td>Commit</td><td class="code">${gitCommit}</td></tr>
+				<tr class="sub"><td>Build time</td><td>${buildTime}</td></tr>
+				<tr class="sub"><td>Build id</td><td>${buildId}</td></tr>
+			</tbody>
+			</table>
 		</div>
-	</div>
-	<div class="block">
-		<h2>Garbage collector</h2>
-		<c:forEach items="${gcs}" var="gc">
-			<span class="property tree-level-0">${gc.name}</span>
-			<span class="value"></span>
-			<br>
-			<span class="property tree-level-1">Count</span>
-			<span class="value">${gc.collectionCount}</span>
-			<br>
-			<span class="property tree-level-1">Time</span>
-			<span class="value">${gc.collectionTime}</span>
-			<br>
-			<span class="property tree-level-1">Memory Pools</span>
-			<span class="value"></span>
-			<br>
-			<c:forEach items="${gc.memoryPoolNames}" var="memoryPoolName">
-				<span>${memoryPoolName}</span>
-				<br>
-			</c:forEach>
-			<br>
-		</c:forEach>
-		<div style="text-align: left">
-			<a class="btn btn-danger" id="loading-example-btn">
+		<div class="col-12 col-md-6 col-xl-3 my-3 my-xs-0">
+			<h2>Threads</h2>
+			<table class="definition">
+			<tbody>
+				<tr><td>Processors</td><td>${procNumber}</td></tr>
+				<tr><td>Threads</td><td>${threadCount}</td></tr>
+				<tr class="sub"><td>Daemon</td><td>${daemon}</td></tr>
+				<tr class="sub"><td>Non Daemon</td><td>${nonDaemon}</td></tr>
+				<tr><td>Peak</td><td>${peak}</td></tr>
+				<tr><td>Started</td><td>${peak}</td></tr>
+			</tbody>
+			</table>
+		</div>
+		<div class="col-12 col-md-6 col-xl-3 my-3 my-xs-0">
+			<h2>Memory</h2>
+			<div class="panel-group" id="accordion">
+				<c:set var="name" value="Heap"/>
+				<c:set var="escapedName" value="Heap"/>
+				<c:set var="defaultVisible" value="show"/>
+				<c:set var="total" value="${heap}"/>
+				<c:set var="pools" value="${heaps}"/>
+				<c:set var="openFirst" value="${true}"/>
+				<c:set var="additionalCardClasses" value="rounded-0 border-bottom-0"/>
+				<%@ include file="memoryPool.jsp" %>
+
+				<c:set var="name" value="Non-Heap"/>
+				<c:set var="escapedName" value="Non-Heap"/>
+				<c:set var="defaultVisible" value=""/>
+				<c:set var="total" value="${nonHeap}"/>
+				<c:set var="pools" value="${nonHeaps}"/>
+				<c:set var="openFirst" value="${false}"/>
+				<c:set var="additionalCardClasses" value="rounded-0"/>
+				<%@ include file="memoryPool.jsp" %>
+			</div>
+		</div>
+		<div class="col-12 col-md-6 col-xl-3 my-3 my-xs-0">
+			<h2>Garbage collector</h2>
+			<a class="btn btn-block btn-outline-danger btn-sm mb-2" id="loading-example-btn" tabindex="-1">
 				Run garbage collector
 			</a>
+			<c:forEach items="${gcs}" var="gc" varStatus="status">
+				<table class="definition ${status.first ? '' : 'mt-3'}">
+				<tbody>
+					<tr class="h5 bg-light"><td colspan="2">${gc.name}</td></tr>
+					<tr><td>Count</td><td>${gc.collectionCount}</td></tr>
+					<tr><td>Time</td><td>${gc.collectionTime}</td></tr>
+					<tr><td>Memory Pools</td><td>${nonDaemon}</td></tr>
+					<c:forEach items="${gc.memoryPoolNames}" var="memoryPoolName">
+						<tr class="sub"><td colspan="2">${memoryPoolName}</td></tr>
+					</c:forEach>
+				</tbody>
+				</table>
+			</c:forEach>
 		</div>
 	</div>
-</div>
-<div class="auto-centered-container">
-	<div class="block">
-		<c:set var="name" value="Detailed libraries"/>
-		<c:set var="escapedName" value="Detailed-libraries"/>
-		<c:set var="defaultVisible" value="in"/>
-		<c:set var="libs" value="${detailedLibraries}"/>
-		<c:set var="map" value="true"/>
-		<%@ include file="libraries.jsp" %>
-	</div>
-	<div class="block">
-		<c:set var="name" value="Other libraries"/>
-		<c:set var="escapedName" value="Other-libraries"/>
-		<c:set var="defaultVisible" value="in"/>
-		<c:set var="libs" value="${otherLibraries}"/>
-		<c:set var="map" value="false"/>
-		<%@ include file="libraries.jsp" %>
+	<div class="row mt-4">
+		<div class="col-12 col-md-6">
+			<c:set var="name" value="Detailed libraries"/>
+			<c:set var="escapedName" value="Detailed-libraries"/>
+			<c:set var="defaultVisible" value="in"/>
+			<c:set var="libs" value="${detailedLibraries}"/>
+			<c:set var="map" value="${true}"/>
+			<c:set var="lined" value="${true}"/>
+			<%@ include file="libraries.jsp" %>
+		</div>
+		<div class="col-12 col-md-6">
+			<c:set var="name" value="Other libraries"/>
+			<c:set var="escapedName" value="Other-libraries"/>
+			<c:set var="defaultVisible" value="in"/>
+			<c:set var="libs" value="${otherLibraries}"/>
+			<c:set var="map" value="${false}"/>
+			<c:set var="lined" value="${false}"/>
+			<%@ include file="libraries.jsp" %>
+		</div>
 	</div>
 </div>
 </body>

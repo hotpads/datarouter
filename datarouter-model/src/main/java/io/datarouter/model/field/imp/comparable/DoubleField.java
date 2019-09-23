@@ -19,7 +19,7 @@ import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.DoubleByteTool;
 import io.datarouter.util.string.StringTool;
 
-public class DoubleField extends BasePrimitiveField<Double>{
+public class DoubleField extends BasePrimitiveField<Double,DoubleFieldKey>{
 
 	public DoubleField(DoubleFieldKey key, Double value){
 		super(key, value);

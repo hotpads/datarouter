@@ -86,6 +86,10 @@ public abstract class OptionalParameter<T>{
 		return opt.isPresent();
 	}
 
+	public boolean isEmpty(){
+		return opt.isEmpty();
+	}
+
 	public T orElse(T other){
 		return opt.orElse(other);
 	}

@@ -17,6 +17,8 @@ package io.datarouter.web.handler.encoder;
 
 import java.util.Date;
 
+import javax.inject.Singleton;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -25,6 +27,7 @@ import io.datarouter.util.serialization.CompatibleDateTypeAdapter;
 import io.datarouter.util.serialization.OptionalContainerClassTypeAdapterFactory;
 import io.datarouter.util.serialization.OptionalTypeAdapterFactory;
 
+@Singleton
 public class OptionalContainerSerializer extends GsonJsonSerializer{
 
 	private static final Gson READ_GSON = new GsonBuilder()

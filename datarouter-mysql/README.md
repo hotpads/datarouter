@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.10</version>
+	<version>0.0.11</version>
 </dependency>
 ```
 
@@ -19,7 +19,15 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 This class represents the primary key of the MySQL table. Datarouter will define a `PRIMARY KEY` with the columns defined in this class.
 
 ```java
-public class TestDatabeanKey extends BasePrimaryKey<TestDatabeanKey>{
+import java.util.Arrays;
+import java.util.List;
+
+import io.datarouter.model.field.Field;
+import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+
+public class TestDatabeanKey extends BaseRegularPrimaryKey<TestDatabeanKey>{
 
 	private String id;
 
@@ -57,9 +65,17 @@ When using composite primary keys, the ordering of the `getFields` method matter
 This class represents a MySQL table. Each instance will be a row of that table. Besides its primary key, this one defines an `INT` column called `someInt`.
 
 ```java
+import java.util.Arrays;
+import java.util.List;
+
+import io.datarouter.model.databean.BaseDatabean;
+import io.datarouter.model.field.Field;
+import io.datarouter.model.field.imp.comparable.IntegerField;
+import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
+import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+
 public class TestDatabean extends BaseDatabean<TestDatabeanKey,TestDatabean>{
 
-	private TestDatabeanKey key;
 	private Integer someInt;
 
 	private static class FieldKeys{
@@ -67,11 +83,11 @@ public class TestDatabean extends BaseDatabean<TestDatabeanKey,TestDatabean>{
 	}
 
 	public TestDatabean(){
-		this.key = new TestDatabeanKey(); // it is required to initialize the key field of a databean
+		super(new TestDatabeanKey()); // it is required to initialize the key field of a databean
 	}
 
 	public TestDatabean(String id, Integer someInt){
-		this.key = new TestDatabeanKey(id);
+		super(new TestDatabeanKey(id));
 		this.someInt = someInt;
 	}
 
@@ -92,11 +108,6 @@ public class TestDatabean extends BaseDatabean<TestDatabeanKey,TestDatabean>{
 	@Override
 	public Class<TestDatabeanKey> getKeyClass(){
 		return TestDatabeanKey.class;
-	}
-
-	@Override
-	public TestDatabeanKey getKey(){
-		return key;
 	}
 
 	public Integer getSomeInt(){
@@ -123,6 +134,15 @@ Now that we have a databean class, we can create a node that will allow us to pe
 The node is configured to use a database client called `mysqlClient`. We will use a configuration file to tell datarouter how to connect this client to the database.
 
 ```java
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.router.BaseRouter;
+
 @Singleton
 public class TestRouter extends BaseRouter{
 
@@ -131,11 +151,11 @@ public class TestRouter extends BaseRouter{
 	public final SortedMapStorage<TestDatabeanKey,TestDatabean> node;
 
 	@Inject
-	public TestRouter(Datarouter datarouter, DatarouterProperties datarouterProperties, NodeFactory nodeFactory,
-			DatarouterSettings datarouterSettings){
-		super(datarouter, datarouterProperties, "test", nodeFactory, datarouterSettings);
+	public TestRouter(Datarouter datarouter, NodeFactory nodeFactory){
+		super(datarouter);
 
-		node = createAndRegister(MYSQL_CLIENT, TestDatabean::new, TestDatabeanFielder::new);
+		node = nodeFactory.create(MYSQL_CLIENT, TestDatabean::new, TestDatabean.TestDatabeanFielder::new)
+				.buildAndRegister();
 	}
 
 }
@@ -146,14 +166,24 @@ public class TestRouter extends BaseRouter{
 For this example, we will be using Guice to inject dependencies. It's also possible to use other dependency injectors like Spring.
 
 ```java
-public class TestGuiceModule extends BaseModule{
+import java.util.Collections;
+
+import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
+import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
+import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.SimpleDatarouterProperties;
+import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
+import io.datarouter.storage.router.RouterClasses;
+
+public class TestGuiceModule extends BaseGuiceModule{
 
 	@Override
 	protected void configure(){
 		// install the bindings of datarouter-storage
 		install(new DatarouterStorageGuiceModule());
 		// bind the standard codec factory - you can create your own if you want to define your own field types
-		bindOptional(MysqlFieldCodecFactory.class).setDefault().to(StandardMysqlFieldCodecFactory.class);
+		bindDefaultInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
 		// datarouter will use the application's name to look for configuration files
 		bind(DatarouterProperties.class).toInstance(new SimpleDatarouterProperties("testApp"));
 		// we register all the routers of our application here
@@ -192,6 +222,8 @@ schemaUpdate.execute.dropIndexes=true
 schemaUpdate.execute.modifyEngine=true
 schemaUpdate.execute.modifyCharacterSetOrCollation=true
 schemaUpdate.execute.modifyRowFormat=true
+schemaUpdate.execute.modifyTtl=true
+schemaUpdate.execute.modifyMaxVersions=true
 ```
 
 On production environments, it is recommended to use `schemaUpdate.print` instead of `schemaUpdate.execute`. The ALTER TABLE statements will be logged and emailed instead of executed.
@@ -202,33 +234,47 @@ We have everything we need to start writing application code and database querie
 The following main method will start the framework, write a databean to the MySQL table, and then read it.
 
 ```java
-public static void main(String[] args){
-	// create the Injector with our test module
-	Injector injector = Guice.createInjector(Arrays.asList(new TestGuiceModule()));
-	// get an instance of our router with the injector
-	TestRouter router = injector.getInstance(TestRouter.class);
-	// instantiate a databean
-	Integer someInt = ThreadLocalRandom.current().nextInt();
-	TestDatabean databean = new TestDatabean("foo", someInt);
-	// write the databean to the database, will issue an INSERT ... ON DUPLICATE KEY UPDATE by default
-	router.node.put(databean, null);
-	// other put behaviors are available with PutMethod, this one will issue an INSERT IGNORE
-	router.node.put(databean, new Config().setPutMethod(PutMethod.INSERT_IGNORE));
-	// read the databean using the same primary key
-	TestDatabean roundTripped = router.node.get(new TestDatabeanKey("foo"), null);
-	// check that we were able to read the someInt column
-	Assert.assertEquals(roundTripped.getSomeInt(), someInt);
-	// databeans are equal if their keys are equal, they also sort by primary key
-	Assert.assertEquals(roundTripped, databean);
-	// let's put another databean, with a different key
-	Integer anotherInt = ThreadLocalRandom.current().nextInt();
-	TestDatabean anotherDatabean = new TestDatabean("bar", anotherInt);
-	router.node.put(anotherDatabean, null);
-	// you can fetch the rows given a range of primary keys, here, we fetch everything
-	long sum = router.node.stream(Range.everything(), null) // built-in Java 8 stream
-			.mapToInt(TestDatabean::getSomeInt)
-			.sum();
-	Assert.assertEquals(sum, someInt + anotherInt);
+import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.testng.Assert;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+import io.datarouter.storage.config.Config;
+import io.datarouter.storage.config.PutMethod;
+import io.datarouter.util.tuple.Range;
+
+public class Main{
+	public static void main(String[] args){
+		// create the Injector with our test module
+		Injector injector = Guice.createInjector(Arrays.asList(new TestGuiceModule()));
+		// get an instance of our router with the injector
+		TestRouter router = injector.getInstance(TestRouter.class);
+		// instantiate a databean
+		Integer someInt = ThreadLocalRandom.current().nextInt();
+		TestDatabean databean = new TestDatabean("foo", someInt);
+		// write the databean to the database, will issue an INSERT ... ON DUPLICATE KEY UPDATE by default
+		router.node.put(databean, null);
+		// other put behaviors are available with PutMethod, this one will issue an INSERT IGNORE
+		router.node.put(databean, new Config().setPutMethod(PutMethod.INSERT_IGNORE));
+		// read the databean using the same primary key
+		TestDatabean roundTripped = router.node.get(new TestDatabeanKey("foo"), null);
+		// check that we were able to read the someInt column
+		Assert.assertEquals(roundTripped.getSomeInt(), someInt);
+		// databeans are equal if their keys are equal, they also sort by primary key
+		Assert.assertEquals(roundTripped, databean);
+		// let's put another databean, with a different key
+		Integer anotherInt = ThreadLocalRandom.current().nextInt();
+		TestDatabean anotherDatabean = new TestDatabean("bar", anotherInt);
+		router.node.put(anotherDatabean, null);
+		// you can fetch the rows given a range of primary keys, here, we fetch everything
+		long sum = router.node.scan(Range.everything()).stream()
+				.mapToInt(TestDatabean::getSomeInt)
+				.sum();
+		Assert.assertEquals(sum, someInt + anotherInt);
+	}
 }
 ```
 

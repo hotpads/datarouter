@@ -27,6 +27,9 @@ import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.op.read.MysqlGetOpExecutor;
 import io.datarouter.client.mysql.util.MysqlTool;
+import io.datarouter.instrumentation.trace.TraceSpanFinisher;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.index.IndexEntry;
@@ -74,12 +77,15 @@ extends BaseMysqlOp<List<IE>>{
 	@Override
 	public List<IE> runOnce(){
 		return mysqlGetOpExecutor.execute(fieldInfo, opName, uniqueKeys, config, indexFielder.getFields(
-				indexEntry), this::select, getConnection(fieldInfo.getClientId()));
+				indexEntry), this::select, getConnection());
 	}
 
 	private List<IE> select(PreparedStatement ps){
 		try{
-			ps.execute();
+			String spanName = fieldInfo.getNodeName() + " " + opName + " PreparedStatement.execute";
+			try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+				ps.execute();
+			}
 			ResultSet rs = ps.getResultSet();
 			List<IE> databeans = new ArrayList<>();
 			while(rs.next()){

@@ -17,11 +17,6 @@ package io.datarouter.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Set;
-import java.util.TreeSet;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
@@ -40,8 +35,8 @@ public class HashMethods{
 
 	public static long longDjbHash(byte[] in){
 		long hash = 5381L;
-		for(int i = 0; i < in.length; i++){
-			hash = ((hash << 5) + hash) + in[i];
+		for(byte element : in){
+			hash = ((hash << 5) + hash) + element;
 		}
 		return hash & 0x7FFFFFFFFFFFFFFFL;
 	}
@@ -100,36 +95,4 @@ public class HashMethods{
 		}
 	}
 
-	public static class HashMethodsTests{
-		@Test
-		public void testLongDjb(){
-			long hash1 = longDjbHash("public-school_HOLMES ELEMENTARY_4902 MT. ARARAT DR_SAN DIEGO_CA_92111");
-			long hash2 = longDjbHash("private-school_Burleson Adventist School_1635 Fox Lane_Burleson_TX_76028");
-			Assert.assertFalse(hash1 == hash2);
-		}
-
-		@Test
-		public void testMd5DjbHash(){
-			Set<Long> buckets = new TreeSet<>();
-			for(int serverNum = 98; serverNum <= 101; ++serverNum){
-				String serverName = "HadoopNode98:10012:" + serverNum;
-				for(int i = 0; i < 1000; ++i){
-					Long bucket = longMd5DjbHash(StringByteTool.getUtf8Bytes(serverName + i));
-					buckets.add(bucket);
-				}
-			}
-			int counter = 0;
-			double avg = 0;
-			for(Long b : buckets){
-				avg = (avg * counter + b) / (counter + 1);
-				++counter;
-			}
-		}
-
-		@Test
-		public void testMd5Hash(){
-			String hash = md5Hash("hello world!");
-			Assert.assertEquals(hash, "fc3ff98e8c6a0d3087d515c0473f8677");
-		}
-	}
 }

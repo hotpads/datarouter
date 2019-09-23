@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,17 +29,15 @@ import javax.inject.Singleton;
 import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
-import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.iterable.BatchingIterable;
 
 @Singleton
 public class MysqlGetOpExecutor{
@@ -56,13 +54,12 @@ public class MysqlGetOpExecutor{
 	List<T> execute(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, String opName, Collection<? extends FieldSet<?>> keys,
 			Config config, List<Field<?>> selectFields, Function<PreparedStatement,List<T>> select,
 			Connection connection){
-		List<? extends FieldSet<?>> dedupedSortedKeys = keys.stream()
+		Stream<? extends FieldSet<?>> dedupedSortedKeys = keys.stream()
 				.distinct()
-				.sorted()
-				.collect(Collectors.toList());
+				.sorted();
 		List<T> result = new ArrayList<>(keys.size());
-		for(List<? extends FieldSet<?>> keyBatch : new BatchingIterable<>(dedupedSortedKeys, config
-				.optInputBatchSize().orElse(BATCH_SIZE))){
+		for(List<? extends FieldSet<?>> keyBatch : Scanner.of(dedupedSortedKeys).batch(config.optInputBatchSize()
+				.orElse(BATCH_SIZE))){
 			PreparedStatement ps = mysqlPreparedStatementBuilder.getMulti(config, fieldInfo.getTableName(),
 					selectFields, keyBatch, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(
 					connection);
@@ -75,7 +72,6 @@ public class MysqlGetOpExecutor{
 					fieldInfo.getNodeName(), result.size());
 			result.addAll(resultBatch);
 		}
-		TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[got " + result.size() + "/" + keys.size() + "]");
 		return result;
 	}
 

@@ -36,8 +36,8 @@ extends MapStorageReader<PK,D>, CallsiteAdapter{
 	N getBackingNode();
 
 	@Override
-	default boolean exists(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
+	default boolean exists(PK key, Config config){
+		config.setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		boolean result = false;
 		try{
@@ -50,8 +50,8 @@ extends MapStorageReader<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default D get(PK key, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
+	default D get(PK key, Config config){
+		config.setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		D result = null;
 		try{
@@ -64,8 +64,8 @@ extends MapStorageReader<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default List<D> getMulti(Collection<PK> keys, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
+	default List<D> getMulti(Collection<PK> keys, Config config){
+		config.setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		List<D> results = null;
 		try{
@@ -77,8 +77,8 @@ extends MapStorageReader<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default List<PK> getKeys(Collection<PK> keys, Config pConfig){
-		Config config = Config.nullSafe(pConfig).setCallsite(getCallsite());
+	default List<PK> getKeys(Collection<PK> keys, Config config){
+		config.setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		List<PK> results = null;
 		try{

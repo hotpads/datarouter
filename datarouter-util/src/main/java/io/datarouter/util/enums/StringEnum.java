@@ -17,8 +17,7 @@ package io.datarouter.util.enums;
 
 import java.util.Optional;
 
-public interface StringEnum<E>
-extends Comparable<E>, PersistentString{
+public interface StringEnum<E> extends Comparable<E>, PersistentString{
 
 	E fromPersistentString(String string);
 

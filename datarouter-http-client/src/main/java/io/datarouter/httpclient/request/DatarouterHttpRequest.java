@@ -23,15 +23,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
@@ -60,11 +60,11 @@ import io.datarouter.httpclient.client.DatarouterHttpClientConfig;
 public class DatarouterHttpRequest{
 
 	private static final String CONTENT_TYPE = "Content-Type";
-	private static final Set<HttpRequestMethod> METHODS_ALLOWING_ENTITY = new HashSet<>(Arrays.asList(
+	private static final Set<HttpRequestMethod> METHODS_ALLOWING_ENTITY = Set.of(
 			HttpRequestMethod.DELETE,
 			HttpRequestMethod.PATCH,
 			HttpRequestMethod.POST,
-			HttpRequestMethod.PUT));
+			HttpRequestMethod.PUT);
 
 	private final HttpRequestMethod method;
 	private final String path;
@@ -378,13 +378,12 @@ public class DatarouterHttpRequest{
 	}
 
 	private List<NameValuePair> urlEncodeFromMap(Map<String,String> data){
-		List<NameValuePair> params = new ArrayList<>();
-		if(data != null && !data.isEmpty()){
-			for(Entry<String,String> entry : data.entrySet()){
-				params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-			}
+		if(data == null || data.isEmpty()){
+			return Collections.emptyList();
 		}
-		return params;
+		return data.entrySet().stream()
+				.map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
+				.collect(Collectors.toList());
 	}
 
 	public DatarouterHttpClientConfig getRequestConfig(DatarouterHttpClientConfig clientConfig){

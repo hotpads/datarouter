@@ -29,7 +29,6 @@ public class PutOpIdGeneratedManagedTestBean
 extends BaseDatabean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManagedTestBean>
 implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManagedTestBean>{
 
-	private PutOpIdGeneratedManagedTestBeanKey key;
 	private String foo;
 
 	public static class FieldKeys{
@@ -51,22 +50,17 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGen
 	}
 
 	public PutOpIdGeneratedManagedTestBean(){
-		this.key = new PutOpIdGeneratedManagedTestBeanKey();
+		super(new PutOpIdGeneratedManagedTestBeanKey());
 	}
 
 	public PutOpIdGeneratedManagedTestBean(String str){
-		this.key = new PutOpIdGeneratedManagedTestBeanKey();
+		super(new PutOpIdGeneratedManagedTestBeanKey());
 		this.foo = str;
 	}
 
 	@Override
 	public Class<PutOpIdGeneratedManagedTestBeanKey> getKeyClass(){
 		return PutOpIdGeneratedManagedTestBeanKey.class;
-	}
-
-	@Override
-	public PutOpIdGeneratedManagedTestBeanKey getKey(){
-		return key;
 	}
 
 }

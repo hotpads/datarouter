@@ -15,17 +15,21 @@
  */
 package io.datarouter.model.field;
 
+import java.util.Map;
+
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public abstract class PrimitiveFieldKey<T extends Comparable<? super T>> extends BaseFieldKey<T>{
+public abstract class PrimitiveFieldKey<T extends Comparable<? super T>,K extends PrimitiveFieldKey<T,K>>
+extends BaseFieldKey<T,K>{
 
 	public PrimitiveFieldKey(String name, Class<T> valueType){
 		super(name, valueType);
 	}
 
 	protected PrimitiveFieldKey(String name, String columnName, boolean nullable, Class<T> valueType,
-			FieldGeneratorType fieldGeneratorType, T defaultValue){
-		super(name, columnName, nullable, valueType, fieldGeneratorType, defaultValue);
+			FieldGeneratorType fieldGeneratorType, T defaultValue,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, valueType, fieldGeneratorType, defaultValue, attributes);
 	}
 
 }

@@ -15,8 +15,11 @@
  */
 package io.datarouter.util.properties;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,6 +29,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import io.datarouter.util.StreamTool;
+import io.datarouter.util.io.FileTool;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.tuple.Pair;
 
@@ -72,6 +76,23 @@ public class PropertiesTool{
 				.filter(Objects::nonNull)
 				.findFirst()
 				.orElse(null);
+	}
+
+	public static void writeToFile(Properties properties, String pathToFile){
+		File file = new File(pathToFile);
+		if(!file.exists()){
+			FileTool.createFileParents(pathToFile);
+			try{
+				file.createNewFile();
+			}catch(IOException e){
+				throw new RuntimeException("failed to create new file", e);
+			}
+		}
+		try(OutputStream out = new FileOutputStream(file)){
+			properties.store(out, null);
+		}catch(IOException e){
+			throw new RuntimeException("failed to write properties", e);
+		}
 	}
 
 }

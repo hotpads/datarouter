@@ -26,8 +26,6 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 public class CaseInsensitiveTestDatabean
 extends BaseDatabean<CaseInsensitiveTestPrimaryKey,CaseInsensitiveTestDatabean>{
 
-	private CaseInsensitiveTestPrimaryKey key;
-
 	public static class CaseInsensitiveTestFielder
 	extends BaseDatabeanFielder<CaseInsensitiveTestPrimaryKey,CaseInsensitiveTestDatabean>{
 
@@ -48,17 +46,12 @@ extends BaseDatabean<CaseInsensitiveTestPrimaryKey,CaseInsensitiveTestDatabean>{
 	}
 
 	public CaseInsensitiveTestDatabean(String stringField){
-		this.key = new CaseInsensitiveTestPrimaryKey(stringField);
+		super(new CaseInsensitiveTestPrimaryKey(stringField));
 	}
 
 	@Override
 	public Class<CaseInsensitiveTestPrimaryKey> getKeyClass(){
 		return CaseInsensitiveTestPrimaryKey.class;
-	}
-
-	@Override
-	public CaseInsensitiveTestPrimaryKey getKey(){
-		return key;
 	}
 
 }

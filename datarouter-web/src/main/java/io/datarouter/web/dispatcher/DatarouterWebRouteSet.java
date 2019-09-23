@@ -30,6 +30,7 @@ import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.monitoring.DeploymentReportingHandler;
 import io.datarouter.web.monitoring.ExecutorsMonitoringHandler;
 import io.datarouter.web.monitoring.MemoryMonitoringHandler;
+import io.datarouter.web.shutdown.ShutdownHandler;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
@@ -54,6 +55,7 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handleDir(paths.datarouter.client).withHandler(DatarouterClientHandler.class);
 		handle(paths.datarouter.ipDetection).withHandler(IpDetectionHandler.class).allowAnonymous();
 		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();
+		handle(paths.datarouter.shutdown).withHandler(ShutdownHandler.class).allowAnonymous();
 
 		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
 		handleDir(paths.datarouter.testApi).withHandler(TestApiHandler.class);

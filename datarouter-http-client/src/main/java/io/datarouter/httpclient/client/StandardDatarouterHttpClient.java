@@ -17,18 +17,14 @@ package io.datarouter.httpclient.client;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CancellationException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.inject.Singleton;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -41,26 +37,23 @@ import org.apache.http.pool.PoolStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
-import io.datarouter.httpclient.response.exception.DatarouterHttpConnectionAbortedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
-import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterruptedException;
-import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeException;
 import io.datarouter.httpclient.security.CsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.httpclient.security.SignatureGenerator;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
-import io.datarouter.instrumentation.trace.TracerTool;
 
 @Singleton
 public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	private static final Logger logger = LoggerFactory.getLogger(StandardDatarouterHttpClient.class);
 
-	private static final Duration LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(10);
+	public static final String X_REQUEST_ID = "x-request-id";
 
 	private final CloseableHttpClient httpClient;
 	private final JsonSerializer jsonSerializer;
@@ -69,10 +62,13 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	private final Supplier<String> apiKeySupplier;
 	private final DatarouterHttpClientConfig config;
 	private final PoolingHttpClientConnectionManager connectionManager;
+	private final DatarouterHttpClientIoExceptionCircuitBreaker circuitWrappedHttpClient;
+	private final Supplier<Boolean> enableBreakers;
 
 	StandardDatarouterHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
 			SignatureGenerator signatureGenerator, CsrfGenerator csrfGenerator, Supplier<String> apiKeySupplier,
-			DatarouterHttpClientConfig config, PoolingHttpClientConnectionManager connectionManager){
+			DatarouterHttpClientConfig config, PoolingHttpClientConnectionManager connectionManager, String name,
+			Supplier<Boolean> enableBreakers){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureGenerator = signatureGenerator;
@@ -80,6 +76,8 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		this.apiKeySupplier = apiKeySupplier;
 		this.config = config;
 		this.connectionManager = connectionManager;
+		this.circuitWrappedHttpClient = new DatarouterHttpClientIoExceptionCircuitBreaker(name);
+		this.enableBreakers = enableBreakers;
 	}
 
 	@Override
@@ -132,35 +130,42 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 			cookieStore.addCookie(cookie);
 		}
 		context.setCookieStore(cookieStore);
+		return circuitWrappedHttpClient.call(httpClient, request, httpEntityConsumer, context, enableBreakers);
+	}
 
-		DatarouterHttpException ex;
-		HttpRequestBase internalHttpRequest = null;
-		long requestStartTimeMs = System.currentTimeMillis();
+	@Override
+	public Conditional<DatarouterHttpResponse> tryExecute(DatarouterHttpRequest request){
+		DatarouterHttpResponse response;
 		try{
-			TracerTool.startSpan(TracerThreadLocal.get(), "http call " + request.getPath());
-			internalHttpRequest = request.getRequest();
-			requestStartTimeMs = System.currentTimeMillis();
-			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
-			Duration duration = Duration.ofMillis(System.currentTimeMillis() - requestStartTimeMs);
-			if(duration.compareTo(LOG_SLOW_REQUEST_THRESHOLD) > 0){
-				logger.warn("Slow request target={} duration={}", request.getPath(), duration);
-			}
-			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, httpEntityConsumer);
-			if(response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST){
-				throw new DatarouterHttpResponseException(response, duration);
-			}
-			return response;
-		}catch(IOException e){
-			ex = new DatarouterHttpConnectionAbortedException(e, requestStartTimeMs);
-		}catch(CancellationException e){
-			ex = new DatarouterHttpRequestInterruptedException(e, requestStartTimeMs);
-		}finally{
-			TracerTool.finishSpan(TracerThreadLocal.get());
+			response = executeChecked(request);
+		}catch(DatarouterHttpException e){
+			return Conditional.failure(e);
 		}
-		if(internalHttpRequest != null){
-			forceAbortRequestUnchecked(internalHttpRequest);
+		return Conditional.success(response);
+	}
+
+	@Override
+	public Conditional<DatarouterHttpResponse> tryExecute(DatarouterHttpRequest request,
+			Consumer<HttpEntity> httpEntityConsumer){
+		DatarouterHttpResponse response;
+		try{
+			response = executeChecked(request, httpEntityConsumer);
+		}catch(DatarouterHttpException e){
+			return Conditional.failure(e);
 		}
-		throw ex;
+		return Conditional.success(response);
+	}
+
+	@Override
+	public <E> Conditional<E> tryExecute(DatarouterHttpRequest request, Type deserializeToType){
+		E response;
+		try{
+			response = executeChecked(request, deserializeToType);
+		}catch(DatarouterHttpException e){
+			logger.warn("", e);
+			return Conditional.failure(e);
+		}
+		return Conditional.success(response);
 	}
 
 	private void setSecurityProperties(DatarouterHttpRequest request){
@@ -176,20 +181,21 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		if(request.canHaveEntity() && request.getEntity() == null){
 			params = request.addPostParams(params).getFirstPostParams();
 			if(signatureGenerator != null && !params.isEmpty()){
-				String signature = signatureGenerator.getHexSignature(request.getFirstPostParams());
+				String signature = signatureGenerator.getHexSignature(request.getFirstPostParams()).signature;
 				request.addPostParam(SecurityParameters.SIGNATURE, signature);
 			}
 			request.setEntity(request.getFirstPostParams());
 		}else if(request.getMethod() == HttpRequestMethod.GET){
 			params = request.addGetParams(params).getFirstGetParams();
 			if(signatureGenerator != null && !params.isEmpty()){
-				String signature = signatureGenerator.getHexSignature(request.getFirstGetParams());
+				String signature = signatureGenerator.getHexSignature(request.getFirstGetParams()).signature;
 				request.addGetParam(SecurityParameters.SIGNATURE, signature);
 			}
 		}else{
 			request.addHeaders(params);
 			if(signatureGenerator != null && request.getEntity() != null){
-				String signature = signatureGenerator.getHexSignature(request.getFirstGetParams(), request.getEntity());
+				String signature = signatureGenerator.getHexSignature(request.getFirstGetParams(), request
+						.getEntity()).signature;
 				request.addHeader(SecurityParameters.SIGNATURE, signature);
 			}
 		}

@@ -15,18 +15,13 @@
  */
 package io.datarouter.util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 
 import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import io.datarouter.util.collection.ListTool;
 
 public class ComparableTool{
 
@@ -141,91 +136,4 @@ public class ComparableTool{
 		return forwardDiff;
 	}
 
-	public static class ComparableToolTests{
-
-		@Test
-		public void testLessThan(){
-			Assert.assertTrue(lt("a", "b"));
-			Assert.assertTrue(lt(null, "b"));
-			Assert.assertFalse(lt("a", null));
-			Assert.assertFalse(lt(null, null));
-			Assert.assertFalse(lt("eq", "eq"));
-		}
-
-		@Test
-		public void testGreaterThan(){
-			Assert.assertFalse(gt("a", "b"));
-			Assert.assertFalse(gt(null, "b"));
-			Assert.assertTrue(gt("a", null));
-			Assert.assertFalse(gt(null, null));
-			Assert.assertFalse(gt("eq", "eq"));
-		}
-
-		@Test
-		public void testBetween(){
-			Assert.assertTrue(between(-3f, false, -1f, 7f, false));
-			Assert.assertFalse(between(-3f, false, -17.5f, 7f, false));
-			Assert.assertTrue(between(-3f, true, -3f, 7f, false));
-			Assert.assertTrue(between(0, true, 0, 0, false));
-			//treat start=null as -Infinity, end=null as Infinity
-			Assert.assertTrue(between(null, true, 12345, null, true));
-		}
-
-		@Test
-		public void testIsSorted(){
-			Assert.assertTrue(isSorted(null));
-			Assert.assertTrue(isSorted(new ArrayList<Integer>()));
-			List<Integer> listA = ListTool.create(1,2,3,4);
-			Assert.assertTrue(isSorted(listA));
-			List<Integer> listB = ListTool.create(1,2,55,4);
-			Assert.assertFalse(isSorted(listB));
-		}
-
-		@Test
-		public void testMin(){
-			Assert.assertEquals(min((Integer)null), null);
-			Assert.assertEquals(min((Integer)null, null), null);
-			Assert.assertEquals(min((Integer)null, null, null), null);
-			Assert.assertEquals(min((Double)null), null);
-			Assert.assertEquals(min((Double)null, null), null);
-			Assert.assertEquals(min((Double)null, null, null), null);
-			Assert.assertEquals(min(null, null, 3), new Integer(3));
-			Assert.assertEquals(min(3, null), new Integer(3));
-			Assert.assertEquals(min(3, 1), new Integer(1));
-			Assert.assertEquals(min(1, 3), new Integer(1));
-			Assert.assertEquals(min(1, 2, 3), new Integer(1));
-			Assert.assertEquals(min(1, 3, 2), new Integer(1));
-			Assert.assertEquals(min(1, 3, null, 2), new Integer(1));
-			Assert.assertEquals(min(3, null, 2), new Integer(2));
-			Assert.assertEquals(min(null, null, 3d), new Double(3));
-			Assert.assertEquals(min(3d, null), new Double(3));
-			Assert.assertEquals(min(3d, 1d), new Double(1));
-			Assert.assertEquals(min(1d, 3d), new Double(1));
-			Assert.assertEquals(min(1d, 2d, 3d), new Double(1));
-			Assert.assertEquals(min(1d, 3d, 2d), new Double(1));
-			Assert.assertEquals(min(1d, 3d, null, 2d), new Double(1));
-			Assert.assertEquals(min(3d, null, 2d), new Double(2));
-		}
-
-		@Test
-		public void testMax(){
-			Assert.assertNull(max((Integer)null, null));
-			Assert.assertEquals(max(null, 0), new Integer(0));
-			Assert.assertEquals(max(0, null), new Integer(0));
-			Assert.assertEquals(max(0, 0), new Integer(0));
-			Assert.assertEquals(max(0, 3), new Integer(3));
-			Assert.assertEquals(max(3, 0), new Integer(3));
-			Assert.assertEquals(max((Double)null), null);
-			Assert.assertEquals(max((Double)null, null), null);
-			Assert.assertEquals(max((Double)null, null, null), null);
-			Assert.assertEquals(max(null, null, 3d), new Double(3));
-			Assert.assertEquals(max(3d, null), new Double(3));
-			Assert.assertEquals(max(3d, 1d), new Double(3));
-			Assert.assertEquals(max(1d, 3d), new Double(3));
-			Assert.assertEquals(max(1d, 2d, 3d), new Double(3));
-			Assert.assertEquals(max(1d, 3d, 2d), new Double(3));
-			Assert.assertEquals(max(1d, 3d, null, 2d), new Double(3));
-			Assert.assertEquals(max(1d, null, 2d), new Double(2));
-		}
-	}
 }

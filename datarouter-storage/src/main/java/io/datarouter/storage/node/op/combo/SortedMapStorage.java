@@ -16,7 +16,6 @@
 package io.datarouter.storage.node.op.combo;
 
 import java.util.Collection;
-import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -26,7 +25,6 @@ import io.datarouter.storage.node.op.combo.reader.SortedMapStorageReader;
 import io.datarouter.storage.node.op.combo.writer.SortedMapStorageWriter;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.op.raw.SortedStorage;
-import io.datarouter.util.iterable.BatchingIterable;
 
 public interface SortedMapStorage<
 		PK extends PrimaryKey<PK>,
@@ -39,15 +37,23 @@ extends MapStorage<PK,D>,
 	static final int DELETE_BATCH_SIZE = 100;
 
 	default void deleteWithPrefix(PK prefix, Config config){
-		for(List<PK> keys : new BatchingIterable<>(scanKeysWithPrefix(prefix, config), DELETE_BATCH_SIZE)){
-			deleteMulti(keys, config);
-		}
+		scanKeysWithPrefix(prefix, config)
+				.batch(DELETE_BATCH_SIZE)
+				.forEach(keys -> deleteMulti(keys, config));
+	}
+
+	default void deleteWithPrefix(PK prefix){
+		deleteWithPrefix(prefix, new Config());
 	}
 
 	default void deleteWithPrefixes(Collection<PK> prefixes, Config config){
-		for(List<PK> keys : new BatchingIterable<>(scanKeysWithPrefixes(prefixes, config), DELETE_BATCH_SIZE)){
-			deleteMulti(keys, config);
-		}
+		scanKeysWithPrefixes(prefixes, config)
+				.batch(DELETE_BATCH_SIZE)
+				.forEach(keys -> deleteMulti(keys, config));
+	}
+
+	default void deleteWithPrefixes(Collection<PK> prefixes){
+		deleteWithPrefixes(prefixes, new Config());
 	}
 
 	public interface SortedMapStorageNode<

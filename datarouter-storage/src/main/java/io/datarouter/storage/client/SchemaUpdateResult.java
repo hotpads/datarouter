@@ -20,11 +20,11 @@ import java.util.Optional;
 public class SchemaUpdateResult{
 
 	public final String ddl;
-	public final Optional<String> errorMessage;
+	public final Optional<String> startupBlockReason;
 
-	public SchemaUpdateResult(String ddl, String errorMessage){
+	public SchemaUpdateResult(String ddl, String startupBlockReason){
 		this.ddl = ddl;
-		this.errorMessage = Optional.ofNullable(errorMessage);
+		this.startupBlockReason = Optional.ofNullable(startupBlockReason);
 	}
 
 }

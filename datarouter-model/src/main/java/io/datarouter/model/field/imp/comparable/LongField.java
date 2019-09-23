@@ -19,7 +19,7 @@ import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.string.StringTool;
 
-public class LongField extends BasePrimitiveField<Long>{
+public class LongField extends BasePrimitiveField<Long,LongFieldKey>{
 
 	public LongField(LongFieldKey key, Long value){
 		this(null, key, value);

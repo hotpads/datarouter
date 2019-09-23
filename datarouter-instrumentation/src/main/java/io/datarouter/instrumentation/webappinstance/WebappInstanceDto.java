@@ -30,10 +30,11 @@ public class WebappInstanceDto{
 	public final String commitId;
 	public final String javaVersion;
 	public final String servletContainerVersion;
+	public final String gitBranch;
 
 	public WebappInstanceDto(String webappName, String serverName, String serverType, String servletContextPath,
 			String serverPublicIp, Date refreshedLast, Date startupDate, Date buildDate, String commitId,
-			String javaVersion, String servletContainerVersion){
+			String javaVersion, String servletContainerVersion, String gitBranch){
 		this.webappName = webappName;
 		this.serverName = serverName;
 		this.serverType = serverType;
@@ -45,6 +46,7 @@ public class WebappInstanceDto{
 		this.commitId = commitId;
 		this.javaVersion = javaVersion;
 		this.servletContainerVersion = servletContainerVersion;
+		this.gitBranch = gitBranch;
 	}
 
 }

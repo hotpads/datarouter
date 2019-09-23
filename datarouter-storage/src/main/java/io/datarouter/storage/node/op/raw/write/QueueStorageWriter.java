@@ -36,8 +36,16 @@ extends StorageWriter<PK,D>{
 	public static final String OP_ackMulti = "ackMulti";
 
 	void ack(QueueMessageKey key, Config config);
+
+	default void ack(QueueMessageKey key){
+		ack(key, new Config());
+	}
+
 	void ackMulti(Collection<QueueMessageKey> keys, Config config);
 
+	default void ackMulti(Collection<QueueMessageKey> keys){
+		ackMulti(keys, new Config());
+	}
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 

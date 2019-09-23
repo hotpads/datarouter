@@ -41,18 +41,13 @@ extends BaseNodeScanner<PK,D>{
 	}
 
 	@Override
-	protected List<D> doLoad(Collection<Range<PK>> ranges, Config config){
+	protected List<D> loadRanges(Collection<Range<PK>> ranges, Config config){
 		return mysqlNodeManager.getRanges(fieldInfo, ranges, config);
 	}
 
 	@Override
 	protected PK getPrimaryKey(D databean){
 		return databean.getKey();
-	}
-
-	@Override
-	protected void setCurrentFromResult(D result){
-		current = result;
 	}
 
 }

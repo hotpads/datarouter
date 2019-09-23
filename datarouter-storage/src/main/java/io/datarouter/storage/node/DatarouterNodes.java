@@ -132,6 +132,10 @@ public class DatarouterNodes{
 		return physicalNodeByTableNameByClientName.getOrDefault(clientName, Collections.emptyMap()).get(tableName);
 	}
 
+	public Map<String,Map<String,PhysicalNode<?,?,?>>> getPhysicalNodeByTableNameByClientName(){
+		return physicalNodeByTableNameByClientName;
+	}
+
 	/*------------------------------ get/set --------------------------------*/
 
 	public SortedSet<Node<?,?,?>> getTopLevelNodes(){

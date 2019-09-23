@@ -70,10 +70,10 @@ public class DatarouterUserSessionService implements UserSessionService{
 
 		user.setLastLoggedIn(new Date());
 		user.setRoles(SetTool.union(roles, user.getRoles()));
-		userNodes.getUserNode().put(user, null);
+		userNodes.getUserNode().put(user);
 
 		DatarouterSession session = DatarouterSession.createFromUser(user);
-		userNodes.getSessionNode().put(session, null);
+		userNodes.getSessionNode().put(session);
 		return Optional.of(session);
 	}
 

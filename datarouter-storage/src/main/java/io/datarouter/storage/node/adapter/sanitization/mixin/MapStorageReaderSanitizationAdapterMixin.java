@@ -35,22 +35,22 @@ extends MapStorageReader<PK,D>, SanitizationAdapter<PK,D,F,N>{
 
 	@Override
 	default boolean exists(PK key, Config config){
-		return getBackingNode().exists(key, Config.nullSafe(config));
+		return getBackingNode().exists(key, config);
 	}
 
 	@Override
 	default D get(PK key, Config config){
-		return getBackingNode().get(key, Config.nullSafe(config));
+		return getBackingNode().get(key, config);
 	}
 
 	@Override
 	default List<D> getMulti(Collection<PK> keys, Config config){
-		return getBackingNode().getMulti(keys, Config.nullSafe(config));
+		return getBackingNode().getMulti(keys, config);
 	}
 
 	@Override
 	default List<PK> getKeys(Collection<PK> keys, Config config){
-		return getBackingNode().getKeys(keys, Config.nullSafe(config));
+		return getBackingNode().getKeys(keys, config);
 	}
 
 }

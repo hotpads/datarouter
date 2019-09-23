@@ -23,10 +23,11 @@ import io.datarouter.util.serialization.GsonTool;
 
 public abstract class BaseListField<
 		V extends Comparable<V>,
-		L extends List<V>>
-extends KeyedListField<V,L,ListFieldKey<V,L>>{
+		L extends List<V>,
+		K extends ListFieldKey<V,L,K>>
+extends KeyedListField<V,L,K>{
 
-	public BaseListField(ListFieldKey<V,L> key, L value){
+	public BaseListField(K key, L value){
 		super(key, value);
 	}
 

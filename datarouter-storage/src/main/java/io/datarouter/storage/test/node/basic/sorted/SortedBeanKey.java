@@ -75,6 +75,10 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 		return foo;
 	}
 
+	public void setFoo(String foo){
+		this.foo = foo;
+	}
+
 	public String getBar(){
 		return bar;
 	}

@@ -27,17 +27,15 @@ import io.datarouter.util.retry.Retryable;
 public class MysqlRollbackRetryingCallable<T> implements Retryable<T>{
 	private static final Logger logger = LoggerFactory.getLogger(MysqlRollbackRetryingCallable.class);
 
-	private final SessionExecutor<T> callable;
+	private final SessionExecutorCallable<T> callable;
 	private final int numAttempts;
 	private final long initialBackoffMs;
 
-	//TODO accept a callableSupplier for mutable ops
-	public MysqlRollbackRetryingCallable(SessionExecutor<T> callable, int numAttempts, long initialBackoffMs){
+	public MysqlRollbackRetryingCallable(SessionExecutorCallable<T> callable, int numAttempts, long initialBackoffMs){
 		this.callable = callable;
 		this.numAttempts = numAttempts;
 		this.initialBackoffMs = initialBackoffMs;
 	}
-
 
 	@Override
 	public T call(){
@@ -45,7 +43,7 @@ public class MysqlRollbackRetryingCallable<T> implements Retryable<T>{
 		for(int attemptNum = 1; attemptNum <= numAttempts; ++attemptNum){
 			try{
 				return callable.call();
-			}catch(SessionExecutorPleaseRetryException e){//fragile; SessionExecutor must throw this exact exception
+			}catch(SessionExecutorPleaseRetryException e){
 				if(attemptNum < numAttempts){
 					logger.warn("rollback on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
 					ThreadTool.sleep(backoffMs);

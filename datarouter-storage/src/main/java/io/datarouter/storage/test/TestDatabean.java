@@ -20,7 +20,6 @@ import io.datarouter.model.field.imp.StringFieldKey;
 
 public class TestDatabean extends BaseDatabean<TestDatabeanKey, TestDatabean>{
 
-	private TestDatabeanKey key;
 	private String bar;
 	private String baz;
 
@@ -30,11 +29,11 @@ public class TestDatabean extends BaseDatabean<TestDatabeanKey, TestDatabean>{
 	}
 
 	public TestDatabean(){
-		this.key = new TestDatabeanKey();
+		super(new TestDatabeanKey());
 	}
 
 	public TestDatabean(String foo, String bar, String baz){
-		this.key = new TestDatabeanKey(foo);
+		super(new TestDatabeanKey(foo));
 		this.bar = bar;
 		this.baz = baz;
 	}
@@ -44,21 +43,12 @@ public class TestDatabean extends BaseDatabean<TestDatabeanKey, TestDatabean>{
 		return TestDatabeanKey.class;
 	}
 
-	@Override
-	public TestDatabeanKey getKey(){
-		return key;
-	}
-
 	public String getBar(){
 		return bar;
 	}
 
 	public String getBaz(){
 		return baz;
-	}
-
-	public String getFoo(){
-		return key.getFoo();
 	}
 
 }

@@ -15,12 +15,14 @@
  */
 package io.datarouter.web.config;
 
+import java.util.Collections;
+
 import com.google.gson.Gson;
-import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.storage.config.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
@@ -31,20 +33,21 @@ import io.datarouter.web.handler.mav.DatarouterMavPropertiesFactoryConfig;
 import io.datarouter.web.handler.mav.MavPropertiesFactoryConfig;
 import io.datarouter.web.handler.mav.nav.AppNavBar;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
+import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink;
+import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink.NoOpLatencyMonitoringGraphLink;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
 import io.datarouter.web.user.DatarouterUserNodes;
 import io.datarouter.web.user.NoOpDatarouterUserNodes;
+import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.saml.SamlRegistrar;
-import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.CurrentUserSessionInfo;
 import io.datarouter.web.user.session.DatarouterCurrentUserSessionInfo;
 import io.datarouter.web.user.session.service.DatarouterRoleManager;
 import io.datarouter.web.user.session.service.DatarouterUserInfo;
 import io.datarouter.web.user.session.service.DatarouterUserSessionService;
-import io.datarouter.web.user.session.service.RoleEnum;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserInfo;
 import io.datarouter.web.user.session.service.UserSessionService;
@@ -65,7 +68,6 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
 		bindDefault(DatarouterAuthenticationConfig.class, BaseDatarouterAuthenticationConfig.class);
 		bindDefault(DatarouterUserNodes.class, NoOpDatarouterUserNodes.class);
-		bindDefaultInstance(new TypeLiteral<RoleEnum<? extends RoleEnum<?>>>(){}, DatarouterUserRole.ADMIN);
 		bindDefault(CurrentUserSessionInfo.class, DatarouterCurrentUserSessionInfo.class);
 		bindDefault(UserInfo.class, DatarouterUserInfo.class);
 		optionalBinder(ExceptionRecorder.class);
@@ -75,6 +77,11 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		optionalBinder(SamlRegistrar.class);
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(UserSessionService.class, DatarouterUserSessionService.class);
+		bindDefaultInstance(DatarouterAdditionalAdministrators.class,
+				new DatarouterAdditionalAdministrators(Collections.emptySet()));
+		bindDefault(LatencyMonitoringGraphLink.class, NoOpLatencyMonitoringGraphLink.class);
+		bindDefaultInstance(PermissionRequestAdditionalEmails.class,
+				new PermissionRequestAdditionalEmails(Collections.emptySet()));
 
 		// define as singleton for everybody
 		bind(Gson.class).toInstance(GsonTool.GSON);

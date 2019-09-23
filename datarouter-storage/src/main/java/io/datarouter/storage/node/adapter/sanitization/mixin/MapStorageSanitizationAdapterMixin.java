@@ -37,7 +37,7 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 		if(databean != null){
 			PrimaryKeySanitizer.checkForNullPrimaryKeyValues(databean.getKey());
 		}
-		getBackingNode().put(databean, Config.nullSafe(config));
+		getBackingNode().put(databean, config);
 	}
 
 	@Override
@@ -45,17 +45,17 @@ extends MapStorage<PK,D>, MapStorageReaderSanitizationAdapterMixin<PK,D,F,N>{
 		databeans.stream()
 				.map(D::getKey)
 				.forEach(PrimaryKeySanitizer::checkForNullPrimaryKeyValues);
-		getBackingNode().putMulti(databeans, Config.nullSafe(config));
+		getBackingNode().putMulti(databeans, config);
 	}
 
 	@Override
 	default void delete(PK key, Config config){
-		getBackingNode().delete(key, Config.nullSafe(config));
+		getBackingNode().delete(key, config);
 	}
 
 	@Override
 	default void deleteMulti(Collection<PK> keys, Config config){
-		getBackingNode().deleteMulti(keys, Config.nullSafe(config));
+		getBackingNode().deleteMulti(keys, config);
 	}
 
 	@Override

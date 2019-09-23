@@ -9,7 +9,7 @@ collections which will treat them similarly to persistent datastores.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-model</artifactId>
-	<version>0.0.10</version>
+	<version>0.0.11</version>
 </dependency>
 ```
 
@@ -24,27 +24,27 @@ collections which will treat them similarly to persistent datastores.
 ```java
 package io.datarouter.example.request;
 
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
-import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.field.imp.comparable.InstantField;
+import io.datarouter.model.field.imp.comparable.InstantFieldKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class RequestLogEntryKey extends BasePrimaryKey<RequestLogEntryKey>{
+public class RequestLogEntryKey extends BaseRegularPrimaryKey<RequestLogEntryKey>{
 
 	private String path;
-	private Date date;
+	private Instant date;
 	private String sessionId;
 
 	public RequestLogEntryKey(){
 	}
 
-	public RequestLogEntryKey(String path, Date date, String sessionId){
+	public RequestLogEntryKey(String path, Instant date, String sessionId){
 		this.path = path;
 		this.date = date;
 		this.sessionId = sessionId;
@@ -52,7 +52,7 @@ public class RequestLogEntryKey extends BasePrimaryKey<RequestLogEntryKey>{
 
 	public static class FieldKeys{
 		public static final StringFieldKey path = new StringFieldKey("path");
-		public static final DateFieldKey date = new DateFieldKey("date").withMillis();
+		public static final InstantFieldKey date = new InstantFieldKey("date");
 		public static final StringFieldKey sessionId = new StringFieldKey("sessionId");
 	}
 
@@ -60,7 +60,7 @@ public class RequestLogEntryKey extends BasePrimaryKey<RequestLogEntryKey>{
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(FieldKeys.path, path),
-				new DateField(FieldKeys.date, date),
+				new InstantField(FieldKeys.date, date),
 				new StringField(FieldKeys.sessionId, sessionId));
 	}
 
@@ -68,7 +68,7 @@ public class RequestLogEntryKey extends BasePrimaryKey<RequestLogEntryKey>{
 		return path;
 	}
 
-	public Date getDate(){
+	public Instant getDate(){
 		return date;
 	}
 
@@ -103,17 +103,16 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
 public class RequestLogEntry extends BaseDatabean<RequestLogEntryKey,RequestLogEntry>{
 
-	private RequestLogEntryKey key;
 	private String serverId;
 	private Integer responseCode;
 	private Long durationMs;
 
 	public RequestLogEntry(){
-		this.key = new RequestLogEntryKey();
+		super(new RequestLogEntryKey());
 	}
 
 	public RequestLogEntry(RequestLogEntryKey key, String serverId, Integer responseCode, Long durationMs){
-		this.key = key;
+		super(key);
 		this.serverId = serverId;
 		this.responseCode = responseCode;
 		this.durationMs = durationMs;
@@ -144,11 +143,6 @@ public class RequestLogEntry extends BaseDatabean<RequestLogEntryKey,RequestLogE
 		return RequestLogEntryKey.class;
 	}
 
-	@Override
-	public RequestLogEntryKey getKey(){
-		return key;
-	}
-
 	public String getServerId(){
 		return serverId;
 	}
@@ -166,38 +160,38 @@ public class RequestLogEntry extends BaseDatabean<RequestLogEntryKey,RequestLogE
 
 ### FieldlessIndexEntryPrimaryKey
 
-##### - [TODO, Description and source code](./src/main/java/io/datarouter/model/key/FieldlessIndexEntryPrimaryKey.java)
+##### - [source code](./src/main/java/io/datarouter/model/key/FieldlessIndexEntryPrimaryKey.java)
 
 ##### - Example FieldlessIndexEntryPrimaryKey
 
 ```java
 package io.datarouter.example.request;
 
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class RequestLogEntryBySessionIdDateKey extends BasePrimaryKey<RequestLogEntryBySessionIdDateKey>
+public class RequestLogEntryBySessionIdDateKey extends BaseRegularPrimaryKey<RequestLogEntryBySessionIdDateKey>
 implements FieldlessIndexEntryPrimaryKey<
 		RequestLogEntryBySessionIdDateKey,
 		RequestLogEntryKey,
 		RequestLogEntry>{
 
 	private String sessionId;
-	private Date date;
+	private Instant date;
 	private String path;
 
 	public RequestLogEntryBySessionIdDateKey(){
 	}
 
-	public RequestLogEntryBySessionIdDateKey(String sessionId, Date date, String path){
+	public RequestLogEntryBySessionIdDateKey(String sessionId, Instant date, String path){
 		this.sessionId = sessionId;
 		this.date = date;
 		this.path = path;
@@ -207,7 +201,7 @@ implements FieldlessIndexEntryPrimaryKey<
 	public List<Field<?>> getFields(){
 		return Arrays.asList(
 				new StringField(RequestLogEntryKey.FieldKeys.sessionId, sessionId),
-				new DateField(RequestLogEntryKey.FieldKeys.date, date),
+				new InstantField(RequestLogEntryKey.FieldKeys.date, date),
 				new StringField(RequestLogEntryKey.FieldKeys.path, path));
 	}
 
@@ -227,7 +221,6 @@ implements FieldlessIndexEntryPrimaryKey<
 	}
 
 }
-
 ```
 
 ### Links to further source code with comments

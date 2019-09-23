@@ -18,9 +18,6 @@ package io.datarouter.util.number;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 public class NumberFormatter{
 
 	public static String format(Number number, int numFractionDigits){
@@ -52,38 +49,4 @@ public class NumberFormatter{
 		return new DecimalFormat("###,###,###,###,###,###,###,###.#####################").format(value);
 	}
 
-	public static class Tests{
-
-		@Test
-		public void testFormat(){
-			double input = 1234567890.1234567890;
-			Assert.assertEquals(format(input, "$", "", 2), "$1,234,567,890.12");
-			Assert.assertEquals(format(input, "", "", 0), "1,234,567,890");
-		}
-
-		@Test
-		public void testAddCommas(){
-			Short nullShort = null;
-			Assert.assertEquals(addCommas(nullShort), null);
-			Assert.assertEquals(addCommas(0), "0");
-			Assert.assertEquals(addCommas(Short.MIN_VALUE), "-32,768");
-			Assert.assertEquals(addCommas(Short.MAX_VALUE), "32,767");
-
-			Integer nullInteger = null;
-			Assert.assertEquals(addCommas(nullInteger), null);
-			Assert.assertEquals(addCommas(0), "0");
-			Assert.assertEquals(addCommas(Integer.MIN_VALUE), "-2,147,483,648");
-			Assert.assertEquals(addCommas(Integer.MAX_VALUE), "2,147,483,647");
-
-			Long nullLong = null;
-			Assert.assertEquals(addCommas(nullLong), null);
-			Assert.assertEquals(addCommas(0L), "0");
-			Assert.assertEquals(addCommas(Long.MIN_VALUE), "-9,223,372,036,854,775,808");
-			Assert.assertEquals(addCommas(Long.MAX_VALUE), "9,223,372,036,854,775,807");
-
-			Assert.assertEquals(addCommas(1234567890.1234567890), "1,234,567,890.1234567");// precision overflow
-			Assert.assertEquals(addCommas(1234.1234567890), "1,234.123456789");
-			Assert.assertEquals(addCommas(1234.123456789012), "1,234.123456789012");
-		}
-	}
 }

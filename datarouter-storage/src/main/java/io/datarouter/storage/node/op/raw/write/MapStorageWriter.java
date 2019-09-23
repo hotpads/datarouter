@@ -39,9 +39,22 @@ extends StorageWriter<PK,D>{
 
 
 	void delete(PK key, Config config);
+
+	default void delete(PK key){
+		delete(key, new Config());
+	}
+
 	void deleteMulti(Collection<PK> keys, Config config);
+
+	default void deleteMulti(Collection<PK> keys){
+		deleteMulti(keys, new Config());
+	}
+
 	void deleteAll(Config config);
 
+	default void deleteAll(){
+		deleteAll(new Config());
+	}
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 

@@ -20,12 +20,12 @@ import java.util.List;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.util.collection.ListTool;
 
 public class BaseDatarouterSessionDatabeanKey<
 		PK extends BaseDatarouterSessionDatabeanKey<PK>>
-extends BasePrimaryKey<PK>{
+extends BaseRegularPrimaryKey<PK>{
 
 	private String sessionToken;
 

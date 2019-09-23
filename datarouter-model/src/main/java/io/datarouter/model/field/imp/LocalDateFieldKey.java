@@ -16,23 +16,26 @@
 package io.datarouter.model.field.imp;
 
 import java.time.LocalDate;
+import java.util.Map;
 
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class LocalDateFieldKey extends PrimitiveFieldKey<LocalDate>{
+public class LocalDateFieldKey extends PrimitiveFieldKey<LocalDate,LocalDateFieldKey>{
 
 	public LocalDateFieldKey(String name){
 		super(name, LocalDate.class);
 	}
 
 	private LocalDateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			LocalDate defaultValue){
-		super(name, columnName, nullable, LocalDate.class, fieldGeneratorType, defaultValue);
+			LocalDate defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, LocalDate.class, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	public LocalDateFieldKey withColumnName(String columnNameOverride){
-		return new LocalDateFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
+		return new LocalDateFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	@Override

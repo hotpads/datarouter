@@ -34,7 +34,7 @@ public class DatarouterUserByUserTokenCache extends LoadingCacheWrapper<String,D
 	public DatarouterUserByUserTokenCache(DatarouterUserNodes userNodes){
 		super(new LoadingCacheBuilder<String,DatarouterUser>()
 				.withLoadingFunction(key -> userNodes.getUserNode().lookupUnique(
-						new DatarouterUserByUserTokenLookup(key), null))
+						new DatarouterUserByUserTokenLookup(key)))
 				.withExpireTtl(Duration.ofSeconds(6))
 				.withExceptionFunction(key -> new InvalidCredentialsException("userToken not found (" + key + ")"))
 				.build());

@@ -29,7 +29,6 @@ public class PutOpIdGeneratedRandomTestBean
 extends BaseDatabean<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGeneratedRandomTestBean>
 implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGeneratedRandomTestBean>{
 
-	private PutOpIdGeneratedRandomTestBeanKey key;
 	private String aa;
 
 	public static class FieldKeys{
@@ -51,22 +50,17 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGene
 	}
 
 	public PutOpIdGeneratedRandomTestBean(){
-		this.key = new PutOpIdGeneratedRandomTestBeanKey();
+		super(new PutOpIdGeneratedRandomTestBeanKey());
 	}
 
 	public PutOpIdGeneratedRandomTestBean(String val){
-		this.key = new PutOpIdGeneratedRandomTestBeanKey();
+		super(new PutOpIdGeneratedRandomTestBeanKey());
 		this.aa = val;
 	}
 
 	@Override
 	public Class<PutOpIdGeneratedRandomTestBeanKey> getKeyClass(){
 		return PutOpIdGeneratedRandomTestBeanKey.class;
-	}
-
-	@Override
-	public PutOpIdGeneratedRandomTestBeanKey getKey(){
-		return key;
 	}
 
 }

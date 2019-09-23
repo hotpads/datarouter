@@ -20,8 +20,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.router.BaseRouter;
@@ -47,12 +45,11 @@ public class DatarouterSamlRouter extends BaseRouter{
 			SamlAuthnRequestRedirectUrlFielder> samlAuthnRequestRedirectUrl;
 
 	@Inject
-	public DatarouterSamlRouter(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSettings datarouterSettings,
-			DatarouterSamlRouterParams params, DatarouterProperties datarouterProperties){
-		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
+	public DatarouterSamlRouter(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSamlRouterParams params){
+		super(datarouter);
 
-		samlAuthnRequestRedirectUrl = createAndRegister(params.clientId, SamlAuthnRequestRedirectUrl::new,
-				SamlAuthnRequestRedirectUrlFielder::new);
+		samlAuthnRequestRedirectUrl = nodeFactory.create(params.clientId, SamlAuthnRequestRedirectUrl::new,
+				SamlAuthnRequestRedirectUrlFielder::new).buildAndRegister();
 	}
 
 }

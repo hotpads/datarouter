@@ -31,11 +31,15 @@ public abstract class WrappedSubEntityNodeFactory<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalNode<PK,D,F>>
-extends BaseWrappedNodeFactory<PK,D,F,N>{
+extends BaseWrappedNodeFactory<EK,PK,D,F,N>{
 
-	protected abstract N createSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams);
+	protected abstract N createSubEntityNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			NodeParams<PK,D,F> nodeParams);
 
-	public final N createWrappedSubEntityNode(EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
+	public final N createWrappedSubEntityNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			NodeParams<PK,D,F> nodeParams){
 		return adapt(createSubEntityNode(entityNodeParams, nodeParams));
 	}
 

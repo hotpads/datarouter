@@ -7,7 +7,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react-router/3.0.2/ReactRouter.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.min.js" charset="UTF-8"></script>
-	<%@ include file="/WEB-INF/jsp/generic/head.jsp"%>
+	<%@ include file="/jsp/generic/baseHead.jsp"%>
 	<script>
 		const CONTEXT_PATH = "${contextPath}";
 		const REACT_BASE_PATH = CONTEXT_PATH + "${path}/";

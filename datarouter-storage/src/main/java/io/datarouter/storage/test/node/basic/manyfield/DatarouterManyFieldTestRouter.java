@@ -23,12 +23,10 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.router.BaseRouter;
 import io.datarouter.storage.router.TestRouter;
-import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 
 @Singleton
@@ -37,12 +35,11 @@ public class DatarouterManyFieldTestRouter extends BaseRouter implements TestRou
 	private final MapStorageNode<ManyFieldBeanKey,ManyFieldBean,ManyFieldTypeBeanFielder> manyFieldTypeBeanNode;
 
 	@Inject
-	public DatarouterManyFieldTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
-			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId,
+	public DatarouterManyFieldTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
 			Supplier<ManyFieldTypeBeanFielder> fielderSupplier){
-		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
+		super(datarouter);
 
-		manyFieldTypeBeanNode = create(clientId, ManyFieldBean::new, fielderSupplier)
+		manyFieldTypeBeanNode = nodeFactory.create(clientId, ManyFieldBean::new, fielderSupplier)
 				.withSchemaVersion(new Random().nextInt())
 				.buildAndRegister();
 	}

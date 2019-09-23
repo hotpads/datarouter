@@ -17,9 +17,10 @@ package io.datarouter.web.handler.mav.nav;
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,6 +37,7 @@ import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSession.DatarouterSessionMock;
 
 public class NavBarMenuItem{
+
 	private final URI href;//this is what will appear in HTML
 	private final URI path;//this is used to look up dispatch rules (no query params)
 	private final String text;
@@ -47,7 +49,9 @@ public class NavBarMenuItem{
 		this.href = URI.create("");
 		this.path = href;
 		this.text = text;
-		this.subItems = Collections.unmodifiableList(Arrays.asList(subItems));
+		this.subItems = Arrays.stream(subItems)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
 		this.dispatchRule = Lazy.of(Optional::empty);
 	}
 
@@ -98,7 +102,7 @@ public class NavBarMenuItem{
 	}
 
 	public List<NavBarMenuItem> getSubItems(HttpServletRequest request){
-		return IterableTool.filter(subItems, item -> item.isAllowed(request));
+		return IterableTool.include(subItems, item -> item.isAllowed(request));
 	}
 
 	public static class NavBarMenuItemTests{

@@ -21,10 +21,10 @@ import java.util.stream.Stream;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.NodeOps;
-import io.datarouter.util.StreamTool;
 
 /**
  * Methods for writing to any storage system.
@@ -38,11 +38,25 @@ extends NodeOps<PK,D>{
 	public static final String OP_putMulti = "putMulti";
 
 	void put(D databean, Config config);
+
+	default void put(D databean){
+		put(databean, new Config());
+	}
+
 	void putMulti(Collection<D> databeans, Config config);
 
+	default void putMulti(Collection<D> databeans){
+		putMulti(databeans, new Config());
+	}
+
 	default void putStream(Stream<D> databeans, Config config){
-		StreamTool.batch(databeans, Config.nullSafe(config).optInputBatchSize().orElse(100))
+		Scanner.of(databeans)
+				.batch(config.optInputBatchSize().orElse(100))
 				.forEach(batch -> putMulti(batch, config));
+	}
+
+	default void putStream(Stream<D> databeans){
+		putStream(databeans, new Config());
 	}
 
 	public interface StorageWriterNode<

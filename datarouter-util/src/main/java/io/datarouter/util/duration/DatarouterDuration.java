@@ -19,9 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.lang.ClassTool;
 
 public class DatarouterDuration{
@@ -135,65 +132,6 @@ public class DatarouterDuration{
 		}
 		DatarouterDuration other = (DatarouterDuration)obj;
 		return nano == other.nano;
-	}
-
-
-	public static class DatarouterDurationTests{
-
-		@Test
-		public void parserAndtoStringTest(){
-			DatarouterDuration duration = new DatarouterDuration(3, TimeUnit.DAYS);
-			Assert.assertEquals(duration.toString(), "3d");
-			duration = new DatarouterDuration("1d2h65m15s");
-			Assert.assertEquals(duration.toString(), "1d3h5m15s");
-			duration = new DatarouterDuration("2h1d65m15s");
-			Assert.assertEquals(duration.toString(), "1d3h5m15s");
-			duration = new DatarouterDuration("15s");
-			Assert.assertEquals(duration.toSecond(), 15);
-			Assert.assertEquals(duration.toString(), "15s");
-			duration = new DatarouterDuration("100000d5s123ms");
-			Assert.assertEquals(duration.toString(), "100000d5s123ms");
-			duration = new DatarouterDuration("100000 d 5s 123 ms");
-			Assert.assertEquals(duration.toString(), "100000d5s123ms");
-			duration = new DatarouterDuration("48h");
-			Assert.assertEquals(duration.toString(), "2d");
-			duration = new DatarouterDuration("0");
-			Assert.assertEquals(duration.toString(), "0ms");
-			duration = new DatarouterDuration("max");
-			Assert.assertEquals(duration.toString(TimeUnit.NANOSECONDS), MAX_VALUE.toString(TimeUnit.NANOSECONDS));
-			duration = new DatarouterDuration("1d1d");
-			Assert.assertEquals(duration.toString(), "2d");
-			duration = new DatarouterDuration("4ms1us");
-			Assert.assertEquals(duration.toString(TimeUnit.MICROSECONDS), "4ms1us");
-			duration = new DatarouterDuration(1234, TimeUnit.NANOSECONDS);
-			Assert.assertEquals(duration.toString(TimeUnit.MICROSECONDS), "1us");
-			Assert.assertEquals(duration.toString(TimeUnit.NANOSECONDS), "1us");
-		}
-
-		@Test
-		public void testIsDuration(){
-			Assert.assertTrue(isDuration("3d"));
-			Assert.assertTrue(isDuration("1d2h65m15s"));
-			Assert.assertTrue(isDuration("2h1d65m15s"));
-			Assert.assertTrue(isDuration("15s"));
-			Assert.assertTrue(isDuration("100000d5s123ms"));
-			Assert.assertTrue(isDuration("100000 d 5s 123 ms"));
-			Assert.assertTrue(isDuration("48h"));
-			Assert.assertTrue(isDuration("0"));
-			Assert.assertTrue(isDuration("1d1d"));
-			Assert.assertTrue(isDuration("4ms1us"));
-			Assert.assertTrue(isDuration("MAX"));
-			Assert.assertFalse(isDuration("1banana"));
-			Assert.assertFalse(isDuration("1.5d7m"));
-			Assert.assertFalse(isDuration("1d7"));
-			Assert.assertFalse(isDuration("max5d"));
-		}
-
-		@Test
-		public void testConvertion(){
-			Assert.assertEquals(new DatarouterDuration(1, TimeUnit.SECONDS).toMillis(), 1000);
-		}
-
 	}
 
 }

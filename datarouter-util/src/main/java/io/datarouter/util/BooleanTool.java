@@ -17,9 +17,6 @@ package io.datarouter.util;
 
 import java.util.Set;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.collection.SetTool;
 
 public class BooleanTool{
@@ -75,21 +72,6 @@ public class BooleanTool{
 
 	public static boolean nullSafeSame(Boolean b1, Boolean b2){
 		return b1 == null && b2 == null || isTrue(b1) && isTrue(b2) || isFalse(b1) && isFalse(b2);
-	}
-
-	public class BooleanToolTests{
-
-		@Test
-		public void testNullSafeSame(){
-			Assert.assertEquals(nullSafeSame(null, null), true);
-			Assert.assertEquals(nullSafeSame(true, true), true);
-			Assert.assertEquals(nullSafeSame(false, false), true);
-			Assert.assertEquals(nullSafeSame(true, null), false);
-			Assert.assertEquals(nullSafeSame(null, true), false);
-			Assert.assertEquals(nullSafeSame(false, null), false);
-			Assert.assertEquals(nullSafeSame(null, false), false);
-		}
-
 	}
 
 }

@@ -8,7 +8,7 @@ datarouter-web is a basic framework to handle HTTP requests.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-web</artifactId>
-	<version>0.0.10</version>
+	<version>0.0.11</version>
 </dependency>
 ```
 
@@ -88,7 +88,7 @@ public class ExampleGuiceModule extends ServletModule{
 }
 ```
 
-Implementations of DispatcherServlet and RouteSet can be injected and bound as singletons. However, BaseHandler holds state about the request and should therefore not be a singleton.
+Implementations of `DispatcherServlet` and `RouteSet` can be injected and bound as singletons. However, `BaseHandler` holds state about the request and should therefore not be a singleton.
 
 ## License
 

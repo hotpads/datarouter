@@ -21,12 +21,10 @@ import javax.inject.Singleton;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBean.PutOpTestBeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.router.BaseRouter;
 import io.datarouter.storage.router.TestRouter;
-import io.datarouter.storage.test.TestDatarouterProperties;
 
 @Singleton
 public class DatarouterPutOpTestRouter extends BaseRouter implements TestRouter{
@@ -34,11 +32,11 @@ public class DatarouterPutOpTestRouter extends BaseRouter implements TestRouter{
 	private final MapStorage<PutOpTestBeanKey,PutOpTestBean> putOptTest;
 
 	@Inject
-	public DatarouterPutOpTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
-			DatarouterSettings datarouterSettings, NodeFactory nodeFactory, ClientId clientId){
-		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
+	public DatarouterPutOpTestRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId){
+		super(datarouter);
 
-		this.putOptTest = createAndRegister(clientId, PutOpTestBean::new, PutOpTestBeanFielder::new);
+		this.putOptTest = nodeFactory.create(clientId, PutOpTestBean::new, PutOpTestBeanFielder::new)
+				.buildAndRegister();
 	}
 
 	public MapStorage<PutOpTestBeanKey,PutOpTestBean> putOptTest(){

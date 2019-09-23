@@ -19,7 +19,7 @@ import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.varint.VarInt;
 
-public class VarIntField extends BasePrimitiveField<Integer>{
+public class VarIntField extends BasePrimitiveField<Integer,VarIntFieldKey>{
 
 	public VarIntField(VarIntFieldKey key, Integer value){
 		super(key, value);

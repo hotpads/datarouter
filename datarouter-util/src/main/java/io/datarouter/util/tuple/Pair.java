@@ -18,9 +18,6 @@ package io.datarouter.util.tuple;
 import java.io.Serializable;
 import java.util.Objects;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 @SuppressWarnings("serial")
 public class Pair<L,R> implements Serializable{
 
@@ -81,27 +78,6 @@ public class Pair<L,R> implements Serializable{
 	@Override
 	public int hashCode(){
 		return Objects.hash(left, right);
-	}
-
-	public static class Tests{
-		@Test
-		public void testEquals(){
-			Assert.assertNotEquals("a string", new Pair<>(null, null));
-			Assert.assertNotEquals("a", new Pair<>("a", "a"));
-			Assert.assertNotEquals("a", new Pair<>(null, "a"));
-			Assert.assertNotEquals("a", new Pair<>("a", null));
-
-			Assert.assertEquals(new Pair<>(null, null), new Pair<>(null, null));
-			Assert.assertEquals(new Pair<>(null, "a"), new Pair<>(null, "a"));
-			Assert.assertEquals(new Pair<>("a", null), new Pair<>("a", null));
-			Assert.assertEquals(new Pair<>("a", "a"), new Pair<>("a", "a"));
-			Assert.assertEquals(new Pair<>("a", "b"), new Pair<>("a", "b"));
-
-			Assert.assertNotEquals(new Pair<>("c", "b"), new Pair<>("a", "b"));
-			Assert.assertNotEquals(new Pair<>("a", "c"), new Pair<>("a", "b"));
-			Assert.assertNotEquals(new Pair<>("a", "a"), new Pair<>("a", "b"));
-			Assert.assertNotEquals(new Pair<>("b", "b"), new Pair<>("a", "b"));
-		}
 	}
 
 }

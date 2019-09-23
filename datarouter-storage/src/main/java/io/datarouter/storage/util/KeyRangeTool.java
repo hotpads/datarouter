@@ -22,14 +22,15 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.compare.FieldSetRangeFilter;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.util.tuple.Range;
 
 public class KeyRangeTool{
@@ -66,6 +67,22 @@ public class KeyRangeTool{
 
 	public interface KeyWithStringFieldSuffixProvider<PK extends PrimaryKey<PK>>{
 		PK createWithSuffixStringField(String fieldValue);
+	}
+
+	public static <PK extends PrimaryKey<PK>> boolean contains(Range<PK> range, PK pk){
+		return !isBeforeStartOfRange(range, pk) && !isAfterEndOfRange(range, pk);
+	}
+
+	public static <PK extends PrimaryKey<PK>> boolean isBeforeStartOfRange(Range<PK> range, PK pk){
+		return range != null && !range.matchesStart(pk);
+	}
+
+	public static <PK extends PrimaryKey<PK>> boolean isAfterEndOfRange(Range<PK> range, PK pk){
+		if(range == null || !range.hasEnd()){
+			return false;
+		}
+		return !FieldSetRangeFilter.isCandidateBeforeEndOfRange(pk.getFields(), range.getEnd().getFields(), range
+				.getEndInclusive());
 	}
 
 	public static class KeyRangeToolTests{
@@ -112,7 +129,7 @@ public class KeyRangeTool{
 			Assert.assertEquals(incrementLastChar(input), expected);
 		}
 
-		private class TestKey extends BasePrimaryKey<TestKey>{
+		private class TestKey extends BaseRegularPrimaryKey<TestKey>{
 
 			private Integer foo;
 			private String bar;

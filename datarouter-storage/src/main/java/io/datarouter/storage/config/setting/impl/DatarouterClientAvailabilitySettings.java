@@ -33,7 +33,7 @@ import io.datarouter.storage.setting.constant.ConstantBooleanSetting;
 @Singleton
 public class DatarouterClientAvailabilitySettings extends SettingNode{
 
-	public static final String SETTING_PREFIX = "datarouter.availability.";
+	public static final String SETTING_PREFIX = "datarouterStorage.availability.";
 	public static final String READ = "read";
 	public static final String WRITE = "write";
 

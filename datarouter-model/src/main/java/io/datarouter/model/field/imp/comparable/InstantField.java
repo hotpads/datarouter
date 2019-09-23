@@ -21,7 +21,7 @@ import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.array.LongArray;
 import io.datarouter.util.bytes.LongByteTool;
 
-public class InstantField extends BasePrimitiveField<Instant>{
+public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 
 	public InstantField(InstantFieldKey key, Instant value){
 		super(key, value);

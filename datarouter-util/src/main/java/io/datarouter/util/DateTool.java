@@ -31,13 +31,10 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.duration.DurationUnit;
 import io.datarouter.util.duration.DurationWithCarriedUnits;
 
-public final class DateTool{
+public class DateTool{
 
 	public static final int MILLISECONDS_IN_DAY = (int) Duration.ofDays(1).toMillis();
 	public static final int MILLISECONDS_IN_HOUR = (int) Duration.ofHours(1).toMillis();
@@ -81,10 +78,18 @@ public final class DateTool{
 			ordinalMatcher = ordinalPattern.matcher(strippedDate);
 		}
 		date = strippedDate;
-		String[] commonFormats =
-				{"E MMM dd hh mm ss z yyyy", "yyyy MM dd'T'hh mm ss'Z'", "yyyy MM dd hh mm ss", "MM dd yy", "MMM dd yy",
-						"MMMMM dd yy", "MMMMM yyyy", "yyyyMMdd", "yyyyMM", "MMMMM dd"
-				};//"MM dd", "MMM dd","MMMMM dd", };
+		String[] commonFormats = {
+				"E MMM dd hh mm ss z yyyy",
+				"yyyy MM dd'T'hh mm ss'Z'",
+				"yyyy MM dd hh mm ss",
+				"MM dd yy",
+				"MMM dd yy",
+				"MMMMM dd yy",
+				"MMMMM yyyy",
+				"yyyyMMdd",
+				"yyyyMM",
+				"MMMMM dd"
+		};//"MM dd", "MMM dd","MMMMM dd", };
 
 		for(String fmt : commonFormats){
 			try{
@@ -317,111 +322,4 @@ public final class DateTool{
 		return dateLong == null ? null : new Date(Long.MAX_VALUE - dateLong);
 	}
 
-	/*---------------- tests ----------------*/
-
-	public static class DateToolTests{
-
-		private static final SimpleDateFormat df = new SimpleDateFormat("MM-dd-yyyy");
-
-		@Test
-		public void testParseCommonDate(){
-			/*
-			{"MM dd yy","MMM dd yy","MMMMM dd yy",
-				"MM dd", "MMM dd","MMMMM dd", };*/
-			testParseUserInputDate("11-05-2008", "11-05-08");
-			testParseUserInputDate("11-05-2008", "11-05-2008");
-			testParseUserInputDate("11-05-1982", "11-05-82");
-			testParseUserInputDate("11-05-1982", "11-05-1982");
-			testParseUserInputDate("11-05-2008", "Nov 5, 2008");
-			testParseUserInputDate("11-05-2008", "Nov 5, 08");
-			testParseUserInputDate("11-05-2008", "November 5, 2008");
-			testParseUserInputDate("11-05-2008", "November 05, 2008");
-			testParseUserInputDate("07-15-2011", "July 15th, 2011");
-			testParseUserInputDate("01-01-2008", "1/1/2008");
-			testParseUserInputDate("01-01-2008", "01/01/2008");
-			testParseUserInputDate("01-05-2008", "01/05/2008");
-			testParseUserInputDate("01-05-2008", "1/5/08");
-			testParseUserInputDate("06-01-2010", "June 2010");
-			testParseUserInputDate("06-01-2010", "201006");
-			testParseUserInputDate("06-01-2010", "20100601");
-
-			Assert.assertEquals(df.format(parseUserInputDate("July 15th",
-					2000)), "07-15-" + DateTool.getYearInteger());
-		}
-
-		private void testParseUserInputDate(String expected, String original){
-			Assert.assertEquals(df.format(parseUserInputDate(original, null)), expected);
-		}
-
-		@Test
-		public void testAgoString(){
-			Assert.assertEquals(getMillisAsString(950, 1, DurationUnit.MILLISECONDS), "950 milliseconds");
-			Assert.assertEquals(getMillisAsString(950, 5, DurationUnit.MILLISECONDS), "950 milliseconds");
-			Assert.assertEquals(getMillisAsString(52950, 1, DurationUnit.MILLISECONDS), "52 seconds");
-			Assert.assertEquals(getMillisAsString(360051, 2, DurationUnit.MILLISECONDS), "6 minutes");
-			Assert.assertEquals(getMillisAsString(225950, 2, DurationUnit.MILLISECONDS), "3 minutes, 45 seconds");
-			Assert.assertEquals(getMillisAsString(10225950, 2, DurationUnit.MILLISECONDS), "2 hours, 50 minutes");
-			Assert.assertEquals(getMillisAsString(240225950, 4, DurationUnit.MILLISECONDS),
-					"2 days, 18 hours, 43 minutes, 45 seconds");
-		}
-
-		@Test
-		public void testToReverseDateLong(){
-			Date now = new Date(), zero = new Date(0L), max = new Date(Long.MAX_VALUE);
-			Assert.assertEquals(toReverseDateLong(now), (Long)(Long.MAX_VALUE - now.getTime()));
-			Assert.assertEquals(toReverseDateLong(zero), (Long)Long.MAX_VALUE);
-			Assert.assertEquals(toReverseDateLong(max), (Long)0L);
-			Assert.assertNull(toReverseDateLong(null));
-		}
-
-		@Test
-		public void testFromReverseDateLong(){
-			Date now = new Date(), zero = new Date(0L), max = new Date(Long.MAX_VALUE);
-			Assert.assertEquals(fromReverseDateLong(Long.MAX_VALUE - now.getTime()), now);
-			Assert.assertEquals(fromReverseDateLong(Long.MAX_VALUE - zero.getTime()), zero);
-			Assert.assertEquals(fromReverseDateLong(Long.MAX_VALUE - max.getTime()), max);
-			Assert.assertNull(fromReverseDateLong(null));
-		}
-
-		@Test
-		public void testReverseDateLong(){
-			Date now = new Date();
-			Long nowTime = now.getTime();
-			Assert.assertEquals(fromReverseDateLong(toReverseDateLong(now)), now);
-			Assert.assertEquals(toReverseDateLong(fromReverseDateLong(nowTime)), nowTime);
-			Assert.assertNull(fromReverseDateLong(toReverseDateLong(null)));
-			Assert.assertNull(toReverseDateLong(fromReverseDateLong(null)));
-		}
-
-		@Test
-		public void testGetDaysAgo(){
-			Date date1 = new Date(1527182116155L);
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(1526836516155L);
-			Date date2 = calendar.getTime();
-			Assert.assertEquals(getDaysAgo(4, date1), date2);
-		}
-
-		@Test
-		public void testGetDaysBetween(){
-			Date d1 = new Date(1352059736026L);
-			int daysApart = 4;
-			Date d2 = new Date(d1.getTime() + MILLISECONDS_IN_DAY * daysApart);
-			Assert.assertEquals(getDaysBetween(d1, d2), daysApart, 1 >> 20);
-			d2 = new Date(d1.getTime() + MILLISECONDS_IN_DAY * daysApart - 4);
-			Assert.assertTrue(daysApart > getDaysBetween(d1, d2));
-			Assert.assertTrue(daysApart - 1 < getDaysBetween(d1, d2));
-		}
-
-		@Test
-		public void testGetMinutesBetween(){
-			Date d1 = new Date(1352059736026L);
-			int minutesApart = 5;
-			Date d2 = new Date(d1.getTime() + MILLISECONDS_IN_MINUTE * minutesApart);
-			Assert.assertEquals(getMinutesBetween(d1, d2), minutesApart, 1 >> 20);
-			d2 = new Date(d1.getTime() + MILLISECONDS_IN_MINUTE * minutesApart - 10);
-			Assert.assertTrue(minutesApart > getMinutesBetween(d1, d2));
-			Assert.assertTrue(minutesApart - 1 < getMinutesBetween(d1, d2));
-		}
-	}
 }

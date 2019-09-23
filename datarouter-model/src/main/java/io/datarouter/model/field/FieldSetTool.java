@@ -18,7 +18,6 @@ package io.datarouter.model.field;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,24 +27,10 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.comparable.BooleanField;
-import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
-import io.datarouter.model.field.imp.comparable.DoubleField;
-import io.datarouter.model.field.imp.comparable.DoubleFieldKey;
-import io.datarouter.model.field.imp.comparable.LongField;
-import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.positive.UInt31Field;
-import io.datarouter.model.field.imp.positive.UInt31FieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.bytes.ByteRange;
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.SetTool;
@@ -55,6 +40,13 @@ import io.datarouter.util.tuple.Pair;
 import io.datarouter.util.varint.VarInt;
 
 public class FieldSetTool{
+
+	public static <F extends FieldSet<F>> F clone(F fieldSet){
+		@SuppressWarnings("unchecked")
+		F copy = (F)ReflectionTool.create(fieldSet.getClass());
+		fieldSet.getFields().forEach(field -> field.setUsingReflection(copy, field.getValue()));
+		return copy;
+	}
 
 	public static int getNumNonNullLeadingFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
@@ -191,98 +183,6 @@ public class FieldSetTool{
 		}
 
 		return fieldSet;
-	}
-
-	public static class FieldSetToolTests{
-
-		@Test
-		public void testGetConcatenatedValueBytes(){
-			int someInt = 55;
-			String someStringA = "abc";
-			String someStringB = "xyz";
-			List<Field<?>> fields = Arrays.asList(
-					new UInt31Field(new UInt31FieldKey("someInt"), someInt),
-					new StringField(new StringFieldKey("someStringA"), someStringA),
-					new StringField(new StringFieldKey("someStringB"), someStringB));
-			ByteRange withTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, true, true));
-			ByteRange withoutTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields, false, true,
-					false));
-			int lengthWithout = 4 + 3 + 1 + 3;
-			int lengthWith = lengthWithout + 1;
-			Assert.assertEquals(withTrailingByte.getLength(), lengthWith);
-			Assert.assertEquals(withoutTrailingByte.getLength(), lengthWithout);
-		}
-
-		@Test
-		public void testGenerateFieldMap(){
-			int testInt = 127;
-			String someStr0 = "first", someStr1 = "second";
-
-			List<Field<?>> fields = Arrays.asList(
-					new StringField(new StringFieldKey("hahah"), someStr0),
-					new StringField(new StringFieldKey("moose"), someStr1),
-					new UInt31Field(new UInt31FieldKey("integ"), testInt));
-
-			Map<String, Field<?>> fieldMap = generateFieldMap(fields);
-			Assert.assertEquals(fieldMap.size(), fields.size());
-			Assert.assertNotNull(fieldMap.get("hahah"));
-		}
-
-		@Test
-		public void testGetFieldDifferences(){
-			StringFieldKey one = new StringFieldKey("one");
-			StringFieldKey two = new StringFieldKey("two");
-			BooleanFieldKey three = new BooleanFieldKey("three");
-			LongFieldKey four = new LongFieldKey("four");
-			DoubleFieldKey five = new DoubleFieldKey("five");
-			UInt31FieldKey six = new UInt31FieldKey("six");
-			Long sameRefLong = new Long(123456789000L);
-
-			List<Field<?>> left = Arrays.asList(
-					new StringField(one, "help"),
-					new StringField(two, "smite"),
-					new BooleanField(three, true),
-					new LongField(four, sameRefLong),
-					new DoubleField(five, 5e6));
-					// omitted six
-
-			List<Field<?>> right = Arrays.asList(
-					new StringField(one, "help"),
-					new StringField(two, "two"),
-					new BooleanField(three, null),
-					new LongField(four, sameRefLong),
-					// omitted five
-					new UInt31Field(six, 55));
-
-			Map<String, Pair<Field<?>, Field<?>>> diffs = getFieldDifferences(left, right);
-			Pair<Field<?>, Field<?>> test;
-
-			test = diffs.get(one.getName());
-			Assert.assertNull(test);
-
-			test = diffs.get(two.getName());
-			Assert.assertNotNull(test);
-			Assert.assertNotSame(test.getRight().getValue(), test.getLeft().getValue());
-
-			test = diffs.get(three.getName());
-			Assert.assertNotNull(test);
-			Assert.assertNull(test.getRight().getValue());
-			Assert.assertNotSame(test.getRight().getValue(), test.getLeft().getValue());
-
-			test = diffs.get(four.getName());
-			Assert.assertNull(test);
-
-			test = diffs.get(five.getName());
-			Assert.assertNotNull(test);
-			Assert.assertNull(test.getRight());
-
-			test = diffs.get(six.getName());
-			Assert.assertNotNull(test);
-			Assert.assertNull(test.getLeft());
-
-			test = diffs.get("this test does not exist");
-			Assert.assertNull(test);
-		}
 	}
 
 }

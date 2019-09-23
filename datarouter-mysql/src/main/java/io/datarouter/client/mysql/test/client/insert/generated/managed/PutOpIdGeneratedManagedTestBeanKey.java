@@ -23,10 +23,10 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public class PutOpIdGeneratedManagedTestBeanKey
-extends BasePrimaryKey<PutOpIdGeneratedManagedTestBeanKey>
+extends BaseRegularPrimaryKey<PutOpIdGeneratedManagedTestBeanKey>
 implements PutOpGeneratedTestBeanKey<PutOpIdGeneratedManagedTestBeanKey>{
 
 	private Long id;

@@ -1,4 +1,4 @@
-<%@ include file="/jsp/generic/baseHead.jsp" %>
+<%@ include file="/jsp/generic/newBaseHead.jsp" %>
 <link rel="icon" href="${contextPath}/jee-assets/datarouter-logo.png">
 <script>
 	var requireJsConfig = {

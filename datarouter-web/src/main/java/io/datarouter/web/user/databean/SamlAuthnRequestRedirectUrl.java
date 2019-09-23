@@ -31,17 +31,15 @@ import io.datarouter.model.util.CommonFieldSizes;
 public class SamlAuthnRequestRedirectUrl
 extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>{
 
-	private SamlAuthnRequestRedirectUrlKey key;
-
 	private String redirectUrl;
 	private Date created;
 
 	public SamlAuthnRequestRedirectUrl(){
-		this.key = new SamlAuthnRequestRedirectUrlKey();
+		super(new SamlAuthnRequestRedirectUrlKey());
 	}
 
 	public SamlAuthnRequestRedirectUrl(String authnRequestId, String redirectUrl){
-		this.key = new SamlAuthnRequestRedirectUrlKey(authnRequestId);
+		super(new SamlAuthnRequestRedirectUrlKey(authnRequestId));
 		this.redirectUrl = redirectUrl;
 		this.created = new Date();
 	}
@@ -66,11 +64,6 @@ extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>
 					new DateField(FieldKeys.created, databean.created));
 		}
 
-	}
-
-	@Override
-	public SamlAuthnRequestRedirectUrlKey getKey(){
-		return key;
 	}
 
 	@Override

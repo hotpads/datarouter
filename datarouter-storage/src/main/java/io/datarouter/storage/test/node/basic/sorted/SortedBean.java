@@ -38,8 +38,6 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 		public static final DoubleFieldKey f4 = new DoubleFieldKey("f4");
 	}
 
-	private SortedBeanKey key;
-
 	private String f1;
 	private Long f2;
 	private String f3;
@@ -63,7 +61,7 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	}
 
 	public SortedBean(){
-		this.key = new SortedBeanKey();
+		super(new SortedBeanKey());
 	}
 
 	public SortedBean(String foo, String bar, Integer baz, String qux,
@@ -72,7 +70,7 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	}
 
 	public SortedBean(SortedBeanKey key, String f1, Long f2, String f3, Double f4){
-		this.key = key;
+		super(key);
 		this.f1 = f1;
 		this.f2 = f2;
 		this.f3 = f3;
@@ -82,11 +80,6 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	@Override
 	public Class<SortedBeanKey> getKeyClass(){
 		return SortedBeanKey.class;
-	}
-
-	@Override
-	public SortedBeanKey getKey(){
-		return key;
 	}
 
 	public String getF1(){

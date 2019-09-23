@@ -17,14 +17,14 @@ package io.datarouter.storage.test.node.basic.map;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.router.BaseRouter;
 import io.datarouter.storage.router.TestRouter;
-import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
+import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanEntityKey;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanKey;
 
 public class DatarouterMapStorageTestRouter extends BaseRouter implements TestRouter{
@@ -33,16 +33,17 @@ public class DatarouterMapStorageTestRouter extends BaseRouter implements TestRo
 
 	public final MapStorage<MapStorageBeanKey,MapStorageBean> mapStorageNode;
 
-	public DatarouterMapStorageTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
-			NodeFactory nodeFactory, ClientId clientId, DatarouterSettings datarouterSettings, boolean entity){
-		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
+	public DatarouterMapStorageTestRouter(Datarouter datarouter, NodeFactory nodeFactory,
+			WideNodeFactory wideNodeFactory, ClientId clientId, boolean entity){
+		super(datarouter);
 
 		if(entity){
-			mapStorageNode = new MapStorageEntityNode(nodeFactory, this, clientId).mapStorageNode;
+			mapStorageNode = new MapStorageEntityNode(wideNodeFactory, datarouter, clientId).mapStorageNode;
 		}else{
-			mapStorageNode = create(clientId, MapStorageBean::new, MapStorageBeanFielder::new)
-				.withSchemaVersion(VERSION_mapStorageTestRouter)
-				.buildAndRegister();
+			mapStorageNode = nodeFactory.create(clientId, MapStorageBeanEntityKey::new, MapStorageBean::new,
+					MapStorageBeanFielder::new)
+					.withSchemaVersion(VERSION_mapStorageTestRouter)
+					.buildAndRegister();
 		}
 	}
 

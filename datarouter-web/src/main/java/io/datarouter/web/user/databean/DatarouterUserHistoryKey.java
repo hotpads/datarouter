@@ -24,9 +24,9 @@ import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class DatarouterUserHistoryKey extends BasePrimaryKey<DatarouterUserHistoryKey>{
+public class DatarouterUserHistoryKey extends BaseRegularPrimaryKey<DatarouterUserHistoryKey>{
 
 	private Long userId;
 	private Date time;

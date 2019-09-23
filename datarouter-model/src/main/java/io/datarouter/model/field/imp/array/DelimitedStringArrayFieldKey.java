@@ -21,17 +21,17 @@ import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.ListFieldKey;
 
-public class DelimitedStringArrayFieldKey extends ListFieldKey<String,List<String>>{
+public class DelimitedStringArrayFieldKey extends ListFieldKey<String,List<String>,DelimitedStringArrayFieldKey>{
 
 	public final String separator;
+
+	public DelimitedStringArrayFieldKey(String name){
+		this(name, ",");
+	}
 
 	public DelimitedStringArrayFieldKey(String name, String separator){
 		super(name, new TypeToken<List<String>>(){});
 		this.separator = separator;
-	}
-
-	public DelimitedStringArrayFieldKey(String name){
-		this(name, ",");
 	}
 
 	@Override

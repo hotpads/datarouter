@@ -32,12 +32,16 @@ public abstract class BaseUniqueKeyIndexEntry<
 extends BaseDatabean<IK,IE>
 implements UniqueKeyIndexEntry<IK,IE,PK,D>{
 
+	public BaseUniqueKeyIndexEntry(IK key){
+		super(key);
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<IE> createFromDatabean(D target){
-		BaseUniqueKeyIndexEntry<IK,IE,PK,D> indexEntry = ReflectionTool.create(getClass());
-		indexEntry.fromPrimaryKey(target.getKey());
-		return (List<IE>)ListTool.wrap(indexEntry);
+		BaseUniqueKeyIndexEntry<IK,IE,PK,D> indexEntryBuilder = ReflectionTool.create(getClass());
+		IE indexEntry = indexEntryBuilder.fromPrimaryKey(target.getKey());
+		return ListTool.wrap(indexEntry);
 	}
 
 }

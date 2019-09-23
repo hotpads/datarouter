@@ -15,15 +15,12 @@
  */
 package io.datarouter.httpclient.client;
 
-import java.util.SortedSet;
-
 public interface DatarouterService{
 
 	String getName();
-	String getPrivateDomain();//includes host and port, like localhost:8443
-	String getPublicDomain();//includes host and port, like localhost:8443
-	String getContextName();//root path segment
-	SortedSet<String> getAdditionalAdministratorEmails();
+	String getPrivateDomain();// includes host and port, like localhost:8443
+	String getPublicDomain();// includes host and port, like localhost:8443
+	String getContextName();// root path segment
 
 	default String getDomainPreferPrivate(){
 		return getPrivateDomain() != null ? getPrivateDomain() : getPublicDomain();

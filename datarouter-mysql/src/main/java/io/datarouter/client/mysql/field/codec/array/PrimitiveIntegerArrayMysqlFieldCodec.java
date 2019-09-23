@@ -22,12 +22,10 @@ import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseMysqlFieldCodec;
 import io.datarouter.model.field.Field;
-import io.datarouter.util.exception.NotImplementedException;
 
-public class PrimitiveIntegerArrayMysqlFieldCodec
-extends BaseMysqlFieldCodec<int[],Field<int[]>>{
+public class PrimitiveIntegerArrayMysqlFieldCodec extends BaseMysqlFieldCodec<int[],Field<int[]>>{
 
-	public PrimitiveIntegerArrayMysqlFieldCodec(){//no-arg for reflection
+	public PrimitiveIntegerArrayMysqlFieldCodec(){
 		this(null);
 	}
 
@@ -35,25 +33,24 @@ extends BaseMysqlFieldCodec<int[],Field<int[]>>{
 		super(field);
 	}
 
-
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public int[] fromMysqlResultSetButDoNotSet(ResultSet rs){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public MysqlColumnType getMysqlColumnType(){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 }

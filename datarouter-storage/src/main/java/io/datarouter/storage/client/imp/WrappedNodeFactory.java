@@ -16,22 +16,31 @@
 package io.datarouter.storage.client.imp;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.entity.Entity;
+import io.datarouter.model.key.entity.EntityKey;
+import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 public abstract class WrappedNodeFactory<
-		PK extends PrimaryKey<PK>,
+		EK extends EntityKey<EK>,
+		E extends Entity<EK>,
+		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalNode<PK,D,F>>
-extends BaseWrappedNodeFactory<PK,D,F,N>{
+extends BaseWrappedNodeFactory<EK,PK,D,F,N>{
 
-	protected abstract N createNode(NodeParams<PK,D,F> nodeParams);
+	protected abstract N createNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			NodeParams<PK,D,F> nodeParams);
 
-	public final N createWrappedNode(NodeParams<PK,D,F> nodeParams){
-		return adapt(createNode(nodeParams));
+	public final N createWrappedNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			NodeParams<PK,D,F> nodeParams){
+		return adapt(createNode(entityNodeParams, nodeParams));
 	}
 
 }

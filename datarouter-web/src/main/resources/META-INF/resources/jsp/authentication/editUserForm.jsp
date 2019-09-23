@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<%@ include file="/WEB-INF/jsp/generic/head.jsp" %>
+	<%@ include file="/jsp/generic/baseHead.jsp"%>
 	<title>${user.username} - Edit user</title>
 </head>
 <body>
@@ -63,9 +63,19 @@
 				<c:choose>
 					<c:when test="${!currentRequests.isEmpty()}">
 					<table class="table table-bordered">
-						<tr><th>Request time</th><th>Request Text</th>
+						<tr><th>Request time</th><th>Request Text</th><th>Decline</th></tr>
 						<c:forEach var="request" items="${currentRequests}">
-							<tr><td>${request.key.requestTime}</td><td>${request.requestText}</td></tr>
+							<tr>
+								<td>${request.key.requestTime}</td>
+								<td>${request.requestText}</td>
+								<td>
+									<form method="POST" action="${declinePath}">
+										<input type="hidden" name="userId" value="${user.id}">
+										<input type="hidden" name="redirectPath" value="${thisPagePath}">
+										<input class="btn btn-danger" type="submit" value="Decline">
+									</form>
+								</td>
+							</tr>
 						</c:forEach>
 					</table>
 					</c:when>

@@ -51,7 +51,7 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 		if(StringTool.isEmptyOrWhitespace(sessionToken)){
 			return null;
 		}
-		DatarouterSession session = userNodes.getSessionNode().get(new DatarouterSessionKey(sessionToken), null);
+		DatarouterSession session = userNodes.getSessionNode().get(new DatarouterSessionKey(sessionToken));
 		if(session == null || datarouterAuthenticationConfig.isSessionExpired(session)){
 			return null;
 		}
@@ -61,7 +61,7 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 		if(ObjectTool.notEquals(cookieUserToken, session.getUserToken())){
 			logger.warn("session userToken " + session.getUserToken() + " != cookie userToken " + cookieUserToken
 					+ ", deleting session");
-			userNodes.getSessionNode().delete(session.getKey(), null);
+			userNodes.getSessionNode().delete(session.getKey());
 			sessionManager.clearSessionTokenCookie(response);
 			sessionManager.clearUserTokenCookie(response);
 			return null;

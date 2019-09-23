@@ -29,7 +29,6 @@ import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.entity.EntityNode;
 import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.router.Router;
 
 @Singleton
 public class EntityNodeFactory{
@@ -41,12 +40,12 @@ public class EntityNodeFactory{
 	@Inject
 	private DatarouterInjector injector;
 
-	public <EK extends EntityKey<EK>,E extends Entity<EK>> EntityNode<EK,E> create(ClientId clientId, Router router,
+	public <EK extends EntityKey<EK>,E extends Entity<EK>> EntityNode<EK,E> create(ClientId clientId,
 			EntityNodeParams<EK,E> params){
 		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
 		Objects.requireNonNull(clientType, "clientType not found for clientId:" + clientId);
 		ClientNodeFactory clientNodeFactory = injector.getInstance(clientType.getClientNodeFactoryClass());
-		EntityNode<EK,E> entityNode = clientNodeFactory.createEntityNode(nodeFactory, router, params, clientId);
+		EntityNode<EK,E> entityNode = clientNodeFactory.createEntityNode(nodeFactory, params, clientId);
 		return entityNode;
 	}
 

@@ -25,7 +25,7 @@ import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.serialization.GsonTool;
 
-public class UInt7ArrayField extends BaseListField<Byte,List<Byte>>{
+public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFieldKey>{
 
 	public UInt7ArrayField(UInt7ArrayFieldKey key, List<Byte> value){
 		super(key, value);

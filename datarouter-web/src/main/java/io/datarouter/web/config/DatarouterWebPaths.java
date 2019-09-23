@@ -26,14 +26,17 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 	public static final String DATAROUTER = "datarouter";
 
 	public final AdminPaths admin = branch(AdminPaths::new, "admin");
-	public final PathNode consumer = leaf("consumer");
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, DATAROUTER);
+	public final PermissionRequestPaths permissionRequest = branch(PermissionRequestPaths::new, "permissionRequest");
+	public final SigninPaths signin = branch(SigninPaths::new, "signin");
+	public final SignupPaths signup = branch(SignupPaths::new, "signup");
+
+	public final PathNode consumer = leaf("consumer");
 	public final PathNode keepalive = leaf("keepalive");
 	public final PathNode resetPassword = leaf("resetPassword");
 	public final PathNode resetPasswordSubmit = leaf("resetPasswordSubmit");
-	public final SigninPaths signin = branch(SigninPaths::new, "signin");
 	public final PathNode signout = leaf("signout");
-	public final SignupPaths signup = branch(SignupPaths::new, "signup");
+
 
 	public static class AdminPaths extends PathNode{
 		public final PathNode accounts = leaf("accounts");
@@ -45,19 +48,12 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode viewUsers = leaf("viewUsers");
 	}
 
-	public static class SigninPaths extends PathNode{
-		public final PathNode submit = leaf("submit");
-	}
-
-	public static class SignupPaths extends PathNode{
-		public final PathNode submit = leaf("submit");
-	}
-
 	public static class DatarouterPaths extends PathNode{
 		public final ClientPaths client = branch(ClientPaths::new, "client");
+		public final NodesPaths nodes = branch(NodesPaths::new, "nodes");
+
 		public final PathNode executors = leaf("executors");
 		public final PathNode memory = leaf("memory");
-		public final NodesPaths nodes = branch(NodesPaths::new, "nodes");
 		public final PathNode testApi = leaf("testApi");
 		public final PathNode webappInstances = leaf("webappInstances");
 		public final PathNode ipDetection = leaf("ipDetection");
@@ -77,6 +73,20 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode deleteData = leaf("deleteData");
 		public final PathNode getData = leaf("getData");
 		public final PathNode search = leaf("search");
+	}
+
+	public static class PermissionRequestPaths extends PathNode{
+		public final PathNode declineAll = leaf("declineAll");
+		public final PathNode showForm = leaf("showForm");
+		public final PathNode submit = leaf("submit");
+	}
+
+	public static class SigninPaths extends PathNode{
+		public final PathNode submit = leaf("submit");
+	}
+
+	public static class SignupPaths extends PathNode{
+		public final PathNode submit = leaf("submit");
 	}
 
 }

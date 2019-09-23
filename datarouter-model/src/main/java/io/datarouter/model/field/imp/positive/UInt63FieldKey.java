@@ -15,31 +15,35 @@
  */
 package io.datarouter.model.field.imp.positive;
 
+import java.util.Map;
+
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.util.number.RandomTool;
 
-public class UInt63FieldKey extends PrimitiveFieldKey<Long>{
+public class UInt63FieldKey extends PrimitiveFieldKey<Long,UInt63FieldKey>{
 
 	public UInt63FieldKey(String name){
 		super(name, Long.class);
 	}
 
 	private UInt63FieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Long defaultValue){
-		super(name, columnName, nullable, Long.class, fieldGeneratorType, defaultValue);
+			Long defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, Long.class, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	public UInt63FieldKey withFieldGeneratorType(FieldGeneratorType fieldGeneratorTypeOverride){
-		return new UInt63FieldKey(name, columnName, nullable, fieldGeneratorTypeOverride, defaultValue);
+		return new UInt63FieldKey(name, columnName, nullable, fieldGeneratorTypeOverride, defaultValue, attributes);
 	}
 
 	public UInt63FieldKey withColumnName(String columnNameOverride){
-		return new UInt63FieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
+		return new UInt63FieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	public UInt63FieldKey withNullable(boolean nullableOverride){
-		return new UInt63FieldKey(name, columnName, nullableOverride, fieldGeneratorType, defaultValue);
+		return new UInt63FieldKey(name, columnName, nullableOverride, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	@Override

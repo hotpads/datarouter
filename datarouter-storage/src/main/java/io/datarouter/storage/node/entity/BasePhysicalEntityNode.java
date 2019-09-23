@@ -67,6 +67,7 @@ implements PhysicalEntityNode<EK,E>{
 		return nodeByQualifierPrefix;
 	}
 
+	@Override
 	public EntityFieldInfo<EK,E> getEntityFieldInfo(){
 		return entityFieldInfo;
 	}

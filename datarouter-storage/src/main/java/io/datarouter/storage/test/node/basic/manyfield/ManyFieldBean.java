@@ -88,8 +88,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	private static final int LEN_STRING_ENUM_FIELD = 20;
 
-	private ManyFieldBeanKey key;
-
 	private Boolean booleanField;
 	private Byte byteField;
 	private Short shortField;
@@ -150,8 +148,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final UInt63ArrayFieldKey longArrayField = new UInt63ArrayFieldKey("longArrayField");
 		public static final BooleanArrayFieldKey booleanArrayField = new BooleanArrayFieldKey("booleanArrayField");
 		public static final IntegerArrayFieldKey integerArrayField = new IntegerArrayFieldKey("integerArrayField");
-		public static final ByteArrayFieldKey byteArrayField = new ByteArrayFieldKey("byteArrayField")
-				.withSize(CommonFieldSizes.MAX_LENGTH_VARBINARY);
+		public static final ByteArrayFieldKey byteArrayField = new ByteArrayFieldKey("byteArrayField");
 		public static final DoubleArrayFieldKey doubleArrayField = new DoubleArrayFieldKey("doubleArrayField");
 		public static final DelimitedStringArrayFieldKey delimitedStringArrayField = new DelimitedStringArrayFieldKey(
 				"delimitedStringArrayField");
@@ -161,7 +158,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	}
 
 	public boolean equalsAllPersistentFields(ManyFieldBean that){
-		if(ObjectTool.notEquals(key, that.key)){
+		if(ObjectTool.notEquals(getKey(), that.getKey())){
 			return false;
 		}
 		if(ObjectTool.notEquals(booleanField, that.booleanField)){
@@ -289,21 +286,16 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	}
 
 	public ManyFieldBean(){// no-arg and public
-		this.key = new ManyFieldBeanKey();// let the key generate a random value
+		super(new ManyFieldBeanKey());// let the key generate a random value
 	}
 
 	public ManyFieldBean(Long id){
-		this.key = new ManyFieldBeanKey(id);
+		super(new ManyFieldBeanKey(id));
 	}
 
 	@Override
 	public Class<ManyFieldBeanKey> getKeyClass(){
 		return ManyFieldBeanKey.class;
-	}
-
-	@Override
-	public ManyFieldBeanKey getKey(){
-		return key;
 	}
 
 	public static List<ManyFieldBean> filterForStringValue(Collection<ManyFieldBean> ins, String value){
@@ -362,18 +354,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setData(byte[] data){
 		this.data = data;
-	}
-
-	public void setKey(ManyFieldBeanKey key){
-		this.key = key;
-	}
-
-	public Long getId(){
-		return key.getId();
-	}
-
-	public void setId(Long id){
-		key.setId(id);
 	}
 
 	public Integer getIntegerField(){

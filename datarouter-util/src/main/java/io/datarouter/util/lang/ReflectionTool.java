@@ -32,8 +32,6 @@ import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
@@ -110,7 +108,7 @@ public class ReflectionTool{
 
 	public static Object get(Field field, Object object){
 		if(field != null && object != null){
-			if(!field.isAccessible()){
+			if(!field.canAccess(object)){
 				field.setAccessible(true);
 			}
 			try{
@@ -352,68 +350,4 @@ public class ReflectionTool{
 		}
 	}
 
-	/*------------------------- Tests ---------------------------------------*/
-
-	public static class ReflectionToolTests{
-
-		public static class DummyDto{
-			public final Object field0;
-			public final int field1;
-			public final Double field2;
-
-			public DummyDto(Object field0, int field1, Double field2){
-				this.field0 = field0;
-				this.field1 = field1;
-				this.field2 = field2;
-			}
-		}
-
-		public static class ExtensionDto extends DummyDto{
-			public final long field3;
-
-			public ExtensionDto(Object field0, int field1, Double field2, long field3){
-				super(field0, field1, field2);
-				this.field3 = field3;
-			}
-		}
-
-		@Test
-		public void testCanParamsCallParamTypes(){
-			Assert.assertTrue(canParamsCallParamTypes(Arrays.asList(4), Arrays.asList(int.class)));
-			Assert.assertTrue(canParamsCallParamTypes(Arrays.asList(4), Arrays.asList(Integer.class)));
-			Assert.assertFalse(canParamsCallParamTypes(Arrays.asList("a"), Arrays.asList(int.class)));
-		}
-
-		@Test
-		public void testCreateWithParameters(){
-			Object[] params0 = new Object[]{new Object(), 3, 5.5d};
-			Assert.assertNotNull(createWithParameters(DummyDto.class, Arrays.asList(params0)));
-
-			Object[] params1 = new Object[]{"stringy", 3, 5.5d};
-			Assert.assertNotNull(createWithParameters(DummyDto.class, Arrays.asList(params1)));
-		}
-
-		@Test(expectedExceptions = {Exception.class})
-		public void testCreateWithParametersInvalid(){
-			Object[] params0 = new Object[]{new Object(), "square peg", 5.5d};
-			DummyDto dummyDto = createWithParameters(DummyDto.class, Arrays.asList(params0));
-			Assert.assertNotNull(dummyDto);
-		}
-
-		@Test
-		public void testGetDeclaredFieldsFromAncestors(){
-			Assert.assertEquals(getDeclaredFieldsFromAncestors(ExtensionDto.class).size(), 3);
-		}
-
-		@Test
-		public void testGetDeclaredFieldsIncludingAncestors(){
-			Assert.assertEquals(getDeclaredFieldsIncludingAncestors(ExtensionDto.class).size(), 4);
-		}
-
-		@Test
-		public void testGetDeclaredFields(){
-			Assert.assertEquals(getDeclaredFields(ExtensionDto.class).size(), 1);
-		}
-
-	}
 }

@@ -5,7 +5,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Datarouter - Permission Request</title>
-	<%@ include file="/WEB-INF/jsp/generic/head.jsp"%>
+	<%@ include file="/jsp/generic/baseHead.jsp"%>
 </head>
 <body>
 <%@ include file="/jsp/menu/common-navbar.jsp"%>
@@ -19,6 +19,8 @@
 				Time Requested: ${currentRequest.key.requestTime}
 				<br>
 				Request Text: ${currentRequest.requestText}
+				<br>
+				Click <a href="${declinePath}">here</a> to decline it.
 			</p>
 		</c:when>
 		<c:otherwise>
@@ -28,7 +30,7 @@
 		<p>You will need to <a href="${contextPath}/signout">Sign Out</a> and sign back in to refresh your permissions</p>
 		<p>If you have any questions, you may email the administrator(s) at <a href="mailto:${email}">${email}</a>.</p>
 	</div>
-	<form action="${contextPath}${permissionRequestPath}?submitAction=request" method="post">
+	<form action="${submitPath}" method="post">
 		<div class="well">
 			<div class="control-group">
 				<div class="controls">

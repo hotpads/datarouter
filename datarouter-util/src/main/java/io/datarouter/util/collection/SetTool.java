@@ -25,9 +25,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.array.ArrayTool;
 
 public class SetTool{
@@ -96,31 +93,12 @@ public class SetTool{
 
 	@SafeVarargs
 	public static <T> Set<T> of(T...items){
-		return new HashSet<>(Arrays.asList(items));
+		return Set.of(items);
 	}
 
-	public static class SetToolTests{
-
-		@Test
-		public void testNullSafeAddAllWithEmptySet(){
-			SortedSet<String> set = new TreeSet<>();
-			set.add("b");
-			Set<String> toAdd = new HashSet<>();
-			toAdd.add("a");
-			set = nullSafeSortedAddAll(set, toAdd);
-			set.add("c");
-			Assert.assertEquals(new String[]{"a", "b", "c"}, set.toArray());
-		}
-
-		@Test
-		public void testNullSafeAddAllWithNullSet(){
-			SortedSet<String> set = null;
-			Set<String> toAdd = new HashSet<>();
-			toAdd.add("a");
-			set = nullSafeSortedAddAll(set, toAdd);
-			set.add("c");
-			Assert.assertEquals(new String[]{"a", "c"}, set.toArray());
-		}
+	@SafeVarargs
+	public static <T> Set<T> hashSet(T...items){
+		return new HashSet<>(Arrays.asList(items));
 	}
 
 }

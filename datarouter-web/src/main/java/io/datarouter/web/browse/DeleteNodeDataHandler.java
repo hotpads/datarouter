@@ -63,10 +63,10 @@ public class DeleteNodeDataHandler extends InspectNodeDataHandler{
 			return new MessageMav("NumberFormatException: " + e);
 		}
 		MapStorageNode<PK,?,?> mapStorageNode = (MapStorageNode<PK,?,?>)node;
-		if(!mapStorageNode.exists(primaryKey, null)){
+		if(!mapStorageNode.exists(primaryKey)){
 			return new MessageMav("databean does not exist");
 		}
-		mapStorageNode.delete(primaryKey, null);
+		mapStorageNode.delete(primaryKey);
 		logger.warn("deleted databean {}", encodedPk);
 		return new MessageMav("deleted databean " + encodedPk);
 	}

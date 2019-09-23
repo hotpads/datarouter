@@ -24,14 +24,14 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import io.datarouter.util.iterable.scanner.BatchScanner;
-import io.datarouter.util.iterable.scanner.Scanner;
+import io.datarouter.scanner.BaseScanner;
+import io.datarouter.scanner.Scanner;
 
 public class ReaderTool{
 
 	/*------------------------- wrap exceptions -----------------------------*/
 
-	public static BufferedReader createNewBufferedFileReader(String fullPath){
+	private static BufferedReader createNewBufferedFileReader(String fullPath){
 		try{
 			return Files.newBufferedReader(Paths.get(fullPath));
 		}catch(IOException e){
@@ -39,18 +39,7 @@ public class ReaderTool{
 		}
 	}
 
-	public static void close(Reader reader){
-		if(reader == null){
-			return;
-		}
-		try{
-			reader.close();
-		}catch(IOException e){
-			throw new UncheckedIOException(e);
-		}
-	}
-
-	public static String readLine(BufferedReader reader){
+	private static String readLine(BufferedReader reader){
 		if(reader == null){
 			return null;
 		}
@@ -82,14 +71,14 @@ public class ReaderTool{
 
 	/*------------------------- scanners ------------------------------------*/
 
-	public static BatchScanner<String> scanFileLinesInBatches(String fullPath, int batchSize){
+	public static Scanner<String> scanFileLines(String fullPath){
 		BufferedReader bufferedReader = createNewBufferedFileReader(fullPath);
-		return new ReaderScanner(bufferedReader).batch(batchSize);
+		return new ReaderScanner(bufferedReader);
 	}
 
-	public static class ReaderScanner implements Scanner<String>{
+	public static class ReaderScanner extends BaseScanner<String>{
+
 		private BufferedReader reader;
-		private String line;
 
 		private ReaderScanner(BufferedReader reader){
 			this.reader = reader;
@@ -97,19 +86,27 @@ public class ReaderTool{
 
 		@Override
 		public boolean advance(){
-			line = readLine(reader);
-			if(line != null){
+			current = readLine(reader);
+			if(current != null){
 				return true;
 			}
-			close(reader);
+			close();
 			reader = null;//need to nullify so future calls to advance don't try to readLine on closed reader
 			return false;
 		}
 
 		@Override
-		public String getCurrent(){
-			return line;
+		public void close(){
+			if(reader == null){
+				return;
+			}
+			try{
+				reader.close();
+			}catch(IOException e){
+				throw new UncheckedIOException(e);
+			}
 		}
+
 	}
 
 }

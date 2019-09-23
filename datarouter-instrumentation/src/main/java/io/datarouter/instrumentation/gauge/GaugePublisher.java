@@ -21,4 +21,13 @@ public interface GaugePublisher{
 
 	PublishingResponseDto add(GaugeBatchDto gaugeBatchDto);
 
+	public static class NoOpGaugePublisher implements GaugePublisher{
+
+		@Override
+		public PublishingResponseDto add(GaugeBatchDto gaugeBatchDto){
+			return PublishingResponseDto.NO_OP;
+		}
+
+	}
+
 }

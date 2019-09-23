@@ -15,18 +15,22 @@
  */
 package io.datarouter.model.field.imp.positive;
 
+import java.util.Map;
+
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class UInt31FieldKey extends PrimitiveFieldKey<Integer>{
+public class UInt31FieldKey extends PrimitiveFieldKey<Integer,UInt31FieldKey>{
 
 	public UInt31FieldKey(String name){
 		super(name, Integer.class);
 	}
 
 	private UInt31FieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Integer defaultValue){
-		super(name, columnName, nullable, Integer.class, fieldGeneratorType, defaultValue);
+			Integer defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, Integer.class, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	@Override
@@ -35,7 +39,7 @@ public class UInt31FieldKey extends PrimitiveFieldKey<Integer>{
 	}
 
 	public UInt31FieldKey withColumnName(String columnNameOverride){
-		return new UInt31FieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
+		return new UInt31FieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
 }

@@ -22,7 +22,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.setting.Setting;
 
 public class NodeParams<
 		PK extends PrimaryKey<PK>,
@@ -50,7 +49,7 @@ public class NodeParams<
 	private final String remoteNodeName;
 
 	//diagnostics
-	private final Setting<Boolean> recordCallsites;
+	private final Supplier<Boolean> recordCallsites;
 
 	//for kinesis streams
 	private final String streamName;
@@ -60,7 +59,7 @@ public class NodeParams<
 
 	private NodeParams(ClientId clientId, String parentName, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier,
 			Integer schemaVersion, String physicalName, String namespace, String entityNodePrefix,
-			String remoteRouterName, String remoteNodeName, Setting<Boolean> recordCallsites, String streamName,
+			String remoteRouterName, String remoteNodeName, Supplier<Boolean> recordCallsites, String streamName,
 			String queueUrl){
 		this.clientId = clientId;
 		this.parentName = parentName;
@@ -95,7 +94,7 @@ public class NodeParams<
 		private String entityNodePrefix;
 		private String remoteRouterName;
 		private String remoteNodeName;
-		private Setting<Boolean> recordCallsites;
+		private Supplier<Boolean> recordCallsites;
 
 		private String streamName;
 
@@ -137,7 +136,7 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withDiagnostics(Setting<Boolean> recordCallsites){
+		public NodeParamsBuilder<PK,D,F> withDiagnostics(Supplier<Boolean> recordCallsites){
 			this.recordCallsites = recordCallsites;
 			return this;
 		}
@@ -219,7 +218,7 @@ public class NodeParams<
 		return entityNodePrefix;
 	}
 
-	public Setting<Boolean> getRecordCallsites(){
+	public Supplier<Boolean> getRecordCallsites(){
 		return recordCallsites;
 	}
 

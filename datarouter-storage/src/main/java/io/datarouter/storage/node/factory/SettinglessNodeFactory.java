@@ -19,21 +19,15 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.setting.Setting;
-import io.datarouter.storage.setting.constant.ConstantBooleanSetting;
 
 @Singleton
 public class SettinglessNodeFactory extends BaseNodeFactory{
 
 	@Inject
-	private SettinglessNodeFactory(DatarouterClients clients, DatarouterInjector injector){
-		super(clients, injector);
-	}
-
-	@Override
-	protected Setting<Boolean> getRecordCallsites(){
-		return ConstantBooleanSetting.FALSE;
+	private SettinglessNodeFactory(Datarouter datarouter, DatarouterClients clients, DatarouterInjector injector){
+		super(datarouter, clients, injector, () -> false);
 	}
 
 }

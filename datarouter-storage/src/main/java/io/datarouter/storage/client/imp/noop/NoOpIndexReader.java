@@ -16,14 +16,13 @@
 package io.datarouter.storage.client.imp.noop;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.index.IndexReader;
-import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class NoOpIndexReader<
@@ -44,8 +43,8 @@ implements IndexReader<PK,D,IK,IE>{
 	}
 
 	@Override
-	public Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
-		return Collections.emptyList();
+	public Scanner<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
+		return Scanner.empty();
 	}
 
 }

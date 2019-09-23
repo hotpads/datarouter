@@ -34,7 +34,7 @@ public class TomcatPortIdentifier implements PortIdentifier{
 	public TomcatPortIdentifier() throws MalformedObjectNameException{
 		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 		ObjectName query = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ProtocolHandler,*");
-		server.queryNames(query, null).stream().forEach(objectName -> {
+		server.queryNames(query, null).forEach(objectName -> {
 			int port;
 			boolean sslEnabled;
 			String scheme;

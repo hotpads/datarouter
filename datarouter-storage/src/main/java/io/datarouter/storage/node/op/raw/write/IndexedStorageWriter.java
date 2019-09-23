@@ -40,10 +40,22 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	public static final String OP_deleteByIndex = "deleteByIndex";
 
 	void deleteUnique(UniqueKey<PK> uniqueKey, Config config);
+
+	default void deleteUnique(UniqueKey<PK> uniqueKey){
+		deleteUnique(uniqueKey, new Config());
+	}
+
 	void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config);
+
+	default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys){
+		deleteMultiUnique(uniqueKeys, new Config());
+	}
 
 	<IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config);
 
+	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys){
+		deleteByIndex(keys, new Config());
+	}
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 

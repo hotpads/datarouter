@@ -36,14 +36,16 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 	private final ClientId clientId;
 	private final Isolation isolation;
 	private final DatarouterTxnTestRouter router;
+	private final SessionExecutor sessionExecutor;
 
 	public TestNestedTxn(Datarouter datarouter, ClientId clientId, Isolation isolation, boolean autoCommit,
-			DatarouterTxnTestRouter router){
+			DatarouterTxnTestRouter router, SessionExecutor sessionExecutor){
 		super(datarouter, clientId, isolation, autoCommit);
 		this.datarouter = datarouter;
 		this.clientId = clientId;
 		this.isolation = isolation;
 		this.router = router;
+		this.sessionExecutor = sessionExecutor;
 	}
 
 	@Override
@@ -53,12 +55,12 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 		ConnectionHandle handle = clientManager.getExistingHandle(clientId);
 
 		TxnBean outer = new TxnBean("outer");
-		router.txnBean().put(outer, null);
-		Assert.assertTrue(router.txnBean().exists(outer.getKey(), null));
+		router.txnBean().put(outer);
+		Assert.assertTrue(router.txnBean().exists(outer.getKey()));
 
-		SessionExecutor.run(new InnerTxn(datarouter, clientId, isolation, false, router, handle));
+		sessionExecutor.runWithoutRetries(new InnerTxn(datarouter, clientId, isolation, false, router, handle));
 
-		TxnBean outer2 = new TxnBean(outer.getId());
+		TxnBean outer2 = new TxnBean(outer.getKey().getId());
 		router.txnBean().put(outer2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
 		return null;
 	}
@@ -89,9 +91,9 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 
 			String name = "inner_txn";
 			TxnBean inner = new TxnBean(name);
-			router.txnBean().put(inner, null);
-			Assert.assertTrue(router.txnBean().exists(inner.getKey(), null));
-			Assert.assertTrue(router.txnBean().exists(new TxnBeanKey("outer"), null));
+			router.txnBean().put(inner);
+			Assert.assertTrue(router.txnBean().exists(inner.getKey()));
+			Assert.assertTrue(router.txnBean().exists(new TxnBeanKey("outer")));
 			return null;
 		}
 

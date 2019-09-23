@@ -16,13 +16,7 @@
 package io.datarouter.util.bytes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 public class DoubleByteTool{
 
@@ -44,7 +38,7 @@ public class DoubleByteTool{
 		return Double.longBitsToDouble(longBits);
 	}
 
-	private static Double fromBytesNullable(final byte[] bytes, final int offset){
+	private static Double fromBytesNullable(byte[] bytes, int offset){
 		Long longValue = LongByteTool.fromRawBytes(bytes, offset);
 		if(longValue.longValue() == NaN){
 			return null;
@@ -64,17 +58,17 @@ public class DoubleByteTool{
 		return LongByteTool.getRawBytes(bits);
 	}
 
-	public static int toBytes(final double in, final byte[] bytes, final int offset){
+	public static int toBytes(double in, byte[] bytes, int offset){
 		long bits = Double.doubleToLongBits(in);
 		LongByteTool.toRawBytes(bits, bytes, offset);
 		return 8;
 	}
 
-	public static double fromBytes(final byte[] bytes, final int offset){
+	public static double fromBytes(byte[] bytes, int offset){
 		return Double.longBitsToDouble(LongByteTool.fromRawBytes(bytes, offset));
 	}
 
-	public static List<Double> fromDoubleByteArray(final byte[] bytes, final int startIdx){
+	public static List<Double> fromDoubleByteArray(byte[] bytes, int startIdx){
 		int numDoubles = (bytes.length - startIdx) / 8;
 		List<Double> doubles = new ArrayList<>();
 		byte[] arrayToCopy = new byte[8];
@@ -96,55 +90,4 @@ public class DoubleByteTool{
 		return out;
 	}
 
-	public static class DoubleByteToolTests{
-
-		@Test
-		public void testComparableBytes(){
-			List<Double> interestingDoubles = Arrays.asList(Double.NEGATIVE_INFINITY, -Double.MAX_VALUE,
-					-Double.MIN_NORMAL, -Double.MIN_VALUE, -0D, +0D, Double.MIN_VALUE, Double.MIN_NORMAL,
-					Double.MAX_VALUE, Double.POSITIVE_INFINITY, Double.NaN);
-			Collections.sort(interestingDoubles);
-			List<Double> roundTripped = interestingDoubles.stream()
-					.map(DoubleByteTool::toComparableBytes)
-					.sorted(ByteTool::bitwiseCompare)
-					.map(bytes -> fromComparableBytes(bytes, 0))
-					.collect(Collectors.toList());
-			Assert.assertEquals(roundTripped, interestingDoubles);
-		}
-
-		@Test
-		public void testBytes1(){
-			double valueA = 12354234.456D;
-			byte[] abytes = getBytes(valueA);
-			double aback = fromBytes(abytes, 0);
-			Assert.assertTrue(valueA == aback);
-
-			double valueB = -1234568.456D;
-			byte[] bbytes = getBytes(valueB);
-			double bback = fromBytes(bbytes, 0);
-			Assert.assertTrue(valueB == bback);
-
-			Assert.assertTrue(ByteTool.bitwiseCompare(abytes, bbytes) < 0);//positives and negatives are reversed
-		}
-
-		@Test
-		public void testToFromByteArray(){
-			double one = 2.39483;
-			double two = -583.2039;
-			double three = 5;
-			double four = -.0000001;
-
-			List<Double> doubles = new ArrayList<>();
-			doubles.add(one);
-			doubles.add(two);
-			doubles.add(null);
-			doubles.add(three);
-			doubles.add(four);
-
-			byte[] doubleBytes = getDoubleByteArray(doubles);
-			List<Double> result = fromDoubleByteArray(doubleBytes, 0);
-			Assert.assertEquals(result, doubles);
-
-		}
-	}
 }

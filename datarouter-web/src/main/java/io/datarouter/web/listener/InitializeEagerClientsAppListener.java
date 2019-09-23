@@ -17,7 +17,7 @@ package io.datarouter.web.listener;
 
 import javax.inject.Inject;
 
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.router.Routers;
 
 public class InitializeEagerClientsAppListener implements DatarouterAppListener{
@@ -27,11 +27,11 @@ public class InitializeEagerClientsAppListener implements DatarouterAppListener{
 	@Inject
 	private Routers routers;
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterClients datarouterClients;
 
 	@Override
 	public void onStartUp(){
-		datarouter.initializeEagerClients();
+		datarouterClients.initializeEagerClients();
 	}
 
 }

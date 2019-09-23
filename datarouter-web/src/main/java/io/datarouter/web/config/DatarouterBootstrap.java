@@ -15,18 +15,9 @@
  */
 package io.datarouter.web.config;
 
-import java.util.Collections;
-import java.util.List;
-
-import com.google.inject.Module;
-
 /**
  * Marker annotation for quickly locating all the bootstrap files in your IDE.
  */
 public interface DatarouterBootstrap{
-
-	default List<Module> getModules(){
-		return Collections.emptyList();
-	}
 
 }

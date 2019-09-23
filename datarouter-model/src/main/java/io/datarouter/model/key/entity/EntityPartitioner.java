@@ -17,6 +17,11 @@ package io.datarouter.model.key.entity;
 
 import java.util.List;
 
+import io.datarouter.model.key.primary.EntityPrimaryKey;
+import io.datarouter.model.key.primary.EntityPrimaryKeyTool;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.util.tuple.Range;
+
 public interface EntityPartitioner<EK extends EntityKey<EK>>{
 
 	int getNumPartitions();
@@ -30,5 +35,27 @@ public interface EntityPartitioner<EK extends EntityKey<EK>>{
 	byte[] getNextPrefix(int partition);
 	int getPartition(EK ek);
 	int parsePartitionFromBytes(byte[] bytes);
+
+	default Scanner<Integer> scanAllPartitions(){
+		return Scanner.of(getAllPartitions());
+	}
+
+	default Scanner<byte[]> scanAllPrefixes(){
+		return Scanner.of(getAllPrefixes());
+	}
+
+	default <PK extends EntityPrimaryKey<EK,PK>>
+	Scanner<Integer> scanPartitions(Range<PK> range){
+		if(EntityPrimaryKeyTool.isSingleEntity(range)){
+			return Scanner.of(getPartition(range.getStart().getEntityKey()));
+		}
+		return scanAllPartitions();
+	}
+
+	default <PK extends EntityPrimaryKey<EK,PK>>
+	Scanner<byte[]> scanPrefixes(Range<PK> range){
+		return scanPartitions(range)
+				.map(this::getPrefix);
+	}
 
 }

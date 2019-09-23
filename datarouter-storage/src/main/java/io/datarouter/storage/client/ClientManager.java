@@ -15,8 +15,7 @@
  */
 package io.datarouter.storage.client;
 
-import java.util.Optional;
-import java.util.concurrent.Future;
+import java.util.Collection;
 
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
@@ -36,8 +35,8 @@ public interface ClientManager{
 
 	void shutdown(ClientId clientId);
 	boolean monitorLatency();
-	Future<Optional<SchemaUpdateResult>> notifyNodeRegistration(PhysicalNode<?,?,?> node);
+	void doSchemaUpdate(Collection<? extends PhysicalNode<?,?,?>> nodes);
 	void initClient(ClientId clientId);
-	void sendEmail();
+	void gatherSchemaUpdates();
 
 }

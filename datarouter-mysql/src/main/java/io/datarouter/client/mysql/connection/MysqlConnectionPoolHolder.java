@@ -141,7 +141,12 @@ public class MysqlConnectionPoolHolder{
 		}
 
 		public Connection checkOut() throws SQLException{
-			return pool.getConnection();
+			try{
+				return pool.getConnection();
+			}catch(SQLException e){
+				logger.warn("could not connect jdbcUrl={} error={}", pool.getJdbcUrl(), e);
+				throw e;
+			}
 		}
 
 		public void shutdown(){

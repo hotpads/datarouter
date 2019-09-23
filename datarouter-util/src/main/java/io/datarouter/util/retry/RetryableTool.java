@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.concurrent.ThreadTool;
-import io.datarouter.util.exception.InterruptedRuntimeException;
 
 public class RetryableTool{
 	private static final Logger logger = LoggerFactory.getLogger(RetryableTool.class);
@@ -61,7 +60,7 @@ public class RetryableTool{
 			backoffMs = backoffMs * 2 + ThreadLocalRandom.current().nextLong(0, initialBackoffMs);
 		}
 		Thread.currentThread().interrupt();
-		throw new InterruptedRuntimeException();
+		throw new RuntimeException();
 	}
 
 }

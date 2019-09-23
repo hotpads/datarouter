@@ -43,6 +43,10 @@ public abstract class RequestParamValidator<T>{
 			return new RequestParamValidatorResponseDto(false, statusCode, errorMessage);
 		}
 
+		public static RequestParamValidatorResponseDto makeUnavailableErrorResponse(String errorMessage){
+			return makeErrorResponse(errorMessage, HttpStatus.SC_SERVICE_UNAVAILABLE);
+		}
+
 		public static RequestParamValidatorResponseDto makeForbiddenErrorResponse(String errorMessage){
 			return makeErrorResponse(errorMessage, HttpStatus.SC_FORBIDDEN);
 		}

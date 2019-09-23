@@ -53,11 +53,11 @@ public class DatarouterUserDao{
 		if(session == null || session.getUserId() == null){
 			return null;
 		}
-		return nodes.getUserNode().get(new DatarouterUserKey(session.getUserId()), null);
+		return nodes.getUserNode().get(new DatarouterUserKey(session.getUserId()));
 	}
 
 	public DatarouterUser getUserById(Long id){
-		return nodes.getUserNode().get(new DatarouterUserKey(id), null);
+		return nodes.getUserNode().get(new DatarouterUserKey(id));
 	}
 
 	public boolean canEditUser(DatarouterUser user, DatarouterUser editor){
@@ -80,7 +80,7 @@ public class DatarouterUserDao{
 	}
 
 	public boolean isPasswordCorrect(String email, String rawPassword){
-		DatarouterUser user = nodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(email), null);
+		DatarouterUser user = nodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(email));
 		return isPasswordCorrect(user, rawPassword);
 	}
 
@@ -98,12 +98,11 @@ public class DatarouterUserDao{
 			throw new IllegalArgumentException("DatarouterUser already exists with id=" + id);
 		}
 		DatarouterUser userWithUserToken = nodes.getUserNode().lookupUnique(new DatarouterUserByUserTokenLookup(
-				userToken), null);
+				userToken));
 		if(userWithUserToken != null){
 			throw new IllegalArgumentException("DatarouterUser already exists with userToken=" + userToken);
 		}
-		DatarouterUser userWithEmail = nodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(username),
-				null);
+		DatarouterUser userWithEmail = nodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(username));
 		if(userWithEmail != null){
 			throw new IllegalArgumentException("DatarouterUser already exists with username=" + username);
 		}

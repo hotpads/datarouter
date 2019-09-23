@@ -17,7 +17,6 @@ package io.datarouter.client.mysql.caseinsensitive;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -33,27 +32,27 @@ import io.datarouter.util.tuple.Range;
 public class CaseInsensitiveScanIntegrationTests{
 
 	@Inject
-	private CaseInsensitiveTestRouter caseInsensitiveTestRouter;
+	private DatarouterTestCaseInsensitiveRouter caseInsensitiveTestRouter;
 
 	// currently this lead to infinite loop: DATAROUTER-1129
 	@Test(enabled = false)
 	public void testMultiScan(){
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("A"), null);
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("b"), null);
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("C"), null);
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("d"), null);
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("E"), null);
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("f"), null);
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("G"), null);
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("h"), null);
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("I"), null);
+		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("A"));
+		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("b"));
+		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("C"));
+		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("d"));
+		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("E"));
+		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("f"));
+		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("G"));
+		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("h"));
+		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("I"));
 		Config config = new Config().setOutputBatchSize(2);
 		List<Range<CaseInsensitiveTestPrimaryKey>> ranges = Arrays.asList(
 				new Range<>(new CaseInsensitiveTestPrimaryKey("b"), new CaseInsensitiveTestPrimaryKey("d")),
 				new Range<>(new CaseInsensitiveTestPrimaryKey("f"), new CaseInsensitiveTestPrimaryKey("h")));
 		List<CaseInsensitiveTestDatabean> fetched = caseInsensitiveTestRouter.caseInsensitiveTestDatabean
-				.streamMulti(ranges, config)
-				.collect(Collectors.toList());
+				.scanMulti(ranges, config)
+				.list();
 		Assert.assertEquals(fetched.size(), 4);
 	}
 

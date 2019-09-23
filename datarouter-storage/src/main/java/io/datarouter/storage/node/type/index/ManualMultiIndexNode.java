@@ -15,22 +15,19 @@
  */
 package io.datarouter.storage.node.type.index;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.multi.MultiIndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.op.scan.ManagedIndexIndexToDatabeanScanner;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
-import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class ManualMultiIndexNode<
@@ -48,41 +45,35 @@ implements MultiIndexNode<PK, D, IK, IE>{
 		this.indexNode = indexNode;
 	}
 
-	//TODO should i be passing config options around blindly?
-	//TODO need to watch out for offset/limit
-
-
 	/*----------------------------- IndexReader -----------------------------*/
 
 	@Override
 	public List<D> lookupMulti(IK indexKey, Config config){
 		if(indexKey == null){
-			return new LinkedList<>();
+			return Collections.emptyList();
 		}
 		//hard-coding startInclusive to true because it will usually be true on the first call,
 		// but subsequent calls may want false, so consider adding as method param
 		Range<IK> indexKeyRange = new Range<>(indexKey, true, indexKey, true);
-		List<IE> indexEntries = ListTool.createArrayList(indexNode.scan(indexKeyRange, null));
-		List<PK> primaryKeys = IterableTool.map(indexEntries, IE::getTargetKey);
-		List<D> databeans = mainNode.getMulti(primaryKeys, config);
-		return databeans;
+		List<PK> primaryKeys = indexNode.scan(indexKeyRange, config)
+				.map(IE::getTargetKey)
+				.list();
+		return mainNode.getMulti(primaryKeys, config);
 	}
 
 
 	@Override
 	public List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config){
 		if(CollectionTool.isEmpty(indexKeys)){
-			return new LinkedList<>();
+			return Collections.emptyList();
 		}
-		List<IE> allIndexEntries = new ArrayList<>();
-		for(IK indexKey : indexKeys){
-			Range<IK> indexKeyRange = new Range<>(indexKey, true, indexKey, true);
-			List<IE> indexEntries = ListTool.createArrayList(indexNode.scan(indexKeyRange, null));
-			allIndexEntries.addAll(CollectionTool.nullSafe(indexEntries));
-		}
-		List<PK> primaryKeys = IterableTool.map(allIndexEntries, IE::getTargetKey);
-		List<D> databeans = mainNode.getMulti(primaryKeys, config);
-		return databeans;
+		List<PK> primaryKeys = Scanner.of(indexKeys)
+				.map(indexKey -> new Range<>(indexKey, true, indexKey, true))
+				.mapToScanner(indexKeyRange -> indexNode.scan(indexKeyRange))
+				.concatenate()
+				.map(IE::getTargetKey)
+				.list();
+		return mainNode.getMulti(primaryKeys, config);
 	}
 
 	@Override
@@ -91,7 +82,7 @@ implements MultiIndexNode<PK, D, IK, IE>{
 	}
 
 	@Override
-	public Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
+	public Scanner<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
 		return new ManagedIndexIndexToDatabeanScanner<>(mainNode, scanMulti(ranges, config), config);
 	}
 

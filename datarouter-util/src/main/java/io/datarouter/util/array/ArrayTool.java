@@ -22,9 +22,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.collection.CollectionTool;
 
@@ -124,8 +121,8 @@ public class ArrayTool{
 		if(isEmpty(array)){
 			return false;
 		}
-		for(int i = 0; i < array.length; ++i){
-			if(array[i] == key){
+		for(byte element : array){
+			if(element == key){
 				return true;
 			}
 		}
@@ -152,45 +149,6 @@ public class ArrayTool{
 			return ins;
 		}
 		return Arrays.copyOf(ins, size);
-	}
-
-	public static class ArrayToolTests{
-
-		@Test
-		public void simpleCompare(){
-			Double one = 1.0;
-			Double two = 2.0;
-			Assert.assertEquals(one.compareTo(one), 0);
-			Assert.assertEquals(one.compareTo(two), -1);
-			Assert.assertEquals(two.compareTo(one), 1);
-		}
-
-		@Test
-		public void testConcatenateVarargBytes(){
-			byte[] concat = concatenate(new byte[]{0, 1}, new byte[]{2}, new byte[]{3, 4});
-			Assert.assertEquals(concat, new byte[]{0, 1, 2, 3, 4});
-		}
-
-		@Test
-		public void testMapToSet(){
-			Assert.assertEquals(mapToSet(null, (Object)null), new HashSet<>());
-			Object nothing = null;
-			Assert.assertEquals(mapToSet(null, nothing), new HashSet<>());
-			String[] empty = new String[0];
-			Assert.assertEquals(mapToSet(null, empty), new HashSet<>());
-			String[] arr = {"hi", "hello", "hi"};
-			Assert.assertEquals(mapToSet(str -> str + "s", arr), new HashSet<>(Arrays.asList("hellos", "his")));
-		}
-
-		@Test
-		public void testTrimToSize(){
-			byte[] array = new byte[]{0, 1, 2, 3, 4};
-			Assert.assertEquals(trimToSize(new byte[]{}, 2), new byte[2]);
-			Assert.assertEquals(trimToSize(array, 2), new byte[]{0, 1});
-			Assert.assertEquals(trimToSize(array, 5), new byte[]{0, 1, 2, 3, 4});
-			Assert.assertEquals(trimToSize(array, 6), new byte[]{0, 1, 2, 3, 4});
-		}
-
 	}
 
 }

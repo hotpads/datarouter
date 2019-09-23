@@ -26,11 +26,16 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientManager;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterWriteBehindExecutor;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterWriteBehindScheduler;
 import io.datarouter.storage.node.DatarouterNodes;
+import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.router.Router;
 import io.datarouter.storage.router.RouterClasses;
@@ -44,7 +49,6 @@ import io.datarouter.storage.router.TestRouter;
 @Singleton
 public class Datarouter{
 
-	//injected
 	private final DatarouterClients clients;
 	private final DatarouterNodes nodes;
 	private final DatarouterWriteBehindScheduler writeBehindScheduler;
@@ -52,8 +56,11 @@ public class Datarouter{
 	private final RouterClasses routerClasses;
 
 	@Inject
-	public Datarouter(DatarouterClients clients, DatarouterNodes nodes,
-			DatarouterWriteBehindExecutor writeBehindExecutor, DatarouterWriteBehindScheduler writeBehindScheduler,
+	public Datarouter(
+			DatarouterClients clients,
+			DatarouterNodes nodes,
+			DatarouterWriteBehindExecutor writeBehindExecutor,
+			DatarouterWriteBehindScheduler writeBehindScheduler,
 			RouterClasses routerClasses){
 		this.clients = clients;
 		this.nodes = nodes;
@@ -70,15 +77,21 @@ public class Datarouter{
 		return clients.registerClientIds(clientIds);
 	}
 
-	public synchronized void register(Router router){
+	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
+	N register(N node){
+		nodes.register(node);
+		for(ClientId clientId : registerClientIds(node.getClientIds())){
+			ClientManager clientManager = clients.getClientManager(clientId);
+			clientManager.doSchemaUpdate(node.getPhysicalNodesForClient(clientId.getName()));
+		}
+		return node;
+	}
+
+	public synchronized void assertRouterIsRegistered(Router router){
 		if(!(router instanceof TestRouter) && !routerClasses.get().contains(router.getClass())){
 			throw new IllegalArgumentException("Unknown router: " + router.getClass().getSimpleName()
 					+ ". Please register it in RouterClasses or have it implement TestRouter if only used for tests");
 		}
-	}
-
-	public void initializeEagerClients(){
-		clients.initializeEagerClients();
 	}
 
 	public void shutdown(){

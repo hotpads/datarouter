@@ -17,9 +17,6 @@ package io.datarouter.util.string;
 
 import java.util.regex.Pattern;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 public class XmlStringTool{
 
 	private static final Pattern AMP = Pattern.compile("&[Aa][Mm][Pp];");
@@ -52,33 +49,6 @@ public class XmlStringTool{
 		input = DOUBLE_QUOTE_CHAR.matcher(input).replaceAll("&quot;");
 
 		return input;
-	}
-
-	public static class XmlStringToolTests{
-
-		@Test
-		public void testEscapeXml(){
-			Assert.assertEquals(escapeXml("Baseboard &amp; Crown Moldings Throughout; "),
-					"Baseboard &amp; Crown Moldings Throughout; ", "test &amp; for &amp;");
-			Assert.assertEquals(escapeXml("Baseboard &Amp; Crown Moldings Throughout; "),
-					"Baseboard &amp; Crown Moldings Throughout; ", "test &amp; for &Amp;");
-			Assert.assertEquals(escapeXml("Baseboard & Crown Moldings Throughout; "),
-					"Baseboard &amp; Crown Moldings Throughout; ", "test &amp; for &");
-			Assert.assertEquals(escapeXml("<wee>steve \"steve-o\" o'malley & fred \"the dagger\" dirkowitz</wee>"),
-					"&lt;wee&gt;steve &quot;steve-o&quot; o&apos;malley "
-					+ "&amp; fred &quot;the dagger&quot; dirkowitz&lt;/wee&gt;", "test <>\"'&");
-			Assert.assertEquals(escapeXml("&lt;wee&gt;steve &quot;steve-o&quot; o&apos;"
-					+ "malley &amp; fred &quot;the dagger&quot; dirkowitz&lt;/wee&gt;"),
-					"&lt;wee&gt;steve &quot;steve-o&quot; o&apos;malley "
-					+ "&amp; fred &quot;the dagger&quot; dirkowitz&lt;/wee&gt;",
-					"test &lt;&gt;&quot;&apos;&amp;");
-			Assert.assertEquals(escapeXml("&lT;wee&Gt;steve &QUOT;steve-o&qUoT; o&aPoS;"
-					+ "malley &aMP; fred &Quot;the dagger&Quot; " + "dirkowitz&LT;/wee&gt;"),
-					"&lt;wee&gt;steve &quot;steve-o&quot; o&apos;malley "
-							+ "&amp; fred &quot;the dagger&quot; dirkowitz&lt;/wee&gt;",
-					"test &lt;&gt;&quot;&apos;&amp; with various cases");
-		}
-
 	}
 
 }

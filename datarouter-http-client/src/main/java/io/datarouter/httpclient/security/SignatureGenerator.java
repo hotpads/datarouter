@@ -21,7 +21,7 @@ import org.apache.http.HttpEntity;
 
 public interface SignatureGenerator{
 
-	String getHexSignature(Map<String,String> params, HttpEntity entity);
-	String getHexSignature(Map<String,String> params);
+	RequestSignatureDto getHexSignature(Map<String,String> params, HttpEntity entity);
+	RequestSignatureDto getHexSignature(Map<String,String> params);
 
 }

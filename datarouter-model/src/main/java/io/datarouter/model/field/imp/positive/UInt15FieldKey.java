@@ -17,7 +17,7 @@ package io.datarouter.model.field.imp.positive;
 
 import io.datarouter.model.field.PrimitiveFieldKey;
 
-public class UInt15FieldKey extends PrimitiveFieldKey<Short>{
+public class UInt15FieldKey extends PrimitiveFieldKey<Short,UInt15FieldKey>{
 
 	public UInt15FieldKey(String name){
 		super(name, Short.class);

@@ -24,8 +24,6 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
 public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 
-	private TxnBeanKey key;
-
 	public static class TxnBeanFielder extends BaseDatabeanFielder<TxnBeanKey,TxnBean>{
 		public TxnBeanFielder(){
 			super(TxnBeanKey.class);
@@ -37,34 +35,16 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 	}
 
 	public TxnBean(){
-		this.key = new TxnBeanKey(null);
+		super(new TxnBeanKey(null));
 	}
 
 	public TxnBean(String id){
-		this.key = new TxnBeanKey(id);
+		super(new TxnBeanKey(id));
 	}
 
 	@Override
 	public Class<TxnBeanKey> getKeyClass(){
 		return TxnBeanKey.class;
-	}
-
-	@Override
-	public TxnBeanKey getKey(){
-		return key;
-	}
-
-	public void setKey(TxnBeanKey key){
-		this.key = key;
-	}
-
-	public String getId(){
-		return key.getId();
-	}
-
-
-	public void setId(String id){
-		key.setId(id);
 	}
 
 }

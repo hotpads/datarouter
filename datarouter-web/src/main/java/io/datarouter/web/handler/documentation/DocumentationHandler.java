@@ -59,14 +59,14 @@ import io.datarouter.web.handler.types.optional.OptionalParameter;
 public class DocumentationHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DocumentationHandler.class);
 
-	private static final Set<String> hiddenSecParams = SetTool.of(
+	private static final Set<String> HIDDEN_SPEC_PARAMS = SetTool.of(
 			SecurityParameters.CSRF_IV,
 			SecurityParameters.CSRF_TOKEN,
 			SecurityParameters.SIGNATURE);
 
 	private static final UnsafeAllocator UNSAFE_ALLOCATOR = UnsafeAllocator.create();
 
-	private static final Gson gson = new GsonBuilder()
+	private static final Gson GSON = new GsonBuilder()
 			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
 			.serializeNulls()
 			.setPrettyPrinting()
@@ -117,7 +117,7 @@ public class DocumentationHandler extends BaseHandler{
 				}else{
 					try{
 						Object responseObject = createBestExample(responseType, new HashSet<>());
-						responseExample = gson.toJson(responseObject);
+						responseExample = GSON.toJson(responseObject);
 					}catch(Exception e){
 						responseExample = "Impossible to render";
 						logger.warn("Could not create response example for {}", responseType, e);
@@ -184,7 +184,7 @@ public class DocumentationHandler extends BaseHandler{
 					&& !clazz.map(cls -> String.class.isAssignableFrom(cls)).orElse(false)
 					&& !clazz.map(cls -> Boolean.class.isAssignableFrom(cls)).orElse(false)
 					&& !clazz.map(cls -> cls.isPrimitive()).orElse(false)){
-				documentedParameter.example = gson.toJson(createBestExample(type, new HashSet<>()));
+				documentedParameter.example = GSON.toJson(createBestExample(type, new HashSet<>()));
 			}
 		}catch(Exception e){
 			logger.warn("Could not create parameter example {} for {}", type, parameterName, e);
@@ -193,7 +193,7 @@ public class DocumentationHandler extends BaseHandler{
 				(Class<?>)parameterType);
 		documentedParameter.requestBody = requestBody;
 		documentedParameter.description = description;
-		documentedParameter.hidden = hiddenSecParams.contains(parameterName);
+		documentedParameter.hidden = HIDDEN_SPEC_PARAMS.contains(parameterName);
 		return documentedParameter;
 	}
 

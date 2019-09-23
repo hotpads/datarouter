@@ -20,9 +20,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 public class DurationWithCarriedUnits{
 
 	private static final String DEFAULT_DELIMITER = ", ";
@@ -37,8 +34,8 @@ public class DurationWithCarriedUnits{
 		unitValues[DurationUnit.HOURS.getIndex()] = (millis / (1000L * 60 * 60)) % 24;
 		//not exact for millis > 1 year due to rounding on the 365/12
 		unitValues[DurationUnit.DAYS.getIndex()] = (millis / (1000L * 60 * 60 * 24)) % (365 / 12);
-		unitValues[DurationUnit.MONTHS.getIndex()] = new Double(Math.floor(millis / (1000.0 * 60.0 * 60.0 * 24.0
-				* (365.0 / 12.0)))).longValue() % 12;
+		unitValues[DurationUnit.MONTHS.getIndex()] = (long)(Math.floor(millis / (1000.0 * 60.0 * 60.0 * 24.0
+				* (365.0 / 12.0))) % 12);
 		unitValues[DurationUnit.YEARS.getIndex()] = millis / (1000L * 60 * 60 * 24 * 365);
 	}
 
@@ -104,93 +101,4 @@ public class DurationWithCarriedUnits{
 		return unitStrings;
 	}
 
-	public static class Tests{
-		@Test
-		public void testTypicalUse(){
-			DurationWithCarriedUnits wpd;
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 5,2,31,7,521));
-			Assert.assertEquals(wpd.toStringByMaxUnits(2), "5 days, 2 hours");
-		}
-
-		@Test
-		public void testFullStack(){
-			DurationWithCarriedUnits wpd;
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 5,2,31,7,521));
-			Assert.assertEquals(wpd.toString(), "5 days, 2 hours, 31 minutes, 7 seconds, 521 milliseconds");
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 5,2,31,7,521));
-			Assert.assertEquals(wpd.toStringByMaxPrecision(DurationUnit.MILLISECONDS),
-					"5 days, 2 hours, 31 minutes, 7 seconds, 521 milliseconds");
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 5,2,31,7,521));
-			Assert.assertEquals(wpd.toStringByMaxUnits(Integer.MAX_VALUE),
-					"5 days, 2 hours, 31 minutes, 7 seconds, 521 milliseconds");
-		}
-
-		@Test
-		public void testTruncation(){
-			DurationWithCarriedUnits wpd;
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 0,0,0,7,521));
-			Assert.assertEquals(wpd.toStringByMaxUnitsMaxPrecision(DurationUnit.SECONDS,2), "7 seconds");
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 0,2,31,7,521));
-			Assert.assertEquals(wpd.toStringByMaxPrecision(DurationUnit.DAYS), "less than one day");
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 5,0,31,7,521));
-			Assert.assertEquals(wpd.toStringByMaxUnits(2), "5 days");
-
-		}
-
-		@Test
-		public void testLessThan(){
-			DurationWithCarriedUnits wpd;
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 0,2,31,7,521));
-			Assert.assertEquals(wpd.toStringByMaxPrecision(DurationUnit.DAYS), "less than one day");
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 0,0,0,0,521));
-			Assert.assertEquals(wpd.toStringByMaxUnitsMaxPrecision(DurationUnit.SECONDS,2), "less than one second");
-
-		}
-
-		@Test
-		public void testSingularUnits(){
-			DurationWithCarriedUnits wpd;
-
-			wpd = new DurationWithCarriedUnits(convert(0, 0, 5,1,1,1,521));
-			Assert.assertEquals(wpd.toStringByMaxUnits(2), "5 days, 1 hour");
-
-		}
-
-		@Test
-		public void testMonths(){
-			long millis = convert(0, 3,5,0,0,0,0);
-			DurationWithCarriedUnits wpd = new DurationWithCarriedUnits(millis);
-			Assert.assertEquals(wpd.toStringByMaxUnits(1), "3 months");
-		}
-
-		@Test
-		public void testYears(){
-			long millis = convert(2,3,0,0,0,0,0);
-			DurationWithCarriedUnits wpd = new DurationWithCarriedUnits(millis);
-			Assert.assertEquals(wpd.toStringByMaxUnits(1), "2 years");
-			Assert.assertEquals(wpd.toStringByMaxUnits(2), "2 years, 3 months");
-
-		}
-
-		private static long convert(int years, int months, int day, int hour, int minute, int sec, int ms){
-			long millis = 0;
-			millis += ms;
-			millis += sec * 1000L;
-			millis += minute * 1000L * 60;
-			millis += hour * 1000L * 60 * 60;
-			millis += day * 1000L * 60 * 60 * 24;
-			millis += (long) (months * (365.0 / 12) * 1000L * 60 * 60 * 24);
-			millis += years * 365 * 1000L * 60 * 60 * 24;
-			return millis;
-		}
-	}
 }

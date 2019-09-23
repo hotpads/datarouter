@@ -21,8 +21,7 @@ import java.util.List;
 
 import io.datarouter.util.collection.CollectionTool;
 
-public class SimpleFieldSet<F extends FieldSet<F>>
-extends BaseFieldSet<F>{
+public class SimpleFieldSet<F extends FieldSet<F>> extends BaseFieldSet<F>{
 
 	protected List<Field<?>> fields = new ArrayList<>();
 

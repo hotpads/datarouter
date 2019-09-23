@@ -23,26 +23,33 @@ import io.datarouter.storage.servertype.ServerType;
 
 public class MemorySettingFinder implements SettingFinder{
 
-	private final String configProfile;
+	private final String environmentType;
+	private final String environment;
 	private final ServerType serverType;
 	private final String serverName;
 	// protected so subclasses can modify the settings
 	protected final Map<String,Object> settings;
 
 	public MemorySettingFinder(){
-		this(null, null, null);
+		this(null, null, null, null);
 	}
 
-	public MemorySettingFinder(String configProfile, ServerType serverType, String serverName){
-		this.configProfile = configProfile;
+	public MemorySettingFinder(String environmentType, String environment, ServerType serverType, String serverName){
+		this.environmentType = environmentType;
+		this.environment = environment;
 		this.serverType = serverType;
 		this.serverName = serverName;
 		this.settings = new ConcurrentHashMap<>();
 	}
 
 	@Override
-	public String getConfigProfile(){
-		return configProfile;
+	public String getEnvironmentType(){
+		return environmentType;
+	}
+
+	@Override
+	public String getEnvironmentName(){
+		return environment;
 	}
 
 	@Override

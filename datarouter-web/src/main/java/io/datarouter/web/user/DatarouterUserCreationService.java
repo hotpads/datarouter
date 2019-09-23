@@ -15,9 +15,7 @@
  */
 package io.datarouter.web.user;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -72,8 +70,7 @@ public class DatarouterUserCreationService{
 	}
 
 	public DatarouterUser createAutomaticUser(String username, String description){
-		return createAutomaticUser(username, description, new HashSet<>(Arrays.asList(DatarouterUserRole.REQUESTOR
-				.getRole())));
+		return createAutomaticUser(username, description, Set.of(DatarouterUserRole.REQUESTOR.getRole()));
 	}
 
 	public DatarouterUser createAutomaticUser(String username, String description, Set<Role> roles){
@@ -96,13 +93,12 @@ public class DatarouterUserCreationService{
 			String[] requestedRoles, boolean enabled){
 		DatarouterUser user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.MANUAL, password);
-		populateManualFields(user, username, userDao.getAllowedUserRoles(creator, requestedRoles),
-				enabled);
+		populateManualFields(user, username, userDao.getAllowedUserRoles(creator, requestedRoles), enabled);
 		return finishCreate(user, creator.getId(), "User manually created by " + creator.getUsername());
 	}
 
 	private void populateGeneratedFields(DatarouterUser user, CreateType type, String password){
-		user.setId(type == CreateType.ADMIN ? ADMIN_ID : RandomTool.nextPositiveLong());
+		user.getKey().setId(type == CreateType.ADMIN ? ADMIN_ID : RandomTool.nextPositiveLong());
 		user.setUserToken(DatarouterTokenGenerator.generateRandomToken());
 
 		user.setCreated(new Date());
@@ -113,8 +109,7 @@ public class DatarouterUserCreationService{
 		user.setPasswordDigest(type == CreateType.AUTO ? null : PasswordTool.digest(user.getPasswordSalt(), password));
 	}
 
-	private void populateManualFields(DatarouterUser user, String username, Set<Role> roles,
-			Boolean enabled){
+	private void populateManualFields(DatarouterUser user, String username, Set<Role> roles, Boolean enabled){
 		user.setUsername(username);
 		user.setRoles(roles);
 		user.setEnabled(enabled);

@@ -17,6 +17,7 @@ package io.datarouter.storage.setting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -83,37 +84,37 @@ public abstract class SettingNode{
 		return setting;
 	}
 
-	public SettingNode getNodeByName(String nameParam){
+	public Optional<SettingNode> getNodeByName(String nameParam){
 		return getNodeByNameRecursively(nameParam, false);
 	}
 
-	public SettingNode getMostRecentAncestorNodeByName(String nameParam){
+	public Optional<SettingNode> getMostRecentAncestorNodeByName(String nameParam){
 		return getNodeByNameRecursively(nameParam, true);
 	}
 
-	private SettingNode getNodeByNameRecursively(String nameParam, boolean stopAtMostRecentNonNullAncestor){
+	private Optional<SettingNode> getNodeByNameRecursively(String nameParam, boolean stopAtMostRecentNonNullAncestor){
 		if(getName().equals(nameParam)){
-			return this;
+			return Optional.of(this);
 		}
 		if(getChildren().containsKey(nameParam) && stopAtMostRecentNonNullAncestor){
-			return getChildren().get(nameParam);
+			return Optional.of(getChildren().get(nameParam));
 		}
 		if(getSettings().containsKey(removeTrailingPeriod(nameParam)) && stopAtMostRecentNonNullAncestor){
-			return this;
+			return Optional.of(this);
 		}
 		String nextChildShortName = nameParam.substring(getName().length());
 		int index = nextChildShortName.indexOf('.');
 		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
 		if(getChildren().containsKey(nextChildPath)){
 			SettingNode ancestor = getChildren().get(nextChildPath);
-			SettingNode moreRecentAncestor = ancestor.getNodeByNameRecursively(nameParam,
+			Optional<SettingNode> moreRecentAncestor = ancestor.getNodeByNameRecursively(nameParam,
 					stopAtMostRecentNonNullAncestor);
-			if(stopAtMostRecentNonNullAncestor && moreRecentAncestor == null){
-				return ancestor;
+			if(stopAtMostRecentNonNullAncestor && moreRecentAncestor.isEmpty()){
+				return Optional.of(ancestor);
 			}
 			return moreRecentAncestor;
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	private String removeTrailingPeriod(String name){

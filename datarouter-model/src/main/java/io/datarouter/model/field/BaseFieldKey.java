@@ -16,15 +16,17 @@
 package io.datarouter.model.field;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.exception.NotImplementedException;
 
-public abstract class BaseFieldKey<T>
+public abstract class BaseFieldKey<T,K extends BaseFieldKey<T,K>>
 implements FieldKey<T>{
 
 	protected final String name;// the name of the java field
@@ -33,54 +35,33 @@ implements FieldKey<T>{
 	protected final FieldGeneratorType fieldGeneratorType;
 	protected final T defaultValue;
 	protected final Type valueType;
+	protected final Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes;
 
-	/*---------------------------- constructor ------------------------------*/
-
-	protected BaseFieldKey(String name, TypeToken<T> valueType){
-		this(name, true, valueType, FieldGeneratorType.NONE);
-	}
-
-	public BaseFieldKey(String name, Class<T> valueType){
+	//base constructor with class
+	protected BaseFieldKey(String name, Class<T> valueType){
 		this(name, TypeToken.get(valueType));
 	}
 
-	private BaseFieldKey(String name, TypeToken<T> valueType, T defaultValue){
-		this(name, name, true, valueType, FieldGeneratorType.NONE, defaultValue);
+	//base constructor with type token
+	protected BaseFieldKey(String name, TypeToken<T> valueType){
+		this(name, name, true, valueType, FieldGeneratorType.NONE, null, new HashMap<>());
 	}
 
-	protected BaseFieldKey(String name, Class<T> valueType, T defaultValue){
-		this(name, TypeToken.get(valueType), defaultValue);
-	}
-
-	// use java field name for columnName
-	private BaseFieldKey(String name, boolean nullable, TypeToken<T> valueType, FieldGeneratorType fieldGeneratorType){
-		this(name, name, nullable, valueType, fieldGeneratorType, null);
-	}
-
-	protected BaseFieldKey(String name, boolean nullable, Class<T> valueType, FieldGeneratorType fieldGeneratorType){
-		this(name, nullable, TypeToken.get(valueType), fieldGeneratorType);
-	}
-
-	private BaseFieldKey(String name, String columnName, boolean nullable, TypeToken<T> valueType,
-			FieldGeneratorType fieldGeneratorType){
-		this(name, columnName, nullable, valueType, fieldGeneratorType, null);
-	}
-
+	//full constructor with class
 	protected BaseFieldKey(String name, String columnName, boolean nullable, Class<T> valueType,
-			FieldGeneratorType fieldGeneratorType){
-		this(name, columnName, nullable, TypeToken.get(valueType), fieldGeneratorType);
+			FieldGeneratorType fieldGeneratorType, T defaultValue,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		this(name, columnName, nullable, TypeToken.get(valueType), fieldGeneratorType, defaultValue, attributes);
 	}
 
-	public BaseFieldKey(String name, String columnName, boolean nullable, Class<T> valueType,
-			FieldGeneratorType fieldGeneratorType, T defaultValue){
-		this(name, columnName, nullable, TypeToken.get(valueType), fieldGeneratorType, defaultValue);
-	}
-
-	private BaseFieldKey(String name, String columnName, boolean nullable, TypeToken<T> valueType,
-			FieldGeneratorType fieldGeneratorType, T defaultValue){
+	//full constructor with type token
+	protected BaseFieldKey(String name, String columnName, boolean nullable, TypeToken<T> valueType,
+			FieldGeneratorType fieldGeneratorType, T defaultValue,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		this.name = name;
 		this.columnName = columnName;
 		this.nullable = nullable;
+		this.attributes = attributes;
 		this.valueType = valueType.getType();
 		this.fieldGeneratorType = fieldGeneratorType;
 		this.defaultValue = defaultValue;
@@ -143,7 +124,23 @@ implements FieldKey<T>{
 
 	@Override
 	public T generateRandomValue(){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
+	}
+
+	@SuppressWarnings("unchecked")
+	public final <V> K with(FieldKeyAttribute<V> attribute){
+		attributes.put(attribute.getKey(), attribute);
+		return (K)this;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public final <U extends FieldKeyAttribute<U>> Optional<U> findAttribute(FieldKeyAttributeKey<U> key){
+		return Optional.ofNullable((U)attributes.get(key));
+	}
+
+	public Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> getAttributes(){
+		return attributes;
 	}
 
 	@Override
@@ -156,7 +153,7 @@ implements FieldKey<T>{
 		if(!(obj instanceof BaseFieldKey)){
 			return false;
 		}
-		BaseFieldKey<?> otherKey = (BaseFieldKey<?>)obj;
+		BaseFieldKey<?,?> otherKey = (BaseFieldKey<?,?>)obj;
 		return Objects.equals(name, otherKey.name)
 				&& Objects.equals(columnName, otherKey.columnName)
 				&& Objects.equals(nullable, otherKey.nullable)

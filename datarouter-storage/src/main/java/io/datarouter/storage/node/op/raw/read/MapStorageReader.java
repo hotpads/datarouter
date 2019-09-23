@@ -45,13 +45,35 @@ extends NodeOps<PK,D>{
 
 
 	boolean exists(PK key, Config config);
+
+	default boolean exists(PK key){
+		return exists(key, new Config());
+	}
+
 	List<PK> getKeys(final Collection<PK> keys, final Config config);
 
+	default List<PK> getKeys(final Collection<PK> keys){
+		return getKeys(keys, new Config());
+	}
+
 	D get(PK key, Config config);
+
+	default D get(PK key){
+		return get(key, new Config());
+	}
+
 	List<D> getMulti(Collection<PK> keys, Config config);
+
+	default List<D> getMulti(Collection<PK> keys){
+		return getMulti(keys, new Config());
+	}
 
 	default Optional<D> find(PK key, Config config){
 		return Optional.ofNullable(get(key, config));
+	}
+
+	default Optional<D> find(PK key){
+		return find(key, new Config());
 	}
 
 	/*---------------------------- sub-interfaces ---------------------------*/

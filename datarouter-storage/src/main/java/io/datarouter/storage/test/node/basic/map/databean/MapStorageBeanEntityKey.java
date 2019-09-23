@@ -22,12 +22,10 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.entity.base.BaseEntityKey;
-import io.datarouter.model.key.entity.base.BaseEntityPartitioner;
+import io.datarouter.model.key.entity.base.BaseStringEntityPartitioner;
 import io.datarouter.util.HashMethods;
 
 public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityKey>{
-
-	private static int NUM_PARTITIONS = 4;
 
 	private Long entityId;
 
@@ -40,18 +38,16 @@ public class MapStorageBeanEntityKey extends BaseEntityKey<MapStorageBeanEntityK
 		return Arrays.asList(new LongField(FieldKeys.entityId, entityId));
 	}
 
-	public static class MapStorageBeanEntityPartitioner extends BaseEntityPartitioner<MapStorageBeanEntityKey>{
+	public static class MapStorageBeanEntityPartitioner
+	extends BaseStringEntityPartitioner<MapStorageBeanEntityKey>{
 
-		@Override
-		public int getNumPartitions(){
-			return NUM_PARTITIONS;
+		public MapStorageBeanEntityPartitioner(){
+			super(HashMethods::longDjbHash, 4);
 		}
 
 		@Override
-		public int getPartition(MapStorageBeanEntityKey entityKey){
-			String hashInput = String.valueOf(entityKey.entityId);
-			long hash = HashMethods.longDjbHash(hashInput) % getNumPartitions();
-			return (int)(hash % getNumPartitions());
+		protected String makeStringHashInput(MapStorageBeanEntityKey ek){
+			return String.valueOf(ek.entityId);
 		}
 
 	}

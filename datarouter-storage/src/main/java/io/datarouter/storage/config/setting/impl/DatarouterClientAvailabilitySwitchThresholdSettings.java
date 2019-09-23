@@ -22,23 +22,23 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
+import io.datarouter.storage.setting.cached.CachedSetting;
 
 @Singleton
 public class DatarouterClientAvailabilitySwitchThresholdSettings extends SettingNode{
 
-	private final Map<String,Setting<Integer>> switchThresholdByClientName;
+	private final Map<String,CachedSetting<Integer>> switchThresholdByClientName;
 
 	@Inject
 	public DatarouterClientAvailabilitySwitchThresholdSettings(SettingFinder finder){
-		super(finder, "datarouter.availability.switchThreshold.");
+		super(finder, "datarouterStorage.availability.switchThreshold.");
 
 		this.switchThresholdByClientName = new ConcurrentHashMap<>();
 	}
 
-	public Setting<Integer> getSwitchThreshold(ClientId clientId){
+	public CachedSetting<Integer> getSwitchThreshold(ClientId clientId){
 		return switchThresholdByClientName.computeIfAbsent(clientId.getName(), name -> registerInteger(name, 0));
 	}
 

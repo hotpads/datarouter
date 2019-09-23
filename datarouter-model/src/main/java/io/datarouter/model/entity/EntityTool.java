@@ -16,9 +16,13 @@
 package io.datarouter.model.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.entity.EntityKey;
@@ -26,6 +30,11 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.util.iterable.IterableTool;
 
 public class EntityTool{
+
+	public static <EK extends EntityKey<EK>,E extends Entity<EK>> Map<EK,E> getByKey(Collection<E> entities){
+		return entities.stream()
+				.collect(Collectors.toMap(Entity::getKey, Function.identity()));
+	}
 
 	public static <EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>>
 	NavigableMap<EK,List<PK>> getPrimaryKeysByEntityKey(Iterable<PK> pks){

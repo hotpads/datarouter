@@ -17,7 +17,7 @@ package io.datarouter.model.field.imp.comparable;
 
 import io.datarouter.model.field.PrimitiveFieldKey;
 
-public class SignedByteFieldKey extends PrimitiveFieldKey<Byte>{
+public class SignedByteFieldKey extends PrimitiveFieldKey<Byte,SignedByteFieldKey>{
 
 	public SignedByteFieldKey(String name){
 		super(name, Byte.class);

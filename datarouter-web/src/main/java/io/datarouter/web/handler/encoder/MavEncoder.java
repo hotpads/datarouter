@@ -33,6 +33,7 @@ import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
+import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.util.ExceptionService;
 import io.datarouter.web.util.http.ResponseTool;
 
@@ -115,6 +116,11 @@ public class MavEncoder implements HandlerEncoder{
 		}else{
 			exceptionId.ifPresent(id -> out.println("Error " + id));
 		}
+	}
+
+	@Override
+	public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+			SecurityValidationResult securityValidationResult){
 	}
 
 }

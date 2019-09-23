@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>Sign in</title>
-	<%@ include file="/WEB-INF/jsp/generic/head.jsp" %>
+	<%@ include file="/jsp/generic/baseHead.jsp"%>
 </head>
 <body>
 <%@ include file="/jsp/menu/common-navbar.jsp" %>

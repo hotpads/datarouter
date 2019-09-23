@@ -22,4 +22,18 @@ public interface ExceptionRecordPublisher{
 	PublishingResponseDto addExceptionRecord(ExceptionRecordBatchDto exceptionRecordBatchDto);
 	PublishingResponseDto addHttpRequest(HttpRequestRecordBatchDto httpRecordRequestBatchDto);
 
+	public static class NoOpExceptionRecordPublisher implements ExceptionRecordPublisher{
+
+		@Override
+		public PublishingResponseDto addExceptionRecord(ExceptionRecordBatchDto exceptionRecordBatchDto){
+			return PublishingResponseDto.NO_OP;
+		}
+
+		@Override
+		public PublishingResponseDto addHttpRequest(HttpRequestRecordBatchDto httpRecordRequestBatchDto){
+			return PublishingResponseDto.NO_OP;
+		}
+
+	}
+
 }

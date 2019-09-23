@@ -21,11 +21,11 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.type.index.base.BaseManagedNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
-import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class BaseManagedIndexNode
@@ -41,14 +41,14 @@ extends BaseManagedNode<PK,D,IK,IE,IF>{
 	}
 
 	public Scanner<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
-		return Scanner.of(node.scanMultiIndex(fieldInfo, ranges, config));
+		return node.scanMultiIndex(fieldInfo, ranges, config);
 	}
 
 	public Scanner<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
-		return Scanner.of(node.scanMultiIndexKeys(fieldInfo, ranges, config));
+		return node.scanMultiIndexKeys(fieldInfo, ranges, config);
 	}
 
-	public Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
+	public Scanner<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
 		return node.scanMultiByIndex(fieldInfo, ranges, config);
 	}
 

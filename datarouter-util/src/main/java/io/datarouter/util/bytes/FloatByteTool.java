@@ -15,14 +15,6 @@
  */
 package io.datarouter.util.bytes;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 public class FloatByteTool{
 
 	public static byte[] getBytes(float in){
@@ -35,7 +27,7 @@ public class FloatByteTool{
 		return out;
 	}
 
-	public static float fromBytes(final byte[] bytes, final int startIdx){
+	public static float fromBytes(byte[] bytes, int startIdx){
 		int bits =
 		  ((bytes[startIdx] & 0xff) << 24)
 		| ((bytes[startIdx + 1] & 0xff) << 16)
@@ -60,35 +52,4 @@ public class FloatByteTool{
 		return Float.intBitsToFloat(intBits);
 	}
 
-	public static class FloatByteToolTests{
-
-		@Test
-		public void testComparableBytes(){
-			List<Float> interestingFloats = Arrays.asList(Float.NEGATIVE_INFINITY, -Float.MAX_VALUE,
-					-Float.MIN_NORMAL, -Float.MIN_VALUE, -0F, +0F, Float.MIN_VALUE, Float.MIN_NORMAL,
-					Float.MAX_VALUE, Float.POSITIVE_INFINITY, Float.NaN);
-			Collections.sort(interestingFloats);
-			List<Float> roundTripped = interestingFloats.stream()
-					.map(FloatByteTool::toComparableBytes)
-					.sorted(ByteTool::bitwiseCompare)
-					.map(bytes -> fromComparableBytes(bytes, 0))
-					.collect(Collectors.toList());
-			Assert.assertEquals(roundTripped, interestingFloats);
-		}
-
-		@Test
-		public void testBytes1(){
-			float floatA = 123.456f;
-			byte[] bytesA = getBytes(floatA);
-			float backA = fromBytes(bytesA, 0);
-			Assert.assertTrue(floatA == backA);
-
-			float floatB = -123.456f;
-			byte[] bytesB = getBytes(floatB);
-			float backB = fromBytes(bytesB, 0);
-			Assert.assertTrue(floatB == backB);
-
-			Assert.assertTrue(ByteTool.bitwiseCompare(bytesA, bytesB) < 0);//positives and negatives are reversed
-		}
-	}
 }

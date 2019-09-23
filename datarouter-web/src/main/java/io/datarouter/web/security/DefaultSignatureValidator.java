@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
+import io.datarouter.httpclient.security.RequestSignatureDto;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.web.util.http.CachingHttpServletRequest;
 
@@ -43,13 +44,23 @@ public class DefaultSignatureValidator implements SignatureValidator{
 	}
 
 	public boolean checkHexSignature(Map<String,String> params, HttpEntity entity, String candidateSignature){
-		if(signatureGenerator.getHexSignatureWithoutSettingParameterOrder(params, entity).equals(candidateSignature)){
-			if(!params.isEmpty()){
-				logger.warn("Successfully checked signature without checking parameter order");
-			}
+		RequestSignatureDto hexSignatureReorder = signatureGenerator.getHexSignature(params, entity);
+		if(hexSignatureReorder.signature.equals(candidateSignature)){
 			return true;
 		}
-		return signatureGenerator.getHexSignature(params, entity).equals(candidateSignature);
+		RequestSignatureDto hexSignatureNoReorder = signatureGenerator.getHexSignatureWithoutSettingParameterOrder(
+				params, entity);
+		boolean match = hexSignatureNoReorder.signature.equals(candidateSignature);
+		if(match){
+			if(!params.isEmpty()){
+				logger.warn("signature was not generated with ordered param");
+			}
+		}else{
+			logger.warn("got={} expectedNoReorder={} expectedReorder={} partsNoReorder={} partsReorder={}",
+					candidateSignature, hexSignatureNoReorder.signature, hexSignatureReorder.signature,
+					hexSignatureNoReorder.originalSignatureParts, hexSignatureReorder.originalSignatureParts);
+		}
+		return match;
 	}
 
 	private boolean checkHexSignatureMulti(HttpServletRequest request, HttpEntity entity){
@@ -68,7 +79,7 @@ public class DefaultSignatureValidator implements SignatureValidator{
 		HttpEntity entity;
 		try{
 			Optional<CachingHttpServletRequest> cachingRequestOptional = CachingHttpServletRequest.get(request);
-			if(!cachingRequestOptional.isPresent()){
+			if(cachingRequestOptional.isEmpty()){
 				cachingRequestOptional = Optional.of(CachingHttpServletRequest.getOrCreate(request));
 				request = cachingRequestOptional.get();
 			}

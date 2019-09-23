@@ -1,43 +1,58 @@
-<div class="panel panel-default">
-<div class="panel-heading">
-	<h4 class="panel-title">
-		${name}
-	</h4>
-</div>
-<div class="no-value-on-0">
-	<div class="panel-body">
-		<div class="panel-group" id="accordion">
-			<c:forEach items="${libs}" var="lib">
+<div class="card" id="${escapedName}">
+	<nav class="navbar navbar-light bg-light justify-content-between ${lined ? '' : 'border-bottom'}">
+		<a class="navbar-brand">${name}</a>
+		<form class="form-inline">
+			<div class="input-group">
+				<input class="form-control border-right-0" type="search" placeholder="Regex filter">
+				<div class="input-group-append">
+					<span class="bg-white border-left-0 input-group-text text-black-50"><i class="fas fa-filter"></i></span>
+				</div>
+			</div>
+		</form>
+	</nav>
+	<ul class="list-group list-group-flush border-bottom">
+		<c:forEach items="${libs}" var="lib">
+			<li class="list-group-item py-1 ${lined ? '' : 'border-0'} filterable-container">
 				<c:choose>
 					<c:when test="${map}">
-						<span class="property tree-level-0" title="${lib.value.describeShort}">${lib.key}</span>
-						<br>
-						<span class="property tree-level-1">Branch</span>
-						<span class="value">${lib.value.branch}</span>
-						<br>
-						<span class="property tree-level-1">Commit</span>
-						<span class="value" title="${commitTime} by ${lib.value.commitUserName}">
-							${lib.value.idAbbrev}
-						</span>
-						<br>
-						<span class="property tree-level-1">Build time</span>
-						<span class="value">
-							${lib.value.buildTime}
-						</span>
-						<br>
-						<span class="property tree-level-1">Build id</span>
-						<span class="value">
-							${buildDetailedLibraries[lib.key].buildId}
-						</span>
-						<br>
+						<div class="table-responsive">
+							<table class="definition light">
+							<tbody>
+								<tr title="${lib.value.describeShort}"><td colspan="2" class="filterable-value">${lib.key}</td></tr>
+								<tr class="sub"><td>Branch</td><td>${lib.value.branch}</td></tr>
+								<tr class="sub" title="${lib.value.commitTime} by ${lib.value.commitUserName}">
+									<td>Commit</td><td>${lib.value.idAbbrev}</td>
+								</tr>
+								<tr class="sub"><td>Build time</td><td>${lib.value.buildTime}</td></tr>
+								<tr class="sub"><td>Build id</td><td>${buildDetailedLibraries[lib.key].buildId}</td></tr>
+							</tbody>
+							</table>
+						</div>
 					</c:when>
 					<c:otherwise>
-						<span class="property tree-level-0">${lib}</span>
-						<br>
+						<span class="filterable-value">${lib}</span>
 					</c:otherwise>
 				</c:choose>
-			</c:forEach>
-		</div>
-	</div>
+			</li>
+		</c:forEach>
+	</ul>
 </div>
-</div>
+<script>
+	require(['jquery-ui'], function(){
+		const container = $('#${escapedName}')
+		container.find('input[type="search"]').on('input copy paste', function(){
+			try{
+				const regex = new RegExp($(this).val(), 'i')
+				container.find('.filterable-value').get().map($).forEach(option => {
+					if(!regex.test(option.text())){
+						option.closest('.filterable-container').hide()
+					}else{
+						option.closest('.filterable-container').show()
+					}
+				})
+			}catch(e){
+				console.warn(e)// likely just invalid regex as they type
+			}
+		})
+	})
+</script>

@@ -77,8 +77,6 @@ public class SqlBuilder{
 	}
 
 	public static void addLimitOffsetClause(StringBuilder sql, Config config){
-		config = Config.nullSafe(config);
-
 		if(config.getLimit() != null && config.getOffset() != null){
 			sql.append(" limit " + config.getOffset() + ", " + config.getLimit());
 		}else if(config.getLimit() != null){

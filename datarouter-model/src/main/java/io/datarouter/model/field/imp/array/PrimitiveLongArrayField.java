@@ -20,7 +20,6 @@ import java.util.Arrays;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.bytes.LongByteTool;
-import io.datarouter.util.exception.NotImplementedException;
 
 public class PrimitiveLongArrayField extends BaseField<long[]>{
 
@@ -56,12 +55,12 @@ public class PrimitiveLongArrayField extends BaseField<long[]>{
 
 	@Override
 	public String getStringEncodedValue(){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public long[] parseStringEncodedValueButDoNotSet(String value){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -76,7 +75,7 @@ public class PrimitiveLongArrayField extends BaseField<long[]>{
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 }

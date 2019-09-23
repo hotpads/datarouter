@@ -23,4 +23,9 @@ public class TestServerTypeDetector implements ServerTypeDetector{
 		return false;
 	}
 
+	@Override
+	public boolean mightBeDevelopment(){
+		return true;
+	}
+
 }

@@ -24,13 +24,13 @@ import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.combo.reader.IndexedSortedMapStorageReader.PhysicalIndexedSortedMapStorageReaderNode;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
-import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class MysqlReaderNode<
@@ -64,7 +64,7 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D,F>{
 
 	@Override
 	public List<D> getMulti(final Collection<PK> keys, final Config config){
-		return mysqlNodeManager.getMulti(getFieldInfo(), keys, Config.nullSafe(config));
+		return mysqlNodeManager.getMulti(getFieldInfo(), keys, config);
 	}
 
 	@Override

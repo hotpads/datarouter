@@ -17,7 +17,7 @@ package io.datarouter.model.field.imp.array;
 
 import io.datarouter.model.field.BaseFieldKey;
 
-public class PrimitiveIntegerArrayFieldKey extends BaseFieldKey<int[]>{
+public class PrimitiveIntegerArrayFieldKey extends BaseFieldKey<int[],PrimitiveIntegerArrayFieldKey>{
 
 	public PrimitiveIntegerArrayFieldKey(String name){
 		super(name, int[].class);

@@ -37,6 +37,8 @@ import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.ddl.execute.DatabaseCreator;
 import io.datarouter.client.mysql.ddl.execute.MysqlSchemaUpdateService;
 import io.datarouter.client.mysql.op.Isolation;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
@@ -104,7 +106,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 	}
 
 	@Override
-	public Future<Optional<SchemaUpdateResult>> notifyNodeRegistration(PhysicalNode<?,?,?> node){
+	protected Future<Optional<SchemaUpdateResult>> doSchemaUpdate(PhysicalNode<?,?,?> node){
 		if(schemaUpdateOptions.getEnabled()){
 			return schemaUpdateService.queueNodeForSchemaUpdate(node.getFieldInfo().getClientId(), node);
 		}
@@ -112,7 +114,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 	}
 
 	@Override
-	public void sendEmail(){
+	public void gatherSchemaUpdates(){
 		schemaUpdateService.gatherSchemaUpdates(true);
 	}
 
@@ -125,12 +127,13 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 	@Override
 	public void reserveConnection(ClientId clientId){
 		initClient(clientId);
-		DatarouterCounters.incClient(clientType, "connection open", clientId.getName(), 1L);
-		try{
+		DatarouterCounters.incClient(clientType, "connection open", clientId.getName(), 1);
+		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "reserve " + clientId.getName())){
 			ConnectionHandle existingHandle = getExistingHandle(clientId);
 			if(existingHandle != null){
 				// logger.warn("got existing connection:"+existingHandle);
-				DatarouterCounters.incClient(clientType, "connection open existing", clientId.getName(), 1L);
+				TracerTool.appendToSpanInfo("connection", "existing");
+				DatarouterCounters.incClient(clientType, "connection open existing", clientId.getName(), 1);
 				// Assert connection exists for handle
 				existingHandle.incrementNumTickets();
 				return;
@@ -148,10 +151,11 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 			}
 			connectionByHandle(clientId).put(handle, newConnection);
 			// logger.warn("new connection:"+handle);
-			DatarouterCounters.incClient(clientType, "connection open new", clientId.getName(), 1L);
+			TracerTool.appendToSpanInfo("connection", "new");
+			DatarouterCounters.incClient(clientType, "connection open new", clientId.getName(), 1);
 		}catch(SQLException e){
 			DatarouterCounters.incClient(clientType, "connection open " + e.getClass().getSimpleName(), clientId
-					.getName(), 1L);
+					.getName(), 1);
 			throw new DataAccessException("Could not reserve connection client=" + clientId.getName(), e);
 		}
 	}
@@ -197,6 +201,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 
 			connectionByHandle(clientId).remove(handle);
 			handleByThread(clientId).remove(currentThread.getId());
+			DatarouterCounters.incClient(clientType, "releaseConnection", clientId.getName(), 1L);
 			return;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -226,6 +231,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 							clientId));
 				}
 			}
+			DatarouterCounters.incClient(clientType, "beginTxn", clientId.getName(), 1L);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -243,6 +249,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 			}else{
 				logger.warn("couldn't commit txn because connection was null.  handle=" + getExistingHandle(clientId));
 			}
+			DatarouterCounters.incClient(clientType, "commitTxn", clientId.getName(), 1L);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -253,12 +260,13 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 		try{
 			Connection connection = getExistingConnection(clientId);
 			if(connection == null){
-				logger.warn("couldn't rollback txn because connection was null.  handle=" + getExistingHandle(
-						clientId));
+				logger.warn("couldn't rollback txn because connection was null clientName={} handle={}",
+						clientId.getName(), getExistingHandle(clientId), new Exception());
 			}else if(!connection.getAutoCommit()){
 				logger.warn("ROLLING BACK TXN " + getExistingHandle(clientId));
 				connection.rollback();
 			}
+			DatarouterCounters.incClient(clientType, "rollbackTxn", clientId.getName(), 1L);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

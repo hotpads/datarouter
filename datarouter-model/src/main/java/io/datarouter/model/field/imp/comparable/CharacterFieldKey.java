@@ -17,7 +17,7 @@ package io.datarouter.model.field.imp.comparable;
 
 import io.datarouter.model.field.PrimitiveFieldKey;
 
-public class CharacterFieldKey extends PrimitiveFieldKey<Character>{
+public class CharacterFieldKey extends PrimitiveFieldKey<Character,CharacterFieldKey>{
 
 	public CharacterFieldKey(String name){
 		super(name, Character.class);

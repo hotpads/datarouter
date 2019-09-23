@@ -5,67 +5,25 @@
 	<title>${apiName} API Documentation</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<style>
-	table {
-		border-collapse: collapse;
-		font-size: 1em;
-	}
-	th,td {
-		border-bottom: 1px #D0D0D0  solid;
-		border-top: 1px #D0D0D0  solid;
-		padding: 5px;
-		vertical-align: top;
-	}
-	th {
-		text-align: left;
-	}
-	pre {
-		padding: 5px;
-		margin: 5px;
-	}
-	.string { color: green; }
-	.number { color: blue; }
-	.boolean { color: red; }
-	.null { color: magenta; }
-	.key { color: black; }
-	.panel{
-		position: relative;
-	}
-	.panel-anchor{
-		position: absolute;
-		right: 100%;
-		color: #eee;
-	}
-	.panel-anchor:hover{
-		color: gray;
-		text-decoration: none !important;
-	}
-	.panel-anchor:active, .active{
-		color: #007bff !important;
-	}
+		.string { color: green; }
+		.number { color: blue; }
+		.boolean { color: red; }
+		.null { color: magenta; }
+		.key { color: black; }
+		.card-header{
+			font-size: 110%;
+		}
 	</style>
-	<script type="text/javascript">
-
+	<script>
 		function fetchCsrf(obj) {
-			var url = window.location.href + "/getCsrfIv?" + $.param(obj);
-			var req = {
-				method: 'GET'
-			};
-			return fetch(url, req);
+			const url = window.location.origin + window.location.pathname + "/getCsrfIv?" + $.param(obj)
+			return fetch(url, {method: 'GET'})
 		}
 
 		function fetchSignature(theParams, requestBody){
-			var url = window.location.href + "/getSignature?" + $.param(theParams);
-			if(requestBody != null){
-				var req = {
-					method : 'POST',
-					body : requestBody
-				}
-			}else {
-				var req = {
-					method: 'GET'
-				};
-			}
-			return fetch(url, req);
+			const url = window.location.origin + window.location.pathname + "/getSignature?" + $.param(theParams);
+			const options = !!requestBody ? {method: 'POST', body: requestBody} : {method: 'GET'}
+			return fetch(url, options);
 		}
 
 		function getJson(response){
@@ -198,8 +156,8 @@
 
 		$(function(){
 			$('a[data-toggle="collapse"]').click(function(){
-				if($(this).parents('.panel').find('.panel-collapse').hasClass('in')){
-					history.pushState(null, null, window.location.href.replace(/#.*/, ''))
+				if($(this).parents('.card').find('.collapse').hasClass('show')){
+					history.pushState(null, null, window.location.href.split('#')[0])
 				}else{
 					history.pushState(null, null, '#' + $(this).data('url'))
 				}
@@ -215,10 +173,10 @@
 	</script>
 </head>
 <body>
-	<%@ include file="/jsp/menu/common-navbar.jsp"%>
-	<div class="container">
-		<h3>${apiName} API Documentation</h3>
-		<div class="panel-group" id="accordion">
+	<%@ include file="/jsp/menu/new-common-navbar.jsp"%>
+	<div class="container my-5">
+		<h2>${apiName} API Documentation</h2>
+		<div id="accordion">
 			<c:forEach var="endpoint" items="${endpoints}" varStatus="loop">
 				<c:set var="collapseId" value="collapse${loop.index}"></c:set>
 				<c:set var="panelId" value="panel${loop.index}"></c:set>
@@ -229,23 +187,17 @@
 				<c:set var="responseCodeId" value="responseCode${loop.index}"></c:set>
 				<c:set var="responseHeaderId" value="responseHeader${loop.index}"></c:set>
 				<c:set var="rowClass" value="rowClass${loop.index}"></c:set>
-				<div class="panel panel-default" id="${endpoint.url}">
-					<div class="panel-heading">
-						<h4 class="panel-title">
-							<div class="clearfix">
-								<span style="float: left;">
-									<a data-parent="#accordion" data-toggle="collapse" data-target="#${collapseId}" data-url="${endpoint.url}">
-										${endpoint.url}
-									</a>
-								</span>
-								<span style="float: right;">${endpoint.description}</span>
-							</div>
-						</h4>
+				<div class="card" id="${endpoint.url}">
+					<div class="card-header">
+						<a tabindex="0" data-toggle="collapse" data-target="#${collapseId}" data-url="${endpoint.url}">
+							${endpoint.url}
+						</a>
+						<span class="float-right text-muted">${endpoint.description}</span>
 					</div>
-					<div id="${collapseId}" class="panel-collapse collapse">
-						<div class="panel-body">
+					<div id="${collapseId}" class="collapse" data-parent="#accordion">
+						<div class="card-body">
 							<h3>Parameters</h3>
-							<form id="parameterForm" method="post">
+							<form id="parameterForm" method="POST">
 							<c:choose>
 								<c:when test="${not empty endpoint.parameters}">
 									<table class=table>
@@ -288,10 +240,10 @@
 												<td>
 													<c:choose>
 														<c:when test="${parameter.requestBody}">
-															<textarea style="display:table-cell; width:100%" class="paramValue" rows="10">${predefinedValue}</textarea>
+															<textarea class="form-control paramValue" style="display:table-cell; width:100%" rows="10">${predefinedValue}</textarea>
 														</c:when>
 														<c:otherwise>
-															<input style="display:table-cell; width:100%" class="paramValue" type="text" id="${parameter.name}"  placeholder="${note}" value="${predefinedValue}"/>
+															<input class="form-control paramValue" style="display:table-cell; width:100%" type="text" id="${parameter.name}"  placeholder="${note}" value="${predefinedValue}"/>
 														</c:otherwise>
 													</c:choose>
 												</td>
@@ -300,7 +252,7 @@
 														; ${parameter.description}
 													</c:if>
 													<c:if test="${not empty parameter.example}">
-														<pre>${parameter.example}</pre>
+														<pre class="bg-light border p-2">${parameter.example}</pre>
 													</c:if>
 												</td>
 											</tr>
@@ -315,34 +267,34 @@
 								Nothing
 							</c:if>
 							<c:if test="${not empty endpoint.response.example}">
-								<pre>${endpoint.response.example}</pre>
+								<pre class="bg-light border p-2">${endpoint.response.example}</pre>
 							</c:if>
 							<div>
-								<button class="table-box" id="sendRequest" type="button" class="btn btn-primary"
+								<button id="sendRequest" type="button" class="btn btn-primary"
 										onclick="callApi('${rowClass}','${loop.index}','${endpoint.url}',
 												'${hideAuth}')">Try It Out</button>
 							</div>
-							<div id="${responseDivId}" style="display:none;">
+							<div id="${responseDivId}" class="mt-3" style="display:none;">
 								<h3>Response</h3>
 								<div>
 									<h4>Request URL</h4>
-									<pre id="${requestUrlId}">
+									<pre id="${requestUrlId}" class="bg-light border p-2">
 								</div>
 								<div>
 									<h4>Request Body</h4>
-									<pre id="${requestBodyId}">
+									<pre id="${requestBodyId}" class="bg-light border p-2">
 								</div>
 								<div>
 									<h4>Response Body</h4>
-									<pre id="${jsonResponseId}">
+									<pre id="${jsonResponseId}" class="bg-light border p-2">
 								</div>
 								<div>
 									<h4>Response Code</h4>
-									<pre id="${responseCodeId}">
+									<pre id="${responseCodeId}" class="bg-light border p-2">
 								</div>
 								<div>
 									<h4>Response Header</h4>
-									<pre id="${responseHeaderId}">
+									<pre id="${responseHeaderId}" class="bg-light border p-2">
 								</div>
 							</div>
 							</pre>

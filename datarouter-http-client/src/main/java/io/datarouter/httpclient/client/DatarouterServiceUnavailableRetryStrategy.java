@@ -15,9 +15,9 @@
  */
 package io.datarouter.httpclient.client;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -27,10 +27,18 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.response.HttpStatusCode;
+
 public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavailableRetryStrategy{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterServiceUnavailableRetryStrategy.class);
 
-	private static final Set<Integer> STATUS_CODES_TO_RETRY = new HashSet<>(Arrays.asList(502, 503, 504));
+	private static final Set<Integer> STATUS_CODES_TO_RETRY = Stream.of(
+			HttpStatusCode.SC_502_BAD_GATEWAY,
+			HttpStatusCode.SC_503_SERVICE_UNAVAILABLE,
+			HttpStatusCode.SC_504_GATEWAY_TIMEOUT)
+			.map(HttpStatusCode::getStatusCode)
+			.collect(Collectors.toSet());
+
 
 	private final int retryCount;
 
@@ -46,15 +54,16 @@ public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavail
 		}
 		HttpClientContext clientContext = HttpClientContext.adapt(context);
 		boolean willRetry = HttpRetryTool.shouldRetry(context, executionCount, retryCount);
+		String requestId = (String)context.getAttribute(StandardDatarouterHttpClient.X_REQUEST_ID);
 		if(willRetry){
 			HttpEntity httpEntity = response.getEntity();
 			String entity = HttpRetryTool.entityToString(httpEntity).orElse(null);
-			logger.warn("Request {} failure Nº {} statusCode={} entity={}", clientContext.getRequest().getRequestLine(),
-					executionCount, statusCode, entity);
+			logger.warn("Request {} id={} failure Nº {} statusCode={} entity={}", clientContext.getRequest()
+					.getRequestLine(), requestId, executionCount, statusCode, entity);
 		}else{
 			// don't log everything, caller will get details in an Exception
-			logger.warn("Request {} failure Nº {} (final)", clientContext.getRequest().getRequestLine(),
-					executionCount);
+			logger.warn("Request {} id={} failure Nº {} (final)", clientContext.getRequest().getRequestLine(),
+					requestId, executionCount);
 		}
 		return willRetry;
 	}

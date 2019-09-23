@@ -15,26 +15,30 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import java.util.Map;
+
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class LongFieldKey extends PrimitiveFieldKey<Long>{
+public class LongFieldKey extends PrimitiveFieldKey<Long,LongFieldKey>{
 
 	public LongFieldKey(String name){
 		super(name, Long.class);
 	}
 
 	private LongFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Long defaultValue){
-		super(name, columnName, nullable, Long.class, fieldGeneratorType, defaultValue);
+			Long defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, Long.class, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	public LongFieldKey withColumnName(String columnName){
-		return new LongFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		return new LongFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	public LongFieldKey notNullable(){
-		return new LongFieldKey(name, columnName, false, fieldGeneratorType, defaultValue);
+		return new LongFieldKey(name, columnName, false, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	@Override

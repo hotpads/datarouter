@@ -52,7 +52,7 @@ public class DatarouterHomepageHandler extends BaseHandler{
 
 		//DatarouterProperties info
 		mav.put("configDirectory", datarouterProperties.getConfigDirectory());
-		mav.put("configProfile", datarouterProperties.getConfigProfile());
+		mav.put("environmentType", datarouterProperties.getEnvironmentType());
 		mav.put("environment", datarouterProperties.getEnvironment());
 		mav.put("serverType", datarouterProperties.getServerTypeString());
 		mav.put("serverName", datarouterProperties.getServerName());

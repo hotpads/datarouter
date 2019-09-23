@@ -21,7 +21,7 @@ import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.ListFieldKey;
 
-public class BooleanArrayFieldKey extends ListFieldKey<Boolean,List<Boolean>>{
+public class BooleanArrayFieldKey extends ListFieldKey<Boolean,List<Boolean>,BooleanArrayFieldKey>{
 
 	public BooleanArrayFieldKey(String name){
 		super(name, new TypeToken<List<Boolean>>(){});

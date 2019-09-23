@@ -23,7 +23,7 @@ import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.string.StringTool;
 
-public class CharacterField extends BasePrimitiveField<Character>{
+public class CharacterField extends BasePrimitiveField<Character,CharacterFieldKey>{
 
 	public CharacterField(CharacterFieldKey key, Character value){
 		super(key, value);

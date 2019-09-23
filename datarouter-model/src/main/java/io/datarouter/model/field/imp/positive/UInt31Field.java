@@ -19,7 +19,7 @@ import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.string.StringTool;
 
-public class UInt31Field extends BasePrimitiveField<Integer>{
+public class UInt31Field extends BasePrimitiveField<Integer,UInt31FieldKey>{
 
 	public UInt31Field(UInt31FieldKey key, Integer value){
 		this(null, key, value);

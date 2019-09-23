@@ -15,23 +15,27 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import java.util.Map;
+
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.util.number.RandomTool;
 
-public class IntegerFieldKey extends PrimitiveFieldKey<Integer>{
+public class IntegerFieldKey extends PrimitiveFieldKey<Integer,IntegerFieldKey>{
 
 	public IntegerFieldKey(String name){
 		super(name, Integer.class);
 	}
 
 	private IntegerFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Integer defaultValue){
-		super(name, columnName, nullable, Integer.class, fieldGeneratorType, defaultValue);
+			Integer defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, Integer.class, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	public IntegerFieldKey withFieldGeneratorType(FieldGeneratorType fieldGeneratorTypeOverride){
-		return new IntegerFieldKey(name, columnName, nullable, fieldGeneratorTypeOverride, defaultValue);
+		return new IntegerFieldKey(name, columnName, nullable, fieldGeneratorTypeOverride, defaultValue, attributes);
 	}
 
 	@Override
@@ -40,7 +44,7 @@ public class IntegerFieldKey extends PrimitiveFieldKey<Integer>{
 	}
 
 	public IntegerFieldKey withColumnName(String columnNameOverride){
-		return new IntegerFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
+		return new IntegerFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	@Override

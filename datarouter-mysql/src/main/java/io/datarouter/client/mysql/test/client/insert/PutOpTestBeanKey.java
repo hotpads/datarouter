@@ -21,9 +21,9 @@ import java.util.List;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class PutOpTestBeanKey extends BasePrimaryKey<PutOpTestBeanKey>{
+public class PutOpTestBeanKey extends BaseRegularPrimaryKey<PutOpTestBeanKey>{
 
 	private String first;
 	private String second;

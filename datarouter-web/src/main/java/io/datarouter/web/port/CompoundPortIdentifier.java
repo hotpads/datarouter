@@ -54,7 +54,7 @@ public class CompoundPortIdentifier implements PortIdentifier{
 		Optional<Triple<String,String,Class<? extends PortIdentifier>>> optIdentifier = IDENTIFIERS.stream()
 				.filter(triple -> domains.contains(triple.getSecond()))
 				.findAny();
-		if(!optIdentifier.isPresent()){
+		if(optIdentifier.isEmpty()){
 			logger.error("Servlet container not detected. Expect some features to not work.");
 			return;
 		}

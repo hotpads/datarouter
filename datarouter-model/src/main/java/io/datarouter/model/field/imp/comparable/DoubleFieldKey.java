@@ -15,22 +15,26 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import java.util.Map;
+
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class DoubleFieldKey extends PrimitiveFieldKey<Double>{
+public class DoubleFieldKey extends PrimitiveFieldKey<Double,DoubleFieldKey>{
 
 	public DoubleFieldKey(String name){
 		super(name, Double.class);
 	}
 
 	private DoubleFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Double defaultValue){
-		super(name, columnName, nullable, Double.class, fieldGeneratorType, defaultValue);
+			Double defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, Double.class, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	public DoubleFieldKey withColumnName(String columnNameOverride){
-		return new DoubleFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
+		return new DoubleFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	@Override

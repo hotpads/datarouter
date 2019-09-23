@@ -58,13 +58,8 @@ extends BaseNodeScanner<IK,D>{
 	}
 
 	@Override
-	protected List<D> doLoad(Collection<Range<IK>> ranges, Config config){
+	protected List<D> loadRanges(Collection<Range<IK>> ranges, Config config){
 		return mysqlNodeManager.getIndexDatabeanRanges(fieldInfo, ranges, config, indexEntryFieldInfo);
-	}
-
-	@Override
-	protected void setCurrentFromResult(D result){
-		current = result;
 	}
 
 }

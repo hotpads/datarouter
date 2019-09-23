@@ -1,5 +1,6 @@
 <header>
 	<c:if test="${isAdmin}">
+		<c:set var="isCollapsable" value="${fn:length(tomcatWebApps) > 1}"/>
 		<style>
 			#common-navbar.productionEnv{
 				background-color: #ff4d4d !important;
@@ -12,15 +13,26 @@
 				padding-right: 15px;
 				padding-left: 15px;
 			}
-			@media (min-width: 768px){
+
+			<c:choose>
+			<c:when test="${isCollapsable}">
+				@media (min-width: 768px){
+					#common-navbar .nav-link{
+						padding-top: 1px;
+						padding-bottom: 1px;
+					}
+				}
+			</c:when>
+			<c:otherwise>
 				#common-navbar .nav-link{
 					padding-top: 1px;
 					padding-bottom: 1px;
 				}
-			}
+			</c:otherwise>
+			</c:choose>
 		</style>
-		<nav id="common-navbar" class="navbar navbar-expand-md navbar-dark bg-dark py-md-0 ${isProduction ? 'productionEnv' : ''}">
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#common-navbar-content">
+		<nav id="common-navbar" class="navbar ${isCollapsable ? 'navbar-expand-md py-md-0' : 'navbar-expand py-0'} navbar-dark bg-dark  ${isProduction ? 'productionEnv' : ''}">
+			<button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#common-navbar-content">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="common-navbar-content">
@@ -37,9 +49,9 @@
 					<li class="border-right border-secondary d-none d-md-block"></li>
 					<li class="nav-item">
 						<a href="${traceUrl}" class="nav-link">
-							j:${durationString}
-							r:<span id="requestTiming"></span>
-							c:<span id="clientTiming"></span>
+							<span title="Java processing duration">j:${durationString}</span>
+							<span title="Request duration">r:<span id="requestTiming"></span></span>
+							<span title="Client document load duration">c:<span id="clientTiming"></span></span>
 						</a>
 					</li>
 				</ul>
@@ -47,14 +59,17 @@
 		</nav>
 		<script type="text/javascript">
 		require(['jquery'], function($){
-			const navPerformance = performance.getEntriesByType("navigation")[0]
-			$('#requestTiming').text(Math.round(navPerformance.responseEnd))
+			const navPerformance = performance.getEntriesByType("navigation")[0] || performance.timing
+			if(!navPerformance){
+				console.log("Unable to find navigation performance from: " + performance)
+				return
+			}
+			$('#requestTiming').text(Math.ceil(navPerformance.responseEnd - navPerformance.requestStart) + 'ms')
 
 			$(function(){
 				const app = "${contextPath}".replace('/', '')
 				const isDatarouterPage = location.pathname.indexOf("${app}/datarouter") !== -1
 				const target = isDatarouterPage ? "datarouter" : app
-				console.log('target:', target)
 				$('#common-navbar a[data-target="' + target + '"]').addClass('active')
 
 				const checkLoadEndInterval = setInterval(() => {
@@ -62,7 +77,7 @@
 						return
 					}
 					clearInterval(checkLoadEndInterval)
-					$('#clientTiming').text(Math.round(navPerformance.loadEventEnd - navPerformance.responseEnd))
+					$('#clientTiming').text(Math.ceil(navPerformance.loadEventEnd - navPerformance.responseEnd) + 'ms')
 				}, 100)
 			})
 		})
@@ -72,9 +87,8 @@
 	<c:set var="navBarTarget" value="${isDatarouterPage ? '#dr-navbar' : '#mav-navbar'}"/>
 	<nav id="app-navbar" class="navbar navbar-expand-md navbar-dark bg-dark">
 		<c:if test="${isDatarouterPage}">
-			<a class="navbar-brand" href="#">
-				<img src="${contextPath}/${navBarType.logoSrc}" alt="${navBarType.logoAlt}" class="d-inline-block align-top">
-				Datarouter
+			<a class="navbar-brand d-inline-flex" href="${contextPath}/datarouter">
+				<img src="${contextPath}/${navBarType.logoSrc}" alt="${navBarType.logoAlt}" class="align-top" style="height: 1.5rem">
 			</a>
 		</c:if>
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#app-navbar-content">

@@ -15,21 +15,10 @@
  */
 package io.datarouter.util;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 public class EmailTool{
 
 	public static String addSupplementToEmailAddress(String originalEmail, String supplement){
 		return originalEmail.replace("@", "+" + supplement + "@");
-	}
-
-	public static class EmailToolTests{
-
-		@Test
-		public void testAddSupplementToEmailAddress(){
-			Assert.assertEquals(addSupplementToEmailAddress("abc@company.com", "test"), "abc+test@company.com");
-		}
 	}
 
 }

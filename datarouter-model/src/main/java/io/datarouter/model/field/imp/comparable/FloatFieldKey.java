@@ -17,7 +17,7 @@ package io.datarouter.model.field.imp.comparable;
 
 import io.datarouter.model.field.PrimitiveFieldKey;
 
-public class FloatFieldKey extends PrimitiveFieldKey<Float>{
+public class FloatFieldKey extends PrimitiveFieldKey<Float,FloatFieldKey>{
 
 	public FloatFieldKey(String name){
 		super(name, Float.class);

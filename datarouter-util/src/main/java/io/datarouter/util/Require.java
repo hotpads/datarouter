@@ -15,12 +15,8 @@
  */
 package io.datarouter.util;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.lang.ObjectTool;
 
@@ -40,8 +36,12 @@ public class Require{
 	}
 
 	public static <T> void equals(T first, T second){
+		equals(first, second, first + " does not equal " + second);
+	}
+
+	public static <T> void equals(T first, T second, String message){
 		if(ObjectTool.notEquals(first, second)){
-			throw new IllegalArgumentException(first + " does not equal " + second);
+			throw new IllegalArgumentException(message);
 		}
 	}
 
@@ -118,102 +118,6 @@ public class Require{
 			throw new IllegalArgumentException(message);
 		}
 		return items;
-	}
-
-	public static class RequireTests{
-
-		@Test
-		public void testIsNull(){
-			Require.isNull(null);
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testIsNullThrowsException(){
-			Require.isNull("");
-		}
-
-		@Test
-		public void testEquals(){
-			Require.equals("apple", "apple");
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testEqualsThrowsException(){
-			Require.equals("apple", "orange");
-		}
-
-		@Test
-		public void testNotEquals1(){
-			Require.notEquals("apple", "orange");
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testNotEqualsThrowsException(){
-			Require.notEquals("apple", "apple");
-		}
-
-		@Test
-		public void testIsTrue(){
-			Require.isTrue(true);
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testIsTrueThrowsException(){
-			Require.isTrue(false);
-		}
-
-		@Test
-		public void testGreaterThan(){
-			int validated = Require.greaterThan(3, 1);
-			Assert.assertEquals(validated, 3);
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testGreaterThanThrowsException(){
-			Require.greaterThan(5, 5);
-		}
-
-		@Test
-		public void testLessThan(){
-			int validated = Require.lessThan(5, 7);
-			Assert.assertEquals(validated, 5);
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testLessThanThrowsException(){
-			Require.lessThan(5, 5);
-		}
-
-		@Test
-		public void testContains(){
-			Require.contains(Arrays.asList("a", "b"), "a");
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testContainsThrowsException(){
-			Require.contains(Arrays.asList("a", "b"), "c");
-		}
-
-		@Test
-		public void testNotContains(){
-			Require.notContains(Arrays.asList("a", "b"), "c");
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testNotContainsThrowsException(){
-			Require.notContains(Arrays.asList("a", "b"), "a");
-		}
-
-		@Test
-		public void testNotEmpty(){
-			Require.notEmpty(Arrays.asList("a", "b"));
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testNotEmptyThrowsException(){
-			Require.notEmpty(Arrays.asList(), "empty list");
-		}
-
 	}
 
 }

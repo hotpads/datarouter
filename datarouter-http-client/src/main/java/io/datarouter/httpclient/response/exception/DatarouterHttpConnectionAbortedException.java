@@ -18,8 +18,9 @@ package io.datarouter.httpclient.response.exception;
 @SuppressWarnings("serial")
 public class DatarouterHttpConnectionAbortedException extends DatarouterHttpException{
 
-	public DatarouterHttpConnectionAbortedException(Exception ex, long requestStartTimeMs){
-		super("HTTP connection aborted after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms", ex);
+	public DatarouterHttpConnectionAbortedException(Exception ex, long requestStartTimeMs, String requestId){
+		super("HTTP connection aborted after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms requestId="
+				+ requestId,ex);
 	}
 
 }

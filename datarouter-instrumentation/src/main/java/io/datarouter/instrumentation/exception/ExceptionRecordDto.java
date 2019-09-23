@@ -21,7 +21,7 @@ public class ExceptionRecordDto{
 
 	public final String id;
 	public final Date created;
-	public final String appName;
+	public final String serviceName;
 	public final String serverName;
 	public final String stackTrace;
 	public final String type;
@@ -31,12 +31,12 @@ public class ExceptionRecordDto{
 	public final Integer lineNumber;
 	public final String callOrigin;
 
-	public ExceptionRecordDto(String id, Date created, String appName, String serverName, String stackTrace,
+	public ExceptionRecordDto(String id, Date created, String serviceName, String serverName, String stackTrace,
 			String type, String appVersion, String exceptionLocation, String methodName, Integer lineNumber,
 			String callOrigin){
 		this.id = id;
 		this.created = created;
-		this.appName = appName;
+		this.serviceName = serviceName;
 		this.serverName = serverName;
 		this.stackTrace = stackTrace;
 		this.type = type;

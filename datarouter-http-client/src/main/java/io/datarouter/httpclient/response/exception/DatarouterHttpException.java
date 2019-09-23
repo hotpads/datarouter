@@ -22,4 +22,8 @@ public abstract class DatarouterHttpException extends Exception{
 		super(message, exception);
 	}
 
+	protected DatarouterHttpException(String message){
+		super(message);
+	}
+
 }

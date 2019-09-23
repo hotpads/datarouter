@@ -19,12 +19,13 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.client.mysql.util.SqlBuilder;
+import io.datarouter.storage.config.Config;
 
 public class SqlBuilderTests{
 
 	@Test
 	public void testDeleteAll(){
-		Assert.assertEquals(SqlBuilder.deleteAll(null, "TestTable"), "delete from TestTable");
+		Assert.assertEquals(SqlBuilder.deleteAll(new Config(), "TestTable"), "delete from TestTable");
 	}
 
 }

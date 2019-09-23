@@ -29,8 +29,9 @@ import io.datarouter.util.number.NumberFormatter;
 
 public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<ThreadSafePhaseTimer>{
 
-	private List<PhaseRecord> phases = Collections.synchronizedList(new ArrayList<PhaseRecord>());
 	private static final String DEFAULT_DELIM = "";
+
+	private List<PhaseRecord> phases = Collections.synchronizedList(new ArrayList<PhaseRecord>());
 
 	public ThreadSafePhaseTimer(){
 		record("timer-start");

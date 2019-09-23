@@ -58,7 +58,7 @@ extends BaseMysqlOp<List<PK>>{
 	@Override
 	public List<PK> runOnce(){
 		return mysqlGetOpExecutor.execute(fieldInfo, opName, keys, config, fieldInfo.getPrimaryKeyFields(),
-				this::select, getConnection(fieldInfo.getClientId()));
+				this::select, getConnection());
 	}
 
 	private List<PK> select(PreparedStatement ps){

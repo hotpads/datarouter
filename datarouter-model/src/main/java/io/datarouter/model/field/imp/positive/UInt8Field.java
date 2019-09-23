@@ -19,7 +19,7 @@ import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.string.StringTool;
 
-public class UInt8Field extends BasePrimitiveField<Byte>{
+public class UInt8Field extends BasePrimitiveField<Byte,UInt8FieldKey>{
 
 	public UInt8Field(UInt8FieldKey key, Byte value){
 		super(key, value);

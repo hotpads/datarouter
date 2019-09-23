@@ -15,6 +15,10 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class TracerTool{
 
 	public static String getTraceId(Tracer tracer){
@@ -71,6 +75,26 @@ public class TracerTool{
 		return new TraceSpanFinisher(tracer);
 	}
 
+	public static TraceSpanFinisher startSpan(String name){
+		return startSpan(TracerThreadLocal.get(), name);
+	}
+
+	public static void appendToSpanInfo(String text){
+		appendToSpanInfo(TracerThreadLocal.get(), text);
+	}
+
+	public static void appendToSpanInfo(String key, Object value){
+		appendToSpanInfo(new TraceSpanInfoBuilder().add(key, value));
+	}
+
+	public static void appendToSpanInfo(TraceSpanInfoBuilder spanInfoBuilder){
+		String text = spanInfoBuilder.joinEntries();
+		if(text.isBlank()){
+			return;
+		}
+		appendToSpanInfo(text);
+	}
+
 	public static void appendToSpanInfo(Tracer tracer, String text){
 		if(tracer == null){
 			return;
@@ -83,6 +107,45 @@ public class TracerTool{
 			return;
 		}
 		tracer.finishSpan();
+	}
+
+	public static void finishSpan(){
+		finishSpan(TracerThreadLocal.get());
+	}
+
+	public static class TraceSpanInfoBuilder{
+
+		private List<String> spanEntries = new ArrayList<>();
+
+		public TraceSpanInfoBuilder add(String key, Object value){
+			spanEntries.add(key + '=' + Objects.toString(value));
+			return this;
+		}
+
+		public TraceSpanInfoBuilder databeans(Number count){
+			return add("databeans", count);
+		}
+
+		public TraceSpanInfoBuilder keys(Number count){
+			return add("keys", count);
+		}
+
+		public TraceSpanInfoBuilder ranges(Number count){
+			return add("ranges", count);
+		}
+
+		public TraceSpanInfoBuilder bytes(Number count){
+			return add("bytes", count);
+		}
+
+		public TraceSpanInfoBuilder rows(Number count){
+			return add("rows", count);
+		}
+
+		public String joinEntries(){
+			return String.join(", ", spanEntries);
+		}
+
 	}
 
 }

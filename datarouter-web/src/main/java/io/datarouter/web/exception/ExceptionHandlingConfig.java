@@ -17,12 +17,13 @@ package io.datarouter.web.exception;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.web.monitoring.exception.ExceptionDto;
 
 public interface ExceptionHandlingConfig{
 
 	boolean shouldDisplayStackTrace(HttpServletRequest request, Exception exception);
-	boolean shouldReportError(ExceptionRecord exceptionRecord);
+	boolean shouldReportError(ExceptionRecordDto exceptionRecord);
 	boolean shouldReportError(ExceptionDto dto);
 
 	String getHtmlErrorMessage(Exception exception);

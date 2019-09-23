@@ -74,19 +74,6 @@ public class RequestTool{
 		return request.getServletPath() + StringTool.nullSafe(request.getPathInfo());
 	}
 
-	public static String getSubmitAction(HttpServletRequest request){
-		String submitAction = request.getParameter(SUBMIT_ACTION);
-		if(submitAction != null){
-			return submitAction;
-		}
-		throw new NullPointerException("param " + SUBMIT_ACTION + " not found");
-	}
-
-	public static String getSubmitAction(HttpServletRequest request, String defaultAction){
-		String action = get(request, SUBMIT_ACTION, defaultAction);
-		return action;
-	}
-
 	public static List<String> getSlashedUriParts(HttpServletRequest request){
 		return getSlashedUriParts(request.getRequestURI());
 	}
@@ -94,7 +81,7 @@ public class RequestTool{
 	public static List<String> getSlashedUriParts(String uri){
 		List<String> uriVars = Arrays.asList(uri.split("/"));
 		//get rid of blanks
-		return IterableTool.filter(uriVars, StringTool::notEmpty);
+		return IterableTool.include(uriVars, StringTool::notEmpty);
 	}
 
 	public static String getStringParameterCheckOverrideVars(
@@ -480,7 +467,7 @@ public class RequestTool{
 		}
 
 		if(!clientIp.isEmpty() || !forwardedFor.isEmpty()){
-			logger.error("Unusable IPs included, falling back to remoteAddr."
+			logger.debug("Unusable IPs included, falling back to remoteAddr."
 					+ " " + HttpHeaders.X_CLIENT_IP + "=" + clientIp
 					+ " " + HttpHeaders.X_FORWARDED_FOR + "=" + forwardedFor
 					+ " path=" + getPath(request));
@@ -506,9 +493,14 @@ public class RequestTool{
 		return dottedDecimal != null && dottedDecimal.matches(ipv4Pattern);
 	}
 
-	public static String getBodyAsString(ServletRequest request){
+	public static String getBodyAsString(HttpServletRequest request){
 		try(InputStream inputStream = request.getInputStream(); TraceSpanFinisher finisher = TracerTool
 				.startSpan(TracerThreadLocal.get(), "RequestTool getBodyAsString")){
+			if(inputStream == null){
+				logger.warn("Request body is empty for uri={}, query={}, userAgent={}", request.getRequestURI(), request
+						.getQueryString(), getUserAgent(request));
+				return "";
+			}
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			byte[] buffer = new byte[1024];
 			int length;
@@ -518,7 +510,7 @@ public class RequestTool{
 			String charsetName = Optional.ofNullable(request.getCharacterEncoding())
 					.orElse(StandardCharsets.UTF_8.name());
 			String string = result.toString(charsetName);
-			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[" + string.length() + " characters]");
+			TracerTool.appendToSpanInfo("characters", string.length());
 			return string;
 		}catch(IOException e){
 			throw new RuntimeException(e);

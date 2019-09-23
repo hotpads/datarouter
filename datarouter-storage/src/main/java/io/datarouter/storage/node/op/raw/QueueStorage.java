@@ -20,6 +20,7 @@ import java.util.List;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.QueueStorageReader;
 import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
@@ -40,9 +41,22 @@ extends QueueStorageWriter<PK,D>, QueueStorageReader<PK,D>{
 
 
 	D poll(Config config);
-	List<D> pollMulti(Config config);
-	Iterable<D> pollUntilEmpty(Config config);
 
+	default D poll(){
+		return poll(new Config());
+	}
+
+	List<D> pollMulti(Config config);
+
+	default List<D> pollMulti(){
+		return pollMulti(new Config());
+	}
+
+	Scanner<D> pollUntilEmpty(Config config);
+
+	default Iterable<D> pollUntilEmpty(){
+		return pollUntilEmpty(new Config());
+	}
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 

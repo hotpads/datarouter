@@ -57,13 +57,8 @@ extends BaseNodeScanner<IK,IK>{
 	}
 
 	@Override
-	protected List<IK> doLoad(Collection<Range<IK>> ranges, Config config){
+	protected List<IK> loadRanges(Collection<Range<IK>> ranges, Config config){
 		return mysqlNodeManager.getIndexKeyRanges(fieldInfo, ranges, config, indexEntryFieldInfo);
-	}
-
-	@Override
-	protected void setCurrentFromResult(IK result){
-		current = result;
 	}
 
 }

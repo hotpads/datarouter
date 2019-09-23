@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-import io.datarouter.storage.config.profile.DatarouterConfigProfile;
+import io.datarouter.storage.config.environment.DatarouterEnvironmentType;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.Setting;
@@ -56,7 +56,7 @@ implements Setting<T>{
 
 	@Override
 	protected T reload(){
-		return finder.getSettingValue(name).map(this::parseStringValue).orElse(getDefaultValue());
+		return finder.getSettingValue(name).map(this::parseStringValue).orElseGet(this::getDefaultValue);
 	}
 
 	@Override
@@ -66,7 +66,8 @@ implements Setting<T>{
 
 	@Override
 	public T getDefaultValue(){
-		return defaultSettingValue.getValue(finder.getConfigProfile(), finder.getServerType(), finder.getServerName());
+		return defaultSettingValue.getValue(finder.getEnvironmentType(), finder.getEnvironmentName(),
+				finder.getServerType(), finder.getServerName());
 	}
 
 	@Override
@@ -91,24 +92,32 @@ implements Setting<T>{
 		return this;
 	}
 
-	public CachedSetting<T> setProfileDefault(Supplier<DatarouterConfigProfile> profile, T value){
-		defaultSettingValue.with(profile, value);
+	public CachedSetting<T> setEnvironmentTypeDefault(Supplier<DatarouterEnvironmentType> environmentType, T value){
+		defaultSettingValue.withEnvironmentType(environmentType, value);
 		return this;
 	}
 
-	public CachedSetting<T> setProfilesDefault(Collection<Supplier<DatarouterConfigProfile>> profiles, T value){
-		profiles.forEach(profile -> setProfileDefault(profile, value));
-		return this;
-	}
-
-	public CachedSetting<T> setServerTypeDefault(Supplier<DatarouterConfigProfile> profile, ServerType serverType,
+	public CachedSetting<T> setEnvironmentTypesDefault(Collection<Supplier<DatarouterEnvironmentType>> environmentTypes,
 			T value){
-		defaultSettingValue.with(profile, serverType, value);
+		environmentTypes.forEach(environmentType -> setEnvironmentTypeDefault(environmentType, value));
 		return this;
 	}
 
-	public CachedSetting<T> setServerNameDefault(Supplier<DatarouterConfigProfile> profile, String serverName, T value){
-		defaultSettingValue.with(profile, serverName, value);
+	public CachedSetting<T> setEnvironmentNameDefault(Supplier<DatarouterEnvironmentType> environmentType,
+		String environmentName, T value){
+		defaultSettingValue.withEnvironmentName(environmentType, environmentName, value);
+		return this;
+	}
+
+	public CachedSetting<T> setServerTypeDefault(Supplier<DatarouterEnvironmentType> environmentType,
+			ServerType serverType, T value){
+		defaultSettingValue.withServerType(environmentType, serverType, value);
+		return this;
+	}
+
+	public CachedSetting<T> setServerNameDefault(Supplier<DatarouterEnvironmentType> environmentType, String serverName,
+			T value){
+		defaultSettingValue.withServerName(environmentType, serverName, value);
 		return this;
 	}
 

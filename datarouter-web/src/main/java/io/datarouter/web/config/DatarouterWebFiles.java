@@ -15,11 +15,9 @@
  */
 package io.datarouter.web.config;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.httpclient.path.PathNode;
-import io.datarouter.web.file.DatarouterFilesTests;
 import io.datarouter.web.file.FilesRoot;
 
 @Singleton
@@ -61,6 +59,7 @@ public class DatarouterWebFiles extends FilesRoot{
 
 	public static class Bootstrap4CssFiles extends PathNode{
 		public final PathNode bootstrapCss = leaf("bootstrap.min.css");
+		public final PathNode datarouterBoostrap4OverrideCss = leaf("datarouter-boostrap-4-override.css");
 	}
 
 	public static class Bootstrap4JsFiles extends PathNode{
@@ -74,11 +73,17 @@ public class DatarouterWebFiles extends FilesRoot{
 
 	public static class FontAwesomeCssFiles extends PathNode{
 		public final PathNode fontAwesomeBaseCss = leaf("fontawesome.min.css");
+		public final PathNode fontAwesomeBrandsCss = leaf("brands.min.css");
 		public final PathNode fontAwesomeRegularCss = leaf("regular.min.css");
 		public final PathNode fontAwesomeSolidCss = leaf("solid.min.css");
 	}
 
 	public static class FontAwesomeWebfontFiles extends PathNode{
+		public final PathNode fontAwesomeBrandsFontEot = leaf("fa-brands-400.eot");
+		public final PathNode fontAwesomeBrandsFontSvg = leaf("fa-brands-400.svg");
+		public final PathNode fontAwesomeBrandsFontTtf = leaf("fa-brands-400.ttf");
+		public final PathNode fontAwesomeBrandsFontWoff = leaf("fa-brands-400.woff");
+		public final PathNode fontAwesomeBrandsFontWoff2 = leaf("fa-brands-400.woff2");
 		public final PathNode fontAwesomeRegularFontEot = leaf("fa-regular-400.eot");
 		public final PathNode fontAwesomeRegularFontSvg = leaf("fa-regular-400.svg");
 		public final PathNode fontAwesomeRegularFontTtf = leaf("fa-regular-400.ttf");
@@ -264,15 +269,6 @@ public class DatarouterWebFiles extends FilesRoot{
 	//used in baseHead.jsp
 	public static class SorttableFiles extends PathNode{
 		public final PathNode sorttableJs = leaf("sorttable.js");
-	}
-
-	public static class DatarouterWebFilesTests extends DatarouterFilesTests{
-
-		@Inject
-		protected DatarouterWebFilesTests(DatarouterWebFiles files){
-			super(files);
-		}
-
 	}
 
 }

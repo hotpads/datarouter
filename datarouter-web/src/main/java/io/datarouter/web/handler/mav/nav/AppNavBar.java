@@ -17,16 +17,21 @@ package io.datarouter.web.handler.mav.nav;
 
 import java.util.Optional;
 
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 public class AppNavBar extends NavBar{
 
-	protected AppNavBar(Optional<DatarouterAuthenticationConfig> config){
-		this("", "", config);
+	private final ServerTypeDetector serverTypeDetector;
+
+	protected AppNavBar(Optional<DatarouterAuthenticationConfig> config, ServerTypeDetector serverTypeDetector){
+		this("", "", config, serverTypeDetector);
 	}
 
-	protected AppNavBar(String logoSrc, String logoAlt, Optional<DatarouterAuthenticationConfig> config){
+	protected AppNavBar(String logoSrc, String logoAlt, Optional<DatarouterAuthenticationConfig> config,
+			ServerTypeDetector serverTypeDetector){
 		super(logoSrc, logoAlt, config);
+		this.serverTypeDetector = serverTypeDetector;
 		config.ifPresent(conf -> {
 			if(conf.useDatarouterAuthentication()){
 				addDefaultItems(conf, this);
@@ -52,10 +57,13 @@ public class AppNavBar extends NavBar{
 	}
 
 	public NavBarMenuItem getAdminMenu(DatarouterAuthenticationConfig config, NavBar navBar){
-		return new NavBarMenuItem("Admin",
-				new NavBarMenuItem(config.getCreateUserPath(), "Create User", navBar),
-				new NavBarMenuItem(config.getViewUsersPath(), "View Users", navBar),
-				new NavBarMenuItem(config.getAccountManagerPath(), "Account Manager", navBar));
+		NavBarMenuItem createUser = new NavBarMenuItem(config.getCreateUserPath(), "Create User", navBar);
+		NavBarMenuItem viewUsers = new NavBarMenuItem(config.getViewUsersPath(), "View Users", navBar);
+		NavBarMenuItem accountManager = new NavBarMenuItem(config.getAccountManagerPath(), "Account Manager", navBar);
+		if(serverTypeDetector.mightBeProduction()){
+			return new NavBarMenuItem("Admin", viewUsers, accountManager);
+		}
+		return new NavBarMenuItem("Admin", createUser, viewUsers, accountManager);
 	}
 
 	public NavBarMenuItem getNoDatarouterAutheticationAdminMenu(DatarouterAuthenticationConfig config,

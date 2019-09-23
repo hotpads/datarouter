@@ -30,7 +30,21 @@ public interface GroupQueueStorageReader<PK extends PrimaryKey<PK>,D extends Dat
 	public static final String OP_peekUntilEmpty = "peekUntilEmpty";
 
 	GroupQueueMessage<PK,D> peek(Config config);
+
+	default GroupQueueMessage<PK,D> peek(){
+		return peek(new Config());
+	}
+
 	List<GroupQueueMessage<PK,D>> peekMulti(Config config);
+
+	default List<GroupQueueMessage<PK,D>> peekMulti(){
+		return peekMulti(new Config());
+	}
+
 	Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config);
+
+	default Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(){
+		return peekUntilEmpty(new Config());
+	}
 
 }

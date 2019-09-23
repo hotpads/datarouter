@@ -31,10 +31,9 @@ import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLo
 public class DatarouterUserByUsernameCache extends LoadingCacheWrapper<String,DatarouterUser>{
 
 	@Inject
-	public DatarouterUserByUsernameCache(DatarouterUserNodes userNodes){
+	public DatarouterUserByUsernameCache(DatarouterUserNodes nodes){
 		super(new LoadingCacheBuilder<String,DatarouterUser>()
-				.withLoadingFunction(key -> userNodes.getUserNode().lookupUnique(
-						new DatarouterUserByUsernameLookup(key), null))
+				.withLoadingFunction(key -> nodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(key)))
 				.withExpireTtl(Duration.ofSeconds(6))
 				.withExceptionFunction(key -> new InvalidCredentialsException("username not found (" + key + ")"))
 				.build());

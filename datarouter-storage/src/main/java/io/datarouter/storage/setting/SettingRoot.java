@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,22 +40,22 @@ public class SettingRoot extends SettingNode{
 		settingNode.rootNodes.forEach(rootNodes::add);
 	}
 
-	public SettingNode getNode(String nodeName){
+	public Optional<SettingNode> getNode(String nodeName){
 		for(SettingNode settingNode : rootNodes){
 			if(nodeName.startsWith(settingNode.getName())){
 				return settingNode.getNodeByName(nodeName);
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 
-	public SettingNode getMostRecentAncestorNode(String nodeName){
+	public Optional<SettingNode> getMostRecentAncestorNode(String nodeName){
 		for(SettingNode settingNode : rootNodes){
 			if(nodeName.startsWith(settingNode.getName())){
 				return settingNode.getMostRecentAncestorNodeByName(nodeName);
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	public List<SettingNode> getDescendants(String nodeName){
@@ -72,12 +73,10 @@ public class SettingRoot extends SettingNode{
 				.collect(Collectors.toList());
 	}
 
-	public CachedSetting<?> getSettingByName(String name){
-		SettingNode node = getNode(name.substring(0, name.lastIndexOf(".") + 1));
-		if(node == null){
-			return null;
-		}
-		return node.getSettings().get(name);
+	public Optional<CachedSetting<?>> getSettingByName(String name){
+		return getNode(name.substring(0, name.lastIndexOf(".") + 1))
+				.map(SettingNode::getSettings)
+				.map(settings -> settings.get(name));
 	}
 
 	public boolean isRecognized(String settingName){

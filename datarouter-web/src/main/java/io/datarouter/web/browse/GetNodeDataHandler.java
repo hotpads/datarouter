@@ -67,10 +67,10 @@ public class GetNodeDataHandler extends InspectNodeDataHandler{
 		}
 		@SuppressWarnings("unchecked")
 		MapStorageReader<PK,D> mapStorageNode = (MapStorageReader<PK,D>)node;
-		if(!mapStorageNode.exists(primaryKey, null)){
+		if(!mapStorageNode.exists(primaryKey)){
 			return new MessageMav("databean does not exist");
 		}
-		D mapDatabean = mapStorageNode.get(primaryKey, null);
+		D mapDatabean = mapStorageNode.get(primaryKey);
 		List<D> databeans = ListTool.wrap(mapDatabean);
 		addDatabeanToMav(mav, databeans);
 		logger.warn("Retrieved databean {}", encodedPk);

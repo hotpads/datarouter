@@ -23,10 +23,12 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
-import io.datarouter.storage.trace.databean.TraceKey;
 import io.datarouter.util.Require;
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.iterable.IterableTool;
@@ -93,9 +95,9 @@ public class PrimaryKeyPercentCodec{
 		@Test
 		public void testSimpleNumericPk(){
 			String id = "355";
-			TraceKey pk = new TraceKey(id);
+			TestKey pk = new TestKey(id);
 			String encoded = encode(pk);
-			TraceKey decoded = decode(TraceKey.class, encoded);
+			TestKey decoded = decode(TestKey.class, encoded);
 			Assert.assertEquals(decoded.getId(), id);
 		}
 
@@ -103,10 +105,10 @@ public class PrimaryKeyPercentCodec{
 		public void testMultiNumericPk(){
 			final char delimiter = ',';
 			List<String> ids = Arrays.asList("23", "52", "103");
-			List<TraceKey> pks = IterableTool.map(ids, TraceKey::new);
+			List<TestKey> pks = IterableTool.map(ids, TestKey::new);
 			String encoded = encodeMulti(pks, delimiter);
-			List<TraceKey> decodedPks = decodeMulti(TraceKey.class, delimiter, encoded);
-			List<String> decodedIds = IterableTool.map(decodedPks, TraceKey::getId);
+			List<TestKey> decodedPks = decodeMulti(TestKey.class, delimiter, encoded);
+			List<String> decodedIds = IterableTool.map(decodedPks, TestKey::getId);
 			Assert.assertEquals(ids, decodedIds);
 		}
 
@@ -142,6 +144,33 @@ public class PrimaryKeyPercentCodec{
 			String encoded = encode(SBK_NULL);
 			SortedBeanKey decoded = decode(SortedBeanKey.class, encoded);
 			Assert.assertEquals(decoded, SBK_EMPTY_STRING);
+		}
+
+		private static class TestKey extends BaseRegularPrimaryKey<TestKey>{
+
+			public String id;
+
+			public static class FieldKeys{
+				public static final StringFieldKey id = new StringFieldKey("id");
+			}
+
+			@SuppressWarnings("unused")
+			public TestKey(){
+			}
+
+			public TestKey(String id){
+				this.id = id;
+			}
+
+			@Override
+			public List<Field<?>> getFields(){
+				return Arrays.asList(new StringField(FieldKeys.id, id));
+			}
+
+			public String getId(){
+				return id;
+			}
+
 		}
 	}
 

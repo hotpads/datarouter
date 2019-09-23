@@ -15,8 +15,9 @@
  */
 package io.datarouter.web.util;
 
-// the type parameter is used for compile time type check
-@SuppressWarnings("unused")
+/**
+ * @param <T> is used for compile time type check, see {@link RequestAttributeTool}
+ */
 public class RequestAttributeKey<T>{
 
 	public final String name;

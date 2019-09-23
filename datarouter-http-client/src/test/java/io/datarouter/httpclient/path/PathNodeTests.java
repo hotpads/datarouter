@@ -53,19 +53,27 @@ public class PathNodeTests{
 	}
 
 	@Test
+	public void testToSlashedStringWithoutLeadingSlash(){
+		TestPaths paths = new TestPaths();
+		Assert.assertEquals(paths.aa.toSlashedStringWithoutLeadingSlash(), "aa");
+		Assert.assertEquals(paths.aa.bb.toSlashedStringWithoutLeadingSlash(), "aa/bb");
+		Assert.assertEquals(paths.aa.bb.cc.toSlashedStringWithoutLeadingSlash(), "aa/bb/cc");
+	}
+
+	@Test
 	public void testNodesAfter(){
 		TestPaths paths = new TestPaths();
 		List<PathNode> nodesAfter = PathNode.nodesAfter(paths.aa, paths.aa.bb.cc);
-		Assert.assertEquals(PathNode.toSlashedString(nodesAfter), "/bb/cc");
+		Assert.assertEquals(PathNode.toSlashedString(nodesAfter, true), "/bb/cc");
 	}
 
 	@Test
 	public void testToSlashedStringAfter(){
 		TestPaths paths = new TestPaths();
 		PathNode cc = paths.aa.bb.cc;
-		Assert.assertEquals(cc.toSlashedStringAfter(null), "/aa/bb/cc");
-		Assert.assertEquals(cc.toSlashedStringAfter(paths.aa), "/bb/cc");
-		Assert.assertEquals(cc.toSlashedStringAfter(paths.aa.bb), "/cc");
+		Assert.assertEquals(cc.toSlashedStringAfter(null, true), "/aa/bb/cc");
+		Assert.assertEquals(cc.toSlashedStringAfter(paths.aa, true), "/bb/cc");
+		Assert.assertEquals(cc.toSlashedStringAfter(paths.aa.bb, true), "/cc");
 	}
 
 	@Test

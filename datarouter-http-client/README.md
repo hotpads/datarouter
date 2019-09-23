@@ -8,7 +8,7 @@ datarouter-http-client wraps Apache HTTP Client and adds a JSON serialization la
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-http-client</artifactId>
-	<version>0.0.10</version>
+	<version>0.0.11</version>
 </dependency>
 ```
 
@@ -19,7 +19,7 @@ datarouter-http-client wraps Apache HTTP Client and adds a JSON serialization la
 First, you need to create a `DatarouterHttpClient` using the builder. There are multiple options available, here is a sample:
 
 ```java
-// By default, datarouter-http-client uses vanilla gson. 
+// By default, datarouter-http-client uses vanilla gson.
 // You can implement the JsonSerializer interface or create a GsonJsonSerializer.
 JsonSerializer jsonSerializer = new GsonJsonSerializer(new GsonBuilder()
 		.serializeNulls()
@@ -29,7 +29,7 @@ DatarouterHttpClient httpClient = new DatarouterHttpClientBuilder()
 		// Retry the requests twice
 		.setRetryCount(2)
 		// Add apiKey=SECRET to each request
-		.setApiKeyPredicate(new DefaultApiKeyPredicate("SECRET"))
+		.setApiKeySupplier(() -> "SECRET")
 		// Change the maximum number of connections in the pool
 		.setMaxConnectionsPerRoute(100)
 		.setMaxTotalConnections(100)

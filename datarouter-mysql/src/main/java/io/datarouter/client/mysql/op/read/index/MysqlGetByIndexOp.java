@@ -29,19 +29,18 @@ import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
 import io.datarouter.client.mysql.util.MysqlTool;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.iterable.BatchingIterable;
 
 public class MysqlGetByIndexOp<
 		PK extends PrimaryKey<PK>,
@@ -76,13 +75,13 @@ extends BaseMysqlOp<List<D>>{
 
 	@Override
 	public List<D> runOnce(){
-		Connection connection = getConnection(fieldInfo.getClientId());
+		Connection connection = getConnection();
 		String opName = IndexedStorageReader.OP_getByIndex;
 		String tableName = fieldInfo.getTableName();
 		String indexName = indexEntryFieldInfo.getIndexName();
 		String nodeName = tableName + "." + indexName;
 		List<D> result = new ArrayList<>();
-		for(List<IK> batch : new BatchingIterable<>(indexKeys, MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
+		for(List<IK> batch : Scanner.of(indexKeys).batch(MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId()
 					.getName(), nodeName, 1L);
 			PreparedStatement statement = mysqlPreparedStatementBuilder.getWithPrefixes(config, tableName, indexName,
@@ -92,7 +91,7 @@ extends BaseMysqlOp<List<D>>{
 					fieldInfo.getFields(), statement);
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),
 					nodeName, result.size());
-			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[got " + result.size() + "/" + batch.size() + "]");
+			TracerTool.appendToSpanInfo("got " + result.size() + '/' + batch.size());
 			result.addAll(batchResult);
 		}
 		return result;

@@ -15,39 +15,10 @@
  */
 package io.datarouter.web.user.session.service;
 
-import javax.inject.Inject;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.enums.StringEnum;
-import io.datarouter.web.user.role.DatarouterUserRole;
 
-//NOTE: binding/injection of this class can be tricky. It should be injected like "roles" in the test below.
 public interface RoleEnum<T> extends StringEnum<T>{
 
 	Role getRole();
-
-	Class<? extends RoleEnumIntegrationTests> getTestClass();
-
-	abstract class RoleEnumIntegrationTests{
-
-		@Inject
-		private RoleEnum<? extends RoleEnum<?>> roles;
-
-		@Test
-		private final void testRoleEnumContainsNecessaryBaseRolePersistentStrings(){
-			for(DatarouterUserRole baseRole : DatarouterUserRole.values()){
-				String baseString = baseRole.getPersistentString();
-				try{
-					RoleEnum<?> impl = roles.fromPersistentString(baseString);
-					Assert.assertEquals(impl.getPersistentString(), baseString);
-				}catch(RuntimeException e){
-					Assert.fail(roles.getClass() + " is missing persistent string " + baseString);
-				}
-			}
-		}
-
-	}
 
 }

@@ -22,9 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.lang.ObjectTool;
 
 public class CollectionTool{
@@ -174,19 +171,6 @@ public class CollectionTool{
 			return true;
 		}
 		return !coll.contains(item);
-	}
-
-	/*------------------------- tests ---------------------------------------*/
-
-	public static class CollectionToolTests{
-
-		@Test
-		public void testNotEmpty(){
-			ArrayList<String> list = new ArrayList<>();
-			Assert.assertFalse(notEmpty(list));
-			Assert.assertFalse(notEmpty(null));
-		}
-
 	}
 
 }

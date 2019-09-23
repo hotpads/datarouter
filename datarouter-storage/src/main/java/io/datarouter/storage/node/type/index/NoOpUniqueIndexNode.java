@@ -22,8 +22,8 @@ import java.util.List;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.unique.UniqueIndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
-import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class NoOpUniqueIndexNode<
@@ -54,8 +54,8 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 	}
 
 	@Override
-	public Iterable<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
-		return Collections.emptyList();
+	public Scanner<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
+		return Scanner.empty();
 	}
 
 	@Override

@@ -32,6 +32,7 @@ import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
+import io.datarouter.web.security.SecurityValidationResult;
 
 @Singleton
 public class DefaultEncoder implements HandlerEncoder{
@@ -68,7 +69,8 @@ public class DefaultEncoder implements HandlerEncoder{
 
 	@Override
 	public void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
-			HttpServletResponse response, HttpServletRequest request) throws IOException{
+			HttpServletResponse response, HttpServletRequest request)
+	throws IOException{
 		jsonEncoder.sendHandledExceptionResponse(exception, servletContext, response, request);
 	}
 
@@ -81,12 +83,20 @@ public class DefaultEncoder implements HandlerEncoder{
 
 	@Override
 	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Exception exception,
-			Optional<String> exceptionId) throws IOException{
+			Optional<String> exceptionId)
+	throws IOException{
 		if(shouldSendHtml(request)){
 			mavEncoder.sendExceptionResponse(request, response, exception, exceptionId);
 		}else{
 			jsonEncoder.sendExceptionResponse(request, response, exception, exceptionId);
 		}
+	}
+
+	@SuppressWarnings("unused")
+	@Override
+	public void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+			SecurityValidationResult securityValidationResult)
+	throws IOException{
 	}
 
 	protected boolean shouldSendHtml(HttpServletRequest request){

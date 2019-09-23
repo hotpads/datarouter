@@ -129,7 +129,7 @@ public class DefaultDecoder implements HandlerDecoder{
 
 	private Object decode(String string, Type type){
 		try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), "DefaultDecoder deserialize")){
-			TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[" + string.length() + " characters]");
+			TracerTool.appendToSpanInfo("characters", string.length());
 			// this prevents empty strings from being decoded as null by gson
 			Object obj;
 			try{

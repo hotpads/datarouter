@@ -18,13 +18,18 @@ package io.datarouter.storage.node.factory;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.databean.FieldlessIndexEntry;
+import io.datarouter.model.field.FieldlessIndexEntryFielder;
 import io.datarouter.model.index.multi.MultiIndexEntry;
 import io.datarouter.model.index.unique.UniqueIndexEntry;
+import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.imp.NoTxnManagedUniqueIndexNode;
 import io.datarouter.storage.client.imp.TxnManagedUniqueIndexNode;
+import io.datarouter.storage.node.builder.ManagedNodeBuilder;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
+import io.datarouter.storage.node.op.combo.IndexedMapStorage.IndexedMapStorageNode;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
@@ -135,6 +140,23 @@ public class IndexingNodeFactory{
 			Class<IF> indexFielder, Class<IE> indexEntryClass, boolean manageTxn){
 		return newManagedUnique(backingNode, ReflectionTool.supplier(indexFielder), ReflectionTool.supplier(
 				indexEntryClass), manageTxn, indexEntryClass.getSimpleName());
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
+	ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
+	createKeyOnlyManagedIndex(
+			Class<IK> indexEntryKeyClass,
+			IndexedMapStorageNode<PK,D,F> backingNode){
+		return new ManagedNodeBuilder<>(
+				indexEntryKeyClass,
+				() -> new FieldlessIndexEntry<>(indexEntryKeyClass),
+				() -> new FieldlessIndexEntryFielder<>(
+						indexEntryKeyClass,
+						backingNode.getFieldInfo().getSampleFielder()),
+				backingNode);
 	}
 
 }

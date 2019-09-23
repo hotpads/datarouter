@@ -16,16 +16,10 @@
 package io.datarouter.util.string;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ObjectTool;
@@ -37,7 +31,7 @@ public class StringTool{
 	}
 
 	public static boolean isEmpty(String input){
-		return input == null || input.length() <= 0;
+		return input == null || input.isEmpty();
 	}
 
 	public static boolean anyEmpty(String... inputs){
@@ -62,10 +56,7 @@ public class StringTool{
 	}
 
 	public static boolean isEmptyOrWhitespace(String input){
-		if(input == null){
-			return true;
-		}
-		return isEmpty(input.trim());
+		return isEmpty(input) || input.isBlank();
 	}
 
 	public static boolean isNullOrEmptyOrWhitespace(String input){
@@ -463,154 +454,4 @@ public class StringTool{
 		return "'" + stringValue + "'";
 	}
 
-	/*------------------------- tests ---------------------------------------*/
-
-	public static class Tests{
-
-		@Test
-		public void testGetStringSurroundedWith(){
-			Assert.assertEquals(getStringSurroundedWith("|wee||", "|", "|"), "wee");
-			Assert.assertEquals(getStringSurroundedWith("][x][", "[", "]"), "x");
-			Assert.assertEquals(getStringSurroundedWith("<span>a name</span>", "<span>", "</span>"), "a name");
-			Assert.assertEquals(getStringSurroundedWith("<span>a name</span>", "elephant", "</span>"), "");
-
-			Assert.assertEquals(getStringSurroundedWith("[wrong][right][x]", "[", "][x]"), "right");
-			Assert.assertEquals(getStringSurroundedWith("|a|b|", "|", "|"), "a");
-			Assert.assertEquals(getStringSurroundedWith("|a|b||", "|", "||"), "b");
-		}
-
-		@Test
-		public void testPad(){
-			Assert.assertEquals(pad("asdf", ' ', 8), "    asdf");
-			Assert.assertEquals(padEnd("fdsa", '_', 7), "fdsa___");
-			Assert.assertEquals(repeat('f', 10), "ffffffffff");
-		}
-
-		@Test
-		public void testReplaceCharactersInRange(){
-			Assert.assertEquals(replaceCharactersInRange("01banana 2banana 3banana 4 56", '1', '4', '0'),
-					"00banana 0banana 0banana 0 56");
-		}
-
-		@Test
-		public void testSplitOnCharNoRegexWithEmptyStrings(){
-			String input = "//";
-			List<String> expected = Arrays.asList("", "", "");
-			List<String> decoded = splitOnCharNoRegex(input, '/');
-			Assert.assertEquals(decoded, expected);
-		}
-
-		@Test
-		public void testSplitOnCharNoRegex(){
-			Assert.assertEquals(splitOnCharNoRegex("", '/'), Arrays.asList(""));
-			Assert.assertEquals(splitOnCharNoRegex(null, '/'), Collections.emptyList());
-			Assert.assertEquals(splitOnCharNoRegex("/", '/'), Arrays.asList("", ""));
-			Assert.assertEquals(splitOnCharNoRegex("  /", '/'), Arrays.asList("  ", ""));
-			Assert.assertEquals(splitOnCharNoRegex("abc.def.g", '.'), Arrays.asList("abc", "def", "g"));
-			Assert.assertEquals(splitOnCharNoRegex("..def.g.", '.'), Arrays.asList("", "", "def", "g", ""));
-		}
-
-		@Test
-		public void testCaseInsensitive(){
-			String aa = "dawgy";
-			String bb = "dawGy";
-			String cc = "dawGy";
-			Assert.assertTrue(equalsCaseInsensitive(aa, bb));
-			Assert.assertTrue(!Objects.equals(aa, bb));
-			Assert.assertTrue(equalsCaseInsensitiveButNotCaseSensitive(aa, bb));
-			Assert.assertTrue(!equalsCaseInsensitiveButNotCaseSensitive(bb, cc));
-		}
-
-		@Test
-		public void testContainsCaseInsensitive(){
-			String baseS = "HelloHowDYhi";
-			String ss1 = "howdy";
-			String ss2 = "howDy";
-			String ss3 = "HowDy";
-			String ss4 = "Hola";
-			Assert.assertTrue(containsCaseInsensitive(baseS, ss1));
-			Assert.assertTrue(containsCaseInsensitive(baseS, ss2));
-			Assert.assertTrue(containsCaseInsensitive(baseS, ss3));
-			Assert.assertFalse(containsCaseInsensitive(baseS, ss4));
-		}
-
-		@Test
-		public void testEnforceNumeric(){
-			Assert.assertEquals(enforceNumeric("-8.473.93"), "-8473.93");
-			Assert.assertEquals(enforceNumeric("8.473.93"), "8473.93");
-			Assert.assertEquals(enforceNumeric("8473.93"), "8473.93");
-			Assert.assertEquals(enforceNumeric("5"), "5");
-			Assert.assertEquals(enforceNumeric("ff5ff"), "5");
-			Assert.assertEquals(enforceNumeric("ff5%"), "5");
-			Assert.assertEquals(enforceNumeric("5%"), "5");
-			Assert.assertEquals(enforceNumeric("%5"), "5");
-			Assert.assertEquals(enforceNumeric("5."), "5");
-			Assert.assertEquals(enforceNumeric("5.0.0."), "50.0");
-			Assert.assertEquals(enforceNumeric("."), "");
-			Assert.assertEquals(enforceNumeric("ABC400,000DEF"), "400000");
-			Assert.assertEquals(enforceNumeric("-"), "");
-			Assert.assertEquals(enforceNumeric("555-555-5555"), "5555555555");
-			Assert.assertEquals(enforceNumeric("-555-555-5555"), "-5555555555");
-		}
-
-		@Test
-		public void testGetStringBeforeFirstOccurrence(){
-			Assert.assertEquals(getStringBeforeFirstOccurrence('.', "v1.2"), "v1");
-			Assert.assertEquals(getStringBeforeFirstOccurrence('.', "v1"), "v1");
-			Assert.assertEquals(getStringBeforeFirstOccurrence('.', ""), "");
-		}
-
-		@Test
-		public void testGetStringAfterLastOccurrence(){
-			Assert.assertEquals(getStringAfterLastOccurrence('/', "abcdefxyz"), "");
-			Assert.assertEquals(getStringAfterLastOccurrence('/', "abc/def/xyz"), "xyz");
-			Assert.assertEquals(getStringAfterLastOccurrence("/d", "abc/def/xyz"), "ef/xyz");
-			Assert.assertEquals(getStringAfterLastOccurrence("/z", "abc/def/xyz"), "");
-		}
-
-		@Test
-		public void testGetStringBeforeLastOccurrence(){
-			Assert.assertEquals(getStringBeforeLastOccurrence('.', "abc/def.xyz.xml"), "abc/def.xyz");
-			Assert.assertEquals(getStringBeforeLastOccurrence("/d", "abc/def/xyz"), "abc");
-			Assert.assertEquals(getStringBeforeLastOccurrence("", null), null);
-			Assert.assertEquals(getStringBeforeLastOccurrence(".", "no_dot"), "");
-		}
-
-		@Test
-		public void testEnforceAlphabetic(){
-			Assert.assertEquals(enforceAlphabetic("abc123"), "abc");
-			Assert.assertEquals(enforceAlphabetic("1abc123,"), "abc");
-		}
-
-		@Test
-		public void testReplaceStart(){
-			Assert.assertEquals(replaceStart("something", "something", "something"), "something");
-			Assert.assertEquals(replaceStart("something", "some", "no"), "nothing");
-			Assert.assertEquals(replaceStart("something", "12", "yikes"), "something");
-			Assert.assertEquals(replaceStart("something", "thing", "yikes"), "something");
-		}
-
-		@Test
-		public void testNumbers(){
-			Assert.assertTrue(containsNumbers("a1dkfjaldk"));
-			Assert.assertFalse(containsOnlyNumbers("a1dlkafj"));
-			Assert.assertTrue(containsOnlyNumbers("01234567890123412341352109472813740198715"));
-		}
-
-		@Test
-		public void testGetSimpleClassName(){
-			Assert.assertEquals(getSimpleClassName("bar.Foo"), "Foo");
-			Assert.assertEquals(getSimpleClassName("Foo"), "Foo");
-		}
-
-		@Test
-		public void testEscapeString(){
-			String string = "bill's";
-			Assert.assertEquals(escapeString(string), "'bill\\'s'");
-			string = "Renter\\\\\\'s Assurance Program";
-			Assert.assertEquals(escapeString(string), "'Renter\\\\\\\\\\\\\\'s Assurance Program'");
-			string = "no apostrophes";
-			Assert.assertEquals(escapeString(string), "'no apostrophes'");
-		}
-	}
 }

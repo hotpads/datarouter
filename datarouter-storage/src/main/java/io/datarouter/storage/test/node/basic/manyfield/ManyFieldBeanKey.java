@@ -21,9 +21,9 @@ import java.util.List;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class ManyFieldBeanKey extends BasePrimaryKey<ManyFieldBeanKey>{
+public class ManyFieldBeanKey extends BaseRegularPrimaryKey<ManyFieldBeanKey>{
 
 	protected Long id;
 

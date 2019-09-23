@@ -19,7 +19,7 @@ import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.ShortByteTool;
 import io.datarouter.util.string.StringTool;
 
-public class ShortField extends BasePrimitiveField<Short>{
+public class ShortField extends BasePrimitiveField<Short,ShortFieldKey>{
 
 	public ShortField(ShortFieldKey key, Short value){
 		super(key, value);

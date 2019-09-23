@@ -23,7 +23,7 @@ public abstract class CheckedLazy<R,E extends Exception> implements Callable<R>{
 
 	protected CheckedLazy(){}
 
-	//work done in load will only happen once
+	// work done in load will only happen once
 	protected abstract R load() throws E;
 
 	public R get() throws E{
@@ -47,15 +47,13 @@ public abstract class CheckedLazy<R,E extends Exception> implements Callable<R>{
 		return value;
 	}
 
-	/*-------------- Callable -----------------*/
-
-	//allow another thread to trigger the Lazy
+	// allow another thread to trigger the Lazy
 	@Override
 	public R call() throws E{
 		return get();
 	}
 
-	/*----------- CheckedLazyFunctional ---------------*/
+	/*----------------------- CheckedLazyFunctional -------------------------*/
 
 	public static <R,E extends Exception> CheckedLazy<R,E> ofChecked(CheckedSupplier<R,E> supplier){
 		return new CheckedLazyFunctional<>(supplier);

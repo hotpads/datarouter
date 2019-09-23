@@ -16,7 +16,6 @@
 package io.datarouter.storage.op.scan;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.SortedSet;
@@ -26,16 +25,17 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.BaseScanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.scanner.batch.BaseBatchBackedScanner;
 import io.datarouter.util.tuple.Range;
 
 public abstract class BaseNodeScanner<
 		PK extends PrimaryKey<PK>,
 		T extends Comparable<? super T>>//T should be either PK or D
-extends BaseBatchBackedScanner<T,T>{
+extends BaseScanner<List<T>>{
 	private static final Logger logger = LoggerFactory.getLogger(BaseNodeScanner.class);
 
 	private static final int DEFAULT_RANGE_BATCH_SIZE = 10;
@@ -44,51 +44,38 @@ extends BaseBatchBackedScanner<T,T>{
 	private final NavigableSet<Range<PK>> ranges;
 	private final Config config;
 	private final int rangeBatchSize;
-
 	private long resultCount;
 	private SortedSet<Range<PK>> currentRanges;
 	private Config batchConfig;
+	private boolean foundLastBatch;//optimization to track if the previous fetch didn't get a full batch
+	private PK lastRowOfPreviousBatch;
 
 	public BaseNodeScanner(Collection<Range<PK>> ranges, Config config, boolean caseInsensitive){
-		this.config = Config.nullSafe(config);
+		warnIfCaseInsensitive(ranges, caseInsensitive);
+		this.config = config;
 		this.rangeBatchSize = this.config.optInputBatchSize().orElse(DEFAULT_RANGE_BATCH_SIZE);
 		this.ranges = ranges.stream()
 				.filter(Range::notEmpty)
 				.collect(Collectors.toCollection(TreeSet::new));
-		if(ranges.size() > 1 && caseInsensitive){
-			logger.warn("scan multi on case insensitive table " + ranges.stream()
-					.filter(Range::hasStart)
-					.map(Range::getStart)
-					.map(PK::getClass)
-					.findAny());
-		}
 		this.currentRanges = new TreeSet<>();
-		for(int i = 0; i < this.rangeBatchSize && !this.ranges.isEmpty(); i++){
-			currentRanges.add(this.ranges.pollFirst());
-		}
-		this.noMoreBatches = false;
+		fillCurrentRanges();
 		this.resultCount = 0;
 		this.batchConfig = this.config.getDeepCopy();
+		this.foundLastBatch = false;
 	}
 
 	protected abstract PK getPrimaryKey(T fieldSet);
-	protected abstract List<T> doLoad(Collection<Range<PK>> ranges, Config config);
+	protected abstract List<T> loadRanges(Collection<Range<PK>> ranges, Config config);
 
 	@Override
-	protected void loadNextBatch(){
-		if(currentRanges.isEmpty()){
-			noMoreBatches = true;
-			currentBatch = Collections.emptyList();
-			return;
+	public boolean advance(){
+		if(foundLastBatch){
+			return false;
 		}
-		currentBatchIndex = 0;
-		if(currentBatch != null){
-			T endOfLastBatch = CollectionTool.getLast(currentBatch);
-			if(endOfLastBatch == null){
-				currentBatch = null;
-				return;
-			}
-			PK lastRowOfPreviousBatch = getPrimaryKey(endOfLastBatch);
+		if(currentRanges.isEmpty()){
+			return false;
+		}
+		if(current != null){
 			Range<PK> previousRange = null;
 			SortedSet<Range<PK>> remainingRanges = new TreeSet<>(currentRanges);
 			for(Range<PK> range : currentRanges){
@@ -105,9 +92,7 @@ extends BaseBatchBackedScanner<T,T>{
 			}
 			currentRanges = remainingRanges;
 			if(currentRanges.isEmpty()){
-				noMoreBatches = true;
-				currentBatch = Collections.emptyList();
-				return;
+				return false;
 			}
 			Range<PK> firstRange = currentRanges.first().clone();
 			firstRange.setStart(lastRowOfPreviousBatch);
@@ -118,32 +103,51 @@ extends BaseBatchBackedScanner<T,T>{
 			}else if(!ranges.isEmpty()){
 				currentRanges.add(ranges.pollFirst());
 			}else if(currentRanges.isEmpty()){
-				noMoreBatches = true;
-				currentBatch = Collections.emptyList();
-				return;
+				return false;
 			}
 		}
+		updateBatchConfigLimit();
+		current = loadRanges(currentRanges, batchConfig);
+		while(current.isEmpty() && !ranges.isEmpty()){
+			currentRanges.clear();
+			fillCurrentRanges();
+			current = loadRanges(currentRanges, batchConfig);
+		}
+		batchConfig.setOffset(0);
+		resultCount += current.size();
+		if(ranges.size() == 0 && current.size() < batchConfig.getLimit()
+				|| config.getLimit() != null && resultCount >= config.getLimit()){
+			foundLastBatch = true;//tell the advance() method not to call this method again
+		}
+		lastRowOfPreviousBatch = CollectionTool.findLast(current)
+				.map(this::getPrimaryKey)
+				.map(FieldSetTool::clone)
+				.orElse(null);
+		return !current.isEmpty();
+	}
 
+	private void warnIfCaseInsensitive(Collection<Range<PK>> ranges, boolean caseInsensitive){
+		if(ranges.size() > 1 && caseInsensitive){
+			logger.warn("scan multi on case insensitive table " + ranges.stream()
+					.filter(Range::hasStart)
+					.map(Range::getStart)
+					.map(PK::getClass)
+					.findAny());
+		}
+	}
+
+	private void fillCurrentRanges(){
+		for(int i = 0; i < this.rangeBatchSize && !ranges.isEmpty(); i++){
+			currentRanges.add(ranges.pollFirst());
+		}
+	}
+
+	private void updateBatchConfigLimit(){
 		int batchConfigLimit = this.config.optOutputBatchSize().orElse(DEFAULT_OUTPUT_BATCH_SIZE);
 		if(this.config.getLimit() != null && this.config.getLimit() - resultCount < batchConfigLimit){
 			batchConfigLimit = (int) (this.config.getLimit() - resultCount);
 		}
 		batchConfig.setLimit(batchConfigLimit);
-
-		currentBatch = doLoad(currentRanges, batchConfig);
-		while(currentBatch.isEmpty() && !ranges.isEmpty()){
-			currentRanges.clear();
-			for(int i = 0; i < this.rangeBatchSize && !ranges.isEmpty(); i++){
-				currentRanges.add(ranges.pollFirst());
-			}
-			currentBatch = doLoad(currentRanges, batchConfig);
-		}
-		batchConfig.setOffset(0);
-		resultCount += currentBatch.size();
-		if(ranges.size() == 0 && CollectionTool.size(currentBatch) < batchConfig.getLimit()
-				|| config.getLimit() != null && resultCount >= config.getLimit()){
-			noMoreBatches = true;//tell the advance() method not to call this method again
-		}
 	}
 
 }

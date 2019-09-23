@@ -33,7 +33,7 @@ public class DatarouterUserByIdCache extends LoadingCacheWrapper<Long,Datarouter
 	@Inject
 	public DatarouterUserByIdCache(DatarouterUserNodes userNodes){
 		super(new LoadingCacheBuilder<Long,DatarouterUser>()
-				.withLoadingFunction(key -> userNodes.getUserNode().get(new DatarouterUserKey(key), null))
+				.withLoadingFunction(key -> userNodes.getUserNode().get(new DatarouterUserKey(key)))
 				.withExceptionFunction(key -> new InvalidCredentialsException("user id not found (" + key + ")"))
 				.withExpireTtl(Duration.ofSeconds(6))
 				.build());

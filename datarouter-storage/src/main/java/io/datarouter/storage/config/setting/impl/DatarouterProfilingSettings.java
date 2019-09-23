@@ -18,7 +18,6 @@ package io.datarouter.storage.config.setting.impl;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.profile.ConfigProfile;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -39,11 +38,10 @@ public class DatarouterProfilingSettings extends SettingNode{
 
 	@Inject
 	public DatarouterProfilingSettings(SettingFinder finder){
-		super(finder, "datarouter.profiling.");
+		super(finder, "datarouterStorage.profiling.");
 
-		saveCounts = registerBoolean("saveCounts", true);
-		drainSqsCounts = registerBooleans("drainSqsCounts", defaultTo(false))
-				.setProfileDefault(ConfigProfile.DEVELOPMENT, true);
+		saveCounts = registerBoolean("saveCounts", false);
+		drainSqsCounts = registerBoolean("drainSqsCounts", false);
 		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", false);
 		runServerMonitoringJob = registerBoolean("runServerMonitoringJob", true);
 		runLatencyMonitoringJob = registerBoolean("runLatencyMonitoringJob", false);

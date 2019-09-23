@@ -15,13 +15,13 @@
  */
 package io.datarouter.storage.test.node.basic.sorted;
 
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.entity.EntityNode;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.entity.SubEntitySortedMapStorageNode;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
-import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.router.Router;
+import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntityKey.SortedBeanEntityPartitioner4;
 
@@ -40,18 +40,23 @@ public class SortedBeanEntityNode{
 
 	private static EntityNodeParams<SortedBeanEntityKey, SortedBeanEntity> createNodeParams(int index){
 		String nodeName = "SortedBeanEntity" + index;
-		return new EntityNodeParams<>(nodeName, SortedBeanEntityKey.class, SortedBeanEntity::new,
-				SortedBeanEntityPartitioner4::new, nodeName);
+		return new EntityNodeParams<>(
+				nodeName,
+				SortedBeanEntityKey::new,
+				SortedBeanEntity::new,
+				SortedBeanEntityPartitioner4::new,
+				nodeName);
 	}
 
 	public final EntityNode<SortedBeanEntityKey,SortedBeanEntity> entity;
 	public final SubEntitySortedMapStorageNode<SortedBeanEntityKey,SortedBeanKey,SortedBean,SortedBeanFielder>
 			sortedBean;
 
-	public SortedBeanEntityNode(EntityNodeFactory entityNodeFactory, NodeFactory nodeFactory, Router router,
-			ClientId clientId, EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams){
-		this.entity = entityNodeFactory.create(clientId, router, entityNodeParams);
-		this.sortedBean = router.register(nodeFactory.subEntityNode(entityNodeParams, clientId, SortedBean::new,
+	public SortedBeanEntityNode(EntityNodeFactory entityNodeFactory, WideNodeFactory wideNodeFactory,
+			Datarouter datarouter, ClientId clientId,
+			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams){
+		this.entity = entityNodeFactory.create(clientId, entityNodeParams);
+		this.sortedBean = datarouter.register(wideNodeFactory.subEntityNode(entityNodeParams, clientId, SortedBean::new,
 				SortedBeanFielder::new, SortedBeanEntity.QUALIFIER_PREFIX_SortedBean));
 		entity.register(sortedBean);
 	}

@@ -19,7 +19,7 @@ import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.FloatByteTool;
 import io.datarouter.util.string.StringTool;
 
-public class FloatField extends BasePrimitiveField<Float>{
+public class FloatField extends BasePrimitiveField<Float,FloatFieldKey>{
 
 	public FloatField(FloatFieldKey key, Float value){
 		super(key, value);

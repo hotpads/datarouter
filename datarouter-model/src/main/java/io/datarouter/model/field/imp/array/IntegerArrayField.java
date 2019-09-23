@@ -19,10 +19,9 @@ import java.util.List;
 
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.util.bytes.IntegerByteTool;
-import io.datarouter.util.exception.NotImplementedException;
 import io.datarouter.util.serialization.GsonTool;
 
-public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
+public class IntegerArrayField extends BaseListField<Integer,List<Integer>,IntegerArrayFieldKey>{
 
 	public IntegerArrayField(IntegerArrayFieldKey key, List<Integer> value){
 		super(key, value);
@@ -48,7 +47,7 @@ public class IntegerArrayField extends BaseListField<Integer, List<Integer>>{
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		throw new NotImplementedException();//why isn't this implemented?
+		throw new UnsupportedOperationException();//why isn't this implemented?
 	}
 
 }

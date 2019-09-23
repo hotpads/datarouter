@@ -35,7 +35,6 @@ implements UniqueIndexEntry<
 		TestDatabeanKey,
 		TestDatabean>{
 
-	private TestDatabeanWithManagedIndexByBarKey key;
 	private String foo;
 
 	public static class TestDatabeanWithManagedIndexByBFielder
@@ -53,11 +52,11 @@ implements UniqueIndexEntry<
 	}
 
 	public TestDatabeanWithManagedIndexByBar(){
-		this.key = new TestDatabeanWithManagedIndexByBarKey();
+		super(new TestDatabeanWithManagedIndexByBarKey());
 	}
 
 	public TestDatabeanWithManagedIndexByBar(String bar, String foo){
-		this.key = new TestDatabeanWithManagedIndexByBarKey(bar);
+		super(new TestDatabeanWithManagedIndexByBarKey(bar));
 		this.foo = foo;
 	}
 
@@ -67,28 +66,19 @@ implements UniqueIndexEntry<
 	}
 
 	@Override
-	public TestDatabeanWithManagedIndexByBarKey getKey(){
-		return key;
-	}
-
-	@Override
 	public TestDatabeanKey getTargetKey(){
 		return new TestDatabeanKey(foo);
 	}
 
 	@Override
 	public List<TestDatabeanWithManagedIndexByBar> createFromDatabean(TestDatabean target){
-		TestDatabeanWithManagedIndexByBar entry = new TestDatabeanWithManagedIndexByBar(target.getBar(),
-				target.getFoo());
+		TestDatabeanWithManagedIndexByBar entry = new TestDatabeanWithManagedIndexByBar(target.getBar(), target.getKey()
+				.getFoo());
 		return Collections.singletonList(entry);
 	}
 
 	public String getFoo(){
 		return foo;
-	}
-
-	public String getBar(){
-		return key.getBar();
 	}
 
 }

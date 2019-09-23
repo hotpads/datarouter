@@ -17,6 +17,7 @@ package io.datarouter.storage.node.entity;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
@@ -26,6 +27,7 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
+import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
 
 public interface EntityNode<
@@ -39,18 +41,49 @@ public interface EntityNode<
 
 	Collection<Node<?,?,?>> getSubEntityNodes();
 
-	List<E> getEntities(Collection<EK> entityKeys, Config paramConfig);
+	/*------------ getEntities ---------------*/
 
-	default E getEntity(EK entityKey, Config config){
-		return CollectionTool.getFirst(getEntities(Arrays.asList(entityKey), config));
+	List<E> getEntities(Collection<EK> entityKeys, Config config);
+
+	default List<E> getEntities(Collection<EK> entityKeys){
+		return getEntities(entityKeys, new Config());
 	}
 
+	/*------------ getEntity ---------------*/
+
+	default E getEntity(EK entityKey, Config config){
+		return CollectionTool.getFirst(getEntities(Collections.singletonList(entityKey), config));
+	}
+
+	default E getEntity(EK entityKey){
+		return getEntity(entityKey, new Config());
+	}
+
+	/*------------ deleteMultiEntities ---------------*/
+
 	void deleteMultiEntities(Collection<EK> entityKeys, Config config);
+
+	default void deleteMultiEntities(Collection<EK> entityKeys){
+		deleteMultiEntities(entityKeys, new Config());
+	}
+
+	/*------------ deleteEntity ---------------*/
 
 	default void deleteEntity(EK entityKey, Config config){
 		deleteMultiEntities(Arrays.asList(entityKey), config);
 	}
 
+	default void deleteEntity(EK entityKey){
+		deleteEntity(entityKey, new Config());
+	}
+
+	/*------------ listEntityKeys ---------------*/
+
 	List<EK> listEntityKeys(EK startKey, boolean startKeyInclusive, Config config);
 
+	default List<EK> listEntityKeys(EK startKey, boolean startKeyInclusive){
+		return listEntityKeys(startKey, startKeyInclusive, new Config());
+	}
+
+	EntityFieldInfo<EK,E> getEntityFieldInfo();
 }

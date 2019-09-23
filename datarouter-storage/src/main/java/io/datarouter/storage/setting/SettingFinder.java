@@ -21,7 +21,8 @@ import io.datarouter.storage.servertype.ServerType;
 
 public interface SettingFinder{
 
-	String getConfigProfile();
+	String getEnvironmentType();
+	String getEnvironmentName();
 	ServerType getServerType();
 	String getServerName();
 	Optional<String> getSettingValue(String name);

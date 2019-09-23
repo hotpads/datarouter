@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.queue.QueueMessage;
@@ -36,7 +37,21 @@ extends NodeOps<PK,D>{
 	public static final String OP_peekUntilEmpty = "peekUntilEmpty";
 
 	QueueMessage<PK,D> peek(Config config);
+
+	default QueueMessage<PK,D> peek(){
+		return peek(new Config());
+	}
+
 	List<QueueMessage<PK,D>> peekMulti(Config config);
-	Iterable<QueueMessage<PK,D>> peekUntilEmpty(Config config);
+
+	default List<QueueMessage<PK,D>> peekMulti(){
+		return peekMulti(new Config());
+	}
+
+	Scanner<QueueMessage<PK,D>> peekUntilEmpty(Config config);
+
+	default Iterable<QueueMessage<PK,D>> peekUntilEmpty(){
+		return peekUntilEmpty(new Config());
+	}
 
 }

@@ -216,4 +216,5 @@ public class DatarouterHttpRequestTests{
 	public void testEmptyUrl(){
 		new DatarouterHttpRequest(HttpRequestMethod.HEAD, "", false);
 	}
+
 }

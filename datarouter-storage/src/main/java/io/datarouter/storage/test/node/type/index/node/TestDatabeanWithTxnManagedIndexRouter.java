@@ -17,19 +17,15 @@ package io.datarouter.storage.test.node.type.index.node;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar.TestDatabeanWithManagedIndexByBFielder;
 
 public class TestDatabeanWithTxnManagedIndexRouter extends DatarouterTestDatabeanWithIndexRouter{
 
-	public TestDatabeanWithTxnManagedIndexRouter(Datarouter datarouter, TestDatarouterProperties datarouterProperties,
-			NodeFactory nodeFactory, DatarouterSettings datarouterSettings, ClientId clientId){
-		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings, clientId,
-				"TestDatabeanWithTxnManagedIndex");
+	public TestDatabeanWithTxnManagedIndexRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId){
+		super(datarouter, nodeFactory, clientId, "TestDatabeanWithTxnManagedIndex");
 
 		byB = backingMapNode.registerManaged(IndexingNodeFactory.newManagedUnique(backingMapNode,
 				TestDatabeanWithManagedIndexByBFielder.class, TestDatabeanWithManagedIndexByBar.class, true));

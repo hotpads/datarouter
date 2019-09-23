@@ -21,7 +21,7 @@ import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.ListFieldKey;
 
-public class UInt63ArrayFieldKey extends ListFieldKey<Long,List<Long>>{
+public class UInt63ArrayFieldKey extends ListFieldKey<Long,List<Long>,UInt63ArrayFieldKey>{
 
 	public UInt63ArrayFieldKey(String name){
 		super(name, new TypeToken<List<Long>>(){});

@@ -18,6 +18,7 @@ package io.datarouter.logging;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -53,14 +54,15 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
-		LOGGER.info("Configuring log4j2 with the class : {}", fullyQualifiedClassName);
+		LOGGER.info("Configuring log4j2 location={} class={}", source.getLocation(), fullyQualifiedClassName);
 
 		BaseLog4j2Configuration log4j2Configuration;
 		try{
 			Class<? extends BaseLog4j2Configuration> configurationClass = Class.forName(fullyQualifiedClassName)
 					.asSubclass(BaseLog4j2Configuration.class);
-			log4j2Configuration = configurationClass.newInstance();
-		}catch(InstantiationException | IllegalAccessException | ClassNotFoundException e){
+			log4j2Configuration = configurationClass.getDeclaredConstructor().newInstance();
+		}catch(InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException
+				| InvocationTargetException e){
 			throw new RuntimeException(e);
 		}
 		for(Appender appender : log4j2Configuration.getAppenders()){

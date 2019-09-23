@@ -19,24 +19,20 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.config.setting.DatarouterSettings;
-import io.datarouter.storage.setting.Setting;
+import io.datarouter.storage.config.setting.DatarouterCallsiteSettings;
 
 @Singleton
 public class NodeFactory extends BaseNodeFactory{
 
-	private final DatarouterSettings datarouterSettings;
-
 	@Inject
-	private NodeFactory(DatarouterClients clients, DatarouterSettings datarouterSettings, DatarouterInjector injector){
-		super(clients, injector);
-		this.datarouterSettings = datarouterSettings;
-	}
-
-	@Override
-	protected Setting<Boolean> getRecordCallsites(){
-		return datarouterSettings.getRecordCallsites();
+	private NodeFactory(
+			Datarouter datarouter,
+			DatarouterClients clients,
+			DatarouterCallsiteSettings datarouterCallsiteSettings,
+			DatarouterInjector injector){
+		super(datarouter, clients, injector, datarouterCallsiteSettings.getRecordCallsites());
 	}
 
 }

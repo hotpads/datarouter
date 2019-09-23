@@ -264,7 +264,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 		public MemoryPoolForDisplay(MemoryPoolMXBean memoryPoolMxBean){
 			this.name = memoryPoolMxBean.getName();
-			this.escapedName = name.replace(" ", "-");
+			this.escapedName = name.replace(" ", "-").replace("'", "").replace("\"", "");
 			this.usage = new MemoryUsageForDisplay(memoryPoolMxBean.getUsage());
 		}
 

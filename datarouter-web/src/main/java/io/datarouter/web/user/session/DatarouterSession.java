@@ -105,7 +105,7 @@ implements Serializable, Session{
 	public static DatarouterSession createAnonymousSession(String userToken){
 		DatarouterSession session = new DatarouterSession();
 		session.setUserToken(userToken);
-		session.setSessionToken(DatarouterTokenGenerator.generateRandomToken());
+		session.getKey().setSessionToken(DatarouterTokenGenerator.generateRandomToken());
 		Date now = new Date();
 		session.setCreated(now);
 		session.setUpdated(now);
@@ -172,16 +172,6 @@ implements Serializable, Session{
 	}
 
 	@Override
-	public DatarouterSessionKey getKey(){
-		return key;
-	}
-
-	@Override
-	public void setKey(DatarouterSessionKey key){
-		this.key = key;
-	}
-
-	@Override
 	public String getUsername(){
 		return username;
 	}
@@ -230,6 +220,11 @@ implements Serializable, Session{
 
 	public void setPersistent(Boolean persistent){
 		this.persistent = persistent;
+	}
+
+	@Override
+	public String getSessionToken(){
+		return getKey().getSessionToken();
 	}
 
 	public static final class DatarouterSessionMock{

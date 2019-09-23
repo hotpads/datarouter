@@ -28,7 +28,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
-import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.imp.BaseClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
@@ -38,6 +37,7 @@ import io.datarouter.storage.node.adapter.availability.PhysicalIndexedSortedMapS
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalIndexedSortedMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalIndexedSortedMapStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalIndexedSortedMapStorageSanitizationAdapter;
+import io.datarouter.storage.node.adapter.trace.physical.PhysicalIndexedSortedMapStorageTraceAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 
@@ -53,13 +53,17 @@ public class MysqlClientNodeFactory extends BaseClientNodeFactory{
 	private MysqlNodeManager mysqlNodeManager;
 
 	public class MysqlWrappedNodeFactory<
-			PK extends PrimaryKey<PK>,
+			EK extends EntityKey<EK>,
+			E extends Entity<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	extends WrappedNodeFactory<PK,D,F,PhysicalIndexedSortedMapStorageNode<PK,D,F>>{
+	extends WrappedNodeFactory<EK,E,PK,D,F,PhysicalIndexedSortedMapStorageNode<PK,D,F>>{
 
 		@Override
-		public PhysicalIndexedSortedMapStorageNode<PK,D,F> createNode(NodeParams<PK,D,F> nodeParams){
+		public PhysicalIndexedSortedMapStorageNode<PK,D,F> createNode(
+				EntityNodeParams<EK,E> entityNodeParams,
+				NodeParams<PK,D,F> nodeParams){
 			return new MysqlNode<>(nodeParams, mysqlClientType, mysqlNodeManager);
 		}
 
@@ -68,6 +72,7 @@ public class MysqlClientNodeFactory extends BaseClientNodeFactory{
 			return Arrays.asList(
 					PhysicalIndexedSortedMapStorageSanitizationAdapter::new,
 					PhysicalIndexedSortedMapStorageCounterAdapter::new,
+					PhysicalIndexedSortedMapStorageTraceAdapter::new,
 					physicalIndexedSortedMapStorageAvailabilityAdapterFactory::create,
 					PhysicalIndexedSortedMapStorageCallsiteAdapter::new);
 		}
@@ -82,12 +87,13 @@ public class MysqlClientNodeFactory extends BaseClientNodeFactory{
 			F extends DatabeanFielder<PK,D>>
 	extends WrappedSubEntityNodeFactory<EK,E,PK,D,F,PhysicalIndexedSortedMapStorageNode<PK,D,F>>{
 
-		private final MysqlWrappedNodeFactory<PK,D,F> factory = new MysqlWrappedNodeFactory<>();
+		private final MysqlWrappedNodeFactory<EK,E,PK,D,F> factory = new MysqlWrappedNodeFactory<>();
 
 		@Override
 		public PhysicalIndexedSortedMapStorageNode<PK,D,F> createSubEntityNode(
-				EntityNodeParams<EK,E> entityNodeParams, NodeParams<PK,D,F> nodeParams){
-			return factory.createNode(nodeParams);
+				EntityNodeParams<EK,E> entityNodeParams,
+				NodeParams<PK,D,F> nodeParams){
+			return factory.createNode(entityNodeParams, nodeParams);
 		}
 
 		@Override
@@ -98,10 +104,13 @@ public class MysqlClientNodeFactory extends BaseClientNodeFactory{
 	}
 
 	@Override
-	protected <PK extends PrimaryKey<PK>,
+	protected <
+			EK extends EntityKey<EK>,
+			E extends Entity<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	WrappedNodeFactory<PK,D,F,?> makeWrappedNodeFactory(){
+	WrappedNodeFactory<EK,E,PK,D,F,?> makeWrappedNodeFactory(){
 		return new MysqlWrappedNodeFactory<>();
 	}
 

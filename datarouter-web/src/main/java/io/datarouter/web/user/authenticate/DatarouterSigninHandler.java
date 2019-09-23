@@ -17,10 +17,11 @@ package io.datarouter.web.user.authenticate;
 
 import javax.inject.Inject;
 
+import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettingRoot;
+import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 import io.datarouter.web.user.authenticate.saml.SamlService;
 
 public class DatarouterSigninHandler extends BaseHandler{
@@ -28,9 +29,11 @@ public class DatarouterSigninHandler extends BaseHandler{
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
-	private DatarouterSamlSettingRoot samlSettings;
+	private DatarouterSamlSettings samlSettings;
 	@Inject
 	private SamlService samlService;
+	@Inject
+	private DatarouterWebFiles files;
 
 	@Handler(defaultHandler = true)
 	protected Mav showForm(){
@@ -38,7 +41,7 @@ public class DatarouterSigninHandler extends BaseHandler{
 			samlService.redirectToIdentityProvider(request, response);
 			return null;
 		}
-		Mav mav = new Mav("/jsp/authentication/signinForm.jsp");
+		Mav mav = new Mav(files.jsp.authentication.signinFormJsp);
 		mav.put("authenticationConfig", authenticationConfig);
 		return mav;
 	}

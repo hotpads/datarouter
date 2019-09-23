@@ -27,6 +27,7 @@ import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
@@ -34,7 +35,6 @@ import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public class PhysicalIndexedSortedMapStorageSanitizationAdapter<
@@ -54,32 +54,32 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 
 	@Override
 	public boolean exists(PK key, Config config){
-		return getBackingNode().exists(key, Config.nullSafe(config));
+		return getBackingNode().exists(key, config);
 	}
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config){
-		return getBackingNode().getKeys(keys, Config.nullSafe(config));
+		return getBackingNode().getKeys(keys, config);
 	}
 
 	@Override
 	public D get(PK key, Config config){
-		return getBackingNode().get(key, Config.nullSafe(config));
+		return getBackingNode().get(key, config);
 	}
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
-		return getBackingNode().getMulti(keys, Config.nullSafe(config));
+		return getBackingNode().getMulti(keys, config);
 	}
 
 	@Override
 	public void delete(PK key, Config config){
-		getBackingNode().delete(key, Config.nullSafe(config));
+		getBackingNode().delete(key, config);
 	}
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
-		getBackingNode().deleteMulti(keys, Config.nullSafe(config));
+		getBackingNode().deleteMulti(keys, config);
 	}
 
 	@Override
@@ -89,55 +89,55 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 
 	@Override
 	public void put(D databean, Config config){
-		getBackingNode().put(databean, Config.nullSafe(config));
+		getBackingNode().put(databean, config);
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		getBackingNode().putMulti(databeans, Config.nullSafe(config));
+		getBackingNode().putMulti(databeans, config);
 	}
 
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
-		return getBackingNode().lookupUnique(uniqueKey, Config.nullSafe(config));
+		return getBackingNode().lookupUnique(uniqueKey, config);
 	}
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		return getBackingNode().lookupMultiUnique(uniqueKeys, Config.nullSafe(config));
+		return getBackingNode().lookupMultiUnique(uniqueKeys, config);
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>> List<IE>
 			getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		return getBackingNode().getMultiFromIndex(keys, Config.nullSafe(config), indexEntryFieldInfo);
+		return getBackingNode().getMultiFromIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>> List<D>
 			getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		return getBackingNode().getMultiByIndex(keys, Config.nullSafe(config), indexEntryFieldInfo);
+		return getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>>
 	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 					Config config){
-		return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, Config.nullSafe(config));
+		return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>>
 	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 					Config config){
-		return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, Config.nullSafe(config));
+		return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,IE extends IndexEntry<IK,IE,PK,D>,IF extends DatabeanFielder<IK,IE>>
 	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 					Config config){
-		return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, Config.nullSafe(config));
+		return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
@@ -156,29 +156,29 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 
 	@Override
 	public void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
-		getBackingNode().deleteUnique(uniqueKey, Config.nullSafe(config));
+		getBackingNode().deleteUnique(uniqueKey, config);
 	}
 
 	@Override
 	public void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		getBackingNode().deleteMultiUnique(uniqueKeys, Config.nullSafe(config));
+		getBackingNode().deleteMultiUnique(uniqueKeys, config);
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
-		getBackingNode().deleteByIndex(keys, Config.nullSafe(config));
+		getBackingNode().deleteByIndex(keys, config);
 	}
 
 	@Override
 	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
 		checkForUnexceptedFullScan(ranges);
-		return getBackingNode().scanMulti(ranges, Config.nullSafe(config));
+		return getBackingNode().scanMulti(ranges, config);
 	}
 
 	@Override
 	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
 		checkForUnexceptedFullScan(ranges);
-		return getBackingNode().scanKeysMulti(ranges, Config.nullSafe(config));
+		return getBackingNode().scanKeysMulti(ranges, config);
 	}
 
 	@Override

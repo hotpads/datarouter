@@ -25,6 +25,8 @@ import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
+import io.datarouter.storage.node.NodeTool;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.lazy.Lazy;
 import io.datarouter.web.handler.params.Params;
 
@@ -72,6 +74,10 @@ public class DatarouterWebRequestParamsFactory{
 
 		public Node<?,?,?> getNode(){
 			return node.get();
+		}
+
+		public PhysicalNode<?,?,?> getPhysicalNode(){
+			return NodeTool.extractSinglePhysicalNode(node.get());
 		}
 
 		public String getTableName(){

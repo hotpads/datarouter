@@ -17,10 +17,15 @@ package io.datarouter.web.handler.mav.nav;
 
 import java.util.Optional;
 
+import javax.inject.Inject;
+
+import io.datarouter.storage.servertype.ServerTypeDetector;
+
 public class NoOpNavBar extends AppNavBar{
 
-	public NoOpNavBar(){
-		super("", "", Optional.empty());
+	@Inject
+	public NoOpNavBar(ServerTypeDetector serverTypeDetector){
+		super("", "", Optional.empty(), serverTypeDetector);
 	}
 
 }

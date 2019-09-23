@@ -133,10 +133,12 @@ public class DatabeanTool{
 	Map<String,Pair<Field<?>,Field<?>>> getFieldDifferencesWithExclusions(D databean1, D databean2,
 			Supplier<F> fielderSupplier, Set<String> prefixedFieldNameExclusions){
 		F fielder = fielderSupplier.get();
-		Collection<Field<?>> leftFields = databean1 == null ? null : IterableTool.filter(fielder.getFields(databean1),
-				field -> !prefixedFieldNameExclusions.contains(field.getPrefixedName()));
-		Collection<Field<?>> rightFields = databean2 == null ? null : IterableTool.filter(fielder.getFields(databean2),
-				field -> !prefixedFieldNameExclusions.contains(field.getPrefixedName()));
+		Collection<Field<?>> leftFields = databean1 == null ? null
+				: IterableTool.exclude(fielder.getFields(databean1), field -> prefixedFieldNameExclusions.contains(field
+						.getPrefixedName()));
+		Collection<Field<?>> rightFields = databean2 == null ? null
+				: IterableTool.exclude(fielder.getFields(databean2), field -> prefixedFieldNameExclusions.contains(field
+						.getPrefixedName()));
 		return FieldSetTool.getFieldDifferences(leftFields, rightFields);
 	}
 

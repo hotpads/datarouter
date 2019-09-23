@@ -19,17 +19,15 @@ import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.util.HashMethods;
 
-public class DefaultEntityPartitioner<EK extends EntityKey<EK>> extends BaseEntityPartitioner<EK>{
+public class DefaultEntityPartitioner<EK extends EntityKey<EK>> extends BaseByteArrayEntityPartitioner<EK>{
 
-	@Override
-	public int getNumPartitions(){
-		return 16;
+	public DefaultEntityPartitioner(){
+		super(HashMethods::longDjbHash, 16);
 	}
 
 	@Override
-	public int getPartition(EK ek){
-		long hash = HashMethods.longDjbHash(FieldTool.getConcatenatedValueBytes(ek.getFields(), false, false, false));
-		return (int)(hash % getNumPartitions());
+	public byte[] makeByteArrayHashInput(EK ek){
+		return FieldTool.getConcatenatedValueBytes(ek.getFields(), false, false, false);
 	}
 
 }

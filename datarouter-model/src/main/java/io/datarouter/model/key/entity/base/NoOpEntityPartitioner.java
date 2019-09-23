@@ -19,9 +19,8 @@ import io.datarouter.model.key.entity.EntityKey;
 
 public class NoOpEntityPartitioner<EK extends EntityKey<EK>> extends BaseEntityPartitioner<EK>{
 
-	@Override
-	public int getNumPartitions(){
-		return 1;
+	public NoOpEntityPartitioner(){
+		super(1);
 	}
 
 	@Override

@@ -20,10 +20,10 @@ import java.util.List;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.storage.test.TestDatabean;
 
-public class TestDatabeanWithManagedIndexByBarKey extends BasePrimaryKey<TestDatabeanWithManagedIndexByBarKey>{
+public class TestDatabeanWithManagedIndexByBarKey extends BaseRegularPrimaryKey<TestDatabeanWithManagedIndexByBarKey>{
 
 	private String bar;
 

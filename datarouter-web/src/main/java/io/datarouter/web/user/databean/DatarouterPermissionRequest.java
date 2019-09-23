@@ -37,7 +37,6 @@ import io.datarouter.util.enums.StringEnum;
 public class DatarouterPermissionRequest
 extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>{
 
-	private DatarouterPermissionRequestKey key;
 	private String requestText;
 	private DatarouterPermissionRequestResolution resolution;
 	private Date resolutionTime;
@@ -46,12 +45,12 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 			.comparing(request -> request.getKey().getRequestTime(), Comparator.reverseOrder());
 
 	public DatarouterPermissionRequest(){
-		this.key = new DatarouterPermissionRequestKey();
+		super(new DatarouterPermissionRequestKey());
 	}
 
 	public DatarouterPermissionRequest(Long userId, Date requestTime, String requestText,
 			DatarouterPermissionRequestResolution resolution, Date resolutionTime){
-		this.key = new DatarouterPermissionRequestKey(userId, requestTime);
+		super(new DatarouterPermissionRequestKey(userId, requestTime));
 		this.requestText = requestText;
 		this.resolution = resolution;
 		this.resolutionTime = resolutionTime;
@@ -99,18 +98,13 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 		return resolve(DatarouterPermissionRequestResolution.SUPERCEDED, new Date());
 	}
 
-	public DatarouterPermissionRequest deny(){
-		return resolve(DatarouterPermissionRequestResolution.DENIED, new Date());
+	public DatarouterPermissionRequest decline(){
+		return resolve(DatarouterPermissionRequestResolution.DECLINED, new Date());
 	}
 
 	@Override
 	public Class<DatarouterPermissionRequestKey> getKeyClass(){
 		return DatarouterPermissionRequestKey.class;
-	}
-
-	@Override
-	public DatarouterPermissionRequestKey getKey(){
-		return key;
 	}
 
 	public String getRequestText(){
@@ -140,7 +134,7 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 	public enum DatarouterPermissionRequestResolution implements StringEnum<DatarouterPermissionRequestResolution>{
 		SUPERCEDED("superceded"),//another request was made, so this one is no longer relevant
 		USER_CHANGED("changed"),//user was changed since request
-		DENIED("denied");//request was manually denied
+		DECLINED("declined");//request was manually declined
 
 		private final String persistentString;
 

@@ -31,15 +31,14 @@ extends BaseDatabean<IK,FieldlessIndexEntry<IK,PK,D>>
 implements UniqueIndexEntry<IK,FieldlessIndexEntry<IK,PK,D>,PK,D>{
 
 	private final Class<IK> keyClass;
-	private final IK key;
 
 	public FieldlessIndexEntry(Class<IK> keyClass){
 		this(keyClass, ReflectionTool.create(keyClass));
 	}
 
 	public FieldlessIndexEntry(Class<IK> keyClass, IK key){
+		super(key);
 		this.keyClass = keyClass;
-		this.key = key;
 	}
 
 	@Override
@@ -48,18 +47,13 @@ implements UniqueIndexEntry<IK,FieldlessIndexEntry<IK,PK,D>,PK,D>{
 	}
 
 	@Override
-	public IK getKey(){
-		return key;
-	}
-
-	@Override
 	public PK getTargetKey(){
-		return key.getTargetKey();
+		return getKey().getTargetKey();
 	}
 
 	@Override
 	public List<FieldlessIndexEntry<IK,PK,D>> createFromDatabean(D target){
-		return Arrays.asList(key.createFromDatabean(target));
+		return Arrays.asList(getKey().createFromDatabean(target));
 	}
 
 }

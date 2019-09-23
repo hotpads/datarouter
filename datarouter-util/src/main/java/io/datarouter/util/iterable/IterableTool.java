@@ -16,22 +16,15 @@
 package io.datarouter.util.iterable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.StreamTool;
 
@@ -57,7 +50,21 @@ public class IterableTool{
 	}
 
 	public static <A> List<A> filter(Iterable<A> iterable, Predicate<A> filter){
-		return StreamTool.stream(iterable).filter(filter).collect(Collectors.toList());
+		return StreamTool.stream(iterable)
+				.filter(filter)
+				.collect(Collectors.toList());
+	}
+
+	public static <A> List<A> include(Iterable<A> iterable, Predicate<A> filter){
+		return StreamTool.stream(iterable)
+				.filter(filter)
+				.collect(Collectors.toList());
+	}
+
+	public static <A> List<A> exclude(Iterable<A> iterable, Predicate<A> filter){
+		return StreamTool.stream(iterable)
+				.filter(filter.negate())
+				.collect(Collectors.toList());
 	}
 
 	public static <T> T next(Iterator<T> iterator){
@@ -108,7 +115,9 @@ public class IterableTool{
 	}
 
 	public static <T> Iterable<T> skip(Iterable<T> ins, Long nullableSkip){
-		long skip = Optional.ofNullable(nullableSkip).orElse(0L).longValue();
+		long skip = Optional.ofNullable(nullableSkip)
+				.orElse(0L)
+				.longValue();
 		return () -> {
 			Iterator<T> iterator = ins.iterator();
 			for(int i = 0; i < skip && iterator.hasNext(); i++){
@@ -131,52 +140,4 @@ public class IterableTool{
 		return list;
 	}
 
-	public static class IterableToolTests{
-
-		@Test
-		public void testMap(){
-			List<String> names = Arrays.asList("Al", "Bob");
-			List<String> greetings = map(names, name -> "Hello " + name);
-			Assert.assertEquals(greetings.getClass(), ArrayList.class);//prefer ArrayList to LinkedList
-			Assert.assertEquals(greetings.size(), 2);
-			Assert.assertEquals(greetings.get(0), "Hello Al");
-			Assert.assertEquals(greetings.get(1), "Hello Bob");
-		}
-
-		@Test
-		public void testMapToSet(){
-			List<String> names = Arrays.asList("Al", "Bob", "Bob");
-			Set<String> greetings = mapToSet(names, name -> "Hello " + name);
-			Assert.assertEquals(greetings.getClass(), HashSet.class);
-			Assert.assertEquals(greetings.size(), 2);
-			Assert.assertTrue(greetings.contains("Hello Al"));
-			Assert.assertTrue(greetings.contains("Hello Bob"));
-		}
-
-		@Test
-		public void testFilter(){
-			List<String> names = Arrays.asList("Al", "Bob");
-			List<String> filtered = filter(names, name -> name.equals(names.get(0)));
-			Assert.assertEquals(filtered.size(), 1);
-			Assert.assertEquals(filtered.get(0), names.get(0));
-		}
-
-		@Test
-		public void testSkip(){
-			List<Integer> original = IntStream.range(0, 10).boxed().collect(Collectors.toList());
-			Assert.assertEquals(skip(original, null), original);
-			Assert.assertEquals(skip(original, 0L), original);
-			Assert.assertEquals(skip(original, 3L), original.subList(3, 10));
-			Assert.assertEquals(skip(original, 15L), new ArrayList<>());
-		}
-
-		@Test
-		public void testForEach(){
-			List<Integer> inputs = Arrays.asList(3, 7);
-			AtomicLong total = new AtomicLong();
-			forEach(inputs, input -> total.addAndGet(input));
-			Assert.assertEquals(total.get(), 10);
-		}
-
-	}
 }

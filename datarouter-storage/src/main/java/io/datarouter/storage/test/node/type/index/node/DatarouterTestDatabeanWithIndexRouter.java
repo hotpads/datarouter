@@ -17,7 +17,6 @@ package io.datarouter.storage.test.node.type.index.node;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.op.raw.MapStorage;
@@ -27,7 +26,6 @@ import io.datarouter.storage.router.TestRouter;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanFielder;
 import io.datarouter.storage.test.TestDatabeanKey;
-import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBarKey;
 
@@ -37,15 +35,13 @@ public abstract class DatarouterTestDatabeanWithIndexRouter extends BaseRouter i
 
 	public MapStorage<TestDatabeanKey,TestDatabean> mainNode;
 
-	public UniqueIndexNode<TestDatabeanKey,
-			TestDatabean,
-			TestDatabeanWithManagedIndexByBarKey,
+	public UniqueIndexNode<TestDatabeanKey,TestDatabean,TestDatabeanWithManagedIndexByBarKey,
 			TestDatabeanWithManagedIndexByBar> byB;
 
-	public DatarouterTestDatabeanWithIndexRouter(Datarouter datarouter, TestDatarouterProperties datarouterProperties,
-			NodeFactory nodeFactory, DatarouterSettings datarouterSettings, ClientId clientId, String tableName){
-		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
-		mainNode = backingMapNode = create(clientId, TestDatabean::new, TestDatabeanFielder::new)
+	public DatarouterTestDatabeanWithIndexRouter(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId,
+			String tableName){
+		super(datarouter);
+		mainNode = backingMapNode = nodeFactory.create(clientId, TestDatabean::new, TestDatabeanFielder::new)
 				.withTableName(tableName)
 				.buildAndRegister();
 	}

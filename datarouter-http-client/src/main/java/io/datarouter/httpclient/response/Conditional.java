@@ -59,6 +59,13 @@ public class Conditional<T>{
 		throw new RuntimeException(exception);
 	}
 
+	public T orElseThrow(Function<Exception,RuntimeException> mapper){
+		if(success){
+			return response;
+		}
+		throw mapper.apply(exception);
+	}
+
 	public T orElse(T alternative){
 		return success ? response : alternative;
 	}
@@ -75,7 +82,13 @@ public class Conditional<T>{
 	}
 
 	public void ifSuccess(Consumer<? super T> consumer){
-		consumer.accept(response);
+		if(success){
+			consumer.accept(response);
+		}
+	}
+
+	public Exception getException(){
+		return exception;
 	}
 
 	public <U> JoinedConditional<T,U> join(Conditional<U> other){

@@ -31,22 +31,18 @@ import io.datarouter.client.mysql.test.client.txn.txnapp.TestMultiInsertRollback
 import io.datarouter.client.mysql.test.client.txn.txnapp.TestNestedTxn;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.util.iterable.IterableTool;
 
 public abstract class BaseTxnIntegrationTests{
 
 	@Inject
-	private TestDatarouterProperties datarouterProperties;
-	@Inject
 	private Datarouter datarouter;
 	@Inject
-	private DatarouterSettings datarouterSettings;
-	@Inject
 	private NodeFactory nodeFactory;
+	@Inject
+	private SessionExecutor sessionExecutor;
 
 	private ClientId clientId;
 	private DatarouterTxnTestRouter router;
@@ -54,8 +50,7 @@ public abstract class BaseTxnIntegrationTests{
 
 	protected void setup(ClientId clientId){
 		this.clientId = clientId;
-		router = new DatarouterTxnTestRouter(datarouterProperties, datarouter, datarouterSettings, nodeFactory,
-				clientId);
+		router = new DatarouterTxnTestRouter(datarouter, nodeFactory, clientId);
 		node = router.txnBean();
 	}
 
@@ -65,8 +60,8 @@ public abstract class BaseTxnIntegrationTests{
 	}
 
 	protected void resetTable(){
-		router.txnBean().deleteAll(null);
-		Assert.assertEquals(IterableTool.count(node.scan(null, null)).intValue(), 0);
+		router.txnBean().deleteAll();
+		Assert.assertEquals(IterableTool.count(node.scan()).intValue(), 0);
 	}
 
 	/*----------------------  override these in subclasses ------------------*/
@@ -83,13 +78,13 @@ public abstract class BaseTxnIntegrationTests{
 		int numExceptions = 0;
 		String beanPrefix = "a";
 		try{
-			SessionExecutor.run(new TestInsertRollback(datarouter, clientId, Isolation.readCommitted, router,
-					beanPrefix));
+			sessionExecutor.runWithoutRetries(new TestInsertRollback(datarouter, clientId, Isolation.readCommitted,
+					router, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
 		Assert.assertEquals(numExceptions, 1);
-		Assert.assertFalse(node.exists(new TxnBeanKey(beanPrefix + "1"), null));
+		Assert.assertFalse(node.exists(new TxnBeanKey(beanPrefix + "1")));
 	}
 
 	/*------------------------- MultiInsertRollback -------------------------*/
@@ -110,18 +105,18 @@ public abstract class BaseTxnIntegrationTests{
 	private void testMoreComplexInsertRollbackWithBeanPrefix(String beanPrefix){
 		int numExceptions = 0;
 		TxnBean bean = new TxnBean(beanPrefix + "1");
-		node.put(bean, null);
-		Assert.assertTrue(router.txnBean().exists(bean.getKey(), null));
+		node.put(bean);
+		Assert.assertTrue(router.txnBean().exists(bean.getKey()));
 		try{
-			SessionExecutor.run(new TestMultiInsertRollback(datarouter, clientId, Isolation.readCommitted, router,
-					beanPrefix));
+			sessionExecutor.runWithoutRetries(new TestMultiInsertRollback(datarouter, clientId, Isolation.readCommitted,
+					router, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
 		Assert.assertEquals(numExceptions, 1);
-		Assert.assertTrue(router.txnBean().exists(bean.getKey(), null));
-		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "2"), null));
-		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "3"), null));
+		Assert.assertTrue(router.txnBean().exists(bean.getKey()));
+		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "2")));
+		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "3")));
 	}
 
 
@@ -131,11 +126,12 @@ public abstract class BaseTxnIntegrationTests{
 	public void testNestedTxn(){
 		int numExceptions = 0;
 		try{
-			SessionExecutor.run(new TestNestedTxn(datarouter, clientId, Isolation.readCommitted, false, router));
+			sessionExecutor.runWithoutRetries(new TestNestedTxn(datarouter, clientId, Isolation.readCommitted, false,
+					router, sessionExecutor));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
 		Assert.assertEquals(numExceptions, 1);
-		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey("outer"), null));
+		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey("outer")));
 	}
 }

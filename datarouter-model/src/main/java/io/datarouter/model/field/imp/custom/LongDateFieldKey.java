@@ -16,23 +16,26 @@
 package io.datarouter.model.field.imp.custom;
 
 import java.util.Date;
+import java.util.Map;
 
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class LongDateFieldKey extends PrimitiveFieldKey<Date>{
+public class LongDateFieldKey extends PrimitiveFieldKey<Date,LongDateFieldKey>{
 
 	public LongDateFieldKey(String name){
 		super(name, Date.class);
 	}
 
 	private LongDateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Date defaultValue){
-		super(name, columnName, nullable, Date.class, fieldGeneratorType, defaultValue);
+			Date defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, Date.class, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	public LongDateFieldKey withColumnName(String columnName){
-		return new LongDateFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue);
+		return new LongDateFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	@Override

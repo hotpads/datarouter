@@ -146,7 +146,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 				if(BooleanTool.isTrue(session.getPersistent())){
 					sessionManager.addUserTokenCookie(response, session.getUserToken());
 					sessionManager.addSessionTokenCookie(response, session.getSessionToken());
-					userNodes.getSessionNode().put(session, null);
+					userNodes.getSessionNode().put(session);
 				}
 				return;
 			}

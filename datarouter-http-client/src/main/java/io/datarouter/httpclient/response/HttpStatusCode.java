@@ -31,8 +31,11 @@ public enum HttpStatusCode{
 	SC_422_UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
 	SC_424_FAILED_DEPENDENCY(424, "Failed Dependency"),
 	SC_500_INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
+	SC_502_BAD_GATEWAY(502, "Bad Gateway"),
 	SC_503_SERVICE_UNAVAILABLE(503, "Service Unavailable"),
+	SC_504_GATEWAY_TIMEOUT(504, "Gateway Timeout"),
 	;
+
 
 	private final int statusCode;
 	private final String message;

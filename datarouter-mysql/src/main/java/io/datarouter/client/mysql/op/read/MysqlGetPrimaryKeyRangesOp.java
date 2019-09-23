@@ -67,7 +67,7 @@ extends BaseMysqlOp<List<PK>>{
 	@Override
 	public List<PK> runOnce(){
 		String opName = SortedStorageReader.OP_getKeysInRange;
-		Connection connection = getConnection(fieldInfo.getClientId());
+		Connection connection = getConnection();
 		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, fieldInfo.getTableName(),
 				fieldInfo.getPrimaryKeyFields(), ranges, fieldInfo.getPrimaryKeyFields(),
 				SqlBuilder.PRIMARY_KEY_INDEX_NAME, MysqlTableOptions.make(fieldInfo.getSampleFielder()))

@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.cache.DatarouterUserByIdCache;
 import io.datarouter.web.user.cache.DatarouterUserByUserTokenCache;
 import io.datarouter.web.user.cache.DatarouterUserByUsernameCache;
@@ -39,16 +40,25 @@ public class DatarouterUserInfo implements UserInfo{
 
 	@Override
 	public Optional<DatarouterUser> getUserByUsername(String username){
+		if(StringTool.isEmptyOrWhitespace(username)){
+			return Optional.empty();
+		}
 		return datarouterUserByUsernameCache.get(username);
 	}
 
 	@Override
 	public Optional<DatarouterUser> getUserByToken(String token){
+		if(StringTool.isEmptyOrWhitespace(token)){
+			return Optional.empty();
+		}
 		return datarouterUserByUserTokenCache.get(token);
 	}
 
 	@Override
 	public Optional<DatarouterUser> getUserById(Long id){
+		if(id == null){
+			return Optional.empty();
+		}
 		return datarouterUserByIdCache.get(id);
 	}
 

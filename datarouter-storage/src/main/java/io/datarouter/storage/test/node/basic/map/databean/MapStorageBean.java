@@ -26,7 +26,6 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
 public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBean>{
 
-	private MapStorageBeanKey key;
 	private String data;
 
 	public static class FieldKeys{
@@ -51,18 +50,13 @@ public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBea
 	}
 
 	public MapStorageBean(String data){
-		this.key = new MapStorageBeanKey();
+		super(new MapStorageBeanKey());
 		this.data = data;
 	}
 
 	@Override
 	public Class<MapStorageBeanKey> getKeyClass(){
 		return MapStorageBeanKey.class;
-	}
-
-	@Override
-	public MapStorageBeanKey getKey(){
-		return key;
 	}
 
 	public String getData(){

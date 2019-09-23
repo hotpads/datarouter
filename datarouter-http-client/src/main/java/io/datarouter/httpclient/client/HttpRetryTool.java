@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public class HttpRetryTool{
 	private static final Logger logger = LoggerFactory.getLogger(HttpRetryTool.class);
 
-	public static final int DEFAULT_RETRY_COUNT = 2;
+	public static final int DEFAULT_RETRY_COUNT = 1;
 	public static final String RETRY_SAFE_ATTRIBUTE = "retrySafe";
 
 	private static boolean isRetrySafe(HttpContext context){

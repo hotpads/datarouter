@@ -16,6 +16,8 @@
 package io.datarouter.web.util;
 
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class ExceptionTool{
 
@@ -36,4 +38,36 @@ public class ExceptionTool{
 		return proxy.getCauseStackTraceAsString("");
 	}
 
+	@SafeVarargs
+	public static boolean isFromInstanceOf(Throwable exception, Class<? extends Exception>... classes){
+		while(exception != null){
+			for(Class<? extends Exception> clazz : classes){
+				if(clazz.isAssignableFrom(exception.getClass())){
+					return true;
+				}
+			}
+			exception = exception.getCause();
+		}
+		return false;
+	}
+
+	@SuppressWarnings("serial")
+	private static class SpecialInterruptedException extends InterruptedException{}
+
+	public static class ExceptionToolTests{
+		@Test
+		public void isFromInstanceOfTest(){
+			Assert.assertTrue(isFromInstanceOf(new InterruptedException(), InterruptedException.class));
+			Assert.assertTrue(isFromInstanceOf(new SpecialInterruptedException(), InterruptedException.class));
+			Assert.assertTrue(isFromInstanceOf(new Exception(new InterruptedException()), InterruptedException.class));
+			Assert.assertTrue(isFromInstanceOf(new Exception(new SpecialInterruptedException()),
+					InterruptedException.class));
+			Assert.assertFalse(isFromInstanceOf(new Exception(), InterruptedException.class));
+
+
+			Assert.assertTrue(isFromInstanceOf(new SpecialInterruptedException(), RuntimeException.class,
+					InterruptedException.class));
+			Assert.assertFalse(isFromInstanceOf(new Exception(), RuntimeException.class, InterruptedException.class));
+		}
+	}
 }

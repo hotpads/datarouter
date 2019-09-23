@@ -15,14 +15,10 @@
  */
 package io.datarouter.util.tuple;
 
-import java.util.ArrayList;
 import java.util.Objects;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import java.util.function.Function;
 
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ObjectTool;
 
 /* * null compares first
@@ -125,16 +121,6 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		return matchesStart(item) && matchesEnd(item);
 	}
 
-	public ArrayList<T> filter(Iterable<T> ins){
-		ArrayList<T> outs = new ArrayList<>();
-		for(T in : IterableTool.nullSafe(ins)){
-			if(contains(in)){
-				outs.add(in);
-			}
-		}
-		return outs;
-	}
-
 	public boolean isEmpty(){
 		return equalsStartEnd() && start != null && !(startInclusive && endInclusive);
 	}
@@ -146,6 +132,12 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 	@Override
 	public Range<T> clone(){
 		return new Range<>(start, startInclusive, end, endInclusive);
+	}
+
+	public <R extends Comparable<? super R>> Range<R> map(Function<? super T, ? extends R> mapper){
+		R newStart = start == null ? null : mapper.apply(start);
+		R newEnd = end == null ? null : mapper.apply(end);
+		return new Range<>(newStart, startInclusive, newEnd, endInclusive);
 	}
 
 	/*------------------------- standard ------------------------------------*/
@@ -238,86 +230,36 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 		return start;
 	}
 
-	public void setStart(T start){
+	public Range<T> setStart(T start){
 		this.start = start;
+		return this;
 	}
 
 	public boolean getStartInclusive(){
 		return startInclusive;
 	}
 
-	public void setStartInclusive(boolean startInclusive){
+	public Range<T> setStartInclusive(boolean startInclusive){
 		this.startInclusive = startInclusive;
+		return this;
 	}
 
 	public T getEnd(){
 		return end;
 	}
 
-	public void setEnd(T end){
+	public Range<T> setEnd(T end){
 		this.end = end;
+		return this;
 	}
 
 	public boolean getEndInclusive(){
 		return endInclusive;
 	}
 
-	public void setEndInclusive(boolean endInclusive){
+	public Range<T> setEndInclusive(boolean endInclusive){
 		this.endInclusive = endInclusive;
-	}
-
-	/*------------------------- tests ---------------------------------------*/
-
-	public static class RangeTests{
-		@Test
-		public void testContains(){
-			Range<Integer> rangeA = new Range<>(3, true, 5, true);
-			Assert.assertFalse(rangeA.contains(2));
-			Assert.assertTrue(rangeA.contains(3));
-			Assert.assertTrue(rangeA.contains(5));
-			Assert.assertFalse(rangeA.contains(6));
-			Range<Integer> rangeB = new Range<>(3, false, 5, false);
-			Assert.assertFalse(rangeB.contains(3));
-			Assert.assertTrue(rangeB.contains(4));
-			Assert.assertFalse(rangeB.contains(5));
-			Range<Integer> rangeC = new Range<>(7, true, 7, true);
-			Assert.assertTrue(rangeC.contains(7));
-			Range<Integer> rangeD = new Range<>(8, false, 8, false);
-			Assert.assertFalse(rangeD.contains(8));
-			Range<Integer> rangeE = new Range<>(9, true, 9, false);//exclusive should win (?)
-			Assert.assertFalse(rangeE.contains(9));
-		}
-		@Test
-		public void testCompareStarts(){
-			Range<Integer> rangeA = new Range<>(null, true, null, true);
-			Assert.assertEquals(0, compareStarts(rangeA, rangeA));
-			Range<Integer> rangeB = new Range<>(null, false, null, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(rangeA, rangeB));
-			Range<Integer> rangeC = new Range<>(null, true, 999, true);
-			Assert.assertEquals(0, ComparableTool.compareAndAssertReflexive(rangeA, rangeC));
-			Range<Integer> rangeD = new Range<>(3, true, 999, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(rangeA, rangeD));
-			Range<Integer> rangeE = new Range<>(3, false, 999, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(rangeA, rangeD));
-			Range<Integer> rangeF = new Range<>(4, true, 999, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(rangeD, rangeF));
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(rangeE, rangeF));
-			Range<Integer> rangeG = new Range<>(4, false, 999, true);
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(rangeD, rangeG));
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(rangeE, rangeG));
-			Assert.assertEquals(-1, ComparableTool.compareAndAssertReflexive(rangeF, rangeG));
-		}
-		@Test
-		public void testValidAssert(){
-			new Range<>(null, null).assertValid();
-			new Range<>(0, null).assertValid();
-			new Range<>(null, 0).assertValid();
-			new Range<>(0, 1).assertValid();
-		}
-		@Test(expectedExceptions = IllegalStateException.class)
-		public void testInvalidAssert(){
-			new Range<>(1, 0).assertValid();
-		}
+		return this;
 	}
 
 }

@@ -24,12 +24,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
-import com.google.gson.internal.PreJava9DateFormatProvider;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -82,21 +78,6 @@ public class CompatibleDateTypeAdapter extends TypeAdapter<Date>{
 		}
 		String dateFormatAsString = dateFormats.get(0).format(value);
 		out.value(dateFormatAsString);
-	}
-
-	public static class CompatibleDateTypeAdapterTests{
-
-		@Test
-		public void testJava9DateSerialization() throws ParseException{
-			String java8Date = "Feb 13, 2019 10:40:25 PM";
-			String java9Date = "Feb 13, 2019, 10:40:25 PM";
-			DateFormat java8Format = PreJava9DateFormatProvider.getUSDateTimeFormat(DateFormat.DEFAULT,
-					DateFormat.DEFAULT);
-			Date date = java8Format.parse(java8Date);
-			Assert.assertEquals(GsonTool.GSON.fromJson('"' + java8Date + '"', Date.class), date);
-			Assert.assertEquals(GsonTool.GSON.fromJson('"' + java9Date + '"', Date.class), date);
-		}
-
 	}
 
 }

@@ -19,18 +19,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.op.util.SortedStorageCountingTool;
 import io.datarouter.storage.util.KeyRangeTool;
-import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 /**
@@ -55,8 +54,8 @@ extends NodeOps<PK,D>{
 
 	Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config);
 
-	default Stream<D> streamMulti(Collection<Range<PK>> ranges, Config config){
-		return scanMulti(ranges, config).stream();
+	default Scanner<D> scanMulti(Collection<Range<PK>> ranges){
+		return scanMulti(ranges, new Config());
 	}
 
 	/*-------------------------------- scan ---------------------------------*/
@@ -77,40 +76,56 @@ extends NodeOps<PK,D>{
 	 * returning all rows in the range to the client where the client can then filter. A predicate push-down feature may
 	 * be added, but it will likely use a separate interface method.
 	 */
-	default Scanner<D> scan(final Range<PK> range, final Config config){
+	default Scanner<D> scan(Range<PK> range, Config config){
 		return scanMulti(Arrays.asList(Range.nullSafe(range)), config);
 	}
 
-	default Stream<D> stream(Range<PK> range, Config config){
-		return scan(range, config).stream();
+	default Scanner<D> scan(Range<PK> range){
+		return scan(range, new Config());
+	}
+
+	default Scanner<D> scan(Config config){
+		return scan(Range.everything(), config);
+	}
+
+	default Scanner<D> scan(){
+		return scan(Range.everything(), new Config());
 	}
 
 	/*-------------------------------- scan keys multi ------------------------------*/
 
 	Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config);
 
-	default Stream<PK> streamKeysMulti(Collection<Range<PK>> ranges, Config config){
-		return scanKeysMulti(ranges, config).stream();
+	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges){
+		return scanKeysMulti(ranges, new Config());
 	}
 
 	/*-------------------------------- scan keys ------------------------------*/
 
-	default Scanner<PK> scanKeys(final Range<PK> range, final Config config){
+	default Scanner<PK> scanKeys(Range<PK> range, Config config){
 		return scanKeysMulti(Arrays.asList(Range.nullSafe(range)), config);
 	}
 
-	default Stream<PK> streamKeys(Range<PK> range, Config config){
-		return scanKeys(range, config).stream();
+	default Scanner<PK> scanKeys(Range<PK> range){
+		return scanKeys(range, new Config());
+	}
+
+	default Scanner<PK> scanKeys(Config config){
+		return scanKeys(Range.everything(), config);
+	}
+
+	default Scanner<PK> scanKeys(){
+		return scanKeys(Range.everything(), new Config());
 	}
 
 	/*-------------------------------- prefix -------------------------------*/
 
-	default Iterable<D> scanWithPrefix(PK prefix, Config config){
+	default Scanner<D> scanWithPrefix(PK prefix, Config config){
 		return scan(KeyRangeTool.forPrefix(prefix), config);
 	}
 
-	default Stream<D> streamWithPrefix(PK prefix, Config config){
-		return scan(KeyRangeTool.forPrefix(prefix), config).stream();
+	default Scanner<D> scanWithPrefix(PK prefix){
+		return scanWithPrefix(prefix, new Config());
 	}
 
 	/*-------------------------------- prefix keys -------------------------------*/
@@ -119,8 +134,8 @@ extends NodeOps<PK,D>{
 		return scanKeys(KeyRangeTool.forPrefix(prefix), config);
 	}
 
-	default Stream<PK> streamKeysWithPrefix(PK prefix, Config config){
-		return scanKeys(KeyRangeTool.forPrefix(prefix), config).stream();
+	default Scanner<PK> scanKeysWithPrefix(PK prefix){
+		return scanKeysWithPrefix(prefix, new Config());
 	}
 
 	/*-------------------------------- prefixes -------------------------------*/
@@ -129,8 +144,8 @@ extends NodeOps<PK,D>{
 		return scanMulti(getRangesFromPrefixes(prefixes), config);
 	}
 
-	default Stream<D> streamWithPrefixes(Collection<PK> prefixes, Config config){
-		return scanWithPrefixes(prefixes, config).stream();
+	default Scanner<D> scanWithPrefixes(Collection<PK> prefixes){
+		return scanWithPrefixes(prefixes, new Config());
 	}
 
 	/*-------------------------------- prefixes keys -------------------------------*/
@@ -139,8 +154,8 @@ extends NodeOps<PK,D>{
 		return scanKeysMulti(getRangesFromPrefixes(prefixes), config);
 	}
 
-	default Stream<PK> streamKeysWithPrefixes(Collection<PK> prefixes, Config config){
-		return scanKeysMulti(getRangesFromPrefixes(prefixes), config).stream();
+	default Scanner<PK> scanKeysWithPrefixes(Collection<PK> prefixes){
+		return scanKeysWithPrefixes(prefixes, new Config());
 	}
 
 	/*-------------------------------- count --------------------------------*/

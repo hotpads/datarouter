@@ -56,4 +56,5 @@ public class PeekingIterator<E> implements Iterator<E>{
 		}
 		return peekedElement;
 	}
+
 }

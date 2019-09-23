@@ -61,9 +61,10 @@ implements IndexListener<PK,D>{
 		if(key == null){
 			throw new IllegalArgumentException("invalid null key");
 		}
-		IE indexEntry = createIndexEntry();
-		if(indexEntry instanceof KeyIndexEntry){
-			fromPrimaryKey(indexEntry, key);
+		IE indexEntryBuilder = createIndexEntry();
+		if(indexEntryBuilder instanceof KeyIndexEntry){
+			@SuppressWarnings("unchecked")
+			IE indexEntry = ((UniqueKeyIndexEntry<?,IE,PK,?>)indexEntryBuilder).fromPrimaryKey(key);
 			indexNode.delete(indexEntry.getKey(), config);
 		}else{
 			throw new IllegalArgumentException("Unable to find index from PK, please call "
@@ -122,9 +123,10 @@ implements IndexListener<PK,D>{
 	private List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
 		List<IE> indexEntries = ListTool.createArrayListWithSize(primaryKeys);
 		for(PK key : IterableTool.nullSafe(primaryKeys)){
-			IE indexEntry = createIndexEntry();
-			if(indexEntry instanceof UniqueKeyIndexEntry){
-				fromPrimaryKey(indexEntry, key);
+			IE indexEntryBuilder = createIndexEntry();
+			if(indexEntryBuilder instanceof UniqueKeyIndexEntry){
+				@SuppressWarnings("unchecked")
+				IE indexEntry = ((UniqueKeyIndexEntry<?,IE,PK,?>)indexEntryBuilder).fromPrimaryKey(key);
 				indexEntries.add(indexEntry);
 			}else{
 				throw new IllegalArgumentException("Unable to find index from PK, please call "
@@ -142,12 +144,6 @@ implements IndexListener<PK,D>{
 			indexEntries.addAll(CollectionTool.nullSafe(indexEntriesFromSingleDatabean));
 		}
 		return indexEntries;
-	}
-
-	private void fromPrimaryKey(IE indexEntry, PK primaryKey){
-		@SuppressWarnings("unchecked")
-		KeyIndexEntry<?,?,PK,?> keyIndexEntry = (KeyIndexEntry<?,?,PK,?>)indexEntry;
-		keyIndexEntry.fromPrimaryKey(primaryKey);
 	}
 
 }

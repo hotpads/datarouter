@@ -15,26 +15,30 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import java.util.Map;
+
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class BooleanFieldKey extends PrimitiveFieldKey<Boolean>{
+public class BooleanFieldKey extends PrimitiveFieldKey<Boolean,BooleanFieldKey>{
 
 	public BooleanFieldKey(String name){
 		super(name, Boolean.class);
 	}
 
 	private BooleanFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Boolean defaultValue){
-		super(name, columnName, nullable, Boolean.class, fieldGeneratorType, defaultValue);
+			Boolean defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, Boolean.class, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	public BooleanFieldKey withDefaultValue(Boolean defaultValueOverride){
-		return new BooleanFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValueOverride);
+		return new BooleanFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValueOverride, attributes);
 	}
 
 	public BooleanFieldKey withColumnName(String columnNameOverride){
-		return new BooleanFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue);
+		return new BooleanFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, attributes);
 	}
 
 	@Override

@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.entity.BaseEntity;
 import io.datarouter.model.key.entity.EntityKey;
-import io.datarouter.util.lang.ReflectionTool;
 
 public class DefaultEntity<EK extends EntityKey<EK>> extends BaseEntity<EK>{
 
@@ -27,8 +26,8 @@ public class DefaultEntity<EK extends EntityKey<EK>> extends BaseEntity<EK>{
 		super(key);
 	}
 
-	public static <EK extends EntityKey<EK>> Supplier<DefaultEntity<EK>> supplier(Class<EK> entityKeyClass){
-		return () -> new DefaultEntity<>(ReflectionTool.create(entityKeyClass));
+	public static <EK extends EntityKey<EK>> Supplier<DefaultEntity<EK>> supplier(Supplier<EK> entityKeySupplier){
+		return () -> new DefaultEntity<>(entityKeySupplier.get());
 	}
 
 }

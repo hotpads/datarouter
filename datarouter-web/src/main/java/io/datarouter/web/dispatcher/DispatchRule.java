@@ -15,7 +15,9 @@
  */
 package io.datarouter.web.dispatcher;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -26,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.util.lang.ObjectTool;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
@@ -34,6 +36,7 @@ import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.HandlerDecoder;
 import io.datarouter.web.security.CsrfValidator;
 import io.datarouter.web.security.SecurityValidationResult;
+import io.datarouter.web.security.SecurityValidator;
 import io.datarouter.web.security.SignatureValidator;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
@@ -47,6 +50,7 @@ public class DispatchRule{
 	private final BaseRouteSet routeSet;
 	private final String regex;
 	private final Pattern pattern;
+	private final List<SecurityValidator> securityValidators;
 
 	private Class<? extends BaseHandler> handlerClass;
 	private ApiKeyPredicate apiKeyPredicate;
@@ -58,18 +62,25 @@ public class DispatchRule{
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder = DefaultEncoder.class;
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder = DefaultDecoder.class;
 	private String persistentString;
+	private boolean transmitsPii;
 
 	public DispatchRule(BaseRouteSet routeSet, String regex){
 		this.routeSet = routeSet;
 		this.regex = regex;
 		this.pattern = Pattern.compile(regex);
 		this.allowedRoles = new HashSet<>();
+		this.securityValidators = new ArrayList<>();
 	}
 
 	/*---------------------- builder pattern methods ------------------------*/
 
 	public DispatchRule withHandler(Class<? extends BaseHandler> handlerClass){
 		this.handlerClass = handlerClass;
+		return this;
+	}
+
+	public DispatchRule addSecurityValidator(SecurityValidator securityValidator){
+		this.securityValidators.add(securityValidator);
 		return this;
 	}
 
@@ -117,6 +128,11 @@ public class DispatchRule{
 
 	public DispatchRule withPersistentString(String persistentString){
 		this.persistentString = persistentString;
+		return this;
+	}
+
+	public DispatchRule transmitsPii(){
+		transmitsPii = true;
 		return this;
 	}
 
@@ -178,13 +194,22 @@ public class DispatchRule{
 		return Optional.ofNullable(persistentString);
 	}
 
+	public boolean doesTransmitPii(){
+		return transmitsPii;
+	}
+
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){
-		boolean result = apiKeyPredicate == null || apiKeyPredicate.check(this, request);
-		String message = "API key check failed";
-		if(!result){
+		Pair<Boolean,String> result;
+		if(apiKeyPredicate == null){
+			result = new Pair<>(true, "");
+		}else{
+			result = apiKeyPredicate.check(this, request);
+		}
+		String message = "API key check failed, " + result.getRight();
+		if(!result.getLeft()){
 			logFailure(message, request);
 		}
-		return new SecurityValidationResult(request, result, message);
+		return new SecurityValidationResult(request, result.getLeft(), message);
 	}
 
 	private SecurityValidationResult checkCsrfToken(HttpServletRequest request){
@@ -212,7 +237,9 @@ public class DispatchRule{
 			result = signatureValidator.validate(request);
 		}
 		if(!result.isSuccess()){
-			result.setFailureMessage(ObjectTool.nullSafe(result.getFailureMessage(), "Signature validation failed"));
+			result.setFailureMessage(Optional.ofNullable(result)
+					.map(SecurityValidationResult::getFailureMessage)
+					.orElse("Signature validation failed"));
 			logFailure(result.getFailureMessage(), request);
 		}
 		return result;
@@ -228,14 +255,19 @@ public class DispatchRule{
 	}
 
 	private void logFailure(String message, HttpServletRequest request){
-		logger.warn(message + ". IP={} URI={}", RequestTool.getIpAddress(request), request.getRequestURI());
+		logger.warn(message + ". IP={} URI={} userAgent={}", RequestTool.getIpAddress(request),
+				request.getRequestURI(), RequestTool.getUserAgent(request));
 	}
 
 	public SecurityValidationResult applySecurityValidation(HttpServletRequest request){
-		return SecurityValidationResult.of(this::checkApiKey, request)
+		SecurityValidationResult result = SecurityValidationResult.of(this::checkApiKey, request)
 				.combinedWith(this::checkCsrfToken)
 				.combinedWith(this::checkSignature)
 				.combinedWith(this::checkHttps);
+		for(SecurityValidator securityValidator : securityValidators){
+			result = result.combinedWith(securityValidator::check);
+		}
+		return result;
 	}
 
 	public boolean checkRoles(HttpServletRequest request){

@@ -33,18 +33,18 @@ import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
 
 public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey,DatarouterUserHistory>{
-	private DatarouterUserHistoryKey key;
+
 	private Long editor;
 	private DatarouterUserChangeType changeType;
 	private String changes;
 
 	public DatarouterUserHistory(){
-		this.key = new DatarouterUserHistoryKey();
+		super(new DatarouterUserHistoryKey());
 	}
 
 	public DatarouterUserHistory(Long userId, Date time, Long editor, DatarouterUserChangeType changeType,
 			String changes){
-		this.key = new DatarouterUserHistoryKey(userId, time);
+		super(new DatarouterUserHistoryKey(userId, time));
 		this.editor = editor;
 		this.changeType = changeType;
 		this.changes = changes;
@@ -55,12 +55,13 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 		public static final LongFieldKey editor = new LongFieldKey("editor");
 		public static final StringEnumFieldKey<DatarouterUserChangeType> changeType =
 				new StringEnumFieldKey<>("changeType", DatarouterUserChangeType.class);
-		public static final StringFieldKey changes = new StringFieldKey("changes").withSize(CommonFieldSizes
-				.MAX_LENGTH_TEXT);
+		public static final StringFieldKey changes = new StringFieldKey("changes")
+				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 	}
 
-	public static class DatarouterUserHistoryFielder extends
-			BaseDatabeanFielder<DatarouterUserHistoryKey,DatarouterUserHistory>{
+	public static class DatarouterUserHistoryFielder
+	extends BaseDatabeanFielder<DatarouterUserHistoryKey,DatarouterUserHistory>{
+
 		public DatarouterUserHistoryFielder(){
 			super(DatarouterUserHistoryKey.class);
 		}
@@ -77,11 +78,6 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 	@Override
 	public Class<DatarouterUserHistoryKey> getKeyClass(){
 		return DatarouterUserHistoryKey.class;
-	}
-
-	@Override
-	public DatarouterUserHistoryKey getKey(){
-		return key;
 	}
 
 	public Long getEditor(){
@@ -120,7 +116,7 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 
 		private final String persistentString;
 
-		private DatarouterUserChangeType(String persistentString){
+		DatarouterUserChangeType(String persistentString){
 			this.persistentString = persistentString;
 		}
 

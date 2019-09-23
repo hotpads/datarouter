@@ -26,8 +26,6 @@ import org.apache.http.util.EntityUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.web.util.http.CachingHttpServletRequest;
-
 public class CachingHttpServletRequestTests{
 
 	@Test

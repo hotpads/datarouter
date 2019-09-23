@@ -22,9 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.RandomAccess;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.iterable.IterableTool;
@@ -240,43 +237,4 @@ public class ListTool{
 		return copyOfRange(in, 0, Math.max(0, indexN));
 	}
 
-	/*-------------------------------- test ---------------------------------*/
-
-	public static class ListToolTests{
-
-		@Test
-		public void copyOfRange(){
-			List<Integer> resultA = ListTool.createLinkedList(1, 2, 3, 4, 5);
-			List<Integer> resultB = ListTool.copyOfRange(resultA, 1, 3);
-			Assert.assertEquals(resultB.toArray(), new Integer[]{2, 3});
-			List<Integer> resultC = ListTool.copyOfRange(resultA, 4, 27);
-			Assert.assertEquals(resultC.toArray(), new Integer[]{5});
-
-			List<Integer> one = ListTool.createLinkedList(1);
-			Assert.assertEquals(ListTool.copyOfRange(one, 0, 0).size(), 0);
-			Assert.assertEquals(ListTool.copyOfRange(one, 0, -1).size(), 0);
-			Assert.assertEquals(ListTool.copyOfRange(one, 0, 1).size(), 1);
-			Assert.assertEquals(ListTool.copyOfRange(one, 0, 2).size(), 1);
-			Assert.assertEquals(ListTool.copyOfRange(one, -1, 2).size(), 0);
-		}
-
-		@Test
-		public void testGetFirstNElements(){
-			List<Integer> list1To15 = ListTool.createArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-			List<Integer> list1To10 = ListTool.getFirstNElements(list1To15, 10);
-			List<Integer> list1To5 = ListTool.getFirstNElements(list1To10, 5);
-			List<Integer> list1To5TestLimit200 = ListTool.getFirstNElements(list1To5, 200);
-			List<Integer> list1To5TestLimit0 = ListTool.getFirstNElements(list1To5TestLimit200, 0);
-			List<Integer> list1To5TestLimitNeg1 = ListTool.getFirstNElements(list1To5TestLimit200, -1);
-
-			Assert.assertEquals(list1To10.size(), 10);
-			Assert.assertEquals(list1To10.toArray(), new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-			Assert.assertEquals(list1To5.size(), 5);
-			Assert.assertEquals(list1To5.toArray(), new Integer[]{1, 2, 3, 4, 5});
-			Assert.assertEquals(list1To5.size(), list1To5TestLimit200.size());
-			Assert.assertEquals(list1To5.toArray(), list1To5TestLimit200.toArray());
-			Assert.assertEquals(list1To5TestLimit0.size(), 0);
-			Assert.assertEquals(list1To5TestLimitNeg1.size(), 0);
-		}
-	}
 }

@@ -17,14 +17,13 @@ package io.datarouter.storage.test.node.basic.sorted;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.router.BaseRouter;
 import io.datarouter.storage.router.TestRouter;
-import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 
 public class DatarouterSortedNodeTestRouter extends BaseRouter implements TestRouter{
@@ -34,20 +33,25 @@ public class DatarouterSortedNodeTestRouter extends BaseRouter implements TestRo
 	public final SortedMapStorage<SortedBeanKey,SortedBean> sortedBeanNode;
 	public final SortedBeanEntityNode sortedBeanEntityNode;
 
-	public DatarouterSortedNodeTestRouter(TestDatarouterProperties datarouterProperties, Datarouter datarouter,
-			DatarouterSettings datarouterSettings, EntityNodeFactory entityNodeFactory,
-			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams, NodeFactory nodeFactory,
-			ClientId clientId, boolean entity){
-		super(datarouter, datarouterProperties, nodeFactory, datarouterSettings);
+	public DatarouterSortedNodeTestRouter(
+			Datarouter datarouter,
+			EntityNodeFactory entityNodeFactory,
+			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams,
+			NodeFactory nodeFactory,
+			WideNodeFactory wideNodeFactory,
+			ClientId clientId,
+			boolean entity){
+		super(datarouter);
 
 		String tableName = TABLE_NAME_SortedBean;
 		if(entity){
-			sortedBeanEntityNode = new SortedBeanEntityNode(entityNodeFactory, nodeFactory, this, clientId,
+			sortedBeanEntityNode = new SortedBeanEntityNode(entityNodeFactory, wideNodeFactory, datarouter, clientId,
 					entityNodeParams);
 			sortedBeanNode = sortedBeanEntityNode.sortedBean;
 		}else{
 			sortedBeanEntityNode = null;
-			sortedBeanNode = create(clientId, SortedBean::new, SortedBeanFielder::new)
+			sortedBeanNode = nodeFactory.create(clientId, SortedBeanEntityKey::new, SortedBean::new,
+					SortedBeanFielder::new)
 					.withTableName(tableName)
 					.buildAndRegister();
 		}

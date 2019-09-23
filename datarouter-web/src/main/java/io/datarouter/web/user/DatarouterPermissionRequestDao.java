@@ -16,13 +16,14 @@
 package io.datarouter.web.user;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
 import io.datarouter.web.user.databean.DatarouterPermissionRequestKey;
 import io.datarouter.web.user.databean.DatarouterUserKey;
@@ -34,19 +35,19 @@ public class DatarouterPermissionRequestDao{
 	private DatarouterUserNodes userNodes;
 
 
-	public Stream<DatarouterPermissionRequest> streamOpenPermissionRequests(){
-		return userNodes.getPermissionRequestNode().stream(null, null)
-				.filter(request -> request.getResolution() == null);
+	public Scanner<DatarouterPermissionRequest> scanOpenPermissionRequests(){
+		return userNodes.getPermissionRequestNode().scan()
+				.include(request -> request.getResolution() == null);
 	}
 
-	public Stream<DatarouterPermissionRequest> streamOpenPermissionRequestsForUser(Long userId){
-		return streamPermissionRequestsForUser(userId)
-				.filter(request -> request.getResolution() == null);
+	public Scanner<DatarouterPermissionRequest> streamOpenPermissionRequestsForUser(Long userId){
+		Objects.requireNonNull(userId);
+		return scanPermissionRequestsForUser(userId)
+				.include(request -> request.getResolution() == null);
 	}
 
-	public Stream<DatarouterPermissionRequest> streamPermissionRequestsForUser(Long userId){
-		return userNodes.getPermissionRequestNode().streamWithPrefix(new DatarouterPermissionRequestKey(userId, null),
-				null);
+	public Scanner<DatarouterPermissionRequest> scanPermissionRequestsForUser(Long userId){
+		return userNodes.getPermissionRequestNode().scanWithPrefix(new DatarouterPermissionRequestKey(userId, null));
 	}
 
 	public void createPermissionRequest(DatarouterPermissionRequest request){
@@ -54,17 +55,25 @@ public class DatarouterPermissionRequestDao{
 		List<DatarouterPermissionRequest> requestsToPut = streamOpenPermissionRequestsForUser(request.getKey()
 				.getUserId())
 				.map(DatarouterPermissionRequest::supercede)
-				.collect(Collectors.toList());
+				.list();
 		requestsToPut.add(request);
 
-		userNodes.getPermissionRequestNode().putMulti(requestsToPut, null);
+		userNodes.getPermissionRequestNode().putMulti(requestsToPut);
+	}
+
+	public void declineAll(Long userId){
+		List<DatarouterPermissionRequest> requestsToPut = streamOpenPermissionRequestsForUser(userId)
+				.map(DatarouterPermissionRequest::decline)
+				.list();
+		userNodes.getPermissionRequestNode().putMulti(requestsToPut);
 	}
 
 	public Set<DatarouterUserKey> getUserKeysWithPermissionRequests(){
-		return streamOpenPermissionRequests()
+		return scanOpenPermissionRequests()
 				.map(DatarouterPermissionRequest::getKey)
 				.map(DatarouterPermissionRequestKey::getUserId)
 				.map(DatarouterUserKey::new)
 				.collect(Collectors.toSet());
 	}
+
 }

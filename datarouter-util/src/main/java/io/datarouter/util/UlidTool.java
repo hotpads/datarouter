@@ -16,6 +16,8 @@
 package io.datarouter.util;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Random;
 
@@ -63,6 +65,11 @@ public class UlidTool{
 			buffer[i] = ENCODING_CHARS[0];
 		}
 		return new String(buffer);
+	}
+
+	public static String createFirstUlidUtc(LocalDateTime localDateTime){
+		long timestamp = localDateTime.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
+		return createFirstUlidFromTimestamp(timestamp);
 	}
 
 	private static void internalWriteCrockford(char[] buffer, long value, int count, int offset){

@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.storage.config.profile.ConfigProfile;
+import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.Require;
 import io.datarouter.util.collection.CollectionTool;
@@ -53,7 +53,7 @@ public abstract class DatarouterProperties{
 
 	private static final String ENVIRONMENT = "environment";
 	private static final String ENVIRONMENT_DOMAIN = "environmentDomain";
-	private static final String CONFIG_PROFILE = "configProfile";
+	private static final String ENVIRONMENT_TYPE = "environmentType";
 	private static final String SERVER_PUBLIC_IP = "server.publicIp";
 	private static final String SERVER_PRIVATE_IP = "server.privateIp";
 	private static final String SERVER_NAME = "server.name";
@@ -61,6 +61,7 @@ public abstract class DatarouterProperties{
 	private static final String SERVER_CLUSTER_DOMAINS = "server.clusterDomains";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
 	private static final String EC2_HYPERVISOR_UUID_FILE = "/sys/hypervisor/uuid";
+	private static final String EC2_DMI_UUID_FILE = "/sys/devices/virtual/dmi/id/product_uuid";
 	protected static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
 
 	private static final String EC2_INSTANCE_IDENTITY_DOCUMENT_URL =
@@ -74,7 +75,7 @@ public abstract class DatarouterProperties{
 
 	private final String environment;
 	private final String environmentDomain;
-	private final String configProfile;
+	private final String environmentType;
 	private final String serverName;
 	private final ServerType serverType;
 	private final String administratorEmail;
@@ -136,7 +137,7 @@ public abstract class DatarouterProperties{
 		//find remaining fields
 		this.environment = findProperty(configFileProperties, ENVIRONMENT);
 		this.environmentDomain = findProperty(configFileProperties, ENVIRONMENT_DOMAIN);
-		this.configProfile = findConfigProfile(configFileProperties);
+		this.environmentType = findEnvironmentType(configFileProperties);
 		this.serverName = findServerName(configFileProperties);
 		this.serverType = serverTypeOptions.fromPersistentString(findProperty(configFileProperties, SERVER_TYPE));
 		this.administratorEmail = findProperty(configFileProperties, ADMINISTRATOR_EMAIL);
@@ -165,13 +166,13 @@ public abstract class DatarouterProperties{
 		return null;
 	}
 
-	private String findConfigProfile(Optional<Properties> configFileProperties){
-		String configProfile = findProperty(configFileProperties, CONFIG_PROFILE);
-		if(configProfile != null){
-			return configProfile;
+	private String findEnvironmentType(Optional<Properties> configFileProperties){
+		String environmentType = findProperty(configFileProperties, ENVIRONMENT_TYPE);
+		if(environmentType != null){
+			return environmentType;
 		}
-		String defaultValue = ConfigProfile.DEVELOPMENT.get().getPersistentString();
-		logger.error("couldn't find {}, defaulting to {}", CONFIG_PROFILE, defaultValue);
+		String defaultValue = EnvironmentType.DEVELOPMENT.get().getPersistentString();
+		logger.error("couldn't find {}, defaulting to {}", ENVIRONMENT_TYPE, defaultValue);
 		return defaultValue;
 	}
 
@@ -276,15 +277,27 @@ public abstract class DatarouterProperties{
 
 	//https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
 	public boolean isEc2(boolean logError){
-		String ec2HypervisorUuid = "";
-		try{
-			ec2HypervisorUuid = FileTool.readFile(new File(EC2_HYPERVISOR_UUID_FILE));
-		}catch(IOException e){
-			if(logError){
-				logger.error("error reading EC2 hypervisor UUID file {}", e);
+		File ec2HypervisorUuidFile = new File(EC2_HYPERVISOR_UUID_FILE);
+		File ec2DmiUuidFile = new File(EC2_DMI_UUID_FILE);
+		String ec2Uuid = "";
+		if(ec2HypervisorUuidFile.exists()){
+			try{
+				ec2Uuid = FileTool.readFile(ec2HypervisorUuidFile);
+			}catch(IOException e){
+				if(logError){
+					logger.error("error reading EC2 hypervisor UUID file", e);
+				}
+			}
+		}else{
+			try{
+				ec2Uuid = FileTool.readFile(ec2DmiUuidFile);
+			}catch(IOException e){
+				if(logError){
+					logger.error("error reading EC2 DMI UUID file", e);
+				}
 			}
 		}
-		return ec2HypervisorUuid.startsWith("ec2") && curl(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, false).isPresent();
+		return ec2Uuid.toLowerCase().startsWith("ec2") && curl(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, false).isPresent();
 	}
 
 	private Optional<String> curl(String location, boolean logError){
@@ -375,8 +388,8 @@ public abstract class DatarouterProperties{
 		return environmentDomain;
 	}
 
-	public String getConfigProfile(){
-		return configProfile;
+	public String getEnvironmentType(){
+		return environmentType;
 	}
 
 	public String getWebappName(){

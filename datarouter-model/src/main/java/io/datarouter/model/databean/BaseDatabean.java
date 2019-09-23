@@ -27,6 +27,17 @@ public abstract class BaseDatabean<PK extends PrimaryKey<PK>,D extends Databean<
 
 	public static final String DEFAULT_KEY_FIELD_NAME = "key";
 
+	private final PK key;
+
+	public BaseDatabean(PK key){
+		this.key = key;
+	}
+
+	@Override
+	public final PK getKey(){
+		return key;
+	}
+
 	@Override
 	public String getDatabeanName(){
 		return getClass().getSimpleName();

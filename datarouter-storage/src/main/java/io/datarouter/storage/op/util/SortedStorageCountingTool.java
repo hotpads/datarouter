@@ -17,6 +17,9 @@ package io.datarouter.storage.op.util;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.config.Config;
@@ -24,8 +27,9 @@ import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.util.tuple.Range;
 
 public class SortedStorageCountingTool{
+	private static final Logger logger = LoggerFactory.getLogger(SortedStorageCountingTool.class);
 
-	private static final int BATCH_SIZE = 10000;
+	private static final int BATCH_SIZE = 10_000;
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> long count(SortedStorageReader<PK,D> node,
 			Range<PK> range){
@@ -43,13 +47,14 @@ public class SortedStorageCountingTool{
 		Optional<PK> currentKey;
 		do{
 			Range<PK> batchRange = new Range<>(startKey, true, range.getEnd(), range.getEndInclusive());
-			currentKey = node.streamKeys(batchRange, batchConfig).findFirst();
+			currentKey = node.scanKeys(batchRange, batchConfig).findFirst();
 			if(currentKey.isPresent()){
 				count += BATCH_SIZE;
 				startKey = currentKey.get();
+				logger.debug("node={} count={}", node, count);
 			}
 		}while(currentKey.isPresent());
-		return count += node.streamKeys(new Range<>(startKey, false, range.getEnd(), range.getEndInclusive()),
+		return count += node.scanKeys(new Range<>(startKey, false, range.getEnd(), range.getEndInclusive()),
 				new Config().setOutputBatchSize(BATCH_SIZE)).count();
 	}
 

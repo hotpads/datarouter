@@ -15,11 +15,6 @@
  */
 package io.datarouter.storage.router;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.Node;
-
 /**
  * A Router is a strongly-typed collection of Nodes. It is easy to trace all uses of the node through your code using
  * tools like Eclipse's ctrl-shift-G shortcut. The generic types on each node prevent you at compile time from
@@ -40,8 +35,4 @@ import io.datarouter.storage.node.Node;
  * Datarouter, and there is no penalty for using a Client in multiple routers.
  */
 public interface Router{
-
-	<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
-	N register(N node);
-
 }

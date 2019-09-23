@@ -29,6 +29,9 @@ import com.mysql.cj.log.Slf4JLogger;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
+import io.datarouter.instrumentation.trace.TraceSpanFinisher;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.Field;
@@ -85,7 +88,11 @@ public class MysqlTool{
 			List<PK> selectPrimaryKeys(MysqlFieldCodecFactory fieldCodecFactory, DatabeanFieldInfo<PK,D,F> fieldInfo,
 					PreparedStatement ps){
 		try{
-			ps.execute();
+			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
+					+ " selectPrimaryKeys PreparedStatement.execute";
+			try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+				ps.execute();
+			}
 			ResultSet rs = ps.getResultSet();
 			List<PK> primaryKeys = new ArrayList<>();
 			while(rs.next()){
@@ -103,7 +110,10 @@ public class MysqlTool{
 	List<D> selectDatabeans(MysqlFieldCodecFactory fieldCodecFactory, Supplier<D> databeanSupplier,
 			List<Field<?>> fields, PreparedStatement ps){
 		try{
-			ps.execute();
+			String spanName = databeanSupplier.get().getDatabeanName() + " selectDatabeans PreparedStatement.execute";
+			try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+				ps.execute();
+			}
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = new ArrayList<>();
 			while(rs.next()){
@@ -125,7 +135,11 @@ public class MysqlTool{
 	List<IK> selectIndexEntryKeys(MysqlFieldCodecFactory fieldCodecFactory, IndexEntryFieldInfo<IK,IE,IF> fieldInfo,
 			PreparedStatement ps){
 		try{
-			ps.execute();
+			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
+					+ " selectIndexEntryKeys PreparedStatement.execute";
+			try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+				ps.execute();
+			}
 			ResultSet rs = ps.getResultSet();
 			List<IK> keys = new ArrayList<>();
 			while(rs.next()){
@@ -141,7 +155,8 @@ public class MysqlTool{
 	}
 
 	public static int update(PreparedStatement statement){
-		try{
+		String spanName = "update PreparedStatement.execute";
+		try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
 			return statement.executeUpdate();
 		}catch(SQLException e){
 			String message = "error executing sql:" + statement;

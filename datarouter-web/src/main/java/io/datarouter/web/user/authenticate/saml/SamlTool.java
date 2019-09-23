@@ -100,6 +100,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import io.datarouter.util.Require;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.security.RandomIdentifierGenerationStrategy;
 
@@ -378,6 +379,10 @@ public class SamlTool{
 
 	public static String generateSecureRandomId(){
 		return secureRandomIdGenerator.generateIdentifier();
+	}
+
+	public static void throwUnlessHttps(HttpServletRequest request){
+		Require.equals("https", request.getScheme().toLowerCase(), "https is required for SAML authentication.");
 	}
 
 }

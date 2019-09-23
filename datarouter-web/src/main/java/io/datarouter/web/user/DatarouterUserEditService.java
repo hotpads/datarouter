@@ -29,9 +29,9 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.storage.util.DatarouterAdministratorEmailService;
+import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettingRoot;
+import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserHistory;
 import io.datarouter.web.user.databean.DatarouterUserHistory.DatarouterUserChangeType;
@@ -45,11 +45,11 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterAdministratorEmailService adminEmailService;
 	@Inject
-	private DatarouterSamlSettingRoot samlSettings;
-	@Inject
 	private DatarouterUserHistoryService userHistoryService;
 	@Inject
 	private DatarouterUserDao datarouterUserDao;
+	@Inject
+	private PermissionRequestAdditionalEmails permissionRequestAdditionalEmails;
 
 	public void editUser(DatarouterUser user, DatarouterUser editor, String[] requestedRoles, Boolean enabled,
 			String signinUrl, List<String> requestedAccounts, List<String> currentAccounts){
@@ -106,7 +106,7 @@ public class DatarouterUserEditService{
 		Set<String> recipients = Arrays.stream(users)
 				.map(DatarouterUser::getUsername)
 				.collect(Collectors.toSet());
-		recipients.add(samlSettings.permissionRequestEmail.get());
+		permissionRequestAdditionalEmails.get().forEach(recipients::add);
 		adminEmailService.getAdministratorEmailAddresses().forEach(recipients::add);
 		return String.join(",", recipients);
 	}

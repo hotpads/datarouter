@@ -17,9 +17,11 @@ package io.datarouter.storage.serialize.fieldcache;
 
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.FieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.util.lang.ReflectionTool;
@@ -34,6 +36,8 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 	private final Class<PK> primaryKeyClass;
 	private final List<Field<?>> fields;
 	private final List<Field<?>> primaryKeyFields;
+	private final List<String> primaryKeyFieldColumnNames;
+	private final List<String> fieldColumnNames;
 
 	public IndexEntryFieldInfo(String indexName, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier){
 		this.indexName = indexName;
@@ -44,6 +48,15 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 		this.primaryKeyClass = sampleDatabean.getKeyClass();
 		this.fields = sampleFielder.getFields(sampleDatabean);
 		this.primaryKeyFields = ReflectionTool.create(primaryKeyClass).getFields();
+		this.primaryKeyFieldColumnNames = createFieldColumnNames(this.primaryKeyFields);
+		this.fieldColumnNames = createFieldColumnNames(this.fields);
+	}
+
+	private List<String> createFieldColumnNames(List<Field<?>> fields){
+		return fields.stream()
+				.map(Field::getKey)
+				.map(FieldKey::getColumnName)
+				.collect(Collectors.toList());
 	}
 
 	public String getIndexName(){
@@ -77,5 +90,14 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 	public List<Field<?>> getPrimaryKeyFields(){
 		return primaryKeyFields;
 	}
+
+	public List<String> getPrimaryKeyFieldColumnNames(){
+		return primaryKeyFieldColumnNames;
+	}
+
+	public List<String> getFieldColumnNames(){
+		return fieldColumnNames;
+	}
+
 
 }

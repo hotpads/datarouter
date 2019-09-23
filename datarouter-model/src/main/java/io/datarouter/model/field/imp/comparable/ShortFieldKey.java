@@ -17,7 +17,7 @@ package io.datarouter.model.field.imp.comparable;
 
 import io.datarouter.model.field.PrimitiveFieldKey;
 
-public class ShortFieldKey extends PrimitiveFieldKey<Short>{
+public class ShortFieldKey extends PrimitiveFieldKey<Short,ShortFieldKey>{
 
 	public ShortFieldKey(String name){
 		super(name, Short.class);

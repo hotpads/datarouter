@@ -23,7 +23,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.counter.QueueStorageWriterCounterAdapter;
-import io.datarouter.storage.node.op.raw.GroupQueueStorage.GroupQueueStorageNode;
 import io.datarouter.storage.node.op.raw.GroupQueueStorage.PhysicalGroupQueueStorageNode;
 import io.datarouter.storage.node.op.raw.QueueStorage;
 import io.datarouter.storage.node.op.raw.read.QueueStorageReader;
@@ -36,7 +35,7 @@ public class PhysicalGroupQueueStorageCounterAdapter<
 		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalGroupQueueStorageNode<PK,D,F>>
 extends QueueStorageWriterCounterAdapter<PK,D,F,N>
-implements GroupQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
+implements PhysicalGroupQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 
 	public PhysicalGroupQueueStorageCounterAdapter(N backingNode){
 		super(backingNode);

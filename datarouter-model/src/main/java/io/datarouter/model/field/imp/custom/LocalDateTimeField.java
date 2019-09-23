@@ -42,7 +42,7 @@ import io.datarouter.util.string.StringTool;
  * ignores the nanoseconds field
  *
  */
-public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime>{
+public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime,LocalDateTimeFieldKey>{
 
 	private static final int NUM_BYTES = 15;
 	private static final int TOTAL_NUM_FRACTIONAL_SECONDS = 9;
@@ -143,13 +143,13 @@ public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime>{
 
 		@Test
 		public void testParseStringEncodedValueButDoNotSetWithTimeZone(){
-			String dateStrEst = "2016-06-22 19:20:14.100"; //EST
-			String dateStrPst = "2016-06-22 16:20:14.100"; //PST
+			String dateStrEst = "2016-06-22 19:20:14.100"; // EST
+			String dateStrPst = "2016-06-22 16:20:14.100"; // PST
 			LocalDateTimeField field = new LocalDateTimeField(new LocalDateTimeFieldKey("test"), null);
-			ZonedDateTime zonedDateTimeEst = field.parseStringEncodedValueButDoNotSet(dateStrEst)
-					.atZone(ZoneId.of("America/New_York"));
-			ZonedDateTime zonedDateTimePst = field.parseStringEncodedValueButDoNotSet(dateStrPst)
-					.atZone(ZoneId.of("America/Los_Angeles"));
+			ZonedDateTime zonedDateTimeEst = field.parseStringEncodedValueButDoNotSet(dateStrEst).atZone(ZoneId.of(
+					"America/New_York"));
+			ZonedDateTime zonedDateTimePst = field.parseStringEncodedValueButDoNotSet(dateStrPst).atZone(ZoneId.of(
+					"America/Los_Angeles"));
 			Assert.assertEquals(zonedDateTimeEst.toInstant(), zonedDateTimePst.toInstant());
 			Assert.assertEquals(zonedDateTimePst.toInstant().toEpochMilli(), 1466637614100L);
 			Assert.assertEquals(zonedDateTimeEst.toInstant().toEpochMilli(), 1466637614100L);

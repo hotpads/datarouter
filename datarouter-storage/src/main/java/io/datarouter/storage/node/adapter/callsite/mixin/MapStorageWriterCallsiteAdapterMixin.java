@@ -36,56 +36,56 @@ extends MapStorageWriter<PK,D>, CallsiteAdapter{
 
 	@Override
 	public default void put(D databean, Config config){
-		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
+		config.setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
-			getBackingNode().put(databean, nullSafeConfig);
+			getBackingNode().put(databean, config);
 		}finally{
-			recordCallsite(nullSafeConfig, startNs, 1);
+			recordCallsite(config, startNs, 1);
 		}
 	}
 
 	@Override
 	public default void putMulti(Collection<D> databeans, Config config){
-		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
+		config.setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
-			getBackingNode().putMulti(databeans, nullSafeConfig);
+			getBackingNode().putMulti(databeans, config);
 		}finally{
-			recordCollectionCallsite(nullSafeConfig, startNs, databeans);
+			recordCollectionCallsite(config, startNs, databeans);
 		}
 	}
 
 	@Override
 	public default void delete(PK key, Config config){
-		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
+		config.setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
-			getBackingNode().delete(key, nullSafeConfig);
+			getBackingNode().delete(key, config);
 		}finally{
-			recordCallsite(nullSafeConfig, startNs, 1);
+			recordCallsite(config, startNs, 1);
 		}
 	}
 
 	@Override
 	public default void deleteMulti(Collection<PK> keys, Config config){
-		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
+		config.setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
-			getBackingNode().deleteMulti(keys, nullSafeConfig);
+			getBackingNode().deleteMulti(keys, config);
 		}finally{
-			recordCollectionCallsite(nullSafeConfig, startNs, keys);
+			recordCollectionCallsite(config, startNs, keys);
 		}
 	}
 
 	@Override
 	public default void deleteAll(Config config){
-		Config nullSafeConfig = Config.nullSafe(config).clone().setCallsite(getCallsite());
+		config.setCallsite(getCallsite());
 		long startNs = System.nanoTime();
 		try{
-			getBackingNode().deleteAll(nullSafeConfig);
+			getBackingNode().deleteAll(config);
 		}finally{
-			recordCallsite(nullSafeConfig, startNs, 0);
+			recordCallsite(config, startNs, 0);
 		}
 	}
 

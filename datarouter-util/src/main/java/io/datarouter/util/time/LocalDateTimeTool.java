@@ -32,7 +32,7 @@ public class LocalDateTimeTool{
 		return convertToLocalDateTime(new Date(0));
 	}
 
-	private static LocalDateTime convertToLocalDateTime(Date date){
+	public static LocalDateTime convertToLocalDateTime(Date date){
 		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 	}
 

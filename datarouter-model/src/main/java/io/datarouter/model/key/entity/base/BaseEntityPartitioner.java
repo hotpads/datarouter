@@ -17,13 +17,10 @@ package io.datarouter.model.key.entity.base;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.model.field.Field;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.util.bytes.ByteTool;
@@ -36,24 +33,26 @@ implements EntityPartitioner<EK>{
 	private static final int MAX_ONE_BYTE_NUM_PARTITIONS = 256;
 	private static final int MAX_PARTITIONS = 1 << 16;
 
-	private List<Integer> allPartitions;
-	private ArrayList<byte[]> allPrefixes;
-	private byte[][] allPrefixesArray;
+	private final int numPartitions;
+	private final List<Integer> allPartitions;
+	private final ArrayList<byte[]> allPrefixes;
+	private final byte[][] allPrefixesArray;
 
 
 	/*------------- construct -------------*/
 
-	public BaseEntityPartitioner(){
+	public BaseEntityPartitioner(int numPartitions){
+		this.numPartitions = numPartitions;
 		this.allPartitions = new ArrayList<>();
-		for(int i = 0; i < getNumPartitions(); ++i){
+		for(int i = 0; i < numPartitions; ++i){
 			allPartitions.add(i);
 		}
 
 		this.allPrefixes = new ArrayList<>();
-		if(getNumPartitions() == 1){
+		if(numPartitions == 1){
 			allPrefixes.add(new byte[0]);
 		}else{
-			for(int i = 0; i < getNumPartitions(); ++i){
+			for(int i = 0; i < numPartitions; ++i){
 				allPrefixes.add(getPrefix(i));
 			}
 		}
@@ -67,18 +66,23 @@ implements EntityPartitioner<EK>{
 	/*------------- methods -------------*/
 
 	@Override
+	public final int getNumPartitions(){
+		return numPartitions;
+	}
+
+	@Override
 	public List<Integer> getAllPartitions(){
 		return allPartitions;
 	}
 
 	@Override
 	public boolean isLastPartition(int partition){
-		return partition == getNumPartitions() - 1;
+		return partition == numPartitions - 1;
 	}
 
 	@Override
 	public int getNumPrefixBytes(){
-		return getNumPrefixBytesStatic(getNumPartitions());
+		return getNumPrefixBytesStatic(numPartitions);
 	}
 
 	@Override
@@ -127,26 +131,6 @@ implements EntityPartitioner<EK>{
 	private int getPartition(byte[] bytes){
 		byte[] fourBytePrefix = ByteTool.padPrefix(bytes, 4);
 		return IntegerByteTool.fromRawBytes(fourBytePrefix, 0);
-	}
-
-	/*------------ standard hashing ---------------*/
-
-	protected int calcPartition(EK ek, Function<String,Long> hashFunction){
-		String hashInput = makeHashInput(ek);
-		long longHash = hashFunction.apply(hashInput);
-		return calcPartitionFromLongHash(longHash);
-	}
-
-	private String makeHashInput(EK ek){
-		return ek.getFields().stream()
-				.map(Field::getValue)
-				.map(Object::toString)
-				.collect(Collectors.joining(""));
-	}
-
-	private int calcPartitionFromLongHash(long hash){
-		long longPartition = hash % getNumPartitions();
-		return (int)longPartition;
 	}
 
 	/*------------- for testing -------------*/

@@ -21,4 +21,13 @@ public interface CountPublisher{
 
 	PublishingResponseDto add(CountBatchDto countBatchDto);
 
+	public static class NoOpCountPublisher implements CountPublisher{
+
+		@Override
+		public PublishingResponseDto add(CountBatchDto countBatchDto){
+			return PublishingResponseDto.NO_OP;
+		}
+
+	}
+
 }

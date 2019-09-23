@@ -20,7 +20,7 @@ import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.string.StringTool;
 
 //recognizes -128 to -1 using two's complement.  therefore max value is 127
-public class SignedByteField extends BasePrimitiveField<Byte>{
+public class SignedByteField extends BasePrimitiveField<Byte,SignedByteFieldKey>{
 
 	public SignedByteField(SignedByteFieldKey key, Byte value){
 		super(key, value);

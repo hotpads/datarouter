@@ -165,4 +165,5 @@ public class DatarouterEnumTool{
 		validated.set(listResult);
 		return validated;
 	}
+
 }

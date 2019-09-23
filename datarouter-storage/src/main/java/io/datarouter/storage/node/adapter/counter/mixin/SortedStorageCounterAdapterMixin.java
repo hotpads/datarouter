@@ -20,12 +20,12 @@ import java.util.Collection;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.counter.CounterAdapter;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.storage.node.op.raw.SortedStorage.SortedStorageNode;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
-import io.datarouter.util.iterable.scanner.Scanner;
 import io.datarouter.util.tuple.Range;
 
 public interface SortedStorageCounterAdapterMixin<

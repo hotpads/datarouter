@@ -34,6 +34,10 @@ extends QueueStorageWriter<PK,D>, GroupQueueStorageReader<PK,D>{
 
 	List<D> pollMulti(Config config);
 
+	default List<D> pollMulti(){
+		return pollMulti(new Config());
+	}
+
 	public interface GroupQueueStorageNode<
 			PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,

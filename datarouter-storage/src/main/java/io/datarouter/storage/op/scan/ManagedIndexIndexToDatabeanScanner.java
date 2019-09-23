@@ -23,11 +23,11 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.BaseScanner;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
-import io.datarouter.util.iterable.BatchingIterable;
 import io.datarouter.util.iterable.IterableTool;
-import io.datarouter.util.iterable.scanner.BaseScanner;
 
 public class ManagedIndexIndexToDatabeanScanner<
 		PK extends PrimaryKey<PK>,
@@ -45,13 +45,12 @@ extends BaseScanner<D>{
 	private Iterator<IE> indexEntryIterator;
 	private Map<PK,D> keyToDatabeans;
 
-	public ManagedIndexIndexToDatabeanScanner(MapStorageReader<PK,D> mainNode, Iterable<IE> indexIterable,
+	public ManagedIndexIndexToDatabeanScanner(MapStorageReader<PK,D> mainNode, Scanner<IE> indexScanner,
 			Config config){
 		this.mainNode = mainNode;
 		this.config = config;
-		int batchSize = Config.nullSafe(config).optInputBatchSize().orElse(DEFAULT_BATCH_SIZE);
-		BatchingIterable<IE> batchingIndexIterable = new BatchingIterable<>(indexIterable, batchSize);
-		this.indexEntryBatchIterator = batchingIndexIterable.iterator();
+		int batchSize = config.optInputBatchSize().orElse(DEFAULT_BATCH_SIZE);
+		this.indexEntryBatchIterator = indexScanner.batch(batchSize).iterator();
 	}
 
 	@Override

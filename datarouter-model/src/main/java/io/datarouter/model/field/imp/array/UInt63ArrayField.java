@@ -30,7 +30,7 @@ import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.serialization.GsonTool;
 
-public class UInt63ArrayField extends BaseListField<Long,List<Long>>{
+public class UInt63ArrayField extends BaseListField<Long,List<Long>,UInt63ArrayFieldKey>{
 
 	public UInt63ArrayField(UInt63ArrayFieldKey key, List<Long> value){
 		super(key, value);

@@ -16,11 +16,14 @@
 package io.datarouter.model.field.imp;
 
 import java.util.Date;
+import java.util.Map;
 
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class DateFieldKey extends PrimitiveFieldKey<Date>{
+public class DateFieldKey extends PrimitiveFieldKey<Date,DateFieldKey>{
 
 	private static final int DEFAULT_DECIMAL_SECONDS = 3;// match java's millisecond precision
 
@@ -35,14 +38,14 @@ public class DateFieldKey extends PrimitiveFieldKey<Date>{
 	}
 
 	private DateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Date defaultValue, int numDecimalSeconds){
-		super(name, columnName, nullable, Date.class, fieldGeneratorType, defaultValue);
+			Date defaultValue, int numDecimalSeconds, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, Date.class, fieldGeneratorType, defaultValue, attributes);
 		this.numDecimalSeconds = numDecimalSeconds;
 	}
 
 	public DateFieldKey withColumnName(String columnNameOverride){
 		return new DateFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue,
-				numDecimalSeconds);
+				numDecimalSeconds, attributes);
 	}
 
 	public int getNumDecimalSeconds(){
@@ -54,7 +57,7 @@ public class DateFieldKey extends PrimitiveFieldKey<Date>{
 	}
 
 	public DateFieldKey withPrecision(int precision){
-		return new DateFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, precision);
+		return new DateFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, precision, attributes);
 	}
 
 	@Override

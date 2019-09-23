@@ -21,7 +21,7 @@ import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.string.StringTool;
 
-public class LongDateField extends BasePrimitiveField<Date>{
+public class LongDateField extends BasePrimitiveField<Date,LongDateFieldKey>{
 
 	public LongDateField(LongDateFieldKey key, Date value){
 		super(key, value);

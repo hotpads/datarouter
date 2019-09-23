@@ -98,7 +98,7 @@ public enum MysqlColumnType{
 		if(specifiedLength == null){
 			return false;
 		}
-		if(this.equals(DATETIME) && specifiedLength == 0){
+		if(this == DATETIME && specifiedLength == 0){
 			return false;
 		}
 		return specifyLength;

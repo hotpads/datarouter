@@ -35,10 +35,6 @@ public class ObjectTool{
 		return first == null && second == null;
 	}
 
-	public static <T> T nullSafe(T object, T returnIfNull){
-		return object != null ? object : returnIfNull;
-	}
-
 	public static String nullSafeToString(Object object){
 		return Objects.toString(object, null);
 	}

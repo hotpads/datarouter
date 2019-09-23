@@ -30,6 +30,7 @@ public interface PortIdentifier{
 		public Integer getHttpPort(){
 			return UrlConstants.PORT_HTTP_DEV;
 		}
+
 		@Override
 		public Integer getHttpsPort(){
 			return UrlConstants.PORT_HTTPS_DEV;

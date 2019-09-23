@@ -9,14 +9,13 @@
 			display: none;
 			height: 230px;
 		}
-		.chart{
-			float:left;
-			width:320px;
+		.table-sm td{
+			padding: 0.2rem !important;
 		}
 	</style>
 	<script>
 		require(['jquery', 'goog!visualization,1,packages:[corechart]'], function(){
-			var chartNames = {
+			const chartNames = {
 				completedTaskCount: {
 					title: "Completed Tasks",
 					graphs: [
@@ -36,27 +35,22 @@
 						"queueSize"
 					]
 				}
-			};
-			var chart = {};
-			var chartData = {};
-			var drawChart = function(key) {
-				var chartDetails = chartNames[key];
-				var data = new google.visualization.DataTable();
-				data.addColumn('number', 'X');
-				for(var index in chartDetails.graphs){
-					data.addColumn('number', 'Y' + index);
+			}
+			const chart = {}
+			const chartData = {}
+			const drawChart = function(key){
+				var chartDetails = chartNames[key]
+				var data = new google.visualization.DataTable()
+				data.addColumn('number', 'X')
+				for(const graphName of chartDetails.graphs){
+					data.addColumn('number', graphName)
 				}
-
-				data.addRows(chartData[key]);
-
-				var options = {
-					width: 400,
-					height: 200,
+				data.addRows(chartData[key])
+				const options = {
 					title: chartDetails.title,
 					legend: 'none'
-				};
-
-				chart[key].draw(data, options);
+				}
+				chart[key].draw(data, options)
 			}
 			var refresh = function(){
 				if(!$('#auto-refresh').is(':checked')){
@@ -78,56 +72,57 @@
 						this.queueSize = this.queueSize === "MAX" ? 2147483647 : parseInt(this.queueSize);
 
 						if($('#executor-' + this.name).next().find('div').length > 0){
-							for(var key in chartNames){
-								var row = [];
-								row.push(chartData[key].length + 1);
+							for(const key in chartNames){
+								const row = []
+								row.push(chartData[key].length + 1)
 								for(var graph in chartNames[key].graphs){
-									row.push(this[chartNames[key].graphs[graph]]);
+									row.push(this[chartNames[key].graphs[graph]])
 								}
-								chartData[key].push(row);
-								drawChart(key);
+								chartData[key].push(row)
+								drawChart(key)
 							}
 						}
-					});
-				});
-			};
+					})
+				})
+			}
 
 			$(document).ready(function(){
-				setInterval(refresh, 1000);
+				setInterval(refresh, 1000)
 				$('.executor-row').click(function(){
-					$('.executor-details').hide();
-					$('.executor-details').children().empty();
-					var details = $(this).next();
-					details.show();
-					details = details.children().eq(0);
-					details.empty();
-					for(var key in chartNames){
-						var chartBox = $('<div>');
-						chartBox.addClass('chart');
-						details.append(chartBox);
-						chart[key] = new google.visualization.LineChart(chartBox[0]);
-						chartData[key] = [];
+					$('.executor-details').hide()
+					$('.executor-details').children().empty()
+					let details = $(this).next()
+					details.show()
+					details = details.children().eq(0)
+					details.empty()
+					for(const key in chartNames){
+						const chartBox = $('<div>').addClass('d-inline-block').css({width: '33%'})
+						details.append(chartBox)
+						chart[key] = new google.visualization.LineChart(chartBox[0])
+						chartData[key] = []
 					}
-				});
-			});
-		});
+				})
+			})
+		})
 	</script>
 </head>
-<body class="input-no-margin">
-	<%@ include file="/jsp/menu/common-navbar.jsp"%>
-	<div class="auto-centered-container">
+<body>
+	<%@ include file="/jsp/menu/new-common-navbar.jsp"%>
+	<div class="container my-4">
 		<h1>Executors</h1>
-		<label>Auto refresh <input type="checkbox" id="auto-refresh" checked /></label>
-		<table class="http-param">
-			<tr>
-				<th>Name</th>
-				<th>Active threads</th>
-				<th>Pool size</th>
-				<th>Maximum pool size</th>
-				<th>Queue size</th>
-				<th>Remaining queue size</th>
-				<th>Completed tasks</th>
-			</tr>
+		<label><input type="checkbox" id="auto-refresh" checked> Auto refresh</label>
+		<table class="table table-sm table-bordered">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Active threads</th>
+					<th>Pool size</th>
+					<th>Maximum pool size</th>
+					<th>Queue size</th>
+					<th>Remaining queue size</th>
+					<th>Completed tasks</th>
+				</tr>
+			</thead>
 			<c:forEach items="${executors}" var="executor">
 				<tr id="executor-${executor.name}" class="executor-row">
 					<td>${executor.name}</td>

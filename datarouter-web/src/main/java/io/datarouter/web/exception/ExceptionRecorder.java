@@ -19,17 +19,19 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.storage.exception.ExceptionCategory;
 
 public interface ExceptionRecorder{
 
-	Optional<ExceptionRecord> tryRecordException(Throwable exception, String callOrigin);
-	Optional<ExceptionRecord> tryRecordException(Throwable exception, String callOrigin, ExceptionCategory category);
-	ExceptionRecord recordException(Throwable exception, ExceptionCategory category, String location, String methodName,
-			Integer lineNumber, String callOrigin);
-	Optional<ExceptionRecord> tryRecordExceptionAndHttpRequest(Throwable exception, String callOrigin,
+	Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin);
+	Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin, ExceptionCategory category);
+	ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
+			String methodName, Integer lineNumber, String callOrigin);
+	Optional<ExceptionRecordDto> tryRecordExceptionAndHttpRequest(Throwable exception, String callOrigin,
 			HttpServletRequest request);
-	ExceptionRecord recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
+	ExceptionRecordDto recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
 			Integer lineNumber, HttpServletRequest request, String callOrigin);
+	void recordHttpRequest(HttpServletRequest request);
 
 }

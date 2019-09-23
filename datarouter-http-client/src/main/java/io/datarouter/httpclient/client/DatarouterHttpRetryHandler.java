@@ -36,13 +36,14 @@ public class DatarouterHttpRetryHandler implements HttpRequestRetryHandler{
 	public boolean retryRequest(IOException exception, int executionCount, HttpContext context){
 		HttpClientContext clientContext = HttpClientContext.adapt(context);
 		boolean willRetry = HttpRetryTool.shouldRetry(context, executionCount, retryCount);
+		String requestId = (String)context.getAttribute(StandardDatarouterHttpClient.X_REQUEST_ID);
 		if(willRetry){
-			logger.warn("Request {} failure Nº {}", clientContext.getRequest().getRequestLine(), executionCount,
-					exception);
+			logger.warn("Request {} id={} failure Nº {}", clientContext.getRequest().getRequestLine(), requestId,
+					executionCount, exception);
 		}else{
 			// don't log everything, caller will get details in an Exception
-			logger.warn("Request {} failure Nº {} (final)", clientContext.getRequest().getRequestLine(),
-					executionCount);
+			logger.warn("Request {} id={} failure Nº {} (final)", clientContext.getRequest().getRequestLine(),
+					requestId, executionCount);
 		}
 		return willRetry;
 	}

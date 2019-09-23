@@ -36,4 +36,8 @@ extends NodeOps<PK,D>{
 
 	BlockingQueue<StreamRecord<PK,D>> subscribe(DatarouterStreamSubscriberConfig streamConfig, Config config);
 
+	default BlockingQueue<StreamRecord<PK,D>> subscribe(DatarouterStreamSubscriberConfig streamConfig){
+		return subscribe(streamConfig, new Config());
+	}
+
 }

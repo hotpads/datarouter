@@ -54,6 +54,8 @@ public class SchemaUpdateOptions{
 	private static final String SUFFIX_ignoreTables = ".ignoreTables";
 	private static final String SUFFIX_modifyRowFormat = ".modifyRowFormat";
 	private static final String SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation";
+	private static final String SUFFIX_modifyTtl = ".modifyTtl";
+	private static final String SUFFIX_modifyMaxVersions = ".modifyMaxVersions";
 
 	private final List<String> ignoreClients;
 	private final List<String> ignoreTables;
@@ -65,7 +67,7 @@ public class SchemaUpdateOptions{
 		try{
 			properties = PropertiesTool.parse(configFileLocation);
 		}catch(Exception e){
-			logger.warn("error parsing {}, using default schema-update options", configFileLocation);
+			logger.warn("error parsing {}, using default schema-update options", configFileLocation, e);
 			properties = new Properties();
 		}
 
@@ -130,6 +132,14 @@ public class SchemaUpdateOptions{
 
 	public boolean getModifyRowFormat(boolean printVsExecute){
 		return isPropertyTrue(printVsExecute, SUFFIX_modifyRowFormat).orElse(printVsExecute);
+	}
+
+	public boolean getModifyTtl(boolean printVsExecute){
+		return isPropertyTrue(printVsExecute, SUFFIX_modifyTtl).orElse(printVsExecute);
+	}
+
+	public boolean getModifyMaxVersions(boolean printVsExecute){
+		return isPropertyTrue(printVsExecute, SUFFIX_modifyMaxVersions).orElse(printVsExecute);
 	}
 
 	public boolean getModifyPrimaryKey(boolean printVsExecute){

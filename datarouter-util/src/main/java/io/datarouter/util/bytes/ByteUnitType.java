@@ -15,8 +15,8 @@
  */
 package io.datarouter.util.bytes;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
+import java.math.BigDecimal;
+import java.math.MathContext;
 
 public enum ByteUnitType{
 	BYTE(1L, ByteUnitName.BYTE_DEC),
@@ -41,7 +41,7 @@ public enum ByteUnitType{
 		this.unitName = unitName;
 	}
 
-	public enum ByteUnitSystem{
+	public static enum ByteUnitSystem{
 		DECIMAL(1000),
 		BINARY(1024),
 		;
@@ -58,7 +58,7 @@ public enum ByteUnitType{
 
 	}
 
-	private enum ByteUnitName{
+	private static enum ByteUnitName{
 		BYTE_DEC("B", ByteUnitSystem.DECIMAL),
 		KB("KB", ByteUnitSystem.DECIMAL),
 		MB("MB", ByteUnitSystem.DECIMAL),
@@ -92,10 +92,6 @@ public enum ByteUnitType{
 	private static final ByteUnitType[] DEC_SORTED_ASC = {BYTE, KB, MB, GB, TB, PB};
 
 	private static final ByteUnitSystem DEFAULT_UNIT_SYSTEM = ByteUnitSystem.BINARY;
-	private static final DecimalFormat DEFAULT_FORMAT = new DecimalFormat("#,##0.00");
-	static{
-		DEFAULT_FORMAT.setRoundingMode(RoundingMode.FLOOR);
-	}
 
 	/*------------------------- getters -------------------------------------*/
 
@@ -113,8 +109,9 @@ public enum ByteUnitType{
 		if(value < 0 || toByteUnit == null){
 			return null;
 		}
-		return DEFAULT_FORMAT.format(getNumBytes(value, toByteUnit)) + " " + toByteUnit.getByteUnitName()
-				.getShortName();
+		double numBytes = getNumBytes(value, toByteUnit);
+		BigDecimal bigDecimal = new BigDecimal(numBytes).round(new MathContext(3));
+		return bigDecimal.toPlainString() + " " + toByteUnit.getByteUnitName().getShortName();
 	}
 
 	public String getNumBytesDisplay(long value){
@@ -135,4 +132,5 @@ public enum ByteUnitType{
 	public ByteUnitName getByteUnitName(){
 		return unitName;
 	}
+
 }

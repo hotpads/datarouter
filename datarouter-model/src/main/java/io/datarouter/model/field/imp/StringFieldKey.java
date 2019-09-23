@@ -15,11 +15,15 @@
  */
 package io.datarouter.model.field.imp;
 
+import java.util.Map;
+
 import io.datarouter.model.field.BaseFieldKey;
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.util.CommonFieldSizes;
 
-public class StringFieldKey extends BaseFieldKey<String>{
+public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 
 	private static final int DEFAULT_MAX_SIZE = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;
 
@@ -31,21 +35,23 @@ public class StringFieldKey extends BaseFieldKey<String>{
 	}
 
 	public StringFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			String defaultValue, int size){
-		super(name, columnName, nullable, String.class, fieldGeneratorType, defaultValue);
+			String defaultValue, int size, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, String.class, fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
 	}
 
 	public StringFieldKey withSize(int sizeOverride){
-		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, sizeOverride);
+		return new StringFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, sizeOverride,
+				attributes);
 	}
 
 	public StringFieldKey withColumnName(String columnNameOverride){
-		return new StringFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, size);
+		return new StringFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue, size,
+				attributes);
 	}
 
 	public StringFieldKey notNullable(){
-		return new StringFieldKey(name, columnName, false, fieldGeneratorType, defaultValue, size);
+		return new StringFieldKey(name, columnName, false, fieldGeneratorType, defaultValue, size, attributes);
 	}
 
 	@Override

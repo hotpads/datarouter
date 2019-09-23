@@ -15,7 +15,6 @@
  */
 package io.datarouter.util.duration;
 
-
 public enum DurationUnit{
 	YEARS(0, "year"),
 	MONTHS(1, "month"),

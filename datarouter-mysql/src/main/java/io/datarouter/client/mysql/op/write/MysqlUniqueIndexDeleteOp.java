@@ -55,7 +55,7 @@ extends BaseMysqlOp<Integer>{
 
 	@Override
 	public Integer runOnce(){
-		Connection connection = getConnection(fieldInfo.getClientId());
+		Connection connection = getConnection();
 		PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, fieldInfo.getTableName(),
 				uniqueKeys, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(connection);
 		return MysqlTool.update(statement);

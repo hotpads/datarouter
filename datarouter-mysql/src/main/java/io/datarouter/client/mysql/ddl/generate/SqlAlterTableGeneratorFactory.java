@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -98,26 +98,26 @@ public class SqlAlterTableGeneratorFactory{
 			return ddlBuilder.build(alterTablePrefix);
 		}
 
-		private boolean printOrExecute(BiFunction<SchemaUpdateOptions,Boolean,Boolean> option){
-			return option.apply(schemaUpdateOptions, false) || option.apply(schemaUpdateOptions, true);
+		private boolean printOrExecute(Function<Boolean,Boolean> option){
+			return option.apply(false) || option.apply(true);
 		}
 
 		private DdlBuilder generate(SqlTableDiffGenerator diff){
 			DdlBuilder ddlBuilder = new DdlBuilder();
 
-			if(printOrExecute(SchemaUpdateOptions::getAddColumns)){
+			if(printOrExecute(schemaUpdateOptions::getAddColumns)){
 				ddlBuilder.add(schemaUpdateOptions.getAddColumns(false), getAlterTableForAddingColumns(diff
 						.getColumnsToAdd()), true);
 			}
-			if(printOrExecute(SchemaUpdateOptions::getDeleteColumns)){
+			if(printOrExecute(schemaUpdateOptions::getDeleteColumns)){
 				ddlBuilder.add(schemaUpdateOptions.getDeleteColumns(false), getAlterTableForRemovingColumns(diff
 						.getColumnsToRemove()), false);
 			}
-			if(printOrExecute(SchemaUpdateOptions::getModifyColumns)){
+			if(printOrExecute(schemaUpdateOptions::getModifyColumns)){
 				ddlBuilder.add(schemaUpdateOptions.getModifyColumns(false), getAlterTableForModifyingColumns(diff
 						.getColumnsToModify()), false);
 			}
-			if(printOrExecute(SchemaUpdateOptions::getModifyPrimaryKey) && diff.isPrimaryKeyModified()){
+			if(printOrExecute(schemaUpdateOptions::getModifyPrimaryKey) && diff.isPrimaryKeyModified()){
 				if(current.hasPrimaryKey()){
 					ddlBuilder.add(schemaUpdateOptions.getModifyPrimaryKey(false), new SqlAlterTableClause(
 							"drop primary key"), false);
@@ -126,23 +126,23 @@ public class SqlAlterTableGeneratorFactory{
 						.getPrimaryKey().getColumnNames().stream().collect(Collectors.joining(",", "add primary key (",
 								")"))), false);
 			}
-			if(printOrExecute(SchemaUpdateOptions::getDropIndexes)){
+			if(printOrExecute(schemaUpdateOptions::getDropIndexes)){
 				ddlBuilder.add(schemaUpdateOptions.getDropIndexes(false), getAlterTableForRemovingIndexes(diff
 						.getIndexesToRemove()), false);
 				ddlBuilder.add(schemaUpdateOptions.getDropIndexes(false), getAlterTableForRemovingIndexes(diff
 						.getUniqueIndexesToRemove()), false);
 			}
-			if(printOrExecute(SchemaUpdateOptions::getAddIndexes)){
+			if(printOrExecute(schemaUpdateOptions::getAddIndexes)){
 				ddlBuilder.add(schemaUpdateOptions.getAddIndexes(false), getAlterTableForAddingIndexes(diff
 						.getIndexesToAdd(), false), true);
 				ddlBuilder.add(schemaUpdateOptions.getAddIndexes(false), getAlterTableForAddingIndexes(diff
 						.getUniqueIndexesToAdd(), true), true);
 			}
-			if(printOrExecute(SchemaUpdateOptions::getModifyEngine) && diff.isEngineModified()){
+			if(printOrExecute(schemaUpdateOptions::getModifyEngine) && diff.isEngineModified()){
 				ddlBuilder.add(schemaUpdateOptions.getModifyEngine(false), new SqlAlterTableClause("engine=" + requested
 						.getEngine().toString().toLowerCase()), false);
 			}
-			if(printOrExecute(SchemaUpdateOptions::getModifyCharacterSetOrCollation) && (diff.isCharacterSetModified()
+			if(printOrExecute(schemaUpdateOptions::getModifyCharacterSetOrCollation) && (diff.isCharacterSetModified()
 					|| diff.isCollationModified())){
 				String collation = requested.getCollation().toString();
 				String characterSet = requested.getCharacterSet().toString();
@@ -150,7 +150,7 @@ public class SqlAlterTableGeneratorFactory{
 				ddlBuilder.add(schemaUpdateOptions.getModifyCharacterSetOrCollation(false), new SqlAlterTableClause(
 						alterClause), false);
 			}
-			if(printOrExecute(SchemaUpdateOptions::getModifyRowFormat) && diff.isRowFormatModified()){
+			if(printOrExecute(schemaUpdateOptions::getModifyRowFormat) && diff.isRowFormatModified()){
 				String rowFormat = requested.getRowFormat().getPersistentString();
 				ddlBuilder.add(schemaUpdateOptions.getModifyRowFormat(false), new SqlAlterTableClause("row_format="
 						+ rowFormat), false);

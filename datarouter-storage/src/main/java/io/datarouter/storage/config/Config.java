@@ -21,11 +21,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import io.datarouter.util.Require;
 import io.datarouter.util.lang.LineOfCode;
 
 public class Config implements Cloneable{
-
-	/*---------------------------- static vars ------------------------------*/
 
 	public static final int DEFAULT_INPUT_BATCH_SIZE = 100;
 	public static final int DEFAULT_OUTPUT_BATCH_SIZE = 100;
@@ -33,7 +32,7 @@ public class Config implements Cloneable{
 
 	/*-------------------------------- fields -------------------------------*/
 
-	//i am trying to move away from setting any values here, so please don't add anything to the defaults!
+	//trying to move away from setting any values here, so please don't add anything to the defaults
 
 	private Boolean useSession = true;
 
@@ -131,24 +130,14 @@ public class Config implements Cloneable{
 		return clone;
 	}
 
-	public static Config nullSafe(Config in){
-		if(in != null){
-			return in;
-		}
-		return new Config();
-	}
-
 	/*-------------------------------- limit --------------------------------*/
 
 	public Integer getLimit(){
 		return limit;
 	}
 
-	public Integer getLimitOrUse(int alternative){
-		if(limit != null){
-			return limit;
-		}
-		return alternative;
+	public Optional<Integer> optLimit(){
+		return Optional.ofNullable(limit);
 	}
 
 	public Config setLimit(Integer limit){
@@ -156,18 +145,14 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-
 	/*-------------------------------- offset -------------------------------*/
 
 	public Integer getOffset(){
 		return offset;
 	}
 
-	public Integer getOffsetOrUse(int alternative){
-		if(offset != null){
-			return offset;
-		}
-		return alternative;
+	public Optional<Integer> optOffset(){
+		return Optional.ofNullable(offset);
 	}
 
 	public Config setOffset(Integer offset){
@@ -182,6 +167,7 @@ public class Config implements Cloneable{
 	}
 
 	public Config setInputBatchSize(Integer inputBatchSize){
+		Require.isTrue(inputBatchSize == null || inputBatchSize > 0);
 		this.inputBatchSize = inputBatchSize;
 		return this;
 	}
@@ -191,6 +177,7 @@ public class Config implements Cloneable{
 	}
 
 	public Config setOutputBatchSize(Integer outputBatchSize){
+		Require.isTrue(outputBatchSize == null || outputBatchSize > 0);
 		this.outputBatchSize = outputBatchSize;
 		return this;
 	}

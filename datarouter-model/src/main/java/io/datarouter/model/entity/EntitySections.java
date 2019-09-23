@@ -30,7 +30,7 @@ import io.datarouter.util.collection.CollectionTool;
 
 public class EntitySections<EK extends EntityKey<EK>>{
 
-	private final Map<EntitySection, SortedSet<Object>> backingMap = new HashMap<>();
+	private final Map<EntitySection,SortedSet<Object>> backingMap = new HashMap<>();
 
 	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> void add(String qualifierPrefix, D databean){
 		backingMap.computeIfAbsent(new EntitySection(databean.getClass(), qualifierPrefix), $ -> new TreeSet<>())

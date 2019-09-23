@@ -19,55 +19,69 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import io.datarouter.storage.config.profile.DatarouterConfigProfile;
+import io.datarouter.storage.config.environment.DatarouterEnvironmentType;
 import io.datarouter.storage.servertype.ServerType;
 
 public class DefaultSettingValue<T>{
 
 	private T globalDefault;
-	private final Map<DatarouterConfigProfile,T> valueByProfile;
-	private final Map<DatarouterConfigProfile,Map<String,T>> valueByServerTypeByProfile;
-	private final Map<DatarouterConfigProfile,Map<String,T>> valueByServerNameByProfile;
+	private final Map<DatarouterEnvironmentType,T> valueByEnvironmentType;
+	private final Map<DatarouterEnvironmentType,Map<String,T>> valueByServerTypeByEnvironmentType;
+	private final Map<DatarouterEnvironmentType,Map<String,T>> valueByServerNameByEnvironmentType;
+	private final Map<DatarouterEnvironmentType,Map<String,T>> valueByEnvironmentNameByEnvironmentType;
 
 	public DefaultSettingValue(T globalDefault){
 		this.globalDefault = globalDefault;
-		this.valueByProfile = new HashMap<>();
-		this.valueByServerTypeByProfile = new HashMap<>();
-		this.valueByServerNameByProfile = new HashMap<>();
+		this.valueByEnvironmentType = new HashMap<>();
+		this.valueByServerTypeByEnvironmentType = new HashMap<>();
+		this.valueByServerNameByEnvironmentType = new HashMap<>();
+		this.valueByEnvironmentNameByEnvironmentType = new HashMap<>();
 	}
 
 	/*--------- builder ---------------*/
 
-	public DefaultSettingValue<T> with(DatarouterConfigProfile profile, T value){
-		valueByProfile.put(profile, value);
+	public DefaultSettingValue<T> withEnvironmentType(Supplier<DatarouterEnvironmentType> environmentType, T value){
+		return withEnvironmentType(environmentType.get(), value);
+	}
+
+	public DefaultSettingValue<T> withEnvironmentType(DatarouterEnvironmentType environmentType, T value){
+		valueByEnvironmentType.put(environmentType, value);
 		return this;
 	}
 
-	public DefaultSettingValue<T> with(DatarouterConfigProfile profile, ServerType serverType, T value){
-		valueByServerTypeByProfile.putIfAbsent(profile, new HashMap<>());
-		valueByServerTypeByProfile.get(profile).put(serverType.getPersistentString(), value);
+	public DefaultSettingValue<T> withEnvironmentName(Supplier<DatarouterEnvironmentType> environmentType,
+		String environment, T value){
+		return withEnvironmentName(environmentType.get(), environment, value);
+	}
+
+	public DefaultSettingValue<T> withEnvironmentName(DatarouterEnvironmentType environmentType, String environment,
+		T value){
+		valueByEnvironmentNameByEnvironmentType.putIfAbsent(environmentType, new HashMap<>());
+		valueByEnvironmentNameByEnvironmentType.get(environmentType).put(environment, value);
 		return this;
 	}
 
-	public DefaultSettingValue<T> with(DatarouterConfigProfile profile, String serverName, T value){
-		valueByServerNameByProfile.putIfAbsent(profile, new HashMap<>());
-		valueByServerNameByProfile.get(profile).put(serverName, value);
+	public DefaultSettingValue<T> withServerType(Supplier<DatarouterEnvironmentType> environmentType,
+			ServerType serverType, T value){
+		return withServerType(environmentType.get(), serverType, value);
+	}
+
+	public DefaultSettingValue<T> withServerType(DatarouterEnvironmentType environmentType, ServerType serverType,
+			T value){
+		valueByServerTypeByEnvironmentType.putIfAbsent(environmentType, new HashMap<>());
+		valueByServerTypeByEnvironmentType.get(environmentType).put(serverType.getPersistentString(), value);
 		return this;
 	}
 
-	/*--------- convenience ---------------*/
-
-	//Convenience method so callers can optionally save a method call.
-	public DefaultSettingValue<T> with(Supplier<DatarouterConfigProfile> profile, T value){
-		return with(profile.get(), value);
+	public DefaultSettingValue<T> withServerName(Supplier<DatarouterEnvironmentType> environmentType, String serverName,
+			T value){
+		return withServerName(environmentType.get(), serverName, value);
 	}
 
-	public DefaultSettingValue<T> with(Supplier<DatarouterConfigProfile> profile, ServerType serverType, T value){
-		return with(profile.get(), serverType, value);
-	}
-
-	public DefaultSettingValue<T> with(Supplier<DatarouterConfigProfile> profile, String serverName, T value){
-		return with(profile.get(), serverName, value);
+	public DefaultSettingValue<T> withServerName(DatarouterEnvironmentType environmentType, String serverName, T value){
+		valueByServerNameByEnvironmentType.putIfAbsent(environmentType, new HashMap<>());
+		valueByServerNameByEnvironmentType.get(environmentType).put(serverName, value);
+		return this;
 	}
 
 	/*---------- override ---------------*/
@@ -79,24 +93,28 @@ public class DefaultSettingValue<T>{
 
 	/*---------- getValues --------------*/
 
-	public Map<DatarouterConfigProfile,Map<String,T>> getValueByServerTypeByProfile(){
-		return valueByServerTypeByProfile;
+	public Map<DatarouterEnvironmentType,Map<String,T>> getValueByServerTypeByEnvironmentType(){
+		return valueByServerTypeByEnvironmentType;
 	}
 
-	public Map<DatarouterConfigProfile,Map<String,T>> getValueByServerNameByProfile(){
-		return valueByServerNameByProfile;
+	public Map<DatarouterEnvironmentType,Map<String,T>> getValueByServerNameByEnvironmentType(){
+		return valueByServerNameByEnvironmentType;
 	}
 
-	public Map<DatarouterConfigProfile,T> getValueByProfile(){
-		return valueByProfile;
+	public Map<DatarouterEnvironmentType,Map<String,T>> getValueByEnvironmentNameByEnvironmentType(){
+		return valueByEnvironmentNameByEnvironmentType;
 	}
 
-	public Map<String,T> getValueByServerType(DatarouterConfigProfile configProfile){
-		return valueByServerTypeByProfile.get(configProfile);
+	public Map<DatarouterEnvironmentType,T> getValueByEnvironmentType(){
+		return valueByEnvironmentType;
 	}
 
-	public Map<String,T> getValueByServerName(DatarouterConfigProfile configProfile){
-		return valueByServerNameByProfile.get(configProfile);
+	public Map<String,T> getValueByServerType(DatarouterEnvironmentType environmentType){
+		return valueByServerTypeByEnvironmentType.get(environmentType);
+	}
+
+	public Map<String,T> getValueByServerName(DatarouterEnvironmentType environmentType){
+		return valueByServerNameByEnvironmentType.get(environmentType);
 	}
 
 	/*--------- getValue ---------------*/
@@ -105,31 +123,40 @@ public class DefaultSettingValue<T>{
 		return globalDefault;
 	}
 
-	public T getValue(DatarouterConfigProfile profile, ServerType serverType, String serverName){
-		String serverTypeString = serverType == null ? null : serverType.getPersistentString();
-		return getValue(profile, serverTypeString, serverName);
+	public T getValue(String environmentTypeString, String environmentName, ServerType serverType, String serverName){
+		return getValue(new DatarouterEnvironmentType(environmentTypeString), environmentName, serverType, serverName);
 	}
 
-	public T getValue(DatarouterConfigProfile profile, String serverTypeString, String serverName){
-		Map<String,T> valueByServerType = valueByServerTypeByProfile.get(profile);
+	public T getValue(DatarouterEnvironmentType environmentType, String environmentName, ServerType serverType,
+			String serverName){
+		String serverTypeString = serverType == null ? null : serverType.getPersistentString();
+		return getValue(environmentType, environmentName, serverTypeString, serverName);
+	}
+
+	public T getValue(DatarouterEnvironmentType environmentType, String environmentName, String serverTypeString,
+			String serverName){
+		Map<String, T> valueByEnvironmentType = valueByEnvironmentNameByEnvironmentType.get(environmentType);
+		if(valueByEnvironmentType != null){
+			T value = valueByEnvironmentType.get(environmentName);
+			if(value != null){
+				return value;
+			}
+		}
+		Map<String,T> valueByServerType = valueByServerTypeByEnvironmentType.get(environmentType);
 		if(valueByServerType != null){
 			T value = valueByServerType.get(serverTypeString);
 			if(value != null){
 				return value;
 			}
 		}
-		Map<String,T> valueByServerName = valueByServerNameByProfile.get(profile);
+		Map<String,T> valueByServerName = valueByServerNameByEnvironmentType.get(environmentType);
 		if(valueByServerName != null){
 			T value = valueByServerName.get(serverName);
 			if(value != null){
 				return value;
 			}
 		}
-		return valueByProfile.getOrDefault(profile, globalDefault);
-	}
-
-	public T getValue(String configProfileString, ServerType serverType, String serverName){
-		return getValue(new DatarouterConfigProfile(configProfileString), serverType, serverName);
+		return this.valueByEnvironmentType.getOrDefault(environmentType, globalDefault);
 	}
 
 }

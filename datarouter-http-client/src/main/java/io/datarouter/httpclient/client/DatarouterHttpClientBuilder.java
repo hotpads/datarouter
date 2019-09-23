@@ -64,6 +64,8 @@ public class DatarouterHttpClientBuilder{
 	private Supplier<String> apiKeySupplier;
 	private DatarouterHttpClientConfig config;
 	private boolean ignoreSsl;
+	private String circuitBreakerName;
+	private Supplier<Boolean> enableBreakers;
 
 	public DatarouterHttpClientBuilder(){
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
@@ -72,6 +74,7 @@ public class DatarouterHttpClientBuilder{
 		this.httpClientBuilder = HttpClientBuilder.create()
 				.setRedirectStrategy(new LaxRedirectStrategy());
 		this.retryCount = HttpRetryTool.DEFAULT_RETRY_COUNT;
+		this.circuitBreakerName = "";
 	}
 
 	public DatarouterHttpClient build(){
@@ -121,7 +124,8 @@ public class DatarouterHttpClientBuilder{
 			jsonSerializer = DEFAULT_SERIALIZER;
 		}
 		return new StandardDatarouterHttpClient(builtHttpClient, this.jsonSerializer, this.signatureGenerator,
-				this.csrfGenerator, this.apiKeySupplier, this.config, connectionManager);
+				this.csrfGenerator, this.apiKeySupplier, this.config, connectionManager, circuitBreakerName,
+				enableBreakers);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(int retryCount){
@@ -189,6 +193,16 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClientBuilder setValidateAfterInactivityMs(int validateAfterInactivityMs){
 		this.validateAfterInactivityMs = Optional.of(validateAfterInactivityMs);
+		return this;
+	}
+
+	public DatarouterHttpClientBuilder setCircuitBreakerName(String circuitBreakerName){
+		this.circuitBreakerName = circuitBreakerName;
+		return this;
+	}
+
+	public DatarouterHttpClientBuilder setEnableBreakers(Supplier<Boolean> enableBreakers){
+		this.enableBreakers = enableBreakers;
 		return this;
 	}
 

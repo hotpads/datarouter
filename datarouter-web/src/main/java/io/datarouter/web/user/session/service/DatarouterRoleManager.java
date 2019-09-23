@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.util.array.ArrayTool;
@@ -28,6 +29,15 @@ import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
 public class DatarouterRoleManager extends BaseRoleManager{
+
+	@Inject
+	private DatarouterRoleManager(){
+		super(DatarouterUserRole.ADMIN);
+	}
+
+	protected DatarouterRoleManager(RoleEnum<? extends RoleEnum<?>> roleEnum){
+		super(roleEnum);
+	}
 
 	@Override
 	public Set<Role> getAllRoles(){
@@ -62,7 +72,23 @@ public class DatarouterRoleManager extends BaseRoleManager{
 		return SetTool.of(
 				DatarouterUserRole.ADMIN.getRole(),
 				DatarouterUserRole.DATAROUTER_ADMIN.getRole(),
-				DatarouterUserRole.DATAROUTER_MONITORING.getRole());
+				DatarouterUserRole.DATAROUTER_JOB.getRole(),
+				DatarouterUserRole.DATAROUTER_MONITORING.getRole(),
+				DatarouterUserRole.DATAROUTER_SETTINGS.getRole(),
+				DatarouterUserRole.DATAROUTER_TOOLS.getRole());
+	}
+
+	@Override
+	protected Class<? extends RoleManagerIntegrationTests> getTestClass(){
+		return DatarouterRoleManagerIntegrationTests.class;
+	}
+
+	public static class DatarouterRoleManagerIntegrationTests extends RoleManagerIntegrationTests{
+
+		protected DatarouterRoleManagerIntegrationTests(){
+			super(new DatarouterRoleManager());
+		}
+
 	}
 
 }

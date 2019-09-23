@@ -15,11 +15,15 @@
  */
 package io.datarouter.model.field.imp.array;
 
+import java.util.Map;
+
 import io.datarouter.model.field.BaseFieldKey;
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.util.CommonFieldSizes;
 
-public class ByteArrayFieldKey extends BaseFieldKey<byte[]>{
+public class ByteArrayFieldKey extends BaseFieldKey<byte[],ByteArrayFieldKey>{
 
 	private final int size;
 
@@ -29,13 +33,13 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[]>{
 	}
 
 	private ByteArrayFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			byte[] defaultValue, int size){
-		super(name, columnName, nullable, byte[].class, fieldGeneratorType, defaultValue);
+			byte[] defaultValue, int size, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, byte[].class, fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
 	}
 
 	public ByteArrayFieldKey withSize(int size){
-		return new ByteArrayFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size);
+		return new ByteArrayFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, size, attributes);
 	}
 
 	@Override

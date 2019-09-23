@@ -18,7 +18,7 @@ package io.datarouter.model.field.imp.positive;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 
-public class UInt7Field extends BasePrimitiveField<Byte>{
+public class UInt7Field extends BasePrimitiveField<Byte,UInt7FieldKey>{
 
 	public UInt7Field(UInt7FieldKey key, Byte value){
 		super(key, value);

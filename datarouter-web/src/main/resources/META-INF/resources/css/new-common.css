@@ -1,3 +1,21 @@
 html{
 	font-size: 14px;
 }
+
+a[tabindex],
+a[href]{
+	cursor: pointer;
+}
+
+.form-group label{
+	margin-bottom: 0.2rem;
+	margin-left: 0.1rem;
+	font-weight: bold;
+}
+
+@media (max-width: 576px){
+	.mobile-friendly{
+		padding-left: 4px;
+		padding-right: 4px;
+	}
+}

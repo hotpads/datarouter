@@ -24,12 +24,11 @@ import org.testng.annotations.Guice;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
-import io.datarouter.storage.test.TestDatarouterProperties;
 
 @Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
 public abstract class BaseSortedBeanIntegrationTests{
@@ -37,13 +36,11 @@ public abstract class BaseSortedBeanIntegrationTests{
 	@Inject
 	protected Datarouter datarouter;
 	@Inject
-	private TestDatarouterProperties datarouterProperties;
-	@Inject
-	private DatarouterSettings datarouterSettings;
-	@Inject
 	private EntityNodeFactory entityNodeFactory;
 	@Inject
 	private NodeFactory nodeFactory;
+	@Inject
+	private WideNodeFactory wideNodeFactory;
 
 	protected DatarouterSortedNodeTestRouter router;
 	protected SortedMapStorage<SortedBeanKey,SortedBean> sortedNode;
@@ -51,12 +48,11 @@ public abstract class BaseSortedBeanIntegrationTests{
 
 	protected void setup(ClientId clientId, boolean entity){
 		router = new DatarouterSortedNodeTestRouter(
-				datarouterProperties,
 				datarouter,
-				datarouterSettings,
 				entityNodeFactory,
 				SortedBeanEntityNode.ENTITY_NODE_PARAMS_1,
 				nodeFactory,
+				wideNodeFactory,
 				clientId,
 				entity);
 		sortedNode = router.sortedBeanNode;
@@ -68,14 +64,14 @@ public abstract class BaseSortedBeanIntegrationTests{
 		if(!force && SortedBeans.TOTAL_RECORDS == numExistingDatabeans){
 			return;
 		}
-		sortedNode.deleteAll(null);
+		sortedNode.deleteAll();
 		Assert.assertEquals(count(), 0);
-		sortedNode.putStream(allBeans.stream(), null);
+		sortedNode.putStream(allBeans.stream());
 		Assert.assertEquals(count(), SortedBeans.TOTAL_RECORDS);
 	}
 
 	protected long count(){
-		return sortedNode.streamKeys(null, null)
+		return sortedNode.scanKeys()
 				.count();
 	}
 

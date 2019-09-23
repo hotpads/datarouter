@@ -54,18 +54,22 @@ public class PathNode{
 		return paths;
 	}
 
-	public static String toSlashedString(List<PathNode> nodes){
+	public static String toSlashedString(List<PathNode> nodes, boolean includeLeadingSlash){
 		return nodes.stream()
 				.map(pathNode -> pathNode.value)
-				.collect(Collectors.joining("/", "/", ""));
+				.collect(Collectors.joining("/", includeLeadingSlash ? "/" : "", ""));
 	}
 
 	public String toSlashedString(){
-		return toSlashedStringAfter(null);
+		return toSlashedStringAfter(null, true);
 	}
 
 	public String toSlashedStringWithTrailingSlash(){
 		return toSlashedString() + "/";
+	}
+
+	public String toSlashedStringWithoutLeadingSlash(){
+		return toSlashedStringAfter(null, false);
 	}
 
 	public static List<PathNode> nodesAfter(PathNode after, PathNode through){
@@ -79,8 +83,8 @@ public class PathNode{
 		return nodes;
 	}
 
-	public String toSlashedStringAfter(PathNode after){
-		return toSlashedString(nodesAfter(after, this));
+	public String toSlashedStringAfter(PathNode after, boolean includeLeadingSlash){
+		return toSlashedString(nodesAfter(after, this), includeLeadingSlash);
 	}
 
 	public static boolean isLeaf(PathNode pathNode){
@@ -108,7 +112,6 @@ public class PathNode{
 	}
 
 	// purposefully not usable to avoid unwanted dependencies
-	// TODO make this usable for things like unit test output
 	@Override
 	public String toString(){
 		throw new RuntimeException("PathNode::toString is unusable to avoid unwanted dependencies. PathNode.value="

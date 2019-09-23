@@ -153,8 +153,7 @@ public class DatarouterTracer implements Tracer{
 			return;
 		}
 		TraceSpanDto span = getCurrentSpan();
-		boolean addSpace = StringTool.notEmpty(span.getInfo());
-		span.setInfo(StringTool.nullSafe(span.getInfo()) + (addSpace ? " " : "") + text);
+		span.setInfo(StringTool.nullSafe(span.getInfo()) + '[' + text + ']');
 	}
 
 	@Override

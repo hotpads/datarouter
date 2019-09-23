@@ -41,18 +41,13 @@ extends BaseNodeScanner<PK,PK>{
 	}
 
 	@Override
-	protected List<PK> doLoad(Collection<Range<PK>> ranges, Config config){
+	protected List<PK> loadRanges(Collection<Range<PK>> ranges, Config config){
 		return mysqlNodeManager.getKeysInRanges(fieldInfo, ranges, config);
 	}
 
 	@Override
 	protected PK getPrimaryKey(PK pk){
 		return pk;
-	}
-
-	@Override
-	protected void setCurrentFromResult(PK result){
-		current = result;
 	}
 
 }

@@ -16,11 +16,14 @@
 package io.datarouter.model.field.imp.custom;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
+import io.datarouter.model.field.FieldKeyAttribute;
+import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
-public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime>{
+public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime,LocalDateTimeFieldKey>{
 
 	private final int numFractionalSeconds;
 
@@ -33,8 +36,9 @@ public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime>{
 	}
 
 	private LocalDateTimeFieldKey(String name, String columnName, boolean nullable,
-			FieldGeneratorType fieldGeneratorType, LocalDateTime defaultValue, int numFractionalSeconds){
-		super(name, columnName, nullable, LocalDateTime.class, fieldGeneratorType, defaultValue);
+			FieldGeneratorType fieldGeneratorType, LocalDateTime defaultValue, int numFractionalSeconds,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+		super(name, columnName, nullable, LocalDateTime.class, fieldGeneratorType, defaultValue, attributes);
 		this.numFractionalSeconds = numFractionalSeconds;
 	}
 
@@ -44,7 +48,7 @@ public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime>{
 
 	public LocalDateTimeFieldKey withColumnName(String columnNameOverride){
 		return new LocalDateTimeFieldKey(name, columnNameOverride, nullable, fieldGeneratorType, defaultValue,
-				numFractionalSeconds);
+				numFractionalSeconds, attributes);
 	}
 
 	/**
@@ -55,7 +59,7 @@ public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime>{
 			throw new RuntimeException("numFractionalSeconds cannot be less than 0 or greater than 9");
 		}
 		return new LocalDateTimeFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue,
-				numFractionalSeconds);
+				numFractionalSeconds, attributes);
 	}
 
 	@Override

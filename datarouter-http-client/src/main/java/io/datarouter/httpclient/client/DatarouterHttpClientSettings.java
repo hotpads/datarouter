@@ -17,6 +17,7 @@ package io.datarouter.httpclient.client;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.function.Supplier;
 
 public interface DatarouterHttpClientSettings{
 
@@ -25,5 +26,6 @@ public interface DatarouterHttpClientSettings{
 	String getPrivateKey();
 	Duration getTimeout();
 	Integer getNumRetries();
+	Supplier<Boolean> getEnableBreakers();
 
 }

@@ -25,7 +25,7 @@ import io.datarouter.util.DateTool;
 import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.string.StringTool;
 
-public class DateField extends BasePrimitiveField<Date>{
+public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 
 	public DateField(DateFieldKey key, Date value){
 		this(null, key, value);

@@ -77,52 +77,52 @@ public class ByteUnitTool{
 		public void testByteCountToDisplaySize(){
 			//binary system
 			long numBytes = Long.MAX_VALUE;
-			Assert.assertEquals(byteCountToDisplaySize(numBytes), "8,192.00 PiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes), "8190 PiB");
 			numBytes = 1L << 50;
-			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1.00 PiB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1,023.99 TiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1 PiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1020 TiB");
 
 			numBytes = 1L << 40;
-			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1.00 TiB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1,023.99 GiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1 TiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1020 GiB");
 
 			numBytes = 1L << 30;
-			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1.00 GiB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1,023.99 MiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1 GiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1020 MiB");
 
 			numBytes = 1L << 20;
-			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1.00 MiB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1,023.99 KiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1 MiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1020 KiB");
 
 			numBytes = 1L << 10;
-			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1.00 KiB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1,023.00 B");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes), "1 KiB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1), "1020 B");
 
-			Assert.assertEquals(byteCountToDisplaySize(0L), "0.00 B");
+			Assert.assertEquals(byteCountToDisplaySize(0L), "0 B");
 
 			//decimal system
 			numBytes = (long) Math.pow(10, 15);
-			Assert.assertEquals(byteCountToDisplaySize(Long.MAX_VALUE, ByteUnitSystem.DECIMAL), "9,223.37 PB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1.00 PB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "999.99 TB");
+			Assert.assertEquals(byteCountToDisplaySize(Long.MAX_VALUE, ByteUnitSystem.DECIMAL), "9220 PB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1 PB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "1000 TB");
 
 			numBytes = (long) Math.pow(10, 12);
-			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1.00 TB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "999.99 GB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1 TB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "1000 GB");
 
 			numBytes = (long) Math.pow(10, 9);
-			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1.00 GB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "999.99 MB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1 GB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "1000 MB");
 
 			numBytes = (long) Math.pow(10, 6);
-			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1.00 MB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "999.99 KB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1 MB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "1000 KB");
 
 			numBytes = (long) Math.pow(10, 3);
-			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1.00 KB");
-			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "999.00 B");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes, ByteUnitSystem.DECIMAL), "1 KB");
+			Assert.assertEquals(byteCountToDisplaySize(numBytes - 1, ByteUnitSystem.DECIMAL), "999 B");
 
-			Assert.assertEquals(byteCountToDisplaySize(0L, ByteUnitSystem.DECIMAL), "0.00 B");
+			Assert.assertEquals(byteCountToDisplaySize(0L, ByteUnitSystem.DECIMAL), "0 B");
 
 			Assert.assertEquals(ByteUnitType.MiB.getNumBytes() - ByteUnitType.MB.getNumBytes(), 48576);
 			Assert.assertEquals(ByteUnitType.GiB.getNumBytes() - ByteUnitType.GB.getNumBytes(), 73741824);

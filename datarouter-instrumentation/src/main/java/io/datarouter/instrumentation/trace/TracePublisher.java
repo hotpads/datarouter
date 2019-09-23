@@ -21,4 +21,13 @@ public interface TracePublisher{
 
 	PublishingResponseDto add(TraceEntityBatchDto traceEntityBatchDto);
 
+	public static class NoOpTracePublisher implements TracePublisher{
+
+		@Override
+		public PublishingResponseDto add(TraceEntityBatchDto traceEntityBatchDto){
+			return PublishingResponseDto.NO_OP;
+		}
+
+	}
+
 }

@@ -17,9 +17,6 @@ package io.datarouter.util.number;
 
 import java.util.Optional;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.string.StringTool;
 
 public class NumberTool{
@@ -155,88 +152,6 @@ public class NumberTool{
 			return in > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)in;
 		}
 		return in < Integer.MIN_VALUE ? Integer.MIN_VALUE : (int)in;
-	}
-
-	/*------------------------- tests ---------------------------------------*/
-
-	public static class NumberToolTests{
-
-		@Test
-		public void testIsNullOrZero(){
-			Byte byt = 0;
-			Short shrt = 0;
-			Integer intgr = 0;
-			Long lng = 0L;
-			Float flt = 0.0f;
-			Double dub = 0.0;
-			Assert.assertTrue(isNullOrZero(byt));
-			Assert.assertTrue(isNullOrZero(shrt));
-			Assert.assertTrue(isNullOrZero(intgr));
-			Assert.assertTrue(isNullOrZero(lng));
-			Assert.assertTrue(isNullOrZero(flt));
-			Assert.assertTrue(isNullOrZero(dub));
-		}
-
-		@Test
-		public void testParseIntegerFromNumberString(){
-			Assert.assertEquals(parseIntegerFromNumberString("5.5", null), new Integer(5));
-			Assert.assertEquals(parseIntegerFromNumberString("5.0", null), new Integer(5));
-			Assert.assertEquals(parseIntegerFromNumberString("5.9", null), new Integer(5));
-			Assert.assertEquals(parseIntegerFromNumberString("-9", null), new Integer(-9));
-			Assert.assertEquals(parseIntegerFromNumberString("-9", -9), new Integer(-9));
-			Assert.assertEquals(parseIntegerFromNumberString("5-9", null), null);
-			Assert.assertEquals(parseIntegerFromNumberString(null, null), null);
-			Assert.assertEquals(parseIntegerFromNumberString("banana", null), null);
-			Assert.assertEquals(parseIntegerFromNumberString("banana", 2), new Integer(2));
-			Assert.assertEquals(parseIntegerFromNumberString("banana", 2), new Integer(2));
-			Assert.assertEquals(parseIntegerFromNumberString("2", 3), new Integer(2));
-			Assert.assertEquals(parseIntegerFromNumberString(Integer.MAX_VALUE + "", null),
-					new Integer(Integer.MAX_VALUE));
-			Assert.assertEquals(parseIntegerFromNumberString(Integer.MIN_VALUE + "", null),
-					new Integer(Integer.MIN_VALUE));
-
-			Assert.assertEquals(parseIntegerFromNumberString("$400,000", null, true), new Integer(400000));
-			Assert.assertNull(parseIntegerFromNumberString("$400,000", null, false));
-		}
-
-		@Test
-		public void testCachedIntegers(){
-			Integer foo0 = 1000;
-			Integer bar0 = 1000;
-			Assert.assertTrue(foo0 <= bar0);
-			Assert.assertTrue(foo0 >= bar0);
-			Assert.assertFalse(foo0 == bar0);
-
-			Integer foo1 = 42;
-			Integer bar1 = 42;
-			Assert.assertTrue(foo1 <= bar1);
-			Assert.assertTrue(foo1 >= bar1);
-			Assert.assertTrue(foo1 == bar1);
-
-			Integer foo2 = 1000;
-			int bar2 = 1000;
-			Assert.assertTrue(foo2 <= bar2);
-			Assert.assertTrue(foo2 >= bar2);
-			Assert.assertTrue(foo2 == bar2);
-		}
-
-		@Test
-		public void testCastLongToInt(){
-			long maxIntValue = Integer.MAX_VALUE;
-			long maxIntValuePlusOne = maxIntValue + 1L;
-			long maxIntValueMinusOne = maxIntValue - 1L;
-			Assert.assertEquals(limitLongToIntRange(maxIntValue), Integer.MAX_VALUE);
-			Assert.assertEquals(limitLongToIntRange(maxIntValuePlusOne), Integer.MAX_VALUE);
-			Assert.assertEquals(limitLongToIntRange(maxIntValueMinusOne), Integer.MAX_VALUE - 1);
-
-			long minIntValue = Integer.MIN_VALUE;
-			long minIntValueMinusOne = minIntValue - 1L;
-			long minIntValuePlusOne = minIntValue + 1L;
-			Assert.assertEquals(limitLongToIntRange(minIntValue), Integer.MIN_VALUE);
-			Assert.assertEquals(limitLongToIntRange(minIntValueMinusOne), Integer.MIN_VALUE);
-			Assert.assertEquals(limitLongToIntRange(minIntValuePlusOne), Integer.MIN_VALUE + 1);
-		}
-
 	}
 
 }

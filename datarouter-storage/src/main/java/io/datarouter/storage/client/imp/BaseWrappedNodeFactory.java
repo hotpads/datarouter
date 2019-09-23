@@ -20,12 +20,14 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.key.entity.EntityKey;
+import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 public abstract class BaseWrappedNodeFactory<
-		PK extends PrimaryKey<PK>,
+		EK extends EntityKey<EK>,
+		PK extends EntityPrimaryKey<EK,PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends PhysicalNode<PK,D,F>>{

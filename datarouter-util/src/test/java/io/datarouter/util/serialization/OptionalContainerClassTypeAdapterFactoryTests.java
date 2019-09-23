@@ -81,7 +81,7 @@ public class OptionalContainerClassTypeAdapterFactoryTests{
 		basicOptionalDto = gsonNullable.fromJson(basic, BasicOptionalDto.class);
 		Assert.assertEquals(basicOptionalDto.mayBeNull, Optional.empty());
 		Assert.assertEquals(basicOptionalDto.someKey.get(), "someValue");
-		Assert.assertEquals(basicOptionalDto.someNumber.get(), new Integer(42));
+		Assert.assertEquals(basicOptionalDto.someNumber.get(), Integer.valueOf(42));
 	}
 
 	@Test

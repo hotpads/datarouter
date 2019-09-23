@@ -28,8 +28,8 @@ import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.client.mysql.util.SqlBuilder;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -68,7 +68,7 @@ extends BaseMysqlOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		String opName = SortedStorageReader.OP_getRange;
-		Connection connection = getConnection(fieldInfo.getClientId());
+		Connection connection = getConnection();
 		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, fieldInfo.getTableName(),
 				fieldInfo.getFields(), ranges, fieldInfo.getPrimaryKeyFields(), SqlBuilder.PRIMARY_KEY_INDEX_NAME,
 				MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(connection);
@@ -78,8 +78,9 @@ extends BaseMysqlOp<List<D>>{
 				fieldInfo.getNodeName(), 1L);
 		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),
 				fieldInfo.getNodeName(), result.size());
-		TracerTool.appendToSpanInfo(TracerThreadLocal.get(), "[" + ranges.size() + " ranges, " + result.size()
-				+ " databeans]");
+		TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder()
+				.ranges(ranges.size())
+				.databeans(result.size()));
 		return result;
 	}
 

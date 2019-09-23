@@ -28,11 +28,11 @@ import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.BatchingIterable;
 
 public class MysqlDeleteOp<
 		PK extends PrimaryKey<PK>,
@@ -53,14 +53,14 @@ extends BaseMysqlOp<Long>{
 		this.fieldInfo = fieldInfo;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
 		this.keys = keys;
-		this.config = Config.nullSafe(config);
+		this.config = config;
 	}
 
 	@Override
 	public Long runOnce(){
-		Connection connection = getConnection(fieldInfo.getClientId());
+		Connection connection = getConnection();
 		long numModified = 0;
-		for(List<PK> keyBatch : new BatchingIterable<>(keys, config.optInputBatchSize().orElse(BATCH_SIZE))){
+		for(List<PK> keyBatch : Scanner.of(keys).batch(config.optInputBatchSize().orElse(BATCH_SIZE))){
 			PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, fieldInfo.getTableName(),
 					keyBatch, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(connection);
 			numModified += MysqlTool.update(statement);

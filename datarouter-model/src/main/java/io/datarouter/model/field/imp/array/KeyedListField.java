@@ -25,7 +25,7 @@ import io.datarouter.util.collection.CollectionTool;
 public abstract class KeyedListField<
 		V extends Comparable<V>,
 		L extends List<V>, //value must be a List that implements a deep hashCode
-		K extends ListFieldKey<V,L>>
+		K extends ListFieldKey<V,L,K>>
 extends BaseField<L>{
 
 	protected final K key;

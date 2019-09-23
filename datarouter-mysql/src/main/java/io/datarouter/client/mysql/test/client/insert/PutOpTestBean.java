@@ -26,7 +26,6 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
 public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>{
 
-	private PutOpTestBeanKey key;
 	private String strC;
 
 	public static class FieldKeys{
@@ -34,11 +33,11 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 	}
 
 	public PutOpTestBean(){
-		key = new PutOpTestBeanKey();
+		super(new PutOpTestBeanKey());
 	}
 
 	public PutOpTestBean(String strA, String strB, String strC){
-		key = new PutOpTestBeanKey(strA, strB);
+		super(new PutOpTestBeanKey(strA, strB));
 		this.strC = strC;
 	}
 
@@ -58,15 +57,6 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 	@Override
 	public Class<PutOpTestBeanKey> getKeyClass(){
 		return PutOpTestBeanKey.class;
-	}
-
-	@Override
-	public PutOpTestBeanKey getKey(){
-		return key;
-	}
-
-	public void setKey(PutOpTestBeanKey key){
-		this.key = key;
 	}
 
 	public String getC(){

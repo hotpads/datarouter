@@ -18,7 +18,10 @@
 			'dygraph' : 'dygraph/dygraph-combined',
 			'dygraph-extra' : 'dygraph/dygraph-extra',
 			'autocomplete' : 'autocomplete/autocomplete',
-			'sorttable': 'sorttable/sorttable'
+			'sorttable': 'sorttable/sorttable',
+			'goog' : 'requirejs/plugins/goog',
+			'async' : 'requirejs/plugins/async',
+			'propertyParser' : 'requirejs/plugins/propertyParser'
 		}
 	};
 	require.config(baseRequireJsConfig);

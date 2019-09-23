@@ -21,9 +21,9 @@ import java.util.List;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class TestDatabeanKey extends BasePrimaryKey<TestDatabeanKey>{
+public class TestDatabeanKey extends BaseRegularPrimaryKey<TestDatabeanKey>{
 
 	private String foo;
 

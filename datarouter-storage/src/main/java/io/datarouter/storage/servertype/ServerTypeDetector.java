@@ -18,6 +18,7 @@ package io.datarouter.storage.servertype;
 public interface ServerTypeDetector{
 
 	boolean mightBeProduction();
+	boolean mightBeDevelopment();
 
 	default void assertNotProductionServer(){
 		if(mightBeProduction()){

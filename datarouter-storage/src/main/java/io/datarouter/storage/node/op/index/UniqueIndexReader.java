@@ -34,9 +34,27 @@ extends IndexReader<PK,D,IK,IE>{
 	public static final String OP_lookupMultiUnique = "lookupMultiUnique";
 
 	IE get(IK uniqueKey, Config config);
+
+	default IE get(IK uniqueKey){
+		return get(uniqueKey, new Config());
+	}
+
 	List<IE> getMulti(Collection<IK> uniqueKeys, Config config);
 
+	default List<IE> getMulti(Collection<IK> uniqueKeys){
+		return getMulti(uniqueKeys, new Config());
+	}
+
 	D lookupUnique(IK indexKey, Config config);
-	List<D> lookupMultiUnique(final Collection<IK> uniqueKeys, final Config config);
+
+	default D lookupUnique(IK indexKey){
+		return lookupUnique(indexKey, new Config());
+	}
+
+	List<D> lookupMultiUnique(Collection<IK> uniqueKeys, Config config);
+
+	default List<D> lookupMultiUnique(Collection<IK> uniqueKeys){
+		return lookupMultiUnique(uniqueKeys, new Config());
+	}
 
 }

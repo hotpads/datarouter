@@ -87,11 +87,11 @@
 	</script>
 </c:if>
 <c:set var="navBarType" value="${isDatarouterPage ? datarouterNavBar : webAppNavBar}" />
-<c:set var="navBarTarget" value="${isDatarouterPage ? '#dr-navbar' : '#mav-navbar'}" />
+<c:set var="navBarTarget" value="${isDatarouterPage ? 'dr-navbar' : 'mav-navbar'}" />
 <div class="navbar navbar-inverse navbar-static-top">
 	<div class="container-fluid">
 		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="${navBarTarget}">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#${navBarTarget}">
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>

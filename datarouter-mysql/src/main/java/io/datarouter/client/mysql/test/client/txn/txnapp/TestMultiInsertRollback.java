@@ -45,9 +45,9 @@ public class TestMultiInsertRollback extends BaseMysqlOp<Void>{
 				new TxnBean(beanPrefix + "2"),
 				new TxnBean(beanPrefix + "3"));
 
-		router.txnBean().putMulti(beans, null);
-		Assert.assertTrue(router.txnBean().exists(beans.get(0).getKey(), null));
-		Assert.assertTrue(router.txnBean().exists(beans.get(1).getKey(), null));
+		router.txnBean().putMulti(beans);
+		Assert.assertTrue(router.txnBean().exists(beans.get(0).getKey()));
+		Assert.assertTrue(router.txnBean().exists(beans.get(1).getKey()));
 		throw new RuntimeException("belch");
 	}
 

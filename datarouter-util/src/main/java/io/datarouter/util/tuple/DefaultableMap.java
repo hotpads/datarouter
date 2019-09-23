@@ -16,14 +16,9 @@
 package io.datarouter.util.tuple;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 public class DefaultableMap<K,V> implements Map<K,V>{
 
@@ -148,29 +143,6 @@ public class DefaultableMap<K,V> implements Map<K,V>{
 	@Override
 	public String toString(){
 		return delegate.toString();
-	}
-
-	public static class DefaultableMapTests{
-
-		private DefaultableMap<String, String> map;
-
-		@BeforeMethod
-		public void setup(){
-			map = new DefaultableMap<>(new HashMap<>());
-			map.put("str", "str");
-			map.put("bool", "true");
-			map.put("double", "1.234");
-			map.put("int", "6");
-		}
-
-		@Test
-		public void test(){
-			Assert.assertTrue(map.getBoolean("bool", false));
-			Assert.assertTrue(map.getBoolean("boola", true));
-			Assert.assertTrue(map.getDouble("double", 0.1).equals(1.234));
-			Assert.assertTrue(map.getInteger("int", 1).equals(6));
-			Assert.assertTrue(map.getInteger("inta", 1).equals(1));
-		}
 	}
 
 }

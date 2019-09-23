@@ -19,7 +19,7 @@ import java.time.Instant;
 
 import io.datarouter.model.field.PrimitiveFieldKey;
 
-public class InstantFieldKey extends PrimitiveFieldKey<Instant>{
+public class InstantFieldKey extends PrimitiveFieldKey<Instant,InstantFieldKey>{
 
 	public InstantFieldKey(String name){
 		super(name, Instant.class);

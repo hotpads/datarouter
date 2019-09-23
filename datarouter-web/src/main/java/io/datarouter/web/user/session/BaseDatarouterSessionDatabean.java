@@ -29,7 +29,6 @@ public abstract class BaseDatarouterSessionDatabean<
 		D extends BaseDatarouterSessionDatabean<PK,D>>
 extends BaseDatabean<PK,D>{
 
-	protected PK key;
 	private Date created;//track how old the session is
 	private Date updated;//last heartbeat time
 
@@ -45,25 +44,8 @@ extends BaseDatabean<PK,D>{
 	}
 
 	protected BaseDatarouterSessionDatabean(PK key){
+		super(key);
 		this.updated = new Date();
-		this.key = key;
-	}
-
-	@Override
-	public PK getKey(){
-		return key;
-	}
-
-	public void setKey(PK key){
-		this.key = key;
-	}
-
-	public String getSessionToken(){
-		return key.getSessionToken();
-	}
-
-	public void setSessionToken(String token){
-		this.key.setSessionToken(token);
 	}
 
 	public Date getUpdated(){

@@ -65,8 +65,6 @@ public class CronExpressionTool{
 		return Duration.between(firstValidTime, secondValidTime);
 	}
 
-	/*--------------- test -------------------*/
-
 	public static class CronExpressionToolTests{
 
 		@Test

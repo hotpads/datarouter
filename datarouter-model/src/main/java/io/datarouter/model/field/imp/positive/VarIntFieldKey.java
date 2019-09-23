@@ -17,7 +17,7 @@ package io.datarouter.model.field.imp.positive;
 
 import io.datarouter.model.field.PrimitiveFieldKey;
 
-public class VarIntFieldKey extends PrimitiveFieldKey<Integer>{
+public class VarIntFieldKey extends PrimitiveFieldKey<Integer,VarIntFieldKey>{
 
 	public VarIntFieldKey(String name){
 		super(name, Integer.class);

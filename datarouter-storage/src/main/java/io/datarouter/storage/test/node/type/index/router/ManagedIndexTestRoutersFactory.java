@@ -20,9 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterSettings;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.test.TestDatarouterProperties;
 import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithManagedIndexRouter;
 import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithTxnManagedIndexRouter;
 
@@ -30,13 +28,9 @@ import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithTxnManage
 public class ManagedIndexTestRoutersFactory{
 
 	@Inject
-	private TestDatarouterProperties datarouterProperties;
-	@Inject
 	private Datarouter datarouter;
 	@Inject
 	private NodeFactory nodeFactory;
-	@Inject
-	private DatarouterSettings datarouterSettings;
 
 	public class ManagedIndexTestRouters{
 
@@ -44,10 +38,9 @@ public class ManagedIndexTestRoutersFactory{
 		public final TestDatabeanWithTxnManagedIndexRouter testDatabeanWithTxnManagedIndex;
 
 		public ManagedIndexTestRouters(ClientId clientId){
-			testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexRouter(datarouter, datarouterProperties,
-					nodeFactory, datarouterSettings, clientId);
-			testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexRouter(datarouter,
-					datarouterProperties, nodeFactory, datarouterSettings, clientId);
+			testDatabeanWithManagedIndex = new TestDatabeanWithManagedIndexRouter(datarouter, nodeFactory, clientId);
+			testDatabeanWithTxnManagedIndex = new TestDatabeanWithTxnManagedIndexRouter(datarouter, nodeFactory,
+					clientId);
 		}
 
 	}

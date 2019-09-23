@@ -21,7 +21,7 @@ import io.datarouter.model.field.BaseListField;
 import io.datarouter.util.bytes.DoubleByteTool;
 import io.datarouter.util.serialization.GsonTool;
 
-public class DoubleArrayField extends BaseListField<Double,List<Double>>{
+public class DoubleArrayField extends BaseListField<Double,List<Double>,DoubleArrayFieldKey>{
 
 	public DoubleArrayField(DoubleArrayFieldKey key, List<Double> value){
 		super(key, value);

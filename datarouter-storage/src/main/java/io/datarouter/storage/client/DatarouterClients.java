@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterClientFactoryExecutor;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.util.properties.PropertiesTool;
@@ -52,22 +53,24 @@ import io.datarouter.util.tuple.Pair;
 public class DatarouterClients{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterClients.class);
 
-	//injected
 	private final ClientTypeRegistry clientTypeRegistry;
 	private final DatarouterClientFactoryExecutor executorService;
 	private final DatarouterInjector datarouterInjector;
 	private final ClientOptions clientOptions;
 	private final ClientInitializationTracker clientInitializationTracker;
 
-	//not injected
 	private final Set<String> configFilePaths;
 	private final Map<String,ClientId> clientIdByClientName;
 
 	/*---------------------------- constructors ---------------------------- */
 
 	@Inject
-	public DatarouterClients(ClientTypeRegistry clientTypeRegistry, DatarouterClientFactoryExecutor executorService,
-			DatarouterInjector datarouterInjector, ClientOptions clientOptions,
+	public DatarouterClients(
+			DatarouterProperties properties,
+			ClientTypeRegistry clientTypeRegistry,
+			DatarouterClientFactoryExecutor executorService,
+			DatarouterInjector datarouterInjector,
+			ClientOptions clientOptions,
 			ClientInitializationTracker clientInitializationTracker){
 		this.clientTypeRegistry = clientTypeRegistry;
 		this.executorService = executorService;
@@ -76,6 +79,7 @@ public class DatarouterClients{
 		this.clientInitializationTracker = clientInitializationTracker;
 		this.configFilePaths = new TreeSet<>();
 		this.clientIdByClientName = new TreeMap<>();
+		registerConfigFile(properties.getDatarouterPropertiesFileLocation());
 	}
 
 	public void registerConfigFile(String configFilePath){

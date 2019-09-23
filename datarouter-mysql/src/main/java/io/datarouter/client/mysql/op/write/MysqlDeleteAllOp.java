@@ -48,7 +48,7 @@ extends BaseMysqlOp<Integer>{
 	@Override
 	public Integer runOnce(){
 		String sql = SqlBuilder.deleteAll(config, fieldInfo.getTableName());
-		Connection connection = getConnection(fieldInfo.getClientId());
+		Connection connection = getConnection();
 		PreparedStatement statement = new DatarouterMysqlStatement().append(sql).toPreparedStatement(connection);
 		return MysqlTool.update(statement);
 	}

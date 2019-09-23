@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
+import io.datarouter.web.security.SecurityValidationResult;
 
 public interface HandlerEncoder{
 
@@ -42,5 +43,8 @@ public interface HandlerEncoder{
 	void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,
 			ServletContext servletContext, HttpServletResponse response, HttpServletRequest request)
 	throws ServletException, IOException;
+
+	void sendForbiddenResponse(HttpServletRequest request, HttpServletResponse response,
+			SecurityValidationResult securityValidationResult) throws IOException;
 
 }

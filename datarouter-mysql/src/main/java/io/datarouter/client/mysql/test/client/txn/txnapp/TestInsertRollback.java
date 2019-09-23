@@ -41,10 +41,9 @@ public class TestInsertRollback extends BaseMysqlOp<Void>{
 	@Override
 	public Void runOnce(){
 		TxnBean beanA = new TxnBean(beanPrefix + "1");
-		router.txnBean().put(beanA, null);
-		Assert.assertTrue(router.txnBean().exists(beanA.getKey(), null));//it exists inside the txn
-		TxnBean a2 = new TxnBean(beanPrefix + "2");
-		a2.setId(beanA.getId());
+		router.txnBean().put(beanA);
+		Assert.assertTrue(router.txnBean().exists(beanA.getKey()));//it exists inside the txn
+		TxnBean a2 = new TxnBean(beanA.getKey().getId());
 		router.txnBean().put(a2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
 		return null;
 	}

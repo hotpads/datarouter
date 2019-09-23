@@ -21,7 +21,7 @@ import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.model.field.ListFieldKey;
 
-public class IntegerArrayFieldKey extends ListFieldKey<Integer,List<Integer>>{
+public class IntegerArrayFieldKey extends ListFieldKey<Integer,List<Integer>,IntegerArrayFieldKey>{
 
 	public IntegerArrayFieldKey(String name){
 		super(name, new TypeToken<List<Integer>>(){});

@@ -42,6 +42,15 @@ public interface MultiIndexReader<
 extends IndexReader<PK,D,IK,IE>{
 
 	List<D> lookupMulti(IK indexKey, Config config);
+
+	default List<D> lookupMulti(IK indexKey){
+		return lookupMulti(indexKey, new Config());
+	}
+
 	List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config);
+
+	default List<D> lookupMultiMulti(Collection<IK> indexKeys){
+		return lookupMultiMulti(indexKeys, new Config());
+	}
 
 }

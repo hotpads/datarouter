@@ -23,11 +23,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.util.DatarouterEmailService;
 import io.datarouter.util.collection.MapTool;
 import io.datarouter.web.app.WebappName;
+import io.datarouter.web.email.DatarouterEmailService;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
-import io.datarouter.web.user.databean.DatarouterPermissionRequest.DatarouterPermissionRequestResolution;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserHistory;
 import io.datarouter.web.user.databean.DatarouterUserHistory.DatarouterUserChangeType;
@@ -55,19 +54,18 @@ public class DatarouterUserHistoryService{
 		List<DatarouterUserHistoryKey> historyKeys = requests.stream()
 				.map(DatarouterPermissionRequest::toUserHistoryKey)
 				.collect(Collectors.toList());
-		Map<DatarouterUserHistoryKey, String> historyMap = userNodes.getUserHistoryNode().getMulti(historyKeys, null)
-				.stream()
+		Map<DatarouterUserHistoryKey, String> historyMap = userNodes.getUserHistoryNode().getMulti(historyKeys).stream()
 				.collect(Collectors.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges));
 
 		//requests get closed when they are SUPERCEDED by other requests or when they are edited (and have a history)
 		return MapTool.getBy(requests, Function.identity(), req -> historyMap.getOrDefault(req.toUserHistoryKey(),
-				DatarouterPermissionRequestResolution.SUPERCEDED.getPersistentString()));
+				req.getResolution().getPersistentString()));
 	}
 
 	public void recordCreate(DatarouterUser user, Long editorId, String description){
-		userNodes.getUserNode().put(user, null);
+		userNodes.getUserNode().put(user);
 		userNodes.getUserHistoryNode().put(new DatarouterUserHistory(user.getId(), user.getCreated(), editorId,
-				DatarouterUserChangeType.CREATE, description), null);
+				DatarouterUserChangeType.CREATE, description));
 	}
 
 	public void recordPasswordChange(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
@@ -81,12 +79,12 @@ public class DatarouterUserHistoryService{
 	}
 
 	private void recordEdit(DatarouterUser user, DatarouterUserHistory history){
-		userNodes.getUserNode().put(user, null);
-		userNodes.getUserHistoryNode().put(history, null);
+		userNodes.getUserNode().put(user);
+		userNodes.getUserHistoryNode().put(history);
 		userNodes.getPermissionRequestNode().putMulti(permissionRequestDao.streamOpenPermissionRequestsForUser(history
 				.getKey().getUserId())
 				.map(history::resolvePermissionRequest)
-				.collect(Collectors.toList()), null);
+				.collect(Collectors.toList()));
 	}
 
 	private void sendPasswordChangeEmail(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
@@ -106,8 +104,7 @@ public class DatarouterUserHistoryService{
 		String recipients = userEditService.getUserEditEmailRecipients(user, editor);
 		String subject = userEditService.getPermissionRequestEmailSubject(user, webappName.getName());
 		StringBuilder body = new StringBuilder()
-				.append("Your user (").append(user.getUsername()).append(") permissions have been edited by user ")
-				.append(editor.getId()).append(" (").append(editor.getUsername()).append(").")
+				.append(user.getUsername()).append(" permissions have been edited by ").append(editor.getUsername())
 				.append("\n\nChanges: ").append(history.getChanges())
 				.append("\n\nPlease sign in again to refresh your session: ").append(signinUrl);
 		datarouterEmailService.trySendEmail(user.getUsername(), recipients, subject, body.toString());

@@ -17,30 +17,37 @@ package io.datarouter.web.user.authenticate;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.util.DatarouterEmailService;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.email.DatarouterEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
+import io.datarouter.web.handler.types.optional.OptionalLong;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.user.DatarouterPermissionRequestDao;
 import io.datarouter.web.user.DatarouterUserDao;
 import io.datarouter.web.user.DatarouterUserEditService;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettingRoot;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
 import io.datarouter.web.user.databean.DatarouterUser;
+import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
+import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.CurrentUserSessionInfo;
+import io.datarouter.web.user.session.service.DatarouterUserInfo;
 
 public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterPermissionRequestHandler.class);
@@ -58,15 +65,23 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private WebappName webappName;
 	@Inject
-	private DatarouterSamlSettingRoot samlSettings;
-	@Inject
 	private DatarouterEmailService datarouterEmailService;
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterWebFiles webFiles;
 	@Inject
+	private DatarouterWebPaths paths;
+	@Inject
 	private DatarouterUserEditService userEditService;
+	@Inject
+	private DatarouterUserInfo datarouterUserInfo;
+	@Inject
+	private DatarouterAdministratorEmailService administratorEmailService;
+	@Inject
+	private DatarouterUserExternalDetailService userExternalDetailService;
+	@Inject
+	private PermissionRequestAdditionalEmails permissionRequestAdditionalEmails;
 
 	@Handler(defaultHandler = true)
 	protected Mav showForm(OptionalString deniedUrl){
@@ -81,12 +96,15 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		mav.put("currentRequest", datarouterPermissionRequestDao.streamOpenPermissionRequestsForUser(user.getId())
 				.max(Comparator.comparing(request -> request.getKey().getRequestTime()))
 				.orElse(null));
-		mav.put("email", samlSettings.permissionRequestEmail.get());
+		Set<String> additionalPermissionEmails = permissionRequestAdditionalEmails.get();
+		mav.put("email", administratorEmailService.getAdministratorEmailAddressesCsv(additionalPermissionEmails));
+		mav.put("submitPath", paths.permissionRequest.submit.toSlashedStringWithoutLeadingSlash());
+		mav.put("declinePath", paths.permissionRequest.declineAll.toSlashedStringWithoutLeadingSlash());
 		return mav;
 	}
 
 	@Handler
-	protected Mav request(OptionalString specifics){
+	protected Mav submit(OptionalString specifics){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			return noDatarouterAuthenticationMav();
 		}
@@ -109,6 +127,39 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		return showForm(new OptionalString(null));
 	}
 
+	@Handler
+	protected Mav declineAll(OptionalLong userId, OptionalString redirectPath){
+		if(!authenticationConfig.useDatarouterAuthentication()){
+			return noDatarouterAuthenticationMav();
+		}
+		DatarouterUser currentUser = getCurrentUser();
+		//only allow DATAROUTER_ADMIN and self to decline requests
+		if(!userId.orElse(currentUser.getId()).equals(currentUser.getId()) && !currentUser.getRoles().contains(
+				DatarouterUserRole.DATAROUTER_ADMIN.getRole())){
+			return new MessageMav("You do not have permission to decline this request.");
+		}
+		datarouterPermissionRequestDao.declineAll(userId.orElse(currentUser.getId()));
+
+		DatarouterUser editedUser = currentUser;
+		if(!userId.orElse(currentUser.getId()).equals(getCurrentUser().getId())){
+			editedUser = datarouterUserInfo.getUserById(userId.get()).get();
+		}
+		String body = "Permission requests declined for user " + editedUser.getUsername() + " by user " + currentUser
+				.getUsername();
+		datarouterEmailService.trySendEmail(editedUser.getUsername(),
+				userEditService.getUserEditEmailRecipients(editedUser),
+				userEditService.getPermissionRequestEmailSubject(editedUser, webappName.getName()),
+				body);
+
+		if(redirectPath.isEmpty()){
+			if(currentUser.getRoles().size() > 1){
+				return new InContextRedirectMav(request, authenticationConfig.getHomePath());
+			}
+			return showForm(new OptionalString(null));
+		}
+		return new GlobalRedirectMav(redirectPath.get());
+	}
+
 	private DatarouterUser getCurrentUser(){
 		return datarouterUserDao.getAndValidateCurrentUser(params.getSession());
 	}
@@ -119,9 +170,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				request.getRequestURL().toString()) + request.getContextPath();
 		String editUserUrl = webappRequestUrlWithContext + authenticationConfig.getEditUserPath() + "?userId=" + user
 				.getId();
-		//I don't think there's any way to build the cluster setting path robustly.
-		String clusterSettingUrl = webappRequestUrlWithContext
-				+ "/datarouter/settings?submitAction=browseSettings&name=" + samlSettings.getName();
 		String userEmail = user.getUsername();
 		String recipients = userEditService.getUserEditEmailRecipients(user);
 
@@ -129,14 +177,14 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		StringBuilder body = new StringBuilder()
 				.append("User ")
 				.append(userEmail)
-				.append(" requests elevated permissions.")
-				.append("\nReason: ").append(reason);
+				.append(" requests elevated permissions.");
+		userExternalDetailService.getUserProfileUrl(user)
+				.ifPresent(url -> body.append("\nUser Profile: ").append(url));
+		body.append("\nReason: ").append(reason);
 		if(StringTool.notEmpty(specifics)){
 			body.append("\nSpecific: ").append(specifics);
 		}
-		body.append("\nEdit here: ").append(editUserUrl)
-				.append("\n\nThe email address these emails are sent to can be configured here: ")
-				.append(clusterSettingUrl).append('.');
+		body.append("\nEdit here: ").append(editUserUrl);
 
 		datarouterEmailService.trySendEmail(userEmail, recipients, subject, body.toString());
 	}

@@ -25,6 +25,6 @@ public interface KeyIndexEntry<
 		D extends Databean<PK,D>>
 extends IndexEntry<IK,IE,PK,D>{
 
-	void fromPrimaryKey(PK targetKey);
+	IE fromPrimaryKey(PK targetKey);
 
 }

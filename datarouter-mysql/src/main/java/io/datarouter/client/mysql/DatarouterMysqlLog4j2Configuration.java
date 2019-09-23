@@ -20,7 +20,7 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 
 import io.datarouter.client.mysql.ddl.execute.DatabaseCreator;
-import io.datarouter.client.mysql.ddl.execute.SingleTableSchemaUpdateFactory;
+import io.datarouter.client.mysql.ddl.execute.MysqlSingleTableSchemaUpdateService;
 import io.datarouter.logging.BaseLog4j2Configuration;
 import io.datarouter.logging.DatarouterLog4j2Configuration;
 import io.datarouter.logging.Log4j2Configurator;
@@ -34,7 +34,7 @@ public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 		Appender schemaUpdateAppender = Log4j2Configurator.createConsoleAppender("SchemaUpdate", Target.SYSTEM_OUT,
 				"%msg%n");
 		addAppender(schemaUpdateAppender);
-		addLoggerConfig(SingleTableSchemaUpdateFactory.class.getName(), Level.INFO, false, schemaUpdateAppender);
+		addLoggerConfig(MysqlSingleTableSchemaUpdateService.class.getName(), Level.INFO, false, schemaUpdateAppender);
 		addLoggerConfig(DatabaseCreator.class.getName(), Level.INFO, false, schemaUpdateAppender);
 
 		// move to datarouter-storage or datarouter-webapp-utils (see CallsiteHandler)?
@@ -42,9 +42,6 @@ public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 				"%d %-5level [%t] %logger{36}:%line - %msg%n%rEx");
 		addAppender(callsiteAppender);
 		addLoggerConfig(CallsiteRecorder.class.getName(), Level.TRACE, false, callsiteAppender);
-
-		// hiding an warn logger in java 11 https://bugs.mysql.com/bug.php?id=93590
-		addLoggerConfig("MySQL", Level.ERROR, false, getAppender(DatarouterLog4j2Configuration.CONSOLE_APPENDER_NAME));
 	}
 
 }

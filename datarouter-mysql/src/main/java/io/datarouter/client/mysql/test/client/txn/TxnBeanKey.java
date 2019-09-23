@@ -21,10 +21,10 @@ import java.util.List;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.key.primary.BasePrimaryKey;
+import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.model.util.CommonFieldSizes;
 
-public class TxnBeanKey extends BasePrimaryKey<TxnBeanKey>{
+public class TxnBeanKey extends BaseRegularPrimaryKey<TxnBeanKey>{
 
 	private String id;
 
