@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
 import io.datarouter.util.concurrent.ThreadTool;
 
 public class RetryableTool{
@@ -32,12 +33,13 @@ public class RetryableTool{
 	}
 
 	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, int numAttempts, long initialBackoffMs,
-			boolean logExceptions, Predicate<T> succesCondition){
+			boolean logExceptions, Predicate<T> successCondition){
 		long backoffMs = initialBackoffMs;
-		for(int attemptNum = 1; attemptNum <= numAttempts && !Thread.interrupted(); ++attemptNum){
+		int attemptNum = 1;
+		for(; attemptNum <= numAttempts && !Thread.interrupted(); ++attemptNum){
 			try{
 				T result = callable.call();
-				if(!succesCondition.test(result)){
+				if(!successCondition.test(result)){
 					throw new Exception("invalid result " + result);
 				}
 				return result;
@@ -59,8 +61,7 @@ public class RetryableTool{
 			}
 			backoffMs = backoffMs * 2 + ThreadLocalRandom.current().nextLong(0, initialBackoffMs);
 		}
-		Thread.currentThread().interrupt();
-		throw new RuntimeException();
+		throw new UncheckedInterruptedException("interrupted after " + (attemptNum - 1) + " attempt(s)");
 	}
 
 }

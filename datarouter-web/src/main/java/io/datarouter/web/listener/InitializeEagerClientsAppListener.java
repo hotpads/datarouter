@@ -16,16 +16,18 @@
 package io.datarouter.web.listener;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.router.Routers;
+import io.datarouter.storage.dao.Daos;
 
+@Singleton
 public class InitializeEagerClientsAppListener implements DatarouterAppListener{
 
 	// To force initialize routers so that they register their clients with Datarouter.
 	@SuppressWarnings("unused")
 	@Inject
-	private Routers routers;
+	private Daos routers;
 	@Inject
 	private DatarouterClients datarouterClients;
 

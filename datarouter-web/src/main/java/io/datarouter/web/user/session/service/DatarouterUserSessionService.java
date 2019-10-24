@@ -27,8 +27,9 @@ import javax.servlet.http.HttpServletResponse;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.web.exception.InvalidCredentialsException;
+import io.datarouter.web.user.BaseDatarouterSessionDao;
+import io.datarouter.web.user.BaseDatarouterUserDao;
 import io.datarouter.web.user.DatarouterUserCreationService;
-import io.datarouter.web.user.DatarouterUserNodes;
 import io.datarouter.web.user.cache.DatarouterUserByUsernameCache;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.session.DatarouterSession;
@@ -38,7 +39,9 @@ import io.datarouter.web.user.session.DatarouterSessionManager;
 public class DatarouterUserSessionService implements UserSessionService{
 
 	@Inject
-	private DatarouterUserNodes userNodes;
+	private BaseDatarouterUserDao userDao;
+	@Inject
+	private BaseDatarouterSessionDao sessionDao;
 	@Inject
 	private DatarouterSessionManager datarouterSessionManager;
 	@Inject
@@ -70,10 +73,10 @@ public class DatarouterUserSessionService implements UserSessionService{
 
 		user.setLastLoggedIn(new Date());
 		user.setRoles(SetTool.union(roles, user.getRoles()));
-		userNodes.getUserNode().put(user);
+		userDao.put(user);
 
 		DatarouterSession session = DatarouterSession.createFromUser(user);
-		userNodes.getSessionNode().put(session);
+		sessionDao.put(session);
 		return Optional.of(session);
 	}
 

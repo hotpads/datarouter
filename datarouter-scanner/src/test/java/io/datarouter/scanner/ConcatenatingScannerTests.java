@@ -33,8 +33,8 @@ public class ConcatenatingScannerTests{
 				Collections.emptyList(),
 				Collections.emptyList(),
 				Arrays.asList(3, 4));
-		List<Integer> actual = batches.mapToScanner(Scanner::of)
-				.concatenate()
+		List<Integer> actual = batches
+				.concatenate(Scanner::of)
 				.list();
 		List<Integer> expected = Arrays.asList(0, 1, 2, 73, 3, 4);
 		Assert.assertEquals(actual, expected);

@@ -22,6 +22,8 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -64,6 +66,7 @@ public class DatarouterHttpClientBuilder{
 	private Supplier<String> apiKeySupplier;
 	private DatarouterHttpClientConfig config;
 	private boolean ignoreSsl;
+	private SSLContext customSslContext;
 	private String circuitBreakerName;
 	private Supplier<Boolean> enableBreakers;
 
@@ -88,14 +91,19 @@ public class DatarouterHttpClientBuilder{
 				.build();
 		httpClientBuilder.setDefaultRequestConfig(defaultRequestConfig);
 		PoolingHttpClientConnectionManager connectionManager;
-		if(ignoreSsl){
+		if(ignoreSsl || customSslContext != null){
 			SSLConnectionSocketFactory sslsf;
-			try{
-				SSLContextBuilder builder = new SSLContextBuilder();
-				builder.loadTrustMaterial(null, (chain, authType) -> true);
-				sslsf = new SSLConnectionSocketFactory(builder.build(), NoopHostnameVerifier.INSTANCE);
-			}catch(KeyManagementException | KeyStoreException | NoSuchAlgorithmException e){
-				throw new RuntimeException(e);
+			if(ignoreSsl){
+				try{
+					SSLContextBuilder builder = new SSLContextBuilder();
+					builder.loadTrustMaterial(null, (chain, authType) -> true);
+					sslsf = new SSLConnectionSocketFactory(builder.build(), NoopHostnameVerifier.INSTANCE);
+				}catch(KeyManagementException | KeyStoreException | NoSuchAlgorithmException e){
+					throw new RuntimeException(e);
+				}
+			}else{
+				sslsf = new SSLConnectionSocketFactory(customSslContext, SSLConnectionSocketFactory
+						.getDefaultHostnameVerifier());
 			}
 			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
 					.register("http", PlainConnectionSocketFactory.getSocketFactory())
@@ -183,6 +191,11 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClientBuilder setIgnoreSsl(boolean ignoreSsl){
 		this.ignoreSsl = ignoreSsl;
+		return this;
+	}
+
+	public DatarouterHttpClientBuilder setCustomSslContext(SSLContext customSslContext){
+		this.customSslContext = customSslContext;
 		return this;
 	}
 

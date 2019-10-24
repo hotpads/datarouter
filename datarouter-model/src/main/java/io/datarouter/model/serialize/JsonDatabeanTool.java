@@ -36,8 +36,6 @@ import io.datarouter.util.lang.ReflectionTool;
 
 public class JsonDatabeanTool{
 
-	private static final JsonParser jsonParser = new JsonParser();
-
 	/*----------------------------- pk to json ------------------------------*/
 
 	public static <PK extends PrimaryKey<PK>> JsonObject primaryKeyToJson(PK pk, Fielder<PK> fielder){
@@ -212,11 +210,11 @@ public class JsonDatabeanTool{
 	/*------------------------------- util ----------------------------------*/
 
 	private static JsonObject stringToJsonObject(String string){
-		return jsonParser.parse(string).getAsJsonObject();
+		return JsonParser.parseString(string).getAsJsonObject();
 	}
 
 	private static JsonArray stringToJsonArray(String string){
-		return jsonParser.parse(string).getAsJsonArray();
+		return JsonParser.parseString(string).getAsJsonArray();
 	}
 
 	public static JsonObject fieldsToJson(List<Field<?>> fields){

@@ -67,8 +67,8 @@ public class DatarouterWebFiles extends FilesRoot{
 	}
 
 	public static class FontAwesomeFiles extends PathNode{
-		public final PathNode css = branch(FontAwesomeCssFiles::new, "css");
-		public final PathNode webfonts = branch(FontAwesomeWebfontFiles::new, "webfonts");
+		public final FontAwesomeCssFiles css = branch(FontAwesomeCssFiles::new, "css");
+		public final FontAwesomeWebfontFiles webfonts = branch(FontAwesomeWebfontFiles::new, "webfonts");
 	}
 
 	public static class FontAwesomeCssFiles extends PathNode{

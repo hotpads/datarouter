@@ -51,8 +51,15 @@ extends BaseMysqlFieldCodec<String,StringField>{
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
 		boolean nullable = allowNullable && field.getKey().isNullable();
-		return new CharSequenceSqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), getNormalizedSize(),
-				nullable, false, field.getKey().getDefaultValue(), DEFAULT_CHARACTER_SET, DEFAULT_COLLATION);
+		return new CharSequenceSqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				getNormalizedSize(),
+				nullable,
+				false,
+				field.getKey().getDefaultValue(),
+				DEFAULT_CHARACTER_SET,
+				DEFAULT_COLLATION);
 	}
 
 	@Override

@@ -19,43 +19,33 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class ExecutorTool{
 
-	public static ThreadPoolExecutor createThreadPool(ThreadGroup parentGroup, String name, int minThreadCount,
-			int maxThreadCount, int queueSize, RejectedExecutionHandler rejectPolicy){
-		ThreadFactory threadFactory = createNamedThreadFactory(parentGroup, name);
+	public static ThreadPoolExecutor createThreadPool(String name, int minThreadCount, int maxThreadCount,
+			int queueSize, RejectedExecutionHandler rejectPolicy){
+		ThreadFactory threadFactory = new NamedThreadFactory(name, true);
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(queueSize);
 		return new ThreadPoolExecutor(minThreadCount, maxThreadCount, 1, TimeUnit.MINUTES, queue, threadFactory,
 				rejectPolicy);
 	}
 
-	public static ThreadPoolExecutor createFixedPool(ThreadGroup parentGroup, String name, int numThreads){
-		ThreadFactory threadFactory = createNamedThreadFactory(parentGroup, name);
+	public static ThreadPoolExecutor createFixedPool(String name, int numThreads){
+		ThreadFactory threadFactory = new NamedThreadFactory(name, true);
 		return (ThreadPoolExecutor)Executors.newFixedThreadPool(numThreads, threadFactory);
 	}
 
-	public static ThreadPoolExecutor newCachedThreadPool(ThreadGroup threadGroup, String name){
-		ThreadFactory threadFactory = createNamedThreadFactory(threadGroup, name);
+	public static ThreadPoolExecutor newCachedThreadPool(String name){
+		ThreadFactory threadFactory = new NamedThreadFactory(name, true);
 		return (ThreadPoolExecutor)Executors.newCachedThreadPool(threadFactory);
 	}
 
-	public static ThreadPoolExecutor createCached(ThreadGroup threadGroup, String name){
-		ThreadFactory threadFactory = createNamedThreadFactory(threadGroup, name);
+	public static ThreadPoolExecutor createCached(String name){
+		ThreadFactory threadFactory = new NamedThreadFactory(name, true);
 		return (ThreadPoolExecutor)Executors.newCachedThreadPool(threadFactory);
-	}
-
-	public static ScheduledExecutorService createScheduled(ThreadGroup parentGroup, String name, int numThreads){
-		ThreadFactory threadFactory = createNamedThreadFactory(parentGroup, name);
-		return Executors.newScheduledThreadPool(numThreads, threadFactory);
-	}
-
-	public static NamedThreadFactory createNamedThreadFactory(ThreadGroup threadGroup, String name){
-		return new NamedThreadFactory(threadGroup, name, true);
 	}
 
 }

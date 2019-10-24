@@ -34,12 +34,12 @@ import io.datarouter.storage.client.ClientManager;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterWriteBehindExecutor;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterWriteBehindScheduler;
+import io.datarouter.storage.dao.Dao;
+import io.datarouter.storage.dao.DaoClasses;
+import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.router.Router;
-import io.datarouter.storage.router.RouterClasses;
-import io.datarouter.storage.router.TestRouter;
 
 /**
  * Datarouter is the top-level scope through which various components can share things like clients,
@@ -53,7 +53,7 @@ public class Datarouter{
 	private final DatarouterNodes nodes;
 	private final DatarouterWriteBehindScheduler writeBehindScheduler;
 	private final DatarouterWriteBehindExecutor writeBehindExecutor;
-	private final RouterClasses routerClasses;
+	private final DaoClasses daoClasses;
 
 	@Inject
 	public Datarouter(
@@ -61,12 +61,12 @@ public class Datarouter{
 			DatarouterNodes nodes,
 			DatarouterWriteBehindExecutor writeBehindExecutor,
 			DatarouterWriteBehindScheduler writeBehindScheduler,
-			RouterClasses routerClasses){
+			DaoClasses daoClasses){
 		this.clients = clients;
 		this.nodes = nodes;
 		this.writeBehindExecutor = writeBehindExecutor;
 		this.writeBehindScheduler = writeBehindScheduler;
-		this.routerClasses = routerClasses;
+		this.daoClasses = daoClasses;
 	}
 
 	public synchronized void registerConfigFile(String configFilePath){
@@ -87,17 +87,18 @@ public class Datarouter{
 		return node;
 	}
 
-	public synchronized void assertRouterIsRegistered(Router router){
-		if(!(router instanceof TestRouter) && !routerClasses.get().contains(router.getClass())){
-			throw new IllegalArgumentException("Unknown router: " + router.getClass().getSimpleName()
-					+ ". Please register it in RouterClasses or have it implement TestRouter if only used for tests");
+	public synchronized void assertRegistered(Dao router){
+		if(!(router instanceof TestDao)
+				&& !daoClasses.get().contains(router.getClass())){
+			throw new IllegalArgumentException("Unknown router/dao: " + router.getClass().getSimpleName()
+					+ ". Please register it in RouterClasses/DaoGroup, or have it implement TestRouter/TestDao "
+					+ "if only used for tests");
 		}
 	}
 
 	public void shutdown(){
 		clients.shutdown();
 	}
-
 
 	/*------------------------------- methods--------------------------------*/
 

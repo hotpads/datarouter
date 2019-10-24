@@ -29,4 +29,5 @@ public class MysqlMapStorageIntegrationTests extends BaseMapStorageIntegrationTe
 	public void beforeClass(){
 		setup(DatarouterMysqlTestClientids.MYSQL, false);
 	}
+
 }

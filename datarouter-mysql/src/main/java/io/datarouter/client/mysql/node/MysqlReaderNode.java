@@ -76,12 +76,12 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D,F>{
 	/*------------------------ IndexedStorageReader methods -----------------*/
 
 	@Override
-	public D lookupUnique(final UniqueKey<PK> uniqueKey, final Config config){
+	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
 		return mysqlNodeManager.lookupUnique(getFieldInfo(), uniqueKey, config);
 	}
 
 	@Override
-	public List<D> lookupMultiUnique(final Collection<? extends UniqueKey<PK>> uniqueKeys, final Config config){
+	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		return mysqlNodeManager.lookupMultiUnique(getFieldInfo(), uniqueKeys, config);
 	}
 

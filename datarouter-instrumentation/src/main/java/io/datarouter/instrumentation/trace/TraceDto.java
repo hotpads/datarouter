@@ -23,18 +23,21 @@ public class TraceDto{
 	private String params;
 	private Long created;
 	private Long duration;
+	private Integer discardedThreadCount;
 
 	public TraceDto(String traceId, Long created){
 		this.traceId = traceId;
 		this.created = created;
 	}
 
-	public TraceDto(String traceId, String context, String type, String params, Long created, Long duration){
+	public TraceDto(String traceId, String context, String type, String params, Long created, Long duration,
+			Integer discardedThreadCount){
 		this(traceId, created);
 		this.context = context;
 		this.type = type;
 		this.params = params;
 		this.duration = duration;
+		this.discardedThreadCount = discardedThreadCount;
 	}
 
 	public void markFinished(){
@@ -87,6 +90,14 @@ public class TraceDto{
 
 	public void setDuration(Long duration){
 		this.duration = duration;
+	}
+
+	public void setDiscardedThreadCount(Integer discardedThreadCount){
+		this.discardedThreadCount = discardedThreadCount;
+	}
+
+	public Integer getDiscardedThreadCount(){
+		return discardedThreadCount;
 	}
 
 }

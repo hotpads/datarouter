@@ -88,18 +88,18 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		int outputBatchSize = mav.put(PARAM_outputBatchSize, params.optionalInteger(PARAM_outputBatchSize).orElse(10));
 
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
-		String startAfterKeyString = RequestTool.get(request, PARAM_startAfterKey, null);
+		String startKeyString = RequestTool.get(request, PARAM_startKey, null);
 
-		PK startAfterKey = null;
-		if(StringTool.notEmpty(startAfterKeyString)){
-			startAfterKey = (PK)PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(),
-					startAfterKeyString);
-			mav.put(PARAM_startAfterKey, PrimaryKeyPercentCodec.encode(startAfterKey));
+		PK startKey = null;
+		if(StringTool.notEmpty(startKeyString)){
+			startKey = (PK)PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(),
+					startKeyString);
+			mav.put(PARAM_startKey, PrimaryKeyPercentCodec.encode(startKey));
 		}
 
 		boolean startInclusive = true;
 		Config config = new Config().setOutputBatchSize(outputBatchSize).setLimit(limit);
-		Range<PK> range = new Range<>(startAfterKey, startInclusive, null, true);
+		Range<PK> range = new Range<>(startKey, startInclusive, null, true);
 		List<D> databeans = sortedNode.scan(range, config)
 				.list();
 
@@ -130,7 +130,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		PK last = null;
 		long startMs = System.currentTimeMillis() - 1;
 		long batchStartMs = System.currentTimeMillis() - 1;
-		for(PK pk : sortedNode.scanKeys(config)){
+		for(PK pk : sortedNode.scanKeys(config).iterable()){
 			if(ComparableTool.lt(pk, last)){
 				logger.warn("{} was < {}", pk, last);// shouldn't happen, but seems to once in 10mm times
 			}
@@ -138,8 +138,9 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 			if(count % printBatchSize == 0){
 				long batchMs = System.currentTimeMillis() - batchStartMs;
 				double batchAvgRps = printBatchSize * 1000 / Math.max(1, batchMs);
-				logger.warn("{} {} @{}rps",
+				logger.warn("{} {} {} @{}rps",
 						NumberFormatter.addCommas(count),
+						node.getName(),
 						pk.toString(),
 						NumberFormatter.addCommas(batchAvgRps));
 				batchStartMs = System.currentTimeMillis();

@@ -17,6 +17,7 @@ package io.datarouter.storage;
 
 import io.datarouter.storage.client.ClientManager;
 import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.index.MultiIndexReader;
@@ -31,7 +32,6 @@ import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.router.Router;
 
 /**
  * References to notable classes.  Changes to the imports of this file indicate that README links should be updated.
@@ -43,7 +43,7 @@ public class DatarouterStorageDocs{
 	ClientManager clientManager;
 	Node node;
 	PhysicalNode physicalNode;
-	Router router;
+	Dao router;
 
 	//datarouter management
 	Datarouter datarouter;

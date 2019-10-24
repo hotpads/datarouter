@@ -23,7 +23,7 @@ import javax.inject.Singleton;
 import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
 import io.datarouter.util.cache.LoadingCacheWrapper;
 import io.datarouter.web.exception.InvalidCredentialsException;
-import io.datarouter.web.user.DatarouterUserNodes;
+import io.datarouter.web.user.BaseDatarouterUserDao;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 
@@ -31,10 +31,9 @@ import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenL
 public class DatarouterUserByUserTokenCache extends LoadingCacheWrapper<String,DatarouterUser>{
 
 	@Inject
-	public DatarouterUserByUserTokenCache(DatarouterUserNodes userNodes){
+	public DatarouterUserByUserTokenCache(BaseDatarouterUserDao datarouterUserDao){
 		super(new LoadingCacheBuilder<String,DatarouterUser>()
-				.withLoadingFunction(key -> userNodes.getUserNode().lookupUnique(
-						new DatarouterUserByUserTokenLookup(key)))
+				.withLoadingFunction(key -> datarouterUserDao.getByUserToken(new DatarouterUserByUserTokenLookup(key)))
 				.withExpireTtl(Duration.ofSeconds(6))
 				.withExceptionFunction(key -> new InvalidCredentialsException("userToken not found (" + key + ")"))
 				.build());

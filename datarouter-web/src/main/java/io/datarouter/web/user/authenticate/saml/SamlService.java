@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
@@ -76,37 +77,43 @@ public class SamlService{
 	private final RoleManager roleManager;
 	private final Optional<SamlRegistrar> samlRegistrar;
 	private final KeyPair signingKeyPair;
-	private final DatarouterSamlRouter samlRouter;
+	private final DatarouterSamlDao samlDao;
 	private final DatarouterProperties datarouterProperties;
 	private final ExceptionRecorder exceptionRecorder;
 
 	@Inject
 	public SamlService(DatarouterSamlSettings samlSettings, UserSessionService userSessionService,
-			RoleManager roleManager, Optional<SamlRegistrar> jitSamlRegistrar, DatarouterSamlRouter samlRouter,
+			RoleManager roleManager, Optional<SamlRegistrar> jitSamlRegistrar, DatarouterSamlDao samlDao,
 			DatarouterProperties datarouterProperties, ExceptionRecorder exceptionRecorder){
 		this.samlSettings = samlSettings;
 		this.userSessionService = userSessionService;
 		this.roleManager = roleManager;
 		this.samlRegistrar = jitSamlRegistrar;
-		this.samlRouter = samlRouter;
+		this.samlDao = samlDao;
 		this.datarouterProperties = datarouterProperties;
 		this.exceptionRecorder = exceptionRecorder;
 
+		PhaseTimer phaseTimer = new PhaseTimer();
 		if(logger.isDebugEnabled()){
 			logger.debug(Arrays.asList(Security.getProviders()).stream()
 					.map(Provider::getInfo)
 					.collect(Collectors.joining(", ", "Security providers: ", "")));
+			phaseTimer.add("log");
 		}
 
 		// this ensures that all of OpenSAML's required crypto operations are available
 		try{
 			new JavaCryptoValidationInitializer().init();// checks JCE
+			phaseTimer.add("JavaCryptoValidationInitializer");
 			InitializationService.initialize();// initializes OpenSAML
+			phaseTimer.add("InitializationService");
 		}catch(InitializationException e){
 			throw new RuntimeException("Initialization failed", e);
 		}
 
 		this.signingKeyPair = RandomSamlKeyPair.getKeyPair();
+		phaseTimer.add("RandomSamlKeyPair");
+		logger.warn("{}", phaseTimer);
 	}
 
 	public Mav mavSignout(HttpServletResponse response){
@@ -157,7 +164,7 @@ public class SamlService{
 		String authnRequestId = ((AuthnRequest)authnRequest.getMessage()).getID();
 		SamlAuthnRequestRedirectUrl redirect = new SamlAuthnRequestRedirectUrl(authnRequestId,
 				requestedUrl + queryString);
-		samlRouter.samlAuthnRequestRedirectUrl.put(redirect);
+		samlDao.put(redirect);
 	}
 
 	public void consumeAssertion(HttpServletRequest request, HttpServletResponse response){
@@ -231,7 +238,7 @@ public class SamlService{
 
 	private String getRedirectUrl(HttpServletRequest request, MessageContext<SAMLObject> responseContext){
 		String authnRequestId = ((Response)responseContext.getMessage()).getInResponseTo();
-		SamlAuthnRequestRedirectUrl redirect = samlRouter.samlAuthnRequestRedirectUrl.get(
+		SamlAuthnRequestRedirectUrl redirect = samlDao.get(
 				new SamlAuthnRequestRedirectUrlKey(authnRequestId));
 		if(redirect != null){
 			//prefer the URL most recently persisted for this authnRequest (no character limit)

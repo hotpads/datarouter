@@ -79,8 +79,12 @@ public class UlidTool{
 		}
 	}
 
+	public static long getTimestamp(String ulid){
+		return ULID.parseULID(ulid).timestamp();
+	}
+
 	public static Instant getInstant(String ulid){
-		return Instant.ofEpochMilli(ULID.parseULID(ulid).timestamp());
+		return Instant.ofEpochMilli(getTimestamp(ulid));
 	}
 
 	public static Date getDateFromUlid(String ulid){

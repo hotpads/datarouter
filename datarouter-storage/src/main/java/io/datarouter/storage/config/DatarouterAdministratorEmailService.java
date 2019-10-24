@@ -23,9 +23,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
 import io.datarouter.util.EmailTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.collection.SetTool;
 
 @Singleton
@@ -36,15 +35,14 @@ public class DatarouterAdministratorEmailService{
 	@Inject
 	private DatarouterAdditionalAdministrators additionalAdministrators;
 	@Inject
-	private ServerTypeDetector serverTypeDetector;
+	private DatarouterStorageSettingRoot datarouterStorageSettings;
 
 	public List<String> getAdministratorEmailAddresses(){
-		if(!serverTypeDetector.mightBeProduction()){
-			return ListTool.create(datarouterProperties.getAdministratorEmail());
-		}
 		List<String> administrators = new ArrayList<>();
 		administrators.add(datarouterProperties.getAdministratorEmail());
-		administrators.addAll(additionalAdministrators.get());
+		if(datarouterStorageSettings.includeAdditionalAdministratorsEmails.get()){
+			administrators.addAll(additionalAdministrators.get());
+		}
 		return administrators;
 	}
 

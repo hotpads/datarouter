@@ -28,15 +28,13 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
-import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
-import io.datarouter.client.mysql.test.client.insert.DatarouterPutOpTestRouter;
+import io.datarouter.client.mysql.test.client.insert.DatarouterPutOpTestDao;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBean;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBeanKey;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
-import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.util.tuple.Pair;
 
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
@@ -45,13 +43,10 @@ public class PutOpIntegrationTests{
 	@Inject
 	private Datarouter datarouter;
 	@Inject
-	private NodeFactory nodeFactory;
-
-	private DatarouterPutOpTestRouter router;
+	private DatarouterPutOpTestDao dao;
 
 	@BeforeClass
 	public void beforeClass(){
-		router = new DatarouterPutOpTestRouter(datarouter, nodeFactory, DatarouterMysqlTestClientids.MYSQL);
 		resetTable();
 	}
 
@@ -61,7 +56,7 @@ public class PutOpIntegrationTests{
 	}
 
 	private void resetTable(){
-		router.putOptTest().deleteAll();
+		dao.deleteAll();
 	}
 
 	@Test
@@ -132,19 +127,19 @@ public class PutOpIntegrationTests{
 		PutOpTestBean bean = new PutOpTestBean(testName, "bar", "baz");
 		PutOpTestBean bean2 = new PutOpTestBean(testName, "bar", "qux");
 		try{
-			router.putOptTest().put(bean, config);
+			dao.put(bean, config);
 			Assert.assertFalse(expectedFirstCaught);
 		}catch(Exception e){
 			Assert.assertTrue(expectedFirstCaught);
 		}
-		String before = nullSafeGetC(router.putOptTest().get(new PutOpTestBeanKey(testName, "bar")));
+		String before = nullSafeGetC(dao.get(new PutOpTestBeanKey(testName, "bar")));
 		try{
-			router.putOptTest().put(bean2, config);
+			dao.put(bean2, config);
 			Assert.assertFalse(expectedSecondCaught);
 		}catch(Exception e){
 			Assert.assertTrue(expectedSecondCaught);
 		}
-		String after = nullSafeGetC(router.putOptTest().get(new PutOpTestBeanKey(testName, "bar")));
+		String after = nullSafeGetC(dao.get(new PutOpTestBeanKey(testName, "bar")));
 
 		return new Pair<>(before, after);
 	}
@@ -167,8 +162,8 @@ public class PutOpIntegrationTests{
 		for(int count = 0; count < totalCount; count++){
 			databeans.add(new PutOpTestBean("testMultiInsert", randomString(), randomString()));
 		}
-		router.putOptTest().putMulti(databeans, config);
-		Assert.assertEquals(router.putOptTest().getMulti(DatabeanTool.getKeys(databeans)).size(), totalCount);
+		dao.putMulti(databeans, config);
+		Assert.assertEquals(dao.getMulti(DatabeanTool.getKeys(databeans)).size(), totalCount);
 	}
 
 	private static final String randomString(){

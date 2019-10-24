@@ -50,7 +50,7 @@ extends NodeOps<PK,D>{
 
 	Scanner<QueueMessage<PK,D>> peekUntilEmpty(Config config);
 
-	default Iterable<QueueMessage<PK,D>> peekUntilEmpty(){
+	default Scanner<QueueMessage<PK,D>> peekUntilEmpty(){
 		return peekUntilEmpty(new Config());
 	}
 

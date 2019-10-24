@@ -26,10 +26,10 @@ public class CallResultQueueTests{
 	@Test
 	public void testCircularInsert(){
 		CallResultQueue callResultQueue = new CallResultQueue(Clock.systemUTC(), 3);
-		callResultQueue.insertResult(true);
-		callResultQueue.insertResult(true);
-		callResultQueue.insertResult(true);
-		callResultQueue.insertResult(false);
+		callResultQueue.insertTrueResult();
+		callResultQueue.insertTrueResult();
+		callResultQueue.insertTrueResult();
+		callResultQueue.insertFalseResultWithException(null);
 		Assert.assertFalse(callResultQueue.getResults()[0]);
 	}
 
@@ -37,39 +37,39 @@ public class CallResultQueueTests{
 	public void testGetFailurePercentage(){
 		CallResultQueue callResultQueue = new CallResultQueue(Clock.systemUTC(), 4);
 		Assert.assertEquals(callResultQueue.getFailurePercentage(), 0F);
-		callResultQueue.insertResult(false);
+		callResultQueue.insertFalseResultWithException(null);
 		Assert.assertEquals(callResultQueue.getFailurePercentage(), 25F);
-		callResultQueue.insertResult(false);
+		callResultQueue.insertFalseResultWithException(null);
 		Assert.assertEquals(callResultQueue.getFailurePercentage(), 50F);
-		callResultQueue.insertResult(false);
+		callResultQueue.insertFalseResultWithException(null);
 		Assert.assertEquals(callResultQueue.getFailurePercentage(), 75F);
-		callResultQueue.insertResult(false);
+		callResultQueue.insertFalseResultWithException(null);
 		Assert.assertEquals(callResultQueue.getFailurePercentage(), 100F);
-		callResultQueue.insertResult(true);
+		callResultQueue.insertTrueResult();
 		Assert.assertEquals(callResultQueue.getFailurePercentage(), 75F);
-		callResultQueue.insertResult(true);
+		callResultQueue.insertTrueResult();
 		Assert.assertEquals(callResultQueue.getFailurePercentage(), 50F);
-		callResultQueue.insertResult(true);
+		callResultQueue.insertTrueResult();
 		Assert.assertEquals(callResultQueue.getFailurePercentage(), 25F);
-		callResultQueue.insertResult(true);
+		callResultQueue.insertTrueResult();
 		Assert.assertEquals(callResultQueue.getFailurePercentage(), 0F);
 	}
 
 	@Test
 	public void testGetLastFailure(){
 		CallResultQueue callResultQueue = new CallResultQueue(Clock.systemUTC(), 3);
-		callResultQueue.insertResult(true);
+		callResultQueue.insertTrueResult();
 		Assert.assertFalse(callResultQueue.lastFailureEpochMillis.isPresent());
 
 		callResultQueue = new CallResultQueue(Clock.systemUTC(), 3);
-		callResultQueue.insertResult(false);
+		callResultQueue.insertFalseResultWithException(null);
 		Assert.assertTrue(callResultQueue.lastFailureEpochMillis.isPresent());
 		Long lastFailure = callResultQueue.lastFailureEpochMillis.get();
-		callResultQueue.insertResult(true);
+		callResultQueue.insertTrueResult();
 		callResultQueue.setClock(Clock.offset(Clock.systemUTC(), Duration.ofMillis(1)));
 		Assert.assertEquals(callResultQueue.lastFailureEpochMillis.get(), lastFailure);
 		callResultQueue.setClock(Clock.offset(Clock.systemUTC(), Duration.ofMillis(1)));
-		callResultQueue.insertResult(false);
+		callResultQueue.insertFalseResultWithException(null);
 		Assert.assertNotEquals(callResultQueue.lastFailureEpochMillis.get(), lastFailure);
 	}
 

@@ -36,11 +36,13 @@ import io.datarouter.web.user.databean.DatarouterUserHistoryKey;
 public class DatarouterUserHistoryService{
 
 	@Inject
-	private DatarouterUserNodes userNodes;
+	private BaseDatarouterUserDao baseDatarouterUserDao;
 	@Inject
-	private DatarouterPermissionRequestDao permissionRequestDao;
+	private BaseDatarouterUserHistoryDao baseDatarouterUserHistoryDao;
 	@Inject
-	private DatarouterUserDao userDao;
+	private BaseDatarouterPermissionRequestDao permissionRequestDao;
+	@Inject
+	private DatarouterUserService datarouterUserService;
 	@Inject
 	private DatarouterEmailService datarouterEmailService;
 	@Inject
@@ -54,7 +56,7 @@ public class DatarouterUserHistoryService{
 		List<DatarouterUserHistoryKey> historyKeys = requests.stream()
 				.map(DatarouterPermissionRequest::toUserHistoryKey)
 				.collect(Collectors.toList());
-		Map<DatarouterUserHistoryKey, String> historyMap = userNodes.getUserHistoryNode().getMulti(historyKeys).stream()
+		Map<DatarouterUserHistoryKey, String> historyMap = baseDatarouterUserHistoryDao.getMulti(historyKeys).stream()
 				.collect(Collectors.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges));
 
 		//requests get closed when they are SUPERCEDED by other requests or when they are edited (and have a history)
@@ -63,8 +65,8 @@ public class DatarouterUserHistoryService{
 	}
 
 	public void recordCreate(DatarouterUser user, Long editorId, String description){
-		userNodes.getUserNode().put(user);
-		userNodes.getUserHistoryNode().put(new DatarouterUserHistory(user.getId(), user.getCreated(), editorId,
+		baseDatarouterUserDao.put(user);
+		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), user.getCreated(), editorId,
 				DatarouterUserChangeType.CREATE, description));
 	}
 
@@ -79,16 +81,16 @@ public class DatarouterUserHistoryService{
 	}
 
 	private void recordEdit(DatarouterUser user, DatarouterUserHistory history){
-		userNodes.getUserNode().put(user);
-		userNodes.getUserHistoryNode().put(history);
-		userNodes.getPermissionRequestNode().putMulti(permissionRequestDao.streamOpenPermissionRequestsForUser(history
-				.getKey().getUserId())
+		baseDatarouterUserDao.put(user);
+		baseDatarouterUserHistoryDao.put(history);
+		permissionRequestDao.putMulti(permissionRequestDao
+				.scanOpenPermissionRequestsForUser(history.getKey().getUserId())
 				.map(history::resolvePermissionRequest)
 				.collect(Collectors.toList()));
 	}
 
 	private void sendPasswordChangeEmail(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
-		DatarouterUser editor = userDao.getUserById(history.getEditor());
+		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor());
 		String recipients = user.getUsername();
 		String subject = userEditService.getPermissionRequestEmailSubject(user, webappName.getName());
 		StringBuilder body = new StringBuilder()
@@ -100,7 +102,7 @@ public class DatarouterUserHistoryService{
 	}
 
 	private void sendRoleEditEmail(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
-		DatarouterUser editor = userDao.getUserById(history.getEditor());
+		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor());
 		String recipients = userEditService.getUserEditEmailRecipients(user, editor);
 		String subject = userEditService.getPermissionRequestEmailSubject(user, webappName.getName());
 		StringBuilder body = new StringBuilder()

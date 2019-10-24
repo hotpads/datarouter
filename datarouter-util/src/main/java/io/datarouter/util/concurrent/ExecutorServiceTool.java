@@ -16,8 +16,8 @@
 package io.datarouter.util.concurrent;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -31,9 +31,9 @@ public class ExecutorServiceTool{
 		String name = "";
 		if(exec instanceof ThreadPoolExecutor){
 			ThreadPoolExecutor threadPool = (ThreadPoolExecutor)exec;
-			ThreadFactory threadFactory = threadPool.getThreadFactory();
-			if(threadFactory instanceof NamedThreadFactory){
-				name = ((NamedThreadFactory)threadFactory).getGroupName() + "-";
+			Optional<String> factoryName = NamedThreadFactory.findName(threadPool.getThreadFactory());
+			if(factoryName.isPresent()){
+				name = factoryName.get() + "-";
 			}
 		}
 		Duration halfTimeout = timeout.dividedBy(2);

@@ -115,6 +115,12 @@
 				<tr class="sub"><td>Non Daemon</td><td>${nonDaemon}</td></tr>
 				<tr><td>Peak</td><td>${peak}</td></tr>
 				<tr><td>Started</td><td>${peak}</td></tr>
+				<tr><td>Tomcat</td></tr>
+				<c:forEach items="${tomcatThreadMetrics}" var="elem">
+					<tr class="sub"><td>${elem.poolName}</td></tr> 
+					<tr class="sub-2"><td>Total</td><td>${elem.currentThreadCount}</td></tr>
+					<tr class="sub-2"><td>Busy</td><td>${elem.currentThreadsBusy}</td></tr>
+				</c:forEach>
 			</tbody>
 			</table>
 		</div>
@@ -151,7 +157,7 @@
 					<tr class="h5 bg-light"><td colspan="2">${gc.name}</td></tr>
 					<tr><td>Count</td><td>${gc.collectionCount}</td></tr>
 					<tr><td>Time</td><td>${gc.collectionTime}</td></tr>
-					<tr><td>Memory Pools</td><td>${nonDaemon}</td></tr>
+					<tr><td>Memory Pools</td></tr>
 					<c:forEach items="${gc.memoryPoolNames}" var="memoryPoolName">
 						<tr class="sub"><td colspan="2">${memoryPoolName}</td></tr>
 					</c:forEach>

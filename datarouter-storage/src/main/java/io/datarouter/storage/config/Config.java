@@ -264,6 +264,11 @@ public class Config implements Cloneable{
 		return this;
 	}
 
+	public Config setTimeout(Duration duration){
+		this.timeoutMs = duration.toMillis();
+		return this;
+	}
+
 	public Config setNoTimeout(){
 		setTimeoutMs(Long.MAX_VALUE);
 		return this;

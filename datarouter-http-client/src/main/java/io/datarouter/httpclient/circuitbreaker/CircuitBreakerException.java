@@ -22,8 +22,8 @@ public class CircuitBreakerException extends Exception{
 		super(exception);
 	}
 
-	public CircuitBreakerException(String message){
-		super(message);
+	public CircuitBreakerException(String message, Throwable exception){
+		super(message, exception);
 	}
 
 }

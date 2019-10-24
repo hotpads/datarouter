@@ -15,6 +15,7 @@
  */
 package io.datarouter.scanner;
 
+import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -28,7 +29,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-public interface Scanner<T> extends Iterable<T>, AutoCloseable{
+public interface Scanner<T> extends Closeable{
 
 	boolean advance();
 
@@ -37,6 +38,8 @@ public interface Scanner<T> extends Iterable<T>, AutoCloseable{
 	@Override
 	default void close(){
 	}
+
+	/*--------------------------- terminal ops ----------------------------*/
 
 	default boolean allMatch(Predicate<? super T> predicate){
 		return ScannerTool.allMatch(this, predicate);
@@ -62,7 +65,6 @@ public interface Scanner<T> extends Iterable<T>, AutoCloseable{
 		return ScannerTool.findLast(this);
 	}
 
-	@Override
 	default void forEach(Consumer<? super T> action){
 		ScannerTool.forEach(this, action);
 	}
@@ -91,17 +93,11 @@ public interface Scanner<T> extends Iterable<T>, AutoCloseable{
 		return ScannerTool.noneMatch(this, predicate);
 	}
 
-	default Scanner<T> skip(long numToSkip){
-		return ScannerTool.skip(this, numToSkip);
-	}
-
-	default List<T> take(int numToTake){
-		return ScannerTool.take(this, numToTake);
-	}
-
 	default Object[] toArray(){
 		return ScannerTool.toArray(this);
 	}
+
+	/*--------------------------- intermediate ops ----------------------------*/
 
 	/**
 	 * Stop the scanner when the predicate matches, excluding the item that caused it to stop.
@@ -122,7 +118,11 @@ public interface Scanner<T> extends Iterable<T>, AutoCloseable{
 	}
 
 	default Scanner<T> deduplicate(){
-		return new DeduplicatingScanner<>(this);
+		return new DeduplicatingScanner<>(this, Function.identity());
+	}
+
+	default Scanner<T> deduplicate(Function<T,?> keyExtractor){
+		return new DeduplicatingScanner<>(this, keyExtractor);
 	}
 
 	default Scanner<T> distinct(){
@@ -141,8 +141,16 @@ public interface Scanner<T> extends Iterable<T>, AutoCloseable{
 		return new LimitingScanner<>(this, limit);
 	}
 
+	default <R> Scanner<R> link(Function<Scanner<T>,BaseLinkedScanner<T,R>> scannerBuilder){
+		return scannerBuilder.apply(this);
+	}
+
 	default <R> Scanner<R> map(Function<? super T, ? extends R> mapper){
 		return new MappingScanner<>(this, mapper);
+	}
+
+	default Scanner<RetainingGroup<T>> retain(int retaining){
+		return new RetainingScanner<>(this, retaining);
 	}
 
 	@SuppressWarnings("resource")
@@ -154,6 +162,14 @@ public interface Scanner<T> extends Iterable<T>, AutoCloseable{
 
 	default Scanner<T> peek(Consumer<? super T> consumer){
 		return new PeekingScanner<>(this, consumer);
+	}
+
+	default Scanner<T> sample(long sampleSize, boolean includeLast){
+		return new SamplingScanner<>(this, sampleSize, includeLast);
+	}
+
+	default Scanner<T> skip(long numToSkip){
+		return ScannerTool.skip(this, numToSkip);
 	}
 
 	default Scanner<T> sorted(){
@@ -168,10 +184,26 @@ public interface Scanner<T> extends Iterable<T>, AutoCloseable{
 		return new SteppingScanner<>(this, stepSize);
 	}
 
+	default List<T> take(int numToTake){
+		return ScannerTool.take(this, numToTake);
+	}
+
 	/*--------------------------- ScannerScanner ----------------------------*/
 
 	default <R> ScannerScanner<R> mapToScanner(Function<? super T,Scanner<R>> mapper){
 		return new ScannerScanner<>(map(mapper));
+	}
+
+	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper){
+		return mapToScanner(mapper).collate();
+	}
+
+	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper, Comparator<? super R> comparator){
+		return mapToScanner(mapper).collate(comparator);
+	}
+
+	default <R> Scanner<R> concatenate(Function<? super T,Scanner<R>> mapper){
+		return mapToScanner(mapper).concatenate();
 	}
 
 	/*----------------------------- Parallel --------------------------------*/
@@ -182,9 +214,12 @@ public interface Scanner<T> extends Iterable<T>, AutoCloseable{
 
 	/*----------------------------- Iterator --------------------------------*/
 
-	@Override
 	default Iterator<T> iterator(){
 		return new ScannerIterator<>(this);
+	}
+
+	default Iterable<T> iterable(){
+		return this::iterator;
 	}
 
 	/*----------------------------- Stream ----------------------------------*/

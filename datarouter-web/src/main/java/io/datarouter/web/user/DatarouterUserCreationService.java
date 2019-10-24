@@ -48,7 +48,7 @@ public class DatarouterUserCreationService{
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private DatarouterUserDao userDao;
+	private DatarouterUserService datarouterUserService;
 	@Inject
 	private DatarouterUserHistoryService userHistoryService;
 
@@ -93,7 +93,8 @@ public class DatarouterUserCreationService{
 			String[] requestedRoles, boolean enabled){
 		DatarouterUser user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.MANUAL, password);
-		populateManualFields(user, username, userDao.getAllowedUserRoles(creator, requestedRoles), enabled);
+		populateManualFields(user, username, datarouterUserService.getAllowedUserRoles(creator, requestedRoles),
+				enabled);
 		return finishCreate(user, creator.getId(), "User manually created by " + creator.getUsername());
 	}
 
@@ -116,7 +117,7 @@ public class DatarouterUserCreationService{
 	}
 
 	private DatarouterUser finishCreate(DatarouterUser user, Long editorId, String description){
-		userDao.assertUserDoesNotExist(user.getId(), user.getUserToken(), user.getUsername());
+		datarouterUserService.assertUserDoesNotExist(user.getId(), user.getUserToken(), user.getUsername());
 		userHistoryService.recordCreate(user, editorId, description);
 		return user;
 	}

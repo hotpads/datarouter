@@ -45,10 +45,12 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 	private final MysqlConnectionPoolHolder mysqlConnectionPoolHolder;
 
 	@Inject
-	public MysqlSchemaUpdateService(DatarouterProperties datarouterProperties,
+	public MysqlSchemaUpdateService(
+			DatarouterProperties datarouterProperties,
 			DatarouterAdministratorEmailService adminEmailService,
 			MysqlSingleTableSchemaUpdateService mysqlSingleTableSchemaUpdateService,
-			DatarouterSchemaUpdateScheduler executor, DatarouterEmailService datarouterEmailService,
+			DatarouterSchemaUpdateScheduler executor,
+			DatarouterEmailService datarouterEmailService,
 			MysqlConnectionPoolHolder mysqlConnectionPoolHolder){
 		super(datarouterProperties, adminEmailService, executor);
 		this.datarouterProperties = datarouterProperties;

@@ -37,6 +37,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
 public class MysqlGetIndexOp<
@@ -52,32 +53,33 @@ extends BaseMysqlOp<List<IE>>{
 	private final Config config;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
-	private final DatabeanFielder<IK,IE> indexFielder;
-	private final IE indexEntry;
 	private final Collection<IK> uniqueKeys;
-	private final Supplier<IE> indexEntrySupplier;
 	private final String opName;
+	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
+	private final DatabeanFielder<IK,IE> indexFielder;
+	private final Supplier<IE> indexEntrySupplier;
+	private final IE indexEntry;
 
 	public MysqlGetIndexOp(Datarouter datarouter, MysqlGetOpExecutor mysqlGetOpExecutor,
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, MysqlFieldCodecFactory fieldCodecFactory, String opName,
-			Config config, Supplier<IE> indexEntrySupplier, Supplier<IF> indexFielderSupplier,
-			Collection<IK> uniqueKeys){
+			Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<IK> uniqueKeys){
 		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.mysqlGetOpExecutor = mysqlGetOpExecutor;
 		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.opName = opName;
 		this.config = config;
-		this.indexEntrySupplier = indexEntrySupplier;
 		this.uniqueKeys = uniqueKeys;
-		this.indexFielder = indexFielderSupplier.get();
+		this.indexEntryFieldInfo = indexEntryFieldInfo;
+		this.indexFielder = indexEntryFieldInfo.getFielderSupplier().get();
+		this.indexEntrySupplier = indexEntryFieldInfo.getDatabeanSupplier();
 		this.indexEntry = indexEntrySupplier.get();
 	}
 
 	@Override
 	public List<IE> runOnce(){
 		return mysqlGetOpExecutor.execute(fieldInfo, opName, uniqueKeys, config, indexFielder.getFields(
-				indexEntry), this::select, getConnection());
+				indexEntry), this::select, getConnection(), indexEntryFieldInfo.getIndexName());
 	}
 
 	private List<IE> select(PreparedStatement ps){

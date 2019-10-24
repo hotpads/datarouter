@@ -8,7 +8,7 @@ runtime Client implementations such as datarouter-mysql.
 - [ClientManager](./src/main/java/io/datarouter/storage/client/ClientManager.java)
 - [Node](./src/main/java/io/datarouter/storage/node/Node.java)
 - [PhysicalNode](./src/main/java/io/datarouter/storage/node/type/physical/PhysicalNode.java)
-- [Router](./src/main/java/io/datarouter/storage/router/Router.java)
+- [Dao](./src/main/java/io/datarouter/storage/dao/Dao.java)
 
 - [Datarouter](./src/main/java/io/datarouter/storage/Datarouter.java)
 - [DatarouterClients](./src/main/java/io/datarouter/storage/client/DatarouterClients.java)

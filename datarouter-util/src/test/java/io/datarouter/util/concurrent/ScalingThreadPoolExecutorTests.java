@@ -19,9 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -32,9 +30,8 @@ public class ScalingThreadPoolExecutorTests{
 
 	@Test
 	public void test(){
-		ThreadFactory threadFactory = new NamedThreadFactory(null, ScalingThreadPoolExecutorTests.class.getSimpleName(),
-				false);
-		ThreadPoolExecutor executor = new ScalingThreadPoolExecutor(0, MAX_THREADS, 0, TimeUnit.SECONDS, threadFactory);
+		ThreadPoolExecutor executor = new ScalingThreadPoolExecutor(ScalingThreadPoolExecutorTests.class
+				.getSimpleName(), MAX_THREADS);
 		Phaser phaser = new Phaser(1);
 
 		List<Future<?>> futures = new ArrayList<>();

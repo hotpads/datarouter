@@ -150,9 +150,8 @@ public class MysqlNodeManager{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getFromIndex;
 		BaseMysqlOp<List<IE>> op = new MysqlGetIndexOp<>(datarouter, mysqlGetOpExecutor, fieldInfo, fieldCodecFactory,
-				opName, config, indexEntryFieldInfo.getDatabeanSupplier(), indexEntryFieldInfo.getFielderSupplier(),
-				keys);
-		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
+				opName, config, indexEntryFieldInfo, keys);
+		return sessionExecutor.runWithoutRetries(op);
 	}
 
 	public <PK extends PrimaryKey<PK>,

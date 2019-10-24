@@ -41,8 +41,8 @@
 			</div>
 			<c:if test="${browseSortedData == true}">
 				<div class="form-group">
-					<label for="startAfterKey" class="font-weight-bold m-0">StartAfterKey (changes each page)</label>
-					<input id="startAfterKey" name="startAfterKey" value="${startAfterKey}" type="text" class="form-control">
+					<label for="startKey" class="font-weight-bold m-0">Start key (changes each page)</label>
+					<input id="startKey" name="startKey" value="${startKey}" type="text" class="form-control">
 				</div>
 				<div class="form-row">
 					<div class="form-group col-auto">
@@ -62,13 +62,13 @@
 		<c:if test="${browseSortedData == true}">
 			<c:set var="accessDatabeans" value=""/>
 			<c:if test="${fn:length(databeans) >= limit}">
-				<c:set var="accessDatabeans" value="&startAfterKey=${nextKey}&limit=${limit}"/>
+				<c:set var="accessDatabeans" value="&startKey=${nextKey}&limit=${limit}"/>
 			</c:if>
 			<nav>
 				<ul class="pagination justify-content-center mt-2 mb-0">
-					<c:if test="${not empty startAfterKey}">
+					<c:if test="${not empty startKey}">
 						<li class="page-item">
-							<a class="page-link" href="?nodeName=${param.nodeName}&startAfterKey=&limit=${limit}">
+							<a class="page-link" href="?nodeName=${param.nodeName}&startKey=&limit=${limit}">
 								First page
 							</a>
 						</li>
@@ -144,9 +144,9 @@
 			</table>
 			<nav> 
 				<ul class="pagination justify-content-center">
-					<c:if test="${not empty startAfterKey}">
+					<c:if test="${not empty startKey}">
 						<li class="page-item">
-							<a class="page-link" href="?nodeName=${param.nodeName}&startAfterKey=&limit=${limit}">
+							<a class="page-link" href="?nodeName=${param.nodeName}&startKey=&limit=${limit}">
 								First page
 							</a>
 						</li>

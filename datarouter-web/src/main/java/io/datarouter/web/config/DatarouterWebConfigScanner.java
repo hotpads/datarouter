@@ -22,8 +22,8 @@ import javax.inject.Singleton;
 
 import io.datarouter.instrumentation.autoconfig.ConfigScanDto;
 import io.datarouter.instrumentation.autoconfig.ConfigScanResponseTool;
+import io.datarouter.web.user.BaseDatarouterUserDao;
 import io.datarouter.web.user.DatarouterUserCreationService;
-import io.datarouter.web.user.DatarouterUserNodes;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserKey;
 
@@ -31,12 +31,11 @@ import io.datarouter.web.user.databean.DatarouterUserKey;
 public class DatarouterWebConfigScanner{
 
 	@Inject
-	private DatarouterUserNodes datarouterUserNodes;
+	private BaseDatarouterUserDao datarouterUserDao;
 
 	public ConfigScanDto checkForDefaultUserId(){
 		Long defaultAdminId = DatarouterUserCreationService.ADMIN_ID;
-		Optional<DatarouterUser> defaultUser = datarouterUserNodes.getUserNode()
-				.find(new DatarouterUserKey(defaultAdminId));
+		Optional<DatarouterUser> defaultUser = datarouterUserDao.find(new DatarouterUserKey(defaultAdminId));
 		if(defaultUser.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}

@@ -19,32 +19,30 @@ import org.testng.Assert;
 
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestRouter;
+import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestDao;
 import io.datarouter.client.mysql.test.client.txn.TxnBean;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.PutMethod;
 
 public class TestInsertRollback extends BaseMysqlOp<Void>{
 
-	private final DatarouterTxnTestRouter router;
+	private final DatarouterTxnTestDao dao;
 	private final String beanPrefix;
 
 	public TestInsertRollback(Datarouter datarouter, ClientId clientId, Isolation isolation,
-			DatarouterTxnTestRouter router, String beanPrefix){
+			DatarouterTxnTestDao dao, String beanPrefix){
 		super(datarouter, clientId, isolation, false);
-		this.router = router;
+		this.dao = dao;
 		this.beanPrefix = beanPrefix;
 	}
 
 	@Override
 	public Void runOnce(){
 		TxnBean beanA = new TxnBean(beanPrefix + "1");
-		router.txnBean().put(beanA);
-		Assert.assertTrue(router.txnBean().exists(beanA.getKey()));//it exists inside the txn
+		dao.put(beanA);
+		Assert.assertTrue(dao.exists(beanA.getKey()));//it exists inside the txn
 		TxnBean a2 = new TxnBean(beanA.getKey().getId());
-		router.txnBean().put(a2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
+		dao.putOrBust(a2);//should bust on commit
 		return null;
 	}
 

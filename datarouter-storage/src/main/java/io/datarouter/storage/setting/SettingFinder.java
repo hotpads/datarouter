@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.setting;
 
+import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.storage.servertype.ServerType;
@@ -26,5 +27,6 @@ public interface SettingFinder{
 	ServerType getServerType();
 	String getServerName();
 	Optional<String> getSettingValue(String name);
+	List<String> getAllCustomSettingValues(String name);
 
 }

@@ -25,33 +25,30 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
-import io.datarouter.storage.config.Config;
 import io.datarouter.util.tuple.Range;
 
 @Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
 public class CaseInsensitiveScanIntegrationTests{
 
 	@Inject
-	private DatarouterTestCaseInsensitiveRouter caseInsensitiveTestRouter;
+	private DatarouterTestCaseInsensitiveDao dao;
 
 	// currently this lead to infinite loop: DATAROUTER-1129
 	@Test(enabled = false)
 	public void testMultiScan(){
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("A"));
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("b"));
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("C"));
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("d"));
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("E"));
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("f"));
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("G"));
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("h"));
-		caseInsensitiveTestRouter.caseInsensitiveTestDatabean.put(new CaseInsensitiveTestDatabean("I"));
-		Config config = new Config().setOutputBatchSize(2);
+		dao.put(new CaseInsensitiveTestDatabean("A"));
+		dao.put(new CaseInsensitiveTestDatabean("b"));
+		dao.put(new CaseInsensitiveTestDatabean("C"));
+		dao.put(new CaseInsensitiveTestDatabean("d"));
+		dao.put(new CaseInsensitiveTestDatabean("E"));
+		dao.put(new CaseInsensitiveTestDatabean("f"));
+		dao.put(new CaseInsensitiveTestDatabean("G"));
+		dao.put(new CaseInsensitiveTestDatabean("h"));
+		dao.put(new CaseInsensitiveTestDatabean("I"));
 		List<Range<CaseInsensitiveTestPrimaryKey>> ranges = Arrays.asList(
 				new Range<>(new CaseInsensitiveTestPrimaryKey("b"), new CaseInsensitiveTestPrimaryKey("d")),
 				new Range<>(new CaseInsensitiveTestPrimaryKey("f"), new CaseInsensitiveTestPrimaryKey("h")));
-		List<CaseInsensitiveTestDatabean> fetched = caseInsensitiveTestRouter.caseInsensitiveTestDatabean
-				.scanMulti(ranges, config)
+		List<CaseInsensitiveTestDatabean> fetched = dao.scanMulti(ranges, 2)
 				.list();
 		Assert.assertEquals(fetched.size(), 4);
 	}

@@ -114,11 +114,10 @@ public abstract class BaseRouteSet{
 		}
 
 		public static final BaseRouteSet testRouteSet = new BaseRouteSet(""){
-			{//https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.6
+			{
 				handle(ANON_PATH).allowAnonymous();
-				Arrays.asList(DatarouterUserRole.values()).forEach((role) -> {
-					handle(getPathForRole(role)).allowRoles(role);
-				});
+				Arrays.stream(DatarouterUserRole.values())
+						.forEach(role -> handle(getPathForRole(role)).allowRoles(role));
 			}
 		};
 

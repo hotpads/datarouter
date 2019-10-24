@@ -1,0 +1,316 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.datarouter.tasktracker.service;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
+
+import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.instrumentation.task.TaskStatus;
+import io.datarouter.instrumentation.task.TaskTracker;
+import io.datarouter.storage.config.DatarouterAdministratorEmailService;
+import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.setting.Setting;
+import io.datarouter.tasktracker.TaskTrackerCounters;
+import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
+import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.storage.LongRunningTaskKey;
+import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
+import io.datarouter.util.ComparableTool;
+import io.datarouter.util.mutable.MutableBoolean;
+import io.datarouter.web.email.DatarouterEmailService;
+
+public class LongRunningTaskTracker implements TaskTracker{
+	private static final Logger logger = LoggerFactory.getLogger(LongRunningTaskTracker.class);
+
+	private static final Duration HEARTBEAT_PERSIST_PERIOD = Duration.ofSeconds(1);
+
+	private final DatarouterEmailService datarouterEmailService;
+	private final DatarouterProperties datarouterProperties;
+	private final DatarouterService datarouterService;
+	private final DatarouterAdministratorEmailService datarouterAdministratorEmailService;
+	private final LongRunningTaskGraphLink longRunningTaskGraphLink;
+	private final Setting<Boolean> persistSetting;
+	private final SortedMapStorage<LongRunningTaskKey,LongRunningTask> node;
+	private final TaskTrackerCounters counters;
+
+	private final LongRunningTaskInfo task;
+	private final Optional<Instant> deadline;
+	private final boolean warnOnReachingInterrupt;
+	private final String uiPath;
+	private final MutableBoolean stopRequested;
+	private volatile Instant lastPersisted;
+	private volatile boolean deadlineAlertAttempted;
+
+	public LongRunningTaskTracker(
+			DatarouterEmailService datarouterEmailService,
+			DatarouterProperties datarouterProperties,
+			DatarouterService datarouterService,
+			DatarouterAdministratorEmailService datarouterAdministratorEmailService,
+			LongRunningTaskGraphLink longRunningTaskGraphLink,
+			Setting<Boolean> persistSetting,
+			SortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
+			TaskTrackerCounters counters,
+			LongRunningTaskInfo task,
+			Instant deadline,
+			boolean warnOnReachingInterrupt,
+			String uiPath){
+		this.datarouterEmailService = datarouterEmailService;
+		this.datarouterProperties = datarouterProperties;
+		this.datarouterService = datarouterService;
+		this.datarouterAdministratorEmailService = datarouterAdministratorEmailService;
+		this.longRunningTaskGraphLink = longRunningTaskGraphLink;
+		this.persistSetting = persistSetting;
+		this.node = node;
+		this.counters = counters;
+
+		this.task = task;
+		this.deadline = Optional.ofNullable(deadline);
+		this.warnOnReachingInterrupt = warnOnReachingInterrupt;
+		this.uiPath = uiPath;
+		this.stopRequested = new MutableBoolean(false);
+		this.deadlineAlertAttempted = false;
+	}
+
+	@Override
+	public String getName(){
+		return task.name;
+	}
+
+	@Override
+	public String getServerName(){
+		return task.serverName;
+	}
+
+	/*----------- timing ----------------*/
+
+	@Override
+	public TaskTracker setScheduledTime(Instant scheduledTime){
+		task.triggerTime = Date.from(scheduledTime);
+		return this;
+	}
+
+	@Override
+	public Instant getScheduledTime(){
+		return task.triggerTime.toInstant();
+	}
+
+	@Override
+	public TaskTracker onStart(){
+		task.startTime = Date.from(Instant.now());
+		return this;
+	}
+
+	@Override
+	public TaskTracker setStartTime(Instant instant){
+		task.startTime = Date.from(instant);
+		return this;
+	}
+
+	@Override
+	public Instant getStartTime(){
+		return task.startTime.toInstant();
+	}
+
+	@Override
+	public TaskTracker onFinish(){
+		task.finishTime = new Date();
+		return this;
+	}
+
+	@Override
+	public TaskTracker setFinishTime(Instant instant){
+		task.finishTime = Date.from(instant);
+		return this;
+	}
+
+	@Override
+	public Instant getFinishTime(){
+		return task.finishTime.toInstant();
+	}
+
+	/*------------ counting ---------------*/
+
+	@Override
+	public long getCount(){
+		return task.numItemsProcessed;
+	}
+
+	@Override
+	public String getLastItem(){
+		return task.lastItemProcessed;
+	}
+
+	/*--------------- heartbeat --------------*/
+
+	@Override
+	public LongRunningTaskTracker increment(){
+		return increment(1);
+	}
+
+	@Override
+	public LongRunningTaskTracker increment(long delta){
+		task.numItemsProcessed += delta;
+		return heartbeat();
+	}
+
+	@Override
+	public LongRunningTaskTracker heartbeat(long numItemsProcessed){
+		task.numItemsProcessed = numItemsProcessed;
+		return heartbeat();
+	}
+
+	@Override
+	public LongRunningTaskTracker heartbeat(){
+		counters.heartbeat(task.name);
+		task.heartbeatTime = new Date();
+		persistIfEnoughTimeElapsed();
+		return this;
+	}
+
+	@Override
+	public LongRunningTaskTracker setLastItemProcessed(String lastItemProcessed){
+		task.lastItemProcessed = lastItemProcessed;
+		return this;
+	}
+
+	/*------------- status ----------------*/
+
+	@Override
+	public TaskTracker setStatus(TaskStatus status){
+		task.longRunningTaskStatus = LongRunningTaskStatus.fromTaskStatus(status);
+		return this;
+	}
+
+	@Override
+	public TaskStatus getStatus(){
+		return task.longRunningTaskStatus.getStatus();
+	}
+
+	/*------------ interrupt -----------------*/
+
+	@Override
+	public TaskTracker requestStop(){
+		logger.info("requestStop on " + task.name);
+		stopRequested.set(true);
+		return this;
+	}
+
+	@Override
+	public boolean shouldStop(){
+		heartbeat();
+		if(stopRequested.get()){
+			onShouldStop("stop requested");
+			task.longRunningTaskStatus = LongRunningTaskStatus.STOP_REQUESTED;
+			return true;
+		}
+		if(deadline.map(instant -> Instant.now().isAfter(instant)).orElse(false)){
+			task.longRunningTaskStatus = LongRunningTaskStatus.MAX_DURATION_REACHED;
+			sendMaxDurationAlertIfShould();
+			onShouldStop("maxDuration reached");
+			return true;
+		}
+		if(Thread.currentThread().isInterrupted()){
+			task.longRunningTaskStatus = LongRunningTaskStatus.INTERRUPTED;
+			onShouldStop("thread interrupted");
+			return true;
+		}
+		return false;
+	}
+
+	private void onShouldStop(String reason){
+		counters.shouldStop(task.name, reason);
+		logger.warn("{} shouldStop because {}", task.name, reason);
+		persistIfShould();
+	}
+
+	private void sendMaxDurationAlertIfShould(){
+		if(!warnOnReachingInterrupt){
+			return;
+		}
+		if(deadlineAlertAttempted){
+			return;
+		}
+		deadlineAlertAttempted = true;
+
+		String name = task.name;
+		String explanation = String.format("Deadline reached for %s on %s. Consider extending trigger period.", name,
+				datarouterProperties.getServerName());
+		String aLinkFormat = "<a href=\"%s\">%s</a>";
+		String longRunningTaskLink = String.format(aLinkFormat, getLinkToLongRunningTasksTable(), "LongRunningTasks");
+		String counterLink = String.format(aLinkFormat, longRunningTaskGraphLink.getLink(name), "Counters");
+
+		datarouterEmailService.trySendHtmlEmail(
+				datarouterProperties.getAdministratorEmail(),
+				datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv(),
+				"LongRunningTaskTracker deadline reached for " + name,
+				explanation + "<br>" + longRunningTaskLink + "<br>" + counterLink);
+	}
+
+	/*------------ persist -----------------*/
+
+	private void persistIfEnoughTimeElapsed(){
+		if(lastPersisted == null){
+			persistIfShould();
+			return;
+		}
+		Duration elapsed = Duration.between(lastPersisted, Instant.now());
+		if(ComparableTool.gt(elapsed, HEARTBEAT_PERSIST_PERIOD)){
+			persistIfShould();
+		}
+	}
+
+	public void persistIfShould(){
+		if(task.triggerTime == null){
+			logger.warn("setting null triggerTime to now on {}", task.databeanName);
+			task.triggerTime = new Date();
+		}
+		if(shouldPersist()){
+			node.put(new LongRunningTask(task));
+			lastPersisted = Instant.now();
+		}
+	}
+
+	private boolean shouldPersist(){
+		if(node == null){
+			return false;
+		}
+		if(persistSetting == null){
+			return false;
+		}
+		return persistSetting.get();
+	}
+
+	/*------------ utility -----------------*/
+
+	private String getLinkToLongRunningTasksTable(){
+		return new URIBuilder()
+				.setScheme("https")
+				.setHost(datarouterService.getPublicDomain())
+				.setPath(datarouterService.getContextPath() + uiPath)
+				.setParameter("name", task.name)
+				.setParameter("status", "all")
+				.toString();
+	}
+
+}

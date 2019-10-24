@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.user.DatarouterUserNodes;
+import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.session.DatarouterSession;
@@ -39,7 +39,7 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterSessionAuthenticator.class);
 
 	@Inject
-	private DatarouterUserNodes userNodes;
+	private BaseDatarouterSessionDao datarouterSessionDao;
 	@Inject
 	private DatarouterSessionManager sessionManager;
 	@Inject
@@ -51,7 +51,7 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 		if(StringTool.isEmptyOrWhitespace(sessionToken)){
 			return null;
 		}
-		DatarouterSession session = userNodes.getSessionNode().get(new DatarouterSessionKey(sessionToken));
+		DatarouterSession session = datarouterSessionDao.get(new DatarouterSessionKey(sessionToken));
 		if(session == null || datarouterAuthenticationConfig.isSessionExpired(session)){
 			return null;
 		}
@@ -61,7 +61,7 @@ public class DatarouterSessionAuthenticator implements DatarouterAuthenticator{
 		if(ObjectTool.notEquals(cookieUserToken, session.getUserToken())){
 			logger.warn("session userToken " + session.getUserToken() + " != cookie userToken " + cookieUserToken
 					+ ", deleting session");
-			userNodes.getSessionNode().delete(session.getKey());
+			datarouterSessionDao.delete(session.getKey());
 			sessionManager.clearSessionTokenCookie(response);
 			sessionManager.clearUserTokenCookie(response);
 			return null;

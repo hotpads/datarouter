@@ -28,8 +28,7 @@ public class ThreadTool{
 		try{
 			Thread.sleep(ms);
 		}catch(InterruptedException e){
-			Thread.currentThread().interrupt();
-			throw new RuntimeException(e);
+			throw new UncheckedInterruptedException(e);
 		}
 	}
 

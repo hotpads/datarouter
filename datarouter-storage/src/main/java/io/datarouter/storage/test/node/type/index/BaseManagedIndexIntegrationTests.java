@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.test.node.type.index;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -29,31 +30,35 @@ import org.testng.annotations.Test;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.Config;
+import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBarKey;
-import io.datarouter.storage.test.node.type.index.node.DatarouterTestDatabeanWithIndexRouter;
-import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithManagedIndexRouter;
-import io.datarouter.storage.test.node.type.index.node.TestDatabeanWithTxnManagedIndexRouter;
-import io.datarouter.storage.test.node.type.index.router.ManagedIndexTestRoutersFactory;
-import io.datarouter.storage.test.node.type.index.router.ManagedIndexTestRoutersFactory.ManagedIndexTestRouters;
+import io.datarouter.storage.test.node.type.index.node.DatarouterTestDatabeanWithIndexDao;
 import io.datarouter.util.collection.ListTool;
 
 public abstract class BaseManagedIndexIntegrationTests{
 
+	private static final List<TestDatabean> TEST_DATABEANS = Arrays.asList(
+			new TestDatabean("un", "alarc'h", "un"),
+			new TestDatabean("alarc'h", "tra", "mor"),
+			new TestDatabean("war", "lein", "tour"),
+			new TestDatabean("moal", "kastell", "Arvor"),
+			new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
+			new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"),
+			new TestDatabean("Erru eul lestr", "e pleg ar m", "or"),
+			new TestDatabean("He weliou gwenn", "gant han dig", "or"));
+
+	private final ClientId clientId;
+
 	@Inject
 	private Datarouter datarouter;
 	@Inject
-	private ManagedIndexTestRoutersFactory routersFactory;
+	private NodeFactory nodeFactory;
 
-	private TestDatabeanWithManagedIndexRouter router;
-	private TestDatabeanWithTxnManagedIndexRouter routerWithTxnManaged;
-
-	private LinkedList<TestDatabean> testDatabeans;
-	private ManagedIndexTestRouters routers;
-	private ClientId clientId;
+	private DatarouterTestDatabeanWithIndexDao dao;
+	private DatarouterTestDatabeanWithIndexDao daoTxn;
 
 	public BaseManagedIndexIntegrationTests(ClientId clientId){
 		this.clientId = clientId;
@@ -61,40 +66,31 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	@BeforeClass
 	public void setUp(){
-		routers = routersFactory.new ManagedIndexTestRouters(clientId);
-		router = routers.testDatabeanWithManagedIndex;
-		routerWithTxnManaged = routers.testDatabeanWithTxnManagedIndex;
-
-		testDatabeans = ListTool.createLinkedList(
-				new TestDatabean("un", "alarc'h", "un"),
-				new TestDatabean("alarc'h", "tra", "mor"),
-				new TestDatabean("war", "lein", "tour"),
-				new TestDatabean("moal", "kastell", "Arvor"),
-				new TestDatabean("Neventi vad", "d'ar Vreton", "ed"),
-				new TestDatabean("Ha malloz-ru", "d'ar C'hallaou", "ed"),
-				new TestDatabean("Erru eul lestr", "e pleg ar m", "or"),
-				new TestDatabean("He weliou gwenn", "gant han dig", "or"));
-		router.mainNode.putMulti(testDatabeans);
-		routerWithTxnManaged.mainNode.putMulti(testDatabeans);
+		dao = new DatarouterTestDatabeanWithIndexDao(datarouter, nodeFactory, clientId,
+				"TestDatabeanWithManagedIndex", false, TestDatabeanWithManagedIndexByBar.class.getSimpleName());
+		daoTxn = new DatarouterTestDatabeanWithIndexDao(datarouter, nodeFactory, clientId,
+				"TestDatabeanWithTxnManagedIndex", true, "TestDatabeanWithTxnManagedIndexByBar");
+		dao.putMulti(TEST_DATABEANS);
+		daoTxn.putMulti(TEST_DATABEANS);
 	}
 
 	@AfterClass
 	public void afterClass(){
-		router.mainNode.deleteAll();
-		routerWithTxnManaged.mainNode.deleteAll();
+		dao.deleteAll();
+		daoTxn.deleteAll();
 		datarouter.shutdown();
 	}
 
 	@Test
 	public void testLookupUnique(){
-		testLookupUnique(router);
-		testLookupUnique(routerWithTxnManaged);
+		testLookupUnique(dao);
+		testLookupUnique(daoTxn);
 	}
 
-	private void testLookupUnique(DatarouterTestDatabeanWithIndexRouter router){
-		TestDatabean databean = router.byB.lookupUnique(new TestDatabeanWithManagedIndexByBarKey("martolod"));
+	private void testLookupUnique(DatarouterTestDatabeanWithIndexDao genericDao){
+		TestDatabean databean = genericDao.lookupUnique(new TestDatabeanWithManagedIndexByBarKey("martolod"));
 		Assert.assertNull(databean);
-		databean = router.byB.lookupUnique(new TestDatabeanWithManagedIndexByBarKey("tra"));
+		databean = genericDao.lookupUnique(new TestDatabeanWithManagedIndexByBarKey("tra"));
 		Assert.assertEquals(databean.getKey().getFoo(), "alarc'h");
 		Assert.assertEquals(databean.getBar(), "tra");
 		Assert.assertEquals(databean.getBaz(), "mor");
@@ -102,16 +98,16 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	@Test
 	public void testLookupMultiUnique(){
-		testLookupMultiUnique(router);
-		testLookupMultiUnique(routerWithTxnManaged);
+		testLookupMultiUnique(dao);
+		testLookupMultiUnique(daoTxn);
 	}
 
-	private void testLookupMultiUnique(DatarouterTestDatabeanWithIndexRouter router){
+	private void testLookupMultiUnique(DatarouterTestDatabeanWithIndexDao genericDao){
 		LinkedList<TestDatabeanWithManagedIndexByBarKey> keys = ListTool.createLinkedList(
 				new TestDatabeanWithManagedIndexByBarKey("martolod"),
 				new TestDatabeanWithManagedIndexByBarKey("kastell"),
 				new TestDatabeanWithManagedIndexByBarKey("lein"));
-		List<TestDatabean> databeans = router.byB.lookupMultiUnique(keys);
+		List<TestDatabean> databeans = genericDao.lookupMultiUnique(keys);
 		Assert.assertEquals(2, databeans.size());
 		for(TestDatabean d : databeans){
 			Assert.assertTrue("moal".equals(d.getKey().getFoo()) || "war".equals(d.getKey().getFoo()));
@@ -128,14 +124,14 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	@Test
 	public void testLookupIndex(){
-		testLookupIndex(router);
-		testLookupIndex(routerWithTxnManaged);
+		testLookupIndex(dao);
+		testLookupIndex(daoTxn);
 	}
 
-	private void testLookupIndex(DatarouterTestDatabeanWithIndexRouter router){
-		TestDatabeanWithManagedIndexByBar entry = router.byB.get(new TestDatabeanWithManagedIndexByBarKey("martolod"));
+	private void testLookupIndex(DatarouterTestDatabeanWithIndexDao genericDao){
+		TestDatabeanWithManagedIndexByBar entry = genericDao.get(new TestDatabeanWithManagedIndexByBarKey("martolod"));
 		Assert.assertNull(entry);
-		entry = router.byB.get(new TestDatabeanWithManagedIndexByBarKey("tra"));
+		entry = genericDao.get(new TestDatabeanWithManagedIndexByBarKey("tra"));
 		Assert.assertNotNull(entry);
 		Assert.assertEquals(entry.getFoo(), "alarc'h");
 		Assert.assertEquals(entry.getKey().getBar(), "tra");
@@ -143,16 +139,16 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	@Test
 	public void testLookupMultiIndex(){
-		testLookupMultiIndex(router);
-		testLookupMultiIndex(routerWithTxnManaged);
+		testLookupMultiIndex(dao);
+		testLookupMultiIndex(daoTxn);
 	}
 
-	private void testLookupMultiIndex(DatarouterTestDatabeanWithIndexRouter router){
+	private void testLookupMultiIndex(DatarouterTestDatabeanWithIndexDao genericDao){
 		LinkedList<TestDatabeanWithManagedIndexByBarKey> keys = ListTool.createLinkedList(
 				new TestDatabeanWithManagedIndexByBarKey("martolod"),
 				new TestDatabeanWithManagedIndexByBarKey("kastell"),
 				new TestDatabeanWithManagedIndexByBarKey("lein"));
-		List<TestDatabeanWithManagedIndexByBar> entries = router.byB.getMulti(keys);
+		List<TestDatabeanWithManagedIndexByBar> entries = genericDao.getMultiByB(keys);
 		Assert.assertEquals(2, entries.size());
 		for(TestDatabeanWithManagedIndexByBar entry : entries){
 			Assert.assertTrue("moal".equals(entry.getFoo()) || "war".equals(entry.getFoo()));
@@ -167,30 +163,30 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	@Test
 	public void testDeleteUnique(){
-		testDeleteUnique(router);
-		testDeleteUnique(routerWithTxnManaged);
+		testDeleteUnique(dao);
+		testDeleteUnique(daoTxn);
 	}
 
-	private void testDeleteUnique(DatarouterTestDatabeanWithIndexRouter router){
+	private void testDeleteUnique(DatarouterTestDatabeanWithIndexDao genericDao){
 		TestDatabean databean = new TestDatabean("tri", "martolod", "yaouank");
 		TestDatabeanWithManagedIndexByBarKey databeanIndexKey = new TestDatabeanWithManagedIndexByBarKey("martolod");
-		Assert.assertNull(router.mainNode.get(databean.getKey()));
-		Assert.assertNull(router.byB.lookupUnique(databeanIndexKey));
-		router.mainNode.put(databean);
-		Assert.assertNotNull(router.mainNode.get(databean.getKey()));
-		Assert.assertNotNull(router.byB.lookupUnique(databeanIndexKey));
-		router.byB.deleteUnique(databeanIndexKey);
-		Assert.assertNull(router.mainNode.get(databean.getKey()));
-		Assert.assertNull(router.byB.lookupUnique(databeanIndexKey));
+		Assert.assertNull(genericDao.get(databean.getKey()));
+		Assert.assertNull(genericDao.lookupUnique(databeanIndexKey));
+		genericDao.put(databean);
+		Assert.assertNotNull(genericDao.get(databean.getKey()));
+		Assert.assertNotNull(genericDao.lookupUnique(databeanIndexKey));
+		genericDao.deleteUnique(databeanIndexKey);
+		Assert.assertNull(genericDao.get(databean.getKey()));
+		Assert.assertNull(genericDao.lookupUnique(databeanIndexKey));
 	}
 
 	@Test
 	public void testDeleteMultiUnique(){
-		testDeleteMultiUnique(router);
-		testDeleteMultiUnique(routerWithTxnManaged);
+		testDeleteMultiUnique(dao);
+		testDeleteMultiUnique(daoTxn);
 	}
 
-	private void testDeleteMultiUnique(DatarouterTestDatabeanWithIndexRouter router){
+	private void testDeleteMultiUnique(DatarouterTestDatabeanWithIndexDao genericDao){
 		List<TestDatabean> databeans = ListTool.createLinkedList(
 				new TestDatabean("tri", "martolod", "yaouank"),
 				new TestDatabean("i vonet", "da", "veajiñ"));
@@ -199,52 +195,52 @@ public abstract class BaseManagedIndexIntegrationTests{
 		for(TestDatabean databean : databeans){
 			entryKeys.add(new TestDatabeanWithManagedIndexByBarKey(databean.getBar()));
 		}
-		Assert.assertEquals(0, router.mainNode.getMulti(keys).size());
-		Assert.assertEquals(0, router.byB.lookupMultiUnique(entryKeys).size());
-		router.mainNode.putMulti(databeans);
-		Assert.assertEquals(2, router.mainNode.getMulti(keys).size());
-		Assert.assertEquals(2, router.byB.lookupMultiUnique(entryKeys).size());
-		router.byB.deleteMultiUnique(entryKeys);
-		Assert.assertEquals(0, router.mainNode.getMulti(keys).size());
-		Assert.assertEquals(0, router.byB.lookupMultiUnique(entryKeys).size());
+		Assert.assertEquals(0, genericDao.getMulti(keys).size());
+		Assert.assertEquals(0, genericDao.lookupMultiUnique(entryKeys).size());
+		genericDao.putMulti(databeans);
+		Assert.assertEquals(2, genericDao.getMulti(keys).size());
+		Assert.assertEquals(2, genericDao.lookupMultiUnique(entryKeys).size());
+		genericDao.deleteMultiUnique(entryKeys);
+		Assert.assertEquals(0, genericDao.getMulti(keys).size());
+		Assert.assertEquals(0, genericDao.lookupMultiUnique(entryKeys).size());
 	}
 
 	@Test
 	public void testScanIndex(){
-		testScanUniqueIndex(router);
-		testScanUniqueIndex(routerWithTxnManaged);
+		testScanUniqueIndex(dao);
+		testScanUniqueIndex(daoTxn);
 	}
 
-	private void testScanUniqueIndex(DatarouterTestDatabeanWithIndexRouter router){
+	private void testScanUniqueIndex(DatarouterTestDatabeanWithIndexDao genericDao){
 		TestDatabeanWithManagedIndexByBar previous = null;
 		int count = 0;
-		for(TestDatabeanWithManagedIndexByBar indexEntry : router.byB.scan()){
+		for(TestDatabeanWithManagedIndexByBar indexEntry : genericDao.scanByB().iterable()){
 			if(previous != null){
 				Assert.assertTrue(indexEntry.getKey().compareTo(previous.getKey()) >= 0);
 			}
 			previous = indexEntry;
 			count++;
 		}
-		Assert.assertEquals(testDatabeans.size(), count);
+		Assert.assertEquals(TEST_DATABEANS.size(), count);
 	}
 
 	@Test
 	public void testScan(){
-		testScanUnique(router);
-		testScanUnique(routerWithTxnManaged);
+		testScanUnique(dao);
+		testScanUnique(daoTxn);
 	}
 
-	private void testScanUnique(DatarouterTestDatabeanWithIndexRouter router){
+	private void testScanUnique(DatarouterTestDatabeanWithIndexDao genericDao){
 		TestDatabean previous = null;
 		int count = 0;
-		for(TestDatabean databean : router.byB.scanDatabeans()){
+		for(TestDatabean databean : genericDao.scanDatabeansByB().iterable()){
 			if(previous != null){
 				Assert.assertTrue(databean.getBar().compareTo(previous.getBar()) >= 0);
 			}
 			previous = databean;
 			count++;
 		}
-		Assert.assertEquals(testDatabeans.size(), count);
+		Assert.assertEquals(TEST_DATABEANS.size(), count);
 	}
 
 	@Test
@@ -260,26 +256,27 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	@Test(enabled = false) // TODO fix as part of DATAROUTER-705
 	public void testScanKeysLimit(){
-		checkScanKeys(Optional.of(5));
+		checkScanKeys(dao, Optional.of(5));
+		checkScanKeys(daoTxn, Optional.of(5));
 	}
 
 	@Test
 	public void testScanKeys(){
-		checkScanKeys(Optional.empty());
+		checkScanKeys(dao, Optional.empty());
+		checkScanKeys(daoTxn, Optional.empty());
 	}
 
-	private void checkScanKeys(Optional<Integer> limit){
+	private void checkScanKeys(DatarouterTestDatabeanWithIndexDao genericDao, Optional<Integer> limit){
 		TestDatabeanWithManagedIndexByBarKey previous = null;
 		int count = 0;
-		Config config = limit.map(intLimit -> new Config().setLimit(intLimit)).orElse(new Config());
-		for(TestDatabeanWithManagedIndexByBarKey key : routers.testDatabeanWithManagedIndex.byB.scanKeys(config)){
+		for(TestDatabeanWithManagedIndexByBarKey key : genericDao.scanKeysByB(limit).iterable()){
 			if(previous != null){
 				Assert.assertTrue(key.getBar().compareTo(previous.getBar()) > 0);
 			}
 			previous = key;
 			count++;
 		}
-		Assert.assertEquals(count, (int)limit.orElse(testDatabeans.size()));
+		Assert.assertEquals(count, (int)limit.orElse(TEST_DATABEANS.size()));
 	}
 
 }

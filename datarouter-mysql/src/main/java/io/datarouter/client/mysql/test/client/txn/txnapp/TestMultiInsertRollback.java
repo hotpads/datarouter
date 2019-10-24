@@ -21,7 +21,7 @@ import org.testng.Assert;
 
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestRouter;
+import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestDao;
 import io.datarouter.client.mysql.test.client.txn.TxnBean;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -29,13 +29,13 @@ import io.datarouter.util.collection.ListTool;
 
 public class TestMultiInsertRollback extends BaseMysqlOp<Void>{
 
-	private final DatarouterTxnTestRouter router;
+	private final DatarouterTxnTestDao dao;
 	private final String beanPrefix;
 
 	public TestMultiInsertRollback(Datarouter datarouter, ClientId clientId, Isolation isolation,
-			DatarouterTxnTestRouter router, String beanPrefix){
+			DatarouterTxnTestDao dao, String beanPrefix){
 		super(datarouter, clientId, isolation, false);
-		this.router = router;
+		this.dao = dao;
 		this.beanPrefix = beanPrefix;
 	}
 
@@ -45,9 +45,9 @@ public class TestMultiInsertRollback extends BaseMysqlOp<Void>{
 				new TxnBean(beanPrefix + "2"),
 				new TxnBean(beanPrefix + "3"));
 
-		router.txnBean().putMulti(beans);
-		Assert.assertTrue(router.txnBean().exists(beans.get(0).getKey()));
-		Assert.assertTrue(router.txnBean().exists(beans.get(1).getKey()));
+		dao.putMulti(beans);
+		Assert.assertTrue(dao.exists(beans.get(0).getKey()));
+		Assert.assertTrue(dao.exists(beans.get(1).getKey()));
 		throw new RuntimeException("belch");
 	}
 

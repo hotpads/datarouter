@@ -31,12 +31,12 @@ public class SortedStorageCountingTool{
 
 	private static final int BATCH_SIZE = 10_000;
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> long count(SortedStorageReader<PK,D> node,
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> long count(
+			SortedStorageReader<PK,D> node,
 			Range<PK> range){
-		range = Range.nullSafe(range);
 		PK startKey = null;
 		long count = 0;
-		for(PK key : node.scanKeys(range, new Config().setOutputBatchSize(BATCH_SIZE).setLimit(BATCH_SIZE))){
+		for(PK key : node.scanKeys(range, new Config().setOutputBatchSize(BATCH_SIZE).setLimit(BATCH_SIZE)).iterable()){
 			startKey = key;
 			count++;
 		}

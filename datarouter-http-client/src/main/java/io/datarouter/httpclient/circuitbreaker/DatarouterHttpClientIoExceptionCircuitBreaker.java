@@ -43,7 +43,7 @@ import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 
 public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCircuitBreaker{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpExceptionCircuitBreaker.class);
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClientIoExceptionCircuitBreaker.class);
 
 	private static final Duration LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(10);
 
@@ -57,8 +57,9 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		CircuitBreakerState state = getState();
 		if(state == CircuitBreakerState.OPEN && enableBreakers.get()){
 			incrementCounterOnStateChange("open");
-			logger.error("Circuit opened. CircuitName={}", name);
-			throw new DatarouterHttpCircuitBreakerException(name);
+			logger.error("Circuit opened. CircuitName={}, originalException={}", name, callResultQueue
+					.getOriginalException());
+			throw new DatarouterHttpCircuitBreakerException(name, callResultQueue.getOriginalException());
 		}
 
 		DatarouterHttpException ex;
@@ -78,8 +79,9 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			}
 			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, consumer);
 			if(response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST){
-				callResultQueue.insertResult(false);
-				throw new DatarouterHttpResponseException(response, duration);
+				ex = new DatarouterHttpResponseException(response, duration);
+				callResultQueue.insertFalseResultWithException(ex);
+				throw ex;
 			}
 
 			if(state == CircuitBreakerState.HALF_OPEN){
@@ -87,14 +89,14 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				incrementCounterOnStateChange("closing");
 				logger.error("Half opened circuit now closing. CircuitName={}",name);
 			}
-			callResultQueue.insertResult(true);
+			callResultQueue.insertTrueResult();
 			return response;
 		}catch(IOException e){
-			callResultQueue.insertResult(false);
 			ex = new DatarouterHttpConnectionAbortedException(e, requestStartTimeMs, requestId);
+			callResultQueue.insertFalseResultWithException(ex);
 		}catch(CancellationException e){
-			callResultQueue.insertResult(false);
 			ex = new DatarouterHttpRequestInterruptedException(e, requestStartTimeMs, requestId);
+			callResultQueue.insertFalseResultWithException(ex);
 		}finally{
 			TracerTool.finishSpan(TracerThreadLocal.get());
 		}

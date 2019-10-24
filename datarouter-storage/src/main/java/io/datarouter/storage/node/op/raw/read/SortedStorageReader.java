@@ -15,8 +15,8 @@
  */
 package io.datarouter.storage.node.op.raw.read;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,7 +77,7 @@ extends NodeOps<PK,D>{
 	 * be added, but it will likely use a separate interface method.
 	 */
 	default Scanner<D> scan(Range<PK> range, Config config){
-		return scanMulti(Arrays.asList(Range.nullSafe(range)), config);
+		return scanMulti(Collections.singletonList(range), config);
 	}
 
 	default Scanner<D> scan(Range<PK> range){
@@ -103,7 +103,7 @@ extends NodeOps<PK,D>{
 	/*-------------------------------- scan keys ------------------------------*/
 
 	default Scanner<PK> scanKeys(Range<PK> range, Config config){
-		return scanKeysMulti(Arrays.asList(Range.nullSafe(range)), config);
+		return scanKeysMulti(Collections.singletonList(range), config);
 	}
 
 	default Scanner<PK> scanKeys(Range<PK> range){

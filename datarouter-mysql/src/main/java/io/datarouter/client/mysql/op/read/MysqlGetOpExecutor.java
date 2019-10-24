@@ -53,16 +53,16 @@ public class MysqlGetOpExecutor{
 			T extends Comparable<? super T>>
 	List<T> execute(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, String opName, Collection<? extends FieldSet<?>> keys,
 			Config config, List<Field<?>> selectFields, Function<PreparedStatement,List<T>> select,
-			Connection connection){
+			Connection connection, String indexName){
 		Stream<? extends FieldSet<?>> dedupedSortedKeys = keys.stream()
 				.distinct()
 				.sorted();
 		List<T> result = new ArrayList<>(keys.size());
 		for(List<? extends FieldSet<?>> keyBatch : Scanner.of(dedupedSortedKeys).batch(config.optInputBatchSize()
-				.orElse(BATCH_SIZE))){
+				.orElse(BATCH_SIZE)).iterable()){
 			PreparedStatement ps = mysqlPreparedStatementBuilder.getMulti(config, fieldInfo.getTableName(),
-					selectFields, keyBatch, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(
-					connection);
+					selectFields, keyBatch, indexName, MysqlTableOptions.make(fieldInfo.getSampleFielder()))
+					.toPreparedStatement(connection);
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId()
 					.getName(), fieldInfo.getNodeName(), 1L);
 

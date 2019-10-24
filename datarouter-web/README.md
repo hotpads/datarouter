@@ -8,7 +8,7 @@ datarouter-web is a basic framework to handle HTTP requests.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-web</artifactId>
-	<version>0.0.11</version>
+	<version>0.0.12</version>
 </dependency>
 ```
 
@@ -38,8 +38,11 @@ Handlers are grouped into route sets. Each route set maps to a path prefix that 
 Inside the constructor of the route set, you can define multiple routes with the `handle` method. It takes a regex, so you can match any subpath. There are helper methods to match a subdirectory, or to match all paths that have not been matched yet.
 
 ```java
+import javax.inject.Singleton;
+
 import io.datarouter.web.dispatcher.BaseRouteSet;
 
+@Singleton
 public class ExampleRouteSet extends BaseRouteSet{
 
 	public ExampleRouteSet(){
@@ -56,9 +59,9 @@ public class ExampleRouteSet extends BaseRouteSet{
 Route sets are registered in a dispatcher servlet. The dispatcher servlet is an http servlet that you can add to your web.xml file, or to your Guice `ServletModule`.
 
 ```java
-import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatcherServlet;
 
+@SuppressWarnings("serial")
 public class ExampleDispatcherServlet extends DispatcherServlet{
 
 	@Override
@@ -74,6 +77,12 @@ datarouter-web relies internally on dependency injection. We recommend using Gui
 With Guice, you can install the provided `DatarouterWebGuiceModule` in your application's Guice module, it will create the necessary bindings for the framework.
 
 ```java
+import com.google.inject.servlet.ServletModule;
+
+import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.SimpleDatarouterProperties;
+import io.datarouter.web.config.DatarouterWebGuiceModule;
+
 public class ExampleGuiceModule extends ServletModule{
 
 	public static final String SERVICE_NAME = "example";

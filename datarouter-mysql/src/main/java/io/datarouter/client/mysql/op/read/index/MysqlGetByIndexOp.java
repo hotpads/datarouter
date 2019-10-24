@@ -81,7 +81,7 @@ extends BaseMysqlOp<List<D>>{
 		String indexName = indexEntryFieldInfo.getIndexName();
 		String nodeName = tableName + "." + indexName;
 		List<D> result = new ArrayList<>();
-		for(List<IK> batch : Scanner.of(indexKeys).batch(MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)){
+		for(List<IK> batch : Scanner.of(indexKeys).batch(MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE).iterable()){
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId()
 					.getName(), nodeName, 1L);
 			PreparedStatement statement = mysqlPreparedStatementBuilder.getWithPrefixes(config, tableName, indexName,

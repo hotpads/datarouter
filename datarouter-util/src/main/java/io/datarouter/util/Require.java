@@ -17,6 +17,7 @@ package io.datarouter.util;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 import io.datarouter.util.lang.ObjectTool;
 
@@ -118,6 +119,17 @@ public class Require{
 			throw new IllegalArgumentException(message);
 		}
 		return items;
+	}
+
+	public static <T> Optional<T> isPresent(Optional<T> optional){
+		return isPresent(optional, null);
+	}
+
+	public static <T> Optional<T> isPresent(Optional<T> optional, String message){
+		if(optional == null || optional.isEmpty()){
+			throw new IllegalArgumentException(message);
+		}
+		return optional;
 	}
 
 }

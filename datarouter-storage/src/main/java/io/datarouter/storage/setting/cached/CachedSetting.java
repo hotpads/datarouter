@@ -59,6 +59,14 @@ implements Setting<T>{
 		return finder.getSettingValue(name).map(this::parseStringValue).orElseGet(this::getDefaultValue);
 	}
 
+	public void validateAllCustomValuesCanBeParsed(){
+		try{
+			finder.getAllCustomSettingValues(name).forEach(this::parseStringValue);
+		}catch(RuntimeException e){
+			throw new IllegalArgumentException("value is not valid for setting name=" + name, e);
+		}
+	}
+
 	@Override
 	public String getName(){
 		return name;

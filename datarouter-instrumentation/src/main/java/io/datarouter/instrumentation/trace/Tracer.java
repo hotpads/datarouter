@@ -26,6 +26,8 @@ public interface Tracer{
 	List<TraceSpanDto> getSpans();
 
 	Long getCurrentThreadId();
+	Integer getDiscardedThreadCount();
+	void incrementDiscardedThreadCount(int discardedThreadCount);
 
 	void createAndStartThread(String name, long queueTimeMs);
 	void createThread(String name, long queueTimeMs);

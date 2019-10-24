@@ -15,65 +15,56 @@
  */
 package io.datarouter.web.user;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collection;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.dao.BaseDao;
+import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
+import io.datarouter.web.user.databean.DatarouterPermissionRequest.DatarouterPermissionRequestFielder;
 import io.datarouter.web.user.databean.DatarouterPermissionRequestKey;
-import io.datarouter.web.user.databean.DatarouterUserKey;
 
 @Singleton
-public class DatarouterPermissionRequestDao{
+public class DatarouterPermissionRequestDao extends BaseDao implements BaseDatarouterPermissionRequestDao{
+
+	public static class DatarouterPermissionRequestDaoParams extends BaseDaoParams{
+
+		public DatarouterPermissionRequestDaoParams(ClientId clientId){
+			super(clientId);
+		}
+
+	}
+
+	private final SortedMapStorage<DatarouterPermissionRequestKey,DatarouterPermissionRequest> node;
 
 	@Inject
-	private DatarouterUserNodes userNodes;
-
-
-	public Scanner<DatarouterPermissionRequest> scanOpenPermissionRequests(){
-		return userNodes.getPermissionRequestNode().scan()
-				.include(request -> request.getResolution() == null);
+	public DatarouterPermissionRequestDao(Datarouter datarouter, NodeFactory nodeFactory,
+			DatarouterPermissionRequestDaoParams params){
+		super(datarouter);
+		node = nodeFactory.create(params.clientId, DatarouterPermissionRequest::new,
+				DatarouterPermissionRequestFielder::new).buildAndRegister();
 	}
 
-	public Scanner<DatarouterPermissionRequest> streamOpenPermissionRequestsForUser(Long userId){
-		Objects.requireNonNull(userId);
-		return scanPermissionRequestsForUser(userId)
-				.include(request -> request.getResolution() == null);
+	@Override
+	public void putMulti(Collection<DatarouterPermissionRequest> databeans){
+		node.putMulti(databeans);
 	}
 
-	public Scanner<DatarouterPermissionRequest> scanPermissionRequestsForUser(Long userId){
-		return userNodes.getPermissionRequestNode().scanWithPrefix(new DatarouterPermissionRequestKey(userId, null));
+	@Override
+	public Scanner<DatarouterPermissionRequest> scan(){
+		return node.scan();
 	}
 
-	public void createPermissionRequest(DatarouterPermissionRequest request){
-		//supercede existing requests to leave only the new request unresolved
-		List<DatarouterPermissionRequest> requestsToPut = streamOpenPermissionRequestsForUser(request.getKey()
-				.getUserId())
-				.map(DatarouterPermissionRequest::supercede)
-				.list();
-		requestsToPut.add(request);
-
-		userNodes.getPermissionRequestNode().putMulti(requestsToPut);
-	}
-
-	public void declineAll(Long userId){
-		List<DatarouterPermissionRequest> requestsToPut = streamOpenPermissionRequestsForUser(userId)
-				.map(DatarouterPermissionRequest::decline)
-				.list();
-		userNodes.getPermissionRequestNode().putMulti(requestsToPut);
-	}
-
-	public Set<DatarouterUserKey> getUserKeysWithPermissionRequests(){
-		return scanOpenPermissionRequests()
-				.map(DatarouterPermissionRequest::getKey)
-				.map(DatarouterPermissionRequestKey::getUserId)
-				.map(DatarouterUserKey::new)
-				.collect(Collectors.toSet());
+	@Override
+	public Scanner<DatarouterPermissionRequest> scanWithPrefix(DatarouterPermissionRequestKey prefix){
+		return node.scanWithPrefix(prefix);
 	}
 
 }

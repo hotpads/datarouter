@@ -20,6 +20,11 @@ import java.util.List;
 
 public class ScannerScanner<T> extends BaseLinkedScanner<Scanner<T>,Scanner<T>>{
 
+	@SafeVarargs
+	public static <T> ScannerScanner<T> of(Scanner<T>... scanners){
+		return new ScannerScanner<>(Scanner.of(scanners));
+	}
+
 	public ScannerScanner(Scanner<Scanner<T>> input){
 		super(input);
 	}

@@ -23,6 +23,7 @@ public class CallResultQueue{
 
 	private final boolean[] results;
 	private Clock clock;
+	private Exception origException;
 
 	private int currentIndex;
 	public Optional<Long> lastFailureEpochMillis = Optional.empty();
@@ -33,12 +34,16 @@ public class CallResultQueue{
 		reset();
 	}
 
-	public synchronized void insertResult(boolean result){
-		results[currentIndex] = result;
+	public synchronized void insertTrueResult(){
+		results[currentIndex] = Boolean.TRUE;
 		currentIndex = (currentIndex + 1) % results.length;
-		if(!result){
-			lastFailureEpochMillis = Optional.of(clock.millis());
-		}
+	}
+
+	public synchronized void insertFalseResultWithException(Exception origException){
+		results[currentIndex] = Boolean.FALSE;
+		currentIndex = (currentIndex + 1) % results.length;
+		lastFailureEpochMillis = Optional.of(clock.millis());
+		this.origException = origException;
 	}
 
 	public float getFailurePercentage(){
@@ -71,6 +76,10 @@ public class CallResultQueue{
 
 	protected void setClock(Clock clock){
 		this.clock = clock;
+	}
+
+	public Exception getOriginalException(){
+		return origException;
 	}
 
 }

@@ -109,13 +109,14 @@ public class SqlColumn{
 	}
 
 	public String getDefaultValueStatement(){
+		String toReturn = "";
 		if(!getNullable()){
-			return NOT_NULL;
+			toReturn += NOT_NULL;
 		}
 		if(type.isDefaultValueSupported() && getDefaultValue() != null){
-			return " default '" + getDefaultValue() + "'";
+			toReturn += " default '" + getDefaultValue() + "'";
 		}
-		return "";
+		return toReturn;
 	}
 
 	public StringBuilder appendDataTypeDefinition(StringBuilder sb){

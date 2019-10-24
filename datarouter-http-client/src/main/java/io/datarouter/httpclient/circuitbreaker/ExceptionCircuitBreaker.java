@@ -15,10 +15,6 @@
  */
 package io.datarouter.httpclient.circuitbreaker;
 
-import static io.datarouter.httpclient.circuitbreaker.CircuitBreakerState.CLOSED;
-import static io.datarouter.httpclient.circuitbreaker.CircuitBreakerState.HALF_OPEN;
-import static io.datarouter.httpclient.circuitbreaker.CircuitBreakerState.OPEN;
-
 import java.time.Clock;
 import java.time.Duration;
 
@@ -45,21 +41,21 @@ public abstract class ExceptionCircuitBreaker{
 	}
 
 	public ExceptionCircuitBreaker(String name){
-		this(Clock.systemUTC(), 75, Duration.ofSeconds(30), 50, name);
+		this(Clock.systemUTC(), 90, Duration.ofSeconds(30), 200, name);
 	}
 
 	public CircuitBreakerState getState(){
 		long now = clock.millis();
 		boolean circuitFailure = callResultQueue.getFailurePercentage() > failurePercentageThreshold;
 		if(!circuitFailure){
-			return CLOSED;
+			return CircuitBreakerState.CLOSED;
 		}
 
 		if(callResultQueue.lastFailureEpochMillis.isPresent() && callResultQueue.lastFailureEpochMillis.get()
 				+ retryTime.toMillis() < now){
-			return HALF_OPEN;
+			return CircuitBreakerState.HALF_OPEN;
 		}
-		return OPEN;
+		return CircuitBreakerState.OPEN;
 	}
 
 	protected void incrementCounterOnStateChange(String state){

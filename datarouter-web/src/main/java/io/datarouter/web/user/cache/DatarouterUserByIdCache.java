@@ -23,7 +23,7 @@ import javax.inject.Singleton;
 import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
 import io.datarouter.util.cache.LoadingCacheWrapper;
 import io.datarouter.web.exception.InvalidCredentialsException;
-import io.datarouter.web.user.DatarouterUserNodes;
+import io.datarouter.web.user.BaseDatarouterUserDao;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserKey;
 
@@ -31,9 +31,9 @@ import io.datarouter.web.user.databean.DatarouterUserKey;
 public class DatarouterUserByIdCache extends LoadingCacheWrapper<Long,DatarouterUser>{
 
 	@Inject
-	public DatarouterUserByIdCache(DatarouterUserNodes userNodes){
+	public DatarouterUserByIdCache(BaseDatarouterUserDao datarouterUserDao){
 		super(new LoadingCacheBuilder<Long,DatarouterUser>()
-				.withLoadingFunction(key -> userNodes.getUserNode().get(new DatarouterUserKey(key)))
+				.withLoadingFunction(key -> datarouterUserDao.get(new DatarouterUserKey(key)))
 				.withExceptionFunction(key -> new InvalidCredentialsException("user id not found (" + key + ")"))
 				.withExpireTtl(Duration.ofSeconds(6))
 				.build());

@@ -1,6 +1,8 @@
 # datarouter-scanner
 
-A Scanner is similar to Java's Stream but targeted at common operations for working with databases. Datarouter uses scanners internally and often returns them so the application can chain more operations to them. A Scanner can be converted to a Stream by calling `.stream()`.
+A Scanner is similar to Java's Stream but targeted at common operations for working with databases. Datarouter uses scanners internally and often returns them so the application can chain more operations to them.
+
+A Scanner can be converted to a single-use Iterable with `.iterable()` or to a Stream with `.stream()`.
 
 ## Installation with Maven
 
@@ -8,7 +10,7 @@ A Scanner is similar to Java's Stream but targeted at common operations for work
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.11</version>
+	<version>0.0.12</version>
 </dependency>
 ```
 
@@ -59,6 +61,8 @@ These methods share behavior with those in Stream but are implemented independen
 - `include`
 - `prefetch`
 - `step`
+- `sample`
+- `retain`
 
 ### ScannerScanner
 ##### - [source code](./src/main/java/io/datarouter/scanner/ScannerScanner.java)
@@ -85,9 +89,9 @@ The argument passed to parallel(..) is a `ParallelScannerContext` which contains
 - an executor service
 - `boolean enabled`
   - for toggling parallelism with a feature flag
-- `maxThreads`
+- `int maxThreads`
   - constrains threads used by this scanner, despite a potentially larger executor
-- `allowUnorderedResults`
+- `boolean allowUnorderedResults`
   - return items in the order they finish processing, which can be faster than waiting for the earliest submitted item
 
 ## License

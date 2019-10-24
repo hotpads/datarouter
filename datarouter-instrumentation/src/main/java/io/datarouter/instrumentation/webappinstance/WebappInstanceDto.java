@@ -24,6 +24,7 @@ public class WebappInstanceDto{
 	public final String serverType;
 	public final String servletContextPath;
 	public final String serverPublicIp;
+	public final String serverPrivateIp;
 	public final Date refreshedLast;
 	public final Date startupDate;
 	public final Date buildDate;
@@ -33,13 +34,14 @@ public class WebappInstanceDto{
 	public final String gitBranch;
 
 	public WebappInstanceDto(String webappName, String serverName, String serverType, String servletContextPath,
-			String serverPublicIp, Date refreshedLast, Date startupDate, Date buildDate, String commitId,
-			String javaVersion, String servletContainerVersion, String gitBranch){
+			String serverPublicIp, String serverPrivateIp, Date refreshedLast, Date startupDate, Date buildDate,
+			String commitId, String javaVersion, String servletContainerVersion, String gitBranch){
 		this.webappName = webappName;
 		this.serverName = serverName;
 		this.serverType = serverType;
 		this.servletContextPath = servletContextPath;
 		this.serverPublicIp = serverPublicIp;
+		this.serverPrivateIp = serverPrivateIp;
 		this.refreshedLast = refreshedLast;
 		this.startupDate = startupDate;
 		this.buildDate = buildDate;

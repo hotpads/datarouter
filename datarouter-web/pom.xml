@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.11</version>
+		<version>0.0.12</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -45,12 +45,12 @@
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-http-client</artifactId>
-			<version>0.0.11</version>
+			<version>0.0.12</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-storage</artifactId>
-			<version>0.0.11</version>
+			<version>0.0.12</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.web</groupId>
@@ -108,6 +108,11 @@
 			<groupId>org.opensaml</groupId>
 			<artifactId>opensaml-messaging-impl</artifactId>
 			<version>${opensaml.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.j2html</groupId>
+			<artifactId>j2html</artifactId>
+			<version>1.4.0</version>
 		</dependency>
 	</dependencies>
 

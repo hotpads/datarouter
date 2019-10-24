@@ -53,7 +53,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 		int numLines = 0;
 		Date firstDate = new Date(Long.MAX_VALUE);
 		Date lastDate = new Date(0);
-		for(String line : ReaderTool.scanFileLines(logPath)){
+		for(String line : ReaderTool.scanFileLines(logPath).iterable()){
 			++numLines;
 			CallsiteRecord record = CallsiteRecord.fromLogLine(line);
 			if(ComparableTool.lt(record.getTimestamp(), firstDate)){

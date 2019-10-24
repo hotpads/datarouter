@@ -9,7 +9,7 @@ collections which will treat them similarly to persistent datastores.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-model</artifactId>
-	<version>0.0.11</version>
+	<version>0.0.12</version>
 </dependency>
 ```
 
@@ -22,7 +22,7 @@ collections which will treat them similarly to persistent datastores.
 ##### - Example PrimaryKey
 
 ```java
-package io.datarouter.example.request;
+package io.datarouter.example.storage.request;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -86,7 +86,7 @@ public class RequestLogEntryKey extends BaseRegularPrimaryKey<RequestLogEntryKey
 ##### - Example Databean
 
 ```java
-package io.datarouter.example.request;
+package io.datarouter.example.storage.request;
 
 import java.util.Arrays;
 import java.util.List;
@@ -125,6 +125,7 @@ public class RequestLogEntry extends BaseDatabean<RequestLogEntryKey,RequestLogE
 	}
 
 	public static class RequestLogEntryFielder extends BaseDatabeanFielder<RequestLogEntryKey,RequestLogEntry>{
+
 		public RequestLogEntryFielder(){
 			super(RequestLogEntryKey.class);
 		}
@@ -165,7 +166,7 @@ public class RequestLogEntry extends BaseDatabean<RequestLogEntryKey,RequestLogE
 ##### - Example FieldlessIndexEntryPrimaryKey
 
 ```java
-package io.datarouter.example.request;
+package io.datarouter.example.storage.request;
 
 import java.time.Instant;
 import java.util.Arrays;

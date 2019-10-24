@@ -23,11 +23,8 @@ import java.util.Map;
 
 import javax.inject.Singleton;
 
-import io.datarouter.client.mysql.field.DateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.StringMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.LocalDateMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.LocalDateTimeMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.BooleanArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.ByteArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.DelimitedStringArrayMysqlFieldCodec;
@@ -38,6 +35,10 @@ import io.datarouter.client.mysql.field.codec.array.PrimitiveLongArrayMysqlField
 import io.datarouter.client.mysql.field.codec.array.UInt63ArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.array.UInt7ArrayMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.custom.LongDateMysqlFieldCodec;
+import io.datarouter.client.mysql.field.codec.datetime.DateMysqlFieldCodec;
+import io.datarouter.client.mysql.field.codec.datetime.InstantMysqlFieldCodec;
+import io.datarouter.client.mysql.field.codec.datetime.LocalDateMysqlFieldCodec;
+import io.datarouter.client.mysql.field.codec.datetime.LocalDateTimeMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.enums.IntegerEnumMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.enums.StringEnumMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.enums.VarIntEnumMysqlFieldCodec;
@@ -51,7 +52,6 @@ import io.datarouter.client.mysql.field.codec.primitive.BooleanMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.CharacterMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.DoubleMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.FloatMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.primitive.InstantMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.IntegerMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.LongMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.ShortMysqlFieldCodec;

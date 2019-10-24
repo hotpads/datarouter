@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.config;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.InetAddress;
@@ -60,8 +58,6 @@ public abstract class DatarouterProperties{
 	private static final String SERVER_TYPE = "server.type";
 	private static final String SERVER_CLUSTER_DOMAINS = "server.clusterDomains";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
-	private static final String EC2_HYPERVISOR_UUID_FILE = "/sys/hypervisor/uuid";
-	private static final String EC2_DMI_UUID_FILE = "/sys/devices/virtual/dmi/id/product_uuid";
 	protected static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
 
 	private static final String EC2_INSTANCE_IDENTITY_DOCUMENT_URL =
@@ -202,12 +198,10 @@ public abstract class DatarouterProperties{
 		if(privateIp != null){
 			return privateIp;
 		}
-		if(isEc2(false)){
-			Optional<String> ip = curl(EC2_PRIVATE_IP_URL, true);
-			if(ip.isPresent()){
-				logSource(SERVER_PRIVATE_IP, ip.get(), EC2_PRIVATE_IP_URL);
-				return ip.get();
-			}
+		Optional<String> ip = curl(EC2_PRIVATE_IP_URL, true);
+		if(ip.isPresent()){
+			logSource(SERVER_PRIVATE_IP, ip.get(), EC2_PRIVATE_IP_URL);
+			return ip.get();
 		}
 		logger.error("couldn't find {}", SERVER_PRIVATE_IP);
 		return null;
@@ -219,12 +213,10 @@ public abstract class DatarouterProperties{
 		if(publicIp != null){
 			return publicIp;
 		}
-		if(isEc2(false)){
-			Optional<String> ip = curl(EC2_PUBLIC_IP_URL, true);
-			if(ip.isPresent()){
-				logSource(SERVER_PUBLIC_IP, ip.get(), EC2_PUBLIC_IP_URL);
-				return ip.get();
-			}
+		Optional<String> ip = curl(EC2_PUBLIC_IP_URL, true);
+		if(ip.isPresent()){
+			logSource(SERVER_PUBLIC_IP, ip.get(), EC2_PUBLIC_IP_URL);
+			return ip.get();
 		}
 		logger.error("couldn't find {}", SERVER_PUBLIC_IP);
 		return null;
@@ -273,31 +265,6 @@ public abstract class DatarouterProperties{
 
 	private void logJvmArgSource(String name, String value, String jvmArgName){
 		logger.warn("found {}={} from -D{} JVM arg", name, value, jvmArgName);
-	}
-
-	//https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
-	public boolean isEc2(boolean logError){
-		File ec2HypervisorUuidFile = new File(EC2_HYPERVISOR_UUID_FILE);
-		File ec2DmiUuidFile = new File(EC2_DMI_UUID_FILE);
-		String ec2Uuid = "";
-		if(ec2HypervisorUuidFile.exists()){
-			try{
-				ec2Uuid = FileTool.readFile(ec2HypervisorUuidFile);
-			}catch(IOException e){
-				if(logError){
-					logger.error("error reading EC2 hypervisor UUID file", e);
-				}
-			}
-		}else{
-			try{
-				ec2Uuid = FileTool.readFile(ec2DmiUuidFile);
-			}catch(IOException e){
-				if(logError){
-					logger.error("error reading EC2 DMI UUID file", e);
-				}
-			}
-		}
-		return ec2Uuid.toLowerCase().startsWith("ec2") && curl(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, false).isPresent();
 	}
 
 	private Optional<String> curl(String location, boolean logError){

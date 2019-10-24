@@ -15,35 +15,37 @@
  */
 package io.datarouter.util.concurrent;
 
+import java.util.Optional;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamedThreadFactory implements ThreadFactory{
 
-	protected String groupName;
-	protected boolean makeDaemonsByDefault = true;
-	protected ThreadGroup group;
-	protected AtomicInteger threadNumber = new AtomicInteger(1);
+	protected final String groupName;
+	protected final boolean makeDaemonsByDefault;
+	protected final AtomicInteger threadNumber = new AtomicInteger(1);
 
-	public NamedThreadFactory(ThreadGroup parentThreadGroup, String groupName, boolean makeDaemonsByDefault){
+	public NamedThreadFactory(String groupName, boolean makeDaemonsByDefault){
 		this.groupName = groupName;
 		this.makeDaemonsByDefault = makeDaemonsByDefault;
-		if(parentThreadGroup == null){
-			this.group = new ThreadGroup(groupName);
-		}else{
-			this.group = new ThreadGroup(parentThreadGroup, groupName);
-		}
 	}
 
 	@Override
 	public Thread newThread(Runnable runnable){
-		Thread thread = new Thread(group, runnable, groupName + "-" + threadNumber.getAndIncrement(), 0);
+		Thread thread = new Thread(runnable, groupName + "-" + threadNumber.getAndIncrement());
 		thread.setDaemon(makeDaemonsByDefault);
 		return thread;
 	}
 
 	public String getGroupName(){
 		return groupName;
+	}
+
+	public static Optional<String> findName(ThreadFactory threadFactory){
+		if(threadFactory instanceof NamedThreadFactory){
+			return Optional.of(((NamedThreadFactory)threadFactory).getGroupName());
+		}
+		return Optional.empty();
 	}
 
 }

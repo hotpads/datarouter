@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.user.session;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,10 +51,9 @@ import io.datarouter.web.util.http.MockHttpServletRequestBuilder;
  * A single user may have multiple sessions via different computers, browsers, tabs, etc.  Create one of these for each
  * such session
  */
-@SuppressWarnings("serial")
 public class DatarouterSession
 extends BaseDatarouterSessionDatabean<DatarouterSessionKey,DatarouterSession>
-implements Serializable, Session{
+implements Session{
 
 	private Long userId;//needed to map back to the DatarouterUser
 

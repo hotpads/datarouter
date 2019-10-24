@@ -27,7 +27,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.factory.WideNodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 
 @Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
@@ -42,12 +41,11 @@ public abstract class BaseSortedBeanIntegrationTests{
 	@Inject
 	private WideNodeFactory wideNodeFactory;
 
-	protected DatarouterSortedNodeTestRouter router;
-	protected SortedMapStorage<SortedBeanKey,SortedBean> sortedNode;
+	protected DatarouterSortedNodeTestDao dao;
 	protected List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
 
 	protected void setup(ClientId clientId, boolean entity){
-		router = new DatarouterSortedNodeTestRouter(
+		dao = new DatarouterSortedNodeTestDao(
 				datarouter,
 				entityNodeFactory,
 				SortedBeanEntityNode.ENTITY_NODE_PARAMS_1,
@@ -55,7 +53,6 @@ public abstract class BaseSortedBeanIntegrationTests{
 				wideNodeFactory,
 				clientId,
 				entity);
-		sortedNode = router.sortedBeanNode;
 		resetTable(true);
 	}
 
@@ -64,15 +61,14 @@ public abstract class BaseSortedBeanIntegrationTests{
 		if(!force && SortedBeans.TOTAL_RECORDS == numExistingDatabeans){
 			return;
 		}
-		sortedNode.deleteAll();
+		dao.deleteAll();
 		Assert.assertEquals(count(), 0);
-		sortedNode.putStream(allBeans.stream());
+		dao.putStream(allBeans.stream());
 		Assert.assertEquals(count(), SortedBeans.TOTAL_RECORDS);
 	}
 
 	protected long count(){
-		return sortedNode.scanKeys()
-				.count();
+		return dao.count();
 	}
 
 }

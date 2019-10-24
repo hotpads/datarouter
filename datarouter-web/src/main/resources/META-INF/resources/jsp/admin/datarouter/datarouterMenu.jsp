@@ -64,14 +64,14 @@
 							{Array(4 * node.levelsNested).fill().map((x, i) => 
 								<span key={i}>{'\u00A0'}</span>
 							)}
-							<a href={CONTEXT_PATH + "/datarouter/nodes/browseData/browseData?nodeName=" 
+							<a href={CONTEXT_PATH + "/datarouter/nodes/browseData/browseData?nodeName="
 									+ encodeURIComponent(node.name)}>
 								{node.name}
 							</a>
 						</td>
 						<td>
-							<a href={CONTEXT_PATH + "/datarouter/nodewatch/rowCountChart"
-									+ "?submitAction=viewRowCountChartWithNodeName&nodeName=" 
+							<a href={CONTEXT_PATH + "/datarouter/nodewatch/tableRowCount"
+									+ "?submitAction=singleTableWithNodeName&nodeName=" 
 									+ encodeURIComponent(node.name)}>
 								<i className="fas fa-signal"></i>
 							</a>

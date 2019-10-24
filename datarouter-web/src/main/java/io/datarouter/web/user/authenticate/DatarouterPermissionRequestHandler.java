@@ -38,9 +38,9 @@ import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalLong;
 import io.datarouter.web.handler.types.optional.OptionalString;
-import io.datarouter.web.user.DatarouterPermissionRequestDao;
-import io.datarouter.web.user.DatarouterUserDao;
+import io.datarouter.web.user.BaseDatarouterPermissionRequestDao;
 import io.datarouter.web.user.DatarouterUserEditService;
+import io.datarouter.web.user.DatarouterUserService;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -57,9 +57,9 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
-	private DatarouterPermissionRequestDao datarouterPermissionRequestDao;
+	private BaseDatarouterPermissionRequestDao datarouterPermissionRequestDao;
 	@Inject
-	private DatarouterUserDao datarouterUserDao;
+	private DatarouterUserService datarouterUserService;
 	@Inject
 	private CurrentUserSessionInfo currentUserSessionInfo;
 	@Inject
@@ -93,7 +93,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		mav.put("permissionRequestPath", authenticationConfig.getPermissionRequestPath());
 		mav.put("defaultSpecifics", deniedUrl.map("I tried to go to this URL: "::concat));
 		DatarouterUser user = getCurrentUser();
-		mav.put("currentRequest", datarouterPermissionRequestDao.streamOpenPermissionRequestsForUser(user.getId())
+		mav.put("currentRequest", datarouterPermissionRequestDao.scanOpenPermissionRequestsForUser(user.getId())
 				.max(Comparator.comparing(request -> request.getKey().getRequestTime()))
 				.orElse(null));
 		Set<String> additionalPermissionEmails = permissionRequestAdditionalEmails.get();
@@ -161,7 +161,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	}
 
 	private DatarouterUser getCurrentUser(){
-		return datarouterUserDao.getAndValidateCurrentUser(params.getSession());
+		return datarouterUserService.getAndValidateCurrentUser(params.getSession());
 	}
 
 	private void sendEmail(DatarouterUser user, String reason, String specifics){

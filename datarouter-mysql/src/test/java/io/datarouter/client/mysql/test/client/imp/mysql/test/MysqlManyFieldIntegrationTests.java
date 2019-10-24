@@ -23,8 +23,6 @@ import org.testng.annotations.Test;
 import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
 import io.datarouter.client.mysql.exception.DuplicateEntrySqlException;
 import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
-import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.test.node.basic.manyfield.BaseManyFieldIntegrationTests;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
@@ -40,15 +38,15 @@ public class MysqlManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 	@Test
 	public void testNullKey(){
 		ManyFieldBean bean = new ManyFieldBean();
-		mapNode.put(bean);
+		dao.put(bean);
 		Assert.assertNotNull(bean.getKey().getId());
 	}
 
 	@Test(expectedExceptions = DuplicateEntrySqlException.class)
 	public void testPutMethod(){
 		ManyFieldBean bean = new ManyFieldBean();
-		mapNode.put(bean);
-		mapNode.put(bean, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
+		dao.put(bean);
+		dao.putOrBust(bean);
 	}
 
 	public static class MysqlManyFieldTypeBeanFielder extends ManyFieldTypeBeanFielder{

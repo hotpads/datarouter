@@ -15,8 +15,8 @@
  */
 package io.datarouter.storage.node.op.index;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
@@ -45,7 +45,7 @@ extends SortedStorageReader<IK,IE>{
 	/*------------ scanDatabeans ------------*/
 
 	default Scanner<D> scanDatabeans(Range<IK> range, Config config){
-		return scanDatabeansMulti(Arrays.asList(Range.nullSafe(range)), config);
+		return scanDatabeansMulti(Collections.singletonList(range), config);
 	}
 
 	default Scanner<D> scanDatabeans(Range<IK> range){

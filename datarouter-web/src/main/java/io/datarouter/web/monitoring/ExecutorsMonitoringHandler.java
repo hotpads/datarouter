@@ -25,12 +25,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import io.datarouter.inject.InstanceRegistry;
-import io.datarouter.util.concurrent.DatarouterExecutorService;
 import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.handler.encoder.JsonEncoder;
 import io.datarouter.web.handler.mav.Mav;
 
 public class ExecutorsMonitoringHandler extends BaseHandler{
@@ -47,13 +45,10 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 		return mav;
 	}
 
-	@Handler(encoder = JsonEncoder.class)
+	@Handler
 	public Collection<TextExecutor> getExecutors(){
 		List<ThreadPoolExecutor> allThreadPoolExecutors = new ArrayList<>();
 		instanceRegistry.getAllInstancesOfType(ThreadPoolExecutor.class)
-				.forEach(allThreadPoolExecutors::add);
-		instanceRegistry.getAllInstancesOfType(DatarouterExecutorService.class).stream()
-				.map(DatarouterExecutorService::getThreadPoolExecutor)
 				.forEach(allThreadPoolExecutors::add);
 		return allThreadPoolExecutors.stream()
 				.map(TextExecutor::new)
@@ -78,9 +73,7 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 			this.queueSize = asString(executor.getQueue().size());
 			this.remainingQueueCapacity = asString(executor.getQueue().remainingCapacity());
 			this.completedTaskCount = executor.getCompletedTaskCount();
-			if(executor.getThreadFactory() instanceof NamedThreadFactory){
-				this.name = ((NamedThreadFactory)executor.getThreadFactory()).getGroupName();
-			}
+			this.name = NamedThreadFactory.findName(executor.getThreadFactory()).orElse(null);
 		}
 
 		private String asString(int num){

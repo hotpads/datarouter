@@ -177,7 +177,7 @@ covers they may have to do a lot of expensive work.
 
 Triggering expensive queries like this can quickly consume all the CPU and disk I/O on the machine which does not scale 
 well for a many-user website. These queries may appear to execute quickly during development with small data volumes, 
-but they become more expensive as the data grows. If you’re phone book has only 15 people, the query appear fast, but 
+but they become more expensive as the data grows. If your phone book has only 15 people, the query appears fast, but 
 as you get to millions or billions of people it becomes extremely inefficient.
 
 Because the database only supports a limit on the number of matches, not on the number of skipped rows or total rows 

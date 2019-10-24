@@ -40,7 +40,7 @@ import io.datarouter.util.BooleanTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.exception.InvalidApiCallException;
 import io.datarouter.web.exception.InvalidCredentialsException;
-import io.datarouter.web.user.DatarouterUserNodes;
+import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.session.DatarouterSession;
@@ -55,7 +55,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
-	private DatarouterUserNodes userNodes;
+	private BaseDatarouterSessionDao datarouterSessionDao;
 	@Inject
 	private DatarouterSessionManager sessionManager;
 
@@ -146,7 +146,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 				if(BooleanTool.isTrue(session.getPersistent())){
 					sessionManager.addUserTokenCookie(response, session.getUserToken());
 					sessionManager.addSessionTokenCookie(response, session.getSessionToken());
-					userNodes.getSessionNode().put(session);
+					datarouterSessionDao.put(session);
 				}
 				return;
 			}

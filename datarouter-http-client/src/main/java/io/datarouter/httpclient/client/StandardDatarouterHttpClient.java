@@ -210,6 +210,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static void forceAbortRequestUnchecked(HttpRequestBase internalHttpRequest){
 		try{
 			internalHttpRequest.abort();

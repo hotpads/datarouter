@@ -81,16 +81,20 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 
 	@Test
 	public void testGetMulti(){
-		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), ONE_KEY, CONNECTION_OPTIONS)
-				.getSql().toString(), "select foo, bar from TestTable where foo=? and bar=? limit 5, 10");
-		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), null, CONNECTION_OPTIONS).getSql()
-				.toString(), "select foo, bar from TestTable limit 5, 10");
-		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), TWO_KEYS, CONNECTION_OPTIONS)
-				.getSql().toString(), "select foo, bar from TestTable where foo=? and bar=? or foo=? and bar=? "
-				+ "limit 5, 10");
-		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), TWO_KEYS, UTF8_BIN).getSql()
-				.toString(), "select foo, bar from TestTable where foo=? and bar=_utf8 ? COLLATE utf8_bin or foo=? "
-				+ "and bar=_utf8 ? COLLATE utf8_bin limit 5, 10");
+		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), ONE_KEY,
+				SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS).getSql().toString(),
+				"select foo, bar from TestTable force index (PRIMARY) where foo=? and bar=? limit" + " 5, 10");
+		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), null,
+				SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS).getSql().toString(),
+				"select foo, bar from TestTable force index (PRIMARY) limit 5, 10");
+		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), TWO_KEYS,
+				SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS).getSql().toString(),
+				"select foo, bar from TestTable force index (PRIMARY) where foo=? and bar=? or foo=? and bar=? limit 5,"
+				+ " 10");
+		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), TWO_KEYS,
+				SqlBuilder.PRIMARY_KEY_INDEX_NAME, UTF8_BIN).getSql().toString(),
+				"select foo, bar from TestTable force index (PRIMARY) where foo=? and bar=_utf8 ? COLLATE utf8_bin or "
+				+ "foo=? and bar=_utf8 ? COLLATE utf8_bin limit 5, 10");
 	}
 
 	@Test

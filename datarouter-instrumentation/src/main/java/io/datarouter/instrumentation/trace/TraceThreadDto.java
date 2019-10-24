@@ -26,22 +26,27 @@ public class TraceThreadDto{
 	private Long created;
 	private Long queuedDuration;
 	private Long runningDuration;
+	private Integer discardedSpanCount;
+	private String hostThreadName;
 
-	public TraceThreadDto(String traceId, Long threadId, Long parentId, String serverId, String name, Long created){
+	public TraceThreadDto(String traceId, Long threadId, Long parentId, String serverId, String name, Long created,
+			String hostThreadName){
 		this.traceId = traceId;
 		this.threadId = threadId;
 		this.parentId = parentId;
 		this.serverId = serverId;
 		this.name = name;
 		this.created = created;
+		this.hostThreadName = hostThreadName;
 	}
 
 	public TraceThreadDto(String traceId, Long threadId, Long parentId, String name, String info, String serverId,
-			Long created, Long queuedDuration, Long runningDuration){
-		this(traceId, threadId, parentId, serverId, name, created);
+			Long created, Long queuedDuration, Long runningDuration, Integer discardedSpanCount, String hostThreadName){
+		this(traceId, threadId, parentId, serverId, name, created, hostThreadName);
 		this.info = info;
 		this.queuedDuration = queuedDuration;
 		this.runningDuration = runningDuration;
+		this.discardedSpanCount = discardedSpanCount;
 	}
 
 	public void markStart(){
@@ -128,6 +133,18 @@ public class TraceThreadDto{
 
 	public void setRunningDuration(Long runningDuration){
 		this.runningDuration = runningDuration;
+	}
+
+	public Integer getDiscardedSpanCount(){
+		return discardedSpanCount;
+	}
+
+	public void setDiscardedSpanCount(Integer discardedSpanCount){
+		this.discardedSpanCount = discardedSpanCount;
+	}
+
+	public String getHostThreadName(){
+		return hostThreadName;
 	}
 
 }

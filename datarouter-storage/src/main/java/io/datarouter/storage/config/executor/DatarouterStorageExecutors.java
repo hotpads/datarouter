@@ -21,38 +21,36 @@ import javax.inject.Singleton;
 
 import io.datarouter.util.concurrent.DatarouterExecutorService;
 import io.datarouter.util.concurrent.ExecutorTool;
+import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 
 public class DatarouterStorageExecutors{
 
-	private static final ThreadGroup TG_datarouterStorage = new ThreadGroup("datarouterStorage");
-	private static final ThreadGroup TG_flushers = new ThreadGroup(TG_datarouterStorage, "flushers");
-
 	@Singleton
 	public static class DatarouterWriteBehindScheduler extends ScheduledThreadPoolExecutor{
 		public DatarouterWriteBehindScheduler(){
-			super(10, ExecutorTool.createNamedThreadFactory(TG_datarouterStorage, "writeBehindScheduler"));
+			super(10, new NamedThreadFactory("writeBehindScheduler", true));
 		}
 	}
 
 	@Singleton
 	public static class DatarouterWriteBehindExecutor extends ScalingThreadPoolExecutor{
 		public DatarouterWriteBehindExecutor(){
-			super(TG_datarouterStorage, "writeBehindExecutor", 100);
+			super("writeBehindExecutor", 100);
 		}
 	}
 
 	@Singleton
 	public static class DatarouterClientFactoryExecutor extends DatarouterExecutorService{
 		public DatarouterClientFactoryExecutor(){
-			super(ExecutorTool.newCachedThreadPool(TG_datarouterStorage, "datarouterClientFactoryExecutor"));
+			super(ExecutorTool.newCachedThreadPool("datarouterClientFactoryExecutor"));
 		}
 	}
 
 	@Singleton
 	public static class DatarouterSchemaUpdateScheduler extends ScheduledThreadPoolExecutor{
 		public DatarouterSchemaUpdateScheduler(){
-			super(10, ExecutorTool.createNamedThreadFactory(TG_flushers, "schemaUpdateScheduler"));
+			super(10, new NamedThreadFactory("schemaUpdateScheduler", true));
 		}
 	}
 

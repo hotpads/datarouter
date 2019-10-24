@@ -20,31 +20,29 @@ import org.testng.Assert;
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestRouter;
+import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestDao;
 import io.datarouter.client.mysql.test.client.txn.TxnBean;
 import io.datarouter.client.mysql.test.client.txn.TxnBeanKey;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ConnectionHandle;
 import io.datarouter.storage.client.type.ConnectionClientManager;
-import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.PutMethod;
 
 public class TestNestedTxn extends BaseMysqlOp<Void>{
 
 	private final Datarouter datarouter;
 	private final ClientId clientId;
 	private final Isolation isolation;
-	private final DatarouterTxnTestRouter router;
+	private final DatarouterTxnTestDao dao;
 	private final SessionExecutor sessionExecutor;
 
 	public TestNestedTxn(Datarouter datarouter, ClientId clientId, Isolation isolation, boolean autoCommit,
-			DatarouterTxnTestRouter router, SessionExecutor sessionExecutor){
+			DatarouterTxnTestDao dao, SessionExecutor sessionExecutor){
 		super(datarouter, clientId, isolation, autoCommit);
 		this.datarouter = datarouter;
 		this.clientId = clientId;
 		this.isolation = isolation;
-		this.router = router;
+		this.dao = dao;
 		this.sessionExecutor = sessionExecutor;
 	}
 
@@ -55,30 +53,30 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 		ConnectionHandle handle = clientManager.getExistingHandle(clientId);
 
 		TxnBean outer = new TxnBean("outer");
-		router.txnBean().put(outer);
-		Assert.assertTrue(router.txnBean().exists(outer.getKey()));
+		dao.put(outer);
+		Assert.assertTrue(dao.exists(outer.getKey()));
 
-		sessionExecutor.runWithoutRetries(new InnerTxn(datarouter, clientId, isolation, false, router, handle));
+		sessionExecutor.runWithoutRetries(new InnerTxn(datarouter, clientId, isolation, false, dao, handle));
 
 		TxnBean outer2 = new TxnBean(outer.getKey().getId());
-		router.txnBean().put(outer2, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));//should bust on commit
+		dao.putOrBust(outer2); //should bust on commit
 		return null;
 	}
 
 
 	public static class InnerTxn extends BaseMysqlOp<Void>{
 
-		private final DatarouterTxnTestRouter router;
+		private final DatarouterTxnTestDao dao;
 		private final ConnectionHandle outerHandle;
 		private final Datarouter datarouter;
 		private final ClientId clientId;
 
 		public InnerTxn(Datarouter datarouter, ClientId clientId, Isolation isolation, boolean autoCommit,
-				DatarouterTxnTestRouter router, ConnectionHandle outerHandle){
+				DatarouterTxnTestDao dao, ConnectionHandle outerHandle){
 			super(datarouter, clientId, isolation, autoCommit);
 			this.datarouter = datarouter;
 			this.clientId = clientId;
-			this.router = router;
+			this.dao = dao;
 			this.outerHandle = outerHandle;
 		}
 
@@ -91,9 +89,9 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 
 			String name = "inner_txn";
 			TxnBean inner = new TxnBean(name);
-			router.txnBean().put(inner);
-			Assert.assertTrue(router.txnBean().exists(inner.getKey()));
-			Assert.assertTrue(router.txnBean().exists(new TxnBeanKey("outer")));
+			dao.put(inner);
+			Assert.assertTrue(dao.exists(inner.getKey()));
+			Assert.assertTrue(dao.exists(new TxnBeanKey("outer")));
 			return null;
 		}
 

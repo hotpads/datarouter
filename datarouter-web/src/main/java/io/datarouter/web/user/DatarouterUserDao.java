@@ -16,100 +16,113 @@
 package io.datarouter.web.user;
 
 import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.util.array.ArrayTool;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.dao.BaseDao;
+import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
+import io.datarouter.util.tuple.Range;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
+import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserFielder;
 import io.datarouter.web.user.databean.DatarouterUserKey;
-import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.session.DatarouterSession;
-import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.RoleManager;
-import io.datarouter.web.util.PasswordTool;
 
 @Singleton
-public class DatarouterUserDao{
+public class DatarouterUserDao extends BaseDao implements BaseDatarouterUserDao{
+
+	public static class DatarouterUserDaoParams extends BaseDaoParams{
+
+		public DatarouterUserDaoParams(ClientId clientId){
+			super(clientId);
+		}
+
+	}
+
+	private final IndexedSortedMapStorage<DatarouterUserKey,DatarouterUser> node;
 
 	@Inject
-	private DatarouterUserNodes nodes;
-	@Inject
-	private RoleManager roleManager;
-
-	public DatarouterUser getAndValidateCurrentUser(DatarouterSession session){
-		DatarouterUser user = getUserBySession(session);
-		if(user == null || !user.getEnabled()){
-			throw new RuntimeException("Current user does not exist or is not enabled.");
-		}
-		return user;
+	public DatarouterUserDao(Datarouter datarouter, NodeFactory nodeFactory, DatarouterUserDaoParams params){
+		super(datarouter);
+		node = nodeFactory.create(params.clientId, DatarouterUser::new, DatarouterUserFielder::new).buildAndRegister();
 	}
 
-	public DatarouterUser getUserBySession(DatarouterSession session){
-		if(session == null || session.getUserId() == null){
-			return null;
-		}
-		return nodes.getUserNode().get(new DatarouterUserKey(session.getUserId()));
+	@Override
+	public DatarouterUser get(DatarouterUserKey key){
+		return node.get(key);
 	}
 
-	public DatarouterUser getUserById(Long id){
-		return nodes.getUserNode().get(new DatarouterUserKey(id));
+	@Override
+	public DatarouterUser getByUserToken(DatarouterUserByUserTokenLookup key){
+		return node.lookupUnique(key);
 	}
 
-	public boolean canEditUser(DatarouterUser user, DatarouterUser editor){
-		return user.equals(editor)
-				|| !isAdmin(user)
-				&& roleManager.isAdmin(editor.getRoles())
-				&& editor.getEnabled();
+	@Override
+	public DatarouterUser getByUsername(DatarouterUserByUsernameLookup key){
+		return node.lookupUnique(key);
 	}
 
-	public boolean canHavePassword(DatarouterUser user){
-		return user.getPasswordDigest() != null || isAdmin(user);
+	@Override
+	public List<DatarouterUser> getMulti(Collection<DatarouterUserKey> keys){
+		return node.getMulti(keys);
 	}
 
-	public boolean isPasswordCorrect(DatarouterUser user, String rawPassword){
-		if(user == null || rawPassword == null){
-			return false;
-		}
-		String passwordDigest = PasswordTool.digest(user.getPasswordSalt(), rawPassword);
-		return Objects.equals(user.getPasswordDigest(), passwordDigest);
+	@Override
+	public List<DatarouterUser> getMultiByUserTokens(Collection<DatarouterUserByUserTokenLookup> keys){
+		return node.lookupMultiUnique(keys);
 	}
 
-	public boolean isPasswordCorrect(String email, String rawPassword){
-		DatarouterUser user = nodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(email));
-		return isPasswordCorrect(user, rawPassword);
+	@Override
+	public List<DatarouterUser> getMultiByUsername(Collection<DatarouterUserByUsernameLookup> keys){
+		return node.lookupMultiUnique(keys);
 	}
 
-	public Set<Role> getAllowedUserRoles(DatarouterUser currentUser, String[] userRoleStrings){
-		Set<Role> userRoles = ArrayTool.mapToSet(roleManager::getRoleFromPersistentString, userRoleStrings);
-		Collection<Role> validRoles = roleManager.getConferrableRoles(currentUser.getRoles());
-		userRoles.retainAll(validRoles);
-		userRoles.add(DatarouterUserRole.REQUESTOR.getRole());// everyone should have this
-		return userRoles;
+	@Override
+	public Optional<DatarouterUser> find(DatarouterUserKey key){
+		return node.find(key);
 	}
 
-	public void assertUserDoesNotExist(Long id, String userToken, String username){
-		DatarouterUser userWithId = getUserById(id);
-		if(userWithId != null){
-			throw new IllegalArgumentException("DatarouterUser already exists with id=" + id);
-		}
-		DatarouterUser userWithUserToken = nodes.getUserNode().lookupUnique(new DatarouterUserByUserTokenLookup(
-				userToken));
-		if(userWithUserToken != null){
-			throw new IllegalArgumentException("DatarouterUser already exists with userToken=" + userToken);
-		}
-		DatarouterUser userWithEmail = nodes.getUserNode().lookupUnique(new DatarouterUserByUsernameLookup(username));
-		if(userWithEmail != null){
-			throw new IllegalArgumentException("DatarouterUser already exists with username=" + username);
-		}
+	@Override
+	public Optional<DatarouterUser> find(DatarouterUserByUserTokenLookup key){
+		return Optional.ofNullable(node.lookupUnique(key));
 	}
 
-	public boolean isAdmin(DatarouterUser user){
-		return user.getRoles().contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
+	@Override
+	public Scanner<DatarouterUser> scan(){
+		return node.scan();
+	}
+
+	@Override
+	public void put(DatarouterUser databean){
+		node.put(databean);
+	}
+
+	@Override
+	public void putMulti(Collection<DatarouterUser> databeans){
+		node.putMulti(databeans);
+	}
+
+	@Override
+	public void delete(DatarouterUserKey key){
+		node.delete(key);
+	}
+
+	@Override
+	public long count(){
+		return node.count(Range.everything());
+	}
+
+	@Override
+	public boolean exists(DatarouterUserByUserTokenLookup key){
+		return node.lookupUnique(key) != null;
 	}
 
 }

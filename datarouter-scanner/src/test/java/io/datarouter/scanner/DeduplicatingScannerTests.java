@@ -17,8 +17,12 @@ package io.datarouter.scanner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -33,6 +37,56 @@ public class DeduplicatingScannerTests{
 				.deduplicate()
 				.list();
 		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void deduplicateByMethodTest(){
+		List<Person> people = List.of(
+				new Person("Bob", 1),
+				new Person("Jane", 2),
+				new Person("Jane", 3),
+				new Person("Sam", 4),
+				new Person("Sam", 5));
+		Assert.assertEquals(new HashSet<>(people).size(), people.size());
+		Set<String> names = new HashSet<>();
+		List<Person> expected = people.stream()
+				.filter(person -> names.add(person.getFirstName()))
+				.collect(Collectors.toList());
+		List<Person> actual = Scanner.of(people)
+				.deduplicate(Person::getFirstName)
+				.list();
+		Assert.assertEquals(actual, expected);
+	}
+
+	private static class Person{
+
+		private final String firstName;
+		private final int age;
+
+		private Person(String firstName, int age){
+			this.firstName = firstName;
+			this.age = age;
+		}
+
+		private String getFirstName(){
+			return firstName;
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(firstName, age);
+		}
+
+		@Override
+		public boolean equals(Object other){
+			if(!(other instanceof Person)){
+				return false;
+			}
+			Person otherPerson = (Person)other;
+			return Objects.equals(firstName, otherPerson.firstName)
+					&& Objects.equals(age, otherPerson.age);
+		}
+
 	}
 
 }

@@ -51,7 +51,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 	private static final String FIELD_PREFIX = "field_";
 
 	protected static final String
-			PARAM_startAfterKey = "startAfterKey",
+			PARAM_startKey = "startKey",
 			PARAM_nextKey = "nextKey",
 			PARAM_limit = "limit";
 

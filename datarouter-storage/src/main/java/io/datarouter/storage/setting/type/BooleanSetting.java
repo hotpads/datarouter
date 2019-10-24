@@ -17,11 +17,13 @@ package io.datarouter.storage.setting.type;
 
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.BooleanTool;
+import io.datarouter.util.Require;
 
 public interface BooleanSetting extends Setting<Boolean>{
 
 	@Override
 	default Boolean parseStringValue(String stringValue){
+		Require.isTrue(BooleanTool.isBoolean(stringValue));
 		return BooleanTool.isTrue(stringValue);
 	}
 

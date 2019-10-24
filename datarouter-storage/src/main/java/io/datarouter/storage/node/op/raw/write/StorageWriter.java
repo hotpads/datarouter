@@ -16,12 +16,10 @@
 package io.datarouter.storage.node.op.raw.write;
 
 import java.util.Collection;
-import java.util.stream.Stream;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.NodeOps;
@@ -47,16 +45,6 @@ extends NodeOps<PK,D>{
 
 	default void putMulti(Collection<D> databeans){
 		putMulti(databeans, new Config());
-	}
-
-	default void putStream(Stream<D> databeans, Config config){
-		Scanner.of(databeans)
-				.batch(config.optInputBatchSize().orElse(100))
-				.forEach(batch -> putMulti(batch, config));
-	}
-
-	default void putStream(Stream<D> databeans){
-		putStream(databeans, new Config());
 	}
 
 	public interface StorageWriterNode<

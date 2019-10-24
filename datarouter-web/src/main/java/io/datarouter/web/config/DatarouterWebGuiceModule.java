@@ -37,8 +37,14 @@ import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink;
 import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink.NoOpLatencyMonitoringGraphLink;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
-import io.datarouter.web.user.DatarouterUserNodes;
-import io.datarouter.web.user.NoOpDatarouterUserNodes;
+import io.datarouter.web.user.BaseDatarouterPermissionRequestDao;
+import io.datarouter.web.user.BaseDatarouterPermissionRequestDao.NoOpDatarouterPermissionRequestDao;
+import io.datarouter.web.user.BaseDatarouterSessionDao;
+import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
+import io.datarouter.web.user.BaseDatarouterUserDao;
+import io.datarouter.web.user.BaseDatarouterUserDao.NoOpDatarouterUserDao;
+import io.datarouter.web.user.BaseDatarouterUserHistoryDao;
+import io.datarouter.web.user.BaseDatarouterUserHistoryDao.NoOpDatarouterUserHistoryDao;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -67,7 +73,10 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 				.to(CompoundPortIdentifier.class);
 
 		bindDefault(DatarouterAuthenticationConfig.class, BaseDatarouterAuthenticationConfig.class);
-		bindDefault(DatarouterUserNodes.class, NoOpDatarouterUserNodes.class);
+		bindDefault(BaseDatarouterUserDao.class, NoOpDatarouterUserDao.class);
+		bindDefault(BaseDatarouterUserHistoryDao.class, NoOpDatarouterUserHistoryDao.class);
+		bindDefault(BaseDatarouterPermissionRequestDao.class, NoOpDatarouterPermissionRequestDao.class);
+		bindDefault(BaseDatarouterSessionDao.class, NoOpDatarouterSessionDao.class);
 		bindDefault(CurrentUserSessionInfo.class, DatarouterCurrentUserSessionInfo.class);
 		bindDefault(UserInfo.class, DatarouterUserInfo.class);
 		optionalBinder(ExceptionRecorder.class);

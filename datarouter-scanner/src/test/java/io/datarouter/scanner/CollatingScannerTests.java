@@ -34,8 +34,7 @@ public class CollatingScannerTests{
 				Collections.emptyList(),
 				Arrays.asList(0, 9));
 		List<Integer> actual = batches
-				.mapToScanner(Scanner::of)
-				.collate()
+				.collate(Scanner::of)
 				.list();
 		List<Integer> expected = Arrays.asList(0, 1, 2, 7, 8, 9);
 		Assert.assertEquals(actual, expected);

@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestRouter;
+import io.datarouter.client.mysql.test.client.txn.DatarouterTxnTestDao;
 import io.datarouter.client.mysql.test.client.txn.TxnBean;
 import io.datarouter.client.mysql.test.client.txn.TxnBeanKey;
 import io.datarouter.client.mysql.test.client.txn.txnapp.TestInsertRollback;
@@ -32,8 +32,6 @@ import io.datarouter.client.mysql.test.client.txn.txnapp.TestNestedTxn;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.util.iterable.IterableTool;
 
 public abstract class BaseTxnIntegrationTests{
 
@@ -45,13 +43,11 @@ public abstract class BaseTxnIntegrationTests{
 	private SessionExecutor sessionExecutor;
 
 	private ClientId clientId;
-	private DatarouterTxnTestRouter router;
-	private SortedMapStorage<TxnBeanKey,TxnBean> node;
+	private DatarouterTxnTestDao dao;
 
 	protected void setup(ClientId clientId){
 		this.clientId = clientId;
-		router = new DatarouterTxnTestRouter(datarouter, nodeFactory, clientId);
-		node = router.txnBean();
+		dao = new DatarouterTxnTestDao(datarouter, nodeFactory, clientId);
 	}
 
 	@AfterClass
@@ -60,8 +56,8 @@ public abstract class BaseTxnIntegrationTests{
 	}
 
 	protected void resetTable(){
-		router.txnBean().deleteAll();
-		Assert.assertEquals(IterableTool.count(node.scan()).intValue(), 0);
+		dao.deleteAll();
+		Assert.assertTrue(dao.scan().isEmpty());
 	}
 
 	/*----------------------  override these in subclasses ------------------*/
@@ -79,12 +75,12 @@ public abstract class BaseTxnIntegrationTests{
 		String beanPrefix = "a";
 		try{
 			sessionExecutor.runWithoutRetries(new TestInsertRollback(datarouter, clientId, Isolation.readCommitted,
-					router, beanPrefix));
+					dao, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
 		Assert.assertEquals(numExceptions, 1);
-		Assert.assertFalse(node.exists(new TxnBeanKey(beanPrefix + "1")));
+		Assert.assertFalse(dao.exists(new TxnBeanKey(beanPrefix + "1")));
 	}
 
 	/*------------------------- MultiInsertRollback -------------------------*/
@@ -105,20 +101,19 @@ public abstract class BaseTxnIntegrationTests{
 	private void testMoreComplexInsertRollbackWithBeanPrefix(String beanPrefix){
 		int numExceptions = 0;
 		TxnBean bean = new TxnBean(beanPrefix + "1");
-		node.put(bean);
-		Assert.assertTrue(router.txnBean().exists(bean.getKey()));
+		dao.put(bean);
+		Assert.assertTrue(dao.exists(bean.getKey()));
 		try{
 			sessionExecutor.runWithoutRetries(new TestMultiInsertRollback(datarouter, clientId, Isolation.readCommitted,
-					router, beanPrefix));
+					dao, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
 		Assert.assertEquals(numExceptions, 1);
-		Assert.assertTrue(router.txnBean().exists(bean.getKey()));
-		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "2")));
-		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey(beanPrefix + "3")));
+		Assert.assertTrue(dao.exists(bean.getKey()));
+		Assert.assertFalse(dao.exists(new TxnBeanKey(beanPrefix + "2")));
+		Assert.assertFalse(dao.exists(new TxnBeanKey(beanPrefix + "3")));
 	}
-
 
 	/*------------------------------- NestedTxn -----------------------------*/
 
@@ -127,11 +122,12 @@ public abstract class BaseTxnIntegrationTests{
 		int numExceptions = 0;
 		try{
 			sessionExecutor.runWithoutRetries(new TestNestedTxn(datarouter, clientId, Isolation.readCommitted, false,
-					router, sessionExecutor));
+					dao, sessionExecutor));
 		}catch(RuntimeException re){
 			++numExceptions;
 		}
 		Assert.assertEquals(numExceptions, 1);
-		Assert.assertFalse(router.txnBean().exists(new TxnBeanKey("outer")));
+		Assert.assertFalse(dao.exists(new TxnBeanKey("outer")));
 	}
+
 }

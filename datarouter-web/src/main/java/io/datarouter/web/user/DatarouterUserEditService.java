@@ -47,7 +47,7 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterUserHistoryService userHistoryService;
 	@Inject
-	private DatarouterUserDao datarouterUserDao;
+	private DatarouterUserService datarouterUserService;
 	@Inject
 	private PermissionRequestAdditionalEmails permissionRequestAdditionalEmails;
 
@@ -58,7 +58,7 @@ public class DatarouterUserEditService{
 
 		List<String> changes = new ArrayList<>();
 
-		Set<Role> allowedRoles = datarouterUserDao.getAllowedUserRoles(editor, requestedRoles);
+		Set<Role> allowedRoles = datarouterUserService.getAllowedUserRoles(editor, requestedRoles);
 		Set<Role> currentRoles = new HashSet<>(user.getRoles());
 		if(!allowedRoles.equals(currentRoles)){
 			changes.add(change("roles", currentRoles, allowedRoles));

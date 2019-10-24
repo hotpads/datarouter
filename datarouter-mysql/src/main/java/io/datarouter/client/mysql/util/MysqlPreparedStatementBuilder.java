@@ -72,8 +72,9 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	public DatarouterMysqlStatement getMulti(Config config, String tableName, List<Field<?>> selectFields,
-			Collection<? extends FieldSet<?>> keys, MysqlTableOptions mysqlTableOptions){
+			Collection<? extends FieldSet<?>> keys, String indexName, MysqlTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = select(tableName, selectFields);
+		SqlBuilder.addForceIndexClause(statement.getSql(), indexName);
 		appendWhereClauseDisjunction(statement, keys, mysqlTableOptions);
 		SqlBuilder.addLimitOffsetClause(statement.getSql(), config);
 		return statement;

@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.11</version>
+	<version>0.0.12</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class TestDatabeanKey extends BaseRegularPrimaryKey<TestDatabeanKey>{
+public class MysqlExampleDatabeanKey extends BaseRegularPrimaryKey<MysqlExampleDatabeanKey>{
 
 	private String id;
 
@@ -35,10 +35,10 @@ public class TestDatabeanKey extends BaseRegularPrimaryKey<TestDatabeanKey>{
 		public static final StringFieldKey id = new StringFieldKey("id");
 	}
 
-	public TestDatabeanKey(){
+	public MysqlExampleDatabeanKey(){
 	}
 
-	public TestDatabeanKey(String id){
+	public MysqlExampleDatabeanKey(String id){
 		this.id = id;
 	}
 
@@ -74,7 +74,7 @@ import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
-public class TestDatabean extends BaseDatabean<TestDatabeanKey,TestDatabean>{
+public class MysqlExampleDatabean extends BaseDatabean<MysqlExampleDatabeanKey,MysqlExampleDatabean>{
 
 	private Integer someInt;
 
@@ -82,32 +82,32 @@ public class TestDatabean extends BaseDatabean<TestDatabeanKey,TestDatabean>{
 		private static final IntegerFieldKey someInt = new IntegerFieldKey("someInt");
 	}
 
-	public TestDatabean(){
-		super(new TestDatabeanKey()); // it is required to initialize the key field of a databean
+	public MysqlExampleDatabean(){
+		super(new MysqlExampleDatabeanKey()); // it is required to initialize the key field of a databean
 	}
 
-	public TestDatabean(String id, Integer someInt){
-		super(new TestDatabeanKey(id));
+	public MysqlExampleDatabean(String id, Integer someInt){
+		super(new MysqlExampleDatabeanKey(id));
 		this.someInt = someInt;
 	}
 
-	public static class TestDatabeanFielder extends BaseDatabeanFielder<TestDatabeanKey,TestDatabean>{
+	public static class MysqlExampleDatabeanFielder
+	extends BaseDatabeanFielder<MysqlExampleDatabeanKey,MysqlExampleDatabean>{
 
-		protected TestDatabeanFielder(){
-			super(TestDatabeanKey.class);
+		public MysqlExampleDatabeanFielder(){
+			super(MysqlExampleDatabeanKey.class);
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(TestDatabean databean){
-			return Arrays.asList(
-					new IntegerField(FieldKeys.someInt, databean.someInt));
+		public List<Field<?>> getNonKeyFields(MysqlExampleDatabean databean){
+			return Arrays.asList(new IntegerField(FieldKeys.someInt, databean.someInt));
 		}
 
 	}
 
 	@Override
-	public Class<TestDatabeanKey> getKeyClass(){
-		return TestDatabeanKey.class;
+	public Class<MysqlExampleDatabeanKey> getKeyClass(){
+		return MysqlExampleDatabeanKey.class;
 	}
 
 	public Integer getSomeInt(){
@@ -120,7 +120,7 @@ public class TestDatabean extends BaseDatabean<TestDatabeanKey,TestDatabean>{
 Datarouter will generate the following `CREATE TABLE` statement for such a databean.
 
 ```sql
-create table testDatabase.TestDatabean (
+create table testDatabase.ExampleDatabean (
  someInt int(11),
  id varchar(255) not null,
  primary key (id)
@@ -137,24 +137,24 @@ The node is configured to use a database client called `mysqlClient`. We will us
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.client.mysql.example.MysqlExampleDatabean.MysqlExampleDatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.storage.router.BaseRouter;
 
 @Singleton
-public class TestRouter extends BaseRouter{
+public class MysqlExampleDao extends BaseDao{
 
 	private static final ClientId MYSQL_CLIENT = new ClientId("mysqlClient", true);
 
-	public final SortedMapStorage<TestDatabeanKey,TestDatabean> node;
+	public final SortedMapStorage<MysqlExampleDatabeanKey,MysqlExampleDatabean> node;
 
 	@Inject
-	public TestRouter(Datarouter datarouter, NodeFactory nodeFactory){
+	public MysqlExampleDao(Datarouter datarouter, NodeFactory nodeFactory){
 		super(datarouter);
-
-		node = nodeFactory.create(MYSQL_CLIENT, TestDatabean::new, TestDatabean.TestDatabeanFielder::new)
+		node = nodeFactory.create(MYSQL_CLIENT, MysqlExampleDatabean::new, MysqlExampleDatabeanFielder::new)
 				.buildAndRegister();
 	}
 
@@ -174,9 +174,9 @@ import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.SimpleDatarouterProperties;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
-import io.datarouter.storage.router.RouterClasses;
+import io.datarouter.storage.dao.DaoClasses;
 
-public class TestGuiceModule extends BaseGuiceModule{
+public class MysqlExampleGuiceModule extends BaseGuiceModule{
 
 	@Override
 	protected void configure(){
@@ -186,8 +186,8 @@ public class TestGuiceModule extends BaseGuiceModule{
 		bindDefaultInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
 		// datarouter will use the application's name to look for configuration files
 		bind(DatarouterProperties.class).toInstance(new SimpleDatarouterProperties("testApp"));
-		// we register all the routers of our application here
-		bind(RouterClasses.class).toInstance(new RouterClasses(TestRouter.class));
+		// we register all the daos of our application here
+		bind(DaoClasses.class).toInstance(new DaoClasses(MysqlExampleDao.class));
 	}
 
 }
@@ -246,35 +246,35 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.util.tuple.Range;
 
-public class Main{
+public class MysqlExampleMain{
+
 	public static void main(String[] args){
 		// create the Injector with our test module
-		Injector injector = Guice.createInjector(Arrays.asList(new TestGuiceModule()));
-		// get an instance of our router with the injector
-		TestRouter router = injector.getInstance(TestRouter.class);
+		Injector injector = Guice.createInjector(Arrays.asList(new MysqlExampleGuiceModule()));
+		// get an instance of our dao with the injector
+		MysqlExampleDao dao = injector.getInstance(MysqlExampleDao.class);
 		// instantiate a databean
 		Integer someInt = ThreadLocalRandom.current().nextInt();
-		TestDatabean databean = new TestDatabean("foo", someInt);
+		MysqlExampleDatabean databean = new MysqlExampleDatabean("foo", someInt);
 		// write the databean to the database, will issue an INSERT ... ON DUPLICATE KEY UPDATE by default
-		router.node.put(databean, null);
+		dao.node.put(databean);
 		// other put behaviors are available with PutMethod, this one will issue an INSERT IGNORE
-		router.node.put(databean, new Config().setPutMethod(PutMethod.INSERT_IGNORE));
+		dao.node.put(databean, new Config().setPutMethod(PutMethod.INSERT_IGNORE));
 		// read the databean using the same primary key
-		TestDatabean roundTripped = router.node.get(new TestDatabeanKey("foo"), null);
+		MysqlExampleDatabean roundTripped = dao.node.get(new MysqlExampleDatabeanKey("foo"));
 		// check that we were able to read the someInt column
 		Assert.assertEquals(roundTripped.getSomeInt(), someInt);
 		// databeans are equal if their keys are equal, they also sort by primary key
 		Assert.assertEquals(roundTripped, databean);
 		// let's put another databean, with a different key
 		Integer anotherInt = ThreadLocalRandom.current().nextInt();
-		TestDatabean anotherDatabean = new TestDatabean("bar", anotherInt);
-		router.node.put(anotherDatabean, null);
+		MysqlExampleDatabean anotherDatabean = new MysqlExampleDatabean("bar", anotherInt);
+		dao.node.put(anotherDatabean);
 		// you can fetch the rows given a range of primary keys, here, we fetch everything
-		long sum = router.node.scan(Range.everything()).stream()
-				.mapToInt(TestDatabean::getSomeInt)
-				.sum();
+		long sum = dao.node.scan(Range.everything()).stream().mapToInt(MysqlExampleDatabean::getSomeInt).sum();
 		Assert.assertEquals(sum, someInt + anotherInt);
 	}
+
 }
 ```
 

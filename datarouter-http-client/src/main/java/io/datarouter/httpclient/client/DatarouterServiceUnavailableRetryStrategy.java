@@ -62,8 +62,8 @@ public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavail
 					.getRequestLine(), requestId, executionCount, statusCode, entity);
 		}else{
 			// don't log everything, caller will get details in an Exception
-			logger.warn("Request {} id={} failure Nº {} (final)", clientContext.getRequest().getRequestLine(),
-					requestId, executionCount);
+			logger.warn("Request {} id={} failure Nº {} statusCode={} (final)", clientContext.getRequest()
+					.getRequestLine(), requestId, executionCount);
 		}
 		return willRetry;
 	}

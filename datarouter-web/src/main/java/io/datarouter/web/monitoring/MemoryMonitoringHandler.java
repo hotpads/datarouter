@@ -64,6 +64,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	private LoadedLibraries loadedLibraries;
 	@Inject
 	private DatarouterWebFiles files;
+	@Inject
+	private TomcatThreadMetrics tomcatThreadMetrics;
 
 	@Handler(defaultHandler = true)
 	protected Mav view(){
@@ -91,6 +93,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("detailedLibraries", gitDetailedLibraries);
 		mav.put("buildDetailedLibraries", loadedLibraries.buildDetailedLibraries);
 		mav.put("otherLibraries", loadedLibraries.otherLibraries);
+		mav.put("tomcatThreadMetrics", tomcatThreadMetrics.getTomcatPoolMetrics());
 
 		Runtime runtime = Runtime.getRuntime();
 		MemoryUsage heap = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();

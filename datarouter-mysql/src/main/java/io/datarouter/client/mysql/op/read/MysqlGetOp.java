@@ -23,6 +23,7 @@ import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlTool;
+import io.datarouter.client.mysql.util.SqlBuilder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -58,7 +59,7 @@ extends BaseMysqlOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		return mysqlGetOpExecutor.execute(fieldInfo, opName, keys, config, fieldInfo.getFields(), this::select,
-				getConnection());
+				getConnection(), SqlBuilder.PRIMARY_KEY_INDEX_NAME);
 	}
 
 	private List<D> select(PreparedStatement ps){

@@ -60,7 +60,7 @@ extends BaseMysqlOp<Long>{
 	public Long runOnce(){
 		Connection connection = getConnection();
 		long numModified = 0;
-		for(List<PK> keyBatch : Scanner.of(keys).batch(config.optInputBatchSize().orElse(BATCH_SIZE))){
+		for(List<PK> keyBatch : Scanner.of(keys).batch(config.optInputBatchSize().orElse(BATCH_SIZE)).iterable()){
 			PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, fieldInfo.getTableName(),
 					keyBatch, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(connection);
 			numModified += MysqlTool.update(statement);

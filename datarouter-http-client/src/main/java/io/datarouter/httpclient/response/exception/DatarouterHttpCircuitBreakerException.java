@@ -18,8 +18,8 @@ package io.datarouter.httpclient.response.exception;
 @SuppressWarnings("serial")
 public class DatarouterHttpCircuitBreakerException extends DatarouterHttpException{
 
-	public DatarouterHttpCircuitBreakerException(String name){
-		super("Circuit Opened. Name=" + name);
+	public DatarouterHttpCircuitBreakerException(String name, Exception lastException){
+		super("Circuit Opened. Name=" + name, lastException);
 	}
 
 }

@@ -15,93 +15,80 @@
  */
 package io.datarouter.util.concurrent;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.lang.StackWalker.Option;
+import java.lang.StackWalker.StackFrame;
+import java.util.Optional;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-public class DatarouterExecutorService implements ExecutorService{
+import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.storage.trace.callable.TracedCheckedCallable;
 
-	private final ThreadPoolExecutor threadPoolExecutor;
+public class DatarouterExecutorService extends ThreadPoolExecutor{
 
-	public DatarouterExecutorService(ThreadPoolExecutor executorService){
-		this.threadPoolExecutor = executorService;
+	public static final String PREFIX_executor = "executor";
+
+	private final Optional<String> name;
+
+	protected DatarouterExecutorService(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
+			BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler){
+		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
+		this.name = NamedThreadFactory.findName(threadFactory);
 	}
 
-	public ThreadPoolExecutor getThreadPoolExecutor(){
-		return threadPoolExecutor;
+	protected DatarouterExecutorService(ThreadPoolExecutor threadPoolExecutor){
+		this(threadPoolExecutor.getCorePoolSize(), threadPoolExecutor.getMaximumPoolSize(), threadPoolExecutor
+				.getKeepAliveTime(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS, threadPoolExecutor.getQueue(),
+				threadPoolExecutor.getThreadFactory(), threadPoolExecutor.getRejectedExecutionHandler());
+	}
+
+	@Override
+	protected void afterExecute(Runnable runnable, Throwable throwable){
+		super.afterExecute(runnable, throwable);
+		name.ifPresent(execName -> Counters.inc(PREFIX_executor + " " + execName + " processed"));
 	}
 
 	@Override
 	public void execute(Runnable command){
-		threadPoolExecutor.execute(command);
+		super.execute(new TracedCheckedRunnable(command));
 	}
 
-	@Override
-	public void shutdown(){
-		threadPoolExecutor.shutdown();
-	}
+	private static class TracedCheckedRunnable extends TracedCheckedCallable<Void> implements Runnable{
 
-	@Override
-	public List<Runnable> shutdownNow(){
-		return threadPoolExecutor.shutdownNow();
-	}
+		static final StackWalker WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
-	@Override
-	public boolean isShutdown(){
-		return threadPoolExecutor.isShutdown();
-	}
+		final Runnable runnable;
 
-	@Override
-	public boolean isTerminated(){
-		return threadPoolExecutor.isTerminated();
-	}
+		TracedCheckedRunnable(Runnable runnable){
+			super(findCaller());
+			this.runnable = runnable;
+		}
 
-	@Override
-	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException{
-		return threadPoolExecutor.awaitTermination(timeout, unit);
-	}
+		@Override
+		public Void wrappedCall(){
+			runnable.run();
+			return null;
+		}
 
-	@Override
-	public <T> Future<T> submit(Callable<T> task){
-		return threadPoolExecutor.submit(task);
-	}
+		@Override
+		public void run(){
+			try{
+				call();
+			}catch(Exception e){
+				throw new RuntimeException(e);
+			}
+		}
 
-	@Override
-	public <T> Future<T> submit(Runnable task, T result){
-		return threadPoolExecutor.submit(task, result);
-	}
-
-	@Override
-	public Future<?> submit(Runnable task){
-		return threadPoolExecutor.submit(task);
-	}
-
-	@Override
-	public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException{
-		return threadPoolExecutor.invokeAll(tasks);
-	}
-
-	@Override
-	public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
-	throws InterruptedException{
-		return threadPoolExecutor.invokeAll(tasks, timeout, unit);
-	}
-
-	@Override
-	public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException{
-		return threadPoolExecutor.invokeAny(tasks);
-	}
-
-	@Override
-	public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
-	throws InterruptedException, ExecutionException, TimeoutException{
-		return threadPoolExecutor.invokeAny(tasks, timeout, unit);
+		static String findCaller(){
+			StackFrame frame = WALKER.walk(frames -> frames
+					.skip(5)
+					.findFirst())
+					.get();
+			return frame.getDeclaringClass().getSimpleName() + " " + frame.getMethodName();
+		}
 	}
 
 }

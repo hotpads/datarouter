@@ -30,8 +30,8 @@ import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.exception.IncorrectPasswordException;
 import io.datarouter.web.exception.InvalidCredentialsException;
-import io.datarouter.web.user.DatarouterUserDao;
-import io.datarouter.web.user.DatarouterUserNodes;
+import io.datarouter.web.user.BaseDatarouterUserDao;
+import io.datarouter.web.user.DatarouterUserService;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
@@ -47,13 +47,13 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
-	private DatarouterUserNodes userNodes;
+	private BaseDatarouterUserDao baseDatarouterUserDao;
 	@Inject
 	private DatarouterSamlSettings samlSettings;
 	@Inject
 	private DatarouterUserByUsernameCache datarouterUserByUsernameCache;
 	@Inject
-	private DatarouterUserDao datarouterUserDao;
+	private DatarouterUserService datarouterUserService;
 
 	@Override
 	public DatarouterSession getSession(HttpServletRequest request, HttpServletResponse response){
@@ -74,7 +74,7 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 		DatarouterUser user = lookupAndValidateUser(username, password);
 
 		user.setLastLoggedIn(new Date());
-		userNodes.getUserNode().put(user);
+		baseDatarouterUserDao.put(user);
 
 		DatarouterSession session = DatarouterSession.createFromUser(user);
 		return session;
@@ -93,7 +93,7 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 		if(StringTool.isEmpty(password)){
 			throw new InvalidCredentialsException("password cannot be empty (" + username + ")");
 		}
-		if(!datarouterUserDao.isPasswordCorrect(user, password)){
+		if(!datarouterUserService.isPasswordCorrect(user, password)){
 			throw new IncorrectPasswordException("invalid password (" + username + ")");
 		}
 		return user;

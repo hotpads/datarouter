@@ -54,7 +54,7 @@ extends QueueStorageWriter<PK,D>, QueueStorageReader<PK,D>{
 
 	Scanner<D> pollUntilEmpty(Config config);
 
-	default Iterable<D> pollUntilEmpty(){
+	default Scanner<D> pollUntilEmpty(){
 		return pollUntilEmpty(new Config());
 	}
 
