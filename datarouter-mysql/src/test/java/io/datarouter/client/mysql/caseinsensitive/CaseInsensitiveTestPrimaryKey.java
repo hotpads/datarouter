@@ -31,7 +31,8 @@ public class CaseInsensitiveTestPrimaryKey extends BaseRegularPrimaryKey<CaseIns
 		public static final StringFieldKey stringFieldKey = new StringFieldKey("stringField");
 	}
 
-	public CaseInsensitiveTestPrimaryKey(){}
+	public CaseInsensitiveTestPrimaryKey(){
+	}
 
 	public CaseInsensitiveTestPrimaryKey(String stringField){
 		this.stringField = stringField;

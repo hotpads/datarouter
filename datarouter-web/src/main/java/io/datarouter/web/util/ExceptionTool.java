@@ -52,7 +52,8 @@ public class ExceptionTool{
 	}
 
 	@SuppressWarnings("serial")
-	private static class SpecialInterruptedException extends InterruptedException{}
+	private static class SpecialInterruptedException extends InterruptedException{
+	}
 
 	public static class ExceptionToolTests{
 		@Test

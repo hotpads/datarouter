@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.trace.callable;
 
+import io.datarouter.util.tracer.TracedCheckedCallable;
+
 public abstract class TracedCallable<V> extends TracedCheckedCallable<V>{
 
 	public TracedCallable(String traceThreadName){

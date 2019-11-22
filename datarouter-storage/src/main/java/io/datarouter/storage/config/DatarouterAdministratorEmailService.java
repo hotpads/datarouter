@@ -33,7 +33,7 @@ public class DatarouterAdministratorEmailService{
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private DatarouterAdditionalAdministrators additionalAdministrators;
+	private DatarouterAdditionalAdministratorsSupplier additionalAdministrators;
 	@Inject
 	private DatarouterStorageSettingRoot datarouterStorageSettings;
 

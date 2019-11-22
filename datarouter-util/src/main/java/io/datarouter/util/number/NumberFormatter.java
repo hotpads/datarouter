@@ -41,7 +41,7 @@ public class NumberFormatter{
 		return df.format(number);
 	}
 
-	public static String addCommas(final Number value){
+	public static String addCommas(Number value){
 		if(value == null){
 			return null;
 		}

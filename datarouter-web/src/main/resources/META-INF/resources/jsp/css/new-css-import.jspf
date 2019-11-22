@@ -1,6 +1,1 @@
-<link rel="stylesheet" href="${contextPath}/css/new-common.css">
-<link rel="stylesheet" href="${contextPath}/font-awesome/css/fontawesome.min.css">
-<link rel="stylesheet" href="${contextPath}/font-awesome/css/regular.min.css">
-<link rel="stylesheet" href="${contextPath}/font-awesome/css/solid.min.css">
-<link rel="stylesheet" href="${contextPath}/bootstrap/v4/css/bootstrap.min.css">
-<link rel="stylesheet" href="${contextPath}/bootstrap/v4/css/datarouter-boostrap-4-override.css">
+${datarouterNewCssImportContent}

@@ -23,4 +23,12 @@ public interface Metrics{
 		save(key, Long.valueOf(value));
 	}
 
+	static class NoOpMetris implements Metrics{
+
+		@Override
+		public void save(String key, long value){
+		}
+
+	}
+
 }

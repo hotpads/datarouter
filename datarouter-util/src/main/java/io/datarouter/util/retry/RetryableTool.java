@@ -21,8 +21,8 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.util.concurrent.UncheckedInterruptedException;
 import io.datarouter.util.concurrent.ThreadTool;
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
 public class RetryableTool{
 	private static final Logger logger = LoggerFactory.getLogger(RetryableTool.class);

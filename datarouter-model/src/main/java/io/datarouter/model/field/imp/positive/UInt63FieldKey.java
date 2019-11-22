@@ -47,7 +47,7 @@ public class UInt63FieldKey extends PrimitiveFieldKey<Long,UInt63FieldKey>{
 	}
 
 	@Override
-	public UInt63Field createValueField(final Long value){
+	public UInt63Field createValueField(Long value){
 		return new UInt63Field(this, value);
 	}
 

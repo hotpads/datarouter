@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 
-import io.datarouter.web.config.ServletContextProvider;
+import io.datarouter.web.config.ServletContextSupplier;
 
 @Singleton
 public class WebappName{
@@ -29,8 +29,8 @@ public class WebappName{
 	private final String name;
 
 	@Inject
-	public WebappName(ServletContextProvider servletContextProvider){
-		ServletContext servletContext = servletContextProvider.get();
+	public WebappName(ServletContextSupplier servletContextSupplier){
+		ServletContext servletContext = servletContextSupplier.get();
 		if(servletContext == null){
 			this.name = TEST;
 		}else{

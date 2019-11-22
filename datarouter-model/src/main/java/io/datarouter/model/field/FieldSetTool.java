@@ -69,11 +69,11 @@ public class FieldSetTool{
 		return numNonNullFields;
 	}
 
-	public static boolean isLastFieldSpecified(FieldSet<?> fieldSet){
+	public static boolean areAllFieldsNonNull(FieldSet<?> fieldSet){
 		if(fieldSet == null){
 			return false;
 		}
-		return CollectionTool.getLast(fieldSet.getFields()).getValue() != null;
+		return getNumNonNullFields(fieldSet) == fieldSet.getFields().size();
 	}
 
 	public static Map<String,Pair<Field<?>,Field<?>>> getFieldDifferences(Collection<Field<?>> left,

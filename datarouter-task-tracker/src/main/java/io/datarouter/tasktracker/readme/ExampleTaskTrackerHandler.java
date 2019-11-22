@@ -63,7 +63,7 @@ public class ExampleTaskTrackerHandler extends BaseHandler{
 		//update and check the TaskTracker during a potentially long task
 		Scanner.of(Files.walk(Paths.get(parentPath)))
 				//check the deadline and short-circuit the scanner if it has been reached
-				.advanceUntil(item -> tracker.shouldStop())
+				.advanceUntil($ -> tracker.shouldStop())
 				.map(Object::toString)
 				//update the item count and last item name, which also acts as a heartbeat
 				.peek($ -> tracker.increment())

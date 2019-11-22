@@ -15,26 +15,29 @@
  */
 package io.datarouter.scanner;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
  * Removes consecutive duplicates.  Lighter weight than Stream's distinct() because all elements need not be
  * collected into memory.
  */
-public class DeduplicatingScanner<T> extends BaseLinkedScanner<T,T>{
+public class DeduplicatingScanner<T,R> extends BaseLinkedScanner<T,T>{
 
-	private final Function<T,?> keyMapper;
+	private final Function<T,R> mapper;
+	private boolean hasSetCurrent = false;
 
-	public DeduplicatingScanner(Scanner<T> input, Function<T,?> keyMapper){
+	public DeduplicatingScanner(Scanner<T> input, Function<T,R> mapper){
 		super(input);
-		this.keyMapper = keyMapper;
+		this.mapper = mapper;
 	}
 
 	@Override
 	public boolean advanceInternal(){
 		while(input.advance()){
-			if(current == null || !keyMapper.apply(input.current()).equals(keyMapper.apply(current))){
+			if(!hasSetCurrent || !Objects.equals(mapper.apply(current), mapper.apply(input.current()))){
 				current = input.current();
+				hasSetCurrent = true;
 				return true;
 			}
 		}

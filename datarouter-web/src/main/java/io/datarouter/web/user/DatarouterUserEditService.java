@@ -29,9 +29,10 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmails;
+import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserHistory;
 import io.datarouter.web.user.databean.DatarouterUserHistory.DatarouterUserChangeType;
@@ -49,7 +50,9 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterUserService datarouterUserService;
 	@Inject
-	private PermissionRequestAdditionalEmails permissionRequestAdditionalEmails;
+	private PermissionRequestAdditionalEmailsSupplier permissionRequestAdditionalEmails;
+	@Inject
+	private DatarouterService datarouterService;
 
 	public void editUser(DatarouterUser user, DatarouterUser editor, String[] requestedRoles, Boolean enabled,
 			String signinUrl, List<String> requestedAccounts, List<String> currentAccounts){
@@ -111,8 +114,8 @@ public class DatarouterUserEditService{
 		return String.join(",", recipients);
 	}
 
-	public String getPermissionRequestEmailSubject(DatarouterUser user, String webapp){
-		return user.getUsername() + " permissions request for " + webapp;
+	public String getPermissionRequestEmailSubject(DatarouterUser user){
+		return user.getUsername() + " permissions request for " + datarouterService.getName();
 	}
 
 }

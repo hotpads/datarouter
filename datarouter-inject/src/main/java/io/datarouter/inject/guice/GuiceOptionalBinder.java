@@ -36,7 +36,7 @@ public interface GuiceOptionalBinder{
 		return OptionalBinder.newOptionalBinder(getGuiceBinder(), type);
 	}
 
-	/*---------- default -------------*/
+	/*---------- default ------------*/
 
 	default <T> void bindDefault(Class<T> type, Class<? extends T> defaultClass){
 		optionalBinder(type).setDefault().to(defaultClass);
@@ -54,7 +54,7 @@ public interface GuiceOptionalBinder{
 		optionalBinder(type).setDefault().toInstance(defaultInstance);
 	}
 
-	/*------------ actual ---------------*/
+	/*----------- actual ------------*/
 
 	default <T> void bindActual(Class<T> type, Class<? extends T> actualClass){
 		optionalBinder(type).setBinding().to(actualClass);

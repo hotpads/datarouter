@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -50,7 +49,6 @@ import org.testng.annotations.Test;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -69,6 +67,7 @@ import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamVal
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
+import io.datarouter.web.util.RequestDurationTool;
 import io.datarouter.web.util.http.RequestTool;
 
 /*
@@ -80,6 +79,7 @@ public abstract class BaseHandler{
 	public static final RequestAttributeKey<Date> REQUEST_RECEIVED_AT = new RequestAttributeKey<>("receivedAt");
 	public static final RequestAttributeKey<String> REQUEST_DURATION_STRING = new RequestAttributeKey<>(
 			"durationString");
+	public static final RequestAttributeKey<String> TRACE_URL_REQUEST_ATTRIBUTE = new RequestAttributeKey<>("traceUrl");
 	public static final RequestAttributeKey<HandlerEncoder> HANDLER_ENCODER_ATTRIBUTE = new RequestAttributeKey<>(
 			"handlerEncoder");
 	public static final RequestAttributeKey<String> HANDLER_METHOD_NAME = new RequestAttributeKey<>("handlerName");
@@ -303,10 +303,7 @@ public abstract class BaseHandler{
 			}
 			throw new RuntimeException(cause);
 		}
-		RequestAttributeTool.get(request, REQUEST_RECEIVED_AT)
-				.map(receivedAt -> System.currentTimeMillis() - receivedAt.getTime())
-				.map(durationMs -> new DatarouterDuration(durationMs, TimeUnit.MILLISECONDS))
-				.map(DatarouterDuration::toString)
+		RequestDurationTool.getRequestElapsedDurationString(request)
 				.ifPresent(durationStr -> RequestAttributeTool.set(request, REQUEST_DURATION_STRING, durationStr));
 		encoder.finishRequest(result, servletContext, response, request);
 		postProcess(result);

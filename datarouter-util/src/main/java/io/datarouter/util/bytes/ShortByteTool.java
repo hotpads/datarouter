@@ -25,7 +25,7 @@ public class ShortByteTool{
 	 *
 	 * flip first bit so bitwiseCompare is always correct
 	 */
-	private static byte[] getRawBytes(final short in){
+	private static byte[] getRawBytes(short in){
 		byte[] out = new byte[2];
 		out[0] = (byte) (in >>> 8);
 		out[1] = (byte) in;
@@ -44,7 +44,7 @@ public class ShortByteTool{
 				| bytes[startIdx + 1] & 0xff);
 	}
 
-	public static byte[] getComparableBytes(final short value){
+	public static byte[] getComparableBytes(short value){
 		int shifted = value ^ Short.MIN_VALUE;
 		return getRawBytes((short)shifted);
 	}

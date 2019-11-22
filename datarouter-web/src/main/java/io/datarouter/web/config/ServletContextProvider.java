@@ -17,7 +17,7 @@ package io.datarouter.web.config;
 
 import javax.servlet.ServletContext;
 
-public class ServletContextProvider{
+public class ServletContextProvider implements ServletContextSupplier{
 
 	private final ServletContext servletContext;
 
@@ -25,6 +25,7 @@ public class ServletContextProvider{
 		this.servletContext = servletContext;
 	}
 
+	@Override
 	public ServletContext get(){
 		return servletContext;
 	}

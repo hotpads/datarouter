@@ -129,7 +129,7 @@ public class MysqlSingleTableSchemaUpdateService{
 			}
 			logger.info(SchemaUpdateTool.generateFullWidthMessage("Please Execute SchemaUpdate"));
 			logger.info(createDdl);
-			return Optional.of(new SchemaUpdateResult(createDdl, tableName + " creation is required"));
+			return Optional.of(new SchemaUpdateResult(createDdl, tableName + " creation is required", clientId));
 		}
 		SqlTable executeCurrent = ConnectionSqlTableGenerator.generate(connectionPool, tableName, schemaName);
 		SqlAlterTableGenerator executeAlterTableGenerator = sqlAlterTableGeneratorFactory
@@ -158,7 +158,7 @@ public class MysqlSingleTableSchemaUpdateService{
 		if(ddl.preventStartUp){
 			errorMessage = "an alter on " + tableName + " is required";
 		}
-		return Optional.of(new SchemaUpdateResult(ddl.printStatement.get(), errorMessage));
+		return Optional.of(new SchemaUpdateResult(ddl.printStatement.get(), errorMessage, clientId));
 	}
 
 }

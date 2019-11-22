@@ -20,7 +20,7 @@ import java.util.Set;
 import javax.inject.Singleton;
 
 @Singleton
-public class PermissionRequestAdditionalEmails{
+public class PermissionRequestAdditionalEmails implements PermissionRequestAdditionalEmailsSupplier{
 
 	private final Set<String> additionalPermissionRequestEmailAddress;
 
@@ -28,6 +28,7 @@ public class PermissionRequestAdditionalEmails{
 		this.additionalPermissionRequestEmailAddress = additionalPermissionRequestEmailAddress;
 	}
 
+	@Override
 	public Set<String> get(){
 		return additionalPermissionRequestEmailAddress;
 	}

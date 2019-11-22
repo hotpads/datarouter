@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.RandomAccess;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
@@ -145,6 +147,13 @@ public class ListTool{
 			outs.addAll(collectionB);
 		}
 		return outs;
+	}
+
+	@SafeVarargs
+	public static <T> List<T> concatenate(List<T>... args){
+		return Stream.of(args)
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
 	}
 
 	/*------------------------------ compare --------------------------------*/

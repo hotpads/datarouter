@@ -154,6 +154,13 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		int expectedSize3 = SortedBeans.NUM_PREFIX_a * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		Assert.assertEquals(result3.size(), expectedSize3);
 		Assert.assertTrue(ListTool.isSorted(result3));
+
+		//first two fields given, second field is null, fourth field exists and should be ignored
+		SortedBeanKey prefix4 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.STRINGS.last(), null,
+				"Ignore");
+		List<SortedBean> result4 = dao.scanWithPrefix(prefix4).list();
+		Assert.assertEquals(result4.size(), SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS);
+		Assert.assertTrue(ListTool.isSorted(result4));
 	}
 
 	@Test

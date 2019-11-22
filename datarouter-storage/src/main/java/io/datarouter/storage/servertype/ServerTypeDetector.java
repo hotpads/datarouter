@@ -26,4 +26,18 @@ public interface ServerTypeDetector{
 		}
 	}
 
+	static class NoOpServerTypeDetector implements ServerTypeDetector{
+
+		@Override
+		public boolean mightBeProduction(){
+			return false;
+		}
+
+		@Override
+		public boolean mightBeDevelopment(){
+			return false;
+		}
+
+	}
+
 }

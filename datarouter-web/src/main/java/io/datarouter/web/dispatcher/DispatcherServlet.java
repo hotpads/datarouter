@@ -117,13 +117,12 @@ public abstract class DispatcherServlet extends HttpServlet{
 		}
 	}
 
-	public DispatchRule findRuleInContext(String path){
+	public Optional<DispatchRule> findRuleInContext(String path){
 		return routeSets.stream()
 				.map(BaseRouteSet::getDispatchRules)
 				.flatMap(List::stream)
 				.filter(rule -> rule.getPattern().matcher(path).matches())
-				.findFirst()
-				.orElseThrow(() -> new IllegalStateException("Path " + path + " has no handler."));
+				.findFirst();
 	}
 
 	public List<BaseRouteSet> getRouteSets(){

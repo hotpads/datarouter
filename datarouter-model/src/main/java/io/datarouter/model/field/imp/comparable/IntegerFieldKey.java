@@ -48,7 +48,7 @@ public class IntegerFieldKey extends PrimitiveFieldKey<Integer,IntegerFieldKey>{
 	}
 
 	@Override
-	public IntegerField createValueField(final Integer value){
+	public IntegerField createValueField(Integer value){
 		return new IntegerField(this, value);
 	}
 

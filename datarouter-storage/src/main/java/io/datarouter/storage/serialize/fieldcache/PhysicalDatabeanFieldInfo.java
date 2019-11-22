@@ -20,6 +20,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.storage.node.tableconfig.TableConfiguration;
 import io.datarouter.util.string.StringTool;
 
 public class PhysicalDatabeanFieldInfo<
@@ -31,6 +32,7 @@ extends DatabeanFieldInfo<PK,D,F>{
 	private final ClientId clientId;
 	private final String tableName;
 	private final String nodeName;
+	private final TableConfiguration tableConfiguration;
 
 	public PhysicalDatabeanFieldInfo(NodeParams<PK,D,F> params){
 		super(params);
@@ -49,6 +51,7 @@ extends DatabeanFieldInfo<PK,D,F>{
 			nodeName += "." + params.getEntityNodePrefix();
 		}
 		this.nodeName = nodeName;
+		this.tableConfiguration = params.getTableConfiguration();
 	}
 
 	public ClientId getClientId(){
@@ -61,6 +64,10 @@ extends DatabeanFieldInfo<PK,D,F>{
 
 	public String getNodeName(){
 		return nodeName;
+	}
+
+	public TableConfiguration getTableConfiguration(){
+		return tableConfiguration;
 	}
 
 	@Override

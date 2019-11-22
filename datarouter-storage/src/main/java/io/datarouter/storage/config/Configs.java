@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.config;
 
+import java.time.Duration;
+
 public class Configs{
 
 	public static final boolean SLAVE_OK = true;
@@ -25,7 +27,7 @@ public class Configs{
 	}
 
 	public static Config noTimeout(){
-		return new Config().setTimeoutMs(Long.MAX_VALUE);
+		return new Config().setTimeout(Duration.ofMillis(Long.MAX_VALUE));
 	}
 
 	public static Config insertOrBust(){

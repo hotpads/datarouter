@@ -31,10 +31,14 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.util.duration.DurationUnit;
 import io.datarouter.util.duration.DurationWithCarriedUnits;
 
 public class DateTool{
+	private static final Logger logger = LoggerFactory.getLogger(DateTool.class);
 
 	public static final int MILLISECONDS_IN_DAY = (int) Duration.ofDays(1).toMillis();
 	public static final int MILLISECONDS_IN_HOUR = (int) Duration.ofHours(1).toMillis();
@@ -55,6 +59,7 @@ public class DateTool{
 
 	public static final DateTimeFormatter JAVA_TIME_INTERNET_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
+	private static final String ISO_FORMAT = "yyyy MM dd'T'hh mm ss'Z'";
 
 	/**
 	 * Parse the provided date string using a sequence of common date formats
@@ -80,7 +85,7 @@ public class DateTool{
 		date = strippedDate;
 		String[] commonFormats = {
 				"E MMM dd hh mm ss z yyyy",
-				"yyyy MM dd'T'hh mm ss'Z'",
+				ISO_FORMAT,
 				"yyyy MM dd hh mm ss",
 				"MM dd yy",
 				"MMM dd yy",
@@ -94,6 +99,9 @@ public class DateTool{
 		for(String fmt : commonFormats){
 			try{
 				Date parsed = new SimpleDateFormat(fmt).parse(date);
+				if(fmt == ISO_FORMAT){
+					logger.warn("probable timezone issue input={} parsed={}", date, parsed, new Exception());
+				}
 				if(minimumYear != null){
 					if(fmt.contains("y")){
 						if(getYearInteger(parsed) < minimumYear){
@@ -191,8 +199,21 @@ public class DateTool{
 
 	/* as specified in RFC 3339 / ISO 8601 */
 	public static String getInternetDate(Date date){
+		return getInternetDate(date, 0);
+	}
+
+	public static String getInternetDate(Date date, int msCount){
 		TimeZone tz = TimeZone.getTimeZone("GMT+00:00");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		StringBuilder sb = new StringBuilder();
+		sb.append("yyyy-MM-dd'T'HH:mm:ss");
+		if(msCount > 0){
+			sb.append('.');
+			for(int i = 0; i < msCount; i++){
+				sb.append('S');
+			}
+		}
+		sb.append("'Z'");
+		SimpleDateFormat sdf = new SimpleDateFormat(sb.toString());
 		sdf.setTimeZone(tz);
 		return sdf.format(date);
 	}

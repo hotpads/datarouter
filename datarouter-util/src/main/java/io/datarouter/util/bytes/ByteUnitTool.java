@@ -60,14 +60,14 @@ public class ByteUnitTool{
 			long step1024 = 1024;
 			long binUnit = 1;
 
-			for(ByteUnitType byteUnit: ByteUnitType.getAscValues(ByteUnitSystem.BINARY)){
+			for(ByteUnitType byteUnit : ByteUnitType.getAscValues(ByteUnitSystem.BINARY)){
 				Assert.assertEquals(byteUnit.getNumBytes(), binUnit);
 				binUnit = step1024 * binUnit;
 			}
 
 			long step1000 = 1000;
 			long decUnit = 1;
-			for(ByteUnitType byteUnit: ByteUnitType.getAscValues(ByteUnitSystem.DECIMAL)){
+			for(ByteUnitType byteUnit : ByteUnitType.getAscValues(ByteUnitSystem.DECIMAL)){
 				Assert.assertEquals(byteUnit.getNumBytes(), decUnit);
 				decUnit = step1000 * decUnit;
 			}

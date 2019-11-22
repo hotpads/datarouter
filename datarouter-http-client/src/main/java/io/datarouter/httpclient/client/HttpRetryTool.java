@@ -17,6 +17,7 @@ package io.datarouter.httpclient.client;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.protocol.HttpContext;
@@ -32,11 +33,16 @@ public class HttpRetryTool{
 
 	private static boolean isRetrySafe(HttpContext context){
 		Object retrySafe = context.getAttribute(RETRY_SAFE_ATTRIBUTE);
+		// if our http client is passed to another library it will be missing the retry safe attribute
+		if(retrySafe == null){
+			return false;
+		}
 		return (boolean)retrySafe;
 	}
 
-	public static boolean shouldRetry(HttpContext context, int executionCount, int retryCount){
-		return isRetrySafe(context) && executionCount <= retryCount;
+	public static boolean shouldRetry(HttpContext context, int executionCount, Supplier<Integer> retryCount){
+		logger.info("executionCount={} retryCount={}", executionCount, retryCount.get());
+		return isRetrySafe(context) && executionCount <= retryCount.get();
 	}
 
 	public static Optional<String> entityToString(HttpEntity httpEntity){

@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -37,6 +39,7 @@ import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSession.DatarouterSessionMock;
 
 public class NavBarMenuItem{
+	private static final Logger logger = LoggerFactory.getLogger(NavBarMenuItem.class);
 
 	private final URI href;//this is what will appear in HTML
 	private final URI path;//this is used to look up dispatch rules (no query params)
@@ -64,7 +67,7 @@ public class NavBarMenuItem{
 		this.path = URI.create(path);
 		this.text = text;
 		this.subItems = null;
-		this.dispatchRule = Lazy.of(() -> parentNavBar.getDispatchRule(this.path));
+		this.dispatchRule = Lazy.of(() -> findRequiredDispatchRule(parentNavBar));
 	}
 
 	public NavBarMenuItem(PathNode pathNode, String text, NavBar parentNavBar){
@@ -73,6 +76,15 @@ public class NavBarMenuItem{
 
 	public NavBarMenuItem(PathNode pathNode, String queryParamString, String text, NavBar parentNavBar){
 		this(pathNode.toSlashedString(), queryParamString, text, parentNavBar);
+	}
+
+	private Optional<DispatchRule> findRequiredDispatchRule(NavBar parentNavBar){
+		Optional<DispatchRule> optRule = parentNavBar.getDispatchRule(path);
+		if(optRule.isEmpty()){
+			String message = String.format("no DispatchRule for %s, %s", path, text);
+			logger.warn(message);
+		}
+		return optRule;
 	}
 
 	public Boolean isDropdown(){
@@ -168,7 +180,6 @@ public class NavBarMenuItem{
 		private void testIsAllowed(){
 			//request isn't checked when no auth or when no handler exists
 			Assert.assertTrue(getSingleItem(noAuthNavBar).isAllowed(null));
-			Assert.assertThrows(IllegalStateException.class, () -> getSingleItem(authNavBar).isAllowed(null));
 
 			//everyone can access anon
 			NavBarMenuItem anonItem = getSingleItemWithHref(ANON_REQ_HREF, authNavBar);

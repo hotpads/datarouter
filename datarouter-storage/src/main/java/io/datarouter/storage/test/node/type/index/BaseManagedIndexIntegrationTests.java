@@ -195,14 +195,14 @@ public abstract class BaseManagedIndexIntegrationTests{
 		for(TestDatabean databean : databeans){
 			entryKeys.add(new TestDatabeanWithManagedIndexByBarKey(databean.getBar()));
 		}
-		Assert.assertEquals(0, genericDao.getMulti(keys).size());
-		Assert.assertEquals(0, genericDao.lookupMultiUnique(entryKeys).size());
+		Assert.assertEquals(genericDao.getMulti(keys).size(), 0);
+		Assert.assertEquals(genericDao.lookupMultiUnique(entryKeys).size(), 0);
 		genericDao.putMulti(databeans);
-		Assert.assertEquals(2, genericDao.getMulti(keys).size());
-		Assert.assertEquals(2, genericDao.lookupMultiUnique(entryKeys).size());
+		Assert.assertEquals(genericDao.getMulti(keys).size(), 2);
+		Assert.assertEquals(genericDao.lookupMultiUnique(entryKeys).size(), 2);
 		genericDao.deleteMultiUnique(entryKeys);
-		Assert.assertEquals(0, genericDao.getMulti(keys).size());
-		Assert.assertEquals(0, genericDao.lookupMultiUnique(entryKeys).size());
+		Assert.assertEquals(genericDao.getMulti(keys).size(), 0);
+		Assert.assertEquals(genericDao.lookupMultiUnique(entryKeys).size(), 0);
 	}
 
 	@Test

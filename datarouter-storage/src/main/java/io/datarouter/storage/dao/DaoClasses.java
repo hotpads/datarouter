@@ -53,6 +53,11 @@ public class DaoClasses implements Supplier<List<Class<? extends Dao>>>{
 		return this;
 	}
 
+	public DaoClasses add(List<Class<? extends Dao>> daoClasses){
+		daoClasses.forEach(this::add);
+		return this;
+	}
+
 	private void requireUnique(Class<? extends Dao> daoClass){
 		if(classes.contains(daoClass)){
 			throw new IllegalArgumentException(daoClass.getCanonicalName() + " has already been registered");

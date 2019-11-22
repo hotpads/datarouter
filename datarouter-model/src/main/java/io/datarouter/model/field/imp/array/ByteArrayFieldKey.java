@@ -52,7 +52,7 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[],ByteArrayFieldKey>{
 	}
 
 	@Override
-	public ByteArrayField createValueField(final byte[] value){
+	public ByteArrayField createValueField(byte[] value){
 		return new ByteArrayField(this, value);
 	}
 

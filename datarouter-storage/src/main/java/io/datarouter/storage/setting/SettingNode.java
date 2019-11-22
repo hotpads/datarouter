@@ -16,7 +16,6 @@
 package io.datarouter.storage.setting;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,9 +44,6 @@ public abstract class SettingNode{
 
 	private final SortedMap<String,CachedSetting<?>> settings;
 	protected final SettingFinder finder;
-
-	private static final List<CachedSetting<?>> ALL_REGISTERED_SETTINGS = Collections.synchronizedList(
-			new ArrayList<>());
 
 	/*---------- construct ----------*/
 
@@ -84,8 +80,8 @@ public abstract class SettingNode{
 		if(settings.containsKey(setting.getName())){
 			throw new IllegalArgumentException(setting.getName() + " has already been registered.");
 		}
+		finder.registerCachedSetting(setting);
 		settings.put(setting.getName(), setting);
-		ALL_REGISTERED_SETTINGS.add(setting);
 		return setting;
 	}
 
@@ -173,12 +169,6 @@ public abstract class SettingNode{
 	public String getShortName(){
 		String shortName = getName().substring(getParentName().length());
 		return shortName.substring(0, shortName.length() - 1);
-	}
-
-	public static void validateAllRegisteredSettings(){
-		synchronized(ALL_REGISTERED_SETTINGS){
-			ALL_REGISTERED_SETTINGS.forEach(CachedSetting::validateAllCustomValuesCanBeParsed);
-		}
 	}
 
 	/*----------- register ---------------*/

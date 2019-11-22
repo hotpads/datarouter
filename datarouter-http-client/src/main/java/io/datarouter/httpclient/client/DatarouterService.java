@@ -42,4 +42,28 @@ public interface DatarouterService{
 		return getContextName() == null ? "" : "/" + getContextName();
 	}
 
+	public static class NoOpDatarouterService implements DatarouterService{
+
+		@Override
+		public String getName(){
+			return "";
+		}
+
+		@Override
+		public String getPrivateDomain(){
+			return "";
+		}
+
+		@Override
+		public String getPublicDomain(){
+			return "";
+		}
+
+		@Override
+		public String getContextName(){
+			return "";
+		}
+
+	}
+
 }

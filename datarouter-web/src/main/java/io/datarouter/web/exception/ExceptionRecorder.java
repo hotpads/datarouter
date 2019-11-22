@@ -34,4 +34,41 @@ public interface ExceptionRecorder{
 			Integer lineNumber, HttpServletRequest request, String callOrigin);
 	void recordHttpRequest(HttpServletRequest request);
 
+	static class NoOpExceptionRecorder implements ExceptionRecorder{
+
+		@Override
+		public Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin){
+			return Optional.empty();
+		}
+
+		@Override
+		public Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin,
+				ExceptionCategory category){
+			return Optional.empty();
+		}
+
+		@Override
+		public ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
+				String methodName, Integer lineNumber, String callOrigin){
+			return null;
+		}
+
+		@Override
+		public Optional<ExceptionRecordDto> tryRecordExceptionAndHttpRequest(Throwable exception, String callOrigin,
+				HttpServletRequest request){
+			return Optional.empty();
+		}
+
+		@Override
+		public ExceptionRecordDto recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
+				Integer lineNumber, HttpServletRequest request, String callOrigin){
+			return null;
+		}
+
+		@Override
+		public void recordHttpRequest(HttpServletRequest request){
+		}
+
+	}
+
 }

@@ -37,7 +37,7 @@ public class IntegerByteTool{
 	 *
 	 * flip first bit so bitwiseCompare is always correct
 	 */
-	public static byte[] getRawBytes(final int in){
+	public static byte[] getRawBytes(int in){
 		byte[] out = new byte[4];
 		out[0] = (byte) (in >>> 24);
 		out[1] = (byte) (in >>> 16);

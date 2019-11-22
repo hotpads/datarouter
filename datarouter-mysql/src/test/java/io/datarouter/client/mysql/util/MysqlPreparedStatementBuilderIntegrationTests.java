@@ -28,8 +28,7 @@ import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.ddl.domain.MysqlCharacterSet;
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions.MysqlTableOptionsBuilder;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
@@ -44,14 +43,12 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 
 	private static final Config CONFIG = new Config().setLimit(10).setOffset(5);
 
-	private static final MysqlTableOptions UTF8_BIN = new MysqlTableOptionsBuilder()
-			.withCharacterSet(MysqlCharacterSet.utf8)
-			.withCollation(MysqlCollation.utf8_bin)
-			.build();
-	private static final MysqlTableOptions CONNECTION_OPTIONS = new MysqlTableOptionsBuilder()
-			.withCharacterSet(MysqlConnectionPoolHolder.CHARACTER_SET_CONNECTION)
-			.withCollation(MysqlConnectionPoolHolder.COLLATION_CONNECTION)
-			.build();
+	private static final MysqlLiveTableOptions UTF8_BIN = new MysqlLiveTableOptions(
+			MysqlCharacterSet.utf8,
+			MysqlCollation.utf8_bin);
+	private static final MysqlLiveTableOptions CONNECTION_OPTIONS = new MysqlLiveTableOptions(
+			MysqlConnectionPoolHolder.CHARACTER_SET_CONNECTION,
+			MysqlConnectionPoolHolder.COLLATION_CONNECTION);
 
 	private static final TestKey KEY_1 = new TestKey(42, "baz");
 	private static final TestKey KEY_2 = new TestKey(24, "degemer");

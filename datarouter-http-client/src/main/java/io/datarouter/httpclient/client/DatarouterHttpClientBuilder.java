@@ -58,7 +58,7 @@ public class DatarouterHttpClientBuilder{
 	private int maxConnectionsPerRoute;
 	private Optional<Integer> validateAfterInactivityMs = Optional.empty();
 	private HttpClientBuilder httpClientBuilder;
-	private int retryCount;
+	private Supplier<Integer> retryCount;
 	private JsonSerializer jsonSerializer;
 	private CloseableHttpClient customHttpClient;
 	private SignatureGenerator signatureGenerator;
@@ -76,7 +76,7 @@ public class DatarouterHttpClientBuilder{
 		this.maxConnectionsPerRoute = DEFAULT_MAX_CONNECTION_PER_ROUTE;
 		this.httpClientBuilder = HttpClientBuilder.create()
 				.setRedirectStrategy(new LaxRedirectStrategy());
-		this.retryCount = HttpRetryTool.DEFAULT_RETRY_COUNT;
+		this.retryCount = () -> HttpRetryTool.DEFAULT_RETRY_COUNT;
 		this.circuitBreakerName = "";
 	}
 
@@ -131,12 +131,15 @@ public class DatarouterHttpClientBuilder{
 		if(jsonSerializer == null){
 			jsonSerializer = DEFAULT_SERIALIZER;
 		}
+		if(enableBreakers == null){
+			enableBreakers = () -> false;
+		}
 		return new StandardDatarouterHttpClient(builtHttpClient, this.jsonSerializer, this.signatureGenerator,
 				this.csrfGenerator, this.apiKeySupplier, this.config, connectionManager, circuitBreakerName,
 				enableBreakers);
 	}
 
-	public DatarouterHttpClientBuilder setRetryCount(int retryCount){
+	public DatarouterHttpClientBuilder setRetryCount(Supplier<Integer> retryCount){
 		if(customHttpClient != null){
 			throw new UnsupportedOperationException("You cannot change the retry count of a custom http client");
 		}

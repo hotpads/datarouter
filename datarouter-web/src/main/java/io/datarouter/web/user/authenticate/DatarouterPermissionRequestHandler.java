@@ -15,6 +15,11 @@
  */
 package io.datarouter.web.user.authenticate;
 
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.text;
+
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
@@ -24,13 +29,13 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
-import io.datarouter.web.email.DatarouterEmailService;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
@@ -53,6 +58,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterPermissionRequestHandler.class);
 
 	private static final String P_REASON = "reason";
+	private static final String EMAIL_TITLE = "Permission Request";
 
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
@@ -63,9 +69,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private CurrentUserSessionInfo currentUserSessionInfo;
 	@Inject
-	private WebappName webappName;
-	@Inject
-	private DatarouterEmailService datarouterEmailService;
+	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
@@ -81,7 +85,9 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterUserExternalDetailService userExternalDetailService;
 	@Inject
-	private PermissionRequestAdditionalEmails permissionRequestAdditionalEmails;
+	private PermissionRequestAdditionalEmailsSupplier permissionRequestAdditionalEmails;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Handler(defaultHandler = true)
 	protected Mav showForm(OptionalString deniedUrl){
@@ -89,7 +95,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 			 return noDatarouterAuthenticationMav();
 		}
 		Mav mav = new Mav(webFiles.jsp.authentication.permissionRequestJsp);
-		mav.put("appName", webappName.getName());
+		mav.put("serviceName", datarouterService.getName());
 		mav.put("permissionRequestPath", authenticationConfig.getPermissionRequestPath());
 		mav.put("defaultSpecifics", deniedUrl.map("I tried to go to this URL: "::concat));
 		DatarouterUser user = getCurrentUser();
@@ -117,7 +123,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 		datarouterPermissionRequestDao.createPermissionRequest(new DatarouterPermissionRequest(user.getId(), new Date(),
 				"reason: " + reason + ", specifics: " + specificString, null, null));
-		sendEmail(user, reason, specificString);
+		sendRequestEmail(user, reason, specificString);
 
 		//not just requestor, so send them to the home page after they make their request
 		if(user.getRoles().size() > 1){
@@ -144,12 +150,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		if(!userId.orElse(currentUser.getId()).equals(getCurrentUser().getId())){
 			editedUser = datarouterUserInfo.getUserById(userId.get()).get();
 		}
-		String body = "Permission requests declined for user " + editedUser.getUsername() + " by user " + currentUser
-				.getUsername();
-		datarouterEmailService.trySendEmail(editedUser.getUsername(),
-				userEditService.getUserEditEmailRecipients(editedUser),
-				userEditService.getPermissionRequestEmailSubject(editedUser, webappName.getName()),
-				body);
+		sendDeclineEmail(editedUser, currentUser);
 
 		if(redirectPath.isEmpty()){
 			if(currentUser.getRoles().size() > 1){
@@ -164,29 +165,47 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		return datarouterUserService.getAndValidateCurrentUser(params.getSession());
 	}
 
-	private void sendEmail(DatarouterUser user, String reason, String specifics){
-		//cut off the path from the whole url, then add the context back
-		String webappRequestUrlWithContext = StringTool.getStringBeforeLastOccurrence(request.getRequestURI(),
-				request.getRequestURL().toString()) + request.getContextPath();
-		String editUserUrl = webappRequestUrlWithContext + authenticationConfig.getEditUserPath() + "?userId=" + user
-				.getId();
+	private void sendRequestEmail(DatarouterUser user, String reason, String specifics){
+		String userProfileUrl = userExternalDetailService.getUserProfileUrl(user).orElse(null);
 		String userEmail = user.getUsername();
 		String recipients = userEditService.getUserEditEmailRecipients(user);
+		String subject = userEditService.getPermissionRequestEmailSubject(user);
+		String titleHref = htmlEmailService.startLinkBuilder()
+				.withLocalPath(authenticationConfig.getEditUserPath())
+				.withParam("userId", user.getId() + "")
+				.build();
+		var content = div()
+				.with(p("Service: " + datarouterService.getName()))
+				.with(p("User " + userEmail + " requests elevated permissions."))
+				.condWith(userProfileUrl != null, p(text("User Profile: "), a("link").withHref(userProfileUrl)))
+				.with(p("Reason: " + reason))
+				.condWith(StringTool.notEmpty(specifics), p("Specifics: " + specifics))
+				.with(p(text("Edit here"), a("link").withHref(titleHref)));
+		var emailBuilder = htmlEmailService.startEmailBuilder()
+				.withTitle(EMAIL_TITLE)
+				.withTitleHref(titleHref)
+				.withContent(content);
+		htmlEmailService.trySendJ2Html(userEmail, recipients, subject, emailBuilder);
+	}
 
-		String subject = userEditService.getPermissionRequestEmailSubject(user, webappName.getName());
-		StringBuilder body = new StringBuilder()
-				.append("User ")
-				.append(userEmail)
-				.append(" requests elevated permissions.");
-		userExternalDetailService.getUserProfileUrl(user)
-				.ifPresent(url -> body.append("\nUser Profile: ").append(url));
-		body.append("\nReason: ").append(reason);
-		if(StringTool.notEmpty(specifics)){
-			body.append("\nSpecific: ").append(specifics);
-		}
-		body.append("\nEdit here: ").append(editUserUrl);
-
-		datarouterEmailService.trySendEmail(userEmail, recipients, subject, body.toString());
+	private void sendDeclineEmail(DatarouterUser editedUser, DatarouterUser currentUser){
+		String titleHref = htmlEmailService.startLinkBuilder()
+				.withLocalPath(authenticationConfig.getEditUserPath())
+				.withParam("userId", editedUser.getId() + "")
+				.build();
+		String message = String.format("Permission requests declined for user %s by user %s",
+				editedUser.getUsername(),
+				currentUser.getUsername());
+		var content = p(message);
+		var emailBuilder = htmlEmailService.startEmailBuilder()
+				.withTitle(EMAIL_TITLE)
+				.withTitleHref(titleHref)
+				.withContent(content);
+		htmlEmailService.trySendJ2Html(
+				editedUser.getUsername(),
+				userEditService.getUserEditEmailRecipients(editedUser),
+				userEditService.getPermissionRequestEmailSubject(editedUser),
+				emailBuilder);
 	}
 
 	private Mav noDatarouterAuthenticationMav(){

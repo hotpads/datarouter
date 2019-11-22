@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.enums;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public interface StringEnum<E> extends Comparable<E>, PersistentString{
@@ -36,6 +37,14 @@ public interface StringEnum<E> extends Comparable<E>, PersistentString{
 					+ persistentString);
 		}
 		return enumValue;
+	}
+
+	static int findLongestPersistentString(StringEnum<?>... values){
+		return Arrays.stream(values)
+				.map(StringEnum::getPersistentString)
+				.mapToInt(String::length)
+				.max()
+				.orElse(0);
 	}
 
 }

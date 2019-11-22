@@ -70,7 +70,6 @@ public class DatarouterHttpRequest{
 	private final String path;
 	private boolean retrySafe;
 	private Duration timeout;
-	private Duration futureTimeout;
 	private HttpEntity entity;
 	private String fragment;
 	private Map<String,List<String>> headers;
@@ -88,7 +87,7 @@ public class DatarouterHttpRequest{
 	 * Expects query string parameters to already be UTF-8 encoded. See AdvancedStringTool.makeUrlParameters().
 	 * URL fragment is stripped from URL when sent to server.
 	 */
-	public DatarouterHttpRequest(HttpRequestMethod method, final String url, boolean retrySafe){
+	public DatarouterHttpRequest(HttpRequestMethod method, String url, boolean retrySafe){
 		Args.notBlank(url, "request url");
 		Args.notNull(method, "http method");
 
@@ -438,15 +437,6 @@ public class DatarouterHttpRequest{
 
 	public DatarouterHttpRequest setTimeout(Duration timeout){
 		this.timeout = timeout;
-		return this;
-	}
-
-	public Duration getFutureTimeout(){
-		return futureTimeout;
-	}
-
-	public DatarouterHttpRequest setFutureTimeout(Duration futureTimeout){
-		this.futureTimeout = futureTimeout;
 		return this;
 	}
 

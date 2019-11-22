@@ -20,7 +20,6 @@ import java.time.Instant;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.tasktracker.TaskTrackerCounters;
@@ -29,17 +28,17 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
-import io.datarouter.web.email.DatarouterEmailService;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
 
 @Singleton
 public class LongRunningTaskTrackerFactory{
 
 	@Inject
-	private DatarouterEmailService datarouterEmailService;
+	private DatarouterTaskTrackerPaths datarouterTaskTrackerPaths;
+	@Inject
+	private DatarouterHtmlEmailService datarouterHtmlEmailService;
 	@Inject
 	private DatarouterProperties datarouterProperties;
-	@Inject
-	private DatarouterService datarouterService;
 	@Inject
 	private DatarouterAdministratorEmailService datarouterAdministratorEmailService;
 	@Inject
@@ -50,8 +49,6 @@ public class LongRunningTaskTrackerFactory{
 	private DatarouterLongRunningTaskDao longRunningTaskDao;
 	@Inject
 	private TaskTrackerCounters counters;
-	@Inject
-	private DatarouterTaskTrackerPaths paths;
 
 	public LongRunningTaskTracker create(
 			Class<?> trackedClass,
@@ -65,9 +62,9 @@ public class LongRunningTaskTrackerFactory{
 				type,
 				triggeredBy);
 		return new LongRunningTaskTracker(
-				datarouterEmailService,
+				datarouterTaskTrackerPaths,
+				datarouterHtmlEmailService,
 				datarouterProperties,
-				datarouterService,
 				datarouterAdministratorEmailService,
 				longRunningTaskGraphLink,
 				settings.saveLongRunningTasks,
@@ -75,8 +72,7 @@ public class LongRunningTaskTrackerFactory{
 				counters,
 				task,
 				deadline,
-				warnOnReachingDeadline,
-				paths.datarouter.longRunningTasks.toSlashedString());
+				warnOnReachingDeadline);
 	}
 
 	public static String taskNameForClass(Class<?> cls){

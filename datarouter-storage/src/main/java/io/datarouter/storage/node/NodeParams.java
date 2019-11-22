@@ -22,6 +22,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.node.tableconfig.TableConfiguration;
 
 public class NodeParams<
 		PK extends PrimaryKey<PK>,
@@ -57,10 +58,13 @@ public class NodeParams<
 	//for external sqs
 	private final String queueUrl;
 
+	//for nodewatch
+	private final TableConfiguration tableConfiguration;
+
 	private NodeParams(ClientId clientId, String parentName, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier,
 			Integer schemaVersion, String physicalName, String namespace, String entityNodePrefix,
 			String remoteRouterName, String remoteNodeName, Supplier<Boolean> recordCallsites, String streamName,
-			String queueUrl){
+			String queueUrl, TableConfiguration tableConfiguration){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
@@ -75,8 +79,8 @@ public class NodeParams<
 		this.recordCallsites = recordCallsites;
 		this.streamName = streamName;
 		this.queueUrl = queueUrl;
+		this.tableConfiguration = tableConfiguration;
 	}
-
 
 	/*----------------------------- builder ---------------------------------*/
 
@@ -100,6 +104,7 @@ public class NodeParams<
 
 		private String queueUrl;
 
+		private TableConfiguration tableConfiguration;
 
 		/*--------------------------- construct -----------------------------*/
 
@@ -156,12 +161,17 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withTableConfiguration(TableConfiguration tableConfiguration){
+			this.tableConfiguration = tableConfiguration;
+			return this;
+		}
+
 		/*----------------------------- build -------------------------------*/
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
 					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
-					streamName, queueUrl);
+					streamName, queueUrl, tableConfiguration);
 		}
 	}
 
@@ -228,6 +238,10 @@ public class NodeParams<
 
 	public String getQueueUrl(){
 		return queueUrl;
+	}
+
+	public TableConfiguration getTableConfiguration(){
+		return tableConfiguration;
 	}
 
 }

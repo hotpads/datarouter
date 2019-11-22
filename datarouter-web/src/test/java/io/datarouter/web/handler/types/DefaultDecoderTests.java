@@ -52,7 +52,8 @@ public class DefaultDecoderTests{
 
 	// Used via reflection in testMethodParameterNameInclusionAtRuntime
 	@SuppressWarnings("unused")
-	private void myMethod(String myParameter){}
+	private void myMethod(String myParameter){
+	}
 
 	@Test
 	public void testMethodParameterNameInclusionAtRuntime() throws NoSuchMethodException, SecurityException{

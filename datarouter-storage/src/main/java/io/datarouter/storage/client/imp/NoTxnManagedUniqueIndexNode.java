@@ -45,7 +45,7 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 	}
 
 	@Override
-	public List<IE> getMulti(Collection<IK> uniqueKeys, final Config config){
+	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
 		return node.getMultiFromIndex(uniqueKeys, config, fieldInfo);
 	}
 
@@ -64,7 +64,7 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 	}
 
 	@Override
-	public List<D> lookupMultiUnique(Collection<IK> keys, final Config config){
+	public List<D> lookupMultiUnique(Collection<IK> keys, Config config){
 		List<IE> indexEntries = getMulti(keys, config);
 		List<PK> targetKeys = IterableTool.map(indexEntries, IE::getTargetKey);
 		return node.getMulti(targetKeys, config);
@@ -80,7 +80,7 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 	}
 
 	@Override
-	public void deleteMultiUnique(Collection<IK> viewIndexKeys, final Config config){
+	public void deleteMultiUnique(Collection<IK> viewIndexKeys, Config config){
 		List<IE> indexEntries = getMulti(viewIndexKeys, config);
 		List<PK> targetKeys = IterableTool.map(indexEntries, IE::getTargetKey);
 		node.deleteMulti(targetKeys, config);

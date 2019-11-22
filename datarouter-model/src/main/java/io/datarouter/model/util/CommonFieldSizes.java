@@ -30,5 +30,6 @@ public class CommonFieldSizes{
 	// use this to get schema-update to create a LONGTEXT field
 	public static final int INT_LENGTH_LONGTEXT = Integer.MAX_VALUE;
 	public static final long MAX_LENGTH_LONGTEXT = (1L << 32) - 1;
+	public static final int MAX_CHARACTERS_SPANNER = 2_621_440;
 
 }

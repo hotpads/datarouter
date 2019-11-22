@@ -21,7 +21,8 @@ import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.client.mysql.MysqlClientType;
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
@@ -54,12 +55,14 @@ extends BaseMysqlOp<List<IK>>{
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
+	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 	private final Config config;
 	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	private final MysqlClientType mysqlClientType;
 
 	public MysqlManagedIndexGetKeyRangesOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
+			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config,
 			MysqlClientType mysqlClientType){
 		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
@@ -67,6 +70,7 @@ extends BaseMysqlOp<List<IK>>{
 		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
+		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
 		this.config = config;
 		this.indexEntryFieldInfo = indexEntryFieldInfo;
 		this.mysqlClientType = mysqlClientType;
@@ -79,9 +83,11 @@ extends BaseMysqlOp<List<IK>>{
 		String nodeName = tableName + "." + indexName;
 		String opName = IndexedStorageReader.OP_getIndexKeyRange;
 		Connection connection = getConnection();
+		MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
 		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, tableName, indexEntryFieldInfo
-				.getPrimaryKeyFields(), ranges, indexEntryFieldInfo.getPrimaryKeyFields(), indexName, MysqlTableOptions
-				.make(indexEntryFieldInfo.getSampleFielder())).toPreparedStatement(connection);
+				.getPrimaryKeyFields(), ranges, indexEntryFieldInfo.getPrimaryKeyFields(), indexName,
+				mysqlLiveTableOptions)
+				.toPreparedStatement(connection);
 		List<IK> result = MysqlTool.selectIndexEntryKeys(fieldCodecFactory, indexEntryFieldInfo, statement);
 		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId().getName(),
 				nodeName, 1L);

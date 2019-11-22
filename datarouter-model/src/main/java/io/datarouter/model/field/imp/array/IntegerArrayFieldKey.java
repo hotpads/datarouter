@@ -28,7 +28,7 @@ public class IntegerArrayFieldKey extends ListFieldKey<Integer,List<Integer>,Int
 	}
 
 	@Override
-	public IntegerArrayField createValueField(final List<Integer> value){
+	public IntegerArrayField createValueField(List<Integer> value){
 		return new IntegerArrayField(this, value);
 	}
 

@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.util.string.StringTool;
@@ -43,25 +44,30 @@ public class DatarouterEmailService{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterEmailService.class);
 
 	@Inject
+	private DatarouterService datarouterService;
+	@Inject
 	private DatarouterEmailSettings datarouterEmailSettings;
 
-	public void trySendHtmlEmail(String fromEmail, String toEmail, String subject, String body){
-		trySendEmail(fromEmail, toEmail, subject, body, true);
+	public DatarouterEmailLinkBuilder startLinkBuilder(){
+		return new DatarouterEmailLinkBuilder()
+				.withProtocol("https")
+				.withHostPort(datarouterEmailSettings.emailLinkHostPort.get())
+				.withContextPath(datarouterService.getContextPath());
 	}
 
-	public void trySendEmail(String fromEmail, String toEmail, String subject, String body){
-		trySendEmail(fromEmail, toEmail, subject, body, false);
+	public void trySend(String fromEmail, String toEmail, String subject, String body){
+		trySend(fromEmail, toEmail, subject, body, false);
 	}
 
-	private void trySendEmail(String fromEmail, String toEmail, String subject, String body, boolean html){
+	public void trySend(String fromEmail, String toEmail, String subject, String body, boolean html){
 		try{
-			sendEmail(fromEmail, toEmail, subject, body, html);
+			send(fromEmail, toEmail, subject, body, html);
 		}catch(MessagingException e){
 			logger.error("failed to send email from={} to={}", fromEmail, toEmail, e);
 		}
 	}
 
-	public void sendEmail(String fromEmail, String toEmail, String subject, String body, boolean html)
+	public void send(String fromEmail, String toEmail, String subject, String body, boolean html)
 	throws MessagingException{
 		if(!datarouterEmailSettings.sendDatarouterEmails.get()){
 			return;
@@ -101,8 +107,12 @@ public class DatarouterEmailService{
 
 		@Test
 		public void trySendEmailTest(){
-			datarouterEmailService.trySendEmail(datarouterProperties.getAdministratorEmail(), datarouterProperties
-					.getAdministratorEmail(), getClass().getName(), "Hello there, it's " + new Date(), false);
+			datarouterEmailService.trySend(
+					datarouterProperties.getAdministratorEmail(),
+					datarouterProperties.getAdministratorEmail(),
+					getClass().getName(),
+					"Hello there, it's " + new Date(),
+					false);
 		}
 
 	}

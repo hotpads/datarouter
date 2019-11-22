@@ -20,8 +20,8 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.instrumentation.autoconfig.ConfigScanDto;
-import io.datarouter.instrumentation.autoconfig.ConfigScanResponseTool;
+import io.datarouter.web.autoconfig.ConfigScanDto;
+import io.datarouter.web.autoconfig.ConfigScanResponseTool;
 import io.datarouter.web.user.BaseDatarouterUserDao;
 import io.datarouter.web.user.DatarouterUserCreationService;
 import io.datarouter.web.user.databean.DatarouterUser;

@@ -25,7 +25,7 @@ public interface DatarouterHttpClientSettings{
 	String getApiKey();
 	String getPrivateKey();
 	Duration getTimeout();
-	Integer getNumRetries();
+	Supplier<Integer> getNumRetries();
 	Supplier<Boolean> getEnableBreakers();
 
 }

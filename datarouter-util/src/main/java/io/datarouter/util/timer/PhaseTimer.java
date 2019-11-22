@@ -38,7 +38,8 @@ public class PhaseTimer{
 	private List<Pair<String,Long>> phaseNamesAndTimes = new ArrayList<>();
 	private String name;
 
-	public PhaseTimer(){}
+	public PhaseTimer(){
+	}
 
 	public PhaseTimer(String name){
 		this.name = name;

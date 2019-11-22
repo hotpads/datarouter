@@ -72,6 +72,7 @@ public abstract class BaseClientManager implements ClientManager{
 	protected abstract void safeInitClient(ClientId clientId);
 
 	@Override
-	public void gatherSchemaUpdates(){}
+	public void gatherSchemaUpdates(){
+	}
 
 }

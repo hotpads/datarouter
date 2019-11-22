@@ -31,7 +31,7 @@ public class LongByteTool{
 
 	/*------------------------- serialize to bytes --------------------------*/
 
-	public static byte[] getRawBytes(final long in){
+	public static byte[] getRawBytes(long in){
 		byte[] out = new byte[8];
 		out[0] = (byte) (in >>> 56);
 		out[1] = (byte) (in >>> 48);
@@ -114,7 +114,7 @@ public class LongByteTool{
 		return out;
 	}
 
-	public static long[] fromComparableByteArray(final byte[] bytes){
+	public static long[] fromComparableByteArray(byte[] bytes){
 		if(ArrayTool.isEmpty(bytes)){
 			return new long[0];
 		}
@@ -170,7 +170,7 @@ public class LongByteTool{
 	}
 
 
-	public static long[] fromUInt63ByteArray(final byte[] bytes){
+	public static long[] fromUInt63ByteArray(byte[] bytes){
 		if(ArrayTool.isEmpty(bytes)){
 			return new long[0];
 		}

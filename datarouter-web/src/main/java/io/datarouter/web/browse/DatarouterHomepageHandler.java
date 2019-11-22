@@ -62,7 +62,7 @@ public class DatarouterHomepageHandler extends BaseHandler{
 
 		//Clients
 		boolean hasUninitializedClients = false;
-		List<RoutersRowJspDto> clients = new ArrayList<>();
+		List<DaosRowJspDto> clients = new ArrayList<>();
 		for(ClientId clientId : datarouterClients.getClientIds()){
 			boolean initialized = clientInitializationTracker.isInitialized(clientId);
 			hasUninitializedClients = hasUninitializedClients || !initialized;
@@ -70,7 +70,7 @@ public class DatarouterHomepageHandler extends BaseHandler{
 			CheckResultJspDto checkResultJspDto = new CheckResultJspDto(
 					monitoringService.getLastResultForDatarouterClient(clientId),
 					monitoringService.getGraphLinkForDatarouterClient(clientId));
-			clients.add(new RoutersRowJspDto(clientId.getName(), clientTypeName, initialized, checkResultJspDto));
+			clients.add(new DaosRowJspDto(clientId.getName(), clientTypeName, initialized, checkResultJspDto));
 		}
 		mav.put("clients", clients);
 		mav.put("hasUninitializedClients", hasUninitializedClients);
@@ -82,14 +82,14 @@ public class DatarouterHomepageHandler extends BaseHandler{
 		return mav;
 	}
 
-	public static class RoutersRowJspDto{
+	public static class DaosRowJspDto{
 
 		private final String clientName;
 		private final String clientTypeName;
 		private final Boolean initialized;
 		private final CheckResultJspDto checkResult;
 
-		public RoutersRowJspDto(String clientName, String clientTypeName, Boolean initialized,
+		public DaosRowJspDto(String clientName, String clientTypeName, Boolean initialized,
 				CheckResultJspDto checkResult){
 			this.clientName = clientName;
 			this.clientTypeName = clientTypeName;

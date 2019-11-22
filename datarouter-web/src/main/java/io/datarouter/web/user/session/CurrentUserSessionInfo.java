@@ -29,7 +29,7 @@ import io.datarouter.web.user.session.service.SessionBasedUser;
 
 /**
  * Simple interface for reading information about the current user, session, and roles.
- * Implementations should depend on as few Routers, Daos, Services, etc., as possible to minimize risk of circular
+ * Implementations should depend on as few Daos, Services, etc., as possible to minimize risk of circular
  * dependencies. Only {@link CurrentUserSessionInfo#getUser(ServletRequest)},
  * {@link CurrentUserSessionInfo#getSession(ServletRequest)}, and
  * {@link CurrentUserSessionInfo#getRoles(ServletRequest)} need to be implemented.

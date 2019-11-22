@@ -118,7 +118,7 @@ public class Mav{
 		return setViewName(pathNode.toSlashedString());
 	}
 
-	public Mav setViewName(final String viewName){
+	public Mav setViewName(String viewName){
 		if(StringTool.nullSafe(viewName).startsWith(REDIRECT)){
 			redirect = true;
 			shouldAppendModelQueryParams = true;

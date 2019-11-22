@@ -35,6 +35,12 @@ public class SettingRoot extends SettingNode{
 		this.rootNodes.add(this);
 	}
 
+	public SettingRoot(SettingFinder finder, AdditionalSettingRootsFinder additionalSettingRootsFinder, String name){
+		super(finder, name);
+		this.rootNodes.add(this);
+		additionalSettingRootsFinder.getAdditionalSettingRoots().forEach(this::dependsOn);
+	}
+
 	public void dependsOn(SettingRoot settingNode){
 		rootNodes.add(settingNode);
 		settingNode.rootNodes.forEach(rootNodes::add);

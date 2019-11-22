@@ -18,6 +18,7 @@ package io.datarouter.web.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -34,6 +35,7 @@ public class DatarouterEmailSettings extends SettingNode{
 	public final CachedSetting<String> smtpPassword;
 	public final CachedSetting<Boolean> useRemoteSmtp;
 	public final CachedSetting<Boolean> sendDatarouterEmails;
+	public final CachedSetting<String> emailLinkHostPort;
 
 	@Inject
 	public DatarouterEmailSettings(SettingFinder finder){
@@ -48,6 +50,7 @@ public class DatarouterEmailSettings extends SettingNode{
 		smtpPort = registerInteger("smtpPort", DEFAULT_SMTP_PORT);
 		smtpUsername = registerString("smtpUsername", "");
 		smtpPassword = registerString("smtpPassword", "");
+		emailLinkHostPort = registerString("emailLinkHostPort", UrlConstants.LOCAL_DEV_SERVER_HTTPS);
 	}
 
 	public DatarouterEmailHostDetails getDatarouterEmailHostDetails(){

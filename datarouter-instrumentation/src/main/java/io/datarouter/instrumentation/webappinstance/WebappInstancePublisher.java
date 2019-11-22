@@ -20,5 +20,20 @@ import io.datarouter.instrumentation.response.PublishingResponseDto;
 public interface WebappInstancePublisher{
 
 	PublishingResponseDto add(WebappInstanceDto webappInstanceDto);
+	PublishingResponseDto delete(String webappName, String serverName);
+
+	public static class NoOpWebappInstancePublisher implements WebappInstancePublisher{
+
+		@Override
+		public PublishingResponseDto add(WebappInstanceDto webappInstanceDto){
+			return PublishingResponseDto.NO_OP;
+		}
+
+		@Override
+		public PublishingResponseDto delete(String webappName, String serverName){
+			return PublishingResponseDto.NO_OP;
+		}
+
+	}
 
 }

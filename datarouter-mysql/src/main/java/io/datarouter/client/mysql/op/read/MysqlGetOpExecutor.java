@@ -27,7 +27,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.mysql.MysqlClientType;
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
@@ -47,6 +48,8 @@ public class MysqlGetOpExecutor{
 	@Inject
 	private MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
 	@Inject
+	private MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
+	@Inject
 	private MysqlClientType mysqlClientType;
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,
@@ -57,11 +60,14 @@ public class MysqlGetOpExecutor{
 		Stream<? extends FieldSet<?>> dedupedSortedKeys = keys.stream()
 				.distinct()
 				.sorted();
+		String tableName = fieldInfo.getTableName();
 		List<T> result = new ArrayList<>(keys.size());
 		for(List<? extends FieldSet<?>> keyBatch : Scanner.of(dedupedSortedKeys).batch(config.optInputBatchSize()
 				.orElse(BATCH_SIZE)).iterable()){
-			PreparedStatement ps = mysqlPreparedStatementBuilder.getMulti(config, fieldInfo.getTableName(),
-					selectFields, keyBatch, indexName, MysqlTableOptions.make(fieldInfo.getSampleFielder()))
+			MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(fieldInfo.getClientId(),
+					tableName);
+			PreparedStatement ps = mysqlPreparedStatementBuilder.getMulti(config, tableName, selectFields, keyBatch,
+					indexName, mysqlLiveTableOptions)
 					.toPreparedStatement(connection);
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId()
 					.getName(), fieldInfo.getNodeName(), 1L);

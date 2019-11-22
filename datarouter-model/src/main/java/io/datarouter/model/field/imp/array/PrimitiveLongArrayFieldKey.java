@@ -34,7 +34,7 @@ public class PrimitiveLongArrayFieldKey extends BaseFieldKey<long[],PrimitiveLon
 	}
 
 	@Override
-	public PrimitiveLongArrayField createValueField(final long[] value){
+	public PrimitiveLongArrayField createValueField(long[] value){
 		return new PrimitiveLongArrayField(this, value);
 	}
 

@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.storage.trace.callable.TracedCheckedCallable;
+import io.datarouter.util.tracer.TracedCheckedCallable;
 
 public class DatarouterExecutorService extends ThreadPoolExecutor{
 

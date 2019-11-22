@@ -42,7 +42,7 @@ public class BooleanFieldKey extends PrimitiveFieldKey<Boolean,BooleanFieldKey>{
 	}
 
 	@Override
-	public BooleanField createValueField(final Boolean value){
+	public BooleanField createValueField(Boolean value){
 		return new BooleanField(this, value);
 	}
 

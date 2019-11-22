@@ -65,7 +65,7 @@ public class StringEnumFieldKey<E extends StringEnum<E>> extends BaseFieldKey<E,
 	}
 
 	@Override
-	public StringEnumField<E> createValueField(final E value){
+	public StringEnumField<E> createValueField(E value){
 		return new StringEnumField<>(this, value);
 	}
 

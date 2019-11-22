@@ -1,0 +1,11 @@
+#common-navbar.productionEnv{
+	background-color: #ff4d4d !important;
+}
+#common-navbar.productionEnv .nav-link{
+	color: #fff !important;
+}
+#common-navbar .nav-link,
+#app-navbar .nav-link{
+	padding-right: 15px;
+	padding-left: 15px;
+}

@@ -32,7 +32,7 @@ import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl.SamlAuthnRequ
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
 
 @Singleton
-public class DatarouterSamlDao extends BaseDao{
+public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 
 	public static class DatarouterSamlDaoParams extends BaseDaoParams{
 
@@ -51,20 +51,18 @@ public class DatarouterSamlDao extends BaseDao{
 	public DatarouterSamlDao(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSamlDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, SamlAuthnRequestRedirectUrl::new,
-				SamlAuthnRequestRedirectUrlFielder::new).buildAndRegister();
+				SamlAuthnRequestRedirectUrlFielder::new)
+				.setSamplerEnabled(false)
+				.setSamplerPercentageChangedAlertEnabled(false)
+				.buildAndRegister();
 	}
 
-	public SortedMapStorageNode<
-			SamlAuthnRequestRedirectUrlKey,
-			SamlAuthnRequestRedirectUrl,
-			SamlAuthnRequestRedirectUrlFielder> getNode(){
-		return node;
-	}
-
+	@Override
 	public void put(SamlAuthnRequestRedirectUrl databean){
 		node.put(databean);
 	}
 
+	@Override
 	public SamlAuthnRequestRedirectUrl get(SamlAuthnRequestRedirectUrlKey key){
 		return node.get(key);
 	}

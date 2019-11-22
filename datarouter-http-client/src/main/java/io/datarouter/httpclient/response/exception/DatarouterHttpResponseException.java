@@ -41,7 +41,11 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 			message += " and exception id " + header.getValue();
 		}
 		message += " after " + duration.toMillis() + "ms";
-		message += " with entity:\n" + response.getEntity();
+		String entity = response.getEntity();
+		if(entity != null && !entity.isEmpty() && entity.charAt(entity.length() - 1) == '\n'){
+			entity = entity.substring(0, entity.length() - 1) + '⏎';
+		}
+		message += " with entity:\n" + entity;
 		return message;
 	}
 

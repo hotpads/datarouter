@@ -24,7 +24,7 @@ public class UInt15FieldKey extends PrimitiveFieldKey<Short,UInt15FieldKey>{
 	}
 
 	@Override
-	public UInt15Field createValueField(final Short value){
+	public UInt15Field createValueField(Short value){
 		return new UInt15Field(this, value);
 	}
 

@@ -20,7 +20,7 @@ import java.util.Set;
 import javax.inject.Singleton;
 
 @Singleton
-public class DatarouterAdditionalAdministrators{
+public class DatarouterAdditionalAdministrators implements DatarouterAdditionalAdministratorsSupplier{
 
 	private final Set<String> additionalAdministratorEmailAddress;
 
@@ -28,6 +28,7 @@ public class DatarouterAdditionalAdministrators{
 		this.additionalAdministratorEmailAddress = additionalAdministratorEmailAddress;
 	}
 
+	@Override
 	public Set<String> get(){
 		return additionalAdministratorEmailAddress;
 	}

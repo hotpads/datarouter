@@ -15,15 +15,12 @@
  */
 package io.datarouter.httpclient.json;
 
-import java.util.Date;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class HttpClientGsonTool{
 
 	public static final Gson GSON = new GsonBuilder()
-			.registerTypeAdapter(Date.class, new HttpClientCompatibleDateTypeAdapter())
 			.create();
 
 }

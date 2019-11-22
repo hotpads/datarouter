@@ -22,4 +22,5 @@ import io.datarouter.web.inject.guice.GuiceInjectorRetriever;
 @Singleton
 public class GuiceRequestCachingFilter
 extends RequestCachingFilter
-implements GuiceInjectorRetriever{}
+implements GuiceInjectorRetriever{
+}

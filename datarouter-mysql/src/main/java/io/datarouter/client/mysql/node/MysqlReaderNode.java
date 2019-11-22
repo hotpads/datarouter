@@ -58,17 +58,17 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D,F>{
 	}
 
 	@Override
-	public D get(final PK key, final Config config){
+	public D get(PK key, Config config){
 		return mysqlNodeManager.get(getFieldInfo(), key, config);
 	}
 
 	@Override
-	public List<D> getMulti(final Collection<PK> keys, final Config config){
+	public List<D> getMulti(Collection<PK> keys, Config config){
 		return mysqlNodeManager.getMulti(getFieldInfo(), keys, config);
 	}
 
 	@Override
-	public List<PK> getKeys(final Collection<PK> keys, final Config config){
+	public List<PK> getKeys(Collection<PK> keys, Config config){
 		return mysqlNodeManager.getKeys(getFieldInfo(), keys, config);
 	}
 

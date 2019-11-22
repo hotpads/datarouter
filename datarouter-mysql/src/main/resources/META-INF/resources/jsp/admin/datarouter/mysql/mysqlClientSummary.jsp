@@ -17,8 +17,6 @@
 		</nav>
 		<h3 class="mt-2">Client Summary</h3>
 		<p>
-			<b>routerName: </b>${param.routerName}
-			<br>
 			<b>clientName: </b>${param.clientName}
 		</p>
 

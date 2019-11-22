@@ -77,13 +77,13 @@ public class SamlService{
 	private final RoleManager roleManager;
 	private final Optional<SamlRegistrar> samlRegistrar;
 	private final KeyPair signingKeyPair;
-	private final DatarouterSamlDao samlDao;
+	private final BaseDatarouterSamlDao samlDao;
 	private final DatarouterProperties datarouterProperties;
 	private final ExceptionRecorder exceptionRecorder;
 
 	@Inject
 	public SamlService(DatarouterSamlSettings samlSettings, UserSessionService userSessionService,
-			RoleManager roleManager, Optional<SamlRegistrar> jitSamlRegistrar, DatarouterSamlDao samlDao,
+			RoleManager roleManager, Optional<SamlRegistrar> jitSamlRegistrar, BaseDatarouterSamlDao samlDao,
 			DatarouterProperties datarouterProperties, ExceptionRecorder exceptionRecorder){
 		this.samlSettings = samlSettings;
 		this.userSessionService = userSessionService;

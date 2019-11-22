@@ -39,7 +39,7 @@ public class LocalDateFieldKey extends PrimitiveFieldKey<LocalDate,LocalDateFiel
 	}
 
 	@Override
-	public LocalDateField createValueField(final LocalDate value){
+	public LocalDateField createValueField(LocalDate value){
 		return new LocalDateField(this, value);
 	}
 

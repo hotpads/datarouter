@@ -29,7 +29,8 @@ public class Pair<L,R> implements Serializable{
 		this.right = right;
 	}
 
-	public Pair(){}
+	public Pair(){
+	}
 
 	public boolean areLeftAndRightEqual(){
 		@SuppressWarnings("unlikely-arg-type")

@@ -29,6 +29,9 @@ import io.datarouter.storage.node.entity.DefaultEntity;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.factory.BaseNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
+import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
+import io.datarouter.storage.node.tableconfig.TableConfiguration;
+import io.datarouter.storage.node.tableconfig.TableConfigurationFactory;
 
 public class NodeBuilder<
 		EK extends EntityKey<EK>,
@@ -44,6 +47,7 @@ public class NodeBuilder<
 	private final Supplier<F> fielderSupplier;
 	private String tableName;
 	private Integer schemaVersion;
+	private TableConfigurationFactory tableConfigurationFactory;
 
 	public NodeBuilder(
 			BaseNodeFactory nodeFactory,
@@ -70,17 +74,81 @@ public class NodeBuilder<
 		return this;
 	}
 
+	/*---------- TableConfigurationFactory ----------*/
+
+	public NodeBuilder<EK,PK,D,F> withTableConfigurationFactory(TableConfigurationFactory tableConfigurationFactory){
+		this.tableConfigurationFactory = tableConfigurationFactory;
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> setSampleMaxThreshold(Long maxThreshold){
+		if(tableConfigurationFactory == null){
+			tableConfigurationFactory = new TableConfigurationFactory();
+		}
+		tableConfigurationFactory.setMaxThreshold(maxThreshold);
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> setSamplerInterval(Long samplerInterval){
+		if(tableConfigurationFactory == null){
+			tableConfigurationFactory = new TableConfigurationFactory();
+		}
+		tableConfigurationFactory.setSampleInterval(samplerInterval);
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> setSamplerSize(Integer samplerSize){
+		if(tableConfigurationFactory == null){
+			tableConfigurationFactory = new TableConfigurationFactory();
+		}
+		tableConfigurationFactory.setBatchSize(samplerSize);
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> setSamplerEnabled(boolean enable){
+		if(tableConfigurationFactory == null){
+			tableConfigurationFactory = new TableConfigurationFactory();
+		}
+		tableConfigurationFactory.setCountable(enable);
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> setSamplerPercentageChangedAlertEnabled(boolean enablePercentChangeAlert){
+		if(tableConfigurationFactory == null){
+			tableConfigurationFactory = new TableConfigurationFactory();
+		}
+		tableConfigurationFactory.setEnablePercentChangeAlert(enablePercentChangeAlert);
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> setSamplerThresholdAlertEnabled(boolean enableThresholdAlert){
+		if(tableConfigurationFactory == null){
+			tableConfigurationFactory = new TableConfigurationFactory();
+		}
+		tableConfigurationFactory.setEnableThresholdAlert(enableThresholdAlert);
+		return this;
+	}
+
 	public <N extends NodeOps<PK,D>> N build(){
 		String databeanName = databeanSupplier.get().getDatabeanName();
 		String entityName = databeanName + "Entity";
 		String entityNodePrefix = null;
+		String nodeTableName = tableName != null ? tableName : databeanName;
+		TableConfiguration tableConfig = null;
+		if(tableConfigurationFactory != null){
+			tableConfig = tableConfigurationFactory.create(new ClientTableEntityPrefixNameWrapper(
+					clientId.getName(),
+					nodeTableName,
+					entityNodePrefix));
+		}
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withDiagnostics(enableDiagnosticsSupplier)
 				.withEntity(entityName, entityNodePrefix)
 				.withParentName(entityName)
-				.withTableName(tableName != null ? tableName : databeanName)
+				.withTableName(nodeTableName)
 				.withSchemaVersion(schemaVersion)
+				.withTableConfiguration(tableConfig)
 				.build();
 		EntityNodeParams<EK,DefaultEntity<EK>> entityNodeParams = new EntityNodeParams<>(
 				clientId.getName() + "." + entityName,

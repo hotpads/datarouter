@@ -61,7 +61,7 @@ public class DateFieldKey extends PrimitiveFieldKey<Date,DateFieldKey>{
 	}
 
 	@Override
-	public DateField createValueField(final Date value){
+	public DateField createValueField(Date value){
 		return new DateField(this, value);
 	}
 

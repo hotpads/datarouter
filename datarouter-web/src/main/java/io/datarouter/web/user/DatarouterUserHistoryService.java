@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.util.collection.MapTool;
-import io.datarouter.web.app.WebappName;
 import io.datarouter.web.email.DatarouterEmailService;
 import io.datarouter.web.user.databean.DatarouterPermissionRequest;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -45,8 +44,6 @@ public class DatarouterUserHistoryService{
 	private DatarouterUserService datarouterUserService;
 	@Inject
 	private DatarouterEmailService datarouterEmailService;
-	@Inject
-	private WebappName webappName;
 	@Inject
 	private DatarouterUserEditService userEditService;
 
@@ -92,24 +89,24 @@ public class DatarouterUserHistoryService{
 	private void sendPasswordChangeEmail(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
 		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor());
 		String recipients = user.getUsername();
-		String subject = userEditService.getPermissionRequestEmailSubject(user, webappName.getName());
+		String subject = userEditService.getPermissionRequestEmailSubject(user);
 		StringBuilder body = new StringBuilder()
 				.append("Your user (").append(user.getUsername()).append(") password has been changed by user ")
 				.append(editor.getId()).append(" (").append(editor.getUsername()).append(").")
 				.append("\n\nChanges: ").append(history.getChanges())
 				.append("\n\nPlease sign in again to refresh your session: ").append(signinUrl);
-		datarouterEmailService.trySendEmail(user.getUsername(), recipients, subject, body.toString());
+		datarouterEmailService.trySend(user.getUsername(), recipients, subject, body.toString());
 	}
 
 	private void sendRoleEditEmail(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
 		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor());
 		String recipients = userEditService.getUserEditEmailRecipients(user, editor);
-		String subject = userEditService.getPermissionRequestEmailSubject(user, webappName.getName());
+		String subject = userEditService.getPermissionRequestEmailSubject(user);
 		StringBuilder body = new StringBuilder()
 				.append(user.getUsername()).append(" permissions have been edited by ").append(editor.getUsername())
 				.append("\n\nChanges: ").append(history.getChanges())
 				.append("\n\nPlease sign in again to refresh your session: ").append(signinUrl);
-		datarouterEmailService.trySendEmail(user.getUsername(), recipients, subject, body.toString());
+		datarouterEmailService.trySend(user.getUsername(), recipients, subject, body.toString());
 	}
 
 }

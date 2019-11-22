@@ -158,7 +158,7 @@ public class DatarouterHttpClientIntegrationTests{
 	public void testRetryFailure() throws DatarouterHttpException{
 		server.setResponseDelay(200);
 		try{
-			DatarouterHttpClient client = new DatarouterHttpClientBuilder().setRetryCount(10).build();
+			DatarouterHttpClient client = new DatarouterHttpClientBuilder().setRetryCount(() -> 10).build();
 			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, true)
 					.setTimeout(Duration.ofMillis(100));
 			client.executeChecked(request);

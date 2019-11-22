@@ -252,7 +252,7 @@ public abstract class DatarouterProperties{
 		return Optional.of(jvmArgValue);
 	}
 
-	private void logConfigFileProperties(final Optional<Properties> configFileProperties){
+	private void logConfigFileProperties(Optional<Properties> configFileProperties){
 		configFileProperties.get().stringPropertyNames().stream()
 				.map(name -> name + "=" + configFileProperties.get().getProperty(name))
 				.sorted()

@@ -86,7 +86,7 @@ public class SqlCreateTableGenerator{
 			sb.append(",\n");
 			sb.append(" unique index " + index.getName() + " (");
 			boolean appendedAnyCol = false;
-			for(String columnName: index.getColumnNames()){
+			for(String columnName : index.getColumnNames()){
 				if(appendedAnyCol){
 					 sb.append(", ");
 				}

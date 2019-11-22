@@ -109,9 +109,9 @@ public class MavEncoder implements HandlerEncoder{
 			out.println("<html><body>");
 			exceptionId
 					.map(exceptionHandlingConfig::buildExceptionLinkForCurrentServer)
-					.ifPresent(link -> out.println("<a href=\"" + link + "\">exception record</a>"));
+					.ifPresent(link -> out.println("<a href=\"" + link + "\">Error " + exceptionId.get() + "</a>"));
 			out.println("<pre>");
-			out.println(exceptionService.getStackTraceStringForHtmlPreBlock(exception));
+			out.print(exceptionService.getStackTraceStringForHtmlPreBlock(exception));
 			out.println("</pre></body></html>");
 		}else{
 			exceptionId.ifPresent(id -> out.println("Error " + id));

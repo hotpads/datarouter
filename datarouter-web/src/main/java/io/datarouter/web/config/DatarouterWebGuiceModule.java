@@ -23,14 +23,13 @@ import com.google.inject.name.Names;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.storage.config.DatarouterAdditionalAdministrators;
+import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
-import io.datarouter.web.handler.mav.DatarouterMavPropertiesFactoryConfig;
-import io.datarouter.web.handler.mav.MavPropertiesFactoryConfig;
 import io.datarouter.web.handler.mav.nav.AppNavBar;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink;
@@ -46,8 +45,11 @@ import io.datarouter.web.user.BaseDatarouterUserDao.NoOpDatarouterUserDao;
 import io.datarouter.web.user.BaseDatarouterUserHistoryDao;
 import io.datarouter.web.user.BaseDatarouterUserHistoryDao.NoOpDatarouterUserHistoryDao;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmails;
+import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
+import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao;
+import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao.NoOpDatarouterSamlDao;
 import io.datarouter.web.user.authenticate.saml.SamlRegistrar;
 import io.datarouter.web.user.session.CurrentUserSessionInfo;
 import io.datarouter.web.user.session.DatarouterCurrentUserSessionInfo;
@@ -63,8 +65,8 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 	@Override
 	protected void configureServlets(){
 		install(new DatarouterStorageGuiceModule());
+		bind(ServletContextSupplier.class).toInstance(new ServletContextProvider(getServletContext()));
 
-		bind(ServletContextProvider.class).toInstance(new ServletContextProvider(getServletContext()));
 		bind(JsonSerializer.class)
 				.annotatedWith(Names.named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER))
 				.to(GsonJsonSerializer.class);
@@ -77,23 +79,37 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(BaseDatarouterUserHistoryDao.class, NoOpDatarouterUserHistoryDao.class);
 		bindDefault(BaseDatarouterPermissionRequestDao.class, NoOpDatarouterPermissionRequestDao.class);
 		bindDefault(BaseDatarouterSessionDao.class, NoOpDatarouterSessionDao.class);
+		bindDefault(BaseDatarouterSamlDao.class, NoOpDatarouterSamlDao.class);
 		bindDefault(CurrentUserSessionInfo.class, DatarouterCurrentUserSessionInfo.class);
 		bindDefault(UserInfo.class, DatarouterUserInfo.class);
 		optionalBinder(ExceptionRecorder.class);
-		bindDefault(MavPropertiesFactoryConfig.class, DatarouterMavPropertiesFactoryConfig.class);
 		optionalBinder(AppNavBar.class);
 		bindDefault(RoleManager.class, DatarouterRoleManager.class);
 		optionalBinder(SamlRegistrar.class);
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(UserSessionService.class, DatarouterUserSessionService.class);
-		bindDefaultInstance(DatarouterAdditionalAdministrators.class,
+		bindDefaultInstance(DatarouterAdditionalAdministratorsSupplier.class,
 				new DatarouterAdditionalAdministrators(Collections.emptySet()));
 		bindDefault(LatencyMonitoringGraphLink.class, NoOpLatencyMonitoringGraphLink.class);
-		bindDefaultInstance(PermissionRequestAdditionalEmails.class,
+		bindDefaultInstance(PermissionRequestAdditionalEmailsSupplier.class,
 				new PermissionRequestAdditionalEmails(Collections.emptySet()));
-
 		// define as singleton for everybody
 		bind(Gson.class).toInstance(GsonTool.GSON);
+	}
+
+	// allows this module to be installed multiple times
+
+	@Override
+	public boolean equals(Object that){
+		if(that == null || getClass() != that.getClass()){
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public int hashCode(){
+		return DatarouterWebGuiceModule.class.hashCode();
 	}
 
 }

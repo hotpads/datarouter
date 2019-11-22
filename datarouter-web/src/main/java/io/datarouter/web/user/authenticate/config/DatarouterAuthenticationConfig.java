@@ -84,4 +84,5 @@ public interface DatarouterAuthenticationConfig{
 	List<DatarouterAuthenticator> getAuthenticators(HttpServletRequest request);
 
 	boolean useDatarouterAuthentication();
+
 }

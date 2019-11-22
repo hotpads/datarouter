@@ -17,12 +17,9 @@ package io.datarouter.scanner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -40,6 +37,16 @@ public class DeduplicatingScannerTests{
 	}
 
 	@Test
+	public void nullTest(){
+		List<Integer> duplicates = Arrays.asList(null, null, 1, null, null, 2, 2, null, null, 3, 3, 3);
+		List<Integer> expected = Arrays.asList(null, 1, null, 2, null, 3);
+		List<Integer> actual = Scanner.of(duplicates)
+				.deduplicate()
+				.list();
+		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
 	public void deduplicateByMethodTest(){
 		List<Person> people = List.of(
 				new Person("Bob", 1),
@@ -47,13 +54,30 @@ public class DeduplicatingScannerTests{
 				new Person("Jane", 3),
 				new Person("Sam", 4),
 				new Person("Sam", 5));
-		Assert.assertEquals(new HashSet<>(people).size(), people.size());
-		Set<String> names = new HashSet<>();
-		List<Person> expected = people.stream()
-				.filter(person -> names.add(person.getFirstName()))
-				.collect(Collectors.toList());
+		List<Person> expected = Arrays.asList(
+				new Person("Bob", 1),
+				new Person("Jane", 2),
+				new Person("Sam", 4));
 		List<Person> actual = Scanner.of(people)
 				.deduplicate(Person::getFirstName)
+				.list();
+		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void nullDeduplicateByMethodTest(){
+		List<Person> people = Arrays.asList(
+				new Person("Bob", 1),
+				null,
+				null,
+				new Person("Sam", 4),
+				new Person("Sam", 5));
+		List<Person> expected = Arrays.asList(
+				new Person("Bob", 1),
+				null,
+				new Person("Sam", 4));
+		List<Person> actual = Scanner.of(people)
+				.deduplicate(person -> person == null ? null : person.getFirstName())
 				.list();
 		Assert.assertEquals(actual, expected);
 	}

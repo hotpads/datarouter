@@ -27,7 +27,6 @@ public class DatarouterProfilingSettings extends SettingNode{
 
 	public final CachedSetting<Boolean> saveCounts;
 	public final CachedSetting<Boolean> drainSqsCounts;
-	public final CachedSetting<Boolean> runMetricsAggregationJob;
 	public final CachedSetting<Boolean> runServerMonitoringJob;
 	public final CachedSetting<Boolean> runLatencyMonitoringJob;
 	public final CachedSetting<Boolean> saveExecutorsMetrics;
@@ -42,7 +41,6 @@ public class DatarouterProfilingSettings extends SettingNode{
 
 		saveCounts = registerBoolean("saveCounts", false);
 		drainSqsCounts = registerBoolean("drainSqsCounts", false);
-		runMetricsAggregationJob = registerBoolean("runMetricsAggregationJob", false);
 		runServerMonitoringJob = registerBoolean("runServerMonitoringJob", true);
 		runLatencyMonitoringJob = registerBoolean("runLatencyMonitoringJob", false);
 		saveExecutorsMetrics = registerBoolean("saveExecutorsMetrics", false);

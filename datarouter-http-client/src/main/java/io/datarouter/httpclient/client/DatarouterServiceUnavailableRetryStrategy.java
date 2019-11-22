@@ -16,6 +16,7 @@
 package io.datarouter.httpclient.client;
 
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,9 +41,9 @@ public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavail
 			.collect(Collectors.toSet());
 
 
-	private final int retryCount;
+	private final Supplier<Integer> retryCount;
 
-	public DatarouterServiceUnavailableRetryStrategy(int retryCount){
+	public DatarouterServiceUnavailableRetryStrategy(Supplier<Integer> retryCount){
 		this.retryCount = retryCount;
 	}
 
@@ -63,7 +64,7 @@ public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavail
 		}else{
 			// don't log everything, caller will get details in an Exception
 			logger.warn("Request {} id={} failure Nº {} statusCode={} (final)", clientContext.getRequest()
-					.getRequestLine(), requestId, executionCount);
+					.getRequestLine(), requestId, executionCount, statusCode);
 		}
 		return willRetry;
 	}

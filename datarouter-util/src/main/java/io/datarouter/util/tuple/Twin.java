@@ -25,7 +25,7 @@ public class Twin<T> extends Pair<T,T>{
 		super(left, right);
 	}
 
-	public static <T> Twin<T> createTwin(T left, T right){
+	public static <T> Twin<T> of(T left, T right){
 		return new Twin<>(left, right);
 	}
 

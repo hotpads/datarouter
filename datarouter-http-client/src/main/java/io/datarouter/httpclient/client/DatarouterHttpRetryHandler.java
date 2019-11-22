@@ -16,6 +16,7 @@
 package io.datarouter.httpclient.client;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -26,9 +27,9 @@ import org.slf4j.LoggerFactory;
 public class DatarouterHttpRetryHandler implements HttpRequestRetryHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpRetryHandler.class);
 
-	private final int retryCount;
+	private final Supplier<Integer> retryCount;
 
-	public DatarouterHttpRetryHandler(int retryCount){
+	public DatarouterHttpRetryHandler(Supplier<Integer> retryCount){
 		this.retryCount = retryCount;
 	}
 

@@ -42,7 +42,7 @@ public class LongFieldKey extends PrimitiveFieldKey<Long,LongFieldKey>{
 	}
 
 	@Override
-	public LongField createValueField(final Long value){
+	public LongField createValueField(Long value){
 		return new LongField(this, value);
 	}
 

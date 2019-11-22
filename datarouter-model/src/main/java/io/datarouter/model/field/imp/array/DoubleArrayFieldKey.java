@@ -28,7 +28,7 @@ public class DoubleArrayFieldKey extends ListFieldKey<Double,List<Double>,Double
 	}
 
 	@Override
-	public DoubleArrayField createValueField(final List<Double> value){
+	public DoubleArrayField createValueField(List<Double> value){
 		return new DoubleArrayField(this, value);
 	}
 

@@ -87,28 +87,6 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		return mav;
 	}
 
-	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> void addDatabeanToMav(Mav mav, List<D> databeans){
-		mav.put("databeans", databeans);
-		List<List<Field<?>>> rowsOfFields = new ArrayList<>();
-		List<String> fieldKeysAndValues = new ArrayList<>();
-		@SuppressWarnings("unchecked")
-		DatabeanFielder<PK,D> fielder = (DatabeanFielder<PK,D>)node.getFieldInfo().getSampleFielder();
-		if(fielder != null){
-			for(D databean : IterableTool.nullSafe(databeans)){
-				rowsOfFields.add(fielder.getFields(databean));
-				List<Field<?>> databeanFieldKeys = databean.getKeyFields();
-				String databeanFieldKey = "";
-				for(Field<?> field : databeanFieldKeys){
-					databeanFieldKey += "&" + field.getKey().getName() + "=" + field.getValueString();
-				}
-				fieldKeysAndValues.add(databeanFieldKey);
-			}
-			mav.put("rowsOfFields", rowsOfFields);
-			mav.put("fieldKeys", fieldKeysAndValues);
-		}
-		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
-	}
-
 	protected <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> void addDatabeansToMav(Mav mav, List<D> databeans){
 		mav.put("databeans", databeans);
 		List<List<Field<?>>> rowsOfFields = new ArrayList<>();
@@ -121,7 +99,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 				List<Field<?>> databeanFieldKeys = databean.getKeyFields();
 				String databeanFieldKey = "";
 				for(Field<?> field : databeanFieldKeys){
-					databeanFieldKey += "&" + field.getKey().getName() + "=" + field.getValueString();
+					databeanFieldKey += "&" + field.getKey().getName() + "=" + field.getStringEncodedValue();
 				}
 				fieldKeysAndValues.add(databeanFieldKey);
 			}

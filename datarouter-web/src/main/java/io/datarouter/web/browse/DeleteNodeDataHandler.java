@@ -56,12 +56,7 @@ public class DeleteNodeDataHandler extends InspectNodeDataHandler{
 		List<String> fieldValues = getFieldValues(node);
 
 		String encodedPk = PercentFieldCodec.encode(fieldValues.stream());
-		PK primaryKey;
-		try{
-			primaryKey = PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
-		}catch(NumberFormatException e){
-			return new MessageMav("NumberFormatException: " + e);
-		}
+		PK primaryKey = PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
 		MapStorageNode<PK,?,?> mapStorageNode = (MapStorageNode<PK,?,?>)node;
 		if(!mapStorageNode.exists(primaryKey)){
 			return new MessageMav("databean does not exist");

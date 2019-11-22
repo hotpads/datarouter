@@ -1,2 +1,1 @@
-<link rel="stylesheet" href="${contextPath}/bootstrap/v3/css/bootstrap.css">
-<link rel="stylesheet" href="${contextPath}/css/common.css">
+${datarouterCssImportContent}

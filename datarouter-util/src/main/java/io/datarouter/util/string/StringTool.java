@@ -248,7 +248,7 @@ public class StringTool{
 		return sb.toString();
 	}
 
-	public static String replaceCharsAbove126(final String input, char replacement){
+	public static String replaceCharsAbove126(String input, char replacement){
 		if(input == null){
 			return null;
 		}
@@ -264,7 +264,7 @@ public class StringTool{
 		return result;
 	}
 
-	public static String replaceCharactersInRange(final String input, int bottom, int top, char replacement){
+	public static String replaceCharactersInRange(String input, int bottom, int top, char replacement){
 		String range = RegexTool.makeCharacterClassFromRange(bottom, top, true);
 		return input.replaceAll(range, "" + replacement);
 	}
@@ -404,7 +404,7 @@ public class StringTool{
 		return inString.substring(0, index);
 	}
 
-	public static boolean containsCharactersOutsideRange(final String input, int bottom, int top){
+	public static boolean containsCharactersOutsideRange(String input, int bottom, int top){
 		char[] chars = input.toCharArray();
 		for(char c : chars){
 			if(c > top || c < bottom){
@@ -422,7 +422,7 @@ public class StringTool{
 		return !isEmpty(data) && containsCharactersInRange(data, 48, 57);
 	}
 
-	public static boolean containsCharactersInRange(final String input, int bottom, int top){
+	public static boolean containsCharactersInRange(String input, int bottom, int top){
 		for(int i = 0; i < input.length(); i++){
 			if(input.charAt(i) <= top && input.charAt(i) >= bottom){
 				return true;

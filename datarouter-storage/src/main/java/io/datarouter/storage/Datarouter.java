@@ -90,9 +90,8 @@ public class Datarouter{
 	public synchronized void assertRegistered(Dao router){
 		if(!(router instanceof TestDao)
 				&& !daoClasses.get().contains(router.getClass())){
-			throw new IllegalArgumentException("Unknown router/dao: " + router.getClass().getSimpleName()
-					+ ". Please register it in RouterClasses/DaoGroup, or have it implement TestRouter/TestDao "
-					+ "if only used for tests");
+			throw new IllegalArgumentException("Unknown dao: " + router.getClass().getSimpleName()
+					+ ". Please register it in DaoGroup, or have it implement TestDao if only used for tests");
 		}
 	}
 

@@ -60,6 +60,7 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode deployment = leaf("deployment");
 		public final PathNode settings = leaf("settings");
 		public final PathNode shutdown = leaf("shutdown");
+		public final PathNode tableConfiguration = leaf("tableConfiguration");
 	}
 
 	public static class ClientPaths extends PathNode{

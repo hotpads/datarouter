@@ -19,14 +19,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 
 public interface MysqlFieldCodec<T>{
 
 	MysqlColumnType getMysqlColumnType();
 	SqlColumn getSqlColumnDefinition(boolean allowNullable);
-	String getIntroducedParameter(MysqlTableOptions mysqlTableOptions);
+	String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions);
 	String getSqlParameter();
 	void setPreparedStatementValue(PreparedStatement ps, int parameterIndex);
 	void fromMysqlResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet);

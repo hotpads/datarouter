@@ -22,7 +22,8 @@ import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.client.mysql.MysqlClientType;
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.node.MysqlReaderNode;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
@@ -54,6 +55,7 @@ extends BaseMysqlOp<List<D>>{
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
+	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 	private final Collection<IK> indexKeys;
 	private final Config config;
 	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
@@ -61,12 +63,13 @@ extends BaseMysqlOp<List<D>>{
 
 	public MysqlGetByIndexOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			MysqlClientType mysqlClientType, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
-			Collection<IK> indexKeys, Config config){
+			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, MysqlClientType mysqlClientType,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<IK> indexKeys, Config config){
 		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
+		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
 		this.mysqlClientType = mysqlClientType;
 		this.indexEntryFieldInfo = indexEntryFieldInfo;
 		this.indexKeys = indexKeys;
@@ -84,9 +87,9 @@ extends BaseMysqlOp<List<D>>{
 		for(List<IK> batch : Scanner.of(indexKeys).batch(MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE).iterable()){
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId()
 					.getName(), nodeName, 1L);
+			MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
 			PreparedStatement statement = mysqlPreparedStatementBuilder.getWithPrefixes(config, tableName, indexName,
-					fieldInfo.getFields(), batch, null, MysqlTableOptions.make(fieldInfo.getSampleFielder()))
-					.toPreparedStatement(connection);
+					fieldInfo.getFields(), batch, null, mysqlLiveTableOptions).toPreparedStatement(connection);
 			List<D> batchResult = MysqlTool.selectDatabeans(fieldCodecFactory, fieldInfo.getDatabeanSupplier(),
 					fieldInfo.getFields(), statement);
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),

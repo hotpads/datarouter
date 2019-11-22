@@ -20,7 +20,7 @@ import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 
 import io.datarouter.util.lazy.Lazy;
-import io.datarouter.web.config.ServletContextProvider;
+import io.datarouter.web.config.ServletContextSupplier;
 
 @Singleton
 public class ApplicationPaths{
@@ -30,8 +30,8 @@ public class ApplicationPaths{
 	private final Lazy<String> webInfPath;
 
 	@Inject
-	public ApplicationPaths(ServletContextProvider servletContextProvider){
-		ServletContext servletContext = servletContextProvider.get();
+	public ApplicationPaths(ServletContextSupplier servletContextSupplier){
+		ServletContext servletContext = servletContextSupplier.get();
 		this.path = Lazy.of(() -> WebappTool.getApplicationRootPath(servletContext));
 		this.resourcesPath = Lazy.of(() -> WebappTool.getResourcesPath(servletContext));
 		this.webInfPath = Lazy.of(() -> WebappTool.getWebInfPath(servletContext));

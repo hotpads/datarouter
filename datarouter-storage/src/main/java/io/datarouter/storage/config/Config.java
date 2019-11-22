@@ -16,10 +16,10 @@
 package io.datarouter.storage.config;
 
 import java.time.Duration;
+import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import io.datarouter.util.Require;
 import io.datarouter.util.lang.LineOfCode;
@@ -54,7 +54,7 @@ public class Config implements Cloneable{
 	private Boolean ignoreException;
 
 	//retrying
-	private Long timeoutMs = Duration.ofMinutes(10).toMillis();
+	private Duration timeout = Duration.ofMinutes(10);
 	private Integer numAttempts;//do not set default here.  do it per-client
 
 	//paging
@@ -63,7 +63,7 @@ public class Config implements Cloneable{
 
 	//caching
 	private Boolean cacheOk = DEFAULT_CACHE_OK;
-	private Long ttlMs;// = 0L;//infinite
+	private Duration ttl;// = null;//infinite
 
 	//messaging
 	private Long visibilityTimeoutMs;
@@ -113,14 +113,14 @@ public class Config implements Cloneable{
 
 			.setIgnoreException(ignoreException)
 
-			.setTimeoutMs(timeoutMs)
+			.setTimeout(timeout)
 			.setNumAttempts(numAttempts)
 
 			.setLimit(limit)
 			.setOffset(offset)
 
 			.setCacheOk(cacheOk)
-			.setTtlMs(ttlMs)
+			.setTtl(ttl)
 
 			.setVisibilityTimeoutMs(visibilityTimeoutMs)
 
@@ -244,33 +244,28 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/*---------------------------- timeoutMs --------------------------------*/
+	/*---------------------------- timeout ----------------------------------*/
 
-	public Long getTimeoutMs(){
-		return timeoutMs;
+	public Duration getTimeout(){
+		return timeout;
 	}
 
-	public long getTimeoutMsOrUse(long alternative){
-		return timeoutMs == null ? alternative : timeoutMs;
+	public Duration getTimeoutOrUse(Duration alternative){
+		return timeout == null ? alternative : timeout;
 	}
 
-	public Config setTimeoutMs(Long timeoutMs){
-		this.timeoutMs = timeoutMs;
-		return this;
-	}
-
-	public Config setTimeout(Integer timeout, TimeUnit timeUnit){
-		setTimeoutMs(timeUnit.toMillis(timeout));
+	public Config setTimeout(Integer timeout, TemporalUnit temporalUnit){
+		this.timeout = Duration.of(timeout, temporalUnit);
 		return this;
 	}
 
 	public Config setTimeout(Duration duration){
-		this.timeoutMs = duration.toMillis();
+		this.timeout = duration;
 		return this;
 	}
 
 	public Config setNoTimeout(){
-		setTimeoutMs(Long.MAX_VALUE);
+		setTimeout(Duration.ofMillis(Long.MAX_VALUE));
 		return this;
 	}
 
@@ -318,15 +313,14 @@ public class Config implements Cloneable{
 		return this;
 	}
 
+	/*------------------------------ ttl ------------------------------------*/
 
-	/*------------------------------ ttlMs ----------------------------------*/
-
-	public Long getTtlMs(){
-		return ttlMs;
+	public Duration getTtl(){
+		return ttl;
 	}
 
-	public Config setTtlMs(Long ttlMs){
-		this.ttlMs = ttlMs;
+	public Config setTtl(Duration ttl){
+		this.ttl = ttl;
 		return this;
 	}
 
@@ -347,7 +341,6 @@ public class Config implements Cloneable{
 		this.visibilityTimeoutMs = visibilityTimeoutMs;
 		return this;
 	}
-
 
 	/*------------------------------- callsite ------------------------------*/
 

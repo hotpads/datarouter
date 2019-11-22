@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import com.mysql.cj.exceptions.MysqlErrorNumbers;
 
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.exception.DuplicateEntrySqlException;
 import io.datarouter.client.mysql.node.MysqlNodeManager;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
@@ -68,16 +69,18 @@ extends BaseMysqlOp<Void>{
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlNodeManager mysqlNodeManager;
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
+	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 	private final Collection<D> databeans;
 	private final Config config;
 
 	public MysqlPutOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlNodeManager mysqlNodeManager, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			Collection<D> databeans, Config config){
+			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, Collection<D> databeans, Config config){
 		super(datarouter, fieldInfo.getClientId(), getIsolation(config), shouldAutoCommit(databeans, config));
 		this.fieldInfo = fieldInfo;
 		this.mysqlNodeManager = mysqlNodeManager;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
+		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
 		this.databeans = CollectionTool.nullSafe(databeans);
 		this.config = config;
 	}
@@ -106,7 +109,7 @@ extends BaseMysqlOp<Void>{
 		return config.getOption(Isolation.KEY).orElse(Isolation.DEFAULT);
 	}
 
-	private static boolean shouldAutoCommit(Collection<? extends Databean<?,?>> databeans, final Config config){
+	private static boolean shouldAutoCommit(Collection<? extends Databean<?,?>> databeans, Config config){
 		if(CollectionTool.size(databeans) > 1){
 			return false;
 		}
@@ -237,8 +240,10 @@ extends BaseMysqlOp<Void>{
 			logger.warn("Tried to update a databean without non key fields {}", databean, new Exception());
 			return;
 		}
-		PreparedStatement statement = mysqlPreparedStatementBuilder.update(fieldInfo.getTableName(), nonKeyFields,
-				Collections.singletonList(databean.getKey()), MysqlTableOptions.make(fieldInfo.getSampleFielder()))
+		String tableName = fieldInfo.getTableName();
+		MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
+		PreparedStatement statement = mysqlPreparedStatementBuilder.update(tableName, nonKeyFields,
+				Collections.singletonList(databean.getKey()), mysqlLiveTableOptions)
 				.toPreparedStatement(connection);
 		int numUpdated;
 		String spanName = fieldInfo.getNodeName() + " mysqlUpdate PreparedStatement.execute";

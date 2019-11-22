@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.array;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -340,6 +341,11 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 	@Override
 	public int compareTo(List<Long> other){
 		return ListTool.compare(this, other);// NULL compares before all other longs
+	}
+
+	@Override
+	public String toString(){
+		return String.format("LongArray [array=%s, size=%d]", Arrays.toString(array), size);
 	}
 
 	public long[] getPrimitiveArray(){

@@ -27,8 +27,9 @@ public class RequestAttributeTool{
 		return Optional.ofNullable(attribute);
 	}
 
-	public static <T> void set(ServletRequest request, RequestAttributeKey<T> key, T value){
+	public static <T> T set(ServletRequest request, RequestAttributeKey<T> key, T value){
 		request.setAttribute(key.name, value);
+		return value;
 	}
 
 }

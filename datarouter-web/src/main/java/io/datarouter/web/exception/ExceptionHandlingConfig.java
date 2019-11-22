@@ -31,4 +31,38 @@ public interface ExceptionHandlingConfig{
 
 	String buildExceptionLinkForCurrentServer(String exceptionRecordId);
 
+	static class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
+
+		@Override
+		public boolean shouldDisplayStackTrace(HttpServletRequest request, Exception exception){
+			return false;
+		}
+
+		@Override
+		public boolean shouldReportError(ExceptionRecordDto exceptionRecord){
+			return false;
+		}
+
+		@Override
+		public boolean shouldReportError(ExceptionDto dto){
+			return false;
+		}
+
+		@Override
+		public String getHtmlErrorMessage(Exception exception){
+			return null;
+		}
+
+		@Override
+		public boolean isDevServer(){
+			return false;
+		}
+
+		@Override
+		public String buildExceptionLinkForCurrentServer(String exceptionRecordId){
+			return null;
+		}
+
+	}
+
 }

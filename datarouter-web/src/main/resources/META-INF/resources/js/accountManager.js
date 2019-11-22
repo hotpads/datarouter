@@ -70,6 +70,7 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 				<th>Secret key</th>
 				<th>Last used</th>
 				<th>Permissions</th>
+				<th>User Mappings</th>
 				<th />
 				<th />
 			</tr>
@@ -96,6 +97,12 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 						) : (
 							'No permissions'
 						)}
+					</td>
+					<td>
+						{account.enableUserMappings
+							? (<span className="glyphicon glyphicon-ok"></span>)
+							: (<span></span>)
+						}
 					</td>
 					<td>
 						<Link to={REACT_BASE_PATH + "details/" + account.key.accountName}>
@@ -161,6 +168,7 @@ const AccountDetailsBreakdown = ({
 	resetApiKeyToDefault,
 	generateSecretKey,
 	resetSecretKeyToDefault,
+	toggleUserMappings,
 	isServerTypeDev,
 	account
 }) => (
@@ -185,6 +193,11 @@ const AccountDetailsBreakdown = ({
 		<dd>{account.creator}</dd>
 		<dt>Last used</dt>
 		<dd>{account.lastUsed || '-'}</dd>
+		<dt>User Mapping Enabled</dt>
+		<dd>
+			<code style={{marginRight: '1em'}}>{account.enableUserMappings ? "true" : "false"}</code>
+			<SubmitButton compact onClick={toggleUserMappings} value="Toggle" />
+	</dd>
 	</dl>
 )
 
@@ -231,6 +244,10 @@ class AccountDetails extends React.Component{
 		this.updateAccount('generateSecretKey');
 	}
 
+	toggleUserMappings = () => {
+		this.updateAccount('toggleUserMappings');
+	}
+
 	handleSelectEndpoint = (event) => {
 		this.setState({selectedEndpoint: event.target.value});
 	}
@@ -270,6 +287,7 @@ class AccountDetails extends React.Component{
 					resetApiKeyToDefault={this.resetApiKeyToDefault}
 					generateSecretKey={this.generateSecretKey}
 					resetSecretKeyToDefault={this.resetSecretKeyToDefault}
+					toggleUserMappings={this.toggleUserMappings}
 					isServerTypeDev={isServerTypeDev}
 					account={details.account}
 				/>

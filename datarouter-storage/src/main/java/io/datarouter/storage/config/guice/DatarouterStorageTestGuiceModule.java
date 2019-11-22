@@ -18,7 +18,7 @@ package io.datarouter.storage.config.guice;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.storage.servertype.TestServerTypeDetector;
+import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.storage.test.TestDatarouterProperties;
 
 public class DatarouterStorageTestGuiceModule extends BaseGuiceModule{
@@ -26,7 +26,7 @@ public class DatarouterStorageTestGuiceModule extends BaseGuiceModule{
 	@Override
 	protected void configure(){
 		bind(DatarouterProperties.class).to(TestDatarouterProperties.class);
-		bindDefault(ServerTypeDetector.class, TestServerTypeDetector.class);
+		bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
 	}
 
 }

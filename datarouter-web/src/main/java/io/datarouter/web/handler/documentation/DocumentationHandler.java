@@ -46,7 +46,6 @@ import com.google.gson.internal.UnsafeAllocator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.util.serialization.CompatibleDateTypeAdapter;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -67,7 +66,6 @@ public class DocumentationHandler extends BaseHandler{
 	private static final UnsafeAllocator UNSAFE_ALLOCATOR = UnsafeAllocator.create();
 
 	private static final Gson GSON = new GsonBuilder()
-			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
 			.serializeNulls()
 			.setPrettyPrinting()
 			.create();

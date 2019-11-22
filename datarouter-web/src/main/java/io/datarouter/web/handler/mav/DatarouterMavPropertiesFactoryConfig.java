@@ -24,7 +24,7 @@ import io.datarouter.web.user.session.CurrentUserSessionInfo;
 import io.datarouter.web.user.session.service.RoleManager;
 
 @Singleton
-public class DatarouterMavPropertiesFactoryConfig implements MavPropertiesFactoryConfig{
+public class DatarouterMavPropertiesFactoryConfig{
 
 	@Inject
 	private RoleManager roleManager;
@@ -33,12 +33,18 @@ public class DatarouterMavPropertiesFactoryConfig implements MavPropertiesFactor
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 
-	@Override
+	public int getCssVersion(){
+		return 1;
+	}
+
+	public int getJsVersion(){
+		return 1;
+	}
+
 	public boolean getIsProduction(){
 		return serverTypeDetector.mightBeProduction();
 	}
 
-	@Override
 	public boolean getIsAdmin(HttpServletRequest request){
 		return currentUserSessionInfo.getRoles(request).stream()
 				.anyMatch(roleManager::isAdmin);

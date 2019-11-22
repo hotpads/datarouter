@@ -60,8 +60,8 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private DatarouterSessionManager sessionManager;
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain) throws IOException,
-			ServletException{
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
+	throws IOException, ServletException{
 		final HttpServletRequest request = (HttpServletRequest)req;
 		final HttpServletResponse response = (HttpServletResponse)res;
 

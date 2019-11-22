@@ -73,7 +73,7 @@ public class DatabeanVacuum<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 	}
 
 	private void logProgress(long numDeleted, long numScanned, String lastItem){
-		logger.warn("deleted {}/{} through {}",
+		logger.info("deleted {}/{} through {}",
 				NumberFormatter.addCommas(numDeleted),
 				NumberFormatter.addCommas(numScanned),
 				lastItem);

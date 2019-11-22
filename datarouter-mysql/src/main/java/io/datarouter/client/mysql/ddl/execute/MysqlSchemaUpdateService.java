@@ -67,7 +67,7 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 
 	@Override
 	protected void sendEmail(String fromEmail, String toEmail, String subject, String body){
-		datarouterEmailService.trySendEmail(datarouterProperties.getAdministratorEmail(), toEmail, subject,
+		datarouterEmailService.trySend(datarouterProperties.getAdministratorEmail(), toEmail, subject,
 				body.toString());
 	}
 

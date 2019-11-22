@@ -35,7 +35,7 @@ public class DelimitedStringArrayFieldKey extends ListFieldKey<String,List<Strin
 	}
 
 	@Override
-	public DelimitedStringArrayField createValueField(final List<String> value){
+	public DelimitedStringArrayField createValueField(List<String> value){
 		return new DelimitedStringArrayField(this, value);
 	}
 

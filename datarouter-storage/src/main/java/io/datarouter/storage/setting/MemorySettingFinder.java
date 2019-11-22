@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.collection.ListTool;
 
 public class MemorySettingFinder implements SettingFinder{
@@ -82,6 +83,16 @@ public class MemorySettingFinder implements SettingFinder{
 
 	public void clear(){
 		settings.clear();
+	}
+
+	//settings are already tracked in settings
+	@Override
+	public void registerCachedSetting(CachedSetting<?> setting){
+	}
+
+	//nothing to validate, due to compiler checks
+	@Override
+	public void validateAllCachedSettings(){
 	}
 
 }

@@ -28,7 +28,7 @@ public class UInt63ArrayFieldKey extends ListFieldKey<Long,List<Long>,UInt63Arra
 	}
 
 	@Override
-	public UInt63ArrayField createValueField(final List<Long> value){
+	public UInt63ArrayField createValueField(List<Long> value){
 		return new UInt63ArrayField(this, value);
 	}
 

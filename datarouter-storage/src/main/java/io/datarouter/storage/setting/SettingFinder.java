@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.setting.cached.CachedSetting;
 
 public interface SettingFinder{
 
@@ -28,5 +29,7 @@ public interface SettingFinder{
 	String getServerName();
 	Optional<String> getSettingValue(String name);
 	List<String> getAllCustomSettingValues(String name);
+	void registerCachedSetting(CachedSetting<?> setting);
+	void validateAllCachedSettings();
 
 }

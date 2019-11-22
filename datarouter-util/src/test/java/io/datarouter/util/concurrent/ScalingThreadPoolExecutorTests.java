@@ -24,6 +24,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.retry.RetryableTool;
+
 public class ScalingThreadPoolExecutorTests{
 
 	private static final int MAX_THREADS = 5;
@@ -61,7 +63,12 @@ public class ScalingThreadPoolExecutorTests{
 		phaser.arrive();
 		FutureTool.getAllVaried(futures);
 
-		Assert.assertEquals(executor.getCompletedTaskCount(), MAX_THREADS + 2);
+		// future.get() may return before the completed task count is increment, so this can be flaky.
+		RetryableTool.tryNTimesWithBackoffUnchecked(() -> {
+			Assert.assertEquals(executor.getCompletedTaskCount(), MAX_THREADS + 2);
+			return null;
+		}, 2, 1, false);
+
 		Assert.assertEquals(executor.getQueue().size(), 0);
 
 		executor.shutdownNow();

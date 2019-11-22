@@ -6,14 +6,28 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-task-tracker</artifactId>
-	<version>0.0.12</version>
+	<version>0.0.13</version>
 </dependency>
 ```
+
+## About
+
+A TaskTracker implementation can be passed to a method that is expected to take some time to execute, whether 5 seconds or many minutes.  It is a hook for the method to
+report back progress on the number of items processed or just a heartbeat.  In its simplest form, it provides a way for other threads to "requestStop" of the task
+usually because the server is being stopped or a deadline has been reached, but can also be utilized for more detailed item counting, last item processed tracking, or 
+status monitoring.
+
+Tracked tasks should check the "shouldStop" method in an effort to gracefully stop processing, otherwise the framework may interrupt them.
+
+The module provides a LongRunningTaskTracker with persistence of the task's progress that can be viewed in a web UI, both for real-time monitoring and for later debugging
+if the tasks are not completing.  The datarouter-job framework automatically creates LongRunningTaskTrackers for each execution of a job.
+
 ## Usage
 
 ### Automatic usage in job processing
 
-When creating a scheduled job by extending BaseJob, the datarouter-job framework provides a TaskTracker to every execution of the job.
+When creating a scheduled job by extending BaseJob, the datarouter-job framework provides a TaskTracker to every execution of the job.  Jobs should check the
+shouldStop method every 10ms to 2s in an effort to cleanly stop.  Frequent checks are kept performant by LongRunningTaskTracker's internal caching.
 
 ### Ad-hoc usage
 
@@ -70,7 +84,7 @@ public class ExampleTaskTrackerHandler extends BaseHandler{
 		//update and check the TaskTracker during a potentially long task
 		Scanner.of(Files.walk(Paths.get(parentPath)))
 				//check the deadline and short-circuit the scanner if it has been reached
-				.advanceUntil(item -> tracker.shouldStop())
+				.advanceUntil($ -> tracker.shouldStop())
 				.map(Object::toString)
 				//update the item count and last item name, which also acts as a heartbeat
 				.peek($ -> tracker.increment())

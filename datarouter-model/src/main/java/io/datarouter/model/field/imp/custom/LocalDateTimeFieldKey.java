@@ -63,7 +63,7 @@ public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime,Local
 	}
 
 	@Override
-	public LocalDateTimeField createValueField(final LocalDateTime value){
+	public LocalDateTimeField createValueField(LocalDateTime value){
 		return new LocalDateTimeField(this, value);
 	}
 

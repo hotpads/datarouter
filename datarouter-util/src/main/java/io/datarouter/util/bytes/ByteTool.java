@@ -140,7 +140,7 @@ public class ByteTool{
 		return out;
 	}
 
-	public static byte[] unsignedIncrement(final byte[] in){
+	public static byte[] unsignedIncrement(byte[] in){
 		byte[] copy = ArrayTool.clone(in);
 		if(copy == null){
 			throw new IllegalArgumentException("cannot increment null array");

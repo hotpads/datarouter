@@ -2,23 +2,21 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%@ page import="io.datarouter.web.listener.MavPropertiesFactoryWebAppListener" %>
 <%@ page import="io.datarouter.web.handler.mav.MavPropertiesFactory" %>
-<c:set var="mavProperties" value="<%= ((MavPropertiesFactory)getServletContext().getAttribute(MavPropertiesFactoryWebAppListener.SERVLET_CONTEXT_ATTRIBUTE_NAME)).get(request) %>" />
+<c:set var="mavProperties" value='<%= ((MavPropertiesFactory)getServletContext().getAttribute("mavPropertiesFactory")).buildAndSet(request) %>' />
 
-<c:set var="mavAttributes" value="${mavProperties.getAttributes()}" />
-<c:set var="contextPath" value="${mavAttributes['contextPath']}" />
-<c:set var="basePath" value="${mavAttributes['basePath']}" />
-<c:set var="fullPath" value="${mavAttributes['fullPath']}" />
-<c:set var="cssVersion" value="${mavAttributes['cssVersion']}" />
-<c:set var="jsVersion" value="${mavAttributes['jsVersion']}" />
-<c:set var="isAdmin" value="${mavAttributes['isAdmin']}" />
-<c:set var="isProduction" value="${mavAttributes['isProduction']}" />
+<c:set var="contextPath" value="${mavProperties.contextPath}" />
+<c:set var="basePath" value="${mavProperties.basePath}" />
+<c:set var="fullPath" value="${mavProperties.fullPath}" />
+<c:set var="cssVersion" value="${mavProperties.cssVersion}" />
+<c:set var="jsVersion" value="${mavProperties.jsVersion}" />
+<c:set var="isAdmin" value="${mavProperties.isAdmin}" />
+<c:set var="isProduction" value="${mavProperties.isProduction}" />
 
-<c:set var="tomcatWebApps" value="${mavProperties.getTomcatWebApps()}" />
-<c:set var="webAppNavBar" value="${mavProperties.getNavBar()}" />
-<c:set var="datarouterNavBar" value="${mavProperties.getDatarouterNavBar()}" />
-<c:set var="isDatarouterPage" value="${mavProperties.isDatarouterPage()}" />
+<c:set var="tomcatWebApps" value="${mavProperties.tomcatWebApps}" />
+<c:set var="webAppNavBar" value="${mavProperties.navBar}" />
+<c:set var="datarouterNavBar" value="${mavProperties.datarouterNavBar}" />
+<c:set var="isDatarouterPage" value="${mavProperties.isDatarouterPage}" />
 
 <%-- prevent jsessionid to be added to url when using c:url --%>
 <%@ page session="false" %>

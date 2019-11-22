@@ -38,7 +38,9 @@ import io.datarouter.web.handler.types.optional.OptionalString;
 
 public class LongRunningTasksHandler extends BaseHandler{
 
-	private static String ALL_STATUSES_VALUE = "all";
+	public static final String ALL_STATUSES_VALUE = "all";
+	public static final String P_name = "name";
+	public static final String P_status = "status";
 
 	@Inject
 	private DatarouterLongRunningTaskDao longRunningTaskDao;

@@ -17,9 +17,11 @@ package io.datarouter.storage;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,10 +47,10 @@ public abstract class BaseSchemaUpdateService{
 	private static final long THROTTLING_DELAY_SECONDS = 10;
 
 	private final DatarouterProperties datarouterProperties;
-	private final DatarouterSchemaUpdateScheduler executor;
 	private final DatarouterAdministratorEmailService adminEmailService;
+	private final DatarouterSchemaUpdateScheduler executor;
+
 	private final Map<ClientId,Lazy<List<String>>> existingTableNamesByClient;
-	private final List<String> printedSchemaUpdates;
 	private final List<Future<Optional<SchemaUpdateResult>>> futures;
 
 	public BaseSchemaUpdateService(DatarouterProperties datarouterProperties,
@@ -58,7 +60,6 @@ public abstract class BaseSchemaUpdateService{
 		this.adminEmailService = adminEmailService;
 		this.executor = executor;
 
-		this.printedSchemaUpdates = new ArrayList<>();
 		this.futures = Collections.synchronizedList(new ArrayList<>());
 		this.existingTableNamesByClient = new ConcurrentHashMap<>();
 		executor.scheduleWithFixedDelay(this::gatherSchemaUpdates, 0, THROTTLING_DELAY_SECONDS, TimeUnit.SECONDS);
@@ -82,6 +83,7 @@ public abstract class BaseSchemaUpdateService{
 
 	public synchronized void gatherSchemaUpdates(boolean wait){
 		boolean shouldNotify = true;
+		Map<ClientId,List<String>> printedSchemaUpdates = new HashMap<>();
 		Iterator<Future<Optional<SchemaUpdateResult>>> futureIterator = futures.iterator();
 		MutableString oneStartupBlockReason = new MutableString("");
 		while(futureIterator.hasNext()){
@@ -92,7 +94,8 @@ public abstract class BaseSchemaUpdateService{
 					if(optional.isEmpty()){
 						continue;
 					}
-					printedSchemaUpdates.add(optional.get().ddl);
+					printedSchemaUpdates.computeIfAbsent(optional.get().clientId, $ -> new ArrayList<>())
+							.add(optional.get().ddl);
 					optional.get().startupBlockReason
 							.ifPresent(oneStartupBlockReason::set);
 				}catch(InterruptedException | ExecutionException e){
@@ -105,7 +108,7 @@ public abstract class BaseSchemaUpdateService{
 			}
 		}
 		if(shouldNotify){
-			sendEmail();
+			sendEmail(printedSchemaUpdates);
 		}
 		if(!oneStartupBlockReason.getString().isEmpty()){
 			logger.error(oneStartupBlockReason.getString());
@@ -113,18 +116,20 @@ public abstract class BaseSchemaUpdateService{
 		}
 	}
 
-	private void sendEmail(){
+	private void sendEmail(Map<ClientId,List<String>> printedSchemaUpdates){
 		if(printedSchemaUpdates.isEmpty()){
 			return;
 		}
-		String subject = "SchemaUpdate request from " + datarouterProperties.getServerName();
-		StringBuilder body = new StringBuilder();
-		for(String update : printedSchemaUpdates){
-			body.append(update + "\n\n");
+		for(Entry<ClientId,List<String>> clientAndDdls : printedSchemaUpdates.entrySet()){
+			String subject = "SchemaUpdate request on " + clientAndDdls.getKey().getName() + " from "
+					+ datarouterProperties.getEnvironment();
+			StringBuilder body = new StringBuilder();
+			for(String update : clientAndDdls.getValue()){
+				body.append(update + "\n\n");
+			}
+			sendEmail(datarouterProperties.getAdministratorEmail(),
+					adminEmailService.getAdministratorEmailAddressesCsv(), subject, body.toString());
 		}
-		sendEmail(datarouterProperties.getAdministratorEmail(), adminEmailService.getAdministratorEmailAddressesCsv(),
-				subject, body.toString());
-		printedSchemaUpdates.clear();
 	}
 
 	protected abstract void sendEmail(String fromEmail, String toEmail, String subject, String body);

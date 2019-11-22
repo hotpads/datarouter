@@ -18,7 +18,7 @@ package io.datarouter.client.mysql.field.codec.base;
 import java.sql.ResultSet;
 
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.model.field.Field;
 
@@ -36,11 +36,11 @@ public abstract class BaseMysqlFieldCodec<T,F extends Field<T>> implements Mysql
 	}
 
 	@Override
-	public String getIntroducedParameter(MysqlTableOptions mysqlTableOptions){
+	public String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions){
 		return introduce(mysqlTableOptions, "?");
 	}
 
-	private String introduce(MysqlTableOptions mysqlTableOptions, String parameter){
+	private String introduce(MysqlLiveTableOptions mysqlTableOptions, String parameter){
 		if(!shouldIntroduceLiteral(mysqlTableOptions)){
 			return parameter;
 		}
@@ -48,7 +48,7 @@ public abstract class BaseMysqlFieldCodec<T,F extends Field<T>> implements Mysql
 				+ mysqlTableOptions.getCollation().name();
 	}
 
-	private boolean shouldIntroduceLiteral(MysqlTableOptions mysqlTableOptions){
+	private boolean shouldIntroduceLiteral(MysqlLiveTableOptions mysqlTableOptions){
 		if(!getMysqlColumnType().isIntroducible()){
 			return false;
 		}

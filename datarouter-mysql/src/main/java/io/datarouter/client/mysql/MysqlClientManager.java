@@ -171,7 +171,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 		if(elapsedUs > 5000){
 			DatarouterCounters.incClient(clientType, "connection open > 5ms", clientId.getName(), 1L);
 			long millis = TimeUnit.MICROSECONDS.toMillis(elapsedUs);
-			logger.warn("slow reserveConnection: " + millis + "ms on " + clientId.getName());
+			logger.warn("slow reserveConnection durationMs={} client={}", millis, clientId.getName());
 		}
 		if(elapsedUs > 10000){
 			DatarouterCounters.incClient(clientType, "connection open > 10ms", clientId.getName(), 1L);

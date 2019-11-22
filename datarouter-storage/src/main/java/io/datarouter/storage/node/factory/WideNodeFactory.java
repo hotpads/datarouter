@@ -37,6 +37,7 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.builder.WideNodeBuilder;
 import io.datarouter.storage.node.entity.EntityNodeParams;
+import io.datarouter.storage.node.tableconfig.TableConfiguration;
 
 public class WideNodeFactory{
 
@@ -100,6 +101,32 @@ public class WideNodeFactory{
 				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix)
 				.withDiagnostics(datarouterCallsiteSettings.getRecordCallsites())
 				.withTableName(tableName);
+		return createSubEntity(entityNodeParams, paramsBuilder.build());
+	}
+
+	//specify entityName, entityNodePrefix tableName, and tableConfiguration
+	@Deprecated
+	public <EK extends EntityKey<EK>,
+			E extends Entity<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D,F>>
+	N subEntityNode(
+			EntityNodeParams<EK,E> entityNodeParams,
+			ClientId clientId,
+			Supplier<D> databeanSupplier,
+			Supplier<F> fielderSupplier,
+			String entityNodePrefix,
+			String tableName,
+			TableConfiguration tableConfiguration){
+		NodeParamsBuilder<PK,D,F> paramsBuilder = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
+				.withClientId(clientId)
+				.withParentName(entityNodeParams.getNodeName())
+				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix)
+				.withDiagnostics(datarouterCallsiteSettings.getRecordCallsites())
+				.withTableName(tableName)
+				.withTableConfiguration(tableConfiguration);
 		return createSubEntity(entityNodeParams, paramsBuilder.build());
 	}
 

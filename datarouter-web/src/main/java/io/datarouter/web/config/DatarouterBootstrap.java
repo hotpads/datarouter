@@ -19,5 +19,4 @@ package io.datarouter.web.config;
  * Marker annotation for quickly locating all the bootstrap files in your IDE.
  */
 public interface DatarouterBootstrap{
-
 }

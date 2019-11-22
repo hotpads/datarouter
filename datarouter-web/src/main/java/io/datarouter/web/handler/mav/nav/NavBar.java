@@ -95,6 +95,7 @@ public abstract class NavBar implements DispatcherServletListener{
 		}
 		return dispatcherServlets.stream()
 				.map(servlet -> servlet.findRuleInContext(href.toString()))
+				.flatMap(Optional::stream)
 				.findFirst();
 	}
 
@@ -145,7 +146,6 @@ public abstract class NavBar implements DispatcherServletListener{
 
 			NavBar auth = getAuthNavBar();
 			Assert.assertThrows(NullPointerException.class, () -> auth.getDispatchRule(null));
-			Assert.assertThrows(IllegalStateException.class, () -> auth.getDispatchRule(URI.create("")));
 
 			for(DatarouterUserRole role : DatarouterUserRole.values()){
 				String pathForRole = BaseRouteSet.BaseRouteSetTests.getPathForRole(role);

@@ -98,13 +98,15 @@ public class ConnectionSqlTableGenerator{
 				}
 				currentIndexColumns.add(columnsByName.get(indexList.getString("COLUMN_NAME")));
 			}
-			SqlIndex index = new SqlIndex(currentIndexName, currentIndexColumns);
-			if("PRIMARY".equals(currentIndexName)){
-				primaryKey = index;
-			}else if(currentIndexUnique){
-				uniqueIndexes.add(index);
-			}else{
-				indexes.add(index);
+			if(currentIndexName != null){
+				SqlIndex index = new SqlIndex(currentIndexName, currentIndexColumns);
+				if("PRIMARY".equals(currentIndexName)){
+					primaryKey = index;
+				}else if(currentIndexUnique){
+					uniqueIndexes.add(index);
+				}else{
+					indexes.add(index);
+				}
 			}
 
 			resultSet = statement.executeQuery("select engine, row_format from information_schema.tables "

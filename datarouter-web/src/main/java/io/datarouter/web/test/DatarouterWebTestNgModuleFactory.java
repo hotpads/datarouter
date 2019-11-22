@@ -20,12 +20,14 @@ import java.util.Arrays;
 import io.datarouter.inject.testng.TestNgModuleFactory;
 import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
+import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
 public class DatarouterWebTestNgModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterWebTestNgModuleFactory(){
 		super(Arrays.asList(
 				new DatarouterWebGuiceModule(),
+				new DatarouterWebTestGuiceModule(),
 				new DatarouterStorageTestGuiceModule()));
 	}
 

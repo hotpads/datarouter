@@ -24,7 +24,7 @@ public class SignedByteFieldKey extends PrimitiveFieldKey<Byte,SignedByteFieldKe
 	}
 
 	@Override
-	public SignedByteField createValueField(final Byte value){
+	public SignedByteField createValueField(Byte value){
 		return new SignedByteField(this, value);
 	}
 

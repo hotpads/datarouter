@@ -21,7 +21,8 @@ public abstract class CheckedLazy<R,E extends Exception> implements Callable<R>{
 
 	private volatile R value;
 
-	protected CheckedLazy(){}
+	protected CheckedLazy(){
+	}
 
 	// work done in load will only happen once
 	protected abstract R load() throws E;

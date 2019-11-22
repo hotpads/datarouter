@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.model.field.Field;
@@ -46,7 +46,7 @@ public class MysqlPreparedStatementBuilder{
 
 	public DatarouterMysqlStatement getWithPrefixes(Config config, String tableName, String indexName,
 			List<Field<?>> selectFields, Collection<? extends FieldSet<?>> keys, List<Field<?>> orderByFields,
-			MysqlTableOptions mysqlTableOptions){
+			MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = new DatarouterMysqlStatement();
 		SqlBuilder.addSelectFromClause(statement.getSql(), tableName, selectFields);
 		SqlBuilder.addForceIndexClause(statement.getSql(), indexName);
@@ -57,7 +57,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	public DatarouterMysqlStatement deleteMulti(Config config, String tableName,
-			Collection<? extends FieldSet<?>> keys, MysqlTableOptions mysqlTableOptions){
+			Collection<? extends FieldSet<?>> keys, MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = new DatarouterMysqlStatement();
 		SqlBuilder.addDeleteFromClause(statement.getSql(), tableName);
 		appendWhereClauseDisjunction(statement, keys, mysqlTableOptions);
@@ -72,7 +72,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	public DatarouterMysqlStatement getMulti(Config config, String tableName, List<Field<?>> selectFields,
-			Collection<? extends FieldSet<?>> keys, String indexName, MysqlTableOptions mysqlTableOptions){
+			Collection<? extends FieldSet<?>> keys, String indexName, MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = select(tableName, selectFields);
 		SqlBuilder.addForceIndexClause(statement.getSql(), indexName);
 		appendWhereClauseDisjunction(statement, keys, mysqlTableOptions);
@@ -82,7 +82,7 @@ public class MysqlPreparedStatementBuilder{
 
 	public <T extends FieldSet<T>> DatarouterMysqlStatement getInRanges(Config config, String tableName,
 			List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields, String indexName,
-			MysqlTableOptions mysqlTableOptions){
+			MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = new DatarouterMysqlStatement();
 		SqlBuilder.addSelectFromClause(statement.getSql(), tableName, selectFields);
 		SqlBuilder.addForceIndexClause(statement.getSql(), indexName);
@@ -104,7 +104,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	public DatarouterMysqlStatement update(String tableName, List<Field<?>> fieldsToUpdate,
-			List<? extends FieldSet<?>> keys, MysqlTableOptions mysqlTableOptions){
+			List<? extends FieldSet<?>> keys, MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = new DatarouterMysqlStatement();
 		SqlBuilder.addUpdateClause(statement.getSql(), tableName);
 		for(Iterator<Field<?>> iterator = fieldsToUpdate.iterator(); iterator.hasNext();){
@@ -140,7 +140,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	public void appendWhereClauseDisjunction(DatarouterMysqlStatement statement,
-			Collection<? extends FieldSet<?>> fieldSets, MysqlTableOptions mysqlTableOptions){
+			Collection<? extends FieldSet<?>> fieldSets, MysqlLiveTableOptions mysqlTableOptions){
 		if(CollectionTool.isEmpty(fieldSets)){
 			return;
 		}
@@ -154,7 +154,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	public void appendSqlNameValue(DatarouterMysqlStatement statement, Field<?> field,
-			MysqlTableOptions mysqlTableOptions){
+			MysqlLiveTableOptions mysqlTableOptions){
 		getSqlNameValueWithOperator(statement, field, mysqlTableOptions, "=");
 	}
 
@@ -169,7 +169,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	public void appendPrefixWhereClauseDisjunction(DatarouterMysqlStatement statement,
-			Collection<? extends FieldSet<?>> keys, MysqlTableOptions mysqlTableOptions){
+			Collection<? extends FieldSet<?>> keys, MysqlLiveTableOptions mysqlTableOptions){
 		int counter = 0;
 		boolean shouldAppendWhere = true;
 		for(FieldSet<?> key : keys){
@@ -182,7 +182,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	private boolean addPrefixWhereClause(DatarouterMysqlStatement statement, FieldSet<?> prefix,
-			MysqlTableOptions mysqlTableOptions, boolean shouldAppendWhere){
+			MysqlLiveTableOptions mysqlTableOptions, boolean shouldAppendWhere){
 		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
 		if(numNonNullFields == 0){
 			return true;
@@ -205,7 +205,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	private void getSqlNameValuePairsEscapedConjunction(DatarouterMysqlStatement statement,
-			Collection<Field<?>> fields, MysqlTableOptions mysqlTableOptions){
+			Collection<Field<?>> fields, MysqlLiveTableOptions mysqlTableOptions){
 		for(Iterator<Field<?>> iterator = fields.iterator(); iterator.hasNext();){
 			appendSqlNameValue(statement, iterator.next(), mysqlTableOptions);
 			if(iterator.hasNext()){
@@ -215,7 +215,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	private void getSqlNameValueWithOperator(DatarouterMysqlStatement statement, Field<?> field,
-			MysqlTableOptions mysqlTableOptions, String operator){
+			MysqlLiveTableOptions mysqlTableOptions, String operator){
 		statement.append(field.getKey().getColumnName());
 		if(field.getValue() == null){
 			throw new RuntimeException(field.getKey().getColumnName() + " should not be null, current sql is "
@@ -227,7 +227,7 @@ public class MysqlPreparedStatementBuilder{
 	}
 
 	private void addRangeWhereClause(DatarouterMysqlStatement statement, Range<? extends FieldSet<?>> range,
-			MysqlTableOptions mysqlTableOptions){
+			MysqlLiveTableOptions mysqlTableOptions){
 		if(range.isEmpty()){
 			statement.append("0");
 			logger.warn("range should probably not be empty at this point {} {}", range, statement.getSql(),

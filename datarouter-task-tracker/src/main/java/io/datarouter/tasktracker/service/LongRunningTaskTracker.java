@@ -20,11 +20,9 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskStatus;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
@@ -32,22 +30,27 @@ import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.tasktracker.TaskTrackerCounters;
+import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskKey;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
+import io.datarouter.tasktracker.web.LongRunningTasksHandler;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.mutable.MutableBoolean;
-import io.datarouter.web.email.DatarouterEmailService;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
+import j2html.TagCreator;
+import j2html.attributes.Attr;
+import j2html.tags.ContainerTag;
 
 public class LongRunningTaskTracker implements TaskTracker{
 	private static final Logger logger = LoggerFactory.getLogger(LongRunningTaskTracker.class);
 
 	private static final Duration HEARTBEAT_PERSIST_PERIOD = Duration.ofSeconds(1);
 
-	private final DatarouterEmailService datarouterEmailService;
+	private final DatarouterTaskTrackerPaths datarouterTaskTrackerPaths;
+	private final DatarouterHtmlEmailService datarouterHtmlEmailService;
 	private final DatarouterProperties datarouterProperties;
-	private final DatarouterService datarouterService;
 	private final DatarouterAdministratorEmailService datarouterAdministratorEmailService;
 	private final LongRunningTaskGraphLink longRunningTaskGraphLink;
 	private final Setting<Boolean> persistSetting;
@@ -57,15 +60,14 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private final LongRunningTaskInfo task;
 	private final Optional<Instant> deadline;
 	private final boolean warnOnReachingInterrupt;
-	private final String uiPath;
 	private final MutableBoolean stopRequested;
 	private volatile Instant lastPersisted;
 	private volatile boolean deadlineAlertAttempted;
 
 	public LongRunningTaskTracker(
-			DatarouterEmailService datarouterEmailService,
+			DatarouterTaskTrackerPaths datarouterTaskTrackerPaths,
+			DatarouterHtmlEmailService datarouterHtmlEmailService,
 			DatarouterProperties datarouterProperties,
-			DatarouterService datarouterService,
 			DatarouterAdministratorEmailService datarouterAdministratorEmailService,
 			LongRunningTaskGraphLink longRunningTaskGraphLink,
 			Setting<Boolean> persistSetting,
@@ -73,11 +75,10 @@ public class LongRunningTaskTracker implements TaskTracker{
 			TaskTrackerCounters counters,
 			LongRunningTaskInfo task,
 			Instant deadline,
-			boolean warnOnReachingInterrupt,
-			String uiPath){
-		this.datarouterEmailService = datarouterEmailService;
+			boolean warnOnReachingInterrupt){
+		this.datarouterTaskTrackerPaths = datarouterTaskTrackerPaths;
+		this.datarouterHtmlEmailService = datarouterHtmlEmailService;
 		this.datarouterProperties = datarouterProperties;
-		this.datarouterService = datarouterService;
 		this.datarouterAdministratorEmailService = datarouterAdministratorEmailService;
 		this.longRunningTaskGraphLink = longRunningTaskGraphLink;
 		this.persistSetting = persistSetting;
@@ -87,7 +88,6 @@ public class LongRunningTaskTracker implements TaskTracker{
 		this.task = task;
 		this.deadline = Optional.ofNullable(deadline);
 		this.warnOnReachingInterrupt = warnOnReachingInterrupt;
-		this.uiPath = uiPath;
 		this.stopRequested = new MutableBoolean(false);
 		this.deadlineAlertAttempted = false;
 	}
@@ -252,19 +252,28 @@ public class LongRunningTaskTracker implements TaskTracker{
 			return;
 		}
 		deadlineAlertAttempted = true;
+		String from = datarouterProperties.getAdministratorEmail();
+		String to = datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv();
+		String subject = "LongRunningTaskTracker deadline reached for " + task.name;
+		String detailsHref = datarouterHtmlEmailService.startLinkBuilder()
+				.withLocalPath(datarouterTaskTrackerPaths.datarouter.longRunningTasks)
+				.withParam(LongRunningTasksHandler.P_name, task.name)
+				.withParam(LongRunningTasksHandler.P_status, LongRunningTasksHandler.ALL_STATUSES_VALUE)
+				.build();
+		var emailBuilder = datarouterHtmlEmailService.startEmailBuilder()
+				.withTitle("Task Timeout")
+				.withTitleHref(detailsHref)
+				.withContent(makeEmailBody(task.name, datarouterProperties.getServerName(), detailsHref));
+		datarouterHtmlEmailService.trySendJ2Html(from, to, subject, emailBuilder);
+	}
 
-		String name = task.name;
-		String explanation = String.format("Deadline reached for %s on %s. Consider extending trigger period.", name,
-				datarouterProperties.getServerName());
-		String aLinkFormat = "<a href=\"%s\">%s</a>";
-		String longRunningTaskLink = String.format(aLinkFormat, getLinkToLongRunningTasksTable(), "LongRunningTasks");
-		String counterLink = String.format(aLinkFormat, longRunningTaskGraphLink.getLink(name), "Counters");
-
-		datarouterEmailService.trySendHtmlEmail(
-				datarouterProperties.getAdministratorEmail(),
-				datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv(),
-				"LongRunningTaskTracker deadline reached for " + name,
-				explanation + "<br>" + longRunningTaskLink + "<br>" + counterLink);
+	private ContainerTag makeEmailBody(String name, String serverName, String detailsHref){
+		var message = TagCreator.p(
+				TagCreator.a("Deadline reached for " + name).withHref(detailsHref),
+				TagCreator.text(String.format(" on %s. Consider extending the trigger period.", serverName)));
+		var counterLink = TagCreator.a("Counters")
+				.attr(Attr.HREF, longRunningTaskGraphLink.getLink(name));
+		return TagCreator.body(message, counterLink);
 	}
 
 	/*------------ persist -----------------*/
@@ -299,18 +308,6 @@ public class LongRunningTaskTracker implements TaskTracker{
 			return false;
 		}
 		return persistSetting.get();
-	}
-
-	/*------------ utility -----------------*/
-
-	private String getLinkToLongRunningTasksTable(){
-		return new URIBuilder()
-				.setScheme("https")
-				.setHost(datarouterService.getPublicDomain())
-				.setPath(datarouterService.getContextPath() + uiPath)
-				.setParameter("name", task.name)
-				.setParameter("status", "all")
-				.toString();
 	}
 
 }

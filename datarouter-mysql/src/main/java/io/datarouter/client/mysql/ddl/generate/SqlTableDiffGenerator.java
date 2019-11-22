@@ -93,7 +93,7 @@ public class SqlTableDiffGenerator{
 	}
 
 	public boolean isPrimaryKeyModified(){
-		return !current.getPrimaryKey().equals(requested.getPrimaryKey());
+		return !current.hasPrimaryKey() || !current.getPrimaryKey().equals(requested.getPrimaryKey());
 	}
 
 	private boolean areColumnsModified(){

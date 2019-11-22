@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.trace.callable;
 
+import io.datarouter.util.tracer.TracedCheckedCallable;
+
 /**
  * Do not use the "CallerRunsPolicy" RejectedExecutionHandler with TracedUncheckedCallable
  */

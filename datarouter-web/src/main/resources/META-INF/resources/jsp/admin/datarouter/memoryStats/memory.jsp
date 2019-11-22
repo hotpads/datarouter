@@ -31,6 +31,7 @@
 	</style>
 	<script>
 	require(['jquery'], function($){
+
 		function createDefinitionTr(label, value, sub = false){
 			return $('<tr>').addClass(sub ? 'sub' : '')
 				.append($('<td>').append(label))
@@ -43,12 +44,13 @@
 		}
 
 		$(function(){
+			$.fn.btnBootstrap = $.fn.button.noConflict()
 			$('#loading-example-btn').click(function(){
 				if(!confirm('Do you really to run the garbage collector on ${serverName}')){
 					return false;
 				}
 				$('#garbage-collector-error').remove()
-				const btn = $(this).button('loading')
+				const btn = $(this).btnBootstrap('loading')
 				btn.siblings('.garbage-collector-results').remove()
 				const start = new Date().getTime()
 				const interval = setInterval(function() {
@@ -57,7 +59,7 @@
 				}, 100)
 				$.get("${contextPath}/datarouter/memory/garbageCollector?serverName=${serverName}").done(function(response){
 					window.clearInterval(interval)
-					btn.text('Run garbage collector').button('reset')
+					btn.text('Run garbage collector').btnBootstrap('reset')
 					if(response.success){
 						btn.after($('<div>').addClass('garbage-collector-results card p-2 mb-2')
 							.append($('<h5>').text('Previous manual run'))

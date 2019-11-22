@@ -43,7 +43,7 @@ The storage framework is composed of several constructs:
 - Node: an interface through which you put, get, scan, and delete databeans
 - Client: a physical connection to a datastore
 - Datarouter: a container for clients and nodes
-- Router: a collection of related nodes
+- Dao: a class that contains and interacts with nodes
 
 ## Design goals
 

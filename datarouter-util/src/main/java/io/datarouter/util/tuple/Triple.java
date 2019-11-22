@@ -25,7 +25,8 @@ public class Triple<A,B,C> implements Serializable{
 	protected B second;
 	protected C third;
 
-	public Triple(){}
+	public Triple(){
+	}
 
 	public Triple(A first, B second, C third){
 		this.first = first;

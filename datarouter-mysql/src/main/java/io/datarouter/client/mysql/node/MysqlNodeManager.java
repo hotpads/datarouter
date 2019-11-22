@@ -25,6 +25,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.execution.MysqlOpRetryTool;
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
@@ -89,6 +90,8 @@ public class MysqlNodeManager{
 	private ManagedNodesHolder managedNodesHolder;
 	@Inject
 	private SessionExecutor sessionExecutor;
+	@Inject
+	public MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> boolean exists(
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, PK key, Config config){
@@ -164,7 +167,8 @@ public class MysqlNodeManager{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getByIndex;
 		BaseMysqlOp<List<D>> op = new MysqlGetByIndexOp<>(datarouter, fieldInfo, fieldCodecFactory,
-				mysqlPreparedStatementBuilder, mysqlClientType, indexEntryFieldInfo, keys, config);
+				mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher, mysqlClientType, indexEntryFieldInfo,
+				keys, config);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -178,7 +182,8 @@ public class MysqlNodeManager{
 		IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getIndexRange;
 		MysqlManagedIndexGetRangesOp<PK,D,F,IK,IE,IF> op = new MysqlManagedIndexGetRangesOp<>(datarouter, fieldInfo,
-				fieldCodecFactory, mysqlPreparedStatementBuilder, indexEntryFieldInfo, ranges, config, mysqlClientType);
+				fieldCodecFactory, mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher, indexEntryFieldInfo,
+				ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -192,8 +197,8 @@ public class MysqlNodeManager{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getIndexKeyRange;
 		MysqlManagedIndexGetKeyRangesOp<PK,D,F,IK,IE,IF> op = new MysqlManagedIndexGetKeyRangesOp<>(datarouter,
-				fieldInfo, fieldCodecFactory, mysqlPreparedStatementBuilder, indexEntryFieldInfo, ranges, config,
-				mysqlClientType);
+				fieldInfo, fieldCodecFactory, mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher,
+				indexEntryFieldInfo, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -207,8 +212,8 @@ public class MysqlNodeManager{
 			Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getByIndexRange;
 		MysqlManagedIndexGetDatabeanRangesOp<PK,D,F,IK,IE,IF> op = new MysqlManagedIndexGetDatabeanRangesOp<>(
-				datarouter, fieldInfo, fieldCodecFactory, mysqlPreparedStatementBuilder, indexEntryFieldInfo, ranges,
-				config, mysqlClientType);
+				datarouter, fieldInfo, fieldCodecFactory, mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher,
+				indexEntryFieldInfo, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -219,7 +224,8 @@ public class MysqlNodeManager{
 		}
 		String opName = SortedStorageReader.OP_getKeysInRange;
 		MysqlGetPrimaryKeyRangesOp<PK,D,F> op = new MysqlGetPrimaryKeyRangesOp<>(datarouter, fieldInfo,
-				fieldCodecFactory, mysqlPreparedStatementBuilder, ranges, config, mysqlClientType);
+				fieldCodecFactory, mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher, ranges, config,
+				mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -230,14 +236,14 @@ public class MysqlNodeManager{
 		}
 		String opName = SortedStorageReader.OP_getRange;
 		MysqlGetRangesOp<PK,D,F> op = new MysqlGetRangesOp<>(datarouter, fieldInfo, fieldCodecFactory,
-				mysqlPreparedStatementBuilder, ranges, config, mysqlClientType);
+				mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	void put(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, D databean, Config config){
-		MysqlPutOp<PK,D,F> op = new MysqlPutOp<>(datarouter, fieldInfo, this, mysqlPreparedStatementBuilder, ListTool
-				.wrap(databean), config);
+		MysqlPutOp<PK,D,F> op = new MysqlPutOp<>(datarouter, fieldInfo, this, mysqlPreparedStatementBuilder,
+				mysqlLiveTableOptionsRefresher, ListTool.wrap(databean), config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
@@ -246,8 +252,8 @@ public class MysqlNodeManager{
 		if(CollectionTool.isEmpty(databeans)){
 			return;// avoid starting txn
 		}
-		MysqlPutOp<PK,D,F> op = new MysqlPutOp<>(datarouter, fieldInfo, this, mysqlPreparedStatementBuilder, databeans,
-				config);
+		MysqlPutOp<PK,D,F> op = new MysqlPutOp<>(datarouter, fieldInfo, this, mysqlPreparedStatementBuilder,
+				mysqlLiveTableOptionsRefresher, databeans, config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
@@ -260,7 +266,7 @@ public class MysqlNodeManager{
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	void delete(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, PK key, Config config){
 		MysqlDeleteOp<PK,D,F> op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
-				ListTool.wrap(key), config);
+				mysqlLiveTableOptionsRefresher, ListTool.wrap(key), config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
@@ -269,8 +275,8 @@ public class MysqlNodeManager{
 		if(CollectionTool.isEmpty(keys)){
 			return;// avoid starting txn
 		}
-		MysqlDeleteOp<PK,D,F> op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder, keys,
-				config);
+		MysqlDeleteOp<PK,D,F> op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
+				mysqlLiveTableOptionsRefresher, keys, config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
@@ -278,7 +284,7 @@ public class MysqlNodeManager{
 	void deleteUnique(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageWriter.OP_deleteUnique;
 		MysqlUniqueIndexDeleteOp<PK,D,F> op = new MysqlUniqueIndexDeleteOp<>(datarouter, mysqlPreparedStatementBuilder,
-				fieldInfo, ListTool.wrap(uniqueKey), config);
+				mysqlLiveTableOptionsRefresher, fieldInfo, ListTool.wrap(uniqueKey), config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, getTraceName(fieldInfo.getNodeName(), opName)),
 				config);
 	}
@@ -291,7 +297,7 @@ public class MysqlNodeManager{
 			return;// avoid starting txn
 		}
 		MysqlUniqueIndexDeleteOp<PK,D,F> op = new MysqlUniqueIndexDeleteOp<>(datarouter, mysqlPreparedStatementBuilder,
-				fieldInfo, uniqueKeys, config);
+				mysqlLiveTableOptionsRefresher, fieldInfo, uniqueKeys, config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, getTraceName(fieldInfo.getNodeName(), opName)),
 				config);
 	}
@@ -301,8 +307,8 @@ public class MysqlNodeManager{
 			F extends DatabeanFielder<PK,D>,
 			IK extends PrimaryKey<IK>>
 	void deleteByIndex(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<IK> keys, Config config){
-		BaseMysqlOp<Long> op = new MysqlDeleteByIndexOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder, keys,
-				config);
+		BaseMysqlOp<Long> op = new MysqlDeleteByIndexOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
+				mysqlLiveTableOptionsRefresher, keys, config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, IndexedStorageWriter.OP_deleteMultiUnique), config);
 	}
 

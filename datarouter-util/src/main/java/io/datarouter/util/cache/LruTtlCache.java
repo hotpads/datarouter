@@ -94,6 +94,14 @@ public class LruTtlCache<K,V>{
 		return getIfNotExpired(key) != null;
 	}
 
+	public synchronized void invalidate(){
+		map.clear();
+	}
+
+	public synchronized int currentSize(){
+		return map.size();
+	}
+
 	private synchronized V getIfNotExpired(K key){
 		CachedObject<V> object = map.get(key);
 		if(object == null){

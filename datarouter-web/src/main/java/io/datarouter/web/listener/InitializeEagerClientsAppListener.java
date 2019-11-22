@@ -24,10 +24,10 @@ import io.datarouter.storage.dao.Daos;
 @Singleton
 public class InitializeEagerClientsAppListener implements DatarouterAppListener{
 
-	// To force initialize routers so that they register their clients with Datarouter.
+	// To force initialize daos so that they register their clients with Datarouter.
 	@SuppressWarnings("unused")
 	@Inject
-	private Daos routers;
+	private Daos daos;
 	@Inject
 	private DatarouterClients datarouterClients;
 

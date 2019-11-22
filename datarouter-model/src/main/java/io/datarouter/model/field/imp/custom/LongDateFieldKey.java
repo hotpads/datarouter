@@ -39,7 +39,7 @@ public class LongDateFieldKey extends PrimitiveFieldKey<Date,LongDateFieldKey>{
 	}
 
 	@Override
-	public LongDateField createValueField(final Date value){
+	public LongDateField createValueField(Date value){
 		return new LongDateField(this, value);
 	}
 

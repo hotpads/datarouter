@@ -53,7 +53,7 @@ public class DoubleByteTool{
 		return getBytes(in);
 	}
 
-	public static byte[] getBytes(final double in){
+	public static byte[] getBytes(double in){
 		long bits = Double.doubleToLongBits(in);
 		return LongByteTool.getRawBytes(bits);
 	}

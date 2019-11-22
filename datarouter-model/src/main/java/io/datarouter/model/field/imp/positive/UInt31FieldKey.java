@@ -34,7 +34,7 @@ public class UInt31FieldKey extends PrimitiveFieldKey<Integer,UInt31FieldKey>{
 	}
 
 	@Override
-	public UInt31Field createValueField(final Integer value){
+	public UInt31Field createValueField(Integer value){
 		return new UInt31Field(this, value);
 	}
 

@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.browse;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -44,6 +45,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalInteger;
 import io.datarouter.web.user.session.CurrentUserSessionInfo;
+import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.http.RequestTool;
 
 public class ViewNodeDataHandler extends InspectNodeDataHandler{
@@ -92,9 +94,13 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 
 		PK startKey = null;
 		if(StringTool.notEmpty(startKeyString)){
-			startKey = (PK)PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(),
-					startKeyString);
-			mav.put(PARAM_startKey, PrimaryKeyPercentCodec.encode(startKey));
+			try{
+				startKey = (PK)PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(),
+						startKeyString);
+				mav.put(PARAM_startKey, PrimaryKeyPercentCodec.encode(startKey));
+			}catch(RuntimeException e){
+				return new MessageMav(ExceptionTool.getStackTraceAsString(e));
+			}
 		}
 
 		boolean startInclusive = true;
@@ -121,7 +127,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		Config config = new Config()
 				.setOutputBatchSize(batchSize.orElse(1000))
 				.setScannerCaching(false) //disabled due to BigTable bug?
-				.setTimeout(1, TimeUnit.MINUTES)
+				.setTimeout(Duration.ofMinutes(1))
 				.setSlaveOk(true)
 				.setNumAttempts(1);
 		limit.ifPresent(config::setLimit);
@@ -167,7 +173,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				NumberFormatter.addCommas(avgRps), duration, currentUser);
 		String subject = "Finished counting " + node.getName();
 		try{
-			emailService.sendEmail(currentUser, to, subject, emailMessage, true);
+			emailService.send(currentUser, to, subject, emailMessage, true);
 		}catch(MessagingException e){
 			logger.warn(e.getMessage());
 		}

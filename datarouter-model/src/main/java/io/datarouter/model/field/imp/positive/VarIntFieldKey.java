@@ -24,7 +24,7 @@ public class VarIntFieldKey extends PrimitiveFieldKey<Integer,VarIntFieldKey>{
 	}
 
 	@Override
-	public VarIntField createValueField(final Integer value){
+	public VarIntField createValueField(Integer value){
 		return new VarIntField(this, value);
 	}
 

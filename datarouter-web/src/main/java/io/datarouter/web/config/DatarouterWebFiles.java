@@ -114,8 +114,16 @@ public class DatarouterWebFiles extends FilesRoot{
 	}
 
 	public static class CssFiles extends PathNode{
+		public final NavbarCssFiles navbar = branch(NavbarCssFiles::new, "navbar");
 		public final PathNode commonCss = leaf("common.css");
 		public final PathNode newCommonCss = leaf("new-common.css");
+	}
+
+	public static class NavbarCssFiles extends PathNode{
+		public final PathNode navbarCss = leaf("navbar.css");
+		public final PathNode navbarV2Css = leaf("navbar-v2.css");
+		public final PathNode navbarV2MultiWebappCss = leaf("navbar-v2-multi-webapp.css");
+		public final PathNode navbarV2SingleWebappCss = leaf("navbar-v2-single-webapp.css");
 	}
 
 	public static class DygraphFiles extends PathNode{
@@ -175,6 +183,8 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final JsUtilFiles util = branch(JsUtilFiles::new, "util");
 		public final PathNode accountManagerJs = leaf("accountManager.js");
 		public final PathNode coreCommonJs = leaf("core-common.js");
+		public final PathNode navbarRequestTimingJs = leaf("navbar-request-timing.js");
+		public final PathNode navbarRequestTimingV2Js = leaf("navbar-request-timing-v2.js");
 		public final PathNode viewUsersJsx = leaf("viewUsers.jsx");
 	}
 
@@ -219,7 +229,6 @@ public class DatarouterWebFiles extends FilesRoot{
 	}
 
 	public static class JspAuthenticationFiles extends PathNode{
-		public final PathNode accountManagerJsp = leaf("accountManager.jsp");
 		public final PathNode createUserFormJsp = leaf("createUserForm.jsp");
 		public final PathNode editUserFormJsp = leaf("editUserForm.jsp");
 		public final PathNode permissionRequestJsp = leaf("permissionRequest.jsp");

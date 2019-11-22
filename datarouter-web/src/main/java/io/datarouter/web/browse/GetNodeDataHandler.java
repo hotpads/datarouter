@@ -56,15 +56,12 @@ public class GetNodeDataHandler extends InspectNodeDataHandler{
 		@SuppressWarnings("unchecked")
 		Node<PK,?,?> node = (Node<PK,?,?>)nodes.getNode(nodeName);
 
+		limit = mav.put(PARAM_limit, params.optionalInteger(PARAM_limit).orElse(100));
+
 		List<String> fieldValues = getFieldValues(node);
 
 		String encodedPk = PercentFieldCodec.encode(fieldValues.stream());
-		PK primaryKey;
-		try{
-			primaryKey = PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
-		}catch(NumberFormatException e){
-			return new MessageMav("NumberFormatException: " + e);
-		}
+		PK primaryKey = PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
 		@SuppressWarnings("unchecked")
 		MapStorageReader<PK,D> mapStorageNode = (MapStorageReader<PK,D>)node;
 		if(!mapStorageNode.exists(primaryKey)){
@@ -72,7 +69,7 @@ public class GetNodeDataHandler extends InspectNodeDataHandler{
 		}
 		D mapDatabean = mapStorageNode.get(primaryKey);
 		List<D> databeans = ListTool.wrap(mapDatabean);
-		addDatabeanToMav(mav, databeans);
+		addDatabeansToMav(mav, databeans);
 		logger.warn("Retrieved databean {}", encodedPk);
 		return mav;
 	}

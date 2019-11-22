@@ -29,7 +29,7 @@ import org.apache.commons.fileupload.FileUploadException;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.config.ServletContextProvider;
+import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.params.MultipartParams;
 import io.datarouter.web.handler.params.Params;
@@ -54,7 +54,7 @@ public class Dispatcher{
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
-	private ServletContextProvider servletContextProvider;
+	private ServletContextSupplier servletContext;
 	@Inject
 	private DatarouterInjector injector;
 	@Inject
@@ -67,11 +67,11 @@ public class Dispatcher{
 	public RoutingResult handleRequestIfUrlMatch(HttpServletRequest request, HttpServletResponse response,
 			BaseRouteSet routeSet) throws ServletException, IOException{
 		String uri = request.getRequestURI();
-		if(!uri.startsWith(servletContextProvider.get().getContextPath() + routeSet.getUrlPrefix())){
+		if(!uri.startsWith(servletContext.get().getContextPath() + routeSet.getUrlPrefix())){
 			return RoutingResult.NOT_FOUND;
 		}
 		BaseHandler handler = null;
-		String afterContextPath = uri.substring(servletContextProvider.get().getContextPath().length());
+		String afterContextPath = uri.substring(servletContext.get().getContextPath().length());
 		if(afterContextPath.contains(JSESSIONID_PATH_PARAM)){
 			afterContextPath = afterContextPath.substring(0, afterContextPath.indexOf(JSESSIONID_PATH_PARAM));
 		}
@@ -108,7 +108,7 @@ public class Dispatcher{
 
 		handler.setRequest(request);
 		handler.setResponse(response);
-		handler.setServletContext(servletContextProvider.get());
+		handler.setServletContext(servletContext.get());
 		Params params = parseParams(request, handler.getDefaultMultipartCharset());
 		handler.setParams(params);
 		handler.handleWrapper();

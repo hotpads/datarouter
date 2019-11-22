@@ -40,12 +40,12 @@ public class MysqlWebInspector implements DatarouterClientWebInspector{
 
 	@Override
 	public Mav inspectClient(Params params){
-		DatarouterWebRequestParams<MysqlClientType> routerParams = datarouterWebRequestParamsFactory
+		DatarouterWebRequestParams<MysqlClientType> nodeParams = datarouterWebRequestParamsFactory
 				.new DatarouterWebRequestParams<>(params, MysqlClientType.class);
 		Mav mav = new Mav(files.jsp.admin.datarouter.mysql.mysqlClientSummaryJsp);
-		MysqlClientManager clientManager = injector.getInstance(routerParams.getClientType().getClientManagerClass());
-		mav.put("clientStats", clientManager.getStats(routerParams.getClientId()));
-		mav.put("nodes", nodes.getPhysicalNodesForClient(routerParams.getClientId().getName()));
+		MysqlClientManager clientManager = injector.getInstance(nodeParams.getClientType().getClientManagerClass());
+		mav.put("clientStats", clientManager.getStats(nodeParams.getClientId()));
+		mav.put("nodes", nodes.getPhysicalNodesForClient(nodeParams.getClientId().getName()));
 		return mav;
 	}
 

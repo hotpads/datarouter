@@ -20,13 +20,18 @@
 <module name="Checker">
 	<property name="charset" value="UTF-8"/>
 	<property name="severity" value="warning"/>
+	<property name="tabWidth" value="4"/>
 	<module name="FileTabCharacter">
 		<property name="eachLine" value="false"/>
 		<property name="fileExtensions" value="{}"/>
 	</module>
 	<module name="SuppressWarningsFilter" />
+	<module name="LineLength">
+		<property name="max" value="120"/>
+		<property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+		<property name="fileExtensions" value="java" />
+	</module>
 	<module name="TreeWalker">
-		<property name="tabWidth" value="4"/>
 		<module name="SuppressWarningsHolder" />
 		<module name="OuterTypeFilename"/>
 		<module name="IllegalTokenText">
@@ -38,10 +43,6 @@
 			<property name="allowEscapesForControlCharacters" value="true"/>
 			<property name="allowByTailComment" value="true"/>
 			<property name="allowNonPrintableEscapes" value="true"/>
-		</module>
-		<module name="LineLength">
-			<property name="max" value="120"/>
-			<property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
 		</module>
 		<module name="AvoidStarImport"/>
 		<module name="OneTopLevelClass"/>
@@ -209,6 +210,7 @@
 		</module>
 		<module name="WhitespaceAround">
 			<property name="tokens" value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAMBDA, LAND, LE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, SL, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN"/>
+			<property name="ignoreEnhancedForColon" value="false" />
 		</module>
 		<module name="NoWhitespaceAfter"/>
 		<module name="NoWhitespaceBefore">
@@ -219,7 +221,7 @@
 		<module name="SingleSpaceSeparator"/>
 		<module name="TypecastParenPad"/>
 		<module name="AvoidStaticImport">
-			<property name="excludes" value="java.lang.System.out,java.lang.Math.*"/>
+			<property name="excludes" value="java.lang.System.out,java.lang.Math.*,org.mockito.Mockito.*,j2html.TagCreator.*"/>
 		</module>
 	</module>
 </module>

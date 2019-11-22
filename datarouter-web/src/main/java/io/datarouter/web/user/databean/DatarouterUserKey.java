@@ -36,7 +36,8 @@ public class DatarouterUserKey extends BaseRegularPrimaryKey<DatarouterUserKey>{
 		return Arrays.asList(new UInt63Field(FieldKeys.id, id));
 	}
 
-	public DatarouterUserKey(){}
+	public DatarouterUserKey(){
+	}
 
 	public DatarouterUserKey(Long id){
 		this.id = id;

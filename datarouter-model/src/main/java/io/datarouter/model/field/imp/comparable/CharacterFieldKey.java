@@ -24,7 +24,7 @@ public class CharacterFieldKey extends PrimitiveFieldKey<Character,CharacterFiel
 	}
 
 	@Override
-	public CharacterField createValueField(final Character value){
+	public CharacterField createValueField(Character value){
 		return new CharacterField(this, value);
 	}
 

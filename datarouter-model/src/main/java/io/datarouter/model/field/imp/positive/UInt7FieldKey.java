@@ -24,7 +24,7 @@ public class UInt7FieldKey extends PrimitiveFieldKey<Byte,UInt7FieldKey>{
 	}
 
 	@Override
-	public UInt7Field createValueField(final Byte value){
+	public UInt7Field createValueField(Byte value){
 		return new UInt7Field(this, value);
 	}
 

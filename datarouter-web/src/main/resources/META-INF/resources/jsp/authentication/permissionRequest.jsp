@@ -11,10 +11,10 @@
 <%@ include file="/jsp/menu/common-navbar.jsp"%>
 <div class="container-fluid">
 	<div>
-		<p>Welcome to ${appName}. <a href="${contextPath}/signout">Sign out</a></p>
+		<p>Welcome to ${serviceName}. <a href="${contextPath}/signout">Sign out</a></p>
 		<c:choose>
 		<c:when test="${currentRequest != null}">
-			<p>You already have an open permission request for ${appName}. You may submit another request to replace it.</p>
+			<p>You already have an open permission request for ${serviceName}. You may submit another request to replace it.</p>
 			<p>
 				Time Requested: ${currentRequest.key.requestTime}
 				<br>
@@ -24,7 +24,7 @@
 			</p>
 		</c:when>
 		<c:otherwise>
-			<p>If you need (additional) permissions to use ${appName}, submit the form below, and the administrator will follow up.</p>
+			<p>If you need (additional) permissions to use ${serviceName}, submit the form below, and the administrator will follow up.</p>
 		</c:otherwise>
 		</c:choose>
 		<p>You will need to <a href="${contextPath}/signout">Sign Out</a> and sign back in to refresh your permissions</p>
@@ -34,7 +34,7 @@
 		<div class="well">
 			<div class="control-group">
 				<div class="controls">
-					<label for="reason">Why you want to access ${appName}:</label><br>
+					<label for="reason">Why you want to access ${serviceName}:</label><br>
 					<textarea name="reason" autofocus="autofocus" rows="4" cols = "50" required></textarea>
 				</div>
 				<div class="controls">

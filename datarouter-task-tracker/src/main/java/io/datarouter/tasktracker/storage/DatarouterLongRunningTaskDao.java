@@ -48,6 +48,7 @@ public class DatarouterLongRunningTaskDao extends BaseDao{
 			DatarouterLongRunningTaskDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, LongRunningTask::new, LongRunningTaskFielder::new)
+				.setSamplerPercentageChangedAlertEnabled(false)
 				.buildAndRegister();
 	}
 

@@ -34,7 +34,7 @@ public class PrimitiveIntegerArrayFieldKey extends BaseFieldKey<int[],PrimitiveI
 	}
 
 	@Override
-	public PrimitiveIntegerArrayField createValueField(final int[] value){
+	public PrimitiveIntegerArrayField createValueField(int[] value){
 		return new PrimitiveIntegerArrayField(this, value);
 	}
 

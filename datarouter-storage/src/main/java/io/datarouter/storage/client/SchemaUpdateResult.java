@@ -21,10 +21,12 @@ public class SchemaUpdateResult{
 
 	public final String ddl;
 	public final Optional<String> startupBlockReason;
+	public final ClientId clientId;
 
-	public SchemaUpdateResult(String ddl, String startupBlockReason){
+	public SchemaUpdateResult(String ddl, String startupBlockReason, ClientId clientId){
 		this.ddl = ddl;
 		this.startupBlockReason = Optional.ofNullable(startupBlockReason);
+		this.clientId = clientId;
 	}
 
 }

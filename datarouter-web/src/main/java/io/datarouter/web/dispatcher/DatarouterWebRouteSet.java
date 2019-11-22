@@ -24,6 +24,7 @@ import io.datarouter.web.browse.DeleteNodeDataHandler;
 import io.datarouter.web.browse.GetNodeDataHandler;
 import io.datarouter.web.browse.NodeSearchHandler;
 import io.datarouter.web.browse.ViewNodeDataHandler;
+import io.datarouter.web.browse.ViewTableConfigurationHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.IpDetectionHandler;
 import io.datarouter.web.handler.TestApiHandler;
@@ -52,6 +53,7 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.nodes.deleteData).withHandler(DeleteNodeDataHandler.class);
 		handle(paths.datarouter.nodes.getData).withHandler(GetNodeDataHandler.class);
 		handle(paths.datarouter.nodes.search).withHandler(NodeSearchHandler.class);
+		handle(paths.datarouter.tableConfiguration).withHandler(ViewTableConfigurationHandler.class);
 		handleDir(paths.datarouter.client).withHandler(DatarouterClientHandler.class);
 		handle(paths.datarouter.ipDetection).withHandler(IpDetectionHandler.class).allowAnonymous();
 		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();

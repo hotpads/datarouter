@@ -28,7 +28,7 @@ public class UInt7ArrayFieldKey extends ListFieldKey<Byte,List<Byte>,UInt7ArrayF
 	}
 
 	@Override
-	public UInt7ArrayField createValueField(final List<Byte> value){
+	public UInt7ArrayField createValueField(List<Byte> value){
 		return new UInt7ArrayField(this, value);
 	}
 

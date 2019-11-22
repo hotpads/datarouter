@@ -19,7 +19,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 
-import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
+import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
@@ -40,14 +41,17 @@ public class MysqlUniqueIndexDeleteOp<
 extends BaseMysqlOp<Integer>{
 
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
+	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final Collection<? extends UniqueKey<PK>> uniqueKeys;
 	private final Config config;
 
 	public MysqlUniqueIndexDeleteOp(Datarouter datarouter, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, shouldAutoCommit(uniqueKeys));
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
+		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
 		this.fieldInfo = fieldInfo;
 		this.uniqueKeys = uniqueKeys;
 		this.config = config;
@@ -56,8 +60,11 @@ extends BaseMysqlOp<Integer>{
 	@Override
 	public Integer runOnce(){
 		Connection connection = getConnection();
-		PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, fieldInfo.getTableName(),
-				uniqueKeys, MysqlTableOptions.make(fieldInfo.getSampleFielder())).toPreparedStatement(connection);
+		String tableName = fieldInfo.getTableName();
+		MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
+		PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, tableName,
+				uniqueKeys, mysqlLiveTableOptions)
+				.toPreparedStatement(connection);
 		return MysqlTool.update(statement);
 	}
 

@@ -50,9 +50,9 @@ extends NodeOps<PK,D>{
 		return exists(key, new Config());
 	}
 
-	List<PK> getKeys(final Collection<PK> keys, final Config config);
+	List<PK> getKeys(Collection<PK> keys, Config config);
 
-	default List<PK> getKeys(final Collection<PK> keys){
+	default List<PK> getKeys(Collection<PK> keys){
 		return getKeys(keys, new Config());
 	}
 

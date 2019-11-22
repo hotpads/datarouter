@@ -38,7 +38,7 @@ public class DoubleFieldKey extends PrimitiveFieldKey<Double,DoubleFieldKey>{
 	}
 
 	@Override
-	public DoubleField createValueField(final Double value){
+	public DoubleField createValueField(Double value){
 		return new DoubleField(this, value);
 	}
 

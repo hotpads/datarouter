@@ -51,16 +51,16 @@ public abstract class BaseMysqlOp<T>{
 		return null;
 	}
 
-	public ClientId getClientId(){
-		return clientId;
-	}
-
 	public Isolation getIsolation(){
 		return isolation;
 	}
 
 	public boolean isAutoCommit(){
 		return autoCommit;
+	}
+
+	public ClientId getClientId(){
+		return clientId;
 	}
 
 }
