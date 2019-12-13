@@ -17,13 +17,12 @@ package io.datarouter.storage.node.adapter.callsite;
 
 import java.util.Collection;
 
-import io.datarouter.storage.config.Config;
 import io.datarouter.util.lang.LineOfCode;
 
 public interface CallsiteAdapter{
 
-	void recordCallsite(Config config, long startNs, int numItems);
-	void recordCollectionCallsite(Config config, long startTimeNs, Collection<?> items);
+	void recordCallsite(LineOfCode lineOfCode, long startNs, int numItems);
+	void recordCollectionCallsite(LineOfCode lineOfCode, long startTimeNs, Collection<?> items);
 	LineOfCode getCallsite();
 
 }

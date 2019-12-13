@@ -15,27 +15,28 @@
  */
 package io.datarouter.instrumentation.trace;
 
-import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 // TODO migrate to a better class name
 public interface Tracer{
 
 	String getServerName();
 	String getTraceId();
-	List<TraceThreadDto> getThreads();
-	List<TraceSpanDto> getSpans();
+	BlockingQueue<TraceThreadDto> getThreadQueue();
+	BlockingQueue<TraceSpanDto> getSpanQueue();
 
 	Long getCurrentThreadId();
 	Integer getDiscardedThreadCount();
-	void incrementDiscardedThreadCount(int discardedThreadCount);
 
 	void createAndStartThread(String name, long queueTimeMs);
 	void createThread(String name, long queueTimeMs);
 	void startThread();
+	void addThread(TraceThreadDto thread);
 	void appendToThreadInfo(String text);
 	void finishThread();
 
 	void startSpan(String name);
+	void addSpan(TraceSpanDto span);
 	void appendToSpanInfo(String text);
 	void finishSpan();
 

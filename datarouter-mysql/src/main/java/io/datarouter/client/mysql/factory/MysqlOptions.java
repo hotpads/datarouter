@@ -15,17 +15,35 @@
  */
 package io.datarouter.client.mysql.factory;
 
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.secret.client.SecretClientSupplier;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.web.handler.encoder.HandlerEncoder;
 
 @Singleton
 public class MysqlOptions{
+	private static final Logger logger = LoggerFactory.getLogger(MysqlOptions.class);
 
 	@Inject
 	private ClientOptions clientOptions;
+	@Inject
+	private SecretClientSupplier secretClientSupplier;
+	@Inject
+	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
+	private JsonSerializer jsonSerializer;
+
+	private final ConcurrentHashMap<String,String> clientPasswords = new ConcurrentHashMap<String,String>();
 
 	public String url(ClientId clientId){
 		return clientOptions.getRequiredString(clientId.getName(), "url");
@@ -36,7 +54,22 @@ public class MysqlOptions{
 	}
 
 	public String password(String clientName, String def){
-		return clientOptions.getStringClientPropertyOrDefault("password", clientName, def);
+		return clientPasswords.computeIfAbsent(clientName, $ -> {
+			Optional<String> optionalSecretLocation = Optional.ofNullable(clientOptions
+					.getStringClientPropertyOrDefault("password.location", clientName, null));
+			return optionalSecretLocation.map(secretLocation -> {
+				try{
+					String result = jsonSerializer.deserialize(secretClientSupplier.get().read(secretLocation)
+							.getValue(), String.class);
+					logger.info("using secret at secretLocation={}", secretLocation);
+					return result;
+				}catch(RuntimeException e){
+					logger.error("Failed to locate secretLocation=" + secretLocation + " for clientName=" + clientName,
+							e);
+					return (String)null;
+				}
+			}).orElseGet(() -> clientOptions.getStringClientPropertyOrDefault("password", clientName, def));
+		});
 	}
 
 	public Integer minPoolSize(String clientName, Integer def){

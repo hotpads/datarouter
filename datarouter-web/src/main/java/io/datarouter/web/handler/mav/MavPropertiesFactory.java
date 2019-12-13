@@ -26,9 +26,9 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.lazy.Lazy;
-import io.datarouter.web.handler.mav.nav.AppNavBar;
-import io.datarouter.web.handler.mav.nav.DatarouterNavBar;
 import io.datarouter.web.listener.TomcatWebAppNamesWebAppListener;
+import io.datarouter.web.navigation.AppNavBar;
+import io.datarouter.web.navigation.DatarouterNavBar;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
 

@@ -16,9 +16,9 @@
 package io.datarouter.util.tracer;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +46,10 @@ public class DatarouterTracer implements Tracer{
 	private int discardedThreadCount = 0;
 
 	private TraceThreadDto currentThread;//should we be holding a map of current threads?  not sure yet
-	private final List<TraceThreadDto> threads = Collections.synchronizedList(new LinkedList<>());
+	private final BlockingQueue<TraceThreadDto> threadQueue = new ArrayBlockingQueue<>(MAX_THREADS);
 
 	private final List<TraceSpanDto> spanStack = new ArrayList<>();
-	private final List<TraceSpanDto> spans = Collections.synchronizedList(new LinkedList<>());
+	private final BlockingQueue<TraceSpanDto> spanQueue = new ArrayBlockingQueue<>(MAX_SPANS);
 
 	public DatarouterTracer(String serverName, String traceId, Long traceThreadParentId){
 		this.serverName = serverName;
@@ -119,15 +119,16 @@ public class DatarouterTracer implements Tracer{
 		TraceThreadDto thread = getCurrentThread();
 		thread.markFinish();
 		setCurrentThread(null);
-		synchronized(this){
-			if(getThreads().size() < MAX_THREADS){
-				getThreads().add(thread);
-				return;
-			}
+		addThread(thread);
+	}
+
+	@Override
+	public void addThread(TraceThreadDto thread){
+		if(!getThreadQueue().offer(thread)){
+			++discardedThreadCount;
+			logger.debug("cannot add thread, max capacity reached traceId={}, discarded thread count={}", traceId,
+					discardedThreadCount);
 		}
-		++discardedThreadCount;
-		logger.debug("cannot add thread, max capacity reached traceId={}, discarded thread count={}", traceId,
-				discardedThreadCount);
 	}
 
 
@@ -165,19 +166,24 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void finishSpan(){
-		if(getCurrentSpan() == null){
+		if(getCurrentSpan() == null || getCurrentThread() == null){
 			return;
 		}
 		TraceSpanDto span = popSpanFromStack();
 		span.markFinish();
-		synchronized(this){
-			if(getSpans().size() < MAX_SPANS){
-				getSpans().add(span);
-				return;
-			}
+		addSpan(span);
+	}
+
+	@Override
+	public void addSpan(TraceSpanDto span){
+		if(currentThread == null){
+			return;
 		}
-		currentThread.setDiscardedSpanCount(++discardedSpanCount);
-		logger.debug("cannot add span, max capacity traceId={}, discarded span count={}", traceId, discardedSpanCount);
+		if(!getSpanQueue().offer(span)){
+			currentThread.setDiscardedSpanCount(++discardedSpanCount);
+			logger.debug("cannot add span, max capacity traceId={}, discarded span count={}", traceId,
+					discardedSpanCount);
+		}
 	}
 
 	/*---------------------------- private TraceSpan ------------------------*/
@@ -212,27 +218,23 @@ public class DatarouterTracer implements Tracer{
 	}
 
 	@Override
-	public void incrementDiscardedThreadCount(int discardedThreadCount){
-		this.discardedThreadCount += discardedThreadCount;
-	}
-
-	@Override
 	public Integer getDiscardedThreadCount(){
 		return discardedThreadCount;
 	}
+
 
 	public void setCurrentThread(TraceThreadDto currentThread){
 		this.currentThread = currentThread;
 	}
 
 	@Override
-	public List<TraceThreadDto> getThreads(){
-		return threads;
+	public BlockingQueue<TraceThreadDto> getThreadQueue(){
+		return threadQueue;
 	}
 
 	@Override
-	public List<TraceSpanDto> getSpans(){
-		return spans;
+	public BlockingQueue<TraceSpanDto> getSpanQueue(){
+		return spanQueue;
 	}
 
 	@Override

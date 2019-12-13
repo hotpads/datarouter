@@ -20,7 +20,7 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
+import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
@@ -41,13 +41,10 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 	@Inject
 	public DatarouterWebSettingRoot(
 			SettingFinder finder,
-			DatarouterStorageSettingRoot storageSettings,
 			DatarouterAuthenticationSettings authenticationSettings,
 			DatarouterEmailSettings emailSettings,
 			DatarouterSamlSettings samlSettings){
-		super(finder, "datarouterWeb.");
-
-		dependsOn(storageSettings);
+		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterWeb.");
 
 		registerChild(authenticationSettings);
 		registerChild(emailSettings);

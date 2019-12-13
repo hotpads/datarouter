@@ -19,7 +19,7 @@ package io.datarouter.httpclient.response.exception;
 public class DatarouterHttpCircuitBreakerException extends DatarouterHttpException{
 
 	public DatarouterHttpCircuitBreakerException(String name, Exception lastException){
-		super("Circuit Opened. Name=" + name, lastException);
+		super("Circuit open name=" + name, lastException);
 	}
 
 }

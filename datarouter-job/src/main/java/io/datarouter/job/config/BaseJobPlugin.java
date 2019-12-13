@@ -21,6 +21,10 @@ import java.util.List;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.web.config.BaseWebPlugin;
 
+/**
+ * BaseJobPlugin is an extension of BaseWebPlugin. This plugin brings in auto registration and dynamic configuration of
+ * TriggerGroups.
+ */
 public abstract class BaseJobPlugin extends BaseWebPlugin{
 
 	private final List<Class<? extends BaseTriggerGroup>> triggerGroupClasses = new ArrayList<>();

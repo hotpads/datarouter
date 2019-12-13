@@ -22,16 +22,14 @@ import java.util.Objects;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.iterable.IterableTool;
-
 public class SqlIndex{
 
 	private final String name;
 	private final List<String> columnNames;
 
-	public SqlIndex(String name, List<SqlColumn> columns){
+	public SqlIndex(String name, List<String> columns){
 		this.name = name;
-		this.columnNames = IterableTool.map(columns, SqlColumn::getName);
+		this.columnNames = columns;
 	}
 
 	public String getName(){
@@ -60,7 +58,7 @@ public class SqlIndex{
 				&& Objects.equals(columnNames, other.columnNames);
 	}
 
-	public static SqlIndex createPrimaryKey(List<SqlColumn> columns){
+	public static SqlIndex createPrimaryKey(List<String> columns){
 		return new SqlIndex("PRIMARY", columns);
 	}
 
@@ -68,10 +66,10 @@ public class SqlIndex{
 
 		@Test
 		public void testEquals(){
-			SqlColumn columnA = new SqlColumn("a", MysqlColumnType.BIGINT);
-			SqlColumn columnB = new SqlColumn("b", MysqlColumnType.BIGINT);
-			SqlColumn aa = new SqlColumn("a", MysqlColumnType.VARBINARY);
-			SqlColumn bb = new SqlColumn("b", MysqlColumnType.VARCHAR);
+			String columnA = "a";
+			String columnB = "b";
+			String aa = "a";
+			String bb = "b";
 			SqlIndex index1 = new SqlIndex("index", Arrays.asList(columnA, columnB));
 			SqlIndex index2 = new SqlIndex("index", Arrays.asList(aa, bb));
 			Assert.assertEquals(index1, index2);

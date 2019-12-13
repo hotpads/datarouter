@@ -23,6 +23,13 @@ import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.dao.DaosModuleBuilder.EmptyDaosModuleBuilder;
 import io.datarouter.storage.setting.SettingRoot;
 
+/**
+ * Plugins are verbose wrappers around GuiceModules for easy installation of datarouter modules. They use a builder
+ * pattern to specify required and optional implementations of classes used by the module. Some modules have their own
+ * extensions of BasePlugin which allows more features to get configured easily.
+ *
+ * BasePlugin auto configures and binds cluster settings and dao registration.
+ */
 public abstract class BasePlugin extends BaseGuiceModule{
 
 	private final List<Class<? extends SettingRoot>> settingRoots = new ArrayList<>();

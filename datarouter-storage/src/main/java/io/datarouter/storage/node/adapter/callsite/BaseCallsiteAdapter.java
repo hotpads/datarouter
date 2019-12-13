@@ -22,7 +22,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.callsite.CallsiteRecorder;
-import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.adapter.BaseAdapter;
 import io.datarouter.util.BooleanTool;
@@ -51,23 +50,26 @@ implements CallsiteAdapter{
 
 	@Override
 	public LineOfCode getCallsite(){
+		if(recordCallsites == null || BooleanTool.isFalseOrNull(recordCallsites.get())){
+			return null;
+		}
 		LineOfCode callsite = new LineOfCode(2);//adjust for this method and adapter method
 		return callsite;
 	}
 
 	@Override
-	public void recordCollectionCallsite(Config config, long startTimeNs, Collection<?> items){
-		recordCallsite(config, startTimeNs, CollectionTool.size(items));
+	public void recordCollectionCallsite(LineOfCode lineOfCode, long startTimeNs, Collection<?> items){
+		recordCallsite(lineOfCode, startTimeNs, CollectionTool.size(items));
 	}
 
 	@Override
-	public void recordCallsite(Config config, long startNs, int numItems){
+	public void recordCallsite(LineOfCode lineOfCode, long startNs, int numItems){
 		if(recordCallsites == null || BooleanTool.isFalseOrNull(recordCallsites.get())){
 			return;
 		}
 		LineOfCode datarouterMethod = new LineOfCode(2);
 		long durationNs = System.nanoTime() - startNs;
-		CallsiteRecorder.record(backingNode.getName(), datarouterMethod.getMethodName(), config.getCallsite(),
+		CallsiteRecorder.record(backingNode.getName(), datarouterMethod.getMethodName(), lineOfCode,
 				numItems, durationNs);
 	}
 

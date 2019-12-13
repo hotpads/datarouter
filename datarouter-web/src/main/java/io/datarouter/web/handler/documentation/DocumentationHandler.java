@@ -15,12 +15,14 @@
  */
 package io.datarouter.web.handler.documentation;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -230,9 +232,13 @@ public class DocumentationHandler extends BaseHandler{
 			}
 			return createBestExample(rawType, SetTool.concatenate(parents, type));
 		}
+		// undocumented generic (T or E or PK)
+		if(type instanceof TypeVariable){
+			return null;
+		}
 		Class<?> clazz = (Class<?>)type;
 		if(clazz.isArray()){
-			Object[] array = new Object[1];
+			Object[] array = (Object[])Array.newInstance(clazz.getComponentType(), 1);
 			array[0] = createBestExample(clazz.getComponentType(), SetTool.concatenate(parents, type));
 			return array;
 		}
@@ -257,8 +263,11 @@ public class DocumentationHandler extends BaseHandler{
 		if(clazz == Long.class){
 			return 0L;
 		}
+		if(clazz == Number.class){
+			return 0;
+		}
 		Object example = createWithNulls(clazz);
-		for(Field field : clazz.getDeclaredFields()){
+		for(Field field : ReflectionTool.getDeclaredFieldsIncludingAncestors(clazz)){
 			if(clazz.equals(field.getType())){
 				continue;
 			}

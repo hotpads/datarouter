@@ -20,6 +20,6 @@ import io.datarouter.model.field.imp.StringFieldKey;
 public class DatarouterServiceFieldKeys{
 
 	public static final StringFieldKey serviceName = new StringFieldKey("serviceName")
-			.withSize(20);
+			.withSize(30);
 
 }

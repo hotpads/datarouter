@@ -76,6 +76,7 @@ import io.datarouter.web.util.http.RequestTool;
 public abstract class BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(BaseHandler.class);
 
+	public static final String SUBMIT_ACTION = "submitAction";
 	public static final RequestAttributeKey<Date> REQUEST_RECEIVED_AT = new RequestAttributeKey<>("receivedAt");
 	public static final RequestAttributeKey<String> REQUEST_DURATION_STRING = new RequestAttributeKey<>(
 			"durationString");
@@ -356,7 +357,7 @@ public abstract class BaseHandler{
 	}
 
 	private String handlerMethodParamName(){
-		return "submitAction";
+		return SUBMIT_ACTION;
 	}
 
 	private List<String> getMissingParameterNames(Method method){

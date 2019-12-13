@@ -36,7 +36,6 @@ public enum HttpStatusCode{
 	SC_504_GATEWAY_TIMEOUT(504, "Gateway Timeout"),
 	;
 
-
 	private final int statusCode;
 	private final String message;
 

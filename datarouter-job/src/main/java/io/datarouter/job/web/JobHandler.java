@@ -110,7 +110,7 @@ public class JobHandler extends BaseHandler{
 		String triggeredBy = currentUserSessionInfo.getRequiredSession(request).getUsername();
 		boolean started = jobScheduler.triggerManualJob(jobClass, triggeredBy);
 		if(!started){
-			String message = "triggerManualJob failed for " + jobClass.getSimpleName();
+			String message = "Could not start " + jobClass.getSimpleName();
 			logger.warn(message);
 			jobTriggerResponse.put("jobTriggerResponseMessage", message);
 			return new InContextRedirectMav(request, datarouterJobPaths.datarouter.triggers.list.toSlashedString(),

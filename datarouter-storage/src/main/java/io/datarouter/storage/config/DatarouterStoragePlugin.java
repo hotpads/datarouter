@@ -26,26 +26,25 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.storage.setting.AdditionalSettingRoots;
 import io.datarouter.storage.setting.AdditionalSettingRootsSupplier;
-import io.datarouter.storage.setting.SettingRoot;
-import io.datarouter.storage.setting.SettingRootNameSupplier;
 
 public class DatarouterStoragePlugin extends BasePlugin{
 
 	private final ServerType serverType;
 	private final Class<? extends ServerTypeDetector> serverTypeDetectorClass;
 	private final Class<? extends DatarouterProperties> datarouterPropertiesClass;
-	private final Class<? extends SettingRoot> settingRootClass;
-	private final String settingRootName;
 	private final Class<?> settingOverridesClass;
 	private final AdditionalSettingRoots additionalSettingRoots;
 	private final List<Class<? extends Dao>> daoClasses;
+
+	// only used to get simple data from plugin
+	private DatarouterStoragePlugin(){
+		this(null, null, null, null, null, null);
+	}
 
 	private DatarouterStoragePlugin(
 			ServerType serverType,
 			Class<? extends ServerTypeDetector> serverTypeDetectorClass,
 			Class<? extends DatarouterProperties> datarouterPropertiesClass,
-			Class<? extends SettingRoot> settingRootClass,
-			String settingRootName,
 			Class<?> settingOverridesClass,
 			AdditionalSettingRoots additionalSettingRoots,
 			List<Class<? extends Dao>> daoClasses){
@@ -53,8 +52,6 @@ public class DatarouterStoragePlugin extends BasePlugin{
 		this.serverType = serverType;
 		this.serverTypeDetectorClass = serverTypeDetectorClass;
 		this.datarouterPropertiesClass = datarouterPropertiesClass;
-		this.settingRootClass = settingRootClass;
-		this.settingRootName = settingRootName;
 		this.settingOverridesClass = settingOverridesClass;
 		this.additionalSettingRoots = additionalSettingRoots;
 		this.daoClasses = daoClasses;
@@ -65,8 +62,6 @@ public class DatarouterStoragePlugin extends BasePlugin{
 		bind(ServerType.class).toInstance(serverType);
 		bindActual(ServerTypeDetector.class, serverTypeDetectorClass);
 		bind(DatarouterProperties.class).to(datarouterPropertiesClass);
-		bind(SettingRoot.class).to(settingRootClass);
-		bind(SettingRootNameSupplier.class).toInstance(() -> settingRootName);
 		if(settingOverridesClass != null){
 			bind(settingOverridesClass).asEagerSingleton(); // allow overriders in tests;
 		}
@@ -80,8 +75,6 @@ public class DatarouterStoragePlugin extends BasePlugin{
 
 		private final ServerType serverType;
 		private final Class<? extends DatarouterProperties> datarouterPropertiesClass;
-		private final Class<? extends SettingRoot> settingRootClass;
-		private final String settingRootName;
 
 		private Class<? extends ServerTypeDetector> serverTypeDetectorClass = NoOpServerTypeDetector.class;
 		private Class<?> settingOverridesClass;
@@ -89,13 +82,9 @@ public class DatarouterStoragePlugin extends BasePlugin{
 		private List<Class<? extends Dao>> daoClasses = new ArrayList<>();
 
 		public DatarouterStoragePluginBuilder(ServerType serverType,
-				Class<? extends DatarouterProperties> datarouterPropertiesClass,
-				Class<? extends SettingRoot> settingRootClass,
-				String settingRootName){
+				Class<? extends DatarouterProperties> datarouterPropertiesClass){
 			this.serverType = serverType;
 			this.datarouterPropertiesClass = datarouterPropertiesClass;
-			this.settingRootClass = settingRootClass;
-			this.settingRootName = settingRootName;
 		}
 
 		public DatarouterStoragePluginBuilder setServerTypeDetector(
@@ -125,13 +114,15 @@ public class DatarouterStoragePlugin extends BasePlugin{
 			return this;
 		}
 
+		public DatarouterStoragePlugin getSimplePluginData(){
+			return new DatarouterStoragePlugin();
+		}
+
 		public DatarouterStoragePlugin build(){
 			return new DatarouterStoragePlugin(
 					serverType,
 					serverTypeDetectorClass,
 					datarouterPropertiesClass,
-					settingRootClass,
-					settingRootName,
 					settingOverridesClass,
 					additionalSettingRoots,
 					daoClasses);

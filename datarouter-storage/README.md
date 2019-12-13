@@ -1,5 +1,17 @@
 # datarouter-storage
 
+## Installation with Maven
+
+```xml
+<dependency>
+	<groupId>io.datarouter</groupId>
+	<artifactId>datarouter-storage</artifactId>
+	<version>0.0.14</version>
+</dependency>
+```
+
+## Usage
+
 Datarouter Storage holds the classes and interfaces that let you persist your Databeans to different datastores via
 runtime Client implementations such as datarouter-mysql.
 

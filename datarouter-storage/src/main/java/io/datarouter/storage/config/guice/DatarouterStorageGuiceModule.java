@@ -22,8 +22,6 @@ import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.inject.guice.GuiceInjector;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.ClientOptions;
-import io.datarouter.storage.config.setting.DatarouterCallsiteSettings;
-import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
 import io.datarouter.storage.metric.Metrics;
 import io.datarouter.storage.metric.Metrics.NoOpMetris;
 import io.datarouter.storage.node.DatarouterNodes;
@@ -37,7 +35,6 @@ public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 	@Override
 	protected void configure(){
 		bind(DatarouterInjector.class).to(GuiceInjector.class);
-		bind(DatarouterCallsiteSettings.class).to(DatarouterStorageSettingRoot.class);
 
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(Metrics.class, NoOpMetris.class);

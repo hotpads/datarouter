@@ -21,15 +21,15 @@ import javax.inject.Singleton;
 import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySettings;
 import io.datarouter.storage.config.setting.impl.DatarouterProfilingSettings;
-import io.datarouter.storage.setting.Setting;
+import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
 
 @Singleton
-public class DatarouterStorageSettingRoot extends SettingRoot implements DatarouterCallsiteSettings{
+public class DatarouterStorageSettingRoot extends SettingRoot{
 
-	private final CachedSetting<Boolean> recordCallsites;
+	public final CachedSetting<Boolean> recordCallsites;
 	public final CachedSetting<Boolean> includeAdditionalAdministratorsEmails;
 
 	@Inject
@@ -37,7 +37,7 @@ public class DatarouterStorageSettingRoot extends SettingRoot implements Datarou
 			SettingFinder finder,
 			DatarouterProfilingSettings profilingSettings,
 			DatarouterClientAvailabilitySettings clientAvailabilitySettings){
-		super(finder, "datarouterStorage.");
+		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterStorage.");
 		registerChild(profilingSettings);
 		registerChild(clientAvailabilitySettings);
 
@@ -45,11 +45,6 @@ public class DatarouterStorageSettingRoot extends SettingRoot implements Datarou
 		includeAdditionalAdministratorsEmails = registerBooleans("includeAdditionalAdministratorEmails",
 				defaultTo(true)
 				.withEnvironmentType(EnvironmentType.DEVELOPMENT, false));
-	}
-
-	@Override
-	public Setting<Boolean> getRecordCallsites(){
-		return recordCallsites;
 	}
 
 }

@@ -24,6 +24,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.callsite.CallsiteAdapter;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
+import io.datarouter.util.lang.LineOfCode;
 
 public interface MapStorageWriterCallsiteAdapterMixin<
 		PK extends PrimaryKey<PK>,
@@ -36,56 +37,56 @@ extends MapStorageWriter<PK,D>, CallsiteAdapter{
 
 	@Override
 	public default void put(D databean, Config config){
-		config.setCallsite(getCallsite());
+		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
 			getBackingNode().put(databean, config);
 		}finally{
-			recordCallsite(config, startNs, 1);
+			recordCallsite(lineOfCode, startNs, 1);
 		}
 	}
 
 	@Override
 	public default void putMulti(Collection<D> databeans, Config config){
-		config.setCallsite(getCallsite());
+		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
 			getBackingNode().putMulti(databeans, config);
 		}finally{
-			recordCollectionCallsite(config, startNs, databeans);
+			recordCollectionCallsite(lineOfCode, startNs, databeans);
 		}
 	}
 
 	@Override
 	public default void delete(PK key, Config config){
-		config.setCallsite(getCallsite());
+		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
 			getBackingNode().delete(key, config);
 		}finally{
-			recordCallsite(config, startNs, 1);
+			recordCallsite(lineOfCode, startNs, 1);
 		}
 	}
 
 	@Override
 	public default void deleteMulti(Collection<PK> keys, Config config){
-		config.setCallsite(getCallsite());
+		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
 			getBackingNode().deleteMulti(keys, config);
 		}finally{
-			recordCollectionCallsite(config, startNs, keys);
+			recordCollectionCallsite(lineOfCode, startNs, keys);
 		}
 	}
 
 	@Override
 	public default void deleteAll(Config config){
-		config.setCallsite(getCallsite());
+		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
 			getBackingNode().deleteAll(config);
 		}finally{
-			recordCallsite(config, startNs, 0);
+			recordCallsite(lineOfCode, startNs, 0);
 		}
 	}
 

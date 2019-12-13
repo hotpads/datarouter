@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.mysql.ddl.execute;
 
+import static j2html.TagCreator.pre;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -34,15 +36,16 @@ import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.lazy.Lazy;
-import io.datarouter.web.email.DatarouterEmailService;
+import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
 
 @Singleton
 public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 
-	private final DatarouterProperties datarouterProperties;
 	private final MysqlSingleTableSchemaUpdateService mysqlSingleTableSchemaUpdateService;
-	private final DatarouterEmailService datarouterEmailService;
+	private final DatarouterHtmlEmailService htmlEmailService;
 	private final MysqlConnectionPoolHolder mysqlConnectionPoolHolder;
+	private final DatarouterWebPaths datarouterWebPaths;
 
 	@Inject
 	public MysqlSchemaUpdateService(
@@ -50,13 +53,14 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 			DatarouterAdministratorEmailService adminEmailService,
 			MysqlSingleTableSchemaUpdateService mysqlSingleTableSchemaUpdateService,
 			DatarouterSchemaUpdateScheduler executor,
-			DatarouterEmailService datarouterEmailService,
-			MysqlConnectionPoolHolder mysqlConnectionPoolHolder){
+			DatarouterHtmlEmailService htmlEmailService,
+			MysqlConnectionPoolHolder mysqlConnectionPoolHolder,
+			DatarouterWebPaths datarouterWebPaths){
 		super(datarouterProperties, adminEmailService, executor);
-		this.datarouterProperties = datarouterProperties;
 		this.mysqlSingleTableSchemaUpdateService = mysqlSingleTableSchemaUpdateService;
-		this.datarouterEmailService = datarouterEmailService;
+		this.htmlEmailService = htmlEmailService;
 		this.mysqlConnectionPoolHolder = mysqlConnectionPoolHolder;
+		this.datarouterWebPaths = datarouterWebPaths;
 	}
 
 	@Override
@@ -67,8 +71,15 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 
 	@Override
 	protected void sendEmail(String fromEmail, String toEmail, String subject, String body){
-		datarouterEmailService.trySend(datarouterProperties.getAdministratorEmail(), toEmail, subject,
-				body.toString());
+		String primaryHref = htmlEmailService.startLinkBuilder()
+				.withLocalPath(datarouterWebPaths.datarouter)
+				.build();
+		var emailBuilder = htmlEmailService.startEmailBuilder()
+				.withSubject(subject)
+				.withTitle("MySQL Schema Update")
+				.withTitleHref(primaryHref)
+				.withContent(pre(body));
+		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
 	}
 
 	@Override

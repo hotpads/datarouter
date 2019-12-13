@@ -16,6 +16,7 @@
 package io.datarouter.web.user.session;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -88,6 +89,25 @@ public interface CurrentUserSessionInfo{
 		return targetRoles.stream()
 				.map(RoleEnum::getRole)
 				.anyMatch(roles::contains);
+	}
+
+	static class NoOpCurrentUserSessionInfo implements CurrentUserSessionInfo{
+
+		@Override
+		public Optional<? extends SessionBasedUser> getUser(ServletRequest request){
+			return Optional.empty();
+		}
+
+		@Override
+		public Optional<? extends Session> getSession(ServletRequest request){
+			return Optional.empty();
+		}
+
+		@Override
+		public Set<Role> getRoles(ServletRequest request){
+			return Collections.emptySet();
+		}
+
 	}
 
 }

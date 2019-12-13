@@ -75,12 +75,19 @@ public class JobScheduler{
 	private final AtomicBoolean shutdown;
 
 	@Inject
-	public JobScheduler(DatarouterInjector injector, DatarouterJobScheduler triggerExecutor,
-			DatarouterJobExecutor jobExecutor, DatarouterJobSettingRoot jobSettings,
-			LongRunningTaskService longRunningTaskService, JobCategoryTracker jobCategoryTracker,
-			JobPackageTracker jobPackageTracker, LocalTriggerLockService localTriggerLockService,
-			ClusterTriggerLockService clusterTriggerLockService, JobWrapperFactory jobWrapperFactory,
-			JobCounters jobCounters, ExceptionRecorder exceptionRecorder){
+	public JobScheduler(
+			DatarouterInjector injector,
+			DatarouterJobScheduler triggerExecutor,
+			DatarouterJobExecutor jobExecutor,
+			DatarouterJobSettingRoot jobSettings,
+			LongRunningTaskService longRunningTaskService,
+			JobCategoryTracker jobCategoryTracker,
+			JobPackageTracker jobPackageTracker,
+			LocalTriggerLockService localTriggerLockService,
+			ClusterTriggerLockService clusterTriggerLockService,
+			JobWrapperFactory jobWrapperFactory,
+			JobCounters jobCounters,
+			ExceptionRecorder exceptionRecorder){
 		this.injector = injector;
 		this.triggerExecutor = triggerExecutor;
 		this.jobExecutor = jobExecutor;

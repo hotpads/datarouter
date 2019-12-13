@@ -46,4 +46,26 @@ public interface UserSessionService{
 				});
 	}
 
+	static class NoOpUserSessionService implements UserSessionService{
+
+		@Override
+		public void setSessionCookies(HttpServletResponse response, Session session){
+		}
+
+		@Override
+		public void clearSessionCookies(HttpServletResponse response){
+		}
+
+		@Override
+		public SessionBasedUser createAuthorizedUser(String username, String description, Set<Role> roles){
+			return null;
+		}
+
+		@Override
+		public Optional<Session> signInUserWithRoles(HttpServletRequest request, String username, Set<Role> roles){
+			return Optional.empty();
+		}
+
+	}
+
 }

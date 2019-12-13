@@ -23,7 +23,7 @@ import java.util.List;
 public interface BatchScanner<T> extends Scanner<List<T>>{
 
 	default Scanner<T> flatten(){
-		return mapToScanner(Scanner::of).concatenate();
+		return concatenate(Scanner::of);
 	}
 
 }

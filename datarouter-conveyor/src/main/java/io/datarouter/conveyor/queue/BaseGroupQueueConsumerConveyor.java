@@ -1,0 +1,68 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.datarouter.conveyor.queue;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.conveyor.BaseConveyor;
+import io.datarouter.conveyor.ConveyorCounters;
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.storage.queue.GroupQueueMessage;
+import io.datarouter.storage.setting.Setting;
+
+public abstract class BaseGroupQueueConsumerConveyor<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
+extends BaseConveyor{
+	private static final Logger logger = LoggerFactory.getLogger(BaseGroupQueueConsumerConveyor.class);
+
+	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);
+
+	private final GroupQueueConsumer<PK,D> consumer;
+
+	public BaseGroupQueueConsumerConveyor(String name, Setting<Boolean> shouldRunSetting,
+			GroupQueueConsumer<PK,D> consumer, Supplier<Boolean> compactExceptionLogging){
+		super(name, shouldRunSetting, compactExceptionLogging);
+		this.consumer = consumer;
+	}
+
+	@Override
+	public ProcessBatchResult processBatch(){
+		GroupQueueMessage<PK,D> message = consumer.peek(PEEK_TIMEOUT);
+		if(message == null){
+			logger.info("peeked conveyor={} nullMessage", name);
+			return new ProcessBatchResult(false);
+		}
+		List<D> databeans = message.getDatabeans();
+		logger.info("peeked conveyor={} messageCount={}", name, databeans.size());
+		processDatabeans(databeans);
+		logger.info("wrote conveyor={} messageCount={}", name, databeans.size());
+		ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
+		consumer.ack(message.getKey());
+		logger.info("acked conveyor={} messageCount={}", name, databeans.size());
+		ConveyorCounters.incAck(this);
+		return new ProcessBatchResult(true);
+	}
+
+	protected abstract void processDatabeans(List<D> databeans);
+
+}

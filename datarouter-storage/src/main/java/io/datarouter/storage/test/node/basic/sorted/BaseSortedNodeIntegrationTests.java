@@ -126,8 +126,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		List<SortedBean> allBeans = dao.scanKeys()
 				.batch(100)
 				.map(dao::getMulti)
-				.mapToScanner(Scanner::of)
-				.concatenate()
+				.concatenate(Scanner::of)
 				.list();
 		Assert.assertEquals(allBeans.size(), SortedBeans.TOTAL_RECORDS);
 	}
@@ -415,8 +414,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 				new Config().setOutputBatchSize(4))
 				.collect(Collectors.toSet());
 		Set<SortedBean> expected = Scanner.of(range1, range2)
-				.mapToScanner(dao::scan)
-				.concatenate()
+				.concatenate(dao::scan)
 				.collect(Collectors.toSet());
 		Assert.assertTrue(expected.size() > 0);
 		Assert.assertEquals(beans, expected);

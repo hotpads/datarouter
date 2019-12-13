@@ -20,8 +20,8 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.web.handler.mav.nav.AppNavBar;
-import io.datarouter.web.handler.mav.nav.DatarouterNavBar;
+import io.datarouter.web.navigation.AppNavBar;
+import io.datarouter.web.navigation.DatarouterNavBar;
 
 //getters used by prelude.jspf
 public class MavProperties{

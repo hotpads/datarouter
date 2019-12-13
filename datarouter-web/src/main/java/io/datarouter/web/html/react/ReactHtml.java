@@ -15,6 +15,15 @@
  */
 package io.datarouter.web.html.react;
 
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.head;
+import static j2html.TagCreator.header;
+import static j2html.TagCreator.html;
+import static j2html.TagCreator.meta;
+import static j2html.TagCreator.script;
+import static j2html.TagCreator.title;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -75,40 +84,39 @@ public class ReactHtml{
 	}
 
 	public ContainerTag build(){
-		var html = TagCreator.html();
-		return html.with(makeHead(), makeBody());
+		return html(makeHead(), makeBody());
 	}
 
 	private ContainerTag makeHead(){
-		var head = TagCreator.head();
-		var meta = TagCreator.meta()
+		var meta = meta()
 				.withName("viewport")
 				.withContent("width=device-width, initial-scale=1");
-		head.with(meta);
-		head.with(makeExternalReactScriptTags());
-		head.with(datarouterWebCssImports);
-		head.with(datarouterWebRequireJsImport);
-		head.with(datarouterWebRequireJsConfig);
-		head.with(requireScript);
-		head.with(datarouterNavbarCssImports);
-		head.with(datarouterNavbarRequestTimingJsImport);
-		head.with(datarouterNavbarRequestTimingScript);
-		head.with(TagCreator.title(title));
-		head.with(makeJsConstantScript());
-		head.with(TagCreator.script()
+		var script = script()
 				.withType("text/babel")
-				.withSrc(reactScriptPath));
-		return head;
+				.withSrc(reactScriptPath);
+		return head()
+				.with(meta)
+				.with(makeExternalReactScriptTags())
+				.with(datarouterWebCssImports)
+				.with(datarouterWebRequireJsImport)
+				.with(datarouterWebRequireJsConfig)
+				.with(requireScript)
+				.with(datarouterNavbarCssImports)
+				.with(datarouterNavbarRequestTimingJsImport)
+				.with(datarouterNavbarRequestTimingScript)
+				.with(title(title))
+				.with(makeJsConstantScript())
+				.with(script);
 	}
 
 	private static ContainerTag[] makeExternalReactScriptTags(){
 		return EXTERNAL_REACT_SCRIPTS.stream()
-				.map(src -> TagCreator.script().withCharset("UTF-8").withSrc(src))
+				.map(src -> script().withCharset("UTF-8").withSrc(src))
 				.toArray(ContainerTag[]::new);
 	}
 
 	private ContainerTag makeJsConstantScript(){
-		var script = TagCreator.script();
+		var script = script();
 		jsConstants.entrySet().stream()
 				.map(entry -> String.format("const %S = \"%s\";", entry.getKey(), entry.getValue()))
 				.map(TagCreator::rawHtml)
@@ -117,13 +125,9 @@ public class ReactHtml{
 	}
 
 	private ContainerTag makeBody(){
-		var body = TagCreator.body();
-		var header = TagCreator.header();
-		var app = TagCreator.div()
+		var app = div()
 				.withId("app");
-		return body.with(
-				header.with(datarouterNavbar).with(webappNavbar),
-				app);
+		return body(header(datarouterNavbar, webappNavbar), app);
 	}
 
 }

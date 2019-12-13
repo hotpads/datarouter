@@ -16,44 +16,30 @@
 package io.datarouter.httpclient.response;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
-
-import io.datarouter.httpclient.client.HttpRetryTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is an abstraction over the HttpResponse that handles several of the expected HTTP failures
  */
 public class DatarouterHttpResponse{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpResponse.class);
 
 	private final HttpResponse response;
 	private final List<Cookie> cookies;
+	private final int statusCode;
+	private final String entity;
 
-	private int statusCode;
-	private String entity;
-
-	public DatarouterHttpResponse(HttpResponse response, HttpClientContext context,
-			Consumer<HttpEntity> httpEntityConsumer){
+	public DatarouterHttpResponse(HttpResponse response, HttpClientContext context, int statusCode, String entity){
 		this.response = response;
 		this.cookies = context.getCookieStore().getCookies();
-		if(response != null){
-			this.statusCode = response.getStatusLine().getStatusCode();
-
-			HttpEntity httpEntity = response.getEntity();
-			if(httpEntity == null){
-				return;
-			}
-			if(httpEntityConsumer != null){
-				httpEntityConsumer.accept(httpEntity);
-				return;
-			}
-			this.entity = HttpRetryTool.entityToString(httpEntity).orElse("");
-		}
+		this.statusCode = statusCode;
+		this.entity = entity;
 	}
 
 	public int getStatusCode(){
@@ -74,6 +60,14 @@ public class DatarouterHttpResponse{
 
 	public List<Cookie> getCookies(){
 		return cookies;
+	}
+
+	public void tryClose(){
+		try{
+			response.getEntity().getContent().close();
+		}catch(Exception e){
+			logger.warn("failed to close", e);
+		}
 	}
 
 }

@@ -58,6 +58,12 @@ public final class FileTool{
 		}
 	}
 
+	public static void requireIsFileAndExists(File file){
+		if(file.isFile() && !file.exists()){
+			throw new IllegalArgumentException("expected file not found: " + file);
+		}
+	}
+
 	public static void delete(String path){
 		if(StringTool.isEmpty(path) || "/".equals(path)){
 			throw new IllegalArgumentException("cannot delete empty or root path");

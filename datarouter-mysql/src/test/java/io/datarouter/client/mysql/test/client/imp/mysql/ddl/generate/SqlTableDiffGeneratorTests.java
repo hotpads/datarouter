@@ -35,8 +35,9 @@ import io.datarouter.client.mysql.ddl.generate.SqlTableDiffGenerator;
 
 public class SqlTableDiffGeneratorTests{
 
-	private static final SqlColumn id = new SqlColumn("id", MysqlColumnType.BIGINT);
-	private static final SqlIndex pk = SqlIndex.createPrimaryKey(Arrays.asList(id));
+	private static final String ID_STRING = "id";
+	private static final SqlColumn id = new SqlColumn(ID_STRING, MysqlColumnType.BIGINT);
+	private static final SqlIndex pk = SqlIndex.createPrimaryKey(Arrays.asList(ID_STRING));
 
 	@Test
 	public void testSameTableModified(){
@@ -47,8 +48,8 @@ public class SqlTableDiffGeneratorTests{
 
 	@Test
 	public void testIndexModifiedWithSameName(){
-		SqlColumn column1 = new SqlColumn("foo", MysqlColumnType.BIGINT);
-		SqlColumn column2 = new SqlColumn("bar", MysqlColumnType.BIGINT);
+		String column1 = "foo";
+		String column2 = "bar";
 		SqlIndex previousIndex = new SqlIndex("foo", Arrays.asList(column1));
 		SqlIndex nextIndex = new SqlIndex("foo", Arrays.asList(column1, column2));
 		Set<SqlIndex> previousIndexes = new HashSet<>(Arrays.asList(previousIndex));

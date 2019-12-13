@@ -51,8 +51,8 @@ public class DatarouterClusterTriggerLockDao extends BaseDao{
 	public DatarouterClusterTriggerLockDao(Datarouter datarouter, NodeFactory nodeFactory,
 			DatarouterClusterTriggerLockDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, ClusterTriggerLock::new,
-				ClusterTriggerLockFielder::new).buildAndRegister();
+		node = nodeFactory.create(params.clientId, ClusterTriggerLock::new, ClusterTriggerLockFielder::new)
+				.buildAndRegister();
 	}
 
 	public void putAndAcquire(ClusterTriggerLock databean){

@@ -15,13 +15,21 @@
  */
 package io.datarouter.web.navigation;
 
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.button;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.nav;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
+import static j2html.TagCreator.ul;
+
 import java.util.Objects;
 
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.MavProperties;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.RequestDurationTool;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
 //for bootstrap 3
@@ -35,26 +43,24 @@ public class DatarouterNavbarHtml{
 
 	public ContainerTag build(){
 		String productionStyle = props.getIsProduction() ? "productionEnv" : "";
-		var nav = TagCreator.nav()
-				.withClasses("navbar", "navbar-inverse", "navbar-static-top", "navbar-thin", productionStyle);
-		var container = TagCreator.div()
-				.withClass("container-fluid");
-		var button = TagCreator.button()
+		var span = span()
+				.withClass("icon-bar");
+		var button = button(span, span, span)
 				.withClass("navbar-toggle collapsed")
 				.withType("button")
 				.attr("data-toggle", "collapse")
 				.attr("data-target", "#common-navbar");
-		var span = TagCreator.span()
-				.withClass("icon-bar");
-		var div = TagCreator.div()
+		var ul = ul()
+				.with(makeWebappList())
+				.with(makeAfterWebappList())
+				.withClass("nav navbar-nav");
+		var div = div(ul)
 				.withId("common-navbar")
 				.withClass("collapse navbar-collapse");
-		var ul = TagCreator.ul()
-				.withClass("nav navbar-nav");
-		ul.with(makeWebappList()).with(makeAfterWebappList());
-		return nav.with(container
-				.with(button.with(span).with(span).with(span))
-				.with(div.with(ul)));
+		var container = div(button, div)
+				.withClass("container-fluid");
+		return nav(container)
+				.withClasses("navbar", "navbar-inverse", "navbar-static-top", "navbar-thin", productionStyle);
 	}
 
 	private ContainerTag[] makeWebappList(){
@@ -64,47 +70,36 @@ public class DatarouterNavbarHtml{
 	}
 
 	private ContainerTag makeWebappListItem(String name, String href){
-		var li = TagCreator.li()
-				.withId("common-menu-" + name);
-		var link = TagCreator.a(name)
+		var link = a(name)
 				.withHref(href);
-		return li.with(link);
+		return li(link)
+				.withId("common-menu-" + name);
 	}
 
 	private ContainerTag[] makeAfterWebappList(){
-		var divider = TagCreator.li()
+		var divider = li()
 				.withClass("divider-vertical");
-		var li = TagCreator.li()
-				.withClass("common-menu-datarouter");
-		var datarouterLink = TagCreator.a("datarouter")
+		var datarouterLink = a("datarouter")
 				.withHref(props.getContextPath() + "/datarouter");
-		return new ContainerTag[]{
-				divider,
-				li.with(datarouterLink),
-				divider,
-				makeTraceSection()};
+		var li = li(datarouterLink)
+				.withClass("common-menu-datarouter");
+		return new ContainerTag[]{divider, li, divider, makeTraceSection()};
 	}
 
 	private ContainerTag makeTraceSection(){
 		String traceHref = RequestAttributeTool.get(props.getRequest(), BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE).orElse(
 				"");
 		String javaTime = RequestDurationTool.getRequestElapsedDurationString(props.getRequest()).orElse("?");
-		var li = TagCreator.li();
-		var link = TagCreator.a()
-				.withHref(traceHref);
-		var java = TagCreator.span("j: " + javaTime);
-		var requestTimingJsHook = TagCreator.span()
+		var javaDuration = span("j: " + javaTime);
+		var requestTimingJsHook = span()
 				.withId("requestTiming");
-		var requestDuration = TagCreator.span()
-				.withText("r:");
-		var clientTimingJsHook = TagCreator.span()
+		var requestDuration = span(text("r:"), requestTimingJsHook);
+		var clientTimingJsHook = span()
 				.withId("clientTiming");
-		var clientDuration = TagCreator.span()
-				.withText("c:");
-		return li.with(link.with(
-				java,
-				requestDuration.with(requestTimingJsHook),
-				clientDuration.with(clientTimingJsHook)));
+		var clientDuration = span(text("c:"), clientTimingJsHook);
+		var link = a(javaDuration, requestDuration, clientDuration)
+				.withHref(traceHref);
+		return li(link);
 	}
 
 }

@@ -15,6 +15,12 @@
  */
 package io.datarouter.tasktracker.service;
 
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.body;
+import static j2html.TagCreator.br;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.text;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -39,8 +45,6 @@ import io.datarouter.tasktracker.web.LongRunningTasksHandler;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.mutable.MutableBoolean;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
-import j2html.TagCreator;
-import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 
 public class LongRunningTaskTracker implements TaskTracker{
@@ -254,26 +258,26 @@ public class LongRunningTaskTracker implements TaskTracker{
 		deadlineAlertAttempted = true;
 		String from = datarouterProperties.getAdministratorEmail();
 		String to = datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv();
-		String subject = "LongRunningTaskTracker deadline reached for " + task.name;
-		String detailsHref = datarouterHtmlEmailService.startLinkBuilder()
+		String primaryHref = datarouterHtmlEmailService.startLinkBuilder()
 				.withLocalPath(datarouterTaskTrackerPaths.datarouter.longRunningTasks)
 				.withParam(LongRunningTasksHandler.P_name, task.name)
 				.withParam(LongRunningTasksHandler.P_status, LongRunningTasksHandler.ALL_STATUSES_VALUE)
 				.build();
 		var emailBuilder = datarouterHtmlEmailService.startEmailBuilder()
+				.withSubject(String.format("Datarouter - Task Timeout - %s", task.name))
 				.withTitle("Task Timeout")
-				.withTitleHref(detailsHref)
-				.withContent(makeEmailBody(task.name, datarouterProperties.getServerName(), detailsHref));
-		datarouterHtmlEmailService.trySendJ2Html(from, to, subject, emailBuilder);
+				.withTitleHref(primaryHref)
+				.withContent(makeEmailBody(task.name, datarouterProperties.getServerName(), primaryHref));
+		datarouterHtmlEmailService.trySendJ2Html(from, to, emailBuilder);
 	}
 
 	private ContainerTag makeEmailBody(String name, String serverName, String detailsHref){
-		var message = TagCreator.p(
-				TagCreator.a("Deadline reached for " + name).withHref(detailsHref),
-				TagCreator.text(String.format(" on %s. Consider extending the trigger period.", serverName)));
-		var counterLink = TagCreator.a("Counters")
-				.attr(Attr.HREF, longRunningTaskGraphLink.getLink(name));
-		return TagCreator.body(message, counterLink);
+		var message = p(
+				a("Deadline reached for " + name).withHref(detailsHref),
+				text(String.format(" on %s. Consider extending the trigger period.", serverName)));
+		var tasksLink = a("Tasks").withHref(detailsHref);
+		var counterLink = a("Counters").withHref(longRunningTaskGraphLink.getLink(name));
+		return body(message, br(), tasksLink, br(), counterLink);
 	}
 
 	/*------------ persist -----------------*/

@@ -23,7 +23,7 @@ import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.setting.DatarouterCallsiteSettings;
+import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.entity.DefaultEntity;
@@ -39,7 +39,7 @@ public class WideNodeBuilder<
 
 	private final Datarouter datarouter;
 	private final WideNodeFactory wideNodeFactory;
-	private final DatarouterCallsiteSettings datarouterCallsiteSettings;
+	private final DatarouterStorageSettingRoot storageSettings;
 	private final ClientId clientId;
 	private final Supplier<PK> entityKeySupplier;
 	private final Supplier<D> databeanSupplier;
@@ -50,13 +50,13 @@ public class WideNodeBuilder<
 	public WideNodeBuilder(
 			Datarouter datarouter,
 			WideNodeFactory wideNodeFactory,
-			DatarouterCallsiteSettings datarouterCallsiteSettings,
+			DatarouterStorageSettingRoot storageSettings,
 			ClientId clientId,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 		this.datarouter = datarouter;
 		this.wideNodeFactory = wideNodeFactory;
-		this.datarouterCallsiteSettings = datarouterCallsiteSettings;
+		this.storageSettings = storageSettings;
 		this.clientId = clientId;
 		this.entityKeySupplier = () -> ReflectionTool.create(databeanSupplier.get().getKeyClass());
 		this.databeanSupplier = databeanSupplier;
@@ -79,7 +79,7 @@ public class WideNodeBuilder<
 		String entityNodePrefix = databeanName.replaceAll("[a-z]", "");
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
-				.withDiagnostics(datarouterCallsiteSettings.getRecordCallsites())
+				.withDiagnostics(storageSettings.recordCallsites)
 				.withEntity(entityName, entityNodePrefix)
 				.withParentName(entityName)
 				.withTableName(tableName != null ? tableName : databeanName)

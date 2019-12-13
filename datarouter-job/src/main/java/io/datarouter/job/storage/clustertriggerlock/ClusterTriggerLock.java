@@ -38,8 +38,7 @@ public class ClusterTriggerLock extends BaseDatabean<ClusterTriggerLockKey,Clust
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
 
-	public static class ClusterTriggerLockFielder
-	extends BaseDatabeanFielder<ClusterTriggerLockKey,ClusterTriggerLock>{
+	public static class ClusterTriggerLockFielder extends BaseDatabeanFielder<ClusterTriggerLockKey,ClusterTriggerLock>{
 
 		public ClusterTriggerLockFielder(){
 			super(ClusterTriggerLockKey.class);

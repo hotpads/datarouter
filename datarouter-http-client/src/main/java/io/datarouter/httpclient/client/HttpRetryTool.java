@@ -16,7 +16,6 @@
 package io.datarouter.httpclient.client;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.apache.http.HttpEntity;
@@ -45,12 +44,12 @@ public class HttpRetryTool{
 		return isRetrySafe(context) && executionCount <= retryCount.get();
 	}
 
-	public static Optional<String> entityToString(HttpEntity httpEntity){
+	public static String entityToString(HttpEntity httpEntity){
 		try{
-			return Optional.of(EntityUtils.toString(httpEntity));
+			return EntityUtils.toString(httpEntity);
 		}catch(IOException e){
 			logger.error("Exception occurred while reading HTTP response entity", e);
-			return Optional.empty();
+			return "INACCESSIBLE ENTITY: " + e.getMessage();
 		}finally{
 			EntityUtils.consumeQuietly(httpEntity);
 		}

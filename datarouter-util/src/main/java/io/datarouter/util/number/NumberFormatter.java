@@ -21,17 +21,18 @@ import java.text.DecimalFormat;
 public class NumberFormatter{
 
 	public static String format(Number number, int numFractionDigits){
-		return format(number, "", "", numFractionDigits, true);
+		return format(number, "", "", numFractionDigits, numFractionDigits, true);
 	}
 
 	public static String format(Number number, String prefix, String suffix, int numFractionDigits){
-		return format(number, prefix, suffix, numFractionDigits, true);
+		return format(number, prefix, suffix, numFractionDigits, numFractionDigits, true);
 	}
 
-	public static String format(Number number, String prefix, String suffix, int numFractionDigits, boolean grouping){
+	public static String format(Number number, String prefix, String suffix, int minFractionDigits,
+			int maxFractionDigits, boolean grouping){
 		DecimalFormat df = new DecimalFormat();
-		df.setMaximumFractionDigits(numFractionDigits);
-		df.setMinimumFractionDigits(numFractionDigits);
+		df.setMaximumFractionDigits(maxFractionDigits);
+		df.setMinimumFractionDigits(minFractionDigits);
 		df.setRoundingMode(RoundingMode.HALF_UP);
 		df.setGroupingUsed(grouping);
 		df.setPositivePrefix(prefix);

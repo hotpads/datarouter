@@ -181,7 +181,6 @@ public class DatarouterWebFiles extends FilesRoot{
 
 	public static class JsFiles extends PathNode{
 		public final JsUtilFiles util = branch(JsUtilFiles::new, "util");
-		public final PathNode accountManagerJs = leaf("accountManager.js");
 		public final PathNode coreCommonJs = leaf("core-common.js");
 		public final PathNode navbarRequestTimingJs = leaf("navbar-request-timing.js");
 		public final PathNode navbarRequestTimingV2Js = leaf("navbar-request-timing-v2.js");
@@ -195,7 +194,6 @@ public class DatarouterWebFiles extends FilesRoot{
 
 	public static class JspFiles extends PathNode{
 		public final JspAdminFiles admin = branch(JspAdminFiles::new, "admin");
-		public final JspAuthenticationFiles authentication = branch(JspAuthenticationFiles::new, "authentication");
 		public final JspCssFiles css = branch(JspCssFiles::new, "css");
 		public final JspDocsFiles docs = branch(JspDocsFiles::new, "docs");
 		public final JspGenericFiles generic = branch(JspGenericFiles::new, "generic");
@@ -228,14 +226,6 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final PathNode memoryUsageJsp = leaf("memoryUsage.jsp");
 	}
 
-	public static class JspAuthenticationFiles extends PathNode{
-		public final PathNode createUserFormJsp = leaf("createUserForm.jsp");
-		public final PathNode editUserFormJsp = leaf("editUserForm.jsp");
-		public final PathNode permissionRequestJsp = leaf("permissionRequest.jsp");
-		public final PathNode resetPasswordFormJsp = leaf("resetPasswordForm.jsp");
-		public final PathNode signinFormJsp = leaf("signinForm.jsp");
-		public final PathNode viewUsersJsp = leaf("viewUsers.jsp");
-	}
 
 	public static class JspCssFiles extends PathNode{
 		public final PathNode cssImportJspf = leaf("css-import.jspf");
@@ -251,6 +241,7 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final PathNode newBaseHeadJsp = leaf("newBaseHead.jsp");
 		public final PathNode codeJsp = leaf("code.jsp");
 		public final PathNode datarouterHeadJsp = leaf("datarouterHead.jsp");
+		public final PathNode htmlJsp = leaf("html.jsp");
 		public final PathNode jsonJsp = leaf("json.jsp");
 		public final PathNode messageJsp = leaf("message.jsp");
 		public final PathNode preludeJsp = leaf("prelude.jspf");

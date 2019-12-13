@@ -15,22 +15,15 @@
  */
 package io.datarouter.job.config;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.httpclient.path.PathsRoot;
-import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 
 @Singleton
 public class DatarouterJobPaths extends PathNode implements PathsRoot{
 
-	public final DatarouterPaths datarouter;
-
-	@Inject
-	public DatarouterJobPaths(DatarouterTaskTrackerPaths datarouterTaskTrackerPaths){
-		this.datarouter = branch(DatarouterPaths::new, datarouterTaskTrackerPaths.datarouter.getValue());
-	}
+	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
 		public final TriggerPaths triggers = branch(TriggerPaths::new, "triggers");

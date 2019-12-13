@@ -28,36 +28,33 @@ import io.datarouter.job.storage.clustertriggerlock.DatarouterClusterTriggerLock
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.navigation.DatarouterNavBarCategory;
+import io.datarouter.web.navigation.NavBarItem;
 
 public class DatarouterJobPlugin extends BaseJobPlugin{
 
 	private final List<Class<? extends BaseTriggerGroup>> triggerGroupClasses;
-	private final boolean autoInstall;
 
 	private DatarouterJobPlugin(DatarouterJobDaoModule daosModuleBuilder){
-		this(null, false, daosModuleBuilder);
+		this(null, daosModuleBuilder);
 	}
 
 	private DatarouterJobPlugin(
 			List<Class<? extends BaseTriggerGroup>> triggerGroupClasses,
-			boolean autoInstall,
 			DatarouterJobDaoModule daosModuleBuilder){
 		addAppListener(JobSchedulerAppListener.class);
 		addRouteSet(DatarouterJobRouteSet.class);
 		addSettingRoot(DatarouterJobSettingRoot.class);
 		addTriggerGroup(DatarouterJobTriggerGroup.class);
 		setDaosModuleBuilder(daosModuleBuilder);
-
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.JOBS,
+				new DatarouterJobPaths().datarouter.triggers.list, "Triggers"));
 		this.triggerGroupClasses = triggerGroupClasses;
-		this.autoInstall = autoInstall;
 	}
 
 	@Override
 	public void configure(){
-		if(autoInstall){
-			// this needs to be done when all we have a list of all modules
-			bind(TriggerGroupClasses.class).toInstance(new TriggerGroupClasses(triggerGroupClasses));
-		}
+		bind(TriggerGroupClasses.class).toInstance(new TriggerGroupClasses(triggerGroupClasses));
 	}
 
 	public static class DatarouterJobDaoModule extends DaosModuleBuilder{
@@ -94,7 +91,6 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 		private final ClientId defaultClientId;
 		private DatarouterJobDaoModule daoModule;
 
-		private boolean autoInstall = true;
 		private List<Class<? extends BaseTriggerGroup>> triggerGroupClasses = new ArrayList<>();
 
 		public DatarouterJobPluginBuilder(ClientId defaultClientId){
@@ -112,11 +108,6 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 			return this;
 		}
 
-		public DatarouterJobPluginBuilder disableAutoInstall(){
-			autoInstall = false;
-			return this;
-		}
-
 		public DatarouterJobPlugin getSimplePluginData(){
 			return new DatarouterJobPlugin(
 					daoModule == null ? new DatarouterJobDaoModule(defaultClientId, defaultClientId) : daoModule);
@@ -125,7 +116,6 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 		public DatarouterJobPlugin build(){
 			return new DatarouterJobPlugin(
 					triggerGroupClasses,
-					autoInstall,
 					daoModule == null ? new DatarouterJobDaoModule(defaultClientId, defaultClientId) : daoModule);
 		}
 

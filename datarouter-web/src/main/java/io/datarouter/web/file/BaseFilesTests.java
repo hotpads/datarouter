@@ -51,7 +51,7 @@ public abstract class BaseFilesTests{
 	public void testPathNodesFilesExist(){
 		getNodeFiles().stream()
 				.peek(file -> logger.info("{}", file))
-				.forEach(FileTool::requireExists);
+				.forEach(FileTool::requireIsFileAndExists);
 	}
 
 	@Test
@@ -95,7 +95,8 @@ public abstract class BaseFilesTests{
 	}
 
 	private boolean filterOmited(String path){
-		return !getFilesToOmit().stream().anyMatch(path::contains);
+		return !getFilesToOmit().stream()
+				.anyMatch(path::contains);
 	}
 
 }

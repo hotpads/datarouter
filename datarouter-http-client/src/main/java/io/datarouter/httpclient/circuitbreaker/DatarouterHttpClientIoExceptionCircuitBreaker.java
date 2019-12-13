@@ -17,11 +17,13 @@ package io.datarouter.httpclient.circuitbreaker;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -31,7 +33,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.client.StandardDatarouterHttpClient;
+import io.datarouter.httpclient.client.HttpRetryTool;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpCircuitBreakerException;
@@ -47,18 +49,19 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 
 	private static final Duration LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(10);
 
+	public static final String X_REQUEST_ID = "x-request-id";
+	public static final String X_TRACE_ID = "x-trace-id";
+
 	public DatarouterHttpClientIoExceptionCircuitBreaker(String name){
 		super(name);
 	}
 
 	public DatarouterHttpResponse call(CloseableHttpClient httpClient, DatarouterHttpRequest request,
-			Consumer<HttpEntity> consumer, HttpClientContext context, Supplier<Boolean> enableBreakers)
+			Consumer<HttpEntity> httpEntityConsumer, HttpClientContext context, Supplier<Boolean> enableBreakers)
 	throws DatarouterHttpException{
 		CircuitBreakerState state = getState();
 		if(state == CircuitBreakerState.OPEN && enableBreakers.get()){
 			incrementCounterOnStateChange("open");
-			logger.error("Circuit opened. CircuitName={}, originalException={}", name, callResultQueue
-					.getOriginalException());
 			throw new DatarouterHttpCircuitBreakerException(name, callResultQueue.getOriginalException());
 		}
 
@@ -69,18 +72,39 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		try{
 			TracerTool.startSpan(TracerThreadLocal.get(), "http call " + request.getPath());
 			internalHttpRequest = request.getRequest();
-			internalHttpRequest.addHeader(StandardDatarouterHttpClient.X_REQUEST_ID, requestId);
-			context.setAttribute(StandardDatarouterHttpClient.X_REQUEST_ID, requestId);
+			internalHttpRequest.addHeader(X_REQUEST_ID, requestId);
+			context.setAttribute(X_REQUEST_ID, requestId);
 			requestStartTimeMs = System.currentTimeMillis();
 			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
 			Duration duration = Duration.ofMillis(System.currentTimeMillis() - requestStartTimeMs);
-			if(duration.compareTo(LOG_SLOW_REQUEST_THRESHOLD) > 0){
-				logger.warn("Slow request target={} duration={}", request.getPath(), duration);
+			String entity = null;
+			int statusCode = httpResponse.getStatusLine().getStatusCode();
+			boolean isBadStatusCode = statusCode >= HttpStatus.SC_BAD_REQUEST;
+			HttpEntity httpEntity = httpResponse.getEntity();
+			if(httpEntity != null){
+				// skip the httpEntityConsumer in case of error because we are going to close the input stream
+				if(httpEntityConsumer != null && !isBadStatusCode){
+					httpEntityConsumer.accept(httpEntity);
+				}else{
+					entity = HttpRetryTool.entityToString(httpEntity);
+				}
+			}else{
+				logger.debug("null http enity");
 			}
-			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, consumer);
-			if(response.getStatusCode() >= HttpStatus.SC_BAD_REQUEST){
-				ex = new DatarouterHttpResponseException(response, duration);
+			Optional<String> traceId = Optional.ofNullable(httpResponse.getFirstHeader(X_TRACE_ID))
+					.map(Header::getValue);
+			traceId.ifPresent(remoteTraceId -> TracerTool.appendToSpanInfo("remote trace", remoteTraceId));
+			if(duration.compareTo(LOG_SLOW_REQUEST_THRESHOLD) > 0){
+				logger.warn("Slow request target={} duration={} remoteTraceId={}", request.getPath(), duration, traceId
+						.orElse(""));
+			}
+			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
+			if(isBadStatusCode){
+				TracerTool.appendToSpanInfo("bad status code", statusCode);
+				ex = new DatarouterHttpResponseException(response, duration, requestId, request.getPath());
 				callResultQueue.insertFalseResultWithException(ex);
+				// no need to abort the connection, we received a response line, the connection is probably still good
+				response.tryClose();
 				throw ex;
 			}
 
@@ -92,14 +116,17 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			callResultQueue.insertTrueResult();
 			return response;
 		}catch(IOException e){
-			ex = new DatarouterHttpConnectionAbortedException(e, requestStartTimeMs, requestId);
+			TracerTool.appendToSpanInfo("exception", e.getMessage());
+			ex = new DatarouterHttpConnectionAbortedException(e, requestStartTimeMs, requestId, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
 		}catch(CancellationException e){
-			ex = new DatarouterHttpRequestInterruptedException(e, requestStartTimeMs, requestId);
+			TracerTool.appendToSpanInfo("exception", e.getMessage());
+			ex = new DatarouterHttpRequestInterruptedException(e, requestStartTimeMs, requestId, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
 		}finally{
 			TracerTool.finishSpan(TracerThreadLocal.get());
 		}
+		// connection might have gone bad, destroying it
 		if(internalHttpRequest != null){
 			forceAbortRequestUnchecked(internalHttpRequest);
 		}

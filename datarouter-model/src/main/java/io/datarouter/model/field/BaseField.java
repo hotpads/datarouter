@@ -25,7 +25,7 @@ import io.datarouter.util.string.StringTool;
 
 public abstract class BaseField<T> implements Field<T>{
 
-	private static final Map<String,java.lang.reflect.Field> COLUMN_NAME_TO_FIELD_MAP = new ConcurrentHashMap<>();
+	private static final Map<Class<?>,Map<String,java.lang.reflect.Field>> CACHED_FIELDS = new ConcurrentHashMap<>();
 
 	private String prefix;// ignore if not needed
 	protected T value;
@@ -72,14 +72,15 @@ public abstract class BaseField<T> implements Field<T>{
 	public void setUsingReflection(Object targetFieldSet, Object fieldValue){
 		try{
 			Object nestedFieldSet = FieldTool.getNestedFieldSet(targetFieldSet, this);
-			String cacheKey = getFieldCacheKey(targetFieldSet, nestedFieldSet);
-			java.lang.reflect.Field javaField = COLUMN_NAME_TO_FIELD_MAP.get(cacheKey);
+			java.lang.reflect.Field javaField = CACHED_FIELDS
+					.computeIfAbsent(nestedFieldSet.getClass(), $ -> new ConcurrentHashMap<>())
+					.get(getKey().getName());
 			if(javaField == null){
 				javaField = ReflectionTool.getDeclaredFieldFromAncestors(nestedFieldSet.getClass(), getKey().getName());
 				if(javaField == null){
 					throw new RuntimeException(getKey().getName() + " doesn't exist in " + nestedFieldSet.getClass());
 				}
-				COLUMN_NAME_TO_FIELD_MAP.put(cacheKey, javaField);
+				CACHED_FIELDS.get(nestedFieldSet.getClass()).put(getKey().getName(), javaField);
 			}
 			javaField.set(nestedFieldSet, fieldValue);
 		}catch(Exception e){
@@ -136,14 +137,6 @@ public abstract class BaseField<T> implements Field<T>{
 			return o1.getKey().getColumnName().hashCode() - o2.getKey().getColumnName().hashCode();
 		}
 
-	}
-
-	private String getFieldCacheKey(Object targetFieldSet, Object nestedFieldSet){
-		String cacheKey = targetFieldSet.getClass().getName();
-		if(StringTool.notEmpty(prefix)){
-			cacheKey += nestedFieldSet.getClass().getName();
-		}
-		return cacheKey + getPrefixedName();
 	}
 
 }

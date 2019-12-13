@@ -53,8 +53,6 @@ import io.datarouter.httpclient.security.SignatureGenerator;
 public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	private static final Logger logger = LoggerFactory.getLogger(StandardDatarouterHttpClient.class);
 
-	public static final String X_REQUEST_ID = "x-request-id";
-
 	private final CloseableHttpClient httpClient;
 	private final JsonSerializer jsonSerializer;
 	private final SignatureGenerator signatureGenerator;

@@ -15,12 +15,14 @@
  */
 package io.datarouter.web.browse;
 
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.text;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-import javax.mail.MessagingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +42,19 @@ import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Range;
-import io.datarouter.web.email.DatarouterEmailService;
+import io.datarouter.util.tuple.Twin;
+import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalInteger;
+import io.datarouter.web.html.email.J2HtmlEmailTable;
+import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.user.session.CurrentUserSessionInfo;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.http.RequestTool;
+import j2html.tags.DomContent;
 
 public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ViewNodeDataHandler.class);
@@ -56,11 +64,15 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	@Inject
 	private DatarouterAdministratorEmailService administratorEmailService;
 	@Inject
-	private DatarouterEmailService emailService;
+	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
 	private CurrentUserSessionInfo sessionInfo;
 	@Inject
 	private DatarouterProperties properties;
+	@Inject
+	private DatarouterWebPaths paths;
+	@Inject
+	private Bootstrap4PageFactory pageFactory;
 
 	@Override
 	protected PathNode getFormPath(){
@@ -120,7 +132,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 			OptionalInteger limit){
 		showForm();
 		if(!(node instanceof SortedStorageWriter<?,?>)){
-			return new MessageMav("Cannot browse unsorted node");
+			return pageFactory.message(request, "Cannot browse unsorted node");
 		}
 		@SuppressWarnings("unchecked")
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
@@ -154,7 +166,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 			last = pk;
 		}
 		if(count < 1){
-			return new MessageMav("no rows found");
+			return pageFactory.message(request, "no rows found");
 		}
 		long ms = System.currentTimeMillis() - startMs;
 		DatarouterDuration duration = new DatarouterDuration(System.currentTimeMillis() - startMs,
@@ -167,32 +179,39 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				NumberFormatter.addCommas(avgRps),
 				duration);
 		logger.warn(message);
-		String currentUser = sessionInfo.getUser(request).get().getUsername();
-		String to = administratorEmailService.getAdministratorEmailAddressesCsv(currentUser);
-		String emailMessage = buildMessage(node.getName(), NumberFormatter.addCommas(count), last.toString(),
-				NumberFormatter.addCommas(avgRps), duration, currentUser);
-		String subject = "Finished counting " + node.getName();
-		try{
-			emailService.send(currentUser, to, subject, emailMessage, true);
-		}catch(MessagingException e){
-			logger.warn(e.getMessage());
-		}
-		return new MessageMav(message);
+		List<Twin<String>> emailKvs = List.of(
+				Twin.of("node", node.getName()),
+				Twin.of("totalCount", NumberFormatter.addCommas(count)),
+				Twin.of("lastKey", last.toString()),
+				Twin.of("averageRps", NumberFormatter.addCommas(avgRps)),
+				Twin.of("duration", duration + ""),
+				Twin.of("server", properties.getServerName()),
+				Twin.of("triggeredBy", sessionInfo.getUser(request).get().getUsername()));
+		sendEmail(node.getName(), emailKvs);
+		return pageFactory.message(request, message);
 	}
 
-
-	private String buildMessage(String nodeName, String totalCount, String lastKey, String averageRps,
-			DatarouterDuration duration, String userName){
-		String bullet = " - ";
-		String newLine = "<br>";
-		StringBuilder builder = new StringBuilder();
-		builder.append(bullet).append("node=").append(nodeName).append(newLine);
-		builder.append(bullet).append("totalCount=").append(totalCount).append(newLine);
-		builder.append(bullet).append("lastKey=").append(lastKey).append(newLine);
-		builder.append(bullet).append("averageRps=").append(averageRps).append(newLine);
-		builder.append(bullet).append("duration=").append(duration).append(newLine);
-		builder.append(bullet).append("server=").append(properties.getServerName()).append(newLine);
-		builder.append(bullet).append("triggeredBy=").append(userName).append(newLine);
-		return builder.toString();
+	private void sendEmail(String nodeName, List<Twin<String>> kvs){
+		String from = sessionInfo.getUser(request).get().getUsername();
+		String to = administratorEmailService.getAdministratorEmailAddressesCsv(from);
+		String title = "Count Keys Result";
+		var table = new J2HtmlEmailTable<Twin<String>>()
+				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
+				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> text(row.getRight())))
+				.build(kvs);
+		String primaryHref = htmlEmailService.startLinkBuilder()
+				.withLocalPath(paths.datarouter.nodes.browseData)
+				.withParam("nodeName", nodeName)
+				.build();
+		var emailBuilder = htmlEmailService.startEmailBuilder()
+				.withTitle(title)
+				.withTitleHref(primaryHref)
+				.withContent(table);
+		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
 	}
+
+	private static DomContent makeDivBoldRight(String text){
+		return div(text).withStyle("font-weight:bold;text-align:right;");
+	}
+
 }

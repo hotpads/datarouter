@@ -36,6 +36,8 @@ public class DatarouterEmailSettings extends SettingNode{
 	public final CachedSetting<Boolean> useRemoteSmtp;
 	public final CachedSetting<Boolean> sendDatarouterEmails;
 	public final CachedSetting<String> emailLinkHostPort;
+	public final CachedSetting<Boolean> includeLogo;
+	public final CachedSetting<String> logoImgSrc;
 
 	@Inject
 	public DatarouterEmailSettings(SettingFinder finder){
@@ -51,6 +53,8 @@ public class DatarouterEmailSettings extends SettingNode{
 		smtpUsername = registerString("smtpUsername", "");
 		smtpPassword = registerString("smtpPassword", "");
 		emailLinkHostPort = registerString("emailLinkHostPort", UrlConstants.LOCAL_DEV_SERVER_HTTPS);
+		includeLogo = registerBoolean("includeLogo", true);
+		logoImgSrc = registerString("logoImgSrc", "");//specify "" for default
 	}
 
 	public DatarouterEmailHostDetails getDatarouterEmailHostDetails(){

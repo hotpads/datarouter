@@ -82,14 +82,13 @@ public abstract class DatarouterProperties{
 
 	/*----------------- construct ------------------*/
 
-	protected DatarouterProperties(ServerType serverTypeOptions, String serviceName,
-			String configDirectory, String filename){
+	protected DatarouterProperties(ServerType serverTypeOptions, String serviceName, String configDirectory,
+			String filename){
 		this(serverTypeOptions, serviceName, configDirectory, true, false, filename, true);
 	}
 
-	private DatarouterProperties(ServerType serverTypeOptions, String webappName,
-			String configDirectory, boolean directoryRequired, boolean directoryFromJvmArg, String filename,
-			boolean fileRequired){
+	private DatarouterProperties(ServerType serverTypeOptions, String webappName, String configDirectory,
+			boolean directoryRequired, boolean directoryFromJvmArg, String filename, boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Require.isTrue(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
 
@@ -294,7 +293,9 @@ public abstract class DatarouterProperties{
 	/*------------------ methods ---------------*/
 
 	public String getServerTypeString(){
-		return Optional.ofNullable(serverType).map(ServerType::getPersistentString).orElse(null);
+		return Optional.ofNullable(serverType)
+				.map(ServerType::getPersistentString)
+				.orElse(null);
 	}
 
 	public String findConfigFile(String filename){

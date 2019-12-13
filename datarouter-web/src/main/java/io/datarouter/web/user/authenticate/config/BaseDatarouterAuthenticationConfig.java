@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.app.WebappName;
-import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.user.DatarouterCookieKeys;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
@@ -38,16 +37,9 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	@Inject
 	private WebappName webappName;
 	@Inject
-	private DatarouterWebFiles files;
-	@Inject
 	private DatarouterWebPaths paths;
 	@Inject
 	private DatarouterAuthenticationSettings authenticationSettings;
-
-	@Override
-	public String getHomePath(){
-		return "/";
-	}
 
 	@Override
 	public String getKeepAlivePath(){
@@ -55,95 +47,8 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	}
 
 	@Override
-	public String getDatarouterPath(){
-		return paths.datarouter.toSlashedString();
-	}
-
-	@Override
 	public String getShutdownPath(){
 		return paths.datarouter.shutdown.toSlashedString();
-	}
-
-	/*--------------------------- signin/out/up -----------------------------*/
-
-	@Override
-	public String getSignupPath(){
-		return paths.signup.toSlashedString();
-	}
-
-	@Override
-	public String getSignupSubmitPath(){
-		return paths.signup.submit.toSlashedString();
-	}
-
-	@Override
-	public String getSigninPath(){
-		return paths.signin.toSlashedString();
-	}
-
-	@Override
-	public String getSigninSubmitPath(){
-		return paths.signin.submit.toSlashedString();
-	}
-
-	@Override
-	public String getSignoutPath(){
-		return paths.signout.toSlashedString();
-	}
-
-	/*------------------------------ password -------------------------------*/
-
-	@Override
-	public String getResetPasswordPath(){
-		return paths.resetPassword.toSlashedString();
-	}
-
-	@Override
-	public String getResetPasswordSubmitPath(){
-		return paths.resetPasswordSubmit.toSlashedString();
-	}
-
-	/*------------------------------- admin ---------------------------------*/
-
-
-	@Override
-	public String getAdminPath(){
-		return paths.admin.toSlashedString();
-	}
-
-	@Override
-	public String getViewUsersPath(){
-		return paths.admin.viewUsers.toSlashedString();
-	}
-
-	@Override
-	public String getListUsersPath(){
-		return paths.admin.listUsers.toSlashedString();
-	}
-
-	@Override
-	public String getCreateUserPath(){
-		return paths.admin.createUser.toSlashedString();
-	}
-
-	@Override
-	public String getCreateUserSubmitPath(){
-		return paths.admin.createUserSubmit.toSlashedString();
-	}
-
-	@Override
-	public String getEditUserPath(){
-		return paths.admin.editUser.toSlashedString();
-	}
-
-	@Override
-	public String getEditUserSubmitPath(){
-		return paths.admin.editUserSubmit.toSlashedString();
-	}
-
-	@Override
-	public String getAccountManagerPath(){
-		return paths.admin.accounts.toSlashedString();
 	}
 
 	/*------------------------------- params --------------------------------*/
@@ -186,33 +91,6 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	@Override
 	public String getTimestampParam(){
 		return "timestamp";
-	}
-
-	/*-------------------------------- jsp ----------------------------------*/
-
-	@Override
-	public String getHomeJsp(){
-		return "/WEB-INF/jsp/home.jsp";
-	}
-
-	@Override
-	public String getViewUsersJsp(){
-		return files.jsp.authentication.viewUsersJsp.toSlashedString();
-	}
-
-	@Override
-	public String getCreateUserJsp(){
-		return files.jsp.authentication.createUserFormJsp.toSlashedString();
-	}
-
-	@Override
-	public String getEditUserJsp(){
-		return files.jsp.authentication.editUserFormJsp.toSlashedString();
-	}
-
-	@Override
-	public String getResetPasswordJsp(){
-		return files.jsp.authentication.resetPasswordFormJsp.toSlashedString();
 	}
 
 	/*------------------------------ methods --------------------------------*/
@@ -273,14 +151,6 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 			return path.substring(0, path.length() - 1);//remove trailing slash
 		}
 		return path;
-	}
-
-	public boolean isLoginRelatedPath(String path){
-		return pathAContainsB(getSignupPath(), path)
-				|| pathAContainsB(getSignupSubmitPath(), path)
-				|| pathAContainsB(getSigninPath(), path)
-				|| pathAContainsB(getSigninSubmitPath(), path)
-				|| pathAContainsB(getSignoutPath(), path);
 	}
 
 	public static boolean pathAContainsB(String rawA, String rawB){

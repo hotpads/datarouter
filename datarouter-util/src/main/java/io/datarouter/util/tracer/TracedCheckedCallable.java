@@ -45,12 +45,12 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		boolean isParent = parentThread.getId() == currentThread.getId();
 		boolean shouldStartNestedTrace = hasParent && !isParent;
 
-		DatarouterTracer ctx = null;
+		DatarouterTracer tracer = null;
 		if(shouldStartNestedTrace){
-			ctx = new DatarouterTracer(parentTracer.getServerName(), parentTracer.getTraceId(), parentTracer
+			tracer = new DatarouterTracer(parentTracer.getServerName(), parentTracer.getTraceId(), parentTracer
 					.getCurrentThreadId());
-			TracerThreadLocal.bindToThread(ctx);
-			TracerTool.createAndStartThread(ctx, traceThreadName, queueTimeMs);
+			TracerThreadLocal.bindToThread(tracer);
+			TracerTool.createAndStartThread(tracer, traceThreadName, queueTimeMs);
 		}
 
 		V result = wrappedCall();
@@ -61,12 +61,10 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		// should this by in a finally around wrappedCall ?
 		if(shouldStartNestedTrace){
 			TracerTool.finishThread(TracerThreadLocal.get());
-			parentTracer.getThreads().addAll(ctx.getThreads());
-			parentTracer.getSpans().addAll(ctx.getSpans());
-			parentTracer.incrementDiscardedThreadCount(ctx.getDiscardedThreadCount());
+			tracer.getThreadQueue().forEach(parentTracer::addThread);
+			tracer.getSpanQueue().forEach(parentTracer::addSpan);
 			TracerThreadLocal.clearFromThread();
 		}
-
 		return result;
 	}
 

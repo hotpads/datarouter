@@ -15,6 +15,14 @@
  */
 package io.datarouter.web.html.j2html;
 
+import static j2html.TagCreator.caption;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.text;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.thead;
+import static j2html.TagCreator.tr;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,7 +49,7 @@ public class J2HtmlTable<T>{
 		Function<T,DomContent> function = dto -> Optional.ofNullable(valueFunction.apply(dto))
 				.map(Object::toString)
 				.map(TagCreator::text)
-				.orElseGet(() -> TagCreator.text(""));
+				.orElseGet(() -> text(""));
 		columns.add(new J2HtmlTableColumn<>(name, function));
 		return this;
 	}
@@ -67,10 +75,10 @@ public class J2HtmlTable<T>{
 	}
 
 	public ContainerTag build(Collection<T> rows){
-		var thead = TagCreator.thead(TagCreator.tr(TagCreator.each(columns, column -> TagCreator.th(column.name))));
-		var table = TagCreator.table()
+		var thead = thead(tr(each(columns, column -> th(column.name))));
+		var table = table()
 				.withClasses(classes.toArray(String[]::new))
-				.condWith(caption != null, TagCreator.caption(caption))
+				.condWith(caption != null, caption(caption))
 				.with(thead);
 		rows.stream()
 				.map(this::makeTr)
@@ -79,7 +87,7 @@ public class J2HtmlTable<T>{
 	}
 
 	private ContainerTag makeTr(T dto){
-		var tr = TagCreator.tr();
+		var tr = tr();
 		columns.stream()
 				.map(column -> column.valueFunction.apply(dto))
 				.map(TagCreator::td)

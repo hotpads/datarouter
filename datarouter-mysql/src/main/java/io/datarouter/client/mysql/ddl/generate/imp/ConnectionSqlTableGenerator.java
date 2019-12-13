@@ -20,10 +20,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,104 +40,111 @@ import io.datarouter.util.BooleanTool;
 
 public class ConnectionSqlTableGenerator{
 
+	private static final String INFORMATION_SCHEMA = "information_schema";
+	private static final String ENGINE = "engine";
+	private static final String ROW_FORMAT = "row_format";
+	private static final String TABLE_COLLATION = "table_collation";
+
 	private static final Pattern COLUMN_TYPE_PATTERN = Pattern.compile("\\d+");
 
 	public static SqlTable generate(MysqlConnectionPool connectionPool, String tableName, String schemaName){
 		try(Connection connection = connectionPool.checkOut()){
-			PreparedStatement statement = connection.prepareStatement("SELECT * FROM information_schema.`COLUMNS` "
-					+ "WHERE table_schema = ? AND table_name = ?");
-			statement.setString(1, schemaName);
-			statement.setString(2, tableName);
-			ResultSet resultSet = statement.executeQuery();
-			Map<String,SqlColumn> columnsByName = new HashMap<>();
-			while(resultSet.next()){
-				String columnName = resultSet.getString("column_name");
-				boolean nullable = resultSet.getString("is_nullable").equals("YES");
-				boolean autoIncrement = resultSet.getString("extra").contains("auto_increment");
-				MysqlColumnType type = MysqlColumnType.parse(resultSet.getString("data_type"));
-				MysqlCharacterSet characterSet = MysqlCharacterSet.parse(resultSet.getString("character_set_name"));
-				Integer size = findColumnSize(resultSet);
-				String defaultValue = resultSet.getString("column_default");
-				SqlColumn col;
-				if(characterSet == null){
-					col = new SqlColumn(columnName, type, size, nullable, autoIncrement, defaultValue);
-				}else{
-					MysqlCollation collation = MysqlCollation.parse(resultSet.getString("collation_name"));
-					col = new CharSequenceSqlColumn(columnName, type, size, nullable, autoIncrement, defaultValue,
-							characterSet, collation);
-				}
-				columnsByName.put(columnName, col);
-			}
+			List<SqlColumn> columns = fetchSqlTableColumns(connection, schemaName, tableName);
 
-			ResultSet indexList = connection.getMetaData().getIndexInfo(schemaName, schemaName, tableName, false,
-					false);
-			Set<SqlIndex> indexes = new HashSet<>();
-			Set<SqlIndex> uniqueIndexes = new HashSet<>();
+			SqlTableIndexes sqlTableIndexes = fetchSqlTableIndexes(connection, schemaName, tableName);
 
-			SqlIndex primaryKey = null;
-			String currentIndexName = null;
-			List<SqlColumn> currentIndexColumns = new ArrayList<>();
-			boolean currentIndexUnique = false;
-			while(indexList.next()){
-				if(!indexList.getString("INDEX_NAME").equals(currentIndexName)){
-					if(currentIndexName != null){
-						SqlIndex index = new SqlIndex(currentIndexName, currentIndexColumns);
-						if("PRIMARY".equals(currentIndexName)){
-							primaryKey = index;
-						}else if(currentIndexUnique){
-							uniqueIndexes.add(index);
-						}else{
-							indexes.add(index);
-						}
-					}
-					currentIndexName = indexList.getString("INDEX_NAME");
-					currentIndexUnique = BooleanTool.isFalse(indexList.getString("NON_UNIQUE"));
-					currentIndexColumns = new ArrayList<>();
-				}
-				currentIndexColumns.add(columnsByName.get(indexList.getString("COLUMN_NAME")));
-			}
-			if(currentIndexName != null){
-				SqlIndex index = new SqlIndex(currentIndexName, currentIndexColumns);
-				if("PRIMARY".equals(currentIndexName)){
-					primaryKey = index;
-				}else if(currentIndexUnique){
-					uniqueIndexes.add(index);
-				}else{
-					indexes.add(index);
-				}
-			}
+			SqlTableMetadata sqlTableMetadata = fetchSqlTableMetadata(connection, schemaName, tableName);
 
-			resultSet = statement.executeQuery("select engine, row_format from information_schema.tables "
-					+ "where table_name='" + tableName + "' and table_schema = '" + schemaName + "';");
-			resultSet.next();
-			MysqlTableEngine engine = MysqlTableEngine.parse(resultSet.getString(1));
-			MysqlRowFormat rowFormat = MysqlRowFormat.fromPersistentStringStatic(resultSet.getString(2));
-
-			String sql = "SELECT T.table_collation "
-					+ "FROM information_schema.`TABLES` T, "
-					+ "information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA"
-					+ "\nWHERE CCSA.collation_name = T.table_collation "
-					+ "\nAND T.table_schema=\"" + schemaName + "\" "
-					+ "\nAND T.table_name=\"" + tableName + "\";";
-			resultSet = statement.executeQuery(sql);
-			resultSet.next();
-			MysqlCollation collation = MysqlCollation.parse(resultSet.getString(1));
-
-			sql = "SELECT CCSA.character_set_name "
-					+ "FROM information_schema.`TABLES` T, "
-					+ "information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA"
-					+ "\nWHERE CCSA.collation_name = T.table_collation "
-					+ "\nAND T.table_schema=\"" + schemaName + "\" "
-					+ "\nAND T.table_name=\"" + tableName + "\";";
-			resultSet = statement.executeQuery(sql);
-			resultSet.next();
-			MysqlCharacterSet characterSet = MysqlCharacterSet.parse(resultSet.getString(1));
-
-			return new SqlTable(tableName, primaryKey, new ArrayList<>(columnsByName.values()), indexes,
-					uniqueIndexes, characterSet, collation, rowFormat, engine);
+			return new SqlTable(tableName, sqlTableIndexes.primaryKey, columns, sqlTableIndexes.indexes,
+					sqlTableIndexes.uniqueIndexes, sqlTableMetadata.characterSet, sqlTableMetadata.collation,
+					sqlTableMetadata.rowFormat, sqlTableMetadata.engine);
 		}catch(SQLException e){
 			throw new RuntimeException("can not read schema information for table " + schemaName + "." + tableName, e);
 		}
+	}
+
+	private static List<SqlColumn> fetchSqlTableColumns(Connection connection, String schemaName, String tableName)
+	throws SQLException{
+		PreparedStatement statement = connection.prepareStatement("select * from " + INFORMATION_SCHEMA + "."
+				+ "columns where table_schema = ? and table_name = ?");
+		statement.setString(1, schemaName);
+		statement.setString(2, tableName);
+		ResultSet resultSet = statement.executeQuery();
+		List<SqlColumn> columns = new ArrayList<>();
+		while(resultSet.next()){
+			String columnName = resultSet.getString("column_name");
+			boolean nullable = resultSet.getString("is_nullable").equals("YES");
+			boolean autoIncrement = resultSet.getString("extra").contains("auto_increment");
+			MysqlColumnType type = MysqlColumnType.parse(resultSet.getString("data_type"));
+			MysqlCharacterSet characterSet = MysqlCharacterSet.parse(resultSet.getString("character_set_name"));
+			Integer size = findColumnSize(resultSet);
+			String defaultValue = resultSet.getString("column_default");
+			SqlColumn col;
+			if(characterSet == null){
+				col = new SqlColumn(columnName, type, size, nullable, autoIncrement, defaultValue);
+			}else{
+				MysqlCollation collation = MysqlCollation.parse(resultSet.getString("collation_name"));
+				col = new CharSequenceSqlColumn(columnName, type, size, nullable, autoIncrement, defaultValue,
+						characterSet, collation);
+			}
+			columns.add(col);
+		}
+		return columns;
+	}
+
+	private static SqlTableIndexes fetchSqlTableIndexes(Connection connection, String schemaName, String tableName)
+	throws SQLException{
+		ResultSet indexList = connection.getMetaData().getIndexInfo(schemaName, schemaName, tableName, false, false);
+		Set<SqlIndex> indexes = new HashSet<>();
+		Set<SqlIndex> uniqueIndexes = new HashSet<>();
+
+		SqlIndex primaryKey = null;
+		String currentIndexName = null;
+		List<String> currentIndexColumns = new ArrayList<>();
+		boolean currentIndexUnique = false;
+		while(indexList.next()){
+			if(!indexList.getString("index_name").equals(currentIndexName)){
+				if(currentIndexName != null){
+					SqlIndex index = new SqlIndex(currentIndexName, currentIndexColumns);
+					if("PRIMARY".equals(currentIndexName)){
+						primaryKey = index;
+					}else if(currentIndexUnique){
+						uniqueIndexes.add(index);
+					}else{
+						indexes.add(index);
+					}
+				}
+				currentIndexName = indexList.getString("index_name");
+				currentIndexUnique = BooleanTool.isFalse(indexList.getString("non_unique"));
+				currentIndexColumns = new ArrayList<>();
+			}
+			currentIndexColumns.add(indexList.getString("column_name"));
+		}
+		SqlIndex index = new SqlIndex(currentIndexName, currentIndexColumns);
+		if("PRIMARY".equals(currentIndexName)){
+			primaryKey = index;
+		}else if(currentIndexUnique){
+			uniqueIndexes.add(index);
+		}else{
+			indexes.add(index);
+		}
+		return new SqlTableIndexes(primaryKey, indexes, uniqueIndexes);
+	}
+
+	public static SqlTableMetadata fetchSqlTableMetadata(Connection connection, String schemaName, String tableName)
+	throws SQLException{
+		PreparedStatement statement = connection.prepareStatement("select " + ENGINE + "," + ROW_FORMAT + ","
+				+ TABLE_COLLATION + " from " + INFORMATION_SCHEMA + ".tables"
+				+ " where table_schema = ? and table_name = ?");
+		statement.setString(1, schemaName);
+		statement.setString(2, tableName);
+		ResultSet resultSet = statement.executeQuery();
+		resultSet.next();
+		MysqlTableEngine engine = MysqlTableEngine.parse(resultSet.getString(ENGINE));
+		MysqlRowFormat rowFormat = MysqlRowFormat.fromPersistentStringStatic(resultSet.getString(ROW_FORMAT));
+		MysqlCollation collation = MysqlCollation.parse(resultSet.getString(TABLE_COLLATION));
+		MysqlCharacterSet characterSet = MysqlCharacterSet.parse(collation.name().split("_")[0]);
+		return new SqlTableMetadata(engine, rowFormat, collation, characterSet);
 	}
 
 	private static Integer findColumnSize(ResultSet resultSet) throws SQLException{

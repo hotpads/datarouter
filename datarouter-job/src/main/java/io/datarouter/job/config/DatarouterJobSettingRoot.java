@@ -18,10 +18,10 @@ package io.datarouter.job.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
 
 @Singleton
 public class DatarouterJobSettingRoot extends SettingRoot{
@@ -36,11 +36,8 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> processJobs;
 
 	@Inject
-	public DatarouterJobSettingRoot(SettingFinder finder,
-			DatarouterTaskTrackerSettingRoot datarouterTaskTrackerSettingRoot){
-		super(finder, "datarouterJob.");
-
-		dependsOn(datarouterTaskTrackerSettingRoot);
+	public DatarouterJobSettingRoot(SettingFinder finder){
+		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterJob.");
 
 		runClusterJobLockVacuum = registerBoolean("runClusterJobLockVacuum", true);
 		runClusterJobLockVacuumUnlockJob = registerBoolean("runClusterJobLockVacuumUnlockJob", true);

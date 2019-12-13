@@ -29,21 +29,22 @@ import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.exception.ExceptionRecorder;
+import io.datarouter.web.exception.ExceptionRecorder.NoOpExceptionRecorder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
-import io.datarouter.web.handler.mav.nav.AppNavBar;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink;
 import io.datarouter.web.monitoring.latency.LatencyMonitoringGraphLink.NoOpLatencyMonitoringGraphLink;
+import io.datarouter.web.navigation.AppNavBar;
+import io.datarouter.web.navigation.AppNavBarPluginCreator;
+import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
+import io.datarouter.web.navigation.AppNavBarRegistrySupplier.NoOpAppNavBarRegistry;
+import io.datarouter.web.navigation.AppPluginNavBarSupplier;
+import io.datarouter.web.navigation.DatarouterNavBarCreator;
+import io.datarouter.web.navigation.DatarouterNavBarSupplier;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
-import io.datarouter.web.user.BaseDatarouterPermissionRequestDao;
-import io.datarouter.web.user.BaseDatarouterPermissionRequestDao.NoOpDatarouterPermissionRequestDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
-import io.datarouter.web.user.BaseDatarouterUserDao;
-import io.datarouter.web.user.BaseDatarouterUserDao.NoOpDatarouterUserDao;
-import io.datarouter.web.user.BaseDatarouterUserHistoryDao;
-import io.datarouter.web.user.BaseDatarouterUserHistoryDao.NoOpDatarouterUserHistoryDao;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
@@ -52,13 +53,9 @@ import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao;
 import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao.NoOpDatarouterSamlDao;
 import io.datarouter.web.user.authenticate.saml.SamlRegistrar;
 import io.datarouter.web.user.session.CurrentUserSessionInfo;
-import io.datarouter.web.user.session.DatarouterCurrentUserSessionInfo;
+import io.datarouter.web.user.session.CurrentUserSessionInfo.NoOpCurrentUserSessionInfo;
 import io.datarouter.web.user.session.service.DatarouterRoleManager;
-import io.datarouter.web.user.session.service.DatarouterUserInfo;
-import io.datarouter.web.user.session.service.DatarouterUserSessionService;
 import io.datarouter.web.user.session.service.RoleManager;
-import io.datarouter.web.user.session.service.UserInfo;
-import io.datarouter.web.user.session.service.UserSessionService;
 
 public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
@@ -75,30 +72,32 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 				.to(CompoundPortIdentifier.class);
 
 		bindDefault(DatarouterAuthenticationConfig.class, BaseDatarouterAuthenticationConfig.class);
-		bindDefault(BaseDatarouterUserDao.class, NoOpDatarouterUserDao.class);
-		bindDefault(BaseDatarouterUserHistoryDao.class, NoOpDatarouterUserHistoryDao.class);
-		bindDefault(BaseDatarouterPermissionRequestDao.class, NoOpDatarouterPermissionRequestDao.class);
+
 		bindDefault(BaseDatarouterSessionDao.class, NoOpDatarouterSessionDao.class);
 		bindDefault(BaseDatarouterSamlDao.class, NoOpDatarouterSamlDao.class);
-		bindDefault(CurrentUserSessionInfo.class, DatarouterCurrentUserSessionInfo.class);
-		bindDefault(UserInfo.class, DatarouterUserInfo.class);
-		optionalBinder(ExceptionRecorder.class);
+
+		bindDefault(ExceptionRecorder.class, NoOpExceptionRecorder.class);
+
 		optionalBinder(AppNavBar.class);
 		bindDefault(RoleManager.class, DatarouterRoleManager.class);
 		optionalBinder(SamlRegistrar.class);
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
-		bindDefault(UserSessionService.class, DatarouterUserSessionService.class);
+		bindDefault(CurrentUserSessionInfo.class, NoOpCurrentUserSessionInfo.class);
+
 		bindDefaultInstance(DatarouterAdditionalAdministratorsSupplier.class,
 				new DatarouterAdditionalAdministrators(Collections.emptySet()));
 		bindDefault(LatencyMonitoringGraphLink.class, NoOpLatencyMonitoringGraphLink.class);
 		bindDefaultInstance(PermissionRequestAdditionalEmailsSupplier.class,
 				new PermissionRequestAdditionalEmails(Collections.emptySet()));
+		bindDefaultInstance(DatarouterNavBarSupplier.class, new DatarouterNavBarCreator(Collections.emptyList()));
+		bindDefaultInstance(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(Collections.emptyList()));
+		bindDefault(AppNavBarRegistrySupplier.class, NoOpAppNavBarRegistry.class);
+
 		// define as singleton for everybody
 		bind(Gson.class).toInstance(GsonTool.GSON);
 	}
 
 	// allows this module to be installed multiple times
-
 	@Override
 	public boolean equals(Object that){
 		if(that == null || getClass() != that.getClass()){

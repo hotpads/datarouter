@@ -15,22 +15,15 @@
  */
 package io.datarouter.tasktracker.config;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.httpclient.path.PathsRoot;
-import io.datarouter.web.config.DatarouterWebPaths;
 
 @Singleton
 public class DatarouterTaskTrackerPaths extends PathNode implements PathsRoot{
 
-	public final DatarouterPaths datarouter;
-
-	@Inject
-	public DatarouterTaskTrackerPaths(DatarouterWebPaths datarouterWebPaths){
-		this.datarouter = branch(DatarouterPaths::new, datarouterWebPaths.datarouter.getValue());
-	}
+	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
 		public final PathNode longRunningTasks = leaf("longRunningTasks");

@@ -67,7 +67,6 @@ public class RequestTool{
 	private static final String[] PRIVATE_NETS = {"10.0.0.0/8", "172.16.0.0/12"};
 
 	public static final String INACCESSIBLE_BODY = "INACCESSIBLE BODY: ";
-	public static final String SUBMIT_ACTION = "submitAction";
 	public static final String REQUEST_PHASE_TIMER = "requestPhaseTimer";
 
 	public static String getPath(HttpServletRequest request){

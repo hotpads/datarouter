@@ -69,8 +69,7 @@ implements MultiIndexNode<PK, D, IK, IE>{
 		}
 		List<PK> primaryKeys = Scanner.of(indexKeys)
 				.map(indexKey -> new Range<>(indexKey, true, indexKey, true))
-				.mapToScanner(indexKeyRange -> indexNode.scan(indexKeyRange))
-				.concatenate()
+				.concatenate(indexKeyRange -> indexNode.scan(indexKeyRange))
 				.map(IE::getTargetKey)
 				.list();
 		return mainNode.getMulti(primaryKeys, config);

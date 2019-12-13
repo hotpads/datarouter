@@ -31,15 +31,15 @@ import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.html.j2html.DatarouterBootstrap4PageFactory;
 import io.datarouter.web.html.j2html.J2HtmlTable;
+import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.ContainerTag;
 
 public class ViewTableConfigurationHandler extends BaseHandler{
 
 	@Inject
-	private DatarouterBootstrap4PageFactory pageFactory;
+	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private TableConfigurationService tableConfigurationService;
 

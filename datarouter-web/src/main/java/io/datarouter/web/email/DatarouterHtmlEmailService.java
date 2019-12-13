@@ -18,10 +18,13 @@ package io.datarouter.web.email;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.util.string.StringTool;
+import io.datarouter.web.config.DatarouterEmailSettings;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
-import io.datarouter.web.html.J2HtmlDatarouterEmail;
-import io.datarouter.web.html.J2HtmlDatarouterEmailBuilder;
+import io.datarouter.web.html.email.J2HtmlDatarouterEmail;
+import io.datarouter.web.html.email.J2HtmlDatarouterEmailBuilder;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -32,7 +35,11 @@ public class DatarouterHtmlEmailService{
 	@Inject
 	private DatarouterWebPaths paths;
 	@Inject
+	private DatarouterService datarouterService;
+	@Inject
 	private DatarouterEmailService datarouterEmailService;
+	@Inject
+	private DatarouterEmailSettings datarouterEmailSettings;
 
 	public void trySend(String fromEmail, String toEmail, String subject, String body){
 		datarouterEmailService.trySend(fromEmail, toEmail, subject, body, true);
@@ -41,12 +48,11 @@ public class DatarouterHtmlEmailService{
 	public void trySendJ2Html(
 			String fromEmail,
 			String toEmail,
-			String subject,
 			J2HtmlDatarouterEmailBuilder emailBuilder){
 		J2HtmlDatarouterEmail email = emailBuilder.build();
 		ContainerTag body = email.build();
 		String bodyString = body.renderFormatted();
-		trySend(fromEmail, toEmail, subject, bodyString);
+		trySend(fromEmail, toEmail, emailBuilder.getSubject(), bodyString);
 	}
 
 	public DatarouterEmailLinkBuilder startLinkBuilder(){
@@ -54,15 +60,29 @@ public class DatarouterHtmlEmailService{
 	}
 
 	public J2HtmlDatarouterEmailBuilder startEmailBuilder(){
-		String logoImgSrc = datarouterEmailService.startLinkBuilder()
+		boolean includeLogo = datarouterEmailSettings.includeLogo.get();
+		var emailBuilder = new J2HtmlDatarouterEmailBuilder()
+				.withWebappName(datarouterService.getName())
+				.withIncludeLogo(includeLogo);
+		if(includeLogo){
+			String logoHref = datarouterEmailService.startLinkBuilder()
+					.withLocalPath(paths.datarouter)
+					.build();
+			emailBuilder
+					.withLogoImgSrc(getEmailLogoHref())
+					.withLogoHref(logoHref);
+		}
+		return emailBuilder;
+	}
+
+	private String getEmailLogoHref(){
+		String configuredHref = datarouterEmailSettings.logoImgSrc.get();
+		if(StringTool.notEmpty(configuredHref)){
+			return configuredHref;
+		}
+		return datarouterEmailService.startLinkBuilder()
 				.withLocalPath(files.jeeAssets.datarouterLogoPng)
 				.build();
-		String logoHref = datarouterEmailService.startLinkBuilder()
-				.withLocalPath(paths.datarouter)
-				.build();
-		return new J2HtmlDatarouterEmailBuilder()
-				.withLogoImgSrc(logoImgSrc)
-				.withLogoHref(logoHref);
 	}
 
 }

@@ -29,18 +29,22 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 
 	private final DatarouterHttpResponse response;
 
-	public DatarouterHttpResponseException(DatarouterHttpResponse response, Duration duration){
-		super(buildMessage(response, duration), null);
+	public DatarouterHttpResponseException(DatarouterHttpResponse response, Duration duration, String requestId,
+			String target){
+		super(buildMessage(response, duration, requestId, target), null);
 		this.response = response;
 	}
 
-	private static String buildMessage(DatarouterHttpResponse response, Duration duration){
-		String message = "HTTP response returned with status code " + response.getStatusCode();
+	private static String buildMessage(DatarouterHttpResponse response, Duration duration, String requestId,
+			String target){
+		String message = "bad response statusCode=" + response.getStatusCode();
 		Header header = response.getFirstHeader(HttpHeaders.X_EXCEPTION_ID);
 		if(header != null){
-			message += " and exception id " + header.getValue();
+			message += " exceptionId=" + header.getValue();
 		}
-		message += " after " + duration.toMillis() + "ms";
+		message += " durationMs=" + duration.toMillis();
+		message += " requestId=" + requestId;
+		message += " target=" + target;
 		String entity = response.getEntity();
 		if(entity != null && !entity.isEmpty() && entity.charAt(entity.length() - 1) == '\n'){
 			entity = entity.substring(0, entity.length() - 1) + '⏎';

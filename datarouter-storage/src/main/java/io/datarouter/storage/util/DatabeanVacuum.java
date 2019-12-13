@@ -80,9 +80,11 @@ public class DatabeanVacuum<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 	}
 
 	public static class DatabeanVacuumBuilder<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
+
+		private final Consumer<Collection<PK>> deleteConsumer;
+
 		private Scanner<D> scanner;
 		private Predicate<D> shouldDelete;
-		private final Consumer<Collection<PK>> deleteConsumer;
 		private int deleteBatchSize;
 		private Optional<Integer> logBatchSize;
 

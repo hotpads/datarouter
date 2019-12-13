@@ -15,12 +15,18 @@
  */
 package io.datarouter.web.navigation;
 
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.button;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.img;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.nav;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.ul;
+
 import java.util.Objects;
 
 import io.datarouter.web.handler.mav.MavProperties;
-import io.datarouter.web.handler.mav.nav.NavBar;
-import io.datarouter.web.handler.mav.nav.NavBarMenuItem;
-import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 
@@ -36,102 +42,90 @@ public class WebappNavbarV2Html{
 	}
 
 	public ContainerTag build(){
-		var nav = TagCreator.nav()
-				.attr(Attr.ID, "app-navbar")
-				.withClass("navbar navbar-expand-md navbar-dark bg-dark");
-		var button = TagCreator.button()
+		var span = span()
+				.withClass("navbar-toggler-icon");
+		var button = button(span)
 				.withClass("navbar-toggler")
 				.withType("button")
 				.attr("data-toggle", "collapse")
 				.attr("data-target", "#app-navbar-content");
-		var span = TagCreator.span()
-				.withClass("navbar-toggler-icon");
-		return nav
+		return nav()
+				.attr(Attr.ID, "app-navbar")
+				.withClass("navbar navbar-expand-md navbar-dark bg-dark")
 				.condWith(props.getIsDatarouterPage(), makeDatarouterLogo())
-				.with(button.with(span))
+				.with(button)
 				.with(makeAppNavbarContent());
 	}
 
 	private ContainerTag makeDatarouterLogo(){
-		var link = TagCreator.a()
-				.withStyle("navbar-brand d-inline-flex")
-				.withHref(props.getContextPath() + "/datarouter");
-		var img = TagCreator.img()
+		var img = img()
 				.withClass("align-top")
 				.withStyle("height: 1.5rem")
 				.withSrc(props.getContextPath() + navbar.getLogoSrc())
 				.withAlt(navbar.getLogoAlt());
-		return link.with(img);
+		return a(img)
+				.withStyle("navbar-brand d-inline-flex")
+				.withHref(props.getContextPath() + "/datarouter");
 	}
 
 	private ContainerTag makeAppNavbarContent(){
-		var div = TagCreator.div()
+		return div(makeAppNavBarList(), makeSignOut())
 				.withId("app-navbar-content")
 				.withClass("collapse navbar-collapse");
-		return div.with(
-				makeAppNavBarList(),
-				makeSignOut());
 	}
 
 	private ContainerTag makeAppNavBarList(){
-		var ul = TagCreator.ul()
-				.withClass("navbar-nav mr-auto");
 		var menus = navbar.getMenuItems(props.getRequest()).stream()
 				.map(menuItem -> menuItem.isDropdown() ? makeDropdownMenuItem(menuItem)
 						: makeNonDropdownMenuItem(menuItem))
 				.toArray(ContainerTag[]::new);
-		return ul.with(menus);
+		return ul(menus)
+				.withClass("navbar-nav mr-auto");
 	}
 
 	private ContainerTag makeDropdownMenuItem(NavBarMenuItem menuItem){
-		var li = TagCreator.li()
-				.withClass("nav-item dropdown");
-		var span = TagCreator.span()
+		var span = span()
 				.withClass("caret");
-		var link = TagCreator.a()
+		var link = a()
 				.withClass("nav-link dropdown-toggle")
 				.attr("data-toggle", "dropdown")
 				.withHref("#")
 				.withText(menuItem.getText())
 				.with(span);
-		return li
-				.with(link)
-				.with(makeDropdown(menuItem));
+		return li(link, makeDropdown(menuItem))
+				.withClass("nav-item dropdown");
 	}
 
 	private ContainerTag makeDropdown(NavBarMenuItem menuItem){
-		var div = TagCreator.div()
-				.withClass("dropdown-menu");
 		var links = menuItem.getSubItems(props.getRequest()).stream()
 				.map(this::makeDropdownLink)
 				.toArray(ContainerTag[]::new);
-		return div.with(links);
+		return div(links)
+				.withClass("dropdown-menu");
 	}
 
 	private ContainerTag makeDropdownLink(NavBarMenuItem menuItem){
-		return TagCreator.a(menuItem.getText())
+		return a(menuItem.getText())
 				.withClass("dropdown-item")
 				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString());
 	}
 
 	private ContainerTag makeNonDropdownMenuItem(NavBarMenuItem menuItem){
-		var li = TagCreator.li()
-				.withClass("nav-item");
-		var link = TagCreator.a(menuItem.getText())
+		var link = a(menuItem.getText())
 				.withClass("nav-link")
 				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString());
-		return li.with(link);
+		return li(link)
+				.withClass("nav-item");
 	}
 
 	private ContainerTag makeSignOut(){
-		var ul = TagCreator.ul()
-				.withClass("navbar-nav");
-		var li = TagCreator.li()
-				.withClass("nav-item");
-		var link = TagCreator.a("Sign out")
+		var link = a("Sign out")
 				.withClass("nav-link")
 				.withHref(props.getContextPath() + "/signout");
-		return ul.with(li.with(link));
+		var li = li(link)
+				.withClass("nav-item");
+		return ul(li)
+				.withClass("navbar-nav");
 	}
 
 }

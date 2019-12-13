@@ -323,8 +323,7 @@ public class MysqlNodeManager{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config){
 		return new MysqlManagedIndexScanner<>(this, indexEntryFieldInfo, fieldInfo, ranges, config, MysqlCollation
 				.isCaseInsensitive(fieldInfo))
-				.mapToScanner(Scanner::of)
-				.concatenate();
+				.concatenate(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
@@ -338,8 +337,7 @@ public class MysqlNodeManager{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config){
 		return new MysqlManagedIndexDatabeanScanner<>(this, fieldInfo, indexEntryFieldInfo, ranges, config,
 				MysqlCollation.isCaseInsensitive(fieldInfo))
-				.mapToScanner(Scanner::of)
-				.concatenate();
+				.concatenate(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
@@ -353,8 +351,7 @@ public class MysqlNodeManager{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config){
 		return new MysqlManagedIndexKeyScanner<>(this, fieldInfo, indexEntryFieldInfo,
 				ranges, config, MysqlCollation.isCaseInsensitive(fieldInfo))
-				.mapToScanner(Scanner::of)
-				.concatenate();
+				.concatenate(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
@@ -363,8 +360,7 @@ public class MysqlNodeManager{
 			Config config){
 		return new MysqlPrimaryKeyScanner<>(this, fieldInfo, ranges, config, MysqlCollation.isCaseInsensitive(
 				fieldInfo))
-				.mapToScanner(Scanner::of)
-				.concatenate();
+				.concatenate(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
@@ -372,8 +368,7 @@ public class MysqlNodeManager{
 	Scanner<D> scanMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<PK>> ranges, Config config){
 		return new MysqlDatabeanScanner<>(this, fieldInfo, ranges, config, MysqlCollation
 				.isCaseInsensitive(fieldInfo))
-				.mapToScanner(Scanner::of)
-				.concatenate();
+				.concatenate(Scanner::of);
 	}
 
 	public <PK extends PrimaryKey<PK>,

@@ -28,7 +28,9 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.httpclient.response.HttpStatusCode;
+import io.datarouter.instrumentation.trace.TracerTool;
 
 public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavailableRetryStrategy{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterServiceUnavailableRetryStrategy.class);
@@ -55,12 +57,13 @@ public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavail
 		}
 		HttpClientContext clientContext = HttpClientContext.adapt(context);
 		boolean willRetry = HttpRetryTool.shouldRetry(context, executionCount, retryCount);
-		String requestId = (String)context.getAttribute(StandardDatarouterHttpClient.X_REQUEST_ID);
+		String requestId = (String)context.getAttribute(DatarouterHttpClientIoExceptionCircuitBreaker.X_REQUEST_ID);
 		if(willRetry){
 			HttpEntity httpEntity = response.getEntity();
-			String entity = HttpRetryTool.entityToString(httpEntity).orElse(null);
+			String entity = HttpRetryTool.entityToString(httpEntity);
 			logger.warn("Request {} id={} failure Nº {} statusCode={} entity={}", clientContext.getRequest()
 					.getRequestLine(), requestId, executionCount, statusCode, entity);
+			TracerTool.appendToSpanInfo("willRetry", statusCode);
 		}else{
 			// don't log everything, caller will get details in an Exception
 			logger.warn("Request {} id={} failure Nº {} statusCode={} (final)", clientContext.getRequest()

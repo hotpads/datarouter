@@ -28,6 +28,7 @@ import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
+import io.datarouter.web.exception.ExceptionHandlingConfig.NoOpExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.file.FilesRoot;
 import io.datarouter.web.filter.StaticFileFilter;
@@ -43,15 +44,24 @@ import io.datarouter.web.listener.InitializeEagerClientsAppListener;
 import io.datarouter.web.listener.JspWebappListener;
 import io.datarouter.web.listener.NoJavaSessionWebAppListener;
 import io.datarouter.web.listener.TomcatWebAppNamesWebAppListener;
+import io.datarouter.web.navigation.AppNavBarPluginCreator;
+import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
+import io.datarouter.web.navigation.AppPluginNavBarSupplier;
+import io.datarouter.web.navigation.DatarouterNavBarCategory;
+import io.datarouter.web.navigation.DatarouterNavBarCreator;
+import io.datarouter.web.navigation.DatarouterNavBarSupplier;
+import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
+import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
 import io.datarouter.web.user.session.CurrentUserSessionInfo;
+import io.datarouter.web.user.session.CurrentUserSessionInfo.NoOpCurrentUserSessionInfo;
 import io.datarouter.web.user.session.service.RoleManager;
-import io.datarouter.web.user.session.service.UserInfo;
 import io.datarouter.web.user.session.service.UserSessionService;
+import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
 
 public class DatarouterWebPlugin extends BaseWebPlugin{
 
@@ -60,7 +70,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends FilesRoot> filesClass;
 	private final Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass;
 	private final Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass;
-	private final Class<? extends UserInfo> userInfoClass;
 	private final Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass;
 	private final Class<? extends ExceptionRecorder> exceptionRecorderClass;
 	private final Set<String> additionalAdministrators;
@@ -68,10 +77,15 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final List<Class<? extends DatarouterAppListener>> appListenerClasses;
 	private final Class<? extends RoleManager> roleManagerClass;
 	private final Class<? extends UserSessionService> userSessionServiceClass;
+	private final List<NavBarItem> datarouterNavBarPluginItems;
+	private final List<NavBarItem> appNavBarPluginItems;
+	private final Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass;
+	private final Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(DatarouterWebDaoModule daosModuleBuilder){
-		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder);
+		this(null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null, null,
+				null);
 	}
 
 	private DatarouterWebPlugin(
@@ -79,7 +93,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends FilesRoot> filesClass,
 			Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass,
 			Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass,
-			Class<? extends UserInfo> userInfoClass,
 			Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass,
 			Class<? extends ExceptionRecorder> exceptionRecorderClass,
 			Set<String> additionalAdministrators,
@@ -87,7 +100,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<Class<? extends DatarouterAppListener>> appListenerClasses,
 			Class<? extends RoleManager> roleManagerClass,
 			Class<? extends UserSessionService> userSessionServiceClass,
-			DatarouterWebDaoModule daosModuleBuilder){
+			DatarouterWebDaoModule daosModuleBuilder,
+			List<NavBarItem> datarouterNavBarPluginItems,
+			List<NavBarItem> appNavBarPluginItems,
+			Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass,
+			Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier){
 		addRouteSet(DatarouterWebRouteSet.class);
 		addSettingRoot(DatarouterWebSettingRoot.class);
 		setDaosModuleBuilder(daosModuleBuilder);
@@ -106,11 +123,17 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				GuiceRequestCachingFilter.class));
 		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, HttpsFilter.class));
 
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.MONITORING,
+				new DatarouterWebPaths().datarouter.executors, "Executors"));
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.MONITORING,
+				new DatarouterWebPaths().datarouter.memory, "Server Status"));
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.TOOLS,
+				new DatarouterWebPaths().datarouter.tableConfiguration, "Custom Table Configurations"));
+
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;
 		this.authenticationConfigClass = authenticationConfigClass;
 		this.currentUserSessionInfoClass = currentUserSessionInfoClass;
-		this.userInfoClass = userInfoClass;
 		this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
 		this.exceptionRecorderClass = exceptionRecorderClass;
 		this.additionalAdministrators = additionalAdministrators;
@@ -118,18 +141,21 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.appListenerClasses = appListenerClasses;
 		this.roleManagerClass = roleManagerClass;
 		this.userSessionServiceClass = userSessionServiceClass;
+		this.datarouterNavBarPluginItems = datarouterNavBarPluginItems;
+		this.appNavBarPluginItems = appNavBarPluginItems;
+		this.datarouterUserExternalDetailClass = datarouterUserExternalDetailClass;
+		this.appNavBarRegistrySupplier = appNavBarRegistrySupplier;
 	}
 
 	@Override
 	public void configure(){
 		bind(FilesRoot.class).to(filesClass);
-		bindDefault(ExceptionRecorder.class, exceptionRecorderClass);
+		bindActualNullSafe(ExceptionRecorder.class, exceptionRecorderClass);
 		bind(DatarouterService.class).toInstance(datarouterService);
 
 		bindActualNullSafe(DatarouterAuthenticationConfig.class, authenticationConfigClass);
 		bindActualNullSafe(CurrentUserSessionInfo.class, currentUserSessionInfoClass);
-		bindActualNullSafe(UserInfo.class, userInfoClass);
-		bindActualNullSafe(ExceptionHandlingConfig.class, exceptionHandlingConfigClass);
+		bindDefault(ExceptionHandlingConfig.class, exceptionHandlingConfigClass);
 		bindActualInstanceNullSafe(DatarouterAdditionalAdministratorsSupplier.class,
 				new DatarouterAdditionalAdministrators(additionalAdministrators));
 		bindActualInstanceNullSafe(PermissionRequestAdditionalEmailsSupplier.class,
@@ -138,6 +164,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(AppListenersClasses.class, new DatarouterAppListenersClasses(appListenerClasses));
 		bindActualNullSafe(RoleManager.class, roleManagerClass);
 		bindActualNullSafe(UserSessionService.class, userSessionServiceClass);
+		bindActualInstanceNullSafe(DatarouterNavBarSupplier.class,
+				new DatarouterNavBarCreator(datarouterNavBarPluginItems));
+		bindActualInstanceNullSafe(AppPluginNavBarSupplier.class,
+				new AppNavBarPluginCreator(appNavBarPluginItems));
+		bindActualNullSafe(DatarouterUserExternalDetailService.class, datarouterUserExternalDetailClass);
+		bindActualNullSafe(AppNavBarRegistrySupplier.class, appNavBarRegistrySupplier);
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -185,15 +217,19 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		private Class<? extends FilesRoot> filesClass;
 		private Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass;
-		private Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass;
-		private Class<? extends UserInfo> userInfoClass;
-		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass;
+		private Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass = NoOpCurrentUserSessionInfo.class;
+		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass
+				= NoOpExceptionHandlingConfig.class;
 		private Class<? extends ExceptionRecorder> exceptionRecorderClass;
 		private Set<String> additionalAdministrators = Collections.emptySet();
 		private Set<String> additionalPermissionRequestEmails = Collections.emptySet();
 		private List<Class<? extends DatarouterAppListener>> appListenerClasses;
 		private Class<? extends RoleManager> roleManagerClass;
-		private Class<? extends UserSessionService> userSessionServiceClass;
+		private Class<? extends UserSessionService> userSessionServiceClass = NoOpUserSessionService.class;
+		private List<NavBarItem> datarouterNavBarPluginItems;
+		private List<NavBarItem> appNavBarPluginItems;
+		private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass;
+		private Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -214,11 +250,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		public DatarouterWebPluginBuilder setCurrentUserSessionInfoClass(
 				Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass){
 			this.currentUserSessionInfoClass = currentUserSessionInfoClass;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder setUserInfoClass(Class<? extends UserInfo> userInfoClass){
-			this.userInfoClass = userInfoClass;
 			return this;
 		}
 
@@ -267,6 +298,30 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setDatarouterNavBarMenuItems(
+				List<NavBarItem> datarouterNavBarPluginItems){
+			this.datarouterNavBarPluginItems = datarouterNavBarPluginItems;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder setAppNavBarMenuItems(List<NavBarItem> appNavBarPluginItems){
+			this.appNavBarPluginItems = appNavBarPluginItems;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder setAppNavBarRegistrySupplier(
+				Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier){
+			this.appNavBarRegistrySupplier = appNavBarRegistrySupplier;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder setDatarouterUserExternalDetailClass(
+				Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass){
+			this.datarouterUserExternalDetailClass = datarouterUserExternalDetailClass;
+			return this;
+		}
+
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId));
 		}
@@ -278,7 +333,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					filesClass,
 					authenticationConfigClass,
 					currentUserSessionInfoClass,
-					userInfoClass,
 					exceptionHandlingConfigClass,
 					exceptionRecorderClass,
 					additionalAdministrators,
@@ -286,7 +340,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					appListenerClasses,
 					roleManagerClass,
 					userSessionServiceClass,
-					daoModule == null ? new DatarouterWebDaoModule(defaultClientId) : daoModule);
+					daoModule == null ? new DatarouterWebDaoModule(defaultClientId) : daoModule,
+					datarouterNavBarPluginItems,
+					appNavBarPluginItems,
+					datarouterUserExternalDetailClass,
+					appNavBarRegistrySupplier);
 		}
 
 	}

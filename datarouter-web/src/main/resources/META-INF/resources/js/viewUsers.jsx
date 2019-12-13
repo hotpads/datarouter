@@ -107,12 +107,17 @@ class Users extends React.Component{
 }
 
 const Filters = props =>
-	<div>
-		<label>Show requestors only: </label>
-		<input type="checkbox" checked={props.requestorsOnly} onChange={props.handleRequestorToggle}/>
-		<br/>
-		<label>Email filter: </label>
-		<input type="text" name="emailFilter" value={props.emailFilter} onChange={props.handleEmailFilter}/>
+	<div class="form-group">
+		<div class="form-check">
+			<label class="form-check-label">
+				<input class="form-check-input" type="checkbox" checked={props.requestorsOnly} onChange={props.handleRequestorToggle}/>
+				Show requestors only
+			</label>
+		</div>
+		<div class="form-group">
+			<label for="emailFilter"> Email Filter: </label>
+			<input type="text" name="emailFilter" class="form-control" value={props.emailFilter} onChange={props.handleEmailFilter} id="emailFilter"/>
+		</div>
 	</div>
 
 const UserList = props =>
@@ -139,17 +144,17 @@ const UserList = props =>
 										<span class="bg-warning">HAS PERMISSION REQUEST</span>
 									}
 								</td>
-								<td><a href={"editUser?userId=" + user.id} class="glyphicon glyphicon-pencil"></a></td>
+								<td><a href={"editUser?userId=" + user.id}>edit</a></td>
 							</tr>
 						)
 				}
 			</tbody>
 		</table>
 		<nav>
-			<ul class="pager">
-				<li><a onClick={props.loadPrevPage}>Previous</a></li>
-				<li><a onClick={props.loadStartPage}>Start</a></li>
-				<li><a onClick={props.loadNextPage}>Next</a></li>
+			<ul class="pagination">
+				<li><a class="page-link" onClick={props.loadPrevPage}>Previous</a></li>
+				<li><a class="page-link" onClick={props.loadStartPage}>Start</a></li>
+				<li><a class="page-link" onClick={props.loadNextPage}>Next</a></li>
 			</ul>
 		</nav>
 	</div>

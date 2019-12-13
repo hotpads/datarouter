@@ -1,0 +1,153 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.datarouter.virtualnode.redundant.mixin;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.Config;
+import io.datarouter.storage.node.op.raw.QueueStorage;
+import io.datarouter.storage.node.op.raw.QueueStorage.QueueStorageNode;
+import io.datarouter.storage.queue.QueueMessage;
+import io.datarouter.storage.queue.QueueMessageKey;
+import io.datarouter.util.timer.PhaseTimer;
+import io.datarouter.virtualnode.redundant.RedundantQueueNode;
+
+public interface RedundantQueueStorageMixin<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>,
+		N extends QueueStorageNode<PK,D,F>>
+extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
+	static final Logger logger = LoggerFactory.getLogger(RedundantQueueStorageMixin.class);
+
+	@Override
+	default D poll(Config config){
+		for(N node : getReadNodes()){
+			D messages = node.poll(config);
+			if(messages != null){
+				return messages;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	default List<D> pollMulti(Config config){
+		return Scanner.of(getReadNodes())
+				.map(node -> node.pollMulti(config))
+				.concatenate(Scanner::of)
+				.list();
+	}
+
+	@Override
+	default Scanner<D> pollUntilEmpty(Config config){
+		return Scanner.of(getReadNodes())
+				.concatenate(node -> node.pollUntilEmpty(config));
+	}
+
+	@Override
+	default void ack(QueueMessageKey key, Config config){
+		PhaseTimer phaseTimer = new PhaseTimer();
+		for(N node : getReadNodes()){
+			try{
+				node.ack(key, config);
+				phaseTimer.add("success " + node);
+				logger.debug("{}", phaseTimer);
+				return;
+			}catch(RuntimeException e){
+				SqsRedundantNodeTool.swallowIfNotFound(e, node);
+				phaseTimer.add("failed node " + node);
+			}
+		}
+		logger.debug("{}", phaseTimer);
+	}
+
+	@Override
+	default void ackMulti(Collection<QueueMessageKey> keys, Config config){
+		PhaseTimer phaseTimer = new PhaseTimer();
+		for(N node : getReadNodes()){
+			try{
+				node.ackMulti(keys, config);
+				phaseTimer.add("success " + node);
+				logger.debug("{}", phaseTimer);
+				return;
+			}catch(RuntimeException e){
+				SqsRedundantNodeTool.swallowIfNotFound(e, node);
+				phaseTimer.add("failed node " + node);
+			}
+		}
+		logger.debug("{}", phaseTimer);
+	}
+
+	@Override
+	default void put(D databean, Config config){
+		getWriteNode().put(databean, config);
+	}
+
+	@Override
+	default void putMulti(Collection<D> databeans, Config config){
+		getWriteNode().putMulti(databeans, config);
+	}
+
+	@Override
+	default QueueMessage<PK,D> peek(Config config){
+		PhaseTimer phaseTimer = new PhaseTimer();
+		List<N> readerNodes = new ArrayList<>(getReadNodes());
+		Collections.shuffle(readerNodes);
+		for(N node : readerNodes){
+			QueueMessage<PK,D> databean = node.peek(config);
+			phaseTimer.add("node " + node);
+			if(databean != null){
+				logger.debug("{}", phaseTimer);
+				return databean;
+			}
+		}
+		logger.debug("{}", phaseTimer);
+		return null;
+	}
+
+	@Override
+	default List<QueueMessage<PK,D>> peekMulti(Config config){
+		PhaseTimer phaseTimer = new PhaseTimer();
+		for(N node : getReadNodes()){
+			List<QueueMessage<PK,D>> messages = node.peekMulti(config);
+			phaseTimer.add("node " + node);
+			if(!messages.isEmpty()){
+				logger.debug("{}", phaseTimer);
+				return messages;
+			}
+		}
+		logger.debug("{}", phaseTimer);
+		return Collections.emptyList();
+	}
+
+	@Override
+	default Scanner<QueueMessage<PK,D>> peekUntilEmpty(Config config){
+		return Scanner.of(getReadNodes())
+				.concatenate(node -> node.peekUntilEmpty(config));
+	}
+
+}

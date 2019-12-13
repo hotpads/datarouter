@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.tuple.Pair;
-import io.datarouter.web.handler.mav.nav.AppNavBar;
-import io.datarouter.web.handler.mav.nav.DatarouterNavBar;
+import io.datarouter.web.navigation.AppNavBar;
+import io.datarouter.web.navigation.DatarouterNavBar;
 
 @SuppressWarnings("serial")
 public abstract class DispatcherServlet extends HttpServlet{

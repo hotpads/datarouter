@@ -23,25 +23,32 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.string.StringTool;
 
 public class SettingRoot extends SettingNode{
 
 	private final Set<SettingNode> rootNodes = Collections.synchronizedSet(new LinkedHashSet<>());
+	@SuppressWarnings("unused")
+	private final SettingCategory category;
 
-	public SettingRoot(SettingFinder finder, String name){
+	public SettingRoot(SettingFinder finder, SettingCategory category, String name){
 		super(finder, name);
 		this.rootNodes.add(this);
+		this.category = category;
 	}
 
-	public SettingRoot(SettingFinder finder, AdditionalSettingRootsFinder additionalSettingRootsFinder, String name){
+	private SettingRoot(SettingFinder finder, AdditionalSettingRootsFinder additionalSettingRootsFinder,
+			SettingCategory category, String name){
 		super(finder, name);
-		this.rootNodes.add(this);
 		additionalSettingRootsFinder.getAdditionalSettingRoots().forEach(this::dependsOn);
+		this.category = category;
 	}
 
-	public void dependsOn(SettingRoot settingNode){
+	private void dependsOn(SettingRoot settingNode){
 		rootNodes.add(settingNode);
 		settingNode.rootNodes.forEach(rootNodes::add);
 	}
@@ -94,6 +101,16 @@ public class SettingRoot extends SettingNode{
 		return rootNodes.stream()
 				.map(SettingNode::getShortName)
 				.anyMatch(shortName -> shortName.equals(rootNameWithoutTrailingDot));
+	}
+
+	@Singleton
+	public static class SettingRootFinder extends SettingRoot{
+
+		@Inject
+		private SettingRootFinder(SettingFinder finder, AdditionalSettingRootsFinder additionalSettingRootsFinder){
+			super(finder, additionalSettingRootsFinder, DatarouterSettingCategory.DATAROUTER, "datarouter.");
+		}
+
 	}
 
 }

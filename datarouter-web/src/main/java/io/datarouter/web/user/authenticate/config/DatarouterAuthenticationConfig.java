@@ -22,51 +22,45 @@ import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.time.DurationTool;
+import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.session.service.Session;
 
 public interface DatarouterAuthenticationConfig{
 
-	String getHomePath();
+	static final DatarouterWebPaths PATHS = new DatarouterWebPaths();
+
 	String getKeepAlivePath();
-	String getDatarouterPath();
 	String getShutdownPath();
 
-	String getSignupPath();
-	String getSignupSubmitPath();
-	String getSigninPath();
-	String getSigninSubmitPath();
-	String getSignoutPath();
-	default String getPermissionRequestPath(){
-		return "/permissionRequest";
+	default String getSigninPath(){
+		return PATHS.signin.toSlashedString();
 	}
 
-	String getResetPasswordPath();
-	String getResetPasswordSubmitPath();
+	default String getSigninSubmitPath(){
+		return PATHS.signin.submit.toSlashedString();
+	}
 
-	String getAdminPath();
-	String getViewUsersPath();
-	String getListUsersPath();
-	String getCreateUserPath();
-	String getEditUserPath();
-	String getCreateUserSubmitPath();
-	String getEditUserSubmitPath();
-	String getAccountManagerPath();
+	default String getPermissionRequestPath(){
+		return PATHS.permissionRequest.toSlashedString();
+	}
 
-	String getUsernameParam();
-	String getPasswordParam();
+	default String getResetPasswordPath(){
+		return PATHS.resetPassword.toSlashedString();
+	}
+
+	default String getResetPasswordSubmitPath(){
+		return PATHS.resetPasswordSubmit.toSlashedString();
+	}
+
+	String getUsernameParam(); // used in jsps
+	String getPasswordParam(); // used in jsps
 	String getUserRolesParam();
 	String getEnabledParam();
 	String getUserIdParam();
 	String getSignatureParam();
 	String getNonceParam();
 	String getTimestampParam();
-
-	String getHomeJsp();
-	String getViewUsersJsp();
-	String getCreateUserJsp();
-	String getEditUserJsp();
-	String getResetPasswordJsp();
 
 	String getCookiePrefix();
 	String getUserTokenCookieName();

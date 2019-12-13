@@ -20,7 +20,6 @@ import com.google.gson.GsonBuilder;
 
 public class HttpClientGsonTool{
 
-	public static final Gson GSON = new GsonBuilder()
-			.create();
+	public static final Gson GSON = new GsonBuilder().create();
 
 }

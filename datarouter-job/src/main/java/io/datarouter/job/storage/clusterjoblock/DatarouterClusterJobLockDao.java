@@ -53,10 +53,6 @@ public class DatarouterClusterJobLockDao extends BaseDao{
 				.buildAndRegister();
 	}
 
-	public SortedMapStorage<ClusterJobLockKey,ClusterJobLock> getNode(){
-		return node;
-	}
-
 	public void putAndAcquire(ClusterJobLock databean){
 		node.put(databean, new Config()
 				.setPutMethod(PutMethod.INSERT_OR_BUST)

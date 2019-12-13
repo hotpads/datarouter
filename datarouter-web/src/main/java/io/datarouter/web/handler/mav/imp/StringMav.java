@@ -15,20 +15,22 @@
  */
 package io.datarouter.web.handler.mav.imp;
 
+import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.handler.mav.Mav;
 
 public class StringMav extends Mav{
 
-	private static final String VAR_NAME = "string";
+	private static final PathNode JSP_PATH = new DatarouterWebFiles().jsp.generic.stringJsp;
 
 	public StringMav(){
-		super(new DatarouterWebFiles().jsp.generic.stringJsp);
+		super(JSP_PATH);
 	}
 
 	public StringMav(String string){
-		super(new DatarouterWebFiles().jsp.generic.stringJsp);
-		put(VAR_NAME, string);
+		super(JSP_PATH);
+		put("string", string);
+		setContentType("text/plain; charset=utf-8");
 	}
 
 }

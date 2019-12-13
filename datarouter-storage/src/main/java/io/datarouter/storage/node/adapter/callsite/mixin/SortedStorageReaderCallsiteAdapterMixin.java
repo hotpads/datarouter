@@ -25,6 +25,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.callsite.CallsiteAdapter;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
+import io.datarouter.util.lang.LineOfCode;
 import io.datarouter.util.tuple.Range;
 
 public interface SortedStorageReaderCallsiteAdapterMixin<
@@ -38,45 +39,45 @@ extends SortedStorageReader<PK,D>, CallsiteAdapter{
 
 	@Override
 	default Scanner<PK> scanKeys(Range<PK> range, Config config){
-		config.setCallsite(getCallsite());
+		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
 			return getBackingNode().scanKeys(range, config);
 		}finally{
-			recordCallsite(config, startNs, 1);
+			recordCallsite(lineOfCode, startNs, 1);
 		}
 	}
 
 	@Override
 	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		config.setCallsite(getCallsite());
+		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
 			return getBackingNode().scanKeysMulti(ranges, config);
 		}finally{
-			recordCallsite(config, startNs, 1);
+			recordCallsite(lineOfCode, startNs, 1);
 		}
 	}
 
 	@Override
 	default Scanner<D> scan(Range<PK> range, Config config){
-		config.setCallsite(getCallsite());
+		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
 			return getBackingNode().scan(range, config);
 		}finally{
-			recordCallsite(config, startNs, 1);
+			recordCallsite(lineOfCode, startNs, 1);
 		}
 	}
 
 	@Override
 	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		config.setCallsite(getCallsite());
+		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
 			return getBackingNode().scanMulti(ranges, config);
 		}finally{
-			recordCallsite(config, startNs, 1);
+			recordCallsite(lineOfCode, startNs, 1);
 		}
 	}
 

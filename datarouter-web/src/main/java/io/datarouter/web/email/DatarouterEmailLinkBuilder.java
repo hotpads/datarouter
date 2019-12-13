@@ -35,8 +35,8 @@ public class DatarouterEmailLinkBuilder{
 		return this;
 	}
 
-	public DatarouterEmailLinkBuilder withHostPort(String hrefHostPort){
-		this.hostPort = hrefHostPort;
+	public DatarouterEmailLinkBuilder withHostPort(String hostPort){
+		this.hostPort = hostPort;
 		return this;
 	}
 

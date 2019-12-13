@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.config.setting.DatarouterCallsiteSettings;
+import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
 
 @Singleton
 public class NodeFactory extends BaseNodeFactory{
@@ -30,9 +30,9 @@ public class NodeFactory extends BaseNodeFactory{
 	private NodeFactory(
 			Datarouter datarouter,
 			DatarouterClients clients,
-			DatarouterCallsiteSettings datarouterCallsiteSettings,
+			DatarouterStorageSettingRoot storageSettings,
 			DatarouterInjector injector){
-		super(datarouter, clients, injector, datarouterCallsiteSettings.getRecordCallsites());
+		super(datarouter, clients, injector, storageSettings.recordCallsites);
 	}
 
 }

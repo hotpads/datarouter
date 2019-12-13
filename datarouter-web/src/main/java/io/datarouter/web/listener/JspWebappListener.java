@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import io.datarouter.web.css.DatarouterWebCss;
 import io.datarouter.web.css.DatarouterWebCssV2;
 import io.datarouter.web.handler.mav.MavPropertiesFactory;
-import io.datarouter.web.html.J2HtmlTool;
+import io.datarouter.web.html.j2html.J2HtmlTool;
 import io.datarouter.web.navigation.DatarouterNavbarFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;

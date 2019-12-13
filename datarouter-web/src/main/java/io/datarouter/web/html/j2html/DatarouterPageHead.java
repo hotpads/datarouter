@@ -56,12 +56,10 @@ public class DatarouterPageHead{
 	}
 
 	public ContainerTag build(){
-		var head = head();
 		var meta = meta()
 				.withName("viewport")
 				.withContent("width=device-width, initial-scale=1");
-		var titleTag = title(title);
-		return head
+		return head()
 				.with(meta)
 				.with(datarouterWebCssImports)
 				.with(datarouterWebRequireJsImport)
@@ -71,7 +69,7 @@ public class DatarouterPageHead{
 				.with(datarouterNavbarCssImports)
 				.with(datarouterNavbarRequestTimingJsImport)
 				.with(datarouterNavbarRequestTimingScript)
-				.with(titleTag);
+				.with(title(title));
 	}
 
 }

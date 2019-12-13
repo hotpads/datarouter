@@ -18,10 +18,10 @@ package io.datarouter.tasktracker.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.web.config.DatarouterWebSettingRoot;
 
 @Singleton
 public class DatarouterTaskTrackerSettingRoot extends SettingRoot{
@@ -29,10 +29,9 @@ public class DatarouterTaskTrackerSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> saveLongRunningTasks;
 
 	@Inject
-	public DatarouterTaskTrackerSettingRoot(SettingFinder finder,
-			DatarouterWebSettingRoot datarouterWebSettingRoot){
-		super(finder, "datarouterTaskTracker.");
-		dependsOn(datarouterWebSettingRoot);
+	public DatarouterTaskTrackerSettingRoot(SettingFinder finder){
+		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterTaskTracker.");
+
 		saveLongRunningTasks = registerBoolean("saveLongRunningTasks", true);
 
 	}

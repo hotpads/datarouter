@@ -34,6 +34,8 @@ import io.datarouter.client.mysql.ddl.domain.SqlTable;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.model.field.Field;
+import io.datarouter.model.field.FieldKey;
+import io.datarouter.util.iterable.IterableTool;
 
 public class FieldSqlTableGenerator{
 
@@ -45,10 +47,11 @@ public class FieldSqlTableGenerator{
 			Map<String,List<Field<?>>> indexes, Map<String,List<Field<?>>> uniqueIndexes){
 
 		List<SqlColumn> primaryKeyColumns = makeSqlColumns(primaryKeyFields, false);
+		List<String> primaryKeyColumnNames = IterableTool.map(primaryKeyColumns, SqlColumn::getName);
 		List<SqlColumn> columns = makeSqlColumns(nonKeyFields, true);
 		columns.addAll(primaryKeyColumns);
 
-		SqlIndex primaryKey = SqlIndex.createPrimaryKey(primaryKeyColumns);
+		SqlIndex primaryKey = SqlIndex.createPrimaryKey(primaryKeyColumnNames);
 
 		Set<SqlIndex> sqlIndexes = makeSqlIndexes(indexes);
 		Set<SqlIndex> sqlUniqueIndexes = makeSqlIndexes(uniqueIndexes);
@@ -73,9 +76,16 @@ public class FieldSqlTableGenerator{
 				.collect(Collectors.toList());
 	}
 
+	private List<String> makeSqlColumnNames(List<Field<?>> fields){
+		return fields.stream()
+				.map(Field::getKey)
+				.map(FieldKey::getColumnName)
+				.collect(Collectors.toList());
+	}
+
 	private Set<SqlIndex> makeSqlIndexes(Map<String,List<Field<?>>> indexes){
 		return indexes.entrySet().stream()
-				.map(entry -> new SqlIndex(entry.getKey(), makeSqlColumns(entry.getValue(), true)))
+				.map(entry -> new SqlIndex(entry.getKey(), makeSqlColumnNames(entry.getValue())))
 				.collect(Collectors.toSet());
 	}
 

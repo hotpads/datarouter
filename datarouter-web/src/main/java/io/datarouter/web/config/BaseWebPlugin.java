@@ -23,14 +23,25 @@ import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
+import io.datarouter.web.navigation.NavBarItem;
 
+/**
+ * BaseWebPlugin is an extension of BasePlugin. It allows all the features from datarouter-storage and the additional
+ * features from datarouter-web to be easily configured.
+ *
+ * BaseWebPlugin brings in auto registration and dynamic configuration of RouteSets, AppListeners, FilterParams,
+ * DatarouterNavBar items and AppNavBar items.
+ *
+ * NavBars (both datarouter and app) are sorted alphabetically for all menu items and each of the sub menu items.
+ */
 public abstract class BaseWebPlugin extends BasePlugin{
 
 	private final List<Class<? extends BaseRouteSet>> routeSetClasses = new ArrayList<>();
 	private final List<Class<? extends DatarouterAppListener>> appListeners = new ArrayList<>();
 	private final List<Class<? extends DatarouterWebAppListener>> webListeners = new ArrayList<>();
 	private final List<FilterParams> filterParams = new ArrayList<>();
-
+	private final List<NavBarItem> datarouterNavBarItems = new ArrayList<>();
+	private final List<NavBarItem> appNavBarItems = new ArrayList<>();
 
 	protected void addRouteSet(Class<? extends BaseRouteSet> routeSet){
 		routeSetClasses.add(routeSet);
@@ -48,6 +59,13 @@ public abstract class BaseWebPlugin extends BasePlugin{
 		filterParams.add(filterParam);
 	}
 
+	protected void addDatarouterNavBarItem(NavBarItem navBarItem){
+		datarouterNavBarItems.add(navBarItem);
+	}
+
+	protected void addAppNavBarItem(NavBarItem navBarItem){
+		appNavBarItems.add(navBarItem);
+	}
 
 	public List<Class<? extends BaseRouteSet>> getRouteSetClasses(){
 		return routeSetClasses;
@@ -63,6 +81,14 @@ public abstract class BaseWebPlugin extends BasePlugin{
 
 	public List<FilterParams> getFilterParams(){
 		return filterParams;
+	}
+
+	public List<NavBarItem> getDatarouterNavBarPluginItems(){
+		return datarouterNavBarItems;
+	}
+
+	public List<NavBarItem> getAppNavBarPluginItems(){
+		return appNavBarItems;
 	}
 
 }

@@ -31,9 +31,9 @@ import io.datarouter.web.dispatcher.DispatcherServletClasses;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.filter.StaticFileFilter;
-import io.datarouter.web.handler.mav.nav.AppNavBar;
-import io.datarouter.web.handler.mav.nav.DatarouterNavBar;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
+import io.datarouter.web.navigation.AppNavBar;
+import io.datarouter.web.navigation.DefaultAppNavBar;
 import io.datarouter.web.user.authenticate.saml.SamlAssertionConsumerServlet;
 
 public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
@@ -49,10 +49,8 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 	private final List<Class<? extends BaseRouteSet>> additionalRootRouteSetClasses;
 	private final List<BaseRouteSet> rootRouteSets;
 	private final List<ServletParams> additionalServletParams;
-	private final Class<? extends AppNavBar> navBarClass;
 	private final String guicePathsRegex;
 	private final FilterParams healthcheckFilterParams;
-	private final Class<? extends DatarouterNavBar> datarouterNavBar;
 
 	public DatarouterServletGuiceModule(
 			List<FilterParams> additionalFilterParams,
@@ -63,10 +61,8 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 			List<Class<? extends BaseRouteSet>> additionalRootRouteSetClasses,
 			List<BaseRouteSet> additionalRootRouteSets,
 			List<ServletParams> additionalServletParams,
-			Class<? extends AppNavBar> navBarClass,
 			boolean renderJspsUsingServletContainer,
-			FilterParams healthcheckFilterParams,
-			Class<? extends DatarouterNavBar> datarouterNavBar){
+			FilterParams healthcheckFilterParams){
 		this.additionalFilterParams = additionalFilterParams;
 		this.excludeStaticFileFilter = excludeStaticFileFilter;
 		this.httpsConfigurationClass = httpsConfigurationClass;
@@ -75,14 +71,12 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 		this.additionalRootRouteSetClasses = additionalRootRouteSetClasses;
 		this.rootRouteSets = additionalRootRouteSets;
 		this.additionalServletParams = additionalServletParams;
-		this.navBarClass = navBarClass;
 		if(renderJspsUsingServletContainer){
 			this.guicePathsRegex = EVERYTHING_BUT_NOT_WEBSOCKET + EVERYTHING_BUT_JSP_AND_JSPF;
 		}else{
 			this.guicePathsRegex = EVERYTHING_BUT_NOT_WEBSOCKET;
 		}
 		this.healthcheckFilterParams = healthcheckFilterParams;
-		this.datarouterNavBar = datarouterNavBar;
 	}
 
 	@Override
@@ -126,10 +120,7 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 		serveRegex(guicePathsRegex).with(rootDispatcherServletClass);
 
 		//nav bar
-		if(navBarClass != null){
-			bindActual(AppNavBar.class, navBarClass);
-		}
-		bindDefault(DatarouterNavBar.class, datarouterNavBar);
+		bindActual(AppNavBar.class, DefaultAppNavBar.class);
 	}
 
 	@Provides

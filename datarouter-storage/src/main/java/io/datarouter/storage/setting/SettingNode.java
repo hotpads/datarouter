@@ -258,13 +258,13 @@ public abstract class SettingNode{
 
 		@Test
 		public void testInferParentName(){
-			SettingNode node = new SettingNode(null, "services.myapp.mysetting."){};
-			Assert.assertEquals(node.getParentName(), "services.myapp.");
+			SettingNode node = new SettingNode(null, "example.myapp.mysetting."){};
+			Assert.assertEquals(node.getParentName(), "example.myapp.");
 
-			node = new SettingNode(null, "services.myapp."){};
-			Assert.assertEquals(node.getParentName(), "services.");
+			node = new SettingNode(null, "example.myapp."){};
+			Assert.assertEquals(node.getParentName(), "example.");
 
-			node = new SettingNode(null, "services."){};
+			node = new SettingNode(null, "example."){};
 			Assert.assertEquals(node.getParentName(), "");
 		}
 

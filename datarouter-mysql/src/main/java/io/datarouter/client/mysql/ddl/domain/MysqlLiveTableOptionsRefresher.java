@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.mysql.ddl.domain;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -30,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
 import io.datarouter.client.mysql.ddl.generate.imp.ConnectionSqlTableGenerator;
+import io.datarouter.client.mysql.ddl.generate.imp.SqlTableMetadata;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.timer.PhaseTimer;
 
@@ -51,12 +54,19 @@ public class MysqlLiveTableOptionsRefresher{
 		phaseTimer.add("getPool");
 		String schemaName = connectionPool.getSchemaName();
 		phaseTimer.add("getSchema");
-		// TODO fetch only metadata we care about
-		SqlTable sqlTable = ConnectionSqlTableGenerator.generate(connectionPool, clientAndTable.tableName, schemaName);
-		phaseTimer.add("generate");
+		SqlTableMetadata sqlTableMetadata;
+		// TODO create a new connection or use a dedicated pool
+		try(Connection connection = connectionPool.checkOut()){
+			phaseTimer.add("checkOut");
+			sqlTableMetadata = ConnectionSqlTableGenerator.fetchSqlTableMetadata(connection, schemaName,
+					clientAndTable.tableName);
+		}catch(SQLException e){
+			throw new RuntimeException("schema=" + schemaName + " table=" + clientAndTable.tableName, e);
+		}
+		phaseTimer.add("fetchSqlTableMetadata");
 		logger.debug("{} {}", clientAndTable, phaseTimer);
 		counter.addAndGet(phaseTimer.getElapsedTimeBetweenFirstAndLastEvent());
-		return new MysqlLiveTableOptions(sqlTable.getCharacterSet(), sqlTable.getCollation());
+		return new MysqlLiveTableOptions(sqlTableMetadata.characterSet, sqlTableMetadata.collation);
 	}
 
 	public MysqlLiveTableOptions get(ClientId clientId, String tableName){
@@ -113,4 +123,5 @@ public class MysqlLiveTableOptionsRefresher{
 		}
 
 	}
+
 }

@@ -31,7 +31,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.config.setting.DatarouterCallsiteSettings;
+import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
@@ -48,7 +48,7 @@ public class WideNodeFactory{
 	@Inject
 	private DatarouterClients clients;
 	@Inject
-	private DatarouterCallsiteSettings datarouterCallsiteSettings;
+	private DatarouterStorageSettingRoot storageSettings;
 
 	public <PK extends RegularPrimaryKey<PK>,
 			D extends Databean<PK,D>,
@@ -57,7 +57,7 @@ public class WideNodeFactory{
 			ClientId clientId,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-		return new WideNodeBuilder<>(datarouter, this, datarouterCallsiteSettings, clientId, databeanSupplier,
+		return new WideNodeBuilder<>(datarouter, this, storageSettings, clientId, databeanSupplier,
 				fielderSupplier);
 	}
 
@@ -77,7 +77,7 @@ public class WideNodeFactory{
 				.withClientId(clientId)
 				.withParentName(entityNodeParams.getNodeName())
 				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix)
-				.withDiagnostics(datarouterCallsiteSettings.getRecordCallsites());
+				.withDiagnostics(storageSettings.recordCallsites);
 		return createSubEntity(entityNodeParams, paramsBuilder.build());
 	}
 
@@ -99,7 +99,7 @@ public class WideNodeFactory{
 				.withClientId(clientId)
 				.withParentName(entityNodeParams.getNodeName())
 				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix)
-				.withDiagnostics(datarouterCallsiteSettings.getRecordCallsites())
+				.withDiagnostics(storageSettings.recordCallsites)
 				.withTableName(tableName);
 		return createSubEntity(entityNodeParams, paramsBuilder.build());
 	}
@@ -124,7 +124,7 @@ public class WideNodeFactory{
 				.withClientId(clientId)
 				.withParentName(entityNodeParams.getNodeName())
 				.withEntity(entityNodeParams.getEntityTableName(), entityNodePrefix)
-				.withDiagnostics(datarouterCallsiteSettings.getRecordCallsites())
+				.withDiagnostics(storageSettings.recordCallsites)
 				.withTableName(tableName)
 				.withTableConfiguration(tableConfiguration);
 		return createSubEntity(entityNodeParams, paramsBuilder.build());

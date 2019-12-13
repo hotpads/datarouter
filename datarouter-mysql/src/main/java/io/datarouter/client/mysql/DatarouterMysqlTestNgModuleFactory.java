@@ -18,6 +18,7 @@ package io.datarouter.client.mysql;
 import java.util.Arrays;
 
 import io.datarouter.inject.testng.TestNgModuleFactory;
+import io.datarouter.secret.config.DatarouterSecretGuiceModule;
 import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
 import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
@@ -26,6 +27,7 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 	public DatarouterMysqlTestNgModuleFactory(){
 		super(Arrays.asList(
 				new DatarouterWebTestGuiceModule(),
+				new DatarouterSecretGuiceModule(),
 				new DatarouterMysqlGuiceModule(),
 				new DatarouterStorageTestGuiceModule()));
 	}
