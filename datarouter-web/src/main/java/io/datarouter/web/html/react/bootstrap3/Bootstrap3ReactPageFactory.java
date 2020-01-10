@@ -29,7 +29,8 @@ public class Bootstrap3ReactPageFactory{
 
 	public Bootstrap3ReactPage startBuilder(HttpServletRequest request){
 		return new Bootstrap3ReactPage()
-				.withMavProperties(mavPropertiesFactory.buildAndSet(request));
+				.withMavProperties(mavPropertiesFactory.buildAndSet(request))
+				.withJsConstant("CONTEXT_PATH", request.getContextPath());
 	}
 
 }

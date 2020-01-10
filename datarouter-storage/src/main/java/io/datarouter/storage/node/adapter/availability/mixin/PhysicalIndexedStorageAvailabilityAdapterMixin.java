@@ -139,9 +139,12 @@ extends IndexedStorage<PK,D>{
 	}
 
 	@Override
-	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		if(getAvailability().write.get()){
-			getBackingNode().deleteByIndex(keys, config);
+			getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 			return;
 		}
 		throw makeUnavailableException();

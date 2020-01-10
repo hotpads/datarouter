@@ -17,7 +17,9 @@ package io.datarouter.web.html.j2html.bootstrap4;
 
 import static j2html.TagCreator.document;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -38,6 +40,8 @@ public class Bootstrap4PageBuilder{
 	private String webappRequireJsConfigJsonString;
 	private Set<String> require = new TreeSet<>();
 	private String title;
+	private boolean includeNav = true;
+	private List<ContainerTag> navbars = new ArrayList<>();
 	private ContainerTag content;
 
 	public DatarouterPage build(){
@@ -53,9 +57,15 @@ public class Bootstrap4PageBuilder{
 		NavBar navbar = mavProperties.getIsDatarouterPage()
 				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
-		var datarouterNavbar = isAdmin ? new DatarouterNavbarV2Html(mavProperties).build() : null;
-		var webappNavbar = new WebappNavbarV2Html(mavProperties, navbar).build();
-		var body = new DatarouterPageBody(datarouterNavbar, webappNavbar, content);
+		List<ContainerTag> allNavbars = new ArrayList<>();
+		if(includeNav){
+			if(isAdmin){
+				allNavbars.add(new DatarouterNavbarV2Html(mavProperties).build());
+			}
+			allNavbars.add(new WebappNavbarV2Html(mavProperties, navbar).build());
+			allNavbars.addAll(navbars);
+		}
+		var body = new DatarouterPageBody(allNavbars.toArray(ContainerTag[]::new), content);
 		return new DatarouterPage(head, body);
 	}
 
@@ -84,6 +94,16 @@ public class Bootstrap4PageBuilder{
 
 	public Bootstrap4PageBuilder withTitle(String title){
 		this.title = title;
+		return this;
+	}
+
+	public Bootstrap4PageBuilder includeNav(boolean includeNav){
+		this.includeNav = includeNav;
+		return this;
+	}
+
+	public Bootstrap4PageBuilder withNavbar(ContainerTag navbar){
+		navbars.add(navbar);
 		return this;
 	}
 

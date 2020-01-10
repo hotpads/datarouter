@@ -129,6 +129,10 @@ public interface Scanner<T> extends Closeable{
 		return new DistinctScanner<>(this);
 	}
 
+	default Scanner<T> each(Consumer<? super T> consumer){
+		return new EachScanner<>(this, consumer);
+	}
+
 	default Scanner<T> exclude(Predicate<? super T> predicate){
 		return new FilteringScanner<>(this, predicate.negate());
 	}
@@ -158,10 +162,6 @@ public interface Scanner<T> extends Closeable{
 		return new PrefetchingScanner<>(this, exec, batchSize)
 				.mapToScanner(Scanner::of)
 				.concatenate();
-	}
-
-	default Scanner<T> peek(Consumer<? super T> consumer){
-		return new PeekingScanner<>(this, consumer);
 	}
 
 	default Scanner<T> sample(long sampleSize, boolean includeLast){

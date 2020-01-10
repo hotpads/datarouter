@@ -69,14 +69,6 @@ public class Datarouter{
 		this.daoClasses = daoClasses;
 	}
 
-	public synchronized void registerConfigFile(String configFilePath){
-		clients.registerConfigFile(configFilePath);
-	}
-
-	public List<ClientId> registerClientIds(Collection<ClientId> clientIds){
-		return clients.registerClientIds(clientIds);
-	}
-
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
 	N register(N node){
 		nodes.register(node);
@@ -85,6 +77,10 @@ public class Datarouter{
 			clientManager.doSchemaUpdate(node.getPhysicalNodesForClient(clientId.getName()));
 		}
 		return node;
+	}
+
+	private List<ClientId> registerClientIds(Collection<ClientId> clientIds){
+		return clients.registerClientIds(clientIds);
 	}
 
 	public synchronized void assertRegistered(Dao router){

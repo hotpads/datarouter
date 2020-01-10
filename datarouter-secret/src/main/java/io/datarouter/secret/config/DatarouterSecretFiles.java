@@ -23,12 +23,7 @@ import io.datarouter.web.file.FilesRoot;
 @Singleton
 public class DatarouterSecretFiles extends FilesRoot{
 
-	public final JspFiles jsp = branch(JspFiles::new, "jsp");
 	public final JsFiles js = branch(JsFiles::new, "js");
-
-	public static class JspFiles extends PathNode{
-		public final PathNode secretsJsp = leaf("secrets.jsp");
-	}
 
 	public static class JsFiles extends PathNode{
 		public final PathNode secretsJsx = leaf("secrets.jsx");

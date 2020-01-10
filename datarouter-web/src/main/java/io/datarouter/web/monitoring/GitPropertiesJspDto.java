@@ -15,11 +15,14 @@
  */
 package io.datarouter.web.monitoring;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class GitPropertiesJspDto{
 
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d MMM H:mm");
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter
+			.ofPattern("d MMM H:mm z")
+			.withZone(ZoneId.systemDefault());
 
 	private final String buildTime;
 	private final String commitTime;

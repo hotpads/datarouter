@@ -24,6 +24,7 @@ import io.datarouter.web.navigation.DatarouterNavbarFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import io.datarouter.web.requirejs.RequireJsTool;
+import j2html.tags.EmptyTag;
 
 public class Bootstrap4PageHead extends DatarouterPageHead{
 
@@ -43,7 +44,7 @@ public class Bootstrap4PageHead extends DatarouterPageHead{
 				RequireJsTool.makeConfigScriptTag(webappRequireJsConfigJsonString),
 				RequireJsTool.makeRequireScriptTag(require),
 				isAdmin ? DatarouterNavbarFactory.makeNavbarV2CssImportTags(contextPath, mavProperties
-						.getTomcatWebApps().size()) : null,
+						.getTomcatWebApps().size()) : new EmptyTag[]{},
 				isAdmin ? DatarouterWebJsTool.makeJsImport(contextPath, FILES.js.navbarRequestTimingV2Js) : null,
 				isAdmin ? DatarouterNavbarFactory.makeNavbarRequestTimingScriptV2(contextPath) : null,
 				title);

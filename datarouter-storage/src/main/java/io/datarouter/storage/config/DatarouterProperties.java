@@ -78,7 +78,7 @@ public abstract class DatarouterProperties{
 	private final String privateIp;
 	private final String publicIp;
 	private final Collection<String> clusterDomains;
-	protected final String internalConfigDirectory;
+	private final String internalConfigDirectory;
 
 	/*----------------- construct ------------------*/
 
@@ -366,6 +366,10 @@ public abstract class DatarouterProperties{
 
 	public String getFirstServerClusterDomain(){
 		return CollectionTool.getFirst(getServerClusterDomains());
+	}
+
+	public String getInternalConfigDirectory(){
+		return internalConfigDirectory;
 	}
 
 	public abstract String getDatarouterPropertiesFileLocation();

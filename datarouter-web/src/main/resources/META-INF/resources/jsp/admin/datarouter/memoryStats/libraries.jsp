@@ -13,26 +13,46 @@
 	<ul class="list-group list-group-flush border-bottom">
 		<c:forEach items="${libs}" var="lib">
 			<li class="list-group-item py-1 ${lined ? '' : 'border-0'} filterable-container">
-				<c:choose>
-					<c:when test="${map}">
-						<div class="table-responsive">
-							<table class="definition light">
-							<tbody>
-								<tr title="${lib.value.describeShort}"><td colspan="2" class="filterable-value">${lib.key}</td></tr>
-								<tr class="sub"><td>Branch</td><td>${lib.value.branch}</td></tr>
-								<tr class="sub" title="${lib.value.commitTime} by ${lib.value.commitUserName}">
-									<td>Commit</td><td>${lib.value.idAbbrev}</td>
-								</tr>
-								<tr class="sub"><td>Build time</td><td>${lib.value.buildTime}</td></tr>
-								<tr class="sub"><td>Build id</td><td>${buildDetailedLibraries[lib.key].buildId}</td></tr>
-							</tbody>
-							</table>
-						</div>
-					</c:when>
-					<c:otherwise>
-						<span class="filterable-value">${lib}</span>
-					</c:otherwise>
-				</c:choose>
+				<div class="table-responsive">
+					<table class="definition light">
+						<tbody>
+							<c:choose>
+								<c:when test="${map}">
+									<tr>
+										<td colspan="2" class="filterable-value"
+												title="${fn:escapeXml(manifests[lib.key].manifestString)}">
+											${lib.key}
+										</td>
+									</tr>
+									<tr class="sub"><td>Branch</td><td title="${lib.value.describeShort}">${lib.value.branch}</td></tr>
+									<tr class="sub" title="${lib.value.commitTime} by ${lib.value.commitUserName}">
+										<td>Commit</td><td>${lib.value.idAbbrev}</td>
+									</tr>
+									<tr class="sub"><td>Build time</td><td>${lib.value.buildTime}</td></tr>
+									<tr class="sub"><td>Build id</td><td>${buildDetailedLibraries[lib.key].buildId}</td></tr>
+									<tr class="sub">
+										<td>${manifests[lib.key].buildPair.left}</td>
+										<td>${manifests[lib.key].buildPair.right}</td>
+									</tr>
+								</c:when>
+								<c:otherwise>
+									<tr>
+										<td colspan="2" class="filterable-value"
+												title="${fn:escapeXml(manifests[lib].manifestString)}">
+											${lib}
+										</td>
+									</tr>
+									<c:if test="${not empty manifests[lib].buildPair}">
+										<tr class="sub">
+											<td>${manifests[lib].buildPair.left}</td>
+											<td>${manifests[lib].buildPair.right}</td>
+										</tr>
+									</c:if>
+								</c:otherwise>
+							</c:choose>
+						</tbody>
+					</table>
+				</div>
 			</li>
 		</c:forEach>
 	</ul>

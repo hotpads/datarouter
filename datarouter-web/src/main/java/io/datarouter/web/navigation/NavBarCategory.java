@@ -24,6 +24,10 @@ public interface NavBarCategory extends Displayable{
 		return 1_000;
 	}
 
+	default boolean allowSingleItemMenu(){
+		return true;
+	}
+
 	static class SimpleNavBarCategory implements NavBarCategory{
 
 		private final String display;

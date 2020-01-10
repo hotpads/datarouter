@@ -17,9 +17,13 @@ package io.datarouter.web.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.Filter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Provides;
 
@@ -29,6 +33,7 @@ import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatcherServlet;
 import io.datarouter.web.dispatcher.DispatcherServletClasses;
 import io.datarouter.web.dispatcher.FilterParams;
+import io.datarouter.web.dispatcher.FilterParamsSupplier;
 import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.filter.StaticFileFilter;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
@@ -37,6 +42,7 @@ import io.datarouter.web.navigation.DefaultAppNavBar;
 import io.datarouter.web.user.authenticate.saml.SamlAssertionConsumerServlet;
 
 public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterServletGuiceModule.class);
 
 	private static final String EVERYTHING_BUT_NOT_WEBSOCKET = "(?!/ws/).*";
 	private static final String EVERYTHING_BUT_JSP_AND_JSPF = "(?<!jspf|jsp)$";
@@ -98,13 +104,19 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 		}
 		rootFilterClasses.forEach(this::rootFilter);
 		rootFilter(authenticationFilterClass);
-		additionalFilterParams.forEach(filterParams -> {
-			if(filterParams.isRegex){
-				filterRegex(filterParams.path).through(filterParams.filterClass);
-			}else{
-				filter(filterParams.path).through(filterParams.filterClass);
-			}
-		});
+		bindActualInstance(FilterParamsSupplier.class, new FilterParamsSupplier(additionalFilterParams));
+		additionalFilterParams.stream()
+				.sorted(Comparator.comparing((FilterParams param) -> param.order.getOrder()))
+				.peek(filterParams -> logger.info("filter={}, path={}, isRegex={}, order={}",
+						filterParams.filterClass.getSimpleName(), filterParams.path, filterParams.isRegex,
+						filterParams.order.getOrder()))
+				.forEach(filterParams -> {
+					if(filterParams.isRegex){
+						filterRegex(filterParams.path).through(filterParams.filterClass);
+					}else{
+						filter(filterParams.path).through(filterParams.filterClass);
+					}
+				});
 
 		//additional servlets
 		serve(new DatarouterWebPaths().consumer.toSlashedString()).with(SamlAssertionConsumerServlet.class);

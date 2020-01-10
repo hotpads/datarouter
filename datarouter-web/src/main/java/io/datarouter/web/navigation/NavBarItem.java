@@ -15,6 +15,10 @@
  */
 package io.datarouter.web.navigation;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import io.datarouter.httpclient.path.PathNode;
 
 public class NavBarItem{
@@ -33,4 +37,27 @@ public class NavBarItem{
 		this.name = name;
 	}
 
+	public static class NavBarItemGroup{
+
+		public final NavBarCategory category;
+		public final List<NavBarItem> items;
+
+		private NavBarItemGroup(NavBarCategory category, List<NavBarItem> items){
+			this.category = category;
+			this.items = items;
+		}
+
+		public static List<NavBarItemGroup> fromNavBarItems(List<NavBarItem> items){
+			return items.stream()
+					.collect(Collectors.groupingBy(item -> item.category)).entrySet().stream()
+					.map(group -> new NavBarItemGroup(group.getKey(), group.getValue()))
+					.sorted(Comparator.comparing(NavBarItemGroup::getCategoryDisplay))
+					.collect(Collectors.toList());
+		}
+
+		private String getCategoryDisplay(){
+			return category.getDisplay();
+		}
+
+	}
 }

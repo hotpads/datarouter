@@ -29,6 +29,7 @@ import io.datarouter.web.css.DatarouterWebCss;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.MavProperties;
 import io.datarouter.web.handler.mav.imp.HtmlMav;
+import io.datarouter.web.html.CloudflareImports;
 import io.datarouter.web.html.react.ReactHtml;
 import io.datarouter.web.js.DatarouterWebJsTool;
 import io.datarouter.web.navigation.DatarouterNavbarFactory;
@@ -40,7 +41,6 @@ import io.datarouter.web.requirejs.RequireJsTool;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
 
-//bootstrap 3
 public class Bootstrap3ReactPage{
 
 	private static final DatarouterWebFiles DATAROUTER_WEB_FILES = new DatarouterWebFiles();
@@ -74,6 +74,7 @@ public class Bootstrap3ReactPage{
 		NavBar navbar = mavProperties.getIsDatarouterPage() ? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
 		return new ReactHtml(
+				CloudflareImports.REACT_GROUP_1,
 				DatarouterWebCss.makeCssImportTags(contextPath),
 				DatarouterWebRequireJs.makeImportTag(contextPath),
 				DatarouterWebRequireJs.makeConfigScriptTag(contextPath),

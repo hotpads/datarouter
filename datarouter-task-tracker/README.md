@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-task-tracker</artifactId>
-	<version>0.0.14</version>
+	<version>0.0.15</version>
 </dependency>
 ```
 

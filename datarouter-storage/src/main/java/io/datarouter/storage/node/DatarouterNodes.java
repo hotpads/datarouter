@@ -17,6 +17,8 @@ package io.datarouter.storage.node;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -134,6 +136,40 @@ public class DatarouterNodes{
 
 	public Map<String,Map<String,PhysicalNode<?,?,?>>> getPhysicalNodeByTableNameByClientName(){
 		return physicalNodeByTableNameByClientName;
+	}
+
+	public Node<?,?,?> findParent(Node<?,?,?> node, Class<?> requiredInterface){
+		for(Node<?,?,?> topLevelNode : topLevelNodes){
+			if(topLevelNode == node){
+				return node;
+			}
+			Node<?,?,?> foundParent = findParent(node, new LinkedList<>(List.of(topLevelNode)), requiredInterface);
+			if(foundParent != null){
+				return foundParent;
+			}
+		}
+		throw new RuntimeException(node + " assignable to " + requiredInterface + " not found");
+	}
+
+	private static Node<?,?,?> findParent(Node<?,?,?> node, Deque<Node<?,?,?>> parents, Class<?> requiredInterface){
+		for(Node<?,?,?> childNode : parents.peekLast().getChildNodes()){
+			if(childNode == node){
+				Node<?,?,?> parent;
+				while((parent = parents.pollFirst()) != null){
+					if(requiredInterface.isAssignableFrom(parent.getClass())){
+						return parent;
+					}
+				}
+				return childNode;
+			}
+			Deque<Node<?,?,?>> parentsCopy = new LinkedList<>(parents);
+			parentsCopy.addLast(childNode);
+			Node<?,?,?> foundParent = findParent(node, parentsCopy, requiredInterface);
+			if(foundParent != null){
+				return foundParent;
+			}
+		}
+		return null;
 	}
 
 	/*------------------------------ get/set --------------------------------*/

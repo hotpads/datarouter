@@ -140,10 +140,13 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		try(TraceSpanFinisher finisher = startSpanForOp(OP_deleteByIndex)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().keys(keys.size()));
-			getBackingNode().deleteByIndex(keys, config);
+			getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 		}
 	}
 

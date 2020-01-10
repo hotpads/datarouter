@@ -18,6 +18,7 @@ package io.datarouter.storage.node.op.raw.write;
 import java.util.Collection;
 
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -26,6 +27,7 @@ import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.IndexedOps;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 
 /**
  * Methods for writing to storage systems that provide secondary indexing.
@@ -51,10 +53,16 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 		deleteMultiUnique(uniqueKeys, new Config());
 	}
 
-	<IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config);
+	<IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo);
 
-	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys){
-		deleteByIndex(keys, new Config());
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>> void deleteByIndex(Collection<IK> keys,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		deleteByIndex(keys, new Config(), indexEntryFieldInfo);
 	}
 
 	/*---------------------------- sub-interfaces ---------------------------*/

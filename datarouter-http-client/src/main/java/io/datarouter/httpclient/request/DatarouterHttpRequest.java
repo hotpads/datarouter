@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -209,12 +208,11 @@ public class DatarouterHttpRequest{
 	 * Entities only exist in HttpPut, HttpPatch, HttpPost
 	 */
 	public String getEntityAsString(){
-		return getEntityAsString(null);
-	}
-
-	public String getEntityAsString(Charset charset){
 		try{
-			return EntityUtils.toString(entity, charset);
+			if(entity == null){
+				return null;
+			}
+			return EntityUtils.toString(entity);
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}

@@ -18,11 +18,14 @@ package io.datarouter.virtualnode.writebehind;
 import java.util.Collection;
 
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.virtualnode.writebehind.base.WriteWrapper;
 import io.datarouter.virtualnode.writebehind.mixin.WriteBehindIndexedStorageWriterMixin;
 import io.datarouter.virtualnode.writebehind.mixin.WriteBehindMapStorageWriterMixin;
@@ -55,8 +58,11 @@ implements IndexedSortedMapStorage<PK,D>,
 	}
 
 	@Override
-	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
-		mixinIndexedWriteOps.deleteByIndex(keys, config);
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		mixinIndexedWriteOps.deleteByIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@SuppressWarnings("unchecked")

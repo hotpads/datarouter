@@ -150,9 +150,12 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		getCounter().count(OP_deleteByIndex);
-		getBackingNode().deleteByIndex(keys, config);
+		getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override

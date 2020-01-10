@@ -105,8 +105,11 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
-		getBackingNode().deleteByIndex(keys, config);
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override

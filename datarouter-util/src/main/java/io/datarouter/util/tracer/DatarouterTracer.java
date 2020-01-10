@@ -166,7 +166,7 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void finishSpan(){
-		if(getCurrentSpan() == null || getCurrentThread() == null){
+		if(getCurrentSpan() == null){
 			return;
 		}
 		TraceSpanDto span = popSpanFromStack();
@@ -218,10 +218,14 @@ public class DatarouterTracer implements Tracer{
 	}
 
 	@Override
+	public void incrementDiscardedThreadCount(int discardedThreadCount){
+		this.discardedThreadCount += discardedThreadCount;
+	}
+
+	@Override
 	public Integer getDiscardedThreadCount(){
 		return discardedThreadCount;
 	}
-
 
 	public void setCurrentThread(TraceThreadDto currentThread){
 		this.currentThread = currentThread;
@@ -235,6 +239,16 @@ public class DatarouterTracer implements Tracer{
 	@Override
 	public BlockingQueue<TraceSpanDto> getSpanQueue(){
 		return spanQueue;
+	}
+
+	@Override
+	public void incrementDiscardedSpanCount(int discardedSpanCount){
+		this.discardedSpanCount += discardedSpanCount;
+	}
+
+	@Override
+	public Integer getDiscardedSpanCount(){
+		return discardedSpanCount;
 	}
 
 	@Override

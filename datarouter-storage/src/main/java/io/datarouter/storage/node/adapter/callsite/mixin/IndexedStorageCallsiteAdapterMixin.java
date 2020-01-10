@@ -65,11 +65,14 @@ extends IndexedStorage<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
-			getBackingNode().deleteByIndex(keys, config);
+			getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 		}finally{
 			recordCollectionCallsite(lineOfCode, startNs, keys);
 		}

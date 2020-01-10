@@ -30,8 +30,20 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 public abstract class BaseLog4j2Configuration{
 
+	private static final String DEFAULT_CATALINA_OUT_DIR = "/mnt/logs";
+	private static final String CATALINA_OUT_DIR_ENV_VARIABLE = "CATALINA_OUT_DIR";
+
 	public static final String defaultPattern = "%d %-5level [%t] <${web:servletContextName:-${sys:user.name}}>"
 			+ " %logger{36}:%line - %msg%n%rEx";
+	public static final String CATALINA_OUT_DIR;
+	static{
+		String catalinaOutDir = System.getenv(CATALINA_OUT_DIR_ENV_VARIABLE);
+		if(catalinaOutDir == null || catalinaOutDir.isEmpty()){
+			CATALINA_OUT_DIR = DEFAULT_CATALINA_OUT_DIR;
+		}else{
+			CATALINA_OUT_DIR = catalinaOutDir;
+		}
+	}
 
 	private final Map<String,Appender> appenders = new HashMap<>();
 	private final List<Filter> filters = new ArrayList<>();

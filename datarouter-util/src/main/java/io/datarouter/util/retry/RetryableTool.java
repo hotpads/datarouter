@@ -51,7 +51,7 @@ public class RetryableTool{
 					ThreadTool.sleep(backoffMs);
 				}else{
 					if(logExceptions){
-						logger.error("exception on final attempt {}", attemptNum, e);
+						logger.error("exception on final attempt {}", attemptNum);
 					}
 					if(e instanceof RuntimeException){
 						throw (RuntimeException)e;

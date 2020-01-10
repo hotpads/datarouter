@@ -24,12 +24,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.secret.config.DatarouterSecretFiles;
+import io.datarouter.secret.config.DatarouterSecretPaths;
 import io.datarouter.secret.service.SecretOpReason;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.RequestBody;
+import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.user.session.CurrentUserSessionInfo;
 
 public class SecretHandler extends BaseHandler{
@@ -40,13 +42,21 @@ public class SecretHandler extends BaseHandler{
 	@Inject
 	private DatarouterSecretFiles files;
 	@Inject
+	private DatarouterSecretPaths paths;
+	@Inject
 	private SecretHandlerPermissions permissions;
 	@Inject
 	private SecretService secretService;
+	@Inject
+	private Bootstrap4ReactPageFactory reactPageFactory;
 
 	@Handler(defaultHandler = true)
 	private Mav index(){
-		return new Mav(files.jsp.secretsJsp);
+		return reactPageFactory.startBuilder(request)
+				.withTitle("Datarouter - Secrets")
+				.withReactScript(files.js.secretsJsx)
+				.withJsConstant("PATH", request.getContextPath() + paths.datarouter.secrets.handle.toSlashedString())
+				.buildMav();
 	}
 
 	@Handler

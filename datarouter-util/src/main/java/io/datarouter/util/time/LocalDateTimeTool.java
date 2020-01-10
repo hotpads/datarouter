@@ -28,10 +28,6 @@ public class LocalDateTimeTool{
 		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
-	public static LocalDateTime minParsableDate(){
-		return convertToLocalDateTime(new Date(0));
-	}
-
 	public static LocalDateTime convertToLocalDateTime(Date date){
 		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 	}

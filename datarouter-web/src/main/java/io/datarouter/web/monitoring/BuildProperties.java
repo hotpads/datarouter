@@ -20,10 +20,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.datarouter.util.net.UrlTool;
+import io.datarouter.web.app.ApplicationPaths;
 
 @Singleton
 public class BuildProperties{
@@ -32,21 +36,20 @@ public class BuildProperties{
 	public static final String FILE_NAME = "build.properties";
 	private static final String BUILD_ID = "buildId";
 
-	private final Properties properties;
+	private final Properties properties = new Properties();
 
-	public BuildProperties(){
-		this.properties = new Properties();
-		URL url = getClass().getClassLoader().getResource(FILE_NAME);
-		logger.info("loading build info from " + url);
+	@Inject
+	public BuildProperties(ApplicationPaths applicationPaths){
+		URL url = UrlTool.create("file:" + applicationPaths.getResourcesPath() + "/" + FILE_NAME);
+		logger.warn("loading build info from {}", url);
 		try(InputStream resourceAsStream = url.openStream()){
 			properties.load(resourceAsStream);
 		}catch(Exception e){
-			logger.info("could not load build info {}", e.toString());
+			logger.warn("could not load build info {}", e.toString());
 		}
 	}
 
 	public BuildProperties(InputStream inputStream){
-		this.properties = new Properties();
 		try{
 			properties.load(inputStream);
 		}catch(IOException e){

@@ -24,7 +24,6 @@ import static j2html.TagCreator.meta;
 import static j2html.TagCreator.script;
 import static j2html.TagCreator.title;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -34,13 +33,8 @@ import j2html.tags.EmptyTag;
 
 public class ReactHtml{
 
-	private static final List<String> EXTERNAL_REACT_SCRIPTS = Arrays.asList(
-			"https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/react-router/3.0.2/ReactRouter.min.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.min.js");
-
 	//head
+	private final List<String> externalReactScripts;
 	private final EmptyTag[] datarouterWebCssImports;
 	private final ContainerTag datarouterWebRequireJsImport;
 	private final ContainerTag datarouterWebRequireJsConfig;
@@ -57,6 +51,7 @@ public class ReactHtml{
 	private final ContainerTag webappNavbar;
 
 	public ReactHtml(
+			List<String> externalReactScripts,
 			EmptyTag[] datarouterWebCssImports,
 			ContainerTag datarouterWebRequireJsImport,
 			ContainerTag datarouterWebRequireJsConfig,
@@ -69,6 +64,7 @@ public class ReactHtml{
 			Map<String,String> jsConstants,
 			ContainerTag datarouterNavbar,
 			ContainerTag webappNavbar){
+		this.externalReactScripts = externalReactScripts;
 		this.datarouterWebCssImports = datarouterWebCssImports;
 		this.datarouterWebRequireJsImport = datarouterWebRequireJsImport;
 		this.datarouterWebRequireJsConfig = datarouterWebRequireJsConfig;
@@ -109,8 +105,8 @@ public class ReactHtml{
 				.with(script);
 	}
 
-	private static ContainerTag[] makeExternalReactScriptTags(){
-		return EXTERNAL_REACT_SCRIPTS.stream()
+	private ContainerTag[] makeExternalReactScriptTags(){
+		return externalReactScripts.stream()
 				.map(src -> script().withCharset("UTF-8").withSrc(src))
 				.toArray(ContainerTag[]::new);
 	}

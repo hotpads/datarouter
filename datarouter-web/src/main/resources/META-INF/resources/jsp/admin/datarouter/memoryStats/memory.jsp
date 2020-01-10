@@ -44,13 +44,12 @@
 		}
 
 		$(function(){
-			$.fn.btnBootstrap = $.fn.button.noConflict()
 			$('#loading-example-btn').click(function(){
 				if(!confirm('Do you really to run the garbage collector on ${serverName}')){
 					return false;
 				}
 				$('#garbage-collector-error').remove()
-				const btn = $(this).btnBootstrap('loading')
+				const btn = $(this).text('loading')
 				btn.siblings('.garbage-collector-results').remove()
 				const start = new Date().getTime()
 				const interval = setInterval(function() {
@@ -59,7 +58,7 @@
 				}, 100)
 				$.get("${contextPath}/datarouter/memory/garbageCollector?serverName=${serverName}").done(function(response){
 					window.clearInterval(interval)
-					btn.text('Run garbage collector').btnBootstrap('reset')
+					btn.text('Run garbage collector')
 					if(response.success){
 						btn.after($('<div>').addClass('garbage-collector-results card p-2 mb-2')
 							.append($('<h5>').text('Previous manual run'))
@@ -99,11 +98,12 @@
 				<tr><td>Web server</td><td>${serverVersion}</td></tr>
 				<tr title="${jvmVersion}"><td>Java version</td><td>${javaVersion}</td></tr>
 				<tr><td>Web application</td><td>${appName}</td></tr>
-				<tr title="${gitDescribeShort}"><td colspan="2">Version</td></tr>
-				<tr class="sub"><td>Branch</td><td>${gitBranch}</td></tr>
+				<tr title="${manifest}"><td colspan="2">Version</td></tr>
+				<tr class="sub" title="${gitDescribeShort}"><td>Branch</td><td>${gitBranch}</td></tr>
 				<tr class="sub" title="${gitCommitTime} by ${gitCommitUserName}"><td>Commit</td><td class="code">${gitCommit}</td></tr>
 				<tr class="sub"><td>Build time</td><td>${buildTime}</td></tr>
 				<tr class="sub"><td>Build id</td><td>${buildId}</td></tr>
+				<tr class="sub"><td>${buildJdk.left}</td><td>${buildJdk.right}</td></tr>
 			</tbody>
 			</table>
 		</div>

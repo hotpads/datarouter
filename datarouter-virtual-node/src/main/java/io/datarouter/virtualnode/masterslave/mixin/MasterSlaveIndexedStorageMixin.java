@@ -124,8 +124,11 @@ extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
 	}
 
 	@Override
-	default <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
-		getMaster().deleteByIndex(keys, config);
+	default <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		getMaster().deleteByIndex(keys, config, indexEntryFieldInfo);
 	}
 
 }

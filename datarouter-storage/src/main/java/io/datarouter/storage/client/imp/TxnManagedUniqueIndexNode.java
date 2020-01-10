@@ -70,7 +70,7 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
 	@Override
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
-		node.deleteByIndex(uniqueKeys, config);
+		node.deleteByIndex(uniqueKeys, config, fieldInfo);
 	}
 
 }

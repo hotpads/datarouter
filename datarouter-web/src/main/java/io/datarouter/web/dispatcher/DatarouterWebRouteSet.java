@@ -58,6 +58,7 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.ipDetection).withHandler(IpDetectionHandler.class).allowAnonymous();
 		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();
 		handle(paths.datarouter.shutdown).withHandler(ShutdownHandler.class).allowAnonymous();
+		handle(paths.datarouter.filterParams).withHandler(DatarouterServletFilterParamsViewHandler.class);
 
 		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
 		handleDir(paths.datarouter.testApi).withHandler(TestApiHandler.class);

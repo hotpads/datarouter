@@ -102,7 +102,7 @@ public class ClusterTriggerLockService{
 	public void releaseThisServersJobLocks(){
 		jobLockDao.scan()
 				.include(triggerLock -> triggerLock.getServerName().equals(datarouterProperties.getServerName()))
-				.peek(lock -> logger.info("releasing clusterJobLock {}", lock.getKey().getJobName()))
+				.each(lock -> logger.info("releasing clusterJobLock {}", lock.getKey().getJobName()))
 				.map(Databean::getKey)
 				.forEach(jobLockDao::delete);
 	}

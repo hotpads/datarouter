@@ -22,6 +22,8 @@ import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.inject.guice.GuiceInjector;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.storage.client.ClientOptionsFactory;
+import io.datarouter.storage.client.ClientOptionsFactory.NoOpClientOptionsFactory;
 import io.datarouter.storage.metric.Metrics;
 import io.datarouter.storage.metric.Metrics.NoOpMetris;
 import io.datarouter.storage.node.DatarouterNodes;
@@ -39,6 +41,8 @@ public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(Metrics.class, NoOpMetris.class);
 		bindDefaultInstance(AdditionalSettingRootsSupplier.class, new AdditionalSettingRoots(Collections.emptyList()));
+
+		bindDefault(ClientOptionsFactory.class, NoOpClientOptionsFactory.class);
 
 		// Necessary explicit bindings when dealing with child injectors
 		bind(GuiceInjector.class);

@@ -85,7 +85,7 @@ public class DefaultSignatureValidator implements SignatureValidator{
 			}
 			entity = new ByteArrayEntity(cachingRequestOptional.get().getContent());
 		}catch(IOException e){
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 
 		boolean result = checkHexSignatureMulti(request, entity);

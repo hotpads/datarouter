@@ -74,7 +74,7 @@ public abstract class BaseConveyor implements Conveyor{
 			}
 			ConveyorCounters.incException(this);
 			if(getCompactExceptionLogging()){
-				logger.warn("logging exception so ScheduledExecutorService restarts this Runnable {}", e.getMessage());
+				logger.warn("logging exception so ScheduledExecutorService restarts this Runnable {}", e.toString());
 			}else{
 				logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
 			}

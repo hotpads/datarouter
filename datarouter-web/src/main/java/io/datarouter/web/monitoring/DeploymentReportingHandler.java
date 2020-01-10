@@ -23,8 +23,6 @@ import io.datarouter.web.handler.BaseHandler;
 
 public class DeploymentReportingHandler extends BaseHandler{
 
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm'Z'");
-
 	@Inject
 	private GitProperties gitProperties;
 
@@ -34,7 +32,7 @@ public class DeploymentReportingHandler extends BaseHandler{
 				gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING),
 				gitProperties.getBranch().orElse(GitProperties.UNKNOWN_STRING),
 				gitProperties.getCommitUserName().orElse(GitProperties.UNKNOWN_STRING),
-				FORMATTER.format(gitProperties.getBuildTime().orElse(GitProperties.UNKNOWN_DATE)));
+				DateTimeFormatter.ISO_INSTANT.format(gitProperties.getBuildTime().orElse(GitProperties.UNKNOWN_DATE)));
 	}
 
 	public static class DeploymentReportDto{

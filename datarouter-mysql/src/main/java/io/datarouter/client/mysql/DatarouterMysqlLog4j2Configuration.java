@@ -38,7 +38,8 @@ public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 		addLoggerConfig(DatabaseCreator.class.getName(), Level.INFO, false, schemaUpdateAppender);
 
 		// move to datarouter-storage or datarouter-webapp-utils (see CallsiteHandler)?
-		Appender callsiteAppender = Log4j2Configurator.createFileAppender("callsite", "/mnt/logs/callsite.log",
+		String callsiteLogFile = CATALINA_OUT_DIR + "/callsite.log";
+		Appender callsiteAppender = Log4j2Configurator.createFileAppender("callsite", callsiteLogFile,
 				"%d %-5level [%t] %logger{36}:%line - %msg%n%rEx");
 		addAppender(callsiteAppender);
 		addLoggerConfig(CallsiteRecorder.class.getName(), Level.TRACE, false, callsiteAppender);

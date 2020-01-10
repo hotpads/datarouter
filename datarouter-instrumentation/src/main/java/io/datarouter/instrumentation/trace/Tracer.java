@@ -27,6 +27,7 @@ public interface Tracer{
 
 	Long getCurrentThreadId();
 	Integer getDiscardedThreadCount();
+	void incrementDiscardedThreadCount(int discardedThreadCount);
 
 	void createAndStartThread(String name, long queueTimeMs);
 	void createThread(String name, long queueTimeMs);
@@ -35,9 +36,11 @@ public interface Tracer{
 	void appendToThreadInfo(String text);
 	void finishThread();
 
+	Integer getDiscardedSpanCount();
 	void startSpan(String name);
 	void addSpan(TraceSpanDto span);
 	void appendToSpanInfo(String text);
 	void finishSpan();
+	void incrementDiscardedSpanCount(int discardedSpanCount);
 
 }

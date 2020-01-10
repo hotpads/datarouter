@@ -66,8 +66,8 @@ public class ExampleTaskTrackerHandler extends BaseHandler{
 				.advanceUntil($ -> tracker.shouldStop())
 				.map(Object::toString)
 				//update the item count and last item name, which also acts as a heartbeat
-				.peek($ -> tracker.increment())
-				.peek(tracker::setLastItemProcessed)
+				.each($ -> tracker.increment())
+				.each(tracker::setLastItemProcessed)
 				//log progress
 				.sample(logEveryN.orElse(1L), true)
 				.forEach(item -> logger.warn("{}={}", tracker.getCount(), item));

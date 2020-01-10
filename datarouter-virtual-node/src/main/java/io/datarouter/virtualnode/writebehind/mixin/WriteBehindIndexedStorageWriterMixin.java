@@ -27,6 +27,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.write.IndexedStorageWriter;
 import io.datarouter.storage.node.type.index.ManagedNode;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.virtualnode.writebehind.base.BaseWriteBehindNode;
 import io.datarouter.virtualnode.writebehind.base.WriteWrapper;
 
@@ -53,7 +54,10 @@ implements IndexedStorageWriter<PK,D>{
 	}
 
 	@Override
-	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		node.getQueue().offer(new WriteWrapper<>(OP_deleteByIndex, keys, config));
 	}
 

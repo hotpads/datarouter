@@ -264,7 +264,6 @@ public class LongRunningTaskTracker implements TaskTracker{
 				.withParam(LongRunningTasksHandler.P_status, LongRunningTasksHandler.ALL_STATUSES_VALUE)
 				.build();
 		var emailBuilder = datarouterHtmlEmailService.startEmailBuilder()
-				.withSubject(String.format("Datarouter - Task Timeout - %s", task.name))
 				.withTitle("Task Timeout")
 				.withTitleHref(primaryHref)
 				.withContent(makeEmailBody(task.name, datarouterProperties.getServerName(), primaryHref));

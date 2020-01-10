@@ -43,20 +43,33 @@ public class MysqlOptions{
 	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
 	private JsonSerializer jsonSerializer;
 
-	private final ConcurrentHashMap<String,String> clientPasswords = new ConcurrentHashMap<String,String>();
+	private final ConcurrentHashMap<String,String> clientPasswords = new ConcurrentHashMap<>();
+
+	protected static final String PROP_url = "url";
+	protected static final String PROP_user = "user";
+	protected static final String PROP_passwordLocation = "password.location";
+	protected static final String PROP_password = "password";
+	protected static final String PROP_minPoolSize = "minPoolSize";
+	protected static final String PROP_maxPoolSize = "maxPoolSize";
+	protected static final String PROP_acquireIncrement = "acquireIncrement";
+	protected static final String PROP_numHelperThreads = "numHelperThreads";
+	protected static final String PROP_maxIdleTime = "maxIdleTime";
+	protected static final String PROP_idleConnectionTestPeriod = "idleConnectionTestPeriod";
+	protected static final String PROP_logging = "logging";
+	protected static final String PROP_readOnly = "readOnly";
 
 	public String url(ClientId clientId){
-		return clientOptions.getRequiredString(clientId.getName(), "url");
+		return clientOptions.getRequiredString(clientId.getName(), PROP_url);
 	}
 
 	public String user(String clientName, String def){
-		return clientOptions.getStringClientPropertyOrDefault("user", clientName, def);
+		return clientOptions.getStringClientPropertyOrDefault(PROP_user, clientName, def);
 	}
 
 	public String password(String clientName, String def){
 		return clientPasswords.computeIfAbsent(clientName, $ -> {
 			Optional<String> optionalSecretLocation = Optional.ofNullable(clientOptions
-					.getStringClientPropertyOrDefault("password.location", clientName, null));
+					.getStringClientPropertyOrDefault(PROP_passwordLocation, clientName, null));
 			return optionalSecretLocation.map(secretLocation -> {
 				try{
 					String result = jsonSerializer.deserialize(secretClientSupplier.get().read(secretLocation)
@@ -68,36 +81,36 @@ public class MysqlOptions{
 							e);
 					return (String)null;
 				}
-			}).orElseGet(() -> clientOptions.getStringClientPropertyOrDefault("password", clientName, def));
+			}).orElseGet(() -> clientOptions.getStringClientPropertyOrDefault(PROP_password, clientName, def));
 		});
 	}
 
 	public Integer minPoolSize(String clientName, Integer def){
-		return clientOptions.getIntegerClientPropertyOrDefault("minPoolSize", clientName, def);
+		return clientOptions.getIntegerClientPropertyOrDefault(PROP_minPoolSize, clientName, def);
 	}
 
 	public Integer maxPoolSize(String clientName, Integer def){
-		return clientOptions.getIntegerClientPropertyOrDefault("maxPoolSize", clientName, def);
+		return clientOptions.getIntegerClientPropertyOrDefault(PROP_maxPoolSize, clientName, def);
 	}
 
 	public Integer acquireIncrement(String clientName, Integer def){
-		return clientOptions.getIntegerClientPropertyOrDefault("acquireIncrement", clientName, def);
+		return clientOptions.getIntegerClientPropertyOrDefault(PROP_acquireIncrement, clientName, def);
 	}
 
 	public Integer numHelperThreads(String clientName, Integer def){
-		return clientOptions.getIntegerClientPropertyOrDefault("numHelperThreads", clientName, def);
+		return clientOptions.getIntegerClientPropertyOrDefault(PROP_numHelperThreads, clientName, def);
 	}
 
 	public Integer maxIdleTime(String clientName, Integer def){
-		return clientOptions.getIntegerClientPropertyOrDefault("maxIdleTime", clientName, def);
+		return clientOptions.getIntegerClientPropertyOrDefault(PROP_maxIdleTime, clientName, def);
 	}
 
 	public Integer idleConnectionTestPeriod(String clientName, Integer def){
-		return clientOptions.getIntegerClientPropertyOrDefault("idleConnectionTestPeriod", clientName, def);
+		return clientOptions.getIntegerClientPropertyOrDefault(PROP_idleConnectionTestPeriod, clientName, def);
 	}
 
 	public Boolean logging(String clientName, Boolean def){
-		return clientOptions.getBooleanClientPropertyOrDefault("logging", clientName, def);
+		return clientOptions.getBooleanClientPropertyOrDefault(PROP_logging, clientName, def);
 	}
 
 }

@@ -46,7 +46,7 @@ public class AppNavBar extends NavBar{
 	}
 
 	private NavBarMenuItemWrapper createMenuItem(Entry<NavBarCategory,List<NavBarItem>> entry){
-		if(entry.getValue().size() == 1){
+		if(entry.getValue().size() == 1 && entry.getKey().allowSingleItemMenu()){
 			var item = new NavBarMenuItem(entry.getValue().get(0).path, entry.getKey().getDisplay(), this);
 			return new NavBarMenuItemWrapper(item, entry.getKey().getPriority());
 		}

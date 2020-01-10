@@ -56,9 +56,9 @@ public class DatabeanVacuum<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 		var numDeleted = new AtomicLong();
 		scanner
 				.advanceUntil($ -> tracker.shouldStop())
-				.peek($ -> tracker.increment())
-				.peek(databean -> tracker.setLastItemProcessed(databean.toString()))
-				.peek($ -> {
+				.each($ -> tracker.increment())
+				.each(databean -> tracker.setLastItemProcessed(databean.toString()))
+				.each($ -> {
 					if(logBatchSize.isPresent() && tracker.getCount() % logBatchSize.get() == 0){
 						logProgress(numDeleted.get(), tracker.getCount(), tracker.getLastItem());
 					}
@@ -66,7 +66,7 @@ public class DatabeanVacuum<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 				.include(shouldDelete)
 				.map(Databean::getKey)
 				.batch(deleteBatchSize)
-				.peek(deleteConsumer::accept)
+				.each(deleteConsumer::accept)
 				.map(Collection::size)
 				.forEach(numDeleted::addAndGet);
 		logProgress(numDeleted.get(), tracker.getCount(), tracker.getLastItem());

@@ -20,7 +20,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySettings;
-import io.datarouter.storage.config.setting.impl.DatarouterProfilingSettings;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
@@ -35,10 +34,8 @@ public class DatarouterStorageSettingRoot extends SettingRoot{
 	@Inject
 	public DatarouterStorageSettingRoot(
 			SettingFinder finder,
-			DatarouterProfilingSettings profilingSettings,
 			DatarouterClientAvailabilitySettings clientAvailabilitySettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterStorage.");
-		registerChild(profilingSettings);
 		registerChild(clientAvailabilitySettings);
 
 		recordCallsites = registerBoolean("recordCallsites", false);

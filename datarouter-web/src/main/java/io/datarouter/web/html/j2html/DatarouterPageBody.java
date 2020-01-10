@@ -22,21 +22,16 @@ import j2html.tags.ContainerTag;
 
 public class DatarouterPageBody{
 
-	private final ContainerTag datarouterNavbar;
-	private final ContainerTag webappNavbar;
+	private final ContainerTag[] navbars;
 	private final ContainerTag content;
 
-	public DatarouterPageBody(
-			ContainerTag datarouterNavbar,
-			ContainerTag webappNavbar,
-			ContainerTag content){
-		this.datarouterNavbar = datarouterNavbar;
-		this.webappNavbar = webappNavbar;
+	public DatarouterPageBody(ContainerTag[] navbars, ContainerTag content){
+		this.navbars = navbars;
 		this.content = content;
 	}
 
 	public ContainerTag build(){
-		var header = header(datarouterNavbar, webappNavbar);
+		var header = header(navbars);
 		return body(header, content);
 	}
 

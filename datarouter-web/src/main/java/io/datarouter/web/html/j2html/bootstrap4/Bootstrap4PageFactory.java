@@ -17,6 +17,7 @@ package io.datarouter.web.html.j2html.bootstrap4;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h5;
+import static j2html.TagCreator.pre;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,6 +39,15 @@ public class Bootstrap4PageFactory{
 
 	public Mav message(HttpServletRequest request, String message){
 		var content = div(h5(message))
+				.withStyle("margin:40px;");
+		return startBuilder(request)
+				.withTitle("Message")
+				.withContent(content)
+				.buildMav();
+	}
+
+	public Mav preformattedMessage(HttpServletRequest request, String message){
+		var content = div(pre(message))
 				.withStyle("margin:40px;");
 		return startBuilder(request)
 				.withTitle("Message")

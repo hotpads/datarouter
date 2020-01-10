@@ -78,7 +78,6 @@ public class DatarouterSamlSettings extends SettingNode{
 		shouldUseSaml.expire();
 		encodedIdpPublicKey.expire();
 		encodedIdpX509Certificate.expire();
-		attributesToRoleGroupIds.expire();
 	}
 
 	public Boolean getShouldProcess(){
@@ -88,6 +87,7 @@ public class DatarouterSamlSettings extends SettingNode{
 	public Map<String,String> getAttributeToRoleGroupIdMap(){
 		Map<String,String> parsed = new HashMap<>();
 		for(String pair : attributesToRoleGroupIds.get().split(",")){
+			pair = pair.trim();
 			int index = pair.indexOf("=");
 			if(index > 0 && index < pair.length() - 1){// skip strings with no "=" OR with no strings surrounding "="
 				parsed.put(pair.substring(0, index), pair.substring(++index));

@@ -35,31 +35,38 @@ public class LoadedLibraries{
 
 	public final Map<String,GitProperties> gitDetailedLibraries;
 	public final Map<String,BuildProperties> buildDetailedLibraries;
+	public final Map<String,ManifestDetails> manifests;
 	public final Collection<String> otherLibraries;
 
 	@Inject
 	public LoadedLibraries(ApplicationPaths applicationPaths){
 		gitDetailedLibraries = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		buildDetailedLibraries = new HashMap<>();
+		manifests = new HashMap<>();
 		otherLibraries = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-		String var = applicationPaths.getRootPath() + "/WEB-INF/lib";
+		String libPath = applicationPaths.getRootPath() + "/WEB-INF/lib";
 
-		for(File file : new File(var).listFiles()){
-			try(ZipFile zf = new ZipFile(file)){
-				ZipEntry entry = zf.getEntry("git.properties");
+		for(File file : new File(libPath).listFiles()){
+			try(ZipFile zipFile = new ZipFile(file)){
+				ZipEntry entry = zipFile.getEntry(GitProperties.FILE_NAME);
 				if(entry != null){
-					GitProperties gitProperties = new GitProperties(zf.getInputStream(entry));
+					GitProperties gitProperties = new GitProperties(zipFile.getInputStream(entry));
 					gitDetailedLibraries.put(file.getName(), gitProperties);
 				}else{
 					otherLibraries.add(file.getName());
 				}
-				entry = zf.getEntry(BuildProperties.FILE_NAME);
+				entry = zipFile.getEntry(BuildProperties.FILE_NAME);
 				if(entry != null){
-					BuildProperties gitProperties = new BuildProperties(zf.getInputStream(entry));
-					buildDetailedLibraries.put(file.getName(), gitProperties);
+					BuildProperties buildProperties = new BuildProperties(zipFile.getInputStream(entry));
+					buildDetailedLibraries.put(file.getName(), buildProperties);
+				}
+				entry = zipFile.getEntry(ManifestDetails.FILE_NAME);
+				if(entry != null){
+					ManifestDetails manifestDetails = new ManifestDetails(zipFile.getInputStream(entry));
+					manifests.put(file.getName(), manifestDetails);
 				}
 			}catch(IOException ex){
-				throw new RuntimeException(ex);
+				throw new RuntimeException("read error file=" + file, ex);
 			}
 		}
 	}

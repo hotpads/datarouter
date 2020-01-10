@@ -423,7 +423,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 	@Test
 	public void testSurviveKeyMutation(){
 		long count = dao.scanKeys()
-				.peek(key -> key.setFoo("z"))
+				.each(key -> key.setFoo("z"))
 				.count();
 		Assert.assertEquals(count, SortedBeans.TOTAL_RECORDS);
 	}

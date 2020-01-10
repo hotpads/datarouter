@@ -17,8 +17,10 @@ package io.datarouter.storage.setting;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +34,7 @@ import io.datarouter.util.string.StringTool;
 public class SettingRoot extends SettingNode{
 
 	private final Set<SettingNode> rootNodes = Collections.synchronizedSet(new LinkedHashSet<>());
-	@SuppressWarnings("unused")
+	private final Map<SettingCategory,Set<SettingNode>> map = Collections.synchronizedMap(new LinkedHashMap<>());
 	private final SettingCategory category;
 
 	public SettingRoot(SettingFinder finder, SettingCategory category, String name){
@@ -51,6 +53,7 @@ public class SettingRoot extends SettingNode{
 	private void dependsOn(SettingRoot settingNode){
 		rootNodes.add(settingNode);
 		settingNode.rootNodes.forEach(rootNodes::add);
+		addToMap(settingNode);
 	}
 
 	public Optional<SettingNode> getNode(String nodeName){
@@ -101,6 +104,18 @@ public class SettingRoot extends SettingNode{
 		return rootNodes.stream()
 				.map(SettingNode::getShortName)
 				.anyMatch(shortName -> shortName.equals(rootNameWithoutTrailingDot));
+	}
+
+	public SettingCategory getSettingCategory(){
+		return category;
+	}
+
+	private void addToMap(SettingRoot root){
+		map.computeIfAbsent(root.getSettingCategory(), $ -> new LinkedHashSet<>()).add(root);
+	}
+
+	public Map<SettingCategory,Set<SettingNode>> getRootNodesByCategory(){
+		return map;
 	}
 
 	@Singleton

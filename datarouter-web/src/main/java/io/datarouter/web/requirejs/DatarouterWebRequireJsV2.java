@@ -34,6 +34,9 @@ public class DatarouterWebRequireJsV2{
 	public static final String JQUERY_UI = register(
 			"jquery-ui",
 			FILES.jquery.jqueryUiJs);
+	public static final String JQUERY_VALIDATE = register(
+			"jquery.validate",
+			FILES.jquery.jqueryValidateJs);
 	public static final String BOOTSTRAP = register(
 			"bootstrap",
 			FILES.bootstrap.v4.js.bootstrapJs);
@@ -69,6 +72,11 @@ public class DatarouterWebRequireJsV2{
 		SHIMS.put(BOOTSTRAP, List.of(JQUERY));
 		SHIMS.put(DYGRAPH_EXTRA, List.of(DYGRAPH));
 		SHIMS.put(MULTIPLE_SELECT, List.of(JQUERY));
+		SHIMS.put(JQUERY_VALIDATE, List.of(JQUERY));
+	}
+
+	public static ContainerTag makeImportTag(String contextPath){
+		return RequireJsTool.makeRequireJsImportTag(contextPath, FILES.requirejs.requireJs);
 	}
 
 	public static ContainerTag makeConfigScriptTag(String contextPath){

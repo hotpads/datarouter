@@ -26,7 +26,11 @@ public class DatarouterSecretPaths extends PathNode implements PathsRoot{
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
-		public final PathNode secrets = leaf("secrets");
+		public final SecretPaths secrets = branch(SecretPaths::new, "secrets");
+	}
+
+	public static class SecretPaths extends PathNode{
+		public final PathNode handle = leaf("handle");
 	}
 
 }

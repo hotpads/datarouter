@@ -10,7 +10,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.14</version>
+	<version>0.0.15</version>
 </dependency>
 ```
 
@@ -29,7 +29,6 @@ These methods share behavior with those in Stream but are implemented independen
 - `map`
 - `distinct`
 - `sorted`
-- `peek`
 - `limit`
 - `skip`
 - `forEach`
@@ -48,6 +47,7 @@ These methods share behavior with those in Stream but are implemented independen
 ### Different from Stream
 
 `Scanner` has these methods not available in Stream:
+- `each`
 - `findLast`
 - `hasAny`
 - `isEmpty`
@@ -82,7 +82,7 @@ Calling `.parallel(..)` returns a `ParallelScanner` which executes each operatio
 - `map`
 - `exclude`
 - `include`
-- `peek`
+- `each`
 - `forEach`
 
 The argument passed to parallel(..) is a `ParallelScannerContext` which contains:

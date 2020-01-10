@@ -30,7 +30,7 @@ public class AdvanceWhileScannerTests{
 		Scanner<Integer> input = Scanner.of(1, 2, 3);
 		List<Integer> expected = Arrays.asList(1, 2);
 		List<Integer> actual = input
-				.peek($ -> counter.incrementAndGet())
+				.each($ -> counter.incrementAndGet())
 				.advanceWhile($ -> counter.get() <= 2)
 				.list();
 		Assert.assertEquals(actual, expected);

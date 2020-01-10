@@ -58,6 +58,7 @@ public class DatarouterClients{
 	private final DatarouterInjector datarouterInjector;
 	private final ClientOptions clientOptions;
 	private final ClientInitializationTracker clientInitializationTracker;
+	private final ClientOptionsFactory clientOptionsFactory;
 
 	private final Set<String> configFilePaths;
 	private final Map<String,ClientId> clientIdByClientName;
@@ -71,19 +72,25 @@ public class DatarouterClients{
 			DatarouterClientFactoryExecutor executorService,
 			DatarouterInjector datarouterInjector,
 			ClientOptions clientOptions,
-			ClientInitializationTracker clientInitializationTracker){
+			ClientInitializationTracker clientInitializationTracker,
+			ClientOptionsFactory clientOptionsFactory){
 		this.clientTypeRegistry = clientTypeRegistry;
 		this.executorService = executorService;
 		this.datarouterInjector = datarouterInjector;
 		this.clientOptions = clientOptions;
 		this.clientInitializationTracker = clientInitializationTracker;
+		this.clientOptionsFactory = clientOptionsFactory;
 		this.configFilePaths = new TreeSet<>();
 		this.clientIdByClientName = new TreeMap<>();
-		registerConfigFile(properties.getDatarouterPropertiesFileLocation());
+		loadClientOptions(properties.getDatarouterPropertiesFileLocation(), properties.getInternalConfigDirectory());
 	}
 
-	public void registerConfigFile(String configFilePath){
-		if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)){
+	private void loadClientOptions(String configFilePath, String internalConfigDirectoryType){
+		Properties properties = clientOptionsFactory.getInternalConfigDirectoryTypeOptions(internalConfigDirectoryType);
+		if(!properties.isEmpty()){
+			logger.warn("got properties from class {}", clientOptionsFactory.getClass().getCanonicalName());
+			clientOptions.addProperties(properties);
+		}else if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)){
 			configFilePaths.add(configFilePath);
 			Pair<Properties,URL> propertiesAndLocation = PropertiesTool.parseAndGetLocation(configFilePath);
 			logger.warn("got properties from {}", propertiesAndLocation.getRight());

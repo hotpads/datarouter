@@ -27,6 +27,7 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
+import io.datarouter.web.dispatcher.FilterParams.FilterParamsOrder;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionHandlingConfig.NoOpExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -118,17 +119,20 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addWebListener(JspWebappListener.class);
 		addWebListener(NoJavaSessionWebAppListener.class);
 
-		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, StaticFileFilter.class));
-		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH,
-				GuiceRequestCachingFilter.class));
+		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, StaticFileFilter.class,
+				FilterParamsOrder.GROUP_010));
+		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, GuiceRequestCachingFilter.class,
+				FilterParamsOrder.GROUP_020));
 		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, HttpsFilter.class));
 
 		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.MONITORING,
 				new DatarouterWebPaths().datarouter.executors, "Executors"));
 		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.MONITORING,
 				new DatarouterWebPaths().datarouter.memory, "Server Status"));
-		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.TOOLS,
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.INFO,
 				new DatarouterWebPaths().datarouter.tableConfiguration, "Custom Table Configurations"));
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.INFO,
+				new DatarouterWebPaths().datarouter.filterParams, "Servlet Filters"));
 
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;
@@ -320,7 +324,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			this.datarouterUserExternalDetailClass = datarouterUserExternalDetailClass;
 			return this;
 		}
-
 
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId));

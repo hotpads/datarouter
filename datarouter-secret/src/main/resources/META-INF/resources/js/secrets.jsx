@@ -6,8 +6,6 @@ const FETCH_OPTIONS = {
 	}
 }
 
-const PATH = 'handle'
-
 class Secrets extends React.Component{
 	constructor(props){
 		super(props)

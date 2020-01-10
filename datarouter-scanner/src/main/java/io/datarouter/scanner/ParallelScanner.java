@@ -29,12 +29,11 @@ public class ParallelScanner<T>{
 		this.input = input;
 	}
 
-	public <R> Scanner<R> map(Function<? super T,? extends R> mapper){
+	public Scanner<T> each(Consumer<? super T> consumer){
 		if(context.enabled){
-			return new ParallelMappingScanner<>(input, context.allowUnorderedResults, context.executor,
-					context.numThreads, mapper);
+			return map(new ScannerConsumerFunction<>(consumer));
 		}
-		return input.map(mapper);
+		return input.each(consumer);
 	}
 
 	public Scanner<T> exclude(Predicate<? super T> predicate){
@@ -64,11 +63,12 @@ public class ParallelScanner<T>{
 		return input.include(predicate);
 	}
 
-	public Scanner<T> peek(Consumer<? super T> consumer){
+	public <R> Scanner<R> map(Function<? super T,? extends R> mapper){
 		if(context.enabled){
-			return map(new ScannerConsumerFunction<>(consumer));
+			return new ParallelMappingScanner<>(input, context.allowUnorderedResults, context.executor,
+					context.numThreads, mapper);
 		}
-		return input.peek(consumer);
+		return input.map(mapper);
 	}
 
 }

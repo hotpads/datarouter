@@ -27,10 +27,10 @@ import io.datarouter.util.properties.TypedProperties;
 @Singleton
 public class ClientOptions{
 
-	private static final String CLIENT_default = "default";
 	private static final String PREFIX_client = "client.";
 	private static final String PARAM_initMode = "initMode";
 	private static final String PARAM_type = "type";
+	private static final String CLIENT_default = "default";
 
 	private final TypedProperties typedProperties = new TypedProperties();
 
@@ -48,19 +48,19 @@ public class ClientOptions{
 	}
 
 	public String getRequiredString(String clientName, String propertyKey){
-		return typedProperties.getRequiredString(makeKey(clientName, propertyKey));
+		return typedProperties.getRequiredString(makeClientPrefixedKey(clientName, propertyKey));
 	}
 
 	public Integer getRequiredInteger(String clientName, String propertyKey){
-		return typedProperties.getRequiredInteger(makeKey(clientName, propertyKey));
+		return typedProperties.getRequiredInteger(makeClientPrefixedKey(clientName, propertyKey));
 	}
 
 	public Optional<String> optString(String clientName, String propertyKey){
-		return typedProperties.optString(makeKey(clientName, propertyKey));
+		return typedProperties.optString(makeClientPrefixedKey(clientName, propertyKey));
 	}
 
 	public Optional<InetSocketAddress> optInetSocketAddress(String clientName, String propertyKey){
-		return typedProperties.optInetSocketAddress(makeKey(clientName, propertyKey));
+		return typedProperties.optInetSocketAddress(makeClientPrefixedKey(clientName, propertyKey));
 	}
 
 	public String getStringClientPropertyOrDefault(String propertyKey, String clientName, String def){
@@ -75,14 +75,22 @@ public class ClientOptions{
 		return getClientPropertyOrDefault(typedProperties::getBoolean, propertyKey, clientName, def);
 	}
 
-	private static String makeKey(String clientName, String propertyKey){
+	public static String makeClientTypeKey(String clientName){
+		return makeClientPrefixedKey(clientName, PARAM_type);
+	}
+
+	public static String makeClientInitModeKey(String clientName){
+		return makeClientPrefixedKey(clientName, PARAM_initMode);
+	}
+
+	public static String makeClientPrefixedKey(String clientName, String propertyKey){
 		return PREFIX_client + clientName + "." + propertyKey;
 	}
 
 	private static <T> T getClientPropertyOrDefault(BiFunction<String,T,T> propertyGetter, String propertyKey,
 			String clientName, T def){
-		T defaultValue = propertyGetter.apply(makeKey(CLIENT_default, propertyKey), def);
-		return propertyGetter.apply(makeKey(clientName, propertyKey), defaultValue);
+		T defaultValue = propertyGetter.apply(makeClientPrefixedKey(CLIENT_default, propertyKey), def);
+		return propertyGetter.apply(makeClientPrefixedKey(clientName, propertyKey), defaultValue);
 	}
 
 }

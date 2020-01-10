@@ -18,7 +18,7 @@ package io.datarouter.web.html.j2html;
 import static j2html.TagCreator.caption;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.table;
-import static j2html.TagCreator.text;
+import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
@@ -48,8 +48,8 @@ public class J2HtmlTable<T>{
 	public J2HtmlTable<T> withColumn(String name, Function<T,Object> valueFunction){
 		Function<T,DomContent> function = dto -> Optional.ofNullable(valueFunction.apply(dto))
 				.map(Object::toString)
-				.map(TagCreator::text)
-				.orElseGet(() -> text(""));
+				.map(text -> td(text))
+				.orElseGet(TagCreator::td);
 		columns.add(new J2HtmlTableColumn<>(name, function));
 		return this;
 	}
@@ -87,12 +87,7 @@ public class J2HtmlTable<T>{
 	}
 
 	private ContainerTag makeTr(T dto){
-		var tr = tr();
-		columns.stream()
-				.map(column -> column.valueFunction.apply(dto))
-				.map(TagCreator::td)
-				.forEach(tr::with);
-		return tr;
+		return tr(each(columns, column -> column.valueFunction.apply(dto)));
 	}
 
 }

@@ -21,6 +21,8 @@ import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -32,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.bytes.ByteUnitTool;
 import io.datarouter.util.collection.CollectorTool;
@@ -49,8 +50,9 @@ import io.datarouter.web.handler.mav.Mav;
  */
 public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInitHandler{
 
-	private static final String PATTERN = "d MMM H:mm";
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(PATTERN);
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter
+			.ofPattern("d MMM H:mm z")
+			.withZone(ZoneId.systemDefault());
 
 	@Inject
 	private DatarouterProperties datarouterProperties;
@@ -66,6 +68,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	private DatarouterWebFiles files;
 	@Inject
 	private TomcatThreadMetrics tomcatThreadMetrics;
+	@Inject
+	private ManifestDetails manifestDetails;
 
 	@Handler(defaultHandler = true)
 	protected Mav view(){
@@ -75,7 +79,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		long uptime = runtimeMxBean.getUptime();
 		Map<String,GitPropertiesJspDto> gitDetailedLibraries = loadedLibraries.gitDetailedLibraries.entrySet().stream()
 				.collect(CollectorTool.toMap(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue())));
-		mav.put("startTime", DateTool.format(PATTERN, startTime));
+		mav.put("startTime", FORMATTER.format(Instant.ofEpochMilli(startTime)));
 		mav.put("upTime", new DatarouterDuration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
 		mav.put("serverName", datarouterProperties.getServerName());
 		mav.put("serverVersion", servletContext.getServerInfo());
@@ -90,8 +94,11 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("buildTime", FORMATTER.format(gitProperties.getBuildTime().orElse(GitProperties.UNKNOWN_DATE)));
 		mav.put("gitTags", gitProperties.getTags().orElse(GitProperties.UNKNOWN_STRING));
 		mav.put("buildId", buildProperties.getBuildId());
+		mav.put("buildJdk", manifestDetails.getBuildPair());
+		mav.put("manifest", manifestDetails.getManifestString());
 		mav.put("detailedLibraries", gitDetailedLibraries);
 		mav.put("buildDetailedLibraries", loadedLibraries.buildDetailedLibraries);
+		mav.put("manifests", loadedLibraries.manifests);
 		mav.put("otherLibraries", loadedLibraries.otherLibraries);
 		mav.put("tomcatThreadMetrics", tomcatThreadMetrics.getTomcatPoolMetrics());
 
@@ -132,11 +139,11 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("started", threadMxBean.getTotalStartedThreadCount());
 
 		List<GarbageCollectorMXBean> garbageCollectorMxBeans = ManagementFactory.getGarbageCollectorMXBeans();
-		List<GarbageCollectorForDisplay> es = new LinkedList<>();
+		List<GarbageCollectorForDisplay> gcs = new LinkedList<>();
 		for(GarbageCollectorMXBean garbageCollectorMxBean : garbageCollectorMxBeans){
-			es.add(new GarbageCollectorForDisplay(garbageCollectorMxBean));
+			gcs.add(new GarbageCollectorForDisplay(garbageCollectorMxBean));
 		}
-		mav.put("gcs", es);
+		mav.put("gcs", gcs);
 
 		return mav;
 	}

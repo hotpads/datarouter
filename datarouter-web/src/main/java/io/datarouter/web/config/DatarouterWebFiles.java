@@ -184,7 +184,6 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final PathNode coreCommonJs = leaf("core-common.js");
 		public final PathNode navbarRequestTimingJs = leaf("navbar-request-timing.js");
 		public final PathNode navbarRequestTimingV2Js = leaf("navbar-request-timing-v2.js");
-		public final PathNode viewUsersJsx = leaf("viewUsers.jsx");
 	}
 
 	public static class JsUtilFiles extends PathNode{

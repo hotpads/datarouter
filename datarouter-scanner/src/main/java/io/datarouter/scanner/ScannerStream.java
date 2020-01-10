@@ -138,7 +138,7 @@ public class ScannerStream<T> implements Stream<T>{
 
 	@Override
 	public Stream<T> peek(Consumer<? super T> action){
-		return scanner.peek(action).stream();
+		return scanner.each(action).stream();
 	}
 
 	@Override

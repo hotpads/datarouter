@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.14</version>
+		<version>0.0.15</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-secret</artifactId>
-			<version>0.0.14</version>
+			<version>0.0.15</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.log4jdbc</groupId>
@@ -56,7 +56,7 @@
 		<dependency>
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
-			<version>0.9.5.4</version>
+			<version>0.9.5.5</version>
 		</dependency>
 		<dependency>
 			<groupId>mysql</groupId>

@@ -19,12 +19,14 @@ import java.util.Collection;
 
 import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
+import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 
 public class MysqlNode<
 		PK extends PrimaryKey<PK>,
@@ -78,7 +80,10 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public <IK extends PrimaryKey<IK>> void deleteByIndex(Collection<IK> keys, Config config){
+	public <IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK, IE, PK, D>,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		mysqlNodeManager.deleteByIndex(getFieldInfo(), keys, config);
 	}
 

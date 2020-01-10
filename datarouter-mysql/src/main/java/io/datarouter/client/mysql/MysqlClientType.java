@@ -30,7 +30,7 @@ import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
 @Singleton
 public class MysqlClientType implements ClientType<MysqlClientNodeFactory,MysqlClientManager>{
 
-	private static final String NAME = "mysql";
+	public static final String NAME = "mysql";
 
 	@Inject
 	public MysqlClientType(DatarouterClientWebInspectorRegistry datarouterClientWebInspectorRegistry){
