@@ -115,8 +115,8 @@ public class DatarouterWebFiles extends FilesRoot{
 
 	public static class CssFiles extends PathNode{
 		public final NavbarCssFiles navbar = branch(NavbarCssFiles::new, "navbar");
-		public final PathNode commonCss = leaf("common.css");
-		public final PathNode newCommonCss = leaf("new-common.css");
+		public final PathNode commonB3Css = leaf("common-b3.css");
+		public final PathNode commonB4Css = leaf("common-b4.css");
 	}
 
 	public static class NavbarCssFiles extends PathNode{
@@ -225,10 +225,9 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final PathNode memoryUsageJsp = leaf("memoryUsage.jsp");
 	}
 
-
 	public static class JspCssFiles extends PathNode{
-		public final PathNode cssImportJspf = leaf("css-import.jspf");
-		public final PathNode newCssImportJspf = leaf("new-css-import.jspf");
+		public final PathNode cssImportB3Jspf = leaf("css-import-b3.jspf");
+		public final PathNode cssImportB4Jspf = leaf("css-import-b4.jspf");
 	}
 
 	public static class JspDocsFiles extends PathNode{
@@ -236,8 +235,8 @@ public class DatarouterWebFiles extends FilesRoot{
 	}
 
 	public static class JspGenericFiles extends PathNode{
-		public final PathNode baseHeadJsp = leaf("baseHead.jsp");
-		public final PathNode newBaseHeadJsp = leaf("newBaseHead.jsp");
+		public final PathNode baseHeadB3Jsp = leaf("baseHead-b3.jsp");
+		public final PathNode baseHeadB4Jsp = leaf("baseHead-b4.jsp");
 		public final PathNode codeJsp = leaf("code.jsp");
 		public final PathNode datarouterHeadJsp = leaf("datarouterHead.jsp");
 		public final PathNode htmlJsp = leaf("html.jsp");
@@ -248,10 +247,9 @@ public class DatarouterWebFiles extends FilesRoot{
 	}
 
 	public static class JspMenuFiles extends PathNode{
-		public final PathNode commonNavbarJsp = leaf("common-navbar.jsp");
-		public final PathNode newCommonNavbarJsp = leaf("new-common-navbar.jsp");
+		public final PathNode commonNavbarB3Jsp = leaf("common-navbar-b3.jsp");
+		public final PathNode commonNavbarB4Jsp = leaf("common-navbar-b4.jsp");
 	}
-
 
 	public static class RequirejsFiles extends PathNode{
 		public final RequirejsPluginsFiles plugins = branch(RequirejsPluginsFiles::new, "plugins");
@@ -265,7 +263,7 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final PathNode propertyParserJs = leaf("propertyParser.js");
 	}
 
-	//used in baseHead.jsp
+	//used in baseHead-b3.jsp
 	public static class SorttableFiles extends PathNode{
 		public final PathNode sorttableJs = leaf("sorttable.js");
 	}

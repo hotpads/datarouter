@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.util.Require;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.io.FileTool;
@@ -82,12 +83,12 @@ public abstract class DatarouterProperties{
 
 	/*----------------- construct ------------------*/
 
-	protected DatarouterProperties(ServerType serverTypeOptions, String serviceName, String configDirectory,
+	protected DatarouterProperties(ServerTypes serverTypeOptions, String serviceName, String configDirectory,
 			String filename){
 		this(serverTypeOptions, serviceName, configDirectory, true, false, filename, true);
 	}
 
-	private DatarouterProperties(ServerType serverTypeOptions, String webappName, String configDirectory,
+	private DatarouterProperties(ServerTypes serverTypeOptions, String webappName, String configDirectory,
 			boolean directoryRequired, boolean directoryFromJvmArg, String filename, boolean fileRequired){
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Require.isTrue(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");

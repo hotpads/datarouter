@@ -17,6 +17,7 @@ package io.datarouter.util.cached;
 
 import java.util.function.Supplier;
 
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.lang.ObjectTool;
 
 public abstract class BaseCached<T> implements Supplier<T>{
@@ -38,13 +39,16 @@ public abstract class BaseCached<T> implements Supplier<T>{
 			return false;
 		}
 		T original;
-		synchronized(this){
-			original = value;
-			if(!isExpired()){
-				return false;
+		try(var $ = TracerTool.startSpan("BaseCached reload")){
+			TracerTool.appendToSpanInfo(toString());
+			synchronized(this){
+				original = value;
+				if(!isExpired()){
+					return false;
+				}
+				value = reload();
+				cachedAtMs = System.currentTimeMillis();
 			}
-			value = reload();
-			cachedAtMs = System.currentTimeMillis();
 		}
 		return ObjectTool.notEquals(original, value);
 

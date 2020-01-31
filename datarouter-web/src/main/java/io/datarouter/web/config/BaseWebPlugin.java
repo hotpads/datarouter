@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.storage.config.BasePlugin;
+import io.datarouter.util.ordered.Ordered;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.listener.DatarouterAppListener;
@@ -32,32 +33,101 @@ import io.datarouter.web.navigation.NavBarItem;
  * BaseWebPlugin brings in auto registration and dynamic configuration of RouteSets, AppListeners, FilterParams,
  * DatarouterNavBar items and AppNavBar items.
  *
+ * RouteSets, Listeners, and FilterParams can be added with or without order. To specify the order, the "after" class
+ * needs to be included. Both the ordered *after sorting) and the unordered lists will be combined at runtime.
+ *
  * NavBars (both datarouter and app) are sorted alphabetically for all menu items and each of the sub menu items.
  */
 public abstract class BaseWebPlugin extends BasePlugin{
 
-	private final List<Class<? extends BaseRouteSet>> routeSetClasses = new ArrayList<>();
-	private final List<Class<? extends DatarouterAppListener>> appListeners = new ArrayList<>();
-	private final List<Class<? extends DatarouterWebAppListener>> webListeners = new ArrayList<>();
-	private final List<FilterParams> filterParams = new ArrayList<>();
+	/*------------------------------ route sets -----------------------------*/
+
+	private final List<Ordered<Class<? extends BaseRouteSet>>> orderedRouteSetClasses = new ArrayList<>();
+	private final List<Class<? extends BaseRouteSet>> unorderedRouteSetClasses = new ArrayList<>();
+
+	protected void addOrderedRouteSet(Class<? extends BaseRouteSet> routeSet, Class<? extends BaseRouteSet> after){
+		orderedRouteSetClasses.add(new Ordered<>(routeSet, after));
+	}
+
+	protected void addUnorderedRouteSet(Class<? extends BaseRouteSet> routeSet){
+		unorderedRouteSetClasses.add(routeSet);
+	}
+
+	public List<Ordered<Class<? extends BaseRouteSet>>> getOrderedRouteSetClasses(){
+		return orderedRouteSetClasses;
+	}
+
+	public List<Class<? extends BaseRouteSet>> getUnorderedRouteSetClasses(){
+		return unorderedRouteSetClasses;
+	}
+
+	/*------------------------------ listeners ------------------------------*/
+
+	private final List<Ordered<Class<? extends DatarouterAppListener>>> orderedAppListeners = new ArrayList<>();
+	private final List<Class<? extends DatarouterAppListener>> unorderedAppListeners = new ArrayList<>();
+
+	private final List<Ordered<Class<? extends DatarouterWebAppListener>>> orderedWebListeners = new ArrayList<>();
+	private final List<Class<? extends DatarouterWebAppListener>> unorderedWebListeners = new ArrayList<>();
+
+	protected void addOrderedAppListener(Class<? extends DatarouterAppListener> listener,
+			Class<? extends DatarouterAppListener> after){
+		orderedAppListeners.add(new Ordered<>(listener, after));
+	}
+
+	protected void addUnorderedAppListener(Class<? extends DatarouterAppListener> listener){
+		unorderedAppListeners.add(listener);
+	}
+
+	protected void addOrderedWebListener(Class<? extends DatarouterWebAppListener> listener,
+			Class<? extends DatarouterWebAppListener> after){
+		orderedWebListeners.add(new Ordered<>(listener, after));
+	}
+
+	protected void addUnorderedWebListener(Class<? extends DatarouterWebAppListener> listener){
+		unorderedAppListeners.add(listener);
+	}
+
+	public List<Ordered<Class<? extends DatarouterAppListener>>> getOrderedAppListeners(){
+		return orderedAppListeners;
+	}
+
+	public List<Class<? extends DatarouterAppListener>> getUnorderedAppListeners(){
+		return unorderedAppListeners;
+	}
+
+	public List<Ordered<Class<? extends DatarouterWebAppListener>>> getOrderedWebAppListeners(){
+		return orderedWebListeners;
+	}
+
+	public List<Class<? extends DatarouterWebAppListener>> getUnorderedWebAppListeners(){
+		return unorderedWebListeners;
+	}
+
+	/*---------------------------- filter params ----------------------------*/
+
+	private final List<Ordered<FilterParams>> orderedFilterParams = new ArrayList<>();
+	private final List<FilterParams> unorderedFilterParams = new ArrayList<>();
+
+	protected void addOrderedFilterParams(FilterParams filterParam, FilterParams after){
+		orderedFilterParams.add(new Ordered<>(filterParam, after));
+	}
+
+	protected void addUnorderedFilterParams(FilterParams filterParam){
+		unorderedFilterParams.add(filterParam);
+	}
+
+	public List<Ordered<FilterParams>> getOrderedFilterParams(){
+		return orderedFilterParams;
+	}
+
+	public List<FilterParams> getUnorderedFilterParams(){
+		return unorderedFilterParams;
+	}
+
+	/*------------------------------- nav bar--------------------------------*/
+
 	private final List<NavBarItem> datarouterNavBarItems = new ArrayList<>();
 	private final List<NavBarItem> appNavBarItems = new ArrayList<>();
-
-	protected void addRouteSet(Class<? extends BaseRouteSet> routeSet){
-		routeSetClasses.add(routeSet);
-	}
-
-	protected void addAppListener(Class<? extends DatarouterAppListener> listener){
-		appListeners.add(listener);
-	}
-
-	protected void addWebListener(Class<? extends DatarouterWebAppListener> listener){
-		webListeners.add(listener);
-	}
-
-	protected void addFilterParams(FilterParams filterParam){
-		filterParams.add(filterParam);
-	}
 
 	protected void addDatarouterNavBarItem(NavBarItem navBarItem){
 		datarouterNavBarItems.add(navBarItem);
@@ -65,22 +135,6 @@ public abstract class BaseWebPlugin extends BasePlugin{
 
 	protected void addAppNavBarItem(NavBarItem navBarItem){
 		appNavBarItems.add(navBarItem);
-	}
-
-	public List<Class<? extends BaseRouteSet>> getRouteSetClasses(){
-		return routeSetClasses;
-	}
-
-	public List<Class<? extends DatarouterAppListener>> getAppListeners(){
-		return appListeners;
-	}
-
-	public List<Class<? extends DatarouterWebAppListener>> getWebAppListeners(){
-		return webListeners;
-	}
-
-	public List<FilterParams> getFilterParams(){
-		return filterParams;
 	}
 
 	public List<NavBarItem> getDatarouterNavBarPluginItems(){

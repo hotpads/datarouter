@@ -24,16 +24,18 @@ import io.datarouter.util.tuple.Range;
 
 public class ScanSanitizer{
 
-	public static <PK extends PrimaryKey<PK>> void checkForUnexceptedFullScan(Collection<Range<PK>> ranges){
-		for(Range<PK> range : ranges){
-			if(range == null || range.getStart() == null && range.getEnd() == null){
-				continue; // expected full scan
-			}
-			if(range.getStart() == null && isValueOfFirstFieldNull(range.getEnd())
-					|| range.getEnd() == null && isValueOfFirstFieldNull(range.getStart())
-					|| isValueOfFirstFieldNull(range.getStart()) && isValueOfFirstFieldNull(range.getEnd())){
-				throw new RuntimeException("unexcepted full scan detected for range=" + range);
-			}
+	public static <PK extends PrimaryKey<PK>> void rejectUnexceptedFullScan(Collection<Range<PK>> ranges){
+		ranges.forEach(ScanSanitizer::rejectUnexceptedFullScan);
+	}
+
+	public static <PK extends PrimaryKey<PK>> void rejectUnexceptedFullScan(Range<PK> range){
+		if(range == null || range.getStart() == null && range.getEnd() == null){
+			return; // expected full scan
+		}
+		if(range.getStart() == null && isValueOfFirstFieldNull(range.getEnd())
+				|| range.getEnd() == null && isValueOfFirstFieldNull(range.getStart())
+				|| isValueOfFirstFieldNull(range.getStart()) && isValueOfFirstFieldNull(range.getEnd())){
+			throw new RuntimeException("unexcepted full scan detected for range=" + range);
 		}
 	}
 

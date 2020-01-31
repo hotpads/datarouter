@@ -33,6 +33,7 @@ extends DatabeanFieldInfo<PK,D,F>{
 	private final String tableName;
 	private final String nodeName;
 	private final TableConfiguration tableConfiguration;
+	private final boolean disableForcePrimary;
 
 	public PhysicalDatabeanFieldInfo(NodeParams<PK,D,F> params){
 		super(params);
@@ -52,6 +53,7 @@ extends DatabeanFieldInfo<PK,D,F>{
 		}
 		this.nodeName = nodeName;
 		this.tableConfiguration = params.getTableConfiguration();
+		this.disableForcePrimary = params.getDisableForcePrimary();
 	}
 
 	public ClientId getClientId(){
@@ -70,6 +72,10 @@ extends DatabeanFieldInfo<PK,D,F>{
 		return tableConfiguration;
 	}
 
+	public boolean getDisableForcePrimary(){
+		return disableForcePrimary;
+	}
+
 	@Override
 	public boolean equals(Object obj){
 		if(!(obj instanceof PhysicalDatabeanFieldInfo)){
@@ -81,6 +87,11 @@ extends DatabeanFieldInfo<PK,D,F>{
 	@Override
 	public int hashCode(){
 		return nodeName.hashCode();
+	}
+
+	@Override
+	public String toString(){
+		return nodeName;
 	}
 
 }

@@ -37,23 +37,25 @@ extends SortedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 
 	@Override
 	default Scanner<PK> scanKeys(Range<PK> range, Config config){
+		ScanSanitizer.rejectUnexceptedFullScan(range);
 		return getBackingNode().scanKeys(range, config);
 	}
 
 	@Override
 	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		ScanSanitizer.checkForUnexceptedFullScan(ranges);
+		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanKeysMulti(ranges, config);
 	}
 
 	@Override
 	default Scanner<D> scan(Range<PK> range, Config config){
+		ScanSanitizer.rejectUnexceptedFullScan(range);
 		return getBackingNode().scan(range, config);
 	}
 
 	@Override
 	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		ScanSanitizer.checkForUnexceptedFullScan(ranges);
+		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanMulti(ranges, config);
 	}
 

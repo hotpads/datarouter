@@ -37,17 +37,17 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 
 	public static class DatarouterPaths extends PathNode{
 		public final ClientPaths client = branch(ClientPaths::new, "client");
+		public final InfoPaths info = branch(InfoPaths::new, "info");
 		public final NodesPaths nodes = branch(NodesPaths::new, "nodes");
 
-		public final PathNode executors = leaf("executors");
-		public final PathNode filterParams = leaf("filterParams");
-		public final PathNode memory = leaf("memory");
-		public final PathNode testApi = leaf("testApi");
-		public final PathNode ipDetection = leaf("ipDetection");
 		public final PathNode deployment = leaf("deployment");
+		public final PathNode executors = leaf("executors");
+		public final PathNode ipDetection = leaf("ipDetection");
+		public final PathNode memory = leaf("memory");
 		public final PathNode settings = leaf("settings");
 		public final PathNode shutdown = leaf("shutdown");
 		public final PathNode tableConfiguration = leaf("tableConfiguration");
+		public final PathNode testApi = leaf("testApi");
 	}
 
 	public static class ClientPaths extends PathNode{
@@ -61,6 +61,13 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode deleteData = leaf("deleteData");
 		public final PathNode getData = leaf("getData");
 		public final PathNode search = leaf("search");
+	}
+
+	public static class InfoPaths extends PathNode{
+		public final PathNode listeners = leaf("listeners");
+		public final PathNode routeSets = leaf("routeSets");
+		public final PathNode filterParams = leaf("filterParams");
+		public final PathNode properties = leaf("properties");
 	}
 
 	public static class PermissionRequestPaths extends PathNode{

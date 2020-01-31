@@ -24,7 +24,6 @@ import io.datarouter.client.memcached.client.MemcachedOptions;
 import io.datarouter.client.memcached.client.SpyMemcachedClient;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
-import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory.DatarouterWebRequestParams;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.params.Params;
 
@@ -41,8 +40,8 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 
 	@Override
 	public Mav inspectClient(Params params){
-		DatarouterWebRequestParams<MemcachedClientType> routerParams = datarouterWebRequestParamsFactory
-				.new DatarouterWebRequestParams<>(params, MemcachedClientType.class);
+		var routerParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(params,
+				MemcachedClientType.class);
 		SpyMemcachedClient spyClient = memcachedClientManager.getSpyMemcachedClient(routerParams.getClientId());
 		Mav mav = new Mav(files.jsp.admin.datarouter.memcached.memcachedClientSummaryJsp);
 		mav.put("client", spyClient);

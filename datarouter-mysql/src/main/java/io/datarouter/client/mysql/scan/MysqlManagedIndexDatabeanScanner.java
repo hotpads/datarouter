@@ -24,6 +24,7 @@ import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.node.adapter.sanitization.sanitizer.PrimaryKeySanitizer;
 import io.datarouter.storage.op.scan.BaseNodeScanner;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
@@ -54,7 +55,9 @@ extends BaseNodeScanner<IK,D>{
 
 	@Override
 	protected IK getPrimaryKey(D fieldSet){
-		return CollectionTool.getFirst(indexEntryFieldInfo.getSampleDatabean().createFromDatabean(fieldSet)).getKey();
+		IK key = CollectionTool.getFirst(indexEntryFieldInfo.getSampleDatabean().createFromDatabean(fieldSet)).getKey();
+		PrimaryKeySanitizer.logForNullPrimaryKeyValues(key);
+		return key;
 	}
 
 	@Override

@@ -49,7 +49,7 @@ implements Setting<T>{
 
 	@Override
 	public String toString(){
-		return name;
+		return "CachedSetting=" + name;
 	}
 
 	/*----------- Setting methods --------------*/
@@ -76,11 +76,6 @@ implements Setting<T>{
 	public T getDefaultValue(){
 		return defaultSettingValue.getValue(finder.getEnvironmentType(), finder.getEnvironmentName(),
 				finder.getServerType(), finder.getServerName());
-	}
-
-	@Override
-	public T get(){
-		return super.get();
 	}
 
 	@Override

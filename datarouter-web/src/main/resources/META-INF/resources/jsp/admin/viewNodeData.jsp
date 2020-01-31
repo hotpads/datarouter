@@ -15,7 +15,7 @@
 	</style>
 </head>
 <body>
-	<%@ include file="/jsp/menu/new-common-navbar.jsp" %>
+	<%@ include file="/jsp/menu/common-navbar-b4.jsp" %>
 	<nav>
 		<ol class="breadcrumb rounded-0">
 			<li class="breadcrumb-item"><a href="${contextPath}/datarouter">Datarouter Home</a></li>

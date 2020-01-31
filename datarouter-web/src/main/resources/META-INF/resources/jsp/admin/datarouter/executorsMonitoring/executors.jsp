@@ -107,7 +107,7 @@
 	</script>
 </head>
 <body>
-	<%@ include file="/jsp/menu/new-common-navbar.jsp"%>
+	<%@ include file="/jsp/menu/common-navbar-b4.jsp"%>
 	<div class="container my-4">
 		<h1>Executors</h1>
 		<label><input type="checkbox" id="auto-refresh" checked> Auto refresh</label>

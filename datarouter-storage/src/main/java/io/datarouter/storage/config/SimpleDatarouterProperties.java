@@ -15,7 +15,8 @@
  */
 package io.datarouter.storage.config;
 
-import io.datarouter.storage.servertype.SimpleServerType;
+import io.datarouter.storage.servertype.BaseServerTypes;
+import io.datarouter.storage.servertype.SingleServerType;
 
 public class SimpleDatarouterProperties extends DatarouterProperties{
 
@@ -25,7 +26,10 @@ public class SimpleDatarouterProperties extends DatarouterProperties{
 	private final String serviceName;
 
 	public SimpleDatarouterProperties(String serviceName){
-		super(new SimpleServerType(serviceName, false), serviceName, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
+		super(new BaseServerTypes(new SingleServerType(serviceName, false)),
+				serviceName,
+				CONFIG_DIRECTORY,
+				SERVER_CONFIG_FILE_NAME);
 		this.serviceName = serviceName;
 	}
 

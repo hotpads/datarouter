@@ -26,6 +26,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.sanitization.SanitizationAdapter;
+import io.datarouter.storage.node.adapter.sanitization.sanitizer.ScanSanitizer;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.op.raw.IndexedStorage.IndexedStorageNode;
 import io.datarouter.storage.node.type.index.ManagedNode;
@@ -71,6 +72,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK,IE>>
 	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 					Config config){
+		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -80,6 +82,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK,IE>>
 	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 					Config config){
+		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -89,6 +92,7 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK,IE>>
 	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 					Config config){
+		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 

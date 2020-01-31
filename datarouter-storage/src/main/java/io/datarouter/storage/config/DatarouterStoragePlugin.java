@@ -22,17 +22,17 @@ import io.datarouter.storage.client.ClientOptionsFactory;
 import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaoClasses;
-import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
+import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.AdditionalSettingRoots;
 import io.datarouter.storage.setting.AdditionalSettingRootsSupplier;
 
 public class DatarouterStoragePlugin extends BasePlugin{
 
-	private final ServerType serverType;
+	private final ServerTypes serverTypes;
 	private final Class<? extends ServerTypeDetector> serverTypeDetectorClass;
-	private final Class<? extends DatarouterProperties> datarouterPropertiesClass;
+	private final DatarouterProperties datarouterProperties;
 	private final Class<?> settingOverridesClass;
 	private final AdditionalSettingRoots additionalSettingRoots;
 	private final Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
@@ -44,17 +44,17 @@ public class DatarouterStoragePlugin extends BasePlugin{
 	}
 
 	private DatarouterStoragePlugin(
-			ServerType serverType,
+			ServerTypes serverTypes,
 			Class<? extends ServerTypeDetector> serverTypeDetectorClass,
-			Class<? extends DatarouterProperties> datarouterPropertiesClass,
+			DatarouterProperties datarouterProperties,
 			Class<?> settingOverridesClass,
 			AdditionalSettingRoots additionalSettingRoots,
 			Class<? extends ClientOptionsFactory> clientOptionsFactoryClass,
 			List<Class<? extends Dao>> daoClasses){
 		addSettingRoot(DatarouterStorageSettingRoot.class);
-		this.serverType = serverType;
+		this.serverTypes = serverTypes;
 		this.serverTypeDetectorClass = serverTypeDetectorClass;
-		this.datarouterPropertiesClass = datarouterPropertiesClass;
+		this.datarouterProperties = datarouterProperties;
 		this.settingOverridesClass = settingOverridesClass;
 		this.additionalSettingRoots = additionalSettingRoots;
 		this.clientOptionsFactoryClass = clientOptionsFactoryClass;
@@ -62,10 +62,15 @@ public class DatarouterStoragePlugin extends BasePlugin{
 	}
 
 	@Override
+	public String getName(){
+		return "DatarouterStorage";
+	}
+
+	@Override
 	public void configure(){
-		bind(ServerType.class).toInstance(serverType);
+		bind(ServerTypes.class).toInstance(serverTypes);
 		bindActual(ServerTypeDetector.class, serverTypeDetectorClass);
-		bind(DatarouterProperties.class).to(datarouterPropertiesClass);
+		bindActualInstance(DatarouterProperties.class, datarouterProperties);
 		if(settingOverridesClass != null){
 			bind(settingOverridesClass).asEagerSingleton(); // allow overriders in tests;
 		}
@@ -80,8 +85,8 @@ public class DatarouterStoragePlugin extends BasePlugin{
 
 	public static class DatarouterStoragePluginBuilder{
 
-		private final ServerType serverType;
-		private final Class<? extends DatarouterProperties> datarouterPropertiesClass;
+		private final ServerTypes serverTypes;
+		private final DatarouterProperties datarouterProperties;
 
 		private Class<? extends ServerTypeDetector> serverTypeDetectorClass = NoOpServerTypeDetector.class;
 		private Class<?> settingOverridesClass;
@@ -89,10 +94,9 @@ public class DatarouterStoragePlugin extends BasePlugin{
 		private Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 		private List<Class<? extends Dao>> daoClasses = new ArrayList<>();
 
-		public DatarouterStoragePluginBuilder(ServerType serverType,
-				Class<? extends DatarouterProperties> datarouterPropertiesClass){
-			this.serverType = serverType;
-			this.datarouterPropertiesClass = datarouterPropertiesClass;
+		public DatarouterStoragePluginBuilder(ServerTypes serverTypes, DatarouterProperties datarouterProperties){
+			this.serverTypes = serverTypes;
+			this.datarouterProperties = datarouterProperties;
 		}
 
 		public DatarouterStoragePluginBuilder setServerTypeDetector(
@@ -134,9 +138,9 @@ public class DatarouterStoragePlugin extends BasePlugin{
 
 		public DatarouterStoragePlugin build(){
 			return new DatarouterStoragePlugin(
-					serverType,
+					serverTypes,
 					serverTypeDetectorClass,
-					datarouterPropertiesClass,
+					datarouterProperties,
 					settingOverridesClass,
 					additionalSettingRoots,
 					clientOptionsFactoryClass,

@@ -48,7 +48,8 @@ public class Bootstrap3ReactPage{
 	private MavProperties mavProperties;
 	private Set<String> require = new TreeSet<>();
 	private PathNode reactScript;
-	private Map<String,String> jsConstants = new LinkedHashMap<>();
+	private Map<String,String> jsStringConstants = new LinkedHashMap<>();
+	private Map<String,String> jsRawConstants = new LinkedHashMap<>();
 	private String title;
 
 	public ReactHtml build(){
@@ -84,7 +85,8 @@ public class Bootstrap3ReactPage{
 				datarouterNavbarRequestTimingScript,
 				title,
 				contextPath + reactScript.toSlashedString(),
-				jsConstants,
+				jsStringConstants,
+				jsRawConstants,
 				datarouterNavbar,
 				new WebappNavbarHtml(mavProperties, navbar).build());
 	}
@@ -112,8 +114,13 @@ public class Bootstrap3ReactPage{
 		return this;
 	}
 
-	public Bootstrap3ReactPage withJsConstant(String key, String value){
-		this.jsConstants.put(key, value);
+	public Bootstrap3ReactPage withJsStringConstant(String key, String value){
+		this.jsStringConstants.put(key, value);
+		return this;
+	}
+
+	public Bootstrap3ReactPage withJsRawConstant(String key, String value){
+		this.jsRawConstants.put(key, value);
 		return this;
 	}
 

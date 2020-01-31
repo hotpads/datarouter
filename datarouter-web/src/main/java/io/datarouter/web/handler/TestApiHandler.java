@@ -32,7 +32,6 @@ import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.timer.PhaseTimer;
-import io.datarouter.web.handler.encoder.JsonEncoder;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.DefaultDecoder;
@@ -43,7 +42,7 @@ import io.datarouter.web.handler.types.TypeProvider;
 
 public class TestApiHandler extends BaseHandler{
 
-	@Handler(encoder = JsonEncoder.class, defaultHandler = true)
+	@Handler(defaultHandler = true)
 	protected String handleDefault(){
 		return "This is not a mav";
 	}
@@ -100,7 +99,7 @@ public class TestApiHandler extends BaseHandler{
 	/*
 	 * These examples show the possibility to return another type than Mav.
 	 */
-	@Handler(encoder = JsonEncoder.class)
+	@Handler
 	public Date now(){
 		return Calendar.getInstance().getTime();
 	}
@@ -121,13 +120,13 @@ public class TestApiHandler extends BaseHandler{
 		}
 	}
 
-	@Handler(encoder = JsonEncoder.class)
+	@Handler
 	public FooBar banana(){
 		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
 		return dto;
 	}
 
-	@Handler(encoder = JsonEncoder.class)
+	@Handler
 	public Collection<FooBar> bananas(){
 		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
 		FooBar otd = new FooBar("world", 24, Calendar.getInstance().getTime());
@@ -137,7 +136,7 @@ public class TestApiHandler extends BaseHandler{
 	/*
 	 * COMBO
 	 */
-	@Handler(encoder = JsonEncoder.class)
+	@Handler
 	public FooBar first(FooBar[] fooBars){
 		if(fooBars.length == 0){
 			return null;
@@ -215,17 +214,17 @@ public class TestApiHandler extends BaseHandler{
 	/*
 	 * MEGA COMBO
 	 */
-	@Handler(encoder = JsonEncoder.class)
+	@Handler
 	public int size(@Param(typeProvider = FooBarCollectionTypeProvider.class) Collection<FooBar> fooBars){
 		return fooBars.size();
 	}
 
-	@Handler(encoder = JsonEncoder.class)
+	@Handler
 	public int size(@RequestBody List<Object> list){
 		return list.size();
 	}
 
-	@Handler(encoder = JsonEncoder.class)
+	@Handler
 	public int length(@RequestBody String string){
 		return string.length();
 	}
@@ -238,7 +237,7 @@ public class TestApiHandler extends BaseHandler{
 		}
 	}
 
-	@Handler(encoder = JsonEncoder.class, decoder = TestApiHandlerDecoder.class)
+	@Handler(decoder = TestApiHandlerDecoder.class)
 	public int year(Date date){
 		return DateTool.getYearInteger(date);
 	}

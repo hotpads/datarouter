@@ -18,6 +18,7 @@ package io.datarouter.scanner;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BinaryOperator;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -84,6 +85,15 @@ public class ScannerToolTests{
 	public void testNoneMatch(){
 		Assert.assertTrue(Scanner.of(1, 3, 5).noneMatch(i -> i % 2 == 0));
 		Assert.assertFalse(Scanner.of(1, 2, 5).noneMatch(i -> i % 2 == 0));
+	}
+
+	@Test
+	public void testReduce(){
+		Scanner<Integer> input = Scanner.of(2, 1, 4, 5, 3);
+		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		int expected = 5;
+		int actual = input.reduce(reducer).get();
+		Assert.assertEquals(actual, expected);
 	}
 
 	@Test

@@ -148,7 +148,7 @@
 	</script>
 </head>
 <body>
-	<%@ include file="/jsp/menu/new-common-navbar.jsp" %>
+	<%@ include file="/jsp/menu/common-navbar-b4.jsp" %>
 	<div class="container-fluid my-3">
 		<div class="row">
 			<div class="col-12 col-sm-6">

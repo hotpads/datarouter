@@ -31,9 +31,14 @@ public class DatarouterHbasePlugin extends BaseJobPlugin{
 			Class<? extends HBaseBalancerFactory> hbaseBalancerFactoryClass){
 		this.hbaseCompactionInfoClass = hbaseCompactionInfoClass;
 		this.hbaseBalancerFactoryClass = hbaseBalancerFactoryClass;
-		addRouteSet(DatarouterHBaseRouteSet.class);
+		addUnorderedRouteSet(DatarouterHBaseRouteSet.class);
 		addSettingRoot(DatarouterHBaseSettingRoot.class);
 		addTriggerGroup(DatarouterHBaseTriggerGroup.class);
+	}
+
+	@Override
+	public String getName(){
+		return "DatarouterHbase";
 	}
 
 	@Override

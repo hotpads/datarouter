@@ -25,10 +25,6 @@ public class HtmlFormEmail extends BaseHtmlFormField{
 	private boolean required = false;
 	private boolean autofocus = false;
 
-	public HtmlFormEmail(HtmlForm form){
-		super(form);
-	}
-
 	public HtmlFormEmail withName(String name){
 		this.name = name;
 		return this;

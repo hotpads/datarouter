@@ -13,7 +13,7 @@
 	</style>
 </head>
 <body>
-	<%@ include file="/jsp/menu/new-common-navbar.jsp"%>
+	<%@ include file="/jsp/menu/common-navbar-b4.jsp"%>
 	<div class="container mt-5">
 		<h2>
 			LongRunningTasks
@@ -100,18 +100,8 @@
 			</div>
 		</div>
 	</c:if>
-
-	<div class="container">
-		<table class="table table-bordered table-sm">
-			<thead>
-				<tr><th colspan="3">Table Legend</th></tr>
-			</thead>
-			<tbody>
-				<tr class="table-success"><td>Running job, last heartbeat within 2 seconds</td></tr>
-				<tr class="table-warning"><td>Running job, last heartbeat within 2-10 seconds</td></tr>
-				<tr class="table-danger"><td>Running job, last heartbeat over 10 seconds ago</td></tr>
-			</tbody>
-		</table>
+	<div class="container mt-5">
+	${legend}
 	</div>
 </body>
 </html>

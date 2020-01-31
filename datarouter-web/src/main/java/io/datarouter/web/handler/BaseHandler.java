@@ -139,8 +139,6 @@ public abstract class BaseHandler{
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface Handler{
-		Class<?>[] expectedParameterClasses() default {};
-		Class<?> expectedParameterClassesProvider() default Object.class;
 		String description() default "";
 		Class<? extends HandlerEncoder> encoder() default NullHandlerEncoder.class;
 		Class<? extends HandlerDecoder> decoder() default NullHandlerDecoder.class;

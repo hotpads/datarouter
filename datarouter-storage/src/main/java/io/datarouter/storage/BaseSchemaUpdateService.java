@@ -53,7 +53,8 @@ public abstract class BaseSchemaUpdateService{
 	private final Map<ClientId,Lazy<List<String>>> existingTableNamesByClient;
 	private final List<Future<Optional<SchemaUpdateResult>>> futures;
 
-	public BaseSchemaUpdateService(DatarouterProperties datarouterProperties,
+	public BaseSchemaUpdateService(
+			DatarouterProperties datarouterProperties,
 			DatarouterAdministratorEmailService adminEmailService,
 			DatarouterSchemaUpdateScheduler executor){
 		this.datarouterProperties = datarouterProperties;

@@ -84,7 +84,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		mysqlNodeManager.deleteByIndex(getFieldInfo(), keys, config);
+		mysqlNodeManager.deleteByIndex(getFieldInfo(), keys, config, indexEntryFieldInfo);
 	}
 
 }

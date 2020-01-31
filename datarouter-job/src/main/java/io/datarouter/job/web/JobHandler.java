@@ -42,6 +42,7 @@ import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.tasktracker.service.LongRunningTaskService.LongRunningTaskSummaryDto;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.web.LongRunningTasksHandler;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.web.handler.BaseHandler;
@@ -99,6 +100,7 @@ public class JobHandler extends BaseHandler{
 				.map(jobClass -> jobToTriggerJspDto(rowId.incrementAndGet(), jobClass, longRunningTaskSummary))
 				.collect(Collectors.toList());
 		mav.put("triggerRows", triggerRows);
+		mav.put("legend", LongRunningTasksHandler.legend());
 		return mav;
 	}
 

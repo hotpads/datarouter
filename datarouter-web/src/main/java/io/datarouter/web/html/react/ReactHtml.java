@@ -45,7 +45,8 @@ public class ReactHtml{
 	private final String title;
 	//react
 	private final String reactScriptPath;
-	private final Map<String,String> jsConstants;
+	private final Map<String,String> jsStringConstants;
+	private final Map<String,String> jsRawConstants;
 	//body header
 	private final ContainerTag datarouterNavbar;
 	private final ContainerTag webappNavbar;
@@ -61,7 +62,8 @@ public class ReactHtml{
 			ContainerTag datarouterNavbarRequestTimingScript,
 			String title,
 			String reactScriptPath,
-			Map<String,String> jsConstants,
+			Map<String,String> jsStringConstants,
+			Map<String,String> jsRawConstants,
 			ContainerTag datarouterNavbar,
 			ContainerTag webappNavbar){
 		this.externalReactScripts = externalReactScripts;
@@ -74,7 +76,8 @@ public class ReactHtml{
 		this.datarouterNavbarRequestTimingScript = datarouterNavbarRequestTimingScript;
 		this.title = title;
 		this.reactScriptPath = reactScriptPath;
-		this.jsConstants = jsConstants;
+		this.jsStringConstants = jsStringConstants;
+		this.jsRawConstants = jsRawConstants;
 		this.datarouterNavbar = datarouterNavbar;
 		this.webappNavbar = webappNavbar;
 	}
@@ -113,11 +116,16 @@ public class ReactHtml{
 
 	private ContainerTag makeJsConstantScript(){
 		var script = script();
-		jsConstants.entrySet().stream()
-				.map(entry -> String.format("const %S = \"%s\";", entry.getKey(), entry.getValue()))
+		addJsConstantsToScript(jsStringConstants, "const %S = \"%s\";", script);
+		addJsConstantsToScript(jsRawConstants, "const %S = %s;", script);
+		return script;
+	}
+
+	private static void addJsConstantsToScript(Map<String,String> constants, String format, ContainerTag script){
+		constants.entrySet().stream()
+				.map(entry -> String.format(format, entry.getKey(), entry.getValue()))
 				.map(TagCreator::rawHtml)
 				.forEach(script::with);
-		return script;
 	}
 
 	private ContainerTag makeBody(){

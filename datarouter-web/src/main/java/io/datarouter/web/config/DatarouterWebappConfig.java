@@ -23,21 +23,14 @@ import com.google.inject.Module;
 
 public class DatarouterWebappConfig{
 
-	private final boolean useDatarouterAuth;
 	private final List<Module> modules;
 	private final List<ServletContextListener> servletContextListeners;
 
 	public DatarouterWebappConfig(
-			boolean useDatarouterAuth,
 			List<Module> modules,
 			List<ServletContextListener> servletContextListeners){
 		this.servletContextListeners = servletContextListeners;
 		this.modules = modules;
-		this.useDatarouterAuth = useDatarouterAuth;
-	}
-
-	public boolean getUseDatarouterAuth(){
-		return useDatarouterAuth;
 	}
 
 	public List<Module> getModules(){

@@ -17,6 +17,7 @@ package io.datarouter.web.navigation;
 
 public enum AppNavBarCategory implements NavBarCategory{
 	ADMIN("Admin", 10),
+	DOCS("Docs", 10),
 	USER("User", 10),
 	;
 

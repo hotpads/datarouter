@@ -18,7 +18,8 @@ package io.datarouter.storage.test;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.servertype.StandardServerType;
+import io.datarouter.storage.servertype.BaseServerTypes;
+import io.datarouter.storage.servertype.ServerType;
 
 @Singleton
 public class TestDatarouterProperties extends DatarouterProperties{
@@ -31,7 +32,7 @@ public class TestDatarouterProperties extends DatarouterProperties{
 	private final String datarouterTestFileLocation;
 
 	public TestDatarouterProperties(){
-		super(StandardServerType.ALL, SERVICE_NAME, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
+		super(new BaseServerTypes(ServerType.DEV), SERVICE_NAME, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
 		this.datarouterTestFileLocation = findConfigFile(DATAROUTER_TEST_FILE_NAME);
 	}
 

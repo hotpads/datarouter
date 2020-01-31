@@ -10,7 +10,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.15</version>
+	<version>0.0.16</version>
 </dependency>
 ```
 
@@ -20,7 +20,6 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 ### Relying on Stream
 
 These methods use Stream internally:
-- `reduce`
 - `collect`
 
 ### Similar to Stream
@@ -32,6 +31,7 @@ These methods share behavior with those in Stream but are implemented independen
 - `limit`
 - `skip`
 - `forEach`
+- `reduce`
 - `min`
 - `max`
 - `count`

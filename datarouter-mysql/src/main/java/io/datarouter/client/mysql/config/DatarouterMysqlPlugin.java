@@ -15,7 +15,7 @@
  */
 package io.datarouter.client.mysql.config;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
@@ -32,32 +32,33 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 	private DatarouterMysqlPlugin(
 			Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByFieldClass){
 		this.additionalCodecClassByFieldClass = additionalCodecClassByFieldClass;
-		addAppListener(MysqlAppListener.class);
+		addUnorderedAppListener(MysqlAppListener.class);
+	}
+
+	@Override
+	public String getName(){
+		return "DatarouterMysql";
 	}
 
 	@Override
 	public void configure(){
-		if(additionalCodecClassByFieldClass != null){
-			bindDefaultInstance(MysqlFieldCodecFactory.class,
-					new StandardMysqlFieldCodecFactory(additionalCodecClassByFieldClass));
-		}else{
-			bindDefaultInstance(MysqlFieldCodecFactory.class,
-					new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
-		}
+		bindDefaultInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(
+				additionalCodecClassByFieldClass));
 	}
 
 	public static class DatarouterMysqlPluginBuilder{
 
-		private Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByFieldClass;
+		private Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> codecClassByFieldClass =
+				new HashMap<>();
 
-		public DatarouterMysqlPluginBuilder setAdditionalCodecClassesByFieldClass(
-				Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByFieldClass){
-			this.additionalCodecClassByFieldClass = additionalCodecClassByFieldClass;
+		public DatarouterMysqlPluginBuilder addMysqlFieldCodec(
+				Class<? extends Field<?>> field, Class<? extends MysqlFieldCodec<?>> codec){
+			codecClassByFieldClass.put(field, codec);
 			return this;
 		}
 
 		public DatarouterMysqlPlugin build(){
-			return new DatarouterMysqlPlugin(additionalCodecClassByFieldClass);
+			return new DatarouterMysqlPlugin(codecClassByFieldClass);
 		}
 
 	}

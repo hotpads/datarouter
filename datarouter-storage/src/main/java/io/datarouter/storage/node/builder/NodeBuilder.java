@@ -48,6 +48,7 @@ public class NodeBuilder<
 	private String tableName;
 	private Integer schemaVersion;
 	private TableConfigurationFactory tableConfigurationFactory;
+	private boolean disableForcePrimary;
 
 	public NodeBuilder(
 			BaseNodeFactory nodeFactory,
@@ -129,6 +130,11 @@ public class NodeBuilder<
 		return this;
 	}
 
+	public NodeBuilder<EK,PK,D,F> withDisableForcePrimary(boolean disableForcePrimary){
+		this.disableForcePrimary = disableForcePrimary;
+		return this;
+	}
+
 	public <N extends NodeOps<PK,D>> N build(){
 		String databeanName = databeanSupplier.get().getDatabeanName();
 		String entityName = databeanName + "Entity";
@@ -149,6 +155,7 @@ public class NodeBuilder<
 				.withTableName(nodeTableName)
 				.withSchemaVersion(schemaVersion)
 				.withTableConfiguration(tableConfig)
+				.withDisableForcePrimary(disableForcePrimary)
 				.build();
 		EntityNodeParams<EK,DefaultEntity<EK>> entityNodeParams = new EntityNodeParams<>(
 				clientId.getName() + "." + entityName,

@@ -48,6 +48,7 @@ import com.google.gson.internal.UnsafeAllocator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.util.serialization.CompatibleDateTypeAdapter;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -68,6 +69,7 @@ public class DocumentationHandler extends BaseHandler{
 	private static final UnsafeAllocator UNSAFE_ALLOCATOR = UnsafeAllocator.create();
 
 	private static final Gson GSON = new GsonBuilder()
+			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
 			.serializeNulls()
 			.setPrettyPrinting()
 			.create();
@@ -75,8 +77,8 @@ public class DocumentationHandler extends BaseHandler{
 	@Inject
 	private DatarouterWebFiles files;
 
-	private List<DocumentedEndpointJspDto> buildDocumentation(String apiUrlContext, BaseRouteSet... routeSets){
-		return Arrays.stream(routeSets)
+	private List<DocumentedEndpointJspDto> buildDocumentation(String apiUrlContext, List<BaseRouteSet> routeSets){
+		return routeSets.stream()
 				.map(BaseRouteSet::getDispatchRules)
 				.flatMap(Collection::stream)
 				.filter(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
@@ -86,7 +88,7 @@ public class DocumentationHandler extends BaseHandler{
 				.collect(Collectors.toList());
 	}
 
-	protected Mav createDocumentationMav(String apiName, String apiUrlContext, BaseRouteSet... routeSets){
+	protected Mav createDocumentationMav(String apiName, String apiUrlContext, List<BaseRouteSet> routeSets){
 		List<DocumentedEndpointJspDto> endpoints = buildDocumentation(apiUrlContext, routeSets);
 		Mav model = new Mav(files.jsp.docs.dispatcherDocsJsp);
 		model.put("endpoints", endpoints);

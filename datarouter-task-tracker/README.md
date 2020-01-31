@@ -1,15 +1,5 @@
 # datarouter-task-tracker
 
-## Installation with Maven
-
-```xml
-<dependency>
-	<groupId>io.datarouter</groupId>
-	<artifactId>datarouter-task-tracker</artifactId>
-	<version>0.0.15</version>
-</dependency>
-```
-
 ## About
 
 A TaskTracker implementation can be passed to a method that is expected to take some time to execute, whether 5 seconds or many minutes.  It is a hook for the method to
@@ -21,6 +11,16 @@ Tracked tasks should check the "shouldStop" method in an effort to gracefully st
 
 The module provides a LongRunningTaskTracker with persistence of the task's progress that can be viewed in a web UI, both for real-time monitoring and for later debugging
 if the tasks are not completing.  The datarouter-job framework automatically creates LongRunningTaskTrackers for each execution of a job.
+
+## Installation with Maven
+
+```xml
+<dependency>
+	<groupId>io.datarouter</groupId>
+	<artifactId>datarouter-task-tracker</artifactId>
+	<version>0.0.16</version>
+</dependency>
+```
 
 ## Usage
 

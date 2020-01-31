@@ -23,10 +23,6 @@ public class HtmlFormCheckbox extends BaseHtmlFormField{
 	private String display;
 	private boolean checked = false;
 
-	public HtmlFormCheckbox(HtmlForm parent){
-		super(parent);
-	}
-
 	public HtmlFormCheckbox withName(String name){
 		this.name = name;
 		return this;

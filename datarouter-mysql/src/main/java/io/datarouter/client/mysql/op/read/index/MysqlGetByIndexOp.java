@@ -52,7 +52,7 @@ public class MysqlGetByIndexOp<
 		IF extends DatabeanFielder<IK,IE>>
 extends BaseMysqlOp<List<D>>{
 
-	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
+	private final PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
 	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
@@ -61,12 +61,12 @@ extends BaseMysqlOp<List<D>>{
 	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	private final MysqlClientType mysqlClientType;
 
-	public MysqlGetByIndexOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+	public MysqlGetByIndexOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
 			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, MysqlClientType mysqlClientType,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<IK> indexKeys, Config config){
-		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
-		this.fieldInfo = fieldInfo;
+		super(datarouter, databeanFieldInfo.getClientId(), Isolation.DEFAULT, true);
+		this.databeanFieldInfo = databeanFieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
 		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
@@ -79,21 +79,21 @@ extends BaseMysqlOp<List<D>>{
 	@Override
 	public List<D> runOnce(){
 		Connection connection = getConnection();
-		String opName = IndexedStorageReader.OP_getByIndex;
-		String tableName = fieldInfo.getTableName();
+		String tableName = databeanFieldInfo.getTableName();
 		String indexName = indexEntryFieldInfo.getIndexName();
-		String nodeName = tableName + "." + indexName;
+		String clientName = databeanFieldInfo.getClientId().getName();
+		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
+		String opName = IndexedStorageReader.OP_getByIndex;
 		List<D> result = new ArrayList<>();
 		for(List<IK> batch : Scanner.of(indexKeys).batch(MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE).iterable()){
-			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId()
-					.getName(), nodeName, 1L);
 			MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
 			PreparedStatement statement = mysqlPreparedStatementBuilder.getWithPrefixes(config, tableName, indexName,
-					fieldInfo.getFields(), batch, null, mysqlLiveTableOptions).toPreparedStatement(connection);
-			List<D> batchResult = MysqlTool.selectDatabeans(fieldCodecFactory, fieldInfo.getDatabeanSupplier(),
-					fieldInfo.getFields(), statement);
-			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),
-					nodeName, result.size());
+					databeanFieldInfo.getFields(), batch, null, mysqlLiveTableOptions).toPreparedStatement(connection);
+			List<D> batchResult = MysqlTool.selectDatabeans(fieldCodecFactory, databeanFieldInfo.getDatabeanSupplier(),
+					databeanFieldInfo.getFields(), statement);
+			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", clientName, nodeName, 1L);
+			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", clientName, nodeName, batchResult
+					.size());
 			TracerTool.appendToSpanInfo("got " + result.size() + '/' + batch.size());
 			result.addAll(batchResult);
 		}

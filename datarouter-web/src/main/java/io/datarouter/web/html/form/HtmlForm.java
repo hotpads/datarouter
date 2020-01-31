@@ -16,21 +16,17 @@
 package io.datarouter.web.html.form;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class HtmlForm{
 
 	public abstract static class BaseHtmlFormField{
 
-		private HtmlForm parent;
 		protected String error;
 
-		public BaseHtmlFormField(HtmlForm parent){
-			this.parent = parent;
-		}
-
-		public HtmlForm parent(){
-			return parent;
+		public BaseHtmlFormField(){
 		}
 
 		public String getError(){
@@ -57,38 +53,48 @@ public class HtmlForm{
 		return this;
 	}
 
+	public HtmlForm addFields(Collection<BaseHtmlFormField> fields){
+		this.fields.addAll(fields);
+		return this;
+	}
+
+	public HtmlForm addFields(BaseHtmlFormField... fields){
+		this.fields.addAll(Arrays.asList(fields));
+		return this;
+	}
+
 	public HtmlFormCheckbox addCheckboxField(){
-		var field = new HtmlFormCheckbox(this);
+		var field = new HtmlFormCheckbox();
 		fields.add(field);
 		return field;
 	}
 
 	public HtmlFormButton addButton(){
-		var field = new HtmlFormButton(this);
+		var field = new HtmlFormButton();
 		fields.add(field);
 		return field;
 	}
 
 	public HtmlFormEmail addEmailField(){
-		var field = new HtmlFormEmail(this);
+		var field = new HtmlFormEmail();
 		fields.add(field);
 		return field;
 	}
 
 	public HtmlFormPassword addPasswordField(){
-		var field = new HtmlFormPassword(this);
+		var field = new HtmlFormPassword();
 		fields.add(field);
 		return field;
 	}
 
 	public HtmlFormSelect addSelectField(){
-		var field = new HtmlFormSelect(this);
+		var field = new HtmlFormSelect();
 		fields.add(field);
 		return field;
 	}
 
 	public HtmlFormText addTextField(){
-		var field = new HtmlFormText(this);
+		var field = new HtmlFormText();
 		fields.add(field);
 		return field;
 	}

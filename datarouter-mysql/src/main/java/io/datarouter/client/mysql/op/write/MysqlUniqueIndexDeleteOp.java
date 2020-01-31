@@ -15,16 +15,12 @@
  */
 package io.datarouter.client.mysql.op.write;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.Collection;
 
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
+import io.datarouter.client.mysql.MysqlClientType;
+import io.datarouter.client.mysql.MysqlUniqueIndexTool;
 import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
-import io.datarouter.client.mysql.op.BaseMysqlOp;
-import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
-import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
@@ -32,44 +28,20 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 
 public class MysqlUniqueIndexDeleteOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-extends BaseMysqlOp<Integer>{
+extends BaseMysqlDeleteOp<PK,D,F,UniqueKey<PK>>{
 
-	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
-	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
-	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
-	private final Collection<? extends UniqueKey<PK>> uniqueKeys;
-	private final Config config;
-
-	public MysqlUniqueIndexDeleteOp(Datarouter datarouter, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
-			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, shouldAutoCommit(uniqueKeys));
-		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
-		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
-		this.fieldInfo = fieldInfo;
-		this.uniqueKeys = uniqueKeys;
-		this.config = config;
-	}
-
-	@Override
-	public Integer runOnce(){
-		Connection connection = getConnection();
-		String tableName = fieldInfo.getTableName();
-		MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
-		PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, tableName,
-				uniqueKeys, mysqlLiveTableOptions)
-				.toPreparedStatement(connection);
-		return MysqlTool.update(statement);
-	}
-
-	private static boolean shouldAutoCommit(Collection<?> keys){
-		return CollectionTool.size(keys) <= 1;
+	public MysqlUniqueIndexDeleteOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
+			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder, MysqlClientType mysqlClientType,
+			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, Collection<? extends UniqueKey<PK>> keys,
+			Config config, String opName){
+		super(datarouter, databeanFieldInfo, mysqlPreparedStatementBuilder, mysqlClientType,
+				mysqlLiveTableOptionsRefresher, keys, config, MysqlUniqueIndexTool.searchIndex(databeanFieldInfo
+				.getUniqueIndexes(), keys), opName);
 	}
 
 }

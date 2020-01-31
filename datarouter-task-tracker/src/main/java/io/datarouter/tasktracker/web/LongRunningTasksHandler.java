@@ -35,6 +35,7 @@ import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalString;
+import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 
 public class LongRunningTasksHandler extends BaseHandler{
 
@@ -82,7 +83,19 @@ public class LongRunningTasksHandler extends BaseHandler{
 			mav.put("filteringStatusName", filteredStatus.name());
 		}
 		mav.put("nameSearch", name.orElse(""));
+		mav.put("legend", legend());
 		return mav;
+	}
+
+	public static String legend(){
+		return new J2HtmlLegendTable()
+				.withHeader("Legend")
+				.withClass("table table-sm my-4 border")
+				.withEntry("Running job", "last heartbeat within 2 seconds", "table-success")
+				.withEntry("Running job", "last heartbeat within 2-10 seconds", "table-warning")
+				.withEntry("Running job", "last heartbeat over 10 seconds", "table-danger")
+				.build()
+				.renderFormatted();
 	}
 
 	public static class LongRunningTaskJspDto{

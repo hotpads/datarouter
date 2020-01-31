@@ -173,7 +173,7 @@
 	</script>
 </head>
 <body>
-	<%@ include file="/jsp/menu/new-common-navbar.jsp"%>
+	<%@ include file="/jsp/menu/common-navbar-b4.jsp"%>
 	<div class="container my-5">
 		<h2>${apiName} API Documentation</h2>
 		<div id="accordion">

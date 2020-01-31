@@ -35,6 +35,8 @@ import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.util.lang.ClassTool;
+import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 
 public abstract class BaseFilesTests{
 	private static final Logger logger = LoggerFactory.getLogger(BaseFilesTests.class);
@@ -49,6 +51,9 @@ public abstract class BaseFilesTests{
 
 	@Test
 	public void testPathNodesFilesExist(){
+		if(skipTests()){
+			return;
+		}
 		getNodeFiles().stream()
 				.peek(file -> logger.info("{}", file))
 				.forEach(FileTool::requireIsFileAndExists);
@@ -56,6 +61,9 @@ public abstract class BaseFilesTests{
 
 	@Test
 	public void testSystemFilesExistAsPathNodes(){
+		if(skipTests()){
+			return;
+		}
 		Set<String> nodeFileStrings = IterableTool.mapToSet(getNodeFiles(), File::toString);
 		for(String file : getDirectoryFiles()){
 			if(!filterOmited(file)){
@@ -97,6 +105,10 @@ public abstract class BaseFilesTests{
 	private boolean filterOmited(String path){
 		return !getFilesToOmit().stream()
 				.anyMatch(path::contains);
+	}
+
+	private boolean skipTests(){
+		return ClassTool.sameClass(getNode().getClass(), NoOpFilesRoot.class);
 	}
 
 }

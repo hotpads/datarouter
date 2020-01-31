@@ -24,6 +24,7 @@ import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.node.adapter.sanitization.sanitizer.PrimaryKeySanitizer;
 import io.datarouter.storage.op.scan.BaseNodeScanner;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
@@ -53,6 +54,7 @@ extends BaseNodeScanner<IK,IK>{
 
 	@Override
 	protected IK getPrimaryKey(IK fieldSet){
+		PrimaryKeySanitizer.logForNullPrimaryKeyValues(fieldSet);
 		return fieldSet;
 	}
 

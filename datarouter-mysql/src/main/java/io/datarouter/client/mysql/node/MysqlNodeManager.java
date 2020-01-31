@@ -65,6 +65,7 @@ import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.write.IndexedStorageWriter;
+import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
@@ -265,8 +266,9 @@ public class MysqlNodeManager{
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	void delete(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, PK key, Config config){
-		MysqlDeleteOp<PK,D,F> op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
-				mysqlLiveTableOptionsRefresher, ListTool.wrap(key), config);
+		String opName = MapStorageWriter.OP_delete;
+		BaseMysqlOp<?> op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
+				mysqlClientType, mysqlLiveTableOptionsRefresher, ListTool.wrap(key), config, opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
@@ -275,16 +277,18 @@ public class MysqlNodeManager{
 		if(CollectionTool.isEmpty(keys)){
 			return;// avoid starting txn
 		}
-		MysqlDeleteOp<PK,D,F> op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
-				mysqlLiveTableOptionsRefresher, keys, config);
+		String opName = MapStorageWriter.OP_deleteMulti;
+		BaseMysqlOp<?> op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
+				mysqlClientType, mysqlLiveTableOptionsRefresher, keys, config, opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	void deleteUnique(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageWriter.OP_deleteUnique;
-		MysqlUniqueIndexDeleteOp<PK,D,F> op = new MysqlUniqueIndexDeleteOp<>(datarouter, mysqlPreparedStatementBuilder,
-				mysqlLiveTableOptionsRefresher, fieldInfo, ListTool.wrap(uniqueKey), config);
+		BaseMysqlOp<?> op = new MysqlUniqueIndexDeleteOp<>(datarouter, fieldInfo,
+				mysqlPreparedStatementBuilder, mysqlClientType, mysqlLiveTableOptionsRefresher, ListTool.wrap(
+				uniqueKey), config, opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, getTraceName(fieldInfo.getNodeName(), opName)),
 				config);
 	}
@@ -292,12 +296,13 @@ public class MysqlNodeManager{
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	void deleteMultiUnique(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<? extends UniqueKey<PK>> uniqueKeys,
 			Config config){
-		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
 		if(CollectionTool.isEmpty(uniqueKeys)){
 			return;// avoid starting txn
 		}
-		MysqlUniqueIndexDeleteOp<PK,D,F> op = new MysqlUniqueIndexDeleteOp<>(datarouter, mysqlPreparedStatementBuilder,
-				mysqlLiveTableOptionsRefresher, fieldInfo, uniqueKeys, config);
+		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
+		BaseMysqlOp<?> op = new MysqlUniqueIndexDeleteOp<>(datarouter, fieldInfo,
+				mysqlPreparedStatementBuilder, mysqlClientType, mysqlLiveTableOptionsRefresher, uniqueKeys, config,
+				opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, getTraceName(fieldInfo.getNodeName(), opName)),
 				config);
 	}
@@ -306,10 +311,12 @@ public class MysqlNodeManager{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			IK extends PrimaryKey<IK>>
-	void deleteByIndex(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<IK> keys, Config config){
-		BaseMysqlOp<Long> op = new MysqlDeleteByIndexOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
-				mysqlLiveTableOptionsRefresher, keys, config);
-		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, IndexedStorageWriter.OP_deleteMultiUnique), config);
+	void deleteByIndex(PhysicalDatabeanFieldInfo<PK,D,F> databeanfieldInfo, Collection<IK> keys, Config config,
+			IndexEntryFieldInfo<IK,?,?> indexFieldInfo){
+		String opName = IndexedStorageWriter.OP_deleteByIndex;
+		BaseMysqlOp<?> op = new MysqlDeleteByIndexOp<>(datarouter, databeanfieldInfo, mysqlPreparedStatementBuilder,
+				mysqlClientType, mysqlLiveTableOptionsRefresher, keys, config, indexFieldInfo.getIndexName(), opName);
+		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, opName), config);
 	}
 
 	@SuppressWarnings("resource")

@@ -15,10 +15,14 @@
  */
 package io.datarouter.storage.node.adapter.sanitization.sanitizer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 
 public class PrimaryKeySanitizer{
+	private static final Logger logger = LoggerFactory.getLogger(PrimaryKeySanitizer.class);
 
 	public static void checkForNullPrimaryKeyValues(PrimaryKey<?> pk){
 		for(Field<?> field : pk.getFields()){
@@ -27,6 +31,19 @@ public class PrimaryKeySanitizer{
 			}else if(field.getValue() == null){
 				String fieldName = field.getKey().getName();
 				throw new RuntimeException("null value detected for field=" + fieldName + " in PK=" + pk);
+			}
+		}
+	}
+
+	public static void logForNullPrimaryKeyValues(PrimaryKey<?> pk){
+		for(Field<?> field : pk.getFields()){
+			if(field.getValue() == null){
+				String fieldName = field.getKey().getName();
+				if(logger.isDebugEnabled()){
+					logger.warn("null value key={} field={}", pk, fieldName, new Exception());
+				}else{
+					logger.warn("null value key={} field={}", pk, fieldName);
+				}
 			}
 		}
 	}

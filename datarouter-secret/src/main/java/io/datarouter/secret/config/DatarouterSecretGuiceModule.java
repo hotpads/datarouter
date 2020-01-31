@@ -15,7 +15,10 @@
  */
 package io.datarouter.secret.config;
 
+import java.util.Map;
+
 import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.secret.client.LocalStorageSecretClient.LocalStorageDefaultSecretValues;
 import io.datarouter.secret.client.LocalStorageSecretClient.LocalStorageSecretClientSupplier;
 import io.datarouter.secret.client.SecretClientSupplier;
 
@@ -24,6 +27,7 @@ public class DatarouterSecretGuiceModule extends BaseGuiceModule{
 	@Override
 	protected void configure(){
 		bindDefault(SecretClientSupplier.class, LocalStorageSecretClientSupplier.class);
+		bindDefaultInstance(LocalStorageDefaultSecretValues.class, new LocalStorageDefaultSecretValues(Map.of()));
 	}
 
 }

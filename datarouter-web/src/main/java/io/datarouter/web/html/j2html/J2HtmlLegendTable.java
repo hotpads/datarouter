@@ -37,6 +37,7 @@ public class J2HtmlLegendTable{
 
 	private String tableHeader;
 	private String caption;
+	private boolean singleRow = true;
 
 	public J2HtmlLegendTable withClass(String clazz){
 		this.classes.add(clazz);
@@ -63,6 +64,11 @@ public class J2HtmlLegendTable{
 		return this;
 	}
 
+	public J2HtmlLegendTable withSingleRow(boolean singleRow){
+		this.singleRow = singleRow;
+		return this;
+	}
+
 	public ContainerTag build(){
 		var table = table()
 				.withClasses(classes.toArray(String[]::new))
@@ -81,7 +87,11 @@ public class J2HtmlLegendTable{
 		if(entry.classes != null){
 			row.withClass(entry.classes);
 		}
-		row.with(td(p(join(b(entry.key), " - ", entry.value))));
+		if(singleRow){
+			row.with(td(p(join(b(entry.key), " - ", entry.value))));
+		}else{
+			row.with(td(p(b(entry.key), td(entry.value))));
+		}
 		return row;
 	}
 

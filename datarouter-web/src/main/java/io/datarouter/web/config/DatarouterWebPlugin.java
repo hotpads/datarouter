@@ -27,24 +27,30 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
-import io.datarouter.web.dispatcher.FilterParams.FilterParamsOrder;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionHandlingConfig.NoOpExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.file.FilesRoot;
+import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 import io.datarouter.web.filter.StaticFileFilter;
 import io.datarouter.web.filter.https.HttpsFilter;
 import io.datarouter.web.filter.requestcaching.GuiceRequestCachingFilter;
+import io.datarouter.web.homepage.HomepageHandler;
+import io.datarouter.web.homepage.HomepageRouteSet;
+import io.datarouter.web.homepage.SimpleHomepageHandler;
 import io.datarouter.web.listener.AppListenersClasses;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterAppListenersClasses;
 import io.datarouter.web.listener.DatarouterShutdownAppListener;
+import io.datarouter.web.listener.DatarouterWebAppListener;
+import io.datarouter.web.listener.DatarouterWebAppListenersClasses;
 import io.datarouter.web.listener.ExecutorsAppListener;
 import io.datarouter.web.listener.HttpClientAppListener;
 import io.datarouter.web.listener.InitializeEagerClientsAppListener;
 import io.datarouter.web.listener.JspWebappListener;
 import io.datarouter.web.listener.NoJavaSessionWebAppListener;
 import io.datarouter.web.listener.TomcatWebAppNamesWebAppListener;
+import io.datarouter.web.listener.WebAppListenersClasses;
 import io.datarouter.web.navigation.AppNavBarPluginCreator;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppPluginNavBarSupplier;
@@ -66,8 +72,16 @@ import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSession
 
 public class DatarouterWebPlugin extends BaseWebPlugin{
 
+	public static final FilterParams STATIC_FILE_FILTER_PARAMS = new FilterParams(
+			false,
+			DatarouterServletGuiceModule.ROOT_PATH,
+			StaticFileFilter.class);
+	public static final FilterParams REQUEST_CACHING_FILTER_PARAMS = new FilterParams(
+			false,
+			DatarouterServletGuiceModule.ROOT_PATH,
+			GuiceRequestCachingFilter.class);
+
 	private final DatarouterService datarouterService;
-	// TODO change binding for a noop implementation.
 	private final Class<? extends FilesRoot> filesClass;
 	private final Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass;
 	private final Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass;
@@ -76,17 +90,20 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Set<String> additionalAdministrators;
 	private final Set<String> additionalPermissionRequestEmails;
 	private final List<Class<? extends DatarouterAppListener>> appListenerClasses;
+	private final List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
+
 	private final Class<? extends RoleManager> roleManagerClass;
 	private final Class<? extends UserSessionService> userSessionServiceClass;
 	private final List<NavBarItem> datarouterNavBarPluginItems;
 	private final List<NavBarItem> appNavBarPluginItems;
 	private final Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass;
 	private final Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
+	private final Class<? extends HomepageHandler> homepageHandlerClass;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(DatarouterWebDaoModule daosModuleBuilder){
-		this(null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null, null,
-				null);
+		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
+				null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -99,40 +116,48 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Set<String> additionalAdministrators,
 			Set<String> additionalPermissionRequestEmails,
 			List<Class<? extends DatarouterAppListener>> appListenerClasses,
+			List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses,
 			Class<? extends RoleManager> roleManagerClass,
 			Class<? extends UserSessionService> userSessionServiceClass,
 			DatarouterWebDaoModule daosModuleBuilder,
 			List<NavBarItem> datarouterNavBarPluginItems,
 			List<NavBarItem> appNavBarPluginItems,
 			Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass,
-			Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier){
-		addRouteSet(DatarouterWebRouteSet.class);
+			Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier,
+			Class<? extends HomepageHandler> homepageHandlerClass){
+		addOrderedRouteSet(DatarouterWebRouteSet.class, null);
+		addUnorderedRouteSet(HomepageRouteSet.class);
+
 		addSettingRoot(DatarouterWebSettingRoot.class);
 		setDaosModuleBuilder(daosModuleBuilder);
 
-		addAppListener(ExecutorsAppListener.class);
-		addAppListener(HttpClientAppListener.class);
-		addAppListener(DatarouterShutdownAppListener.class);
-		addAppListener(InitializeEagerClientsAppListener.class);
+		addOrderedAppListener(InitializeEagerClientsAppListener.class, null);
+		addOrderedAppListener(DatarouterShutdownAppListener.class, InitializeEagerClientsAppListener.class);
+		addOrderedAppListener(HttpClientAppListener.class, DatarouterShutdownAppListener.class);
+		addOrderedAppListener(ExecutorsAppListener.class, HttpClientAppListener.class);
 
-		addWebListener(TomcatWebAppNamesWebAppListener.class);
-		addWebListener(JspWebappListener.class);
-		addWebListener(NoJavaSessionWebAppListener.class);
+		addOrderedWebListener(TomcatWebAppNamesWebAppListener.class, null);
+		addOrderedWebListener(JspWebappListener.class, TomcatWebAppNamesWebAppListener.class);
+		addOrderedWebListener(NoJavaSessionWebAppListener.class, JspWebappListener.class);
 
-		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, StaticFileFilter.class,
-				FilterParamsOrder.GROUP_010));
-		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, GuiceRequestCachingFilter.class,
-				FilterParamsOrder.GROUP_020));
-		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, HttpsFilter.class));
+		addOrderedFilterParams(STATIC_FILE_FILTER_PARAMS, null);
+		addOrderedFilterParams(REQUEST_CACHING_FILTER_PARAMS, STATIC_FILE_FILTER_PARAMS);
+		addUnorderedFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, HttpsFilter.class));
 
 		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.MONITORING,
 				new DatarouterWebPaths().datarouter.executors, "Executors"));
 		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.MONITORING,
 				new DatarouterWebPaths().datarouter.memory, "Server Status"));
 		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.INFO,
-				new DatarouterWebPaths().datarouter.tableConfiguration, "Custom Table Configurations"));
+				new DatarouterWebPaths().datarouter.tableConfiguration, "Custom Table Configs"));
 		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.INFO,
-				new DatarouterWebPaths().datarouter.filterParams, "Servlet Filters"));
+				new DatarouterWebPaths().datarouter.info.filterParams, "Filters"));
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.INFO,
+				new DatarouterWebPaths().datarouter.info.listeners, "Listeners"));
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.INFO,
+				new DatarouterWebPaths().datarouter.info.routeSets, "RouteSets"));
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.INFO,
+				new DatarouterWebPaths().datarouter.info.properties, "Datarouter Properties"));
 
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;
@@ -143,12 +168,19 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.additionalAdministrators = additionalAdministrators;
 		this.additionalPermissionRequestEmails = additionalPermissionRequestEmails;
 		this.appListenerClasses = appListenerClasses;
+		this.webAppListenerClasses = webAppListenerClasses;
 		this.roleManagerClass = roleManagerClass;
 		this.userSessionServiceClass = userSessionServiceClass;
 		this.datarouterNavBarPluginItems = datarouterNavBarPluginItems;
 		this.appNavBarPluginItems = appNavBarPluginItems;
 		this.datarouterUserExternalDetailClass = datarouterUserExternalDetailClass;
 		this.appNavBarRegistrySupplier = appNavBarRegistrySupplier;
+		this.homepageHandlerClass = homepageHandlerClass;
+	}
+
+	@Override
+	public String getName(){
+		return "DatarouterWeb";
 	}
 
 	@Override
@@ -164,8 +196,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				new DatarouterAdditionalAdministrators(additionalAdministrators));
 		bindActualInstanceNullSafe(PermissionRequestAdditionalEmailsSupplier.class,
 				new PermissionRequestAdditionalEmails(additionalPermissionRequestEmails));
-		Collections.reverse(appListenerClasses); // move web's listeners to the top
 		bindActualInstance(AppListenersClasses.class, new DatarouterAppListenersClasses(appListenerClasses));
+		bindActualInstance(WebAppListenersClasses.class, new DatarouterWebAppListenersClasses(webAppListenerClasses));
 		bindActualNullSafe(RoleManager.class, roleManagerClass);
 		bindActualNullSafe(UserSessionService.class, userSessionServiceClass);
 		bindActualInstanceNullSafe(DatarouterNavBarSupplier.class,
@@ -174,10 +206,15 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				new AppNavBarPluginCreator(appNavBarPluginItems));
 		bindActualNullSafe(DatarouterUserExternalDetailService.class, datarouterUserExternalDetailClass);
 		bindActualNullSafe(AppNavBarRegistrySupplier.class, appNavBarRegistrySupplier);
+		bind(HomepageHandler.class).to(homepageHandlerClass);
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
 		return appListenerClasses;
+	}
+
+	public List<Class<? extends DatarouterWebAppListener>> getFinalWebAppListeners(){
+		return webAppListenerClasses;
 	}
 
 	private <T> void bindActualNullSafe(Class<T> type, Class<? extends T> actualClass){
@@ -219,7 +256,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private final ClientId defaultClientId;
 		private DatarouterWebDaoModule daoModule;
 
-		private Class<? extends FilesRoot> filesClass;
+		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
 		private Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass;
 		private Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass = NoOpCurrentUserSessionInfo.class;
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass
@@ -228,12 +265,14 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Set<String> additionalAdministrators = Collections.emptySet();
 		private Set<String> additionalPermissionRequestEmails = Collections.emptySet();
 		private List<Class<? extends DatarouterAppListener>> appListenerClasses;
+		private List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
 		private Class<? extends RoleManager> roleManagerClass;
 		private Class<? extends UserSessionService> userSessionServiceClass = NoOpUserSessionService.class;
 		private List<NavBarItem> datarouterNavBarPluginItems;
 		private List<NavBarItem> appNavBarPluginItems;
 		private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass;
 		private Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
+		private Class<? extends HomepageHandler> homepageHandlerClass = SimpleHomepageHandler.class;
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -297,6 +336,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setWebAppListenerClasses(
+				List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses){
+			this.webAppListenerClasses = webAppListenerClasses;
+			return this;
+		}
+
 		public DatarouterWebPluginBuilder setDaoModule(DatarouterWebDaoModule daoModule){
 			this.daoModule = daoModule;
 			return this;
@@ -325,6 +370,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setHomepageHandler(Class<? extends HomepageHandler> homepageHandlerClass){
+			this.homepageHandlerClass = homepageHandlerClass;
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId));
 		}
@@ -341,13 +391,15 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					additionalAdministrators,
 					additionalPermissionRequestEmails,
 					appListenerClasses,
+					webAppListenerClasses,
 					roleManagerClass,
 					userSessionServiceClass,
 					daoModule == null ? new DatarouterWebDaoModule(defaultClientId) : daoModule,
 					datarouterNavBarPluginItems,
 					appNavBarPluginItems,
 					datarouterUserExternalDetailClass,
-					appNavBarRegistrySupplier);
+					appNavBarRegistrySupplier,
+					homepageHandlerClass);
 		}
 
 	}

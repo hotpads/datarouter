@@ -22,10 +22,6 @@ public class HtmlFormButton extends BaseHtmlFormField{
 	private String value;
 	private String display;
 
-	public HtmlFormButton(HtmlForm parent){
-		super(parent);
-	}
-
 	public HtmlFormButton withValue(String value){
 		this.value = value;
 		return this;

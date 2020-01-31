@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -159,6 +160,18 @@ public class ScannerTool{
 				}
 			}
 			return true;
+		}
+	}
+
+	public static <T> Optional<T> reduce(Scanner<T> scanner, BinaryOperator<T> reducer){
+		try(Scanner<T> ref = scanner){
+			T result = null;
+			while(scanner.advance()){
+				result = result == null
+						? scanner.current()
+						: reducer.apply(result, scanner.current());
+			}
+			return Optional.ofNullable(result);
 		}
 	}
 

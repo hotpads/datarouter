@@ -39,6 +39,9 @@ public class SqlBuilder{
 	/*-------------------------- secondary methods ------------------------- */
 
 	public static void addForceIndexClause(StringBuilder sql, String indexName){
+		if(indexName == null){
+			return;
+		}
 		sql.append(" force index (").append(indexName).append(")");
 	}
 

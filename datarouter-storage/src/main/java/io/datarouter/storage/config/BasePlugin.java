@@ -51,4 +51,12 @@ public abstract class BasePlugin extends BaseGuiceModule{
 		return settingRoots;
 	}
 
+	/**
+	 * The name is used to identify which plugins have already been added, and which can be overridden.
+	 * Names have to be unique and can be easily changed.
+	 *
+	 * @return the name of the plugin
+	 */
+	public abstract String getName();
+
 }

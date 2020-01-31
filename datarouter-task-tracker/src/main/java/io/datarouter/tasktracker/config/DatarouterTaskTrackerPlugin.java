@@ -40,7 +40,12 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.JOBS,
 				new DatarouterTaskTrackerPaths().datarouter.longRunningTasks, "Long running tasks"));
 		addSettingRoot(DatarouterTaskTrackerSettingRoot.class);
-		addRouteSet(DatarouterTaskTrackerRouteSet.class);
+		addUnorderedRouteSet(DatarouterTaskTrackerRouteSet.class);
+	}
+
+	@Override
+	public String getName(){
+		return "DatarouterTaskTracker";
 	}
 
 	@Override

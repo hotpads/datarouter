@@ -99,15 +99,15 @@ public class JspWebappListener extends DatarouterWebAppListener{
 		public void testServletContextString(){
 			//used by prelude.jspf
 			Assert.assertEquals(MAV_PROPERTIES_FACTORY, "mavPropertiesFactory");
-			//used by css-import.jspf
+			//used by css-import-b3.jspf
 			Assert.assertEquals(CSS_IMPORT_CONTENT, "datarouterCssImportContent");
-			//used by new-css-import.jspf
+			//used by css-import-b4.jspf
 			Assert.assertEquals(NEW_CSS_IMPORT_CONTENT, "datarouterNewCssImportContent");
-			//used by baseHead.jsp
+			//used by baseHead-b3.jsp
 			Assert.assertEquals(BASE_HEAD_CONTENT, "datarouterBaseHeadContent");
-			//used by newBaseHead.jsp
+			//used by baseHead-b4.jsp
 			Assert.assertEquals(NEW_BASE_HEAD_CONTENT, "datarouterNewBaseHeadContent");
-			//used by common-navbar.jsp, new-common-navbar.jsp
+			//used by common-navbar-b3.jsp, common-navbar-b4.jsp
 			Assert.assertEquals(NAVBAR_FACTORY, "datarouterNavbarFactory");
 		}
 

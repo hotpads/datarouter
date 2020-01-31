@@ -55,7 +55,8 @@ public class SecretHandler extends BaseHandler{
 		return reactPageFactory.startBuilder(request)
 				.withTitle("Datarouter - Secrets")
 				.withReactScript(files.js.secretsJsx)
-				.withJsConstant("PATH", request.getContextPath() + paths.datarouter.secrets.handle.toSlashedString())
+				.withJsStringConstant("PATH", request.getContextPath() + paths.datarouter.secrets.handle
+						.toSlashedString())
 				.buildMav();
 	}
 

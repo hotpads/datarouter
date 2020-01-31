@@ -58,8 +58,9 @@ extends BaseMysqlOp<List<D>>{
 
 	@Override
 	public List<D> runOnce(){
+		String indexName = fieldInfo.getDisableForcePrimary() ? null : SqlBuilder.PRIMARY_KEY_INDEX_NAME;
 		return mysqlGetOpExecutor.execute(fieldInfo, opName, keys, config, fieldInfo.getFields(), this::select,
-				getConnection(), SqlBuilder.PRIMARY_KEY_INDEX_NAME);
+				getConnection(), indexName);
 	}
 
 	private List<D> select(PreparedStatement ps){

@@ -18,7 +18,6 @@ package io.datarouter.web.dispatcher;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 
-import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -27,7 +26,6 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.ContainerTag;
 
 public class DatarouterServletFilterParamsViewHandler extends BaseHandler{
@@ -42,20 +40,17 @@ public class DatarouterServletFilterParamsViewHandler extends BaseHandler{
 		var content = makeContent(filterParamsSupplier.get());
 		return pageFactory.startBuilder(request)
 				.withTitle("Servlet FilterParams")
-				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
 				.withContent(content)
 				.buildMav();
 	}
 
 	private static ContainerTag makeContent(List<FilterParams> rows){
 		var h2 = h2("Servlet FilterParams");
-		rows.sort(Comparator.comparing((FilterParams params) -> params.order.getOrder()));
 		var table = new J2HtmlTable<FilterParams>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withColumn("Filter", row -> row.filterClass.getSimpleName())
 				.withColumn("Path", row -> row.path)
 				.withColumn("Is Regex", row -> row.isRegex)
-				.withColumn("Order Weight", row -> row.order.getOrder())
 				.withCaption("Total Filters " + rows.size())
 				.build(rows);
 		return div(h2, table)

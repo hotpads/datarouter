@@ -29,10 +29,7 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 	private String display;
 	private Map<String,String> displayByValue = new LinkedHashMap<>();
 	private boolean multiple = false;
-
-	public HtmlFormSelect(HtmlForm form){
-		super(form);
-	}
+	private String selected;
 
 	public HtmlFormSelect withName(String name){
 		this.name = name;
@@ -52,12 +49,21 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 	//display the raw values
 	public HtmlFormSelect withValues(List<String> values){
 		this.displayByValue = values.stream()
-				.collect(Collectors.toMap(Function.identity(), Function.identity()));
+				.collect(Collectors.toMap(
+						Function.identity(),
+						Function.identity(),
+						(a, b) -> a,
+						LinkedHashMap::new));
 		return this;
 	}
 
 	public HtmlFormSelect multiple(){
 		this.multiple = true;
+		return this;
+	}
+
+	public HtmlFormSelect withSelected(String selected){
+		this.selected = selected;
 		return this;
 	}
 
@@ -75,6 +81,10 @@ public class HtmlFormSelect extends BaseHtmlFormField{
 
 	public boolean isMultiple(){
 		return multiple;
+	}
+
+	public String getSelected(){
+		return selected;
 	}
 
 }

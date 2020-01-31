@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-hbase</artifactId>
-	<version>0.0.15</version>
+	<version>0.0.16</version>
 </dependency>
 ```
 
@@ -31,10 +31,10 @@ internally supports Cell "encoding" that can reduce the disk and memory footprin
 #### HBase Row
 
 Each Databean's PrimaryKey becomes an HBase "row" key.  It's created by converting each PK Field value into a byte[]
-and appending them together.  
+and appending them together.
 
 Fixed-width fields like ints and doubles have no separator characters, and their first
-bits are flipped so that the rows are sorted the same way inside HBase (as byte[]'s) vs outside as normal Java fields.  
+bits are flipped so that the rows are sorted the same way inside HBase (as byte[]'s) vs outside as normal Java fields.
 
 Strings are converted to bytes using the UTF-8 encoding.  Variable-width Fields like Strings are terminated with a '0' 
 byte to ensure that a shorter String sorts before a longer one if otherwise equal.  There is no trailing zero byte if 
@@ -71,7 +71,7 @@ using a CollatingScanner so they arrive in PrimaryKey ordering.
 We have found the default 16 partitions works well for small or large tables, though it is configurable by adding a new
 implementation of EntityPartitioner.  Adding more partitions will scatter the writes to more nodes, potentially increasing write
 throughput and avoiding a hotspot on a single node.  It especially enables faster appending to the end
-of the table compared to appending to a table with a single partition.  
+of the table compared to appending to a table with a single partition.
 
 Adding partitions does come at a cost though.  When scanning without knowing the full EntityKey,
 more scans will need to be executed to cover all the partitions and merge the results, and there may be overhead of 
@@ -155,8 +155,7 @@ data on that machine which is more efficient for reads.
 ## Wide Nodes
 
 An old, but still experimental, feature called Wide Nodes can place all Databeans with the same EntityKey into a single 
-HBase 
-row.  This can speed up reads by fetching all databeans with a single HBase Get operation.  Further, if specified,
+HBase row.  This can speed up reads by fetching all databeans with a single HBase Get operation.  Further, if specified,
 it can group multiple types of databeans into the same HBase row if they participate in the same Entity (have the same
 EntityKey).
 
@@ -165,7 +164,7 @@ Wide Nodes aren't recommended unless under very controlled circumstances.
 Here are some potential problems:
 - If the number of databeans in the Entity
 grows large (several hundred megabytes), it may cause problems with the RPC mechanism and cause memory errors.  BigTable
-limits row sizes to under a gigabyte to prevent some of these problems.  
+limits row sizes to under a gigabyte to prevent some of these problems.
 - HBase doesn't restrict the size of a
 row when writing, but if it grows to multiple gigabytes then HBase may fail to compact it, leaving the cluster in a bad
 state.
@@ -179,7 +178,7 @@ Counters for client level events can be found with prefix `Datarouter client hba
 
 Counters for node level events can be found with prefix `Datarouter node hbase [clientName] [nodeName]`
 
-Dataouter-hbase also supports more intricate counters to track events at the server and region levels.  Prefixes include:
+Datarouter-hbase also supports more intricate counters to track events at the server and region levels.  Prefixes include:
 - `Datarouter client-server rows [clientName] [serverName]`
 - `Datarouter client-server-table rows [clientName] [serverName] [tableName]`
 - `Datarouter client-server-table-region rows [clientName] [serverName] [tableName] [regionId]`

@@ -93,6 +93,10 @@ public interface Scanner<T> extends Closeable{
 		return ScannerTool.noneMatch(this, predicate);
 	}
 
+	default Optional<T> reduce(BinaryOperator<T> reducer){
+		return ScannerTool.reduce(this, reducer);
+	}
+
 	default Object[] toArray(){
 		return ScannerTool.toArray(this);
 	}
@@ -226,10 +230,6 @@ public interface Scanner<T> extends Closeable{
 
 	default <R,A> R collect(Collector<? super T,A,R> collector){
 		return stream().collect(collector);
-	}
-
-	default Optional<T> reduce(BinaryOperator<T> accumulator){
-		return stream().reduce(accumulator);
 	}
 
 	default Stream<T> stream(){

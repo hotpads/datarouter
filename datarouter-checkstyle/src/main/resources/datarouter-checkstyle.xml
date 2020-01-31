@@ -221,7 +221,7 @@
 		<module name="SingleSpaceSeparator"/>
 		<module name="TypecastParenPad"/>
 		<module name="AvoidStaticImport">
-			<property name="excludes" value="java.lang.System.out,java.lang.Math.*,org.mockito.Mockito.*,j2html.TagCreator.*"/>
+			<property name="excludes" value="org.mockito.Mockito.*,org.mockito.ArgumentMatchers.*,j2html.TagCreator.*"/>
 		</module>
 	</module>
 </module>

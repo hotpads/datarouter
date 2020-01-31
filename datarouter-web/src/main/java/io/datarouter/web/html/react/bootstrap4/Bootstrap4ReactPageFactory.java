@@ -30,7 +30,7 @@ public class Bootstrap4ReactPageFactory{
 	public Bootstrap4ReactPage startBuilder(HttpServletRequest request){
 		return new Bootstrap4ReactPage()
 				.withMavProperties(mavPropertiesFactory.buildAndSet(request))
-				.withJsConstant("CONTEXT_PATH", request.getContextPath());
+				.withJsStringConstant("CONTEXT_PATH", request.getContextPath());
 	}
 
 }

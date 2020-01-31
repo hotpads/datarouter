@@ -31,11 +31,11 @@ public class MemcachedOptions{
 
 	private static final String PREFIX_MEMCACHED = "memcached.";
 
-	@Inject
-	private ClientOptions clientOptions;
-
 	protected static final String PROP_numServers = "numServers";
 	protected static final String PROP_server = "server";
+
+	@Inject
+	private ClientOptions clientOptions;
 
 	public List<InetSocketAddress> getServers(String clientName){
 		return IntStream.range(0, getNumServers(clientName))

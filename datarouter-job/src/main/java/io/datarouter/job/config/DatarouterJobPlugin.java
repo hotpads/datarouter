@@ -28,6 +28,7 @@ import io.datarouter.job.storage.clustertriggerlock.DatarouterClusterTriggerLock
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
 
@@ -42,14 +43,19 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 	private DatarouterJobPlugin(
 			List<Class<? extends BaseTriggerGroup>> triggerGroupClasses,
 			DatarouterJobDaoModule daosModuleBuilder){
-		addAppListener(JobSchedulerAppListener.class);
-		addRouteSet(DatarouterJobRouteSet.class);
+		addUnorderedAppListener(JobSchedulerAppListener.class);
+		addOrderedRouteSet(DatarouterJobRouteSet.class, DatarouterWebRouteSet.class);
 		addSettingRoot(DatarouterJobSettingRoot.class);
 		addTriggerGroup(DatarouterJobTriggerGroup.class);
 		setDaosModuleBuilder(daosModuleBuilder);
 		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.JOBS,
 				new DatarouterJobPaths().datarouter.triggers.list, "Triggers"));
 		this.triggerGroupClasses = triggerGroupClasses;
+	}
+
+	@Override
+	public String getName(){
+		return "DatarouterJob";
 	}
 
 	@Override

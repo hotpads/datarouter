@@ -24,10 +24,6 @@ public class HtmlFormText extends BaseHtmlFormField{
 	private String placeholder;
 	private String value;
 
-	public HtmlFormText(HtmlForm form){
-		super(form);
-	}
-
 	public HtmlFormText withName(String name){
 		this.name = name;
 		return this;

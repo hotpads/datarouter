@@ -61,10 +61,12 @@ public class NodeParams<
 	//for nodewatch
 	private final TableConfiguration tableConfiguration;
 
+	private final boolean disableForcePrimary;
+
 	private NodeParams(ClientId clientId, String parentName, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier,
 			Integer schemaVersion, String physicalName, String namespace, String entityNodePrefix,
 			String remoteRouterName, String remoteNodeName, Supplier<Boolean> recordCallsites, String streamName,
-			String queueUrl, TableConfiguration tableConfiguration){
+			String queueUrl, TableConfiguration tableConfiguration, boolean disableForcePrimary){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
@@ -80,6 +82,7 @@ public class NodeParams<
 		this.streamName = streamName;
 		this.queueUrl = queueUrl;
 		this.tableConfiguration = tableConfiguration;
+		this.disableForcePrimary = disableForcePrimary;
 	}
 
 	/*----------------------------- builder ---------------------------------*/
@@ -105,6 +108,8 @@ public class NodeParams<
 		private String queueUrl;
 
 		private TableConfiguration tableConfiguration;
+
+		private boolean disableForcePrimary;
 
 		/*--------------------------- construct -----------------------------*/
 
@@ -166,12 +171,17 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withDisableForcePrimary(boolean disableForcePrimary){
+			this.disableForcePrimary = disableForcePrimary;
+			return this;
+		}
+
 		/*----------------------------- build -------------------------------*/
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
 					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
-					streamName, queueUrl, tableConfiguration);
+					streamName, queueUrl, tableConfiguration, disableForcePrimary);
 		}
 	}
 
@@ -242,6 +252,10 @@ public class NodeParams<
 
 	public TableConfiguration getTableConfiguration(){
 		return tableConfiguration;
+	}
+
+	public boolean getDisableForcePrimary(){
+		return disableForcePrimary;
 	}
 
 }

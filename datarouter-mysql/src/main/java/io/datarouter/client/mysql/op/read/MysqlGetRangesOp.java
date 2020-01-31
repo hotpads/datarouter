@@ -75,8 +75,9 @@ extends BaseMysqlOp<List<D>>{
 		Connection connection = getConnection();
 		String tableName = fieldInfo.getTableName();
 		MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
+		String indexName = fieldInfo.getDisableForcePrimary() ? null : SqlBuilder.PRIMARY_KEY_INDEX_NAME;
 		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, fieldInfo.getTableName(),
-				fieldInfo.getFields(), ranges, fieldInfo.getPrimaryKeyFields(), SqlBuilder.PRIMARY_KEY_INDEX_NAME,
+				fieldInfo.getFields(), ranges, fieldInfo.getPrimaryKeyFields(), indexName,
 				mysqlLiveTableOptions)
 				.toPreparedStatement(connection);
 		List<D> result = MysqlTool.selectDatabeans(fieldCodecFactory, fieldInfo.getDatabeanSupplier(), fieldInfo

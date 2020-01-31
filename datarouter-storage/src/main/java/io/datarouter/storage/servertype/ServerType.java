@@ -15,31 +15,22 @@
  */
 package io.datarouter.storage.servertype;
 
-import java.util.List;
+import io.datarouter.util.enums.DisplayablePersistentString;
 
-import io.datarouter.util.web.HtmlSelectOptionBean;
+public interface ServerType extends DisplayablePersistentString, Comparable<ServerType>{
 
-public interface ServerType{
+	ServerType ALL = new SingleServerType("all", false);
+	ServerType UNKNOWN = new SingleServerType("unknown", false);
+	ServerType DEV = new SingleServerType("dev", false);
 
-	public static final String ALL = "all";
-	public static final String UNKNOWN = "unknown";
-	public static final String DEV = "dev";
-
-	ServerType getWebServerType();
-
-	default ServerType getJobServerType(){
-		return getWebServerType();
-	}
-
-	default ServerType getJobletServerType(){
-		return getJobServerType();
-	}
-
-	List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames();
-
-	ServerType fromPersistentString(String str);
+	@Override
 	String getPersistentString();
 
 	boolean isProduction();
+
+	@Override
+	default String getDisplay(){
+		return getPersistentString();
+	}
 
 }

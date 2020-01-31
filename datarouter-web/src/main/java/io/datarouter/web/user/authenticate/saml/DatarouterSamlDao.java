@@ -15,18 +15,20 @@
  */
 package io.datarouter.web.user.authenticate.saml;
 
-import java.util.Collection;
+import java.time.Duration;
+import java.time.Instant;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.util.DatabeanVacuum;
+import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl.SamlAuthnRequestRedirectUrlFielder;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
@@ -42,10 +44,7 @@ public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 
 	}
 
-	private final SortedMapStorageNode<
-			SamlAuthnRequestRedirectUrlKey,
-			SamlAuthnRequestRedirectUrl,
-			SamlAuthnRequestRedirectUrlFielder> node;
+	private final SortedMapStorage<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl> node;
 
 	@Inject
 	public DatarouterSamlDao(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSamlDaoParams params){
@@ -67,12 +66,13 @@ public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 		return node.get(key);
 	}
 
-	public Scanner<SamlAuthnRequestRedirectUrl> scan(){
-		return node.scan();
-	}
-
-	public void deleteMulti(Collection<SamlAuthnRequestRedirectUrlKey> keys){
-		node.deleteMulti(keys);
+	public DatabeanVacuum<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl> makeVacuum(){
+		Instant deleteBefore = Instant.now().minus(Duration.ofSeconds(5));
+		return new DatabeanVacuumBuilder<>(
+				node.scan(),
+				databean -> databean.getCreated().toInstant().isBefore(deleteBefore),
+				node::deleteMulti)
+				.build();
 	}
 
 }

@@ -27,7 +27,7 @@ public class DatarouterWebCssV2{
 	private static final DatarouterWebFiles FILES = new DatarouterWebFiles();
 
 	private static final List<PathNode> CSS_PATHS = Arrays.asList(
-			FILES.css.newCommonCss,
+			FILES.css.commonB4Css,
 			FILES.fontAwesome.css.fontAwesomeBaseCss,
 			FILES.fontAwesome.css.fontAwesomeRegularCss,
 			FILES.fontAwesome.css.fontAwesomeSolidCss,

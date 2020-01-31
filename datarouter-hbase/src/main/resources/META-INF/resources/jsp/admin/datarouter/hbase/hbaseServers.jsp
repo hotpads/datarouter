@@ -7,7 +7,7 @@
 	<script>require(["sorttable"])</script>
 </head>
 <body>
-	<%@ include file="/jsp/menu/new-common-navbar.jsp"%>
+	<%@ include file="/jsp/menu/common-navbar-b4.jsp"%>
 	<div class="container-fluid my-4">
 		<h2>
 			HBase Servers

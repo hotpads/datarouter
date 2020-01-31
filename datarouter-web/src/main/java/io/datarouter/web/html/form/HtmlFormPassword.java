@@ -24,10 +24,6 @@ public class HtmlFormPassword extends BaseHtmlFormField{
 	private String placeholder;
 	private boolean required = false;
 
-	public HtmlFormPassword(HtmlForm form){
-		super(form);
-	}
-
 	public HtmlFormPassword withName(String name){
 		this.name = name;
 		return this;

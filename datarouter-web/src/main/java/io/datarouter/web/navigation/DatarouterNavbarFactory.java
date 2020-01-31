@@ -45,9 +45,9 @@ public class DatarouterNavbarFactory{
 	@Inject
 	private MavPropertiesFactory mavPropertiesFactory;
 
-	/*----------- v1 common-navbar.jsp --------------*/
+	/*----------- v1 common-navbar-b3.jsp --------------*/
 
-	//called by common-navbar.jsp
+	//called by common-navbar-b3.jsp
 	public String buildCommonNavbar(HttpServletRequest request){
 		MavProperties mavProperties = mavPropertiesFactory.getExistingOrNew(request);
 		NavBar navbar = mavProperties.getIsDatarouterPage() ? mavProperties.getDatarouterNavBar()
@@ -85,9 +85,9 @@ public class DatarouterNavbarFactory{
 		return TagCreator.script(TagCreator.rawHtml(rawHtml));
 	}
 
-	/*----------- v2 new-common-navbar.jsp --------------*/
+	/*----------- v2 common-navbar-b4.jsp --------------*/
 
-	//called by new-common-navbar.jsp
+	//called by common-navbar-b4.jsp
 	public String buildNewCommonNavbar(HttpServletRequest request){
 		MavProperties mavProperties = mavPropertiesFactory.getExistingOrNew(request);
 		NavBar navbar = mavProperties.getIsDatarouterPage() ? mavProperties.getDatarouterNavBar()
@@ -133,7 +133,7 @@ public class DatarouterNavbarFactory{
 
 		@Test
 		public void testLocation(){
-			// used by common-navbar.jsp, new-common-navbar.jsp
+			// used by common-navbar-b3.jsp, common-navbar-b4.jsp
 			Assert.assertEquals(DatarouterNavbarFactory.class.getCanonicalName(),
 					"io.datarouter.web.navigation.DatarouterNavbarFactory");
 		}

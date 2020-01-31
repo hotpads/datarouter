@@ -18,6 +18,7 @@ package io.datarouter.secret.client;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -131,7 +132,11 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 	@Singleton
 	public static final class LocalStorageDefaultSecretValues{
 
-		private final ConcurrentHashMap<String, String> defaultSecretValues = new ConcurrentHashMap<>();
+		private final ConcurrentHashMap<String,String> defaultSecretValues;
+
+		public LocalStorageDefaultSecretValues(Map<String,String> initialLocalStorageSecretValues){
+			defaultSecretValues = new ConcurrentHashMap<>(initialLocalStorageSecretValues);
+		}
 
 		private Optional<Secret> readDefaultValue(String name){
 			return Optional.ofNullable(defaultSecretValues.get(name))

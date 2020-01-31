@@ -28,7 +28,7 @@ public class DatarouterWebCss{
 
 	private static final List<PathNode> CSS_PATHS = Arrays.asList(
 			FILES.bootstrap.v3.css.bootstrapCss,
-			FILES.css.commonCss);
+			FILES.css.commonB3Css);
 
 	public static EmptyTag[] makeCssImportTags(String contextPath){
 		return DatarouterWebCssTool.makeCssImportTags(contextPath, CSS_PATHS);

@@ -27,7 +27,7 @@
 	</script>
 </head>
 <body onload="displayMessageOnload('${message}');">
-	<%@ include file="/jsp/menu/new-common-navbar.jsp"%>
+	<%@ include file="/jsp/menu/common-navbar-b4.jsp"%>
 	<div class="container mt-5">
 		<h2 class="pb-3 border-bottom">Job triggers</h2>
 		<div class="card card-body bg-light my-3">
@@ -108,14 +108,9 @@
 			</tbody>
 		</table>
 		<br>
-		<table class="table table-bordered table-sm">
-			<thead class="thead-dark"><tr><th>Color Codes</th></tr></thead>
-			<tbody>
-				<tr class="table-success"><td>Running job, last heartbeat within 2 seconds</td></tr>
-				<tr class="table-warning"><td>Running job, last heartbeat within 2-10 seconds</td></tr>
-				<tr class="table-danger"><td>Running job, last heartbeat over 10 seconds ago</td></tr>
-			</tbody>
-		</table>
+		<div class="container mt-5">
+		${legend}
+		</div>
 	</div>
 </body>
 </html>

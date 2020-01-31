@@ -28,9 +28,12 @@ import io.datarouter.web.browse.ViewTableConfigurationHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.IpDetectionHandler;
 import io.datarouter.web.handler.TestApiHandler;
+import io.datarouter.web.inspect.DatarouterPropertiesViewHandler;
+import io.datarouter.web.listener.DatarouterListenersViewHandler;
 import io.datarouter.web.monitoring.DeploymentReportingHandler;
 import io.datarouter.web.monitoring.ExecutorsMonitoringHandler;
 import io.datarouter.web.monitoring.MemoryMonitoringHandler;
+import io.datarouter.web.routeset.DatarouterRouteSetViewHandler;
 import io.datarouter.web.shutdown.ShutdownHandler;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
@@ -58,7 +61,12 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.ipDetection).withHandler(IpDetectionHandler.class).allowAnonymous();
 		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();
 		handle(paths.datarouter.shutdown).withHandler(ShutdownHandler.class).allowAnonymous();
-		handle(paths.datarouter.filterParams).withHandler(DatarouterServletFilterParamsViewHandler.class);
+
+
+		handle(paths.datarouter.info.filterParams).withHandler(DatarouterServletFilterParamsViewHandler.class);
+		handle(paths.datarouter.info.listeners).withHandler(DatarouterListenersViewHandler.class);
+		handle(paths.datarouter.info.routeSets).withHandler(DatarouterRouteSetViewHandler.class);
+		handle(paths.datarouter.info.properties).withHandler(DatarouterPropertiesViewHandler.class);
 
 		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
 		handleDir(paths.datarouter.testApi).withHandler(TestApiHandler.class);

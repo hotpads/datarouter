@@ -17,7 +17,6 @@ package io.datarouter.web.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -30,10 +29,10 @@ import com.google.inject.Provides;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.dispatcher.BaseRouteSet;
-import io.datarouter.web.dispatcher.DispatcherServlet;
 import io.datarouter.web.dispatcher.DispatcherServletClasses;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.FilterParamsSupplier;
+import io.datarouter.web.dispatcher.RootDispatcherServlet;
 import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.filter.StaticFileFilter;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
@@ -51,53 +50,40 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 	private final boolean excludeStaticFileFilter;
 	private final Class<? extends HttpsConfiguration> httpsConfigurationClass;
 	private final Class<? extends Filter> authenticationFilterClass;
-	private final Class<? extends DispatcherServlet> rootDispatcherServletClass;
-	private final List<Class<? extends BaseRouteSet>> additionalRootRouteSetClasses;
-	private final List<BaseRouteSet> rootRouteSets;
+	private final List<Class<? extends BaseRouteSet>> rootRouteSetClasses;
 	private final List<ServletParams> additionalServletParams;
 	private final String guicePathsRegex;
-	private final FilterParams healthcheckFilterParams;
 
 	public DatarouterServletGuiceModule(
 			List<FilterParams> additionalFilterParams,
 			boolean excludeStaticFileFilter,
 			Class<? extends HttpsConfiguration> httpsConfigurationClass,
 			Class<? extends Filter> authenticationFilterClass,
-			Class<? extends DispatcherServlet> rootDispatcherServletClass,
-			List<Class<? extends BaseRouteSet>> additionalRootRouteSetClasses,
-			List<BaseRouteSet> additionalRootRouteSets,
+			List<Class<? extends BaseRouteSet>> rootRouteSetClasses,
 			List<ServletParams> additionalServletParams,
-			boolean renderJspsUsingServletContainer,
-			FilterParams healthcheckFilterParams){
+			boolean renderJspsUsingServletContainer){
 		this.additionalFilterParams = additionalFilterParams;
 		this.excludeStaticFileFilter = excludeStaticFileFilter;
 		this.httpsConfigurationClass = httpsConfigurationClass;
 		this.authenticationFilterClass = authenticationFilterClass;
-		this.rootDispatcherServletClass = rootDispatcherServletClass;
-		this.additionalRootRouteSetClasses = additionalRootRouteSetClasses;
-		this.rootRouteSets = additionalRootRouteSets;
+		this.rootRouteSetClasses = rootRouteSetClasses;
 		this.additionalServletParams = additionalServletParams;
 		if(renderJspsUsingServletContainer){
 			this.guicePathsRegex = EVERYTHING_BUT_NOT_WEBSOCKET + EVERYTHING_BUT_JSP_AND_JSPF;
 		}else{
 			this.guicePathsRegex = EVERYTHING_BUT_NOT_WEBSOCKET;
 		}
-		this.healthcheckFilterParams = healthcheckFilterParams;
 	}
 
 	@Override
 	protected void configureServlets(){
 		//dispatcher and routeSet classes
 		bind(DispatcherServletClasses.class)
-				.toInstance(new DispatcherServletClasses(Arrays.asList(rootDispatcherServletClass)));
+				.toInstance(new DispatcherServletClasses(Arrays.asList(RootDispatcherServlet.class)));
 
 		//https configuration implementation
 		bind(HttpsConfiguration.class).to(httpsConfigurationClass);
 
-		//filters
-		if(healthcheckFilterParams != null){
-			filter(healthcheckFilterParams.path).through(healthcheckFilterParams.filterClass);
-		}
 		List<Class<? extends Filter>> rootFilterClasses = new ArrayList<>();
 		if(excludeStaticFileFilter){
 			rootFilterClasses.remove(StaticFileFilter.class);
@@ -106,10 +92,8 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 		rootFilter(authenticationFilterClass);
 		bindActualInstance(FilterParamsSupplier.class, new FilterParamsSupplier(additionalFilterParams));
 		additionalFilterParams.stream()
-				.sorted(Comparator.comparing((FilterParams param) -> param.order.getOrder()))
-				.peek(filterParams -> logger.info("filter={}, path={}, isRegex={}, order={}",
-						filterParams.filterClass.getSimpleName(), filterParams.path, filterParams.isRegex,
-						filterParams.order.getOrder()))
+				.peek(filterParams -> logger.info("filter={}, path={}, isRegex={}", filterParams.filterClass
+						.getSimpleName(), filterParams.path, filterParams.isRegex))
 				.forEach(filterParams -> {
 					if(filterParams.isRegex){
 						filterRegex(filterParams.path).through(filterParams.filterClass);
@@ -129,7 +113,7 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 		});
 
 		//rootServlet catch-all comes last
-		serveRegex(guicePathsRegex).with(rootDispatcherServletClass);
+		serveRegex(guicePathsRegex).with(RootDispatcherServlet.class);
 
 		//nav bar
 		bindActual(AppNavBar.class, DefaultAppNavBar.class);
@@ -138,8 +122,7 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 	@Provides
 	public RootRouteSetsSupplier getRootRouteSets(DatarouterInjector injector){
 		List<BaseRouteSet> routeSets = new ArrayList<>();
-		routeSets.addAll(IterableTool.map(additionalRootRouteSetClasses, injector::getInstance));
-		routeSets.addAll(rootRouteSets);
+		routeSets.addAll(IterableTool.map(rootRouteSetClasses, injector::getInstance));
 		return new RootRouteSets(routeSets);
 	}
 

@@ -18,8 +18,7 @@ package io.datarouter.storage.config.setting;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.environment.EnvironmentType;
-import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySettings;
+import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySettingsProvider;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
@@ -29,19 +28,17 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 public class DatarouterStorageSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> recordCallsites;
-	public final CachedSetting<Boolean> includeAdditionalAdministratorsEmails;
 
 	@Inject
 	public DatarouterStorageSettingRoot(
 			SettingFinder finder,
-			DatarouterClientAvailabilitySettings clientAvailabilitySettings){
+			DatarouterClientAvailabilitySettingsProvider clientAvailabilitySettings,
+			DatarouterAdminEmailSettings adminEmailSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterStorage.");
-		registerChild(clientAvailabilitySettings);
+		registerChild(clientAvailabilitySettings.get());
+		registerChild(adminEmailSettings);
 
 		recordCallsites = registerBoolean("recordCallsites", false);
-		includeAdditionalAdministratorsEmails = registerBooleans("includeAdditionalAdministratorEmails",
-				defaultTo(true)
-				.withEnvironmentType(EnvironmentType.DEVELOPMENT, false));
 	}
 
 }

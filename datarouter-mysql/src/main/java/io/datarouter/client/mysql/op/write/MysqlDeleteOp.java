@@ -15,68 +15,31 @@
  */
 package io.datarouter.client.mysql.op.write;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.Collection;
-import java.util.List;
 
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
+import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
-import io.datarouter.client.mysql.op.BaseMysqlOp;
-import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
-import io.datarouter.client.mysql.util.MysqlTool;
+import io.datarouter.client.mysql.util.SqlBuilder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 
 public class MysqlDeleteOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-extends BaseMysqlOp<Long>{
-
-	private static final int BATCH_SIZE = 100;
-
-	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
-	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
-	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
-	private final Collection<PK> keys;
-	private final Config config;
+extends BaseMysqlDeleteOp<PK,D,F,PK>{
 
 	public MysqlDeleteOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
-			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, Collection<PK> keys, Config config){
-		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, shouldAutoCommit(keys));
-		this.fieldInfo = fieldInfo;
-		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
-		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
-		this.keys = keys;
-		this.config = config;
-	}
-
-	@Override
-	public Long runOnce(){
-		Connection connection = getConnection();
-		String tableName = fieldInfo.getTableName();
-		long numModified = 0;
-		for(List<PK> keyBatch : Scanner.of(keys).batch(config.optInputBatchSize().orElse(BATCH_SIZE)).iterable()){
-			MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
-			PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, tableName, keyBatch,
-					mysqlLiveTableOptions)
-					.toPreparedStatement(connection);
-			numModified += MysqlTool.update(statement);
-		}
-		return numModified;
-	}
-
-	private static boolean shouldAutoCommit(Collection<?> keys){
-		return CollectionTool.size(keys) <= 1;
+			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder, MysqlClientType mysqlClientType,
+			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, Collection<PK> keys, Config config,
+			String opName){
+		super(datarouter, fieldInfo, mysqlPreparedStatementBuilder, mysqlClientType, mysqlLiveTableOptionsRefresher,
+				keys, config, SqlBuilder.PRIMARY_KEY_INDEX_NAME, opName);
 	}
 
 }

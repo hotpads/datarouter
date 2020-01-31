@@ -42,7 +42,6 @@ import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.dispatcher.NonEagerInitHandler;
 import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.handler.encoder.JsonEncoder;
 import io.datarouter.web.handler.mav.Mav;
 
 /**
@@ -148,7 +147,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		return mav;
 	}
 
-	@Handler(encoder = JsonEncoder.class)
+	@Handler
 	private GarbabeCollectingResult garbageCollector(){
 		String serverName = params.required("serverName");
 		if(!serverName.equals(datarouterProperties.getServerName())){

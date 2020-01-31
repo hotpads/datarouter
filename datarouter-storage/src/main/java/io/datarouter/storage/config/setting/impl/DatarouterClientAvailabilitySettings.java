@@ -28,7 +28,7 @@ import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.constant.ConstantBooleanSetting;
 
 /**
- * It's recommended to use DatarouterClientAvailabilitySettingsFactory to avoid a circular dependency
+ * It's recommended to use DatarouterClientAvailabilitySettingsProvider to avoid a circular dependency
  */
 @Singleton
 public class DatarouterClientAvailabilitySettings extends SettingNode{

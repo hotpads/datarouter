@@ -80,7 +80,8 @@ extends BaseMysqlOp<List<D>>{
 	public List<D> runOnce(){
 		String tableName = databeanFieldInfo.getTableName();
 		String indexName = indexEntryFieldInfo.getIndexName();
-		String nodeName = tableName + "." + indexName;
+		String clientName = databeanFieldInfo.getClientId().getName();
+		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
 		String opName = IndexedStorageReader.OP_getByIndexRange;
 		Connection connection = getConnection();
 		MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
@@ -89,10 +90,8 @@ extends BaseMysqlOp<List<D>>{
 				.toPreparedStatement(connection);
 		List<D> result = MysqlTool.selectDatabeans(fieldCodecFactory, databeanFieldInfo.getDatabeanSupplier(),
 				databeanFieldInfo.getFields(), statement);
-		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", databeanFieldInfo.getClientId()
-				.getName(), nodeName, 1L);
-		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", databeanFieldInfo.getClientId()
-				.getName(), nodeName, result.size());
+		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", clientName, nodeName, 1L);
+		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", clientName, nodeName, result.size());
 		TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder()
 				.ranges(ranges.size())
 				.databeans(result.size()));

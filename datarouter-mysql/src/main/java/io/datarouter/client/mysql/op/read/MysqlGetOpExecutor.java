@@ -54,28 +54,27 @@ public class MysqlGetOpExecutor{
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,
 			T extends Comparable<? super T>>
-	List<T> execute(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, String opName, Collection<? extends FieldSet<?>> keys,
-			Config config, List<Field<?>> selectFields, Function<PreparedStatement,List<T>> select,
-			Connection connection, String indexName){
+	List<T> execute(PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo, String opName,
+			Collection<? extends FieldSet<?>> keys, Config config, List<Field<?>> selectFields,
+			Function<PreparedStatement,List<T>> select, Connection connection, String indexName){
 		Stream<? extends FieldSet<?>> dedupedSortedKeys = keys.stream()
 				.distinct()
 				.sorted();
-		String tableName = fieldInfo.getTableName();
+		String tableName = databeanFieldInfo.getTableName();
+		String clientName = databeanFieldInfo.getClientId().getName();
+		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
 		List<T> result = new ArrayList<>(keys.size());
 		for(List<? extends FieldSet<?>> keyBatch : Scanner.of(dedupedSortedKeys).batch(config.optInputBatchSize()
 				.orElse(BATCH_SIZE)).iterable()){
-			MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(fieldInfo.getClientId(),
-					tableName);
+			MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(databeanFieldInfo
+					.getClientId(), tableName);
 			PreparedStatement ps = mysqlPreparedStatementBuilder.getMulti(config, tableName, selectFields, keyBatch,
 					indexName, mysqlLiveTableOptions)
 					.toPreparedStatement(connection);
-			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId()
-					.getName(), fieldInfo.getNodeName(), 1L);
-
+			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", clientName, nodeName, 1L);
 			List<T> resultBatch = select.apply(ps);
-
-			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),
-					fieldInfo.getNodeName(), result.size());
+			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", clientName, nodeName, result
+					.size());
 			result.addAll(resultBatch);
 		}
 		return result;

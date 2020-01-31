@@ -17,7 +17,6 @@ package io.datarouter.web.html.j2html.bootstrap4;
 
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
@@ -39,29 +38,45 @@ import j2html.tags.ContainerTag;
 
 public class Bootstrap4FormHtml{
 
-	public static ContainerTag render(HtmlForm form){
-		return form(each(form.getFields(), Bootstrap4FormHtml::renderField))
+	private static final String LABEL_CLASS = "form-label mr-2";
+
+	public static ContainerTag render(HtmlForm htmlForm){
+		return render(htmlForm, false);
+	}
+
+	public static ContainerTag render(HtmlForm form, boolean inline){
+		return form(renderFields(form))
 				.withAction(form.getAction())
+				.withCondClass(inline, "form-inline")
 				.withMethod(form.getMethod());
 	}
 
+	private static ContainerTag[] renderFields(HtmlForm form){
+		return form.getFields().stream()
+				.map(Bootstrap4FormHtml::renderField)
+				.toArray(ContainerTag[]::new);
+	}
+
 	private static ContainerTag renderField(BaseHtmlFormField field){
+		ContainerTag div;
 		if(field instanceof HtmlFormButton){
-			return submitButton((HtmlFormButton)field);
+			div = submitButton((HtmlFormButton)field);
 		}else if(field instanceof HtmlFormCheckbox){
-			return checkboxField((HtmlFormCheckbox)field);
+			div = checkboxField((HtmlFormCheckbox)field);
 		}else if(field instanceof HtmlFormEmail){
-			return emailField((HtmlFormEmail)field);
+			div = emailField((HtmlFormEmail)field);
 		}else if(field instanceof HtmlFormPassword){
-			return passwordField((HtmlFormPassword)field);
+			div = passwordField((HtmlFormPassword)field);
 		}else if(field instanceof HtmlFormSelect){
-			return selectField((HtmlFormSelect)field);
+			div = selectField((HtmlFormSelect)field);
 		}else if(field instanceof HtmlFormText){
-			return textField((HtmlFormText)field);
+			div = textField((HtmlFormText)field);
 		}else{
 			throw new IllegalArgumentException(field.getClass() + "is an unknown subclass of "
 					+ BaseHtmlFormField.class);
 		}
+		return div(div)
+				.withClass("mx-3");
 	}
 
 	private static ContainerTag submitButton(HtmlFormButton field){
@@ -88,7 +103,7 @@ public class Bootstrap4FormHtml{
 
 	private static ContainerTag emailField(HtmlFormEmail field){
 		var label = label(field.getDisplay())
-				.withClass("form-label");
+				.withClass(LABEL_CLASS);
 		var input = input()
 				.withClass("form-control")
 				.withName(field.getName())
@@ -102,7 +117,7 @@ public class Bootstrap4FormHtml{
 
 	private static ContainerTag passwordField(HtmlFormPassword field){
 		var label = label(field.getDisplay())
-				.withClass("form-label");
+				.withClass(LABEL_CLASS);
 		var input = input()
 				.withClass("form-control")
 				.withName(field.getName())
@@ -115,12 +130,20 @@ public class Bootstrap4FormHtml{
 
 	private static ContainerTag selectField(HtmlFormSelect field){
 		var label = label(field.getDisplay())
-				.withClass("form-label");
-		var select = select()
+				.withClass(LABEL_CLASS);
+		var options = field.getDisplayByValue().entrySet().stream()
+				.map(entry -> {
+					var option = option(entry.getValue())
+							.withValue(entry.getKey());
+					if(entry.getValue().equals(field.getSelected())){
+						option.attr(Attr.SELECTED);
+					}
+					return option;
+				})
+				.toArray(ContainerTag[]::new);
+		var select = select(options)
 				.withClass("form-control")
 				.withName(field.getName())
-				.with(each(field.getDisplayByValue().entrySet(), entry -> option(entry.getValue()).withValue(entry
-						.getKey())))
 				.condAttr(field.isMultiple(), "multiple", null);
 		return div(label, select)
 				.withClass("form-group");
@@ -132,7 +155,7 @@ public class Bootstrap4FormHtml{
 			inputClass += " is-invalid";
 		}
 		var label = label(field.getDisplay())
-				.withClass("form-label");
+				.withClass(LABEL_CLASS);
 		var input = input()
 				.withClass(inputClass)
 				.withName(field.getName())

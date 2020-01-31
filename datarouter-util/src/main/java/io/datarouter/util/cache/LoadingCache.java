@@ -228,7 +228,7 @@ public class LoadingCache<K,V>{
 		}
 
 		@Test
-		public void testMaxCapcaity(){
+		public void testMaxCapacity(){
 			DATA_STORE = ORIGINAL_DATA_STORE;
 			Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 

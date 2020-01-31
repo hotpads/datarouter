@@ -22,40 +22,11 @@ public class FilterParams{
 	public final boolean isRegex;
 	public final String path;
 	public final Class<? extends Filter> filterClass;
-	public final FilterParamsOrder order;
 
 	public FilterParams(boolean isRegex, String path, Class<? extends Filter> filterClass){
 		this.isRegex = isRegex;
 		this.path = path;
 		this.filterClass = filterClass;
-		this.order = FilterParamsOrder.GROUP_100;
-	}
-
-	public FilterParams(boolean isRegex, String path, Class<? extends Filter> filterClass, FilterParamsOrder order){
-		this.isRegex = isRegex;
-		this.path = path;
-		this.filterClass = filterClass;
-		this.order = order;
-	}
-
-	public static enum FilterParamsOrder{
-		GROUP_010(10),
-		GROUP_020(20),
-		GROUP_030(30),
-		GROUP_040(40),
-		GROUP_100(100), // default
-		;
-
-		private final int order;
-
-		FilterParamsOrder(int order){
-			this.order = order;
-		}
-
-		public int getOrder(){
-			return order;
-		}
-
 	}
 
 }

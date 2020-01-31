@@ -74,9 +74,10 @@ extends BaseMysqlOp<List<PK>>{
 		Connection connection = getConnection();
 		String tableName = fieldInfo.getTableName();
 		MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
+		String indexName = fieldInfo.getDisableForcePrimary() ? null : SqlBuilder.PRIMARY_KEY_INDEX_NAME;
 		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, tableName,
 				fieldInfo.getPrimaryKeyFields(), ranges, fieldInfo.getPrimaryKeyFields(),
-				SqlBuilder.PRIMARY_KEY_INDEX_NAME, mysqlLiveTableOptions)
+				indexName, mysqlLiveTableOptions)
 				.toPreparedStatement(connection);
 		List<PK> result = MysqlTool.selectPrimaryKeys(fieldCodecFactory, fieldInfo, statement);
 		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId().getName(),

@@ -85,7 +85,7 @@
 	</script>
 </head>
 <body class="input-no-margin">
-<%@ include file="/jsp/menu/new-common-navbar.jsp"%>
+<%@ include file="/jsp/menu/common-navbar-b4.jsp"%>
 <div class="container-fluid my-2 my-md-5" style="max-width: 1400px" id="page-container">
 	<div class="row">
 		<div class="col-12 col-md-6 col-xl-3 my-3 my-xs-0">

@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.listener;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +25,9 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.spi.Message;
+
+import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.timer.PhaseTimer;
 
 /**
@@ -42,7 +46,21 @@ public abstract class MultiServletContextListener implements ServletContextListe
 	public void contextInitialized(ServletContextEvent sce){
 		PhaseTimer timer = new PhaseTimer();
 		listeners.forEach(listener -> {
-			listener.contextInitialized(sce);
+			try{
+				listener.contextInitialized(sce);
+			}catch(RuntimeException e){
+				// workaround guice old asm version
+				try{
+					Collection<Message> messages = (Collection<Message>)ReflectionTool.get("messages", e);
+					for(Message message : messages){
+						logger.error("{} ", message.getMessage(), message.getCause());
+					}
+				}catch(Exception relectionException){
+					// not a guice exception, throw the original
+					throw e;
+				}
+				throw new RuntimeException("guice exception, see previous logs");
+			}
 			timer.add(listener.getClass().getSimpleName());
 		});
 		logger.warn("startUp {}", timer);

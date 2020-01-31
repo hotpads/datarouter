@@ -26,4 +26,7 @@ public abstract class FilesRoot extends PathNode{
 		return Collections.emptyList();
 	}
 
+	public static class NoOpFilesRoot extends FilesRoot{
+	}
+
 }
