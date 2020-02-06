@@ -18,9 +18,6 @@ package io.datarouter.model.key.entity.base;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.util.bytes.ByteTool;
@@ -135,7 +132,7 @@ implements EntityPartitioner<EK>{
 
 	/*------------- for testing -------------*/
 
-	private static int getNumPrefixBytesStatic(int numPartitions){
+	static int getNumPrefixBytesStatic(int numPartitions){
 		if(numPartitions < MIN_PARTITIONS){
 			throw new IllegalArgumentException("must have at least one partition");
 		}
@@ -149,33 +146,6 @@ implements EntityPartitioner<EK>{
 			return 2;
 		}
 		throw new IllegalArgumentException("max partitions is " + MAX_PARTITIONS);
-	}
-
-
-	/*------------- tests -------------*/
-
-	public static class BaseEntityPartitionerTests{
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testMinBound(){
-			getNumPrefixBytesStatic(0);
-		}
-
-		@Test
-		public void testValidNumPartitions(){
-			Assert.assertEquals(getNumPrefixBytesStatic(1), 0);
-			Assert.assertEquals(getNumPrefixBytesStatic(2), 1);
-			Assert.assertEquals(getNumPrefixBytesStatic(255), 1);
-			Assert.assertEquals(getNumPrefixBytesStatic(256), 1);
-			Assert.assertEquals(getNumPrefixBytesStatic(257), 2);
-			Assert.assertEquals(getNumPrefixBytesStatic(65535), 2);
-			Assert.assertEquals(getNumPrefixBytesStatic(65536), 2);
-		}
-
-		@Test(expectedExceptions = IllegalArgumentException.class)
-		public void testMaxBound(){
-			getNumPrefixBytesStatic(65537);
-		}
 	}
 
 }

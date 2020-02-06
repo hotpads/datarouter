@@ -17,11 +17,17 @@ package io.datarouter.auth.storage.account;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.auth.config.DatarouterAuthExecutors.DatarouterAccountByApiKeyCacheExecutor;
 import io.datarouter.auth.storage.account.DatarouterAccount.DatarouterAccountFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -43,13 +49,17 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 	}
 
 	private final SortedMapStorage<DatarouterAccountKey,DatarouterAccount> node;
+	private final AtomicReference<Map<String,DatarouterAccount>> accountByApiKey;
 
 	@Inject
 	public DatarouterAccountDao(Datarouter datarouter, NodeFactory nodeFactory,
-			DatarouterAccountDaoParams params){
+			DatarouterAccountDaoParams params, DatarouterAccountByApiKeyCacheExecutor executor){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, DatarouterAccount::new, DatarouterAccountFielder::new)
 				.buildAndRegister();
+		accountByApiKey = new AtomicReference<>();
+		accountByApiKey.set(this.loadAccountByApiKeyCache());
+		executor.scheduleWithFixedDelay(this::loadAccountByApiKeyCache, 30, 30, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -95,6 +105,16 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 	@Override
 	public Optional<DatarouterAccount> find(DatarouterAccountKey key){
 		return node.find(key);
+	}
+
+	@Override
+	public Optional<DatarouterAccount> getFromAccountByApiKeyCache(String apiKey){
+		return Optional.ofNullable(accountByApiKey.get().get(apiKey));
+	}
+
+	private Map<String,DatarouterAccount> loadAccountByApiKeyCache(){
+		return node.scan()
+				.collect(Collectors.toMap(DatarouterAccount::getApiKey, Function.identity()));
 	}
 
 }

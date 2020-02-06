@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.webappinstance.config;
+package io.datarouter.loggerconfig.config;
 
-import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
-import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher.NoOpWebappInstancePublisher;
-import io.datarouter.tasktracker.config.DatarouterTaskTrackerGuiceModule;
+import javax.inject.Inject;
 
-public class DatarouterWebappInstanceGuiceModule extends BaseGuiceModule{
+import io.datarouter.web.file.DatarouterFilesTests;
 
-	@Override
-	protected void configure(){
-		install(new DatarouterTaskTrackerGuiceModule());
-		bindDefault(WebappInstancePublisher.class, NoOpWebappInstancePublisher.class);
+public class DatarouterLoggerConfigFilesTests extends DatarouterFilesTests{
+
+	@Inject
+	protected DatarouterLoggerConfigFilesTests(DatarouterLoggerConfigFiles files){
+		super(files);
 	}
 
 }

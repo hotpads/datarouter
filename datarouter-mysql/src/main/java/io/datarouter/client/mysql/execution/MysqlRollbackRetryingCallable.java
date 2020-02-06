@@ -45,10 +45,12 @@ public class MysqlRollbackRetryingCallable<T> implements Retryable<T>{
 				return callable.call();
 			}catch(SessionExecutorPleaseRetryException e){
 				if(attemptNum < numAttempts){
-					logger.warn("rollback on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
+					logger.warn("rollback attempt={} maxAttempt={} backoffMs={} final=false", attemptNum, numAttempts,
+							backoffMs, e);
 					ThreadTool.sleep(backoffMs);
 				}else{
-					logger.error("rollback on final attempt {}", attemptNum, e);
+					logger.error("rollback attempt={} maxAttempt={} backoffMs={} final=true", attemptNum, numAttempts,
+							backoffMs, e);
 					Throwable rollbackCause = e.getCause();
 					throw new RuntimeException(rollbackCause);
 				}

@@ -17,12 +17,10 @@ package io.datarouter.util;
 
 import java.util.Set;
 
-import io.datarouter.util.collection.SetTool;
-
 public class BooleanTool{
 
-	private static final Set<String> TRUE_VALUES = SetTool.of("true", "1", "t", "yes", "y", "on");
-	private static final Set<String> FALSE_VALUES = SetTool.of("false", "0", "f", "no", "n", "off");
+	private static final Set<String> TRUE_VALUES = Set.of("true", "1", "t", "yes", "y", "on");
+	private static final Set<String> FALSE_VALUES = Set.of("false", "0", "f", "no", "n", "off");
 
 	public static boolean isTrue(String input){
 		if(input == null){

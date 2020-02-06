@@ -18,6 +18,7 @@ package io.datarouter.auth.service;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,19 +26,30 @@ import javax.inject.Singleton;
 import io.datarouter.auth.cache.DatarouterUserByIdCache;
 import io.datarouter.auth.cache.DatarouterUserByUserTokenCache;
 import io.datarouter.auth.cache.DatarouterUserByUsernameCache;
+import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.session.service.SessionBasedUser;
 
 @Singleton
 public class DatarouterUserInfo implements UserInfo{
 
+	@Inject
+	private DatarouterUserDao userDao;
 	@Inject
 	private DatarouterUserByUsernameCache datarouterUserByUsernameCache;
 	@Inject
 	private DatarouterUserByUserTokenCache datarouterUserByUserTokenCache;
 	@Inject
 	private DatarouterUserByIdCache datarouterUserByIdCache;
+
+	@Override
+	public Set<SessionBasedUser> getAllUsers(boolean enabledOnly){
+		return userDao.scan()
+				.include(user -> !enabledOnly || user.getEnabled())
+				.collect(Collectors.toSet());
+	}
 
 	@Override
 	public Optional<DatarouterUser> getUserByUsername(String username){

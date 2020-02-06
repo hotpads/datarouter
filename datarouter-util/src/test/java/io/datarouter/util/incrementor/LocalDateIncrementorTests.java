@@ -13,17 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.hbase.config;
+package io.datarouter.util.incrementor;
 
-import com.google.inject.AbstractModule;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
-import io.datarouter.web.config.DatarouterWebGuiceModule;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-public class DatarouterHBaseTestGuiceModule extends AbstractModule{
+public class LocalDateIncrementorTests{
 
-	@Override
-	protected void configure(){
-		install(new DatarouterWebGuiceModule());
+	@Test
+	public void test(){
+		List<LocalDate> actual = LocalDateIncrementor.fromInclusive(LocalDate.of(2009, 3, 31))
+				.step(2)
+				.limit(2)
+				.list();
+		List<LocalDate> expected = Arrays.asList(
+				LocalDate.of(2009, 3, 31),
+				LocalDate.of(2009, 4, 2));
+		Assert.assertEquals(actual, expected);
 	}
 
 }

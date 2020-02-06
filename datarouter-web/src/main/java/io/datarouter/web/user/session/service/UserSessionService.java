@@ -16,6 +16,7 @@
 package io.datarouter.web.user.session.service;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -46,6 +47,15 @@ public interface UserSessionService{
 				});
 	}
 
+	//deletes the Session of the current request
+	void deleteSession(HttpServletRequest request);
+
+	//looks up all Sessions for each user and deletes them
+	void deleteUserSessions(List<String> usernames);
+
+	//by default this persistently removes the users' roles and sessions and can optionally disable or delete the users
+	void deprovisionUsers(List<String> usernames, boolean shouldDisable, boolean shouldDelete);
+
 	static class NoOpUserSessionService implements UserSessionService{
 
 		@Override
@@ -64,6 +74,18 @@ public interface UserSessionService{
 		@Override
 		public Optional<Session> signInUserWithRoles(HttpServletRequest request, String username, Set<Role> roles){
 			return Optional.empty();
+		}
+
+		@Override
+		public void deleteSession(HttpServletRequest request){
+		}
+
+		@Override
+		public void deleteUserSessions(List<String> usernames){
+		}
+
+		@Override
+		public void deprovisionUsers(List<String> usernames, boolean shouldDisable, boolean shouldDelete){
 		}
 
 	}

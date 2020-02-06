@@ -47,7 +47,7 @@ import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySwitchThresholdSettings;
-import io.datarouter.storage.metric.Metrics;
+import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.SortedStorage;
@@ -64,7 +64,7 @@ public class LatencyMonitoringService{
 
 	private static final int MIN_LAST_CHECKS_TO_RETAIN = 15;
 	private static final Config ONLY_FIRST = new Config().setLimit(1).setOutputBatchSize(1);
-	private static final String METRIC_PREFIX = "Latency ";
+	private static final String GAUGE_PREFIX = "Latency ";
 	private static final String DR_CLIENT_PREFIX = "Client ";
 	private static final String SS_CHECK_SUFIX = " findFirst";
 	private static final String MS_CHECK_SUFIX = " getRandom";
@@ -75,7 +75,7 @@ public class LatencyMonitoringService{
 	@Inject
 	private DatarouterNodes nodes;
 	@Inject
-	private Metrics metrics;
+	private Gauges gauges;
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
@@ -92,7 +92,7 @@ public class LatencyMonitoringService{
 	private List<LatencyFuture> runningChecks = Collections.emptyList();
 
 	public void record(LatencyCheck check, DatarouterDuration duration){
-		metrics.save(METRIC_PREFIX + check.name, duration.to(TimeUnit.MICROSECONDS));
+		gauges.save(GAUGE_PREFIX + check.name, duration.to(TimeUnit.MICROSECONDS));
 		addCheckResult(check, CheckResult.newSuccess(System.currentTimeMillis(), duration));
 		logger.debug("{} - {}", check.name, duration);
 	}
@@ -110,8 +110,8 @@ public class LatencyMonitoringService{
 	}
 
 	public void recordFailure(LatencyCheck check, DatarouterDuration duration, Exception exception){
-		metrics.save(METRIC_PREFIX + check.name + " failure durationUs", duration.to(TimeUnit.MICROSECONDS));
-		Counters.inc(METRIC_PREFIX + check.name + " failure");
+		gauges.save(GAUGE_PREFIX + check.name + " failure durationUs", duration.to(TimeUnit.MICROSECONDS));
+		Counters.inc(GAUGE_PREFIX + check.name + " failure");
 		addCheckResult(check, CheckResult.newFailure(System.currentTimeMillis(), exception.getMessage()));
 		logger.warn("{} failed - {}", check.name, duration, exception);
 	}
@@ -169,7 +169,7 @@ public class LatencyMonitoringService{
 	public String getGraphLink(String checkName){
 		String webapps = datarouterService.getName();
 		String servers = datarouterProperties.getServerName();
-		String counters = METRIC_PREFIX + checkName;
+		String counters = GAUGE_PREFIX + checkName;
 		return latencyMonitoringGraphLink.getGraphLink(webapps, servers, counters);
 	}
 

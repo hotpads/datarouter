@@ -53,25 +53,25 @@ public class RangeTests{
 		Assert.assertEquals(Range.compareStarts(rangeA, rangeA), 0);
 
 		Range<Integer> rangeB = new Range<>(null, false, null, true);
-		Assert.assertEquals(ComparableTool.compareAndAssertReflexive(rangeA, rangeB), -1);
+		Assert.assertEquals(compareAndAssertReflexive(rangeA, rangeB), -1);
 
 		Range<Integer> rangeC = new Range<>(null, true, 999, true);
-		Assert.assertEquals(ComparableTool.compareAndAssertReflexive(rangeA, rangeC), 0);
+		Assert.assertEquals(compareAndAssertReflexive(rangeA, rangeC), 0);
 
 		Range<Integer> rangeD = new Range<>(3, true, 999, true);
-		Assert.assertEquals(ComparableTool.compareAndAssertReflexive(rangeA, rangeD), -1);
+		Assert.assertEquals(compareAndAssertReflexive(rangeA, rangeD), -1);
 
 		Range<Integer> rangeE = new Range<>(3, false, 999, true);
-		Assert.assertEquals(ComparableTool.compareAndAssertReflexive(rangeA, rangeD), -1);
+		Assert.assertEquals(compareAndAssertReflexive(rangeA, rangeD), -1);
 
 		Range<Integer> rangeF = new Range<>(4, true, 999, true);
-		Assert.assertEquals(ComparableTool.compareAndAssertReflexive(rangeD, rangeF), -1);
-		Assert.assertEquals(ComparableTool.compareAndAssertReflexive(rangeE, rangeF), -1);
+		Assert.assertEquals(compareAndAssertReflexive(rangeD, rangeF), -1);
+		Assert.assertEquals(compareAndAssertReflexive(rangeE, rangeF), -1);
 
 		Range<Integer> rangeG = new Range<>(4, false, 999, true);
-		Assert.assertEquals(ComparableTool.compareAndAssertReflexive(rangeD, rangeG), -1);
-		Assert.assertEquals(ComparableTool.compareAndAssertReflexive(rangeE, rangeG), -1);
-		Assert.assertEquals(ComparableTool.compareAndAssertReflexive(rangeF, rangeG), -1);
+		Assert.assertEquals(compareAndAssertReflexive(rangeD, rangeG), -1);
+		Assert.assertEquals(compareAndAssertReflexive(rangeE, rangeG), -1);
+		Assert.assertEquals(compareAndAssertReflexive(rangeF, rangeG), -1);
 	}
 
 	@Test
@@ -94,6 +94,13 @@ public class RangeTests{
 		Range<String> expected = new Range<>("1%", true, "3%", true);
 		Range<String> actual = input.map(mapper);
 		Assert.assertEquals(actual, expected);
+	}
+
+	public static <T extends Comparable<? super T>> int compareAndAssertReflexive(T object1, T object2){
+		int forwardDiff = ComparableTool.nullFirstCompareTo(object1, object2);
+		int backwardDiff = ComparableTool.nullFirstCompareTo(object2, object1);
+		Assert.assertEquals(-backwardDiff, forwardDiff);
+		return forwardDiff;
 	}
 
 }

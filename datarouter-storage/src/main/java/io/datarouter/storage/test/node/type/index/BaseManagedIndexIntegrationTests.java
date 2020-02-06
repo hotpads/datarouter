@@ -15,8 +15,8 @@
  */
 package io.datarouter.storage.test.node.type.index;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +36,6 @@ import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBar;
 import io.datarouter.storage.test.node.type.index.databean.TestDatabeanWithManagedIndexByBarKey;
 import io.datarouter.storage.test.node.type.index.node.DatarouterTestDatabeanWithIndexDao;
-import io.datarouter.util.collection.ListTool;
 
 public abstract class BaseManagedIndexIntegrationTests{
 
@@ -103,7 +102,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testLookupMultiUnique(DatarouterTestDatabeanWithIndexDao genericDao){
-		LinkedList<TestDatabeanWithManagedIndexByBarKey> keys = ListTool.createLinkedList(
+		List<TestDatabeanWithManagedIndexByBarKey> keys = List.of(
 				new TestDatabeanWithManagedIndexByBarKey("martolod"),
 				new TestDatabeanWithManagedIndexByBarKey("kastell"),
 				new TestDatabeanWithManagedIndexByBarKey("lein"));
@@ -144,7 +143,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testLookupMultiIndex(DatarouterTestDatabeanWithIndexDao genericDao){
-		LinkedList<TestDatabeanWithManagedIndexByBarKey> keys = ListTool.createLinkedList(
+		List<TestDatabeanWithManagedIndexByBarKey> keys = List.of(
 				new TestDatabeanWithManagedIndexByBarKey("martolod"),
 				new TestDatabeanWithManagedIndexByBarKey("kastell"),
 				new TestDatabeanWithManagedIndexByBarKey("lein"));
@@ -168,8 +167,8 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testDeleteUnique(DatarouterTestDatabeanWithIndexDao genericDao){
-		TestDatabean databean = new TestDatabean("tri", "martolod", "yaouank");
-		TestDatabeanWithManagedIndexByBarKey databeanIndexKey = new TestDatabeanWithManagedIndexByBarKey("martolod");
+		var databean = new TestDatabean("tri", "martolod", "yaouank");
+		var databeanIndexKey = new TestDatabeanWithManagedIndexByBarKey("martolod");
 		Assert.assertNull(genericDao.get(databean.getKey()));
 		Assert.assertNull(genericDao.lookupUnique(databeanIndexKey));
 		genericDao.put(databean);
@@ -187,11 +186,11 @@ public abstract class BaseManagedIndexIntegrationTests{
 	}
 
 	private void testDeleteMultiUnique(DatarouterTestDatabeanWithIndexDao genericDao){
-		List<TestDatabean> databeans = ListTool.createLinkedList(
+		List<TestDatabean> databeans = List.of(
 				new TestDatabean("tri", "martolod", "yaouank"),
 				new TestDatabean("i vonet", "da", "veajiñ"));
 		List<TestDatabeanKey> keys = DatabeanTool.getKeys(databeans);
-		List<TestDatabeanWithManagedIndexByBarKey> entryKeys = new LinkedList<>();
+		List<TestDatabeanWithManagedIndexByBarKey> entryKeys = new ArrayList<>();
 		for(TestDatabean databean : databeans){
 			entryKeys.add(new TestDatabeanWithManagedIndexByBarKey(databean.getBar()));
 		}
@@ -245,9 +244,9 @@ public abstract class BaseManagedIndexIntegrationTests{
 
 	@Test
 	public void testEquals(){
-		TestDatabean d1 = new TestDatabean("tri", "martolod", "yaouank");
-		TestDatabean d2 = new TestDatabean("lalala", "lalala", "la");
-		TestDatabean d3 = new TestDatabean("tri", "martolod", "yaouank");
+		var d1 = new TestDatabean("tri", "martolod", "yaouank");
+		var d2 = new TestDatabean("lalala", "lalala", "la");
+		var d3 = new TestDatabean("tri", "martolod", "yaouank");
 
 		Assert.assertEquals(d1, d3);
 		Assert.assertNotSame(d2, d3);

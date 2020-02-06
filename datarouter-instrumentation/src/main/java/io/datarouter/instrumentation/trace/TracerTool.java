@@ -28,14 +28,11 @@ public class TracerTool{
 		return tracer.getTraceId();
 	}
 
-	/*---------------------------- TraceThread ------------------------------*/
-
-	public static Long getCurrentThreadId(Tracer tracer){
-		if(tracer == null){
-			return null;
-		}
-		return tracer.getCurrentThreadId();
+	public static String getCurrentTraceId(){
+		return getTraceId(TracerThreadLocal.get());
 	}
+
+	/*---------------------------- TraceThread ------------------------------*/
 
 	public static void createAndStartThread(Tracer tracer, String name, long queueTimeMs){
 		if(tracer == null){
@@ -111,6 +108,13 @@ public class TracerTool{
 
 	public static void finishSpan(){
 		finishSpan(TracerThreadLocal.get());
+	}
+
+	public static void setForceSave(){
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer != null){
+			tracer.setForceSave();
+		}
 	}
 
 	public static class TraceSpanInfoBuilder{

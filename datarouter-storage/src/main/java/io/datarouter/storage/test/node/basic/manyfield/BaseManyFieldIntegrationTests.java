@@ -71,7 +71,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testDelete(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setShortField((short)12);
 		dao.put(bean);
 
@@ -84,7 +84,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testBoolean(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 
 		//test true value
 		bean.setBooleanField(true);
@@ -104,7 +104,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testByte(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setByteField((byte)-57);
 		dao.put(bean);
 
@@ -115,7 +115,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testShort(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setShortField((short)-57);
 		dao.put(bean);
 
@@ -126,7 +126,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testInteger(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setIntegerField(-100057);
 		dao.put(bean);
 
@@ -147,7 +147,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testLong(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		long negative6Billion = 3 * (long)Integer.MIN_VALUE;
 		bean.setLongField(negative6Billion);
 		dao.put(bean);
@@ -159,7 +159,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testFloat(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		float val = -157.34f;
 		bean.setFloatField(val);
 		dao.put(bean);
@@ -172,7 +172,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testNullPrimitive(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		Float val = null;
 		bean.setFloatField(val);
 		dao.put(bean);
@@ -184,7 +184,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testDouble(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		double val = -100057.3456f;
 		bean.setDoubleField(val);
 		dao.put(bean);
@@ -196,7 +196,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testLongDate(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		Date val = new Date();
 		bean.setLongDateField(val);
 		dao.put(bean);
@@ -208,7 +208,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testLocalDate(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		LocalDate val = LocalDate.now();
 		bean.setLocalDateField(val);
 		dao.put(bean);
@@ -220,7 +220,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testLocalDateTime(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		// LocalDateTime.now() uses the system clock as default so it will always get fractional seconds up to 3 digits
 		// (i.e. milliseconds) and no more.
 		LocalDateTime val = LocalDateTime.now();
@@ -255,7 +255,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testInstant(){
 		Instant instant = Instant.now();
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setInstantField(instant);
 		dao.put(bean);
 
@@ -266,7 +266,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testCharacter(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		Character charQ = 'Q';
 		bean.setCharacterField(charQ);
 		dao.put(bean);
@@ -278,7 +278,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testString(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		String multiByteUtf8Char = "😀";
 		String val = "abcdef" + multiByteUtf8Char;
 		bean.setStringField(val);
@@ -294,7 +294,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testByteArray(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		byte[] value = new byte[]{1, 5, -128, 127, 25, 66, -80, -12};
 
 		bean.setByteArrayField(value);
@@ -305,8 +305,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testVarInt(){
-
-		ManyFieldBean bean0 = new ManyFieldBean();
+		var bean0 = new ManyFieldBean();
 		bean0.setVarIntField(0);
 		dao.put(bean0);
 
@@ -336,7 +335,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testIntegerEnum(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setIntEnumField(TestEnum.beast);
 		dao.put(bean);
 
@@ -347,7 +346,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testVarIntEnum(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setVarIntEnumField(TestEnum.fish);
 		dao.put(bean);
 
@@ -358,7 +357,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testStringEnum(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setStringEnumField(TestEnum.cat);
 		dao.put(bean);
 
@@ -369,14 +368,14 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testBlob(){
-		LongArray ids = new LongArray();
+		var ids = new LongArray();
 		ids.add(5L);
 		ids.add(10L);
 		ids.add(15L);
 		ids.add(126L);
 		byte[] bytes = LongByteTool.getComparableByteArray(ids);
 
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setData(bytes);
 		dao.put(bean);
 
@@ -387,7 +386,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testUInt31(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.setIntegerField(7888);
 		dao.put(bean);
 
@@ -397,7 +396,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testLongArray(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.appendToLongArrayField(Long.MAX_VALUE);
 		bean.appendToLongArrayField(Integer.MAX_VALUE);
 		bean.appendToLongArrayField(Short.MAX_VALUE);
@@ -412,7 +411,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testBooleanArray(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.appendToBooleanArrayField(true);
 		bean.appendToBooleanArrayField(null);
 		bean.appendToBooleanArrayField(false);
@@ -424,7 +423,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testIntegerArray(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.appendToIntegerArrayField(Integer.MAX_VALUE);
 		bean.appendToIntegerArrayField(null);
 		bean.appendToIntegerArrayField(-5029);
@@ -436,7 +435,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testDoubleArray(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		bean.appendToDoubleArrayField(Double.MAX_VALUE);
 		bean.appendToDoubleArrayField(null);
 		bean.appendToDoubleArrayField(null);
@@ -450,7 +449,7 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testDelimitedStringArray(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		List<String> strings = ListTool.create("abc hi!", "xxx's", "bb_3");
 		bean.setDelimitedStringArrayField(strings);
 		dao.put(bean);

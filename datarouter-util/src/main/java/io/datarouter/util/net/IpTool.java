@@ -18,9 +18,6 @@ package io.datarouter.util.net;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.string.StringTool;
 
 public class IpTool{
@@ -125,73 +122,6 @@ public class IpTool{
 
 	public static boolean isLoopback(String dottedDecimalIp){
 		return isIpAddressInSubnets(dottedDecimalIp, LOOPBACK_RANGE);
-	}
-
-	public static class IpToolTests{
-
-		@Test
-		public void testGetDottedDecimal(){
-			Assert.assertEquals(getDottedDecimal(0L), "0.0.0.0");
-		}
-
-		@Test
-		public void testGetLongValue(){
-			Assert.assertEquals(getLongValue("192.168.1.1"), 3232235777L);
-			Assert.assertEquals(getLongValue("1.1.1.1"), 16843009L);
-			Assert.assertEquals(getLongValue("0.0.0.0"), 0L);
-			Assert.assertEquals(getLongValue("255.255.255.255"), 4294967295L);
-		}
-
-		@Test
-		public void testRoundTripIpConversion(){
-			String ip = "255.255.255.255";
-			Assert.assertEquals(getDottedDecimal(getLongValue(ip)), ip);
-			ip = "0.0.0.0";
-			Assert.assertEquals(getDottedDecimal(getLongValue(ip)), ip);
-			ip = "192.168.1.1";
-			Assert.assertEquals(getDottedDecimal(getLongValue(ip)), ip);
-			ip = "86.54.29.4";
-			Assert.assertEquals(getDottedDecimal(getLongValue(ip)), ip);
-		}
-
-		@Test
-		public void testIpInSubnet(){
-			Assert.assertFalse(isIpAddressInSubnet("67.15.102.175", "67.15.102.176/28"));
-			Assert.assertFalse(isIpAddressInSubnet("67.15.102.192", "67.15.102.176/28"));
-			Assert.assertTrue(isIpAddressInSubnet("67.15.102.176", "67.15.102.176/28"));
-			Assert.assertTrue(isIpAddressInSubnet("67.15.102.191", "67.15.102.176/28"));
-		}
-
-		@Test
-		public void testGetIpsInRange(){
-			String startiP = "0.0.0.0";
-			String endiP = "0.0.1.0";
-			Assert.assertEquals(257, getIpsInRange(getLongValue(startiP), getLongValue(endiP)).size());
-			Assert.assertEquals("0.0.0.255", getIpsInRange(getLongValue(startiP), getLongValue(endiP)).get(255));
-		}
-
-		@Test
-		public void testIsLoopback(){
-			Assert.assertFalse(isLoopback("126.255.255.255"));
-			Assert.assertTrue(isLoopback("127.0.0.0"));
-			Assert.assertTrue(isLoopback("127.0.0.255"));
-			Assert.assertFalse(isLoopback("128.0.0.0"));
-		}
-
-		@Test
-		public void testFormatIp(){
-			Assert.assertNull(formatIp(null));
-			Assert.assertNull(formatIp("126.255.255.255.5"));
-			Assert.assertNull(formatIp("126.255.255"));
-			Assert.assertNull(formatIp("126.255.255.hello"));
-			Assert.assertNull(formatIp("126.255.255.256"));
-			Assert.assertNull(formatIp("126.255.255."));
-
-			Assert.assertEquals(formatIp("126.255.255.-1"), "126.255.255.1");
-			Assert.assertEquals(formatIp("126.255.255.255."), "126.255.255.255");//due to split behavior
-			Assert.assertEquals(formatIp("1hi28.2sasd55asd.vfds255.255ggd"), "128.255.255.255");
-			Assert.assertEquals(formatIp("https://128.255.255.255"), "128.255.255.255");
-		}
 	}
 
 }

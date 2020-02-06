@@ -33,7 +33,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 	private final Class<? extends Joblet<P>> clazz;
 	private final boolean causesScaling;
 
-	public JobletType(
+	private JobletType(
 			String persistentString,
 			String shortQueueName,
 			Supplier<JobletCodec<P>> codecSupplier,
@@ -107,6 +107,9 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 			this.clazz = clazz;
 		}
 
+		/**
+		 * Only needed if persistentString is longer than 38 chars
+		 */
 		public JobletTypeBuilder<P> withShortQueueName(String shortQueueName){
 			this.shortQueueName = shortQueueName;
 			return this;

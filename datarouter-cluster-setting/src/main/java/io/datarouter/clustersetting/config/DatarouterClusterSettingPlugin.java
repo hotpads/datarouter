@@ -17,6 +17,7 @@ package io.datarouter.clustersetting.config;
 
 import java.util.List;
 
+import io.datarouter.clustersetting.ClusterSettingFinder;
 import io.datarouter.clustersetting.listener.SettingNodeValidationAppListener;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao.DatarouterClusterSettingDaoParams;
@@ -26,6 +27,7 @@ import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
 
@@ -50,6 +52,11 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 	@Override
 	public String getName(){
 		return "DatarouterClusterSetting";
+	}
+
+	@Override
+	protected void configure(){
+		bindActual(SettingFinder.class, ClusterSettingFinder.class);
 	}
 
 	public static class DatarouterClusterSettingPluginBuilder{

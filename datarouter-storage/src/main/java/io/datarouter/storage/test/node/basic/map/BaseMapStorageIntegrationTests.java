@@ -15,9 +15,10 @@
  */
 package io.datarouter.storage.test.node.basic.map;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.inject.Inject;
 
@@ -72,39 +73,26 @@ public abstract class BaseMapStorageIntegrationTests{
 	public void testGetMulti(){
 		List<MapStorageBean> beans = initBeans(10);
 		dao.putMulti(beans);
-
 		List<MapStorageBeanKey> keys = DatabeanTool.getKeys(beans);
 		List<MapStorageBean> roundTripped = dao.getMulti(keys);
 		Assert.assertEquals(roundTripped.size(), beans.size());
-
-		for(MapStorageBean bean : beans){
-			Assert.assertTrue(roundTripped.contains(bean));
-		}
-
+		beans.forEach(bean -> Assert.assertTrue(roundTripped.contains(bean)));
 		deleteRecords(beans);
 	}
 
 	@Test
 	public void testPutMulti(){
 		List<MapStorageBean> beans = initBeans(10);
-
-		for(MapStorageBean bean : beans){
-			Assert.assertFalse(dao.exists(bean.getKey()));
-		}
-
+		beans.forEach(bean -> Assert.assertFalse(dao.exists(bean.getKey())));
 		dao.putMulti(beans);
-
-		for(MapStorageBean bean : beans){
-			Assert.assertTrue(dao.exists(bean.getKey()));
-		}
-
+		beans.forEach(bean -> Assert.assertTrue(dao.exists(bean.getKey())));
 		deleteRecords(beans);
 	}
 
 	@Test
 	public void testBlankDatabeanPut(){
-		MapStorageBean blankDatabean = new MapStorageBean(null);
-		MapStorageBean nonBlankDatabean = new MapStorageBean("a");
+		var blankDatabean = new MapStorageBean(null);
+		var nonBlankDatabean = new MapStorageBean("a");
 		dao.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean));
 		MapStorageBean roundTrippedBlank = dao.get(blankDatabean.getKey());
 		new MapStorageBeanFielder().getNonKeyFields(roundTrippedBlank).stream()
@@ -117,9 +105,9 @@ public abstract class BaseMapStorageIntegrationTests{
 
 	@Test
 	public void testGetKeys(){
-		MapStorageBean bean0 = new MapStorageBean();
-		MapStorageBean bean1 = new MapStorageBean(); // not inserted to db
-		MapStorageBean bean2 = new MapStorageBean();
+		var bean0 = new MapStorageBean();
+		var bean1 = new MapStorageBean(); // not inserted to db
+		var bean2 = new MapStorageBean();
 
 		dao.put(bean0);
 		dao.put(bean2);
@@ -136,11 +124,9 @@ public abstract class BaseMapStorageIntegrationTests{
 	}
 
 	private List<MapStorageBean> initBeans(int size){
-		List<MapStorageBean> beans = new ArrayList<>();
-		for(int i = 0; i < size; i++){
-			beans.add(new MapStorageBean("data" + i));
-		}
-		return beans;
+		return IntStream.range(0, size)
+				.mapToObj(i -> new MapStorageBean("data" + i))
+				.collect(Collectors.toList());
 	}
 
 	private void deleteRecord(MapStorageBean bean){
@@ -148,9 +134,7 @@ public abstract class BaseMapStorageIntegrationTests{
 	}
 
 	private void deleteRecords(List<MapStorageBean> beans){
-		for(MapStorageBean bean : beans){
-			deleteRecord(bean);
-		}
+		beans.forEach(this::deleteRecord);
 	}
 
 }

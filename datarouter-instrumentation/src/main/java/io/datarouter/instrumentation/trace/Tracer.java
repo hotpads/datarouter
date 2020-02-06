@@ -43,4 +43,7 @@ public interface Tracer{
 	void finishSpan();
 	void incrementDiscardedSpanCount(int discardedSpanCount);
 
+	boolean getForceSave();
+	void setForceSave();
+
 }

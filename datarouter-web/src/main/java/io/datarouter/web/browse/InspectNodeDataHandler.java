@@ -80,6 +80,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 			return new MessageMav("Cannot find node " + nodeName);
 		}
 		mav.put("node", node);
+		mav.put("tableName", node.getPhysicalNodes().get(0).getFieldInfo().getTableName());
 		List<Field<?>> fields = getFields();
 		mav.put("fields", fields);
 		mav.put("keyFields", getKeyFields());

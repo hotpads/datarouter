@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.clustersetting.config;
+package io.datarouter.model.field.imp.array;
 
-import io.datarouter.clustersetting.ClusterSettingFinder;
-import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.storage.setting.SettingFinder;
-import io.datarouter.webappinstance.config.DatarouterWebappInstanceGuiceModule;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-public class DatarouterClusterSettingGuiceModule extends BaseGuiceModule{
+public class PrimitiveIntegerArrayFieldTests{
 
-	@Override
-	protected void configure(){
-		install(new DatarouterWebappInstanceGuiceModule());
-		bindActual(SettingFinder.class, ClusterSettingFinder.class);
+	@Test
+	public void testByteSerialization(){
+		int[] array = {1, 2, 100};
+		PrimitiveIntegerArrayField field = new PrimitiveIntegerArrayField(new PrimitiveIntegerArrayFieldKey("test"),
+				array);
+		Assert.assertEquals(field.fromBytesButDoNotSet(field.getBytes(), 0), array);
 	}
 
 }

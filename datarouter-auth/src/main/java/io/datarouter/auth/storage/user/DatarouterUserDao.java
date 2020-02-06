@@ -103,6 +103,10 @@ public class DatarouterUserDao extends BaseDao{
 		node.delete(key);
 	}
 
+	public void deleteMulti(Collection<DatarouterUserKey> keys){
+		node.deleteMulti(keys);
+	}
+
 	public long count(){
 		return node.count(Range.everything());
 	}

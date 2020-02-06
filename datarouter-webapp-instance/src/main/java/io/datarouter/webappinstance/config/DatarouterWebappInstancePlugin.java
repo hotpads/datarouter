@@ -17,6 +17,8 @@ package io.datarouter.webappinstance.config;
 
 import java.util.List;
 
+import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
+import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher.NoOpWebappInstancePublisher;
 import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
@@ -33,7 +35,12 @@ import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappIn
 
 public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 
-	private DatarouterWebappInstancePlugin(DatarouterWebappInstanceDaoModule daosModuleBuilder){
+	private final Class<? extends WebappInstancePublisher> webappInstancePublisher;
+
+	private DatarouterWebappInstancePlugin(
+			DatarouterWebappInstanceDaoModule daosModuleBuilder,
+			Class<? extends WebappInstancePublisher> webappInstancePublisher){
+		this.webappInstancePublisher = webappInstancePublisher;
 		addUnorderedAppListener(WebappInstanceAppListener.class);
 		addUnorderedRouteSet(DatarouterWebappInstanceRouteSet.class);
 		addSettingRoot(DatarouterWebappInstanceSettingRoot.class);
@@ -48,10 +55,16 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 		return "DatarouterWebappInstance";
 	}
 
+	@Override
+	protected void configure(){
+		bind(WebappInstancePublisher.class).to(webappInstancePublisher);
+	}
+
 	public static class DatarouterWebappInstancePluginBuilder{
 
 		private final ClientId defaultClientId;
 		private DatarouterWebappInstanceDaoModule daoModule;
+		private Class<? extends WebappInstancePublisher> webappInstancePublisher = NoOpWebappInstancePublisher.class;
 
 		public DatarouterWebappInstancePluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -62,10 +75,18 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterWebappInstancePluginBuilder withWebappInstancePublisher(
+				Class<? extends WebappInstancePublisher> webappInstancePublisher){
+			this.webappInstancePublisher = webappInstancePublisher;
+			return this;
+		}
+
 		public DatarouterWebappInstancePlugin build(){
-			return new DatarouterWebappInstancePlugin(daoModule == null
-					? new DatarouterWebappInstanceDaoModule(defaultClientId, defaultClientId, defaultClientId)
-					: daoModule);
+			return new DatarouterWebappInstancePlugin(
+					daoModule == null
+							? new DatarouterWebappInstanceDaoModule(defaultClientId, defaultClientId, defaultClientId)
+							: daoModule,
+					webappInstancePublisher);
 		}
 
 	}

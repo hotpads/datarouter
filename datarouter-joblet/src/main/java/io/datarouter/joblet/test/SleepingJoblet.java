@@ -26,10 +26,10 @@ import io.datarouter.util.concurrent.ThreadTool;
 public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 
 	public static final JobletType<SleepingJobletParams> JOBLET_TYPE = new JobletTypeBuilder<>(
-			"SleepingJoblet",
+			"SleepingJoblet", //unnecessary word "Joblet" in name
 			SleepingJobletCodec::new,
 			SleepingJoblet.class)
-			.withShortQueueName("Sleeping")
+			.withShortQueueName("Sleeping") //unnecessary shortQueueName
 			.build();
 
 	private static final long MAX_SEGMENT_MS = 1000;

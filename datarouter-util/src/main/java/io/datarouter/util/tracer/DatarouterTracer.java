@@ -44,6 +44,7 @@ public class DatarouterTracer implements Tracer{
 	private Integer nextSpanSequence = 0;
 	private int discardedSpanCount = 0;
 	private int discardedThreadCount = 0;
+	private boolean forceSave = false;
 
 	private TraceThreadDto currentThread;//should we be holding a map of current threads?  not sure yet
 	private final BlockingQueue<TraceThreadDto> threadQueue = new ArrayBlockingQueue<>(MAX_THREADS);
@@ -76,7 +77,6 @@ public class DatarouterTracer implements Tracer{
 
 	@Override
 	public void createThread(String name, long queueTimeMs){
-		String traceId = getTraceId();
 		if(traceId == null){
 			return;
 		}
@@ -267,6 +267,16 @@ public class DatarouterTracer implements Tracer{
 
 	public List<TraceSpanDto> getSpanStack(){
 		return spanStack;
+	}
+
+	@Override
+	public void setForceSave(){
+		this.forceSave = true;
+	}
+
+	@Override
+	public boolean getForceSave(){
+		return forceSave;
 	}
 
 }

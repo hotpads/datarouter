@@ -20,10 +20,10 @@ import java.util.List;
 
 import com.google.inject.Provides;
 
-import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.joblet.DatarouterJobletAppListener;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.NoOpJobletExternalLinkBuilder;
+import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao.DatarouterJobletDataDaoParams;
@@ -31,6 +31,7 @@ import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao.DatarouterJobletRequestDaoParams;
 import io.datarouter.joblet.storage.jobletrequestqueue.DatarouterJobletQueueDao;
 import io.datarouter.joblet.storage.jobletrequestqueue.DatarouterJobletQueueDao.DatarouterJobletQueueDaoParams;
+import io.datarouter.joblet.test.SleepingJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.storage.client.ClientId;
@@ -39,15 +40,19 @@ import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
 
-public class DatarouterJobletPlugin extends BaseJobPlugin{
+public class DatarouterJobletPlugin extends BaseJobletPlugin{
 
 	private final List<JobletType<?>> jobletTypes;
 	private final Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass;
 
+	private DatarouterJobletPlugin(DatarouterJobletDaoModule daosModule){
+		this(null, null, daosModule);
+	}
+
 	private DatarouterJobletPlugin(
 			List<JobletType<?>> jobletTypes,
 			Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass,
-			DatarouterJobletDaoModule daosModuleBuilder){
+			DatarouterJobletDaoModule daosModule){
 		this.jobletTypes = jobletTypes;
 		this.externalLinkBuilderClass = externalLinkBuilderClass;
 		addUnorderedAppListener(DatarouterJobletAppListener.class);
@@ -56,7 +61,8 @@ public class DatarouterJobletPlugin extends BaseJobPlugin{
 		addUnorderedRouteSet(DatarouterJobletRouteSet.class);
 		addTriggerGroup(DatarouterJobletTriggerGroup.class);
 		addSettingRoot(DatarouterJobletSettingRoot.class);
-		setDaosModuleBuilder(daosModuleBuilder);
+		setDaosModuleBuilder(daosModule);
+		addJobletType(SleepingJoblet.JOBLET_TYPE);
 	}
 
 	@Override
@@ -99,6 +105,12 @@ public class DatarouterJobletPlugin extends BaseJobPlugin{
 				Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass){
 			this.externalLinkBuilderClass = externalLinkBuilderClass;
 			return this;
+		}
+
+		public DatarouterJobletPlugin getSimplePluginData(){
+			return new DatarouterJobletPlugin(daoModule == null
+					? new DatarouterJobletDaoModule(defaultClientId, defaultQueueClientId, defaultClientId)
+					: daoModule);
 		}
 
 		public DatarouterJobletPlugin build(){

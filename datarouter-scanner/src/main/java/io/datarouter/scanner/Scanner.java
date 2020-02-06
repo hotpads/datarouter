@@ -49,6 +49,14 @@ public interface Scanner<T> extends Closeable{
 		return ScannerTool.anyMatch(this, predicate);
 	}
 
+	default <R,A> R collect(Collector<? super T,A,R> collector){
+		return stream().collect(collector);
+	}
+
+	default <R> R collect(Function<List<T>,R> mapper){
+		return mapper.apply(list());
+	}
+
 	default long count(){
 		return ScannerTool.count(this);
 	}
@@ -216,7 +224,7 @@ public interface Scanner<T> extends Closeable{
 		return new ParallelScanner<>(context, this);
 	}
 
-	/*----------------------------- Iterator --------------------------------*/
+	/*----------------------------- Iterator & Stream --------------------------------*/
 
 	default Iterator<T> iterator(){
 		return new ScannerIterator<>(this);
@@ -224,12 +232,6 @@ public interface Scanner<T> extends Closeable{
 
 	default Iterable<T> iterable(){
 		return this::iterator;
-	}
-
-	/*----------------------------- Stream ----------------------------------*/
-
-	default <R,A> R collect(Collector<? super T,A,R> collector){
-		return stream().collect(collector);
 	}
 
 	default Stream<T> stream(){

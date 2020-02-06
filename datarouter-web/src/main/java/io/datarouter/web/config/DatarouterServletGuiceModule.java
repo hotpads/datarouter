@@ -21,9 +21,6 @@ import java.util.List;
 
 import javax.servlet.Filter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.inject.Provides;
 
 import io.datarouter.inject.DatarouterInjector;
@@ -34,20 +31,17 @@ import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.FilterParamsSupplier;
 import io.datarouter.web.dispatcher.RootDispatcherServlet;
 import io.datarouter.web.dispatcher.ServletParams;
-import io.datarouter.web.filter.StaticFileFilter;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.DefaultAppNavBar;
 import io.datarouter.web.user.authenticate.saml.SamlAssertionConsumerServlet;
 
 public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterServletGuiceModule.class);
 
 	private static final String EVERYTHING_BUT_NOT_WEBSOCKET = "(?!/ws/).*";
 	private static final String EVERYTHING_BUT_JSP_AND_JSPF = "(?<!jspf|jsp)$";
 
 	private final List<FilterParams> additionalFilterParams;
-	private final boolean excludeStaticFileFilter;
 	private final Class<? extends HttpsConfiguration> httpsConfigurationClass;
 	private final Class<? extends Filter> authenticationFilterClass;
 	private final List<Class<? extends BaseRouteSet>> rootRouteSetClasses;
@@ -56,14 +50,12 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 
 	public DatarouterServletGuiceModule(
 			List<FilterParams> additionalFilterParams,
-			boolean excludeStaticFileFilter,
 			Class<? extends HttpsConfiguration> httpsConfigurationClass,
 			Class<? extends Filter> authenticationFilterClass,
 			List<Class<? extends BaseRouteSet>> rootRouteSetClasses,
 			List<ServletParams> additionalServletParams,
 			boolean renderJspsUsingServletContainer){
 		this.additionalFilterParams = additionalFilterParams;
-		this.excludeStaticFileFilter = excludeStaticFileFilter;
 		this.httpsConfigurationClass = httpsConfigurationClass;
 		this.authenticationFilterClass = authenticationFilterClass;
 		this.rootRouteSetClasses = rootRouteSetClasses;
@@ -83,24 +75,15 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 
 		//https configuration implementation
 		bind(HttpsConfiguration.class).to(httpsConfigurationClass);
-
-		List<Class<? extends Filter>> rootFilterClasses = new ArrayList<>();
-		if(excludeStaticFileFilter){
-			rootFilterClasses.remove(StaticFileFilter.class);
-		}
-		rootFilterClasses.forEach(this::rootFilter);
 		rootFilter(authenticationFilterClass);
 		bindActualInstance(FilterParamsSupplier.class, new FilterParamsSupplier(additionalFilterParams));
-		additionalFilterParams.stream()
-				.peek(filterParams -> logger.info("filter={}, path={}, isRegex={}", filterParams.filterClass
-						.getSimpleName(), filterParams.path, filterParams.isRegex))
-				.forEach(filterParams -> {
-					if(filterParams.isRegex){
-						filterRegex(filterParams.path).through(filterParams.filterClass);
-					}else{
-						filter(filterParams.path).through(filterParams.filterClass);
-					}
-				});
+		additionalFilterParams.forEach(filterParams -> {
+			if(filterParams.isRegex){
+				filterRegex(filterParams.path).through(filterParams.filterClass);
+			}else{
+				filter(filterParams.path).through(filterParams.filterClass);
+			}
+		});
 
 		//additional servlets
 		serve(new DatarouterWebPaths().consumer.toSlashedString()).with(SamlAssertionConsumerServlet.class);

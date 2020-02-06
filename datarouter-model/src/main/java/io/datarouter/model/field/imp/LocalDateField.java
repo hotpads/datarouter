@@ -18,9 +18,6 @@ package io.datarouter.model.field.imp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.ShortByteTool;
 import io.datarouter.util.string.StringTool;
@@ -76,32 +73,6 @@ public class LocalDateField extends BasePrimitiveField<LocalDate,LocalDateFieldK
 		int month = bytes[offset + 2];
 		int day = bytes[offset + 3];
 		return LocalDate.of(year, month, day);
-	}
-
-	public static class LocalDateFieldUnitTests{
-
-		@Test
-		public void testStringEncoding(){
-			String dateStr = "9999-12-31";
-			LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
-			LocalDateField field = new LocalDateField(new LocalDateFieldKey("test"), localDate);
-
-			Assert.assertEquals(field.getStringEncodedValue(), dateStr);
-			Assert.assertEquals(field.parseStringEncodedValueButDoNotSet(dateStr), localDate);
-			Assert.assertEquals(localDate, field.parseStringEncodedValueButDoNotSet(field.getStringEncodedValue()));
-		}
-
-		@Test
-		public void testByteEncoding(){
-			short year = 9999;
-			byte month = 12;
-			byte day = 31;
-			LocalDate localDate = LocalDate.of(year, month, day);
-			LocalDateField field = new LocalDateField(new LocalDateFieldKey("test"), localDate);
-
-			Assert.assertEquals(field.fromBytesButDoNotSet(field.getBytes(), 0), localDate);
-		}
-
 	}
 
 }

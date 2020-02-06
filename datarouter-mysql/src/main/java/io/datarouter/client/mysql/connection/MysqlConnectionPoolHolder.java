@@ -52,6 +52,12 @@ public class MysqlConnectionPoolHolder{
 	public static final MysqlCharacterSet CHARACTER_SET_CONNECTION = MysqlCharacterSet.valueOf(UTF8MB4_CHARSET);
 	public static final MysqlCollation COLLATION_CONNECTION = MysqlCollation.valueOf(UTF8MB4_COLLATION);
 
+	static{
+		System.setProperty("log4jdbc.dump.sql.maxlinelength", "0");
+		System.setProperty("log4jdbc.trim.sql.extrablanklines", "false");
+		System.setProperty("log4jdbc.auto.load.popular.drivers", "false");
+	}
+
 	@Inject
 	private MysqlOptions mysqlOptions;
 
@@ -87,7 +93,6 @@ public class MysqlConnectionPoolHolder{
 			Integer maxIdleTime = mysqlOptions.maxIdleTime(clientId.getName(), 300);
 			Integer idleConnectionTestPeriod = mysqlOptions.idleConnectionTestPeriod(clientId.getName(), 30);
 			Boolean logging = mysqlOptions.logging(clientId.getName(), false);
-			logging = logging || LoggerFactory.getLogger(DriverSpy.class).isDebugEnabled();
 
 			this.schemaName = StringTool.getStringAfterLastOccurrence('/', url);
 

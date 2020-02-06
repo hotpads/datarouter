@@ -18,6 +18,8 @@ package io.datarouter.util.concurrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.trace.TracerTool;
+
 public class ThreadTool{
 	private static final Logger logger = LoggerFactory.getLogger(ThreadTool.class);
 
@@ -25,7 +27,7 @@ public class ThreadTool{
 		if(ms <= 0){//sleep errors on negatives
 			return;
 		}
-		try{
+		try(var $ = TracerTool.startSpan("sleep " + ms)){
 			Thread.sleep(ms);
 		}catch(InterruptedException e){
 			throw new UncheckedInterruptedException(e);

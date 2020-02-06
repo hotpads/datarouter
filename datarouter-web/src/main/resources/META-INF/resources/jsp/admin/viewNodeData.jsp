@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Datarouter</title>
+	<title>${tableName}</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<style>
 		td{

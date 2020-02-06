@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.tasktracker.config;
 
-import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
-import io.datarouter.tasktracker.web.LongRunningTaskGraphLink.NoOpLongRunningTaskGraphLink;
-import io.datarouter.web.config.DatarouterWebGuiceModule;
+package io.datarouter.auth.config;
 
-public class DatarouterTaskTrackerGuiceModule extends BaseGuiceModule{
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-	@Override
-	protected void configure(){
-		install(new DatarouterWebGuiceModule());
-		bindDefault(LongRunningTaskGraphLink.class, NoOpLongRunningTaskGraphLink.class);
+import javax.inject.Singleton;
+
+import io.datarouter.util.concurrent.NamedThreadFactory;
+
+public class DatarouterAuthExecutors{
+
+	@Singleton
+	public static class DatarouterAccountByApiKeyCacheExecutor extends ScheduledThreadPoolExecutor{
+		public DatarouterAccountByApiKeyCacheExecutor(){
+			super(1, new NamedThreadFactory("DatarouterAccountByApiKeyCacheExecutor", true));
+		}
 	}
 
 }

@@ -88,7 +88,7 @@ public enum ByteUnitType{
 
 	}
 
-	private static final ByteUnitType[] BIN_SORTED_ASC = {BYTE, KiB, MiB, GiB, TiB, PiB};
+	public static final ByteUnitType[] BIN_SORTED_ASC = {BYTE, KiB, MiB, GiB, TiB, PiB};
 	private static final ByteUnitType[] DEC_SORTED_ASC = {BYTE, KB, MB, GB, TB, PB};
 
 	private static final ByteUnitSystem DEFAULT_UNIT_SYSTEM = ByteUnitSystem.BINARY;

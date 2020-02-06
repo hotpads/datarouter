@@ -17,9 +17,6 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.Arrays;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.bytes.IntegerByteTool;
@@ -79,18 +76,6 @@ public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
 		throw new UnsupportedOperationException();
-	}
-
-	public static class PrimitiveIntegerArrayFieldTests{
-
-		@Test
-		public void testByteSerialization(){
-			int[] array = {1, 2, 100};
-			PrimitiveIntegerArrayField field = new PrimitiveIntegerArrayField(new PrimitiveIntegerArrayFieldKey("test"),
-					array);
-			Assert.assertEquals(field.fromBytesButDoNotSet(field.getBytes(), 0), array);
-		}
-
 	}
 
 }

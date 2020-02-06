@@ -15,10 +15,9 @@
  */
 package io.datarouter.util.cache;
 
+import java.lang.StackWalker.Option;
 import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,31 +25,31 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import io.datarouter.util.collection.MapTool;
-import io.datarouter.util.tuple.Pair;
+import io.datarouter.instrumentation.trace.TracerTool;
 
 //LRU TTL Loading Cache
 public class LoadingCache<K,V>{
+
+	private static final StackWalker walker = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
 	private final Map<K,CachedObject<V>> map;
 	private final Duration expireTtl;
 	private final int maxSize;
 	private final Function<K,V> loadingFunction;
 	private final Function<K,RuntimeException> exceptionFunction;
+	private final String name;
 
 	private Clock clock; // not final for tests
 
 	private LoadingCache(Duration expireTtl, int maxSize, Clock clock, Function<K,V> loadingFunction,
-			Function<K,RuntimeException> exceptionFunction){
+			Function<K,RuntimeException> exceptionFunction, String name){
 		this.expireTtl = expireTtl;
 		this.maxSize = maxSize;
 		this.map = new LinkedHashMap<>(maxSize, 0.75F, true);
 		this.clock = clock;
 		this.loadingFunction = loadingFunction;
 		this.exceptionFunction = exceptionFunction;
+		this.name = name;
 	}
 
 	public static class LoadingCacheBuilder<K,V>{
@@ -63,6 +62,7 @@ public class LoadingCache<K,V>{
 		private Clock clock = Clock.systemDefaultZone();
 		private Function<K,V> loadingFunction;
 		private Function<K,RuntimeException> exceptionFunction = K -> new RuntimeException("Failed to lookup " + K);
+		private String name = walker.getCallerClass().getSimpleName();
 
 		public LoadingCacheBuilder<K,V> withExpireTtl(Duration expireTtl){
 			this.expireTtl = expireTtl;
@@ -84,23 +84,42 @@ public class LoadingCache<K,V>{
 			return this;
 		}
 
-		private LoadingCacheBuilder<K,V> withClock(Clock clock){
+		public LoadingCacheBuilder<K,V> withName(String name){
+			this.name = name;
+			return this;
+		}
+
+		LoadingCacheBuilder<K,V> withClock(Clock clock){
 			this.clock = clock;
 			return this;
 		}
 
 		public LoadingCache<K,V> build(){
-			return new LoadingCache<>(expireTtl, maxSize, clock, loadingFunction, exceptionFunction);
+			return new LoadingCache<>(expireTtl, maxSize, clock, loadingFunction, exceptionFunction, name);
 		}
 
 	}
 
-	public synchronized Optional<V> get(K key){
+	public Optional<V> get(K key){
+		try(var $ = TracerTool.startSpan(name + " get")){
+			TracerTool.appendToSpanInfo(key.toString());
+			return getSynchronized(key);
+		}
+	}
+
+	private synchronized Optional<V> getSynchronized(K key){
 		Objects.requireNonNull(key, "Key may not be null in LoadingCache");
 		return getInternal(key);
 	}
 
-	public synchronized V getOrThrows(K key){
+	public V getOrThrows(K key){
+		try(var $ = TracerTool.startSpan(name + " getOrThrows")){
+			TracerTool.appendToSpanInfo(key.toString());
+			return getOrThrowsSynchronized(key);
+		}
+	}
+
+	private synchronized V getOrThrowsSynchronized(K key){
 		Objects.requireNonNull(key, "Key may not be null in LoadingCache");
 		return getInternal(key)
 				.orElseThrow(() -> exceptionFunction.apply(key));
@@ -113,7 +132,14 @@ public class LoadingCache<K,V>{
 	 * @param key the key of the object to be stored
 	 * @return whether the value exists in the cache before inserting
 	 */
-	public synchronized boolean load(K key){
+	public boolean load(K key){
+		try(var $ = TracerTool.startSpan(name + " load")){
+			TracerTool.appendToSpanInfo(key.toString());
+			return loadSynchronized(key);
+		}
+	}
+
+	private synchronized boolean loadSynchronized(K key){
 		Objects.requireNonNull(key, "Key may not be null in LoadingCache");
 		return put(key, loadingFunction.apply(key));
 	}
@@ -124,12 +150,26 @@ public class LoadingCache<K,V>{
 	 * @param key the key of the object to be checked
 	 * @return whether the key exists in the cache
 	 */
-	public synchronized boolean contains(K key){
+	public boolean contains(K key){
+		try(var $ = TracerTool.startSpan(name + " contains")){
+			TracerTool.appendToSpanInfo(key.toString());
+			return containsSynchronized(key);
+		}
+	}
+
+	private synchronized boolean containsSynchronized(K key){
 		Objects.requireNonNull(key, "Key may not be null in LoadingCache");
 		return getIfNotExpired(key) != null;
 	}
 
-	private synchronized boolean put(K key, V value){
+	private boolean put(K key, V value){
+		try(var $ = TracerTool.startSpan(name + " put")){
+			TracerTool.appendToSpanInfo(key.toString());
+			return putSynchronized(key, value);
+		}
+	}
+
+	private synchronized boolean putSynchronized(K key, V value){
 		if(value == null){
 			// don't cache null values
 			return false;
@@ -166,7 +206,14 @@ public class LoadingCache<K,V>{
 		return Optional.of(object.value);
 	}
 
-	private synchronized CachedObject<V> getIfNotExpired(K key){
+	private CachedObject<V> getIfNotExpired(K key){
+		try(var $ = TracerTool.startSpan(name + " getIfNotExpired")){
+			TracerTool.appendToSpanInfo(key.toString());
+			return getIfNotExpiredSynchronized(key);
+		}
+	}
+
+	private synchronized CachedObject<V> getIfNotExpiredSynchronized(K key){
 		CachedObject<V> object = map.get(key);
 		if(object == null){
 			return null;
@@ -179,192 +226,8 @@ public class LoadingCache<K,V>{
 	}
 
 	// only used for tests
-	private void updateClock(Clock clock){
+	void updateClock(Clock clock){
 		this.clock = clock;
-	}
-
-	public static class LoadingCacheTests{
-
-		// not final, since values are updated in tests
-		private static final Map<String,String> ORIGINAL_DATA_STORE = MapTool.of(
-				new Pair<>("key1", "value1"),
-				new Pair<>("key2", "value2"),
-				new Pair<>("key3", "value3"),
-				new Pair<>("key4", "value4"),
-				new Pair<>("key5", "value5"),
-				new Pair<>("key6", "value6"));
-
-		private static Map<String,String> DATA_STORE = ORIGINAL_DATA_STORE;
-
-		private static Function<String,String> LOADING_FUNCTION = DATA_STORE::get;
-
-		@Test
-		public void testTtl(){
-			DATA_STORE = ORIGINAL_DATA_STORE;
-			Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-			LoadingCache<String,String> cache = new LoadingCacheBuilder<String,String>()
-					.withExpireTtl(Duration.ofDays(1))
-					.withMaxSize(5)
-					.withClock(clock)
-					.withLoadingFunction(LOADING_FUNCTION)
-					.build();
-
-			Assert.assertFalse(cache.contains("key0"));
-			Assert.assertFalse(cache.load("key1"));
-			Assert.assertTrue(cache.contains("key1"));
-			Assert.assertEquals(cache.get("key1").get(), DATA_STORE.get("key1"));
-
-			clock = Clock.offset(clock, Duration.ofDays(2));
-			cache.updateClock(clock);
-			Assert.assertFalse(cache.get("a").isPresent());
-			Assert.assertFalse(cache.get("b").isPresent());
-			Assert.assertTrue(cache.get("key1").isPresent());
-
-			clock = Clock.offset(clock, Duration.ofDays(3));
-			cache.updateClock(clock);
-
-			DATA_STORE.put("key1", "apricots");
-			Assert.assertEquals(cache.get("key1").get(), "apricots");
-		}
-
-		@Test
-		public void testMaxCapacity(){
-			DATA_STORE = ORIGINAL_DATA_STORE;
-			Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-
-			LoadingCache<String,String> cache = new LoadingCacheBuilder<String,String>()
-					.withExpireTtl(Duration.ofHours(10))
-					.withMaxSize(3)
-					.withClock(clock)
-					.withLoadingFunction(LOADING_FUNCTION)
-					.build();
-
-			cache.load("key1");
-			Assert.assertTrue(cache.contains("key1"));
-			cache.load("key2");
-			Assert.assertTrue(cache.contains("key2"));
-			cache.load("key3");
-			Assert.assertTrue(cache.contains("key3"));
-			cache.load("key4");
-
-			Assert.assertFalse(cache.contains("key1"));
-			Assert.assertTrue(cache.contains("key4"));
-
-			cache.load("key5");
-			Assert.assertFalse(cache.contains("key2"));
-			Assert.assertTrue(cache.contains("key5"));
-
-			clock = Clock.offset(clock, Duration.ofMinutes(10));
-			cache.updateClock(clock);
-
-			Assert.assertNotNull(cache.get("key5"));
-
-			clock = Clock.offset(clock, Duration.ofHours(10));
-			cache.updateClock(clock);
-
-			Assert.assertFalse(cache.contains("key1"));
-			Assert.assertFalse(cache.contains("key2"));
-			Assert.assertFalse(cache.contains("key3"));
-		}
-
-		@Test
-		public void testLoad(){
-			DATA_STORE = ORIGINAL_DATA_STORE;
-			Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-
-			LoadingCache<String,String> cache = new LoadingCacheBuilder<String,String>()
-					.withExpireTtl(Duration.ofHours(10))
-					.withMaxSize(5)
-					.withClock(clock)
-					.withLoadingFunction(LOADING_FUNCTION)
-					.build();
-
-			cache.load("key1");
-			Assert.assertNotNull(cache.get("key1"));
-			clock = Clock.offset(clock, Duration.ofHours(1));
-			cache.updateClock(clock);
-
-			Assert.assertFalse(cache.load("key2"));
-			Assert.assertTrue(cache.load("key2"));
-			Assert.assertFalse(cache.load("key3"));
-			Assert.assertFalse(cache.load("key4"));
-			Assert.assertFalse(cache.load("key5"));
-
-			clock = Clock.offset(clock, Duration.ofHours(1));
-			cache.updateClock(clock);
-
-			Assert.assertTrue(cache.load("key5"));
-
-			clock = Clock.offset(clock, Duration.ofHours(1));
-			cache.updateClock(clock);
-
-			Assert.assertTrue(cache.load("key5"));
-
-			clock = Clock.offset(clock, Duration.ofHours(11));
-			cache.updateClock(clock);
-
-			Assert.assertFalse(cache.contains("key5"));
-			Assert.assertFalse(cache.load("key5"));
-
-
-			Assert.assertFalse(cache.load("key6"));
-			Assert.assertTrue(cache.get("key1").isPresent());
-			clock = Clock.offset(clock, Duration.ofHours(11));
-			cache.updateClock(clock);
-			Assert.assertFalse(cache.contains("key2"));
-			Assert.assertFalse(cache.contains("key3"));
-			Assert.assertFalse(cache.contains("key4"));
-			Assert.assertFalse(cache.contains("key5"));
-			Assert.assertFalse(cache.contains("key5"));
-			Assert.assertTrue(cache.get("key2").isPresent());
-			Assert.assertTrue(cache.get("key3").isPresent());
-			Assert.assertTrue(cache.get("key4").isPresent());
-			Assert.assertTrue(cache.get("key5").isPresent());
-			Assert.assertTrue(cache.get("key6").isPresent());
-
-			Assert.assertTrue(cache.load("key2"));
-			DATA_STORE.put("key2", "orange");
-			Assert.assertTrue(cache.load("key2"));
-			Assert.assertEquals(cache.get("key2").get(), DATA_STORE.get("key2"), "new loaded value is orange");
-		}
-
-		@Test
-		public void testGet(){
-			DATA_STORE = ORIGINAL_DATA_STORE;
-			Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-
-			LoadingCache<String,String> cache = new LoadingCacheBuilder<String,String>()
-					.withExpireTtl(Duration.ofDays(5))
-					.withMaxSize(5)
-					.withClock(clock)
-					.withLoadingFunction(LOADING_FUNCTION)
-					.build();
-
-			cache.load("key1");
-			cache.load("key2");
-
-			Assert.assertEquals(cache.get("key1").get(), DATA_STORE.get("key1"));
-			Assert.assertEquals(cache.get("key2").get(), DATA_STORE.get("key2"));
-
-			clock = Clock.offset(clock, Duration.ofHours(5));
-			cache.updateClock(clock);
-
-			Assert.assertEquals(cache.get("key1").get(), DATA_STORE.get("key1"));
-
-			clock = Clock.offset(clock, Duration.ofDays(1));
-			cache.updateClock(clock);
-
-			Assert.assertEquals(cache.get("key1").get(), DATA_STORE.get("key1"));
-
-			clock = Clock.offset(clock, Duration.ofDays(1));
-			cache.updateClock(clock);
-
-			DATA_STORE.put("key1", "apple");
-			Assert.assertEquals(DATA_STORE.get("key1"), "apple");
-			cache.load("key1");
-			Assert.assertEquals(cache.get("key1").get(), DATA_STORE.get("key1"), "loaded value is now 'apple'");
-		}
-
 	}
 
 }

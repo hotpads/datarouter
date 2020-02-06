@@ -17,12 +17,16 @@ package io.datarouter.storage.node.adapter.sanitization.sanitizer;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class ScanSanitizer{
+	private static final Logger logger = LoggerFactory.getLogger(ScanSanitizer.class);
 
 	public static <PK extends PrimaryKey<PK>> void rejectUnexceptedFullScan(Collection<Range<PK>> ranges){
 		ranges.forEach(ScanSanitizer::rejectUnexceptedFullScan);
@@ -41,6 +45,12 @@ public class ScanSanitizer{
 
 	private static boolean isValueOfFirstFieldNull(FieldSet<?> key){
 		return key != null && CollectionTool.getFirst(key.getFields()).getValue() == null;
+	}
+
+	public static <PK extends PrimaryKey<PK>> void logInvalidRange(Range<PK> range){
+		if(!range.isValid()){
+			logger.debug("invalid range={}", range, new Exception());
+		}
 	}
 
 }

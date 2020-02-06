@@ -34,6 +34,7 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.tasktracker.TaskTrackerCounters;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
@@ -60,6 +61,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private final Setting<Boolean> persistSetting;
 	private final SortedMapStorage<LongRunningTaskKey,LongRunningTask> node;
 	private final TaskTrackerCounters counters;
+	private final ServerTypeDetector serverTypeDetector;
 
 	private final LongRunningTaskInfo task;
 	private final Optional<Instant> deadline;
@@ -77,6 +79,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 			Setting<Boolean> persistSetting,
 			SortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
 			TaskTrackerCounters counters,
+			ServerTypeDetector serverTypeDetector,
 			LongRunningTaskInfo task,
 			Instant deadline,
 			boolean warnOnReachingInterrupt){
@@ -88,6 +91,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 		this.persistSetting = persistSetting;
 		this.node = node;
 		this.counters = counters;
+		this.serverTypeDetector = serverTypeDetector;
 
 		this.task = task;
 		this.deadline = Optional.ofNullable(deadline);
@@ -257,7 +261,12 @@ public class LongRunningTaskTracker implements TaskTracker{
 		}
 		deadlineAlertAttempted = true;
 		String from = datarouterProperties.getAdministratorEmail();
-		String to = datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv();
+		String to;
+		if(serverTypeDetector.mightBeDevelopment()){
+			to = datarouterProperties.getAdministratorEmail();
+		}else{
+			to = datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv();
+		}
 		String primaryHref = datarouterHtmlEmailService.startLinkBuilder()
 				.withLocalPath(datarouterTaskTrackerPaths.datarouter.longRunningTasks)
 				.withParam(LongRunningTasksHandler.P_name, task.name)

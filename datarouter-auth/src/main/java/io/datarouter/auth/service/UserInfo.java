@@ -23,6 +23,8 @@ import io.datarouter.web.user.session.service.SessionBasedUser;
 
 public interface UserInfo{
 
+	Set<SessionBasedUser> getAllUsers(boolean enabledOnly);
+
 	Optional<? extends SessionBasedUser> getUserByUsername(String username);
 	Optional<? extends SessionBasedUser> getUserByToken(String token);
 	Optional<? extends SessionBasedUser> getUserById(Long id);

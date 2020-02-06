@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.auth.cache.DatarouterAccountByApiKeyCache;
 import io.datarouter.auth.cache.DatarouterAccountPermissionKeysByPrefixCache;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
@@ -46,7 +45,6 @@ public class DatarouterAccountService{
 	private final BaseDatarouterAccountDao datarouterAccountDao;
 	private final BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao;
 	private final DatarouterAccountPermissionKeysByPrefixCache datarouterAccountPermissionKeysByPrefixCache;
-	private final DatarouterAccountByApiKeyCache datarouterAccountByApiKeyCache;
 	private final DatarouterAccountLastUsedDateService datarouterAccountLastUsedDateService;
 
 	@Inject
@@ -54,12 +52,10 @@ public class DatarouterAccountService{
 			BaseDatarouterAccountDao datarouterAccountDao,
 			BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao,
 			DatarouterAccountPermissionKeysByPrefixCache datarouterAccountPermissionKeysByPrefixCache,
-			DatarouterAccountByApiKeyCache datarouterAccountByApiKeyCache,
 			DatarouterAccountLastUsedDateService datarouterAccountLastUsedDateService){
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterUserAccountMapDao = datarouterUserAccountMapDao;
 		this.datarouterAccountPermissionKeysByPrefixCache = datarouterAccountPermissionKeysByPrefixCache;
-		this.datarouterAccountByApiKeyCache = datarouterAccountByApiKeyCache;
 		this.datarouterAccountLastUsedDateService = datarouterAccountLastUsedDateService;
 	}
 
@@ -81,7 +77,7 @@ public class DatarouterAccountService{
 	}
 
 	public Optional<DatarouterAccount> findAccountForApiKey(String apiKey){
-		Optional<DatarouterAccount> account = datarouterAccountByApiKeyCache.get(apiKey);
+		Optional<DatarouterAccount> account = datarouterAccountDao.getFromAccountByApiKeyCache(apiKey);
 		account.map(DatarouterAccount::getKey)
 				.ifPresent(datarouterAccountLastUsedDateService::updateLastUsedDate);
 		return account;

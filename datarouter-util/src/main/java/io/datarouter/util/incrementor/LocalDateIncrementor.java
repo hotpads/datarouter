@@ -16,11 +16,6 @@
 package io.datarouter.util.incrementor;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.tuple.Range;
 
@@ -37,22 +32,6 @@ public class LocalDateIncrementor extends BaseRangeIncrementor<LocalDate>{
 	@Override
 	protected LocalDate increment(LocalDate item){
 		return item.plusDays(1);
-	}
-
-	public static class LocalDateIncrementorTests{
-
-		@Test
-		public void test(){
-			List<LocalDate> actual = LocalDateIncrementor.fromInclusive(LocalDate.of(2009, 3, 31))
-					.step(2)
-					.limit(2)
-					.list();
-			List<LocalDate> expected = Arrays.asList(
-					LocalDate.of(2009, 3, 31),
-					LocalDate.of(2009, 4, 2));
-			Assert.assertEquals(actual, expected);
-		}
-
 	}
 
 }

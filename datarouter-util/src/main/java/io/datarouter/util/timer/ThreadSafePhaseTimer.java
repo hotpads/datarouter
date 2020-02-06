@@ -20,13 +20,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.number.NumberFormatter;
 
+/**
+ * @deprecated use datarouter traces
+ */
+@Deprecated
 public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<ThreadSafePhaseTimer>{
 
 	private static final String DEFAULT_DELIM = "";
@@ -165,79 +165,6 @@ public class ThreadSafePhaseTimer extends PhaseRecord implements PhaseRecorder<T
 			threadEvents.add(phase);
 		}
 		return result;
-	}
-
-	public static class SafeTimerTests{
-
-		private class TestThread extends Thread{
-			private ThreadSafePhaseTimer timer;
-			private String name;
-			private AtomicBoolean complete = new AtomicBoolean();
-
-			public TestThread(ThreadSafePhaseTimer timer, String str){
-				super(str);
-				this.name = str;
-				this.timer = timer;
-				timer.record(name + "-start");
-			}
-
-			@Override
-			public void run(){
-				for(int i = 0; i < 5; i++){
-					try{
-						int time = (int)(Math.random() * 200);
-						sleep(time);
-						timer.record(name + "-awoke step " + i + " slept " + time);
-					}catch(InterruptedException e){
-						break;
-					}
-				}
-				timer.record(name + "-complete");
-				complete.set(true);
-			}
-
-			public boolean isComplete(){
-				return complete.get();
-			}
-		}
-
-		@Test
-		public void testThreads() throws Exception{
-			ThreadSafePhaseTimer timer1 = new ThreadSafePhaseTimer("TestOnly");
-			ThreadSafePhaseTimer timer2 = new ThreadSafePhaseTimer("Timer2");
-
-			String[] names = {"A1", "B2", "B1", "C1", "C2", "D2"};
-			List<TestThread> threads = new ArrayList<>();
-			for(String name : names){
-				if(name.contains("2")){
-					threads.add(new TestThread(timer2, "Timer2 thread: " + name));
-				}else{
-					threads.add(new TestThread(timer1, "Timer1 thread: " + name));
-				}
-			}
-			for(Thread thread : threads){
-				thread.start();
-			}
-			int totalDone = 0;
-			while(totalDone < threads.size()){
-				totalDone = 0;
-				for(TestThread thread : threads){
-					if(thread.isComplete()){
-						totalDone++;
-					}else{
-						thread.timer.record("main-loop waited");
-						Thread.sleep(100L);
-						break;
-					}
-				}
-			}
-			int t1Size = timer1.phases.size();
-			int t2Size = timer2.phases.size();
-			timer1.merge(timer2);
-			Assert.assertEquals(timer1.phases.size(), t1Size + t2Size,
-					"Merged timer should contain all original records");
-		}
-
 	}
 
 }

@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.metric;
+package io.datarouter.loggerconfig.config;
 
-public interface Metrics{
+import javax.inject.Singleton;
 
-	void save(String key, long value);
+import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.httpclient.path.PathsRoot;
 
-	default void save(String key, int value){
-		save(key, Long.valueOf(value));
-	}
+@Singleton
+public class DatarouterLoggingConfigPaths extends PathNode implements PathsRoot{
 
-	static class NoOpMetris implements Metrics{
+	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
-		@Override
-		public void save(String key, long value){
-		}
-
+	public static class DatarouterPaths extends PathNode{
+		public final PathNode logging = leaf("logging");
 	}
 
 }

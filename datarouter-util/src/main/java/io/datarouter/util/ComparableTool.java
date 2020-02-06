@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import org.testng.Assert;
-
 public class ComparableTool{
 
 	public static <T extends Comparable<? super T>> boolean lt(T object1, T object2){
@@ -127,13 +125,6 @@ public class ComparableTool{
 			previous = current;
 		}
 		return true;
-	}
-
-	public static <T extends Comparable<? super T>> int compareAndAssertReflexive(T object1, T object2){
-		int forwardDiff = nullFirstCompareTo(object1, object2);
-		int backwardDiff = nullFirstCompareTo(object2, object1);
-		Assert.assertEquals(-backwardDiff, forwardDiff);
-		return forwardDiff;
 	}
 
 }

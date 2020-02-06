@@ -21,16 +21,16 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.storage.metric.Metrics;
+import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.util.DatarouterCounters;
 
 @Singleton
 public class JobCounters{
 
-	private static final String COUNTER_PREFIX = "job";
+	private static final String PREFIX = "job";
 
 	@Inject
-	private Metrics metrics;
+	private Gauges gauges;
 
 	public void exception(Class<? extends BaseJob> jobClass){
 		count(jobClass, "exception");
@@ -68,8 +68,8 @@ public class JobCounters{
 		String name = "durationMs";
 		long value = elapsedTime.toMillis();
 		String jobName = jobClass.getSimpleName();
-		metrics.save(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + name, value);
-		metrics.save(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + jobName + " " + name, value);
+		gauges.save(DatarouterCounters.PREFIX + " " + PREFIX + " " + name, value);
+		gauges.save(DatarouterCounters.PREFIX + " " + PREFIX + " " + jobName + " " + name, value);
 	}
 
 	/*---------------- private -----------------*/
@@ -79,8 +79,8 @@ public class JobCounters{
 	}
 
 	private void count(String jobName, String name){
-		Counters.inc(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + name);
-		Counters.inc(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + jobName + " " + name);
+		Counters.inc(DatarouterCounters.PREFIX + " " + PREFIX + " " + name);
+		Counters.inc(DatarouterCounters.PREFIX + " " + PREFIX + " " + jobName + " " + name);
 	}
 
 }

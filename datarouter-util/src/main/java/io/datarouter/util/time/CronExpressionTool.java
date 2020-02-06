@@ -22,10 +22,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import org.apache.logging.log4j.core.util.CronExpression;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
-import io.datarouter.util.ComparableTool;
 import io.datarouter.util.string.StringTool;
 
 public class CronExpressionTool{
@@ -63,37 +60,6 @@ public class CronExpressionTool{
 		Instant firstValidTime = cronExpression.getNextValidTimeAfter(new Date()).toInstant();
 		Instant secondValidTime = cronExpression.getNextValidTimeAfter(Date.from(firstValidTime)).toInstant();
 		return Duration.between(firstValidTime, secondValidTime);
-	}
-
-	public static class CronExpressionToolTests{
-
-		@Test
-		public void testParseInterval(){
-			Assert.assertEquals(parseInterval("7"), Optional.empty());
-			Assert.assertEquals(parseInterval("7/9"), Optional.of(9));
-		}
-
-		@Test
-		public void testHasUnevenInterval(){
-			Assert.assertFalse(hasUnevenInterval(60, "7"));
-			Assert.assertFalse(hasUnevenInterval(60, "7/1"));
-			Assert.assertFalse(hasUnevenInterval(60, "7/10"));
-			Assert.assertTrue(hasUnevenInterval(60, "7/11"));
-		}
-
-		@Test
-		public void testDurationBetweenNextTwoTriggersFast(){
-			CronExpression cron = parse("3/15 * * * * ?");
-			Duration duration = durationBetweenNextTwoTriggers(cron);
-			Assert.assertEquals(duration, Duration.ofSeconds(15));
-		}
-
-		@Test
-		public void testDurationBetweenNextTwoTriggersSlow(){
-			CronExpression cron = parse("43 17 5 1 * ?");
-			Duration duration = durationBetweenNextTwoTriggers(cron);
-			Assert.assertTrue(ComparableTool.gt(duration, Duration.ofDays(27)));
-		}
 	}
 
 }

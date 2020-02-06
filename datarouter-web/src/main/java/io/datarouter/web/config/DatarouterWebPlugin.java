@@ -72,10 +72,11 @@ import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSession
 
 public class DatarouterWebPlugin extends BaseWebPlugin{
 
-	public static final FilterParams STATIC_FILE_FILTER_PARAMS = new FilterParams(
+	private static final FilterParams DEFAULT_STATIC_FILE_FILTER_PARAMS = new FilterParams(
 			false,
 			DatarouterServletGuiceModule.ROOT_PATH,
 			StaticFileFilter.class);
+
 	public static final FilterParams REQUEST_CACHING_FILTER_PARAMS = new FilterParams(
 			false,
 			DatarouterServletGuiceModule.ROOT_PATH,
@@ -103,7 +104,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(DatarouterWebDaoModule daosModuleBuilder){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
-				null, null, null);
+				null, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -124,7 +125,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<NavBarItem> appNavBarPluginItems,
 			Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass,
 			Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier,
-			Class<? extends HomepageHandler> homepageHandlerClass){
+			Class<? extends HomepageHandler> homepageHandlerClass,
+			String customStaticFileFilterRegex){
 		addOrderedRouteSet(DatarouterWebRouteSet.class, null);
 		addUnorderedRouteSet(HomepageRouteSet.class);
 
@@ -140,8 +142,16 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addOrderedWebListener(JspWebappListener.class, TomcatWebAppNamesWebAppListener.class);
 		addOrderedWebListener(NoJavaSessionWebAppListener.class, JspWebappListener.class);
 
-		addOrderedFilterParams(STATIC_FILE_FILTER_PARAMS, null);
-		addOrderedFilterParams(REQUEST_CACHING_FILTER_PARAMS, STATIC_FILE_FILTER_PARAMS);
+		FilterParams staticFileFilterParams;
+
+		if(customStaticFileFilterRegex == null){
+			staticFileFilterParams = DEFAULT_STATIC_FILE_FILTER_PARAMS;
+		}else{
+			staticFileFilterParams = new FilterParams(true, customStaticFileFilterRegex, StaticFileFilter.class);
+		}
+
+		addOrderedFilterParams(staticFileFilterParams, null);
+		addOrderedFilterParams(REQUEST_CACHING_FILTER_PARAMS, staticFileFilterParams);
 		addUnorderedFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, HttpsFilter.class));
 
 		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.MONITORING,
@@ -273,6 +283,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass;
 		private Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
 		private Class<? extends HomepageHandler> homepageHandlerClass = SimpleHomepageHandler.class;
+		private String customStaticFileFilterRegex;
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -375,6 +386,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setCustomStaticFileFilterRegex(String customStaticFileFilterRegex){
+			this.customStaticFileFilterRegex = customStaticFileFilterRegex;
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId));
 		}
@@ -399,7 +415,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					appNavBarPluginItems,
 					datarouterUserExternalDetailClass,
 					appNavBarRegistrySupplier,
-					homepageHandlerClass);
+					homepageHandlerClass,
+					customStaticFileFilterRegex);
 		}
 
 	}

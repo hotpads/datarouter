@@ -16,6 +16,8 @@
 package io.datarouter.auth.service;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,10 +30,13 @@ import io.datarouter.auth.cache.DatarouterUserByUsernameCache;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.collection.SetTool;
+import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.databean.DatarouterUser;
+import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.session.DatarouterSession;
+import io.datarouter.web.user.session.DatarouterSessionKey;
 import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.Session;
@@ -86,6 +91,40 @@ public class DatarouterUserSessionService implements UserSessionService{
 	@Override
 	public SessionBasedUser createAuthorizedUser(String username, String description, Set<Role> roles){
 		return userCreationService.createAutomaticUser(username, description, roles);
+	}
+
+	@Override
+	public void deleteSession(HttpServletRequest request){
+		Optional.ofNullable(sessionManager.getSessionTokenFromCookie(request))
+				.map(DatarouterSessionKey::new)
+				.ifPresent(sessionDao::delete);
+	}
+
+	@Override
+	public void deleteUserSessions(List<String> usernames){
+		Set<String> usernameSet = new HashSet<>(usernames);
+		sessionDao.deleteMulti(sessionDao.scan()
+				.include(session -> usernameSet.contains(session.getUsername()))
+				.map(DatarouterSession::getKey)
+				.list());
+	}
+
+	@Override
+	public void deprovisionUsers(List<String> usernames, boolean shouldDisable, boolean shouldDelete){
+		deleteUserSessions(usernames);
+		List<DatarouterUser> users = userDao.getMultiByUsername(IterableTool.map(usernames,
+				DatarouterUserByUsernameLookup::new));
+		if(shouldDelete){
+			userDao.deleteMulti(IterableTool.map(users, DatarouterUser::getKey));
+			return;
+		}
+		users.forEach(user -> {
+			user.setRoles(List.of());
+			if(shouldDisable){
+				user.setEnabled(false);
+			}
+		});
+		userDao.putMulti(users);
 	}
 
 }

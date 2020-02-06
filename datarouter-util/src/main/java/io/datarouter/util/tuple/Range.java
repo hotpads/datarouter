@@ -71,11 +71,15 @@ public class Range<T extends Comparable<? super T>> implements Comparable<Range<
 
 	/*------------------------- methods -------------------------------------*/
 
-	public Range<T> assertValid(){
+	public boolean isValid(){
 		if(ObjectTool.anyNull(start, end)){
-			return this;
+			return true;
 		}
-		if(start.compareTo(end) > 0){
+		return start.compareTo(end) <= 0;
+	}
+
+	public Range<T> assertValid(){
+		if(!isValid()){
 			throw new IllegalStateException("start is after end for " + this);
 		}
 		return this;

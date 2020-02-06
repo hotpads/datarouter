@@ -17,16 +17,12 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.array.LongArray;
 import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.bytes.LongByteTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.serialization.GsonTool;
 
@@ -81,34 +77,5 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>,UInt63ArrayF
 	public List<Long> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
 		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset + 4, numBytes));
-	}
-
-	public static class UInt63ArrayFieldTests{
-
-		private static final UInt63ArrayFieldKey FIELD_KEY = new UInt63ArrayFieldKey("");
-
-		@Test
-		public void testByteAware(){
-			LongArray a1 = new LongArray();
-			a1.add(Long.MAX_VALUE);
-			a1.add(Integer.MAX_VALUE);
-			a1.add(Short.MAX_VALUE);
-			a1.add(Byte.MAX_VALUE);
-			a1.add(5);
-			a1.add(0);
-			UInt63ArrayField field = new UInt63ArrayField(FIELD_KEY, a1);
-			byte[] bytesNoPrefix = field.getBytes();
-			Assert.assertEquals(ArrayTool.length(bytesNoPrefix), a1.size() * 8);
-			List<Long> a2 = new UInt63ArrayField(FIELD_KEY, null).fromBytesButDoNotSet(bytesNoPrefix, 0);
-			Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(a1, a2));
-
-			byte[] bytesWithPrefix = field.getBytesWithSeparator();
-			Assert.assertEquals(bytesWithPrefix[3], a1.size() * 8);
-			Assert.assertEquals(field.numBytesWithSeparator(bytesWithPrefix, 0), a1.size() * 8 + 4);
-
-			List<Long> a3 = new UInt63ArrayField(FIELD_KEY, null).fromBytesWithSeparatorButDoNotSet(bytesWithPrefix, 0);
-			Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(a1, a3));
-		}
-
 	}
 }

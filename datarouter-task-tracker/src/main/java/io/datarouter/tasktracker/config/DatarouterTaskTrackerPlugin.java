@@ -23,6 +23,7 @@ import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao.DatarouterLongRunningTaskDaoParams;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
+import io.datarouter.tasktracker.web.LongRunningTaskGraphLink.NoOpLongRunningTaskGraphLink;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
@@ -86,7 +87,8 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 		private final ClientId defaultClientId;
 		private DatarouterTaskTrackerDaoModule daoModule;
 
-		private Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLinkClass;
+		private Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLinkClass =
+				NoOpLongRunningTaskGraphLink.class;
 
 		public DatarouterTaskTrackerPluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;

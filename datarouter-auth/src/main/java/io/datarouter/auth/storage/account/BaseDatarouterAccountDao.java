@@ -32,5 +32,6 @@ public interface BaseDatarouterAccountDao{
 	Scanner<DatarouterAccountKey> scanKeys();
 	boolean exists(DatarouterAccountKey key);
 	void delete(DatarouterAccountKey key);
+	Optional<DatarouterAccount> getFromAccountByApiKeyCache(String apiKey);
 
 }

@@ -48,7 +48,7 @@ public abstract class DatarouterProperties{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterProperties.class);
 
 	private static final String JVM_ARG_PREFIX = "datarouter.";
-	private static final String CONFIG_DIRECTORY = "config.directory";
+	private static final String CONFIG_DIRECTORY_PROP = "config.directory";
 
 	private static final String ENVIRONMENT = "environment";
 	private static final String ENVIRONMENT_DOMAIN = "environmentDomain";
@@ -59,7 +59,7 @@ public abstract class DatarouterProperties{
 	private static final String SERVER_TYPE = "server.type";
 	private static final String SERVER_CLUSTER_DOMAINS = "server.clusterDomains";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
-	protected static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
+	private static final String INTERNAL_CONFIG_DIRECTORY_PROP = "internalConfigDirectory";
 
 	private static final String EC2_INSTANCE_IDENTITY_DOCUMENT_URL =
 			"http://169.254.169.254/latest/dynamic/instance-identity/document";
@@ -100,9 +100,9 @@ public abstract class DatarouterProperties{
 		if(configDirectory != null){
 			FileTool.createFileParents(configDirectory + "/anything");
 			if(directoryFromJvmArg){
-				logJvmArgSource(CONFIG_DIRECTORY, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY);
+				logJvmArgSource(CONFIG_DIRECTORY_PROP, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY_PROP);
 			}else{
-				logSource(CONFIG_DIRECTORY, configDirectory, "constant");
+				logSource(CONFIG_DIRECTORY_PROP, configDirectory, "constant");
 			}
 		}else{
 			Require.isTrue(!directoryRequired, "configDirectory required but not found");
@@ -140,7 +140,7 @@ public abstract class DatarouterProperties{
 		this.privateIp = findPrivateIp(configFileProperties);
 		this.publicIp = findPublicIp(configFileProperties);
 		this.clusterDomains = findClusterDomains(configFileProperties);
-		this.internalConfigDirectory = findProperty(configFileProperties, INTERNAL_CONFIG_DIRECTORY);
+		this.internalConfigDirectory = findProperty(configFileProperties, INTERNAL_CONFIG_DIRECTORY_PROP);
 	}
 
 	/*--------------- methods to find config values -----------------*/
@@ -305,7 +305,7 @@ public abstract class DatarouterProperties{
 			return externalLocation;
 		}
 		Objects.requireNonNull(internalConfigDirectory, externalLocation + " doesn't exist and "
-				+ INTERNAL_CONFIG_DIRECTORY + " property is not set");
+				+ INTERNAL_CONFIG_DIRECTORY_PROP + " property is not set");
 		return "/config/" + internalConfigDirectory + "/" + filename;
 	}
 

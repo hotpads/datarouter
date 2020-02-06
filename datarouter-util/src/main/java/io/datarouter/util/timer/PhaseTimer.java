@@ -20,9 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.tuple.Pair;
 
 /*
@@ -93,20 +90,8 @@ public class PhaseTimer{
 		return phaseNamesAndTimes.size();
 	}
 
-	public String toString(int showPhasesAtLeastThisMsLong){
-		return toString("", showPhasesAtLeastThisMsLong);
-	}
-
 	@Override
 	public String toString(){
-		return toString("", Integer.MIN_VALUE);
-	}
-
-	public String toString(String delimiter){
-		return toString(delimiter, Integer.MIN_VALUE);
-	}
-
-	private String toString(String delimiter, int showPhasesAtLeastThisMsLong){
 		StringBuilder sb = new StringBuilder();
 		sb.append("[total=" + getElapsedTimeBetweenFirstAndLastEvent() + "]");
 		if(name != null){
@@ -114,10 +99,7 @@ public class PhaseTimer{
 		}
 		for(int i = 0; i < phaseNamesAndTimes.size(); ++i){
 			Pair<String,Long> nameAndTime = phaseNamesAndTimes.get(i);
-			if(nameAndTime.getRight() < showPhasesAtLeastThisMsLong){
-				continue;
-			}
-			sb.append(delimiter + "[" + nameAndTime.getLeft() + "=" + nameAndTime.getRight() + "]");
+			sb.append("[" + nameAndTime.getLeft() + "=" + nameAndTime.getRight() + "]");
 		}
 		return sb.toString();
 	}
@@ -151,50 +133,6 @@ public class PhaseTimer{
 
 	public void setName(String name){
 		this.name = name;
-	}
-
-	public static class PhaseTimerTests{
-
-		@Test
-		public void testToString() throws Exception{
-			PhaseTimer timer = new PhaseTimer("TestTimer");
-
-			Assert.assertEquals(timer.toString(-1), timer.toString());
-			Assert.assertEquals(timer.toString(100), timer.toString());
-			Assert.assertEquals(timer.toString("", -1), timer.toString());
-			Assert.assertEquals(timer.toString("+", -1), timer.toString("+"));
-			Assert.assertEquals(timer.toString("", 100), timer.toString(100));
-
-			timer.add("uno");
-
-			Assert.assertEquals(timer.toString(-1), timer.toString());
-			Assert.assertFalse(timer.toString().equals(timer.toString(100)));
-			Assert.assertEquals(timer.toString("", -1), timer.toString());
-			Assert.assertEquals(timer.toString("+", -1), timer.toString("+"));
-			Assert.assertEquals(timer.toString("", 100), timer.toString(100));
-
-			Thread.sleep(200);
-			timer.add("dos");
-
-			Assert.assertEquals(timer.toString(-1), timer.toString());
-			Assert.assertFalse(timer.toString().equals(timer.toString(100)));
-			Assert.assertEquals(timer.toString("", -1), timer.toString());
-			Assert.assertEquals(timer.toString("+", -1), timer.toString("+"));
-			Assert.assertEquals(timer.toString("", 100), timer.toString(100));
-
-			Thread.sleep(500);
-			timer.add("tres");
-
-			Assert.assertEquals(timer.toString(-1), timer.toString());
-			Assert.assertFalse(timer.toString().equals(timer.toString(100)));
-			Assert.assertFalse(timer.toString().equals(timer.toString(400)));
-			Assert.assertFalse(timer.toString(100).equals(timer.toString(400)));
-			Assert.assertEquals(timer.toString("", -1), timer.toString());
-			Assert.assertEquals(timer.toString("+", -1), timer.toString("+"));
-			Assert.assertEquals(timer.toString("", 100), timer.toString(100));
-			Assert.assertEquals(timer.toString("", 400), timer.toString(400));
-		}
-
 	}
 
 }

@@ -112,8 +112,6 @@ public class NamedMemcachedRateLimiterFactory{
 
 	}
 
-	/* tests ****************************************************************/
-
 	@Guice(moduleFactory = NamedMemcachedRateLimiterTestNgModuleFactory.class)
 	public static class NamedMemcachedRateLimiterIntegrationTests{
 

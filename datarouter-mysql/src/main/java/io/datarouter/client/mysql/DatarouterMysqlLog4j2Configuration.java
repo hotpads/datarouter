@@ -31,6 +31,9 @@ public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 	public DatarouterMysqlLog4j2Configuration(){
 		registerParent(DatarouterLog4j2Configuration.class);
 
+		Appender console = getAppender(DatarouterLog4j2Configuration.CONSOLE_APPENDER_NAME);
+		addLoggerConfig("jdbc.sqltiming", Level.INFO, false, console);
+
 		Appender schemaUpdateAppender = Log4j2Configurator.createConsoleAppender("SchemaUpdate", Target.SYSTEM_OUT,
 				"%msg%n");
 		addAppender(schemaUpdateAppender);
