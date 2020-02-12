@@ -1,0 +1,157 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.datarouter.nodewatch.service;
+
+import java.time.Duration;
+import java.util.stream.Stream;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.client.mysql.ddl.domain.MysqlTableOptions;
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.enums.StringEnumField;
+import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.nodewatch.storage.tablecount.TableCount;
+import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao;
+import io.datarouter.nodewatch.storage.tablesample.TableSample;
+import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
+import io.datarouter.nodewatch.util.TableSamplerTool;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.scanner.ScannerScanner;
+import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
+import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
+import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
+import io.datarouter.storage.node.tableconfig.TableConfiguration;
+import io.datarouter.storage.node.tableconfig.TableConfigurationFactory;
+import io.datarouter.storage.node.tableconfig.TableConfigurationService;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.util.tuple.Range;
+
+@Singleton
+public class TableSamplerService{
+	private static final Logger logger = LoggerFactory.getLogger(TableSamplerService.class);
+
+	public static final long COUNT_TIME_MS_SLOW_SPAN_THRESHOLD = Duration.ofMinutes(5).toMillis();
+
+	@Inject
+	private Datarouter datarouter;
+	@Inject
+	private NodewatchClientConfiguration nodewatchClientConfiguration;
+	@Inject
+	private DatarouterTableSampleDao tableSampleDao;
+	@Inject
+	private TableConfigurationService tableConfigurationService;
+
+	public boolean isCountableNode(PhysicalNode<?,?,?> physicalNode){
+		boolean isCountableTable = isCountableTable(new ClientTableEntityPrefixNameWrapper(physicalNode));
+		if(!isCountableTable){
+			return false;
+		}
+		boolean isCountableClient = nodewatchClientConfiguration.isCountableClient(physicalNode.getFieldInfo()
+				.getClientId());
+		boolean isSortedStorageWriter = physicalNode instanceof SortedStorageWriter;
+		boolean hasStringKeyFields = physicalNode.getFieldInfo().getPrimaryKeyFields().stream()
+				.anyMatch(field -> field instanceof StringField || field instanceof StringEnumField);
+		boolean hasBinaryCollation = MysqlTableOptions.make(physicalNode.getFieldInfo().getSampleFielder())
+				.getCollation().isBinary();
+		return isCountableClient && isSortedStorageWriter && (!hasStringKeyFields || hasBinaryCollation);
+	}
+
+	public Stream<PhysicalSortedStorageReaderNode<?,?,?>> streamCountableNodes(){
+		return datarouter.getWritableNodes().stream()
+				.filter(this::isCountableNode)
+				.map(PhysicalSortedStorageReaderNode.class::cast);
+	}
+
+	public Iterable<PhysicalSortedStorageReaderNode<?,?,?>> scanCountableNodes(){
+		return streamCountableNodes()::iterator;
+	}
+
+	public boolean isCountableTable(ClientTableEntityPrefixNameWrapper clientWrapper){
+		if(tableConfigurationService.getTableConfigMap().containsKey(clientWrapper)){
+			return tableConfigurationService.getTableConfigMap().get(clientWrapper).isCountable;
+		}
+		return true;
+	}
+
+	public Scanner<TableSample> scanSamplesForNode(PhysicalNode<?,?,?> node){
+		String tableName = node.getFieldInfo().getTableName();
+		return node.getClientIds().stream()
+				.map(ClientId::getName)
+				.map(clientName -> new TableSampleKey(clientName, tableName, null, null))
+				.map(tableSampleDao::scanWithPrefix)
+				.findAny()
+				.orElse(Scanner.empty());
+	}
+
+	public <PK extends PrimaryKey<PK>> Scanner<PK> scanPksForNode(PhysicalNode<PK,?,?> node){
+		return scanSamplesForNode(node)
+				.map(TableSample::getKey)
+				.map(key -> TableSamplerTool.extractPrimaryKeyFromSampleKey(node, key));
+	}
+
+	public Long getSampleInterval(PhysicalSortedStorageReaderNode<?,?,?> node){
+		TableConfiguration nodeConfig = tableConfigurationService.getTableConfigMap()
+				.get(new ClientTableEntityPrefixNameWrapper(node));
+		return nodeConfig == null ? TableConfigurationFactory.DEFAULT_SAMPLE_INTERVAL : nodeConfig.sampleInterval;
+	}
+
+	public Integer getBatchSize(PhysicalSortedStorageReaderNode<?,?,?> node){
+		TableConfiguration nodeConfig = tableConfigurationService.getTableConfigMap()
+				.get(new ClientTableEntityPrefixNameWrapper(node));
+		return nodeConfig == null ? TableConfigurationFactory.DEFAULT_BATCH_SIZE : nodeConfig.batchSize;
+	}
+
+	public TableCount getCurrentTableCountFromSamples(String clientName, String tableName){
+		//not distinguishing sub-entities at the moment
+		TableSampleKey clientTablePrefix = new TableSampleKey(clientName, tableName, null, null);
+		long totalRows = 0;
+		long totalCountTimeMs = 0;
+		long numSpans = 0;
+		long numSlowSpans = 0;
+		for(TableSample sample : tableSampleDao.scanWithPrefix(clientTablePrefix).iterable()){
+			totalRows += sample.getNumRows();
+			totalCountTimeMs += sample.getCountTimeMs();
+			numSpans++;
+			if(sample.getCountTimeMs() > COUNT_TIME_MS_SLOW_SPAN_THRESHOLD){
+				numSlowSpans++;
+			}
+		}
+		logger.info("total of {} rows for {}.{}", totalRows, clientName, tableName);
+
+		return new TableCount(clientName, tableName, System.currentTimeMillis(), totalRows, totalCountTimeMs,
+				numSpans, numSlowSpans);
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	Scanner<Range<PK>> scanTableRangesUsingTableSamples(PhysicalNode<PK,D,F> node){
+		return ScannerScanner.of(scanPksForNode(node), Scanner.of((PK)null))
+				.concatenate()
+				.retain(1)
+				.map(group -> new Range<>(group.previous(), group.current()));
+	}
+
+}

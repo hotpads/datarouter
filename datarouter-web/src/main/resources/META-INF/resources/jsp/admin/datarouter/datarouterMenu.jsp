@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Routers</title>
+	<title>Datarouter</title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.6.1/react-dom.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react-router/3.0.2/ReactRouter.min.js"></script>
@@ -50,11 +50,11 @@
 		<table className="table table-striped table-bordered table-hover table-sm">
 			<thead>
 				<tr>
-					<th>node name</th>
-					<th>row count chart</th>
-					<th>count keys</th>
-					<th>export to s3 </th>
-					<th>import from S3</th>
+					<th>Node Name</th>
+					<th>Table Count Chart</th>
+					<th>Count Keys</th>
+					<th>Export to s3 </th>
+					<th>Import from S3</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -70,7 +70,7 @@
 							</a>
 						</td>
 						<td>
-							<a href={CONTEXT_PATH + "/datarouter/nodewatch/tableRowCount"
+							<a href={CONTEXT_PATH + "/datarouter/nodewatch/tableCount"
 									+ "?submitAction=singleTableWithNodeName&nodeName=" 
 									+ encodeURIComponent(node.name)}>
 								<i className="fas fa-signal"></i>

@@ -221,8 +221,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 			return Scanner.empty();
 		}
 		@SuppressWarnings("resource")
-		ResultPagingScanner pagingScanner = new ResultPagingScanner(pageSize, prefix, range, limit, cacheBlocks,
-				keysOnly);
+		var pagingScanner = new ResultPagingScanner(pageSize, prefix, range, limit, cacheBlocks, keysOnly);
 		return pagingScanner
 				.concatenate(Scanner::of)
 				.prefetch(datarouterHbaseClientExecutor, pageSize);

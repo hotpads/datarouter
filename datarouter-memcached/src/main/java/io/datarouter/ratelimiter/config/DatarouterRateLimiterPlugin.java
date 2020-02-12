@@ -28,7 +28,7 @@ import io.datarouter.web.config.BaseWebPlugin;
 public class DatarouterRateLimiterPlugin extends BaseWebPlugin{
 
 	private DatarouterRateLimiterPlugin(DatarouterRateLimiterDaoModule daosModule){
-		setDaosModuleBuilder(daosModule);
+		setDaosModule(daosModule);
 	}
 
 	@Override

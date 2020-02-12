@@ -8,8 +8,17 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 </dependency>
+```
+## Installation with Datarouter
+
+You can install this module by adding its plugin to the `WebappBuidlder`.
+
+```java
+.addWebPlugin(new DatarouterMysqlPluginBuilder()
+		...
+		.build()
 ```
 
 ## Usage
@@ -134,10 +143,12 @@ Now that we have a databean class, we can create a node that will allow us to pe
 The node is configured to use a database client called `mysqlClient`. We will use a configuration file to tell datarouter how to connect this client to the database.
 
 ```java
+package io.datarouter.example.docs.dataroutermysql;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.client.mysql.example.MysqlExampleDatabean.MysqlExampleDatabeanFielder;
+import io.datarouter.example.docs.dataroutermysql.MysqlExampleDatabean.MysqlExampleDatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
@@ -197,14 +208,31 @@ public class MysqlExampleGuiceModule extends BaseGuiceModule{
 
 #### Client configuration
 
+There are two ways to configure the client options. 
+
+1. Configuration in a datarouter-properties file. 
+
 The following configuration file tells datarouter that the `mysqlClient` client defined in the router is a MySQL client that needs to connect to `localhost:3306/testDatabase`.
-This file needs to be located in `/etc/datarouter/config/datarouter-testApp.properties`.
+This file needs to be located in `/etc/datarouter/config/datarouter-testApp.properties`, which is defined in the app's DatarouterProperties.java. 
 
 ```
 client.mysqlClient.type=mysql
 client.mysqlClient.url=localhost:3306/testDatabase
 client.mysqlClient.user=user
 client.mysqlClient.password=password
+```
+
+2. Configuration in the code
+
+You can define the client options in the code using the `MysqlClientOptionsBuilder` and add the ClientOptionsBuilder to the app's `WebappBuilder`. 
+
+```java
+Properties properties =  MysqlClientOptionsBuilder(clientId)
+		.setClientOptionType(clientId)
+		.withUrl("localhost:3306/testDatabase")
+		.withUser("user")
+		.withPassword("password")
+		.build();
 ```
 
 #### Schema update configuration

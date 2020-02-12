@@ -58,14 +58,12 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 			try{
 				node.ack(key, config);
 				phaseTimer.add("success " + node);
-				logger.debug("{}", phaseTimer);
 				return;
 			}catch(RuntimeException e){
 				SqsRedundantNodeTool.swallowIfNotFound(e, node);
 				phaseTimer.add("failed node " + node);
 			}
 		}
-		logger.debug("{}", phaseTimer);
 	}
 
 	@Override
@@ -75,14 +73,12 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 			try{
 				node.ackMulti(keys, config);
 				phaseTimer.add("success " + node);
-				logger.debug("{}", phaseTimer);
 				return;
 			}catch(RuntimeException e){
 				SqsRedundantNodeTool.swallowIfNotFound(e, node);
 				phaseTimer.add("failed node " + node);
 			}
 		}
-		logger.debug("{}", phaseTimer);
 	}
 
 	@Override
@@ -104,11 +100,9 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 			GroupQueueMessage<PK,D> databean = node.peek(config);
 			phaseTimer.add("node " + node);
 			if(databean != null){
-				logger.debug("{}", phaseTimer);
 				return databean;
 			}
 		}
-		logger.debug("{}", phaseTimer);
 		return null;
 	}
 
@@ -119,11 +113,9 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 			List<GroupQueueMessage<PK,D>> messages = node.peekMulti(config);
 			phaseTimer.add("node " + node);
 			if(!messages.isEmpty()){
-				logger.debug("{}", phaseTimer);
 				return messages;
 			}
 		}
-		logger.debug("{}", phaseTimer);
 		return Collections.emptyList();
 	}
 

@@ -6,8 +6,18 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-hbase</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 </dependency>
+```
+
+## Installation with Datarouter
+
+You can install this module by adding its plugin to the `WebappBuidlder`.
+
+```java
+.addJobPlugin(new DatarouterHbasePluginBuilder(...)
+		...
+		.build()
 ```
 
 ## About
@@ -119,23 +129,14 @@ A ConsistentHashBalancer is used to spread regions among servers, to minimize di
 as nodes are added or removed.  If a node is temporarily removed its old regions should return to it, increasing
 data locality and reducing network usage and latency.
 
-To configure, add the DatarouterHbasePlugin to the DatarouterWebappConfigBuilder:
-```java
-.addPlugin(new DatarouterHbasePluginBuilder().build())
-```
-
 ## Compaction Scheduling
 
 If configured, the HBaseCompactionJob will run every 10 minutes and trigger a major compaction on a few regions that
 are selected using a simple hash/modulo calculation.  It
 has a default compaction period of 4 days, meaning every region in the cluster is triggered every 4 days.
 
+This can be addded to the plugin builder. 
 To configure, create an implementation of HBaseCompactionInfo and register it in the DatarouterHbasePluginBuilder:
-```java
-.addPlugin(new DatarouterHbasePluginBuilder()
-		.setHbaseCompactionInfoClass(MyHBaseCompactionInfo.class)
-		.build())
-```
 
 The defaults can be changed by overriding these methods in HBaseCompactionInfo:
 ```java
@@ -199,6 +200,26 @@ that to add some administrative features to the UI.  Access them by selecting an
     - Shows next scheduled compaction time for the HBaseCompactionJob
 - **Servers page**: lists servers with region count, storefile count, etc
 - **Settings page**: UI for editing Table and Column Family settings such as MAX_FILESIZE or TTL
+
+## Client configuration
+
+There are two ways to configure the client options. 
+
+1. Configuration in a datarouter-properties file. 
+
+```
+client.myClient.type=hbase
+client.myClient.hbase.zookeeper.quorum=hbase.docker
+```
+
+2. Configuration in the code
+You can define the client options in the code using the `HBaseClientOptionsBuilder` and add the ClientOptionsBuilder to the app's `WebappBuilder`. 
+
+```java
+Properties properties =  HBaseClientOptionsBuilder(clientId)
+		.withZookeeperQuorum("hbase.docker")
+		.build();
+```
 
 ## License
 

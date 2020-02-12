@@ -44,8 +44,13 @@ public class MysqlPreparedStatementBuilder{
 	@Inject
 	private MysqlFieldCodecFactory codecFactory;
 
-	public DatarouterMysqlStatement getWithPrefixes(Config config, String tableName, String indexName,
-			List<Field<?>> selectFields, Collection<? extends FieldSet<?>> keys, List<Field<?>> orderByFields,
+	public DatarouterMysqlStatement getWithPrefixes(
+			Config config,
+			String tableName,
+			String indexName,
+			List<Field<?>> selectFields,
+			Collection<? extends FieldSet<?>> keys,
+			List<Field<?>> orderByFields,
 			MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = new DatarouterMysqlStatement();
 		SqlBuilder.addSelectFromClause(statement.getSql(), tableName, selectFields);
@@ -56,8 +61,11 @@ public class MysqlPreparedStatementBuilder{
 		return statement;
 	}
 
-	public DatarouterMysqlStatement deleteMulti(Config config, String tableName,
-			Collection<? extends FieldSet<?>> keys, MysqlLiveTableOptions mysqlTableOptions){
+	public DatarouterMysqlStatement deleteMulti(
+			Config config,
+			String tableName,
+			Collection<? extends FieldSet<?>> keys,
+			MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = new DatarouterMysqlStatement();
 		SqlBuilder.addDeleteFromClause(statement.getSql(), tableName);
 		appendWhereClauseDisjunction(statement, keys, mysqlTableOptions);
@@ -71,8 +79,13 @@ public class MysqlPreparedStatementBuilder{
 		return statement;
 	}
 
-	public DatarouterMysqlStatement getMulti(Config config, String tableName, List<Field<?>> selectFields,
-			Collection<? extends FieldSet<?>> keys, String indexName, MysqlLiveTableOptions mysqlTableOptions){
+	public DatarouterMysqlStatement getMulti(
+			Config config,
+			String tableName,
+			List<Field<?>> selectFields,
+			Collection<? extends FieldSet<?>> keys,
+			String indexName,
+			MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = select(tableName, selectFields);
 		SqlBuilder.addForceIndexClause(statement.getSql(), indexName);
 		appendWhereClauseDisjunction(statement, keys, mysqlTableOptions);
@@ -80,8 +93,13 @@ public class MysqlPreparedStatementBuilder{
 		return statement;
 	}
 
-	public <T extends FieldSet<T>> DatarouterMysqlStatement getInRanges(Config config, String tableName,
-			List<Field<?>> selectFields, Iterable<Range<T>> ranges, List<Field<?>> orderByFields, String indexName,
+	public <T extends FieldSet<T>> DatarouterMysqlStatement getInRanges(
+			Config config,
+			String tableName,
+			List<Field<?>> selectFields,
+			Iterable<Range<T>> ranges,
+			List<Field<?>> orderByFields,
+			String indexName,
 			MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = new DatarouterMysqlStatement();
 		SqlBuilder.addSelectFromClause(statement.getSql(), tableName, selectFields);
@@ -103,8 +121,11 @@ public class MysqlPreparedStatementBuilder{
 		return statement;
 	}
 
-	public DatarouterMysqlStatement update(String tableName, List<Field<?>> fieldsToUpdate,
-			List<? extends FieldSet<?>> keys, MysqlLiveTableOptions mysqlTableOptions){
+	public DatarouterMysqlStatement update(
+			String tableName,
+			List<Field<?>> fieldsToUpdate,
+			List<? extends FieldSet<?>> keys,
+			MysqlLiveTableOptions mysqlTableOptions){
 		DatarouterMysqlStatement statement = new DatarouterMysqlStatement();
 		SqlBuilder.addUpdateClause(statement.getSql(), tableName);
 		for(Iterator<Field<?>> iterator = fieldsToUpdate.iterator(); iterator.hasNext();){
@@ -139,8 +160,10 @@ public class MysqlPreparedStatementBuilder{
 		return statement;
 	}
 
-	public void appendWhereClauseDisjunction(DatarouterMysqlStatement statement,
-			Collection<? extends FieldSet<?>> fieldSets, MysqlLiveTableOptions mysqlTableOptions){
+	public void appendWhereClauseDisjunction(
+			DatarouterMysqlStatement statement,
+			Collection<? extends FieldSet<?>> fieldSets,
+			MysqlLiveTableOptions mysqlTableOptions){
 		if(CollectionTool.isEmpty(fieldSets)){
 			return;
 		}
@@ -153,7 +176,9 @@ public class MysqlPreparedStatementBuilder{
 		}
 	}
 
-	public void appendSqlNameValue(DatarouterMysqlStatement statement, Field<?> field,
+	public void appendSqlNameValue(
+			DatarouterMysqlStatement statement,
+			Field<?> field,
 			MysqlLiveTableOptions mysqlTableOptions){
 		getSqlNameValueWithOperator(statement, field, mysqlTableOptions, "=");
 	}
@@ -168,8 +193,10 @@ public class MysqlPreparedStatementBuilder{
 		}
 	}
 
-	public void appendPrefixWhereClauseDisjunction(DatarouterMysqlStatement statement,
-			Collection<? extends FieldSet<?>> keys, MysqlLiveTableOptions mysqlTableOptions){
+	public void appendPrefixWhereClauseDisjunction(
+			DatarouterMysqlStatement statement,
+			Collection<? extends FieldSet<?>> keys,
+			MysqlLiveTableOptions mysqlTableOptions){
 		int counter = 0;
 		boolean shouldAppendWhere = true;
 		for(FieldSet<?> key : keys){
@@ -181,8 +208,11 @@ public class MysqlPreparedStatementBuilder{
 		}
 	}
 
-	private boolean addPrefixWhereClause(DatarouterMysqlStatement statement, FieldSet<?> prefix,
-			MysqlLiveTableOptions mysqlTableOptions, boolean shouldAppendWhere){
+	private boolean addPrefixWhereClause(
+			DatarouterMysqlStatement statement,
+			FieldSet<?> prefix,
+			MysqlLiveTableOptions mysqlTableOptions,
+			boolean shouldAppendWhere){
 		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
 		if(numNonNullFields == 0){
 			return true;
@@ -204,8 +234,10 @@ public class MysqlPreparedStatementBuilder{
 		return shouldAppendWhere;
 	}
 
-	private void getSqlNameValuePairsEscapedConjunction(DatarouterMysqlStatement statement,
-			Collection<Field<?>> fields, MysqlLiveTableOptions mysqlTableOptions){
+	private void getSqlNameValuePairsEscapedConjunction(
+			DatarouterMysqlStatement statement,
+			Collection<Field<?>> fields,
+			MysqlLiveTableOptions mysqlTableOptions){
 		for(Iterator<Field<?>> iterator = fields.iterator(); iterator.hasNext();){
 			appendSqlNameValue(statement, iterator.next(), mysqlTableOptions);
 			if(iterator.hasNext()){
@@ -214,8 +246,11 @@ public class MysqlPreparedStatementBuilder{
 		}
 	}
 
-	private void getSqlNameValueWithOperator(DatarouterMysqlStatement statement, Field<?> field,
-			MysqlLiveTableOptions mysqlTableOptions, String operator){
+	private void getSqlNameValueWithOperator(
+			DatarouterMysqlStatement statement,
+			Field<?> field,
+			MysqlLiveTableOptions mysqlTableOptions,
+			String operator){
 		statement.append(field.getKey().getColumnName());
 		if(field.getValue() == null){
 			throw new RuntimeException(field.getKey().getColumnName() + " should not be null, current sql is "
@@ -226,7 +261,9 @@ public class MysqlPreparedStatementBuilder{
 				.append(codec.getIntroducedParameter(mysqlTableOptions), codec::setPreparedStatementValue);
 	}
 
-	private void addRangeWhereClause(DatarouterMysqlStatement statement, Range<? extends FieldSet<?>> range,
+	private void addRangeWhereClause(
+			DatarouterMysqlStatement statement,
+			Range<? extends FieldSet<?>> range,
 			MysqlLiveTableOptions mysqlTableOptions){
 		if(range.isEmpty()){
 			statement.append("0");

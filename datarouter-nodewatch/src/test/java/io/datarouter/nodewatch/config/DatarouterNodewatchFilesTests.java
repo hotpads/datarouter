@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.tablerowcount;
+package io.datarouter.nodewatch.config;
 
-import io.datarouter.instrumentation.response.PublishingResponseDto;
+import javax.inject.Inject;
 
-public interface TableRowCountPublisher{
+import io.datarouter.web.file.DatarouterFilesTests;
 
-	PublishingResponseDto add(TableRowCountBatchDto batch);
+public class DatarouterNodewatchFilesTests extends DatarouterFilesTests{
 
-	public static class NoOpTableRowCountPublisher implements TableRowCountPublisher{
-
-		@Override
-		public PublishingResponseDto add(TableRowCountBatchDto batch){
-			return PublishingResponseDto.NO_OP;
-		}
-
+	@Inject
+	protected DatarouterNodewatchFilesTests(DatarouterNodewatchFiles files){
+		super(files);
 	}
 
 }

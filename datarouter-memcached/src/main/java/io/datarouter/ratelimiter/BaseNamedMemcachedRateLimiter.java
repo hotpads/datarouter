@@ -98,9 +98,6 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 
 			// exceeded maxSpikeRequests
 			if(numRequests > maxSpikeRequests){
-				logger.debug("entry {} exceeded maxSpikeRequests: {}/{}", entry.getKey(), numRequests,
-						maxSpikeRequests);
-
 				Calendar exceededCal = getDateFromKey(entry.getKey());
 				exceededCal.add(Calendar.MILLISECOND, bucketIntervalMs * (numIntervals - 1));
 				Counters.inc(HIT_COUNTER_NAME);
@@ -113,10 +110,6 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 
 		// exceeded maxAvgRequests
 		if(avgRequests > maxAvgRequests){
-
-			logger.debug("exceeded maxAvgRequests (" + maxAvgRequests + ") - total/numIntervals: "
-					+ total + "/" + numIntervals + "=" + avgRequests);
-
 			List<Calendar> cals = IterableTool.map(results.keySet(), this::getDateFromKey);
 			Calendar lastTime = null;
 			for(Calendar calendar : cals){
@@ -133,7 +126,6 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 		}
 		if(increment){
 			Long newValue = increment(currentMapKey);
-			logger.debug("new incr val: " + newValue);
 		}
 		return new Pair<>(true, null);
 	}

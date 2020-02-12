@@ -1,0 +1,71 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.datarouter.nodewatch.storage.latesttablecount;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount.LatestTableCountFielder;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.dao.BaseDao;
+import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
+
+@Singleton
+public class DatarouterLatestTableCountDao extends BaseDao{
+
+	public static class DatarouterLatestTableCountDaoParams extends BaseDaoParams{
+
+		public DatarouterLatestTableCountDaoParams(ClientId clientId){
+			super(clientId);
+		}
+
+	}
+
+	private final SortedMapStorage<LatestTableCountKey,LatestTableCount> node;
+
+	@Inject
+	public DatarouterLatestTableCountDao(Datarouter datarouter, NodeFactory nodeFactory,
+			DatarouterLatestTableCountDaoParams params){
+		super(datarouter);
+		node = nodeFactory.create(params.clientId, LatestTableCount::new, LatestTableCountFielder::new)
+				.buildAndRegister();
+	}
+
+	public Scanner<LatestTableCount> scan(){
+		return node.scan();
+	}
+
+	public void put(LatestTableCount databean){
+		node.put(databean);
+	}
+
+	public Scanner<LatestTableCountKey> scanKeys(){
+		return node.scanKeys();
+	}
+
+	public Scanner<LatestTableCount> scanWithPrefix(LatestTableCountKey prefix){
+		return node.scanWithPrefix(prefix);
+	}
+
+	public void delete(LatestTableCountKey key){
+		node.delete(key);
+	}
+
+}

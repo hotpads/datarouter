@@ -68,4 +68,8 @@ public class DatarouterMysqlStatement{
 		PreparedStatement prepareStatement(String sql) throws Exception;
 	}
 
+	public void addIntParamValue(int value){
+		parameterizers.add(DatarouterMysqlStatementParameterizer.forInt(value));
+	}
+
 }

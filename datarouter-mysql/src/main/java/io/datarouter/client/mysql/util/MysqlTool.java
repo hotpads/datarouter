@@ -49,12 +49,21 @@ public class MysqlTool{
 
 	public static Connection openConnection(String hostname, int port, String database, String user, String password){
 		try{
-			String url = "jdbc:mysql://" + hostname + ":" + port + "/" + StringTool.nullSafe(database) + "?user="
-					+ user + "&password=" + password + "&logger=" + Slf4JLogger.class.getName();
+			String url = String.format("jdbc:mysql://%s:%s/%s?user=%s&password=%s&logger=%s",
+					hostname,
+					port,
+					StringTool.nullSafe(database),
+					user,
+					password,
+					Slf4JLogger.class.getName());
 			return DriverManager.getConnection(url);
 		}catch(Exception e){
-			throw new RuntimeException("failed to connect hostname=" + hostname + " port=" + port + " database="
-					+ database + " user=" + user, e);
+			String message = String.format("failed to connect hostname=%s port=%s database=%s user=%s",
+					hostname,
+					port,
+					database,
+					user);
+			throw new RuntimeException(message, e);
 		}
 	}
 
@@ -84,8 +93,13 @@ public class MysqlTool{
 		}
 	}
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-			List<PK> selectPrimaryKeys(MysqlFieldCodecFactory fieldCodecFactory, DatabeanFieldInfo<PK,D,F> fieldInfo,
+	public static <
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+			List<PK> selectPrimaryKeys(
+					MysqlFieldCodecFactory fieldCodecFactory,
+					DatabeanFieldInfo<PK,D,F> fieldInfo,
 					PreparedStatement ps){
 		try{
 			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
@@ -96,8 +110,11 @@ public class MysqlTool{
 			ResultSet rs = ps.getResultSet();
 			List<PK> primaryKeys = new ArrayList<>();
 			while(rs.next()){
-				PK primaryKey = fieldSetFromMysqlResultSetUsingReflection(fieldCodecFactory, ReflectionTool
-						.supplier(fieldInfo.getPrimaryKeyClass()), fieldInfo.getPrimaryKeyFields(), rs);
+				PK primaryKey = fieldSetFromMysqlResultSetUsingReflection(
+						fieldCodecFactory,
+						ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
+						fieldInfo.getPrimaryKeyFields(),
+						rs);
 				primaryKeys.add(primaryKey);
 			}
 			return primaryKeys;
@@ -107,8 +124,11 @@ public class MysqlTool{
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	List<D> selectDatabeans(MysqlFieldCodecFactory fieldCodecFactory, Supplier<D> databeanSupplier,
-			List<Field<?>> fields, PreparedStatement ps){
+	List<D> selectDatabeans(
+			MysqlFieldCodecFactory fieldCodecFactory,
+			Supplier<D> databeanSupplier,
+			List<Field<?>> fields,
+			PreparedStatement ps){
 		try{
 			String spanName = databeanSupplier.get().getDatabeanName() + " selectDatabeans PreparedStatement.execute";
 			try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
@@ -132,7 +152,9 @@ public class MysqlTool{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<IK> selectIndexEntryKeys(MysqlFieldCodecFactory fieldCodecFactory, IndexEntryFieldInfo<IK,IE,IF> fieldInfo,
+	List<IK> selectIndexEntryKeys(
+			MysqlFieldCodecFactory fieldCodecFactory,
+			IndexEntryFieldInfo<IK,IE,IF> fieldInfo,
 			PreparedStatement ps){
 		try{
 			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
@@ -143,8 +165,10 @@ public class MysqlTool{
 			ResultSet rs = ps.getResultSet();
 			List<IK> keys = new ArrayList<>();
 			while(rs.next()){
-				IK key = fieldSetFromMysqlResultSetUsingReflection(fieldCodecFactory, ReflectionTool.supplier(
-						fieldInfo.getPrimaryKeyClass()), fieldInfo.getPrimaryKeyFields(), rs);
+				IK key = fieldSetFromMysqlResultSetUsingReflection(
+						fieldCodecFactory, ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
+						fieldInfo.getPrimaryKeyFields(),
+						rs);
 				keys.add(key);
 			}
 			return keys;
@@ -164,13 +188,24 @@ public class MysqlTool{
 		}
 	}
 
-	public static <F> F fieldSetFromMysqlResultSetUsingReflection(MysqlFieldCodecFactory fieldCodecFactory,
-			Supplier<F> supplier, List<Field<?>> fields, ResultSet rs){
+	public static <F> F fieldSetFromMysqlResultSetUsingReflection(
+			MysqlFieldCodecFactory fieldCodecFactory,
+			Supplier<F> supplier,
+			List<Field<?>> fields,
+			ResultSet rs){
 		F targetFieldSet = supplier.get();
 		for(MysqlFieldCodec<?> field : fieldCodecFactory.createCodecs(fields)){
 			field.fromMysqlResultSetUsingReflection(targetFieldSet, rs);
 		}
 		return targetFieldSet;
+	}
+
+	public static PreparedStatement prepareStatement(Connection connection, String sql){
+		try{
+			return connection.prepareStatement(sql);
+		}catch(SQLException e){
+			throw new RuntimeException(sql, e);
+		}
 	}
 
 	public static void execute(MysqlConnectionPool connectionPool, String sql){

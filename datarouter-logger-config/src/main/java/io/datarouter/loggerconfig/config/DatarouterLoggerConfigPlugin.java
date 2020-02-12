@@ -28,17 +28,16 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
-import io.datarouter.web.navigation.NavBarItem;
 
 public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 
 	private DatarouterLoggerConfigPlugin(DatarouterLoggerConfigDaoModule daosModuleBuilder){
-		addUnorderedRouteSet(DatarouterLoggingConfigRouteSet.class);
+		addRouteSet(DatarouterLoggingConfigRouteSet.class);
 		addSettingRoot(DatarouterLoggerConfigSettingRoot.class);
 		addTriggerGroup(DatarouterLoggerConfigTriggerGroup.class);
-		setDaosModuleBuilder(daosModuleBuilder);
-		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.SETTINGS,
-				new DatarouterLoggingConfigPaths().datarouter.logging, "Logger Config"));
+		setDaosModule(daosModuleBuilder);
+		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS,
+				new DatarouterLoggingConfigPaths().datarouter.logging, "Logger Config");
 	}
 
 	@Override

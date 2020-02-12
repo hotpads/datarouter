@@ -94,7 +94,6 @@ public class LatencyMonitoringService{
 	public void record(LatencyCheck check, DatarouterDuration duration){
 		gauges.save(GAUGE_PREFIX + check.name, duration.to(TimeUnit.MICROSECONDS));
 		addCheckResult(check, CheckResult.newSuccess(System.currentTimeMillis(), duration));
-		logger.debug("{} - {}", check.name, duration);
 	}
 
 	private Deque<CheckResult> getLastResults(String checkName){

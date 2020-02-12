@@ -67,6 +67,7 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode listeners = leaf("listeners");
 		public final PathNode routeSets = leaf("routeSets");
 		public final PathNode filterParams = leaf("filterParams");
+		public final PathNode plugins = leaf("plugins");
 		public final PathNode properties = leaf("properties");
 	}
 

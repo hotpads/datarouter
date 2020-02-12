@@ -27,14 +27,14 @@ import io.datarouter.web.config.BaseWebPlugin;
  */
 public abstract class BaseJobPlugin extends BaseWebPlugin{
 
-	private final List<Class<? extends BaseTriggerGroup>> triggerGroupClasses = new ArrayList<>();
+	private final List<Class<? extends BaseTriggerGroup>> triggerGroups = new ArrayList<>();
 
 	protected void addTriggerGroup(Class<? extends BaseTriggerGroup> triggerGroup){
-		triggerGroupClasses.add(triggerGroup);
+		triggerGroups.add(triggerGroup);
 	}
 
-	public List<Class<? extends BaseTriggerGroup>> getTriggerGroupClasses(){
-		return triggerGroupClasses;
+	public List<Class<? extends BaseTriggerGroup>> getTriggerGroups(){
+		return triggerGroups;
 	}
 
 }

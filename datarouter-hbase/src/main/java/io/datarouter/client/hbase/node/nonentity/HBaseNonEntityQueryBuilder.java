@@ -60,11 +60,11 @@ public class HBaseNonEntityQueryBuilder<
 	}
 
 	public ByteRange getEkByteRange(EK ek){
-		return new ByteRange(getEkBytes(ek));
+		return ek == null ? null : new ByteRange(getEkBytes(ek));
 	}
 
 	public ByteRange getPkByteRange(PK pk){
-		return new ByteRange(getPkBytes(pk));
+		return pk == null ? null : new ByteRange(getPkBytes(pk));
 	}
 
 }

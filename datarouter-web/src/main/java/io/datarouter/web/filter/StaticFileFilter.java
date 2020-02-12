@@ -70,7 +70,6 @@ public class StaticFileFilter implements Filter{
 		long startForward = System.currentTimeMillis();
 		requestDispatcher.forward(request, response);
 		long endForward = System.currentTimeMillis();
-		logger.debug("forwardTime={} {}", endForward - startForward, request.getRequestURI());
 	}
 
 }

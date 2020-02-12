@@ -38,7 +38,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
-import io.datarouter.web.navigation.NavBarItem;
 
 public class DatarouterJobletPlugin extends BaseJobletPlugin{
 
@@ -55,13 +54,13 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 			DatarouterJobletDaoModule daosModule){
 		this.jobletTypes = jobletTypes;
 		this.externalLinkBuilderClass = externalLinkBuilderClass;
-		addUnorderedAppListener(DatarouterJobletAppListener.class);
-		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.JOBS,
-				new DatarouterJobletPaths().datarouter.joblets.list, "Joblets"));
-		addUnorderedRouteSet(DatarouterJobletRouteSet.class);
+		addAppListener(DatarouterJobletAppListener.class);
+		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, new DatarouterJobletPaths().datarouter.joblets.list,
+				"Joblets");
+		addRouteSet(DatarouterJobletRouteSet.class);
 		addTriggerGroup(DatarouterJobletTriggerGroup.class);
 		addSettingRoot(DatarouterJobletSettingRoot.class);
-		setDaosModuleBuilder(daosModule);
+		setDaosModule(daosModule);
 		addJobletType(SleepingJoblet.JOBLET_TYPE);
 	}
 

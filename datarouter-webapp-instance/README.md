@@ -13,8 +13,18 @@ deployed in a while.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-webapp-instance</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 </dependency>
+```
+
+## Installation with Datarouter
+
+You can install this module by adding its plugin to the `WebappBuidlder`.
+
+```java
+.addJobPlugin(new DatarouterWebappInstancePluginBuilder(...)
+		...
+		.build()
 ```
 
 ## Features

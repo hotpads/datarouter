@@ -16,12 +16,12 @@
 	</style>
 	<script>
 		function fetchCsrf(obj) {
-			const url = window.location.origin + window.location.pathname + "/getCsrfIv?" + $.param(obj)
+			const url = window.location.origin + window.location.pathname + "getCsrfIv?" + $.param(obj)
 			return fetch(url, {method: 'GET'})
 		}
 
 		function fetchSignature(theParams, requestBody){
-			const url = window.location.origin + window.location.pathname + "/getSignature?" + $.param(theParams);
+			const url = window.location.origin + window.location.pathname + "getSignature?" + $.param(theParams);
 			const options = !!requestBody ? {method: 'POST', body: requestBody} : {method: 'GET'}
 			return fetch(url, options);
 		}

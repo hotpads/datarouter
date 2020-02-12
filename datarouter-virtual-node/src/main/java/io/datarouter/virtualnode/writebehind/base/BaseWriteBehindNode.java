@@ -162,11 +162,8 @@ implements WriteBehindNode<PK,D,N>{
 					.getFirst(databeans).getClass().getSimpleName());
 			WriteWrapper<?> writeWrapperClone = writeWrapper.clone();
 			Future<?> future = writeExecutor.submit(() -> {
-				long start = System.currentTimeMillis();
 				try{
-					if(handleWriteWrapperInternal(writeWrapperClone)){
-						logger.debug("complete opDesc={} ms={}", opDesc, System.currentTimeMillis() - start);
-					}else{
+					if(!handleWriteWrapperInternal(writeWrapperClone)){
 						logger.error("unhandled op desc={}", opDesc);
 					}
 				}catch(Throwable t){

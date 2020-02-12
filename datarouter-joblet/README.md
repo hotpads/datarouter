@@ -10,9 +10,15 @@ The datarouter-joblet module helps you build a user-friendly queue processing sy
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-joblet</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 </dependency>
 ```
+
+## Installation with Datarouter
+
+Datarouter-joblet brings in `BaseJobletPlugin` and `DatarouterJobletWebappBuilder`. `BaseJobletPlugin` brings in 
+everything from `BaseJobPlugin` and adds the ability to register joblets. `DatarouterJobletWebappBuilder` provides 
+an easy way to bootstrap the application and install web, job or joblet plugins. 
 
 ## Concepts
 

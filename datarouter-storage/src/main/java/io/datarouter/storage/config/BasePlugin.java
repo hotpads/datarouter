@@ -33,18 +33,18 @@ import io.datarouter.storage.setting.SettingRoot;
 public abstract class BasePlugin extends BaseGuiceModule{
 
 	private final List<Class<? extends SettingRoot>> settingRoots = new ArrayList<>();
-	private DaosModuleBuilder daosModuleBuilder = new EmptyDaosModuleBuilder();
+	private DaosModuleBuilder daosModule = new EmptyDaosModuleBuilder();
 
 	protected void addSettingRoot(Class<? extends SettingRoot> settingRoot){
 		settingRoots.add(settingRoot);
 	}
 
-	protected void setDaosModuleBuilder(DaosModuleBuilder daosModuleBuilder){
-		this.daosModuleBuilder = daosModuleBuilder;
+	protected void setDaosModule(DaosModuleBuilder daosModuleBuilder){
+		this.daosModule = daosModuleBuilder;
 	}
 
 	public DaosModuleBuilder getDaosModuleBuilder(){
-		return daosModuleBuilder;
+		return daosModule;
 	}
 
 	public List<Class<? extends SettingRoot>> getSettingRoots(){

@@ -31,7 +31,7 @@ public class DatarouterHbasePlugin extends BaseJobPlugin{
 			Class<? extends HBaseBalancerFactory> hbaseBalancerFactoryClass){
 		this.hbaseCompactionInfoClass = hbaseCompactionInfoClass;
 		this.hbaseBalancerFactoryClass = hbaseBalancerFactoryClass;
-		addUnorderedRouteSet(DatarouterHBaseRouteSet.class);
+		addRouteSet(DatarouterHBaseRouteSet.class);
 		addSettingRoot(DatarouterHBaseSettingRoot.class);
 		addTriggerGroup(DatarouterHBaseTriggerGroup.class);
 	}

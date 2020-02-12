@@ -20,6 +20,8 @@ import java.util.Collection;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.model.field.FieldTool;
+import io.datarouter.model.key.entity.base.BaseByteArrayEntityPartitioner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.dao.BaseDao;
@@ -29,31 +31,49 @@ import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanFielder;
 import io.datarouter.storage.test.TestDatabeanKey;
+import io.datarouter.util.HashMethods;
 import io.datarouter.util.tuple.Range;
 
 @Singleton
 public class HbaseRangeTestDatabeanDao extends BaseDao implements TestDao{
 
-	private final SortedMapStorage<TestDatabeanKey,TestDatabean> mainNode;
+	private final SortedMapStorage<TestDatabeanKey,TestDatabean> node;
+
+	private static class HbaseRangeTestDatabeanPartitioner extends BaseByteArrayEntityPartitioner<TestDatabeanKey>{
+
+		public HbaseRangeTestDatabeanPartitioner(){
+			super(HashMethods::longDjbHash, 2);
+		}
+
+		@Override
+		public byte[] makeByteArrayHashInput(TestDatabeanKey ek){
+			return FieldTool.getConcatenatedValueBytes(ek.getFields(), false, false, false);
+		}
+
+	}
 
 	@Inject
 	public HbaseRangeTestDatabeanDao(Datarouter datarouter, NodeFactory nodeFactory){
 		super(datarouter);
-		mainNode = nodeFactory.create(DatarouterHBaseTestClientIds.HBASE, TestDatabean::new, TestDatabeanFielder::new)
+		node = nodeFactory.create(
+				DatarouterHBaseTestClientIds.HBASE,
+				TestDatabean::new,
+				TestDatabeanFielder::new)
+				.withPartitionerSupplier(HbaseRangeTestDatabeanPartitioner::new)
 				.withTableName("HbaseRangeIntegrationTests")
 				.buildAndRegister();
 	}
 
 	public void putMulti(Collection<TestDatabean> databeans){
-		mainNode.putMulti(databeans);
+		node.putMulti(databeans);
 	}
 
 	public Scanner<TestDatabeanKey> scanKeys(Range<TestDatabeanKey> range){
-		return mainNode.scanKeys(range);
+		return node.scanKeys(range);
 	}
 
 	public void deleteAll(){
-		mainNode.deleteAll();
+		node.deleteAll();
 	}
 
 }

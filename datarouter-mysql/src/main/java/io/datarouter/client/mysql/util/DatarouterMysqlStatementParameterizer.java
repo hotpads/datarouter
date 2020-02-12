@@ -16,9 +16,20 @@
 package io.datarouter.client.mysql.util;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public interface DatarouterMysqlStatementParameterizer{
 
 	void parameterize(PreparedStatement statement, int index);
+
+	static DatarouterMysqlStatementParameterizer forInt(int value){
+		return (ps, index) -> {
+			try{
+				ps.setInt(index, value);
+			}catch(SQLException e){
+				throw new RuntimeException(e);
+			}
+		};
+	}
 
 }

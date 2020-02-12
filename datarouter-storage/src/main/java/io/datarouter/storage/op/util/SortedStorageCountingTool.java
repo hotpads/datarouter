@@ -51,7 +51,6 @@ public class SortedStorageCountingTool{
 			if(currentKey.isPresent()){
 				count += BATCH_SIZE;
 				startKey = currentKey.get();
-				logger.debug("node={} count={}", node, count);
 			}
 		}while(currentKey.isPresent());
 		return count += node.scanKeys(new Range<>(startKey, false, range.getEnd(), range.getEndInclusive()),

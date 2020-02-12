@@ -13,16 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.tablerowcount;
+package io.datarouter.util.clazz;
 
-import java.util.List;
+import javax.inject.Singleton;
 
-public class TableRowCountBatchDto{
+import org.testng.annotations.Test;
 
-	public final List<TableRowCountDto> batch;
+public class AnnotationToolTests{
 
-	public TableRowCountBatchDto(List<TableRowCountDto> batch){
-		this.batch = batch;
+	static class Dog{
+	}
+
+	@Singleton
+	static class Cat{
+	}
+
+	static interface Animal{
+	}
+
+	@Test
+	public void testSingletons(){
+		AnnotationTool.checkSingletonForClass(Dog.class, false);
+		AnnotationTool.checkSingletonForClass(Cat.class, true);
+		AnnotationTool.checkSingletonForClass(Animal.class, false);
 	}
 
 }

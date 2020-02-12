@@ -123,18 +123,18 @@ public class JobletProcessor{
 				}
 				int numThreads = getThreadCount();
 				if(!shouldRun(numThreads)){
-					sleepABit(SLEEP_TIME_WHEN_DISABLED, "shouldRun=false");
+					sleepABit(SLEEP_TIME_WHEN_DISABLED);
 					continue;
 				}
 				if(!jobletRequestQueueManager.shouldCheckAnyQueues(jobletType)){
-					sleepABit(SLEEP_TIME_WHEN_NO_WORK, "shouldCheckAnyQueues=false");
+					sleepABit(SLEEP_TIME_WHEN_NO_WORK);
 					continue;
 				}
 				tryEnqueueJobletCallable(numThreads);
 			}catch(Exception e){//catch everything; don't let the loop break
 				logger.error("", e);
 				try{
-					sleepABit(SLEEP_TIME_AFTER_EXCEPTION, "exception acquiring joblet");
+					sleepABit(SLEEP_TIME_AFTER_EXCEPTION);
 				}catch(Exception problemSleeping){
 					logger.error("uh oh, problem sleeping", problemSleeping);
 				}
@@ -167,16 +167,14 @@ public class JobletProcessor{
 				jobletFutureById.put(id, jobletFuture);
 				return;//return so we loop back immediately
 			}catch(RejectedExecutionException ree){
-//				logger.warn("{} #{} rejected, backing off {}ms", jobletType, counter, backoffMs);
 				datarouterJobletCounters.rejectedCallable(jobletType);
-				sleepABit(Duration.ofMillis(backoffMs), "executor full");
+				sleepABit(Duration.ofMillis(backoffMs));
 				backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
 			}
 		}
 	}
 
-	private void sleepABit(Duration duration, String reason){
-		logger.debug("sleeping {} since {} for {}", duration, reason, jobletType.getPersistentString());
+	private void sleepABit(Duration duration){
 		try{
 			Thread.sleep(duration.toMillis());
 		}catch(InterruptedException e){

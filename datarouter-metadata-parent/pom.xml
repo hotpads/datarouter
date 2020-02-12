@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metadata-parent</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 	<packaging>pom</packaging>
 
 	<name>datarouter-metadata-parent</name>
@@ -43,8 +43,32 @@
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
+			<name>Cameron Palk</name>
+			<email>cameronp@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
 			<name>Clément Guillaume</name>
 			<email>cguillaume@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>David Brown</name>
+			<email>davidbr@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Ion Platon</name>
+			<email>ionp@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Matt Corgan</name>
+			<email>mcorgan@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
@@ -55,8 +79,14 @@
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>
 		<developer>
-			<name>Matt Corgan</name>
-			<email>mcorgan@hotpads.com</email>
+			<name>Scott Denny</name>
+			<email>scottd@hotpads.com</email>
+			<organization>HotPads</organization>
+			<organizationUrl>https://hotpads.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>Shweta Menon</name>
+			<email>smenon@hotpads.com</email>
 			<organization>HotPads</organization>
 			<organizationUrl>https://hotpads.com</organizationUrl>
 		</developer>

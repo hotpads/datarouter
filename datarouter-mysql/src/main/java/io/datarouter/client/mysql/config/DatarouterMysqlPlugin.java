@@ -32,7 +32,7 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 	private DatarouterMysqlPlugin(
 			Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByFieldClass){
 		this.additionalCodecClassByFieldClass = additionalCodecClassByFieldClass;
-		addUnorderedAppListener(MysqlAppListener.class);
+		addAppListener(MysqlAppListener.class);
 	}
 
 	@Override

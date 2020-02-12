@@ -30,7 +30,6 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
-import io.datarouter.web.navigation.NavBarItem;
 
 public class DatarouterSecretPlugin extends BaseWebPlugin{
 
@@ -46,10 +45,10 @@ public class DatarouterSecretPlugin extends BaseWebPlugin{
 		this.secretHandlerPermissionsClass = secretHandlerPermissionsClass;
 		this.secretClientSupplierClass = secretClientSupplierClass;
 		this.initialLocalStorageSecretValues = initialLocalStorageSecretValues;
-		addUnorderedRouteSet(DatarouterSecretRouteSet.class);
-		setDaosModuleBuilder(daosModuleBuilder);
-		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.SETTINGS,
-				new DatarouterSecretPaths().datarouter.secrets, "Secret"));
+		addRouteSet(DatarouterSecretRouteSet.class);
+		setDaosModule(daosModuleBuilder);
+		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, new DatarouterSecretPaths().datarouter.secrets,
+				"Secret");
 	}
 
 	@Override

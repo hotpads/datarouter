@@ -18,8 +18,18 @@ if the tasks are not completing.  The datarouter-job framework automatically cre
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-task-tracker</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 </dependency>
+```
+
+## Installation with Datarouter
+
+You can install this module by adding its plugin to the `WebappBuidlder`.
+
+```java
+.addWebPlugin(new DatarouterTaskTrackerPluginBuilder(...)
+		...
+		.build()
 ```
 
 ## Usage
@@ -87,8 +97,8 @@ public class ExampleTaskTrackerHandler extends BaseHandler{
 				.advanceUntil($ -> tracker.shouldStop())
 				.map(Object::toString)
 				//update the item count and last item name, which also acts as a heartbeat
-				.peek($ -> tracker.increment())
-				.peek(tracker::setLastItemProcessed)
+				.each($ -> tracker.increment())
+				.each(tracker::setLastItemProcessed)
 				//log progress
 				.sample(logEveryN.orElse(1L), true)
 				.forEach(item -> logger.warn("{}={}", tracker.getCount(), item));

@@ -8,9 +8,14 @@ datarouter-job makes it easy to schedule jobs across a cluster of servers.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-job</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 </dependency>
 ```
+## Installation with Datarouter
+
+Datarouter-job brings in `BaseJobPlugin` and `DatarouterJobWebappBuilder`. `BaseJobPlugin` brings in everything 
+from `BaseWebPlugin` and adds the ability to add TriggerGroups. `DatarouterJobWebappBuilder` provides an easy 
+way to bootstrap the application and install web or job plugins. 
 
 ## Usage
 
@@ -48,13 +53,16 @@ public class ExampleJob extends BaseJob{
 }
 ```
 
-The tracker param can be checked frequently during execution, and if tracker.shouldStop() returns true, the job should exit gracefully. This most often happens when the server is shutting down.
+The tracker param can be checked frequently during execution, and if tracker.shouldStop() returns true, the job should 
+exit gracefully. This most often happens when the server is shutting down.
 
 ### BaseTriggerGroup
 
-Schedule a job by registering it in a TriggerGroup. TriggerGroups support Quartz style cron expressions:
+Schedule a job by registering it in a `TriggerGroup`. TriggerGroups support Quartz style cron expressions:
 
 ```java
+package io.datarouter.job.readme;
+
 import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;

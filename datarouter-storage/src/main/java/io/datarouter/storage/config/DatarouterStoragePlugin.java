@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.storage.client.ClientOptionsFactory;
+import io.datarouter.storage.config.setting.DatarouterSettingOverrides;
 import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaoClasses;
@@ -33,7 +34,7 @@ public class DatarouterStoragePlugin extends BasePlugin{
 	private final ServerTypes serverTypes;
 	private final Class<? extends ServerTypeDetector> serverTypeDetectorClass;
 	private final DatarouterProperties datarouterProperties;
-	private final Class<?> settingOverridesClass;
+	private final Class<? extends DatarouterSettingOverrides> settingOverridesClass;
 	private final AdditionalSettingRoots additionalSettingRoots;
 	private final Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 	private final List<Class<? extends Dao>> daoClasses;
@@ -47,7 +48,7 @@ public class DatarouterStoragePlugin extends BasePlugin{
 			ServerTypes serverTypes,
 			Class<? extends ServerTypeDetector> serverTypeDetectorClass,
 			DatarouterProperties datarouterProperties,
-			Class<?> settingOverridesClass,
+			Class<? extends DatarouterSettingOverrides> settingOverridesClass,
 			AdditionalSettingRoots additionalSettingRoots,
 			Class<? extends ClientOptionsFactory> clientOptionsFactoryClass,
 			List<Class<? extends Dao>> daoClasses){
@@ -89,7 +90,7 @@ public class DatarouterStoragePlugin extends BasePlugin{
 		private final DatarouterProperties datarouterProperties;
 
 		private Class<? extends ServerTypeDetector> serverTypeDetectorClass = NoOpServerTypeDetector.class;
-		private Class<?> settingOverridesClass;
+		private Class<? extends DatarouterSettingOverrides> settingOverridesClass;
 		private AdditionalSettingRoots additionalSettingRoots;
 		private Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 		private List<Class<? extends Dao>> daoClasses = new ArrayList<>();
@@ -105,7 +106,8 @@ public class DatarouterStoragePlugin extends BasePlugin{
 			return this;
 		}
 
-		public DatarouterStoragePluginBuilder setSettingOverridesClass(Class<?> settingOverridesClass){
+		public DatarouterStoragePluginBuilder setSettingOverridesClass(
+				Class<? extends DatarouterSettingOverrides> settingOverridesClass){
 			this.settingOverridesClass = settingOverridesClass;
 			return this;
 		}

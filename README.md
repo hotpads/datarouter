@@ -221,7 +221,7 @@ to the end of a query, but that sorting can be very expensive for the database t
 data via primary and secondary indexes or to bring the data back to the scalable application tier before sorting.
 
 All of the permutations of column selection, joins, filtering (skipping rows), and ordering lead to a large number of 
-SQL statements that are generally harder to maintain that strongly-typed Java objects.
+SQL statements that are generally harder to maintain than strongly-typed Java objects.
 
 ### Hibernate session cache
 Traditional Java ORMs like Hibernate require that all database operations go through a *session cache* that holds a 
@@ -259,6 +259,6 @@ Datarouter advocates for assuming that all tables are on separate database serve
 application layer, not caring which machines the data resides on or if those machines change. Transactions, where 
 necessary, are explicitly coded into the application forcing you think ahead of time where they are necessary and making 
 it easier to reason about which tables can be split apart. Datarouter provides a master/slave abstraction that can be 
-inserted without changing business logic. Queries that are ok with stale data can pass a `slaveOk` parameter even if no 
+inserted without changing business logic. Queries that are okay with stale data can pass a `slaveOk` parameter even if no 
 slave databases exist yet. The caching layer is accessed with the same put, get, and delete operations as the RDBMS, 
 making it easy to insert caching without changing the business logic.

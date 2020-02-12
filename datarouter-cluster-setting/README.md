@@ -15,8 +15,18 @@ same webapp, where the fleet of services will have a ClusterSetting table for ea
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-cluster-setting</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 </dependency>
+```
+
+## Installation with Datarouter
+
+You can install this module by adding its plugin to the `WebappBuidlder`.
+
+```java
+.addJobPlugin(new DatarouterClusterSettingPluginBuilder(...)
+      ...
+      .build()
 ```
 
 ## Concepts
@@ -44,7 +54,7 @@ Several scopes are defined in the `ClusterSettingScope` enum.  From most specifi
 
 Each running instance may find a different value for each setting.  It's important to understand that each instance
 will go searching for the most specific scope that applies to it.  When resolving a setting, it will use a getMulti
-to select the 4 potential database overries (application, serverName, serverType, and default), and combine them with
+to select the 4 potential database overrides (application, serverName, serverType, and default), and combine them with
 the 6 potential code overrides
 
 It then works backwards from `application` scope to `default`, prioritizing database over code:
@@ -76,7 +86,7 @@ It may be useful during the transition period when an application is being split
 
 #### Caching
 
-The `CachedSetting` class transparently wraps the result of a call to the database, avoiding subseqent database calls 
+The `CachedSetting` class transparently wraps the result of a call to the database, avoiding subsequent database calls 
 for 15 seconds. It's therefore OK to reference setting values in most loops, however consider capturing the setting 
 value in a local variable before entering a very fast, short-lived loop to avoid thread synchronization overhead.
 
@@ -109,9 +119,9 @@ The job sends an email identifying database overrides with any of these problems
 - `redundant`
   - values can be deleted from the database because the in-code fallback value is the same
 - `old`
-  - values should be added as in-code defaults and become rudundant after the next deploy
+  - values should be added as in-code defaults and become redundant after the next deploy
 - `expired`
-  - settings exist in the database but don't have corressponding code that will read them, so can be deleted from the
+  - settings exist in the database but don't have corresponding code that will read them, so can be deleted from the
   database
 - `unknown`
   - even the `SettingRoot` isn't recognized, potentially indicating the setting belongs to a different webapp

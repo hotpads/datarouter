@@ -20,9 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -41,7 +38,6 @@ public interface RedundantQueueStorageMixin<
 		F extends DatabeanFielder<PK,D>,
 		N extends QueueStorageNode<PK,D,F>>
 extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
-	static final Logger logger = LoggerFactory.getLogger(RedundantQueueStorageMixin.class);
 
 	@Override
 	default D poll(Config config){
@@ -75,14 +71,12 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 			try{
 				node.ack(key, config);
 				phaseTimer.add("success " + node);
-				logger.debug("{}", phaseTimer);
 				return;
 			}catch(RuntimeException e){
 				SqsRedundantNodeTool.swallowIfNotFound(e, node);
 				phaseTimer.add("failed node " + node);
 			}
 		}
-		logger.debug("{}", phaseTimer);
 	}
 
 	@Override
@@ -92,14 +86,12 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 			try{
 				node.ackMulti(keys, config);
 				phaseTimer.add("success " + node);
-				logger.debug("{}", phaseTimer);
 				return;
 			}catch(RuntimeException e){
 				SqsRedundantNodeTool.swallowIfNotFound(e, node);
 				phaseTimer.add("failed node " + node);
 			}
 		}
-		logger.debug("{}", phaseTimer);
 	}
 
 	@Override
@@ -121,11 +113,9 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 			QueueMessage<PK,D> databean = node.peek(config);
 			phaseTimer.add("node " + node);
 			if(databean != null){
-				logger.debug("{}", phaseTimer);
 				return databean;
 			}
 		}
-		logger.debug("{}", phaseTimer);
 		return null;
 	}
 
@@ -136,11 +126,9 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 			List<QueueMessage<PK,D>> messages = node.peekMulti(config);
 			phaseTimer.add("node " + node);
 			if(!messages.isEmpty()){
-				logger.debug("{}", phaseTimer);
 				return messages;
 			}
 		}
-		logger.debug("{}", phaseTimer);
 		return Collections.emptyList();
 	}
 

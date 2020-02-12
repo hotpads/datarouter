@@ -124,7 +124,6 @@ public class JobWrapper implements Callable<Void>{
 		tracker.setStatus(TaskStatus.RUNNING);
 		tracker.setScheduledTime(scheduledTime.toInstant());
 		tracker.persistIfShould();
-		logger.debug("Started " + jobClass.getSimpleName());
 	}
 
 	private void trackAfter(){
@@ -161,8 +160,6 @@ public class JobWrapper implements Callable<Void>{
 		}
 		if(ComparableTool.gt(elapsedTime, Duration.ofMillis(500))){
 			logger.warn(jobCompletionLog);
-		}else{
-			logger.debug(jobCompletionLog);
 		}
 	}
 

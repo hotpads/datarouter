@@ -9,7 +9,7 @@ collections which will treat them similarly to persistent datastores.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-model</artifactId>
-	<version>0.0.17</version>
+	<version>0.0.18</version>
 </dependency>
 ```
 
@@ -179,7 +179,8 @@ import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class RequestLogEntryBySessionIdDateKey extends BaseRegularPrimaryKey<RequestLogEntryBySessionIdDateKey>
+public class RequestLogEntryBySessionIdDateKey 
+extends BaseRegularPrimaryKey<RequestLogEntryBySessionIdDateKey>
 implements FieldlessIndexEntryPrimaryKey<
 		RequestLogEntryBySessionIdDateKey,
 		RequestLogEntryKey,

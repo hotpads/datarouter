@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.entity.EntityKey;
+import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.entity.base.DefaultEntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -45,6 +46,7 @@ public class NodeBuilder<
 	private final Supplier<EK> entityKeySupplier;
 	private final Supplier<D> databeanSupplier;
 	private final Supplier<F> fielderSupplier;
+	private Supplier<EntityPartitioner<EK>> partitionerSupplier;
 	private String tableName;
 	private Integer schemaVersion;
 	private TableConfigurationFactory tableConfigurationFactory;
@@ -63,6 +65,12 @@ public class NodeBuilder<
 		this.entityKeySupplier = entityKeySupplier;
 		this.databeanSupplier = databeanSupplier;
 		this.fielderSupplier = fielderSupplier;
+		this.partitionerSupplier = DefaultEntityPartitioner::new;
+	}
+
+	public NodeBuilder<EK,PK,D,F> withPartitionerSupplier(Supplier<EntityPartitioner<EK>> pertitionerSupplier){
+		this.partitionerSupplier = pertitionerSupplier;
+		return this;
 	}
 
 	public NodeBuilder<EK,PK,D,F> withTableName(String tableName){
@@ -161,7 +169,7 @@ public class NodeBuilder<
 				clientId.getName() + "." + entityName,
 				entityKeySupplier,
 				DefaultEntity.supplier(entityKeySupplier),
-				DefaultEntityPartitioner::new,
+				partitionerSupplier,
 				entityName);
 		return nodeFactory.create(entityNodeParams, params);
 	}

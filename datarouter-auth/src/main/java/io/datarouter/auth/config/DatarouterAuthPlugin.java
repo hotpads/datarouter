@@ -66,14 +66,14 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			String defaultDatarouterUserPassword,
 			String defaultApiKey,
 			String defaultSecretKey){
-		addUnorderedAppListener(DatarouterAccountConfigAppListener.class);
-		addUnorderedAppListener(DatarouterUserConfigAppListener.class);
+		addAppListener(DatarouterAccountConfigAppListener.class);
+		addAppListener(DatarouterUserConfigAppListener.class);
 
 		DatarouterAuthPaths paths = new DatarouterAuthPaths();
 		addAppNavBarItem(new NavBarItem(AppNavBarCategory.ADMIN, paths.admin.accounts, "Account Manager"));
 
 		if(enableUserAuth){
-			addOrderedRouteSet(DatarouterAuthRouteSet.class, DatarouterJobRouteSet.class);
+			addRouteSetOrdered(DatarouterAuthRouteSet.class, DatarouterJobRouteSet.class);
 			addAppNavBarItem(new NavBarItem(AppNavBarCategory.ADMIN, paths.admin.viewUsers, "View Users"));
 			addAppNavBarItem(new NavBarItem(AppNavBarCategory.USER, paths.admin.editUser, "Edit User"));
 			addAppNavBarItem(new NavBarItem(AppNavBarCategory.USER, paths.permissionRequest,
@@ -82,10 +82,10 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			addAppNavBarItem(new NavBarItem(AppNavBarCategory.USER, paths.admin.createUser, "Create User"));
 		}
 		addAppNavBarItem(new NavBarItem(AppNavBarCategory.DOCS, paths.docs.toSlashedStringWithTrailingSlash(), "Docs"));
-		addUnorderedRouteSet(DatarouterDocumentationRouteSet.class);
+		addRouteSet(DatarouterDocumentationRouteSet.class);
 		addSettingRoot(DatarouterAuthSettingRoot.class);
 		addTriggerGroup(DatarouterAuthTriggerGroup.class);
-		setDaosModuleBuilder(daosModuleBuilder);
+		setDaosModule(daosModuleBuilder);
 
 		this.userInfoClass = userInfoClass;
 		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;

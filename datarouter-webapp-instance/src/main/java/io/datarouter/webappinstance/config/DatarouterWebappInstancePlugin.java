@@ -24,7 +24,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
-import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.webappinstance.WebappInstanceAppListener;
 import io.datarouter.webappinstance.storage.onetimelogintoken.DatarouterOneTimeLoginTokenDao;
 import io.datarouter.webappinstance.storage.onetimelogintoken.DatarouterOneTimeLoginTokenDao.DatarouterOneTimeLoginTokenDaoParams;
@@ -41,13 +40,13 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 			DatarouterWebappInstanceDaoModule daosModuleBuilder,
 			Class<? extends WebappInstancePublisher> webappInstancePublisher){
 		this.webappInstancePublisher = webappInstancePublisher;
-		addUnorderedAppListener(WebappInstanceAppListener.class);
-		addUnorderedRouteSet(DatarouterWebappInstanceRouteSet.class);
+		addAppListener(WebappInstanceAppListener.class);
+		addRouteSet(DatarouterWebappInstanceRouteSet.class);
 		addSettingRoot(DatarouterWebappInstanceSettingRoot.class);
 		addTriggerGroup(DatarouterWebappInstanceTriggerGroup.class);
-		setDaosModuleBuilder(daosModuleBuilder);
-		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.MONITORING,
-				new DatarouterWebappInstancePaths().datarouter.webappInstances, "Webapp Instances"));
+		setDaosModule(daosModuleBuilder);
+		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
+				new DatarouterWebappInstancePaths().datarouter.webappInstances, "Webapp Instances");
 	}
 
 	@Override

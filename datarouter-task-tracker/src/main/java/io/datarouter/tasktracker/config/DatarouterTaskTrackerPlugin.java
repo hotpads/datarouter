@@ -26,7 +26,6 @@ import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink.NoOpLongRunningTaskGraphLink;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
-import io.datarouter.web.navigation.NavBarItem;
 
 public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 
@@ -38,10 +37,10 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 			DatarouterTaskTrackerDaoModule daosModuleBuilder){
 		this.longRunningTaskGraphLinkClass = longRunningTaskGraphLinkClass;
 		this.daosModuleBuilder = daosModuleBuilder;
-		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.JOBS,
-				new DatarouterTaskTrackerPaths().datarouter.longRunningTasks, "Long running tasks"));
+		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS,
+				new DatarouterTaskTrackerPaths().datarouter.longRunningTasks, "Long running tasks");
 		addSettingRoot(DatarouterTaskTrackerSettingRoot.class);
-		addUnorderedRouteSet(DatarouterTaskTrackerRouteSet.class);
+		addRouteSet(DatarouterTaskTrackerRouteSet.class);
 	}
 
 	@Override
