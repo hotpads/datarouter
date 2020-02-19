@@ -24,6 +24,8 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.PageFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.bytes.ByteRange;
 import io.datarouter.util.bytes.ByteTool;
@@ -31,12 +33,15 @@ import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseScanBuilder{
+	private static final Logger logger = LoggerFactory.getLogger(HBaseScanBuilder.class);
 
 	private static final byte[] EMPTY_PREFIX = new byte[]{};
 	private static final KeyOnlyFilter KEY_ONLY_FILTER = new KeyOnlyFilter();
 	private static final FirstKeyOnlyFilter FIRST_KEY_ONLY_FILTER = new FirstKeyOnlyFilter();
 
 	private byte[] prefix = EMPTY_PREFIX;
+	private byte[] nextPrefix = EMPTY_PREFIX;
+	private boolean hasNextPrefix = false;
 	private Range<ByteRange> range = Range.everything();
 	private Filter columnPrefixFilter;
 	private Integer limit;
@@ -45,6 +50,8 @@ public class HBaseScanBuilder{
 
 	public HBaseScanBuilder withPrefix(byte[] prefix){
 		this.prefix = prefix;
+		this.nextPrefix = getNextPrefix();
+		this.hasNextPrefix = anyNonZero(nextPrefix);
 		return this;
 	}
 
@@ -91,18 +98,32 @@ public class HBaseScanBuilder{
 	}
 
 	private Scan getScanForRange(){
-		byte[] startWithPrefix = ByteTool.concatenate(prefix, getStartInclusive());
-		byte[] endWithoutPrefix = getEndExclusive();
+		byte[] startWithPrefix = ByteTool.concatenate(prefix, getStart());
+		byte[] endExclusiveWithoutPrefix = getEndExclusive();
+		Scan scan;
 		if(prefix.length == 0){
-			if(endWithoutPrefix.length == 0){
-				return new Scan(startWithPrefix);
+			if(endExclusiveWithoutPrefix.length == 0){
+				scan = new Scan()
+						.withStartRow(startWithPrefix, range.getStartInclusive());
+			}else{
+				scan = new Scan()
+						.withStartRow(startWithPrefix, range.getStartInclusive())
+						.withStopRow(endExclusiveWithoutPrefix, false);
 			}
-			return new Scan(startWithPrefix, endWithoutPrefix);
+		}else{
+			if(endExclusiveWithoutPrefix.length == 0){
+				scan = new Scan()
+						.withStartRow(startWithPrefix, range.getStartInclusive());
+				if(hasNextPrefix){
+						scan.withStopRow(nextPrefix, false);
+				}
+			}else{
+				scan = new Scan()
+						.withStartRow(startWithPrefix, range.getStartInclusive())
+						.withStopRow(ByteTool.concatenate(prefix, endExclusiveWithoutPrefix), false);
+			}
 		}
-		if(endWithoutPrefix.length == 0){
-			return new Scan(startWithPrefix, ByteTool.unsignedIncrement(prefix));
-		}
-		return new Scan(startWithPrefix, ByteTool.concatenate(prefix, endWithoutPrefix));
+		return scan;
 	}
 
 	private Optional<Filter> makeFilter(){
@@ -125,14 +146,11 @@ public class HBaseScanBuilder{
 		return Optional.of(filterList);
 	}
 
-	private byte[] getStartInclusive(){
+	private byte[] getStart(){
 		if(!range.hasStart()){
 			return new byte[]{};
 		}
-		if(range.getStartInclusive()){
-			return range.getStart().toArray();
-		}
-		return range.getStart().copyToArrayNewArrayAndIncrement();
+		return range.getStart().toArray();
 	}
 
 	private byte[] getEndExclusive(){
@@ -143,6 +161,19 @@ public class HBaseScanBuilder{
 			return range.getEnd().copyToArrayNewArrayAndIncrement();
 		}
 		return range.getEnd().toArray();
+	}
+
+	private byte[] getNextPrefix(){
+		return ByteTool.unsignedIncrementOverflowToNull(prefix);
+	}
+
+	private boolean anyNonZero(byte[] bytes){
+		for(int i = 0; i < bytes.length; ++i){
+			if(bytes[i] != 0){
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

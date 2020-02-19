@@ -22,17 +22,19 @@ import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
 import io.datarouter.client.mysql.web.MysqlAppListener;
+import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.model.field.Field;
-import io.datarouter.web.config.BaseWebPlugin;
 
-public class DatarouterMysqlPlugin extends BaseWebPlugin{
+public class DatarouterMysqlPlugin extends BaseJobPlugin{
 
-	private final Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByFieldClass;
+	private final Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByField;
 
 	private DatarouterMysqlPlugin(
-			Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByFieldClass){
-		this.additionalCodecClassByFieldClass = additionalCodecClassByFieldClass;
+			Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByField){
+		this.additionalCodecClassByField = additionalCodecClassByField;
 		addAppListener(MysqlAppListener.class);
+		addSettingRoot(DatarouterMysqlSettingRoot.class);
+		addTriggerGroup(DatarouterMysqlTriggerGroup.class);
 	}
 
 	@Override
@@ -43,22 +45,21 @@ public class DatarouterMysqlPlugin extends BaseWebPlugin{
 	@Override
 	public void configure(){
 		bindDefaultInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(
-				additionalCodecClassByFieldClass));
+				additionalCodecClassByField));
 	}
 
 	public static class DatarouterMysqlPluginBuilder{
 
-		private Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> codecClassByFieldClass =
-				new HashMap<>();
+		private Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> codecsByField = new HashMap<>();
 
 		public DatarouterMysqlPluginBuilder addMysqlFieldCodec(
 				Class<? extends Field<?>> field, Class<? extends MysqlFieldCodec<?>> codec){
-			codecClassByFieldClass.put(field, codec);
+			codecsByField.put(field, codec);
 			return this;
 		}
 
 		public DatarouterMysqlPlugin build(){
-			return new DatarouterMysqlPlugin(codecClassByFieldClass);
+			return new DatarouterMysqlPlugin(codecsByField);
 		}
 
 	}

@@ -17,7 +17,6 @@ package io.datarouter.nodewatch.config;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import io.datarouter.instrumentation.tablecount.TableCountPublisher;
 import io.datarouter.instrumentation.tablecount.TableCountPublisher.NoOpTableCountPublisher;
@@ -36,36 +35,34 @@ import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao.Data
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
-import io.datarouter.util.lang.ClassTool;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 
 	private static final DatarouterNodewatchPaths PATHS = new DatarouterNodewatchPaths();
 
-	private final Class<? extends NodewatchClientConfiguration> nodewatchClientConfigurationClass;
 	private final List<ClientId> nodewatchClientIds;
-	private final Class<? extends TableCountPublisher> tableCountPublisherClass;
+	private final Class<? extends TableCountPublisher> tableCountPublisher;
 
 	private DatarouterNodewatchPlugin(
-			Class<? extends NodewatchClientConfiguration> nodewatchClientConfigurationClass,
 			List<ClientId> nodewatchClientIds,
 			DatarouterNodewatchDaoModule daosModuleBuilder,
-			Class<? extends TableCountPublisher> tableCountPublisherClass){
-		this.nodewatchClientConfigurationClass = nodewatchClientConfigurationClass;
+			Class<? extends TableCountPublisher> tableCountPublisher,
+			boolean enablePublishing){
 		this.nodewatchClientIds = nodewatchClientIds;
-		this.tableCountPublisherClass = tableCountPublisherClass;
-		addRouteSet(DatarouterNodewatchRouteSet.class);
-		addTriggerGroup(DatarouterNodewatchTriggerGroup.class);
-		addSettingRoot(DatarouterNodewatchSettingRoot.class);
-		setDaosModule(daosModuleBuilder);
+		this.tableCountPublisher = tableCountPublisher;
 		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, PATHS.datarouter.nodewatch.threshold,
 				"Table Count Thresholds");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.nodewatch.tableCount,
 				"Latest Table Counts");
 		addJobletType(TableSpanSamplerJoblet.JOBLET_TYPE);
-		if(ClassTool.differentClass(tableCountPublisherClass, NoOpTableCountPublisher.class)){
-			addAppListener(DatarouterTableCountPublisherAppListener.class);
+		addRouteSet(DatarouterNodewatchRouteSet.class);
+		addSettingRoot(DatarouterNodewatchSettingRoot.class);
+		addTriggerGroup(DatarouterNodewatchTriggerGroup.class);
+		setDaosModule(daosModuleBuilder);
+		if(enablePublishing){
+			addSettingRoot(DatarouterTableCountPublisherSettingRoot.class);
+			addTriggerGroup(DatarouterTableCountPublisherTriggerGroup.class);
 		}
 	}
 
@@ -76,23 +73,19 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 
 	@Override
 	public void configure(){
-		if(nodewatchClientConfigurationClass != null){
-			bindActual(NodewatchClientConfiguration.class, nodewatchClientConfigurationClass);
-		}else{
-			bindActualInstance(NodewatchClientConfiguration.class, new GenericNodewatchClientConfiguration(
-					nodewatchClientIds));
-		}
-		bind(TableCountPublisher.class).to(tableCountPublisherClass);
+		bindActualInstance(NodewatchClientConfiguration.class, new GenericNodewatchClientConfiguration(
+				nodewatchClientIds));
+		bind(TableCountPublisher.class).to(tableCountPublisher);
 	}
 
 	public static class DatarouterNodewatchPluginBuilder{
 
-		private Class<? extends NodewatchClientConfiguration> nodewatchClientConfigurationClass;
-		private Class<? extends TableCountPublisher> tableCountPublisherClass = NoOpTableCountPublisher.class;
 		private final List<ClientId> nodewatchClientIds;
-
 		private final ClientId defaultClientId;
+
+		private Class<? extends TableCountPublisher> tableCountPublisherClass = NoOpTableCountPublisher.class;
 		private DatarouterNodewatchDaoModule daoModule;
+		private boolean enablePublishing = false;
 
 		public DatarouterNodewatchPluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -104,60 +97,47 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 			return this;
 		}
 
-		public DatarouterNodewatchPluginBuilder withNodewatchClientConfiguration(
-				Class<? extends NodewatchClientConfiguration> nodewatchClientConfigurationClass){
-			this.nodewatchClientConfigurationClass = nodewatchClientConfigurationClass;
-			return this;
-		}
-
-		/*
-		 * This does not include the default clientId
-		 */
-		public DatarouterNodewatchPluginBuilder withNodewatchClientIds(ClientId...clientIds){
-			Stream.of(clientIds).forEach(this.nodewatchClientIds::add);
-			return this;
-		}
-
 		public DatarouterNodewatchPluginBuilder addNodewatchClientId(ClientId clientId){
 			nodewatchClientIds.add(clientId);
 			return this;
 		}
 
-		public DatarouterNodewatchPluginBuilder withTableCountPublisher(
+		public DatarouterNodewatchPluginBuilder enablePublishing(
 				Class<? extends TableCountPublisher> tableCountPublisherClass){
+			this.enablePublishing = true;
 			this.tableCountPublisherClass = tableCountPublisherClass;
 			return this;
 		}
 
 		public DatarouterNodewatchPlugin build(){
 			return new DatarouterNodewatchPlugin(
-					nodewatchClientConfigurationClass,
 					nodewatchClientIds,
 					daoModule == null
 							? new DatarouterNodewatchDaoModule(defaultClientId, defaultClientId, defaultClientId,
 									defaultClientId)
 							: daoModule,
-					tableCountPublisherClass);
+					tableCountPublisherClass,
+					enablePublishing);
 		}
 
 	}
 
 	public static class DatarouterNodewatchDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterLatestTableCountClientId;
-		private final ClientId datarouterTableCountClientId;
-		private final ClientId datarouterTableSampleClientId;
-		private final ClientId datarouterTableSizeAlertThresholdClientId;
+		private final ClientId latestTableCountClientId;
+		private final ClientId tableCountClientId;
+		private final ClientId tableSampleClientId;
+		private final ClientId tableSizeAlertThresholdClientId;
 
 		public DatarouterNodewatchDaoModule(
-				ClientId datarouterLatestTableCountClientId,
-				ClientId datarouterTableCountClientId,
-				ClientId datarouterTableSampleClientId,
-				ClientId datarouterTableSizeAlertThresholdClientId){
-			this.datarouterLatestTableCountClientId = datarouterLatestTableCountClientId;
-			this.datarouterTableCountClientId = datarouterTableCountClientId;
-			this.datarouterTableSampleClientId = datarouterTableSampleClientId;
-			this.datarouterTableSizeAlertThresholdClientId = datarouterTableSizeAlertThresholdClientId;
+				ClientId latestTableCountClientId,
+				ClientId tableCountClientId,
+				ClientId tableSampleClientId,
+				ClientId tableSizeAlertThresholdClientId){
+			this.latestTableCountClientId = latestTableCountClientId;
+			this.tableCountClientId = tableCountClientId;
+			this.tableSampleClientId = tableSampleClientId;
+			this.tableSizeAlertThresholdClientId = tableSizeAlertThresholdClientId;
 		}
 
 		@Override
@@ -172,14 +152,12 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 		@Override
 		public void configure(){
 			bind(DatarouterLatestTableCountDaoParams.class)
-					.toInstance(new DatarouterLatestTableCountDaoParams(datarouterLatestTableCountClientId));
-			bind(DatarouterTableCountDaoParams.class)
-					.toInstance(new DatarouterTableCountDaoParams(datarouterTableCountClientId));
+					.toInstance(new DatarouterLatestTableCountDaoParams(latestTableCountClientId));
+			bind(DatarouterTableCountDaoParams.class).toInstance(new DatarouterTableCountDaoParams(tableCountClientId));
 			bind(DatarouterTableSampleDaoParams.class)
-					.toInstance(new DatarouterTableSampleDaoParams(datarouterTableSampleClientId));
+					.toInstance(new DatarouterTableSampleDaoParams(tableSampleClientId));
 			bind(DatarouterTableSizeAlertThresholdDaoParams.class)
-					.toInstance(new DatarouterTableSizeAlertThresholdDaoParams(
-							datarouterTableSizeAlertThresholdClientId));
+					.toInstance(new DatarouterTableSizeAlertThresholdDaoParams(tableSizeAlertThresholdClientId));
 		}
 
 	}

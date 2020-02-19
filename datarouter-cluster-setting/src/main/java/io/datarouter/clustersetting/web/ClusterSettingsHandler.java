@@ -86,8 +86,6 @@ import io.datarouter.web.html.email.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
-import io.datarouter.web.user.session.service.Session;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 
@@ -108,8 +106,6 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private DatarouterClusterSettingDao clusterSettingDao;
 	@Inject
 	private DatarouterClusterSettingLogDao clusterSettingLogDao;
-	@Inject
-	private CurrentUserSessionInfo currentUserSessionInfo;
 	@Inject
 	private DatarouterClusterSettingFiles files;
 	@Inject
@@ -343,9 +339,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 	}
 
 	private String getRequestorsUsername(){
-		return currentUserSessionInfo.getSession(request)
-				.map(Session::getUsername)
-				.orElse("");
+		return getSessionInfo().getNonEmptyUsernameOrElse("");
 	}
 
 	private String parseCommentFromParams(){
@@ -367,7 +361,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private void sendEmail(ClusterSettingLog log, String oldValue){
 		String from = datarouterProperties.getAdministratorEmail();
 		String to = datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv() + ","
-				+ currentUserSessionInfo.getSession(request).map(Session::getUsername).orElse("");
+				+ getSessionInfo().getNonEmptyUsernameOrElse("");
 		String title = "Setting Update";
 		String primaryHref = completeLink(datarouterHtmlEmailService.startLinkBuilder(), log)
 				.build();

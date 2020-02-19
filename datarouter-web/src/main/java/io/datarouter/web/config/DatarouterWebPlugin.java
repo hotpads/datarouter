@@ -21,8 +21,8 @@ import java.util.Set;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
+import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
@@ -39,11 +39,10 @@ import io.datarouter.web.homepage.HomepageHandler;
 import io.datarouter.web.homepage.HomepageRouteSet;
 import io.datarouter.web.homepage.SimpleHomepageHandler;
 import io.datarouter.web.listener.AppListenersClasses;
+import io.datarouter.web.listener.AppListenersClasses.DatarouterAppListenersClasses;
 import io.datarouter.web.listener.DatarouterAppListener;
-import io.datarouter.web.listener.DatarouterAppListenersClasses;
 import io.datarouter.web.listener.DatarouterShutdownAppListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
-import io.datarouter.web.listener.DatarouterWebAppListenersClasses;
 import io.datarouter.web.listener.ExecutorsAppListener;
 import io.datarouter.web.listener.HttpClientAppListener;
 import io.datarouter.web.listener.InitializeEagerClientsAppListener;
@@ -51,6 +50,7 @@ import io.datarouter.web.listener.JspWebappListener;
 import io.datarouter.web.listener.NoJavaSessionWebAppListener;
 import io.datarouter.web.listener.TomcatWebAppNamesWebAppListener;
 import io.datarouter.web.listener.WebAppListenersClasses;
+import io.datarouter.web.listener.WebAppListenersClasses.DatarouterWebAppListenersClasses;
 import io.datarouter.web.navigation.AppNavBarPluginCreator;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppPluginNavBarSupplier;
@@ -58,16 +58,16 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.DatarouterNavBarCreator;
 import io.datarouter.web.navigation.DatarouterNavBarSupplier;
 import io.datarouter.web.navigation.NavBarItem;
-import io.datarouter.web.plugin.PluginRegistry;
 import io.datarouter.web.plugin.PluginRegistrySupplier;
+import io.datarouter.web.plugin.PluginRegistrySupplier.PluginRegistry;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
-import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
+import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
-import io.datarouter.web.user.session.CurrentUserSessionInfo.NoOpCurrentUserSessionInfo;
+import io.datarouter.web.user.session.CurrentSessionInfo;
+import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
 import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
@@ -89,7 +89,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final DatarouterService datarouterService;
 	private final Class<? extends FilesRoot> filesClass;
 	private final Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass;
-	private final Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass;
+	private final Class<? extends CurrentSessionInfo> currentSessionInfoClass;
 	private final Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass;
 	private final Class<? extends ExceptionRecorder> exceptionRecorderClass;
 	private final Set<String> additionalAdministrators;
@@ -116,7 +116,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			DatarouterService datarouterService,
 			Class<? extends FilesRoot> filesClass,
 			Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass,
-			Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass,
+			Class<? extends CurrentSessionInfo> currentSessionInfoClass,
 			Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass,
 			Class<? extends ExceptionRecorder> exceptionRecorderClass,
 			Set<String> additionalAdministrators,
@@ -175,7 +175,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;
 		this.authenticationConfigClass = authenticationConfigClass;
-		this.currentUserSessionInfoClass = currentUserSessionInfoClass;
+		this.currentSessionInfoClass = currentSessionInfoClass;
 		this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
 		this.exceptionRecorderClass = exceptionRecorderClass;
 		this.additionalAdministrators = additionalAdministrators;
@@ -204,7 +204,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bind(DatarouterService.class).toInstance(datarouterService);
 
 		bindActualNullSafe(DatarouterAuthenticationConfig.class, authenticationConfigClass);
-		bindActualNullSafe(CurrentUserSessionInfo.class, currentUserSessionInfoClass);
+		bindActualNullSafe(CurrentSessionInfo.class, currentSessionInfoClass);
 		bindDefault(ExceptionHandlingConfig.class, exceptionHandlingConfigClass);
 		bindActualInstanceNullSafe(DatarouterAdditionalAdministratorsSupplier.class,
 				new DatarouterAdditionalAdministrators(additionalAdministrators));
@@ -273,7 +273,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
 		private Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass;
-		private Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass = NoOpCurrentUserSessionInfo.class;
+		private Class<? extends CurrentSessionInfo> currentSessionInfoClass = NoOpCurrentSessionInfo.class;
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass
 				= NoOpExceptionHandlingConfig.class;
 		private Class<? extends ExceptionRecorder> exceptionRecorderClass;
@@ -307,9 +307,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder setCurrentUserSessionInfoClass(
-				Class<? extends CurrentUserSessionInfo> currentUserSessionInfoClass){
-			this.currentUserSessionInfoClass = currentUserSessionInfoClass;
+		public DatarouterWebPluginBuilder setCurrentSessionInfoClass(
+				Class<? extends CurrentSessionInfo> currentSessionInfoClass){
+			this.currentSessionInfoClass = currentSessionInfoClass;
 			return this;
 		}
 
@@ -412,7 +412,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					datarouterService,
 					filesClass,
 					authenticationConfigClass,
-					currentUserSessionInfoClass,
+					currentSessionInfoClass,
 					exceptionHandlingConfigClass,
 					exceptionRecorderClass,
 					additionalAdministrators,

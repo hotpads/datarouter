@@ -35,8 +35,7 @@ import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
-import io.datarouter.web.user.session.service.SessionBasedUser;
+import io.datarouter.web.user.session.service.Session;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceFiles;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.job.WebappInstanceUpdateJob;
@@ -56,8 +55,6 @@ public class WebappInstanceHandler extends BaseHandler{
 	private DatarouterWebappInstancePaths paths;
 	@Inject
 	private DatarouterWebappInstanceDao dao;
-	@Inject
-	private CurrentUserSessionInfo currentUserSessionInfo;
 	@Inject
 	private OneTimeLoginService oneTimeLoginService;
 	@Inject
@@ -110,9 +107,9 @@ public class WebappInstanceHandler extends BaseHandler{
 
 	@Handler
 	protected Mav instanceLogin(String webappName, String serverName){
-		SessionBasedUser user = currentUserSessionInfo.getRequiredUser(request);
+		Session session = getSessionInfo().getRequiredSession();
 		Boolean shouldUseIp = params.optionalBoolean(P_USE_IP).orElse(false);
-		return oneTimeLoginService.createToken(user, webappName, serverName, shouldUseIp, request);
+		return oneTimeLoginService.createToken(session, webappName, serverName, shouldUseIp, request);
 	}
 
 	private <T> T getMostCommonValue(List<WebappInstance> objects, Function<WebappInstance,T> mapper){

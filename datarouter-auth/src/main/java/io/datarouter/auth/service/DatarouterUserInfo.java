@@ -18,7 +18,6 @@ package io.datarouter.auth.service;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,10 +26,10 @@ import io.datarouter.auth.cache.DatarouterUserByIdCache;
 import io.datarouter.auth.cache.DatarouterUserByUserTokenCache;
 import io.datarouter.auth.cache.DatarouterUserByUsernameCache;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.session.service.Role;
-import io.datarouter.web.user.session.service.SessionBasedUser;
 
 @Singleton
 public class DatarouterUserInfo implements UserInfo{
@@ -45,10 +44,13 @@ public class DatarouterUserInfo implements UserInfo{
 	private DatarouterUserByIdCache datarouterUserByIdCache;
 
 	@Override
-	public Set<SessionBasedUser> getAllUsers(boolean enabledOnly){
+	public Scanner<DatarouterUser> scanAllUsers(boolean enabledOnly, Set<Role> includedRoles){
+		if(includedRoles.isEmpty()){
+			return Scanner.empty();
+		}
 		return userDao.scan()
 				.include(user -> !enabledOnly || user.getEnabled())
-				.collect(Collectors.toSet());
+				.include(user -> user.getRoles().stream().anyMatch(includedRoles::contains));
 	}
 
 	@Override

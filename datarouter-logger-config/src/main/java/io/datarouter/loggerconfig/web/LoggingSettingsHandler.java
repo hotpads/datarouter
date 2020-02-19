@@ -61,8 +61,6 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
-import io.datarouter.web.user.session.service.Session;
 import j2html.tags.ContainerTag;
 
 public class LoggingSettingsHandler extends BaseHandler{
@@ -82,8 +80,6 @@ public class LoggingSettingsHandler extends BaseHandler{
 			Level.FATAL,//TODO remove because not in slf4j ?
 			Level.OFF};
 
-	@Inject
-	private CurrentUserSessionInfo currentUserSessionInfo;
 	@Inject
 	private DatarouterAdministratorEmailService datarouterAdministratorEmailService;
 	@Inject
@@ -333,9 +329,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 	}
 
 	private String getCurrentUsername(){
-		return currentUserSessionInfo.getSession(request)
-				.map(Session::getUsername)
-				.orElse("");
+		return getSessionInfo().getNonEmptyUsernameOrElse("");
 	}
 
 	public static class LoggerConfigMetadata{

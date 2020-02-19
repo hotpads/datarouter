@@ -17,19 +17,19 @@ package io.datarouter.secret.handler;
 
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.handler.SecretHandlerOpRequestDto.SecretOpDto;
-import io.datarouter.web.user.session.service.SessionBasedUser;
+import io.datarouter.web.user.session.service.Session;
 
 /**
  * Use this interface to enable {@link Secret} ops through {@link SecretHandler}.
  */
 public interface SecretHandlerPermissions{
 
-	boolean isAuthorized(SessionBasedUser user, SecretOpDto secretOp);
+	boolean isAuthorized(Session session, SecretOpDto secretOp);
 
 	static class NoOpSecretHandlerPermissions implements SecretHandlerPermissions{
 
 		@Override
-		public boolean isAuthorized(SessionBasedUser user, SecretOpDto secretOp){
+		public boolean isAuthorized(Session session, SecretOpDto secretOp){
 			return false;
 		}
 

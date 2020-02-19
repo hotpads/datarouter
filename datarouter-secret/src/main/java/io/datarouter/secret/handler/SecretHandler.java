@@ -32,13 +32,10 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
 
 public class SecretHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(SecretHandler.class);
 
-	@Inject
-	private CurrentUserSessionInfo currentUserSessionInfo;
 	@Inject
 	private DatarouterSecretFiles files;
 	@Inject
@@ -98,7 +95,7 @@ public class SecretHandler extends BaseHandler{
 		default:
 			return SecretHandlerOpResultDto.error("Unknown op.");
 		}
-		if(!permissions.isAuthorized(currentUserSessionInfo.getRequiredUser(request), requestDto.op)){
+		if(!permissions.isAuthorized(getSessionInfo().getRequiredSession(), requestDto.op)){
 			return SecretHandlerOpResultDto.denied("Permission denied for " + requestDto.op + " op.");
 		}
 		return null;
@@ -106,8 +103,7 @@ public class SecretHandler extends BaseHandler{
 
 	private SecretHandlerOpResultDto executeAuthorizedRequest(SecretHandlerOpRequestDto requestDto){
 		try{
-			SecretOpReason opReason = SecretOpReason.manualOp(currentUserSessionInfo.getRequiredUser(request),
-					"SecretHandler");
+			SecretOpReason opReason = SecretOpReason.manualOp(getSessionInfo().getRequiredSession(), "SecretHandler");
 			switch(requestDto.op){
 			case CREATE:
 				try{

@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.joblet.job.JobletCounterJob;
 import io.datarouter.joblet.job.JobletDataVacuumJob;
+import io.datarouter.joblet.job.JobletInstanceCounterJob;
 import io.datarouter.joblet.job.JobletRequeueJob;
 import io.datarouter.joblet.job.JobletVacuumJob;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
@@ -50,6 +51,11 @@ public class DatarouterJobletTriggerGroup extends BaseTriggerGroup{
 				"0 0 15 * * ?",
 				settings.runJobletDataVacuum,
 				JobletDataVacuumJob.class,
+				true);
+		registerLocked(
+				"12/30 * * * * ?",
+				settings.runJobletInstanceCounterJob,
+				JobletInstanceCounterJob.class,
 				true);
 	}
 

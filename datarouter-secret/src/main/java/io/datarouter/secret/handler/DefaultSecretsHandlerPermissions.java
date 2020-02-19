@@ -20,7 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.secret.handler.SecretHandlerOpRequestDto.SecretOpDto;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.web.user.session.service.SessionBasedUser;
+import io.datarouter.web.user.session.service.Session;
 
 /**
  * This allows all users to view the list of secrets on any environment, but allows no other operations on production.
@@ -32,7 +32,7 @@ public class DefaultSecretsHandlerPermissions implements SecretHandlerPermission
 	private ServerTypeDetector serverTypeDetector;
 
 	@Override
-	public boolean isAuthorized(SessionBasedUser user, SecretOpDto secretOp){
+	public boolean isAuthorized(Session session, SecretOpDto secretOp){
 		if(SecretOpDto.LIST_ALL == secretOp){
 			return true;
 		}

@@ -16,6 +16,7 @@
 package io.datarouter.scanner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,7 @@ import java.util.stream.StreamSupport;
 public class ScannerTool{
 
 	public static <T> boolean allMatch(Scanner<T> scanner, Predicate<? super T> predicate){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			while(scanner.advance()){
 				if(!predicate.test(scanner.current())){
 					return false;
@@ -41,7 +42,7 @@ public class ScannerTool{
 	}
 
 	public static <T> boolean anyMatch(Scanner<T> scanner, Predicate<? super T> predicate){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			while(scanner.advance()){
 				if(predicate.test(scanner.current())){
 					return true;
@@ -52,7 +53,7 @@ public class ScannerTool{
 	}
 
 	public static <T> long count(Scanner<T> scanner){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			long count = 0;
 			while(scanner.advance()){
 				++count;
@@ -62,7 +63,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> findAny(Scanner<T> scanner){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			if(scanner.advance()){
 				return Optional.of(scanner.current());
 			}
@@ -71,7 +72,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> findFirst(Scanner<T> scanner){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			if(scanner.advance()){
 				return Optional.of(scanner.current());
 			}
@@ -80,7 +81,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> findLast(Scanner<T> scanner){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			T last = null;
 			while(scanner.advance()){
 				last = scanner.current();
@@ -89,8 +90,14 @@ public class ScannerTool{
 		}
 	}
 
+	public static <T> Scanner<T> flush(Scanner<T> scanner, Consumer<List<T>> consumer){
+		List<T> list = Collections.unmodifiableList(list(scanner));
+		consumer.accept(list);
+		return Scanner.of(list);
+	}
+
 	public static <T> void forEach(Scanner<T> scanner, Consumer<? super T> action){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			while(scanner.advance()){
 				action.accept(scanner.current());
 			}
@@ -98,19 +105,19 @@ public class ScannerTool{
 	}
 
 	public static <T> boolean hasAny(Scanner<T> scanner){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			return scanner.advance();
 		}
 	}
 
 	public static <T> boolean isEmpty(Scanner<T> scanner){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			return !scanner.advance();
 		}
 	}
 
 	public static <T> ArrayList<T> list(Scanner<T> scanner){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			ArrayList<T> list = new ArrayList<>();
 			while(scanner.advance()){
 				list.add(scanner.current());
@@ -120,7 +127,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> max(Scanner<T> scanner, Comparator<? super T> comparator){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			T max = null;
 			while(scanner.advance()){
 				T current = scanner.current();
@@ -133,7 +140,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> min(Scanner<T> scanner, Comparator<? super T> comparator){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			T min = null;
 			while(scanner.advance()){
 				T current = scanner.current();
@@ -153,7 +160,7 @@ public class ScannerTool{
 	}
 
 	public static <T> boolean noneMatch(Scanner<T> scanner, Predicate<? super T> predicate){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			while(scanner.advance()){
 				if(predicate.test(scanner.current())){
 					return false;
@@ -164,7 +171,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> reduce(Scanner<T> scanner, BinaryOperator<T> reducer){
-		try(Scanner<T> ref = scanner){
+		try(var $ = scanner){
 			T result = null;
 			while(scanner.advance()){
 				result = result == null

@@ -47,10 +47,4 @@ public class ScanSanitizer{
 		return key != null && CollectionTool.getFirst(key.getFields()).getValue() == null;
 	}
 
-	public static <PK extends PrimaryKey<PK>> void logInvalidRange(Range<PK> range){
-		if(!range.isValid()){
-			logger.debug("invalid range={}", range, new Exception());
-		}
-	}
-
 }

@@ -389,7 +389,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 	public void testExclusiveStartKey(){
 		// single entity case
 		var startKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_emu);
-		var endKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7, SortedBeans.S_pelican);
+		var endKey = new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, null, null);
 		List<SortedBean> result = dao.scan(new Range<>(startKey, false, endKey, true)).list();
 		Assert.assertEquals(result.get(0).getKey(), new SortedBeanKey(SortedBeans.S_alpaca, SortedBeans.S_ostrich, 7,
 				SortedBeans.S_gopher));

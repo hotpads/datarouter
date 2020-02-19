@@ -51,7 +51,6 @@ import io.datarouter.web.handler.types.optional.OptionalInteger;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.http.RequestTool;
 import j2html.tags.DomContent;
@@ -65,8 +64,6 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private DatarouterAdministratorEmailService administratorEmailService;
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
-	@Inject
-	private CurrentUserSessionInfo sessionInfo;
 	@Inject
 	private DatarouterProperties properties;
 	@Inject
@@ -186,13 +183,13 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				Twin.of("averageRps", NumberFormatter.addCommas(avgRps)),
 				Twin.of("duration", duration + ""),
 				Twin.of("server", properties.getServerName()),
-				Twin.of("triggeredBy", sessionInfo.getUser(request).get().getUsername()));
+				Twin.of("triggeredBy", getSessionInfo().getRequiredSession().getUsername()));
 		sendEmail(node.getName(), emailKvs);
 		return pageFactory.message(request, message);
 	}
 
 	private void sendEmail(String nodeName, List<Twin<String>> kvs){
-		String from = sessionInfo.getUser(request).get().getUsername();
+		String from = getSessionInfo().getRequiredSession().getUsername();
 		String to = administratorEmailService.getAdministratorEmailAddressesCsv(from);
 		String title = "Count Keys Result";
 		var table = new J2HtmlEmailTable<Twin<String>>()

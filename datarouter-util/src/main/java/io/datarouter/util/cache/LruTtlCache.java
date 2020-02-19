@@ -71,10 +71,14 @@ public class LruTtlCache<K,V>{
 		return getIfNotExpired(key);
 	}
 
-	public synchronized void put(K key, V value){
+	public synchronized boolean put(K key, V value){
+		if(map.get(key) != null){
+			map.put(key, new CachedObject<>(value, clock, ttl));
+			return true;
+		}
 		if(map.size() < maxSize){
 			map.put(key, new CachedObject<>(value, clock, ttl));
-			return;
+			return false;
 		}
 		// remove the oldest (first) item to make space
 		Iterator<K> it = map.keySet().iterator();
@@ -83,6 +87,7 @@ public class LruTtlCache<K,V>{
 			it.remove();
 			map.put(key, new CachedObject<>(value, clock, ttl));
 		}
+		return false;
 	}
 
 	public synchronized boolean contains(K key){

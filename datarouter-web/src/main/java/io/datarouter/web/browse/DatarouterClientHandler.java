@@ -39,7 +39,7 @@ public class DatarouterClientHandler extends BaseHandler{
 		String clientType = datarouterClients.getClientTypeInstance(datarouterClients.getClientId(clientName))
 				.getName();
 		return datarouterClientWebInspectorRegistry.get(clientType)
-				.map(inspector -> inspector.inspectClient(params))
+				.map(inspector -> inspector.inspectClient(params, request))
 				.orElseGet(() -> new MessageMav("Can't inspect " + clientType + ". Make sure it registers a "
 						+ DatarouterClientWebInspector.class.getSimpleName() + " in "
 						+ DatarouterClientWebInspectorRegistry.class.getSimpleName() + "."));

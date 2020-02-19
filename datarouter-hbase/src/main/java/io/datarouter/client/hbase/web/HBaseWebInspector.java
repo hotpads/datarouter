@@ -24,6 +24,7 @@ import java.util.TreeMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
@@ -65,7 +66,7 @@ public class HBaseWebInspector implements DatarouterClientWebInspector{
 	private DatarouterHBasePaths datarouterHBasePaths;
 
 	@Override
-	public Mav inspectClient(Params params){
+	public Mav inspectClient(Params params, HttpServletRequest request){
 		Mav mav = new Mav();
 		DatarouterWebRequestParams<?> routerParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(
 				params, ClientType.class);

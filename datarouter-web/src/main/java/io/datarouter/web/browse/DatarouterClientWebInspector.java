@@ -15,11 +15,34 @@
  */
 package io.datarouter.web.browse;
 
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.b;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.nav;
+import static j2html.TagCreator.ol;
+import static j2html.TagCreator.span;
+
+import javax.servlet.http.HttpServletRequest;
+
+import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.params.Params;
+import j2html.tags.ContainerTag;
 
 public interface DatarouterClientWebInspector{
 
-	Mav inspectClient(Params params);
+	Mav inspectClient(Params params, HttpServletRequest request);
+
+	static ContainerTag buildNav(String contextPath, String clientName){
+		var datarouterHome = a("Datarouter Home")
+				.withHref(contextPath + new DatarouterWebPaths().datarouter.toSlashedString());
+		var datarouterNavItem = li(datarouterHome)
+				.withClass("breadcrumb-item");
+		var client = span(clientName)
+				.withClass("breadcrumb-item active");
+		var clientNavItem = li(b("Client: "), client)
+				.withClass("breadcrumb");
+		return nav(ol(datarouterNavItem, clientNavItem));
+	}
 
 }

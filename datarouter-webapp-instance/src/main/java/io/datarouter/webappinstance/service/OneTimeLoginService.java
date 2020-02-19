@@ -17,18 +17,18 @@ package io.datarouter.webappinstance.service;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
-import io.datarouter.web.user.session.service.SessionBasedUser;
+import io.datarouter.web.user.session.service.Session;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.storage.onetimelogintoken.DatarouterOneTimeLoginTokenDao;
 import io.datarouter.webappinstance.storage.onetimelogintoken.OneTimeLoginToken;
@@ -48,9 +48,9 @@ public class OneTimeLoginService{
 	@Inject
 	private DatarouterWebappInstancePaths paths;
 
-	public Mav createToken(SessionBasedUser user, String webappName, String serverName, Boolean shouldUseIp,
+	public Mav createToken(Session session, String webappName, String serverName, Boolean shouldUseIp,
 			HttpServletRequest request){
-		Objects.requireNonNull(user);
+		ObjectTool.requireNonNulls(session, session.getUserId());
 		WebappInstance target = webappInstanceDao.get(new WebappInstanceKey(webappName, serverName));
 		if(target == null){
 			return new MessageMav("specified web app instance does not exist: " + serverName);
@@ -58,11 +58,11 @@ public class OneTimeLoginService{
 
 		String token = DatarouterTokenGenerator.generateRandomToken();
 		Instant deadline = Instant.now().plusSeconds(5);
-		oneTimeLoginDao.put(new OneTimeLoginToken(user.getId(), token, serverName,
-				target.getServerPublicIp(), Date.from(deadline)));
+		oneTimeLoginDao.put(new OneTimeLoginToken(session.getUserId(), token, serverName, target.getServerPublicIp(),
+				Date.from(deadline)));
 
 		GlobalRedirectMav mav = new GlobalRedirectMav(buildRedirectUrl(request, target, shouldUseIp), true);
-		mav.put(WebappInstanceHandler.P_USER_ID, user.getId());
+		mav.put(WebappInstanceHandler.P_USER_ID, session.getUserId());
 		mav.put(WebappInstanceHandler.P_TOKEN, token);
 		return mav;
 	}

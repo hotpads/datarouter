@@ -50,6 +50,7 @@ import org.testng.annotations.Test;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.util.lazy.Lazy;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.HandledException;
@@ -65,6 +66,8 @@ import io.datarouter.web.handler.validator.RequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorResponseDto;
 import io.datarouter.web.security.SecurityValidationResult;
+import io.datarouter.web.user.session.RequestAwareCurrentSessionInfoFactory;
+import io.datarouter.web.user.session.RequestAwareCurrentSessionInfoFactory.RequestAwareCurrentSessionInfo;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.RequestDurationTool;
@@ -101,6 +104,8 @@ public abstract class BaseHandler{
 	private Optional<ExceptionRecorder> exceptionRecorder;
 	@Inject
 	private HandlerCounters handlerCounters;
+	@Inject
+	private RequestAwareCurrentSessionInfoFactory requestAwareCurrentSessionInfoFactory;
 
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder;
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
@@ -111,6 +116,9 @@ public abstract class BaseHandler{
 	protected HttpServletResponse response;
 	protected Params params;
 	protected List<RequestParamValidator<?>> paramValidators = new ArrayList<>();
+
+	private Lazy<RequestAwareCurrentSessionInfo> requestAwareCurrentSessionInfo = Lazy.of(() ->
+			requestAwareCurrentSessionInfoFactory.build(request));
 
 	/**
 	 * Used via reflection, see {@link #DEFAULT_HANDLER_METHOD_NAME}
@@ -306,6 +314,10 @@ public abstract class BaseHandler{
 				.ifPresent(durationStr -> RequestAttributeTool.set(request, REQUEST_DURATION_STRING, durationStr));
 		encoder.finishRequest(result, servletContext, response, request);
 		postProcess(result);
+	}
+
+	protected RequestAwareCurrentSessionInfo getSessionInfo(){
+		return requestAwareCurrentSessionInfo.get();
 	}
 
 	/*---------------- optionally override these -----------------*/

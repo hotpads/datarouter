@@ -20,7 +20,7 @@ import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.user.session.service.SessionBasedUser;
+import io.datarouter.web.user.session.service.Session;
 
 public class SecretOpReason{
 
@@ -49,12 +49,13 @@ public class SecretOpReason{
 		return new SecretOpReason(SecretOpReasonType.AUTOMATED, null, null, null, reason);
 	}
 
-	public static SecretOpReason manualOp(SessionBasedUser user, String reason){
-		ObjectTool.requireNonNulls(user, user.getToken(), user.getUsername());
-		Require.isTrue(StringTool.notEmptyNorWhitespace(user.getToken()));
-		Require.isTrue(StringTool.notEmptyNorWhitespace(user.getUsername()));
+	public static SecretOpReason manualOp(Session session, String reason){
+		ObjectTool.requireNonNulls(session, session.getUserToken(), session.getUsername());
+		Require.isTrue(StringTool.notEmptyNorWhitespace(session.getUserToken()));
+		Require.isTrue(StringTool.notEmptyNorWhitespace(session.getUsername()));
 		Require.isTrue(StringTool.notEmptyNorWhitespace(reason));
-		return new SecretOpReason(SecretOpReasonType.MANUAL, user.getUsername(), user.getToken(), null, reason);
+		return new SecretOpReason(SecretOpReasonType.MANUAL, session.getUsername(), session.getUserToken(), null,
+				reason);
 	}
 
 	@Override

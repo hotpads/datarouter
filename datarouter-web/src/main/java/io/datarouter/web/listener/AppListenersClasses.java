@@ -17,8 +17,26 @@ package io.datarouter.web.listener;
 
 import java.util.List;
 
+import javax.inject.Singleton;
+
 public interface AppListenersClasses{
 
 	List<Class<? extends DatarouterAppListener>> getAppListenerClasses();
+
+	@Singleton
+	static class DatarouterAppListenersClasses implements AppListenersClasses{
+
+		private final List<Class<? extends DatarouterAppListener>> classes;
+
+		public DatarouterAppListenersClasses(List<Class<? extends DatarouterAppListener>> classes){
+			this.classes = classes;
+		}
+
+		@Override
+		public List<Class<? extends DatarouterAppListener>> getAppListenerClasses(){
+			return classes;
+		}
+
+	}
 
 }

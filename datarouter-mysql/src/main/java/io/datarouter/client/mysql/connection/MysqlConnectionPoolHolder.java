@@ -52,6 +52,8 @@ public class MysqlConnectionPoolHolder{
 	public static final MysqlCharacterSet CHARACTER_SET_CONNECTION = MysqlCharacterSet.valueOf(UTF8MB4_CHARSET);
 	public static final MysqlCollation COLLATION_CONNECTION = MysqlCollation.valueOf(UTF8MB4_COLLATION);
 
+	public static final String CLIENT_NAME_KEY = "clientName=";
+
 	static{
 		System.setProperty("log4jdbc.dump.sql.maxlinelength", "0");
 		System.setProperty("log4jdbc.trim.sql.extrablanklines", "false");
@@ -110,6 +112,7 @@ public class MysqlConnectionPoolHolder{
 			urlParams.add("connectionCollation=" + UTF8MB4_COLLATION);
 			urlParams.add("characterEncoding=" + UTF8);
 			urlParams.add("logger=" + Slf4JLogger.class.getName());
+			urlParams.add(CLIENT_NAME_KEY + clientId.getName());
 
 			String urlWithParams = url + "?" + String.join("&", urlParams);
 			try{

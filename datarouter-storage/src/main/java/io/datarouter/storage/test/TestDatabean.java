@@ -18,7 +18,7 @@ package io.datarouter.storage.test;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.imp.StringFieldKey;
 
-public class TestDatabean extends BaseDatabean<TestDatabeanKey, TestDatabean>{
+public class TestDatabean extends BaseDatabean<TestDatabeanKey,TestDatabean>{
 
 	private String bar;
 	private String baz;

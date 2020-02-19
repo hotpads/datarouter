@@ -27,8 +27,8 @@ public abstract class LruTtlCacheWrapper<K,V>{
 		return cache.get(key);
 	}
 
-	public void put(K key, V value){
-		cache.put(key, value);
+	public boolean put(K key, V value){
+		return cache.put(key, value);
 	}
 
 	public boolean contains(K key){

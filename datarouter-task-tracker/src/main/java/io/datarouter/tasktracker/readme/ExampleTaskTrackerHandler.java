@@ -34,15 +34,12 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalLong;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
 
 public class ExampleTaskTrackerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ExampleTaskTrackerHandler.class);
 
 	@Inject
 	private LongRunningTaskTrackerFactory trackerFactory;
-	@Inject
-	private CurrentUserSessionInfo currentUserSessionInfo;
 
 	@Handler
 	public Mav countFiles(String parentPath, OptionalLong logEveryN) throws IOException{
@@ -58,7 +55,7 @@ public class ExampleTaskTrackerHandler extends BaseHandler{
 				//gracefully stop when the deadline is reached
 				true,
 				//record which user triggered the request, viewable in the UI
-				currentUserSessionInfo.getNonEmptyUsernameOrElse(request, "anonymous"));
+				getSessionInfo().getNonEmptyUsernameOrElse("anonymous"));
 
 		//update and check the TaskTracker during a potentially long task
 		Scanner.of(Files.walk(Paths.get(parentPath)))

@@ -9,13 +9,13 @@ Datarouter-nodewatch is a tool to count tables in a configurable manner.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-nodewatch</artifactId>
-	<version>0.0.18</version>
+	<version>0.0.19</version>
 </dependency>
 ```
 
 ## Installation with Datarouter
 
-You can install this module by adding its plugin to the `WebappBuidlder`.
+You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
 .addJobletPlugin(new DatarouterNodewatchPluginBuilder(...)
@@ -30,7 +30,7 @@ You can install this module by adding its plugin to the `WebappBuidlder`.
 ### Table Count
 
 Each client that should be counted needs to be added to the `DatarouterNodewatchPluginBuilder` when installed in the 
-`WebappBuilder` with the `.addNodewatchClientId(clientId)`.  
+`WebappBuilder` with the `.addNodewatchClientId(clientId)`.
 
 The `TableCountJob` runs multiple times a day and recomputes each of the recorded `TableRowSample`s for each table 
 based on the number of samples saved. Samples are staggered so each is counted once per week, with some exceptions 

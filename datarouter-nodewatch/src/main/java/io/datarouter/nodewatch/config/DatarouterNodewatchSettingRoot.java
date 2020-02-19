@@ -29,7 +29,6 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> tableSamplerJob;
 	public final CachedSetting<Boolean> tableCountJob;
 	public final CachedSetting<Boolean> tableSizeMonitoringJob;
-	public final CachedSetting<Boolean> publishLatestTableCounts;
 	public final CachedSetting<Boolean> runConfigurationScanReportEmailJob;
 
 	@Inject
@@ -38,7 +37,6 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 		tableSamplerJob = registerBoolean("tableSamplerJob", false);
 		tableCountJob = registerBoolean("tableCountJob", false);
 		tableSizeMonitoringJob = registerBoolean("tableSizeMonitoringJob", false);
-		publishLatestTableCounts = registerBoolean("publishLatestTableCounts", false);
 		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
 	}
 

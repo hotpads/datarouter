@@ -19,13 +19,32 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.inject.Singleton;
+
 public interface DatarouterAdditionalAdministratorsSupplier extends Supplier<Set<String>>{
 
+	@Singleton
 	static class NoOpDatarouterAdditionalAdministratorsSupplier implements DatarouterAdditionalAdministratorsSupplier{
 
 		@Override
 		public Set<String> get(){
 			return Collections.emptySet();
+		}
+
+	}
+
+	@Singleton
+	static class DatarouterAdditionalAdministrators implements DatarouterAdditionalAdministratorsSupplier{
+
+		private final Set<String> additionalAdministratorEmailAddress;
+
+		public DatarouterAdditionalAdministrators(Set<String> additionalAdministratorEmailAddress){
+			this.additionalAdministratorEmailAddress = additionalAdministratorEmailAddress;
+		}
+
+		@Override
+		public Set<String> get(){
+			return additionalAdministratorEmailAddress;
 		}
 
 	}

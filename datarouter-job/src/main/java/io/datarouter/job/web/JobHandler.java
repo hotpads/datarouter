@@ -51,7 +51,6 @@ import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
 
 public class JobHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(JobHandler.class);
@@ -70,8 +69,6 @@ public class JobHandler extends BaseHandler{
 	private JobPackageFilter jobPackageFilter;
 	@Inject
 	private LongRunningTaskService longRunningTaskService;
-	@Inject
-	private CurrentUserSessionInfo currentUserSessionInfo;
 	@Inject
 	private DatarouterJobPaths datarouterJobPaths;
 
@@ -109,7 +106,7 @@ public class JobHandler extends BaseHandler{
 		Class<? extends BaseJob> jobClass = BaseJob.parseClass(name);
 		Map<String,Object> jobTriggerResponse = new HashMap<>();
 		Date startTime = new Date();
-		String triggeredBy = currentUserSessionInfo.getRequiredSession(request).getUsername();
+		String triggeredBy = getSessionInfo().getRequiredSession().getUsername();
 		boolean started = jobScheduler.triggerManualJob(jobClass, triggeredBy);
 		if(!started){
 			String message = "Could not start " + jobClass.getSimpleName();

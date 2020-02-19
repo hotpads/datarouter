@@ -15,12 +15,12 @@
  */
 package io.datarouter.joblet.handler;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import io.datarouter.joblet.job.JobletInstanceCounterJob;
 import io.datarouter.joblet.service.JobletScaler;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.collection.CollectionTool;
@@ -32,8 +32,6 @@ import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
  * note: this is a standalone controller since it requires public access
  */
 public class JobletScalingHandler extends BaseHandler{
-
-	public static final Duration HEARTBEAT_WITHIN = Duration.ofMinutes(3);
 
 	@Inject
 	private DatarouterWebappInstanceDao webappInstanceDao;
@@ -57,7 +55,7 @@ public class JobletScalingHandler extends BaseHandler{
 	// optionally override this in a subclass handler
 	protected WebappInstance findJobletWebappInstance(String serverTypeString){
 		List<WebappInstance> jobletInstances = webappInstanceDao.getWebappInstancesWithServerTypeString(
-				serverTypeString, HEARTBEAT_WITHIN);
+				serverTypeString, JobletInstanceCounterJob.HEARTBEAT_WITHIN);
 		return CollectionTool.getFirst(jobletInstances);
 	}
 

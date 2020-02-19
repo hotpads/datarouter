@@ -20,7 +20,7 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
+import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.service.RoleManager;
 
 @Singleton
@@ -29,7 +29,7 @@ public class DatarouterMavPropertiesFactoryConfig{
 	@Inject
 	private RoleManager roleManager;
 	@Inject
-	private CurrentUserSessionInfo currentUserSessionInfo;
+	private CurrentSessionInfo currentSessionInfo;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 
@@ -46,7 +46,7 @@ public class DatarouterMavPropertiesFactoryConfig{
 	}
 
 	public boolean getIsAdmin(HttpServletRequest request){
-		return currentUserSessionInfo.getRoles(request).stream()
+		return currentSessionInfo.getRoles(request).stream()
 				.anyMatch(roleManager::isAdmin);
 	}
 

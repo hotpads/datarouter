@@ -41,7 +41,6 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
 
 public class DatarouterAccountManagerHandler extends BaseHandler{
 
@@ -49,7 +48,6 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao;
 	private final DatarouterProperties datarouterProperties;
 	private final DatarouterAuthFiles files;
-	private final CurrentUserSessionInfo currentUserInfo;
 	private final DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider;
 	private final Bootstrap4ReactPageFactory reactPageFactory;
 	private final DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
@@ -63,7 +61,6 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			DatarouterProperties datarouterProperties,
 			DatarouterAuthFiles files,
 			DatarouterAuthPaths paths,
-			CurrentUserSessionInfo currentUserInfo,
 			DefaultDatarouterAccountAvailableEndpointsProvider defaultDatarouterAccountAvailableEndpointsProvider,
 			Bootstrap4ReactPageFactory reactPageFactory,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys){
@@ -71,7 +68,6 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				datarouterAccountPermissionDao,
 				datarouterProperties,
 				files,
-				currentUserInfo,
 				defaultDatarouterAccountAvailableEndpointsProvider,
 				reactPageFactory,
 				defaultDatarouterAccountKeys,
@@ -83,7 +79,6 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao,
 			DatarouterProperties datarouterProperties,
 			DatarouterAuthFiles files,
-			CurrentUserSessionInfo currentUserInfo,
 			DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider,
 			Bootstrap4ReactPageFactory reactPageFactory,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
@@ -92,7 +87,6 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
 		this.datarouterProperties = datarouterProperties;
 		this.files = files;
-		this.currentUserInfo = currentUserInfo;
 		this.datarouterAccountAvailableEndpointsProvider = datarouterAccountAvailableEndpointsProvider;
 		this.reactPageFactory = reactPageFactory;
 		this.defaultDatarouterAccountKeys = defaultDatarouterAccountKeys;
@@ -129,7 +123,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	@Handler
 	public DatarouterAccountDetails add(String accountName){
 		Require.isTrue(!accountName.isEmpty());
-		String creator = currentUserInfo.getRequiredSession(request).getUsername();
+		String creator = getSessionInfo().getRequiredSession().getUsername();
 		DatarouterAccount account = new DatarouterAccount(accountName, new Date(), creator);
 		datarouterAccountDao.put(account);
 		return getDetailsForAccount(account);

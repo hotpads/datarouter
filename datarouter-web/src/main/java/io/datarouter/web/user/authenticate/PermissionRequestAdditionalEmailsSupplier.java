@@ -19,13 +19,32 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.inject.Singleton;
+
 public interface PermissionRequestAdditionalEmailsSupplier extends Supplier<Set<String>>{
 
+	@Singleton
 	static class NoOpPermissionRequestAdditionalEmails implements PermissionRequestAdditionalEmailsSupplier{
 
 		@Override
 		public Set<String> get(){
 			return Collections.emptySet();
+		}
+
+	}
+
+	@Singleton
+	static class PermissionRequestAdditionalEmails implements PermissionRequestAdditionalEmailsSupplier{
+
+		private final Set<String> additionalPermissionRequestEmailAddress;
+
+		public PermissionRequestAdditionalEmails(Set<String> additionalPermissionRequestEmailAddress){
+			this.additionalPermissionRequestEmailAddress = additionalPermissionRequestEmailAddress;
+		}
+
+		@Override
+		public Set<String> get(){
+			return additionalPermissionRequestEmailAddress;
 		}
 
 	}

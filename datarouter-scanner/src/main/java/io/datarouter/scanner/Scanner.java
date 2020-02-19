@@ -73,6 +73,10 @@ public interface Scanner<T> extends Closeable{
 		return ScannerTool.findLast(this);
 	}
 
+	default Scanner<T> flush(Consumer<List<T>> consumer){
+		return ScannerTool.flush(this, consumer);
+	}
+
 	default void forEach(Consumer<? super T> action){
 		ScannerTool.forEach(this, action);
 	}
@@ -190,10 +194,6 @@ public interface Scanner<T> extends Closeable{
 
 	default Scanner<T> sorted(Comparator<? super T> comparator){
 		return new SortingScanner<>(this, comparator);
-	}
-
-	default Scanner<T> step(long stepSize){
-		return new SteppingScanner<>(this, stepSize);
 	}
 
 	default List<T> take(int numToTake){

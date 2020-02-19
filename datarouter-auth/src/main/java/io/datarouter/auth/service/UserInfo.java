@@ -18,12 +18,13 @@ package io.datarouter.auth.service;
 import java.util.Optional;
 import java.util.Set;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 
 public interface UserInfo{
 
-	Set<SessionBasedUser> getAllUsers(boolean enabledOnly);
+	Scanner<? extends SessionBasedUser> scanAllUsers(boolean enabledOnly, Set<Role> includedRoles);
 
 	Optional<? extends SessionBasedUser> getUserByUsername(String username);
 	Optional<? extends SessionBasedUser> getUserByToken(String token);

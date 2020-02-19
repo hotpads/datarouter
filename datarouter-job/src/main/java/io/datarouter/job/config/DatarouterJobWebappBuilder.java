@@ -37,7 +37,6 @@ import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.setting.DatarouterSettingOverrides;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoGroup;
-import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.SettingRoot;
@@ -54,7 +53,7 @@ import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
+import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
 
@@ -227,22 +226,14 @@ public class DatarouterJobWebappBuilder extends DatarouterWebWebappBuilder imple
 	}
 
 	@Override
-	public DatarouterJobWebappBuilder setCurrentUserSessionInfo(
-			Class<? extends CurrentUserSessionInfo> currentUserSessionInfo){
-		super.setCurrentUserSessionInfo(currentUserSessionInfo);
+	public DatarouterJobWebappBuilder setCurrentSessionInfo(Class<? extends CurrentSessionInfo> currentSessionInfo){
+		super.setCurrentSessionInfo(currentSessionInfo);
 		return this;
 	}
 
 	@Override
 	public DatarouterJobWebappBuilder setServerTypeDetector(Class<? extends ServerTypeDetector> serverTypeDetector){
 		super.setServerTypeDetector(serverTypeDetector);
-		return this;
-	}
-
-	@Override
-	@Deprecated
-	public DatarouterJobWebappBuilder addRouter(Class<? extends Dao> router){
-		super.addRouter(router);
 		return this;
 	}
 

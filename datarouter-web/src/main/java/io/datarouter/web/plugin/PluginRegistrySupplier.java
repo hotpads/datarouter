@@ -18,5 +18,24 @@ package io.datarouter.web.plugin;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.inject.Singleton;
+
 public interface PluginRegistrySupplier extends Supplier<List<String>>{
+
+	@Singleton
+	static class PluginRegistry implements PluginRegistrySupplier{
+
+		private final List<String> plugins;
+
+		public PluginRegistry(List<String> plugins){
+			this.plugins = plugins;
+		}
+
+		@Override
+		public List<String> get(){
+			return plugins;
+		}
+
+	}
+
 }

@@ -35,12 +35,12 @@ public class WebappNavbarHtml{
 
 	private final MavProperties props;
 	private final NavBar navbar;
-	private final String navbarTarget;
+	private final String navbarTargetId;
 
 	public WebappNavbarHtml(MavProperties props, NavBar navbar){
 		this.props = Objects.requireNonNull(props);
 		this.navbar = Objects.requireNonNull(navbar);
-		this.navbarTarget = props.getIsDatarouterPage() ? "#dr-navbar" : "#mav-navbar";
+		this.navbarTargetId = props.getIsDatarouterPage() ? "dr-navbar" : "mav-navbar";
 	}
 
 	public ContainerTag build(){
@@ -57,7 +57,7 @@ public class WebappNavbarHtml{
 				.withClass("navbar-toggle collapsed")
 				.withType("button")
 				.attr("data-toggle", "collapse")
-				.attr("data-target", navbarTarget);
+				.attr("data-target", '#' + navbarTargetId);
 		return div(button)
 				.withClass("navbar-header")
 				.condWith(props.getIsDatarouterPage(), makeDatarouterLogo());
@@ -76,7 +76,7 @@ public class WebappNavbarHtml{
 
 	private ContainerTag makeContent(){
 		return div(makeMenu(), makeSignOut())
-				.withId(navbarTarget)
+				.withId(navbarTargetId)
 				.withClass("navbar-collapse collapse");
 	}
 

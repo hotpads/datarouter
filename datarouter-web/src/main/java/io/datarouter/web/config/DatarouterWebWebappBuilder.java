@@ -66,8 +66,8 @@ import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
-import io.datarouter.web.user.session.CurrentUserSessionInfo.NoOpCurrentUserSessionInfo;
+import io.datarouter.web.user.session.CurrentSessionInfo;
+import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
 import io.datarouter.web.user.session.service.DatarouterRoleManager;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
@@ -100,7 +100,7 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 	private final Set<String> additionalPermissionRequestEmails;
 
 	private Class<? extends RoleManager> roleManager;
-	private Class<? extends CurrentUserSessionInfo> currentUserSessionInfo;
+	private Class<? extends CurrentSessionInfo> currentSessionInfo;
 	private Class<? extends UserSessionService> userSessionService;
 	private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
 	private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetail;
@@ -148,7 +148,7 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 		this.roleManager = DatarouterRoleManager.class;
 		this.userSessionService = NoOpUserSessionService.class;
 		this.filesRoot = NoOpFilesRoot.class;
-		this.currentUserSessionInfo = NoOpCurrentUserSessionInfo.class;
+		this.currentSessionInfo = NoOpCurrentSessionInfo.class;
 		this.appListenersOrdered = new ArrayList<>();
 		this.appListenersUnordered = new ArrayList<>();
 		this.webAppListenersOrdered = new ArrayList<>();
@@ -199,7 +199,7 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 		DatarouterWebPlugin webPlugin = webPluginBuilder
 				.setFilesClass(filesRoot)
 				.setDatarouterAuthConfig(authenticationConfig)
-				.setCurrentUserSessionInfoClass(currentUserSessionInfo)
+				.setCurrentSessionInfoClass(currentSessionInfo)
 				.setAdditionalAdministrators(additionalAdministrators)
 				.setAdditionalPermissionRequestEmails(additionalPermissionRequestEmails)
 				.setRoleManagerClass(roleManager)
@@ -368,20 +368,13 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 		return this;
 	}
 
-	public DatarouterWebWebappBuilder setCurrentUserSessionInfo(
-			Class<? extends CurrentUserSessionInfo> currentUserSessionInfo){
-		this.currentUserSessionInfo = currentUserSessionInfo;
+	public DatarouterWebWebappBuilder setCurrentSessionInfo(Class<? extends CurrentSessionInfo> currentSessionInfo){
+		this.currentSessionInfo = currentSessionInfo;
 		return this;
 	}
 
 	public DatarouterWebWebappBuilder setServerTypeDetector(Class<? extends ServerTypeDetector> serverTypeDetector){
 		this.serverTypeDetector = serverTypeDetector;
-		return this;
-	}
-
-	@Deprecated
-	public DatarouterWebWebappBuilder addRouter(Class<? extends Dao> router){
-		daoClasses.add(router);
 		return this;
 	}
 

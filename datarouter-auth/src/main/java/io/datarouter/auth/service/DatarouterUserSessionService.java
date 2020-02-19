@@ -116,7 +116,7 @@ public class DatarouterUserSessionService implements UserSessionService{
 				DatarouterUserByUsernameLookup::new));
 		if(shouldDelete){
 			userDao.deleteMulti(IterableTool.map(users, DatarouterUser::getKey));
-			return;
+			return;//return to avoid putting deleted users below
 		}
 		users.forEach(user -> {
 			user.setRoles(List.of());

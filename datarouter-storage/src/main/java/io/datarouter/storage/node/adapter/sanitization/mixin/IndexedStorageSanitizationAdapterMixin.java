@@ -72,7 +72,6 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK,IE>>
 	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 					Config config){
-		ranges.forEach(ScanSanitizer::logInvalidRange);
 		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
 	}
@@ -83,7 +82,6 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK,IE>>
 	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 					Config config){
-		ranges.forEach(ScanSanitizer::logInvalidRange);
 		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
 	}
@@ -94,7 +92,6 @@ extends IndexedStorage<PK,D>, SanitizationAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK,IE>>
 	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 					Config config){
-		ranges.forEach(ScanSanitizer::logInvalidRange);
 		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
 	}

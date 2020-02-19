@@ -22,8 +22,8 @@ import com.google.inject.name.Names;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.storage.config.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
+import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
@@ -45,15 +45,15 @@ import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
-import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
+import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao;
 import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao.NoOpDatarouterSamlDao;
 import io.datarouter.web.user.authenticate.saml.SamlRegistrar;
-import io.datarouter.web.user.session.CurrentUserSessionInfo;
-import io.datarouter.web.user.session.CurrentUserSessionInfo.NoOpCurrentUserSessionInfo;
+import io.datarouter.web.user.session.CurrentSessionInfo;
+import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
 import io.datarouter.web.user.session.service.DatarouterRoleManager;
 import io.datarouter.web.user.session.service.RoleManager;
 
@@ -82,7 +82,7 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(RoleManager.class, DatarouterRoleManager.class);
 		optionalBinder(SamlRegistrar.class);
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
-		bindDefault(CurrentUserSessionInfo.class, NoOpCurrentUserSessionInfo.class);
+		bindDefault(CurrentSessionInfo.class, NoOpCurrentSessionInfo.class);
 
 		bindDefaultInstance(DatarouterAdditionalAdministratorsSupplier.class,
 				new DatarouterAdditionalAdministrators(Collections.emptySet()));

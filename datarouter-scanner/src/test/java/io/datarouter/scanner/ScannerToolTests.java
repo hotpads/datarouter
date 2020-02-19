@@ -15,6 +15,7 @@
  */
 package io.datarouter.scanner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -55,6 +56,16 @@ public class ScannerToolTests{
 	public void testFindLast(){
 		Assert.assertEquals(Scanner.of(1, 3, 5).findLast().get().intValue(), 5);
 		Assert.assertFalse(Scanner.empty().findLast().isPresent());
+	}
+
+	@Test
+	public void testFlush(){
+		List<Integer> snapshot = new ArrayList<>();
+		List<Integer> collected = Scanner.of(1, 2, 3)
+				.flush(snapshot::addAll)
+				.list();
+		Assert.assertEquals(snapshot.size(), 3);
+		Assert.assertEquals(snapshot, collected);
 	}
 
 	@Test
