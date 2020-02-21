@@ -20,6 +20,7 @@ import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
 
+@SuppressWarnings("unused")
 public class ExampleDeserialization{
 
 	public static class ExampleDataTransferObject{

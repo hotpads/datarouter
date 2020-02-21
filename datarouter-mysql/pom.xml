@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.19</version>
+		<version>0.0.20</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -40,12 +40,12 @@
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-secret</artifactId>
-			<version>0.0.19</version>
+			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-job</artifactId>
-			<version>0.0.19</version>
+			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.log4jdbc</groupId>

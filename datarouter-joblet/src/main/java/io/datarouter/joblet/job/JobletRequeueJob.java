@@ -72,7 +72,7 @@ public class JobletRequeueJob extends BaseJob{
 	private boolean anyExistWithMediumAge(JobletRequestKey prefix){
 		JobletRequestKey start = prefix.copy().withCreated(Instant.now().minus(OLD_AGE).toEpochMilli());
 		JobletRequestKey end = prefix.copy().withCreated(Instant.now().minus(MIDDLE_AGE).toEpochMilli());
-		var range = new Range<JobletRequestKey>(start, end);
+		var range = new Range<>(start, end);
 		return jobletRequestDao.scan(range)
 				.include(request -> request.getStatus() == JobletStatus.CREATED)
 				.hasAny();

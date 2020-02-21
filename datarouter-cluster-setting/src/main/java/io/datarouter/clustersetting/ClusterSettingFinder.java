@@ -109,7 +109,7 @@ public class ClusterSettingFinder implements SettingFinder{
 	}
 
 	public List<ClusterSetting> getAllSettingsWithName(String name){
-		ClusterSettingKey prefix = new ClusterSettingKey(name, null, null, null, null);
+		var prefix = new ClusterSettingKey(name, null, null, null, null);
 		return clusterSettingDao.scanWithPrefix(prefix).list();
 	}
 

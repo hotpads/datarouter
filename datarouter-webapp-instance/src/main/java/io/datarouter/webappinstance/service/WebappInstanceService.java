@@ -78,8 +78,7 @@ public class WebappInstanceService{
 	}
 
 	public List<WebappInstance> getAll(){
-		return webappInstanceDao.scan()
-				.list();
+		return webappInstanceDao.scan().list();
 	}
 
 	public WebappInstance updateWebappInstanceTable(){

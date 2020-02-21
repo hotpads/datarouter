@@ -51,9 +51,6 @@ import io.datarouter.web.handler.params.Params;
 @Singleton
 public class HBaseWebInspector implements DatarouterClientWebInspector{
 
-	@Deprecated// PathNodes
-	public static final String PATH_JSP_HBASE = "/jsp/admin/datarouter/hbase/";
-
 	@Inject
 	private DatarouterNodes datarouterNodes;
 	@Inject

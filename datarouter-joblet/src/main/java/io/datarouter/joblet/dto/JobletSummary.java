@@ -15,8 +15,10 @@
  */
 package io.datarouter.joblet.dto;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -58,7 +60,7 @@ public class JobletSummary{
 
 	/*------------------------ static ---------------------------*/
 
-	public static Map<TypeExecutionOrderStatusKey,JobletSummary> summarizeByTypeExecutionOrderStatus(
+	public static List<JobletSummary> summarizeByTypeExecutionOrderStatus(
 			Scanner<JobletRequest> requests){
 		return requests
 				.map(JobletSummary::new)
@@ -66,7 +68,12 @@ public class JobletSummary{
 						TypeExecutionOrderStatusKey::new,
 						Function.identity(),
 						JobletSummary::absorbStats,
-						TreeMap::new));
+						TreeMap::new))
+				.values().stream()
+				.sorted(Comparator.comparing(JobletSummary::getType)
+						.thenComparing(JobletSummary::getExecutionOrder)
+						.thenComparing(JobletSummary::getStatus))
+				.collect(Collectors.toList());
 	}
 
 	public static Map<QueueStatusKey,JobletSummary> summarizeByQueueStatus(Scanner<JobletRequest> requests){
@@ -183,7 +190,7 @@ public class JobletSummary{
 			if(ClassTool.differentClass(this, obj)){
 				return false;
 			}
-			JobletSummary other = (JobletSummary)obj;
+			TypeExecutionOrderStatusKey other = (TypeExecutionOrderStatusKey)obj;
 			return Objects.equals(type, other.type)
 					&& Objects.equals(executionOrder, other.executionOrder)
 					&& Objects.equals(status, other.status);
@@ -222,7 +229,7 @@ public class JobletSummary{
 			if(ClassTool.differentClass(this, obj)){
 				return false;
 			}
-			JobletSummary other = (JobletSummary)obj;
+			QueueStatusKey other = (QueueStatusKey)obj;
 			return Objects.equals(queueId, other.queueId)
 					&& Objects.equals(status, other.status);
 		}

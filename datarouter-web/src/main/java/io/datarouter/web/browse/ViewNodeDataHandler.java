@@ -115,10 +115,8 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		boolean startInclusive = true;
 		Config config = new Config().setOutputBatchSize(outputBatchSize).setLimit(limit);
 		Range<PK> range = new Range<>(startKey, startInclusive, null, true);
-		List<D> databeans = sortedNode.scan(range, config)
-				.list();
-
-		addDatabeansToMav(mav, databeans);
+		sortedNode.scan(range, config)
+				.flush(databeans -> addDatabeansToMav(mav, databeans));
 		return mav;
 	}
 

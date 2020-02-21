@@ -112,13 +112,13 @@ public class AdminEditUserHandler extends BaseHandler{
 	private List<DatarouterUserListEntry> listUsers(){
 		Set<DatarouterUserKey> userKeysWithPermissionRequests = datarouterPermissionRequestDao
 				.getUserKeysWithPermissionRequests();
-		List<DatarouterUser> users = datarouterUserDao.scan()
+		return datarouterUserDao.scan()
+				.map(user -> new DatarouterUserListEntry(
+						user.getKey().getId().toString(),
+						user.getUsername(),
+						user.getUserToken(),
+						userKeysWithPermissionRequests.contains(user.getKey())))
 				.list();
-		List<DatarouterUserListEntry> userEntries = users.stream()
-				.map(user -> new DatarouterUserListEntry(user.getKey().getId().toString(), user.getUsername(),
-						user.getUserToken(), userKeysWithPermissionRequests.contains(user.getKey())))
-				.collect(Collectors.toList());
-		return userEntries;
 	}
 
 	@Handler

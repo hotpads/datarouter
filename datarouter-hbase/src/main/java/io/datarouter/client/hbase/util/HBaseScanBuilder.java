@@ -24,8 +24,6 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.PageFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.bytes.ByteRange;
 import io.datarouter.util.bytes.ByteTool;
@@ -33,7 +31,6 @@ import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseScanBuilder{
-	private static final Logger logger = LoggerFactory.getLogger(HBaseScanBuilder.class);
 
 	private static final byte[] EMPTY_PREFIX = new byte[]{};
 	private static final KeyOnlyFilter KEY_ONLY_FILTER = new KeyOnlyFilter();

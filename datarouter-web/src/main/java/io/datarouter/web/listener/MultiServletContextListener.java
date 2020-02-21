@@ -51,6 +51,7 @@ public abstract class MultiServletContextListener implements ServletContextListe
 			}catch(RuntimeException e){
 				// workaround guice old asm version
 				try{
+					@SuppressWarnings("unchecked")
 					Collection<Message> messages = (Collection<Message>)ReflectionTool.get("messages", e);
 					for(Message message : messages){
 						logger.error("{} ", message.getMessage(), message.getCause());

@@ -45,8 +45,9 @@ public class JobletSubnavFactory{
 				.add(status(contextPath))
 				.add(requeueCreated(contextPath))
 				.add(restart("Restart Failed", contextPath, JobletStatus.FAILED))
-				.add(restart("Restart Timed Out", contextPath, JobletStatus.TIMED_OUT))
-				.add(restart("Restart Running", contextPath, JobletStatus.RUNNING));
+				.add(restart("Restart Interrupted", contextPath, JobletStatus.INTERRUPTED))
+				.add(restart("Restart Running", contextPath, JobletStatus.RUNNING))
+				.add(restart("Restart Timed Out", contextPath, JobletStatus.TIMED_OUT));
 	}
 
 	private Dropdown monitoring(String contextPath){

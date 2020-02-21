@@ -29,14 +29,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.util.io.FileTool;
 
 @Singleton
 public class StaticFileFilter implements Filter{
-	private static final Logger logger = LoggerFactory.getLogger(StaticFileFilter.class);
 
 	private FilterConfig filterConfig;
 	private RequestDispatcher requestDispatcher;
@@ -67,9 +63,7 @@ public class StaticFileFilter implements Filter{
 			response.addHeader(headerName, headerValue);
 		}
 
-		long startForward = System.currentTimeMillis();
 		requestDispatcher.forward(request, response);
-		long endForward = System.currentTimeMillis();
 	}
 
 }

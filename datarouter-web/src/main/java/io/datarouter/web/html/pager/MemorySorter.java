@@ -47,12 +47,12 @@ public class MemorySorter<T>{
 		if(reversed){
 			comparator = comparator.reversed();
 		}
-		sortOptions.put(name, new SortOption<T>(name, comparator));
+		sortOptions.put(name, new SortOption<>(name, comparator));
 		return this;
 	}
 
 	public MemorySorter<T> withComparator(String name, Comparator<T> comparator){
-		sortOptions.put(name, new SortOption<T>(name, comparator));
+		sortOptions.put(name, new SortOption<>(name, comparator));
 		return this;
 	}
 

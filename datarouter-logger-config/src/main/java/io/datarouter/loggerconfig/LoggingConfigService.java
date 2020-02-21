@@ -36,12 +36,9 @@ public class LoggingConfigService{
 
 	public LoggingConfig loadConfig(){
 		return new LoggingConfig(
-				consoleAppenderDao.scan()
-						.list(),
-				fileAppenderDao.scan()
-						.list(),
-				loggerConfigDao.scan()
-						.list());
+				consoleAppenderDao.scan().list(),
+				fileAppenderDao.scan().list(),
+				loggerConfigDao.scan().list());
 	}
 
 	public String getPreviousLoggingConfigSignatureForUpdaterJob(){

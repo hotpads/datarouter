@@ -15,8 +15,8 @@
  */
 package io.datarouter.joblet.type;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,9 @@ public class JobletTypeFactory{
 	private final Set<JobletType<?>> typesCausingScaling;
 
 	public JobletTypeFactory(Collection<JobletType<?>> types){
-		this.allTypes = new ArrayList<>(types);
+		this.allTypes = types.stream()
+				.sorted(Comparator.comparing(JobletType::getPersistentString))
+				.collect(Collectors.toList());
 		this.sampleType = CollectionTool.getFirst(types);
 		this.typeByPersistentString = new HashMap<>();
 		this.typeByShortQueueName = new HashMap<>();

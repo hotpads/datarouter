@@ -29,7 +29,6 @@ import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.navigation.NavBarItem.NavBarItemGroup;
 import j2html.tags.ContainerTag;
 
-@Deprecated // abstract out to j2 builder class
 @Singleton
 public class Bootstrap4CardService{
 

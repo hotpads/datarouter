@@ -141,13 +141,12 @@ public abstract class BaseWebPlugin extends BasePlugin{
 		datarouterNavBarItems.add(new NavBarItem(category, path, name));
 	}
 
-	@Deprecated
-	protected void addAppNavBarItem(NavBarItem navBarItem){
-		appNavBarItems.add(navBarItem);
-	}
-
 	protected void addAppNavBarItem(NavBarCategory category, PathNode pathNode, String name){
 		appNavBarItems.add(new NavBarItem(category, pathNode, name));
+	}
+
+	protected void addAppNavBarItem(NavBarCategory category, String path, String name){
+		appNavBarItems.add(new NavBarItem(category, path, name));
 	}
 
 	public List<NavBarItem> getDatarouterNavBarItems(){

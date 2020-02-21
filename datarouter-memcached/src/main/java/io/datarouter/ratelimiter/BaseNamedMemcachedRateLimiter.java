@@ -30,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
@@ -44,8 +42,6 @@ import io.datarouter.util.tuple.Pair;
 //TODO rolling increases/decreases in limit,
 //for spammers who hit the rate limit alot (decrease) and for people/things that are verified as not spam (increase)
 public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
-
-	private static final Logger logger = LoggerFactory.getLogger(BaseNamedMemcachedRateLimiter.class);
 
 	private static final String HIT_COUNTER_NAME = "rate limit hit";
 
@@ -76,8 +72,6 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 		this.timeunit = unit;
 		this.expiration = Duration.ofMillis(bucketIntervalMs * (numIntervals + 1));
 	}
-
-	/* abstract ********************************************/
 
 	protected abstract Long increment(String key);
 	protected abstract Map<String,Long> readCounts(List<String> keys);
@@ -125,12 +119,11 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 			return new Pair<>(false, lastTime);
 		}
 		if(increment){
-			Long newValue = increment(currentMapKey);
+			increment(currentMapKey);
 		}
 		return new Pair<>(true, null);
 	}
 
-	/* helper ***************************************************************/
 
 	private List<String> buildKeysToRead(String key, Calendar calendar){
 		List<String> keys = new ArrayList<>();
@@ -221,8 +214,6 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 		calendar.set(calendarField, fieldInterval * (calendar.get(calendarField) / fieldInterval));
 	}
 
-	/* get/set **************************************************************/
-
 	public long getMaxAvgRequests(){
 		return maxAvgRequests;
 	}
@@ -234,8 +225,6 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 	public int getNumIntervals(){
 		return numIntervals;
 	}
-
-	/* tests ****************************************************************/
 
 	@Guice(moduleFactory = NamedMemcachedRateLimiterTestNgModuleFactory.class)
 	public static class BaseMapRateLimiterIntegrationTests{

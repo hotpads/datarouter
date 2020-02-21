@@ -48,9 +48,8 @@ public class CaseInsensitiveScanIntegrationTests{
 		List<Range<CaseInsensitiveTestPrimaryKey>> ranges = Arrays.asList(
 				new Range<>(new CaseInsensitiveTestPrimaryKey("b"), new CaseInsensitiveTestPrimaryKey("d")),
 				new Range<>(new CaseInsensitiveTestPrimaryKey("f"), new CaseInsensitiveTestPrimaryKey("h")));
-		List<CaseInsensitiveTestDatabean> fetched = dao.scanMulti(ranges, 2)
-				.list();
-		Assert.assertEquals(fetched.size(), 4);
+		dao.scanMulti(ranges, 2)
+				.flush(fetched -> Assert.assertEquals(fetched.size(), 4));
 	}
 
 }

@@ -103,10 +103,10 @@ public class DatarouterUserSessionService implements UserSessionService{
 	@Override
 	public void deleteUserSessions(List<String> usernames){
 		Set<String> usernameSet = new HashSet<>(usernames);
-		sessionDao.deleteMulti(sessionDao.scan()
+		sessionDao.scan()
 				.include(session -> usernameSet.contains(session.getUsername()))
 				.map(DatarouterSession::getKey)
-				.list());
+				.flush(sessionDao::deleteMulti);
 	}
 
 	@Override

@@ -66,7 +66,7 @@ public class JobletHandler extends BaseHandler{
 			JobletStatus status = JobletStatus.fromPersistentStringStatic(pStatus.get());
 			requests = requests.include(request -> status == request.getStatus());
 		}
-		Collection<JobletSummary> summaries = JobletSummary.summarizeByTypeExecutionOrderStatus(requests).values();
+		Collection<JobletSummary> summaries = JobletSummary.summarizeByTypeExecutionOrderStatus(requests);
 		return pageFactory.startBuilder(request)
 				.withTitle(TITLE)
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)

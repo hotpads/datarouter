@@ -54,11 +54,10 @@ implements MultiIndexNode<PK, D, IK, IE>{
 		}
 		//hard-coding startInclusive to true because it will usually be true on the first call,
 		// but subsequent calls may want false, so consider adding as method param
-		Range<IK> indexKeyRange = new Range<>(indexKey, true, indexKey, true);
-		List<PK> primaryKeys = indexNode.scan(indexKeyRange, config)
+		var indexKeyRange = new Range<>(indexKey, true, indexKey, true);
+		return indexNode.scan(indexKeyRange, config)
 				.map(IE::getTargetKey)
-				.list();
-		return mainNode.getMulti(primaryKeys, config);
+				.collect(primaryKeys -> mainNode.getMulti(primaryKeys, config));
 	}
 
 
@@ -67,12 +66,11 @@ implements MultiIndexNode<PK, D, IK, IE>{
 		if(CollectionTool.isEmpty(indexKeys)){
 			return Collections.emptyList();
 		}
-		List<PK> primaryKeys = Scanner.of(indexKeys)
+		return Scanner.of(indexKeys)
 				.map(indexKey -> new Range<>(indexKey, true, indexKey, true))
 				.concatenate(indexKeyRange -> indexNode.scan(indexKeyRange))
 				.map(IE::getTargetKey)
-				.list();
-		return mainNode.getMulti(primaryKeys, config);
+				.collect(primaryKeys -> mainNode.getMulti(primaryKeys, config));
 	}
 
 	@Override

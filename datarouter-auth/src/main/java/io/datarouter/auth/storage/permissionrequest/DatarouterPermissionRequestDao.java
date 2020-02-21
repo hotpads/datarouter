@@ -94,10 +94,9 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 	}
 
 	public void declineAll(Long userId){
-		List<DatarouterPermissionRequest> requestsToPut = scanOpenPermissionRequestsForUser(userId)
+		scanOpenPermissionRequestsForUser(userId)
 				.map(DatarouterPermissionRequest::decline)
-				.list();
-		putMulti(requestsToPut);
+				.flush(this::putMulti);
 	}
 
 	public Set<DatarouterUserKey> getUserKeysWithPermissionRequests(){

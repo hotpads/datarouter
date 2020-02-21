@@ -45,7 +45,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.navigation.AppNavBarCategory;
-import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao;
@@ -70,18 +69,17 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		addAppListener(DatarouterUserConfigAppListener.class);
 
 		DatarouterAuthPaths paths = new DatarouterAuthPaths();
-		addAppNavBarItem(new NavBarItem(AppNavBarCategory.ADMIN, paths.admin.accounts, "Account Manager"));
+		addAppNavBarItem(AppNavBarCategory.ADMIN, paths.admin.accounts, "Account Manager");
 
 		if(enableUserAuth){
 			addRouteSetOrdered(DatarouterAuthRouteSet.class, DatarouterJobRouteSet.class);
-			addAppNavBarItem(new NavBarItem(AppNavBarCategory.ADMIN, paths.admin.viewUsers, "View Users"));
-			addAppNavBarItem(new NavBarItem(AppNavBarCategory.USER, paths.admin.editUser, "Edit User"));
-			addAppNavBarItem(new NavBarItem(AppNavBarCategory.USER, paths.permissionRequest,
-					"Permission Request"));
-			addAppNavBarItem(new NavBarItem(AppNavBarCategory.USER, paths.resetPassword, "Reset Password"));
-			addAppNavBarItem(new NavBarItem(AppNavBarCategory.USER, paths.admin.createUser, "Create User"));
+			addAppNavBarItem(AppNavBarCategory.ADMIN, paths.admin.viewUsers, "View Users");
+			addAppNavBarItem(AppNavBarCategory.USER, paths.admin.editUser, "Edit User");
+			addAppNavBarItem(AppNavBarCategory.USER, paths.permissionRequest, "Permission Request");
+			addAppNavBarItem(AppNavBarCategory.USER, paths.resetPassword, "Reset Password");
+			addAppNavBarItem(AppNavBarCategory.USER, paths.admin.createUser, "Create User");
 		}
-		addAppNavBarItem(new NavBarItem(AppNavBarCategory.DOCS, paths.docs.toSlashedStringWithTrailingSlash(), "Docs"));
+		addAppNavBarItem(AppNavBarCategory.DOCS, paths.docs.toSlashedStringWithTrailingSlash(), "Docs");
 		addRouteSet(DatarouterDocumentationRouteSet.class);
 		addSettingRoot(DatarouterAuthSettingRoot.class);
 		addTriggerGroup(DatarouterAuthTriggerGroup.class);

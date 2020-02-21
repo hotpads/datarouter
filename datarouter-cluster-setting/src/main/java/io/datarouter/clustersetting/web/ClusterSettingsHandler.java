@@ -53,7 +53,6 @@ import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLogByReversedCreatedMsKey;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLogKey;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
-import io.datarouter.clustersetting.web.dto.ClusterSettingAndValidityJspDto;
 import io.datarouter.clustersetting.web.dto.ClusterSettingJspDto;
 import io.datarouter.clustersetting.web.dto.ClusterSettingLogJspDto;
 import io.datarouter.clustersetting.web.dto.SettingJspDto;
@@ -124,10 +123,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 		Mav mav = new Mav(files.jsp.admin.datarouter.setting.editSettingsJsp);
 		mav.put("serverTypeOptions", serverTypes.getHtmlSelectOptionsVarNames());
 		mav.put("validities", buildLegend());
-		List<ClusterSettingAndValidityJspDto> settings = clusterSettingService.scanClusterSettingAndValidityWithPrefix(
-				prefix.orElse(null))
-				.list();
-		mav.put("rows", settings);
+		clusterSettingService.scanClusterSettingAndValidityWithPrefix(prefix.orElse(null))
+				.flush(settings -> mav.put("rows", settings));
 		return mav;
 	}
 
@@ -189,10 +186,9 @@ public class ClusterSettingsHandler extends BaseHandler{
 			ClusterSettingLogKey prefix = ClusterSettingLogKey.createPrefix(settingName);
 			logScanner = clusterSettingLogDao.scanWithPrefix(prefix);
 		}
-		List<ClusterSettingLogJspDto> logs = logScanner
+		logScanner
 				.map(ClusterSettingLogJspDto::new)
-				.list();
-		mav.put("logs", logs);
+				.flush(logs -> mav.put("logs", logs));
 		return mav;
 	}
 
@@ -209,13 +205,12 @@ public class ClusterSettingsHandler extends BaseHandler{
 		long reverseStartCreatedMs = Long.MAX_VALUE - startCreatedMs;
 		Range<ClusterSettingLogByReversedCreatedMsKey> range = new Range<>(
 				new ClusterSettingLogByReversedCreatedMsKey(reverseStartCreatedMs, null), inclusiveStart.orElse(false));
-		List<ClusterSettingLogJspDto> logs = clusterSettingLogDao
+		clusterSettingLogDao
 				.scanByReversedCreatedMs(range, CLUSTER_SETTING_LOGS_PAGE_SIZE)
 				.map(ClusterSettingLogJspDto::new)
-				.list();
-		mav.put("logs", logs);
+				.flush(logs -> mav.put("logs", logs))
+				.flush(logs -> mav.put("hasNextPage", logs.size() == CLUSTER_SETTING_LOGS_PAGE_SIZE));
 		mav.put("hasPreviousPage", explicitStartIso.isPresent());
-		mav.put("hasNextPage", logs.size() == CLUSTER_SETTING_LOGS_PAGE_SIZE);
 		return mav;
 	}
 
@@ -277,10 +272,9 @@ public class ClusterSettingsHandler extends BaseHandler{
 		Map<String,List<ClusterSettingJspDto>> customSettingsByName = new HashMap<>();
 		for(CachedSetting<?> setting : settingsList){
 			ClusterSettingKey settingKey = new ClusterSettingKey(setting.getName(), null, null, null, null);
-			List<ClusterSettingJspDto> customSettings = clusterSettingDao.scanWithPrefix(settingKey)
+			clusterSettingDao.scanWithPrefix(settingKey)
 					.map(ClusterSettingJspDto::new)
-					.list();
-			customSettingsByName.put(setting.getName(), customSettings);
+					.flush(customSettings -> customSettingsByName.put(setting.getName(), customSettings));
 		}
 
 		mav.put("listSettings", IterableTool.map(settingsList, setting -> new SettingJspDto<>(setting)));

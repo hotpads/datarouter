@@ -111,9 +111,8 @@ public class DatarouterAccountService{
 	}
 
 	public List<DatarouterAccount> findAccountsForUser(DatarouterUserKey userKey){
-		List<DatarouterAccountKey> accountKeys = scanAccountKeysForUser(userKey)
-				.list();
-		return datarouterAccountDao.getMulti(accountKeys);
+		return scanAccountKeysForUser(userKey)
+				.collect(datarouterAccountDao::getMulti);
 	}
 
 	private Scanner<DatarouterAccountKey> scanAccountKeysForUser(DatarouterUserKey userKey){
@@ -123,11 +122,10 @@ public class DatarouterAccountService{
 	}
 
 	public Stream<DatarouterAccount> streamAccountForUserWithUserMappingEnabled(DatarouterUserKey userKey){
-		DatarouterUserAccountMapKey prefix = new DatarouterUserAccountMapKey(userKey.getId(), null);
-		var keys = datarouterUserAccountMapDao.scanKeysWithPrefix(prefix)
+		var prefix = new DatarouterUserAccountMapKey(userKey.getId(), null);
+		return datarouterUserAccountMapDao.scanKeysWithPrefix(prefix)
 				.map(DatarouterUserAccountMapKey::getDatarouterAccountKey)
-				.list();
-		return datarouterAccountDao.getMulti(keys).stream()
+				.collect(datarouterAccountDao::getMulti).stream()
 				.filter(DatarouterAccount::getEnableUserMappings);
 	}
 

@@ -51,10 +51,7 @@
 			<thead>
 				<tr>
 					<th>Node Name</th>
-					<th>Table Count Chart</th>
 					<th>Count Keys</th>
-					<th>Export to s3 </th>
-					<th>Import from S3</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -70,31 +67,12 @@
 							</a>
 						</td>
 						<td>
-							<a href={CONTEXT_PATH + "/datarouter/nodewatch/tableCount"
-									+ "?submitAction=singleTableWithNodeName&nodeName=" 
-									+ encodeURIComponent(node.name)}>
-								<i className="fas fa-signal"></i>
-							</a>
-						</td>
-						<td>
 							{node.sorted &&
-								<a href={CONTEXT_PATH + "/datarouter/nodes/browseData/countKeys"
+								<a className="btn btn-link" href={CONTEXT_PATH + "/datarouter/nodes/browseData/countKeys"
 										+ "?nodeName=" + encodeURIComponent(node.name)}>
 									count keys
 								</a>
 							}
-						</td>
-						<td>
-							<a href={CONTEXT_PATH + "/datarouter/dataMigration/showForm?nodeName=" 
-									+ encodeURIComponent(node.name)}>
-								export to s3
-							</a>
-						</td>
-						<td>
-							<a href={CONTEXT_PATH + "/datarouter/dataMigration/showImportForm?nodeName="
-									+ encodeURIComponent(node.name)}>
-								import from s3
-							</a>
 						</td>
 					</tr>
 				)}

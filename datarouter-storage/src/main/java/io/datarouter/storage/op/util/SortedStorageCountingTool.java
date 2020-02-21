@@ -17,9 +17,6 @@ package io.datarouter.storage.op.util;
 
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.config.Config;
@@ -27,7 +24,6 @@ import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.util.tuple.Range;
 
 public class SortedStorageCountingTool{
-	private static final Logger logger = LoggerFactory.getLogger(SortedStorageCountingTool.class);
 
 	private static final int BATCH_SIZE = 10_000;
 
