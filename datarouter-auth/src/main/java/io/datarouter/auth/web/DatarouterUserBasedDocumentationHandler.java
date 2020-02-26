@@ -47,7 +47,7 @@ public abstract class DatarouterUserBasedDocumentationHandler extends Documentat
 	@Override
 	protected Mav createDocumentationMav(String apiName, String apiUrlContext, List<BaseRouteSet> routeSets){
 		Mav model = super.createDocumentationMav(apiName, apiUrlContext, routeSets);
-		DatarouterUser currentUser = datarouterUserService.getUserBySession(params.getSession());
+		DatarouterUser currentUser = datarouterUserService.getUserBySession(getSessionInfo().getRequiredSession());
 		if(currentUser != null){
 			model.put("apiKeyParameterName", SecurityParameters.API_KEY);
 			datarouterAccountService.findAccountsForUser(currentUser.getKey()).stream()

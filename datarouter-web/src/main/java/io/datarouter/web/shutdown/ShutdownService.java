@@ -20,6 +20,8 @@ import javax.inject.Singleton;
 @Singleton
 public class ShutdownService{
 
+	public static final int SHUTDOWN_STATUS_CODE = 555;
+
 	private volatile ShutdownState state;
 
 	public ShutdownService(){
@@ -40,7 +42,7 @@ public class ShutdownService{
 	}
 
 	private static enum ShutdownState{
-		OFF(null, 555),
+		OFF(null, SHUTDOWN_STATUS_CODE),
 		SHUTTING_DOWN(OFF, 404),
 		RUNNING(SHUTTING_DOWN, 200);
 
@@ -53,7 +55,7 @@ public class ShutdownService{
 		}
 
 		public ShutdownState getNextState(){
-			if(this == OFF){
+			if(nextState == null){
 				return this;
 			}
 			return nextState;

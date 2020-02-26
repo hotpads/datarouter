@@ -353,4 +353,10 @@ public class DatarouterJobWebappBuilder extends DatarouterWebWebappBuilder imple
 		return this;
 	}
 
+	@Override
+	public DatarouterWebWebappBuilder withDatabeanExporterLink(String databeanExporterLink){
+		super.withDatabeanExporterLink(databeanExporterLink);
+		return this;
+	}
+
 }

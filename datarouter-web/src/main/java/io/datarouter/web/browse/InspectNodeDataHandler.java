@@ -40,6 +40,7 @@ import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
@@ -60,6 +61,8 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 	protected DatarouterNodes nodes;
 	@Inject
 	protected DatarouterWebFiles files;
+	@Inject
+	private DatarouterWebPaths paths;
 
 	protected Node<?,?,?> node;
 	protected Integer limit;
@@ -84,7 +87,10 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		List<Field<?>> fields = getFields();
 		mav.put("fields", fields);
 		mav.put("keyFields", getKeyFields());
+		mav.put("nonKeyFields", node.getFieldInfo().getNonKeyFields());
 		mav.put("FIELD_PREFIX", FIELD_PREFIX);
+		mav.put("getNodeDataPath", paths.datarouter.nodes.getData.toSlashedString() + "?nodeName=");
+		mav.put("deleteNodeDataPath", paths.datarouter.nodes.deleteData.toSlashedString() + "?nodeName=");
 		return mav;
 	}
 

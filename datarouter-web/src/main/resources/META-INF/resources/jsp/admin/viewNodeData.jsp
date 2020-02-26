@@ -26,8 +26,8 @@
 		<h2>
 			Browse databeans
 			<span class="ml-auto">
-				<a class="btn btn-light border btn-sm" href="${contextPath}/datarouter/nodes/deleteData?nodeName=${node.name}">Delete a databean</a>
-				<a class="btn btn-light border btn-sm" href="${contextPath}/datarouter/nodes/getData?nodeName=${node.name}">Get a databean</a>
+				<a class="btn btn-light border btn-sm" href="${contextPath}${deleteNodeDataPath}${node.name}">Delete a databean</a>
+				<a class="btn btn-light border btn-sm" href="${contextPath}${getNodeDataPath}${node.name}">Get a databean</a>
 			</span>
 		</h2>
 		<dl>
@@ -82,7 +82,12 @@
 					</c:if>
 				</ul>
 			</nav>
-			<c:forEach items="${fields}" var="field" varStatus="loop">
+			<b>Key Fields:</b>
+			<c:forEach items="${keyFields}" var="field" varStatus="loop">
+				${field.key.name}<c:if test="${!loop.last}">,</c:if>
+			</c:forEach>
+			<b>Non-Key Fields:</b>
+			<c:forEach items="${nonKeyFields}" var="field" varStatus="loop">
 				${field.key.name}<c:if test="${!loop.last}">,</c:if>
 			</c:forEach>
 			<table class="table table-sm table-bordered table-hover">
@@ -132,7 +137,7 @@
 									</c:if>
 								</c:forEach>
 								<td>
-									<a href="${contextPath}/datarouter/nodes/deleteData?nodeName=${node.name}${fieldKeys[status.index]}" title="Delete">
+									<a href="${contextPath}${deleteNodeDataPath}${node.name}${fieldKeys[status.index]}" title="Delete">
 										<i class="far fa-trash-alt fa-fw"></i>
 									</a>
 								</td>

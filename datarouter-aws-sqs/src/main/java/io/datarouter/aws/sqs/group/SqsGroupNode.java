@@ -18,6 +18,7 @@ package io.datarouter.aws.sqs.group;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
@@ -36,6 +37,7 @@ import io.datarouter.storage.op.scan.queue.group.PeekMultiGroupUntilEmptyQueueSt
 import io.datarouter.storage.queue.BaseQueueMessage;
 import io.datarouter.storage.queue.GroupQueueMessage;
 import io.datarouter.util.collection.CollectionTool;
+import io.datarouter.util.iterable.IterableTool;
 
 public class SqsGroupNode<
 		PK extends PrimaryKey<PK>,
@@ -92,8 +94,11 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>{
 	@Override
 	public List<D> pollMulti(Config config){
 		List<GroupQueueMessage<PK,D>> results = peekMulti(config);
-		ackMulti(BaseQueueMessage.getKeys(results), config);
-		return GroupQueueMessage.getDatabeans(results);
+		ackMulti(IterableTool.map(results, BaseQueueMessage::getKey), config);
+		return results.stream()
+				.map(GroupQueueMessage::getDatabeans)
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
 	}
 
 }

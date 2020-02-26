@@ -28,6 +28,8 @@ import io.datarouter.util.array.ArrayTool;
  */
 public class ByteRange implements Comparable<ByteRange>{
 
+	private static final ByteRange EMPTY = new ByteRange(new byte[0]);
+
 	// not making these final. intention is to reuse objects of this class
 	private byte[] bytes;
 	private int offset;
@@ -44,6 +46,10 @@ public class ByteRange implements Comparable<ByteRange>{
 
 	public ByteRange(byte[] bytes, int offset, int length){
 		set(bytes, offset, length);
+	}
+
+	public static ByteRange empty(){
+		return EMPTY;
 	}
 
 	private ByteRange set(byte[] bytes){

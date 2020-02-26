@@ -113,7 +113,7 @@ public class SleepingJobletHandler extends BaseHandler{
 		List<JobletPackage> jobletPackages = new ArrayList<>();
 		for(int i = 0; i < numJoblets.get(); ++i){
 			int numFailuresForThisJoblet = 0;
-			if(includeFailures.get()){
+			if(includeFailures.orElse(false)){
 				boolean failThisJoblet = i % failEveryN.orElse(10) == 0;
 				if(failThisJoblet){
 					numFailuresForThisJoblet = JobletRequest.MAX_FAILURES + 3;//+3 to see if it causes a problem

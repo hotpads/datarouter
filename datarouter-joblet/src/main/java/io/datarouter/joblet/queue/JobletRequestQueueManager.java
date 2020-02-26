@@ -15,11 +15,11 @@
  */
 package io.datarouter.joblet.queue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,6 +40,7 @@ public class JobletRequestQueueManager{
 	private final JobletTypeFactory jobletTypeFactory;
 	private final DatarouterJobletCounters datarouterJobletCounters;
 
+	private final List<JobletRequestQueueKey> queueKeys;
 	private final ConcurrentMap<JobletRequestQueueKey,Long> lastMissByQueue;
 
 	@Inject
@@ -49,7 +50,11 @@ public class JobletRequestQueueManager{
 		this.jobletTypeFactory = jobletTypeFactory;
 		this.datarouterJobletCounters = datarouterJobletCounters;
 		this.lastMissByQueue = new ConcurrentHashMap<>();
-		getAllQueueKeys().forEach(key -> lastMissByQueue.put(key, 0L));
+		queueKeys = jobletTypeFactory.getAllTypes().stream()
+				.flatMap(type -> JobletPriority.stream()
+						.map(priority -> new JobletRequestQueueKey(type, priority)))
+				.collect(Collectors.toList());
+		queueKeys.forEach(key -> lastMissByQueue.put(key, 0L));
 	}
 
 	public JobletRequestQueueKey getQueueKey(JobletRequest jobletRequest){
@@ -57,25 +62,15 @@ public class JobletRequestQueueManager{
 	}
 
 	public JobletRequestQueueKey getQueueKey(JobletRequestKey jobletRequestKey){
-		return new JobletRequestQueueKey(jobletTypeFactory.fromJobletRequestKey(jobletRequestKey), jobletRequestKey
-				.getPriority());
-	}
-
-	public List<JobletRequestQueueKey> getAllQueueKeys(){
-		List<JobletRequestQueueKey> queueKeys = new ArrayList<>();
-		for(JobletType<?> type : jobletTypeFactory.getAllTypes()){
-			for(JobletPriority priority : JobletPriority.values()){
-				queueKeys.add(new JobletRequestQueueKey(type, priority));
-			}
-		}
-		return queueKeys;
+		return new JobletRequestQueueKey(
+				jobletTypeFactory.fromJobletRequestKey(jobletRequestKey),
+				jobletRequestKey.getPriority());
 	}
 
 	public void onJobletRequestMissForAllPriorities(JobletType<?> type){
-		for(JobletPriority priority : JobletPriority.values()){
-			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, priority);
-			onJobletRequestQueueMiss(queueKey);
-		}
+		JobletPriority.stream()
+				.map(priority -> new JobletRequestQueueKey(type, priority))
+				.forEach(this::onJobletRequestQueueMiss);
 	}
 
 	public void onJobletRequestQueueMiss(JobletRequestQueueKey queueKey){
@@ -89,17 +84,18 @@ public class JobletRequestQueueManager{
 	}
 
 	public Optional<JobletRequestQueueKey> getQueueToCheck(JobletType<?> jobletType){
-		for(JobletPriority priority : JobletPriority.values()){
-			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(jobletType, priority);
-			if(!shouldSkipQueue(queueKey)){
-				return Optional.of(queueKey);
-			}
-		}
-		return Optional.empty();
+		return JobletPriority.stream()
+				.map(priority -> new JobletRequestQueueKey(jobletType, priority))
+				.filter(queueKey -> !shouldSkipQueue(queueKey))
+				.findAny();
 	}
 
 	public boolean shouldCheckAnyQueues(JobletType<?> jobletType){
 		return getQueueToCheck(jobletType).isPresent();
+	}
+
+	public List<JobletRequestQueueKey> getQueueKeys(){
+		return queueKeys;
 	}
 
 }

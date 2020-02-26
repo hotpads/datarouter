@@ -15,30 +15,25 @@
  */
 package io.datarouter.autoconfig.tool;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.function.Function;
-
-import io.datarouter.util.iterable.IterableTool;
+import java.util.stream.Collectors;
 
 public class AutoConfigResponseTool{
 
 	public static String buildResponse(String configurationStep){
-		StringBuilder sb = new StringBuilder();
-		sb.append("  -").append(configurationStep).append("\n");
-		return sb.toString();
+		return String.format("  -%s\n", configurationStep);
 	}
 
 	public static String buildResponse(String configurationStep, String description){
-		StringBuilder sb = new StringBuilder();
-		sb.append("  -").append(configurationStep).append(": ").append(description).append("\n");
-		return sb.toString();
+		return String.format("  -%s: %s\n", configurationStep, description);
 	}
 
-	public static <A> String buildResponse(String configurationStep, Iterable<A> iterable, Function<A,String> mapper){
-		List<String> strings = IterableTool.map(iterable, mapper);
-		StringBuilder sb = new StringBuilder();
-		strings.forEach(str -> sb.append("  -").append(configurationStep).append(": ").append(str).append("\n"));
-		return sb.toString();
+	public static <A> String buildResponse(String configurationStep, Collection<A> items, Function<A,String> mapper){
+		return items.stream()
+				.map(mapper)
+				.map(description -> buildResponse(configurationStep, description))
+				.collect(Collectors.joining());
 	}
 
 }

@@ -54,7 +54,7 @@ public class DatarouterJobletQueueDao extends BaseDao{
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
 		jobletRequestQueueByKey = new TreeMap<>();
-		for(JobletRequestQueueKey queueKey : jobletRequestQueueManager.getAllQueueKeys()){
+		for(JobletRequestQueueKey queueKey : jobletRequestQueueManager.getQueueKeys()){
 			String nodeName = DatarouterJobletConstants.QUEUE_PREFIX + queueKey.getQueueName();
 			QueueStorage<JobletRequestKey,JobletRequest> node = queueNodeFactory.createSingleQueue(
 					params.clientId,

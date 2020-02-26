@@ -56,7 +56,7 @@ public class TomcatPortIdentifier implements PortIdentifier{
 			}
 		});
 		if(this.httpPort == null || this.httpsPort == null){
-			throw new RuntimeException("TomcatPortIdentifier didn't found port numbers in jmx");
+			throw new RuntimeException("TomcatPortIdentifier didn't find port numbers in jmx");
 		}
 	}
 

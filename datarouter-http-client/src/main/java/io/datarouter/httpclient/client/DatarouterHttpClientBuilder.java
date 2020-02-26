@@ -15,6 +15,7 @@
  */
 package io.datarouter.httpclient.client;
 
+import java.lang.StackWalker.Option;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -49,14 +50,13 @@ public class DatarouterHttpClientBuilder{
 
 	public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
 
-	private static final int DEFAULT_MAX_TOTAL_CONNECTION = 100;
-	private static final int DEFAULT_MAX_CONNECTION_PER_ROUTE = 100;
 	private static final JsonSerializer DEFAULT_SERIALIZER = new GsonJsonSerializer(HttpClientGsonTool.GSON);
+	private static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int maxTotalConnections;
 	private int maxConnectionsPerRoute;
-	private Optional<Integer> validateAfterInactivityMs = Optional.empty();
+	private Optional<Integer> validateAfterInactivityMs;
 	private HttpClientBuilder httpClientBuilder;
 	private Supplier<Integer> retryCount;
 	private JsonSerializer jsonSerializer;
@@ -67,17 +67,18 @@ public class DatarouterHttpClientBuilder{
 	private DatarouterHttpClientConfig config;
 	private boolean ignoreSsl;
 	private SSLContext customSslContext;
-	private String circuitBreakerName;
+	private String name;
 	private Supplier<Boolean> enableBreakers;
 
 	public DatarouterHttpClientBuilder(){
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
-		this.maxTotalConnections = DEFAULT_MAX_TOTAL_CONNECTION;
-		this.maxConnectionsPerRoute = DEFAULT_MAX_CONNECTION_PER_ROUTE;
+		this.maxTotalConnections = 100;
+		this.maxConnectionsPerRoute = 100;
+		this.validateAfterInactivityMs = Optional.empty();
 		this.httpClientBuilder = HttpClientBuilder.create()
-				.setRedirectStrategy(new LaxRedirectStrategy());
+				.setRedirectStrategy(LaxRedirectStrategy.INSTANCE);
 		this.retryCount = () -> HttpRetryTool.DEFAULT_RETRY_COUNT;
-		this.circuitBreakerName = "";
+		this.name = STACK_WALKER.getCallerClass().getSimpleName();
 	}
 
 	public DatarouterHttpClient build(){
@@ -90,6 +91,7 @@ public class DatarouterHttpClientBuilder{
 				.setSocketTimeout(timeoutMs)
 				.build();
 		httpClientBuilder.setDefaultRequestConfig(defaultRequestConfig);
+		httpClientBuilder.setKeepAliveStrategy(new DatarouterConnectionKeepAliveStrategy(Duration.ofHours(1)));
 		PoolingHttpClientConnectionManager connectionManager;
 		if(ignoreSsl || customSslContext != null){
 			SSLConnectionSocketFactory sslsf;
@@ -135,8 +137,7 @@ public class DatarouterHttpClientBuilder{
 			enableBreakers = () -> false;
 		}
 		return new StandardDatarouterHttpClient(builtHttpClient, this.jsonSerializer, this.signatureGenerator,
-				this.csrfGenerator, this.apiKeySupplier, this.config, connectionManager, circuitBreakerName,
-				enableBreakers);
+				this.csrfGenerator, this.apiKeySupplier, this.config, connectionManager, name, enableBreakers);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(Supplier<Integer> retryCount){
@@ -212,14 +213,16 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
-	public DatarouterHttpClientBuilder setCircuitBreakerName(String circuitBreakerName){
-		this.circuitBreakerName = circuitBreakerName;
-		return this;
-	}
-
 	public DatarouterHttpClientBuilder setEnableBreakers(Supplier<Boolean> enableBreakers){
 		this.enableBreakers = enableBreakers;
 		return this;
+	}
+
+	public DatarouterHttpClientBuilder forDatarouterHttpClientSettings(DatarouterHttpClientSettings settings){
+		return this
+				.setTimeout(settings.getTimeout())
+				.setRetryCount(settings.getNumRetries())
+				.setEnableBreakers(settings.getEnableBreakers());
 	}
 
 }

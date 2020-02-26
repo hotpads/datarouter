@@ -41,6 +41,7 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpConnectionAbort
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterruptedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 
@@ -74,11 +75,13 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			internalHttpRequest = request.getRequest();
 			internalHttpRequest.addHeader(X_REQUEST_ID, requestId);
 			context.setAttribute(X_REQUEST_ID, requestId);
+			count("request");
 			requestStartTimeMs = System.currentTimeMillis();
 			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
 			Duration duration = Duration.ofMillis(System.currentTimeMillis() - requestStartTimeMs);
 			String entity = null;
 			int statusCode = httpResponse.getStatusLine().getStatusCode();
+			count("response " + statusCode);
 			boolean isBadStatusCode = statusCode >= HttpStatus.SC_BAD_REQUEST;
 			HttpEntity httpEntity = httpResponse.getEntity();
 			if(httpEntity != null){
@@ -89,7 +92,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 					entity = HttpRetryTool.entityToString(httpEntity);
 				}
 			}else{
-				logger.debug("null http enity");
+				logger.warn("null http enity");
 			}
 			Optional<String> traceId = Optional.ofNullable(httpResponse.getFirstHeader(X_TRACE_ID))
 					.map(Header::getValue);
@@ -116,10 +119,12 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			callResultQueue.insertTrueResult();
 			return response;
 		}catch(IOException e){
+			count("IOException");
 			TracerTool.appendToSpanInfo("exception", e.getMessage());
 			ex = new DatarouterHttpConnectionAbortedException(e, requestStartTimeMs, requestId, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
 		}catch(CancellationException e){
+			count("CancellationException");
 			TracerTool.appendToSpanInfo("exception", e.getMessage());
 			ex = new DatarouterHttpRequestInterruptedException(e, requestStartTimeMs, requestId, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
@@ -139,6 +144,10 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		}catch(Exception e){
 			logger.error("aborting internal http request failed", e);
 		}
+	}
+
+	private void count(String key){
+		Counters.inc("httpClient " + name + " " + key);
 	}
 
 }

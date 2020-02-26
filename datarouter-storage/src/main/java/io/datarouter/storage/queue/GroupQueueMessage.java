@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.queue;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
@@ -30,15 +28,6 @@ public class GroupQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D
 	public GroupQueueMessage(byte[] handle, List<D> databeans){
 		super(handle);
 		this.databeans = databeans;
-	}
-
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<D> getDatabeans(
-			Collection<GroupQueueMessage<PK,D>> messages){
-		List<D> databeans = new ArrayList<>();
-		for(GroupQueueMessage<PK,D> message : messages){
-			databeans.addAll(message.getDatabeans());
-		}
-		return databeans;
 	}
 
 	public List<D> getDatabeans(){

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,10 +43,8 @@ import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
-import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
-import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMap;
-import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -87,8 +86,6 @@ public class AdminEditUserHandler extends BaseHandler{
 	private DatarouterUserEditService datarouterUserEditService;
 	@Inject
 	private DatarouterUserHistoryService datarouterUserHistoryService;
-	@Inject
-	private BaseDatarouterUserAccountMapDao userAccountMapDao;
 	@Inject
 	private DatarouterAuthPaths paths;
 	@Inject
@@ -147,7 +144,8 @@ public class AdminEditUserHandler extends BaseHandler{
 		}
 		String username = params.required(authenticationConfig.getUsernameParam());
 		String password = params.required(authenticationConfig.getPasswordParam());
-		String[] requestedRoles = params.getRequest().getParameterValues(authenticationConfig.getUserRolesParam());
+		Set<Role> requestedRoles = ArrayTool.mapToSet(roleManager::getRoleFromPersistentString, params.optionalArray(
+				authenticationConfig.getUserRolesParam()).orElse(new String[0]));
 		boolean enabled = params.optionalBoolean(authenticationConfig.getEnabledParam(), true);
 
 		datarouterUserCreationService.createManualUser(currentUser, username, password, requestedRoles, enabled);
@@ -159,7 +157,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		DatarouterUser currentUser = getCurrentUser();
 		Long userId = params.optionalLong(authenticationConfig.getUserIdParam(), currentUser.getId());
 		DatarouterUser userToEdit = datarouterUserService.getUserById(userId);
-		checkEditPermission(currentUser, userToEdit);
+		checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUser);
 
 		Mav mav = new Mav(files.jsp.authentication.editUserFormJsp);
 		mav.put(USER, userToEdit);
@@ -200,43 +198,20 @@ public class AdminEditUserHandler extends BaseHandler{
 	private Mav editUserSubmit(){
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
 		Boolean enabled = params.optionalBoolean(authenticationConfig.getEnabledParam(), false);
-		String[] userRoles = params.optionalArray(authenticationConfig.getUserRolesParam()).orElse(new String[0]);
 		DatarouterUser currentUser = getCurrentUser();
 		DatarouterUser userToEdit = datarouterUserService.getUserById(userId);
-		checkEditPermission(currentUser, userToEdit);
+		checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUser);
 
+		Set<Role> userRoles = ArrayTool.mapToSet(roleManager::getRoleFromPersistentString, params.optionalArray(
+				authenticationConfig.getUserRolesParam()).orElse(new String[0]));
 		Set<DatarouterAccountKey> requestedAccounts = params.optionalArray("accounts")
 				.map(Arrays::stream)
 				.orElseGet(Stream::empty)
 				.map(DatarouterAccountKey::new)
 				.collect(Collectors.toSet());
-		List<DatarouterUserAccountMapKey> accountsToDelete = userAccountMapDao
-				.scanKeysWithPrefix(new DatarouterUserAccountMapKey(userId, null))
-				.include(userAccountKey -> !requestedAccounts.contains(userAccountKey.getDatarouterAccountKey()))
-				.list();
-		userAccountMapDao.deleteMulti(accountsToDelete);
-		List<DatarouterUserAccountMap> accountsToAdd = requestedAccounts.stream()
-				.map(accountKey -> new DatarouterUserAccountMap(userId, accountKey.getAccountName()))
-				.collect(Collectors.toList());
-		userAccountMapDao.putMulti(accountsToAdd);
-
-		List<String> accountsAdded = accountsToAdd.stream()
-				.map(DatarouterUserAccountMap::getKey)
-				.map(DatarouterUserAccountMapKey::getDatarouterAccountKey)
-				.map(DatarouterAccountKey::getAccountName)
-				.collect(Collectors.toList());
-		List<String> currentAccounts = accountsToDelete.stream()
-				.map(DatarouterUserAccountMapKey::getDatarouterAccountKey)
-				.map(DatarouterAccountKey::getAccountName)
-				.collect(Collectors.toList());
-		datarouterUserEditService.editUser(userToEdit, currentUser, userRoles, enabled, getSigninUrl(), accountsAdded,
-				currentAccounts);
-
-		//display all users if userToEdit is no longer editable by currentUser after this edit
-		if(datarouterUserService.canEditUser(userToEdit, currentUser)){
-			return new InContextRedirectMav(request, paths.admin.editUser.toSlashedString() + "?userId=" + userId);
-		}
-		return new InContextRedirectMav(request, paths.admin.viewUsers.toSlashedString());
+		datarouterUserEditService.editUser(userToEdit, currentUser, userRoles, enabled, getSigninUrl(),
+				requestedAccounts);
+		return new InContextRedirectMav(request, paths.admin.editUser.toSlashedString() + "?userId=" + userId);
 	}
 
 	@Handler
@@ -244,8 +219,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		DatarouterUser currentUser = getCurrentUser();
 		Long userId = params.optionalLong(authenticationConfig.getUserIdParam(), currentUser.getId());
 		DatarouterUser userToEdit = datarouterUserService.getUserById(userId);
-
-		checkEditPermission(currentUser, userToEdit);
+		checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUserPassword);
 		Mav mav = new Mav(files.jsp.authentication.resetPasswordFormJsp);
 		mav.put("enabled", datarouterUserService.canHavePassword(userToEdit));
 		mav.put(USER, userToEdit);
@@ -260,7 +234,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
 		DatarouterUser currentUser = getCurrentUser();
 		DatarouterUser userToEdit = datarouterUserService.getUserById(userId);
-		checkEditPermission(currentUser, userToEdit);
+		checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUserPassword);
 		if(!datarouterUserService.canHavePassword(userToEdit)){
 			return new MessageMav("This user is externally authenticated and cannot have a password.");
 		}
@@ -273,7 +247,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	/*----------------- helpers --------------------*/
 
 	private DatarouterUser getCurrentUser(){
-		return datarouterUserService.getAndValidateCurrentUser(params.getSession());
+		return datarouterUserService.getAndValidateCurrentUser(getSessionInfo().getRequiredSession());
 	}
 
 	private static List<String> roleToStrings(Collection<Role> roles){
@@ -287,10 +261,11 @@ public class AdminEditUserHandler extends BaseHandler{
 		return path + "?" + param + "=" + value;
 	}
 
-	private void checkEditPermission(DatarouterUser currentUser, DatarouterUser userToEdit){
+	private void checkEditPermission(DatarouterUser currentUser, DatarouterUser userToEdit,
+			BiFunction<DatarouterUser,DatarouterUser,Boolean> permissionMethod){
 		Objects.requireNonNull(currentUser);
 		Objects.requireNonNull(userToEdit);
-		if(!datarouterUserService.canEditUser(userToEdit, currentUser)){
+		if(!permissionMethod.apply(currentUser, userToEdit)){
 			handleInvalidRequest();
 		}
 	}

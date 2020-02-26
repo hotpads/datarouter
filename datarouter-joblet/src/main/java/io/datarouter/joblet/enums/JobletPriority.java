@@ -15,6 +15,9 @@
  */
 package io.datarouter.joblet.enums;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -44,6 +47,10 @@ public enum JobletPriority{
 			}
 		}
 		return JobletPriority.LOW;
+	}
+
+	public static Stream<JobletPriority> stream(){
+		return Arrays.stream(values());
 	}
 
 	/*

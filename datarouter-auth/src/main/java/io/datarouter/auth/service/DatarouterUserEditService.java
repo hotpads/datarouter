@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,10 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.storage.account.DatarouterAccountKey;
+import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
+import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMap;
+import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
 import io.datarouter.httpclient.client.DatarouterService;
@@ -36,6 +41,7 @@ import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
 import io.datarouter.web.user.databean.DatarouterUser;
+import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.util.PasswordTool;
 
@@ -46,6 +52,8 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterAdministratorEmailService adminEmailService;
 	@Inject
+	private BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao;
+	@Inject
 	private DatarouterUserHistoryService userHistoryService;
 	@Inject
 	private DatarouterUserService datarouterUserService;
@@ -54,28 +62,33 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterService datarouterService;
 
-	public void editUser(DatarouterUser user, DatarouterUser editor, String[] requestedRoles, Boolean enabled,
-			String signinUrl, List<String> requestedAccounts, List<String> currentAccounts){
+	public void editUser(DatarouterUser user, DatarouterUser editor, Set<Role> requestedRoles, Boolean enabled,
+			String signinUrl, Set<DatarouterAccountKey> requestedAccounts){
 		DatarouterUserHistory history = new DatarouterUserHistory(user.getId(), new Date(), editor.getId(),
 				DatarouterUserChangeType.EDIT, null);
-
 		List<String> changes = new ArrayList<>();
 
-		Set<Role> allowedRoles = datarouterUserService.getAllowedUserRoles(editor, requestedRoles);
 		Set<Role> currentRoles = new HashSet<>(user.getRoles());
+		boolean isUserDatarouterAdmin = currentRoles.contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
+		if(isUserDatarouterAdmin && !requestedRoles.contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole()) && !user
+				.equals(editor)){
+			throw new RuntimeException("cannot disable datarouterAdmin user");
+		}
+		Set<Role> allowedRoles = datarouterUserService.getAllowedUserRoles(editor, requestedRoles);
 		if(!allowedRoles.equals(currentRoles)){
 			changes.add(change("roles", currentRoles, allowedRoles));
 			user.setRoles(allowedRoles);
 		}
+
 		if(!BooleanTool.nullSafeSame(enabled, user.getEnabled())){
+			if(isUserDatarouterAdmin){
+				throw new RuntimeException("cannot disable datarouterAdmin user");
+			}
 			changes.add(change("enabled", user.getEnabled(), enabled));
 			user.setEnabled(enabled);
 		}
-		if(requestedAccounts.size() != 0){
-			String current = String.join(",", currentAccounts);
-			String accountsAdded = String.join(",", requestedAccounts);
-			changes.add(change("accounts", current, accountsAdded));
-		}
+
+		handleAccountChanges(user, requestedAccounts).ifPresent(changes::add);
 
 		if(changes.size() > 0){
 			history.setChanges(String.join(", ", changes));
@@ -84,6 +97,38 @@ public class DatarouterUserEditService{
 			logger.warn("User {} submitted edit request for user {}, but no changes were made.", editor.toString(),
 					user.toString());
 		}
+	}
+
+	private Optional<String> handleAccountChanges(DatarouterUser user, Set<DatarouterAccountKey> requestedAccounts){
+		Set<DatarouterUserAccountMapKey> currentAccounts = datarouterUserAccountMapDao.scanKeysWithPrefix(
+				new DatarouterUserAccountMapKey(user.getId(), null)).collect(Collectors.toSet());
+		Set<DatarouterUserAccountMapKey> accountsToDelete = currentAccounts.stream()
+				.filter(currentAccountKey ->
+					!requestedAccounts.contains(currentAccountKey.getDatarouterAccountKey()))
+				.collect(Collectors.toSet());
+		Set<DatarouterUserAccountMap> accountsToAdd = requestedAccounts.stream()
+				.map(accountKey -> new DatarouterUserAccountMap(user.getId(), accountKey.getAccountName()))
+				.filter(requestedAccount -> !currentAccounts.contains(requestedAccount.getKey()))
+				.collect(Collectors.toSet());
+		if(!accountsToDelete.isEmpty() || !accountsToAdd.isEmpty()){
+			if(!accountsToDelete.isEmpty()){
+				datarouterUserAccountMapDao.deleteMulti(accountsToDelete);
+			}
+			if(!accountsToAdd.isEmpty()){
+				datarouterUserAccountMapDao.putMulti(accountsToAdd);
+			}
+			String original = currentAccounts.stream()
+					.map(DatarouterUserAccountMapKey::getDatarouterAccountKey)
+					.map(DatarouterAccountKey::getAccountName)
+					.sorted(String.CASE_INSENSITIVE_ORDER)
+					.collect(Collectors.joining(","));
+			String current = requestedAccounts.stream()
+					.map(DatarouterAccountKey::getAccountName)
+					.sorted(String.CASE_INSENSITIVE_ORDER)
+					.collect(Collectors.joining(","));
+			return Optional.of(change("accounts", original, current));
+		}
+		return Optional.empty();
 	}
 
 	public void changePassword(DatarouterUser user, DatarouterUser editor, String newPassword, String signinUrl){

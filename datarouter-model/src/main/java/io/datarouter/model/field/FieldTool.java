@@ -56,8 +56,11 @@ public class FieldTool{
 	 * the trailingSeparatorAfterEndingString is for backwards compatibility with some early tables
 	 * that appended a trailing 0 to the byte[] even though it wasn't necessary
 	 */
-	public static byte[] getConcatenatedValueBytes(Collection<Field<?>> fields, boolean allowNulls,
-			boolean terminateIntermediateString, boolean terminateFinalString){
+	public static byte[] getConcatenatedValueBytes(
+			Collection<Field<?>> fields,
+			boolean allowNulls,
+			boolean terminateIntermediateString,
+			boolean terminateFinalString){
 		int totalFields = CollectionTool.size(fields);
 		int numNonNullFields = FieldTool.countNonNullLeadingFields(fields);
 		if(numNonNullFields == 0){
@@ -116,7 +119,9 @@ public class FieldTool{
 	 * @param includePrefix usually refers to the "key." prefix before a PK
 	 * @param skipNullValues important to include nulls in PK's, but usually skip them in normal fields
 	 */
-	public static byte[] getSerializedKeyValues(Collection<Field<?>> fields, boolean includePrefix,
+	public static byte[] getSerializedKeyValues(
+			Collection<Field<?>> fields,
+			boolean includePrefix,
 			boolean skipNullValues){
 		if(CollectionTool.isEmpty(fields)){
 			return new byte[0];
@@ -181,7 +186,8 @@ public class FieldTool{
 		}
 	}
 
-	public static List<String> getCsvColumnNamesList(Iterable<Field<?>> fields,
+	public static List<String> getCsvColumnNamesList(
+			Iterable<Field<?>> fields,
 			Map<String,String> columnNameToCsvHeaderName){
 		List<String> csvRow = new LinkedList<>();
 		for(Field<?> field : IterableTool.nullSafe(fields)){
@@ -217,8 +223,10 @@ public class FieldTool{
 	}
 
 
-	public static List<String> getCsvValuesList(Iterable<Field<?>> fields,
-			Map<String,Function<Object,String>> columnNameToCsvValueFunctor, boolean emptyForNullValue){
+	public static List<String> getCsvValuesList(
+			Iterable<Field<?>> fields,
+			Map<String,Function<Object,String>> columnNameToCsvValueFunctor,
+			boolean emptyForNullValue){
 		List<String> csvRow = new LinkedList<>();
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			String value = ObjectTool.nullSafeToString(field.getValue());

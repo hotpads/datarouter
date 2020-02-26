@@ -60,7 +60,16 @@ public class CompoundPortIdentifier implements PortIdentifier{
 		}
 		Triple<String,String,Class<? extends PortIdentifier>> identifier = optIdentifier.get();
 		logger.info("{} detected as servlet container", identifier.getFirst());
-		portIdentifier = injector.getInstance(identifier.getThird());
+		try{
+			portIdentifier = injector.getInstance(identifier.getThird());
+		}catch(Exception e){
+			portIdentifier = injector.getInstance(DefaultPortIdentifier.class);
+			logger.error("Error using {}, fell back to defaults", identifier.getThird(), e);
+		}
+		logger.warn("Using ports http={} https={} from {}",
+				portIdentifier.getHttpPort(),
+				portIdentifier.getHttpsPort(),
+				portIdentifier.getClass().getSimpleName());
 	}
 
 	@Override

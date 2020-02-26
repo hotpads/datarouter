@@ -42,21 +42,24 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>
 	}
 
 	@Override
-	public GroupQueueMessage<PK, D> peek(Config config){
+	public GroupQueueMessage<PK,D> peek(Config config){
 		counter.count(QueueStorageReader.OP_peek);
-		return backingNode.peek(config);
+		GroupQueueMessage<PK,D> message = backingNode.peek(config);
+		String hitOrMiss = message == null || message.isEmpty() ? "miss" : "hit";
+		counter.count(QueueStorageReader.OP_peek + " " + hitOrMiss);
+		return message;
 	}
 
 	@Override
-	public List<GroupQueueMessage<PK, D>> peekMulti(Config config){
+	public List<GroupQueueMessage<PK,D>> peekMulti(Config config){
 		counter.count(QueueStorageReader.OP_peekMulti);
-		List<GroupQueueMessage<PK, D>> messages = backingNode.peekMulti(config);
+		List<GroupQueueMessage<PK,D>> messages = backingNode.peekMulti(config);
 		counter.count(QueueStorageReader.OP_peekMulti + " messages", messages.size());
 		return messages;
 	}
 
 	@Override
-	public Iterable<GroupQueueMessage<PK, D>> peekUntilEmpty(Config config){
+	public Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
 		counter.count(QueueStorageReader.OP_peekUntilEmpty);
 		return backingNode.peekUntilEmpty(config);
 	}

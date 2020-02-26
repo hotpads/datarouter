@@ -49,6 +49,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.encoder.DefaultEncoder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.inject.InjectorRetriever;
+import io.datarouter.web.shutdown.ShutdownService;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.RequestTool;
 import io.datarouter.web.util.http.exception.HttpExceptionTool;
@@ -58,7 +59,8 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 
 	private static final Set<Integer> statusToLog = Set.of(
 			HttpServletResponse.SC_NOT_FOUND,
-			HttpServletResponse.SC_FORBIDDEN);
+			HttpServletResponse.SC_FORBIDDEN,
+			ShutdownService.SHUTDOWN_STATUS_CODE);
 
 	private DatarouterInjector injector;
 	private WebappName webappName;

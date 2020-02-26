@@ -23,15 +23,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.auth.storage.user.DatarouterUserDao;
-import io.datarouter.util.array.ArrayTool;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.databean.DatarouterUserKey;
 import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleManager;
+import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.util.PasswordTool;
 
 @Singleton
@@ -42,7 +41,7 @@ public class DatarouterUserService{
 	@Inject
 	private RoleManager roleManager;
 
-	public DatarouterUser getAndValidateCurrentUser(DatarouterSession session){
+	public DatarouterUser getAndValidateCurrentUser(Session session){
 		DatarouterUser user = getUserBySession(session);
 		if(user == null || !user.getEnabled()){
 			throw new RuntimeException("Current user does not exist or is not enabled.");
@@ -50,7 +49,7 @@ public class DatarouterUserService{
 		return user;
 	}
 
-	public DatarouterUser getUserBySession(DatarouterSession session){
+	public DatarouterUser getUserBySession(Session session){
 		if(session == null || session.getUserId() == null){
 			return null;
 		}
@@ -61,15 +60,21 @@ public class DatarouterUserService{
 		return nodes.get(new DatarouterUserKey(id));
 	}
 
-	public boolean canEditUser(DatarouterUser user, DatarouterUser editor){
+	public boolean canEditUserPassword(DatarouterUser editor, DatarouterUser user){
 		return user.equals(editor)
-				|| !isAdmin(user)
+				|| !isDatarouterAdmin(user)
 				&& roleManager.isAdmin(editor.getRoles())
 				&& editor.getEnabled();
 	}
 
+	public boolean canEditUser(DatarouterUser editor, DatarouterUser user){
+		return user.equals(editor)
+				|| roleManager.isAdmin(editor.getRoles())
+				&& editor.getEnabled();
+	}
+
 	public boolean canHavePassword(DatarouterUser user){
-		return user.getPasswordDigest() != null || isAdmin(user);
+		return user.getPasswordDigest() != null || isDatarouterAdmin(user);
 	}
 
 	public boolean isPasswordCorrect(DatarouterUser user, String rawPassword){
@@ -85,8 +90,7 @@ public class DatarouterUserService{
 		return isPasswordCorrect(user, rawPassword);
 	}
 
-	public Set<Role> getAllowedUserRoles(DatarouterUser currentUser, String[] userRoleStrings){
-		Set<Role> userRoles = ArrayTool.mapToSet(roleManager::getRoleFromPersistentString, userRoleStrings);
+	public Set<Role> getAllowedUserRoles(DatarouterUser currentUser, Set<Role> userRoles){
 		Collection<Role> validRoles = roleManager.getConferrableRoles(currentUser.getRoles());
 		userRoles.retainAll(validRoles);
 		userRoles.add(DatarouterUserRole.REQUESTOR.getRole());// everyone should have this
@@ -108,7 +112,7 @@ public class DatarouterUserService{
 		}
 	}
 
-	public boolean isAdmin(DatarouterUser user){
+	public boolean isDatarouterAdmin(DatarouterUser user){
 		return user.getRoles().contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
 	}
 

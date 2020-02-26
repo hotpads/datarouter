@@ -15,10 +15,6 @@
  */
 package io.datarouter.storage.queue;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 
@@ -32,15 +28,6 @@ public class BaseQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>
 
 	public QueueMessageKey getKey(){
 		return key;
-	}
-
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<QueueMessageKey> getKeys(
-			Collection<? extends BaseQueueMessage<PK,D>> messages){
-		List<QueueMessageKey> keys = new ArrayList<>();
-		for(BaseQueueMessage<PK,D> message : messages){
-			keys.add(message.getKey());
-		}
-		return keys;
 	}
 
 }

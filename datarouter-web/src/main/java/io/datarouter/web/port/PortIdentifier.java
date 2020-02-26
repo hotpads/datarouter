@@ -24,7 +24,7 @@ public interface PortIdentifier{
 
 	/*----------------------- fixed class for testing -----------------------*/
 
-	public static class TestPortIdentifier implements PortIdentifier{
+	public static class DefaultPortIdentifier implements PortIdentifier{
 
 		@Override
 		public Integer getHttpPort(){

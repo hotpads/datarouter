@@ -9,7 +9,7 @@ datarouter-auto-config is a tool that can be used to do any type of automatic co
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auto-config</artifactId>
-	<version>0.0.20</version>
+	<version>0.0.21</version>
 </dependency>
 ```
 
@@ -36,3 +36,8 @@ The `AutoConfigHandler` injects a collection of `AutoConfigClasses` (which are a
 One example to use datarouter-auto-config could be to populate databases for development environments. Instead of
  each development machine importing a data dump manually, which could be outdated or have an incorrect schema, the
  insert databeans could be built in the code.
+
+
+## License
+
+This library is licensed under the Apache License, Version 2.0 - see [LICENSE](../LICENSE) for details.

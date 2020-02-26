@@ -1,0 +1,215 @@
+/**
+ * Copyright © 2009 HotPads (admin@hotpads.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.datarouter.client.redis.node;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.client.redis.RedisClientType;
+import io.datarouter.client.redis.client.RedisClientManager;
+import io.datarouter.client.redis.databean.RedisDatabeanKey;
+import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.JsonDatabeanTool;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.Config;
+import io.datarouter.storage.node.NodeParams;
+import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import io.datarouter.util.collection.CollectionTool;
+import redis.clients.jedis.params.SetParams;
+
+public class RedisNode<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		F extends DatabeanFielder<PK,D>>
+extends RedisReaderNode<PK,D,F>
+implements PhysicalMapStorageNode<PK,D,F>{
+	private static final Logger logger = LoggerFactory.getLogger(RedisNode.class);
+
+	//redis can handle a max keys size of 32 megabytes
+	private static final int MAX_REDIS_KEY_SIZE = 1024 * 64;
+
+	private final RedisClientManager redisClientManager;
+	private final ClientId clientId;
+
+	public RedisNode(NodeParams<PK,D,F> params, RedisClientType redisClientType, RedisClientManager redisClientManager,
+			ClientId clientId){
+		super(params, redisClientType, redisClientManager, clientId);
+		this.redisClientManager = redisClientManager;
+		this.clientId = clientId;
+	}
+
+	@Override
+	public void put(D databean, Config config){
+		if(databean == null){
+			return;
+		}
+		String key = buildRedisKey(databean.getKey());
+		if(key.length() > MAX_REDIS_KEY_SIZE){
+			String jsonKey = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
+			logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + jsonKey);
+			return;
+		}
+		Long ttl = null;
+		if(config != null && config.getTtl() != null){
+			ttl = getTtlMs(config);
+		}
+		String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, getFieldInfo().getSampleFielder());
+		try{
+			startTraceSpan("redis put");
+			if(ttl == null){
+				redisClientManager.getJedis(clientId).set(key, jsonBean);
+			}else{
+				// XX - Only set they key if it already exists
+				// PX - Milliseconds
+				redisClientManager.getJedis(clientId).set(key, jsonBean, new SetParams().xx().px(ttl));
+			}
+		}finally{
+			finishTraceSpan();
+		}
+	}
+
+	@Override
+	public void putMulti(Collection<D> databeans, Config config){
+		if(CollectionTool.isEmpty(databeans)){
+			return;
+		}
+		if(config != null && config.getTtl() != null){
+			// redis cannot handle both batch-puts and setting ttl
+			databeans.forEach(databean -> put(databean, config));
+			return;
+		}
+
+		List<String> keysAndDatabeans = new ArrayList<>();
+		// redis mset(key1, value1, key2, value2, key3, value3, ...)
+		for(D databean : databeans){
+			String key = buildRedisKey(databean.getKey());
+			if(key.length() > MAX_REDIS_KEY_SIZE){
+				logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + key);
+				continue;
+			}
+			String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, getFieldInfo().getSampleFielder());
+			keysAndDatabeans.add(key);
+			keysAndDatabeans.add(jsonBean);
+		}
+		try{
+			startTraceSpan("redis put multi");
+			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().databeans(CollectionTool.size(databeans)));
+			redisClientManager.getJedis(clientId).mset(keysAndDatabeans.toArray(new String[keysAndDatabeans.size()]));
+		}finally{
+			finishTraceSpan();
+		}
+	}
+
+	@Override
+	public void deleteAll(Config config){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void delete(PK key, Config config){
+		if(key == null){
+			return;
+		}
+		try{
+			startTraceSpan("redis delete");
+			redisClientManager.getJedis(clientId).del(buildRedisKey(key));
+		}finally{
+			finishTraceSpan();
+		}
+	}
+
+	@Override
+	public void deleteMulti(Collection<PK> keys, Config config){
+		if(CollectionTool.isEmpty(keys)){
+			return;
+		}
+		try{
+			startTraceSpan("redis delete multi");
+			redisClientManager.getJedis(clientId).del(buildRedisKeys(keys).toArray(new String[keys.size()]));
+		}finally{
+			finishTraceSpan();
+		}
+	}
+
+	public void increment(RedisDatabeanKey redisKey, int delta){
+		if(redisKey == null){
+			return;
+		}
+		String key = buildRedisKey(redisKey);
+		try{
+			startTraceSpan("redis increment");
+			redisClientManager.getJedis(clientId).incrBy(key, delta);
+			return;
+		}finally{
+			finishTraceSpan();
+		}
+	}
+
+	public void increment(RedisDatabeanKey redisKey, int delta, Config config){
+		if(redisKey == null){
+			return;
+		}
+		String key = buildRedisKey(redisKey);
+		Long ttl = getTtlMs(config);
+		try{
+			startTraceSpan("redis increment");
+			if(ttl == null){
+				redisClientManager.getJedis(clientId).incrBy(key, delta);
+				return;
+			}
+			redisClientManager.getJedis(clientId).incrBy(key, delta);
+			redisClientManager.getJedis(clientId).pexpire(key, ttl);
+			return;
+		}finally{
+			finishTraceSpan();
+		}
+	}
+
+	public Long incrementAndGetCount(RedisDatabeanKey redisKey, int delta, Config config){
+		if(redisKey == null){
+			return null;
+		}
+		String key = buildRedisKey(redisKey);
+		Long expiration = getTtlMs(config);
+		try{
+			startTraceSpan("redis increment and get count");
+			if(expiration == null){
+				return redisClientManager.getJedis(clientId).incrBy(key, delta).longValue();
+			}
+			Long response = redisClientManager.getJedis(clientId).incrBy(key, delta);
+			redisClientManager.getJedis(clientId).pexpire(key, expiration);
+			return response.longValue();
+		}finally{
+			finishTraceSpan();
+		}
+	}
+
+	private Long getTtlMs(Config config){
+		if(config == null){
+			return null;
+		}
+		return config.getTtl() == null ? Long.MAX_VALUE : config.getTtl().toMillis();
+	}
+
+}

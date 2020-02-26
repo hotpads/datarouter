@@ -52,6 +52,7 @@
 				<tr>
 					<th>Node Name</th>
 					<th>Count Keys</th>
+					<th ${showExporterLink ? '' : "hidden"}>Export</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -61,18 +62,19 @@
 							{Array(4 * node.levelsNested).fill().map((x, i) => 
 								<span key={i}>{'\u00A0'}</span>
 							)}
-							<a href={CONTEXT_PATH + "/datarouter/nodes/browseData/browseData?nodeName="
-									+ encodeURIComponent(node.name)}>
+							<a href={CONTEXT_PATH + "${getNodeDataPath}" + encodeURIComponent(node.name)}>
 								{node.name}
 							</a>
 						</td>
 						<td>
 							{node.sorted &&
-								<a className="btn btn-link" href={CONTEXT_PATH + "/datarouter/nodes/browseData/countKeys"
-										+ "?nodeName=" + encodeURIComponent(node.name)}>
+								<a className="btn btn-link" href={CONTEXT_PATH + "${countKeysPath}" + encodeURIComponent(node.name)}>
 									count keys
 								</a>
 							}
+						</td>
+						<td ${showExporterLink ? '' : "hidden"}>
+							<a href={CONTEXT_PATH + "${exporterLink}" + encodeURIComponent(node.name)}> export </a>
 						</td>
 					</tr>
 				)}

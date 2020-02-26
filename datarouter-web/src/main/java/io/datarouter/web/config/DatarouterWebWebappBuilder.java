@@ -106,6 +106,7 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 	private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetail;
 	private Class<? extends HomepageHandler> homepageHandler;
 	private String customStaticFileFilterRegex;
+	private String databeanExporterLink;
 	protected boolean useDatarouterAuth;
 
 	// datarouter-web servlet
@@ -194,7 +195,8 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 
 		DatarouterWebPluginBuilder webPluginBuilder = new DatarouterWebPluginBuilder(
 				datarouterService,
-				defaultClientId);
+				defaultClientId)
+				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex);
 		addWebPluginWithoutInstalling(webPluginBuilder.getSimplePluginData());
 		DatarouterWebPlugin webPlugin = webPluginBuilder
 				.setFilesClass(filesRoot)
@@ -209,11 +211,12 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 				.setDaoModule(new DatarouterWebDaoModule(defaultClientId))
 				.setDatarouterNavBarMenuItems(datarouterNavBarPluginItems)
 				.setAppNavBarMenuItems(appNavBarPluginItems)
-				.setDatarouterUserExternalDetailClass(datarouterUserExternalDetail)
+				.setDatarouterUserExternalDetails(datarouterUserExternalDetail)
 				.setAppNavBarRegistrySupplier(appNavBarRegistrySupplier)
 				.setHomepageHandler(homepageHandler)
 				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex)
 				.withRegisteredPlugins(registeredPlugins)
+				.withDatabeanExporterLink(databeanExporterLink)
 				.build();
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
@@ -472,6 +475,11 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 
 	public DatarouterWebWebappBuilder withCustomStaticFileFilterRegex(String customStaticFileFilterRegex){
 		this.customStaticFileFilterRegex = customStaticFileFilterRegex;
+		return this;
+	}
+
+	public DatarouterWebWebappBuilder withDatabeanExporterLink(String databeanExporterLink){
+		this.databeanExporterLink = databeanExporterLink;
 		return this;
 	}
 

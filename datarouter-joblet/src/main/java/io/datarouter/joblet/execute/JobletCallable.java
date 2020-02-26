@@ -113,7 +113,7 @@ public class JobletCallable implements Callable<Void>{
 					}
 				}
 			}
-			logger.info(timer.toString());
+			logger.info("finished {} {}", jobletPackage.map(JobletPackage::getJobletRequest), timer);
 			return null;
 		}catch(Exception e){
 			logger.error("", e);
@@ -135,6 +135,7 @@ public class JobletCallable implements Callable<Void>{
 		timer.add("dequeued " + jobletRequest.getKey());
 		JobletPackage jobletPackage = jobletService.getJobletPackageForJobletRequest(jobletRequest);
 		if(jobletPackage.getJobletData() == null){
+			datarouterJobletCounters.ignoredDataMissingFromDb(jobletType);
 			jobletService.handleMissingJobletData(jobletRequest);
 			timer.add("deleted, missing JobletData");
 			return Optional.empty();

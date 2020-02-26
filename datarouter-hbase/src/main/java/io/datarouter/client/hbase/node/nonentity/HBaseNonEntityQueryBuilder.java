@@ -64,7 +64,14 @@ public class HBaseNonEntityQueryBuilder<
 	}
 
 	public ByteRange getPkByteRange(PK pk){
-		return pk == null ? null : new ByteRange(getPkBytes(pk));
+		if(pk == null){
+			return null;
+		}
+		byte[] pkBytes = getPkBytes(pk);
+		if(pkBytes == null){
+			return null;
+		}
+		return new ByteRange(pkBytes);
 	}
 
 }

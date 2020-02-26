@@ -160,7 +160,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	}
 
 	private DatarouterUser getCurrentUser(){
-		return datarouterUserService.getAndValidateCurrentUser(params.getSession());
+		return datarouterUserService.getAndValidateCurrentUser(getSessionInfo().getRequiredSession());
 	}
 
 	private void sendRequestEmail(DatarouterUser user, String reason, String specifics){

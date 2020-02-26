@@ -34,7 +34,7 @@ import io.datarouter.httpclient.security.UrlScheme;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
-import io.datarouter.web.port.PortIdentifier.TestPortIdentifier;
+import io.datarouter.web.port.PortIdentifier.DefaultPortIdentifier;
 import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
@@ -104,7 +104,7 @@ public class UrlSchemeRedirector{
 	}
 
 	public static class UrlSchemeRedirectorTests{
-		private final UrlSchemeRedirector urlSchemeHandler = new UrlSchemeRedirector(new TestPortIdentifier());
+		private final UrlSchemeRedirector urlSchemeHandler = new UrlSchemeRedirector(new DefaultPortIdentifier());
 
 		private final String urlHttp = "http://x.com",
 				urlHttps = "https://x.com",

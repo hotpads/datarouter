@@ -93,7 +93,7 @@ public class DatarouterUserCreationService{
 	}
 
 	public DatarouterUser createManualUser(DatarouterUser creator, String username, String password,
-			String[] requestedRoles, boolean enabled){
+			Set<Role> requestedRoles, boolean enabled){
 		DatarouterUser user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.MANUAL, password);
 		populateManualFields(user, username, datarouterUserService.getAllowedUserRoles(creator, requestedRoles),

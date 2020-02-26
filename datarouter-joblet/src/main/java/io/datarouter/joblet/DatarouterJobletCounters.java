@@ -164,4 +164,8 @@ public class DatarouterJobletCounters{
 		Counters.inc(PREFIX + "ignored request missing from db " + jobletType.getPersistentString());
 	}
 
+	public void ignoredDataMissingFromDb(JobletType<?> jobletType){
+		Counters.inc(PREFIX + "ignored data missing from db " + jobletType.getPersistentString());
+	}
+
 }

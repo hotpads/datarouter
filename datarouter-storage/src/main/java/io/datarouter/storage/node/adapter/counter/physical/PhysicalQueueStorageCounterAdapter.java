@@ -45,7 +45,10 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
 		counter.count(QueueStorageReader.OP_peek);
-		return backingNode.peek(config);
+		QueueMessage<PK,D> message = backingNode.peek(config);
+		String hitOrMiss = message == null ? "miss" : "hit";
+		counter.count(QueueStorageReader.OP_peek + " " + hitOrMiss);
+		return message;
 	}
 
 	@Override

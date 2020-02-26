@@ -58,7 +58,7 @@ public class JettyPortIdentifier implements PortIdentifier{
 					}
 				});
 		if(this.httpPort == 0 || this.httpsPort == 0){
-			throw new RuntimeException("JettyPortIdentifier didn't found port numbers in jmx");
+			throw new RuntimeException("JettyPortIdentifier didn't find port numbers in jmx");
 		}
 	}
 

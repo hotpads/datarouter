@@ -25,6 +25,8 @@ import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.web.browse.DatabeanExporterLinkSupplier;
+import io.datarouter.web.browse.DatabeanExporterLinkSupplier.DatabeanExporterLink;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
@@ -105,11 +107,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
 	private final Class<? extends HomepageHandler> homepageHandlerClass;
 	private final List<String> registeredPlugins;
+	private final String databeanExporterLink;
 
 	// only used to get simple data from plugin
-	private DatarouterWebPlugin(DatarouterWebDaoModule daosModuleBuilder){
+	private DatarouterWebPlugin(DatarouterWebDaoModule daosModuleBuilder, String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
-				null, null, null, null, null);
+				null, null, null, customStaticFileFilterRegex, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -132,7 +135,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier,
 			Class<? extends HomepageHandler> homepageHandlerClass,
 			String customStaticFileFilterRegex,
-			List<String> registeredPlugins){
+			List<String> registeredPlugins,
+			String databeanExporterLink){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(HomepageRouteSet.class);
 
@@ -190,6 +194,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.appNavBarRegistrySupplier = appNavBarRegistrySupplier;
 		this.homepageHandlerClass = homepageHandlerClass;
 		this.registeredPlugins = registeredPlugins;
+		this.databeanExporterLink = databeanExporterLink;
 	}
 
 	@Override
@@ -222,6 +227,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualNullSafe(AppNavBarRegistrySupplier.class, appNavBarRegistrySupplier);
 		bind(HomepageHandler.class).to(homepageHandlerClass);
 		bindActualInstance(PluginRegistrySupplier.class, new PluginRegistry(registeredPlugins));
+		bindActualInstance(DatabeanExporterLinkSupplier.class, new DatabeanExporterLink(databeanExporterLink));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -272,11 +278,10 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private DatarouterWebDaoModule daoModule;
 
 		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
-		private Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass;
-		private Class<? extends CurrentSessionInfo> currentSessionInfoClass = NoOpCurrentSessionInfo.class;
-		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass
-				= NoOpExceptionHandlingConfig.class;
-		private Class<? extends ExceptionRecorder> exceptionRecorderClass;
+		private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
+		private Class<? extends CurrentSessionInfo> currentSessionInfo = NoOpCurrentSessionInfo.class;
+		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfig = NoOpExceptionHandlingConfig.class;
+		private Class<? extends ExceptionRecorder> exceptionRecorder;
 		private Set<String> additionalAdministrators = Collections.emptySet();
 		private Set<String> additionalPermissionRequestEmails = Collections.emptySet();
 		private List<Class<? extends DatarouterAppListener>> appListenerClasses;
@@ -285,11 +290,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends UserSessionService> userSessionServiceClass = NoOpUserSessionService.class;
 		private List<NavBarItem> datarouterNavBarPluginItems;
 		private List<NavBarItem> appNavBarPluginItems;
-		private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass;
+		private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetail;
 		private Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
-		private Class<? extends HomepageHandler> homepageHandlerClass = SimpleHomepageHandler.class;
+		private Class<? extends HomepageHandler> homepageHandler = SimpleHomepageHandler.class;
 		private String customStaticFileFilterRegex;
 		private List<String> registeredPlugins = Collections.emptyList();
+		private String databeanExporterLink;
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -303,25 +309,25 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		public DatarouterWebPluginBuilder setDatarouterAuthConfig(
 				Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass){
-			this.authenticationConfigClass = authenticationConfigClass;
+			this.authenticationConfig = authenticationConfigClass;
 			return this;
 		}
 
 		public DatarouterWebPluginBuilder setCurrentSessionInfoClass(
 				Class<? extends CurrentSessionInfo> currentSessionInfoClass){
-			this.currentSessionInfoClass = currentSessionInfoClass;
+			this.currentSessionInfo = currentSessionInfoClass;
 			return this;
 		}
 
 		public DatarouterWebPluginBuilder setExceptionHandlingClass(
 				Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass){
-			this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
+			this.exceptionHandlingConfig = exceptionHandlingConfigClass;
 			return this;
 		}
 
 		public DatarouterWebPluginBuilder setExceptionRecorderClass(
 				Class<? extends ExceptionRecorder> exceptionRecorderClass){
-			this.exceptionRecorderClass = exceptionRecorderClass;
+			this.exceptionRecorder = exceptionRecorderClass;
 			return this;
 		}
 
@@ -381,14 +387,14 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder setDatarouterUserExternalDetailClass(
+		public DatarouterWebPluginBuilder setDatarouterUserExternalDetails(
 				Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass){
-			this.datarouterUserExternalDetailClass = datarouterUserExternalDetailClass;
+			this.datarouterUserExternalDetail = datarouterUserExternalDetailClass;
 			return this;
 		}
 
 		public DatarouterWebPluginBuilder setHomepageHandler(Class<? extends HomepageHandler> homepageHandlerClass){
-			this.homepageHandlerClass = homepageHandlerClass;
+			this.homepageHandler = homepageHandlerClass;
 			return this;
 		}
 
@@ -402,8 +408,14 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder withDatabeanExporterLink(String databeanExporterLink){
+			this.databeanExporterLink = databeanExporterLink;
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
-			return new DatarouterWebPlugin(daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId));
+			return new DatarouterWebPlugin(daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId),
+					customStaticFileFilterRegex);
 		}
 
 		public DatarouterWebPlugin build(){
@@ -411,10 +423,10 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return new DatarouterWebPlugin(
 					datarouterService,
 					filesClass,
-					authenticationConfigClass,
-					currentSessionInfoClass,
-					exceptionHandlingConfigClass,
-					exceptionRecorderClass,
+					authenticationConfig,
+					currentSessionInfo,
+					exceptionHandlingConfig,
+					exceptionRecorder,
 					additionalAdministrators,
 					additionalPermissionRequestEmails,
 					appListenerClasses,
@@ -424,11 +436,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					daoModule == null ? new DatarouterWebDaoModule(defaultClientId) : daoModule,
 					datarouterNavBarPluginItems,
 					appNavBarPluginItems,
-					datarouterUserExternalDetailClass,
+					datarouterUserExternalDetail,
 					appNavBarRegistrySupplier,
-					homepageHandlerClass,
+					homepageHandler,
 					customStaticFileFilterRegex,
-					registeredPlugins);
+					registeredPlugins,
+					databeanExporterLink);
 		}
 
 	}

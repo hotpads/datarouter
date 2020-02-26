@@ -17,6 +17,7 @@ package io.datarouter.web.browse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -44,7 +45,9 @@ public class DatarouterHomepageHandler extends BaseHandler{
 	@Inject
 	private ClientInitializationTracker clientInitializationTracker;
 	@Inject
-	private DatarouterWebPaths datarouterWebPaths;
+	private DatarouterWebPaths paths;
+	@Inject
+	private DatabeanExporterLinkSupplier databeanExporterLink;
 
 	@Handler(defaultHandler = true)
 	protected Mav view(){
@@ -62,7 +65,7 @@ public class DatarouterHomepageHandler extends BaseHandler{
 
 		//Clients
 		boolean hasUninitializedClients = false;
-		List<DaosRowJspDto> clients = new ArrayList<>();
+		List<ClientsJspDto> clients = new ArrayList<>();
 		for(ClientId clientId : datarouterClients.getClientIds()){
 			boolean initialized = clientInitializationTracker.isInitialized(clientId);
 			hasUninitializedClients = hasUninitializedClients || !initialized;
@@ -70,26 +73,32 @@ public class DatarouterHomepageHandler extends BaseHandler{
 			CheckResultJspDto checkResultJspDto = new CheckResultJspDto(
 					monitoringService.getLastResultForDatarouterClient(clientId),
 					monitoringService.getGraphLinkForDatarouterClient(clientId));
-			clients.add(new DaosRowJspDto(clientId.getName(), clientTypeName, initialized, checkResultJspDto));
+			clients.add(new ClientsJspDto(clientId.getName(), clientTypeName, initialized, checkResultJspDto));
 		}
 		mav.put("clients", clients);
 		mav.put("hasUninitializedClients", hasUninitializedClients);
 
-		mav.put("initClientPath", datarouterWebPaths.datarouter.client.initClient.toSlashedString());
-		mav.put("initAllClientsPath", datarouterWebPaths.datarouter.client.initAllClients.toSlashedString());
-		mav.put("inspectClientPath", datarouterWebPaths.datarouter.client.inspectClient.toSlashedString());
+		mav.put("initClientPath", paths.datarouter.client.initClient.toSlashedString());
+		mav.put("initAllClientsPath", paths.datarouter.client.initAllClients.toSlashedString());
+		mav.put("inspectClientPath", paths.datarouter.client.inspectClient.toSlashedString());
+		mav.put("getNodeDataPath", paths.datarouter.nodes.getData.toSlashedString() + "?nodeName=");
+		mav.put("countKeysPath", paths.datarouter.nodes.browseData.toSlashedString() + "/countKeys?nodeName=");
 
+		Optional<String> exporterLink = Optional.ofNullable(databeanExporterLink.get())
+				.map(link -> link + "?nodeName=");
+		mav.put("exporterLink", exporterLink.orElse(""));
+		mav.put("showExporterLink", exporterLink.isPresent());
 		return mav;
 	}
 
-	public static class DaosRowJspDto{
+	public static class ClientsJspDto{
 
 		private final String clientName;
 		private final String clientTypeName;
 		private final Boolean initialized;
 		private final CheckResultJspDto checkResult;
 
-		public DaosRowJspDto(String clientName, String clientTypeName, Boolean initialized,
+		public ClientsJspDto(String clientName, String clientTypeName, Boolean initialized,
 				CheckResultJspDto checkResult){
 			this.clientName = clientName;
 			this.clientTypeName = clientTypeName;

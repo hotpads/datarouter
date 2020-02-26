@@ -49,7 +49,7 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 	}
 
 	private final SortedMapStorage<DatarouterAccountKey,DatarouterAccount> node;
-	private final AtomicReference<Map<String,DatarouterAccount>> accountByApiKey;
+	private final AtomicReference<Map<String,DatarouterAccount>> accountByApiKeyCache;
 
 	@Inject
 	public DatarouterAccountDao(Datarouter datarouter, NodeFactory nodeFactory,
@@ -57,9 +57,8 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, DatarouterAccount::new, DatarouterAccountFielder::new)
 				.buildAndRegister();
-		accountByApiKey = new AtomicReference<>();
-		accountByApiKey.set(this.loadAccountByApiKeyCache());
-		executor.scheduleWithFixedDelay(this::loadAccountByApiKeyCache, 30, 30, TimeUnit.SECONDS);
+		accountByApiKeyCache = new AtomicReference<>(getAccountsByApiKey());
+		executor.scheduleWithFixedDelay(this::refreshAccountByApiKeyCache, 30, 30, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -109,12 +108,16 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 
 	@Override
 	public Optional<DatarouterAccount> getFromAccountByApiKeyCache(String apiKey){
-		return Optional.ofNullable(accountByApiKey.get().get(apiKey));
+		return Optional.ofNullable(accountByApiKeyCache.get().get(apiKey));
 	}
 
-	private Map<String,DatarouterAccount> loadAccountByApiKeyCache(){
+	private Map<String,DatarouterAccount> getAccountsByApiKey(){
 		return node.scan()
 				.collect(Collectors.toMap(DatarouterAccount::getApiKey, Function.identity()));
+	}
+
+	private void refreshAccountByApiKeyCache(){
+		accountByApiKeyCache.set(getAccountsByApiKey());
 	}
 
 }

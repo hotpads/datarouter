@@ -29,7 +29,6 @@ import org.apache.commons.fileupload.FileItem;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.util.http.RequestTool;
 
 public class Params{
@@ -179,16 +178,6 @@ public class Params{
 
 	public Map<String,String> toMap(){
 		return paramsMap;
-	}
-
-	/*--------------------------- fancier methods ---------------------------*/
-
-	public DatarouterSession getSession(){
-		return getSession(request);
-	}
-
-	public static DatarouterSession getSession(HttpServletRequest request){
-		return (DatarouterSession) request.getAttribute("datarouterSession");
 	}
 
 	/*--------------------------- get/set -----------------------------------*/
