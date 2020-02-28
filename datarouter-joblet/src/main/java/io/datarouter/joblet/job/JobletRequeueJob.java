@@ -93,11 +93,7 @@ public class JobletRequeueJob extends BaseJob{
 		jobletRequestDao.put(request);
 		jobletQueueDao.put(queueKey, request);
 		jobletRequestDao.delete(oldKey);
-		logger.warn("requeued one, type={}, priority={}, age={}, jobletDataId={}",
-				request.getKey().getType(),
-				request.getKey().getPriority(),
-				request.getKey().getAge(),
-				request.getJobletDataId());
+		logger.warn("requeued one oldKey={} newKey={}", oldKey, request.getKey());
 	}
 
 	private static boolean isOld(JobletRequest request){

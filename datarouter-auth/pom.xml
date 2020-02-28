@@ -17,13 +17,12 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.21</version>
+		<version>0.0.22</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -43,6 +42,12 @@
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-job</artifactId>
 			<version>${datarouter-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-testng</artifactId>
+			<version>${datarouter-version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

@@ -46,7 +46,7 @@ public class JobletProcessor{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessor.class);
 
 	private static final Duration SLEEP_TIME_WHEN_DISABLED = Duration.ofSeconds(5);
-	private static final Duration SLEEP_TIME_WHEN_NO_WORK = Duration.ofSeconds(1);
+	private static final Duration SLEEP_TIME_WHEN_NO_WORK = Duration.ofSeconds(5);
 	private static final Duration MAX_EXEC_BACKOFF_TIME = Duration.ofSeconds(1);
 	private static final Duration MAX_WAIT_FOR_EXECUTOR = Duration.ofSeconds(5);
 	private static final Duration MAX_WAIT_FOR_SHUTDOWN = Duration.ofSeconds(5);

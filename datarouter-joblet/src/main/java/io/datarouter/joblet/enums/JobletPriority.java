@@ -18,9 +18,6 @@ package io.datarouter.joblet.enums;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.string.StringTool;
 
 public enum JobletPriority{
@@ -74,33 +71,6 @@ public enum JobletPriority{
 
 	public static JobletPriority getLowestPriority(){
 		return JobletPriority.values()[JobletPriority.values().length - 1];
-	}
-
-	public static class JobletPriorityTests{
-
-		@Test
-		public void testGetLowestPriorty(){
-			JobletPriority lowestPriority = getLowestPriority();
-			for(JobletPriority priority : values()){
-				if(priority == lowestPriority){
-					continue;
-				}
-				Assert.assertTrue(priority.isHigher(lowestPriority), priority.name()
-						+ " is lower than lowest priority " + lowestPriority.name());
-			}
-		}
-
-		@Test
-		public void testGetHighestPriorty(){
-			JobletPriority highestPriority = getHighestPriority();
-			for(JobletPriority priority : values()){
-				if(priority == highestPriority){
-					continue;
-				}
-				Assert.assertFalse(priority.isHigher(highestPriority), priority.name()
-						+ " is higher than highest priority " + highestPriority.name());
-			}
-		}
 	}
 
 }

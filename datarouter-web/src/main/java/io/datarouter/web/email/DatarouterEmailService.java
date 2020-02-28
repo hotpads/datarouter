@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.email;
 
-import java.util.Date;
 import java.util.Properties;
 
 import javax.inject.Inject;
@@ -29,12 +28,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
 
 import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterEmailSettings;
 import io.datarouter.web.config.DatarouterEmailSettings.DatarouterEmailHostDetails;
@@ -95,26 +90,6 @@ public class DatarouterEmailService{
 			message.setText(body, "UTF-8", subType);
 			transport.sendMessage(message, addresses);
 		}
-	}
-
-	@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
-	public static class DatarouterEmailServiceIntegrartionTester{
-
-		@Inject
-		private DatarouterEmailService datarouterEmailService;
-		@Inject
-		private DatarouterProperties datarouterProperties;
-
-		@Test
-		public void trySendEmailTest(){
-			datarouterEmailService.trySend(
-					datarouterProperties.getAdministratorEmail(),
-					datarouterProperties.getAdministratorEmail(),
-					getClass().getName(),
-					"Hello there, it's " + new Date(),
-					false);
-		}
-
 	}
 
 }

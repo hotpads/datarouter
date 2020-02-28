@@ -9,7 +9,7 @@ datarouter-redis is a simple client that implements the MapStorage interface wit
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-redis</artifactId>
-	<version>0.0.21</version>
+	<version>0.0.22</version>
 </dependency>
 ```
 

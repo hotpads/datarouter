@@ -22,9 +22,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.setting.cached.impl.BooleanCachedSetting;
 import io.datarouter.storage.setting.cached.impl.CommaSeparatedStringCachedSetting;
@@ -252,22 +249,6 @@ public abstract class SettingNode{
 
 	public SortedMap<String,SettingNode> getChildren(){
 		return children;
-	}
-
-	public static class SettingNodeTests{
-
-		@Test
-		public void testInferParentName(){
-			SettingNode node = new SettingNode(null, "example.myapp.mysetting."){};
-			Assert.assertEquals(node.getParentName(), "example.myapp.");
-
-			node = new SettingNode(null, "example.myapp."){};
-			Assert.assertEquals(node.getParentName(), "example.");
-
-			node = new SettingNode(null, "example."){};
-			Assert.assertEquals(node.getParentName(), "");
-		}
-
 	}
 
 }

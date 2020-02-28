@@ -28,17 +28,17 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.instrumentation.test.Testable;
+import io.datarouter.util.Require;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 
-public abstract class BaseFilesTests{
+public abstract class BaseFilesTests implements Testable{
 	private static final Logger logger = LoggerFactory.getLogger(BaseFilesTests.class);
 
 	private static final List<String> OMITTED_WORDS = Arrays.asList(
@@ -49,7 +49,6 @@ public abstract class BaseFilesTests{
 
 	protected abstract String getRootDirectory();
 
-	@Test
 	public void testPathNodesFilesExist(){
 		if(skipTests()){
 			return;
@@ -59,7 +58,6 @@ public abstract class BaseFilesTests{
 				.forEach(FileTool::requireIsFileAndExists);
 	}
 
-	@Test
 	public void testSystemFilesExistAsPathNodes(){
 		if(skipTests()){
 			return;
@@ -70,8 +68,14 @@ public abstract class BaseFilesTests{
 				continue;
 			}
 			String message = "add file to PathNodes - " + file;
-			Assert.assertTrue(nodeFileStrings.contains(file), message);
+			Require.isTrue(nodeFileStrings.contains(file), message);
 		}
+	}
+
+	@Override
+	public void testAll(){
+		testPathNodesFilesExist();
+		testSystemFilesExistAsPathNodes();
 	}
 
 	private List<String> getDirectoryFiles(){

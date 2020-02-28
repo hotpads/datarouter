@@ -61,6 +61,10 @@ public class DatarouterSessionDao extends BaseDao implements BaseDatarouterSessi
 		node.put(databean);
 	}
 
+	public void putMulti(Collection<DatarouterSession> databeans){
+		node.putMulti(databeans);
+	}
+
 	@Override
 	public void delete(DatarouterSessionKey key){
 		node.delete(key);

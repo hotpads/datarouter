@@ -22,9 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.lazy.Lazy;
 import io.datarouter.web.listener.TomcatWebAppNamesWebAppListener;
 import io.datarouter.web.navigation.AppNavBar;
@@ -70,17 +67,6 @@ public class MavPropertiesFactory{
 
 	public MavProperties getExistingOrNew(HttpServletRequest request){
 		return RequestAttributeTool.get(request, MAV_PROPERTIES).orElseGet(() -> buildAndSet(request));
-	}
-
-	public static class MavPropertiesFactoryTests{
-
-		@Test
-		public void testLocation(){
-			// used by prelude.jspf
-			Assert.assertEquals(MavPropertiesFactory.class.getCanonicalName(),
-					"io.datarouter.web.handler.mav.MavPropertiesFactory");
-		}
-
 	}
 
 }

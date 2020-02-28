@@ -9,7 +9,7 @@ datarouter-exception is a tool to monitor and view exceptions
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-exception</artifactId>
-	<version>0.0.21</version>
+	<version>0.0.22</version>
 </dependency>
 ```
 

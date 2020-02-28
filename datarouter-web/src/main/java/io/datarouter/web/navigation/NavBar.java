@@ -23,28 +23,22 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.iterable.IterableTool;
-import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.dispatcher.DispatcherServlet;
 import io.datarouter.web.dispatcher.DispatcherServletListener;
-import io.datarouter.web.dispatcher.DispatcherServletTestServlet;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
-import io.datarouter.web.user.role.DatarouterUserRole;
 
 public abstract class NavBar implements DispatcherServletListener{
 
 	private final String logoSrc;
 	private final String logoAlt;
-	private List<NavBarMenuItem> menuItems;
+	protected List<NavBarMenuItem> menuItems;
 
 	protected final boolean useDatarouterAuthentication;
 	protected List<DispatcherServlet> dispatcherServlets = new ArrayList<>();
 
-	private NavBar(String logoSrc, String logoAlt, boolean useDatarouterAuthentication){
+	protected NavBar(String logoSrc, String logoAlt, boolean useDatarouterAuthentication){
 		this.logoSrc = logoSrc;
 		this.logoAlt = logoAlt;
 		this.useDatarouterAuthentication = useDatarouterAuthentication;
@@ -99,62 +93,4 @@ public abstract class NavBar implements DispatcherServletListener{
 				.findFirst();
 	}
 
-	public static class NavBarTests{
-		private static final String SRC = "src";
-		private static final String ALT = "alt";
-
-		public static NavBar getNoAuthNavBar(){
-			return new NavBar(SRC, ALT, false){};
-		}
-
-		public static NavBar getAuthNavBar(){
-			return new NavBar(SRC, ALT, true){
-				{
-					dispatcherServlets = Arrays.asList(DispatcherServletTestServlet.getTestServlet());
-				}
-			};
-		}
-
-		public static NavBar getEmptyOptionalAuthNavBar(){
-			return new NavBar(SRC, ALT, Optional.empty()){
-				{
-					dispatcherServlets = Arrays.asList(DispatcherServletTestServlet.getTestServlet());
-				}
-			};
-		}
-
-		@Test
-		private void testConstruction(){
-			NavBar navBar = getNoAuthNavBar();
-			Assert.assertEquals(navBar.logoSrc, SRC);
-			Assert.assertEquals(navBar.logoAlt, ALT);
-			Assert.assertFalse(navBar.useDatarouterAuthentication);
-			Assert.assertEquals(navBar.menuItems, new ArrayList<>());
-
-			navBar = getAuthNavBar();
-			Assert.assertTrue(navBar.useDatarouterAuthentication);
-
-			navBar = getEmptyOptionalAuthNavBar();
-			Assert.assertFalse(navBar.useDatarouterAuthentication);
-		}
-
-		@Test
-		private void testGetDispatchRule(){
-			NavBar noAuth = getNoAuthNavBar();
-			Assert.assertEquals(noAuth.getDispatchRule(null), Optional.empty());
-			Assert.assertEquals(noAuth.getDispatchRule(URI.create("")), Optional.empty());
-
-			NavBar auth = getAuthNavBar();
-			Assert.assertThrows(NullPointerException.class, () -> auth.getDispatchRule(null));
-
-			for(DatarouterUserRole role : DatarouterUserRole.values()){
-				String pathForRole = BaseRouteSet.BaseRouteSetTests.getPathForRole(role);
-				Assert.assertTrue(auth.getDispatchRule(URI.create(pathForRole))
-						.orElse(null).getAllowedRoles().contains(role.getRole()));
-			}
-			String path = BaseRouteSet.BaseRouteSetTests.ANON_PATH;
-			Assert.assertTrue(auth.getDispatchRule(URI.create(path)).orElse(null)
-					.getAllowAnonymous());
-		}
-	}
 }

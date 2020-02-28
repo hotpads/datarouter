@@ -15,6 +15,7 @@
  */
 package io.datarouter.exception.conveyors;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -42,10 +43,13 @@ public class ExceptionRecordQueueConveyor extends BaseGroupQueueConsumerConveyor
 	private final ExceptionRecordPublisher publisher;
 
 	@Inject
-	public ExceptionRecordQueueConveyor(String name, Setting<Boolean> shouldRun,
-			GroupQueueConsumer<ExceptionRecordKey,ExceptionRecord> consumer, ExceptionRecordPublisher publisher,
+	public ExceptionRecordQueueConveyor(
+			String name,
+			Setting<Boolean> shouldRun,
+			GroupQueueConsumer<ExceptionRecordKey,ExceptionRecord> consumer,
+			ExceptionRecordPublisher publisher,
 			Supplier<Boolean> compactExceptionLogging){
-		super(name, shouldRun, consumer, compactExceptionLogging);
+		super(name, shouldRun, consumer, compactExceptionLogging, Duration.ofSeconds(5));
 		this.publisher = publisher;
 	}
 

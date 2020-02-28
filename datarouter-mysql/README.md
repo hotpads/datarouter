@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.21</version>
+	<version>0.0.22</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -265,13 +265,12 @@ The following main method will start the framework, write a databean to the MySQ
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.testng.Assert;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
+import io.datarouter.util.Require;
 import io.datarouter.util.tuple.Range;
 
 public class MysqlExampleMain{
@@ -291,16 +290,16 @@ public class MysqlExampleMain{
 		// read the databean using the same primary key
 		MysqlExampleDatabean roundTripped = dao.node.get(new MysqlExampleDatabeanKey("foo"));
 		// check that we were able to read the someInt column
-		Assert.assertEquals(roundTripped.getSomeInt(), someInt);
+		Require.isTrue(roundTripped.getSomeInt() == someInt);
 		// databeans are equal if their keys are equal, they also sort by primary key
-		Assert.assertEquals(roundTripped, databean);
+		Require.isTrue(roundTripped.equals(databean));
 		// let's put another databean, with a different key
 		Integer anotherInt = ThreadLocalRandom.current().nextInt();
 		MysqlExampleDatabean anotherDatabean = new MysqlExampleDatabean("bar", anotherInt);
 		dao.node.put(anotherDatabean);
 		// you can fetch the rows given a range of primary keys, here, we fetch everything
 		long sum = dao.node.scan(Range.everything()).stream().mapToInt(MysqlExampleDatabean::getSomeInt).sum();
-		Assert.assertEquals(sum, someInt + anotherInt);
+		Require.isTrue(sum == someInt + anotherInt);
 	}
 
 }

@@ -15,6 +15,7 @@
  */
 package io.datarouter.conveyor.queue;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -30,9 +31,13 @@ extends BaseGroupQueueConsumerConveyor<PK,D>{
 
 	private final Consumer<Collection<D>> putMultiConsumer;
 
-	public PutMultiGroupQueueConsumerConveyor(String name, Setting<Boolean> shouldRunSetting,
-			GroupQueueConsumer<PK,D> groupQueueConsumer, Consumer<Collection<D>> putMultiConsumer){
-		super(name, shouldRunSetting, groupQueueConsumer, () -> false);
+	public PutMultiGroupQueueConsumerConveyor(
+			String name,
+			Setting<Boolean> shouldRunSetting,
+			GroupQueueConsumer<PK,D> groupQueueConsumer,
+			Consumer<Collection<D>> putMultiConsumer,
+			Duration peekTimeout){
+		super(name, shouldRunSetting, groupQueueConsumer, () -> false, peekTimeout);
 		this.putMultiConsumer = putMultiConsumer;
 	}
 

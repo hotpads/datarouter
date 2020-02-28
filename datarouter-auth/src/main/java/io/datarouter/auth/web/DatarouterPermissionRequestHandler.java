@@ -22,6 +22,7 @@ import static j2html.TagCreator.text;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -88,14 +89,19 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private DatarouterService datarouterService;
 
 	@Handler(defaultHandler = true)
-	private Mav showForm(OptionalString deniedUrl){
+	private Mav showForm(OptionalString deniedUrl, OptionalString allowedRoles){
 		if(!authenticationConfig.useDatarouterAuthentication()){
 			 return noDatarouterAuthenticationMav();
 		}
 		Mav mav = new Mav(files.jsp.authentication.permissionRequestJsp);
 		mav.put("serviceName", datarouterService.getName());
 		mav.put("permissionRequestPath", paths.permissionRequest.toSlashedString());
-		mav.put("defaultSpecifics", deniedUrl.map("I tried to go to this URL: "::concat));
+		Optional<String> defaultSpecifics = deniedUrl.map(url -> {
+			return "I tried to go to this URL: " + url + "." + allowedRoles
+					.map(" These are its allowed roles at the time of this request: "::concat)
+					.orElse("");
+		});
+		mav.put("defaultSpecifics", defaultSpecifics);
 		DatarouterUser user = getCurrentUser();
 		mav.put("currentRequest", datarouterPermissionRequestDao.scanOpenPermissionRequestsForUser(user.getId())
 				.max(Comparator.comparing(request -> request.getKey().getRequestTime()))
@@ -128,7 +134,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 			return new InContextRedirectMav(request, paths.home);
 		}
 
-		return showForm(new OptionalString(null));
+		return showForm(new OptionalString(null), new OptionalString(null));
 	}
 
 	@Handler
@@ -154,7 +160,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 			if(currentUser.getRoles().size() > 1){
 				return new InContextRedirectMav(request, paths.home);
 			}
-			return showForm(new OptionalString(null));
+			return showForm(new OptionalString(null), new OptionalString(null));
 		}
 		return new GlobalRedirectMav(redirectPath.get());
 	}

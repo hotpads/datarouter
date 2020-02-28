@@ -18,15 +18,9 @@ package io.datarouter.aws.sqs;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.testng.Assert;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
-
 import io.datarouter.aws.sqs.web.SqsWebInspector;
 import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.ClientTypeRegistry;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
-import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 
 @Singleton
 public class SqsClientType implements ClientType<SqsClientNodeFactory,SqsClientManager>{
@@ -51,19 +45,6 @@ public class SqsClientType implements ClientType<SqsClientNodeFactory,SqsClientM
 	@Override
 	public Class<SqsClientManager> getClientManagerClass(){
 		return SqsClientManager.class;
-	}
-
-	@Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
-	public static class SqsClientTypeTests{
-
-		@Inject
-		private ClientTypeRegistry clientTypeRegistry;
-
-		@Test
-		public void testClassLocation(){
-			Assert.assertEquals(clientTypeRegistry.get(NAME).getClass(), SqsClientType.class);
-		}
-
 	}
 
 }

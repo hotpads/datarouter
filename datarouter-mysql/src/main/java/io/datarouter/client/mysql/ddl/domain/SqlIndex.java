@@ -15,12 +15,8 @@
  */
 package io.datarouter.client.mysql.ddl.domain;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 public class SqlIndex{
 
@@ -60,21 +56,6 @@ public class SqlIndex{
 
 	public static SqlIndex createPrimaryKey(List<String> columns){
 		return new SqlIndex("PRIMARY", columns);
-	}
-
-	public static class SqlIndexTests{
-
-		@Test
-		public void testEquals(){
-			String columnA = "a";
-			String columnB = "b";
-			String aa = "a";
-			String bb = "b";
-			SqlIndex index1 = new SqlIndex("index", Arrays.asList(columnA, columnB));
-			SqlIndex index2 = new SqlIndex("index", Arrays.asList(aa, bb));
-			Assert.assertEquals(index1, index2);
-		}
-
 	}
 
 }

@@ -18,15 +18,9 @@ package io.datarouter.aws.memcached;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.testng.Assert;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
-
 import io.datarouter.aws.memcached.client.AwsMemcachedClientManager;
 import io.datarouter.aws.memcached.web.AwsMemcachedWebInspector;
 import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.ClientTypeRegistry;
-import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
 
 @Singleton
@@ -53,19 +47,6 @@ implements ClientType<AwsMemcachedClientNodeFactory,AwsMemcachedClientManager>{
 	@Override
 	public Class<AwsMemcachedClientManager> getClientManagerClass(){
 		return AwsMemcachedClientManager.class;
-	}
-
-	@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
-	public static class ElasticMemcachedClientTypeTests{
-
-		@Inject
-		private ClientTypeRegistry clientTypeRegistry;
-
-		@Test
-		public void testClassLocation(){
-			Assert.assertEquals(clientTypeRegistry.get(NAME).getClass(), AwsMemcachedClientType.class);
-		}
-
 	}
 
 }

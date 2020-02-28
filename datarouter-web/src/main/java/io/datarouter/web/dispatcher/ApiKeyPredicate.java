@@ -17,9 +17,6 @@ package io.datarouter.web.dispatcher;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.tuple.Pair;
 
 public interface ApiKeyPredicate{
@@ -46,20 +43,6 @@ public interface ApiKeyPredicate{
 			sb.append(apiKeyCandidate.charAt(index));
 		}
 		return sb.toString();
-	}
-
-	public static class ApiKeyPredicateTests{
-
-		@Test
-		public void obfuscateTest(){
-			Assert.assertEquals(ApiKeyPredicate.obfuscate("secret"), "se**et");
-			Assert.assertEquals(ApiKeyPredicate.obfuscate("pzazz"), "pz**z");
-			Assert.assertEquals(ApiKeyPredicate.obfuscate("1234"), "1**4");
-			Assert.assertEquals(ApiKeyPredicate.obfuscate("αβγ"), "α**");
-			Assert.assertEquals(ApiKeyPredicate.obfuscate("ab"), "**");
-			Assert.assertEquals(ApiKeyPredicate.obfuscate("4T(F~Q2`\\e7<PW@Q"), "4T************@Q");
-		}
-
 	}
 
 }

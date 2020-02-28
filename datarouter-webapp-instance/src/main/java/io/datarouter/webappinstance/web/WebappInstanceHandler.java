@@ -27,12 +27,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.DateTool;
 import io.datarouter.util.iterable.IterableTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.session.service.Session;
@@ -349,35 +345,6 @@ public class WebappInstanceHandler extends BaseHandler{
 						TagCreator.text(" - " + entry.key)));
 			}
 			return ul.render();
-		}
-
-		protected static class UsageStatsJspDtoTests{
-
-			private static final List<Pair<String,String>> pairs = List.of(
-					new Pair<>("a", "1"),
-					new Pair<>("a", "1"),
-					new Pair<>("a", "1"),
-					new Pair<>("a", "2"));
-
-			@Test
-			public void allCommon(){
-				var leftUsage = new UsageStatsJspDto(pairs, Pair::getLeft);
-				Assert.assertTrue(leftUsage.getAllCommon());
-				Assert.assertEquals(leftUsage.getMostCommon(), "a");
-				Assert.assertEquals(leftUsage.getUniqueCount(), 1);
-				Assert.assertTrue(leftUsage.getUsageBreakdownHtml().contains("100.0%"));
-			}
-
-			@Test
-			public void notAllCommon(){
-				var rightUsage = new UsageStatsJspDto(pairs, Pair::getRight);
-				Assert.assertFalse(rightUsage.getAllCommon());
-				Assert.assertEquals(rightUsage.getMostCommon(), "1");
-				Assert.assertEquals(rightUsage.getUniqueCount(), 2);
-				Assert.assertTrue(rightUsage.getUsageBreakdownHtml().contains("75.0%"));
-				Assert.assertTrue(rightUsage.getUsageBreakdownHtml().contains("25.0%"));
-			}
-
 		}
 
 	}

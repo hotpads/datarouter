@@ -15,15 +15,22 @@
  */
 package io.datarouter.clustersetting.config;
 
-import javax.inject.Inject;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.web.file.DatarouterFilesTests;
 
+@Guice
 public class DatarouterClusterSettingFilesTests extends DatarouterFilesTests{
 
-	@Inject
-	protected DatarouterClusterSettingFilesTests(DatarouterClusterSettingFiles files){
-		super(files);
+	protected DatarouterClusterSettingFilesTests(){
+		super(new DatarouterClusterSettingFiles());
+	}
+
+	@Override
+	@Test
+	public void testAll(){
+		super.testAll();
 	}
 
 }

@@ -15,16 +15,23 @@
  */
 package io.datarouter.client.hbase.paths;
 
-import javax.inject.Inject;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.client.hbase.config.DatarouterHBaseFiles;
 import io.datarouter.web.file.DatarouterFilesTests;
 
+@Guice
 public class DatarouterHBaseFilesTests extends DatarouterFilesTests{
 
-	@Inject
-	protected DatarouterHBaseFilesTests(DatarouterHBaseFiles files){
-		super(files);
+	protected DatarouterHBaseFilesTests(){
+		super(new DatarouterHBaseFiles());
+	}
+
+	@Override
+	@Test
+	public void testAll(){
+		super.testAll();
 	}
 
 }

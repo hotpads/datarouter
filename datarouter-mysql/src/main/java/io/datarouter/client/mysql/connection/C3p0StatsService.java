@@ -27,9 +27,6 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -62,27 +59,12 @@ public class C3p0StatsService{
 				.collect(Collectors.toList());
 	}
 
-	private static Optional<String> extractClientName(String jdbcUrl){
+	protected static Optional<String> extractClientName(String jdbcUrl){
 		String queryParams = StringTool.getStringAfterLastOccurrence('?', jdbcUrl);
 		return Arrays.stream(queryParams.split("&"))
 				.filter(part -> part.startsWith(MysqlConnectionPoolHolder.CLIENT_NAME_KEY))
 				.findAny()
 				.map(part -> part.substring(MysqlConnectionPoolHolder.CLIENT_NAME_KEY.length()));
-	}
-
-	public static class C3p0StatsServiceTests{
-
-		@Test
-		public void testExtractClientName(){
-			String testValue = "testValue";
-			Optional<String> clientName;
-			clientName = extractClientName("jdbc:mysql://host:port?param1Key=param1Value&"
-					+ MysqlConnectionPoolHolder.CLIENT_NAME_KEY + testValue);
-			Assert.assertEquals(clientName, Optional.of(testValue));
-			clientName = extractClientName("jdbc:mysql://host:port?param1Key=param1Value");
-			Assert.assertEquals(clientName, Optional.empty());
-		}
-
 	}
 
 }

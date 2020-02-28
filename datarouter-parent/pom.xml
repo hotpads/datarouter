@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.21</version>
+		<version>0.0.22</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -57,6 +57,7 @@
 		<module>../datarouter-secret</module>
 		<module>../datarouter-storage</module>
 		<module>../datarouter-task-tracker</module>
+		<module>../datarouter-testng</module>
 		<module>../datarouter-util</module>
 		<module>../datarouter-virtual-node</module>
 		<module>../datarouter-web</module>
@@ -66,7 +67,7 @@
 	<properties>
 		<aws-sdk-version>1.11.725</aws-sdk-version>
 		<commons-codec-version>1.13</commons-codec-version>
-		<datarouter-version>0.0.21</datarouter-version>
+		<datarouter-version>0.0.22</datarouter-version>
 		<gson-version>2.8.6</gson-version>
 		<guice-version>4.2.2</guice-version>
 		<guava-version>28.2-jre</guava-version>

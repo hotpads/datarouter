@@ -18,10 +18,9 @@ package io.datarouter.aws.memcached.test;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
-import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.storage.test.node.basic.map.BaseMapStorageIntegrationTests;
 
-@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
+@Guice(moduleFactory = DatarouterAwsMemcachedModuleFactory.class)
 public class AwsMemcachedMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass

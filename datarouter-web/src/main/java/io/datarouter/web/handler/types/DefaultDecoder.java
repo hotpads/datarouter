@@ -27,10 +27,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import org.testng.Assert;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
-
 import com.google.gson.JsonSyntaxException;
 
 import io.datarouter.httpclient.json.JsonSerializer;
@@ -41,7 +37,6 @@ import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
-import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
@@ -127,7 +122,7 @@ public class DefaultDecoder implements HandlerDecoder{
 		return args;
 	}
 
-	private Object decode(String string, Type type){
+	protected Object decode(String string, Type type){
 		try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), "DefaultDecoder deserialize")){
 			TracerTool.appendToSpanInfo("characters", string.length());
 			// this prevents empty strings from being decoded as null by gson
@@ -163,41 +158,6 @@ public class DefaultDecoder implements HandlerDecoder{
 		return Arrays.stream(parameters)
 				.filter(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
 				.count();
-	}
-
-	@Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
-	public static class DefaultDecoderTests{
-		@Inject
-		private DefaultDecoder defaultDecoder;
-
-		@Test
-		public void testDecodingString(){
-			Assert.assertEquals(defaultDecoder.decode("", String.class), "");
-			Assert.assertEquals(defaultDecoder.decode(" ", String.class), "");
-			Assert.assertEquals(defaultDecoder.decode("\"\"", String.class), "");
-			Assert.assertEquals(defaultDecoder.decode("\"", String.class), "\"");
-			Assert.assertEquals(defaultDecoder.decode("\" ", String.class), "\" ");
-			Assert.assertEquals(defaultDecoder.decode("\" \"", String.class), " ");
-			Assert.assertEquals(defaultDecoder.decode("nulls", String.class), "nulls");
-			Assert.assertEquals(defaultDecoder.decode("\"correct json\"", String.class), "correct json");
-		}
-
-		@Test
-		public void preventNullDecoding(){
-			assertFail(() -> defaultDecoder.decode("null", String.class));
-			assertFail(() -> defaultDecoder.decode(null, String.class));
-			assertFail(() -> defaultDecoder.decode("", Integer.class));
-			assertFail(() -> defaultDecoder.decode(" ", Integer.class));
-		}
-
-		private void assertFail(Runnable runnable){
-			try{
-				runnable.run();
-				Assert.fail();
-			}catch(Exception e){
-				// expected
-			}
-		}
 	}
 
 }

@@ -15,15 +15,22 @@
  */
 package io.datarouter.nodewatch.config;
 
-import javax.inject.Inject;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.web.file.DatarouterFilesTests;
 
+@Guice
 public class DatarouterNodewatchFilesTests extends DatarouterFilesTests{
 
-	@Inject
-	protected DatarouterNodewatchFilesTests(DatarouterNodewatchFiles files){
-		super(files);
+	protected DatarouterNodewatchFilesTests(){
+		super(new DatarouterNodewatchFiles());
+	}
+
+	@Override
+	@Test
+	public void testAll(){
+		super.testAll();
 	}
 
 }

@@ -39,9 +39,12 @@ import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUs
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.util.BooleanTool;
+import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.util.PasswordTool;
 
@@ -55,6 +58,8 @@ public class DatarouterUserEditService{
 	private BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao;
 	@Inject
 	private DatarouterUserHistoryService userHistoryService;
+	@Inject
+	private DatarouterSessionDao datarouterSessionDao;
 	@Inject
 	private DatarouterUserService datarouterUserService;
 	@Inject
@@ -75,17 +80,21 @@ public class DatarouterUserEditService{
 			throw new RuntimeException("cannot disable datarouterAdmin user");
 		}
 		Set<Role> allowedRoles = datarouterUserService.getAllowedUserRoles(editor, requestedRoles);
+		boolean shouldUpdateSessions = false;
 		if(!allowedRoles.equals(currentRoles)){
 			changes.add(change("roles", currentRoles, allowedRoles));
 			user.setRoles(allowedRoles);
+			shouldUpdateSessions = true;
 		}
 
+		boolean shouldDeleteSessions = false;
 		if(!BooleanTool.nullSafeSame(enabled, user.getEnabled())){
 			if(isUserDatarouterAdmin){
 				throw new RuntimeException("cannot disable datarouterAdmin user");
 			}
 			changes.add(change("enabled", user.getEnabled(), enabled));
 			user.setEnabled(enabled);
+			shouldDeleteSessions = true;
 		}
 
 		handleAccountChanges(user, requestedAccounts).ifPresent(changes::add);
@@ -93,6 +102,17 @@ public class DatarouterUserEditService{
 		if(changes.size() > 0){
 			history.setChanges(String.join(", ", changes));
 			userHistoryService.recordRoleEdit(user, history, signinUrl);
+			if(shouldUpdateSessions || shouldDeleteSessions){
+				List<DatarouterSession> sessions = datarouterSessionDao.scan()
+						.include(session -> session.getUserToken().equals(user.getUserToken()))
+						.list();
+				if(shouldDeleteSessions){
+					datarouterSessionDao.deleteMulti(IterableTool.map(sessions, DatarouterSession::getKey));
+				}else{
+					sessions.forEach(session -> session.setRoles(user.getRoles()));
+					datarouterSessionDao.putMulti(sessions);
+				}
+			}
 		}else{
 			logger.warn("User {} submitted edit request for user {}, but no changes were made.", editor.toString(),
 					user.toString());

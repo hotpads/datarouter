@@ -15,15 +15,22 @@
  */
 package io.datarouter.web.config;
 
-import javax.inject.Inject;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.web.file.DatarouterFilesTests;
 
+@Guice
 public class DatarouterWebFilesTests extends DatarouterFilesTests{
 
-	@Inject
-	protected DatarouterWebFilesTests(DatarouterWebFiles files){
-		super(files);
+	protected DatarouterWebFilesTests(){
+		super(new DatarouterWebFiles());
+	}
+
+	@Override
+	@Test
+	public void testAll(){
+		super.testAll();
 	}
 
 }

@@ -16,7 +16,7 @@
 package io.datarouter.web.dispatcher;
 
 /**
- * Implementations of this class will be not injected in {@link BaseDispatcherServletTests#testHandlerInjection}
+ * Implementations of this class will be not injected in {@link DispatcherServletTestService#testHandlerInjection}
  */
 public interface NonEagerInitHandler{
 }

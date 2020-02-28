@@ -18,6 +18,8 @@ package io.datarouter.web.dispatcher;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,6 +42,7 @@ import io.datarouter.web.user.authenticate.saml.SamlService;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionManager;
+import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
 import io.datarouter.web.util.http.ResponseTool;
@@ -85,7 +88,7 @@ public class Dispatcher{
 					return RoutingResult.FORBIDDEN;
 				}
 				if(authenticationConfig.useDatarouterAuthentication() && !rule.checkRoles(request)){
-					handleMissingRoles(request, response);
+					handleMissingRoles(request, response, rule.getAllowedRoles());
 					return RoutingResult.ROUTED;
 				}
 				handler = injector.getInstance(rule.getHandlerClass());
@@ -126,7 +129,7 @@ public class Dispatcher{
 		return new Params(request);
 	}
 
-	private void handleMissingRoles(HttpServletRequest request, HttpServletResponse response){
+	private void handleMissingRoles(HttpServletRequest request, HttpServletResponse response, Set<Role> allowedRoles){
 		Optional<DatarouterSession> session = DatarouterSessionManager.getFromRequest(request);
 		if(session.map(DatarouterSession::isAnonymous).orElse(true)){
 			String url = request.getRequestURL() + "?" + StringTool.nullSafe(request.getQueryString());
@@ -141,8 +144,12 @@ public class Dispatcher{
 			return;
 		}
 		if(session.map(sessionObj -> sessionObj.hasRole(DatarouterUserRole.REQUESTOR)).orElse(false)){
+			String allowedRolesParam = allowedRoles.stream()
+					.map(Role::getPersistentString)
+					.collect(Collectors.joining(","));
 			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, request.getContextPath()
-					+ authenticationConfig.getPermissionRequestPath() + "?deniedUrl=" + request.getRequestURL());
+					+ authenticationConfig.getPermissionRequestPath() + "?deniedUrl=" + request.getRequestURL()
+					+ "&allowedRoles=" + allowedRolesParam);
 			return;
 		}
 

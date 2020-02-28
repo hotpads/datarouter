@@ -21,18 +21,16 @@ import java.util.Date;
 import java.util.Optional;
 
 import org.apache.logging.log4j.core.util.CronExpression;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 public class TriggerLockConfig{
 
-	//ask the job to stop before the next trigger, otherwise kill it at the next trigger time
+	// ask the job to stop before the next trigger, otherwise kill it at the next trigger time
 	public static final Duration GRACEFUL_STOP_WINDOW = Duration.ofSeconds(5);
-	//this should be longer than the GRACEFUL_STOP_WINDOW to allow the job to run before being stopped
+	// this should be longer than the GRACEFUL_STOP_WINDOW to allow the job to run before being stopped
 	public static final Duration MIN_PERIOD_BETWEEN_LOCKED_TRIGGERS = Duration.ofSeconds(10);
-	//this limit is based on MySQL maximum DATETIME of '9999-12-31 23:59:59'
-	private static final Instant MAX_DATE_INSTANT = Instant.ofEpochSecond(253402300799L);
-	private static final Duration MAX_DURATION = Duration.ofSeconds(Long.MAX_VALUE);
+	// this limit is based on MySQL maximum DATETIME of '9999-12-31 23:59:59'
+	protected static final Instant MAX_DATE_INSTANT = Instant.ofEpochSecond(253402300799L);
+	protected static final Duration MAX_DURATION = Duration.ofSeconds(Long.MAX_VALUE);
 
 	public final String jobName;
 	private final Optional<CronExpression> cronExpression;
@@ -70,7 +68,7 @@ public class TriggerLockConfig{
 	}
 
 	//this prevents overflows of MAX_DATE_INSTANT
-	private static Instant safePlus(Instant instant, Duration duration){
+	protected static Instant safePlus(Instant instant, Duration duration){
 		if(instant.isAfter(MAX_DATE_INSTANT)){
 			instant = MAX_DATE_INSTANT;
 		}
@@ -79,24 +77,6 @@ public class TriggerLockConfig{
 			return MAX_DATE_INSTANT;
 		}
 		return instant.plus(duration);
-	}
-
-	public static class TriggerLockConfigTests{
-
-		@Test
-		public void testSafePlus(){
-			Assert.assertEquals(safePlus(MAX_DATE_INSTANT, MAX_DURATION), MAX_DATE_INSTANT);
-			Assert.assertEquals(safePlus(MAX_DATE_INSTANT.minusSeconds(5), MAX_DURATION), MAX_DATE_INSTANT);
-			Assert.assertEquals(safePlus(MAX_DATE_INSTANT, MAX_DURATION.minusSeconds(5)), MAX_DATE_INSTANT);
-
-			Assert.assertEquals(safePlus(Instant.now(), MAX_DURATION), MAX_DATE_INSTANT);
-			Assert.assertEquals(safePlus(Instant.MAX, Duration.ofMillis(0)), MAX_DATE_INSTANT);
-
-			Assert.assertEquals(safePlus(Instant.MAX, MAX_DURATION), MAX_DATE_INSTANT);
-			Assert.assertEquals(safePlus(Instant.MAX.minusSeconds(5), MAX_DURATION), MAX_DATE_INSTANT);
-			Assert.assertEquals(safePlus(Instant.MAX, MAX_DURATION.minusSeconds(5)), MAX_DATE_INSTANT);
-		}
-
 	}
 
 }

@@ -22,11 +22,13 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.21</version>
+		<version>0.0.22</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
 	<artifactId>datarouter-storage</artifactId>
+
+	<name>datarouter-storage</name>
 	<description>datarouter-storage</description>
 
 	<dependencies>
@@ -39,6 +41,12 @@
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-model</artifactId>
 			<version>${datarouter-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-testng</artifactId>
+			<version>${datarouter-version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -55,6 +63,17 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

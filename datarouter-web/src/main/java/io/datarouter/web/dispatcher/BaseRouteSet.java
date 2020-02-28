@@ -16,17 +16,10 @@
 package io.datarouter.web.dispatcher;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.user.role.DatarouterUserRole;
-import io.datarouter.web.user.session.service.RoleEnum;
 
 public abstract class BaseRouteSet{
 
@@ -103,55 +96,4 @@ public abstract class BaseRouteSet{
 		return defaultHandlerClass;
 	}
 
-	/*--------------------- tests -------------------*/
-
-	public static class BaseRouteSetTests{
-
-		public static final String ANON_PATH = "/anon";
-
-		public static final <T extends RoleEnum<T>> String getPathForRole(RoleEnum<T> role){
-			return "/" + role.getPersistentString();
-		}
-
-		public static final BaseRouteSet testRouteSet = new BaseRouteSet(""){
-			{
-				handle(ANON_PATH).allowAnonymous();
-				Arrays.stream(DatarouterUserRole.values())
-						.forEach(role -> handle(getPathForRole(role)).allowRoles(role));
-			}
-		};
-
-		@Test
-		public void testMatches(){
-			String prefix = "fjalfdja";
-			String suffix = "dfadfqeq";
-
-			Pattern prefixPattern = Pattern.compile(prefix + MATCHING_ANY);
-			Assert.assertTrue(prefixPattern.matcher(prefix + "qefadfaf").matches());
-			Assert.assertTrue(prefixPattern.matcher(prefix + "/qefadfaf").matches());
-			Assert.assertTrue(prefixPattern.matcher(prefix + "/qef/adfaf").matches());
-
-			Assert.assertFalse(prefixPattern.matcher("/asae" + prefix + "/qef/adfaf").matches());
-			Assert.assertFalse(prefixPattern.matcher("/asae/" + prefix + "/qef/adfaf").matches());
-
-			Pattern suffixPattern = Pattern.compile(MATCHING_ANY + suffix);
-			Assert.assertTrue(suffixPattern.matcher("fjalfdja" + suffix).matches());
-			Assert.assertTrue(suffixPattern.matcher("/fjalfdja" + suffix).matches());
-			Assert.assertTrue(suffixPattern.matcher("/fjalfdja/" + suffix).matches());
-			Assert.assertTrue(suffixPattern.matcher("/fjal/fdja" + suffix).matches());
-
-			Assert.assertFalse(suffixPattern.matcher(suffix + "adfa").matches());
-			Assert.assertFalse(suffixPattern.matcher("fjalfdja" + suffix + "adfa").matches());
-
-			Pattern oneDirectoryPattern = Pattern.compile(REGEX_ONE_DIRECTORY);
-			Assert.assertTrue(oneDirectoryPattern.matcher("").matches());
-			Assert.assertTrue(oneDirectoryPattern.matcher("abcd").matches());
-			Assert.assertTrue(oneDirectoryPattern.matcher("/").matches());
-			Assert.assertTrue(oneDirectoryPattern.matcher("/abcd").matches());
-
-			Assert.assertFalse(oneDirectoryPattern.matcher("//abcd").matches());
-			Assert.assertFalse(oneDirectoryPattern.matcher("/abcd/").matches());
-			Assert.assertFalse(oneDirectoryPattern.matcher("/abc/efg").matches());
-		}
-	}
 }

@@ -15,15 +15,22 @@
  */
 package io.datarouter.secret.config;
 
-import javax.inject.Inject;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.web.file.DatarouterFilesTests;
 
+@Guice
 public class DatarouterSecretFilesTests extends DatarouterFilesTests{
 
-	@Inject
-	protected DatarouterSecretFilesTests(DatarouterSecretFiles files){
-		super(files);
+	protected DatarouterSecretFilesTests(){
+		super(new DatarouterSecretFiles());
+	}
+
+	@Override
+	@Test
+	public void testAll(){
+		super.testAll();
 	}
 
 }

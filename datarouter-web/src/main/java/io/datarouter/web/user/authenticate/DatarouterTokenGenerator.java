@@ -20,8 +20,6 @@ import java.security.SecureRandom;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.bytes.StringByteTool;
 
@@ -42,15 +40,4 @@ public class DatarouterTokenGenerator{
 		return randomString;
 	}
 
-
-	public static class DatarouterTokenGeneratorTests{
-
-		@Test
-		public void testSessionTokenLength(){
-			String sessionToken = generateRandomToken();
-			//expected base64 length: 256 bits / 6 bits/char => 42.667 => 43 chars
-			Assert.assertEquals(sessionToken.length(), 43);
-		}
-
-	}
 }

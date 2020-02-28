@@ -16,10 +16,10 @@
 package io.datarouter.storage.config.guice;
 
 import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
-import io.datarouter.storage.test.TestDatarouterProperties;
 
 public class DatarouterStorageTestGuiceModule extends BaseGuiceModule{
 

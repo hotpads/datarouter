@@ -18,16 +18,10 @@ package io.datarouter.client.memcached;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.testng.Assert;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
-
 import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
 import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.ClientTypeRegistry;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
-import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 
 @Singleton
 public class MemcachedClientType implements ClientType<MemcachedClientNodeFactory,MemcachedClientManager>{
@@ -52,19 +46,6 @@ public class MemcachedClientType implements ClientType<MemcachedClientNodeFactor
 	@Override
 	public Class<MemcachedClientManager> getClientManagerClass(){
 		return MemcachedClientManager.class;
-	}
-
-	@Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
-	public static class MemcachedClientTypeTests{
-
-		@Inject
-		private ClientTypeRegistry clientTypeRegistry;
-
-		@Test
-		public void testClassLocation(){
-			Assert.assertEquals(clientTypeRegistry.get(NAME).getClass(), MemcachedClientType.class);
-		}
-
 	}
 
 }

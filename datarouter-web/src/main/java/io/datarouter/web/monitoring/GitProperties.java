@@ -29,8 +29,6 @@ import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.net.UrlTool;
 import io.datarouter.web.app.ApplicationPaths;
@@ -44,7 +42,7 @@ public class GitProperties{
 	public static final String UNKNOWN_STRING = "unknown";
 	public static final Instant UNKNOWN_DATE = Instant.EPOCH;
 
-	private static final DateTimeFormatter FORMAT = new DateTimeFormatterBuilder()
+	protected static final DateTimeFormatter FORMAT = new DateTimeFormatterBuilder()
 			.append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 			.appendOffset("+HHmm", "")
 			.toFormatter();
@@ -116,13 +114,4 @@ public class GitProperties{
 				.map(value -> FORMAT.parse(value, Instant::from));
 	}
 
-	public static class GitPropertiesTests{
-
-		@Test
-		public void testDateParsing(){
-			String input = "2019-12-16T17:10:27-0500";
-			Assert.assertEquals(FORMAT.parse(input, Instant::from).toString(), "2019-12-16T22:10:27Z");
-		}
-
-	}
 }

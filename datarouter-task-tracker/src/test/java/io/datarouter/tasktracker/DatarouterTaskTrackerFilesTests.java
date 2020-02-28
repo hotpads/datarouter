@@ -15,16 +15,23 @@
  */
 package io.datarouter.tasktracker;
 
-import javax.inject.Inject;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
 import io.datarouter.web.file.DatarouterFilesTests;
 
+@Guice
 public class DatarouterTaskTrackerFilesTests extends DatarouterFilesTests{
 
-	@Inject
-	protected DatarouterTaskTrackerFilesTests(DatarouterTaskTrackerFiles files){
-		super(files);
+	protected DatarouterTaskTrackerFilesTests(){
+		super(new DatarouterTaskTrackerFiles());
+	}
+
+	@Override
+	@Test
+	public void testAll(){
+		super.testAll();
 	}
 
 }

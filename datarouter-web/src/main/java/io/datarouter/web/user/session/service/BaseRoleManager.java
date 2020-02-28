@@ -25,12 +25,9 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.user.role.DatarouterUserRole;
 
 public abstract class BaseRoleManager implements RoleManager{
 	private static final Logger logger = LoggerFactory.getLogger(BaseRoleManager.class);
@@ -38,7 +35,7 @@ public abstract class BaseRoleManager implements RoleManager{
 	private static final String SUPER_GROUP_ID = "super";
 	private static final String DEFAULT_GROUP_ID = "default";
 
-	private final RoleEnum<? extends RoleEnum<?>> roleEnum;
+	protected final RoleEnum<? extends RoleEnum<?>> roleEnum;
 	private final Map<String,Set<Role>> roleGroups;
 
 	protected BaseRoleManager(RoleEnum<? extends RoleEnum<?>> roleEnum){
@@ -94,7 +91,6 @@ public abstract class BaseRoleManager implements RoleManager{
 	protected abstract Set<Role> getSuperRoles();
 	protected abstract Set<Role> getDefaultRoles();
 	protected abstract Set<Role> getAdminRoles(); // TODO rename to getDatarouterRoles
-	protected abstract Class<? extends RoleManagerIntegrationTests> getTestClass();
 
 	protected Map<String,Set<Role>> getConfigurableRoleGroups(){
 		return Collections.emptyMap();
@@ -114,29 +110,6 @@ public abstract class BaseRoleManager implements RoleManager{
 			logger.warn("ConfigurableRoleGroups uses a reserved role group ID, which will be ignored. Override "
 					+ "getSuperUserGroupId or getDefaultUserGroupId to use this role group ID: " + key);
 		}
-	}
-
-	abstract static class RoleManagerIntegrationTests{
-
-		private final BaseRoleManager baseRoleManager;
-
-		protected RoleManagerIntegrationTests(BaseRoleManager baseRoleManager){
-			this.baseRoleManager = baseRoleManager;
-		}
-
-		@Test
-		private final void testRoleEnumContainsNecessaryBaseRolePersistentStrings(){
-			for(DatarouterUserRole baseRole : DatarouterUserRole.values()){
-				String baseString = baseRole.getPersistentString();
-				try{
-					RoleEnum<?> impl = baseRoleManager.roleEnum.fromPersistentString(baseString);
-					Assert.assertEquals(impl.getPersistentString(), baseString);
-				}catch(RuntimeException e){
-					Assert.fail(baseRoleManager.roleEnum.getClass() + " is missing persistent string " + baseString);
-				}
-			}
-		}
-
 	}
 
 }

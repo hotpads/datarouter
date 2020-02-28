@@ -15,22 +15,8 @@
  */
 package io.datarouter.storage.util;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import io.datarouter.model.field.Field;
 import io.datarouter.model.field.compare.FieldSetRangeFilter;
-import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.comparable.IntegerField;
-import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
-import io.datarouter.model.field.imp.comparable.LongField;
-import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.util.tuple.Range;
 
 public class KeyRangeTool{
@@ -85,71 +71,4 @@ public class KeyRangeTool{
 				.getEndInclusive());
 	}
 
-	public static class KeyRangeToolTests{
-
-		private static final Integer foo = 4;
-
-		@Test
-		public void testForPrefixWithRegularWildcard(){
-			String barPrefix = "degemer";
-			Range<TestKey> range = forPrefixWithWildcard(barPrefix, prefix -> new TestKey(foo, prefix, null));
-			Assert.assertTrue(range.getStartInclusive());
-			Assert.assertFalse(range.getEndInclusive());
-			Assert.assertEquals(range.getStart().foo, foo);
-			Assert.assertEquals(range.getStart().bar, barPrefix);
-			Assert.assertEquals(range.getStart().baz, null);
-			Assert.assertEquals(range.getEnd().foo, foo);
-			Assert.assertEquals(range.getEnd().bar, "degemes");
-			Assert.assertEquals(range.getEnd().baz, null);
-			Assert.assertTrue(range.contains(new TestKey(foo, "degemer", null)));
-			Assert.assertTrue(range.contains(new TestKey(foo, "degemermat", 53L)));
-			Assert.assertFalse(range.contains(new TestKey(foo, "degemeola", null)));
-		}
-
-		@Test
-		public void testForPrefixWithNullWildcard(){
-			Assert.assertEquals(forPrefixWithWildcard(null, prefix -> new TestKey(foo, prefix, null)),
-					forPrefix(new TestKey(foo, null, null)));
-		}
-
-		@Test
-		public void testIncrementLastCharWithNullString(){
-			Assert.assertNull(incrementLastChar(null));
-		}
-
-		@Test
-		public void testIncrementLastCharWithEmptyString(){
-			Assert.assertEquals(incrementLastChar(""), String.valueOf('\u0000'));
-		}
-
-		@Test
-		public void testIncrementLastCharEdgeCase(){
-			String input = "foo" + Character.MAX_VALUE;
-			String expected = input + Character.MIN_VALUE;
-			Assert.assertEquals(incrementLastChar(input), expected);
-		}
-
-		private class TestKey extends BaseRegularPrimaryKey<TestKey>{
-
-			private Integer foo;
-			private String bar;
-			private Long baz;
-
-			public TestKey(Integer foo, String bar, Long baz){
-				this.foo = foo;
-				this.bar = bar;
-				this.baz = baz;
-			}
-
-			@Override
-			public List<Field<?>> getFields(){
-				return Arrays.asList(
-						new IntegerField(new IntegerFieldKey("foo"), foo),
-						new StringField(new StringFieldKey("bar"), bar),
-						new LongField(new LongFieldKey("baz"), baz));
-			}
-
-		}
-
-	}
 }

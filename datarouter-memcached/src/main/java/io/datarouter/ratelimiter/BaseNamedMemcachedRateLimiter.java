@@ -21,21 +21,13 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
-import org.testng.Assert;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
-
 import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.ratelimiter.NamedMemcachedRateLimiterFactory.NamedMemcachedRateLimiterTestNgModuleFactory;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.tuple.Pair;
 
@@ -158,7 +150,7 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 	 *   						 => 2009060606     when timeUnit = hours   and bucketInterval = 6 hours
 	 *   						 => 200906061108   when timeUnit = minutes and bucketInterval = 4 minutes
 	 */
-	private String getTimeStr(Calendar cal){
+	protected String getTimeStr(Calendar cal){
 		int calendarField;
 		switch(timeunit){
 		case DAYS:
@@ -224,36 +216,6 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 
 	public int getNumIntervals(){
 		return numIntervals;
-	}
-
-	@Guice(moduleFactory = NamedMemcachedRateLimiterTestNgModuleFactory.class)
-	public static class BaseMapRateLimiterIntegrationTests{
-
-		@Inject
-		private NamedMemcachedRateLimiterFactory rateLimiterFactory;
-
-		private Calendar getCal() throws ParseException{
-			Calendar calendar = Calendar.getInstance();
-			Date date = new SimpleDateFormat("MMM dd HH:mm yyyy").parse("march 4 16:30 2010");
-			calendar.setTime(date);
-			calendar.set(Calendar.SECOND, 49);
-			calendar.set(Calendar.MILLISECOND, 32);
-			return calendar;
-		}
-
-		@Test
-		public void testGetTimeStr() throws ParseException{
-			Assert.assertEquals(makeTestRateLimiter(TimeUnit.DAYS).getTimeStr(getCal()), "20100228");
-			Assert.assertEquals(makeTestRateLimiter(TimeUnit.HOURS).getTimeStr(getCal()), "2010030412");
-			Assert.assertEquals(makeTestRateLimiter(TimeUnit.MINUTES).getTimeStr(getCal()), "201003041630");
-			Assert.assertEquals(makeTestRateLimiter(TimeUnit.SECONDS).getTimeStr(getCal()), "20100304163045");
-			Assert.assertEquals(makeTestRateLimiter(TimeUnit.MILLISECONDS).getTimeStr(getCal()), "20100304163049030");
-		}
-
-		private BaseNamedMemcachedRateLimiter makeTestRateLimiter(TimeUnit unit){
-			return rateLimiterFactory.new NamedMemcachedRateLimiter("BaseMapRateLimiterIntegrationTests", 0, 0, 0, 5,
-					unit);
-		}
 	}
 
 }

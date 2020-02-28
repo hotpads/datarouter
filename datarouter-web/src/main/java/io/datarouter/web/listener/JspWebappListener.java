@@ -21,9 +21,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.web.css.DatarouterWebCss;
 import io.datarouter.web.css.DatarouterWebCssV2;
 import io.datarouter.web.handler.mav.MavPropertiesFactory;
@@ -38,12 +35,12 @@ public class JspWebappListener extends DatarouterWebAppListener{
 
 	private static final List<String> ATTRIBUTES = new ArrayList<>();
 
-	private static final String MAV_PROPERTIES_FACTORY = register("mavPropertiesFactory");
-	private static final String CSS_IMPORT_CONTENT = register("datarouterCssImportContent");
-	private static final String NEW_CSS_IMPORT_CONTENT = register("datarouterNewCssImportContent");
-	private static final String BASE_HEAD_CONTENT = register("datarouterBaseHeadContent");
-	private static final String NEW_BASE_HEAD_CONTENT = register("datarouterNewBaseHeadContent");
-	private static final String NAVBAR_FACTORY = register("datarouterNavbarFactory");
+	protected static final String MAV_PROPERTIES_FACTORY = register("mavPropertiesFactory");
+	protected static final String CSS_IMPORT_CONTENT = register("datarouterCssImportContent");
+	protected static final String NEW_CSS_IMPORT_CONTENT = register("datarouterNewCssImportContent");
+	protected static final String BASE_HEAD_CONTENT = register("datarouterBaseHeadContent");
+	protected static final String NEW_BASE_HEAD_CONTENT = register("datarouterNewBaseHeadContent");
+	protected static final String NAVBAR_FACTORY = register("datarouterNavbarFactory");
 
 	@Inject
 	private MavPropertiesFactory mavPropertiesFactory;
@@ -91,26 +88,6 @@ public class JspWebappListener extends DatarouterWebAppListener{
 				DatarouterWebRequireJs.makeImportTag(contextPath),
 				DatarouterWebRequireJsV2.makeConfigScriptTag(contextPath),
 				RequireJsTool.makeRequireScriptTag(DatarouterWebRequireJsV2.BOOTSTRAP));
-	}
-
-	public static class JspWebappListenerTests{
-
-		@Test
-		public void testServletContextString(){
-			//used by prelude.jspf
-			Assert.assertEquals(MAV_PROPERTIES_FACTORY, "mavPropertiesFactory");
-			//used by css-import-b3.jspf
-			Assert.assertEquals(CSS_IMPORT_CONTENT, "datarouterCssImportContent");
-			//used by css-import-b4.jspf
-			Assert.assertEquals(NEW_CSS_IMPORT_CONTENT, "datarouterNewCssImportContent");
-			//used by baseHead-b3.jsp
-			Assert.assertEquals(BASE_HEAD_CONTENT, "datarouterBaseHeadContent");
-			//used by baseHead-b4.jsp
-			Assert.assertEquals(NEW_BASE_HEAD_CONTENT, "datarouterNewBaseHeadContent");
-			//used by common-navbar-b3.jsp, common-navbar-b4.jsp
-			Assert.assertEquals(NAVBAR_FACTORY, "datarouterNavbarFactory");
-		}
-
 	}
 
 }

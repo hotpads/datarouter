@@ -21,14 +21,11 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
+/*
+ * http://howtodoinjava.com/2013/07/22/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
+ */
 public class PasswordTool{
-
-	/*
-	 * http://howtodoinjava.com/2013/07/22/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
-	 */
 
 	private static final int NUM_DIGEST_ITERATIONS = 2471;
 
@@ -51,18 +48,6 @@ public class PasswordTool{
 		sr.nextBytes(salt);
 		// no padding for consistency with previously used org.apache.commons.codec.binary.Base64.encodeBase64URLSafe
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(salt);
-	}
-
-	public static class PasswordToolTests{
-
-		@Test
-		public void testDigest(){
-			long startNs = System.nanoTime();
-			digest(System.currentTimeMillis() + "", "IrregularAustralia56");
-			long elapsedNs = System.nanoTime() - startNs;
-			Assert.assertTrue(elapsedNs < 300 * 1000 * 1000);// less than 300ms (taking 81ms in testing)
-		}
-
 	}
 
 }

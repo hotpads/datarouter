@@ -20,9 +20,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.field.imp.StringField;
@@ -140,31 +137,6 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 
 	public void setRowKeyBytes(byte[] rowKeyBytes){
 		this.rowKeyBytes = rowKeyBytes;
-	}
-
-	/*----------------- test ---------------------*/
-
-	// Test that a PK with an array field uses deep equals and hashCode rather than the default identityHashCode
-	public static class TableSampleKeyTests{
-
-		final String clientName = "myClient";
-		final String nodeName = "myNode";
-		final String subEntityPrefix = "mySubEntityPrefix";
-		final byte[] rowKeyBytes1 = new byte[]{1, 2, 3, 4};
-		TableSampleKey pk1 = new TableSampleKey(clientName, nodeName, subEntityPrefix, rowKeyBytes1);
-		//use a separate array even though the value is the same in order to get a different identityHashCode
-		final byte[] rowKeyBytes2 = Arrays.copyOf(rowKeyBytes1, rowKeyBytes1.length);
-		TableSampleKey pk2 = new TableSampleKey(clientName, nodeName, subEntityPrefix, rowKeyBytes2);
-
-		@Test
-		public void testEquals(){
-			Assert.assertEquals(pk1, pk2);
-		}
-
-		@Test
-		public void testHashCode(){
-			Assert.assertEquals(pk1.hashCode(), pk2.hashCode());
-		}
 	}
 
 }

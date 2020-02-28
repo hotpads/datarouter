@@ -35,19 +35,23 @@ public abstract class BaseGroupQueueConsumerConveyor<
 extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseGroupQueueConsumerConveyor.class);
 
-	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);
-
 	private final GroupQueueConsumer<PK,D> consumer;
+	private final Duration peekTimeout;
 
-	public BaseGroupQueueConsumerConveyor(String name, Setting<Boolean> shouldRunSetting,
-			GroupQueueConsumer<PK,D> consumer, Supplier<Boolean> compactExceptionLogging){
+	public BaseGroupQueueConsumerConveyor(
+			String name,
+			Setting<Boolean> shouldRunSetting,
+			GroupQueueConsumer<PK,D> consumer,
+			Supplier<Boolean> compactExceptionLogging,
+			Duration peekTimeout){
 		super(name, shouldRunSetting, compactExceptionLogging);
 		this.consumer = consumer;
+		this.peekTimeout = peekTimeout;
 	}
 
 	@Override
 	public ProcessBatchResult processBatch(){
-		GroupQueueMessage<PK,D> message = consumer.peek(PEEK_TIMEOUT);
+		GroupQueueMessage<PK,D> message = consumer.peek(peekTimeout);
 		if(message == null){
 			logger.info("peeked conveyor={} nullMessage", name);
 			return new ProcessBatchResult(false);

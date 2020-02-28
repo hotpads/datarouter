@@ -18,13 +18,8 @@ package io.datarouter.client.mysql;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.testng.Assert;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
-
 import io.datarouter.client.mysql.web.MysqlWebInspector;
 import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.ClientTypeRegistry;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
 
 @Singleton
@@ -50,17 +45,6 @@ public class MysqlClientType implements ClientType<MysqlClientNodeFactory,MysqlC
 	@Override
 	public Class<MysqlClientManager> getClientManagerClass(){
 		return MysqlClientManager.class;
-	}
-
-	@Guice(moduleFactory = DatarouterMysqlTestNgModuleFactory.class)
-	public static class MysqlClientTypeIntegrationTests{
-		@Inject
-		private ClientTypeRegistry clientTypeRegistry;
-
-		@Test
-		public void testClassLocation(){
-			Assert.assertEquals(clientTypeRegistry.get(NAME).getClass(), MysqlClientType.class);
-		}
 	}
 
 }

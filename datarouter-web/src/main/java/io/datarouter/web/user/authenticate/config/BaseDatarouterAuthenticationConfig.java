@@ -23,9 +23,6 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -163,33 +160,6 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 		// a=/fl should NOT contain b=/flowbee
 		String aAsDirectory = normalizedA + "/";
 		return normalizedB.startsWith(aAsDirectory);
-	}
-
-
-	/*------------------------------- tests ---------------------------------*/
-
-	public static class BaseDatarouterAuthenticationConfigTests{
-
-		@Test
-		public void testNormalize(){
-			Assert.assertEquals(normalizePath(""), "");
-			Assert.assertEquals(normalizePath("/"), "/");
-			Assert.assertEquals(normalizePath(" / "), "/");
-			Assert.assertEquals(normalizePath("/caterpillar"), "/caterpillar");
-			Assert.assertEquals(normalizePath("/caterpillar/"), "/caterpillar");
-			Assert.assertEquals(normalizePath("/caterpillar//"), "/caterpillar/");//prob not valid
-		}
-
-		@Test
-		public void testContains(){
-			Assert.assertTrue(pathAContainsB("/fl", "/fl"));
-			Assert.assertTrue(pathAContainsB("/fl", "/fl/"));
-			Assert.assertTrue(pathAContainsB("/fl/", "/fl/"));
-			Assert.assertTrue(pathAContainsB("/fl", "/fl/owbee"));
-			Assert.assertFalse(pathAContainsB("/fl", "/flowbee"));
-			Assert.assertFalse(pathAContainsB("/flowbee", "/fl"));
-		}
-
 	}
 
 }

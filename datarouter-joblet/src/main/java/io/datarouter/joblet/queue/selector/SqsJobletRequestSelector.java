@@ -77,8 +77,7 @@ public class SqsJobletRequestSelector implements JobletRequestSelector{
 			boolean existsInDb = jobletRequestDao.exists(jobletRequest.getKey());
 			timer.add("check exists");
 			if(!existsInDb){
-				logger.warn("draining non-existent JobletRequest without processing: {}, {}", type
-						.getPersistentString(), jobletRequest);
+				logger.warn("draining non-existent JobletRequest without processing jobletRequest={}", jobletRequest);
 				datarouterJobletCounters.ignoredRequestMissingFromDb(type);
 				jobletQueueDao.getQueue(queueKey).ack(message.getKey());
 				timer.add("ack missing request");

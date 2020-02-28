@@ -44,8 +44,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.collection.CollectionTool;
@@ -359,7 +357,7 @@ public abstract class BaseHandler{
 				.findFirst();
 	}
 
-	private static String getLastPathSegment(String uri){
+	protected static String getLastPathSegment(String uri){
 		if(uri == null){
 			return "";
 		}
@@ -451,21 +449,6 @@ public abstract class BaseHandler{
 		@Override
 		public Object[] decode(HttpServletRequest request, Method method){
 			throw new UnsupportedOperationException();
-		}
-	}
-
-	public static class BaseHandlerTests{
-
-		@Test
-		public void testGetLastPathSegment(){
-			Assert.assertEquals(getLastPathSegment("/something"), "something");
-			Assert.assertEquals(getLastPathSegment("~/something"), "something");
-			Assert.assertEquals(getLastPathSegment("/admin/edit/reputation/viewUsers"), "viewUsers");
-			Assert.assertEquals(getLastPathSegment("/admin/edit/reputation/viewUsers/"), "viewUsers");
-			Assert.assertEquals(getLastPathSegment("/admin/edit/reputation/editUser?u=10"), "editUser");
-			Assert.assertEquals(getLastPathSegment("/admin/edit/reputation/editUser/?u=10"), "editUser");
-			Assert.assertEquals(getLastPathSegment("https://fake.url/t/rep?querystring=path/path"), "rep");
-			Assert.assertEquals(getLastPathSegment("https://fake.url/t/rep/?querystring=path/path"), "rep");
 		}
 	}
 

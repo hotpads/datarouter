@@ -18,14 +18,8 @@ package io.datarouter.client.hbase;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.testng.Assert;
-import org.testng.annotations.Guice;
-import org.testng.annotations.Test;
-
-import io.datarouter.client.hbase.config.DatarouterHBaseTestNgModuleFactory;
 import io.datarouter.client.hbase.web.HBaseWebInspector;
 import io.datarouter.storage.client.ClientType;
-import io.datarouter.storage.client.ClientTypeRegistry;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
 
 @Singleton
@@ -56,17 +50,6 @@ public class HBaseClientType implements ClientType<HBaseClientNodeFactory,HBaseC
 
 	public static boolean isBigTable(ClientType<?,?> clientType){
 		return NAME_BIG_TABLE.equals(clientType.getName());
-	}
-
-	@Guice(moduleFactory = DatarouterHBaseTestNgModuleFactory.class)
-	public static class HBaseClientTypeTests{
-		@Inject
-		private ClientTypeRegistry clientTypeRegistry;
-
-		@Test
-		public void testClassLocation(){
-			Assert.assertEquals(HBaseClientType.class, clientTypeRegistry.get(NAME).getClass());
-		}
 	}
 
 }

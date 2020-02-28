@@ -23,9 +23,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.css.DatarouterWebCssTool;
@@ -127,17 +124,6 @@ public class DatarouterNavbarFactory{
 	public static ContainerTag makeNavbarRequestTimingScriptV2(String contextPath){
 		String rawHtml = String.format("addNavbarRequestTiming('%s')", contextPath);
 		return TagCreator.script(TagCreator.rawHtml(rawHtml));
-	}
-
-	public static class DatarouterNavbarFactoryTests{
-
-		@Test
-		public void testLocation(){
-			// used by common-navbar-b3.jsp, common-navbar-b4.jsp
-			Assert.assertEquals(DatarouterNavbarFactory.class.getCanonicalName(),
-					"io.datarouter.web.navigation.DatarouterNavbarFactory");
-		}
-
 	}
 
 }

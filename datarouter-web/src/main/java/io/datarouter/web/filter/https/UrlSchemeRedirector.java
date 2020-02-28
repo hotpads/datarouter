@@ -17,7 +17,6 @@ package io.datarouter.web.filter.https;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -26,19 +25,19 @@ import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.httpclient.security.UrlScheme;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
-import io.datarouter.web.port.PortIdentifier.DefaultPortIdentifier;
 import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
 public class UrlSchemeRedirector{
+
+	private static final Set<Integer> STANDARD_PORTS = Set.of(
+			UrlConstants.PORT_HTTP_STANDARD,
+			UrlConstants.PORT_HTTPS_STANDARD);
 
 	private final PortIdentifier portIdentifier;
 
@@ -56,12 +55,6 @@ public class UrlSchemeRedirector{
 			return UrlScheme.HTTP;
 		}
 		return null;
-	}
-
-	private static final Set<Integer> STANDARD_PORTS = new HashSet<>();
-	static{
-		STANDARD_PORTS.add(UrlConstants.PORT_HTTP_STANDARD);
-		STANDARD_PORTS.add(UrlConstants.PORT_HTTPS_STANDARD);
 	}
 
 	public String getUriWithScheme(UrlScheme scheme, ServletRequest req) throws MalformedURLException{
@@ -85,12 +78,12 @@ public class UrlSchemeRedirector{
 		// + contextSpecificPath;
 	}
 
-	private String getUriWithScheme(UrlScheme scheme, URL url){
+	protected String getUriWithScheme(UrlScheme scheme, URL url){
 		return scheme.getStringRepresentation() + "://" + url.getHost() + getRedirectUrlPortStringWithColon(url
 				.getPort(), scheme) + url.getFile();
 	}
 
-	private String getRedirectUrlPortStringWithColon(int originalPort, UrlScheme requiredScheme){
+	protected String getRedirectUrlPortStringWithColon(int originalPort, UrlScheme requiredScheme){
 		if(originalPort == -1){
 			return "";
 		}
@@ -103,38 +96,4 @@ public class UrlSchemeRedirector{
 		throw new IllegalArgumentException("UrlScheme.HTTPS filter is confused.  Terminating request.");
 	}
 
-	public static class UrlSchemeRedirectorTests{
-		private final UrlSchemeRedirector urlSchemeHandler = new UrlSchemeRedirector(new DefaultPortIdentifier());
-
-		private final String urlHttp = "http://x.com",
-				urlHttps = "https://x.com",
-				param = "/y?z=0",
-				urlWithHttpPort = urlHttp + ":" + UrlConstants.PORT_HTTP_DEV + param,
-				urlWithHttpsPort = urlHttps + ":" + UrlConstants.PORT_HTTPS_DEV + param;
-
-		@Test
-		public void testGetRedirectUrlPortStringWithColon(){
-			Assert.assertEquals(urlSchemeHandler.getRedirectUrlPortStringWithColon(80, UrlScheme.HTTP), "");
-			Assert.assertEquals(urlSchemeHandler.getRedirectUrlPortStringWithColon(UrlConstants.PORT_HTTP_DEV,
-					UrlScheme.HTTP), ":" + UrlConstants.PORT_HTTP_DEV);
-			Assert.assertEquals(urlSchemeHandler.getRedirectUrlPortStringWithColon(UrlConstants.PORT_HTTP_DEV,
-					UrlScheme.HTTPS), ":" + UrlConstants.PORT_HTTPS_DEV);
-			Assert.assertEquals(urlSchemeHandler.getRedirectUrlPortStringWithColon(UrlConstants.PORT_HTTPS_STANDARD,
-					UrlScheme.HTTP), "");
-		}
-
-		@Test
-		public void testGetUriWithScheme() throws Exception{
-			Assert.assertEquals(urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL(urlHttp + param)), urlHttp
-					+ param);
-			Assert.assertEquals(urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL(urlWithHttpPort)),
-					urlWithHttpPort);
-			Assert.assertEquals(urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL(urlWithHttpPort)),
-					urlWithHttpsPort);
-			Assert.assertEquals(urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL(urlHttp + param)), urlHttps
-					+ param);
-			Assert.assertEquals(urlSchemeHandler.getUriWithScheme(UrlScheme.HTTPS, new URL(urlHttp)), urlHttps);
-			Assert.assertEquals(urlSchemeHandler.getUriWithScheme(UrlScheme.HTTP, new URL(urlHttp)), urlHttp);
-		}
-	}
 }

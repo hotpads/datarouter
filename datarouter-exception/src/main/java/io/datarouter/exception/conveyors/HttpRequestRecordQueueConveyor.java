@@ -15,6 +15,7 @@
  */
 package io.datarouter.exception.conveyors;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -43,10 +44,13 @@ extends BaseGroupQueueConsumerConveyor<HttpRequestRecordKey,HttpRequestRecord>{
 	private final ExceptionRecordPublisher publisher;
 
 	@Inject
-	public HttpRequestRecordQueueConveyor(String name, Setting<Boolean> shouldRun,
-			GroupQueueConsumer<HttpRequestRecordKey,HttpRequestRecord> consumer, ExceptionRecordPublisher publisher,
+	public HttpRequestRecordQueueConveyor(
+			String name,
+			Setting<Boolean> shouldRun,
+			GroupQueueConsumer<HttpRequestRecordKey,HttpRequestRecord> consumer,
+			ExceptionRecordPublisher publisher,
 			Supplier<Boolean> compactExceptionLogging){
-		super(name, shouldRun, consumer, compactExceptionLogging);
+		super(name, shouldRun, consumer, compactExceptionLogging, Duration.ofSeconds(5));
 		this.publisher = publisher;
 	}
 

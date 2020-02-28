@@ -19,9 +19,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import io.datarouter.client.mysql.ddl.generate.SqlTableDiffGenerator;
 
 public class SqlTable{
@@ -145,22 +142,4 @@ public class SqlTable{
 		return rowFormat;
 	}
 
-	public static class SqlTableTests{
-
-		@Test
-		public void testGetHeader(){
-			Assert.assertEquals("Header", getHeader("Header(blabla(blob()))trail"));
-		}
-
-		@Test
-		public void testGetTail(){
-			Assert.assertEquals("trail", getTail("Header(blabla(blob()))trail"));
-		}
-
-		@Test
-		public void testGetFullBody(){
-			Assert.assertEquals("blabla(blob())", getColumnDefinitionSection("Header(blabla(blob()))trail"));
-		}
-
-	}
 }

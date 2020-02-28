@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceSettingRoot;
 import io.datarouter.webappinstance.service.WebappInstanceService;
@@ -40,6 +41,8 @@ public class WebappInstanceAppListener implements DatarouterAppListener{
 	private WebappInstancePublisher publisher;
 	@Inject
 	private DatarouterWebappInstanceSettingRoot settings;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	@Override
 	public void onStartUp(){
@@ -65,7 +68,11 @@ public class WebappInstanceAppListener implements DatarouterAppListener{
 			logger.warn("external webapp deregistration complete");
 		}catch(Exception e){
 			// on dev environments exceptions might be thrown
-			logger.info("", e);
+			if(serverTypeDetector.mightBeDevelopment()){
+				logger.info("", e);
+			}else{
+				logger.warn("", e);
+			}
 		}
 	}
 

@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import io.datarouter.aws.sqs.DatarouterAwsSqsTestNgModuleFactory;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.queue.GroupQueueMessage;
@@ -40,10 +41,8 @@ import io.datarouter.storage.test.TestDatabeanKey;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.timer.PhaseTimer;
-import io.datarouter.web.config.DatarouterWebGuiceModule;
-import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 
-@Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class, modules = DatarouterWebGuiceModule.class)
+@Guice(moduleFactory = DatarouterAwsSqsTestNgModuleFactory.class)
 @Test(singleThreaded = true)
 public class SqsPerformanceTester{
 	private static final Logger logger = LoggerFactory.getLogger(SqsPerformanceTester.class);

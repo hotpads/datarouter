@@ -15,16 +15,23 @@
  */
 package io.datarouter.job;
 
-import javax.inject.Inject;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
 import io.datarouter.job.config.DatarouterJobFiles;
 import io.datarouter.web.file.DatarouterFilesTests;
 
+@Guice
 public class DatarouterJobFilesTests extends DatarouterFilesTests{
 
-	@Inject
-	protected DatarouterJobFilesTests(DatarouterJobFiles files){
-		super(files);
+	protected DatarouterJobFilesTests(){
+		super(new DatarouterJobFiles());
+	}
+
+	@Override
+	@Test
+	public void testAll(){
+		super.testAll();
 	}
 
 }

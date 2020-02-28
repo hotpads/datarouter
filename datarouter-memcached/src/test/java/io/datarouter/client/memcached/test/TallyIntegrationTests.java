@@ -24,11 +24,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import io.datarouter.client.memcached.DatarouterMemcachedTestNgModuleFactory;
 import io.datarouter.client.memcached.tally.Tally;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 
-@Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
+@Guice(moduleFactory = DatarouterMemcachedTestNgModuleFactory.class)
 public class TallyIntegrationTests{
 
 	@Inject

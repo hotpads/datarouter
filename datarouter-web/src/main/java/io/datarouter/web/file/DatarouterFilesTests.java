@@ -15,9 +15,6 @@
  */
 package io.datarouter.web.file;
 
-import org.testng.annotations.Guice;
-
-@Guice
 public abstract class DatarouterFilesTests extends BaseFilesTests{
 
 	private final FilesRoot node;

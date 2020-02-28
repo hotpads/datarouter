@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.21</version>
+		<version>0.0.22</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -33,15 +33,21 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-joblet</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>4.0.1</version>
-			<scope>provided</scope>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-testng</artifactId>
+			<version>${datarouter-version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
