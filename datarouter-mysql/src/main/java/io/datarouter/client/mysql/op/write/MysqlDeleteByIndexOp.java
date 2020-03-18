@@ -18,8 +18,7 @@ package io.datarouter.client.mysql.op.write;
 import java.util.Collection;
 
 import io.datarouter.client.mysql.MysqlClientType;
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
-import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -34,12 +33,16 @@ public class MysqlDeleteByIndexOp<
 		IK extends PrimaryKey<IK>>
 extends BaseMysqlDeleteOp<PK,D,F,IK>{
 
-	public MysqlDeleteByIndexOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> databeanfieldInfo,
-			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder, MysqlClientType mysqlClientType,
-			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, Collection<IK> keys, Config config,
-			String indexName, String opName){
-		super(datarouter, databeanfieldInfo, mysqlPreparedStatementBuilder, mysqlClientType,
-				mysqlLiveTableOptionsRefresher, keys, config, indexName, opName);
+	public MysqlDeleteByIndexOp(
+			Datarouter datarouter,
+			PhysicalDatabeanFieldInfo<PK,D,F> databeanfieldInfo,
+			MysqlSqlFactory mysqlSqlFactory,
+			MysqlClientType mysqlClientType,
+			Collection<IK> keys,
+			Config config,
+			String indexName,
+			String opName){
+		super(datarouter, databeanfieldInfo, mysqlSqlFactory, mysqlClientType, keys, config, indexName, opName);
 	}
 
 }

@@ -47,7 +47,6 @@ public class JsonDatabeanToolTests{
 		ManyFieldBean bean = new ManyFieldBean(33333L);
 		bean.setBooleanField(false);
 		bean.setByteField((byte)-55);
-		bean.setCharacterField('Z');
 		bean.setDoubleField(-79.245);
 		bean.setFloatField(45.12345f);
 		bean.setIntegerField(-9876);

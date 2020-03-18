@@ -31,7 +31,8 @@ public class BatchedQueueConsumer<PK extends PrimaryKey<PK>,D extends Databean<P
 	private final Function<Config,QueueMessage<PK,D>> peekFunction;
 	private final Consumer<Collection<QueueMessageKey>> ackMultiConsumer;
 
-	public BatchedQueueConsumer(Function<Config,QueueMessage<PK,D>> peekFunction,
+	public BatchedQueueConsumer(
+			Function<Config,QueueMessage<PK,D>> peekFunction,
 			Consumer<Collection<QueueMessageKey>> ackMultiConsumer){
 		this.peekFunction = peekFunction;
 		this.ackMultiConsumer = ackMultiConsumer;

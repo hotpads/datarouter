@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -31,7 +32,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.storage.queue.QueueMessageKey;
-import io.datarouter.storage.setting.Setting;
 
 /**
  * Drains the queue and stores the data in a buffer. When the buffer hits a set limit it will trigger the processing as
@@ -51,9 +51,11 @@ extends BaseConveyor{
 	private final Object lock = new Object();
 	private List<QueueMessage<PK,D>> buffer;
 
-	public BaseBatchedQueueConsumerConveyor(String name, Setting<Boolean> shouldRunSetting,
+	public BaseBatchedQueueConsumerConveyor(
+			String name,
+			Supplier<Boolean> shouldRun,
 			BatchedQueueConsumer<PK,D> queueConsumer){
-		super(name, shouldRunSetting, () -> false);
+		super(name, shouldRun, () -> false);
 		this.queueConsumer = queueConsumer;
 		this.buffer = new ArrayList<>(BATCH_SIZE);
 	}

@@ -22,7 +22,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.httpclient.client.BaseApplicationHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
-import io.datarouter.instrumentation.test.Testable;
+import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.DaosTestService;
@@ -39,7 +39,7 @@ import io.datarouter.web.listener.AppListenersClasses;
  * Use this class to check for injection problems
  */
 @Singleton
-public class DatarouterWebBoostrapIntegrationService implements Testable{
+public class DatarouterWebBoostrapIntegrationService implements TestableService{
 
 	private static final List<Pair<Class<?>,Boolean>> SINGLETON_CHECKS = List.of(
 			new Pair<>(BaseDao.class, true),
@@ -71,6 +71,7 @@ public class DatarouterWebBoostrapIntegrationService implements Testable{
 		testSingletonsForAppListeners();
 	}
 
+	@Override
 	public void afterClass(){
 		datarouter.shutdown();
 	}

@@ -62,7 +62,7 @@ public class SimpleRateLimiter{
 		if(milliseconds < 1){
 			return;
 		}
-		ThreadTool.sleep(milliseconds);
+		ThreadTool.sleepUnchecked(milliseconds);
 	}
 
 }

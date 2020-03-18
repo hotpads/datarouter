@@ -68,7 +68,7 @@ public class FlushingSetBufferTests{
 				.build();
 		Assert.assertEquals(flushCallCount.get(), 0);
 		buffer.clock = Clock.offset(clock, bufferedDuration);
-		ThreadTool.sleep(FlushingSetBuffer.MAX_BUFFER_FLUSH_CHECK_INTERVAL.toMillis() * 2);
+		ThreadTool.sleepUnchecked(FlushingSetBuffer.MAX_BUFFER_FLUSH_CHECK_INTERVAL.toMillis() * 2);
 		Assert.assertEquals(flushCallCount.get(), 1);
 	}
 

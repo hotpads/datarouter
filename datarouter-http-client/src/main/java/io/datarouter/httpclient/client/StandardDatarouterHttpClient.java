@@ -48,6 +48,7 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeExceptio
 import io.datarouter.httpclient.security.CsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.httpclient.security.SignatureGenerator;
+import io.datarouter.instrumentation.trace.TracerTool;
 
 @Singleton
 public class StandardDatarouterHttpClient implements DatarouterHttpClient{
@@ -108,7 +109,10 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public <E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
 		String entity = executeChecked(request).getEntity();
-		return jsonSerializer.deserialize(entity, deserializeToType);
+		try(var $ = TracerTool.startSpan("JsonSerializer deserialize")){
+			TracerTool.appendToSpanInfo("characters", entity.length());
+			return jsonSerializer.deserialize(entity, deserializeToType);
+		}
 	}
 
 	@Override

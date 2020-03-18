@@ -17,25 +17,26 @@ package io.datarouter.web.util.http;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 
+import io.datarouter.util.lazy.CheckedSupplier;
+
 public class CachingServletInputStream extends ServletInputStream{
 
-	private final InputStream cachedInputStream;
+	private final CheckedSupplier<InputStream,IOException> inputStreamSupplier;
+	private InputStream inputStream;
 
 	private boolean finished = false;
 
-	public CachingServletInputStream(InputStream cachedInputStream){
-		Objects.requireNonNull(cachedInputStream, "inputStream must not be null");
-		this.cachedInputStream = cachedInputStream;
+	public CachingServletInputStream(CheckedSupplier<InputStream,IOException> streamSupplier){
+		this.inputStreamSupplier = streamSupplier;
 	}
 
 	@Override
 	public int read() throws IOException{
-		int data = cachedInputStream.read();
+		int data = extractOrGetInputStream().read();
 		if(data == -1){
 			finished = true;
 		}
@@ -59,8 +60,15 @@ public class CachingServletInputStream extends ServletInputStream{
 
 	@Override
 	public void close() throws IOException{
-		super.close();
-		cachedInputStream.close();
+		extractOrGetInputStream().close();
+	}
+
+	private InputStream extractOrGetInputStream() throws IOException{
+		if(inputStream != null){
+			return inputStream;
+		}
+		inputStream = inputStreamSupplier.get();
+		return inputStream;
 	}
 
 }

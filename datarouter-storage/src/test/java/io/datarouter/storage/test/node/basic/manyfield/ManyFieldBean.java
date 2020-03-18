@@ -46,8 +46,6 @@ import io.datarouter.model.field.imp.array.UInt63ArrayField;
 import io.datarouter.model.field.imp.array.UInt63ArrayFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
-import io.datarouter.model.field.imp.comparable.CharacterField;
-import io.datarouter.model.field.imp.comparable.CharacterFieldKey;
 import io.datarouter.model.field.imp.comparable.DoubleField;
 import io.datarouter.model.field.imp.comparable.DoubleFieldKey;
 import io.datarouter.model.field.imp.comparable.FloatField;
@@ -74,6 +72,8 @@ import io.datarouter.model.field.imp.enums.VarIntEnumField;
 import io.datarouter.model.field.imp.enums.VarIntEnumFieldKey;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
+import io.datarouter.model.field.imp.positive.UInt7Field;
+import io.datarouter.model.field.imp.positive.UInt7FieldKey;
 import io.datarouter.model.field.imp.positive.VarIntField;
 import io.datarouter.model.field.imp.positive.VarIntFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
@@ -99,7 +99,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private LocalDate localDateField;
 	private LocalDateTime localDateTimeField;
 	private Instant instantField;
-	private Character characterField;
 	private String stringField;
 	private Integer varIntField;
 	private TestEnum intEnumField;
@@ -118,6 +117,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private byte[] byteArrayField;
 	private String testSchemaUpdateField;
 	private Long incrementField;
+	private Byte uint7Field;
 
 	public static class FieldKeys{
 		public static final BooleanFieldKey booleanField = new BooleanFieldKey("booleanField");
@@ -131,7 +131,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final LocalDateFieldKey localDateField = new LocalDateFieldKey("localDateField");
 		public static final LocalDateTimeFieldKey localDateTimeField = new LocalDateTimeFieldKey("localDateTimeField");
 		public static final InstantFieldKey instantField = new InstantFieldKey("instantField");
-		public static final CharacterFieldKey characterField = new CharacterFieldKey("characterField");
 		public static final StringFieldKey stringField = new StringFieldKey("stringField")
 				.withSize(CommonFieldSizes.MAX_KEY_LENGTH_UTF8MB4);
 		public static final VarIntFieldKey varIntField = new VarIntFieldKey("varIntField");
@@ -155,6 +154,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final StringFieldKey testSchemaUpdateField = new StringFieldKey("testSchemaUpdateField")
 				.withSize(CommonFieldSizes.MAX_KEY_LENGTH_UTF8MB4);
 		public static final UInt63FieldKey incrementField = new UInt63FieldKey("incrementField");
+		public static final UInt7FieldKey uint7Field = new UInt7FieldKey("uint7Field");
 	}
 
 	public boolean equalsAllPersistentFields(ManyFieldBean that){
@@ -192,9 +192,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 			return false;
 		}
 		if(ObjectTool.notEquals(instantField, that.instantField)){
-			return false;
-		}
-		if(ObjectTool.notEquals(characterField, that.characterField)){
 			return false;
 		}
 		if(ObjectTool.notEquals(stringField, that.stringField)){
@@ -242,6 +239,9 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(ObjectTool.notEquals(incrementField, that.incrementField)){
 			return false;
 		}
+		if(ObjectTool.notEquals(uint7Field, that.uint7Field)){
+			return false;
+		}
 		return true;
 	}
 
@@ -264,7 +264,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new LocalDateField(FieldKeys.localDateField, databean.localDateField),
 					new LocalDateTimeField(FieldKeys.localDateTimeField, databean.localDateTimeField),
 					new InstantField(FieldKeys.instantField, databean.instantField),
-					new CharacterField(FieldKeys.characterField, databean.characterField),
 					new StringField(FieldKeys.stringField, databean.stringField),
 					new VarIntField(FieldKeys.varIntField, databean.varIntField),
 					new IntegerEnumField<>(FieldKeys.intEnumField, databean.intEnumField),
@@ -280,7 +279,8 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new DelimitedStringArrayField(FieldKeys.delimitedStringArrayField,
 							databean.delimitedStringArrayField),
 					new StringField(FieldKeys.testSchemaUpdateField, databean.testSchemaUpdateField),
-					new UInt63Field(FieldKeys.incrementField, databean.incrementField));
+					new UInt63Field(FieldKeys.incrementField, databean.incrementField),
+					new UInt7Field(FieldKeys.uint7Field, databean.uint7Field));
 		}
 
 	}
@@ -402,14 +402,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setDoubleField(Double doubleField){
 		this.doubleField = doubleField;
-	}
-
-	public Character getCharacterField(){
-		return characterField;
-	}
-
-	public void setCharacterField(Character characterField){
-		this.characterField = characterField;
 	}
 
 	public String getStringField(){
@@ -562,6 +554,14 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setIncrementField(Long incrementField){
 		this.incrementField = incrementField;
+	}
+
+	public Byte getUint7Field(){
+		return uint7Field;
+	}
+
+	public void setUint7Field(Byte uint7Field){
+		this.uint7Field = uint7Field;
 	}
 
 }

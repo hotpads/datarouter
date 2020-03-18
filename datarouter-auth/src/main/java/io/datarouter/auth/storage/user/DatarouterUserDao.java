@@ -29,7 +29,6 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
-import io.datarouter.util.tuple.Range;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
@@ -108,7 +107,7 @@ public class DatarouterUserDao extends BaseDao{
 	}
 
 	public long count(){
-		return node.count(Range.everything());
+		return node.scanKeys().count();
 	}
 
 	public boolean exists(DatarouterUserByUserTokenLookup key){

@@ -182,7 +182,8 @@ public class TableCountHandler extends BaseHandler{
 		private final String countTime;
 		private final Long countTimeMs;
 		private final Date dateUpdated;
-		private final Date dateCreated;
+		private Date dateCreated;
+		private Long dateCreatedTime;
 		private final Long numSpans;
 		private final Long numSlowSpans;
 
@@ -194,7 +195,6 @@ public class TableCountHandler extends BaseHandler{
 					.toString();
 			this.countTimeMs = latestTableCount.getCountTimeMs();
 			this.dateUpdated = latestTableCount.getDateUpdated();
-			this.dateCreated = null;
 			this.numSpans = latestTableCount.getNumSpans();
 			this.numSlowSpans = latestTableCount.getNumSlowSpans();
 		}
@@ -207,12 +207,17 @@ public class TableCountHandler extends BaseHandler{
 			this.countTimeMs = tableCount.getCountTimeMs();
 			this.dateUpdated = tableCount.getDateUpdated();
 			this.dateCreated = new Date(tableCount.getKey().getCreatedMs());
+			this.dateCreatedTime = tableCount.getKey().getCreatedMs();
 			this.numSpans = tableCount.getNumSpans();
 			this.numSlowSpans = tableCount.getNumSlowSpans();
 		}
 
 		public Date getDateCreated(){
 			return dateCreated;
+		}
+
+		public Long getDateCreatedTime(){
+			return dateCreatedTime;
 		}
 
 		public String getClientName(){

@@ -64,8 +64,10 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 	}
 
 	@Override
-	protected Callable<Optional<SchemaUpdateResult>> makeSchemaUpdateCallable(ClientId clientId,
-			Lazy<List<String>> existingTableNames, PhysicalNode<?,?,?> node){
+	protected Callable<Optional<SchemaUpdateResult>> makeSchemaUpdateCallable(
+			ClientId clientId,
+			Lazy<List<String>> existingTableNames,
+			PhysicalNode<?,?,?> node){
 		return () -> mysqlSingleTableSchemaUpdateService.performSchemaUpdate(clientId, existingTableNames, node);
 	}
 

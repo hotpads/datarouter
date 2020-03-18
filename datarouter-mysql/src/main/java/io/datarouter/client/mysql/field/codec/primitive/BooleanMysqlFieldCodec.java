@@ -40,10 +40,16 @@ extends BasePrimitiveMysqlFieldCodec<Boolean,Field<Boolean>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		String defaultValue = field.getKey().getDefaultValue() == null ? null
+		String defaultValue = field.getKey().getDefaultValue() == null
+				? null
 				: field.getKey().getDefaultValue() ? "1" : "0";
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), 1,
-				allowNullable && field.getKey().isNullable(), false, defaultValue);
+		return new SqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				1,
+				allowNullable && field.getKey().isNullable(),
+				false,
+				defaultValue);
 	}
 
 	@Override

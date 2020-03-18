@@ -25,8 +25,10 @@ import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
-import io.datarouter.web.browse.DatabeanExporterLinkSupplier;
-import io.datarouter.web.browse.DatabeanExporterLinkSupplier.DatabeanExporterLink;
+import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier;
+import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier.NodeWidgetDatabeanExporterLink;
+import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
+import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier.NodeWidgetTableCountLink;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
@@ -107,12 +109,13 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
 	private final Class<? extends HomepageHandler> homepageHandlerClass;
 	private final List<String> registeredPlugins;
-	private final String databeanExporterLink;
+	private final String nodeWidgetDatabeanExporterLink;
+	private final String nodeWidgetTableCountLink;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(DatarouterWebDaoModule daosModuleBuilder, String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
-				null, null, null, customStaticFileFilterRegex, null, null);
+				null, null, null, customStaticFileFilterRegex, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -136,7 +139,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends HomepageHandler> homepageHandlerClass,
 			String customStaticFileFilterRegex,
 			List<String> registeredPlugins,
-			String databeanExporterLink){
+			String nodeWidgetDatabeanExporterLink,
+			String nodeWidgetTableCountLink){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(HomepageRouteSet.class);
 
@@ -194,7 +198,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.appNavBarRegistrySupplier = appNavBarRegistrySupplier;
 		this.homepageHandlerClass = homepageHandlerClass;
 		this.registeredPlugins = registeredPlugins;
-		this.databeanExporterLink = databeanExporterLink;
+		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
+		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
 	}
 
 	@Override
@@ -227,7 +232,10 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualNullSafe(AppNavBarRegistrySupplier.class, appNavBarRegistrySupplier);
 		bind(HomepageHandler.class).to(homepageHandlerClass);
 		bindActualInstance(PluginRegistrySupplier.class, new PluginRegistry(registeredPlugins));
-		bindActualInstance(DatabeanExporterLinkSupplier.class, new DatabeanExporterLink(databeanExporterLink));
+		bindActualInstance(NodeWidgetDatabeanExporterLinkSupplier.class,
+				new NodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink));
+		bindActualInstance(NodeWidgetTableCountLinkSupplier.class,
+				new NodeWidgetTableCountLink(nodeWidgetTableCountLink));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -295,7 +303,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends HomepageHandler> homepageHandler = SimpleHomepageHandler.class;
 		private String customStaticFileFilterRegex;
 		private List<String> registeredPlugins = Collections.emptyList();
-		private String databeanExporterLink;
+		private String nodeWidgetDatabeanExporterLink;
+		private String nodeWidgetTableCountLink;
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -408,8 +417,13 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder withDatabeanExporterLink(String databeanExporterLink){
-			this.databeanExporterLink = databeanExporterLink;
+		public DatarouterWebPluginBuilder withNodeWidgetDatabeanExporterLink(String nodeWidgetDatabeanExporterLink){
+			this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder withNodeWidgetTableCountLink(String nodeWidgetTableCountLink){
+			this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
 			return this;
 		}
 
@@ -441,7 +455,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					homepageHandler,
 					customStaticFileFilterRegex,
 					registeredPlugins,
-					databeanExporterLink);
+					nodeWidgetDatabeanExporterLink,
+					nodeWidgetTableCountLink);
 		}
 
 	}

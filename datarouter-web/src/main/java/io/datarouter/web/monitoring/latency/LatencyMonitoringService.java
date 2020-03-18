@@ -57,6 +57,7 @@ import io.datarouter.util.StreamTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.config.DatarouterWebSettingRoot;
 
 @Singleton
 public class LatencyMonitoringService{
@@ -86,18 +87,29 @@ public class LatencyMonitoringService{
 	private ClientInitializationTracker clientInitializationTracker;
 	@Inject
 	private LatencyMonitoringGraphLink latencyMonitoringGraphLink;
+	@Inject
+	private DatarouterWebSettingRoot datarouterWebSettingRoot;
 
 	private final Map<String,Deque<CheckResult>> lastResultsByName = new ConcurrentHashMap<>();
 
 	private List<LatencyFuture> runningChecks = Collections.emptyList();
 
 	public void record(LatencyCheck check, DatarouterDuration duration){
-		gauges.save(GAUGE_PREFIX + check.name, duration.to(TimeUnit.MICROSECONDS));
+		saveGauge(check.name, duration);
 		addCheckResult(check, CheckResult.newSuccess(System.currentTimeMillis(), duration));
 	}
 
-	private Deque<CheckResult> getLastResults(String checkName){
-		return lastResultsByName.computeIfAbsent(checkName, $ -> new ConcurrentLinkedDeque<>());
+	public void recordFailure(LatencyCheck check, DatarouterDuration duration, Exception exception){
+		saveGauge(check.name + " failure durationUs", duration);
+		Counters.inc(GAUGE_PREFIX + check.name + " failure");
+		addCheckResult(check, CheckResult.newFailure(System.currentTimeMillis(), exception.getMessage()));
+		logger.warn("{} failed - {}", check.name, duration, exception);
+	}
+
+	private void saveGauge(String name, DatarouterDuration duration){
+		if(datarouterWebSettingRoot.saveLatencyGauges.get()){
+			gauges.save(GAUGE_PREFIX + name, duration.to(TimeUnit.MICROSECONDS));
+		}
 	}
 
 	private void addCheckResult(LatencyCheck check, CheckResult checkResult){
@@ -108,11 +120,8 @@ public class LatencyMonitoringService{
 		lastResults.offerFirst(checkResult);
 	}
 
-	public void recordFailure(LatencyCheck check, DatarouterDuration duration, Exception exception){
-		gauges.save(GAUGE_PREFIX + check.name + " failure durationUs", duration.to(TimeUnit.MICROSECONDS));
-		Counters.inc(GAUGE_PREFIX + check.name + " failure");
-		addCheckResult(check, CheckResult.newFailure(System.currentTimeMillis(), exception.getMessage()));
-		logger.warn("{} failed - {}", check.name, duration, exception);
+	private Deque<CheckResult> getLastResults(String checkName){
+		return lastResultsByName.computeIfAbsent(checkName, $ -> new ConcurrentLinkedDeque<>());
 	}
 
 	public Map<String,CheckResult> getLastResultByName(){

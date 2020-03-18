@@ -24,8 +24,8 @@ import io.datarouter.util.lang.ClassTool;
 
 public class JobletRequestQueueKey implements Comparable<JobletRequestQueueKey>{
 
-	private final JobletType<?> type;
-	private final JobletPriority priority;
+	public final JobletType<?> type;
+	public final JobletPriority priority;
 
 	public JobletRequestQueueKey(JobletType<?> type, JobletPriority priority){
 		this.type = type;

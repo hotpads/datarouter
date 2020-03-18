@@ -18,10 +18,8 @@ package io.datarouter.joblet.jdbc;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
-import io.datarouter.client.mysql.util.DatarouterMysqlStatement;
-import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
-import io.datarouter.client.mysql.util.SqlBuilder;
+import io.datarouter.client.mysql.sql.MysqlSql;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.joblet.DatarouterJobletConstants;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
@@ -44,76 +42,69 @@ public class JobletRequestSqlBuilder{
 			JobletRequest.FieldKeys.status, JobletStatus.RUNNING);
 	private static final BooleanField RESTARTABLE_FIELD = new BooleanField(JobletRequest.FieldKeys.restartable, true);
 
-
 	private final DatarouterJobletRequestDao jobletRequestDao;
-	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
-	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 
 	private final ClientId clientId;
 	private final String tableName;
+	private final MysqlSqlFactory mysqlSqlFactory;
 
 	@Inject
 	public JobletRequestSqlBuilder(
 			DatarouterJobletRequestDao jobletRequestDao,
-			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher){
+			MysqlSqlFactory mysqlSqlFactory){
 		this.jobletRequestDao = jobletRequestDao;
-		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
-		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
-
 		PhysicalNode<?,?,?> physicalNode = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode());
 		this.clientId = physicalNode.getClientId();
 		this.tableName = physicalNode.getFieldInfo().getTableName();
+		this.mysqlSqlFactory = mysqlSqlFactory;
 	}
 
 	//select for GetJobletRequest
-	public DatarouterMysqlStatement makeSelectFromClause(){
-		return mysqlPreparedStatementBuilder.select(tableName, jobletRequestDao.getNode().getFieldInfo().getFields());
+	public MysqlSql makeSelectFromClause(){
+		return mysqlSqlFactory.createSql(clientId, tableName)
+				.addSelectFromClause(tableName, jobletRequestDao.getNode().getFieldInfo().getFields());
 	}
 
 	//update for ReserveJobletRequest
-	public DatarouterMysqlStatement makeUpdateClause(String reservedBy){
-		DatarouterMysqlStatement statement = new DatarouterMysqlStatement();
+	public MysqlSql makeUpdateClause(String reservedBy){
 		StringField reservedByField = new StringField(JobletRequest.FieldKeys.reservedBy, reservedBy);
-		SqlBuilder.addUpdateClause(statement.getSql(), tableName);
-		mysqlPreparedStatementBuilder.appendSqlNameValue(statement, reservedByField,
-				mysqlLiveTableOptionsRefresher.get(clientId, reservedBy));
-		return statement;
+		return mysqlSqlFactory.createSql(clientId, tableName)
+				.addUpdateClause(tableName)
+				.appendSqlNameValue(reservedByField, true);
 	}
 
 	//where for both
-	public void appendWhereClause(DatarouterMysqlStatement statement, JobletType<?> jobletType){
-		statement.append(" where ");
-		appendTypeClause(statement, jobletType);
-		statement.append(" and ");
-		appendStatusClause(statement);
-		statement.append(" limit 1");
+	public void appendWhereClause(MysqlSql sql, JobletType<?> jobletType){
+		sql.append(" where ");
+		appendTypeClause(sql, jobletType);
+		sql.append(" and ");
+		appendStatusClause(sql);
+		sql.append(" limit 1");
 	}
 
-	private void appendTypeClause(DatarouterMysqlStatement statement, JobletType<?> jobletType){
+	private void appendTypeClause(MysqlSql sql, JobletType<?> jobletType){
 		StringField typeField = new StringField(JobletRequestKey.FieldKeys.type, jobletType.getPersistentString());
-		mysqlPreparedStatementBuilder.appendSqlNameValue(statement, typeField,
-				mysqlLiveTableOptionsRefresher.get(clientId, tableName));
+		sql.appendSqlNameValue(typeField, true);
 	}
 
-	private void appendStatusClause(DatarouterMysqlStatement statement){
-		statement.append(" (");
-		mysqlPreparedStatementBuilder.appendSqlNameValue(statement, STATUS_CREATED_FIELD,
-				mysqlLiveTableOptionsRefresher.get(clientId, tableName));
-		statement.append(" or ");
-		makeStatusTimedOutClause(statement);
-		statement.append(") ");
+	private void appendStatusClause(MysqlSql sql){
+		sql.append(" (")
+				.appendSqlNameValue(STATUS_CREATED_FIELD, true)
+				.append(" or ");
+		makeStatusTimedOutClause(sql);
+		sql.append(") ");
 	}
 
-	private void makeStatusTimedOutClause(DatarouterMysqlStatement statement){
-		statement.append("(");
-		mysqlPreparedStatementBuilder.appendSqlNameValue(statement, STATUS_RUNNING_FIELD,
-				mysqlLiveTableOptionsRefresher.get(clientId, tableName));
-		statement.append(" and ").append(JobletRequest.FieldKeys.reservedAt.getColumnName()).append(" < ")
-				.append(computeReservedBeforeMs().toString()).append(" and ");
-		mysqlPreparedStatementBuilder.appendSqlNameValue(statement, RESTARTABLE_FIELD,
-				mysqlLiveTableOptionsRefresher.get(clientId, tableName));
-		statement.append(")");
+	private void makeStatusTimedOutClause(MysqlSql sql){
+		sql.append("(")
+				.appendSqlNameValue(STATUS_RUNNING_FIELD, true)
+				.append(" and ")
+				.append(JobletRequest.FieldKeys.reservedAt.getColumnName())
+				.append(" < ")
+				.append(computeReservedBeforeMs().toString())
+				.append(" and ")
+				.appendSqlNameValue(RESTARTABLE_FIELD, true)
+				.append(")");
 	}
 
 	private Long computeReservedBeforeMs(){

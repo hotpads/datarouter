@@ -53,7 +53,8 @@ public class DatarouterMysqlPlugin extends BaseJobPlugin{
 		private Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> codecsByField = new HashMap<>();
 
 		public DatarouterMysqlPluginBuilder addMysqlFieldCodec(
-				Class<? extends Field<?>> field, Class<? extends MysqlFieldCodec<?>> codec){
+				Class<? extends Field<?>> field,
+				Class<? extends MysqlFieldCodec<?>> codec){
 			codecsByField.put(field, codec);
 			return this;
 		}

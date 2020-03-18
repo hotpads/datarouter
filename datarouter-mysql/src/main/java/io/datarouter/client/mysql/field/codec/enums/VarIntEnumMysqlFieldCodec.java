@@ -29,7 +29,7 @@ extends BaseMysqlFieldCodec<E,VarIntEnumField<E>>{
 
 	private IntegerEnumMysqlFieldCodec<E> integerEnumMysqlFieldCodec;
 
-	public VarIntEnumMysqlFieldCodec(){//no-arg for reflection
+	public VarIntEnumMysqlFieldCodec(){
 		this(null);
 	}
 
@@ -37,8 +37,6 @@ extends BaseMysqlFieldCodec<E,VarIntEnumField<E>>{
 		super(field);
 		this.integerEnumMysqlFieldCodec = new IntegerEnumMysqlFieldCodec<>(VarIntEnumField.toIntegerEnumField(field));
 	}
-
-	/*--------------------------- SqlEncodedField ---------------------------*/
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){

@@ -43,8 +43,12 @@ extends BaseListMysqlFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), Integer.MAX_VALUE, allowNullable
-				&& field.getKey().isNullable(), false);
+		return new SqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				Integer.MAX_VALUE,
+				allowNullable && field.getKey().isNullable(),
+				false);
 	}
 
 	@Override
@@ -63,8 +67,10 @@ extends BaseListMysqlFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			ps.setBytes(parameterIndex, field.getValue() == null ? null
-					: IntegerByteTool.getIntegerByteArray(field.getValue()));
+			byte[] value = field.getValue() == null
+					? null
+					: IntegerByteTool.getIntegerByteArray(field.getValue());
+			ps.setBytes(parameterIndex, value);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

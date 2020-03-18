@@ -144,7 +144,10 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 
 			long threadId = Thread.currentThread().getId();
 			long connNumber = connectionCounter(clientId).incrementAndGet();
-			ConnectionHandle handle = new ConnectionHandle(Thread.currentThread(), clientId.getName(), connNumber,
+			var handle = new ConnectionHandle(
+					Thread.currentThread(),
+					clientId.getName(),
+					connNumber,
 					ConnectionHandle.OUTERMOST_TICKET_NUMBER);
 			if(handleByThread(clientId).get(threadId) == null){
 				handleByThread(clientId).put(threadId, handle);
@@ -154,8 +157,11 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 			TracerTool.appendToSpanInfo("connection", "new");
 			DatarouterCounters.incClient(clientType, "connection open new", clientId.getName(), 1);
 		}catch(SQLException e){
-			DatarouterCounters.incClient(clientType, "connection open " + e.getClass().getSimpleName(), clientId
-					.getName(), 1);
+			DatarouterCounters.incClient(
+					clientType,
+					"connection open " + e.getClass().getSimpleName(),
+					clientId.getName(),
+					1);
 			throw new DataAccessException("Could not reserve connection client=" + clientId.getName(), e);
 		}
 	}

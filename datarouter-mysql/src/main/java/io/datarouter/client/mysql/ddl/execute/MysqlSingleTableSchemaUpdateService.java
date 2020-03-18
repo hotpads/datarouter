@@ -71,7 +71,9 @@ public class MysqlSingleTableSchemaUpdateService{
 	@Inject
 	private MysqlConnectionPoolHolder mysqlConnectionPoolHolder;
 
-	public Optional<SchemaUpdateResult> performSchemaUpdate(ClientId clientId, Lazy<List<String>> existingTableNames,
+	public Optional<SchemaUpdateResult> performSchemaUpdate(
+			ClientId clientId,
+			Lazy<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> physicalNode){
 		MysqlConnectionPool connectionPool = mysqlConnectionPoolHolder.getConnectionPool(clientId);
 		if(schemaUpdateOptions.getIgnoreClients().contains(clientId.getName()) || !clientId.getWritable()){

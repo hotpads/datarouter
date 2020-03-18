@@ -19,6 +19,10 @@ import static j2html.TagCreator.head;
 import static j2html.TagCreator.meta;
 import static j2html.TagCreator.title;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
 
@@ -33,6 +37,7 @@ public class DatarouterPageHead{
 	private final ContainerTag datarouterNavbarRequestTimingJsImport;
 	private final ContainerTag datarouterNavbarRequestTimingScript;
 	private final String title;
+	private final Map<String,String> httpEquivs;
 
 	public DatarouterPageHead(
 			EmptyTag[] datarouterWebCssImports,
@@ -43,7 +48,8 @@ public class DatarouterPageHead{
 			EmptyTag[] datarouterNavbarCssImports,
 			ContainerTag datarouterNavbarRequestTimingJsImport,
 			ContainerTag datarouterNavbarRequestTimingScript,
-			String title){
+			String title,
+			Map<String,String> httpEquivs){
 		this.datarouterWebCssImports = datarouterWebCssImports;
 		this.datarouterWebRequireJsImport = datarouterWebRequireJsImport;
 		this.datarouterWebRequireJsConfig = datarouterWebRequireJsConfig;
@@ -53,14 +59,22 @@ public class DatarouterPageHead{
 		this.datarouterNavbarRequestTimingJsImport = datarouterNavbarRequestTimingJsImport;
 		this.datarouterNavbarRequestTimingScript = datarouterNavbarRequestTimingScript;
 		this.title = title;
+		this.httpEquivs = httpEquivs;
 	}
 
 	public ContainerTag build(){
 		var meta = meta()
 				.withName("viewport")
 				.withContent("width=device-width, initial-scale=1");
-		return head()
-				.with(meta)
+		var head = head()
+				.with(meta);
+		for(Entry<String,String> httpEquivEntry : httpEquivs.entrySet()){
+			var httpEquiv = meta()
+					.attr(Attr.HTTP_EQUIV, httpEquivEntry.getKey())
+					.withContent(httpEquivEntry.getValue());
+			head.with(httpEquiv);
+		}
+		return head
 				.with(datarouterWebCssImports)
 				.with(datarouterWebRequireJsImport)
 				.with(datarouterWebRequireJsConfig)

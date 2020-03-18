@@ -20,7 +20,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.instrumentation.test.Testable;
+import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.scheduler.JobSchedulerTestService;
@@ -31,7 +31,7 @@ import io.datarouter.web.config.SingletonTestService;
  * Use this class to check for injection problems
  */
 @Singleton
-public class DatarouterJobBootstrapIntegrationService implements Testable{
+public class DatarouterJobBootstrapIntegrationService implements TestableService{
 
 	private static final List<Pair<Class<?>,Boolean>> SINGLETON_CHECKS = List.of(
 			new Pair<>(BaseJob.class, false),

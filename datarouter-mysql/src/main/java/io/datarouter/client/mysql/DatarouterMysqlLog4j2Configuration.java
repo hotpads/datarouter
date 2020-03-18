@@ -34,7 +34,9 @@ public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 		Appender console = getAppender(DatarouterLog4j2Configuration.CONSOLE_APPENDER_NAME);
 		addLoggerConfig("jdbc.sqltiming", Level.INFO, false, console);
 
-		Appender schemaUpdateAppender = Log4j2Configurator.createConsoleAppender("SchemaUpdate", Target.SYSTEM_OUT,
+		Appender schemaUpdateAppender = Log4j2Configurator.createConsoleAppender(
+				"SchemaUpdate",
+				Target.SYSTEM_OUT,
 				"%msg%n");
 		addAppender(schemaUpdateAppender);
 		addLoggerConfig(MysqlSingleTableSchemaUpdateService.class.getName(), Level.INFO, false, schemaUpdateAppender);
@@ -42,7 +44,9 @@ public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 
 		// move to datarouter-storage or datarouter-webapp-utils (see CallsiteHandler)?
 		String callsiteLogFile = CATALINA_OUT_DIR + "/callsite.log";
-		Appender callsiteAppender = Log4j2Configurator.createFileAppender("callsite", callsiteLogFile,
+		Appender callsiteAppender = Log4j2Configurator.createFileAppender(
+				"callsite",
+				callsiteLogFile,
 				"%d %-5level [%t] %logger{36}:%line - %msg%n%rEx");
 		addAppender(callsiteAppender);
 		addLoggerConfig(CallsiteRecorder.class.getName(), Level.TRACE, false, callsiteAppender);

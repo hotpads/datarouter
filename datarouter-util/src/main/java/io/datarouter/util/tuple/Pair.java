@@ -32,12 +32,6 @@ public class Pair<L,R> implements Serializable{
 	public Pair(){
 	}
 
-	public boolean areLeftAndRightEqual(){
-		@SuppressWarnings("unlikely-arg-type")
-		boolean result = Objects.equals(left, right);
-		return result;
-	}
-
 	public L getLeft(){
 		return left;
 	}

@@ -265,18 +265,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
-	public void testCharacter(){
-		var bean = new ManyFieldBean();
-		Character charQ = 'Q';
-		bean.setCharacterField(charQ);
-		dao.put(bean);
-
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
-		Assert.assertEquals(roundTripped.getCharacterField(), bean.getCharacterField());
-		Assert.assertEquals(roundTripped.getCharacterField(), charQ);
-	}
-
-	@Test
 	public void testString(){
 		var bean = new ManyFieldBean();
 		String multiByteUtf8Char = "😀";
@@ -382,6 +370,16 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
 		Assert.assertEquals(LongByteTool.fromComparableByteArray(roundTripped.getData()),
 				ArrayTool.primitiveLongArray(ids));
+	}
+
+	@Test
+	public void testUInt7(){
+		var bean = new ManyFieldBean();
+		bean.setUint7Field((byte)35);
+		dao.put(bean);
+
+		ManyFieldBean roundTripped = dao.get(bean.getKey());
+		Assert.assertEquals(roundTripped.getUint7Field(), bean.getUint7Field());
 	}
 
 	@Test

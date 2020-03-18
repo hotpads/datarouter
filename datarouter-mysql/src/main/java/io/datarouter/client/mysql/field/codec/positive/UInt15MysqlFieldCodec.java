@@ -40,8 +40,12 @@ extends BasePrimitiveMysqlFieldCodec<Short,UInt15Field>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), 5, allowNullable && field.getKey()
-				.isNullable(), false);
+		return new SqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				5,
+				allowNullable && field.getKey().isNullable(),
+				false);
 	}
 
 	@Override

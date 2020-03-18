@@ -13,19 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.model.field.imp.comparable;
+package io.datarouter.scanner;
 
-import io.datarouter.model.field.PrimitiveFieldKey;
+public class ObjectScanner<T> implements Scanner<T>{
 
-public class CharacterFieldKey extends PrimitiveFieldKey<Character,CharacterFieldKey>{
+	private final T object;
+	private boolean advanced;
 
-	public CharacterFieldKey(String name){
-		super(name, Character.class);
+	public ObjectScanner(T object){
+		this.object = object;
+		this.advanced = false;
 	}
 
 	@Override
-	public CharacterField createValueField(Character value){
-		return new CharacterField(this, value);
+	public boolean advance(){
+		if(advanced){
+			return false;
+		}
+		advanced = true;
+		return true;
+	}
+
+	@Override
+	public T current(){
+		return object;
 	}
 
 }

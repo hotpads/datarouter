@@ -129,12 +129,12 @@ public abstract class BaseMapStorageIntegrationTests{
 				.collect(Collectors.toList());
 	}
 
-	private void deleteRecord(MapStorageBean bean){
-		dao.delete(bean.getKey());
+	private void deleteRecord(MapStorageBean databean){
+		dao.delete(databean.getKey());
 	}
 
-	private void deleteRecords(List<MapStorageBean> beans){
-		beans.forEach(this::deleteRecord);
+	private void deleteRecords(List<MapStorageBean> databeans){
+		dao.deleteMulti(DatabeanTool.getKeys(databeans));
 	}
 
 }

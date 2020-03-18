@@ -37,7 +37,10 @@ public class DatarouterTxnTestDao extends BaseDao implements TestDao{
 
 	public DatarouterTxnTestDao(Datarouter datarouter, NodeFactory nodeFactory, ClientId clientId){
 		super(datarouter);
-		node = nodeFactory.create(clientId, TxnBean::new, TxnBeanFielder::new)
+		node = nodeFactory.create(
+				clientId,
+				TxnBean::new,
+				TxnBeanFielder::new)
 				.buildAndRegister();
 	}
 

@@ -42,7 +42,6 @@ public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavail
 			.map(HttpStatusCode::getStatusCode)
 			.collect(Collectors.toSet());
 
-
 	private final Supplier<Integer> retryCount;
 
 	public DatarouterServiceUnavailableRetryStrategy(Supplier<Integer> retryCount){
@@ -58,16 +57,17 @@ public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavail
 		HttpClientContext clientContext = HttpClientContext.adapt(context);
 		boolean willRetry = HttpRetryTool.shouldRetry(context, executionCount, retryCount);
 		String requestId = (String)context.getAttribute(DatarouterHttpClientIoExceptionCircuitBreaker.X_REQUEST_ID);
+		String url = clientContext.getTargetHost() + clientContext.getRequest().getRequestLine().getUri();
 		if(willRetry){
 			HttpEntity httpEntity = response.getEntity();
-			String entity = HttpRetryTool.entityToString(httpEntity);
-			logger.warn("Request {} id={} failure Nº {} statusCode={} entity={}", clientContext.getRequest()
-					.getRequestLine(), requestId, executionCount, statusCode, entity);
+			String entity = HttpRetryTool.tryEntityToString(httpEntity);
+			logger.warn("failure target={} id={} failureCount={} statusCode={} entity={}", url, requestId,
+					executionCount, statusCode, entity);
 			TracerTool.appendToSpanInfo("willRetry", statusCode);
 		}else{
 			// don't log everything, caller will get details in an Exception
-			logger.warn("Request {} id={} failure Nº {} statusCode={} (final)", clientContext.getRequest()
-					.getRequestLine(), requestId, executionCount, statusCode);
+			logger.warn("failure target={} id={} failureCount={} statusCode={} (final)", url, requestId, executionCount,
+					statusCode);
 		}
 		return willRetry;
 	}

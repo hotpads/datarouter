@@ -35,8 +35,6 @@ import io.datarouter.joblet.type.JobletTypeFactory;
 @Singleton
 public class JobletRequestQueueManager{
 
-	private static final long BACKOFF_MS = 2000;//skip queues that recently returned an empty result
-
 	private final JobletTypeFactory jobletTypeFactory;
 	private final DatarouterJobletCounters datarouterJobletCounters;
 
@@ -80,7 +78,7 @@ public class JobletRequestQueueManager{
 
 	public boolean shouldSkipQueue(JobletRequestQueueKey queueKey){
 		long lastMissAgoMs = System.currentTimeMillis() - lastMissByQueue.get(queueKey);
-		return lastMissAgoMs < BACKOFF_MS;
+		return lastMissAgoMs < queueKey.type.pollingPeriod.toMillis();
 	}
 
 	public Optional<JobletRequestQueueKey> getQueueToCheck(JobletType<?> jobletType){

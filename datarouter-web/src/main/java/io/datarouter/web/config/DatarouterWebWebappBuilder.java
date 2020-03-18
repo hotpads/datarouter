@@ -106,7 +106,8 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 	private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetail;
 	private Class<? extends HomepageHandler> homepageHandler;
 	private String customStaticFileFilterRegex;
-	private String databeanExporterLink;
+	private String nodeWidgetDatabeanExporterLink;
+	private String nodeWidgetTableCountLink;
 	protected boolean useDatarouterAuth;
 
 	// datarouter-web servlet
@@ -216,7 +217,8 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 				.setHomepageHandler(homepageHandler)
 				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex)
 				.withRegisteredPlugins(registeredPlugins)
-				.withDatabeanExporterLink(databeanExporterLink)
+				.withNodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink)
+				.withNodeWidgetTableCountLink(nodeWidgetTableCountLink)
 				.build();
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
@@ -286,7 +288,7 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 	protected DatarouterWebWebappBuilder addWebPluginWithoutInstalling(BaseWebPlugin plugin){
 		addStoragePluginWithoutInstalling(plugin);
 
-		filterParamsOrdered.addAll(plugin.getdFilterParamsOrdered());
+		filterParamsOrdered.addAll(plugin.getFilterParamsOrdered());
 		filterParamsUnordered.addAll(plugin.getFilterParamsUnordered());
 
 		routeSetOrdered.addAll(plugin.getRouteSetsOrdered());
@@ -478,8 +480,13 @@ public class DatarouterWebWebappBuilder implements WebappBuilder{
 		return this;
 	}
 
-	public DatarouterWebWebappBuilder withDatabeanExporterLink(String databeanExporterLink){
-		this.databeanExporterLink = databeanExporterLink;
+	public DatarouterWebWebappBuilder withNodeWidgetDatabeanExporterLink(String nodeWidgetDatabeanExporterLink){
+		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
+		return this;
+	}
+
+	public DatarouterWebWebappBuilder withNodeWidgetTableCountLink(String nodeWidgetTableCountLink){
+		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
 		return this;
 	}
 

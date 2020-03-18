@@ -34,4 +34,9 @@ public interface RoleManager{
 	Set<Role> getRolesForSuperGroup();
 	Set<Role> getRolesForDefaultGroup();
 
+	//these are roles that do not present a security risk, although they may be more than just the default roles
+	default Set<Role> getUnimportantRoles(){
+		return getRolesForDefaultGroup();
+	}
+
 }

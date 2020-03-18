@@ -47,7 +47,7 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 		}
 		while(remainingMs > 0){
 			assertShutdownNotRequested();
-			ThreadTool.sleep(Math.min(remainingMs, MAX_SEGMENT_MS));
+			ThreadTool.sleepUnchecked(Math.min(remainingMs, MAX_SEGMENT_MS));
 			long totalElapsedMs = System.currentTimeMillis() - startMs;
 			remainingMs = params.sleepTimeMs - totalElapsedMs;
 		}

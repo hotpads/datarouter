@@ -19,10 +19,10 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.setting.Setting;
 
 public class PutMultiGroupQueueConsumerConveyor<
 		PK extends PrimaryKey<PK>,
@@ -33,11 +33,11 @@ extends BaseGroupQueueConsumerConveyor<PK,D>{
 
 	public PutMultiGroupQueueConsumerConveyor(
 			String name,
-			Setting<Boolean> shouldRunSetting,
+			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<PK,D> groupQueueConsumer,
 			Consumer<Collection<D>> putMultiConsumer,
 			Duration peekTimeout){
-		super(name, shouldRunSetting, groupQueueConsumer, () -> false, peekTimeout);
+		super(name, shouldRun, groupQueueConsumer, () -> false, peekTimeout);
 		this.putMultiConsumer = putMultiConsumer;
 	}
 

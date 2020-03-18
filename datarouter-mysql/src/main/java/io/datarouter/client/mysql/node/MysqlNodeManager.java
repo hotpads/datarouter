@@ -29,7 +29,6 @@ import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.execution.MysqlOpRetryTool;
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
-import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.read.MysqlGetKeysOp;
 import io.datarouter.client.mysql.op.read.MysqlGetOp;
 import io.datarouter.client.mysql.op.read.MysqlGetOpExecutor;
@@ -51,7 +50,7 @@ import io.datarouter.client.mysql.scan.MysqlManagedIndexDatabeanScanner;
 import io.datarouter.client.mysql.scan.MysqlManagedIndexKeyScanner;
 import io.datarouter.client.mysql.scan.MysqlManagedIndexScanner;
 import io.datarouter.client.mysql.scan.MysqlPrimaryKeyScanner;
-import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.index.IndexEntry;
@@ -84,7 +83,7 @@ public class MysqlNodeManager{
 	@Inject
 	private MysqlGetOpExecutor mysqlGetOpExecutor;
 	@Inject
-	private MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
+	private MysqlSqlFactory mysqlSqlFactory;
 	@Inject
 	private MysqlClientType mysqlClientType;
 	@Inject
@@ -94,37 +93,57 @@ public class MysqlNodeManager{
 	@Inject
 	public MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> boolean exists(
-			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, PK key, Config config){
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	boolean exists(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			PK key,
+			Config config){
 		return CollectionTool.notEmpty(getKeys(fieldInfo, Collections.singleton(key), config));
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>> D get(
-			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, PK key, Config config){
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	D get(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			PK key,
+			Config config){
 		return CollectionTool.getFirst(getMulti(fieldInfo, ListTool.wrap(key), config));
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	List<PK> getKeys(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<PK> keys, Config config){
 		String opName = MapStorageReader.OP_getKeys;
-		MysqlGetKeysOp<PK,D,F> op = new MysqlGetKeysOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo,
-				opName, keys, config);
+		var op = new MysqlGetKeysOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName, keys,
+				config);
 		return sessionExecutor.runWithoutRetries(op);
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	List<D> getMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<PK> keys, Config config){
 		String opName = MapStorageReader.OP_getMulti;
-		MysqlGetOp<PK,D,F> op = new MysqlGetOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName,
-				keys, config);
+		var op = new MysqlGetOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName, keys, config);
 		return sessionExecutor.runWithoutRetries(op);
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	D lookupUnique(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageReader.OP_lookupUnique;
-		MysqlLookupUniqueOp<PK,D,F> op = new MysqlLookupUniqueOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor,
-				fieldInfo, opName, ListTool.wrap(uniqueKey), config);
+		MysqlLookupUniqueOp<PK,D,F> op = new MysqlLookupUniqueOp<>(
+				datarouter,
+				fieldCodecFactory,
+				mysqlGetOpExecutor,
+				fieldInfo,
+				opName,
+				ListTool.wrap(uniqueKey), config);
 		List<D> result = sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 		if(CollectionTool.size(result) > 1){
 			throw new DataAccessException("found >1 databeans with unique index key=" + uniqueKey);
@@ -133,14 +152,16 @@ public class MysqlNodeManager{
 	}
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-	List<D> lookupMultiUnique(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
-			Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+	List<D> lookupMultiUnique(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<? extends UniqueKey<PK>> uniqueKeys,
+			Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		if(CollectionTool.isEmpty(uniqueKeys)){
 			return new LinkedList<>();
 		}
-		MysqlLookupUniqueOp<PK,D,F> op = new MysqlLookupUniqueOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor,
-				fieldInfo, opName, uniqueKeys, config);
+		var op = new MysqlLookupUniqueOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName,
+				uniqueKeys, config);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -150,11 +171,14 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<IE> getMultiFromIndex(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<IK> keys, Config config,
+	List<IE> getMultiFromIndex(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<IK> keys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getFromIndex;
-		BaseMysqlOp<List<IE>> op = new MysqlGetIndexOp<>(datarouter, mysqlGetOpExecutor, fieldInfo, fieldCodecFactory,
-				opName, config, indexEntryFieldInfo, keys);
+		var op = new MysqlGetIndexOp<>(datarouter, mysqlGetOpExecutor, fieldInfo, fieldCodecFactory, opName, config,
+				indexEntryFieldInfo, keys);
 		return sessionExecutor.runWithoutRetries(op);
 	}
 
@@ -164,12 +188,14 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<D> getMultiByIndex(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<IK> keys, Config config,
+	List<D> getMultiByIndex(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<IK> keys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getByIndex;
-		BaseMysqlOp<List<D>> op = new MysqlGetByIndexOp<>(datarouter, fieldInfo, fieldCodecFactory,
-				mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher, mysqlClientType, indexEntryFieldInfo,
-				keys, config);
+		var op = new MysqlGetByIndexOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory, mysqlClientType,
+				indexEntryFieldInfo, keys, config);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -179,12 +205,14 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<IE> getIndexRanges(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<IK>> ranges, Config config,
+	List<IE> getIndexRanges(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config,
 		IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getIndexRange;
-		MysqlManagedIndexGetRangesOp<PK,D,F,IK,IE,IF> op = new MysqlManagedIndexGetRangesOp<>(datarouter, fieldInfo,
-				fieldCodecFactory, mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher, indexEntryFieldInfo,
-				ranges, config, mysqlClientType);
+		var op = new MysqlManagedIndexGetRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
+				indexEntryFieldInfo, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
@@ -194,11 +222,13 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<IK> getIndexKeyRanges(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<IK>> ranges, Config config,
+	List<IK> getIndexKeyRanges(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getIndexKeyRange;
-		MysqlManagedIndexGetKeyRangesOp<PK,D,F,IK,IE,IF> op = new MysqlManagedIndexGetKeyRangesOp<>(datarouter,
-				fieldInfo, fieldCodecFactory, mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher,
+		var op = new MysqlManagedIndexGetKeyRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
 				indexEntryFieldInfo, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
@@ -209,99 +239,113 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<D> getIndexDatabeanRanges(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<IK>> ranges,
-			Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+	List<D> getIndexDatabeanRanges(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getByIndexRange;
-		MysqlManagedIndexGetDatabeanRangesOp<PK,D,F,IK,IE,IF> op = new MysqlManagedIndexGetDatabeanRangesOp<>(
-				datarouter, fieldInfo, fieldCodecFactory, mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher,
+		var op = new MysqlManagedIndexGetDatabeanRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
 				indexEntryFieldInfo, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	List<PK> getKeysInRanges(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<PK>> ranges, Config config){
 		if(ranges.stream().allMatch(Range::isEmpty)){
 			return Collections.emptyList();
 		}
 		String opName = SortedStorageReader.OP_getKeysInRange;
-		MysqlGetPrimaryKeyRangesOp<PK,D,F> op = new MysqlGetPrimaryKeyRangesOp<>(datarouter, fieldInfo,
-				fieldCodecFactory, mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher, ranges, config,
-				mysqlClientType);
+		var op = new MysqlGetPrimaryKeyRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
+				mysqlLiveTableOptionsRefresher, ranges, config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	List<D> getRanges(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<PK>> ranges, Config config){
 		if(ranges.stream().allMatch(Range::isEmpty)){
 			return Collections.emptyList();
 		}
 		String opName = SortedStorageReader.OP_getRange;
-		MysqlGetRangesOp<PK,D,F> op = new MysqlGetRangesOp<>(datarouter, fieldInfo, fieldCodecFactory,
-				mysqlPreparedStatementBuilder, mysqlLiveTableOptionsRefresher, ranges, config, mysqlClientType);
+		var op = new MysqlGetRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory, ranges, config,
+				mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	void put(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, D databean, Config config){
-		MysqlPutOp<PK,D,F> op = new MysqlPutOp<>(datarouter, fieldInfo, this, mysqlPreparedStatementBuilder,
-				mysqlLiveTableOptionsRefresher, ListTool.wrap(databean), config);
+		var op = new MysqlPutOp<>(
+				datarouter, fieldInfo,
+				this,
+				mysqlSqlFactory,
+				ListTool.wrap(databean),
+				config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	void putMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<D> databeans, Config config){
 		if(CollectionTool.isEmpty(databeans)){
 			return;// avoid starting txn
 		}
-		MysqlPutOp<PK,D,F> op = new MysqlPutOp<>(datarouter, fieldInfo, this, mysqlPreparedStatementBuilder,
-				mysqlLiveTableOptionsRefresher, databeans, config);
+		var op = new MysqlPutOp<>(datarouter, fieldInfo, this, mysqlSqlFactory, databeans, config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	void deleteAll(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Config config){
-		MysqlDeleteAllOp<PK,D,F> op = new MysqlDeleteAllOp<>(datarouter, fieldInfo, config);
+		var op = new MysqlDeleteAllOp<>(datarouter, fieldInfo, config, mysqlSqlFactory);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	void delete(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, PK key, Config config){
 		String opName = MapStorageWriter.OP_delete;
-		BaseMysqlOp<?> op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
-				mysqlClientType, mysqlLiveTableOptionsRefresher, ListTool.wrap(key), config, opName);
+		var op = new MysqlDeleteOp<>(
+				datarouter,
+				fieldInfo,
+				mysqlSqlFactory,
+				mysqlClientType,
+				ListTool.wrap(key),
+				config,
+				opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	void deleteMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<PK> keys, Config config){
 		if(CollectionTool.isEmpty(keys)){
 			return;// avoid starting txn
 		}
 		String opName = MapStorageWriter.OP_deleteMulti;
-		BaseMysqlOp<?> op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlPreparedStatementBuilder,
-				mysqlClientType, mysqlLiveTableOptionsRefresher, keys, config, opName);
+		var op = new MysqlDeleteOp<>(datarouter, fieldInfo, mysqlSqlFactory, mysqlClientType, keys, config, opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	void deleteUnique(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, UniqueKey<PK> uniqueKey, Config config){
 		String opName = IndexedStorageWriter.OP_deleteUnique;
-		BaseMysqlOp<?> op = new MysqlUniqueIndexDeleteOp<>(datarouter, fieldInfo,
-				mysqlPreparedStatementBuilder, mysqlClientType, mysqlLiveTableOptionsRefresher, ListTool.wrap(
-				uniqueKey), config, opName);
-		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, getTraceName(fieldInfo.getNodeName(), opName)),
-				config);
-	}
-
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-	void deleteMultiUnique(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<? extends UniqueKey<PK>> uniqueKeys,
-			Config config){
-		if(CollectionTool.isEmpty(uniqueKeys)){
-			return;// avoid starting txn
-		}
-		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
-		BaseMysqlOp<?> op = new MysqlUniqueIndexDeleteOp<>(datarouter, fieldInfo,
-				mysqlPreparedStatementBuilder, mysqlClientType, mysqlLiveTableOptionsRefresher, uniqueKeys, config,
+		var op = new MysqlUniqueIndexDeleteOp<>(
+				datarouter,
+				fieldInfo,
+				mysqlSqlFactory,
+				mysqlClientType,
+				ListTool.wrap(uniqueKey),
+				config,
 				opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, getTraceName(fieldInfo.getNodeName(), opName)),
 				config);
@@ -309,13 +353,41 @@ public class MysqlNodeManager{
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	void deleteMultiUnique(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<? extends UniqueKey<PK>> uniqueKeys,
+			Config config){
+		if(CollectionTool.isEmpty(uniqueKeys)){
+			return;// avoid starting txn
+		}
+		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
+		var op = new MysqlUniqueIndexDeleteOp<>(datarouter, fieldInfo, mysqlSqlFactory, mysqlClientType, uniqueKeys,
+				config, opName);
+		MysqlOpRetryTool.tryNTimes(
+				sessionExecutor.makeCallable(op, getTraceName(fieldInfo.getNodeName(), opName)),
+				config);
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			IK extends PrimaryKey<IK>>
-	void deleteByIndex(PhysicalDatabeanFieldInfo<PK,D,F> databeanfieldInfo, Collection<IK> keys, Config config,
+	void deleteByIndex(
+			PhysicalDatabeanFieldInfo<PK,D,F> databeanfieldInfo,
+			Collection<IK> keys,
+			Config config,
 			IndexEntryFieldInfo<IK,?,?> indexFieldInfo){
 		String opName = IndexedStorageWriter.OP_deleteByIndex;
-		BaseMysqlOp<?> op = new MysqlDeleteByIndexOp<>(datarouter, databeanfieldInfo, mysqlPreparedStatementBuilder,
-				mysqlClientType, mysqlLiveTableOptionsRefresher, keys, config, indexFieldInfo.getIndexName(), opName);
+		var op = new MysqlDeleteByIndexOp<>(
+				datarouter,
+				databeanfieldInfo,
+				mysqlSqlFactory,
+				mysqlClientType,
+				keys,
+				config,
+				indexFieldInfo.getIndexName(),
+				opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, opName), config);
 	}
 
@@ -326,23 +398,17 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanMultiIndex(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
-			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config){
-		return new MysqlManagedIndexScanner<>(this, indexEntryFieldInfo, fieldInfo, ranges, config, MysqlCollation
-				.isCaseInsensitive(fieldInfo))
-				.concatenate(Scanner::of);
-	}
-
-	@SuppressWarnings("resource")
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanMultiByIndex(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
-			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config){
-		return new MysqlManagedIndexDatabeanScanner<>(this, fieldInfo, indexEntryFieldInfo, ranges, config,
+	Scanner<IE> scanMultiIndex(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config){
+		return new MysqlManagedIndexScanner<>(
+				this,
+				indexEntryFieldInfo,
+				fieldInfo,
+				ranges,
+				config,
 				MysqlCollation.isCaseInsensitive(fieldInfo))
 				.concatenate(Scanner::of);
 	}
@@ -354,27 +420,71 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanMultiIndexKeys(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
-			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config){
-		return new MysqlManagedIndexKeyScanner<>(this, fieldInfo, indexEntryFieldInfo,
-				ranges, config, MysqlCollation.isCaseInsensitive(fieldInfo))
-				.concatenate(Scanner::of);
-	}
-
-	@SuppressWarnings("resource")
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
-	Scanner<PK> scanKeysMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<PK>> ranges,
+	Scanner<D> scanMultiByIndex(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
 			Config config){
-		return new MysqlPrimaryKeyScanner<>(this, fieldInfo, ranges, config, MysqlCollation.isCaseInsensitive(
-				fieldInfo))
+		return new MysqlManagedIndexDatabeanScanner<>(
+				this,
+				fieldInfo,
+				indexEntryFieldInfo,
+				ranges,
+				config,
+				MysqlCollation.isCaseInsensitive(fieldInfo))
 				.concatenate(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			IK extends PrimaryKey<IK>,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>>
+	Scanner<IK> scanMultiIndexKeys(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config){
+		return new MysqlManagedIndexKeyScanner<>(
+				this,
+				fieldInfo,
+				indexEntryFieldInfo,
+				ranges,
+				config,
+				MysqlCollation.isCaseInsensitive(fieldInfo))
+				.concatenate(Scanner::of);
+	}
+
+	@SuppressWarnings("resource")
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	Scanner<PK> scanKeysMulti(
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<Range<PK>> ranges,
+			Config config){
+		return new MysqlPrimaryKeyScanner<>(
+				this,
+				fieldInfo,
+				ranges,
+				config,
+				MysqlCollation.isCaseInsensitive(fieldInfo))
+				.concatenate(Scanner::of);
+	}
+
+	@SuppressWarnings("resource")
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	Scanner<D> scanMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<PK>> ranges, Config config){
-		return new MysqlDatabeanScanner<>(this, fieldInfo, ranges, config, MysqlCollation
-				.isCaseInsensitive(fieldInfo))
+		return new MysqlDatabeanScanner<>(
+				this,
+				fieldInfo,
+				ranges,
+				config,
+				MysqlCollation.isCaseInsensitive(fieldInfo))
 				.concatenate(Scanner::of);
 	}
 
@@ -389,7 +499,9 @@ public class MysqlNodeManager{
 		return managedNodesHolder.registerManagedNode(fieldInfo, managedNode);
 	}
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
 	List<ManagedNode<PK,D,?,?,?>> getManagedNodes(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo){
 		return managedNodesHolder.getManagedNodes(fieldInfo);
 	}

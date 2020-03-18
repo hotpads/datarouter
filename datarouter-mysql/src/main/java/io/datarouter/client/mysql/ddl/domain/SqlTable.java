@@ -33,9 +33,16 @@ public class SqlTable{
 	private final MysqlRowFormat rowFormat;
 	private final MysqlTableEngine engine;
 
-	public SqlTable(String name, SqlIndex primaryKey, List<SqlColumn> columns, Set<SqlIndex> indexes,
-			Set<SqlIndex> uniqueIndexes, MysqlCharacterSet characterSet, MysqlCollation collation,
-			MysqlRowFormat rowFormat, MysqlTableEngine engine){
+	public SqlTable(
+			String name,
+			SqlIndex primaryKey,
+			List<SqlColumn> columns,
+			Set<SqlIndex> indexes,
+			Set<SqlIndex> uniqueIndexes,
+			MysqlCharacterSet characterSet,
+			MysqlCollation collation,
+			MysqlRowFormat rowFormat,
+			MysqlTableEngine engine){
 		this.name = name;
 		this.primaryKey = primaryKey;
 		this.columns = columns;

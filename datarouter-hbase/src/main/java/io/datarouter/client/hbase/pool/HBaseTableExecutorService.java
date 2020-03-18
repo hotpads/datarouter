@@ -96,11 +96,11 @@ public class HBaseTableExecutorService{
 		if(exec.getActiveCount() == 0){
 			return true;
 		}
-		ThreadTool.sleep(1);
+		ThreadTool.sleepUnchecked(1);
 		if(exec.getActiveCount() == 0){
 			return true;
 		}
-		ThreadTool.sleep(10);
+		ThreadTool.sleepUnchecked(10);
 		if(exec.getActiveCount() == 0){
 			logger.warn("had to sleep a long time to let threads finish, table:" + tableNameForLog);
 			return true;

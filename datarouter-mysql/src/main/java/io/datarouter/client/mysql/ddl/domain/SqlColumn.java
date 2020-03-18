@@ -34,7 +34,12 @@ public class SqlColumn{
 	private final String defaultValue;
 
 	//constructor that specifies the value to override the default value for the column
-	public SqlColumn(String name, MysqlColumnType type, Integer maxLength, Boolean nullable, Boolean autoIncrement,
+	public SqlColumn(
+			String name,
+			MysqlColumnType type,
+			Integer maxLength,
+			Boolean nullable,
+			Boolean autoIncrement,
 			String defaultValue){
 		this.name = name;
 		this.type = type;

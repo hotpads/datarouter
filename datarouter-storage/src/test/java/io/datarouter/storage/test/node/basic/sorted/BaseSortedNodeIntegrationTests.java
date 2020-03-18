@@ -26,12 +26,15 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSamplingScannerBuilder;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import io.datarouter.storage.util.KeyRangeTool;
+import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.timer.PhaseTimer;
@@ -52,15 +55,15 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		int remainingElements = SortedBeans.TOTAL_RECORDS;
 
 		//delete
-		Assert.assertEquals(dao.scan().count(), remainingElements);
+		Assert.assertEquals(dao.count(), remainingElements);
 		var key = new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 0,
 				SortedBeans.STRINGS.last());
 		dao.delete(key);
 		--remainingElements;
-		Assert.assertEquals(dao.scan().count(), remainingElements);
+		Assert.assertEquals(dao.count(), remainingElements);
 
 		//deleteMulti
-		Assert.assertEquals(dao.scan().count(), remainingElements);
+		Assert.assertEquals(dao.count(), remainingElements);
 		List<SortedBeanKey> keys = Arrays.asList(
 				new SortedBeanKey(SortedBeans.STRINGS.last(), SortedBeans.STRINGS.last(), 1,
 						SortedBeans.STRINGS.last()),
@@ -70,14 +73,14 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 						SortedBeans.STRINGS.last()));
 		dao.deleteMulti(keys);
 		remainingElements -= 3;
-		Assert.assertEquals(dao.scan().count(), remainingElements);
+		Assert.assertEquals(dao.count(), remainingElements);
 
 		//deleteWithPrefix
-		Assert.assertEquals(dao.scan().count(), remainingElements);
+		Assert.assertEquals(dao.count(), remainingElements);
 		var prefix = new SortedBeanKey(SortedBeans.S_aardvark, null, null, null);
 		dao.deleteWithPrefix(prefix);
 		remainingElements -= SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
-		Assert.assertEquals(dao.scan().count(), remainingElements);
+		Assert.assertEquals(dao.count(), remainingElements);
 	}
 
 	private void testBlankDatabeanPut(Config config){
@@ -99,7 +102,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		String f3 = "Kenavo";
 		var databean = new SortedBean(pk, f1, null, null, null);
 		dao.put(databean);
-		ThreadTool.sleep(1);//fix flaky test. see DATAROUTER-487
+		ThreadTool.sleepUnchecked(1);//fix flaky test. see DATAROUTER-487
 		databean = new SortedBean(pk, null, null, f3, null);
 		dao.put(databean, new Config().setIgnoreNullFields(true));
 		databean = dao.get(pk);
@@ -122,40 +125,85 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 	}
 
 	@Test
-	public void testGetAll(){
-		List<SortedBean> allBeans = dao.scanKeys()
-				.batch(100)
-				.map(dao::getMulti)
-				.concatenate(Scanner::of)
-				.list();
-		Assert.assertEquals(allBeans.size(), SortedBeans.TOTAL_RECORDS);
+	public void testSimpleScanFromInclusive(){
+		var startKey = new SortedBeanKey(SortedBeans.S_pelican, SortedBeans.S_pelican, 7, SortedBeans.S_emu);
+		var range = new Range<>(startKey, true, null, true);
+		List<SortedBean> result = dao.scan(range).list();
+		var expectedFirst = startKey;
+		Assert.assertEquals(result.get(0).getKey(), expectedFirst);
+		Assert.assertEquals(result.size(), 4);
 	}
 
 	@Test
-	public void testScanWithPrefix(){
-		//first 3 fields fixed
-		var prefix1 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.STRINGS.last(), 2, null);
+	public void testSimpleScanFromExclusive(){
+		var startKey = new SortedBeanKey(SortedBeans.S_pelican, SortedBeans.S_pelican, 7, SortedBeans.S_emu);
+		var range = new Range<>(startKey, false, null, true);
+		List<SortedBean> result = dao.scan(range).list();
+		var expectedFirst = new SortedBeanKey(SortedBeans.S_pelican, SortedBeans.S_pelican, 7, SortedBeans.S_gopher);
+		Assert.assertEquals(result.get(0).getKey(), expectedFirst);
+		Assert.assertEquals(result.size(), 3);
+	}
+
+	@Test
+	public void testSimpleScanToExclusive(){
+		var endKey = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0, SortedBeans.S_emu);
+		var range = new Range<>(null, false, endKey, false);
+		List<SortedBean> result = dao.scan(range).list();
+		var expectedLast = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0,
+				SortedBeans.S_chinchilla);
+		Assert.assertEquals(CollectionTool.getLast(result).getKey(), expectedLast);
+		Assert.assertEquals(result.size(), 4);
+	}
+
+	@Test
+	public void testSimpleScanToInclusive(){
+		var endKey = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0, SortedBeans.S_emu);
+		var range = new Range<>(null, false, endKey, true);
+		List<SortedBean> result = dao.scan(range).list();
+		var expectedLast = endKey;
+		Assert.assertEquals(CollectionTool.getLast(result).getKey(), expectedLast);
+		Assert.assertEquals(result.size(), 5);
+	}
+
+	@Test //first 3 fields fixed
+	public void testScanWithPrefix1(){
+		var prefix1 = new SortedBeanKey(
+				SortedBeans.STRINGS.first(),
+				SortedBeans.STRINGS.last(),
+				2,
+				null);
 		List<SortedBean> result1 = dao.scanWithPrefix(prefix1).list();
 		Assert.assertEquals(result1.size(), SortedBeans.NUM_ELEMENTS);
 		Assert.assertTrue(ListTool.isSorted(result1));
+	}
 
-		//first 3 fields fixed, last field wildcard
-		Range<SortedBeanKey> prefix2 = KeyRangeTool.forPrefixWithWildcard(SortedBeans.PREFIX_a,
+	@Test //first 3 fields fixed, last field wildcard
+	public void testScanWithPrefix2(){
+		Range<SortedBeanKey> prefix2 = KeyRangeTool.forPrefixWithWildcard(
+				SortedBeans.PREFIX_a,
 				suffix -> new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.STRINGS.last(), 2, suffix));
 		List<SortedBean> result2 = dao.scan(prefix2).list();
 		Assert.assertEquals(result2.size(), SortedBeans.NUM_PREFIX_a);
 		Assert.assertTrue(ListTool.isSorted(result2));
+	}
 
-		//first field fixed, second field wildcard
-		Range<SortedBeanKey> prefix3 = KeyRangeTool.forPrefixWithWildcard(SortedBeans.PREFIX_a,
+	@Test //first field fixed, second field wildcard
+	public void testScanWithPrefix3(){
+		Range<SortedBeanKey> prefix3 = KeyRangeTool.forPrefixWithWildcard(
+				SortedBeans.PREFIX_a,
 				suffix -> new SortedBeanKey(SortedBeans.STRINGS.first(), suffix, null, null));
 		List<SortedBean> result3 = dao.scan(prefix3).list();
 		int expectedSize3 = SortedBeans.NUM_PREFIX_a * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		Assert.assertEquals(result3.size(), expectedSize3);
 		Assert.assertTrue(ListTool.isSorted(result3));
+	}
 
-		//first two fields given, second field is null, fourth field exists and should be ignored
-		var prefix4 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.STRINGS.last(), null,
+	@Test //first two fields given, third field is null, fourth field exists and should be ignored
+	public void testScanWithPrefix4(){
+		var prefix4 = new SortedBeanKey(
+				SortedBeans.STRINGS.first(),
+				SortedBeans.STRINGS.last(),
+				null,
 				"Ignore");
 		List<SortedBean> result4 = dao.scanWithPrefix(prefix4).list();
 		Assert.assertEquals(result4.size(), SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS);
@@ -174,9 +222,18 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		int expectedSizeTotal = expectedSizeA + expectedSizeCh;
 		Assert.assertEquals(result.size(), expectedSizeTotal);
 		Assert.assertTrue(ListTool.isSorted(result));
+	}
 
-		long count = dao.scanWithPrefixes(DatabeanTool.getKeys(allBeans)).count();
-		Assert.assertEquals(count, allBeans.size());
+	@Test
+	public void testSingleDatabeanPrefixes(){
+		int numToTest = 10;
+		long count = Scanner.of(allBeans)
+				.sample(77, true)
+				.limit(numToTest)
+				.map(Databean::getKey)
+				.listTo(dao::scanWithPrefixes)
+				.count();
+		Assert.assertEquals(count, numToTest);
 	}
 
 	@Test
@@ -222,29 +279,35 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 	@Test //small batch sizes to make sure we're resuming each batch from the correct spot
 	public void testIncrementalScan(){
-		Config smallIterateBatchSize = new Config().setOutputBatchSize(3);
-
+		var smallIterateBatchSize = new Config().setOutputBatchSize(3);
 		int expectedSize1 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS;
 		var alp1 = new SortedBeanKey(SortedBeans.RANGE_alp, null, null, null);
 		var emu1 = new SortedBeanKey(SortedBeans.RANGE_emu, null, null, null);
-		List<SortedBeanKey> result1 = dao.scanKeys(new Range<>(alp1, true, emu1, true), smallIterateBatchSize)
-				.list();
+		List<SortedBeanKey> result1 = dao.scanKeys(new Range<>(alp1, true, emu1, true), smallIterateBatchSize).list();
 		Assert.assertEquals(result1.size(), expectedSize1);
 		Assert.assertTrue(ListTool.isSorted(result1));
+	}
 
+	@Test
+	public void testIncrementalScan2(){
+		var smallIterateBatchSize = new Config().setOutputBatchSize(3);
+		var alp1 = new SortedBeanKey(SortedBeans.RANGE_alp, null, null, null);
+		var emu1 = new SortedBeanKey(SortedBeans.RANGE_emu, null, null, null);
 		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc - 1) * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
-		List<SortedBeanKey> result1b = dao.scanKeys(new Range<>(alp1, true, emu1, false), smallIterateBatchSize)
-				.list();
+		List<SortedBeanKey> result1b = dao.scanKeys(new Range<>(alp1, true, emu1, false), smallIterateBatchSize).list();
 		Assert.assertEquals(result1b.size(), expectedSize1b);
 		Assert.assertTrue(ListTool.isSorted(result1b));
+	}
 
+	@Test
+	public void testIncrementalScan3(){
+		var smallIterateBatchSize = new Config().setOutputBatchSize(3);
 		int expectedSize2 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		var alp2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_alp, null, null);
 		var emu2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_emu, null, null);
-		List<SortedBeanKey> result2 = dao.scanKeys(new Range<>(alp2, true, emu2, true), smallIterateBatchSize)
-				.list();
+		List<SortedBeanKey> result2 = dao.scanKeys(new Range<>(alp2, true, emu2, true), smallIterateBatchSize).list();
 		Assert.assertEquals(result2.size(), expectedSize2);
 		Assert.assertTrue(ListTool.isSorted(result2));
 	}
@@ -252,7 +315,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 	@Test
 	public void testGet(){
 		List<SortedBean> all = dao.scan().list();
-		final int sampleEveryN = 29;
+		final int sampleEveryN = 89;
 		for(int i = 0; i < all.size(); i += sampleEveryN){
 			SortedBean sortedBeanFromScan = all.get(i);
 			SortedBean sortedBeanFromGet = dao.get(sortedBeanFromScan.getKey());
@@ -265,7 +328,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		Set<SortedBean> allBeans = dao.scan()
 				.collect(Collectors.toSet());
 		Assert.assertEquals(allBeans.size(), SortedBeans.TOTAL_RECORDS);
-		List<SortedBean> getMultiResult = dao.getMulti(DatabeanTool.getKeys(allBeans));
+		List<SortedBean> getMultiResult = dao.getMulti(DatabeanTool.getKeys(allBeans), 1_000);
 		Assert.assertEquals(getMultiResult.size(), SortedBeans.TOTAL_RECORDS);
 		getMultiResult.forEach(result -> Assert.assertTrue(allBeans.contains(result)));
 	}
@@ -381,7 +444,14 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 	@Test
 	public void testSortedStorageCountingTool(){
-		long count = dao.count(Range.everything());
+		int stride = SortedBeans.TOTAL_RECORDS / 10;//trigger multiple small operations
+		long count = new SortedStorageSamplingScannerBuilder<>(dao.getNode())
+				.withLog(true)
+				.withStride(stride)
+				.build()
+				.findLast()
+				.map(sample -> sample.totalCount)
+				.orElse(0L);
 		Assert.assertEquals(count, SortedBeans.TOTAL_RECORDS);
 	}
 
@@ -417,10 +487,12 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 	@Test
 	public void testSurviveKeyMutation(){
-		long count = dao.scanKeys()
-				.each(key -> key.setFoo("z"))
+		dao.scanKeys()
+				.forEach(key -> key.setFoo("z"));
+		long zCount = dao.scanKeys()
+				.include(key -> key.getFoo().equals("z"))
 				.count();
-		Assert.assertEquals(count, SortedBeans.TOTAL_RECORDS);
+		Assert.assertEquals(zCount, 0);
 	}
 
 }

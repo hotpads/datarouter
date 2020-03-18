@@ -37,14 +37,14 @@ public class MysqlManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 
 	@Test
 	public void testNullKey(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		dao.put(bean);
 		Assert.assertNotNull(bean.getKey().getId());
 	}
 
 	@Test(expectedExceptions = DuplicateEntrySqlException.class)
 	public void testPutMethod(){
-		ManyFieldBean bean = new ManyFieldBean();
+		var bean = new ManyFieldBean();
 		dao.put(bean);
 		dao.putOrBust(bean);
 	}

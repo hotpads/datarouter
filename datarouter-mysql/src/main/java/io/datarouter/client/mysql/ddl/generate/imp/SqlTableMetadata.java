@@ -27,7 +27,10 @@ public class SqlTableMetadata{
 	public final MysqlCollation collation;
 	public final MysqlCharacterSet characterSet;
 
-	public SqlTableMetadata(MysqlTableEngine engine, MysqlRowFormat rowFormat, MysqlCollation collation,
+	public SqlTableMetadata(
+			MysqlTableEngine engine,
+			MysqlRowFormat rowFormat,
+			MysqlCollation collation,
 			MysqlCharacterSet characterSet){
 		this.engine = engine;
 		this.rowFormat = rowFormat;

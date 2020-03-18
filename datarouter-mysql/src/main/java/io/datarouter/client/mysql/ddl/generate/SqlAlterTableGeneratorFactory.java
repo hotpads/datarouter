@@ -58,8 +58,10 @@ public class SqlAlterTableGeneratorFactory{
 		}
 
 		Ddl build(String alterTablePrefix){
-			return new Ddl(makeStatementFromClauses(alterTablePrefix, executeAlters), makeStatementFromClauses(
-					alterTablePrefix, printAlters), preventStartUp);
+			return new Ddl(
+					makeStatementFromClauses(alterTablePrefix, executeAlters),
+					makeStatementFromClauses(alterTablePrefix, printAlters),
+					preventStartUp);
 		}
 
 		Optional<String> makeStatementFromClauses(String alterTablePrefix, List<SqlAlterTableClause> alters){
@@ -106,54 +108,78 @@ public class SqlAlterTableGeneratorFactory{
 			DdlBuilder ddlBuilder = new DdlBuilder();
 
 			if(printOrExecute(schemaUpdateOptions::getAddColumns)){
-				ddlBuilder.add(schemaUpdateOptions.getAddColumns(false), getAlterTableForAddingColumns(diff
-						.getColumnsToAdd()), true);
+				ddlBuilder.add(
+						schemaUpdateOptions.getAddColumns(false),
+						getAlterTableForAddingColumns(diff.getColumnsToAdd()),
+						true);
 			}
 			if(printOrExecute(schemaUpdateOptions::getDeleteColumns)){
-				ddlBuilder.add(schemaUpdateOptions.getDeleteColumns(false), getAlterTableForRemovingColumns(diff
-						.getColumnsToRemove()), false);
+				ddlBuilder.add(
+						schemaUpdateOptions.getDeleteColumns(false),
+						getAlterTableForRemovingColumns(diff.getColumnsToRemove()),
+						false);
 			}
 			if(printOrExecute(schemaUpdateOptions::getModifyColumns)){
-				ddlBuilder.add(schemaUpdateOptions.getModifyColumns(false), getAlterTableForModifyingColumns(diff
-						.getColumnsToModify()), false);
+				ddlBuilder.add(
+						schemaUpdateOptions.getModifyColumns(false),
+						getAlterTableForModifyingColumns(diff.getColumnsToModify()),
+						false);
 			}
 			if(printOrExecute(schemaUpdateOptions::getModifyPrimaryKey) && diff.isPrimaryKeyModified()){
 				if(current.hasPrimaryKey()){
-					ddlBuilder.add(schemaUpdateOptions.getModifyPrimaryKey(false), new SqlAlterTableClause(
-							"drop primary key"), false);
+					ddlBuilder.add(
+							schemaUpdateOptions.getModifyPrimaryKey(false),
+							new SqlAlterTableClause("drop primary key"),
+							false);
 				}
-				ddlBuilder.add(schemaUpdateOptions.getModifyPrimaryKey(false), new SqlAlterTableClause(requested
-						.getPrimaryKey().getColumnNames().stream().collect(Collectors.joining(",", "add primary key (",
-								")"))), false);
+				ddlBuilder.add(
+						schemaUpdateOptions.getModifyPrimaryKey(false),
+						new SqlAlterTableClause(requested.getPrimaryKey().getColumnNames().stream()
+								.collect(Collectors.joining(",", "add primary key (", ")"))),
+						false);
 			}
 			if(printOrExecute(schemaUpdateOptions::getDropIndexes)){
-				ddlBuilder.add(schemaUpdateOptions.getDropIndexes(false), getAlterTableForRemovingIndexes(diff
-						.getIndexesToRemove()), false);
-				ddlBuilder.add(schemaUpdateOptions.getDropIndexes(false), getAlterTableForRemovingIndexes(diff
-						.getUniqueIndexesToRemove()), false);
+				ddlBuilder.add(
+						schemaUpdateOptions.getDropIndexes(false),
+						getAlterTableForRemovingIndexes(diff.getIndexesToRemove()),
+						false);
+				ddlBuilder.add(
+						schemaUpdateOptions.getDropIndexes(false),
+						getAlterTableForRemovingIndexes(diff.getUniqueIndexesToRemove()),
+						false);
 			}
 			if(printOrExecute(schemaUpdateOptions::getAddIndexes)){
-				ddlBuilder.add(schemaUpdateOptions.getAddIndexes(false), getAlterTableForAddingIndexes(diff
-						.getIndexesToAdd(), false), true);
-				ddlBuilder.add(schemaUpdateOptions.getAddIndexes(false), getAlterTableForAddingIndexes(diff
-						.getUniqueIndexesToAdd(), true), true);
+				ddlBuilder.add(
+						schemaUpdateOptions.getAddIndexes(false),
+						getAlterTableForAddingIndexes(diff.getIndexesToAdd(), false),
+						true);
+				ddlBuilder.add(
+						schemaUpdateOptions.getAddIndexes(false),
+						getAlterTableForAddingIndexes(diff.getUniqueIndexesToAdd(), true),
+						true);
 			}
 			if(printOrExecute(schemaUpdateOptions::getModifyEngine) && diff.isEngineModified()){
-				ddlBuilder.add(schemaUpdateOptions.getModifyEngine(false), new SqlAlterTableClause("engine=" + requested
-						.getEngine().toString().toLowerCase()), false);
+				ddlBuilder.add(
+						schemaUpdateOptions.getModifyEngine(false),
+						new SqlAlterTableClause("engine=" + requested.getEngine().toString().toLowerCase()),
+						false);
 			}
-			if(printOrExecute(schemaUpdateOptions::getModifyCharacterSetOrCollation) && (diff.isCharacterSetModified()
-					|| diff.isCollationModified())){
+			if(printOrExecute(schemaUpdateOptions::getModifyCharacterSetOrCollation)
+					&& (diff.isCharacterSetModified() || diff.isCollationModified())){
 				String collation = requested.getCollation().toString();
 				String characterSet = requested.getCharacterSet().toString();
 				String alterClause = "character set " + characterSet + " collate " + collation;
-				ddlBuilder.add(schemaUpdateOptions.getModifyCharacterSetOrCollation(false), new SqlAlterTableClause(
-						alterClause), false);
+				ddlBuilder.add(
+						schemaUpdateOptions.getModifyCharacterSetOrCollation(false),
+						new SqlAlterTableClause(alterClause),
+						false);
 			}
 			if(printOrExecute(schemaUpdateOptions::getModifyRowFormat) && diff.isRowFormatModified()){
 				String rowFormat = requested.getRowFormat().getPersistentString();
-				ddlBuilder.add(schemaUpdateOptions.getModifyRowFormat(false), new SqlAlterTableClause("row_format="
-						+ rowFormat), false);
+				ddlBuilder.add(
+						schemaUpdateOptions.getModifyRowFormat(false),
+						new SqlAlterTableClause("row_format=" + rowFormat),
+						false);
 			}
 			return ddlBuilder;
 		}
@@ -196,7 +222,8 @@ public class SqlAlterTableGeneratorFactory{
 					.collect(Collectors.toList());
 		}
 
-		private List<SqlAlterTableClause> getAlterTableForAddingIndexes(Set<SqlIndex> indexesToAdd,
+		private List<SqlAlterTableClause> getAlterTableForAddingIndexes(
+				Set<SqlIndex> indexesToAdd,
 				boolean unique){
 			return indexesToAdd.stream()
 					.map(index -> {

@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.browse;
+package io.datarouter.web.monitoring;
 
-import java.util.function.Supplier;
+public class CgroupMemoryStats{
 
-public interface DatabeanExporterLinkSupplier extends Supplier<String>{
+	public final long usage;
+	public final long limit;
 
-	static class DatabeanExporterLink implements DatabeanExporterLinkSupplier{
-
-		private final String link;
-
-		public DatabeanExporterLink(String link){
-			this.link = link;
-		}
-
-		@Override
-		public String get(){
-			return link;
-		}
-
+	public CgroupMemoryStats(long usage, long limit){
+		this.usage = usage;
+		this.limit = limit;
 	}
 
 }

@@ -33,7 +33,8 @@ import io.datarouter.util.collection.CollectionTool;
 public class MysqlUniqueIndexTool{
 	private static final Logger logger = LoggerFactory.getLogger(MysqlUniqueIndexTool.class);
 
-	public static <PK extends PrimaryKey<PK>> String searchIndex(Map<String,List<Field<?>>> uniqueIndexes,
+	public static <PK extends PrimaryKey<PK>> String searchIndex(
+			Map<String,List<Field<?>>> uniqueIndexes,
 			Collection<? extends UniqueKey<PK>> keys){
 		Optional<? extends UniqueKey<PK>> findFirst = CollectionTool.findFirst(keys);
 		if(findFirst.isEmpty()){
@@ -51,7 +52,9 @@ public class MysqlUniqueIndexTool{
 				return uniqueIndex.getKey();
 			}
 		}
-		logger.warn("matching index not found uniqueIndexes={} findFirst={}", uniqueIndexes, findFirst,
+		logger.warn("matching index not found uniqueIndexes={} findFirst={}",
+				uniqueIndexes,
+				findFirst,
 				new Exception());
 		return null;
 	}

@@ -38,8 +38,11 @@ public class DatarouterPutOpTestDao extends BaseDao implements TestDao{
 	@Inject
 	public DatarouterPutOpTestDao(Datarouter datarouter, NodeFactory nodeFactory){
 		super(datarouter);
-		node = nodeFactory.create(DatarouterMysqlTestClientids.MYSQL, PutOpTestBean::new,
-				PutOpTestBeanFielder::new).buildAndRegister();
+		node = nodeFactory.create(
+				DatarouterMysqlTestClientids.MYSQL,
+				PutOpTestBean::new,
+				PutOpTestBeanFielder::new)
+				.buildAndRegister();
 	}
 
 	public PutOpTestBean get(PutOpTestBeanKey key){

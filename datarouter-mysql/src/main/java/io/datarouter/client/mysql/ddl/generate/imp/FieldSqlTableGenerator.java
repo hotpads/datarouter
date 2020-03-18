@@ -42,9 +42,15 @@ public class FieldSqlTableGenerator{
 	@Inject
 	private MysqlFieldCodecFactory fieldCodecFactory;
 
-	public SqlTable generate(String tableName, List<Field<?>> primaryKeyFields, List<Field<?>> nonKeyFields,
-			MysqlCollation collation, MysqlCharacterSet characterSet, MysqlRowFormat rowFormat,
-			Map<String,List<Field<?>>> indexes, Map<String,List<Field<?>>> uniqueIndexes){
+	public SqlTable generate(
+			String tableName,
+			List<Field<?>> primaryKeyFields,
+			List<Field<?>> nonKeyFields,
+			MysqlCollation collation,
+			MysqlCharacterSet characterSet,
+			MysqlRowFormat rowFormat,
+			Map<String,List<Field<?>>> indexes,
+			Map<String,List<Field<?>>> uniqueIndexes){
 
 		List<SqlColumn> primaryKeyColumns = makeSqlColumns(primaryKeyFields, false);
 		List<String> primaryKeyColumnNames = IterableTool.map(primaryKeyColumns, SqlColumn::getName);
@@ -65,8 +71,16 @@ public class FieldSqlTableGenerator{
 					column.setCollation(collation);
 				});
 
-		return new SqlTable(tableName, primaryKey, columns, sqlIndexes, sqlUniqueIndexes, characterSet, collation,
-				rowFormat, MysqlTableEngine.INNODB);
+		return new SqlTable(
+				tableName,
+				primaryKey,
+				columns,
+				sqlIndexes,
+				sqlUniqueIndexes,
+				characterSet,
+				collation,
+				rowFormat,
+				MysqlTableEngine.INNODB);
 	}
 
 	private List<SqlColumn> makeSqlColumns(List<Field<?>> fields, boolean allowNullable){

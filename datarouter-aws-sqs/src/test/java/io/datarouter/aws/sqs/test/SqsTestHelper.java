@@ -56,7 +56,7 @@ public class SqsTestHelper{
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		long start = System.currentTimeMillis();
 		Future<Void> future = executor.submit(longPeekCallable);
-		ThreadTool.sleep(1000);
+		ThreadTool.sleepUnchecked(1000);
 		future.cancel(true);
 		executor.shutdown();
 		Assert.assertTrue(System.currentTimeMillis() - start < 5000);

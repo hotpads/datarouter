@@ -30,10 +30,10 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.client.HttpRetryTool;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpCircuitBreakerException;
@@ -89,7 +89,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				if(httpEntityConsumer != null && !isBadStatusCode){
 					httpEntityConsumer.accept(httpEntity);
 				}else{
-					entity = HttpRetryTool.entityToString(httpEntity);
+					entity = EntityUtils.toString(httpEntity);
 				}
 			}else{
 				logger.warn("null http enity");

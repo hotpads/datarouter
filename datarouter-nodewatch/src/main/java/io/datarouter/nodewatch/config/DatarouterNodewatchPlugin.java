@@ -40,6 +40,8 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 
 	private static final DatarouterNodewatchPaths PATHS = new DatarouterNodewatchPaths();
+	public static final String NODE_WIDGET_TABLE_COUNT_PATH = PATHS.datarouter.nodewatch.tableCount.toSlashedString()
+			+ "?submitAction=singleTableWithNodeName";
 
 	private final List<ClientId> nodewatchClientIds;
 	private final Class<? extends TableCountPublisher> tableCountPublisher;

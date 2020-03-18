@@ -41,8 +41,16 @@ public class SqlTableDiffGeneratorTests{
 
 	@Test
 	public void testSameTableModified(){
-		SqlTable table = new SqlTable("degemer", pk, Arrays.asList(id), Collections.emptySet(), Collections.emptySet(),
-				MysqlCharacterSet.utf8mb4, MysqlCollation.utf8mb4_bin, MysqlRowFormat.COMPACT, MysqlTableEngine.INNODB);
+		SqlTable table = new SqlTable(
+				"degemer",
+				pk,
+				Arrays.asList(id),
+				Collections.emptySet(),
+				Collections.emptySet(),
+				MysqlCharacterSet.utf8mb4,
+				MysqlCollation.utf8mb4_bin,
+				MysqlRowFormat.COMPACT,
+				MysqlTableEngine.INNODB);
 		Assert.assertFalse(new SqlTableDiffGenerator(table, table).isTableModified());
 	}
 
@@ -50,15 +58,31 @@ public class SqlTableDiffGeneratorTests{
 	public void testIndexModifiedWithSameName(){
 		String column1 = "foo";
 		String column2 = "bar";
-		SqlIndex previousIndex = new SqlIndex("foo", Arrays.asList(column1));
-		SqlIndex nextIndex = new SqlIndex("foo", Arrays.asList(column1, column2));
+		var previousIndex = new SqlIndex("foo", Arrays.asList(column1));
+		var nextIndex = new SqlIndex("foo", Arrays.asList(column1, column2));
 		Set<SqlIndex> previousIndexes = new HashSet<>(Arrays.asList(previousIndex));
 		Set<SqlIndex> nextIndexes = new HashSet<>(Arrays.asList(nextIndex));
-		SqlTable previousTable = new SqlTable("degemer", pk, Arrays.asList(id), previousIndexes, Collections.emptySet(),
-				MysqlCharacterSet.utf8mb4, MysqlCollation.utf8mb4_bin, MysqlRowFormat.COMPACT, MysqlTableEngine.INNODB);
-		SqlTable nextTable = new SqlTable("degemer", pk, Arrays.asList(id), nextIndexes, Collections.emptySet(),
-				MysqlCharacterSet.utf8mb4, MysqlCollation.utf8mb4_bin, MysqlRowFormat.COMPACT, MysqlTableEngine.INNODB);
-		SqlTableDiffGenerator diff = new SqlTableDiffGenerator(previousTable, nextTable);
+		var previousTable = new SqlTable(
+				"degemer",
+				pk,
+				Arrays.asList(id),
+				previousIndexes,
+				Collections.emptySet(),
+				MysqlCharacterSet.utf8mb4,
+				MysqlCollation.utf8mb4_bin,
+				MysqlRowFormat.COMPACT,
+				MysqlTableEngine.INNODB);
+		var nextTable = new SqlTable(
+				"degemer",
+				pk,
+				Arrays.asList(id),
+				nextIndexes,
+				Collections.emptySet(),
+				MysqlCharacterSet.utf8mb4,
+				MysqlCollation.utf8mb4_bin,
+				MysqlRowFormat.COMPACT,
+				MysqlTableEngine.INNODB);
+		var diff = new SqlTableDiffGenerator(previousTable, nextTable);
 		Assert.assertTrue(diff.isTableModified());
 		Assert.assertTrue(diff.isIndexesModified());
 		Assert.assertEquals(diff.getIndexesToAdd(), nextIndexes);

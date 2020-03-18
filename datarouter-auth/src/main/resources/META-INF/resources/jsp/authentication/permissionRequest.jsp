@@ -38,8 +38,8 @@
 					<textarea name="reason" autofocus="autofocus" rows="4" cols = "50" required></textarea>
 				</div>
 				<div class="controls">
-					<label for="specifics">(Optional) Additional information, specific functionality you require - roles, accounts, etc...:</label><br>
-					<textarea name="specifics" rows="4" cols = "50">${defaultSpecifics.orElse("")}</textarea>
+					<label for="specifics">Additional information we have detected:</label><br>
+					<textarea name="specifics" rows="4" cols ="50" readonly>${defaultSpecifics.orElse("")}</textarea>
 				</div>
 				<div class="controls">
 					<button type="submit" class="btn btn-primary">Submit</button>

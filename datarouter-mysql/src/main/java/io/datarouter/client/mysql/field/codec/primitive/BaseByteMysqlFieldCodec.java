@@ -37,8 +37,12 @@ extends BasePrimitiveMysqlFieldCodec<Byte,F>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), getMaxColumnLength(),
-				allowNullable && field.getKey().isNullable(), false);
+		return new SqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				getMaxColumnLength(),
+				allowNullable && field.getKey().isNullable(),
+				false);
 	}
 
 	@Override

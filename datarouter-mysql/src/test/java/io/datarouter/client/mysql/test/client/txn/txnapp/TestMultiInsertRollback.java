@@ -32,8 +32,12 @@ public class TestMultiInsertRollback extends BaseMysqlOp<Void>{
 	private final DatarouterTxnTestDao dao;
 	private final String beanPrefix;
 
-	public TestMultiInsertRollback(Datarouter datarouter, ClientId clientId, Isolation isolation,
-			DatarouterTxnTestDao dao, String beanPrefix){
+	public TestMultiInsertRollback(
+			Datarouter datarouter,
+			ClientId clientId,
+			Isolation isolation,
+			DatarouterTxnTestDao dao,
+			String beanPrefix){
 		super(datarouter, clientId, isolation, false);
 		this.dao = dao;
 		this.beanPrefix = beanPrefix;

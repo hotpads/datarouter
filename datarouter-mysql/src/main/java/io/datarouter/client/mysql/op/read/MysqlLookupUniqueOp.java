@@ -46,9 +46,14 @@ extends BaseMysqlOp<List<D>>{
 	private final Config config;
 	private final String indexName;
 
-	public MysqlLookupUniqueOp(Datarouter datarouter, MysqlFieldCodecFactory fieldCodecFactory,
-			MysqlGetOpExecutor mysqlGetOpExecutor, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, String opName,
-			Collection<? extends UniqueKey<PK>> keys, Config config){
+	public MysqlLookupUniqueOp(
+			Datarouter datarouter,
+			MysqlFieldCodecFactory fieldCodecFactory,
+			MysqlGetOpExecutor mysqlGetOpExecutor,
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			String opName,
+			Collection<? extends UniqueKey<PK>> keys,
+			Config config){
 		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
@@ -61,8 +66,15 @@ extends BaseMysqlOp<List<D>>{
 
 	@Override
 	public List<D> runOnce(){
-		return mysqlGetOpExecutor.execute(fieldInfo, opName, keys, config, fieldInfo.getFields(), this::select,
-				getConnection(), indexName);
+		return mysqlGetOpExecutor.execute(
+				fieldInfo,
+				opName,
+				keys,
+				config,
+				fieldInfo.getFields(),
+				this::select,
+				getConnection(),
+				indexName);
 	}
 
 	private List<D> select(PreparedStatement ps){

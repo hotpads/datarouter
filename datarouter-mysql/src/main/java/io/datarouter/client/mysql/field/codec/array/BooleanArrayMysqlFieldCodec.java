@@ -43,8 +43,12 @@ extends BaseListMysqlFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), Integer.MAX_VALUE,
-				allowNullable && field.getKey().isNullable(), false);
+		return new SqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				Integer.MAX_VALUE,
+				allowNullable && field.getKey().isNullable(),
+				false);
 	}
 
 	@Override
@@ -63,8 +67,10 @@ extends BaseListMysqlFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
 		try{
-			ps.setBytes(parameterIndex, field.getValue() == null ? null : BooleanByteTool.getBooleanByteArray(field
-					.getValue()));
+			byte[] value = field.getValue() == null
+					? null
+					: BooleanByteTool.getBooleanByteArray(field.getValue());
+			ps.setBytes(parameterIndex, value);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

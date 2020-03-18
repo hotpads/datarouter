@@ -25,6 +25,8 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier;
+import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
@@ -47,7 +49,9 @@ public class DatarouterHomepageHandler extends BaseHandler{
 	@Inject
 	private DatarouterWebPaths paths;
 	@Inject
-	private DatabeanExporterLinkSupplier databeanExporterLink;
+	private NodeWidgetDatabeanExporterLinkSupplier nodeWidgetDatabeanExporterLink;
+	@Inject
+	private NodeWidgetTableCountLinkSupplier nodeWidgetTableCountLink;
 
 	@Handler(defaultHandler = true)
 	protected Mav view(){
@@ -81,13 +85,20 @@ public class DatarouterHomepageHandler extends BaseHandler{
 		mav.put("initClientPath", paths.datarouter.client.initClient.toSlashedString());
 		mav.put("initAllClientsPath", paths.datarouter.client.initAllClients.toSlashedString());
 		mav.put("inspectClientPath", paths.datarouter.client.inspectClient.toSlashedString());
+		mav.put("viewNodeDataPath", paths.datarouter.nodes.browseData.toSlashedString()
+				+ "?submitAction=browseData&nodeName=");
 		mav.put("getNodeDataPath", paths.datarouter.nodes.getData.toSlashedString() + "?nodeName=");
 		mav.put("countKeysPath", paths.datarouter.nodes.browseData.toSlashedString() + "/countKeys?nodeName=");
 
-		Optional<String> exporterLink = Optional.ofNullable(databeanExporterLink.get())
+		Optional<String> exporterLink = Optional.ofNullable(nodeWidgetDatabeanExporterLink.get())
 				.map(link -> link + "?nodeName=");
 		mav.put("exporterLink", exporterLink.orElse(""));
 		mav.put("showExporterLink", exporterLink.isPresent());
+
+		Optional<String> tableCountLink = Optional.ofNullable(nodeWidgetTableCountLink.get())
+				.map(link -> link + "&nodeName=");
+		mav.put("tableCountLink", tableCountLink.orElse(""));
+		mav.put("showTableCountLink", tableCountLink.isPresent());
 		return mav;
 	}
 

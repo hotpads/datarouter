@@ -33,8 +33,12 @@ extends BaseNodeScanner<PK,PK>{
 	private final MysqlNodeManager mysqlNodeManager;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 
-	public MysqlPrimaryKeyScanner(MysqlNodeManager mysqlNodeManager, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
-			Collection<Range<PK>> ranges, Config config, boolean caseInsensitive){
+	public MysqlPrimaryKeyScanner(
+			MysqlNodeManager mysqlNodeManager,
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Collection<Range<PK>> ranges,
+			Config config,
+			boolean caseInsensitive){
 		super(ranges, config, caseInsensitive);
 		this.mysqlNodeManager = mysqlNodeManager;
 		this.fieldInfo = fieldInfo;

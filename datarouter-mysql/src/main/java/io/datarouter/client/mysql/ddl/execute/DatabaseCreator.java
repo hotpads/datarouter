@@ -50,12 +50,12 @@ public class DatabaseCreator{
 		String url = mysqlOptions.url(clientId);
 		String user = mysqlOptions.user(clientId.getName(), "root");
 		String password = mysqlOptions.password(clientId.getName(), "");
-		String hostname = StringTool.getStringBeforeLastOccurrence(':',url);
-		String portDatabaseString = StringTool.getStringAfterLastOccurrence(':',url);
-		int port = Integer.parseInt(StringTool.getStringBeforeLastOccurrence('/',portDatabaseString));
-		String databaseName = StringTool.getStringAfterLastOccurrence('/',portDatabaseString);
+		String hostname = StringTool.getStringBeforeLastOccurrence(':', url);
+		String portDatabaseString = StringTool.getStringAfterLastOccurrence(':', url);
+		int port = Integer.parseInt(StringTool.getStringBeforeLastOccurrence('/', portDatabaseString));
+		String databaseName = StringTool.getStringAfterLastOccurrence('/', portDatabaseString);
 
-		try(Connection connection = MysqlTool.openConnection(hostname, port, null, user, password)){
+		try(Connection connection = MysqlTool.openConnection(hostname, port, user, password)){
 			List<String> existingDatabases = MysqlTool.showDatabases(connection);
 			if(!existingDatabases.contains(databaseName)){
 				generateCreateDatabaseSchema(connection, databaseName);

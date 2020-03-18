@@ -21,12 +21,10 @@ import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.client.mysql.MysqlClientType;
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
@@ -54,23 +52,25 @@ extends BaseMysqlOp<List<IK>>{
 	private final Collection<Range<IK>> ranges;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
-	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
-	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
+	private final MysqlSqlFactory mysqlSqlFactory;
 	private final Config config;
 	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	private final MysqlClientType mysqlClientType;
 
-	public MysqlManagedIndexGetKeyRangesOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
-			MysqlFieldCodecFactory fieldCodecFactory, MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder,
-			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher,
-			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges, Config config,
+	public MysqlManagedIndexGetKeyRangesOp(
+			Datarouter datarouter,
+			PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
+			MysqlFieldCodecFactory fieldCodecFactory,
+			MysqlSqlFactory mysqlSqlFactory,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config,
 			MysqlClientType mysqlClientType){
 		super(datarouter, databeanFieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.ranges = ranges;
 		this.databeanFieldInfo = databeanFieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
-		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
-		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
+		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.config = config;
 		this.indexEntryFieldInfo = indexEntryFieldInfo;
 		this.mysqlClientType = mysqlClientType;
@@ -84,11 +84,16 @@ extends BaseMysqlOp<List<IK>>{
 		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
 		String opName = IndexedStorageReader.OP_getIndexKeyRange;
 		Connection connection = getConnection();
-		MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
-		PreparedStatement statement = mysqlPreparedStatementBuilder.getInRanges(config, tableName, indexEntryFieldInfo
-				.getPrimaryKeyFields(), ranges, indexEntryFieldInfo.getPrimaryKeyFields(), indexName,
-				mysqlLiveTableOptions)
-				.toPreparedStatement(connection);
+		PreparedStatement statement = mysqlSqlFactory
+				.createSql(getClientId(), tableName)
+				.getInRanges(
+						tableName,
+						config,
+						indexEntryFieldInfo.getPrimaryKeyFields(),
+						ranges,
+						indexEntryFieldInfo.getPrimaryKeyFields(),
+						indexName)
+				.prepare(connection);
 		List<IK> result = MysqlTool.selectIndexEntryKeys(fieldCodecFactory, indexEntryFieldInfo, statement);
 		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", clientName, nodeName, 1L);
 		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", clientName, nodeName, result.size());

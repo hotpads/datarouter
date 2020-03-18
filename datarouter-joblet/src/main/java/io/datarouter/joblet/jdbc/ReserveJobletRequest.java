@@ -15,11 +15,9 @@
  */
 package io.datarouter.joblet.jdbc;
 
-import java.sql.Connection;
-
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.client.mysql.util.DatarouterMysqlStatement;
+import io.datarouter.client.mysql.sql.MysqlSql;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.type.JobletType;
@@ -30,27 +28,28 @@ public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 
 	private final String reservedBy;
 	private final JobletType<?> jobletType;
-	private final JobletRequestSqlBuilder sqlBuilder;
+	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
 
 	public ReserveJobletRequest(
 			String reservedBy,
 			JobletType<?> jobletType,
 			Datarouter datarouter,
 			DatarouterJobletRequestDao jobletRequestDao,
-			JobletRequestSqlBuilder sqlBuilder){
-		super(datarouter, NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getClientId(),
-				Isolation.repeatableRead, false);
+			JobletRequestSqlBuilder jobletRequestSqlBuilder){
+		super(datarouter,
+				NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getClientId(),
+				Isolation.repeatableRead,
+				false);
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;
-		this.sqlBuilder = sqlBuilder;
+		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
 	}
 
 	@Override
 	public Boolean runOnce(){
-		Connection connection = getConnection();
-		DatarouterMysqlStatement statement = sqlBuilder.makeUpdateClause(reservedBy);
-		sqlBuilder.appendWhereClause(statement, jobletType);
-		int numRowsModified = MysqlTool.update(statement.toPreparedStatement(connection));
+		MysqlSql sql = jobletRequestSqlBuilder.makeUpdateClause(reservedBy);
+		jobletRequestSqlBuilder.appendWhereClause(sql, jobletType);
+		int numRowsModified = MysqlTool.update(sql.prepare(getConnection()));
 		return numRowsModified > 0;
 	}
 

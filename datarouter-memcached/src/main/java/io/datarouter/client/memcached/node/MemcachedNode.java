@@ -37,7 +37,6 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.JsonDatabeanTool;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
@@ -90,8 +89,7 @@ implements PhysicalMapStorageNode<PK,D,F>, TallyStorage{
 			byte[] bytes = DatabeanTool.getBytes(databean, getFieldInfo().getSampleFielder());
 			if(bytes.length > 2 * MEGABYTE){
 				//memcached max size is 1mb for a compressed object, so don't PUT things that won't compress well
-				String json = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
-				logger.error("object too big for memcached! {}, key={}", databean.getDatabeanName(), json);
+				logger.error("object too big for memcached length={} key={}", bytes.length, databean.getKey());
 				return;
 			}
 			String memcachedKey = buildMemcachedKey(databean.getKey());
@@ -194,6 +192,7 @@ implements PhysicalMapStorageNode<PK,D,F>, TallyStorage{
 
 	private void clientSet(String memcachedKey, int expiration, byte[] bytes){
 		try(var $ = startTraceSpan("set")){
+			TracerTool.appendToSpanInfo("bytes", bytes.length);
 			memcachedClientManager.getSpyMemcachedClient(clientId).set(memcachedKey, expiration, bytes);
 		}
 	}

@@ -21,11 +21,9 @@ import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.client.mysql.MysqlClientType;
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
@@ -47,23 +45,26 @@ public abstract class BaseMysqlDeleteOp<
 extends BaseMysqlOp<Long>{
 
 	private final PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo;
-	private final MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder;
+	private final MysqlSqlFactory mysqlSqlFactory;
 	private final MysqlClientType mysqlClientType;
-	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 	private final Collection<? extends IK> keys;
 	private final Config config;
 	private final String indexName;
 	private final String opName;
 
-	public BaseMysqlDeleteOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
-			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder, MysqlClientType mysqlClientType,
-			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, Collection<? extends IK> keys, Config config,
-			String indexName, String opName){
+	public BaseMysqlDeleteOp(
+			Datarouter datarouter,
+			PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
+			MysqlSqlFactory mysqlSqlFactory,
+			MysqlClientType mysqlClientType,
+			Collection<? extends IK> keys,
+			Config config,
+			String indexName,
+			String opName){
 		super(datarouter, databeanFieldInfo.getClientId(), Isolation.DEFAULT, shouldAutoCommit(keys));
 		this.databeanFieldInfo = databeanFieldInfo;
-		this.mysqlPreparedStatementBuilder = mysqlPreparedStatementBuilder;
+		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.mysqlClientType = mysqlClientType;
-		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
 		this.keys = keys;
 		this.config = config;
 		this.indexName = indexName;
@@ -78,10 +79,10 @@ extends BaseMysqlOp<Long>{
 		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
 		long totalModified = 0;
 		for(List<? extends IK> batch : Scanner.of(keys).batch(Config.DEFAULT_INPUT_BATCH_SIZE).iterable()){
-			MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(getClientId(), tableName);
-			PreparedStatement statement = mysqlPreparedStatementBuilder.deleteMulti(config, tableName, batch,
-					mysqlLiveTableOptions)
-					.toPreparedStatement(connection);
+			PreparedStatement statement = mysqlSqlFactory
+					.createSql(getClientId(), tableName)
+					.deleteMulti(tableName, config, batch)
+					.prepare(connection);
 			int modified = MysqlTool.update(statement);
 			totalModified += modified;
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", clientName, nodeName, 1L);

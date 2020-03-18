@@ -91,7 +91,7 @@ public class DatarouterHttpClientBuilder{
 				.setSocketTimeout(timeoutMs)
 				.build();
 		httpClientBuilder.setDefaultRequestConfig(defaultRequestConfig);
-		httpClientBuilder.setKeepAliveStrategy(new DatarouterConnectionKeepAliveStrategy(Duration.ofHours(1)));
+		httpClientBuilder.setKeepAliveStrategy(new DatarouterConnectionKeepAliveStrategy(Duration.ofMinutes(5)));
 		PoolingHttpClientConnectionManager connectionManager;
 		if(ignoreSsl || customSslContext != null){
 			SSLConnectionSocketFactory sslsf;

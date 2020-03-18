@@ -60,10 +60,6 @@ public abstract class CheckedLazy<R,E extends Exception> implements Callable<R>{
 		return new CheckedLazyFunctional<>(supplier);
 	}
 
-	public interface CheckedSupplier<R,E extends Exception>{
-		R get() throws E;
-	}
-
 	private static class CheckedLazyFunctional<R,E extends Exception> extends CheckedLazy<R,E>{
 
 		private final CheckedSupplier<R,E> supplier;

@@ -52,6 +52,7 @@
 				<tr>
 					<th>Node Name</th>
 					<th>Count Keys</th>
+					<th ${showTableCountLink ? '' : "hidden"}>Table Size</th>
 					<th ${showExporterLink ? '' : "hidden"}>Export</th>
 				</tr>
 			</thead>
@@ -62,16 +63,21 @@
 							{Array(4 * node.levelsNested).fill().map((x, i) => 
 								<span key={i}>{'\u00A0'}</span>
 							)}
-							<a href={CONTEXT_PATH + "${getNodeDataPath}" + encodeURIComponent(node.name)}>
+							<a href={CONTEXT_PATH + "${viewNodeDataPath}" + encodeURIComponent(node.name)}>
 								{node.name}
 							</a>
 						</td>
 						<td>
 							{node.sorted &&
-								<a className="btn btn-link" href={CONTEXT_PATH + "${countKeysPath}" + encodeURIComponent(node.name)}>
+								<a href={CONTEXT_PATH + "${countKeysPath}" + encodeURIComponent(node.name)}>
 									count keys
 								</a>
 							}
+						</td>
+						<td ${showTableCountLink ? '' : "hidden"}>
+							<a href={CONTEXT_PATH + "${tableCountLink}" + encodeURIComponent(node.name)}>
+								<i className="fas fa-signal"></i>
+							</a>
 						</td>
 						<td ${showExporterLink ? '' : "hidden"}>
 							<a href={CONTEXT_PATH + "${exporterLink}" + encodeURIComponent(node.name)}> export </a>

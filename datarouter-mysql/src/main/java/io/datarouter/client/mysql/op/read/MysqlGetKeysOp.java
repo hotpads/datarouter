@@ -23,7 +23,6 @@ import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.util.MysqlTool;
-import io.datarouter.client.mysql.util.SqlBuilder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -44,9 +43,14 @@ extends BaseMysqlOp<List<PK>>{
 	private final Collection<PK> keys;
 	private final Config config;
 
-	public MysqlGetKeysOp(Datarouter datarouter, MysqlFieldCodecFactory fieldCodecFactory,
-			MysqlGetOpExecutor mysqlGetOpExecutor, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, String opName,
-			Collection<PK> keys, Config config){
+	public MysqlGetKeysOp(
+			Datarouter datarouter,
+			MysqlFieldCodecFactory fieldCodecFactory,
+			MysqlGetOpExecutor mysqlGetOpExecutor,
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			String opName,
+			Collection<PK> keys,
+			Config config){
 		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.fieldInfo = fieldInfo;
@@ -58,9 +62,16 @@ extends BaseMysqlOp<List<PK>>{
 
 	@Override
 	public List<PK> runOnce(){
-		String indexName = fieldInfo.getDisableForcePrimary() ? null : SqlBuilder.PRIMARY_KEY_INDEX_NAME;
-		return mysqlGetOpExecutor.execute(fieldInfo, opName, keys, config, fieldInfo.getPrimaryKeyFields(),
-				this::select, getConnection(), indexName);
+		String indexName = fieldInfo.getDisableForcePrimary() ? null : MysqlTool.PRIMARY_KEY_INDEX_NAME;
+		return mysqlGetOpExecutor.execute(
+				fieldInfo,
+				opName,
+				keys,
+				config,
+				fieldInfo.getPrimaryKeyFields(),
+				this::select,
+				getConnection(),
+				indexName);
 	}
 
 	private List<PK> select(PreparedStatement ps){

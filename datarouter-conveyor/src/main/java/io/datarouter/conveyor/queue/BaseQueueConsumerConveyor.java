@@ -16,6 +16,7 @@
 package io.datarouter.conveyor.queue;
 
 import java.time.Duration;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,6 @@ import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.QueueMessage;
-import io.datarouter.storage.setting.Setting;
 
 public abstract class BaseQueueConsumerConveyor<
 		PK extends PrimaryKey<PK>,
@@ -33,12 +33,15 @@ public abstract class BaseQueueConsumerConveyor<
 extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseQueueConsumerConveyor.class);
 
-	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(5);
+	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(30);
 
 	private final QueueConsumer<PK,D> queueConsumer;
 
-	public BaseQueueConsumerConveyor(String name, Setting<Boolean> shouldRunSetting, QueueConsumer<PK,D> queueConsumer){
-		super(name, shouldRunSetting, () -> false);
+	public BaseQueueConsumerConveyor(
+			String name,
+			Supplier<Boolean> shouldRun,
+			QueueConsumer<PK,D> queueConsumer){
+		super(name, shouldRun, () -> false);
 		this.queueConsumer = queueConsumer;
 	}
 

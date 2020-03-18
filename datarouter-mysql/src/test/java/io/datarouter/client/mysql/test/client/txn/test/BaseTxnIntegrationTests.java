@@ -74,7 +74,10 @@ public abstract class BaseTxnIntegrationTests{
 		int numExceptions = 0;
 		String beanPrefix = "a";
 		try{
-			sessionExecutor.runWithoutRetries(new TestInsertRollback(datarouter, clientId, Isolation.readCommitted,
+			sessionExecutor.runWithoutRetries(new TestInsertRollback(
+					datarouter,
+					clientId,
+					Isolation.readCommitted,
 					dao, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -104,7 +107,10 @@ public abstract class BaseTxnIntegrationTests{
 		dao.put(bean);
 		Assert.assertTrue(dao.exists(bean.getKey()));
 		try{
-			sessionExecutor.runWithoutRetries(new TestMultiInsertRollback(datarouter, clientId, Isolation.readCommitted,
+			sessionExecutor.runWithoutRetries(new TestMultiInsertRollback(
+					datarouter,
+					clientId,
+					Isolation.readCommitted,
 					dao, beanPrefix));
 		}catch(RuntimeException re){
 			++numExceptions;
@@ -121,7 +127,11 @@ public abstract class BaseTxnIntegrationTests{
 	public void testNestedTxn(){
 		int numExceptions = 0;
 		try{
-			sessionExecutor.runWithoutRetries(new TestNestedTxn(datarouter, clientId, Isolation.readCommitted, false,
+			sessionExecutor.runWithoutRetries(new TestNestedTxn(
+					datarouter,
+					clientId,
+					Isolation.readCommitted,
+					false,
 					dao, sessionExecutor));
 		}catch(RuntimeException re){
 			++numExceptions;

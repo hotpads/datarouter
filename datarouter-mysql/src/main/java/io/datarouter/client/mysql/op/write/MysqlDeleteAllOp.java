@@ -15,14 +15,12 @@
  */
 package io.datarouter.client.mysql.op.write;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.client.mysql.util.DatarouterMysqlStatement;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.client.mysql.util.MysqlTool;
-import io.datarouter.client.mysql.util.SqlBuilder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -38,18 +36,25 @@ extends BaseMysqlOp<Integer>{
 
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final Config config;
+	private final MysqlSqlFactory mysqlSqlFactory;
 
-	public MysqlDeleteAllOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Config config){
+	public MysqlDeleteAllOp(
+			Datarouter datarouter,
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			Config config,
+			MysqlSqlFactory mysqlSqlFactory){
 		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.fieldInfo = fieldInfo;
 		this.config = config;
+		this.mysqlSqlFactory = mysqlSqlFactory;
 	}
 
 	@Override
 	public Integer runOnce(){
-		String sql = SqlBuilder.deleteAll(config, fieldInfo.getTableName());
-		Connection connection = getConnection();
-		PreparedStatement statement = new DatarouterMysqlStatement().append(sql).toPreparedStatement(connection);
+		PreparedStatement statement = mysqlSqlFactory
+				.createSql(getClientId(), fieldInfo.getTableName())
+				.deleteAll(config, fieldInfo.getTableName())
+				.prepare(getConnection());
 		return MysqlTool.update(statement);
 	}
 

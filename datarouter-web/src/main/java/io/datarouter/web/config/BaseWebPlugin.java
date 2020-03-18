@@ -120,7 +120,7 @@ public abstract class BaseWebPlugin extends BasePlugin{
 		filterParamsUnordered.add(filterParam);
 	}
 
-	public List<Ordered<FilterParams>> getdFilterParamsOrdered(){
+	public List<Ordered<FilterParams>> getFilterParamsOrdered(){
 		return filterParamsOrdered;
 	}
 

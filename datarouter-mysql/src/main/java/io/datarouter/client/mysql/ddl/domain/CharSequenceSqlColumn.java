@@ -22,8 +22,15 @@ public class CharSequenceSqlColumn extends SqlColumn{
 	private MysqlCharacterSet characterSet;
 	private MysqlCollation collation;
 
-	public CharSequenceSqlColumn(String name, MysqlColumnType type, Integer maxLength, Boolean nullable,
-			Boolean autoIncrement, String defaultValue, MysqlCharacterSet characterSet, MysqlCollation collation){
+	public CharSequenceSqlColumn(
+			String name,
+			MysqlColumnType type,
+			Integer maxLength,
+			Boolean nullable,
+			Boolean autoIncrement,
+			String defaultValue,
+			MysqlCharacterSet characterSet,
+			MysqlCollation collation){
 		super(name, type, maxLength, nullable, autoIncrement, defaultValue);
 		this.characterSet = characterSet;
 		this.collation = collation;

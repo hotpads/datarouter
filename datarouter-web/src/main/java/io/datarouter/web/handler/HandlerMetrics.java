@@ -17,13 +17,15 @@ package io.datarouter.web.handler;
 
 import java.lang.reflect.Method;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.util.DatarouterCounters;
 
 @Singleton
-public class HandlerCounters{
+public class HandlerMetrics{
 
 	private static final String PREFIX = DatarouterCounters.PREFIX;
 	private static final String HANDLER = "handler";
@@ -32,6 +34,10 @@ public class HandlerCounters{
 	private static final String PACKAGED_CLASS = "packagedClass";
 	private static final String METHOD = "method";
 	private static final String PACKAGED_METHOD = "packagedMethod";
+	private static final String LATENCY_MS = "latencyMs";
+
+	@Inject
+	private Gauges gauges;
 
 	public void incMethodInvocation(BaseHandler handler, Method method){
 		incInternal(CALL);
@@ -47,6 +53,11 @@ public class HandlerCounters{
 
 	private void incInternal(String format, String suffix){
 		Counters.inc(PREFIX + " " + HANDLER + " " + format + " " + suffix);
+	}
+
+	public void saveMethodLatency(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
+		gauges.save(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass.getName() + " "
+				+ method.getName(), durationMs);
 	}
 
 }

@@ -20,6 +20,7 @@ import static j2html.TagCreator.text;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -34,8 +35,11 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSamplingScannerBuilder;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.duration.DatarouterDuration;
@@ -47,6 +51,7 @@ import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
+import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalInteger;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -124,41 +129,57 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Mav countKeys(
 			OptionalInteger batchSize,
 			OptionalInteger logBatchSize,
-			OptionalInteger limit){
+			OptionalInteger limit,
+			OptionalBoolean useOffsetting,
+			OptionalInteger stride){
 		showForm();
 		if(!(node instanceof SortedStorageWriter<?,?>)){
 			return pageFactory.message(request, "Cannot browse unsorted node");
 		}
+		PhysicalNode<?,?,?> physicalNode = NodeTool.extractSinglePhysicalNode(node);
+		boolean clientSupportsOffsetting = Set.of("mysql", "spanner").contains(physicalNode.getClientType().getName());
+		boolean actualUseOffsetting = useOffsetting.orElse(clientSupportsOffsetting);
 		@SuppressWarnings("unchecked")
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
-		Config config = new Config()
-				.setOutputBatchSize(batchSize.orElse(1000))
-				.setScannerCaching(false) //disabled due to BigTable bug?
-				.setTimeout(Duration.ofMinutes(1))
-				.setSlaveOk(true)
-				.setNumAttempts(1);
-		limit.ifPresent(config::setLimit);
-		int printBatchSize = logBatchSize.orElse(100_000);
 		long count = 0;
-		PK last = null;
 		long startMs = System.currentTimeMillis() - 1;
-		long batchStartMs = System.currentTimeMillis() - 1;
-		for(PK pk : sortedNode.scanKeys(config).iterable()){
-			if(ComparableTool.lt(pk, last)){
-				logger.warn("{} was < {}", pk, last);// shouldn't happen, but seems to once in 10mm times
+		PK last = null;
+		if(actualUseOffsetting){
+			var countingToolBuilder = new SortedStorageSamplingScannerBuilder<>(sortedNode)
+					.withLog(true);
+			stride.ifPresent(countingToolBuilder::withStride);
+			batchSize.ifPresent(countingToolBuilder::withBatchSize);
+			count = countingToolBuilder.build()
+					.findLast()
+					.map(sample -> sample.totalCount)
+					.orElse(0L);
+		}else{
+			Config config = new Config()
+					.setOutputBatchSize(batchSize.orElse(1000))
+					.setScannerCaching(false) //disabled due to BigTable bug?
+					.setTimeout(Duration.ofMinutes(1))
+					.setSlaveOk(true)
+					.setNumAttempts(1);
+			limit.ifPresent(config::setLimit);
+			int printBatchSize = logBatchSize.orElse(100_000);
+			long batchStartMs = System.currentTimeMillis() - 1;
+			for(PK pk : sortedNode.scanKeys(config).iterable()){
+				if(ComparableTool.lt(pk, last)){
+					logger.warn("{} was < {}", pk, last);// shouldn't happen, but seems to once in 10mm times
+				}
+				++count;
+				if(count % printBatchSize == 0){
+					long batchMs = System.currentTimeMillis() - batchStartMs;
+					double batchAvgRps = printBatchSize * 1000 / Math.max(1, batchMs);
+					logger.warn("{} {} {} @{}rps",
+							NumberFormatter.addCommas(count),
+							node.getName(),
+							pk.toString(),
+							NumberFormatter.addCommas(batchAvgRps));
+					batchStartMs = System.currentTimeMillis();
+				}
+				last = pk;
 			}
-			++count;
-			if(count % printBatchSize == 0){
-				long batchMs = System.currentTimeMillis() - batchStartMs;
-				double batchAvgRps = printBatchSize * 1000 / Math.max(1, batchMs);
-				logger.warn("{} {} {} @{}rps",
-						NumberFormatter.addCommas(count),
-						node.getName(),
-						pk.toString(),
-						NumberFormatter.addCommas(batchAvgRps));
-				batchStartMs = System.currentTimeMillis();
-			}
-			last = pk;
 		}
 		if(count < 1){
 			return pageFactory.message(request, "no rows found");
@@ -170,14 +191,16 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		String message = String.format("finished counting %s at %s %s @%srps totalDuration=%s",
 				node.getName(),
 				NumberFormatter.addCommas(count),
-				last.toString(),
+				last == null ? "?" : last.toString(),
 				NumberFormatter.addCommas(avgRps),
 				duration);
 		logger.warn(message);
 		List<Twin<String>> emailKvs = List.of(
 				Twin.of("node", node.getName()),
+				Twin.of("useOffsetting", actualUseOffsetting + ""),
+				Twin.of("stride", stride.map(Object::toString).orElse("default")),
 				Twin.of("totalCount", NumberFormatter.addCommas(count)),
-				Twin.of("lastKey", last.toString()),
+				Twin.of("lastKey", last == null ? "?" : last.toString()),
 				Twin.of("averageRps", NumberFormatter.addCommas(avgRps)),
 				Twin.of("duration", duration + ""),
 				Twin.of("server", properties.getServerName()),

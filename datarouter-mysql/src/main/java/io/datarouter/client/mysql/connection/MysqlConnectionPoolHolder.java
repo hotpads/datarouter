@@ -38,6 +38,7 @@ import io.datarouter.client.mysql.ddl.domain.MysqlCharacterSet;
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
 import io.datarouter.client.mysql.factory.MysqlOptions;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
 import net.sf.log4jdbc.DriverSpy;
 
@@ -95,6 +96,7 @@ public class MysqlConnectionPoolHolder{
 			Integer maxIdleTime = mysqlOptions.maxIdleTime(clientId.getName(), 300);
 			Integer idleConnectionTestPeriod = mysqlOptions.idleConnectionTestPeriod(clientId.getName(), 30);
 			Boolean logging = mysqlOptions.logging(clientId.getName(), false);
+			List<String> additionalUrlParams = mysqlOptions.urlParams(clientId.getName());
 
 			this.schemaName = StringTool.getStringAfterLastOccurrence('/', url);
 
@@ -104,17 +106,18 @@ public class MysqlConnectionPoolHolder{
 			this.pool.setMinPoolSize(minPoolSize);
 			this.pool.setMaxPoolSize(maxPoolSize);
 
-			List<String> urlParams = new ArrayList<>();
+			List<String> standardUrlParams = new ArrayList<>();
 			// avoid extra RPC on readOnly connections:
 			// http://dev.mysql.com/doc/relnotes/connector-j/en/news-5-1-23.html
-			urlParams.add("useLocalSessionState=true");
-			urlParams.add("zeroDateTimeBehavior=convertToNull");
-			urlParams.add("connectionCollation=" + UTF8MB4_COLLATION);
-			urlParams.add("characterEncoding=" + UTF8);
-			urlParams.add("logger=" + Slf4JLogger.class.getName());
-			urlParams.add(CLIENT_NAME_KEY + clientId.getName());
+			standardUrlParams.add("useLocalSessionState=true");
+			standardUrlParams.add("zeroDateTimeBehavior=convertToNull");
+			standardUrlParams.add("connectionCollation=" + UTF8MB4_COLLATION);
+			standardUrlParams.add("characterEncoding=" + UTF8);
+			standardUrlParams.add("logger=" + Slf4JLogger.class.getName());
+			standardUrlParams.add(CLIENT_NAME_KEY + clientId.getName());
 
-			String urlWithParams = url + "?" + String.join("&", urlParams);
+			List<String> allUrlParams = ListTool.concatenate(standardUrlParams, additionalUrlParams);
+			String urlWithParams = url + "?" + String.join("&", allUrlParams);
 			try{
 				String jdbcUrl;
 				if(logging){

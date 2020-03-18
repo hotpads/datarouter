@@ -30,7 +30,8 @@ public class GroupQueueConsumer<PK extends PrimaryKey<PK>,D extends Databean<PK,
 	private final Function<Config,GroupQueueMessage<PK,D>> peekFunction;
 	private final Consumer<QueueMessageKey> ackConsumer;
 
-	public GroupQueueConsumer(Function<Config,GroupQueueMessage<PK,D>> peekFunction,
+	public GroupQueueConsumer(
+			Function<Config,GroupQueueMessage<PK,D>> peekFunction,
 			Consumer<QueueMessageKey> ackConsumer){
 		this.peekFunction = peekFunction;
 		this.ackConsumer = ackConsumer;

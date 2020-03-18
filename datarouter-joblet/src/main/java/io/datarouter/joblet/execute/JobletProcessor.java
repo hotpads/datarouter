@@ -41,12 +41,13 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.mutable.MutableBoolean;
+import io.datarouter.util.number.RandomTool;
 
 public class JobletProcessor{
 	private static final Logger logger = LoggerFactory.getLogger(JobletProcessor.class);
 
 	private static final Duration SLEEP_TIME_WHEN_DISABLED = Duration.ofSeconds(5);
-	private static final Duration SLEEP_TIME_WHEN_NO_WORK = Duration.ofSeconds(5);
+	private static final Duration WAKEUP_PERIOD = Duration.ofSeconds(5);
 	private static final Duration MAX_EXEC_BACKOFF_TIME = Duration.ofSeconds(1);
 	private static final Duration MAX_WAIT_FOR_EXECUTOR = Duration.ofSeconds(5);
 	private static final Duration MAX_WAIT_FOR_SHUTDOWN = Duration.ofSeconds(5);
@@ -127,7 +128,7 @@ public class JobletProcessor{
 					continue;
 				}
 				if(!jobletRequestQueueManager.shouldCheckAnyQueues(jobletType)){
-					sleepABit(SLEEP_TIME_WHEN_NO_WORK);
+					sleepARandomBit(WAKEUP_PERIOD);
 					continue;
 				}
 				tryEnqueueJobletCallable(numThreads);
@@ -172,6 +173,15 @@ public class JobletProcessor{
 				backoffMs = Math.min(2 * backoffMs, MAX_EXEC_BACKOFF_TIME.toMillis());
 			}
 		}
+	}
+
+	//sleep between .5 and 1.5x the requested value
+	private void sleepARandomBit(Duration duration){
+		long requestedMs = duration.toMillis();
+		long randomness = RandomTool.nextPositiveLong(requestedMs);
+		long actualMs = requestedMs / 2 + randomness;
+		logger.debug("{} sleeping {} ms", jobletType.getPersistentString(), actualMs);
+		sleepABit(Duration.ofMillis(actualMs));
 	}
 
 	private void sleepABit(Duration duration){

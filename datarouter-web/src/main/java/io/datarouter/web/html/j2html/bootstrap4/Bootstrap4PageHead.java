@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.html.j2html.bootstrap4;
 
+import java.util.Map;
+
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.css.DatarouterWebCssV2;
 import io.datarouter.web.handler.mav.MavProperties;
@@ -36,7 +38,8 @@ public class Bootstrap4PageHead extends DatarouterPageHead{
 			String webappRequireJsConfigJsonString,
 			String[] require,
 			boolean isAdmin,
-			String title){
+			String title,
+			Map<String,String> httpEquivs){
 		super(
 				DatarouterWebCssV2.makeCssImportTags(contextPath),
 				DatarouterWebRequireJs.makeImportTag(contextPath),
@@ -47,7 +50,8 @@ public class Bootstrap4PageHead extends DatarouterPageHead{
 						.getTomcatWebApps().size()) : new EmptyTag[]{},
 				isAdmin ? DatarouterWebJsTool.makeJsImport(contextPath, FILES.js.navbarRequestTimingV2Js) : null,
 				isAdmin ? DatarouterNavbarFactory.makeNavbarRequestTimingScriptV2(contextPath) : null,
-				title);
+				title,
+				httpEquivs);
 	}
 
 }

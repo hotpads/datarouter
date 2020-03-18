@@ -13,23 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.mysql.util;
+package io.datarouter.util.lazy;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+public interface CheckedSupplier<R,E extends Exception>{
 
-public interface DatarouterMysqlStatementParameterizer{
-
-	void parameterize(PreparedStatement statement, int index);
-
-	static DatarouterMysqlStatementParameterizer forInt(int value){
-		return (ps, index) -> {
-			try{
-				ps.setInt(index, value);
-			}catch(SQLException e){
-				throw new RuntimeException(e);
-			}
-		};
-	}
+	R get() throws E;
 
 }

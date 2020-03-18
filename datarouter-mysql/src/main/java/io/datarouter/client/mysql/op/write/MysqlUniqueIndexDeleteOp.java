@@ -19,8 +19,7 @@ import java.util.Collection;
 
 import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.client.mysql.MysqlUniqueIndexTool;
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
-import io.datarouter.client.mysql.util.MysqlPreparedStatementBuilder;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
@@ -35,13 +34,22 @@ public class MysqlUniqueIndexDeleteOp<
 		F extends DatabeanFielder<PK,D>>
 extends BaseMysqlDeleteOp<PK,D,F,UniqueKey<PK>>{
 
-	public MysqlUniqueIndexDeleteOp(Datarouter datarouter, PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
-			MysqlPreparedStatementBuilder mysqlPreparedStatementBuilder, MysqlClientType mysqlClientType,
-			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher, Collection<? extends UniqueKey<PK>> keys,
-			Config config, String opName){
-		super(datarouter, databeanFieldInfo, mysqlPreparedStatementBuilder, mysqlClientType,
-				mysqlLiveTableOptionsRefresher, keys, config, MysqlUniqueIndexTool.searchIndex(databeanFieldInfo
-				.getUniqueIndexes(), keys), opName);
+	public MysqlUniqueIndexDeleteOp(
+			Datarouter datarouter,
+			PhysicalDatabeanFieldInfo<PK,D,F> databeanFieldInfo,
+			MysqlSqlFactory mysqlSqlFactory,
+			MysqlClientType mysqlClientType,
+			Collection<? extends UniqueKey<PK>> keys,
+			Config config,
+			String opName){
+		super(datarouter,
+				databeanFieldInfo,
+				mysqlSqlFactory,
+				mysqlClientType,
+				keys,
+				config,
+				MysqlUniqueIndexTool.searchIndex(databeanFieldInfo.getUniqueIndexes(), keys),
+				opName);
 	}
 
 }

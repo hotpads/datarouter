@@ -28,7 +28,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.op.util.SortedStorageCountingTool;
+import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSamplingScannerBuilder;
 import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.util.tuple.Range;
 
@@ -161,7 +161,12 @@ extends NodeOps<PK,D>{
 	/*-------------------------------- count --------------------------------*/
 
 	default long count(Range<PK> range){
-		return SortedStorageCountingTool.count(this, range);
+		return new SortedStorageSamplingScannerBuilder<>(this)
+				.withRange(range)
+				.build()
+				.findLast()
+				.map(sample -> sample.totalCount)
+				.orElse(0L);
 	}
 
 	/*---------------------------- static methods ---------------------------*/

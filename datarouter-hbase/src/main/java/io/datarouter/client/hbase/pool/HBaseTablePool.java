@@ -205,7 +205,7 @@ public class HBaseTablePool{
 		if(htableSemaphoreActivePermits() != 0){
 			final int sleepMs = 5000;
 			logger.warn("Still {} active tables.  Sleeping {}ms", htableSemaphoreActivePermits(), sleepMs);
-			ThreadTool.sleep(sleepMs);
+			ThreadTool.sleepUnchecked(sleepMs);
 		}
 		for(HBaseTableExecutorService executorService : executorServiceQueue){
 			executorService.terminateAndBlockUntilFinished();

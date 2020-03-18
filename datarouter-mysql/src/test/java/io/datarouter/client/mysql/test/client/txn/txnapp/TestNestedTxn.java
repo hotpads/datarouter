@@ -36,8 +36,13 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 	private final DatarouterTxnTestDao dao;
 	private final SessionExecutor sessionExecutor;
 
-	public TestNestedTxn(Datarouter datarouter, ClientId clientId, Isolation isolation, boolean autoCommit,
-			DatarouterTxnTestDao dao, SessionExecutor sessionExecutor){
+	public TestNestedTxn(
+			Datarouter datarouter,
+			ClientId clientId,
+			Isolation isolation,
+			boolean autoCommit,
+			DatarouterTxnTestDao dao,
+			SessionExecutor sessionExecutor){
 		super(datarouter, clientId, isolation, autoCommit);
 		this.datarouter = datarouter;
 		this.clientId = clientId;
@@ -52,13 +57,13 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 				clientId);
 		ConnectionHandle handle = clientManager.getExistingHandle(clientId);
 
-		TxnBean outer = new TxnBean("outer");
+		var outer = new TxnBean("outer");
 		dao.put(outer);
 		Assert.assertTrue(dao.exists(outer.getKey()));
 
 		sessionExecutor.runWithoutRetries(new InnerTxn(datarouter, clientId, isolation, false, dao, handle));
 
-		TxnBean outer2 = new TxnBean(outer.getKey().getId());
+		var outer2 = new TxnBean(outer.getKey().getId());
 		dao.putOrBust(outer2); //should bust on commit
 		return null;
 	}
@@ -71,8 +76,13 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 		private final Datarouter datarouter;
 		private final ClientId clientId;
 
-		public InnerTxn(Datarouter datarouter, ClientId clientId, Isolation isolation, boolean autoCommit,
-				DatarouterTxnTestDao dao, ConnectionHandle outerHandle){
+		public InnerTxn(
+				Datarouter datarouter,
+				ClientId clientId,
+				Isolation isolation,
+				boolean autoCommit,
+				DatarouterTxnTestDao dao,
+				ConnectionHandle outerHandle){
 			super(datarouter, clientId, isolation, autoCommit);
 			this.datarouter = datarouter;
 			this.clientId = clientId;
@@ -88,7 +98,7 @@ public class TestNestedTxn extends BaseMysqlOp<Void>{
 			Assert.assertEquals(handle, outerHandle);
 
 			String name = "inner_txn";
-			TxnBean inner = new TxnBean(name);
+			var inner = new TxnBean(name);
 			dao.put(inner);
 			Assert.assertTrue(dao.exists(inner.getKey()));
 			Assert.assertTrue(dao.exists(new TxnBeanKey("outer")));

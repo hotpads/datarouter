@@ -16,7 +16,6 @@
 package io.datarouter.scanner;
 
 import java.io.Closeable;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -53,10 +52,6 @@ public interface Scanner<T> extends Closeable{
 		return stream().collect(collector);
 	}
 
-	default <R> R collect(Function<List<T>,R> mapper){
-		return mapper.apply(list());
-	}
-
 	default long count(){
 		return ScannerTool.count(this);
 	}
@@ -91,6 +86,10 @@ public interface Scanner<T> extends Closeable{
 
 	default List<T> list(){
 		return ScannerTool.list(this);
+	}
+
+	default <R> R listTo(Function<List<T>,R> mapper){
+		return mapper.apply(list());
 	}
 
 	default Optional<T> max(Comparator<? super T> comparator){
@@ -244,9 +243,13 @@ public interface Scanner<T> extends Closeable{
 		return new EmptyScanner<>();
 	}
 
+	public static <T> Scanner<T> of(T object){
+		return new ObjectScanner<>(object);
+	}
+
 	@SafeVarargs
-	public static <T> Scanner<T> of(T... inputs){
-		return new IterableScanner<>(Arrays.asList(inputs));
+	public static <T> Scanner<T> of(T... array){
+		return array.length == 0 ? new EmptyScanner<>() : new ArrayScanner<>(array);
 	}
 
 	public static <T> Scanner<T> of(Iterator<T> iterator){
@@ -254,7 +257,7 @@ public interface Scanner<T> extends Closeable{
 	}
 
 	public static <T> Scanner<T> of(Iterable<T> iterable){
-		return new IterableScanner<>(iterable);
+		return new IteratorScanner<>(iterable.iterator());
 	}
 
 	public static <T> Scanner<T> of(Stream<T> stream){

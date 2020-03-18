@@ -15,10 +15,22 @@
  */
 package io.datarouter.scanner;
 
-public class IterableScanner<T> extends IteratorScanner<T>{
+import java.util.List;
+import java.util.stream.Stream;
 
-	public IterableScanner(Iterable<T> iterable){
-		super(iterable.iterator());
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class ScannerTests{
+
+	@Test
+	public void testScannerOf(){
+		Assert.assertSame(Scanner.of().getClass(), EmptyScanner.class);
+		Assert.assertSame(Scanner.of(1).getClass(), ObjectScanner.class);
+		Assert.assertSame(Scanner.of(1, 2).getClass(), ArrayScanner.class);
+		Assert.assertSame(Scanner.of(List.of(1)).getClass(), IteratorScanner.class);
+		Assert.assertSame(Scanner.of(List.of(1).iterator()).getClass(), IteratorScanner.class);
+		Assert.assertSame(Scanner.of(Stream.of(1)).getClass(), StreamScanner.class);
 	}
 
 }

@@ -28,9 +28,12 @@ extends BaseQueueConsumerConveyor<PK,D>{
 
 	private final Consumer<D> putConsumer;
 
-	public BasePutQueueConsumerConveyor(String name, Setting<Boolean> shouldRunSetting,
-			QueueConsumer<PK,D> groupConsumer, Consumer<D> putConsumer){
-		super(name, shouldRunSetting, groupConsumer);
+	public BasePutQueueConsumerConveyor(
+			String name,
+			Setting<Boolean> shouldRun,
+			QueueConsumer<PK,D> groupConsumer,
+			Consumer<D> putConsumer){
+		super(name, shouldRun, groupConsumer);
 		this.putConsumer = putConsumer;
 	}
 

@@ -13,13 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.test;
+package io.datarouter.scanner;
 
-/**
- * Marker interface to find service classes with testable methods
- */
-public interface Testable{
+import java.util.Arrays;
+import java.util.List;
 
-	void testAll();
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class ArrayScannerTests{
+
+	@Test
+	public void test(){
+		Assert.assertEquals(Scanner.of().list(), List.of());
+		Assert.assertEquals(Scanner.of(1).list(), List.of(1));
+		Assert.assertEquals(Scanner.of(1, 2).list(), List.of(1, 2));
+	}
+
+	@Test
+	public void testNulls(){
+		Assert.assertEquals(Scanner.of(1, null).list(), Arrays.asList(1, null));
+		Assert.assertEquals(Scanner.of(1, null, 3).list(), Arrays.asList(1, null, 3));
+	}
 
 }

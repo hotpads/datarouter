@@ -26,8 +26,8 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
 public class PutOpIdGeneratedRandomTestBean
-extends BaseDatabean<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGeneratedRandomTestBean>
-implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGeneratedRandomTestBean>{
+extends BaseDatabean<PutOpIdGeneratedRandomTestBeanKey,PutOpIdGeneratedRandomTestBean>
+implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey,PutOpIdGeneratedRandomTestBean>{
 
 	private String aa;
 
@@ -36,7 +36,7 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGene
 	}
 
 	public static class PutOpIdGeneratedRandomTestBeanFielder
-	extends BaseDatabeanFielder<PutOpIdGeneratedRandomTestBeanKey, PutOpIdGeneratedRandomTestBean>{
+	extends BaseDatabeanFielder<PutOpIdGeneratedRandomTestBeanKey,PutOpIdGeneratedRandomTestBean>{
 
 		public PutOpIdGeneratedRandomTestBeanFielder(){
 			super(PutOpIdGeneratedRandomTestBeanKey.class);

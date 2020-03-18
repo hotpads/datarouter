@@ -15,10 +15,14 @@
  */
 package io.datarouter.secret.config;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.datarouter.secret.client.LocalStorageSecretClient.LocalStorageDefaultSecretValues;
+import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClientSupplier;
 import io.datarouter.secret.client.SecretClientSupplier.NoOpSecretClientSupplier;
 import io.datarouter.secret.handler.SecretHandlerPermissions;
@@ -33,17 +37,17 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterSecretPlugin extends BaseWebPlugin{
 
-	private final Class<? extends SecretHandlerPermissions> secretHandlerPermissionsClass;
-	private final Class<? extends SecretClientSupplier> secretClientSupplierClass;
+	private final Class<? extends SecretHandlerPermissions> secretHandlerPermissions;
+	private final Class<? extends SecretClientSupplier> secretClientSupplier;
 	private final Map<String,String> initialLocalStorageSecretValues;
 
 	private DatarouterSecretPlugin(
-			Class<? extends SecretHandlerPermissions> secretHandlerPermissionsClass,
-			Class<? extends SecretClientSupplier> secretClientSupplierClass,
+			Class<? extends SecretHandlerPermissions> secretHandlerPermissions,
+			Class<? extends SecretClientSupplier> secretClientSupplier,
 			Map<String,String> initialLocalStorageSecretValues,
 			DatarouterSecretDaoModule daosModuleBuilder){
-		this.secretHandlerPermissionsClass = secretHandlerPermissionsClass;
-		this.secretClientSupplierClass = secretClientSupplierClass;
+		this.secretHandlerPermissions = secretHandlerPermissions;
+		this.secretClientSupplier = secretClientSupplier;
 		this.initialLocalStorageSecretValues = initialLocalStorageSecretValues;
 		addRouteSet(DatarouterSecretRouteSet.class);
 		setDaosModule(daosModuleBuilder);
@@ -58,8 +62,8 @@ public class DatarouterSecretPlugin extends BaseWebPlugin{
 
 	@Override
 	public void configure(){
-		bindActual(SecretClientSupplier.class, secretClientSupplierClass);
-		bindActual(SecretHandlerPermissions.class, secretHandlerPermissionsClass);
+		bindActual(SecretClientSupplier.class, secretClientSupplier);
+		bindActual(SecretHandlerPermissions.class, secretHandlerPermissions);
 		bindActualInstance(LocalStorageDefaultSecretValues.class, new LocalStorageDefaultSecretValues(
 				initialLocalStorageSecretValues));
 	}
@@ -67,13 +71,11 @@ public class DatarouterSecretPlugin extends BaseWebPlugin{
 	public static class DatarouterSecretPluginBuilder{
 
 		private final ClientId defaultClientId;
-		private DatarouterSecretDaoModule daoModule;
 
-		private Class<? extends SecretHandlerPermissions> secretHandlerPermissionsClass
-				= NoOpSecretHandlerPermissions.class;
-		private Class<? extends SecretClientSupplier> secretClientSupplierClass
-				= NoOpSecretClientSupplier.class;
-		private Map<String,String> initialLocalStorageSecretValues;
+		private Map<String,String> initialLocalStorageSecretValues = new HashMap<>();
+		private DatarouterSecretDaoModule daoModule;
+		private Class<? extends SecretHandlerPermissions> secretHandlerPermissions = NoOpSecretHandlerPermissions.class;
+		private Class<? extends SecretClientSupplier> secretClientSupplier = NoOpSecretClientSupplier.class;
 
 		public DatarouterSecretPluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -85,28 +87,40 @@ public class DatarouterSecretPlugin extends BaseWebPlugin{
 		}
 
 		public DatarouterSecretPluginBuilder setSecretHandlerPermissions(
-				Class<? extends SecretHandlerPermissions> secretHandlerPermissionsClass){
-			this.secretHandlerPermissionsClass = secretHandlerPermissionsClass;
+				Class<? extends SecretHandlerPermissions> secretHandlerPermissions){
+			this.secretHandlerPermissions = secretHandlerPermissions;
 			return this;
 		}
 
 		public DatarouterSecretPluginBuilder setSecretClientSupplier(
-				Class<? extends SecretClientSupplier> secretClientSupplierClass){
-			this.secretClientSupplierClass = secretClientSupplierClass;
+				Class<? extends SecretClientSupplier> secretClientSupplier){
+			this.secretClientSupplier = secretClientSupplier;
 			return this;
 		}
 
-		public DatarouterSecretPluginBuilder setInitialLocalStorageSecretValues(
-				Map<String,String> initialLocalStorageSecretValues){
-			this.initialLocalStorageSecretValues = initialLocalStorageSecretValues;
+		public DatarouterSecretPluginBuilder setInitialLocalStorageSecrets(Collection<Secret> secrets){
+			initialLocalStorageSecretValues = secrets.stream()
+					.collect(Collectors.toMap(Secret::getName, Secret::getValue));
+			return this;
+		}
+
+		public DatarouterSecretPluginBuilder addLocalStorageSecret(Secret secret){
+			initialLocalStorageSecretValues.put(secret.getName(), secret.getValue());
+			return this;
+		}
+
+		public DatarouterSecretPluginBuilder addLocalStorageSecrets(Collection<Secret> secrets){
+
+			initialLocalStorageSecretValues.putAll(secrets.stream()
+					.collect(Collectors.toMap(Secret::getName, Secret::getValue)));
 			return this;
 		}
 
 		public DatarouterSecretPlugin build(){
 			return new DatarouterSecretPlugin(
-					secretHandlerPermissionsClass,
-					secretClientSupplierClass,
-					initialLocalStorageSecretValues == null ? Map.of() : initialLocalStorageSecretValues,
+					secretHandlerPermissions,
+					secretClientSupplier,
+					initialLocalStorageSecretValues,
 					daoModule == null ? new DatarouterSecretDaoModule(defaultClientId) : daoModule);
 		}
 
@@ -122,8 +136,7 @@ public class DatarouterSecretPlugin extends BaseWebPlugin{
 
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
-			return List.of(
-					DatarouterSecretOpRecordDao.class);
+			return List.of(DatarouterSecretOpRecordDao.class);
 		}
 
 		@Override

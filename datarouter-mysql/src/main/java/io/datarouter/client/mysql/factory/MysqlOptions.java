@@ -15,6 +15,8 @@
  */
 package io.datarouter.client.mysql.factory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,6 +48,7 @@ public class MysqlOptions{
 	private final ConcurrentHashMap<String,String> clientPasswords = new ConcurrentHashMap<>();
 
 	protected static final String PROP_url = "url";
+	protected static final String PROP_urlParam = "urlParam";
 	protected static final String PROP_user = "user";
 	protected static final String PROP_passwordLocation = "password.location";
 	protected static final String PROP_password = "password";
@@ -62,6 +65,22 @@ public class MysqlOptions{
 		return clientOptions.getRequiredString(clientId.getName(), PROP_url);
 	}
 
+	/**
+	 * Indexes start from zero and cannot have gaps
+	 */
+	public List<String> urlParams(String clientName){
+		List<String> urlParams = new ArrayList<>();
+		for(int index = 0; ; ++index){
+			String propertySuffix = PROP_urlParam + "." + index;
+			Optional<String> optParam = clientOptions.optString(clientName, propertySuffix);
+			optParam.ifPresent(urlParams::add);
+			if(optParam.isEmpty()){
+				break;
+			}
+		}
+		return urlParams;
+	}
+
 	public String user(String clientName, String def){
 		return clientOptions.getStringClientPropertyOrDefault(PROP_user, clientName, def);
 	}
@@ -72,8 +91,9 @@ public class MysqlOptions{
 					.getStringClientPropertyOrDefault(PROP_passwordLocation, clientName, null));
 			return optionalSecretLocation.map(secretLocation -> {
 				try{
-					String result = jsonSerializer.deserialize(secretClientSupplier.get().read(secretLocation)
-							.getValue(), String.class);
+					String result = jsonSerializer.deserialize(
+							secretClientSupplier.get().read(secretLocation).getValue(),
+							String.class);
 					logger.info("using secret at secretLocation={}", secretLocation);
 					return result;
 				}catch(RuntimeException e){

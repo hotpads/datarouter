@@ -39,8 +39,12 @@ public class IntegerEnumMysqlFieldCodec<E extends IntegerEnum<E>> extends BaseMy
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), 11, allowNullable && field.getKey()
-				.isNullable(), false);
+		return new SqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				11,
+				allowNullable && field.getKey().isNullable(),
+				false);
 	}
 
 	@Override

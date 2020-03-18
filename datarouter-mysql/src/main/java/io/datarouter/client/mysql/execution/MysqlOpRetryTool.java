@@ -33,11 +33,16 @@ public class MysqlOpRetryTool{
 	 * number of times (NUM_ROLLBACK_ATTEMPTS - 1). If config.getNumAttempts() is 2 and NUM_ROLLBACK_ATTEMPTS is 3, then
 	 * we may start 6 txns */
 	public static <T> T tryNTimes(SessionExecutorCallable<T> opCallable, Config config){
-		MysqlRollbackRetryingCallable<T> retryingCallable = new MysqlRollbackRetryingCallable<>(opCallable,
-				NUM_ROLLBACK_ATTEMPTS, ROLLBACK_BACKOFF_MS);
+		var retryingCallable = new MysqlRollbackRetryingCallable<>(
+				opCallable,
+				NUM_ROLLBACK_ATTEMPTS,
+				ROLLBACK_BACKOFF_MS);
 		int numAttempts = config.getNumAttemptsOrUse(DEFAULT_NUM_ATTEMPTS);
 		boolean ignoreExceptions = config.ignoreExceptionOrUse(false);
-		return RetryableTool.tryNTimesWithBackoffUnchecked(retryingCallable, numAttempts, DEFAULT_BACKOFF_MS,
+		return RetryableTool.tryNTimesWithBackoffUnchecked(
+				retryingCallable,
+				numAttempts,
+				DEFAULT_BACKOFF_MS,
 				!ignoreExceptions);
 	}
 

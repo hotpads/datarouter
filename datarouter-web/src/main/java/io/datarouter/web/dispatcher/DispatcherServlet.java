@@ -92,7 +92,6 @@ public abstract class DispatcherServlet extends HttpServlet{
 	throws IOException, ServletException{
 
 		response.setHeader("X-Frame-Options", "SAMEORIGIN"); //clickjacking protection
-		response.setHeader("Keep-Alive", "timeout=540"); // prevent alb 10 minute bug
 
 		RoutingResult routingResult = RoutingResult.NOT_FOUND;
 		for(BaseRouteSet dispatcherRoutes : routeSets){

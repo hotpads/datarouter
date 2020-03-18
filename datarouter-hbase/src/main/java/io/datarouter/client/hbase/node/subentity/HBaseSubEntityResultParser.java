@@ -224,7 +224,13 @@ public class HBaseSubEntityResultParser<
 	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, int offset, PK targetPk){
 		int byteOffset = offset;
 		for(Field<?> field : fields){
-			Object value = field.fromBytesWithSeparatorButDoNotSet(fromBytes, byteOffset);
+			Object value;
+			try{
+				value = field.fromBytesWithSeparatorButDoNotSet(fromBytes, byteOffset);
+			}catch(RuntimeException e){
+				throw new RuntimeException("failed to parse fromBytes=" + Bytes.toStringBinary(fromBytes)
+						+ " byteOffset=" + byteOffset + " fields=" + fields + " field=" + field, e);
+			}
 			field.setUsingReflection(targetPk, value);
 			byteOffset += field.numBytesWithSeparator(fromBytes, byteOffset);
 		}

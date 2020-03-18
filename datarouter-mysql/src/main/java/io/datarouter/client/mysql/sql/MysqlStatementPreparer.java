@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.scanner;
+package io.datarouter.client.mysql.sql;
 
-import java.util.List;
+import java.sql.PreparedStatement;
 
-/**
- * Adds the ability to flatten a Scanner of ArrayLists to individual items
- */
-public interface BatchScanner<T> extends Scanner<List<T>>{
+public interface MysqlStatementPreparer{
 
-	default Scanner<T> flatten(){
-		return concatenate(Scanner::of);
-	}
+	PreparedStatement prepareStatement(String sql) throws Exception;
 
 }

@@ -45,7 +45,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.lazy.Lazy;
@@ -84,7 +86,9 @@ public abstract class BaseHandler{
 	public static final RequestAttributeKey<String> TRACE_URL_REQUEST_ATTRIBUTE = new RequestAttributeKey<>("traceUrl");
 	public static final RequestAttributeKey<HandlerEncoder> HANDLER_ENCODER_ATTRIBUTE = new RequestAttributeKey<>(
 			"handlerEncoder");
-	public static final RequestAttributeKey<String> HANDLER_METHOD_NAME = new RequestAttributeKey<>("handlerName");
+	public static final RequestAttributeKey<Class<? extends BaseHandler>> HANDLER_CLASS = new RequestAttributeKey<>(
+			"handlerClass");
+	public static final RequestAttributeKey<Method> HANDLER_METHOD = new RequestAttributeKey<>("handlerMethod");
 
 	private static final Pattern LAST_SEGMENT_PATTERN = Pattern.compile("[^?]*/([^/?]+)[/?]?.*");
 	private static final String DEFAULT_HANDLER_METHOD_NAME = "noHandlerFound";
@@ -101,7 +105,7 @@ public abstract class BaseHandler{
 	@Inject
 	private Optional<ExceptionRecorder> exceptionRecorder;
 	@Inject
-	private HandlerCounters handlerCounters;
+	private HandlerMetrics handlerMetrics;
 	@Inject
 	private RequestAwareCurrentSessionInfoFactory requestAwareCurrentSessionInfoFactory;
 
@@ -214,8 +218,8 @@ public abstract class BaseHandler{
 			Pair<Method,Object[]> handlerMethodAndArgs = getHandlerMethodAndArgs();
 			Method method = handlerMethodAndArgs.getLeft();
 			Object[] args = handlerMethodAndArgs.getRight();
-			String fullyQualifiedMethodName = method.getDeclaringClass().getName() + "." + method.getName();
-			RequestAttributeTool.set(request, HANDLER_METHOD_NAME, fullyQualifiedMethodName);
+			RequestAttributeTool.set(request, HANDLER_CLASS, getClass());
+			RequestAttributeTool.set(request, HANDLER_METHOD, method);
 
 			HandlerEncoder encoder = getHandlerEncoder(method);
 			RequestAttributeTool.set(request, HANDLER_ENCODER_ATTRIBUTE, encoder);
@@ -280,7 +284,7 @@ public abstract class BaseHandler{
 
 	public void invokeHandlerMethod(Method method, Object[] args, HandlerEncoder encoder)
 	throws ServletException, IOException{
-		handlerCounters.incMethodInvocation(this, method);
+		handlerMetrics.incMethodInvocation(this, method);
 		Object result;
 		try{
 			result = method.invoke(this, args);
@@ -293,8 +297,9 @@ public abstract class BaseHandler{
 				Exception exception = (Exception)cause;//don't allow HandledExceptions to be Throwable
 				exceptionRecorder.ifPresent(recorder -> {
 					try{
-						recorder.recordExceptionAndHttpRequest(exception, getClass().getName(), method.getName(),
-								null, request, null);
+						ExceptionRecordDto exceptionRecordDto = recorder.recordExceptionAndHttpRequest(exception,
+								getClass().getName(), method.getName(), null, request, null);
+						response.setHeader(HttpHeaders.X_EXCEPTION_ID, exceptionRecordDto.id);
 					}catch(Exception recordingException){
 						logger.warn("Error recording exception", recordingException);
 					}

@@ -41,8 +41,11 @@ implements TestDao, PutOpIdGeneratedTest<PutOpIdGeneratedRandomTestBeanKey,PutOp
 	@Inject
 	public DataroutrPutOpIdGeneratedRandomTestDao(Datarouter datarouter, NodeFactory nodeFactory){
 		super(datarouter);
-		node = nodeFactory.create(DatarouterMysqlTestClientids.MYSQL, PutOpIdGeneratedRandomTestBean::new,
-				PutOpIdGeneratedRandomTestBeanFielder::new).buildAndRegister();
+		node = nodeFactory.create(
+				DatarouterMysqlTestClientids.MYSQL,
+				PutOpIdGeneratedRandomTestBean::new,
+				PutOpIdGeneratedRandomTestBeanFielder::new)
+				.buildAndRegister();
 	}
 
 	@Override

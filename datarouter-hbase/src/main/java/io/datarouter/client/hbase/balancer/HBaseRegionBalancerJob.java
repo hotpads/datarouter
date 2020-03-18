@@ -153,7 +153,7 @@ public class HBaseRegionBalancerJob extends BaseJob{
 				}catch(Exception ex){//in 0.94, this is UndeclaredThrowableException wrapping other Exceptions
 					logger.error("exception moving region, skipping", ex);
 				}
-				ThreadTool.sleep(hbaseSettings.getSleepBetweenRegionMovementMs());
+				ThreadTool.sleepUnchecked(hbaseSettings.getSleepBetweenRegionMovementMs());
 				if(tracker.increment().shouldStop()){
 					return false;
 				}

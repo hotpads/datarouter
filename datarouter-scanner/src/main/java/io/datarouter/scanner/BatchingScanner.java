@@ -17,7 +17,7 @@ package io.datarouter.scanner;
 
 import java.util.List;
 
-public class BatchingScanner<T> extends BaseLinkedScanner<T,List<T>> implements BatchScanner<T>{
+public class BatchingScanner<T> extends BaseLinkedScanner<T,List<T>>{
 
 	private final int batchSize;
 

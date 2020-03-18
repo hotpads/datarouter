@@ -42,8 +42,11 @@ implements TestDao, PutOpIdGeneratedTest<PutOpIdGeneratedManagedTestBeanKey,PutO
 	public PutOpIdGeneratedManagedTestDao(Datarouter datarouter, NodeFactory nodeFactory){
 		super(datarouter);
 
-		node = nodeFactory.create(DatarouterMysqlTestClientids.MYSQL,
-				PutOpIdGeneratedManagedTestBean::new, PutOpIdGeneratedManagedTestBeanFielder::new).buildAndRegister();
+		node = nodeFactory.create(
+				DatarouterMysqlTestClientids.MYSQL,
+				PutOpIdGeneratedManagedTestBean::new,
+				PutOpIdGeneratedManagedTestBeanFielder::new)
+				.buildAndRegister();
 	}
 
 	@Override

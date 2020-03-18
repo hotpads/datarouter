@@ -68,6 +68,10 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 		return entityNode.sortedBean;
 	}
 
+	public SortedMapStorage<SortedBeanKey,SortedBean> getNode(){
+		return node;
+	}
+
 	public void putMultiEntity(Collection<SortedBean> databeans){
 		entityNode.sortedBean.putMulti(databeans);
 	}
@@ -92,11 +96,7 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 	/*---------------------------- sub entity -------------------------------*/
 
 	public long count(){
-		return node.scanKeys().count();
-	}
-
-	public long count(Range<SortedBeanKey> range){
-		return node.count(range);
+		return node.count(Range.everything());
 	}
 
 	public boolean exists(SortedBeanKey key){
@@ -117,8 +117,8 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 		return node.get(key, config);
 	}
 
-	public List<SortedBean> getMulti(Collection<SortedBeanKey> keys){
-		return node.getMulti(keys);
+	public List<SortedBean> getMulti(Collection<SortedBeanKey> keys, int batchSize){
+		return node.getMulti(keys, new Config().setInputBatchSize(batchSize));
 	}
 
 	public List<SortedBeanKey> getKeys(Collection<SortedBeanKey> keys){

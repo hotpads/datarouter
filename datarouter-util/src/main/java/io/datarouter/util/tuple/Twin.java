@@ -15,6 +15,8 @@
  */
 package io.datarouter.util.tuple;
 
+import java.util.Objects;
+
 @SuppressWarnings("serial")
 public class Twin<T> extends Pair<T,T>{
 
@@ -27,6 +29,10 @@ public class Twin<T> extends Pair<T,T>{
 
 	public static <T> Twin<T> of(T left, T right){
 		return new Twin<>(left, right);
+	}
+
+	public boolean areLeftAndRightEqual(){
+		return Objects.equals(left, right);
 	}
 
 }

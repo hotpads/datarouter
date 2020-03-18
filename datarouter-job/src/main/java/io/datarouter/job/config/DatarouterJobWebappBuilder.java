@@ -354,8 +354,14 @@ public class DatarouterJobWebappBuilder extends DatarouterWebWebappBuilder imple
 	}
 
 	@Override
-	public DatarouterWebWebappBuilder withDatabeanExporterLink(String databeanExporterLink){
-		super.withDatabeanExporterLink(databeanExporterLink);
+	public DatarouterJobWebappBuilder withNodeWidgetDatabeanExporterLink(String databeanExporterLink){
+		super.withNodeWidgetDatabeanExporterLink(databeanExporterLink);
+		return this;
+	}
+
+	@Override
+	public DatarouterJobWebappBuilder withNodeWidgetTableCountLink(String nodeWidgetTableCountLink){
+		super.withNodeWidgetTableCountLink(nodeWidgetTableCountLink);
 		return this;
 	}
 

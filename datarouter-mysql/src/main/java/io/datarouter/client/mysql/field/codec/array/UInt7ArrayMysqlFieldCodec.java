@@ -41,8 +41,12 @@ extends BaseListMysqlFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), Integer.MAX_VALUE, allowNullable
-				&& field.getKey().isNullable(), false);
+		return new SqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				Integer.MAX_VALUE,
+				allowNullable && field.getKey().isNullable(),
+				false);
 	}
 
 	@Override

@@ -44,7 +44,7 @@ public class HttpRetryTool{
 		return isRetrySafe(context) && executionCount <= retryCount.get();
 	}
 
-	public static String entityToString(HttpEntity httpEntity){
+	public static String tryEntityToString(HttpEntity httpEntity){
 		try{
 			return EntityUtils.toString(httpEntity);
 		}catch(IOException e){

@@ -32,9 +32,12 @@ public class DatabeanBufferConveyor<PK extends PrimaryKey<PK>,D extends Databean
 	private final DatabeanBuffer<PK,D> databeanBuffer;
 	private final StorageWriter<PK,D> storageWriter;
 
-	public DatabeanBufferConveyor(String name, Setting<Boolean> shouldRunSetting, DatabeanBuffer<PK,D> databeanBuffer,
+	public DatabeanBufferConveyor(
+			String name,
+			Setting<Boolean> shouldRun,
+			DatabeanBuffer<PK,D> databeanBuffer,
 			StorageWriter<PK,D> storageWriter){
-		super(name, shouldRunSetting, () -> false);
+		super(name, shouldRun, () -> false);
 		this.databeanBuffer = databeanBuffer;
 		this.storageWriter = storageWriter;
 	}

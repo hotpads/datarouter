@@ -46,10 +46,8 @@ import io.datarouter.client.mysql.field.codec.positive.UInt15MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.positive.UInt31MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.positive.UInt63MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.positive.UInt7MysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.positive.UInt8MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.positive.VarIntMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.BooleanMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.primitive.CharacterMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.DoubleMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.FloatMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.IntegerMysqlFieldCodec;
@@ -70,7 +68,6 @@ import io.datarouter.model.field.imp.array.PrimitiveLongArrayField;
 import io.datarouter.model.field.imp.array.UInt63ArrayField;
 import io.datarouter.model.field.imp.array.UInt7ArrayField;
 import io.datarouter.model.field.imp.comparable.BooleanField;
-import io.datarouter.model.field.imp.comparable.CharacterField;
 import io.datarouter.model.field.imp.comparable.DoubleField;
 import io.datarouter.model.field.imp.comparable.FloatField;
 import io.datarouter.model.field.imp.comparable.InstantField;
@@ -87,7 +84,6 @@ import io.datarouter.model.field.imp.positive.UInt15Field;
 import io.datarouter.model.field.imp.positive.UInt31Field;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt7Field;
-import io.datarouter.model.field.imp.positive.UInt8Field;
 import io.datarouter.model.field.imp.positive.VarIntField;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.iterable.IterableTool;
@@ -103,7 +99,6 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		codecClassByFieldClass = new HashMap<>();
 
 		addCodec(BooleanField.class, BooleanMysqlFieldCodec.class);
-		addCodec(CharacterField.class, CharacterMysqlFieldCodec.class);
 		addCodec(SignedByteField.class, SignedByteMysqlFieldCodec.class);
 		addCodec(ShortField.class, ShortMysqlFieldCodec.class);
 		addCodec(IntegerField.class, IntegerMysqlFieldCodec.class);
@@ -141,7 +136,6 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(UInt31Field.class, UInt31MysqlFieldCodec.class);
 		addCodec(UInt63Field.class, UInt63MysqlFieldCodec.class);
 		addCodec(UInt7Field.class, UInt7MysqlFieldCodec.class);
-		addCodec(UInt8Field.class, UInt8MysqlFieldCodec.class);
 		addCodec(VarIntField.class, VarIntMysqlFieldCodec.class);
 
 		additional.forEach((fieldClass, codecClass) -> addCodec(fieldClass, codecClass));

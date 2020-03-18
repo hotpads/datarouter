@@ -26,8 +26,8 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
 public class PutOpIdGeneratedManagedTestBean
-extends BaseDatabean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManagedTestBean>
-implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey, PutOpIdGeneratedManagedTestBean>{
+extends BaseDatabean<PutOpIdGeneratedManagedTestBeanKey,PutOpIdGeneratedManagedTestBean>
+implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey,PutOpIdGeneratedManagedTestBean>{
 
 	private String foo;
 

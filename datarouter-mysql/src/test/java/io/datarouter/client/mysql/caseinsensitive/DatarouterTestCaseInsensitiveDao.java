@@ -39,15 +39,19 @@ public class DatarouterTestCaseInsensitiveDao extends BaseDao implements TestDao
 	@Inject
 	public DatarouterTestCaseInsensitiveDao(Datarouter datarouter, NodeFactory nodeFactory){
 		super(datarouter);
-		node = nodeFactory.create(DatarouterMysqlTestClientids.MYSQL, CaseInsensitiveTestDatabean::new,
-				CaseInsensitiveTestFielder::new).buildAndRegister();
+		node = nodeFactory.create(
+				DatarouterMysqlTestClientids.MYSQL,
+				CaseInsensitiveTestDatabean::new,
+				CaseInsensitiveTestFielder::new)
+				.buildAndRegister();
 	}
 
 	public void put(CaseInsensitiveTestDatabean databean){
 		node.put(databean);
 	}
 
-	public Scanner<CaseInsensitiveTestDatabean> scanMulti(List<Range<CaseInsensitiveTestPrimaryKey>> ranges,
+	public Scanner<CaseInsensitiveTestDatabean> scanMulti(
+			List<Range<CaseInsensitiveTestPrimaryKey>> ranges,
 			int outputBatchSize){
 		return node.scanMulti(ranges, new Config().setOutputBatchSize(outputBatchSize));
 	}

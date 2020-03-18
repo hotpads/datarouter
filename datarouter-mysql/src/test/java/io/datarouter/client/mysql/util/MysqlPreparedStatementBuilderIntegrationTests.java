@@ -29,6 +29,8 @@ import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.ddl.domain.MysqlCharacterSet;
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
 import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptions;
+import io.datarouter.client.mysql.sql.MysqlSql;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
@@ -43,7 +45,7 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 
 	private static final Config CONFIG = new Config().setLimit(10).setOffset(5);
 
-	private static final MysqlLiveTableOptions UTF8_BIN = new MysqlLiveTableOptions(
+	private static final MysqlLiveTableOptions UTF8_BIN_OPTIONS = new MysqlLiveTableOptions(
 			MysqlCharacterSet.utf8,
 			MysqlCollation.utf8_bin);
 	private static final MysqlLiveTableOptions CONNECTION_OPTIONS = new MysqlLiveTableOptions(
@@ -58,86 +60,210 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 	private static final List<TestKey> TWO_KEYS = Arrays.asList(KEY_1, KEY_2);
 
 	@Inject
-	private MysqlPreparedStatementBuilder builder;
+	private MysqlSqlFactory sqlFactory;
+
+	private MysqlSql makeSql(){
+		return sqlFactory.createSql(CONNECTION_OPTIONS);
+	}
+
+	private MysqlSql makeUtf8BinSql(){
+		return sqlFactory.createSql(UTF8_BIN_OPTIONS);
+	}
 
 	@Test
 	public void testGetWithPrefixes(){
-		Assert.assertEquals(builder.getWithPrefixes(CONFIG, "TestTable", SqlBuilder.PRIMARY_KEY_INDEX_NAME, KEY_1
-				.getFields(), TWO_KEYS, KEY_1.getFields(), CONNECTION_OPTIONS).getSql().toString(), "select foo, bar "
-				+ "from TestTable force index (PRIMARY) where foo=? and bar=? or foo=? and bar=? order by foo asc, bar "
-				+ "asc limit 5, 10");
+		String actual1 = makeSql().getWithPrefixes(
+				"TestTable",
+				CONFIG,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME,
+				KEY_1.getFields(),
+				TWO_KEYS,
+				KEY_1.getFields())
+				.toString();
+		Assert.assertEquals(actual1, "select foo, bar from TestTable force index (PRIMARY) "
+				+ "where foo=? and bar=? or foo=? and bar=? order by foo asc, bar asc limit 5, 10");
+
 		List<TestKey> oneNullPrefix = Arrays.asList(new TestKey(null, null));
-		Assert.assertEquals(builder.getWithPrefixes(CONFIG, "TestTable", SqlBuilder.PRIMARY_KEY_INDEX_NAME, KEY_1
-				.getFields(), oneNullPrefix, KEY_1.getFields(), CONNECTION_OPTIONS).getSql().toString(), "select foo, "
+		String actual2 = makeSql().getWithPrefixes(
+				"TestTable",
+				CONFIG,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME,
+				KEY_1.getFields(),
+				oneNullPrefix,
+				KEY_1.getFields())
+				.toString();
+		Assert.assertEquals(actual2, "select foo, "
 				+ "bar from TestTable force index (PRIMARY) order by foo asc, bar asc limit 5, 10");
+
 		List<TestKey> onePrefix = Arrays.asList(new TestKey(42, null));
-		Assert.assertEquals(builder.getWithPrefixes(CONFIG, "TestTable", SqlBuilder.PRIMARY_KEY_INDEX_NAME, KEY_1
-				.getFields(), onePrefix, KEY_1.getFields(), CONNECTION_OPTIONS).getSql().toString(), "select foo, bar "
+		var actual3 = makeSql().getWithPrefixes(
+				"TestTable",
+				CONFIG,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME,
+				KEY_1.getFields(),
+				onePrefix,
+				KEY_1.getFields())
+				.toString();
+		Assert.assertEquals(actual3, "select foo, bar "
 				+ "from TestTable force index (PRIMARY) where foo=? order by foo asc, bar asc limit 5, 10");
 	}
 
 	@Test
 	public void testGetMulti(){
-		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), ONE_KEY,
-				SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS).getSql().toString(),
-				"select foo, bar from TestTable force index (PRIMARY) where foo=? and bar=? limit" + " 5, 10");
-		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), null,
-				SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS).getSql().toString(),
-				"select foo, bar from TestTable force index (PRIMARY) limit 5, 10");
-		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), TWO_KEYS,
-				SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS).getSql().toString(),
+		String actual1 = makeSql().getMulti(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				ONE_KEY,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual1, "select foo, bar from TestTable force index (PRIMARY) where foo=? and bar=? limit"
+				+ " 5, 10");
+
+		String actual2 = makeSql().getMulti(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual2, "select foo, bar from TestTable force index (PRIMARY) limit 5, 10");
+
+		String actual3 = makeSql().getMulti(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				TWO_KEYS,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual3,
 				"select foo, bar from TestTable force index (PRIMARY) where foo=? and bar=? or foo=? and bar=? limit 5,"
-				+ " 10");
-		Assert.assertEquals(builder.getMulti(CONFIG, "TestTable", KEY_1.getFields(), TWO_KEYS,
-				SqlBuilder.PRIMARY_KEY_INDEX_NAME, UTF8_BIN).getSql().toString(),
+						+ " 10");
+		String actual4 = makeUtf8BinSql().getMulti(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				TWO_KEYS,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual4,
 				"select foo, bar from TestTable force index (PRIMARY) where foo=? and bar=_utf8 ? COLLATE utf8_bin or "
-				+ "foo=? and bar=_utf8 ? COLLATE utf8_bin limit 5, 10");
+						+ "foo=? and bar=_utf8 ? COLLATE utf8_bin limit 5, 10");
 	}
 
 	@Test
 	public void testDeleteMulti(){
-		Assert.assertEquals(builder.deleteMulti(CONFIG, "TestTable", null, CONNECTION_OPTIONS).getSql().toString(),
-				"delete from TestTable limit 5, 10");
-		Assert.assertEquals(builder.deleteMulti(CONFIG, "TestTable", ONE_KEY, CONNECTION_OPTIONS).getSql().toString(),
-				"delete from TestTable where foo=? and bar=? limit 5, 10");
+		String actual1 = makeSql().deleteMulti("TestTable", CONFIG, null).toString();
+		Assert.assertEquals(actual1, "delete from TestTable limit 5, 10");
+
+		String actual2 = makeSql().deleteMulti("TestTable", CONFIG, ONE_KEY).toString();
+		Assert.assertEquals(actual2, "delete from TestTable where foo=? and bar=? limit 5, 10");
 	}
 
 	@Test
 	public void testGetInRanges(){
-		Assert.assertEquals(builder.getInRanges(CONFIG, "TestTable", KEY_1.getFields(), Arrays.asList(new Range<>(
-				KEY_1)), null, SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS).getSql().toString(),
+		String actual1 = makeSql().getInRanges(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				Arrays.asList(new Range<>(KEY_1)),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual1,
 				"select foo, bar from TestTable force index (PRIMARY) where ((foo=? and bar>=?) or (foo>?)) limit 5, "
 				+ "10");
-		Assert.assertEquals(builder.getInRanges(CONFIG, "TestTable", KEY_1.getFields(), Arrays.asList(new Range<>(null,
-				KEY_1)), null, SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS).getSql().toString(),
+
+		String actual2 = makeSql().getInRanges(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				Arrays.asList(new Range<>(null, KEY_1)),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual2,
 				"select foo, bar from TestTable force index (PRIMARY) where ((foo<?) or (foo=? and bar<?)) limit 5, "
 				+ "10");
-		Assert.assertEquals(builder.getInRanges(CONFIG, "TestTable", KEY_1.getFields(), Arrays.asList(
-				new Range<TestKey>(null, null)), null, SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS)
-				.getSql().toString(), "select foo, bar from TestTable force index (PRIMARY) limit 5, 10");
-		Assert.assertEquals(builder.getInRanges(CONFIG, "TestTable", KEY_1.getFields(), Arrays.asList(new Range<>(
-				KEY_1), new Range<>(KEY_2)), null, SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS)
-				.getSql().toString(), "select foo, bar from TestTable force index (PRIMARY) where ((foo=? and bar>=?) "
+
+		String actual3 = makeSql().getInRanges(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				Arrays.asList(new Range<TestKey>(null, null)),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual3, "select foo, bar from TestTable force index (PRIMARY) limit 5, 10");
+
+		Assert.assertEquals(makeSql().getInRanges(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				Arrays.asList(new Range<>(KEY_1), new Range<>(KEY_2)),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString(),
+				"select foo, bar from TestTable force index (PRIMARY) where ((foo=? and bar>=?) "
 				+ "or (foo>?)) or ((foo=? and bar>=?) or (foo>?)) limit 5, 10");
-		Assert.assertEquals(builder.getInRanges(CONFIG, "TestTable", KEY_1.getFields(), Arrays.asList(new Range<>(
-				KEY_2, KEY_3)), null, SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS)
-				.getSql().toString(), "select foo, bar from TestTable force index (PRIMARY) where (foo=? and ((bar>=?))"
+
+		String actual4 = makeSql().getInRanges(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				Arrays.asList(new Range<>(KEY_2, KEY_3)),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual4,
+				"select foo, bar from TestTable force index (PRIMARY) where (foo=? and ((bar>=?))"
 				+ " and ((bar<?))) limit 5, 10");
-		Assert.assertEquals(builder.getInRanges(CONFIG, "TestTable", KEY_1.getFields(), Arrays.asList(new Range<>(
-				KEY_2, true, KEY_2, true)), null, SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS)
-				.getSql().toString(), "select foo, bar from TestTable force index (PRIMARY) where (foo=? and bar=?)"
+
+		String actual5 = makeSql().getInRanges(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				Arrays.asList(new Range<>(KEY_2, true, KEY_2, true)),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual5,
+				"select foo, bar from TestTable force index (PRIMARY) where (foo=? and bar=?)"
 				+ " limit 5, 10");
-		Assert.assertEquals(builder.getInRanges(CONFIG, "TestTable", KEY_1.getFields(), Arrays.asList(new Range<>(
-				new TestKey(null, null), KEY_1)), null, SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS)
-				.getSql().toString(), "select foo, bar from TestTable force index (PRIMARY) where ((foo<?) or (foo=? "
+
+		String actual6 = makeSql().getInRanges(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				Arrays.asList(new Range<>(new TestKey(null, null), KEY_1)),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual6,
+				"select foo, bar from TestTable force index (PRIMARY) where ((foo<?) or (foo=? "
 				+ "and bar<?)) limit 5, 10");
-		Assert.assertEquals(builder.getInRanges(CONFIG, "TestTable", KEY_1.getFields(), Arrays.asList(new Range<>(
-				KEY_1, false, KEY_2, true)), null, SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS)
-				.getSql().toString(), "select foo, bar from TestTable force index (PRIMARY) where ((foo=? and bar>?) "
+
+		String actual7 = makeSql().getInRanges(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				Arrays.asList(new Range<>(KEY_1, false, KEY_2, true)),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual7,
+				"select foo, bar from TestTable force index (PRIMARY) where ((foo=? and bar>?) "
 				+ "or (foo>?)) and ((foo<?) or (foo=? and bar<=?)) limit 5, 10");
-		Assert.assertEquals(builder.getInRanges(CONFIG, "TestTable", KEY_1.getFields(), Arrays.asList(new Range<>(
-				KEY_1, new TestKey(null, null))), null, SqlBuilder.PRIMARY_KEY_INDEX_NAME, CONNECTION_OPTIONS)
-				.getSql().toString(), "select foo, bar from TestTable force index (PRIMARY) where ((foo=? "
+
+		String actual8 = makeSql().getInRanges(
+				"TestTable",
+				CONFIG,
+				KEY_1.getFields(),
+				Arrays.asList(new Range<>(KEY_1, new TestKey(null, null))),
+				null,
+				MysqlTool.PRIMARY_KEY_INDEX_NAME)
+				.toString();
+		Assert.assertEquals(actual8, "select foo, bar from TestTable force index (PRIMARY) where ((foo=? "
 				+ "and bar>=?) or (foo>?)) limit 5, 10");
 	}
 
@@ -158,9 +284,7 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 
 		@Override
 		public List<Field<?>> getFields(){
-			return Arrays.asList(
-					new IntegerField(FieldKeys.foo, foo),
-					new StringField(FieldKeys.bar, bar));
+			return Arrays.asList(new IntegerField(FieldKeys.foo, foo), new StringField(FieldKeys.bar, bar));
 		}
 
 	}

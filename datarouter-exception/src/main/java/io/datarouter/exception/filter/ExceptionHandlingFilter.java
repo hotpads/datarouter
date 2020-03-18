@@ -19,6 +19,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -132,7 +133,15 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 					lineNumber = element.get().getLineNumber();
 				}
 			}
-			String callOrigin = RequestAttributeTool.get(request, BaseHandler.HANDLER_METHOD_NAME).orElse(null);
+			String callOrigin;
+			Optional<Class<? extends BaseHandler>> handlerClass = RequestAttributeTool.get(request,
+					BaseHandler.HANDLER_CLASS);
+			Optional<Method> handlerMethod = RequestAttributeTool.get(request, BaseHandler.HANDLER_METHOD);
+			if(handlerClass.isPresent() && handlerMethod.isPresent()){
+				callOrigin = handlerClass.getClass().getName() + "." + handlerMethod.get().getName();
+			}else{
+				callOrigin = null;
+			}
 
 			ExceptionRecordDto exceptionRecord = exceptionRecorder.recordExceptionAndHttpRequest(exception, location,
 					methodName, lineNumber, request, callOrigin);

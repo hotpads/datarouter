@@ -15,6 +15,7 @@
  */
 package io.datarouter.instrumentation.task;
 
+import java.time.Duration;
 import java.time.Instant;
 
 public interface TaskTracker{
@@ -55,5 +56,9 @@ public interface TaskTracker{
 
 	TaskTracker requestStop();
 	boolean shouldStop();
+
+	default Duration getElapsedTime(){
+		return Duration.between(getStartTime(), Instant.now());
+	}
 
 }

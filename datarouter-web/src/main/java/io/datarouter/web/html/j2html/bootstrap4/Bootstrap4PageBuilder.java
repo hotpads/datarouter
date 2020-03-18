@@ -19,7 +19,9 @@ import static j2html.TagCreator.document;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -43,6 +45,7 @@ public class Bootstrap4PageBuilder{
 	private boolean includeNav = true;
 	private List<ContainerTag> navbars = new ArrayList<>();
 	private ContainerTag content;
+	private final Map<String,String> httpEquivs = new LinkedHashMap<>();
 
 	public DatarouterPage build(){
 		require.add(DatarouterWebRequireJsV2.BOOTSTRAP);
@@ -53,7 +56,8 @@ public class Bootstrap4PageBuilder{
 				webappRequireJsConfigJsonString,
 				require.toArray(String[]::new),
 				isAdmin,
-				title);
+				title,
+				httpEquivs);
 		NavBar navbar = mavProperties.getIsDatarouterPage()
 				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
@@ -94,6 +98,11 @@ public class Bootstrap4PageBuilder{
 
 	public Bootstrap4PageBuilder withTitle(String title){
 		this.title = title;
+		return this;
+	}
+
+	public Bootstrap4PageBuilder withHttpEquiv(String httpEquiv, String content){
+		httpEquivs.put(httpEquiv, content);
 		return this;
 	}
 

@@ -33,7 +33,6 @@ import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
 import io.datarouter.instrumentation.exception.HttpRequestRecordBatchDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.iterable.IterableTool;
 
 @Singleton
@@ -46,11 +45,11 @@ extends BaseGroupQueueConsumerConveyor<HttpRequestRecordKey,HttpRequestRecord>{
 	@Inject
 	public HttpRequestRecordQueueConveyor(
 			String name,
-			Setting<Boolean> shouldRun,
+			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<HttpRequestRecordKey,HttpRequestRecord> consumer,
 			ExceptionRecordPublisher publisher,
 			Supplier<Boolean> compactExceptionLogging){
-		super(name, shouldRun, consumer, compactExceptionLogging, Duration.ofSeconds(5));
+		super(name, shouldRun, consumer, compactExceptionLogging, Duration.ofSeconds(30));
 		this.publisher = publisher;
 	}
 

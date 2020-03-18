@@ -72,8 +72,11 @@ public class ReaderTool{
 	/*------------------------- scanners ------------------------------------*/
 
 	public static Scanner<String> scanFileLines(String fullPath){
-		BufferedReader bufferedReader = createNewBufferedFileReader(fullPath);
-		return new ReaderScanner(bufferedReader);
+		return lines(createNewBufferedFileReader(fullPath));
+	}
+
+	public static Scanner<String> lines(BufferedReader reader){
+		return new ReaderScanner(reader);
 	}
 
 	public static class ReaderScanner extends BaseScanner<String>{

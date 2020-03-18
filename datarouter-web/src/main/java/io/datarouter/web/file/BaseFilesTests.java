@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.path.PathNode;
-import io.datarouter.instrumentation.test.Testable;
+import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.util.Require;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.io.FileTool;
@@ -38,7 +38,7 @@ import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 
-public abstract class BaseFilesTests implements Testable{
+public abstract class BaseFilesTests implements TestableService{
 	private static final Logger logger = LoggerFactory.getLogger(BaseFilesTests.class);
 
 	private static final List<String> OMITTED_WORDS = Arrays.asList(

@@ -20,18 +20,19 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.storage.setting.Setting;
-
 public abstract class BaseConveyor implements Conveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseConveyor.class);
 
 	protected final String name;
-	private final Setting<Boolean> shouldRunSetting;
+	private final Supplier<Boolean> shouldRunSetting;
 	private final Supplier<Boolean> compactExceptionLogging;
 
-	public BaseConveyor(String name, Setting<Boolean> shouldRunSetting, Supplier<Boolean> compactExceptionLogging){
+	public BaseConveyor(
+			String name,
+			Supplier<Boolean> shouldRun,
+			Supplier<Boolean> compactExceptionLogging){
 		this.name = name;
-		this.shouldRunSetting = shouldRunSetting;
+		this.shouldRunSetting = shouldRun;
 		this.compactExceptionLogging = compactExceptionLogging;
 	}
 

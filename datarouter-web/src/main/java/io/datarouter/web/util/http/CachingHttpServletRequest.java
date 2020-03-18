@@ -65,13 +65,12 @@ public class CachingHttpServletRequest extends HttpServletRequestWrapper{
 	}
 
 	@Override
-	public ServletInputStream getInputStream() throws IOException{
-		byte[] content = getContent();
-		return new CachingServletInputStream(new ByteArrayInputStream(content));
+	public ServletInputStream getInputStream(){
+		return new CachingServletInputStream(() -> new ByteArrayInputStream(getContent()));
 	}
 
 	@Override
-	public BufferedReader getReader() throws IOException{
+	public BufferedReader getReader(){
 		String encoding = super.getCharacterEncoding();
 		Charset charset = encoding != null ? Charset.forName(encoding) : StandardCharsets.ISO_8859_1;
 		return new BufferedReader(new InputStreamReader(getInputStream(), charset));

@@ -69,6 +69,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	private TomcatThreadMetrics tomcatThreadMetrics;
 	@Inject
 	private ManifestDetails manifestDetails;
+	@Inject
+	private HostMemoryService hostMemoryService;
 
 	@Handler(defaultHandler = true)
 	protected Mav view(){
@@ -107,6 +109,17 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		MemoryUsage nonHeapMemoryUsage = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
 		mav.put("nonHeap", new MemoryUsageForDisplay(nonHeapMemoryUsage));
 
+		hostMemoryService.getHostMemoryStats().ifSuccess(hostMemoryStats -> {
+			mav.put("hostMemoryUsed", ByteUnitTool.byteCountToDisplaySize(hostMemoryStats.get(
+					HostMemoryService.HOST_MEM_NAME).get(HostMemoryService.HOST_USED_LABEL)));
+			mav.put("hostMemoryTotal", ByteUnitTool.byteCountToDisplaySize(hostMemoryStats.get(
+					HostMemoryService.HOST_MEM_NAME).get(HostMemoryService.HOST_TOTAL_LABEL)));
+		});
+		hostMemoryService.getCgroupMemoryStats().ifSuccess(cgroupMemoryStats -> {
+			mav.put("cgroupMemoryUsage", ByteUnitTool.byteCountToDisplaySize(cgroupMemoryStats.usage));
+			mav.put("cgroupMemoryLimit", ByteUnitTool.byteCountToDisplaySize(cgroupMemoryStats.limit));
+		});
+
 		List<MemoryPoolMXBean> memoryPoolMxBeans = ManagementFactory.getMemoryPoolMXBeans();
 		List<MemoryPoolForDisplay> heaps = new LinkedList<>();
 		List<MemoryPoolForDisplay> nonHeaps = new LinkedList<>();
@@ -117,8 +130,6 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 				break;
 			case NON_HEAP:
 				nonHeaps.add(new MemoryPoolForDisplay(memoryPoolMxBean));
-				break;
-			default:
 				break;
 			}
 		}

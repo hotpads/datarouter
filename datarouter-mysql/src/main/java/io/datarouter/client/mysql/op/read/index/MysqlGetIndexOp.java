@@ -27,7 +27,6 @@ import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.op.read.MysqlGetOpExecutor;
 import io.datarouter.client.mysql.util.MysqlTool;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
@@ -60,9 +59,15 @@ extends BaseMysqlOp<List<IE>>{
 	private final Supplier<IE> indexEntrySupplier;
 	private final IE indexEntry;
 
-	public MysqlGetIndexOp(Datarouter datarouter, MysqlGetOpExecutor mysqlGetOpExecutor,
-			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, MysqlFieldCodecFactory fieldCodecFactory, String opName,
-			Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<IK> uniqueKeys){
+	public MysqlGetIndexOp(
+			Datarouter datarouter,
+			MysqlGetOpExecutor mysqlGetOpExecutor,
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			MysqlFieldCodecFactory fieldCodecFactory,
+			String opName,
+			Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<IK> uniqueKeys){
 		super(datarouter, fieldInfo.getClientId(), Isolation.DEFAULT, true);
 		this.mysqlGetOpExecutor = mysqlGetOpExecutor;
 		this.fieldInfo = fieldInfo;
@@ -78,21 +83,31 @@ extends BaseMysqlOp<List<IE>>{
 
 	@Override
 	public List<IE> runOnce(){
-		return mysqlGetOpExecutor.execute(fieldInfo, opName, uniqueKeys, config, indexFielder.getFields(
-				indexEntry), this::select, getConnection(), indexEntryFieldInfo.getIndexName());
+		return mysqlGetOpExecutor.execute(
+				fieldInfo,
+				opName,
+				uniqueKeys,
+				config,
+				indexFielder.getFields(indexEntry),
+				this::select,
+				getConnection(),
+				indexEntryFieldInfo.getIndexName());
 	}
 
 	private List<IE> select(PreparedStatement ps){
 		try{
 			String spanName = fieldInfo.getNodeName() + " " + opName + " PreparedStatement.execute";
-			try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+			try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();
 			List<IE> databeans = new ArrayList<>();
 			while(rs.next()){
-				IE databean = MysqlTool.fieldSetFromMysqlResultSetUsingReflection(fieldCodecFactory, indexEntrySupplier,
-						indexFielder.getFields(indexEntry), rs);
+				IE databean = MysqlTool.fieldSetFromMysqlResultSetUsingReflection(
+						fieldCodecFactory,
+						indexEntrySupplier,
+						indexFielder.getFields(indexEntry),
+						rs);
 				databeans.add(databean);
 			}
 			return databeans;

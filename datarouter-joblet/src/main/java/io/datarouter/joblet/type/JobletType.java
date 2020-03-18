@@ -15,6 +15,7 @@
  */
 package io.datarouter.joblet.type;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.function.Supplier;
 
@@ -32,13 +33,15 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 	private final Supplier<JobletCodec<P>> codecSupplier;
 	private final Class<? extends Joblet<P>> clazz;
 	private final boolean causesScaling;
+	public final Duration pollingPeriod;
 
 	private JobletType(
 			String persistentString,
 			String shortQueueName,
 			Supplier<JobletCodec<P>> codecSupplier,
 			Class<? extends Joblet<P>> clazz,
-			boolean causesScaling){
+			boolean causesScaling,
+			Duration pollingPeriod){
 		this.persistentString = persistentString;
 		Require.isTrue(shortQueueName.length() <= DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME,
 				"shortQueueName length must be <= " + DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME
@@ -47,6 +50,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 		this.codecSupplier = codecSupplier;
 		this.clazz = clazz;
 		this.causesScaling = causesScaling;
+		this.pollingPeriod = pollingPeriod;
 	}
 
 	public String getDisplay(){
@@ -97,6 +101,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 		private Supplier<JobletCodec<P>> codecSupplier;
 		private Class<? extends Joblet<P>> clazz;
 		private boolean causesScaling = true;
+		private Duration pollingPeriod = Duration.ofSeconds(5);
 
 		public JobletTypeBuilder(
 				String persistentString,
@@ -120,13 +125,19 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 			return this;
 		}
 
+		public JobletTypeBuilder<P> withPollingPeriod(Duration pollingPeriod){
+			this.pollingPeriod = pollingPeriod;
+			return this;
+		}
+
 		public JobletType<P> build(){
 			return new JobletType<>(
 					persistentString,
 					shortQueueName != null ? shortQueueName : persistentString,
 					codecSupplier,
 					clazz,
-					causesScaling);
+					causesScaling,
+					pollingPeriod);
 		}
 
 	}

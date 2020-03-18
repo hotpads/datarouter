@@ -28,7 +28,7 @@ public class IteratorScanner<T> extends BaseScanner<T>{
 	@Override
 	public boolean advance(){
 		if(iterator.hasNext()){
-			this.current = iterator.next();
+			current = iterator.next();
 			return true;
 		}
 		return false;

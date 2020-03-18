@@ -29,7 +29,6 @@ import com.mysql.cj.log.Slf4JLogger;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
@@ -41,27 +40,25 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.util.string.StringTool;
 
 public class MysqlTool{
 
+	public static final String PRIMARY_KEY_INDEX_NAME = "PRIMARY";
 	private static final String TABLE_CATALOG = "TABLE_CAT";
 
-	public static Connection openConnection(String hostname, int port, String database, String user, String password){
+	public static Connection openConnection(String hostname, int port, String user, String password){
 		try{
-			String url = String.format("jdbc:mysql://%s:%s/%s?user=%s&password=%s&logger=%s",
+			String url = String.format("jdbc:mysql://%s:%s?user=%s&password=%s&logger=%s",
 					hostname,
 					port,
-					StringTool.nullSafe(database),
 					user,
 					password,
 					Slf4JLogger.class.getName());
 			return DriverManager.getConnection(url);
 		}catch(Exception e){
-			String message = String.format("failed to connect hostname=%s port=%s database=%s user=%s",
+			String message = String.format("failed to connect hostname=%s port=%s user=%s",
 					hostname,
 					port,
-					database,
 					user);
 			throw new RuntimeException(message, e);
 		}
@@ -104,7 +101,7 @@ public class MysqlTool{
 		try{
 			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
 					+ " selectPrimaryKeys PreparedStatement.execute";
-			try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+			try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();
@@ -131,7 +128,7 @@ public class MysqlTool{
 			PreparedStatement ps){
 		try{
 			String spanName = databeanSupplier.get().getDatabeanName() + " selectDatabeans PreparedStatement.execute";
-			try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+			try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();
@@ -159,14 +156,15 @@ public class MysqlTool{
 		try{
 			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
 					+ " selectIndexEntryKeys PreparedStatement.execute";
-			try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+			try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();
 			List<IK> keys = new ArrayList<>();
 			while(rs.next()){
 				IK key = fieldSetFromMysqlResultSetUsingReflection(
-						fieldCodecFactory, ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
+						fieldCodecFactory,
+						ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
 						fieldInfo.getPrimaryKeyFields(),
 						rs);
 				keys.add(key);
@@ -180,7 +178,7 @@ public class MysqlTool{
 
 	public static int update(PreparedStatement statement){
 		String spanName = "update PreparedStatement.execute";
-		try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
 			return statement.executeUpdate();
 		}catch(SQLException e){
 			String message = "error executing sql:" + statement;

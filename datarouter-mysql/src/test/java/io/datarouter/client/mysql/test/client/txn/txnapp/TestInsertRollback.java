@@ -29,8 +29,12 @@ public class TestInsertRollback extends BaseMysqlOp<Void>{
 	private final DatarouterTxnTestDao dao;
 	private final String beanPrefix;
 
-	public TestInsertRollback(Datarouter datarouter, ClientId clientId, Isolation isolation,
-			DatarouterTxnTestDao dao, String beanPrefix){
+	public TestInsertRollback(
+			Datarouter datarouter,
+			ClientId clientId,
+			Isolation isolation,
+			DatarouterTxnTestDao dao,
+			String beanPrefix){
 		super(datarouter, clientId, isolation, false);
 		this.dao = dao;
 		this.beanPrefix = beanPrefix;
@@ -38,10 +42,10 @@ public class TestInsertRollback extends BaseMysqlOp<Void>{
 
 	@Override
 	public Void runOnce(){
-		TxnBean beanA = new TxnBean(beanPrefix + "1");
+		var beanA = new TxnBean(beanPrefix + "1");
 		dao.put(beanA);
 		Assert.assertTrue(dao.exists(beanA.getKey()));//it exists inside the txn
-		TxnBean a2 = new TxnBean(beanA.getKey().getId());
+		var a2 = new TxnBean(beanA.getKey().getId());
 		dao.putOrBust(a2);//should bust on commit
 		return null;
 	}

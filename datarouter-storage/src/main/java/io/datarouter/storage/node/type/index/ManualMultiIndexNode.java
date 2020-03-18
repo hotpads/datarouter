@@ -57,7 +57,7 @@ implements MultiIndexNode<PK, D, IK, IE>{
 		var indexKeyRange = new Range<>(indexKey, true, indexKey, true);
 		return indexNode.scan(indexKeyRange, config)
 				.map(IE::getTargetKey)
-				.collect(primaryKeys -> mainNode.getMulti(primaryKeys, config));
+				.listTo(primaryKeys -> mainNode.getMulti(primaryKeys, config));
 	}
 
 
@@ -70,7 +70,7 @@ implements MultiIndexNode<PK, D, IK, IE>{
 				.map(indexKey -> new Range<>(indexKey, true, indexKey, true))
 				.concatenate(indexKeyRange -> indexNode.scan(indexKeyRange))
 				.map(IE::getTargetKey)
-				.collect(primaryKeys -> mainNode.getMulti(primaryKeys, config));
+				.listTo(primaryKeys -> mainNode.getMulti(primaryKeys, config));
 	}
 
 	@Override

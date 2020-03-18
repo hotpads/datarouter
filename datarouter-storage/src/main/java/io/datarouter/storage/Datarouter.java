@@ -49,27 +49,21 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 @Singleton
 public class Datarouter{
 
-	private final DatarouterClients clients;
-	private final DatarouterNodes nodes;
-	private final DatarouterWriteBehindScheduler writeBehindScheduler;
-	private final DatarouterWriteBehindExecutor writeBehindExecutor;
-	private final DaoClasses daoClasses;
-
 	@Inject
-	public Datarouter(
-			DatarouterClients clients,
-			DatarouterNodes nodes,
-			DatarouterWriteBehindExecutor writeBehindExecutor,
-			DatarouterWriteBehindScheduler writeBehindScheduler,
-			DaoClasses daoClasses){
-		this.clients = clients;
-		this.nodes = nodes;
-		this.writeBehindExecutor = writeBehindExecutor;
-		this.writeBehindScheduler = writeBehindScheduler;
-		this.daoClasses = daoClasses;
-	}
+	private DatarouterClients clients;
+	@Inject
+	private DatarouterNodes nodes;
+	@Inject
+	private DatarouterWriteBehindScheduler writeBehindScheduler;
+	@Inject
+	private DatarouterWriteBehindExecutor writeBehindExecutor;
+	@Inject
+	private DaoClasses daoClasses;
 
-	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends Node<PK,D,F>>
 	N register(N node){
 		nodes.register(node);
 		for(ClientId clientId : registerClientIds(node.getClientIds())){
@@ -94,8 +88,6 @@ public class Datarouter{
 	public void shutdown(){
 		clients.shutdown();
 	}
-
-	/*------------------------------- methods--------------------------------*/
 
 	public NavigableSet<PhysicalNode<?,?,?>> getWritableNodes(){
 		return clients.getClientIds().stream()

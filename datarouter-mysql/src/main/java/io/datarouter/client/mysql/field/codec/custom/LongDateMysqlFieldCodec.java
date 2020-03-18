@@ -41,8 +41,12 @@ extends BasePrimitiveMysqlFieldCodec<Date,Field<Date>>{
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), 20,
-				allowNullable && field.getKey().isNullable(), false);
+		return new SqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				20,
+				allowNullable && field.getKey().isNullable(),
+				false);
 	}
 
 	@Override

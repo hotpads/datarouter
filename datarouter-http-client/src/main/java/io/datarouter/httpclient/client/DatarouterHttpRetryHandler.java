@@ -41,14 +41,13 @@ public class DatarouterHttpRetryHandler implements HttpRequestRetryHandler{
 		HttpClientContext clientContext = HttpClientContext.adapt(context);
 		boolean willRetry = HttpRetryTool.shouldRetry(context, executionCount, retryCount);
 		String requestId = (String)context.getAttribute(DatarouterHttpClientIoExceptionCircuitBreaker.X_REQUEST_ID);
+		String url = clientContext.getTargetHost() + clientContext.getRequest().getRequestLine().getUri();
 		if(willRetry){
-			logger.warn("Request {} id={} failure Nº {}", clientContext.getRequest().getRequestLine(), requestId,
-					executionCount, exception);
+			logger.warn("failure target={} id={} failureCount={}", url, requestId, executionCount, exception);
 			TracerTool.appendToSpanInfo("willRetry", exception.getMessage());
 		}else{
 			// don't log everything, caller will get details in an Exception
-			logger.warn("Request {} id={} failure Nº {} (final)", clientContext.getRequest().getRequestLine(),
-					requestId, executionCount);
+			logger.warn("failure target={} id={} failureCount={} (final)", url, requestId, executionCount);
 		}
 		return willRetry;
 	}

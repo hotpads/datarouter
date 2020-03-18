@@ -75,7 +75,7 @@ public class PutOpIntegrationTests{
 
 	@Test
 	public void testInsertOnDuplicateUpdate(){
-		Config config = new Config().setPutMethod(PutMethod.INSERT_ON_DUPLICATE_UPDATE);
+		var config = new Config().setPutMethod(PutMethod.INSERT_ON_DUPLICATE_UPDATE);
 		Pair<String,String> result = test("testInsertOnDuplicateUpdate", config);
 		Assert.assertEquals(result.getLeft(), "baz");
 		Assert.assertEquals(result.getRight(), "qux");
@@ -83,7 +83,7 @@ public class PutOpIntegrationTests{
 
 	@Test
 	public void testInsertOrBust(){
-		Config config = new Config().setPutMethod(PutMethod.INSERT_OR_BUST);
+		var config = new Config().setPutMethod(PutMethod.INSERT_OR_BUST);
 		Pair<String,String> result = test("testInsertOrBust", config, false, true);
 		Assert.assertEquals(result.getLeft(), "baz");
 		Assert.assertEquals(result.getRight(), "baz");
@@ -105,7 +105,7 @@ public class PutOpIntegrationTests{
 
 	@Test
 	public void testUpdateOrBust(){
-		Config config = new Config().setPutMethod(PutMethod.UPDATE_OR_BUST);
+		var config = new Config().setPutMethod(PutMethod.UPDATE_OR_BUST);
 		Pair<String,String> result = test("testUpdateOrBust", config, true, true);
 		Assert.assertNull(result.getLeft());
 		Assert.assertNull(result.getRight());
@@ -122,10 +122,13 @@ public class PutOpIntegrationTests{
 		return test(testName, config, false, false);
 	}
 
-	private Pair<String,String> test(String testName, Config config, boolean expectedFirstCaught,
+	private Pair<String,String> test(
+			String testName,
+			Config config,
+			boolean expectedFirstCaught,
 			boolean expectedSecondCaught){
-		PutOpTestBean bean = new PutOpTestBean(testName, "bar", "baz");
-		PutOpTestBean bean2 = new PutOpTestBean(testName, "bar", "qux");
+		var bean = new PutOpTestBean(testName, "bar", "baz");
+		var bean2 = new PutOpTestBean(testName, "bar", "qux");
 		try{
 			dao.put(bean, config);
 			Assert.assertFalse(expectedFirstCaught);
@@ -155,7 +158,7 @@ public class PutOpIntegrationTests{
 	public void testMultiInsert(){
 		int testBatchSize = 10;
 		int totalCount = (int) (testBatchSize * 2.5);
-		Config config = new Config()
+		var config = new Config()
 				.setInputBatchSize(testBatchSize)
 				.setPutMethod(PutMethod.INSERT_ON_DUPLICATE_UPDATE);
 		List<PutOpTestBean> databeans = new ArrayList<>();

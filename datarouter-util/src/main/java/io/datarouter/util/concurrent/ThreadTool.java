@@ -23,7 +23,16 @@ import io.datarouter.instrumentation.trace.TracerTool;
 public class ThreadTool{
 	private static final Logger logger = LoggerFactory.getLogger(ThreadTool.class);
 
-	public static void sleep(long ms){
+	public static void sleep(long ms) throws InterruptedException{
+		if(ms <= 0){//sleep errors on negatives
+			return;
+		}
+		try(var $ = TracerTool.startSpan("sleep " + ms)){
+			Thread.sleep(ms);
+		}
+	}
+
+	public static void sleepUnchecked(long ms){
 		if(ms <= 0){//sleep errors on negatives
 			return;
 		}
@@ -38,7 +47,7 @@ public class ThreadTool{
 		if(ms <= 0){//sleep errors on negatives
 			return;
 		}
-		try{
+		try(var $ = TracerTool.startSpan("sleep " + ms)){
 			Thread.sleep(ms);
 		}catch(InterruptedException e){
 			logger.warn("sleep interrupted, continuing");

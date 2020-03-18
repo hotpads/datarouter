@@ -88,10 +88,10 @@ public class TableSizeMonitoringEmailBuilder{
 				span("Sent from: " + serverNameString));
 	}
 
-	private static ContainerTag makeCountStatTable(String comparableCount, List<CountStat> stats){
+	private ContainerTag makeCountStatTable(String comparableCount, List<CountStat> stats){
 		return new J2HtmlEmailTable<CountStat>()
 				.withColumn("CLIENT", row -> row.latestSample.getKey().getClientName())
-				.withColumn("TABLE", row -> row.latestSample.getKey().getTableName())
+				.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(row.latestSample)))
 				.withColumn("DATE UPDATED", row -> DateTool.getDateTime(row.latestSample.getDateUpdated()))
 				.withColumn(alignRight(comparableCount, row -> NumberFormatter.addCommas(row.previousCount)))
 				.withColumn(alignRight("LATEST COUNT", row -> NumberFormatter.addCommas(row.latestSample.getNumRows())))

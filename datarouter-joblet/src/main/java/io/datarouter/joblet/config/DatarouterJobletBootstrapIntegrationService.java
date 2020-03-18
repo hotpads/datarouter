@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.instrumentation.test.Testable;
+import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 
@@ -27,7 +27,7 @@ import io.datarouter.joblet.type.JobletTypeFactory;
  * Use this class to check for injection problems
  */
 @Singleton
-public class DatarouterJobletBootstrapIntegrationService implements Testable{
+public class DatarouterJobletBootstrapIntegrationService implements TestableService{
 
 	@Inject
 	private JobletTypeFactory jobletTypeFactory;

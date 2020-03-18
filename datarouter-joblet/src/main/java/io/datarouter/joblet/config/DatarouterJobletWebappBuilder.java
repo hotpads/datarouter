@@ -48,7 +48,6 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.web.config.BaseWebPlugin;
-import io.datarouter.web.config.DatarouterWebWebappBuilder;
 import io.datarouter.web.config.DatarouterWebappConfig;
 import io.datarouter.web.config.FieldKeyOverrider;
 import io.datarouter.web.config.HttpsConfiguration;
@@ -407,8 +406,14 @@ public class DatarouterJobletWebappBuilder extends DatarouterJobWebappBuilder im
 	}
 
 	@Override
-	public DatarouterWebWebappBuilder withDatabeanExporterLink(String databeanExporterLink){
-		super.withDatabeanExporterLink(databeanExporterLink);
+	public DatarouterJobletWebappBuilder withNodeWidgetDatabeanExporterLink(String databeanExporterLink){
+		super.withNodeWidgetDatabeanExporterLink(databeanExporterLink);
+		return this;
+	}
+
+	@Override
+	public DatarouterJobletWebappBuilder withNodeWidgetTableCountLink(String nodeWidgetTableCountLink){
+		super.withNodeWidgetTableCountLink(nodeWidgetTableCountLink);
 		return this;
 	}
 

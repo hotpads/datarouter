@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.model.field.imp.positive;
+package io.datarouter.util;
 
-import io.datarouter.model.field.PrimitiveFieldKey;
+public class RunNativeDto{
 
-public class UInt8FieldKey extends PrimitiveFieldKey<Byte,UInt8FieldKey>{
+	public final String stdout;
+	public final String stderr;
+	public final int exitVal;
 
-	public UInt8FieldKey(String name){
-		super(name, Byte.class);
-	}
-
-	@Override
-	public UInt8Field createValueField(Byte value){
-		return new UInt8Field(this, value);
+	public RunNativeDto(String sshResults, String errorMsg, int exitVal){
+		this.stdout = sshResults;
+		this.stderr = errorMsg;
+		this.exitVal = exitVal;
 	}
 
 }

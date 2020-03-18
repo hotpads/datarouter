@@ -37,6 +37,7 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 	public final Setting<Integer> maxCacheableContentLength;
 	public final CachedSetting<String> shutdownSecret;
 	public final CachedSetting<Set<String>> stackTraceHighlights;
+	public final Setting<Boolean> saveLatencyGauges;
 
 	@Inject
 	public DatarouterWebSettingRoot(
@@ -53,6 +54,7 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 		maxCacheableContentLength = registerInteger("maxCacheableContentLength", ONE_MB);
 		shutdownSecret = registerString("shutdownSecret", "");
 		stackTraceHighlights = registerCommaSeparatedString("stackTraceHighlights", SetTool.wrap("io.datarouter"));
+		saveLatencyGauges = registerBooleans("saveLatencyGauges", defaultTo(true));
 	}
 
 }

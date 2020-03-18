@@ -44,9 +44,13 @@ extends BaseNodeScanner<IK,D>{
 	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 
-	public MysqlManagedIndexDatabeanScanner(MysqlNodeManager mysqlNodeManager,
-			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
-			Collection<Range<IK>> ranges, Config config, boolean caseInsensitive){
+	public MysqlManagedIndexDatabeanScanner(
+			MysqlNodeManager mysqlNodeManager,
+			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config,
+			boolean caseInsensitive){
 		super(ranges, config, caseInsensitive);
 		this.mysqlNodeManager = mysqlNodeManager;
 		this.fieldInfo = fieldInfo;

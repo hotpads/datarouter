@@ -46,6 +46,12 @@ public class MysqlClientOptionsBuilder implements ClientOptionsBuilder{
 		return this;
 	}
 
+	public MysqlClientOptionsBuilder withUrlParam(int index, String paramNameAndValue){
+		String optionKey = makeKey(MysqlOptions.PROP_urlParam + "." + index);
+		properties.setProperty(optionKey, paramNameAndValue);
+		return this;
+	}
+
 	public MysqlClientOptionsBuilder withUser(String userValue){
 		String optionKey = makeKey(MysqlOptions.PROP_user);
 		properties.setProperty(optionKey, userValue);

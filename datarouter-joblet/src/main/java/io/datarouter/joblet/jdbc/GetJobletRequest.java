@@ -21,7 +21,7 @@ import java.sql.PreparedStatement;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.client.mysql.util.DatarouterMysqlStatement;
+import io.datarouter.client.mysql.sql.MysqlSql;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.service.JobletService;
@@ -67,9 +67,12 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 	public JobletRequest runOnce(){
 		Connection connection = getConnection();
 
-		PreparedStatement selectStatement = makeSelectStatement().toPreparedStatement(connection);
-		JobletRequest jobletRequest = CollectionTool.getFirst(MysqlTool.selectDatabeans(mysqlFieldCodecFactory,
-				fieldInfo.getDatabeanSupplier(), fieldInfo.getFields(), selectStatement));
+		PreparedStatement selectStatement = makeSelectStatement().prepare(connection);
+		JobletRequest jobletRequest = CollectionTool.getFirst(MysqlTool.selectDatabeans(
+				mysqlFieldCodecFactory,
+				fieldInfo.getDatabeanSupplier(),
+				fieldInfo.getFields(),
+				selectStatement));
 		if(jobletRequest == null){
 			return null;
 		}
@@ -92,11 +95,11 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 		return jobletRequest;
 	}
 
-	private DatarouterMysqlStatement makeSelectStatement(){
-		DatarouterMysqlStatement statement = sqlBuilder.makeSelectFromClause();
-		sqlBuilder.appendWhereClause(statement, jobletType);
-		statement.append(" for update");//lock the row
-		return statement;
+	private MysqlSql makeSelectStatement(){
+		MysqlSql sql = sqlBuilder.makeSelectFromClause();
+		sqlBuilder.appendWhereClause(sql, jobletType);
+		sql.append(" for update");//lock the row
+		return sql;
 	}
 
 }

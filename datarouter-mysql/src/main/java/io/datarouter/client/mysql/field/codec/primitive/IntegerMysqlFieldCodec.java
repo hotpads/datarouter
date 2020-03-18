@@ -38,8 +38,12 @@ public class IntegerMysqlFieldCodec extends BasePrimitiveMysqlFieldCodec<Integer
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){
-		return new SqlColumn(field.getKey().getColumnName(), getMysqlColumnType(), 11, allowNullable && field.getKey()
-				.isNullable(), false);
+		return new SqlColumn(
+				field.getKey().getColumnName(),
+				getMysqlColumnType(),
+				11,
+				allowNullable && field.getKey().isNullable(),
+				false);
 	}
 
 	@Override

@@ -32,7 +32,8 @@ public class DatarouterMysqlSettingRoot extends SettingRoot{
 	public DatarouterMysqlSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterMysql.");
 
-		runFastMysqlLiveTableOptionsRefresherSpeed = registerStrings("runFastMysqlLiveTableOptionsRefresherSpeed",
+		runFastMysqlLiveTableOptionsRefresherSpeed = registerStrings(
+				"runFastMysqlLiveTableOptionsRefresherSpeed",
 				defaultTo("slow"));
 	}
 

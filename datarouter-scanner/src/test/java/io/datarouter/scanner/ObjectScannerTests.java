@@ -13,19 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.mysql.test.client.imp.mysql.util;
+package io.datarouter.scanner;
+
+import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.client.mysql.util.SqlBuilder;
-import io.datarouter.storage.config.Config;
-
-public class SqlBuilderTests{
+public class ObjectScannerTests{
 
 	@Test
-	public void testDeleteAll(){
-		Assert.assertEquals(SqlBuilder.deleteAll(new Config(), "TestTable"), "delete from TestTable");
+	public void test(){
+		Assert.assertEquals(Scanner.of().list(), List.of());
+		Assert.assertEquals(Scanner.of(1).list(), List.of(1));
+	}
+
+	@Test
+	public void testOveradvance(){
+		Scanner<Integer> scanner = Scanner.of(1);
+		Assert.assertTrue(scanner.advance());
+		Assert.assertEquals(scanner.current(), Integer.valueOf(1));
+		Assert.assertFalse(scanner.advance());
 	}
 
 }

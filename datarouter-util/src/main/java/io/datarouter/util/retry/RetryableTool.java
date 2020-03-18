@@ -48,7 +48,7 @@ public class RetryableTool{
 					if(logExceptions){
 						logger.warn("exception on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
 					}
-					ThreadTool.sleep(backoffMs);
+					ThreadTool.sleepUnchecked(backoffMs);
 				}else{
 					if(logExceptions){
 						logger.error("exception on final attempt {}", attemptNum);

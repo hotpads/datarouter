@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Memory Statistic</title>
+	<title>Memory Statistics</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<style type="text/css">
 		table.definition{
@@ -146,6 +146,17 @@
 				<c:set var="openFirst" value="${false}"/>
 				<c:set var="additionalCardClasses" value="rounded-0"/>
 				<%@ include file="memoryPool.jsp" %>
+
+				<table class="definition">
+					<tbody>
+						<tr><td>Host memory</td></tr>
+						<tr class="sub"><td>Used</td><td>${hostMemoryUsed}</td>
+						<tr class="sub"><td>Total</td><td>${hostMemoryTotal}</td>
+						<tr><td>Cgroup memory</td></tr>
+						<tr class="sub"><td>Usage</td><td>${cgroupMemoryUsage}</td>
+						<tr class="sub"><td>Limit</td><td>${cgroupMemoryLimit}</td>
+					</tbody>
+				</table>
 			</div>
 		</div>
 		<div class="col-12 col-md-6 col-xl-3 my-3 my-xs-0">

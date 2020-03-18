@@ -262,7 +262,7 @@ public class HBaseHandler extends BaseHandler{
 				logger.warn(timer.add("HBase moved region " + encodedRegionNameString + " to server "
 						+ destinationServer).toString());
 			}
-			ThreadTool.sleep(pauseBetweenRegionsMs.orElse(500));
+			ThreadTool.sleepUnchecked(pauseBetweenRegionsMs.orElse(500));
 		}
 
 		// mav.put("message-update", "HBase regions moved to correct server");
