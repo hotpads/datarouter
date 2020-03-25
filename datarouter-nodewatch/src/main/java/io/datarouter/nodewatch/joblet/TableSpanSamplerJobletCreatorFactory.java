@@ -30,10 +30,22 @@ public class TableSpanSamplerJobletCreatorFactory{
 	@Inject
 	private JobletService jobletService;
 
-	public TableSpanSamplerJobletCreator<?,?,?> create(PhysicalSortedStorageReaderNode<?,?,?> node, long sampleEveryN,
-			Integer batchSize, boolean forceUpdateRecentCounts, boolean submitJoblets, long samplerStartMs){
-		return new TableSpanSamplerJobletCreator<>(tableSampleDao, jobletService, node, sampleEveryN, batchSize,
-				forceUpdateRecentCounts, submitJoblets, samplerStartMs);
+	public TableSpanSamplerJobletCreator<?,?,?> create(
+			PhysicalSortedStorageReaderNode<?,?,?> node,
+			int sampleSize,
+			int batchSize,
+			boolean forceUpdateRecentCounts,
+			boolean submitJoblets,
+			long samplerStartMs){
+		return new TableSpanSamplerJobletCreator<>(
+				tableSampleDao,
+				jobletService,
+				node,
+				sampleSize,
+				batchSize,
+				forceUpdateRecentCounts,
+				submitJoblets,
+				samplerStartMs);
 	}
 
 }

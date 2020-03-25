@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 
 import io.datarouter.aws.sqs.group.op.SqsGroupPutMultiOp;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.SetTool;
 
 public class SqsGroupPutMultiOpTests{
 
@@ -50,19 +49,19 @@ public class SqsGroupPutMultiOpTests{
 		byte[] fakeDatabean1 = new byte[MAX_BOUNDED_BYTES];
 		List<byte[]> fakeDatabeans = new ArrayList<>(Arrays.asList(fakeDatabean1));
 		Set<List<byte[]>> groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
-		Assert.assertEquals(groups, SetTool.of(fakeDatabeans));
+		Assert.assertEquals(groups, Set.of(fakeDatabeans));
 
 		byte[] fakeDatabean2 = new byte[MAX_BOUNDED_BYTES];
 		fakeDatabeans.add(fakeDatabean2);
 		groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
-		Assert.assertEquals(groups, SetTool.of(
+		Assert.assertEquals(groups, Set.of(
 				Arrays.asList(fakeDatabean1),
 				Arrays.asList(fakeDatabean2)));
 
 		byte[] fakeDatabean3 = new byte[MAX_BOUNDED_BYTES / 2];
 		fakeDatabeans.add(fakeDatabean3);
 		groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
-		Assert.assertEquals(groups, SetTool.of(
+		Assert.assertEquals(groups, Set.of(
 				Arrays.asList(fakeDatabean1),
 				Arrays.asList(fakeDatabean2),
 				Arrays.asList(fakeDatabean3)));
@@ -70,7 +69,7 @@ public class SqsGroupPutMultiOpTests{
 		byte[] fakeDatabean4 = new byte[MAX_BOUNDED_BYTES / 2];
 		fakeDatabeans.add(fakeDatabean4);
 		groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
-		Assert.assertEquals(groups, SetTool.of(
+		Assert.assertEquals(groups, Set.of(
 				Arrays.asList(fakeDatabean1),
 				Arrays.asList(fakeDatabean2),
 				Arrays.asList(fakeDatabean3),
@@ -79,7 +78,7 @@ public class SqsGroupPutMultiOpTests{
 		byte[] fakeDatabean5 = new byte[MAX_BOUNDED_BYTES / 2 - SEPARATOR.length];
 		fakeDatabeans.add(fakeDatabean5);
 		groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
-		Assert.assertEquals(groups, SetTool.of(
+		Assert.assertEquals(groups, Set.of(
 				Arrays.asList(fakeDatabean1),
 				Arrays.asList(fakeDatabean2),
 				Arrays.asList(fakeDatabean3),

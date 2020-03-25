@@ -17,7 +17,6 @@ package io.datarouter.instrumentation.trace;
 
 import java.util.concurrent.BlockingQueue;
 
-// TODO migrate to a better class name
 public interface Tracer{
 
 	String getServerName();

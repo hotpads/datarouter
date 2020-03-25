@@ -36,7 +36,7 @@ public interface RoleManager{
 
 	//these are roles that do not present a security risk, although they may be more than just the default roles
 	default Set<Role> getUnimportantRoles(){
-		return getRolesForDefaultGroup();
+		return Set.of();
 	}
 
 }

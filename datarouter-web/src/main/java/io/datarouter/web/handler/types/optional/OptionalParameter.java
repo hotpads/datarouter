@@ -23,12 +23,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.lang.ReflectionTool;
 
 public abstract class OptionalParameter<T>{
 
-	private static final Set<Class<? extends OptionalParameter<?>>> OPTIONAL_PARAMATER_TYPES = SetTool.of(
+	private static final Set<Class<? extends OptionalParameter<?>>> OPTIONAL_PARAMATER_TYPES = Set.of(
 			OptionalBoolean.class,
 			OptionalDouble.class,
 			OptionalInteger.class,

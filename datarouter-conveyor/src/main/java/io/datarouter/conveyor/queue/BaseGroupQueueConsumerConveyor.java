@@ -27,6 +27,7 @@ import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.GroupQueueMessage;
+import io.datarouter.util.timer.PhaseTimer;
 
 public abstract class BaseGroupQueueConsumerConveyor<
 		PK extends PrimaryKey<PK>,
@@ -50,6 +51,7 @@ extends BaseConveyor{
 
 	@Override
 	public ProcessBatchResult processBatch(){
+		var timer = new PhaseTimer();
 		GroupQueueMessage<PK,D> message = consumer.peek(peekTimeout);
 		if(message == null){
 			logger.info("peeked conveyor={} nullMessage", name);
@@ -57,12 +59,17 @@ extends BaseConveyor{
 		}
 		List<D> databeans = message.getDatabeans();
 		logger.info("peeked conveyor={} messageCount={}", name, databeans.size());
+		timer.add("peek");
 		processDatabeans(databeans);
 		logger.info("wrote conveyor={} messageCount={}", name, databeans.size());
+		timer.add("wrote");
 		ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
 		consumer.ack(message.getKey());
 		logger.info("acked conveyor={} messageCount={}", name, databeans.size());
+		timer.add("acked");
 		ConveyorCounters.incAck(this);
+		timer.setName("messageCount=" + databeans.size());
+		logger.debug("{}", timer);
 		return new ProcessBatchResult(true);
 	}
 

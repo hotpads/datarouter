@@ -45,7 +45,6 @@ import io.datarouter.web.config.DatarouterWebWebappBuilder;
 import io.datarouter.web.config.DatarouterWebappConfig;
 import io.datarouter.web.config.FieldKeyOverrider;
 import io.datarouter.web.config.HttpsConfiguration;
-import io.datarouter.web.config.WebappBuilder;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.file.FilesRoot;
 import io.datarouter.web.homepage.HomepageHandler;
@@ -57,7 +56,7 @@ import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
 
-public class DatarouterJobWebappBuilder extends DatarouterWebWebappBuilder implements WebappBuilder{
+public class DatarouterJobWebappBuilder extends DatarouterWebWebappBuilder{
 
 	private final List<Class<? extends BaseTriggerGroup>> triggerGroups;
 	private final List<BaseJobPlugin> jobPlugins;

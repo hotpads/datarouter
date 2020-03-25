@@ -42,8 +42,11 @@ import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
+import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSample;
+import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSamplingScannerBuilder;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
 import io.datarouter.util.DateTool;
+import io.datarouter.util.Require;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.tuple.Range;
@@ -59,14 +62,19 @@ public class TableSpanSampler<
 implements Callable<List<TableSample>>{
 	private static final Logger logger = LoggerFactory.getLogger(TableSpanSampler.class);
 
+	//with target of 100, we hope for 99% of counting without scanKeys
+	private static final int STRIDES_PER_SAMPLE = 100;
+
 	private final SortedStorageReaderNode<PK,D,F> node;
 	private final DatarouterTableSampleDao tableSampleDao;
 	private final long samplerId;
 	private final ClientTableEntityPrefixNameWrapper nodeNames;
 	private final Range<PK> pkRange;
 	private final TableSample endSample;
-	private final long sampleEveryN;
-	private final Integer batchSize;
+	private final long sampleSize;
+	private final boolean enableOffsetting;
+	private final int batchSize;
+	private final int stride;
 	private final Instant createdAt;
 	private final boolean scanUntilEnd;
 	private final Instant deadline;
@@ -89,8 +97,9 @@ implements Callable<List<TableSample>>{
 			ClientTableEntityPrefixNameWrapper nodeNames,
 			TableSampleKey startSampleKey,
 			TableSample endSample,
-			long sampleEveryN,
-			Integer batchSize,
+			int sampleSize,
+			boolean enableOffsetting,
+			int batchSize,
 			Instant createdAt,
 			boolean scanUntilEnd,
 			Instant deadline){
@@ -100,8 +109,23 @@ implements Callable<List<TableSample>>{
 		this.nodeNames = nodeNames;
 		this.pkRange = getPkRangeFromSamples(startSampleKey, endSample);
 		this.endSample = endSample;
-		this.sampleEveryN = sampleEveryN;
+		this.sampleSize = sampleSize;
+		this.enableOffsetting = enableOffsetting;
+
 		this.batchSize = batchSize;
+		Require.isTrue(
+				sampleSize % batchSize == 0,
+				String.format("sampleSize=%s should be an even multiple of batchSize=%s", sampleSize, batchSize));
+		if(enableOffsetting){
+			this.stride = Math.max(sampleSize / STRIDES_PER_SAMPLE, batchSize);
+		}else{
+			//if offsetting isn't supported clients can bring back keys for the full stride, so limit to batchSize
+			this.stride = batchSize;
+		}
+		Require.isTrue(
+				sampleSize % stride == 0,
+				String.format("sampleSize=%s should be an even multiple of stride=%s", sampleSize, stride));
+
 		this.createdAt = createdAt;
 		this.scanUntilEnd = scanUntilEnd;
 		this.deadline = deadline;
@@ -149,34 +173,61 @@ implements Callable<List<TableSample>>{
 	private void scanThroughRange(){
 		Range<PK> posiblyOpenEndedPkRange = pkRange.clone();
 		posiblyOpenEndedPkRange.setEnd(scanUntilEnd ? null : pkRange.getEnd());
-		Config scanConfig = new Config()
-				.setScannerCaching(false)
-				.setOutputBatchSize(batchSize)
-				.setSlaveOk(true);
-		Iterator<PK> iterator = node.scanKeys(posiblyOpenEndedPkRange, scanConfig).iterator();
-		while(iterator.hasNext()){
-			counters.incrementScan();
-			latestPk = iterator.next();
-			++totalRows;
-			++numSinceLastMarker;
-			if(iterator.hasNext()){//avoid treating the final key as intermediate; let the end-logic handle it
-				if(shouldInterrupt()){
-					wasInterrupted = true;
-					insertIntermediateSample();
-					break;
+		if(enableOffsetting){
+			Iterator<SortedStorageSample<PK>> strides = new SortedStorageSamplingScannerBuilder<>(node)
+					.withRange(posiblyOpenEndedPkRange)
+					.withShouldStop(this::shouldInterrupt)
+					.withStride(stride)
+					.build()
+					.iterator();
+			while(strides.hasNext()){
+				SortedStorageSample<PK> stride = strides.next();
+				counters.incrementRpcs(stride.numRpcs);
+				counters.incrementKeys(stride.numKeysTransferred);
+				counters.incrementRows(stride.sampleCount);
+				latestPk = stride.lastSeenKey;
+				totalRows += stride.sampleCount;
+				numSinceLastMarker += stride.sampleCount;
+				wasInterrupted = stride.interrupted;
+				if(!strides.hasNext()){
+					return;//other logic handles the last marker
 				}
-				if(numSinceLastMarker == sampleEveryN){
+				if(wasInterrupted || numSinceLastMarker == sampleSize){
 					insertIntermediateSample();
 				}
 			}
+		}else{ //TODO remove after validating offsetting
+			Config scanConfig = new Config()
+					.setScannerCaching(false)
+					.setOutputBatchSize(batchSize)
+					.setSlaveOk(true);
+			Iterator<PK> iterator = node.scanKeys(posiblyOpenEndedPkRange, scanConfig).iterator();
+			while(iterator.hasNext()){
+				counters.incrementRows(1);
+				counters.incrementKeys(1);
+				latestPk = iterator.next();
+				++totalRows;
+				if(totalRows % batchSize == 1){
+					counters.incrementRpcs(1);
+				}
+				++numSinceLastMarker;
+				if(iterator.hasNext()){//avoid treating the final key as intermediate; let the end-logic handle it
+					if(shouldInterrupt()){
+						wasInterrupted = true;
+						insertIntermediateSample();
+						break;
+					}
+					if(numSinceLastMarker == sampleSize){
+						insertIntermediateSample();
+					}
+				}
+			}
 		}
-		counters.incrementRows(numSinceLastMarker);//leftover counts since last boundary
 	}
 
 	private void insertIntermediateSample(){
 		TableSample sample = makeSample("insertIntermediateSample", latestPk, null, false, false);
 		putAndKeepSample(sample);
-		counters.incrementRows(numSinceLastMarker);
 		numSinceLastMarker = 0;
 		latestSpanStartedAt = Instant.now();
 	}
@@ -230,7 +281,11 @@ implements Callable<List<TableSample>>{
 	/*---------------- sample handling -----------------*/
 
 	//helpful to enforce the key is PK vs TableSampleKey
-	private TableSample makeSample(String reason, PK pk, Instant forceCreatedAt, boolean markInterrupted,
+	private TableSample makeSample(
+			String reason,
+			PK pk,
+			Instant forceCreatedAt,
+			boolean markInterrupted,
 			boolean isLastSpan){
 		String logCreatedAt = Optional.ofNullable(forceCreatedAt)
 				.map(Object::toString)
@@ -245,8 +300,14 @@ implements Callable<List<TableSample>>{
 		Date sampleDateCreated = Optional.ofNullable(forceCreatedAt)
 				.map(Date::from)
 				.orElseGet(Date::new);
-		TableSample sample = new TableSample(nodeNames, pk.getFields(), numSinceLastMarker, sampleDateCreated,
-				getLatestSpanCountTime().toMillis(), markInterrupted, isLastSpan);
+		var sample = new TableSample(
+				nodeNames,
+				pk.getFields(),
+				numSinceLastMarker,
+				sampleDateCreated,
+				getLatestSpanCountTime().toMillis(),
+				markInterrupted,
+				isLastSpan);
 		return sample;
 	}
 
@@ -303,7 +364,7 @@ implements Callable<List<TableSample>>{
 			return true;
 		}
 		if(deadline != null && Instant.now().isAfter(deadline)){
-			if(totalRows < sampleEveryN){//bad situation, we're making slow progress
+			if(totalRows < sampleSize){//bad situation, we're making slow progress
 				logger.warn("deadline reached before first sample, {}", this);
 			}
 			logger.warn("interrupted at deadline={}, {}", deadline, this);
@@ -341,8 +402,10 @@ implements Callable<List<TableSample>>{
 	}
 
 	private PK sampleKeyToPk(TableSampleKey sampleKey){
-		return FieldSetTool.fromConcatenatedValueBytes(node.getFieldInfo().getPrimaryKeyClass(), node.getFieldInfo()
-				.getPrimaryKeyFields(), sampleKey.getRowKeyBytes());
+		return FieldSetTool.fromConcatenatedValueBytes(
+				node.getFieldInfo().getPrimaryKeyClass(),
+				node.getFieldInfo().getPrimaryKeyFields(),
+				sampleKey.getRowKeyBytes());
 	}
 
 	//TODO remove when default pk.toString() uses PrimaryKeyPercentCodec
@@ -353,7 +416,10 @@ implements Callable<List<TableSample>>{
 	}
 
 	private Range<String> getStringPkRange(){
-		return new Range<>(pkToString(pkRange.getStart()), pkRange.getStartInclusive(), pkToString(pkRange.getEnd()),
+		return new Range<>(
+				pkToString(pkRange.getStart()),
+				pkRange.getStartInclusive(),
+				pkToString(pkRange.getEnd()),
 				pkRange.getEndInclusive());
 	}
 

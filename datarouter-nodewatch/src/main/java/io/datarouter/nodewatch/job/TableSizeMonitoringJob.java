@@ -39,7 +39,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
-import io.datarouter.storage.node.tableconfig.TableConfiguration;
+import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.DateTool;
@@ -84,7 +84,7 @@ public class TableSizeMonitoringJob extends BaseJob{
 			ClientTableEntityPrefixNameWrapper nodeNames = new ClientTableEntityPrefixNameWrapper(node);
 			String tableName = nodeNames.getTableName();
 			String clientName = nodeNames.getClientName();
-			TableConfiguration nodeConfig = null;
+			NodewatchConfiguration nodeConfig = null;
 			Long threshold = null;
 			boolean enablePercentChangeAlert = true;
 			boolean enableThresholdAlert = true;
@@ -92,7 +92,7 @@ public class TableSizeMonitoringJob extends BaseJob{
 			nodeConfig = tableConfigurationService.getTableConfigMap().get(nodeNames);
 			if(nodeConfig != null){
 				threshold = nodeConfig.maxThreshold;
-				enablePercentChangeAlert = nodeConfig.enablePercentChangeAlert;
+				enablePercentChangeAlert = nodeConfig.enablePercentageAlert;
 				enableThresholdAlert = nodeConfig.enableThresholdAlert;
 			}
 
@@ -163,7 +163,7 @@ public class TableSizeMonitoringJob extends BaseJob{
 		for(TableCount currEntry : tableCountEntries.iterable()){
 			ClientTableEntityPrefixNameWrapper nodeName = new ClientTableEntityPrefixNameWrapper(
 					currEntry.getKey().getClientName(), currEntry.getKey().getTableName(), null);
-			TableConfiguration nodeConfig = tableConfigurationService.getTableConfigMap().get(nodeName);
+			NodewatchConfiguration nodeConfig = tableConfigurationService.getTableConfigMap().get(nodeName);
 
 			//continue if the nodeConfig isCountable is set to false
 			if(nodeConfig != null && !nodeConfig.isCountable){

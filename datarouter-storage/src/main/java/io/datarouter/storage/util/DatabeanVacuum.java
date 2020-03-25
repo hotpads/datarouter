@@ -17,27 +17,15 @@ package io.datarouter.storage.util;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.number.NumberFormatter;
 
-public class DatabeanVacuum<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
-	private static final Logger logger = LoggerFactory.getLogger(DatabeanVacuum.class);
-
-	private final Scanner<D> scanner;
-	private final Predicate<D> shouldDelete;
-	private final int deleteBatchSize;
-	private final Consumer<Collection<PK>> deleteConsumer;
-	private final Optional<Integer> logBatchSize;
+public class DatabeanVacuum<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+extends BaseNodeVacuum<PK,D>{
 
 	private DatabeanVacuum(
 			Scanner<D> scanner,
@@ -45,66 +33,30 @@ public class DatabeanVacuum<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 			int deleteBatchSize,
 			Predicate<D> shouldDelete,
 			Optional<Integer> logBatchSize){
-		this.scanner = scanner;
-		this.shouldDelete = shouldDelete;
-		this.deleteBatchSize = deleteBatchSize;
-		this.deleteConsumer = deleteConsumer;
-		this.logBatchSize = logBatchSize;
+		super(scanner, deleteConsumer, deleteBatchSize, logBatchSize, shouldDelete);
 	}
 
-	public void run(TaskTracker tracker){
-		var numDeleted = new AtomicLong();
-		scanner
-				.advanceUntil($ -> tracker.shouldStop())
-				.each($ -> tracker.increment())
-				.each(databean -> tracker.setLastItemProcessed(databean.toString()))
-				.each($ -> {
-					if(logBatchSize.isPresent() && tracker.getCount() % logBatchSize.get() == 0){
-						logProgress(numDeleted.get(), tracker.getCount(), tracker.getLastItem());
-					}
-				})
-				.include(shouldDelete)
-				.map(Databean::getKey)
-				.batch(deleteBatchSize)
-				.each(deleteConsumer::accept)
-				.map(Collection::size)
-				.forEach(numDeleted::addAndGet);
-		logProgress(numDeleted.get(), tracker.getCount(), tracker.getLastItem());
+	@Override
+	protected PK getKey(D databean){
+		return databean.getKey();
 	}
 
-	private void logProgress(long numDeleted, long numScanned, String lastItem){
-		logger.info("deleted {}/{} through {}",
-				NumberFormatter.addCommas(numDeleted),
-				NumberFormatter.addCommas(numScanned),
-				lastItem);
-	}
-
-	public static class DatabeanVacuumBuilder<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
-
-		private final Consumer<Collection<PK>> deleteConsumer;
-
-		private Scanner<D> scanner;
-		private Predicate<D> shouldDelete;
-		private int deleteBatchSize;
-		private Optional<Integer> logBatchSize;
+	public static class DatabeanVacuumBuilder<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
+	extends BaseDatabeanVacuumBuilder<PK,D>{
 
 		public DatabeanVacuumBuilder(
 				Scanner<D> scanner,
 				Predicate<D> shouldDelete,
 				Consumer<Collection<PK>> deleteConsumer){
-			this.scanner = scanner;
-			this.shouldDelete = shouldDelete;
-			this.deleteConsumer = deleteConsumer;
-			this.deleteBatchSize = 100;
-			this.logBatchSize = Optional.empty();
+			super(scanner, shouldDelete, deleteConsumer);
 		}
 
-		public DatabeanVacuumBuilder<PK,D> deleteBatchSize(int batchSize){
+		public DatabeanVacuumBuilder<PK,D> withDeleteBatchSize(int batchSize){
 			this.deleteBatchSize = batchSize;
 			return this;
 		}
 
-		public DatabeanVacuumBuilder<PK,D> logBatchSize(int logBatchSize){
+		public DatabeanVacuumBuilder<PK,D> withLogBatchSize(int logBatchSize){
 			this.logBatchSize = Optional.of(logBatchSize);
 			return this;
 		}

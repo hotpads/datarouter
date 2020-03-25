@@ -48,6 +48,7 @@ import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.concurrent.ThreadTool;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.web.exception.ExceptionRecorder;
 
@@ -105,13 +106,6 @@ public class JobScheduler{
 
 	public void registerTriggers(BaseTriggerGroup triggerGroup){
 		triggerGroup.getJobPackages().forEach(this::register);
-	}
-
-	public boolean tryAcquireLocalLockAndRunNow(Class<? extends BaseJob> jobClass, String triggeredBy){
-		BaseJob job = injector.getInstance(jobClass);
-		JobWrapper jobWrapper = jobWrapperFactory.createScheduled(jobPackageTracker.getForClass(jobClass), job,
-				new Date(), new Date(), triggeredBy);
-		return tryAcquireLocalLockAndRun(jobWrapper);
 	}
 
 	public boolean triggerManualJob(Class<? extends BaseJob> jobClass, String triggeredBy){
@@ -218,7 +212,7 @@ public class JobScheduler{
 			}
 		}catch(Exception e){
 			jobCounters.exception(jobClass);
-			logger.warn("exception executing {}", jobClass, e);
+			logger.warn("exception jobName={}", jobClass.getName(), e);
 			exceptionRecorder.tryRecordException(e, jobClass.getName(), JobExceptionCategory.JOB);
 		}finally{
 			try{
@@ -230,18 +224,10 @@ public class JobScheduler{
 	}
 
 	private boolean triggerManual(JobWrapper jobWrapper){
-		Class<? extends BaseJob> jobClass = jobWrapper.job.getClass();
 		JobPackage jobPackage = jobWrapper.jobPackage;
-		try{
-			return jobPackage.triggerLockConfig
-					.map(triggerLockConfig -> tryAcquireClusterLockAndRun(jobWrapper, triggerLockConfig, Duration.ZERO))
-					.orElseGet(() -> tryAcquireLocalLockAndRun(jobWrapper));
-		}catch(Exception e){
-			jobCounters.exception(jobClass);
-			logger.warn("exception executing {}", jobClass, e);
-			exceptionRecorder.tryRecordException(e, jobClass.getName(), JobExceptionCategory.JOB);
-			return false;
-		}
+		return jobPackage.triggerLockConfig
+				.map(triggerLockConfig -> tryAcquireClusterLockAndRun(jobWrapper, triggerLockConfig, Duration.ZERO))
+				.orElseGet(() -> tryAcquireLocalLockAndRun(jobWrapper));
 	}
 
 	private Duration delayLockAquisitionBasedOnCurrentWorkload(){
@@ -268,7 +254,7 @@ public class JobScheduler{
 			try{
 				clusterTriggerLockService.releaseJobLock(triggerLockConfig, jobWrapper.triggerTime);
 			}catch(Exception e){
-				logger.warn("failed to release lockName {}", triggerLockConfig);
+				logger.warn("failed to release lockName {}", triggerLockConfig, e);
 			}
 		}
 		return true;
@@ -288,7 +274,8 @@ public class JobScheduler{
 				logger.warn("Job scheduler is shutdown, not running {}", jobWrapper.jobClass.getSimpleName());
 				return false;
 			}
-			throw e;
+			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.ERRORED);
+			throw new RuntimeException("rejected jobName=" + jobClass.getName(), e);
 		}
 		try{
 			future.get(hardTimeoutMs, TimeUnit.MILLISECONDS);
@@ -296,14 +283,28 @@ public class JobScheduler{
 		}catch(InterruptedException e){
 			future.cancel(true);
 			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.INTERRUPTED);
+			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
+					TimeUnit.MILLISECONDS);
+			var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
+			logger.warn("interrupted jobName={} elapsed={} deadline={}", jobClass.getName(), elapsed, deadline);
+			jobCounters.interrupted(jobClass);
 			return true;
 		}catch(ExecutionException e){
 			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.ERRORED);
-			throw new RuntimeException(jobClass + " failed", e);
+			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
+					TimeUnit.MILLISECONDS);
+			var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
+			throw new RuntimeException("failed jobName=" + jobClass.getName() + " elapsed=" + elapsed + " deadline="
+					+ deadline, e);
 		}catch(TimeoutException e){
 			future.cancel(true);
 			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.TIMED_OUT);
-			throw new RuntimeException(jobClass + " didn't complete on time, deadline=" + hardTimeoutMs, e);
+			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
+					TimeUnit.MILLISECONDS);
+			var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
+			jobCounters.timedOut(jobClass);
+			throw new RuntimeException("didn't complete on time jobName=" + jobClass.getName() + " elapsed=" + elapsed
+					+ " deadline=" + deadline, e);
 		}finally{
 			localTriggerLockService.release(jobClass);
 		}

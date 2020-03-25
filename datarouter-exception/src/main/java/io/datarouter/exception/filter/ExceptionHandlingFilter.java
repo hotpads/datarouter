@@ -138,7 +138,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 					BaseHandler.HANDLER_CLASS);
 			Optional<Method> handlerMethod = RequestAttributeTool.get(request, BaseHandler.HANDLER_METHOD);
 			if(handlerClass.isPresent() && handlerMethod.isPresent()){
-				callOrigin = handlerClass.getClass().getName() + "." + handlerMethod.get().getName();
+				callOrigin = handlerClass.get().getName() + "." + handlerMethod.get().getName();
 			}else{
 				callOrigin = null;
 			}

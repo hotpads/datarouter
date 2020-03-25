@@ -40,6 +40,14 @@ public class JobCounters{
 		count(jobClass, "finished");
 	}
 
+	public void interrupted(Class<? extends BaseJob> jobClass){
+		count(jobClass, "interrupted");
+	}
+
+	public void timedOut(Class<? extends BaseJob> jobClass){
+		count(jobClass, "timedOut");
+	}
+
 	public void missedNextTrigger(Class<? extends BaseJob> jobClass){
 		count(jobClass, "missed next trigger");
 	}

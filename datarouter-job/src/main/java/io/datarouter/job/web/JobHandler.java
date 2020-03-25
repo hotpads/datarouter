@@ -112,16 +112,14 @@ public class JobHandler extends BaseHandler{
 			String message = "Could not start " + jobClass.getSimpleName();
 			logger.warn(message);
 			jobTriggerResponse.put("jobTriggerResponseMessage", message);
-			return new InContextRedirectMav(request, datarouterJobPaths.datarouter.triggers.list.toSlashedString(),
-					jobTriggerResponse);
+			return new InContextRedirectMav(request, datarouterJobPaths.datarouter.triggers.list, jobTriggerResponse);
 		}
 		Duration elapsedTime = DurationTool.sinceDate(startTime);
 		String message = "Finished manual trigger of " + jobClass.getSimpleName() + " in " + DurationTool.toString(
 				elapsedTime);
 		logger.warn(message);
 		jobTriggerResponse.put("jobTriggerResponseMessage", message);
-		return new InContextRedirectMav(request, datarouterJobPaths.datarouter.triggers.list.toSlashedString(),
-				jobTriggerResponse);
+		return new InContextRedirectMav(request, datarouterJobPaths.datarouter.triggers.list, jobTriggerResponse);
 	}
 
 	@Handler

@@ -24,7 +24,6 @@ import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.util.collection.SetTool;
 
 @Singleton
 public class DatarouterClusterSettingRoot extends SettingRoot{
@@ -39,7 +38,7 @@ public class DatarouterClusterSettingRoot extends SettingRoot{
 
 		oldSettingAlertThresholdDays = registerInteger("oldSettingAlertThresholdDays", 14);
 		settingsExcludedFromOldSettingsAlert = registerCommaSeparatedString("settingsExcludedFromOldSettingsAlert",
-				SetTool.of("key", "password", "username", "secret"));
+				Set.of("key", "password", "username", "secret"));
 		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
 	}
 

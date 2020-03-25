@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metadata-parent</artifactId>
-	<version>0.0.23</version>
+	<version>0.0.24</version>
 	<packaging>pom</packaging>
 
 	<name>datarouter-metadata-parent</name>
@@ -109,4 +109,3 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 </project>
-

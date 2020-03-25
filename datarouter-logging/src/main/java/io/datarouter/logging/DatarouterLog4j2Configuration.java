@@ -28,6 +28,8 @@ public final class DatarouterLog4j2Configuration extends BaseLog4j2Configuration
 				defaultPattern);
 		addAppender(out);
 		addLoggerConfig("", Level.WARN, false, out); // Indicate the root logger because blank name
+
+		addLoggerConfig("org.apache.http.impl.conn.PoolingHttpClientConnectionManager", Level.DEBUG, false, out);
 	}
 
 }

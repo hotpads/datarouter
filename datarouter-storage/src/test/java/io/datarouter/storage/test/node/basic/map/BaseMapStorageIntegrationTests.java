@@ -60,8 +60,8 @@ public abstract class BaseMapStorageIntegrationTests{
 	public void testGet(){
 		List<MapStorageBean> beans = initBeans(1000);
 		dao.putMulti(beans);
-		int sampleEveryN = 29;
-		for(int i = 0; i < beans.size(); i += sampleEveryN){
+		int sampleSize = 29;
+		for(int i = 0; i < beans.size(); i += sampleSize){
 			MapStorageBean bean = beans.get(i);
 			MapStorageBean roundTripped = dao.get(bean.getKey());
 			Assert.assertEquals(roundTripped, bean);

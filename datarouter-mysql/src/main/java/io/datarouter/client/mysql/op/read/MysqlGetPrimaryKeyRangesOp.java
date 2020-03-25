@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.client.mysql.MysqlClientType;
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
@@ -47,7 +46,6 @@ extends BaseMysqlOp<List<PK>>{
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final MysqlFieldCodecFactory fieldCodecFactory;
 	private final MysqlSqlFactory mysqlSqlFactory;
-	private final MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 	private final Collection<Range<PK>> ranges;
 	private final Config config;
 	private final MysqlClientType mysqlClientType;
@@ -57,7 +55,6 @@ extends BaseMysqlOp<List<PK>>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			MysqlSqlFactory mysqlSqlFactory,
-			MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher,
 			Collection<Range<PK>> ranges,
 			Config config,
 			MysqlClientType mysqlClientType){
@@ -65,7 +62,6 @@ extends BaseMysqlOp<List<PK>>{
 		this.fieldInfo = fieldInfo;
 		this.fieldCodecFactory = fieldCodecFactory;
 		this.mysqlSqlFactory = mysqlSqlFactory;
-		this.mysqlLiveTableOptionsRefresher = mysqlLiveTableOptionsRefresher;
 		this.ranges = ranges;
 		this.config = config;
 		this.mysqlClientType = mysqlClientType;

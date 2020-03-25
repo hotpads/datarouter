@@ -30,6 +30,7 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> tableCountJob;
 	public final CachedSetting<Boolean> tableSizeMonitoringJob;
 	public final CachedSetting<Boolean> runConfigurationScanReportEmailJob;
+	public final CachedSetting<Boolean> enableOffsetting;
 
 	@Inject
 	public DatarouterNodewatchSettingRoot(SettingFinder finder){
@@ -38,6 +39,7 @@ public class DatarouterNodewatchSettingRoot extends SettingRoot{
 		tableCountJob = registerBoolean("tableCountJob", false);
 		tableSizeMonitoringJob = registerBoolean("tableSizeMonitoringJob", false);
 		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
+		enableOffsetting = registerBoolean("enableOffsetting", true);
 	}
 
 }

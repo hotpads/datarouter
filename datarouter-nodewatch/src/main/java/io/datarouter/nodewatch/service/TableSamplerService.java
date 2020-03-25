@@ -42,8 +42,8 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
-import io.datarouter.storage.node.tableconfig.TableConfiguration;
-import io.datarouter.storage.node.tableconfig.TableConfigurationFactory;
+import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
+import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.tuple.Range;
@@ -111,16 +111,16 @@ public class TableSamplerService{
 				.map(key -> TableSamplerTool.extractPrimaryKeyFromSampleKey(node, key));
 	}
 
-	public Long getSampleInterval(PhysicalSortedStorageReaderNode<?,?,?> node){
-		TableConfiguration nodeConfig = tableConfigurationService.getTableConfigMap()
+	public int getSampleInterval(PhysicalSortedStorageReaderNode<?,?,?> node){
+		NodewatchConfiguration nodeConfig = tableConfigurationService.getTableConfigMap()
 				.get(new ClientTableEntityPrefixNameWrapper(node));
-		return nodeConfig == null ? TableConfigurationFactory.DEFAULT_SAMPLE_INTERVAL : nodeConfig.sampleInterval;
+		return nodeConfig == null ? NodewatchConfigurationBuilder.DEFAULT_SAMPLE_SIZE : nodeConfig.sampleSize;
 	}
 
-	public Integer getBatchSize(PhysicalSortedStorageReaderNode<?,?,?> node){
-		TableConfiguration nodeConfig = tableConfigurationService.getTableConfigMap()
+	public int getBatchSize(PhysicalSortedStorageReaderNode<?,?,?> node){
+		NodewatchConfiguration nodeConfig = tableConfigurationService.getTableConfigMap()
 				.get(new ClientTableEntityPrefixNameWrapper(node));
-		return nodeConfig == null ? TableConfigurationFactory.DEFAULT_BATCH_SIZE : nodeConfig.batchSize;
+		return nodeConfig == null ? NodewatchConfigurationBuilder.DEFAULT_BATCH_SIZE : nodeConfig.batchSize;
 	}
 
 	public TableCount getCurrentTableCountFromSamples(String clientName, String tableName){

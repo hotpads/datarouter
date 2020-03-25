@@ -33,7 +33,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.nodewatch.job.TableSamplerJob;
-import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet.TableSpanSamplerParams;
+import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet.TableSpanSamplerJobletParams;
 import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
@@ -63,8 +63,8 @@ implements Callable<List<JobletPackage>>{
 	private final JobletService jobletService;
 
 	private final SortedStorageReader<PK,D> node;
-	private final long sampleEveryN;
-	private final Integer batchSize;
+	private final int sampleSize;
+	private final int batchSize;
 	private final boolean forceCounting;
 	private final boolean submitJoblets;
 	private final long samplerStartMs;
@@ -87,8 +87,8 @@ implements Callable<List<JobletPackage>>{
 			DatarouterTableSampleDao tableSampleDao,
 			JobletService jobletService,
 			PhysicalSortedStorageReaderNode<PK,D,F> node,
-			long sampleEveryN,
-			Integer batchSize,
+			int sampleSize,
+			int batchSize,
 			boolean forceCounting,
 			boolean submitJoblets,
 			long samplerStartMs){
@@ -97,7 +97,7 @@ implements Callable<List<JobletPackage>>{
 		this.submitJoblets = submitJoblets;
 
 		this.node = node;
-		this.sampleEveryN = sampleEveryN;
+		this.sampleSize = sampleSize;
 		this.batchSize = batchSize;
 		this.forceCounting = forceCounting;
 		this.samplerStartMs = samplerStartMs;
@@ -144,8 +144,7 @@ implements Callable<List<JobletPackage>>{
 		if(optPk.isPresent()){
 			// insert dummy sample to prevent future runs from creating duplicate joblets
 			long samplerId = RandomTool.nextPositiveLong();
-			TableSample sample = new TableSample(nodeNames, optPk.get().getFields(), 1L, new Date(), 1L, false,
-					true);
+			var sample = new TableSample(nodeNames, optPk.get().getFields(), 1L, new Date(), 1L, false, true);
 			sample.setScheduleFields(samplerId, new Date());
 			tableSampleDao.put(sample);
 			jobletPackages.add(createJobletPackage(JobletPriority.DEFAULT, null, sample, samplerId, true));
@@ -163,7 +162,7 @@ implements Callable<List<JobletPackage>>{
 				|| next.isScheduledForRecount()){//wait till a better time
 			return false;
 		}
-		if(current.getNumRows() + next.getNumRows() <= sampleEveryN){
+		if(current.getNumRows() + next.getNumRows() <= sampleSize){
 			logger.info("merging {} into {}", current, next);
 			next.addNumRowsAndCountTimeMsFromOther(current);
 			tableSampleDao.put(next); // save the entry with updated count
@@ -316,10 +315,24 @@ implements Callable<List<JobletPackage>>{
 		TableSampleKey startSampleKey = Optional.ofNullable(start)
 				.map(TableSample::getKey)
 				.orElse(null);
-		TableSpanSamplerParams params = new TableSpanSamplerParams(scanUntilEnd, samplerStartMs, sampleEveryN,
-				batchSize, startSampleKey, end, nodeNames, samplerId);
-		return JobletPackage.createDetailed(TableSpanSamplerJoblet.JOBLET_TYPE, jobletPriority,
-				jobletCreationDate, batchSequence, false, params.nodeNames.getClientName(), null, params);
+		var params = new TableSpanSamplerJobletParams(
+				scanUntilEnd,
+				samplerStartMs,
+				sampleSize,
+				batchSize,
+				startSampleKey,
+				end,
+				nodeNames,
+				samplerId);
+		return JobletPackage.createDetailed(
+				TableSpanSamplerJoblet.JOBLET_TYPE,
+				jobletPriority,
+				jobletCreationDate,
+				batchSequence,
+				false,
+				params.nodeNames.getClientName(),
+				null,
+				params);
 	}
 
 }

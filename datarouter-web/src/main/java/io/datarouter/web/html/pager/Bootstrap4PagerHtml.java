@@ -26,7 +26,7 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.pager.MemoryPager.Page;
 import j2html.tags.ContainerTag;
 
-public class Bootstrap4PagerHtml<T>{
+public class Bootstrap4PagerHtml{
 
 	public static ContainerTag renderForm(Page<?> page){
 		return div(Bootstrap4FormHtml.render(page.makeHtmlForm(), true));

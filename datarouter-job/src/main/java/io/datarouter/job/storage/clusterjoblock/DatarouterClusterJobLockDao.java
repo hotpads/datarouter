@@ -46,7 +46,9 @@ public class DatarouterClusterJobLockDao extends BaseDao{
 	private final SortedMapStorage<ClusterJobLockKey,ClusterJobLock> node;
 
 	@Inject
-	public DatarouterClusterJobLockDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterClusterJobLockDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterClusterJobLockDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, ClusterJobLock::new, ClusterJobLockFielder::new)

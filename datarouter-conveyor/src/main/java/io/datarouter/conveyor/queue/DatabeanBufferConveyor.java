@@ -15,31 +15,32 @@
  */
 package io.datarouter.conveyor.queue;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.DatabeanBuffer;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.node.op.raw.write.StorageWriter;
-import io.datarouter.storage.setting.Setting;
 
 public class DatabeanBufferConveyor<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends BaseConveyor{
 
 	private static final int BATCH_SIZE = 100;
 
 	private final DatabeanBuffer<PK,D> databeanBuffer;
-	private final StorageWriter<PK,D> storageWriter;
+	private final Consumer<Collection<D>> putMultiConsumer;
 
 	public DatabeanBufferConveyor(
 			String name,
-			Setting<Boolean> shouldRun,
+			Supplier<Boolean> shouldRun,
 			DatabeanBuffer<PK,D> databeanBuffer,
-			StorageWriter<PK,D> storageWriter){
+			Consumer<Collection<D>> putMultiConsumer){
 		super(name, shouldRun, () -> false);
 		this.databeanBuffer = databeanBuffer;
-		this.storageWriter = storageWriter;
+		this.putMultiConsumer = putMultiConsumer;
 	}
 
 	@Override
@@ -49,7 +50,7 @@ public class DatabeanBufferConveyor<PK extends PrimaryKey<PK>,D extends Databean
 			return new ProcessBatchResult(false);
 		}
 		try{
-			storageWriter.putMulti(databeans);
+			putMultiConsumer.accept(databeans);
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
 			return new ProcessBatchResult(true);
 		}catch(Exception putMultiException){

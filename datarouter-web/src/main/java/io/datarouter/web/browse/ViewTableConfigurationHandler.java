@@ -25,8 +25,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.datarouter.storage.node.tableconfig.TableConfiguration;
-import io.datarouter.storage.node.tableconfig.TableConfigurationFactory;
+import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
+import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.handler.BaseHandler;
@@ -45,7 +45,7 @@ public class ViewTableConfigurationHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public Mav view(){
-		List<TableConfiguration> rows = tableConfigurationService.getTableConfigurations();
+		List<NodewatchConfiguration> rows = tableConfigurationService.getTableConfigurations();
 		return pageFactory.startBuilder(request)
 				.withTitle("Custom Table Configurations")
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
@@ -53,24 +53,24 @@ public class ViewTableConfigurationHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag makeContent(List<TableConfiguration> rows){
+	private static ContainerTag makeContent(List<NodewatchConfiguration> rows){
 		var header = h2("Custom Table Configurations");
 		var overview = dl(
 				dt("Default Sample Interval"),
-				dd(format(TableConfigurationFactory.DEFAULT_SAMPLE_INTERVAL)),
+				dd(format(NodewatchConfigurationBuilder.DEFAULT_SAMPLE_SIZE)),
 				dt("Default Batch Size"),
-				dd(format(TableConfigurationFactory.DEFAULT_BATCH_SIZE)));
-		var table = new J2HtmlTable<TableConfiguration>()
+				dd(format(NodewatchConfigurationBuilder.DEFAULT_BATCH_SIZE)));
+		var table = new J2HtmlTable<NodewatchConfiguration>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withCaption("Total Tables: " + rows.size())
 				.withColumn("Client", row -> row.nodeNameWrapper.getClientName())
 				.withColumn("Table", row -> row.nodeNameWrapper.getTableName())
-				.withColumn("Max Threshold", row -> format(row.maxThreshold))
-				.withColumn("Sample Interval", row -> format(row.sampleInterval))
+				.withColumn("Enabled", row -> row.isCountable)
+				.withColumn("Sample Size", row -> format(row.sampleSize))
 				.withColumn("Batch Size", row -> format(row.batchSize))
-				.withColumn("Countable", row -> row.isCountable)
-				.withColumn("% Change Alert Enabled", row -> row.enablePercentChangeAlert)
+				.withColumn("Percentage Alert Enabled", row -> row.enablePercentageAlert)
 				.withColumn("Threshold Alert Enabled", row -> row.enableThresholdAlert)
+				.withColumn("Threshold", row -> format(row.maxThreshold))
 				.build(rows);
 		return div(header, overview, table)
 				.withClass("container-fluid my-4");

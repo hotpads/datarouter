@@ -16,6 +16,7 @@
 package io.datarouter.web.config;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,6 +27,7 @@ import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.collection.SetTool;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationSettings;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 
@@ -38,6 +40,7 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 	public final CachedSetting<String> shutdownSecret;
 	public final CachedSetting<Set<String>> stackTraceHighlights;
 	public final Setting<Boolean> saveLatencyGauges;
+	public final Setting<DatarouterDuration> keepAliveTimeout;
 
 	@Inject
 	public DatarouterWebSettingRoot(
@@ -55,6 +58,8 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 		shutdownSecret = registerString("shutdownSecret", "");
 		stackTraceHighlights = registerCommaSeparatedString("stackTraceHighlights", SetTool.wrap("io.datarouter"));
 		saveLatencyGauges = registerBooleans("saveLatencyGauges", defaultTo(true));
+		keepAliveTimeout = registerDurations("keepAliveTimeout",
+				defaultTo(new DatarouterDuration(9, TimeUnit.MINUTES)));
 	}
 
 }

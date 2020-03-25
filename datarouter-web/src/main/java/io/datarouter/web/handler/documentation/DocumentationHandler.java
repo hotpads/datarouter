@@ -61,7 +61,7 @@ import io.datarouter.web.handler.types.optional.OptionalParameter;
 public class DocumentationHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DocumentationHandler.class);
 
-	private static final Set<String> HIDDEN_SPEC_PARAMS = SetTool.of(
+	private static final Set<String> HIDDEN_SPEC_PARAMS = Set.of(
 			SecurityParameters.CSRF_IV,
 			SecurityParameters.CSRF_TOKEN,
 			SecurityParameters.SIGNATURE);

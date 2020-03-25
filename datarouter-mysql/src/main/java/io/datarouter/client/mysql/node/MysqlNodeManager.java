@@ -25,7 +25,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.client.mysql.MysqlClientType;
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
-import io.datarouter.client.mysql.ddl.domain.MysqlLiveTableOptionsRefresher;
 import io.datarouter.client.mysql.execution.MysqlOpRetryTool;
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
@@ -90,8 +89,6 @@ public class MysqlNodeManager{
 	private ManagedNodesHolder managedNodesHolder;
 	@Inject
 	private SessionExecutor sessionExecutor;
-	@Inject
-	public MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
@@ -258,8 +255,8 @@ public class MysqlNodeManager{
 			return Collections.emptyList();
 		}
 		String opName = SortedStorageReader.OP_getKeysInRange;
-		var op = new MysqlGetPrimaryKeyRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
-				mysqlLiveTableOptionsRefresher, ranges, config, mysqlClientType);
+		var op = new MysqlGetPrimaryKeyRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory, ranges,
+				config, mysqlClientType);
 		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 	}
 

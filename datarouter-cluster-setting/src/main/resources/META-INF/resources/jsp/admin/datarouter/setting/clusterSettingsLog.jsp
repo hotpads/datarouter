@@ -76,13 +76,13 @@
 			td:nth-of-type(1):before { content: "Time stamp"; }
 			td:nth-of-type(2):before { content: "Name"; }
 			td:nth-of-type(3):before { content: "Action"; }
-			td:nth-of-type(4):before { content: "Value"; }
-			td:nth-of-type(5):before { content: "Scope"; }
-			td:nth-of-type(6):before { content: "Server Type"; }
-			td:nth-of-type(7):before { content: "Server Name"; }
-			td:nth-of-type(8):before { content: "Application"; }
-			td:nth-of-type(9):before { content: "Changed by"; }
-			td:nth-of-type(10):before { content: "Comment"; }
+			td:nth-of-type(4):before { content: "Scope"; }
+			td:nth-of-type(5):before { content: "Server Type"; }
+			td:nth-of-type(6):before { content: "Server Name"; }
+			td:nth-of-type(7):before { content: "Application"; }
+			td:nth-of-type(8):before { content: "Changed by"; }
+			td:nth-of-type(9):before { content: "Comment"; }
+			td:nth-of-type(10):before { content: "Value"; }
 		}
 	</style>
 </head>
@@ -126,13 +126,13 @@
 					<th>Time stamp</th>
 					<c:if test="${showingAllSettings or showingNodeSettings}"><th>Name</th></c:if>
 					<th>Action</th>
-					<th>Value</th>
 					<th>Scope</th>
 					<th>Server Type</th>
 					<th>Server Name</th>
 					<th>Application</th>
 					<th>Changed By</th>
 					<th>Comment</th>
+					<th>Value</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -154,13 +154,13 @@
 								<c:when test="${log.action == 'DELETED'}">class="table-danger"</c:when>
 							</c:choose>
 						>${log.htmlSafeAction}</td>
-						<td>${log.htmlSafeValue}</td>
 						<td>${log.htmlSafeScope}</td>
 						<td>${log.htmlSafeServerType}</td>
 						<td>${log.htmlSafeServerName}</td>
 						<td>${log.htmlSafeApplication}</td>
 						<td>${log.htmlSafeChangedBy}</td>
 						<td>${log.htmlSafeComment}</td>
+						<td>${log.htmlSafeValue}</td>
 					</tr>
 				</c:forEach>
 				<c:if test="${empty logs}">

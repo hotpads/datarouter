@@ -24,12 +24,13 @@ import io.datarouter.joblet.storage.jobletdata.JobletData;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet.TableSpanSamplerJobletCodec;
-import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet.TableSpanSamplerParams;
+import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet.TableSpanSamplerJobletParams;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;
 
 public class TableSamplerTestTool{
 
-	public static List<TableSample> executeJobletsAndCollectSamples(DatarouterInjector injector,
+	public static List<TableSample> executeJobletsAndCollectSamples(
+			DatarouterInjector injector,
 			List<JobletPackage> jobletPackages){
 		List<TableSample> results = new ArrayList<>();
 		for(JobletData jobletData : JobletPackage.getJobletDatas(jobletPackages)){
@@ -37,7 +38,8 @@ public class TableSamplerTestTool{
 			JobletRequest jobletRequest = new JobletRequest();
 			jobletRequest.getKey().setCreated(System.currentTimeMillis());// this field referenced by the joblet
 			joblet.setJobletRequest(jobletRequest);
-			TableSpanSamplerParams params = new TableSpanSamplerJobletCodec().unmarshallData(jobletData.getData());
+			TableSpanSamplerJobletParams params = new TableSpanSamplerJobletCodec().unmarshallData(jobletData
+					.getData());
 			joblet.setJobletParams(params);
 			joblet.process();
 			results.addAll(joblet.getSamples());

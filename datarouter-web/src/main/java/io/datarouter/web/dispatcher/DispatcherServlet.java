@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.config.DatarouterWebSettingRoot;
 import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.DatarouterNavBar;
 
@@ -45,6 +46,8 @@ public abstract class DispatcherServlet extends HttpServlet{
 	private Optional<AppNavBar> appNavBar;
 	@Inject
 	private DatarouterNavBar datarouterNavBar;
+	@Inject
+	private DatarouterWebSettingRoot datarouterWebSettingRoot;
 
 	private List<BaseRouteSet> routeSets = new ArrayList<>();
 
@@ -92,6 +95,7 @@ public abstract class DispatcherServlet extends HttpServlet{
 	throws IOException, ServletException{
 
 		response.setHeader("X-Frame-Options", "SAMEORIGIN"); //clickjacking protection
+		response.setHeader("Keep-Alive", "timeout=" + datarouterWebSettingRoot.keepAliveTimeout.get().toSecond());
 
 		RoutingResult routingResult = RoutingResult.NOT_FOUND;
 		for(BaseRouteSet dispatcherRoutes : routeSets){

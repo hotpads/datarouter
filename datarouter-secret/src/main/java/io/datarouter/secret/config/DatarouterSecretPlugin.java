@@ -104,13 +104,12 @@ public class DatarouterSecretPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterSecretPluginBuilder addLocalStorageSecret(Secret secret){
+		public DatarouterSecretPluginBuilder addInitialLocalStorageSecret(Secret secret){
 			initialLocalStorageSecretValues.put(secret.getName(), secret.getValue());
 			return this;
 		}
 
-		public DatarouterSecretPluginBuilder addLocalStorageSecrets(Collection<Secret> secrets){
-
+		public DatarouterSecretPluginBuilder addInitialLocalStorageSecrets(Collection<Secret> secrets){
 			initialLocalStorageSecretValues.putAll(secrets.stream()
 					.collect(Collectors.toMap(Secret::getName, Secret::getValue)));
 			return this;

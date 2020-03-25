@@ -137,6 +137,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 			return pageFactory.message(request, "Cannot browse unsorted node");
 		}
 		PhysicalNode<?,?,?> physicalNode = NodeTool.extractSinglePhysicalNode(node);
+		//TODO replace strings with more formal client detection
 		boolean clientSupportsOffsetting = Set.of("mysql", "spanner").contains(physicalNode.getClientType().getName());
 		boolean actualUseOffsetting = useOffsetting.orElse(clientSupportsOffsetting);
 		@SuppressWarnings("unchecked")

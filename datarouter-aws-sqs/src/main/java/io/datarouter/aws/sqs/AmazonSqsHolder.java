@@ -21,10 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
+import com.amazonaws.services.sqs.AmazonSQSClient;
 
 import io.datarouter.storage.client.ClientId;
 
@@ -40,10 +41,13 @@ public class AmazonSqsHolder{
 		if(amazonSqsByClient.containsKey(clientId)){
 			throw new RuntimeException(clientId + " already registered an sqs client");
 		}
+		ClientConfiguration conf = new ClientConfiguration()
+				.withMaxConnections(100);
 		BasicAWSCredentials credentials = new BasicAWSCredentials(sqsOptions.getAccessKey(clientId.getName()),
 				sqsOptions.getSecretKey(clientId.getName()));
 		AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
-		AmazonSQS amazonSqs = AmazonSQSAsyncClient.builder()
+		AmazonSQS amazonSqs = AmazonSQSClient.builder()
+				.withClientConfiguration(conf)
 				.withCredentials(credentialsProvider)
 				.withRegion(sqsOptions.getRegion(clientId.getName()))
 				.build();

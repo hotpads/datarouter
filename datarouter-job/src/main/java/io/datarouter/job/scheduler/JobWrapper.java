@@ -35,7 +35,7 @@ import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
 import io.datarouter.tasktracker.service.LongRunningTaskTracker;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.time.DurationTool;
+import io.datarouter.util.duration.DatarouterDuration;
 
 /**
  * A wrapper around jobs for instrumentation purposes.
@@ -149,17 +149,20 @@ public class JobWrapper implements Callable<Void>{
 		jobCounters.duration(jobClass, elapsedTime);
 		Optional<Date> nextJobTriggerTime = jobPackage.getNextValidTimeAfter(scheduledTime);
 
-		String jobCompletionLog = "Finished " + jobClass.getSimpleName() + " in " + DurationTool.toString(elapsedTime);
+		String jobCompletionLog = "finished in " + new DatarouterDuration(elapsedTime) + " jobName="
+				+ jobClass.getSimpleName() + " durationMs=" + elapsedTime.toMillis();
 		if(startDelayMs > 1000){
 			jobCounters.startedAfterLongDelay(jobClass);
-			jobCompletionLog += ", delayed by " + startDelayMs + "ms";
+			jobCompletionLog += " startDelayMs= " + startDelayMs;
 		}
 		if(nextJobTriggerTime.isPresent() && new Date().after(nextJobTriggerTime.get())){
 			jobCounters.missedNextTrigger(jobClass);
-			jobCompletionLog += ", missed next trigger";
+			jobCompletionLog += " missed next trigger";
 		}
 		if(ComparableTool.gt(elapsedTime, Duration.ofMillis(500))){
 			logger.warn(jobCompletionLog);
+		}else{
+			logger.info(jobCompletionLog);
 		}
 	}
 

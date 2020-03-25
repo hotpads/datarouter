@@ -222,7 +222,6 @@ public class FieldTool{
 		}
 	}
 
-
 	public static List<String> getCsvValuesList(
 			Iterable<Field<?>> fields,
 			Map<String,Function<Object,String>> columnNameToCsvValueFunctor,
@@ -288,8 +287,8 @@ public class FieldTool{
 		}
 		List<String> fieldNames = ListTool.createArrayList(field.getPrefix().split("\\."));
 		Object current = object;
-		for(int i = 0; i < fieldNames.size(); ++i){//return the FieldSet, not the actual Integer (or whatever) field
-			current = ReflectionTool.get(fieldNames.get(i), current);
+		for(String fieldName : fieldNames){//return the FieldSet, not the actual Integer (or whatever) field
+			current = ReflectionTool.get(fieldName, current);
 		}
 		return current;
 	}

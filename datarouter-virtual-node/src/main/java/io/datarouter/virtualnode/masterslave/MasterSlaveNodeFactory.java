@@ -34,7 +34,7 @@ import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
-import io.datarouter.storage.node.tableconfig.TableConfigurationFactory;
+import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
 import io.datarouter.util.iterable.IterableTool;
 
 @Singleton
@@ -87,9 +87,9 @@ public class MasterSlaveNodeFactory{
 			Collection<ClientId> slaveClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
-			TableConfigurationFactory tableConfigurationFactory){
+			NodewatchConfigurationBuilder nodewatchConfigurationBuilder){
 		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier)
-				.withTableConfigurationFactory(tableConfigurationFactory)
+				.withNodewatchConfigurationBuilder(nodewatchConfigurationBuilder)
 				.build();
 		List<N> slaves = IterableTool.map(slaveClientIds, clientId -> nodeFactory.create(clientId, databeanSupplier,
 				fielderSupplier)

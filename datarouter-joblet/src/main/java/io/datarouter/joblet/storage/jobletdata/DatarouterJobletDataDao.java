@@ -50,9 +50,8 @@ public class DatarouterJobletDataDao extends BaseDao{
 			DatarouterJobletDataDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, JobletData::new, JobletDataFielder::new)
-				.setSampleMaxThreshold(1_000_000L)
-				.setSamplerPercentageChangedAlertEnabled(false)
-				.setSamplerThresholdAlertEnabled(false)
+				.disableNodewatchPercentageAlert()
+				.disableNodewatchThresholdAlert()
 				.buildAndRegister();
 	}
 

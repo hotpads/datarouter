@@ -31,8 +31,8 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.storage.util.DatabeanVacuum;
-import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.storage.util.PrimaryKeyVacuum;
+import io.datarouter.storage.util.PrimaryKeyVacuum.PrimaryKeyVacuumBuilder;
 
 @Singleton
 public class DatarouterClusterTriggerLockDao extends BaseDao{
@@ -48,7 +48,9 @@ public class DatarouterClusterTriggerLockDao extends BaseDao{
 	private final SortedMapStorage<ClusterTriggerLockKey,ClusterTriggerLock> node;
 
 	@Inject
-	public DatarouterClusterTriggerLockDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterClusterTriggerLockDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterClusterTriggerLockDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, ClusterTriggerLock::new, ClusterTriggerLockFielder::new)
@@ -65,12 +67,12 @@ public class DatarouterClusterTriggerLockDao extends BaseDao{
 		node.delete(key);
 	}
 
-	public DatabeanVacuum<ClusterTriggerLockKey,ClusterTriggerLock> makeVacuum(){
+	public PrimaryKeyVacuum<ClusterTriggerLockKey> makeVacuum(){
 		Duration retentionPeriod = Duration.ofDays(7);
 		Date deleteBeforeTime = Date.from(Instant.now().minus(retentionPeriod));
-		return new DatabeanVacuumBuilder<>(
-				node.scan(),
-				databean -> databean.getKey().getTriggerTime().before(deleteBeforeTime),
+		return new PrimaryKeyVacuumBuilder<>(
+				node.scanKeys(),
+				key -> key.getTriggerTime().before(deleteBeforeTime),
 				node::deleteMulti)
 				.build();
 	}

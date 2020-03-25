@@ -23,7 +23,6 @@ import java.util.Set;
 import javax.inject.Singleton;
 
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
@@ -67,7 +66,7 @@ public class DatarouterRoleManager extends BaseRoleManager{
 
 	@Override
 	protected Set<Role> getAdminRoles(){
-		return SetTool.of(
+		return Set.of(
 				DatarouterUserRole.ADMIN.getRole(),
 				DatarouterUserRole.DATAROUTER_ADMIN.getRole(),
 				DatarouterUserRole.DATAROUTER_JOB.getRole(),

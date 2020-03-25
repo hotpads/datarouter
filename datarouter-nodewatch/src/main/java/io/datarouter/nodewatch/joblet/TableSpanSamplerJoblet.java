@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -30,7 +31,8 @@ import io.datarouter.joblet.codec.BaseGsonJobletCodec;
 import io.datarouter.joblet.model.BaseJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
-import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet.TableSpanSamplerParams;
+import io.datarouter.nodewatch.config.DatarouterNodewatchSettingRoot;
+import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet.TableSpanSamplerJobletParams;
 import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
@@ -41,11 +43,11 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.lang.ObjectTool;
 
-public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerParams>{
+public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletParams>{
 	private static final Logger logger = LoggerFactory.getLogger(TableSpanSamplerJoblet.class);
 
-	public static final JobletType<TableSpanSamplerParams> JOBLET_TYPE = new JobletTypeBuilder<>(
-			"TableSpanSamplerJoblet", // TODO remove unnecessary word "Joblet" in name
+	public static final JobletType<TableSpanSamplerJobletParams> JOBLET_TYPE = new JobletTypeBuilder<>(
+			"TableSpanSamplerJoblet", // TODO rename to TableSampler
 			TableSpanSamplerJobletCodec::new,
 			TableSpanSamplerJoblet.class)
 			.withShortQueueName("TableSampler") //unnecessary shortQueueName
@@ -61,6 +63,8 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerParams>{
 	private DatarouterNodes datarouterNodes;
 	@Inject
 	private DatarouterJobletCounters datarouterJobletCounters;
+	@Inject
+	private DatarouterNodewatchSettingRoot nodewatchSettingRoot;
 
 	private List<TableSample> samples;
 
@@ -89,6 +93,8 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerParams>{
 		SortedStorageReaderNode<?,?,?> node = (SortedStorageReaderNode<?,?,?>)datarouterNodes.findParent(physicalNode,
 				SortedStorageReaderNode.class);
 		Objects.requireNonNull(node, "node not found for " + params.nodeNames);
+		//TODO replace strings with more formal client detection
+		boolean clientSupportsOffsetting = Set.of("mysql", "spanner").contains(physicalNode.getClientType().getName());
 		Instant deadline = Instant.now().plus(MAX_RUNNING_TIME);
 		samples = new TableSpanSampler<>(
 				node,
@@ -98,6 +104,7 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerParams>{
 				params.startSampleKey,
 				params.endSample,
 				params.sampleEveryN,
+				clientSupportsOffsetting && nodewatchSettingRoot.enableOffsetting.get(),
 				params.batchSize,
 				Instant.ofEpochMilli(params.createdTimeMs),
 				params.scanUntilEnd,
@@ -111,19 +118,25 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerParams>{
 		return samples;
 	}
 
-	public static class TableSpanSamplerParams{
+	public static class TableSpanSamplerJobletParams{
 
 		public final boolean scanUntilEnd;
 		public final long createdTimeMs;
-		public final long sampleEveryN;
-		public final Integer batchSize;
+		public final int sampleEveryN;
+		public final int batchSize; //TODO primitive after migration
 		public final TableSampleKey startSampleKey;
 		public final TableSample endSample;
 		public final ClientTableEntityPrefixNameWrapper nodeNames;
 		public final long samplerId;
 
-		public TableSpanSamplerParams(boolean scanUntilEnd, long createdTimeMs, long sampleEveryN, Integer batchSize,
-				TableSampleKey startSampleKey, TableSample endSample, ClientTableEntityPrefixNameWrapper nodeNames,
+		public TableSpanSamplerJobletParams(
+				boolean scanUntilEnd,
+				long createdTimeMs,
+				int sampleEveryN,
+				int batchSize,
+				TableSampleKey startSampleKey,
+				TableSample endSample,
+				ClientTableEntityPrefixNameWrapper nodeNames,
 				long samplerId){
 			this.scanUntilEnd = scanUntilEnd;
 			this.createdTimeMs = createdTimeMs;
@@ -137,14 +150,14 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerParams>{
 
 	}
 
-	public static class TableSpanSamplerJobletCodec extends BaseGsonJobletCodec<TableSpanSamplerParams>{
+	public static class TableSpanSamplerJobletCodec extends BaseGsonJobletCodec<TableSpanSamplerJobletParams>{
 
 		public TableSpanSamplerJobletCodec(){
-			super(TableSpanSamplerParams.class);
+			super(TableSpanSamplerJobletParams.class);
 		}
 
 		@Override
-		public int calculateNumItems(TableSpanSamplerParams params){
+		public int calculateNumItems(TableSpanSamplerJobletParams params){
 			return 1;
 		}
 

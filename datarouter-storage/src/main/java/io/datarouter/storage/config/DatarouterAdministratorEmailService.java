@@ -25,7 +25,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.config.setting.DatarouterAdminEmailSettings;
 import io.datarouter.util.EmailTool;
-import io.datarouter.util.collection.SetTool;
 
 @Singleton
 public class DatarouterAdministratorEmailService{
@@ -51,7 +50,7 @@ public class DatarouterAdministratorEmailService{
 	}
 
 	public String getAdministratorEmailAddressesCsv(String... additionalEmailAddresses){
-		return getAdministratorEmailAddressesCsv(SetTool.of(additionalEmailAddresses));
+		return getAdministratorEmailAddressesCsv(Set.of(additionalEmailAddresses));
 	}
 
 	public String getAdministratorEmailAddressesCsv(Set<String> additionalEmailAddresses){

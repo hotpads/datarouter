@@ -64,6 +64,11 @@ public class DatarouterEmailService{
 
 	public void send(String fromEmail, String toEmail, String subject, String body, boolean html)
 	throws MessagingException{
+		send(fromEmail, toEmail, toEmail, subject, body, html);
+	}
+
+	public void send(String fromEmail, String toEmail, String replyToEmail, String subject, String body, boolean html)
+	throws MessagingException{
 		if(!datarouterEmailSettings.sendDatarouterEmails.get()){
 			return;
 		}
@@ -84,7 +89,7 @@ public class DatarouterEmailService{
 			message.setFrom(new InternetAddress(fromEmail));
 			InternetAddress[] addresses = InternetAddress.parse(toEmail);// one or more addresses
 			message.addRecipients(RecipientType.TO, addresses);
-			message.setReplyTo(addresses);
+			message.setReplyTo(InternetAddress.parse(replyToEmail));
 			message.setSubject(subject);
 			String subType = html ? "html" : "plain";
 			message.setText(body, "UTF-8", subType);

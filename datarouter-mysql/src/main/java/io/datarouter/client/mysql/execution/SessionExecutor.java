@@ -40,7 +40,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ConnectionHandle;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.op.executor.impl.SessionExecutorPleaseRetryException;
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -50,7 +49,7 @@ public class SessionExecutor{
 	private static final String READ_ONLY_ERROR_MESSAGE = "The MySQL server is running with the --read-only option"
 			+ " so it cannot execute this statement";
 
-	public static final Set<Class<?>> ROLLED_BACK_EXCEPTIONS = SetTool.of(
+	public static final Set<Class<?>> ROLLED_BACK_EXCEPTIONS = Set.of(
 			MySQLTransactionRollbackException.class);
 
 	@Inject

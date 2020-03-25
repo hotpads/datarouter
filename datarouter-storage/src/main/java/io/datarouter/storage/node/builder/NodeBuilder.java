@@ -31,8 +31,8 @@ import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.factory.BaseNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
-import io.datarouter.storage.node.tableconfig.TableConfiguration;
-import io.datarouter.storage.node.tableconfig.TableConfigurationFactory;
+import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
+import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
 
 public class NodeBuilder<
 		EK extends EntityKey<EK>,
@@ -49,7 +49,7 @@ public class NodeBuilder<
 	private Supplier<EntityPartitioner<EK>> partitionerSupplier;
 	private String tableName;
 	private Integer schemaVersion;
-	private TableConfigurationFactory tableConfigurationFactory;
+	private NodewatchConfigurationBuilder nodewatchConfigurationBuilder;
 	private boolean disableForcePrimary;
 
 	public NodeBuilder(
@@ -83,63 +83,64 @@ public class NodeBuilder<
 		return this;
 	}
 
-	/*---------- TableConfigurationFactory ----------*/
-
-	public NodeBuilder<EK,PK,D,F> withTableConfigurationFactory(TableConfigurationFactory tableConfigurationFactory){
-		this.tableConfigurationFactory = tableConfigurationFactory;
-		return this;
-	}
-
-	public NodeBuilder<EK,PK,D,F> setSampleMaxThreshold(Long maxThreshold){
-		if(tableConfigurationFactory == null){
-			tableConfigurationFactory = new TableConfigurationFactory();
-		}
-		tableConfigurationFactory.setMaxThreshold(maxThreshold);
-		return this;
-	}
-
-	public NodeBuilder<EK,PK,D,F> setSamplerInterval(Long samplerInterval){
-		if(tableConfigurationFactory == null){
-			tableConfigurationFactory = new TableConfigurationFactory();
-		}
-		tableConfigurationFactory.setSampleInterval(samplerInterval);
-		return this;
-	}
-
-	public NodeBuilder<EK,PK,D,F> setSamplerSize(Integer samplerSize){
-		if(tableConfigurationFactory == null){
-			tableConfigurationFactory = new TableConfigurationFactory();
-		}
-		tableConfigurationFactory.setBatchSize(samplerSize);
-		return this;
-	}
-
-	public NodeBuilder<EK,PK,D,F> setSamplerEnabled(boolean enable){
-		if(tableConfigurationFactory == null){
-			tableConfigurationFactory = new TableConfigurationFactory();
-		}
-		tableConfigurationFactory.setCountable(enable);
-		return this;
-	}
-
-	public NodeBuilder<EK,PK,D,F> setSamplerPercentageChangedAlertEnabled(boolean enablePercentChangeAlert){
-		if(tableConfigurationFactory == null){
-			tableConfigurationFactory = new TableConfigurationFactory();
-		}
-		tableConfigurationFactory.setEnablePercentChangeAlert(enablePercentChangeAlert);
-		return this;
-	}
-
-	public NodeBuilder<EK,PK,D,F> setSamplerThresholdAlertEnabled(boolean enableThresholdAlert){
-		if(tableConfigurationFactory == null){
-			tableConfigurationFactory = new TableConfigurationFactory();
-		}
-		tableConfigurationFactory.setEnableThresholdAlert(enableThresholdAlert);
-		return this;
-	}
-
 	public NodeBuilder<EK,PK,D,F> withDisableForcePrimary(boolean disableForcePrimary){
 		this.disableForcePrimary = disableForcePrimary;
+		return this;
+	}
+
+	/*---------- Nodewatch ----------*/
+
+	public NodeBuilder<EK,PK,D,F> withNodewatchConfigurationBuilder(
+			NodewatchConfigurationBuilder nodewatchConfigurationBuilder){
+		this.nodewatchConfigurationBuilder = nodewatchConfigurationBuilder;
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> withNodewatchThreshold(long threshold){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.withThreshold(threshold);
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> withNodewatchSampleSize(int sampleSize){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.withSampleSize(sampleSize);
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> withNodewatchBatchSize(int batchSize){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.withBatchSize(batchSize);
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> disableNodewatch(){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.disable();
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> disableNodewatchPercentageAlert(){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.disablePercentChangeAlert();
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> disableNodewatchThresholdAlert(){
+		if(nodewatchConfigurationBuilder == null){
+			nodewatchConfigurationBuilder = new NodewatchConfigurationBuilder();
+		}
+		nodewatchConfigurationBuilder.disableMaxThresholdAlert();
 		return this;
 	}
 
@@ -148,9 +149,9 @@ public class NodeBuilder<
 		String entityName = databeanName + "Entity";
 		String entityNodePrefix = null;
 		String nodeTableName = tableName != null ? tableName : databeanName;
-		TableConfiguration tableConfig = null;
-		if(tableConfigurationFactory != null){
-			tableConfig = tableConfigurationFactory.create(new ClientTableEntityPrefixNameWrapper(
+		NodewatchConfiguration tableConfig = null;
+		if(nodewatchConfigurationBuilder != null){
+			tableConfig = nodewatchConfigurationBuilder.create(new ClientTableEntityPrefixNameWrapper(
 					clientId.getName(),
 					nodeTableName,
 					entityNodePrefix));

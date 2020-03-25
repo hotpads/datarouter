@@ -44,8 +44,13 @@ public class TableSamplerJob extends BaseJob{
 	public void run(TaskTracker tracker){
 		long startTimeMs = System.currentTimeMillis();
 		List<TableSpanSamplerJobletCreator<?,?,?>> jobletCreators = tableSamplerService.streamCountableNodes()
-				.map(node -> jobletCreatorFactory.create(node, tableSamplerService.getSampleInterval(node),
-						tableSamplerService.getBatchSize(node), false, true, startTimeMs))
+				.map(node -> jobletCreatorFactory.create(
+						node,
+						tableSamplerService.getSampleInterval(node),
+						tableSamplerService.getBatchSize(node),
+						false,
+						true,
+						startTimeMs))
 				.collect(Collectors.toList());
 		FutureTool.submitAndGetAll(jobletCreators, executor);
 	}

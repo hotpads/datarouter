@@ -26,12 +26,17 @@ public class TableSamplerCounters{
 		this.nodeNames = nodeNames;
 	}
 
-	public void incrementRows(long rows){
-		incrementBy(" rows", rows);
+	public void incrementRpcs(long by){
+		incrementBy(" rpcs", by);
 	}
 
-	public void incrementScan(){
-		incrementBy(" scan", 1);
+	//number of keys transferred over the network
+	public void incrementKeys(long by){
+		incrementBy(" keys", by);
+	}
+
+	public void incrementRows(long by){
+		incrementBy(" rows", by);
 	}
 
 	private void incrementBy(String suffix, long rows){

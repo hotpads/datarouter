@@ -8,7 +8,7 @@ datarouter-auth is a framework that brings in users and apikey accounts to datar
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auth</artifactId>
-	<version>0.0.23</version>
+	<version>0.0.24</version>
 </dependency>
 ```
 
@@ -25,7 +25,7 @@ You can install this module by adding its plugin to the `WebappBuidlder`.
 ## DatarouterSession
 
 A single DatarouterUser may have multiple sessions via different computers, browsers, tabs, etc.  A DatarouterSession 
-is created for each such session so that users can stay logged in and so the application is aware of the user. 
+is created for each such session so that users can stay logged in and so the application is aware of the user.
 
 As a DatarouterUser is authenticated into the application, their userToken is recorded in their DatarouterSession.
 This allows for some useful features like the ability of the service to get the current user that's viewing a page 
@@ -48,7 +48,7 @@ Datarouter-auth brings in the ability attribute RouteSet classes with specific r
 set for the whole RouteSet class as a default, and specific paths within the RouteSet class can be given additional 
 Roles. 
 
-Datarouter brings a default set of users, specified in `DatarouterUserRole`. 
+Datarouter brings a default set of users, specified in `DatarouterUserRole`.
 - Admin
 - Api-User
 - Datarouter-Admin

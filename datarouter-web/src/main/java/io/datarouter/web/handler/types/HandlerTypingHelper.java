@@ -23,8 +23,6 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler.Handler;
@@ -53,7 +51,7 @@ public class HandlerTypingHelper{
 			HandlerDecoder decoder = injector.getInstance(decoderClass);
 			Object[] newArgs;
 			String traceName = decoder.getClass().getSimpleName() + " decode";
-			try(TraceSpanFinisher spanFinisher = TracerTool.startSpan(TracerThreadLocal.get(), traceName)){
+			try(var $ = TracerTool.startSpan(traceName)){
 				newArgs = decoder.decode(request, possibleMethod);
 			}
 			if(newArgs == null){

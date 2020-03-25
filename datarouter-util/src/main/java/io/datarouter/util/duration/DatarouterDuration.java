@@ -72,6 +72,10 @@ public class DatarouterDuration{
 		nano = unit.toNanos(amount);
 	}
 
+	public DatarouterDuration(java.time.Duration duration){
+		nano = duration.toNanos();
+	}
+
 	public long toSecond(){
 		return to(TimeUnit.SECONDS);
 	}

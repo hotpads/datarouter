@@ -22,7 +22,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.node.tableconfig.TableConfiguration;
+import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 
 public class NodeParams<
 		PK extends PrimaryKey<PK>,
@@ -59,14 +59,14 @@ public class NodeParams<
 	private final String queueUrl;
 
 	//for nodewatch
-	private final TableConfiguration tableConfiguration;
+	private final NodewatchConfiguration nodewatchConfiguration;
 
 	private final boolean disableForcePrimary;
 
 	private NodeParams(ClientId clientId, String parentName, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier,
 			Integer schemaVersion, String physicalName, String namespace, String entityNodePrefix,
 			String remoteRouterName, String remoteNodeName, Supplier<Boolean> recordCallsites, String streamName,
-			String queueUrl, TableConfiguration tableConfiguration, boolean disableForcePrimary){
+			String queueUrl, NodewatchConfiguration nodewatchConfiguration, boolean disableForcePrimary){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
@@ -81,7 +81,7 @@ public class NodeParams<
 		this.recordCallsites = recordCallsites;
 		this.streamName = streamName;
 		this.queueUrl = queueUrl;
-		this.tableConfiguration = tableConfiguration;
+		this.nodewatchConfiguration = nodewatchConfiguration;
 		this.disableForcePrimary = disableForcePrimary;
 	}
 
@@ -107,7 +107,7 @@ public class NodeParams<
 
 		private String queueUrl;
 
-		private TableConfiguration tableConfiguration;
+		private NodewatchConfiguration nodewatchConfiguration;
 
 		private boolean disableForcePrimary;
 
@@ -166,8 +166,8 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withTableConfiguration(TableConfiguration tableConfiguration){
-			this.tableConfiguration = tableConfiguration;
+		public NodeParamsBuilder<PK,D,F> withTableConfiguration(NodewatchConfiguration nodewatchConfiguration){
+			this.nodewatchConfiguration = nodewatchConfiguration;
 			return this;
 		}
 
@@ -181,7 +181,7 @@ public class NodeParams<
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
 					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
-					streamName, queueUrl, tableConfiguration, disableForcePrimary);
+					streamName, queueUrl, nodewatchConfiguration, disableForcePrimary);
 		}
 	}
 
@@ -250,8 +250,8 @@ public class NodeParams<
 		return queueUrl;
 	}
 
-	public TableConfiguration getTableConfiguration(){
-		return tableConfiguration;
+	public NodewatchConfiguration getTableConfiguration(){
+		return nodewatchConfiguration;
 	}
 
 	public boolean getDisableForcePrimary(){

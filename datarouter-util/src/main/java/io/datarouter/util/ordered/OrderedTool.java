@@ -56,9 +56,8 @@ public class OrderedTool{
 					sorted.add(index + 1, object.item);
 					extraPassObjects.remove(object);
 					break;
-				}else{
-					tracker++;
 				}
+				tracker++;
 			}
 		}
 		assertOrdered(objects, sorted);

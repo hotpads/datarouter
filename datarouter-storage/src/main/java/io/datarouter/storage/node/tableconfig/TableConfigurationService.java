@@ -39,7 +39,7 @@ public class TableConfigurationService{
 	@Inject
 	private DatarouterNodes datarouterNodes;
 
-	public List<TableConfiguration> getTableConfigurations(){
+	public List<NodewatchConfiguration> getTableConfigurations(){
 		return datarouterNodes.getAllNodes().stream()
 				.map(Node::getPhysicalNodes)
 				.flatMap(List::stream)
@@ -49,7 +49,7 @@ public class TableConfigurationService{
 				.collect(Collectors.toList());
 	}
 
-	public Map<ClientTableEntityPrefixNameWrapper,TableConfiguration> getTableConfigMap(){
+	public Map<ClientTableEntityPrefixNameWrapper,NodewatchConfiguration> getTableConfigMap(){
 		return getTableConfigurations().stream()
 				.distinct()
 				.collect(Collectors.toMap(config -> config.nodeNameWrapper, Function.identity()));

@@ -17,10 +17,9 @@ package io.datarouter.storage.servertype;
 
 import java.util.Objects;
 
-import io.datarouter.util.enums.DisplayablePersistentString;
 import io.datarouter.util.lang.ClassTool;
 
-public class SingleServerType implements ServerType, DisplayablePersistentString{
+public class SingleServerType implements ServerType{
 
 	private final String persistentString;
 	private final boolean isProduction;

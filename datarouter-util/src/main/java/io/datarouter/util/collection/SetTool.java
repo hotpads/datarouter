@@ -92,11 +92,6 @@ public class SetTool{
 	}
 
 	@SafeVarargs
-	public static <T> Set<T> of(T...items){
-		return Set.of(items);
-	}
-
-	@SafeVarargs
 	public static <T> Set<T> hashSet(T...items){
 		return new HashSet<>(Arrays.asList(items));
 	}

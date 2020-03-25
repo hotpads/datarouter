@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.23</version>
+	<version>0.0.24</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -208,12 +208,12 @@ public class MysqlExampleGuiceModule extends BaseGuiceModule{
 
 #### Client configuration
 
-There are two ways to configure the client options. 
+There are two ways to configure the client options.
 
-1. Configuration in a datarouter-properties file. 
+1. Configuration in a datarouter-properties file.
 
-The following configuration file tells datarouter that the `mysqlClient` client defined in the router is a MySQL client that needs to connect to `localhost:3306/testDatabase`.
-This file needs to be located in `/etc/datarouter/config/datarouter-testApp.properties`, which is defined in the app's DatarouterProperties.java. 
+The following configuration file tells datarouter that the `mysqlClient` client defined in the dao is a MySQL client that needs to connect to `localhost:3306/testDatabase`.
+This file needs to be located in `/etc/datarouter/config/datarouter-test-app.properties`, which is defined in the app's DatarouterProperties.java.
 
 ```
 client.mysqlClient.type=mysql
@@ -224,7 +224,7 @@ client.mysqlClient.password=password
 
 2. Configuration in the code
 
-You can define the client options in the code using the `MysqlClientOptionsBuilder` and add the ClientOptionsBuilder to the app's `WebappBuilder`. 
+You can define the client options in the code using the `MysqlClientOptionsBuilder` and add the ClientOptionsBuilder to the app's `WebappBuilder`.
 
 ```java
 Properties properties =  MysqlClientOptionsBuilder(clientId)
@@ -237,7 +237,7 @@ Properties properties =  MysqlClientOptionsBuilder(clientId)
 
 #### Schema update configuration
 
-Datarouter can create databases, tables and keep the schema up-to-date with what is defined in the code. 
+Datarouter can create databases, tables and keep the schema up-to-date with what is defined in the code.
 To activate it, you will have to add this file at `/etc/datarouter/config/schema-update.properties`.
 
 ```
@@ -258,7 +258,7 @@ On production environments, it is recommended to use `schemaUpdate.print` instea
 
 ### Application code
 
-We have everything we need to start writing application code and database queries. 
+We have everything we need to start writing application code and database queries.
 The following main method will start the framework, write a databean to the MySQL table, and then read it.
 
 ```java

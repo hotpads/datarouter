@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.inject.Singleton;
+
 import io.datarouter.util.collection.ListTool;
 
 public interface ClientOptionsFactory{
@@ -48,6 +50,7 @@ public interface ClientOptionsFactory{
 		return mergeBuilders(ListTool.concatenate(builderCollection, Arrays.asList(builderVarargs)));
 	}
 
+	@Singleton
 	class NoOpClientOptionsFactory implements ClientOptionsFactory{
 
 		@Override

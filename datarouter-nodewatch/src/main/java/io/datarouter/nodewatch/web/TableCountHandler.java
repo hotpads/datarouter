@@ -126,8 +126,14 @@ public class TableCountHandler extends BaseHandler{
 	private Mav resample(String clientName, String tableName){
 		PhysicalSortedStorageReaderNode<?,?,?> node = (PhysicalSortedStorageReaderNode<?,?,?>)nodes
 				.getPhysicalNodeForClientAndTable(clientName, tableName);
-		tableSpanSamplerJobletCreatorFactory.create(node, tableSamplerService.getSampleInterval(node),
-				tableSamplerService.getBatchSize(node), true, true, System.currentTimeMillis()).call();
+		tableSpanSamplerJobletCreatorFactory.create(
+				node,
+				tableSamplerService.getSampleInterval(node),
+				tableSamplerService.getBatchSize(node),
+				true,
+				true,
+				System.currentTimeMillis())
+				.call();
 		return new InContextRedirectMav(request, paths.datarouter.nodewatch.tableCount.toSlashedString()
 				+ "?submitAction=singleTable&clientName=" + clientName + "&tableName=" + tableName);
 	}
@@ -135,15 +141,15 @@ public class TableCountHandler extends BaseHandler{
 	@Handler
 	private Mav deleteSampleEntries(String clientName, String tableName){
 		//delete rows from TableCount
-		TableCountKey tableCountKeyPrefix = new TableCountKey(clientName, tableName, null);
+		var tableCountKeyPrefix = new TableCountKey(clientName, tableName, null);
 		tableCountDao.deleteWithPrefix(tableCountKeyPrefix);
 
 		//delete rows from TableSample
-		TableSampleKey tableSampleKeyPrefix = new TableSampleKey(clientName, tableName, null, null);
+		var tableSampleKeyPrefix = new TableSampleKey(clientName, tableName, null, null);
 		tableSampleDao.deleteWithPrefix(tableSampleKeyPrefix);
 
 		//delete from LatestTableCount
-		LatestTableCountKey latestTableCountKey = new LatestTableCountKey(clientName, tableName);
+		var latestTableCountKey = new LatestTableCountKey(clientName, tableName);
 		latestTableCountDao.delete(latestTableCountKey);
 		return new InContextRedirectMav(request, paths.datarouter.nodewatch.tableCount.toSlashedString());
 	}
@@ -162,7 +168,7 @@ public class TableCountHandler extends BaseHandler{
 	}
 
 	private JsonArray getRowCountJson(List<TableCount> records){
-		JsonArray jsonArray = new JsonArray();
+		var jsonArray = new JsonArray();
 		for(TableCount record : records){
 			JsonObject json = new JsonObject();
 			Long date = record.getDateUpdated().getTime();

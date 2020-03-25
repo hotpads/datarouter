@@ -218,7 +218,12 @@ public class HBaseSubEntityResultParser<
 	private int parsePostEkFieldsFromBytesToPk(Cell cell, PK targetPk){
 		int offset = entityColumnPrefixBytes.length;
 		byte[] fromBytes = CellUtil.cloneQualifier(cell);
-		return parseFieldsFromBytesToPk(postEkPkFields, fromBytes, offset, targetPk);
+		try{
+			return parseFieldsFromBytesToPk(postEkPkFields, fromBytes, offset, targetPk);
+		}catch(RuntimeException e){
+			throw new RuntimeException("failed to parse post ek field cellBytes=" + Bytes.toStringBinary(CellUtil
+					.cloneRow(cell)), e);
+		}
 	}
 
 	private int parseFieldsFromBytesToPk(List<Field<?>> fields, byte[] fromBytes, int offset, PK targetPk){
