@@ -28,12 +28,12 @@ import javax.inject.Singleton;
 
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.util.MysqlTool;
-import io.datarouter.storage.BaseSchemaUpdateService;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.SchemaUpdateResult;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
+import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
+import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.lazy.Lazy;
 import io.datarouter.web.config.DatarouterWebPaths;

@@ -28,6 +28,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.api.gax.longrunning.OperationFuture;
 import com.google.api.gax.paging.Page;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -37,14 +38,15 @@ import com.google.cloud.spanner.DatabaseId;
 import com.google.cloud.spanner.Options;
 import com.google.cloud.spanner.Spanner;
 import com.google.cloud.spanner.SpannerOptions;
+import com.google.spanner.admin.database.v1.CreateDatabaseMetadata;
 
 import io.datarouter.gcp.spanner.client.SpannerClientOptions;
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.execute.SpannerSchemaUpdateService;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
+import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.util.iterable.IterableTool;
@@ -74,38 +76,17 @@ public class SpannerClientManager extends BaseClientManager{
 	@Override
 	protected void safeInitClient(ClientId clientId){
 		PhaseTimer timer = new PhaseTimer(clientId.getName());
-		registerDatabaseClient(clientId);
-		timer.add("init and register spanner connection");
-		logger.warn(timer.add("done").toString());
-	}
-
-	@Override
-	public void shutdown(ClientId clientId){
-		schemaUpdateService.gatherSchemaUpdates(true);
-		databaseClientsHolder.close(clientId);
-	}
-
-	public DatabaseClient getDatabaseClient(ClientId clientId){
-		if(databaseClientsHolder.getDatabaseClient(clientId) == null){
-			initClient(clientId);
-		}
-		return databaseClientsHolder.getDatabaseClient(clientId);
-	}
-
-	private void registerDatabaseClient(ClientId clientId){
-		if(databaseClientsHolder.getDatabaseClient(clientId) != null){
-			return;
-		}
+		String credentialsLocation = spannerClientOptions.credentialsLocation(clientId.getName());
 		Credentials credentials;
 		try{
-			credentials = GoogleCredentials.fromStream(new FileInputStream(
-					spannerClientOptions.credentialsLocation(clientId.getName())));
+			credentials = GoogleCredentials.fromStream(new FileInputStream(credentialsLocation));
 		}catch(IOException ex){
-			throw new RuntimeException("Cannot find google credentials file: "
-					+ spannerClientOptions.credentialsLocation(clientId.getName()), ex);
+			throw new RuntimeException("Cannot find google credentials file: " + credentialsLocation, ex);
 		}
+		timer.add("read credentials");
 		SpannerOptions options = SpannerOptions.newBuilder().setCredentials(credentials).build();
 		Spanner spanner = options.getService();
+		timer.add("build spanner service");
 		DatabaseId databaseId = DatabaseId.of(
 				spannerClientOptions.projectId(clientId.getName()),
 				spannerClientOptions.instanceId(clientId.getName()),
@@ -122,19 +103,33 @@ public class SpannerClientManager extends BaseClientManager{
 			}
 			page = page.getNextPage();
 		}
+		timer.add("search database");
 		if(database == null){
 			if(schemaUpdateOptions.getCreateDatabases(false)){
-				var op = spanner.getDatabaseAdminClient().createDatabase(
+				OperationFuture<Database,CreateDatabaseMetadata> op = spanner.getDatabaseAdminClient().createDatabase(
 						databaseId.getInstanceId().getInstance(),
 						databaseId.getDatabase(),
 						Collections.emptyList());
 				database = FutureTool.get(op);
+				timer.add("create database");
 			}else{
 				throw new RuntimeException("Must create database before executing updates for database=" + databaseId
 						.getDatabase());
 			}
 		}
 		databaseClientsHolder.register(clientId, spanner.getDatabaseClient(databaseId), spanner, database);
+		logger.warn(timer.toString());
+	}
+
+	@Override
+	public void shutdown(ClientId clientId){
+		schemaUpdateService.gatherSchemaUpdates(true);
+		databaseClientsHolder.close(clientId);
+	}
+
+	public DatabaseClient getDatabaseClient(ClientId clientId){
+		initClient(clientId);
+		return databaseClientsHolder.getDatabaseClient(clientId);
 	}
 
 }

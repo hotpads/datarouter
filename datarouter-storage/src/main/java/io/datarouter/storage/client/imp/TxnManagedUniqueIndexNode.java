@@ -50,7 +50,7 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> uniqueKeys, Config config){
-		return node.getMultiByIndex(uniqueKeys, config, fieldInfo);
+		return node.getMultiByIndex(uniqueKeys, config, indexEntryFieldInfo);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
 	@Override
 	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
-		return node.getMultiFromIndex(uniqueKeys, config, fieldInfo);
+		return node.getMultiFromIndex(uniqueKeys, config, indexEntryFieldInfo);
 	}
 
 	@Override
@@ -70,7 +70,7 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
 	@Override
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
-		node.deleteByIndex(uniqueKeys, config, fieldInfo);
+		node.deleteByIndex(uniqueKeys, config, indexEntryFieldInfo);
 	}
 
 }

@@ -17,11 +17,22 @@ package io.datarouter.storage.config;
 
 import io.datarouter.storage.servertype.BaseServerTypes;
 import io.datarouter.storage.servertype.SingleServerType;
+import io.datarouter.util.string.StringTool;
 
 public class SimpleDatarouterProperties extends DatarouterProperties{
 
-	public static final String CONFIG_DIRECTORY = "/etc/datarouter/config";
 	public static final String SERVER_CONFIG_FILE_NAME = "server.properties";
+	private static final String DEFAULT_CONFIG_DIRECTORY = "/etc/datarouter/config";
+	private static final String BASE_CONFIG_DIRECTORY_ENV_VARIABLE = "BASE_CONFIG_DIRECTORY";
+	public static final String CONFIG_DIRECTORY;
+	static{
+		String baseConfigDirectoryPath = System.getenv(BASE_CONFIG_DIRECTORY_ENV_VARIABLE);
+		if(StringTool.notEmpty(baseConfigDirectoryPath)){
+			CONFIG_DIRECTORY = baseConfigDirectoryPath + "/config";
+		}else{
+			CONFIG_DIRECTORY = DEFAULT_CONFIG_DIRECTORY;
+		}
+	}
 
 	private final String serviceName;
 

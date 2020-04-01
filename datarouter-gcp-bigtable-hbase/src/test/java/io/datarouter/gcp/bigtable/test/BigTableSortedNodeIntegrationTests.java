@@ -22,7 +22,6 @@ import org.testng.annotations.Guice;
 import io.datarouter.gcp.bigtable.config.DatarouterBigTableTestNgModuleFactory;
 import io.datarouter.storage.test.node.basic.sorted.BaseSortedNodeIntegrationTests;
 
-//Tester because too slow
 @Guice(moduleFactory = DatarouterBigTableTestNgModuleFactory.class)
 public class BigTableSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
 

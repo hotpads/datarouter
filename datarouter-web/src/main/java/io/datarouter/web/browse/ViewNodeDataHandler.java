@@ -39,7 +39,7 @@ import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSamplingScannerBuilder;
+import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.duration.DatarouterDuration;
@@ -146,7 +146,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		long startMs = System.currentTimeMillis() - 1;
 		PK last = null;
 		if(actualUseOffsetting){
-			var countingToolBuilder = new SortedStorageSamplingScannerBuilder<>(sortedNode)
+			var countingToolBuilder = new StrideScannerBuilder<>(sortedNode)
 					.withLog(true);
 			stride.ifPresent(countingToolBuilder::withStride);
 			batchSize.ifPresent(countingToolBuilder::withBatchSize);

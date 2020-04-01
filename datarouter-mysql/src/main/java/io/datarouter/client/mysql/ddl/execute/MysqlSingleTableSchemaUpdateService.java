@@ -45,10 +45,10 @@ import io.datarouter.client.mysql.ddl.generate.imp.ConnectionSqlTableGenerator;
 import io.datarouter.client.mysql.ddl.generate.imp.FieldSqlTableGenerator;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.model.field.Field;
-import io.datarouter.storage.SchemaUpdateTool;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
+import io.datarouter.storage.config.schema.SchemaUpdateResult;
+import io.datarouter.storage.config.schema.SchemaUpdateTool;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -101,7 +101,7 @@ public class MysqlSingleTableSchemaUpdateService{
 			IndexedStorage<?,?> indexedStorage = (IndexedStorage<?,?>)physicalNode;
 			indexes = indexedStorage.getManagedNodes().stream()
 					.collect(Collectors.toMap(ManagedNode::getName,
-							managedNode -> managedNode.getFieldInfo().getFields()));
+							managedNode -> managedNode.getIndexEntryFieldInfo().getFields()));
 		}
 
 		SqlTable requested = fieldSqlTableGenerator.generate(tableName, primaryKeyFields,
@@ -149,7 +149,7 @@ public class MysqlSingleTableSchemaUpdateService{
 		}
 
 
-		if(!ddl.printStatement.isPresent()){
+		if(ddl.printStatement.isEmpty()){
 			return Optional.empty();
 		}
 		logger.info(SchemaUpdateTool.generateFullWidthMessage("Please Execute SchemaUpdate"));

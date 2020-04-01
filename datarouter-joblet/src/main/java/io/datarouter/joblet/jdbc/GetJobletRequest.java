@@ -22,6 +22,7 @@ import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.sql.MysqlSql;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.service.JobletService;
@@ -43,7 +44,8 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 
 	private final DatarouterJobletRequestDao jobletRequestDao;
 	private final MysqlFieldCodecFactory mysqlFieldCodecFactory;
-	private final JobletRequestSqlBuilder sqlBuilder;
+	private final MysqlSqlFactory mysqlSqlFactory;
+	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
 
 	public GetJobletRequest(
 			String reservedBy,
@@ -51,7 +53,8 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 			Datarouter datarouter,
 			DatarouterJobletRequestDao jobletRequestDao,
 			MysqlFieldCodecFactory mysqlFieldCodecFactory,
-			JobletRequestSqlBuilder sqlBuilder){
+			MysqlSqlFactory mysqlSqlFactory,
+			JobletRequestSqlBuilder jobletRequestSqlBuilder){
 		super(datarouter, NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getClientId(),
 				Isolation.repeatableRead, false);
 		this.fieldInfo = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getFieldInfo();
@@ -60,7 +63,8 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 
 		this.jobletRequestDao = jobletRequestDao;
 		this.mysqlFieldCodecFactory = mysqlFieldCodecFactory;
-		this.sqlBuilder = sqlBuilder;
+		this.mysqlSqlFactory = mysqlSqlFactory;
+		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
 	}
 
 	@Override
@@ -96,9 +100,8 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 	}
 
 	private MysqlSql makeSelectStatement(){
-		MysqlSql sql = sqlBuilder.makeSelectFromClause();
-		sqlBuilder.appendWhereClause(sql, jobletType);
-		sql.append(" for update");//lock the row
+		MysqlSql sql = mysqlSqlFactory.createSql(fieldInfo.getClientId(), fieldInfo.getTableName());
+		jobletRequestSqlBuilder.makeGetJobletRequest(sql, jobletType);
 		return sql;
 	}
 

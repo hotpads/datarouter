@@ -18,16 +18,21 @@ package io.datarouter.joblet.jdbc;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.sql.MysqlSql;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.NodeTool;
 
 public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 
+	private final ClientId clientId;
+	private final String tableName;
 	private final String reservedBy;
 	private final JobletType<?> jobletType;
+	private final MysqlSqlFactory mysqlSqlFactory;
 	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
 
 	public ReserveJobletRequest(
@@ -35,20 +40,24 @@ public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 			JobletType<?> jobletType,
 			Datarouter datarouter,
 			DatarouterJobletRequestDao jobletRequestDao,
+			MysqlSqlFactory mysqlSqlFactory,
 			JobletRequestSqlBuilder jobletRequestSqlBuilder){
 		super(datarouter,
 				NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getClientId(),
 				Isolation.repeatableRead,
 				false);
+		this.clientId = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getClientId();
+		this.tableName = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getFieldInfo().getTableName();
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;
+		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
 	}
 
 	@Override
 	public Boolean runOnce(){
-		MysqlSql sql = jobletRequestSqlBuilder.makeUpdateClause(reservedBy);
-		jobletRequestSqlBuilder.appendWhereClause(sql, jobletType);
+		MysqlSql sql = mysqlSqlFactory.createSql(clientId, tableName);
+		jobletRequestSqlBuilder.makeReserveJobletRequest(sql, jobletType, reservedBy);
 		int numRowsModified = MysqlTool.update(sql.prepare(getConnection()));
 		return numRowsModified > 0;
 	}

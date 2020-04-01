@@ -43,8 +43,8 @@ import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ConnectionHandle;
-import io.datarouter.storage.client.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
+import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.collection.MapTool;
@@ -208,7 +208,6 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 			connectionByHandle(clientId).remove(handle);
 			handleByThread(clientId).remove(currentThread.getId());
 			DatarouterCounters.incClient(clientType, "releaseConnection", clientId.getName(), 1L);
-			return;
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

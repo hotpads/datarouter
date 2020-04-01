@@ -32,13 +32,14 @@ public abstract class BaseManagedNode<
 implements ManagedNode<PK,D,IK,IE,IF>{
 
 	private final String name;
-	protected final IndexEntryFieldInfo<IK,IE,IF> fieldInfo;
+	protected final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 	protected final IndexedMapStorage<PK,D> node;
 
-	public BaseManagedNode(IndexedMapStorage<PK,D> node, IndexEntryFieldInfo<IK,IE,IF> fieldInfo, String name){
+	public BaseManagedNode(IndexedMapStorage<PK,D> node, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			String name){
 		this.node = node;
 		this.name = name;
-		this.fieldInfo = fieldInfo;
+		this.indexEntryFieldInfo = indexEntryFieldInfo;
 	}
 
 	@Override
@@ -47,8 +48,8 @@ implements ManagedNode<PK,D,IK,IE,IF>{
 	}
 
 	@Override
-	public IndexEntryFieldInfo<IK,IE,IF> getFieldInfo(){
-		return fieldInfo;
+	public IndexEntryFieldInfo<IK,IE,IF> getIndexEntryFieldInfo(){
+		return indexEntryFieldInfo;
 	}
 
 }

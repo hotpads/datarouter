@@ -20,14 +20,25 @@ import javax.inject.Singleton;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.BaseServerTypes;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.util.string.StringTool;
 
 @Singleton
 public class TestDatarouterProperties extends DatarouterProperties{
 
 	private static final String SERVICE_NAME = "datarouter-test";
-	public static final String CONFIG_DIRECTORY = "/etc/datarouter/config";
 	public static final String SERVER_CONFIG_FILE_NAME = "server.properties";
 	public static final String DATAROUTER_TEST_FILE_NAME = "datarouter-test.properties";
+	private static final String DEFAULT_CONFIG_DIRECTORY = "/etc/datarouter/config";
+	private static final String BASE_CONFIG_DIRECTORY_ENV_VARIABLE = "BASE_CONFIG_DIRECTORY";
+	public static final String CONFIG_DIRECTORY;
+	static{
+		String baseConfigDirectoryPath = System.getenv(BASE_CONFIG_DIRECTORY_ENV_VARIABLE);
+		if(StringTool.notEmpty(baseConfigDirectoryPath)){
+			CONFIG_DIRECTORY = baseConfigDirectoryPath + "/config";
+		}else{
+			CONFIG_DIRECTORY = DEFAULT_CONFIG_DIRECTORY;
+		}
+	}
 
 	private final String datarouterTestFileLocation;
 

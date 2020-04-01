@@ -18,8 +18,6 @@ package io.datarouter.joblet.jdbc;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.client.mysql.sql.MysqlSql;
-import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.joblet.DatarouterJobletConstants;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
@@ -29,9 +27,9 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.sql.Sql;
 
 @Singleton
 public class JobletRequestSqlBuilder{
@@ -44,58 +42,53 @@ public class JobletRequestSqlBuilder{
 
 	private final DatarouterJobletRequestDao jobletRequestDao;
 
-	private final ClientId clientId;
 	private final String tableName;
-	private final MysqlSqlFactory mysqlSqlFactory;
 
 	@Inject
-	public JobletRequestSqlBuilder(
-			DatarouterJobletRequestDao jobletRequestDao,
-			MysqlSqlFactory mysqlSqlFactory){
+	public JobletRequestSqlBuilder(DatarouterJobletRequestDao jobletRequestDao){
 		this.jobletRequestDao = jobletRequestDao;
 		PhysicalNode<?,?,?> physicalNode = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode());
-		this.clientId = physicalNode.getClientId();
 		this.tableName = physicalNode.getFieldInfo().getTableName();
-		this.mysqlSqlFactory = mysqlSqlFactory;
 	}
 
-	//select for GetJobletRequest
-	public MysqlSql makeSelectFromClause(){
-		return mysqlSqlFactory.createSql(clientId, tableName)
-				.addSelectFromClause(tableName, jobletRequestDao.getNode().getFieldInfo().getFields());
-	}
-
-	//update for ReserveJobletRequest
-	public MysqlSql makeUpdateClause(String reservedBy){
+	public Sql<?,?,?> makeReserveJobletRequest(Sql<?,?,?> sql, JobletType<?> jobletType, String reservedBy){
 		StringField reservedByField = new StringField(JobletRequest.FieldKeys.reservedBy, reservedBy);
-		return mysqlSqlFactory.createSql(clientId, tableName)
-				.addUpdateClause(tableName)
-				.appendSqlNameValue(reservedByField, true);
+		sql.addUpdateClause(tableName);
+		sql.appendSqlNameValue(reservedByField, true);
+		appendWhereClause(sql, jobletType);
+		return sql;
 	}
 
-	//where for both
-	public void appendWhereClause(MysqlSql sql, JobletType<?> jobletType){
+	public Sql<?,?,?> makeGetJobletRequest(Sql<?,?,?> sql, JobletType<?> jobletType){
+		sql.addSelectFromClause(tableName, jobletRequestDao.getNode().getFieldInfo().getFields());
+		appendWhereClause(sql, jobletType);
+		sql.append(" for update");//lock the row
+		return sql;
+	}
+
+	private Sql<?,?,?> appendWhereClause(Sql<?,?,?> sql, JobletType<?> jobletType){
 		sql.append(" where ");
 		appendTypeClause(sql, jobletType);
 		sql.append(" and ");
 		appendStatusClause(sql);
 		sql.append(" limit 1");
+		return sql;
 	}
 
-	private void appendTypeClause(MysqlSql sql, JobletType<?> jobletType){
+	private void appendTypeClause(Sql<?,?,?> sql, JobletType<?> jobletType){
 		StringField typeField = new StringField(JobletRequestKey.FieldKeys.type, jobletType.getPersistentString());
 		sql.appendSqlNameValue(typeField, true);
 	}
 
-	private void appendStatusClause(MysqlSql sql){
+	private void appendStatusClause(Sql<?,?,?> sql){
 		sql.append(" (")
 				.appendSqlNameValue(STATUS_CREATED_FIELD, true)
 				.append(" or ");
-		makeStatusTimedOutClause(sql);
+		appendStatusTimedOutClause(sql);
 		sql.append(") ");
 	}
 
-	private void makeStatusTimedOutClause(MysqlSql sql){
+	private void appendStatusTimedOutClause(Sql<?,?,?> sql){
 		sql.append("(")
 				.appendSqlNameValue(STATUS_RUNNING_FIELD, true)
 				.append(" and ")

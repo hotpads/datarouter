@@ -88,12 +88,12 @@ public class DatarouterClients{
 	private void loadClientOptions(String configFilePath, String internalConfigDirectoryType){
 		Properties properties = clientOptionsFactory.getInternalConfigDirectoryTypeOptions(internalConfigDirectoryType);
 		if(!properties.isEmpty()){
-			logger.warn("got properties from class {}", clientOptionsFactory.getClass().getCanonicalName());
+			logger.warn("Got client properties from class {}", clientOptionsFactory.getClass().getCanonicalName());
 			clientOptions.addProperties(properties);
 		}else if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)){
 			configFilePaths.add(configFilePath);
 			Pair<Properties,URL> propertiesAndLocation = PropertiesTool.parseAndGetLocation(configFilePath);
-			logger.warn("got properties from {}", propertiesAndLocation.getRight());
+			logger.warn("Got client properties from file {}", propertiesAndLocation.getRight());
 			clientOptions.addProperties(propertiesAndLocation.getLeft());
 		}
 	}

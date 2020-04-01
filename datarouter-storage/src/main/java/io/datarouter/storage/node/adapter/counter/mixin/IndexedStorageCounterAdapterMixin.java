@@ -72,11 +72,14 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+	List<IE> getMultiFromIndex(Collection<IK> indexKeys, Config config,
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getFromIndex;
 		getCounter().count(opName);
-		List<IE> results = getBackingNode().getMultiFromIndex(keys, config, indexEntryFieldInfo);
+		getCounter().count(opName + " indexKeys", indexKeys.size());
+		List<IE> results = getBackingNode().getMultiFromIndex(indexKeys, config, indexEntryFieldInfo);
 		int numRows = CollectionTool.size(results);
+		// TODO rename to hit and compute correct miss count, consistently with lookupMultiUnique or getMulti
 		getCounter().count(opName + " rows", numRows);
 		if(numRows == 0){
 			getCounter().count(opName + " misses");
@@ -88,11 +91,13 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK,IE>>
-	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+	List<D> getMultiByIndex(Collection<IK> indexKeys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		String opName = IndexedStorageReader.OP_getByIndex;
 		getCounter().count(opName);
-		List<D> results = getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
+		getCounter().count(opName + " indexKeys", indexKeys.size());
+		List<D> results = getBackingNode().getMultiByIndex(indexKeys, config, indexEntryFieldInfo);
 		int numRows = CollectionTool.size(results);
+		// TODO rename to hit and compute correct miss count, consistently with lookupMultiUnique or getMulti
 		getCounter().count(opName + " rows", numRows);
 		if(numRows == 0){
 			getCounter().count(opName + " misses");
@@ -108,6 +113,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 			Config config){
 		String opName = IndexedStorageReader.OP_scanIndex;
 		getCounter().count(opName);
+		getCounter().count(opName + " ranges", ranges.size());
 		return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -119,6 +125,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 			Config config){
 		String opName = IndexedStorageReader.OP_scanByIndex;
 		getCounter().count(opName);
+		getCounter().count(opName + " ranges", ranges.size());
 		return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -130,6 +137,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 			Config config){
 		String opName = IndexedStorageReader.OP_scanIndexKeys;
 		getCounter().count(opName);
+		getCounter().count(opName + " ranges", ranges.size());
 		return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
@@ -143,19 +151,22 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	public default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+	default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
 		String opName = IndexedStorageWriter.OP_deleteMultiUnique;
 		getCounter().count(opName);
+		getCounter().count(opName + " uniqueKeys", uniqueKeys.size());
 		getBackingNode().deleteMultiUnique(uniqueKeys, config);
 	}
 
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> indexKeys, Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		getCounter().count(OP_deleteByIndex);
-		getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
+		String opName = OP_deleteByIndex;
+		getCounter().count(opName);
+		getCounter().count(opName + " indexKeys", indexKeys.size());
+		getBackingNode().deleteByIndex(indexKeys, config, indexEntryFieldInfo);
 	}
 
 	@Override

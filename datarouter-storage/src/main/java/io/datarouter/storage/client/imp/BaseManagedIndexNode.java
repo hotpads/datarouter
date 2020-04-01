@@ -41,15 +41,15 @@ extends BaseManagedNode<PK,D,IK,IE,IF>{
 	}
 
 	public Scanner<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
-		return node.scanMultiIndex(fieldInfo, ranges, config);
+		return node.scanMultiIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	public Scanner<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
-		return node.scanMultiIndexKeys(fieldInfo, ranges, config);
+		return node.scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
 	public Scanner<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
-		return node.scanMultiByIndex(fieldInfo, ranges, config);
+		return node.scanMultiByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 }

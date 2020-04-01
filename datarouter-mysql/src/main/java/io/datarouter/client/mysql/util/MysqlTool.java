@@ -29,7 +29,6 @@ import com.mysql.cj.log.Slf4JLogger;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.exception.DataAccessException;
@@ -101,7 +100,7 @@ public class MysqlTool{
 		try{
 			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
 					+ " selectPrimaryKeys PreparedStatement.execute";
-			try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+			try(var $ = TracerTool.startSpan(spanName)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();
@@ -128,7 +127,7 @@ public class MysqlTool{
 			PreparedStatement ps){
 		try{
 			String spanName = databeanSupplier.get().getDatabeanName() + " selectDatabeans PreparedStatement.execute";
-			try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+			try(var $ = TracerTool.startSpan(spanName)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();
@@ -156,7 +155,7 @@ public class MysqlTool{
 		try{
 			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
 					+ " selectIndexEntryKeys PreparedStatement.execute";
-			try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+			try(var $ = TracerTool.startSpan(spanName)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();
@@ -178,7 +177,7 @@ public class MysqlTool{
 
 	public static int update(PreparedStatement statement){
 		String spanName = "update PreparedStatement.execute";
-		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+		try(var $ = TracerTool.startSpan(spanName)){
 			return statement.executeUpdate();
 		}catch(SQLException e){
 			String message = "error executing sql:" + statement;

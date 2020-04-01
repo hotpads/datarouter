@@ -22,6 +22,7 @@ import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 
+import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.concurrent.FutureTool;

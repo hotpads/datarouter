@@ -42,7 +42,7 @@ extends BaseNodeVacuum<PK,D>{
 	}
 
 	public static class DatabeanVacuumBuilder<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	extends BaseDatabeanVacuumBuilder<PK,D>{
+	extends BaseNodeVacuumBuilder<PK,D,DatabeanVacuumBuilder<PK,D>>{
 
 		public DatabeanVacuumBuilder(
 				Scanner<D> scanner,
@@ -51,13 +51,8 @@ extends BaseNodeVacuum<PK,D>{
 			super(scanner, shouldDelete, deleteConsumer);
 		}
 
-		public DatabeanVacuumBuilder<PK,D> withDeleteBatchSize(int batchSize){
-			this.deleteBatchSize = batchSize;
-			return this;
-		}
-
-		public DatabeanVacuumBuilder<PK,D> withLogBatchSize(int logBatchSize){
-			this.logBatchSize = Optional.of(logBatchSize);
+		@Override
+		protected DatabeanVacuumBuilder<PK,D> self(){
 			return this;
 		}
 

@@ -180,6 +180,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				"Datarouter Properties");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.plugins, "Plugins");
 
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Email Test");
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;
 		this.authenticationConfigClass = authenticationConfigClass;

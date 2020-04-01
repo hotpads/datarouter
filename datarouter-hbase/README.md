@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-hbase</artifactId>
-	<version>0.0.24</version>
+	<version>0.0.25</version>
 </dependency>
 ```
 
@@ -220,6 +220,36 @@ Properties properties =  HBaseClientOptionsBuilder(clientId)
 		.withZookeeperQuorum("hbase.docker")
 		.build();
 ```
+#### Schema update configuration
+
+Datarouter can create databases, tables and keep the schema up-to-date with what is defined in the code.
+There are two ways to configure the schema update options.
+
+1. Configuration in a schema-update.properties file.
+
+To activate it, you will have to add this file at `/etc/datarouter/config/schema-update.properties`.
+
+```
+schemaUpdate.enable=true
+schemaUpdate.execute.createTables=true
+schemaUpdate.execute.modifyTtl=true
+schemaUpdate.execute.modifyMaxVersions=true
+```
+
+2. Configuration in the code
+
+You can define the schema update options in the code using the `SchemaUpdateOptionsBuilder` and add the implementation
+of `SchemaUpdateOptionsFactory` to the app's `WebappBuilder`.
+
+```java
+Properties properties = new SchemaUpdateOptionsBuilder(true)
+		.enableSchemaUpdateExecuteCreateTables()
+		.enableSchemaUpdateExecuteModifyTtl()
+		.enableSchemaUpdateExecuteModifyMaxVersions()
+		.build();
+```
+
+On production environments, it is recommended to use `schemaUpdate.print` instead of `schemaUpdate.execute`. The ALTER TABLE statements will be logged and emailed instead of executed.
 
 ## License
 

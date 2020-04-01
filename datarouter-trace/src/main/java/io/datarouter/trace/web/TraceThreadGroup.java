@@ -17,6 +17,7 @@ package io.datarouter.trace.web;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.join;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.tr;
@@ -182,7 +183,7 @@ public class TraceThreadGroup{
 			return sb;
 		}
 		if(parentSpan.queued > 0){
-			var tr = tr(join(makeFirstCell(parentSpan.queued, "in queue", indentation), td()));
+			var tr = tr(join(makeFirstCell(parentSpan.queued, "in queue", indentation).toString(), td()));
 			sb.append(tr.render());
 		}
 		Long prevEnd = null;
@@ -193,14 +194,14 @@ public class TraceThreadGroup{
 			// interspan
 			long interspanDuration = span.getCreated() - prevEnd;
 			if(interspanDuration != 0){
-				var tr = tr(join(makeFirstCell(interspanDuration, "", indentation), td()))
+				var tr = tr(join(makeFirstCell(interspanDuration, "", indentation).toString(), td()))
 						.withStyle("background-color:#f9f9f9");
 				sb.append(tr.render());
 			}
 			// span
 			String info = Optional.ofNullable(span.getInfo())
 					.orElse("");
-			var tr = tr(join(makeFirstCell(span.getDuration(), span.getName(), indentation), td(info)));
+			var tr = tr(join(makeFirstCell(span.getDuration(), span.getName(), indentation).toString(), td(info)));
 			sb.append(tr.render());
 			TimeDto dto = new TimeDto(span);
 			sb.append(buildSubSpans(dto, spanByParentSequenceId.get(span.getSequence()), spanByParentSequenceId,
@@ -210,7 +211,7 @@ public class TraceThreadGroup{
 		// last interspan
 		long lastInterspanDuration = parentSpan.created + parentSpan.duration - prevEnd;
 		if(lastInterspanDuration != 0){
-			var tr = tr(join(makeFirstCell(lastInterspanDuration, null, indentation), td()))
+			var tr = tr(join(makeFirstCell(lastInterspanDuration, null, indentation).toString(), td()))
 					.withStyle("background-color:#f9f9f9");
 			sb.append(tr.render());
 		}
@@ -222,7 +223,7 @@ public class TraceThreadGroup{
 				.append("<td style=\"white-space: nowrap;\">");
 
 		for(int i = 0; i < indentation; i++){
-			var span = span("&nbsp")
+			var span = span(rawHtml("&nbsp"))
 					.withStyle("border-right:solid 0px grey;"
 							+ "margin-left:20px;"
 							+ "margin-right:9px;"

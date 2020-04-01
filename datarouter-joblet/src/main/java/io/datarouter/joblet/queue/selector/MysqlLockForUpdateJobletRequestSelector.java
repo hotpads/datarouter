@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.client.mysql.execution.SessionExecutor;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.jdbc.GetJobletRequest;
 import io.datarouter.joblet.jdbc.JobletRequestSqlBuilder;
@@ -51,13 +52,15 @@ public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSel
 	private DatarouterJobletCounters datarouterJobletCounters;
 	@Inject
 	private SessionExecutor sessionExecutor;
+	@Inject
+	private MysqlSqlFactory mysqlSqlFactory;
 
 	@Override
 	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
 			String reservedBy){
 		while(true){
 			GetJobletRequest mysqlOp = new GetJobletRequest(reservedBy, type, datarouter, jobletRequestDao,
-					mysqlFieldCodecFactory, jobletRequestSqlBuilder);
+					mysqlFieldCodecFactory, mysqlSqlFactory, jobletRequestSqlBuilder);
 			JobletRequest jobletRequest = sessionExecutor.runWithoutRetries(mysqlOp);
 			timer.add("GetJobletRequest");
 			if(jobletRequest == null){

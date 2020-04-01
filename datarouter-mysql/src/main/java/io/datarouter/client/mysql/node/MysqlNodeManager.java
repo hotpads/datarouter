@@ -190,10 +190,11 @@ public class MysqlNodeManager{
 			Collection<IK> keys,
 			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageReader.OP_getByIndex;
 		var op = new MysqlGetByIndexOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory, mysqlClientType,
 				indexEntryFieldInfo, keys, config);
-		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
+		return sessionExecutor.runWithoutRetries(op, getTraceName(indexName, opName));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -207,10 +208,11 @@ public class MysqlNodeManager{
 			Collection<Range<IK>> ranges,
 			Config config,
 		IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageReader.OP_getIndexRange;
 		var op = new MysqlManagedIndexGetRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
 				indexEntryFieldInfo, ranges, config, mysqlClientType);
-		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
+		return sessionExecutor.runWithoutRetries(op, getTraceName(indexName, opName));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -224,10 +226,11 @@ public class MysqlNodeManager{
 			Collection<Range<IK>> ranges,
 			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageReader.OP_getIndexKeyRange;
 		var op = new MysqlManagedIndexGetKeyRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
 				indexEntryFieldInfo, ranges, config, mysqlClientType);
-		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
+		return sessionExecutor.runWithoutRetries(op, getTraceName(indexName, opName));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -241,10 +244,11 @@ public class MysqlNodeManager{
 			Collection<Range<IK>> ranges,
 			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageReader.OP_getByIndexRange;
 		var op = new MysqlManagedIndexGetDatabeanRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory,
 				indexEntryFieldInfo, ranges, config, mysqlClientType);
-		return sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
+		return sessionExecutor.runWithoutRetries(op, getTraceName(indexName, opName));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -374,7 +378,8 @@ public class MysqlNodeManager{
 			PhysicalDatabeanFieldInfo<PK,D,F> databeanfieldInfo,
 			Collection<IK> keys,
 			Config config,
-			IndexEntryFieldInfo<IK,?,?> indexFieldInfo){
+			IndexEntryFieldInfo<IK,?,?> indexEntryFieldInfo){
+		String indexName = indexEntryFieldInfo.getIndexName();
 		String opName = IndexedStorageWriter.OP_deleteByIndex;
 		var op = new MysqlDeleteByIndexOp<>(
 				datarouter,
@@ -383,9 +388,11 @@ public class MysqlNodeManager{
 				mysqlClientType,
 				keys,
 				config,
-				indexFieldInfo.getIndexName(),
+				indexName,
 				opName);
-		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, opName), config);
+		MysqlOpRetryTool.tryNTimes(
+				sessionExecutor.makeCallable(op, getTraceName(indexName, opName)),
+				config);
 	}
 
 	@SuppressWarnings("resource")

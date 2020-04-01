@@ -52,8 +52,7 @@ public class SqsClientManager extends BaseClientManager{
 	}
 
 	public Map<String,String> getQueueAttributes(ClientId clientId, String sqsQueueUrl, List<String> attributes){
-		initClient(clientId);
-		return amazonSqsHolder.get(clientId).getQueueAttributes(sqsQueueUrl, attributes).getAttributes();
+		return getAmazonSqs(clientId).getQueueAttributes(sqsQueueUrl, attributes).getAttributes();
 	}
 
 	public Map<String,String> getAllQueueAttributes(ClientId clientId, String sqsQueueUrl){

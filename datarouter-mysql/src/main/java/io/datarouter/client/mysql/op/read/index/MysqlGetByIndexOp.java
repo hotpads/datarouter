@@ -86,7 +86,9 @@ extends BaseMysqlOp<List<D>>{
 		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
 		String opName = IndexedStorageReader.OP_getByIndex;
 		List<D> result = new ArrayList<>();
-		for(List<IK> batch : Scanner.of(indexKeys).batch(MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE).iterable()){
+		for(List<IK> indexKeysBatch : Scanner.of(indexKeys)
+				.batch(MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)
+				.iterable()){
 			PreparedStatement statement = mysqlSqlFactory
 					.createSql(getClientId(), tableName)
 					.getWithPrefixes(
@@ -94,7 +96,7 @@ extends BaseMysqlOp<List<D>>{
 							config,
 							indexName,
 							databeanFieldInfo.getFields(),
-							batch,
+							indexKeysBatch,
 							null)
 					.prepare(connection);
 			List<D> batchResult = MysqlTool.selectDatabeans(
@@ -105,7 +107,7 @@ extends BaseMysqlOp<List<D>>{
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", clientName, nodeName, 1L);
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", clientName, nodeName, batchResult
 					.size());
-			TracerTool.appendToSpanInfo("got " + result.size() + '/' + batch.size());
+			TracerTool.appendToSpanInfo("got " + result.size() + '/' + indexKeysBatch.size());
 			result.addAll(batchResult);
 		}
 		return result;

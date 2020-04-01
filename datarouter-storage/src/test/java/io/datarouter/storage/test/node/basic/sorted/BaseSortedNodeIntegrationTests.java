@@ -31,7 +31,7 @@ import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSamplingScannerBuilder;
+import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.util.collection.CollectionTool;
@@ -443,9 +443,9 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 	}
 
 	@Test
-	public void testSortedStorageCountingTool(){
+	public void testStrideScanner(){
 		int stride = SortedBeans.TOTAL_RECORDS / 10;//trigger multiple small operations
-		long count = new SortedStorageSamplingScannerBuilder<>(dao.getNode())
+		long count = new StrideScannerBuilder<>(dao.getNode())
 				.withLog(true)
 				.withStride(stride)
 				.build()

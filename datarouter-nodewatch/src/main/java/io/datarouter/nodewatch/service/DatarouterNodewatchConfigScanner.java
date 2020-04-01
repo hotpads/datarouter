@@ -66,8 +66,8 @@ public class DatarouterNodewatchConfigScanner{
 		int clusterThreadCount = clusterSettingService.checkValidJobletSettingOnAnyServerType(
 				clusterThreadCountSetting);
 		int threadCount = clusterSettingService.checkValidJobletSettingOnAnyServerType(threadCountSetting);
-		if(clusterThreadCount < 2){
-			responses.add("clusterThreadCount should be greater than 1");
+		if(clusterThreadCount < 1){
+			responses.add("clusterThreadCount should be at least 1");
 		}
 		if(threadCount < 1){
 			responses.add("threadCount should be at least 1");

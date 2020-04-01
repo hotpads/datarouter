@@ -315,6 +315,10 @@ public abstract class DatarouterProperties{
 				Ec2InstanceDetailsDto.class));
 	}
 
+	public boolean isEc2(){
+		return getEc2InstanceDetails().isPresent();
+	}
+
 	/*---------------- getters -------------------*/
 
 	public String getServerName(){

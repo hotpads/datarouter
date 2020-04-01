@@ -26,6 +26,7 @@ import io.datarouter.web.browse.NodeSearchHandler;
 import io.datarouter.web.browse.ViewNodeDataHandler;
 import io.datarouter.web.browse.ViewTableConfigurationHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.email.EmailTestHandler;
 import io.datarouter.web.handler.IpDetectionHandler;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.inspect.DatarouterPropertiesViewHandler;
@@ -53,6 +54,9 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handleDir(paths.datarouter.executors)
 				.withHandler(ExecutorsMonitoringHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+		handle(paths.datarouter.emailTest)
+				.withHandler(EmailTestHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
 		handleDir(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);
 		handle(paths.datarouter.nodes.deleteData).withHandler(DeleteNodeDataHandler.class);
 		handle(paths.datarouter.nodes.getData).withHandler(GetNodeDataHandler.class);

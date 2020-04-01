@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.mysql.execution.SessionExecutor;
+import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.jdbc.JobletRequestSqlBuilder;
@@ -50,6 +51,8 @@ public class MysqlUpdateAndScanJobletRequestSelector implements JobletRequestSel
 	private DatarouterJobletCounters datarouterJobletCounters;
 	@Inject
 	private SessionExecutor sessionExecutor;
+	@Inject
+	private MysqlSqlFactory mysqlSqlFactory;
 
 	@Override
 	public Optional<JobletRequest> getJobletRequestForProcessing(
@@ -57,7 +60,7 @@ public class MysqlUpdateAndScanJobletRequestSelector implements JobletRequestSel
 			JobletType<?> type,
 			String reservedBy){
 		ReserveJobletRequest mysqlOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletRequestDao,
-				jobletRequestSqlBuilder);
+				mysqlSqlFactory, jobletRequestSqlBuilder);
 		while(sessionExecutor.runWithoutRetries(mysqlOp)){//returns false if no joblet found
 			JobletRequest jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy);
 			if(JobletStatus.CREATED == jobletRequest.getStatus()){

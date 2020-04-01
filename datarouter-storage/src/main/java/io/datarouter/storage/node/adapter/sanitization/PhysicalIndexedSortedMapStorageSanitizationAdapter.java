@@ -18,11 +18,7 @@ package io.datarouter.storage.node.adapter.sanitization;
 import java.util.Collection;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
@@ -30,11 +26,11 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
+import io.datarouter.storage.node.adapter.sanitization.sanitizer.ScanSanitizer;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class PhysicalIndexedSortedMapStorageSanitizationAdapter<
@@ -45,8 +41,6 @@ public class PhysicalIndexedSortedMapStorageSanitizationAdapter<
 extends BaseSanitizationAdapter<PK,D,F,N>
 implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 		PhysicalAdapterMixin<PK,D,F,N>{
-	private static final Logger logger = LoggerFactory.getLogger(
-			PhysicalIndexedSortedMapStorageSanitizationAdapter.class);
 
 	public PhysicalIndexedSortedMapStorageSanitizationAdapter(N backingNode){
 		super(backingNode);
@@ -174,37 +168,19 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>,
 
 	@Override
 	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		checkForUnexceptedFullScan(ranges);
+		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanMulti(ranges, config);
 	}
 
 	@Override
 	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		checkForUnexceptedFullScan(ranges);
+		ScanSanitizer.rejectUnexceptedFullScan(ranges);
 		return getBackingNode().scanKeysMulti(ranges, config);
 	}
 
 	@Override
 	public PhysicalDatabeanFieldInfo<PK,D,F> getFieldInfo(){
 		return PhysicalAdapterMixin.super.getFieldInfo();
-	}
-
-	private void checkForUnexceptedFullScan(Collection<Range<PK>> ranges){
-		for(Range<PK> range : ranges){
-			if(range == null || range.getStart() == null && range.getEnd() == null){
-				continue; // expected full scan
-			}
-			if(range.getStart() == null && isValueOfFirstFieldNull(range.getEnd())
-					|| range.getEnd() == null && isValueOfFirstFieldNull(range.getStart())
-					|| isValueOfFirstFieldNull(range.getStart()) && isValueOfFirstFieldNull(range.getEnd())){
-				logger.warn("unexcepted full scan detected for range={}", range, new Exception());
-				return;
-			}
-		}
-	}
-
-	private static boolean isValueOfFirstFieldNull(FieldSet<?> key){
-		return key != null && CollectionTool.getFirst(key.getFields()).getValue() == null;
 	}
 
 }

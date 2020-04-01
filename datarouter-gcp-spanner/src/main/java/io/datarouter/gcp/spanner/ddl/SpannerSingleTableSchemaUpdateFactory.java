@@ -41,10 +41,10 @@ import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.gcp.spanner.node.entity.SpannerSubEntityNode;
 import io.datarouter.gcp.spanner.util.SpannerEntityKeyTool;
 import io.datarouter.model.field.Field;
-import io.datarouter.storage.SchemaUpdateTool;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
+import io.datarouter.storage.config.schema.SchemaUpdateResult;
+import io.datarouter.storage.config.schema.SchemaUpdateTool;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.trace.callable.TracedCallable;
@@ -128,8 +128,8 @@ public class SpannerSingleTableSchemaUpdateFactory{
 						.map(node -> new SpannerIndex(
 								tableName,
 								node.getName(),
-								node.getFieldInfo().getPrimaryKeyFields(),
-								node.getFieldInfo().getFields(),
+								node.getIndexEntryFieldInfo().getPrimaryKeyFields(),
+								node.getIndexEntryFieldInfo().getFields(),
 								false))
 						.collect(Collectors.toList());
 			}

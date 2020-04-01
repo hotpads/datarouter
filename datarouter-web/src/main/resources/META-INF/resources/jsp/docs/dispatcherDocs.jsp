@@ -113,7 +113,7 @@
 				.complete(function(request){
 					$("#" + responseDivId).show();
 					if(request.getResponseHeader("content-type") == 'application/json'){
-						var json = JSON.stringify(JSON.parse(request.responseText), undefined, 2);
+						var json = formatJson(request.responseText);
 						document.getElementById(jsonResponseId).innerHTML = syntaxHighlight(json);
 					}else{
 						document.getElementById(jsonResponseId).innerHTML = request.responseText;
@@ -134,6 +134,15 @@
 			}
 			return location.origin + partialUrl;
 		}
+
+		function formatJson(jsonText){
+			const mark = 'JAVASCRIPT_INTEGER_OVERFLOW_PROTECTION'
+			const longSafeText = jsonText.replace(/(?<=(:|^))\d{15,}\b/g, num => Number.isSafeInteger(num) ? num :
+				('"' + mark + '(' + num + ')"'))
+			return JSON.stringify(JSON.parse(longSafeText), null, 2)
+					.replace(new RegExp('"' + mark + '\\((\\d+)\\)"', 'g'), match => match.slice(mark.length + 2, -2))
+		}
+
 		function syntaxHighlight(json) {
 			json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 			var regex = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g;

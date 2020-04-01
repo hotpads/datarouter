@@ -29,6 +29,6 @@ public interface ManagedNode<
 		IF extends DatabeanFielder<IK,IE>>{
 
 	String getName();
-	IndexEntryFieldInfo<IK,IE,IF> getFieldInfo();
+	IndexEntryFieldInfo<IK,IE,IF> getIndexEntryFieldInfo();
 
 }

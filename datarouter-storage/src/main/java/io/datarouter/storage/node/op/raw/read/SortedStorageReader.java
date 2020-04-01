@@ -28,7 +28,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSamplingScannerBuilder;
+import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.util.tuple.Range;
 
@@ -161,7 +161,7 @@ extends NodeOps<PK,D>{
 	/*-------------------------------- count --------------------------------*/
 
 	default long count(Range<PK> range){
-		return new SortedStorageSamplingScannerBuilder<>(this)
+		return new StrideScannerBuilder<>(this)
 				.withRange(range)
 				.build()
 				.findLast()

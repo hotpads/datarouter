@@ -80,7 +80,10 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 				lastItem);
 	}
 
-	public abstract static class BaseDatabeanVacuumBuilder<PK extends PrimaryKey<PK>,T>{
+	public abstract static class BaseNodeVacuumBuilder<
+			PK extends PrimaryKey<PK>,
+			T,
+			C extends BaseNodeVacuumBuilder<PK,T,C>>{
 
 		protected final Scanner<T> scanner;
 		protected final Predicate<T> shouldDelete;
@@ -88,7 +91,7 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 		protected int deleteBatchSize;
 		protected Optional<Integer> logBatchSize;
 
-		public BaseDatabeanVacuumBuilder(
+		public BaseNodeVacuumBuilder(
 				Scanner<T> scanner,
 				Predicate<T> shouldDelete,
 				Consumer<Collection<PK>> deleteConsumer){
@@ -97,6 +100,18 @@ public abstract class BaseNodeVacuum<PK extends PrimaryKey<PK>,T>{
 			this.deleteConsumer = deleteConsumer;
 			this.deleteBatchSize = 100;
 			this.logBatchSize = Optional.empty();
+		}
+
+		protected abstract C self();
+
+		public C withDeleteBatchSize(int batchSize){
+			this.deleteBatchSize = batchSize;
+			return self();
+		}
+
+		public C withLogBatchSize(int logBatchSize){
+			this.logBatchSize = Optional.of(logBatchSize);
+			return self();
 		}
 
 	}

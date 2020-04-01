@@ -42,8 +42,7 @@ import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
-import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSample;
-import io.datarouter.storage.op.scan.SortedStorageSamplingScanner.SortedStorageSamplingScannerBuilder;
+import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.Require;
@@ -174,28 +173,26 @@ implements Callable<List<TableSample>>{
 		Range<PK> posiblyOpenEndedPkRange = pkRange.clone();
 		posiblyOpenEndedPkRange.setEnd(scanUntilEnd ? null : pkRange.getEnd());
 		if(enableOffsetting){
-			Iterator<SortedStorageSample<PK>> strides = new SortedStorageSamplingScannerBuilder<>(node)
+			new StrideScannerBuilder<>(node)
 					.withRange(posiblyOpenEndedPkRange)
 					.withShouldStop(this::shouldInterrupt)
 					.withStride(stride)
 					.build()
-					.iterator();
-			while(strides.hasNext()){
-				SortedStorageSample<PK> stride = strides.next();
-				counters.incrementRpcs(stride.numRpcs);
-				counters.incrementKeys(stride.numKeysTransferred);
-				counters.incrementRows(stride.sampleCount);
-				latestPk = stride.lastSeenKey;
-				totalRows += stride.sampleCount;
-				numSinceLastMarker += stride.sampleCount;
-				wasInterrupted = stride.interrupted;
-				if(!strides.hasNext()){
-					return;//other logic handles the last marker
-				}
-				if(wasInterrupted || numSinceLastMarker == sampleSize){
-					insertIntermediateSample();
-				}
-			}
+					.forEach(stride -> {
+						counters.incrementRpcs(stride.numRpcs);
+						counters.incrementKeys(stride.numKeysTransferred);
+						counters.incrementRows(stride.sampleCount);
+						latestPk = stride.lastSeenKey;
+						totalRows += stride.sampleCount;
+						numSinceLastMarker += stride.sampleCount;
+						wasInterrupted = stride.interrupted;
+						if(stride.isLast){
+							return; // other logic handles the last marker
+						}
+						if(wasInterrupted || numSinceLastMarker == sampleSize){
+							insertIntermediateSample();
+						}
+					});
 		}else{ //TODO remove after validating offsetting
 			Config scanConfig = new Config()
 					.setScannerCaching(false)

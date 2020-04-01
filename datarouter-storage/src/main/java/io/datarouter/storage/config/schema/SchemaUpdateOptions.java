@@ -37,57 +37,70 @@ public class SchemaUpdateOptions{
 	private static final String SCHEMA_UPDATE_FILENAME = "schema-update.properties";
 
 	private static final String SCHEMA_UPDATE = "schemaUpdate";
-	private static final String SCHEMA_UPDATE_ENABLE = SCHEMA_UPDATE + ".enable";
 
-	private static final String PRINT_PREFIX = SCHEMA_UPDATE + ".print";
-	private static final String EXECUTE_PREFIX = SCHEMA_UPDATE + ".execute";
+	protected static final String SCHEMA_UPDATE_ENABLE = SCHEMA_UPDATE + ".enable";
 
-	private static final String SUFFIX_createDatabases = ".createDatabases";
-	private static final String SUFFIX_createTables = ".createTables";
-	private static final String SUFFIX_addColumns = ".addColumns";
-	private static final String SUFFIX_deleteColumns = ".deleteColumns";
-	private static final String SUFFIX_modifyColumns = ".modifyColumns";
-	private static final String SUFFIX_addIndexes = ".addIndexes";
-	private static final String SUFFIX_dropIndexes = ".dropIndexes";
-	private static final String SUFFIX_modifyEngine = ".modifyEngine";
-	private static final String SUFFIX_ignoreClients = ".ignoreClients";
-	private static final String SUFFIX_ignoreTables = ".ignoreTables";
-	private static final String SUFFIX_modifyRowFormat = ".modifyRowFormat";
-	private static final String SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation";
-	private static final String SUFFIX_modifyTtl = ".modifyTtl";
-	private static final String SUFFIX_modifyMaxVersions = ".modifyMaxVersions";
+	protected static final String PRINT_PREFIX = SCHEMA_UPDATE + ".print";
+	protected static final String EXECUTE_PREFIX = SCHEMA_UPDATE + ".execute";
+
+	protected static final String SUFFIX_createDatabases = ".createDatabases";
+	protected static final String SUFFIX_createTables = ".createTables";
+	protected static final String SUFFIX_addColumns = ".addColumns";
+	protected static final String SUFFIX_deleteColumns = ".deleteColumns";
+	protected static final String SUFFIX_modifyColumns = ".modifyColumns";
+	protected static final String SUFFIX_addIndexes = ".addIndexes";
+	protected static final String SUFFIX_dropIndexes = ".dropIndexes";
+	protected static final String SUFFIX_modifyEngine = ".modifyEngine";
+	protected static final String SUFFIX_modifyRowFormat = ".modifyRowFormat";
+	protected static final String SUFFIX_modifyCharacterSetOrCollation = ".modifyCharacterSetOrCollation";
+	protected static final String SUFFIX_modifyTtl = ".modifyTtl";
+	protected static final String SUFFIX_modifyMaxVersions = ".modifyMaxVersions";
+	protected static final List<String> ALL_SCHEMA_UPDATE_OPTIONS = List.of(
+			SUFFIX_createDatabases,
+			SUFFIX_createTables,
+			SUFFIX_addColumns,
+			SUFFIX_deleteColumns,
+			SUFFIX_modifyColumns,
+			SUFFIX_addIndexes,
+			SUFFIX_dropIndexes,
+			SUFFIX_modifyEngine,
+			SUFFIX_modifyRowFormat,
+			SUFFIX_modifyCharacterSetOrCollation,
+			SUFFIX_modifyTtl,
+			SUFFIX_modifyMaxVersions);
+
+	protected static final String SUFFIX_ignoreClients = ".ignoreClients";
+	protected static final String SUFFIX_ignoreTables = ".ignoreTables";
 
 	private final List<String> ignoreClients;
 	private final List<String> ignoreTables;
+
 	private Properties properties;
 
 	@Inject
-	public SchemaUpdateOptions(DatarouterProperties datarouterProperties){
-		String configFileLocation = datarouterProperties.findConfigFile(SCHEMA_UPDATE_FILENAME);
-		try{
-			properties = PropertiesTool.parse(configFileLocation);
-		}catch(Exception e){
-			logger.warn("error parsing {}, using default schema-update options", configFileLocation, e);
-			properties = new Properties();
+	public SchemaUpdateOptions(
+			DatarouterProperties datarouterProperties,
+			SchemaUpdateOptionsFactory schemaUpdateOptionsFactory){
+		properties = schemaUpdateOptionsFactory.getInternalConfigDirectoryTypeSchemaUpdateOptions(
+				datarouterProperties.getInternalConfigDirectory());
+		if(!properties.isEmpty()){
+			logger.warn("Got schema update properties from class {}", schemaUpdateOptionsFactory.getClass()
+					.getCanonicalName());
+		}else{
+			String configFileLocation = datarouterProperties.findConfigFile(SCHEMA_UPDATE_FILENAME);
+			try{
+				properties = PropertiesTool.parse(configFileLocation);
+				logger.warn("Got schema update properties from file {}", configFileLocation);
+			}catch(Exception e){
+				logger.warn("Error parsing file {}, using default schema-update options", configFileLocation, e);
+				properties = new Properties();
+			}
 		}
 
 		String clientsToIgnore = properties.getProperty(SCHEMA_UPDATE + SUFFIX_ignoreClients);
 		ignoreClients = StringTool.splitOnCharNoRegex(clientsToIgnore, ',');
 		String tablesToIgnore = properties.getProperty(SCHEMA_UPDATE + SUFFIX_ignoreTables);
 		ignoreTables = StringTool.splitOnCharNoRegex(tablesToIgnore, ',');
-	}
-
-	private Optional<Boolean> isPropertyTrue(boolean printVsExecute, String suffix){
-		return isPropertyTrue(choosePrefix(printVsExecute) + suffix);
-	}
-
-	private Optional<Boolean> isPropertyTrue(String property){
-		return Optional.ofNullable(properties.getProperty(property))
-				.map(BooleanTool::isTrue);
-	}
-
-	private static String choosePrefix(boolean printVsExecute){
-		return printVsExecute ? PRINT_PREFIX : EXECUTE_PREFIX;
 	}
 
 	public boolean getEnabled(){
@@ -152,6 +165,19 @@ public class SchemaUpdateOptions{
 
 	public List<String> getIgnoreTables(){
 		return ignoreTables;
+	}
+
+	private Optional<Boolean> isPropertyTrue(boolean printVsExecute, String suffix){
+		return isPropertyTrue(choosePrefix(printVsExecute) + suffix);
+	}
+
+	private Optional<Boolean> isPropertyTrue(String property){
+		return Optional.ofNullable(properties.getProperty(property))
+				.map(BooleanTool::isTrue);
+	}
+
+	private static String choosePrefix(boolean printVsExecute){
+		return printVsExecute ? PRINT_PREFIX : EXECUTE_PREFIX;
 	}
 
 }
