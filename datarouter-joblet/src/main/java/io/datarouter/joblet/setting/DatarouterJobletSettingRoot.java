@@ -84,10 +84,6 @@ public class DatarouterJobletSettingRoot extends SettingRoot{
 		return Optional.ofNullable(getThreadCountSettings().getSettingForJobletType(jobletType)).orElse(null);
 	}
 
-	public JobletQueueMechanism getQueueMechanismEnum(){
-		return JobletQueueMechanism.fromPersistentString(queueMechanism.get());
-	}
-
 	/*------------------ node getters ------------------*/
 
 	public DatarouterJobletClusterThreadCountSettings getClusterThreadCountSettings(){

@@ -40,7 +40,7 @@ public class SpannerIntegerArrayFieldCodec extends SpannerBaseFieldCodec<List<In
 
 	@Override
 	public Value getSpannerValue(){
-		return Value.int64Array(IterableTool.map(field.getValue(), NumberTool::longValue));
+		return Value.int64Array(IterableTool.nullSafeMap(field.getValue(), NumberTool::longValue));
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class SpannerIntegerArrayFieldCodec extends SpannerBaseFieldCodec<List<In
 
 	@Override
 	public List<Integer> getValueFromResultSet(ResultSet rs){
-		return IterableTool.map(rs.getLongList(field.getKey().getColumnName()),
+		return IterableTool.nullSafeMap(rs.getLongList(field.getKey().getColumnName()),
 				aLong -> aLong == null ? null : aLong.intValue());
 	}
 

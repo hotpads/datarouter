@@ -30,7 +30,7 @@ public interface DatarouterInjector{
 	void injectMembers(Object instance);
 
 	default <T> List<T> getInstances(List<Class<? extends T>> classes){
-		return IterableTool.map(classes, this::getInstance);
+		return IterableTool.nullSafeMap(classes, this::getInstance);
 	}
 
 }

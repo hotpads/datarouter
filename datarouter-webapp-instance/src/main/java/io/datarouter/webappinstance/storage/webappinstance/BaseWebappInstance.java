@@ -33,7 +33,7 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
-import io.datarouter.util.StreamTool;
+import io.datarouter.scanner.Scanner;
 
 public abstract class BaseWebappInstance<
 		PK extends BaseWebappInstanceKey<PK>,
@@ -141,7 +141,7 @@ extends BaseDatabean<PK,D>{
 	}
 
 	public static Set<String> getUniqueServerNames(Iterable<WebappInstance> ins){
-		return StreamTool.stream(ins)
+		return Scanner.of(ins)
 				.map(WebappInstance::getKey)
 				.map(WebappInstanceKey::getServerName)
 				.collect(Collectors.toSet());

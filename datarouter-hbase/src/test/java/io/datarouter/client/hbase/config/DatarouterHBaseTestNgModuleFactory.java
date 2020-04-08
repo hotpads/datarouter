@@ -17,7 +17,11 @@ package io.datarouter.client.hbase.config;
 
 import java.util.Arrays;
 
-import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
+import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.storage.TestDatarouterProperties;
+import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 import io.datarouter.web.config.DatarouterWebTestGuiceModule;
@@ -28,7 +32,26 @@ public class DatarouterHBaseTestNgModuleFactory extends TestNgModuleFactory{
 		super(Arrays.asList(
 				new DatarouterWebTestGuiceModule(),
 				new DatarouterWebGuiceModule(),
-				new DatarouterStorageTestGuiceModule()));
+				new HbasedGuiceModule()));
+	}
+
+	public static class HbasedGuiceModule extends BaseGuiceModule{
+
+		@Override
+		protected void configure(){
+			bind(DatarouterProperties.class).to(HbaseDatarouterProperties.class);
+			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+		}
+
+	}
+
+	public static class HbaseDatarouterProperties extends TestDatarouterProperties{
+
+		@Override
+		public String getDatarouterPropertiesFileLocation(){
+			return getTestConfigDirectory() + "/hbase.properties";
+		}
+
 	}
 
 }

@@ -13,23 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.dispatcher;
+package io.datarouter.web.config;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import java.util.List;
+import java.util.function.Supplier;
 
-import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.web.config.BaseDatarouterWebDispatcherServlet;
-import io.datarouter.web.config.RootRouteSetsSupplier;
+import io.datarouter.web.dispatcher.BaseRouteSet;
 
-@SuppressWarnings("serial")
-@Singleton
-public class RootDispatcherServlet extends BaseDatarouterWebDispatcherServlet{
-
-	@Inject
-	public RootDispatcherServlet(DatarouterInjector injector, RootRouteSetsSupplier routeSets){
-		super(injector);
-		routeSets.get().forEach(this::addRouteSet);
-	}
-
+public interface RouteSetRegistry extends Supplier<List<BaseRouteSet>>{
 }

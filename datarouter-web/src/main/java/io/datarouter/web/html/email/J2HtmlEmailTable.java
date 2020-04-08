@@ -90,7 +90,7 @@ public class J2HtmlEmailTable<T>{
 	}
 
 	public ContainerTag build(Collection<T> values, Function<T,J2HtmlEmailTableRow<T>> rowFunction){
-		Collection<J2HtmlEmailTableRow<T>> rows = IterableTool.map(values, rowFunction);
+		Collection<J2HtmlEmailTableRow<T>> rows = IterableTool.nullSafeMap(values, rowFunction);
 		var table = TagCreator.table()
 				.attr(Attr.BORDER, 1)
 				.attr("cellpadding", 5)

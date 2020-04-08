@@ -61,12 +61,12 @@ public class FieldTool{
 			boolean allowNulls,
 			boolean terminateIntermediateString,
 			boolean terminateFinalString){
-		int totalFields = CollectionTool.size(fields);
+		int totalFields = CollectionTool.sizeNullSafe(fields);
 		int numNonNullFields = FieldTool.countNonNullLeadingFields(fields);
 		if(numNonNullFields == 0){
 			return null;
 		}
-		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.size(fields)][];
+		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.sizeNullSafe(fields)][];
 		int fieldIdx = -1;
 		for(Field<?> field : IterableTool.nullSafe(fields)){
 			++fieldIdx;

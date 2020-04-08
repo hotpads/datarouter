@@ -17,7 +17,6 @@ package io.datarouter.gcp.spanner.node.entity;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.Key;
@@ -34,6 +33,7 @@ import io.datarouter.gcp.spanner.op.read.SpannerBaseReadOp;
 import io.datarouter.gcp.spanner.op.write.SpannerBaseWriteOp;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientTableNodeNames;
 import io.datarouter.storage.config.Config;
@@ -87,11 +87,10 @@ extends BasePhysicalEntityNode<EK,E>{
 				.map(partition -> new EntityListOp(clientManager.getDatabaseClient(clientId), config, codecRegistry,
 						entityFieldInfo.getEntityTableName(), partition, startKey, startKeyInclusive))
 				.map(EntityListOp::wrappedCall)
-				.stream()
-				.flatMap(List::stream)
+				.concatenate(Scanner::of)
 				.sorted()
 				.limit(limit)
-				.collect(Collectors.toList());
+				.list();
 	}
 
 	private class EntityDeleteOp extends SpannerBaseWriteOp<EK>{
@@ -102,7 +101,7 @@ extends BasePhysicalEntityNode<EK,E>{
 
 		@Override
 		public Collection<Mutation> getMutations(){
-			return IterableTool.map(values, this::keyToDeleteMutation);
+			return IterableTool.nullSafeMap(values, this::keyToDeleteMutation);
 		}
 
 		private Mutation keyToDeleteMutation(EK key){

@@ -38,7 +38,7 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.collection.CollectionTool;
+import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.util.tuple.Range;
@@ -109,7 +109,7 @@ public class CopyTableService{
 					.each(batch -> processor.accept(batch, putConfig))
 					.forEach(batch -> {
 						numCopied.addAndGet(batch.size());
-						lastKey.set(CollectionTool.getLast(batch).getKey());
+						lastKey.set(ListTool.getLast(batch).getKey());
 						logProgress(false, numSkipped.get(), numScanned.get(), numCopied.get(), batchId, numBatches,
 								sourceNodeName, targetNodeName, lastKey.get());
 					});

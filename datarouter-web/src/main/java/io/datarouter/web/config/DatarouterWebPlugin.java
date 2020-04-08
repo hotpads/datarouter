@@ -39,6 +39,7 @@ import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 import io.datarouter.web.filter.StaticFileFilter;
 import io.datarouter.web.filter.https.HttpsFilter;
 import io.datarouter.web.filter.requestcaching.GuiceRequestCachingFilter;
+import io.datarouter.web.homepage.DefaultHomepageRouteSet;
 import io.datarouter.web.homepage.HomepageHandler;
 import io.datarouter.web.homepage.HomepageRouteSet;
 import io.datarouter.web.homepage.SimpleHomepageHandler;
@@ -107,15 +108,19 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final List<NavBarItem> appNavBarPluginItems;
 	private final Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass;
 	private final Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
-	private final Class<? extends HomepageHandler> homepageHandlerClass;
+	private final Class<? extends HomepageRouteSet> homepageRouteSet;
+	private final Class<? extends HomepageHandler> homepageHandler;
 	private final List<String> registeredPlugins;
 	private final String nodeWidgetDatabeanExporterLink;
 	private final String nodeWidgetTableCountLink;
 
 	// only used to get simple data from plugin
-	private DatarouterWebPlugin(DatarouterWebDaoModule daosModuleBuilder, String customStaticFileFilterRegex){
+	private DatarouterWebPlugin(
+			DatarouterWebDaoModule daosModuleBuilder,
+			Class<? extends HomepageRouteSet> homepageRouteSet,
+			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
-				null, null, null, customStaticFileFilterRegex, null, null, null);
+				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -136,13 +141,14 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<NavBarItem> appNavBarPluginItems,
 			Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetailClass,
 			Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier,
-			Class<? extends HomepageHandler> homepageHandlerClass,
+			Class<? extends HomepageRouteSet> homepageRouteSet,
+			Class<? extends HomepageHandler> homepageHandler,
 			String customStaticFileFilterRegex,
 			List<String> registeredPlugins,
 			String nodeWidgetDatabeanExporterLink,
 			String nodeWidgetTableCountLink){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
-		addRouteSet(HomepageRouteSet.class);
+		addRouteSet(homepageRouteSet);
 
 		addSettingRoot(DatarouterWebSettingRoot.class);
 		setDaosModule(daosModuleBuilder);
@@ -197,7 +203,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.appNavBarPluginItems = appNavBarPluginItems;
 		this.datarouterUserExternalDetailClass = datarouterUserExternalDetailClass;
 		this.appNavBarRegistrySupplier = appNavBarRegistrySupplier;
-		this.homepageHandlerClass = homepageHandlerClass;
+		this.homepageHandler = homepageHandler;
+		this.homepageRouteSet = homepageRouteSet;
 		this.registeredPlugins = registeredPlugins;
 		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
 		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
@@ -231,7 +238,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				new AppNavBarPluginCreator(appNavBarPluginItems));
 		bindActualNullSafe(DatarouterUserExternalDetailService.class, datarouterUserExternalDetailClass);
 		bindActualNullSafe(AppNavBarRegistrySupplier.class, appNavBarRegistrySupplier);
-		bind(HomepageHandler.class).to(homepageHandlerClass);
+		bind(HomepageHandler.class).to(homepageHandler);
+		bind(HomepageRouteSet.class).to(homepageRouteSet);
 		bindActualInstance(PluginRegistrySupplier.class, new PluginRegistry(registeredPlugins));
 		bindActualInstance(NodeWidgetDatabeanExporterLinkSupplier.class,
 				new NodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink));
@@ -301,6 +309,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private List<NavBarItem> appNavBarPluginItems;
 		private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetail;
 		private Class<? extends AppNavBarRegistrySupplier> appNavBarRegistrySupplier;
+		private Class<? extends HomepageRouteSet> homepageRouteSet = DefaultHomepageRouteSet.class;
 		private Class<? extends HomepageHandler> homepageHandler = SimpleHomepageHandler.class;
 		private String customStaticFileFilterRegex;
 		private List<String> registeredPlugins = Collections.emptyList();
@@ -403,6 +412,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setHomepageRouteSet(Class<? extends HomepageRouteSet> homepageRouteSet){
+			this.homepageRouteSet = homepageRouteSet;
+			return this;
+		}
+
 		public DatarouterWebPluginBuilder setHomepageHandler(Class<? extends HomepageHandler> homepageHandlerClass){
 			this.homepageHandler = homepageHandlerClass;
 			return this;
@@ -429,7 +443,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		}
 
 		public DatarouterWebPlugin getSimplePluginData(){
-			return new DatarouterWebPlugin(daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId),
+			return new DatarouterWebPlugin(
+					daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId),
+					homepageRouteSet,
 					customStaticFileFilterRegex);
 		}
 
@@ -453,6 +469,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					appNavBarPluginItems,
 					datarouterUserExternalDetail,
 					appNavBarRegistrySupplier,
+					homepageRouteSet,
 					homepageHandler,
 					customStaticFileFilterRegex,
 					registeredPlugins,

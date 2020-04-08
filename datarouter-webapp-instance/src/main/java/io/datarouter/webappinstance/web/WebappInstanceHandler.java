@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.session.service.Session;
@@ -79,12 +79,15 @@ public class WebappInstanceHandler extends BaseHandler{
 		var lastUpdatedStats = new UsageStatsJspDto(webappInstances, WebappInstance::getRefreshedLast);
 		var servletVersionStats = new UsageStatsJspDto(webappInstances, WebappInstance::getServletContainerVersion);
 
-		List<WebappInstanceJspDto> dtos = IterableTool.map(webappInstances, instance -> new WebappInstanceJspDto(
-				instance,
-				!buildIdStats.getMostCommon().equals(instance.getBuildId()),
-				!mostPopularCommitIdByWebapp.get(instance.getKey().getWebappName()).equals(instance.getCommitId()),
-				!javaVersionStats.getMostCommon().equals(instance.getJavaVersion()),
-				!servletVersionStats.getMostCommon().equals(instance.getServletContainerVersion())));
+		List<WebappInstanceJspDto> dtos = Scanner.of(webappInstances)
+				.map(instance -> new WebappInstanceJspDto(
+						instance,
+						!buildIdStats.getMostCommon().equals(instance.getBuildId()),
+						!mostPopularCommitIdByWebapp.get(instance.getKey().getWebappName()).equals(instance
+								.getCommitId()),
+						!javaVersionStats.getMostCommon().equals(instance.getJavaVersion()),
+						!servletVersionStats.getMostCommon().equals(instance.getServletContainerVersion())))
+				.list();
 
 		mav.put("webappInstances", dtos);
 		mav.put("webappStats", webappStats);

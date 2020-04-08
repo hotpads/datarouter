@@ -15,24 +15,17 @@
  */
 package io.datarouter.web.homepage;
 
-import javax.inject.Singleton;
-
+import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.web.dispatcher.BaseRouteSet;
-import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.user.role.DatarouterUserRole;
 
-@Singleton
-public class HomepageRouteSet extends BaseRouteSet{
+public abstract class HomepageRouteSet extends BaseRouteSet{
 
-	public HomepageRouteSet(){
-		super("");
-		// catch-all
-		handleDir("|/").withHandler(HomepageHandler.class);
+	public HomepageRouteSet(String path){
+		super(path);
 	}
 
-	@Override
-	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.USER);
+	public HomepageRouteSet(PathNode pathNode){
+		super(pathNode);
 	}
 
 }

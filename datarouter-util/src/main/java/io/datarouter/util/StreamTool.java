@@ -15,44 +15,11 @@
  */
 package io.datarouter.util;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Spliterators;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import io.datarouter.util.iterable.IterableTool;
-import io.datarouter.util.tuple.Pair;
 
 public class StreamTool{
-
-	public static <T> Stream<T> stream(Iterable<T> iterable){
-		return StreamSupport.stream(IterableTool.nullSafe(iterable).spliterator(), false);
-	}
-
-	public static <T> Stream<T> stream(Iterator<T> iterator){
-		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
-	}
-
-	public static <A,T> List<T> map(Stream<A> stream, Function<A,T> mapper){
-		return stream.map(mapper).collect(Collectors.toList());
-	}
-
-	public static <A,T> Set<T> mapToSet(Stream<A> stream, Function<A,T> mapper){
-		return stream.map(mapper).collect(Collectors.toSet());
-	}
-
-	public static <T> Stream<T> nullItemSafeStream(Iterable<T> iterable){
-		return stream(iterable).filter(Objects::nonNull);
-	}
 
 	public static <V> BinaryOperator<V> throwingMerger(){
 		return (v1, v2) -> {
@@ -69,14 +36,6 @@ public class StreamTool{
 	 */
 	public static <E> Function<Object,Stream<E>> instancesOf(Class<E> clazz){
 		return obj -> clazz.isInstance(obj) ? Stream.of(clazz.cast(obj)) : Stream.empty();
-	}
-
-	public static <A,B> Collector<Pair<A,B>,?,Map<A,B>> pairsToMap(){
-		return Collectors.toMap(Pair::getLeft, Pair::getRight);
-	}
-
-	public static <A,B> Collector<Entry<A,B>,?,Map<A,B>> entriesToMap(){
-		return Collectors.toMap(Entry::getKey, Entry::getValue);
 	}
 
 }

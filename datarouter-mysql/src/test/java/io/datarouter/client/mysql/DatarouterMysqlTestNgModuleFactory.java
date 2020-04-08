@@ -16,10 +16,18 @@
 package io.datarouter.client.mysql;
 
 import java.util.Arrays;
+import java.util.Collections;
 
+import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
+import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
+import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.secret.config.DatarouterSecretGuiceModule;
-import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
+import io.datarouter.storage.TestDatarouterProperties;
+import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
+import io.datarouter.web.config.DatarouterWebGuiceModule;
 import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
 public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
@@ -27,9 +35,31 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 	public DatarouterMysqlTestNgModuleFactory(){
 		super(Arrays.asList(
 				new DatarouterWebTestGuiceModule(),
+				new DatarouterWebGuiceModule(),
 				new DatarouterSecretGuiceModule(),
-				new DatarouterMysqlGuiceModule(),
-				new DatarouterStorageTestGuiceModule()));
+				new DatarouterMysqlTestGuiceModule()));
+	}
+
+
+	public static class DatarouterMysqlTestGuiceModule extends BaseGuiceModule{
+
+		@Override
+		protected void configure(){
+			bindActualInstance(MysqlFieldCodecFactory.class,
+					new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
+			bind(DatarouterProperties.class).to(MysqlDatarouterProperties.class);
+			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+		}
+
+	}
+
+	public static class MysqlDatarouterProperties extends TestDatarouterProperties{
+
+		@Override
+		public String getDatarouterPropertiesFileLocation(){
+			return getTestConfigDirectory() + "/mysql.properties";
+		}
+
 	}
 
 }

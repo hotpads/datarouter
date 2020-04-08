@@ -50,9 +50,8 @@ import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.net.IpTool;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
@@ -78,7 +77,7 @@ public class RequestTool{
 	public static List<String> getSlashedUriParts(String uri){
 		List<String> uriVars = Arrays.asList(uri.split("/"));
 		//get rid of blanks
-		return IterableTool.include(uriVars, StringTool::notEmpty);
+		return Scanner.of(uriVars).include(StringTool::notEmpty).list();
 	}
 
 	public static String getStringParameterCheckOverrideVars(
@@ -186,7 +185,7 @@ public class RequestTool{
 		if(StringTool.isEmpty(stringVal)){
 			return defaultValue;
 		}
-		return ListTool.nullSafeLinkedAddAll(null, stringVal.split(delimiter));
+		return Arrays.asList(stringVal.split(delimiter));
 	}
 
 

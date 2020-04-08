@@ -176,7 +176,7 @@ public class DatarouterClients{
 		for(ClientId clientId : clientIds){
 			futures.add(executorService.submit(() -> getClientManager(clientId).initClient(clientId)));
 		}
-		FutureTool.getAllVaried(futures);
+		futures.forEach(FutureTool::get);
 	}
 
 }

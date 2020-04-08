@@ -48,7 +48,7 @@ public class BaseDatarouterWebDispatcherServlet extends DispatcherServlet{
 
 	@Override
 	public void registerRouteSets(){
-		register(IterableTool.map(routeSetClasses, injector::getInstance));
+		register(IterableTool.nullSafeMap(routeSetClasses, injector::getInstance));
 		register(routeSets);
 	}
 

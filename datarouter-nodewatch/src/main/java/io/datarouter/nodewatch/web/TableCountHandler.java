@@ -43,12 +43,12 @@ import io.datarouter.nodewatch.storage.tablecount.TableCount;
 import io.datarouter.nodewatch.storage.tablecount.TableCountKey;
 import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.duration.DatarouterDuration;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
@@ -90,7 +90,9 @@ public class TableCountHandler extends BaseHandler{
 					.scanWithPrefix(new LatestTableCountKey(clientName, null))
 					.sorted(Comparator.comparing(LatestTableCount::getNumRows).reversed())
 					.list();
-			latestTableCountDtoMap.put(clientName, IterableTool.map(latestCountsByClientList, TableCountJspDto::new));
+			latestTableCountDtoMap.put(clientName, Scanner.of(latestCountsByClientList)
+					.map(TableCountJspDto::new)
+					.list());
 		});
 		mav.put("latestTableCountDtoMap", latestTableCountDtoMap);
 		return mav;
@@ -111,7 +113,7 @@ public class TableCountHandler extends BaseHandler{
 		mav.put("tableName", tableName);
 		List<TableCount> results = tableCountDao.getForTable(clientName, tableName);
 		Collections.sort(results, new TableCount.TableCountLatestEntryComparator());
-		mav.put("results", IterableTool.map(results, TableCountJspDto::new));
+		mav.put("results", Scanner.of(results).map(TableCountJspDto::new).list());
 		mav.put("jsonData", getRowCountData(clientName, tableName));
 		return mav;
 	}

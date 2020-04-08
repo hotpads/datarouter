@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.concurrent;
+package io.datarouter.ratelimiter;
 
-import java.util.concurrent.CompletableFuture;
+import io.datarouter.client.memcached.ratelimiter.BaseTallyDao;
+import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.ratelimiter.NamedMemcachedRateLimiterIntegrationTests.DatarouterNamedMemcachedRateLimiterTestDao;
 
-public class CompletableFutureTool{
+public class RateLimiterGuiceModule extends BaseGuiceModule{
 
-	public static <T> CompletableFuture<T> completedFutureWithException(Throwable throwable){
-		CompletableFuture<T> future = new CompletableFuture<>();
-		future.completeExceptionally(throwable);
-		return future;
+	@Override
+	protected void configure(){
+		bind(BaseTallyDao.class).to(DatarouterNamedMemcachedRateLimiterTestDao.class);
 	}
 
 }

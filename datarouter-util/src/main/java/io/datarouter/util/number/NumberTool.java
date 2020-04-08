@@ -36,10 +36,6 @@ public class NumberTool{
 		return number == null || number.equals(0L) || number.equals(0F) || number.equals(0D) || number.intValue() == 0;
 	}
 
-	public static boolean isMax(Long number){
-		return number != null && number == Long.MAX_VALUE;
-	}
-
 	public static Long max(Long n1, Long n2){
 		if(n1 == null){
 			return n2;

@@ -30,11 +30,9 @@ import io.datarouter.auth.cache.DatarouterUserByUsernameCache;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.collection.SetTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.databean.DatarouterUser;
-import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionKey;
 import io.datarouter.web.user.session.DatarouterSessionManager;
@@ -107,24 +105,6 @@ public class DatarouterUserSessionService implements UserSessionService{
 				.include(session -> usernameSet.contains(session.getUsername()))
 				.map(DatarouterSession::getKey)
 				.flush(sessionDao::deleteMulti);
-	}
-
-	@Override
-	public void deprovisionUsers(List<String> usernames, boolean shouldDisable, boolean shouldDelete){
-		deleteUserSessions(usernames);
-		List<DatarouterUser> users = userDao.getMultiByUsername(IterableTool.map(usernames,
-				DatarouterUserByUsernameLookup::new));
-		if(shouldDelete){
-			userDao.deleteMulti(IterableTool.map(users, DatarouterUser::getKey));
-			return;//return to avoid putting deleted users below
-		}
-		users.forEach(user -> {
-			user.setRoles(List.of());
-			if(shouldDisable){
-				user.setEnabled(false);
-			}
-		});
-		userDao.putMulti(users);
 	}
 
 }

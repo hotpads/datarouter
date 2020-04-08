@@ -9,7 +9,7 @@ datarouter-gcp-spanner is an implementation of [datarouter-storage](../dataroute
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-gcp-spanner</artifactId>
-	<version>0.0.25</version>
+	<version>0.0.26</version>
 </dependency>
 ```
 
@@ -89,7 +89,7 @@ Properties properties = new SchemaUpdateOptionsBuilder(true)
 On production environments, it is recommended to use `schemaUpdate.print` instead of `schemaUpdate.execute`. The ALTER TABLE statements will be logged and emailed instead of executed.
 
 ## Local Testing
-To build this module locally, add the `spanner.properties` to `/etc/datarouter/test` and and `schema-update.properties`
+To build this module locally, add `spanner.properties` to `/etc/datarouter/test` and add `schema-update.properties`
  to `/etc/datarouter/config`.
 
 ## License

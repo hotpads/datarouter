@@ -26,16 +26,20 @@ public class TaskTrackerCounters{
 	private static final String COUNTER_PREFIX = "job";
 
 	public void heartbeat(String jobName){
-		count(jobName, "heartbeat");
+		count(jobName, "heartbeat", 1);
+	}
+
+	public void increment(String jobName, long delta){
+		count(jobName, "increment", delta);
 	}
 
 	public void shouldStop(String jobName, String reason){
-		count(jobName, "shouldStop " + reason);
+		count(jobName, "shouldStop " + reason, 1);
 	}
 
-	private void count(String jobName, String name){
-		Counters.inc(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + name);
-		Counters.inc(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + jobName + " " + name);
+	private void count(String jobName, String name, long delta){
+		Counters.inc(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + name, delta);
+		Counters.inc(DatarouterCounters.PREFIX + " " + COUNTER_PREFIX + " " + jobName + " " + name, delta);
 	}
 
 }

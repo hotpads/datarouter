@@ -65,7 +65,7 @@ public class GaugeMemoryToSqsConveyor extends BaseConveyor{
 		}
 		try{
 			if(shouldBufferInSqs.get()){
-				List<ConveyorMessage> sqsMessages = IterableTool.map(dtos, this::toConveyorMessage);
+				List<ConveyorMessage> sqsMessages = IterableTool.nullSafeMap(dtos, this::toConveyorMessage);
 				putMultiConsumer.accept(sqsMessages);
 			}
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, dtos.size());

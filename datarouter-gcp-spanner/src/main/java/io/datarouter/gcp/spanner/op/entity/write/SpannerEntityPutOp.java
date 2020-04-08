@@ -59,8 +59,8 @@ extends SpannerPutOp<PK,D,F>{
 
 	@Override
 	public Collection<Mutation> getMutations(){
-		var entityMutations = IterableTool.map(values, this::createEntityRow);
-		var databeanMutations = IterableTool.map(values, this::databeanToMutation);
+		var entityMutations = IterableTool.nullSafeMap(values, this::createEntityRow);
+		var databeanMutations = IterableTool.nullSafeMap(values, this::databeanToMutation);
 		return ListTool.concatenate(entityMutations, databeanMutations);
 
 	}

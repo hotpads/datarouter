@@ -11,7 +11,7 @@ SQS is a hosted messaging service with high availability and elasticity and pred
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-sqs</artifactId>
-	<version>0.0.25</version>
+	<version>0.0.26</version>
 </dependency>
 ```
 
@@ -50,6 +50,10 @@ When issuing a putMulti, GroupQueueStorage will bundle multiple databeans into a
 256KB per message.  This is a more economical format, and will usually provide higher throughput.  It lets you pass many
 small databeans through SQS without worrying about custom serialization formats.  The downside is that it's less clear 
 how to handle a single invalid databean in a message, but many use cases are ok with this.
+
+
+## Local Testing
+To build this module locally, add `aws-sqs.properties` to `/etc/datarouter/test`.
 
 ## License
 

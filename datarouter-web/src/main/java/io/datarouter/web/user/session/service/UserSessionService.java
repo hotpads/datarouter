@@ -53,9 +53,6 @@ public interface UserSessionService{
 	//looks up all Sessions for each user and deletes them
 	void deleteUserSessions(List<String> usernames);
 
-	//by default this persistently removes the users' roles and sessions and can optionally disable or delete the users
-	void deprovisionUsers(List<String> usernames, boolean shouldDisable, boolean shouldDelete);
-
 	static class NoOpUserSessionService implements UserSessionService{
 
 		@Override
@@ -82,10 +79,6 @@ public interface UserSessionService{
 
 		@Override
 		public void deleteUserSessions(List<String> usernames){
-		}
-
-		@Override
-		public void deprovisionUsers(List<String> usernames, boolean shouldDisable, boolean shouldDelete){
 		}
 
 	}

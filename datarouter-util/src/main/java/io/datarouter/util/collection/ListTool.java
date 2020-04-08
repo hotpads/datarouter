@@ -20,13 +20,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.RandomAccess;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.iterable.IterableTool;
 
 public class ListTool{
 
@@ -42,14 +41,6 @@ public class ListTool{
 		return new ArrayList<>(CollectionTool.sizeNullSafe(collection));
 	}
 
-	public static <T> ArrayList<T> createArrayListAndInitialize(int size){
-		ArrayList<T> out = new ArrayList<>(size);
-		for(int i = 0; i < size; ++i){
-			out.add(null);
-		}
-		return out;
-	}
-
 	public static <T> void replaceLast(List<T> list, T replacement){
 		int lastIndex = list.size() - 1;
 		list.set(lastIndex, replacement);
@@ -58,22 +49,6 @@ public class ListTool{
 	@SafeVarargs
 	public static <T> ArrayList<T> create(T... in){
 		return createArrayList(in);
-	}
-
-	@SafeVarargs
-	public static <T> LinkedList<T> createLinkedList(T... in){
-		LinkedList<T> out = new LinkedList<>();
-		if(ArrayTool.isEmpty(in)){
-			return out;
-		}
-		for(T element : in){
-			out.add(element);
-		}
-		return out;
-	}
-
-	public static <T> List<T> createLinkedList(Collection<T> in){
-		return new LinkedList<>(in);
 	}
 
 	@SafeVarargs
@@ -88,21 +63,6 @@ public class ListTool{
 		return out;
 	}
 
-	public static <T> ArrayList<T> createArrayList(Iterable<T> ins){
-		return createArrayList(ins, Integer.MAX_VALUE);
-	}
-
-	public static <T> ArrayList<T> createArrayList(Iterable<T> ins, int limit){
-		ArrayList<T> outs = new ArrayList<>();// don't pre-size array in case limit is huge
-		for(T in : IterableTool.nullSafe(ins)){
-			outs.add(in);
-			if(outs.size() >= limit){
-				break;
-			}
-		}
-		return outs;
-	}
-
 	public static <T> List<T> nullSafe(List<T> in){
 		if(in == null){
 			return new LinkedList<>();
@@ -110,35 +70,24 @@ public class ListTool{
 		return in;
 	}
 
-	private static <T> List<T> nullSafeLinked(List<T> in){
-		if(in == null){
-			return new LinkedList<>();
+	/*---------------------------- last ------------------------------*/
+
+	public static <T> T getLast(List<T> list){
+		if(CollectionTool.isEmpty(list)){
+			return null;
 		}
-		return in;
+		return list.get(list.size() - 1);
 	}
 
-	private static <T> List<T> nullSafeArray(List<T> in){
-		if(in == null){
-			return new ArrayList<>();
-		}
-		return in;
-	}
-
-	public static <T> List<T> asList(Collection<T> coll){
-		if(coll == null){
-			return new ArrayList<>();
-		}
-		if(coll instanceof List){
-			return (List<T>)coll;
-		}
-		return new ArrayList<>(coll);
+	public static <T> Optional<T> findLast(List<T> list){
+		return Optional.ofNullable(getLast(list));
 	}
 
 	/*---------------------------- concatenate ------------------------------*/
 
 	public static <T> List<T> concatenate(Collection<T> collectionA, Collection<T> collectionB){
-		int sizeA = CollectionTool.size(collectionA);
-		int sizeB = CollectionTool.size(collectionB);
+		int sizeA = CollectionTool.sizeNullSafe(collectionA);
+		int sizeB = CollectionTool.sizeNullSafe(collectionB);
 		ArrayList<T> outs = new ArrayList<>(sizeA + sizeB);
 		if(sizeA > 0){
 			outs.addAll(collectionA);
@@ -176,74 +125,6 @@ public class ListTool{
 			}
 		}
 		return bi.hasNext() ? -1 : 0; // bs are longer than as
-	}
-
-	public static <T extends Comparable<? super T>> boolean isSorted(List<T> as){
-		if(as == null){
-			return true;
-		}
-		T last = null;
-		for(T a : as){
-			if(ComparableTool.nullFirstCompareTo(last, a) > 0){
-				return false;
-			}
-			last = a;
-		}
-		return true;
-	}
-
-	/*------------------------------ modify ---------------------------------*/
-
-	public static <T> List<T> nullSafeLinkedAddAll(List<T> list, T[] newItems){
-		list = nullSafeLinked(list);
-		if(ArrayTool.notEmpty(newItems)){
-			for(T newItem : newItems){
-				list.add(newItem);
-			}
-		}
-		return list;
-	}
-
-	public static <T> List<T> nullSafeArrayAddAll(List<T> list, Collection<? extends T> newItems){
-		list = nullSafeArray(list);
-		list.addAll(CollectionTool.nullSafe(newItems));
-		return list;
-	}
-
-	public static <T> List<T> copyOfRange(List<T> in, int startInclusive, int endExclusive){
-		if(CollectionTool.isEmpty(in)){
-			return new ArrayList<>();
-		}
-		if(startInclusive >= in.size() || endExclusive <= startInclusive || startInclusive < 0){
-			return new ArrayList<>();
-		}
-		if(endExclusive > in.size()){
-			endExclusive = in.size();
-		}
-		int rangeSize = endExclusive - startInclusive;
-
-		List<T> copy = new ArrayList<>(rangeSize);
-		if(in instanceof RandomAccess){
-			for(int i = startInclusive; i < endExclusive; ++i){
-				copy.add(in.get(i));
-			}
-		}else{
-			int inIndex = 0;
-			for(T t : in){
-				if(inIndex >= startInclusive && inIndex < endExclusive){
-					copy.add(t);
-				}
-				++inIndex;
-			}
-		}
-		return copy;
-	}
-
-	public static <T> List<T> getFirstNElements(List<T> in, int indexN){
-		if(CollectionTool.isEmpty(in) || indexN <= 0){
-			return new ArrayList<>();
-		}
-		return copyOfRange(in, 0, Math.max(0, indexN));
 	}
 
 }

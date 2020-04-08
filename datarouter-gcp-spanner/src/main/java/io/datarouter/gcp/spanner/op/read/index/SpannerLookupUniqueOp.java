@@ -108,7 +108,8 @@ extends SpannerBaseReadIndexOp<PK,D>{
 	private <UK extends UniqueKey<PK>> String getIndexName(UK key){
 		List<String> indexFields = key.getFieldNames();
 		for(Entry<String,List<Field<?>>> uniqueIndex : fieldInfo.getUniqueIndexes().entrySet()){
-			List<String> fieldNames = IterableTool.map(uniqueIndex.getValue(), field -> field.getKey().getName());
+			List<String> fieldNames = IterableTool.nullSafeMap(uniqueIndex.getValue(), field -> field.getKey()
+					.getName());
 			if(ListTool.compare(indexFields, fieldNames) == 0){
 				return uniqueIndex.getKey();
 			}

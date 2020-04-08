@@ -145,7 +145,7 @@ implements PhysicalMapStorageNode<PK,D,F>, TallyStorage{
 		if(CollectionTool.isEmpty(keys)){ // TODO Move into an adapter
 			return Collections.emptyMap();
 		}
-		List<TallyKey> tallyKeys = IterableTool.map(keys, TallyKey::new);
+		List<TallyKey> tallyKeys = IterableTool.nullSafeMap(keys, TallyKey::new);
 		Map<String,Object> bytesByStringKey = fetchBytesByStringKey(tallyKeys, config);
 		if(bytesByStringKey == null){ // an ignored error occurred
 			return Collections.emptyMap();

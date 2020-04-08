@@ -25,7 +25,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.instrumentation.task.TaskTracker;
+import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.DatabeanTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.util.collection.CollectionTool;
@@ -46,7 +48,7 @@ public class LongRunningTaskVacuumService{
 		for(LongRunningTask task : dao.scan().iterable()){
 			String name = task.getKey().getName();
 			if(CollectionTool.notEmpty(relatedTasks)){
-				String previousName = CollectionTool.getLast(relatedTasks).getKey().getName();
+				String previousName = ListTool.getLast(relatedTasks).getKey().getName();
 				if(ObjectTool.notEquals(previousName, name)){
 					vacuumRelatedTasks(relatedTasks);
 					relatedTasks = new ArrayList<>();
@@ -73,8 +75,11 @@ public class LongRunningTaskVacuumService{
 		if(remaining.size() <= KEEP_LATEST_N){
 			return;
 		}
-		List<LongRunningTask> toDelete = ListTool.copyOfRange(remaining, 0, remaining.size() - KEEP_LATEST_N);
-		dao.deleteMulti(DatabeanTool.getKeys(toDelete));
+		Scanner.of(remaining)
+				.limit(remaining.size() - KEEP_LATEST_N)
+				.map(Databean::getKey)
+				.batch(100)
+				.forEach(dao::deleteMulti);
 	}
 
 }

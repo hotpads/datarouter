@@ -67,7 +67,7 @@ public class SpannerTableOperationsGenerator{
 		ddl.append(name);
 		ddl.append("(");
 		List<SpannerColumn> columns = ListTool.concatenate(primaryKeyColumns, nonKeyColumns);
-		ddl.append(String.join(", ", IterableTool.map(columns, SpannerColumn::generateColumnDef)));
+		ddl.append(String.join(", ", IterableTool.nullSafeMap(columns, SpannerColumn::generateColumnDef)));
 		ddl.append(") PRIMARY KEY (");
 		primaryKeyColumns.forEach(col -> {
 			ddl.append(col.getName());
@@ -99,11 +99,11 @@ public class SpannerTableOperationsGenerator{
 		ddl.append(" ON ");
 		ddl.append(tableName);
 		ddl.append("(");
-		ddl.append(String.join(", ", IterableTool.map(keyColumns, SpannerColumn::getName)));
+		ddl.append(String.join(", ", IterableTool.nullSafeMap(keyColumns, SpannerColumn::getName)));
 		ddl.append(")");
 		if(!nonKeyColumns.isEmpty()){
 			ddl.append(" STORING (");
-			ddl.append(String.join(", ", IterableTool.map(nonKeyColumns, SpannerColumn::getName)));
+			ddl.append(String.join(", ", IterableTool.nullSafeMap(nonKeyColumns, SpannerColumn::getName)));
 			ddl.append(")");
 		}
 		return ddl.toString();

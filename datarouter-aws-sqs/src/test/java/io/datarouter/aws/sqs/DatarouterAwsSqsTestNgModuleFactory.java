@@ -17,7 +17,11 @@ package io.datarouter.aws.sqs;
 
 import java.util.Arrays;
 
-import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
+import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.storage.TestDatarouterProperties;
+import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 import io.datarouter.web.config.DatarouterWebTestGuiceModule;
@@ -28,7 +32,26 @@ public class DatarouterAwsSqsTestNgModuleFactory extends TestNgModuleFactory{
 		super(Arrays.asList(
 				new DatarouterWebGuiceModule(),
 				new DatarouterWebTestGuiceModule(),
-				new DatarouterStorageTestGuiceModule()));
+				new AwsSqsGuiceModule()));
+	}
+
+	public static class AwsSqsGuiceModule extends BaseGuiceModule{
+
+		@Override
+		protected void configure(){
+			bind(DatarouterProperties.class).to(AwsSqsDatarouterProperties.class);
+			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+		}
+
+	}
+
+	public static class AwsSqsDatarouterProperties extends TestDatarouterProperties{
+
+		@Override
+		public String getDatarouterPropertiesFileLocation(){
+			return getTestConfigDirectory() + "/aws-sqs.properties";
+		}
+
 	}
 
 }

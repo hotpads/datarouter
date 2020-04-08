@@ -37,9 +37,9 @@ import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.model.util.PercentFieldCodec;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.StreamTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.time.DurationTool;
 
@@ -186,7 +186,7 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 	/*--------------- static ---------------*/
 
 	public static long getTotalRows(Iterable<TableSample> samples){
-		return StreamTool.stream(samples)
+		return Scanner.of(samples).stream()
 				.mapToLong(TableSample::getNumRows)
 				.sum();
 	}

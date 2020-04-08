@@ -130,7 +130,7 @@ public class SpannerFieldCodecRegistry{
 	}
 
 	public List<SpannerBaseFieldCodec<?,?>> createCodecs(List<Field<?>> fields){
-		return IterableTool.map(fields, this::createCodec);
+		return IterableTool.nullSafeMap(fields, this::createCodec);
 	}
 
 }

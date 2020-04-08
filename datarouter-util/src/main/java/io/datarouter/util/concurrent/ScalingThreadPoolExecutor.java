@@ -29,8 +29,13 @@ public class ScalingThreadPoolExecutor extends DatarouterExecutorService{
 	private final AtomicInteger activeCount;
 
 	public ScalingThreadPoolExecutor(String name, int maxThreadCount){
-		super(0, maxThreadCount, 1, TimeUnit.MINUTES, new ScalingThreadPoolExecutorQueue(), new NamedThreadFactory(name,
-				true), new ForceQueuePolicy());
+		super(0,
+				maxThreadCount,
+				1,
+				TimeUnit.MINUTES,
+				new ScalingThreadPoolExecutorQueue(),
+				new NamedThreadFactory(name, true),
+				new ForceQueuePolicy());
 		((ScalingThreadPoolExecutorQueue)getQueue()).setExecutor(this);
 		this.activeCount = new AtomicInteger();
 	}

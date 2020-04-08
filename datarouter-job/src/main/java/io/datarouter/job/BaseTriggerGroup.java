@@ -24,9 +24,9 @@ import org.apache.logging.log4j.core.util.CronExpression;
 
 import io.datarouter.job.lock.TriggerLockConfig;
 import io.datarouter.job.scheduler.JobPackage;
+import io.datarouter.job.util.CronExpressionTool;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.CronExpressionTool;
 
 public abstract class BaseTriggerGroup{
 

@@ -17,11 +17,11 @@ package io.datarouter.web.browse;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.inject.Inject;
 
@@ -101,7 +101,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		@SuppressWarnings("unchecked")
 		DatabeanFielder<PK,D> fielder = (DatabeanFielder<PK,D>)node.getFieldInfo().getSampleFielder();
 		if(fielder != null){
-			for(D databean : IterableTool.nullSafe(databeans)){
+			for(D databean : databeans){
 				rowsOfFields.add(fielder.getFields(databean));
 				List<Field<?>> databeanFieldKeys = databean.getKeyFields();
 				String databeanFieldKey = "";
@@ -114,8 +114,8 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 			mav.put("fieldKeys", fieldKeysAndValues);
 		}
 		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
-		if(CollectionTool.size(databeans) >= limit){
-			mav.put(PARAM_nextKey, PrimaryKeyPercentCodec.encode(CollectionTool.getLast(databeans).getKey()));
+		if(CollectionTool.sizeNullSafe(databeans) >= limit){
+			mav.put(PARAM_nextKey, PrimaryKeyPercentCodec.encode(ListTool.getLast(databeans).getKey()));
 		}
 	}
 
@@ -124,14 +124,14 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		if(CollectionTool.isEmpty(databeans)){
 			return new HashMap<>();
 		}
-		D first = IterableTool.first(databeans);
+		D first = databeans.stream().findFirst().orElse(null);
 		List<String> fieldNames = FieldTool.getFieldNames(fielder.getFields(first));
-		List<Integer> maxLengths = ListTool.createArrayListAndInitialize(fieldNames.size());
-		Collections.fill(maxLengths, 0);
+		List<Integer> maxLengths = new ArrayList<>();
+		IntStream.range(0, fieldNames.size()).forEach($ -> maxLengths.add(0));
 
 		for(D d : IterableTool.nullSafe(databeans)){
 			List<?> values = FieldTool.getFieldValues(fielder.getFields(d));
-			for(int i = 0; i < CollectionTool.size(values); ++i){
+			for(int i = 0; i < CollectionTool.sizeNullSafe(values); ++i){
 				int length = values.get(i) == null ? 0 : StringTool.length(values.get(i).toString());
 				if(length > maxLengths.get(i)){
 					maxLengths.set(i, length);

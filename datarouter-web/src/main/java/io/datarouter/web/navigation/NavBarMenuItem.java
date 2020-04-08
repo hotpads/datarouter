@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lazy.Lazy;
 import io.datarouter.web.dispatcher.DispatchRule;
 
@@ -112,7 +112,7 @@ public class NavBarMenuItem{
 	}
 
 	public List<NavBarMenuItem> getSubItems(HttpServletRequest request){
-		return IterableTool.include(subItems, item -> item.isAllowed(request));
+		return Scanner.of(subItems).include(item -> item.isAllowed(request)).list();
 	}
 
 }

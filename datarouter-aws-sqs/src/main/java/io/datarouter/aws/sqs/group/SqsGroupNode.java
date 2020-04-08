@@ -37,7 +37,6 @@ import io.datarouter.storage.op.scan.queue.group.PeekMultiGroupUntilEmptyQueueSt
 import io.datarouter.storage.queue.BaseQueueMessage;
 import io.datarouter.storage.queue.GroupQueueMessage;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 
 public class SqsGroupNode<
 		PK extends PrimaryKey<PK>,
@@ -94,7 +93,7 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>{
 	@Override
 	public List<D> pollMulti(Config config){
 		List<GroupQueueMessage<PK,D>> results = peekMulti(config);
-		ackMulti(IterableTool.map(results, BaseQueueMessage::getKey), config);
+		Scanner.of(results).map(BaseQueueMessage::getKey).flush(keys -> ackMulti(keys, config));
 		return results.stream()
 				.map(GroupQueueMessage::getDatabeans)
 				.flatMap(List::stream)

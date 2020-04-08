@@ -8,9 +8,12 @@ datarouter-aws-memcached uses the elasticache-java-cluster-client to talk to Ama
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-memcached</artifactId>
-	<version>0.0.25</version>
+	<version>0.0.26</version>
 </dependency>
 ```
+
+## Local Testing
+To build this module locally, add `aws-memcached.properties` to `/etc/datarouter/test`.
 
 ## License
 

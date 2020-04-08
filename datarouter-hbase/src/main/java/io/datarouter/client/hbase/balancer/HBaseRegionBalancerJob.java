@@ -135,12 +135,12 @@ public class HBaseRegionBalancerJob extends BaseJob{
 
 		for(DrServerInfo serverInfo : serverList.getServersSortedByDescendingLoad()){
 			List<HBaseRegionMovement> movementsForServer = movementsByCurrentServer.get(serverInfo.getServerName());
-			logger.warn("expecting {} movements for server {}", CollectionTool.size(movementsForServer),
+			logger.warn("expecting {} movements for server {}", CollectionTool.sizeNullSafe(movementsForServer),
 					serverInfo.getServerName());
 		}
 		for(DrServerInfo serverInfo : serverList.getServersSortedByDescendingLoad()){
 			List<HBaseRegionMovement> movementsForServer = movementsByCurrentServer.get(serverInfo.getServerName());
-			logger.warn("processing {} movements for server {}", CollectionTool.size(movementsForServer),
+			logger.warn("processing {} movements for server {}", CollectionTool.sizeNullSafe(movementsForServer),
 					serverInfo.getServerName());
 			int serverMovementCounter = 0;
 			for(HBaseRegionMovement movement : IterableTool.nullSafe(movementsForServer)){

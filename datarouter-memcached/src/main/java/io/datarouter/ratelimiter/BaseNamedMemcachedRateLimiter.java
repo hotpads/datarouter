@@ -96,7 +96,7 @@ public abstract class BaseNamedMemcachedRateLimiter extends NamedRateLimiter{
 
 		// exceeded maxAvgRequests
 		if(avgRequests > maxAvgRequests){
-			List<Calendar> cals = IterableTool.map(results.keySet(), this::getDateFromKey);
+			List<Calendar> cals = IterableTool.nullSafeMap(results.keySet(), this::getDateFromKey);
 			Calendar lastTime = null;
 			for(Calendar calendar : cals){
 				if(lastTime == null || calendar.after(lastTime)){

@@ -18,8 +18,8 @@ package io.datarouter.client.mysql.ddl.domain;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.serialization.GsonTool;
 
 public class SqlColumn{
@@ -165,7 +165,9 @@ public class SqlColumn{
 		}
 
 		public static Set<SqlColumnByName> wrap(Collection<SqlColumn> columns){
-			return IterableTool.mapToSet(columns, SqlColumnByName::new);
+			return columns.stream()
+					.map(SqlColumnByName::new)
+					.collect(Collectors.toSet());
 		}
 
 	}

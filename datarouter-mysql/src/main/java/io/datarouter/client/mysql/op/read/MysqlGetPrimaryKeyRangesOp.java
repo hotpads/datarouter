@@ -26,6 +26,8 @@ import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.client.mysql.util.MysqlTool;
+import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -87,7 +89,10 @@ extends BaseMysqlOp<List<PK>>{
 		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId().getName(),
 				fieldInfo.getNodeName(), 1L);
 		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),
-				fieldInfo.getNodeName(), CollectionTool.size(result));
+				fieldInfo.getNodeName(), CollectionTool.sizeNullSafe(result));
+		TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder()
+				.ranges(ranges.size())
+				.keys(result.size()));
 		return result;
 	}
 

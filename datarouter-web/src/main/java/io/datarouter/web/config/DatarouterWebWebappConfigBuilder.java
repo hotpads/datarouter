@@ -57,7 +57,9 @@ import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.file.FilesRoot;
 import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 import io.datarouter.web.filter.https.HttpsOnlyHttpsConfiguration;
+import io.datarouter.web.homepage.DefaultHomepageRouteSet;
 import io.datarouter.web.homepage.HomepageHandler;
+import io.datarouter.web.homepage.HomepageRouteSet;
 import io.datarouter.web.homepage.SimpleHomepageHandler;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterGuiceAppListenerServletContextListener;
@@ -107,6 +109,7 @@ implements WebappBuilder{
 	private Class<? extends UserSessionService> userSessionService;
 	private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
 	private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetail;
+	private Class<? extends HomepageRouteSet> homepageRouteSet = DefaultHomepageRouteSet.class;
 	private Class<? extends HomepageHandler> homepageHandler;
 	private String customStaticFileFilterRegex;
 	private String nodeWidgetDatabeanExporterLink;
@@ -181,6 +184,7 @@ implements WebappBuilder{
 		this.additionalAdministrators = new HashSet<>();
 		this.additionalPermissionRequestEmails = new HashSet<>();
 		this.customStaticFileFilterRegex = null;
+		this.homepageRouteSet = DefaultHomepageRouteSet.class;
 		this.homepageHandler = SimpleHomepageHandler.class;
 		this.useDatarouterAuth = true;
 
@@ -221,7 +225,8 @@ implements WebappBuilder{
 		DatarouterWebPluginBuilder webPluginBuilder = new DatarouterWebPluginBuilder(
 				datarouterService,
 				defaultClientId)
-				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex);
+				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex)
+				.setHomepageRouteSet(homepageRouteSet);
 		addWebPluginWithoutInstalling(webPluginBuilder.getSimplePluginData());
 		DatarouterWebPlugin webPlugin = webPluginBuilder
 				.setFilesClass(filesRoot)
@@ -498,6 +503,11 @@ implements WebappBuilder{
 	public T setAppNavBarRegistry(
 			Class<? extends AppNavBarRegistrySupplier> appNavBarRegistry){
 		this.appNavBarRegistrySupplier = appNavBarRegistry;
+		return getSelf();
+	}
+
+	public T setHomepageRouteSet(Class<? extends HomepageRouteSet> homepageRouteSet){
+		this.homepageRouteSet = homepageRouteSet;
 		return getSelf();
 	}
 

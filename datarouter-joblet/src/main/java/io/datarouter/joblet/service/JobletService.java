@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
@@ -105,9 +106,10 @@ public class JobletService{
 
 	private void submitJobletPackagesOfSameType(Collection<JobletPackage> jobletPackages){
 		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(CollectionTool.getFirst(jobletPackages));
-		JobletType.assertAllSameShortQueueName(IterableTool.map(jobletPackages, jobletTypeFactory::fromJobletPackage));
+		JobletType.assertAllSameShortQueueName(IterableTool.nullSafeMap(jobletPackages,
+				jobletTypeFactory::fromJobletPackage));
 		for(List<JobletPackage> batch : Scanner.of(jobletPackages).batch(100).iterable()){
-			PhaseTimer timer = new PhaseTimer("insert " + batch.size() + " " + jobletType);
+			var timer = new PhaseTimer("insert " + batch.size() + " " + jobletType);
 			jobletDataDao.putMultiOrBust(JobletPackage.getJobletDatas(batch));
 			timer.add("inserted JobletData");
 			batch.forEach(JobletPackage::updateJobletDataIdReference);
@@ -119,7 +121,7 @@ public class JobletService{
 					.map(JobletRequest::getQueueId)
 					.forEach(queueId -> datarouterJobletCounters.incNumJobletsInserted(jobletType, queueId));
 			timer.add("inserted JobletRequest");
-			if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
+			if(Objects.equals(jobletSettings.queueMechanism.get(), JobletQueueMechanism.SQS.getPersistentString())){
 				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = jobletRequests.stream()
 						.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey, Collectors.toList()));
 				for(Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndRequests : requestsByQueueKey.entrySet()){
@@ -150,7 +152,7 @@ public class JobletService{
 
 	public boolean jobletRequestExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){
 		JobletRequestKey key = JobletRequestKey.create(jobletType, null, null, null);
-		Range<JobletRequestKey> range = new Range<>(key, true, key, true);
+		var range = new Range<>(key, true, key, true);
 		return jobletRequestDao.scan(range, 50)
 				.anyMatch(jobletRequest -> jobletRequest.getStatus() == jobletStatus);
 	}
@@ -165,7 +167,7 @@ public class JobletService{
 	}
 
 	private List<JobletPackage> getJobletPackagesForJobletRequests(Collection<JobletRequest> jobletRequests){
-		List<JobletDataKey> keys = IterableTool.map(jobletRequests, JobletRequest::getJobletDataKey);
+		List<JobletDataKey> keys = IterableTool.nullSafeMap(jobletRequests, JobletRequest::getJobletDataKey);
 		Map<Long,JobletData> dataKeyToJobletData = jobletDataDao.getMulti(keys).stream()
 				.collect(Collectors.toMap(jobletData -> jobletData.getKey().getId(), Function.identity()));
 		return jobletRequests.stream()
@@ -199,12 +201,28 @@ public class JobletService{
 
 	/*------------------- update ----------------------------*/
 
+	public void updateStatusToRunning(JobletRequest jobletRequest, String reservedBy){
+		if(jobletRequest.getStatus().isRunning()){
+			//this was a timed out joblet. increment # timeouts
+			jobletRequest.incrementNumTimeouts();
+			if(jobletRequest.getNumTimeouts() > JobletService.MAX_JOBLET_RETRIES){
+				//exceeded max retries. time out the joblet
+				jobletRequest.setStatus(JobletStatus.TIMED_OUT);
+			}
+		}else{
+			jobletRequest.setStatus(JobletStatus.RUNNING);
+			jobletRequest.setReservedBy(reservedBy);
+			jobletRequest.setReservedAt(System.currentTimeMillis());
+		}
+		jobletRequestDao.put(jobletRequest);
+	}
+
 	public void markRunningAsInterruptedOnServer(JobletType<?> jobletType, String serverName){
 		Scanner<JobletRequest> jobletRequests = jobletRequestDao.scan();
 		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
 		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests
 				.iterable(), jobletType, JobletStatus.RUNNING, serverNamePrefix);
-		logger.warn("found " + CollectionTool.size(jobletRequestsToReset) + " jobletRequests to reset");
+		logger.warn("found " + CollectionTool.sizeNullSafe(jobletRequestsToReset) + " jobletRequests to reset");
 		for(JobletRequest jobletRequest : jobletRequestsToReset){
 			handleJobletInterruption(new PhaseTimer("setJobletRequestsRunningOnServerToCreated " + jobletRequest
 					.toString()), jobletRequest);
@@ -212,14 +230,15 @@ public class JobletService{
 	}
 
 	public long restartJoblets(JobletType<?> jobletType, JobletStatus jobletStatus){
-		final AtomicLong numRestarted = new AtomicLong();
+		var numRestarted = new AtomicLong();
 		jobletRequestDao.scanType(jobletType, false)
 				.include(request -> request.getStatus() == jobletStatus)
 				.forEach(request -> {
 					request.setStatus(JobletStatus.CREATED);
 					request.setNumFailures(0);
 					jobletRequestDao.put(request);
-					if(jobletSettings.getQueueMechanismEnum() == JobletQueueMechanism.SQS){
+					if(Objects.equals(jobletSettings.queueMechanism.get(), JobletQueueMechanism.SQS
+							.getPersistentString())){
 						JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
 						jobletQueueDao.getQueue(queueKey).put(request);
 					}
@@ -237,7 +256,7 @@ public class JobletService{
 	}
 
 	public void deleteJobletDatasForJobletRequests(Collection<JobletRequest> jobletRequests){
-		List<JobletDataKey> jobletDataKeys = IterableTool.map(jobletRequests, JobletRequest::getJobletDataKey);
+		List<JobletDataKey> jobletDataKeys = IterableTool.nullSafeMap(jobletRequests, JobletRequest::getJobletDataKey);
 		jobletDataDao.deleteMulti(jobletDataKeys);
 	}
 

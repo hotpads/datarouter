@@ -15,8 +15,6 @@
  */
 package io.datarouter.ratelimiter;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -26,22 +24,15 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
-
+import io.datarouter.client.memcached.DatarouterMemcachedTestNgModuleFactory;
 import io.datarouter.client.memcached.ratelimiter.BaseTallyDao;
 import io.datarouter.client.memcached.ratelimiter.TallyNodeFactory;
 import io.datarouter.client.memcached.test.DatarouterMemcachedTestClientIds;
 import io.datarouter.ratelimiter.NamedMemcachedRateLimiterFactory.NamedMemcachedRateLimiter;
-import io.datarouter.ratelimiter.NamedMemcachedRateLimiterIntegrationTests.NamedMemcachedRateLimiterTestNgModuleFactory;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
 import io.datarouter.storage.dao.TestDao;
-import io.datarouter.testng.TestNgModuleFactory;
-import io.datarouter.web.config.DatarouterWebGuiceModule;
-import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
-@Guice(moduleFactory = NamedMemcachedRateLimiterTestNgModuleFactory.class)
+@Guice(moduleFactory = DatarouterMemcachedTestNgModuleFactory.class, modules = RateLimiterGuiceModule.class)
 public class NamedMemcachedRateLimiterIntegrationTests{
 
 	private static final long maxAverageRequests = 10;
@@ -90,36 +81,8 @@ public class NamedMemcachedRateLimiterIntegrationTests{
 		Assert.assertTrue(rateLimiter.allowed(testKey2));
 	}
 
-	public static class DatarouterRateLimiterTestNgModuleFactory extends TestNgModuleFactory{
-
-		public DatarouterRateLimiterTestNgModuleFactory(){
-			super(Arrays.asList(
-					new DatarouterWebTestGuiceModule(),
-					new DatarouterStorageTestGuiceModule(),
-					new DatarouterWebGuiceModule()));
-		}
-
-	}
-
-	public static class NamedMemcachedRateLimiterTestNgModuleFactory extends DatarouterRateLimiterTestNgModuleFactory{
-
-		@Override
-		protected List<Module> getOverriders(){
-			Module module = new AbstractModule(){
-				@Override
-				protected void configure(){
-					bind(BaseTallyDao.class).to(DatarouterNamedMemcachedRateLimiterTestDao.class);
-				}
-			};
-			List<Module> overrides = super.getOverriders();
-			overrides.add(module);
-			return overrides;
-		}
-
-	}
-
 	@Singleton
-	private static class DatarouterNamedMemcachedRateLimiterTestDao extends BaseTallyDao implements TestDao{
+	public static class DatarouterNamedMemcachedRateLimiterTestDao extends BaseTallyDao implements TestDao{
 
 		@Inject
 		public DatarouterNamedMemcachedRateLimiterTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory){

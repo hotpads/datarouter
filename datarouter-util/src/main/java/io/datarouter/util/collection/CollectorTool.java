@@ -41,7 +41,7 @@ public class CollectorTool{
 	 * similar to {@link Collectors#toMap(Function, Function)} but: <br>
 	 * - this creates a LinkedHashMap, not HashMap <br>
 	 * - in case of duplicate mappings, old value is overwritten with new value (instead of throwing exception) <br>
-	 * - allows null keys/values (instead of throwing exception)
+	 * - allows null values (instead of throwing exception)
 	 */
 	public static <T,K,U> Collector<T,?,Map<K,U>> toMap(Function<? super T,? extends K> keyMapper,
 			Function<? super T,? extends U> valueMapper){

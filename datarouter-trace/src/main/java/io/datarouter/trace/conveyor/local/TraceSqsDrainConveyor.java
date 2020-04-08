@@ -56,8 +56,8 @@ public class TraceSqsDrainConveyor extends BaseGroupQueueConsumerConveyor<Convey
 	private void persistEntity(ConveyorMessage message){
 		TraceEntityDto dto = gson.fromJson(message.getMessage(), TraceEntityDto.class);
 		Trace trace = new Trace(dto.traceDto);
-		List<TraceThread> threads = IterableTool.map(dto.traceThreadDtos, TraceThread::new);
-		List<TraceSpan> spans = IterableTool.map(dto.traceSpanDtos, TraceSpan::new);
+		List<TraceThread> threads = IterableTool.nullSafeMap(dto.traceThreadDtos, TraceThread::new);
+		List<TraceSpan> spans = IterableTool.nullSafeMap(dto.traceSpanDtos, TraceSpan::new);
 		traceDao.putMulti(threads, spans, trace);
 	}
 

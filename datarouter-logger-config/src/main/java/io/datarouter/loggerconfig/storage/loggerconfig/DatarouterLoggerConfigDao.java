@@ -81,7 +81,7 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 	}
 
 	public void deleteLoggerConfigs(Collection<LoggerConfig> loggerConfigs){
-		node.deleteMulti(IterableTool.map(loggerConfigs, LoggerConfig::getKey));
+		node.deleteMulti(IterableTool.nullSafeMap(loggerConfigs, LoggerConfig::getKey));
 	}
 
 	public String getLoggingLevelFromConfigName(String name){
@@ -92,7 +92,7 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 	}
 
 	public Map<String, LoggerConfig> getLoggerConfigs(List<String> names){
-		List<LoggerConfigKey> keys = IterableTool.map(names, LoggerConfigKey::new);
+		List<LoggerConfigKey> keys = IterableTool.nullSafeMap(names, LoggerConfigKey::new);
 		return node.getMulti(keys).stream()
 				.collect(Collectors.toMap(LoggerConfig::getName, Function.identity()));
 	}

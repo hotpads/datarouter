@@ -21,8 +21,14 @@ import java.util.List;
 import com.google.inject.Provides;
 
 import io.datarouter.joblet.DatarouterJobletAppListener;
+import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.NoOpJobletExternalLinkBuilder;
+import io.datarouter.joblet.queue.JobletRequestSelector;
+import io.datarouter.joblet.queue.selector.JobletSelectorRegistry;
+import io.datarouter.joblet.queue.selector.MysqlLockForUpdateJobletRequestSelector;
+import io.datarouter.joblet.queue.selector.MysqlUpdateAndScanJobletRequestSelector;
+import io.datarouter.joblet.queue.selector.SqsJobletRequestSelector;
 import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
@@ -42,17 +48,20 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 public class DatarouterJobletPlugin extends BaseJobletPlugin{
 
 	private final List<JobletType<?>> jobletTypes;
+	private final JobletSelectorRegistry jobletSelectorRegistry;
 	private final Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass;
 
 	private DatarouterJobletPlugin(DatarouterJobletDaoModule daosModule){
-		this(null, null, daosModule);
+		this(null, null, null, daosModule);
 	}
 
 	private DatarouterJobletPlugin(
 			List<JobletType<?>> jobletTypes,
+			JobletSelectorRegistry jobletSelectorRegistry,
 			Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass,
 			DatarouterJobletDaoModule daosModule){
 		this.jobletTypes = jobletTypes;
+		this.jobletSelectorRegistry = jobletSelectorRegistry;
 		this.externalLinkBuilderClass = externalLinkBuilderClass;
 		addAppListener(DatarouterJobletAppListener.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, new DatarouterJobletPaths().datarouter.joblets.list,
@@ -72,6 +81,7 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 	@Override
 	public void configure(){
 		bindActualInstance(JobletTypeFactory.class, new JobletTypeFactory(jobletTypes));
+		bind(JobletSelectorRegistry.class).toInstance(jobletSelectorRegistry);
 		bindDefault(JobletExternalLinkBuilder.class, externalLinkBuilderClass);
 	}
 
@@ -80,7 +90,8 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		private final ClientId defaultClientId;
 		private final ClientId defaultQueueClientId;
 
-		private List<JobletType<?>> jobletTypes = new ArrayList<>();
+		private final List<JobletType<?>> jobletTypes = new ArrayList<>();
+		private final JobletSelectorRegistry jobletSelectorRegistry = new JobletSelectorRegistry();
 		private Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass
 				= NoOpJobletExternalLinkBuilder.class;
 		private DatarouterJobletDaoModule daoModule;
@@ -88,6 +99,17 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		public DatarouterJobletPluginBuilder(ClientId defaultClientId, ClientId defaultQueueClientId){
 			this.defaultClientId = defaultClientId;
 			this.defaultQueueClientId = defaultQueueClientId;
+			withSelector(
+					JobletQueueMechanism.SQS.getPersistentString(),
+					SqsJobletRequestSelector.class);
+			//TODO register dynamically
+			withSelector(
+					JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE.getPersistentString(),
+					MysqlLockForUpdateJobletRequestSelector.class);
+			//TODO register dynamically
+			withSelector(
+					JobletQueueMechanism.JDBC_UPDATE_AND_SCAN.getPersistentString(),
+					MysqlUpdateAndScanJobletRequestSelector.class);
 		}
 
 		public DatarouterJobletPluginBuilder setDaoModule(DatarouterJobletDaoModule daoModule){
@@ -97,6 +119,13 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 
 		public DatarouterJobletPluginBuilder setJobletTypes(List<JobletType<?>> jobletTypes){
 			this.jobletTypes.addAll(jobletTypes);
+			return this;
+		}
+
+		public DatarouterJobletPluginBuilder withSelector(
+				String name,
+				Class<? extends JobletRequestSelector> selectorClass){
+			jobletSelectorRegistry.register(name, selectorClass);
 			return this;
 		}
 
@@ -115,6 +144,7 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		public DatarouterJobletPlugin build(){
 			return new DatarouterJobletPlugin(
 					jobletTypes,
+					jobletSelectorRegistry,
 					externalLinkBuilderClass,
 					daoModule == null
 							? new DatarouterJobletDaoModule(defaultClientId, defaultQueueClientId, defaultClientId)

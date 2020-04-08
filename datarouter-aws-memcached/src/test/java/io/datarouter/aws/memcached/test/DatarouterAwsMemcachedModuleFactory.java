@@ -17,8 +17,12 @@ package io.datarouter.aws.memcached.test;
 
 import java.util.Arrays;
 
+import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.storage.TestDatarouterProperties;
+import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
-import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
+import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 
 public class DatarouterAwsMemcachedModuleFactory extends TestNgModuleFactory{
@@ -26,7 +30,26 @@ public class DatarouterAwsMemcachedModuleFactory extends TestNgModuleFactory{
 	public DatarouterAwsMemcachedModuleFactory(){
 		super(Arrays.asList(
 				new DatarouterStorageGuiceModule(),
-				new DatarouterStorageTestGuiceModule()));
+				new AwsMemcachedGuiceModule()));
+	}
+
+	public static class AwsMemcachedGuiceModule extends BaseGuiceModule{
+
+		@Override
+		protected void configure(){
+			bind(DatarouterProperties.class).to(AwsMemcachedDatarouterProperties.class);
+			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+		}
+
+	}
+
+	public static class AwsMemcachedDatarouterProperties extends TestDatarouterProperties{
+
+		@Override
+		public String getDatarouterPropertiesFileLocation(){
+			return getTestConfigDirectory() + "/aws-memcached.properties";
+		}
+
 	}
 
 }

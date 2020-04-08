@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.mysql;
+package io.datarouter.web.dispatcher;
 
-import java.util.Collections;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
-import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
-import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.web.config.DatarouterWebGuiceModule;
+import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.web.config.BaseDatarouterWebDispatcherServlet;
+import io.datarouter.web.config.RouteSetRegistry;
 
-public class DatarouterMysqlGuiceModule extends BaseGuiceModule{
+@SuppressWarnings("serial")
+@Singleton
+public class DefaultDispatcherServlet extends BaseDatarouterWebDispatcherServlet{
 
-	@Override
-	protected void configure(){
-		install(new DatarouterWebGuiceModule());
-		bindActualInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
+	@Inject
+	public DefaultDispatcherServlet(DatarouterInjector injector, RouteSetRegistry routeSetRegistry){
+		super(injector);
+		routeSetRegistry.get().forEach(this::addRouteSet);
 	}
 
 }

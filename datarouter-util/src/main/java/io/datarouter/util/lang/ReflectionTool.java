@@ -208,7 +208,7 @@ public class ReflectionTool{
 			String fieldName = CollectionTool.getFirst(fieldNames);
 			Field field = getDeclaredFieldFromAncestors(object.getClass(), fieldName);
 			field.setAccessible(true);
-			if(CollectionTool.size(fieldNames) == 1){
+			if(CollectionTool.sizeNullSafe(fieldNames) == 1){
 				return field;
 			}
 			if(field.get(object) == null){// initialize the field

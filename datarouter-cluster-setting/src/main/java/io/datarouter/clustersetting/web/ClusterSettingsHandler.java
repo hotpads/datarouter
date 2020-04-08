@@ -130,7 +130,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 
 	@Handler
 	public List<String> roots(){
-		return IterableTool.map(settingRootFinder.getRootNodesSortedByShortName(), SettingNode::getShortName);
+		return Scanner.of(settingRootFinder.getRootNodesSortedByShortName()).map(SettingNode::getShortName).list();
 	}
 
 	@Handler
@@ -257,10 +257,11 @@ public class ClusterSettingsHandler extends BaseHandler{
 			mav.put("currentRootName", rootName);
 		});
 
-		mav.put("ancestors", IterableTool.map(settingRootFinder.getDescendants(node.get().getName()),
-				SettingNodeJspDto::new));
+		mav.put("ancestors", Scanner.of(settingRootFinder.getDescendants(node.get().getName()))
+				.map(SettingNodeJspDto::new)
+				.list());
 		mav.put("currentRootName", node.get().getName().substring(0, node.get().getName().indexOf('.')));
-		mav.put("children", IterableTool.map(node.get().getListChildren(), SettingNodeJspDto::new));
+		mav.put("children", Scanner.of(node.get().getListChildren()).map(SettingNodeJspDto::new).list());
 
 		List<CachedSetting<?>> settingsList = node.get().getListSettings();
 		if(trySearchingForSpecificSetting){
@@ -277,7 +278,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 					.flush(customSettings -> customSettingsByName.put(setting.getName(), customSettings));
 		}
 
-		mav.put("listSettings", IterableTool.map(settingsList, setting -> new SettingJspDto<>(setting)));
+		mav.put("listSettings", IterableTool.nullSafeMap(settingsList, setting -> new SettingJspDto<>(setting)));
 		mav.put("mapListsCustomSettings", customSettingsByName);
 
 		return mav;

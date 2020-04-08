@@ -61,7 +61,7 @@ public class ScalingThreadPoolExecutorTests{
 		Assert.assertEquals(executor.getQueue().size(), 2);
 
 		phaser.arrive();
-		FutureTool.getAllVaried(futures);
+		futures.forEach(FutureTool::get);
 
 		// future.get() may return before the completed task count is increment, so this can be flaky.
 		RetryableTool.tryNTimesWithBackoffUnchecked(() -> {

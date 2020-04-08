@@ -16,6 +16,7 @@
 package io.datarouter.web.user.session;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -35,7 +36,6 @@ import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
@@ -146,7 +146,7 @@ implements Session{
 	/*---------------------------- Role methods -----------------------------*/
 
 	public Collection<Role> getRoles(){
-		return IterableTool.map(roles, Role::new);
+		return IterableTool.nullSafeMap(roles, Role::new);
 	}
 
 	public void setRoles(Collection<Role> roles){
@@ -250,7 +250,9 @@ implements Session{
 		public static DatarouterSession buildSessionWithRoles(RoleEnum<?>... roles){
 			DatarouterSession session = new DatarouterSession();
 			if(roles != null && roles.length > 0){
-				session.setRoles(ArrayTool.mapToSet(RoleEnum::getRole, roles));
+				session.setRoles(Arrays.stream(roles)
+						.map(RoleEnum::getRole)
+						.collect(Collectors.toSet()));
 			}
 			return session;
 		}

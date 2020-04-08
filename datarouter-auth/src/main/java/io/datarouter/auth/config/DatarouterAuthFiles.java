@@ -28,6 +28,7 @@ public class DatarouterAuthFiles extends FilesRoot{
 
 	public static class JsFiles extends PathNode{
 		public final PathNode accountManagerJsx = leaf("accountManager.jsx");
+		public final PathNode deprovisionedUsersJsx = leaf("DeprovisionedUsers.jsx");
 		public final PathNode viewUsersJsx = leaf("viewUsers.jsx");
 	}
 

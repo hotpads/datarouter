@@ -103,10 +103,9 @@ public class DatarouterJobletCounters{
 		gauges.save(PREFIX + "target servers", numTargetServers);
 	}
 
-	public void recordDuration(JobletType<?> jobletType, long durationMs){
-//		UI is currently (2018-06-11) not view metrics across multiple server (aggregate by sum instead of avg)
-//		metrics.save(PREFIX + "duration " + jobletType, durationMs);
-//		metrics.save(PREFIX + "item duration " + jobletType, durationMs / numItems);
+	public void recordDuration(JobletType<?> jobletType, long durationMs, int numItems){
+		gauges.save(PREFIX + "durationMs " + jobletType, durationMs);
+		gauges.save(PREFIX + "item durationMs " + jobletType, durationMs / numItems);
 //		so hack it with counter: avg(duration) = sum(duration) / numProssed
 		Counters.inc(PREFIX + "cumulated duration", durationMs);
 		Counters.inc(PREFIX + "cumulated duration " + jobletType.getPersistentString(), durationMs);

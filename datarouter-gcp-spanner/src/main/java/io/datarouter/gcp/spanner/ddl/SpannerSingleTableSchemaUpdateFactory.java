@@ -50,7 +50,6 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.trace.callable.TracedCallable;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.FutureTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lazy.Lazy;
 import io.datarouter.util.string.StringTool;
 
@@ -232,7 +231,9 @@ public class SpannerSingleTableSchemaUpdateFactory{
 			}
 			// Spanner stores the primary key columns in the index automatically and will not create the index if
 			// told to explicitly store a primary key column
-			Set<String> primaryKeySet = IterableTool.mapToSet(primaryKeyColumns, SpannerColumn::getName);
+			Set<String> primaryKeySet = primaryKeyColumns.stream()
+					.map(SpannerColumn::getName)
+					.collect(Collectors.toSet());
 			List<SpannerColumn> nonKeyColumns = fieldCodecRegistry.createCodecs(index.getNonKeyFields()).stream()
 					.map(codec -> codec.getSpannerColumn(false))
 					.filter(col -> !primaryKeySet.contains(col.getName()))

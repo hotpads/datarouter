@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.array.LongArray;
-import io.datarouter.util.collection.CollectionTool;
 
 public class UInt63ArrayFieldTests{
 
@@ -41,14 +40,14 @@ public class UInt63ArrayFieldTests{
 		byte[] bytesNoPrefix = field.getBytes();
 		Assert.assertEquals(ArrayTool.length(bytesNoPrefix), a1.size() * 8);
 		List<Long> a2 = new UInt63ArrayField(FIELD_KEY, null).fromBytesButDoNotSet(bytesNoPrefix, 0);
-		Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(a1, a2));
+		Assert.assertEquals(a1, a2);
 
 		byte[] bytesWithPrefix = field.getBytesWithSeparator();
 		Assert.assertEquals(bytesWithPrefix[3], a1.size() * 8);
 		Assert.assertEquals(field.numBytesWithSeparator(bytesWithPrefix, 0), a1.size() * 8 + 4);
 
 		List<Long> a3 = new UInt63ArrayField(FIELD_KEY, null).fromBytesWithSeparatorButDoNotSet(bytesWithPrefix, 0);
-		Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(a1, a3));
+		Assert.assertEquals(a1, a3);
 	}
 
 }

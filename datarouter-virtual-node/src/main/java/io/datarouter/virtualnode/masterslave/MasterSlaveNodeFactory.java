@@ -55,8 +55,8 @@ public class MasterSlaveNodeFactory{
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier).build();
-		List<N> slaves = IterableTool.map(slaveClientIds, clientId -> nodeFactory.create(clientId, databeanSupplier,
-				fielderSupplier).build());
+		List<N> slaves = IterableTool.nullSafeMap(slaveClientIds, clientId -> nodeFactory.create(clientId,
+				databeanSupplier, fielderSupplier).build());
 		return make(master, slaves);
 	}
 
@@ -73,8 +73,8 @@ public class MasterSlaveNodeFactory{
 		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier)
 				.withTableName(tableName)
 				.build();
-		List<N> slaves = IterableTool.map(slaveClientIds, clientId -> nodeFactory.create(clientId, databeanSupplier,
-				fielderSupplier).withTableName(tableName).build());
+		List<N> slaves = IterableTool.nullSafeMap(slaveClientIds, clientId -> nodeFactory.create(clientId,
+				databeanSupplier, fielderSupplier).withTableName(tableName).build());
 		return make(master, slaves);
 	}
 
@@ -91,9 +91,8 @@ public class MasterSlaveNodeFactory{
 		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier)
 				.withNodewatchConfigurationBuilder(nodewatchConfigurationBuilder)
 				.build();
-		List<N> slaves = IterableTool.map(slaveClientIds, clientId -> nodeFactory.create(clientId, databeanSupplier,
-				fielderSupplier)
-				.build());
+		List<N> slaves = IterableTool.nullSafeMap(slaveClientIds, clientId -> nodeFactory.create(clientId,
+				databeanSupplier, fielderSupplier).build());
 		return make(master, slaves);
 	}
 
@@ -109,8 +108,8 @@ public class MasterSlaveNodeFactory{
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 		N master = nodeFactory.create(masterClientId, entityKeySupplier, databeanSupplier, fielderSupplier).build();
-		List<N> slaves = IterableTool.map(slaveClientIds, clientId -> nodeFactory.create(clientId, entityKeySupplier,
-				databeanSupplier, fielderSupplier).build());
+		List<N> slaves = IterableTool.nullSafeMap(slaveClientIds, clientId -> nodeFactory.create(clientId,
+				entityKeySupplier, databeanSupplier, fielderSupplier).build());
 		return make(master, slaves);
 	}
 

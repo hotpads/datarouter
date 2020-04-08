@@ -50,7 +50,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 	}
 
 	public LongArray(Collection<Long> elements){
-		this(CollectionTool.size(elements));
+		this(CollectionTool.sizeNullSafe(elements));
 		for(Long element : elements){
 			this.add(element);
 		}
@@ -112,7 +112,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 
 	@Override
 	public boolean addAll(int firstIndex, Collection<? extends Long> values){
-		int delta = CollectionTool.size(values);
+		int delta = CollectionTool.sizeNullSafe(values);
 		if(delta == 0){
 			return false;
 		}

@@ -18,13 +18,11 @@ package io.datarouter.gcp.spanner;
 import java.util.Arrays;
 
 import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.servertype.BaseServerTypes;
-import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
@@ -44,37 +42,15 @@ public class SpannerTestNgModuleFactory extends TestNgModuleFactory{
 			bind(DatarouterProperties.class).to(SpannerTestDatarouterProperties.class);
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
 		}
+
 	}
 
 
-	public static class SpannerTestDatarouterProperties extends DatarouterProperties{
-
-		private static final String SERVICE_NAME = "datarouter-test";
-		private static final String DEFAULT_CONFIG_DIRECTORY = "/etc/datarouter/config";
-		private static final String DEFAULT_TEST_CONFIG_DIRECTORY = "/etc/datarouter/test";
-		private static final String BASE_CONFIG_DIRECTORY_ENV_VARIABLE = "BASE_CONFIG_DIRECTORY";
-		private static final String SERVER_CONFIG_FILE_NAME = "server.properties";
-		public static final String CONFIG_DIRECTORY;
-		public static final String TEST_CONFIG_DIRECTORY;
-		static{
-			String baseConfigDirectoryPath = System.getenv(BASE_CONFIG_DIRECTORY_ENV_VARIABLE);
-			if(StringTool.notEmpty(baseConfigDirectoryPath)){
-				CONFIG_DIRECTORY = baseConfigDirectoryPath + "/config";
-				TEST_CONFIG_DIRECTORY = baseConfigDirectoryPath + "/test";
-			}else{
-				CONFIG_DIRECTORY = DEFAULT_CONFIG_DIRECTORY;
-				TEST_CONFIG_DIRECTORY = DEFAULT_TEST_CONFIG_DIRECTORY;
-			}
-		}
-
-
-		public SpannerTestDatarouterProperties(){
-			super(new BaseServerTypes(ServerType.DEV), SERVICE_NAME, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
-		}
+	public static class SpannerTestDatarouterProperties extends TestDatarouterProperties{
 
 		@Override
 		public String getDatarouterPropertiesFileLocation(){
-			return TEST_CONFIG_DIRECTORY + "/spanner.properties";
+			return getTestConfigDirectory() + "/spanner.properties";
 		}
 
 	}

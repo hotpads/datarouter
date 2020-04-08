@@ -96,7 +96,7 @@ public class SqlCreateTableGenerator{
 			sb.append(")");
 		}
 
-		int numIndexes = CollectionTool.size(table.getIndexes());
+		int numIndexes = CollectionTool.sizeNullSafe(table.getIndexes());
 		if(numIndexes > 0){
 			sb.append(",");
 		}

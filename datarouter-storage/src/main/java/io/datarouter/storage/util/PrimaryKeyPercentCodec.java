@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.util;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
 import io.datarouter.util.Require;
-import io.datarouter.util.StreamTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 
@@ -32,9 +32,9 @@ public class PrimaryKeyPercentCodec{
 		return PercentFieldCodec.encodeFields(pk.getFields());
 	}
 
-	public static <PK extends PrimaryKey<PK>> String encodeMulti(Iterable<PK> pks, char delimiter){
+	public static <PK extends PrimaryKey<PK>> String encodeMulti(Collection<PK> pks, char delimiter){
 		Require.isTrue(PercentFieldCodec.isValidExternalSeparator(delimiter), "invalid delimiter:" + delimiter);
-		return StreamTool.stream(pks)
+		return pks.stream()
 				.map(PrimaryKeyPercentCodec::encode)
 				.collect(Collectors.joining(Character.toString(delimiter)));
 	}

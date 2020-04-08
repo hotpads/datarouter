@@ -44,7 +44,6 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -144,8 +143,10 @@ public class AdminEditUserHandler extends BaseHandler{
 		}
 		String username = params.required(authenticationConfig.getUsernameParam());
 		String password = params.required(authenticationConfig.getPasswordParam());
-		Set<Role> requestedRoles = ArrayTool.mapToSet(roleManager::getRoleFromPersistentString, params.optionalArray(
-				authenticationConfig.getUserRolesParam()).orElse(new String[0]));
+		String[] roleStrings = params.optionalArray(authenticationConfig.getUserRolesParam()).orElse(new String[0]);
+		Set<Role> requestedRoles = Arrays.stream(roleStrings)
+				.map(roleManager::getRoleFromPersistentString)
+				.collect(Collectors.toSet());
 		boolean enabled = params.optionalBoolean(authenticationConfig.getEnabledParam(), true);
 
 		datarouterUserCreationService.createManualUser(currentUser, username, password, requestedRoles, enabled);
@@ -202,8 +203,10 @@ public class AdminEditUserHandler extends BaseHandler{
 		DatarouterUser userToEdit = datarouterUserService.getUserById(userId);
 		checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUser);
 
-		Set<Role> userRoles = ArrayTool.mapToSet(roleManager::getRoleFromPersistentString, params.optionalArray(
-				authenticationConfig.getUserRolesParam()).orElse(new String[0]));
+		String[] roleStrings = params.optionalArray(authenticationConfig.getUserRolesParam()).orElse(new String[0]);
+		Set<Role> userRoles = Arrays.stream(roleStrings)
+				.map(roleManager::getRoleFromPersistentString)
+				.collect(Collectors.toSet());
 		Set<DatarouterAccountKey> requestedAccounts = params.optionalArray("accounts")
 				.map(Arrays::stream)
 				.orElseGet(Stream::empty)

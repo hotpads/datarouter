@@ -167,7 +167,7 @@ public class JobletCallable implements Callable<Void>{
 		timer.add("processed " + numItemsProcessed + " items");
 		long endTimeMs = System.currentTimeMillis();
 		long durationMs = endTimeMs - startTimeMs;
-		datarouterJobletCounters.recordDuration(jobletType, durationMs);
+		datarouterJobletCounters.recordDuration(jobletType, durationMs, jobletRequest.getNumItems());
 		String itemsPerSecond = NumberFormatter.format((double)jobletRequest.getNumItems() / ((double)durationMs
 				/ (double)1000), 1);
 

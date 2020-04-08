@@ -43,13 +43,13 @@ import com.google.spanner.admin.database.v1.CreateDatabaseMetadata;
 import io.datarouter.gcp.spanner.client.SpannerClientOptions;
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.execute.SpannerSchemaUpdateService;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.concurrent.FutureTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.timer.PhaseTimer;
 
 @Singleton
@@ -96,7 +96,7 @@ public class SpannerClientManager extends BaseClientManager{
 				Options.pageSize(1));
 		Database database = null;
 		while(page != null){
-			Database current = IterableTool.first(page.getValues());
+			Database current = Scanner.of(page.getValues()).findFirst().orElse(null);
 			if(current == null || current.getId().equals(databaseId)){
 				database = current;
 				break;

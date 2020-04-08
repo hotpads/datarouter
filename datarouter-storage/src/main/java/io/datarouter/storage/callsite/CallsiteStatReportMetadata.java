@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.callsite;
 
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 
@@ -41,7 +40,7 @@ public class CallsiteStatReportMetadata{
 
 	public static CallsiteStatReportMetadata inspect(Iterable<CallsiteStat> stats){
 		CallsiteStatReportMetadata reportMetadata = new CallsiteStatReportMetadata();
-		IterableTool.forEach(stats, stat -> reportMetadata.inspect(stat));
+		stats.forEach(reportMetadata::inspect);
 		return reportMetadata;
 	}
 

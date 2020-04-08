@@ -13,10 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.timer;
+package io.datarouter.web.config;
 
-public interface PhaseRecorder<T>{
+import java.util.List;
 
-	T record(String eventName);
+import javax.inject.Singleton;
+
+import io.datarouter.web.dispatcher.BaseRouteSet;
+
+@Singleton
+public class DefaultRouteSetRegistry implements RouteSetRegistry{
+
+	private final List<BaseRouteSet> routeSets;
+
+	public DefaultRouteSetRegistry(List<BaseRouteSet> routeSets){
+		this.routeSets = routeSets;
+	}
+
+	@Override
+	public List<BaseRouteSet> get(){
+		return routeSets;
+	}
 
 }

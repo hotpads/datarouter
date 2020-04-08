@@ -36,7 +36,6 @@ import io.datarouter.storage.op.scan.queue.PollUntilEmptyQueueStorageScanner;
 import io.datarouter.storage.queue.BaseQueueMessage;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 
 public class SqsNode<
 		PK extends PrimaryKey<PK>,
@@ -103,8 +102,8 @@ implements PhysicalQueueStorageNode<PK,D,F>{
 	@Override
 	public List<D> pollMulti(Config config){
 		List<QueueMessage<PK, D>> messages = peekMulti(config);
-		ackMulti(IterableTool.map(messages, BaseQueueMessage::getKey), config);
-		return IterableTool.map(messages, QueueMessage::getDatabean);
+		Scanner.of(messages).map(BaseQueueMessage::getKey).flush(keys -> ackMulti(keys, config));
+		return Scanner.of(messages).map(QueueMessage::getDatabean).list();
 	}
 
 	@Override

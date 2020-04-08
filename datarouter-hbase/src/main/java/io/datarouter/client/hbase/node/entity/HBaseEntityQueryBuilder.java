@@ -66,7 +66,9 @@ public class HBaseEntityQueryBuilder<
 			if(keysOnly){
 				filterList.addFilter(new FirstKeyOnlyFilter());//FirstKeyOnlyFilter avoids duplicate keys
 			}
-			Scan scan = new Scan(scanStartBytes).setFilter(filterList);
+			Scan scan = new Scan()
+					.withStartRow(scanStartBytes)
+					.setFilter(filterList);
 			scans.add(scan);
 		}
 		return scans;

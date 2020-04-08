@@ -85,11 +85,11 @@ public class JobletPackage{
 	}
 
 	public static List<JobletRequest> getJobletRequests(Collection<JobletPackage> jobletPackages){
-		return IterableTool.map(jobletPackages, JobletPackage::getJobletRequest);
+		return IterableTool.nullSafeMap(jobletPackages, JobletPackage::getJobletRequest);
 	}
 
 	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletPackages){
-		return IterableTool.map(jobletPackages, JobletPackage::getJobletData);
+		return IterableTool.nullSafeMap(jobletPackages, JobletPackage::getJobletData);
 	}
 
 	public static <P> P unmarshallJobletData(JobletType<P> jobletType, JobletPackage jobletPackage){

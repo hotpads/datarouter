@@ -44,7 +44,7 @@ public class TraceMemoryToSqsConveyorPublishing extends BaseTraceMemoryToSqsConv
 	@Override
 	public void processTraceEntityDtos(List<TraceEntityDto> dtos){
 		if(shouldBufferInSqs.get()){
-			List<ConveyorMessage> sqsMessages = IterableTool.map(dtos, this::toMessage);
+			List<ConveyorMessage> sqsMessages = IterableTool.nullSafeMap(dtos, this::toMessage);
 			putMultiConsumer.accept(sqsMessages);
 		}
 	}

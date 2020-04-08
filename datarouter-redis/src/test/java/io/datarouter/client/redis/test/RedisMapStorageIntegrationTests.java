@@ -18,11 +18,11 @@ package io.datarouter.client.redis.test;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 
+import io.datarouter.client.redis.DatarouterRedisTestNgModuleFactory;
 import io.datarouter.client.redis.RedisTestClientIds;
-import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.storage.test.node.basic.map.BaseMapStorageIntegrationTests;
 
-@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
+@Guice(moduleFactory = DatarouterRedisTestNgModuleFactory.class)
 public class RedisMapStorageIntegrationTests extends BaseMapStorageIntegrationTests{
 
 	@BeforeClass

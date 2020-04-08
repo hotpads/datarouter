@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.25</version>
+		<version>0.0.26</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -93,6 +93,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven-jar-plugin-version}</version>
 				<executions>
 					<execution>
 						<goals>

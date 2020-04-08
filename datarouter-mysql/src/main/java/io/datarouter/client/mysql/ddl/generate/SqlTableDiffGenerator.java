@@ -47,7 +47,7 @@ public class SqlTableDiffGenerator{
 	private static List<SqlColumn> findDifferentColumnsByName(SqlTable first, SqlTable second){
 		Set<SqlColumnByName> differentColumns = SqlColumnByName.wrap(first.getColumns());
 		differentColumns.removeAll(SqlColumnByName.wrap(second.getColumns()));
-		return IterableTool.map(differentColumns, SqlColumnByName::getSqlColumn);
+		return IterableTool.nullSafeMap(differentColumns, SqlColumnByName::getSqlColumn);
 	}
 
 	public List<SqlColumn> getColumnsToModify(){

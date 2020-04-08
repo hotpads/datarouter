@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-hbase</artifactId>
-	<version>0.0.25</version>
+	<version>0.0.26</version>
 </dependency>
 ```
 
@@ -250,6 +250,9 @@ Properties properties = new SchemaUpdateOptionsBuilder(true)
 ```
 
 On production environments, it is recommended to use `schemaUpdate.print` instead of `schemaUpdate.execute`. The ALTER TABLE statements will be logged and emailed instead of executed.
+
+## Local Testing
+To build this module locally, add `hbase.properties` to `/etc/datarouter/test`.
 
 ## License
 

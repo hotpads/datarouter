@@ -94,7 +94,7 @@ extends SpannerBaseOp<Void>{
 				}
 				List<PK> keyList = createFromResultSet(rs, ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
 						fieldInfo.getPrimaryKeyFields());
-				List<Mutation> deletes = IterableTool.map(keyList, key -> keyToDeleteMutation(key));
+				List<Mutation> deletes = IterableTool.nullSafeMap(keyList, key -> keyToDeleteMutation(key));
 				transactionContext.buffer(deletes);
 				return null;
 			}

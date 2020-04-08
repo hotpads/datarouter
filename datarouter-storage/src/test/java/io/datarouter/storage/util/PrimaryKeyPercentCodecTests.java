@@ -25,8 +25,8 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
-import io.datarouter.util.iterable.IterableTool;
 
 public class PrimaryKeyPercentCodecTests{
 
@@ -51,10 +51,10 @@ public class PrimaryKeyPercentCodecTests{
 	public void testMultiNumericPk(){
 		final char delimiter = ',';
 		List<String> ids = Arrays.asList("23", "52", "103");
-		List<TestKey> pks = IterableTool.map(ids, TestKey::new);
+		List<TestKey> pks = Scanner.of(ids).map(TestKey::new).list();
 		String encoded = PrimaryKeyPercentCodec.encodeMulti(pks, delimiter);
 		List<TestKey> decodedPks = PrimaryKeyPercentCodec.decodeMulti(TestKey.class, delimiter, encoded);
-		List<String> decodedIds = IterableTool.map(decodedPks, TestKey::getId);
+		List<String> decodedIds = Scanner.of(decodedPks).map(TestKey::getId).list();
 		Assert.assertEquals(ids, decodedIds);
 	}
 

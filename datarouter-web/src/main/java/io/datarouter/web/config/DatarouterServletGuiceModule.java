@@ -26,10 +26,10 @@ import com.google.inject.Provides;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.DefaultDispatcherServlet;
 import io.datarouter.web.dispatcher.DispatcherServletClasses;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.FilterParamsSupplier;
-import io.datarouter.web.dispatcher.RootDispatcherServlet;
 import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.navigation.AppNavBar;
@@ -42,23 +42,23 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 	private static final String EVERYTHING_BUT_JSP_AND_JSPF = "(?<!jspf|jsp)$";
 
 	private final List<FilterParams> additionalFilterParams;
-	private final Class<? extends HttpsConfiguration> httpsConfigurationClass;
-	private final Class<? extends Filter> authenticationFilterClass;
-	private final List<Class<? extends BaseRouteSet>> rootRouteSetClasses;
+	private final Class<? extends HttpsConfiguration> httpsConfiguration;
+	private final Class<? extends Filter> authenticationFilter;
+	private final List<Class<? extends BaseRouteSet>> routeSets;
 	private final List<ServletParams> additionalServletParams;
 	private final String guicePathsRegex;
 
 	public DatarouterServletGuiceModule(
 			List<FilterParams> additionalFilterParams,
-			Class<? extends HttpsConfiguration> httpsConfigurationClass,
-			Class<? extends Filter> authenticationFilterClass,
-			List<Class<? extends BaseRouteSet>> rootRouteSetClasses,
+			Class<? extends HttpsConfiguration> httpsConfiguration,
+			Class<? extends Filter> authenticationFilter,
+			List<Class<? extends BaseRouteSet>> routeSets,
 			List<ServletParams> additionalServletParams,
 			boolean renderJspsUsingServletContainer){
 		this.additionalFilterParams = additionalFilterParams;
-		this.httpsConfigurationClass = httpsConfigurationClass;
-		this.authenticationFilterClass = authenticationFilterClass;
-		this.rootRouteSetClasses = rootRouteSetClasses;
+		this.httpsConfiguration = httpsConfiguration;
+		this.authenticationFilter = authenticationFilter;
+		this.routeSets = routeSets;
 		this.additionalServletParams = additionalServletParams;
 		if(renderJspsUsingServletContainer){
 			this.guicePathsRegex = EVERYTHING_BUT_NOT_WEBSOCKET + EVERYTHING_BUT_JSP_AND_JSPF;
@@ -71,11 +71,11 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 	protected void configureServlets(){
 		//dispatcher and routeSet classes
 		bind(DispatcherServletClasses.class)
-				.toInstance(new DispatcherServletClasses(Arrays.asList(RootDispatcherServlet.class)));
+				.toInstance(new DispatcherServletClasses(Arrays.asList(DefaultDispatcherServlet.class)));
 
 		//https configuration implementation
-		bind(HttpsConfiguration.class).to(httpsConfigurationClass);
-		rootFilter(authenticationFilterClass);
+		bind(HttpsConfiguration.class).to(httpsConfiguration);
+		rootFilter(authenticationFilter);
 		bindActualInstance(FilterParamsSupplier.class, new FilterParamsSupplier(additionalFilterParams));
 		additionalFilterParams.forEach(filterParams -> {
 			if(filterParams.isRegex){
@@ -96,17 +96,17 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 		});
 
 		//rootServlet catch-all comes last
-		serveRegex(guicePathsRegex).with(RootDispatcherServlet.class);
+		serveRegex(guicePathsRegex).with(DefaultDispatcherServlet.class);
 
 		//nav bar
 		bindActual(AppNavBar.class, DefaultAppNavBar.class);
 	}
 
 	@Provides
-	public RootRouteSetsSupplier getRootRouteSets(DatarouterInjector injector){
-		List<BaseRouteSet> routeSets = new ArrayList<>();
-		routeSets.addAll(IterableTool.map(rootRouteSetClasses, injector::getInstance));
-		return new RootRouteSets(routeSets);
+	public RouteSetRegistry getRouteSetRegistry(DatarouterInjector injector){
+		List<BaseRouteSet> routes = new ArrayList<>();
+		routes.addAll(IterableTool.nullSafeMap(routeSets, injector::getInstance));
+		return new DefaultRouteSetRegistry(routes);
 	}
 
 }

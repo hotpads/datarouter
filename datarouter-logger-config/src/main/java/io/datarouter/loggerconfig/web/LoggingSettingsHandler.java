@@ -111,7 +111,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		mav.put("currentUserEmail", getCurrentUsername());
 
 		Map<String,LoggerConfig> configs = log4j2Configurator.getConfigs();
-		List<String> names = IterableTool.map(configs.values(), LoggerConfig::getName);
+		List<String> names = IterableTool.nullSafeMap(configs.values(), LoggerConfig::getName);
 		Map<String,io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig> configsWithMetadata = loggerConfigDao
 				.getLoggerConfigs(names);
 		Map<String,LoggerConfigMetadata> mergedConfigs = new TreeMap<>();

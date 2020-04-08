@@ -22,9 +22,8 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.storage.client.ClientTypeRegistry;
-import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 
-@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
+@Guice(moduleFactory = DatarouterRedisTestNgModuleFactory.class)
 public class RedisClientTypeTests{
 
 	@Inject

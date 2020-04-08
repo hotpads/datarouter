@@ -23,7 +23,8 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Function;
 
-import io.datarouter.util.StreamTool;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
 
@@ -128,7 +129,7 @@ public class MapTool{
 	 * <pre>getBy(employees, ssnGetter) -&gt; Map&lt;SSN, Employee&gt;</pre>
 	 */
 	public static <K,V> Map<K,V> getBy(Iterable<V> values, Function<V,K> keyMapper){
-		return StreamTool.stream(values).collect(CollectorTool.toMap(keyMapper));
+		return Scanner.of(IterableTool.nullSafe(values)).collect(CollectorTool.toMap(keyMapper));
 	}
 
 	/**
@@ -136,7 +137,7 @@ public class MapTool{
 	 * <pre>getBy(employees, ssnGetter, phoneGetter) -&gt; Map&lt;SSN, Phone&gt;</pre>
 	 */
 	public static <T,K,V> Map<K,V> getBy(Iterable<T> elements, Function<T,K> keyMapper, Function<T,V> valueMapper){
-		return StreamTool.stream(elements).collect(CollectorTool.toMap(keyMapper, valueMapper));
+		return Scanner.of(IterableTool.nullSafe(elements)).collect(CollectorTool.toMap(keyMapper, valueMapper));
 	}
 
 	/**

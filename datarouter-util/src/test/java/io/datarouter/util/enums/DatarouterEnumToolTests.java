@@ -21,8 +21,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.collection.CollectionTool;
-
 public class DatarouterEnumToolTests{
 
 	private enum SomeType implements StringEnum<SomeType>{
@@ -47,7 +45,7 @@ public class DatarouterEnumToolTests{
 		SomeType[] expected = {SomeType.LARGE, SomeType.CONDO};
 		List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(),
 				"large, funky, condo, dunno", false).get();
-		Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(expected), actual));
+		Assert.assertEquals(Arrays.asList(expected), actual);
 	}
 
 	@Test
@@ -55,7 +53,7 @@ public class DatarouterEnumToolTests{
 		SomeType[] expected = {SomeType.LARGE, SomeType.CONDO};
 		List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(),
 				"large, funky, condo, large, condo, condo", false).get();
-		Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(expected), actual));
+		Assert.assertEquals(Arrays.asList(expected), actual);
 	}
 
 
@@ -64,9 +62,9 @@ public class DatarouterEnumToolTests{
 		SomeType[] expected = {SomeType.RENTAL, SomeType.SALE, SomeType.SUBLET};
 		List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(),
 				"rental, funky, condoo, sale, sublet", false).get();
-		Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(expected), actual));
+		Assert.assertEquals(Arrays.asList(expected), actual);
 
 		actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(), "ballons", true).get();
-		Assert.assertTrue(CollectionTool.equalsAllElementsInIteratorOrder(Arrays.asList(SomeType.values()), actual));
+		Assert.assertEquals(Arrays.asList(SomeType.values()), actual);
 	}
 }

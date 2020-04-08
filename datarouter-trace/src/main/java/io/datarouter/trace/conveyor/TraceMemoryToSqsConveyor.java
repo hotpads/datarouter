@@ -48,14 +48,14 @@ public class TraceMemoryToSqsConveyor extends BaseTraceMemoryToSqsConveyor{
 	@Override
 	public void processTraceEntityDtos(List<TraceEntityDto> dtos){
 		if(shouldBufferInSqs.get()){
-			List<ConveyorMessage> sqsMessages = IterableTool.map(dtos, this::toMessage);
+			List<ConveyorMessage> sqsMessages = IterableTool.nullSafeMap(dtos, this::toMessage);
 			traceQueueDao.putMulti(sqsMessages);
 		}else{
 			// smaller puts are easier on the db
 			for(TraceEntityDto dto : dtos){
 				traceDao.putMulti(
-						IterableTool.map(dto.traceThreadDtos, TraceThread::new),
-						IterableTool.map(dto.traceSpanDtos, TraceSpan::new),
+						IterableTool.nullSafeMap(dto.traceThreadDtos, TraceThread::new),
+						IterableTool.nullSafeMap(dto.traceSpanDtos, TraceSpan::new),
 						new Trace(dto.traceDto));
 			}
 		}

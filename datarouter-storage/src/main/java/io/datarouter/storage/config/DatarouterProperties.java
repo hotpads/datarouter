@@ -66,10 +66,28 @@ public abstract class DatarouterProperties{
 	private static final String EC2_PRIVATE_IP_URL = "http://169.254.169.254/latest/meta-data/local-ipv4";
 	private static final String EC2_PUBLIC_IP_URL = "http://169.254.169.254/latest/meta-data/public-ipv4";
 
-	private final String webappName;
-	protected final String configDirectory;
-	protected final String configFileLocation;
+	private static final String BASE_CONFIG_DIRECTORY_ENV_VARIABLE = "BASE_CONFIG_DIRECTORY";
+	private static final String SERVER_CONFIG_FILE_NAME = "server.properties";
+	private static final String DEFAULT_BASE_CONFIG_DIRECTORY = "/etc/datarouter";
+	private static final String CONFIG_DIRECTORY;
+	private static final String TEST_CONFIG_DIRECTORY;
+	private static String source;
 
+	static{
+		String baseConfigDirectory = System.getenv(BASE_CONFIG_DIRECTORY_ENV_VARIABLE);
+		source = "environment variable";
+		if(StringTool.isEmpty(baseConfigDirectory)){
+			baseConfigDirectory = DEFAULT_BASE_CONFIG_DIRECTORY;
+			source = "default constant";
+		}
+		CONFIG_DIRECTORY = baseConfigDirectory + "/config";
+		TEST_CONFIG_DIRECTORY = baseConfigDirectory + "/test";
+	}
+
+	private final String webappName;
+	private final String configDirectory;
+	private final String testConfigDirectory;
+	private final String configFileLocation;
 	private final String environment;
 	private final String environmentDomain;
 	private final String environmentType;
@@ -83,6 +101,10 @@ public abstract class DatarouterProperties{
 
 	/*----------------- construct ------------------*/
 
+	protected DatarouterProperties(ServerTypes serverTypeOptions, String serviceName){
+		this(serverTypeOptions, serviceName, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
+	}
+
 	protected DatarouterProperties(ServerTypes serverTypeOptions, String serviceName, String configDirectory,
 			String filename){
 		this(serverTypeOptions, serviceName, configDirectory, true, false, filename, true);
@@ -93,8 +115,6 @@ public abstract class DatarouterProperties{
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Require.isTrue(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
 
-		this.webappName = webappName;
-
 		//find configDirectory first
 		this.configDirectory = configDirectory;
 		if(configDirectory != null){
@@ -102,10 +122,10 @@ public abstract class DatarouterProperties{
 			if(directoryFromJvmArg){
 				logJvmArgSource(CONFIG_DIRECTORY_PROP, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY_PROP);
 			}else{
-				logSource(CONFIG_DIRECTORY_PROP, configDirectory, "constant");
+				logSource("config directory", configDirectory, source);
 			}
 		}else{
-			Require.isTrue(!directoryRequired, "configDirectory required but not found");
+			Require.isTrue(!directoryRequired, "config directory required but not found");
 		}
 
 		//find configPath
@@ -130,7 +150,10 @@ public abstract class DatarouterProperties{
 			}
 		}
 
+		this.webappName = webappName;
+
 		//find remaining fields
+		this.testConfigDirectory = TEST_CONFIG_DIRECTORY;
 		this.environment = findProperty(configFileProperties, ENVIRONMENT);
 		this.environmentDomain = findProperty(configFileProperties, ENVIRONMENT_DOMAIN);
 		this.environmentType = findEnvironmentType(configFileProperties);
@@ -347,6 +370,10 @@ public abstract class DatarouterProperties{
 
 	public String getConfigDirectory(){
 		return configDirectory;
+	}
+
+	public String getTestConfigDirectory(){
+		return testConfigDirectory;
 	}
 
 	public String getConfigFileLocation(){

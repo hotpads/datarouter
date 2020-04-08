@@ -108,7 +108,7 @@ public class HBaseHandler extends BaseHandler{
 	private void initialize(){
 		mav = new Mav();
 		encodedRegionNameStrings = RequestTool.getCheckedBoxes(request, PARAM_PREFIX_encodedRegionName_);
-		numRegions = CollectionTool.size(encodedRegionNameStrings);
+		numRegions = CollectionTool.sizeNullSafe(encodedRegionNameStrings);
 		datarouterWebRequestParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(params,
 				getClientType());
 		mav.put("clientType", datarouterWebRequestParams.getClientType().getName());
@@ -273,7 +273,7 @@ public class HBaseHandler extends BaseHandler{
 	public Mav moveHBaseTableRegions(String tableName, String destinationServerName) throws IOException{
 		initialize();
 		ServerName serverName = ServerNameTool.create(destinationServerName);
-		if(CollectionTool.doesNotContain(drServerList.get().getServerNames(), serverName)){
+		if(!drServerList.get().getServerNames().contains(serverName)){
 			throw new IllegalArgumentException(serverName + " not found");
 		}
 		for(int i = 0; i < numRegions; ++i){

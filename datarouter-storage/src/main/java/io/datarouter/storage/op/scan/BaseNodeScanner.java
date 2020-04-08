@@ -29,7 +29,7 @@ import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.BaseScanner;
 import io.datarouter.storage.config.Config;
-import io.datarouter.util.collection.CollectionTool;
+import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.tuple.Range;
 
 public abstract class BaseNodeScanner<
@@ -119,7 +119,7 @@ extends BaseScanner<List<T>>{
 				|| config.getLimit() != null && resultCount >= config.getLimit()){
 			foundLastBatch = true;//tell the advance() method not to call this method again
 		}
-		lastRowOfPreviousBatch = CollectionTool.findLast(current)
+		lastRowOfPreviousBatch = ListTool.findLast(current)
 				.map(this::getPrimaryKey)
 				.map(FieldSetTool::clone)
 				.orElse(null);

@@ -114,7 +114,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 		}
 		try{
 			startTraceSpan("redis put multi");
-			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().databeans(CollectionTool.size(databeans)));
+			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().databeans(CollectionTool.sizeNullSafe(databeans)));
 			redisClientManager.getJedis(clientId).mset(keysAndDatabeans.toArray(new String[keysAndDatabeans.size()]));
 		}finally{
 			finishTraceSpan();

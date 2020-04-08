@@ -69,7 +69,7 @@ extends BaseScanner<D>{
 			return false;
 		}
 		List<IE> indexEntryBatch = indexEntryBatchIterator.next();
-		List<PK> primaryKeys = IterableTool.map(indexEntryBatch, IE::getTargetKey);
+		List<PK> primaryKeys = IterableTool.nullSafeMap(indexEntryBatch, IE::getTargetKey);
 		List<D> databeans = mainNode.getMulti(primaryKeys, config);
 		keyToDatabeans = DatabeanTool.getByKey(databeans);
 		indexEntryIterator = indexEntryBatch.iterator();

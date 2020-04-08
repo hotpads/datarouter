@@ -45,7 +45,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		logRequests = registerBoolean("logRequests", false);
 		logTracesOverMs = registerInteger("logTracesOverMs", 500);
 		saveTraces = registerBoolean("saveTraces", false);
-		saveTracesOverMs = registerInteger("saveTracesOverMs", 2_000);
+		saveTracesOverMs = registerInteger("saveTracesOverMs", 500);
 		addTraceIdHeader = registerBoolean("addTraceIdHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");
 		latencyRecordedHandlers = registerCommaSeparatedStrings("latencyRecordedHandlers", defaultTo(new HashSet<>()));

@@ -30,10 +30,9 @@ import io.datarouter.conveyor.queue.GroupQueueConsumer;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.instrumentation.exception.ExceptionRecordBatchDto;
-import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 
 @Singleton
 public class ExceptionRecordQueueConveyor extends BaseGroupQueueConsumerConveyor<ExceptionRecordKey,ExceptionRecord>{
@@ -54,8 +53,9 @@ public class ExceptionRecordQueueConveyor extends BaseGroupQueueConsumerConveyor
 
 	@Override
 	protected void processDatabeans(List<ExceptionRecord> records){
-		List<ExceptionRecordDto> exceptionRecordDtos = IterableTool.map(records, ExceptionRecord::toDto);
-		ExceptionRecordBatchDto batch = new ExceptionRecordBatchDto(exceptionRecordDtos);
+		ExceptionRecordBatchDto batch = Scanner.of(records)
+				.map(ExceptionRecord::toDto)
+				.listTo(ExceptionRecordBatchDto::new);
 		PublishingResponseDto response = publisher.addExceptionRecord(batch);
 		if(response.message.equals(PublishingResponseDto.DISCARD_MESSAGE)){
 			logger.info("The message was accepted but discarded.");

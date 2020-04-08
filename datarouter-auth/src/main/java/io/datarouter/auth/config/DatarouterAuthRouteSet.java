@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.auth.web.AdminEditUserHandler;
-import io.datarouter.auth.web.DatarouterAccountManagerHandler;
 import io.datarouter.auth.web.DatarouterPermissionRequestHandler;
 import io.datarouter.auth.web.DatarouterSigninHandler;
 import io.datarouter.auth.web.DatarouterSignoutHandler;
@@ -33,7 +32,6 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterAuthRouteSet(DatarouterAuthPaths paths){
 		super("");
-
 		handle(paths.signin)
 				.withHandler(DatarouterSigninHandler.class)
 				.allowAnonymous();
@@ -55,7 +53,6 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 		handleDir(paths.permissionRequest)
 				.withHandler(DatarouterPermissionRequestHandler.class)
 				.allowRoles(DatarouterUserRole.REQUESTOR);
-		handleAnyPrefix(paths.admin.accounts).withHandler(DatarouterAccountManagerHandler.class);
 	}
 
 	@Override

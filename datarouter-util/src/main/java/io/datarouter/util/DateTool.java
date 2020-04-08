@@ -59,18 +59,19 @@ public class DateTool{
 
 	public static final DateTimeFormatter JAVA_TIME_INTERNET_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
-	private static final String ISO_FORMAT = "yyyy MM dd'T'hh mm ss'Z'";
+	@Deprecated
+	public static final String BAD_ISO_FORMAT = "yyyy MM dd'T'hh mm ss'Z'";
 
 	/**
 	 * Parse the provided date string using a sequence of common date formats
 	 * that users might input. If minimumYear is provided, it is used to
 	 * validate the result and try alternate date formats.
 	 */
-	public static Date parseUserInputDate(String date, Integer minimumYear){
-		if(date == null){
+	public static Date parseUserInputDate(String originalInput, Integer minimumYear){
+		if(originalInput == null){
 			return null;
 		}
-		date = date.replaceAll("[\\W\\s_]+", " ");
+		String date = originalInput.replaceAll("[\\W\\s_]+", " ");
 
 		Pattern ordinalPattern = Pattern.compile("\\d(th|nd|st)");
 		String strippedDate = date;
@@ -85,7 +86,7 @@ public class DateTool{
 		date = strippedDate;
 		String[] commonFormats = {
 				"E MMM dd hh mm ss z yyyy",
-				ISO_FORMAT,
+				BAD_ISO_FORMAT,
 				"yyyy MM dd hh mm ss",
 				"MM dd yy",
 				"MMM dd yy",
@@ -99,8 +100,8 @@ public class DateTool{
 		for(String fmt : commonFormats){
 			try{
 				Date parsed = new SimpleDateFormat(fmt).parse(date);
-				if(fmt == ISO_FORMAT){
-					logger.warn("probable timezone issue input={} parsed={}", date, parsed, new Exception());
+				if(fmt == BAD_ISO_FORMAT){
+					throw new RuntimeException("illegal parser input=" + originalInput + " parsed=" + parsed);
 				}
 				if(minimumYear != null){
 					if(fmt.contains("y")){
@@ -220,6 +221,11 @@ public class DateTool{
 
 	public static String getInternetDate(TemporalAccessor temporalValue){
 		return JAVA_TIME_INTERNET_FORMATTER.format(temporalValue);
+	}
+
+	public static Date parseIso(String str){
+		Instant instant = DateTimeFormatter.ISO_INSTANT.parse(str, Instant::from);
+		return Date.from(instant);
 	}
 
 	public static String getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(Long ms){

@@ -39,7 +39,7 @@ public class Bootstrap4PagerHtml{
 				NumberFormatter.addCommas(page.totalRows));
 		var summary = span(message)
 				.withClass("mt-2 ml-2");
-		var links = IterableTool.map(page.getLinks(), pageLink -> a(pageLink.text).withHref(pageLink.href));
+		var links = IterableTool.nullSafeMap(page.getLinks(), pageLink -> a(pageLink.text).withHref(pageLink.href));
 		var linkSpans = span(each(links, link -> span(link).withClass("ml-2")))
 				.withClass("ml-2");
 		return div(summary, linkSpans);

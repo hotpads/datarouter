@@ -37,7 +37,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.virtualnode.writebehind.WriteBehindNode;
 
@@ -116,7 +115,7 @@ implements WriteBehindNode<PK,D,N>{
 				if(writeWrapper.getConfig() != null){
 					futures.add(handleWriteWrapper(writeWrapper));
 				}else{
-					List<?> list = ListTool.asList(writeWrapper.getObjects());
+					List<?> list = writeWrapper.getObjects();
 					if(previousWriteWrapper == null){
 						previousWriteWrapper = new WriteWrapper<>(writeWrapper.getOp(), Collections.emptyList(), null);
 					}

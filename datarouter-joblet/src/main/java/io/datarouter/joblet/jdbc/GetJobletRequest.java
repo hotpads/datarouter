@@ -15,7 +15,6 @@
  */
 package io.datarouter.joblet.jdbc;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
@@ -24,7 +23,6 @@ import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.sql.MysqlSql;
 import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.client.mysql.util.MysqlTool;
-import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
@@ -42,10 +40,10 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 	private final String reservedBy;
 	private final JobletType<?> jobletType;
 
-	private final DatarouterJobletRequestDao jobletRequestDao;
 	private final MysqlFieldCodecFactory mysqlFieldCodecFactory;
 	private final MysqlSqlFactory mysqlSqlFactory;
 	private final JobletRequestSqlBuilder jobletRequestSqlBuilder;
+	private final JobletService jobletService;
 
 	public GetJobletRequest(
 			String reservedBy,
@@ -54,24 +52,22 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 			DatarouterJobletRequestDao jobletRequestDao,
 			MysqlFieldCodecFactory mysqlFieldCodecFactory,
 			MysqlSqlFactory mysqlSqlFactory,
-			JobletRequestSqlBuilder jobletRequestSqlBuilder){
+			JobletRequestSqlBuilder jobletRequestSqlBuilder,
+			JobletService jobletService){
 		super(datarouter, NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getClientId(),
 				Isolation.repeatableRead, false);
 		this.fieldInfo = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getFieldInfo();
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;
-
-		this.jobletRequestDao = jobletRequestDao;
 		this.mysqlFieldCodecFactory = mysqlFieldCodecFactory;
 		this.mysqlSqlFactory = mysqlSqlFactory;
 		this.jobletRequestSqlBuilder = jobletRequestSqlBuilder;
+		this.jobletService = jobletService;
 	}
 
 	@Override
 	public JobletRequest runOnce(){
-		Connection connection = getConnection();
-
-		PreparedStatement selectStatement = makeSelectStatement().prepare(connection);
+		PreparedStatement selectStatement = makeSelectStatement().prepare(getConnection());
 		JobletRequest jobletRequest = CollectionTool.getFirst(MysqlTool.selectDatabeans(
 				mysqlFieldCodecFactory,
 				fieldInfo.getDatabeanSupplier(),
@@ -80,22 +76,7 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 		if(jobletRequest == null){
 			return null;
 		}
-
-		//update the joblet
-		if(jobletRequest.getStatus().isRunning()){
-			//this was a timed out joblet. increment # timeouts
-			jobletRequest.incrementNumTimeouts();
-			if(jobletRequest.getNumTimeouts() > JobletService.MAX_JOBLET_RETRIES){
-				//exceeded max retries. time out the joblet
-				jobletRequest.setStatus(JobletStatus.TIMED_OUT);
-			}
-		}else{
-			jobletRequest.setStatus(JobletStatus.RUNNING);
-			jobletRequest.setReservedBy(reservedBy);
-			jobletRequest.setReservedAt(System.currentTimeMillis());
-		}
-		jobletRequestDao.put(jobletRequest);
-
+		jobletService.updateStatusToRunning(jobletRequest, reservedBy);
 		return jobletRequest;
 	}
 

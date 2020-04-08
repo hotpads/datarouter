@@ -31,9 +31,8 @@ import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecordKey;
 import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
 import io.datarouter.instrumentation.exception.HttpRequestRecordBatchDto;
-import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 
 @Singleton
 public class HttpRequestRecordQueueConveyor
@@ -55,8 +54,9 @@ extends BaseGroupQueueConsumerConveyor<HttpRequestRecordKey,HttpRequestRecord>{
 
 	@Override
 	protected void processDatabeans(List<HttpRequestRecord> dtos){
-		List<HttpRequestRecordDto> httpRequestRecordDtos = IterableTool.map(dtos, HttpRequestRecord::toDto);
-		HttpRequestRecordBatchDto batch = new HttpRequestRecordBatchDto(httpRequestRecordDtos);
+		HttpRequestRecordBatchDto batch = Scanner.of(dtos)
+				.map(HttpRequestRecord::toDto)
+				.listTo(HttpRequestRecordBatchDto::new);
 		PublishingResponseDto response = publisher.addHttpRequest(batch);
 		if(response.message.equals(PublishingResponseDto.DISCARD_MESSAGE)){
 			logger.warn("The message was accepted but discarded.");

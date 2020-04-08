@@ -33,16 +33,26 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 
 	private final Optional<String> name;
 
-	protected DatarouterExecutorService(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
-			BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler){
+	protected DatarouterExecutorService(
+			int corePoolSize,
+			int maximumPoolSize,
+			long keepAliveTime,
+			TimeUnit unit,
+			BlockingQueue<Runnable> workQueue,
+			ThreadFactory threadFactory,
+			RejectedExecutionHandler handler){
 		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
 		this.name = NamedThreadFactory.findName(threadFactory);
 	}
 
 	protected DatarouterExecutorService(ThreadPoolExecutor threadPoolExecutor){
-		this(threadPoolExecutor.getCorePoolSize(), threadPoolExecutor.getMaximumPoolSize(), threadPoolExecutor
-				.getKeepAliveTime(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS, threadPoolExecutor.getQueue(),
-				threadPoolExecutor.getThreadFactory(), threadPoolExecutor.getRejectedExecutionHandler());
+		this(threadPoolExecutor.getCorePoolSize(),
+				threadPoolExecutor.getMaximumPoolSize(),
+				threadPoolExecutor.getKeepAliveTime(TimeUnit.MILLISECONDS),
+				TimeUnit.MILLISECONDS,
+				threadPoolExecutor.getQueue(),
+				threadPoolExecutor.getThreadFactory(),
+				threadPoolExecutor.getRejectedExecutionHandler());
 	}
 
 	@Override

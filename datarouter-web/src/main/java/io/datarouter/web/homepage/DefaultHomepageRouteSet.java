@@ -13,12 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.config;
+package io.datarouter.web.homepage;
 
-import java.util.List;
-import java.util.function.Supplier;
+import javax.inject.Singleton;
 
-import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.user.role.DatarouterUserRole;
 
-public interface RootRouteSetsSupplier extends Supplier<List<BaseRouteSet>>{
+@Singleton
+public class DefaultHomepageRouteSet extends HomepageRouteSet{
+
+	public DefaultHomepageRouteSet(){
+		super("");
+		// catch-all
+		handleDir("|/").withHandler(HomepageHandler.class);
+	}
+
+	@Override
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule.allowRoles(DatarouterUserRole.USER);
+	}
+
 }

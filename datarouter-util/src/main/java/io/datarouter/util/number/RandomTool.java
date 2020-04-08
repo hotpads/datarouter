@@ -44,8 +44,8 @@ public class RandomTool{
 		return nextPositiveInt(random);
 	}
 
-	public static int nextPositiveInt(int max){
-		return random.nextInt(max);
+	public static int nextPositiveInt(int maxExclusive){
+		return random.nextInt(maxExclusive);
 	}
 
 	public static int nextPositiveInt(Random random){

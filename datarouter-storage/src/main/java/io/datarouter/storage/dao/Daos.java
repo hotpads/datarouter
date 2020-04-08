@@ -31,7 +31,7 @@ public class Daos implements Supplier<List<Dao>>{
 
 	@Inject
 	public Daos(DatarouterInjector injector, DaoClasses daoClasses){
-		this.daos = IterableTool.map(daoClasses.get(), injector::getInstance);
+		this.daos = IterableTool.nullSafeMap(daoClasses.get(), injector::getInstance);
 	}
 
 	@Override

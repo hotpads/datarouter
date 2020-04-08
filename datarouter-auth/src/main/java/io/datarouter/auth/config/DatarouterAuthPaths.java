@@ -33,6 +33,9 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 	public final SigninPaths signin = WEB_PATHS.signin;
 	public final SignupPaths signup = branch(SignupPaths::new, "signup");
 
+	public final PathNode deprovisionedUsers = leaf("deprovisionedUsers");
+	public final PathNode userDeprovisioning = leaf("userDeprovisioning");
+
 	public final PathNode docs = leaf("docs");
 	public final PathNode home = leaf("");
 	public final PathNode resetPassword = WEB_PATHS.resetPassword;

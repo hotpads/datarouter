@@ -27,9 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.ratelimiter.NamedMemcachedRateLimiterIntegrationTests.NamedMemcachedRateLimiterTestNgModuleFactory;
+import io.datarouter.client.memcached.DatarouterMemcachedTestNgModuleFactory;
 
-@Guice(moduleFactory = NamedMemcachedRateLimiterTestNgModuleFactory.class)
+@Guice(moduleFactory = DatarouterMemcachedTestNgModuleFactory.class, modules = RateLimiterGuiceModule.class)
 public class BaseMapRateLimiterIntegrationTests{
 
 	@Inject

@@ -52,7 +52,8 @@ extends SpannerBaseIndexDelete<PK,D,F,K>{
 	protected String getIndexName(K key){
 		List<String> indexFields = key.getFieldNames();
 		for(Entry<String,List<Field<?>>> uniqueIndex : fieldInfo.getUniqueIndexes().entrySet()){
-			List<String> fieldNames = IterableTool.map(uniqueIndex.getValue(), field -> field.getKey().getName());
+			List<String> fieldNames = IterableTool.nullSafeMap(uniqueIndex.getValue(), field -> field.getKey()
+					.getName());
 			if(ListTool.compare(indexFields, fieldNames) == 0){
 				return uniqueIndex.getKey();
 			}

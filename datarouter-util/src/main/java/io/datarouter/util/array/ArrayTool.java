@@ -17,23 +17,10 @@ package io.datarouter.util.array;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
-import io.datarouter.util.StreamTool;
 import io.datarouter.util.collection.CollectionTool;
 
 public class ArrayTool{
-
-	@SafeVarargs
-	public static <A,T> Set<T> mapToSet(Function<A,T> mapper, A... values){
-		if(values == null || values.length == 0 || values.length == 1 && values[0] == null){
-			return new HashSet<>();
-		}
-		return StreamTool.mapToSet(Stream.of(values), mapper);
-	}
 
 	public static byte[] clone(byte[] in){
 		if(in == null){

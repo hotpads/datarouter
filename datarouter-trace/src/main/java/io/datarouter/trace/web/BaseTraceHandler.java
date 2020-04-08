@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +27,7 @@ import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.instrumentation.trace.TraceDto;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.trace.storage.entity.BaseTraceEntity;
 import io.datarouter.trace.storage.span.BaseTraceSpan;
 import io.datarouter.trace.storage.thread.BaseTraceThread;
@@ -60,7 +62,7 @@ public abstract class BaseTraceHandler extends BaseHandler{
 			return new MessageMav("Trace with id=" + traceId + " (" + durationStr + " old) not found");
 		}
 		mav.put("trace", toJspDto(traceEnity.getTrace()));
-		Collection<TraceThreadDto> threads = IterableTool.map(traceEnity.getTraceThreads(), BaseTraceThread::toDto);
+		List<TraceThreadDto> threads = Scanner.of(traceEnity.getTraceThreads()).map(BaseTraceThread::toDto).list();
 		if(threads.isEmpty()){
 			return new MessageMav("no threads found (yet)");
 		}
@@ -68,7 +70,7 @@ public abstract class BaseTraceHandler extends BaseHandler{
 		Integer discardedSpanCount = getDiscardedSpanCountFromThreads(threads);
 		TraceThreadGroup rootGroup = TraceThreadGroup.create(threads, makeFakeRootThread(traceEnity.getTrace()
 				.toDto()));
-		Collection<TraceSpanDto> spans = IterableTool.map(traceEnity.getTraceSpans(), BaseTraceSpan::toDto);
+		Collection<TraceSpanDto> spans = IterableTool.nullSafeMap(traceEnity.getTraceSpans(), BaseTraceSpan::toDto);
 		rootGroup.setSpans(spans);
 		mav.put("spans", spans);
 		mav.put("numSpans", spans.size());

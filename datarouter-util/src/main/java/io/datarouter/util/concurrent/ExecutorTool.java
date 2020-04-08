@@ -25,8 +25,12 @@ import java.util.concurrent.TimeUnit;
 
 public class ExecutorTool{
 
-	public static ThreadPoolExecutor createThreadPool(String name, int minThreadCount, int maxThreadCount,
-			int queueSize, RejectedExecutionHandler rejectPolicy){
+	public static ThreadPoolExecutor createThreadPool(
+			String name,
+			int minThreadCount,
+			int maxThreadCount,
+			int queueSize,
+			RejectedExecutionHandler rejectPolicy){
 		ThreadFactory threadFactory = new NamedThreadFactory(name, true);
 		BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(queueSize);
 		return new ThreadPoolExecutor(minThreadCount, maxThreadCount, 1, TimeUnit.MINUTES, queue, threadFactory,

@@ -66,7 +66,7 @@ public class SpannerPutOp<
 
 	@Override
 	public Collection<Mutation> getMutations(){
-		return IterableTool.map(values, this::databeanToMutation);
+		return IterableTool.nullSafeMap(values, this::databeanToMutation);
 
 	}
 

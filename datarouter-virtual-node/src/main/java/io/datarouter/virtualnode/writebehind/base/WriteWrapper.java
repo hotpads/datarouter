@@ -17,13 +17,14 @@ package io.datarouter.virtualnode.writebehind.base;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import io.datarouter.storage.config.Config;
 
 public class WriteWrapper<T>{
 
 	private final String op;
-	private final Collection<T> objects;
+	private final List<T> objects;
 	private final Config config;
 
 	public WriteWrapper(String op, Collection<T> objects, Config config){
@@ -41,7 +42,7 @@ public class WriteWrapper<T>{
 		return op;
 	}
 
-	public Collection<T> getObjects(){
+	public List<T> getObjects(){
 		return objects;
 	}
 

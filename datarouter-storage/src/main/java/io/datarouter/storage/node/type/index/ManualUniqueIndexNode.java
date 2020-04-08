@@ -70,7 +70,7 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 			return new LinkedList<>();
 		}
 		List<IE> indexEntries = indexNode.getMulti(uniqueKeys, config);
-		List<PK> primaryKeys = IterableTool.map(indexEntries, IE::getTargetKey);
+		List<PK> primaryKeys = IterableTool.nullSafeMap(indexEntries, IE::getTargetKey);
 		List<D> databeans = mainNode.getMulti(primaryKeys, config);
 		return databeans;
 	}
@@ -97,7 +97,7 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 			return;
 		}
 		List<IE> indexEntries = indexNode.getMulti(uniqueKeys, config);
-		List<PK> primaryKeys = IterableTool.map(indexEntries, IE::getTargetKey);
+		List<PK> primaryKeys = IterableTool.nullSafeMap(indexEntries, IE::getTargetKey);
 		indexNode.deleteMulti(uniqueKeys, config);
 		mainNode.deleteMulti(primaryKeys, config);
 	}

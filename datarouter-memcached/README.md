@@ -9,7 +9,7 @@ serve as the basis for implementing cloud provider Memcached implementations, li
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-memcached</artifactId>
-	<version>0.0.25</version>
+	<version>0.0.26</version>
 </dependency>
 ```
 
@@ -64,6 +64,9 @@ You can install this module by adding its plugin to the `WebappBuidlder`.
 		...
 		.build()
 ```
+
+## Local Testing
+To build this module locally, add `memcached.properties` to `/etc/datarouter/test`.
 
 ## License
 

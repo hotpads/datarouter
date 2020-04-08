@@ -13,26 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.config;
+package io.datarouter.auth.config;
 
-import java.util.List;
-
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.auth.web.deprovisioning.UserDeprovisioningHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.DispatchRule;
+import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
-public class RootRouteSets implements RootRouteSetsSupplier{
+public class UserDeprovisioningRouteSet extends BaseRouteSet{
 
-	private final List<BaseRouteSet> routeSets;
-
-	public RootRouteSets(List<BaseRouteSet> routeSets){
-		this.routeSets = routeSets;
+	@Inject
+	public UserDeprovisioningRouteSet(DatarouterAuthPaths paths){
+		super("");
+		//UI page URL
+		handle(paths.deprovisionedUsers).withHandler(UserDeprovisioningHandler.class);
+		//UI API URL
+		handleDir(paths.userDeprovisioning).withHandler(UserDeprovisioningHandler.class);
 	}
 
 	@Override
-	public List<BaseRouteSet> get(){
-		return routeSets;
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule.allowRoles(DatarouterUserRole.ADMIN, DatarouterUserRole.DATAROUTER_ADMIN);
 	}
 
 }

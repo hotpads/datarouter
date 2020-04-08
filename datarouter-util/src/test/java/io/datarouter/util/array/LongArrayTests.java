@@ -96,8 +96,8 @@ public class LongArrayTests{
 		primitiveList.add(null);
 		nullableList.add(Long.MAX_VALUE);
 		primitiveList.add(Long.MAX_VALUE);
-		Assert.assertTrue(5 == CollectionTool.size(nullableList));
-		Assert.assertTrue(5 == CollectionTool.size(primitiveList));
+		Assert.assertTrue(5 == CollectionTool.sizeNullSafe(nullableList));
+		Assert.assertTrue(5 == CollectionTool.sizeNullSafe(primitiveList));
 		Assert.assertTrue(0 == primitiveList.compareTo(nullableList));
 		Assert.assertNull(primitiveList.get(1));
 	}

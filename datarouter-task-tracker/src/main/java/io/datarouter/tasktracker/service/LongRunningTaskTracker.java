@@ -178,6 +178,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	@Override
 	public LongRunningTaskTracker increment(long delta){
+		counters.increment(task.name, delta);
 		task.numItemsProcessed += delta;
 		return heartbeat();
 	}

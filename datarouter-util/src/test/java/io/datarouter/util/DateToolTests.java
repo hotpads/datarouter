@@ -15,16 +15,20 @@
  */
 package io.datarouter.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.duration.DurationUnit;
 
 public class DateToolTests{
+	private static final Logger logger = LoggerFactory.getLogger(DateToolTests.class);
 
 	private static final SimpleDateFormat df = new SimpleDateFormat("MM-dd-yyyy");
 
@@ -127,6 +131,17 @@ public class DateToolTests{
 		d2 = new Date(d1.getTime() + DateTool.MILLISECONDS_IN_MINUTE * minutesApart - 10);
 		Assert.assertTrue(minutesApart > DateTool.getMinutesBetween(d1, d2));
 		Assert.assertTrue(minutesApart - 1 < DateTool.getMinutesBetween(d1, d2));
+	}
+
+	@Test
+	public void demonstrateBadParser() throws ParseException{
+		String withSpace = "2019 10 02T22 56 39Z";
+		String withDash = "2019-10-02T22:56:39Z";
+		Date incorrectPars = new SimpleDateFormat(DateTool.BAD_ISO_FORMAT).parse(withSpace);
+		Date correctParse = DateTool.parseIso(withDash);
+		logger.warn(incorrectPars.toString());
+		logger.warn(correctParse.toString());
+		logger.warn("matching:" + incorrectPars.equals(correctParse));
 	}
 
 }

@@ -23,7 +23,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.dispatcher.DispatcherServlet;
 import io.datarouter.web.dispatcher.DispatcherServletListener;
@@ -67,7 +67,7 @@ public abstract class NavBar implements DispatcherServletListener{
 	}
 
 	public List<NavBarMenuItem> getMenuItems(HttpServletRequest request){
-		return IterableTool.include(menuItems, item -> item.isAllowed(request));
+		return Scanner.of(menuItems).include(item -> item.isAllowed(request)).list();
 	}
 
 	@Override

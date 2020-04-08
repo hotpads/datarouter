@@ -18,13 +18,11 @@ package io.datarouter.gcp.bigtable.config;
 import java.util.Arrays;
 
 import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.servertype.BaseServerTypes;
-import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
@@ -47,35 +45,11 @@ public class DatarouterBigTableTestNgModuleFactory extends TestNgModuleFactory{
 
 	}
 
-
-	public static class BigTableTestDatarouterProperties extends DatarouterProperties{
-
-		private static final String SERVICE_NAME = "datarouter-test";
-		private static final String DEFAULT_CONFIG_DIRECTORY = "/etc/datarouter/config";
-		private static final String DEFAULT_TEST_CONFIG_DIRECTORY = "/etc/datarouter/test";
-		private static final String BASE_CONFIG_DIRECTORY_ENV_VARIABLE = "BASE_CONFIG_DIRECTORY";
-		private static final String SERVER_CONFIG_FILE_NAME = "server.properties";
-		public static final String CONFIG_DIRECTORY;
-		public static final String TEST_CONFIG_DIRECTORY;
-		static{
-			String baseConfigDirectoryPath = System.getenv(BASE_CONFIG_DIRECTORY_ENV_VARIABLE);
-			if(StringTool.notEmpty(baseConfigDirectoryPath)){
-				CONFIG_DIRECTORY = baseConfigDirectoryPath + "/config";
-				TEST_CONFIG_DIRECTORY = baseConfigDirectoryPath + "/test";
-			}else{
-				CONFIG_DIRECTORY = DEFAULT_CONFIG_DIRECTORY;
-				TEST_CONFIG_DIRECTORY = DEFAULT_TEST_CONFIG_DIRECTORY;
-			}
-		}
-
-
-		public BigTableTestDatarouterProperties(){
-			super(new BaseServerTypes(ServerType.DEV), SERVICE_NAME, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
-		}
+	public static class BigTableTestDatarouterProperties extends TestDatarouterProperties{
 
 		@Override
 		public String getDatarouterPropertiesFileLocation(){
-			return TEST_CONFIG_DIRECTORY + "/bigtable.properties";
+			return getTestConfigDirectory() + "/bigtable.properties";
 		}
 
 	}

@@ -141,7 +141,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	}
 
 	public Collection<Role> getRoles(){
-		return IterableTool.map(roles, Role::new);
+		return IterableTool.nullSafeMap(roles, Role::new);
 	}
 
 	public void setRoles(Collection<Role> roles){

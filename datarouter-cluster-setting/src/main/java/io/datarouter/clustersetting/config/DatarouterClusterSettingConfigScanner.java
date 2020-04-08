@@ -25,8 +25,8 @@ import javax.inject.Singleton;
 import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.service.ClusterSettingService;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.autoconfig.ConfigScanResponseTool;
 import io.datarouter.web.email.DatarouterEmailService;
@@ -53,8 +53,9 @@ public class DatarouterClusterSettingConfigScanner{
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
 		String header = "Found " + settings.size() + " redundant cluster settings";
-		List<ContainerTag> links = IterableTool.map(settings, this::makeBrowseSettingLink);
-		return ConfigScanResponseTool.buildResponse(header, links);
+		return Scanner.of(settings)
+				.map(this::makeBrowseSettingLink)
+				.listTo(links -> ConfigScanResponseTool.buildResponse(header, links));
 	}
 
 	public ConfigScanDto checkForNonexistentClusterSettings(){
@@ -66,8 +67,9 @@ public class DatarouterClusterSettingConfigScanner{
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
 		String header = "Found " + settings.size() + " nonexistent cluster settings";
-		List<ContainerTag> links = IterableTool.map(settings, this::makeCustomSettingLink);
-		return ConfigScanResponseTool.buildResponse(header, links);
+		return Scanner.of(settings)
+				.map(this::makeBrowseSettingLink)
+				.listTo(links -> ConfigScanResponseTool.buildResponse(header, links));
 	}
 
 	public ConfigScanDto checkForOldClusterSettings(){
@@ -81,8 +83,9 @@ public class DatarouterClusterSettingConfigScanner{
 		}
 		String header = "Found " + settings.size() + " cluster settings older than " + oldSettingAlertThresholdDays
 				+ " days";
-		List<ContainerTag> links = IterableTool.map(settings, this::makeBrowseSettingLink);
-		return ConfigScanResponseTool.buildResponse(header, links);
+		return Scanner.of(settings)
+				.map(this::makeBrowseSettingLink)
+				.listTo(links -> ConfigScanResponseTool.buildResponse(header, links));
 	}
 
 	private ContainerTag makeBrowseSettingLink(String setting){

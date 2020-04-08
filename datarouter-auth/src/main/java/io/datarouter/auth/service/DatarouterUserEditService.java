@@ -37,9 +37,9 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -107,7 +107,7 @@ public class DatarouterUserEditService{
 						.include(session -> session.getUserToken().equals(user.getUserToken()))
 						.list();
 				if(shouldDeleteSessions){
-					datarouterSessionDao.deleteMulti(IterableTool.map(sessions, DatarouterSession::getKey));
+					Scanner.of(sessions).map(DatarouterSession::getKey).flush(datarouterSessionDao::deleteMulti);
 				}else{
 					sessions.forEach(session -> session.setRoles(user.getRoles()));
 					datarouterSessionDao.putMulti(sessions);

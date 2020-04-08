@@ -99,7 +99,7 @@ public class JsonDatabeanToolTests{
 		JsonArray jsonKeys = JsonDatabeanTool.primaryKeysToJson(keysIn, sortedBeanFielder.getKeyFielder());
 		List<SortedBeanKey> keysOut = JsonDatabeanTool.primaryKeysFromJson(SortedBeanKey.class, sortedBeanFielder
 				.getKeyFielder(), jsonKeys);
-		Assert.assertEquals(CollectionTool.size(keysOut), 3);
+		Assert.assertEquals(CollectionTool.sizeNullSafe(keysOut), 3);
 		Assert.assertEquals(keysOut.toArray(), keysIn.toArray());
 
 		SortedBean bean0 = new SortedBean(key0, "1", 2L, null, 45.67d);
@@ -108,7 +108,7 @@ public class JsonDatabeanToolTests{
 		JsonArray jsonDatabeans = JsonDatabeanTool.databeansToJson(databeansIn, sortedBeanFielder);
 		List<SortedBean> databeansOut = JsonDatabeanTool.databeansFromJson(ReflectionTool.supplier(SortedBean.class),
 				sortedBeanFielder, jsonDatabeans);
-		Assert.assertEquals(CollectionTool.size(databeansOut), 2);
+		Assert.assertEquals(CollectionTool.sizeNullSafe(databeansOut), 2);
 		Assert.assertEquals(databeansOut.toArray(), databeansIn.toArray());
 		Assert.assertEquals(DatabeanTool.getKeys(databeansOut).toArray(), keysIn.subList(0,2).toArray());
 	}

@@ -28,6 +28,7 @@ import io.datarouter.joblet.jdbc.GetJobletRequest;
 import io.datarouter.joblet.jdbc.JobletRequestSqlBuilder;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.queue.JobletRequestSelector;
+import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequestqueue.JobletRequestQueueKey;
@@ -54,13 +55,17 @@ public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSel
 	private SessionExecutor sessionExecutor;
 	@Inject
 	private MysqlSqlFactory mysqlSqlFactory;
+	@Inject
+	private JobletService jobletService;
 
 	@Override
-	public Optional<JobletRequest> getJobletRequestForProcessing(PhaseTimer timer, JobletType<?> type,
+	public Optional<JobletRequest> getJobletRequestForProcessing(
+			PhaseTimer timer,
+			JobletType<?> type,
 			String reservedBy){
 		while(true){
-			GetJobletRequest mysqlOp = new GetJobletRequest(reservedBy, type, datarouter, jobletRequestDao,
-					mysqlFieldCodecFactory, mysqlSqlFactory, jobletRequestSqlBuilder);
+			var mysqlOp = new GetJobletRequest(reservedBy, type, datarouter, jobletRequestDao, mysqlFieldCodecFactory,
+					mysqlSqlFactory, jobletRequestSqlBuilder, jobletService);
 			JobletRequest jobletRequest = sessionExecutor.runWithoutRetries(mysqlOp);
 			timer.add("GetJobletRequest");
 			if(jobletRequest == null){
@@ -70,7 +75,7 @@ public class MysqlLockForUpdateJobletRequestSelector implements JobletRequestSel
 			if(!jobletRequest.getStatus().isRunning()){
 				continue;// weird flow. it was probably just marked as timedOut, so skip it
 			}
-			JobletRequestQueueKey queueKey = new JobletRequestQueueKey(type, jobletRequest.getKey().getPriority());
+			var queueKey = new JobletRequestQueueKey(type, jobletRequest.getKey().getPriority());
 			datarouterJobletCounters.incQueueHit(queueKey.getQueueName());
 			return Optional.of(jobletRequest);
 		}

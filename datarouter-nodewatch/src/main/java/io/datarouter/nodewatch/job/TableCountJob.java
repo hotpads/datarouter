@@ -38,7 +38,7 @@ public class TableCountJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		for(PhysicalSortedStorageReaderNode<?,?,?> node : tableSamplerService.scanCountableNodes()){
+		for(PhysicalSortedStorageReaderNode<?,?,?> node : tableSamplerService.scanCountableNodes().iterable()){
 			ClientTableEntityPrefixNameWrapper nodeNames = new ClientTableEntityPrefixNameWrapper(node);
 			String clientName = nodeNames.getClientName();
 			String tableName = nodeNames.getTableName();

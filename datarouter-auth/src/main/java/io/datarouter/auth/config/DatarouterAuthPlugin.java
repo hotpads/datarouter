@@ -17,11 +17,13 @@ package io.datarouter.auth.config;
 
 import java.util.List;
 
+import io.datarouter.auth.service.DatarouterUserDeprovisioningService;
 import io.datarouter.auth.service.DatarouterUserInfo;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeys;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
 import io.datarouter.auth.service.DefaultDatarouterUserPassword;
 import io.datarouter.auth.service.DefaultDatarouterUserPasswordSupplier;
+import io.datarouter.auth.service.UserDeprovisioningService;
 import io.datarouter.auth.service.UserInfo;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
@@ -29,6 +31,8 @@ import io.datarouter.auth.storage.account.DatarouterAccountDao.DatarouterAccount
 import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionDao.DatarouterAccountPermissionDaoParams;
+import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao;
+import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao.DeprovisionedUserDaoParams;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao.DatarouterPermissionRequestDaoParams;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
@@ -53,7 +57,10 @@ import io.datarouter.web.user.authenticate.saml.DatarouterSamlDao.DatarouterSaml
 
 public class DatarouterAuthPlugin extends BaseJobPlugin{
 
+	private static final DatarouterAuthPaths PATHS = new DatarouterAuthPaths();
+
 	private final Class<? extends UserInfo> userInfoClass;
+	private final Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass;
 	private final String defaultDatarouterUserPassword;
 	private final String defaultApiKey;
 	private final String defaultSecretKey;
@@ -62,30 +69,33 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			boolean enableUserAuth,
 			DatarouterAuthDaoModule daosModuleBuilder,
 			Class<? extends UserInfo> userInfoClass,
+			Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass,
 			String defaultDatarouterUserPassword,
 			String defaultApiKey,
 			String defaultSecretKey){
-		addAppListener(DatarouterAccountConfigAppListener.class);
-		addAppListener(DatarouterUserConfigAppListener.class);
-
-		DatarouterAuthPaths paths = new DatarouterAuthPaths();
-		addAppNavBarItem(AppNavBarCategory.ADMIN, paths.admin.accounts, "Account Manager");
-
 		if(enableUserAuth){
+			addAppListener(DatarouterUserConfigAppListener.class);
+			addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.admin.viewUsers, "View Users");
+			addAppNavBarItem(AppNavBarCategory.USER, PATHS.admin.editUser, "Edit User");
+			addAppNavBarItem(AppNavBarCategory.USER, PATHS.permissionRequest, "Permission Request");
+			addAppNavBarItem(AppNavBarCategory.USER, PATHS.resetPassword, "Reset Password");
+			addAppNavBarItem(AppNavBarCategory.USER, PATHS.admin.createUser, "Create User");
 			addRouteSetOrdered(DatarouterAuthRouteSet.class, DatarouterJobRouteSet.class);
-			addAppNavBarItem(AppNavBarCategory.ADMIN, paths.admin.viewUsers, "View Users");
-			addAppNavBarItem(AppNavBarCategory.USER, paths.admin.editUser, "Edit User");
-			addAppNavBarItem(AppNavBarCategory.USER, paths.permissionRequest, "Permission Request");
-			addAppNavBarItem(AppNavBarCategory.USER, paths.resetPassword, "Reset Password");
-			addAppNavBarItem(AppNavBarCategory.USER, paths.admin.createUser, "Create User");
 		}
-		addAppNavBarItem(AppNavBarCategory.DOCS, paths.docs.toSlashedStringWithTrailingSlash(), "Docs");
+
+		addAppListener(DatarouterAccountConfigAppListener.class);
+		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.admin.accounts, "Account Manager");
+		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.deprovisionedUsers, "Deprovisioned Users");
+		addAppNavBarItem(AppNavBarCategory.DOCS, PATHS.docs.toSlashedStringWithTrailingSlash(), "Docs");
+		addRouteSet(DatarouterAccountRouteSet.class);
 		addRouteSet(DatarouterDocumentationRouteSet.class);
+		addRouteSet(UserDeprovisioningRouteSet.class);
 		addSettingRoot(DatarouterAuthSettingRoot.class);
 		addTriggerGroup(DatarouterAuthTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
 
 		this.userInfoClass = userInfoClass;
+		this.userDeprovisioningServiceClass = userDeprovisioningServiceClass;
 		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
 		this.defaultApiKey = defaultApiKey;
 		this.defaultSecretKey = defaultSecretKey;
@@ -104,6 +114,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		bindActual(BaseDatarouterUserAccountMapDao.class, DatarouterUserAccountMapDao.class);
 		bindActual(BaseDatarouterSamlDao.class, DatarouterSamlDao.class);
 		bind(UserInfo.class).to(userInfoClass);
+		bind(UserDeprovisioningService.class).to(userDeprovisioningServiceClass);
 		bindActualInstance(DefaultDatarouterUserPasswordSupplier.class,
 				new DefaultDatarouterUserPassword(defaultDatarouterUserPassword));
 		bindActualInstance(DefaultDatarouterAccountKeysSupplier.class,
@@ -116,6 +127,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		private final ClientId defaultClientId;
 		private DatarouterAuthDaoModule daoModule;
 		private Class<? extends UserInfo> userInfoClass = DatarouterUserInfo.class;
+		private Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass =
+				DatarouterUserDeprovisioningService.class;
 		private String defaultDatarouterUserPassword = "";
 		private String defaultApiKey = "";
 		private String defaultSecretKey = "";
@@ -139,14 +152,21 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterAuthPluginBuilder setUserDeprovisioningServiceClass(
+				Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass){
+			this.userDeprovisioningServiceClass = userDeprovisioningServiceClass;
+			return this;
+		}
+
 		public DatarouterAuthPlugin build(){
 			return new DatarouterAuthPlugin(
 					enableUserAuth,
 					daoModule == null
 					? new DatarouterAuthDaoModule(defaultClientId, defaultClientId, defaultClientId, defaultClientId,
-							defaultClientId, defaultClientId, defaultClientId)
+							defaultClientId, defaultClientId, defaultClientId, defaultClientId)
 					: daoModule,
 					userInfoClass,
+					userDeprovisioningServiceClass,
 					defaultDatarouterUserPassword,
 					defaultApiKey,
 					defaultSecretKey);
@@ -163,6 +183,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		private final ClientId datarouterUserAccountMapClientId;
 		private final ClientId datarouterUserClientId;
 		private final ClientId datarouterUserHistoryClientId;
+		private final ClientId deprovisionedUserClientId;
 
 		public DatarouterAuthDaoModule(
 				ClientId datarouterAccountClientId,
@@ -171,7 +192,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 				ClientId datarouterSamlClientId,
 				ClientId datarouterUserAccountMapClientId,
 				ClientId datarouterUserClientId,
-				ClientId datarouterUserHistoryClientId){
+				ClientId datarouterUserHistoryClientId,
+				ClientId deprovisionedUserClientId){
 			this.datarouterAccountClientId = datarouterAccountClientId;
 			this.datarouterAccountPermissionClientId = datarouterAccountPermissionClientId;
 			this.datarouterPermissionRequestClientId = datarouterPermissionRequestClientId;
@@ -179,6 +201,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			this.datarouterUserAccountMapClientId = datarouterUserAccountMapClientId;
 			this.datarouterUserClientId = datarouterUserClientId;
 			this.datarouterUserHistoryClientId = datarouterUserHistoryClientId;
+			this.deprovisionedUserClientId = deprovisionedUserClientId;
 		}
 
 		@Override
@@ -190,7 +213,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 					DatarouterUserAccountMapDao.class,
 					DatarouterUserDao.class,
 					DatarouterUserHistoryDao.class,
-					DatarouterSamlDao.class);
+					DatarouterSamlDao.class,
+					DeprovisionedUserDao.class);
 		}
 
 		@Override
@@ -209,6 +233,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 					.toInstance(new DatarouterUserAccountMapDaoParams(datarouterUserAccountMapClientId));
 			bind(DatarouterSamlDaoParams.class)
 					.toInstance(new DatarouterSamlDaoParams(datarouterSamlClientId));
+			bind(DeprovisionedUserDaoParams.class)
+					.toInstance(new DeprovisionedUserDaoParams(deprovisionedUserClientId));
 		}
 
 	}

@@ -202,7 +202,7 @@ public class SecretService{
 	}
 
 	private static List<String> removePrefixes(List<String> strings, String prefix){
-		return IterableTool.map(strings, string -> string.substring(prefix.length()));
+		return IterableTool.nullSafeMap(strings, string -> string.substring(prefix.length()));
 	}
 
 }

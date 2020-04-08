@@ -34,7 +34,6 @@ import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.util.Require;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.io.FileTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 
@@ -62,7 +61,9 @@ public abstract class BaseFilesTests implements TestableService{
 		if(skipTests()){
 			return;
 		}
-		Set<String> nodeFileStrings = IterableTool.mapToSet(getNodeFiles(), File::toString);
+		Set<String> nodeFileStrings = getNodeFiles().stream()
+				.map(File::toString)
+				.collect(Collectors.toSet());
 		for(String file : getDirectoryFiles()){
 			if(!filterOmited(file)){
 				continue;

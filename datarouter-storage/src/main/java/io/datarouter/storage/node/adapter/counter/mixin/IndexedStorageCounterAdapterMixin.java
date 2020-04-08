@@ -59,8 +59,8 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		getCounter().count(opName);
 		List<D> results = getBackingNode().lookupMultiUnique(uniqueKeys, config);
-		int numAttempts = CollectionTool.size(uniqueKeys);
-		int numHits = CollectionTool.size(results);
+		int numAttempts = CollectionTool.sizeNullSafe(uniqueKeys);
+		int numHits = CollectionTool.sizeNullSafe(results);
 		int numMisses = numAttempts - numHits;
 		getCounter().count(opName + " attempts", numAttempts);
 		getCounter().count(opName + " hits", numHits);
@@ -78,7 +78,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 		getCounter().count(opName);
 		getCounter().count(opName + " indexKeys", indexKeys.size());
 		List<IE> results = getBackingNode().getMultiFromIndex(indexKeys, config, indexEntryFieldInfo);
-		int numRows = CollectionTool.size(results);
+		int numRows = CollectionTool.sizeNullSafe(results);
 		// TODO rename to hit and compute correct miss count, consistently with lookupMultiUnique or getMulti
 		getCounter().count(opName + " rows", numRows);
 		if(numRows == 0){
@@ -96,7 +96,7 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 		getCounter().count(opName);
 		getCounter().count(opName + " indexKeys", indexKeys.size());
 		List<D> results = getBackingNode().getMultiByIndex(indexKeys, config, indexEntryFieldInfo);
-		int numRows = CollectionTool.size(results);
+		int numRows = CollectionTool.sizeNullSafe(results);
 		// TODO rename to hit and compute correct miss count, consistently with lookupMultiUnique or getMulti
 		getCounter().count(opName + " rows", numRows);
 		if(numRows == 0){

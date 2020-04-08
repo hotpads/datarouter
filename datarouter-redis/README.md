@@ -9,7 +9,7 @@ datarouter-redis is a simple client that implements the MapStorage interface wit
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-redis</artifactId>
-	<version>0.0.25</version>
+	<version>0.0.26</version>
 </dependency>
 ```
 
@@ -36,6 +36,9 @@ Properties properties = RedisClientOptionsBuilder(clientId)
 		.withServerIndexAndInetSocketAddress(0, "localhost:6379")
 		.build();
 ```
+
+## Local Testing
+To build this module locally, add `redis.properties` to `/etc/datarouter/test`.
 
 ## License
 

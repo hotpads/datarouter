@@ -142,7 +142,7 @@ public class MysqlNodeManager{
 				opName,
 				ListTool.wrap(uniqueKey), config);
 		List<D> result = sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
-		if(CollectionTool.size(result) > 1){
+		if(CollectionTool.sizeNullSafe(result) > 1){
 			throw new DataAccessException("found >1 databeans with unique index key=" + uniqueKey);
 		}
 		return CollectionTool.getFirst(result);

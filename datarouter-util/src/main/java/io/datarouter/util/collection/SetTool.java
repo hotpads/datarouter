@@ -61,19 +61,6 @@ public class SetTool{
 		return union;
 	}
 
-	private static <T> SortedSet<T> nullSafeTreeSet(SortedSet<T> in){
-		if(in == null){
-			return new TreeSet<>();
-		}
-		return in;
-	}
-
-	public static <T> SortedSet<T> nullSafeSortedAddAll(SortedSet<T> set, Collection<T> newItems){
-		set = nullSafeTreeSet(set);
-		set.addAll(CollectionTool.nullSafe(newItems));
-		return set;
-	}
-
 	@SafeVarargs
 	public static <E extends Enum<E>> Set<E> unmodifiableEnumSetOf(E... enums){
 		if(enums == null || enums.length == 0){

@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.25</version>
+	<version>0.0.26</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -342,6 +342,11 @@ public class MysqlExampleMain{
 
 }
 ```
+
+## Local Testing
+To build this module locally, add `mysql.properties` to `/etc/datarouter/test` and `schema-update.properties`
+ to `/etc/datarouter/config`.
+
 
 ## License
 

@@ -22,7 +22,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.datarouter.web.config.RootRouteSetsSupplier;
+import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -33,13 +33,13 @@ import j2html.tags.ContainerTag;
 public class DatarouterRouteSetViewHandler extends BaseHandler{
 
 	@Inject
-	private RootRouteSetsSupplier rootRouteSets;
+	private RouteSetRegistry routeSetRegistry;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 
 	@Handler(defaultHandler = true)
 	public Mav view(){
-		var content = makeContent(rootRouteSets.get());
+		var content = makeContent(routeSetRegistry.get());
 		return pageFactory.startBuilder(request)
 				.withTitle("Registered RouteSets")
 				.withContent(content)

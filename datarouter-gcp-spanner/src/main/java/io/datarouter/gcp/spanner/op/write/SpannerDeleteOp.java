@@ -63,7 +63,7 @@ extends SpannerBaseWriteOp<PK>{
 
 	@Override
 	public Collection<Mutation> getMutations(){
-		return IterableTool.map(values, this::keyToDeleteMutation);
+		return IterableTool.nullSafeMap(values, this::keyToDeleteMutation);
 	}
 
 	protected Mutation keyToDeleteMutation(PK key){

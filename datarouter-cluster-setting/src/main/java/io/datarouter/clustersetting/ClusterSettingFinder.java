@@ -25,11 +25,11 @@ import javax.inject.Singleton;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -105,7 +105,7 @@ public class ClusterSettingFinder implements SettingFinder{
 
 	@Override
 	public List<String> getAllCustomSettingValues(String name){
-		return IterableTool.map(getAllSettingsWithName(name), ClusterSetting::getValue);
+		return Scanner.of(getAllSettingsWithName(name)).map(ClusterSetting::getValue).list();
 	}
 
 	public List<ClusterSetting> getAllSettingsWithName(String name){

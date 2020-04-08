@@ -53,7 +53,7 @@ public class FieldSqlTableGenerator{
 			Map<String,List<Field<?>>> uniqueIndexes){
 
 		List<SqlColumn> primaryKeyColumns = makeSqlColumns(primaryKeyFields, false);
-		List<String> primaryKeyColumnNames = IterableTool.map(primaryKeyColumns, SqlColumn::getName);
+		List<String> primaryKeyColumnNames = IterableTool.nullSafeMap(primaryKeyColumns, SqlColumn::getName);
 		List<SqlColumn> columns = makeSqlColumns(nonKeyFields, true);
 		columns.addAll(primaryKeyColumns);
 

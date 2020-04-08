@@ -16,18 +16,16 @@
 package io.datarouter.nodewatch.job;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.nodewatch.config.DatarouterNodewatchExecutors.DatarouterTableSamplerExecutor;
-import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreator;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreatorFactory;
 import io.datarouter.nodewatch.service.TableSamplerService;
-import io.datarouter.util.concurrent.FutureTool;
+import io.datarouter.scanner.ParallelScannerContext;
+import io.datarouter.util.concurrent.CallableTool;
 
 public class TableSamplerJob extends BaseJob{
 
@@ -43,7 +41,7 @@ public class TableSamplerJob extends BaseJob{
 	@Override
 	public void run(TaskTracker tracker){
 		long startTimeMs = System.currentTimeMillis();
-		List<TableSpanSamplerJobletCreator<?,?,?>> jobletCreators = tableSamplerService.streamCountableNodes()
+		tableSamplerService.scanCountableNodes()
 				.map(node -> jobletCreatorFactory.create(
 						node,
 						tableSamplerService.getSampleInterval(node),
@@ -51,8 +49,8 @@ public class TableSamplerJob extends BaseJob{
 						false,
 						true,
 						startTimeMs))
-				.collect(Collectors.toList());
-		FutureTool.submitAndGetAll(jobletCreators, executor);
+				.parallel(new ParallelScannerContext(executor, 10, true))
+				.forEach(CallableTool::callUnchecked);
 	}
 
 }

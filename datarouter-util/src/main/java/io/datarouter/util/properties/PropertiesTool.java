@@ -24,11 +24,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
-import io.datarouter.util.StreamTool;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.tuple.Pair;
@@ -48,7 +48,7 @@ public class PropertiesTool{
 	}
 
 	public static List<Properties> fromFiles(Iterable<String> paths){
-		return IterableTool.map(paths, PropertiesTool::parse);
+		return IterableTool.nullSafeMap(paths, PropertiesTool::parse);
 	}
 
 	private static Pair<Properties,URL> fromFile(String pathToFile) throws IOException{
@@ -70,8 +70,8 @@ public class PropertiesTool{
 		return PropertiesTool.class.getResource(pathToFile);
 	}
 
-	public static String getFirstOccurrence(Iterable<Properties> multiProperties, String key){
-		return StreamTool.stream(multiProperties)
+	public static String getFirstOccurrence(Collection<Properties> multiProperties, String key){
+		return multiProperties.stream()
 				.map(properties -> properties.getProperty(key))
 				.filter(Objects::nonNull)
 				.findFirst()

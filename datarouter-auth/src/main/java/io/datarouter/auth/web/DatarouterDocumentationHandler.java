@@ -21,20 +21,20 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.web.config.RootRouteSetsSupplier;
+import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.handler.mav.Mav;
 
 public class DatarouterDocumentationHandler extends DatarouterUserBasedDocumentationHandler{
 
 	@Inject
-	private RootRouteSetsSupplier routeSetsSupplier;
+	private RouteSetRegistry routeSetRegistry;
 	@Inject
 	private DatarouterService datarouterService;
 
 	@Handler(defaultHandler = true)
 	public Mav viewDocumentation(){
-		List<BaseRouteSet> routeSets = routeSetsSupplier.get().stream()
+		List<BaseRouteSet> routeSets = routeSetRegistry.get().stream()
 				.filter(clazz -> clazz instanceof DocumentationRouteSet)
 				.collect(Collectors.toList());
 		return createDocumentationMav(datarouterService.getName(), "", routeSets);

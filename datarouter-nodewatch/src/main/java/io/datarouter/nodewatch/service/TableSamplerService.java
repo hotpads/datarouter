@@ -16,7 +16,6 @@
 package io.datarouter.nodewatch.service;
 
 import java.time.Duration;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -78,14 +77,10 @@ public class TableSamplerService{
 		return isCountableClient && isSortedStorageWriter && (!hasStringKeyFields || hasBinaryCollation);
 	}
 
-	public Stream<PhysicalSortedStorageReaderNode<?,?,?>> streamCountableNodes(){
-		return datarouter.getWritableNodes().stream()
-				.filter(this::isCountableNode)
+	public Scanner<PhysicalSortedStorageReaderNode<?,?,?>> scanCountableNodes(){
+		return Scanner.of(datarouter.getWritableNodes())
+				.include(this::isCountableNode)
 				.map(PhysicalSortedStorageReaderNode.class::cast);
-	}
-
-	public Iterable<PhysicalSortedStorageReaderNode<?,?,?>> scanCountableNodes(){
-		return streamCountableNodes()::iterator;
 	}
 
 	public boolean isCountableTable(ClientTableEntityPrefixNameWrapper clientWrapper){

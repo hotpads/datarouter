@@ -16,11 +16,14 @@
 package io.datarouter.client.redis.test;
 
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Guice;
 
+import io.datarouter.client.redis.DatarouterRedisTestNgModuleFactory;
 import io.datarouter.client.redis.RedisTestClientIds;
 import io.datarouter.storage.test.node.basic.manyfield.BaseManyFieldIntegrationTests;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 
+@Guice(moduleFactory = DatarouterRedisTestNgModuleFactory.class)
 public class RedisManyFieldIntegrationTests extends BaseManyFieldIntegrationTests{
 
 	@BeforeClass

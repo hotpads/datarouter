@@ -15,9 +15,6 @@
  */
 package io.datarouter.util.array;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -36,17 +33,6 @@ public class ArrayToolTests{
 	public void testConcatenateVarargBytes(){
 		byte[] concat = ArrayTool.concatenate(new byte[]{0, 1}, new byte[]{2}, new byte[]{3, 4});
 		Assert.assertEquals(concat, new byte[]{0, 1, 2, 3, 4});
-	}
-
-	@Test
-	public void testMapToSet(){
-		Assert.assertEquals(ArrayTool.mapToSet(null, (Object)null), new HashSet<>());
-		Object nothing = null;
-		Assert.assertEquals(ArrayTool.mapToSet(null, nothing), new HashSet<>());
-		String[] empty = new String[0];
-		Assert.assertEquals(ArrayTool.mapToSet(null, empty), new HashSet<>());
-		String[] arr = {"hi", "hello", "hi"};
-		Assert.assertEquals(ArrayTool.mapToSet(str -> str + "s", arr), new HashSet<>(Arrays.asList("hellos", "his")));
 	}
 
 	@Test

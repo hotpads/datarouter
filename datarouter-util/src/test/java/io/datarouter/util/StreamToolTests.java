@@ -18,35 +18,11 @@ package io.datarouter.util;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class StreamToolTests{
-
-	@Test
-	public void testStreamFromNull(){
-		Stream<?> stream = StreamTool.stream((Iterable<?>)null);
-		Assert.assertEquals(stream.count(), 0L);
-	}
-
-	@Test
-	public void testNullItemSafeStreamWithNullCollection(){
-		Assert.assertEquals(StreamTool.nullItemSafeStream(null).count(), 0L);
-	}
-
-	@Test
-	public void testNullItemSafeStreamWithNullItem(){
-		List<Integer> inputs = Arrays.asList(1, 2, null, 4);
-		Assert.assertEquals(StreamTool.nullItemSafeStream(inputs).count(), 3L);
-	}
-
-	@Test
-	public void testNullItemSafeStreamWithoutNullItem(){
-		List<Integer> inputs = Arrays.asList(1, 2, 3, 4);
-		Assert.assertEquals(StreamTool.nullItemSafeStream(inputs).count(), 4L);
-	}
 
 	@Test
 	public void testInstancesOf(){
