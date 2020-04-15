@@ -43,7 +43,6 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.concurrent.ThreadTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.timer.PhaseTimer;
 
 public class HBaseRegionBalancerJob extends BaseJob{
@@ -86,7 +85,7 @@ public class HBaseRegionBalancerJob extends BaseJob{
 		List<String> tableNames = nodes.getTableNamesForClient(clientId.getName());
 		Collections.sort(tableNames);
 		int tableCounter = 0;
-		for(String tableName : IterableTool.nullSafe(tableNames)){
+		for(String tableName : tableNames){
 			if(tracker.shouldStop()){
 				return false;
 			}
@@ -139,11 +138,12 @@ public class HBaseRegionBalancerJob extends BaseJob{
 					serverInfo.getServerName());
 		}
 		for(DrServerInfo serverInfo : serverList.getServersSortedByDescendingLoad()){
-			List<HBaseRegionMovement> movementsForServer = movementsByCurrentServer.get(serverInfo.getServerName());
+			List<HBaseRegionMovement> movementsForServer = movementsByCurrentServer.getOrDefault(serverInfo
+					.getServerName(), List.of());
 			logger.warn("processing {} movements for server {}", CollectionTool.sizeNullSafe(movementsForServer),
 					serverInfo.getServerName());
 			int serverMovementCounter = 0;
-			for(HBaseRegionMovement movement : IterableTool.nullSafe(movementsForServer)){
+			for(HBaseRegionMovement movement : movementsForServer){
 				++clusterMovementCounter;
 				++serverMovementCounter;
 				logger.warn("moving region {}/{} ({}/{}): {}", serverMovementCounter, movementsForServer.size(),

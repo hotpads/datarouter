@@ -67,7 +67,7 @@ public class ScalingThreadPoolExecutorTests{
 		RetryableTool.tryNTimesWithBackoffUnchecked(() -> {
 			Assert.assertEquals(executor.getCompletedTaskCount(), MAX_THREADS + 2);
 			return null;
-		}, 3, 1, false);
+		}, 4, 1, false);
 
 		Assert.assertEquals(executor.getQueue().size(), 0);
 

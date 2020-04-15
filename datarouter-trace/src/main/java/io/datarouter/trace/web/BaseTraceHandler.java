@@ -34,7 +34,6 @@ import io.datarouter.trace.storage.thread.BaseTraceThread;
 import io.datarouter.trace.storage.trace.BaseTrace;
 import io.datarouter.util.UlidTool;
 import io.datarouter.util.duration.DatarouterDuration;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -70,7 +69,7 @@ public abstract class BaseTraceHandler extends BaseHandler{
 		Integer discardedSpanCount = getDiscardedSpanCountFromThreads(threads);
 		TraceThreadGroup rootGroup = TraceThreadGroup.create(threads, makeFakeRootThread(traceEnity.getTrace()
 				.toDto()));
-		Collection<TraceSpanDto> spans = IterableTool.nullSafeMap(traceEnity.getTraceSpans(), BaseTraceSpan::toDto);
+		Collection<TraceSpanDto> spans = Scanner.of(traceEnity.getTraceSpans()).map(BaseTraceSpan::toDto).list();
 		rootGroup.setSpans(spans);
 		mav.put("spans", spans);
 		mav.put("numSpans", spans.size());

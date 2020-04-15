@@ -18,7 +18,6 @@ package io.datarouter.web.dispatcher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -74,10 +73,6 @@ public abstract class DispatcherServlet extends HttpServlet{
 
 	protected final void register(BaseRouteSet newRouteSet){
 		routeSets.add(newRouteSet);
-	}
-
-	protected final void register(Collection<BaseRouteSet> newRouteSets){
-		newRouteSets.forEach(this::register);
 	}
 
 	protected final void eagerlyInitRouteSet(BaseRouteSet routeSet){

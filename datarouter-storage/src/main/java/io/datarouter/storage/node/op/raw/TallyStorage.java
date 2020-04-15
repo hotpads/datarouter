@@ -15,13 +15,19 @@
  */
 package io.datarouter.storage.node.op.raw;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
+import io.datarouter.storage.node.op.raw.write.TallyStorageWriter;
 
-public interface TallyStorage{
+public interface TallyStorage<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
+extends TallyStorageReader<PK,D>, TallyStorageWriter<PK,D>{
+
+	public static final String OP_incrementAndGetCount = "incrementAndGetCount";
 
 	Long incrementAndGetCount(String key, int delta, Config config);
 
@@ -29,22 +35,18 @@ public interface TallyStorage{
 		return incrementAndGetCount(key, delta, new Config());
 	}
 
-	Optional<Long> findTallyCount(String key, Config config);
-
-	default Optional<Long> findTallyCount(String key){
-		return findTallyCount(key, new Config());
+	public interface TallyStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	extends TallyStorage<PK,D>, TallyStorageWriterNode<PK,D,F>{
 	}
 
-	Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config);
-
-	default Map<String,Long> getMultiTallyCount(Collection<String> keys){
-		return getMultiTallyCount(keys, new Config());
-	}
-
-	void deleteTally(String key, Config config);
-
-	default void deleteTally(String key){
-		deleteTally(key, new Config());
+	public interface PhysicalTallyStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	extends TallyStorageNode<PK,D,F>, PhysicalTallyStorageWriterNode<PK,D,F>{
 	}
 
 }

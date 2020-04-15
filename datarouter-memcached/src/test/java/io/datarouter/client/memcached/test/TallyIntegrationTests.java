@@ -25,8 +25,8 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.client.memcached.DatarouterMemcachedTestNgModuleFactory;
-import io.datarouter.client.memcached.tally.Tally;
 import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.tally.Tally;
 
 @Guice(moduleFactory = DatarouterMemcachedTestNgModuleFactory.class)
 public class TallyIntegrationTests{
@@ -91,10 +91,11 @@ public class TallyIntegrationTests{
 		dao.delete(key);
 	}
 
-	@Test
+	@Test(expectedExceptions = RuntimeException.class)
 	public void testGetTallyCountOnNull(){
 		String key = null;
-		Assert.assertFalse(dao.exists(key));
+		// throws RuntimeException
+		Assert.assertTrue(dao.findTallyCount(key).isEmpty());
 		dao.delete(key);
 	}
 

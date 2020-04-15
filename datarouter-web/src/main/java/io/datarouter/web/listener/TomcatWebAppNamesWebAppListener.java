@@ -15,13 +15,13 @@
  */
 package io.datarouter.web.listener;
 
+import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 import javax.inject.Singleton;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -56,11 +56,10 @@ public class TomcatWebAppNamesWebAppListener extends DatarouterWebAppListener{
 	}
 
 	private static MBeanServer getTomcat(){
-		for(MBeanServer server : MBeanServerFactory.findMBeanServer(null)){
-			for(String domain : server.getDomains()){
-				if("Catalina".equals(domain)){
-					return server;
-				}
+		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+		for(String domain : server.getDomains()){
+			if("Catalina".equals(domain)){
+				return server;
 			}
 		}
 		return null;

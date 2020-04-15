@@ -82,7 +82,13 @@ public class WebappInstanceService{
 	}
 
 	public WebappInstance updateWebappInstanceTable(){
+		String buildId = buildProperties.getBuildId();
+		String commitId = gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING);
 		Counters.inc("App heartbeat " + datarouterProperties.getServerTypeString());
+		Counters.inc("App heartbeat type-build " + datarouterProperties.getServerTypeString() + " " + buildId);
+		Counters.inc("App heartbeat type-commit " + datarouterProperties.getServerTypeString() + " " + commitId);
+		Counters.inc("App heartbeat build " + buildId);
+		Counters.inc("App heartbeat commit " + commitId);
 		WebappInstance webappInstance = buildCurrentWebappInstance();
 		webappInstanceDao.put(webappInstance);
 		webappInstanceLogDao.put(new WebappInstanceLog(webappInstance));

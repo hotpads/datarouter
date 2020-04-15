@@ -25,10 +25,8 @@ import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.NoOpJobletExternalLinkBuilder;
 import io.datarouter.joblet.queue.JobletRequestSelector;
-import io.datarouter.joblet.queue.selector.JobletSelectorRegistry;
-import io.datarouter.joblet.queue.selector.MysqlLockForUpdateJobletRequestSelector;
-import io.datarouter.joblet.queue.selector.MysqlUpdateAndScanJobletRequestSelector;
-import io.datarouter.joblet.queue.selector.SqsJobletRequestSelector;
+import io.datarouter.joblet.queue.JobletSelectorRegistry;
+import io.datarouter.joblet.queue.SqsJobletRequestSelector;
 import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
@@ -102,14 +100,6 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 			withSelector(
 					JobletQueueMechanism.SQS.getPersistentString(),
 					SqsJobletRequestSelector.class);
-			//TODO register dynamically
-			withSelector(
-					JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE.getPersistentString(),
-					MysqlLockForUpdateJobletRequestSelector.class);
-			//TODO register dynamically
-			withSelector(
-					JobletQueueMechanism.JDBC_UPDATE_AND_SCAN.getPersistentString(),
-					MysqlUpdateAndScanJobletRequestSelector.class);
 		}
 
 		public DatarouterJobletPluginBuilder setDaoModule(DatarouterJobletDaoModule daoModule){

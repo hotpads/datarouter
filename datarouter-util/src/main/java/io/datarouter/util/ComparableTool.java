@@ -15,10 +15,6 @@
  */
 package io.datarouter.util;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 
 public class ComparableTool{
@@ -34,20 +30,6 @@ public class ComparableTool{
 	public static <T extends Comparable<? super T>> boolean gt(T object1, T object2){
 		int diff = nullFirstCompareTo(object1, object2);
 		return diff > 0;
-	}
-
-	//treat start=null as -Infinity, end=null as Infinity
-	public static <T extends Comparable<? super T>> boolean between(T min, boolean minInclusive, T value, T max,
-			boolean maxInclusive){
-		int minDiff = nullFirstCompareTo(value, min);
-		int maxDiff = nullLastCompareTo(value, max);
-		if(minInclusive && minDiff == 0){
-			return true;
-		}
-		if(maxInclusive && maxDiff == 0){
-			return true;
-		}
-		return minDiff > 0 && maxDiff < 0;
 	}
 
 	public static <T extends Comparable<? super T>> int nullFirstCompareTo(T object1, T object2){
@@ -72,36 +54,6 @@ public class ComparableTool{
 		}else{
 			return object1.compareTo(object2);
 		}
-	}
-
-	/**
-	 * null is greater than non-null
-	 */
-	@SafeVarargs
-	public static <T extends Comparable<T>> T min(T... elements){
-		return min(Arrays.asList(elements));
-	}
-
-	/**
-	 * null is greater than non-null
-	 */
-	public static <T extends Comparable<T>> T min(Collection<T> elements){
-		return Collections.min(elements, Comparator.nullsLast(Comparator.naturalOrder()));
-	}
-
-	/**
-	 * null is less than non-null
-	 */
-	@SafeVarargs
-	public static <T extends Comparable<T>> T max(T... elements){
-		return max(Arrays.asList(elements));
-	}
-
-	/**
-	 * null is less than non-null
-	 */
-	public static <T extends Comparable<T>> T max(Collection<T> elements){
-		return Collections.max(elements, Comparator.nullsFirst(Comparator.naturalOrder()));
 	}
 
 	public static <T extends Comparable<? super T>> boolean isSorted(Iterable<? extends T> ins){

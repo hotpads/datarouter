@@ -76,7 +76,7 @@ import io.datarouter.model.field.imp.positive.UInt31Field;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt7Field;
 import io.datarouter.model.field.imp.positive.VarIntField;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 
 @Singleton
@@ -129,8 +129,8 @@ public class SpannerFieldCodecRegistry{
 				Collections.singletonList(field));
 	}
 
-	public List<SpannerBaseFieldCodec<?,?>> createCodecs(List<Field<?>> fields){
-		return IterableTool.nullSafeMap(fields, this::createCodec);
+	public List<? extends SpannerBaseFieldCodec<?,?>> createCodecs(List<Field<?>> fields){
+		return Scanner.of(fields).map(this::createCodec).list();
 	}
 
 }

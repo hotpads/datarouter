@@ -28,9 +28,9 @@ import io.datarouter.gcp.spanner.util.SpannerEntityKeyTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.iterable.IterableTool;
 
 public class SpannerPutOp<
 		PK extends PrimaryKey<PK>,
@@ -66,7 +66,7 @@ public class SpannerPutOp<
 
 	@Override
 	public Collection<Mutation> getMutations(){
-		return IterableTool.nullSafeMap(values, this::databeanToMutation);
+		return Scanner.of(values).map(this::databeanToMutation).list();
 
 	}
 
@@ -87,10 +87,10 @@ public class SpannerPutOp<
 			mutation = Mutation.newInsertOrUpdateBuilder(tableName);
 		}
 		mutation = getMutationPartition(databean, mutation);
-		List<SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = codecRegistry.createCodecs(SpannerEntityKeyTool
+		List<? extends SpannerBaseFieldCodec<?,?>> primaryKeyCodecs = codecRegistry.createCodecs(SpannerEntityKeyTool
 				.getPrimaryKeyFields(databean.getKey(), fieldInfo.isSubEntity()));
-		List<SpannerBaseFieldCodec<?,?>> nonKeyCodecs = codecRegistry.createCodecs(fieldInfo.getNonKeyFieldsWithValues(
-				databean));
+		List<? extends SpannerBaseFieldCodec<?,?>> nonKeyCodecs = codecRegistry.createCodecs(fieldInfo
+				.getNonKeyFieldsWithValues(databean));
 		for(SpannerBaseFieldCodec<?,?> codec : primaryKeyCodecs){
 			if(codec.getField().getValue() != null){
 				mutation = codec.setMutation(mutation);

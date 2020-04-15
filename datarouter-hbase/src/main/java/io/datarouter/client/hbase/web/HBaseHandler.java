@@ -59,9 +59,7 @@ import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.collection.MapTool;
 import io.datarouter.util.concurrent.ThreadTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lazy.Lazy;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
@@ -139,7 +137,7 @@ public class HBaseHandler extends BaseHandler{
 		mav.put("clusterStatus", clusterStatus);
 		Collection<ServerName> serverNames = new TreeSet<>(clusterStatus.getServers());
 		List<DrServerInfo> servers = new ArrayList<>();
-		for(ServerName serverName : IterableTool.nullSafe(serverNames)){
+		for(ServerName serverName : serverNames){
 			ServerLoad serverLoad = clusterStatus.getLoad(serverName);
 			servers.add(new DrServerInfo(serverName, serverLoad));
 		}
@@ -163,7 +161,7 @@ public class HBaseHandler extends BaseHandler{
 		// column family level settings
 		List<HColumnDescriptor> columnFamilies = ListTool.create(table.getColumnFamilies());
 		Map<String,Map<String,String>> columnSummaryByName = new TreeMap<>();
-		for(HColumnDescriptor column : IterableTool.nullSafe(columnFamilies)){
+		for(HColumnDescriptor column : columnFamilies){
 			Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());
 			columnSummaryByName.put(column.getNameAsString(), attributeByName);
 		}
@@ -222,13 +220,13 @@ public class HBaseHandler extends BaseHandler{
 		HColumnDescriptor column = table.getFamily(columnName.getBytes());
 		try{
 			// validate all settings before disabling table
-			for(String colParam : IterableTool.nullSafe(DrTableSettings.COLUMN_SETTINGS)){
+			for(String colParam : DrTableSettings.COLUMN_SETTINGS){
 				String value = params.required(colParam);
 				DrTableSettings.validateColumnFamilySetting(colParam, value);
 			}
 			admin.disableTable(TableName.valueOf(datarouterWebRequestParams.getTableName()));
 			logger.warn("table disabled");
-			for(String colParam : IterableTool.nullSafe(DrTableSettings.COLUMN_SETTINGS)){
+			for(String colParam : DrTableSettings.COLUMN_SETTINGS){
 				String value = params.required(colParam);
 				column.setValue(colParam, value.trim());
 			}
@@ -400,9 +398,10 @@ public class HBaseHandler extends BaseHandler{
 
 	private static Map<String,String> parseFamilyAttributeMap(Map<ImmutableBytesWritable,ImmutableBytesWritable> ins){
 		Map<String,String> outs = new TreeMap<>();
-		for(Entry<ImmutableBytesWritable,ImmutableBytesWritable> entry : MapTool.nullSafe(ins).entrySet()){
-			outs.put(StringByteTool.fromUtf8Bytes(entry.getKey().get()), StringByteTool.fromUtf8Bytes(entry.getValue()
-					.get()));
+		for(Entry<ImmutableBytesWritable,ImmutableBytesWritable> entry : ins.entrySet()){
+			outs.put(
+					StringByteTool.fromUtf8Bytes(entry.getKey().get()),
+					StringByteTool.fromUtf8Bytes(entry.getValue().get()));
 		}
 		if(!outs.containsKey(DrTableSettings.DATA_BLOCK_ENCODING)){
 			outs.put(DrTableSettings.DATA_BLOCK_ENCODING, DrTableSettings.DEFAULT_DATA_BLOCK_ENCODING);

@@ -44,16 +44,6 @@ public class ComparableToolTests{
 	}
 
 	@Test
-	public void testBetween(){
-		Assert.assertTrue(ComparableTool.between(-3f, false, -1f, 7f, false));
-		Assert.assertFalse(ComparableTool.between(-3f, false, -17.5f, 7f, false));
-		Assert.assertTrue(ComparableTool.between(-3f, true, -3f, 7f, false));
-		Assert.assertTrue(ComparableTool.between(0, true, 0, 0, false));
-		// treat start=null as -Infinity, end=null as Infinity
-		Assert.assertTrue(ComparableTool.between(null, true, 12345, null, true));
-	}
-
-	@Test
 	public void testIsSorted(){
 		Assert.assertTrue(ComparableTool.isSorted(null));
 		Assert.assertTrue(ComparableTool.isSorted(new ArrayList<Integer>()));
@@ -61,53 +51,6 @@ public class ComparableToolTests{
 		Assert.assertTrue(ComparableTool.isSorted(listA));
 		List<Integer> listB = ListTool.create(1,2,55,4);
 		Assert.assertFalse(ComparableTool.isSorted(listB));
-	}
-
-	@Test
-	public void testMin(){
-		Assert.assertNull(ComparableTool.min((Integer)null));
-		Assert.assertNull(ComparableTool.min((Integer)null, null));
-		Assert.assertNull(ComparableTool.min((Integer)null, null, null));
-		Assert.assertNull(ComparableTool.min((Double)null));
-		Assert.assertNull(ComparableTool.min((Double)null, null));
-		Assert.assertNull(ComparableTool.min((Double)null, null, null));
-		Assert.assertEquals(ComparableTool.min(null, null, 3), Integer.valueOf(3));
-		Assert.assertEquals(ComparableTool.min(3, null), Integer.valueOf(3));
-		Assert.assertEquals(ComparableTool.min(3, 1), Integer.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(1, 3), Integer.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(1, 2, 3), Integer.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(1, 3, 2), Integer.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(1, 3, null, 2), Integer.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(3, null, 2), Integer.valueOf(2));
-		Assert.assertEquals(ComparableTool.min(null, null, 3d), Double.valueOf(3));
-		Assert.assertEquals(ComparableTool.min(3d, null), Double.valueOf(3));
-		Assert.assertEquals(ComparableTool.min(3d, 1d), Double.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(1d, 3d), Double.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(1d, 2d, 3d), Double.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(1d, 3d, 2d), Double.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(1d, 3d, null, 2d), Double.valueOf(1));
-		Assert.assertEquals(ComparableTool.min(3d, null, 2d), Double.valueOf(2));
-	}
-
-	@Test
-	public void testMax(){
-		Assert.assertNull(ComparableTool.max((Integer)null, null));
-		Assert.assertEquals(ComparableTool.max(null, 0), Integer.valueOf(0));
-		Assert.assertEquals(ComparableTool.max(0, null), Integer.valueOf(0));
-		Assert.assertEquals(ComparableTool.max(0, 0), Integer.valueOf(0));
-		Assert.assertEquals(ComparableTool.max(0, 3), Integer.valueOf(3));
-		Assert.assertEquals(ComparableTool.max(3, 0), Integer.valueOf(3));
-		Assert.assertNull(ComparableTool.max((Double)null));
-		Assert.assertNull(ComparableTool.max((Double)null, null));
-		Assert.assertNull(ComparableTool.max((Double)null, null, null));
-		Assert.assertEquals(ComparableTool.max(null, null, 3d), Double.valueOf(3));
-		Assert.assertEquals(ComparableTool.max(3d, null), Double.valueOf(3));
-		Assert.assertEquals(ComparableTool.max(3d, 1d), Double.valueOf(3));
-		Assert.assertEquals(ComparableTool.max(1d, 3d), Double.valueOf(3));
-		Assert.assertEquals(ComparableTool.max(1d, 2d, 3d), Double.valueOf(3));
-		Assert.assertEquals(ComparableTool.max(1d, 3d, 2d), Double.valueOf(3));
-		Assert.assertEquals(ComparableTool.max(1d, 3d, null, 2d), Double.valueOf(3));
-		Assert.assertEquals(ComparableTool.max(1d, null, 2d), Double.valueOf(2));
 	}
 
 }

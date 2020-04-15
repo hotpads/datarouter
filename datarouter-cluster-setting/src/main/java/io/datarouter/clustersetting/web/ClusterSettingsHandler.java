@@ -69,7 +69,6 @@ import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
@@ -278,7 +277,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 					.flush(customSettings -> customSettingsByName.put(setting.getName(), customSettings));
 		}
 
-		mav.put("listSettings", IterableTool.nullSafeMap(settingsList, setting -> new SettingJspDto<>(setting)));
+		mav.put("listSettings", Scanner.of(settingsList).map(setting -> new SettingJspDto<>(setting)).list());
 		mav.put("mapListsCustomSettings", customSettingsByName);
 
 		return mav;

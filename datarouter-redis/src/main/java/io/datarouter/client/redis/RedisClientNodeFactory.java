@@ -31,17 +31,22 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.imp.BaseClientNodeFactory;
+import io.datarouter.storage.client.imp.TallyClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalMapStorageCounterAdapter;
+import io.datarouter.storage.node.adapter.counter.physical.PhysicalTallyStorageCounterAdapter;
+import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalTallyStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalMapStorageTraceAdapter;
+import io.datarouter.storage.node.adapter.trace.physical.PhysicalTallyStorageTraceAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 @Singleton
-public class RedisClientNodeFactory extends BaseClientNodeFactory{
+public class RedisClientNodeFactory extends BaseClientNodeFactory implements TallyClientNodeFactory{
 
 	@Inject
 	private PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory;
@@ -49,6 +54,8 @@ public class RedisClientNodeFactory extends BaseClientNodeFactory{
 	private RedisClientType redisClientType;
 	@Inject
 	private RedisClientManager redisClientManager;
+	@Inject
+	private RedisNodeFactory redisNodeFactory;
 
 	public class RedisWrappedNodeFactory<
 			EK extends EntityKey<EK>,
@@ -86,12 +93,15 @@ public class RedisClientNodeFactory extends BaseClientNodeFactory{
 		return new RedisWrappedNodeFactory<>();
 	}
 
+	@Override
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	RedisNode<PK,D,F> createNodeWithoutAdapters(
-			NodeParams<PK,D,F> nodeParams){
-		return new RedisNode<>(nodeParams, redisClientType, redisClientManager, nodeParams.getClientId());
+	PhysicalNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> nodeParams){
+		var node = redisNodeFactory.createTallyNode(nodeParams);
+		return new PhysicalTallyStorageTraceAdapter<>(
+				new PhysicalTallyStorageCounterAdapter<>(
+				new PhysicalTallyStorageSanitizationAdapter<>(node)));
 	}
 
 }

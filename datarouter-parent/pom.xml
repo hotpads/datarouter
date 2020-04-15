@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.26</version>
+		<version>0.0.27</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -59,6 +59,7 @@
 		<module>../datarouter-model</module>
 		<module>../datarouter-mysql</module>
 		<module>../datarouter-nodewatch</module>
+		<module>../datarouter-rate-limiter</module>
 		<module>../datarouter-redis</module>
 		<module>../datarouter-scanner</module>
 		<module>../datarouter-secret</module>
@@ -77,7 +78,7 @@
 	<properties>
 		<aws-sdk-version>1.11.751</aws-sdk-version>
 		<commons-codec-version>1.13</commons-codec-version>
-		<datarouter-version>0.0.26</datarouter-version>
+		<datarouter-version>0.0.27</datarouter-version>
 		<gson-version>2.8.6</gson-version>
 		<guice-version>4.2.3</guice-version>
 		<guava-version>28.2-jre</guava-version>

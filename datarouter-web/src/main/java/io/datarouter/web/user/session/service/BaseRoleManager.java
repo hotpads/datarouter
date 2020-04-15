@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.string.StringTool;
 
 public abstract class BaseRoleManager implements RoleManager{
@@ -55,7 +54,7 @@ public abstract class BaseRoleManager implements RoleManager{
 
 	@Override
 	public final Set<Role> getRolesForGroup(String groupId){
-		return SetTool.nullsafe(roleGroups.get(StringTool.nullSafe(groupId)));
+		return roleGroups.getOrDefault(StringTool.nullSafe(groupId), Collections.emptySet());
 	}
 
 	@Override

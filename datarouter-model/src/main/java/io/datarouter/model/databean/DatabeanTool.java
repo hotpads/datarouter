@@ -19,7 +19,6 @@ import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,10 +34,9 @@ import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.IterableScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
 
@@ -92,17 +90,15 @@ public class DatabeanTool{
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> List<PK> getKeys(Iterable<D> databeans){
-		List<PK> keys = new LinkedList<>();
-		for(D databean : IterableTool.nullSafe(databeans)){
-			keys.add(databean.getKey());
-		}
-		return keys;
+		return IterableScanner.ofNullable(databeans)
+				.map(Databean::getKey)
+				.list();
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Map<PK,D> getByKey(Iterable<D> databeans){
 		Map<PK,D> map = new HashMap<>();
-		for(D databean : IterableTool.nullSafe(databeans)){
-			map.put(databean.getKey(), databean);
+		if(databeans != null){
+			databeans.forEach(databean -> map.put(databean.getKey(), databean));
 		}
 		return map;
 	}
@@ -110,14 +106,17 @@ public class DatabeanTool{
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> SortedMap<PK,D> getByKeySorted(
 			Iterable<D> databeans){
 		SortedMap<PK,D> map = new TreeMap<>();
-		for(D databean : IterableTool.nullSafe(databeans)){
-			map.put(databean.getKey(), databean);
+		if(databeans != null){
+			databeans.forEach(databean -> map.put(databean.getKey(), databean));
 		}
 		return map;
 	}
 
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Set<PK> getKeySet(Collection<D> databeans){
-		return CollectionTool.nullSafe(databeans).stream()
+		if(databeans == null){
+			return Collections.emptySet();
+		}
+		return databeans.stream()
 				.filter(Objects::nonNull)
 				.map(Databean::getKey)
 				.collect(Collectors.toSet());

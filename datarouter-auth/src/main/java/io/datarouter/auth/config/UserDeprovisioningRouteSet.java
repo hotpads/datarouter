@@ -29,9 +29,6 @@ public class UserDeprovisioningRouteSet extends BaseRouteSet{
 	@Inject
 	public UserDeprovisioningRouteSet(DatarouterAuthPaths paths){
 		super("");
-		//UI page URL
-		handle(paths.deprovisionedUsers).withHandler(UserDeprovisioningHandler.class);
-		//UI API URL
 		handleDir(paths.userDeprovisioning).withHandler(UserDeprovisioningHandler.class);
 	}
 

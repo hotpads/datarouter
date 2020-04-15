@@ -15,6 +15,8 @@
  */
 package io.datarouter.serviceconfig.config;
 
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -25,7 +27,6 @@ import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationDto;
 import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationPublisher;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.web.listener.DatarouterAppListener;
 
 @Singleton
@@ -47,7 +48,8 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 		if(!settings.sendServiceConfigurationsToPontoon.get()){
 			return;
 		}
-		Set<String> admins = SetTool.wrap(datarouterProperties.getAdministratorEmail());
+		Set<String> admins = new HashSet<>();
+		Optional.ofNullable(datarouterProperties.getAdministratorEmail()).ifPresent(admins::add);
 		admins.addAll(additionalAdministrators.get());
 		ServiceConfigurationDto dto = new ServiceConfigurationDto(datarouterService.getName(), admins);
 		try{

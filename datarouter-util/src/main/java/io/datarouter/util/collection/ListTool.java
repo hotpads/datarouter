@@ -16,13 +16,13 @@
 package io.datarouter.util.collection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
@@ -70,8 +70,6 @@ public class ListTool{
 		return in;
 	}
 
-	/*---------------------------- last ------------------------------*/
-
 	public static <T> T getLast(List<T> list){
 		if(CollectionTool.isEmpty(list)){
 			return null;
@@ -83,29 +81,12 @@ public class ListTool{
 		return Optional.ofNullable(getLast(list));
 	}
 
-	/*---------------------------- concatenate ------------------------------*/
-
-	public static <T> List<T> concatenate(Collection<T> collectionA, Collection<T> collectionB){
-		int sizeA = CollectionTool.sizeNullSafe(collectionA);
-		int sizeB = CollectionTool.sizeNullSafe(collectionB);
-		ArrayList<T> outs = new ArrayList<>(sizeA + sizeB);
-		if(sizeA > 0){
-			outs.addAll(collectionA);
-		}
-		if(sizeB > 0){
-			outs.addAll(collectionB);
-		}
-		return outs;
-	}
-
 	@SafeVarargs
-	public static <T> List<T> concatenate(List<T>... args){
-		return Stream.of(args)
-				.flatMap(List::stream)
+	public static <T> List<T> concatenate(Collection<T>... args){
+		return Arrays.stream(args)
+				.flatMap(Collection::stream)
 				.collect(Collectors.toList());
 	}
-
-	/*------------------------------ compare --------------------------------*/
 
 	public static <T extends Comparable<T>> int compare(List<T> as, List<T> bs){
 		if(as == null){

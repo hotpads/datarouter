@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.io.FileTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.tuple.Pair;
 
 public class PropertiesTool{
@@ -48,7 +48,7 @@ public class PropertiesTool{
 	}
 
 	public static List<Properties> fromFiles(Iterable<String> paths){
-		return IterableTool.nullSafeMap(paths, PropertiesTool::parse);
+		return Scanner.of(paths).map(PropertiesTool::parse).list();
 	}
 
 	private static Pair<Properties,URL> fromFile(String pathToFile) throws IOException{

@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 
@@ -60,7 +59,7 @@ public class ResponseTool{
 	public static void sendJson(HttpServletResponse response, String body) throws IOException{
 		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
 		try(OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8);
-				TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), "ResponseTool sendJson")){
+				var $ = TracerTool.startSpan(TracerThreadLocal.get(), "ResponseTool sendJson")){
 			writer.append(body);
 		}
 	}

@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.gson.JsonSyntaxException;
 
 import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.lang.ReflectionTool;
@@ -123,7 +122,7 @@ public class DefaultDecoder implements HandlerDecoder{
 	}
 
 	protected Object decode(String string, Type type){
-		try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), "DefaultDecoder deserialize")){
+		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "DefaultDecoder deserialize")){
 			TracerTool.appendToSpanInfo("characters", string.length());
 			// this prevents empty strings from being decoded as null by gson
 			Object obj;

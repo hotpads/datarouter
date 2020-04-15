@@ -25,11 +25,14 @@ import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.job.config.DatarouterJobWebappConfigBuilder;
 import io.datarouter.joblet.config.DatarouterJobletPlugin.DatarouterJobletDaoModule;
 import io.datarouter.joblet.config.DatarouterJobletPlugin.DatarouterJobletPluginBuilder;
+import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.NoOpJobletExternalLinkBuilder;
 import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeGroup;
+import io.datarouter.jobletmysql.selector.MysqlLockForUpdateJobletRequestSelector;
+import io.datarouter.jobletmysql.selector.MysqlUpdateAndScanJobletRequestSelector;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.BasePlugin;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -95,6 +98,12 @@ extends DatarouterJobWebappConfigBuilder<T>{
 				.setJobletTypes(jobletTypes)
 				.setDaoModule(new DatarouterJobletDaoModule(defaultClientId, defaultQueueClientId, defaultClientId))
 				.setExternalLinkBuilderClass(jobletExternalLinkBuilder)
+				.withSelector(
+						JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE.getPersistentString(),
+						MysqlLockForUpdateJobletRequestSelector.class)
+				.withSelector(
+						JobletQueueMechanism.JDBC_UPDATE_AND_SCAN.getPersistentString(),
+						MysqlUpdateAndScanJobletRequestSelector.class)
 				.build();
 		modules.add(jobletPlugin);
 		return super.build();

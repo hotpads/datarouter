@@ -47,7 +47,7 @@ public class DeduplicatingScannerTests{
 	}
 
 	@Test
-	public void deduplicateByMethodTest(){
+	public void testDeduplicateBy(){
 		List<Person> people = List.of(
 				new Person("Bob", 1),
 				new Person("Jane", 2),
@@ -59,13 +59,13 @@ public class DeduplicatingScannerTests{
 				new Person("Jane", 2),
 				new Person("Sam", 4));
 		List<Person> actual = Scanner.of(people)
-				.deduplicate(Person::getFirstName)
+				.deduplicateBy(Person::getFirstName)
 				.list();
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
-	public void nullDeduplicateByMethodTest(){
+	public void testDeduplicatedByWithNull(){
 		List<Person> people = Arrays.asList(
 				new Person("Bob", 1),
 				null,
@@ -77,7 +77,7 @@ public class DeduplicatingScannerTests{
 				null,
 				new Person("Sam", 4));
 		List<Person> actual = Scanner.of(people)
-				.deduplicate(person -> person == null ? null : person.getFirstName())
+				.deduplicateBy(person -> person == null ? null : person.getFirstName())
 				.list();
 		Assert.assertEquals(actual, expected);
 	}

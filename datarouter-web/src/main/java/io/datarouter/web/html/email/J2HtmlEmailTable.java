@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.iterable.IterableTool;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -90,7 +89,7 @@ public class J2HtmlEmailTable<T>{
 	}
 
 	public ContainerTag build(Collection<T> values, Function<T,J2HtmlEmailTableRow<T>> rowFunction){
-		Collection<J2HtmlEmailTableRow<T>> rows = IterableTool.nullSafeMap(values, rowFunction);
+		Collection<J2HtmlEmailTableRow<T>> rows = Scanner.of(values).map(rowFunction).list();
 		var table = TagCreator.table()
 				.attr(Attr.BORDER, 1)
 				.attr("cellpadding", 5)

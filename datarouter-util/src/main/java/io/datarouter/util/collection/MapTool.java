@@ -15,37 +15,16 @@
  */
 package io.datarouter.util.collection;
 
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.tuple.Pair;
 
 public class MapTool{
-
-	/*------------------------- size ----------------------------------------*/
-
-	public static <K,V> boolean isEmpty(Map<K,V> map){
-		if(map == null){
-			return true;
-		}
-		return map.isEmpty();
-	}
-
-	public static <K,V> boolean notEmpty(Map<K,V> map){
-		return !isEmpty(map);
-	}
-
-	public static <K,V> int size(Map<K,V> map){
-		return map == null ? 0 : map.size();
-	}
 
 	/*------------------------- null safe -----------------------------------*/
 
@@ -89,15 +68,6 @@ public class MapTool{
 
 	/*------------------------- filtering -----------------------------------*/
 
-	public static <K,V> K getFirstKeyWhereValueEquals(Map<K,V> map, V value){
-		for(Entry<K,V> entry : nullSafe(map).entrySet()){
-			if(Objects.equals(value, entry.getValue())){
-				return entry.getKey();
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * Build a map from the string with the format "
 	 * <code>key[keyValueSeparator]value[entrySeperator]key[keyValueSeparator]value...</code>"
@@ -129,7 +99,10 @@ public class MapTool{
 	 * <pre>getBy(employees, ssnGetter) -&gt; Map&lt;SSN, Employee&gt;</pre>
 	 */
 	public static <K,V> Map<K,V> getBy(Iterable<V> values, Function<V,K> keyMapper){
-		return Scanner.of(IterableTool.nullSafe(values)).collect(CollectorTool.toMap(keyMapper));
+		if(values == null){
+			return Collections.emptyMap();
+		}
+		return Scanner.of(values).collect(CollectorTool.toMap(keyMapper));
 	}
 
 	/**
@@ -137,30 +110,10 @@ public class MapTool{
 	 * <pre>getBy(employees, ssnGetter, phoneGetter) -&gt; Map&lt;SSN, Phone&gt;</pre>
 	 */
 	public static <T,K,V> Map<K,V> getBy(Iterable<T> elements, Function<T,K> keyMapper, Function<T,V> valueMapper){
-		return Scanner.of(IterableTool.nullSafe(elements)).collect(CollectorTool.toMap(keyMapper, valueMapper));
-	}
-
-	/**
-	 * same as {@link #getBy(Iterable, Function, Function)} but allows null values and overwrites duplicate keys
-	 */
-	public static <T,K,V> Map<K,V> getByNullable(Iterable<T> elements, Function<T,K> keyMapper,
-			Function<T,V> valueMapper){
-		Map<K,V> map = new LinkedHashMap<>();
-		for(T element : elements){
-			map.put(keyMapper.apply(element), valueMapper.apply(element));
+		if(elements == null){
+			return Collections.emptyMap();
 		}
-		return map;
-	}
-
-	/*------------------------- static map building -------------------------*/
-
-	@SafeVarargs
-	public static <K,V> Map<K,V> of(Pair<K,V>...entries){
-		Map<K,V> map = new HashMap<>();
-		for(Pair<K,V> entry : entries){
-			map.put(entry.getLeft(), entry.getRight());
-		}
-		return map;
+		return Scanner.of(elements).collect(CollectorTool.toMap(keyMapper, valueMapper));
 	}
 
 }

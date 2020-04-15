@@ -23,12 +23,12 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.unique.UniqueIndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.type.index.ManagedUniqueIndexNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 
 public class NoTxnManagedUniqueIndexNode<
 		PK extends PrimaryKey<PK>,
@@ -65,9 +65,9 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> keys, Config config){
-		List<IE> indexEntries = getMulti(keys, config);
-		List<PK> targetKeys = IterableTool.nullSafeMap(indexEntries, IE::getTargetKey);
-		return node.getMulti(targetKeys, config);
+		return Scanner.of(getMulti(keys, config))
+				.map(IE::getTargetKey)
+				.listTo(targetKeys -> node.getMulti(targetKeys, config));
 	}
 
 	@Override
@@ -81,9 +81,9 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
 	@Override
 	public void deleteMultiUnique(Collection<IK> viewIndexKeys, Config config){
-		List<IE> indexEntries = getMulti(viewIndexKeys, config);
-		List<PK> targetKeys = IterableTool.nullSafeMap(indexEntries, IE::getTargetKey);
-		node.deleteMulti(targetKeys, config);
+		Scanner.of(getMulti(viewIndexKeys, config))
+				.map(IE::getTargetKey)
+				.flush(targetKeys -> node.deleteMulti(targetKeys, config));
 	}
 
 }

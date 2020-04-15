@@ -24,12 +24,12 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.client.redis.databean.RedisDatabean;
+import io.datarouter.client.redis.DatarouterRedisTestNgModuleFactory;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
+import io.datarouter.storage.tally.Tally;
 
 // Difficult to test TTLs in maven
-@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
+@Guice(moduleFactory = DatarouterRedisTestNgModuleFactory.class)
 public class RedisTtlTester{
 
 	@Inject
@@ -44,7 +44,7 @@ public class RedisTtlTester{
 
 	@Test
 	public void testTtl(){
-		RedisDatabean bean = new RedisDatabean("testKey2", "testData2");
+		Tally bean = new Tally("testKey2", 0L);
 		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
 
 		try{
@@ -58,7 +58,7 @@ public class RedisTtlTester{
 
 	@Test
 	public void testTtlUpdate(){
-		RedisDatabean bean = new RedisDatabean("testKey3", "testData3");
+		Tally bean = new Tally("testKey3", 0L);
 		deleteRecord(bean);
 
 		// Multiple increments does not modify the original TTL
@@ -81,7 +81,7 @@ public class RedisTtlTester{
 
 	@Test
 	public void testTtlAdvance(){
-		RedisDatabean bean = new RedisDatabean("testKey4", "testData4");
+		Tally bean = new Tally("testKey4", 0L);
 
 		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
 		dao.increment(bean.getKey(), 1, Duration.ofSeconds(2));
@@ -101,7 +101,7 @@ public class RedisTtlTester{
 	}
 
 
-	private void deleteRecord(RedisDatabean bean){
+	private void deleteRecord(Tally bean){
 		dao.delete(bean.getKey());
 	}
 

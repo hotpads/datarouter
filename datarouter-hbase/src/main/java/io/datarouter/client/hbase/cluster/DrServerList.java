@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 
 public class DrServerList{
 	private static final Logger logger = LoggerFactory.getLogger(DrServerList.class);
@@ -51,7 +50,7 @@ public class DrServerList{
 			this.servers = ListTool.createArrayListWithSize(serverNames);
 			this.serversSortedByDescendingLoad = new TreeSet<>(DrServerInfo.COMPARATOR_DESC_SERVER_LOAD);
 			this.drhServerInfoByServerName = new TreeMap<>();
-			for(ServerName serverName : IterableTool.nullSafe(serverNames)){
+			for(ServerName serverName : serverNames){
 				DrServerInfo info = new DrServerInfo(serverName, clusterStatus.getLoad(serverName));
 				this.servers.add(info);
 				this.serversSortedByDescendingLoad.add(info);

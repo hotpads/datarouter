@@ -17,6 +17,7 @@ package io.datarouter.virtualnode.masterslave;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -35,7 +37,6 @@ import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSorted
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
-import io.datarouter.util.iterable.IterableTool;
 
 @Singleton
 public class MasterSlaveNodeFactory{
@@ -55,8 +56,9 @@ public class MasterSlaveNodeFactory{
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier).build();
-		List<N> slaves = IterableTool.nullSafeMap(slaveClientIds, clientId -> nodeFactory.create(clientId,
-				databeanSupplier, fielderSupplier).build());
+		Function<ClientId,N> buildSlaveFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
+				fielderSupplier).build();
+		List<N> slaves = Scanner.of(slaveClientIds).map(buildSlaveFunction).list();
 		return make(master, slaves);
 	}
 
@@ -73,8 +75,9 @@ public class MasterSlaveNodeFactory{
 		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier)
 				.withTableName(tableName)
 				.build();
-		List<N> slaves = IterableTool.nullSafeMap(slaveClientIds, clientId -> nodeFactory.create(clientId,
-				databeanSupplier, fielderSupplier).withTableName(tableName).build());
+		Function<ClientId,N> buildSlaveFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
+				fielderSupplier).withTableName(tableName).build();
+		List<N> slaves = Scanner.of(slaveClientIds).map(buildSlaveFunction).list();
 		return make(master, slaves);
 	}
 
@@ -91,8 +94,9 @@ public class MasterSlaveNodeFactory{
 		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier)
 				.withNodewatchConfigurationBuilder(nodewatchConfigurationBuilder)
 				.build();
-		List<N> slaves = IterableTool.nullSafeMap(slaveClientIds, clientId -> nodeFactory.create(clientId,
-				databeanSupplier, fielderSupplier).build());
+		Function<ClientId,N> buildSlaveFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
+				fielderSupplier).build();
+		List<N> slaves = Scanner.of(slaveClientIds).map(buildSlaveFunction).list();
 		return make(master, slaves);
 	}
 
@@ -108,8 +112,9 @@ public class MasterSlaveNodeFactory{
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 		N master = nodeFactory.create(masterClientId, entityKeySupplier, databeanSupplier, fielderSupplier).build();
-		List<N> slaves = IterableTool.nullSafeMap(slaveClientIds, clientId -> nodeFactory.create(clientId,
-				entityKeySupplier, databeanSupplier, fielderSupplier).build());
+		Function<ClientId,N> buildSlaveFunction = clientId -> nodeFactory.create(clientId, entityKeySupplier,
+				databeanSupplier, fielderSupplier).build();
+		List<N> slaves = Scanner.of(slaveClientIds).map(buildSlaveFunction).list();
 		return make(master, slaves);
 	}
 

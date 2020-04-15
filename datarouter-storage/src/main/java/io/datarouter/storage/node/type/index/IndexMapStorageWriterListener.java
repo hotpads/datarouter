@@ -30,9 +30,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.index.IndexListener;
 import io.datarouter.storage.node.type.index.base.BaseIndexNode;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 
 /**
  * This assumes that only PK fields are changed... It has no way of detecting changes in non primary key fields.
@@ -86,7 +84,10 @@ implements IndexListener<PK,D>{
 
 	@Override
 	public void onDeleteMulti(Collection<PK> keys, Config config){
-		if(CollectionTool.nullSafe(keys).contains(null)){
+		if(keys == null){
+			return;
+		}
+		if(keys.contains(null)){
 			throw new IllegalArgumentException("invalid null key");
 		}
 		List<IE> indexEntries = getIndexEntriesFromPrimaryKeys(keys);
@@ -111,7 +112,10 @@ implements IndexListener<PK,D>{
 
 	@Override
 	public void onPutMulti(Collection<D> databeans, Config config){
-		if(CollectionTool.nullSafe(databeans).contains(null)){
+		if(databeans == null){
+			return;
+		}
+		if(databeans.contains(null)){
 			throw new IllegalArgumentException("invalid null databean");
 		}
 		List<IE> indexEntries = getIndexEntriesFromDatabeans(databeans);
@@ -122,7 +126,7 @@ implements IndexListener<PK,D>{
 
 	private List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
 		List<IE> indexEntries = ListTool.createArrayListWithSize(primaryKeys);
-		for(PK key : IterableTool.nullSafe(primaryKeys)){
+		for(PK key : primaryKeys){
 			IE indexEntryBuilder = createIndexEntry();
 			if(indexEntryBuilder instanceof UniqueKeyIndexEntry){
 				@SuppressWarnings("unchecked")
@@ -139,9 +143,11 @@ implements IndexListener<PK,D>{
 	private List<IE> getIndexEntriesFromDatabeans(Collection<D> databeans){
 		IE sampleIndexEntry = createIndexEntry();
 		List<IE> indexEntries = ListTool.createArrayListWithSize(databeans);
-		for(D databean : IterableTool.nullSafe(databeans)){
+		for(D databean : databeans){
 			List<IE> indexEntriesFromSingleDatabean = sampleIndexEntry.createFromDatabean(databean);
-			indexEntries.addAll(CollectionTool.nullSafe(indexEntriesFromSingleDatabean));
+			if(indexEntriesFromSingleDatabean != null){
+				indexEntries.addAll(indexEntriesFromSingleDatabean);
+			}
 		}
 		return indexEntries;
 	}

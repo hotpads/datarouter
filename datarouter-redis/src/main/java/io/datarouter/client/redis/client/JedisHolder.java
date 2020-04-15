@@ -47,7 +47,7 @@ public class JedisHolder{
 		return jedisByClient.get(clientId);
 	}
 
-	public List<InetSocketAddress> buildClient(ClientId clientId){
+	private List<InetSocketAddress> buildClient(ClientId clientId){
 		List<InetSocketAddress> addresses;
 		String clientMode = redisOptions.getClientMode(clientId.getName());
 		if(clientMode.equals(RedisOptions.DYNAMIC_CLIENT_MODE)){

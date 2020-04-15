@@ -25,10 +25,10 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
-import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.imp.BaseClientNodeFactory;
+import io.datarouter.storage.client.imp.TallyClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
@@ -38,7 +38,7 @@ import io.datarouter.storage.node.adapter.trace.physical.PhysicalMapStorageTrace
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 
-public abstract class BaseMemcachedClientNodeFactory extends BaseClientNodeFactory{
+public abstract class BaseMemcachedClientNodeFactory extends BaseClientNodeFactory implements TallyClientNodeFactory{
 
 	private final PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory;
 	private final ClientType<?,?> clientType;
@@ -88,13 +88,6 @@ public abstract class BaseMemcachedClientNodeFactory extends BaseClientNodeFacto
 			F extends DatabeanFielder<PK,D>>
 	WrappedNodeFactory<EK,E,PK,D,F,PhysicalMapStorageNode<PK,D,F>> makeWrappedNodeFactory(){
 		return new MemcachedWrappedNodeFactory<>();
-	}
-
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK, D>,
-			F extends DatabeanFielder<PK, D>>
-	MemcachedNode<PK,D,F> createNodeWithoutAdapters(NodeParams<PK, D, F> nodeParams){
-		return new MemcachedNode<>(nodeParams, clientType, memcachedClientManager, nodeParams.getClientId());
 	}
 
 }

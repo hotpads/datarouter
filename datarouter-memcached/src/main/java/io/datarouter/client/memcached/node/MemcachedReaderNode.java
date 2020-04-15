@@ -19,10 +19,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -30,8 +33,8 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.client.memcached.client.DatarouterMemcachedKey;
 import io.datarouter.client.memcached.client.MemcachedClientManager;
+import io.datarouter.client.memcached.client.MemcachedEncodedKey;
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
@@ -40,12 +43,15 @@ import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
+import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
+import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.util.collection.CollectionTool;
 
 public class MemcachedReaderNode<
@@ -53,14 +59,14 @@ public class MemcachedReaderNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
-implements MapStorageReader<PK,D>{
+implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedReaderNode.class);
 
 	protected static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
 	protected final Integer databeanVersion;
-	private final MemcachedClientManager memcachedClientManager;
-	private final ClientId clientId;
+	protected final MemcachedClientManager memcachedClientManager;
+	protected final ClientId clientId;
 
 	public MemcachedReaderNode(
 			NodeParams<PK,D,F> params,
@@ -91,11 +97,11 @@ implements MapStorageReader<PK,D>{
 	}
 
 	@Override
-	public List<PK> getKeys(Collection<PK> keys, Config paramConfig){
+	public List<PK> getKeys(Collection<PK> keys, Config params){
 		if(CollectionTool.isEmpty(keys)){ // TODO Move into an adapter
 			return List.of();
 		}
-		return DatabeanTool.getKeys(getMulti(keys, paramConfig));
+		return DatabeanTool.getKeys(getMulti(keys, params));
 	}
 
 	@Override
@@ -161,12 +167,41 @@ implements MapStorageReader<PK,D>{
 		}
 	}
 
+	@Override
+	public Optional<Long> findTallyCount(String key, Config config){
+		if(key == null){
+			return Optional.empty();
+		}
+		return Optional.ofNullable(getMultiTallyCount(List.of(key), config).get(key));
+	}
+
+	@Override
+	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
+		if(CollectionTool.isEmpty(keys)){ // TODO Move into an adapter
+			return Collections.emptyMap();
+		}
+		Map<String,Object> bytesByStringKey = Scanner.of(keys)
+				.map(TallyKey::new)
+				.listTo(tallyKeys -> fetchBytesByStringKey(tallyKeys, config));
+		if(bytesByStringKey == null){ // an ignored error occurred
+			return Collections.emptyMap();
+		}
+
+		Map<String,Long> results = new HashMap<>();
+		for(Entry<String,Object> entry : bytesByStringKey.entrySet()){
+			String string = (String)entry.getValue();
+			MemcachedEncodedKey memcachedKey = MemcachedEncodedKey.parse(entry.getKey(), TallyKey.class);
+			results.put(((TallyKey)memcachedKey.primaryKey).getId(), Long.parseLong(string));
+		}
+		return results;
+	}
+
 	protected String buildMemcachedKey(PrimaryKey<?> pk){
 		return buildMemcachedKeys(List.of(pk)).get(0);
 	}
 
 	protected List<String> buildMemcachedKeys(Collection<? extends PrimaryKey<?>> pks){
-		return DatarouterMemcachedKey.getVersionedKeyStrings(getName(), databeanVersion, pks);
+		return MemcachedEncodedKey.getVersionedKeyStrings(getName(), databeanVersion, pks);
 	}
 
 	protected TraceSpanFinisher startTraceSpan(String opName){

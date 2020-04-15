@@ -31,7 +31,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ReflectionTool;
 
 public class JsonDatabeanTool{
@@ -47,7 +46,7 @@ public class JsonDatabeanTool{
 
 	public static <PK extends PrimaryKey<PK>> JsonArray primaryKeysToJson(Iterable<PK> pks, Fielder<PK> fielder){
 		JsonArray array = new JsonArray();
-		for(PK pk : IterableTool.nullSafe(pks)){
+		for(PK pk : pks){
 			array.add(addFieldsToJsonObject(new JsonObject(), fielder.getFields(pk)));
 		}
 		return array;
@@ -88,7 +87,7 @@ public class JsonDatabeanTool{
 	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
 	JsonArray databeansToJson(Iterable<D> databeans, DatabeanFielder<PK,D> fielder){
 		JsonArray array = new JsonArray();
-		for(D databean : IterableTool.nullSafe(databeans)){
+		for(D databean : databeans){
 			array.add(databeanToJson(databean, fielder));
 		}
 		return array;
@@ -224,7 +223,7 @@ public class JsonDatabeanTool{
 	}
 
 	private static JsonObject addFieldsToJsonObject(JsonObject jsonObject, List<Field<?>> fields){
-		for(Field<?> f : IterableTool.nullSafe(fields)){
+		for(Field<?> f : fields){
 			jsonObject.addProperty(f.getKey().getColumnName(), f.getStringEncodedValue());
 		}
 		return jsonObject;

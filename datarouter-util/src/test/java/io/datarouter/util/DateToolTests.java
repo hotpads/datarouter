@@ -54,8 +54,8 @@ public class DateToolTests{
 		testParseUserInputDate("06-01-2010", "201006");
 		testParseUserInputDate("06-01-2010", "20100601");
 
-		Assert.assertEquals(df.format(DateTool.parseUserInputDate("July 15th",
-				2000)), "07-15-" + DateTool.getYearInteger());
+		Assert.assertEquals(df.format(DateTool.parseUserInputDate("July 15th", 2000)),
+				"07-15-" + DateTool.getYearInteger());
 	}
 
 	private void testParseUserInputDate(String expected, String original){
@@ -137,6 +137,7 @@ public class DateToolTests{
 	public void demonstrateBadParser() throws ParseException{
 		String withSpace = "2019 10 02T22 56 39Z";
 		String withDash = "2019-10-02T22:56:39Z";
+		@SuppressWarnings("deprecation")
 		Date incorrectPars = new SimpleDateFormat(DateTool.BAD_ISO_FORMAT).parse(withSpace);
 		Date correctParse = DateTool.parseIso(withDash);
 		logger.warn(incorrectPars.toString());

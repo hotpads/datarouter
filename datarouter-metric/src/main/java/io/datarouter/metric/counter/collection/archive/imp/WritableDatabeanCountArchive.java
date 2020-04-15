@@ -37,7 +37,6 @@ import io.datarouter.metric.counter.collection.archive.WritableCountArchive;
 import io.datarouter.metric.counter.setting.DatarouterCountSettingRoot;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.collection.MapTool;
 import io.datarouter.util.string.StringTool;
 
 public class WritableDatabeanCountArchive extends BaseCountArchive implements WritableCountArchive{
@@ -85,14 +84,15 @@ public class WritableDatabeanCountArchive extends BaseCountArchive implements Wr
 		aggregator = new AtomicCounter(periodStart, periodMs);
 		aggregator.merge(countMap);
 		List<ConveyorMessage> countDtosToSave = new ArrayList<>();
-		for(Entry<String,AtomicLong> entry : MapTool.nullSafe(oldAggregator.getCountByKey()).entrySet()){
+		for(Entry<String,AtomicLong> entry : oldAggregator.getCountByKey().entrySet()){
 			if(entry.getValue() == null || entry.getValue().longValue() == 0){
 				continue;
 			}
-			Long startTimeMs = System.currentTimeMillis();
+			Date periodStartTime = new Date(oldAggregator.getStartTimeMs());
+			Date created = new Date();
 			String sanitizedName = sanitizeName(entry.getKey());
-			CountDto dto = new CountDto(sanitizedName, serviceName, periodMs, new Date(periodStart), source, new Date(
-					startTimeMs), entry.getValue().get());
+			CountDto dto = new CountDto(sanitizedName, serviceName, periodMs, periodStartTime, source, created,
+					entry.getValue().get());
 			countDtosToSave.add(new ConveyorMessage(dto.name, gson.toJson(dto)));
 		}
 		if(!countDtosToSave.isEmpty() && settings.runCountsToSqs.get()){

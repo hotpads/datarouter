@@ -79,7 +79,7 @@ extends BaseMysqlOp<Void>{
 		this.fieldInfo = fieldInfo;
 		this.mysqlNodeManager = mysqlNodeManager;
 		this.mysqlSqlFactory = mysqlSqlFactory;
-		this.databeans = CollectionTool.nullSafe(databeans);
+		this.databeans = databeans;
 		this.config = config;
 	}
 

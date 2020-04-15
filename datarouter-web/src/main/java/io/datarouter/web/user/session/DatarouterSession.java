@@ -36,8 +36,8 @@ import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.scanner.IterableScanner;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserKey;
@@ -146,7 +146,7 @@ implements Session{
 	/*---------------------------- Role methods -----------------------------*/
 
 	public Collection<Role> getRoles(){
-		return IterableTool.nullSafeMap(roles, Role::new);
+		return IterableScanner.ofNullable(roles).map(Role::new).list();
 	}
 
 	public void setRoles(Collection<Role> roles){

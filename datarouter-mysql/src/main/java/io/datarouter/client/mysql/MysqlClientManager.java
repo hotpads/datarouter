@@ -47,7 +47,6 @@ import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.collection.MapTool;
 import io.datarouter.util.timer.PhaseTimer;
 
 @Singleton
@@ -284,8 +283,8 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 	}
 
 	public String getStats(ClientId clientId){
-		return "client:" + clientId.getName() + " has " + MapTool.size(handleByThread(clientId)) + " threadHandles"
-				+ "," + MapTool.size(connectionByHandle(clientId)) + " connectionHandles";
+		return "client:" + clientId.getName() + " has " + handleByThread(clientId).size() + " threadHandles"
+				+ "," + connectionByHandle(clientId).size() + " connectionHandles";
 	}
 
 }

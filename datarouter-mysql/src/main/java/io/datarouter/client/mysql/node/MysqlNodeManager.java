@@ -282,7 +282,8 @@ public class MysqlNodeManager{
 			F extends DatabeanFielder<PK,D>>
 	void put(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, D databean, Config config){
 		var op = new MysqlPutOp<>(
-				datarouter, fieldInfo,
+				datarouter,
+				fieldInfo,
 				this,
 				mysqlSqlFactory,
 				ListTool.wrap(databean),

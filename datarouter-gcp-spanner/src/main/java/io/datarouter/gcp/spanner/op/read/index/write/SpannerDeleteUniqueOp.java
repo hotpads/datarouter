@@ -27,10 +27,10 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 
 public class SpannerDeleteUniqueOp<
 		PK extends PrimaryKey<PK>,
@@ -52,8 +52,9 @@ extends SpannerBaseIndexDelete<PK,D,F,K>{
 	protected String getIndexName(K key){
 		List<String> indexFields = key.getFieldNames();
 		for(Entry<String,List<Field<?>>> uniqueIndex : fieldInfo.getUniqueIndexes().entrySet()){
-			List<String> fieldNames = IterableTool.nullSafeMap(uniqueIndex.getValue(), field -> field.getKey()
-					.getName());
+			List<String> fieldNames = Scanner.of(uniqueIndex.getValue())
+					.map(field -> field.getKey().getName())
+					.list();
 			if(ListTool.compare(indexFields, fieldNames) == 0){
 				return uniqueIndex.getKey();
 			}

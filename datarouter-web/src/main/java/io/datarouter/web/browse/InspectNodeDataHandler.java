@@ -37,7 +37,6 @@ import io.datarouter.storage.node.Node;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -129,7 +128,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		List<Integer> maxLengths = new ArrayList<>();
 		IntStream.range(0, fieldNames.size()).forEach($ -> maxLengths.add(0));
 
-		for(D d : IterableTool.nullSafe(databeans)){
+		for(D d : databeans){
 			List<?> values = FieldTool.getFieldValues(fielder.getFields(d));
 			for(int i = 0; i < CollectionTool.sizeNullSafe(values); ++i){
 				int length = values.get(i) == null ? 0 : StringTool.length(values.get(i).toString());

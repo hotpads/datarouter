@@ -40,9 +40,7 @@ public class SimpleFieldSet<F extends FieldSet<F>> extends BaseFieldSet<F>{
 	}
 
 	public SimpleFieldSet<?> add(Collection<Field<?>> fields){
-		for(Field<?> field : CollectionTool.nullSafe(fields)){
-			this.add(field);
-		}
+		fields.forEach(this::add);
 		return this;
 	}
 

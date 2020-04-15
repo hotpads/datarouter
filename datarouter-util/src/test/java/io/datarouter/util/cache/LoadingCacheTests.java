@@ -19,6 +19,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -26,23 +27,24 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
-import io.datarouter.util.collection.MapTool;
-import io.datarouter.util.tuple.Pair;
 
 public class LoadingCacheTests{
 
-	// not final, since values are updated in tests
-	private static final Map<String,String> ORIGINAL_DATA_STORE = MapTool.of(
-			new Pair<>("key1", "value1"),
-			new Pair<>("key2", "value2"),
-			new Pair<>("key3", "value3"),
-			new Pair<>("key4", "value4"),
-			new Pair<>("key5", "value5"),
-			new Pair<>("key6", "value6"));
-
+	private static Map<String,String> ORIGINAL_DATA_STORE = makeData();
 	private static Map<String,String> DATA_STORE = ORIGINAL_DATA_STORE;
 
 	private static Function<String,String> LOADING_FUNCTION = DATA_STORE::get;
+
+	private static Map<String,String> makeData(){
+		Map<String,String> map = new HashMap<>();
+		map.put("key1", "value1");
+		map.put("key2", "value2");
+		map.put("key3", "value3");
+		map.put("key4", "value4");
+		map.put("key5", "value5");
+		map.put("key6", "value6");
+		return map;
+	}
 
 	@Test
 	public void testTtl(){

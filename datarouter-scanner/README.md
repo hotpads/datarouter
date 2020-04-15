@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.26</version>
+	<version>0.0.27</version>
 </dependency>
 ```
 
@@ -43,8 +43,8 @@ These methods share behavior with those in Stream but are implemented independen
 ### Differences from Stream
 
 #### Additional terminal ops
-- `hasAny` - return true when the first element is seen
-- `isEmpty` - return true if the scanner completes without seeing any elements
+- `hasAny` - return true when the first item is seen
+- `isEmpty` - return true if the scanner completes without seeing any items
 - `findLast` - returns `Optional<T>` with the last item, if any found
 - `list` - collect all items to a `List`
   - equivalent to `stream.collect(Collectors.toList())`
@@ -57,22 +57,24 @@ These methods share behavior with those in Stream but are implemented independen
 - `flush` - all items collected to a `List` and passed to a `Consumer`
   - the `Scanner` can be continued with the logic unchanged
 
-#### Discard elements based on Predicate
+#### Discard items based on Predicate
 - `include` - keep items matching the `Predicate`
   - equivalent to `Stream::filter`
 - `exclude` - discard items matching the `Predicate`
+- `distinctBy` - remove items where the output of the function has already been seen
+- `deduplicate` - remove *consecutive* duplicates
+  - as opposed to `distinct()` which removes all duplicates
+- `deduplicateBy` - remove items where the function maps to the previously mapped value
 
 #### Stop scanning based on Predicate
 - `advanceUntil`
 - `advanceWhile`
 
 #### Other
-- `take` - collect N elements to a List
+- `take` - collect N items to a List
 - `batch` - convert `Scanner<T>` to Scanner<List<T>> with batch size N
-- `deduplicate` - remove *consecutive* duplicates
-  - as opposed to `distinct()` which removes all duplicates
 - `sample` - return every Nth item
-- `retain` - convert `Scanner<T>` to `Scanner<RetainingGroup<T>>` which gives access to the previous N elements
+- `retain` - convert `Scanner<T>` to `Scanner<RetainingGroup<T>>` which gives access to the previous N items
 - `prefetch` - load the next N items in the provided `ExecutorService`
 
 ### Collectors

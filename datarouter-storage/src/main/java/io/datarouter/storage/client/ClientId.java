@@ -19,8 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
+import io.datarouter.scanner.Scanner;
 
 public class ClientId implements Comparable<ClientId>{
 
@@ -89,21 +88,16 @@ public class ClientId implements Comparable<ClientId>{
 	}
 
 	public static List<String> getNames(Collection<ClientId> ids){
-		List<String> names = ListTool.createArrayListWithSize(ids);
-		for(ClientId id : CollectionTool.nullSafe(ids)){
-			names.add(id.name);
-		}
-		return names;
+		return Scanner.of(ids)
+				.map(clientId -> clientId.name)
+				.list();
 	}
 
 	public static List<String> getWritableNames(Collection<ClientId> ids){
-		List<String> names = ListTool.createArrayListWithSize(ids);
-		for(ClientId id : CollectionTool.nullSafe(ids)){
-			if(id.writable){
-				names.add(id.name);
-			}
-		}
-		return names;
+		return Scanner.of(ids)
+				.include(clientId -> clientId.writable)
+				.map(clientId -> clientId.name)
+				.list();
 	}
 
 	public String getName(){

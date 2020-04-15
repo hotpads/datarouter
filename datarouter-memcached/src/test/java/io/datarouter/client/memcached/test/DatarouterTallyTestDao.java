@@ -16,29 +16,33 @@
 package io.datarouter.client.memcached.test;
 
 import java.time.Duration;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.client.memcached.node.MemcachedNode;
-import io.datarouter.client.memcached.ratelimiter.TallyNodeFactory;
-import io.datarouter.client.memcached.tally.Tally;
-import io.datarouter.client.memcached.tally.Tally.TallyFielder;
-import io.datarouter.client.memcached.tally.TallyKey;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
+import io.datarouter.storage.node.factory.TallyNodeFactory;
+import io.datarouter.storage.node.op.raw.TallyStorage;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
 @Singleton
 public class DatarouterTallyTestDao extends BaseDao implements TestDao{
 
-	private final MemcachedNode<TallyKey,Tally,TallyFielder> node;
+	private final TallyStorage<TallyKey,Tally> node;
 
 	@Inject
 	public DatarouterTallyTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory){
 		super(datarouter);
-		node = datarouter.register(nodeFactory.create(DatarouterMemcachedTestClientIds.MEMCACHED, 2));
+		node = nodeFactory.createTally(DatarouterMemcachedTestClientIds.MEMCACHED, Tally::new, TallyFielder::new)
+				.withSchemaVersion(1)
+				.withTableName("Tally")
+				.buildAndRegister();
 	}
 
 	public void put(Tally databean){
@@ -57,6 +61,10 @@ public class DatarouterTallyTestDao extends BaseDao implements TestDao{
 		return node.findTallyCount(key).get();
 	}
 
+	public Optional<Long> findTallyCount(String key){
+		return node.findTallyCount(key);
+	}
+
 	public Long incrementAndGetCount(String key, int delta){
 		return node.incrementAndGetCount(key, delta);
 	}
@@ -67,7 +75,7 @@ public class DatarouterTallyTestDao extends BaseDao implements TestDao{
 	}
 
 	public boolean exists(String key){
-		return node.findTallyCount(key).isPresent();
+		return node.exists(new TallyKey(key));
 	}
 
 }

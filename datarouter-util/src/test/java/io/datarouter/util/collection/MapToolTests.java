@@ -52,22 +52,4 @@ public class MapToolTests{
 		Assert.assertEquals(containsByLength.values(), Arrays.asList("1a", "b", "3a", "eeee"));
 	}
 
-	@Test
-	public void testGetByNullableKeyValueMapper(){
-		List<String> strings = Arrays.asList("aaa", "b", "ca", "eeee", "ca");
-		AtomicLong counterA = new AtomicLong(0);
-		Function<String,String> valueMapper = str -> {
-			if(str.contains("a")){
-				return counterA.incrementAndGet() + "a";
-			}
-			if(str.contains("b")){
-				return "b";
-			}
-			return null;
-		};
-		Map<Integer,String> containsByLength = MapTool.getByNullable(strings, String::length, valueMapper);
-		Assert.assertEquals(containsByLength.keySet(), Arrays.asList(3, 1, 2, 4));
-		Assert.assertEquals(containsByLength.values(), Arrays.asList("1a", "b", "3a", null));
-	}
-
 }

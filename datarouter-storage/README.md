@@ -6,14 +6,15 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-storage</artifactId>
-	<version>0.0.26</version>
+	<version>0.0.27</version>
 </dependency>
 ```
 
 ## Usage
 
 Datarouter Storage holds the classes and interfaces that let you persist your Databeans to different datastores via
-runtime Client implementations such as datarouter-mysql.
+ runtime Client implementations such as datarouter-mysql, datarouter-aws-sqs, datarouter-memcached,
+ datarouter-redis, etc.
 
 ## Links to source code with comments
 
@@ -43,6 +44,8 @@ runtime Client implementations such as datarouter-mysql.
 - [IndexedStorageReader](./src/main/java/io/datarouter/storage/node/op/raw/read/IndexedStorageReader.java)
 - [IndexedStorageWriter](./src/main/java/io/datarouter/storage/node/op/raw/write/IndexedStorageWriter.java)
 
+- [TallyStorageReader](./src/main/java/io/datarouter/storage/node/op/raw/read/TallyStorageReader.java)
+- [TallyStorageWriter](./src/main/java/io/datarouter/storage/node/op/raw/write/TallyStorageWriter.java)
 
 ## License
 

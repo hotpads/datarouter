@@ -30,8 +30,8 @@ import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.gauge.GaugeDto;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
-import io.datarouter.util.iterable.IterableTool;
 
 public class GaugeMemoryToSqsConveyor extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(GaugeMemoryToSqsConveyor.class);
@@ -65,8 +65,9 @@ public class GaugeMemoryToSqsConveyor extends BaseConveyor{
 		}
 		try{
 			if(shouldBufferInSqs.get()){
-				List<ConveyorMessage> sqsMessages = IterableTool.nullSafeMap(dtos, this::toConveyorMessage);
-				putMultiConsumer.accept(sqsMessages);
+				Scanner.of(dtos)
+						.map(this::toConveyorMessage)
+						.flush(putMultiConsumer::accept);
 			}
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, dtos.size());
 			return new ProcessBatchResult(true);

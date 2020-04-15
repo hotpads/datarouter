@@ -24,6 +24,7 @@ import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
 import io.datarouter.auth.service.DefaultDatarouterUserPassword;
 import io.datarouter.auth.service.DefaultDatarouterUserPasswordSupplier;
 import io.datarouter.auth.service.UserDeprovisioningService;
+import io.datarouter.auth.service.UserDeprovisioningService.ShouldFlagUsersInsteadOfDeprovisioningSupplier;
 import io.datarouter.auth.service.UserInfo;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
@@ -60,6 +61,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 	private static final DatarouterAuthPaths PATHS = new DatarouterAuthPaths();
 
 	private final Class<? extends UserInfo> userInfoClass;
+	private final boolean shouldMarkUsersInsteadOfDeprovisioning;
 	private final Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass;
 	private final String defaultDatarouterUserPassword;
 	private final String defaultApiKey;
@@ -69,6 +71,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			boolean enableUserAuth,
 			DatarouterAuthDaoModule daosModuleBuilder,
 			Class<? extends UserInfo> userInfoClass,
+			boolean shouldMarkUsersInsteadOfDeprovisioning,
 			Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass,
 			String defaultDatarouterUserPassword,
 			String defaultApiKey,
@@ -85,7 +88,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 
 		addAppListener(DatarouterAccountConfigAppListener.class);
 		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.admin.accounts, "Account Manager");
-		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.deprovisionedUsers, "Deprovisioned Users");
+		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.userDeprovisioning, "User Deprovisioning");
 		addAppNavBarItem(AppNavBarCategory.DOCS, PATHS.docs.toSlashedStringWithTrailingSlash(), "Docs");
 		addRouteSet(DatarouterAccountRouteSet.class);
 		addRouteSet(DatarouterDocumentationRouteSet.class);
@@ -95,6 +98,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		setDaosModule(daosModuleBuilder);
 
 		this.userInfoClass = userInfoClass;
+		this.shouldMarkUsersInsteadOfDeprovisioning = shouldMarkUsersInsteadOfDeprovisioning;
 		this.userDeprovisioningServiceClass = userDeprovisioningServiceClass;
 		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
 		this.defaultApiKey = defaultApiKey;
@@ -114,6 +118,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		bindActual(BaseDatarouterUserAccountMapDao.class, DatarouterUserAccountMapDao.class);
 		bindActual(BaseDatarouterSamlDao.class, DatarouterSamlDao.class);
 		bind(UserInfo.class).to(userInfoClass);
+		bind(ShouldFlagUsersInsteadOfDeprovisioningSupplier.class).toInstance(
+				new ShouldFlagUsersInsteadOfDeprovisioningSupplier(shouldMarkUsersInsteadOfDeprovisioning));
 		bind(UserDeprovisioningService.class).to(userDeprovisioningServiceClass);
 		bindActualInstance(DefaultDatarouterUserPasswordSupplier.class,
 				new DefaultDatarouterUserPassword(defaultDatarouterUserPassword));
@@ -132,6 +138,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		private String defaultDatarouterUserPassword = "";
 		private String defaultApiKey = "";
 		private String defaultSecretKey = "";
+		private boolean shouldMarkUsersInsteadOfDeprovisioning = false;
 
 		public DatarouterAuthPluginBuilder(boolean enableUserAuth, ClientId defaultClientId,
 				String defaultDatarouterUserPassword, String defaultApiKey, String defaultSecretKey){
@@ -158,6 +165,11 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterAuthPluginBuilder enableMarkingUsersInsteadOfDeprovisioning(){
+			this.shouldMarkUsersInsteadOfDeprovisioning = true;
+			return this;
+		}
+
 		public DatarouterAuthPlugin build(){
 			return new DatarouterAuthPlugin(
 					enableUserAuth,
@@ -166,6 +178,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 							defaultClientId, defaultClientId, defaultClientId, defaultClientId)
 					: daoModule,
 					userInfoClass,
+					shouldMarkUsersInsteadOfDeprovisioning,
 					userDeprovisioningServiceClass,
 					defaultDatarouterUserPassword,
 					defaultApiKey,

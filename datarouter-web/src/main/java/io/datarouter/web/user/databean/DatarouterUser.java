@@ -39,8 +39,8 @@ import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.key.unique.base.BaseStringUniqueKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.scanner.IterableScanner;
 import io.datarouter.util.collection.SetTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 
@@ -141,7 +141,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	}
 
 	public Collection<Role> getRoles(){
-		return IterableTool.nullSafeMap(roles, Role::new);
+		return IterableScanner.ofNullable(roles).map(Role::new).list();
 	}
 
 	public void setRoles(Collection<Role> roles){

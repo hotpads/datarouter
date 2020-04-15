@@ -40,10 +40,10 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.Key;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ReflectionTool;
 
 public abstract class SpannerBaseIndexDelete<
@@ -86,16 +86,26 @@ extends SpannerBaseOp<Void>{
 			public Void run(TransactionContext transactionContext){
 				ResultSet rs;
 				if(config.getLimit() != null){
-					rs = transactionContext.readUsingIndex(tableName, indexName, buildKeySet(), fieldInfo
-							.getPrimaryKeyFieldColumnNames(), Options.limit(config.getLimit()));
+					rs = transactionContext.readUsingIndex(
+							tableName,
+							indexName,
+							buildKeySet(),
+							fieldInfo.getPrimaryKeyFieldColumnNames(),
+							Options.limit(config.getLimit()));
 				}else{
-					rs = transactionContext.readUsingIndex(tableName, indexName, buildKeySet(), fieldInfo
-							.getPrimaryKeyFieldColumnNames());
+					rs = transactionContext.readUsingIndex(
+							tableName,
+							indexName,
+							buildKeySet(),
+							fieldInfo.getPrimaryKeyFieldColumnNames());
 				}
-				List<PK> keyList = createFromResultSet(rs, ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
+				List<PK> keyList = createFromResultSet(
+						rs,
+						ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
 						fieldInfo.getPrimaryKeyFields());
-				List<Mutation> deletes = IterableTool.nullSafeMap(keyList, key -> keyToDeleteMutation(key));
-				transactionContext.buffer(deletes);
+				Scanner.of(keyList)
+						.map(key -> keyToDeleteMutation(key))
+						.flush(transactionContext::buffer);
 				return null;
 			}
 		};

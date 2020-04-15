@@ -26,7 +26,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
@@ -73,7 +72,7 @@ public class MavEncoder implements HandlerEncoder{
 					+ ".  Make sure context has crossContext=true enabled.");
 		}
 		RequestDispatcher dispatcher = targetContext.getRequestDispatcher(viewName);
-		try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), "RequestDispatcher.include")){
+		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "RequestDispatcher.include")){
 			dispatcher.include(request, response);
 		}
 	}

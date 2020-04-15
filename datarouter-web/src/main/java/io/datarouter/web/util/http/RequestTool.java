@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.httpclient.security.UrlConstants;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
@@ -490,8 +489,8 @@ public class RequestTool{
 	}
 
 	public static String getBodyAsString(HttpServletRequest request){
-		try(InputStream inputStream = request.getInputStream(); TraceSpanFinisher finisher = TracerTool
-				.startSpan(TracerThreadLocal.get(), "RequestTool getBodyAsString")){
+		try(InputStream inputStream = request.getInputStream();
+				var $ = TracerTool.startSpan(TracerThreadLocal.get(), "RequestTool getBodyAsString")){
 			if(inputStream == null){
 				logger.warn("Request body is empty for uri={}, query={}, userAgent={}", request.getRequestURI(), request
 						.getQueryString(), getUserAgent(request));

@@ -40,8 +40,6 @@ import io.datarouter.storage.node.adapter.callsite.physical.PhysicalSubEntitySor
 import io.datarouter.storage.node.entity.SubEntitySortedMapStorageReaderNode;
 import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.MapTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ObjectTool;
 
 public class HBaseEntityResultParser<EK extends EntityKey<EK>,E extends Entity<EK>>{
@@ -69,7 +67,7 @@ public class HBaseEntityResultParser<EK extends EntityKey<EK>,E extends Entity<E
 		E entity = entityFieldInfo.getEntitySupplier().get();
 		entity.setKey(getEkFromRowBytes(row.getRow()));
 		Map<String,List<? extends Databean<?,?>>> databeansByQualifierPrefix = getDatabeansByQualifierPrefix(row);
-		for(String qualifierPrefix : MapTool.nullSafe(databeansByQualifierPrefix).keySet()){
+		for(String qualifierPrefix : databeansByQualifierPrefix.keySet()){
 			SubEntitySortedMapStorageReaderNode<EK,?,?,?> subNode = nodeByQualifierPrefix.get(qualifierPrefix);
 			List<? extends Databean<?,?>> databeans = databeansByQualifierPrefix.get(qualifierPrefix);
 			entity.addDatabeansForQualifierPrefixUnchecked(subNode.getEntityNodePrefix(), databeans);
@@ -114,7 +112,11 @@ public class HBaseEntityResultParser<EK extends EntityKey<EK>,E extends Entity<E
 		Map<String,List<Cell>> cellsByQp = new HashMap<>();
 		List<Cell> cellsForQp = new ArrayList<>();
 		String previousQp = null;
-		for(Cell cell : IterableTool.nullSafe(row.listCells())){// row.list() can return null
+		List<Cell> cells = row.listCells();// row.list() can return null
+		if(cells == null){
+			return cellsByQp;
+		}
+		for(Cell cell : cells){
 			String qp = getQualifierPrefix(cell);
 			if(ObjectTool.notEquals(previousQp, qp)){
 				cellsForQp = new ArrayList<>();

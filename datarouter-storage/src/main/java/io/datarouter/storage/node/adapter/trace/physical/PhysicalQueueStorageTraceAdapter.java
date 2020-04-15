@@ -17,7 +17,6 @@ package io.datarouter.storage.node.adapter.trace.physical;
 
 import java.util.List;
 
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.model.databean.Databean;
@@ -45,14 +44,14 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_peek)){
+		try(var $ = startSpanForOp(OP_peek)){
 			return backingNode.peek(config);
 		}
 	}
 
 	@Override
 	public List<QueueMessage<PK,D>> peekMulti(Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_peekMulti)){
+		try(var $ = startSpanForOp(OP_peekMulti)){
 			List<QueueMessage<PK,D>> messages = backingNode.peekMulti(config);
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().databeans(messages.size()));
 			return messages;
@@ -66,7 +65,7 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public D poll(Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_poll)){
+		try(var $ = startSpanForOp(OP_poll)){
 			D databean = backingNode.poll(config);
 			TracerTool.appendToSpanInfo(databean != null ? "hit" : "miss");
 			return databean;
@@ -75,7 +74,7 @@ implements PhysicalQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public List<D> pollMulti(Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_pollMulti)){
+		try(var $ = startSpanForOp(OP_pollMulti)){
 			List<D> databeans = backingNode.pollMulti(config);
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().databeans(databeans.size()));
 			return databeans;

@@ -24,13 +24,16 @@ public class StreamScanner<T> extends IteratorScanner<T>{
 	private static final Logger logger = LoggerFactory.getLogger(StreamScanner.class);
 
 	private final Stream<T> stream;
-
 	private boolean closed;
 
 	public StreamScanner(Stream<T> stream){
 		super(stream.iterator());
 		this.stream = stream;
 		this.closed = false;
+	}
+
+	public static <T> Scanner<T> of(Stream<T> stream){
+		return new StreamScanner<>(stream);
 	}
 
 	@Override

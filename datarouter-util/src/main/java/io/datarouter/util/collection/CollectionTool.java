@@ -16,21 +16,9 @@
 package io.datarouter.util.collection;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Optional;
 
 public class CollectionTool{
-
-	/*------------------------- null ----------------------------------------*/
-
-	public static <T> Collection<T> nullSafe(Collection<T> in){
-		if(in == null){
-			return new LinkedList<>();
-		}
-		return in;
-	}
-
-	/*------------------------- empty ---------------------------------------*/
 
 	public static <T> boolean isEmpty(Collection<T> collection){
 		if(collection == null || collection.isEmpty()){
@@ -46,8 +34,6 @@ public class CollectionTool{
 		return true;
 	}
 
-	/*------------------------- size ----------------------------------------*/
-
 	public static boolean differentSize(Collection<?> collectionA, Collection<?> collectionB){
 		return sizeNullSafe(collectionA) != sizeNullSafe(collectionB);
 	}
@@ -58,8 +44,6 @@ public class CollectionTool{
 		}
 		return collection.size();
 	}
-
-	/*------------------------- first ------------------------------*/
 
 	public static <T> Optional<T> findFirst(Collection<T> collection){
 		return Optional.ofNullable(getFirst(collection));

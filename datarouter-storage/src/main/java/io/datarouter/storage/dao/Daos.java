@@ -22,20 +22,20 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 
 @Singleton
-public class Daos implements Supplier<List<Dao>>{
+public class Daos implements Supplier<List<? extends Dao>>{
 
-	private final List<Dao> daos;
+	private final List<? extends Dao> daos;
 
 	@Inject
 	public Daos(DatarouterInjector injector, DaoClasses daoClasses){
-		this.daos = IterableTool.nullSafeMap(daoClasses.get(), injector::getInstance);
+		this.daos = Scanner.of(daoClasses.get()).map(injector::getInstance).list();
 	}
 
 	@Override
-	public List<Dao> get(){
+	public List<? extends Dao> get(){
 		return daos;
 	}
 

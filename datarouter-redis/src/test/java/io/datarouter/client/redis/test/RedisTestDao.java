@@ -16,61 +16,49 @@
 package io.datarouter.client.redis.test;
 
 import java.time.Duration;
-import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.redis.RedisTestClientIds;
-import io.datarouter.client.redis.RedisClientType;
-import io.datarouter.client.redis.databean.RedisDatabean;
-import io.datarouter.client.redis.databean.RedisDatabeanKey;
-import io.datarouter.client.redis.databean.RedisDatabean.RedisDatabeanFielder;
-import io.datarouter.client.redis.node.RedisNode;
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
-import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
+import io.datarouter.storage.node.factory.TallyNodeFactory;
+import io.datarouter.storage.node.op.raw.TallyStorage;
+import io.datarouter.storage.tally.Tally;
+import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
 @Singleton
 public class RedisTestDao extends BaseDao implements TestDao{
 
-	private final RedisNode<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> node;
+	private final TallyStorage<TallyKey,Tally> node;
 
 	@Inject
-	public RedisTestDao(Datarouter datarouter, DatarouterClients datarouterClients, DatarouterInjector injector){
+	public RedisTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory){
 		super(datarouter);
-		RedisClientType clientType = (RedisClientType)datarouterClients.getClientTypeInstance(
-				RedisTestClientIds.REDIS);
-		Objects.requireNonNull(clientType, "clientType not found for clientName:" + RedisTestClientIds.REDIS
-				.getName());
-		NodeParams<RedisDatabeanKey,RedisDatabean,RedisDatabeanFielder> params = new NodeParamsBuilder<>(
-				RedisDatabean::new, RedisDatabeanFielder::new)
-				.withClientId(RedisTestClientIds.REDIS)
+		node = nodeFactory.createTally(RedisTestClientIds.REDIS,Tally::new, TallyFielder::new)
 				.withSchemaVersion(1)
-				.build();
-		this.node = datarouter.register(injector.getInstance(clientType.getClientNodeFactoryClass())
-				.createNodeWithoutAdapters(params));
+				.withTableName("TallyTtlTest")
+				.buildAndRegister();
 	}
 
-	public void delete(RedisDatabeanKey key){
+	public void delete(TallyKey key){
 		node.delete(key);
 	}
 
-	public boolean exists(RedisDatabeanKey key){
+	public boolean exists(TallyKey key){
 		return node.exists(key);
 	}
 
-	public void increment(RedisDatabeanKey key, int delta, Duration ttl){
-		node.increment(key, delta, new Config().setTtl(ttl));
+	public void increment(TallyKey key, int delta, Duration ttl){
+		node.incrementAndGetCount(key.getId(), delta, new Config().setTtl(ttl));
 	}
 
-	public void increment(RedisDatabeanKey key, int delta){
-		node.increment(key, delta);
+	public void increment(TallyKey key, int delta){
+		node.incrementAndGetCount(key.getId(), delta);
 	}
 
 }

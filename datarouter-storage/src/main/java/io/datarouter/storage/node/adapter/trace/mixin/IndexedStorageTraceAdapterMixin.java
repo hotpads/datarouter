@@ -18,7 +18,6 @@ package io.datarouter.storage.node.adapter.trace.mixin;
 import java.util.Collection;
 import java.util.List;
 
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.model.databean.Databean;
@@ -46,7 +45,7 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 
 	@Override
 	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_lookupUnique)){
+		try(var $ = startSpanForOp(OP_lookupUnique)){
 			D result = getBackingNode().lookupUnique(uniqueKey, config);
 			TracerTool.appendToSpanInfo(result != null ? "hit" : "miss");
 			return result;
@@ -55,7 +54,7 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 
 	@Override
 	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_lookupMultiUnique)){
+		try(var $ = startSpanForOp(OP_lookupMultiUnique)){
 			List<D> results = getBackingNode().lookupMultiUnique(uniqueKeys, config);
 			TracerTool.appendToSpanInfo(String.format("got %d/%d", results.size(), uniqueKeys.size()));
 			return results;
@@ -67,7 +66,7 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_getFromIndex)){
+		try(var $ = startSpanForOp(OP_getFromIndex)){
 			List<IE> results = getBackingNode().getMultiFromIndex(keys, config, indexEntryFieldInfo);
 			TracerTool.appendToSpanInfo(String.format("got %d/%d", results.size(), keys.size()));
 			return results;
@@ -79,7 +78,7 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_getFromIndex)){
+		try(var $ = startSpanForOp(OP_getFromIndex)){
 			List<D> results = getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 			TracerTool.appendToSpanInfo(String.format("got %d/%d", results.size(), keys.size()));
 			return results;
@@ -92,7 +91,7 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK, IE>>
 	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_scanIndex)){
+		try(var $ = startSpanForOp(OP_scanIndex)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().ranges(ranges.size()));
 			return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
 		}
@@ -104,7 +103,7 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK, IE>>
 	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_scanByIndex)){
+		try(var $ = startSpanForOp(OP_scanByIndex)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().ranges(ranges.size()));
 			return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
 		}
@@ -116,7 +115,7 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 			IF extends DatabeanFielder<IK, IE>>
 	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_scanIndexKeys)){
+		try(var $ = startSpanForOp(OP_scanIndexKeys)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().ranges(ranges.size()));
 			return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
 		}
@@ -126,14 +125,14 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 
 	@Override
 	default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_deleteUnique)){
+		try(var $ = startSpanForOp(OP_deleteUnique)){
 			getBackingNode().deleteUnique(uniqueKey, config);
 		}
 	}
 
 	@Override
 	public default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_deleteMultiUnique)){
+		try(var $ = startSpanForOp(OP_deleteMultiUnique)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().keys(uniqueKeys.size()));
 			getBackingNode().deleteMultiUnique(uniqueKeys, config);
 		}
@@ -144,7 +143,7 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_deleteByIndex)){
+		try(var $ = startSpanForOp(OP_deleteByIndex)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().keys(keys.size()));
 			getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 		}

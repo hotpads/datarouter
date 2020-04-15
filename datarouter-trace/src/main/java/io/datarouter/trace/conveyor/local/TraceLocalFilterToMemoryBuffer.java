@@ -36,13 +36,12 @@ public class TraceLocalFilterToMemoryBuffer implements FilterToMemoryBufferForLo
 	@Inject
 	public TraceLocalFilterToMemoryBuffer(DatarouterTraceLocalSettingRoot settings){
 		this.settings = settings;
-		this.buffer = new MemoryBuffer<>("traceBuffer", MAX_TRACES);
+		this.buffer = new MemoryBuffer<>("localTraceBuffer", MAX_TRACES);
 	}
 
 	@Override
 	public Optional<String> offer(TraceEntityDto dto){
-		return TraceToFilterBufferTool.offerDtoToBuffer(settings.runMemoryToSqs.get(), buffer, dto,
-				"LocalStorage");
+		return TraceToFilterBufferTool.offerDtoToBuffer(settings.runMemoryToSqs.get(), buffer, dto);
 	}
 
 }

@@ -25,6 +25,10 @@ public class ObjectScanner<T> implements Scanner<T>{
 		this.advanced = false;
 	}
 
+	public static <T> Scanner<T> of(T object){
+		return new ObjectScanner<>(object);
+	}
+
 	@Override
 	public boolean advance(){
 		if(advanced){

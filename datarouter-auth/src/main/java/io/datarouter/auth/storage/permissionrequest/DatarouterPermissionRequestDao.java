@@ -32,8 +32,8 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.web.user.databean.DatarouterUserKey;
 
+//TODO DATAROUTER-2759 rename to PermissionRequestDao and consider switching key to username or userToken
 @Singleton
 public class DatarouterPermissionRequestDao extends BaseDao{
 
@@ -99,11 +99,10 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 				.flush(this::putMulti);
 	}
 
-	public Set<DatarouterUserKey> getUserKeysWithPermissionRequests(){
+	public Set<Long> getUserIdsWithPermissionRequests(){
 		return scanOpenPermissionRequests()
 				.map(DatarouterPermissionRequest::getKey)
 				.map(DatarouterPermissionRequestKey::getUserId)
-				.map(DatarouterUserKey::new)
 				.collect(Collectors.toSet());
 	}
 

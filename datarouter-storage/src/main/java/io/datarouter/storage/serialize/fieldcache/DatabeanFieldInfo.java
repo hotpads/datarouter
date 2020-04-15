@@ -32,7 +32,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 
@@ -136,7 +135,7 @@ public class DatabeanFieldInfo<
 	}
 
 	private void addNonKeyFieldsToCollections(){
-		for(Field<?> field : IterableTool.nullSafe(nonKeyFields)){
+		for(Field<?> field : nonKeyFields){
 			this.nonKeyFieldByColumnName.put(field.getKey().getColumnName(), field);
 		}
 	}

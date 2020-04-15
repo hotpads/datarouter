@@ -97,13 +97,6 @@ public class DatarouterClusterSettingConfigScanner{
 		return makeLink(setting, href);
 	}
 
-	private ContainerTag makeCustomSettingLink(String setting){
-		String href = emailService.startLinkBuilder()
-				.withLocalPath(paths.datarouter.settings)
-				.build();
-		return makeLink(setting, href);
-	}
-
 	private ContainerTag makeLink(String text, String href){
 		return a(text)
 				.withHref(href)

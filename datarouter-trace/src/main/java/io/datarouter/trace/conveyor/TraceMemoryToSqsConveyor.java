@@ -20,15 +20,14 @@ import java.util.List;
 import com.google.gson.Gson;
 
 import io.datarouter.conveyor.MemoryBuffer;
-import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.trace.TraceEntityDto;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.trace.storage.BaseDatarouterTraceDao;
 import io.datarouter.trace.storage.BaseDatarouterTraceQueueDao;
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.thread.TraceThread;
 import io.datarouter.trace.storage.trace.Trace;
-import io.datarouter.util.iterable.IterableTool;
 
 public class TraceMemoryToSqsConveyor extends BaseTraceMemoryToSqsConveyor{
 
@@ -36,9 +35,14 @@ public class TraceMemoryToSqsConveyor extends BaseTraceMemoryToSqsConveyor{
 	private final BaseDatarouterTraceQueueDao traceQueueDao;
 	private final BaseDatarouterTraceDao traceDao;
 
-	public TraceMemoryToSqsConveyor(String name, Setting<Boolean> shouldRunSetting, Setting<Boolean> shouldBufferInSqs,
-			MemoryBuffer<TraceEntityDto> buffer, BaseDatarouterTraceQueueDao traceQueueDao,
-			BaseDatarouterTraceDao traceDao, Gson gson){
+	public TraceMemoryToSqsConveyor(
+			String name,
+			Setting<Boolean> shouldRunSetting,
+			Setting<Boolean> shouldBufferInSqs,
+			MemoryBuffer<TraceEntityDto> buffer,
+			BaseDatarouterTraceQueueDao traceQueueDao,
+			BaseDatarouterTraceDao traceDao,
+			Gson gson){
 		super(name, shouldRunSetting, buffer, gson);
 		this.shouldBufferInSqs = shouldBufferInSqs;
 		this.traceQueueDao = traceQueueDao;
@@ -48,14 +52,13 @@ public class TraceMemoryToSqsConveyor extends BaseTraceMemoryToSqsConveyor{
 	@Override
 	public void processTraceEntityDtos(List<TraceEntityDto> dtos){
 		if(shouldBufferInSqs.get()){
-			List<ConveyorMessage> sqsMessages = IterableTool.nullSafeMap(dtos, this::toMessage);
-			traceQueueDao.putMulti(sqsMessages);
+			Scanner.of(dtos).map(this::toMessage).flush(traceQueueDao::putMulti);
 		}else{
 			// smaller puts are easier on the db
 			for(TraceEntityDto dto : dtos){
 				traceDao.putMulti(
-						IterableTool.nullSafeMap(dto.traceThreadDtos, TraceThread::new),
-						IterableTool.nullSafeMap(dto.traceSpanDtos, TraceSpan::new),
+						Scanner.of(dto.traceThreadDtos).map(TraceThread::new).list(),
+						Scanner.of(dto.traceSpanDtos).map(TraceSpan::new).list(),
 						new Trace(dto.traceDto));
 			}
 		}

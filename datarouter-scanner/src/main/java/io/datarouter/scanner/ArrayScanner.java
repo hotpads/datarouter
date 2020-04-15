@@ -24,6 +24,10 @@ public class ArrayScanner<T> implements Scanner<T>{
 		this.array = array;
 	}
 
+	public static <T> Scanner<T> of(T[] array){
+		return array.length == 0 ? EmptyScanner.singleton() : new ArrayScanner<>(array);
+	}
+
 	@Override
 	public boolean advance(){
 		++index;

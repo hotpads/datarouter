@@ -24,7 +24,7 @@ import com.google.cloud.spanner.Value;
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.model.field.imp.array.IntegerArrayField;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.IterableScanner;
 import io.datarouter.util.number.NumberTool;
 
 public class SpannerIntegerArrayFieldCodec extends SpannerBaseFieldCodec<List<Integer>,IntegerArrayField>{
@@ -40,7 +40,9 @@ public class SpannerIntegerArrayFieldCodec extends SpannerBaseFieldCodec<List<In
 
 	@Override
 	public Value getSpannerValue(){
-		return Value.int64Array(IterableTool.nullSafeMap(field.getValue(), NumberTool::longValue));
+		return IterableScanner.ofNullable(field.getValue())
+				.map(NumberTool::longValue)
+				.listTo(Value::int64Array);
 	}
 
 	@Override
@@ -50,8 +52,10 @@ public class SpannerIntegerArrayFieldCodec extends SpannerBaseFieldCodec<List<In
 
 	@Override
 	public List<Integer> getValueFromResultSet(ResultSet rs){
-		return IterableTool.nullSafeMap(rs.getLongList(field.getKey().getColumnName()),
-				aLong -> aLong == null ? null : aLong.intValue());
+		List<Long> columnResults = rs.getLongList(field.getKey().getColumnName());
+		return IterableScanner.ofNullable(columnResults)
+				.map(aLong -> aLong == null ? null : aLong.intValue())
+				.list();
 	}
 
 }

@@ -17,13 +17,16 @@ package io.datarouter.scanner;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
-public class DistinctScanner<T> extends BaseLinkedScanner<T,T>{
+public class DistinctScanner<T,R> extends BaseLinkedScanner<T,T>{
 
-	private final Set<T> items;
+	private final Function<T,R> mapper;
+	private final Set<R> items;
 
-	public DistinctScanner(Scanner<T> input){
+	public DistinctScanner(Scanner<T> input, Function<T,R> mapper){
 		super(input);
+		this.mapper = mapper;
 		this.items = new HashSet<>();
 	}
 
@@ -31,7 +34,7 @@ public class DistinctScanner<T> extends BaseLinkedScanner<T,T>{
 	protected boolean advanceInternal(){
 		while(input.advance()){
 			T item = input.current();
-			if(items.add(item)){
+			if(items.add(mapper.apply(item))){
 				current = item;
 				return true;
 			}

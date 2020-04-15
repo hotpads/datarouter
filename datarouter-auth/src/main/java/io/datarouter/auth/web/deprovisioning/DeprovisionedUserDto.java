@@ -25,10 +25,12 @@ public class DeprovisionedUserDto{
 
 	public final String username;
 	public final List<String> roles;
+	public final UserDeprovisioningStatusDto status;
 
-	public DeprovisionedUserDto(String username, List<String> roles){
+	public DeprovisionedUserDto(String username, List<String> roles, UserDeprovisioningStatusDto status){
 		this.username = username;
 		this.roles = List.copyOf(roles);
+		this.status = status;
 	}
 
 	private static class DeprovisionedUserDtoComparator implements Comparator<DeprovisionedUserDto>{
@@ -40,6 +42,15 @@ public class DeprovisionedUserDto{
 		public int compare(DeprovisionedUserDto first, DeprovisionedUserDto second){
 			return COLLATOR.compare(first.username, second.username);
 		}
+
+	}
+
+	public static enum UserDeprovisioningStatusDto{
+
+		DEPROVISIONED,
+		FLAGGED,
+		UNRESTORABLE,
+		;
 
 	}
 

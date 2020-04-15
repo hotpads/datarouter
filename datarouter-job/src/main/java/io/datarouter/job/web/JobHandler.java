@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,6 @@ import io.datarouter.tasktracker.service.LongRunningTaskService.LongRunningTaskS
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -145,7 +145,7 @@ public class JobHandler extends BaseHandler{
 		LongRunningTask currentlyRunningTask = longRunningTaskSummary.currentlyRunningTasks.get(taskName);
 		String heartbeatStatus = currentlyRunningTask == null ? null : currentlyRunningTask.getHeartbeatStatus();
 		LongRunningTask lastFinishedTask = longRunningTaskSummary.lastCompletions.get(taskName);
-		Set<String> servers = SetTool.nullsafe(longRunningTaskSummary.runningOnServers.get(taskName));
+		Set<String> servers = longRunningTaskSummary.runningOnServers.getOrDefault(taskName, new TreeSet<>());
 		String serversCsv = String.join(",", servers);
 		return new TriggerJspDto(
 				rowId,

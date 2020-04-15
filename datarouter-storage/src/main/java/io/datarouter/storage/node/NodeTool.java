@@ -24,7 +24,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.adapter.BaseAdapter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.iterable.IterableTool;
 
 public class NodeTool{
 
@@ -47,7 +46,7 @@ public class NodeTool{
 	public static void addNodeAndDescendants(List<Node<?,?,?>> nodes, Node<?,?,?> parent){
 		nodes.add(parent);
 		List<? extends Node<?,?,?>> children = parent.getChildNodes();
-		for(Node<?,?,?> child : IterableTool.nullSafe(children)){
+		for(Node<?,?,?> child : children){
 			addNodeAndDescendants(nodes, child);
 		}
 	}

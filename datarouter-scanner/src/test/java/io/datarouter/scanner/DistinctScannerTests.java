@@ -24,11 +24,20 @@ import org.testng.annotations.Test;
 public class DistinctScannerTests{
 
 	@Test
-	public void test(){
+	public void testDistinct(){
 		Scanner<Integer> input = Scanner.of(3, 1, 4, 2, 1, 2, 2, 1, 4);
 		List<Integer> expected = Arrays.asList(1, 2, 3, 4);
 		List<Integer> actual = input.distinct().list();
 		Assert.assertEquals(actual.size(), 4);
+		Assert.assertTrue(actual.containsAll(expected));
+	}
+
+	@Test
+	public void testDistinctBy(){
+		Scanner<String> input = Scanner.of("aa", "ab", "bb", "ba");
+		List<String> expected = Arrays.asList("aa", "bb");
+		List<String> actual = input.distinctBy(string -> string.substring(0, 1)).list();
+		Assert.assertEquals(actual.size(), 2);
 		Assert.assertTrue(actual.containsAll(expected));
 	}
 

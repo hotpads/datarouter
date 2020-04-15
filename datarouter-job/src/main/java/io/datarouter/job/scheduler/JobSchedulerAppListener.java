@@ -15,13 +15,10 @@
  */
 package io.datarouter.job.scheduler;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.web.listener.DatarouterAppListener;
 
@@ -37,8 +34,7 @@ public class JobSchedulerAppListener implements DatarouterAppListener{
 
 	@Override
 	public final void onStartUp(){
-		List<BaseTriggerGroup> triggerGroups = injector.getInstances(triggerGroupClasses.get());
-		triggerGroups.forEach(jobScheduler::registerTriggers);
+		injector.getInstances(triggerGroupClasses.get()).forEach(jobScheduler::registerTriggers);
 	}
 
 	@Override

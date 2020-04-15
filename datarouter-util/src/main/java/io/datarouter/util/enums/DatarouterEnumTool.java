@@ -18,14 +18,15 @@ package io.datarouter.util.enums;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 
@@ -116,20 +117,22 @@ public class DatarouterEnumTool{
 	/*------------------------- multiple values -----------------------------*/
 
 	public static <E extends StringEnum<E>> List<String> getPersistentStrings(Collection<E> enums){
-		List<String> strings = new ArrayList<>();
-		for(E stringEnum : CollectionTool.nullSafe(enums)){
-			strings.add(stringEnum.getPersistentString());
+		if(enums == null){
+			return Collections.emptyList();
 		}
-		return strings;
+		return enums.stream()
+				.map(E::getPersistentString)
+				.collect(Collectors.toList());
 	}
 
 	public static <E extends StringEnum<E>> List<E> fromPersistentStrings(E enumInstance,
 			Collection<String> persistentStrings){
-		List<E> enums = new ArrayList<>();
-		for(String persistentString : CollectionTool.nullSafe(persistentStrings)){
-			enums.add(enumInstance.fromPersistentString(persistentString));
+		if(persistentStrings == null){
+			return Collections.emptyList();
 		}
-		return enums;
+		return persistentStrings.stream()
+				.map(enumInstance::fromPersistentString)
+				.collect(Collectors.toList());
 	}
 
 	public static <E extends StringEnum<E>> Validated<List<E>> uniqueListFromCsvNames(E[] values, String csvNames,

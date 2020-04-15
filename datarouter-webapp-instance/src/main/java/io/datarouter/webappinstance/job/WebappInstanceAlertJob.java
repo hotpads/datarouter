@@ -81,6 +81,7 @@ public class WebappInstanceAlertJob extends BaseJob{
 
 	private static ContainerTag makeContent(WebappInstance webappInstance){
 		var rows = List.of(
+				new Twin<>("webapp", webappInstance.getKey().getWebappName()),
 				new Twin<>("build date", webappInstance.getBuildDate() + ""),
 				new Twin<>("startup date", webappInstance.getStartupDate() + ""),
 				new Twin<>("commitId", webappInstance.getCommitId()));

@@ -40,7 +40,6 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.util.iterable.IterableTool;
 
 @Singleton
 public class DatarouterLoggerConfigDao extends BaseDao{
@@ -55,7 +54,9 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 	private final SortedMapStorage<LoggerConfigKey,LoggerConfig> node;
 
 	@Inject
-	public DatarouterLoggerConfigDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterLoggerConfigDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterLoggerConfigDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, LoggerConfig::new, LoggerConfigFielder::new)
@@ -66,8 +67,13 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 		return node.scan();
 	}
 
-	public void saveLoggerConfig(String name, Level level, boolean additive, List<String> appendersRef,
-			String email, Long ttlMillis){
+	public void saveLoggerConfig(
+			String name,
+			Level level,
+			boolean additive,
+			List<String> appendersRef,
+			String email,
+			Long ttlMillis){
 		LoggerConfig loggerConfig = new LoggerConfig(name, level, additive, appendersRef, email, new Date(), ttlMillis);
 		node.put(loggerConfig);
 	}
@@ -81,7 +87,9 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 	}
 
 	public void deleteLoggerConfigs(Collection<LoggerConfig> loggerConfigs){
-		node.deleteMulti(IterableTool.nullSafeMap(loggerConfigs, LoggerConfig::getKey));
+		Scanner.of(loggerConfigs)
+				.map(LoggerConfig::getKey)
+				.flush(node::deleteMulti);
 	}
 
 	public String getLoggingLevelFromConfigName(String name){
@@ -92,8 +100,9 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 	}
 
 	public Map<String, LoggerConfig> getLoggerConfigs(List<String> names){
-		List<LoggerConfigKey> keys = IterableTool.nullSafeMap(names, LoggerConfigKey::new);
-		return node.getMulti(keys).stream()
+		return Scanner.of(names)
+				.map(LoggerConfigKey::new)
+				.listTo(node::getMulti).stream()
 				.collect(Collectors.toMap(LoggerConfig::getName, Function.identity()));
 	}
 

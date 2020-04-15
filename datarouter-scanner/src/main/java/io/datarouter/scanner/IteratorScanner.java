@@ -25,6 +25,10 @@ public class IteratorScanner<T> extends BaseScanner<T>{
 		this.iterator = iterator;
 	}
 
+	public static <T> Scanner<T> of(Iterator<T> iterator){
+		return new IteratorScanner<>(iterator);
+	}
+
 	@Override
 	public boolean advance(){
 		if(iterator.hasNext()){

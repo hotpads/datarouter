@@ -19,8 +19,13 @@ import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
+import static j2html.TagCreator.each;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
+import static j2html.TagCreator.ul;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +41,7 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import redis.clients.jedis.Jedis;
 
@@ -71,17 +77,20 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag buildOverview(ClientId clientId){
-		Jedis client = redisClientManager.getJedis(clientId);
 		String mode = redisOptions.getClientMode(clientId.getName());
 
 		String clusterEndpoint = "";
 		if(mode.equals(RedisOptions.DYNAMIC_CLIENT_MODE)){
 			clusterEndpoint = redisOptions.getClusterEndpoint(clientId.getName()).get().toString();
 		}
+		Jedis client = redisClientManager.getJedis(clientId);
+		var infoList = Arrays.stream(client.clusterInfo().split(" "))
+				.collect(Collectors.toList());
+		var infoDiv = ul(each(infoList, TagCreator::li));
 		return dl(
 				dt("Client mode:"), dd(mode),
 				dt("Cluster endpoint:"), dd(clusterEndpoint),
-				dt("Cluster info"), dd(client.clusterInfo()));
+				dt("Cluster info"), dd(infoDiv));
 	}
 
 }

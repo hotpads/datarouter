@@ -49,7 +49,7 @@ public class UserDeprovisioningHandler extends BaseHandler{
 	@Handler(defaultHandler = true)
 	private Mav deprovisionedUsers(){
 		return reactPageFactory.startBuilder(request)
-				.withTitle("Datarouter - Deprovisioned Users")
+				.withTitle("Datarouter - User Deprovisioning")
 				.withReactScript(files.js.deprovisionedUsersJsx)
 				.withJsStringConstant("PATH", request.getContextPath() + paths.userDeprovisioning.toSlashedString())
 				.buildMav();
@@ -58,17 +58,20 @@ public class UserDeprovisioningHandler extends BaseHandler{
 	//this endpoint has no batching because of its UI
 	@Handler
 	protected UserDeprovisioningHandlerGeneralDto fetchDeprovisionedUsers(){
-		return UserDeprovisioningHandlerGeneralDto.fetchDeprovisionedUsers(deprovisionedUserDao.scan()
+		return deprovisionedUserDao.scan()
 				.map(DeprovisionedUser::toDto)
 				.sorted(DeprovisionedUserDto.COMPARATOR)
-				.list());
+				.listTo(UserDeprovisioningHandlerGeneralDto::fetchDeprovisionedUsers);
 	}
 
 	@Handler
-	protected void deprovisionUsers(@RequestBody UserDeprovisioningHandlerGeneralDto request){
-		Scanner.of(Objects.requireNonNull(request.usernamesToDeprovision))
+	protected UserDeprovisioningHandlerGeneralDto deprovisionUsers(
+			@RequestBody UserDeprovisioningHandlerGeneralDto request){
+		return Scanner.of(Objects.requireNonNull(request.usernamesToDeprovision))
 				.batch(DB_BATCH_SIZE)
-				.forEach(userDeprovisioningService::deprovisionUsers);
+				.map(userDeprovisioningService::deprovisionUsers)
+				.concatenate(Scanner::of)
+				.listTo(UserDeprovisioningHandlerGeneralDto::deprovisionUsersResponse);
 	}
 
 	@Handler
@@ -85,6 +88,7 @@ public class UserDeprovisioningHandler extends BaseHandler{
 
 		//deprovisionUsers
 		public final List<String> usernamesToDeprovision;
+		public final List<String> deprovisionedUsernames;
 
 		//restoreUsers
 		public final List<String> usernamesToRestore;
@@ -93,22 +97,30 @@ public class UserDeprovisioningHandler extends BaseHandler{
 		//fetchDeprovisionedUsers
 		public final List<DeprovisionedUserDto> deprovisionedUsers;
 
-		private UserDeprovisioningHandlerGeneralDto(List<String> usernamesToDeprovision,
-				List<String> usernamesToRestore, List<String> restoredUsernames,
+		private UserDeprovisioningHandlerGeneralDto(
+				List<String> usernamesToDeprovision,
+				List<String> deprovisionedUsernames,
+				List<String> usernamesToRestore,
+				List<String> restoredUsernames,
 				List<DeprovisionedUserDto> deprovisionedUsers){
 			this.usernamesToDeprovision = usernamesToDeprovision;
+			this.deprovisionedUsernames = deprovisionedUsernames;
 			this.usernamesToRestore = usernamesToRestore;
 			this.restoredUsernames = restoredUsernames;
 			this.deprovisionedUsers = deprovisionedUsers;
 		}
 
+		public static UserDeprovisioningHandlerGeneralDto deprovisionUsersResponse(List<String> deprovisionedUsernames){
+			return new UserDeprovisioningHandlerGeneralDto(null, deprovisionedUsernames, null, null, null);
+		}
+
 		public static UserDeprovisioningHandlerGeneralDto restoreUsersResponse(List<String> restoredUsernames){
-			return new UserDeprovisioningHandlerGeneralDto(null, null, restoredUsernames, null);
+			return new UserDeprovisioningHandlerGeneralDto(null, null, null, restoredUsernames, null);
 		}
 
 		public static UserDeprovisioningHandlerGeneralDto fetchDeprovisionedUsers(
 				List<DeprovisionedUserDto> deprovisionedUsers){
-			return new UserDeprovisioningHandlerGeneralDto(null, null, null, deprovisionedUsers);
+			return new UserDeprovisioningHandlerGeneralDto(null, null, null, null, deprovisionedUsers);
 		}
 
 	}

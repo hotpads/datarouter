@@ -132,16 +132,24 @@ public interface Scanner<T> extends Closeable{
 		return new BatchingScanner<>(this, batchSize);
 	}
 
+	/**
+	 * Removes consecutive duplicates. Lighter weight than distinct() because all elements need not be collected into
+	 * memory.
+	 */
 	default Scanner<T> deduplicate(){
 		return new DeduplicatingScanner<>(this, Function.identity());
 	}
 
-	default Scanner<T> deduplicate(Function<T,?> keyExtractor){
-		return new DeduplicatingScanner<>(this, keyExtractor);
+	default Scanner<T> deduplicateBy(Function<T,?> mapper){
+		return new DeduplicatingScanner<>(this, mapper);
 	}
 
 	default Scanner<T> distinct(){
-		return new DistinctScanner<>(this);
+		return new DistinctScanner<>(this, Function.identity());
+	}
+
+	default Scanner<T> distinctBy(Function<T,?> mapper){
+		return new DistinctScanner<>(this, mapper);
 	}
 
 	default Scanner<T> each(Consumer<? super T> consumer){
@@ -240,28 +248,28 @@ public interface Scanner<T> extends Closeable{
 	/*----------------------------- create ----------------------------------*/
 
 	public static <T> Scanner<T> empty(){
-		return new EmptyScanner<>();
+		return EmptyScanner.singleton();
 	}
 
 	public static <T> Scanner<T> of(T object){
-		return new ObjectScanner<>(object);
+		return ObjectScanner.of(object);
 	}
 
 	@SafeVarargs
 	public static <T> Scanner<T> of(T... array){
-		return array.length == 0 ? new EmptyScanner<>() : new ArrayScanner<>(array);
+		return ArrayScanner.of(array);
 	}
 
 	public static <T> Scanner<T> of(Iterator<T> iterator){
-		return new IteratorScanner<>(iterator);
+		return IteratorScanner.of(iterator);
 	}
 
 	public static <T> Scanner<T> of(Iterable<T> iterable){
-		return new IteratorScanner<>(iterable.iterator());
+		return IterableScanner.of(iterable);
 	}
 
 	public static <T> Scanner<T> of(Stream<T> stream){
-		return new StreamScanner<>(stream);
+		return StreamScanner.of(stream);
 	}
 
 }

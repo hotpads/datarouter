@@ -54,9 +54,9 @@ import io.datarouter.loggerconfig.storage.fileappender.DatarouterFileAppenderDao
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
 import io.datarouter.logging.BaseLog4j2Configuration;
 import io.datarouter.logging.Log4j2Configurator;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
@@ -111,7 +111,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		mav.put("currentUserEmail", getCurrentUsername());
 
 		Map<String,LoggerConfig> configs = log4j2Configurator.getConfigs();
-		List<String> names = IterableTool.nullSafeMap(configs.values(), LoggerConfig::getName);
+		List<String> names = Scanner.of(configs.values()).map(LoggerConfig::getName).list();
 		Map<String,io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig> configsWithMetadata = loggerConfigDao
 				.getLoggerConfigs(names);
 		Map<String,LoggerConfigMetadata> mergedConfigs = new TreeMap<>();

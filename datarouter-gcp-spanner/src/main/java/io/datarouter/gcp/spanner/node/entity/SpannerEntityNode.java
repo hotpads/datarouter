@@ -39,7 +39,6 @@ import io.datarouter.storage.client.ClientTableNodeNames;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.entity.BasePhysicalEntityNode;
 import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.util.iterable.IterableTool;
 
 public class SpannerEntityNode<
 		EK extends EntityKey<EK>,
@@ -101,7 +100,7 @@ extends BasePhysicalEntityNode<EK,E>{
 
 		@Override
 		public Collection<Mutation> getMutations(){
-			return IterableTool.nullSafeMap(values, this::keyToDeleteMutation);
+			return Scanner.of(values).map(this::keyToDeleteMutation).list();
 		}
 
 		private Mutation keyToDeleteMutation(EK key){

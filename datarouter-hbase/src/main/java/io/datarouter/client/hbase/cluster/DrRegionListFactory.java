@@ -49,9 +49,7 @@ import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
-import io.datarouter.util.collection.MapTool;
 import io.datarouter.util.concurrent.CallableTool;
-import io.datarouter.util.iterable.IterableTool;
 
 public class DrRegionListFactory{
 	private static final Logger logger = LoggerFactory.getLogger(DrRegionList.class);
@@ -67,7 +65,7 @@ public class DrRegionListFactory{
 
 		Map<HRegionInfo,ServerName> serverNameByHRegionInfo = getServerNameByHRegionInfo(clientId, tableName);
 		Map<String,RegionLoad> regionLoadByName = new TreeMap<>();
-		for(DrServerInfo server : IterableTool.nullSafe(servers.getServers())){
+		for(DrServerInfo server : servers.getServers()){
 			ServerLoad serverLoad = server.getServerLoad();
 			Map<byte[],RegionLoad> regionsLoad = serverLoad.getRegionsLoad();
 			for(RegionLoad regionLoad : regionsLoad.values()){
@@ -76,7 +74,7 @@ public class DrRegionListFactory{
 			}
 		}
 		int regionNum = 0;
-		for(HRegionInfo hregionInfo : MapTool.nullSafe(serverNameByHRegionInfo).keySet()){
+		for(HRegionInfo hregionInfo : serverNameByHRegionInfo.keySet()){
 			try{
 				RegionLoad regionLoad = regionLoadByName.get(hregionInfo.getEncodedName());
 				ServerName serverName = serverNameByHRegionInfo.get(hregionInfo);

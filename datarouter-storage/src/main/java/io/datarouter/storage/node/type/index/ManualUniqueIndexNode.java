@@ -28,7 +28,6 @@ import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.op.scan.ManagedIndexIndexToDatabeanScanner;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.tuple.Range;
 
 public class ManualUniqueIndexNode<
@@ -69,10 +68,9 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 		if(CollectionTool.isEmpty(uniqueKeys)){
 			return new LinkedList<>();
 		}
-		List<IE> indexEntries = indexNode.getMulti(uniqueKeys, config);
-		List<PK> primaryKeys = IterableTool.nullSafeMap(indexEntries, IE::getTargetKey);
-		List<D> databeans = mainNode.getMulti(primaryKeys, config);
-		return databeans;
+		return Scanner.of(indexNode.getMulti(uniqueKeys, config))
+				.map(IE::getTargetKey)
+				.listTo(primaryKeys -> mainNode.getMulti(primaryKeys, config));
 	}
 
 
@@ -97,9 +95,10 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 			return;
 		}
 		List<IE> indexEntries = indexNode.getMulti(uniqueKeys, config);
-		List<PK> primaryKeys = IterableTool.nullSafeMap(indexEntries, IE::getTargetKey);
 		indexNode.deleteMulti(uniqueKeys, config);
-		mainNode.deleteMulti(primaryKeys, config);
+		Scanner.of(indexEntries)
+				.map(IE::getTargetKey)
+				.flush(primaryKeys -> mainNode.deleteMulti(primaryKeys, config));
 	}
 
 	@Override

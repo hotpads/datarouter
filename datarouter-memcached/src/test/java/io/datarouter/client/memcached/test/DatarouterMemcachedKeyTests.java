@@ -18,8 +18,8 @@ package io.datarouter.client.memcached.test;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.client.memcached.client.DatarouterMemcachedKey;
-import io.datarouter.client.memcached.tally.TallyKey;
+import io.datarouter.client.memcached.client.MemcachedEncodedKey;
+import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.storage.util.PrimaryKeyPercentCodec;
 
 public class DatarouterMemcachedKeyTests{
@@ -29,14 +29,14 @@ public class DatarouterMemcachedKeyTests{
 		String nodeName = "myClient.Tally";
 		Integer databeanVersion = 1;
 		TallyKey tallyKey = new TallyKey("one1566858501940!20190826152821");
-		DatarouterMemcachedKey memcachedKey = new DatarouterMemcachedKey(nodeName, databeanVersion, tallyKey);
+		MemcachedEncodedKey memcachedKey = new MemcachedEncodedKey(nodeName, databeanVersion, tallyKey);
 
 		String versionedKeyString = memcachedKey.getVersionedKeyString();
-		String expected = DatarouterMemcachedKey.DATAROUTER_VERSION + ":" + nodeName + ":" + databeanVersion
+		String expected = MemcachedEncodedKey.DATAROUTER_VERSION + ":" + nodeName + ":" + databeanVersion
 				+ ":" + PrimaryKeyPercentCodec.encode(tallyKey);
 		Assert.assertEquals(versionedKeyString, expected);
 
-		DatarouterMemcachedKey decodedMemcachedKey = DatarouterMemcachedKey.parse(versionedKeyString, TallyKey.class);
+		MemcachedEncodedKey decodedMemcachedKey = MemcachedEncodedKey.parse(versionedKeyString, TallyKey.class);
 		Assert.assertEquals(decodedMemcachedKey.nodeName, nodeName);
 		Assert.assertEquals(decodedMemcachedKey.databeanVersion, databeanVersion);
 		Assert.assertEquals(decodedMemcachedKey.primaryKey, tallyKey);
@@ -44,12 +44,12 @@ public class DatarouterMemcachedKeyTests{
 
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testNotEnough(){
-		DatarouterMemcachedKey.parse("3:myClient.Tally:1one1566858501940%2120190826152821", null);
+		MemcachedEncodedKey.parse("3:myClient.Tally:1one1566858501940%2120190826152821", null);
 	}
 
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testTooMuch(){
-		DatarouterMemcachedKey.parse("3:myClient.Tally:1:one15668:58501940%2120190826152821", null);
+		MemcachedEncodedKey.parse("3:myClient.Tally:1:one15668:58501940%2120190826152821", null);
 	}
 
 }

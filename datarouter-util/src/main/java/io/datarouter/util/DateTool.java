@@ -31,14 +31,10 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.util.duration.DurationUnit;
 import io.datarouter.util.duration.DurationWithCarriedUnits;
 
 public class DateTool{
-	private static final Logger logger = LoggerFactory.getLogger(DateTool.class);
 
 	public static final int MILLISECONDS_IN_DAY = (int) Duration.ofDays(1).toMillis();
 	public static final int MILLISECONDS_IN_HOUR = (int) Duration.ofHours(1).toMillis();

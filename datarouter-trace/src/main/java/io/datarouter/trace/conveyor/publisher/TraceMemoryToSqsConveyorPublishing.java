@@ -24,18 +24,22 @@ import com.google.gson.Gson;
 import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.trace.TraceEntityDto;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.trace.conveyor.BaseTraceMemoryToSqsConveyor;
-import io.datarouter.util.iterable.IterableTool;
 
 public class TraceMemoryToSqsConveyorPublishing extends BaseTraceMemoryToSqsConveyor{
 
 	private final Consumer<Collection<ConveyorMessage>> putMultiConsumer;
 	private final Setting<Boolean> shouldBufferInSqs;
 
-	public TraceMemoryToSqsConveyorPublishing(String name, Setting<Boolean> shouldRunSetting,
-			Setting<Boolean> shouldBufferInSqs, MemoryBuffer<TraceEntityDto> buffer,
-			Consumer<Collection<ConveyorMessage>> putMultiConsumer, Gson gson){
+	public TraceMemoryToSqsConveyorPublishing(
+			String name,
+			Setting<Boolean> shouldRunSetting,
+			Setting<Boolean> shouldBufferInSqs,
+			MemoryBuffer<TraceEntityDto> buffer,
+			Consumer<Collection<ConveyorMessage>> putMultiConsumer,
+			Gson gson){
 		super(name, shouldRunSetting, buffer, gson);
 		this.shouldBufferInSqs = shouldBufferInSqs;
 		this.putMultiConsumer = putMultiConsumer;
@@ -44,8 +48,7 @@ public class TraceMemoryToSqsConveyorPublishing extends BaseTraceMemoryToSqsConv
 	@Override
 	public void processTraceEntityDtos(List<TraceEntityDto> dtos){
 		if(shouldBufferInSqs.get()){
-			List<ConveyorMessage> sqsMessages = IterableTool.nullSafeMap(dtos, this::toMessage);
-			putMultiConsumer.accept(sqsMessages);
+			Scanner.of(dtos).map(this::toMessage).flush(putMultiConsumer::accept);
 		}
 	}
 

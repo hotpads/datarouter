@@ -26,7 +26,6 @@ import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationSettings;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
@@ -56,7 +55,7 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 
 		maxCacheableContentLength = registerInteger("maxCacheableContentLength", ONE_MB);
 		shutdownSecret = registerString("shutdownSecret", "");
-		stackTraceHighlights = registerCommaSeparatedString("stackTraceHighlights", SetTool.wrap("io.datarouter"));
+		stackTraceHighlights = registerCommaSeparatedString("stackTraceHighlights", Set.of("io.datarouter"));
 		saveLatencyGauges = registerBooleans("saveLatencyGauges", defaultTo(true));
 		keepAliveTimeout = registerDurations("keepAliveTimeout",
 				defaultTo(new DatarouterDuration(9, TimeUnit.MINUTES)));

@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatcherServlet;
 
@@ -32,7 +32,7 @@ public class BaseDatarouterWebDispatcherServlet extends DispatcherServlet{
 
 	private final DatarouterInjector injector;
 
-	private final List<Class<? extends BaseRouteSet>> routeSetClasses;
+	private final List<Class<BaseRouteSet>> routeSetClasses;
 	private final List<BaseRouteSet> routeSets;
 
 	@Inject
@@ -48,8 +48,8 @@ public class BaseDatarouterWebDispatcherServlet extends DispatcherServlet{
 
 	@Override
 	public void registerRouteSets(){
-		register(IterableTool.nullSafeMap(routeSetClasses, injector::getInstance));
-		register(routeSets);
+		Scanner.of(routeSetClasses).map(injector::getInstance).forEach(this::register);
+		routeSets.forEach(this::register);
 	}
 
 }

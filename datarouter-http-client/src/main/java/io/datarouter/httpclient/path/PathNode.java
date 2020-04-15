@@ -15,6 +15,7 @@
  */
 package io.datarouter.httpclient.path;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,12 +30,19 @@ public class PathNode{
 	protected PathNode parent;
 	protected String value;
 
+	@SuppressWarnings("unchecked")
 	public <P extends PathNode> P branch(Supplier<P> childSupplier, String childName){
-		P child = childSupplier.get();
-		child.parent = this;
-		child.value = childName;
-		children.add(child);
-		return child;
+		return children.stream()
+				.filter(child -> child.value.equals(childName))
+				.findAny()
+				.map(child -> (P)child)
+				.orElseGet(() -> {
+					P child = childSupplier.get();
+					child.parent = this;
+					child.value = childName;
+					children.add(child);
+					return child;
+				});
 	}
 
 	public PathNode leaf(String childName){
@@ -101,10 +109,7 @@ public class PathNode{
 		if(this == obj){
 			return true;
 		}
-		if(obj == null){
-			return false;
-		}
-		if(getClass() != obj.getClass()){
+		if(!(obj instanceof PathNode)){
 			return false;
 		}
 		PathNode other = (PathNode)obj;
@@ -120,6 +125,15 @@ public class PathNode{
 
 	public String getValue(){
 		return value;
+	}
+
+	public static PathNode parse(String path){
+		Iterable<Path> pathParts = Path.of(path)::iterator;
+		PathNode pathNode = new PathNode();
+		for(Path pathPart : pathParts){
+			pathNode = pathNode.branch(PathNode::new, pathPart.toString());
+		}
+		return pathNode;
 	}
 
 }

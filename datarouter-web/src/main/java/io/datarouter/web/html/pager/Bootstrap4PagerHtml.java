@@ -20,7 +20,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.span;
 
-import io.datarouter.util.iterable.IterableTool;
+import java.util.stream.Collectors;
+
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.pager.MemoryPager.Page;
@@ -39,7 +40,9 @@ public class Bootstrap4PagerHtml{
 				NumberFormatter.addCommas(page.totalRows));
 		var summary = span(message)
 				.withClass("mt-2 ml-2");
-		var links = IterableTool.nullSafeMap(page.getLinks(), pageLink -> a(pageLink.text).withHref(pageLink.href));
+		var links = page.getLinks().stream()
+				.map(pageLink -> a(pageLink.text).withHref(pageLink.href))
+				.collect(Collectors.toList());
 		var linkSpans = span(each(links, link -> span(link).withClass("ml-2")))
 				.withClass("ml-2");
 		return div(summary, linkSpans);

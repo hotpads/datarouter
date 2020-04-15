@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUser;
+import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUser.UserDeprovisioningStatus;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserKey;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
@@ -45,22 +46,39 @@ public class DatarouterUserDeprovisioningService implements UserDeprovisioningSe
 	@Inject
 	private RoleManager roleManager;
 	@Inject
+	private ShouldFlagUsersInsteadOfDeprovisioningSupplier shouldFlagUsersInsteadOfDeprovisioningSupplier;
+	@Inject
 	private UserSessionService userSessionService;
 
 	@Override
-	public void deprovisionUsers(List<String> usernames){
+	public List<String> flagUsersForDeprovisioning(List<String> usernames){
+		return doFlagOrDeprovision(usernames, false);
+	}
+
+	@Override
+	public List<String> deprovisionUsers(List<String> usernames){
+		return doFlagOrDeprovision(usernames, true);
+	}
+
+	private List<String> doFlagOrDeprovision(List<String> usernames, boolean shouldDeprovision){
 		userSessionService.deleteUserSessions(usernames);
 		List<DeprovisionedUser> deprovisionedUsers = new ArrayList<>();
 		List<DatarouterUser> users = Scanner.of(usernames)
 				.map(DatarouterUserByUsernameLookup::new)
 				.listTo(datarouterUserDao::getMultiByUsername);
+		var deprovisionedUsernames = new ArrayList<String>();
 		users.forEach(user -> {
-			deprovisionedUsers.add(new DeprovisionedUser(user.getUsername(), user.getRoles()));
+			deprovisionedUsers.add(new DeprovisionedUser(user.getUsername(), user.getRoles(),
+					shouldDeprovision ? UserDeprovisioningStatus.DEPROVISIONED : UserDeprovisioningStatus.FLAGGED));
 			user.setRoles(List.of());
 			user.setEnabled(false);
+			deprovisionedUsernames.add(user.getUsername());
 		});
 		deprovisionedUserDao.putMulti(deprovisionedUsers);
-		datarouterUserDao.putMulti(users);
+		if(shouldDeprovision){
+			datarouterUserDao.putMulti(users);
+		}
+		return deprovisionedUsernames;
 	}
 
 	@Override
@@ -69,6 +87,7 @@ public class DatarouterUserDeprovisioningService implements UserDeprovisioningSe
 		var deprovisionedRolesByUsername = Scanner.of(usernames)
 				.map(DeprovisionedUserKey::new)
 				.listTo(deprovisionedUserDao::scanWithPrefixes)
+				.include(user -> user.getStatus() == UserDeprovisioningStatus.DEPROVISIONED)
 				.collect(Collectors.toMap(DeprovisionedUser::getUsername, DeprovisionedUser::getRoles));
 		var datarouterUserByUsername = Scanner.of(usernames)
 				.map(DatarouterUserByUsernameLookup::new)
@@ -91,6 +110,11 @@ public class DatarouterUserDeprovisioningService implements UserDeprovisioningSe
 				.map(DatarouterUser::getUsername)
 				.flush(deprovisionedUserDao::deleteMultiUsernames)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public boolean shouldFlagUsersInsteadOfDeprovisioning(){
+		return shouldFlagUsersInsteadOfDeprovisioningSupplier.get();
 	}
 
 }

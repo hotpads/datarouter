@@ -19,17 +19,40 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.memcached.client.MemcachedClientManager;
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
+import io.datarouter.storage.node.adapter.counter.physical.PhysicalTallyStorageCounterAdapter;
+import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalTallyStorageSanitizationAdapter;
+import io.datarouter.storage.node.adapter.trace.physical.PhysicalTallyStorageTraceAdapter;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 @Singleton
 public class MemcachedClientNodeFactory extends BaseMemcachedClientNodeFactory{
+
+	private final MemcachedNodeFactory memcachedNodeFactory;
 
 	@Inject
 	public MemcachedClientNodeFactory(
 			PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory,
 			MemcachedClientType memcachedClientType,
-			MemcachedClientManager memcachedClientManager){
+			MemcachedClientManager memcachedClientManager,
+			MemcachedNodeFactory memcachedNodeFactory){
 		super(physicalMapStorageAvailabilityAdapterFactory, memcachedClientType, memcachedClientManager);
+		this.memcachedNodeFactory = memcachedNodeFactory;
+	}
+
+	@Override
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	PhysicalNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> nodeParams){
+		var node = memcachedNodeFactory.createTallyNode(nodeParams);
+		return new PhysicalTallyStorageTraceAdapter<>(
+				new PhysicalTallyStorageCounterAdapter<>(
+				new PhysicalTallyStorageSanitizationAdapter<>(node)));
 	}
 
 }

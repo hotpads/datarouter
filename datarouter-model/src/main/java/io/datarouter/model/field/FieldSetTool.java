@@ -32,7 +32,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.lang.ReflectionTool;
@@ -50,7 +49,7 @@ public class FieldSetTool{
 
 	public static int getNumNonNullLeadingFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
-		for(Object value : CollectionTool.nullSafe(prefix.getFieldValues())){
+		for(Object value : prefix.getFieldValues()){
 			if(value == null){
 				break;
 			}
@@ -61,7 +60,7 @@ public class FieldSetTool{
 
 	public static int getNumNonNullFields(FieldSet<?> prefix){
 		int numNonNullFields = 0;
-		for(Object value : CollectionTool.nullSafe(prefix.getFieldValues())){
+		for(Object value : prefix.getFieldValues()){
 			if(value != null){
 				++numNonNullFields;
 			}

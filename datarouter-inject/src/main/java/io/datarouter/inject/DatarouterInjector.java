@@ -18,19 +18,19 @@ package io.datarouter.inject;
 import java.util.List;
 import java.util.Map;
 
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 
 /**
  * Common interface to programmatically inject without knowing the implementation library (Guice, Spring...)
  */
 public interface DatarouterInjector{
 
-	<T> T getInstance(Class<? extends T> clazz);
+	<T> T getInstance(Class<T> clazz);
 	<T> Map<String,T> getInstancesOfType(Class<T> type);
 	void injectMembers(Object instance);
 
-	default <T> List<T> getInstances(List<Class<? extends T>> classes){
-		return IterableTool.nullSafeMap(classes, this::getInstance);
+	default <T> List<? extends T> getInstances(List<Class<? extends T>> classes){
+		return Scanner.of(classes).map(this::getInstance).list();
 	}
 
 }

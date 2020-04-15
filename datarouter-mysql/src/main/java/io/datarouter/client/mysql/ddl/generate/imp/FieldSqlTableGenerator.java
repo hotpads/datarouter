@@ -35,7 +35,7 @@ import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 
 public class FieldSqlTableGenerator{
 
@@ -53,7 +53,7 @@ public class FieldSqlTableGenerator{
 			Map<String,List<Field<?>>> uniqueIndexes){
 
 		List<SqlColumn> primaryKeyColumns = makeSqlColumns(primaryKeyFields, false);
-		List<String> primaryKeyColumnNames = IterableTool.nullSafeMap(primaryKeyColumns, SqlColumn::getName);
+		List<String> primaryKeyColumnNames = Scanner.of(primaryKeyColumns).map(SqlColumn::getName).list();
 		List<SqlColumn> columns = makeSqlColumns(nonKeyFields, true);
 		columns.addAll(primaryKeyColumns);
 

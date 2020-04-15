@@ -19,16 +19,36 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.aws.memcached.client.AwsMemcachedClientManager;
+import io.datarouter.aws.memcached.node.AwsMemcachedNodeFactory;
 import io.datarouter.client.memcached.BaseMemcachedClientNodeFactory;
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 @Singleton
 public class AwsMemcachedClientNodeFactory extends BaseMemcachedClientNodeFactory{
 
+	private final AwsMemcachedNodeFactory memcachedNodeFactory;
+
 	@Inject
-	public AwsMemcachedClientNodeFactory(PhysicalMapStorageAvailabilityAdapterFactory factory,
-			AwsMemcachedClientType clientType, AwsMemcachedClientManager clientManager){
+	public AwsMemcachedClientNodeFactory(
+			PhysicalMapStorageAvailabilityAdapterFactory factory,
+			AwsMemcachedClientType clientType,
+			AwsMemcachedClientManager clientManager,
+			AwsMemcachedNodeFactory memcachedNodeFactory){
 		super(factory, clientType, clientManager);
+		this.memcachedNodeFactory = memcachedNodeFactory;
+	}
+
+	@Override
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	PhysicalNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> nodeParams){
+		return memcachedNodeFactory.createTallyNode(nodeParams);
 	}
 
 }

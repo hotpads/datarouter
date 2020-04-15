@@ -17,12 +17,7 @@ package io.datarouter.client.memcached.node;
 
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -30,9 +25,7 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.client.memcached.client.DatarouterMemcachedKey;
 import io.datarouter.client.memcached.client.MemcachedClientManager;
-import io.datarouter.client.memcached.tally.TallyKey;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.DatabeanTool;
@@ -43,22 +36,20 @@ import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
-import io.datarouter.storage.node.op.raw.TallyStorage;
+import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
+import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 
 public class MemcachedNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends MemcachedReaderNode<PK,D,F>
-implements PhysicalMapStorageNode<PK,D,F>, TallyStorage{
+implements PhysicalMapStorageNode<PK,D,F>,
+		PhysicalTallyStorageNode<PK,D,F>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedNode.class);
 
 	protected static final int MEGABYTE = 1024 * 1024;
-
-	private final MemcachedClientManager memcachedClientManager;
-	private final ClientId clientId;
 
 	public MemcachedNode(
 			NodeParams<PK,D,F> params,
@@ -66,8 +57,6 @@ implements PhysicalMapStorageNode<PK,D,F>, TallyStorage{
 			MemcachedClientManager memcachedClientManager,
 			ClientId clientId){
 		super(params, clientType, memcachedClientManager, clientId);
-		this.memcachedClientManager = memcachedClientManager;
-		this.clientId = clientId;
 	}
 
 	@Override
@@ -130,34 +119,6 @@ implements PhysicalMapStorageNode<PK,D,F>, TallyStorage{
 	@Override
 	public void deleteAll(Config config){
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Optional<Long> findTallyCount(String key, Config config){
-		if(key == null){
-			return Optional.empty();
-		}
-		return Optional.ofNullable(getMultiTallyCount(List.of(key), config).get(key));
-	}
-
-	@Override
-	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){ // TODO Move into an adapter
-			return Collections.emptyMap();
-		}
-		List<TallyKey> tallyKeys = IterableTool.nullSafeMap(keys, TallyKey::new);
-		Map<String,Object> bytesByStringKey = fetchBytesByStringKey(tallyKeys, config);
-		if(bytesByStringKey == null){ // an ignored error occurred
-			return Collections.emptyMap();
-		}
-
-		Map<String,Long> results = new HashMap<>();
-		for(Entry<String,Object> entry : bytesByStringKey.entrySet()){
-			String string = (String)entry.getValue();
-			DatarouterMemcachedKey memcachedKey = DatarouterMemcachedKey.parse(entry.getKey(), TallyKey.class);
-			results.put(((TallyKey)memcachedKey.primaryKey).getId(), Long.parseLong(string));
-		}
-		return results;
 	}
 
 	@Override

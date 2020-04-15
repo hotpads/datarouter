@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.joblet.queue.selector.JobletSelectorRegistry;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 
 @Singleton

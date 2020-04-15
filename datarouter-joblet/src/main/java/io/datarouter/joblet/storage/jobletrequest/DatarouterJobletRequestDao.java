@@ -149,6 +149,12 @@ public class DatarouterJobletRequestDao extends BaseDao{
 				.list();
 	}
 
+	public boolean anyExistOfType(JobletType<?> type){
+		return node.scanWithPrefix(new JobletRequestKey(type.getPersistentString(), null, null, null),
+				new Config().setLimit(1))
+				.hasAny();
+	}
+
 	/**
 	 * Count JobletRequests that have
 	 *

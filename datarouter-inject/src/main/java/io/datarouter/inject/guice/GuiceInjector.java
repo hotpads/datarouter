@@ -35,7 +35,7 @@ public class GuiceInjector implements DatarouterInjector{
 	}
 
 	@Override
-	public <T>T getInstance(Class<? extends T> clazz){
+	public <T>T getInstance(Class<T> clazz){
 		return injector.getInstance(clazz);
 	}
 

@@ -34,9 +34,9 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import io.datarouter.storage.util.KeyRangeTool;
+import io.datarouter.util.ComparableTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.ThreadTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.util.tuple.Range;
 
@@ -174,7 +174,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 				null);
 		List<SortedBean> result1 = dao.scanWithPrefix(prefix1).list();
 		Assert.assertEquals(result1.size(), SortedBeans.NUM_ELEMENTS);
-		Assert.assertTrue(IterableTool.isSorted(result1));
+		Assert.assertTrue(ComparableTool.isSorted(result1));
 	}
 
 	@Test //first 3 fields fixed, last field wildcard
@@ -184,7 +184,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 				suffix -> new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.STRINGS.last(), 2, suffix));
 		List<SortedBean> result2 = dao.scan(prefix2).list();
 		Assert.assertEquals(result2.size(), SortedBeans.NUM_PREFIX_a);
-		Assert.assertTrue(IterableTool.isSorted(result2));
+		Assert.assertTrue(ComparableTool.isSorted(result2));
 	}
 
 	@Test //first field fixed, second field wildcard
@@ -195,7 +195,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		List<SortedBean> result3 = dao.scan(prefix3).list();
 		int expectedSize3 = SortedBeans.NUM_PREFIX_a * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		Assert.assertEquals(result3.size(), expectedSize3);
-		Assert.assertTrue(IterableTool.isSorted(result3));
+		Assert.assertTrue(ComparableTool.isSorted(result3));
 	}
 
 	@Test //first two fields given, third field is null, fourth field exists and should be ignored
@@ -207,7 +207,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 				"Ignore");
 		List<SortedBean> result4 = dao.scanWithPrefix(prefix4).list();
 		Assert.assertEquals(result4.size(), SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS);
-		Assert.assertTrue(IterableTool.isSorted(result4));
+		Assert.assertTrue(ComparableTool.isSorted(result4));
 	}
 
 	@Test
@@ -221,7 +221,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		int expectedSizeCh = SortedBeans.NUM_PREFIX_ch * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		int expectedSizeTotal = expectedSizeA + expectedSizeCh;
 		Assert.assertEquals(result.size(), expectedSizeTotal);
-		Assert.assertTrue(IterableTool.isSorted(result));
+		Assert.assertTrue(ComparableTool.isSorted(result));
 	}
 
 	@Test
@@ -259,14 +259,14 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		int expectedSize1 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS;
 		Assert.assertEquals(result1.size(), expectedSize1);
-		Assert.assertTrue(IterableTool.isSorted(result1));
+		Assert.assertTrue(ComparableTool.isSorted(result1));
 
 		var range1b = new Range<>(alp1, true, emu1, false);
 		List<T> result1b = scanProvider.scan(range1b, new Config()).list();
 		int expectedSize1b = (SortedBeans.RANGE_LENGTH_alp_emu_inc - 1) * SortedBeans.NUM_ELEMENTS
 				* SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		Assert.assertEquals(result1b.size(), expectedSize1b);
-		Assert.assertTrue(IterableTool.isSorted(result1b));
+		Assert.assertTrue(ComparableTool.isSorted(result1b));
 
 		var alp2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_alp, null, null);
 		var emu2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_emu, null, null);
@@ -274,7 +274,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		List<T> result2 = scanProvider.scan(range2, new Config()).list();
 		int expectedSize2 = SortedBeans.RANGE_LENGTH_alp_emu_inc * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		Assert.assertEquals(result2.size(), expectedSize2);
-		Assert.assertTrue(IterableTool.isSorted(result2));
+		Assert.assertTrue(ComparableTool.isSorted(result2));
 	}
 
 	@Test //small batch sizes to make sure we're resuming each batch from the correct spot
@@ -286,7 +286,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var emu1 = new SortedBeanKey(SortedBeans.RANGE_emu, null, null, null);
 		List<SortedBeanKey> result1 = dao.scanKeys(new Range<>(alp1, true, emu1, true), smallIterateBatchSize).list();
 		Assert.assertEquals(result1.size(), expectedSize1);
-		Assert.assertTrue(IterableTool.isSorted(result1));
+		Assert.assertTrue(ComparableTool.isSorted(result1));
 	}
 
 	@Test
@@ -298,7 +298,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 				* SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		List<SortedBeanKey> result1b = dao.scanKeys(new Range<>(alp1, true, emu1, false), smallIterateBatchSize).list();
 		Assert.assertEquals(result1b.size(), expectedSize1b);
-		Assert.assertTrue(IterableTool.isSorted(result1b));
+		Assert.assertTrue(ComparableTool.isSorted(result1b));
 	}
 
 	@Test
@@ -309,7 +309,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var emu2 = new SortedBeanKey(SortedBeans.STRINGS.first(), SortedBeans.RANGE_emu, null, null);
 		List<SortedBeanKey> result2 = dao.scanKeys(new Range<>(alp2, true, emu2, true), smallIterateBatchSize).list();
 		Assert.assertEquals(result2.size(), expectedSize2);
-		Assert.assertTrue(IterableTool.isSorted(result2));
+		Assert.assertTrue(ComparableTool.isSorted(result2));
 	}
 
 	@Test

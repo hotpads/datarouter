@@ -71,7 +71,9 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 			//avoid null in PK by using empty string
 			this.subEntityPrefix = Optional.ofNullable(nodeNames.getSubEntityPrefix()).orElse("");
 		}
-		this.rowKeyBytes = FieldTool.getConcatenatedValueBytes(rowKeyFields, false, true, false);
+		if(rowKeyFields != null){
+			this.rowKeyBytes = FieldTool.getConcatenatedValueBytes(rowKeyFields, false, true, false);
+		}
 	}
 
 	public TableSampleKey(String clientName, String tableName, String subEntityPrefix, byte[] rowKeyBytes){

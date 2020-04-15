@@ -36,12 +36,12 @@ public class TracePublisherFilterToMemoryBuffer implements FilterToMemoryBufferF
 	@Inject
 	public TracePublisherFilterToMemoryBuffer(DatarouterTracePublisherSettingRoot settings){
 		this.settings = settings;
-		this.buffer = new MemoryBuffer<>("traceBuffer", MAX_TRACES);
+		this.buffer = new MemoryBuffer<>("publisherTraceBuffer", MAX_TRACES);
 	}
 
 	@Override
 	public Optional<String> offer(TraceEntityDto dto){
-		return TraceToFilterBufferTool.offerDtoToBuffer(settings.runMemoryToSqs.get(), buffer, dto, "Publisher");
+		return TraceToFilterBufferTool.offerDtoToBuffer(settings.runMemoryToSqs.get(), buffer, dto);
 	}
 
 }

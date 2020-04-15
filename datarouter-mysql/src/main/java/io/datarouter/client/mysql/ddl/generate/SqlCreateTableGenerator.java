@@ -29,8 +29,6 @@ import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.ddl.domain.SqlIndex;
 import io.datarouter.client.mysql.ddl.domain.SqlTable;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -82,7 +80,7 @@ public class SqlCreateTableGenerator{
 			}
 			sb.append(")");
 		}
-		for(SqlIndex index : IterableTool.nullSafe(table.getUniqueIndexes())){
+		for(SqlIndex index : table.getUniqueIndexes()){
 			sb.append(",\n");
 			sb.append(" unique index " + index.getName() + " (");
 			boolean appendedAnyCol = false;
@@ -96,13 +94,13 @@ public class SqlCreateTableGenerator{
 			sb.append(")");
 		}
 
-		int numIndexes = CollectionTool.sizeNullSafe(table.getIndexes());
+		int numIndexes = table.getIndexes().size();
 		if(numIndexes > 0){
 			sb.append(",");
 		}
 		sb.append("\n");
 		boolean appendedAnyIndex = false;
-		for(SqlIndex index : IterableTool.nullSafe(table.getIndexes())){
+		for(SqlIndex index : table.getIndexes()){
 			if(appendedAnyIndex){
 				sb.append(",\n");
 			}

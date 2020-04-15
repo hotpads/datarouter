@@ -25,8 +25,8 @@ import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.storage.jobletdata.JobletData;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.type.JobletType;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.HashMethods;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.number.RandomTool;
 
 public class JobletPackage{
@@ -85,11 +85,11 @@ public class JobletPackage{
 	}
 
 	public static List<JobletRequest> getJobletRequests(Collection<JobletPackage> jobletPackages){
-		return IterableTool.nullSafeMap(jobletPackages, JobletPackage::getJobletRequest);
+		return Scanner.of(jobletPackages).map(JobletPackage::getJobletRequest).list();
 	}
 
 	public static List<JobletData> getJobletDatas(Collection<JobletPackage> jobletPackages){
-		return IterableTool.nullSafeMap(jobletPackages, JobletPackage::getJobletData);
+		return Scanner.of(jobletPackages).map(JobletPackage::getJobletData).list();
 	}
 
 	public static <P> P unmarshallJobletData(JobletType<P> jobletType, JobletPackage jobletPackage){

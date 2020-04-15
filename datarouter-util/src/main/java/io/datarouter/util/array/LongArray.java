@@ -24,7 +24,6 @@ import java.util.RandomAccess;
 
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 
 //Implement RandomAccess for proper treatment by some JDK utils
 public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAccess{
@@ -104,7 +103,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 
 	@Override
 	public boolean addAll(Collection<? extends Long> values){
-		for(Long value : CollectionTool.nullSafe(values)){
+		for(Long value : values){
 			add(value);
 		}
 		return true;
@@ -280,7 +279,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 	public boolean removeAll(Collection<?> objects){
 		// TODO could flag them all and copy/resize at once
 		boolean modified = false;
-		for(Object obj : IterableTool.nullSafe(objects)){
+		for(Object obj : objects){
 			if(this.remove(obj)){
 				modified = true;
 			}

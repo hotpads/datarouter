@@ -17,7 +17,6 @@ package io.datarouter.storage.node.adapter.trace;
 
 import java.util.Collection;
 
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -41,14 +40,14 @@ implements QueueStorageWriter<PK,D>{
 
 	@Override
 	public void put(D databean, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_put)){
+		try(var $ = startSpanForOp(OP_put)){
 			backingNode.put(databean, config);
 		}
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_putMulti)){
+		try(var $ = startSpanForOp(OP_putMulti)){
 			backingNode.putMulti(databeans, config);
 			TracerTool.appendToSpanInfo("databeans", databeans.size());
 		}
@@ -56,14 +55,14 @@ implements QueueStorageWriter<PK,D>{
 
 	@Override
 	public void ack(QueueMessageKey key, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_ack)){
+		try(var $ = startSpanForOp(OP_ack)){
 			backingNode.ack(key, config);
 		}
 	}
 
 	@Override
 	public void ackMulti(Collection<QueueMessageKey> keys, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_ackMulti)){
+		try(var $ = startSpanForOp(OP_ackMulti)){
 			backingNode.ackMulti(keys, config);
 			TracerTool.appendToSpanInfo("keys", keys.size());
 		}

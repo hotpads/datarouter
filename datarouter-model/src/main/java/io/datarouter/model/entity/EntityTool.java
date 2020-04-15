@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
-import io.datarouter.util.iterable.IterableTool;
 
 public class EntityTool{
 
@@ -39,7 +38,7 @@ public class EntityTool{
 	public static <EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>>
 	NavigableMap<EK,List<PK>> getPrimaryKeysByEntityKey(Iterable<PK> pks){
 		NavigableMap<EK,List<PK>> pksByEntityKey = new TreeMap<>();
-		for(PK pk : IterableTool.nullSafe(pks)){
+		for(PK pk : pks){
 			EK ek = pk.getEntityKey();
 			List<PK> pksForEntity = pksByEntityKey.get(ek);
 			if(pksForEntity == null){
@@ -54,7 +53,7 @@ public class EntityTool{
 	public static <EK extends EntityKey<EK>,PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>>
 	NavigableMap<EK,List<D>> getDatabeansByEntityKey(Iterable<D> databeans){
 		NavigableMap<EK,List<D>> databeansByEntityKey = new TreeMap<>();
-		for(D databean : IterableTool.nullSafe(databeans)){
+		for(D databean : databeans){
 			if(databean == null){
 				continue;
 			}// seem to be getting some null entries from TraceFlushController?

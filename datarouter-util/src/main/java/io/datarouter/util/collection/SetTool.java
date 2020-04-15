@@ -21,8 +21,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Supplier;
 
 import io.datarouter.util.array.ArrayTool;
@@ -33,18 +31,6 @@ public class SetTool{
 		HashSet<T> newSet = new HashSet<>(set);
 		newSet.add(element);
 		return newSet;
-	}
-
-	public static <T> Set<T> wrap(T element){
-		Set<T> set = new HashSet<>();
-		if(element != null){
-			set.add(element);
-		}
-		return set;
-	}
-
-	public static <T> Set<T> nullsafe(Set<T> in){
-		return in == null ? Collections.emptySet() : in;
 	}
 
 	@SafeVarargs
@@ -72,15 +58,6 @@ public class SetTool{
 			result.add(enum1);
 		}
 		return Collections.unmodifiableSet(result);
-	}
-
-	public static <T> SortedSet<T> unmodifiableTreeSet(Collection<T> items){
-		return Collections.unmodifiableSortedSet(new TreeSet<>(items));
-	}
-
-	@SafeVarargs
-	public static <T> Set<T> hashSet(T...items){
-		return new HashSet<>(Arrays.asList(items));
 	}
 
 }

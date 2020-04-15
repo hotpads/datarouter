@@ -22,22 +22,28 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
+import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto.UserDeprovisioningStatusDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
-import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
+import io.datarouter.model.field.imp.enums.StringEnumField;
+import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.enums.DatarouterEnumTool;
+import io.datarouter.util.enums.StringEnum;
 import io.datarouter.web.user.session.service.Role;
 
 public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,DeprovisionedUser>{
 
 	private List<String> roles;
+	private UserDeprovisioningStatus status;
 
 	public static class FieldKeys{
-		public static final BooleanFieldKey enabled = new BooleanFieldKey("enabled");
 		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
+		public static final StringEnumFieldKey<UserDeprovisioningStatus> status = new StringEnumFieldKey<>("status",
+				UserDeprovisioningStatus.class);
 	}
 
 	public static class DeprovisionedUserFielder extends BaseDatabeanFielder<DeprovisionedUserKey,DeprovisionedUser>{
@@ -48,7 +54,8 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 
 		@Override
 		public List<Field<?>> getNonKeyFields(DeprovisionedUser user){
-			return Arrays.asList(new DelimitedStringArrayField(FieldKeys.roles, user.roles));
+			return Arrays.asList(new DelimitedStringArrayField(FieldKeys.roles, user.roles),
+					new StringEnumField<>(FieldKeys.status, user.status));
 		}
 
 	}
@@ -57,13 +64,15 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 		super(new DeprovisionedUserKey(null));
 	}
 
-	public DeprovisionedUser(String username, Collection<Role> roles){
+	public DeprovisionedUser(String username, Collection<Role> roles, UserDeprovisioningStatus status){
 		super(new DeprovisionedUserKey(username));
 		setRoles(roles);
+		this.status = status;
 	}
 
 	public DeprovisionedUserDto toDto(){
-		return new DeprovisionedUserDto(getUsername(), Scanner.of(roles).sorted(String.CASE_INSENSITIVE_ORDER).list());
+		return new DeprovisionedUserDto(getUsername(), Scanner.of(roles).sorted(String.CASE_INSENSITIVE_ORDER).list(),
+				status.dto);
 	}
 
 	@Override
@@ -87,6 +96,40 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 				.sorted()
 				.distinct()
 				.collect(Collectors.toList());
+	}
+
+	public UserDeprovisioningStatus getStatus(){
+		return status;
+	}
+
+	public static enum UserDeprovisioningStatus implements StringEnum<UserDeprovisioningStatus>{
+
+		DEPROVISIONED("deprovisioned", UserDeprovisioningStatusDto.DEPROVISIONED),
+		FLAGGED("flagged", UserDeprovisioningStatusDto.FLAGGED),
+		;
+
+		private final String persistentString;
+		public final UserDeprovisioningStatusDto dto;
+
+		UserDeprovisioningStatus(String persistentString, UserDeprovisioningStatusDto dto){
+			this.persistentString = persistentString;
+			this.dto = dto;
+		}
+
+		@Override
+		public String getPersistentString(){
+			return persistentString;
+		}
+
+		@Override
+		public UserDeprovisioningStatus fromPersistentString(String string){
+			return fromPersistentStringStatic(string);
+		}
+
+		public static UserDeprovisioningStatus fromPersistentStringStatic(String string){
+			return DatarouterEnumTool.getEnumFromString(values(), string, null);
+		}
+
 	}
 
 }

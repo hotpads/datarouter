@@ -40,6 +40,7 @@ import io.datarouter.util.BooleanTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.exception.InvalidApiCallException;
 import io.datarouter.web.exception.InvalidCredentialsException;
+import io.datarouter.web.shutdown.ShutdownService;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -58,6 +59,8 @@ public class DatarouterAuthenticationFilter implements Filter{
 	private BaseDatarouterSessionDao datarouterSessionDao;
 	@Inject
 	private DatarouterSessionManager sessionManager;
+	@Inject
+	private ShutdownService shutdownService;
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
@@ -65,7 +68,11 @@ public class DatarouterAuthenticationFilter implements Filter{
 		final HttpServletRequest request = (HttpServletRequest)req;
 		final HttpServletResponse response = (HttpServletResponse)res;
 
-		logger.info("receiving path={}", RequestTool.getPath(request));
+		if(shutdownService.isShutdownOngoing()){
+			logger.info("receiving path={}", RequestTool.getPath(request));
+		}else{
+			logger.debug("receiving path={}", RequestTool.getPath(request));
+		}
 
 		final String contextPath = request.getContextPath();
 		final String signinFormPath = authenticationConfig.getSigninPath();

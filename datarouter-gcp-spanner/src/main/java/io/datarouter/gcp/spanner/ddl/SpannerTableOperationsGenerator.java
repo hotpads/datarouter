@@ -19,8 +19,8 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 
 @Singleton
 public class SpannerTableOperationsGenerator{
@@ -67,7 +67,7 @@ public class SpannerTableOperationsGenerator{
 		ddl.append(name);
 		ddl.append("(");
 		List<SpannerColumn> columns = ListTool.concatenate(primaryKeyColumns, nonKeyColumns);
-		ddl.append(String.join(", ", IterableTool.nullSafeMap(columns, SpannerColumn::generateColumnDef)));
+		ddl.append(String.join(", ", Scanner.of(columns).map(SpannerColumn::generateColumnDef).list()));
 		ddl.append(") PRIMARY KEY (");
 		primaryKeyColumns.forEach(col -> {
 			ddl.append(col.getName());
@@ -99,11 +99,11 @@ public class SpannerTableOperationsGenerator{
 		ddl.append(" ON ");
 		ddl.append(tableName);
 		ddl.append("(");
-		ddl.append(String.join(", ", IterableTool.nullSafeMap(keyColumns, SpannerColumn::getName)));
+		ddl.append(String.join(", ", Scanner.of(keyColumns).map(SpannerColumn::getName).list()));
 		ddl.append(")");
 		if(!nonKeyColumns.isEmpty()){
 			ddl.append(" STORING (");
-			ddl.append(String.join(", ", IterableTool.nullSafeMap(nonKeyColumns, SpannerColumn::getName)));
+			ddl.append(String.join(", ", Scanner.of(nonKeyColumns).map(SpannerColumn::getName).list()));
 			ddl.append(")");
 		}
 		return ddl.toString();

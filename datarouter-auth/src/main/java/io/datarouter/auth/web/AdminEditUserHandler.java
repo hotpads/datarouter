@@ -37,12 +37,12 @@ import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.service.DatarouterUserEditService;
 import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.service.DatarouterUserService;
+import io.datarouter.auth.service.UserInfo;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
-import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
@@ -66,15 +66,11 @@ public class AdminEditUserHandler extends BaseHandler{
 	private static final String USER_ROLES = "userRoles";
 
 	@Inject
-	private DatarouterUserDao datarouterUserDao;
-	@Inject
 	private BaseDatarouterAccountDao datarouterAccountDao;
 	@Inject
 	private DatarouterAccountService datarouterAccountService;
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
-	@Inject
-	private DatarouterPermissionRequestDao datarouterPermissionRequestDao;
 	@Inject
 	private DatarouterUserCreationService datarouterUserCreationService;
 	@Inject
@@ -96,6 +92,12 @@ public class AdminEditUserHandler extends BaseHandler{
 	@Inject
 	private Bootstrap4ReactPageFactory reactPageFactory;
 
+	//data fetching classes that are not tied to DatarouterUser user DatarouterSession databeans
+	@Inject
+	private DatarouterPermissionRequestDao datarouterPermissionRequestDao;
+	@Inject
+	private UserInfo userInfo;
+
 	@Handler
 	private Mav viewUsers(){
 		return reactPageFactory.startBuilder(request)
@@ -106,14 +108,13 @@ public class AdminEditUserHandler extends BaseHandler{
 
 	@Handler
 	private List<DatarouterUserListEntry> listUsers(){
-		Set<DatarouterUserKey> userKeysWithPermissionRequests = datarouterPermissionRequestDao
-				.getUserKeysWithPermissionRequests();
-		return datarouterUserDao.scan()
+		Set<Long> userIdsWithPermissionRequests = datarouterPermissionRequestDao.getUserIdsWithPermissionRequests();
+		return userInfo.scanAllUsers(false, roleManager.getAllRoles())
 				.map(user -> new DatarouterUserListEntry(
-						user.getKey().getId().toString(),
+						user.getId().toString(),
 						user.getUsername(),
-						user.getUserToken(),
-						userKeysWithPermissionRequests.contains(user.getKey())))
+						user.getToken(),
+						userIdsWithPermissionRequests.contains(user.getId())))
 				.list();
 	}
 

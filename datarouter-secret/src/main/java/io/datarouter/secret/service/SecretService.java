@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.secret.client.LocalStorageSecretClient.LocalStorageDefaultSecretValues;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient;
@@ -33,7 +34,6 @@ import io.datarouter.secret.client.SecretClientSupplier;
 import io.datarouter.secret.storage.oprecord.DatarouterSecretOpRecordDao;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 
 /**
@@ -202,7 +202,7 @@ public class SecretService{
 	}
 
 	private static List<String> removePrefixes(List<String> strings, String prefix){
-		return IterableTool.nullSafeMap(strings, string -> string.substring(prefix.length()));
+		return Scanner.of(strings).map(string -> string.substring(prefix.length())).list();
 	}
 
 }

@@ -27,7 +27,6 @@ import io.datarouter.scanner.BaseScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
-import io.datarouter.util.iterable.IterableTool;
 
 public class ManagedIndexIndexToDatabeanScanner<
 		PK extends PrimaryKey<PK>,
@@ -69,8 +68,9 @@ extends BaseScanner<D>{
 			return false;
 		}
 		List<IE> indexEntryBatch = indexEntryBatchIterator.next();
-		List<PK> primaryKeys = IterableTool.nullSafeMap(indexEntryBatch, IE::getTargetKey);
-		List<D> databeans = mainNode.getMulti(primaryKeys, config);
+		List<D> databeans = Scanner.of(indexEntryBatch)
+				.map(IE::getTargetKey)
+				.listTo(primaryKeys -> mainNode.getMulti(primaryKeys, config));
 		keyToDatabeans = DatabeanTool.getByKey(databeans);
 		indexEntryIterator = indexEntryBatch.iterator();
 		return true;

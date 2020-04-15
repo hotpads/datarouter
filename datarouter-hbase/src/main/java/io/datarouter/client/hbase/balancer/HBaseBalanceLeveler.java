@@ -24,9 +24,8 @@ import java.util.TreeMap;
 
 import org.apache.hadoop.hbase.ServerName;
 
-import io.datarouter.util.ComparableTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.HashMethods;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.MapTool;
 import io.datarouter.util.lang.ObjectTool;
 
@@ -45,7 +44,7 @@ public class HBaseBalanceLeveler<I>{
 			Collection<ServerName> allDestinations,
 			SortedMap<I,ServerName> unleveledDestinationByItem,
 			String randomSeed){
-		this.allDestinations = CollectionTool.nullSafe(allDestinations);
+		this.allDestinations = allDestinations;
 		this.destinationByItem = new TreeMap<>(unleveledDestinationByItem);
 
 		this.countByDestination = PSEUDO_RANDOM_LEVELING
@@ -57,7 +56,11 @@ public class HBaseBalanceLeveler<I>{
 	public SortedMap<I,ServerName> getBalancedDestinationByItem(){
 		while(!isBalanced()){
 			ServerName mostLoadedDestination = getMostLoadedDestination();
-			I itemToMove = MapTool.getFirstKeyWhereValueEquals(destinationByItem, mostLoadedDestination);
+			I itemToMove = Scanner.of(destinationByItem.entrySet())
+					.include(entry -> Objects.equals(entry.getValue(), mostLoadedDestination))
+					.findFirst()
+					.map(Entry::getKey)
+					.orElse(null);
 			ServerName leastLoadedDestination = getLeastLoadedDestination();
 			//overwrite the item's destination, thus moving it
 			destinationByItem.put(itemToMove, leastLoadedDestination);
@@ -107,8 +110,14 @@ public class HBaseBalanceLeveler<I>{
 			throw new IllegalStateException("countByDestination.size() is " + countByDestination.size()
 					+ " but should be " + allDestinations.size());
 		}
-		this.minAtDestination = ComparableTool.min(countByDestination.values());
-		this.maxAtDestination = ComparableTool.max(countByDestination.values());
+		this.minAtDestination = countByDestination.values().stream()
+				.mapToLong(Long::longValue)
+				.min()
+				.orElse(0);
+		this.maxAtDestination = countByDestination.values().stream()
+				.mapToLong(Long::longValue)
+				.max()
+				.orElse(0);
 	}
 
 	private void ensureAllDestinationsInCountByDestination(){

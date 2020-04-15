@@ -104,7 +104,7 @@ public class HBaseSubEntityResultParser<
 				continue;
 			}
 			List<PK> pksFromSingleGet = getPrimaryKeysWithMatchingQualifierPrefix(row);
-			results.addAll(CollectionTool.nullSafe(pksFromSingleGet));
+			results.addAll(pksFromSingleGet);
 		}
 		return results;
 	}
@@ -116,7 +116,7 @@ public class HBaseSubEntityResultParser<
 				continue;
 			}
 			List<D> databeansFromSingleGet = getDatabeansWithMatchingQualifierPrefix(row, null);
-			results.addAll(CollectionTool.nullSafe(databeansFromSingleGet));
+			results.addAll(databeansFromSingleGet);
 		}
 		return results;
 	}

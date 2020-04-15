@@ -26,11 +26,11 @@ import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.BaseGroupQueueConsumerConveyor;
 import io.datarouter.conveyor.queue.GroupQueueConsumer;
 import io.datarouter.instrumentation.trace.TraceEntityDto;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.trace.storage.BaseDatarouterTraceDao;
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.thread.TraceThread;
 import io.datarouter.trace.storage.trace.Trace;
-import io.datarouter.util.iterable.IterableTool;
 
 public class TraceSqsDrainConveyor extends BaseGroupQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
 
@@ -56,8 +56,8 @@ public class TraceSqsDrainConveyor extends BaseGroupQueueConsumerConveyor<Convey
 	private void persistEntity(ConveyorMessage message){
 		TraceEntityDto dto = gson.fromJson(message.getMessage(), TraceEntityDto.class);
 		Trace trace = new Trace(dto.traceDto);
-		List<TraceThread> threads = IterableTool.nullSafeMap(dto.traceThreadDtos, TraceThread::new);
-		List<TraceSpan> spans = IterableTool.nullSafeMap(dto.traceSpanDtos, TraceSpan::new);
+		List<TraceThread> threads = Scanner.of(dto.traceThreadDtos).map(TraceThread::new).list();
+		List<TraceSpan> spans = Scanner.of(dto.traceSpanDtos).map(TraceSpan::new).list();
 		traceDao.putMulti(threads, spans, trace);
 	}
 

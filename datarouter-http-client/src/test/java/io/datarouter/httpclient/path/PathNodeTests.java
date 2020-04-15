@@ -84,4 +84,16 @@ public class PathNodeTests{
 		Assert.assertEquals(paths1.aa, paths2.aa);
 	}
 
+	@Test
+	public void testParse(){
+		TestPaths paths = new TestPaths();
+		PathNode cc = paths.aa.bb.cc;
+		Assert.assertEquals(PathNode.parse(cc.toSlashedString()), cc);
+		Assert.assertEquals(PathNode.parse(cc.toSlashedStringWithoutLeadingSlash()), cc);
+		Assert.assertEquals(PathNode.parse(cc.toSlashedStringWithTrailingSlash()), cc);
+		PathNode aa = paths.aa;
+		Assert.assertEquals(PathNode.parse(aa.toSlashedString()), aa);
+		Assert.assertEquals(PathNode.parse(paths.toSlashedString()), paths);
+	}
+
 }

@@ -28,7 +28,7 @@ import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.trace.TraceEntityDto;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 
 public abstract class BaseTraceMemoryToSqsConveyor extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseTraceMemoryToSqsConveyor.class);
@@ -61,7 +61,7 @@ public abstract class BaseTraceMemoryToSqsConveyor extends BaseConveyor{
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, dtos.size());
 			return new ProcessBatchResult(true);
 		}catch(RuntimeException putMultiException){
-			List<String> ids = IterableTool.nullSafeMap(dtos, dto -> dto.traceDto.getTraceId());
+			List<String> ids = Scanner.of(dtos).map(dto -> dto.traceDto.getTraceId()).list();
 			logger.warn("exception sending trace to sqs ids={}", ids, putMultiException);
 			ConveyorCounters.inc(this, "putMulti exception", 1);
 			return new ProcessBatchResult(false);//backoff for a bit

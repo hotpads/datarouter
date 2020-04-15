@@ -32,10 +32,10 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 
 public class SpannerEntityPutOp<
 		EK extends EntityKey<EK>,
@@ -59,14 +59,14 @@ extends SpannerPutOp<PK,D,F>{
 
 	@Override
 	public Collection<Mutation> getMutations(){
-		var entityMutations = IterableTool.nullSafeMap(values, this::createEntityRow);
-		var databeanMutations = IterableTool.nullSafeMap(values, this::databeanToMutation);
+		var entityMutations = Scanner.of(values).map(this::createEntityRow).list();
+		var databeanMutations = Scanner.of(values).map(this::databeanToMutation).list();
 		return ListTool.concatenate(entityMutations, databeanMutations);
 
 	}
 
 	private Mutation createEntityRow(D databean){
-		List<SpannerBaseFieldCodec<?,?>> entityCodecs = codecRegistry.createCodecs(databean.getKey()
+		List<? extends SpannerBaseFieldCodec<?,?>> entityCodecs = codecRegistry.createCodecs(databean.getKey()
 				.getEntityKeyFields());
 		WriteBuilder mutation = Mutation.newInsertOrUpdateBuilder(fieldInfo.getTableName());
 		mutation = getMutationPartition(databean, mutation);

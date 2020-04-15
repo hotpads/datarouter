@@ -15,6 +15,7 @@
  */
 package io.datarouter.client.mysql.field.codec.factory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -85,8 +86,6 @@ import io.datarouter.model.field.imp.positive.UInt31Field;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt7Field;
 import io.datarouter.model.field.imp.positive.VarIntField;
-import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ReflectionTool;
 
 @Singleton
@@ -161,10 +160,8 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 
 	@Override
 	public List<MysqlFieldCodec<?>> createCodecs(Collection<Field<?>> fields){
-		List<MysqlFieldCodec<?>> codecs = ListTool.createArrayListWithSize(fields);
-		for(Field<?> field : IterableTool.nullSafe(fields)){
-			codecs.add(createCodec(field));
-		}
+		List<MysqlFieldCodec<?>> codecs = new ArrayList<>(fields.size());
+		fields.forEach(field -> codecs.add(createCodec(field)));
 		return codecs;
 	}
 

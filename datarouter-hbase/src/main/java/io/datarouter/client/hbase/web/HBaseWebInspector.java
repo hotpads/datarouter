@@ -16,6 +16,7 @@
 package io.datarouter.client.hbase.web;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +39,6 @@ import io.datarouter.client.hbase.config.DatarouterHBasePaths;
 import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.DatarouterNodes;
-import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory.DatarouterWebRequestParams;
@@ -76,16 +74,16 @@ public class HBaseWebInspector implements DatarouterClientWebInspector{
 				HConstants.ZOOKEEPER_QUORUM));
 		List<HTableDescriptor> tables;
 		try{
-			tables = ListTool.create(hBaseClientManager.getAdmin(routerParams.getClientId()).listTables());
+			tables = Arrays.asList(hBaseClientManager.getAdmin(routerParams.getClientId()).listTables());
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 		Map<String,Map<String,String>> tableSummaryByName = new TreeMap<>();
 		Map<String,Map<String,Map<String,String>>> familySummaryByTableName = new TreeMap<>();
 		List<String> tableNamesForClient = getTableNames(routerParams);
-		for(HTableDescriptor table : IterableTool.nullSafe(tables)){
+		for(HTableDescriptor table : tables){
 			String tableName = table.getNameAsString();
-			if(!CollectionTool.nullSafe(tableNamesForClient).contains(tableName)){
+			if(!tableNamesForClient.contains(tableName)){
 				continue;
 			}
 			Map<String,String> tableAttributeByName = new TreeMap<>();
@@ -110,7 +108,7 @@ public class HBaseWebInspector implements DatarouterClientWebInspector{
 
 	private static Map<String,Map<String,String>> parseTableAttributeMap(Collection<HColumnDescriptor> families){
 		Map<String,Map<String,String>> familyAttributeByNameByFamilyName = new TreeMap<>();
-		for(HColumnDescriptor family : IterableTool.nullSafe(families)){
+		for(HColumnDescriptor family : families){
 			Map<String,String> familyAttributeByName = new TreeMap<>();
 			familyAttributeByNameByFamilyName.put(family.getNameAsString(), familyAttributeByName);
 			for(Entry<ImmutableBytesWritable,ImmutableBytesWritable> e : family.getValues().entrySet()){

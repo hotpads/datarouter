@@ -24,6 +24,7 @@ import static j2html.TagCreator.tr;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
-import io.datarouter.util.collection.MapTool;
-import io.datarouter.util.collection.SetTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 
@@ -170,7 +168,9 @@ public class TraceThreadGroup{
 					.withStyle("margin:0px 0px 0px 40px; font-weight:normal;");
 			sb.append(div.render());
 		}
-		Set<TraceSpanDto> spans = SetTool.nullsafe(MapTool.nullSafe(spansByThreadKey).get(thread));
+		Set<TraceSpanDto> spans = spansByThreadKey == null
+				? Collections.emptySet()
+				: spansByThreadKey.getOrDefault(thread, new TreeSet<>());
 		Map<Integer,List<TraceSpanDto>> spanByParentSequenceId = spans.stream()
 				.collect(Collectors.groupingBy(TraceSpanDto::getParentSequenceOrMinusOne));
 		sb.append(buildSubSpans(new TimeDto(thread), spanByParentSequenceId.get(-1), spanByParentSequenceId, 0));
@@ -240,7 +240,7 @@ public class TraceThreadGroup{
 
 	public static TraceThreadGroup create(Collection<TraceThreadDto> threads, TraceThreadDto fakeThread){
 		TraceThreadGroup rootGroup = null;
-		for(TraceThreadDto thread : IterableTool.nullSafe(threads)){
+		for(TraceThreadDto thread : threads){
 			if(rootGroup == null){
 				if(thread.getParentId() != null){
 					// build a fake for corrupted data
@@ -257,7 +257,7 @@ public class TraceThreadGroup{
 	public SortedMap<TraceThreadDto,SortedSet<TraceSpanDto>> getSpansByThreadKey(Collection<TraceSpanDto> spans){
 		SortedMap<TraceThreadDto,SortedSet<TraceSpanDto>> out = new TreeMap<>(
 				Comparator.comparing(TraceThreadDto::getThreadId));
-		for(TraceSpanDto span : IterableTool.nullSafe(spans)){
+		for(TraceSpanDto span : spans){
 			var threadKey = new TraceThreadDto(span.getTraceId(), span.getThreadId(), null, null, null, null, null);
 			if(out.get(threadKey) == null){
 				out.put(threadKey, new TreeSet<>(Comparator.comparing(TraceSpanDto::getSequence)));

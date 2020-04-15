@@ -105,8 +105,12 @@ public class DocumentationHandler extends BaseHandler{
 				if(!method.isAnnotationPresent(Handler.class)){
 					continue;
 				}
-				String urlSuffix = method.getAnnotation(Handler.class).defaultHandler() ? "" : "/" + method.getName();
-				String url = rule.getPattern().pattern().replace(BaseRouteSet.REGEX_ONE_DIRECTORY, "") + urlSuffix;
+				String url = rule.getPattern().pattern();
+				if(url.contains(BaseRouteSet.REGEX_ONE_DIRECTORY)){
+					String urlSuffix = method.getAnnotation(Handler.class).defaultHandler() ? "" : "/" + method
+							.getName();
+					url = url.replace(BaseRouteSet.REGEX_ONE_DIRECTORY, "") + urlSuffix;
+				}
 				List<DocumentedParameterJspDto> parameters = new ArrayList<>();
 				String description = method.getAnnotation(Handler.class).description();
 				parameters.addAll(createApplicableSecurityParameters(rule));

@@ -19,7 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 
@@ -159,13 +159,9 @@ public class CallsiteStat{
 	}
 
 	public static int countDaoCallsites(List<CallsiteStat> stats){
-		int numDaoCallsites = 0;
-		for(CallsiteStat stat : IterableTool.nullSafe(stats)){
-			if(stat.isDaoCallsite()){
-				++numDaoCallsites;
-			}
-		}
-		return numDaoCallsites;
+		return (int)Scanner.of(stats)
+				.include(CallsiteStat::isDaoCallsite)
+				.count();
 	}
 
 	public Long getAvgDurationUs(){

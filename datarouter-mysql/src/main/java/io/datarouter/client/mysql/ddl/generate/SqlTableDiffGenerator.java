@@ -24,7 +24,7 @@ import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn.SqlColumnByName;
 import io.datarouter.client.mysql.ddl.domain.SqlIndex;
 import io.datarouter.client.mysql.ddl.domain.SqlTable;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 
 public class SqlTableDiffGenerator{
 
@@ -47,7 +47,7 @@ public class SqlTableDiffGenerator{
 	private static List<SqlColumn> findDifferentColumnsByName(SqlTable first, SqlTable second){
 		Set<SqlColumnByName> differentColumns = SqlColumnByName.wrap(first.getColumns());
 		differentColumns.removeAll(SqlColumnByName.wrap(second.getColumns()));
-		return IterableTool.nullSafeMap(differentColumns, SqlColumnByName::getSqlColumn);
+		return Scanner.of(differentColumns).map(SqlColumnByName::getSqlColumn).list();
 	}
 
 	public List<SqlColumn> getColumnsToModify(){

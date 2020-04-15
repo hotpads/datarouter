@@ -50,14 +50,18 @@ public class ConnectionSqlTableGenerator{
 	public static SqlTable generate(MysqlConnectionPool connectionPool, String tableName, String schemaName){
 		try(Connection connection = connectionPool.checkOut()){
 			List<SqlColumn> columns = fetchSqlTableColumns(connection, schemaName, tableName);
-
 			SqlTableIndexes sqlTableIndexes = fetchSqlTableIndexes(connection, schemaName, tableName);
-
 			SqlTableMetadata sqlTableMetadata = fetchSqlTableMetadata(connection, schemaName, tableName);
-
-			return new SqlTable(tableName, sqlTableIndexes.primaryKey, columns, sqlTableIndexes.indexes,
-					sqlTableIndexes.uniqueIndexes, sqlTableMetadata.characterSet, sqlTableMetadata.collation,
-					sqlTableMetadata.rowFormat, sqlTableMetadata.engine);
+			return new SqlTable(
+					tableName,
+					sqlTableIndexes.primaryKey,
+					columns,
+					sqlTableIndexes.indexes,
+					sqlTableIndexes.uniqueIndexes,
+					sqlTableMetadata.characterSet,
+					sqlTableMetadata.collation,
+					sqlTableMetadata.rowFormat,
+					sqlTableMetadata.engine);
 		}catch(SQLException e){
 			throw new RuntimeException("can not read schema information for table " + schemaName + "." + tableName, e);
 		}

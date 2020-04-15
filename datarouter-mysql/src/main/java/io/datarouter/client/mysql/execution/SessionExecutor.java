@@ -32,7 +32,6 @@ import com.mysql.cj.jdbc.exceptions.MySQLTransactionRollbackException;
 import io.datarouter.client.mysql.MysqlConnectionClientManager;
 import io.datarouter.client.mysql.TxnClientManager;
 import io.datarouter.client.mysql.op.BaseMysqlOp;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.exception.DataAccessException;
@@ -102,7 +101,7 @@ public class SessionExecutor{
 
 			if(connectionHandle.isOutermostHandle()){
 				String spanName = "commit " + clientId.getName();
-				try(TraceSpanFinisher finisher = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+				try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
 					clientManager.commitTxn(clientId);
 				}
 			}

@@ -17,6 +17,7 @@ package io.datarouter.nodewatch.storage.tablesample;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +38,6 @@ import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.model.util.PercentFieldCodec;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.number.NumberFormatter;
@@ -158,8 +158,14 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 		super(new TableSampleKey(null, null));
 	}
 
-	public TableSample(ClientTableEntityPrefixNameWrapper nodeNames, List<Field<?>> rowKey, Long numRows,
-			Date dateCreated, Long countTimeMs, boolean interrupted, boolean isLast){
+	public TableSample(
+			ClientTableEntityPrefixNameWrapper nodeNames,
+			List<Field<?>> rowKey,
+			Long numRows,
+			Date dateCreated,
+			Long countTimeMs,
+			boolean interrupted,
+			boolean isLast){
 		super(new TableSampleKey(nodeNames, rowKey));
 		this.numRows = numRows;
 		this.dateCreated = dateCreated;
@@ -185,8 +191,8 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 
 	/*--------------- static ---------------*/
 
-	public static long getTotalRows(Iterable<TableSample> samples){
-		return Scanner.of(samples).stream()
+	public static long getTotalRows(Collection<TableSample> samples){
+		return samples.stream()
 				.mapToLong(TableSample::getNumRows)
 				.sum();
 	}

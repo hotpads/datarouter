@@ -27,16 +27,16 @@ public class TraceToFilterBufferTool{
 	private static final Logger logger = LoggerFactory.getLogger(TraceToFilterBufferTool.class);
 
 	public static Optional<String> offerDtoToBuffer(boolean shouldRun, MemoryBuffer<TraceEntityDto> buffer,
-			TraceEntityDto entityDto, String destination){
+			TraceEntityDto entityDto){
 		if(!shouldRun){
 			return Optional.empty();
 		}
 		if(!buffer.offer(entityDto)){
-			logger.warn("error offering trace entity buffer={} traceId={}", destination, entityDto.traceDto
+			logger.warn("error offering trace entity buffer={} traceId={}", buffer.getName(), entityDto.traceDto
 					.getTraceId());
 			return Optional.empty();
 		}
-		return Optional.of(destination);
+		return Optional.of(buffer.getName());
 	}
 
 }

@@ -18,10 +18,6 @@ package io.datarouter.scanner;
 import java.util.Objects;
 import java.util.function.Function;
 
-/**
- * Removes consecutive duplicates.  Lighter weight than Stream's distinct() because all elements need not be
- * collected into memory.
- */
 public class DeduplicatingScanner<T,R> extends BaseLinkedScanner<T,T>{
 
 	private final Function<T,R> mapper;

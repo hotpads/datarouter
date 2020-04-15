@@ -24,7 +24,7 @@ import javax.servlet.Filter;
 import com.google.inject.Provides;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.util.iterable.IterableTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DefaultDispatcherServlet;
 import io.datarouter.web.dispatcher.DispatcherServletClasses;
@@ -105,7 +105,7 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 	@Provides
 	public RouteSetRegistry getRouteSetRegistry(DatarouterInjector injector){
 		List<BaseRouteSet> routes = new ArrayList<>();
-		routes.addAll(IterableTool.nullSafeMap(routeSets, injector::getInstance));
+		Scanner.of(routeSets).map(injector::getInstance).flush(routes::addAll);
 		return new DefaultRouteSetRegistry(routes);
 	}
 

@@ -17,6 +17,13 @@ package io.datarouter.scanner;
 
 public class EmptyScanner<T> extends BaseScanner<T>{
 
+	private static final EmptyScanner<?> SINGLETON = new EmptyScanner<>();
+
+	@SuppressWarnings("unchecked")
+	public static <T> Scanner<T> singleton(){
+		return (EmptyScanner<T>)SINGLETON;
+	}
+
 	@Override
 	public boolean advance(){
 		return false;

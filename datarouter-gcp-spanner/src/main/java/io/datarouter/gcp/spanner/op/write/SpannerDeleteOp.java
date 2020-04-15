@@ -27,9 +27,9 @@ import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.iterable.IterableTool;
 
 public class SpannerDeleteOp<
 		PK extends PrimaryKey<PK>,
@@ -63,7 +63,7 @@ extends SpannerBaseWriteOp<PK>{
 
 	@Override
 	public Collection<Mutation> getMutations(){
-		return IterableTool.nullSafeMap(values, this::keyToDeleteMutation);
+		return Scanner.of(values).map(this::keyToDeleteMutation).list();
 	}
 
 	protected Mutation keyToDeleteMutation(PK key){

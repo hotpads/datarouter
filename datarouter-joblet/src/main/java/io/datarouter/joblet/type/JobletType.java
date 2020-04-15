@@ -24,7 +24,6 @@ import io.datarouter.joblet.codec.JobletCodec;
 import io.datarouter.joblet.model.Joblet;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.Require;
-import io.datarouter.util.collection.CollectionTool;
 
 public class JobletType<P> implements Comparable<JobletType<?>>{
 
@@ -67,11 +66,12 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 		return ComparableTool.nullFirstCompareTo(persistentString, other.persistentString);
 	}
 
-	public static void assertAllSameShortQueueName(Collection<JobletType<?>> jobletTypes){
-		JobletType<?> first = CollectionTool.getFirst(jobletTypes);
-		for(JobletType<?> jobletType : jobletTypes){
-			Require.equals(first.getShortQueueName(), jobletType.getShortQueueName());
-		}
+	public static void assertAllSameShortQueueName(Collection<? extends JobletType<?>> jobletTypes){
+		long numShortQueueNames = jobletTypes.stream()
+				.map(JobletType::getShortQueueName)
+				.distinct()
+				.count();
+		Require.equals(numShortQueueNames, 1L);
 	}
 
 	public String getPersistentString(){

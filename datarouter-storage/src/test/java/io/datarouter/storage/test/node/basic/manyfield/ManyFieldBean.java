@@ -20,11 +20,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -79,7 +76,6 @@ import io.datarouter.model.field.imp.positive.VarIntFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.array.LongArray;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ObjectTool;
 
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
@@ -296,16 +292,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	@Override
 	public Class<ManyFieldBeanKey> getKeyClass(){
 		return ManyFieldBeanKey.class;
-	}
-
-	public static List<ManyFieldBean> filterForStringValue(Collection<ManyFieldBean> ins, String value){
-		List<ManyFieldBean> outs = new LinkedList<>();
-		for(ManyFieldBean in : IterableTool.nullSafe(ins)){
-			if(Objects.equals(in.getStringField(), value)){
-				outs.add(in);
-			}
-		}
-		return outs;
 	}
 
 	public List<Long> appendToLongArrayField(long val){

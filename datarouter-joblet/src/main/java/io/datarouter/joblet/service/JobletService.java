@@ -60,7 +60,6 @@ import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.util.HashMethods;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -105,9 +104,11 @@ public class JobletService{
 	}
 
 	private void submitJobletPackagesOfSameType(Collection<JobletPackage> jobletPackages){
-		JobletType<?> jobletType = jobletTypeFactory.fromJobletPackage(CollectionTool.getFirst(jobletPackages));
-		JobletType.assertAllSameShortQueueName(IterableTool.nullSafeMap(jobletPackages,
-				jobletTypeFactory::fromJobletPackage));
+		List<? extends JobletType<?>> jobletTypes = Scanner.of(jobletPackages)
+				.map(jobletTypeFactory::fromJobletPackage)
+				.list();
+		JobletType.assertAllSameShortQueueName(jobletTypes);
+		JobletType<?> jobletType = jobletTypes.iterator().next();
 		for(List<JobletPackage> batch : Scanner.of(jobletPackages).batch(100).iterable()){
 			var timer = new PhaseTimer("insert " + batch.size() + " " + jobletType);
 			jobletDataDao.putMultiOrBust(JobletPackage.getJobletDatas(batch));
@@ -167,7 +168,7 @@ public class JobletService{
 	}
 
 	private List<JobletPackage> getJobletPackagesForJobletRequests(Collection<JobletRequest> jobletRequests){
-		List<JobletDataKey> keys = IterableTool.nullSafeMap(jobletRequests, JobletRequest::getJobletDataKey);
+		List<JobletDataKey> keys = Scanner.of(jobletRequests).map(JobletRequest::getJobletDataKey).list();
 		Map<Long,JobletData> dataKeyToJobletData = jobletDataDao.getMulti(keys).stream()
 				.collect(Collectors.toMap(jobletData -> jobletData.getKey().getId(), Function.identity()));
 		return jobletRequests.stream()
@@ -256,8 +257,9 @@ public class JobletService{
 	}
 
 	public void deleteJobletDatasForJobletRequests(Collection<JobletRequest> jobletRequests){
-		List<JobletDataKey> jobletDataKeys = IterableTool.nullSafeMap(jobletRequests, JobletRequest::getJobletDataKey);
-		jobletDataDao.deleteMulti(jobletDataKeys);
+		Scanner.of(jobletRequests)
+				.map(JobletRequest::getJobletDataKey)
+				.flush(jobletDataDao::deleteMulti);
 	}
 
 	public void deleteJoblets(Collection<JobletRequest> jobletRequests){

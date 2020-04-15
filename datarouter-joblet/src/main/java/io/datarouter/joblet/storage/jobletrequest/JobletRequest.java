@@ -41,7 +41,6 @@ import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.iterable.IterableTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.mutable.MutableBoolean;
 import io.datarouter.util.number.NumberTool;
@@ -142,7 +141,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	public static ArrayList<JobletRequest> filterByTypeStatusReservedByPrefix(Iterable<JobletRequest> ins,
 			JobletType<?> type, JobletStatus status, String reservedByPrefix){
 		ArrayList<JobletRequest> outs = new ArrayList<>();
-		for(JobletRequest in : IterableTool.nullSafe(ins)){
+		for(JobletRequest in : ins){
 			if(ObjectTool.notEquals(type.getPersistentString(), in.getKey().getType())){
 				continue;
 			}

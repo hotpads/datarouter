@@ -17,7 +17,6 @@ package io.datarouter.storage.node.adapter.trace.mixin;
 
 import java.util.Collection;
 
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -38,14 +37,14 @@ extends SortedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 
 	@Override
 	default Scanner<PK> scanKeys(Range<PK> range, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_scanKeys)){
+		try(var $ = startSpanForOp(OP_scanKeys)){
 			return getBackingNode().scanKeys(range, config);
 		}
 	}
 
 	@Override
 	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_scanKeysMulti)){
+		try(var $ = startSpanForOp(OP_scanKeysMulti)){
 			TracerTool.appendToSpanInfo("ranges", ranges.size());
 			return getBackingNode().scanKeysMulti(ranges, config);
 		}
@@ -53,14 +52,14 @@ extends SortedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 
 	@Override
 	default Scanner<D> scan(Range<PK> range, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_scan)){
+		try(var $ = startSpanForOp(OP_scan)){
 			return getBackingNode().scan(range, config);
 		}
 	}
 
 	@Override
 	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		try(TraceSpanFinisher finisher = startSpanForOp(OP_scanMulti)){
+		try(var $ = startSpanForOp(OP_scanMulti)){
 			TracerTool.appendToSpanInfo("ranges", ranges.size());
 			return getBackingNode().scanMulti(ranges, config);
 		}
