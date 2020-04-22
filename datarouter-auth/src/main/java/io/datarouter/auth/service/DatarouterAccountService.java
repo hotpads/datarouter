@@ -16,12 +16,12 @@
 package io.datarouter.auth.service;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -65,15 +65,15 @@ public class DatarouterAccountService{
 				.flatMap(this::findAccountForApiKey);
 	}
 
-	public Stream<DatarouterAccountPermissionKey> streamPermissionsForApiKey(String apiKey){
+	public Scanner<DatarouterAccountPermissionKey> scanPermissionsForApiKey(String apiKey){
 		return findAccountForApiKey(apiKey)
 				.map(DatarouterAccount::getKey)
 				.map(DatarouterAccountKey::getAccountName)
 				.map(DatarouterAccountPermissionKey::new)
 				.map(datarouterAccountPermissionKeysByPrefixCache::get)
 				.orElseGet(Optional::empty)
-				.map(Collection::stream)
-				.orElseGet(Stream::empty);
+				.map(Scanner::of)
+				.orElseGet(Scanner::empty);
 	}
 
 	public Optional<DatarouterAccount> findAccountForApiKey(String apiKey){
@@ -100,14 +100,14 @@ public class DatarouterAccountService{
 	public Set<String> findAccountNamesForUser(DatarouterUserKey userKey){
 		return scanAccountKeysForUser(userKey)
 				.map(DatarouterAccountKey::getAccountName)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 	}
 
 	public Set<String> findAccountNamesForUserWithUserMappingsEnabled(DatarouterUserKey userKey){
-		return streamAccountForUserWithUserMappingEnabled(userKey)
+		return scanAccountForUserWithUserMappingEnabled(userKey)
 				.map(DatarouterAccount::getKey)
 				.map(DatarouterAccountKey::getAccountName)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 	}
 
 	public List<DatarouterAccount> findAccountsForUser(DatarouterUserKey userKey){
@@ -121,12 +121,12 @@ public class DatarouterAccountService{
 				.map(DatarouterUserAccountMapKey::getDatarouterAccountKey);
 	}
 
-	public Stream<DatarouterAccount> streamAccountForUserWithUserMappingEnabled(DatarouterUserKey userKey){
+	public Scanner<DatarouterAccount> scanAccountForUserWithUserMappingEnabled(DatarouterUserKey userKey){
 		var prefix = new DatarouterUserAccountMapKey(userKey.getId(), null);
 		return datarouterUserAccountMapDao.scanKeysWithPrefix(prefix)
 				.map(DatarouterUserAccountMapKey::getDatarouterAccountKey)
-				.listTo(datarouterAccountDao::getMulti).stream()
-				.filter(DatarouterAccount::getEnableUserMappings);
+				.listTo(keys -> Scanner.of(datarouterAccountDao.getMulti(keys)))
+				.include(DatarouterAccount::getEnableUserMappings);
 	}
 
 	public List<DatarouterAccount> getAccountsWithDuplicateApiKey(){

@@ -28,6 +28,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -49,7 +51,7 @@ import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadataKe
 import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryDao;
 import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
 import io.datarouter.httpclient.HttpHeaders;
-import io.datarouter.model.databean.DatabeanTool;
+import io.datarouter.model.databean.Databean;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.collection.MapTool;
 import io.datarouter.util.serialization.GsonTool;
@@ -106,7 +108,8 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		}
 		mav.put("exceptionRecordSummaries", summaries);
 		Map<ExceptionRecordSummaryMetadataKey,ExceptionRecordSummaryMetadata> summaryMetadatas =
-				DatabeanTool.getByKey(exceptionSummaryMetadataDao.getMulti(metadataKeys));
+				exceptionSummaryMetadataDao.getMulti(metadataKeys).stream()
+				.collect(Collectors.toMap(Databean::getKey, Function.identity()));
 
 		mav.put("summaryMetadatas", summaryMetadatas);
 		if(lastPeriodStart != null){

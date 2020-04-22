@@ -45,6 +45,9 @@ public class DatarouterRateLimiterPlugin extends BaseWebPlugin{
 			this.clientId = clientId;
 		}
 
+		/*
+		 * default version is 1
+		 */
 		public DatarouterRateLimiterPluginBuilder withVersion(int version){
 			this.version = version;
 			return this;

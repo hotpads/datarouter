@@ -16,6 +16,7 @@
 package io.datarouter.storage.test.node.basic.sorted;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,7 +28,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
@@ -92,7 +92,9 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		new SortedBeanFielder().getNonKeyFields(blankDatabeanFromDb).stream()
 				.map(Field::getValue)
 				.forEach(Assert::assertNull);
-		dao.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)), config);
+		Scanner.of(blankDatabean, nonBlankDatabean)
+				.map(Databean::getKey)
+				.flush(keys -> dao.deleteMulti(keys, config));
 		Assert.assertFalse(dao.exists(blankDatabean.getKey(), config));
 	}
 
@@ -325,10 +327,11 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 
 	@Test
 	public void testGetMulti(){
-		Set<SortedBean> allBeans = dao.scan()
-				.collect(Collectors.toSet());
+		Set<SortedBean> allBeans = dao.scan().collect(HashSet::new);
 		Assert.assertEquals(allBeans.size(), SortedBeans.TOTAL_RECORDS);
-		List<SortedBean> getMultiResult = dao.getMulti(DatabeanTool.getKeys(allBeans), 1_000);
+		List<SortedBean> getMultiResult = Scanner.of(allBeans)
+				.map(Databean::getKey)
+				.listTo(keys -> dao.getMulti(keys, 1_000));
 		Assert.assertEquals(getMultiResult.size(), SortedBeans.TOTAL_RECORDS);
 		getMultiResult.forEach(result -> Assert.assertTrue(allBeans.contains(result)));
 	}
@@ -477,10 +480,10 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var range2 = new Range<>(startKey2, endKey2);
 		Set<SortedBean> beans = dao.scanMulti(Arrays.asList(range1, range2),
 				new Config().setOutputBatchSize(4))
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 		Set<SortedBean> expected = Scanner.of(range1, range2)
 				.concatenate(dao::scan)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 		Assert.assertTrue(expected.size() > 0);
 		Assert.assertEquals(beans, expected);
 	}

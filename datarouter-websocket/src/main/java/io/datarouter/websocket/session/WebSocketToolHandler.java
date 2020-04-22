@@ -15,13 +15,19 @@
  */
 package io.datarouter.websocket.session;
 
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.h3;
+
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -30,15 +36,21 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.util.collection.ListTool;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.html.j2html.J2HtmlTable;
+import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.websocket.config.DatarouterWebSocketFiles;
 import io.datarouter.websocket.service.ServerAddressProvider;
 import io.datarouter.websocket.service.WebSocketConnectionStore;
 import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao;
 import io.datarouter.websocket.storage.session.WebSocketSession;
 import io.datarouter.websocket.storage.session.WebSocketSessionKey;
+import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao;
+import io.datarouter.websocket.storage.subscription.WebSocketSubscriptionKey;
 
 public class WebSocketToolHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketToolHandler.class);
@@ -55,6 +67,10 @@ public class WebSocketToolHandler extends BaseHandler{
 	private DatarouterWebSocketFiles files;
 	@Inject
 	private PushService pushService;
+	@Inject
+	private DatarouterWebSocketSubscriptionDao subscriptionDao;
+	@Inject
+	private Bootstrap4PageFactory pageFactory;
 
 	@Handler(defaultHandler = true)
 	private Mav list(){
@@ -97,6 +113,28 @@ public class WebSocketToolHandler extends BaseHandler{
 				.map(Scanner::list)
 				.ifPresent(userSessions -> mav.put("userSessions", userSessions));
 		return mav;
+	}
+
+	@Handler
+	public Mav subscriptions(){
+		List<Pair<String,Long>> rows = subscriptionDao.scanKeys()
+				.collect(Collectors.groupingBy(WebSocketSubscriptionKey::getTopic, Collectors.counting()))
+				.entrySet().stream()
+				.sorted(Comparator.comparing(Entry::getKey))
+				.map(entry -> new Pair<>(entry.getKey(), entry.getValue()))
+				.collect(Collectors.toList());
+		Pair<String,Long> total = new Pair<>("Total", rows.stream()
+				.map(Pair::getRight)
+				.reduce(0L, Long::sum));
+		var table = new J2HtmlTable<Pair<String,Long>>()
+				.withClasses("table", "table-sm", "table-responsive")
+				.withColumn("Topic", Pair::getLeft)
+				.withColumn("Count", pair -> NumberFormatter.format(pair.getRight(), 0))
+				.build(ListTool.concatenate(rows, List.of(total)));
+		return pageFactory.startBuilder(request)
+				.withTitle("WebSocket Subscriptions")
+				.withContent(div(h3("WebSocket Subcriptions"), table).withClasses("container", "my-5"))
+				.buildMav();
 	}
 
 	public static class WebSocketSessionJspDto{

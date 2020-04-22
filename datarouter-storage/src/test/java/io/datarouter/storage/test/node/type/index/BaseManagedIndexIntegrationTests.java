@@ -27,7 +27,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import io.datarouter.model.databean.DatabeanTool;
+import io.datarouter.model.databean.Databean;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -189,7 +190,7 @@ public abstract class BaseManagedIndexIntegrationTests{
 		List<TestDatabean> databeans = List.of(
 				new TestDatabean("tri", "martolod", "yaouank"),
 				new TestDatabean("i vonet", "da", "veajiñ"));
-		List<TestDatabeanKey> keys = DatabeanTool.getKeys(databeans);
+		List<TestDatabeanKey> keys = Scanner.of(databeans).map(Databean::getKey).list();
 		List<TestDatabeanWithManagedIndexByBarKey> entryKeys = new ArrayList<>();
 		for(TestDatabean databean : databeans){
 			entryKeys.add(new TestDatabeanWithManagedIndexByBarKey(databean.getBar()));

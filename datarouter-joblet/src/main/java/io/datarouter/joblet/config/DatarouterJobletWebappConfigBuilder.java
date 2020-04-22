@@ -25,18 +25,17 @@ import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.job.config.DatarouterJobWebappConfigBuilder;
 import io.datarouter.joblet.config.DatarouterJobletPlugin.DatarouterJobletDaoModule;
 import io.datarouter.joblet.config.DatarouterJobletPlugin.DatarouterJobletPluginBuilder;
-import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.NoOpJobletExternalLinkBuilder;
+import io.datarouter.joblet.queue.JobletRequestSelector;
 import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeGroup;
-import io.datarouter.jobletmysql.selector.MysqlLockForUpdateJobletRequestSelector;
-import io.datarouter.jobletmysql.selector.MysqlUpdateAndScanJobletRequestSelector;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.BasePlugin;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypes;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebappConfig;
 
 public abstract class DatarouterJobletWebappConfigBuilder<T extends DatarouterJobletWebappConfigBuilder<T>>
@@ -45,6 +44,7 @@ extends DatarouterJobWebappConfigBuilder<T>{
 	private final ClientId defaultQueueClientId;
 	private final List<JobletType<?>> jobletTypes;
 	private final List<BaseJobletPlugin> jobletPlugins;
+	private final List<Pair<String,Class<? extends JobletRequestSelector>>> selectorTypes;
 
 	private Class<? extends JobletExternalLinkBuilder> jobletExternalLinkBuilder;
 
@@ -81,6 +81,7 @@ extends DatarouterJobWebappConfigBuilder<T>{
 		this.jobletTypes = new ArrayList<>();
 		this.jobletExternalLinkBuilder = NoOpJobletExternalLinkBuilder.class;
 		this.jobletPlugins = new ArrayList<>();
+		this.selectorTypes = new ArrayList<>();
 	}
 
 	@Override
@@ -98,12 +99,7 @@ extends DatarouterJobWebappConfigBuilder<T>{
 				.setJobletTypes(jobletTypes)
 				.setDaoModule(new DatarouterJobletDaoModule(defaultClientId, defaultQueueClientId, defaultClientId))
 				.setExternalLinkBuilderClass(jobletExternalLinkBuilder)
-				.withSelector(
-						JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE.getPersistentString(),
-						MysqlLockForUpdateJobletRequestSelector.class)
-				.withSelector(
-						JobletQueueMechanism.JDBC_UPDATE_AND_SCAN.getPersistentString(),
-						MysqlUpdateAndScanJobletRequestSelector.class)
+          		.withSelectorTypes(selectorTypes)
 				.build();
 		modules.add(jobletPlugin);
 		return super.build();
@@ -156,6 +152,11 @@ extends DatarouterJobWebappConfigBuilder<T>{
 
 	public T addJobletTypes(List<JobletType<?>> jobletTypes){
 		this.jobletTypes.addAll(jobletTypes);
+		return getSelf();
+	}
+
+	public T addJobletSelector(String name, Class<? extends JobletRequestSelector> selectorClass){
+		this.selectorTypes.add(new Pair<>(name, selectorClass));
 		return getSelf();
 	}
 

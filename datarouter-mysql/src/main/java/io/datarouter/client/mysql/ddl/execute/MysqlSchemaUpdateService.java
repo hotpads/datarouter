@@ -35,7 +35,7 @@ import io.datarouter.storage.config.executor.DatarouterStorageExecutors.Datarout
 import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 
@@ -66,7 +66,7 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 	@Override
 	protected Callable<Optional<SchemaUpdateResult>> makeSchemaUpdateCallable(
 			ClientId clientId,
-			Lazy<List<String>> existingTableNames,
+			SingletonSupplier<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> node){
 		return () -> mysqlSingleTableSchemaUpdateService.performSchemaUpdate(clientId, existingTableNames, node);
 	}

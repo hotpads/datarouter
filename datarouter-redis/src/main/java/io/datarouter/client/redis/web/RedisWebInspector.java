@@ -22,9 +22,11 @@ import static j2html.TagCreator.dt;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
+import static j2html.TagCreator.pre;
 import static j2html.TagCreator.ul;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -33,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.client.redis.RedisClientType;
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.client.redis.client.RedisOptions;
+import io.datarouter.client.redis.client.RedisOptions.RedisClientMode;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
@@ -77,20 +80,28 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag buildOverview(ClientId clientId){
-		String mode = redisOptions.getClientMode(clientId.getName());
-
-		String clusterEndpoint = "";
-		if(mode.equals(RedisOptions.DYNAMIC_CLIENT_MODE)){
-			clusterEndpoint = redisOptions.getClusterEndpoint(clientId.getName()).get().toString();
+		RedisClientMode clientMode = redisOptions.getClientMode(clientId.getName());
+		String endpoint = "";
+		if(clientMode == RedisClientMode.DYNAMIC){
+			endpoint = redisOptions.getClusterEndpoint(clientId.getName()).get().toString();
+		}else{
+			endpoint = redisOptions.getServers(clientId.getName()).get(0).toString();
 		}
-		Jedis client = redisClientManager.getJedis(clientId);
-		var infoList = Arrays.stream(client.clusterInfo().split(" "))
-				.collect(Collectors.toList());
-		var infoDiv = ul(each(infoList, TagCreator::li));
+		ContainerTag infoDiv;
+		ContainerTag clusterInfo = div("Cluster disabled");
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			if(clientMode == RedisClientMode.DYNAMIC){
+				List<String> infoList = Arrays.stream(client.clusterInfo().split("\n"))
+						.collect(Collectors.toList());
+				clusterInfo = ul(each(infoList, TagCreator::li));
+			}
+			infoDiv = pre(client.info());
+		}
 		return dl(
-				dt("Client mode:"), dd(mode),
-				dt("Cluster endpoint:"), dd(clusterEndpoint),
-				dt("Cluster info"), dd(infoDiv));
+				dt("Client mode:"), dd(clientMode.getPersistentString()),
+				dt("Endpoint:"), dd(endpoint),
+				dt("Cluster info"), dd(clusterInfo),
+				dt("Redis Info"), dd(infoDiv));
 	}
 
 }

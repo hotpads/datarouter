@@ -35,6 +35,7 @@ import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.util.collection.CollectionTool;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.SetParams;
 
 public class RedisNode<
@@ -73,12 +74,14 @@ implements PhysicalMapStorageNode<PK,D,F>,
 			ttl = getTtlMs(config);
 		}
 		String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, getFieldInfo().getSampleFielder());
-		if(ttl == null){
-			getClient().set(key, jsonBean);
-		}else{
-			// XX - Only set they key if it already exists
-			// PX - Milliseconds
-			getClient().set(key, jsonBean, new SetParams().xx().px(ttl));
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			if(ttl == null){
+				client.set(key, jsonBean);
+			}else{
+				// XX - Only set they key if it already exists
+				// PX - Milliseconds
+				client.set(key, jsonBean, new SetParams().xx().px(ttl));
+			}
 		}
 	}
 
@@ -105,7 +108,9 @@ implements PhysicalMapStorageNode<PK,D,F>,
 			keysAndDatabeans.add(key);
 			keysAndDatabeans.add(jsonBean);
 		}
-		getClient().mset(keysAndDatabeans.toArray(new String[keysAndDatabeans.size()]));
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			client.mset(keysAndDatabeans.toArray(new String[keysAndDatabeans.size()]));
+		}
 	}
 
 	@Override
@@ -118,7 +123,9 @@ implements PhysicalMapStorageNode<PK,D,F>,
 		if(key == null){
 			return;
 		}
-		getClient().del(buildRedisKey(key));
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			client.del(buildRedisKey(key));
+		}
 	}
 
 	@Override
@@ -126,7 +133,9 @@ implements PhysicalMapStorageNode<PK,D,F>,
 		if(CollectionTool.isEmpty(keys)){
 			return;
 		}
-		getClient().del(buildRedisKeys(keys).toArray(new String[keys.size()]));
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			client.del(buildRedisKeys(keys).toArray(new String[keys.size()]));
+		}
 	}
 
 	@Override
@@ -136,12 +145,14 @@ implements PhysicalMapStorageNode<PK,D,F>,
 		}
 		String tallyKey = buildRedisKey(new TallyKey(key));
 		Long expiration = getTtlMs(config);
-		if(expiration == null){
-			return getClient().incrBy(tallyKey, delta).longValue();
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			if(expiration == null){
+				return client.incrBy(tallyKey, delta).longValue();
+			}
+			Long response = client.incrBy(tallyKey, delta);
+			client.pexpire(tallyKey, expiration);
+			return response.longValue();
 		}
-		Long response = getClient().incrBy(tallyKey, delta);
-		getClient().pexpire(tallyKey, expiration);
-		return response.longValue();
 	}
 
 	@Override
@@ -149,7 +160,9 @@ implements PhysicalMapStorageNode<PK,D,F>,
 		if(key == null){
 			return;
 		}
-		getClient().del(buildRedisKey(new TallyKey(key)));
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			client.del(buildRedisKey(new TallyKey(key)));
+		}
 	}
 
 	private Long getTtlMs(Config config){

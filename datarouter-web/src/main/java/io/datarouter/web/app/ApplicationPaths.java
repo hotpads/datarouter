@@ -19,22 +19,22 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.config.ServletContextSupplier;
 
 @Singleton
 public class ApplicationPaths{
 
-	private final Lazy<String> path;
-	private final Lazy<String> resourcesPath;
-	private final Lazy<String> webInfPath;
+	private final SingletonSupplier<String> path;
+	private final SingletonSupplier<String> resourcesPath;
+	private final SingletonSupplier<String> webInfPath;
 
 	@Inject
 	public ApplicationPaths(ServletContextSupplier servletContextSupplier){
 		ServletContext servletContext = servletContextSupplier.get();
-		this.path = Lazy.of(() -> WebappTool.getApplicationRootPath(servletContext));
-		this.resourcesPath = Lazy.of(() -> WebappTool.getResourcesPath(servletContext));
-		this.webInfPath = Lazy.of(() -> WebappTool.getWebInfPath(servletContext));
+		this.path = SingletonSupplier.of(() -> WebappTool.getApplicationRootPath(servletContext));
+		this.resourcesPath = SingletonSupplier.of(() -> WebappTool.getResourcesPath(servletContext));
+		this.webInfPath = SingletonSupplier.of(() -> WebappTool.getWebInfPath(servletContext));
 	}
 
 	public String getRootPath(){

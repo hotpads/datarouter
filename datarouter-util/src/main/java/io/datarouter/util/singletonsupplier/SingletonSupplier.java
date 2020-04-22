@@ -13,10 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.setting;
+package io.datarouter.util.singletonsupplier;
 
-import java.util.List;
 import java.util.function.Supplier;
 
-public interface AdditionalSettingRootsSupplier extends Supplier<List<Class<? extends SettingRoot>>>{
+public abstract class SingletonSupplier<R>
+extends CheckedSingletonSupplier<R,RuntimeException>
+implements Supplier<R>{
+
+	public static <R> SingletonSupplier<R> of(Supplier<? extends R> supplier){
+		return new FunctionalSingletonSupplier<>(supplier);
+	}
+
+	private static class FunctionalSingletonSupplier<R> extends SingletonSupplier<R>{
+
+		private final Supplier<? extends R> supplier;
+
+		public FunctionalSingletonSupplier(Supplier<? extends R> supplier){
+			this.supplier = supplier;
+		}
+
+		@Override
+		protected R load(){
+			return supplier.get();
+		}
+
+	}
+
 }

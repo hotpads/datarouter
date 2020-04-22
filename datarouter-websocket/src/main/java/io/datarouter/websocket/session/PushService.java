@@ -27,6 +27,7 @@ import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.websocket.WebSocketCounters;
 import io.datarouter.websocket.config.DatarouterWebSocketPaths;
@@ -34,6 +35,8 @@ import io.datarouter.websocket.endpoint.WebSocketServices;
 import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao;
 import io.datarouter.websocket.storage.session.WebSocketSession;
 import io.datarouter.websocket.storage.session.WebSocketSessionKey;
+import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao;
+import io.datarouter.websocket.storage.subscription.WebSocketSubscriptionKey;
 
 @Singleton
 public class PushService{
@@ -43,6 +46,8 @@ public class PushService{
 	private PushServiceHttpClient httpClient;
 	@Inject
 	private DatarouterWebSocketSessionDao webSocketDao;
+	@Inject
+	private DatarouterWebSocketSubscriptionDao webSocketSubscriptionDao;
 	@Inject
 	private WebSocketServices webSocketServices;
 	@Inject
@@ -64,6 +69,15 @@ public class PushService{
 	public void forwardToAll(String userToken, String message){
 		WebSocketSessionKey prefix = new WebSocketSessionKey(userToken, null);
 		webSocketDao.scanWithPrefix(prefix)
+				.forEach(session -> forward(session, message));
+	}
+
+	public void forwardToTopic(String topic, String message){
+		webSocketSubscriptionDao.scanKeysWithPrefix(new WebSocketSubscriptionKey(topic, null, null))
+				.map(key -> new WebSocketSessionKey(key.getUserToken(), key.getWebSocketSessionId()))
+				.batch(100)
+				.map(webSocketDao::getMulti)
+				.concatenate(Scanner::of)
 				.forEach(session -> forward(session, message));
 	}
 

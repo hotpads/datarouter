@@ -16,6 +16,7 @@
 package io.datarouter.scanner;
 
 import java.io.Closeable;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -46,6 +48,10 @@ public interface Scanner<T> extends Closeable{
 
 	default boolean anyMatch(Predicate<? super T> predicate){
 		return ScannerTool.anyMatch(this, predicate);
+	}
+
+	default <C extends Collection<T>> C collect(Supplier<C> collectionSupplier){
+		return ScannerTool.collect(this, collectionSupplier);
 	}
 
 	default <R,A> R collect(Collector<? super T,A,R> collector){
@@ -183,8 +189,7 @@ public interface Scanner<T> extends Closeable{
 	@SuppressWarnings("resource")
 	default Scanner<T> prefetch(ExecutorService exec, int batchSize){
 		return new PrefetchingScanner<>(this, exec, batchSize)
-				.mapToScanner(Scanner::of)
-				.concatenate();
+				.concatenate(Scanner::of);
 	}
 
 	default Scanner<T> sample(long sampleSize, boolean includeLast){
@@ -207,22 +212,24 @@ public interface Scanner<T> extends Closeable{
 		return ScannerTool.take(this, numToTake);
 	}
 
-	/*--------------------------- ScannerScanner ----------------------------*/
+	/*--------------------------- Scanner of Scanners ----------------------------*/
 
-	default <R> ScannerScanner<R> mapToScanner(Function<? super T,Scanner<R>> mapper){
-		return new ScannerScanner<>(map(mapper));
-	}
-
+	@SuppressWarnings("unchecked")
 	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper){
-		return mapToScanner(mapper).collate();
+		return collate(mapper, (Comparator<? super R>)Comparator.naturalOrder());
 	}
 
 	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper, Comparator<? super R> comparator){
-		return mapToScanner(mapper).collate(comparator);
+		List<Scanner<R>> scanners = map(mapper).list();
+		if(scanners.size() == 1){
+			return scanners.get(0);
+		}
+		return new CollatingScanner<>(scanners, comparator);
 	}
 
 	default <R> Scanner<R> concatenate(Function<? super T,Scanner<R>> mapper){
-		return mapToScanner(mapper).concatenate();
+		Scanner<Scanner<R>> scanners = map(mapper);
+		return new ConcatenatingScanner<>(scanners);
 	}
 
 	/*----------------------------- Parallel --------------------------------*/

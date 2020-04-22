@@ -83,16 +83,17 @@ public class WritableDatabeanCountArchive extends BaseCountArchive implements Wr
 		long periodStart = DateTool.getPeriodStart(countMap.getStartTimeMs(), periodMs);
 		aggregator = new AtomicCounter(periodStart, periodMs);
 		aggregator.merge(countMap);
+		long periodStartMs = oldAggregator.getStartTimeMs();
+		Date periodStartTime = new Date(periodStartMs);
 		List<ConveyorMessage> countDtosToSave = new ArrayList<>();
 		for(Entry<String,AtomicLong> entry : oldAggregator.getCountByKey().entrySet()){
 			if(entry.getValue() == null || entry.getValue().longValue() == 0){
 				continue;
 			}
-			Date periodStartTime = new Date(oldAggregator.getStartTimeMs());
 			Date created = new Date();
 			String sanitizedName = sanitizeName(entry.getKey());
-			CountDto dto = new CountDto(sanitizedName, serviceName, periodMs, periodStartTime, source, created,
-					entry.getValue().get());
+			CountDto dto = new CountDto(sanitizedName, serviceName, periodMs, periodStartTime, periodStartMs, source,
+					created, entry.getValue().get());
 			countDtosToSave.add(new ConveyorMessage(dto.name, gson.toJson(dto)));
 		}
 		if(!countDtosToSave.isEmpty() && settings.runCountsToSqs.get()){

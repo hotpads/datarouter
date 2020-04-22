@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.27</version>
+		<version>0.0.28</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -42,6 +42,17 @@
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-joblet</artifactId>
 			<version>${datarouter-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-mysql</artifactId>
+			<version>${datarouter-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-logging</artifactId>
+			<version>${datarouter-version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

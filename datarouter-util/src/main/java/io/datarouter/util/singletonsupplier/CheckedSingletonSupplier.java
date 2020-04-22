@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.lazy;
+package io.datarouter.util.singletonsupplier;
 
 import java.util.concurrent.Callable;
 
-public abstract class CheckedLazy<R,E extends Exception> implements Callable<R>{
+public abstract class CheckedSingletonSupplier<R,E extends Exception> implements Callable<R>{
 
 	private volatile R value;
 
-	protected CheckedLazy(){
+	protected CheckedSingletonSupplier(){
 	}
 
 	// work done in load will only happen once
@@ -56,11 +56,11 @@ public abstract class CheckedLazy<R,E extends Exception> implements Callable<R>{
 
 	/*----------------------- CheckedLazyFunctional -------------------------*/
 
-	public static <R,E extends Exception> CheckedLazy<R,E> ofChecked(CheckedSupplier<R,E> supplier){
+	public static <R,E extends Exception> CheckedSingletonSupplier<R,E> ofChecked(CheckedSupplier<R,E> supplier){
 		return new CheckedLazyFunctional<>(supplier);
 	}
 
-	private static class CheckedLazyFunctional<R,E extends Exception> extends CheckedLazy<R,E>{
+	private static class CheckedLazyFunctional<R,E extends Exception> extends CheckedSingletonSupplier<R,E>{
 
 		private final CheckedSupplier<R,E> supplier;
 

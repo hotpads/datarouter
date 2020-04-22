@@ -16,6 +16,7 @@
 package io.datarouter.scanner;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Spliterators;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -49,6 +51,16 @@ public class ScannerTool{
 				}
 			}
 			return false;
+		}
+	}
+
+	public static <T,C extends Collection<T>> C collect(Scanner<T> scanner, Supplier<C> collectionSupplier){
+		try(var $ = scanner){
+			C collection = collectionSupplier.get();
+			while(scanner.advance()){
+				collection.add(scanner.current());
+			}
+			return collection;
 		}
 	}
 

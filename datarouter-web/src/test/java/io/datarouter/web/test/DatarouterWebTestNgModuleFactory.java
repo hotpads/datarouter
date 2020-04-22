@@ -17,18 +17,31 @@ package io.datarouter.web.test;
 
 import java.util.Arrays;
 
-import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
+import io.datarouter.inject.guice.BaseGuiceModule;
+import io.datarouter.storage.TestDatarouterProperties;
+import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
-import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
 public class DatarouterWebTestNgModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterWebTestNgModuleFactory(){
-		super(Arrays.asList(
-				new DatarouterWebGuiceModule(),
-				new DatarouterWebTestGuiceModule(),
-				new DatarouterStorageTestGuiceModule()));
+		super(Arrays.asList(new DatarouterWebGuiceModule(), new WebTestGuiceModule()));
+	}
+
+	public static class WebTestGuiceModule extends BaseGuiceModule{
+
+		@Override
+		public void configure(){
+			bind(DatarouterService.class).to(NoOpDatarouterService.class);
+			bind(DatarouterProperties.class).to(TestDatarouterProperties.class);
+			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+		}
+
 	}
 
 }

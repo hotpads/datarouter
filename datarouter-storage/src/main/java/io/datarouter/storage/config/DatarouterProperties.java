@@ -19,11 +19,15 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
@@ -43,6 +47,7 @@ import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.tuple.Pair;
 
 public abstract class DatarouterProperties{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterProperties.class);
@@ -59,7 +64,7 @@ public abstract class DatarouterProperties{
 	private static final String SERVER_TYPE = "server.type";
 	private static final String SERVER_CLUSTER_DOMAINS = "server.clusterDomains";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
-	private static final String INTERNAL_CONFIG_DIRECTORY_PROP = "internalConfigDirectory";
+	private static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
 
 	private static final String EC2_INSTANCE_IDENTITY_DOCUMENT_URL =
 			"http://169.254.169.254/latest/dynamic/instance-identity/document";
@@ -98,6 +103,9 @@ public abstract class DatarouterProperties{
 	private final String publicIp;
 	private final Collection<String> clusterDomains;
 	private final String internalConfigDirectory;
+	private final Properties allComputedServerProperties;
+
+	private Optional<Properties> propertiesFromConfigFile = Optional.empty();
 
 	/*----------------- construct ------------------*/
 
@@ -115,8 +123,48 @@ public abstract class DatarouterProperties{
 		boolean fileRequiredWithoutDirectoryRequired = fileRequired && !directoryRequired;
 		Require.isTrue(!fileRequiredWithoutDirectoryRequired, "directory is required if file is required");
 
-		//find configDirectory first
-		this.configDirectory = configDirectory;
+		this.configDirectory = validateConfigDirectory(configDirectory, directoryRequired, directoryFromJvmArg);
+		this.configFileLocation = findConfigFileLocation(filename, fileRequired);
+
+		this.allComputedServerProperties = new Properties();
+		this.webappName = webappName;
+		this.testConfigDirectory = TEST_CONFIG_DIRECTORY;
+
+		this.environment = findProperty(ENVIRONMENT);
+		this.environmentDomain = findProperty(ENVIRONMENT_DOMAIN);
+		this.environmentType = findProperty(ENVIRONMENT_TYPE, EnvironmentType.DEVELOPMENT.get().getPersistentString());
+		this.serverName = findServerName();
+		this.serverType = serverTypeOptions.fromPersistentString(findProperty(SERVER_TYPE));
+		this.administratorEmail = findProperty(ADMINISTRATOR_EMAIL);
+		this.privateIp = findIp(SERVER_PRIVATE_IP, EC2_PRIVATE_IP_URL);
+		this.publicIp = findIp(SERVER_PUBLIC_IP, EC2_PUBLIC_IP_URL);
+		this.clusterDomains = findClusterDomains();
+		this.internalConfigDirectory = findProperty(INTERNAL_CONFIG_DIRECTORY);
+
+		checkRequiredProperties();
+	}
+
+	private void checkRequiredProperties(){
+		Map<String,String> requiredPropertiesValueByName = new HashMap<>();
+		requiredPropertiesValueByName.put(ENVIRONMENT, environment);
+		requiredPropertiesValueByName.put(ENVIRONMENT_TYPE, environmentType);
+		requiredPropertiesValueByName.put(SERVER_NAME, serverName);
+		requiredPropertiesValueByName.put(SERVER_TYPE, serverType == null ? null : serverType.getPersistentString());
+		requiredPropertiesValueByName.put(ADMINISTRATOR_EMAIL, administratorEmail);
+		requiredPropertiesValueByName.put(INTERNAL_CONFIG_DIRECTORY, internalConfigDirectory);
+		requiredPropertiesValueByName.entrySet().stream()
+				.filter(entry -> entry.getValue() == null)
+				.peek(entry -> logger.error("Required property {} is null", entry.getKey()))
+				.findAny()
+				.ifPresent($ -> {
+					throw new RuntimeException("One or more required properties are null");
+				});
+	}
+
+	/*--------------- methods to find config values -----------------*/
+
+	private String validateConfigDirectory(String configDirectory, boolean directoryRequired,
+			boolean directoryFromJvmArg){
 		if(configDirectory != null){
 			FileTool.createFileParents(configDirectory + "/anything");
 			if(directoryFromJvmArg){
@@ -127,157 +175,121 @@ public abstract class DatarouterProperties{
 		}else{
 			Require.isTrue(!directoryRequired, "config directory required but not found");
 		}
+		return configDirectory;
+	}
 
-		//find configPath
+	private String findConfigFileLocation(String filename, boolean fileRequired){
+		String configFileLocation = null;
 		if(StringTool.isEmpty(filename)){
 			Require.isTrue(!fileRequired);
-			this.configFileLocation = null;
 		}else{
-			this.configFileLocation = configDirectory + "/" + filename;
-		}
-		if(configFileLocation != null){
-			logSource("config file", configFileLocation, "constant");
-		}
-
-		//maybe parse configFileProperties
-		Optional<Properties> configFileProperties = Optional.empty();
-		if(configFileLocation != null){
-			try{
-				configFileProperties = Optional.of(PropertiesTool.parse(configFileLocation));
-				logConfigFileProperties(configFileProperties);
-			}catch(Exception e){
-				logger.error("couldn't parse properties file {}", configFileLocation);
+			configFileLocation = configDirectory + "/" + filename;
+			if(Files.notExists(Paths.get(configFileLocation))){
+				logger.error("couldn't find config file {}", configFileLocation);
+			}else{
+				logger.warn("found config file {}", configFileLocation);
+				try{
+					propertiesFromConfigFile = Optional.of(PropertiesTool.parse(configFileLocation));
+					logConfigFileProperties();
+				}catch(Exception e){
+					logger.error("couldn't parse config file {}", configFileLocation);
+				}
 			}
 		}
-
-		this.webappName = webappName;
-
-		//find remaining fields
-		this.testConfigDirectory = TEST_CONFIG_DIRECTORY;
-		this.environment = findProperty(configFileProperties, ENVIRONMENT);
-		this.environmentDomain = findProperty(configFileProperties, ENVIRONMENT_DOMAIN);
-		this.environmentType = findEnvironmentType(configFileProperties);
-		this.serverName = findServerName(configFileProperties);
-		this.serverType = serverTypeOptions.fromPersistentString(findProperty(configFileProperties, SERVER_TYPE));
-		this.administratorEmail = findProperty(configFileProperties, ADMINISTRATOR_EMAIL);
-		this.privateIp = findPrivateIp(configFileProperties);
-		this.publicIp = findPublicIp(configFileProperties);
-		this.clusterDomains = findClusterDomains(configFileProperties);
-		this.internalConfigDirectory = findProperty(configFileProperties, INTERNAL_CONFIG_DIRECTORY_PROP);
+		return configFileLocation;
 	}
 
-	/*--------------- methods to find config values -----------------*/
+	private String findProperty(String propertyName){
+		return findProperty(propertyName, null, null);
+	}
 
-	//prefer jvmArg then configFile
-	private String findProperty(Optional<Properties> configFileProperties, String propertyName){
-		Optional<String> jvmValue = getJvmArg(propertyName);
-		if(jvmValue.isPresent()){
-			return jvmValue.get();
+	private String findProperty(String propertyName, String defaultValue){
+		return findProperty(propertyName, defaultValue, null);
+	}
+
+	//use what available in the following order: jvmArg then configFile then default then null
+	private String findProperty(String propertyName, String defaultValue, String source){
+		Optional<Pair<String,String>> propertyValueBySource = getPropFromJvmArg(propertyName)
+				.or(() -> getPropFromConfigFile(propertyName));
+
+		if(propertyValueBySource.isPresent() && !propertyValueBySource.get().getLeft().isEmpty()){
+			allComputedServerProperties.setProperty(propertyName, propertyValueBySource.get().getLeft());
+			return propertyValueBySource.get().getLeft();
 		}
-		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(propertyName));
-			if(value.isPresent()){
-				logSource(propertyName, value.get(), configFileLocation);
-				return value.get();
-			}
+
+		if(defaultValue != null){
+			allComputedServerProperties.setProperty(propertyName, defaultValue);
+			logSource(propertyName, defaultValue, source == null ? "default" : source);
+			return defaultValue;
 		}
-		logger.error("couldn't find {}", propertyName);
+
+		if(propertyValueBySource.isPresent()){
+			logger.error("found {} with empty value from {}", propertyName, propertyValueBySource.get().getRight());
+		}else{
+			logger.error("couldn't find " + propertyName + ", no default provided");
+		}
+		allComputedServerProperties.setProperty(propertyName, "");
 		return null;
 	}
 
-	private String findEnvironmentType(Optional<Properties> configFileProperties){
-		String environmentType = findProperty(configFileProperties, ENVIRONMENT_TYPE);
-		if(environmentType != null){
-			return environmentType;
+	private Optional<Pair<String,String>> getPropFromConfigFile(String propertyName){
+		Optional<String> propertyValue = propertiesFromConfigFile
+				.map(properties -> properties.getProperty(propertyName));
+		if(propertyValue.isEmpty()){
+			return Optional.empty();
 		}
-		String defaultValue = EnvironmentType.DEVELOPMENT.get().getPersistentString();
-		logger.error("couldn't find {}, defaulting to {}", ENVIRONMENT_TYPE, defaultValue);
-		return defaultValue;
+		if(!propertyValue.get().isEmpty()){
+			logSource(propertyName, propertyValue.get(), configFileLocation);
+		}
+		return Optional.of(new Pair<>(propertyValue.get(), configFileLocation));
 	}
 
-	//prefer jvmArg, then configFile, then hostname
-	private String findServerName(Optional<Properties> configFileProperties){
-		String serverName = findProperty(configFileProperties, SERVER_NAME);
-		if(serverName != null){
-			return serverName;
-		}
-		try{
-			String hostname = InetAddress.getLocalHost().getHostName();
-			String source = "InetAddress.getLocalHost().getHostName()";
-			if(hostname.contains(".")){
-				hostname = hostname.substring(0, hostname.indexOf('.'));//drop the dns suffixes
-				source += ".substring(0, hostname.indexOf('.')";
-			}
-			logSource(SERVER_NAME, hostname, source);
-			return hostname;
-		}catch(UnknownHostException e){
-			throw new RuntimeException(e);
-		}
-	}
-
-	//prefer jvmArg, configFile then api call
-	private String findPrivateIp(Optional<Properties> configFileProperties){
-		String privateIp = findProperty(configFileProperties, SERVER_PRIVATE_IP);
-		if(privateIp != null){
-			return privateIp;
-		}
-		Optional<String> ip = curl(EC2_PRIVATE_IP_URL, true);
-		if(ip.isPresent()){
-			logSource(SERVER_PRIVATE_IP, ip.get(), EC2_PRIVATE_IP_URL);
-			return ip.get();
-		}
-		logger.error("couldn't find {}", SERVER_PRIVATE_IP);
-		return null;
-	}
-
-	//prefer jvmArg, then, configFile then api call
-	private String findPublicIp(Optional<Properties> configFileProperties){
-		String publicIp = findProperty(configFileProperties, SERVER_PUBLIC_IP);
-		if(publicIp != null){
-			return publicIp;
-		}
-		Optional<String> ip = curl(EC2_PUBLIC_IP_URL, true);
-		if(ip.isPresent()){
-			logSource(SERVER_PUBLIC_IP, ip.get(), EC2_PUBLIC_IP_URL);
-			return ip.get();
-		}
-		logger.error("couldn't find {}", SERVER_PUBLIC_IP);
-		return null;
-	}
-
-	//prefer jvmArg then configFile
-	private Collection<String> findClusterDomains(Optional<Properties> configFileProperties){
-		Optional<String> jvmValue = getJvmArg(SERVER_CLUSTER_DOMAINS);
-		if(jvmValue.isPresent()){
-			return parseClusterDomains(jvmValue.get());
-		}
-		if(configFileProperties.isPresent()){
-			Optional<String> value = configFileProperties.map(properties -> properties.getProperty(
-					SERVER_CLUSTER_DOMAINS));
-			if(value.isPresent()){
-				logSource(SERVER_CLUSTER_DOMAINS, value.get(), configFileLocation);
-				return value.map(this::parseClusterDomains).get();
-			}
-		}
-		logger.error("couldn't find {}", SERVER_CLUSTER_DOMAINS);
-		return Collections.emptyList();
-	}
-
-	/*------------------- private -------------------------*/
-
-	private Optional<String> getJvmArg(String jvmArg){
+	private Optional<Pair<String,String>> getPropFromJvmArg(String jvmArg){
 		String jvmArgName = JVM_ARG_PREFIX + jvmArg;
 		String jvmArgValue = System.getProperty(jvmArgName);
 		if(jvmArgValue == null){
 			return Optional.empty();
 		}
 		logJvmArgSource(jvmArg, jvmArgValue, jvmArgName);
-		return Optional.of(jvmArgValue);
+		return Optional.of(new Pair<>(jvmArgValue, jvmArgName));
 	}
 
-	private void logConfigFileProperties(Optional<Properties> configFileProperties){
-		configFileProperties.get().stringPropertyNames().stream()
-				.map(name -> name + "=" + configFileProperties.get().getProperty(name))
+	private String findServerName(){
+		String hostname = null;
+		String source = "InetAddress.getLocalHost().getHostName()";
+		try{
+			hostname = InetAddress.getLocalHost().getHostName();
+			if(hostname.contains(".")){
+				hostname = hostname.substring(0, hostname.indexOf('.'));//drop the dns suffixes
+				source += ".substring(0, hostname.indexOf('.')";
+			}
+		}catch(UnknownHostException e){
+			// do nothing, it will be set to a value or null in findProperty()
+		}
+		return findProperty(SERVER_NAME, hostname, source);
+	}
+
+	private String findIp(String ipPropertyName, String metaDataIp){
+		String ipPropertyValue = curl(metaDataIp, false)
+				.orElse(null);
+		return findProperty(ipPropertyName, ipPropertyValue, metaDataIp);
+	}
+
+	private Collection<String> findClusterDomains(){
+		String propertyValue = findProperty(SERVER_CLUSTER_DOMAINS);
+		if(StringTool.isNullOrEmptyOrWhitespace(propertyValue)){
+			return Collections.emptyList();
+		}
+		return Stream.of(propertyValue.split(","))
+				.filter(StringTool::notEmptyNorWhitespace)
+				.map(String::trim)
+				.collect(Collectors.toUnmodifiableList());
+	}
+
+	private void logConfigFileProperties(){
+		Properties allProperties = propertiesFromConfigFile.orElseGet(Properties::new);
+		allProperties.stringPropertyNames().stream()
+				.map(name -> name + "=" + allProperties.getProperty(name))
 				.sorted()
 				.forEach(logger::info);
 	}
@@ -290,31 +302,7 @@ public abstract class DatarouterProperties{
 		logger.warn("found {}={} from -D{} JVM arg", name, value, jvmArgName);
 	}
 
-	private Optional<String> curl(String location, boolean logError){
-		try{
-			URL url = new URL(location);
-			Reader reader = new InputStreamReader(url.openStream(), "UTF-8");
-			String content = ReaderTool.accumulateStringAndClose(reader);
-			return Optional.of(content);
-		}catch(Exception e){
-			if(logError){
-				logger.error("error reading {}", location, e);
-			}
-			return Optional.empty();
-		}
-	}
-
-	private Collection<String> parseClusterDomains(String clusterDomainsProperty){
-		if(StringTool.isNullOrEmptyOrWhitespace(clusterDomainsProperty)){
-			return Collections.emptyList();
-		}
-		return Collections.unmodifiableList(Stream.of(clusterDomainsProperty.split(","))
-				.filter(StringTool::notEmptyNorWhitespace)
-				.map(String::trim)
-				.collect(Collectors.toList()));
-	}
-
-	/*------------------ methods ---------------*/
+	/*------------------ helper methods ---------------*/
 
 	public String getServerTypeString(){
 		return Optional.ofNullable(serverType)
@@ -328,7 +316,11 @@ public abstract class DatarouterProperties{
 			return externalLocation;
 		}
 		Objects.requireNonNull(internalConfigDirectory, externalLocation + " doesn't exist and "
-				+ INTERNAL_CONFIG_DIRECTORY_PROP + " property is not set");
+				+ INTERNAL_CONFIG_DIRECTORY + " property is not set");
+		externalLocation = configDirectory + "/" + internalConfigDirectory + "/" + filename;
+		if(Files.exists(Paths.get(externalLocation))){
+			return externalLocation;
+		}
 		return "/config/" + internalConfigDirectory + "/" + filename;
 	}
 
@@ -340,6 +332,22 @@ public abstract class DatarouterProperties{
 
 	public boolean isEc2(){
 		return getEc2InstanceDetails().isPresent();
+	}
+
+	private Optional<String> curl(String location, boolean logError){
+		try{
+			URLConnection connection = new URL(location).openConnection();
+			connection.setConnectTimeout(3000);
+			connection.setReadTimeout(3000);
+			Reader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
+			String content = ReaderTool.accumulateStringAndClose(reader);
+			return Optional.of(content);
+		}catch(Exception e){
+			if(logError){
+				logger.error("error reading {}", location, e);
+			}
+			return Optional.empty();
+		}
 	}
 
 	/*---------------- getters -------------------*/
@@ -402,6 +410,10 @@ public abstract class DatarouterProperties{
 
 	public String getInternalConfigDirectory(){
 		return internalConfigDirectory;
+	}
+
+	public Properties getAllComputedServerProperties(){
+		return allComputedServerProperties;
 	}
 
 	public abstract String getDatarouterPropertiesFileLocation();

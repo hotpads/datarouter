@@ -18,9 +18,10 @@ package io.datarouter.storage.op.scan;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.BaseScanner;
@@ -44,7 +45,9 @@ extends BaseScanner<D>{
 	private Iterator<IE> indexEntryIterator;
 	private Map<PK,D> keyToDatabeans;
 
-	public ManagedIndexIndexToDatabeanScanner(MapStorageReader<PK,D> mainNode, Scanner<IE> indexScanner,
+	public ManagedIndexIndexToDatabeanScanner(
+			MapStorageReader<PK,D> mainNode,
+			Scanner<IE> indexScanner,
 			Config config){
 		this.mainNode = mainNode;
 		this.config = config;
@@ -68,10 +71,11 @@ extends BaseScanner<D>{
 			return false;
 		}
 		List<IE> indexEntryBatch = indexEntryBatchIterator.next();
-		List<D> databeans = Scanner.of(indexEntryBatch)
+		keyToDatabeans = Scanner.of(indexEntryBatch)
 				.map(IE::getTargetKey)
-				.listTo(primaryKeys -> mainNode.getMulti(primaryKeys, config));
-		keyToDatabeans = DatabeanTool.getByKey(databeans);
+				.listTo(primaryKeys -> mainNode.getMulti(primaryKeys, config))
+				.stream()
+				.collect(Collectors.toMap(Databean::getKey, Function.identity()));
 		indexEntryIterator = indexEntryBatch.iterator();
 		return true;
 	}

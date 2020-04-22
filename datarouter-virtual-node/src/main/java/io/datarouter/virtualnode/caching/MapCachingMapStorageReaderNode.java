@@ -26,9 +26,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
@@ -147,7 +147,9 @@ implements MapStorageReaderNode<PK,D,F>{
 			return backingNode.getMulti(keys, config);
 		}
 		countHits();
-		Set<PK> cachedKeys = new HashSet<>(DatabeanTool.getKeys(resultBuilder));
+		Set<PK> cachedKeys = resultBuilder.stream()
+				.map(Databean::getKey)
+				.collect(Collectors.toSet());
 		Set<PK> uncachedKeys = keys.stream()
 				.filter(Predicate.not(cachedKeys::contains))
 				.collect(Collectors.toSet());
@@ -185,7 +187,7 @@ implements MapStorageReaderNode<PK,D,F>{
 			return resultBuilder;
 		}
 		List<D> fromBackingNode = getAndCacheDatabeans(uncachedKeys, config);
-		resultBuilder.addAll(DatabeanTool.getKeys(fromBackingNode));
+		Scanner.of(fromBackingNode).map(Databean::getKey).forEach(resultBuilder::add);
 		return resultBuilder;
 	}
 

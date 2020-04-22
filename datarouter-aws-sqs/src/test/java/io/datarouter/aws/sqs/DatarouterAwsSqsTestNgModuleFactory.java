@@ -17,6 +17,8 @@ package io.datarouter.aws.sqs;
 
 import java.util.Arrays;
 
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -24,14 +26,12 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
-import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
 public class DatarouterAwsSqsTestNgModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterAwsSqsTestNgModuleFactory(){
 		super(Arrays.asList(
 				new DatarouterWebGuiceModule(),
-				new DatarouterWebTestGuiceModule(),
 				new AwsSqsGuiceModule()));
 	}
 
@@ -39,6 +39,7 @@ public class DatarouterAwsSqsTestNgModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
+			bind(DatarouterService.class).to(NoOpDatarouterService.class);
 			bind(DatarouterProperties.class).to(AwsSqsDatarouterProperties.class);
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
 		}

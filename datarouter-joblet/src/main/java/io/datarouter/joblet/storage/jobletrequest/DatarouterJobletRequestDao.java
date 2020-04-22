@@ -16,15 +16,14 @@
 package io.datarouter.joblet.storage.jobletrequest;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest.JobletRequestFielder;
@@ -33,6 +32,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
+import io.datarouter.storage.config.ConfigValue;
 import io.datarouter.storage.config.Configs;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
@@ -122,11 +122,11 @@ public class DatarouterJobletRequestDao extends BaseDao{
 		node.putMulti(databeans, Configs.insertOrBust());
 	}
 
-	public JobletRequest getReservedRequest(JobletType<?> jobletType, String reservedBy){
+	public JobletRequest getReservedRequest(JobletType<?> jobletType, String reservedBy, ConfigValue<?> option){
 		JobletRequestKey prefix = JobletRequestKey.create(jobletType, null, null, null);
 		Config config = new Config()
 				.setOutputBatchSize(20)//keep it small since there should not be thousands of reserved joblets
-				.addOption(Isolation.readUncommitted);
+				.addOption(option);
 		return node.scanWithPrefix(prefix, config)
 				.include(request -> Objects.equals(request.getReservedBy(), reservedBy))
 				.findAny()
@@ -186,7 +186,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 		return scanType(jobletType, false)
 				.map(JobletRequest::getDataSignature)
 				.include(Objects::nonNull)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 	}
 
 	public long countGroup(JobletType<?> type, JobletPriority priority, String groupId, boolean slaveOk){

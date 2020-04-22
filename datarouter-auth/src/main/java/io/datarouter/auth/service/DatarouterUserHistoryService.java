@@ -92,7 +92,7 @@ public class DatarouterUserHistoryService{
 		permissionRequestDao.putMulti(permissionRequestDao
 				.scanOpenPermissionRequestsForUser(history.getKey().getUserId())
 				.map(history::resolvePermissionRequest)
-				.collect(Collectors.toList()));
+				.list());
 	}
 
 	private void sendPasswordChangeEmail(DatarouterUser user, DatarouterUserHistory history, String signInUrl){

@@ -13,29 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.lazy;
+package io.datarouter.util.singletonsupplier;
 
-import java.util.function.Supplier;
+public interface CheckedSupplier<R,E extends Exception>{
 
-public abstract class Lazy<R> extends CheckedLazy<R,RuntimeException> implements Supplier<R>{
-
-	public static <R> Lazy<R> of(Supplier<? extends R> supplier){
-		return new LazyFunctional<>(supplier);
-	}
-
-	private static class LazyFunctional<R> extends Lazy<R>{
-
-		private final Supplier<? extends R> supplier;
-
-		public LazyFunctional(Supplier<? extends R> supplier){
-			this.supplier = supplier;
-		}
-
-		@Override
-		protected R load(){
-			return supplier.get();
-		}
-
-	}
+	R get() throws E;
 
 }

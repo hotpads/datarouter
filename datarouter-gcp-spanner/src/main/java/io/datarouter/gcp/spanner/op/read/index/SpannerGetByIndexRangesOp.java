@@ -18,6 +18,7 @@ package io.datarouter.gcp.spanner.op.read.index;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.cloud.spanner.DatabaseClient;
@@ -28,7 +29,6 @@ import com.google.cloud.spanner.ResultSet;
 
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
@@ -96,7 +96,8 @@ extends SpannerBaseReadIndexOp<PK,D>{
 			}
 		}
 		List<D> databeans = createFromResultSet(databeanRs, fieldInfo.getDatabeanSupplier(), fieldInfo.getFields());
-		Map<PK,D> databeanByKey = DatabeanTool.getByKey(databeans);
+		Map<PK,D> databeanByKey = databeans.stream()
+				.collect(Collectors.toMap(Databean::getKey, Function.identity()));
 		List<D> sortedDatabeans = keyList.stream()
 				.map(databeanByKey::get)
 				.collect(Collectors.toList());

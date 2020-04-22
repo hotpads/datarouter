@@ -18,6 +18,7 @@ package io.datarouter.client.redis.client;
 import java.util.Properties;
 
 import io.datarouter.client.redis.RedisClientType;
+import io.datarouter.client.redis.client.RedisOptions.RedisClientMode;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientOptionsBuilder;
@@ -47,10 +48,10 @@ public class RedisClientOptionsBuilder implements ClientOptionsBuilder{
 		return this;
 	}
 
-	public RedisClientOptionsBuilder withClientMode(String clientMode){
+	public RedisClientOptionsBuilder withClientMode(RedisClientMode clientMode){
 		String optionKeySuffix = RedisOptions.makeRedisKey(RedisOptions.PROP_clientMode);
 		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, clientMode.toLowerCase());
+		properties.setProperty(optionKey, clientMode.getPersistentString());
 		return this;
 	}
 

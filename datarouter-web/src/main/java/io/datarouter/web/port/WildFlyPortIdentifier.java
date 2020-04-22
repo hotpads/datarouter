@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Pair;
 
 @Singleton
@@ -32,10 +32,10 @@ public class WildFlyPortIdentifier implements PortIdentifier{
 			HTTPS = "socket-binding-group=standard-sockets,socket-binding=https",
 			PORT_ATTRIBUTE = "port";
 
-	private final Lazy<Pair<Integer,Integer>> ports;
+	private final SingletonSupplier<Pair<Integer,Integer>> ports;
 
 	public WildFlyPortIdentifier(){
-		this.ports = Lazy.of(() -> {
+		this.ports = SingletonSupplier.of(() -> {
 			MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 			try{
 				ObjectName objectName = new ObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTP);

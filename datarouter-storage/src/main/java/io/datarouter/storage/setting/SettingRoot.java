@@ -43,10 +43,10 @@ public class SettingRoot extends SettingNode{
 		this.category = category;
 	}
 
-	private SettingRoot(SettingFinder finder, AdditionalSettingRootsFinder additionalSettingRootsFinder,
+	private SettingRoot(SettingFinder finder, AllSettingRootsFinder additionalSettingRootsFinder,
 			SettingCategory category, String name){
 		super(finder, name);
-		additionalSettingRootsFinder.getAdditionalSettingRoots().forEach(this::dependsOn);
+		additionalSettingRootsFinder.getSettingRoots().forEach(this::dependsOn);
 		this.category = category;
 	}
 
@@ -122,8 +122,8 @@ public class SettingRoot extends SettingNode{
 	public static class SettingRootFinder extends SettingRoot{
 
 		@Inject
-		private SettingRootFinder(SettingFinder finder, AdditionalSettingRootsFinder additionalSettingRootsFinder){
-			super(finder, additionalSettingRootsFinder, DatarouterSettingCategory.DATAROUTER, "datarouter.");
+		private SettingRootFinder(SettingFinder finder, AllSettingRootsFinder allSettingRootsFinder){
+			super(finder, allSettingRootsFinder, DatarouterSettingCategory.DATAROUTER, "datarouter.");
 		}
 
 	}

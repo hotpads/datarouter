@@ -50,7 +50,7 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.trace.callable.TracedCallable;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.FutureTool;
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -76,12 +76,12 @@ public class SpannerSingleTableSchemaUpdateFactory{
 	public class SpannerSingleTableSchemaUpdate extends TracedCallable<Optional<SchemaUpdateResult>>{
 
 		private final ClientId clientId;
-		private final Lazy<List<String>> existingTableNames;
+		private final SingletonSupplier<List<String>> existingTableNames;
 		private final PhysicalNode<?,?,?> physicalNode;
 
 		public SpannerSingleTableSchemaUpdate(
 				ClientId clientId,
-				Lazy<List<String>> existingTableNames,
+				SingletonSupplier<List<String>> existingTableNames,
 				PhysicalNode<?,?,?> physicalNode){
 			//TODO give correct trace thread name
 			super("");

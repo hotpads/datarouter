@@ -125,15 +125,15 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 			config.setLimit(config.optOffset().orElse(0) + config.getLimit());
 		}
 		var scannner = partitioner.scanAllPartitions()
-				.mapToScanner(partition -> new SpannerEntityDatabeanScanner<>(
-						clientManager.getDatabaseClient(getClientId()),
-						getFieldInfo(),
-						ranges,
-						config.setOffset(0),
-						spannerFieldCodecRegistry,
-						false,
-						partition))
-				.collate((list1, list2) -> CollectionTool.getFirst(list1).compareTo(CollectionTool.getFirst(list2)))
+				.collate(partition -> new SpannerEntityDatabeanScanner<>(
+								clientManager.getDatabaseClient(getClientId()),
+								getFieldInfo(),
+								ranges,
+								config.setOffset(0),
+								spannerFieldCodecRegistry,
+								false,
+								partition),
+						(list1, list2) -> CollectionTool.getFirst(list1).compareTo(CollectionTool.getFirst(list2)))
 				.collate(Scanner::of);
 		if(offset != null){
 			scannner = scannner.skip(offset);
@@ -152,15 +152,15 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 			config.setLimit(config.optOffset().orElse(0) + config.getLimit());
 		}
 		var scannner = partitioner.scanAllPartitions()
-				.mapToScanner(partition -> new SpannerEntityKeyScanner<>(
-						clientManager.getDatabaseClient(getClientId()),
-						getFieldInfo(),
-						ranges,
-						config.setOffset(0),
-						spannerFieldCodecRegistry,
-						false,
-						partition))
-				.collate((list1, list2) -> CollectionTool.getFirst(list1).compareTo(CollectionTool.getFirst(list2)))
+				.collate(partition -> new SpannerEntityKeyScanner<>(
+								clientManager.getDatabaseClient(getClientId()),
+								getFieldInfo(),
+								ranges,
+								config.setOffset(0),
+								spannerFieldCodecRegistry,
+								false,
+								partition),
+						(list1, list2) -> CollectionTool.getFirst(list1).compareTo(CollectionTool.getFirst(list2)))
 				.collate(Scanner::of);
 		if(offset != null){
 			scannner = scannner.skip(offset);

@@ -17,6 +17,8 @@ package io.datarouter.ratelimiter;
 
 import java.util.Arrays;
 
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
 import io.datarouter.storage.TestDatarouterProperties;
@@ -26,7 +28,6 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
-import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
 public class RateLimiterTestNgModuleFactory extends TestNgModuleFactory{
 
@@ -35,7 +36,6 @@ public class RateLimiterTestNgModuleFactory extends TestNgModuleFactory{
 
 	public RateLimiterTestNgModuleFactory(){
 		super(Arrays.asList(
-				new DatarouterWebTestGuiceModule(),
 				new DatarouterWebGuiceModule(),
 				new RateLimiterGuiceModule()));
 	}
@@ -44,6 +44,7 @@ public class RateLimiterTestNgModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
+			bind(DatarouterService.class).to(NoOpDatarouterService.class);
 			bind(DatarouterProperties.class).to(RateLimiterDatarouterProperties.class);
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
 			bind(BaseTallyDao.class).to(NamedCacheRateLimiterTestDao.class);

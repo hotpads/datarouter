@@ -26,31 +26,33 @@ import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.QueueStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
+import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
 import io.datarouter.storage.node.op.raw.write.IndexedStorageWriter;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
 import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
+import io.datarouter.storage.node.op.raw.write.TallyStorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 /**
- * References to notable classes.  Changes to the imports of this file indicate that README links should be updated.
+ * References to notable classes. Changes to the imports of this file indicate that README links should be updated.
  */
 @SuppressWarnings("rawtypes")
 public class DatarouterStorageDocs{
 
-	//storing data
+	// storing data
 	ClientManager clientManager;
 	Node node;
 	PhysicalNode physicalNode;
-	Dao router;
+	Dao dao;
 
-	//datarouter management
+	// datarouter management
 	Datarouter datarouter;
 	DatarouterClients clients;
 	DatarouterNodes nodes;
 
-	//storage types
+	// storage types
 	StorageWriter storageWriter;
 
 	MapStorageReader mapStorageReader;
@@ -67,5 +69,8 @@ public class DatarouterStorageDocs{
 
 	IndexedStorageReader indexedStorageReader;
 	IndexedStorageWriter indexedStorageWriter;
+
+	TallyStorageReader tallyStorageReader;
+	TallyStorageWriter tallyStorageWriter;
 
 }

@@ -13,18 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.config;
+package io.datarouter.storage.setting;
 
-import com.google.inject.AbstractModule;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public class DatarouterWebTestGuiceModule extends AbstractModule{
+import io.datarouter.inject.DatarouterInjector;
 
-	@Override
-	public void configure(){
-		bind(DatarouterService.class).to(NoOpDatarouterService.class);
+@Singleton
+public class AllSettingRootsFinder{
+
+	@Inject
+	private DatarouterInjector injector;
+	@Inject
+	private SettingRootsSupplier setingRootsSupplier;
+
+	public List<SettingRoot> getSettingRoots(){
+		return setingRootsSupplier.get().stream()
+				.filter(Objects::nonNull)
+				.map(injector::getInstance)
+				.collect(Collectors.toList());
 	}
 
 }

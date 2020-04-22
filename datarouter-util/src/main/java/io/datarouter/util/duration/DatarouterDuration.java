@@ -92,6 +92,11 @@ public class DatarouterDuration{
 		return java.time.Duration.ofNanos(to(TimeUnit.NANOSECONDS));
 	}
 
+	public static DatarouterDuration ageMs(long dateMs){
+		long ageMs = System.currentTimeMillis() - dateMs;
+		return new DatarouterDuration(ageMs, TimeUnit.MILLISECONDS);
+	}
+
 	@Override
 	public String toString(){
 		return toString(TimeUnit.MILLISECONDS);

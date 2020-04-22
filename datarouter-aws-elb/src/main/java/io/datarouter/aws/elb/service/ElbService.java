@@ -37,16 +37,17 @@ import com.amazonaws.services.elasticloadbalancingv2.model.TargetDescription;
 import com.amazonaws.services.elasticloadbalancingv2.model.TargetHealthDescription;
 
 import io.datarouter.aws.elb.config.DatarouterAwsElbMonitoringSettings;
-import io.datarouter.util.lazy.Lazy;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.retry.RetryableTool;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 
 @Singleton
 public class ElbService{
 
 	private static final int NUM_ATTEMPTS = 3;
 
-	private final Lazy<AmazonElasticLoadBalancing> amazonElasticLoadBalancing = Lazy.of(this::getAmazonElbClient);
+	private final SingletonSupplier<AmazonElasticLoadBalancing> amazonElasticLoadBalancing = SingletonSupplier.of(
+			this::getAmazonElbClient);
 
 	@Inject
 	private DatarouterAwsElbMonitoringSettings settings;

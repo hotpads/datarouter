@@ -16,6 +16,7 @@
 package io.datarouter.nodewatch.service;
 
 import java.time.Duration;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,7 +36,6 @@ import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.nodewatch.util.TableSamplerTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.scanner.ScannerScanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
@@ -134,7 +134,6 @@ public class TableSamplerService{
 			}
 		}
 		logger.info("total of {} rows for {}.{}", totalRows, clientName, tableName);
-
 		return new TableCount(clientName, tableName, System.currentTimeMillis(), totalRows, totalCountTimeMs,
 				numSpans, numSlowSpans);
 	}
@@ -143,8 +142,8 @@ public class TableSamplerService{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	Scanner<Range<PK>> scanTableRangesUsingTableSamples(PhysicalNode<PK,D,F> node){
-		return ScannerScanner.of(scanPksForNode(node), Scanner.of((PK)null))
-				.concatenate()
+		return Scanner.of(scanPksForNode(node), Scanner.of((PK)null))
+				.concatenate(Function.identity())
 				.retain(1)
 				.map(group -> new Range<>(group.previous(), group.current()));
 	}

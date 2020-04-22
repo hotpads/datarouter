@@ -29,10 +29,10 @@ import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory.NoOpSchema
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.metric.Gauges.NoOpGauges;
 import io.datarouter.storage.node.DatarouterNodes;
-import io.datarouter.storage.setting.AdditionalSettingRoots;
-import io.datarouter.storage.setting.AdditionalSettingRootsSupplier;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
+import io.datarouter.storage.setting.SettingRootsSupplier;
+import io.datarouter.storage.setting.SettingRootsSupplier.SettingRoots;
 
 public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 
@@ -42,7 +42,7 @@ public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(Gauges.class, NoOpGauges.class);
-		bindDefaultInstance(AdditionalSettingRootsSupplier.class, new AdditionalSettingRoots(Collections.emptyList()));
+		bindDefaultInstance(SettingRootsSupplier.class, new SettingRoots(Collections.emptyList()));
 
 		bindDefault(ClientOptionsFactory.class, NoOpClientOptionsFactory.class);
 		bindDefault(SchemaUpdateOptionsFactory.class, NoOpSchemaUpdateOptionsFactory.class);

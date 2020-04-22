@@ -28,7 +28,8 @@ import org.testng.annotations.Test;
 
 import io.datarouter.client.hbase.config.DatarouterHBaseTestNgModuleFactory;
 import io.datarouter.client.hbase.test.DatarouterHBaseTestClientIds;
-import io.datarouter.model.databean.DatabeanTool;
+import io.datarouter.model.databean.Databean;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -112,7 +113,7 @@ public class HBaseSubEntityReaderNodeIntegrationTests{
 
 	@AfterClass
 	public void afterClass(){
-		dao.deleteMulti(DatabeanTool.getKeys(sortedBeans));
+		Scanner.of(sortedBeans).map(Databean::getKey).flush(dao::deleteMulti);
 		datarouter.shutdown();
 	}
 

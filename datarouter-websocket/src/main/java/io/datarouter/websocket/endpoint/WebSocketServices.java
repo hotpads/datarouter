@@ -23,20 +23,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 
 public abstract class WebSocketServices{
 
 	private final DatarouterInjector injector;
 
 	private final List<Class<? extends WebSocketService>> services;
-	private final Lazy<Map<String,WebSocketService>> serviceMap;
+	private final SingletonSupplier<Map<String,WebSocketService>> serviceMap;
 
 	public WebSocketServices(DatarouterInjector injector){
 		this.injector = injector;
 		this.services = new ArrayList<>();
 		// lazy to avoid circular dependency
-		this.serviceMap = Lazy.of(() -> {
+		this.serviceMap = SingletonSupplier.of(() -> {
 			return services.stream()
 					.map(injector::getInstance)
 					.collect(Collectors.toMap(WebSocketService::getName, Function.identity()));

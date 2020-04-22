@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 
 public class RateLimiterConfig{
 
@@ -30,7 +30,7 @@ public class RateLimiterConfig{
 	public final int bucketPeriod;
 	public final TimeUnit unit;
 
-	private Lazy<NamedRateLimiter> nameRateLimiter;
+	private SingletonSupplier<NamedRateLimiter> nameRateLimiter;
 
 	public RateLimiterConfig(String name, long avg, long spike, int periods, int bucketPeriod, TimeUnit unit){
 		this.name = name;
@@ -48,12 +48,12 @@ public class RateLimiterConfig{
 				.collect(Collectors.joining(","));
 	}
 
-	public Lazy<NamedRateLimiter> getNameRateLimiter(){
+	public SingletonSupplier<NamedRateLimiter> getNameRateLimiter(){
 		return nameRateLimiter;
 	}
 
 	public void initNameRateLimiter(NamedCacheRateLimiterFactory factory){
-		this.nameRateLimiter = Lazy.of(() -> factory.new NamedCacheRateLimiter(name, avg, spike, periods,
+		this.nameRateLimiter = SingletonSupplier.of(() -> factory.new NamedCacheRateLimiter(name, avg, spike, periods,
 				bucketPeriod, unit));
 	}
 

@@ -31,7 +31,8 @@ import io.datarouter.client.mysql.DatarouterMysqlTestNgModuleFactory;
 import io.datarouter.client.mysql.test.client.insert.DatarouterPutOpTestDao;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBean;
 import io.datarouter.client.mysql.test.client.insert.PutOpTestBeanKey;
-import io.datarouter.model.databean.DatabeanTool;
+import io.datarouter.model.databean.Databean;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
@@ -166,7 +167,7 @@ public class PutOpIntegrationTests{
 			databeans.add(new PutOpTestBean("testMultiInsert", randomString(), randomString()));
 		}
 		dao.putMulti(databeans, config);
-		Assert.assertEquals(dao.getMulti(DatabeanTool.getKeys(databeans)).size(), totalCount);
+		Assert.assertEquals(Scanner.of(databeans).map(Databean::getKey).listTo(dao::getMulti).size(), totalCount);
 	}
 
 	private static final String randomString(){

@@ -18,17 +18,12 @@ package io.datarouter.client.redis.client;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.util.timer.PhaseTimer;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 @Singleton
 public class RedisClientManager extends BaseClientManager{
-	private static final Logger logger = LoggerFactory.getLogger(RedisClientManager.class);
 
 	@Inject
 	private JedisHolder jedisHolder;
@@ -40,13 +35,10 @@ public class RedisClientManager extends BaseClientManager{
 
 	@Override
 	protected void safeInitClient(ClientId clientId){
-		logger.info("activating Redis client " + clientId.getName());
-		PhaseTimer timer = new PhaseTimer(clientId.getName());
 		jedisHolder.registerClient(clientId);
-		logger.warn(timer.add("done").toString());
 	}
 
-	public Jedis getJedis(ClientId clientId){
+	public JedisPool getJedis(ClientId clientId){
 		initClient(clientId);
 		return jedisHolder.get(clientId);
 	}

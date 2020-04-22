@@ -20,12 +20,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.index.KeyIndexEntry;
 import io.datarouter.model.index.unique.UniqueKeyIndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.index.IndexListener;
@@ -74,7 +74,9 @@ implements IndexListener<PK,D>{
 	public void onDeleteDatabean(D databean, Config config){
 		IE sampleIndexEntry = createIndexEntry();
 		List<IE> indexEntriesFromSingleDatabean = sampleIndexEntry.createFromDatabean(databean);
-		indexNode.deleteMulti(DatabeanTool.getKeys(indexEntriesFromSingleDatabean), config);
+		Scanner.of(indexEntriesFromSingleDatabean)
+				.map(Databean::getKey)
+				.flush(keys -> indexNode.deleteMulti(keys, config));
 	}
 
 	@Override
@@ -91,13 +93,17 @@ implements IndexListener<PK,D>{
 			throw new IllegalArgumentException("invalid null key");
 		}
 		List<IE> indexEntries = getIndexEntriesFromPrimaryKeys(keys);
-		indexNode.deleteMulti(DatabeanTool.getKeys(indexEntries), config);
+		Scanner.of(indexEntries)
+				.map(Databean::getKey)
+				.flush(iks -> indexNode.deleteMulti(iks, config));
 	}
 
 	@Override
 	public void onDeleteMultiDatabeans(Collection<D> databeans, Config config){
 		List<IE> indexEntries = getIndexEntriesFromDatabeans(databeans);
-		indexNode.deleteMulti(DatabeanTool.getKeys(indexEntries), config);
+		Scanner.of(indexEntries)
+				.map(Databean::getKey)
+				.flush(iks -> indexNode.deleteMulti(iks, config));
 	}
 
 	@Override

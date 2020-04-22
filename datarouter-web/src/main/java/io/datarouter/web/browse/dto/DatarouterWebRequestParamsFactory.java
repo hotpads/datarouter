@@ -27,7 +27,7 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.handler.params.Params;
 
 @Singleton
@@ -47,14 +47,14 @@ public class DatarouterWebRequestParamsFactory{
 		private final CT clientType;
 		private final ClientId clientId;
 		private final String tableName;
-		private final Lazy<Node<?,?,?>> node;
+		private final SingletonSupplier<Node<?,?,?>> node;
 
 		public DatarouterWebRequestParams(Params params, Class<CT> clientTypeClass){
 			String clientName = params.required(PARAM_clientName);
 			this.clientId = datarouterClients.getClientId(clientName);
 			this.clientType = clientTypeClass.cast(datarouterClients.getClientTypeInstance(clientId));
 			this.tableName = params.optional(PARAM_tableName).orElse(null);
-			this.node = Lazy.of(() -> {
+			this.node = SingletonSupplier.of(() -> {
 				Optional<Node<?,?,?>> node = params.optional(PARAM_nodeName)
 						.map(datarouterNodes::getNode);
 				if(node.isPresent()){

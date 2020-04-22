@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.dispatcher.DispatchRule;
 
 public class NavBarMenuItem{
@@ -40,7 +40,7 @@ public class NavBarMenuItem{
 	private final String text;
 	protected final List<NavBarMenuItem> subItems;
 
-	protected Lazy<Optional<DispatchRule>> dispatchRule;
+	protected SingletonSupplier<Optional<DispatchRule>> dispatchRule;
 
 	public NavBarMenuItem(String text, List<NavBarMenuItem> subItems){
 		this.href = URI.create("");
@@ -49,7 +49,7 @@ public class NavBarMenuItem{
 		this.subItems = subItems.stream()
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		this.dispatchRule = Lazy.of(Optional::empty);
+		this.dispatchRule = SingletonSupplier.of(Optional::empty);
 	}
 
 	public NavBarMenuItem(String text, NavBarMenuItem... subItems){
@@ -65,7 +65,7 @@ public class NavBarMenuItem{
 		this.path = URI.create(path);
 		this.text = text;
 		this.subItems = null;
-		this.dispatchRule = Lazy.of(() -> findRequiredDispatchRule(parentNavBar));
+		this.dispatchRule = SingletonSupplier.of(() -> findRequiredDispatchRule(parentNavBar));
 	}
 
 	public NavBarMenuItem(PathNode pathNode, String text, NavBar parentNavBar){

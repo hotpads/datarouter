@@ -16,10 +16,10 @@
 package io.datarouter.auth.storage.permissionrequest;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -103,7 +103,7 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 		return scanOpenPermissionRequests()
 				.map(DatarouterPermissionRequest::getKey)
 				.map(DatarouterPermissionRequestKey::getUserId)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 	}
 
 }

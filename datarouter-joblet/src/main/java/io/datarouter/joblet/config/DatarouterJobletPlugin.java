@@ -41,6 +41,7 @@ import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterJobletPlugin extends BaseJobletPlugin{
@@ -116,6 +117,12 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 				String name,
 				Class<? extends JobletRequestSelector> selectorClass){
 			jobletSelectorRegistry.register(name, selectorClass);
+			return this;
+		}
+
+		public DatarouterJobletPluginBuilder withSelectorTypes(
+				List<Pair<String,Class<? extends JobletRequestSelector>>> selectorTypes){
+			selectorTypes.forEach(pair -> jobletSelectorRegistry.register(pair.getLeft(), pair.getRight()));
 			return this;
 		}
 

@@ -33,6 +33,8 @@ import io.datarouter.websocket.session.PushServiceSettings;
 import io.datarouter.websocket.session.PushServiceSettingsSupplier;
 import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao;
 import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao.DatarouterWebSocketDaoParams;
+import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao;
+import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao.DatarouterWebSocketSubscriptionDaoParams;
 
 public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 
@@ -132,12 +134,16 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
-			return List.of(DatarouterWebSocketSessionDao.class);
+			return List.of(
+					DatarouterWebSocketSessionDao.class,
+					DatarouterWebSocketSubscriptionDao.class);
 		}
 
 		@Override
 		public void configure(){
 			bind(DatarouterWebSocketDaoParams.class).toInstance(new DatarouterWebSocketDaoParams(webSocketClientId));
+			bind(DatarouterWebSocketSubscriptionDaoParams.class).toInstance(
+					new DatarouterWebSocketSubscriptionDaoParams(webSocketClientId));
 		}
 
 	}

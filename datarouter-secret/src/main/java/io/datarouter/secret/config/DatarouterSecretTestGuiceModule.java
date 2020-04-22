@@ -22,7 +22,7 @@ import io.datarouter.secret.client.LocalStorageSecretClient.LocalStorageDefaultS
 import io.datarouter.secret.client.LocalStorageSecretClient.LocalStorageSecretClientSupplier;
 import io.datarouter.secret.client.SecretClientSupplier;
 
-public class DatarouterSecretGuiceModule extends BaseGuiceModule{
+public class DatarouterSecretTestGuiceModule extends BaseGuiceModule{
 
 	@Override
 	protected void configure(){

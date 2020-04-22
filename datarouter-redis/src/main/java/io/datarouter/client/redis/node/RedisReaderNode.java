@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
 import io.datarouter.client.redis.RedisClientType;
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.JsonDatabeanTool;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
@@ -49,8 +49,8 @@ extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 
 	private final Integer databeanVersion;
-	private final RedisClientManager redisClientManager;
-	private final ClientId clientId;
+	protected final RedisClientManager redisClientManager;
+	protected final ClientId clientId;
 
 	public RedisReaderNode(
 			NodeParams<PK,D,F> params,
@@ -60,12 +60,14 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		super(params, redisClientType);
 		this.redisClientManager = redisClientManager;
 		this.clientId = clientId;
-		this.databeanVersion = Objects.requireNonNull(params.getSchemaVersion());
+		this.databeanVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
 	}
 
 	@Override
 	public boolean exists(PK key, Config config){
-		return getClient().exists(buildRedisKey(key));
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			return client.exists(buildRedisKey(key));
+		}
 	}
 
 	@Override
@@ -73,7 +75,10 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		if(key == null){
 			return null;
 		}
-		String json = getClient().get(buildRedisKey(key));
+		String json;
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			json = client.get(buildRedisKey(key));
+		}
 		if(json == null){
 			return null;
 		}
@@ -86,11 +91,13 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		if(CollectionTool.isEmpty(keys)){
 			return Collections.emptyList();
 		}
-		return getClient().mget(buildRedisKeys(keys).toArray(new String[keys.size()])).stream()
-				.filter(Objects::nonNull)
-				.map(bean -> JsonDatabeanTool.databeanFromJson(getFieldInfo().getDatabeanSupplier(), getFieldInfo()
-						.getSampleFielder(), bean))
-				.collect(Collectors.toList());
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			return client.mget(buildRedisKeys(keys).toArray(new String[keys.size()])).stream()
+					.filter(Objects::nonNull)
+					.map(bean -> JsonDatabeanTool.databeanFromJson(getFieldInfo().getDatabeanSupplier(), getFieldInfo()
+							.getSampleFielder(), bean))
+					.collect(Collectors.toList());
+		}
 	}
 
 	@Override
@@ -98,7 +105,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		if(CollectionTool.isEmpty(keys)){
 			return Collections.emptyList();
 		}
-		return DatabeanTool.getKeys(getMulti(keys, config));
+		return Scanner.of(getMulti(keys, config)).map(Databean::getKey).list();
 	}
 
 	@Override
@@ -106,9 +113,11 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		if(key == null){
 			return null;
 		}
-		return Optional.ofNullable(getClient().get(buildRedisKey(new TallyKey(key))))
-				.map(String::trim)
-				.map(Long::valueOf);
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+		return Optional.ofNullable(client.get(buildRedisKey(new TallyKey(key))))
+					.map(String::trim)
+					.map(Long::valueOf);
+		}
 	}
 
 	@Override
@@ -123,10 +132,6 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 
 	protected List<String> buildRedisKeys(Collection<? extends PrimaryKey<?>> pks){
 		return RedisEncodedKey.getVersionedKeyStrings(getName(), databeanVersion, pks);
-	}
-
-	protected Jedis getClient(){
-		return redisClientManager.getJedis(clientId);
 	}
 
 }

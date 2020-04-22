@@ -25,7 +25,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -67,7 +67,7 @@ public class TomcatWebAppNamesWebAppListener extends DatarouterWebAppListener{
 
 	@Override
 	public void onStartUp(){
-		servletContext.setAttribute(SERVLET_CONTEXT_ATTRIBUTE_NAME, Lazy.of(this::getTomcatWebApps));
+		servletContext.setAttribute(SERVLET_CONTEXT_ATTRIBUTE_NAME, SingletonSupplier.of(this::getTomcatWebApps));
 	}
 
 	@Override

@@ -121,7 +121,8 @@ public class DatarouterUserEditService{
 
 	private Optional<String> handleAccountChanges(DatarouterUser user, Set<DatarouterAccountKey> requestedAccounts){
 		Set<DatarouterUserAccountMapKey> currentAccounts = datarouterUserAccountMapDao.scanKeysWithPrefix(
-				new DatarouterUserAccountMapKey(user.getId(), null)).collect(Collectors.toSet());
+				new DatarouterUserAccountMapKey(user.getId(), null))
+				.collect(HashSet::new);
 		Set<DatarouterUserAccountMapKey> accountsToDelete = currentAccounts.stream()
 				.filter(currentAccountKey ->
 					!requestedAccounts.contains(currentAccountKey.getDatarouterAccountKey()))

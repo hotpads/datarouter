@@ -17,6 +17,8 @@ package io.datarouter.client.redis;
 
 import java.util.Arrays;
 
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -24,13 +26,11 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
-import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
 public class DatarouterRedisTestNgModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterRedisTestNgModuleFactory(){
 		super(Arrays.asList(
-				new DatarouterWebTestGuiceModule(),
 				new DatarouterWebGuiceModule(),
 				new RedisGuiceModule()));
 	}
@@ -39,6 +39,7 @@ public class DatarouterRedisTestNgModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
+			bind(DatarouterService.class).to(NoOpDatarouterService.class);
 			bind(DatarouterProperties.class).to(RedisDatarouterProperties.class);
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
 		}

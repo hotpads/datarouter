@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.listener.TomcatWebAppNamesWebAppListener;
 import io.datarouter.web.navigation.AppNavBar;
 import io.datarouter.web.navigation.DatarouterNavBar;
@@ -35,7 +35,7 @@ public class MavPropertiesFactory{
 	private static final RequestAttributeKey<MavProperties> MAV_PROPERTIES = new RequestAttributeKey<>("mavProperties");
 
 	private final DatarouterMavPropertiesFactoryConfig config;
-	private final Lazy<Map<String,String>> tomcatWebApps;
+	private final SingletonSupplier<Map<String,String>> tomcatWebApps;
 	private final Optional<AppNavBar> appNavBar;
 	private final DatarouterNavBar datarouterNavBar;
 
@@ -46,7 +46,7 @@ public class MavPropertiesFactory{
 			Optional<AppNavBar> appNavBar,
 			DatarouterNavBar datarouterNavBar){
 		this.config = config;
-		this.tomcatWebApps = Lazy.of(webAppsListener::getTomcatWebApps);
+		this.tomcatWebApps = SingletonSupplier.of(webAppsListener::getTomcatWebApps);
 		this.appNavBar = appNavBar;
 		this.datarouterNavBar = datarouterNavBar;
 	}

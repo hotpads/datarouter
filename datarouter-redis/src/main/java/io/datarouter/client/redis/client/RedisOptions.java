@@ -36,9 +36,6 @@ public class RedisOptions{
 	public static final String PROP_numServers = "numServers";
 	public static final String PROP_server = "server";
 
-	public static final String DYNAMIC_CLIENT_MODE = "dynamic";
-	public static final String STATIC_CLIENT_MODE = "static";
-
 	@Inject
 	private ClientOptions clientOptions;
 
@@ -54,12 +51,11 @@ public class RedisOptions{
 		return clientOptions.optInetSocketAddress(clientName, makeRedisKey(PROP_clusterEndpoint));
 	}
 
-	public String getClientMode(String clientName){
-		String clientMode = clientOptions.optString(clientName, makeRedisKey(PROP_clientMode)).get();
-		if(!clientMode.equals(DYNAMIC_CLIENT_MODE)){
-			clientMode = STATIC_CLIENT_MODE;
-		}
-		return clientMode;
+	public RedisClientMode getClientMode(String clientName){
+		return clientOptions.optString(clientName, makeRedisKey(PROP_clientMode))
+				.filter(RedisClientMode.DYNAMIC.getPersistentString()::equals)
+				.map($ -> RedisClientMode.DYNAMIC)
+				.orElse(RedisClientMode.STATIC);
 	}
 
 	protected static String makeRedisKey(String propertyKey){
@@ -68,6 +64,22 @@ public class RedisOptions{
 
 	private Integer getNumServers(String clientName){
 		return clientOptions.getRequiredInteger(clientName, makeRedisKey(PROP_numServers));
+	}
+
+	public enum RedisClientMode{
+		STATIC("static"),
+		DYNAMIC("dynamic");
+
+		private String persistentString;
+
+		RedisClientMode(String persistentString){
+			this.persistentString = persistentString;
+		}
+
+		public String getPersistentString(){
+			return persistentString;
+		}
+
 	}
 
 }

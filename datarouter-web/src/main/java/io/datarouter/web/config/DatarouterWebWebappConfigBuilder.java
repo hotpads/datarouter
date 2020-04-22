@@ -44,8 +44,8 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
-import io.datarouter.storage.setting.AdditionalSettingRoots;
 import io.datarouter.storage.setting.SettingRoot;
+import io.datarouter.storage.setting.SettingRootsSupplier.SettingRoots;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.util.ordered.OrderedTool;
@@ -255,12 +255,12 @@ implements WebappBuilder{
 				datarouterProperties)
 				.setServerTypeDetector(serverTypeDetector)
 				.setSettingOverridesClass(settingOverrides)
-				.setAdditionalSettingRootsClass(new AdditionalSettingRoots(settingRoots))
+				.setSettingRootsClass(new SettingRoots(settingRoots))
 				.setClientOptionsFactoryClass(clientOptionsFactory)
 				.setSchemaUpdateOptionsFactoryClass(schemaUpdateOptionsFactory)
 				.addDaosClasses(daoClasses);
 		addStoragePluginWithoutInstalling(storagePluginBuilder.getSimplePluginData());
-		storagePluginBuilder.setAdditionalSettingRootsClass(new AdditionalSettingRoots(settingRoots));
+		storagePluginBuilder.setSettingRootsClass(new SettingRoots(settingRoots));
 
 		modules.add(webPlugin);
 		modules.add(storagePluginBuilder.build());

@@ -19,9 +19,9 @@ import java.util.Collection;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
@@ -80,7 +80,9 @@ extends MapStorage<PK,D>{
 		for(IndexListener<PK,D> indexNode : getIndexNodes()){
 			indexNode.onDeleteMultiDatabeans(databeans, config);
 		}
-		getBackingNode().deleteMulti(DatabeanTool.getKeys(databeans), config);
+		Scanner.of(databeans)
+				.map(Databean::getKey)
+				.flush(keys -> getBackingNode().deleteMulti(keys, config));
 	}
 
 	@Override

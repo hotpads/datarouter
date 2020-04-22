@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.mysql.execution.SessionExecutor;
+import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.sql.MysqlSqlFactory;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.JobletRequestSqlBuilder;
@@ -62,7 +63,8 @@ public class MysqlUpdateAndScanJobletRequestSelector implements JobletRequestSel
 		ReserveJobletRequest mysqlOp = new ReserveJobletRequest(reservedBy, type, datarouter, jobletRequestDao,
 				mysqlSqlFactory, jobletRequestSqlBuilder);
 		while(sessionExecutor.runWithoutRetries(mysqlOp)){//returns false if no joblet found
-			JobletRequest jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy);
+			JobletRequest jobletRequest = jobletRequestDao.getReservedRequest(type, reservedBy,
+					Isolation.readUncommitted);
 			if(JobletStatus.CREATED == jobletRequest.getStatus()){
 				jobletRequest.setReservedBy(reservedBy);
 				jobletRequest.setReservedAt(System.currentTimeMillis());
@@ -89,3 +91,4 @@ public class MysqlUpdateAndScanJobletRequestSelector implements JobletRequestSel
 	}
 
 }
+//

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +38,6 @@ import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -76,7 +74,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		super(params, clientType);
 		this.memcachedClientManager = memcachedClientManager;
 		this.clientId = clientId;
-		this.databeanVersion = Objects.requireNonNull(params.getSchemaVersion());
+		this.databeanVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
 	}
 
 	@Override
@@ -101,7 +99,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		if(CollectionTool.isEmpty(keys)){ // TODO Move into an adapter
 			return List.of();
 		}
-		return DatabeanTool.getKeys(getMulti(keys, params));
+		return Scanner.of(getMulti(keys, params)).map(Databean::getKey).list();
 	}
 
 	@Override

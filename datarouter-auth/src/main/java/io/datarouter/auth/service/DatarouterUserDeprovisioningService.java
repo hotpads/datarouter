@@ -109,7 +109,7 @@ public class DatarouterUserDeprovisioningService implements UserDeprovisioningSe
 				.flush(datarouterUserDao::putMulti)
 				.map(DatarouterUser::getUsername)
 				.flush(deprovisionedUserDao::deleteMultiUsernames)
-				.collect(Collectors.toList());
+				.list();
 	}
 
 	@Override

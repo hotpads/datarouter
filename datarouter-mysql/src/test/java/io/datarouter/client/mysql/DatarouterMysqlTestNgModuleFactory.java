@@ -20,23 +20,23 @@ import java.util.Collections;
 
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.secret.config.DatarouterSecretGuiceModule;
+import io.datarouter.secret.config.DatarouterSecretTestGuiceModule;
 import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
-import io.datarouter.web.config.DatarouterWebTestGuiceModule;
 
 public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterMysqlTestNgModuleFactory(){
 		super(Arrays.asList(
-				new DatarouterWebTestGuiceModule(),
 				new DatarouterWebGuiceModule(),
-				new DatarouterSecretGuiceModule(),
+				new DatarouterSecretTestGuiceModule(),
 				new DatarouterMysqlTestGuiceModule()));
 	}
 
@@ -45,6 +45,7 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
+			bind(DatarouterService.class).to(NoOpDatarouterService.class);
 			bindActualInstance(MysqlFieldCodecFactory.class,
 					new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
 			bind(DatarouterProperties.class).to(MysqlDatarouterProperties.class);

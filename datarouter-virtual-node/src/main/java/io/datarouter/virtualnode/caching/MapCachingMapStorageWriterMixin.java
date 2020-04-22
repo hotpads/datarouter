@@ -18,9 +18,9 @@ package io.datarouter.virtualnode.caching;
 import java.util.Collection;
 
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter.MapStorageWriterNode;
@@ -101,7 +101,9 @@ implements MapStorageWriter<PK,D>{
 			if(cacheWrites){
 				target.getCachingNode().putMulti(databeans, effectiveCachingNodeConfig);
 			}else{//TODO check config for ignoring caching
-				target.getCachingNode().deleteMulti(DatabeanTool.getKeys(databeans), effectiveCachingNodeConfig);
+				Scanner.of(databeans)
+						.map(Databean::getKey)
+						.flush(keys -> target.getCachingNode().deleteMulti(keys, effectiveCachingNodeConfig));
 			}
 			target.updateLastContact();
 		}

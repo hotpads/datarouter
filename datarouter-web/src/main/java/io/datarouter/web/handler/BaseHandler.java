@@ -50,7 +50,7 @@ import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ReflectionTool;
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.HandledException;
@@ -119,8 +119,8 @@ public abstract class BaseHandler{
 	protected Params params;
 	protected List<RequestParamValidator<?>> paramValidators = new ArrayList<>();
 
-	private Lazy<RequestAwareCurrentSessionInfo> requestAwareCurrentSessionInfo = Lazy.of(() ->
-			requestAwareCurrentSessionInfoFactory.build(request));
+	private SingletonSupplier<RequestAwareCurrentSessionInfo> requestAwareCurrentSessionInfo = SingletonSupplier.of(
+			() -> requestAwareCurrentSessionInfoFactory.build(request));
 
 	/**
 	 * Used via reflection, see {@link #DEFAULT_HANDLER_METHOD_NAME}

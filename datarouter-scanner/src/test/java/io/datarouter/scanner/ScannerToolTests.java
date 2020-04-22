@@ -18,7 +18,10 @@ package io.datarouter.scanner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 
 import org.testng.Assert;
@@ -36,6 +39,15 @@ public class ScannerToolTests{
 	public void testAnyMatch(){
 		Assert.assertTrue(Scanner.of(1, 3, 5).anyMatch(i -> i % 2 == 1));
 		Assert.assertFalse(Scanner.of(0, 2, 4).anyMatch(i -> i % 2 == 1));
+	}
+
+	@Test
+	public void testCollection(){
+		List<Integer> inputs = List.of(2, 1, 3, 1);
+		Assert.assertEquals(Scanner.of(inputs).collect(ArrayList::new), List.of(2, 1, 3, 1));
+		Assert.assertEquals(Scanner.of(inputs).collect(LinkedList::new), List.of(2, 1, 3, 1));
+		Assert.assertEquals(Scanner.of(inputs).collect(TreeSet::new), List.of(1, 2, 3));
+		Assert.assertEquals(Scanner.of(inputs).collect(LinkedHashSet::new), List.of(2, 1, 3));
 	}
 
 	@Test

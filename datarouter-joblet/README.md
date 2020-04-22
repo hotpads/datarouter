@@ -10,7 +10,7 @@ The datarouter-joblet module helps you build a user-friendly queue processing sy
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-joblet</artifactId>
-	<version>0.0.27</version>
+	<version>0.0.28</version>
 </dependency>
 ```
 
@@ -99,7 +99,7 @@ A `JobletType` is the final definition used for registration:
 
 `JobletRequest` is a `Databean` holding the metadata about each queued joblet.  
 
-The `PrimaryKey` fields are chosen to order joblets for dequeueing directly from the database if configured to do so.  
+The `PrimaryKey` fields are chosen to order joblets for dequeuing directly from the database if configured to do so.
 The `JobletQueueMechanism` can scan through joblets of a given type/executionOrder and find the first available for 
 processing.
 
@@ -133,7 +133,7 @@ more sophisticated monitoring of processing backlogs and throughput.
 
 #### JobletData
 
-For each `JobletRequest` there is a corressponding `JobletData` record that holds the serialized `JobletParams`.  This
+For each `JobletRequest` there is a corresponding `JobletData` record that holds the serialized `JobletParams`.  This
 is a standalone table to support potentially large params.  The `JobletRequest` table is often scanned for monitoring
 purposes, and offloading the params to a separate table keeps that scanning fast.  It also avoids passing the params
 through the messaging system which may have smaller message size restrictions.
@@ -149,8 +149,9 @@ Selecting available JobletRequests from a queue with multiple threads is a perfo
 messaging systems like SQS are designed to do this efficiently, so the `JobletQueueMechanism.SQS` is the preferred
 option for production, configurable via cluster setting.
 
-There is also a `JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE` that uses `datarouter-mysql` with transactions as the
-backing store.  This is an option for development or staging environments where you don't need high throughput and want
+Through the `DatarouterJobletWebappBuilder` you can specify different selectors. For example, with `datrouter-joblet-mysql`
+ there  is a `JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE` that uses `datarouter-mysql` with transactions as the backing store.
+This is an option for development or staging environments where you don't need high throughput and want
 to avoid creating lots of extra SQS queues.  Note that as throughput from multiple threads ramps up it will suffer
 from locking related timeouts.
 
@@ -290,7 +291,7 @@ your databases.
 The effective (runtime) instance maximum is determined by dividing the clusterThreadCount by the number of running
 instances, so it can drop below the configured instance maximum as more instances are added.  Ideally, your cluster 
 auto-scaler will add enough instances that each one is running fewer threads than its configured maximum, therefore 
-using slightly less CPU than the auto-scalier's CPU threshold.
+using slightly less CPU than the auto-scaler's CPU threshold.
 
 ## Operations
 

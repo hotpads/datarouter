@@ -25,8 +25,9 @@ import org.testng.annotations.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.datarouter.model.databean.DatabeanTool;
+import io.datarouter.model.databean.Databean;
 import io.datarouter.model.serialize.JsonDatabeanTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBeanKey;
@@ -110,7 +111,7 @@ public class JsonDatabeanToolTests{
 				sortedBeanFielder, jsonDatabeans);
 		Assert.assertEquals(CollectionTool.sizeNullSafe(databeansOut), 2);
 		Assert.assertEquals(databeansOut.toArray(), databeansIn.toArray());
-		Assert.assertEquals(DatabeanTool.getKeys(databeansOut).toArray(), keysIn.subList(0,2).toArray());
+		Assert.assertEquals(Scanner.of(databeansOut).map(Databean::getKey).list(), keysIn.subList(0,2));
 	}
 
 }

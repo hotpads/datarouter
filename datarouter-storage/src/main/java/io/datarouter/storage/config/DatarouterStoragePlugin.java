@@ -27,8 +27,8 @@ import io.datarouter.storage.dao.DaoClasses;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
-import io.datarouter.storage.setting.AdditionalSettingRoots;
-import io.datarouter.storage.setting.AdditionalSettingRootsSupplier;
+import io.datarouter.storage.setting.SettingRootsSupplier;
+import io.datarouter.storage.setting.SettingRootsSupplier.SettingRoots;
 
 public class DatarouterStoragePlugin extends BasePlugin{
 
@@ -36,7 +36,7 @@ public class DatarouterStoragePlugin extends BasePlugin{
 	private final Class<? extends ServerTypeDetector> serverTypeDetectorClass;
 	private final DatarouterProperties datarouterProperties;
 	private final Class<? extends DatarouterSettingOverrides> settingOverridesClass;
-	private final AdditionalSettingRoots additionalSettingRoots;
+	private final SettingRoots settingRoots;
 	private final Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 	private final Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass;
 	private final List<Class<? extends Dao>> daoClasses;
@@ -51,7 +51,7 @@ public class DatarouterStoragePlugin extends BasePlugin{
 			Class<? extends ServerTypeDetector> serverTypeDetectorClass,
 			DatarouterProperties datarouterProperties,
 			Class<? extends DatarouterSettingOverrides> settingOverridesClass,
-			AdditionalSettingRoots additionalSettingRoots,
+			SettingRoots settingRoots,
 			Class<? extends ClientOptionsFactory> clientOptionsFactoryClass,
 			Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass,
 			List<Class<? extends Dao>> daoClasses){
@@ -60,7 +60,7 @@ public class DatarouterStoragePlugin extends BasePlugin{
 		this.serverTypeDetectorClass = serverTypeDetectorClass;
 		this.datarouterProperties = datarouterProperties;
 		this.settingOverridesClass = settingOverridesClass;
-		this.additionalSettingRoots = additionalSettingRoots;
+		this.settingRoots = settingRoots;
 		this.clientOptionsFactoryClass = clientOptionsFactoryClass;
 		this.schemaUpdateOptionsFactoryClass = schemaUpdateOptionsFactoryClass;
 		this.daoClasses = daoClasses;
@@ -79,8 +79,8 @@ public class DatarouterStoragePlugin extends BasePlugin{
 		if(settingOverridesClass != null){
 			bind(settingOverridesClass).asEagerSingleton(); // allow overriders in tests;
 		}
-		if(additionalSettingRoots != null){
-			bindActualInstance(AdditionalSettingRootsSupplier.class, additionalSettingRoots);
+		if(settingRoots != null){
+			bindActualInstance(SettingRootsSupplier.class, settingRoots);
 		}
 		if(clientOptionsFactoryClass != null){
 			bindActual(ClientOptionsFactory.class, clientOptionsFactoryClass);
@@ -98,7 +98,7 @@ public class DatarouterStoragePlugin extends BasePlugin{
 
 		private Class<? extends ServerTypeDetector> serverTypeDetectorClass = NoOpServerTypeDetector.class;
 		private Class<? extends DatarouterSettingOverrides> settingOverridesClass;
-		private AdditionalSettingRoots additionalSettingRoots;
+		private SettingRoots settingRoots;
 		private Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 		private Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass;
 		private List<Class<? extends Dao>> daoClasses = new ArrayList<>();
@@ -120,9 +120,8 @@ public class DatarouterStoragePlugin extends BasePlugin{
 			return this;
 		}
 
-		public DatarouterStoragePluginBuilder setAdditionalSettingRootsClass(
-				AdditionalSettingRoots additionalSettingRoots){
-			this.additionalSettingRoots = additionalSettingRoots;
+		public DatarouterStoragePluginBuilder setSettingRootsClass(SettingRoots settingRoots){
+			this.settingRoots = settingRoots;
 			return this;
 		}
 
@@ -158,7 +157,7 @@ public class DatarouterStoragePlugin extends BasePlugin{
 					serverTypeDetectorClass,
 					datarouterProperties,
 					settingOverridesClass,
-					additionalSettingRoots,
+					settingRoots,
 					clientOptionsFactoryClass,
 					schemaUpdateOptionsFactoryClass,
 					daoClasses);

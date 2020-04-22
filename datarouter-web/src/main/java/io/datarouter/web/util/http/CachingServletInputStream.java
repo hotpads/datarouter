@@ -21,7 +21,7 @@ import java.io.InputStream;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 
-import io.datarouter.util.lazy.CheckedSupplier;
+import io.datarouter.util.singletonsupplier.CheckedSupplier;
 
 public class CachingServletInputStream extends ServletInputStream{
 

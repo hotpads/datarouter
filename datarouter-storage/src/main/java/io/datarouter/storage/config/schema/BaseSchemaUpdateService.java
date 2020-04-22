@@ -37,8 +37,8 @@ import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.lazy.Lazy;
 import io.datarouter.util.mutable.MutableString;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 
 public abstract class BaseSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(BaseSchemaUpdateService.class);
@@ -49,7 +49,7 @@ public abstract class BaseSchemaUpdateService{
 	private final DatarouterAdministratorEmailService adminEmailService;
 	private final DatarouterSchemaUpdateScheduler executor;
 
-	private final Map<ClientId,Lazy<List<String>>> existingTableNamesByClient;
+	private final Map<ClientId,SingletonSupplier<List<String>>> existingTableNamesByClient;
 	private final List<Future<Optional<SchemaUpdateResult>>> futures;
 
 	public BaseSchemaUpdateService(
@@ -66,7 +66,7 @@ public abstract class BaseSchemaUpdateService{
 	}
 
 	public Future<Optional<SchemaUpdateResult>> queueNodeForSchemaUpdate(ClientId clientId, PhysicalNode<?,?,?> node){
-		Lazy<List<String>> existingTableNames = existingTableNamesByClient.computeIfAbsent(clientId,
+		SingletonSupplier<List<String>> existingTableNames = existingTableNamesByClient.computeIfAbsent(clientId,
 				this::lazyFetchExistingTables);
 		Future<Optional<SchemaUpdateResult>> future = executor.submit(makeSchemaUpdateCallable(clientId,
 				existingTableNames, node));
@@ -75,7 +75,7 @@ public abstract class BaseSchemaUpdateService{
 	}
 
 	protected abstract Callable<Optional<SchemaUpdateResult>> makeSchemaUpdateCallable(ClientId clientId,
-			Lazy<List<String>> existingTableNames, PhysicalNode<?,?,?> node);
+			SingletonSupplier<List<String>> existingTableNames, PhysicalNode<?,?,?> node);
 
 	private void gatherSchemaUpdates(){
 		gatherSchemaUpdates(false);
@@ -134,8 +134,8 @@ public abstract class BaseSchemaUpdateService{
 
 	protected abstract void sendEmail(String fromEmail, String toEmail, String subject, String body);
 
-	private Lazy<List<String>> lazyFetchExistingTables(ClientId clientId){
-		return Lazy.of(() -> fetchExistingTables(clientId));
+	private SingletonSupplier<List<String>> lazyFetchExistingTables(ClientId clientId){
+		return SingletonSupplier.of(() -> fetchExistingTables(clientId));
 	}
 
 	protected abstract List<String> fetchExistingTables(ClientId clientId);

@@ -60,7 +60,7 @@ import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.ThreadTool;
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory.DatarouterWebRequestParams;
@@ -98,8 +98,8 @@ public class HBaseHandler extends BaseHandler{
 	private int numRegions;
 	private List<String> encodedRegionNameStrings;
 	private Mav mav;
-	private Lazy<DrServerList> drServerList;
-	private Lazy<DrRegionList> regionList;
+	private SingletonSupplier<DrServerList> drServerList;
+	private SingletonSupplier<DrRegionList> regionList;
 
 	/*---------------------------- useful methods ----------------------------*/
 
@@ -110,9 +110,9 @@ public class HBaseHandler extends BaseHandler{
 		datarouterWebRequestParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(params,
 				getClientType());
 		mav.put("clientType", datarouterWebRequestParams.getClientType().getName());
-		drServerList = Lazy.of(() -> new DrServerList(hBaseClientManager.getAdmin(datarouterWebRequestParams
-				.getClientId())));
-		regionList = Lazy.of(() -> drRegionListFactory.make(
+		drServerList = SingletonSupplier.of(() -> new DrServerList(hBaseClientManager.getAdmin(
+				datarouterWebRequestParams.getClientId())));
+		regionList = SingletonSupplier.of(() -> drRegionListFactory.make(
 				datarouterWebRequestParams.getClientId(),
 				drServerList.get(),
 				datarouterWebRequestParams.getTableName(),

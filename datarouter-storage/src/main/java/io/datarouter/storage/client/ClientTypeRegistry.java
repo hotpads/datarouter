@@ -32,19 +32,19 @@ import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.lang.ClassTool;
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 
 @Singleton
 public class ClientTypeRegistry{
 
 	private static final String CLIENT_TYPE_CLASS_NAME_LOCATION = "META-INF/datarouter/clientTypes";
 
-	private final Lazy<Map<String,ClientType<?,?>>> clientTypesByName;
+	private final SingletonSupplier<Map<String,ClientType<?,?>>> clientTypesByName;
 
 	@SuppressWarnings("unchecked")
 	@Inject
 	public ClientTypeRegistry(DatarouterInjector injector){
-		this.clientTypesByName = Lazy.of(() -> streamClientType()
+		this.clientTypesByName = SingletonSupplier.of(() -> streamClientType()
 				.map(ClientTypeRegistry::listLines)
 				.flatMap(List::stream)
 				.distinct()

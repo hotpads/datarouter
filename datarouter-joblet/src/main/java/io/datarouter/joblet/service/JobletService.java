@@ -53,7 +53,6 @@ import io.datarouter.joblet.storage.jobletrequestqueue.JobletRequestQueueKey;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -264,7 +263,7 @@ public class JobletService{
 
 	public void deleteJoblets(Collection<JobletRequest> jobletRequests){
 		deleteJobletDatasForJobletRequests(jobletRequests);
-		jobletRequestDao.deleteMulti(DatabeanTool.getKeys(jobletRequests));
+		Scanner.of(jobletRequests).map(Databean::getKey).flush(jobletRequestDao::deleteMulti);
 	}
 
 	public void deleteJobletsOfType(JobletType<?> jobletType){

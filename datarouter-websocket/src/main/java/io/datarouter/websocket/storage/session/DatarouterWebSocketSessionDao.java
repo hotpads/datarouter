@@ -16,6 +16,7 @@
 package io.datarouter.websocket.storage.session;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -67,6 +68,10 @@ public class DatarouterWebSocketSessionDao extends BaseDao{
 
 	public Optional<WebSocketSession> find(WebSocketSessionKey key){
 		return node.find(key);
+	}
+
+	public List<WebSocketSession> getMulti(Collection<WebSocketSessionKey> keys){
+		return node.getMulti(keys);
 	}
 
 	public Scanner<WebSocketSession> scan(){

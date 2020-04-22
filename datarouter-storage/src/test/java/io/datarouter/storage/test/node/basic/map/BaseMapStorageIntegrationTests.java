@@ -26,8 +26,9 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import io.datarouter.model.databean.DatabeanTool;
+import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -73,7 +74,7 @@ public abstract class BaseMapStorageIntegrationTests{
 	public void testGetMulti(){
 		List<MapStorageBean> beans = initBeans(10);
 		dao.putMulti(beans);
-		List<MapStorageBeanKey> keys = DatabeanTool.getKeys(beans);
+		List<MapStorageBeanKey> keys = Scanner.of(beans).map(Databean::getKey).list();
 		List<MapStorageBean> roundTripped = dao.getMulti(keys);
 		Assert.assertEquals(roundTripped.size(), beans.size());
 		beans.forEach(bean -> Assert.assertTrue(roundTripped.contains(bean)));
@@ -98,7 +99,7 @@ public abstract class BaseMapStorageIntegrationTests{
 		new MapStorageBeanFielder().getNonKeyFields(roundTrippedBlank).stream()
 				.map(Field::getValue)
 				.forEach(Assert::assertNull);
-		dao.deleteMulti(DatabeanTool.getKeys(Arrays.asList(blankDatabean, nonBlankDatabean)));
+		Scanner.of(blankDatabean, nonBlankDatabean).map(Databean::getKey).flush(dao::deleteMulti);
 		Assert.assertNull(dao.get(blankDatabean.getKey()));
 	}
 
@@ -134,7 +135,7 @@ public abstract class BaseMapStorageIntegrationTests{
 	}
 
 	private void deleteRecords(List<MapStorageBean> databeans){
-		dao.deleteMulti(DatabeanTool.getKeys(databeans));
+		Scanner.of(databeans).map(Databean::getKey).flush(dao::deleteMulti);
 	}
 
 }

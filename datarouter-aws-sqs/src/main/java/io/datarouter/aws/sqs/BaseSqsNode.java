@@ -34,7 +34,7 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.queue.QueueMessageKey;
-import io.datarouter.util.lazy.Lazy;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
 
 public abstract class BaseSqsNode<
@@ -56,7 +56,7 @@ implements QueueStorageWriter<PK,D>{
 	private final DatarouterProperties datarouterProperties;
 	private final DatarouterService datarouterService;
 	private final NodeParams<PK,D,F> params;
-	private final Lazy<String> queueUrl;
+	private final SingletonSupplier<String> queueUrl;
 	private final SqsClientManager sqsClientManager;
 	private final ClientId clientId;
 	protected final SqsOpFactory<PK,D,F> sqsOpFactory;
@@ -74,7 +74,7 @@ implements QueueStorageWriter<PK,D>{
 		this.params = params;
 		this.sqsClientManager = sqsClientManager;
 		this.clientId = clientId;
-		this.queueUrl = Lazy.of(this::getOrCreateQueueUrl);
+		this.queueUrl = SingletonSupplier.of(this::getOrCreateQueueUrl);
 		this.sqsOpFactory = new SqsOpFactory<>(this, sqsClientManager, clientId);
 	}
 
@@ -104,7 +104,7 @@ implements QueueStorageWriter<PK,D>{
 		}
 	}
 
-	public Lazy<String> getQueueUrl(){
+	public SingletonSupplier<String> getQueueUrl(){
 		return queueUrl;
 	}
 

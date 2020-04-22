@@ -26,7 +26,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
@@ -68,7 +67,7 @@ public class LongRunningTaskVacuumService{
 		List<LongRunningTask> tooOld = tasks.stream()
 				.filter(task -> task.getKey().getTriggerTime().toInstant().isBefore(tooOldCutoff))
 				.collect(Collectors.toList());
-		dao.deleteMulti(DatabeanTool.getKeys(tooOld));
+		Scanner.of(tooOld).map(Databean::getKey).flush(dao::deleteMulti);
 		// keep the latest N
 		List<LongRunningTask> remaining = new ArrayList<>(tasks);
 		remaining.removeAll(tooOld);
