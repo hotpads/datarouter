@@ -40,7 +40,7 @@ import io.datarouter.plugin.copytable.CopyTableJoblet;
 import io.datarouter.plugin.copytable.CopyTableJoblet.CopyTableJobletParams;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -235,8 +235,8 @@ public class JobletCopyTableHandler extends BaseHandler{
 		CopyTableJobletParams jobletParams = new CopyTableJobletParams(
 				sourceNodeName,
 				targetNodeName,
-				fromKeyExclusive == null ? null : PrimaryKeyPercentCodec.encode(fromKeyExclusive),
-				toKeyInclusive == null ? null : PrimaryKeyPercentCodec.encode(toKeyInclusive),
+				fromKeyExclusive == null ? null : PrimaryKeyPercentCodecTool.encode(fromKeyExclusive),
+				toKeyInclusive == null ? null : PrimaryKeyPercentCodecTool.encode(toKeyInclusive),
 				filterName,
 				processorName,
 				autoResume,

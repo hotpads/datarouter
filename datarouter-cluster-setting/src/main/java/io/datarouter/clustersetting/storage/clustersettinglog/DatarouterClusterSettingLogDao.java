@@ -50,15 +50,23 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 
 	private final IndexedSortedMapStorageNode<ClusterSettingLogKey,ClusterSettingLog,ClusterSettingLogFielder>
 			clusterSettingLog;
-	private final IndexReader<ClusterSettingLogKey,ClusterSettingLog,ClusterSettingLogByReversedCreatedMsKey,
+	private final IndexReader<
+			ClusterSettingLogKey,
+			ClusterSettingLog,
+			ClusterSettingLogByReversedCreatedMsKey,
 			FieldlessIndexEntry<ClusterSettingLogByReversedCreatedMsKey,ClusterSettingLogKey,ClusterSettingLog>>
 			clusterSettingLogByReversedCreatedMs;
 
 	@Inject
-	public DatarouterClusterSettingLogDao(Datarouter datarouter, SettinglessNodeFactory settinglessNodeFactory,
-			DatarouterClusterSettingLogDaoParams params, IndexingNodeFactory indexingNodeFactory){
+	public DatarouterClusterSettingLogDao(
+			Datarouter datarouter,
+			SettinglessNodeFactory settinglessNodeFactory,
+			DatarouterClusterSettingLogDaoParams params,
+			IndexingNodeFactory indexingNodeFactory){
 		super(datarouter);
-		clusterSettingLog = settinglessNodeFactory.create(params.clientId, ClusterSettingLog::new,
+		clusterSettingLog = settinglessNodeFactory.create(
+				params.clientId,
+				ClusterSettingLog::new,
 				ClusterSettingLogFielder::new)
 				.build();
 		clusterSettingLogByReversedCreatedMs = indexingNodeFactory.createKeyOnlyManagedIndex(
@@ -83,7 +91,8 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 		return clusterSettingLog.scanWithPrefixes(prefixes);
 	}
 
-	public Scanner<ClusterSettingLog> scanByReversedCreatedMs(Range<ClusterSettingLogByReversedCreatedMsKey>range,
+	public Scanner<ClusterSettingLog> scanByReversedCreatedMs(
+			Range<ClusterSettingLogByReversedCreatedMsKey>range,
 			int limit){
 		return clusterSettingLogByReversedCreatedMs.scanDatabeans(range, new Config().setLimit(limit));
 	}
@@ -98,6 +107,5 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 				.map(created -> created.compareTo(maxSettingAge) < 0)
 				.orElse(false);
 	}
-
 
 }

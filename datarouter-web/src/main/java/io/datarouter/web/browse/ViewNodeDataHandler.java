@@ -40,7 +40,7 @@ import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
@@ -109,9 +109,9 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		PK startKey = null;
 		if(StringTool.notEmpty(startKeyString)){
 			try{
-				startKey = (PK)PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(),
+				startKey = (PK)PrimaryKeyPercentCodecTool.decode(node.getFieldInfo().getPrimaryKeyClass(),
 						startKeyString);
-				mav.put(PARAM_startKey, PrimaryKeyPercentCodec.encode(startKey));
+				mav.put(PARAM_startKey, PrimaryKeyPercentCodecTool.encode(startKey));
 			}catch(RuntimeException e){
 				return new MessageMav(ExceptionTool.getStackTraceAsString(e));
 			}

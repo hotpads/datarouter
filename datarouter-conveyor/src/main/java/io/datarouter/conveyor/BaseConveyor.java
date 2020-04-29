@@ -43,11 +43,13 @@ public abstract class BaseConveyor implements Conveyor{
 	}
 
 	protected static class ProcessBatchResult{
+
 		public final boolean shouldContinueImmediately;
 
 		public ProcessBatchResult(boolean shouldContinueImmediately){
 			this.shouldContinueImmediately = shouldContinueImmediately;
 		}
+
 	}
 
 	@Override

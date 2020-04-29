@@ -16,7 +16,6 @@
 package io.datarouter.nodewatch.service;
 
 import java.time.Duration;
-import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -142,8 +141,7 @@ public class TableSamplerService{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	Scanner<Range<PK>> scanTableRangesUsingTableSamples(PhysicalNode<PK,D,F> node){
-		return Scanner.of(scanPksForNode(node), Scanner.of((PK)null))
-				.concatenate(Function.identity())
+		return Scanner.concat(scanPksForNode(node), Scanner.of((PK)null))
 				.retain(1)
 				.map(group -> new Range<>(group.previous(), group.current()));
 	}

@@ -16,6 +16,7 @@
 package io.datarouter.web.port;
 
 import java.lang.management.ManagementFactory;
+import java.util.function.Supplier;
 
 import javax.inject.Singleton;
 import javax.management.MBeanServer;
@@ -32,7 +33,7 @@ public class WildFlyPortIdentifier implements PortIdentifier{
 			HTTPS = "socket-binding-group=standard-sockets,socket-binding=https",
 			PORT_ATTRIBUTE = "port";
 
-	private final SingletonSupplier<Pair<Integer,Integer>> ports;
+	private final Supplier<Pair<Integer,Integer>> ports;
 
 	public WildFlyPortIdentifier(){
 		this.ports = SingletonSupplier.of(() -> {

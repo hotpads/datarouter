@@ -20,5 +20,6 @@ public interface SessionBasedUser{
 	String getUsername();
 	String getToken();
 	Long getId();
+	Boolean isEnabled();
 
 }

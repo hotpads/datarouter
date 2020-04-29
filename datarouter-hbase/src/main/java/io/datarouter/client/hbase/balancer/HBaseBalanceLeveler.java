@@ -26,7 +26,6 @@ import org.apache.hadoop.hbase.ServerName;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.HashMethods;
-import io.datarouter.util.collection.MapTool;
 import io.datarouter.util.lang.ObjectTool;
 
 public class HBaseBalanceLeveler<I>{
@@ -100,7 +99,7 @@ public class HBaseBalanceLeveler<I>{
 
 	private void updateCountByDestination(){
 		countByDestination.clear();
-		destinationByItem.values().forEach(destination -> MapTool.increment(countByDestination, destination));
+		destinationByItem.values().forEach(destination -> countByDestination.merge(destination, 1L, Long::sum));
 		if(countByDestination.size() > allDestinations.size()){
 			throw new IllegalStateException("countByDestination.size() is " + countByDestination.size()
 					+ " which is greater than " + allDestinations.size());

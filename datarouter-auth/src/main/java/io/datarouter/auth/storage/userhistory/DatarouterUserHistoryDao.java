@@ -43,10 +43,15 @@ public class DatarouterUserHistoryDao extends BaseDao{
 	private final IndexedSortedMapStorage<DatarouterUserHistoryKey,DatarouterUserHistory> node;
 
 	@Inject
-	public DatarouterUserHistoryDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterUserHistoryDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterUserHistoryDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, DatarouterUserHistory::new, DatarouterUserHistoryFielder::new)
+		node = nodeFactory.create(
+				params.clientId,
+				DatarouterUserHistory::new,
+				DatarouterUserHistoryFielder::new)
 				.buildAndRegister();
 	}
 

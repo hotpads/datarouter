@@ -27,7 +27,7 @@ public class OptionalScannerTests{
 	public void testOptionalOf(){
 		List<Optional<Integer>> input = List.of(Optional.of(1), Optional.empty(), Optional.of(2));
 		List<Integer> output = Scanner.of(input)
-				.concatenate(OptionalScanner::of)
+				.concat(OptionalScanner::of)
 				.list();
 		Assert.assertEquals(output, List.of(1, 2));
 	}
@@ -35,7 +35,7 @@ public class OptionalScannerTests{
 	@Test
 	public void testOfOptionalAmbiguous(){
 		List<Integer> output = Scanner.<Optional<Integer>>of(Optional.of(1), Optional.empty(), Optional.of(2))
-				.concatenate(OptionalScanner::of)
+				.concat(OptionalScanner::of)
 				.list();
 		Assert.assertEquals(output, List.of(1, 2));
 	}

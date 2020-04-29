@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.config;
+package io.datarouter.util.aws;
 
 public class Ec2InstanceDetailsDto{
 

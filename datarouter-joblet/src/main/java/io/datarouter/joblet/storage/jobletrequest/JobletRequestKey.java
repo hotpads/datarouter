@@ -98,7 +98,7 @@ public class JobletRequestKey extends BaseRegularPrimaryKey<JobletRequestKey>{
 			Collection<JobletType<?>> types,
 			Collection<JobletPriority> priorities){
 		return Scanner.of(types)
-				.concatenate(type -> Scanner.of(priorities)
+				.concat(type -> Scanner.of(priorities)
 						.map(priority -> create(type, priority.getExecutionOrder(), null, null)));
 	}
 

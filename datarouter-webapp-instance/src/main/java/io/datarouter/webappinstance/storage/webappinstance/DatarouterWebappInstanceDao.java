@@ -34,7 +34,7 @@ import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
-import io.datarouter.util.collection.CollectorTool;
+import io.datarouter.util.collector.RelaxedMapCollector;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance.WebappInstanceFielder;
 
 @Singleton
@@ -114,7 +114,8 @@ public class DatarouterWebappInstanceDao extends BaseDao{
 
 	public Map<String,String> getServerTypeByServerName(){
 		return node.scan()
-				.collect(CollectorTool.toMap(app -> app.getKey().getServerName(), BaseWebappInstance::getServerType));
+				.collect(RelaxedMapCollector.of(app -> app.getKey().getServerName(),
+						BaseWebappInstance::getServerType));
 	}
 
 	public DatabeanVacuum<WebappInstanceKey,WebappInstance> makeVacuum(){

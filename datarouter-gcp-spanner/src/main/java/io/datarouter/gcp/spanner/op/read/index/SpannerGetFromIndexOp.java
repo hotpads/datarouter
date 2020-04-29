@@ -73,7 +73,11 @@ extends SpannerBaseReadIndexOp<PK,IE>{
 		String indexName = indexEntryFieldInfo.getIndexName();
 		ResultSet rs;
 		if(config.getLimit() != null){
-			rs = client.singleUseReadOnlyTransaction().readUsingIndex(tableName, indexName, buildKeySet(), columns,
+			rs = client.singleUseReadOnlyTransaction().readUsingIndex(
+					tableName,
+					indexName,
+					buildKeySet(),
+					columns,
 					Options.limit(config.getLimit()));
 		}else{
 			rs = client.singleUseReadOnlyTransaction().readUsingIndex(tableName, indexName, buildKeySet(), columns);

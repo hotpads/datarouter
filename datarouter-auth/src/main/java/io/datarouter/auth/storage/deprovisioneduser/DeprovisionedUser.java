@@ -71,7 +71,9 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 	}
 
 	public DeprovisionedUserDto toDto(){
-		return new DeprovisionedUserDto(getUsername(), Scanner.of(roles).sorted(String.CASE_INSENSITIVE_ORDER).list(),
+		return new DeprovisionedUserDto(
+				getUsername(),
+				Scanner.of(roles).sorted(String.CASE_INSENSITIVE_ORDER).list(),
 				status.dto);
 	}
 

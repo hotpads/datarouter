@@ -41,11 +41,16 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 	private final SortedMapStorage<DatarouterAccountPermissionKey,DatarouterAccountPermission> node;
 
 	@Inject
-	public DatarouterAccountPermissionDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterAccountPermissionDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterAccountPermissionDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, DatarouterAccountPermission::new,
-				DatarouterAccountPermissionFielder::new).buildAndRegister();
+		node = nodeFactory.create(
+				params.clientId,
+				DatarouterAccountPermission::new,
+				DatarouterAccountPermissionFielder::new)
+				.buildAndRegister();
 	}
 
 	@Override

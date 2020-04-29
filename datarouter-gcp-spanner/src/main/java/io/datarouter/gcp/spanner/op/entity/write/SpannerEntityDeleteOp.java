@@ -58,7 +58,8 @@ implements SpannerEntityOp{
 	@Override
 	protected Mutation keyToDeleteMutation(PK key){
 		Builder mutationKey = getPartiton(key, partitioner);
-		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(SpannerEntityKeyTool.getPrimaryKeyFields(key,
+		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(SpannerEntityKeyTool.getPrimaryKeyFields(
+				key,
 				fieldInfo.isSubEntity()))){
 			mutationKey = codec.setKey(mutationKey);
 		}

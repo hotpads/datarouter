@@ -17,6 +17,7 @@ package io.datarouter.client.hbase.test.nonentity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -32,7 +33,6 @@ import io.datarouter.storage.test.node.basic.manyfield.BaseManyFieldIntegrationT
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBeanKey;
-import io.datarouter.util.collection.MapTool;
 
 @Guice(moduleFactory = DatarouterHBaseTestNgModuleFactory.class)
 public class HBaseManyFieldIntegrationTests extends BaseManyFieldIntegrationTests{
@@ -52,21 +52,24 @@ public class HBaseManyFieldIntegrationTests extends BaseManyFieldIntegrationTest
 
 		//increment by 3
 		Map<ManyFieldBeanKey,Map<String,Long>> increments = new HashMap<>();
-		MapTool.increment(increments, bean.getKey(), ManyFieldBean.FieldKeys.incrementField.getName(), 30L);
+		increments.computeIfAbsent(bean.getKey(), $ -> new TreeMap<>())
+				.merge(ManyFieldBean.FieldKeys.incrementField.getName(), 30L, Long::sum);
 		hbaseNode.increment(increments, new Config());
 		ManyFieldBean result1 = dao.get(bean.getKey());
 		Assert.assertEquals(result1.getIncrementField(), Long.valueOf(30));
 
 		//decrement by 11
 		increments.clear();
-		MapTool.increment(increments, bean.getKey(), ManyFieldBean.FieldKeys.incrementField.getName(), -11L);
+		increments.computeIfAbsent(bean.getKey(), $ -> new TreeMap<>())
+				.merge(ManyFieldBean.FieldKeys.incrementField.getName(), -11L, Long::sum);
 		hbaseNode.increment(increments, new Config());
 		ManyFieldBean result2 = dao.get(bean.getKey());
 		Assert.assertEquals(result2.getIncrementField(), Long.valueOf(19));
 
 		//increment by 17 (expecting 30 - 11 + 17 => 36)
 		increments.clear();
-		MapTool.increment(increments, bean.getKey(), ManyFieldBean.FieldKeys.incrementField.getName(), 17L);
+		increments.computeIfAbsent(bean.getKey(), $ -> new TreeMap<>())
+				.merge(ManyFieldBean.FieldKeys.incrementField.getName(), 17L, Long::sum);
 		hbaseNode.increment(increments, new Config());
 		ManyFieldBean result3 = dao.get(bean.getKey());
 		Assert.assertEquals(result3.getIncrementField(), Long.valueOf(36));

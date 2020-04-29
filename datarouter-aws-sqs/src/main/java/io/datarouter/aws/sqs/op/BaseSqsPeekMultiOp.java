@@ -65,7 +65,7 @@ extends SqsOp<PK,D,F,List<T>>{
 	protected abstract List<T> extractDatabeans(List<Message> messages);
 
 	private ReceiveMessageRequest makeRequest(){
-		ReceiveMessageRequest request = new ReceiveMessageRequest(queueUrl);
+		var request = new ReceiveMessageRequest(queueUrl);
 
 		//waitTime
 		Duration configTimeout = config.getTimeoutOrUse(Duration.ofMillis(Long.MAX_VALUE));

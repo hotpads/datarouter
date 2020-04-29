@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.28</version>
+	<version>0.0.29</version>
 </dependency>
 ```
 
@@ -39,6 +39,7 @@ These methods share behavior with those in Stream but are implemented independen
 - `empty`
 - `of`
 - `toArray`
+- `concat`
 
 ### Differences from Stream
 
@@ -46,6 +47,8 @@ These methods share behavior with those in Stream but are implemented independen
 - `hasAny` - return true when the first item is seen
 - `isEmpty` - return true if the scanner completes without seeing any items
 - `findLast` - returns `Optional<T>` with the last item, if any found
+- `collect` - uses the `Supplier<Collection>` to create a collection, then `add`s each item to it
+  - equivalent to `stream.collect(Collectors.toCollection(TreeSet::new))`
 - `list` - collect all items to a `List`
   - equivalent to `stream.collect(Collectors.toList())`
 - `listTo` - collect all items to a `List` and pass it to a `Function`
@@ -53,7 +56,7 @@ These methods share behavior with those in Stream but are implemented independen
 
 #### Accepting Consumer
 - `each` - each item passed to a `Consumer`
-  - unlike `Stream` all items are guaranteed to be consumed
+  - unlike `Stream::peek` all items are guaranteed to be consumed
 - `flush` - all items collected to a `List` and passed to a `Consumer`
   - the `Scanner` can be continued with the logic unchanged
 
@@ -67,24 +70,12 @@ These methods share behavior with those in Stream but are implemented independen
 - `deduplicateBy` - remove items where the function maps to the previously mapped value
 
 #### Stop scanning based on Predicate
-- `advanceUntil`
-- `advanceWhile`
+- `advanceUntil` - terminate the Scanner when the `Predicate` passes
+- `advanceWhile` - terminate the Scanner when the `Predicate` fails
+  - equivalent to `Stream::takeWhile`
 
-#### Other
-- `take` - collect N items to a List
-- `batch` - convert `Scanner<T>` to Scanner<List<T>> with batch size N
-- `sample` - return every Nth item
-- `retain` - convert `Scanner<T>` to `Scanner<RetainingGroup<T>>` which gives access to the previous N items
-- `prefetch` - load the next N items in the provided `ExecutorService`
-
-### Collectors
-
-`Scanner` supports Java's comprehensive `Collector` library by internally converting to `Stream` before collecting.
-
-### ScannerScanner
-##### - [source code](./src/main/java/io/datarouter/scanner/ScannerScanner.java)
-To combine multiple scanners, calling `mapToScanner` will return a `ScannerScanner` with these methods:
-- `concatenate`
+#### Combining Scanners
+- `concat`
   - similar to Stream's flatMap or concat
   - output the contents of the first scanner, followed by the second, third, etc
   - efficient, requiring no memory buffering
@@ -92,6 +83,17 @@ To combine multiple scanners, calling `mapToScanner` will return a `ScannerScann
   - no equivalent in Stream
   - assuming the input scanners are sorted, merges them into a sorted output stream, useful for scanning partitioned tables
   - the first item of each scanner must be in memory (sometimes triggering a batch of items loaded into memory), potentially making this expensive with many input scanners
+
+#### Other
+- `take` - collect N items to a List
+- `batch` - convert `Scanner<T>` to `Scanner<List<T>>` with batch size N
+- `sample` - return every Nth item
+- `retain` - convert `Scanner<T>` to `Scanner<RetainingGroup<T>>` which gives access to the previous N items
+- `prefetch` - load the next N items using the provided `ExecutorService`
+
+### Collectors
+
+`Scanner` supports Java's comprehensive `Collector` library by internally converting to `Stream` before collecting.
 
 ### ParallelScanner
 ##### - [source code](./src/main/java/io/datarouter/scanner/ParallelScanner.java)

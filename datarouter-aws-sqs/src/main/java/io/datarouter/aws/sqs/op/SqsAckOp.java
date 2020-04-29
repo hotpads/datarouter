@@ -52,7 +52,7 @@ extends SqsOp<PK,D,F,Void>{
 	@Override
 	protected Void run(){
 		String handle = StringByteTool.fromUtf8Bytes(key.getHandle());
-		DeleteMessageRequest deleteRequest = new DeleteMessageRequest(queueUrl, handle);
+		var deleteRequest = new DeleteMessageRequest(queueUrl, handle);
 		sqsClientManager.getAmazonSqs(clientId).deleteMessage(deleteRequest);
 		return null;
 	}

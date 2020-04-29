@@ -54,14 +54,14 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 	default List<D> pollMulti(Config config){
 		return Scanner.of(getReadNodes())
 				.map(node -> node.pollMulti(config))
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.list();
 	}
 
 	@Override
 	default Scanner<D> pollUntilEmpty(Config config){
 		return Scanner.of(getReadNodes())
-				.concatenate(node -> node.pollUntilEmpty(config));
+				.concat(node -> node.pollUntilEmpty(config));
 	}
 
 	@Override
@@ -135,7 +135,7 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 	@Override
 	default Scanner<QueueMessage<PK,D>> peekUntilEmpty(Config config){
 		return Scanner.of(getReadNodes())
-				.concatenate(node -> node.peekUntilEmpty(config));
+				.concat(node -> node.peekUntilEmpty(config));
 	}
 
 }

@@ -25,23 +25,31 @@ import org.slf4j.LoggerFactory;
 public class CollatingScanner<T> extends BaseScanner<T>{
 	private static final Logger logger = LoggerFactory.getLogger(CollatingScanner.class);
 
+	private final List<Scanner<T>> inputs;
+	private final Comparator<? super T> comparator;
 	private final PriorityQueue<ComparableScanner<T>> priorityQueue;
-
+	private boolean opened;
 	private boolean closed;
 
 	public CollatingScanner(List<Scanner<T>> inputs, Comparator<? super T> comparator){
+		this.inputs = inputs;
+		this.comparator = comparator;
 		this.priorityQueue = new PriorityQueue<>();
+		this.opened = false;
 		this.closed = false;
-		Scanner.of(inputs)
-				.map(input -> new ComparableScanner<>(input, comparator))
-				.include(Scanner::advance)
-				.forEach(priorityQueue::add);
 	}
 
 	@Override
 	public boolean advance(){
 		if(closed){
 			return false;
+		}
+		if(!opened){
+			Scanner.of(inputs)
+					.map(input -> new ComparableScanner<>(input, comparator))
+					.include(Scanner::advance)
+					.forEach(priorityQueue::add);
+			opened = true;
 		}
 		ComparableScanner<T> firstScanner = priorityQueue.poll();
 		if(firstScanner == null){

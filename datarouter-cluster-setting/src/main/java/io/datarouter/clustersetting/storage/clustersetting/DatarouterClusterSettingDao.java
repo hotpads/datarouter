@@ -46,10 +46,15 @@ public class DatarouterClusterSettingDao extends BaseDao{
 	private final SortedMapStorage<ClusterSettingKey,ClusterSetting> node;
 
 	@Inject
-	public DatarouterClusterSettingDao(Datarouter datarouter, SettinglessNodeFactory settinglessNodeFactory,
+	public DatarouterClusterSettingDao(
+			Datarouter datarouter,
+			SettinglessNodeFactory settinglessNodeFactory,
 			DatarouterClusterSettingDaoParams params){
 		super(datarouter);
-		node = settinglessNodeFactory.create(params.clientId, ClusterSetting::new, ClusterSettingFielder::new)
+		node = settinglessNodeFactory.create(
+				params.clientId,
+				ClusterSetting::new,
+				ClusterSettingFielder::new)
 				.buildAndRegister();
 	}
 

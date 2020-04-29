@@ -44,11 +44,16 @@ public class DatarouterOpOptimizedBatchSizeDao extends BaseDao{
 	private final SortedMapStorage<OpOptimizedBatchSizeKey,OpOptimizedBatchSize> node;
 
 	@Inject
-	public DatarouterOpOptimizedBatchSizeDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterOpOptimizedBatchSizeDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterOpOptimizedBatchSizeDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, OpOptimizedBatchSize::new,
-				OpOptimizedBatchSizeFielder::new).buildAndRegister();
+		node = nodeFactory.create(
+				params.clientId,
+				OpOptimizedBatchSize::new,
+				OpOptimizedBatchSizeFielder::new)
+				.buildAndRegister();
 	}
 
 	public Optional<OpOptimizedBatchSize> find(OpOptimizedBatchSizeKey key){

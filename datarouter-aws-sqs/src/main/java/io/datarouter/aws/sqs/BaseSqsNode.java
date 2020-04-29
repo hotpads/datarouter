@@ -17,6 +17,7 @@ package io.datarouter.aws.sqs;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ implements QueueStorageWriter<PK,D>{
 	private final DatarouterProperties datarouterProperties;
 	private final DatarouterService datarouterService;
 	private final NodeParams<PK,D,F> params;
-	private final SingletonSupplier<String> queueUrl;
+	private final Supplier<String> queueUrl;
 	private final SqsClientManager sqsClientManager;
 	private final ClientId clientId;
 	protected final SqsOpFactory<PK,D,F> sqsOpFactory;
@@ -96,7 +97,7 @@ implements QueueStorageWriter<PK,D>{
 	}
 
 	private String tryCreateQueueAndGetUrl(String queueName){
-		CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName);
+		var createQueueRequest = new CreateQueueRequest(queueName);
 		try{
 			return sqsClientManager.getAmazonSqs(clientId).createQueue(createQueueRequest).getQueueUrl();
 		}catch(RuntimeException e){
@@ -104,7 +105,7 @@ implements QueueStorageWriter<PK,D>{
 		}
 	}
 
-	public SingletonSupplier<String> getQueueUrl(){
+	public Supplier<String> getQueueUrl(){
 		return queueUrl;
 	}
 

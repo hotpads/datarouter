@@ -83,7 +83,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>> List<IE> getMultiFromIndex(Collection<IK> keys, Config config,
+			IF extends DatabeanFielder<IK,IE>>
+	List<IE> getMultiFromIndex(Collection<IK> keys, Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		var getFromIndexOp = new SpannerGetFromIndexOp<>(
 				clientManager.getDatabaseClient(getClientId()),
@@ -98,8 +99,8 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>> List<D> getMultiByIndex(Collection<IK> keys, Config config,
-			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
+			IF extends DatabeanFielder<IK,IE>>
+	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		var spannerGetByIndexOp = new SpannerGetByIndexOp<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
@@ -114,10 +115,11 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>> Scanner<IE> scanMultiIndex(
-					IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
-					Collection<Range<IK>> ranges,
-					Config config){
+			IF extends DatabeanFielder<IK,IE>>
+	Scanner<IE> scanMultiIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config){
 		return new SpannerFromIndexScanner<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
@@ -126,17 +128,18 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				spannerFieldCodecRegistry,
 				indexEntryFieldInfo,
 				false)
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>> Scanner<D> scanMultiByIndex(
-					IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
-					Collection<Range<IK>> ranges,
-					Config config){
+			IF extends DatabeanFielder<IK,IE>>
+	Scanner<D> scanMultiByIndex(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config){
 		return new SpannerByIndexScanner<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
@@ -145,17 +148,18 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				spannerFieldCodecRegistry,
 				indexEntryFieldInfo,
 				false)
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
-			IF extends DatabeanFielder<IK,IE>> Scanner<IK> scanMultiIndexKeys(
-					IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
-					Collection<Range<IK>> ranges,
-					Config config){
+			IF extends DatabeanFielder<IK,IE>>
+	Scanner<IK> scanMultiIndexKeys(
+			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
+			Collection<Range<IK>> ranges,
+			Config config){
 		return new SpannerByIndexKeyScanner<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
@@ -164,7 +168,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 				spannerFieldCodecRegistry,
 				indexEntryFieldInfo,
 				false)
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	@Override

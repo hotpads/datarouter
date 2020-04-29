@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -57,7 +58,6 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 
@@ -94,7 +94,7 @@ public class HBaseSchemaUpdateService extends BaseSchemaUpdateService{
 	@Override
 	protected Callable<Optional<SchemaUpdateResult>> makeSchemaUpdateCallable(
 			ClientId clientId,
-			SingletonSupplier<List<String>> existingTableNames,
+			Supplier<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> node){
 		return () -> generateSchemaUpdate(clientId, existingTableNames, node);
 	}
@@ -128,7 +128,7 @@ public class HBaseSchemaUpdateService extends BaseSchemaUpdateService{
 
 	private Optional<SchemaUpdateResult> generateSchemaUpdate(
 			ClientId clientId,
-			SingletonSupplier<List<String>> existingTableNames,
+			Supplier<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> node)
 	throws IOException{
 		PhysicalDatabeanFieldInfo<?,?,?> fieldInfo = node.getFieldInfo();

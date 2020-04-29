@@ -28,28 +28,25 @@ public class ClusterSettingTests{
 		String application = "myApplication";
 		String serverName = "myServerName";
 		String serverType = "myServerType";
-		WebappInstance app = new WebappInstance(application, serverName, serverType);
+		var app = new WebappInstance(application, serverName, serverType);
 
-		ClusterSettingKey keyDefault = new ClusterSettingKey("a", ClusterSettingScope.DEFAULT_SCOPE, null, null, null);
+		var keyDefault = new ClusterSettingKey("a", ClusterSettingScope.DEFAULT_SCOPE, null, null, null);
 		Assert.assertTrue(keyDefault.appliesToWebappInstance(app));
 
-		ClusterSettingKey keyCluster = new ClusterSettingKey("b", ClusterSettingScope.CLUSTER, null, null, null);
+		var keyCluster = new ClusterSettingKey("b", ClusterSettingScope.CLUSTER, null, null, null);
 		Assert.assertTrue(keyCluster.appliesToWebappInstance(app));
 
-		ClusterSettingKey keyServerType = new ClusterSettingKey("c", ClusterSettingScope.SERVER_TYPE, serverType, null,
-				null);
+		var keyServerType = new ClusterSettingKey("c", ClusterSettingScope.SERVER_TYPE, serverType, null, null);
 		Assert.assertTrue(keyServerType.appliesToWebappInstance(app));
 
-		ClusterSettingKey keyServerName = new ClusterSettingKey("d", ClusterSettingScope.SERVER_NAME, null, serverName,
-				null);
+		var keyServerName = new ClusterSettingKey("d", ClusterSettingScope.SERVER_NAME, null, serverName, null);
 		Assert.assertTrue(keyServerName.appliesToWebappInstance(app));
 
-		ClusterSettingKey keyApplication = new ClusterSettingKey("e", ClusterSettingScope.APPLICATION, null, null,
-				application);
+		var keyApplication = new ClusterSettingKey("e", ClusterSettingScope.APPLICATION, null, null, application);
 		Assert.assertTrue(keyApplication.appliesToWebappInstance(app));
 
-		ClusterSettingKey keyApplicationFalse = new ClusterSettingKey("eFalse", ClusterSettingScope.APPLICATION, null,
-				null, "not-" + application);
+		var keyApplicationFalse = new ClusterSettingKey("eFalse", ClusterSettingScope.APPLICATION, null, null, "not-"
+				+ application);
 		Assert.assertFalse(keyApplicationFalse.appliesToWebappInstance(app));
 	}
 

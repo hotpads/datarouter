@@ -26,7 +26,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 
@@ -56,7 +56,7 @@ public class DeleteNodeDataHandler extends InspectNodeDataHandler{
 		List<String> fieldValues = getFieldValues(node);
 
 		String encodedPk = PercentFieldCodec.encode(fieldValues.stream());
-		PK primaryKey = PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
+		PK primaryKey = PrimaryKeyPercentCodecTool.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
 		MapStorageNode<PK,?,?> mapStorageNode = (MapStorageNode<PK,?,?>)node;
 		if(!mapStorageNode.exists(primaryKey)){
 			return new MessageMav("databean does not exist");

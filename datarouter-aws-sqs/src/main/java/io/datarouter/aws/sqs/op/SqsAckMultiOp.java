@@ -18,7 +18,6 @@ package io.datarouter.aws.sqs.op;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
@@ -58,11 +57,10 @@ extends SqsOp<PK,D,F,Void>{
 	@Override
 	protected Void run(){
 		for(List<QueueMessageKey> batch : Scanner.of(keys).batch(BaseSqsNode.MAX_MESSAGES_PER_BATCH).iterable()){
-			List<DeleteMessageBatchRequestEntry> deleteEntries = batch.stream()
+			DeleteMessageBatchRequest deleteRequest = Scanner.of(batch)
 					.map(key -> new DeleteMessageBatchRequestEntry(UUID.randomUUID().toString(), new String(key
 							.getHandle())))
-					.collect(Collectors.toList());
-			DeleteMessageBatchRequest deleteRequest = new DeleteMessageBatchRequest(queueUrl, deleteEntries);
+					.listTo(deleteEntries -> new DeleteMessageBatchRequest(queueUrl, deleteEntries));
 			sqsClientManager.getAmazonSqs(clientId).deleteMessageBatch(deleteRequest);
 		}
 		return null;

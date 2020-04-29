@@ -415,7 +415,7 @@ public class MysqlNodeManager{
 				ranges,
 				config,
 				MysqlCollation.isCaseInsensitive(fieldInfo))
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
@@ -437,7 +437,7 @@ public class MysqlNodeManager{
 				ranges,
 				config,
 				MysqlCollation.isCaseInsensitive(fieldInfo))
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
@@ -459,7 +459,7 @@ public class MysqlNodeManager{
 				ranges,
 				config,
 				MysqlCollation.isCaseInsensitive(fieldInfo))
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
@@ -476,7 +476,7 @@ public class MysqlNodeManager{
 				ranges,
 				config,
 				MysqlCollation.isCaseInsensitive(fieldInfo))
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	@SuppressWarnings("resource")
@@ -490,7 +490,7 @@ public class MysqlNodeManager{
 				ranges,
 				config,
 				MysqlCollation.isCaseInsensitive(fieldInfo))
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	public <PK extends PrimaryKey<PK>,

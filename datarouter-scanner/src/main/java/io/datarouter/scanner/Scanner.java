@@ -27,7 +27,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public interface Scanner<T> extends Closeable{
@@ -189,7 +195,7 @@ public interface Scanner<T> extends Closeable{
 	@SuppressWarnings("resource")
 	default Scanner<T> prefetch(ExecutorService exec, int batchSize){
 		return new PrefetchingScanner<>(this, exec, batchSize)
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	default Scanner<T> sample(long sampleSize, boolean includeLast){
@@ -227,9 +233,14 @@ public interface Scanner<T> extends Closeable{
 		return new CollatingScanner<>(scanners, comparator);
 	}
 
-	default <R> Scanner<R> concatenate(Function<? super T,Scanner<R>> mapper){
+	default <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapper){
 		Scanner<Scanner<R>> scanners = map(mapper);
 		return new ConcatenatingScanner<>(scanners);
+	}
+
+	@SafeVarargs
+	public static <T> Scanner<T> concat(Scanner<T>... scanners){
+		return Scanner.of(scanners).concat(Function.identity());
 	}
 
 	/*----------------------------- Parallel --------------------------------*/
@@ -238,7 +249,7 @@ public interface Scanner<T> extends Closeable{
 		return new ParallelScanner<>(context, this);
 	}
 
-	/*----------------------------- Iterator & Stream --------------------------------*/
+	/*----------------------------- Iterator --------------------------------*/
 
 	default Iterator<T> iterator(){
 		return new ScannerIterator<>(this);
@@ -248,8 +259,22 @@ public interface Scanner<T> extends Closeable{
 		return this::iterator;
 	}
 
+	/*----------------------------- Stream --------------------------------*/
+
 	default Stream<T> stream(){
 		return new ScannerStream<>(this);
+	}
+
+	default IntStream streamInts(ToIntFunction<? super T> mapper){
+		return stream().mapToInt(mapper);
+	}
+
+	default LongStream streamLongs(ToLongFunction<? super T> mapper){
+		return stream().mapToLong(mapper);
+	}
+
+	default DoubleStream streamDoubles(ToDoubleFunction<? super T> mapper){
+		return stream().mapToDouble(mapper);
 	}
 
 	/*----------------------------- create ----------------------------------*/

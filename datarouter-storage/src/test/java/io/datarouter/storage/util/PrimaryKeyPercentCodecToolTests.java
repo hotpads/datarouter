@@ -28,7 +28,7 @@ import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
 
-public class PrimaryKeyPercentCodecTests{
+public class PrimaryKeyPercentCodecToolTests{
 
 	private static SortedBeanKey
 			SBK_0 = new SortedBeanKey("abc", "def", 3, "ghi"),
@@ -42,8 +42,8 @@ public class PrimaryKeyPercentCodecTests{
 	public void testSimpleNumericPk(){
 		String id = "355";
 		TestKey pk = new TestKey(id);
-		String encoded = PrimaryKeyPercentCodec.encode(pk);
-		TestKey decoded = PrimaryKeyPercentCodec.decode(TestKey.class, encoded);
+		String encoded = PrimaryKeyPercentCodecTool.encode(pk);
+		TestKey decoded = PrimaryKeyPercentCodecTool.decode(TestKey.class, encoded);
 		Assert.assertEquals(decoded.getId(), id);
 	}
 
@@ -52,43 +52,43 @@ public class PrimaryKeyPercentCodecTests{
 		final char delimiter = ',';
 		List<String> ids = Arrays.asList("23", "52", "103");
 		List<TestKey> pks = Scanner.of(ids).map(TestKey::new).list();
-		String encoded = PrimaryKeyPercentCodec.encodeMulti(pks, delimiter);
-		List<TestKey> decodedPks = PrimaryKeyPercentCodec.decodeMulti(TestKey.class, delimiter, encoded);
+		String encoded = PrimaryKeyPercentCodecTool.encodeMulti(pks, delimiter);
+		List<TestKey> decodedPks = PrimaryKeyPercentCodecTool.decodeMulti(TestKey.class, delimiter, encoded);
 		List<String> decodedIds = Scanner.of(decodedPks).map(TestKey::getId).list();
 		Assert.assertEquals(ids, decodedIds);
 	}
 
 	@Test
 	public void testStringPk(){
-		String encoded = PrimaryKeyPercentCodec.encode(SBK_0);
-		SortedBeanKey decoded = PrimaryKeyPercentCodec.decode(SortedBeanKey.class, encoded);
+		String encoded = PrimaryKeyPercentCodecTool.encode(SBK_0);
+		SortedBeanKey decoded = PrimaryKeyPercentCodecTool.decode(SortedBeanKey.class, encoded);
 		Assert.assertEquals(decoded, SBK_0);
 	}
 
 	@Test
 	public void testStringPkWithReservedCharacters(){
-		String encoded = PrimaryKeyPercentCodec.encode(SBK_1);
-		SortedBeanKey decoded = PrimaryKeyPercentCodec.decode(SortedBeanKey.class, encoded);
+		String encoded = PrimaryKeyPercentCodecTool.encode(SBK_1);
+		SortedBeanKey decoded = PrimaryKeyPercentCodecTool.decode(SortedBeanKey.class, encoded);
 		Assert.assertEquals(decoded, SBK_1);
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testInvalidDelimiter(){
-		PrimaryKeyPercentCodec.encodeMulti(SBK_MULTI, '/');
+		PrimaryKeyPercentCodecTool.encodeMulti(SBK_MULTI, '/');
 	}
 
 	@Test
 	public void testEncodeMulti(){
-		final char delimiter = ',';
-		String encoded = PrimaryKeyPercentCodec.encodeMulti(SBK_MULTI, delimiter);
-		List<SortedBeanKey> decoded = PrimaryKeyPercentCodec.decodeMulti(SortedBeanKey.class, delimiter, encoded);
+		char delimiter = ',';
+		String encoded = PrimaryKeyPercentCodecTool.encodeMulti(SBK_MULTI, delimiter);
+		List<SortedBeanKey> decoded = PrimaryKeyPercentCodecTool.decodeMulti(SortedBeanKey.class, delimiter, encoded);
 		Assert.assertEquals(decoded, SBK_MULTI);
 	}
 
 	@Test
 	public void testNullsBecomeEmptyStrings(){
-		String encoded = PrimaryKeyPercentCodec.encode(SBK_NULL);
-		SortedBeanKey decoded = PrimaryKeyPercentCodec.decode(SortedBeanKey.class, encoded);
+		String encoded = PrimaryKeyPercentCodecTool.encode(SBK_NULL);
+		SortedBeanKey decoded = PrimaryKeyPercentCodecTool.decode(SortedBeanKey.class, encoded);
 		Assert.assertEquals(decoded, SBK_EMPTY_STRING);
 	}
 
@@ -118,4 +118,5 @@ public class PrimaryKeyPercentCodecTests{
 		}
 
 	}
+
 }

@@ -212,9 +212,22 @@ extends BaseDatabean<PK,D>{
 		super(key);
 	}
 
-	public BaseHttpRequestRecord(PK key, Date receivedAt, String exceptionRecordId, String httpMethod,
-			String httpParams, String protocol, String hostname, int port, String contextPath, String path,
-			String queryString, byte[] binaryBody, String ip, String sessionRoles, String userToken,
+	public BaseHttpRequestRecord(
+			PK key,
+			Date receivedAt,
+			String exceptionRecordId,
+			String httpMethod,
+			String httpParams,
+			String protocol,
+			String hostname,
+			int port,
+			String contextPath,
+			String path,
+			String queryString,
+			byte[] binaryBody,
+			String ip,
+			String sessionRoles,
+			String userToken,
 			RecordedHttpHeaders headersWrapper){
 		super(key);
 		this.created = new Date();

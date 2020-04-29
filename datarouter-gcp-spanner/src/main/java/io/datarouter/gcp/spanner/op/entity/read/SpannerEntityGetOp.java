@@ -59,7 +59,8 @@ implements SpannerEntityOp{
 	@Override
 	protected <K extends PrimaryKey<K>> Key primaryKeyConversion(K key){
 		Builder mutationKey = getPartiton(key, partitioner);
-		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(SpannerEntityKeyTool.getPrimaryKeyFields(key,
+		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(SpannerEntityKeyTool.getPrimaryKeyFields(
+				key,
 				fieldInfo.isSubEntity()))){
 			mutationKey = codec.setKey(mutationKey);
 		}

@@ -124,7 +124,7 @@ public class HBaseSubEntityPageScanner<
 		ResultPagingScanner pagingScanner = new ResultPagingScanner(pageSize, prefix, range, limit, cacheBlocks,
 				keysOnly);
 		return pagingScanner
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.prefetch(datarouterHbaseClientExecutor, pageSize);
 	}
 

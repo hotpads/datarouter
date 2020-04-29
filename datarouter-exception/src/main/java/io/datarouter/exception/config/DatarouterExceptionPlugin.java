@@ -71,14 +71,17 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
 		this.exceptionRecordPublisher = exceptionRecordPublisher;
 		this.issueLinkPrefix = issueLinkPrefix;
-		addFilterParamsOrdered(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH,
-				GuiceExceptionHandlingFilter.class), DatarouterWebPlugin.REQUEST_CACHING_FILTER_PARAMS);
+		addFilterParamsOrdered(
+				new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, GuiceExceptionHandlingFilter.class),
+				DatarouterWebPlugin.REQUEST_CACHING_FILTER_PARAMS);
 		addRouteSet(DatarouterExceptionRouteSet.class);
 		addSettingRoot(DatarouterExceptionSettingRoot.class);
 		addTriggerGroup(DatarouterExceptionTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
-				new DatarouterExceptionPaths().datarouter.exception.browse, "Exceptions");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				new DatarouterExceptionPaths().datarouter.exception.browse,
+				"Exceptions");
 		if(!exceptionRecordPublisher.isInstance(NoOpExceptionRecordPublisher.class)){
 			addAppListener(ExceptionQueueConveyors.class);
 		}
@@ -143,7 +146,8 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		}
 
 		public DatarouterExceptionPluginBuilder enablePublishing(
-				Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher, ClientId defaultQueueClientId){
+				Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher,
+				ClientId defaultQueueClientId){
 			this.exceptionRecordPublisher = exceptionRecordPublisher;
 			this.defaultQueueClientId = defaultQueueClientId;
 			return this;

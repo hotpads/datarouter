@@ -56,7 +56,9 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 		return fromParams(serverType.getPersistentString(), serverName, application);
 	}
 
-	public static ClusterSettingScope fromParams(String serverTypePersistentString, String serverName,
+	public static ClusterSettingScope fromParams(
+			String serverTypePersistentString,
+			String serverName,
 			String application){
 		if(StringTool.notEmpty(application)){
 			return ClusterSettingScope.APPLICATION;

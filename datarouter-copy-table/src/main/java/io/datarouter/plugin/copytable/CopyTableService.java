@@ -36,7 +36,7 @@ import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.number.NumberFormatter;
@@ -75,9 +75,9 @@ public class CopyTableService{
 		SortedMapStorageNode<PK,D,?> targetNode = (SortedMapStorageNode<PK,D,?>) nodes.getNode(targetNodeName);
 		Objects.requireNonNull(targetNode, targetNodeName + " not found");
 
-		PK fromKeyExclusive = PrimaryKeyPercentCodec.decode(sourceNode.getFieldInfo().getPrimaryKeyClass(),
+		PK fromKeyExclusive = PrimaryKeyPercentCodecTool.decode(sourceNode.getFieldInfo().getPrimaryKeyClass(),
 				fromKeyExclusiveString);
-		PK toKeyInclusive = PrimaryKeyPercentCodec.decode(sourceNode.getFieldInfo().getPrimaryKeyClass(),
+		PK toKeyInclusive = PrimaryKeyPercentCodecTool.decode(sourceNode.getFieldInfo().getPrimaryKeyClass(),
 				toKeyInclusiveString);
 
 		@SuppressWarnings("unchecked")
@@ -118,13 +118,21 @@ public class CopyTableService{
 			return new CopyTableSpanResult(true, null, numCopied.get(), null);
 		}catch(RuntimeException e){
 			logger.error("lastKey={}", lastKey.get(), e);
-			return new CopyTableSpanResult(false, e, numCopied.get(), PrimaryKeyPercentCodec.encode(lastKey.get()));
+			return new CopyTableSpanResult(false, e, numCopied.get(), PrimaryKeyPercentCodecTool.encode(lastKey.get()));
 		}
 	}
 
 	private <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	void logProgress(boolean finished, long numSkipped, long numScanned, long numCopied, long batchId, long numBatches,
-			String sourceNodeName, String targetNodeName, PK lastKey){
+	void logProgress(
+			boolean finished,
+			long numSkipped,
+			long numScanned,
+			long numCopied,
+			long batchId,
+			long numBatches,
+			String sourceNodeName,
+			String targetNodeName,
+			PK lastKey){
 		String finishedString = finished ? "finished" : "intermediate";
 		logger.warn("{} skipped {} scanned {} copied {} for batch {}/{} from {} to {} through {}",
 				finishedString,
@@ -135,7 +143,7 @@ public class CopyTableService{
 				NumberFormatter.addCommas(numBatches),
 				sourceNodeName,
 				targetNodeName,
-				lastKey == null ? null : PrimaryKeyPercentCodec.encode(lastKey));
+				lastKey == null ? null : PrimaryKeyPercentCodecTool.encode(lastKey));
 	}
 
 	private <PK extends PrimaryKey<PK>,

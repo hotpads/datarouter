@@ -16,6 +16,7 @@
 package io.datarouter.web.browse.dto;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,7 +48,7 @@ public class DatarouterWebRequestParamsFactory{
 		private final CT clientType;
 		private final ClientId clientId;
 		private final String tableName;
-		private final SingletonSupplier<Node<?,?,?>> node;
+		private final Supplier<Node<?,?,?>> node;
 
 		public DatarouterWebRequestParams(Params params, Class<CT> clientTypeClass){
 			String clientName = params.required(PARAM_clientName);

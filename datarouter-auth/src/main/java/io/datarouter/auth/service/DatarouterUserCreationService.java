@@ -58,7 +58,7 @@ public class DatarouterUserCreationService{
 	/*---------------- creation methods, helpers, and enum ------------------*/
 
 	public void createFirstAdminUser(String defaultPassword){
-		DatarouterUser user = new DatarouterUser();
+		var user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.ADMIN, defaultPassword);
 		populateManualFields(user, datarouterProperties.getAdministratorEmail(), DEFAULT_ADMIN_ROLES, true);
 		finishCreate(user, ADMIN_ID, "Automatically created admin user.");
@@ -80,10 +80,13 @@ public class DatarouterUserCreationService{
 		return createAutomaticUser(username, description, roles, true);
 	}
 
-	private DatarouterUser createAutomaticUser(String username, String description, Set<Role> roles,
+	private DatarouterUser createAutomaticUser(
+			String username,
+			String description,
+			Set<Role> roles,
 			boolean shouldPersist){
 		roles.add(DatarouterUserRole.REQUESTOR.getRole());
-		DatarouterUser user = new DatarouterUser();
+		var user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.AUTO, null);
 		populateManualFields(user, username, roles, true);
 		if(shouldPersist){
@@ -92,11 +95,18 @@ public class DatarouterUserCreationService{
 		return user;
 	}
 
-	public DatarouterUser createManualUser(DatarouterUser creator, String username, String password,
-			Set<Role> requestedRoles, boolean enabled){
-		DatarouterUser user = new DatarouterUser();
+	public DatarouterUser createManualUser(
+			DatarouterUser creator,
+			String username,
+			String password,
+			Set<Role> requestedRoles,
+			boolean enabled){
+		var user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.MANUAL, password);
-		populateManualFields(user, username, datarouterUserService.getAllowedUserRoles(creator, requestedRoles),
+		populateManualFields(
+				user,
+				username,
+				datarouterUserService.getAllowedUserRoles(creator, requestedRoles),
 				enabled);
 		return finishCreate(user, creator.getId(), "User manually created by " + creator.getUsername());
 	}

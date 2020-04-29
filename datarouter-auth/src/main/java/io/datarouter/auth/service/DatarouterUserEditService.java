@@ -67,16 +67,22 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterService datarouterService;
 
-	public void editUser(DatarouterUser user, DatarouterUser editor, Set<Role> requestedRoles, Boolean enabled,
-			String signinUrl, Set<DatarouterAccountKey> requestedAccounts){
-		DatarouterUserHistory history = new DatarouterUserHistory(user.getId(), new Date(), editor.getId(),
-				DatarouterUserChangeType.EDIT, null);
+	public void editUser(
+			DatarouterUser user,
+			DatarouterUser editor,
+			Set<Role> requestedRoles,
+			Boolean enabled,
+			String signinUrl,
+			Set<DatarouterAccountKey> requestedAccounts){
+		var history = new DatarouterUserHistory(user.getId(), new Date(), editor.getId(), DatarouterUserChangeType.EDIT,
+				null);
 		List<String> changes = new ArrayList<>();
 
 		Set<Role> currentRoles = new HashSet<>(user.getRoles());
 		boolean isUserDatarouterAdmin = currentRoles.contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole());
-		if(isUserDatarouterAdmin && !requestedRoles.contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole()) && !user
-				.equals(editor)){
+		if(isUserDatarouterAdmin
+				&& !requestedRoles.contains(DatarouterUserRole.DATAROUTER_ADMIN.getRole())
+				&& !user.equals(editor)){
 			throw new RuntimeException("cannot disable datarouterAdmin user");
 		}
 		Set<Role> allowedRoles = datarouterUserService.getAllowedUserRoles(editor, requestedRoles);
@@ -124,8 +130,8 @@ public class DatarouterUserEditService{
 				new DatarouterUserAccountMapKey(user.getId(), null))
 				.collect(HashSet::new);
 		Set<DatarouterUserAccountMapKey> accountsToDelete = currentAccounts.stream()
-				.filter(currentAccountKey ->
-					!requestedAccounts.contains(currentAccountKey.getDatarouterAccountKey()))
+				.filter(currentAccountKey -> !requestedAccounts.contains(currentAccountKey
+						.getDatarouterAccountKey()))
 				.collect(Collectors.toSet());
 		Set<DatarouterUserAccountMap> accountsToAdd = requestedAccounts.stream()
 				.map(accountKey -> new DatarouterUserAccountMap(user.getId(), accountKey.getAccountName()))
@@ -153,7 +159,7 @@ public class DatarouterUserEditService{
 	}
 
 	public void changePassword(DatarouterUser user, DatarouterUser editor, String newPassword, String signinUrl){
-		DatarouterUserHistory history = new DatarouterUserHistory(user.getId(), new Date(), editor.getId(),
+		var history = new DatarouterUserHistory(user.getId(), new Date(), editor.getId(),
 				DatarouterUserChangeType.RESET, null);
 		updateUserPassword(user, newPassword);
 		history.setChanges("password");

@@ -62,7 +62,8 @@ public class AwsMemcachedWebInspector implements DatarouterClientWebInspector{
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
-		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params,
+		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(
+				params,
 				AwsMemcachedClientType.class);
 		ClientId clientId = clientParams.getClientId();
 

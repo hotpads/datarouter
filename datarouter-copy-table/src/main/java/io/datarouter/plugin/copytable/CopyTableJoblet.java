@@ -49,7 +49,7 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 
 	@Override
 	public Long process(){
-		PhaseTimer timer = new PhaseTimer();
+		var timer = new PhaseTimer();
 		params.optFilterName().ifPresent(copyTableConfiguration::assertValidFilter);
 		CopyTableSpanResult result = copyTableService.copyTableSpan(
 				params.sourceNodeName,

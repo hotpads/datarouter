@@ -141,7 +141,7 @@ public class JobletService{
 		return scanJobletRequestsForType(jobletType)
 				.batch(100)
 				.map(this::getJobletPackagesForJobletRequests)
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.list();
 	}
 

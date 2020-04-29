@@ -26,7 +26,7 @@ import io.datarouter.util.Require;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 
-public class PrimaryKeyPercentCodec{
+public class PrimaryKeyPercentCodecTool{
 
 	public static String encode(PrimaryKey<?> pk){
 		return PercentFieldCodec.encodeFields(pk.getFields());
@@ -35,7 +35,7 @@ public class PrimaryKeyPercentCodec{
 	public static <PK extends PrimaryKey<PK>> String encodeMulti(Collection<PK> pks, char delimiter){
 		Require.isTrue(PercentFieldCodec.isValidExternalSeparator(delimiter), "invalid delimiter:" + delimiter);
 		return pks.stream()
-				.map(PrimaryKeyPercentCodec::encode)
+				.map(PrimaryKeyPercentCodecTool::encode)
 				.collect(Collectors.joining(Character.toString(delimiter)));
 	}
 

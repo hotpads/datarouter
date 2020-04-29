@@ -150,7 +150,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 						throw new RuntimeException(e);
 					}
 				})
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.exclude(Result::isEmpty);
 	}
 
@@ -223,7 +223,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		@SuppressWarnings("resource")
 		var pagingScanner = new ResultPagingScanner(pageSize, prefix, range, limit, cacheBlocks, keysOnly);
 		return pagingScanner
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.prefetch(datarouterHbaseClientExecutor, pageSize);
 	}
 

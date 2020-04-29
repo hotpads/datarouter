@@ -26,6 +26,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,11 +39,14 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingFiles;
+import io.datarouter.clustersetting.config.DatarouterClusterSettingPlugin;
+import io.datarouter.clustersetting.config.DatarouterClusterSettingRoot;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService.SettingNameMatchResult;
 import io.datarouter.clustersetting.service.ClusterSettingService;
@@ -58,6 +62,8 @@ import io.datarouter.clustersetting.web.dto.ClusterSettingLogJspDto;
 import io.datarouter.clustersetting.web.dto.SettingJspDto;
 import io.datarouter.clustersetting.web.dto.SettingNodeJspDto;
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.instrumentation.changelog.ChangelogDto;
+import io.datarouter.instrumentation.changelog.ChangelogPublisher;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -116,6 +122,11 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private DatarouterWebPaths datarouterWebPaths;
 	@Inject
 	private ClusterSettingSearchService clusterSettingSearchService;
+	@Named(DatarouterClusterSettingPlugin.NAMED_Changelog)
+	@Inject
+	private ChangelogPublisher changelogPublisher;
+	@Inject
+	private DatarouterClusterSettingRoot settings;
 
 	@Handler(defaultHandler = true)
 	public Mav customSettings(OptionalString prefix){
@@ -150,16 +161,18 @@ public class ClusterSettingsHandler extends BaseHandler{
 	@Handler
 	public ClusterSettingActionResultJson delete(){
 		ClusterSettingLogAction action = ClusterSettingLogAction.DELETED;
-		ClusterSettingActionResultJson result = new ClusterSettingActionResultJson(action);
+		var result = new ClusterSettingActionResultJson(action);
 		ClusterSettingKey clusterSettingKey = parseClusterSettingKeyFromParams();
 		String comment = parseCommentFromParams();
 		String changedBy = getRequestorsUsername();
 		ClusterSetting clusterSetting = clusterSettingDao.get(clusterSettingKey);
-		ClusterSettingLog clusterSettingLog = new ClusterSettingLog(clusterSetting, action, changedBy, comment);
+		var clusterSettingLog = new ClusterSettingLog(clusterSetting, action, changedBy, comment);
 		clusterSettingDao.delete(clusterSettingKey);
 		clusterSettingLogDao.put(clusterSettingLog);
 		String oldValue = clusterSetting.getValue();
 		sendEmail(clusterSettingLog, oldValue);
+		recordChangelog(clusterSettingLog.getKey().getName(), clusterSettingLog.getAction().getPersistentString(),
+				clusterSettingLog.getChangedBy());
 		return result.markSuccess();
 	}
 
@@ -294,7 +307,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		ClusterSettingKey clusterSettingKey = parseClusterSettingKeyFromParams();
 		String comment = parseCommentFromParams();
 		String value = params.optional("value").orElse(null);
-		ClusterSetting clusterSetting = new ClusterSetting(clusterSettingKey, value);
+		var clusterSetting = new ClusterSetting(clusterSettingKey, value);
 		Optional<CachedSetting<?>> setting = settingRootFinder.getSettingByName(clusterSetting.getName());
 		ClusterSettingLogAction action;
 		if(clusterSettingDao.exists(clusterSettingKey)){
@@ -302,7 +315,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		}else{
 			action = ClusterSettingLogAction.INSERTED;
 		}
-		ClusterSettingActionResultJson result = new ClusterSettingActionResultJson(action);
+		var result = new ClusterSettingActionResultJson(action);
 		if(setting.isPresent() && !setting.get().isValid(clusterSetting.getValue())){
 			String badNewValue = clusterSetting.getValue();
 			String error = "Invalid value detected, setting did not accept new value: \"" + badNewValue + "\"";
@@ -313,10 +326,12 @@ public class ClusterSettingsHandler extends BaseHandler{
 				.map(Objects::toString)
 				.orElse("?");
 		String changedBy = getRequestorsUsername();
-		ClusterSettingLog clusterSettingLog = new ClusterSettingLog(clusterSetting, action, changedBy, comment);
+		var clusterSettingLog = new ClusterSettingLog(clusterSetting, action, changedBy, comment);
 		clusterSettingDao.put(clusterSetting);
 		clusterSettingLogDao.put(clusterSettingLog);
 		sendEmail(clusterSettingLog, oldValue);
+		recordChangelog(clusterSettingLog.getKey().getName(), clusterSettingLog.getAction().getPersistentString(),
+				clusterSettingLog.getChangedBy());
 		return result.markSuccess();
 	}
 
@@ -381,6 +396,15 @@ public class ClusterSettingsHandler extends BaseHandler{
 				.withLocalPath(datarouterWebPaths.datarouter.settings)
 				.withParam("submitAction", "browseSettings")
 				.withParam("name", log.getKey().getName());
+	}
+
+	private void recordChangelog(String name, String action, String username){
+		if(!settings.publishChangelog.get()){
+			return;
+		}
+		var dto = new ChangelogDto(datarouterService.getName(), "ClusterSetting", name, new Date().getTime(), action,
+				username, "");
+		changelogPublisher.add(dto);
 	}
 
 	private class ClusterSettingChangeEmailContent{

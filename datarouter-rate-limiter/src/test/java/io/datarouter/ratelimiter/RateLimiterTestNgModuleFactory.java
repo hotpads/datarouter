@@ -31,7 +31,7 @@ import io.datarouter.web.config.DatarouterWebGuiceModule;
 
 public class RateLimiterTestNgModuleFactory extends TestNgModuleFactory{
 
-	// memcached
+	// redis
 	public static final ClientId RATE_LIMITER = new ClientId("rateLimiter", true);
 
 	public RateLimiterTestNgModuleFactory(){

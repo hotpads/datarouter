@@ -92,14 +92,41 @@ extends BaseDatabean<PK,D>{
 		super(key);
 	}
 
-	public BaseExceptionRecord(PK key, String serviceName, String serverName, String stackTrace, String type,
-			String appVersion, String exceptionLocation, String methodName, Integer lineNumber, String callOrigin){
-		this(key, System.currentTimeMillis(), serviceName, serverName, stackTrace, type, appVersion, exceptionLocation,
-				methodName, lineNumber, callOrigin);
+	public BaseExceptionRecord(
+			PK key,
+			String serviceName,
+			String serverName,
+			String stackTrace,
+			String type,
+			String appVersion,
+			String exceptionLocation,
+			String methodName,
+			Integer lineNumber,
+			String callOrigin){
+		this(key,
+				System.currentTimeMillis(),
+				serviceName,
+				serverName,
+				stackTrace,
+				type,
+				appVersion,
+				exceptionLocation,
+				methodName,
+				lineNumber,
+				callOrigin);
 	}
 
-	public BaseExceptionRecord(PK key, long dateMs, String serviceName, String serverName, String stackTrace,
-			String type, String appVersion, String exceptionLocation, String methodName, Integer lineNumber,
+	public BaseExceptionRecord(
+			PK key,
+			long dateMs,
+			String serviceName,
+			String serverName,
+			String stackTrace,
+			String type,
+			String appVersion,
+			String exceptionLocation,
+			String methodName,
+			Integer lineNumber,
 			String callOrigin){
 		super(key);
 		this.created = new Date(dateMs);

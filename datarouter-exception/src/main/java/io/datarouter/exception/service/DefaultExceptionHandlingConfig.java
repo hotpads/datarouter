@@ -61,7 +61,7 @@ public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 		if(!settings.shouldReport.get()){
 			return false;
 		}
-		ExceptionRecordSummaryMetadataKey metadataKey = new ExceptionRecordSummaryMetadataKey(exceptionRecord.type,
+		var metadataKey = new ExceptionRecordSummaryMetadataKey(exceptionRecord.type,
 				exceptionRecord.exceptionLocation);
 		ExceptionRecordSummaryMetadata recordMetadata = exceptionSummaryMetadataDao.get(metadataKey);
 		return recordMetadata == null || recordMetadata.getMuted() == null || !recordMetadata.getMuted();

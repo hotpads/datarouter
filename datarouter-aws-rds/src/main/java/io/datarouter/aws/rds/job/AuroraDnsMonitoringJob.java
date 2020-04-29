@@ -22,16 +22,16 @@ import static j2html.TagCreator.h3;
 import static j2html.TagCreator.rawHtml;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import io.datarouter.aws.rds.config.DatarouterAwsPaths;
 import io.datarouter.aws.rds.service.AuroraDnsService;
-import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
+import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -59,10 +59,9 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		if(mismatchedSlaveEntries.isEmpty()){
 			return;
 		}
-		List<String> fixes = mismatchedSlaveEntries.stream()
+		Scanner.of(mismatchedSlaveEntries)
 				.map(config::fixDatabaseDns)
-				.collect(Collectors.toList());
-		sendEmail(mismatchedSlaveEntries, fixes);
+				.flush(fixes -> sendEmail(mismatchedSlaveEntries, fixes));
 	}
 
 	private void sendEmail(List<DnsHostEntryDto> mismatchedSlaveEntries, List<String> fixes){

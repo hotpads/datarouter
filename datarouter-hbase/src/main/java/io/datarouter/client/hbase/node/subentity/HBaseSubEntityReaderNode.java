@@ -183,7 +183,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 		Config subscanConfig = config.clone().setOffset(0);
 		Scanner<PK> scanner = makePageScanner(range, subscanConfig, true)
 				.map(resultParser::getPrimaryKeysWithMatchingQualifierPrefix)
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.deduplicate()
 				.include(pk -> KeyRangeTool.contains(range, pk));
 		return ScannerConfigTool.applyOffsetAndLimit(scanner, config);
@@ -202,7 +202,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 		Config subscanConfig = config.clone().setOffset(0);
 		Scanner<D> scanner = makePageScanner(range, subscanConfig, false)
 				.map(result -> resultParser.getDatabeansWithMatchingQualifierPrefix(result, null))
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.include(databean -> KeyRangeTool.contains(range, databean.getKey()));
 		return ScannerConfigTool.applyOffsetAndLimit(scanner, config);
 	}

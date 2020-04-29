@@ -24,8 +24,13 @@ public class ClusterSettingDefaultJspDto{
 	private final String serverName;
 	private final Object value;
 
-	public ClusterSettingDefaultJspDto(boolean isGlobalDefault, String environmentType, String environment,
-			String serverType, String serverName, Object value){
+	public ClusterSettingDefaultJspDto(
+			boolean isGlobalDefault,
+			String environmentType,
+			String environment,
+			String serverType,
+			String serverName,
+			Object value){
 		this.isGlobalDefault = isGlobalDefault;
 		this.environmentType = environmentType;
 		this.environment = environment;

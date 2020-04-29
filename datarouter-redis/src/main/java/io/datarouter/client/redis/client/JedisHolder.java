@@ -17,15 +17,12 @@ package io.datarouter.client.redis.client;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.client.redis.client.RedisOptions.RedisClientMode;
 import io.datarouter.storage.client.ClientId;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -44,34 +41,22 @@ public class JedisHolder{
 		if(jedisByClient.containsKey(clientId)){
 			throw new RuntimeException(clientId + " already registered a JedisClient");
 		}
-		String host = buildClient(clientId).get(0).getHostName();
-		int port = buildClient(clientId).get(0).getPort();
-		JedisPoolConfig poolConfig = buildPoolConfig();
-		JedisPool jedisPool = new JedisPool(poolConfig, host, port, CONNECTION_TIMEOUT);
-		jedisByClient.put(clientId, jedisPool);
+		jedisByClient.put(clientId, buildClient(clientId));
 	}
 
 	public JedisPool get(ClientId clientId){
 		return jedisByClient.get(clientId);
 	}
 
-	private List<InetSocketAddress> buildClient(ClientId clientId){
-		List<InetSocketAddress> addresses;
-		RedisClientMode clientMode = redisOptions.getClientMode(clientId.getName());
-		if(clientMode == RedisClientMode.DYNAMIC){
-			addresses = Arrays.asList(redisOptions.getClusterEndpoint(clientId.getName()).get());
-		}else{
-			addresses = redisOptions.getServers(clientId.getName());
-		}
-		return addresses;
-	}
-
-	private JedisPoolConfig buildPoolConfig(){
+	private JedisPool buildClient(ClientId clientId){
 		JedisPoolConfig poolConfig = new JedisPoolConfig();
 		poolConfig.setMaxTotal(128);
 		poolConfig.setMaxIdle(128);
 		poolConfig.setMinIdle(16);
-		return poolConfig;
+		InetSocketAddress addresses = redisOptions.getEndpoint(clientId.getName());
+		String host = addresses.getHostName();
+		int port = addresses.getPort();
+		return new JedisPool(poolConfig, host, port, CONNECTION_TIMEOUT);
 	}
 
 }

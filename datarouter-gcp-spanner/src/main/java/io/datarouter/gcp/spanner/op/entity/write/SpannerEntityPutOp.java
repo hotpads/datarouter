@@ -80,8 +80,8 @@ extends SpannerPutOp<PK,D,F>{
 
 	@Override
 	protected WriteBuilder getMutationPartition(D databean, WriteBuilder mutation){
-		return mutation.set(SpannerSubEntityNode.PARTITION_COLUMN_NAME).to(partitioner.getPartition(databean.getKey()
-				.getEntityKey()));
+		return mutation.set(SpannerSubEntityNode.PARTITION_COLUMN_NAME)
+				.to(partitioner.getPartition(databean.getKey().getEntityKey()));
 	}
 
 }

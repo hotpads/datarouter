@@ -38,12 +38,19 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.number.NumberFormatter;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.types.optional.OptionalString;
+import io.datarouter.web.html.form.HtmlForm;
+import io.datarouter.web.html.form.HtmlFormButton;
+import io.datarouter.web.html.form.HtmlFormText;
 import io.datarouter.web.html.j2html.J2HtmlTable;
+import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.websocket.config.DatarouterWebSocketFiles;
+import io.datarouter.websocket.config.DatarouterWebSocketPaths;
 import io.datarouter.websocket.service.ServerAddressProvider;
 import io.datarouter.websocket.service.WebSocketConnectionStore;
 import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao;
@@ -65,6 +72,8 @@ public class WebSocketToolHandler extends BaseHandler{
 	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterWebSocketFiles files;
+	@Inject
+	private DatarouterWebSocketPaths paths;
 	@Inject
 	private PushService pushService;
 	@Inject
@@ -116,7 +125,12 @@ public class WebSocketToolHandler extends BaseHandler{
 	}
 
 	@Handler
-	public Mav subscriptions(){
+	public Mav subscriptions(OptionalString topic, OptionalString message){
+		boolean sent = false;
+		if(topic.filter(StringTool::notEmptyNorWhitespace).isPresent()){
+			pushService.forwardToTopic(topic.get(), message.orElse(""));
+			sent = true;
+		}
 		List<Pair<String,Long>> rows = subscriptionDao.scanKeys()
 				.collect(Collectors.groupingBy(WebSocketSubscriptionKey::getTopic, Collectors.counting()))
 				.entrySet().stream()
@@ -127,13 +141,33 @@ public class WebSocketToolHandler extends BaseHandler{
 				.map(Pair::getRight)
 				.reduce(0L, Long::sum));
 		var table = new J2HtmlTable<Pair<String,Long>>()
-				.withClasses("table", "table-sm", "table-responsive")
+				.withClasses("table", "table-sm")
 				.withColumn("Topic", Pair::getLeft)
 				.withColumn("Count", pair -> NumberFormatter.format(pair.getRight(), 0))
 				.build(ListTool.concatenate(rows, List.of(total)));
+		var form = new HtmlForm()
+				.withMethod("POST")
+				.addFields(
+						new HtmlFormText()
+								.withDisplay("topic")
+								.withName("topic")
+								.withValue(topic.orElse(""))
+								.withRequired(true),
+						new HtmlFormText()
+								.withDisplay("message")
+								.withName("message")
+								.withValue(message.orElse(""))
+								.withRequired(true),
+						new HtmlFormButton()
+								.withDisplay("Send")
+								.withValue("subscriptions"));
 		return pageFactory.startBuilder(request)
 				.withTitle("WebSocket Subscriptions")
-				.withContent(div(h3("WebSocket Subcriptions"), table).withClasses("container", "my-5"))
+				.withContent(div(h3("WebSocket Subcriptions"))
+						.condWith(sent, div("Send successful").withClasses("alert", "alert-success"))
+						.with(div(Bootstrap4FormHtml.render(form)).withClasses("bg-light", "p-2", "border", "rounded"))
+						.with(div(table).withClasses("mt-3", "table-responsive"))
+						.withClasses("container", "my-5"))
 				.buildMav();
 	}
 

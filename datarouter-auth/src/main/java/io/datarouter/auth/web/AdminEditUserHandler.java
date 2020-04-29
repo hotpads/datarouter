@@ -265,7 +265,9 @@ public class AdminEditUserHandler extends BaseHandler{
 		return path + "?" + param + "=" + value;
 	}
 
-	private void checkEditPermission(DatarouterUser currentUser, DatarouterUser userToEdit,
+	private void checkEditPermission(
+			DatarouterUser currentUser,
+			DatarouterUser userToEdit,
 			BiFunction<DatarouterUser,DatarouterUser,Boolean> permissionMethod){
 		Objects.requireNonNull(currentUser);
 		Objects.requireNonNull(userToEdit);
@@ -275,8 +277,9 @@ public class AdminEditUserHandler extends BaseHandler{
 	}
 
 	private String getSigninUrl(){
-		String requestUrlWithoutContext = StringTool.getStringBeforeLastOccurrence(request.getRequestURI(), request
-				.getRequestURL().toString());
+		String requestUrlWithoutContext = StringTool.getStringBeforeLastOccurrence(
+				request.getRequestURI(),
+				request.getRequestURL().toString());
 		return requestUrlWithoutContext + request.getContextPath() + paths.signin.toSlashedString();
 	}
 

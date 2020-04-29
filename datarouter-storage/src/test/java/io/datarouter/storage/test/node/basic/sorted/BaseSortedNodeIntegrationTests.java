@@ -482,7 +482,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 				new Config().setOutputBatchSize(4))
 				.collect(HashSet::new);
 		Set<SortedBean> expected = Scanner.of(range1, range2)
-				.concatenate(dao::scan)
+				.concat(dao::scan)
 				.collect(HashSet::new);
 		Assert.assertTrue(expected.size() > 0);
 		Assert.assertEquals(beans, expected);

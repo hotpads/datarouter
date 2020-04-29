@@ -22,6 +22,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import io.datarouter.web.handler.BaseHandler;
@@ -154,7 +155,8 @@ public class Bootstrap4FormHtml{
 		if(field.getError() != null){
 			inputClass += " is-invalid";
 		}
-		var label = label(field.getDisplay())
+		var label = label(text(field.getDisplay()))
+				.condWith(field.isRequired(), span("*").withClass("text-danger"))
 				.withClass(LABEL_CLASS);
 		var input = input()
 				.withClass(inputClass)

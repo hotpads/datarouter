@@ -59,11 +59,16 @@ implements FieldlessIndexEntryPrimaryKey<
 	}
 
 	@Override
-	public FieldlessIndexEntry<ClusterSettingLogByReversedCreatedMsKey,ClusterSettingLogKey,ClusterSettingLog>
-			createFromDatabean(ClusterSettingLog target){
-		return new FieldlessIndexEntry<>(ClusterSettingLogByReversedCreatedMsKey.class,
-				new ClusterSettingLogByReversedCreatedMsKey(target.getKey().getReverseCreatedMs(), target.getKey()
-						.getName()));
+	public FieldlessIndexEntry<
+			ClusterSettingLogByReversedCreatedMsKey,
+			ClusterSettingLogKey,
+			ClusterSettingLog>
+	createFromDatabean(ClusterSettingLog target){
+		return new FieldlessIndexEntry<>(
+				ClusterSettingLogByReversedCreatedMsKey.class,
+				new ClusterSettingLogByReversedCreatedMsKey(
+						target.getKey().getReverseCreatedMs(),
+						target.getKey().getName()));
 	}
 
 }

@@ -17,6 +17,7 @@ package io.datarouter.aws.elb.service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -46,14 +47,14 @@ public class ElbService{
 
 	private static final int NUM_ATTEMPTS = 3;
 
-	private final SingletonSupplier<AmazonElasticLoadBalancing> amazonElasticLoadBalancing = SingletonSupplier.of(
+	private final Supplier<AmazonElasticLoadBalancing> amazonElasticLoadBalancing = SingletonSupplier.of(
 			this::getAmazonElbClient);
 
 	@Inject
 	private DatarouterAwsElbMonitoringSettings settings;
 
 	public List<LoadBalancer> getLoadBalancers(){
-		DescribeLoadBalancersRequest request = new DescribeLoadBalancersRequest();
+		var request = new DescribeLoadBalancersRequest();
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffUnchecked(
 				() -> amazonElasticLoadBalancing.get().describeLoadBalancers(request).getLoadBalancers(),
@@ -63,7 +64,7 @@ public class ElbService{
 	}
 
 	public List<String> getTargetGroupsArn(String loadBalancerArn){
-		DescribeListenersRequest request = new DescribeListenersRequest().withLoadBalancerArn(loadBalancerArn);
+		var request = new DescribeListenersRequest().withLoadBalancerArn(loadBalancerArn);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffUnchecked(
 				() -> amazonElasticLoadBalancing.get().describeListeners(request).getListeners().stream()
@@ -79,7 +80,7 @@ public class ElbService{
 	}
 
 	public List<String> getTargetEc2InstancesId(String targetGroupArn){
-		DescribeTargetHealthRequest request = new DescribeTargetHealthRequest().withTargetGroupArn(targetGroupArn);
+		var request = new DescribeTargetHealthRequest().withTargetGroupArn(targetGroupArn);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffUnchecked(
 				() -> amazonElasticLoadBalancing.get().describeTargetHealth(request).getTargetHealthDescriptions()

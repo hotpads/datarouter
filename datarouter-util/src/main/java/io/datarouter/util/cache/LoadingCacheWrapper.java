@@ -30,7 +30,7 @@ public abstract class LoadingCacheWrapper<K,V>{
 	}
 
 	public V getOrThrow(K key){
-		return cache.getOrThrows(key);
+		return cache.getOrThrow(key);
 	}
 
 	public boolean load(K key){

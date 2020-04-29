@@ -86,7 +86,7 @@ extends BasePhysicalEntityNode<EK,E>{
 				.map(partition -> new EntityListOp(clientManager.getDatabaseClient(clientId), config, codecRegistry,
 						entityFieldInfo.getEntityTableName(), partition, startKey, startKeyInclusive))
 				.map(EntityListOp::wrappedCall)
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.sorted()
 				.limit(limit)
 				.list();

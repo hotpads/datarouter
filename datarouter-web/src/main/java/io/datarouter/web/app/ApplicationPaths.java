@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.app;
 
+import java.util.function.Supplier;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
@@ -25,9 +27,9 @@ import io.datarouter.web.config.ServletContextSupplier;
 @Singleton
 public class ApplicationPaths{
 
-	private final SingletonSupplier<String> path;
-	private final SingletonSupplier<String> resourcesPath;
-	private final SingletonSupplier<String> webInfPath;
+	private final Supplier<String> path;
+	private final Supplier<String> resourcesPath;
+	private final Supplier<String> webInfPath;
 
 	@Inject
 	public ApplicationPaths(ServletContextSupplier servletContextSupplier){

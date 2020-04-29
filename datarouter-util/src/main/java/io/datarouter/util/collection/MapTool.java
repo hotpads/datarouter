@@ -22,11 +22,10 @@ import java.util.TreeMap;
 import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.collector.RelaxedMapCollector;
 import io.datarouter.util.string.StringTool;
 
 public class MapTool{
-
-	/*------------------------- null safe -----------------------------------*/
 
 	public static <K,V> Map<K,V> nullSafe(Map<K,V> in){
 		if(in == null){
@@ -34,39 +33,6 @@ public class MapTool{
 		}
 		return in;
 	}
-
-	/*------------------------- counting ------------------------------------*/
-
-	//convenience method
-	public static <T> Long increment(Map<T,Long> map, T key){
-		return increment(map, key, 1L);
-	}
-
-
-	//1 level: Map<T,Long>
-	private static <T> Long increment(Map<T,Long> map, T key, Long delta){
-		if(!map.containsKey(key)){
-			map.put(key, delta);
-			return delta;
-		}
-		map.put(key, map.get(key) + delta);
-		return map.get(key);
-	}
-
-	// 2 levels: Map<T,Map<U,Long>>
-	public static <T,U> Long increment(Map<T,Map<U,Long>> map, T element, U subElement, Long delta){
-		if(!map.containsKey(element)){
-			map.put(element, new TreeMap<U,Long>());
-		}
-		Map<U,Long> subMap = map.get(element);
-		if(!subMap.containsKey(subElement)){
-			subMap.put(subElement, 0L);
-		}
-		subMap.put(subElement, subMap.get(subElement) + delta);
-		return subMap.get(subElement);
-	}
-
-	/*------------------------- filtering -----------------------------------*/
 
 	/**
 	 * Build a map from the string with the format "
@@ -92,8 +58,6 @@ public class MapTool{
 		return map;
 	}
 
-	/*------------------------- transform -----------------------------------*/
-
 	/**
 	 * Transforms values into a map with keys produced by keyMapper. Exammple:
 	 * <pre>getBy(employees, ssnGetter) -&gt; Map&lt;SSN, Employee&gt;</pre>
@@ -102,7 +66,7 @@ public class MapTool{
 		if(values == null){
 			return Collections.emptyMap();
 		}
-		return Scanner.of(values).collect(CollectorTool.toMap(keyMapper));
+		return Scanner.of(values).collect(RelaxedMapCollector.of(keyMapper));
 	}
 
 	/**
@@ -113,7 +77,7 @@ public class MapTool{
 		if(elements == null){
 			return Collections.emptyMap();
 		}
-		return Scanner.of(elements).collect(CollectorTool.toMap(keyMapper, valueMapper));
+		return Scanner.of(elements).collect(RelaxedMapCollector.of(keyMapper, valueMapper));
 	}
 
 }

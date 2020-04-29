@@ -112,7 +112,7 @@ public class LoadingCache<K,V>{
 		return getInternal(key);
 	}
 
-	public V getOrThrows(K key){
+	public V getOrThrow(K key){
 		try(var $ = TracerTool.startSpan(name + " getOrThrows")){
 			TracerTool.appendToSpanInfo(key.toString());
 			return getOrThrowsSynchronized(key);

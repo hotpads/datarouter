@@ -19,15 +19,9 @@ import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
-import static j2html.TagCreator.each;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.pre;
-import static j2html.TagCreator.ul;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.client.redis.RedisClientType;
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.client.redis.client.RedisOptions;
-import io.datarouter.client.redis.client.RedisOptions.RedisClientMode;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
@@ -43,17 +36,15 @@ import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import redis.clients.jedis.Jedis;
 
 public class RedisWebInspector implements DatarouterClientWebInspector{
 
 	@Inject
-	private RedisOptions redisOptions;
+	private RedisOptions options;
 	@Inject
-	private RedisClientManager redisClientManager;
+	private RedisClientManager clientManager;
 	@Inject
 	private DatarouterWebRequestParamsFactory datarouterWebRequestParamsFactory;
 	@Inject
@@ -74,33 +65,18 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 				.withClass("container my-3");
 		return pageFactory.startBuilder(request)
 				.withTitle("Datarouter Client - Redis")
-				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
 				.withContent(content)
 				.buildMav();
 	}
 
 	private ContainerTag buildOverview(ClientId clientId){
-		RedisClientMode clientMode = redisOptions.getClientMode(clientId.getName());
-		String endpoint = "";
-		if(clientMode == RedisClientMode.DYNAMIC){
-			endpoint = redisOptions.getClusterEndpoint(clientId.getName()).get().toString();
-		}else{
-			endpoint = redisOptions.getServers(clientId.getName()).get(0).toString();
-		}
+		String endpoint = options.getEndpoint(clientId.getName()).toString();
 		ContainerTag infoDiv;
-		ContainerTag clusterInfo = div("Cluster disabled");
-		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
-			if(clientMode == RedisClientMode.DYNAMIC){
-				List<String> infoList = Arrays.stream(client.clusterInfo().split("\n"))
-						.collect(Collectors.toList());
-				clusterInfo = ul(each(infoList, TagCreator::li));
-			}
+		try(Jedis client = clientManager.getJedis(clientId).getResource()){
 			infoDiv = pre(client.info());
 		}
 		return dl(
-				dt("Client mode:"), dd(clientMode.getPersistentString()),
 				dt("Endpoint:"), dd(endpoint),
-				dt("Cluster info"), dd(clusterInfo),
 				dt("Redis Info"), dd(infoDiv));
 	}
 

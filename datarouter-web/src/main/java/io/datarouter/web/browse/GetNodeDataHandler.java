@@ -27,7 +27,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
@@ -61,7 +61,7 @@ public class GetNodeDataHandler extends InspectNodeDataHandler{
 		List<String> fieldValues = getFieldValues(node);
 
 		String encodedPk = PercentFieldCodec.encode(fieldValues.stream());
-		PK primaryKey = PrimaryKeyPercentCodec.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
+		PK primaryKey = PrimaryKeyPercentCodecTool.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
 		@SuppressWarnings("unchecked")
 		MapStorageReader<PK,D> mapStorageNode = (MapStorageReader<PK,D>)node;
 		if(!mapStorageNode.exists(primaryKey)){

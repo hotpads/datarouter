@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.collection;
+package io.datarouter.util.collector;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -27,28 +27,27 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-public class CollectorTool{
+public class RelaxedMapCollector{
 
-	public static <E extends Enum<E>> Collector<E,?,EnumSet<E>> toEnumSet(Class<E> enumClass){
-		return Collectors.toCollection(() -> EnumSet.noneOf(enumClass));
+	public static <V,K> Collector<V,?,Map<K,V>> of(Function<V,K> keyMapper){
+		return of(keyMapper, Function.identity());
 	}
 
-	public static <V,K> Collector<V,?,Map<K,V>> toMap(Function<V,K> keyMapper){
-		return toMap(keyMapper, Function.identity());
+	/**
+	 * This creates a LinkedHashMap, not HashMap <br>
+	 */
+	public static <T,K,U> Collector<T,?,Map<K,U>> of(
+			Function<? super T,? extends K> keyMapper,
+			Function<? super T,? extends U> valueMapper){
+		return of(keyMapper, valueMapper, LinkedHashMap::new);
 	}
 
 	/**
 	 * similar to {@link Collectors#toMap(Function, Function)} but: <br>
-	 * - this creates a LinkedHashMap, not HashMap <br>
 	 * - in case of duplicate mappings, old value is overwritten with new value (instead of throwing exception) <br>
 	 * - allows null values (instead of throwing exception)
 	 */
-	public static <T,K,U> Collector<T,?,Map<K,U>> toMap(Function<? super T,? extends K> keyMapper,
-			Function<? super T,? extends U> valueMapper){
-		return relaxedMapCollector(keyMapper, valueMapper, LinkedHashMap::new);
-	}
-
-	private static <T,K,U,M extends Map<K,U>> Collector<T,M,M> relaxedMapCollector(
+	public static <T,K,U,M extends Map<K,U>> Collector<T,M,M> of(
 			Function<? super T,? extends K> keyMapper,
 			Function<? super T,? extends U> valueMapper,
 			Supplier<M> supplier){
@@ -88,4 +87,5 @@ public class CollectorTool{
 
 		};
 	}
+
 }

@@ -60,7 +60,7 @@ extends SqsOp<PK,D,F,Void>{
 		if(StringByteTool.getUtf8Bytes(encodedDatabean).length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
 			throw new SqsDataTooLargeException(Arrays.asList(encodedDatabean));
 		}
-		SendMessageRequest request = new SendMessageRequest(queueUrl, encodedDatabean);
+		var request = new SendMessageRequest(queueUrl, encodedDatabean);
 		sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
 		return null;
 	}

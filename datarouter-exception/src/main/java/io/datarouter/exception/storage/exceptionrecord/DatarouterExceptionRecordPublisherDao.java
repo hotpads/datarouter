@@ -41,7 +41,9 @@ public class DatarouterExceptionRecordPublisherDao extends BaseDao{
 	private final GroupQueueStorage<ExceptionRecordKey,ExceptionRecord> node;
 
 	@Inject
-	public DatarouterExceptionRecordPublisherDao(Datarouter datarouter, DatarouterExceptionPublisherRouterParams params,
+	public DatarouterExceptionRecordPublisherDao(
+			Datarouter datarouter,
+			DatarouterExceptionPublisherRouterParams params,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
 		node = queueNodeFactory.createGroupQueue(params.clientId, ExceptionRecord::new, ExceptionRecordFielder::new)

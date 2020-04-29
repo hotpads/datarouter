@@ -50,8 +50,12 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 		super(new DatarouterPermissionRequestKey());
 	}
 
-	public DatarouterPermissionRequest(Long userId, Date requestTime, String requestText,
-			DatarouterPermissionRequestResolution resolution, Date resolutionTime){
+	public DatarouterPermissionRequest(
+			Long userId,
+			Date requestTime,
+			String requestText,
+			DatarouterPermissionRequestResolution resolution,
+			Date resolutionTime){
 		super(new DatarouterPermissionRequestKey(userId, requestTime));
 		this.requestText = requestText;
 		this.resolution = resolution;

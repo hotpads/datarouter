@@ -32,7 +32,8 @@ public class AwsMemcachedClientTypeTests{
 
 	@Test
 	public void testClassLocation(){
-		Assert.assertEquals(clientTypeRegistry.get(AwsMemcachedClientType.NAME).getClass(),
+		Assert.assertEquals(
+				clientTypeRegistry.get(AwsMemcachedClientType.NAME).getClass(),
 				AwsMemcachedClientType.class);
 	}
 

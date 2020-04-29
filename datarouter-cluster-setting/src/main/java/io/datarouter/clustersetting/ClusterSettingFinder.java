@@ -117,11 +117,20 @@ public class ClusterSettingFinder implements SettingFinder{
 		List<ClusterSettingKey> keys = new ArrayList<>();
 
 		//remember to use "" instead of null.  should probably make a new Field type to do that for you
-		keys.add(new ClusterSettingKey(name, ClusterSettingScope.DEFAULT_SCOPE, ServerType.UNKNOWN
-				.getPersistentString(), EMPTY_STRING, EMPTY_STRING));
+		keys.add(new ClusterSettingKey(
+				name,
+				ClusterSettingScope.DEFAULT_SCOPE,
+				ServerType.UNKNOWN
+				.getPersistentString(),
+				EMPTY_STRING,
+				EMPTY_STRING));
 
-		keys.add(new ClusterSettingKey(name, ClusterSettingScope.CLUSTER, ServerType.ALL.getPersistentString(),
-				EMPTY_STRING, EMPTY_STRING));
+		keys.add(new ClusterSettingKey(
+				name,
+				ClusterSettingScope.CLUSTER,
+				ServerType.ALL.getPersistentString(),
+				EMPTY_STRING,
+				EMPTY_STRING));
 
 		ClusterSettingKey serverTypeSetting = getKeyForServerType(name);
 		if(serverTypeSetting != null){
@@ -142,12 +151,15 @@ public class ClusterSettingFinder implements SettingFinder{
 
 	private ClusterSettingKey getKeyForServerType(String name){
 		ServerType serverType = clusterSettingFinderConfig.getServerType();
-		if(serverType == null || serverType.getPersistentString().equals(ServerType.UNKNOWN
-				.getPersistentString())){
+		if(serverType == null || serverType.getPersistentString().equals(ServerType.UNKNOWN.getPersistentString())){
 			return null;
 		}
-		return new ClusterSettingKey(name, ClusterSettingScope.SERVER_TYPE, serverType.getPersistentString(),
-				EMPTY_STRING, EMPTY_STRING);
+		return new ClusterSettingKey(
+				name,
+				ClusterSettingScope.SERVER_TYPE,
+				serverType.getPersistentString(),
+				EMPTY_STRING,
+				EMPTY_STRING);
 	}
 
 	private ClusterSettingKey getKeyForServerName(String name){
@@ -155,8 +167,12 @@ public class ClusterSettingFinder implements SettingFinder{
 		if(StringTool.isEmpty(serverName)){
 			return null;
 		}
-		return new ClusterSettingKey(name, ClusterSettingScope.SERVER_NAME, ServerType.UNKNOWN
-				.getPersistentString(), serverName, EMPTY_STRING);
+		return new ClusterSettingKey(
+				name,
+				ClusterSettingScope.SERVER_NAME,
+				ServerType.UNKNOWN.getPersistentString(),
+				serverName,
+				EMPTY_STRING);
 	}
 
 	private ClusterSettingKey getKeyForApplication(String name){
@@ -164,8 +180,12 @@ public class ClusterSettingFinder implements SettingFinder{
 		if(StringTool.isEmpty(application)){
 			return null;
 		}
-		return new ClusterSettingKey(name, ClusterSettingScope.APPLICATION, ServerType.UNKNOWN
-				.getPersistentString(), EMPTY_STRING, application);
+		return new ClusterSettingKey(
+				name,
+				ClusterSettingScope.APPLICATION,
+				ServerType.UNKNOWN.getPersistentString(),
+				EMPTY_STRING,
+				application);
 	}
 
 }

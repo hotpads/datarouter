@@ -43,11 +43,16 @@ public class DatarouterUserAccountMapDao extends BaseDao implements BaseDatarout
 	private final SortedMapStorage<DatarouterUserAccountMapKey,DatarouterUserAccountMap> node;
 
 	@Inject
-	public DatarouterUserAccountMapDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterUserAccountMapDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterUserAccountMapDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, DatarouterUserAccountMap::new,
-				DatarouterUserAccountMapFielder::new).buildAndRegister();
+		node = nodeFactory.create(
+				params.clientId,
+				DatarouterUserAccountMap::new,
+				DatarouterUserAccountMapFielder::new)
+				.buildAndRegister();
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.datarouter.inject.DatarouterInjector;
@@ -30,7 +31,7 @@ public abstract class WebSocketServices{
 	private final DatarouterInjector injector;
 
 	private final List<Class<? extends WebSocketService>> services;
-	private final SingletonSupplier<Map<String,WebSocketService>> serviceMap;
+	private final Supplier<Map<String,WebSocketService>> serviceMap;
 
 	public WebSocketServices(DatarouterInjector injector){
 		this.injector = injector;

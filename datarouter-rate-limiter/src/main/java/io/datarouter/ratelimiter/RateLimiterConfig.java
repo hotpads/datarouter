@@ -17,6 +17,7 @@ package io.datarouter.ratelimiter;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
@@ -30,7 +31,7 @@ public class RateLimiterConfig{
 	public final int bucketPeriod;
 	public final TimeUnit unit;
 
-	private SingletonSupplier<NamedRateLimiter> nameRateLimiter;
+	private Supplier<NamedRateLimiter> nameRateLimiter;
 
 	public RateLimiterConfig(String name, long avg, long spike, int periods, int bucketPeriod, TimeUnit unit){
 		this.name = name;
@@ -48,7 +49,7 @@ public class RateLimiterConfig{
 				.collect(Collectors.joining(","));
 	}
 
-	public SingletonSupplier<NamedRateLimiter> getNameRateLimiter(){
+	public Supplier<NamedRateLimiter> getNameRateLimiter(){
 		return nameRateLimiter;
 	}
 

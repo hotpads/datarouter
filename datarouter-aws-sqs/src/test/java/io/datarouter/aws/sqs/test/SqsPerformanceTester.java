@@ -91,7 +91,7 @@ public class SqsPerformanceTester{
 	/*----------------- load ------------------*/
 
 	private void loadQueue(SqsTestHelperDao dao, int numDatabeans, int batchSize){
-		PhaseTimer timer = new PhaseTimer("putMulti " + numDatabeans);
+		var timer = new PhaseTimer("putMulti " + numDatabeans);
 		for(List<TestDatabean> batch : Scanner.of(makeDatabeans(numDatabeans)).batch(batchSize).iterable()){
 			dao.putMulti(batch);
 			logger.info("put through {}", ListTool.getLast(batch));
@@ -112,8 +112,8 @@ public class SqsPerformanceTester{
 
 	// timeout, otherwise it will poll forever
 	private void drainQueueViaPoll(DatarouterSqsTestDao dao, int numThreads){
-		PhaseTimer timer = new PhaseTimer("drain queue");
-		AtomicLong numDrained = new AtomicLong(0L);
+		var timer = new PhaseTimer("drain queue");
+		var numDrained = new AtomicLong(0L);
 		ExecutorService exec = Executors.newCachedThreadPool();
 		for(int i = 0; i < numThreads; ++i){
 			exec.submit(() -> {
@@ -132,9 +132,9 @@ public class SqsPerformanceTester{
 
 	// timeout is needed, otherwise it will poll forever
 	private void drainGroupQueueViaPeek(DatarouterSqsGroupTestDao dao, int numThreads){
-		PhaseTimer timer = new PhaseTimer("drain queue");
-		AtomicLong numDatabeansDrained = new AtomicLong(0L);
-		AtomicLong numMessagesDrained = new AtomicLong(0L);
+		var timer = new PhaseTimer("drain queue");
+		var numDatabeansDrained = new AtomicLong(0L);
+		var numMessagesDrained = new AtomicLong(0L);
 		ExecutorService exec = Executors.newCachedThreadPool();
 		for(int i = 0; i < numThreads; ++i){
 			exec.submit(() -> {
@@ -159,9 +159,9 @@ public class SqsPerformanceTester{
 
 	// timeout, otherwise it will poll forever
 	private void drainQueueViaPeek(DatarouterSqsTestDao dao, int numThreads){
-		PhaseTimer timer = new PhaseTimer("drain queue");
-		AtomicLong numDatabeansDrained = new AtomicLong(0L);
-		AtomicLong numMessagesDrained = new AtomicLong(0L);
+		var timer = new PhaseTimer("drain queue");
+		var numDatabeansDrained = new AtomicLong(0L);
+		var numMessagesDrained = new AtomicLong(0L);
 		ExecutorService exec = Executors.newCachedThreadPool();
 		for(int i = 0; i < numThreads; ++i){
 			exec.submit(() -> {

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,7 +40,6 @@ import io.datarouter.storage.config.executor.DatarouterStorageExecutors.Datarout
 import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 
@@ -73,7 +73,7 @@ public class SpannerSchemaUpdateService extends BaseSchemaUpdateService{
 	@Override
 	protected Callable<Optional<SchemaUpdateResult>> makeSchemaUpdateCallable(
 			ClientId clientId,
-			SingletonSupplier<List<String>> existingTableNames,
+			Supplier<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> node){
 		return singleTableSchemaUpdateFactory.new SpannerSingleTableSchemaUpdate(clientId, existingTableNames, node);
 	}

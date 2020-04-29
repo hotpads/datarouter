@@ -15,45 +15,21 @@
  */
 package io.datarouter.client.memcached.client;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.storage.util.EncodedPrimaryKeyPercentCodec;
+import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 
-public class MemcachedEncodedKey{
+public class MemcachedEncodedKey extends EncodedPrimaryKeyPercentCodec{
 
-	public static final Integer DATAROUTER_VERSION = 3;
-
-	public final String nodeName;
-	public final Integer databeanVersion;
-	public final PrimaryKey<?> primaryKey;
+	public static Integer ENCODING_VERSION = 3;
 
 	public MemcachedEncodedKey(String nodeName, Integer databeanVersion, PrimaryKey<?> primaryKey){
-		if(nodeName.contains(":")){
-			throw new IllegalArgumentException("nodeName cannot contain \":\"");
-		}
-		this.nodeName = nodeName;
-		this.databeanVersion = databeanVersion;
-		this.primaryKey = primaryKey;
+		super(nodeName, databeanVersion, primaryKey);
 	}
 
-	public String getVersionedKeyString(){
-		String encodedPk = PrimaryKeyPercentCodec.encode(primaryKey);
-		return DATAROUTER_VERSION + ":" + nodeName + ":" + databeanVersion + ":" + encodedPk;
-	}
-
-	public static List<String> getVersionedKeyStrings(
-			String nodeName,
-			int version,
-			Collection<? extends PrimaryKey<?>> pks){
-		return pks.stream()
-				.filter(Objects::nonNull)
-				.map(pk -> new MemcachedEncodedKey(nodeName, version, pk))
-				.map(MemcachedEncodedKey::getVersionedKeyString)
-				.collect(Collectors.toList());
+	@Override
+	protected Integer getEncodingVersion(){
+		return ENCODING_VERSION;
 	}
 
 	public static <PK extends PrimaryKey<PK>> MemcachedEncodedKey parse(String string, Class<PK> pkClass){
@@ -73,7 +49,7 @@ public class MemcachedEncodedKey{
 			throw new RuntimeException("incorrect number of parts, counter=" + counter + " input=" + string);
 		}
 		int databeanVersion = Integer.parseInt(parts[2]);
-		PK primaryKey = PrimaryKeyPercentCodec.decode(pkClass, current.toString());
+		PK primaryKey = PrimaryKeyPercentCodecTool.decode(pkClass, current.toString());
 		return new MemcachedEncodedKey(parts[1], databeanVersion, primaryKey);
 	}
 

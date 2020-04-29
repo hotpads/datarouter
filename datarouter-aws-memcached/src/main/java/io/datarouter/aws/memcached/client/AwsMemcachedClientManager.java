@@ -40,8 +40,10 @@ public class AwsMemcachedClientManager extends MemcachedClientManager{
 	protected SpyMemcachedClient buildSpyClient(ClientId clientId){
 		ClientMode clientMode = options.getClientMode(clientId.getName());
 		// use KetamaConnectionFactory for consistent hashing between memcached nodes
-		KetamaConnectionFactory ketamaConnectionFactory = new KetamaConnectionFactory(clientMode,
-				DefaultConnectionFactory.DEFAULT_OP_QUEUE_LEN, DefaultConnectionFactory.DEFAULT_READ_BUFFER_SIZE,
+		var ketamaConnectionFactory = new KetamaConnectionFactory(
+				clientMode,
+				DefaultConnectionFactory.DEFAULT_OP_QUEUE_LEN,
+				DefaultConnectionFactory.DEFAULT_READ_BUFFER_SIZE,
 				DefaultConnectionFactory.DEFAULT_OP_QUEUE_MAX_BLOCK_TIME){
 			@Override
 			public long getOperationTimeout(){

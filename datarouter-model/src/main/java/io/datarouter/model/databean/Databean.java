@@ -15,10 +15,15 @@
  */
 package io.datarouter.model.databean;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.util.collector.RelaxedMapCollector;
 
 /**
  * A Databean is an atomic unit of serialization corresponding to a MySQL row or a Memcached item. Generally, all fields
@@ -47,5 +52,12 @@ extends Comparable<Databean<?,?>>{
 	PK getKey();
 
 	List<Field<?>> getKeyFields();
+
+	static <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>>
+	Map<PK,D> byKey(Collection<D> databeans){
+		return databeans.stream()
+				.collect(RelaxedMapCollector.of(Databean::getKey, Function.identity(), HashMap::new));
+	}
 
 }

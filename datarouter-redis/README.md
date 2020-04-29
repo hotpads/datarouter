@@ -1,6 +1,6 @@
 # datarouter-redis
 
-datarouter-redis is a simple client that implements the MapStorage interface with and talks to a Redis cluster with
+datarouter-redis is a simple client that implements the MapStorage interface with and talks to a Redis instance with
  the jedis client.
 
 ## Installation with Maven
@@ -9,31 +9,28 @@ datarouter-redis is a simple client that implements the MapStorage interface wit
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-redis</artifactId>
-	<version>0.0.28</version>
+	<version>0.0.29</version>
 </dependency>
 ```
 
 ## Client configuration
 
-There are two ways to configure the client options. 
+There are two ways to configure the client options.
 
-1. Configuration in a datarouter-properties file. 
+1. Configuration in a datarouter-properties file.
 
 ```
 client.myClient.type=redis
-client.myClient.redis.numServers=1
-client.myClient.redis.clientMode=static
-client.myClient.redis.server.0=localhost:6379
+client.myClient.redis.endpoint=localhost:6379
 ```
 
 2. Configuration in the code
-You can define the client options in the code using the `RedisClientOptionsBuilder` and add the ClientOptionsBuilder to the app's `WebappBuilder`.
+You can define the client options in the code using the `RedisClientOptionsBuilder` and add the ClientOptionsBuilder
+ to the app's `WebappBuilder`.
 
 ```java
 Properties properties = RedisClientOptionsBuilder(clientId)
-		.withNumServers(1)
-		.withClientMode("static")
-		.withServerIndexAndInetSocketAddress(0, "localhost:6379")
+		.withEndpoint("localhost:6379")
 		.build();
 ```
 

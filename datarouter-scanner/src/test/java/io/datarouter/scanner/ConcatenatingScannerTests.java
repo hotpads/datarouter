@@ -40,7 +40,7 @@ public class ConcatenatingScannerTests{
 				Collections.emptyList(),
 				Arrays.asList(3, 4));
 		List<Integer> actual = batches
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.list();
 		List<Integer> expected = Arrays.asList(0, 1, 2, 73, 3, 4);
 		Assert.assertEquals(actual, expected);
@@ -50,7 +50,7 @@ public class ConcatenatingScannerTests{
 	public void testLazyness(){
 		AtomicBoolean seenOne = new AtomicBoolean();
 		Scanner.of(1, 2)
-				.concatenate(foo -> Scanner.of(foo, foo)
+				.concat(foo -> Scanner.of(foo, foo)
 						.each($ -> {
 							if(seenOne.getAndSet(true)){
 								throw EXCEPTION.get();
@@ -60,7 +60,7 @@ public class ConcatenatingScannerTests{
 
 		seenOne.set(false);
 		Scanner.of(1, 2)
-				.concatenate(foo -> Scanner.of(foo, foo)
+				.concat(foo -> Scanner.of(foo, foo)
 						.each($ -> {
 							if(seenOne.getAndSet(true)){
 								throw EXCEPTION.get();

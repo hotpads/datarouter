@@ -41,11 +41,11 @@ public class AmazonSqsHolder{
 		if(amazonSqsByClient.containsKey(clientId)){
 			throw new RuntimeException(clientId + " already registered an sqs client");
 		}
-		ClientConfiguration conf = new ClientConfiguration()
+		var conf = new ClientConfiguration()
 				.withMaxConnections(100);
-		BasicAWSCredentials credentials = new BasicAWSCredentials(sqsOptions.getAccessKey(clientId.getName()),
+		var credentials = new BasicAWSCredentials(sqsOptions.getAccessKey(clientId.getName()),
 				sqsOptions.getSecretKey(clientId.getName()));
-		AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
+		var credentialsProvider = new AWSStaticCredentialsProvider(credentials);
 		AmazonSQS amazonSqs = AmazonSQSClient.builder()
 				.withClientConfiguration(conf)
 				.withCredentials(credentialsProvider)

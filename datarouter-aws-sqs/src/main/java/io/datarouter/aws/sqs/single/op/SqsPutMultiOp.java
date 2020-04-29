@@ -89,7 +89,7 @@ extends SqsOp<PK,D,F,Void>{
 	}
 
 	private void putBatch(List<SendMessageBatchRequestEntry> entries){
-		SendMessageBatchRequest request = new SendMessageBatchRequest(queueUrl, entries);
+		var request = new SendMessageBatchRequest(queueUrl, entries);
 		sqsClientManager.getAmazonSqs(clientId).sendMessageBatch(request);
 	}
 

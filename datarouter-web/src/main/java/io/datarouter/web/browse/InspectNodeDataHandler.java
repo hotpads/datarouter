@@ -34,7 +34,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
@@ -114,7 +114,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		}
 		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
 		if(CollectionTool.sizeNullSafe(databeans) >= limit){
-			mav.put(PARAM_nextKey, PrimaryKeyPercentCodec.encode(ListTool.getLast(databeans).getKey()));
+			mav.put(PARAM_nextKey, PrimaryKeyPercentCodecTool.encode(ListTool.getLast(databeans).getKey()));
 		}
 	}
 

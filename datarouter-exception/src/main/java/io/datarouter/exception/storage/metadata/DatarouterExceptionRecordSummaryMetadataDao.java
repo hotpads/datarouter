@@ -44,11 +44,16 @@ public class DatarouterExceptionRecordSummaryMetadataDao extends BaseDao{
 	private final SortedMapStorage<ExceptionRecordSummaryMetadataKey,ExceptionRecordSummaryMetadata> node;
 
 	@Inject
-	public DatarouterExceptionRecordSummaryMetadataDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterExceptionRecordSummaryMetadataDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterExceptionRecordSummaryMetadataDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, ExceptionRecordSummaryMetadata::new,
-				ExceptionRecordSummaryMetadataFielder::new).buildAndRegister();
+		node = nodeFactory.create(
+				params.clientId,
+				ExceptionRecordSummaryMetadata::new,
+				ExceptionRecordSummaryMetadataFielder::new)
+				.buildAndRegister();
 	}
 
 	public ExceptionRecordSummaryMetadata get(ExceptionRecordSummaryMetadataKey key){

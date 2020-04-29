@@ -43,7 +43,12 @@ public class SqsNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	SqsNode<PK,D,F> createSingleNode(NodeParams<PK,D,F> params){
-		return new SqsNode<>(datarouterProperties, datarouterService, params, sqsClientType, sqsClientManager,
+		return new SqsNode<>(
+				datarouterProperties,
+				datarouterService,
+				params,
+				sqsClientType,
+				sqsClientManager,
 				params.getClientId());
 	}
 
@@ -51,7 +56,12 @@ public class SqsNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	SqsGroupNode<PK,D,F> createGroupNode(NodeParams<PK,D,F> params){
-		return new SqsGroupNode<>(datarouterProperties, datarouterService, params, sqsClientType, sqsClientManager,
+		return new SqsGroupNode<>(
+				datarouterProperties,
+				datarouterService,
+				params,
+				sqsClientType,
+				sqsClientManager,
 				params.getClientId());
 	}
 

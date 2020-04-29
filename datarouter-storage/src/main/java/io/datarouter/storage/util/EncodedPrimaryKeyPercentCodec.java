@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.redis.node;
+package io.datarouter.storage.util;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,17 +21,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
 
-public class RedisEncodedKey{
+public class EncodedPrimaryKeyPercentCodec{
 
-	private static final Integer VERSION = 1;
-
-	private final String nodeName;
-	private final Integer databeanVersion;
+	public final String nodeName;
+	public final Integer databeanVersion;
 	public final PrimaryKey<?> primaryKey;
 
-	public RedisEncodedKey(String nodeName, Integer databeanVersion, PrimaryKey<?> primaryKey){
+	public EncodedPrimaryKeyPercentCodec(String nodeName, Integer databeanVersion, PrimaryKey<?> primaryKey){
 		if(nodeName.contains(":")){
 			throw new IllegalArgumentException("nodeName cannot contain \":\"");
 		}
@@ -41,20 +38,22 @@ public class RedisEncodedKey{
 	}
 
 	public String getVersionedKeyString(){
-		String encodedPk = PrimaryKeyPercentCodec.encode(primaryKey);
-		return VERSION + ":" + nodeName + ":" + databeanVersion + ":" + encodedPk;
+		String encodedPk = PrimaryKeyPercentCodecTool.encode(primaryKey);
+		return getEncodingVersion() + ":" + nodeName + ":" + databeanVersion + ":" + encodedPk;
 	}
 
-	public static List<String> getVersionedKeyStrings(String nodeName, int version,
-			Collection<? extends PrimaryKey<?>> keys){
-		return keys.stream()
+	public static List<String> getVersionedKeyStrings(
+			String nodeName,
+			int version,
+			Collection<? extends PrimaryKey<?>> pks){
+		return pks.stream()
 				.filter(Objects::nonNull)
-				.map(pk -> new RedisEncodedKey(nodeName, version, pk))
-				.map(RedisEncodedKey::getVersionedKeyString)
+				.map(pk -> new EncodedPrimaryKeyPercentCodec(nodeName, version, pk))
+				.map(EncodedPrimaryKeyPercentCodec::getVersionedKeyString)
 				.collect(Collectors.toList());
 	}
 
-	public static <PK extends PrimaryKey<PK>> RedisEncodedKey parse(String string, Class<PK> pkClass){
+	public static <PK extends PrimaryKey<PK>> EncodedPrimaryKeyPercentCodec parse(String string, Class<PK> pkClass){
 		StringBuilder current = new StringBuilder();
 		String[] parts = new String[3];
 		int counter = 0;
@@ -71,8 +70,12 @@ public class RedisEncodedKey{
 			throw new RuntimeException("incorrect number of parts, counter=" + counter + " input=" + string);
 		}
 		int databeanVersion = Integer.parseInt(parts[2]);
-		PK primaryKey = PrimaryKeyPercentCodec.decode(pkClass, current.toString());
-		return new RedisEncodedKey(parts[1], databeanVersion, primaryKey);
+		PK primaryKey = PrimaryKeyPercentCodecTool.decode(pkClass, current.toString());
+		return new EncodedPrimaryKeyPercentCodec(parts[1], databeanVersion, primaryKey);
+	}
+
+	protected Integer getEncodingVersion(){
+		return 1;
 	}
 
 }

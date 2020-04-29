@@ -17,6 +17,7 @@ package io.datarouter.web.handler.mav;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,7 +36,7 @@ public class MavPropertiesFactory{
 	private static final RequestAttributeKey<MavProperties> MAV_PROPERTIES = new RequestAttributeKey<>("mavProperties");
 
 	private final DatarouterMavPropertiesFactoryConfig config;
-	private final SingletonSupplier<Map<String,String>> tomcatWebApps;
+	private final Supplier<Map<String,String>> tomcatWebApps;
 	private final Optional<AppNavBar> appNavBar;
 	private final DatarouterNavBar datarouterNavBar;
 

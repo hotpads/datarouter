@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -119,7 +120,7 @@ public abstract class BaseHandler{
 	protected Params params;
 	protected List<RequestParamValidator<?>> paramValidators = new ArrayList<>();
 
-	private SingletonSupplier<RequestAwareCurrentSessionInfo> requestAwareCurrentSessionInfo = SingletonSupplier.of(
+	private Supplier<RequestAwareCurrentSessionInfo> requestAwareCurrentSessionInfo = SingletonSupplier.of(
 			() -> requestAwareCurrentSessionInfoFactory.build(request));
 
 	/**

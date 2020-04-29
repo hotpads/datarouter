@@ -36,7 +36,7 @@ import javax.inject.Inject;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.bytes.ByteUnitTool;
-import io.datarouter.util.collection.CollectorTool;
+import io.datarouter.util.collector.RelaxedMapCollector;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebFiles;
@@ -79,7 +79,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		long startTime = runtimeMxBean.getStartTime();
 		long uptime = runtimeMxBean.getUptime();
 		Map<String,GitPropertiesJspDto> gitDetailedLibraries = loadedLibraries.gitDetailedLibraries.entrySet().stream()
-				.collect(CollectorTool.toMap(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue())));
+				.collect(RelaxedMapCollector.of(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue())));
 		mav.put("startTime", FORMATTER.format(Instant.ofEpochMilli(startTime)));
 		mav.put("upTime", new DatarouterDuration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
 		mav.put("serverName", datarouterProperties.getServerName());

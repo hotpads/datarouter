@@ -44,11 +44,16 @@ public class DatarouterOpPerformanceRecordDao extends BaseDao{
 	private final SortedMapStorage<OpPerformanceRecordKey,OpPerformanceRecord> node;
 
 	@Inject
-	public DatarouterOpPerformanceRecordDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterOpPerformanceRecordDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterOpPerformanceRecordDaoParams params){
 		super(datarouter);
-		node = new WriteBehindSortedMapStorageNode<>(datarouter, nodeFactory.create(params.clientId,
-				OpPerformanceRecord::new, OpPerformanceRecordFielder::new)
+		node = new WriteBehindSortedMapStorageNode<>(
+				datarouter,
+				nodeFactory.create(params.clientId,
+				OpPerformanceRecord::new,
+				OpPerformanceRecordFielder::new)
 				.buildAndRegister());
 	}
 

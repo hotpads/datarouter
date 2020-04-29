@@ -86,9 +86,22 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 		return requestUri.substring(StringTool.nullSafe(request.getContextPath()).length());
 	}
 
-	public HttpRequestRecord(Date receivedAt, String exceptionRecordId, String httpMethod, String httpParams,
-			String protocol, String hostname, int port, String contextPath, String path, String queryString,
-			byte[] binaryBody, String ip, String sessionRoles, String userToken, RecordedHttpHeaders headersWrapper){
+	public HttpRequestRecord(
+			Date receivedAt,
+			String exceptionRecordId,
+			String httpMethod,
+			String httpParams,
+			String protocol,
+			String hostname,
+			int port,
+			String contextPath,
+			String path,
+			String queryString,
+			byte[] binaryBody,
+			String ip,
+			String sessionRoles,
+			String userToken,
+			RecordedHttpHeaders headersWrapper){
 		super(new HttpRequestRecordKey(UuidTool.generateV1Uuid()), receivedAt, exceptionRecordId, httpMethod,
 				httpParams, protocol, hostname, port, contextPath, path, queryString, binaryBody, ip, sessionRoles,
 				userToken, headersWrapper);

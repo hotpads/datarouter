@@ -43,7 +43,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.op.scan.stride.StrideScanner.StrideScannerBuilder;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.Require;
 import io.datarouter.util.lang.ObjectTool;
@@ -408,7 +408,7 @@ implements Callable<List<TableSample>>{
 	//TODO remove when default pk.toString() uses PrimaryKeyPercentCodec
 	private String pkToString(PK pk){
 		return Optional.ofNullable(pk)
-				.map(PrimaryKeyPercentCodec::encode)
+				.map(PrimaryKeyPercentCodecTool::encode)
 				.orElse(null);
 	}
 

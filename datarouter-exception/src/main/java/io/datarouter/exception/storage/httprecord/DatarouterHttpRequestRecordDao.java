@@ -45,11 +45,15 @@ public class DatarouterHttpRequestRecordDao extends BaseDao{
 
 	}
 
-	private final WriteBehindIndexedSortedMapStorageNode<HttpRequestRecordKey,HttpRequestRecord,
+	private final WriteBehindIndexedSortedMapStorageNode<
+			HttpRequestRecordKey,
+			HttpRequestRecord,
 			IndexedSortedMapStorage<HttpRequestRecordKey,HttpRequestRecord>> node;
 
 	@Inject
-	public DatarouterHttpRequestRecordDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterHttpRequestRecordDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterHttpRequestRecordDaoParams params){
 		super(datarouter);
 		IndexedSortedMapStorage<HttpRequestRecordKey,HttpRequestRecord> backingNode = nodeFactory

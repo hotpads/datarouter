@@ -231,6 +231,11 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		return enabled;
 	}
 
+	@Override
+	public Boolean isEnabled(){
+		return getEnabled();
+	}
+
 	public void setEnabled(Boolean enabled){
 		this.enabled = enabled;
 	}

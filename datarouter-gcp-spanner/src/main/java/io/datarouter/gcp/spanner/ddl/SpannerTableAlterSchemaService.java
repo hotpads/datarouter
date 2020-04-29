@@ -56,16 +56,22 @@ public class SpannerTableAlterSchemaService{
 		List<SpannerColumn> colToRemove = columnNameDifferences(columns, currentColumns);
 		List<SpannerColumn> colToAlter = colmumnsToAlter(currentColumns, columns);
 		if(!colToAdd.isEmpty()){
-			colToAdd.forEach(col -> statements.updateFunction(tableOperationsGenerator.addColumns(tableName, col),
-					updateOptions::getAddColumns, true));
+			colToAdd.forEach(col -> statements.updateFunction(
+					tableOperationsGenerator.addColumns(tableName, col),
+					updateOptions::getAddColumns,
+					true));
 		}
 		if(!colToRemove.isEmpty()){
-			colToRemove.forEach(col -> statements.updateFunction(tableOperationsGenerator.dropColumns(tableName, col),
-					updateOptions::getDeleteColumns, false));
+			colToRemove.forEach(col -> statements.updateFunction(
+					tableOperationsGenerator.dropColumns(tableName, col),
+					updateOptions::getDeleteColumns,
+					false));
 		}
 		if(!colToAlter.isEmpty()){
-			colToAlter.forEach(col -> statements.updateFunction(tableOperationsGenerator.alterColumns(tableName, col),
-					updateOptions::getModifyColumns, false));
+			colToAlter.forEach(col -> statements.updateFunction(
+					tableOperationsGenerator.alterColumns(tableName, col),
+					updateOptions::getModifyColumns,
+					false));
 		}
 	}
 

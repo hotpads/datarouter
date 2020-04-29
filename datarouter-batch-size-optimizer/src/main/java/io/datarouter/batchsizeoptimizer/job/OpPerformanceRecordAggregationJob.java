@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -28,6 +27,7 @@ import io.datarouter.batchsizeoptimizer.storage.performancerecord.OpPerformanceR
 import io.datarouter.batchsizeoptimizer.storage.performancerecord.OpPerformanceRecordKey;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
+import io.datarouter.scanner.Scanner;
 
 public class OpPerformanceRecordAggregationJob extends BaseJob{
 
@@ -40,15 +40,16 @@ public class OpPerformanceRecordAggregationJob extends BaseJob{
 	public void run(TaskTracker tracker){
 		String currentOpName = null;
 		List<OpPerformanceRecordKey> recordsToDelete = new ArrayList<>(BATCH_SIZE);
-		Map<Integer, AggregatedRecord> aggregatedRecordsByBatchSize = new HashMap<>();
+		Map<Integer,AggregatedRecord> aggregatedRecordsByBatchSize = new HashMap<>();
 		for(OpPerformanceRecord record : opPerformanceRecordDao.scan().iterable()){
 			if(currentOpName != null && !currentOpName.equals(record.getKey().getOpName())){
 				saveAggregatedRecord(aggregatedRecordsByBatchSize);
 				aggregatedRecordsByBatchSize.clear();
 			}
 			currentOpName = record.getKey().getOpName();
-			aggregatedRecordsByBatchSize.computeIfAbsent(record.getBatchSize(), $ -> new AggregatedRecord(record
-					.getKey().getOpName(), record.getBatchSize())).addRecord(record);
+			aggregatedRecordsByBatchSize.computeIfAbsent(
+					record.getBatchSize(),
+					$ -> new AggregatedRecord(record.getKey().getOpName(), record.getBatchSize())).addRecord(record);
 			recordsToDelete.add(record.getKey());
 			if(recordsToDelete.size() > BATCH_SIZE){
 				opPerformanceRecordDao.deleteMulti(new ArrayList<>(recordsToDelete));
@@ -60,9 +61,9 @@ public class OpPerformanceRecordAggregationJob extends BaseJob{
 	}
 
 	private void saveAggregatedRecord(Map<Integer,AggregatedRecord> aggregatedRecordsByBatchSize){
-		opPerformanceRecordDao.putMulti(aggregatedRecordsByBatchSize.values().stream()
+		Scanner.of(aggregatedRecordsByBatchSize.values())
 				.map(AggregatedRecord::buildOpPerformanceRecord)
-				.collect(Collectors.toList()));
+				.flush(opPerformanceRecordDao::putMulti);
 	}
 
 	private static class AggregatedRecord{

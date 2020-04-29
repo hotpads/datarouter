@@ -21,7 +21,9 @@ extends BaseExceptionRecordSummaryMetadata<
 		ExceptionRecordSummaryMetadata>{
 
 	public static class ExceptionRecordSummaryMetadataFielder
-	extends BaseExceptionRecordSummaryMetadataFielder<ExceptionRecordSummaryMetadataKey,ExceptionRecordSummaryMetadata>{
+	extends BaseExceptionRecordSummaryMetadataFielder<
+			ExceptionRecordSummaryMetadataKey,
+			ExceptionRecordSummaryMetadata>{
 
 		public ExceptionRecordSummaryMetadataFielder(){
 			super(ExceptionRecordSummaryMetadataKey.class);

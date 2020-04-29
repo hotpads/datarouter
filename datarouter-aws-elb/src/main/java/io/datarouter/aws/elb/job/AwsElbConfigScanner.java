@@ -28,7 +28,8 @@ import com.amazonaws.services.elasticloadbalancingv2.model.LoadBalancerSchemeEnu
 import io.datarouter.aws.elb.service.ElbService;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.config.Ec2InstanceDetailsDto;
+import io.datarouter.util.aws.Ec2InstanceDetailsDto;
+import io.datarouter.util.aws.Ec2InstanceTool;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.autoconfig.ConfigScanResponseTool;
 
@@ -47,7 +48,7 @@ public class AwsElbConfigScanner{
 	private ElbService elbService;
 
 	public ConfigScanDto checkAlbSchemeForEc2Instance(){
-		Optional<Ec2InstanceDetailsDto> ec2InstanceDetailsDto = datarouterProperties.getEc2InstanceDetails();
+		Optional<Ec2InstanceDetailsDto> ec2InstanceDetailsDto = Ec2InstanceTool.getEc2InstanceDetails();
 		String serverType = datarouterProperties.getServerTypeString();
 
 		if(ec2InstanceDetailsDto.isEmpty()){

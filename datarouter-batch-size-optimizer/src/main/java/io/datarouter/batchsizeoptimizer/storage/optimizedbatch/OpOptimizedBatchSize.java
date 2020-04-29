@@ -77,7 +77,9 @@ public class OpOptimizedBatchSize extends BaseDatabean<OpOptimizedBatchSizeKey,O
 	}
 
 	public static OpOptimizedBatchSize createDefault(String opName){
-		return new OpOptimizedBatchSize(opName, BatchSizeOptimizer.DEFAULT_BATCH_SIZE,
+		return new OpOptimizedBatchSize(
+				opName,
+				BatchSizeOptimizer.DEFAULT_BATCH_SIZE,
 				BatchSizeOptimizer.DEFAULT_CURIOSITY);
 	}
 

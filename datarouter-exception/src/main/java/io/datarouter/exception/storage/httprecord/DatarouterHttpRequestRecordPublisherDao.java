@@ -41,8 +41,10 @@ public class DatarouterHttpRequestRecordPublisherDao extends BaseDao{
 	private final GroupQueueStorage<HttpRequestRecordKey,HttpRequestRecord> node;
 
 	@Inject
-	public DatarouterHttpRequestRecordPublisherDao(Datarouter datarouter,
-			DatarouterHttpRequestRecordPublisherDaoParams params, QueueNodeFactory queueNodeFactory){
+	public DatarouterHttpRequestRecordPublisherDao(
+			Datarouter datarouter,
+			DatarouterHttpRequestRecordPublisherDaoParams params,
+			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
 		node = queueNodeFactory.createGroupQueue(params.clientId, HttpRequestRecord::new, HttpRequestRecordFielder::new)
 				.withQueueName("PublisherHttpRequestRecord")

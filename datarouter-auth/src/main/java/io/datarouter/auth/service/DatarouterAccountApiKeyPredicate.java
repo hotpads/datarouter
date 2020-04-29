@@ -35,7 +35,8 @@ public class DatarouterAccountApiKeyPredicate implements ApiKeyPredicate{
 	private final DatarouterAccountCounters datarouterAccountCounters;
 
 	@Inject
-	public DatarouterAccountApiKeyPredicate(DatarouterAccountService datarouterAccountService,
+	public DatarouterAccountApiKeyPredicate(
+			DatarouterAccountService datarouterAccountService,
 			DatarouterAccountCounters datarouterAccountCounters){
 		this.datarouterAccountService = datarouterAccountService;
 		this.datarouterAccountCounters = datarouterAccountCounters;
@@ -48,8 +49,10 @@ public class DatarouterAccountApiKeyPredicate implements ApiKeyPredicate{
 			return new Pair<>(false, "key not found");
 		}
 		Optional<String> endpoint = rule.getPersistentString();
-		return new Pair<>(check(endpoint, apiKeyCandidate).isPresent(), "no account for " + ApiKeyPredicate.obfuscate(
-				apiKeyCandidate));
+		return new Pair<>(check(
+				endpoint,
+				apiKeyCandidate).isPresent(),
+				"no account for " + ApiKeyPredicate.obfuscate(apiKeyCandidate));
 	}
 
 	public Optional<String> check(Optional<String> endpoint, String apiKeyCandidate){

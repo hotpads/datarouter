@@ -23,6 +23,7 @@ public class HtmlFormText extends BaseHtmlFormField{
 	private String display;
 	private String placeholder;
 	private String value;
+	private boolean required = false;
 
 	public HtmlFormText withName(String name){
 		this.name = name;
@@ -41,6 +42,11 @@ public class HtmlFormText extends BaseHtmlFormField{
 
 	public HtmlFormText withValue(String value){
 		this.value = value;
+		return this;
+	}
+
+	public HtmlFormText withRequired(boolean required){
+		this.required = required;
 		return this;
 	}
 
@@ -63,6 +69,10 @@ public class HtmlFormText extends BaseHtmlFormField{
 
 	public String getValue(){
 		return value;
+	}
+
+	public boolean isRequired(){
+		return required;
 	}
 
 }

@@ -17,6 +17,8 @@ package io.datarouter.auth.config;
 
 import java.util.List;
 
+import com.google.inject.name.Names;
+
 import io.datarouter.auth.service.DatarouterUserDeprovisioningService;
 import io.datarouter.auth.service.DatarouterUserInfo;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeys;
@@ -44,6 +46,8 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapDao.Dat
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao.DatarouterUserHistoryDaoParams;
 import io.datarouter.auth.web.DatarouterDocumentationRouteSet;
+import io.datarouter.instrumentation.changelog.ChangelogPublisher;
+import io.datarouter.instrumentation.changelog.ChangelogPublisher.NoOpChangelogPublisher;
 import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.job.config.DatarouterJobRouteSet;
 import io.datarouter.storage.client.ClientId;
@@ -58,6 +62,8 @@ import io.datarouter.web.user.authenticate.saml.DatarouterSamlDao.DatarouterSaml
 
 public class DatarouterAuthPlugin extends BaseJobPlugin{
 
+	public static final String NAMED_Changelog = "DatarouterAuthChangeLog";
+
 	private static final DatarouterAuthPaths PATHS = new DatarouterAuthPaths();
 
 	private final Class<? extends UserInfo> userInfoClass;
@@ -66,6 +72,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 	private final String defaultDatarouterUserPassword;
 	private final String defaultApiKey;
 	private final String defaultSecretKey;
+	private final Class<? extends ChangelogPublisher> changelogPublisher;
 
 	private DatarouterAuthPlugin(
 			boolean enableUserAuth,
@@ -75,7 +82,16 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass,
 			String defaultDatarouterUserPassword,
 			String defaultApiKey,
-			String defaultSecretKey){
+			String defaultSecretKey,
+			Class<? extends ChangelogPublisher> changelogPublisher){
+		this.userInfoClass = userInfoClass;
+		this.shouldMarkUsersInsteadOfDeprovisioning = shouldMarkUsersInsteadOfDeprovisioning;
+		this.userDeprovisioningServiceClass = userDeprovisioningServiceClass;
+		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
+		this.defaultApiKey = defaultApiKey;
+		this.defaultSecretKey = defaultSecretKey;
+		this.changelogPublisher = changelogPublisher;
+
 		if(enableUserAuth){
 			addAppListener(DatarouterUserConfigAppListener.class);
 			addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.admin.viewUsers, "View Users");
@@ -96,13 +112,6 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		addSettingRoot(DatarouterAuthSettingRoot.class);
 		addTriggerGroup(DatarouterAuthTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
-
-		this.userInfoClass = userInfoClass;
-		this.shouldMarkUsersInsteadOfDeprovisioning = shouldMarkUsersInsteadOfDeprovisioning;
-		this.userDeprovisioningServiceClass = userDeprovisioningServiceClass;
-		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
-		this.defaultApiKey = defaultApiKey;
-		this.defaultSecretKey = defaultSecretKey;
 	}
 
 	@Override
@@ -125,12 +134,16 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 				new DefaultDatarouterUserPassword(defaultDatarouterUserPassword));
 		bindActualInstance(DefaultDatarouterAccountKeysSupplier.class,
 				new DefaultDatarouterAccountKeys(defaultApiKey, defaultSecretKey));
+		bind(ChangelogPublisher.class)
+				.annotatedWith(Names.named(NAMED_Changelog))
+				.to(changelogPublisher);
 	}
 
 	public static class DatarouterAuthPluginBuilder{
 
 		private final boolean enableUserAuth;
 		private final ClientId defaultClientId;
+
 		private DatarouterAuthDaoModule daoModule;
 		private Class<? extends UserInfo> userInfoClass = DatarouterUserInfo.class;
 		private Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass =
@@ -139,6 +152,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		private String defaultApiKey = "";
 		private String defaultSecretKey = "";
 		private boolean shouldMarkUsersInsteadOfDeprovisioning = false;
+		private Class<? extends ChangelogPublisher> changelogPublisher = NoOpChangelogPublisher.class;
 
 		public DatarouterAuthPluginBuilder(boolean enableUserAuth, ClientId defaultClientId,
 				String defaultDatarouterUserPassword, String defaultApiKey, String defaultSecretKey){
@@ -170,19 +184,33 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterAuthPluginBuilder enableChangelogPublishing(
+				Class<? extends ChangelogPublisher> changelogPublisher){
+			this.changelogPublisher = changelogPublisher;
+			return this;
+		}
+
 		public DatarouterAuthPlugin build(){
 			return new DatarouterAuthPlugin(
 					enableUserAuth,
 					daoModule == null
-					? new DatarouterAuthDaoModule(defaultClientId, defaultClientId, defaultClientId, defaultClientId,
-							defaultClientId, defaultClientId, defaultClientId, defaultClientId)
-					: daoModule,
+							? new DatarouterAuthDaoModule(
+									defaultClientId,
+									defaultClientId,
+									defaultClientId,
+									defaultClientId,
+									defaultClientId,
+									defaultClientId,
+									defaultClientId,
+									defaultClientId)
+							: daoModule,
 					userInfoClass,
 					shouldMarkUsersInsteadOfDeprovisioning,
 					userDeprovisioningServiceClass,
 					defaultDatarouterUserPassword,
 					defaultApiKey,
-					defaultSecretKey);
+					defaultSecretKey,
+					changelogPublisher);
 		}
 
 	}

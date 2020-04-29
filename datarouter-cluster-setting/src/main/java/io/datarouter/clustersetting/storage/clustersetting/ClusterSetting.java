@@ -63,8 +63,13 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 		this.value = value;
 	}
 
-	public ClusterSetting(String name, ClusterSettingScope scope, String serverType, String serverName,
-			String application, String value){
+	public ClusterSetting(
+			String name,
+			ClusterSettingScope scope,
+			String serverType,
+			String serverName,
+			String application,
+			String value){
 		super(new ClusterSettingKey(name, scope, serverType, serverName, application));
 		this.value = value;
 	}
@@ -76,13 +81,15 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 
 	/*------------------------------- static --------------------------------*/
 
-	public static Optional<ClusterSetting> getMostSpecificSettingForWebappInstance(List<ClusterSetting> settings,
+	public static Optional<ClusterSetting> getMostSpecificSettingForWebappInstance(
+			List<ClusterSetting> settings,
 			WebappInstance webappInstance){
 		List<ClusterSetting> settingsForWebappInstance = filterForWebappInstance(settings, webappInstance);
 		return getMostSpecificSetting(settingsForWebappInstance);
 	}
 
-	public static List<ClusterSetting> filterForWebappInstance(List<ClusterSetting> settings,
+	public static List<ClusterSetting> filterForWebappInstance(
+			List<ClusterSetting> settings,
 			WebappInstance webappInstance){
 		return settings.stream()
 				.filter(setting -> setting.getKey().appliesToWebappInstance(webappInstance))
@@ -90,11 +97,13 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 	}
 
 	public static Optional<ClusterSetting> getMostSpecificSetting(List<ClusterSetting> settings){
-		return settings.isEmpty() ? Optional.empty() : Optional.of(Collections.min(settings,
-				new ClusterSettingScopeComparator()));
+		return settings.isEmpty()
+				? Optional.empty()
+				: Optional.of(Collections.min(settings, new ClusterSettingScopeComparator()));
 	}
 
-	public static <T> T getTypedValueOrUseDefaultFrom(Optional<ClusterSetting> clusterSetting,
+	public static <T> T getTypedValueOrUseDefaultFrom(
+			Optional<ClusterSetting> clusterSetting,
 			Setting<T> settingForTypeAndDefault){
 		return clusterSetting
 				.map(setting -> setting.getTypedValue(settingForTypeAndDefault))

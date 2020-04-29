@@ -77,7 +77,10 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 		super(new ClusterSettingLogKey(null,null));
 	}
 
-	public ClusterSettingLog(ClusterSetting clusterSetting, ClusterSettingLogAction action, String changedBy,
+	public ClusterSettingLog(
+			ClusterSetting clusterSetting,
+			ClusterSettingLogAction action,
+			String changedBy,
 			String comment){
 		super(new ClusterSettingLogKey(clusterSetting.getName(), new Date()));
 		this.scope = clusterSetting.getScope();
@@ -94,7 +97,6 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 	public Class<ClusterSettingLogKey> getKeyClass(){
 		return ClusterSettingLogKey.class;
 	}
-
 
 	@Override
 	public String toString(){

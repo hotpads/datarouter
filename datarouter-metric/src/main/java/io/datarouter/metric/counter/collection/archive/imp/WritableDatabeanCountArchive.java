@@ -90,10 +90,11 @@ public class WritableDatabeanCountArchive extends BaseCountArchive implements Wr
 			if(entry.getValue() == null || entry.getValue().longValue() == 0){
 				continue;
 			}
-			Date created = new Date();
+			Long createdMs = System.currentTimeMillis();
+			Date created = new Date(createdMs);
 			String sanitizedName = sanitizeName(entry.getKey());
 			CountDto dto = new CountDto(sanitizedName, serviceName, periodMs, periodStartTime, periodStartMs, source,
-					created, entry.getValue().get());
+					created, createdMs, entry.getValue().get());
 			countDtosToSave.add(new ConveyorMessage(dto.name, gson.toJson(dto)));
 		}
 		if(!countDtosToSave.isEmpty() && settings.runCountsToSqs.get()){

@@ -82,7 +82,7 @@ public class BaseServerTypes implements ServerTypes{
 		return Arrays.stream(values())
 				.filter(serverType -> serverType.getPersistentString().equals(str))
 				.findAny()
-				.orElse(null);
+				.orElseThrow(() -> new RuntimeException("Unknown server type: " + str));
 	}
 
 	@Override

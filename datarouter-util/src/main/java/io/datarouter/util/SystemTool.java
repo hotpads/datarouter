@@ -15,7 +15,14 @@
  */
 package io.datarouter.util;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SystemTool{
+	private static final Logger logger = LoggerFactory.getLogger(SystemTool.class);
 
 	public static String getUserHome(){
 		return System.getProperty("user.home");
@@ -23,6 +30,19 @@ public class SystemTool{
 
 	public static String getJavaVersion(){
 		return System.getProperty("java.version");
+	}
+
+	public static String getHostname(){
+		String hostname = null;
+		try{
+			hostname = InetAddress.getLocalHost().getHostName();
+			if(hostname.contains(".")){
+				hostname = hostname.substring(0, hostname.indexOf('.'));//drop the dns suffixes
+			}
+		}catch(UnknownHostException e){
+			logger.error("Unable to get the hostname from InetAddress.getLocalHost().getHostName()");
+		}
+		return hostname;
 	}
 
 }

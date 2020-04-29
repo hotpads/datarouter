@@ -69,9 +69,8 @@ implements PhysicalQueueStorageNode<PK,D,F>{
 
 	@Override
 	public Scanner<QueueMessage<PK, D>> peekUntilEmpty(Config config){
-		try(PeekMultiUntilEmptyQueueStorageScanner<PK,D> scanner = new PeekMultiUntilEmptyQueueStorageScanner<>(this,
-				config)){
-			return scanner.concatenate(Scanner::of);
+		try(var scanner = new PeekMultiUntilEmptyQueueStorageScanner<>(this, config)){
+			return scanner.concat(Scanner::of);
 		}
 	}
 

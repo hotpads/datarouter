@@ -16,10 +16,6 @@
 package io.datarouter.client.redis.client;
 
 import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,56 +26,17 @@ import io.datarouter.storage.client.ClientOptions;
 public class RedisOptions{
 
 	private static final String PREFIX_REDIS = "redis.";
-
-	public static final String PROP_clientMode = "clientMode";
-	public static final String PROP_clusterEndpoint = "clusterEndpoint";
-	public static final String PROP_numServers = "numServers";
-	public static final String PROP_server = "server";
+	public static final String PROP_endpoint = "endpoint";
 
 	@Inject
 	private ClientOptions clientOptions;
 
-	public List<InetSocketAddress> getServers(String clientName){
-		return IntStream.range(0, getNumServers(clientName))
-				.mapToObj(index -> makeRedisKey(PROP_server + "." + index))
-				.map(propertyKey -> clientOptions.optInetSocketAddress(clientName, propertyKey))
-				.map(Optional::get)
-				.collect(Collectors.toList());
-	}
-
-	public Optional<InetSocketAddress> getClusterEndpoint(String clientName){
-		return clientOptions.optInetSocketAddress(clientName, makeRedisKey(PROP_clusterEndpoint));
-	}
-
-	public RedisClientMode getClientMode(String clientName){
-		return clientOptions.optString(clientName, makeRedisKey(PROP_clientMode))
-				.filter(RedisClientMode.DYNAMIC.getPersistentString()::equals)
-				.map($ -> RedisClientMode.DYNAMIC)
-				.orElse(RedisClientMode.STATIC);
+	public InetSocketAddress getEndpoint(String clientName){
+		return clientOptions.optInetSocketAddress(clientName, makeRedisKey(PROP_endpoint)).get();
 	}
 
 	protected static String makeRedisKey(String propertyKey){
 		return PREFIX_REDIS + propertyKey;
-	}
-
-	private Integer getNumServers(String clientName){
-		return clientOptions.getRequiredInteger(clientName, makeRedisKey(PROP_numServers));
-	}
-
-	public enum RedisClientMode{
-		STATIC("static"),
-		DYNAMIC("dynamic");
-
-		private String persistentString;
-
-		RedisClientMode(String persistentString){
-			this.persistentString = persistentString;
-		}
-
-		public String getPersistentString(){
-			return persistentString;
-		}
-
 	}
 
 }

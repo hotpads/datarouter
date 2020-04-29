@@ -31,7 +31,6 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.collection.MapTool;
 import io.datarouter.util.tuple.Range;
 
 public class ExceptionRecordAggregationJob extends BaseJob{
@@ -72,12 +71,14 @@ public class ExceptionRecordAggregationJob extends BaseJob{
 			String type = Optional.ofNullable(record.getType())
 					.orElse("");
 			ExceptionRecordSummaryKey summaryKey = new ExceptionRecordSummaryKey(periodStart, type, exceptionLocation);
-			MapTool.increment(summaryCounts, summaryKey);
+			summaryCounts.merge(summaryKey, 1L, Long::sum);
 			sampledRecordIds.putIfAbsent(summaryKey, record.getKey().getId());
 		}
 
 		Scanner.of(summaryCounts.entrySet())
-				.map(entry -> new ExceptionRecordSummary(entry.getKey(), entry.getValue(),
+				.map(entry -> new ExceptionRecordSummary(
+						entry.getKey(),
+						entry.getValue(),
 						sampledRecordIds.get(entry.getKey())))
 				.batch(100)
 				.forEach(exceptionRecordSummaryDao::putMulti);

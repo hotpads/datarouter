@@ -58,7 +58,8 @@ public class BatchSizeOptimizer{
 	private final Random random;
 
 	@Inject
-	public BatchSizeOptimizer(DatarouterOpPerformanceRecordDao opPerformanceRecordDao,
+	public BatchSizeOptimizer(
+			DatarouterOpPerformanceRecordDao opPerformanceRecordDao,
 			DatarouterOpOptimizedBatchSizeDao opOptimizedBatchSizeDao){
 		this.opPerformanceRecordDao = opPerformanceRecordDao;
 		this.opOptimizedBatchSizeDao = opOptimizedBatchSizeDao;
@@ -126,8 +127,10 @@ public class BatchSizeOptimizer{
 				key -> new CachedOpOptimizedBatchSize(opOptimizedBatchSizeDao, key)).get();
 	}
 
-	private Optional<OpOptimizedBatchSize> computeOptimalBatchSizeAndCuriosityForOp(String opName,
-			SortedMap<Integer,NodePerformanceStats> statsPerBatchSize, OpPerformanceRecord mostRecentRecord){
+	private Optional<OpOptimizedBatchSize> computeOptimalBatchSizeAndCuriosityForOp(
+			String opName,
+			SortedMap<Integer,NodePerformanceStats> statsPerBatchSize,
+			OpPerformanceRecord mostRecentRecord){
 		if(Instant.ofEpochMilli(mostRecentRecord.getKey().getTimestamp()).plusSeconds(30).isBefore(Instant.now())
 				|| statsPerBatchSize.size() < 3){
 			return Optional.empty();
@@ -140,13 +143,14 @@ public class BatchSizeOptimizer{
 		return Optional.of(new OpOptimizedBatchSize(opName, newBatchSize, updatedCuriosity));
 	}
 
-	private int computeOptimalBatchSizeForOp(String opName,
+	private int computeOptimalBatchSizeForOp(
+			String opName,
 			SortedMap<Integer,NodePerformanceStats> statsPerBatchSize){
 		List<PolynomialRegressionOptimumFinderPoint> points = statsPerBatchSize.entrySet()
 				.stream()
 				.map(entry -> new PolynomialRegressionOptimumFinderPoint(entry.getKey(), entry.getValue().getMean()))
 				.collect(Collectors.toList());
-		PolynomialRegressionOptimumFinder optimumFinder = new PolynomialRegressionOptimumFinder(points);
+		var optimumFinder = new PolynomialRegressionOptimumFinder(points);
 		int optimumAbscissa = (int) Math.ceil(optimumFinder.getOptimumAbscissa());
 		if(optimumFinder.optimumIsMaximum()){
 			return limitBatchIfNeeded(optimumAbscissa);

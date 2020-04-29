@@ -26,10 +26,11 @@ public class CountDto{
 	public final Long periodStartMs;
 	public final String serverName;
 	public final Date created;
+	public final Long createdMs;
 	public final Long value;
 
 	public CountDto(String name, String serviceName, Long periodMs, Date periodStartTime, long periodStartMs,
-			String serverName, Date created, Long value){
+			String serverName, Date created, Long createdMs, Long value){
 		this.name = name;
 		this.serviceName = serviceName;
 		this.periodMs = periodMs;
@@ -37,6 +38,7 @@ public class CountDto{
 		this.periodStartMs = periodStartMs;
 		this.serverName = serverName;
 		this.created = created;
+		this.createdMs = createdMs;
 		this.value = value;
 	}
 

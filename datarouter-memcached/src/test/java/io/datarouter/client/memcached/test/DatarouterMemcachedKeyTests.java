@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.client.memcached.client.MemcachedEncodedKey;
 import io.datarouter.storage.tally.TallyKey;
-import io.datarouter.storage.util.PrimaryKeyPercentCodec;
+import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 
 public class DatarouterMemcachedKeyTests{
 
@@ -32,8 +32,8 @@ public class DatarouterMemcachedKeyTests{
 		MemcachedEncodedKey memcachedKey = new MemcachedEncodedKey(nodeName, databeanVersion, tallyKey);
 
 		String versionedKeyString = memcachedKey.getVersionedKeyString();
-		String expected = MemcachedEncodedKey.DATAROUTER_VERSION + ":" + nodeName + ":" + databeanVersion
-				+ ":" + PrimaryKeyPercentCodec.encode(tallyKey);
+		String expected = MemcachedEncodedKey.ENCODING_VERSION + ":" + nodeName + ":" + databeanVersion
+				+ ":" + PrimaryKeyPercentCodecTool.encode(tallyKey);
 		Assert.assertEquals(versionedKeyString, expected);
 
 		MemcachedEncodedKey decodedMemcachedKey = MemcachedEncodedKey.parse(versionedKeyString, TallyKey.class);

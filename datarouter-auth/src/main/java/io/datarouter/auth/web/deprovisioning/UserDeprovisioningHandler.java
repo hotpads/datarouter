@@ -70,7 +70,7 @@ public class UserDeprovisioningHandler extends BaseHandler{
 		return Scanner.of(Objects.requireNonNull(request.usernamesToDeprovision))
 				.batch(DB_BATCH_SIZE)
 				.map(userDeprovisioningService::deprovisionUsers)
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.listTo(UserDeprovisioningHandlerGeneralDto::deprovisionUsersResponse);
 	}
 
@@ -80,7 +80,7 @@ public class UserDeprovisioningHandler extends BaseHandler{
 		return Scanner.of(Objects.requireNonNull(request.usernamesToRestore))
 				.batch(DB_BATCH_SIZE)
 				.map(userDeprovisioningService::restoreDeprovisionedUsers)
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.listTo(UserDeprovisioningHandlerGeneralDto::restoreUsersResponse);
 	}
 

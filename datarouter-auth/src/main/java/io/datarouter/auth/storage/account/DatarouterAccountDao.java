@@ -52,10 +52,16 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 	private final AtomicReference<Map<String,DatarouterAccount>> accountByApiKeyCache;
 
 	@Inject
-	public DatarouterAccountDao(Datarouter datarouter, NodeFactory nodeFactory,
-			DatarouterAccountDaoParams params, DatarouterAccountByApiKeyCacheExecutor executor){
+	public DatarouterAccountDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
+			DatarouterAccountDaoParams params,
+			DatarouterAccountByApiKeyCacheExecutor executor){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, DatarouterAccount::new, DatarouterAccountFielder::new)
+		node = nodeFactory.create(
+				params.clientId,
+				DatarouterAccount::new,
+				DatarouterAccountFielder::new)
 				.buildAndRegister();
 		accountByApiKeyCache = new AtomicReference<>(getAccountsByApiKey());
 		executor.scheduleWithFixedDelay(this::refreshAccountByApiKeyCache, 30, 30, TimeUnit.SECONDS);

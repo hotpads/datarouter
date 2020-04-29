@@ -43,7 +43,11 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 		super(new DatarouterUserHistoryKey());
 	}
 
-	public DatarouterUserHistory(Long userId, Date time, Long editor, DatarouterUserChangeType changeType,
+	public DatarouterUserHistory(
+			Long userId,
+			Date time,
+			Long editor,
+			DatarouterUserChangeType changeType,
 			String changes){
 		super(new DatarouterUserHistoryKey(userId, time));
 		this.editor = editor;

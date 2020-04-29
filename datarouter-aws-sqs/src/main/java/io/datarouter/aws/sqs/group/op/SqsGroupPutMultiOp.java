@@ -123,7 +123,7 @@ extends SqsOp<PK,D,F,Void>{
 	}
 
 	public static String concatGroup(List<byte[]> group, byte[] prefix, byte[] suffix, byte[] separator){
-		ByteArrayOutputStream databeanGroup = new ByteArrayOutputStream();
+		var databeanGroup = new ByteArrayOutputStream();
 		databeanGroup.write(prefix, 0, prefix.length);
 		for(int i = 0; i < group.size(); i++){
 			databeanGroup.write(group.get(i), 0, group.get(i).length);

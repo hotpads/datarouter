@@ -61,7 +61,7 @@ public class RdsService{
 	}
 
 	public DBInstance getInstance(String instanceName){
-		DescribeDBInstancesRequest request = new DescribeDBInstancesRequest().withDBInstanceIdentifier(instanceName);
+		var request = new DescribeDBInstancesRequest().withDBInstanceIdentifier(instanceName);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		return RetryableTool.tryNTimesWithBackoffUnchecked(
 				() -> getAmazonRdsReadOnlyClient().describeDBInstances(request).getDBInstances().get(0),
@@ -78,7 +78,7 @@ public class RdsService{
 	}
 
 	public void createDbInstance(String instanceName, String clusterName){
-		CreateDBInstanceRequest request = new CreateDBInstanceRequest()
+		var request = new CreateDBInstanceRequest()
 				.withDBInstanceIdentifier(instanceName)
 				.withDBInstanceClass(rdsSettings.dbOtherInstanceClass.get())
 				.withEngine(rdsSettings.dbOtherEngine.get())
@@ -98,7 +98,7 @@ public class RdsService{
 	}
 
 	public DBCluster getCluster(String clusterName){
-		DescribeDBClustersRequest request = new DescribeDBClustersRequest().withDBClusterIdentifier(clusterName);
+		var request = new DescribeDBClustersRequest().withDBClusterIdentifier(clusterName);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
 		List<DBCluster> result = RetryableTool.tryNTimesWithBackoffUnchecked(
 				() -> getAmazonRdsReadOnlyClient().describeDBClusters(request).getDBClusters(),
@@ -124,7 +124,8 @@ public class RdsService{
 	//get RDS client for rdsReadOnly IAM user
 	private AmazonRDS getAmazonRdsReadOnlyClient(){
 		AWSCredentials awsCredentials2 = new BasicAWSCredentials(
-				rdsSettings.iamRdsReadOnlyUserAccessKey.get(), rdsSettings.iamRdsReadOnlyUserSecretKey.get());
+				rdsSettings.iamRdsReadOnlyUserAccessKey.get(),
+				rdsSettings.iamRdsReadOnlyUserSecretKey.get());
 		return AmazonRDSClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials2))
 				.withRegion(rdsSettings.region.get())
@@ -134,7 +135,8 @@ public class RdsService{
 	//get RDS client for su_rdsdbothers IAM user
 	private AmazonRDS getAmazonRdsCreateOtherClient(){
 		AWSCredentials awsCredentials2 = new BasicAWSCredentials(
-				rdsSettings.iamRdsOtherCreateUserAccessKey.get(), rdsSettings.iamRdsOtherCreateUserSecretKey.get());
+				rdsSettings.iamRdsOtherCreateUserAccessKey.get(),
+				rdsSettings.iamRdsOtherCreateUserSecretKey.get());
 		return AmazonRDSClientBuilder.standard()
 				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials2))
 				.withRegion(rdsSettings.region.get())

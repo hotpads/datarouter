@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -53,7 +54,6 @@ import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
-import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.timer.PhaseTimer;
 
 @Singleton
@@ -73,7 +73,7 @@ public class MysqlSingleTableSchemaUpdateService{
 
 	public Optional<SchemaUpdateResult> performSchemaUpdate(
 			ClientId clientId,
-			SingletonSupplier<List<String>> existingTableNames,
+			Supplier<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> physicalNode){
 		MysqlConnectionPool connectionPool = mysqlConnectionPoolHolder.getConnectionPool(clientId);
 		if(schemaUpdateOptions.getIgnoreClients().contains(clientId.getName()) || !clientId.getWritable()){

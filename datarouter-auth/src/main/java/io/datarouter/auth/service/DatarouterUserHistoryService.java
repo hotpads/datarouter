@@ -35,6 +35,7 @@ import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.MapTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -59,10 +60,10 @@ public class DatarouterUserHistoryService{
 	//don't call this with unresolved DatarouterPermissionRequests
 	public Map<DatarouterPermissionRequest,String> getResolvedRequestToHistoryChangesMap(
 			List<DatarouterPermissionRequest> requests){
-		List<DatarouterUserHistoryKey> historyKeys = requests.stream()
+		Map<DatarouterUserHistoryKey,String> historyMap = Scanner.of(requests)
 				.map(DatarouterPermissionRequest::toUserHistoryKey)
-				.collect(Collectors.toList());
-		Map<DatarouterUserHistoryKey, String> historyMap = baseDatarouterUserHistoryDao.getMulti(historyKeys).stream()
+				.listTo(baseDatarouterUserHistoryDao::getMulti)
+				.stream()
 				.collect(Collectors.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges));
 
 		//requests get closed when they are SUPERCEDED by other requests or when they are edited (and have a history)

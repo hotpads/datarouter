@@ -77,7 +77,7 @@ public class PushService{
 				.map(key -> new WebSocketSessionKey(key.getUserToken(), key.getWebSocketSessionId()))
 				.batch(100)
 				.map(webSocketDao::getMulti)
-				.concatenate(Scanner::of)
+				.concat(Scanner::of)
 				.forEach(session -> forward(session, message));
 	}
 

@@ -85,12 +85,19 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	}
 
 	@Override
-	public Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin,
+	public Optional<ExceptionRecordDto> tryRecordException(
+			Throwable exception,
+			String callOrigin,
 			ExceptionCategory category){
 		try{
 			DefaultExceptionRecorderDetails exceptionDetails = detectExceptionLocation(exception);
-			return Optional.of(recordException(exception, category, exceptionDetails.className,
-					exceptionDetails.methodName, exceptionDetails.lineNumber, callOrigin));
+			return Optional.of(recordException(
+					exception,
+					category,
+					exceptionDetails.className,
+					exceptionDetails.methodName,
+					exceptionDetails.lineNumber,
+					callOrigin));
 		}catch(Exception e){
 			logger.warn("Exception while recording an exception", e);
 		}
@@ -98,8 +105,13 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	}
 
 	@Override
-	public ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
-			String methodName, Integer lineNumber, String callOrigin){
+	public ExceptionRecordDto recordException(
+			Throwable exception,
+			ExceptionCategory category,
+			String location,
+			String methodName,
+			Integer lineNumber,
+			String callOrigin){
 		if(callOrigin == null){
 			callOrigin = location;
 		}
@@ -131,12 +143,19 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	}
 
 	@Override
-	public Optional<ExceptionRecordDto> tryRecordExceptionAndHttpRequest(Throwable exception, String callOrigin,
+	public Optional<ExceptionRecordDto> tryRecordExceptionAndHttpRequest(
+			Throwable exception,
+			String callOrigin,
 			HttpServletRequest request){
 		try{
 			DefaultExceptionRecorderDetails exceptionDetails = detectExceptionLocation(exception);
-			return Optional.of(recordExceptionAndHttpRequest(exception, exceptionDetails.className,
-					exceptionDetails.methodName, exceptionDetails.lineNumber, request, callOrigin));
+			return Optional.of(recordExceptionAndHttpRequest(
+					exception,
+					exceptionDetails.className,
+					exceptionDetails.methodName,
+					exceptionDetails.lineNumber,
+					request,
+					callOrigin));
 		}catch(Exception e){
 			logger.warn("Exception while recording an exception", e);
 			return Optional.empty();
@@ -144,10 +163,20 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	}
 
 	@Override
-	public ExceptionRecordDto recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
-			Integer lineNumber, HttpServletRequest request, String callOrigin){
-		ExceptionRecordDto exceptionRecord = recordException(exception, WebExceptionCategory.HTTP_REQUEST, location,
-				methodName, lineNumber, callOrigin);
+	public ExceptionRecordDto recordExceptionAndHttpRequest(
+			Throwable exception,
+			String location,
+			String methodName,
+			Integer lineNumber,
+			HttpServletRequest request,
+			String callOrigin){
+		ExceptionRecordDto exceptionRecord = recordException(
+				exception,
+				WebExceptionCategory.HTTP_REQUEST,
+				location,
+				methodName,
+				lineNumber,
+				callOrigin);
 		recordHttpRequest(request, exceptionRecord, true);
 		return exceptionRecord;
 	}
@@ -161,7 +190,9 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		recordHttpRequest(request, null, false);
 	}
 
-	private void recordHttpRequest(HttpServletRequest request, ExceptionRecordDto exceptionRecord,
+	private void recordHttpRequest(
+			HttpServletRequest request,
+			ExceptionRecordDto exceptionRecord,
 			boolean publish){
 		Optional<String> userToken = currentSessionInfo.getSession(request).map(Session::getUserToken);
 		String userRoles = currentSessionInfo.getRoles(request).toString();
@@ -190,11 +221,15 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		StackTraceElement stackTraceElement;
 		if(rootCause == null){
 			stackTraceElement = searchClassName(exception).orElseGet(() -> exception.getStackTrace()[0]);
-			return new DefaultExceptionRecorderDetails(stackTraceElement.getClassName(),
-					stackTraceElement.getMethodName(), stackTraceElement.getLineNumber());
+			return new DefaultExceptionRecorderDetails(
+					stackTraceElement.getClassName(),
+					stackTraceElement.getMethodName(),
+					stackTraceElement.getLineNumber());
 		}
 		stackTraceElement = searchClassName(rootCause).orElseGet(() -> rootCause.getStackTrace()[0]);
-		return new DefaultExceptionRecorderDetails(stackTraceElement.getClassName(), stackTraceElement.getMethodName(),
+		return new DefaultExceptionRecorderDetails(
+				stackTraceElement.getClassName(),
+				stackTraceElement.getMethodName(),
 				stackTraceElement.getLineNumber());
 	}
 

@@ -48,10 +48,14 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 	private final SortedMapStorage<DatarouterPermissionRequestKey,DatarouterPermissionRequest> node;
 
 	@Inject
-	public DatarouterPermissionRequestDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterPermissionRequestDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterPermissionRequestDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, DatarouterPermissionRequest::new,
+		node = nodeFactory.create(
+				params.clientId,
+				DatarouterPermissionRequest::new,
 				DatarouterPermissionRequestFielder::new)
 				.buildAndRegister();
 	}

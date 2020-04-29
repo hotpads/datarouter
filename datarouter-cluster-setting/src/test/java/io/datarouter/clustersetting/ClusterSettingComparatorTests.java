@@ -30,15 +30,30 @@ public class ClusterSettingComparatorTests{
 	@Test
 	public void testClusterSettingComparator(){
 		List<ClusterSetting> settings = new ArrayList<>();
-		ClusterSetting serverType = new ClusterSetting("dev1", ClusterSettingScope.SERVER_TYPE,
-				ServerType.DEV.getPersistentString(), "", "", "");
+		var serverType = new ClusterSetting(
+				"dev1",
+				ClusterSettingScope.SERVER_TYPE,
+				ServerType.DEV.getPersistentString(),
+				"",
+				"",
+				"");
 		settings.add(serverType);
-		ClusterSetting serverName = new ClusterSetting("instance1", ClusterSettingScope.SERVER_NAME,
-				ServerType.UNKNOWN.getPersistentString(), "mySevrer", "", "");
+		var serverName = new ClusterSetting(
+				"instance1",
+				ClusterSettingScope.SERVER_NAME,
+				ServerType.UNKNOWN.getPersistentString(),
+				"mySevrer",
+				"",
+				"");
 		settings.add(serverName);
 		Assert.assertEquals(Collections.min(settings, new ClusterSettingScopeComparator()), serverName);
-		ClusterSetting app = new ClusterSetting("instance1", ClusterSettingScope.APPLICATION,
-				ServerType.UNKNOWN.getPersistentString(), "", "myApp", "");
+		var app = new ClusterSetting(
+				"instance1",
+				ClusterSettingScope.APPLICATION,
+				ServerType.UNKNOWN.getPersistentString(),
+				"",
+				"myApp",
+				"");
 		settings.add(app);
 		Assert.assertEquals(Collections.min(settings, new ClusterSettingScopeComparator()), app);
 	}

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.collection;
+package io.datarouter.util.collector;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -25,7 +25,9 @@ import java.util.function.Function;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class CollectorToolTests{
+import io.datarouter.util.collector.RelaxedMapCollector;
+
+public class RelaxedMapCollectorTests{
 
 	@Test
 	public void testToMap(){
@@ -38,7 +40,7 @@ public class CollectorToolTests{
 			char lastChar = key.charAt(key.length() - 1);
 			return Integer.parseInt(lastChar + "");
 		};
-		Map<String,Integer> map = list.stream().collect(CollectorTool.toMap(keyMapper, valueMapper));
+		Map<String,Integer> map = list.stream().collect(RelaxedMapCollector.of(keyMapper, valueMapper));
 		Iterator<Entry<String,Integer>> iterator = map.entrySet().iterator();
 		Assert.assertEquals(nextIn(iterator), "a=2");
 		Assert.assertEquals(nextIn(iterator), "b=9");

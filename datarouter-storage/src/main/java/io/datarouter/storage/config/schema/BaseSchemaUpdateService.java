@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public abstract class BaseSchemaUpdateService{
 	private final DatarouterAdministratorEmailService adminEmailService;
 	private final DatarouterSchemaUpdateScheduler executor;
 
-	private final Map<ClientId,SingletonSupplier<List<String>>> existingTableNamesByClient;
+	private final Map<ClientId,Supplier<List<String>>> existingTableNamesByClient;
 	private final List<Future<Optional<SchemaUpdateResult>>> futures;
 
 	public BaseSchemaUpdateService(
@@ -66,7 +67,7 @@ public abstract class BaseSchemaUpdateService{
 	}
 
 	public Future<Optional<SchemaUpdateResult>> queueNodeForSchemaUpdate(ClientId clientId, PhysicalNode<?,?,?> node){
-		SingletonSupplier<List<String>> existingTableNames = existingTableNamesByClient.computeIfAbsent(clientId,
+		Supplier<List<String>> existingTableNames = existingTableNamesByClient.computeIfAbsent(clientId,
 				this::lazyFetchExistingTables);
 		Future<Optional<SchemaUpdateResult>> future = executor.submit(makeSchemaUpdateCallable(clientId,
 				existingTableNames, node));
@@ -74,8 +75,10 @@ public abstract class BaseSchemaUpdateService{
 		return future;
 	}
 
-	protected abstract Callable<Optional<SchemaUpdateResult>> makeSchemaUpdateCallable(ClientId clientId,
-			SingletonSupplier<List<String>> existingTableNames, PhysicalNode<?,?,?> node);
+	protected abstract Callable<Optional<SchemaUpdateResult>> makeSchemaUpdateCallable(
+			ClientId clientId,
+			Supplier<List<String>> existingTableNames,
+			PhysicalNode<?,?,?> node);
 
 	private void gatherSchemaUpdates(){
 		gatherSchemaUpdates(false);
@@ -134,7 +137,7 @@ public abstract class BaseSchemaUpdateService{
 
 	protected abstract void sendEmail(String fromEmail, String toEmail, String subject, String body);
 
-	private SingletonSupplier<List<String>> lazyFetchExistingTables(ClientId clientId){
+	private Supplier<List<String>> lazyFetchExistingTables(ClientId clientId){
 		return SingletonSupplier.of(() -> fetchExistingTables(clientId));
 	}
 

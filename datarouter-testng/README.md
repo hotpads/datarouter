@@ -8,7 +8,7 @@ datarouter-testng is used to test other modules that require injection with the 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-testng</artifactId>
-	<version>0.0.28</version>
+	<version>0.0.29</version>
 	<scope>test</scope>
 </dependency>
 ```

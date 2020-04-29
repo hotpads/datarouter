@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -50,7 +51,6 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.trace.callable.TracedCallable;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.FutureTool;
-import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -76,12 +76,12 @@ public class SpannerSingleTableSchemaUpdateFactory{
 	public class SpannerSingleTableSchemaUpdate extends TracedCallable<Optional<SchemaUpdateResult>>{
 
 		private final ClientId clientId;
-		private final SingletonSupplier<List<String>> existingTableNames;
+		private final Supplier<List<String>> existingTableNames;
 		private final PhysicalNode<?,?,?> physicalNode;
 
 		public SpannerSingleTableSchemaUpdate(
 				ClientId clientId,
-				SingletonSupplier<List<String>> existingTableNames,
+				Supplier<List<String>> existingTableNames,
 				PhysicalNode<?,?,?> physicalNode){
 			//TODO give correct trace thread name
 			super("");
@@ -119,7 +119,7 @@ public class SpannerSingleTableSchemaUpdateFactory{
 							Collections.emptyList(),
 							true))
 					.collect(Collectors.toList());
-			SpannerUpdateStatements statements = new SpannerUpdateStatements();
+			var statements = new SpannerUpdateStatements();
 			String entityTableName = null;
 			if(physicalNode instanceof IndexedStorage){
 				IndexedStorage<?,?> indexedStorage = (IndexedStorage<?,?>)physicalNode;
@@ -149,8 +149,8 @@ public class SpannerSingleTableSchemaUpdateFactory{
 							.map(codec -> codec.getSpannerColumn(false))
 							.collect(Collectors.toList());
 					entityColumns.add(0, PARTITON_COLUMN);
-					statements.updateFunction(tableOperationsGenerator.createTable(entityTableName, entityColumns,
-							null, null),
+					statements.updateFunction(
+							tableOperationsGenerator.createTable(entityTableName, entityColumns, null, null),
 							updateOptions::getCreateTables,
 							true);
 				}
@@ -186,16 +186,20 @@ public class SpannerSingleTableSchemaUpdateFactory{
 							.getTableIndexColumnsSchema(tableName, index.getIndexName())));
 					if(!tableAlterSchemaService.indexEqual(index, indexRs)){
 						if(currentIndexes.contains(index.getIndexName())){
-							statements.updateFunction(tableOperationsGenerator.dropIndex(index.getIndexName()),
-									updateOptions::getDropIndexes, false);
+							statements.updateFunction(
+									tableOperationsGenerator.dropIndex(index.getIndexName()),
+									updateOptions::getDropIndexes,
+									false);
 						}
 						statements.updateFunction(createIndex(index, primaryKeyColumns), updateOptions::getAddIndexes,
 								true);
 					}
 					currentIndexes.remove(index.getIndexName());
 				}
-				currentIndexes.forEach(name -> statements.updateFunction(tableOperationsGenerator.dropIndex(name),
-						updateOptions::getDropIndexes, false));
+				currentIndexes.forEach(name -> statements.updateFunction(
+						tableOperationsGenerator.dropIndex(name),
+						updateOptions::getDropIndexes,
+						false));
 			}
 			String errorMessage = null;
 			if(!statements.getExcuteStatments().isEmpty()){
@@ -238,8 +242,12 @@ public class SpannerSingleTableSchemaUpdateFactory{
 					.map(codec -> codec.getSpannerColumn(false))
 					.filter(col -> !primaryKeySet.contains(col.getName()))
 					.collect(Collectors.toList());
-			return tableOperationsGenerator.createIndex(index.getTableName(), index.getIndexName(), keyColumns,
-					nonKeyColumns, index.isUnique());
+			return tableOperationsGenerator.createIndex(
+					index.getTableName(),
+					index.getIndexName(),
+					keyColumns,
+					nonKeyColumns,
+					index.isUnique());
 		}
 
 	}

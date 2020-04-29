@@ -38,6 +38,7 @@ import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.tally.TallyKey;
+import io.datarouter.storage.util.EncodedPrimaryKeyPercentCodec;
 import io.datarouter.util.collection.CollectionTool;
 import redis.clients.jedis.Jedis;
 
@@ -115,8 +116,8 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		}
 		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
 		return Optional.ofNullable(client.get(buildRedisKey(new TallyKey(key))))
-					.map(String::trim)
-					.map(Long::valueOf);
+				.map(String::trim)
+				.map(Long::valueOf);
 		}
 	}
 
@@ -127,11 +128,11 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 	}
 
 	protected String buildRedisKey(PrimaryKey<?> pk){
-		return new RedisEncodedKey(getName(), databeanVersion, pk).getVersionedKeyString();
+		return new EncodedPrimaryKeyPercentCodec(getName(), databeanVersion, pk).getVersionedKeyString();
 	}
 
 	protected List<String> buildRedisKeys(Collection<? extends PrimaryKey<?>> pks){
-		return RedisEncodedKey.getVersionedKeyStrings(getName(), databeanVersion, pks);
+		return EncodedPrimaryKeyPercentCodec.getVersionedKeyStrings(getName(), databeanVersion, pks);
 	}
 
 }

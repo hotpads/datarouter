@@ -27,7 +27,7 @@ public class PolynomialRegressionOptimumFinderTests{
 	@Test
 	public void testMaximum(){
 		List<PolynomialRegressionOptimumFinderPoint> points = createDataPoints(new int[][]{{-1, 0}, {0, 1}, {1, 0}});
-		PolynomialRegressionOptimumFinder optimumFinder = new PolynomialRegressionOptimumFinder(points);
+		var optimumFinder = new PolynomialRegressionOptimumFinder(points);
 		Assert.assertTrue(optimumFinder.optimumIsMaximum());
 		Assert.assertEquals(optimumFinder.getOptimumAbscissa(), 0.0);
 	}
@@ -35,7 +35,7 @@ public class PolynomialRegressionOptimumFinderTests{
 	@Test
 	public void testMimimum(){
 		List<PolynomialRegressionOptimumFinderPoint> points = createDataPoints(new int[][]{{0, 1}, {1, -5}, {2, 1}});
-		PolynomialRegressionOptimumFinder optimumFinder = new PolynomialRegressionOptimumFinder(points);
+		var optimumFinder = new PolynomialRegressionOptimumFinder(points);
 		Assert.assertFalse(optimumFinder.optimumIsMaximum());
 		Assert.assertEquals(optimumFinder.getOptimumAbscissa(), 1.0);
 	}

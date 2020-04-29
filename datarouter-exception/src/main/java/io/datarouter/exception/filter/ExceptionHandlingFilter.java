@@ -105,7 +105,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 
 	private static void dumpAllStackTraces() throws IOException{
 		long timeMillis = System.currentTimeMillis();
-		try(BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/StackTrace" + timeMillis + ".log"))){
+		try(var out = new BufferedWriter(new FileWriter("/tmp/StackTrace" + timeMillis + ".log"))){
 			Map<Thread,StackTraceElement[]> liveThreads = Thread.getAllStackTraces();
 			for(Entry<Thread,StackTraceElement[]> thread : liveThreads.entrySet()){
 				out.append("Thread " + thread.getKey().getName() + "\n");
@@ -116,7 +116,8 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		}
 	}
 
-	private Optional<ExceptionRecordKey> tryRecordExceptionAndRequestNotification(HttpServletRequest request,
+	private Optional<ExceptionRecordKey> tryRecordExceptionAndRequestNotification(
+			HttpServletRequest request,
 			Exception exception){
 		try{
 			String location;
@@ -236,8 +237,11 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		return null;
 	}
 
-	private void writeExceptionToResponseWriter(HttpServletResponse response, Exception exception,
-			HttpServletRequest request, Optional<String> exceptionId){
+	private void writeExceptionToResponseWriter(
+			HttpServletResponse response,
+			Exception exception,
+			HttpServletRequest request,
+			Optional<String> exceptionId){
 		try{
 			HandlerEncoder encoder = RequestAttributeTool.get(request, BaseHandler.HANDLER_ENCODER_ATTRIBUTE)
 					.orElseGet(() -> injector.getInstance(DefaultEncoder.class));

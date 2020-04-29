@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,7 +40,7 @@ public class ClientTypeRegistry{
 
 	private static final String CLIENT_TYPE_CLASS_NAME_LOCATION = "META-INF/datarouter/clientTypes";
 
-	private final SingletonSupplier<Map<String,ClientType<?,?>>> clientTypesByName;
+	private final Supplier<Map<String,ClientType<?,?>>> clientTypesByName;
 
 	@SuppressWarnings("unchecked")
 	@Inject

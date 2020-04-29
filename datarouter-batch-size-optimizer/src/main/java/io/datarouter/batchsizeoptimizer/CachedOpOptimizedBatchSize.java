@@ -27,7 +27,8 @@ public class CachedOpOptimizedBatchSize extends Cached<OpOptimizedBatchSize>{
 	private OpOptimizedBatchSizeKey opOptimizedBatchSizeKey;
 	private DatarouterOpOptimizedBatchSizeDao dao;
 
-	public CachedOpOptimizedBatchSize(DatarouterOpOptimizedBatchSizeDao dao,
+	public CachedOpOptimizedBatchSize(
+			DatarouterOpOptimizedBatchSizeDao dao,
 			OpOptimizedBatchSizeKey opOptimizedBatchSizeKey){
 		super(10, TimeUnit.SECONDS);
 		this.dao = dao;

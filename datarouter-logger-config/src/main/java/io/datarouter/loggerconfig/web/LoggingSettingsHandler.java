@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
@@ -44,9 +45,13 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.instrumentation.changelog.ChangelogDto;
+import io.datarouter.instrumentation.changelog.ChangelogPublisher;
 import io.datarouter.loggerconfig.LoggingConfigService;
 import io.datarouter.loggerconfig.LoggingSettingAction;
 import io.datarouter.loggerconfig.config.DatarouterLoggerConfigFiles;
+import io.datarouter.loggerconfig.config.DatarouterLoggerConfigPlugin;
 import io.datarouter.loggerconfig.config.DatarouterLoggerConfigSettingRoot;
 import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao;
@@ -102,6 +107,13 @@ public class LoggingSettingsHandler extends BaseHandler{
 	private DatarouterFileAppenderDao fileAppenderDao;
 	@Inject
 	private DatarouterConsoleAppenderDao consoleAppenderDao;
+	@Named(DatarouterLoggerConfigPlugin.NAMED_Changelog)
+	@Inject
+	private ChangelogPublisher changelogPublisher;
+	@Inject
+	private DatarouterService datarouterService;
+	@Inject
+	private DatarouterLoggerConfigSettingRoot settings;
 
 	@Handler(defaultHandler = true)
 	protected Mav showForm(){
@@ -197,6 +209,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		if(datarouterLoggerConfigSettings.sendLoggerConfigUpdateAlerts.get()){
 			sendEmail(makeEmailContent(name, oldLevel, action));
 		}
+		recordChangelog("LoggerConfig", name, action.getPersistentString());
 	}
 
 	@Handler
@@ -214,6 +227,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		if(datarouterLoggerConfigSettings.sendLoggerConfigUpdateAlerts.get()){
 			sendEmail(makeEmailContent(name, oldLevel, LoggingSettingAction.DELETED));
 		}
+		recordChangelog("LoggerConfig", name, LoggingSettingAction.DELETED.getPersistentString());
 	}
 
 	@Handler
@@ -227,6 +241,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			fileAppenderDao.deleteFileAppender(name);
 		}
 		preventSecondApply();
+		recordChangelog("Appender", name, LoggingSettingAction.DELETED.getPersistentString());
 		return getRedirectMav();
 	}
 
@@ -252,6 +267,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		}else{
 			mav.put("layout", BaseLog4j2Configuration.defaultPattern);
 		}
+		recordChangelog("ConsoleAppender", name, action);
 		return mav;
 	}
 
@@ -277,6 +293,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 		}else{
 			mav.put("layout", BaseLog4j2Configuration.defaultPattern);
 		}
+		recordChangelog("FileAppender", name, action);
 		return mav;
 	}
 
@@ -330,6 +347,25 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 	private String getCurrentUsername(){
 		return getSessionInfo().getNonEmptyUsernameOrElse("");
+	}
+
+	private String getCurrentUserToken(){
+		return getSessionInfo().getRequiredSession().getUserToken();
+	}
+
+	private void recordChangelog(String changelogType, String name, String action){
+		if(!settings.publishChangelog.get()){
+			return;
+		}
+		var dto = new ChangelogDto(
+				datarouterService.getName(),
+				changelogType,
+				name,
+				new Date().getTime(),
+				action,
+				getCurrentUsername(),
+				getCurrentUserToken());
+		changelogPublisher.add(dto);
 	}
 
 	public static class LoggerConfigMetadata{

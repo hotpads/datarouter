@@ -19,6 +19,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +41,7 @@ public class NavBarMenuItem{
 	private final String text;
 	protected final List<NavBarMenuItem> subItems;
 
-	protected SingletonSupplier<Optional<DispatchRule>> dispatchRule;
+	protected Supplier<Optional<DispatchRule>> dispatchRule;
 
 	public NavBarMenuItem(String text, List<NavBarMenuItem> subItems){
 		this.href = URI.create("");

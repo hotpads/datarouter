@@ -15,22 +15,16 @@
  */
 package io.datarouter.storage.config;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,11 +35,11 @@ import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.util.Require;
+import io.datarouter.util.SystemTool;
+import io.datarouter.util.aws.Ec2InstanceTool;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.io.FileTool;
-import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.properties.PropertiesTool;
-import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
 
@@ -65,11 +59,13 @@ public abstract class DatarouterProperties{
 	private static final String SERVER_CLUSTER_DOMAINS = "server.clusterDomains";
 	private static final String ADMINISTRATOR_EMAIL = "administrator.email";
 	private static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
-
-	private static final String EC2_INSTANCE_IDENTITY_DOCUMENT_URL =
-			"http://169.254.169.254/latest/dynamic/instance-identity/document";
-	private static final String EC2_PRIVATE_IP_URL = "http://169.254.169.254/latest/meta-data/local-ipv4";
-	private static final String EC2_PUBLIC_IP_URL = "http://169.254.169.254/latest/meta-data/public-ipv4";
+	private static final List<String> REQUIRED_PROPERTIES = List.of(
+			ENVIRONMENT,
+			ENVIRONMENT_TYPE,
+			SERVER_NAME,
+			SERVER_TYPE,
+			ADMINISTRATOR_EMAIL,
+			INTERNAL_CONFIG_DIRECTORY);
 
 	private static final String BASE_CONFIG_DIRECTORY_ENV_VARIABLE = "BASE_CONFIG_DIRECTORY";
 	private static final String SERVER_CONFIG_FILE_NAME = "server.properties";
@@ -132,12 +128,16 @@ public abstract class DatarouterProperties{
 
 		this.environment = findProperty(ENVIRONMENT);
 		this.environmentDomain = findProperty(ENVIRONMENT_DOMAIN);
-		this.environmentType = findProperty(ENVIRONMENT_TYPE, EnvironmentType.DEVELOPMENT.get().getPersistentString());
-		this.serverName = findServerName();
+		this.environmentType = findProperty(ENVIRONMENT_TYPE, () -> EnvironmentType.DEVELOPMENT.get()
+				.getPersistentString());
+		this.serverName = findProperty(SERVER_NAME, SystemTool::getHostname,
+				"InetAddress.getLocalHost().getHostName()");
 		this.serverType = serverTypeOptions.fromPersistentString(findProperty(SERVER_TYPE));
 		this.administratorEmail = findProperty(ADMINISTRATOR_EMAIL);
-		this.privateIp = findIp(SERVER_PRIVATE_IP, EC2_PRIVATE_IP_URL);
-		this.publicIp = findIp(SERVER_PUBLIC_IP, EC2_PUBLIC_IP_URL);
+		this.privateIp = findProperty(SERVER_PRIVATE_IP, Ec2InstanceTool::getEc2InstancePrivateIp,
+				Ec2InstanceTool.EC2_PRIVATE_IP_URL);
+		this.publicIp = findProperty(SERVER_PUBLIC_IP, Ec2InstanceTool::getEc2InstancePublicIp,
+				Ec2InstanceTool.EC2_PUBLIC_IP_URL);
 		this.clusterDomains = findClusterDomains();
 		this.internalConfigDirectory = findProperty(INTERNAL_CONFIG_DIRECTORY);
 
@@ -145,19 +145,14 @@ public abstract class DatarouterProperties{
 	}
 
 	private void checkRequiredProperties(){
-		Map<String,String> requiredPropertiesValueByName = new HashMap<>();
-		requiredPropertiesValueByName.put(ENVIRONMENT, environment);
-		requiredPropertiesValueByName.put(ENVIRONMENT_TYPE, environmentType);
-		requiredPropertiesValueByName.put(SERVER_NAME, serverName);
-		requiredPropertiesValueByName.put(SERVER_TYPE, serverType == null ? null : serverType.getPersistentString());
-		requiredPropertiesValueByName.put(ADMINISTRATOR_EMAIL, administratorEmail);
-		requiredPropertiesValueByName.put(INTERNAL_CONFIG_DIRECTORY, internalConfigDirectory);
-		requiredPropertiesValueByName.entrySet().stream()
-				.filter(entry -> entry.getValue() == null)
-				.peek(entry -> logger.error("Required property {} is null", entry.getKey()))
+		REQUIRED_PROPERTIES.stream()
+				.collect(Collectors.toMap(Function.identity(), allComputedServerProperties::getProperty)).entrySet()
+				.stream()
+				.filter(entry -> entry.getValue().isEmpty())
+				.peek(entry -> logger.error("Value missing for required property {}", entry.getKey()))
 				.findAny()
 				.ifPresent($ -> {
-					throw new RuntimeException("One or more required properties are null");
+					throw new RuntimeException("One or more required properties are empty/null");
 				});
 	}
 
@@ -203,12 +198,12 @@ public abstract class DatarouterProperties{
 		return findProperty(propertyName, null, null);
 	}
 
-	private String findProperty(String propertyName, String defaultValue){
+	private String findProperty(String propertyName, Supplier<String> defaultValue){
 		return findProperty(propertyName, defaultValue, null);
 	}
 
 	//use what available in the following order: jvmArg then configFile then default then null
-	private String findProperty(String propertyName, String defaultValue, String source){
+	private String findProperty(String propertyName, Supplier<String> defaultValueSupplier, String defaultSource){
 		Optional<Pair<String,String>> propertyValueBySource = getPropFromJvmArg(propertyName)
 				.or(() -> getPropFromConfigFile(propertyName));
 
@@ -217,10 +212,13 @@ public abstract class DatarouterProperties{
 			return propertyValueBySource.get().getLeft();
 		}
 
-		if(defaultValue != null){
-			allComputedServerProperties.setProperty(propertyName, defaultValue);
-			logSource(propertyName, defaultValue, source == null ? "default" : source);
-			return defaultValue;
+		if(defaultValueSupplier != null){
+			String defaultValue = defaultValueSupplier.get();
+			if(defaultValue != null){
+				allComputedServerProperties.setProperty(propertyName, defaultValue);
+				logSource(propertyName, defaultValue, defaultSource == null ? "default" : defaultSource);
+				return defaultValue;
+			}
 		}
 
 		if(propertyValueBySource.isPresent()){
@@ -250,29 +248,10 @@ public abstract class DatarouterProperties{
 		if(jvmArgValue == null){
 			return Optional.empty();
 		}
-		logJvmArgSource(jvmArg, jvmArgValue, jvmArgName);
-		return Optional.of(new Pair<>(jvmArgValue, jvmArgName));
-	}
-
-	private String findServerName(){
-		String hostname = null;
-		String source = "InetAddress.getLocalHost().getHostName()";
-		try{
-			hostname = InetAddress.getLocalHost().getHostName();
-			if(hostname.contains(".")){
-				hostname = hostname.substring(0, hostname.indexOf('.'));//drop the dns suffixes
-				source += ".substring(0, hostname.indexOf('.')";
-			}
-		}catch(UnknownHostException e){
-			// do nothing, it will be set to a value or null in findProperty()
+		if(!jvmArgValue.isEmpty()){
+			logJvmArgSource(jvmArg, jvmArgValue, jvmArgName);
 		}
-		return findProperty(SERVER_NAME, hostname, source);
-	}
-
-	private String findIp(String ipPropertyName, String metaDataIp){
-		String ipPropertyValue = curl(metaDataIp, false)
-				.orElse(null);
-		return findProperty(ipPropertyName, ipPropertyValue, metaDataIp);
+		return Optional.of(new Pair<>(jvmArgValue, jvmArgName));
 	}
 
 	private Collection<String> findClusterDomains(){
@@ -322,32 +301,6 @@ public abstract class DatarouterProperties{
 			return externalLocation;
 		}
 		return "/config/" + internalConfigDirectory + "/" + filename;
-	}
-
-	public Optional<Ec2InstanceDetailsDto> getEc2InstanceDetails(){
-		Optional<String> ec2InstanceIdentityDocumentResponse = curl(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, false);
-		return ec2InstanceIdentityDocumentResponse.map(json -> GsonTool.GSON.fromJson(json,
-				Ec2InstanceDetailsDto.class));
-	}
-
-	public boolean isEc2(){
-		return getEc2InstanceDetails().isPresent();
-	}
-
-	private Optional<String> curl(String location, boolean logError){
-		try{
-			URLConnection connection = new URL(location).openConnection();
-			connection.setConnectTimeout(3000);
-			connection.setReadTimeout(3000);
-			Reader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
-			String content = ReaderTool.accumulateStringAndClose(reader);
-			return Optional.of(content);
-		}catch(Exception e){
-			if(logError){
-				logger.error("error reading {}", location, e);
-			}
-			return Optional.empty();
-		}
 	}
 
 	/*---------------- getters -------------------*/

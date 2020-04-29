@@ -191,7 +191,9 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		return new GlobalRedirectMav(request.getRequestURI());
 	}
 
-	private String createOrUpdateMetadata(String type, String exceptionLocation,
+	private String createOrUpdateMetadata(
+			String type,
+			String exceptionLocation,
 			Consumer<ExceptionRecordSummaryMetadata> action){
 		ExceptionRecordSummaryMetadataKey key = getExceptionRecordSummaryMetadataKey(type, exceptionLocation);
 		ExceptionRecordSummaryMetadata metadata = exceptionSummaryMetadataDao.get(key);
@@ -215,11 +217,12 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 	}
 
 	protected HttpRequestRecord getHttpRequestRecord(ExceptionRecord exceptionRecord){
-		HttpRequestRecordByExceptionRecord key = new HttpRequestRecordByExceptionRecord(exceptionRecord);
+		var key = new HttpRequestRecordByExceptionRecord(exceptionRecord);
 		return httpRequestRecordDao.lookupUnique(key);
 	}
 
-	protected ExceptionRecordSummaryMetadataKey getExceptionRecordSummaryMetadataKey(String type,
+	protected ExceptionRecordSummaryMetadataKey getExceptionRecordSummaryMetadataKey(
+			String type,
 			String exceptionLocation){
 		return new ExceptionRecordSummaryMetadataKey(type, exceptionLocation);
 	}
@@ -258,8 +261,16 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		private final String callOriginLink;
 		private final String exactMetricLink;
 
-		public ExceptionRecordJspDto(String id, Date created, String serverName, String type, String appVersion,
-				String exceptionLocation, String callOrigin, String metricLink, String callOriginLink,
+		public ExceptionRecordJspDto(
+				String id,
+				Date created,
+				String serverName,
+				String type,
+				String appVersion,
+				String exceptionLocation,
+				String callOrigin,
+				String metricLink,
+				String callOriginLink,
 				String exactMetricLink){
 			this.id = id;
 			this.created = created;
@@ -363,10 +374,25 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		private final Map<String,String> headers;
 		private final String otherHeaders;
 
-		public HttpRequestRecordJspDto(Date created, Date receivedAt, Long duration, String exceptionRecordId,
-				String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
-				String path, String queryString, byte[] binaryBody, String ip, String userRoles, String userToken,
-				Map<String,String> headers, String otherHeaders){
+		public HttpRequestRecordJspDto(
+				Date created,
+				Date receivedAt,
+				Long duration,
+				String exceptionRecordId,
+				String httpMethod,
+				String httpParams,
+				String protocol,
+				String hostname,
+				int port,
+				String contextPath,
+				String path,
+				String queryString,
+				byte[] binaryBody,
+				String ip,
+				String userRoles,
+				String userToken,
+				Map<String,String> headers,
+				String otherHeaders){
 			this.created = created;
 			this.receivedAt = receivedAt;
 			this.duration = duration;

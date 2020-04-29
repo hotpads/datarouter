@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
@@ -98,8 +99,8 @@ public class HBaseHandler extends BaseHandler{
 	private int numRegions;
 	private List<String> encodedRegionNameStrings;
 	private Mav mav;
-	private SingletonSupplier<DrServerList> drServerList;
-	private SingletonSupplier<DrRegionList> regionList;
+	private Supplier<DrServerList> drServerList;
+	private Supplier<DrRegionList> regionList;
 
 	/*---------------------------- useful methods ----------------------------*/
 

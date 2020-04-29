@@ -15,14 +15,11 @@
  */
 package io.datarouter.auth.web;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.inject.Inject;
 
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.RouteSetRegistry;
-import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.handler.mav.Mav;
 
 public class DatarouterDocumentationHandler extends DatarouterUserBasedDocumentationHandler{
@@ -34,10 +31,9 @@ public class DatarouterDocumentationHandler extends DatarouterUserBasedDocumenta
 
 	@Handler(defaultHandler = true)
 	public Mav viewDocumentation(){
-		List<BaseRouteSet> routeSets = routeSetRegistry.get().stream()
-				.filter(clazz -> clazz instanceof DocumentationRouteSet)
-				.collect(Collectors.toList());
-		return createDocumentationMav(datarouterService.getName(), "", routeSets);
+		return Scanner.of(routeSetRegistry.get())
+				.include(clazz -> clazz instanceof DocumentationRouteSet)
+				.listTo(routeSets -> createDocumentationMav(datarouterService.getName(), "", routeSets));
 	}
 
 }

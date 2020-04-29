@@ -44,15 +44,21 @@ public class DatarouterExceptionRecordDao extends BaseDao{
 
 	}
 
-	private final WriteBehindSortedMapStorageNode<ExceptionRecordKey,ExceptionRecord,
+	private final WriteBehindSortedMapStorageNode<
+			ExceptionRecordKey,
+			ExceptionRecord,
 			SortedMapStorage<ExceptionRecordKey,ExceptionRecord>> node;
 
 	@Inject
-	public DatarouterExceptionRecordDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterExceptionRecordDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterExceptionRecordDaoParams params){
 		super(datarouter);
-		SortedMapStorage<ExceptionRecordKey,ExceptionRecord> backingNode = nodeFactory.create(params.clientId,
-				ExceptionRecord::new, ExceptionRecordFielder::new)
+		SortedMapStorage<ExceptionRecordKey,ExceptionRecord> backingNode = nodeFactory.create(
+				params.clientId,
+				ExceptionRecord::new,
+				ExceptionRecordFielder::new)
 				.buildAndRegister();
 		node = new WriteBehindSortedMapStorageNode<>(datarouter, backingNode);
 	}

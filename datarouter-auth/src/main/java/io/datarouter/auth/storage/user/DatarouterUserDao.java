@@ -51,7 +51,8 @@ public class DatarouterUserDao extends BaseDao{
 	@Inject
 	public DatarouterUserDao(Datarouter datarouter, NodeFactory nodeFactory, DatarouterUserDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, DatarouterUser::new, DatarouterUserFielder::new).buildAndRegister();
+		node = nodeFactory.create(params.clientId, DatarouterUser::new, DatarouterUserFielder::new)
+				.buildAndRegister();
 	}
 
 	public DatarouterUser get(DatarouterUserKey key){

@@ -30,6 +30,7 @@ import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.storage.queue.QueueMessageKey;
 
@@ -101,15 +102,13 @@ extends BaseConveyor{
 		if(currentBuffer.isEmpty()){
 				return;
 		}
-		List<D> databeans = currentBuffer.stream()
+		Scanner.of(currentBuffer)
 				.map(QueueMessage::getDatabean)
-				.collect(Collectors.toList());
-		processBuffer(databeans);
+				.flush(this::processBuffer);
 		ConveyorCounters.incFlushBuffer(this, currentBuffer.size());
-		List<QueueMessageKey> messageKeys = currentBuffer.stream()
+		Scanner.of(currentBuffer)
 				.map(QueueMessage::getKey)
-				.collect(Collectors.toList());
-		ackMessageLogAndIncCounter(messageKeys);
+				.flush(this::ackMessageLogAndIncCounter);
 	}
 
 	private List<QueueMessage<PK,D>> copyAndClearBuffer(){

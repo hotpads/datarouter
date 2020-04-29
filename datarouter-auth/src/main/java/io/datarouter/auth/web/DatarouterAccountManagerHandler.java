@@ -21,12 +21,15 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
+import io.datarouter.auth.config.DatarouterAuthPlugin;
+import io.datarouter.auth.config.DatarouterAuthSettingRoot;
 import io.datarouter.auth.service.DatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.service.DefaultDatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
@@ -36,6 +39,9 @@ import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermission;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.instrumentation.changelog.ChangelogDto;
+import io.datarouter.instrumentation.changelog.ChangelogPublisher;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.Require;
@@ -44,7 +50,6 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
-import io.datarouter.web.user.session.CurrentSessionInfo;
 
 public class DatarouterAccountManagerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountManagerHandler.class);
@@ -56,7 +61,9 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider;
 	private final Bootstrap4ReactPageFactory reactPageFactory;
 	private final DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
-	private final CurrentSessionInfo currentSessionInfo;
+	private final ChangelogPublisher changelogPublisher;
+	private final DatarouterService datarouterService;
+	private final DatarouterAuthSettingRoot settings;
 
 	private final String path;
 
@@ -70,7 +77,9 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			DefaultDatarouterAccountAvailableEndpointsProvider defaultDatarouterAccountAvailableEndpointsProvider,
 			Bootstrap4ReactPageFactory reactPageFactory,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
-			CurrentSessionInfo currentSessionInfo){
+			@Named(DatarouterAuthPlugin.NAMED_Changelog) ChangelogPublisher changelogPublisher,
+			DatarouterService datarouterService,
+			DatarouterAuthSettingRoot settings){
 		this(datarouterAccountDao,
 				datarouterAccountPermissionDao,
 				datarouterProperties,
@@ -78,7 +87,9 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				defaultDatarouterAccountAvailableEndpointsProvider,
 				reactPageFactory,
 				defaultDatarouterAccountKeys,
-				currentSessionInfo,
+				changelogPublisher,
+				datarouterService,
+				settings,
 				paths.admin.accounts.toSlashedString());
 	}
 
@@ -90,7 +101,9 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider,
 			Bootstrap4ReactPageFactory reactPageFactory,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
-			CurrentSessionInfo currentSessionInfo,
+			ChangelogPublisher changelogPublisher,
+			DatarouterService datarouterService,
+			DatarouterAuthSettingRoot settings,
 			String path){
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
@@ -99,7 +112,10 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this.datarouterAccountAvailableEndpointsProvider = datarouterAccountAvailableEndpointsProvider;
 		this.reactPageFactory = reactPageFactory;
 		this.defaultDatarouterAccountKeys = defaultDatarouterAccountKeys;
-		this.currentSessionInfo = currentSessionInfo;
+		this.changelogPublisher = changelogPublisher;
+		this.datarouterService = datarouterService;
+		this.settings = settings;
+
 		this.path = path;
 	}
 
@@ -129,9 +145,9 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	public DatarouterAccountDetails add(String accountName){
 		Require.isTrue(!accountName.isEmpty());
 		String creator = getSessionInfo().getRequiredSession().getUsername();
-		DatarouterAccount account = new DatarouterAccount(accountName, new Date(), creator);
+		var account = new DatarouterAccount(accountName, new Date(), creator);
 		datarouterAccountDao.put(account);
-		logAction(accountName, "add");
+		logAndRecordAction(accountName, "add");
 		return getDetailsForAccount(account);
 	}
 
@@ -176,7 +192,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		datarouterAccountDao.delete(accountKey);
 		DatarouterAccountPermissionKey prefix = new DatarouterAccountPermissionKey(accountName);
 		datarouterAccountPermissionDao.deleteWithPrefix(prefix);
-		logAction(accountName, "delete");
+		logAndRecordAction(accountName, "delete");
 	}
 
 	@Handler
@@ -190,38 +206,40 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	@Handler
 	public DatarouterAccountDetails addPermission(String accountName, String endpoint){
 		datarouterAccountPermissionDao.put(new DatarouterAccountPermission(accountName, endpoint));
-		logAction(accountName, "addPermission");
+		logAndRecordAction(accountName, "addPermission");
 		return getDetails(accountName);
 	}
 
 	@Handler
 	public DatarouterAccountDetails deletePermission(String accountName, String endpoint){
 		datarouterAccountPermissionDao.delete(new DatarouterAccountPermissionKey(accountName, endpoint));
-		logAction(accountName, "deletePermission");
+		logAndRecordAction(accountName, "deletePermission");
 		return getDetails(accountName);
 	}
 
 	@Handler
 	public boolean isServerTypeDev(){
-		return StringTool.equalsCaseInsensitive(datarouterProperties.getServerTypeString(), ServerType.DEV
-				.getPersistentString());
+		return StringTool.equalsCaseInsensitive(
+				datarouterProperties.getServerTypeString(),
+				ServerType.DEV.getPersistentString());
 	}
 
-	private DatarouterAccountDetails updateAccount(String accountName, Consumer<DatarouterAccount> updateFunction,
+	private DatarouterAccountDetails updateAccount(
+			String accountName,
+			Consumer<DatarouterAccount> updateFunction,
 			String logMessage){
 		DatarouterAccount account = datarouterAccountDao.get(new DatarouterAccountKey(accountName));
 		updateFunction.accept(account);
 		datarouterAccountDao.put(account);
-		logAction(accountName, logMessage);
+		logAndRecordAction(accountName, logMessage);
 		return getDetails(accountName);
 	}
 
 	private DatarouterAccountDetails getDetailsForAccount(DatarouterAccount account){
-		List<TextPermission> permissions = datarouterAccountPermissionDao
+		return datarouterAccountPermissionDao
 				.scanKeysWithPrefix(new DatarouterAccountPermissionKey(account.getKey().getAccountName()))
 				.map(TextPermission::create)
-				.list();
-		return new DatarouterAccountDetails(account, permissions);
+				.listTo(permissions -> new DatarouterAccountDetails(account, permissions));
 	}
 
 	public DatarouterAccountDetails getDetailsForAccountName(String accountName){
@@ -229,9 +247,28 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		return getDetailsForAccount(account);
 	}
 
-	private void logAction(String account, String action){
-		logger.warn("account={} action={} by={}", account, action, currentSessionInfo.getNonEmptyUsernameOrElse(request,
-				"unknown"));
+	private void logAndRecordAction(String account, String action){
+		recordChangelog("DatarouterAccount", account, action);
+		logger.warn("account={} action={} by={}", account, action, getCurrentUsername());
+	}
+
+	private String getCurrentUsername(){
+		return getSessionInfo().getNonEmptyUsernameOrElse("unknown");
+	}
+
+	private void recordChangelog(String changelogType, String name, String action){
+		if(!settings.publishChangelog.get()){
+			return;
+		}
+		var dto = new ChangelogDto(
+				datarouterService.getName(),
+				changelogType,
+				name,
+				new Date().getTime(),
+				action,
+				getCurrentUsername(),
+				getSessionInfo().getRequiredSession().getUserToken());
+		changelogPublisher.add(dto);
 	}
 
 	public static class DatarouterAccountDetails{

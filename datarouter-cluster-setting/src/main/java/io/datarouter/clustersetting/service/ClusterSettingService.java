@@ -80,8 +80,7 @@ public class ClusterSettingService{
 			return ClusterSetting.getTypedValueOrUseDefaultFrom(mostSpecificSetting, memorySetting);
 		}
 		// use default
-		DatarouterEnvironmentType environmentType = new DatarouterEnvironmentType(datarouterProperties
-				.getEnvironmentType());
+		var environmentType = new DatarouterEnvironmentType(datarouterProperties.getEnvironmentType());
 		DefaultSettingValue<T> defaultSettingValue = memorySetting.getDefaultSettingValue();
 		ServerType webAppInstanceServerType = serverTypes.fromPersistentString(webappInstance.getServerType());
 		String serverName = datarouterProperties.getServerName();
@@ -91,8 +90,9 @@ public class ClusterSettingService{
 
 	public <T> Map<WebappInstance,T> getSettingValueByWebappInstance(CachedSetting<T> memorySetting){
 		return webappInstanceDao.scan()
-				.collect(Collectors.toMap(Function.identity(), instance -> getSettingValueForWebappInstance(
-						memorySetting, instance)));
+				.collect(Collectors.toMap(
+						Function.identity(),
+						instance -> getSettingValueForWebappInstance(memorySetting, instance)));
 	}
 
 	public Scanner<ClusterSetting> streamWithValidity(ClusterSettingValidity validity){
@@ -104,14 +104,18 @@ public class ClusterSettingService{
 
 	public Scanner<ClusterSettingAndValidityJspDto> scanClusterSettingAndValidityWithPrefix(String prefix){
 		Map<String,String> serverTypeByServerName = webappInstanceDao.getServerTypeByServerName();
-		Range<ClusterSettingKey> range = prefix == null ? Range.everything() : KeyRangeTool.forPrefixWithWildcard(
-				prefix, value -> new ClusterSettingKey(value, null, null, null, null));
+		Range<ClusterSettingKey> range = prefix == null
+				? Range.everything()
+				: KeyRangeTool.forPrefixWithWildcard(
+						prefix,
+						value -> new ClusterSettingKey(value, null, null, null, null));
 		return clusterSettingDao.scan(range)
 				.map(setting -> new ClusterSettingAndValidityJspDto(setting, getValidity(serverTypeByServerName,
 						setting)));
 	}
 
-	private ClusterSettingValidity getValidity(Map<String,String> serverTypeByServerName,
+	private ClusterSettingValidity getValidity(
+			Map<String,String> serverTypeByServerName,
 			ClusterSetting databeanSetting){
 		String name = databeanSetting.getName();
 		ClusterSettingScope scope = databeanSetting.getScope();
@@ -141,8 +145,7 @@ public class ClusterSettingService{
 			}
 		}
 
-		DatarouterEnvironmentType environmentType = new DatarouterEnvironmentType(datarouterProperties
-				.getEnvironmentType());
+		var environmentType = new DatarouterEnvironmentType(datarouterProperties.getEnvironmentType());
 		DefaultSettingValue<?> defaultSettingValue = memorySetting.get().getDefaultSettingValue();
 		String environmentName = datarouterProperties.getEnvironment();
 		ServerType currentServerType = datarouterProperties.getServerType();
@@ -172,7 +175,7 @@ public class ClusterSettingService{
 	}
 
 	public Optional<ClusterSetting> getSettingByName(String name){
-		ClusterSettingKey prefix = new ClusterSettingKey(name, null, null, null, null);
+		var prefix = new ClusterSettingKey(name, null, null, null, null);
 		return clusterSettingDao.scanWithPrefix(prefix)
 				.findFirst();
 	}

@@ -110,7 +110,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				config,
 				spannerFieldCodecRegistry,
 				false)
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 	@Override
@@ -128,7 +128,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				config,
 				spannerFieldCodecRegistry,
 				false)
-				.concatenate(Scanner::of);
+				.concat(Scanner::of);
 	}
 
 }

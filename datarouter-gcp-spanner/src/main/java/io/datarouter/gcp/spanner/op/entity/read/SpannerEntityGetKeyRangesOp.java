@@ -68,7 +68,8 @@ implements SpannerEntityOp{
 		if(key == null){
 			return mutationKey.build();
 		}
-		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(SpannerEntityKeyTool.getPrimaryKeyFields(key,
+		for(SpannerBaseFieldCodec<?,?> codec : codecRegistry.createCodecs(SpannerEntityKeyTool.getPrimaryKeyFields(
+				key,
 				fieldInfo.isSubEntity()))){
 			if(codec.getField().getValue() == null){
 				continue;

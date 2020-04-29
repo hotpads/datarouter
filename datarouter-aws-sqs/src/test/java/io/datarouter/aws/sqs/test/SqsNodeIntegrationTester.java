@@ -89,7 +89,7 @@ public class SqsNodeIntegrationTester{
 
 	private void testByteLimit(int size){
 		String longString = SqsTestHelper.makeLongStringWithDatabeanSizeTarget(size);
-		TestDatabean databean = new TestDatabean(longString, "", "");
+		var databean = new TestDatabean(longString, "", "");
 		dao.put(databean);
 	}
 
@@ -102,7 +102,7 @@ public class SqsNodeIntegrationTester{
 
 	@Test
 	public void testPutAndPoll(){
-		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
+		var databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
 		dao.put(databean);
 		TestDatabean retrievedDatabean = dao.poll(Duration.ofMillis(Long.MAX_VALUE));
 		Assert.assertEquals(retrievedDatabean.getKey().getFoo(), databean.getKey().getFoo());
@@ -147,7 +147,7 @@ public class SqsNodeIntegrationTester{
 	@Test
 	public void testPollTimeout(){
 		drainQueue(Duration.ofSeconds(40));// extra cleanup
-		TestDatabean databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
+		var databean = new TestDatabean(makeRandomString(), makeRandomString(), makeRandomString());
 		dao.put(databean);
 		long time = System.currentTimeMillis();
 		TestDatabean retrievedDatabean = dao.poll(Duration.ofSeconds(5));

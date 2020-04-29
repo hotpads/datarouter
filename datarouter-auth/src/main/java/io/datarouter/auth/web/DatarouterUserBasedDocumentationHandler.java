@@ -67,7 +67,7 @@ public abstract class DatarouterUserBasedDocumentationHandler extends Documentat
 		if(secret.isEmpty()){
 			return result;
 		}
-		DefaultCsrfGenerator csrfGenerator = new DefaultCsrfGenerator(secret::get);
+		var csrfGenerator = new DefaultCsrfGenerator(secret::get);
 		String csrfIv = csrfGenerator.generateCsrfIv();
 		String csrfToken = csrfGenerator.generateCsrfToken(csrfIv);
 		result.put("csrfIv", csrfIv);
@@ -84,7 +84,7 @@ public abstract class DatarouterUserBasedDocumentationHandler extends Documentat
 		if(secret.isEmpty()){
 			return params;
 		}
-		DefaultSignatureGenerator signatureGenerator = new DefaultSignatureGenerator(secret::get);
+		var signatureGenerator = new DefaultSignatureGenerator(secret::get);
 		if(StringTool.isNullOrEmpty(body)){
 			params.put("signature", signatureGenerator.getHexSignature(params).signature);
 		}else{

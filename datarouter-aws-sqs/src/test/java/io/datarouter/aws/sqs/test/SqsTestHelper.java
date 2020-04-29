@@ -64,7 +64,7 @@ public class SqsTestHelper{
 
 	public static String makeStringOfByteSize(int requiredSize){
 		Assert.assertEquals(StringByteTool.getUtf8Bytes("a").length, 1);
-		StringBuilder longString = new StringBuilder();
+		var longString = new StringBuilder();
 		for(int size = 0; size < requiredSize; size++){
 			longString.append("a");
 		}
@@ -72,8 +72,8 @@ public class SqsTestHelper{
 	}
 
 	public static String makeLongStringWithDatabeanSizeTarget(int size){
-		TestDatabean emptyDatabean = new TestDatabean("", "", "");
-		TestDatabeanFielder fielder = new TestDatabeanFielder();
+		var emptyDatabean = new TestDatabean("", "", "");
+		var fielder = new TestDatabeanFielder();
 		String stringDatabean = fielder.getStringDatabeanCodec().toString(emptyDatabean, fielder);
 		int emptyDatabeanSize = StringByteTool.getUtf8Bytes(stringDatabean).length;
 		return SqsTestHelper.makeStringOfByteSize(size - emptyDatabeanSize);
