@@ -35,7 +35,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.ListTool;
 
 public class SpannerEntityPutOp<
 		EK extends EntityKey<EK>,
@@ -61,7 +60,7 @@ extends SpannerPutOp<PK,D,F>{
 	public Collection<Mutation> getMutations(){
 		var entityMutations = Scanner.of(values).map(this::createEntityRow).list();
 		var databeanMutations = Scanner.of(values).map(this::databeanToMutation).list();
-		return ListTool.concatenate(entityMutations, databeanMutations);
+		return Scanner.of(entityMutations, databeanMutations).concat(Scanner::of).list();
 
 	}
 

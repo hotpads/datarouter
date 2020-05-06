@@ -38,7 +38,6 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.tally.TallyKey;
-import io.datarouter.util.collection.CollectionTool;
 
 public class MemcachedNode<
 		PK extends PrimaryKey<PK>,
@@ -69,7 +68,7 @@ implements PhysicalMapStorageNode<PK,D,F>,
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(CollectionTool.isEmpty(databeans)){
+		if(databeans == null || databeans.isEmpty()){
 			return;
 		}
 		for(D databean : databeans){

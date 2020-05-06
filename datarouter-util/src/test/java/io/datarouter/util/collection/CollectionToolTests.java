@@ -25,8 +25,8 @@ public class CollectionToolTests{
 	@Test
 	public void testNotEmpty(){
 		ArrayList<String> list = new ArrayList<>();
-		Assert.assertFalse(CollectionTool.notEmpty(list));
-		Assert.assertFalse(CollectionTool.notEmpty(null));
+		Assert.assertFalse(CollectionTool.nullSafeNotEmpty(list));
+		Assert.assertFalse(CollectionTool.nullSafeNotEmpty(null));
 	}
 
 }

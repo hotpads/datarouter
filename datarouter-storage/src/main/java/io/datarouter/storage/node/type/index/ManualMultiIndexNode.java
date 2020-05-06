@@ -27,7 +27,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.op.scan.ManagedIndexIndexToDatabeanScanner;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class ManualMultiIndexNode<
@@ -63,7 +62,7 @@ implements MultiIndexNode<PK, D, IK, IE>{
 
 	@Override
 	public List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config){
-		if(CollectionTool.isEmpty(indexKeys)){
+		if(indexKeys == null || indexKeys.isEmpty()){
 			return Collections.emptyList();
 		}
 		return Scanner.of(indexKeys)

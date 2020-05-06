@@ -26,7 +26,6 @@ import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.service.ClusterSettingService;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.autoconfig.ConfigScanResponseTool;
 import io.datarouter.web.email.DatarouterEmailService;
@@ -49,7 +48,7 @@ public class DatarouterClusterSettingConfigScanner{
 				.map(ClusterSetting::getName)
 				.distinct()
 				.list();
-		if(CollectionTool.isEmpty(settings)){
+		if(settings.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
 		String header = "Found " + settings.size() + " redundant cluster settings";
@@ -63,7 +62,7 @@ public class DatarouterClusterSettingConfigScanner{
 				.map(ClusterSetting::getName)
 				.distinct()
 				.list();
-		if(CollectionTool.isEmpty(settings)){
+		if(settings.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
 		String header = "Found " + settings.size() + " nonexistent cluster settings";
@@ -78,7 +77,7 @@ public class DatarouterClusterSettingConfigScanner{
 				.map(ClusterSetting::getName)
 				.distinct()
 				.list();
-		if(CollectionTool.isEmpty(settings)){
+		if(settings.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
 		String header = "Found " + settings.size() + " cluster settings older than " + oldSettingAlertThresholdDays

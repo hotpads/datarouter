@@ -31,7 +31,6 @@ public class DatarouterClusterSettingRoot extends SettingRoot{
 	public final CachedSetting<Integer> oldSettingAlertThresholdDays;
 	public final CachedSetting<Set<String>> settingsExcludedFromOldSettingsAlert;
 	public final CachedSetting<Boolean> runConfigurationScanReportEmailJob;
-	public final CachedSetting<Boolean> publishChangelog;
 
 	@Inject
 	public DatarouterClusterSettingRoot(SettingFinder finder){
@@ -41,7 +40,6 @@ public class DatarouterClusterSettingRoot extends SettingRoot{
 		settingsExcludedFromOldSettingsAlert = registerCommaSeparatedString("settingsExcludedFromOldSettingsAlert",
 				Set.of("key", "password", "username", "secret"));
 		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
-		publishChangelog = registerBoolean("publishChangelog", false);
 	}
 
 }

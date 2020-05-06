@@ -18,39 +18,40 @@ package io.datarouter.ratelimiter;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.ratelimiter.NamedCacheRateLimiterFactory.NamedCacheRateLimiter;
+import io.datarouter.ratelimiter.CacheRateLimiterConfig.CacheRateLimiterConfigBuilder;
+import io.datarouter.ratelimiter.storage.BaseTallyDao;
 
 @Guice(moduleFactory = RateLimiterTestNgModuleFactory.class)
-public class NamedCacheRateLimiterIntegrationTests{
+public class TallyCacheRateLimiterIntegrationTests{
 
-	private static final long maxAverageRequests = 10;
-	private static final long maxSpikeRequests = 30;
-	private static final int numIntervals = 7;
-	private static final int bucketTimeInterval = 5;
-	private static final TimeUnit unit = TimeUnit.SECONDS;
-	private static final String rateLimiterName = NamedCacheRateLimiterIntegrationTests.class.getSimpleName();
+	private static final long MAX_SPIKE_REQUESTS = 30;
+
+	@Singleton
+	public static class ExampleRateLimiter extends BaseTallyCacheRateLimiter{
+
+		@Inject
+		public ExampleRateLimiter(BaseTallyDao tallyDao){
+			super(tallyDao, new CacheRateLimiterConfigBuilder("Example")
+					.setMaxAverageRequests(10)
+					.setMaxSpikeRequests(MAX_SPIKE_REQUESTS)
+					.setNumIntervals(7)
+					.setBucketTimeInterval(5, TimeUnit.SECONDS)
+					.build());
+		}
+
+	}
 
 	@Inject
-	private NamedCacheRateLimiterFactory namedMemcachedRateLimiterFactory;
-
-	private NamedCacheRateLimiter makeNamedMemcachedRateLimiter(){
-		return namedMemcachedRateLimiterFactory.new NamedCacheRateLimiter(
-				rateLimiterName,
-				maxAverageRequests,
-				maxSpikeRequests,
-				bucketTimeInterval,
-				numIntervals,
-				unit);
-	}
+	private ExampleRateLimiter rateLimiter;
 
 	@Test
 	public void testIncr(){
-		NamedCacheRateLimiter rateLimiter = makeNamedMemcachedRateLimiter();
 		String testKey1 = "one" + System.currentTimeMillis();
 		String testKey2 = "two" + System.currentTimeMillis();
 
@@ -63,15 +64,14 @@ public class NamedCacheRateLimiterIntegrationTests{
 
 	@Test
 	public void testRateLimit(){
-		NamedCacheRateLimiter rateLimiter = makeNamedMemcachedRateLimiter();
 		String testKey1 = "one" + System.currentTimeMillis();
 		String testKey2 = "two" + System.currentTimeMillis();
 
-		for(int i = 0; i < maxSpikeRequests; i++){
+		for(int i = 0; i < MAX_SPIKE_REQUESTS; i++){
 			Assert.assertTrue(rateLimiter.allowed(testKey1), "i=" + i);
 		}
 		if(rateLimiter.allowed(testKey1)){
-			for(int i = 0; i < maxSpikeRequests; i++){
+			for(int i = 0; i < MAX_SPIKE_REQUESTS; i++){
 				rateLimiter.allowed(testKey1);
 			}
 			Assert.assertFalse(rateLimiter.allowed(testKey1));

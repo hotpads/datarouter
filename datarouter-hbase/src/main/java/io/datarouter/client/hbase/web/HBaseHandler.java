@@ -107,7 +107,7 @@ public class HBaseHandler extends BaseHandler{
 	private void initialize(){
 		mav = new Mav();
 		encodedRegionNameStrings = RequestTool.getCheckedBoxes(request, PARAM_PREFIX_encodedRegionName_);
-		numRegions = CollectionTool.sizeNullSafe(encodedRegionNameStrings);
+		numRegions = CollectionTool.nullSafeSize(encodedRegionNameStrings);
 		datarouterWebRequestParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(params,
 				getClientType());
 		mav.put("clientType", datarouterWebRequestParams.getClientType().getName());

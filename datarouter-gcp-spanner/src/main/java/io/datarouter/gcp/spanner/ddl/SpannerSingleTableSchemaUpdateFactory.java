@@ -42,6 +42,7 @@ import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.gcp.spanner.node.entity.SpannerSubEntityNode;
 import io.datarouter.gcp.spanner.util.SpannerEntityKeyTool;
 import io.datarouter.model.field.Field;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
@@ -49,7 +50,6 @@ import io.datarouter.storage.config.schema.SchemaUpdateTool;
 import io.datarouter.storage.node.op.raw.IndexedStorage;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.trace.callable.TracedCallable;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.util.string.StringTool;
 
@@ -168,7 +168,8 @@ public class SpannerSingleTableSchemaUpdateFactory{
 						.forEach(statement -> statements.updateFunction(statement, updateOptions::getAddIndexes, true));
 			}else{
 				DatabaseClient databaseClient = clientsHolder.getDatabaseClient(clientId);
-				List<SpannerColumn> allColumns = ListTool.concatenate(primaryKeyColumns, nonKeyColumns);
+				List<SpannerColumn> allColumns = Scanner.of(primaryKeyColumns, nonKeyColumns).concat(Scanner::of)
+						.list();
 				if(physicalNode.getFieldInfo().isSubEntity()){
 					allColumns.add(0, PARTITON_COLUMN);
 				}
@@ -181,7 +182,7 @@ public class SpannerSingleTableSchemaUpdateFactory{
 				ResultSet indexesRs = databaseClient.singleUse().executeQuery(Statement.of(tableOperationsGenerator
 						.getTableIndexSchema(tableName)));
 				Set<String> currentIndexes = tableAlterSchemaService.getIndexes(indexesRs);
-				for(SpannerIndex index : ListTool.concatenate(indexes, uniqueIndexes)){
+				for(SpannerIndex index : Scanner.of(indexes, uniqueIndexes).concat(Scanner::of).list()){
 					ResultSet indexRs = databaseClient.singleUse().executeQuery(Statement.of(tableOperationsGenerator
 							.getTableIndexColumnsSchema(tableName, index.getIndexName())));
 					if(!tableAlterSchemaService.indexEqual(index, indexRs)){

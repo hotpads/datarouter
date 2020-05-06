@@ -97,7 +97,7 @@ public class MysqlNodeManager{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			PK key,
 			Config config){
-		return CollectionTool.notEmpty(getKeys(fieldInfo, Collections.singleton(key), config));
+		return CollectionTool.nullSafeNotEmpty(getKeys(fieldInfo, Collections.singleton(key), config));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -142,7 +142,7 @@ public class MysqlNodeManager{
 				opName,
 				ListTool.wrap(uniqueKey), config);
 		List<D> result = sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
-		if(CollectionTool.sizeNullSafe(result) > 1){
+		if(result.size() > 1){
 			throw new DataAccessException("found >1 databeans with unique index key=" + uniqueKey);
 		}
 		return CollectionTool.getFirst(result);
@@ -154,7 +154,7 @@ public class MysqlNodeManager{
 			Collection<? extends UniqueKey<PK>> uniqueKeys,
 			Config config){
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
-		if(CollectionTool.isEmpty(uniqueKeys)){
+		if(uniqueKeys == null || uniqueKeys.isEmpty()){
 			return new LinkedList<>();
 		}
 		var op = new MysqlLookupUniqueOp<>(datarouter, fieldCodecFactory, mysqlGetOpExecutor, fieldInfo, opName,
@@ -295,7 +295,7 @@ public class MysqlNodeManager{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	void putMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<D> databeans, Config config){
-		if(CollectionTool.isEmpty(databeans)){
+		if(databeans == null || databeans.isEmpty()){
 			return;// avoid starting txn
 		}
 		var op = new MysqlPutOp<>(datarouter, fieldInfo, this, mysqlSqlFactory, databeans, config);
@@ -328,7 +328,7 @@ public class MysqlNodeManager{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	void deleteMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return;// avoid starting txn
 		}
 		String opName = MapStorageWriter.OP_deleteMulti;
@@ -360,7 +360,7 @@ public class MysqlNodeManager{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<? extends UniqueKey<PK>> uniqueKeys,
 			Config config){
-		if(CollectionTool.isEmpty(uniqueKeys)){
+		if(uniqueKeys == null || uniqueKeys.isEmpty()){
 			return;// avoid starting txn
 		}
 		String opName = IndexedStorageWriter.OP_deleteMultiUnique;

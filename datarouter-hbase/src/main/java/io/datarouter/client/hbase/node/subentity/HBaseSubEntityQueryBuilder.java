@@ -15,6 +15,7 @@
  */
 package io.datarouter.client.hbase.node.subentity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,7 +35,6 @@ import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.ListTool;
 
 public class HBaseSubEntityQueryBuilder<
 		EK extends EntityKey<EK>,
@@ -82,7 +82,7 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	/*---------------------------- get/getMulti -----------------------------*/
 
 	public List<Get> getGets(Collection<PK> pks, boolean keysOnly){
-		List<Get> gets = ListTool.createArrayListWithSize(pks);
+		List<Get> gets = new ArrayList<>(pks.size());
 		for(PK pk : pks){
 			byte[] rowBytes = getRowBytesWithPartition(pk.getEntityKey());
 			byte[] qualifierPrefix = getQualifierPrefix(pk);

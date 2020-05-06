@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
@@ -33,37 +32,15 @@ import io.datarouter.util.tuple.Pair;
 
 //TODO rolling increases/decreases in limit,
 //for spammers who hit the rate limit alot (decrease) and for people/things that are verified as not spam (increase)
-public abstract class BaseNamedCacheRateLimiter extends NamedRateLimiter{
+public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 
 	private static final String HIT_COUNTER_NAME = "rate limit hit";
 
-	private final long maxAvgRequests;
-	private final long maxSpikeRequests;
-	private final int numIntervals;
-	private final int bucketTimeInterval;
-	private final TimeUnit timeunit;
+	private final CacheRateLimiterConfig config;
 
-	private final int bucketIntervalMs;
-
-	protected final Duration expiration;
-
-	/**
-	 * @param maxAvgRequests     threshold average number of requests
-	 * @param maxSpikeRequests   threshold max number of requests
-	 * @param numIntervals       number of buckets
-	 * @param bucketTimeInterval length of each bucket
-	 * @param unit               time unit of bucketTimeInterval
-	 */
-	public BaseNamedCacheRateLimiter(String name, long maxAvgRequests, long maxSpikeRequests, int numIntervals,
-			int bucketTimeInterval, TimeUnit unit){
-		super(name);
-		this.maxAvgRequests = maxAvgRequests;
-		this.maxSpikeRequests = maxSpikeRequests;
-		this.numIntervals = numIntervals;
-		this.bucketIntervalMs = Math.toIntExact(unit.toMillis(bucketTimeInterval));
-		this.bucketTimeInterval = bucketTimeInterval;
-		this.timeunit = unit;
-		this.expiration = Duration.ofMillis(bucketIntervalMs * (numIntervals + 1));
+	public BaseCacheRateLimiter(CacheRateLimiterConfig config){
+		super(config.name);
+		this.config = config;
 	}
 
 	protected abstract Long increment(String key);
@@ -84,19 +61,19 @@ public abstract class BaseNamedCacheRateLimiter extends NamedRateLimiter{
 			}
 
 			// exceeded maxSpikeRequests
-			if(numRequests > maxSpikeRequests){
+			if(numRequests > config.maxSpikeRequests){
 				Calendar exceededCal = getDateFromKey(entry.getKey());
-				exceededCal.add(Calendar.MILLISECOND, bucketIntervalMs * (numIntervals - 1));
+				exceededCal.add(Calendar.MILLISECOND, config.bucketIntervalMs * (config.numIntervals - 1));
 				Counters.inc(HIT_COUNTER_NAME);
 				return new Pair<>(false, exceededCal);
 			}
 			total += numRequests;
 		}
 
-		double avgRequests = (double)total / (double)numIntervals;
+		double avgRequests = total / (double)config.numIntervals;
 
 		// exceeded maxAvgRequests
-		if(avgRequests > maxAvgRequests){
+		if(avgRequests > config.maxAverageRequests){
 			List<Calendar> cals = Scanner.of(results.keySet()).map(this::getDateFromKey).list();
 			Calendar lastTime = null;
 			for(Calendar calendar : cals){
@@ -107,7 +84,7 @@ public abstract class BaseNamedCacheRateLimiter extends NamedRateLimiter{
 			Objects.requireNonNull(lastTime);
 
 			// add to get next available time
-			lastTime.add(Calendar.MILLISECOND, bucketIntervalMs);
+			lastTime.add(Calendar.MILLISECOND, config.bucketIntervalMs);
 			Counters.inc(HIT_COUNTER_NAME);
 			return new Pair<>(false, lastTime);
 		}
@@ -119,10 +96,10 @@ public abstract class BaseNamedCacheRateLimiter extends NamedRateLimiter{
 
 	private List<String> buildKeysToRead(String key, Calendar calendar){
 		List<String> keys = new ArrayList<>();
-		for(int i = 0; i < numIntervals; i++){
+		for(int i = 0; i < config.numIntervals; i++){
 			Calendar cal = (Calendar)calendar.clone();
 
-			int amount = i * bucketIntervalMs;
+			int amount = i * config.bucketIntervalMs;
 			cal.add(Calendar.MILLISECOND, -amount);
 
 			String mapKey = makeMapKey(key, getTimeStr(cal));
@@ -151,7 +128,7 @@ public abstract class BaseNamedCacheRateLimiter extends NamedRateLimiter{
 	 */
 	protected String getTimeStr(Calendar cal){
 		int calendarField;
-		switch(timeunit){
+		switch(config.unit){
 		case DAYS:
 			calendarField = Calendar.DATE;
 			break;
@@ -168,13 +145,13 @@ public abstract class BaseNamedCacheRateLimiter extends NamedRateLimiter{
 			calendarField = Calendar.MILLISECOND;
 			break;
 		}
-		setCalendarFieldForBucket(cal, calendarField, bucketTimeInterval);
+		setCalendarFieldForBucket(cal, calendarField, config.bucketTimeInterval);
 		return getDateFormatForTimeUnit().format(cal.getTime());
 	}
 
 	// gets a minimum date format for the current timeUnit
 	private DateFormat getDateFormatForTimeUnit(){
-		switch(timeunit){
+		switch(config.unit){
 		case DAYS:
 			return new SimpleDateFormat("yyyyMMdd");
 		case HOURS:
@@ -205,16 +182,25 @@ public abstract class BaseNamedCacheRateLimiter extends NamedRateLimiter{
 		calendar.set(calendarField, fieldInterval * (calendar.get(calendarField) / fieldInterval));
 	}
 
+	public CacheRateLimiterConfig getConfig(){
+		return config;
+	}
+
+	@Deprecated
 	public long getMaxAvgRequests(){
-		return maxAvgRequests;
+		return getConfig().maxAverageRequests;
 	}
 
 	public long getMaxSpikeRequests(){
-		return maxSpikeRequests;
+		return getConfig().maxSpikeRequests;
 	}
 
 	public int getNumIntervals(){
-		return numIntervals;
+		return getConfig().numIntervals;
+	}
+
+	public Duration getBucketTimeInterval(){
+		return Duration.ofMillis(getConfig().bucketIntervalMs);
 	}
 
 }

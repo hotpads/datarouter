@@ -27,12 +27,6 @@ import io.datarouter.util.array.ArrayTool;
 
 public class SetTool{
 
-	public static <T> Set<T> concatenate(Set<T> set, T element){
-		HashSet<T> newSet = new HashSet<>(set);
-		newSet.add(element);
-		return newSet;
-	}
-
 	@SafeVarargs
 	public static <T> Set<T> union(Collection<T>... operands){
 		return unionWithSupplier(HashSet<T>::new, operands);

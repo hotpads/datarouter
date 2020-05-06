@@ -36,7 +36,7 @@ import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUs
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.collection.MapTool;
+import io.datarouter.util.collector.RelaxedMapCollector;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.user.databean.DatarouterUser;
 import j2html.tags.ContainerTag;
@@ -67,8 +67,11 @@ public class DatarouterUserHistoryService{
 				.collect(Collectors.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges));
 
 		//requests get closed when they are SUPERCEDED by other requests or when they are edited (and have a history)
-		return MapTool.getBy(requests, Function.identity(), req -> historyMap.getOrDefault(req.toUserHistoryKey(),
-				req.getResolution().getPersistentString()));
+		return requests.stream()
+				.collect(RelaxedMapCollector.of(
+						Function.identity(),
+						req -> historyMap.getOrDefault(req.toUserHistoryKey(), req.getResolution()
+								.getPersistentString())));
 	}
 
 	public void recordCreate(DatarouterUser user, Long editorId, String description){
@@ -90,10 +93,9 @@ public class DatarouterUserHistoryService{
 	private void recordEdit(DatarouterUser user, DatarouterUserHistory history){
 		baseDatarouterUserDao.put(user);
 		baseDatarouterUserHistoryDao.put(history);
-		permissionRequestDao.putMulti(permissionRequestDao
-				.scanOpenPermissionRequestsForUser(history.getKey().getUserId())
+		permissionRequestDao.scanOpenPermissionRequestsForUser(history.getKey().getUserId())
 				.map(history::resolvePermissionRequest)
-				.list());
+				.flush(permissionRequestDao::putMulti);
 	}
 
 	private void sendPasswordChangeEmail(DatarouterUser user, DatarouterUserHistory history, String signInUrl){

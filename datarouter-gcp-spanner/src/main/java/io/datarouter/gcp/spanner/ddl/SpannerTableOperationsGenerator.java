@@ -20,7 +20,6 @@ import java.util.List;
 import javax.inject.Singleton;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.collection.ListTool;
 
 @Singleton
 public class SpannerTableOperationsGenerator{
@@ -66,7 +65,7 @@ public class SpannerTableOperationsGenerator{
 		ddl.append("CREATE TABLE ");
 		ddl.append(name);
 		ddl.append("(");
-		List<SpannerColumn> columns = ListTool.concatenate(primaryKeyColumns, nonKeyColumns);
+		List<SpannerColumn> columns = Scanner.of(primaryKeyColumns, nonKeyColumns).concat(Scanner::of).list();
 		ddl.append(String.join(", ", Scanner.of(columns).map(SpannerColumn::generateColumnDef).list()));
 		ddl.append(") PRIMARY KEY (");
 		primaryKeyColumns.forEach(col -> {

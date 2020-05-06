@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -34,11 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.virtualnode.writebehind.WriteBehindNode;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
 
 public abstract class BaseWriteBehindNode<
 		PK extends PrimaryKey<PK>,
@@ -51,21 +51,24 @@ implements WriteBehindNode<PK,D,N>{
 	private static final int FLUSH_BATCH_SIZE = 100;
 	private static final long DEFAULT_TIMEOUT_MS = Duration.ofMinutes(1).toMillis();
 
-	protected final N backingNode;
-	protected final long timeoutMs;
-	protected final Queue<OutstandingWriteWrapper> outstandingWrites;
 	private final ExecutorService writeExecutor;
 	private final Queue<WriteWrapper<?>> queue;
 	private final QueueFlusher queueFlusher;
 
-	public BaseWriteBehindNode(Datarouter datarouter, N backingNode){
+	protected final N backingNode;
+	protected final long timeoutMs;
+	protected final Queue<OutstandingWriteWrapper> outstandingWrites;
+
+	public BaseWriteBehindNode(
+			DatarouterWriteBehindScheduler scheduler,
+			DatarouterWriteBehindExecutor writeExecutor,
+			N backingNode){
 		Objects.requireNonNull(backingNode, "backingNode cannot be null.");
 		this.backingNode = backingNode;
-		this.writeExecutor = datarouter.getWriteBehindExecutor();
+		this.writeExecutor = writeExecutor;
 		this.timeoutMs = DEFAULT_TIMEOUT_MS;//1 min default
 		this.outstandingWrites = new ConcurrentLinkedQueue<>();
 
-		ScheduledExecutorService scheduler = datarouter.getWriteBehindScheduler();
 		scheduler.scheduleWithFixedDelay(new OverdueWriteCanceller(this), 0, 1000, TimeUnit.MILLISECONDS);
 		queueFlusher = new QueueFlusher();
 		scheduler.scheduleWithFixedDelay(queueFlusher, 500, FLUSH_RATE_MS, TimeUnit.MILLISECONDS);
@@ -154,7 +157,7 @@ implements WriteBehindNode<PK,D,N>{
 
 		private Future<?> handleWriteWrapper(WriteWrapper<?> writeWrapper){
 			Collection<?> databeans = writeWrapper.getObjects();
-			if(CollectionTool.isEmpty(databeans)){
+			if(CollectionTool.nullSafeIsEmpty(databeans)){
 				return null;
 			}
 			String opDesc = String.format("%s with %s %s", writeWrapper.getOp(), databeans.size(), CollectionTool

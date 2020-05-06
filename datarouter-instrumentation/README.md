@@ -8,7 +8,7 @@ datarouter-instrumentation is a set of interfaces and data transfer objects that
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-instrumentation</artifactId>
-	<version>0.0.29</version>
+	<version>0.0.30</version>
 </dependency>
 ```
 

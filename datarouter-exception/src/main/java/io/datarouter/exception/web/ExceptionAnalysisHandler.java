@@ -53,7 +53,6 @@ import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.collection.MapTool;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.exception.ExceptionCounters;
@@ -65,6 +64,7 @@ import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.util.ExceptionService;
+import io.datarouter.web.util.http.CookieTool;
 
 public class ExceptionAnalysisHandler extends BaseHandler{
 
@@ -422,7 +422,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		}
 
 		public Map<String,String> getCookiesMap(){
-			return MapTool.getMapFromString(headers.get(HttpHeaders.COOKIE), ";", "=");
+			return CookieTool.getMapFromString(headers.get(HttpHeaders.COOKIE), ";", "=");
 		}
 
 		public boolean isFromAjax(){

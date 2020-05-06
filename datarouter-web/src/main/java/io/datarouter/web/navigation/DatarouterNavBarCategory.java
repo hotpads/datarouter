@@ -16,6 +16,7 @@
 package io.datarouter.web.navigation;
 
 public enum DatarouterNavBarCategory implements NavBarCategory{
+	CHANGELOG("Changelog"),
 	JOBS("Jobs"),
 	INFO("Info"),
 	SETTINGS("Settings"),

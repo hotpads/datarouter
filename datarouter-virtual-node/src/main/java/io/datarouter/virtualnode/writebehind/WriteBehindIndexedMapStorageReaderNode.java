@@ -24,12 +24,13 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.reader.IndexedSortedMapStorageReader;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
 
 public class WriteBehindIndexedMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -38,8 +39,11 @@ public class WriteBehindIndexedMapStorageReaderNode<
 extends WriteBehindSortedMapStorageReaderNode<PK,D,N>
 implements IndexedSortedMapStorageReader<PK,D>{
 
-	public WriteBehindIndexedMapStorageReaderNode(Datarouter datarouter, N backingNode){
-		super(datarouter, backingNode);
+	public WriteBehindIndexedMapStorageReaderNode(
+			DatarouterWriteBehindScheduler scheduler,
+			DatarouterWriteBehindExecutor writeExecutor,
+			N backingNode){
+		super(scheduler, writeExecutor, backingNode);
 	}
 
 	@Override

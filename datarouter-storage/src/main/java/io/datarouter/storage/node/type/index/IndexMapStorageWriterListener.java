@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node.type.index;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
@@ -30,7 +31,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.index.IndexListener;
 import io.datarouter.storage.node.type.index.base.BaseIndexNode;
-import io.datarouter.util.collection.ListTool;
 
 /**
  * This assumes that only PK fields are changed... It has no way of detecting changes in non primary key fields.
@@ -131,7 +131,7 @@ implements IndexListener<PK,D>{
 	/*------------------------------ helper ---------------------------------*/
 
 	private List<IE> getIndexEntriesFromPrimaryKeys(Collection<PK> primaryKeys){
-		List<IE> indexEntries = ListTool.createArrayListWithSize(primaryKeys);
+		List<IE> indexEntries = new ArrayList<>(primaryKeys.size());
 		for(PK key : primaryKeys){
 			IE indexEntryBuilder = createIndexEntry();
 			if(indexEntryBuilder instanceof UniqueKeyIndexEntry){
@@ -148,7 +148,7 @@ implements IndexListener<PK,D>{
 
 	private List<IE> getIndexEntriesFromDatabeans(Collection<D> databeans){
 		IE sampleIndexEntry = createIndexEntry();
-		List<IE> indexEntries = ListTool.createArrayListWithSize(databeans);
+		List<IE> indexEntries = new ArrayList<>(databeans.size());
 		for(D databean : databeans){
 			List<IE> indexEntriesFromSingleDatabean = sampleIndexEntry.createFromDatabean(databean);
 			if(indexEntriesFromSingleDatabean != null){

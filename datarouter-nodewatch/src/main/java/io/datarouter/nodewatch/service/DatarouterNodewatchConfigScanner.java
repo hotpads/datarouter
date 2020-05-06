@@ -28,7 +28,6 @@ import io.datarouter.nodewatch.config.DatarouterNodewatchSettingRoot;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.autoconfig.ConfigScanResponseTool;
@@ -73,7 +72,7 @@ public class DatarouterNodewatchConfigScanner{
 			responses.add("threadCount should be at least 1");
 		}
 
-		if(CollectionTool.isEmpty(responses)){
+		if(responses.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
 		String header = "TableCount cluster setting configuration";

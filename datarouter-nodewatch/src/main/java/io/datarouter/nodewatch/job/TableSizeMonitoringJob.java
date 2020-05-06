@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -117,11 +118,11 @@ public class TableSizeMonitoringJob extends BaseJob{
 			}
 
 			if(enableThresholdAlert){
-				TableSizeAlertThreshold thresholdEntry = tableSizeAlertThresholdDao
-						.get(new TableSizeAlertThresholdKey(clientName, tableName));
+				Optional<TableSizeAlertThreshold> thresholdEntry = tableSizeAlertThresholdDao
+						.find(new TableSizeAlertThresholdKey(clientName, tableName));
 				// override manual thresholdEntry if exists
-				if(thresholdEntry != null && thresholdEntry.getMaxRows() > 0){
-					threshold = thresholdEntry.getMaxRows();
+				if(thresholdEntry.isPresent() && thresholdEntry.get().getMaxRows() > 0){
+					threshold = thresholdEntry.get().getMaxRows();
 				}
 				//check if node numRows exceeds threshold
 				if(threshold != null && latest.getNumRows() >= threshold){

@@ -17,19 +17,21 @@ package io.datarouter.web.homepage;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h4;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
 import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.util.collection.ListTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppPluginNavBarSupplier;
 import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.navigation.NavBarItem.NavBarItemGroup;
+import io.datarouter.web.service.ServiceDescriptionSupplier;
 
 public class AppAndPluginHomepageHandler extends HomepageHandler{
 
@@ -43,13 +45,19 @@ public class AppAndPluginHomepageHandler extends HomepageHandler{
 	private AppPluginNavBarSupplier appPluginNavBarSupplier;
 	@Inject
 	private Bootstrap4CardService cardService;
+	@Inject
+	private ServiceDescriptionSupplier serviceDescriptionSupplier;
 
 	@Handler(defaultHandler = true)
 	public Mav buildHomepageMav(){
-		var h1 = h1(datarouterService.getName()).withClass("text-capitalize");
-		var header = div(h1)
+		var h1 = h1(datarouterService.getName())
+				.withClass("text-capitalize");
+		var h3 = h4(serviceDescriptionSupplier.get());
+		var header = div(h1, h3)
 				.withClass("container-fluid");
-		List<NavBarItem> navBarItems = ListTool.concatenate(appPluginNavBarSupplier.get(), appNavBarSupplier.get());
+		List<NavBarItem> navBarItems = Scanner.of(appPluginNavBarSupplier.get(), appNavBarSupplier.get())
+				.concat(Scanner::of)
+				.list();
 		var links = cardService.render(NavBarItemGroup.fromNavBarItems(navBarItems));
 		var container = div(header, links);
 		return factory.startBuilder(request)

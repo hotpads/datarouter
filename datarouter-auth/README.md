@@ -8,13 +8,13 @@ datarouter-auth is a framework that brings in users and apikey accounts to datar
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auth</artifactId>
-	<version>0.0.29</version>
+	<version>0.0.30</version>
 </dependency>
 ```
 
 ## Installation with Datarouter
 
-You can install this module by adding its plugin to the `WebappBuidlder`.
+You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
 .addJobPlugin(new DatarouterAuthPluginBuilder(...)

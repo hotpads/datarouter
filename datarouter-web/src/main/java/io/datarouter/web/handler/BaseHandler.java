@@ -259,7 +259,7 @@ public abstract class BaseHandler{
 			}
 		}
 		if(method == null){
-			if(CollectionTool.notEmpty(possibleMethods) || defaultHandlerMethod.isPresent()){
+			if(CollectionTool.nullSafeNotEmpty(possibleMethods) || defaultHandlerMethod.isPresent()){
 				Method desiredMethod = possibleMethods.isEmpty() ? defaultHandlerMethod.get() : possibleMethods.get(0);
 				List<String> missingParameters = getMissingParameterNames(desiredMethod);
 				args = new Object[]{missingParameters, desiredMethod.getName()};

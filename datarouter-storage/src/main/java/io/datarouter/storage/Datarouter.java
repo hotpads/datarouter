@@ -19,8 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -32,8 +30,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientManager;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterWriteBehindExecutor;
-import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterWriteBehindScheduler;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaoClasses;
 import io.datarouter.storage.dao.TestDao;
@@ -53,10 +49,6 @@ public class Datarouter{
 	private DatarouterClients clients;
 	@Inject
 	private DatarouterNodes nodes;
-	@Inject
-	private DatarouterWriteBehindScheduler writeBehindScheduler;
-	@Inject
-	private DatarouterWriteBehindExecutor writeBehindExecutor;
 	@Inject
 	private DaoClasses daoClasses;
 
@@ -104,14 +96,6 @@ public class Datarouter{
 
 	public DatarouterNodes getNodes(){
 		return nodes;
-	}
-
-	public ExecutorService getWriteBehindExecutor(){
-		return writeBehindExecutor;
-	}
-
-	public ScheduledExecutorService getWriteBehindScheduler(){
-		return writeBehindScheduler;
 	}
 
 }

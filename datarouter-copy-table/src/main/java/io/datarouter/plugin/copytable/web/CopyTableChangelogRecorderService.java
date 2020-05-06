@@ -13,22 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.ratelimiter;
+package io.datarouter.plugin.copytable.web;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.ratelimiter.storage.BaseTallyDao;
-import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.dao.TestDao;
-import io.datarouter.storage.node.factory.TallyNodeFactory;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.web.user.session.RequestAwareCurrentSessionInfoFactory.RequestAwareCurrentSessionInfo;
 
 @Singleton
-public class NamedCacheRateLimiterTestDao extends BaseTallyDao implements TestDao{
+public class CopyTableChangelogRecorderService{
 
 	@Inject
-	public NamedCacheRateLimiterTestDao(Datarouter datarouter, TallyNodeFactory nodeFactory){
-		super(datarouter, nodeFactory, RateLimiterTestNgModuleFactory.RATE_LIMITER, 1);
+	private ChangelogRecorder changelogRecorder;
+
+	public void recordChangelog(RequestAwareCurrentSessionInfo sessionInfo, String changelogType, String sourceNode,
+			String targetNode){
+		changelogRecorder.record(
+				"CopyTable-" + changelogType,
+				sourceNode + " to " + targetNode,
+				"migrate",
+				sessionInfo.getNonEmptyUsernameOrElse(""),
+				sessionInfo.getRequiredSession().getUserToken());
 	}
 
 }

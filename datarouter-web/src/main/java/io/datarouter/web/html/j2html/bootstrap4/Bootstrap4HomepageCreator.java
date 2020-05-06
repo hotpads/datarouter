@@ -17,6 +17,7 @@ package io.datarouter.web.html.j2html.bootstrap4;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h4;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.service.ServiceDescriptionSupplier;
 
 @Singleton
 public class Bootstrap4HomepageCreator{
@@ -32,10 +34,14 @@ public class Bootstrap4HomepageCreator{
 	private DatarouterService datarouterService;
 	@Inject
 	private Bootstrap4PageFactory factory;
+	@Inject
+	private ServiceDescriptionSupplier serviceDescriptionSupplier;
 
 	public Mav buildHomepageMav(HttpServletRequest request){
-		var h1 = h1(datarouterService.getName()).withClass("text-capitalize");
-		var container = div(h1).withClass("container my-5");
+		var h1 = h1(datarouterService.getName())
+				.withClass("text-capitalize");
+		var h3 = h4(serviceDescriptionSupplier.get());
+		var container = div(h1, h3).withClass("container my-5");
 		return factory.startBuilder(request)
 				.withTitle(datarouterService.getName())
 				.withContent(container)

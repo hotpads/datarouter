@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.util.collection.MapTool;
+import io.datarouter.util.collector.RelaxedMapCollector;
 
 public class SpannerIndex{
 
@@ -72,8 +72,10 @@ public class SpannerIndex{
 		if(keyFields.size() == allFields.size()){
 			return Collections.emptyList();
 		}
-		Map<String,Field<?>> keyMap = MapTool.getBy(keyFields, field -> field.getKey().getColumnName());
-		Map<String,Field<?>> nonKeyFieldsMap = MapTool.getBy(allFields, field -> field.getKey().getColumnName());
+		Map<String,Field<?>> keyMap = keyFields.stream()
+				.collect(RelaxedMapCollector.of(field -> field.getKey().getColumnName()));
+		Map<String,Field<?>> nonKeyFieldsMap = allFields.stream()
+				.collect(RelaxedMapCollector.of(field -> field.getKey().getColumnName()));
 		keyMap.forEach((key, field) -> nonKeyFieldsMap.remove(key));
 		return new ArrayList<>(nonKeyFieldsMap.values());
 	}

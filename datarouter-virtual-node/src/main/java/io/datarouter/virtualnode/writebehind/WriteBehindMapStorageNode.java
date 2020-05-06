@@ -17,9 +17,10 @@ package io.datarouter.virtualnode.writebehind;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.virtualnode.writebehind.base.WriteWrapper;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
 import io.datarouter.virtualnode.writebehind.mixin.WriteBehindMapStorageWriterMixin;
 
 public class WriteBehindMapStorageNode<
@@ -29,14 +30,17 @@ public class WriteBehindMapStorageNode<
 extends WriteBehindMapStorageReaderNode<PK,D,N>
 implements MapStorage<PK,D>, WriteBehindMapStorageWriterMixin<PK,D,N>{
 
-	public WriteBehindMapStorageNode(Datarouter datarouter, N backingNode){
-		super(datarouter, backingNode);
+	public WriteBehindMapStorageNode(
+			DatarouterWriteBehindScheduler scheduler,
+			DatarouterWriteBehindExecutor writeExecutor,
+			N backingNode){
+		super(scheduler, writeExecutor, backingNode);
 	}
 
 	@Override
 	public boolean handleWriteWrapperInternal(WriteWrapper<?> writeWrapper){
-		return super.handleWriteWrapperInternal(writeWrapper) || WriteBehindMapStorageWriterMixin.super
-				.handleWriteWrapperInternal(writeWrapper);
+		return super.handleWriteWrapperInternal(writeWrapper)
+				|| WriteBehindMapStorageWriterMixin.super.handleWriteWrapperInternal(writeWrapper);
 	}
 
 }

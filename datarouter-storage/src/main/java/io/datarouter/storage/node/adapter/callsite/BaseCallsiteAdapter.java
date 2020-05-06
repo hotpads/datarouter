@@ -59,7 +59,7 @@ implements CallsiteAdapter{
 
 	@Override
 	public void recordCollectionCallsite(LineOfCode lineOfCode, long startTimeNs, Collection<?> items){
-		recordCallsite(lineOfCode, startTimeNs, CollectionTool.sizeNullSafe(items));
+		recordCallsite(lineOfCode, startTimeNs, CollectionTool.nullSafeSize(items));
 	}
 
 	@Override

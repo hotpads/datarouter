@@ -33,6 +33,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
@@ -208,7 +209,7 @@ public class ReflectionTool{
 			String fieldName = CollectionTool.getFirst(fieldNames);
 			Field field = getDeclaredFieldFromAncestors(object.getClass(), fieldName);
 			field.setAccessible(true);
-			if(CollectionTool.sizeNullSafe(fieldNames) == 1){
+			if(CollectionTool.nullSafeSize(fieldNames) == 1){
 				return field;
 			}
 			if(field.get(object) == null){// initialize the field
@@ -244,7 +245,9 @@ public class ReflectionTool{
 	 * @return a list of the inherited declared Fields not including any declared field from YourClass.
 	 */
 	public static List<Field> getDeclaredFieldsIncludingAncestors(Class<?> clazz){
-		return ListTool.concatenate(getDeclaredFields(clazz), getDeclaredFieldsFromAncestors(clazz));
+		return Scanner.of(getDeclaredFields(clazz), getDeclaredFieldsFromAncestors(clazz))
+				.concat(Scanner::of)
+				.list();
 	}
 
 	/**

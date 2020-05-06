@@ -20,11 +20,12 @@ import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.virtualnode.writebehind.base.BaseWriteBehindNode;
 import io.datarouter.virtualnode.writebehind.base.WriteWrapper;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
 
 public class WriteBehindMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -33,8 +34,11 @@ public class WriteBehindMapStorageReaderNode<
 extends BaseWriteBehindNode<PK,D,N>
 implements MapStorageReader<PK,D>{
 
-	public WriteBehindMapStorageReaderNode(Datarouter datarouter, N backingNode){
-		super(datarouter, backingNode);
+	public WriteBehindMapStorageReaderNode(
+			DatarouterWriteBehindScheduler scheduler,
+			DatarouterWriteBehindExecutor writeExecutor,
+			N backingNode){
+		super(scheduler, writeExecutor, backingNode);
 	}
 
 	@Override

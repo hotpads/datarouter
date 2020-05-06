@@ -22,23 +22,8 @@ import javax.inject.Singleton;
 import io.datarouter.util.concurrent.DatarouterExecutorService;
 import io.datarouter.util.concurrent.ExecutorTool;
 import io.datarouter.util.concurrent.NamedThreadFactory;
-import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 
 public class DatarouterStorageExecutors{
-
-	@Singleton
-	public static class DatarouterWriteBehindScheduler extends ScheduledThreadPoolExecutor{
-		public DatarouterWriteBehindScheduler(){
-			super(10, new NamedThreadFactory("writeBehindScheduler", true));
-		}
-	}
-
-	@Singleton
-	public static class DatarouterWriteBehindExecutor extends ScalingThreadPoolExecutor{
-		public DatarouterWriteBehindExecutor(){
-			super("writeBehindExecutor", 100);
-		}
-	}
 
 	@Singleton
 	public static class DatarouterClientFactoryExecutor extends DatarouterExecutorService{

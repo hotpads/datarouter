@@ -24,9 +24,10 @@ public class ChangelogDto{
 	public final String action;
 	public final String username;
 	public final String userToken;
+	public final String comment;
 
 	public ChangelogDto(String serviceName, String changelogType, String name, long dateMs, String action,
-			String username, String userToken){
+			String username, String userToken, String comment){
 		this.serviceName = serviceName;
 		this.changelogType = changelogType;
 		this.name = name;
@@ -34,6 +35,7 @@ public class ChangelogDto{
 		this.action = action;
 		this.username = username;
 		this.userToken = userToken;
+		this.comment = comment;
 	}
 
 	public long getReversedDateMs(){

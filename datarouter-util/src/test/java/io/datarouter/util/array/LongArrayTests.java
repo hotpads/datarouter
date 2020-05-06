@@ -21,7 +21,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 
 public class LongArrayTests{
@@ -96,8 +95,8 @@ public class LongArrayTests{
 		primitiveList.add(null);
 		nullableList.add(Long.MAX_VALUE);
 		primitiveList.add(Long.MAX_VALUE);
-		Assert.assertTrue(5 == CollectionTool.sizeNullSafe(nullableList));
-		Assert.assertTrue(5 == CollectionTool.sizeNullSafe(primitiveList));
+		Assert.assertTrue(5 == nullableList.size());
+		Assert.assertTrue(5 == primitiveList.size());
 		Assert.assertTrue(0 == primitiveList.compareTo(nullableList));
 		Assert.assertNull(primitiveList.get(1));
 	}

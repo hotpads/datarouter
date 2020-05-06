@@ -18,13 +18,13 @@ package io.datarouter.util.ordered;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
-import io.datarouter.util.collection.ListTool;
 
 public class OrderedTool{
 
 	public static <T> List<T> combine(List<Ordered<T>> ordered, List<T> unordered){
-		return ListTool.concatenate(sortOrdered(ordered), unordered);
+		return Scanner.of(sortOrdered(ordered), unordered).concat(Scanner::of).list();
 	}
 
 	public static <T> List<T> sortOrdered(List<Ordered<T>> objects){

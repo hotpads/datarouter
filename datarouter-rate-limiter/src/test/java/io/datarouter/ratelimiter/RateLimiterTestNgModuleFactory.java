@@ -47,7 +47,7 @@ public class RateLimiterTestNgModuleFactory extends TestNgModuleFactory{
 			bind(DatarouterService.class).to(NoOpDatarouterService.class);
 			bind(DatarouterProperties.class).to(RateLimiterDatarouterProperties.class);
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
-			bind(BaseTallyDao.class).to(NamedCacheRateLimiterTestDao.class);
+			bind(BaseTallyDao.class).to(TallyCacheRateLimiterTestDao.class);
 		}
 
 	}

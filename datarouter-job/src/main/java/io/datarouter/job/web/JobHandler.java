@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobFiles;
 import io.datarouter.job.config.DatarouterJobPaths;
@@ -71,6 +72,8 @@ public class JobHandler extends BaseHandler{
 	private LongRunningTaskService longRunningTaskService;
 	@Inject
 	private DatarouterJobPaths datarouterJobPaths;
+	@Inject
+	private ChangelogRecorder changelogRecorder;
 
 	@Handler(defaultHandler = true)
 	Mav defaultMethod(){
@@ -119,6 +122,12 @@ public class JobHandler extends BaseHandler{
 				elapsedTime);
 		logger.warn(message);
 		jobTriggerResponse.put("jobTriggerResponseMessage", message);
+		changelogRecorder.record(
+				"Job",
+				name,
+				"run",
+				getSessionInfo().getRequiredSession().getUsername(),
+				getSessionInfo().getRequiredSession().getUserToken());
 		return new InContextRedirectMav(request, datarouterJobPaths.datarouter.triggers.list, jobTriggerResponse);
 	}
 
@@ -126,6 +135,12 @@ public class JobHandler extends BaseHandler{
 	Mav interrupt(String name){
 		Class<? extends BaseJob> jobClass = BaseJob.parseClass(name);
 		localTriggerLockService.getForClass(jobClass).requestStop();
+		changelogRecorder.record(
+				"Job",
+				name,
+				"interrupt",
+				getSessionInfo().getRequiredSession().getUsername(),
+				getSessionInfo().getRequiredSession().getUserToken());
 		return new MessageMav("requested stop for " + name);
 	}
 
@@ -161,6 +176,7 @@ public class JobHandler extends BaseHandler{
 	}
 
 	public static class JobCategoryJspDto{
+
 		private final String name;
 		private final boolean selected;
 
@@ -179,6 +195,7 @@ public class JobHandler extends BaseHandler{
 	}
 
 	public static class TriggerJspDto{
+
 		public final int rowId;
 		public final String className;
 		public final String classSimpleName;

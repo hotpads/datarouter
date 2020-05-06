@@ -26,7 +26,6 @@ import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.autoconfig.ConfigScanResponseTool;
@@ -54,7 +53,7 @@ public class DatarouterAuthConfigScanner{
 				.map(DatarouterAccount::getKey)
 				.map(DatarouterAccountKey::getAccountName)
 				.list();
-		if(CollectionTool.isEmpty(accounts)){
+		if(accounts.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
 		String header = "Found " + accounts.size() + " account(s) with the default apiKey or secretKey";
@@ -67,7 +66,7 @@ public class DatarouterAuthConfigScanner{
 				.map(DatarouterAccount::getKey)
 				.map(DatarouterAccountKey::getAccountName)
 				.collect(Collectors.toList());
-		if(CollectionTool.isEmpty(accountsWithDuplicateKeys)){
+		if(accountsWithDuplicateKeys.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
 		String header = "Found " + accountsWithDuplicateKeys.size() + " accounts with duplicate api keys";

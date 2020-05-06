@@ -114,6 +114,7 @@ implements WebappBuilder{
 	private String customStaticFileFilterRegex;
 	private String nodeWidgetDatabeanExporterLink;
 	private String nodeWidgetTableCountLink;
+	private String serviceDescription;
 	protected boolean useDatarouterAuth;
 
 	// datarouter-web servlet
@@ -248,6 +249,7 @@ implements WebappBuilder{
 				.withRegisteredPlugins(registeredPlugins)
 				.withNodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink)
 				.withNodeWidgetTableCountLink(nodeWidgetTableCountLink)
+				.setServiceDescription(serviceDescription)
 				.build();
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
@@ -528,6 +530,11 @@ implements WebappBuilder{
 
 	public T withNodeWidgetTableCountLink(String nodeWidgetTableCountLink){
 		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
+		return getSelf();
+	}
+
+	public T setServiceDescription(String serviceDescription){
+		this.serviceDescription = serviceDescription;
 		return getSelf();
 	}
 

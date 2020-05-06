@@ -30,7 +30,7 @@ import com.google.cloud.spanner.ResultSet;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
-import io.datarouter.util.collection.MapTool;
+import io.datarouter.util.collector.RelaxedMapCollector;
 
 @Singleton
 public class SpannerTableAlterSchemaService{
@@ -122,7 +122,8 @@ public class SpannerTableAlterSchemaService{
 	}
 
 	private List<SpannerColumn> columnNameDifferences(List<SpannerColumn> columns1, List<SpannerColumn> columns2){
-		Map<String,SpannerColumn> col1Map = MapTool.getBy(columns1, SpannerColumn::getName);
+		Map<String,SpannerColumn> col1Map = columns1.stream()
+				.collect(RelaxedMapCollector.of(SpannerColumn::getName));
 		columns2.forEach(col -> col1Map.remove(col.getName()));
 		return new ArrayList<>(col1Map.values());
 	}
@@ -130,7 +131,8 @@ public class SpannerTableAlterSchemaService{
 	private List<SpannerColumn> colmumnsToAlter(
 			List<SpannerColumn> currentColumns,
 			List<SpannerColumn> existingColumns){
-		Map<String,SpannerColumn> columnMap = MapTool.getBy(existingColumns, SpannerColumn::getName);
+		Map<String,SpannerColumn> columnMap = existingColumns.stream()
+				.collect(RelaxedMapCollector.of(SpannerColumn::getName));
 		return currentColumns.stream()
 				.filter(col -> columnMap.containsKey(col.getName()))
 				.filter(col -> !columnMap.get(col.getName()).getType().equals(col.getType()))

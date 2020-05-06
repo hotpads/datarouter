@@ -15,13 +15,13 @@ same webapp, where the fleet of services will have a ClusterSetting table for ea
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-cluster-setting</artifactId>
-	<version>0.0.29</version>
+	<version>0.0.30</version>
 </dependency>
 ```
 
 ## Installation with Datarouter
 
-You can install this module by adding its plugin to the `WebappBuidlder`.
+You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
 .addJobPlugin(new DatarouterClusterSettingPluginBuilder(...)

@@ -21,15 +21,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
-import io.datarouter.auth.config.DatarouterAuthPlugin;
-import io.datarouter.auth.config.DatarouterAuthSettingRoot;
 import io.datarouter.auth.service.DatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.service.DefaultDatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
@@ -39,9 +36,7 @@ import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermission;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.instrumentation.changelog.ChangelogDto;
-import io.datarouter.instrumentation.changelog.ChangelogPublisher;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.Require;
@@ -61,9 +56,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider;
 	private final Bootstrap4ReactPageFactory reactPageFactory;
 	private final DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
-	private final ChangelogPublisher changelogPublisher;
-	private final DatarouterService datarouterService;
-	private final DatarouterAuthSettingRoot settings;
+	private final ChangelogRecorder changelogRecorder;
 
 	private final String path;
 
@@ -77,9 +70,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			DefaultDatarouterAccountAvailableEndpointsProvider defaultDatarouterAccountAvailableEndpointsProvider,
 			Bootstrap4ReactPageFactory reactPageFactory,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
-			@Named(DatarouterAuthPlugin.NAMED_Changelog) ChangelogPublisher changelogPublisher,
-			DatarouterService datarouterService,
-			DatarouterAuthSettingRoot settings){
+			ChangelogRecorder changelogRecorder){
 		this(datarouterAccountDao,
 				datarouterAccountPermissionDao,
 				datarouterProperties,
@@ -87,9 +78,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				defaultDatarouterAccountAvailableEndpointsProvider,
 				reactPageFactory,
 				defaultDatarouterAccountKeys,
-				changelogPublisher,
-				datarouterService,
-				settings,
+				changelogRecorder,
 				paths.admin.accounts.toSlashedString());
 	}
 
@@ -101,9 +90,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider,
 			Bootstrap4ReactPageFactory reactPageFactory,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
-			ChangelogPublisher changelogPublisher,
-			DatarouterService datarouterService,
-			DatarouterAuthSettingRoot settings,
+			ChangelogRecorder changelogRecorder,
 			String path){
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
@@ -112,9 +99,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this.datarouterAccountAvailableEndpointsProvider = datarouterAccountAvailableEndpointsProvider;
 		this.reactPageFactory = reactPageFactory;
 		this.defaultDatarouterAccountKeys = defaultDatarouterAccountKeys;
-		this.changelogPublisher = changelogPublisher;
-		this.datarouterService = datarouterService;
-		this.settings = settings;
+		this.changelogRecorder = changelogRecorder;
 
 		this.path = path;
 	}
@@ -257,18 +242,12 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	}
 
 	private void recordChangelog(String changelogType, String name, String action){
-		if(!settings.publishChangelog.get()){
-			return;
-		}
-		var dto = new ChangelogDto(
-				datarouterService.getName(),
+		changelogRecorder.record(
 				changelogType,
 				name,
-				new Date().getTime(),
 				action,
 				getCurrentUsername(),
 				getSessionInfo().getRequiredSession().getUserToken());
-		changelogPublisher.add(dto);
 	}
 
 	public static class DatarouterAccountDetails{

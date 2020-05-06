@@ -46,7 +46,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.internal.UnsafeAllocator;
 
 import io.datarouter.httpclient.security.SecurityParameters;
-import io.datarouter.util.collection.SetTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.serialization.CompatibleDateTypeAdapter;
 import io.datarouter.web.config.DatarouterWebFiles;
@@ -207,36 +207,33 @@ public class DocumentationHandler extends BaseHandler{
 		if(parents.contains(type)){
 			return null;
 		}
+		Set<Type> parentsWithType = Scanner.concat(Scanner.of(parents), Scanner.of(type)).collect(HashSet::new);
 		if(type instanceof ParameterizedType){
 			ParameterizedType parameterizedType = (ParameterizedType)type;
 			Class<?> rawType = (Class<?>)parameterizedType.getRawType();
 			if(List.class.isAssignableFrom(rawType)){
-				return Arrays.asList(createBestExample(parameterizedType.getActualTypeArguments()[0], SetTool
-						.concatenate(parents, type)));
+				return Arrays.asList(createBestExample(parameterizedType.getActualTypeArguments()[0], parentsWithType));
 			}
 			if(Set.class.isAssignableFrom(rawType) || Collection.class.isAssignableFrom(rawType)){
-				return Collections.singleton(createBestExample(parameterizedType.getActualTypeArguments()[0], SetTool
-						.concatenate(parents, type)));
+				return Collections.singleton(createBestExample(parameterizedType.getActualTypeArguments()[0],
+						parentsWithType));
 			}
 			if(Map.class.isAssignableFrom(rawType)){
-				Object key = createBestExample(parameterizedType.getActualTypeArguments()[0], SetTool.concatenate(
-						parents, type));
-				Object value = createBestExample(parameterizedType.getActualTypeArguments()[1], SetTool.concatenate(
-						parents, type));
+				Object key = createBestExample(parameterizedType.getActualTypeArguments()[0], parentsWithType);
+				Object value = createBestExample(parameterizedType.getActualTypeArguments()[1], parentsWithType);
 				return Collections.singletonMap(key, value);
 			}
 			if(Optional.class.isAssignableFrom(rawType)){
-				return Optional.of(createBestExample(parameterizedType.getActualTypeArguments()[0], SetTool.concatenate(
-						parents, type)));
+				return Optional.of(createBestExample(parameterizedType.getActualTypeArguments()[0], parentsWithType));
 			}
 			if(AutoBuildable.class.isAssignableFrom(rawType)){
 				AutoBuildable autoBuildable = ReflectionTool.create(rawType.asSubclass(AutoBuildable.class));
 				List<Object> innerObjects = Arrays.stream(parameterizedType.getActualTypeArguments())
-						.map(paramType -> createBestExample(paramType, SetTool.concatenate(parents, type)))
+						.map(paramType -> createBestExample(paramType, parentsWithType))
 						.collect(Collectors.toList());
 				return autoBuildable.buildEmpty(innerObjects);
 			}
-			return createBestExample(rawType, SetTool.concatenate(parents, type));
+			return createBestExample(rawType, parentsWithType);
 		}
 		// undocumented generic (T or E or PK)
 		if(type instanceof TypeVariable){
@@ -245,7 +242,7 @@ public class DocumentationHandler extends BaseHandler{
 		Class<?> clazz = (Class<?>)type;
 		if(clazz.isArray()){
 			Object[] array = (Object[])Array.newInstance(clazz.getComponentType(), 1);
-			array[0] = createBestExample(clazz.getComponentType(), SetTool.concatenate(parents, type));
+			array[0] = createBestExample(clazz.getComponentType(), parentsWithType);
 			return array;
 		}
 		if(clazz.isPrimitive()){
@@ -282,7 +279,7 @@ public class DocumentationHandler extends BaseHandler{
 			}
 			field.setAccessible(true);
 			try{
-				Object fieldExample = createBestExample(field.getGenericType(), SetTool.concatenate(parents, type));
+				Object fieldExample = createBestExample(field.getGenericType(), parentsWithType);
 				try{
 					field.set(example, fieldExample);
 				}catch(Exception e){

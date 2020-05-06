@@ -76,6 +76,8 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 	private DatarouterCopyTablePaths paths;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private CopyTableChangelogRecorderService changelogRecorderService;
 
 	@Handler(defaultHandler = true)
 	private <PK extends PrimaryKey<PK>,
@@ -234,6 +236,8 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 					.withContent(p(message));
 			htmlEmailService.trySendJ2Html(fromEmail, toEmail.get(), emailBuilder);
 		}
+		changelogRecorderService.recordChangelog(getSessionInfo(), "Single Thread", sourceNodeName.get(), targetNodeName
+				.get());
 		return pageFactory.message(request, message);
 	}
 

@@ -26,8 +26,8 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.ListTool;
 
 public class SpannerEntityKeyTool{
 
@@ -49,9 +49,9 @@ public class SpannerEntityKeyTool{
 	public static <PK extends PrimaryKey<PK>> List<Field<?>> getPrimaryKeyFields(PK key, boolean isEntity){
 		if(isEntity && key instanceof EntityPrimaryKey){
 			EntityPrimaryKey<?,?> entityPrimaryKey = (EntityPrimaryKey<?,?>)key;
-			return ListTool.concatenate(
-					entityPrimaryKey.getEntityKeyFields(),
-					entityPrimaryKey.getPostEntityKeyFields());
+			return Scanner.of(entityPrimaryKey.getEntityKeyFields(), entityPrimaryKey.getPostEntityKeyFields())
+					.concat(Scanner::of)
+					.list();
 		}
 		return key.getFields();
 	}

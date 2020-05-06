@@ -22,7 +22,7 @@ import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.BasePrimaryKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
-import io.datarouter.util.collection.ListTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 
 public abstract class BaseEntityPrimaryKey<
@@ -50,10 +50,7 @@ implements EntityPrimaryKey<EK,PK>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		List<Field<?>> entityKeyFields = getEntityKeyFields();
-		List<Field<?>> postEntityKeyFields = getPostEntityKeyFields();
-		List<Field<?>> allPkFields = ListTool.concatenate(entityKeyFields, postEntityKeyFields);
-		return allPkFields;
+		return Scanner.of(getEntityKeyFields(), getPostEntityKeyFields()).concat(Scanner::of).list();
 	}
 
 }

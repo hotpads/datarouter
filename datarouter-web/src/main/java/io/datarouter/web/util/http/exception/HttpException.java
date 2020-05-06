@@ -49,7 +49,7 @@ public class HttpException extends RuntimeException implements HandledException{
 		Map<String,Object> responseBody = new LinkedHashMap<>();
 		responseBody.put("code", statusCode);
 		responseBody.put("message", getMessage());
-		if(CollectionTool.notEmpty(details)){
+		if(CollectionTool.nullSafeNotEmpty(details)){
 			responseBody.put("details", details);
 		}
 		return responseBody;

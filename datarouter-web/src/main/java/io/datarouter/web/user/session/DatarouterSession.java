@@ -158,7 +158,7 @@ implements Session{
 	}
 
 	public boolean isAnonymous(){
-		return CollectionTool.isEmpty(roles);
+		return CollectionTool.nullSafeIsEmpty(roles);
 	}
 
 	public boolean hasRole(Role role){

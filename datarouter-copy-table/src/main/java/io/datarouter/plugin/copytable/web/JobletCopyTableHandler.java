@@ -75,6 +75,8 @@ public class JobletCopyTableHandler extends BaseHandler{
 	private CopyTableConfiguration copyTableConfiguration;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private CopyTableChangelogRecorderService changelogRecorderService;
 
 	@Handler(defaultHandler = true)
 	private <PK extends PrimaryKey<PK>,
@@ -216,6 +218,8 @@ public class JobletCopyTableHandler extends BaseHandler{
 		++counter;
 		Collections.shuffle(jobletPackages);//optimization to spread write load.  could be optional
 		jobletService.submitJobletPackages(jobletPackages);
+		changelogRecorderService.recordChangelog(getSessionInfo(), "Joblet", sourceNodeName.get(), targetNodeName
+				.get());
 		return pageFactory.message(request, "created " + numJoblets + " joblets");
 	}
 

@@ -32,6 +32,8 @@ import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.writebehind.WriteBehindSortedMapStorageNode;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
 
 @Singleton
 public class DatarouterExceptionRecordDao extends BaseDao{
@@ -53,6 +55,8 @@ public class DatarouterExceptionRecordDao extends BaseDao{
 	public DatarouterExceptionRecordDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
+			DatarouterWriteBehindScheduler scheduler,
+			DatarouterWriteBehindExecutor writeExecutor,
 			DatarouterExceptionRecordDaoParams params){
 		super(datarouter);
 		SortedMapStorage<ExceptionRecordKey,ExceptionRecord> backingNode = nodeFactory.create(
@@ -60,7 +64,7 @@ public class DatarouterExceptionRecordDao extends BaseDao{
 				ExceptionRecord::new,
 				ExceptionRecordFielder::new)
 				.buildAndRegister();
-		node = new WriteBehindSortedMapStorageNode<>(datarouter, backingNode);
+		node = new WriteBehindSortedMapStorageNode<>(scheduler, writeExecutor, backingNode);
 	}
 
 	public ExceptionRecord get(ExceptionRecordKey key){

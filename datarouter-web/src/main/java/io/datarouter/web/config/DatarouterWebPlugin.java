@@ -65,6 +65,8 @@ import io.datarouter.web.navigation.DatarouterNavBarSupplier;
 import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.plugin.PluginRegistrySupplier;
 import io.datarouter.web.plugin.PluginRegistrySupplier.PluginRegistry;
+import io.datarouter.web.service.ServiceDescriptionSupplier;
+import io.datarouter.web.service.ServiceDescriptionSupplier.DatarouterServiceDescription;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
@@ -113,6 +115,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final List<String> registeredPlugins;
 	private final String nodeWidgetDatabeanExporterLink;
 	private final String nodeWidgetTableCountLink;
+	private final String serviceDescription;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -120,7 +123,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends HomepageRouteSet> homepageRouteSet,
 			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
-				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null);
+				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -146,7 +149,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			String customStaticFileFilterRegex,
 			List<String> registeredPlugins,
 			String nodeWidgetDatabeanExporterLink,
-			String nodeWidgetTableCountLink){
+			String nodeWidgetTableCountLink,
+			String serviceDescription){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 
@@ -208,6 +212,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.registeredPlugins = registeredPlugins;
 		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
 		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
+		this.serviceDescription = serviceDescription;
 	}
 
 	@Override
@@ -243,8 +248,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(PluginRegistrySupplier.class, new PluginRegistry(registeredPlugins));
 		bindActualInstance(NodeWidgetDatabeanExporterLinkSupplier.class,
 				new NodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink));
-		bindActualInstance(NodeWidgetTableCountLinkSupplier.class,
-				new NodeWidgetTableCountLink(nodeWidgetTableCountLink));
+		bindActualInstance(NodeWidgetTableCountLinkSupplier.class, new NodeWidgetTableCountLink(
+				nodeWidgetTableCountLink));
+		if(serviceDescription != null){
+			bindActualInstance(ServiceDescriptionSupplier.class, new DatarouterServiceDescription(serviceDescription));
+		}
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -315,6 +323,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private List<String> registeredPlugins = Collections.emptyList();
 		private String nodeWidgetDatabeanExporterLink;
 		private String nodeWidgetTableCountLink;
+		private String serviceDescription;
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -442,6 +451,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setServiceDescription(String serviceDescription){
+			this.serviceDescription = serviceDescription;
+			return this;
+		}
+
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
 					daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId),
@@ -474,7 +489,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					customStaticFileFilterRegex,
 					registeredPlugins,
 					nodeWidgetDatabeanExporterLink,
-					nodeWidgetTableCountLink);
+					nodeWidgetTableCountLink,
+					serviceDescription);
 		}
 
 	}

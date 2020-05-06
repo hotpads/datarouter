@@ -20,29 +20,24 @@ import java.util.Optional;
 
 public class CollectionTool{
 
-	public static <T> boolean isEmpty(Collection<T> collection){
-		if(collection == null || collection.isEmpty()){
-			return true;
-		}
-		return false;
+	public static <T> boolean nullSafeIsEmpty(Collection<T> collection){
+		return collection == null || collection.isEmpty();
+	}
+
+	public static <T> boolean nullSafeNotEmpty(Collection<T> collection){
+		return collection != null && notEmpty(collection);
 	}
 
 	public static <T> boolean notEmpty(Collection<T> collection){
-		if(collection == null || collection.isEmpty()){
-			return false;
-		}
-		return true;
+		return !collection.isEmpty();
 	}
 
 	public static boolean differentSize(Collection<?> collectionA, Collection<?> collectionB){
-		return sizeNullSafe(collectionA) != sizeNullSafe(collectionB);
+		return nullSafeSize(collectionA) != nullSafeSize(collectionB);
 	}
 
-	public static int sizeNullSafe(Collection<?> collection){
-		if(collection == null){
-			return 0;
-		}
-		return collection.size();
+	public static int nullSafeSize(Collection<?> collection){
+		return collection == null ? 0 : collection.size();
 	}
 
 	public static <T> Optional<T> findFirst(Collection<T> collection){

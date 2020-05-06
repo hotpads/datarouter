@@ -27,11 +27,11 @@ public class DatarouterCopyTablePlugin extends BaseJobletPlugin{
 
 	private final Class<? extends CopyTableConfiguration> copyTableConfiguration;
 
-	private DatarouterCopyTablePlugin(Class<? extends CopyTableConfiguration> copyTableConfiguration){
+	private DatarouterCopyTablePlugin(
+			Class<? extends CopyTableConfiguration> copyTableConfiguration){
 		this.copyTableConfiguration = copyTableConfiguration;
 
 		addRouteSet(DatarouterCopyTableRouteSet.class);
-
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.copyTableJoblets,
 				"Copy Table - Joblets");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.copyTableSingleThread,
@@ -60,7 +60,8 @@ public class DatarouterCopyTablePlugin extends BaseJobletPlugin{
 		}
 
 		public DatarouterCopyTablePlugin build(){
-			return new DatarouterCopyTablePlugin(copyTableConfiguration);
+			return new DatarouterCopyTablePlugin(
+					copyTableConfiguration);
 		}
 
 	}

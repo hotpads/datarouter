@@ -31,13 +31,23 @@ public class SecretHandlerOpRequestDto{
 
 	public static enum SecretOpDto{
 
-		CREATE,
-		READ,
-		READ_SHARED,
-		UPDATE,
-		DELETE,
-		LIST_ALL,
+		CREATE("create"),
+		READ("read"),
+		READ_SHARED("readShared"),
+		UPDATE("update"),
+		DELETE("delete"),
+		LIST_ALL("listAll"),
 		;
+
+		private final String persistentString;
+
+		SecretOpDto(String persistentString){
+			this.persistentString = persistentString;
+		}
+
+		public String getPersistentString(){
+			return persistentString;
+		}
 
 	}
 

@@ -56,7 +56,7 @@ extends SqsOp<PK,D,F,List<T>>{
 	protected final List<T> run(){
 		ReceiveMessageRequest request = makeRequest();
 		ReceiveMessageResult result = sqsClientManager.getAmazonSqs(clientId).receiveMessage(request);
-		if(CollectionTool.isEmpty(result.getMessages())){
+		if(CollectionTool.nullSafeIsEmpty(result.getMessages())){
 			return Collections.emptyList();
 		}
 		return extractDatabeans(result.getMessages());

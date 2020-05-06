@@ -70,7 +70,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				Collections.singletonList(key),
 				config,
 				spannerFieldCodecRegistry);
-		return CollectionTool.notEmpty(getKeyOp.wrappedCall());
+		return CollectionTool.nullSafeNotEmpty(getKeyOp.wrappedCall());
 	}
 
 	@Override

@@ -118,7 +118,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(CollectionTool.isEmpty(databeans)){
+		if(databeans == null || databeans.isEmpty()){
 			return;
 		}
 		String clientName = getClientId().getName();
@@ -189,7 +189,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 					.size());
 			DatarouterCounters.incClientNodeCustom(clientType, "entities put", clientName, nodeName,
 					databeansByEntityKey.size());
-			if(CollectionTool.notEmpty(actions)){
+			if(CollectionTool.nullSafeNotEmpty(actions)){
 				try(Table table = getTable(); var $ = TracerTool.startSpan("Table batchCallback")){
 					TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder()
 							.add("actions", actions.size())
@@ -230,7 +230,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 			increment.setDurability(durability);
 			actions.add(increment);
 		}
-		if(CollectionTool.notEmpty(actions)){
+		if(CollectionTool.nullSafeNotEmpty(actions)){
 			try(Table table = getTable()){
 				table.batch(actions, null);
 			}catch(IOException | InterruptedException e){
@@ -301,7 +301,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 	//TODO this only deletes columns known to the current fielder which could leave orphan columns from an old fielder
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return;
 		}
 		Durability durability = HBaseConfigTool.getDurability(config);

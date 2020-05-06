@@ -39,7 +39,6 @@ import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.storage.util.EncodedPrimaryKeyPercentCodec;
-import io.datarouter.util.collection.CollectionTool;
 import redis.clients.jedis.Jedis;
 
 public class RedisReaderNode<
@@ -89,7 +88,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return Collections.emptyList();
 		}
 		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
@@ -103,7 +102,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return Collections.emptyList();
 		}
 		return Scanner.of(getMulti(keys, config)).map(Databean::getKey).list();

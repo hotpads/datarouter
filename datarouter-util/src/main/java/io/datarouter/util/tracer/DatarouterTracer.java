@@ -140,7 +140,7 @@ public class DatarouterTracer implements Tracer{
 			return;
 		}
 		Integer parentSequence = null;
-		if(CollectionTool.notEmpty(getSpanStack())){
+		if(CollectionTool.nullSafeNotEmpty(getSpanStack())){
 			TraceSpanDto parent = getSpanStack().get(getSpanStack().size() - 1);
 			parentSequence = parent.getSequence();
 		}
@@ -189,14 +189,14 @@ public class DatarouterTracer implements Tracer{
 	/*---------------------------- private TraceSpan ------------------------*/
 
 	private TraceSpanDto getCurrentSpan(){
-		if(CollectionTool.isEmpty(spanStack)){
+		if(CollectionTool.nullSafeIsEmpty(spanStack)){
 			return null;
 		}
 		return spanStack.get(spanStack.size() - 1);
 	}
 
 	private TraceSpanDto popSpanFromStack(){
-		if(CollectionTool.isEmpty(spanStack)){
+		if(CollectionTool.nullSafeIsEmpty(spanStack)){
 			return null;
 		}
 		TraceSpanDto span = getCurrentSpan();

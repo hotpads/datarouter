@@ -108,7 +108,7 @@ extends BaseMysqlOp<Void>{
 	}
 
 	private static boolean shouldAutoCommit(Collection<? extends Databean<?,?>> databeans, Config config){
-		if(CollectionTool.sizeNullSafe(databeans) > 1){
+		if(CollectionTool.nullSafeSize(databeans) > 1){
 			return false;
 		}
 		return config.getPutMethod().getShouldAutoCommit();

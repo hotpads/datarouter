@@ -26,7 +26,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,14 +38,11 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingFiles;
-import io.datarouter.clustersetting.config.DatarouterClusterSettingPlugin;
-import io.datarouter.clustersetting.config.DatarouterClusterSettingRoot;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService.SettingNameMatchResult;
 import io.datarouter.clustersetting.service.ClusterSettingService;
@@ -62,8 +58,7 @@ import io.datarouter.clustersetting.web.dto.ClusterSettingLogJspDto;
 import io.datarouter.clustersetting.web.dto.SettingJspDto;
 import io.datarouter.clustersetting.web.dto.SettingNodeJspDto;
 import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.instrumentation.changelog.ChangelogDto;
-import io.datarouter.instrumentation.changelog.ChangelogPublisher;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -122,11 +117,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private DatarouterWebPaths datarouterWebPaths;
 	@Inject
 	private ClusterSettingSearchService clusterSettingSearchService;
-	@Named(DatarouterClusterSettingPlugin.NAMED_Changelog)
 	@Inject
-	private ChangelogPublisher changelogPublisher;
-	@Inject
-	private DatarouterClusterSettingRoot settings;
+	private ChangelogRecorder changelogRecorder;
 
 	@Handler(defaultHandler = true)
 	public Mav customSettings(OptionalString prefix){
@@ -172,7 +164,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		String oldValue = clusterSetting.getValue();
 		sendEmail(clusterSettingLog, oldValue);
 		recordChangelog(clusterSettingLog.getKey().getName(), clusterSettingLog.getAction().getPersistentString(),
-				clusterSettingLog.getChangedBy());
+				clusterSettingLog.getChangedBy(), comment);
 		return result.markSuccess();
 	}
 
@@ -331,7 +323,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		clusterSettingLogDao.put(clusterSettingLog);
 		sendEmail(clusterSettingLog, oldValue);
 		recordChangelog(clusterSettingLog.getKey().getName(), clusterSettingLog.getAction().getPersistentString(),
-				clusterSettingLog.getChangedBy());
+				clusterSettingLog.getChangedBy(), clusterSettingLog.getComment());
 		return result.markSuccess();
 	}
 
@@ -398,13 +390,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 				.withParam("name", log.getKey().getName());
 	}
 
-	private void recordChangelog(String name, String action, String username){
-		if(!settings.publishChangelog.get()){
-			return;
-		}
-		var dto = new ChangelogDto(datarouterService.getName(), "ClusterSetting", name, new Date().getTime(), action,
-				username, "");
-		changelogPublisher.add(dto);
+	private void recordChangelog(String name, String action, String username, String comment){
+		changelogRecorder.record("ClusterSetting", name, action, username, "", comment);
 	}
 
 	private class ClusterSettingChangeEmailContent{

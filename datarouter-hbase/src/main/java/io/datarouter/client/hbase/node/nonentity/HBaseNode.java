@@ -105,7 +105,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(CollectionTool.isEmpty(databeans)){
+		if(databeans == null || databeans.isEmpty()){
 			return;
 		}
 		Durability durability = HBaseConfigTool.getDurability(config);
@@ -284,7 +284,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 		DatarouterCounters.incClientNodeCustom(clientType, "cells incremented", clientName, nodeName, cellCount);
 		DatarouterCounters.incClientNodeCustom(clientType, "databeans incremented", clientName, nodeName,
 				databeanCount);
-		if(CollectionTool.notEmpty(actions)){
+		if(CollectionTool.nullSafeNotEmpty(actions)){
 			try(Table table = getTable()){
 				table.batch(actions, null);
 			}catch(IOException | InterruptedException e){

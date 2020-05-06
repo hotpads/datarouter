@@ -24,6 +24,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.client.rediscluster.RedisClusterClientType;
 import io.datarouter.client.rediscluster.client.RedisClusterClientManager;
 import io.datarouter.model.databean.Databean;
@@ -39,8 +42,8 @@ import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.storage.util.EncodedPrimaryKeyPercentCodec;
-import io.datarouter.util.collection.CollectionTool;
 import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.exceptions.JedisClusterOperationException;
 
 public class RedisClusterReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -48,6 +51,7 @@ public class RedisClusterReaderNode<
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(RedisClusterReaderNode.class);
 
 	private final Integer databeanVersion;
 	protected final JedisCluster client;
@@ -82,19 +86,31 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return Collections.emptyList();
 		}
-		return client.mget(buildRedisKeys(keys).toArray(new String[keys.size()])).stream()
-				.filter(Objects::nonNull)
-				.map(bean -> JsonDatabeanTool.databeanFromJson(getFieldInfo().getDatabeanSupplier(), getFieldInfo()
-						.getSampleFielder(), bean))
-				.collect(Collectors.toList());
+		try{
+			return client.mget(buildRedisKeys(keys).toArray(new String[keys.size()])).stream()
+					.filter(Objects::nonNull)
+					.map(bean -> JsonDatabeanTool.databeanFromJson(getFieldInfo().getDatabeanSupplier(), getFieldInfo()
+							.getSampleFielder(), bean))
+					.collect(Collectors.toList());
+		}catch(JedisClusterOperationException exception){
+			logger.warn("getMulti failed - {}", exception.getMessage());
+			if(logger.isDebugEnabled()){
+				logger.debug(buildRedisKeys(keys).stream()
+						.collect(Collectors.joining("\n")));
+			}
+			return keys.stream()
+					.map(key -> get(key, config))
+					.filter(Objects::nonNull)
+					.collect(Collectors.toList());
+		}
 	}
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return Collections.emptyList();
 		}
 		return Scanner.of(getMulti(keys, config)).map(Databean::getKey).list();

@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -75,6 +76,8 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private DatarouterWebPaths paths;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private ChangelogRecorder changelogRecorder;
 
 	@Override
 	protected PathNode getFormPath(){
@@ -207,6 +210,12 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				Twin.of("server", properties.getServerName()),
 				Twin.of("triggeredBy", getSessionInfo().getRequiredSession().getUsername()));
 		sendEmail(node.getName(), emailKvs);
+		changelogRecorder.record(
+				"Inspect Node Data",
+				node.getName(),
+				"countKeys",
+				getSessionInfo().getRequiredSession().getUsername(),
+				getSessionInfo().getRequiredSession().getUserToken());
 		return pageFactory.message(request, message);
 	}
 

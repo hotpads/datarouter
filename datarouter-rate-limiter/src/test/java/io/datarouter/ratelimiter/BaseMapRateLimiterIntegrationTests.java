@@ -27,11 +27,14 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import io.datarouter.ratelimiter.CacheRateLimiterConfig.CacheRateLimiterConfigBuilder;
+import io.datarouter.ratelimiter.storage.BaseTallyDao;
+
 @Guice(moduleFactory = RateLimiterTestNgModuleFactory.class)
 public class BaseMapRateLimiterIntegrationTests{
 
 	@Inject
-	private NamedCacheRateLimiterFactory factory;
+	private BaseTallyDao tallyDao;
 
 	private Calendar getCal() throws ParseException{
 		Calendar calendar = Calendar.getInstance();
@@ -51,8 +54,14 @@ public class BaseMapRateLimiterIntegrationTests{
 		Assert.assertEquals(makeTestRateLimiter(TimeUnit.MILLISECONDS).getTimeStr(getCal()), "20100304163049030");
 	}
 
-	private BaseNamedCacheRateLimiter makeTestRateLimiter(TimeUnit unit){
-		return factory.new NamedCacheRateLimiter("BaseMapRateLimiterIntegrationTests", 0, 0, 0, 5, unit);
+	private BaseCacheRateLimiter makeTestRateLimiter(TimeUnit unit){
+		var config = new CacheRateLimiterConfigBuilder("MapRateLimiterIntegrationTests")
+				.setMaxAverageRequests(0L)
+				.setMaxSpikeRequests(0L)
+				.setNumIntervals(0)
+				.setBucketTimeInterval(5, unit)
+				.build();
+		return new BaseTallyCacheRateLimiter(tallyDao, config);
 	}
 
 }

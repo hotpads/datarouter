@@ -21,10 +21,14 @@ public class ServiceConfigurationDto{
 
 	public final String serviceName;
 	public final Set<String> administratorsEmails;
+	public final String serviceDescription;
 
-	public ServiceConfigurationDto(String serviceName, Set<String> administratorsEmails){
+
+	public ServiceConfigurationDto(String serviceName, Set<String> administratorsEmails,
+			String serviceDescription){
 		this.serviceName = serviceName;
 		this.administratorsEmails = administratorsEmails;
+		this.serviceDescription = serviceDescription;
 	}
 
 }

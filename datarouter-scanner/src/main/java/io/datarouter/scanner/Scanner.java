@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BinaryOperator;
@@ -35,6 +36,8 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+
+import io.datarouter.scanner.ScannerToMap.Replace;
 
 public interface Scanner<T> extends Closeable{
 
@@ -120,8 +123,69 @@ public interface Scanner<T> extends Closeable{
 		return ScannerTool.reduce(this, reducer);
 	}
 
+	default <R> R to(Function<Scanner<T>,R> function){
+		return function.apply(this);
+	}
+
 	default Object[] toArray(){
 		return ScannerTool.toArray(this);
+	}
+
+	/*--------------------------- to HashMap ----------------------------*/
+
+	default <K> Map<K,T> toMap(Function<T,K> keyFunction){
+		return to(ScannerToMap.of(keyFunction));
+	}
+
+	default <K,V> Map<K,V> toMap(
+			Function<T,K> keyFunction,
+			Function<T,V> valueFunction){
+		return to(ScannerToMap.of(keyFunction, valueFunction));
+	}
+
+	default <K,V> Map<K,V> toMap(
+			Function<T,K> keyFunction,
+			Function<T,V> valueFunction,
+			Replace replacePolicy){
+		return to(ScannerToMap.of(keyFunction, valueFunction, replacePolicy));
+	}
+
+	default <K,V> Map<K,V> toMap(
+			Function<T,K> keyFunction,
+			Function<T,V> valueFunction,
+			BinaryOperator<V> mergeFunction){
+		return to(ScannerToMap.of(keyFunction, valueFunction, mergeFunction));
+	}
+
+	/*--------------------------- to provided Map ----------------------------*/
+
+	default <K,M extends Map<K,T>> M toMap(
+			Function<T,K> keyFunction,
+			Supplier<M> mapSupplier){
+		return to(ScannerToMap.of(keyFunction, mapSupplier));
+	}
+
+	default <K,V,M extends Map<K,V>> M toMap(
+			Function<T,K> keyFunction,
+			Function<T,V> valueFunction,
+			Supplier<M> mapSupplier){
+		return to(ScannerToMap.of(keyFunction, valueFunction, mapSupplier));
+	}
+
+	default <K,V,M extends Map<K,V>> M toMap(
+			Function<T,K> keyFunction,
+			Function<T,V> valueFunction,
+			Replace replacePolicy,
+			Supplier<M> mapSupplier){
+		return to(ScannerToMap.of(keyFunction, valueFunction, replacePolicy, mapSupplier));
+	}
+
+	default <K,V,M extends Map<K,V>> M toMap(
+			Function<T,K> keyFunction,
+			Function<T,V> valueFunction,
+			BinaryOperator<V> mergeFunction,
+			Supplier<M> mapSupplier){
+		return to(ScannerToMap.of(keyFunction, valueFunction, mergeFunction, mapSupplier));
 	}
 
 	/*--------------------------- intermediate ops ----------------------------*/

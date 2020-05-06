@@ -22,7 +22,7 @@ import java.util.Properties;
 
 import javax.inject.Singleton;
 
-import io.datarouter.util.collection.ListTool;
+import io.datarouter.scanner.Scanner;
 
 public interface ClientOptionsFactory{
 
@@ -47,7 +47,9 @@ public interface ClientOptionsFactory{
 	default Properties mergeBuilders(
 			Collection<ClientOptionsBuilder> builderCollection,
 			ClientOptionsBuilder... builderVarargs){
-		return mergeBuilders(ListTool.concatenate(builderCollection, Arrays.asList(builderVarargs)));
+		return Scanner.of(builderCollection, Arrays.asList(builderVarargs))
+				.concat(Scanner::of)
+				.listTo(this::mergeBuilders);
 	}
 
 	@Singleton

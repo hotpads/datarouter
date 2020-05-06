@@ -27,14 +27,14 @@ import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.util.http.RequestTool;
 
-public abstract class NamedRateLimiter{
-	private static final Logger logger = LoggerFactory.getLogger(NamedRateLimiter.class);
+public abstract class BaseRateLimiter{
+	private static final Logger logger = LoggerFactory.getLogger(BaseRateLimiter.class);
 
 	private static final String COUNTER_PREFIX = "RateLimiter ";
 
 	private final String name;
 
-	public NamedRateLimiter(String name){
+	public BaseRateLimiter(String name){
 		this.name = name;
 	}
 
@@ -66,9 +66,10 @@ public abstract class NamedRateLimiter{
 		if(allowed.getLeft()){
 			Counters.inc(COUNTER_PREFIX + "ip " + name + " allowed");
 		}else{
-			logger.info("RateLimiter=" + name + " limit reached for ip=" + RequestTool.getIpAddress(request)
-					+ ", next allowed " + DateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(allowed.getRight()
-							.getTimeInMillis()));
+			logger.info("RateLimiter={} limit reached for ip={}, next allowed {}",
+					name,
+					RequestTool.getIpAddress(request),
+					DateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(allowed.getRight().getTimeInMillis()));
 			Counters.inc(COUNTER_PREFIX + "ip " + name + " limit reached");
 		}
 		return allowed.getLeft();
@@ -76,6 +77,10 @@ public abstract class NamedRateLimiter{
 
 	private String makeKey(String... keyFields){
 		return String.join("_", keyFields);
+	}
+
+	public String getName(){
+		return name;
 	}
 
 	protected abstract Pair<Boolean,Calendar> internalAllow(String key, boolean increment);

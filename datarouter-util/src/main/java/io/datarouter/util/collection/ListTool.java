@@ -16,14 +16,13 @@
 package io.datarouter.util.collection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
 
@@ -35,10 +34,6 @@ public class ListTool{
 			list.add(item);
 		}
 		return list;
-	}
-
-	public static <T> ArrayList<T> createArrayListWithSize(Collection<?> collection){
-		return new ArrayList<>(CollectionTool.sizeNullSafe(collection));
 	}
 
 	public static <T> void replaceLast(List<T> list, T replacement){
@@ -71,7 +66,7 @@ public class ListTool{
 	}
 
 	public static <T> T getLast(List<T> list){
-		if(CollectionTool.isEmpty(list)){
+		if(CollectionTool.nullSafeIsEmpty(list)){
 			return null;
 		}
 		return list.get(list.size() - 1);
@@ -83,9 +78,7 @@ public class ListTool{
 
 	@SafeVarargs
 	public static <T> List<T> concatenate(Collection<T>... args){
-		return Arrays.stream(args)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
+		return Scanner.of(args).concat(Scanner::of).list();
 	}
 
 	public static <T extends Comparable<T>> int compare(List<T> as, List<T> bs){

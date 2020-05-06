@@ -39,7 +39,7 @@ public class GroupQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D
 	}
 
 	public boolean isEmpty(){
-		return CollectionTool.isEmpty(databeans);
+		return CollectionTool.nullSafeIsEmpty(databeans);
 	}
 
 	public boolean notEmpty(){

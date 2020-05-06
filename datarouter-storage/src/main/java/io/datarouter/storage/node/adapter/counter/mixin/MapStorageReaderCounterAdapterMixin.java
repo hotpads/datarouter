@@ -58,10 +58,10 @@ extends MapStorageReader<PK,D>, CounterAdapter<PK,D,F,N>{
 	public default List<D> getMulti(Collection<PK> keys, Config config){
 		String opName = MapStorageReader.OP_getMulti;
 		getCounter().count(opName);
-		getCounter().count(opName + " keys", CollectionTool.sizeNullSafe(keys));
+		getCounter().count(opName + " keys", CollectionTool.nullSafeSize(keys));
 		List<D> results = getBackingNode().getMulti(keys, config);
-		int numHits = CollectionTool.sizeNullSafe(results);
-		int numMisses = CollectionTool.sizeNullSafe(keys) - numHits;
+		int numHits = results.size();
+		int numMisses = CollectionTool.nullSafeSize(keys) - numHits;
 		getCounter().count(opName + " hit", numHits);
 		getCounter().count(opName + " miss", numMisses);
 		return results;
@@ -71,10 +71,10 @@ extends MapStorageReader<PK,D>, CounterAdapter<PK,D,F,N>{
 	public default List<PK> getKeys(Collection<PK> keys, Config config){
 		String opName = MapStorageReader.OP_getKeys;
 		getCounter().count(opName);
-		getCounter().count(opName + " keys", CollectionTool.sizeNullSafe(keys));
+		getCounter().count(opName + " keys", CollectionTool.nullSafeSize(keys));
 		List<PK> results = getBackingNode().getKeys(keys, config);
-		int numHits = CollectionTool.sizeNullSafe(results);
-		int numMisses = CollectionTool.sizeNullSafe(keys) - numHits;
+		int numHits = results.size();
+		int numMisses = CollectionTool.nullSafeSize(keys) - numHits;
 		getCounter().count(opName + " hit", numHits);
 		getCounter().count(opName + " miss", numMisses);
 		return results;

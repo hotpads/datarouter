@@ -33,7 +33,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.collection.CollectionTool;
 
 public class MapCachingMapStorageReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -131,7 +130,7 @@ implements MapStorageReaderNode<PK,D,F>{
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return Collections.emptyList();
 		}
 		if(!useCache(config)){
@@ -163,7 +162,7 @@ implements MapStorageReaderNode<PK,D,F>{
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return Collections.emptyList();
 		}
 		if(!useCache(config)){

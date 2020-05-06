@@ -8,13 +8,13 @@ datarouter-logger-config provides an easy way to control output logging through 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-logger-config</artifactId>
-	<version>0.0.29</version>
+	<version>0.0.30</version>
 </dependency>
 ```
 
 ## Installation with Datarouter
 
-You can install this module by adding its plugin to the `WebappBuidlder`.
+You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
 .addJobPlugin(new DatarouterLoggerConfigPluginBuilder(...)

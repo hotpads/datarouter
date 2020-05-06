@@ -9,13 +9,13 @@ datarouter-auto-config is a tool that can be used to do any type of automatic co
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auto-config</artifactId>
-	<version>0.0.29</version>
+	<version>0.0.30</version>
 </dependency>
 ```
 
 ## Installation with Datarouter
 
-You can install this module by adding its plugin to the `WebappBuidlder`.
+You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
 .addWeblugin(new DatarouterAutoConfigPluginBuilder(...)

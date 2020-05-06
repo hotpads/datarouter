@@ -16,6 +16,7 @@
 package io.datarouter.nodewatch.storage.alertthreshold;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -49,8 +50,8 @@ public class DatarouterTableSizeAlertThresholdDao extends BaseDao{
 				.buildAndRegister();
 	}
 
-	public TableSizeAlertThreshold get(TableSizeAlertThresholdKey key){
-		return node.get(key);
+	public Optional<TableSizeAlertThreshold> find(TableSizeAlertThresholdKey key){
+		return node.find(key);
 	}
 
 	public void put(TableSizeAlertThreshold databean){

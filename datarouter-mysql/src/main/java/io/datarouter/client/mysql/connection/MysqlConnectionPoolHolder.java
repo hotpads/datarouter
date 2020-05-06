@@ -37,8 +37,8 @@ import com.mysql.cj.log.Slf4JLogger;
 import io.datarouter.client.mysql.ddl.domain.MysqlCharacterSet;
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
 import io.datarouter.client.mysql.factory.MysqlOptions;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
 import net.sf.log4jdbc.DriverSpy;
 
@@ -116,7 +116,7 @@ public class MysqlConnectionPoolHolder{
 			standardUrlParams.add("logger=" + Slf4JLogger.class.getName());
 			standardUrlParams.add(CLIENT_NAME_KEY + clientId.getName());
 
-			List<String> allUrlParams = ListTool.concatenate(standardUrlParams, additionalUrlParams);
+			List<String> allUrlParams = Scanner.of(standardUrlParams, additionalUrlParams).concat(Scanner::of).list();
 			String urlWithParams = url + "?" + String.join("&", allUrlParams);
 			try{
 				String jdbcUrl;

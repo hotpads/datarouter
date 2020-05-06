@@ -17,6 +17,7 @@ package io.datarouter.web.homepage;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h4;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.navigation.NavBarItem.NavBarItemGroup;
+import io.datarouter.web.service.ServiceDescriptionSupplier;
 
 public class AppNavHomepageHandler extends HomepageHandler{
 
@@ -39,11 +41,15 @@ public class AppNavHomepageHandler extends HomepageHandler{
 	private AppNavBarRegistrySupplier appNavBarSupplier;
 	@Inject
 	private Bootstrap4CardService cardService;
+	@Inject
+	private ServiceDescriptionSupplier serviceDescriptionSupplier;
 
 	@Handler(defaultHandler = true)
 	public Mav buildHomepageMav(){
-		var h1 = h1(datarouterService.getName()).withClass("text-capitalize");
-		var header = div(h1)
+		var h1 = h1(datarouterService.getName())
+				.withClass("text-capitalize");
+		var h3 = h4(serviceDescriptionSupplier.get());
+		var header = div(h1, h3)
 				.withClass("container-fluid");
 		List<NavBarItem> navBarItems = appNavBarSupplier.get();
 		var links = cardService.render(NavBarItemGroup.fromNavBarItems(navBarItems));

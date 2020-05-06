@@ -17,9 +17,10 @@ package io.datarouter.virtualnode.writebehind;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.virtualnode.writebehind.base.WriteWrapper;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
 import io.datarouter.virtualnode.writebehind.mixin.WriteBehindMapStorageWriterMixin;
 import io.datarouter.virtualnode.writebehind.mixin.WriteBehindSortedStorageWriterMixin;
 
@@ -32,8 +33,11 @@ implements SortedMapStorage<PK,D>,
 		WriteBehindMapStorageWriterMixin<PK,D,N>,
 		WriteBehindSortedStorageWriterMixin<PK,D,N>{
 
-	public WriteBehindSortedMapStorageNode(Datarouter datarouter, N backingNode){
-		super(datarouter, backingNode);
+	public WriteBehindSortedMapStorageNode(
+			DatarouterWriteBehindScheduler scheduler,
+			DatarouterWriteBehindExecutor writeExecutor,
+			N backingNode){
+		super(scheduler, writeExecutor, backingNode);
 	}
 
 	@Override

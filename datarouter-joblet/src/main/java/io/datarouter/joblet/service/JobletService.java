@@ -222,7 +222,7 @@ public class JobletService{
 		String serverNamePrefix = serverName + "_";//don't want joblet1 to include joblet10
 		List<JobletRequest> jobletRequestsToReset = JobletRequest.filterByTypeStatusReservedByPrefix(jobletRequests
 				.iterable(), jobletType, JobletStatus.RUNNING, serverNamePrefix);
-		logger.warn("found " + CollectionTool.sizeNullSafe(jobletRequestsToReset) + " jobletRequests to reset");
+		logger.warn("found " + jobletRequestsToReset.size() + " jobletRequests to reset");
 		for(JobletRequest jobletRequest : jobletRequestsToReset){
 			handleJobletInterruption(new PhaseTimer("setJobletRequestsRunningOnServerToCreated " + jobletRequest
 					.toString()), jobletRequest);

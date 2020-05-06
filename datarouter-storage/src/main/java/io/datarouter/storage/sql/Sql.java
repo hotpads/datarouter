@@ -174,7 +174,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 	}
 
 	public Q appendWhereClauseDisjunction(Collection<? extends FieldSet<?>> fieldSets){
-		if(CollectionTool.isEmpty(fieldSets)){
+		if(CollectionTool.nullSafeIsEmpty(fieldSets)){
 			return implementation;
 		}
 		append(" where ");
@@ -385,7 +385,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 	}
 
 	public Q addOrderByClause(List<Field<?>> orderByFields){
-		if(CollectionTool.isEmpty(orderByFields)){
+		if(CollectionTool.nullSafeIsEmpty(orderByFields)){
 			return implementation;
 		}
 		append(" order by ");

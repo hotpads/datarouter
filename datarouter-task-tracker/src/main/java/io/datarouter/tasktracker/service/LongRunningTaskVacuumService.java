@@ -46,7 +46,7 @@ public class LongRunningTaskVacuumService{
 		List<LongRunningTask> relatedTasks = new ArrayList<>();
 		for(LongRunningTask task : dao.scan().iterable()){
 			String name = task.getKey().getName();
-			if(CollectionTool.notEmpty(relatedTasks)){
+			if(CollectionTool.nullSafeNotEmpty(relatedTasks)){
 				String previousName = ListTool.getLast(relatedTasks).getKey().getName();
 				if(ObjectTool.notEquals(previousName, name)){
 					vacuumRelatedTasks(relatedTasks);

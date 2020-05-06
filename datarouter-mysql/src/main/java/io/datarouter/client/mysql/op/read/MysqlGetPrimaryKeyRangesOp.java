@@ -36,7 +36,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class MysqlGetPrimaryKeyRangesOp<
@@ -89,7 +88,7 @@ extends BaseMysqlOp<List<PK>>{
 		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", fieldInfo.getClientId().getName(),
 				fieldInfo.getNodeName(), 1L);
 		DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " rows", fieldInfo.getClientId().getName(),
-				fieldInfo.getNodeName(), CollectionTool.sizeNullSafe(result));
+				fieldInfo.getNodeName(), result.size());
 		TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder()
 				.ranges(ranges.size())
 				.keys(result.size()));

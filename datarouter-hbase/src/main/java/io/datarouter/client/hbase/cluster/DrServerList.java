@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.model.exception.DataAccessException;
-import io.datarouter.util.collection.ListTool;
 
 public class DrServerList{
 	private static final Logger logger = LoggerFactory.getLogger(DrServerList.class);
@@ -47,7 +46,7 @@ public class DrServerList{
 			ClusterStatus clusterStatus = admin.getClusterStatus();
 			serverNames = new ArrayList<>(clusterStatus.getServers());
 			Collections.sort(serverNames);
-			this.servers = ListTool.createArrayListWithSize(serverNames);
+			this.servers = new ArrayList<>();
 			this.serversSortedByDescendingLoad = new TreeSet<>(DrServerInfo.COMPARATOR_DESC_SERVER_LOAD);
 			this.drhServerInfoByServerName = new TreeMap<>();
 			for(ServerName serverName : serverNames){

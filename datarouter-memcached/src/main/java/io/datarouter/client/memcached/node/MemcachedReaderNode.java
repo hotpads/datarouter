@@ -96,7 +96,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config params){
-		if(CollectionTool.isEmpty(keys)){ // TODO Move into an adapter
+		if(keys == null || keys.isEmpty()){
 			return List.of();
 		}
 		return Scanner.of(getMulti(keys, params)).map(Databean::getKey).list();
@@ -104,7 +104,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){ // TODO Move into an adapter
+		if(keys == null || keys.isEmpty()){
 			return List.of();
 		}
 		Map<String,Object> bytesByStringKey = fetchBytesByStringKey(keys, config);
@@ -175,7 +175,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 
 	@Override
 	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){ // TODO Move into an adapter
+		if(keys == null || keys.isEmpty()){
 			return Collections.emptyMap();
 		}
 		Map<String,Object> bytesByStringKey = Scanner.of(keys)

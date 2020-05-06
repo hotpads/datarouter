@@ -53,6 +53,7 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 			boolean enablePublishing){
 		this.nodewatchClientIds = nodewatchClientIds;
 		this.tableCountPublisher = tableCountPublisher;
+
 		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, PATHS.datarouter.nodewatch.threshold,
 				"Table Count Thresholds");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.nodewatch.tableCount,

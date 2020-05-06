@@ -32,7 +32,6 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.tally.TallyKey;
-import io.datarouter.util.collection.CollectionTool;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.SetParams;
 
@@ -85,7 +84,7 @@ implements PhysicalMapStorageNode<PK,D,F>,
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(CollectionTool.isEmpty(databeans)){
+		if(databeans == null || databeans.isEmpty()){
 			return;
 		}
 		// redis cannot handle batch puts
@@ -109,7 +108,7 @@ implements PhysicalMapStorageNode<PK,D,F>,
 
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
-		if(CollectionTool.isEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return;
 		}
 		keys.forEach(key -> delete(key, config));

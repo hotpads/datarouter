@@ -22,11 +22,12 @@ import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.virtualnode.writebehind.base.WriteWrapper;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
 import io.datarouter.virtualnode.writebehind.mixin.WriteBehindIndexedStorageWriterMixin;
 import io.datarouter.virtualnode.writebehind.mixin.WriteBehindMapStorageWriterMixin;
 import io.datarouter.virtualnode.writebehind.mixin.WriteBehindSortedStorageWriterMixin;
@@ -42,8 +43,11 @@ implements IndexedSortedMapStorage<PK,D>,
 
 	protected final WriteBehindIndexedStorageWriterMixin<PK,D,N> mixinIndexedWriteOps;
 
-	public WriteBehindIndexedSortedMapStorageNode(Datarouter datarouter, N backingNode){
-		super(datarouter, backingNode);
+	public WriteBehindIndexedSortedMapStorageNode(
+			DatarouterWriteBehindScheduler scheduler,
+			DatarouterWriteBehindExecutor writeExecutor,
+			N backingNode){
+		super(scheduler, writeExecutor, backingNode);
 		mixinIndexedWriteOps = new WriteBehindIndexedStorageWriterMixin<>(this);
 	}
 

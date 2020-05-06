@@ -29,6 +29,7 @@ import io.datarouter.aws.rds.config.DatarouterAwsPaths;
 import io.datarouter.aws.rds.service.AuroraDnsService;
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
@@ -52,6 +53,8 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 	private DatarouterAdministratorEmailService additionalAdministratorEmailService;
 	@Inject
 	private DatarouterAwsPaths paths;
+	@Inject
+	private ChangelogRecorder changelogRecorder;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -62,6 +65,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		Scanner.of(mismatchedSlaveEntries)
 				.map(config::fixDatabaseDns)
 				.flush(fixes -> sendEmail(mismatchedSlaveEntries, fixes));
+		mismatchedSlaveEntries.forEach(entry -> recordChangelog(entry.getInstanceHostname()));
 	}
 
 	private void sendEmail(List<DnsHostEntryDto> mismatchedSlaveEntries, List<String> fixes){
@@ -90,6 +94,15 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 				.with(rawHtml(fix))
 				.with(br()));
 		return body(message, table, fixList);
+	}
+
+	private void recordChangelog(String database){
+		changelogRecorder.record(
+				"AuroraDns",
+				database,
+				"mismatch",
+				datarouterProperties.getAdministratorEmail(),
+				"");
 	}
 
 }

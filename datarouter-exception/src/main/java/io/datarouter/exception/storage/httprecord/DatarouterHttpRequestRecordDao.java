@@ -33,6 +33,8 @@ import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.virtualnode.writebehind.WriteBehindIndexedSortedMapStorageNode;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
 
 @Singleton
 public class DatarouterHttpRequestRecordDao extends BaseDao{
@@ -54,12 +56,14 @@ public class DatarouterHttpRequestRecordDao extends BaseDao{
 	public DatarouterHttpRequestRecordDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
+			DatarouterWriteBehindScheduler scheduler,
+			DatarouterWriteBehindExecutor writeExecutor,
 			DatarouterHttpRequestRecordDaoParams params){
 		super(datarouter);
 		IndexedSortedMapStorage<HttpRequestRecordKey,HttpRequestRecord> backingNode = nodeFactory
 				.create(params.clientId, HttpRequestRecord::new, HttpRequestRecordFielder::new)
 				.buildAndRegister();
-		node = new WriteBehindIndexedSortedMapStorageNode<>(datarouter, backingNode);
+		node = new WriteBehindIndexedSortedMapStorageNode<>(scheduler, writeExecutor, backingNode);
 	}
 
 	public HttpRequestRecord lookupUnique(HttpRequestRecordByExceptionRecord key){

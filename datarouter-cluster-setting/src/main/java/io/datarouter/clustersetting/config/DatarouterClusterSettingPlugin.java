@@ -17,16 +17,12 @@ package io.datarouter.clustersetting.config;
 
 import java.util.List;
 
-import com.google.inject.name.Names;
-
 import io.datarouter.clustersetting.ClusterSettingFinder;
 import io.datarouter.clustersetting.listener.SettingNodeValidationAppListener;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao.DatarouterClusterSettingDaoParams;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao.DatarouterClusterSettingLogDaoParams;
-import io.datarouter.instrumentation.changelog.ChangelogPublisher;
-import io.datarouter.instrumentation.changelog.ChangelogPublisher.NoOpChangelogPublisher;
 import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
@@ -36,15 +32,7 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 
-	public static final String NAMED_Changelog = "DatarouterClusterSettingChangelog";
-
-	private final Class<? extends ChangelogPublisher> changelogPublisher;
-
-	private DatarouterClusterSettingPlugin(
-			DatarouterClusterSettingDaoModule daosModuleBuilder,
-			Class<? extends ChangelogPublisher> changelogPublisher){
-		this.changelogPublisher = changelogPublisher;
-
+	private DatarouterClusterSettingPlugin(DatarouterClusterSettingDaoModule daosModuleBuilder){
 		addSettingRoot(DatarouterClusterSettingRoot.class);
 		addRouteSet(DatarouterClusterSettingRouteSet.class);
 		addAppListener(SettingNodeValidationAppListener.class);
@@ -68,9 +56,6 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 	@Override
 	protected void configure(){
 		bindActual(SettingFinder.class, ClusterSettingFinder.class);
-		bind(ChangelogPublisher.class)
-				.annotatedWith(Names.named(NAMED_Changelog))
-				.to(changelogPublisher);
 	}
 
 	public static class DatarouterClusterSettingPluginBuilder{
@@ -78,7 +63,6 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 		private final ClientId defaultClientId;
 
 		private DatarouterClusterSettingDaoModule daoModule;
-		private Class<? extends ChangelogPublisher> changelogPublisher = NoOpChangelogPublisher.class;
 
 		public DatarouterClusterSettingPluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -89,17 +73,10 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 			return this;
 		}
 
-		public DatarouterClusterSettingPluginBuilder enableChangelogPublishing(
-				Class<? extends ChangelogPublisher> changelogPublisher){
-			this.changelogPublisher = changelogPublisher;
-			return this;
-		}
-
 		public DatarouterClusterSettingPlugin build(){
 			return new DatarouterClusterSettingPlugin(daoModule == null
 					? new DatarouterClusterSettingDaoModule(defaultClientId, defaultClientId)
-					: daoModule,
-					changelogPublisher);
+					: daoModule);
 		}
 
 	}

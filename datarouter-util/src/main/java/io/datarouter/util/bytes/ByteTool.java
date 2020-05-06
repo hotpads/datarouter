@@ -205,7 +205,7 @@ public class ByteTool{
 	/*------------------------- serialize -----------------------------------*/
 
 	public static byte[] getUInt7Bytes(List<Byte> values){
-		if(CollectionTool.isEmpty(values)){
+		if(CollectionTool.nullSafeIsEmpty(values)){
 			return new byte[0];
 		}
 		byte[] out = new byte[values.size()];

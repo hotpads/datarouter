@@ -22,6 +22,8 @@ import com.google.inject.name.Names;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.NoOpChangelogRecorder;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
@@ -43,6 +45,8 @@ import io.datarouter.web.navigation.DatarouterNavBarCreator;
 import io.datarouter.web.navigation.DatarouterNavBarSupplier;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
+import io.datarouter.web.service.ServiceDescriptionSupplier;
+import io.datarouter.web.service.ServiceDescriptionSupplier.NoOpServiceDescription;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
@@ -92,6 +96,9 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefaultInstance(DatarouterNavBarSupplier.class, new DatarouterNavBarCreator(Collections.emptyList()));
 		bindDefaultInstance(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(Collections.emptyList()));
 		bindDefault(AppNavBarRegistrySupplier.class, NoOpAppNavBarRegistry.class);
+		bindDefault(ServiceDescriptionSupplier.class, NoOpServiceDescription.class);
+
+		bindDefault(ChangelogRecorder.class, NoOpChangelogRecorder.class);
 
 		// define as singleton for everybody
 		bind(Gson.class).toInstance(GsonTool.GSON);

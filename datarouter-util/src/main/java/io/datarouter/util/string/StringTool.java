@@ -184,7 +184,7 @@ public class StringTool{
 	}
 
 	public static String concatenate(Collection<?> objects, String delimiter){
-		if(CollectionTool.isEmpty(objects)){
+		if(CollectionTool.nullSafeIsEmpty(objects)){
 			return null;
 		}
 		if(objects.size() == 1){

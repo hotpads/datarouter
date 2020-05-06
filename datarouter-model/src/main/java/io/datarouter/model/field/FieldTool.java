@@ -55,12 +55,12 @@ public class FieldTool{
 			boolean allowNulls,
 			boolean terminateIntermediateString,
 			boolean terminateFinalString){
-		int totalFields = CollectionTool.sizeNullSafe(fields);
+		int totalFields = CollectionTool.nullSafeSize(fields);
 		int numNonNullFields = FieldTool.countNonNullLeadingFields(fields);
 		if(numNonNullFields == 0){
 			return null;
 		}
-		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.sizeNullSafe(fields)][];
+		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.nullSafeSize(fields)][];
 		int fieldIdx = -1;
 		for(Field<?> field : fields){
 			++fieldIdx;
@@ -99,7 +99,7 @@ public class FieldTool{
 			Collection<Field<?>> fields,
 			boolean includePrefix,
 			boolean skipNullValues){
-		if(CollectionTool.isEmpty(fields)){
+		if(CollectionTool.nullSafeIsEmpty(fields)){
 			return new byte[0];
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -33,7 +33,6 @@ public class DatarouterLoggerConfigSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runLoggerConfigCleanupJob;
 	public final CachedSetting<Boolean> handleLoggerConfigDeletionAlerts;
 	public final CachedSetting<Boolean> sendLoggerConfigUpdateAlerts;
-	public final CachedSetting<Boolean> publishChangelog;
 
 	@Inject
 	public DatarouterLoggerConfigSettingRoot(SettingFinder finder){
@@ -45,7 +44,6 @@ public class DatarouterLoggerConfigSettingRoot extends SettingRoot{
 		runLoggerConfigUpdaterJob = registerBoolean("runLoggerConfigUpdaterJob", true);
 		runLoggerConfigCleanupJob = registerBoolean("runLoggerConfigCleanupJob", false);
 		sendLoggerConfigUpdateAlerts = registerBoolean("sendLoggerConfigUpdateAlerts", false);
-		publishChangelog = registerBoolean("publishChangelog", false);
 	}
 
 }

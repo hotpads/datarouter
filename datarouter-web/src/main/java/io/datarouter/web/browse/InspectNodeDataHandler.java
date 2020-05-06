@@ -67,9 +67,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 	protected Integer limit;
 
 	protected abstract PathNode getFormPath();
-
 	protected abstract List<Field<?>> getFields();
-
 	protected abstract List<Field<?>> getKeyFields();
 
 
@@ -113,14 +111,14 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 			mav.put("fieldKeys", fieldKeysAndValues);
 		}
 		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
-		if(CollectionTool.sizeNullSafe(databeans) >= limit){
+		if(databeans.size() >= limit){
 			mav.put(PARAM_nextKey, PrimaryKeyPercentCodecTool.encode(ListTool.getLast(databeans).getKey()));
 		}
 	}
 
 	private <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Map<String,String> getFieldAbbreviationByFieldName(
 			DatabeanFielder<PK,D> fielder, Collection<? extends D> databeans){
-		if(CollectionTool.isEmpty(databeans)){
+		if(CollectionTool.nullSafeIsEmpty(databeans)){
 			return new HashMap<>();
 		}
 		D first = databeans.stream().findFirst().orElse(null);
@@ -130,7 +128,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 
 		for(D d : databeans){
 			List<?> values = FieldTool.getFieldValues(fielder.getFields(d));
-			for(int i = 0; i < CollectionTool.sizeNullSafe(values); ++i){
+			for(int i = 0; i < values.size(); ++i){
 				int length = values.get(i) == null ? 0 : StringTool.length(values.get(i).toString());
 				if(length > maxLengths.get(i)){
 					maxLengths.set(i, length);

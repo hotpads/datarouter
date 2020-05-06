@@ -135,7 +135,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 	/*---------------------------- get Results -----------------------------------*/
 
 	private Scanner<Result> getResults(Collection<PK> keys, Config config, boolean keysOnly){
-		if(CollectionTool.isEmpty(keys)){
+		if(CollectionTool.nullSafeIsEmpty(keys)){
 			return Scanner.empty();
 		}
 		return Scanner.of(keys)

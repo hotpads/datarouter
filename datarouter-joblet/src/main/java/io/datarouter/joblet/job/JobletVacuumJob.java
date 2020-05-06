@@ -69,7 +69,7 @@ public class JobletVacuumJob extends BaseJob{
 				}
 			}
 		}
-		if(CollectionTool.notEmpty(jobletsToDelete)){
+		if(CollectionTool.nullSafeNotEmpty(jobletsToDelete)){
 			deleteJobletRequests(jobletsToDelete, jobletDataToDelete);
 		}
 	}

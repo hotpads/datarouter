@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
@@ -144,7 +143,7 @@ public class WebSocketToolHandler extends BaseHandler{
 				.withClasses("table", "table-sm")
 				.withColumn("Topic", Pair::getLeft)
 				.withColumn("Count", pair -> NumberFormatter.format(pair.getRight(), 0))
-				.build(ListTool.concatenate(rows, List.of(total)));
+				.build(Scanner.of(rows, List.of(total)).concat(Scanner::of).list());
 		var form = new HtmlForm()
 				.withMethod("POST")
 				.addFields(

@@ -41,7 +41,6 @@ import io.datarouter.storage.node.entity.BasePhysicalEntityNode;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.collection.CollectionTool;
 
 public class HBaseEntityNode<
 		EK extends EntityKey<EK>,
@@ -81,7 +80,7 @@ extends BasePhysicalEntityNode<EK,E>{
 
 	@Override
 	public List<E> getEntities(Collection<EK> entityKeys, Config config){
-		if(CollectionTool.isEmpty(entityKeys)){
+		if(entityKeys == null || entityKeys.isEmpty()){
 			return Collections.emptyList();
 		}
 		List<Get> gets = entityKeys.stream()

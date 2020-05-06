@@ -21,7 +21,7 @@ import java.util.Set;
 import com.google.cloud.spanner.Type;
 import com.google.cloud.spanner.Type.Code;
 
-import io.datarouter.util.collection.MapTool;
+import io.datarouter.util.collector.RelaxedMapCollector;
 
 public enum SpannerColumnType{
 	BOOL(Type.bool(), false, false),
@@ -55,7 +55,8 @@ public enum SpannerColumnType{
 			Type.string(),
 			Type.timestamp());
 
-	private static final Map<String,Type> SPANNER_TYPES_MAP = MapTool.getBy(SPANNER_TYPES, Type::toString);
+	private static final Map<String,Type> SPANNER_TYPES_MAP = SPANNER_TYPES.stream()
+			.collect(RelaxedMapCollector.of(Type::toString));
 
 	private final Type spannerType;
 	private final Boolean isArray;

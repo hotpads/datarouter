@@ -15,11 +15,15 @@
  */
 package io.datarouter.web.util.http;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.util.number.NumberTool;
+import io.datarouter.util.string.StringTool;
 
 public class CookieTool{
 
@@ -114,6 +118,30 @@ public class CookieTool{
 		cookieToKill.setPath("/");
 		cookieToKill.setMaxAge(0);
 		response.addCookie(cookieToKill);
+	}
+
+	/**
+	 * Build a map from the string with the format "
+	 * <code>key[keyValueSeparator]value[entrySeperator]key[keyValueSeparator]value...</code>"
+	 * @param string The input {@link String}
+	 * @param entrySeperator The separator between tow entries
+	 * @param keyValueSeparator The separator between the key and the value
+	 * @return a {@link Map}
+	 */
+	public static Map<String,String> getMapFromString(String string, String entrySeperator, String keyValueSeparator){
+		Map<String,String> map = new TreeMap<>();
+		if(StringTool.isEmpty(string)){
+			return map;
+		}
+		String[] entries = string.split(entrySeperator);
+		String[] keyVal;
+		for(String entry : entries){
+			if(StringTool.notEmpty(entry)){
+				keyVal = entry.split(keyValueSeparator);
+				map.put(keyVal[0], keyVal.length > 1 ? keyVal[1] : null);
+			}
+		}
+		return map;
 	}
 
 }

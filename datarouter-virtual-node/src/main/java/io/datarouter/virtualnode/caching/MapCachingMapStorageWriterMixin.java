@@ -24,7 +24,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter.MapStorageWriterNode;
-import io.datarouter.util.collection.CollectionTool;
 
 public class MapCachingMapStorageWriterMixin<
 		PK extends PrimaryKey<PK>,
@@ -92,7 +91,7 @@ implements MapStorageWriter<PK,D>{
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(CollectionTool.isEmpty(databeans)){
+		if(databeans == null || databeans.isEmpty()){
 			return;
 		}
 		if(BaseMapCachingNode.useCache(config)){

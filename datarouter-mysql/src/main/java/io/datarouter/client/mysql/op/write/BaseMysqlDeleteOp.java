@@ -93,7 +93,7 @@ extends BaseMysqlOp<Long>{
 	}
 
 	private static boolean shouldAutoCommit(Collection<?> keys){
-		return CollectionTool.sizeNullSafe(keys) <= 1;
+		return CollectionTool.nullSafeSize(keys) <= 1;
 	}
 
 }

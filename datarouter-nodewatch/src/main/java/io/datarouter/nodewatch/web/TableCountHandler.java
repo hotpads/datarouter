@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package io.datarouter.nodewatch.web;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -29,6 +30,7 @@ import javax.inject.Inject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.nodewatch.config.DatarouterNodewatchFiles;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
@@ -76,6 +78,8 @@ public class TableCountHandler extends BaseHandler{
 	private TableSamplerService tableSamplerService;
 	@Inject
 	private DatarouterNodes datarouterNodes;
+	@Inject
+	private ChangelogRecorder changelogRecorder;
 
 	@Handler(defaultHandler = true)
 	private Mav latestTableCounts(){
@@ -136,6 +140,12 @@ public class TableCountHandler extends BaseHandler{
 				true,
 				System.currentTimeMillis())
 				.call();
+		changelogRecorder.record(
+				"Nodewatch",
+				clientName + "." + tableName,
+				"resample",
+				getSessionInfo().getNonEmptyUsernameOrElse(""),
+				getSessionInfo().getRequiredSession().getUserToken());
 		return new InContextRedirectMav(request, paths.datarouter.nodewatch.tableCount.toSlashedString()
 				+ "?submitAction=singleTable&clientName=" + clientName + "&tableName=" + tableName);
 	}
@@ -151,6 +161,7 @@ public class TableCountHandler extends BaseHandler{
 		tableSampleDao.deleteWithPrefix(tableSampleKeyPrefix);
 
 		//delete from LatestTableCount
+		recordChangelog(clientName, tableName);
 		var latestTableCountKey = new LatestTableCountKey(clientName, tableName);
 		latestTableCountDao.delete(latestTableCountKey);
 		return new InContextRedirectMav(request, paths.datarouter.nodewatch.tableCount.toSlashedString());
@@ -167,6 +178,15 @@ public class TableCountHandler extends BaseHandler{
 		List<TableCount> data = tableCountDao.getForTable(clientName, tableName);
 		JsonArray jsonData = getRowCountJson(data);
 		return jsonData;
+	}
+
+	private void recordChangelog(String clientName, String tableName){
+		changelogRecorder.record(
+				"Nodewatch",
+				clientName + "." + tableName,
+				"deleted metadata",
+				getSessionInfo().getNonEmptyUsernameOrElse(""),
+				getSessionInfo().getRequiredSession().getUserToken());
 	}
 
 	private JsonArray getRowCountJson(List<TableCount> records){

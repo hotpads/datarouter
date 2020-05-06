@@ -29,6 +29,8 @@ import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.virtualnode.writebehind.WriteBehindSortedMapStorageNode;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
+import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
 
 @Singleton
 public class DatarouterOpPerformanceRecordDao extends BaseDao{
@@ -47,10 +49,13 @@ public class DatarouterOpPerformanceRecordDao extends BaseDao{
 	public DatarouterOpPerformanceRecordDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
-			DatarouterOpPerformanceRecordDaoParams params){
+			DatarouterOpPerformanceRecordDaoParams params,
+			DatarouterWriteBehindScheduler scheduler,
+			DatarouterWriteBehindExecutor writeExecutor){
 		super(datarouter);
 		node = new WriteBehindSortedMapStorageNode<>(
-				datarouter,
+				scheduler,
+				writeExecutor,
 				nodeFactory.create(params.clientId,
 				OpPerformanceRecord::new,
 				OpPerformanceRecordFielder::new)

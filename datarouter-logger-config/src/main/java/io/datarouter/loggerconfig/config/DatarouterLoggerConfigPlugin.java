@@ -17,10 +17,6 @@ package io.datarouter.loggerconfig.config;
 
 import java.util.List;
 
-import com.google.inject.name.Names;
-
-import io.datarouter.instrumentation.changelog.ChangelogPublisher;
-import io.datarouter.instrumentation.changelog.ChangelogPublisher.NoOpChangelogPublisher;
 import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao.DatarouterConsoleAppenderDaoParams;
@@ -35,14 +31,8 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 
-	public static final String NAMED_Changelog = "DatarouterLoggerConfigChangeLog";
-
-	private final Class<? extends ChangelogPublisher> changelogPublisher;
-
 	private DatarouterLoggerConfigPlugin(
-			DatarouterLoggerConfigDaoModule daosModuleBuilder,
-			Class<? extends ChangelogPublisher> changelogPublisher){
-		this.changelogPublisher = changelogPublisher;
+			DatarouterLoggerConfigDaoModule daosModuleBuilder){
 
 		addRouteSet(DatarouterLoggingConfigRouteSet.class);
 		addSettingRoot(DatarouterLoggerConfigSettingRoot.class);
@@ -57,19 +47,11 @@ public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 		return "DatarouterLoggerConfig";
 	}
 
-	@Override
-	protected void configure(){
-		bind(ChangelogPublisher.class)
-				.annotatedWith(Names.named(NAMED_Changelog))
-				.to(changelogPublisher);
-	}
-
 	public static class DatarouterLoggerConfigPluginBuilder{
 
 		private final ClientId defaultClientId;
 
 		private DatarouterLoggerConfigDaoModule daoModule;
-		private Class<? extends ChangelogPublisher> changelogPublisher = NoOpChangelogPublisher.class;
 
 		public DatarouterLoggerConfigPluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -80,17 +62,10 @@ public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 			return this;
 		}
 
-		public DatarouterLoggerConfigPluginBuilder enableChangelogPublishing(
-				Class<? extends ChangelogPublisher> changelogPublisher){
-			this.changelogPublisher = changelogPublisher;
-			return this;
-		}
-
 		public DatarouterLoggerConfigPlugin build(){
 			return new DatarouterLoggerConfigPlugin(daoModule == null
 					? new DatarouterLoggerConfigDaoModule(defaultClientId, defaultClientId, defaultClientId)
-					: daoModule,
-					changelogPublisher);
+					: daoModule);
 		}
 
 	}

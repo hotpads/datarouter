@@ -135,7 +135,7 @@ public class HBaseSubEntityResultParser<
 	}
 
 	public List<PK> getPrimaryKeysWithMatchingQualifierPrefix(List<Cell> cells, Integer limit){
-		if(CollectionTool.isEmpty(cells)){
+		if(CollectionTool.nullSafeIsEmpty(cells)){
 			return Collections.emptyList();
 		}
 		ArrayList<PK> pks = new ArrayList<>();
@@ -166,7 +166,7 @@ public class HBaseSubEntityResultParser<
 	}
 
 	public List<D> getDatabeansForKvsWithMatchingQualifierPrefix(List<Cell> cells, Integer limit){
-		if(CollectionTool.isEmpty(cells)){
+		if(CollectionTool.nullSafeIsEmpty(cells)){
 			return Collections.emptyList();
 		}
 		List<D> databeans = new ArrayList<>();

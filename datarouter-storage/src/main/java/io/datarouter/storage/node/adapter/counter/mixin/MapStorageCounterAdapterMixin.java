@@ -46,7 +46,7 @@ extends MapStorage<PK,D>, MapStorageReaderCounterAdapterMixin<PK,D,F,N>{
 	public default void putMulti(Collection<D> databeans, Config config){
 		String opName = MapStorageWriter.OP_putMulti;
 		getCounter().count(opName);
-		getCounter().count(opName + " databeans", CollectionTool.sizeNullSafe(databeans));
+		getCounter().count(opName + " databeans", CollectionTool.nullSafeSize(databeans));
 		getBackingNode().putMulti(databeans, config);
 	}
 
@@ -61,7 +61,7 @@ extends MapStorage<PK,D>, MapStorageReaderCounterAdapterMixin<PK,D,F,N>{
 	public default void deleteMulti(Collection<PK> keys, Config config){
 		String opName = MapStorageWriter.OP_deleteMulti;
 		getCounter().count(opName);
-		getCounter().count(opName + " keys", CollectionTool.sizeNullSafe(keys));
+		getCounter().count(opName + " keys", CollectionTool.nullSafeSize(keys));
 		getBackingNode().deleteMulti(keys, config);
 	}
 

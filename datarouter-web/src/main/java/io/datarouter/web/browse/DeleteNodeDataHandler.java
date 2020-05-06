@@ -17,10 +17,13 @@ package io.datarouter.web.browse;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
@@ -32,6 +35,9 @@ import io.datarouter.web.handler.mav.imp.MessageMav;
 
 public class DeleteNodeDataHandler extends InspectNodeDataHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DeleteNodeDataHandler.class);
+
+	@Inject
+	private ChangelogRecorder changelogRecorder;
 
 	@Override
 	protected PathNode getFormPath(){
@@ -63,6 +69,12 @@ public class DeleteNodeDataHandler extends InspectNodeDataHandler{
 		}
 		mapStorageNode.delete(primaryKey);
 		logger.warn("deleted databean {}", encodedPk);
+		changelogRecorder.record(
+				"Inspect Node Data",
+				node.getName(),
+				"delete",
+				getSessionInfo().getRequiredSession().getUsername(),
+				getSessionInfo().getRequiredSession().getUserToken());
 		return new MessageMav("deleted databean " + encodedPk);
 	}
 

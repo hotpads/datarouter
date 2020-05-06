@@ -58,7 +58,7 @@ extends BaseField<L>{
 	}
 
 	public int size(){
-		return CollectionTool.sizeNullSafe(value);
+		return CollectionTool.nullSafeSize(value);
 	}
 
 }

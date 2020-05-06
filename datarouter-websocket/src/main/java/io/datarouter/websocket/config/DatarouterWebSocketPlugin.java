@@ -16,6 +16,7 @@
 package io.datarouter.websocket.config;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.storage.client.ClientId;
@@ -38,6 +39,8 @@ import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscript
 
 public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 
+	private static final DatarouterWebSocketPaths PATHS = new DatarouterWebSocketPaths();
+
 	private final Class<? extends WebSocketServices> webSocketServices;
 	private final Class<? extends ServerAddressProvider> serverAddressProvider;
 
@@ -59,8 +62,7 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 		this.pushServiceApiKey = pushServiceApiKey;
 
 		addSettingRoot(DatarouterWebSocketSettingRoot.class);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, new DatarouterWebSocketPaths().datarouter.websocketTool,
-				"WebSocket");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.websocketTool, "WebSocket");
 		addTriggerGroup(DatarouterWebSocketTriggerGroup.class);
 		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH,
 				GuiceWebSocketAuthenticationFilter.class));
@@ -83,23 +85,24 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 
 	public static class DatarouterWebSocketPluginBuilder{
 
-		private final DatarouterWebSocketDaoDaoModule daoModule;
+		private final ClientId defaultClientId;
 		private final Class<? extends WebSocketServices> webSocketServices;
 		private final String pushServiceCipherKey;
 		private final String pushServiceSalt;
 		private final String pushServiceApiKey;
 
 		private Class<? extends ServerAddressProvider> serverAddressProvider = DefaultServerAddressProvider.class;
+		private DatarouterWebSocketDaoDaoModule daosModule;
 
 		public DatarouterWebSocketPluginBuilder(
-				ClientId websocketClientId,
+				ClientId defaultClientId,
 				Class<? extends WebSocketServices> webSocketServicesClass,
 				@SuppressWarnings("unused")// found at runtime. ides will show this as unused
 				Class<? extends GuiceWebSocketConfig> webSocketConfig,
 				String pushServiceCipherKey,
 				String pushServiceSalt,
 				String pushServiceApiKey){
-			this.daoModule = new DatarouterWebSocketDaoDaoModule(websocketClientId);
+			this.defaultClientId = defaultClientId;
 			this.webSocketServices = webSocketServicesClass;
 			this.pushServiceCipherKey = pushServiceCipherKey;
 			this.pushServiceSalt = pushServiceSalt;
@@ -112,11 +115,19 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterWebSocketPluginBuilder setDaosModule(
+				ClientId webSocketClientId,
+				ClientId webSocketSubscriptionClientId){
+			this.daosModule = new DatarouterWebSocketDaoDaoModule(webSocketClientId, webSocketSubscriptionClientId);
+			return this;
+		}
+
 		public DatarouterWebSocketPlugin build(){
 			return new DatarouterWebSocketPlugin(
 					webSocketServices,
 					serverAddressProvider,
-					daoModule,
+					Optional.ofNullable(daosModule)
+							.orElse(new DatarouterWebSocketDaoDaoModule(defaultClientId, defaultClientId)),
 					pushServiceCipherKey,
 					pushServiceSalt,
 					pushServiceApiKey);
@@ -127,9 +138,13 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 	public static class DatarouterWebSocketDaoDaoModule extends DaosModuleBuilder{
 
 		private final ClientId webSocketClientId;
+		private final ClientId webSocketSubscriptionClientId;
 
-		public DatarouterWebSocketDaoDaoModule(ClientId webSocketClientId){
+		public DatarouterWebSocketDaoDaoModule(
+				ClientId webSocketClientId,
+				ClientId webSocketSubscriptionClientId){
 			this.webSocketClientId = webSocketClientId;
+			this.webSocketSubscriptionClientId = webSocketSubscriptionClientId;
 		}
 
 		@Override
@@ -143,7 +158,7 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 		public void configure(){
 			bind(DatarouterWebSocketDaoParams.class).toInstance(new DatarouterWebSocketDaoParams(webSocketClientId));
 			bind(DatarouterWebSocketSubscriptionDaoParams.class).toInstance(
-					new DatarouterWebSocketSubscriptionDaoParams(webSocketClientId));
+					new DatarouterWebSocketSubscriptionDaoParams(webSocketSubscriptionClientId));
 		}
 
 	}

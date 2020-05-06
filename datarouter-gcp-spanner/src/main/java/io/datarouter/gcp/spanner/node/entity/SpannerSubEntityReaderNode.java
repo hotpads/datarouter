@@ -80,7 +80,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 
 	@Override
 	public boolean exists(PK key, Config config){
-		return CollectionTool.notEmpty(getKeys(Collections.singletonList(key), config));
+		return CollectionTool.nullSafeNotEmpty(getKeys(Collections.singletonList(key), config));
 	}
 
 	@Override

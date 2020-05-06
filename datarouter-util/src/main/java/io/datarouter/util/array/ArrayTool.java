@@ -117,7 +117,7 @@ public class ArrayTool{
 	}
 
 	public static long[] primitiveLongArray(Collection<Long> ins){
-		if(CollectionTool.isEmpty(ins)){
+		if(CollectionTool.nullSafeIsEmpty(ins)){
 			return new long[0];
 		}
 		long[] array = new long[ins.size()];

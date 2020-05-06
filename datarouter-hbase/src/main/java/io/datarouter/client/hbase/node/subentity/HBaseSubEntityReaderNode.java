@@ -138,7 +138,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 
 	@Override
 	public List<D> getMulti(Collection<PK> pks, Config config){
-		if(CollectionTool.isEmpty(pks)){
+		if(pks == null || pks.isEmpty()){
 			return Collections.emptyList();
 		}
 		String clientName = getClientId().getName();
@@ -158,7 +158,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 
 	@Override
 	public List<PK> getKeys(Collection<PK> pks, Config config){
-		if(CollectionTool.isEmpty(pks)){
+		if(pks == null || pks.isEmpty()){
 			return Collections.emptyList();
 		}
 		String clientName = getClientId().getName();

@@ -38,7 +38,6 @@ import io.datarouter.storage.test.node.basic.sorted.DatarouterSortedNodeTestDao;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntityNode;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeans;
-import io.datarouter.util.collection.ListTool;
 
 @Guice(moduleFactory = DatarouterHBaseTestNgModuleFactory.class)
 public class HBaseEntityNodeIntegrationTests{
@@ -100,9 +99,10 @@ public class HBaseEntityNodeIntegrationTests{
 	// results returned by the hbase scan.
 	@Test
 	public void testScanForRowDatabean1to1(){
-		List<SortedBean> expectedBeans = ListTool.concatenate(normalBeans, extraBeans).stream()
+		List<SortedBean> expectedBeans = Scanner.of(normalBeans, extraBeans)
+				.concat(Scanner::of)
 				.sorted()
-				.collect(Collectors.toList());
+				.list();
 
 		//purposefully tiny batch size
 		List<SortedBean> actualBeans = dao.scanEntity(2).list();

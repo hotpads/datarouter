@@ -35,7 +35,6 @@ import io.datarouter.storage.test.node.basic.manyfield.TestEnum;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.lang.ReflectionTool;
 
@@ -100,7 +99,7 @@ public class JsonDatabeanToolTests{
 		JsonArray jsonKeys = JsonDatabeanTool.primaryKeysToJson(keysIn, sortedBeanFielder.getKeyFielder());
 		List<SortedBeanKey> keysOut = JsonDatabeanTool.primaryKeysFromJson(SortedBeanKey.class, sortedBeanFielder
 				.getKeyFielder(), jsonKeys);
-		Assert.assertEquals(CollectionTool.sizeNullSafe(keysOut), 3);
+		Assert.assertEquals(keysOut.size(), 3);
 		Assert.assertEquals(keysOut.toArray(), keysIn.toArray());
 
 		SortedBean bean0 = new SortedBean(key0, "1", 2L, null, 45.67d);
@@ -109,7 +108,7 @@ public class JsonDatabeanToolTests{
 		JsonArray jsonDatabeans = JsonDatabeanTool.databeansToJson(databeansIn, sortedBeanFielder);
 		List<SortedBean> databeansOut = JsonDatabeanTool.databeansFromJson(ReflectionTool.supplier(SortedBean.class),
 				sortedBeanFielder, jsonDatabeans);
-		Assert.assertEquals(CollectionTool.sizeNullSafe(databeansOut), 2);
+		Assert.assertEquals(databeansOut.size(), 2);
 		Assert.assertEquals(databeansOut.toArray(), databeansIn.toArray());
 		Assert.assertEquals(Scanner.of(databeansOut).map(Databean::getKey).list(), keysIn.subList(0,2));
 	}
