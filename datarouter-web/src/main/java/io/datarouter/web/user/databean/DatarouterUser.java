@@ -40,7 +40,7 @@ import io.datarouter.model.key.unique.base.BaseStringUniqueKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.scanner.IterableScanner;
-import io.datarouter.util.collection.SetTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.SessionBasedUser;
 
@@ -153,7 +153,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	}
 
 	public DatarouterUser addRoles(Collection<Role> roles){
-		setRoles(SetTool.union(getRoles(), roles));
+		setRoles(Scanner.concat(getRoles(), roles).collect(HashSet::new));
 		return this;
 	}
 

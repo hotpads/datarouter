@@ -20,7 +20,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,6 +40,7 @@ import io.datarouter.plugin.copytable.CopyTableJoblet.CopyTableJobletParams;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
+import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -216,8 +216,8 @@ public class JobletCopyTableHandler extends BaseHandler{
 				counter,
 				numJoblets));
 		++counter;
-		Collections.shuffle(jobletPackages);//optimization to spread write load.  could be optional
-		jobletService.submitJobletPackages(jobletPackages);
+		// shuffle as optimization to spread write load.  could be optional
+		jobletService.submitJobletPackages(CollectionTool.shuffleCopy(jobletPackages));
 		changelogRecorderService.recordChangelog(getSessionInfo(), "Joblet", sourceNodeName.get(), targetNodeName
 				.get());
 		return pageFactory.message(request, "created " + numJoblets + " joblets");

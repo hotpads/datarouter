@@ -172,7 +172,7 @@ class Secrets extends React.Component{
 						this.addErrorMessage('ERROR: ' + json.message)
 						onError && onError(json)
 					}
-				}).catch(error => {
+				}).catch(error => {//TODO got this for 500 from ChangeLog
 					this.addErrorMessage('Network error. Try again.')
 				})
 	}

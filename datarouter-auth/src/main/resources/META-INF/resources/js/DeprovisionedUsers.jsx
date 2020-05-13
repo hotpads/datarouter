@@ -79,8 +79,8 @@ class Users extends React.Component{
 			const newUsers = state.users
 					.map(user => {
 						if(currentFilteredUsernames[user.username] === user.username && !user.isChecked){
-							numAddedToRestore += user.status === 'DEPROVISIONED' ? 1 : 0
-							numAddedToDeprovision += user.status === 'FLAGGED' ? 1 : 0
+							numAddedToRestore += user.status.name === 'DEPROVISIONED' ? 1 : 0
+							numAddedToDeprovision += user.status.name === 'FLAGGED' ? 1 : 0
 							return {...user, isChecked: true}
 						}
 						return user
@@ -112,7 +112,7 @@ class Users extends React.Component{
 		this.setState((state, props) => {
 			const user = state.users.find(user => user.username === targetUsername)
 			const isAdd = !user.isChecked
-			const numCheckedToIncrement = user.status === 'FLAGGED' ? 'numCheckedToDeprovision' : user.status === 'DEPROVISIONED' ? 'numCheckedToRestore' : ''
+			const numCheckedToIncrement = user.status.name === 'FLAGGED' ? 'numCheckedToDeprovision' : user.status.name === 'DEPROVISIONED' ? 'numCheckedToRestore' : ''
 			const newUsers = state.users.map(user => user.username === targetUsername ? {...user, isChecked: isAdd} : user)
 			return {
 				[numCheckedToIncrement]: state[numCheckedToIncrement] + (isAdd ? 1 : -1),
@@ -163,7 +163,7 @@ class Users extends React.Component{
 		if(!window.confirm(message)){
 			return
 		}
-		const usernamesToRestore = this.state.users.filter(user => user.isChecked && user.status === 'DEPROVISIONED')
+		const usernamesToRestore = this.state.users.filter(user => user.isChecked && user.status.name === 'DEPROVISIONED')
 				.map(user => user.username)
 		fetch(PATH + '/restoreUsers', {
 					...FETCH_OPTIONS, method: 'POST', body: JSON.stringify({usernamesToRestore: usernamesToRestore})
@@ -179,7 +179,7 @@ class Users extends React.Component{
 		if(!window.confirm(message)){
 			return
 		}
-		const usernamesToDeprovision = this.state.users.filter(user => user.isChecked && user.status === 'FLAGGED')
+		const usernamesToDeprovision = this.state.users.filter(user => user.isChecked && user.status.name === 'FLAGGED')
 				.map(user => user.username)
 		fetch(PATH + '/deprovisionUsers', {
 					...FETCH_OPTIONS, method: 'POST', body: JSON.stringify({usernamesToDeprovision: usernamesToDeprovision})
@@ -195,10 +195,10 @@ class Users extends React.Component{
 			if(emailFilter.length > 0 && user.username.toLowerCase().indexOf(emailFilter.toLowerCase()) < 0){
 				return false
 			}
-			if(isFlaggedOnlyChecked && user.status !== 'FLAGGED'){
+			if(isFlaggedOnlyChecked && user.status.name !== 'FLAGGED'){
 				return false
 			}
-			if(isDeprovisionedOnlyChecked && user.status !== 'DEPROVISIONED'){
+			if(isDeprovisionedOnlyChecked && user.status.name !== 'DEPROVISIONED'){
 				return false
 			}
 			return true
@@ -292,12 +292,12 @@ const UserList = props =>
 							<tr>
 								<td>{user.username}</td>
 								<td>{user.roles.toString()}</td>
-								<td>{user.status}</td>
+								<td>{user.status.name}</td>
 								<td>
-									<input type="checkbox" checked={user.status === 'DEPROVISIONED' && user.isChecked} disabled={user.status !== 'DEPROVISIONED'} onChange={() => props.handleToggleChecked(user.username)}/>
+									<input type="checkbox" checked={user.status.name === 'DEPROVISIONED' && user.isChecked} disabled={user.status.name !== 'DEPROVISIONED'} onChange={() => props.handleToggleChecked(user.username)}/>
 								</td>
 								<td>
-									<input type="checkbox" checked={user.status === 'FLAGGED' && user.isChecked} disabled={user.status !== 'FLAGGED'} onChange={() => props.handleToggleChecked(user.username)}/>
+									<input type="checkbox" checked={user.status.name === 'FLAGGED' && user.isChecked} disabled={user.status.name !== 'FLAGGED'} onChange={() => props.handleToggleChecked(user.username)}/>
 								</td>
 							</tr>
 						)

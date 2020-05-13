@@ -55,11 +55,11 @@ import io.datarouter.client.hbase.compaction.HBaseCompactionInfo;
 import io.datarouter.client.hbase.config.DatarouterHBaseFiles;
 import io.datarouter.client.hbase.util.HBaseClientTool;
 import io.datarouter.client.hbase.util.ServerNameTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.timer.PhaseTimer;
@@ -160,7 +160,7 @@ public class HBaseHandler extends BaseHandler{
 		mav.put("tableParamByName", tableParamByName);
 
 		// column family level settings
-		List<HColumnDescriptor> columnFamilies = ListTool.create(table.getColumnFamilies());
+		List<HColumnDescriptor> columnFamilies = Scanner.of(table.getColumnFamilies()).list();
 		Map<String,Map<String,String>> columnSummaryByName = new TreeMap<>();
 		for(HColumnDescriptor column : columnFamilies){
 			Map<String,String> attributeByName = parseFamilyAttributeMap(column.getValues());

@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.tuple.Pair;
 
 /*
@@ -112,6 +114,10 @@ public class PhaseTimer{
 					.sum();
 		}
 		return 0;
+	}
+
+	public String getElapsedString(){
+		return new DatarouterDuration(getElapsedTimeBetweenFirstAndLastEvent(), TimeUnit.MILLISECONDS).toString();
 	}
 
 	public float getItemsPerSecond(int numItems){

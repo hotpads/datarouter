@@ -15,18 +15,19 @@
  */
 package io.datarouter.auth.web;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -38,78 +39,82 @@ import io.datarouter.auth.service.DatarouterUserEditService;
 import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.service.UserInfo;
-import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
-import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
+import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUser;
+import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao;
+import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserKey;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
+import io.datarouter.auth.storage.user.DatarouterUserDao;
+import io.datarouter.auth.web.DatarouterPermissionRequestHandler.PermissionRequestDto;
+import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
+import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
+import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
-import io.datarouter.web.handler.mav.imp.MessageMav;
+import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
+import io.datarouter.web.js.DatarouterWebJsTool;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.databean.DatarouterUser;
-import io.datarouter.web.user.databean.DatarouterUserKey;
+import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleManager;
+import io.datarouter.web.user.session.service.SessionBasedUser;
 import io.datarouter.web.util.http.ResponseTool;
 
 public class AdminEditUserHandler extends BaseHandler{
 
-	private static final String AUTHENTICATION_CONFIG = "authenticationConfig";
-	private static final String DATAROUTER_USER_ROLES = "datarouterUserRoles";
-	private static final String USER = "user";
-	private static final String USER_ROLES = "userRoles";
-
+	//TODO DATAROUTER-2759 data fetching classes that require DatarouterUser or DatarouterSession databeans
 	@Inject
-	private BaseDatarouterAccountDao datarouterAccountDao;
+	private DatarouterUserCreationService datarouterUserCreationService;
+	@Inject
+	private DatarouterUserDao datarouterUserDao;
+	@Inject
+	private DatarouterUserService datarouterUserService;
+	@Inject
+	private DatarouterUserEditService datarouterUserEditService;
+	@Inject
+	private DatarouterUserHistoryService datarouterUserHistoryService;
+
 	@Inject
 	private DatarouterAccountService datarouterAccountService;
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
-	private DatarouterUserCreationService datarouterUserCreationService;
-	@Inject
-	private DatarouterUserService datarouterUserService;
-	@Inject
 	private RoleManager roleManager;
-	@Inject
-	private DatarouterUserEditService datarouterUserEditService;
-	@Inject
-	private DatarouterUserHistoryService datarouterUserHistoryService;
 	@Inject
 	private DatarouterAuthPaths paths;
 	@Inject
 	private DatarouterAuthFiles files;
+	@Inject
+	private DatarouterPermissionRequestDao datarouterPermissionRequestDao;
+	@Inject
+	private DeprovisionedUserDao deprovisionedUserDao;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private Bootstrap4ReactPageFactory reactPageFactory;
-
-	//data fetching classes that are not tied to DatarouterUser user DatarouterSession databeans
-	@Inject
-	private DatarouterPermissionRequestDao datarouterPermissionRequestDao;
 	@Inject
 	private UserInfo userInfo;
 
 	@Handler
 	private Mav viewUsers(){
-		return reactPageFactory.startBuilder(request)
-				.withTitle("Datarouter - Users")
-				.withReactScript(files.js.viewUsersJsx)
-				.buildMav();
+		return getReactMav("Datarouter - Users", Optional.empty());
 	}
 
 	@Handler
 	private List<DatarouterUserListEntry> listUsers(){
 		Set<Long> userIdsWithPermissionRequests = datarouterPermissionRequestDao.getUserIdsWithPermissionRequests();
-		return userInfo.scanAllUsers(false, roleManager.getAllRoles())
+		//TODO DATAROUTER-2794 refactor to use UserInfo#scanAllUsers without breaking vacuum job
+		return datarouterUserDao.scan()
 				.map(user -> new DatarouterUserListEntry(
 						user.getId().toString(),
 						user.getUsername(),
@@ -118,6 +123,7 @@ public class AdminEditUserHandler extends BaseHandler{
 				.list();
 	}
 
+	//TODO DATAROUTER-2786
 	@Handler
 	private Mav createUser(){
 		if(serverTypeDetector.mightBeProduction()){
@@ -133,6 +139,7 @@ public class AdminEditUserHandler extends BaseHandler{
 				.buildMav();
 	}
 
+	//TODO DATAROUTER-2786
 	@Handler
 	private Mav createUserSubmit(){
 		if(serverTypeDetector.mightBeProduction()){
@@ -154,104 +161,107 @@ public class AdminEditUserHandler extends BaseHandler{
 		return new InContextRedirectMav(request, paths.admin.viewUsers);
 	}
 
+	//TODO DATAROUTER-2759 make this work without DatarouterUser
 	@Handler
 	private Mav editUser(){
 		DatarouterUser currentUser = getCurrentUser();
-		Long userId = params.optionalLong(authenticationConfig.getUserIdParam(), currentUser.getId());
-		DatarouterUser userToEdit = datarouterUserService.getUserById(userId);
-		checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUser);
-
-		Mav mav = new Mav(files.jsp.authentication.editUserFormJsp);
-		mav.put(USER, userToEdit);
-
-		List<DatarouterPermissionRequest> currentRequests = new ArrayList<>();
-		List<DatarouterPermissionRequest> pastRequests = new ArrayList<>();
-		datarouterPermissionRequestDao.scanPermissionRequestsForUser(userId).forEach(request -> {
-			if(request.getResolution() == null){
-				currentRequests.add(request);
-			}else{
-				pastRequests.add(request);
-			}
-		});
-		currentRequests.sort(DatarouterPermissionRequest.REVERSE_CHRONOLOGICAL_COMPARATOR);
-		Map<DatarouterPermissionRequest, String> resolvedRequests = new TreeMap<>(DatarouterPermissionRequest
-				.REVERSE_CHRONOLOGICAL_COMPARATOR);
-		resolvedRequests.putAll(datarouterUserHistoryService.getResolvedRequestToHistoryChangesMap(pastRequests));
-		mav.put("currentRequests", currentRequests);
-		mav.put("resolvedRequests", resolvedRequests);
-
-		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
-		addPaths(mav);
-		mav.put(DATAROUTER_USER_ROLES, roleToStrings(roleManager.getConferrableRoles(currentUser.getRoles())));
-		mav.put(USER_ROLES, roleToStrings(userToEdit.getRoles()));
-		mav.put("datarouterAccounts", datarouterAccountDao.scan()
-				.sorted(Comparator.comparing(accnt -> accnt.getKey().getAccountName(), String.CASE_INSENSITIVE_ORDER))
-				.include(DatarouterAccount::getEnableUserMappings)
-				.list());
-		mav.put("userAccounts", datarouterAccountService.findAccountNamesForUser(new DatarouterUserKey(userId)));
-		mav.put("permissionRequestPage", request.getContextPath() + paths.permissionRequest.toSlashedString());
-		mav.put("thisPagePath", request.getRequestURI() + (request.getQueryString() == null ? "" : "?" + request
-				.getQueryString()));
-		mav.put("declinePath", request.getContextPath() + paths.permissionRequest.declineAll.toSlashedString());
-		return mav;
+		DatarouterUser userToEdit = params.optional("username")
+				.map(DatarouterUserByUsernameLookup::new)
+				.map(datarouterUserDao::getByUsername)
+				.orElseGet(() -> {
+					Optional<Long> optionalUserId = params.optionalLong("userId");
+					if(optionalUserId.isPresent()){
+						//TODO DATAROUTER-2788? consider what to display, since this breaks the page
+						return optionalUserId.map(datarouterUserService::getUserById).get();
+					}
+					return currentUser;
+				});
+		if(!checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUser)){
+			return null;
+		}
+		return getReactMav("Datarouter - Edit User " + userToEdit.getUsername(), Optional.of(userToEdit.getUsername()));
 	}
 
+	//TODO DATAROUTER-2759 make this work without DatarouterUser
 	@Handler
-	private Mav editUserSubmit(){
-		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
-		Boolean enabled = params.optionalBoolean(authenticationConfig.getEnabledParam(), false);
-		DatarouterUser currentUser = getCurrentUser();
-		DatarouterUser userToEdit = datarouterUserService.getUserById(userId);
-		checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUser);
+	private EditUserDetailsDto getUserDetails(String username){
+		if(StringTool.isNullOrEmptyOrWhitespace(username)){
+			return new EditUserDetailsDto("Invalid username.");
+		}
+		if(!checkEditPermission(getCurrentUser(), datarouterUserDao.getByUsername(new DatarouterUserByUsernameLookup(
+				username)), datarouterUserService::canEditUser)){
+			return null;
+		}
+		return getEditUserDetailsDto(username);
+	}
 
-		String[] roleStrings = params.optionalArray(authenticationConfig.getUserRolesParam()).orElse(new String[0]);
-		Set<Role> userRoles = Arrays.stream(roleStrings)
+	//TODO DATAROUTER-2759 make this work without DatarouterUser
+	@Handler
+	private EditUserDetailsDto updateUserDetails(@RequestBody EditUserDetailsDto dto){
+		if(dto == null
+				|| StringTool.isNullOrEmptyOrWhitespace(dto.username)
+				|| dto.currentAccounts == null
+				|| dto.currentRoles == null){
+			return new EditUserDetailsDto("Invalid request.");
+		}
+		DatarouterUser currentUser = getCurrentUser();
+		DatarouterUser userToEdit = datarouterUserDao.getByUsername(new DatarouterUserByUsernameLookup(dto.username));
+		if(!userToEdit.isEnabled()){
+			return new EditUserDetailsDto("This user is not editable.");
+		}
+		if(!checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUser)){
+			return null;
+		}
+
+		Set<Role> userRoles = Scanner.of(dto.currentRoles.entrySet())
+				.include(Entry::getValue)
+				.map(Entry::getKey)
 				.map(roleManager::getRoleFromPersistentString)
 				.collect(Collectors.toSet());
-		Set<DatarouterAccountKey> requestedAccounts = params.optionalArray("accounts")
-				.map(Arrays::stream)
-				.orElseGet(Stream::empty)
+		Set<DatarouterAccountKey> requestedAccounts = Scanner.of(dto.currentAccounts.entrySet())
+				.include(Entry::getValue)
+				.map(Entry::getKey)
 				.map(DatarouterAccountKey::new)
 				.collect(Collectors.toSet());
-		datarouterUserEditService.editUser(userToEdit, currentUser, userRoles, enabled, getSigninUrl(),
+		datarouterUserEditService.editUser(userToEdit, currentUser, userRoles, null, getSigninUrl(),
 				requestedAccounts);
-		return new InContextRedirectMav(request, paths.admin.editUser.toSlashedString() + "?userId=" + userId);
+		return getEditUserDetailsDto(dto.username);
 	}
 
+	//TODO DATAROUTER-2759 make this work without DatarouterUser
 	@Handler
-	private Mav resetPassword(){
-		DatarouterUser currentUser = getCurrentUser();
-		Long userId = params.optionalLong(authenticationConfig.getUserIdParam(), currentUser.getId());
-		DatarouterUser userToEdit = datarouterUserService.getUserById(userId);
-		checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUserPassword);
-		Mav mav = new Mav(files.jsp.authentication.resetPasswordFormJsp);
-		mav.put("enabled", datarouterUserService.canHavePassword(userToEdit));
-		mav.put(USER, userToEdit);
-		mav.put(AUTHENTICATION_CONFIG, authenticationConfig);
-		addPaths(mav);
-		return mav;
-	}
-
-	@Handler
-	private Mav resetPasswordSubmit(){
-		String password = params.required(authenticationConfig.getPasswordParam());
-		Long userId = params.requiredLong(authenticationConfig.getUserIdParam());
-		DatarouterUser currentUser = getCurrentUser();
-		DatarouterUser userToEdit = datarouterUserService.getUserById(userId);
-		checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUserPassword);
-		if(!datarouterUserService.canHavePassword(userToEdit)){
-			return new MessageMav("This user is externally authenticated and cannot have a password.");
+	private EditUserDetailsDto updatePassword(@RequestBody UpdatePasswordRequestDto dto){
+		if(dto == null
+				|| StringTool.isNullOrEmptyOrWhitespace(dto.username)
+				|| StringTool.isNullOrEmptyOrWhitespace(dto.newPassword)){
+			return new EditUserDetailsDto("Invalid request.");
 		}
-		datarouterUserEditService.changePassword(userToEdit, currentUser, password, getSigninUrl());
-		String path = pathBuilder(paths.admin.editUser.toSlashedString(), authenticationConfig.getUserIdParam(),
-				userId.toString());
-		return new InContextRedirectMav(request, path);
+		DatarouterUser currentUser = getCurrentUser();
+		DatarouterUser userToEdit = datarouterUserDao.getByUsername(new DatarouterUserByUsernameLookup(dto.username));
+		if(!checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUserPassword)){
+			return null;
+		}
+		if(!datarouterUserService.canHavePassword(userToEdit)){
+			return new EditUserDetailsDto("This user is externally authenticated and cannot have a password.");
+		}
+		datarouterUserEditService.changePassword(userToEdit, currentUser, dto.newPassword, getSigninUrl());
+		return getEditUserDetailsDto(userToEdit.getUsername());
 	}
+
 
 	/*----------------- helpers --------------------*/
 
 	private DatarouterUser getCurrentUser(){
 		return datarouterUserService.getAndValidateCurrentUser(getSessionInfo().getRequiredSession());
+	}
+
+	private Mav getReactMav(String title, Optional<String> initialUsername){
+		return reactPageFactory.startBuilder(request)
+				.withTitle(title)
+				.withReactScript(files.js.viewUsersJsx)
+				.withJsRawConstant("PATHS", DatarouterWebJsTool.buildRawJsObject(buildPaths(request.getContextPath())))
+				.withJsStringConstant("INITIAL_USERNAME", initialUsername.orElse(""))
+				.buildMav();
 	}
 
 	private static List<String> roleToStrings(Collection<Role> roles){
@@ -261,11 +271,7 @@ public class AdminEditUserHandler extends BaseHandler{
 				.collect(Collectors.toList());
 	}
 
-	private String pathBuilder(String path, String param, String value){
-		return path + "?" + param + "=" + value;
-	}
-
-	private void checkEditPermission(
+	private boolean checkEditPermission(
 			DatarouterUser currentUser,
 			DatarouterUser userToEdit,
 			BiFunction<DatarouterUser,DatarouterUser,Boolean> permissionMethod){
@@ -273,7 +279,9 @@ public class AdminEditUserHandler extends BaseHandler{
 		Objects.requireNonNull(userToEdit);
 		if(!permissionMethod.apply(currentUser, userToEdit)){
 			handleInvalidRequest();
+			return false;
 		}
+		return true;
 	}
 
 	private String getSigninUrl(){
@@ -283,15 +291,66 @@ public class AdminEditUserHandler extends BaseHandler{
 		return requestUrlWithoutContext + request.getContextPath() + paths.signin.toSlashedString();
 	}
 
+	//TODO DATAROUTER-2788 this doesn't play nicely with JSON
 	private void handleInvalidRequest(){
 		ResponseTool.sendError(response, 403, "invalid request");
 	}
 
-	private void addPaths(Mav mav){
-		mav.put("createUserSubmitPath", paths.admin.createUserSubmit.toSlashedString());
-		mav.put("resetPasswordSubmitPath", paths.resetPasswordSubmit.toSlashedString());
-		mav.put("resetPasswordPath", paths.resetPassword.toSlashedString());
-		mav.put("editUserSubmitPath", paths.admin.editUserSubmit.toSlashedString());
+	//TODO DATAROUTER-2788
+	private EditUserDetailsDto getEditUserDetailsDto(String username){
+		SessionBasedUser user = userInfo.getUserByUsername(username).orElseThrow();
+		Set<Role> roles = userInfo.getRolesByUsername(username, true);
+
+		List<PermissionRequestDto> permissionRequests = datarouterPermissionRequestDao
+				.scanPermissionRequestsForUser(user.getId())
+				.listTo(requests -> Scanner.of(datarouterUserHistoryService.getResolvedRequestToHistoryChangesMap(
+						requests).entrySet()))
+				.sorted(Comparator.comparing(Entry::getKey, DatarouterPermissionRequest
+						.REVERSE_CHRONOLOGICAL_COMPARATOR))
+				.map(AdminEditUserHandler::buildPermissionRequestDto)
+				.list();
+
+		return new EditUserDetailsDto(
+				user.getUsername(),
+				user.getId().toString(),
+				user.getToken(),
+				permissionRequests,
+				deprovisionedUserDao.find(new DeprovisionedUserKey(username))
+						.map(DeprovisionedUser::toDto)
+						.orElse(new DeprovisionedUserDto(username, Scanner.of(roles).map(Role::getPersistentString)
+								.list(), UserDeprovisioningStatusDto.PROVISIONED)),
+				roleManager.getConferrableRoles(getSessionInfo().getRoles()),
+				roles,
+				datarouterAccountService.getAllAccountNamesWithUserMappingsEnabled(),
+				datarouterAccountService.findAccountNamesForUser(user),
+				true,
+				"");
+	}
+
+	//TODO DATAROUTER-2789
+	private static PermissionRequestDto buildPermissionRequestDto(Entry<DatarouterPermissionRequest,
+			Optional<String>> entry){
+		DatarouterPermissionRequest request = entry.getKey();
+		return new PermissionRequestDto(request.getKey().getRequestTime(), request.getRequestText(), request
+				.getResolutionTime(), entry.getValue().orElse(null));
+	}
+
+	private Map<String,String> buildPaths(String contextPath){
+		return Map.of(
+				"editUser", getPath(contextPath, paths.admin.editUser),
+				"getUserDetails", getPath(contextPath, paths.admin.getUserDetails),
+				"listUsers", getPath(contextPath, paths.admin.listUsers),
+				"viewUsers", getPath(contextPath, paths.admin.viewUsers),
+				"updatePassword", getPath(contextPath, paths.admin.updatePassword),
+				"updateUserDetails", getPath(contextPath, paths.admin.updateUserDetails),
+				"permissionRequest", getPath(contextPath, paths.permissionRequest),
+				"declinePermissionRequests", getPath(contextPath, paths.permissionRequest.declinePermissionRequests),
+				"deprovisionUsers", getPath(contextPath, paths.userDeprovisioning.deprovisionUsers),
+				"restoreUsers", getPath(contextPath, paths.userDeprovisioning.restoreUsers));
+	}
+
+	private static String getPath(String contextPath, PathNode pathNode){
+		return contextPath + pathNode.toSlashedString();
 	}
 
 	public static class DatarouterUserListEntry{
@@ -306,6 +365,81 @@ public class AdminEditUserHandler extends BaseHandler{
 			this.username = username;
 			this.token = token;
 			this.hasPermissionRequest = hasPermissionRequest;
+		}
+
+	}
+
+	public static class EditUserDetailsDto{
+
+		public final String username;
+		public final String id;
+		public final String token;
+		public final List<PermissionRequestDto> requests;
+		public final DeprovisionedUserDto deprovisionedUserDto;
+		public final List<String> availableRoles;
+		public final Map<String,Boolean> currentRoles;
+		public final List<String> availableAccounts;
+		public final Map<String,Boolean> currentAccounts;
+
+		//TODO DATAROUTER-2788
+		public final boolean success;
+		public final String message;
+
+		public EditUserDetailsDto(String username, String id, String token, List<PermissionRequestDto> requests,
+				DeprovisionedUserDto deprovisionedUserDto, Collection<Role> availableRoles,
+				Collection<Role> currentRoles, Collection<String> availableAccounts, Collection<String> currentAccounts,
+				boolean success, String message){
+			this.username = username;
+			this.id = id;
+			this.token = token;
+			this.requests = requests;
+			this.deprovisionedUserDto = deprovisionedUserDto;
+			this.availableRoles = Scanner.of(availableRoles)
+					.map(Role::getPersistentString)
+					.sorted(StringTool.COLLATOR_COMPARATOR)
+					.deduplicate()
+					.list();
+			Set<String> currentRolesSet = Scanner.of(currentRoles)
+					.map(Role::getPersistentString)
+					.collect(HashSet::new);
+			this.currentRoles = Scanner.of(availableRoles)
+					.map(Role::getPersistentString)
+					.collect(Collectors.toMap(Function.identity(), currentRolesSet::contains));
+			this.availableAccounts = Scanner.of(availableAccounts)
+					.sorted(StringTool.COLLATOR_COMPARATOR)
+					.deduplicate()
+					.list();
+			Set<String> currentAccountsSet = new HashSet<>(currentAccounts);
+			this.currentAccounts = Scanner.of(availableAccounts)
+					.collect(Collectors.toMap(Function.identity(), currentAccountsSet::contains));
+			this.success = success;
+			this.message = message;
+		}
+
+		public EditUserDetailsDto(String errorMessage){
+			this.username = null;
+			this.id = null;
+			this.token = null;
+			this.requests = null;
+			this.deprovisionedUserDto = null;
+			this.availableRoles = null;
+			this.currentRoles = null;
+			this.availableAccounts = null;
+			this.currentAccounts = null;
+			this.success = false;
+			this.message = errorMessage;
+		}
+
+	}
+
+	public static class UpdatePasswordRequestDto{
+
+		public final String username;
+		public final String newPassword;
+
+		public UpdatePasswordRequestDto(String username, String newPassword){
+			this.username = username;
+			this.newPassword = newPassword;
 		}
 
 	}

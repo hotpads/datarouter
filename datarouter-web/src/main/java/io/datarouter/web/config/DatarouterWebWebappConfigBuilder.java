@@ -18,8 +18,10 @@ package io.datarouter.web.config;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -115,6 +117,7 @@ implements WebappBuilder{
 	private String nodeWidgetDatabeanExporterLink;
 	private String nodeWidgetTableCountLink;
 	private String serviceDescription;
+	private Map<String,String> serviceDocumentationNamesAndLinks = new HashMap<>();
 	protected boolean useDatarouterAuth;
 
 	// datarouter-web servlet
@@ -250,6 +253,7 @@ implements WebappBuilder{
 				.withNodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink)
 				.withNodeWidgetTableCountLink(nodeWidgetTableCountLink)
 				.setServiceDescription(serviceDescription)
+				.setServiceDocumentationNamesAndLinks(serviceDocumentationNamesAndLinks)
 				.build();
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
@@ -535,6 +539,11 @@ implements WebappBuilder{
 
 	public T setServiceDescription(String serviceDescription){
 		this.serviceDescription = serviceDescription;
+		return getSelf();
+	}
+
+	public T addServiceDocumentationLink(String name, String link){
+		this.serviceDocumentationNamesAndLinks.put(name, link);
 		return getSelf();
 	}
 

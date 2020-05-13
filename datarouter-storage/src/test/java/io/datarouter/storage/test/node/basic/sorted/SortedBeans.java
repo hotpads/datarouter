@@ -17,11 +17,12 @@ package io.datarouter.storage.test.node.basic.sorted;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import io.datarouter.util.collection.CollectionTool;
 
 public class SortedBeans{
 
@@ -71,15 +72,11 @@ public class SortedBeans{
 	}
 
 	public static List<SortedBean> generatedSortedBeans(){
-		List<String> as = new ArrayList<>(STRINGS);
-		List<String> bs = new ArrayList<>(STRINGS);
-		List<Integer> cs = new ArrayList<>(INTEGERS);
-		List<String> ds = new ArrayList<>(STRINGS);
 		//shuffle them for fun.  they should end up sorted in the table
-		Collections.shuffle(as);
-		Collections.shuffle(bs);
-		Collections.shuffle(cs);
-		Collections.shuffle(ds);
+		List<String> as = CollectionTool.shuffleCopy(STRINGS);
+		List<String> bs = CollectionTool.shuffleCopy(STRINGS);
+		List<Integer> cs = CollectionTool.shuffleCopy(INTEGERS);
+		List<String> ds = CollectionTool.shuffleCopy(STRINGS);
 
 		List<SortedBean> beans = new ArrayList<>();//save in periodic batches
 		for(int a = 0; a < NUM_ELEMENTS; ++a){

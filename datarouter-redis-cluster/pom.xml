@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.30</version>
+		<version>0.0.31</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>3.2.0</version>
+			<version>${jedis-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

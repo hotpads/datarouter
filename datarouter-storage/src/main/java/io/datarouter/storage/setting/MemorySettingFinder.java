@@ -15,15 +15,14 @@
  */
 package io.datarouter.storage.setting;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.util.collection.ListTool;
 
 public class MemorySettingFinder implements SettingFinder{
 
@@ -74,7 +73,7 @@ public class MemorySettingFinder implements SettingFinder{
 
 	@Override
 	public List<String> getAllCustomSettingValues(String name){
-		return getSettingValue(name).map(ListTool::wrap).orElseGet(ArrayList::new);
+		return OptionalScanner.of(getSettingValue(name)).list();
 	}
 
 	public void setSettingValue(String name, Object value){

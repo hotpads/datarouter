@@ -15,27 +15,38 @@
  */
 package io.datarouter.auth.cache;
 
-import java.time.Duration;
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
-import io.datarouter.util.cache.LoadingCache.LoadingCacheBuilder;
-import io.datarouter.util.cache.LoadingCacheWrapper;
 
 @Singleton
-public class DatarouterAccountPermissionKeysByPrefixCache
-extends LoadingCacheWrapper<DatarouterAccountPermissionKey,Collection<DatarouterAccountPermissionKey>>{
+public class DatarouterAccountPermissionKeysByPrefixCache{
+
+	private final BaseDatarouterAccountPermissionDao dao;
+	private final AtomicReference<Map<DatarouterAccountPermissionKey,List<DatarouterAccountPermissionKey>>> cache;
 
 	@Inject
 	public DatarouterAccountPermissionKeysByPrefixCache(BaseDatarouterAccountPermissionDao dao){
-		super(new LoadingCacheBuilder<DatarouterAccountPermissionKey,Collection<DatarouterAccountPermissionKey>>()
-				.withLoadingFunction(key -> dao.scanKeysWithPrefix(key).list())
-				.withExpireTtl(Duration.ofSeconds(6L))
-				.build());
+		this.dao = dao;
+		this.cache = new AtomicReference<>(load());
+	}
+
+	public Map<DatarouterAccountPermissionKey,List<DatarouterAccountPermissionKey>> load(){
+		return dao.scanKeys().groupBy(DatarouterAccountPermissionKey::getAccountPrefix);
+	}
+
+	public void refresh(){
+		cache.set(load());
+	}
+
+	public List<DatarouterAccountPermissionKey> get(DatarouterAccountPermissionKey prefix){
+		return cache.get().get(prefix);
 	}
 
 }

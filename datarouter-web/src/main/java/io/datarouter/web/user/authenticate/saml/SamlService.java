@@ -21,6 +21,7 @@ import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -45,8 +46,8 @@ import org.opensaml.xmlsec.config.impl.JavaCryptoValidationInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -221,8 +222,8 @@ public class SamlService{
 				.collect(Collectors.toList());
 		Set<Role> superRolesForAdminUsers = username.equals(datarouterProperties.getAdministratorEmail()) ? roleManager
 				.getRolesForSuperGroup() : Collections.emptySet();
-		return SetTool.union(rolesForDefaultGroup, rolesForGroupAttributes, rolesForRoleAttributes,
-				superRolesForAdminUsers);
+		return Scanner.concat(rolesForDefaultGroup, rolesForGroupAttributes, rolesForRoleAttributes,
+				superRolesForAdminUsers).collect(HashSet::new);
 	}
 
 	private void redirectAfterAuthentication(HttpServletRequest request, HttpServletResponse response,

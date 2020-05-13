@@ -16,6 +16,7 @@
 package io.datarouter.auth.storage.deprovisioneduser;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,6 +48,10 @@ public class DeprovisionedUserDao extends BaseDao{
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, DeprovisionedUser::new, DeprovisionedUserFielder::new)
 				.buildAndRegister();
+	}
+
+	public Optional<DeprovisionedUser> find(DeprovisionedUserKey key){
+		return node.find(key);
 	}
 
 	public Scanner<DeprovisionedUser> scan(){

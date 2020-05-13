@@ -21,7 +21,7 @@ import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.unique.UniqueKeyIndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.util.collection.ListTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 
 public abstract class BaseUniqueKeyIndexEntry<
@@ -41,7 +41,7 @@ implements UniqueKeyIndexEntry<IK,IE,PK,D>{
 	public List<IE> createFromDatabean(D target){
 		BaseUniqueKeyIndexEntry<IK,IE,PK,D> indexEntryBuilder = ReflectionTool.create(getClass());
 		IE indexEntry = indexEntryBuilder.fromPrimaryKey(target.getKey());
-		return ListTool.wrap(indexEntry);
+		return Scanner.ofNullable(indexEntry).list();
 	}
 
 }

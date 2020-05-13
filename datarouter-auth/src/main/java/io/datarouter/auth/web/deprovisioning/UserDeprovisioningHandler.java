@@ -51,6 +51,7 @@ public class UserDeprovisioningHandler extends BaseHandler{
 		return reactPageFactory.startBuilder(request)
 				.withTitle("Datarouter - User Deprovisioning")
 				.withReactScript(files.js.deprovisionedUsersJsx)
+				//TODO set whole paths in handler to avoid URL issues (not just base path)?
 				.withJsStringConstant("PATH", request.getContextPath() + paths.userDeprovisioning.toSlashedString())
 				.buildMav();
 	}
@@ -84,6 +85,7 @@ public class UserDeprovisioningHandler extends BaseHandler{
 				.listTo(UserDeprovisioningHandlerGeneralDto::restoreUsersResponse);
 	}
 
+	//TODO DATAROUTER-2788
 	public static class UserDeprovisioningHandlerGeneralDto{
 
 		//deprovisionUsers

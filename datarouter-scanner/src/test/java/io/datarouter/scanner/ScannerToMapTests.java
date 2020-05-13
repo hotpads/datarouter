@@ -33,24 +33,24 @@ public class ScannerToMapTests{
 
 	@Test
 	public void test(){
-			Map<String,String> map = Scanner.of("cc", "aa", "bb")
-					.toMap(FIRST, AFTER_FIRST);
-			Assert.assertSame(map.getClass(), HashMap.class);
-			Assert.assertEquals(map.size(), 3);
-			Assert.assertEquals(map.get("a"), "a");
-			Assert.assertEquals(map.get("b"), "b");
-			Assert.assertEquals(map.get("c"), "c");
+		Map<String,String> map = Scanner.of("cc", "aa", "bb")
+				.toMap(FIRST, AFTER_FIRST);
+		Assert.assertSame(map.getClass(), HashMap.class);
+		Assert.assertEquals(map.size(), 3);
+		Assert.assertEquals(map.get("a"), "a");
+		Assert.assertEquals(map.get("b"), "b");
+		Assert.assertEquals(map.get("c"), "c");
 	}
 
 	@Test
 	public void testSorted(){
-			SortedMap<String,String> map = Scanner.of("cc", "aa", "bb")
-					.toMap(FIRST, AFTER_FIRST, TreeMap::new);
-			Assert.assertSame(map.getClass(), TreeMap.class);
-			Assert.assertEquals(map.size(), 3);
-			Assert.assertEquals(map.get("a"), "a");
-			Assert.assertEquals(map.get("b"), "b");
-			Assert.assertEquals(map.get("c"), "c");
+		SortedMap<String,String> map = Scanner.of("cc", "aa", "bb")
+				.toMap(FIRST, AFTER_FIRST, TreeMap::new);
+		Assert.assertSame(map.getClass(), TreeMap.class);
+		Assert.assertEquals(map.size(), 3);
+		Assert.assertEquals(map.get("a"), "a");
+		Assert.assertEquals(map.get("b"), "b");
+		Assert.assertEquals(map.get("c"), "c");
 	}
 
 	@Test

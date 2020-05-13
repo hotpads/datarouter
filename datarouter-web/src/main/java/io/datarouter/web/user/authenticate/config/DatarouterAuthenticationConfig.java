@@ -45,19 +45,10 @@ public interface DatarouterAuthenticationConfig{
 		return PATHS.permissionRequest.toSlashedString();
 	}
 
-	default String getResetPasswordPath(){
-		return PATHS.resetPassword.toSlashedString();
-	}
-
-	default String getResetPasswordSubmitPath(){
-		return PATHS.resetPasswordSubmit.toSlashedString();
-	}
-
 	String getUsernameParam(); // used in jsps
 	String getPasswordParam(); // used in jsps
 	String getUserRolesParam();
 	String getEnabledParam();
-	String getUserIdParam();
 	String getSignatureParam();
 	String getNonceParam();
 	String getTimestampParam();

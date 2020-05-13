@@ -36,4 +36,21 @@ public class ObjectScannerTests{
 		Assert.assertFalse(scanner.advance());
 	}
 
+	@Test
+	public void testOfNullable(){
+		Integer nonNullInteger = 1;
+		Integer nullInteger = null;
+		Assert.assertEquals(Scanner.ofNullable(nonNullInteger).list(), List.of(1));
+		Assert.assertTrue(Scanner.ofNullable(nullInteger).isEmpty());
+		Assert.assertSame(Scanner.ofNullable(nullInteger), Scanner.empty());
+		Assert.assertSame(Scanner.ofNullable(nullInteger), EmptyScanner.singleton());
+	}
+
+	@Test
+	public void testRejectCollection(){
+		// The following should not compile
+		// List<Integer> nullList = null;
+		// List<Integer> list = Scanner.ofNullable(nullList).list();
+	}
+
 }

@@ -94,13 +94,15 @@ public class DatarouterUserEditService{
 		}
 
 		boolean shouldDeleteSessions = false;
-		if(!BooleanTool.nullSafeSame(enabled, user.getEnabled())){
-			if(isUserDatarouterAdmin){
-				throw new RuntimeException("cannot disable datarouterAdmin user");
+		if(enabled != null){//TODO DATAROTUER-2751 remove/update old user edit code
+			if(!BooleanTool.nullSafeSame(enabled, user.getEnabled())){
+				if(isUserDatarouterAdmin){
+					throw new RuntimeException("cannot disable datarouterAdmin user");
+				}
+				changes.add(change("enabled", user.getEnabled(), enabled));
+				user.setEnabled(enabled);
+				shouldDeleteSessions = true;
 			}
-			changes.add(change("enabled", user.getEnabled(), enabled));
-			user.setEnabled(enabled);
-			shouldDeleteSessions = true;
 		}
 
 		handleAccountChanges(user, requestedAccounts).ifPresent(changes::add);

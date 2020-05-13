@@ -69,8 +69,7 @@ public class MysqlGetOpExecutor{
 		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
 		List<T> result = new ArrayList<>(keys.size());
 		for(List<? extends FieldSet<?>> keyBatch : Scanner.of(dedupedSortedKeys)
-				.batch(config.optInputBatchSize()
-				.orElse(BATCH_SIZE))
+				.batch(config.optInputBatchSize().orElse(BATCH_SIZE))
 				.iterable()){
 			PreparedStatement ps = mysqlSqlFactory
 					.createSql(databeanFieldInfo.getClientId(), tableName)

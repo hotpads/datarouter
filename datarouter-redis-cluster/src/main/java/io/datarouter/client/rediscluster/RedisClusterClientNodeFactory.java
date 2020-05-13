@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.rediscluster.client.RedisClusterClientManager;
+import io.datarouter.client.rediscluster.config.RedisClusterExecutors.RedisClusterBatchOpExecutor;
 import io.datarouter.client.rediscluster.node.RedisClusterNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
@@ -56,6 +57,8 @@ public class RedisClusterClientNodeFactory extends BaseClientNodeFactory impleme
 	private RedisClusterClientManager clientManager;
 	@Inject
 	private RedisClusterNodeFactory nodeFactory;
+	@Inject
+	private RedisClusterBatchOpExecutor executor;
 
 	public class RedisWrappedNodeFactory<
 			EK extends EntityKey<EK>,
@@ -69,7 +72,7 @@ public class RedisClusterClientNodeFactory extends BaseClientNodeFactory impleme
 		public PhysicalMapStorageNode<PK,D,F> createNode(
 				EntityNodeParams<EK,E> entityNodeParams,
 				NodeParams<PK,D,F> nodeParams){
-			return new RedisClusterNode<>(nodeParams, clientType, clientManager, nodeParams.getClientId());
+			return new RedisClusterNode<>(nodeParams, clientType, clientManager, nodeParams.getClientId(), executor);
 		}
 
 		@Override

@@ -21,8 +21,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.collection.ListTool;
-
 public class ComparableToolTests{
 
 	@Test
@@ -47,9 +45,9 @@ public class ComparableToolTests{
 	public void testIsSorted(){
 		Assert.assertTrue(ComparableTool.isSorted(null));
 		Assert.assertTrue(ComparableTool.isSorted(new ArrayList<Integer>()));
-		List<Integer> listA = ListTool.create(1,2,3,4);
+		List<Integer> listA = List.of(1,2,3,4);
 		Assert.assertTrue(ComparableTool.isSorted(listA));
-		List<Integer> listB = ListTool.create(1,2,55,4);
+		List<Integer> listB = List.of(1,2,55,4);
 		Assert.assertFalse(ComparableTool.isSorted(listB));
 	}
 

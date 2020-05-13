@@ -37,7 +37,6 @@ import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.array.LongArray;
 import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.ListTool;
 
 public abstract class BaseManyFieldIntegrationTests{
 
@@ -445,7 +444,7 @@ public abstract class BaseManyFieldIntegrationTests{
 	@Test
 	public void testDelimitedStringArray(){
 		var bean = new ManyFieldBean();
-		List<String> strings = ListTool.create("abc hi!", "xxx's", "bb_3");
+		List<String> strings = List.of("abc hi!", "xxx's", "bb_3");
 		bean.setDelimitedStringArrayField(strings);
 		dao.put(bean);
 

@@ -32,6 +32,7 @@ import io.datarouter.storage.node.op.raw.GroupQueueStorage;
 import io.datarouter.storage.node.op.raw.GroupQueueStorage.GroupQueueStorageNode;
 import io.datarouter.storage.queue.GroupQueueMessage;
 import io.datarouter.storage.queue.QueueMessageKey;
+import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.virtualnode.redundant.RedundantQueueNode;
 
@@ -94,8 +95,7 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 	@Override
 	default GroupQueueMessage<PK,D> peek(Config config){
 		PhaseTimer phaseTimer = new PhaseTimer();
-		List<N> readerNodes = new ArrayList<>(getReadNodes());
-		Collections.shuffle(readerNodes);
+		List<N> readerNodes = CollectionTool.shuffleCopy(getReadNodes());
 		for(N node : readerNodes){
 			GroupQueueMessage<PK,D> databean = node.peek(config);
 			phaseTimer.add("node " + node);

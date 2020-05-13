@@ -21,8 +21,6 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.collection.ListTool;
-
 public class LongArrayTests{
 
 	private List<Long> list = new LongArray();
@@ -68,14 +66,14 @@ public class LongArrayTests{
 		Assert.assertTrue(list.get(5).equals(6L));
 
 		// retain objects
-		List<Long> toRetain = ListTool.create(55L, 57L, 7L);
+		List<Long> toRetain = List.of(55L, 57L, 7L);
 		modified = list.retainAll(toRetain);
 		Assert.assertTrue(modified);
 		Assert.assertEquals(list.size(), 3);
 		Assert.assertTrue(list.get(0).equals(7L));
 		Assert.assertTrue(list.get(1).equals(55L));
 		Assert.assertTrue(list.get(2).equals(57L));
-		modified = list.retainAll(ListTool.create(55L, 57L, 7L));
+		modified = list.retainAll(List.of(55L, 57L, 7L));
 		Assert.assertFalse(modified);
 		Assert.assertEquals(list.size(), 3);
 		Assert.assertTrue(list.get(0).equals(7L));

@@ -47,6 +47,8 @@ import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier.NoOpServiceDescription;
+import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
+import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier.NoOpServiceDocumentationNamesAndLinks;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
@@ -97,6 +99,7 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefaultInstance(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(Collections.emptyList()));
 		bindDefault(AppNavBarRegistrySupplier.class, NoOpAppNavBarRegistry.class);
 		bindDefault(ServiceDescriptionSupplier.class, NoOpServiceDescription.class);
+		bindDefault(ServiceDocumentationNamesAndLinksSupplier.class, NoOpServiceDocumentationNamesAndLinks.class);
 
 		bindDefault(ChangelogRecorder.class, NoOpChangelogRecorder.class);
 

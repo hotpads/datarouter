@@ -35,7 +35,6 @@ import io.datarouter.storage.test.node.basic.manyfield.TestEnum;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.lang.ReflectionTool;
 
 public class JsonDatabeanToolTests{
@@ -95,7 +94,7 @@ public class JsonDatabeanToolTests{
 		SortedBeanKey key0 = new SortedBeanKey("a", "b", 0, "d");
 		SortedBeanKey key1 = new SortedBeanKey("a", "b", 1, "dasdf");
 		SortedBeanKey key2 = new SortedBeanKey("a", "basdf", 2, "sdsdsd");
-		List<SortedBeanKey> keysIn = ListTool.createArrayList(key0, key1, key2);
+		List<SortedBeanKey> keysIn = List.of(key0, key1, key2);
 		JsonArray jsonKeys = JsonDatabeanTool.primaryKeysToJson(keysIn, sortedBeanFielder.getKeyFielder());
 		List<SortedBeanKey> keysOut = JsonDatabeanTool.primaryKeysFromJson(SortedBeanKey.class, sortedBeanFielder
 				.getKeyFielder(), jsonKeys);
@@ -104,7 +103,7 @@ public class JsonDatabeanToolTests{
 
 		SortedBean bean0 = new SortedBean(key0, "1", 2L, null, 45.67d);
 		SortedBean bean1 = new SortedBean(key1, "ert", -987654L, "cheesetoast", -45.67d);
-		List<SortedBean> databeansIn = ListTool.createArrayList(bean0, bean1);
+		List<SortedBean> databeansIn = List.of(bean0, bean1);
 		JsonArray jsonDatabeans = JsonDatabeanTool.databeansToJson(databeansIn, sortedBeanFielder);
 		List<SortedBean> databeansOut = JsonDatabeanTool.databeansFromJson(ReflectionTool.supplier(SortedBean.class),
 				sortedBeanFielder, jsonDatabeans);

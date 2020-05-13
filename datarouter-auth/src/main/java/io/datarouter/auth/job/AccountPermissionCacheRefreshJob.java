@@ -13,9 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.collection;
+package io.datarouter.auth.job;
 
-public class ListToolTests{
+import javax.inject.Inject;
 
+import io.datarouter.auth.cache.DatarouterAccountPermissionKeysByPrefixCache;
+import io.datarouter.instrumentation.task.TaskTracker;
+import io.datarouter.job.BaseJob;
+
+public class AccountPermissionCacheRefreshJob extends BaseJob{
+
+	@Inject
+	private DatarouterAccountPermissionKeysByPrefixCache cache;
+
+	@Override
+	public void run(TaskTracker tracker){
+		cache.refresh();
+	}
 
 }

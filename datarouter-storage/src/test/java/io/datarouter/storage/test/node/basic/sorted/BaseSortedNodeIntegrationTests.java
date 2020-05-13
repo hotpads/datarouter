@@ -119,7 +119,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var key1 = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0, SortedBeans.S_alpaca);
 		var key2 = new SortedBeanKey("blah", "blah", 1000, "blah");
 		var key3 = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_albatross, 2, SortedBeans.S_emu);
-		List<SortedBeanKey> keysToGet = ListTool.create(key1, key2, key3);
+		List<SortedBeanKey> keysToGet = List.of(key1, key2, key3);
 		List<SortedBeanKey> keysGotten = dao.getKeys(keysToGet);
 		Assert.assertTrue(keysGotten.contains(key1));
 		Assert.assertFalse(keysGotten.contains(key2));

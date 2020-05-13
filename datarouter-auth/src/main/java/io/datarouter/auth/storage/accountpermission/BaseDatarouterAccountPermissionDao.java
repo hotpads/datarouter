@@ -22,6 +22,7 @@ public interface BaseDatarouterAccountPermissionDao{
 	void put(DatarouterAccountPermission databean);
 	void deleteWithPrefix(DatarouterAccountPermissionKey prefix);
 	void delete(DatarouterAccountPermissionKey key);
+	Scanner<DatarouterAccountPermissionKey> scanKeys();
 	Scanner<DatarouterAccountPermissionKey> scanKeysWithPrefix(DatarouterAccountPermissionKey prefix);
 
 }

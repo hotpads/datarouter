@@ -16,19 +16,18 @@
 package io.datarouter.storage.node.type.indexing.base;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.BaseNode;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.op.raw.index.IndexListener;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.collection.ListTool;
 
 public abstract class BaseIndexingNode<
 		PK extends PrimaryKey<PK>,
@@ -62,16 +61,12 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodes(){
-		List<PhysicalNode<PK,D,F>> all = new LinkedList<>();
-		all.addAll(ListTool.nullSafe(mainNode.getPhysicalNodes()));
-		return all;
+		return new ArrayList<>(mainNode.getPhysicalNodes());
 	}
 
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodesForClient(String clientName){
-		List<PhysicalNode<PK,D,F>> all = new LinkedList<>();
-		all.addAll(ListTool.nullSafe(mainNode.getPhysicalNodesForClient(clientName)));
-		return all;
+		return new ArrayList<>(mainNode.getPhysicalNodesForClient(clientName));
 	}
 
 	@Override
@@ -86,7 +81,7 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public List<N> getChildNodes(){
-		return ListTool.wrap(mainNode);
+		return Scanner.ofNullable(mainNode).list();
 	}
 
 	public N getBackingNode(){

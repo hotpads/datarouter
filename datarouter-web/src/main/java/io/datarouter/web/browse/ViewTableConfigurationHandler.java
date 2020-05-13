@@ -70,17 +70,9 @@ public class ViewTableConfigurationHandler extends BaseHandler{
 				.withColumn("Batch Size", row -> format(row.batchSize))
 				.withColumn("Percentage Alert Enabled", row -> row.enablePercentageAlert)
 				.withColumn("Threshold Alert Enabled", row -> row.enableThresholdAlert)
-				.withColumn("Threshold", row -> format(row.maxThreshold))
 				.build(rows);
 		return div(header, overview, table)
 				.withClass("container-fluid my-4");
-	}
-
-	private static String format(Long num){
-		if(num == null){
-			return "";
-		}
-		return NumberFormatter.addCommas(num);
 	}
 
 	private static String format(Integer num){

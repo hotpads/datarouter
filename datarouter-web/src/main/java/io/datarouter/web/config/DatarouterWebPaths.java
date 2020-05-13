@@ -31,8 +31,6 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 
 	public final PathNode consumer = leaf("consumer");
 	public final PathNode keepalive = leaf("keepalive");
-	public final PathNode resetPassword = leaf("resetPassword");
-	public final PathNode resetPasswordSubmit = leaf("resetPasswordSubmit");
 	public final PathNode signout = leaf("signout");
 
 	public static class DatarouterPaths extends PathNode{
@@ -74,6 +72,7 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 
 	public static class PermissionRequestPaths extends PathNode{
 		public final PathNode declineAll = leaf("declineAll");
+		public final PathNode declinePermissionRequests = leaf("declinePermissionRequests");
 		public final PathNode showForm = leaf("showForm");
 		public final PathNode submit = leaf("submit");
 	}

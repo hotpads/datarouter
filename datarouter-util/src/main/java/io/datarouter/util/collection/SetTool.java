@@ -15,43 +15,13 @@
  */
 package io.datarouter.util.collection;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
-
-import io.datarouter.util.array.ArrayTool;
 
 public class SetTool{
 
 	@SafeVarargs
-	public static <T> Set<T> union(Collection<T>... operands){
-		return unionWithSupplier(HashSet<T>::new, operands);
-	}
-
-	@SafeVarargs
-	public static <T,S extends Set<T>> S unionWithSupplier(Supplier<S> setSupplier, Collection<T>... operands){
-		S union = setSupplier.get();
-		if(ArrayTool.notEmpty(operands)){
-			Arrays.stream(operands).forEach(union::addAll);
-		}
-		return union;
-	}
-
-	@SafeVarargs
 	public static <E extends Enum<E>> Set<E> unmodifiableEnumSetOf(E... enums){
-		if(enums == null || enums.length == 0){
-			return Collections.emptySet();
-		}
-		E first = enums[0];
-		EnumSet<E> result = EnumSet.noneOf(first.getDeclaringClass());
-		for(E enum1 : enums){
-			result.add(enum1);
-		}
-		return Collections.unmodifiableSet(result);
+		return Set.of(enums);
 	}
 
 }

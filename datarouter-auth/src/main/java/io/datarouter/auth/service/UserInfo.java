@@ -24,13 +24,18 @@ import io.datarouter.web.user.session.service.SessionBasedUser;
 
 public interface UserInfo{
 
+	//TODO DATAROUTER-2794
 	Scanner<? extends SessionBasedUser> scanAllUsers(boolean enabledOnly, Set<Role> includedRoles);
 
 	Optional<? extends SessionBasedUser> getUserByUsername(String username);
 	Optional<? extends SessionBasedUser> getUserByToken(String token);
 	Optional<? extends SessionBasedUser> getUserById(Long id);
 
-	Set<Role> getRolesByUsername(String username);
+	default Set<Role> getRolesByUsername(String username){
+		return getRolesByUsername(username, true);
+	}
+
+	Set<Role> getRolesByUsername(String username, boolean disallowCached);
 	Set<Role> getRolesByToken(String token);
 	Set<Role> getRolesById(Long id);
 

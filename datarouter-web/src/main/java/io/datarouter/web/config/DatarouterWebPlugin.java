@@ -16,7 +16,9 @@
 package io.datarouter.web.config;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import io.datarouter.httpclient.client.DatarouterService;
@@ -67,6 +69,8 @@ import io.datarouter.web.plugin.PluginRegistrySupplier;
 import io.datarouter.web.plugin.PluginRegistrySupplier.PluginRegistry;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier.DatarouterServiceDescription;
+import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
+import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier.DatarouterServiceDocumentationNamesAndLinks;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
@@ -116,6 +120,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final String nodeWidgetDatabeanExporterLink;
 	private final String nodeWidgetTableCountLink;
 	private final String serviceDescription;
+	private final Map<String,String> serviceDocumentationNamesAndLinks;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -123,7 +128,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends HomepageRouteSet> homepageRouteSet,
 			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
-				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null);
+				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -150,7 +155,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<String> registeredPlugins,
 			String nodeWidgetDatabeanExporterLink,
 			String nodeWidgetTableCountLink,
-			String serviceDescription){
+			String serviceDescription,
+			Map<String,String> serviceDocumentationNamesAndLinks){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 
@@ -213,6 +219,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
 		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
 		this.serviceDescription = serviceDescription;
+		this.serviceDocumentationNamesAndLinks = serviceDocumentationNamesAndLinks;
 	}
 
 	@Override
@@ -253,6 +260,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		if(serviceDescription != null){
 			bindActualInstance(ServiceDescriptionSupplier.class, new DatarouterServiceDescription(serviceDescription));
 		}
+		bindActualInstance(ServiceDocumentationNamesAndLinksSupplier.class,
+				new DatarouterServiceDocumentationNamesAndLinks(serviceDocumentationNamesAndLinks));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -324,6 +333,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private String nodeWidgetDatabeanExporterLink;
 		private String nodeWidgetTableCountLink;
 		private String serviceDescription;
+		private Map<String,String> serviceDocumentationNamesAndLinks = new HashMap<>();
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -456,6 +466,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setServiceDocumentationNamesAndLinks(
+				Map<String,String> serviceDocumentationNamesAndLinks){
+			this.serviceDocumentationNamesAndLinks = serviceDocumentationNamesAndLinks;
+			return this;
+		}
 
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
@@ -490,7 +505,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					registeredPlugins,
 					nodeWidgetDatabeanExporterLink,
 					nodeWidgetTableCountLink,
-					serviceDescription);
+					serviceDescription,
+					serviceDocumentationNamesAndLinks);
 		}
 
 	}

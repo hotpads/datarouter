@@ -15,8 +15,10 @@
  */
 package io.datarouter.util.string;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +27,10 @@ import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ObjectTool;
 
 public class StringTool{
+
+	private static final Collator COLLATOR = Collator.getInstance();
+
+	public static final Comparator<String> COLLATOR_COMPARATOR = (first, second) -> COLLATOR.compare(first, second);
 
 	public static boolean notEmpty(String input){
 		return input != null && input.length() > 0;

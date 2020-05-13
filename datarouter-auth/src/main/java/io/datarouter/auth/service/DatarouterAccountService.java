@@ -37,6 +37,7 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.databean.DatarouterUserKey;
+import io.datarouter.web.user.session.service.SessionBasedUser;
 import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
@@ -71,7 +72,6 @@ public class DatarouterAccountService{
 				.map(DatarouterAccountKey::getAccountName)
 				.map(DatarouterAccountPermissionKey::new)
 				.map(datarouterAccountPermissionKeysByPrefixCache::get)
-				.orElseGet(Optional::empty)
 				.map(Scanner::of)
 				.orElseGet(Scanner::empty);
 	}
@@ -98,9 +98,23 @@ public class DatarouterAccountService{
 	}
 
 	public Set<String> findAccountNamesForUser(DatarouterUserKey userKey){
-		return scanAccountKeysForUser(userKey)
+		return scanAccountKeysForUser(userKey.getId())
 				.map(DatarouterAccountKey::getAccountName)
 				.collect(HashSet::new);
+	}
+
+	public Set<String> findAccountNamesForUser(SessionBasedUser user){
+		return scanAccountKeysForUser(user.getId())
+				.map(DatarouterAccountKey::getAccountName)
+				.collect(HashSet::new);
+	}
+
+	public List<String> getAllAccountNamesWithUserMappingsEnabled(){
+		return datarouterAccountDao.scan()
+				.include(DatarouterAccount::getEnableUserMappings)
+				.map(DatarouterAccount::getKey)
+				.map(DatarouterAccountKey::getAccountName)
+				.list();
 	}
 
 	public Set<String> findAccountNamesForUserWithUserMappingsEnabled(DatarouterUserKey userKey){
@@ -111,12 +125,12 @@ public class DatarouterAccountService{
 	}
 
 	public List<DatarouterAccount> findAccountsForUser(DatarouterUserKey userKey){
-		return scanAccountKeysForUser(userKey)
+		return scanAccountKeysForUser(userKey.getId())
 				.listTo(datarouterAccountDao::getMulti);
 	}
 
-	private Scanner<DatarouterAccountKey> scanAccountKeysForUser(DatarouterUserKey userKey){
-		DatarouterUserAccountMapKey prefix = new DatarouterUserAccountMapKey(userKey.getId(), null);
+	private Scanner<DatarouterAccountKey> scanAccountKeysForUser(Long id){
+		DatarouterUserAccountMapKey prefix = new DatarouterUserAccountMapKey(id, null);
 		return datarouterUserAccountMapDao.scanKeysWithPrefix(prefix)
 				.map(DatarouterUserAccountMapKey::getDatarouterAccountKey);
 	}

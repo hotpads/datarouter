@@ -22,6 +22,8 @@ import static j2html.TagCreator.text;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,7 +38,6 @@ import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUs
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.collector.RelaxedMapCollector;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.user.databean.DatarouterUser;
 import j2html.tags.ContainerTag;
@@ -57,21 +58,27 @@ public class DatarouterUserHistoryService{
 	@Inject
 	private DatarouterUserEditService userEditService;
 
-	//don't call this with unresolved DatarouterPermissionRequests
-	public Map<DatarouterPermissionRequest,String> getResolvedRequestToHistoryChangesMap(
+	public Map<DatarouterPermissionRequest,Optional<String>> getResolvedRequestToHistoryChangesMap(
 			List<DatarouterPermissionRequest> requests){
 		Map<DatarouterUserHistoryKey,String> historyMap = Scanner.of(requests)
 				.map(DatarouterPermissionRequest::toUserHistoryKey)
-				.listTo(baseDatarouterUserHistoryDao::getMulti)
-				.stream()
+				.map(key -> key.orElse(null))
+				.include(Objects::nonNull)
+				.batch(100)
+				.map(baseDatarouterUserHistoryDao::getMulti)
+				.concat(Scanner::of)
 				.collect(Collectors.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges));
 
-		//requests get closed when they are SUPERCEDED by other requests or when they are edited (and have a history)
-		return requests.stream()
-				.collect(RelaxedMapCollector.of(
-						Function.identity(),
-						req -> historyMap.getOrDefault(req.toUserHistoryKey(), req.getResolution()
-								.getPersistentString())));
+		return Scanner.of(requests)
+				.deduplicate()
+				.collect(Collectors.toMap(Function.identity(), request -> request.toUserHistoryKey().map(historyKey ->
+						historyMap.getOrDefault(historyKey, request.getResolution().getPersistentString()))));
+	}
+
+	public Optional<String> getResolutionDescription(DatarouterPermissionRequest request,
+			Map<DatarouterUserHistoryKey,String> historyMap){
+		return request.toUserHistoryKey()
+				.map(historyKey -> historyMap.getOrDefault(historyKey, request.getResolution().getPersistentString()));
 	}
 
 	public void recordCreate(DatarouterUser user, Long editorId, String description){

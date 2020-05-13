@@ -29,7 +29,6 @@ import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.tuple.Range;
 
 public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
@@ -246,14 +245,14 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 		List<Field<?>> startFields = null;
 		int numNonNullStartFields = 0;
 		if(range.getStart() != null){
-			startFields = ListTool.nullSafe(range.getStart().getFields());
+			startFields = range.getStart().getFields();
 			numNonNullStartFields = FieldTool.countNonNullLeadingFields(startFields);
 		}
 
 		List<Field<?>> endFields = null;
 		int numNonNullEndFields = 0;
 		if(range.getEnd() != null){
-			endFields = ListTool.nullSafe(range.getEnd().getFields());
+			endFields = range.getEnd().getFields();
 			numNonNullEndFields = FieldTool.countNonNullLeadingFields(endFields);
 		}
 

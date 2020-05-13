@@ -16,7 +16,7 @@
 package io.datarouter.util.collection;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,61 +24,28 @@ import java.util.Optional;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.array.ArrayTool;
 
 public class ListTool{
 
 	public static <T> List<T> wrap(T item){
-		List<T> list = new LinkedList<>();
-		if(item != null){
-			list.add(item);
-		}
-		return list;
-	}
-
-	public static <T> void replaceLast(List<T> list, T replacement){
-		int lastIndex = list.size() - 1;
-		list.set(lastIndex, replacement);
+		return Scanner.ofNullable(item).list();
 	}
 
 	@SafeVarargs
-	public static <T> ArrayList<T> create(T... in){
-		return createArrayList(in);
-	}
-
-	@SafeVarargs
-	public static <T> ArrayList<T> createArrayList(T... in){
-		ArrayList<T> out = new ArrayList<>(ArrayTool.length(in));
-		if(ArrayTool.isEmpty(in)){
-			return out;
-		}
-		for(T element : in){
-			out.add(element);
-		}
-		return out;
+	public static <T> List<T> create(T... in){
+		return new ArrayList<>(Arrays.asList(in));
 	}
 
 	public static <T> List<T> nullSafe(List<T> in){
-		if(in == null){
-			return new LinkedList<>();
-		}
-		return in;
+		return Optional.ofNullable(in).orElseGet(LinkedList::new);
 	}
 
 	public static <T> T getLast(List<T> list){
-		if(CollectionTool.nullSafeIsEmpty(list)){
-			return null;
-		}
-		return list.get(list.size() - 1);
+		return list == null || list.size() < 1 ? null : list.get(list.size() - 1);
 	}
 
 	public static <T> Optional<T> findLast(List<T> list){
 		return Optional.ofNullable(getLast(list));
-	}
-
-	@SafeVarargs
-	public static <T> List<T> concatenate(Collection<T>... args){
-		return Scanner.of(args).concat(Scanner::of).list();
 	}
 
 	public static <T extends Comparable<T>> int compare(List<T> as, List<T> bs){

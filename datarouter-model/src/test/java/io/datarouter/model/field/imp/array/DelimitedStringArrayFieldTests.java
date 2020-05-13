@@ -21,13 +21,11 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.collection.ListTool;
-
 public class DelimitedStringArrayFieldTests{
 
 	@Test
 	public void testRoundTrip(){
-		List<String> inputs = ListTool.createArrayList("abc", "xyz", "def");
+		List<String> inputs = List.of("abc", "xyz", "def");
 		String encoded = DelimitedStringArrayField.encode(inputs, ",");
 		Assert.assertEquals(encoded, "abc,xyz,def");
 		List<String> decoded = DelimitedStringArrayField.decode(encoded, ",");

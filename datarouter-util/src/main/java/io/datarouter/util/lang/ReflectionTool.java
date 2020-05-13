@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
 
 public class ReflectionTool{
@@ -245,8 +244,7 @@ public class ReflectionTool{
 	 * @return a list of the inherited declared Fields not including any declared field from YourClass.
 	 */
 	public static List<Field> getDeclaredFieldsIncludingAncestors(Class<?> clazz){
-		return Scanner.of(getDeclaredFields(clazz), getDeclaredFieldsFromAncestors(clazz))
-				.concat(Scanner::of)
+		return Scanner.concat(getDeclaredFields(clazz), getDeclaredFieldsFromAncestors(clazz))
 				.list();
 	}
 
@@ -256,7 +254,7 @@ public class ReflectionTool{
 	 * @return a list of the declared Fields not including any inherited field.
 	 */
 	public static List<Field> getDeclaredFields(Class<?> cls){
-		return ListTool.create(cls.getDeclaredFields());
+		return Arrays.asList(cls.getDeclaredFields());
 	}
 
 	/*------------------------- get Method ----------------------------------*/

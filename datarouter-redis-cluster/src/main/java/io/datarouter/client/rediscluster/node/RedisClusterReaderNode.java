@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.JsonDatabeanTool;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
@@ -43,7 +45,6 @@ import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.storage.util.EncodedPrimaryKeyPercentCodec;
 import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.exceptions.JedisClusterOperationException;
 
 public class RedisClusterReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -55,15 +56,18 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 
 	private final Integer databeanVersion;
 	protected final JedisCluster client;
+	protected final ExecutorService executor;
 
 	public RedisClusterReaderNode(
 			NodeParams<PK,D,F> params,
 			RedisClusterClientType redisClientType,
 			RedisClusterClientManager redisClientManager,
-			ClientId clientId){
+			ClientId clientId,
+			ExecutorService executor){
 		super(params, redisClientType);
 		client = redisClientManager.getJedis(clientId);
 		this.databeanVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
+		this.executor = executor;
 	}
 
 	@Override
@@ -89,23 +93,11 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		if(keys == null || keys.isEmpty()){
 			return Collections.emptyList();
 		}
-		try{
-			return client.mget(buildRedisKeys(keys).toArray(new String[keys.size()])).stream()
-					.filter(Objects::nonNull)
-					.map(bean -> JsonDatabeanTool.databeanFromJson(getFieldInfo().getDatabeanSupplier(), getFieldInfo()
-							.getSampleFielder(), bean))
-					.collect(Collectors.toList());
-		}catch(JedisClusterOperationException exception){
-			logger.warn("getMulti failed - {}", exception.getMessage());
-			if(logger.isDebugEnabled()){
-				logger.debug(buildRedisKeys(keys).stream()
-						.collect(Collectors.joining("\n")));
-			}
-			return keys.stream()
-					.map(key -> get(key, config))
-					.filter(Objects::nonNull)
-					.collect(Collectors.toList());
-		}
+		return Scanner.of(keys)
+				.parallel(new ParallelScannerContext(executor, 16, false))
+				.map(databean -> get(databean, config))
+				.include(Objects::nonNull)
+				.list();
 	}
 
 	@Override
@@ -113,7 +105,9 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		if(keys == null || keys.isEmpty()){
 			return Collections.emptyList();
 		}
-		return Scanner.of(getMulti(keys, config)).map(Databean::getKey).list();
+		return Scanner.of(getMulti(keys, config))
+				.map(Databean::getKey)
+				.list();
 	}
 
 	@Override

@@ -71,11 +71,6 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 	}
 
 	@Override
-	public String getUserIdParam(){
-		return "userId";
-	}
-
-	@Override
 	public String getSignatureParam(){
 		return "signature";
 	}

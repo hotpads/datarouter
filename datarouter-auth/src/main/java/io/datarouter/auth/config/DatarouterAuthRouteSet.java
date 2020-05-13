@@ -35,21 +35,17 @@ public class DatarouterAuthRouteSet extends BaseRouteSet{
 		handle(paths.signin)
 				.withHandler(DatarouterSigninHandler.class)
 				.allowAnonymous();
-		handle(paths.resetPassword)
-				.withHandler(AdminEditUserHandler.class)
-				.allowRoles(DatarouterUserRole.USER);
-		handle(paths.resetPasswordSubmit)
-				.withHandler(AdminEditUserHandler.class)
-				.allowRoles(DatarouterUserRole.USER);
 		handle(paths.signout)
 				.withHandler(DatarouterSignoutHandler.class)
 				.allowAnonymous();
-		handle(paths.admin.viewUsers).withHandler(AdminEditUserHandler.class);
-		handle(paths.admin.listUsers).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.createUser).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.createUserSubmit).withHandler(AdminEditUserHandler.class);
 		handle(paths.admin.editUser).withHandler(AdminEditUserHandler.class);
-		handle(paths.admin.editUserSubmit).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.getUserDetails).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.listUsers).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.updatePassword).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.updateUserDetails).withHandler(AdminEditUserHandler.class);
+		handle(paths.admin.viewUsers).withHandler(AdminEditUserHandler.class);
 		handleDir(paths.permissionRequest)
 				.withHandler(DatarouterPermissionRequestHandler.class)
 				.allowRoles(DatarouterUserRole.REQUESTOR);

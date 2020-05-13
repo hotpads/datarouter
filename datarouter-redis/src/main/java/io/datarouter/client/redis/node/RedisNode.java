@@ -15,7 +15,9 @@
  */
 package io.datarouter.client.redis.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,11 +86,29 @@ implements PhysicalMapStorageNode<PK,D,F>,
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(databeans == null || databeans.isEmpty()){
+		if(databeans == null || databeans.size() == 0){
 			return;
 		}
-		// redis cannot handle batch puts
-		databeans.forEach(databean -> put(databean, config));
+		if(config != null && config.getTtl() != null){
+			// redis cannot handle both batch-puts and setting ttl
+			databeans.forEach(databean -> put(databean, config));
+			return;
+		}
+		List<String> keysAndDatabeans = new ArrayList<>();
+		// redis mset(key1, value1, key2, value2, key3, value3, ...)
+		for(D databean : databeans){
+			String key = buildRedisKey(databean.getKey());
+			if(key.length() > MAX_REDIS_KEY_SIZE){
+				logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + key);
+				continue;
+			}
+			String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, getFieldInfo().getSampleFielder());
+			keysAndDatabeans.add(key);
+			keysAndDatabeans.add(jsonBean);
+		}
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			client.mset(keysAndDatabeans.toArray(new String[keysAndDatabeans.size()]));
+		}
 	}
 
 	@Override
@@ -111,7 +131,9 @@ implements PhysicalMapStorageNode<PK,D,F>,
 		if(keys == null || keys.isEmpty()){
 			return;
 		}
-		keys.forEach(key -> delete(key, config));
+		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
+			client.del(buildRedisKeys(keys).toArray(new String[keys.size()]));
+		}
 	}
 
 	@Override

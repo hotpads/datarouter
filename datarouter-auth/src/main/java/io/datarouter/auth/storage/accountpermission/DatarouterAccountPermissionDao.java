@@ -69,6 +69,11 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 	}
 
 	@Override
+	public Scanner<DatarouterAccountPermissionKey> scanKeys(){
+		return node.scanKeys();
+	}
+
+	@Override
 	public Scanner<DatarouterAccountPermissionKey> scanKeysWithPrefix(DatarouterAccountPermissionKey prefix){
 		return node.scanKeysWithPrefix(prefix);
 	}

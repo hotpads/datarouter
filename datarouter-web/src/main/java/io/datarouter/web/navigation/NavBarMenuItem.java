@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.dispatcher.DispatchRule;
 
@@ -54,7 +53,7 @@ public class NavBarMenuItem{
 	}
 
 	public NavBarMenuItem(String text, NavBarMenuItem... subItems){
-		this(text, ListTool.create(subItems));
+		this(text, Scanner.of(subItems).list());
 	}
 
 	public NavBarMenuItem(String path, String text, NavBar parentNavBar){

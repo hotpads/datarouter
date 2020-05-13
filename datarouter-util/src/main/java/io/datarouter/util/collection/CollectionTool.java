@@ -15,7 +15,10 @@
  */
 package io.datarouter.util.collection;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class CollectionTool{
@@ -49,6 +52,12 @@ public class CollectionTool{
 			return null;
 		}
 		return collection.iterator().next();
+	}
+
+	public static <T> List<T> shuffleCopy(Collection<T> list){
+		List<T> copy = new ArrayList<>(list);
+		Collections.shuffle(copy);
+		return copy;
 	}
 
 }

@@ -17,11 +17,14 @@ package io.datarouter.client.mysql.ddl.generate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -32,45 +35,105 @@ import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 
 public class SqlAlterTableGeneratorFactory{
 
+	private enum PrintVersion{
+		BOTH,
+		QUICK,
+		THOROUGH,
+		;
+	}
+
 	private static class DdlBuilder{
 
 		private static final boolean PREVENT_START_UP = true;
 
-		final List<SqlAlterTableClause> executeAlters;
-		final List<SqlAlterTableClause> printAlters;
+		final List<CharSequence> executeAlters;
+		final List<CharSequence> quickPrintAlters;
+		final List<CharSequence> thoroughPrintAlters;
 		boolean preventStartUp;
 
 		DdlBuilder(){
 			executeAlters = new ArrayList<>();
-			printAlters = new ArrayList<>();
+			quickPrintAlters = new ArrayList<>();
+			thoroughPrintAlters = new ArrayList<>();
 		}
 
-		void add(Boolean execute, SqlAlterTableClause alter, boolean required){
-			add(execute, Arrays.asList(alter), required);
+		void add(Boolean execute, CharSequence alter, boolean required){
+			add(execute, Arrays.asList(alter), required, PrintVersion.BOTH);
 		}
 
-		void add(Boolean execute, List<SqlAlterTableClause> alters, boolean required){
-			List<SqlAlterTableClause> list = execute ? executeAlters : printAlters;
-			list.addAll(alters);
+		void add(Boolean execute, List<CharSequence> alters, boolean required){
+			add(execute, alters, required, PrintVersion.BOTH);
+		}
+
+		void add(Boolean execute, CharSequence alter, boolean required, PrintVersion printVersion){
+			add(execute, Arrays.asList(alter), required, printVersion);
+		}
+
+		void add(Boolean execute, List<CharSequence> alters, boolean required, PrintVersion printVersion){
+			if(execute){
+				executeAlters.addAll(executeAlters);
+			}else{
+				switch(printVersion){
+				case BOTH:
+					quickPrintAlters.addAll(alters);
+					thoroughPrintAlters.addAll(alters);
+					break;
+				case QUICK:
+					quickPrintAlters.addAll(alters);
+					break;
+				case THOROUGH:
+					thoroughPrintAlters.addAll(alters);
+					break;
+				}
+			}
 			if(!alters.isEmpty() && !execute && required && PREVENT_START_UP){
 				preventStartUp = true;
 			}
 		}
 
-		Ddl build(String alterTablePrefix){
+		Ddl build(String hostname, String databaseName, String tableName){
+			String alterTablePrefix = "alter table " + databaseName + "." + tableName + "\n";
+			Optional<String> print;
+			if(quickPrintAlters.isEmpty() && thoroughPrintAlters.isEmpty()){
+				print = Optional.empty();
+			}else{
+				Stream<List<CharSequence>> scanner;
+				if(quickPrintAlters.equals(thoroughPrintAlters)){
+					scanner = Stream.of(quickPrintAlters);
+				}else{
+					scanner = Stream.of(quickPrintAlters, thoroughPrintAlters);
+				}
+				print = Optional.of(scanner
+						.map(cluases -> makeAlter(alterTablePrefix, cluases) + "\n"
+								+ "\n"
+								+ percona(hostname, databaseName, tableName, cluases))
+						.collect(Collectors.joining("\n\n")));
+			}
 			return new Ddl(
 					makeStatementFromClauses(alterTablePrefix, executeAlters),
-					makeStatementFromClauses(alterTablePrefix, printAlters),
+					print,
 					preventStartUp);
 		}
 
-		Optional<String> makeStatementFromClauses(String alterTablePrefix, List<SqlAlterTableClause> alters){
+		private String percona(String hostname, String databaseName, String tableName, List<CharSequence> clauses){
+			return "pt-online-schema-change "
+					+ "h=" + hostname + ",D=" + databaseName + ",t=" + tableName + " "
+					+ "--execute "
+					+ "--user=root "
+					+ "--ask-pass "
+					+ "--critical-load \"Threads_running=500\" "
+					+ "--alter=\"" + String.join(", ", clauses) + "\"";
+		}
+
+		Optional<String> makeStatementFromClauses(String alterTablePrefix, List<CharSequence> alters){
 			if(alters.isEmpty()){
 				return Optional.empty();
 			}
-			return Optional.of(alters.stream()
-					.map(SqlAlterTableClause::getAlterTable)
-					.collect(Collectors.joining(",\n", alterTablePrefix, ";")));
+			return Optional.of(makeAlter(alterTablePrefix, alters));
+		}
+
+		String makeAlter(String alterTablePrefix, List<CharSequence> alters){
+			return alterTablePrefix + String.join(",\n", alters) + ";";
 		}
 
 	}
@@ -82,11 +145,13 @@ public class SqlAlterTableGeneratorFactory{
 
 		private final SqlTable current;
 		private final SqlTable requested;
+		private final String hostname;
 		private final String databaseName;
 
-		public SqlAlterTableGenerator(SqlTable current, SqlTable requested, String databaseName){
+		public SqlAlterTableGenerator(SqlTable current, SqlTable requested, String hostname, String databaseName){
 			this.current = current;
 			this.requested = requested;
+			this.hostname = hostname;
 			this.databaseName = databaseName;
 		}
 
@@ -96,8 +161,7 @@ public class SqlAlterTableGeneratorFactory{
 				return new Ddl(Optional.empty(), Optional.empty(), false);
 			}
 			DdlBuilder ddlBuilder = generate(diff);
-			String alterTablePrefix = "alter table " + databaseName + "." + current.getName() + "\n";
-			return ddlBuilder.build(alterTablePrefix);
+			return ddlBuilder.build(hostname, databaseName, current.getName());
 		}
 
 		private boolean printOrExecute(Function<Boolean,Boolean> option){
@@ -125,28 +189,49 @@ public class SqlAlterTableGeneratorFactory{
 						getAlterTableForModifyingColumns(diff.getColumnsToModify()),
 						false);
 			}
+			boolean skipTempPkDrop = false;
 			if(printOrExecute(schemaUpdateOptions::getModifyPrimaryKey) && diff.isPrimaryKeyModified()){
-				if(current.hasPrimaryKey()){
-					ddlBuilder.add(
-							schemaUpdateOptions.getModifyPrimaryKey(false),
-							new SqlAlterTableClause("drop primary key"),
-							false);
+				boolean execute = schemaUpdateOptions.getModifyPrimaryKey(false);
+				List<String> pkColumNames = requested.getPrimaryKey().getColumnNames();
+				addPk(ddlBuilder, execute, pkColumNames, PrintVersion.QUICK);
+				if(!execute){
+					boolean pkUniqueIndexExsist = current.getUniqueIndexes().stream()
+							.anyMatch(index -> index.getColumnNames().equals(pkColumNames));
+					if(pkUniqueIndexExsist){
+						addPk(ddlBuilder, execute, pkColumNames, PrintVersion.THOROUGH);
+						skipTempPkDrop = true;
+					}else{
+						var sqlIndex = new SqlIndex("temp_pk", pkColumNames);
+						ddlBuilder.add(
+								execute,
+								getAlterTableForAddingIndexes(Set.of(sqlIndex), true),
+								true,
+								PrintVersion.THOROUGH);
+					}
 				}
-				ddlBuilder.add(
-						schemaUpdateOptions.getModifyPrimaryKey(false),
-						new SqlAlterTableClause(requested.getPrimaryKey().getColumnNames().stream()
-								.collect(Collectors.joining(",", "add primary key (", ")"))),
-						false);
 			}
 			if(printOrExecute(schemaUpdateOptions::getDropIndexes)){
 				ddlBuilder.add(
 						schemaUpdateOptions.getDropIndexes(false),
-						getAlterTableForRemovingIndexes(diff.getIndexesToRemove()),
-						false);
+						getAlterTableForRemovingIndexes(diff.getUniqueIndexesToRemove()),
+						false,
+						PrintVersion.QUICK);
+				Set<SqlIndex> uniqueIndexesToRemoveVersionb = new HashSet<>(diff.getUniqueIndexesToRemove());
+				if(skipTempPkDrop){
+					Iterator<SqlIndex> it = uniqueIndexesToRemoveVersionb.iterator();
+					while(it.hasNext()){
+						SqlIndex sqlIndex = it.next();
+						if(sqlIndex.getName().equals("temp_pk")){
+							it.remove();
+							break;
+						}
+					}
+				}
 				ddlBuilder.add(
 						schemaUpdateOptions.getDropIndexes(false),
-						getAlterTableForRemovingIndexes(diff.getUniqueIndexesToRemove()),
-						false);
+						getAlterTableForRemovingIndexes(uniqueIndexesToRemoveVersionb),
+						false,
+						PrintVersion.THOROUGH);
 			}
 			if(printOrExecute(schemaUpdateOptions::getAddIndexes)){
 				ddlBuilder.add(
@@ -161,48 +246,59 @@ public class SqlAlterTableGeneratorFactory{
 			if(printOrExecute(schemaUpdateOptions::getModifyEngine) && diff.isEngineModified()){
 				ddlBuilder.add(
 						schemaUpdateOptions.getModifyEngine(false),
-						new SqlAlterTableClause("engine=" + requested.getEngine().toString().toLowerCase()),
+						"engine=" + requested.getEngine().toString().toLowerCase(),
 						false);
 			}
 			if(printOrExecute(schemaUpdateOptions::getModifyCharacterSetOrCollation)
 					&& (diff.isCharacterSetModified() || diff.isCollationModified())){
-				String collation = requested.getCollation().toString();
 				String characterSet = requested.getCharacterSet().toString();
-				String alterClause = "character set " + characterSet + " collate " + collation;
+				String collation = requested.getCollation().toString();
 				ddlBuilder.add(
 						schemaUpdateOptions.getModifyCharacterSetOrCollation(false),
-						new SqlAlterTableClause(alterClause),
+						"character set " + characterSet + " collate " + collation,
 						false);
 			}
 			if(printOrExecute(schemaUpdateOptions::getModifyRowFormat) && diff.isRowFormatModified()){
-				String rowFormat = requested.getRowFormat().getPersistentString();
 				ddlBuilder.add(
 						schemaUpdateOptions.getModifyRowFormat(false),
-						new SqlAlterTableClause("row_format=" + rowFormat),
+						"row_format=" + requested.getRowFormat().getPersistentString(),
 						false);
 			}
 			return ddlBuilder;
 		}
 
-		private List<SqlAlterTableClause> getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
+		private void addPk(DdlBuilder ddlBuilder, Boolean execute, List<String> pkColumNames,
+				PrintVersion printVersion){
+			if(current.hasPrimaryKey()){
+				ddlBuilder.add(
+						execute,
+						"drop primary key",
+						false,
+						printVersion);
+			}
+			ddlBuilder.add(
+					execute,
+					"add primary key (" + String.join(",", pkColumNames) + ")",
+					false,
+					printVersion);
+		}
+
+		private List<CharSequence> getAlterTableForAddingColumns(List<SqlColumn> colsToAdd){
 			return colsToAdd.stream()
 					.map(this::makeAddColumnDefinition)
-					.map(SqlAlterTableClause::new)
 					.collect(Collectors.toList());
 		}
 
-		private List<SqlAlterTableClause> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove){
+		private List<CharSequence> getAlterTableForRemovingColumns(List<SqlColumn> colsToRemove){
 			return colsToRemove.stream()
 					.map(SqlColumn::getName)
 					.map("drop column "::concat)
-					.map(SqlAlterTableClause::new)
 					.collect(Collectors.toList());
 		}
 
-		private List<SqlAlterTableClause> getAlterTableForModifyingColumns(List<SqlColumn> columnsToModify){
+		private List<CharSequence> getAlterTableForModifyingColumns(List<SqlColumn> columnsToModify){
 			return columnsToModify.stream()
 					.map(this::makeModifyColumnDefinition)
-					.map(SqlAlterTableClause::new)
 					.collect(Collectors.toList());
 		}
 
@@ -214,15 +310,14 @@ public class SqlAlterTableGeneratorFactory{
 			return column.makeColumnDefinition("add ");
 		}
 
-		private List<SqlAlterTableClause> getAlterTableForRemovingIndexes(Set<SqlIndex> indexesToDrop){
+		private List<CharSequence> getAlterTableForRemovingIndexes(Set<SqlIndex> indexesToDrop){
 			return indexesToDrop.stream()
 					.map(SqlIndex::getName)
 					.map("drop index "::concat)
-					.map(SqlAlterTableClause::new)
 					.collect(Collectors.toList());
 		}
 
-		private List<SqlAlterTableClause> getAlterTableForAddingIndexes(
+		private List<CharSequence> getAlterTableForAddingIndexes(
 				Set<SqlIndex> indexesToAdd,
 				boolean unique){
 			return indexesToAdd.stream()
@@ -235,7 +330,6 @@ public class SqlAlterTableGeneratorFactory{
 						}
 						return sb.append("index ").append(index.getName()).append(csvColumns);
 					})
-					.map(SqlAlterTableClause::new)
 					.collect(Collectors.toList());
 		}
 

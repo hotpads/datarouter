@@ -25,10 +25,10 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 
@@ -68,7 +68,7 @@ public class GetNodeDataHandler extends InspectNodeDataHandler{
 			return new MessageMav("databean does not exist");
 		}
 		D mapDatabean = mapStorageNode.get(primaryKey);
-		List<D> databeans = ListTool.wrap(mapDatabean);
+		List<D> databeans = Scanner.ofNullable(mapDatabean).list();
 		addDatabeansToMav(mav, databeans);
 		logger.warn("Retrieved databean {}", encodedPk);
 		return mav;

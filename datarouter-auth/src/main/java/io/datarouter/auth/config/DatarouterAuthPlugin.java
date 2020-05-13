@@ -88,7 +88,6 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.admin.viewUsers, "View Users");
 			addAppNavBarItem(AppNavBarCategory.USER, PATHS.admin.editUser, "Edit User");
 			addAppNavBarItem(AppNavBarCategory.USER, PATHS.permissionRequest, "Permission Request");
-			addAppNavBarItem(AppNavBarCategory.USER, PATHS.resetPassword, "Reset Password");
 			addAppNavBarItem(AppNavBarCategory.USER, PATHS.admin.createUser, "Create User");
 			addRouteSetOrdered(DatarouterAuthRouteSet.class, DatarouterJobRouteSet.class);
 		}

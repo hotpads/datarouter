@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.30</version>
+	<version>0.0.31</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -227,7 +227,7 @@ client.mysqlClient.password=password
 You can define the client options in the code using the `MysqlClientOptionsBuilder` and add the ClientOptionsBuilder to the app's `WebappBuilder`.
 
 ```java
-Properties properties = MysqlClientOptionsBuilder(clientId)
+Properties properties = new MysqlClientOptionsBuilder(clientId)
 		.setClientOptionType(clientId)
 		.withUrl("localhost:3306/testDatabase")
 		.withUser("user")
@@ -279,6 +279,8 @@ Properties properties = new SchemaUpdateOptionsBuilder(true)
 ```
 
 On production environments, it is recommended to use `schemaUpdate.print` instead of `schemaUpdate.execute`. The ALTER TABLE statements will be logged and emailed instead of executed.
+The email will contains instruction on how to update the table schema in two format: sql query and pt-online-schema-update command.
+For some specific schema changes (like primary key change) two alternative instructions will be included: one to for production environments with additional steps for preserving backward compatibility and a second for other environments.
 
 Individual clients could be exempt from schema updates by adding the `schemaUpdate.execute.ignoreClients=client1,client2,...` property or in the code with
 ```java

@@ -15,13 +15,13 @@
  */
 package io.datarouter.web.user.session;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
-import io.datarouter.util.collection.ListTool;
 
 public class BaseDatarouterSessionDatabeanKey<
 		PK extends BaseDatarouterSessionDatabeanKey<PK>>
@@ -35,7 +35,8 @@ extends BaseRegularPrimaryKey<PK>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return ListTool.createArrayList(new StringField(FieldKeys.sessionToken, sessionToken));
+		return new ArrayList<>(List.of(
+				new StringField(FieldKeys.sessionToken, sessionToken)));
 	}
 
 	public BaseDatarouterSessionDatabeanKey(){

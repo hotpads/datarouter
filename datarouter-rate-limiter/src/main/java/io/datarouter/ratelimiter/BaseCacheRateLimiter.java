@@ -182,25 +182,12 @@ public abstract class BaseCacheRateLimiter extends BaseRateLimiter{
 		calendar.set(calendarField, fieldInterval * (calendar.get(calendarField) / fieldInterval));
 	}
 
+	public Duration getBucketTimeInterval(){
+		return Duration.ofMillis(config.bucketIntervalMs);
+	}
+
 	public CacheRateLimiterConfig getConfig(){
 		return config;
-	}
-
-	@Deprecated
-	public long getMaxAvgRequests(){
-		return getConfig().maxAverageRequests;
-	}
-
-	public long getMaxSpikeRequests(){
-		return getConfig().maxSpikeRequests;
-	}
-
-	public int getNumIntervals(){
-		return getConfig().numIntervals;
-	}
-
-	public Duration getBucketTimeInterval(){
-		return Duration.ofMillis(getConfig().bucketIntervalMs);
 	}
 
 }

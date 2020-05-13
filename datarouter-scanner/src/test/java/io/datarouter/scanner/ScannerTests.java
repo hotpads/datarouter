@@ -33,4 +33,31 @@ public class ScannerTests{
 		Assert.assertSame(Scanner.of(Stream.of(1)).getClass(), StreamScanner.class);
 	}
 
+	@Test
+	public void testConcatIterables(){
+		List<Integer> iter1 = List.of(1);
+		List<Integer> iter2 = List.of();
+		List<Integer> iter3 = List.of(1, 2);
+		List<Integer> actual = Scanner.concat(iter1, iter2, iter3).list();
+		Assert.assertEquals(actual, List.of(1, 1, 2));
+	}
+
+	@Test
+	public void testAppendScanner(){
+		List<Integer> actual = Scanner.of(1).append(Scanner.of(List.of(1, 2))).list();
+		Assert.assertEquals(actual, List.of(1, 1, 2));
+	}
+
+	@Test
+	public void testAppendVarargs(){
+		List<Integer> actual = Scanner.of(1).append(1, 2).list();
+		Assert.assertEquals(actual, List.of(1, 1, 2));
+	}
+
+	@Test
+	public void testAppendIterable(){
+		List<Integer> actual = Scanner.of(1).append(List.of(1, 2)).list();
+		Assert.assertEquals(actual, List.of(1, 1, 2));
+	}
+
 }

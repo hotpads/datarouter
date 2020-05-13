@@ -16,6 +16,7 @@
 package io.datarouter.client.rediscluster.node;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,8 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.JsonDatabeanTool;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.ParallelScannerContext;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
@@ -50,8 +53,9 @@ implements PhysicalMapStorageNode<PK,D,F>,
 			NodeParams<PK,D,F> params,
 			RedisClusterClientType redisClientType,
 			RedisClusterClientManager redisClientManager,
-			ClientId clientId){
-		super(params, redisClientType, redisClientManager, clientId);
+			ClientId clientId,
+			ExecutorService executor){
+		super(params, redisClientType, redisClientManager, clientId, executor);
 	}
 
 	@Override
@@ -84,8 +88,10 @@ implements PhysicalMapStorageNode<PK,D,F>,
 		if(databeans == null || databeans.isEmpty()){
 			return;
 		}
-		// redis cannot handle batch puts
-		databeans.forEach(databean -> put(databean, config));
+		// redis cannot handle batch puts so use datarouter's parallelization
+		Scanner.of(databeans)
+				.parallel(new ParallelScannerContext(executor, 16, true))
+				.forEach(databean -> put(databean, config));
 	}
 
 	@Override
@@ -106,7 +112,9 @@ implements PhysicalMapStorageNode<PK,D,F>,
 		if(keys == null || keys.isEmpty()){
 			return;
 		}
-		keys.forEach(key -> delete(key, config));
+		Scanner.of(keys)
+				.parallel(new ParallelScannerContext(executor, 16, true))
+				.forEach(key -> delete(key, config));
 	}
 
 	@Override

@@ -15,6 +15,7 @@
  */
 package io.datarouter.instrumentation.serviceconfig;
 
+import java.util.Map;
 import java.util.Set;
 
 public class ServiceConfigurationDto{
@@ -22,13 +23,14 @@ public class ServiceConfigurationDto{
 	public final String serviceName;
 	public final Set<String> administratorsEmails;
 	public final String serviceDescription;
+	public final Map<String,String> serviceDocumentationNamesAndLinks;
 
-
-	public ServiceConfigurationDto(String serviceName, Set<String> administratorsEmails,
-			String serviceDescription){
+	public ServiceConfigurationDto(String serviceName, Set<String> administratorsEmails, String serviceDescription,
+			Map<String,String> serviceDocumentationNamesAndLinks){
 		this.serviceName = serviceName;
 		this.administratorsEmails = administratorsEmails;
 		this.serviceDescription = serviceDescription;
+		this.serviceDocumentationNamesAndLinks = serviceDocumentationNamesAndLinks;
 	}
 
 }

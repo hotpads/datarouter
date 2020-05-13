@@ -18,6 +18,7 @@ package io.datarouter.auth.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.auth.job.AccountPermissionCacheRefreshJob;
 import io.datarouter.auth.job.AuthConfigurationScanJob;
 import io.datarouter.auth.job.DatarouterAccountLastUsedFlushJob;
 import io.datarouter.auth.job.DatarouterSessionVacuumJob;
@@ -49,6 +50,10 @@ public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 				settings.runConfigurationScanReportEmailJob,
 				AuthConfigurationScanJob.class,
 				true);
+		registerParallel(
+				"1/15 * * * * ?",
+				() -> true,
+				AccountPermissionCacheRefreshJob.class);
 	}
 
 }

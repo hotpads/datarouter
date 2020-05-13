@@ -106,6 +106,11 @@ public class DocumentationHandler extends BaseHandler{
 					continue;
 				}
 				String url = rule.getPattern().pattern();
+				if(!url.contains(BaseRouteSet.REGEX_ONE_DIRECTORY)){ // not a handleDir
+					if(!url.endsWith(method.getName())){
+						continue;
+					}
+				}
 				if(url.contains(BaseRouteSet.REGEX_ONE_DIRECTORY)){
 					String urlSuffix = method.getAnnotation(Handler.class).defaultHandler() ? "" : "/" + method
 							.getName();
@@ -129,7 +134,8 @@ public class DocumentationHandler extends BaseHandler{
 						logger.warn("Could not create response example for {}", responseType, e);
 					}
 				}
-				Optional<Class<?>> clazz = responseType instanceof Class ? Optional.of((Class<?>)responseType)
+				Optional<Class<?>> clazz = responseType instanceof Class
+						? Optional.of((Class<?>)responseType)
 						: Optional.empty();
 				String responseTypeString = clazz.map(Class::getSimpleName).orElse(responseType.toString());
 				DocumentedResponseJspDto response = new DocumentedResponseJspDto(responseTypeString, responseExample);

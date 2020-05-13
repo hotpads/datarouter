@@ -37,9 +37,7 @@ public class DatarouterAuthFiles extends FilesRoot{
 	}
 
 	public static class JspAuthenticationFiles extends PathNode{
-		public final PathNode editUserFormJsp = leaf("editUserForm.jsp");
 		public final PathNode permissionRequestJsp = leaf("permissionRequest.jsp");
-		public final PathNode resetPasswordFormJsp = leaf("resetPasswordForm.jsp");
 	}
 
 }

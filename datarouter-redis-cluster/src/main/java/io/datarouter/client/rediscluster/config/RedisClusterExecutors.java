@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.mysql.ddl.generate;
+package io.datarouter.client.rediscluster.config;
 
-public class SqlAlterTableClause{
+import javax.inject.Singleton;
 
-	private final CharSequence alterTable;
+import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 
-	public SqlAlterTableClause(CharSequence alterTable){
-		this.alterTable = alterTable;
-	}
+public class RedisClusterExecutors{
 
-	public CharSequence getAlterTable(){
-		return alterTable;
-	}
+	@Singleton
+	public static class RedisClusterBatchOpExecutor extends ScalingThreadPoolExecutor{
 
-	@Override
-	public String toString(){
-		return alterTable.toString();
+		public RedisClusterBatchOpExecutor(){
+			super("RedisClusterBatchOp", 100);
+		}
+
 	}
 
 }

@@ -29,6 +29,7 @@ import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.databean.DatarouterUser;
+import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.session.service.Role;
 
 @Singleton
@@ -84,7 +85,11 @@ public class DatarouterUserInfo implements UserInfo{
 	}
 
 	@Override
-	public Set<Role> getRolesByUsername(String username){
+	public Set<Role> getRolesByUsername(String username, boolean disallowCached){
+		if(disallowCached){
+			return getRolesFromUser(Optional.ofNullable(userDao.getByUsername(new DatarouterUserByUsernameLookup(
+					username))));
+		}
 		return getRolesFromUser(getUserByUsername(username));
 	}
 

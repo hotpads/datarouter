@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +31,9 @@ import java.util.function.Supplier;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
@@ -82,7 +83,7 @@ public class FieldSetTool{
 
 		Map<String,Field<?>> leftMap = generateFieldMap(left);
 		Map<String,Field<?>> rightMap = generateFieldMap(right);
-		for(String key : SetTool.union(leftMap.keySet(), rightMap.keySet())){
+		for(String key : Scanner.concat(leftMap.keySet(), rightMap.keySet()).collect(HashSet::new)){
 			Field<?> leftField = leftMap.get(key);
 			Field<?> rightField = rightMap.get(key);
 

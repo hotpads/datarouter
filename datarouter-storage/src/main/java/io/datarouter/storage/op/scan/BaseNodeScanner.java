@@ -137,15 +137,15 @@ extends BaseScanner<List<T>>{
 	}
 
 	private void fillCurrentRanges(){
-		for(int i = 0; i < this.rangeBatchSize && !ranges.isEmpty(); i++){
+		for(int i = 0; i < rangeBatchSize && !ranges.isEmpty(); i++){
 			currentRanges.add(ranges.pollFirst());
 		}
 	}
 
 	private void updateBatchConfigLimit(){
-		int batchConfigLimit = this.config.optOutputBatchSize().orElse(DEFAULT_OUTPUT_BATCH_SIZE);
-		if(this.config.getLimit() != null && this.config.getLimit() - resultCount < batchConfigLimit){
-			batchConfigLimit = (int) (this.config.getLimit() - resultCount);
+		int batchConfigLimit = config.optOutputBatchSize().orElse(DEFAULT_OUTPUT_BATCH_SIZE);
+		if(config.getLimit() != null && config.getLimit() - resultCount < batchConfigLimit){
+			batchConfigLimit = (int) (config.getLimit() - resultCount);
 		}
 		batchConfig.setLimit(batchConfigLimit);
 	}

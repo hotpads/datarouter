@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
-import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto.UserDeprovisioningStatusDto;
+import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
@@ -30,7 +30,6 @@ import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
 import io.datarouter.web.user.session.service.Role;
@@ -71,10 +70,7 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 	}
 
 	public DeprovisionedUserDto toDto(){
-		return new DeprovisionedUserDto(
-				getUsername(),
-				Scanner.of(roles).sorted(String.CASE_INSENSITIVE_ORDER).list(),
-				status.dto);
+		return new DeprovisionedUserDto(getUsername(), roles, status.dto);
 	}
 
 	@Override

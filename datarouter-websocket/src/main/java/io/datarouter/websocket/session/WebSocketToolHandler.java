@@ -49,7 +49,6 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.websocket.config.DatarouterWebSocketFiles;
-import io.datarouter.websocket.config.DatarouterWebSocketPaths;
 import io.datarouter.websocket.service.ServerAddressProvider;
 import io.datarouter.websocket.service.WebSocketConnectionStore;
 import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao;
@@ -71,8 +70,6 @@ public class WebSocketToolHandler extends BaseHandler{
 	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterWebSocketFiles files;
-	@Inject
-	private DatarouterWebSocketPaths paths;
 	@Inject
 	private PushService pushService;
 	@Inject

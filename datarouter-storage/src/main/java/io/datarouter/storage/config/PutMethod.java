@@ -17,7 +17,6 @@ package io.datarouter.storage.config;
 
 import java.util.Set;
 
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.IntegerEnum;
 import io.datarouter.util.enums.StringEnum;
@@ -66,8 +65,7 @@ public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 
 	//need to flush immediately so we can catch insert/update exceptions if they are thrown,
 	//   otherwise the exception will ruin the whole batch
-	public static final Set<PutMethod> METHODS_TO_FLUSH_IMMEDIATELY = SetTool.unmodifiableEnumSetOf(UPDATE_OR_INSERT,
-			INSERT_OR_UPDATE);
+	public static final Set<PutMethod> METHODS_TO_FLUSH_IMMEDIATELY = Set.of(UPDATE_OR_INSERT, INSERT_OR_UPDATE);
 
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.INSERT_ON_DUPLICATE_UPDATE;
 

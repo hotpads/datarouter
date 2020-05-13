@@ -56,7 +56,7 @@ public class DateTool{
 	public static final DateTimeFormatter JAVA_TIME_INTERNET_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
 	@Deprecated
-	public static final String BAD_ISO_FORMAT = "yyyy MM dd'T'hh mm ss'Z'";
+	protected static final String BAD_ISO_FORMAT = "yyyy MM dd'T'hh mm ss'Z'";
 
 	/**
 	 * Parse the provided date string using a sequence of common date formats

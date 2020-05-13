@@ -58,42 +58,6 @@ public class SqlTable{
 		return getPrimaryKey() != null && getPrimaryKey().getColumnNames().size() > 0;
 	}
 
-	public boolean containsColumn(String columnName){
-		for(SqlColumn col : getColumns()){
-			if(col.getName().equals(columnName)){
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public boolean containsIndex(String string){
-		for(SqlIndex index : getIndexes()){
-			if(index.getName().equals(string)){
-				return true;
-			}
-		}
-		return false;
-	}
-
-	// text before the first parenthesis, example "show create table Zebra"
-	public static String getHeader(String phrase){
-		int index = phrase.indexOf('(');
-		return phrase.substring(0, index);
-	}
-
-	// text inside the parentheses which is a csv separated list of column definitions
-	public static String getColumnDefinitionSection(String phrase){
-		int index1 = phrase.indexOf('('), index2 = phrase.lastIndexOf(')');
-		return phrase.substring(index1 + 1, index2);
-	}
-
-	// text after the closing parenthesis. specifies table engine, charset, collation
-	public static String getTail(String phrase){
-		int index = phrase.lastIndexOf(')');
-		return phrase.substring(index + 1);
-	}
-
 	@Override
 	public boolean equals(Object otherObject){
 		if(!(otherObject instanceof SqlTable)){

@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.auth.cache.DatarouterUserByUsernameCache;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -78,7 +78,7 @@ public class DatarouterUserSessionService implements UserSessionService{
 		}
 
 		user.setLastLoggedIn(new Date());
-		user.setRoles(SetTool.union(roles, user.getRoles()));
+		user.setRoles(Scanner.concat(roles, user.getRoles()).collect(HashSet::new));
 		userDao.put(user);
 
 		DatarouterSession session = DatarouterSession.createFromUser(user);

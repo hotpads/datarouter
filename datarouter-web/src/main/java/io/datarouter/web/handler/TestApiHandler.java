@@ -30,7 +30,6 @@ import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
@@ -130,7 +129,7 @@ public class TestApiHandler extends BaseHandler{
 	public Collection<FooBar> bananas(){
 		FooBar dto = new FooBar("hello", 42, Calendar.getInstance().getTime());
 		FooBar otd = new FooBar("world", 24, Calendar.getInstance().getTime());
-		return ListTool.create(dto, otd);
+		return List.of(dto, otd);
 	}
 
 	/*

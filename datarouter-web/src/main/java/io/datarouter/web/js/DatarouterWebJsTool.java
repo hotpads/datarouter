@@ -15,7 +15,11 @@
  */
 package io.datarouter.web.js;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.scanner.Scanner;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
@@ -24,6 +28,13 @@ public class DatarouterWebJsTool{
 	public static ContainerTag makeJsImport(String contextPath, PathNode path){
 		return TagCreator.script()
 				.withSrc(contextPath + path.toSlashedString());
+	}
+
+	public static String buildRawJsObject(Map<String,String> map){
+		String result = Scanner.of(map.entrySet())
+				.map(entry -> entry.getKey() + ": '" + entry.getValue() + "'")
+				.collect(Collectors.joining(",\n", "{", "}"));
+		return result;
 	}
 
 }

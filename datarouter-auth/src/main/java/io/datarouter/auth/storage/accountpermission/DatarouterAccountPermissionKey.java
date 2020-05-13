@@ -54,6 +54,10 @@ public class DatarouterAccountPermissionKey extends BaseRegularPrimaryKey<Dataro
 				new StringField(FieldKeys.endpoint, endpoint));
 	}
 
+	public DatarouterAccountPermissionKey getAccountPrefix(){
+		return new DatarouterAccountPermissionKey(accountName);
+	}
+
 	public String getAccountName(){
 		return accountName;
 	}

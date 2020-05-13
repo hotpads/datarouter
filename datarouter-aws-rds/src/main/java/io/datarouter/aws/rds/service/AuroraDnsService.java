@@ -38,7 +38,6 @@ import io.datarouter.client.mysql.factory.MysqlOptions;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.retry.RetryableTool;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
 
 @Singleton
@@ -65,7 +64,7 @@ public class AuroraDnsService{
 		Map<String,DnsHostEntryDto> dnsEntryByHostname = new HashMap<>();
 		List<ClientId> clients = clientIdProvider.getAuroraClientIds();
 		for(ClientId client : clients){
-			String hostname = StringTool.getStringBeforeLastOccurrence(':', mysqlOptions.url(client));
+			String hostname = mysqlOptions.hostname(client);
 			DnsHostEntryDto dnsEntry = dnsLookUp(client, hostname);
 			if(dnsEntry.isAuroraInstance){
 				dnsEntryByHostname.put(hostname, dnsEntry);

@@ -18,8 +18,8 @@ package io.datarouter.model.field.imp.array;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.ListTool;
 
 public class DelimitedStringArrayField extends KeyedListField<String,List<String>, DelimitedStringArrayFieldKey>{
 
@@ -89,7 +89,7 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 		if("".equals(input)){
 			return new ArrayList<>();
 		}
-		return ListTool.create(input.split(separator));
+		return Scanner.of(input.split(separator)).list();
 	}
 
 }

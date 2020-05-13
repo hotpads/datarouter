@@ -29,6 +29,10 @@ public class ObjectScanner<T> implements Scanner<T>{
 		return new ObjectScanner<>(object);
 	}
 
+	public static <T> Scanner<T> ofNullable(T object){
+		return object == null ? EmptyScanner.singleton() : of(object);
+	}
+
 	@Override
 	public boolean advance(){
 		if(advanced){

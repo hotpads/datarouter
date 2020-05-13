@@ -15,13 +15,16 @@
  */
 package io.datarouter.auth.web.deprovisioning;
 
-import java.text.Collator;
 import java.util.Comparator;
 import java.util.List;
 
+import io.datarouter.scanner.Scanner;
+import io.datarouter.util.string.StringTool;
+
 public class DeprovisionedUserDto{
 
-	public static final Comparator<DeprovisionedUserDto> COMPARATOR = new DeprovisionedUserDtoComparator();
+	public static final Comparator<DeprovisionedUserDto> COMPARATOR = Comparator.comparing(dto -> dto.username,
+			StringTool.COLLATOR_COMPARATOR);
 
 	public final String username;
 	public final List<String> roles;
@@ -29,29 +32,8 @@ public class DeprovisionedUserDto{
 
 	public DeprovisionedUserDto(String username, List<String> roles, UserDeprovisioningStatusDto status){
 		this.username = username;
-		this.roles = List.copyOf(roles);
+		this.roles = Scanner.of(roles).sorted(String.CASE_INSENSITIVE_ORDER).list();
 		this.status = status;
-	}
-
-	private static class DeprovisionedUserDtoComparator implements Comparator<DeprovisionedUserDto>{
-
-		//@s in usernames make String.CASE_INSENSITIVE_ORDER behave really weirdly in testing
-		private static final Collator COLLATOR = Collator.getInstance();
-
-		@Override
-		public int compare(DeprovisionedUserDto first, DeprovisionedUserDto second){
-			return COLLATOR.compare(first.username, second.username);
-		}
-
-	}
-
-	public static enum UserDeprovisioningStatusDto{
-
-		DEPROVISIONED,
-		FLAGGED,
-		UNRESTORABLE,
-		;
-
 	}
 
 }

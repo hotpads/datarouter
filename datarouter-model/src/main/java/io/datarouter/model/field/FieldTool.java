@@ -24,7 +24,6 @@ import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.varint.VarInt;
@@ -195,7 +194,7 @@ public class FieldTool{
 		if(StringTool.isEmpty(field.getPrefix())){
 			return object;//no prefixes
 		}
-		List<String> fieldNames = ListTool.createArrayList(field.getPrefix().split("\\."));
+		String[] fieldNames = field.getPrefix().split("\\.");
 		Object current = object;
 		for(String fieldName : fieldNames){//return the FieldSet, not the actual Integer (or whatever) field
 			current = ReflectionTool.get(fieldName, current);

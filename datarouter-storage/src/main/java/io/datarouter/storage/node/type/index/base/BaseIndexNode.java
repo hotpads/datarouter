@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.node.type.index.base;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -23,12 +22,12 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.IndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.BaseNode;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.collection.ListTool;
 
 public abstract class BaseIndexNode<
 		PK extends PrimaryKey<PK>,
@@ -61,10 +60,7 @@ extends BaseNode<IK,IE,IF>{
 
 	@Override
 	public List<? extends Node<IK,IE,IF>> getChildNodes(){
-		if(indexNode == null){
-			return new ArrayList<>();
-		}
-		return ListTool.wrap(indexNode);
+		return Scanner.ofNullable(indexNode).list();
 	}
 
 	@Override

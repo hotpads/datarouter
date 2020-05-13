@@ -22,6 +22,7 @@ import static j2html.TagCreator.text;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -91,7 +92,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Handler(defaultHandler = true)
 	private Mav showForm(OptionalString deniedUrl, OptionalString allowedRoles){
 		if(!authenticationConfig.useDatarouterAuthentication()){
-			 return noDatarouterAuthenticationMav();
+			 return new MessageMav(noDatarouterAuthentication());
 		}
 		Mav mav = new Mav(files.jsp.authentication.permissionRequestJsp);
 		mav.put("serviceName", datarouterService.getName());
@@ -116,7 +117,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Handler
 	private Mav submit(OptionalString specifics){
 		if(!authenticationConfig.useDatarouterAuthentication()){
-			return noDatarouterAuthenticationMav();
+			return new MessageMav(noDatarouterAuthentication());
 		}
 		String reason = params.required(P_REASON);
 		if(StringTool.isEmpty(reason)){
@@ -140,7 +141,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Handler
 	private Mav declineAll(OptionalLong userId, OptionalString redirectPath){
 		if(!authenticationConfig.useDatarouterAuthentication()){
-			return noDatarouterAuthenticationMav();
+			return new MessageMav(noDatarouterAuthentication());
 		}
 		DatarouterUser currentUser = getCurrentUser();
 		//only allow DATAROUTER_ADMIN and self to decline requests
@@ -163,6 +164,29 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 			return showForm(new OptionalString(null), new OptionalString(null));
 		}
 		return new GlobalRedirectMav(redirectPath.get());
+	}
+
+	//TODO (same time as DATAROUTER-2788) extract common code copied from Mav declineAll
+	@Handler
+	private SuccessAndMessageDto declinePermissionRequests(String userId){
+		long userIdLong = Long.parseLong(userId);
+		if(!authenticationConfig.useDatarouterAuthentication()){
+			return new SuccessAndMessageDto(false, noDatarouterAuthentication());
+		}
+		DatarouterUser currentUser = getCurrentUser();
+		//only allow DATAROUTER_ADMIN and self to decline requests
+		if(userIdLong != currentUser.getId() && !currentUser.getRoles().contains(DatarouterUserRole.DATAROUTER_ADMIN
+				.getRole())){
+			return new SuccessAndMessageDto(false, "You do not have permission to decline this request.");
+		}
+		datarouterPermissionRequestDao.declineAll(userIdLong);
+
+		DatarouterUser editedUser = currentUser;
+		if(userIdLong != getCurrentUser().getId()){
+			editedUser = datarouterUserInfo.getUserById(userIdLong).get();
+		}
+		sendDeclineEmail(editedUser, currentUser);
+		return new SuccessAndMessageDto();
 	}
 
 	private DatarouterUser getCurrentUser(){
@@ -211,10 +235,45 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
 	}
 
-	private Mav noDatarouterAuthenticationMav(){
+	private String noDatarouterAuthentication(){
 		logger.warn("{} went to non-DR permission request page.", getSessionInfo().getRequiredSession().getUsername());
-		return new MessageMav("This is only available when using datarouter authentication. Please email "
-				+ datarouterProperties.getAdministratorEmail() + " for assistance.");
+		return "This is only available when using datarouter authentication. Please email " + datarouterProperties
+				.getAdministratorEmail() + " for assistance.";
+	}
+
+	public static class PermissionRequestDto{
+		public final Date requestTime;
+		public final String requestText;
+		public final Date resolutionTime;
+		public final String resolution;
+
+		public PermissionRequestDto(Date requestTime, String requestText, Date resolutionTime,
+				String resolution){
+			this.requestTime = requestTime;
+			this.requestText = requestText;
+			this.resolutionTime = resolutionTime;
+			this.resolution = resolution;
+		}
+
+	}
+
+	//TODO DATAROUTER-2788 refactor/remove this class
+	private static class SuccessAndMessageDto{
+
+		@SuppressWarnings("unused")
+		public final Boolean success;
+		@SuppressWarnings("unused")
+		public final String message;
+
+		protected SuccessAndMessageDto(){
+			this.success = true;
+			this.message = "";
+		}
+
+		protected SuccessAndMessageDto(boolean success, String message){
+			this.success = success;
+			this.message = Objects.requireNonNull(message);
+		}
 	}
 
 }

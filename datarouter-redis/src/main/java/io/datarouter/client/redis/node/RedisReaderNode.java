@@ -105,7 +105,9 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		if(keys == null || keys.isEmpty()){
 			return Collections.emptyList();
 		}
-		return Scanner.of(getMulti(keys, config)).map(Databean::getKey).list();
+		return Scanner.of(getMulti(keys, config))
+				.map(Databean::getKey)
+				.list();
 	}
 
 	@Override

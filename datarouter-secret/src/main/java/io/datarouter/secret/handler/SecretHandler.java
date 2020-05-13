@@ -23,8 +23,10 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.secret.config.DatarouterSecretFiles;
 import io.datarouter.secret.config.DatarouterSecretPaths;
+import io.datarouter.secret.handler.SecretHandlerOpRequestDto.SecretOpDto;
 import io.datarouter.secret.service.SecretOpReason;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.util.string.StringTool;
@@ -46,6 +48,8 @@ public class SecretHandler extends BaseHandler{
 	private SecretService secretService;
 	@Inject
 	private Bootstrap4ReactPageFactory reactPageFactory;
+	@Inject
+	private ChangelogRecorder changelogRecorder;
 
 	@Handler(defaultHandler = true)
 	private Mav index(){
@@ -62,6 +66,14 @@ public class SecretHandler extends BaseHandler{
 		SecretHandlerOpResultDto result = validateRequest(requestDto);
 		if(result == null){
 			result = executeAuthorizedRequest(requestDto);
+			if(requestDto.op != SecretOpDto.LIST_ALL){
+				changelogRecorder.record(
+						"Secrets",
+						requestDto.name,
+						requestDto.op.getPersistentString(),
+						getSessionInfo().getNonEmptyUsernameOrElse(""),
+						getSessionInfo().getRequiredSession().getUserToken());
+			}
 		}
 		return result;
 	}

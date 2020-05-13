@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,8 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.instrumentation.test.TestableService;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
-import io.datarouter.util.collection.SetTool;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.lang.ClassTool;
 import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
@@ -104,7 +105,7 @@ public abstract class BaseFilesTests implements TestableService{
 	}
 
 	private Set<String> getFilesToOmit(){
-		return SetTool.union(getNode().filesToOmit(), OMITTED_WORDS);
+		return Scanner.concat(getNode().filesToOmit(), OMITTED_WORDS).collect(HashSet::new);
 	}
 
 	private boolean filterOmited(String path){

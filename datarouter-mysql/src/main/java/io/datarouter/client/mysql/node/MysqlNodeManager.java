@@ -69,7 +69,6 @@ import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.tuple.Range;
 
 @Singleton
@@ -107,7 +106,10 @@ public class MysqlNodeManager{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			PK key,
 			Config config){
-		return CollectionTool.getFirst(getMulti(fieldInfo, ListTool.wrap(key), config));
+		if(key == null){
+			return null;
+		}
+		return CollectionTool.getFirst(getMulti(fieldInfo, List.of(key), config));
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -133,6 +135,9 @@ public class MysqlNodeManager{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	D lookupUnique(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, UniqueKey<PK> uniqueKey, Config config){
+		if(uniqueKey == null){
+			return null;
+		}
 		String opName = IndexedStorageReader.OP_lookupUnique;
 		MysqlLookupUniqueOp<PK,D,F> op = new MysqlLookupUniqueOp<>(
 				datarouter,
@@ -140,7 +145,7 @@ public class MysqlNodeManager{
 				mysqlGetOpExecutor,
 				fieldInfo,
 				opName,
-				ListTool.wrap(uniqueKey), config);
+				List.of(uniqueKey), config);
 		List<D> result = sessionExecutor.runWithoutRetries(op, getTraceName(fieldInfo.getNodeName(), opName));
 		if(result.size() > 1){
 			throw new DataAccessException("found >1 databeans with unique index key=" + uniqueKey);
@@ -281,12 +286,15 @@ public class MysqlNodeManager{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	void put(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, D databean, Config config){
+		if(databean == null){
+			return;
+		}
 		var op = new MysqlPutOp<>(
 				datarouter,
 				fieldInfo,
 				this,
 				mysqlSqlFactory,
-				ListTool.wrap(databean),
+				List.of(databean),
 				config);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
 	}
@@ -312,13 +320,16 @@ public class MysqlNodeManager{
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>
 	void delete(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, PK key, Config config){
+		if(key == null){
+			return;
+		}
 		String opName = MapStorageWriter.OP_delete;
 		var op = new MysqlDeleteOp<>(
 				datarouter,
 				fieldInfo,
 				mysqlSqlFactory,
 				mysqlClientType,
-				ListTool.wrap(key),
+				List.of(key),
 				config,
 				opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, null), config);
@@ -340,13 +351,16 @@ public class MysqlNodeManager{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	void deleteUnique(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, UniqueKey<PK> uniqueKey, Config config){
+		if(uniqueKey == null){
+			return;
+		}
 		String opName = IndexedStorageWriter.OP_deleteUnique;
 		var op = new MysqlUniqueIndexDeleteOp<>(
 				datarouter,
 				fieldInfo,
 				mysqlSqlFactory,
 				mysqlClientType,
-				ListTool.wrap(uniqueKey),
+				List.of(uniqueKey),
 				config,
 				opName);
 		MysqlOpRetryTool.tryNTimes(sessionExecutor.makeCallable(op, getTraceName(fieldInfo.getNodeName(), opName)),

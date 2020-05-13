@@ -44,6 +44,7 @@ import io.datarouter.client.mysql.ddl.generate.SqlAlterTableGeneratorFactory.Sql
 import io.datarouter.client.mysql.ddl.generate.SqlCreateTableGenerator;
 import io.datarouter.client.mysql.ddl.generate.imp.ConnectionSqlTableGenerator;
 import io.datarouter.client.mysql.ddl.generate.imp.FieldSqlTableGenerator;
+import io.datarouter.client.mysql.factory.MysqlOptions;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.storage.client.ClientId;
@@ -70,6 +71,8 @@ public class MysqlSingleTableSchemaUpdateService{
 	private SchemaUpdateOptions schemaUpdateOptions;
 	@Inject
 	private MysqlConnectionPoolHolder mysqlConnectionPoolHolder;
+	@Inject
+	private MysqlOptions mysqlOptions;
 
 	public Optional<SchemaUpdateResult> performSchemaUpdate(
 			ClientId clientId,
@@ -135,7 +138,7 @@ public class MysqlSingleTableSchemaUpdateService{
 		}
 		SqlTable executeCurrent = ConnectionSqlTableGenerator.generate(connectionPool, tableName, schemaName);
 		SqlAlterTableGenerator executeAlterTableGenerator = sqlAlterTableGeneratorFactory
-				.new SqlAlterTableGenerator(executeCurrent, requested, schemaName);
+				.new SqlAlterTableGenerator(executeCurrent, requested, mysqlOptions.hostname(clientId), schemaName);
 		//execute the alter table
 		Ddl ddl = executeAlterTableGenerator.generateDdl();
 		if(ddl.executeStatement.isPresent()){
@@ -145,7 +148,7 @@ public class MysqlSingleTableSchemaUpdateService{
 			logger.info(ddl.executeStatement.get());
 			MysqlTool.execute(connectionPool, ddl.executeStatement.get());
 			alterTableTimer.add("Completed SchemaUpdate for " + tableName);
-			logger.info(SchemaUpdateTool.generateFullWidthMessage(alterTableTimer.toString()));
+			logger.info(SchemaUpdateTool.generateFullWidthMessage(alterTableTimer.getElapsedString()));
 		}
 
 

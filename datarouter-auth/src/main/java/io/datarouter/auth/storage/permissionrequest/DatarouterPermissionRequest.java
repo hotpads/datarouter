@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
@@ -85,9 +85,9 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 		}
 	}
 
-	public DatarouterUserHistoryKey toUserHistoryKey(){
-		Objects.requireNonNull(resolutionTime);
-		return new DatarouterUserHistoryKey(getKey().getUserId(), resolutionTime);
+	public Optional<DatarouterUserHistoryKey> toUserHistoryKey(){
+		return Optional.ofNullable(resolutionTime)
+				.map(time -> new DatarouterUserHistoryKey(getKey().getUserId(), time));
 	}
 
 	private DatarouterPermissionRequest resolve(DatarouterPermissionRequestResolution resolution, Date resolutionTime){

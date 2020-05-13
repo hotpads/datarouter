@@ -54,7 +54,6 @@ import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.util.Require;
 import io.datarouter.util.collection.CollectionTool;
-import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Range;
 
@@ -133,7 +132,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 		if(key == null){
 			return null;
 		}
-		return CollectionTool.getFirst(getMulti(ListTool.wrap(key), config));
+		return CollectionTool.getFirst(getMulti(List.of(key), config));
 	}
 
 	@Override

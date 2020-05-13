@@ -31,6 +31,7 @@ import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.secret.client.SecretClientSupplier;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 
 @Singleton
@@ -63,6 +64,10 @@ public class MysqlOptions{
 
 	public String url(ClientId clientId){
 		return clientOptions.getRequiredString(clientId.getName(), PROP_url);
+	}
+
+	public String hostname(ClientId clientid){
+		return StringTool.getStringBeforeLastOccurrence(':', url(clientid));
 	}
 
 	/**
