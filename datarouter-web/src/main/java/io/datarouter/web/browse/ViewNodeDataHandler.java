@@ -214,8 +214,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				"Inspect Node Data",
 				node.getName(),
 				"countKeys",
-				getSessionInfo().getRequiredSession().getUsername(),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getRequiredSession().getUsername());
 		return pageFactory.message(request, message);
 	}
 

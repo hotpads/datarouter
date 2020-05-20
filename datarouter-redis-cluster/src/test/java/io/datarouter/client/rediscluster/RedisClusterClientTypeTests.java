@@ -21,7 +21,6 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.client.rediscluster.RedisClusterClientType;
 import io.datarouter.storage.client.ClientTypeRegistry;
 
 @Guice(moduleFactory = DatarouterRedisClusterTestNgModuleFactory.class)

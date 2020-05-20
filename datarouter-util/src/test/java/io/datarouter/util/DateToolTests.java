@@ -17,6 +17,8 @@ package io.datarouter.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -143,6 +145,13 @@ public class DateToolTests{
 		logger.warn(incorrectPars.toString());
 		logger.warn(correctParse.toString());
 		logger.warn("matching:" + incorrectPars.equals(correctParse));
+	}
+
+	@Test
+	public void testIsWeekend(){
+		ZonedDateTime zonedDateTime = ZonedDateTime.of(2020, 5, 16, 0, 0, 0, 0, ZoneId.systemDefault());
+		Date date = Date.from(zonedDateTime.toInstant());
+		Assert.assertTrue(DateTool.isWeekend(date));
 	}
 
 }

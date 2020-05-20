@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.collection;
+package io.datarouter.loadtest.service;
 
-import java.util.ArrayList;
+import io.datarouter.loadtest.storage.RandomValue;
+import io.datarouter.loadtest.storage.RandomValueKey;
+import io.datarouter.storage.client.imp.noop.NoOpNode;
+import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+public interface LoadTestGetDao{
 
-public class CollectionToolTests{
+	MapStorageReader<RandomValueKey,RandomValue> getNode();
 
-	@Test
-	public void testNotEmpty(){
-		ArrayList<String> list = new ArrayList<>();
-		Assert.assertFalse(CollectionTool.nullSafeNotEmpty(list));
-		Assert.assertFalse(CollectionTool.nullSafeNotEmpty(null));
+	class NoOpLoadTestGetDao implements LoadTestGetDao{
+
+		@Override
+		public MapStorageReader<RandomValueKey,RandomValue> getNode(){
+			return new NoOpNode<>();
+		}
+
 	}
 
 }

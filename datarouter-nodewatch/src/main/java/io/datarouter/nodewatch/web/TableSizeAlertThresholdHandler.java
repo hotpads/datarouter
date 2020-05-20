@@ -71,11 +71,10 @@ public class TableSizeAlertThresholdHandler extends BaseHandler{
 		TableSizeAlertThreshold tableSizeAlertThreshold = new TableSizeAlertThreshold(clientName, tableName, threshold);
 		tableSizeAlertThresholdDao.put(tableSizeAlertThreshold);
 		changelogRecorder.record(
-				"Nodwatch",
+				"Nodewatch",
 				clientName + "." + tableName,
 				"update threshold",
-				getSessionInfo().getNonEmptyUsernameOrElse(""),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getNonEmptyUsernameOrElse(""));
 		return getRedirectMav();
 	}
 

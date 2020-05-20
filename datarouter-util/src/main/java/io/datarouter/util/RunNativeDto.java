@@ -21,9 +21,9 @@ public class RunNativeDto{
 	public final String stderr;
 	public final int exitVal;
 
-	public RunNativeDto(String sshResults, String errorMsg, int exitVal){
-		this.stdout = sshResults;
-		this.stderr = errorMsg;
+	public RunNativeDto(String stdout, String stderr, int exitVal){
+		this.stdout = stdout;
+		this.stderr = stderr;
 		this.exitVal = exitVal;
 	}
 

@@ -35,7 +35,6 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.collection.CollectionTool;
 
 public abstract class BaseMysqlDeleteOp<
 		PK extends PrimaryKey<PK>,
@@ -93,7 +92,7 @@ extends BaseMysqlOp<Long>{
 	}
 
 	private static boolean shouldAutoCommit(Collection<?> keys){
-		return CollectionTool.nullSafeSize(keys) <= 1;
+		return keys == null || keys.size() <= 1;
 	}
 
 }

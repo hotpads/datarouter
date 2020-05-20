@@ -15,10 +15,14 @@
  */
 package io.datarouter.conveyor;
 
+import java.io.InterruptedIOException;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import io.datarouter.web.util.ExceptionTool;
 
 public abstract class BaseConveyor implements Conveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseConveyor.class);
@@ -68,7 +72,9 @@ public abstract class BaseConveyor implements Conveyor{
 			ConveyorCounters.incFinishDrain(this);
 			logger.info("drain finished for conveyor={} duration={} iterations={} ", name, duration, iteration);
 		}catch(Throwable e){
-			if(e instanceof InterruptedException){
+			boolean isInterrupted = ExceptionTool.isFromInstanceOf(e, InterruptedException.class,
+					UncheckedInterruptedException.class, InterruptedIOException.class);
+			if(isInterrupted){
 				try{
 					interrupted();
 				}catch(Exception ex){

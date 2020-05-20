@@ -402,6 +402,11 @@ public class RequestTool{
 		return uri.substring(idx + 1, uri.length());
 	}
 
+	public static String getRequestUrlString(HttpServletRequest request){
+		String requestUrl = request.getRequestURL().toString();
+		String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
+		return requestUrl + queryString;
+	}
 
 	public static URL getFullyQualifiedUrl(String path, HttpServletRequest similarRequest){
 		if(!path.startsWith("/")){

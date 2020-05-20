@@ -88,7 +88,7 @@ public class DatarouterUserDeprovisioningService implements UserDeprovisioningSe
 				.map(DeprovisionedUserKey::new)
 				.listTo(deprovisionedUserDao::scanWithPrefixes)
 				.include(user -> user.getStatus() == UserDeprovisioningStatus.DEPROVISIONED)
-				.collect(Collectors.toMap(DeprovisionedUser::getUsername, DeprovisionedUser::getRoles));
+				.toMap(DeprovisionedUser::getUsername, DeprovisionedUser::getRoles);
 		var datarouterUserByUsername = Scanner.of(usernames)
 				.map(DatarouterUserByUsernameLookup::new)
 				.listTo(datarouterUserDao::getMultiByUsername)

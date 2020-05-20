@@ -45,7 +45,6 @@ import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 
 import io.datarouter.httpclient.HttpHeaders;
-import io.datarouter.util.collection.CollectionTool;
 
 public class MockHttpServletRequest implements HttpServletRequest{
 
@@ -285,7 +284,7 @@ public class MockHttpServletRequest implements HttpServletRequest{
 
 	@Override
 	public String getHeader(String name){
-		return CollectionTool.findFirst(headers.get(name)).orElse(null);
+		return headers.getOrDefault(name, Set.of()).stream().findFirst().orElse(null);
 	}
 
 	@Override

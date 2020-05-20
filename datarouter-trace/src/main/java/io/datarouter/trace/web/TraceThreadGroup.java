@@ -34,13 +34,13 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 
@@ -171,8 +171,8 @@ public class TraceThreadGroup{
 		Set<TraceSpanDto> spans = spansByThreadKey == null
 				? Collections.emptySet()
 				: spansByThreadKey.getOrDefault(thread, new TreeSet<>());
-		Map<Integer,List<TraceSpanDto>> spanByParentSequenceId = spans.stream()
-				.collect(Collectors.groupingBy(TraceSpanDto::getParentSequenceOrMinusOne));
+		Map<Integer,List<TraceSpanDto>> spanByParentSequenceId = Scanner.of(spans)
+				.groupBy(TraceSpanDto::getParentSequenceOrMinusOne);
 		sb.append(buildSubSpans(new TimeDto(thread), spanByParentSequenceId.get(-1), spanByParentSequenceId, 0));
 	}
 

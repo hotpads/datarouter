@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.aws.rds.service.AuroraClientIdProvider;
-import io.datarouter.aws.rds.service.AwsTags;
-import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.aws.rds.service.AuroraClientIdProvider.GenericAuroraClientIdProvider;
+import io.datarouter.aws.rds.service.AwsTags;
 import io.datarouter.aws.rds.service.AwsTags.NoOpAwsTags;
+import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration.NoOpDatabaseAdministrationConfiguration;
 import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.storage.client.ClientId;

@@ -18,8 +18,6 @@ package io.datarouter.util.array;
 import java.util.Arrays;
 import java.util.Collection;
 
-import io.datarouter.util.collection.CollectionTool;
-
 public class ArrayTool{
 
 	public static byte[] clone(byte[] in){
@@ -117,7 +115,7 @@ public class ArrayTool{
 	}
 
 	public static long[] primitiveLongArray(Collection<Long> ins){
-		if(CollectionTool.nullSafeIsEmpty(ins)){
+		if(ins == null || ins.isEmpty()){
 			return new long[0];
 		}
 		long[] array = new long[ins.size()];

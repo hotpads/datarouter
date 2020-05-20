@@ -29,7 +29,6 @@ import io.datarouter.joblet.model.Joblet;
 import io.datarouter.joblet.model.JobletPackage;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
-import io.datarouter.util.collection.CollectionTool;
 
 @Singleton
 public class JobletTypeFactory{
@@ -44,7 +43,7 @@ public class JobletTypeFactory{
 		this.allTypes = types.stream()
 				.sorted(Comparator.comparing(JobletType::getPersistentString))
 				.collect(Collectors.toList());
-		this.sampleType = CollectionTool.getFirst(types);
+		this.sampleType = types.iterator().next();
 		this.typeByPersistentString = new HashMap<>();
 		this.typeByShortQueueName = new HashMap<>();
 		for(JobletType<?> type : types){

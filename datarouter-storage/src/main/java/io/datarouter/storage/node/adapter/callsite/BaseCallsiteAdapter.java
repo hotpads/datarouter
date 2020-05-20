@@ -25,7 +25,6 @@ import io.datarouter.storage.callsite.CallsiteRecorder;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.adapter.BaseAdapter;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.LineOfCode;
 
 public abstract class BaseCallsiteAdapter<
@@ -59,7 +58,7 @@ implements CallsiteAdapter{
 
 	@Override
 	public void recordCollectionCallsite(LineOfCode lineOfCode, long startTimeNs, Collection<?> items){
-		recordCallsite(lineOfCode, startTimeNs, CollectionTool.nullSafeSize(items));
+		recordCallsite(lineOfCode, startTimeNs, items == null ? 0 : items.size());
 	}
 
 	@Override

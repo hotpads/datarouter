@@ -99,6 +99,12 @@ public class HtmlForm{
 		return field;
 	}
 
+	public HtmlFormTextArea addTextAreaField(){
+		var field = new HtmlFormTextArea();
+		fields.add(field);
+		return field;
+	}
+
 	public String getAction(){
 		return action;
 	}

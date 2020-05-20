@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ObjectTool;
 
 public class StringTool{
@@ -190,11 +189,11 @@ public class StringTool{
 	}
 
 	public static String concatenate(Collection<?> objects, String delimiter){
-		if(CollectionTool.nullSafeIsEmpty(objects)){
+		if(objects == null || objects.isEmpty()){
 			return null;
 		}
 		if(objects.size() == 1){
-			return CollectionTool.getFirst(objects).toString();
+			return objects.iterator().next().toString();
 		}
 		StringBuilder sb = new StringBuilder();
 		boolean didFirst = false;

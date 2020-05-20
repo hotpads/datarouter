@@ -33,7 +33,6 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 
 public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 
@@ -69,11 +68,13 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 	@Override
 	public JobletRequest runOnce(){
 		PreparedStatement selectStatement = makeSelectStatement().prepare(getConnection());
-		JobletRequest jobletRequest = CollectionTool.getFirst(MysqlTool.selectDatabeans(
+		JobletRequest jobletRequest = MysqlTool.selectDatabeans(
 				mysqlFieldCodecFactory,
 				fieldInfo.getDatabeanSupplier(),
 				fieldInfo.getFields(),
-				selectStatement));
+				selectStatement).stream()
+				.findFirst()
+				.orElse(null);
 		if(jobletRequest == null){
 			return null;
 		}

@@ -59,7 +59,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.timer.PhaseTimer;
@@ -107,7 +106,7 @@ public class HBaseHandler extends BaseHandler{
 	private void initialize(){
 		mav = new Mav();
 		encodedRegionNameStrings = RequestTool.getCheckedBoxes(request, PARAM_PREFIX_encodedRegionName_);
-		numRegions = CollectionTool.nullSafeSize(encodedRegionNameStrings);
+		numRegions = encodedRegionNameStrings.size();
 		datarouterWebRequestParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(params,
 				getClientType());
 		mav.put("clientType", datarouterWebRequestParams.getClientType().getName());

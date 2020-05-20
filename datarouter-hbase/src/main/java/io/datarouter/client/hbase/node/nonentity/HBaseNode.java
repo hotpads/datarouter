@@ -60,7 +60,6 @@ import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.tuple.Range;
 
@@ -109,8 +108,8 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 			return;
 		}
 		Durability durability = HBaseConfigTool.getDurability(config);
-		boolean ignoreNulls = config.optIgnoreNullFields().orElse(false);
-		int batchSize = config.optInputBatchSize().orElse(100);
+		boolean ignoreNulls = config.findIgnoreNullFields().orElse(false);
+		int batchSize = config.findInputBatchSize().orElse(100);
 		Scanner.of(databeans)
 				.include(Objects::nonNull)
 				.map(databean -> makePutAndDelete(databean, ignoreNulls, durability))
@@ -228,7 +227,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 				.map(Result::getRow)
 				.map(Delete::new)
 				.map(delete -> delete.setDurability(durability))
-				.batch(config.optInputBatchSize().orElse(100))
+				.batch(config.findInputBatchSize().orElse(100))
 				.forEach(actions -> execute(actions, deleteMultiCallback));
 	}
 
@@ -244,7 +243,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 				.map(queryBuilder::getPkBytesWithPartition)
 				.map(Delete::new)
 				.map(delete -> delete.setDurability(durability))
-				.batch(config.optInputBatchSize().orElse(100))
+				.batch(config.findInputBatchSize().orElse(100))
 				.forEach(deletes -> {
 					TracerTool.appendToSpanInfo("databeans", deletes.size());
 					execute(deletes, deleteMultiCallback);
@@ -284,7 +283,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 		DatarouterCounters.incClientNodeCustom(clientType, "cells incremented", clientName, nodeName, cellCount);
 		DatarouterCounters.incClientNodeCustom(clientType, "databeans incremented", clientName, nodeName,
 				databeanCount);
-		if(CollectionTool.nullSafeNotEmpty(actions)){
+		if(!actions.isEmpty()){
 			try(Table table = getTable()){
 				table.batch(actions, null);
 			}catch(IOException | InterruptedException e){

@@ -25,9 +25,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.client.rediscluster.RedisClusterClientType;
 import io.datarouter.client.rediscluster.client.RedisClusterClientManager;
 import io.datarouter.model.databean.Databean;
@@ -52,7 +49,6 @@ public class RedisClusterReaderNode<
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
-	private static final Logger logger = LoggerFactory.getLogger(RedisClusterReaderNode.class);
 
 	private final Integer databeanVersion;
 	protected final JedisCluster client;

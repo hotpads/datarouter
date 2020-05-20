@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -28,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.key.unique.UniqueKey;
-import io.datarouter.util.collection.CollectionTool;
 
 public class MysqlUniqueIndexTool{
 	private static final Logger logger = LoggerFactory.getLogger(MysqlUniqueIndexTool.class);
@@ -36,12 +34,12 @@ public class MysqlUniqueIndexTool{
 	public static <PK extends PrimaryKey<PK>> String searchIndex(
 			Map<String,List<Field<?>>> uniqueIndexes,
 			Collection<? extends UniqueKey<PK>> keys){
-		Optional<? extends UniqueKey<PK>> findFirst = CollectionTool.findFirst(keys);
-		if(findFirst.isEmpty()){
+		if(keys == null || keys.isEmpty()){
 			logger.warn("no keys to guess the index", new Exception());
 			return null;
 		}
-		List<?> dataFieldKeys = findFirst.get().getFields().stream()
+		UniqueKey<PK> first = keys.iterator().next();
+		List<?> dataFieldKeys = first.getFields().stream()
 				.map(Field::getKey)
 				.collect(Collectors.toList());
 		for(Entry<String,List<Field<?>>> uniqueIndex : uniqueIndexes.entrySet()){
@@ -52,9 +50,9 @@ public class MysqlUniqueIndexTool{
 				return uniqueIndex.getKey();
 			}
 		}
-		logger.warn("matching index not found uniqueIndexes={} findFirst={}",
+		logger.warn("matching index not found uniqueIndexes={} first={}",
 				uniqueIndexes,
-				findFirst,
+				first,
 				new Exception());
 		return null;
 	}

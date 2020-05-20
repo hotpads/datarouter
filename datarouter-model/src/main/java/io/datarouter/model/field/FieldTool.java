@@ -23,7 +23,6 @@ import java.util.List;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.varint.VarInt;
@@ -54,12 +53,12 @@ public class FieldTool{
 			boolean allowNulls,
 			boolean terminateIntermediateString,
 			boolean terminateFinalString){
-		int totalFields = CollectionTool.nullSafeSize(fields);
+		int totalFields = fields == null ? 0 : fields.size();
 		int numNonNullFields = FieldTool.countNonNullLeadingFields(fields);
 		if(numNonNullFields == 0){
 			return null;
 		}
-		byte[][] fieldArraysWithSeparators = new byte[CollectionTool.nullSafeSize(fields)][];
+		byte[][] fieldArraysWithSeparators = new byte[totalFields][];
 		int fieldIdx = -1;
 		for(Field<?> field : fields){
 			++fieldIdx;
@@ -98,7 +97,7 @@ public class FieldTool{
 			Collection<Field<?>> fields,
 			boolean includePrefix,
 			boolean skipNullValues){
-		if(CollectionTool.nullSafeIsEmpty(fields)){
+		if(fields == null || fields.isEmpty()){
 			return new byte[0];
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

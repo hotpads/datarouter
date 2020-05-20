@@ -28,7 +28,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 
 public interface EntityNode<
 		EK extends EntityKey<EK>,
@@ -52,7 +51,7 @@ public interface EntityNode<
 	/*------------ getEntity ---------------*/
 
 	default E getEntity(EK entityKey, Config config){
-		return CollectionTool.getFirst(getEntities(Collections.singletonList(entityKey), config));
+		return getEntities(Collections.singletonList(entityKey), config).stream().findFirst().orElse(null);
 	}
 
 	default E getEntity(EK entityKey){

@@ -15,7 +15,7 @@
  */
 package io.datarouter.storage.config.stream;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscriberAccessorSetter{
 
@@ -26,7 +26,7 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 	private Integer initialLeaseTableWriteCapacity;
 	private DrInitialPositionInStream drInitialPositionInStream = DrInitialPositionInStream.LATEST;
 	private DatarouterStreamSubscriberAccessor subscriberAccessor;
-	private Date timestamp;
+	private Instant timestamp;
 	private String subscriberAppName;
 	private boolean replayData = false;
 
@@ -46,7 +46,7 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return this;
 	}
 
-	public DatarouterStreamSubscriberConfig withTimestampAtInitialPositionInStreamAtTimestamp(Date timestamp){
+	public DatarouterStreamSubscriberConfig withTimestampAtInitialPositionInStreamAtTimestamp(Instant timestamp){
 		this.timestamp = timestamp;
 		this.drInitialPositionInStream = DrInitialPositionInStream.AT_TIMESTAMP;
 		return this;
@@ -76,7 +76,7 @@ public class DatarouterStreamSubscriberConfig implements DatarouterStreamSubscri
 		return subscriberAccessor;
 	}
 
-	public Date getTimestamp(){
+	public Instant getTimestamp(){
 		return timestamp;
 	}
 

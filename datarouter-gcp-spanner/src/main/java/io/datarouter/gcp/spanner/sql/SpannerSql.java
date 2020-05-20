@@ -69,11 +69,11 @@ public class SpannerSql extends Sql<Void,Statement.Builder,SpannerSql>{
 
 	@Override
 	public SpannerSql addLimitOffsetClause(Config config){
-		if(config.optLimit().isPresent()){
+		if(config.findLimit().isPresent()){
 			append(" limit " + config.getLimit());
 		}
-		if(config.optOffset().isPresent()){
-			Require.isTrue(config.optLimit().isPresent(), "cannot use offset without limit");
+		if(config.findOffset().isPresent()){
+			Require.isTrue(config.findLimit().isPresent(), "cannot use offset without limit");
 			append(" offset " + config.getOffset());
 		}
 		return this;

@@ -59,6 +59,7 @@ import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.user.session.service.UserSessionService;
+import io.datarouter.web.util.http.RequestTool;
 
 /**
  * To configure SAML:<ol>
@@ -154,17 +155,15 @@ public class SamlService{
 	}
 
 	private void persistAuthnRequestIdRedirectUrl(MessageContext<SAMLObject> authnRequest, HttpServletRequest request){
-		String requestedUrl = request.getRequestURL().toString();
-		if(!isUrlOkForRedirect(requestedUrl)){
+		String requestUrl = RequestTool.getRequestUrlString(request);
+		if(!isUrlOkForRedirect(requestUrl)){
 			//skip persisting bad URLs
-			logger.info("URL is not OK for redirect: {}", requestedUrl);
+			logger.info("URL is not OK for redirect: {}", requestUrl);
 			return;
 		}
-		String queryString = request.getQueryString() != null ? "?" + request.getQueryString() : "";
 
 		String authnRequestId = ((AuthnRequest)authnRequest.getMessage()).getID();
-		SamlAuthnRequestRedirectUrl redirect = new SamlAuthnRequestRedirectUrl(authnRequestId,
-				requestedUrl + queryString);
+		SamlAuthnRequestRedirectUrl redirect = new SamlAuthnRequestRedirectUrl(authnRequestId, requestUrl);
 		samlDao.put(redirect);
 	}
 

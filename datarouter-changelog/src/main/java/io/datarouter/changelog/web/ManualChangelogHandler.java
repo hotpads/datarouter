@@ -92,7 +92,7 @@ public class ManualChangelogHandler extends BaseHandler{
 				.withName(P_toEmail)
 				.withPlaceholder("a@something.com,b@something.com")
 				.withValue(toEmail.orElse(null));
-		form.addTextField()
+		form.addTextAreaField()
 				.withDisplay("Comment (Optional)")
 				.withName(P_comment)
 				.withPlaceholder("Migration for tables xyz")
@@ -112,7 +112,6 @@ public class ManualChangelogHandler extends BaseHandler{
 				name.get(),
 				action.get(),
 				username,
-				getSessionInfo().getRequiredSession().getUserToken(),
 				comment.orElse(null));
 		sendEmail(name.get(), action.get(), username, toEmail.getOptional(), comment.getOptional());
 		return pageFactory.preformattedMessage(request, "Recorded changelog entry.");

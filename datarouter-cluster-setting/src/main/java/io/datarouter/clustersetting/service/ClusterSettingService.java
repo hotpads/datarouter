@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -90,9 +89,8 @@ public class ClusterSettingService{
 
 	public <T> Map<WebappInstance,T> getSettingValueByWebappInstance(CachedSetting<T> memorySetting){
 		return webappInstanceDao.scan()
-				.collect(Collectors.toMap(
-						Function.identity(),
-						instance -> getSettingValueForWebappInstance(memorySetting, instance)));
+				.toMap(Function.identity(),
+						instance -> getSettingValueForWebappInstance(memorySetting, instance));
 	}
 
 	public Scanner<ClusterSetting> streamWithValidity(ClusterSettingValidity validity){

@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.string.StringTool;
 
@@ -140,7 +139,8 @@ public class DatarouterTracer implements Tracer{
 			return;
 		}
 		Integer parentSequence = null;
-		if(CollectionTool.nullSafeNotEmpty(getSpanStack())){
+		List<TraceSpanDto> spanStack = getSpanStack();
+		if(spanStack != null && !spanStack.isEmpty()){
 			TraceSpanDto parent = getSpanStack().get(getSpanStack().size() - 1);
 			parentSequence = parent.getSequence();
 		}
@@ -189,14 +189,14 @@ public class DatarouterTracer implements Tracer{
 	/*---------------------------- private TraceSpan ------------------------*/
 
 	private TraceSpanDto getCurrentSpan(){
-		if(CollectionTool.nullSafeIsEmpty(spanStack)){
+		if(spanStack == null || spanStack.isEmpty()){
 			return null;
 		}
 		return spanStack.get(spanStack.size() - 1);
 	}
 
 	private TraceSpanDto popSpanFromStack(){
-		if(CollectionTool.nullSafeIsEmpty(spanStack)){
+		if(spanStack == null || spanStack.isEmpty()){
 			return null;
 		}
 		TraceSpanDto span = getCurrentSpan();

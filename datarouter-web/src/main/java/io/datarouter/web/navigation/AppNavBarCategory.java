@@ -16,17 +16,17 @@
 package io.datarouter.web.navigation;
 
 public enum AppNavBarCategory implements NavBarCategory{
-	ADMIN("Admin", 10),
-	DOCS("Docs", 10),
-	USER("User", 10),
+	ADMIN("Admin", AppNavBarCategoryGrouping.ADMIN),
+	DOCS("Docs", AppNavBarCategoryGrouping.DOCS),
+	USER("User", AppNavBarCategoryGrouping.ADMIN),
 	;
 
 	private final String display;
-	private final Integer priority;
+	private final AppNavBarCategoryGrouping grouping;
 
-	AppNavBarCategory(String display, Integer priority){
+	AppNavBarCategory(String display, AppNavBarCategoryGrouping grouping){
 		this.display = display;
-		this.priority = priority;
+		this.grouping = grouping;
 	}
 
 	@Override
@@ -35,8 +35,8 @@ public enum AppNavBarCategory implements NavBarCategory{
 	}
 
 	@Override
-	public Integer getPriority(){
-		return priority;
+	public AppNavBarCategoryGrouping getGrouping(){
+		return grouping;
 	}
 
 }

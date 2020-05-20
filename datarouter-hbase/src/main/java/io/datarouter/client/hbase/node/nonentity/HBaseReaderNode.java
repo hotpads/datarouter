@@ -55,7 +55,6 @@ import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.Require;
 import io.datarouter.util.bytes.ByteRange;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseReaderNode<
@@ -135,14 +134,14 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 	/*---------------------------- get Results -----------------------------------*/
 
 	private Scanner<Result> getResults(Collection<PK> keys, Config config, boolean keysOnly){
-		if(CollectionTool.nullSafeIsEmpty(keys)){
+		if(keys == null || keys.isEmpty()){
 			return Scanner.empty();
 		}
 		return Scanner.of(keys)
 				.map(queryBuilder::getPkBytesWithPartition)
 				.map(Get::new)
 				.each(get -> configureKeyOnlyFilter(get, keysOnly))
-				.batch(config.optInputBatchSize().orElse(100))
+				.batch(config.findInputBatchSize().orElse(100))
 				.map(gets -> {
 					try(Table table = getTable()){
 						return HBaseTableTool.getUnchecked(table, gets);
@@ -200,10 +199,10 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 			return getResults(Collections.singleton(range.getStart()), config, keysOnly);
 		}
 		Range<ByteRange> byteRange = range.map(queryBuilder::getPkByteRange);
-		int offset = config.optOffset().orElse(0);
-		Integer subscanLimit = config.optLimit().map(limit -> offset + limit).orElse(null);
-		int pageSize = config.optOutputBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
-		boolean cacheBlocks = config.optScannerCaching().orElse(true);
+		int offset = config.findOffset().orElse(0);
+		Integer subscanLimit = config.findLimit().map(limit -> offset + limit).orElse(null);
+		int pageSize = config.findOutputBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
+		boolean cacheBlocks = config.findScannerCaching().orElse(true);
 		Scanner<Result> collatedPartitions = partitioner.scanPrefixes(range)
 				.collate(prefix -> scanResultsInByteRange(prefix, byteRange, pageSize, subscanLimit, cacheBlocks,
 						keysOnly), resultComparator);

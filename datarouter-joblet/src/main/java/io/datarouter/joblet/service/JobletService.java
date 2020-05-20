@@ -58,7 +58,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.util.HashMethods;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -96,8 +95,8 @@ public class JobletService{
 	/*--------------------- create ------------------------*/
 
 	public void submitJobletPackages(Collection<JobletPackage> jobletPackages){
-		jobletPackages.stream()
-				.collect(Collectors.groupingBy(jobletPackage -> jobletPackage.getJobletRequest().getKey().getType()))
+		Scanner.of(jobletPackages)
+				.groupBy(jobletPackage -> jobletPackage.getJobletRequest().getKey().getType())
 				.values()
 				.forEach(this::submitJobletPackagesOfSameType);
 	}
@@ -147,7 +146,7 @@ public class JobletService{
 
 	public JobletPackage getJobletPackageForJobletRequest(JobletRequest jobletRequest){
 		List<JobletPackage> jobletPackages = getJobletPackagesForJobletRequests(Arrays.asList(jobletRequest));
-		return CollectionTool.getFirst(jobletPackages);
+		return jobletPackages.stream().findFirst().orElse(null);
 	}
 
 	public boolean jobletRequestExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){

@@ -94,7 +94,7 @@ public class SqsPerformanceTester{
 		var timer = new PhaseTimer("putMulti " + numDatabeans);
 		for(List<TestDatabean> batch : Scanner.of(makeDatabeans(numDatabeans)).batch(batchSize).iterable()){
 			dao.putMulti(batch);
-			logger.info("put through {}", ListTool.getLast(batch));
+			logger.info("put through {}", ListTool.nullSafeGetLast(batch));
 		}
 		timer.add("loaded");
 		logger.info(timer.toString() + "@" + timer.getItemsPerSecond(numDatabeans));
@@ -146,7 +146,7 @@ public class SqsPerformanceTester{
 					numMessagesDrained.incrementAndGet();
 					if(numMessagesDrained.get() % 5 == 0){
 					logger.info("groupNode drained {}, latest={}", numDatabeansDrained.get(),
-							ListTool.getLast(databeans).getKey());
+							ListTool.nullSafeGetLast(databeans).getKey());
 					}
 				}
 			});

@@ -126,8 +126,7 @@ public class JobHandler extends BaseHandler{
 				"Job",
 				name,
 				"run",
-				getSessionInfo().getRequiredSession().getUsername(),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getRequiredSession().getUsername());
 		return new InContextRedirectMav(request, datarouterJobPaths.datarouter.triggers.list, jobTriggerResponse);
 	}
 
@@ -139,8 +138,7 @@ public class JobHandler extends BaseHandler{
 				"Job",
 				name,
 				"interrupt",
-				getSessionInfo().getRequiredSession().getUsername(),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getRequiredSession().getUsername());
 		return new MessageMav("requested stop for " + name);
 	}
 

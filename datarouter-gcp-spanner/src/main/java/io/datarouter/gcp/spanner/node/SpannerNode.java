@@ -45,7 +45,6 @@ import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndex
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class SpannerNode<
@@ -66,7 +65,7 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 
 	@Override
 	public D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
-		return CollectionTool.getFirst(lookupMultiUnique(Collections.singletonList(uniqueKey), config));
+		return lookupMultiUnique(Collections.singletonList(uniqueKey), config).stream().findFirst().orElse(null);
 	}
 
 	@Override

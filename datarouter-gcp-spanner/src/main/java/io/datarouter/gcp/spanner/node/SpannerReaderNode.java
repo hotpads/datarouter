@@ -36,7 +36,6 @@ import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class SpannerReaderNode<
@@ -70,7 +69,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				Collections.singletonList(key),
 				config,
 				spannerFieldCodecRegistry);
-		return CollectionTool.nullSafeNotEmpty(getKeyOp.wrappedCall());
+		return !getKeyOp.wrappedCall().isEmpty();
 	}
 
 	@Override
@@ -86,7 +85,9 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 
 	@Override
 	public D get(PK key, Config config){
-		return CollectionTool.findFirst(getMulti(Collections.singletonList(key), config)).orElse(null);
+		return getMulti(Collections.singletonList(key), config).stream()
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override

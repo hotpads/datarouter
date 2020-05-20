@@ -16,9 +16,9 @@
 package io.datarouter.joblet.storage.jobletrequest;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import io.datarouter.joblet.enums.JobletPriority;
@@ -86,11 +86,11 @@ public class JobletRequestKey extends BaseRegularPrimaryKey<JobletRequestKey>{
 	public static JobletRequestKey create(
 			JobletType<?> type,
 			Integer executionOrder,
-			Date createdDate,
+			Instant createdDate,
 			Integer batchSequence){
 		return new JobletRequestKey(type == null ? null : type.getPersistentString(),
 				executionOrder,
-				createdDate == null ? null : createdDate.getTime(),
+				createdDate == null ? null : createdDate.toEpochMilli(),
 				batchSequence);
 	}
 
@@ -112,8 +112,8 @@ public class JobletRequestKey extends BaseRegularPrimaryKey<JobletRequestKey>{
 		return JobletPriority.fromExecutionOrder(executionOrder);
 	}
 
-	public Date getCreatedDate(){
-		return new Date(created);
+	public Instant getCreatedInstant(){
+		return Instant.ofEpochMilli(created);
 	}
 
 	public Duration getAge(){

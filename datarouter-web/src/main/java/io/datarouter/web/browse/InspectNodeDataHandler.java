@@ -35,7 +35,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebFiles;
@@ -112,13 +111,13 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		}
 		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
 		if(databeans.size() >= limit){
-			mav.put(PARAM_nextKey, PrimaryKeyPercentCodecTool.encode(ListTool.getLast(databeans).getKey()));
+			mav.put(PARAM_nextKey, PrimaryKeyPercentCodecTool.encode(ListTool.nullSafeGetLast(databeans).getKey()));
 		}
 	}
 
 	private <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> Map<String,String> getFieldAbbreviationByFieldName(
 			DatabeanFielder<PK,D> fielder, Collection<? extends D> databeans){
-		if(CollectionTool.nullSafeIsEmpty(databeans)){
+		if(databeans == null || databeans.isEmpty()){
 			return new HashMap<>();
 		}
 		D first = databeans.stream().findFirst().orElse(null);

@@ -144,8 +144,7 @@ public class TableCountHandler extends BaseHandler{
 				"Nodewatch",
 				clientName + "." + tableName,
 				"resample",
-				getSessionInfo().getNonEmptyUsernameOrElse(""),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getNonEmptyUsernameOrElse(""));
 		return new InContextRedirectMav(request, paths.datarouter.nodewatch.tableCount.toSlashedString()
 				+ "?submitAction=singleTable&clientName=" + clientName + "&tableName=" + tableName);
 	}
@@ -185,8 +184,7 @@ public class TableCountHandler extends BaseHandler{
 				"Nodewatch",
 				clientName + "." + tableName,
 				"deleted metadata",
-				getSessionInfo().getNonEmptyUsernameOrElse(""),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getNonEmptyUsernameOrElse(""));
 	}
 
 	private JsonArray getRowCountJson(List<TableCount> records){

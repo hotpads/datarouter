@@ -34,7 +34,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
@@ -135,7 +134,7 @@ public class HBaseSubEntityResultParser<
 	}
 
 	public List<PK> getPrimaryKeysWithMatchingQualifierPrefix(List<Cell> cells, Integer limit){
-		if(CollectionTool.nullSafeIsEmpty(cells)){
+		if(cells == null || cells.isEmpty()){
 			return Collections.emptyList();
 		}
 		ArrayList<PK> pks = new ArrayList<>();
@@ -166,7 +165,7 @@ public class HBaseSubEntityResultParser<
 	}
 
 	public List<D> getDatabeansForKvsWithMatchingQualifierPrefix(List<Cell> cells, Integer limit){
-		if(CollectionTool.nullSafeIsEmpty(cells)){
+		if(cells == null || cells.isEmpty()){
 			return Collections.emptyList();
 		}
 		List<D> databeans = new ArrayList<>();

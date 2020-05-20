@@ -37,7 +37,6 @@ import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.util.Require;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.aws.Ec2InstanceTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.string.StringTool;
@@ -358,7 +357,7 @@ public abstract class DatarouterProperties{
 	}
 
 	public String getFirstServerClusterDomain(){
-		return CollectionTool.getFirst(getServerClusterDomains());
+		return getServerClusterDomains().stream().findFirst().orElse(null);
 	}
 
 	public String getInternalConfigDirectory(){

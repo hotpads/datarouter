@@ -246,8 +246,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				changelogType,
 				name,
 				action,
-				getCurrentUsername(),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getCurrentUsername());
 	}
 
 	public static class DatarouterAccountDetails{

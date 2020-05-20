@@ -37,7 +37,6 @@ import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.scanner.IterableScanner;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUserKey;
@@ -158,7 +157,7 @@ implements Session{
 	}
 
 	public boolean isAnonymous(){
-		return CollectionTool.nullSafeIsEmpty(roles);
+		return roles == null || roles.isEmpty();
 	}
 
 	public boolean hasRole(Role role){

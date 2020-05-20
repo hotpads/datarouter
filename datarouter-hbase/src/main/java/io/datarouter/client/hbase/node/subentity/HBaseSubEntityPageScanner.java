@@ -101,10 +101,10 @@ public class HBaseSubEntityPageScanner<
 				//need to overscan and filter extra pks/databeans later
 				.setStartInclusive(true)
 				.setEndInclusive(true);
-		int offset = config.optOffset().orElse(0);
-		Integer subscanLimit = config.optLimit().map(limit -> offset + limit).orElse(null);
-		int pageSize = config.optOutputBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
-		boolean cacheBlocks = config.optScannerCaching().orElse(true);
+		int offset = config.findOffset().orElse(0);
+		Integer subscanLimit = config.findLimit().map(limit -> offset + limit).orElse(null);
+		int pageSize = config.findOutputBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
+		boolean cacheBlocks = config.findScannerCaching().orElse(true);
 		return partitioner.scanPrefixes(range)
 				.collate(prefix -> scanResultsInByteRange(prefix, byteRange, pageSize, subscanLimit, cacheBlocks,
 						keysOnly), resultComparator);

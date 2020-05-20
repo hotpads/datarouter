@@ -37,7 +37,6 @@ import io.datarouter.model.key.entity.base.BaseEntityKey;
 import io.datarouter.model.key.entity.base.BaseStringDjb16EntityPartitioner;
 import io.datarouter.model.key.primary.base.BaseEntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.util.collection.CollectionTool;
 
 public class TestEntity{
 
@@ -82,7 +81,9 @@ public class TestEntity{
 		}
 
 		public TestTrace getTrace(){
-			return CollectionTool.getFirst(getDatabeansForQualifierPrefix(TestTrace.class, QUALIFIER_PREFIX_Trace));
+			return getDatabeansForQualifierPrefix(TestTrace.class, QUALIFIER_PREFIX_Trace).stream()
+					.findFirst()
+					.orElse(null);
 		}
 
 		public ArrayList<TestTraceThread> getTraceThreads(){

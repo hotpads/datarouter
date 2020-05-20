@@ -33,8 +33,7 @@ public class CopyTableChangelogRecorderService{
 				"CopyTable-" + changelogType,
 				sourceNode + " to " + targetNode,
 				"migrate",
-				sessionInfo.getNonEmptyUsernameOrElse(""),
-				sessionInfo.getRequiredSession().getUserToken());
+				sessionInfo.getNonEmptyUsernameOrElse(""));
 	}
 
 }

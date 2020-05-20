@@ -109,7 +109,7 @@ public class CopyTableService{
 					.each(batch -> processor.accept(batch, putConfig))
 					.forEach(batch -> {
 						numCopied.addAndGet(batch.size());
-						lastKey.set(ListTool.getLast(batch).getKey());
+						lastKey.set(ListTool.nullSafeGetLast(batch).getKey());
 						logProgress(false, numSkipped.get(), numScanned.get(), numCopied.get(), batchId, numBatches,
 								sourceNodeName, targetNodeName, lastKey.get());
 					});

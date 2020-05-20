@@ -101,8 +101,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 				"AuroraDns",
 				database,
 				"mismatch",
-				datarouterProperties.getAdministratorEmail(),
-				"");
+				datarouterProperties.getAdministratorEmail());
 	}
 
 }

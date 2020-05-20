@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.string.StringTool;
 
 public class ReflectionTool{
@@ -205,10 +204,10 @@ public class ReflectionTool{
 
 	public static Field getNestedField(Object object, List<String> fieldNames){
 		try{
-			String fieldName = CollectionTool.getFirst(fieldNames);
+			String fieldName = fieldNames.get(0);
 			Field field = getDeclaredFieldFromAncestors(object.getClass(), fieldName);
 			field.setAccessible(true);
-			if(CollectionTool.nullSafeSize(fieldNames) == 1){
+			if(fieldNames != null && fieldNames.size() == 1){
 				return field;
 			}
 			if(field.get(object) == null){// initialize the field
@@ -299,7 +298,7 @@ public class ReflectionTool{
 	}
 
 	public static boolean canParamsCallParamTypes(Collection<?> params, Collection<? extends Class<?>> paramTypes){
-		if(CollectionTool.differentSize(params, paramTypes)){
+		if(params.size() != paramTypes.size()){
 			return false;
 		}
 		Iterator<?> iterA = params.iterator();

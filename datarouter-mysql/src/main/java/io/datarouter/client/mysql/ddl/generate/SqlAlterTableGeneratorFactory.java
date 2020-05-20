@@ -71,7 +71,7 @@ public class SqlAlterTableGeneratorFactory{
 
 		void add(Boolean execute, List<CharSequence> alters, boolean required, PrintVersion printVersion){
 			if(execute){
-				executeAlters.addAll(executeAlters);
+				executeAlters.addAll(alters);
 			}else{
 				switch(printVersion){
 				case BOTH:

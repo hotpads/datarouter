@@ -66,7 +66,6 @@ import io.datarouter.storage.node.op.raw.write.StorageWriter;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ObjectTool;
 
 public class HBaseSubEntityNode<
@@ -124,7 +123,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 		String clientName = getClientId().getName();
 		String nodeName = getName();
 		Durability durability = HBaseConfigTool.getDurability(config);
-		int batchSize = config.optInputBatchSize().orElse(DEFAULT_WRITE_BATCH_SIZE);
+		int batchSize = config.findInputBatchSize().orElse(DEFAULT_WRITE_BATCH_SIZE);
 		for(List<D> databeanBatch : Scanner.of(databeans).batch(batchSize).iterable()){
 			List<Row> actions = new ArrayList<>();
 			int numCellsPut = 0;
@@ -148,7 +147,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 								.getColumnNameBytes());
 						byte[] fieldValueBytes = field.getBytes();
 						if(fieldValueBytes == null){
-							boolean ignoreNulls = config.optIgnoreNullFields().orElse(false);
+							boolean ignoreNulls = config.findIgnoreNullFields().orElse(false);
 							if(!ignoreNulls){
 								delete.addColumns(FAM, fullQualifierBytes);
 								deleteBytes += fullQualifierBytes.length;
@@ -189,7 +188,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 					.size());
 			DatarouterCounters.incClientNodeCustom(clientType, "entities put", clientName, nodeName,
 					databeansByEntityKey.size());
-			if(CollectionTool.nullSafeNotEmpty(actions)){
+			if(!actions.isEmpty()){
 				try(Table table = getTable(); var $ = TracerTool.startSpan("Table batchCallback")){
 					TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder()
 							.add("actions", actions.size())
@@ -230,7 +229,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 			increment.setDurability(durability);
 			actions.add(increment);
 		}
-		if(CollectionTool.nullSafeNotEmpty(actions)){
+		if(!actions.isEmpty()){
 			try(Table table = getTable()){
 				table.batch(actions, null);
 			}catch(IOException | InterruptedException e){
@@ -308,7 +307,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 		String clientName = getClientId().getName();
 		String nodeName = getName();
 		Collection<String> nonKeyColumnNames = getFieldInfo().getNonKeyFieldByColumnName().keySet();
-		int batchSize = config.optInputBatchSize().orElse(DEFAULT_WRITE_BATCH_SIZE);
+		int batchSize = config.findInputBatchSize().orElse(DEFAULT_WRITE_BATCH_SIZE);
 		for(List<PK> keyBatch : Scanner.of(keys).batch(batchSize).iterable()){
 			Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keyBatch);
 			ArrayList<Row> deletes = new ArrayList<>();// api requires ArrayList

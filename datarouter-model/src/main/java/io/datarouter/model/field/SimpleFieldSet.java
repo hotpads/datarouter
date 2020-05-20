@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import io.datarouter.util.collection.CollectionTool;
-
 public class SimpleFieldSet<F extends FieldSet<F>> extends BaseFieldSet<F>{
 
 	protected List<Field<?>> fields = new ArrayList<>();
@@ -50,7 +48,7 @@ public class SimpleFieldSet<F extends FieldSet<F>> extends BaseFieldSet<F>{
 	}
 
 	public Field<?> getFirst(){
-		return CollectionTool.getFirst(fields);
+		return fields.stream().findFirst().orElse(null);
 	}
 
 }

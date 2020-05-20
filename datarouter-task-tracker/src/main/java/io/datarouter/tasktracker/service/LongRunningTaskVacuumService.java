@@ -29,7 +29,6 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.lang.ObjectTool;
 
@@ -46,8 +45,8 @@ public class LongRunningTaskVacuumService{
 		List<LongRunningTask> relatedTasks = new ArrayList<>();
 		for(LongRunningTask task : dao.scan().iterable()){
 			String name = task.getKey().getName();
-			if(CollectionTool.nullSafeNotEmpty(relatedTasks)){
-				String previousName = ListTool.getLast(relatedTasks).getKey().getName();
+			if(!relatedTasks.isEmpty()){
+				String previousName = ListTool.nullSafeGetLast(relatedTasks).getKey().getName();
 				if(ObjectTool.notEquals(previousName, name)){
 					vacuumRelatedTasks(relatedTasks);
 					relatedTasks = new ArrayList<>();

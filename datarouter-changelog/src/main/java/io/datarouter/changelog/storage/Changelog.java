@@ -29,13 +29,11 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 
 	private String action;
 	private String username;
-	private String userToken;
 	private String comment;
 
 	public static class FieldKeys{
 		public static final StringFieldKey action = new StringFieldKey("action");
 		public static final StringFieldKey username = new StringFieldKey("username");
-		public static final StringFieldKey userToken = new StringFieldKey("userToken");
 		public static final StringFieldKey comment = new StringFieldKey("comment")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);;
 	}
@@ -51,7 +49,6 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 			return List.of(
 					new StringField(FieldKeys.action, databean.action),
 					new StringField(FieldKeys.username, databean.username),
-					new StringField(FieldKeys.userToken, databean.userToken),
 					new StringField(FieldKeys.comment, databean.comment));
 		}
 
@@ -65,8 +62,7 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 		super(new ChangelogKey(dto.getReversedDateMs(), dto.changelogType, dto.name));
 		this.action = dto.action;
 		this.username = dto.username;
-		this.userToken = dto.userToken;
-		 this.comment = dto.comment;
+		this.comment = dto.comment;
 	}
 
 	@Override

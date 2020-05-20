@@ -117,11 +117,11 @@ public class WebappInstanceLogHandler extends BaseHandler{
 		}
 
 		public String getStartupDatePrintable(){
-			return DateTool.getAgoString(startupDate);
+			return DateTool.getAgoString(startupDate.toInstant());
 		}
 
 		public String getBuildDatePrintable(){
-			return DateTool.getAgoString(buildDate);
+			return DateTool.getAgoString(buildDate.toInstant());
 		}
 
 		public String getBuildId(){

@@ -35,7 +35,6 @@ import io.datarouter.storage.node.op.raw.GroupQueueStorage.PhysicalGroupQueueSto
 import io.datarouter.storage.op.scan.queue.group.PeekMultiGroupUntilEmptyQueueStorageScanner;
 import io.datarouter.storage.queue.BaseQueueMessage;
 import io.datarouter.storage.queue.GroupQueueMessage;
-import io.datarouter.util.collection.CollectionTool;
 
 public class SqsGroupNode<
 		PK extends PrimaryKey<PK>,
@@ -71,7 +70,7 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>{
 	@Override
 	public GroupQueueMessage<PK, D> peek(Config config){
 		Config limitedConfig = config.clone().setLimit(1);
-		return CollectionTool.getFirst(peekMulti(limitedConfig));
+		return peekMulti(limitedConfig).stream().findFirst().orElse(null);
 	}
 
 	@Override

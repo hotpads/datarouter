@@ -15,9 +15,9 @@
  */
 package io.datarouter.joblet.storage.jobletrequest;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -122,7 +122,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		super(new JobletRequestKey((String) null, null, null, null));
 	}
 
-	public JobletRequest(JobletType<?> type, JobletPriority priority, Date createdDate, Integer batchSequence,
+	public JobletRequest(JobletType<?> type, JobletPriority priority, Instant createdDate, Integer batchSequence,
 			boolean restartable, Long dataSignature){
 		super(JobletRequestKey.create(type, priority.getExecutionOrder(), createdDate, batchSequence));
 		this.restartable = restartable;
@@ -176,8 +176,8 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		return DateTool.getAgoString(this.getKey().getCreated());
 	}
 
-	public Date getReservedAtDate(){
-		return reservedAt == null ? null : new Date(reservedAt);
+	public Instant getReservedAtInstant(){
+		return reservedAt == null ? null : Instant.ofEpochMilli(reservedAt);
 	}
 
 	public Optional<Long> getReservedAgoMs(){

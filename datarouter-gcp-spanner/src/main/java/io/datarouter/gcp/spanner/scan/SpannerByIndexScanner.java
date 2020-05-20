@@ -30,7 +30,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.op.scan.BaseNodeScanner;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class SpannerByIndexScanner<
@@ -64,7 +63,7 @@ extends BaseNodeScanner<IK,D>{
 
 	@Override
 	protected IK getPrimaryKey(D fieldSet){
-		return CollectionTool.getFirst(indexEntryFieldInfo.getSampleDatabean().createFromDatabean(fieldSet)).getKey();
+		return indexEntryFieldInfo.getSampleDatabean().createFromDatabean(fieldSet).iterator().next().getKey();
 	}
 
 	@Override

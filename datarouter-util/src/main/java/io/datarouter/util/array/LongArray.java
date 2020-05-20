@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.RandomAccess;
 
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 
 //Implement RandomAccess for proper treatment by some JDK utils
@@ -49,7 +48,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 	}
 
 	public LongArray(Collection<Long> elements){
-		this(CollectionTool.nullSafeSize(elements));
+		this(elements == null ? 0 : elements.size());
 		for(Long element : elements){
 			this.add(element);
 		}
@@ -111,7 +110,7 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 
 	@Override
 	public boolean addAll(int firstIndex, Collection<? extends Long> values){
-		int delta = CollectionTool.nullSafeSize(values);
+		int delta = values == null ? 0 : values.size();
 		if(delta == 0){
 			return false;
 		}

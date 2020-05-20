@@ -28,7 +28,6 @@ import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.storage.config.Config;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
@@ -75,7 +74,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 		append(" into ");
 		append(tableName);
 		append(" (");
-		FieldTool.appendCsvColumnNames(sqlBuilder, CollectionTool.findFirst(databeans).get());
+		FieldTool.appendCsvColumnNames(sqlBuilder, databeans.get(0));
 		append(") values ");
 		boolean didOneDatabean = false;
 		for(List<Field<?>> databeanFields : databeans){
@@ -173,7 +172,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 	}
 
 	public Q appendWhereClauseDisjunction(Collection<? extends FieldSet<?>> fieldSets){
-		if(CollectionTool.nullSafeIsEmpty(fieldSets)){
+		if(fieldSets == null || fieldSets.isEmpty()){
 			return implementation;
 		}
 		append(" where ");
@@ -384,7 +383,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 	}
 
 	public Q addOrderByClause(List<Field<?>> orderByFields){
-		if(CollectionTool.nullSafeIsEmpty(orderByFields)){
+		if(orderByFields == null || orderByFields.isEmpty()){
 			return implementation;
 		}
 		append(" order by ");

@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node.adapter.counter.mixin;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,7 +33,6 @@ import io.datarouter.storage.node.op.raw.read.IndexedStorageReader;
 import io.datarouter.storage.node.op.raw.write.IndexedStorageWriter;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public interface IndexedStorageCounterAdapterMixin<
@@ -56,10 +56,13 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 
 	@Override
 	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
+		if(uniqueKeys == null || uniqueKeys.isEmpty()){
+			return new ArrayList<>();
+		}
 		String opName = IndexedStorageReader.OP_lookupMultiUnique;
 		getCounter().count(opName);
 		List<D> results = getBackingNode().lookupMultiUnique(uniqueKeys, config);
-		int numAttempts = CollectionTool.nullSafeSize(uniqueKeys);
+		int numAttempts = uniqueKeys.size();
 		int numHits = results.size();
 		int numMisses = numAttempts - numHits;
 		getCounter().count(opName + " attempts", numAttempts);

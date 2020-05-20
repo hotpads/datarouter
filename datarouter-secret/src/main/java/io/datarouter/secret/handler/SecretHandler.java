@@ -71,8 +71,7 @@ public class SecretHandler extends BaseHandler{
 						"Secrets",
 						requestDto.name,
 						requestDto.op.getPersistentString(),
-						getSessionInfo().getNonEmptyUsernameOrElse(""),
-						getSessionInfo().getRequiredSession().getUserToken());
+						getSessionInfo().getNonEmptyUsernameOrElse(""));
 			}
 		}
 		return result;

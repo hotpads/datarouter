@@ -62,7 +62,7 @@ extends SpannerBaseReadIndexOp<PK,IK>{
 	public List<IK> wrappedCall(){
 		String indexName = indexEntryFieldInfo.getIndexName();
 		ResultSet rs;
-		Integer offset = config.optOffset().orElse(0);
+		Integer offset = config.findOffset().orElse(0);
 		if(config.getLimit() != null){
 			Integer limit = offset + config.getLimit();
 			rs = client.singleUseReadOnlyTransaction().readUsingIndex(

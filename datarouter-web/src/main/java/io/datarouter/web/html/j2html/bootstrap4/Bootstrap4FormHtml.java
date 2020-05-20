@@ -24,6 +24,7 @@ import static j2html.TagCreator.option;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
+import static j2html.TagCreator.textarea;
 
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.html.form.HtmlForm;
@@ -34,6 +35,7 @@ import io.datarouter.web.html.form.HtmlFormEmail;
 import io.datarouter.web.html.form.HtmlFormPassword;
 import io.datarouter.web.html.form.HtmlFormSelect;
 import io.datarouter.web.html.form.HtmlFormText;
+import io.datarouter.web.html.form.HtmlFormTextArea;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 
@@ -72,6 +74,8 @@ public class Bootstrap4FormHtml{
 			div = selectField((HtmlFormSelect)field);
 		}else if(field instanceof HtmlFormText){
 			div = textField((HtmlFormText)field);
+		}else if(field instanceof HtmlFormTextArea){
+			div = textField((HtmlFormTextArea)field);
 		}else{
 			throw new IllegalArgumentException(field.getClass() + "is an unknown subclass of "
 					+ BaseHtmlFormField.class);
@@ -169,5 +173,26 @@ public class Bootstrap4FormHtml{
 		return div(label, input, error)
 				.withClass("form-group");
 	}
+
+	private static ContainerTag textField(HtmlFormTextArea field){
+		String inputClass = "form-control";
+		if(field.getError() != null){
+			inputClass += " is-invalid";
+		}
+		var label = label(text(field.getDisplay()))
+				.condWith(field.isRequired(), span("*").withClass("text-danger"))
+				.withClass(LABEL_CLASS);
+		var input = textarea()
+				.withClass(inputClass)
+				.withName(field.getName())
+				.withPlaceholder(field.getPlaceholder())
+				.withType("textarea")
+				.withValue(field.getValue());
+		var error = field.getError() == null ? null : div(field.getError())
+				.withClass("invalid-feedback");
+		return div(label, input, error)
+				.withClass("form-group");
+	}
+
 
 }

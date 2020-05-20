@@ -53,7 +53,7 @@ extends BaseScanner<List<T>>{
 	public BaseNodeScanner(Collection<Range<PK>> ranges, Config config, boolean caseInsensitive){
 		warnIfCaseInsensitive(ranges, caseInsensitive);
 		this.config = config;
-		this.rangeBatchSize = this.config.optInputBatchSize().orElse(DEFAULT_RANGE_BATCH_SIZE);
+		this.rangeBatchSize = this.config.findInputBatchSize().orElse(DEFAULT_RANGE_BATCH_SIZE);
 		this.ranges = ranges.stream()
 				.filter(Range::notEmpty)
 				.collect(Collectors.toCollection(TreeSet::new));
@@ -119,7 +119,7 @@ extends BaseScanner<List<T>>{
 				|| config.getLimit() != null && resultCount >= config.getLimit()){
 			foundLastBatch = true;//tell the advance() method not to call this method again
 		}
-		lastRowOfPreviousBatch = ListTool.findLast(current)
+		lastRowOfPreviousBatch = ListTool.nullSafeFindLast(current)
 				.map(this::getPrimaryKey)
 				.map(FieldSetTool::clone)
 				.orElse(null);
@@ -143,7 +143,7 @@ extends BaseScanner<List<T>>{
 	}
 
 	private void updateBatchConfigLimit(){
-		int batchConfigLimit = config.optOutputBatchSize().orElse(DEFAULT_OUTPUT_BATCH_SIZE);
+		int batchConfigLimit = config.findOutputBatchSize().orElse(DEFAULT_OUTPUT_BATCH_SIZE);
 		if(config.getLimit() != null && config.getLimit() - resultCount < batchConfigLimit){
 			batchConfigLimit = (int) (config.getLimit() - resultCount);
 		}

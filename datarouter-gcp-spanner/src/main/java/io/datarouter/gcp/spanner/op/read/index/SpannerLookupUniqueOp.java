@@ -36,7 +36,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.lang.ReflectionTool;
 
@@ -62,8 +61,11 @@ extends SpannerBaseReadIndexOp<PK,D>{
 
 	@Override
 	public List<D> wrappedCall(){
+		if(keys == null || keys.isEmpty()){
+			return List.of();
+		}
 		ResultSet databeanRs;
-		String indexName = getIndexName(CollectionTool.getFirst(keys));
+		String indexName = getIndexName(keys.iterator().next());
 		try(ReadOnlyTransaction txn = client.readOnlyTransaction()){
 			ResultSet rs;
 			if(config.getLimit() != null){

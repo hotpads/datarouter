@@ -17,25 +17,24 @@ package io.datarouter.web.navigation;
 
 import io.datarouter.util.enums.Displayable;
 
-// TODO add support for parent category
 public interface NavBarCategory extends Displayable{
 
-	default Integer getPriority(){
-		return 1_000;
+	default AppNavBarCategoryGrouping getGrouping(){
+		return AppNavBarCategoryGrouping.MISC;
 	}
 
 	default boolean allowSingleItemMenu(){
 		return true;
 	}
 
-	static class SimpleNavBarCategory implements NavBarCategory{
+	class SimpleNavBarCategory implements NavBarCategory{
 
 		private final String display;
-		private final Integer priority;
+		private final AppNavBarCategoryGrouping grouping;
 
-		public SimpleNavBarCategory(String display, Integer priority){
+		public SimpleNavBarCategory(String display, AppNavBarCategoryGrouping grouping){
 			this.display = display;
-			this.priority = priority;
+			this.grouping = grouping;
 		}
 
 		@Override
@@ -44,8 +43,8 @@ public interface NavBarCategory extends Displayable{
 		}
 
 		@Override
-		public Integer getPriority(){
-			return priority;
+		public AppNavBarCategoryGrouping getGrouping(){
+			return grouping;
 		}
 
 	}

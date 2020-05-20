@@ -16,7 +16,6 @@
 package io.datarouter.aws.sqs.op;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 
 import com.amazonaws.services.sqs.model.Message;
@@ -30,7 +29,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
-import io.datarouter.util.collection.CollectionTool;
 
 public abstract class BaseSqsPeekMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -56,10 +54,8 @@ extends SqsOp<PK,D,F,List<T>>{
 	protected final List<T> run(){
 		ReceiveMessageRequest request = makeRequest();
 		ReceiveMessageResult result = sqsClientManager.getAmazonSqs(clientId).receiveMessage(request);
-		if(CollectionTool.nullSafeIsEmpty(result.getMessages())){
-			return Collections.emptyList();
-		}
-		return extractDatabeans(result.getMessages());
+		List<Message> messages = result.getMessages();
+		return messages.isEmpty() ? List.of() : extractDatabeans(messages);
 	}
 
 	protected abstract List<T> extractDatabeans(List<Message> messages);
@@ -77,7 +73,7 @@ extends SqsOp<PK,D,F,List<T>>{
 		request.setVisibilityTimeout((int)Duration.ofMillis(visibilityTimeoutMs).getSeconds());
 
 		//max messages
-		request.setMaxNumberOfMessages(config.optLimit().orElse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
+		request.setMaxNumberOfMessages(config.findLimit().orElse(BaseSqsNode.MAX_MESSAGES_PER_BATCH));
 
 		return request;
 	}

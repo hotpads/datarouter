@@ -20,7 +20,6 @@ import java.util.List;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.ListFieldKey;
-import io.datarouter.util.collection.CollectionTool;
 
 public abstract class KeyedListField<
 		V extends Comparable<V>,
@@ -58,7 +57,7 @@ extends BaseField<L>{
 	}
 
 	public int size(){
-		return CollectionTool.nullSafeSize(value);
+		return value == null ? 0 : value.size();
 	}
 
 }

@@ -41,7 +41,6 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.timer.PhaseTimer;
 
@@ -133,14 +132,15 @@ public class HBaseRegionBalancerJob extends BaseJob{
 		logger.warn("processing {} total movements", movements.size());
 
 		for(DrServerInfo serverInfo : serverList.getServersSortedByDescendingLoad()){
-			List<HBaseRegionMovement> movementsForServer = movementsByCurrentServer.get(serverInfo.getServerName());
-			logger.warn("expecting {} movements for server {}", CollectionTool.nullSafeSize(movementsForServer),
+			List<HBaseRegionMovement> movementsForServer = movementsByCurrentServer.getOrDefault(serverInfo
+					.getServerName(), List.of());
+			logger.warn("expecting {} movements for server {}", movementsForServer.size(),
 					serverInfo.getServerName());
 		}
 		for(DrServerInfo serverInfo : serverList.getServersSortedByDescendingLoad()){
 			List<HBaseRegionMovement> movementsForServer = movementsByCurrentServer.getOrDefault(serverInfo
 					.getServerName(), List.of());
-			logger.warn("processing {} movements for server {}", CollectionTool.nullSafeSize(movementsForServer),
+			logger.warn("processing {} movements for server {}", movementsForServer.size(),
 					serverInfo.getServerName());
 			int serverMovementCounter = 0;
 			for(HBaseRegionMovement movement : movementsForServer){

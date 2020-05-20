@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Pair;
@@ -259,7 +258,7 @@ public abstract class BaseHandler{
 			}
 		}
 		if(method == null){
-			if(CollectionTool.nullSafeNotEmpty(possibleMethods) || defaultHandlerMethod.isPresent()){
+			if(!possibleMethods.isEmpty() || defaultHandlerMethod.isPresent()){
 				Method desiredMethod = possibleMethods.isEmpty() ? defaultHandlerMethod.get() : possibleMethods.get(0);
 				List<String> missingParameters = getMissingParameterNames(desiredMethod);
 				args = new Object[]{missingParameters, desiredMethod.getName()};

@@ -61,7 +61,7 @@ extends BaseNodeScanner<PK,PK>{
 
 	@Override
 	protected List<PK> loadRanges(Collection<Range<PK>> ranges, Config config){
-		return config.optOffset().orElse(0) > 0
+		return config.findOffset().orElse(0) > 0
 				? new SpannerGetKeyRangesSqlOp<>(client, fieldInfo, ranges, config, codecRegistry).wrappedCall()
 				: new SpannerGetKeyRangesOp<>(client, fieldInfo, ranges, config, codecRegistry).wrappedCall();
 	}

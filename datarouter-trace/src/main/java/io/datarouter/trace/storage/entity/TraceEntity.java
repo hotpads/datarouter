@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.thread.TraceThread;
 import io.datarouter.trace.storage.trace.Trace;
-import io.datarouter.util.collection.CollectionTool;
 
 public class TraceEntity extends BaseTraceEntity<TraceEntityKey>{
 
@@ -34,7 +33,7 @@ public class TraceEntity extends BaseTraceEntity<TraceEntityKey>{
 
 	@Override
 	public Trace getTrace(){
-		return CollectionTool.getFirst(getDatabeansForQualifierPrefix(Trace.class, QUALIFIER_PREFIX_Trace));
+		return getDatabeansForQualifierPrefix(Trace.class, QUALIFIER_PREFIX_Trace).stream().findFirst().orElse(null);
 	}
 
 	@Override

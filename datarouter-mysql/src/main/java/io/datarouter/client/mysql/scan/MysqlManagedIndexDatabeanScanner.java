@@ -28,7 +28,6 @@ import io.datarouter.storage.node.adapter.sanitization.sanitizer.PrimaryKeySanit
 import io.datarouter.storage.op.scan.BaseNodeScanner;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class MysqlManagedIndexDatabeanScanner<
@@ -59,7 +58,7 @@ extends BaseNodeScanner<IK,D>{
 
 	@Override
 	protected IK getPrimaryKey(D fieldSet){
-		IK key = CollectionTool.getFirst(indexEntryFieldInfo.getSampleDatabean().createFromDatabean(fieldSet)).getKey();
+		IK key = indexEntryFieldInfo.getSampleDatabean().createFromDatabean(fieldSet).iterator().next().getKey();
 		PrimaryKeySanitizer.logForNullPrimaryKeyValues(key);
 		return key;
 	}

@@ -15,8 +15,8 @@
  */
 package io.datarouter.joblet.job;
 
-import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -44,7 +44,7 @@ public class JobletCounterJob extends BaseJob{
 				.advanceUntil($ -> tracker.increment().shouldStop())
 				.map(JobletSummary::new)
 				//aggregate by (status, type, queueId)
-				.collect(Collectors.toMap(this::toStatusTypeQueueKey, Function.identity(), JobletSummary::absorbStats))
+				.toMap(this::toStatusTypeQueueKey, Function.identity(), JobletSummary::absorbStats)
 				.values().stream()
 				.peek(this::saveQueueStatsByStatusTypeAndQueueId)
 				//aggregate by (status, type)
@@ -90,7 +90,7 @@ public class JobletCounterJob extends BaseJob{
 	}
 
 	private Long getFirstCreatedMinutesToNow(JobletSummary summary){
-		return Duration.ofMillis(new Date().getTime() - summary.getFirstCreated().getTime()).toMinutes();
+		return summary.getFirstCreated().until(Instant.now(), ChronoUnit.MINUTES);
 	}
 
 }

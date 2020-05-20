@@ -15,8 +15,8 @@
  */
 package io.datarouter.joblet.model;
 
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -63,11 +63,12 @@ public class JobletPackage{
 	public static <P> JobletPackage create(JobletType<P> jobletType, JobletPriority priority, boolean restartable,
 			String queueId, String groupId, P params){
 		int batchSequence = RandomTool.nextPositiveInt();
-		return createDetailed(jobletType, priority, new Date(), batchSequence, restartable, queueId, groupId, params);
+		return createDetailed(jobletType, priority, Instant.now(), batchSequence, restartable, queueId, groupId,
+				params);
 	}
 
-	public static <P> JobletPackage createDetailed(JobletType<P> jobletType, JobletPriority priority, Date dateCreated,
-			int batchSequence, boolean restartable, String queueId, String groupId, P params){
+	public static <P> JobletPackage createDetailed(JobletType<P> jobletType, JobletPriority priority,
+			Instant dateCreated, int batchSequence, boolean restartable, String queueId, String groupId, P params){
 		JobletCodec<P> codec = jobletType.getCodecSupplier().get();
 
 		//build JobletData

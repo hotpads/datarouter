@@ -43,7 +43,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.lang.ReflectionTool;
 
 public abstract class SpannerBaseIndexDelete<
@@ -77,7 +76,10 @@ extends SpannerBaseOp<Void>{
 
 	@Override
 	public Void wrappedCall(){
-		String indexName = getIndexName(CollectionTool.getFirst(keys));
+		if(keys == null || keys.isEmpty()){
+			return null;
+		}
+		String indexName = getIndexName(keys.iterator().next());
 		TransactionRunner runner = client.readWriteTransaction();
 		TransactionCallable<Void> txn = new TransactionCallable<>(){
 

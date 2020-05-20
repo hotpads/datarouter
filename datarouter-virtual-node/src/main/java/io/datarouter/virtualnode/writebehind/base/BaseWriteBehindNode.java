@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.node.op.NodeOps;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.virtualnode.writebehind.WriteBehindNode;
 import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
@@ -157,11 +156,11 @@ implements WriteBehindNode<PK,D,N>{
 
 		private Future<?> handleWriteWrapper(WriteWrapper<?> writeWrapper){
 			Collection<?> databeans = writeWrapper.getObjects();
-			if(CollectionTool.nullSafeIsEmpty(databeans)){
+			if(databeans == null || databeans.isEmpty()){
 				return null;
 			}
-			String opDesc = String.format("%s with %s %s", writeWrapper.getOp(), databeans.size(), CollectionTool
-					.getFirst(databeans).getClass().getSimpleName());
+			String opDesc = String.format("%s with %s %s", writeWrapper.getOp(), databeans.size(),
+					databeans.iterator().next().getClass().getSimpleName());
 			WriteWrapper<?> writeWrapperClone = writeWrapper.clone();
 			Future<?> future = writeExecutor.submit(() -> {
 				try{

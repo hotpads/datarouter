@@ -15,8 +15,8 @@
  */
 package io.datarouter.joblet.dto;
 
+import java.time.Instant;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +47,8 @@ public class JobletSummary{
 	private long numFailures;
 	private long numType;
 	private long sumItems;
-	private Date firstCreated;
-	private Date firstReserved;
+	private Instant firstCreated;
+	private Instant firstReserved;
 
 	public JobletSummary(JobletRequest request){
 		this.type = request.getKey().getType();
@@ -64,11 +64,10 @@ public class JobletSummary{
 			Scanner<JobletRequest> requests){
 		return requests
 				.map(JobletSummary::new)
-				.collect(Collectors.toMap(
-						TypeExecutionOrderStatusKey::new,
+				.toMap(TypeExecutionOrderStatusKey::new,
 						Function.identity(),
 						JobletSummary::absorbStats,
-						TreeMap::new))
+						TreeMap::new)
 				.values().stream()
 				.sorted(Comparator.comparing(JobletSummary::getType)
 						.thenComparing(JobletSummary::getExecutionOrder)
@@ -79,11 +78,10 @@ public class JobletSummary{
 	public static Map<QueueStatusKey,JobletSummary> summarizeByQueueStatus(Scanner<JobletRequest> requests){
 		return requests
 				.map(JobletSummary::new)
-				.collect(Collectors.toMap(
-						QueueStatusKey::new,
+				.toMap(QueueStatusKey::new,
 						Function.identity(),
 						JobletSummary::absorbStats,
-						TreeMap::new));
+						TreeMap::new);
 	}
 
 	/*------------------------ private --------------------------*/
@@ -96,11 +94,11 @@ public class JobletSummary{
 		numFailures += NumberTool.nullSafeLong(other.numFailures, 0L);
 		numType += other.numType;
 		sumItems += other.sumItems;
-		if(firstCreated == null || other.firstCreated.before(firstCreated)){
+		if(firstCreated == null || other.firstCreated.isBefore(firstCreated)){
 			firstCreated = other.firstCreated;
 		}
 		if(other.firstReserved != null){
-			if(firstReserved == null || other.firstReserved.before(firstReserved)){
+			if(firstReserved == null || other.firstReserved.isBefore(firstReserved)){
 				firstReserved = other.firstReserved;
 			}
 		}
@@ -115,12 +113,12 @@ public class JobletSummary{
 		numFailures += NumberTool.nullSafe(request.getNumFailures());
 		++numType;
 		sumItems += request.getNumItems();
-		if(firstCreated == null || request.getKey().getCreatedDate().compareTo(firstCreated) < 0){
-			firstCreated = request.getKey().getCreatedDate();
+		if(firstCreated == null || request.getKey().getCreatedInstant().isBefore(firstCreated)){
+			firstCreated = request.getKey().getCreatedInstant();
 		}
-		if(request.getReservedAtDate() != null){
-			if(firstReserved == null || request.getReservedAtDate().compareTo(firstReserved) < 0){
-				firstReserved = request.getReservedAtDate();
+		if(request.getReservedAtInstant() != null){
+			if(firstReserved == null || request.getReservedAtInstant().isBefore(firstReserved)){
+				firstReserved = request.getReservedAtInstant();
 			}
 		}
 		return this;
@@ -140,7 +138,7 @@ public class JobletSummary{
 	}
 
 	public long getFirstCreatedMsAgo(){
-		return firstCreated == null ? -1 : firstCreated.getTime();
+		return firstCreated == null ? -1 : firstCreated.toEpochMilli();
 	}
 
 	public String getFirstReservedAgo(){
@@ -151,7 +149,7 @@ public class JobletSummary{
 	}
 
 	public long getFirstReservedMsAgo(){
-		return firstReserved == null ? -1 : firstReserved.getTime();
+		return firstReserved == null ? -1 : firstReserved.toEpochMilli();
 	}
 
 	public int getNumQueueIds(){
@@ -279,12 +277,8 @@ public class JobletSummary{
 		return sumItems;
 	}
 
-	public Date getFirstCreated(){
+	public Instant getFirstCreated(){
 		return firstCreated;
-	}
-
-	public Date getFirstReserved(){
-		return firstReserved;
 	}
 
 }

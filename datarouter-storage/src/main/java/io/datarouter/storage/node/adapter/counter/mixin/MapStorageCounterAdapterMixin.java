@@ -24,7 +24,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
-import io.datarouter.util.collection.CollectionTool;
 
 public interface MapStorageCounterAdapterMixin<
 		PK extends PrimaryKey<PK>,
@@ -44,9 +43,12 @@ extends MapStorage<PK,D>, MapStorageReaderCounterAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public default void putMulti(Collection<D> databeans, Config config){
+		if(databeans == null || databeans.isEmpty()){
+			return;
+		}
 		String opName = MapStorageWriter.OP_putMulti;
 		getCounter().count(opName);
-		getCounter().count(opName + " databeans", CollectionTool.nullSafeSize(databeans));
+		getCounter().count(opName + " databeans", databeans.size());
 		getBackingNode().putMulti(databeans, config);
 	}
 
@@ -59,9 +61,12 @@ extends MapStorage<PK,D>, MapStorageReaderCounterAdapterMixin<PK,D,F,N>{
 
 	@Override
 	public default void deleteMulti(Collection<PK> keys, Config config){
+		if(keys == null || keys.isEmpty()){
+			return;
+		}
 		String opName = MapStorageWriter.OP_deleteMulti;
 		getCounter().count(opName);
-		getCounter().count(opName + " keys", CollectionTool.nullSafeSize(keys));
+		getCounter().count(opName + " keys", keys.size());
 		getBackingNode().deleteMulti(keys, config);
 	}
 

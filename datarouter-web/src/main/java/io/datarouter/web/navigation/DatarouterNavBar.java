@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
@@ -34,8 +35,8 @@ public class DatarouterNavBar extends NavBar{
 	public DatarouterNavBar(DatarouterWebFiles webFiles, Optional<DatarouterAuthenticationConfig> config,
 			DatarouterNavBarSupplier navBarSupplier){
 		super(webFiles.jeeAssets.datarouterLogoPng.toSlashedString(), "Datarouter logo", config);
-		navBarSupplier.get().stream()
-				.collect(Collectors.groupingBy(item -> item.category))
+		Scanner.of(navBarSupplier.get())
+				.groupBy(item -> item.category)
 				.entrySet()
 				.stream()
 				.map(this::createMenuItem)

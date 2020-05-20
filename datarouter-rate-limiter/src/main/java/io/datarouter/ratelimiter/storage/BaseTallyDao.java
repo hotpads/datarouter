@@ -26,8 +26,8 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.node.factory.TallyNodeFactory;
 import io.datarouter.storage.node.op.raw.TallyStorage;
 import io.datarouter.storage.tally.Tally;
-import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.storage.tally.Tally.TallyFielder;
+import io.datarouter.storage.tally.TallyKey;
 
 public abstract class BaseTallyDao extends BaseDao{
 

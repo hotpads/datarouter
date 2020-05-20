@@ -80,7 +80,7 @@ extends BasePhysicalEntityNode<EK,E>{
 
 	@Override
 	public List<EK> listEntityKeys(EK startKey, boolean startKeyInclusive, Config config){
-		Integer limit = config.optLimit().orElse(DEFAULT_GET_KEYS_LIMIT);
+		Integer limit = config.findLimit().orElse(DEFAULT_GET_KEYS_LIMIT);
 		config.setLimit(limit);
 		return entityFieldInfo.getEntityPartitioner().scanAllPartitions()
 				.map(partition -> new EntityListOp(clientManager.getDatabaseClient(clientId), config, codecRegistry,

@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileUploadException;
 
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.util.string.StringTool;
+import io.datarouter.util.net.UrlTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.params.MultipartParams;
@@ -45,6 +45,7 @@ import io.datarouter.web.user.session.DatarouterSessionManager;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.util.RequestAttributeKey;
 import io.datarouter.web.util.RequestAttributeTool;
+import io.datarouter.web.util.http.RequestTool;
 import io.datarouter.web.util.http.ResponseTool;
 
 @Singleton
@@ -131,13 +132,12 @@ public class Dispatcher{
 
 	private void handleMissingRoles(HttpServletRequest request, HttpServletResponse response, Set<Role> allowedRoles){
 		Optional<DatarouterSession> session = DatarouterSessionManager.getFromRequest(request);
+		String requestUrl = RequestTool.getRequestUrlString(request);
 		if(session.map(DatarouterSession::isAnonymous).orElse(true)){
-			String url = request.getRequestURL() + "?" + StringTool.nullSafe(request.getQueryString());
-
 			if(samlSettings.getShouldProcess()){
 				samlService.redirectToIdentityProvider(request, response);
 			}else{
-				sessionManager.addTargetUrlCookie(response, url);
+				sessionManager.addTargetUrlCookie(response, requestUrl);
 				ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, request.getContextPath()
 						+ authenticationConfig.getSigninPath());
 			}
@@ -148,11 +148,10 @@ public class Dispatcher{
 					.map(Role::getPersistentString)
 					.collect(Collectors.joining(","));
 			ResponseTool.sendRedirect(request, response, HttpServletResponse.SC_SEE_OTHER, request.getContextPath()
-					+ authenticationConfig.getPermissionRequestPath() + "?deniedUrl=" + request.getRequestURL()
+					+ authenticationConfig.getPermissionRequestPath() + "?deniedUrl=" + UrlTool.encode(requestUrl)
 					+ "&allowedRoles=" + allowedRolesParam);
 			return;
 		}
-
 		try{
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 		}catch(IOException e){

@@ -36,7 +36,6 @@ import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientTableNodeNames;
-import io.datarouter.util.collection.CollectionTool;
 
 @Singleton
 public class CountingBatchCallbackFactory{
@@ -53,11 +52,11 @@ public class CountingBatchCallbackFactory{
 		private final String opName;
 
 		public CountingBatchCallback(HBaseNode<?,?,?,?,?> node, String opName){
-			this(CollectionTool.getFirst(node.getClientIds()), node.getClientTableNodeNames(), opName);
+			this(node.getClientIds().get(0), node.getClientTableNodeNames(), opName);
 		}
 
 		public CountingBatchCallback(HBaseSubEntityNode<?,?,?,?,?> node, String opName){
-			this(CollectionTool.getFirst(node.getClientIds()), node.getClientTableNodeNames(), opName);
+			this(node.getClientIds().get(0), node.getClientTableNodeNames(), opName);
 		}
 
 		public CountingBatchCallback(ClientId clientId, ClientTableNodeNames clientTableNodeNames, String opName){

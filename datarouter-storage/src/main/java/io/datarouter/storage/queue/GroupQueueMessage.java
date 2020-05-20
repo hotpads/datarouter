@@ -19,7 +19,6 @@ import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.util.collection.CollectionTool;
 
 public class GroupQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends BaseQueueMessage<PK,D>{
 
@@ -39,7 +38,7 @@ public class GroupQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D
 	}
 
 	public boolean isEmpty(){
-		return CollectionTool.nullSafeIsEmpty(databeans);
+		return databeans == null || databeans.isEmpty();
 	}
 
 	public boolean notEmpty(){

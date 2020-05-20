@@ -39,8 +39,8 @@ public abstract class BasePlugin extends BaseGuiceModule{
 		settingRoots.add(settingRoot);
 	}
 
-	protected void setDaosModule(DaosModuleBuilder daosModuleBuilder){
-		this.daosModule = daosModuleBuilder;
+	protected void setDaosModule(DaosModuleBuilder daosModule){
+		this.daosModule = daosModule;
 	}
 
 	public DaosModuleBuilder getDaosModuleBuilder(){

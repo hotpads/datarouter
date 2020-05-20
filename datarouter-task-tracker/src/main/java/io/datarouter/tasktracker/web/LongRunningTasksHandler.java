@@ -197,6 +197,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 
 		public String getStartTimeString(){
 			return Optional.ofNullable(startTime)
+					.map(Date::toInstant)
 					.map(DateTool::getAgoString)
 					.map("Started "::concat)
 					.orElse(null);

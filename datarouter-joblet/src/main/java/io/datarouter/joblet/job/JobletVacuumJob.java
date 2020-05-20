@@ -34,7 +34,6 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.number.NumberFormatter;
 
 public class JobletVacuumJob extends BaseJob{
@@ -69,7 +68,7 @@ public class JobletVacuumJob extends BaseJob{
 				}
 			}
 		}
-		if(CollectionTool.nullSafeNotEmpty(jobletsToDelete)){
+		if(!jobletsToDelete.isEmpty()){
 			deleteJobletRequests(jobletsToDelete, jobletDataToDelete);
 		}
 	}

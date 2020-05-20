@@ -62,7 +62,7 @@ extends SpannerBaseReadIndexOp<PK,D>{
 
 	@Override
 	public List<D> wrappedCall(){
-		Integer offset = config.optOffset().orElse(0);
+		Integer offset = config.findOffset().orElse(0);
 		ResultSet databeanRs;
 		List<PK> keyList;
 		try(ReadOnlyTransaction txn = client.readOnlyTransaction()){

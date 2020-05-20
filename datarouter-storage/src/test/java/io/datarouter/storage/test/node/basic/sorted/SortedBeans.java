@@ -22,7 +22,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import io.datarouter.util.collection.CollectionTool;
+import io.datarouter.scanner.Scanner;
 
 public class SortedBeans{
 
@@ -73,10 +73,10 @@ public class SortedBeans{
 
 	public static List<SortedBean> generatedSortedBeans(){
 		//shuffle them for fun.  they should end up sorted in the table
-		List<String> as = CollectionTool.shuffleCopy(STRINGS);
-		List<String> bs = CollectionTool.shuffleCopy(STRINGS);
-		List<Integer> cs = CollectionTool.shuffleCopy(INTEGERS);
-		List<String> ds = CollectionTool.shuffleCopy(STRINGS);
+		List<String> as = Scanner.of(STRINGS).shuffle().list();
+		List<String> bs = Scanner.of(STRINGS).shuffle().list();
+		List<Integer> cs = Scanner.of(INTEGERS).shuffle().list();
+		List<String> ds = Scanner.of(STRINGS).shuffle().list();
 
 		List<SortedBean> beans = new ArrayList<>();//save in periodic batches
 		for(int a = 0; a < NUM_ELEMENTS; ++a){

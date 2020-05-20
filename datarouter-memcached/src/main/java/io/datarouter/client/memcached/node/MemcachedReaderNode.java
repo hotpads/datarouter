@@ -50,7 +50,6 @@ import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.tally.TallyKey;
-import io.datarouter.util.collection.CollectionTool;
 
 public class MemcachedReaderNode<
 		PK extends PrimaryKey<PK>,
@@ -90,7 +89,8 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 		if(key == null){
 			return null;
 		}
-		return CollectionTool.findFirst(getMulti(List.of(key), config))
+		return getMulti(List.of(key), config).stream()
+				.findFirst()
 				.orElse(null);
 	}
 

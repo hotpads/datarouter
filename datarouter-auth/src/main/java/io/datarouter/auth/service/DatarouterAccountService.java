@@ -145,7 +145,7 @@ public class DatarouterAccountService{
 
 	public List<DatarouterAccount> getAccountsWithDuplicateApiKey(){
 		Map<String,List<DatarouterAccount>> accountsByApiKey = datarouterAccountDao.scan()
-				.collect(Collectors.groupingBy(DatarouterAccount::getApiKey));
+				.groupBy(DatarouterAccount::getApiKey);
 		return accountsByApiKey.values().stream()
 				.filter(accounts -> accounts.size() > 1)
 				.flatMap(Collection::stream)

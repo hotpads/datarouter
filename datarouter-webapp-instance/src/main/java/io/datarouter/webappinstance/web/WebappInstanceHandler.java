@@ -193,7 +193,7 @@ public class WebappInstanceHandler extends BaseHandler{
 			if(refreshedLast == null){
 				return "inactive";
 			}
-			return DateTool.getAgoString(refreshedLast);
+			return DateTool.getAgoString(refreshedLast.toInstant());
 		}
 
 		public String getStartupDatePrintable(){
@@ -205,11 +205,11 @@ public class WebappInstanceHandler extends BaseHandler{
 		}
 
 		public String getUpTimePrintable(){
-			return DateTool.getAgoString(startupDate);
+			return DateTool.getAgoString(startupDate.toInstant());
 		}
 
 		public String getBuildTimeAgoPrintable(){
-			return DateTool.getAgoString(buildDate);
+			return DateTool.getAgoString(buildDate.toInstant());
 		}
 
 		public Duration getDurationSinceLastUpdated(){

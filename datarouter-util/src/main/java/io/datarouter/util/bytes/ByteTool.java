@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.collection.CollectionTool;
 
 public class ByteTool{
 
@@ -205,7 +204,7 @@ public class ByteTool{
 	/*------------------------- serialize -----------------------------------*/
 
 	public static byte[] getUInt7Bytes(List<Byte> values){
-		if(CollectionTool.nullSafeIsEmpty(values)){
+		if(values == null || values.isEmpty()){
 			return new byte[0];
 		}
 		byte[] out = new byte[values.size()];

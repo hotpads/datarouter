@@ -16,6 +16,7 @@
 package io.datarouter.nodewatch.joblet;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -250,7 +251,7 @@ implements Callable<List<JobletPackage>>{
 		if(shouldDoAggressiveCount(end, isLastSample)){
 			logger.info("queueing aggressive sampling for {}, lastUpdated {}",
 					end.getKey(),
-					DateTool.getAgoString(end.getDateUpdated()));
+					DateTool.getAgoString(end.getDateUpdated().toInstant()));
 			return new Pair<>(true, JobletPriority.HIGH);
 		}
 		if(shouldSkipThisPeriod(end)){
@@ -310,7 +311,7 @@ implements Callable<List<JobletPackage>>{
 			boolean scanUntilEnd){
 		Objects.requireNonNull(end);
 		//we want all joblets created by the parent job to have the same creation time so none have execution priority
-		Date jobletCreationDate = new Date(samplerStartMs);
+		Instant jobletCreationDate = Instant.ofEpochMilli(samplerStartMs);
 		int batchSequence = RandomTool.nextPositiveInt();
 		TableSampleKey startSampleKey = Optional.ofNullable(start)
 				.map(TableSample::getKey)

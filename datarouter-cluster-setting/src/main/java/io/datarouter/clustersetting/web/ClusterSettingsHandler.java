@@ -391,7 +391,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 	}
 
 	private void recordChangelog(String name, String action, String username, String comment){
-		changelogRecorder.record("ClusterSetting", name, action, username, "", comment);
+		changelogRecorder.record("ClusterSetting", name, action, username, comment);
 	}
 
 	private class ClusterSettingChangeEmailContent{

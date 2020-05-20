@@ -33,7 +33,6 @@ import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntity;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanEntityKey;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeanKey;
 import io.datarouter.storage.test.node.basic.sorted.SortedBeans;
-import io.datarouter.util.collection.CollectionTool;
 
 @Guice(moduleFactory = DatarouterHBaseTestNgModuleFactory.class)
 public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegrationTests{
@@ -57,8 +56,8 @@ public class HBaseEntitySortedNodeIntegrationTests extends BaseSortedNodeIntegra
 		int numExpected = SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		SortedSet<SortedBean> results = albatrossOstrich.getSortedBeans();
 		Assert.assertEquals(results.size(), numExpected);
-		Assert.assertEquals(CollectionTool.getFirst(results).getKey().getFoo(), SortedBeans.S_albatross);
-		Assert.assertEquals(CollectionTool.getFirst(results).getKey().getBar(), SortedBeans.S_emu);
+		Assert.assertEquals(results.iterator().next().getKey().getFoo(), SortedBeans.S_albatross);
+		Assert.assertEquals(results.iterator().next().getKey().getBar(), SortedBeans.S_emu);
 	}
 
 	@Test

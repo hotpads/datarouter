@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -87,8 +86,7 @@ public class JobletUpdateHandler extends BaseHandler{
 				"Joblet",
 				typeString + " " + status + " " + executionOrder,
 				"deleteGroup",
-				getSessionInfo().getRequiredSession().getUsername(),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getRequiredSession().getUsername());
 		return pageFactory.message(request, message);
 	}
 
@@ -102,8 +100,8 @@ public class JobletUpdateHandler extends BaseHandler{
 			Scanner<JobletRequest> requestsOfType = jobletRequestDao.scanType(type, false)
 					.include(jobletRequest -> JobletStatus.CREATED == jobletRequest.getStatus());
 			for(List<JobletRequest> requestBatch : requestsOfType.batch(100).iterable()){
-				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = requestBatch.stream()
-						.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey));
+				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = Scanner.of(requestBatch)
+						.groupBy(jobletRequestQueueManager::getQueueKey);
 				for(JobletRequestQueueKey queueKey : requestsByQueueKey.keySet()){
 					List<JobletRequest> jobletsForQueue = requestsByQueueKey.get(queueKey);
 					jobletQueueDao.getQueue(queueKey).putMulti(jobletsForQueue);
@@ -116,8 +114,7 @@ public class JobletUpdateHandler extends BaseHandler{
 				"Joblet",
 				jobletType.orElse("all"),
 				"requeue",
-				getSessionInfo().getRequiredSession().getUsername(),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getRequiredSession().getUsername());
 		return pageFactory.message(request, "copied " + numCopied);
 	}
 
@@ -139,8 +136,7 @@ public class JobletUpdateHandler extends BaseHandler{
 				"Joblet",
 				type.orElse("all") + " " + status,
 				"restart",
-				getSessionInfo().getRequiredSession().getUsername(),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getRequiredSession().getUsername());
 		return pageFactory.message(request, "restarted " + numRestarted);
 	}
 
@@ -167,8 +163,7 @@ public class JobletUpdateHandler extends BaseHandler{
 				"Joblet",
 				type,
 				"timeoutStuckRunning",
-				getSessionInfo().getRequiredSession().getUsername(),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getRequiredSession().getUsername());
 		return pageFactory.message(request, "timedOut " + numTimedOut);
 	}
 

@@ -34,7 +34,6 @@ import io.datarouter.storage.queue.GroupQueueMessage;
 import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanKey;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 
 @Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class, modules = DatarouterWebGuiceModule.class)
@@ -90,7 +89,7 @@ public class SqsGroupNodeIntegrationTester{
 		dao.put(databean);
 		GroupQueueMessage<TestDatabeanKey,TestDatabean> message = dao.peek(Duration.ofSeconds(5));
 		Assert.assertEquals(message.getDatabeans().size(), 1);
-		Assert.assertEquals(databean, CollectionTool.getFirst(message.getDatabeans()));
+		Assert.assertEquals(databean, message.getDatabeans().iterator().next());
 		Assert.assertNull(dao.peek());
 	}
 

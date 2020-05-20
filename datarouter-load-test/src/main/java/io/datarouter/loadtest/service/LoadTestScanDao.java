@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.collection;
+package io.datarouter.loadtest.service;
 
-import java.util.Set;
+import io.datarouter.loadtest.storage.RandomValue;
+import io.datarouter.scanner.Scanner;
 
-public class SetTool{
+public interface LoadTestScanDao{
 
-	@SafeVarargs
-	public static <E extends Enum<E>> Set<E> unmodifiableEnumSetOf(E... enums){
-		return Set.of(enums);
+	Scanner<RandomValue> scan(int batchSize, int limit);
+
+	class NoOpLoadTestScanDao implements LoadTestScanDao{
+
+		@Override
+		public Scanner<RandomValue> scan(int batchSize, int limit){
+			return Scanner.empty();
+		}
+
 	}
 
 }

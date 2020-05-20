@@ -16,6 +16,7 @@
 package io.datarouter.util.concurrent;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -38,18 +39,25 @@ public class ExecutorServiceTool{
 		}
 		Duration halfTimeout = timeout.dividedBy(2);
 		long halfTimeoutMs = timeout.toMillis();
-		logger.info("shutting down {}{}", name, exec);
+		logger.warn("shutting down name={} {}", name, exec);
 		exec.shutdown();
 		try{
 			if(!exec.awaitTermination(halfTimeoutMs, TimeUnit.MILLISECONDS)){
-				logger.warn("{}{} did not shut down after {}, interrupting", name, exec, halfTimeout);
-				exec.shutdownNow();
-				if(!exec.awaitTermination(halfTimeoutMs, TimeUnit.MILLISECONDS)){
-					logger.error("could not shut down {}{} after {}", name, exec, timeout);
+				logger.warn("not yet terminated, interrupting name={} halfTimeout={} {}", name, halfTimeout, exec);
+				List<Runnable> neverCommencedTasks = exec.shutdownNow();
+				if(!neverCommencedTasks.isEmpty()){
+					logger.error("lost tasks count={} name={} {}", neverCommencedTasks.size(), name, exec);
 				}
+				if(!exec.awaitTermination(halfTimeoutMs, TimeUnit.MILLISECONDS)){
+					logger.error("not terminated name={} timeout={}", name, timeout, exec);
+				}else{
+					logger.warn("executor shuted down after interupt name={} {}", name, exec);
+				}
+			}else{
+				logger.warn("executor shuted down cleanly name={} {}", name, exec);
 			}
 		}catch(InterruptedException e){
-			logger.warn("interrupted while waiting for {}{} to shut down", name, exec);
+			logger.warn("interrupted while waiting for shut down name={} {}", name, exec);
 			exec.shutdownNow();
 			Thread.currentThread().interrupt();
 		}

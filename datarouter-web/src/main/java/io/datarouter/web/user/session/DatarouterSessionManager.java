@@ -25,6 +25,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.datarouter.util.net.UrlTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.util.RequestAttributeKey;
@@ -45,7 +46,8 @@ public class DatarouterSessionManager{
 	/*---------------------------- target url -------------------------------*/
 
 	public void addTargetUrlCookie(HttpServletResponse response, String targetUrl){
-		CookieTool.addCookie(response, config.getTargetUrlName(), targetUrl, "/", TARGET_URL_COOKIE_EXPIRATION_SECONDS);
+		CookieTool.addCookie(response, config.getTargetUrlName(), UrlTool.encode(targetUrl), "/",
+				TARGET_URL_COOKIE_EXPIRATION_SECONDS);
 	}
 
 	public URL getTargetUrlFromCookie(HttpServletRequest request){
@@ -53,6 +55,7 @@ public class DatarouterSessionManager{
 		if(StringTool.isEmpty(targetUrlString)){
 			return null;
 		}
+		targetUrlString = UrlTool.decode(targetUrlString);
 		try{
 			return new URL(targetUrlString);
 		}catch(MalformedURLException e){

@@ -25,8 +25,6 @@ import java.util.function.Function;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.collector.RelaxedMapCollector;
-
 public class RelaxedMapCollectorTests{
 
 	@Test

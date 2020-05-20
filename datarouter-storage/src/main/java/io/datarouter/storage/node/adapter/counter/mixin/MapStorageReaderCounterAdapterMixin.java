@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node.adapter.counter.mixin;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -25,7 +26,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.counter.CounterAdapter;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
-import io.datarouter.util.collection.CollectionTool;
 
 public interface MapStorageReaderCounterAdapterMixin<
 		PK extends PrimaryKey<PK>,
@@ -56,12 +56,15 @@ extends MapStorageReader<PK,D>, CounterAdapter<PK,D,F,N>{
 
 	@Override
 	public default List<D> getMulti(Collection<PK> keys, Config config){
+		if(keys == null || keys.isEmpty()){
+			return new ArrayList<>();
+		}
 		String opName = MapStorageReader.OP_getMulti;
 		getCounter().count(opName);
-		getCounter().count(opName + " keys", CollectionTool.nullSafeSize(keys));
+		getCounter().count(opName + " keys", keys.size());
 		List<D> results = getBackingNode().getMulti(keys, config);
 		int numHits = results.size();
-		int numMisses = CollectionTool.nullSafeSize(keys) - numHits;
+		int numMisses = keys.size() - numHits;
 		getCounter().count(opName + " hit", numHits);
 		getCounter().count(opName + " miss", numMisses);
 		return results;
@@ -69,12 +72,15 @@ extends MapStorageReader<PK,D>, CounterAdapter<PK,D,F,N>{
 
 	@Override
 	public default List<PK> getKeys(Collection<PK> keys, Config config){
+		if(keys == null || keys.isEmpty()){
+			return new ArrayList<>();
+		}
 		String opName = MapStorageReader.OP_getKeys;
 		getCounter().count(opName);
-		getCounter().count(opName + " keys", CollectionTool.nullSafeSize(keys));
+		getCounter().count(opName + " keys", keys.size());
 		List<PK> results = getBackingNode().getKeys(keys, config);
 		int numHits = results.size();
-		int numMisses = CollectionTool.nullSafeSize(keys) - numHits;
+		int numMisses = keys.size() - numHits;
 		getCounter().count(opName + " hit", numHits);
 		getCounter().count(opName + " miss", numMisses);
 		return results;

@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.web.exception.HandledException;
 
 @SuppressWarnings("serial")
@@ -49,7 +48,7 @@ public class HttpException extends RuntimeException implements HandledException{
 		Map<String,Object> responseBody = new LinkedHashMap<>();
 		responseBody.put("code", statusCode);
 		responseBody.put("message", getMessage());
-		if(CollectionTool.nullSafeNotEmpty(details)){
+		if(!details.isEmpty()){
 			responseBody.put("details", details);
 		}
 		return responseBody;

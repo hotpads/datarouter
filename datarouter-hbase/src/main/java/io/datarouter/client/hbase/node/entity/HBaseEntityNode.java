@@ -112,7 +112,7 @@ extends BasePhysicalEntityNode<EK,E>{
 		Scanner.of(eks)
 				.map(queryBuilder::getRowBytesWithPartition)
 				.map(Delete::new)
-				.batch(config.optInputBatchSize().orElse(100))
+				.batch(config.findInputBatchSize().orElse(100))
 				.forEach(deletes -> {
 					try(Table table = getTable()){
 						HBaseTableTool.deleteUnchecked(table, deletes);
@@ -124,7 +124,7 @@ extends BasePhysicalEntityNode<EK,E>{
 
 	@Override
 	public List<EK> listEntityKeys(EK startKey, boolean startKeyInclusive, Config config){
-		int limit = config.optLimit().orElse(DEFAULT_GET_KEYS_LIMIT);
+		int limit = config.findLimit().orElse(DEFAULT_GET_KEYS_LIMIT);
 		return queryBuilder.getScanForEachPartition(startKey, startKeyInclusive, true).stream()
 				.map(scan -> {
 					try(Table table = getTable();

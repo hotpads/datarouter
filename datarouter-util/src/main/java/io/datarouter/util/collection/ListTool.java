@@ -18,30 +18,28 @@ package io.datarouter.util.collection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.scanner.Scanner;
 import io.datarouter.util.ComparableTool;
 
 public class ListTool{
-
-	public static <T> List<T> wrap(T item){
-		return Scanner.ofNullable(item).list();
-	}
 
 	@SafeVarargs
 	public static <T> List<T> create(T... in){
 		return new ArrayList<>(Arrays.asList(in));
 	}
 
-	public static <T> List<T> nullSafe(List<T> in){
-		return Optional.ofNullable(in).orElseGet(LinkedList::new);
+	public static <T> T nullSafeGetLast(List<T> list){
+		return list == null ? null : getLast(list);
 	}
 
 	public static <T> T getLast(List<T> list){
-		return list == null || list.size() < 1 ? null : list.get(list.size() - 1);
+		return list.size() < 1 ? null : list.get(list.size() - 1);
+	}
+
+	public static <T> Optional<T> nullSafeFindLast(List<T> list){
+		return Optional.ofNullable(nullSafeGetLast(list));
 	}
 
 	public static <T> Optional<T> findLast(List<T> list){

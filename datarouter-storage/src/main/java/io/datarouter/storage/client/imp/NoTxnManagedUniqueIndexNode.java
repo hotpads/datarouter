@@ -28,7 +28,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.type.index.ManagedUniqueIndexNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 
 public class NoTxnManagedUniqueIndexNode<
 		PK extends PrimaryKey<PK>,
@@ -51,7 +50,7 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
 	@Override
 	public IE get(IK uniqueKey, Config config){
-		return CollectionTool.getFirst(getMulti(Collections.singleton(uniqueKey), config));
+		return getMulti(Collections.singleton(uniqueKey), config).stream().findFirst().orElse(null);
 	}
 
 	@Override

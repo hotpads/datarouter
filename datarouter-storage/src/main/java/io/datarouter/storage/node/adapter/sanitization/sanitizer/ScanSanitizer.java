@@ -19,7 +19,6 @@ import java.util.Collection;
 
 import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class ScanSanitizer{
@@ -40,7 +39,7 @@ public class ScanSanitizer{
 	}
 
 	private static boolean isValueOfFirstFieldNull(FieldSet<?> key){
-		return key != null && CollectionTool.getFirst(key.getFields()).getValue() == null;
+		return key != null && key.getFields().iterator().next().getValue() == null;
 	}
 
 }

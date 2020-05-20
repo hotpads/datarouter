@@ -78,7 +78,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			Level.INFO,
 			Level.WARN,
 			Level.ERROR,
-			Level.FATAL,//TODO remove because not in slf4j ?
+			Level.FATAL,// not in slf4j
 			Level.OFF};
 
 	@Inject
@@ -340,17 +340,12 @@ public class LoggingSettingsHandler extends BaseHandler{
 		return getSessionInfo().getNonEmptyUsernameOrElse("");
 	}
 
-	private String getCurrentUserToken(){
-		return getSessionInfo().getRequiredSession().getUserToken();
-	}
-
 	private void recordChangelog(String changelogType, String name, String action){
 		changelogRecorder.record(
 				changelogType,
 				name,
 				action,
-				getCurrentUsername(),
-				getCurrentUserToken());
+				getCurrentUsername());
 	}
 
 	public static class LoggerConfigMetadata{

@@ -17,17 +17,16 @@ package io.datarouter.instrumentation.changelog;
 
 public interface ChangelogRecorder{
 
-	default void record(String changelogType, String name, String action, String username, String userToken){
-		record(changelogType, name, action, username, userToken, null);
+	default void record(String changelogType, String name, String action, String username){
+		record(changelogType, name, action, username, null);
 	}
 
-	void record(String changelogType, String name, String action, String username, String userToken, String comment);
+	void record(String changelogType, String name, String action, String username, String comment);
 
 	class NoOpChangelogRecorder implements ChangelogRecorder{
 
 		@Override
-		public void record(String changelogType, String name, String action, String username, String userToken,
-				String comment){
+		public void record(String changelogType, String name, String action, String username, String comment){
 		}
 
 	}

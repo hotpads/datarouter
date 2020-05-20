@@ -17,7 +17,7 @@ package io.datarouter.changelog.config;
 
 import java.util.List;
 
-import io.datarouter.changelog.service.ChangeLogRecorderService;
+import io.datarouter.changelog.service.ChangelogRecorderService;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogDao.ChangelogDaoParams;
 import io.datarouter.instrumentation.changelog.ChangelogPublisher;
@@ -54,7 +54,7 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 	@Override
 	protected void configure(){
 		bind(ChangelogPublisher.class).to(changelogPublisher);
-		bindActual(ChangelogRecorder.class, ChangeLogRecorderService.class);
+		bindActual(ChangelogRecorder.class, ChangelogRecorderService.class);
 	}
 
 	public static class DatarouterChangelogPluginBuilder{

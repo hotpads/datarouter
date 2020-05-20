@@ -172,6 +172,10 @@ public interface Scanner<T> extends Closeable{
 		return new SamplingScanner<>(this, sampleSize, includeLast);
 	}
 
+	default Scanner<T> shuffle(){
+		return new ShufflingScanner<>(this);
+	}
+
 	default Scanner<T> skip(long numToSkip){
 		return ScannerTool.skip(this, numToSkip);
 	}

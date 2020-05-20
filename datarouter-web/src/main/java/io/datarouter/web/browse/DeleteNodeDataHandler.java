@@ -73,8 +73,7 @@ public class DeleteNodeDataHandler extends InspectNodeDataHandler{
 				"Inspect Node Data",
 				node.getName(),
 				"delete",
-				getSessionInfo().getRequiredSession().getUsername(),
-				getSessionInfo().getRequiredSession().getUserToken());
+				getSessionInfo().getRequiredSession().getUsername());
 		return new MessageMav("deleted databean " + encodedPk);
 	}
 

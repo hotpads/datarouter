@@ -217,12 +217,12 @@ public class AdminEditUserHandler extends BaseHandler{
 				.include(Entry::getValue)
 				.map(Entry::getKey)
 				.map(roleManager::getRoleFromPersistentString)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 		Set<DatarouterAccountKey> requestedAccounts = Scanner.of(dto.currentAccounts.entrySet())
 				.include(Entry::getValue)
 				.map(Entry::getKey)
 				.map(DatarouterAccountKey::new)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 		datarouterUserEditService.editUser(userToEdit, currentUser, userRoles, null, getSigninUrl(),
 				requestedAccounts);
 		return getEditUserDetailsDto(dto.username);
@@ -404,14 +404,14 @@ public class AdminEditUserHandler extends BaseHandler{
 					.collect(HashSet::new);
 			this.currentRoles = Scanner.of(availableRoles)
 					.map(Role::getPersistentString)
-					.collect(Collectors.toMap(Function.identity(), currentRolesSet::contains));
+					.toMap(Function.identity(), currentRolesSet::contains);
 			this.availableAccounts = Scanner.of(availableAccounts)
 					.sorted(StringTool.COLLATOR_COMPARATOR)
 					.deduplicate()
 					.list();
 			Set<String> currentAccountsSet = new HashSet<>(currentAccounts);
 			this.currentAccounts = Scanner.of(availableAccounts)
-					.collect(Collectors.toMap(Function.identity(), currentAccountsSet::contains));
+					.toMap(Function.identity(), currentAccountsSet::contains);
 			this.success = success;
 			this.message = message;
 		}

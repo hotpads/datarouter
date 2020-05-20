@@ -40,7 +40,6 @@ import io.datarouter.storage.node.entity.SubEntitySortedMapStorageReaderNode;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class SpannerSubEntityReaderNode<
@@ -80,7 +79,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 
 	@Override
 	public boolean exists(PK key, Config config){
-		return CollectionTool.nullSafeNotEmpty(getKeys(Collections.singletonList(key), config));
+		return !getKeys(Collections.singletonList(key), config).isEmpty();
 	}
 
 	@Override
@@ -97,7 +96,9 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 
 	@Override
 	public D get(PK key, Config config){
-		return CollectionTool.findFirst(getMulti(Collections.singletonList(key), config)).orElse(null);
+		return getMulti(Collections.singletonList(key), config).stream()
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override
@@ -122,7 +123,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 		Integer offset = config.getOffset();
 		Integer limit = config.getLimit();
 		if(limit != null){
-			config.setLimit(config.optOffset().orElse(0) + config.getLimit());
+			config.setLimit(config.findOffset().orElse(0) + config.getLimit());
 		}
 		var scannner = partitioner.scanAllPartitions()
 				.collate(partition -> new SpannerEntityDatabeanScanner<>(
@@ -133,7 +134,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 								spannerFieldCodecRegistry,
 								false,
 								partition),
-						(list1, list2) -> CollectionTool.getFirst(list1).compareTo(CollectionTool.getFirst(list2)))
+						(list1, list2) -> list1.get(0).compareTo(list2.get(0)))
 				.collate(Scanner::of);
 		if(offset != null){
 			scannner = scannner.skip(offset);
@@ -149,7 +150,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 		Integer offset = config.getOffset();
 		Integer limit = config.getLimit();
 		if(limit != null){
-			config.setLimit(config.optOffset().orElse(0) + config.getLimit());
+			config.setLimit(config.findOffset().orElse(0) + config.getLimit());
 		}
 		var scannner = partitioner.scanAllPartitions()
 				.collate(partition -> new SpannerEntityKeyScanner<>(
@@ -160,7 +161,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 								spannerFieldCodecRegistry,
 								false,
 								partition),
-						(list1, list2) -> CollectionTool.getFirst(list1).compareTo(CollectionTool.getFirst(list2)))
+						(list1, list2) -> list1.get(0).compareTo(list2.get(0)))
 				.collate(Scanner::of);
 		if(offset != null){
 			scannner = scannner.skip(offset);

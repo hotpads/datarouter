@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -118,8 +116,7 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 	}
 
 	private Map<String,DatarouterAccount> getAccountsByApiKey(){
-		return node.scan()
-				.collect(Collectors.toMap(DatarouterAccount::getApiKey, Function.identity()));
+		return node.scan().toMap(DatarouterAccount::getApiKey);
 	}
 
 	private void refreshAccountByApiKeyCache(){

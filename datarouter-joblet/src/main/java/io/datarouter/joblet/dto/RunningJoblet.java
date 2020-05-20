@@ -15,7 +15,7 @@
  */
 package io.datarouter.joblet.dto;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 
 import io.datarouter.joblet.model.JobletPackage;
@@ -26,11 +26,11 @@ public class RunningJoblet{
 
 	private String name;
 	private String id;
-	private Date startedAt;
+	private Instant startedAt;
 	private String queueId;
 	private String jobletData;
 
-	public RunningJoblet(JobletType<?> jobletType, long id, Date startedAt, Optional<JobletPackage> jobletPackage){
+	public RunningJoblet(JobletType<?> jobletType, long id, Instant startedAt, Optional<JobletPackage> jobletPackage){
 		this.name = jobletType.getPersistentString();
 		this.id = Long.toString(id);
 		this.startedAt = startedAt;
@@ -40,7 +40,7 @@ public class RunningJoblet{
 		}
 	}
 
-	private RunningJoblet(String name, String id, Date startedAt, String queueId, String jobletData){
+	private RunningJoblet(String name, String id, Instant startedAt, String queueId, String jobletData){
 		this.name = name;
 		this.id = id;
 		this.startedAt = startedAt;
@@ -76,7 +76,7 @@ public class RunningJoblet{
 		return jobletData;
 	}
 
-	public Date getStartedAt(){
+	public Instant getStartedAt(){
 		return startedAt;
 	}
 

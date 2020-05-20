@@ -15,32 +15,36 @@
  */
 package io.datarouter.web.navigation;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 public class AppNavBar extends NavBar{
 
-	protected AppNavBar(Optional<DatarouterAuthenticationConfig> config, AppPluginNavBarSupplier pluginSupplier,
+	private static final Comparator<NavBarMenuItemWrapper> NAVBAR_COMPARATOR = Comparator
+			.comparing((NavBarMenuItemWrapper wrapper) -> wrapper.grouping.group)
+			.thenComparing(Comparator.comparing((NavBarMenuItemWrapper wrapper) -> wrapper.item.getText()));
+
+	protected AppNavBar(
+			Optional<DatarouterAuthenticationConfig> config,
+			AppPluginNavBarSupplier pluginSupplier,
 			AppNavBarRegistrySupplier registrySupplier){
 		super("", "", config);
-		List<NavBarItem> items = new ArrayList<>();
-		items.add(new NavBarItem(new SimpleNavBarCategory("Home", 0), "/", "Home"));
-		items.addAll(pluginSupplier.get());
-		items.addAll(registrySupplier.get());
-		items.stream()
-				.collect(Collectors.groupingBy(item -> item.category))
+		Scanner.concat(
+				List.of(new NavBarItem(new SimpleNavBarCategory("Home", AppNavBarCategoryGrouping.HOME), "/", "Home")),
+				pluginSupplier.get(),
+				registrySupplier.get())
+				.groupBy(item -> item.category)
 				.entrySet()
 				.stream()
 				.map(this::createMenuItem)
-				.sorted(Comparator.comparing((NavBarMenuItemWrapper wrapper) -> wrapper.priority)
-						.thenComparing(Comparator.comparing((NavBarMenuItemWrapper wrapper) -> wrapper.item.getText())))
+				.sorted(NAVBAR_COMPARATOR)
 				.map(wrapper -> wrapper.item)
 				.forEach(this::addMenuItems);
 	}
@@ -48,24 +52,24 @@ public class AppNavBar extends NavBar{
 	private NavBarMenuItemWrapper createMenuItem(Entry<NavBarCategory,List<NavBarItem>> entry){
 		if(entry.getValue().size() == 1 && entry.getKey().allowSingleItemMenu()){
 			var item = new NavBarMenuItem(entry.getValue().get(0).path, entry.getKey().getDisplay(), this);
-			return new NavBarMenuItemWrapper(item, entry.getKey().getPriority());
+			return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping());
 		}
 		List<NavBarMenuItem> menuItems = entry.getValue().stream()
 				.sorted(Comparator.comparing((NavBarItem item) -> item.name))
 				.map(item -> new NavBarMenuItem(item.path, item.name, this))
 				.collect(Collectors.toList());
 		var item = new NavBarMenuItem(entry.getKey().getDisplay(), menuItems);
-		return new NavBarMenuItemWrapper(item, entry.getKey().getPriority());
+		return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping());
 	}
 
 	private static final class NavBarMenuItemWrapper{
 
 		public final NavBarMenuItem item;
-		public final Integer priority;
+		public final AppNavBarCategoryGrouping grouping;
 
-		public NavBarMenuItemWrapper(NavBarMenuItem item, Integer priority){
+		public NavBarMenuItemWrapper(NavBarMenuItem item, AppNavBarCategoryGrouping grouping){
 			this.item = item;
-			this.priority = priority;
+			this.grouping = grouping;
 		}
 
 	}

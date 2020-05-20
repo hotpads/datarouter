@@ -35,7 +35,6 @@ import io.datarouter.storage.op.scan.queue.PeekMultiUntilEmptyQueueStorageScanne
 import io.datarouter.storage.op.scan.queue.PollUntilEmptyQueueStorageScanner;
 import io.datarouter.storage.queue.BaseQueueMessage;
 import io.datarouter.storage.queue.QueueMessage;
-import io.datarouter.util.collection.CollectionTool;
 
 public class SqsNode<
 		PK extends PrimaryKey<PK>,
@@ -59,7 +58,7 @@ implements PhysicalQueueStorageNode<PK,D,F>{
 	@Override
 	public QueueMessage<PK,D> peek(Config config){
 		Config limitedConfig = config.clone().setLimit(1);
-		return CollectionTool.getFirst(sqsOpFactory.makePeekMultiOp(limitedConfig).call());
+		return sqsOpFactory.makePeekMultiOp(limitedConfig).call().stream().findFirst().orElse(null);
 	}
 
 	@Override

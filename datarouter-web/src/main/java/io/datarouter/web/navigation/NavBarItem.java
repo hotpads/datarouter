@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.scanner.Scanner;
 
 public class NavBarItem{
 
@@ -48,8 +49,10 @@ public class NavBarItem{
 		}
 
 		public static List<NavBarItemGroup> fromNavBarItems(List<NavBarItem> items){
-			return items.stream()
-					.collect(Collectors.groupingBy(item -> item.category)).entrySet().stream()
+			return Scanner.of(items)
+					.groupBy(item -> item.category)
+					.entrySet()
+					.stream()
 					.map(group -> new NavBarItemGroup(group.getKey(), group.getValue()))
 					.sorted(Comparator.comparing(NavBarItemGroup::getCategoryDisplay))
 					.collect(Collectors.toList());

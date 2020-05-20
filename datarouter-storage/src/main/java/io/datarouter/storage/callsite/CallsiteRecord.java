@@ -15,21 +15,32 @@
  */
 package io.datarouter.storage.callsite;
 
-import java.util.Date;
-
-import io.datarouter.util.DateTool;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 
 public class CallsiteRecord{
 
-	private Date timestamp;
+	private static final DateTimeFormatter TIME_PARSER = new DateTimeFormatterBuilder()
+			.append(DateTimeFormatter.ISO_TIME)
+			.appendLiteral(",")
+			.appendValue(ChronoField.MILLI_OF_SECOND)
+			.toFormatter();
+
+	private Instant timestamp;
 	private String nodeName;
 	private String datarouterMethodName;
 	private String callsite;
 	private long numItems;
 	private long durationNs;
 
-	public CallsiteRecord(Date timestamp, String nodeName, String datarouterMethodName, String callsite, long numItems,
-			long durationNs){
+	public CallsiteRecord(Instant timestamp, String nodeName, String datarouterMethodName, String callsite,
+			long numItems, long durationNs){
 		this.timestamp = timestamp;
 		this.nodeName = nodeName;
 		this.datarouterMethodName = datarouterMethodName;
@@ -50,9 +61,9 @@ public class CallsiteRecord{
 
 	public static CallsiteRecord fromLogLine(String line){
 		String[] allTokens = line.split(" ");
-		String dateTime = allTokens[0] + " " + allTokens[1];
-		Date timestamp = DateTool.parseUserInputDate(dateTime, 2014);
-
+		LocalDate date = LocalDate.parse(allTokens[0]);
+		LocalTime time = LocalTime.parse(allTokens[1], TIME_PARSER);
+		Instant timestamp = LocalDateTime.of(date, time).atZone(ZoneId.systemDefault()).toInstant();
 		String afterThreadName = line.substring(line.indexOf("]") + 1);
 		String[] lineTokens = afterThreadName.split(" ");
 		int index = 3;
@@ -89,7 +100,7 @@ public class CallsiteRecord{
 		return durationNs;
 	}
 
-	public Date getTimestamp(){
+	public Instant getTimestamp(){
 		return timestamp;
 	}
 

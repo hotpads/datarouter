@@ -136,7 +136,7 @@ public class Config implements Cloneable{
 		return limit;
 	}
 
-	public Optional<Integer> optLimit(){
+	public Optional<Integer> findLimit(){
 		return Optional.ofNullable(limit);
 	}
 
@@ -151,7 +151,7 @@ public class Config implements Cloneable{
 		return offset;
 	}
 
-	public Optional<Integer> optOffset(){
+	public Optional<Integer> findOffset(){
 		return Optional.ofNullable(offset);
 	}
 
@@ -160,9 +160,9 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/*------------------------ batch size ---------------------------*/
+	/*---------------------------- batch size -------------------------------*/
 
-	public Optional<Integer> optInputBatchSize(){
+	public Optional<Integer> findInputBatchSize(){
 		return Optional.ofNullable(inputBatchSize);
 	}
 
@@ -172,7 +172,7 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	public Optional<Integer> optOutputBatchSize(){
+	public Optional<Integer> findOutputBatchSize(){
 		return Optional.ofNullable(outputBatchSize);
 	}
 
@@ -282,7 +282,7 @@ public class Config implements Cloneable{
 
 	/*--------------------------- ignore null fields ------------------------*/
 
-	public Optional<Boolean> optIgnoreNullFields(){
+	public Optional<Boolean> findIgnoreNullFields(){
 		return Optional.ofNullable(ignoreNullFields);
 	}
 
@@ -293,7 +293,7 @@ public class Config implements Cloneable{
 
 	/*------------------------- scanner caching -----------------------------*/
 
-	public Optional<Boolean> optScannerCaching(){
+	public Optional<Boolean> findScannerCaching(){
 		return Optional.ofNullable(scannerCaching);
 	}
 

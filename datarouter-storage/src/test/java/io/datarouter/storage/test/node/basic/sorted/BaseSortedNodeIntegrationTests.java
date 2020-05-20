@@ -153,7 +153,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		List<SortedBean> result = dao.scan(range).list();
 		var expectedLast = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0,
 				SortedBeans.S_chinchilla);
-		Assert.assertEquals(ListTool.getLast(result).getKey(), expectedLast);
+		Assert.assertEquals(ListTool.nullSafeGetLast(result).getKey(), expectedLast);
 		Assert.assertEquals(result.size(), 4);
 	}
 
@@ -163,7 +163,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var range = new Range<>(null, false, endKey, true);
 		List<SortedBean> result = dao.scan(range).list();
 		var expectedLast = endKey;
-		Assert.assertEquals(ListTool.getLast(result).getKey(), expectedLast);
+		Assert.assertEquals(ListTool.nullSafeGetLast(result).getKey(), expectedLast);
 		Assert.assertEquals(result.size(), 5);
 	}
 

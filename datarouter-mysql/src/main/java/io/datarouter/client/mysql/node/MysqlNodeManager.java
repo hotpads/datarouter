@@ -68,7 +68,6 @@ import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 @Singleton
@@ -96,7 +95,8 @@ public class MysqlNodeManager{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			PK key,
 			Config config){
-		return CollectionTool.nullSafeNotEmpty(getKeys(fieldInfo, Collections.singleton(key), config));
+		List<PK> result = getKeys(fieldInfo, Collections.singleton(key), config);
+		return result != null && !result.isEmpty();
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -109,7 +109,7 @@ public class MysqlNodeManager{
 		if(key == null){
 			return null;
 		}
-		return CollectionTool.getFirst(getMulti(fieldInfo, List.of(key), config));
+		return getMulti(fieldInfo, List.of(key), config).stream().findFirst().orElse(null);
 	}
 
 	public <PK extends PrimaryKey<PK>,
@@ -150,7 +150,7 @@ public class MysqlNodeManager{
 		if(result.size() > 1){
 			throw new DataAccessException("found >1 databeans with unique index key=" + uniqueKey);
 		}
-		return CollectionTool.getFirst(result);
+		return result.stream().findFirst().orElse(null);
 	}
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>

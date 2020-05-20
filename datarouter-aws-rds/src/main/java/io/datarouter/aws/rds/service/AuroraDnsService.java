@@ -87,9 +87,9 @@ public class AuroraDnsService{
 		Process process = Runtime.getRuntime().exec(cmd);
 		StringBuilder standardOutput = new StringBuilder();
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
-			String line = null;
+			String line;
 			while((line = reader.readLine()) != null){
-				standardOutput.append(line + "\n");
+				standardOutput.append(line).append("\n");
 				if(line.matches(IPADDRESS_PATTERN)){
 					ip = line;
 				}else if(line.contains(rdsSettings.rdsClusterEndpoint.get())){
@@ -143,7 +143,7 @@ public class AuroraDnsService{
 				String masterClientName = slaveEntry.hostname.replace("slave", "");
 				DnsHostEntryDto masterEntry = dnsEntryByHostname.get(masterClientName);
 				logger.debug("slave={} master={}", gson.toJson(slaveEntry), gson.toJson(masterEntry));
-				if(slaveEntry.ip.equals(masterEntry.ip)){
+				if(slaveEntry.ip != null && slaveEntry.ip.equals(masterEntry.ip)){
 					slaveEntry.slavePointedToMaster = true;
 					mismatchedSlaveEntries.add(slaveEntry);
 				}
@@ -168,7 +168,7 @@ public class AuroraDnsService{
 		public DnsHostEntryDto(String clientName, String hostname, String clusterHostname, boolean writer,
 				String instanceHostname, String ip, boolean isAuroraInstance){
 			this.clientName = clientName;
-			this.slave = clientName.contains(SLAVE)? true : false;
+			this.slave = clientName.contains(SLAVE);
 			this.hostname = hostname;
 			this.clusterHostname = clusterHostname;
 			this.replicationRole = writer ? WRITER : READER;

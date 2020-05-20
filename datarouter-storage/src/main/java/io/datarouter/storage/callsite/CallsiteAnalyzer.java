@@ -16,9 +16,10 @@
 package io.datarouter.storage.callsite;
 
 import java.io.File;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,6 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.util.ComparableTool;
 import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
@@ -51,15 +51,15 @@ public class CallsiteAnalyzer implements Callable<String>{
 	public String call(){
 		//aggregate
 		int numLines = 0;
-		Date firstDate = new Date(Long.MAX_VALUE);
-		Date lastDate = new Date(0);
+		Instant firstDate = Instant.MAX;
+		Instant lastDate = Instant.MIN;
 		for(String line : ReaderTool.scanFileLines(logPath).iterable()){
 			++numLines;
 			CallsiteRecord record = CallsiteRecord.fromLogLine(line);
-			if(ComparableTool.lt(record.getTimestamp(), firstDate)){
+			if(record.getTimestamp().isBefore(firstDate)){
 				firstDate = record.getTimestamp();
 			}
-			if(ComparableTool.gt(record.getTimestamp(), lastDate)){
+			if(record.getTimestamp().isAfter(lastDate)){
 				lastDate = record.getTimestamp();
 			}
 			CallsiteStat stat = new CallsiteStat(record.getCallsite(), record.getNodeName(),
@@ -81,7 +81,7 @@ public class CallsiteAnalyzer implements Callable<String>{
 		CallsiteStatReportMetadata reportMetadata = CallsiteStatReportMetadata.inspect(stats);
 		StringBuilder sb = new StringBuilder();
 		int numDaoCallsites = CallsiteStat.countDaoCallsites(stats);
-		long numSeconds = (lastDate.getTime() - firstDate.getTime()) / 1000;
+		long numSeconds = firstDate.until(lastDate, ChronoUnit.SECONDS);
 		double callsPerSec = (double)numLines / numSeconds;
 		sb.append("          path: " + logPath + "\n");
 		sb.append(" file size (B): " + NumberFormatter.addCommas(new File(logPath).length()) + "\n");

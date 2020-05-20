@@ -26,7 +26,6 @@ import java.util.TreeSet;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
-import io.datarouter.util.collection.CollectionTool;
 
 public class EntitySections<EK extends EntityKey<EK>>{
 
@@ -37,9 +36,11 @@ public class EntitySections<EK extends EntityKey<EK>>{
 				.add(databean);
 	}
 
-	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> void addAll(String qualifierPrefix,
+	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> void addAll(
+			String qualifierPrefix,
 			Collection<D> databeans){
-		CollectionTool.findFirst(databeans)
+		databeans.stream()
+				.findFirst()
 				.map(Object::getClass)
 				.map(databeanClass -> backingMap.computeIfAbsent(new EntitySection(databeanClass, qualifierPrefix),
 						$ -> new TreeSet<>()))
@@ -47,7 +48,8 @@ public class EntitySections<EK extends EntityKey<EK>>{
 	}
 
 	@SuppressWarnings("unchecked")
-	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> SortedSet<D> get(String qualifierPrefix,
+	public <PK extends EntityPrimaryKey<EK,PK>,D extends Databean<PK,D>> SortedSet<D> get(
+			String qualifierPrefix,
 			Class<D> databeanClass){
 		return (SortedSet<D>)backingMap.getOrDefault(new EntitySection(databeanClass, qualifierPrefix),
 				Collections.emptySortedSet());

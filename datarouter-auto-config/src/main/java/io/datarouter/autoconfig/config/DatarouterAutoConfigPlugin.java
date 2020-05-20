@@ -18,10 +18,10 @@ package io.datarouter.autoconfig.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.autoconfig.service.AutoConfigService;
-import io.datarouter.autoconfig.service.AutoConfigServiceClasses;
 import io.datarouter.autoconfig.service.AutoConfigListener;
 import io.datarouter.autoconfig.service.AutoConfigListener.NoOpAutoConfigListener;
+import io.datarouter.autoconfig.service.AutoConfigService;
+import io.datarouter.autoconfig.service.AutoConfigServiceClasses;
 import io.datarouter.web.config.BaseWebPlugin;
 
 public class DatarouterAutoConfigPlugin extends BaseWebPlugin{

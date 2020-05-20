@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -67,12 +66,12 @@ public class DatarouterUserHistoryService{
 				.batch(100)
 				.map(baseDatarouterUserHistoryDao::getMulti)
 				.concat(Scanner::of)
-				.collect(Collectors.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges));
+				.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges);
 
 		return Scanner.of(requests)
 				.deduplicate()
-				.collect(Collectors.toMap(Function.identity(), request -> request.toUserHistoryKey().map(historyKey ->
-						historyMap.getOrDefault(historyKey, request.getResolution().getPersistentString()))));
+				.toMap(Function.identity(), request -> request.toUserHistoryKey().map(historyKey -> historyMap
+						.getOrDefault(historyKey, request.getResolution().getPersistentString())));
 	}
 
 	public Optional<String> getResolutionDescription(DatarouterPermissionRequest request,

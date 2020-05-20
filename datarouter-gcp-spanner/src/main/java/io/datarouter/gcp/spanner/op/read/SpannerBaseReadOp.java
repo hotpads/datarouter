@@ -85,7 +85,7 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 	}
 
 	private <F> List<F> callClientInternal(List<String> columnNames, List<Field<?>> fields, Supplier<F> object){
-		Integer offset = config.optOffset().orElse(0);
+		Integer offset = config.findOffset().orElse(0);
 		ResultSet rs;
 		if(config.getLimit() != null){
 			int limit = offset + config.getLimit();

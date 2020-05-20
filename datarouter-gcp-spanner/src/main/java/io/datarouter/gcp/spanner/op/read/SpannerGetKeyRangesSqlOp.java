@@ -67,7 +67,7 @@ extends SpannerBaseOp<List<PK>>{
 		String spanName = getClass().getSimpleName();
 		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
 			List<PK> results = wrappedCallInternal();
-			TracerTool.appendToSpanInfo("offset " + config.optOffset().orElse(0));
+			TracerTool.appendToSpanInfo("offset " + config.findOffset().orElse(0));
 			TracerTool.appendToSpanInfo("got " + results.size());
 			return results;
 		}

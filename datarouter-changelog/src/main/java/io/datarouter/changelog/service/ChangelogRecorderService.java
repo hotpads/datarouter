@@ -29,7 +29,7 @@ import io.datarouter.instrumentation.changelog.ChangelogPublisher;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 
 @Singleton
-public class ChangeLogRecorderService implements ChangelogRecorder{
+public class ChangelogRecorderService implements ChangelogRecorder{
 
 	@Inject
 	private ChangelogPublisher publisher;
@@ -41,8 +41,7 @@ public class ChangeLogRecorderService implements ChangelogRecorder{
 	private ChangelogDao dao;
 
 	@Override
-	public void record(String changelogType, String name, String action, String username, String userToken,
-			String comment){
+	public void record(String changelogType, String name, String action, String username, String comment){
 		var dto = new ChangelogDto(
 				datarouterService.getName(),
 				changelogType,
@@ -50,7 +49,6 @@ public class ChangeLogRecorderService implements ChangelogRecorder{
 				new Date().getTime(),
 				action,
 				username,
-				userToken,
 				comment);
 		if(settings.publishChangelog.get()){
 			publisher.add(dto);

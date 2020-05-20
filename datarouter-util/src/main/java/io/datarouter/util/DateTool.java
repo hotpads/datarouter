@@ -17,16 +17,18 @@ package io.datarouter.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,22 +38,14 @@ import io.datarouter.util.duration.DurationWithCarriedUnits;
 
 public class DateTool{
 
-	public static final int MILLISECONDS_IN_DAY = (int) Duration.ofDays(1).toMillis();
-	public static final int MILLISECONDS_IN_HOUR = (int) Duration.ofHours(1).toMillis();
-	public static final int MILLISECONDS_IN_MINUTE = (int) Duration.ofMinutes(1).toMillis();
-	public static final int MILLISECONDS_IN_SECOND = (int) Duration.ofSeconds(1).toMillis();
+	public static final long MILLISECONDS_IN_DAY = Duration.ofDays(1).toMillis();
+	public static final long MILLISECONDS_IN_HOUR = Duration.ofHours(1).toMillis();
+	public static final long MILLISECONDS_IN_MINUTE = Duration.ofMinutes(1).toMillis();
+	public static final long MILLISECONDS_IN_SECOND = Duration.ofSeconds(1).toMillis();
 
-	public static final int SUNDAY_INDEX = 1;
-	public static final int MONDAY_INDEX = 2;
-	public static final int TUESDAY_INDEX = 3;
-	public static final int WEDNESDAY_INDEX = 4;
-	public static final int THURSDAY_INDEX = 5;
-	public static final int FRIDAY_INDEX = 6;
-	public static final int SATURDAY_INDEX = 7;
-
-	public static final List<String> DAY_ABBREVIATIONS = Arrays.asList("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
-	public static final List<String> MONTH_ABBREVIATIONS = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun",
-			"Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+	public static final Set<DayOfWeek> WEEK_DAYS = Set.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+			DayOfWeek.THURSDAY, DayOfWeek.FRIDAY);
+	public static final Set<DayOfWeek> WEEKEND_DAYS = Set.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
 	public static final DateTimeFormatter JAVA_TIME_INTERNET_FORMATTER = DateTimeFormatter.ISO_INSTANT;
 
@@ -250,19 +244,19 @@ public class DateTool{
 	 * @return "XXXXdays, XX hours ago" or "XX minutes ago" or
 	 * 	"XX seconds ago" or "less than one second ago"
 	 */
-	public static String getAgoString(Date date){
-		return getAgoString(date, DEFAULT_MAX_UNITS);
+	public static String getAgoString(Instant instant){
+		return getAgoString(instant, DEFAULT_MAX_UNITS);
 	}
 
 	public static String getAgoString(Long dateMs){
-		return getAgoString(new Date(dateMs));
+		return getAgoString(Instant.ofEpochMilli(dateMs));
 	}
 
-	public static String getAgoString(Date date, int maxUnits){
-		if(date == null){
+	public static String getAgoString(Instant instant, int maxUnits){
+		if(instant == null){
 			return null;
 		}
-		long timeMillis = new Date().getTime() - date.getTime();
+		long timeMillis = instant.until(Instant.now(), ChronoUnit.MILLIS);
 		String suffix = " ago";
 		if(timeMillis < 0){
 			suffix = " from now";
@@ -304,35 +298,11 @@ public class DateTool{
 
 	/*---------------- day of week ----------------*/
 
-	public static boolean isWeekday(Date date){
-		int dayInteger = getDayInteger(date);
-		return dayInteger == MONDAY_INDEX || dayInteger == TUESDAY_INDEX || dayInteger == WEDNESDAY_INDEX
-				|| dayInteger == THURSDAY_INDEX || dayInteger == FRIDAY_INDEX;
-	}
-
+	// Note: These should be change to use and Instant as parameter, and ultimately removed. Calculating the
+	// day of Date is technically incorrect. You require a timezone to be able to precisely tell.
 	public static boolean isWeekend(Date date){
-		int dayInteger = getDayInteger(date);
-		return dayInteger == SATURDAY_INDEX || dayInteger == SUNDAY_INDEX;
-	}
-
-	public static boolean isMonday(Date date){
-		return MONDAY_INDEX == getDayInteger(date);
-	}
-
-	public static boolean isTuesday(Date date){
-		return TUESDAY_INDEX == getDayInteger(date);
-	}
-
-	public static boolean isWednesday(Date date){
-		return WEDNESDAY_INDEX == getDayInteger(date);
-	}
-
-	public static boolean isThursday(Date date){
-		return THURSDAY_INDEX == getDayInteger(date);
-	}
-
-	public static boolean isFriday(Date date){
-		return FRIDAY_INDEX == getDayInteger(date);
+		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+		return WEEKEND_DAYS.contains(zonedDateTime.getDayOfWeek());
 	}
 
 	/*---------------- reverse ------------------*/

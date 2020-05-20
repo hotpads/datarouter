@@ -17,8 +17,8 @@ package io.datarouter.virtualnode.redundant.mixin;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -27,12 +27,12 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.GroupQueueStorage;
 import io.datarouter.storage.node.op.raw.GroupQueueStorage.GroupQueueStorageNode;
 import io.datarouter.storage.queue.GroupQueueMessage;
 import io.datarouter.storage.queue.QueueMessageKey;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.virtualnode.redundant.RedundantQueueNode;
 
@@ -94,29 +94,32 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 
 	@Override
 	default GroupQueueMessage<PK,D> peek(Config config){
-		PhaseTimer phaseTimer = new PhaseTimer();
-		List<N> readerNodes = CollectionTool.shuffleCopy(getReadNodes());
-		for(N node : readerNodes){
-			GroupQueueMessage<PK,D> databean = node.peek(config);
-			phaseTimer.add("node " + node);
-			if(databean != null){
-				return databean;
-			}
-		}
-		return null;
+		var phaseTimer = new PhaseTimer();
+		return Scanner.of(getReadNodes())
+				.shuffle()
+				.map(node -> {
+					GroupQueueMessage<PK,D> databean = node.peek(config);
+					phaseTimer.add("node " + node);
+					return databean;
+				})
+				.include(Objects::nonNull)
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override
 	default List<GroupQueueMessage<PK,D>> peekMulti(Config config){
-		PhaseTimer phaseTimer = new PhaseTimer();
-		for(N node : getReadNodes()){
-			List<GroupQueueMessage<PK,D>> messages = node.peekMulti(config);
-			phaseTimer.add("node " + node);
-			if(!messages.isEmpty()){
-				return messages;
-			}
-		}
-		return Collections.emptyList();
+		var phaseTimer = new PhaseTimer();
+		return Scanner.of(getReadNodes())
+				.shuffle()
+				.map(node -> {
+					List<GroupQueueMessage<PK,D>> messages = node.peekMulti(config);
+					phaseTimer.add("node " + node);
+					return messages;
+				})
+				.exclude(Collection::isEmpty)
+				.findFirst()
+				.orElse(List.of());
 	}
 
 	@Override

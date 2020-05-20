@@ -37,10 +37,10 @@ import io.datarouter.nodewatch.util.TableSamplerTool;
 import io.datarouter.plugin.copytable.CopyTableConfiguration;
 import io.datarouter.plugin.copytable.CopyTableJoblet;
 import io.datarouter.plugin.copytable.CopyTableJoblet.CopyTableJobletParams;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.op.raw.SortedStorage.PhysicalSortedStorageNode;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -217,7 +217,7 @@ public class JobletCopyTableHandler extends BaseHandler{
 				numJoblets));
 		++counter;
 		// shuffle as optimization to spread write load.  could be optional
-		jobletService.submitJobletPackages(CollectionTool.shuffleCopy(jobletPackages));
+		Scanner.of(jobletPackages).shuffle().flush(jobletService::submitJobletPackages);
 		changelogRecorderService.recordChangelog(getSessionInfo(), "Joblet", sourceNodeName.get(), targetNodeName
 				.get());
 		return pageFactory.message(request, "created " + numJoblets + " joblets");

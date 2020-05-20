@@ -18,6 +18,7 @@ package io.datarouter.virtualnode.redundant.mixin;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -28,7 +29,6 @@ import io.datarouter.storage.node.op.raw.QueueStorage;
 import io.datarouter.storage.node.op.raw.QueueStorage.QueueStorageNode;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.storage.queue.QueueMessageKey;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.virtualnode.redundant.RedundantQueueNode;
 
@@ -106,16 +106,17 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 
 	@Override
 	default QueueMessage<PK,D> peek(Config config){
-		PhaseTimer phaseTimer = new PhaseTimer();
-		List<N> readerNodes = CollectionTool.shuffleCopy(getReadNodes());
-		for(N node : readerNodes){
-			QueueMessage<PK,D> databean = node.peek(config);
-			phaseTimer.add("node " + node);
-			if(databean != null){
-				return databean;
-			}
-		}
-		return null;
+		var phaseTimer = new PhaseTimer();
+		return Scanner.of(getReadNodes())
+				.shuffle()
+				.map(node -> {
+					QueueMessage<PK,D> databean = node.peek(config);
+					phaseTimer.add("node " + node);
+					return databean;
+				})
+				.include(Objects::nonNull)
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override

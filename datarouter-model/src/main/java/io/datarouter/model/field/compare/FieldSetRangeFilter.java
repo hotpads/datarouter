@@ -22,7 +22,6 @@ import java.util.Objects;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldSet;
 import io.datarouter.util.ComparableTool;
-import io.datarouter.util.collection.CollectionTool;
 import io.datarouter.util.tuple.Range;
 
 /*
@@ -53,7 +52,7 @@ public class FieldSetRangeFilter{
 		if(startOfRangeFields == null){
 			return true;
 		}
-		if(CollectionTool.differentSize(startOfRangeFields, candidateFields)){
+		if(startOfRangeFields.size() != candidateFields.size()){
 			throw new IllegalArgumentException("inputs must have identical field count");
 		}
 		//field by field comparison
@@ -91,12 +90,14 @@ public class FieldSetRangeFilter{
 	}
 
 
-	public static boolean isCandidateBeforeEndOfRange(List<Field<?>> candidateFields, List<Field<?>> endOfRangeFields,
+	public static boolean isCandidateBeforeEndOfRange(
+			List<Field<?>> candidateFields,
+			List<Field<?>> endOfRangeFields,
 			boolean inclusive){
 		if(endOfRangeFields == null){
 			return true;
 		}
-		if(CollectionTool.differentSize(endOfRangeFields, candidateFields)){
+		if(endOfRangeFields.size() != candidateFields.size()){
 			throw new IllegalArgumentException("inputs must have identical field count");
 		}
 		//field by field comparison

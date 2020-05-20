@@ -15,17 +15,17 @@
  */
 package io.datarouter.storage.stream;
 
-import java.util.Date;
+import java.time.Instant;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 
-public class BaseStreamRecord <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
+public class BaseStreamRecord<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 
 	private final StreamRecordKey key;
-	private final Date approximateArrivalTimestamp;
+	private final Instant approximateArrivalTimestamp;
 
-	public BaseStreamRecord(String sequenceNumber, Date approximateArrivalTimestamp){
+	public BaseStreamRecord(String sequenceNumber, Instant approximateArrivalTimestamp){
 		this.key = new StreamRecordKey(sequenceNumber);
 		this.approximateArrivalTimestamp = approximateArrivalTimestamp;
 	}
@@ -34,7 +34,7 @@ public class BaseStreamRecord <PK extends PrimaryKey<PK>,D extends Databean<PK,D
 		return key;
 	}
 
-	public Date getApproximateArrivalTimestamp(){
+	public Instant getApproximateArrivalTimestamp(){
 		return approximateArrivalTimestamp;
 	}
 

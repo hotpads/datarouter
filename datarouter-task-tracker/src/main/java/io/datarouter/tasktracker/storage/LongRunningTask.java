@@ -142,14 +142,14 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		if(heartbeatTime == null){
 			return "";
 		}
-		return DateTool.getAgoString(heartbeatTime);
+		return DateTool.getAgoString(heartbeatTime.toInstant());
 	}
 
 	public String getFinishTimeString(){
 		if(finishTime == null){
 			return "";
 		}
-		return DateTool.getAgoString(finishTime);
+		return DateTool.getAgoString(finishTime.toInstant());
 	}
 
 	public boolean isRunning(){

@@ -17,7 +17,7 @@ package io.datarouter.joblet.execute;
 
 import java.io.InterruptedIOException;
 import java.time.Duration;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
@@ -55,7 +55,7 @@ public class JobletCallable implements Callable<Void>{
 	private final JobletProcessor processor;// for callback
 	private final JobletType<?> jobletType;
 	private final long id;
-	private final Date startedAt;
+	private final Instant startedAt;
 	private Optional<JobletPackage> jobletPackage;
 
 	public JobletCallable(
@@ -75,7 +75,7 @@ public class JobletCallable implements Callable<Void>{
 		this.processor = processor;
 		this.jobletType = jobletType;
 		this.id = id;
-		this.startedAt = new Date();
+		this.startedAt = Instant.now();
 		this.jobletPackage = Optional.empty();
 	}
 
@@ -92,12 +92,12 @@ public class JobletCallable implements Callable<Void>{
 				processJobletWithStats(timer, jobletPackage.get());
 				jobletService.handleJobletCompletion(timer, jobletRequest);
 			}catch(Exception e){
-				boolean isInterupted = ExceptionTool.isFromInstanceOf(e, InterruptedException.class,
+				boolean isInterrupted = ExceptionTool.isFromInstanceOf(e, InterruptedException.class,
 						UncheckedInterruptedException.class, InterruptedIOException.class);
-				Exception wrappingException = new Exception("isInterupted=" + isInterupted + " jobletPackage="
+				Exception wrappingException = new Exception("isInterrupted=" + isInterrupted + " jobletPackage="
 						+ GsonTool.GSON.toJson(jobletPackage.get()), e);
 				logger.error("", wrappingException);
-				if(isInterupted){
+				if(isInterrupted){
 					try{
 						jobletService.handleJobletInterruption(timer, jobletRequest);
 					}catch(Exception e1){
