@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 
@@ -58,16 +59,31 @@ public class ScannerToolTests{
 		Assert.assertFalse(Scanner.empty().findAny().isPresent());
 	}
 
+	@Test(expectedExceptions = NullPointerException.class)
+	public void testFindAnyNull(){
+		Scanner.of(null, null).findAny();
+	}
+
 	@Test
 	public void testFindFirst(){
 		Assert.assertEquals(Scanner.of(1, 3, 5).findFirst().get().intValue(), 1);
 		Assert.assertFalse(Scanner.empty().findFirst().isPresent());
 	}
 
+	@Test(expectedExceptions = NullPointerException.class)
+	public void testFindFirstNull(){
+		Scanner.of(null, 1).findFirst();
+	}
+
 	@Test
 	public void testFindLast(){
 		Assert.assertEquals(Scanner.of(1, 3, 5).findLast().get().intValue(), 5);
 		Assert.assertFalse(Scanner.empty().findLast().isPresent());
+	}
+
+	@Test(expectedExceptions = NullPointerException.class)
+	public void testFindLastNull(){
+		Scanner.of(1, null).findLast();
 	}
 
 	@Test
@@ -117,6 +133,38 @@ public class ScannerToolTests{
 		int expected = 5;
 		int actual = input.reduce(reducer).get();
 		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void testReduceEmpty(){
+		List<Integer> input = List.of();
+		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		Optional<Integer> actual = Scanner.of(input).reduce(reducer);
+		Assert.assertFalse(actual.isPresent());
+	}
+
+	@Test(expectedExceptions = NullPointerException.class)
+	public void testReduceNullItem(){
+		Scanner<Integer> input = Scanner.of(null, 1);
+		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		input.reduce(reducer);
+	}
+
+	@Test
+	public void testReduceWithSeed(){
+		Scanner<Integer> input = Scanner.of(2, 1, 4, 5, 3);
+		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		int expected = 6;
+		int actual = input.reduce(6, reducer);
+		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void testReduceWithSeedEmpty(){
+		List<Integer> input = List.of();
+		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
+		int actual = Scanner.of(input).reduce(6, reducer);
+		Assert.assertEquals(actual, 6);
 	}
 
 	@Test

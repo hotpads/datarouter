@@ -121,8 +121,8 @@ public class JobletService{
 					.forEach(queueId -> datarouterJobletCounters.incNumJobletsInserted(jobletType, queueId));
 			timer.add("inserted JobletRequest");
 			if(Objects.equals(jobletSettings.queueMechanism.get(), JobletQueueMechanism.SQS.getPersistentString())){
-				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = jobletRequests.stream()
-						.collect(Collectors.groupingBy(jobletRequestQueueManager::getQueueKey, Collectors.toList()));
+				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = Scanner.of(jobletRequests)
+						.groupBy(jobletRequestQueueManager::getQueueKey);
 				for(Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndRequests : requestsByQueueKey.entrySet()){
 					jobletQueueDao.getQueue(queueAndRequests.getKey()).putMulti(queueAndRequests.getValue());
 				}

@@ -18,16 +18,18 @@ package io.datarouter.web.homepage;
 import javax.inject.Inject;
 
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4HomepageCreator;
+import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4HomepageCreatorService;
 
 public class SimpleHomepageHandler extends HomepageHandler{
 
 	@Inject
-	private Bootstrap4HomepageCreator creator;
+	private Bootstrap4HomepageCreatorService service;
 
 	@Handler(defaultHandler = true)
 	protected Mav homepage(){
-		return creator.buildHomepageMav(request);
+		return service.homepage(request,
+				service.headerAndDescription(),
+				service.docLinks());
 	}
 
 }

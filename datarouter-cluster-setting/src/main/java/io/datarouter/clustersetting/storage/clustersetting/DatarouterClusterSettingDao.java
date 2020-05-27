@@ -17,12 +17,16 @@ package io.datarouter.clustersetting.storage.clustersetting;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting.ClusterSettingFielder;
+import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -30,6 +34,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.SettinglessNodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Range;
 
 @Singleton
@@ -44,6 +49,7 @@ public class DatarouterClusterSettingDao extends BaseDao{
 	}
 
 	private final SortedMapStorage<ClusterSettingKey,ClusterSetting> node;
+	private final SingletonSupplier<AtomicReference<Map<ClusterSettingKey,ClusterSetting>>> cacheRefSupplier;
 
 	@Inject
 	public DatarouterClusterSettingDao(
@@ -56,6 +62,7 @@ public class DatarouterClusterSettingDao extends BaseDao{
 				ClusterSetting::new,
 				ClusterSettingFielder::new)
 				.buildAndRegister();
+		cacheRefSupplier = SingletonSupplier.of(() -> new AtomicReference<>(loadCache()));
 	}
 
 	public Scanner<ClusterSetting> scan(){
@@ -108,6 +115,22 @@ public class DatarouterClusterSettingDao extends BaseDao{
 
 	public Optional<ClusterSetting> find(ClusterSettingKey key){
 		return node.find(key);
+	}
+
+	private Map<ClusterSettingKey,ClusterSetting> loadCache(){
+		return scan().toMap(Databean::getKey);
+	}
+
+	public void refreshCache(){
+		cacheRefSupplier.get().set(loadCache());
+	}
+
+	public List<ClusterSetting> getMultiFromCache(Collection<ClusterSettingKey> keys){
+		Map<ClusterSettingKey,ClusterSetting> cache = cacheRefSupplier.get().get();
+		return Scanner.of(keys)
+				.map(cache::get)
+				.exclude(Objects::isNull)
+				.list();
 	}
 
 }

@@ -27,7 +27,7 @@ at the same time, such as a multi-cloud application that uses Aurora, SQS, and E
 while also using Cloud SQL, Cloud Pub/Sub and Memcached in Google's cloud.
 
 Datarouter includes a web framework (datarouter-web) that aims to be lightweight and to rely on Java (not XML, JSON, 
-or plain text) for configuring things like web request handler mappings. Additional (not yet released) modules like
+or plain text) for configuring things like web request handler mappings. Additional modules like
 datarouter-exception, datarouter-job, datarouter-trace, etc 
 include many building blocks of a web app like log management, authentication, cron triggering, exception recording, counters, etc. 
 Combining the storage and web frameworks and the added utils allows for building portable web apps that are easy to 

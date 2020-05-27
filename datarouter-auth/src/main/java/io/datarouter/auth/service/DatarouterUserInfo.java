@@ -29,7 +29,9 @@ import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.databean.DatarouterUser;
+import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
+import io.datarouter.web.user.databean.DatarouterUserKey;
 import io.datarouter.web.user.session.service.Role;
 
 @Singleton
@@ -55,27 +57,36 @@ public class DatarouterUserInfo implements UserInfo{
 	}
 
 	@Override
-	public Optional<DatarouterUser> getUserByUsername(String username){
+	public Optional<DatarouterUser> getUserByUsername(String username, boolean allowCached){
 		if(StringTool.isEmptyOrWhitespace(username)){
 			return Optional.empty();
 		}
-		return datarouterUserByUsernameCache.get(username);
+		if(allowCached){
+			return datarouterUserByUsernameCache.get(username);
+		}
+		return Optional.ofNullable(userDao.getByUsername(new DatarouterUserByUsernameLookup(username)));
 	}
 
 	@Override
-	public Optional<DatarouterUser> getUserByToken(String token){
+	public Optional<DatarouterUser> getUserByToken(String token, boolean allowCached){
 		if(StringTool.isEmptyOrWhitespace(token)){
 			return Optional.empty();
 		}
-		return datarouterUserByUserTokenCache.get(token);
+		if(allowCached){
+			return datarouterUserByUserTokenCache.get(token);
+		}
+		return userDao.find(new DatarouterUserByUserTokenLookup(token));
 	}
 
 	@Override
-	public Optional<DatarouterUser> getUserById(Long id){
+	public Optional<DatarouterUser> getUserById(Long id, boolean allowCached){
 		if(id == null){
 			return Optional.empty();
 		}
-		return datarouterUserByIdCache.get(id);
+		if(allowCached){
+			return datarouterUserByIdCache.get(id);
+		}
+		return userDao.find(new DatarouterUserKey(id));
 	}
 
 	private Set<Role> getRolesFromUser(Optional<? extends DatarouterUser> user){
@@ -85,22 +96,18 @@ public class DatarouterUserInfo implements UserInfo{
 	}
 
 	@Override
-	public Set<Role> getRolesByUsername(String username, boolean disallowCached){
-		if(disallowCached){
-			return getRolesFromUser(Optional.ofNullable(userDao.getByUsername(new DatarouterUserByUsernameLookup(
-					username))));
-		}
-		return getRolesFromUser(getUserByUsername(username));
+	public Set<Role> getRolesByUsername(String username, boolean allowCached){
+		return getRolesFromUser(getUserByUsername(username, allowCached));
 	}
 
 	@Override
-	public Set<Role> getRolesByToken(String token){
-		return getRolesFromUser(getUserByToken(token));
+	public Set<Role> getRolesByToken(String token, boolean allowCached){
+		return getRolesFromUser(getUserByToken(token, allowCached));
 	}
 
 	@Override
-	public Set<Role> getRolesById(Long id){
-		return getRolesFromUser(getUserById(id));
+	public Set<Role> getRolesById(Long id, boolean allowCached){
+		return getRolesFromUser(getUserById(id, allowCached));
 	}
 
 }

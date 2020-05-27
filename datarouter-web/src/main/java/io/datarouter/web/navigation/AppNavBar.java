@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
+import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 public class AppNavBar extends NavBar{
@@ -34,12 +35,17 @@ public class AppNavBar extends NavBar{
 	protected AppNavBar(
 			Optional<DatarouterAuthenticationConfig> config,
 			AppPluginNavBarSupplier pluginSupplier,
-			AppNavBarRegistrySupplier registrySupplier){
+			AppNavBarRegistrySupplier registrySupplier,
+			ServiceDocumentationNamesAndLinksSupplier docNameAndLinksSupplier){
 		super("", "", config);
+		List<NavBarItem> readmeLinks = docNameAndLinksSupplier.get().entrySet().stream()
+				.map(entry -> new NavBarItem(AppNavBarCategory.README, entry.getValue(), entry.getKey()))
+				.collect(Collectors.toList());
 		Scanner.concat(
 				List.of(new NavBarItem(new SimpleNavBarCategory("Home", AppNavBarCategoryGrouping.HOME), "/", "Home")),
 				pluginSupplier.get(),
-				registrySupplier.get())
+				registrySupplier.get(),
+				readmeLinks)
 				.groupBy(item -> item.category)
 				.entrySet()
 				.stream()

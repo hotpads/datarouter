@@ -20,15 +20,19 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 @Singleton
 public class DefaultAppNavBar extends AppNavBar{
 
 	@Inject
-	public DefaultAppNavBar(Optional<DatarouterAuthenticationConfig> config,
-			AppPluginNavBarSupplier appNavBarPluginSupplier, AppNavBarRegistrySupplier registrySupplier){
-		super(config, appNavBarPluginSupplier, registrySupplier);
+	public DefaultAppNavBar(
+			Optional<DatarouterAuthenticationConfig> config,
+			AppPluginNavBarSupplier appNavBarPluginSupplier,
+			AppNavBarRegistrySupplier registrySupplier,
+			ServiceDocumentationNamesAndLinksSupplier serviceDocumentationNamesAndLinksSupplier){
+		super(config, appNavBarPluginSupplier, registrySupplier, serviceDocumentationNamesAndLinksSupplier);
 	}
 
 }

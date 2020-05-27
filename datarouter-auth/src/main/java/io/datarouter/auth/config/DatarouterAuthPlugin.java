@@ -95,7 +95,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		addAppListener(DatarouterAccountConfigAppListener.class);
 		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.admin.accounts, "Account Manager");
 		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.userDeprovisioning, "User Deprovisioning");
-		addAppNavBarItem(AppNavBarCategory.DOCS, PATHS.docs.toSlashedStringWithTrailingSlash(), "Docs");
+		addAppNavBarItem(AppNavBarCategory.API_DOCS, PATHS.docs.toSlashedStringWithTrailingSlash(), "Documentation");
 		addRouteSet(DatarouterAccountRouteSet.class);
 		addRouteSet(DatarouterDocumentationRouteSet.class);
 		addRouteSet(UserDeprovisioningRouteSet.class);

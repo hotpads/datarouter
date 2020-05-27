@@ -15,8 +15,6 @@
  */
 package io.datarouter.util.collection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -24,11 +22,6 @@ import java.util.Optional;
 import io.datarouter.util.ComparableTool;
 
 public class ListTool{
-
-	@SafeVarargs
-	public static <T> List<T> create(T... in){
-		return new ArrayList<>(Arrays.asList(in));
-	}
 
 	public static <T> T nullSafeGetLast(List<T> list){
 		return list == null ? null : getLast(list);

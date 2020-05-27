@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterClientFactoryExecutor;
 import io.datarouter.util.concurrent.FutureTool;
@@ -163,8 +164,8 @@ public class DatarouterClients{
 	}
 
 	public Map<Boolean,List<ClientId>> getClientNamesByInitialized(){
-		return getClientIds().stream()
-				.collect(Collectors.groupingBy(clientInitializationTracker::isInitialized, Collectors.toList()));
+		return Scanner.of(getClientIds())
+				.groupBy(clientInitializationTracker::isInitialized);
 	}
 
 	public void initAllClients(){

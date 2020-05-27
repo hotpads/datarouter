@@ -27,28 +27,28 @@ public interface UserInfo{
 	//TODO DATAROUTER-2794
 	Scanner<? extends SessionBasedUser> scanAllUsers(boolean enabledOnly, Set<Role> includedRoles);
 
-	Optional<? extends SessionBasedUser> getUserByUsername(String username);
-	Optional<? extends SessionBasedUser> getUserByToken(String token);
-	Optional<? extends SessionBasedUser> getUserById(Long id);
+	Optional<? extends SessionBasedUser> getUserByUsername(String username, boolean allowCached);
 
-	default Set<Role> getRolesByUsername(String username){
-		return getRolesByUsername(username, true);
+	Optional<? extends SessionBasedUser> getUserByToken(String token, boolean allowCached);
+
+	Optional<? extends SessionBasedUser> getUserById(Long id, boolean allowCached);
+
+	Set<Role> getRolesByUsername(String username, boolean allowCached);
+
+	Set<Role> getRolesByToken(String token, boolean allowCached);
+
+	Set<Role> getRolesById(Long id, boolean allowCached);
+
+	default Boolean hasRoleByUsername(String username, Role role, boolean allowCached){
+		return getRolesByUsername(username, allowCached).contains(role);
 	}
 
-	Set<Role> getRolesByUsername(String username, boolean disallowCached);
-	Set<Role> getRolesByToken(String token);
-	Set<Role> getRolesById(Long id);
-
-	default Boolean hasRoleByUsername(String username, Role role){
-		return getRolesByUsername(username).contains(role);
+	default Boolean hasRoleByToken(String token, Role role, boolean allowCached){
+		return getRolesByToken(token, allowCached).contains(role);
 	}
 
-	default Boolean hasRoleByToken(String token, Role role){
-		return getRolesByToken(token).contains(role);
-	}
-
-	default Boolean hasRoleById(Long id, Role role){
-		return getRolesById(id).contains(role);
+	default Boolean hasRoleById(Long id, Role role, boolean allowCached){
+		return getRolesById(id, allowCached).contains(role);
 	}
 
 }

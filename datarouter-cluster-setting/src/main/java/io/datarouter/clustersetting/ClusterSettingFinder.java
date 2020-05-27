@@ -99,7 +99,7 @@ public class ClusterSettingFinder implements SettingFinder{
 	@Override
 	public Optional<String> getSettingValue(String name){
 		List<ClusterSettingKey> keys = generateKeysForSelection(name);
-		List<ClusterSetting> settings = clusterSettingDao.getMulti(keys);
+		List<ClusterSetting> settings = clusterSettingDao.getMultiFromCache(keys);
 		return ClusterSetting.getMostSpecificSetting(settings).map(ClusterSetting::getValue);
 	}
 

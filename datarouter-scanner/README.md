@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.32</version>
+	<version>0.0.33</version>
 </dependency>
 ```
 
@@ -43,6 +43,13 @@ These methods share behavior with those in Stream but are implemented independen
 
 ### Differences from Stream
 
+- Not built into java, so you must call `Scanner.of(something)` instead of `something.stream()`
+- No primitive support
+- Less overhead as there are fewer objects involved
+- Less focused on behind-the-scenes parallelism for simplicity
+- More explicit parallelism on a step by step basis
+  - Specify an executor and thread count for each parallel step
+
 #### Additional terminal ops
 - `hasAny` - return true when the first item is seen
 - `isEmpty` - return true if the scanner completes without seeing any items
@@ -53,6 +60,13 @@ These methods share behavior with those in Stream but are implemented independen
   - equivalent to `stream.collect(Collectors.toList())`
 - `listTo` - collect all items to a `List` and pass it to a `Function`
   - equivalent to `stream.collect(Collectors.collectingAndThen(Collectors.toList(), function))`
+- `toMap` - collect all items to a `Map`.  By default existing values will be overwritten
+  - `keyFunction` - required to extract the map key
+- `groupBy` - collect all items to a `Map` where each value is a `Collection`, with 4 variants
+  - `keyFunction` - required to extract the map key
+  - `valueFunction` - optionally transform each item before collecting in the map
+  - `mapSupplier` - optional `Supplier<Map>` to replace the default `HashMap::new`
+  - `collectionSupplier` - optional `Supplier<Collection>` to replace the default `ArrayList::new`
 
 #### Accepting Consumer
 - `each` - each item passed to a `Consumer`
@@ -90,6 +104,8 @@ These methods share behavior with those in Stream but are implemented independen
 - `sample` - return every Nth item
 - `retain` - convert `Scanner<T>` to `Scanner<RetainingGroup<T>>` which gives access to the previous N items
 - `prefetch` - load the next N items using the provided `ExecutorService`
+- `shuffle` - collect the items internally and randomly select one of the remaining items on each `advance()`
+- `to` - pass the Scanner to a method that accepts it, and invoke the method.  The method is responsible for terminating the Scanner.
 
 ### Collectors
 
@@ -111,7 +127,7 @@ The argument passed to parallel(..) is a `ParallelScannerContext` which contains
 - `int maxThreads`
   - constrains threads used by this scanner, despite a potentially larger executor
 - `boolean allowUnorderedResults`
-  - return items in the order they finish processing, which can be faster than waiting for the earliest submitted item
+  - return items in the order they finish processing, potentially avoiding blocking all threads on a slow item
 
 ## License
 

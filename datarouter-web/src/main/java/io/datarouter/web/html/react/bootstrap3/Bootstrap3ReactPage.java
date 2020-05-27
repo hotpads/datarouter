@@ -72,7 +72,8 @@ public class Bootstrap3ReactPage{
 			datarouterNavbar = new DatarouterNavbarHtml(mavProperties).build();
 		}
 
-		NavBar navbar = mavProperties.getIsDatarouterPage() ? mavProperties.getDatarouterNavBar()
+		NavBar navbar = mavProperties.getIsDatarouterPage()
+				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
 		return new ReactHtml(
 				CloudflareImports.REACT_GROUP_1,

@@ -155,15 +155,9 @@ public class SecretService{
 		secretClientSupplier.get().delete(namespaced(secretName));
 	}
 
-	public final <T> void registerDevelopmentDefaultValue(Supplier<String> secretName, T defaultValue){
-		String namespaced = namespaced(secretName.get());
-		if(serverTypeDetector.mightBeDevelopment()){
-			localStorageDefaultSecretValues.registerDefaultValue(namespaced, serialize(defaultValue));
-		}
-	}
-
-	public final <T> void registerDevelopmentDefaultValueShared(Supplier<String> secretName, T defaultValue){
-		String namespaced = sharedNamespaced(secretName.get());
+	public final <T> void registerDevelopmentDefaultValue(Supplier<String> secretName, T defaultValue,
+			boolean isShared){
+		String namespaced = isShared ? sharedNamespaced(secretName.get()) : namespaced(secretName.get());
 		if(serverTypeDetector.mightBeDevelopment()){
 			localStorageDefaultSecretValues.registerDefaultValue(namespaced, serialize(defaultValue));
 		}

@@ -298,8 +298,8 @@ public class AdminEditUserHandler extends BaseHandler{
 
 	//TODO DATAROUTER-2788
 	private EditUserDetailsDto getEditUserDetailsDto(String username){
-		SessionBasedUser user = userInfo.getUserByUsername(username).orElseThrow();
-		Set<Role> roles = userInfo.getRolesByUsername(username, true);
+		SessionBasedUser user = userInfo.getUserByUsername(username, false).orElseThrow();
+		Set<Role> roles = userInfo.getRolesByUsername(username, false);
 
 		List<PermissionRequestDto> permissionRequests = datarouterPermissionRequestDao
 				.scanPermissionRequestsForUser(user.getId())
@@ -317,8 +317,7 @@ public class AdminEditUserHandler extends BaseHandler{
 				permissionRequests,
 				deprovisionedUserDao.find(new DeprovisionedUserKey(username))
 						.map(DeprovisionedUser::toDto)
-						.orElse(new DeprovisionedUserDto(username, Scanner.of(roles).map(Role::getPersistentString)
-								.list(), UserDeprovisioningStatusDto.PROVISIONED)),
+						.orElseGet(() -> buildDeprovisionedUserDto(user, roles)),
 				roleManager.getConferrableRoles(getSessionInfo().getRoles()),
 				roles,
 				datarouterAccountService.getAllAccountNamesWithUserMappingsEnabled(),
@@ -333,6 +332,14 @@ public class AdminEditUserHandler extends BaseHandler{
 		DatarouterPermissionRequest request = entry.getKey();
 		return new PermissionRequestDto(request.getKey().getRequestTime(), request.getRequestText(), request
 				.getResolutionTime(), entry.getValue().orElse(null));
+	}
+
+	//TODO DATAROUTER-2801
+	private static DeprovisionedUserDto buildDeprovisionedUserDto(SessionBasedUser user, Set<Role> roles){
+		UserDeprovisioningStatusDto status = user.isEnabled() ? UserDeprovisioningStatusDto.PROVISIONED
+				: UserDeprovisioningStatusDto.UNRESTORABLE;
+		return new DeprovisionedUserDto(user.getUsername(), Scanner.of(roles).map(Role::getPersistentString).list(),
+				status);
 	}
 
 	private Map<String,String> buildPaths(String contextPath){

@@ -155,7 +155,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 		DatarouterUser editedUser = currentUser;
 		if(!userId.orElse(currentUser.getId()).equals(getCurrentUser().getId())){
-			editedUser = datarouterUserInfo.getUserById(userId.get()).get();
+			editedUser = datarouterUserInfo.getUserById(userId.get(), true).get();
 		}
 		sendDeclineEmail(editedUser, currentUser);
 
@@ -185,7 +185,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 		DatarouterUser editedUser = currentUser;
 		if(userIdLong != getCurrentUser().getId()){
-			editedUser = datarouterUserInfo.getUserById(userIdLong).get();
+			editedUser = datarouterUserInfo.getUserById(userIdLong, true).get();
 		}
 		sendDeclineEmail(editedUser, currentUser);
 		return new SuccessAndMessageDto();

@@ -31,6 +31,7 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -53,6 +54,10 @@ public interface Scanner<T> extends Closeable{
 
 	public static <T> Scanner<T> empty(){
 		return EmptyScanner.singleton();
+	}
+
+	public static <T> Scanner<T> iterate(T seed, UnaryOperator<T> unaryOperator){
+		return new IteratingScanner<>(seed, unaryOperator);
 	}
 
 	public static <T> Scanner<T> ofNullable(T object){
@@ -300,6 +305,10 @@ public interface Scanner<T> extends Closeable{
 
 	default Optional<T> reduce(BinaryOperator<T> reducer){
 		return ScannerTool.reduce(this, reducer);
+	}
+
+	default T reduce(T seed, BinaryOperator<T> reducer){
+		return ScannerTool.reduce(this, seed, reducer);
 	}
 
 	default <R> R to(Function<Scanner<T>,R> function){

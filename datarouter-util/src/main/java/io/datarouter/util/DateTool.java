@@ -28,6 +28,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -307,12 +308,26 @@ public class DateTool{
 
 	/*---------------- reverse ------------------*/
 
+	@Deprecated // Use toReverseInstantLong
 	public static Long toReverseDateLong(Date date){
 		return date == null ? null : Long.MAX_VALUE - date.getTime();
 	}
 
+	@Deprecated // Use fromReverseInstantLong
 	public static Date fromReverseDateLong(Long dateLong){
 		return dateLong == null ? null : new Date(Long.MAX_VALUE - dateLong);
+	}
+
+	public static Long toReverseInstantLong(Instant instant){
+		return Optional.ofNullable(instant)
+				.map(nonNullInstant -> Long.MAX_VALUE - nonNullInstant.toEpochMilli())
+				.orElse(null);
+	}
+
+	public static Instant fromReverseInstantLong(Long reverseInstantLong){
+		return Optional.ofNullable(reverseInstantLong)
+				.map(nonNullReverseInstantLong -> Instant.ofEpochMilli(Long.MAX_VALUE - nonNullReverseInstantLong))
+				.orElse(null);
 	}
 
 }

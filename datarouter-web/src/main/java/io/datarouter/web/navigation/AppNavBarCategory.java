@@ -16,17 +16,20 @@
 package io.datarouter.web.navigation;
 
 public enum AppNavBarCategory implements NavBarCategory{
-	ADMIN("Admin", AppNavBarCategoryGrouping.ADMIN),
-	DOCS("Docs", AppNavBarCategoryGrouping.DOCS),
-	USER("User", AppNavBarCategoryGrouping.ADMIN),
+	ADMIN("Admin", AppNavBarCategoryGrouping.ADMIN, false),
+	API_DOCS("API Docs", AppNavBarCategoryGrouping.API_DOCS, true),
+	USER("User", AppNavBarCategoryGrouping.ADMIN, false),
+	README("Readmes", AppNavBarCategoryGrouping.README, false),
 	;
 
 	private final String display;
 	private final AppNavBarCategoryGrouping grouping;
+	private final boolean allowSingleItemMenu;
 
-	AppNavBarCategory(String display, AppNavBarCategoryGrouping grouping){
+	AppNavBarCategory(String display, AppNavBarCategoryGrouping grouping, boolean allowSingleItemMenu){
 		this.display = display;
 		this.grouping = grouping;
+		this.allowSingleItemMenu = allowSingleItemMenu;
 	}
 
 	@Override
@@ -37,6 +40,11 @@ public enum AppNavBarCategory implements NavBarCategory{
 	@Override
 	public AppNavBarCategoryGrouping getGrouping(){
 		return grouping;
+	}
+
+	@Override
+	public boolean allowSingleItemMenu(){
+		return allowSingleItemMenu;
 	}
 
 }

@@ -17,8 +17,10 @@ package io.datarouter.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -102,6 +104,22 @@ public class DateToolTests{
 		Assert.assertEquals(DateTool.toReverseDateLong(DateTool.fromReverseDateLong(nowTime)), nowTime);
 		Assert.assertNull(DateTool.fromReverseDateLong(DateTool.toReverseDateLong(null)));
 		Assert.assertNull(DateTool.toReverseDateLong(DateTool.fromReverseDateLong(null)));
+	}
+
+	@Test
+	public void testToReverseInstantLong(){
+		Instant instant = Instant.now();
+		Date date = Date.from(instant);
+		Assert.assertEquals(DateTool.toReverseDateLong(date), DateTool.toReverseInstantLong(instant));
+		Assert.assertEquals(DateTool.toReverseDateLong(null), DateTool.toReverseInstantLong(null));
+	}
+
+	@Test
+	public void testFromReverseInstantLong(){
+		Instant instant = Instant.now();
+		long reverse = Long.MAX_VALUE - instant.toEpochMilli();
+		Assert.assertEquals(instant.truncatedTo(ChronoUnit.MILLIS), DateTool.fromReverseInstantLong(reverse));
+		Assert.assertNull(DateTool.fromReverseInstantLong(null));
 	}
 
 	@Test

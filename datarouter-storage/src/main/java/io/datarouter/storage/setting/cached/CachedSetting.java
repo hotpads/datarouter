@@ -39,7 +39,7 @@ implements Setting<T>{
 	protected boolean hasRedundantCustomValues;
 
 	public CachedSetting(SettingFinder finder, String name, DefaultSettingValue<T> defaultValue){
-		super(15, TimeUnit.SECONDS);
+		super(5, TimeUnit.SECONDS);
 		this.finder = finder;
 		this.name = name;
 		this.defaultSettingValue = defaultValue;

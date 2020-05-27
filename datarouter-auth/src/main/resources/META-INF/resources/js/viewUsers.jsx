@@ -436,7 +436,7 @@ class ProvisioningStatusForm extends React.Component{
 		}
 		return <form>
 			<p>{description}</p>
-			<hr/>
+			<hr hidden={!status.allowDeprovision && !status.allowRestore}/>
 			<button type="submit" class="btn btn-danger" hidden={!status.allowDeprovision} onClick={this.handleDeprovision}>Disable User and Remove Roles</button>
 			<button type="submit" class="btn btn-danger" hidden={!status.allowRestore} onClick={this.handleRestore}>Enable User and Restore Roles</button>
 		</form>

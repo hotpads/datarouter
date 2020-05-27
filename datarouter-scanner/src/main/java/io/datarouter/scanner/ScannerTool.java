@@ -95,10 +95,12 @@ public class ScannerTool{
 	public static <T> Optional<T> findLast(Scanner<T> scanner){
 		try(var $ = scanner){
 			T last = null;
+			boolean foundAny = false;
 			while(scanner.advance()){
 				last = scanner.current();
+				foundAny = true;
 			}
-			return Optional.ofNullable(last);
+			return foundAny ? Optional.of(last) : Optional.empty();
 		}
 	}
 
@@ -185,12 +187,26 @@ public class ScannerTool{
 	public static <T> Optional<T> reduce(Scanner<T> scanner, BinaryOperator<T> reducer){
 		try(var $ = scanner){
 			T result = null;
+			boolean foundAny = false;
 			while(scanner.advance()){
-				result = result == null
-						? scanner.current()
-						: reducer.apply(result, scanner.current());
+				if(!foundAny){
+					result = scanner.current();
+				}else{
+					result = reducer.apply(result, scanner.current());
+				}
+				foundAny = true;
 			}
-			return Optional.ofNullable(result);
+			return foundAny ? Optional.of(result) : Optional.empty();
+		}
+	}
+
+	public static <T> T reduce(Scanner<T> scanner, T seed, BinaryOperator<T> reducer){
+		try(var $ = scanner){
+			T result = seed;
+			while(scanner.advance()){
+				result = reducer.apply(result, scanner.current());
+			}
+			return result;
 		}
 	}
 

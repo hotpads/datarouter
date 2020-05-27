@@ -18,6 +18,7 @@ package io.datarouter.clustersetting.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.clustersetting.job.ClusterSettingCacheRefreshJob;
 import io.datarouter.clustersetting.job.ClusterSettingConfigurationScanJob;
 import io.datarouter.clustersetting.job.LongRunningTaskConfigurationScanJob;
 import io.datarouter.job.BaseTriggerGroup;
@@ -28,6 +29,10 @@ public class DatarouterClusterSettingTriggerGroup extends BaseTriggerGroup{
 	@Inject
 	public DatarouterClusterSettingTriggerGroup(DatarouterClusterSettingRoot settings){
 		super("DatarouterClusterSetting");
+		registerParallel(
+				"5/10 * * * * ?",
+				() -> true,
+				ClusterSettingCacheRefreshJob.class);
 		registerLocked(
 				"0 0 14 ? * MON,TUE,WED,THU,FRI *",
 				settings.runConfigurationScanReportEmailJob,

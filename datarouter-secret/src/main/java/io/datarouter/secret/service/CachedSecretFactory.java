@@ -80,7 +80,8 @@ public class CachedSecretFactory{
 			Optional<T> defaultValue, boolean isShared){
 		ObjectTool.requireNonNulls(nameSupplier, secretClass);
 		Require.isFalse(StringTool.isNullOrEmptyOrWhitespace(nameSupplier.get()));
-		defaultValue.ifPresent(value -> secretClientService.registerDevelopmentDefaultValue(nameSupplier, value));
+		defaultValue.ifPresent(value -> secretClientService.registerDevelopmentDefaultValue(nameSupplier, value,
+				isShared));
 		return new CachedSecret<>(nameSupplier, secretClass, isShared);
 	}
 

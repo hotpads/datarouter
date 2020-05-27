@@ -22,14 +22,21 @@ public class MessageMav extends Mav{
 
 	public static final String VAR_NAME = "message";
 
+	private final String message;
+
 	public MessageMav(String message){
 		super(new DatarouterWebFiles().jsp.generic.messageJsp);
 		put(VAR_NAME, message);
+		this.message = message;
 	}
 
 	public MessageMav(String message, int code){
 		this(message);
 		this.setStatusCode(code);
+	}
+
+	public String getMessage(){
+		return message;
 	}
 
 }
