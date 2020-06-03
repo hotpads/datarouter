@@ -56,6 +56,10 @@ public interface Scanner<T> extends Closeable{
 		return EmptyScanner.singleton();
 	}
 
+	public static <T> Scanner<T> generate(Supplier<T> supplier){
+		return new GeneratingScanner<>(supplier);
+	}
+
 	public static <T> Scanner<T> iterate(T seed, UnaryOperator<T> unaryOperator){
 		return new IteratingScanner<>(seed, unaryOperator);
 	}
@@ -191,6 +195,10 @@ public interface Scanner<T> extends Closeable{
 
 	default Scanner<T> sorted(Comparator<? super T> comparator){
 		return new SortingScanner<>(this, comparator);
+	}
+
+	default Scanner<Scanner<T>> splitBy(Function<T,?> mapper){
+		return new SplittingScanner<>(this, mapper);
 	}
 
 	default List<T> take(int numToTake){

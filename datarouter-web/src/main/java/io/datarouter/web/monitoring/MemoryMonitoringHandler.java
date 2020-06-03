@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.bytes.ByteUnitTool;
@@ -78,7 +79,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
 		long startTime = runtimeMxBean.getStartTime();
 		long uptime = runtimeMxBean.getUptime();
-		Map<String,GitPropertiesJspDto> gitDetailedLibraries = loadedLibraries.gitDetailedLibraries.entrySet().stream()
+		Map<String,GitPropertiesJspDto> gitDetailedLibraries = Scanner.of(loadedLibraries.gitDetailedLibraries
+				.entrySet())
 				.collect(RelaxedMapCollector.of(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue())));
 		mav.put("startTime", FORMATTER.format(Instant.ofEpochMilli(startTime)));
 		mav.put("upTime", new DatarouterDuration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));

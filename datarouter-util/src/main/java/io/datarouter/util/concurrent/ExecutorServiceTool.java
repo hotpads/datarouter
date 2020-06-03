@@ -49,7 +49,7 @@ public class ExecutorServiceTool{
 					logger.error("lost tasks count={} name={} {}", neverCommencedTasks.size(), name, exec);
 				}
 				if(!exec.awaitTermination(halfTimeoutMs, TimeUnit.MILLISECONDS)){
-					logger.error("not terminated name={} timeout={}", name, timeout, exec);
+					logger.error("not terminated name={} timeout={} {}", name, timeout, exec);
 				}else{
 					logger.warn("executor shuted down after interupt name={} {}", name, exec);
 				}

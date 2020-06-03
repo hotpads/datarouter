@@ -17,7 +17,6 @@ package io.datarouter.auth.storage.permissionrequest;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -89,12 +88,10 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 
 	public void createPermissionRequest(DatarouterPermissionRequest request){
 		//supercede existing requests to leave only the new request unresolved
-		List<DatarouterPermissionRequest> requestsToPut = scanOpenPermissionRequestsForUser(request.getKey()
-				.getUserId())
+		scanOpenPermissionRequestsForUser(request.getKey().getUserId())
 				.map(DatarouterPermissionRequest::supercede)
-				.list();
-		requestsToPut.add(request);
-		putMulti(requestsToPut);
+				.append(request)
+				.flush(this::putMulti);
 	}
 
 	public void declineAll(Long userId){

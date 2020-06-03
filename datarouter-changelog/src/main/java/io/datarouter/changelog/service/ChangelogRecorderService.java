@@ -16,6 +16,7 @@
 package io.datarouter.changelog.service;
 
 import java.util.Date;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,6 +40,8 @@ public class ChangelogRecorderService implements ChangelogRecorder{
 	private DatarouterChangelogSettingRoot settings;
 	@Inject
 	private ChangelogDao dao;
+	@Inject
+	private ChangelogEmailService emailService;
 
 	@Override
 	public void record(String changelogType, String name, String action, String username, String comment){
@@ -54,6 +57,13 @@ public class ChangelogRecorderService implements ChangelogRecorder{
 			publisher.add(dto);
 		}
 		dao.put(new Changelog(dto));
+	}
+
+	@Override
+	public void recordAndSendEmail(String changelogType, String name, String action, String username,
+			Optional<String> comment, Optional<String> additionalSendTos){
+		record(changelogType, name, action, username, comment.orElse(null));
+		emailService.sendEmail(changelogType, name, action, username, additionalSendTos, comment);
 	}
 
 }

@@ -18,32 +18,18 @@ package io.datarouter.changelog.web;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.text;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import javax.inject.Inject;
 
-import io.datarouter.changelog.config.DatarouterChangelogPaths;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.util.tuple.Twin;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.optional.OptionalString;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 
 public class ManualChangelogHandler extends BaseHandler{
 
@@ -57,16 +43,6 @@ public class ManualChangelogHandler extends BaseHandler{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
-	@Inject
-	private DatarouterService datarouterService;
-	@Inject
-	private DatarouterHtmlEmailService htmlEmailService;
-	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
-	private DatarouterAdministratorEmailService additionalAdministratorEmailService;
-	@Inject
-	private DatarouterChangelogPaths paths;
 
 	@Handler(defaultHandler = true)
 	private Mav defaultHandler(
@@ -88,7 +64,7 @@ public class ManualChangelogHandler extends BaseHandler{
 				.withPlaceholder("Backfill")
 				.withValue(action.orElse(null));
 		form.addTextField()
-				.withDisplay("Email To (csv)")
+				.withDisplay("Email To (csv) (Optional). All administrators are included by default")
 				.withName(P_toEmail)
 				.withPlaceholder("a@something.com,b@something.com")
 				.withValue(toEmail.orElse(null));
@@ -107,13 +83,13 @@ public class ManualChangelogHandler extends BaseHandler{
 					.buildMav();
 		}
 		String username = getSessionInfo().getRequiredSession().getUsername();
-		changelogRecorder.record(
+		changelogRecorder.recordAndSendEmail(
 				"ManualEntry",
 				name.get(),
 				action.get(),
 				username,
-				comment.orElse(null));
-		sendEmail(name.get(), action.get(), username, toEmail.getOptional(), comment.getOptional());
+				comment.getOptional(),
+				toEmail.getOptional());
 		return pageFactory.preformattedMessage(request, "Recorded changelog entry.");
 	}
 
@@ -129,45 +105,6 @@ public class ManualChangelogHandler extends BaseHandler{
 					.withClass("container mt-3");
 			}
 
-	}
-
-
-	private void sendEmail(String name, String action, String username, Optional<String> toEmail,
-			Optional<String> comment){
-		String from = datarouterProperties.getAdministratorEmail();
-		String to = toEmail
-				.map(email -> email.split(","))
-				.map(Set::of)
-				.map(emailSet -> additionalAdministratorEmailService.getAdministratorEmailAddressesCsv(emailSet))
-				.orElseGet(() -> additionalAdministratorEmailService.getAdministratorEmailAddressesCsv());
-
-		String primaryHref = htmlEmailService.startLinkBuilder()
-				.withLocalPath(paths.datarouter.changelog.view)
-				.build();
-		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject("Manual Changelog Entry - " + datarouterService.getName())
-				.withTitle("Manual Changelog Entry")
-				.withTitleHref(primaryHref)
-				.withContent(makeEmailContent(name, action, username, comment.orElse("")));
-		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
-	}
-
-	private ContainerTag makeEmailContent(String name, String action, String username, String comment){
-		var rows = List.of(
-				new Twin<>("Service", datarouterService.getName()),
-				new Twin<>("ChangelogType", "ManualEntry"),
-				new Twin<>("Name", name),
-				new Twin<>("Action", action),
-				new Twin<>("Username", username),
-				new Twin<>("Comment", comment));
-		return new J2HtmlEmailTable<Twin<String>>()
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> text(row.getRight())))
-				.build(rows);
-	}
-
-	private static DomContent makeDivBoldRight(String text){
-		return div(text).withStyle("font-weight:bold;text-align:right;");
 	}
 
 }

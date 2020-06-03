@@ -28,7 +28,8 @@ public class ExampleMakeRequest{
 		// reuse this client
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
 
-		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET,
+		var request = new DatarouterHttpRequest(
+				HttpRequestMethod.GET,
 				"https://example.com/api",
 				true);
 		request.addGetParam("id", "1"); // Passing a GET parameter

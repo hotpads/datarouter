@@ -71,7 +71,9 @@ public class DeprovisionedUserDao extends BaseDao{
 	}
 
 	public void deleteMultiUsernames(Collection<String> usernames){
-		Scanner.of(usernames).map(DeprovisionedUserKey::new).flush(node::deleteMulti);
+		Scanner.of(usernames)
+				.map(DeprovisionedUserKey::new)
+				.flush(node::deleteMulti);
 	}
 
 }

@@ -64,9 +64,15 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	private final DatarouterHttpClientIoExceptionCircuitBreaker circuitWrappedHttpClient;
 	private final Supplier<Boolean> enableBreakers;
 
-	StandardDatarouterHttpClient(CloseableHttpClient httpClient, JsonSerializer jsonSerializer,
-			SignatureGenerator signatureGenerator, CsrfGenerator csrfGenerator, Supplier<String> apiKeySupplier,
-			DatarouterHttpClientConfig config, PoolingHttpClientConnectionManager connectionManager, String name,
+	StandardDatarouterHttpClient(
+			CloseableHttpClient httpClient,
+			JsonSerializer jsonSerializer,
+			SignatureGenerator signatureGenerator,
+			CsrfGenerator csrfGenerator,
+			Supplier<String> apiKeySupplier,
+			DatarouterHttpClientConfig config,
+			PoolingHttpClientConnectionManager connectionManager,
+			String name,
 			Supplier<Boolean> enableBreakers){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
@@ -125,7 +131,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	throws DatarouterHttpException{
 		setSecurityProperties(request);
 
-		HttpClientContext context = new HttpClientContext();
+		var context = new HttpClientContext();
 		context.setAttribute(HttpRetryTool.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 		CookieStore cookieStore = new BasicCookieStore();
 		for(BasicClientCookie cookie : request.getCookies()){
@@ -147,7 +153,8 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	}
 
 	@Override
-	public Conditional<DatarouterHttpResponse> tryExecute(DatarouterHttpRequest request,
+	public Conditional<DatarouterHttpResponse> tryExecute(
+			DatarouterHttpRequest request,
 			Consumer<HttpEntity> httpEntityConsumer){
 		DatarouterHttpResponse response;
 		try{
@@ -196,8 +203,9 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		}else{
 			request.addHeaders(params);
 			if(signatureGenerator != null && request.getEntity() != null){
-				String signature = signatureGenerator.getHexSignature(request.getFirstGetParams(), request
-						.getEntity()).signature;
+				String signature = signatureGenerator.getHexSignature(
+						request.getFirstGetParams(),
+						request.getEntity()).signature;
 				request.addHeader(SecurityParameters.SIGNATURE, signature);
 			}
 		}

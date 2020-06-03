@@ -15,18 +15,30 @@
  */
 package io.datarouter.instrumentation.changelog;
 
+import java.util.Optional;
+
 public interface ChangelogRecorder{
 
 	default void record(String changelogType, String name, String action, String username){
 		record(changelogType, name, action, username, null);
 	}
 
-	void record(String changelogType, String name, String action, String username, String comment);
+	default void record(String changelogType, String name, String action, String username, String comment){
+		record(changelogType, name, action, username, comment);
+	}
+
+	void recordAndSendEmail(String changelogType, String name, String action, String username, Optional<String> comment,
+			Optional<String> additionalSendTos);
 
 	class NoOpChangelogRecorder implements ChangelogRecorder{
 
 		@Override
 		public void record(String changelogType, String name, String action, String username, String comment){
+		}
+
+		@Override
+		public void recordAndSendEmail(String changelogType, String name, String action, String username,
+				Optional<String> comment, Optional<String> additionalSendTos){
 		}
 
 	}

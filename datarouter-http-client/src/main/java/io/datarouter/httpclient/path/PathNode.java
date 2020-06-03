@@ -46,7 +46,7 @@ public class PathNode{
 	}
 
 	public PathNode leaf(String childName){
-		PathNode child = new PathNode();
+		var child = new PathNode();
 		child.parent = this;
 		child.value = childName;
 		children.add(child);
@@ -129,7 +129,7 @@ public class PathNode{
 
 	public static PathNode parse(String path){
 		Iterable<Path> pathParts = Path.of(path)::iterator;
-		PathNode pathNode = new PathNode();
+		var pathNode = new PathNode();
 		for(Path pathPart : pathParts){
 			pathNode = pathNode.branch(PathNode::new, pathPart.toString());
 		}

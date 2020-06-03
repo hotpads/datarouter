@@ -46,7 +46,8 @@ public interface DatarouterHttpClient{
 
 	<E> Conditional<E> tryExecute(DatarouterHttpRequest request, Type deserializeToType);
 
-	Conditional<DatarouterHttpResponse> tryExecute(DatarouterHttpRequest request,
+	Conditional<DatarouterHttpResponse> tryExecute(
+			DatarouterHttpRequest request,
 			Consumer<HttpEntity> httpEntityConsumer);
 
 	void shutdown();

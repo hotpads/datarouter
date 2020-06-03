@@ -104,8 +104,9 @@ public class DatarouterHttpClientBuilder{
 					throw new RuntimeException(e);
 				}
 			}else{
-				sslsf = new SSLConnectionSocketFactory(customSslContext, SSLConnectionSocketFactory
-						.getDefaultHostnameVerifier());
+				sslsf = new SSLConnectionSocketFactory(
+						customSslContext,
+						SSLConnectionSocketFactory.getDefaultHostnameVerifier());
 			}
 			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
 					.register("http", PlainConnectionSocketFactory.getSocketFactory())
@@ -136,8 +137,16 @@ public class DatarouterHttpClientBuilder{
 		if(enableBreakers == null){
 			enableBreakers = () -> false;
 		}
-		return new StandardDatarouterHttpClient(builtHttpClient, this.jsonSerializer, this.signatureGenerator,
-				this.csrfGenerator, this.apiKeySupplier, this.config, connectionManager, name, enableBreakers);
+		return new StandardDatarouterHttpClient(
+				builtHttpClient,
+				this.jsonSerializer,
+				this.signatureGenerator,
+				this.csrfGenerator,
+				this.apiKeySupplier,
+				this.config,
+				connectionManager,
+				name,
+				enableBreakers);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(Supplier<Integer> retryCount){
@@ -218,7 +227,7 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
-	public DatarouterHttpClientBuilder forDatarouterHttpClientSettings(DatarouterHttpClientSettings settings){
+	public DatarouterHttpClientBuilder forDatarouterHttpClientSettings(SimpleDatarouterHttpClientSettings settings){
 		return this
 				.setTimeout(settings.getTimeout())
 				.setRetryCount(settings.getNumRetries())

@@ -31,22 +31,33 @@ import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.dispatcher.BaseRouteSet;
-import io.datarouter.web.handler.documentation.DocumentationHandler;
+import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.handler.documentation.ApiDocService;
+import io.datarouter.web.handler.documentation.DocumentedEndpointJspDto;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.util.http.RequestTool;
 
-public abstract class DatarouterUserBasedDocumentationHandler extends DocumentationHandler{
+public abstract class DatarouterUserBasedDocumentationHandler extends BaseHandler{
 
 	@Inject
 	private DatarouterUserService datarouterUserService;
 	@Inject
 	private DatarouterAccountService datarouterAccountService;
+	@Inject
+	private ApiDocService apiDocService;
+	@Inject
+	private DatarouterWebFiles files;
 
-	@Override
 	protected Mav createDocumentationMav(String apiName, String apiUrlContext, List<BaseRouteSet> routeSets){
-		Mav model = super.createDocumentationMav(apiName, apiUrlContext, routeSets);
+		List<DocumentedEndpointJspDto> endpoints = apiDocService.buildDocumentation(apiUrlContext, routeSets);
+		Mav model = new Mav(files.jsp.docs.dispatcherDocsJsp);
+		model.put("endpoints", endpoints);
+		model.put("apiName", apiName);
+		model.put("hideAuth", false);
+
 		DatarouterUser currentUser = datarouterUserService.getUserBySession(getSessionInfo().getRequiredSession());
 		if(currentUser != null){
 			model.put("apiKeyParameterName", SecurityParameters.API_KEY);

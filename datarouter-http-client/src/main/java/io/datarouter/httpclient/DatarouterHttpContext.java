@@ -29,7 +29,9 @@ public class DatarouterHttpContext{
 	public final DatarouterHttpResponse response;
 	public final DatarouterHttpException exception;
 
-	public DatarouterHttpContext(DatarouterHttpRequest request, DatarouterHttpResponse response,
+	public DatarouterHttpContext(
+			DatarouterHttpRequest request,
+			DatarouterHttpResponse response,
 			DatarouterHttpException exception){
 		this.request = request;
 		this.exception = exception;

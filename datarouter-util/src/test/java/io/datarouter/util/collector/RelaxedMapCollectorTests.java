@@ -25,6 +25,8 @@ import java.util.function.Function;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.scanner.Scanner;
+
 public class RelaxedMapCollectorTests{
 
 	@Test
@@ -38,7 +40,7 @@ public class RelaxedMapCollectorTests{
 			char lastChar = key.charAt(key.length() - 1);
 			return Integer.parseInt(lastChar + "");
 		};
-		Map<String,Integer> map = list.stream().collect(RelaxedMapCollector.of(keyMapper, valueMapper));
+		Map<String,Integer> map = Scanner.of(list).collect(RelaxedMapCollector.of(keyMapper, valueMapper));
 		Iterator<Entry<String,Integer>> iterator = map.entrySet().iterator();
 		Assert.assertEquals(nextIn(iterator), "a=2");
 		Assert.assertEquals(nextIn(iterator), "b=9");

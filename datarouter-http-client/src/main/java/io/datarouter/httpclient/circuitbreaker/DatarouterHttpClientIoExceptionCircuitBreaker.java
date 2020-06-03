@@ -57,8 +57,12 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		super(name);
 	}
 
-	public DatarouterHttpResponse call(CloseableHttpClient httpClient, DatarouterHttpRequest request,
-			Consumer<HttpEntity> httpEntityConsumer, HttpClientContext context, Supplier<Boolean> enableBreakers)
+	public DatarouterHttpResponse call(
+			CloseableHttpClient httpClient,
+			DatarouterHttpRequest request,
+			Consumer<HttpEntity> httpEntityConsumer,
+			HttpClientContext context,
+			Supplier<Boolean> enableBreakers)
 	throws DatarouterHttpException{
 		CircuitBreakerState state = getState();
 		if(state == CircuitBreakerState.OPEN && enableBreakers.get()){
@@ -101,7 +105,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				logger.warn("Slow request target={} duration={} remoteTraceId={}", request.getPath(), duration, traceId
 						.orElse(""));
 			}
-			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
+			var response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
 			if(isBadStatusCode){
 				TracerTool.appendToSpanInfo("bad status code", statusCode);
 				ex = new DatarouterHttpResponseException(response, duration, requestId, request.getPath());

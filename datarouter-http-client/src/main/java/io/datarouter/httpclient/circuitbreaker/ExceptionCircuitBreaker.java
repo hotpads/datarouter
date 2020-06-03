@@ -28,8 +28,12 @@ public abstract class ExceptionCircuitBreaker{
 	protected final CallResultQueue callResultQueue;
 	private Clock clock;
 
-	public ExceptionCircuitBreaker(Clock clock, int failurePercentageThreshold, Duration retryTime,
-			int callResultQueueSize, String name){
+	public ExceptionCircuitBreaker(
+			Clock clock,
+			int failurePercentageThreshold,
+			Duration retryTime,
+			int callResultQueueSize,
+			String name){
 		if(failurePercentageThreshold < 1 || failurePercentageThreshold > 100){
 			throw new IllegalArgumentException("Threshold must be between 1-100");
 		}
@@ -51,8 +55,8 @@ public abstract class ExceptionCircuitBreaker{
 			return CircuitBreakerState.CLOSED;
 		}
 
-		if(callResultQueue.lastFailureEpochMillis.isPresent() && callResultQueue.lastFailureEpochMillis.get()
-				+ retryTime.toMillis() < now){
+		if(callResultQueue.lastFailureEpochMillis.isPresent()
+				&& callResultQueue.lastFailureEpochMillis.get() + retryTime.toMillis() < now){
 			return CircuitBreakerState.HALF_OPEN;
 		}
 		return CircuitBreakerState.OPEN;

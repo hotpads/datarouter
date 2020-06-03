@@ -19,16 +19,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import javax.inject.Singleton;
 
-import io.datarouter.util.concurrent.DatarouterExecutorService;
-import io.datarouter.util.concurrent.ExecutorTool;
 import io.datarouter.util.concurrent.NamedThreadFactory;
+import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 
 public class DatarouterStorageExecutors{
 
 	@Singleton
-	public static class DatarouterClientFactoryExecutor extends DatarouterExecutorService{
+	public static class DatarouterClientFactoryExecutor extends ScalingThreadPoolExecutor{
 		public DatarouterClientFactoryExecutor(){
-			super(ExecutorTool.newCachedThreadPool("datarouterClientFactoryExecutor"));
+			super("datarouterClientFactoryExecutor", 100);
 		}
 	}
 

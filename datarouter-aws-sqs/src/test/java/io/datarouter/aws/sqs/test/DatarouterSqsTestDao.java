@@ -55,7 +55,7 @@ public class DatarouterSqsTestDao extends BaseDao implements TestDao, SqsTestHel
 	}
 
 	public Scanner<TestDatabean> pollUntilEmpty(Duration timeout){
-		Config config = new Config().setTimeout(timeout);
+		var config = new Config().setTimeout(timeout);
 		return node.pollUntilEmpty(config);
 	}
 

@@ -123,8 +123,8 @@ public class DatarouterJobletRequestDao extends BaseDao{
 	}
 
 	public JobletRequest getReservedRequest(JobletType<?> jobletType, String reservedBy, ConfigValue<?> option){
-		JobletRequestKey prefix = JobletRequestKey.create(jobletType, null, null, null);
-		Config config = new Config()
+		var prefix = JobletRequestKey.create(jobletType, null, null, null);
+		var config = new Config()
 				.setOutputBatchSize(20)//keep it small since there should not be thousands of reserved joblets
 				.addOption(option);
 		return node.scanWithPrefix(prefix, config)
@@ -134,13 +134,15 @@ public class DatarouterJobletRequestDao extends BaseDao{
 	}
 
 	public Scanner<JobletRequest> scanType(JobletType<?> type, boolean slaveOk){
-		JobletRequestKey prefix = JobletRequestKey.create(type, null, null, null);
-		return node.scanWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
+		var prefix = JobletRequestKey.create(type, null, null, null);
+		var config = new Config().setSlaveOk(slaveOk);
+		return node.scanWithPrefix(prefix, config);
 	}
 
 	public Scanner<JobletRequest> scanTypePriority(JobletType<?> type, JobletPriority priority, boolean slaveOk){
-		JobletRequestKey prefix = JobletRequestKey.create(type, priority.getExecutionOrder(), null, null);
-		return node.scanWithPrefix(prefix, new Config().setSlaveOk(slaveOk));
+		var prefix = JobletRequestKey.create(type, priority.getExecutionOrder(), null, null);
+		var config = new Config().setSlaveOk(slaveOk);
+		return node.scanWithPrefix(prefix, config);
 	}
 
 	public List<JobletRequest> getWithStatus(JobletStatus status){
@@ -150,9 +152,9 @@ public class DatarouterJobletRequestDao extends BaseDao{
 	}
 
 	public boolean anyExistOfType(JobletType<?> type){
-		return node.scanWithPrefix(new JobletRequestKey(type.getPersistentString(), null, null, null),
-				new Config().setLimit(1))
-				.hasAny();
+		var prefix = new JobletRequestKey(type.getPersistentString(), null, null, null);
+		var config = new Config().setLimit(1);
+		return node.scanWithPrefix(prefix, config).hasAny();
 	}
 
 	/**
@@ -170,11 +172,10 @@ public class DatarouterJobletRequestDao extends BaseDao{
 			JobletPriority minPriority,
 			JobletStatus jobletStatus,
 			long countLimit){
-		JobletPriority startPriority = JobletPriority.getHighestPriority();
-		JobletRequestKey startKey = new JobletRequestKey(jobletType, startPriority, null, null);
-		JobletRequestKey endKey = new JobletRequestKey(jobletType, minPriority, Long.MAX_VALUE, Integer.MAX_VALUE);
-
-		Range<JobletRequestKey> jobletRequestKeyRange = new Range<>(startKey, true, endKey, true);
+		var startPriority = JobletPriority.getHighestPriority();
+		var startKey = new JobletRequestKey(jobletType, startPriority, null, null);
+		var endKey = new JobletRequestKey(jobletType, minPriority, Long.MAX_VALUE, Integer.MAX_VALUE);
+		var jobletRequestKeyRange = new Range<>(startKey, true, endKey, true);
 		return node.scan(jobletRequestKeyRange)
 				.include(jobletRequest -> jobletRequest.getStatus() == jobletStatus)
 				.limit(countLimit)

@@ -18,7 +18,10 @@ package io.datarouter.httpclient.response.exception;
 @SuppressWarnings("serial")
 public class DatarouterHttpRequestInterruptedException extends DatarouterHttpException{
 
-	public DatarouterHttpRequestInterruptedException(Exception ex, long requestStartTimeMs, String requestId,
+	public DatarouterHttpRequestInterruptedException(
+			Exception ex,
+			long requestStartTimeMs,
+			String requestId,
 			String target){
 		super("HTTP request interrupted after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms requestId="
 				+ requestId + " target=" + target, ex);

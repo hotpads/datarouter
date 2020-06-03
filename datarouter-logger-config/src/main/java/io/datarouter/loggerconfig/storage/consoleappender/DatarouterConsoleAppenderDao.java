@@ -55,7 +55,7 @@ public class DatarouterConsoleAppenderDao extends BaseDao{
 	}
 
 	public void createAndPutConsoleAppender(String name, String pattern, Target target){
-		ConsoleAppender appender = new ConsoleAppender(name, pattern, target);
+		var appender = new ConsoleAppender(name, pattern, target);
 		node.put(appender);
 	}
 

@@ -42,14 +42,14 @@ public abstract class BaseTallyDao extends BaseDao{
 	}
 
 	public Long incrementAndGetCount(String key, int delta, Duration ttl, Duration timeout){
-		Config config = new Config()
+		var config = new Config()
 				.setTtl(ttl)
 				.setTimeout(timeout);
 		return node.incrementAndGetCount(key, delta, config);
 	}
 
 	public Map<String,Long> getMultiTallyCount(Collection<String> keys, Duration ttl, Duration timeout){
-		Config config = new Config()
+		var config = new Config()
 				.setTtl(ttl)
 				.setTimeout(timeout);
 		return node.getMultiTallyCount(keys, config);

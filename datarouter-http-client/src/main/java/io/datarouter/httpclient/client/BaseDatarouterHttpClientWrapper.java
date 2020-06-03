@@ -72,7 +72,8 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	}
 
 	@Override
-	public Conditional<DatarouterHttpResponse> tryExecute(DatarouterHttpRequest request,
+	public Conditional<DatarouterHttpResponse> tryExecute(
+			DatarouterHttpRequest request,
 			Consumer<HttpEntity> httpEntityConsumer){
 		return datarouterHttpClient.tryExecute(request, httpEntityConsumer);
 	}

@@ -56,7 +56,7 @@ public class DatarouterLoadTestScanDao extends BaseDao implements LoadTestScanDa
 
 	@Override
 	public Scanner<RandomValue> scan(int batchSize, int limit){
-		Config config = new Config()
+		var config = new Config()
 				.setOutputBatchSize(batchSize)
 				.setNoTimeout();
 		return node.scan(config)

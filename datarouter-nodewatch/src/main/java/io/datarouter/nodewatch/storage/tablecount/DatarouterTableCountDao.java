@@ -52,7 +52,7 @@ public class DatarouterTableCountDao extends BaseDao{
 
 	//currently not depending on table sort order
 	public List<TableCount> getForTable(String clientName, String tableName){
-		TableCountKey prefix = TableCountKey.createClientTableKey(clientName, tableName);
+		var prefix = TableCountKey.createClientTableKey(clientName, tableName);
 		return node.scanWithPrefix(prefix)
 				.list();
 	}

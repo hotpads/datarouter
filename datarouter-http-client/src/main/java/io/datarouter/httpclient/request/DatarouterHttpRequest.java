@@ -421,7 +421,9 @@ public class DatarouterHttpRequest{
 
 	private static Map<String,String> extractFirstElementOfValueList(Map<String,List<String>> mapOfLists){
 		return mapOfLists.entrySet().stream()
-				.collect(HashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue().get(0)),
+				.collect(HashMap::new,
+						(map, entry) -> map.put(entry.getKey(),
+						entry.getValue().get(0)),
 						HashMap::putAll);// don't use Collectors.toMap because values can be null
 	}
 

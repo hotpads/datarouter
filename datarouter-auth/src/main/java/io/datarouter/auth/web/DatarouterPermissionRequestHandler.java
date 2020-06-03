@@ -41,7 +41,6 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestD
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.util.net.UrlTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
@@ -98,12 +97,11 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		Mav mav = new Mav(files.jsp.authentication.permissionRequestJsp);
 		mav.put("serviceName", datarouterService.getName());
 		mav.put("permissionRequestPath", paths.permissionRequest.toSlashedString());
-		Optional<String> defaultSpecifics = deniedUrl.map(UrlTool::decode)
-				.map(url -> {
-					return "I tried to go to this URL: " + url + "." + allowedRoles
-							.map(" These are its allowed roles at the time of this request: "::concat)
-							.orElse("");
-				});
+		Optional<String> defaultSpecifics = deniedUrl.map(url -> {
+			return "I tried to go to this URL: " + url + "." + allowedRoles
+					.map(" These are its allowed roles at the time of this request: "::concat)
+					.orElse("");
+		});
 		mav.put("defaultSpecifics", defaultSpecifics);
 		DatarouterUser user = getCurrentUser();
 		mav.put("currentRequest", datarouterPermissionRequestDao.scanOpenPermissionRequestsForUser(user.getId())

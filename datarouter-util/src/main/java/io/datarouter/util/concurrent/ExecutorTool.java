@@ -42,11 +42,6 @@ public class ExecutorTool{
 		return (ThreadPoolExecutor)Executors.newFixedThreadPool(numThreads, threadFactory);
 	}
 
-	public static ThreadPoolExecutor newCachedThreadPool(String name){
-		ThreadFactory threadFactory = new NamedThreadFactory(name, true);
-		return (ThreadPoolExecutor)Executors.newCachedThreadPool(threadFactory);
-	}
-
 	public static ThreadPoolExecutor createCached(String name){
 		ThreadFactory threadFactory = new NamedThreadFactory(name, true);
 		return (ThreadPoolExecutor)Executors.newCachedThreadPool(threadFactory);

@@ -55,8 +55,8 @@ public class DatarouterTableSampleDao extends BaseDao{
 	}
 
 	public Scanner<TableSample> streamForNode(ClientTableEntityPrefixNameWrapper nodeNames){
-		TableSampleKey prefix = TableSampleKey.createSubEntityPrefix(nodeNames);
-		Range<TableSampleKey> range = new Range<>(prefix, true, prefix, true);
+		var prefix = TableSampleKey.createSubEntityPrefix(nodeNames);
+		var range = new Range<>(prefix, true, prefix, true);
 		return node.scan(range);
 	}
 

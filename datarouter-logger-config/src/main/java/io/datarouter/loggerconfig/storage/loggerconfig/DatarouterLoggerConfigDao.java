@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -74,7 +73,7 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 			List<String> appendersRef,
 			String email,
 			Long ttlMillis){
-		LoggerConfig loggerConfig = new LoggerConfig(name, level, additive, appendersRef, email, new Date(), ttlMillis);
+		var loggerConfig = new LoggerConfig(name, level, additive, appendersRef, email, new Date(), ttlMillis);
 		node.put(loggerConfig);
 	}
 
@@ -102,8 +101,8 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 	public Map<String, LoggerConfig> getLoggerConfigs(List<String> names){
 		return Scanner.of(names)
 				.map(LoggerConfigKey::new)
-				.listTo(node::getMulti).stream()
-				.collect(Collectors.toMap(LoggerConfig::getName, Function.identity()));
+				.listTo(keys -> Scanner.of(node.getMulti(keys)))
+				.toMap(LoggerConfig::getName);
 	}
 
 	public Collection<LoggerConfig> expireLoggerConfigs(LoggingConfig config){

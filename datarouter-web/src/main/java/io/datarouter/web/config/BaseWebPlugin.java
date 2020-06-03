@@ -67,6 +67,7 @@ public abstract class BaseWebPlugin extends BasePlugin{
 
 	private final List<Ordered<Class<? extends DatarouterAppListener>>> appListenersOrdered = new ArrayList<>();
 	private final List<Class<? extends DatarouterAppListener>> appListenersUnordered = new ArrayList<>();
+	private final List<Class<? extends DatarouterAppListener>> appListenersUnorderedToExecuteLast = new ArrayList<>();
 
 	private final List<Ordered<Class<? extends DatarouterWebAppListener>>> orderedWebListeners = new ArrayList<>();
 	private final List<Class<? extends DatarouterWebAppListener>> unorderedWebListeners = new ArrayList<>();
@@ -75,6 +76,10 @@ public abstract class BaseWebPlugin extends BasePlugin{
 			Class<? extends DatarouterAppListener> listener,
 			Class<? extends DatarouterAppListener> after){
 		appListenersOrdered.add(new Ordered<>(listener, after));
+	}
+
+	protected void addAppListenerToExecuteLast(Class<? extends DatarouterAppListener> listener){
+		appListenersUnorderedToExecuteLast.add(listener);
 	}
 
 	protected void addAppListener(Class<? extends DatarouterAppListener> listener){
@@ -97,6 +102,10 @@ public abstract class BaseWebPlugin extends BasePlugin{
 
 	public List<Class<? extends DatarouterAppListener>> getAppListenersUnordered(){
 		return appListenersUnordered;
+	}
+
+	public List<Class<? extends DatarouterAppListener>> getAppListenersToExecuteLast(){
+		return appListenersUnorderedToExecuteLast;
 	}
 
 	public List<Ordered<Class<? extends DatarouterWebAppListener>>> getWebAppListenersOrdered(){

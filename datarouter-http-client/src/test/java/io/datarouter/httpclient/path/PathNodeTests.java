@@ -38,7 +38,7 @@ public class PathNodeTests{
 
 	@Test
 	public void testToSlashedString(){
-		TestPaths paths = new TestPaths();
+		var paths = new TestPaths();
 		Assert.assertEquals(paths.aa.toSlashedString(), "/aa");
 		Assert.assertEquals(paths.aa.bb.toSlashedString(), "/aa/bb");
 		Assert.assertEquals(paths.aa.bb.cc.toSlashedString(), "/aa/bb/cc");
@@ -46,7 +46,7 @@ public class PathNodeTests{
 
 	@Test
 	public void testToSlashedStringWithEndingSlash(){
-		TestPaths paths = new TestPaths();
+		var paths = new TestPaths();
 		Assert.assertEquals(paths.aa.toSlashedStringWithTrailingSlash(), "/aa/");
 		Assert.assertEquals(paths.aa.bb.toSlashedStringWithTrailingSlash(), "/aa/bb/");
 		Assert.assertEquals(paths.aa.bb.cc.toSlashedStringWithTrailingSlash(), "/aa/bb/cc/");
@@ -54,7 +54,7 @@ public class PathNodeTests{
 
 	@Test
 	public void testToSlashedStringWithoutLeadingSlash(){
-		TestPaths paths = new TestPaths();
+		var paths = new TestPaths();
 		Assert.assertEquals(paths.aa.toSlashedStringWithoutLeadingSlash(), "aa");
 		Assert.assertEquals(paths.aa.bb.toSlashedStringWithoutLeadingSlash(), "aa/bb");
 		Assert.assertEquals(paths.aa.bb.cc.toSlashedStringWithoutLeadingSlash(), "aa/bb/cc");
@@ -62,14 +62,14 @@ public class PathNodeTests{
 
 	@Test
 	public void testNodesAfter(){
-		TestPaths paths = new TestPaths();
+		var paths = new TestPaths();
 		List<PathNode> nodesAfter = PathNode.nodesAfter(paths.aa, paths.aa.bb.cc);
 		Assert.assertEquals(PathNode.toSlashedString(nodesAfter, true), "/bb/cc");
 	}
 
 	@Test
 	public void testToSlashedStringAfter(){
-		TestPaths paths = new TestPaths();
+		var paths = new TestPaths();
 		PathNode cc = paths.aa.bb.cc;
 		Assert.assertEquals(cc.toSlashedStringAfter(null, true), "/aa/bb/cc");
 		Assert.assertEquals(cc.toSlashedStringAfter(paths.aa, true), "/bb/cc");
@@ -78,15 +78,15 @@ public class PathNodeTests{
 
 	@Test
 	public void testEquals(){
-		TestPaths paths1 = new TestPaths();
-		TestPaths paths2 = new TestPaths();
+		var paths1 = new TestPaths();
+		var paths2 = new TestPaths();
 		Assert.assertNotSame(paths1.aa, paths2.aa);
 		Assert.assertEquals(paths1.aa, paths2.aa);
 	}
 
 	@Test
 	public void testParse(){
-		TestPaths paths = new TestPaths();
+		var paths = new TestPaths();
 		PathNode cc = paths.aa.bb.cc;
 		Assert.assertEquals(PathNode.parse(cc.toSlashedString()), cc);
 		Assert.assertEquals(PathNode.parse(cc.toSlashedStringWithoutLeadingSlash()), cc);

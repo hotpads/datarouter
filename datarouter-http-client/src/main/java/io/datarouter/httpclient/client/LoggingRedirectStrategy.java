@@ -31,8 +31,10 @@ public class LoggingRedirectStrategy extends LaxRedirectStrategy{
 	public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context)
 	throws ProtocolException{
 		HttpUriRequest redirect = super.getRedirect(request, response, context);
-		logger.warn("Got a {}, will redirect {} to {}", response.getStatusLine(), request.getRequestLine(), redirect
-				.getRequestLine());
+		logger.warn("Got a {}, will redirect {} to {}",
+				response.getStatusLine(),
+				request.getRequestLine(),
+				redirect.getRequestLine());
 		return redirect;
 	}
 

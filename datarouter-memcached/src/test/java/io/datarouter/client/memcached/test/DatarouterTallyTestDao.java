@@ -70,7 +70,7 @@ public class DatarouterTallyTestDao extends BaseDao implements TestDao{
 	}
 
 	public Long incrementAndGetCount(String key, int delta, Duration ttl){
-		Config config = new Config().setTtl(ttl);
+		var config = new Config().setTtl(ttl);
 		return node.incrementAndGetCount(key, delta, config);
 	}
 

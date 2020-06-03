@@ -49,7 +49,7 @@ public class DatarouterFileAppenderDao extends BaseDao{
 	}
 
 	public void createAndputFileAppender(String name, String pattern, String fileName){
-		FileAppender appender = new FileAppender(name, pattern, fileName);
+		var appender = new FileAppender(name, pattern, fileName);
 		node.put(appender);
 	}
 

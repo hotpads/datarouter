@@ -100,6 +100,7 @@ implements WebappBuilder{
 	// datarouter-web
 	private final List<Ordered<Class<? extends DatarouterAppListener>>> appListenersOrdered;
 	private final List<Class<? extends DatarouterAppListener>> appListenersUnordered;
+	private final List<Class<? extends DatarouterAppListener>> appListenersUnorderedToExecuteLast;
 	private final List<Ordered<Class<? extends DatarouterWebAppListener>>> webAppListenersOrdered;
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenersUnordered;
 	private final List<Ordered<Class<? extends BaseRouteSet>>> routeSetOrdered;
@@ -182,6 +183,7 @@ implements WebappBuilder{
 		this.currentSessionInfo = NoOpCurrentSessionInfo.class;
 		this.appListenersOrdered = new ArrayList<>();
 		this.appListenersUnordered = new ArrayList<>();
+		this.appListenersUnorderedToExecuteLast = new ArrayList<>();
 		this.webAppListenersOrdered = new ArrayList<>();
 		this.webAppListenersUnordered = new ArrayList<>();
 		this.authenticationConfig = null;
@@ -232,6 +234,7 @@ implements WebappBuilder{
 				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex)
 				.setHomepageRouteSet(homepageRouteSet);
 		addWebPluginWithoutInstalling(webPluginBuilder.getSimplePluginData());
+		appListenersUnordered.addAll(appListenersUnorderedToExecuteLast);
 		DatarouterWebPlugin webPlugin = webPluginBuilder
 				.setFilesClass(filesRoot)
 				.setDatarouterAuthConfig(authenticationConfig)
@@ -332,6 +335,7 @@ implements WebappBuilder{
 
 		appListenersOrdered.addAll(plugin.getAppListenersOrdered());
 		appListenersUnordered.addAll(plugin.getAppListenersUnordered());
+		appListenersUnorderedToExecuteLast.addAll(plugin.getAppListenersToExecuteLast());
 
 		webAppListenersOrdered.addAll(plugin.getWebAppListenersOrdered());
 		webAppListenersUnordered.addAll(plugin.getWebAppListenersUnordered());
@@ -359,6 +363,11 @@ implements WebappBuilder{
 
 	public T addAppListener(Class<? extends DatarouterAppListener> appListener){
 		appListenersUnordered.add(appListener);
+		return getSelf();
+	}
+
+	public T addAppListenerToExecuteLast(Class<? extends DatarouterAppListener> appListener){
+		appListenersUnorderedToExecuteLast.add(appListener);
 		return getSelf();
 	}
 

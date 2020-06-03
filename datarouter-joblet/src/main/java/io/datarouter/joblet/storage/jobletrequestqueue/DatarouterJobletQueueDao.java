@@ -16,7 +16,7 @@
 package io.datarouter.joblet.storage.jobletrequestqueue;
 
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,6 +26,7 @@ import io.datarouter.joblet.queue.JobletRequestQueueManager;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest.JobletRequestFielder;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
@@ -53,17 +54,17 @@ public class DatarouterJobletQueueDao extends BaseDao{
 			JobletRequestQueueManager jobletRequestQueueManager,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
-		jobletRequestQueueByKey = new TreeMap<>();
-		for(JobletRequestQueueKey queueKey : jobletRequestQueueManager.getQueueKeys()){
-			String nodeName = DatarouterJobletConstants.QUEUE_PREFIX + queueKey.getQueueName();
-			QueueStorage<JobletRequestKey,JobletRequest> node = queueNodeFactory.createSingleQueue(
-					params.clientId,
-					JobletRequest::new,
-					JobletRequestFielder::new)
-					.withQueueName(nodeName)
-					.buildAndRegister();
-			jobletRequestQueueByKey.put(queueKey, node);
-		}
+		jobletRequestQueueByKey = Scanner.of(jobletRequestQueueManager.getQueueKeys())
+				.toMap(Function.identity(),
+						queueKey -> {
+							String nodeName = DatarouterJobletConstants.QUEUE_PREFIX + queueKey.getQueueName();
+							return queueNodeFactory.createSingleQueue(
+									params.clientId,
+									JobletRequest::new,
+									JobletRequestFielder::new)
+									.withQueueName(nodeName)
+									.buildAndRegister();
+						});
 	}
 
 	public void put(JobletRequestQueueKey queueKey, JobletRequest request){

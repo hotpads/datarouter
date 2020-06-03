@@ -21,6 +21,7 @@ import java.util.Set;
 import com.google.cloud.spanner.Type;
 import com.google.cloud.spanner.Type.Code;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collector.RelaxedMapCollector;
 
 public enum SpannerColumnType{
@@ -55,7 +56,7 @@ public enum SpannerColumnType{
 			Type.string(),
 			Type.timestamp());
 
-	private static final Map<String,Type> SPANNER_TYPES_MAP = SPANNER_TYPES.stream()
+	private static final Map<String,Type> SPANNER_TYPES_MAP = Scanner.of(SPANNER_TYPES)
 			.collect(RelaxedMapCollector.of(Type::toString));
 
 	private final Type spannerType;

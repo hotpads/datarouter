@@ -29,13 +29,19 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 
 	private final DatarouterHttpResponse response;
 
-	public DatarouterHttpResponseException(DatarouterHttpResponse response, Duration duration, String requestId,
+	public DatarouterHttpResponseException(
+			DatarouterHttpResponse response,
+			Duration duration,
+			String requestId,
 			String target){
 		super(buildMessage(response, duration, requestId, target), null);
 		this.response = response;
 	}
 
-	private static String buildMessage(DatarouterHttpResponse response, Duration duration, String requestId,
+	private static String buildMessage(
+			DatarouterHttpResponse response,
+			Duration duration,
+			String requestId,
 			String target){
 		String message = "bad response statusCode=" + response.getStatusCode();
 		Header header = response.getFirstHeader(HttpHeaders.X_EXCEPTION_ID);

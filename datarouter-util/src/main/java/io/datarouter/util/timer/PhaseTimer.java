@@ -16,11 +16,12 @@
 package io.datarouter.util.timer;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import io.datarouter.scanner.Scanner;
+import io.datarouter.util.UlidTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.tuple.Pair;
 
@@ -33,15 +34,19 @@ import io.datarouter.util.tuple.Pair;
  */
 public class PhaseTimer{
 
+	private final String id;
+
 	private long lastMarker = System.currentTimeMillis();
 	private List<Pair<String,Long>> phaseNamesAndTimes = new ArrayList<>();
 	private String name;
 
 	public PhaseTimer(){
+		id = UlidTool.nextUlid();
 	}
 
 	public PhaseTimer(String name){
 		this.name = name;
+		id = UlidTool.nextUlid();
 	}
 
 	/*------------------------- static factories ----------------------------*/
@@ -95,25 +100,30 @@ public class PhaseTimer{
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append("[total=" + getElapsedTimeBetweenFirstAndLastEvent() + "]");
+		sb.append("[total=").append(getElapsedTimeBetweenFirstAndLastEvent()).append("]");
 		if(name != null){
-			sb.append("<" + name + ">");
+			sb.append("<").append(name).append(">");
 		}
-		for(int i = 0; i < phaseNamesAndTimes.size(); ++i){
-			Pair<String,Long> nameAndTime = phaseNamesAndTimes.get(i);
-			sb.append("[" + nameAndTime.getLeft() + "=" + nameAndTime.getRight() + "]");
+		phaseNamesAndTimes.forEach(pair -> sb.append("[" + pair.getLeft() + "=" + pair.getRight() + "]"));
+		return sb.toString();
+	}
+
+	public String intermediateToString(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("[intermediate total=").append(getElapsedTimeBetweenFirstAndLastEvent()).append("]");
+		sb.append("<id=").append(id).append(">");
+		if(name != null){
+			sb.append("<name=").append(name).append(">");
 		}
+		phaseNamesAndTimes.forEach(pair -> sb.append("[" + pair.getLeft() + "=" + pair.getRight() + "]"));
 		return sb.toString();
 	}
 
 	public long getElapsedTimeBetweenFirstAndLastEvent(){
-		if(phaseNamesAndTimes.size() > 0){
-			return phaseNamesAndTimes.stream()
-					.map(Pair::getRight)
-					.mapToLong(Long::longValue)
-					.sum();
-		}
-		return 0;
+		return phaseNamesAndTimes.stream()
+				.map(Pair::getRight)
+				.mapToLong(Long::longValue)
+				.sum();
 	}
 
 	public String getElapsedString(){
@@ -130,11 +140,8 @@ public class PhaseTimer{
 	}
 
 	public Map<String,Long> asMap(){
-		Map<String,Long> resultMap = new HashMap<>(phaseNamesAndTimes.size());
-		for(int i = 0; i < phaseNamesAndTimes.size(); i++){
-			resultMap.put(phaseNamesAndTimes.get(i).getLeft(), phaseNamesAndTimes.get(i).getRight());
-		}
-		return resultMap;
+		return Scanner.of(phaseNamesAndTimes)
+				.toMap(Pair::getLeft, Pair::getRight);
 	}
 
 	public void setName(String name){

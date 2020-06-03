@@ -29,7 +29,7 @@ public class ExampleDeserialization{
 	}
 
 	public static void main(String[] args){
-		DatarouterHttpRequest request = new DatarouterHttpRequest(
+		var request = new DatarouterHttpRequest(
 				HttpRequestMethod.GET,
 				"https://example.com/api",
 				true);

@@ -81,7 +81,7 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 	}
 
 	public Scanner<SortedBean> scanEntity(int batchSize){
-		Config config = new Config().setOutputBatchSize(batchSize);
+		var config = new Config().setOutputBatchSize(batchSize);
 		return entityNode.sortedBean.scan(config);
 	}
 
@@ -156,7 +156,7 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 	}
 
 	public Scanner<SortedBean> scan(int batchSize){
-		Config config = new Config().setOutputBatchSize(batchSize);
+		var config = new Config().setOutputBatchSize(batchSize);
 		return node.scan(config);
 	}
 
