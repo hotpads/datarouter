@@ -46,7 +46,7 @@ public class NumberFormatter{
 		if(value == null){
 			return null;
 		}
-		//biggest is 19 digits
+		// biggest is 19 digits
 		return new DecimalFormat("###,###,###,###,###,###,###,###.#####################").format(value);
 	}
 

@@ -40,16 +40,16 @@ extends BaseManagedNode<PK,D,IK,IE,IF>{
 		super(node, fieldInfo, name);
 	}
 
-	public Scanner<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
-		return node.scanMultiIndex(indexEntryFieldInfo, ranges, config);
+	public Scanner<IE> scanRanges(Collection<Range<IK>> ranges, Config config){
+		return node.scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
 
-	public Scanner<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
-		return node.scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
+	public Scanner<IK> scanRangesKeys(Collection<Range<IK>> ranges, Config config){
+		return node.scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
 	public Scanner<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
-		return node.scanMultiByIndex(indexEntryFieldInfo, ranges, config);
+		return node.scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 }

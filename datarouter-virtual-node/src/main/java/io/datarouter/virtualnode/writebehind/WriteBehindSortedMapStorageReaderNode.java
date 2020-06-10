@@ -41,13 +41,13 @@ implements SortedMapStorageReader<PK,D>{
 	}
 
 	@Override
-	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		return backingNode.scanKeysMulti(ranges, config);
+	public Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
+		return backingNode.scanRangesKeys(ranges, config);
 	}
 
 	@Override
-	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		return backingNode.scanMulti(ranges, config);
+	public Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
+		return backingNode.scanRanges(ranges, config);
 	}
 
 }

@@ -188,12 +188,12 @@ public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 		return node.scanKeys(range, config);
 	}
 
-	public Scanner<SortedBean> scanMulti(List<Range<SortedBeanKey>> ranges){
-		return node.scanMulti(ranges);
+	public Scanner<SortedBean> scanRanges(List<Range<SortedBeanKey>> ranges){
+		return node.scanRanges(ranges);
 	}
 
-	public Scanner<SortedBean> scanMulti(List<Range<SortedBeanKey>> ranges, Config config){
-		return node.scanMulti(ranges, config);
+	public Scanner<SortedBean> scanRanges(List<Range<SortedBeanKey>> ranges, Config config){
+		return node.scanRanges(ranges, config);
 	}
 
 	public Scanner<SortedBean> scanWithPrefix(SortedBeanKey prefix){

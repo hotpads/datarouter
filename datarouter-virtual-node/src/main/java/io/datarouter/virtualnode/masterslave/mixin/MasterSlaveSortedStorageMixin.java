@@ -35,13 +35,13 @@ public interface MasterSlaveSortedStorageMixin<
 extends MasterSlaveNode<PK,D,F,N>, SortedStorage<PK,D>{
 
 	@Override
-	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		return chooseSlaveOrElseMaster(config).scanKeysMulti(ranges, config);
+	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
+		return chooseSlaveOrElseMaster(config).scanRangesKeys(ranges, config);
 	}
 
 	@Override
-	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		return chooseSlaveOrElseMaster(config).scanMulti(ranges, config);
+	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
+		return chooseSlaveOrElseMaster(config).scanRanges(ranges, config);
 	}
 
 }

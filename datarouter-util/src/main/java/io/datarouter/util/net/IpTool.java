@@ -16,6 +16,7 @@
 package io.datarouter.util.net;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.util.string.StringTool;
@@ -108,16 +109,12 @@ public class IpTool{
 	}
 
 	public static boolean isIpAddressInSubnets(String dottedDecimalIp, String... subnets){
-		dottedDecimalIp = formatIp(dottedDecimalIp);
-		if(dottedDecimalIp == null){
+		String formattedDottedDecimalIp = formatIp(dottedDecimalIp);
+		if(formattedDottedDecimalIp == null){
 			return false;
 		}
-		for(String subnet : subnets){
-			if(isIpAddressInSubnet(dottedDecimalIp, subnet)){
-				return true;
-			}
-		}
-		return false;
+		return Arrays.stream(subnets)
+				.anyMatch(subnet -> isIpAddressInSubnet(formattedDottedDecimalIp, subnet));
 	}
 
 	public static boolean isLoopback(String dottedDecimalIp){

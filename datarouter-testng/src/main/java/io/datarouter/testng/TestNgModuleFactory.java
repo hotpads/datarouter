@@ -40,9 +40,7 @@ public class TestNgModuleFactory implements IModuleFactory{
 
 			@Override
 			protected void configure(){
-				for(Module module : modules){
-					install(module);
-				}
+				modules.forEach(this::install);
 			}
 
 		};

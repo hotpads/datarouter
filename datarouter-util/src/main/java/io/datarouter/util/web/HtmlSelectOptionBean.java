@@ -17,14 +17,15 @@ package io.datarouter.util.web;
 
 public class HtmlSelectOptionBean{
 
+	private final String name;
+	private final String value;
+
+	private boolean selected = false;
+
 	public HtmlSelectOptionBean(String name, String value){
 		this.name = name;
 		this.value = value;
 	}
-
-	private String name;
-	private String value;
-	private boolean selected = false;
 
 	@Override
 	public String toString(){

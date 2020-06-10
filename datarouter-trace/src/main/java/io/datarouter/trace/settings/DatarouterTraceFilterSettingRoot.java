@@ -37,6 +37,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 	public final Setting<Boolean> addTraceIdHeader;
 	public final CachedSetting<String> traceDomain;
 	public final Setting<Set<String>> latencyRecordedHandlers;
+	public final CachedSetting<Boolean> logCpuTime;
 
 	@Inject
 	public DatarouterTraceFilterSettingRoot(SettingFinder finder){
@@ -49,6 +50,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		addTraceIdHeader = registerBoolean("addTraceIdHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");
 		latencyRecordedHandlers = registerCommaSeparatedStrings("latencyRecordedHandlers", defaultTo(new HashSet<>()));
+		logCpuTime = registerBoolean("logCpuTime", false);
 	}
 
 }

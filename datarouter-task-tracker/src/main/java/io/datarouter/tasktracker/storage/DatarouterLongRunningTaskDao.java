@@ -15,8 +15,6 @@
  */
 package io.datarouter.tasktracker.storage;
 
-import java.util.Collection;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -68,8 +66,8 @@ public class DatarouterLongRunningTaskDao extends BaseDao{
 		return node.scanWithPrefix(prefix);
 	}
 
-	public void deleteMulti(Collection<LongRunningTaskKey> keys){
-		node.deleteMulti(keys);
+	public void deleteBatched(Scanner<LongRunningTaskKey> keys){
+		node.deleteBatched(keys);
 	}
 
 }

@@ -17,12 +17,12 @@ package io.datarouter.gcp.spanner.ddl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.collector.RelaxedMapCollector;
 
 public class SpannerIndex{
 
@@ -74,9 +74,9 @@ public class SpannerIndex{
 			return Collections.emptyList();
 		}
 		Map<String,Field<?>> keyMap = Scanner.of(keyFields)
-				.collect(RelaxedMapCollector.of(field -> field.getKey().getColumnName()));
+				.toMapSupplied(field -> field.getKey().getColumnName(), LinkedHashMap::new);
 		Map<String,Field<?>> nonKeyFieldsMap = Scanner.of(allFields)
-				.collect(RelaxedMapCollector.of(field -> field.getKey().getColumnName()));
+				.toMapSupplied(field -> field.getKey().getColumnName(), LinkedHashMap::new);
 		keyMap.forEach((key, field) -> nonKeyFieldsMap.remove(key));
 		return new ArrayList<>(nonKeyFieldsMap.values());
 	}

@@ -91,33 +91,33 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D,F>{
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanMultiIndex(
+	Scanner<IE> scanRangesIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return mysqlNodeManager.scanMultiIndex(getFieldInfo(), indexEntryFieldInfo, ranges, config);
+		return mysqlNodeManager.scanRangesIndex(getFieldInfo(), indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanMultiByIndex(
+	Scanner<D> scanRangesByIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return mysqlNodeManager.scanMultiByIndex(getFieldInfo(), indexEntryFieldInfo, ranges, config);
+		return mysqlNodeManager.scanRangesByIndex(getFieldInfo(), indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanMultiIndexKeys(
+	Scanner<IK> scanRangesIndexKeys(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return mysqlNodeManager.scanMultiIndexKeys(getFieldInfo(), indexEntryFieldInfo, ranges, config);
+		return mysqlNodeManager.scanRangesIndexKeys(getFieldInfo(), indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
@@ -153,13 +153,13 @@ implements PhysicalIndexedSortedMapStorageReaderNode<PK,D,F>{
 	/*--------------------- SortedStorageReader methods ---------------------*/
 
 	@Override
-	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		return mysqlNodeManager.scanKeysMulti(getFieldInfo(), ranges, config);
+	public Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
+		return mysqlNodeManager.scanRangesKeys(getFieldInfo(), ranges, config);
 	}
 
 	@Override
-	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		return mysqlNodeManager.scanMulti(getFieldInfo(), ranges, config);
+	public Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
+		return mysqlNodeManager.scanRanges(getFieldInfo(), ranges, config);
 	}
 
 }

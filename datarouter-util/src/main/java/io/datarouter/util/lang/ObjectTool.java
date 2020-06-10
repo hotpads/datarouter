@@ -45,12 +45,8 @@ public class ObjectTool{
 	}
 
 	public static boolean anyNull(Object... objects){
-		for(Object o : objects){
-			if(o == null){
-				return true;
-			}
-		}
-		return false;
+		return Arrays.stream(objects)
+				.anyMatch(Objects::isNull);
 	}
 
 }

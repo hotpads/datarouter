@@ -35,13 +35,13 @@ public interface RedundantSortedStorageMixin<
 extends SortedStorage<PK,D>, RedundantNode<PK,D,F,N>{
 
 	@Override
-	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		return getReadNode().scanKeysMulti(ranges, config);
+	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
+		return getReadNode().scanRangesKeys(ranges, config);
 	}
 
 	@Override
-	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		return getReadNode().scanMulti(ranges, config);
+	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
+		return getReadNode().scanRanges(ranges, config);
 	}
 
 }

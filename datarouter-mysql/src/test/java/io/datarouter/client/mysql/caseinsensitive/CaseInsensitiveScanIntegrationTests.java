@@ -48,7 +48,7 @@ public class CaseInsensitiveScanIntegrationTests{
 		List<Range<CaseInsensitiveTestPrimaryKey>> ranges = Arrays.asList(
 				new Range<>(new CaseInsensitiveTestPrimaryKey("b"), new CaseInsensitiveTestPrimaryKey("d")),
 				new Range<>(new CaseInsensitiveTestPrimaryKey("f"), new CaseInsensitiveTestPrimaryKey("h")));
-		dao.scanMulti(ranges, 2)
+		dao.scanRanges(ranges, 2)
 				.flush(fetched -> Assert.assertEquals(fetched.size(), 4));
 	}
 

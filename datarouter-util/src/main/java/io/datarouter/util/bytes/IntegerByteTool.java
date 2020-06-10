@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.array.ArrayTool;
 
-/*
+/**
  * methods for converting ints into bytes
  */
 public class IntegerByteTool{
@@ -59,9 +59,9 @@ public class IntegerByteTool{
 
 	public static int fromRawBytes(byte[] bytes, int offset){
 		return (bytes[offset] & 0xff) << 24
-		| (bytes[offset + 1] & 0xff) << 16
-		| (bytes[offset + 2] & 0xff) << 8
-		| bytes[offset + 3] & 0xff;
+				| (bytes[offset + 1] & 0xff) << 16
+				| (bytes[offset + 2] & 0xff) << 8
+				| bytes[offset + 3] & 0xff;
 	}
 
 	private static byte[] getBytesNullable(Integer value){
@@ -134,12 +134,9 @@ public class IntegerByteTool{
 		for(int i = 0; i < out.length; ++i){
 			int startIdx = i * 4;
 
-			/*
-			 * i think the first bitwise operation causes the operand to be zero-padded
-			 *     to an integer before the operation happens
-			 *
-			 * parenthesis are extremely important here because of the automatic int upgrading
-			 */
+			// i think the first bitwise operation causes the operand to be zero-padded
+			// to an integer before the operation happens
+			// parenthesis are extremely important here because of the automatic int upgrading
 
 			//more compact
 			out[i] = Integer.MIN_VALUE ^ (
@@ -166,11 +163,10 @@ public class IntegerByteTool{
 	}
 
 	public static int fromUInt31Bytes(byte[] bytes, int startIdx){
-		return
-		  (bytes[startIdx] & 0xff) << 24
-		| (bytes[startIdx + 1] & 0xff) << 16
-		| (bytes[startIdx + 2] & 0xff) << 8
-		| bytes[startIdx + 3] & 0xff;
+		return (bytes[startIdx] & 0xff) << 24
+				| (bytes[startIdx + 1] & 0xff) << 16
+				| (bytes[startIdx + 2] & 0xff) << 8
+				| bytes[startIdx + 3] & 0xff;
 	}
 
 }

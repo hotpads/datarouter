@@ -39,13 +39,13 @@ extends SortedStorage<PK,D>{
 	List<IndexListener<PK,D>> getIndexNodes();
 
 	@Override
-	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		return getBackingNode().scanKeysMulti(ranges, config);
+	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
+		return getBackingNode().scanRangesKeys(ranges, config);
 	}
 
 	@Override
-	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		return getBackingNode().scanMulti(ranges, config);
+	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
+		return getBackingNode().scanRanges(ranges, config);
 	}
 
 }

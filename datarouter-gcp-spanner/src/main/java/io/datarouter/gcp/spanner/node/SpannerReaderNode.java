@@ -103,7 +103,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 
 	@SuppressWarnings("resource")
 	@Override
-	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	public Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
 		return new SpannerDatabeanScanner<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),
@@ -116,12 +116,12 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 
 	@Override
 	public Scanner<D> scan(Range<PK> range, Config config){
-		return scanMulti(Collections.singletonList(range), config);
+		return scanRanges(Collections.singletonList(range), config);
 	}
 
 	@SuppressWarnings("resource")
 	@Override
-	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	public Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
 		return new SpannerKeyScanner<>(
 				clientManager.getDatabaseClient(getClientId()),
 				getFieldInfo(),

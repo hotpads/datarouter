@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
-
 public class DatarouterRuntimeTool{
 
 	public static RunNativeDto runNative(String... command){

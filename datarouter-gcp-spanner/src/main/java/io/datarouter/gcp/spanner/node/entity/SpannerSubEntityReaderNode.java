@@ -115,11 +115,11 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 
 	@Override
 	public Scanner<D> scan(Range<PK> range, Config config){
-		return scanMulti(Collections.singletonList(range), config);
+		return scanRanges(Collections.singletonList(range), config);
 	}
 
 	@Override
-	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	public Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
 		Integer offset = config.getOffset();
 		Integer limit = config.getLimit();
 		if(limit != null){
@@ -146,7 +146,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 	}
 
 	@Override
-	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	public Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
 		Integer offset = config.getOffset();
 		Integer limit = config.getLimit();
 		if(limit != null){

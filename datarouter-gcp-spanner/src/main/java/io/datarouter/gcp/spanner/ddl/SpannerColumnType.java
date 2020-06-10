@@ -15,6 +15,7 @@
  */
 package io.datarouter.gcp.spanner.ddl;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +23,6 @@ import com.google.cloud.spanner.Type;
 import com.google.cloud.spanner.Type.Code;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.collector.RelaxedMapCollector;
 
 public enum SpannerColumnType{
 	BOOL(Type.bool(), false, false),
@@ -57,7 +57,7 @@ public enum SpannerColumnType{
 			Type.timestamp());
 
 	private static final Map<String,Type> SPANNER_TYPES_MAP = Scanner.of(SPANNER_TYPES)
-			.collect(RelaxedMapCollector.of(Type::toString));
+			.toMapSupplied(Type::toString, LinkedHashMap::new);
 
 	private final Type spannerType;
 	private final Boolean isArray;

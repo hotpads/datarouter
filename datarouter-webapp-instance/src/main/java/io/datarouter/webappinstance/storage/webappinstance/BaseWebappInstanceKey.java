@@ -30,9 +30,8 @@ public abstract class BaseWebappInstanceKey<PK extends RegularPrimaryKey<PK>> ex
 	private String serverName;
 
 	public static class FieldKeys{
-		public static final StringFieldKey
-			webappName = new StringFieldKey("webappName"),
-			serverName = new StringFieldKey("serverName");
+		public static final StringFieldKey webappName = new StringFieldKey("webappName");
+		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
 
 	public BaseWebappInstanceKey(){

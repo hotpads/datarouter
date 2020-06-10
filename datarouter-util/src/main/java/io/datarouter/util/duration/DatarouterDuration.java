@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.duration;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +31,7 @@ public class DatarouterDuration{
 	public static final String REGEX =
 			"^0$|^(m|M)(a|A)(x|X)$|^((\\d+d)?(\\d+h)?(\\d+m)?(\\d+s)?(\\d+ms)?(\\d+us)?){1,1}$";
 
-	private static final TimeUnit[] timeUnits = new TimeUnit[]{
+	private static final TimeUnit[] TIME_UNITS = new TimeUnit[]{
 		TimeUnit.DAYS,
 		TimeUnit.HOURS,
 		TimeUnit.MINUTES,
@@ -39,7 +40,7 @@ public class DatarouterDuration{
 		TimeUnit.MICROSECONDS,
 	};
 
-	private static final String[] strings = new String[]{
+	private static final String[] STRINGS = new String[]{
 		"d",
 		"h",
 		"m",
@@ -62,9 +63,9 @@ public class DatarouterDuration{
 		}
 		String[] values = string.split("[a-z]+");
 		String[] unites = string.split("\\d+");
-		List<String> asList = Arrays.asList(strings);
+		List<String> asList = Arrays.asList(STRINGS);
 		for(int i = 0; i < values.length; i++){
-			nano += timeUnits[asList.indexOf(unites[i + 1])].toNanos(Long.parseLong(values[i]));
+			nano += TIME_UNITS[asList.indexOf(unites[i + 1])].toNanos(Long.parseLong(values[i]));
 		}
 	}
 
@@ -88,8 +89,8 @@ public class DatarouterDuration{
 		return timeUnit.convert(nano, TimeUnit.NANOSECONDS);
 	}
 
-	public java.time.Duration toJavaDuration(){
-		return java.time.Duration.ofNanos(to(TimeUnit.NANOSECONDS));
+	public Duration toJavaDuration(){
+		return Duration.ofNanos(to(TimeUnit.NANOSECONDS));
 	}
 
 	public static DatarouterDuration ageMs(long dateMs){
@@ -103,18 +104,18 @@ public class DatarouterDuration{
 	}
 
 	public String toString(TimeUnit precision){
-		int maxIndex = Arrays.asList(timeUnits).indexOf(precision);
+		int maxIndex = Arrays.asList(TIME_UNITS).indexOf(precision);
 		if(maxIndex == -1){
-			maxIndex = timeUnits.length - 1;
+			maxIndex = TIME_UNITS.length - 1;
 		}
 		long rest = nano;
 		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < maxIndex + 1; i++){
-			long unit = timeUnits[i].toNanos(1);
+			long unit = TIME_UNITS[i].toNanos(1);
 			long val = rest / unit;
 			rest = rest % unit;
 			if(val != 0 || i == maxIndex && builder.length() == 0){
-				builder.append(val + strings[i]);
+				builder.append(val + STRINGS[i]);
 			}
 		}
 		return builder.toString();

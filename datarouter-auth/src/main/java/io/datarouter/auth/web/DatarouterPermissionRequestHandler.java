@@ -16,9 +16,14 @@
 package io.datarouter.auth.web;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
+import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
+import static j2html.TagCreator.tr;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -55,6 +60,8 @@ import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
 import io.datarouter.web.user.role.DatarouterUserRole;
+import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 
 public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterPermissionRequestHandler.class);
@@ -201,13 +208,14 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withLocalPath(paths.admin.editUser.toSlashedString())
 				.withParam("userId", user.getId() + "")
 				.build();
-		var content = div()
-				.with(p("Service: " + datarouterService.getName()))
-				.with(p("User " + userEmail + " requests elevated permissions."))
-				.condWith(userProfileUrl != null, p(text("User Profile: "), a("link").withHref(userProfileUrl)))
-				.with(p("Reason: " + reason))
-				.condWith(StringTool.notEmpty(specifics), p("Specifics: " + specifics))
-				.with(p(text("Edit here"), a("link").withHref(primaryHref)));
+		var table = table(tbody()
+				.with(createLabelValueTr("Service", text(datarouterService.getName()))
+				.with(createLabelValueTr("User", text(userEmail + " - "), userProfileUrl == null ? null
+						: a("view user profile").withHref(userProfileUrl))))
+				.with(createLabelValueTr("Reason", text(reason)))
+				.condWith(StringTool.notEmpty(specifics), createLabelValueTr("Specifics", text(specifics))))
+				.withStyle("border-spacing: 0");
+		var content = div(table, p(a("Edit user profile").withHref(primaryHref)));
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withSubject(userEditService.getPermissionRequestEmailSubject(user))
 				.withTitle(EMAIL_TITLE)
@@ -233,6 +241,11 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withTitleHref(titleHref)
 				.withContent(content);
 		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
+	}
+
+	private static ContainerTag createLabelValueTr(String label, DomContent...values){
+		return tr(td(b(label + ' ')).withStyle("text-align: right"), td().with(values).withStyle("padding-left: 8px"))
+				.withStyle("vertical-align: top");
 	}
 
 	private String noDatarouterAuthentication(){

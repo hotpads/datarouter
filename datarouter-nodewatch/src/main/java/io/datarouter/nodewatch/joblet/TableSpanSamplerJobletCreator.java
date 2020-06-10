@@ -43,7 +43,6 @@ import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.iterable.PeekingIterator;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.tuple.Pair;

@@ -115,7 +115,7 @@ public class LruTtlCache<K,V>{
 	}
 
 	// only used for tests
-	void updateClock(Clock clock){
+	protected void updateClock(Clock clock){
 		this.clock = clock;
 	}
 

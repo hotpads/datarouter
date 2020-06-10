@@ -45,7 +45,7 @@ public class ScannerToMapTests{
 	@Test
 	public void testSorted(){
 		SortedMap<String,String> map = Scanner.of("cc", "aa", "bb")
-				.toMap(FIRST, AFTER_FIRST, TreeMap::new);
+				.toMapSupplied(FIRST, AFTER_FIRST, TreeMap::new);
 		Assert.assertSame(map.getClass(), TreeMap.class);
 		Assert.assertEquals(map.size(), 3);
 		Assert.assertEquals(map.get("a"), "a");
@@ -56,7 +56,7 @@ public class ScannerToMapTests{
 	@Test
 	public void testReplaceAlways(){
 		Map<String,String> map = Scanner.of("a1", "b1", "b2")
-				.to(ScannerToMap.of(FIRST, AFTER_FIRST));
+				.toMap(FIRST, AFTER_FIRST);
 		Assert.assertEquals(map.get("a"), "1");
 		Assert.assertEquals(map.get("b"), "2");
 	}
@@ -64,7 +64,7 @@ public class ScannerToMapTests{
 	@Test
 	public void testReplaceNullValues(){
 		Map<String,String> map = Scanner.of("a1", "b", "b2")
-				.to(ScannerToMap.of(FIRST, AFTER_FIRST, Replace.NULL_VALUES, HashMap::new));
+				.toMapSupplied(FIRST, AFTER_FIRST, Replace.NULL_VALUES, HashMap::new);
 		Assert.assertEquals(map.get("a"), "1");
 		Assert.assertEquals(map.get("b"), "2");
 	}
@@ -72,7 +72,7 @@ public class ScannerToMapTests{
 	@Test
 	public void testReplaceNullKeys(){
 		Map<String,String> map = Scanner.of("a1", "b", "b2")
-				.to(ScannerToMap.of(FIRST, AFTER_FIRST, Replace.NULL_KEYS, HashMap::new));
+				.toMapSupplied(FIRST, AFTER_FIRST, Replace.NULL_KEYS, HashMap::new);
 		Assert.assertEquals(map.get("a"), "1");
 		Assert.assertEquals(map.get("b"), null);
 	}
@@ -80,13 +80,13 @@ public class ScannerToMapTests{
 	@Test(expectedExceptions = IllegalStateException.class)
 	public void testReplaceNever(){
 		Scanner.of("a1", "b1", "b2")
-				.to(ScannerToMap.of(FIRST, AFTER_FIRST, Replace.NEVER, HashMap::new));
+				.toMapSupplied(FIRST, AFTER_FIRST, Replace.NEVER, HashMap::new);
 	}
 
 	@Test
 	public void testMerge(){
 		Map<String,String> map = Scanner.of("a1", "b1", "b2")
-				.to(ScannerToMap.of(FIRST, AFTER_FIRST, (a, b) -> a + b, HashMap::new));
+				.toMapSupplied(FIRST, AFTER_FIRST, (a, b) -> a + b, HashMap::new);
 		Assert.assertEquals(map.get("a"), "1");
 		Assert.assertEquals(map.get("b"), "12");
 	}

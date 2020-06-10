@@ -417,7 +417,7 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanMultiIndex(
+	Scanner<IE> scanRangesIndex(
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
@@ -439,7 +439,7 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanMultiByIndex(
+	Scanner<D> scanRangesByIndex(
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
@@ -461,7 +461,7 @@ public class MysqlNodeManager{
 			IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanMultiIndexKeys(
+	Scanner<IK> scanRangesIndexKeys(
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
@@ -480,7 +480,7 @@ public class MysqlNodeManager{
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	Scanner<PK> scanKeysMulti(
+	Scanner<PK> scanRangesKeys(
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			Collection<Range<PK>> ranges,
 			Config config){
@@ -497,7 +497,7 @@ public class MysqlNodeManager{
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	Scanner<D> scanMulti(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<PK>> ranges, Config config){
+	Scanner<D> scanRanges(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<PK>> ranges, Config config){
 		return new MysqlDatabeanScanner<>(
 				this,
 				fieldInfo,

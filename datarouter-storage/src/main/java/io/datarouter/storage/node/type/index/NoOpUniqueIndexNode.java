@@ -59,12 +59,12 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 	}
 
 	@Override
-	public Scanner<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
+	public Scanner<IE> scanRanges(Collection<Range<IK>> ranges, Config config){
 		return Scanner.empty();
 	}
 
 	@Override
-	public Scanner<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
+	public Scanner<IK> scanRangesKeys(Collection<Range<IK>> ranges, Config config){
 		return Scanner.empty();
 	}
 

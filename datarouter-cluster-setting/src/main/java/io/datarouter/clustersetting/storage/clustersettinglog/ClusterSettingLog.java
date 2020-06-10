@@ -15,8 +15,8 @@
  */
 package io.datarouter.clustersetting.storage.clustersettinglog;
 
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import io.datarouter.clustersetting.ClusterSettingLogAction;
@@ -72,9 +72,8 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 
 	}
 
-
 	public ClusterSettingLog(){
-		super(new ClusterSettingLogKey(null,null));
+		super(new ClusterSettingLogKey(null, null));
 	}
 
 	public ClusterSettingLog(
@@ -82,7 +81,7 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 			ClusterSettingLogAction action,
 			String changedBy,
 			String comment){
-		super(new ClusterSettingLogKey(clusterSetting.getName(), new Date()));
+		super(new ClusterSettingLogKey(clusterSetting.getName(), Instant.now()));
 		this.scope = clusterSetting.getScope();
 		this.serverType = clusterSetting.getServerType();
 		this.serverName = clusterSetting.getServerName();

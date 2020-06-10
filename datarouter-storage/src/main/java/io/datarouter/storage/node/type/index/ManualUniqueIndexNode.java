@@ -101,18 +101,18 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 	}
 
 	@Override
-	public Scanner<IE> scanMulti(Collection<Range<IK>> ranges, Config config){
-		return indexNode.scanMulti(ranges, config);
+	public Scanner<IE> scanRanges(Collection<Range<IK>> ranges, Config config){
+		return indexNode.scanRanges(ranges, config);
 	}
 
 	@Override
-	public Scanner<IK> scanKeysMulti(Collection<Range<IK>> ranges, Config config){
-		return indexNode.scanKeysMulti(ranges, config);
+	public Scanner<IK> scanRangesKeys(Collection<Range<IK>> ranges, Config config){
+		return indexNode.scanRangesKeys(ranges, config);
 	}
 
 	@Override
 	public Scanner<D> scanDatabeansMulti(Collection<Range<IK>> ranges, Config config){
-		return new ManagedIndexIndexToDatabeanScanner<>(mainNode, scanMulti(ranges, config), config);
+		return new ManagedIndexIndexToDatabeanScanner<>(mainNode, scanRanges(ranges, config), config);
 	}
 
 	@Override

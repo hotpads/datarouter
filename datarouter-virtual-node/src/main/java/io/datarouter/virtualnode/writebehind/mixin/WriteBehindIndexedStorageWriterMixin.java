@@ -55,8 +55,8 @@ implements IndexedStorageWriter<PK,D>{
 
 	@Override
 	public <IK extends PrimaryKey<IK>,
-			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IE extends IndexEntry<IK,IE,PK,D>,
+			IF extends DatabeanFielder<IK,IE>> void deleteByIndex(Collection<IK> keys, Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		node.getQueue().offer(new WriteWrapper<>(OP_deleteByIndex, keys, config));
 	}

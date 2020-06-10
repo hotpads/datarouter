@@ -17,6 +17,7 @@ package io.datarouter.gcp.spanner.ddl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +32,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
-import io.datarouter.util.collector.RelaxedMapCollector;
 
 @Singleton
 public class SpannerTableAlterSchemaService{
@@ -124,7 +124,7 @@ public class SpannerTableAlterSchemaService{
 
 	private List<SpannerColumn> columnNameDifferences(List<SpannerColumn> columns1, List<SpannerColumn> columns2){
 		Map<String,SpannerColumn> col1Map = Scanner.of(columns1)
-				.collect(RelaxedMapCollector.of(SpannerColumn::getName));
+				.toMapSupplied(SpannerColumn::getName, LinkedHashMap::new);
 		columns2.forEach(col -> col1Map.remove(col.getName()));
 		return new ArrayList<>(col1Map.values());
 	}
@@ -133,7 +133,7 @@ public class SpannerTableAlterSchemaService{
 			List<SpannerColumn> currentColumns,
 			List<SpannerColumn> existingColumns){
 		Map<String,SpannerColumn> columnMap = Scanner.of(existingColumns)
-				.collect(RelaxedMapCollector.of(SpannerColumn::getName));
+				.toMapSupplied(SpannerColumn::getName, LinkedHashMap::new);
 		return currentColumns.stream()
 				.filter(col -> columnMap.containsKey(col.getName()))
 				.filter(col -> !columnMap.get(col.getName()).getType().equals(col.getType()))

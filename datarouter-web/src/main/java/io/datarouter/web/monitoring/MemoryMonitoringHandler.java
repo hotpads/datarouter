@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.bytes.ByteUnitTool;
-import io.datarouter.util.collector.RelaxedMapCollector;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebFiles;
@@ -81,7 +81,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		long uptime = runtimeMxBean.getUptime();
 		Map<String,GitPropertiesJspDto> gitDetailedLibraries = Scanner.of(loadedLibraries.gitDetailedLibraries
 				.entrySet())
-				.collect(RelaxedMapCollector.of(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue())));
+				.toMapSupplied(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue()), LinkedHashMap::new);
 		mav.put("startTime", FORMATTER.format(Instant.ofEpochMilli(startTime)));
 		mav.put("upTime", new DatarouterDuration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
 		mav.put("serverName", datarouterProperties.getServerName());

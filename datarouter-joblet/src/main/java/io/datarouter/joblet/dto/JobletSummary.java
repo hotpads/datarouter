@@ -64,7 +64,7 @@ public class JobletSummary{
 			Scanner<JobletRequest> requests){
 		return requests
 				.map(JobletSummary::new)
-				.toMap(TypeExecutionOrderStatusKey::new,
+				.toMapSupplied(TypeExecutionOrderStatusKey::new,
 						Function.identity(),
 						JobletSummary::absorbStats,
 						TreeMap::new)
@@ -78,7 +78,7 @@ public class JobletSummary{
 	public static Map<QueueStatusKey,JobletSummary> summarizeByQueueStatus(Scanner<JobletRequest> requests){
 		return requests
 				.map(JobletSummary::new)
-				.toMap(QueueStatusKey::new,
+				.toMapSupplied(QueueStatusKey::new,
 						Function.identity(),
 						JobletSummary::absorbStats,
 						TreeMap::new);

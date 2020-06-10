@@ -50,10 +50,10 @@ public class DatarouterTestCaseInsensitiveDao extends BaseDao implements TestDao
 		node.put(databean);
 	}
 
-	public Scanner<CaseInsensitiveTestDatabean> scanMulti(
+	public Scanner<CaseInsensitiveTestDatabean> scanRanges(
 			List<Range<CaseInsensitiveTestPrimaryKey>> ranges,
 			int outputBatchSize){
-		return node.scanMulti(ranges, new Config().setOutputBatchSize(outputBatchSize));
+		return node.scanRanges(ranges, new Config().setOutputBatchSize(outputBatchSize));
 	}
 
 }

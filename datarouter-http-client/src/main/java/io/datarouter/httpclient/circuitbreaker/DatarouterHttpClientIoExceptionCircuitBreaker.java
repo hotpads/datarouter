@@ -96,7 +96,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 					entity = EntityUtils.toString(httpEntity);
 				}
 			}else{
-				logger.warn("null http enity");
+				logger.warn("null http entity");
 			}
 			Optional<String> traceId = Optional.ofNullable(httpResponse.getFirstHeader(X_TRACE_ID))
 					.map(Header::getValue);

@@ -18,7 +18,7 @@ package io.datarouter.joblet.enums;
 public enum JobletQueueMechanism{
 	JDBC_LOCK_FOR_UPDATE("jdbcLockForUpdate"),
 	JDBC_UPDATE_AND_SCAN("jdbcUpdateAndScan"),
-	SQS("sqs");
+	QUEUE("queue");
 
 	private final String persistentString;
 

@@ -156,9 +156,11 @@ Let’s use a phone book as an example:
      - `getMultiKeys`: return the PKs that exist
      - `get`: get a single person by PK (lastName, firstName) including the phone number
      - `getMulti`: get multiple records by PK (this may read from many database pages)
+     - `scanMulti`: return all records from a given set of keys
    - `SortedStorage`
-     - `scanKeys`: return all firstName/lastNames from startKey to stopKey
      - `scan`: return all records from startKey to stopKey
+     - `scanKeys`: return all firstName/lastNames from startKey to stopKey
+     - `scanRanges`: return all records from startKey to stopKey
      - `scanWithPrefix`: return records based on one of these options:
        - lastName with wildcard suffix
        - full lastName

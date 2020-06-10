@@ -112,36 +112,36 @@ extends IndexedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanRangesIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		String opName = IndexedStorageReader.OP_scanIndex;
 		getCounter().count(opName);
 		getCounter().count(opName + " ranges", ranges.size());
-		return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
+		return getBackingNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanRangesByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		String opName = IndexedStorageReader.OP_scanByIndex;
 		getCounter().count(opName);
 		getCounter().count(opName + " ranges", ranges.size());
-		return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
+		return getBackingNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanRangesIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		String opName = IndexedStorageReader.OP_scanIndexKeys;
 		getCounter().count(opName);
 		getCounter().count(opName + " ranges", ranges.size());
-		return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
+		return getBackingNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
 	//Writer

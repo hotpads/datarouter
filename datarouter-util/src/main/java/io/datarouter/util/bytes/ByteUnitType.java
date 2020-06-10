@@ -93,8 +93,6 @@ public enum ByteUnitType{
 
 	private static final ByteUnitSystem DEFAULT_UNIT_SYSTEM = ByteUnitSystem.BINARY;
 
-	/*------------------------- getters -------------------------------------*/
-
 	public static ByteUnitType[] getAscValues(ByteUnitSystem byteUnitSystem){
 		if(byteUnitSystem == null){
 			byteUnitSystem = DEFAULT_UNIT_SYSTEM;

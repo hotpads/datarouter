@@ -78,6 +78,7 @@ public class DateToolTests{
 				"2 days, 18 hours, 43 minutes, 45 seconds");
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testToReverseDateLong(){
 		Date now = new Date(), zero = new Date(0L), max = new Date(Long.MAX_VALUE);
@@ -87,6 +88,7 @@ public class DateToolTests{
 		Assert.assertNull(DateTool.toReverseDateLong(null));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testFromReverseDateLong(){
 		Date now = new Date(), zero = new Date(0L), max = new Date(Long.MAX_VALUE);
@@ -96,6 +98,7 @@ public class DateToolTests{
 		Assert.assertNull(DateTool.fromReverseDateLong(null));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testReverseDateLong(){
 		Date now = new Date();
@@ -106,6 +109,7 @@ public class DateToolTests{
 		Assert.assertNull(DateTool.toReverseDateLong(DateTool.fromReverseDateLong(null)));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testToReverseInstantLong(){
 		Instant instant = Instant.now();

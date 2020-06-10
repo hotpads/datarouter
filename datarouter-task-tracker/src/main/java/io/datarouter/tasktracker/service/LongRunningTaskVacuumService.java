@@ -46,7 +46,7 @@ public class LongRunningTaskVacuumService{
 		for(LongRunningTask task : dao.scan().iterable()){
 			String name = task.getKey().getName();
 			if(!relatedTasks.isEmpty()){
-				String previousName = ListTool.nullSafeGetLast(relatedTasks).getKey().getName();
+				String previousName = ListTool.getLast(relatedTasks).getKey().getName();
 				if(ObjectTool.notEquals(previousName, name)){
 					vacuumRelatedTasks(relatedTasks);
 					relatedTasks = new ArrayList<>();
@@ -66,7 +66,7 @@ public class LongRunningTaskVacuumService{
 		List<LongRunningTask> tooOld = tasks.stream()
 				.filter(task -> task.getKey().getTriggerTime().toInstant().isBefore(tooOldCutoff))
 				.collect(Collectors.toList());
-		Scanner.of(tooOld).map(Databean::getKey).flush(dao::deleteMulti);
+		Scanner.of(tooOld).map(Databean::getKey).then(dao::deleteBatched);
 		// keep the latest N
 		List<LongRunningTask> remaining = new ArrayList<>(tasks);
 		remaining.removeAll(tooOld);
@@ -76,8 +76,7 @@ public class LongRunningTaskVacuumService{
 		Scanner.of(remaining)
 				.limit(remaining.size() - KEEP_LATEST_N)
 				.map(Databean::getKey)
-				.batch(100)
-				.forEach(dao::deleteMulti);
+				.then(dao::deleteBatched);
 	}
 
 }

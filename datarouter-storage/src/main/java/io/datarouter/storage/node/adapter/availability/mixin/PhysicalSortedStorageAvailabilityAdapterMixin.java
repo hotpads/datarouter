@@ -40,9 +40,9 @@ extends SortedStorage<PK,D>{
 	UnavailableException makeUnavailableException();
 
 	@Override
-	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
 		if(getAvailability().read.get()){
-			return getBackingNode().scanKeysMulti(ranges, config);
+			return getBackingNode().scanRangesKeys(ranges, config);
 		}
 		throw makeUnavailableException();
 	}
@@ -56,9 +56,9 @@ extends SortedStorage<PK,D>{
 	}
 
 	@Override
-	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
 		if(getAvailability().read.get()){
-			return getBackingNode().scanMulti(ranges, config);
+			return getBackingNode().scanRanges(ranges, config);
 		}
 		throw makeUnavailableException();
 	}

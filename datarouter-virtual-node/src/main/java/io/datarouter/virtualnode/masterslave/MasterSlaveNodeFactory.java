@@ -55,7 +55,7 @@ public class MasterSlaveNodeFactory{
 			Collection<ClientId> slaveClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier).build();
+	N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier).build();
 		Function<ClientId,N> buildSlaveFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
 				fielderSupplier).build();
 		List<N> slaves = Scanner.of(slaveClientIds).map(buildSlaveFunction).list();

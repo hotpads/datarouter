@@ -15,7 +15,7 @@
  */
 package io.datarouter.clustersetting.storage.clustersettinglog;
 
-import java.util.Arrays;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -38,17 +38,17 @@ public class ClusterSettingLogKey extends BaseRegularPrimaryKey<ClusterSettingLo
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(ClusterSettingKey.FieldKeys.name, name),
 				new LongField(FieldKeys.reverseCreatedMs, reverseCreatedMs));
 	}
 
-	ClusterSettingLogKey(){
+	public ClusterSettingLogKey(){
 	}
 
-	public ClusterSettingLogKey(String name, Date date){
+	public ClusterSettingLogKey(String name, Instant instant){
 		this.name = name;
-		this.reverseCreatedMs = DateTool.toReverseDateLong(date);
+		this.reverseCreatedMs = DateTool.toReverseInstantLong(instant);
 	}
 
 	public static ClusterSettingLogKey createPrefix(String name){
@@ -67,6 +67,7 @@ public class ClusterSettingLogKey extends BaseRegularPrimaryKey<ClusterSettingLo
 		return reverseCreatedMs;
 	}
 
+	@SuppressWarnings("deprecation")
 	public Date getCreated(){
 		return DateTool.fromReverseDateLong(reverseCreatedMs);
 	}

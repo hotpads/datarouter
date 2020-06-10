@@ -89,11 +89,11 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanRangesIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		try(var $ = startSpanForOp(OP_scanIndex)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().ranges(ranges.size()));
-			return getBackingNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
+			return getBackingNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
 		}
 	}
 
@@ -101,11 +101,11 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanRangesByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		try(var $ = startSpanForOp(OP_scanByIndex)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().ranges(ranges.size()));
-			return getBackingNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
+			return getBackingNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 		}
 	}
 
@@ -113,11 +113,11 @@ extends IndexedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>>
-	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanRangesIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		try(var $ = startSpanForOp(OP_scanIndexKeys)){
 			TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder().ranges(ranges.size()));
-			return getBackingNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
+			return getBackingNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 		}
 	}
 

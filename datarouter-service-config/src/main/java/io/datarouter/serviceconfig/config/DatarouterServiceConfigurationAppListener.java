@@ -51,7 +51,7 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 
 	@Override
 	public void onStartUp(){
-		if(!settings.sendServiceConfigurationsToPontoon.get()){
+		if(!settings.publishServiceConfig.get()){
 			return;
 		}
 		Set<String> admins = new HashSet<>();

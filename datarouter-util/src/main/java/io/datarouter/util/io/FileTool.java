@@ -73,12 +73,8 @@ public final class FileTool{
 	}
 
 	public static boolean hasAStaticFileExtension(String path){
-		for(String extension : STATIC_FILE_EXTENSIONS){
-			if(path.endsWith(extension)){
-				return true;
-			}
-		}
-		return false;
+		return STATIC_FILE_EXTENSIONS.stream()
+				.anyMatch(extension -> path.endsWith(extension));
 	}
 
 	public static String readFile(File file) throws IOException{

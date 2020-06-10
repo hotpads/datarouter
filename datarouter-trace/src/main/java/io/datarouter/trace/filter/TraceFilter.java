@@ -16,6 +16,7 @@
 package io.datarouter.trace.filter;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +108,10 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			String requestThreadName = (request.getContextPath() + " request").trim();
 			tracer.createAndStartThread(requestThreadName, System.currentTimeMillis());
 
+			boolean saveCpuTime = traceSettings.logCpuTime.get();
+			Long threadId = saveCpuTime ? Thread.currentThread().getId() : null;
+			Long cpuTimeBegin = saveCpuTime ? ManagementFactory.getThreadMXBean().getThreadCpuTime(threadId) : null;
+
 			boolean errored = false;
 			try{
 				fc.doFilter(req, res);
@@ -114,6 +119,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				errored = true;
 				throw e;
 			}finally{
+				Long cpuTime = saveCpuTime ? ManagementFactory.getThreadMXBean().getThreadCpuTime(threadId)
+						- cpuTimeBegin : null;
+
 				tracer.finishThread();
 				trace.markFinished();
 
@@ -122,7 +130,6 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				boolean tracerForceSave = tracer.getForceSave();
 				String requestId = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.X_REQUEST_ID);
 
-				// save requests
 				Long traceDurationMs = trace.getDuration();
 				if(traceDurationMs > saveCutoff || requestForceSave || tracerForceSave || errored){
 					List<TraceThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
@@ -135,12 +142,13 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							.map(Session::getUserToken)
 							.orElse("unknown");
 					logger.warn("Trace saved to={} traceId={} durationMs={} requestId={} path={} query={}"
-							+ " userAgent=\"{}\" userToken={}", destination, trace.getTraceId(), traceDurationMs,
-							requestId, trace.getType(), trace.getParams(), userAgent, userToken);
+							+ "cpuTime={} userAgent=\"{}\" userToken={}", destination, trace.getTraceId(),
+							traceDurationMs, requestId, trace.getType(), trace.getParams(),
+							cpuTime, userAgent, userToken);
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()){
 					// only log once
-					logger.warn("Trace logged durationMs={} requestId={} path={} query={}", traceDurationMs,
-							requestId, trace.getType(), trace.getParams());
+					logger.warn("Trace logged durationMs={} cpuTime = {} requestId={} path={} query={}",
+							traceDurationMs, cpuTime, requestId, trace.getType(), trace.getParams());
 				}
 				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool
 						.get(request, BaseHandler.HANDLER_CLASS);

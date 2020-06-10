@@ -75,12 +75,12 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 	}
 
 	@Override
-	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	public Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
 		return Scanner.empty();
 	}
 
 	@Override
-	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	public Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
 		return Scanner.empty();
 	}
 
@@ -129,7 +129,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanMultiIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IE> scanRangesIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		return Scanner.empty();
 	}
@@ -138,7 +138,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanMultiByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<D> scanRangesByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		return Scanner.empty();
 	}
@@ -147,7 +147,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanMultiIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
+	Scanner<IK> scanRangesIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
 		return Scanner.empty();
 	}

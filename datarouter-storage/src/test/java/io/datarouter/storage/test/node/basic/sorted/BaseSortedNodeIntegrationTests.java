@@ -153,7 +153,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		List<SortedBean> result = dao.scan(range).list();
 		var expectedLast = new SortedBeanKey(SortedBeans.S_aardvark, SortedBeans.S_aardvark, 0,
 				SortedBeans.S_chinchilla);
-		Assert.assertEquals(ListTool.nullSafeGetLast(result).getKey(), expectedLast);
+		Assert.assertEquals(ListTool.getLast(result).getKey(), expectedLast);
 		Assert.assertEquals(result.size(), 4);
 	}
 
@@ -163,7 +163,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var range = new Range<>(null, false, endKey, true);
 		List<SortedBean> result = dao.scan(range).list();
 		var expectedLast = endKey;
-		Assert.assertEquals(ListTool.nullSafeGetLast(result).getKey(), expectedLast);
+		Assert.assertEquals(ListTool.getLast(result).getKey(), expectedLast);
 		Assert.assertEquals(result.size(), 5);
 	}
 
@@ -218,7 +218,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 				.map(prefix -> KeyRangeTool.forPrefixWithWildcard(prefix, suffix -> new SortedBeanKey(
 						SortedBeans.STRINGS.first(), suffix, null, null)))
 				.collect(Collectors.toList());
-		List<SortedBean> result = dao.scanMulti(ranges).list();
+		List<SortedBean> result = dao.scanRanges(ranges).list();
 		int expectedSizeA = SortedBeans.NUM_PREFIX_a * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		int expectedSizeCh = SortedBeans.NUM_PREFIX_ch * SortedBeans.NUM_ELEMENTS * SortedBeans.NUM_ELEMENTS;
 		int expectedSizeTotal = expectedSizeA + expectedSizeCh;
@@ -471,14 +471,14 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 	}
 
 	@Test
-	public void testScanMulti(){
+	public void testScanRanges(){
 		var startKey1 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 0, SortedBeans.S_albatross);
 		var endKey1 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 0, SortedBeans.S_ostrich);
 		var range1 = new Range<>(startKey1, endKey1);
 		var startKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3, SortedBeans.S_aardvark);
 		var endKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3, SortedBeans.S_emu);
 		var range2 = new Range<>(startKey2, endKey2);
-		Set<SortedBean> beans = dao.scanMulti(Arrays.asList(range1, range2),
+		Set<SortedBean> beans = dao.scanRanges(Arrays.asList(range1, range2),
 				new Config().setOutputBatchSize(4))
 				.collect(HashSet::new);
 		Set<SortedBean> expected = Scanner.of(range1, range2)

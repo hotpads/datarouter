@@ -48,6 +48,4 @@ public class ByteUnitTool{
 		return ByteUnitType.PB.getNumBytesDisplay(sizeInBytes);
 	}
 
-	/*------------------------- tests ---------------------------------------*/
-
 }

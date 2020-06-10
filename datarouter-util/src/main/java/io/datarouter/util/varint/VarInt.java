@@ -32,7 +32,7 @@ public class VarInt{
 	}
 
 	public int getValue(){
-		return (int) varLong.getValue();
+		return (int)varLong.getValue();
 	}
 
 	public int getNumBytes(){
@@ -43,7 +43,7 @@ public class VarInt{
 		return varLong.getBytes();
 	}
 
-	//factories
+	// factories
 
 	public static VarInt fromByteArray(byte[] bytes){
 		return new VarInt(VarLong.fromByteArray(bytes));

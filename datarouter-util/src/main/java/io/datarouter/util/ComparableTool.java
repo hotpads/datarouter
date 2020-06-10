@@ -59,15 +59,15 @@ public class ComparableTool{
 	public static <T extends Comparable<? super T>> boolean isSorted(Iterable<? extends T> ins){
 		if(ins == null){
 			return true;
-		}//null is considered sorted
+		}// null is considered sorted
 		Iterator<? extends T> iter = ins.iterator();
 		if(!iter.hasNext()){
 			return true;
-		}//0 elements is sorted
+		}// 0 elements is sorted
 		T previous = iter.next();
 		if(!iter.hasNext()){
 			return true;
-		}//1 element is sorted
+		}// 1 element is sorted
 		T current = null;
 		while(iter.hasNext()){
 			current = iter.next();

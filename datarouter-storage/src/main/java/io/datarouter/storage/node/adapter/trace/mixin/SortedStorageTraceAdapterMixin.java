@@ -43,10 +43,10 @@ extends SortedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		try(var $ = startSpanForOp(OP_scanKeysMulti)){
+	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
+		try(var $ = startSpanForOp(OP_scanRangesKeys)){
 			TracerTool.appendToSpanInfo("ranges", ranges.size());
-			return getBackingNode().scanKeysMulti(ranges, config);
+			return getBackingNode().scanRangesKeys(ranges, config);
 		}
 	}
 
@@ -58,10 +58,10 @@ extends SortedStorage<PK,D>, TraceAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		try(var $ = startSpanForOp(OP_scanMulti)){
+	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
+		try(var $ = startSpanForOp(OP_scanRanges)){
 			TracerTool.appendToSpanInfo("ranges", ranges.size());
-			return getBackingNode().scanMulti(ranges, config);
+			return getBackingNode().scanRanges(ranges, config);
 		}
 	}
 

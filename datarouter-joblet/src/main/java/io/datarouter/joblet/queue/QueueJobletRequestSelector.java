@@ -37,8 +37,8 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.util.timer.PhaseTimer;
 
-public class SqsJobletRequestSelector implements JobletRequestSelector{
-	private static final Logger logger = LoggerFactory.getLogger(SqsJobletRequestSelector.class);
+public class QueueJobletRequestSelector implements JobletRequestSelector{
+	private static final Logger logger = LoggerFactory.getLogger(QueueJobletRequestSelector.class);
 
 	@Inject
 	private DatarouterJobletRequestDao jobletRequestDao;

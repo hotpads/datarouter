@@ -33,8 +33,8 @@ public class NetTool{
 	public static Optional<String> curl(String location, boolean logError){
 		try{
 			URLConnection connection = new URL(location).openConnection();
-			connection.setConnectTimeout(3000);
-			connection.setReadTimeout(3000);
+			connection.setConnectTimeout(3_000);
+			connection.setReadTimeout(3_000);
 			Reader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8);
 			String content = ReaderTool.accumulateStringAndClose(reader);
 			return Optional.of(content);

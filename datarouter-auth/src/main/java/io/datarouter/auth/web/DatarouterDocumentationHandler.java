@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.RouteSetRegistry;
+import io.datarouter.web.handler.documentation.DocumentationRouteSet;
 import io.datarouter.web.handler.mav.Mav;
 
 public class DatarouterDocumentationHandler extends DatarouterUserBasedDocumentationHandler{

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.inject.InjectorRetriever;
 
@@ -38,8 +39,7 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 
 	private final List<Class<? extends DatarouterAppListener>> listenerClasses;
 	private final List<Class<? extends DatarouterWebAppListener>> webListenerClasses;
-
-	private List<DatarouterAppListener> listenersToShutdown;
+	private final List<DatarouterAppListener> listenersToShutdown;
 
 	public BaseDatarouterServletContextListener(
 			List<Class<? extends DatarouterAppListener>> listenerClasses,
@@ -52,37 +52,36 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 	@Override
 	public void contextInitialized(ServletContextEvent event){
 		DatarouterInjector injector = getInjector(event.getServletContext());
-
-		PhaseTimer timer = new PhaseTimer();
-
-		for(Class<? extends DatarouterAppListener> listenerClass : listenerClasses){
-			DatarouterAppListener listener = injector.getInstance(listenerClass);
-			listenersToShutdown.add(listener);
-			listener.onStartUp();
-			timer.add(listener.getClass().getSimpleName());
-		}
-
-		for(Class<? extends DatarouterWebAppListener> listenerClass : webListenerClasses){
-			DatarouterWebAppListener listener = injector.getInstance(listenerClass);
-			listenersToShutdown.add(listener);
-			listener.setServletContext(event.getServletContext());
-			listener.onStartUp();
-			timer.add(listener.getClass().getSimpleName());
-		}
+		var timer = new PhaseTimer();
+		Scanner.of(listenerClasses)
+				.map(injector::getInstance)
+				.each(listenersToShutdown::add)
+				.each(DatarouterAppListener::onStartUp)
+				.map(Object::getClass)
+				.map(Class::getSimpleName)
+				.forEach(timer::add);
+		Scanner.of(webListenerClasses)
+				.map(injector::getInstance)
+				.each(listenersToShutdown::add)
+				.each(listener -> listener.setServletContext(event.getServletContext()))
+				.each(DatarouterWebAppListener::onStartUp)
+				.map(Object::getClass)
+				.map(Class::getSimpleName)
+				.forEach(timer::add);
 		logger.warn("startUp {}", timer);
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent event){
 		Collections.reverse(listenersToShutdown);
-		PhaseTimer timer = new PhaseTimer();
-		for(DatarouterAppListener listener : listenersToShutdown){
-			listener.onShutDown();
-			timer.add(listener.getClass().getSimpleName());
-		}
+		var timer = new PhaseTimer();
+		Scanner.of(listenersToShutdown)
+				.each(DatarouterAppListener::onShutDown)
+				.map(Object::getClass)
+				.map(Class::getSimpleName)
+				.forEach(timer::add);
 		logger.warn("shutDown {}", timer);
 		listenersToShutdown.clear();
-		listenersToShutdown = null;
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getAppListenerClasses(){

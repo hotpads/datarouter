@@ -45,11 +45,11 @@ extends SortedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		String opName = SortedStorageReader.OP_scanKeysMulti;
+	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
+		String opName = SortedStorageReader.OP_scanRangesKeys;
 		getCounter().count(opName);
 		getCounter().count(opName + " ranges", ranges.size());
-		return getBackingNode().scanKeysMulti(ranges, config);
+		return getBackingNode().scanRangesKeys(ranges, config);
 	}
 
 	@Override
@@ -60,11 +60,11 @@ extends SortedStorage<PK,D>, CounterAdapter<PK,D,F,N>{
 	}
 
 	@Override
-	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		String opName = SortedStorageReader.OP_scanMulti;
+	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
+		String opName = SortedStorageReader.OP_scanRanges;
 		getCounter().count(opName);
 		getCounter().count(opName + " ranges", ranges.size());
-		return getBackingNode().scanMulti(ranges, config);
+		return getBackingNode().scanRanges(ranges, config);
 	}
 
 }

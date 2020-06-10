@@ -46,16 +46,16 @@ extends NodeOps<PK,D>{
 	public static final String OP_getRange = "getRange";
 	public static final String OP_getPrefixedRange = "getPrefixedRange";
 	public static final String OP_scanKeys = "scanKeys";
-	public static final String OP_scanKeysMulti = "scanKeysMulti";
+	public static final String OP_scanRangesKeys = "scanRangesKeys";
 	public static final String OP_scan = "scan";
-	public static final String OP_scanMulti = "scanMulti";
+	public static final String OP_scanRanges = "scanRanges";
 
 	/*-------------------------------- scan multi ---------------------------------*/
 
-	Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config);
+	Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config);
 
-	default Scanner<D> scanMulti(Collection<Range<PK>> ranges){
-		return scanMulti(ranges, new Config());
+	default Scanner<D> scanRanges(Collection<Range<PK>> ranges){
+		return scanRanges(ranges, new Config());
 	}
 
 	/*-------------------------------- scan ---------------------------------*/
@@ -77,7 +77,7 @@ extends NodeOps<PK,D>{
 	 * be added, but it will likely use a separate interface method.
 	 */
 	default Scanner<D> scan(Range<PK> range, Config config){
-		return scanMulti(Collections.singletonList(range), config);
+		return scanRanges(Collections.singletonList(range), config);
 	}
 
 	default Scanner<D> scan(Range<PK> range){
@@ -94,16 +94,16 @@ extends NodeOps<PK,D>{
 
 	/*-------------------------------- scan keys multi ------------------------------*/
 
-	Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config);
+	Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config);
 
-	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges){
-		return scanKeysMulti(ranges, new Config());
+	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges){
+		return scanRangesKeys(ranges, new Config());
 	}
 
 	/*-------------------------------- scan keys ------------------------------*/
 
 	default Scanner<PK> scanKeys(Range<PK> range, Config config){
-		return scanKeysMulti(Collections.singletonList(range), config);
+		return scanRangesKeys(Collections.singletonList(range), config);
 	}
 
 	default Scanner<PK> scanKeys(Range<PK> range){
@@ -141,7 +141,7 @@ extends NodeOps<PK,D>{
 	/*-------------------------------- prefixes -------------------------------*/
 
 	default Scanner<D> scanWithPrefixes(Collection<PK> prefixes, Config config){
-		return scanMulti(getRangesFromPrefixes(prefixes), config);
+		return scanRanges(getRangesFromPrefixes(prefixes), config);
 	}
 
 	default Scanner<D> scanWithPrefixes(Collection<PK> prefixes){
@@ -151,7 +151,7 @@ extends NodeOps<PK,D>{
 	/*-------------------------------- prefixes keys -------------------------------*/
 
 	default Scanner<PK> scanKeysWithPrefixes(Collection<PK> prefixes, Config config){
-		return scanKeysMulti(getRangesFromPrefixes(prefixes), config);
+		return scanRangesKeys(getRangesFromPrefixes(prefixes), config);
 	}
 
 	default Scanner<PK> scanKeysWithPrefixes(Collection<PK> prefixes){

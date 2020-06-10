@@ -102,12 +102,12 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 		return getMultiByIndex(keys, new Config(), indexEntryFieldInfo);
 	}
 
-	/*------------ scanMultiIndex -------------*/
+	/*------------ scanRangesIndex -------------*/
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanMultiIndex(
+	Scanner<IE> scanRangesIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config);
@@ -115,18 +115,18 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanMultiIndex(
+	Scanner<IE> scanRangesIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges){
-		return scanMultiIndex(indexEntryFieldInfo, ranges, new Config());
+		return scanRangesIndex(indexEntryFieldInfo, ranges, new Config());
 	}
 
-	/*------------ scanMultiByIndex -------------*/
+	/*------------ scanRangesByIndex -------------*/
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanMultiByIndex(
+	Scanner<D> scanRangesByIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config);
@@ -134,18 +134,18 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanMultiByIndex(
+	Scanner<D> scanRangesByIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges){
-		return scanMultiByIndex(indexEntryFieldInfo, ranges, new Config());
+		return scanRangesByIndex(indexEntryFieldInfo, ranges, new Config());
 	}
 
-	/*------------ scanMultiIndexKeys -------------*/
+	/*------------ scanRangesIndexKeys -------------*/
 
 	<IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanMultiIndexKeys(
+	Scanner<IK> scanRangesIndexKeys(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config);
@@ -153,10 +153,10 @@ extends NodeOps<PK,D>, IndexedOps<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanMultiIndexKeys(
+	Scanner<IK> scanRangesIndexKeys(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges){
-		return scanMultiIndexKeys(indexEntryFieldInfo, ranges, new Config());
+		return scanRangesIndexKeys(indexEntryFieldInfo, ranges, new Config());
 	}
 
 	/*------------ sub-interfaces -------------*/

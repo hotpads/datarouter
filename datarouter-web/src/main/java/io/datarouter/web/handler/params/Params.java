@@ -49,6 +49,10 @@ public class Params{
 		return Optional.ofNullable(paramsMap.get(key));
 	}
 
+	public String optional(String key, String defaultValue){
+		return optional(key).orElse(defaultValue);
+	}
+
 	public Optional<String> optionalNotEmpty(String key){
 		return optional(key).filter(StringTool::notEmptyNorWhitespace);
 	}

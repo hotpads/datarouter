@@ -105,33 +105,33 @@ extends IndexedStorage<PK,D>, RedundantNode<PK,D,F,N>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanMultiIndex(
+	Scanner<IE> scanRangesIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return getReadNode().scanMultiIndex(indexEntryFieldInfo, ranges, config);
+		return getReadNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanMultiByIndex(
+	Scanner<D> scanRangesByIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return getReadNode().scanMultiByIndex(indexEntryFieldInfo, ranges, config);
+		return getReadNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanMultiIndexKeys(
+	Scanner<IK> scanRangesIndexKeys(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return getReadNode().scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
+		return getReadNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
 }

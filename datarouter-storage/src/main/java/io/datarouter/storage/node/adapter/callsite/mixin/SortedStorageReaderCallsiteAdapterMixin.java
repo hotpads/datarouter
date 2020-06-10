@@ -49,11 +49,11 @@ extends SortedStorageReader<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
 		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
-			return getBackingNode().scanKeysMulti(ranges, config);
+			return getBackingNode().scanRangesKeys(ranges, config);
 		}finally{
 			recordCallsite(lineOfCode, startNs, 1);
 		}
@@ -71,11 +71,11 @@ extends SortedStorageReader<PK,D>, CallsiteAdapter{
 	}
 
 	@Override
-	default Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
 		LineOfCode lineOfCode = getCallsite();
 		long startNs = System.nanoTime();
 		try{
-			return getBackingNode().scanMulti(ranges, config);
+			return getBackingNode().scanRanges(ranges, config);
 		}finally{
 			recordCallsite(lineOfCode, startNs, 1);
 		}

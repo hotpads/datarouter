@@ -26,7 +26,7 @@ import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.NoOpJobletExternalLinkBuilder;
 import io.datarouter.joblet.queue.JobletRequestSelector;
 import io.datarouter.joblet.queue.JobletSelectorRegistry;
-import io.datarouter.joblet.queue.SqsJobletRequestSelector;
+import io.datarouter.joblet.queue.QueueJobletRequestSelector;
 import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
@@ -99,8 +99,8 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 			this.defaultClientId = defaultClientId;
 			this.defaultQueueClientId = defaultQueueClientId;
 			withSelector(
-					JobletQueueMechanism.SQS.getPersistentString(),
-					SqsJobletRequestSelector.class);
+					JobletQueueMechanism.QUEUE.getPersistentString(),
+					QueueJobletRequestSelector.class);
 		}
 
 		public DatarouterJobletPluginBuilder setDaoModule(DatarouterJobletDaoModule daoModule){

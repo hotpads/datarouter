@@ -317,6 +317,7 @@ public class ReflectionTool{
 	}
 
 	/*------------------------- get Value -----------------------------------*/
+
 	public static Object getObjectValueUsingGetterMethod(Object instance, Method method){
 		if(instance == null || method == null){
 			return null;

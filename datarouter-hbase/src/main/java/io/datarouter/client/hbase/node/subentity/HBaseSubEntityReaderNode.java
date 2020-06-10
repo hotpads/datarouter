@@ -188,7 +188,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 	}
 
 	@Override
-	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
+	public Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
 		Config subscanConfig = config.clone().setOffset(0);
 		Scanner<PK> scanner = Scanner.of(ranges)
 				.collate(range -> scanKeys(range, subscanConfig));
@@ -206,7 +206,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 	}
 
 	@Override
-	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
+	public Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
 		Config subscanConfig = config.clone().setOffset(0);
 		Scanner<D> scanner = Scanner.of(ranges)
 				.collate(range -> scan(range, subscanConfig));

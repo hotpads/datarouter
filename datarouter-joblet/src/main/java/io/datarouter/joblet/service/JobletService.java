@@ -120,7 +120,7 @@ public class JobletService{
 					.map(JobletRequest::getQueueId)
 					.forEach(queueId -> datarouterJobletCounters.incNumJobletsInserted(jobletType, queueId));
 			timer.add("inserted JobletRequest");
-			if(Objects.equals(jobletSettings.queueMechanism.get(), JobletQueueMechanism.SQS.getPersistentString())){
+			if(Objects.equals(jobletSettings.queueMechanism.get(), JobletQueueMechanism.QUEUE.getPersistentString())){
 				Map<JobletRequestQueueKey,List<JobletRequest>> requestsByQueueKey = Scanner.of(jobletRequests)
 						.groupBy(jobletRequestQueueManager::getQueueKey);
 				for(Entry<JobletRequestQueueKey,List<JobletRequest>> queueAndRequests : requestsByQueueKey.entrySet()){
@@ -236,7 +236,7 @@ public class JobletService{
 					request.setStatus(JobletStatus.CREATED);
 					request.setNumFailures(0);
 					jobletRequestDao.put(request);
-					if(Objects.equals(jobletSettings.queueMechanism.get(), JobletQueueMechanism.SQS
+					if(Objects.equals(jobletSettings.queueMechanism.get(), JobletQueueMechanism.QUEUE
 							.getPersistentString())){
 						JobletRequestQueueKey queueKey = jobletRequestQueueManager.getQueueKey(request);
 						jobletQueueDao.getQueue(queueKey).put(request);

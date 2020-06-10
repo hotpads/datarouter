@@ -8,7 +8,7 @@ datarouter-web is a basic framework to handle HTTP requests.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-web</artifactId>
-	<version>0.0.34</version>
+	<version>0.0.35</version>
 </dependency>
 ```
 

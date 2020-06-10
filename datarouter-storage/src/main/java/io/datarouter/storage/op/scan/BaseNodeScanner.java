@@ -119,7 +119,7 @@ extends BaseScanner<List<T>>{
 				|| config.getLimit() != null && resultCount >= config.getLimit()){
 			foundLastBatch = true;//tell the advance() method not to call this method again
 		}
-		lastRowOfPreviousBatch = ListTool.nullSafeFindLast(current)
+		lastRowOfPreviousBatch = ListTool.findLast(current)
 				.map(this::getPrimaryKey)
 				.map(FieldSetTool::clone)
 				.orElse(null);

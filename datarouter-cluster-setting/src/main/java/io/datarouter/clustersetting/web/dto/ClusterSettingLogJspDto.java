@@ -135,8 +135,6 @@ public class ClusterSettingLogJspDto{
 		return htmlSafe(comment);
 	}
 
-	/* -------------------------------------- private ----------------------------------------------------------*/
-
 	private String htmlSafe(String str){
 		return StringTool.isNullOrEmpty(str) ? TABLE_CELL_DEFAULT : str;
 	}

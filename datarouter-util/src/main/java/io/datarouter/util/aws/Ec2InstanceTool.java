@@ -28,9 +28,8 @@ public class Ec2InstanceTool{
 	public static final String EC2_PUBLIC_IP_URL = "http://169.254.169.254/latest/meta-data/public-ipv4";
 
 	public static Optional<Ec2InstanceDetailsDto> getEc2InstanceDetails(){
-		Optional<String> ec2InstanceIdentityDocumentResponse = NetTool.curl(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, false);
-		return ec2InstanceIdentityDocumentResponse.map(json -> GsonTool.GSON.fromJson(json,
-				Ec2InstanceDetailsDto.class));
+		return NetTool.curl(EC2_INSTANCE_IDENTITY_DOCUMENT_URL, false)
+				.map(json -> GsonTool.GSON.fromJson(json, Ec2InstanceDetailsDto.class));
 	}
 
 	public static String getEc2InstancePublicIp(){

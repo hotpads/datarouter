@@ -15,7 +15,6 @@
  */
 package io.datarouter.clustersetting.storage.clustersettinglog;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
@@ -48,21 +47,18 @@ implements FieldlessIndexEntryPrimaryKey<
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new LongField(FieldKeys.reverseCreatedMs, reverseCreatedMs),
 				new StringField(ClusterSettingKey.FieldKeys.name, name));
 	}
 
 	@Override
 	public ClusterSettingLogKey getTargetKey(){
-		return new ClusterSettingLogKey(name, DateTool.fromReverseDateLong(reverseCreatedMs));
+		return new ClusterSettingLogKey(name, DateTool.fromReverseInstantLong(reverseCreatedMs));
 	}
 
 	@Override
-	public FieldlessIndexEntry<
-			ClusterSettingLogByReversedCreatedMsKey,
-			ClusterSettingLogKey,
-			ClusterSettingLog>
+	public FieldlessIndexEntry<ClusterSettingLogByReversedCreatedMsKey,ClusterSettingLogKey,ClusterSettingLog>
 	createFromDatabean(ClusterSettingLog target){
 		return new FieldlessIndexEntry<>(
 				ClusterSettingLogByReversedCreatedMsKey.class,

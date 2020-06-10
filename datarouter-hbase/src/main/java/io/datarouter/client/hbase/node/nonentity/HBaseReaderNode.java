@@ -168,8 +168,8 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 	}
 
 	@Override
-	public Scanner<PK> scanKeysMulti(Collection<Range<PK>> ranges, Config config){
-		return scanMultiResults(ranges, config, true)
+	public Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
+		return scanRangesResults(ranges, config, true)
 				.map(resultParser::toPk);
 	}
 
@@ -180,14 +180,14 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 	}
 
 	@Override
-	public Scanner<D> scanMulti(Collection<Range<PK>> ranges, Config config){
-		return scanMultiResults(ranges, config, false)
+	public Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
+		return scanRangesResults(ranges, config, false)
 				.map(resultParser::toDatabean);
 	}
 
 	/*---------------------------- scan Results -----------------------------------*/
 
-	private Scanner<Result> scanMultiResults(Collection<Range<PK>> ranges, Config config, boolean keysOnly){
+	private Scanner<Result> scanRangesResults(Collection<Range<PK>> ranges, Config config, boolean keysOnly){
 		Config subscanConfig = config.clone().setOffset(0);
 		Scanner<Result> collated = Scanner.of(ranges)
 				.collate(range -> scanResults(range, subscanConfig, keysOnly), resultComparator);

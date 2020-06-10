@@ -26,12 +26,12 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterServiceConfigurationSettings extends SettingRoot{
 
-	public final CachedSetting<Boolean> sendServiceConfigurationsToPontoon;
+	public final CachedSetting<Boolean> publishServiceConfig;
 
 	@Inject
 	public DatarouterServiceConfigurationSettings(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterServiceConfigPublisher.");
-		sendServiceConfigurationsToPontoon = registerBoolean("sendServiceConfigurationsToPontoon", false);
+		publishServiceConfig = registerBoolean("publishServiceConfig", false);
 	}
 
 }

@@ -40,53 +40,180 @@ import java.util.stream.Stream;
 
 import io.datarouter.scanner.ScannerToMap.Replace;
 
+/**
+ * A form of iterator that operates as lazily as possible, not knowing if the next item is available until advancing and
+ * dropping the reference to the previous item. Default interface methods are included so Scanners can be assembled into
+ * a pipeline before advancing through the items.
+ *
+ * Similar to Iterator or Stream, a Scanner can only be consumed once.
+ */
 public interface Scanner<T> extends Closeable{
 
+	/**
+	 * Try to update current to the next item, if there is one.
+	 *
+	 * @return  True if it advanced
+	 */
 	boolean advance();
 
+	/**
+	 * @return  The current item, only valid if advance() returned true
+	 */
 	T current();
 
+	/**
+	 * Override to cleanup any resources. The call should be propagated to all parent scanners.
+	 *
+	 * In the infrequent case of calling advance/current in an application, the Scanner should be explicitly closed.
+	 * Because the included Scanner operations will close themselves when they fail to advance, it frequently a no-op
+	 * for the application, unless closing the scanner before it stops advancing.
+	 */
 	@Override
 	default void close(){
 	}
 
+	/**
+	 * Perform an operation on each item.
+	 *
+	 * @param action  Consumer::accept is performed on each item
+	 */
+	default void forEach(Consumer<? super T> action){
+		ScannerTool.forEach(this, action);
+	}
+
+	/**
+	 * Consume up to N items without closing, only closing the scanner if the last item was consumed.
+	 *
+	 * @param numToTake  Maximum returned items
+	 * @return  List with up to numToTake items
+	 */
+	default List<T> take(int numToTake){
+		return ScannerTool.take(this, numToTake);
+	}
+
 	/*----------------------------- Create ----------------------------------*/
 
+	/**
+	 * @return  A scanner that immediately returns advance=false
+	 */
 	public static <T> Scanner<T> empty(){
 		return EmptyScanner.singleton();
 	}
 
+	/**
+	 * @param supplier  Supplier that generates items indefinitely
+	 * @return  A scanner that advances through the items
+	 */
 	public static <T> Scanner<T> generate(Supplier<T> supplier){
 		return new GeneratingScanner<>(supplier);
 	}
 
+	/**
+	 * Generate a sequence where each item is calculated off the one before it.
+	 *
+	 * @param seed  The first item
+	 * @param unaryOperator  A function applied to the current item to generate the next item
+	 * @return  A scanner that advances through the items
+	 */
 	public static <T> Scanner<T> iterate(T seed, UnaryOperator<T> unaryOperator){
 		return new IteratingScanner<>(seed, unaryOperator);
 	}
 
+	/**
+	 * Convert an Object into a Scanner if non-null.
+	 *
+	 * @param object  A nullable Object
+	 * @return  An empty scanner if the Object was null, otherwise a single-item Scanner with the Object
+	 */
 	public static <T> Scanner<T> ofNullable(T object){
 		return ObjectScanner.ofNullable(object);
 	}
 
+	/**
+	 * Convert an Object into a Scanner.
+	 *
+	 * @param object  A non-null Object
+	 * @return  A single-item Scanner with the Object
+	 */
 	public static <T> Scanner<T> of(T object){
 		return ObjectScanner.of(object);
 	}
 
+	/**
+	 * Create a Scanner of items in the array.
+	 *
+	 * @param array  An array or var-args
+	 * @return  A Scanner that visits each item in the array
+	 */
 	@SafeVarargs
 	public static <T> Scanner<T> of(T... array){
 		return ArrayScanner.of(array);
 	}
 
+	/**
+	 * Create a Scanner of items in the Iterator.
+	 *
+	 * @param iterator  An Iterator
+	 * @return  A Scanner that visits each item in the Iterator
+	 */
 	public static <T> Scanner<T> of(Iterator<T> iterator){
 		return IteratorScanner.of(iterator);
 	}
 
+	/**
+	 * Create a Scanner of items in the Iterable.
+	 *
+	 * @param iterable  An Iterable, which includes any Collection
+	 * @return  A Scanner that visits each item in the Iterable
+	 */
 	public static <T> Scanner<T> of(Iterable<T> iterable){
 		return IterableScanner.of(iterable);
 	}
 
+	/**
+	 * Create a Scanner of items in the Stream.
+	 *
+	 * @param stream  A Stream
+	 * @return  A Scanner that visits each item in the Stream
+	 */
 	public static <T> Scanner<T> of(Stream<T> stream){
 		return StreamScanner.of(stream);
+	}
+
+	/*--------------------------- Concat ----------------------------*/
+
+	/**
+	 * Combine the items from multiple Scanners into a single Scanner.  Use Function.identity() if they're already
+	 * Scanners.
+	 *
+	 * @param mapper  Converts the input items into the Scanners to be combined
+	 * @return  Scanner containing the items from all input Scanners, starting with the first
+	 */
+	default <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapper){
+		Scanner<Scanner<R>> scanners = map(mapper);
+		return new ConcatenatingScanner<>(scanners);
+	}
+
+	/**
+	 * Combine the items from multiple Scanners into a single Scanner.
+	 *
+	 * @param scanners  Input Scanners to be combined
+	 * @return  Scanner containing the items from all input Scanners, starting with the first
+	 */
+	@SafeVarargs
+	public static <T> Scanner<T> concat(Scanner<T>... scanners){
+		return Scanner.of(scanners).concat(Function.identity());
+	}
+
+	/**
+	 * Combine the items from multiple Iterables into a single Scanner.
+	 *
+	 * @param iterables  Input Iterables to be combined, where Iterable includes any Collection
+	 * @return  Scanner containing the items from all input Iterables, starting with the first
+	 */
+	@SafeVarargs
+	public static <T> Scanner<T> concat(Iterable<T>... iterables){
+		return Scanner.of(iterables).concat(Scanner::of);
 	}
 
 	/*----------------------------- Append ----------------------------------*/
@@ -101,6 +228,47 @@ public interface Scanner<T> extends Closeable{
 
 	default Scanner<T> append(Iterable<T> iterable){
 		return concat(this, Scanner.of(iterable));
+	}
+
+	/*--------------------------- Collate ----------------------------*/
+
+	@SuppressWarnings("unchecked")
+	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper){
+		return collate(mapper, (Comparator<? super R>)Comparator.naturalOrder());
+	}
+
+	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper, Comparator<? super R> comparator){
+		List<Scanner<R>> scanners = map(mapper).list();
+		if(scanners.size() == 1){
+			return scanners.get(0);
+		}
+		return new CollatingScanner<>(scanners, comparator);
+	}
+
+	/*--------------------------- Chain ----------------------------*/
+
+	default <R> Scanner<R> link(Function<Scanner<T>,BaseLinkedScanner<T,R>> scannerBuilder){
+		return scannerBuilder.apply(this);
+	}
+
+	default <R> R apply(Function<Scanner<T>,R> function){
+		return function.apply(this);
+	}
+
+	default void then(Consumer<Scanner<T>> consumer){
+		consumer.accept(this);
+	}
+
+	/*----------------------------- Multi-Threaded --------------------------------*/
+
+	default ParallelScanner<T> parallel(ParallelScannerContext context){
+		return new ParallelScanner<>(context, this);
+	}
+
+	@SuppressWarnings("resource")
+	default Scanner<T> prefetch(ExecutorService exec, int batchSize){
+		return new PrefetchingScanner<>(this, exec, batchSize)
+				.concat(Scanner::of);
 	}
 
 	/*--------------------------- Intermediate ops ----------------------------*/
@@ -135,14 +303,6 @@ public interface Scanner<T> extends Closeable{
 		return new DeduplicatingScanner<>(this, mapper);
 	}
 
-	default Scanner<T> distinct(){
-		return new DistinctScanner<>(this, Function.identity());
-	}
-
-	default Scanner<T> distinctBy(Function<T,?> mapper){
-		return new DistinctScanner<>(this, mapper);
-	}
-
 	default Scanner<T> each(Consumer<? super T> consumer){
 		return new EachScanner<>(this, consumer);
 	}
@@ -159,10 +319,6 @@ public interface Scanner<T> extends Closeable{
 		return new LimitingScanner<>(this, limit);
 	}
 
-	default <R> Scanner<R> link(Function<Scanner<T>,BaseLinkedScanner<T,R>> scannerBuilder){
-		return scannerBuilder.apply(this);
-	}
-
 	default <R> Scanner<R> map(Function<? super T, ? extends R> mapper){
 		return new MappingScanner<>(this, mapper);
 	}
@@ -171,77 +327,19 @@ public interface Scanner<T> extends Closeable{
 		return new RetainingScanner<>(this, retaining);
 	}
 
-	@SuppressWarnings("resource")
-	default Scanner<T> prefetch(ExecutorService exec, int batchSize){
-		return new PrefetchingScanner<>(this, exec, batchSize)
-				.concat(Scanner::of);
-	}
-
 	default Scanner<T> sample(long sampleSize, boolean includeLast){
 		return new SamplingScanner<>(this, sampleSize, includeLast);
-	}
-
-	default Scanner<T> shuffle(){
-		return new ShufflingScanner<>(this);
 	}
 
 	default Scanner<T> skip(long numToSkip){
 		return ScannerTool.skip(this, numToSkip);
 	}
 
-	default Scanner<T> sorted(){
-		return new NaturalSortingScanner<>(this);
-	}
-
-	default Scanner<T> sorted(Comparator<? super T> comparator){
-		return new SortingScanner<>(this, comparator);
-	}
-
 	default Scanner<Scanner<T>> splitBy(Function<T,?> mapper){
 		return new SplittingScanner<>(this, mapper);
 	}
 
-	default List<T> take(int numToTake){
-		return ScannerTool.take(this, numToTake);
-	}
-
-	/*--------------------------- Scanner of Scanners ----------------------------*/
-
-	@SuppressWarnings("unchecked")
-	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper){
-		return collate(mapper, (Comparator<? super R>)Comparator.naturalOrder());
-	}
-
-	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper, Comparator<? super R> comparator){
-		List<Scanner<R>> scanners = map(mapper).list();
-		if(scanners.size() == 1){
-			return scanners.get(0);
-		}
-		return new CollatingScanner<>(scanners, comparator);
-	}
-
-	default <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapper){
-		Scanner<Scanner<R>> scanners = map(mapper);
-		return new ConcatenatingScanner<>(scanners);
-	}
-
-	@SafeVarargs
-	public static <T> Scanner<T> concat(Scanner<T>... scanners){
-		return Scanner.of(scanners).concat(Function.identity());
-	}
-
-	@SafeVarargs
-	public static <T> Scanner<T> concat(Iterable<T>... iterables){
-		return Scanner.of(iterables).concat(Scanner::of);
-	}
-
-	/*----------------------------- Parallel --------------------------------*/
-
-	default ParallelScanner<T> parallel(ParallelScannerContext context){
-		return new ParallelScanner<>(context, this);
-	}
-
-	/*--------------------------- Terminal ops ----------------------------*/
+	/*--------------------------- Reducing ops ----------------------------*/
 
 	default boolean allMatch(Predicate<? super T> predicate){
 		return ScannerTool.allMatch(this, predicate);
@@ -249,14 +347,6 @@ public interface Scanner<T> extends Closeable{
 
 	default boolean anyMatch(Predicate<? super T> predicate){
 		return ScannerTool.anyMatch(this, predicate);
-	}
-
-	default <C extends Collection<T>> C collect(Supplier<C> collectionSupplier){
-		return ScannerTool.collect(this, collectionSupplier);
-	}
-
-	default <R,A> R collect(Collector<? super T,A,R> collector){
-		return stream().collect(collector);
 	}
 
 	default long count(){
@@ -275,28 +365,12 @@ public interface Scanner<T> extends Closeable{
 		return ScannerTool.findLast(this);
 	}
 
-	default Scanner<T> flush(Consumer<List<T>> consumer){
-		return ScannerTool.flush(this, consumer);
-	}
-
-	default void forEach(Consumer<? super T> action){
-		ScannerTool.forEach(this, action);
-	}
-
 	default boolean hasAny(){
 		return ScannerTool.hasAny(this);
 	}
 
 	default boolean isEmpty(){
 		return ScannerTool.isEmpty(this);
-	}
-
-	default List<T> list(){
-		return ScannerTool.list(this);
-	}
-
-	default <R> R listTo(Function<List<T>,R> mapper){
-		return mapper.apply(list());
 	}
 
 	default Optional<T> max(Comparator<? super T> comparator){
@@ -319,8 +393,46 @@ public interface Scanner<T> extends Closeable{
 		return ScannerTool.reduce(this, seed, reducer);
 	}
 
-	default <R> R to(Function<Scanner<T>,R> function){
-		return function.apply(this);
+	/*--------------------------- Collecting ops ----------------------------*/
+
+	default <C extends Collection<T>> C collect(Supplier<C> collectionSupplier){
+		return ScannerTool.collect(this, collectionSupplier);
+	}
+
+	default <R,A> R collect(Collector<? super T,A,R> collector){
+		return stream().collect(collector);
+	}
+
+	default Scanner<T> distinct(){
+		return new DistinctScanner<>(this, Function.identity());
+	}
+
+	default Scanner<T> distinctBy(Function<T,?> mapper){
+		return new DistinctScanner<>(this, mapper);
+	}
+
+	default Scanner<T> flush(Consumer<List<T>> consumer){
+		return ScannerTool.flush(this, consumer);
+	}
+
+	default List<T> list(){
+		return ScannerTool.list(this);
+	}
+
+	default <R> R listTo(Function<List<T>,R> mapper){
+		return mapper.apply(list());
+	}
+
+	default Scanner<T> shuffle(){
+		return new ShufflingScanner<>(this);
+	}
+
+	default Scanner<T> sorted(){
+		return new NaturalSortingScanner<>(this);
+	}
+
+	default Scanner<T> sorted(Comparator<? super T> comparator){
+		return new SortingScanner<>(this, comparator);
 	}
 
 	default Object[] toArray(){
@@ -330,77 +442,77 @@ public interface Scanner<T> extends Closeable{
 	/*--------------------------- to HashMap ----------------------------*/
 
 	default <K> Map<K,T> toMap(Function<T,K> keyFunction){
-		return to(ScannerToMap.of(keyFunction));
+		return apply(ScannerToMap.of(keyFunction));
 	}
 
 	default <K,V> Map<K,V> toMap(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction){
-		return to(ScannerToMap.of(keyFunction, valueFunction));
+		return apply(ScannerToMap.of(keyFunction, valueFunction));
 	}
 
 	default <K,V> Map<K,V> toMap(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction,
 			Replace replacePolicy){
-		return to(ScannerToMap.of(keyFunction, valueFunction, replacePolicy));
+		return apply(ScannerToMap.of(keyFunction, valueFunction, replacePolicy));
 	}
 
 	default <K,V> Map<K,V> toMap(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction,
 			BinaryOperator<V> mergeFunction){
-		return to(ScannerToMap.of(keyFunction, valueFunction, mergeFunction));
+		return apply(ScannerToMap.of(keyFunction, valueFunction, mergeFunction));
 	}
 
 	/*--------------------------- to provided Map ----------------------------*/
 
-	default <K,M extends Map<K,T>> M toMap(
+	default <K,M extends Map<K,T>> M toMapSupplied(
 			Function<T,K> keyFunction,
 			Supplier<M> mapSupplier){
-		return to(ScannerToMap.of(keyFunction, mapSupplier));
+		return apply(ScannerToMap.ofSupplied(keyFunction, mapSupplier));
 	}
 
-	default <K,V,M extends Map<K,V>> M toMap(
+	default <K,V,M extends Map<K,V>> M toMapSupplied(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction,
 			Supplier<M> mapSupplier){
-		return to(ScannerToMap.of(keyFunction, valueFunction, mapSupplier));
+		return apply(ScannerToMap.ofSupplied(keyFunction, valueFunction, mapSupplier));
 	}
 
-	default <K,V,M extends Map<K,V>> M toMap(
+	default <K,V,M extends Map<K,V>> M toMapSupplied(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction,
 			Replace replacePolicy,
 			Supplier<M> mapSupplier){
-		return to(ScannerToMap.of(keyFunction, valueFunction, replacePolicy, mapSupplier));
+		return apply(ScannerToMap.ofSupplied(keyFunction, valueFunction, replacePolicy, mapSupplier));
 	}
 
-	default <K,V,M extends Map<K,V>> M toMap(
+	default <K,V,M extends Map<K,V>> M toMapSupplied(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction,
 			BinaryOperator<V> mergeFunction,
 			Supplier<M> mapSupplier){
-		return to(ScannerToMap.of(keyFunction, valueFunction, mergeFunction, mapSupplier));
+		return apply(ScannerToMap.ofSupplied(keyFunction, valueFunction, mergeFunction, mapSupplier));
 	}
 
 	/*-------------------------- groupBy -------------------------------*/
 
 	default <K> Map<K,List<T>> groupBy(Function<T,K> keyFunction){
-		return to(ScannerToGroups.of(keyFunction));
+		return apply(ScannerToGroups.of(keyFunction));
 	}
 
 	default <K,V> Map<K,List<V>> groupBy(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction){
-		return to(ScannerToGroups.of(keyFunction, valueFunction));
+		return apply(ScannerToGroups.of(keyFunction, valueFunction));
 	}
 
 	default <K,V,M extends Map<K,List<V>>> M groupBy(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction,
 			Supplier<M> mapSupplier){
-		return to(ScannerToGroups.of(keyFunction, valueFunction, mapSupplier));
+		return apply(ScannerToGroups.of(keyFunction, valueFunction, mapSupplier));
 	}
 
 	default <K,V,C extends Collection<V>,M extends Map<K,C>> M groupBy(
@@ -408,7 +520,7 @@ public interface Scanner<T> extends Closeable{
 			Function<T,V> valueFunction,
 			Supplier<M> mapSupplier,
 			Supplier<C> collectionSupplier){
-		return to(ScannerToGroups.of(keyFunction, valueFunction, mapSupplier, collectionSupplier));
+		return apply(ScannerToGroups.of(keyFunction, valueFunction, mapSupplier, collectionSupplier));
 	}
 
 	/*----------------------- to Iterator / Stream --------------------------------*/

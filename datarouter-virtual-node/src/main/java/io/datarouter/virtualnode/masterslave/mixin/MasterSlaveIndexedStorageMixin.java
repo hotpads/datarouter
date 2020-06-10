@@ -69,33 +69,33 @@ extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IE> scanMultiIndex(
+	Scanner<IE> scanRangesIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return chooseSlaveOrElseMaster(config).scanMultiIndex(indexEntryFieldInfo, ranges, config);
+		return chooseSlaveOrElseMaster(config).scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<D> scanMultiByIndex(
+	Scanner<D> scanRangesByIndex(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return chooseSlaveOrElseMaster(config).scanMultiByIndex(indexEntryFieldInfo, ranges, config);
+		return chooseSlaveOrElseMaster(config).scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
 	default <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	Scanner<IK> scanMultiIndexKeys(
+	Scanner<IK> scanRangesIndexKeys(
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return chooseSlaveOrElseMaster(config).scanMultiIndexKeys(indexEntryFieldInfo, ranges, config);
+		return chooseSlaveOrElseMaster(config).scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override

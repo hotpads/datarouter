@@ -20,6 +20,7 @@ import java.util.Collection;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
@@ -48,6 +49,16 @@ extends StorageWriter<PK,D>{
 
 	default void deleteMulti(Collection<PK> keys){
 		deleteMulti(keys, new Config());
+	}
+
+	default void deleteBatched(Scanner<PK> keys, Config config){
+		keys
+				.batch(config.findInputBatchSize().orElse(Config.DEFAULT_INPUT_BATCH_SIZE))
+				.forEach(batch -> deleteMulti(batch, config));
+	}
+
+	default void deleteBatched(Scanner<PK> keys){
+		deleteBatched(keys, new Config());
 	}
 
 	void deleteAll(Config config);

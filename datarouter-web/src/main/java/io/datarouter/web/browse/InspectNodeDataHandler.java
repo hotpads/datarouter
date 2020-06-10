@@ -111,7 +111,7 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 		}
 		mav.put("abbreviatedFieldNameByFieldName", getFieldAbbreviationByFieldName(fielder, databeans));
 		if(databeans.size() >= limit){
-			mav.put(PARAM_nextKey, PrimaryKeyPercentCodecTool.encode(ListTool.nullSafeGetLast(databeans).getKey()));
+			mav.put(PARAM_nextKey, PrimaryKeyPercentCodecTool.encode(ListTool.getLast(databeans).getKey()));
 		}
 	}
 

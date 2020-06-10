@@ -22,6 +22,7 @@ import java.util.Optional;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.op.NodeOps;
@@ -56,6 +57,14 @@ extends NodeOps<PK,D>{
 		return getKeys(keys, new Config());
 	}
 
+	default Scanner<PK> scanMultiKeys(Collection<PK> keys, Config config){
+		return Scanner.of(getKeys(keys, config));
+	}
+
+	default Scanner<PK> scanMultiKeys(Collection<PK> keys){
+		return Scanner.of(getKeys(keys));
+	}
+
 	D get(PK key, Config config);
 
 	default D get(PK key){
@@ -66,6 +75,14 @@ extends NodeOps<PK,D>{
 
 	default List<D> getMulti(Collection<PK> keys){
 		return getMulti(keys, new Config());
+	}
+
+	default Scanner<D> scanMulti(Collection<PK> keys, Config config){
+		return Scanner.of(getMulti(keys, config));
+	}
+
+	default Scanner<D> scanMulti(Collection<PK> keys){
+		return Scanner.of(getMulti(keys));
 	}
 
 	default Optional<D> find(PK key, Config config){

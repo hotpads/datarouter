@@ -127,14 +127,14 @@ public class ScannerToMap<T,K,V,M extends Map<K,V>> implements Function<Scanner<
 	/*---------------- Factories with mapSupplier -----------------*/
 
 	public static <T,K,M extends Map<K,T>>
-	Function<Scanner<T>,M> of(
+	Function<Scanner<T>,M> ofSupplied(
 			Function<T,K> keyFunction,
 			Supplier<M> mapSupplier){
 		return new ScannerToMap<>(keyFunction, Function.identity(), Replace.ALWAYS, null, mapSupplier);
 	}
 
 	public static <T,K,V,M extends Map<K,V>>
-	Function<Scanner<T>,M> of(
+	Function<Scanner<T>,M> ofSupplied(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction,
 			Supplier<M> mapSupplier){
@@ -142,7 +142,7 @@ public class ScannerToMap<T,K,V,M extends Map<K,V>> implements Function<Scanner<
 	}
 
 	public static <T,K,V,M extends Map<K,V>>
-	Function<Scanner<T>,M> of(
+	Function<Scanner<T>,M> ofSupplied(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction,
 			Replace replacePolicy,
@@ -151,7 +151,7 @@ public class ScannerToMap<T,K,V,M extends Map<K,V>> implements Function<Scanner<
 	}
 
 	public static <T,K,V,M extends Map<K,V>>
-	Function<Scanner<T>,M> of(
+	Function<Scanner<T>,M> ofSupplied(
 			Function<T,K> keyFunction,
 			Function<T,V> valueFunction,
 			BinaryOperator<V> mergeFunction,
