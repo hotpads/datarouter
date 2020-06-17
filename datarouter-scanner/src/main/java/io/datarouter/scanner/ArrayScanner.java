@@ -31,10 +31,7 @@ public class ArrayScanner<T> implements Scanner<T>{
 	@Override
 	public boolean advance(){
 		++index;
-		if(index < array.length){
-			return true;
-		}
-		return false;
+		return index < array.length;
 	}
 
 	@Override

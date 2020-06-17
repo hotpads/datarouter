@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.pathnode.FilesRoot;
+import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.DatarouterAdditionalAdministrators;
@@ -36,8 +38,6 @@ import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionHandlingConfig.NoOpExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionRecorder;
-import io.datarouter.web.file.FilesRoot;
-import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 import io.datarouter.web.filter.StaticFileFilter;
 import io.datarouter.web.filter.https.HttpsFilter;
 import io.datarouter.web.filter.requestcaching.GuiceRequestCachingFilter;

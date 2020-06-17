@@ -18,7 +18,7 @@ package io.datarouter.web.css;
 import java.util.Arrays;
 import java.util.List;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.DatarouterWebFiles;
 import j2html.tags.EmptyTag;
 

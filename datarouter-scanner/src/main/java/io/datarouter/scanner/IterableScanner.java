@@ -15,9 +15,15 @@
  */
 package io.datarouter.scanner;
 
+import java.util.List;
+import java.util.RandomAccess;
+
 public class IterableScanner{
 
 	public static <T> Scanner<T> of(Iterable<T> iterable){
+		if(iterable instanceof List && iterable instanceof RandomAccess){
+			return RandomAccessScanner.of((List<T>)iterable);
+		}
 		return IteratorScanner.of(iterable.iterator());
 	}
 

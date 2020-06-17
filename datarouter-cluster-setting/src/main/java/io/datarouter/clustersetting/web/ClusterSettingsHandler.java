@@ -66,6 +66,7 @@ import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingCategory;
+import io.datarouter.storage.setting.SettingCategory.SimpleSettingCategory;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
@@ -225,8 +226,9 @@ public class ClusterSettingsHandler extends BaseHandler{
 		String requestedNodeName = name.orElse(settingRootFinder.getName());
 		mav.put("nodeName", requestedNodeName);
 
-		Map<SettingCategory,Set<SettingNodeJspDto>> categoryMap = new LinkedHashMap<>();
-		for(Entry<SettingCategory,Set<SettingNode>> entry : settingRootFinder.getRootNodesByCategory().entrySet()){
+		Map<SimpleSettingCategory,Set<SettingNodeJspDto>> categoryMap = new LinkedHashMap<>();
+		for(Entry<SimpleSettingCategory,Set<SettingNode>> entry : settingRootFinder.getRootNodesByCategory()
+				.entrySet()){
 			var nodes = entry.getValue().stream()
 					.map(SettingNodeJspDto::new)
 					.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(

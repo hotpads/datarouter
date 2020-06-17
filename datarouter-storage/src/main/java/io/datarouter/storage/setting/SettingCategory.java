@@ -15,7 +15,50 @@
  */
 package io.datarouter.storage.setting;
 
+import java.util.Objects;
+
 import io.datarouter.util.enums.Displayable;
 
 public interface SettingCategory extends Displayable{
+
+	default SimpleSettingCategory toSimpleSettingCategory(){
+		return new SimpleSettingCategory(getDisplay());
+	}
+
+	class SimpleSettingCategory implements SettingCategory{
+
+		private final String display;
+
+		public SimpleSettingCategory(String display){
+			this.display = display;
+		}
+
+		@Override
+		public String getDisplay(){
+			return display;
+		}
+
+		public String getHref(){
+			return "category-" + getDisplay().replace(" ", "-");
+		}
+
+		@Override
+		public boolean equals(Object other){
+			if(this == other){
+				return true;
+			}
+			if(!(other instanceof SimpleSettingCategory)){
+				return false;
+			}
+			SimpleSettingCategory that = (SimpleSettingCategory) other;
+			return this.getDisplay().equals(that.getDisplay());
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(display);
+		}
+
+	}
+
 }

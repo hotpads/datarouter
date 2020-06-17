@@ -36,7 +36,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.config.DatarouterHBaseFiles;
 import io.datarouter.client.hbase.config.DatarouterHBasePaths;
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.web.browse.DatarouterClientWebInspector;

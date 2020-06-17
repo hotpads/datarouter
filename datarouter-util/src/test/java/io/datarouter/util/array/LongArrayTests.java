@@ -99,4 +99,20 @@ public class LongArrayTests{
 		Assert.assertNull(primitiveList.get(1));
 	}
 
+	@Test
+	public void testSort(){
+		var list = new LongArray(new long[]{3, 1, 2, 4});
+		list.sortInPlace();
+		Assert.assertEquals(list, new LongArray(new long[]{1, 2, 3, 4}));
+	}
+
+	@Test
+	public void testDeduplicate(){
+		var list = new LongArray(new long[]{3, 3, 1, 2, 1, 1});
+		LongArray deduped = list.copyDedupeConsecutive();
+		Assert.assertEquals(deduped, new LongArray(new long[]{3, 1, 2, 1}));
+		LongArray sortedDeduped = list.sortInPlace().copyDedupeConsecutive();
+		Assert.assertEquals(sortedDeduped, new LongArray(new long[]{1, 2, 3}));
+	}
+
 }

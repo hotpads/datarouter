@@ -19,7 +19,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 
 public class InContextRedirectMav extends GlobalRedirectMav{
 

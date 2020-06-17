@@ -19,8 +19,8 @@ import java.net.URI;
 
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClientSettings;
-import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.pathnode.PathNode;
 
 public class DatarouterHttpRequestBuilder{
 

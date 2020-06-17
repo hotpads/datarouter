@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 import io.datarouter.client.hbase.web.HBaseWebInspector;
 import io.datarouter.gcp.bigtable.paths.DatarouterBigTablePaths;
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 
 public class BigTableWebInspector extends HBaseWebInspector{
 

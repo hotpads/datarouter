@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright © 2009 HotPads (admin@hotpads.com)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>io.datarouter</groupId>
+	<artifactId>datarouter-modules</artifactId>
+	<version>0.0.36</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>datarouter-auth</module>
+		<module>datarouter-auto-config</module>
+		<module>datarouter-aws-elb</module>
+		<module>datarouter-aws-memcached</module>
+		<module>datarouter-aws-rds</module>
+		<module>datarouter-aws-secrets-manager</module>
+		<module>datarouter-aws-sqs</module>
+		<module>datarouter-batch-size-optimizer</module>
+		<module>datarouter-changelog</module>
+		<module>datarouter-checkstyle</module>
+		<module>datarouter-cluster-setting</module>
+		<module>datarouter-conveyor</module>
+		<module>datarouter-copy-table</module>
+		<module>datarouter-exception</module>
+		<module>datarouter-gcp-bigtable-hbase</module>
+		<module>datarouter-gcp-spanner</module>
+		<module>datarouter-hbase</module>
+		<module>datarouter-http-client</module>
+		<module>datarouter-inject</module>
+		<module>datarouter-instrumentation</module>
+		<module>datarouter-job</module>
+		<module>datarouter-joblet</module>
+		<module>datarouter-joblet-mysql</module>
+		<module>datarouter-load-test</module>
+		<module>datarouter-logger-config</module>
+		<module>datarouter-logging</module>
+		<module>datarouter-memcached</module>
+		<module>datarouter-metadata-parent</module>
+		<module>datarouter-metric</module>
+		<module>datarouter-model</module>
+		<module>datarouter-mysql</module>
+		<module>datarouter-nodewatch</module>
+		<module>datarouter-parent</module>
+		<module>datarouter-path-node</module>
+		<module>datarouter-rate-limiter</module>
+		<module>datarouter-redis</module>
+		<module>datarouter-redis-cluster</module>
+		<module>datarouter-scanner</module>
+		<module>datarouter-secret</module>
+		<module>datarouter-service-config</module>
+		<module>datarouter-storage</module>
+		<module>datarouter-task-tracker</module>
+		<module>datarouter-testng</module>
+		<module>datarouter-trace</module>
+		<module>datarouter-util</module>
+		<module>datarouter-virtual-node</module>
+		<module>datarouter-web</module>
+		<module>datarouter-webapp-instance</module>
+		<module>datarouter-websocket</module>
+	</modules>
+</project>
+

@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.file;
 
+import io.datarouter.pathnode.FilesRoot;
+
 public abstract class DatarouterFilesTests extends BaseFilesTests{
 
 	private final FilesRoot node;

@@ -17,8 +17,8 @@ package io.datarouter.nodewatch.config;
 
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.path.PathNode;
-import io.datarouter.httpclient.path.PathsRoot;
+import io.datarouter.pathnode.PathNode;
+import io.datarouter.pathnode.PathsRoot;
 
 @Singleton
 public class DatarouterNodewatchPaths extends PathNode implements PathsRoot{

@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.httpclient.response.HttpStatusCode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.util.string.StringTool;
 
 public class Mav{

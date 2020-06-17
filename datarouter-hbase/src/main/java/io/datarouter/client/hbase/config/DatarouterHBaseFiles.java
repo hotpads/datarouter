@@ -17,8 +17,8 @@ package io.datarouter.client.hbase.config;
 
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.path.PathNode;
-import io.datarouter.web.file.FilesRoot;
+import io.datarouter.pathnode.FilesRoot;
+import io.datarouter.pathnode.PathNode;
 
 @Singleton
 public class DatarouterHBaseFiles extends FilesRoot{

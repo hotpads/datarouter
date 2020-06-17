@@ -49,7 +49,7 @@ import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.auth.web.DatarouterPermissionRequestHandler.PermissionRequestDto;
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
 import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.string.StringTool;

@@ -29,7 +29,7 @@ import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig
 public class AppNavBar extends NavBar{
 
 	private static final Comparator<NavBarMenuItemWrapper> NAVBAR_COMPARATOR = Comparator
-			.comparing((NavBarMenuItemWrapper wrapper) -> wrapper.grouping.group)
+			.comparing((NavBarMenuItemWrapper wrapper) -> wrapper.grouping)
 			.thenComparing(Comparator.comparing((NavBarMenuItemWrapper wrapper) -> wrapper.item.getText()));
 
 	protected AppNavBar(
@@ -42,11 +42,12 @@ public class AppNavBar extends NavBar{
 				.map(entry -> new NavBarItem(AppNavBarCategory.README, entry.getValue(), entry.getKey()))
 				.collect(Collectors.toList());
 		Scanner.concat(
-				List.of(new NavBarItem(new SimpleNavBarCategory("Home", AppNavBarCategoryGrouping.HOME), "/", "Home")),
+				List.of(new NavBarItem(new SimpleNavBarCategory("Home", AppNavBarCategoryGrouping.HOME, true), "/",
+						"Home")),
 				pluginSupplier.get(),
 				registrySupplier.get(),
 				readmeLinks)
-				.groupBy(item -> item.category)
+				.groupBy(item -> item.category.toDto())
 				.entrySet()
 				.stream()
 				.map(this::createMenuItem)
@@ -55,25 +56,25 @@ public class AppNavBar extends NavBar{
 				.forEach(this::addMenuItems);
 	}
 
-	private NavBarMenuItemWrapper createMenuItem(Entry<NavBarCategory,List<NavBarItem>> entry){
+	private NavBarMenuItemWrapper createMenuItem(Entry<SimpleNavBarCategory,List<NavBarItem>> entry){
 		if(entry.getValue().size() == 1 && entry.getKey().allowSingleItemMenu()){
 			var item = new NavBarMenuItem(entry.getValue().get(0).path, entry.getKey().getDisplay(), this);
-			return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping());
+			return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping().group);
 		}
 		List<NavBarMenuItem> menuItems = entry.getValue().stream()
 				.sorted(Comparator.comparing((NavBarItem item) -> item.name))
 				.map(item -> new NavBarMenuItem(item.path, item.name, this))
 				.collect(Collectors.toList());
 		var item = new NavBarMenuItem(entry.getKey().getDisplay(), menuItems);
-		return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping());
+		return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping().group);
 	}
 
 	private static final class NavBarMenuItemWrapper{
 
 		public final NavBarMenuItem item;
-		public final AppNavBarCategoryGrouping grouping;
+		public final int grouping;
 
-		public NavBarMenuItemWrapper(NavBarMenuItem item, AppNavBarCategoryGrouping grouping){
+		public NavBarMenuItemWrapper(NavBarMenuItem item, int grouping){
 			this.item = item;
 			this.grouping = grouping;
 		}

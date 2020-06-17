@@ -17,7 +17,7 @@ package io.datarouter.trace.web;
 
 import javax.inject.Inject;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.trace.config.DatarouterTraceFiles;
 import io.datarouter.trace.storage.BaseDatarouterTraceDao;
 import io.datarouter.trace.storage.entity.TraceEntity;

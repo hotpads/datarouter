@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.navigation;
 
+import java.util.Objects;
+
 import io.datarouter.util.enums.Displayable;
 
 public interface NavBarCategory extends Displayable{
@@ -27,14 +29,20 @@ public interface NavBarCategory extends Displayable{
 		return true;
 	}
 
+	default SimpleNavBarCategory toDto(){
+		return new SimpleNavBarCategory(getDisplay(), getGrouping(), allowSingleItemMenu());
+	}
+
 	class SimpleNavBarCategory implements NavBarCategory{
 
 		private final String display;
 		private final AppNavBarCategoryGrouping grouping;
+		private final boolean allowSingleItemMenu;
 
-		public SimpleNavBarCategory(String display, AppNavBarCategoryGrouping grouping){
+		public SimpleNavBarCategory(String display, AppNavBarCategoryGrouping grouping, boolean allowSingleItemMenu){
 			this.display = display;
 			this.grouping = grouping;
+			this.allowSingleItemMenu = allowSingleItemMenu;
 		}
 
 		@Override
@@ -45,6 +53,30 @@ public interface NavBarCategory extends Displayable{
 		@Override
 		public AppNavBarCategoryGrouping getGrouping(){
 			return grouping;
+		}
+
+		@Override
+		public boolean allowSingleItemMenu(){
+			return allowSingleItemMenu;
+		}
+
+		@Override
+		public boolean equals(Object other){
+			if(this == other){
+				return true;
+			}
+			if(!(other instanceof NavBarCategory)){
+				return false;
+			}
+			NavBarCategory that = (NavBarCategory) other;
+			return this.getDisplay().equals(that.getDisplay())
+					&& this.getGrouping().group == that.getGrouping().group
+					&& this.allowSingleItemMenu() == that.allowSingleItemMenu();
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(display, grouping.group, allowSingleItemMenu);
 		}
 
 	}

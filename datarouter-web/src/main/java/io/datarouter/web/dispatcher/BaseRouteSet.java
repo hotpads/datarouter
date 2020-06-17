@@ -18,7 +18,7 @@ package io.datarouter.web.dispatcher;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.handler.BaseHandler;
 
 public abstract class BaseRouteSet{

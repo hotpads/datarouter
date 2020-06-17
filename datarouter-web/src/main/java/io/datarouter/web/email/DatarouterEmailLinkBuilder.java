@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 
 import org.apache.http.client.utils.URIBuilder;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 
 public class DatarouterEmailLinkBuilder{
 

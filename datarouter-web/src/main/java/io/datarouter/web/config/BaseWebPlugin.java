@@ -18,7 +18,7 @@ package io.datarouter.web.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.BasePlugin;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -164,6 +164,18 @@ public abstract class BaseWebPlugin extends BasePlugin{
 
 	public List<NavBarItem> getAppNavBarItems(){
 		return appNavBarItems;
+	}
+
+	/*-------------------------- field attributes ---------------------------*/
+
+	private final List<FieldKeyOverrider> fieldKeyOverrides = new ArrayList<>();
+
+	public void addFieldKeyOverride(FieldKeyOverrider override){
+		fieldKeyOverrides.add(override);
+	}
+
+	public List<FieldKeyOverrider> getFieldKeyOverrides(){
+		return fieldKeyOverrides;
 	}
 
 }

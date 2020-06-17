@@ -137,8 +137,10 @@
 
 		function formatJson(jsonText){
 			const mark = 'JAVASCRIPT_INTEGER_OVERFLOW_PROTECTION'
-			const longSafeText = jsonText.replace(/(?<=(:|^))\d{15,}\b/g, num => Number.isSafeInteger(num) ? num :
-				('"' + mark + '(' + num + ')"'))
+			const replacer = num => Number.isSafeInteger(num) ? num : ('"' + mark + '(' + num + ')"')
+			const longSafeText = jsonText
+					.replace(/:\d{15,}\b/g, num => ':' + replacer(num.slice(1)))
+					.replace(/^\d{15,}\b/g, replacer)
 			return JSON.stringify(JSON.parse(longSafeText), null, 2)
 					.replace(new RegExp('"' + mark + '\\((\\d+)\\)"', 'g'), match => match.slice(mark.length + 2, -2))
 		}

@@ -18,8 +18,8 @@ package io.datarouter.client.mysql.web;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.path.PathNode;
-import io.datarouter.httpclient.path.PathsRoot;
+import io.datarouter.pathnode.PathNode;
+import io.datarouter.pathnode.PathsRoot;
 import io.datarouter.web.config.DatarouterWebPaths;
 
 @Singleton

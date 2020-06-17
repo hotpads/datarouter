@@ -28,26 +28,27 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.setting.SettingCategory.SimpleSettingCategory;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.string.StringTool;
 
 public class SettingRoot extends SettingNode{
 
 	private final Set<SettingNode> rootNodes = Collections.synchronizedSet(new LinkedHashSet<>());
-	private final Map<SettingCategory,Set<SettingNode>> map = Collections.synchronizedMap(new LinkedHashMap<>());
-	private final SettingCategory category;
+	private final Map<SimpleSettingCategory,Set<SettingNode>> map = Collections.synchronizedMap(new LinkedHashMap<>());
+	private final SimpleSettingCategory category;
 
 	public SettingRoot(SettingFinder finder, SettingCategory category, String name){
 		super(finder, name);
 		this.rootNodes.add(this);
-		this.category = category;
+		this.category = category.toSimpleSettingCategory();
 	}
 
 	private SettingRoot(SettingFinder finder, AllSettingRootsFinder additionalSettingRootsFinder,
 			SettingCategory category, String name){
 		super(finder, name);
 		additionalSettingRootsFinder.getSettingRoots().forEach(this::dependsOn);
-		this.category = category;
+		this.category = category.toSimpleSettingCategory();
 	}
 
 	private void dependsOn(SettingRoot settingNode){
@@ -106,15 +107,15 @@ public class SettingRoot extends SettingNode{
 				.anyMatch(shortName -> shortName.equals(rootNameWithoutTrailingDot));
 	}
 
-	public SettingCategory getSettingCategory(){
+	public SimpleSettingCategory getSettingCategory(){
 		return category;
 	}
 
 	private void addToMap(SettingRoot root){
-		map.computeIfAbsent(root.getSettingCategory(), $ -> new LinkedHashSet<>()).add(root);
+		map.computeIfAbsent(root.getSettingCategory().toSimpleSettingCategory(), $ -> new LinkedHashSet<>()).add(root);
 	}
 
-	public Map<SettingCategory,Set<SettingNode>> getRootNodesByCategory(){
+	public Map<SimpleSettingCategory,Set<SettingNode>> getRootNodesByCategory(){
 		return map;
 	}
 

@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -121,6 +122,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			}finally{
 				Long cpuTime = saveCpuTime ? ManagementFactory.getThreadMXBean().getThreadCpuTime(threadId)
 						- cpuTimeBegin : null;
+				if(cpuTime != null){
+					cpuTime = TimeUnit.NANOSECONDS.toMillis(cpuTime);
+				}
 
 				tracer.finishThread();
 				trace.markFinished();
@@ -142,12 +146,12 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							.map(Session::getUserToken)
 							.orElse("unknown");
 					logger.warn("Trace saved to={} traceId={} durationMs={} requestId={} path={} query={}"
-							+ "cpuTime={} userAgent=\"{}\" userToken={}", destination, trace.getTraceId(),
+							+ " cpuTimeMs={} userAgent=\"{}\" userToken={}", destination, trace.getTraceId(),
 							traceDurationMs, requestId, trace.getType(), trace.getParams(),
 							cpuTime, userAgent, userToken);
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()){
 					// only log once
-					logger.warn("Trace logged durationMs={} cpuTime = {} requestId={} path={} query={}",
+					logger.warn("Trace logged durationMs={} cpuTimeMs={} requestId={} path={} query={}",
 							traceDurationMs, cpuTime, requestId, trace.getType(), trace.getParams());
 				}
 				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool

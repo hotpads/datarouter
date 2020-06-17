@@ -18,9 +18,9 @@ package io.datarouter.changelog.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,13 +51,15 @@ public class ChangelogEmailService{
 	private DatarouterChangelogPaths paths;
 
 	public void sendEmail(String changelogType, String name, String action, String username,
-			Optional<String> toEmail, Optional<String> comment){
+			Optional<String> toEmailParam, Optional<String> comment){
 		String from = datarouterProperties.getAdministratorEmail();
-		String to = toEmail
+		List<String> toEmails = additionalAdministratorEmailService.getAdministratorEmailAddresses();
+		toEmails.add(username);
+		toEmailParam
 				.map(email -> email.split(","))
-				.map(Set::of)
-				.map(emailSet -> additionalAdministratorEmailService.getAdministratorEmailAddressesCsv(emailSet))
-				.orElseGet(() -> additionalAdministratorEmailService.getAdministratorEmailAddressesCsv());
+				.map(Arrays::stream)
+				.ifPresent(stream -> stream.forEach(toEmails::add));
+		String to = String.join(",", toEmails);
 
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.changelog.view)

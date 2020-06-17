@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.homepage;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 
 public abstract class HomepageRouteSet extends BaseRouteSet{

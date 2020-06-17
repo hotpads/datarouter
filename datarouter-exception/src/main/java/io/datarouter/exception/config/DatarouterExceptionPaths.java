@@ -17,8 +17,8 @@ package io.datarouter.exception.config;
 
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.path.PathNode;
-import io.datarouter.httpclient.path.PathsRoot;
+import io.datarouter.pathnode.PathNode;
+import io.datarouter.pathnode.PathsRoot;
 
 @Singleton
 public class DatarouterExceptionPaths extends PathNode implements PathsRoot{

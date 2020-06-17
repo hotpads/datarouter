@@ -30,13 +30,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.instrumentation.test.TestableService;
+import io.datarouter.pathnode.FilesRoot;
+import io.datarouter.pathnode.PathNode;
+import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.lang.ClassTool;
-import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 
 public abstract class BaseFilesTests implements TestableService{
 	private static final Logger logger = LoggerFactory.getLogger(BaseFilesTests.class);

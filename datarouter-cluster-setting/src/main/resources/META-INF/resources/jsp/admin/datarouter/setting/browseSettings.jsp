@@ -202,7 +202,7 @@
 			<ul class="nav nav-tabs">
 				<c:forEach items="${categoryMap}" var="category">
 					<li class="nav-item font-italic">
-						<a class="nav-link ${category.key.display == currentCategory ? 'active' : ''}" href="#${category.key}" data-toggle="tab">
+						<a class="nav-link ${category.key.display == currentCategory ? 'active' : ''}" href="#${category.key.href}" data-toggle="tab">
 							${category.key.display}
 						</a>
 					</li>
@@ -210,11 +210,12 @@
 			</ul>
 			<div class="tab-content p-1 border border-top-0">
 				<c:forEach items="${categoryMap}" var="category">
-					<div id="${category.key}" class="tab-pane ${category.key.display == currentCategory ? 'show active' : ''}" role="tabpanel">
+					<div id="${category.key.href}" class="tab-pane ${category.key.display == currentCategory ? 'show active' : ''}" role="tabpanel">
 						<ul class="nav nav-pills">
 							<c:forEach items="${category.value}" var="root">
 								<li class="nav-item">
-									<a class="nav-link ${root.getShortName() == currentRootName ? 'active' : ''}" href="?submitAction=browseSettings&name=${root.getName()}"> ${root.getShortName()}</a>
+									<a class="nav-link ${root.getShortName() == currentRootName ? 'active' : ''}"
+											href="?submitAction=browseSettings&name=${root.getName()}"> ${root.getShortName()}</a>
 								</li>
 							</c:forEach>
 						</ul>

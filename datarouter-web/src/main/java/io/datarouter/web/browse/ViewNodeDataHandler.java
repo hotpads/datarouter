@@ -28,11 +28,11 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;

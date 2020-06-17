@@ -17,8 +17,8 @@ package io.datarouter.auth.config;
 
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.path.PathNode;
-import io.datarouter.httpclient.path.PathsRoot;
+import io.datarouter.pathnode.PathNode;
+import io.datarouter.pathnode.PathsRoot;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.DatarouterWebPaths.PermissionRequestPaths;
 import io.datarouter.web.config.DatarouterWebPaths.SigninPaths;

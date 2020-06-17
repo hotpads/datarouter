@@ -17,6 +17,8 @@ package io.datarouter.web.file;
 
 import javax.inject.Inject;
 
+import io.datarouter.pathnode.FilesRoot;
+
 public class AppFilesTestService extends BaseFilesTests{
 
 	@Inject

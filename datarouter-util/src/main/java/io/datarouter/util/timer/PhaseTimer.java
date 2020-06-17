@@ -18,6 +18,7 @@ package io.datarouter.util.timer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import io.datarouter.scanner.Scanner;
@@ -35,13 +36,13 @@ import io.datarouter.util.tuple.Pair;
 public class PhaseTimer{
 
 	private final String id;
-
-	private long lastMarker = System.currentTimeMillis();
-	private List<Pair<String,Long>> phaseNamesAndTimes = new ArrayList<>();
+	private final List<Pair<String,Long>> phaseNamesAndTimes = new ArrayList<>();
 	private String name;
 
+	private long lastMarker = System.currentTimeMillis();
+
 	public PhaseTimer(){
-		id = UlidTool.nextUlid();
+		this(null);
 	}
 
 	public PhaseTimer(String name){
@@ -65,32 +66,27 @@ public class PhaseTimer{
 	}
 
 	public PhaseTimer sum(String eventName){
-		int phaseIndex = getIndexOf(eventName);
-		if(phaseIndex == -1){
+		Optional<Pair<String,Long>> nameAndTimeOpt = searchForName(eventName);
+		if(nameAndTimeOpt.isEmpty()){
 			return add(eventName);
 		}
 		long newMarker = System.currentTimeMillis();
-		phaseNamesAndTimes.get(phaseIndex).setRight(phaseNamesAndTimes.get(phaseIndex).getRight() + newMarker
-				- lastMarker);
+		Pair<String,Long> nameAndTime = nameAndTimeOpt.get();
+		nameAndTime.setRight(nameAndTime.getRight() + newMarker - lastMarker);
 		lastMarker = newMarker;
 		return this;
 	}
 
 	public Long getPhaseTime(String eventName){
-		int phaseIndex = getIndexOf(eventName);
-		if(phaseIndex >= 0){
-			return phaseNamesAndTimes.get(phaseIndex).getRight();
-		}
-		return null;
+		return searchForName(eventName)
+				.map(Pair::getRight)
+				.orElse(null);
 	}
 
-	private int getIndexOf(String eventName){
-		for(int i = 0; i < phaseNamesAndTimes.size(); ++i){
-			if(phaseNamesAndTimes.get(i).getLeft().equals(eventName)){
-				return i;
-			}
-		}
-		return -1;
+	private Optional<Pair<String,Long>> searchForName(String eventName){
+		return phaseNamesAndTimes.stream()
+				.filter(nameAndTime -> nameAndTime.getLeft().equals(eventName))
+				.findAny();
 	}
 
 	public int numEvents(){

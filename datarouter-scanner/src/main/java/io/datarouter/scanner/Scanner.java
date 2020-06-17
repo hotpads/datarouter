@@ -218,25 +218,47 @@ public interface Scanner<T> extends Closeable{
 
 	/*----------------------------- Append ----------------------------------*/
 
+	/**
+	 * Concats the provided Scanner after the current Scanner.
+	 */
 	default Scanner<T> append(Scanner<T> scanner){
 		return concat(this, scanner);
 	}
 
+	/**
+	 * Concats the provided array items after the current Scanner.
+	 */
 	default Scanner<T> append(@SuppressWarnings("unchecked") T... items){
 		return concat(this, Scanner.of(items));
 	}
 
+	/**
+	 * Concats the provided Iterable items after the current Scanner.
+	 */
 	default Scanner<T> append(Iterable<T> iterable){
 		return concat(this, Scanner.of(iterable));
 	}
 
 	/*--------------------------- Collate ----------------------------*/
 
+	/**
+	 * Similar to the merge phase of a merge sort, assuming the input Scanners are sorted. Converts the input items
+	 * to Scanners and feeds all Scanners through a PriorityQueue with "natural" comparator ordering.
+	 *
+	 * @return  Assuming input scanners are sorted, a single Scanner of all items in sorted order.
+	 */
 	@SuppressWarnings("unchecked")
 	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper){
 		return collate(mapper, (Comparator<? super R>)Comparator.naturalOrder());
 	}
 
+	/**
+	 * Similar to the merge phase of a merge sort, assuming the input Scanners are sorted. Converts the input items
+	 * to Scanners and feeds all Scanners through a PriorityQueue with the provided comparator.
+	 *
+	 * @return  Assuming input scanners are sorted according to the comparator, a single Scanner of all items in sorted
+	 *         order.
+	 */
 	default <R> Scanner<R> collate(Function<? super T,Scanner<R>> mapper, Comparator<? super R> comparator){
 		List<Scanner<R>> scanners = map(mapper).list();
 		if(scanners.size() == 1){
@@ -247,14 +269,31 @@ public interface Scanner<T> extends Closeable{
 
 	/*--------------------------- Chain ----------------------------*/
 
+	/**
+	 * A caller can extend BaseLinkedScanner, which has exception handling logic, and fluently include it in the
+	 * Scanner pipeline.
+	 *
+	 * @param scannerBuilder  Function to build the BaseLinkedScanner
+	 */
 	default <R> Scanner<R> link(Function<Scanner<T>,BaseLinkedScanner<T,R>> scannerBuilder){
 		return scannerBuilder.apply(this);
 	}
 
+	/**
+	 * Beta: Apply the provided Function which returns another Scanner. The other Scanner is now responsible for
+	 * consuming the Scanner, or returning a continued Scanner.
+	 *
+	 * @param function A method reference that accepts this Scanner
+	 */
 	default <R> R apply(Function<Scanner<T>,R> function){
 		return function.apply(this);
 	}
 
+	/**
+	 * Beta: Pass the current Scanner to a method that will Consume this Scanner and return nothing.
+	 *
+	 * @param consumer  A method reference that accepts this Scanner
+	 */
 	default void then(Consumer<Scanner<T>> consumer){
 		consumer.accept(this);
 	}

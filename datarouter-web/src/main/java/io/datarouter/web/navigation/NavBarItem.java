@@ -19,7 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 
 public class NavBarItem{
@@ -44,7 +44,7 @@ public class NavBarItem{
 		public final List<NavBarItem> items;
 
 		private NavBarItemGroup(NavBarCategory category, List<NavBarItem> items){
-			this.category = category;
+			this.category = category.toDto();
 			this.items = items;
 		}
 

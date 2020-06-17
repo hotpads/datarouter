@@ -13,20 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.file;
+package io.datarouter.pathnode;
 
-import java.util.Collections;
-import java.util.List;
-
-import io.datarouter.httpclient.path.PathNode;
-
-public abstract class FilesRoot extends PathNode{
-
-	protected List<String> filesToOmit(){
-		return Collections.emptyList();
-	}
-
-	public static class NoOpFilesRoot extends FilesRoot{
-	}
-
+public interface PathsRoot{
 }

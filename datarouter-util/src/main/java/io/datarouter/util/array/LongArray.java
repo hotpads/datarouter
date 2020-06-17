@@ -357,6 +357,37 @@ public class LongArray implements List<Long>, Comparable<List<Long>>, RandomAcce
 		return copy;
 	}
 
+	public LongArray trimmedCopy(){
+		return new LongArray(Arrays.copyOf(array, size));
+	}
+
+	public LongArray sortInPlace(){
+		Arrays.sort(array, 0, size);
+		return this;
+	}
+
+	public LongArray copyDedupeConsecutive(){
+		if(size == 0){
+			return new LongArray(0);
+		}
+		int newSize = 1;
+		for(int i = 1; i < size; ++i){
+			if(array[i] != array[i - 1]){
+				++newSize;
+			}
+		}
+		long[] newArray = new long[newSize];
+		newArray[0] = array[0];
+		int nextNewIndex = 1;
+		for(int i = 1; i < size; ++i){
+			if(array[i] != array[i - 1]){
+				newArray[nextNewIndex] = array[i];
+				++nextNewIndex;
+			}
+		}
+		return new LongArray(newArray);
+	}
+
 	public static class LongArrayIterator implements ListIterator<Long>{
 
 		private LongArray wrapper;

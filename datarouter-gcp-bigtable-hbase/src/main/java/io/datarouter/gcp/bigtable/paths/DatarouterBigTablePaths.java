@@ -17,8 +17,8 @@ package io.datarouter.gcp.bigtable.paths;
 
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.path.PathNode;
-import io.datarouter.httpclient.path.PathsRoot;
+import io.datarouter.pathnode.PathNode;
+import io.datarouter.pathnode.PathsRoot;
 
 @Singleton
 public class DatarouterBigTablePaths extends PathNode implements PathsRoot{

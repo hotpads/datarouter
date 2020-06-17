@@ -17,7 +17,7 @@ package io.datarouter.web.css;
 
 import java.util.List;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.EmptyTag;

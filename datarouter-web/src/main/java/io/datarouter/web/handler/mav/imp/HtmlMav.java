@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.handler.mav.imp;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.handler.mav.Mav;
 

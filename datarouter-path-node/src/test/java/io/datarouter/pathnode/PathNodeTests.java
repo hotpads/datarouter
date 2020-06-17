@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient.path;
+package io.datarouter.pathnode;
 
 import java.util.List;
+
+import javax.inject.Singleton;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class PathNodeTests{
 
+	@Singleton
 	public static class TestPaths extends PathNode{
 
 		public final BPaths aa = branch(BPaths::new, "aa");

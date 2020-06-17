@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServlet;
 import com.google.inject.Module;
 
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.pathnode.FilesRoot;
+import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptionsFactory;
 import io.datarouter.storage.config.BasePlugin;
@@ -56,8 +58,6 @@ import io.datarouter.web.config.DatarouterWebPlugin.DatarouterWebPluginBuilder;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.ServletParams;
-import io.datarouter.web.file.FilesRoot;
-import io.datarouter.web.file.FilesRoot.NoOpFilesRoot;
 import io.datarouter.web.filter.https.HttpsOnlyHttpsConfiguration;
 import io.datarouter.web.homepage.DefaultHomepageRouteSet;
 import io.datarouter.web.homepage.HomepageHandler;
@@ -220,9 +220,8 @@ implements WebappBuilder{
 	public DatarouterWebappConfig build(){
 		onBuild();
 
-		fieldKeyOverriders.forEach(FieldKeyOverrider::override);
-
 		webPlugins.forEach(this::addWebPluginWithoutInstalling);
+		fieldKeyOverriders.forEach(FieldKeyOverrider::override);
 		webPlugins.stream()
 				.map(BasePlugin::getName)
 				.forEach(registeredPlugins::add);
@@ -342,6 +341,8 @@ implements WebappBuilder{
 
 		datarouterNavBarPluginItems.addAll(plugin.getDatarouterNavBarItems());
 		appNavBarPluginItems.addAll(plugin.getAppNavBarItems());
+
+		fieldKeyOverriders.addAll(plugin.getFieldKeyOverrides());
 
 		return getSelf();
 	}

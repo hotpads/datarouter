@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 @Singleton
@@ -36,7 +37,7 @@ public class DatarouterNavBar extends NavBar{
 			DatarouterNavBarSupplier navBarSupplier){
 		super(webFiles.jeeAssets.datarouterLogoPng.toSlashedString(), "Datarouter logo", config);
 		Scanner.of(navBarSupplier.get())
-				.groupBy(item -> item.category)
+				.groupBy(item -> item.category.toDto())
 				.entrySet()
 				.stream()
 				.map(this::createMenuItem)
@@ -44,7 +45,7 @@ public class DatarouterNavBar extends NavBar{
 				.forEach(this::addMenuItems);
 	}
 
-	private NavBarMenuItem createMenuItem(Entry<NavBarCategory,List<NavBarItem>> entry){
+	private NavBarMenuItem createMenuItem(Entry<SimpleNavBarCategory,List<NavBarItem>> entry){
 		List<NavBarMenuItem> menuItems = entry.getValue().stream()
 				.sorted(Comparator.comparing((NavBarItem item) -> item.name))
 				.map(item -> new NavBarMenuItem(item.path, item.name, this))

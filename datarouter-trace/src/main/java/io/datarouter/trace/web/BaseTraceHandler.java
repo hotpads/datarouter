@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import io.datarouter.httpclient.path.PathNode;
 import io.datarouter.instrumentation.trace.TraceDto;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.trace.storage.entity.BaseTraceEntity;
 import io.datarouter.trace.storage.span.BaseTraceSpan;

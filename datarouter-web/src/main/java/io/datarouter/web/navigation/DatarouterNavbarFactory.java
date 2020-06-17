@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.httpclient.path.PathNode;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.css.DatarouterWebCssTool;
 import io.datarouter.web.handler.mav.MavProperties;
