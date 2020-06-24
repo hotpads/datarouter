@@ -65,8 +65,8 @@ public class ChangelogEmailService{
 				.withLocalPath(paths.datarouter.changelog.view)
 				.build();
 		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject("Changelog -" + changelogType + " - " + datarouterService.getName())
-				.withTitle("Changelog -" + changelogType)
+				.withSubject("Changelog - " + changelogType + " - " + datarouterService.getName())
+				.withTitle("Changelog - " + changelogType)
 				.withTitleHref(primaryHref)
 				.withContent(makeEmailContent(changelogType, name, action, username, comment.orElse("")));
 		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
@@ -76,6 +76,7 @@ public class ChangelogEmailService{
 			String comment){
 		var rows = List.of(
 				new Twin<>("Service", datarouterService.getName()),
+				new Twin<>("ServerName", datarouterProperties.getServerName()),
 				new Twin<>("ChangelogType", changelogType),
 				new Twin<>("Name", name),
 				new Twin<>("Action", action),

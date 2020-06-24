@@ -261,12 +261,14 @@ implements WebappBuilder{
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
 				serverTypes,
 				datarouterProperties)
-				.setServerTypeDetector(serverTypeDetector)
 				.setSettingOverridesClass(settingOverrides)
 				.setSettingRootsClass(new SettingRoots(settingRoots))
 				.setClientOptionsFactoryClass(clientOptionsFactory)
 				.setSchemaUpdateOptionsFactoryClass(schemaUpdateOptionsFactory)
 				.addDaosClasses(daoClasses);
+		if(serverTypeDetector != null){
+			storagePluginBuilder.setServerTypeDetector(serverTypeDetector);
+		}
 		addStoragePluginWithoutInstalling(storagePluginBuilder.getSimplePluginData());
 		storagePluginBuilder.setSettingRootsClass(new SettingRoots(settingRoots));
 

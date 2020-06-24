@@ -16,6 +16,7 @@
 package io.datarouter.model.field;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.model.field.encoding.FieldGeneratorType;
@@ -51,5 +52,6 @@ public interface FieldKey<T>{
 	Field<T> createValueField(T value);
 
 	<U extends FieldKeyAttribute<U>> Optional<U> findAttribute(FieldKeyAttributeKey<U> key);
+	Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> getAttributes();
 
 }

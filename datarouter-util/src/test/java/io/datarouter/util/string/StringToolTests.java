@@ -138,6 +138,8 @@ public class StringToolTests{
 	public void testEnforceAlphabetic(){
 		Assert.assertEquals(StringTool.enforceAlphabetic("abc123"), "abc");
 		Assert.assertEquals(StringTool.enforceAlphabetic("1abc123,"), "abc");
+		Assert.assertNotEquals(StringTool.enforceAlphabetic("1ABC123,"), "abc");
+		Assert.assertEquals(StringTool.enforceAlphabetic("1ABC123,"), "");
 	}
 
 	@Test

@@ -18,6 +18,8 @@ package io.datarouter.aws.rds.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.aws.rds.service.AuroraAvailabilityZoneProvider;
+import io.datarouter.aws.rds.service.AuroraAvailabilityZoneProvider.GenericAvailabilityZoneProvider;
 import io.datarouter.aws.rds.service.AuroraClientIdProvider;
 import io.datarouter.aws.rds.service.AuroraClientIdProvider.GenericAuroraClientIdProvider;
 import io.datarouter.aws.rds.service.AwsTags;
@@ -33,14 +35,17 @@ public class DatarouterAwsRdsPlugin extends BaseJobPlugin{
 	private final Class<? extends DatabaseAdministrationConfiguration> databaseAdministrationConfiguration;
 	private final Class<? extends AwsTags> awsTags;
 	private final List<ClientId> auroraClientIds;
+	private final String availabilityZone;
 
 	private DatarouterAwsRdsPlugin(
 			Class<? extends DatabaseAdministrationConfiguration> databaseAdministrationConfiguration,
 			Class<? extends AwsTags> awsTags,
-			List<ClientId> auroraClientIds){
+			List<ClientId> auroraClientIds,
+			String availabilityZone){
 		this.databaseAdministrationConfiguration = databaseAdministrationConfiguration;
 		this.awsTags = awsTags;
 		this.auroraClientIds = auroraClientIds;
+		this.availabilityZone = availabilityZone;
 		addRouteSet(DatarouterAwsRdsRouteSet.class);
 		addTriggerGroup(DatarouterAwsRdsTriggerGroup.class);
 		addSettingRoot(DatarouterAwsRdsSettingRoot.class);
@@ -58,6 +63,7 @@ public class DatarouterAwsRdsPlugin extends BaseJobPlugin{
 		bind(DatabaseAdministrationConfiguration.class).to(databaseAdministrationConfiguration);
 		bind(AwsTags.class).to(awsTags);
 		bind(AuroraClientIdProvider.class).toInstance(new GenericAuroraClientIdProvider(auroraClientIds));
+		bind(AuroraAvailabilityZoneProvider.class).toInstance(new GenericAvailabilityZoneProvider(availabilityZone));
 	}
 
 	public static class DatarouterAwsRdsPluginBuilder{
@@ -66,6 +72,7 @@ public class DatarouterAwsRdsPlugin extends BaseJobPlugin{
 				= NoOpDatabaseAdministrationConfiguration.class;
 		private Class<? extends AwsTags> awsTags = NoOpAwsTags.class;
 		private List<ClientId> auroraClientIds = new ArrayList<>();
+		private String availabilityZone = "";
 
 		public DatarouterAwsRdsPluginBuilder withDatabaseAdministratorConfigurationClass(
 				Class<? extends DatabaseAdministrationConfiguration> databaseAdministrationConfiguration){
@@ -83,11 +90,17 @@ public class DatarouterAwsRdsPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterAwsRdsPluginBuilder addAuroraAvailabilityZone(String availabilityZone){
+			this.availabilityZone = availabilityZone;
+			return this;
+		}
+
 		public DatarouterAwsRdsPlugin build(){
 			return new DatarouterAwsRdsPlugin(
 					databaseAdministrationConfiguration,
 					awsTags,
-					auroraClientIds);
+					auroraClientIds,
+					availabilityZone);
 		}
 
 	}

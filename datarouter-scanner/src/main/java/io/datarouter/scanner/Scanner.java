@@ -183,14 +183,27 @@ public interface Scanner<T> extends Closeable{
 	/*--------------------------- Concat ----------------------------*/
 
 	/**
+	 * Combine the items from multiple Iterables into a single Scanner.  Use Function.identity() if they're already
+	 * Iterables.
+	 *
+	 * @param mapToIterable  Converts the input items into the Iterables to be combined
+	 * @return  Scanner containing the items from all input Iterables, starting with the first
+	 */
+	default <R> Scanner<R> concatIter(Function<? super T,Iterable<R>> mapToIterable){
+		Scanner<Iterable<R>> iterables = map(mapToIterable);
+		Scanner<Scanner<R>> scanners = iterables.map(IterableScanner::of);
+		return new ConcatenatingScanner<>(scanners);
+	}
+
+	/**
 	 * Combine the items from multiple Scanners into a single Scanner.  Use Function.identity() if they're already
 	 * Scanners.
 	 *
-	 * @param mapper  Converts the input items into the Scanners to be combined
+	 * @param mapToScanner  Converts the input items into the Scanners to be combined
 	 * @return  Scanner containing the items from all input Scanners, starting with the first
 	 */
-	default <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapper){
-		Scanner<Scanner<R>> scanners = map(mapper);
+	default <R> Scanner<R> concat(Function<? super T,Scanner<R>> mapToScanner){
+		Scanner<Scanner<R>> scanners = map(mapToScanner);
 		return new ConcatenatingScanner<>(scanners);
 	}
 
@@ -331,49 +344,94 @@ public interface Scanner<T> extends Closeable{
 	}
 
 	/**
-	 * Removes consecutive duplicates. Lighter weight than distinct() because all elements need not be collected into
+	 * Skips consecutive duplicates. Lighter weight than distinct() because all elements need not be collected into
 	 * memory.
 	 */
 	default Scanner<T> deduplicate(){
 		return new DeduplicatingScanner<>(this, Function.identity());
 	}
 
+	/**
+	 * Skips items where the mapper outputs the same value as the previous item. Lighter weight than distinctBy()
+	 * because all elements need not be collected into memory.
+	 */
 	default Scanner<T> deduplicateBy(Function<T,?> mapper){
 		return new DeduplicatingScanner<>(this, mapper);
 	}
 
+	/**
+	 * Calls Consumer::accept on each item.
+	 */
 	default Scanner<T> each(Consumer<? super T> consumer){
 		return new EachScanner<>(this, consumer);
 	}
 
+	/**
+	 * Skips items where the Predicate returns true.
+	 */
 	default Scanner<T> exclude(Predicate<? super T> predicate){
 		return new FilteringScanner<>(this, predicate.negate());
 	}
 
+	/**
+	 * Skips items where the Predicate returns false.
+	 */
 	default Scanner<T> include(Predicate<? super T> predicate){
 		return new FilteringScanner<>(this, predicate);
 	}
 
+	/**
+	 * Ends the Scanner when the limit has been reached.
+	 */
 	default Scanner<T> limit(long limit){
 		return new LimitingScanner<>(this, limit);
 	}
 
-	default <R> Scanner<R> map(Function<? super T, ? extends R> mapper){
+	/**
+	 * For each input item, outputs the result of Function::apply.
+	 */
+	default <R> Scanner<R> map(Function<? super T,? extends R> mapper){
 		return new MappingScanner<>(this, mapper);
 	}
 
+	/**
+	 * For retaining a window of N previous items.
+	 *
+	 * @param retaining  The number of extra items to retain, in addition to the Scanner's default of zero.
+	 * @return  A RetainingGroup allowing you to call peekBack(1), to get the previous current() value.  Calling
+	 * 			peekBack with a value higher than the "retaining" param will cause an exception.
+	 */
 	default Scanner<RetainingGroup<T>> retain(int retaining){
 		return new RetainingScanner<>(this, retaining);
 	}
 
+	/**
+	 * Return every Nth item.
+	 *
+	 * @param sampleSize  A Scanner with 8 items and sample size 8 will return either 2 or 3 results.
+	 * @param includeLast  Whether to include the last item in case of a partial sample.
+	 * @return  A Scanner of the sampled items.
+	 */
 	default Scanner<T> sample(long sampleSize, boolean includeLast){
 		return new SamplingScanner<>(this, sampleSize, includeLast);
 	}
 
+	/**
+	 * Skip the leading items from the Scanner.
+	 *
+	 * @param numToSkip  Skips up to this many items, or fewer if the Scanner had fewer items.
+	 * @return  A Scanner with the remaining items, or an empty Scanner if all items were dropped.
+	 */
 	default Scanner<T> skip(long numToSkip){
 		return ScannerTool.skip(this, numToSkip);
 	}
 
+	/**
+	 * Applies the Function to each item in the Scanner, returning a new Scanner each time the mapped value changes.
+	 *
+	 * Similar to groupBy on an unbounded amount of data, but will result in multiple of the same groupings depending
+	 * on the order of the input data.  Useful in the case of Scanning child objects and grouping by a parent.
+	 */
 	default Scanner<Scanner<T>> splitBy(Function<T,?> mapper){
 		return new SplittingScanner<>(this, mapper);
 	}

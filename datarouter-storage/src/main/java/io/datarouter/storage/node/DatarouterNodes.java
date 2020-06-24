@@ -44,21 +44,15 @@ import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 @Singleton
 public class DatarouterNodes{
 
-	/*------------------------------ fields ---------------------------------*/
-
 	private final SortedSet<Node<?,?,?>> topLevelNodes;
 	private final Map<String,Node<?,?,?>> nodeByName;
 	private final Map<String,Map<String,PhysicalNode<?,?,?>>> physicalNodeByTableNameByClientName;
-
-	/*---------------------------- constructor ------------------------------*/
 
 	DatarouterNodes(){
 		this.topLevelNodes = new ConcurrentSkipListSet<>();
 		this.nodeByName = new ConcurrentSkipListMap<>();
 		this.physicalNodeByTableNameByClientName = new ConcurrentSkipListMap<>();
 	}
-
-	/*------------------------------ methods --------------------------------*/
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
 	N register(N node){
@@ -171,8 +165,6 @@ public class DatarouterNodes{
 		}
 		return null;
 	}
-
-	/*------------------------------ get/set --------------------------------*/
 
 	public SortedSet<Node<?,?,?>> getTopLevelNodes(){
 		return topLevelNodes;

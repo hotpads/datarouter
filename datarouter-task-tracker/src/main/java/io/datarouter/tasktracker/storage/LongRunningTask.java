@@ -160,6 +160,12 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		return jobExecutionStatus == LongRunningTaskStatus.SUCCESS;
 	}
 
+	public boolean isBadState(){
+		return jobExecutionStatus == LongRunningTaskStatus.ERRORED
+				|| jobExecutionStatus == LongRunningTaskStatus.TIMED_OUT
+				|| jobExecutionStatus == LongRunningTaskStatus.INTERRUPTED;
+	}
+
 	public String getHeartbeatStatus(){
 		if(heartbeatTime == null || !isRunning()){
 			return null;

@@ -16,8 +16,9 @@
 package io.datarouter.scanner;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -31,16 +32,30 @@ public class ConcatenatingScannerTests{
 			"This scanner should just process its first element");
 
 	@Test
-	public void test(){
+	public void testConcat(){
 		Scanner<List<Integer>> batches = Scanner.of(
-				Collections.emptyList(),
-				Arrays.asList(0, 1),
-				Arrays.asList(2, 73),
-				Collections.emptyList(),
-				Collections.emptyList(),
-				Arrays.asList(3, 4));
+				List.of(),
+				List.of(0, 1),
+				List.of(2, 73),
+				List.of(),
+				List.of(3, 4));
 		List<Integer> actual = batches
 				.concat(Scanner::of)
+				.list();
+		List<Integer> expected = Arrays.asList(0, 1, 2, 73, 3, 4);
+		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void testConcatIter(){
+		Map<String,List<Integer>> map = new TreeMap<>(Map.of(
+				"a", List.of(),
+				"b", List.of(0, 1),
+				"c", List.of(2, 73),
+				"d", List.of(),
+				"e", List.of(3, 4)));
+		List<Integer> actual = Scanner.of(map.keySet())
+				.concatIter(map::get)
 				.list();
 		List<Integer> expected = Arrays.asList(0, 1, 2, 73, 3, 4);
 		Assert.assertEquals(actual, expected);

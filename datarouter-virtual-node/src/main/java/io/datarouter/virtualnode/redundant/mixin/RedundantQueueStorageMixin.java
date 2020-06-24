@@ -53,8 +53,7 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 	@Override
 	default List<D> pollMulti(Config config){
 		return Scanner.of(getReadNodes())
-				.map(node -> node.pollMulti(config))
-				.concat(Scanner::of)
+				.concatIter(node -> node.pollMulti(config))
 				.list();
 	}
 

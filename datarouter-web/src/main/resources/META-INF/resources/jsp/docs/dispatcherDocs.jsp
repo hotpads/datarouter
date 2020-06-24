@@ -168,16 +168,16 @@
 		$(function(){
 			$('a[data-toggle="collapse"]').click(function(){
 				if($(this).parents('.card').find('.collapse').hasClass('show')){
-					history.pushState(null, null, window.location.href.split('#')[0])
+					history.replaceState(null, null, window.location.href.split('?')[0])
 				}else{
-					history.pushState(null, null, '#' + $(this).data('url'))
+					history.replaceState(null, null, '?endpoint=' + encodeURIComponent($(this).data('url')))
 				}
 			})
 
-			const urlOnPageLoad = window.location.hash.slice(1);
-			if(urlOnPageLoad){
+			const urlMatchOnPageLoad = window.location.search.match(/endpoint=(.*)(&|$)/)
+			if(urlMatchOnPageLoad){
 				// browser should already have scrolled this element into view
-				$('[data-url="' + urlOnPageLoad + '"]').click()
+				$('[data-url="' + decodeURIComponent(urlMatchOnPageLoad[1]) + '"]').click()
 			}
 		})
 	});

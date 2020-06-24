@@ -18,5 +18,6 @@ package io.datarouter.model.field;
 public interface FieldKeyAttribute<T>{
 
 	FieldKeyAttributeKey<T> getKey();
+	String getValue();
 
 }

@@ -24,7 +24,7 @@ import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
 
-public class StringEnumField<E extends StringEnum<E>>extends BaseField<E>{
+public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 
 	private final StringEnumFieldKey<E> key;
 	private final StringField stringField;

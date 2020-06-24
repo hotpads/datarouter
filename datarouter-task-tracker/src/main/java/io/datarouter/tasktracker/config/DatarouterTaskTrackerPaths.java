@@ -27,6 +27,7 @@ public class DatarouterTaskTrackerPaths extends PathNode implements PathsRoot{
 
 	public static class DatarouterPaths extends PathNode{
 		public final PathNode longRunningTasks = leaf("longRunningTasks");
+		public final PathNode jobsHealth = leaf("jobsHealth");
 	}
 
 }

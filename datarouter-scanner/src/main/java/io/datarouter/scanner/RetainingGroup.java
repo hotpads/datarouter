@@ -18,7 +18,7 @@ package io.datarouter.scanner;
 import java.util.LinkedList;
 
 /**
- * Simple object returned by {@link RetainingScanner}
+ * Window object returned by {@link RetainingScanner}
  */
 public class RetainingGroup<T>{
 

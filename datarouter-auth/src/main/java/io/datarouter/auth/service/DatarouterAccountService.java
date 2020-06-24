@@ -152,4 +152,11 @@ public class DatarouterAccountService{
 				.collect(Collectors.toList());
 	}
 
+	public String getAccountNameForRequest(HttpServletRequest request){
+		return getCurrentDatarouterAccount(request)
+				.map(DatarouterAccount::getKey)
+				.map(DatarouterAccountKey::getAccountName)
+				.orElseThrow();
+	}
+
 }

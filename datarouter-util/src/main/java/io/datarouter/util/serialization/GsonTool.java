@@ -30,8 +30,4 @@ public class GsonTool{
 			.setPrettyPrinting()
 			.create();
 
-	public static final Gson DISABLE_HTML_ESCAPING = new GsonBuilder()
-			.disableHtmlEscaping()
-			.create();
-
 }

@@ -39,6 +39,7 @@ public class DatarouterTaskTrackerFiles extends FilesRoot{
 
 	public static class TaskTrackerFiles extends PathNode{
 		public final PathNode longRunningTasksJsp = leaf("longRunningTasks.jsp");
+		public final PathNode jobsHealthJsp = leaf("jobsHealth.jsp");
 	}
 
 }

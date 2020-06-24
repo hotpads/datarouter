@@ -28,6 +28,11 @@ import io.datarouter.util.lang.ObjectTool;
 public class StringTool{
 
 	private static final Collator COLLATOR = Collator.getInstance();
+	private static final Pattern NOT_A_NUMBER_DOT_OR_MINUS_PATTERN = Pattern.compile("[^\\d\\.\\-]");
+	private static final Pattern LOOKS_LIKE_A_NUMBER_PATTERN = Pattern.compile("\\-?\\d*\\.?\\d+");
+	private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
+	private static final Pattern MINUS_PATTERN = Pattern.compile("-");
+	private static final Pattern NOT_LOWERCASE_ALPHA_PATTERN = Pattern.compile("[^a-z]");
 
 	public static final Comparator<String> COLLATOR_COMPARATOR = (first, second) -> COLLATOR.compare(first, second);
 
@@ -316,18 +321,18 @@ public class StringTool{
 	}
 
 	public static String enforceNumeric(String number){
-		number = number.replaceAll("[^\\d\\.\\-]", "");
-		if(!number.matches("\\-?\\d*\\.?\\d+")){
+		number = NOT_A_NUMBER_DOT_OR_MINUS_PATTERN.matcher(number).replaceAll("");
+		if(!LOOKS_LIKE_A_NUMBER_PATTERN.matcher(number).matches()){
 			while(number.endsWith(".")){
 				number = number.substring(0, number.length() - 1);
 			}
 			int secondDot = 0;
-			Pattern dot = Pattern.compile("\\.");
 			while((secondDot = number.indexOf('.', number.indexOf('.') + 1)) > 0){
-				number = dot.matcher(number.substring(0, secondDot)).replaceAll("") + number.substring(secondDot);
+				number = DOT_PATTERN.matcher(number.substring(0, secondDot)).replaceAll("")
+						+ number.substring(secondDot);
 			}
 			if(number.length() > 1){
-				number = number.substring(0, 1) + number.substring(1).replaceAll("-", "");
+				number = number.substring(0, 1) + MINUS_PATTERN.matcher(number.substring(1)).replaceAll("");
 			}
 			if("-".equals(number)){
 				return "";
@@ -336,8 +341,9 @@ public class StringTool{
 		return number;
 	}
 
+	//FIXME: This should be renamed to enforceLowerCaseAlphabetic
 	public static String enforceAlphabetic(String characters){
-		return characters.replaceAll("[^a-z]", "");
+		return NOT_LOWERCASE_ALPHA_PATTERN.matcher(characters).replaceAll("");
 	}
 
 	public static String removeNonStandardCharacters(String input){

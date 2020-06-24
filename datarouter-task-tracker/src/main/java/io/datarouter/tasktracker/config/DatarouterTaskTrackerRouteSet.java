@@ -18,6 +18,7 @@ package io.datarouter.tasktracker.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.tasktracker.web.JobsHealthHandler;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -31,6 +32,9 @@ public class DatarouterTaskTrackerRouteSet extends BaseRouteSet{
 		super(paths.datarouter);
 		handle(paths.datarouter.longRunningTasks)
 				.withHandler(LongRunningTasksHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_JOB);
+		handle(paths.datarouter.jobsHealth)
+				.withHandler(JobsHealthHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_JOB);
 	}
 
