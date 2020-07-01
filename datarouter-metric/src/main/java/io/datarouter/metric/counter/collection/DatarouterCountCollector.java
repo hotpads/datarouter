@@ -15,97 +15,82 @@
  */
 package io.datarouter.metric.counter.collection;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.datarouter.instrumentation.count.AtomicCounter;
 import io.datarouter.instrumentation.count.CountCollector;
-import io.datarouter.instrumentation.count.CountCollectorPeriod;
-import io.datarouter.metric.counter.collection.archive.CountArchiveFlusher;
+import io.datarouter.model.util.CommonFieldSizes;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.setting.Setting;
+import io.datarouter.util.DateTool;
+import io.datarouter.util.string.StringTool;
 
 public class DatarouterCountCollector implements CountCollector{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterCountCollector.class);
 
-	private final long rollPeriodMs;
-	private final List<CountArchiveFlusher> flushers;
-	private long latestStartMs;
-	private long nextStartMs;
+	public static final long PERIOD_GRANULARITY_MS = CountPartitions.PERIOD_5s.getPeriodMs();
+	public static final int METRICS_INITIAL_CAPACITY = 512;//try to set higher than est num counters
 
-	private CountCollectorPeriod liveCounter;
+	private final long flushIntervalMs;
+	private final CountFlusher flusher;
+	private final Setting<Boolean> saveCounts;
 
-	public DatarouterCountCollector(long rollPeriodMs){
-		this.rollPeriodMs = rollPeriodMs;
-		long now = System.currentTimeMillis();
-		long startTime = now - now % rollPeriodMs;
-		this.liveCounter = new AtomicCounter(startTime, rollPeriodMs);
-		this.flushers = new ArrayList<>();
-		this.checkAndRoll();
-		logger.warn("created " + this);
+	private ConcurrentHashMap<Long,ConcurrentHashMap<String,AtomicLong>> valueByNameByPeriodStartMs;
+	private long nextFlushMs;
+
+	public DatarouterCountCollector(long flushIntervalMs, CountFlusher flusher, Setting<Boolean> saveCounts){
+		this.flushIntervalMs = flushIntervalMs;
+		this.nextFlushMs = DateTool.getPeriodStart(flushIntervalMs) + flushIntervalMs;
+		this.valueByNameByPeriodStartMs = new ConcurrentHashMap<>();
+		this.flusher = flusher;
+		this.saveCounts = saveCounts;
 	}
 
-	public void addFlusher(CountArchiveFlusher flusher){
-		flushers.add(flusher);
-	}
-
-	// called on every increment right now. currentTimeMillis is supposedly as cheap as a memory access
-	private void rollIfNecessary(){
-		if(System.currentTimeMillis() >= nextStartMs){
-			checkAndRoll();
+	private synchronized void flush(long flushingMs){
+		if(nextFlushMs != flushingMs){
+			return; //another thread flushed
 		}
-	}
+		nextFlushMs += flushIntervalMs;//not other threads waiting will return in the block above
+		Map<Long,ConcurrentHashMap<String,AtomicLong>> snapshot = valueByNameByPeriodStartMs;
+		valueByNameByPeriodStartMs = new ConcurrentHashMap<>();
 
-	private synchronized void checkAndRoll(){
-		// a few threads may slip past the rollIfNecessary call and pile up here
+		Map<Long,Map<String,Long>> valueByPeriodStartByName = Scanner.of(snapshot.entrySet())
+				.toMap(Entry::getKey, entry -> Scanner.of(entry.getValue().entrySet())
+						.toMap(Entry::getKey, nameValEntry -> nameValEntry.getValue().get()));
 
-		long now = System.currentTimeMillis();
-		long nowPeriodStart = now - now % rollPeriodMs;
-
-		if(liveCounter != null && nowPeriodStart == liveCounter.getStartTimeMs()){
-			return; // another thread already rolled it
-		}
-		latestStartMs = nowPeriodStart;
-		nextStartMs = latestStartMs + rollPeriodMs;// now other threads should return rollIfNecessary=false
-		// only one thread (per period) should get to this point because of the logical check above
-		// protect against multiple periods overlapping? we may get count skew here if things get backed up
-		// swap in the new counter
-		CountCollectorPeriod oldCounter = liveCounter;
-		liveCounter = new AtomicCounter(latestStartMs, rollPeriodMs);
-		// add previous counter to flush queue
-		flushers.forEach(fluster -> fluster.offer(oldCounter));
-	}
-
-	@Override
-	public void stopAndFlushAll(){
-		for(CountArchiveFlusher flusher : flushers){
-			flusher.shutdownAndFlushAll();
+		if(saveCounts.get() && !valueByPeriodStartByName.isEmpty()){
+			flusher.saveCounts(valueByPeriodStartByName);
 		}
 	}
 
 	@Override
 	public long increment(String key){
-		rollIfNecessary();
-		return liveCounter.increment(key);
+		return increment(key, 1);
 	}
 
 	@Override
 	public long increment(String key, long delta){
-		rollIfNecessary();
-		return liveCounter.increment(key, delta);
+		if(System.currentTimeMillis() >= nextFlushMs){
+			//time to flush, a few threads may wait here
+			flush(nextFlushMs);
+		}
+		long periodStartMs = DateTool.getPeriodStart(PERIOD_GRANULARITY_MS);
+		return valueByNameByPeriodStartMs
+				.computeIfAbsent(periodStartMs, $ -> new ConcurrentHashMap<>(METRICS_INITIAL_CAPACITY))
+				.computeIfAbsent(sanitizeName(key), $ -> new AtomicLong(0))
+				.addAndGet(delta);
 	}
 
 	@Override
-	public Map<String,AtomicLong> getCountByKey(){
-		return liveCounter.getCountByKey();
+	public void stopAndFlushAll(){
+		flush(nextFlushMs);
 	}
 
-	@Override
-	public AtomicCounter getCounter(){
-		return liveCounter.getCounter();
+	private static String sanitizeName(String name){
+		String sanitized = StringTool.trimToSize(name, CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
+		sanitized = StringTool.removeNonStandardCharacters(sanitized);
+		return sanitized;
 	}
 
 }

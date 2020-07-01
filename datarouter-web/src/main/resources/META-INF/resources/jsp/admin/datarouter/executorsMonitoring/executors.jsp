@@ -14,7 +14,7 @@
 		}
 	</style>
 	<script>
-		require(['jquery', 'goog!visualization,1,packages:[corechart]'], function(){
+		require(['jquery', 'goog!corechart'], function(){
 			const chartNames = {
 				completedTaskCount: {
 					title: "Completed Tasks",

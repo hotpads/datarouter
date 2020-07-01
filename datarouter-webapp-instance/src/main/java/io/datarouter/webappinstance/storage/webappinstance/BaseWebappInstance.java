@@ -17,7 +17,6 @@ package io.datarouter.webappinstance.storage.webappinstance;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -79,7 +78,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(D databean){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.serverType, databean.getServerType()),
 					new StringField(FieldKeys.servletContextPath, databean.getServletContextPath()),
 					new StringField(FieldKeys.serverPublicIp, databean.getServerPublicIp()),

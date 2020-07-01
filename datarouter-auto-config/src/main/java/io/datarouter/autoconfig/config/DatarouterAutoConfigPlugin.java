@@ -15,31 +15,39 @@
  */
 package io.datarouter.autoconfig.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
+import io.datarouter.autoconfig.service.AutoConfig;
+import io.datarouter.autoconfig.service.AutoConfigGroup;
 import io.datarouter.autoconfig.service.AutoConfigListener;
 import io.datarouter.autoconfig.service.AutoConfigListener.NoOpAutoConfigListener;
-import io.datarouter.autoconfig.service.AutoConfigService;
-import io.datarouter.autoconfig.service.AutoConfigServiceClasses;
+import io.datarouter.autoconfig.service.AutoConfigRegistry;
 import io.datarouter.web.config.BaseWebPlugin;
+import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterAutoConfigPlugin extends BaseWebPlugin{
 
+	private static final DatarouterAutoConfigPaths PATHS = new DatarouterAutoConfigPaths();
+
 	private final Class<? extends AutoConfigListener> autoConfigListener;
-	private final List<Class<? extends AutoConfigService>> autoConfigServiceClasses;
+	private final Set<Class<? extends AutoConfig>> autoConfigs;
+	private final Set<Class<? extends AutoConfigGroup>> autoConfigGroups;
 
 	private DatarouterAutoConfigPlugin(
 			Class<? extends AutoConfigListener> autoConfigListener,
-			List<Class<? extends AutoConfigService>> autoConfigServiceClasses){
-
+			Set<Class<? extends AutoConfig>> autoConfigs,
+			Set<Class<? extends AutoConfigGroup>> autoConfigGroups){
 		this.autoConfigListener = autoConfigListener;
-		this.autoConfigServiceClasses = autoConfigServiceClasses;
+		this.autoConfigs = autoConfigs;
+		this.autoConfigGroups = autoConfigGroups;
 
 		if(!autoConfigListener.isInstance(NoOpAutoConfigListener.class)){
 			addAppListener(autoConfigListener);
 		}
 		addRouteSet(DatarouterAutoConfigRouteSet.class);
+		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.autoConfigs.viewAutoConfigs,
+				"AutoConfigs");
 	}
 
 	@Override
@@ -50,13 +58,14 @@ public class DatarouterAutoConfigPlugin extends BaseWebPlugin{
 	@Override
 	public void configure(){
 		bind(AutoConfigListener.class).to(autoConfigListener);
-		bind(AutoConfigServiceClasses.class).toInstance(new AutoConfigServiceClasses(autoConfigServiceClasses));
+		bind(AutoConfigRegistry.class).toInstance(new AutoConfigRegistry(autoConfigs, autoConfigGroups));
 	}
 
 	public static class DatarouterAutoConfigPluginBuilder{
 
 		private Class<? extends AutoConfigListener> autoConfigListener = NoOpAutoConfigListener.class;
-		private List<Class<? extends AutoConfigService>> autoConfigServiceClasses = new ArrayList<>();
+		private Set<Class<? extends AutoConfig>> autoConfigs = new HashSet<>();
+		private Set<Class<? extends AutoConfigGroup>> autoConfigGroups = new HashSet<>();
 
 		public DatarouterAutoConfigPluginBuilder setAutoConfigListener(
 				Class<? extends AutoConfigListener> autoConfigListener){
@@ -64,14 +73,18 @@ public class DatarouterAutoConfigPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterAutoConfigPluginBuilder addAutoConfigService(
-				Class<? extends AutoConfigService> autoConfigService){
-			autoConfigServiceClasses.add(autoConfigService);
+		public DatarouterAutoConfigPluginBuilder addAutoConfig(Class<? extends AutoConfig> autoConfig){
+			autoConfigs.add(autoConfig);
+			return this;
+		}
+
+		public DatarouterAutoConfigPluginBuilder addAutoConfigGroup(Class<? extends AutoConfigGroup> autoConfigGroup){
+			autoConfigGroups.add(autoConfigGroup);
 			return this;
 		}
 
 		public DatarouterAutoConfigPlugin build(){
-			return new DatarouterAutoConfigPlugin(autoConfigListener, autoConfigServiceClasses);
+			return new DatarouterAutoConfigPlugin(autoConfigListener, autoConfigs, autoConfigGroups);
 		}
 
 	}

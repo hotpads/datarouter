@@ -108,6 +108,10 @@ public class JobWrapper implements Callable<Void>{
 		tryPersistTracker();
 	}
 
+	public void setExceptionRecordId(String exceptionRecordId){
+		tracker.setExceptionRecordId(exceptionRecordId);
+	}
+
 	private static LongRunningTaskTracker initTracker(JobPackage jobPackage, Date triggerTime,
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory, String triggeredBy,
 			Class<? extends BaseJob> jobClass){

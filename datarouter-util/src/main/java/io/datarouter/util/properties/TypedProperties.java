@@ -101,7 +101,7 @@ public class TypedProperties{
 		}
 		String[] hostnameAndPortTokens = val.split(":");
 		String hostname = hostnameAndPortTokens[0];
-		int port = Integer.valueOf(hostnameAndPortTokens[1]);
+		int port = Integer.parseInt(hostnameAndPortTokens[1]);
 		return Optional.of(new InetSocketAddress(hostname, port));
 	}
 

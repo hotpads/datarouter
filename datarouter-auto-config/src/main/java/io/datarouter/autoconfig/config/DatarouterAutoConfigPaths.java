@@ -27,6 +27,12 @@ public class DatarouterAutoConfigPaths extends PathNode implements PathsRoot{
 
 	public static class DatarouterPaths extends PathNode{
 		public final PathNode autoConfig = leaf("autoConfig");
+		public final AutoConfigsPaths autoConfigs = branch(AutoConfigsPaths::new, "autoConfigs");
+	}
+
+	public static class AutoConfigsPaths extends PathNode{
+		public final PathNode viewAutoConfigs = leaf("viewAutoConfigs");
+		public final PathNode runForName = leaf("runForName");
 	}
 
 }

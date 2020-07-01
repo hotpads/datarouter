@@ -13,12 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric.counter.collection.archive;
+package io.datarouter.autoconfig.config;
 
-import io.datarouter.instrumentation.count.CountCollectorPeriod;
+import javax.inject.Singleton;
 
-public interface WritableCountArchive extends CountArchive{
+import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 
-	void saveCounts(CountCollectorPeriod countMap);
+public class DatarouterAutoConfigExecutors{
+
+	@Singleton
+	public static class AutoConfigExecutor extends ScalingThreadPoolExecutor{
+
+		public AutoConfigExecutor(){
+			super("AutoConfig", 16);
+		}
+
+	}
 
 }

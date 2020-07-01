@@ -15,14 +15,18 @@
  */
 package io.datarouter.aws.memcached.web;
 
+import static j2html.TagCreator.b;
 import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
+import static j2html.TagCreator.p;
+import static j2html.TagCreator.ul;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -34,6 +38,7 @@ import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.SpyMemcachedClient;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -59,6 +64,8 @@ public class AwsMemcachedWebInspector implements DatarouterClientWebInspector{
 	private ServletContextSupplier servletContext;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private ClientOptions clientOptions;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
@@ -68,11 +75,15 @@ public class AwsMemcachedWebInspector implements DatarouterClientWebInspector{
 		ClientId clientId = clientParams.getClientId();
 
 		SpyMemcachedClient spyClient = memcachedClientManager.getSpyMemcachedClient(clientId);
-
+		String clientName = clientParams.getClientId().getName();
+		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
+		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 		var content = div(
 				h2("Datarouter " + clientId.getName()),
 				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientId.getName()),
 				h3("Client Summary"),
+				p(b("Client Name: " + clientName)),
+				clientOptionsTable,
 				buildOverview(clientId),
 				memcachedWebInspector.buildStats(spyClient.getStats()))
 				.withClass("container my-3");
@@ -89,18 +100,20 @@ public class AwsMemcachedWebInspector implements DatarouterClientWebInspector{
 		ClientMode mode = options.getClientMode(clientId.getName());
 
 		String clusterEndpoint = "";
-		Collection<String> servers;
+		List<ContainerTag> servers;
 		if(mode == ClientMode.Dynamic){
 			clusterEndpoint = options.getClusterEndpoint(clientId.getName()).get().toString();
 			servers = spyClient.getAllNodeEndPoints().stream()
 					.map(Object::toString)
+					.map(TagCreator::li)
 					.collect(Collectors.toList());
 		}else{
 			servers = spyClient.getAvailableServers().stream()
 					.map(Object::toString)
+					.map(TagCreator::li)
 					.collect(Collectors.toList());
 		}
-		var nodeList = TagCreator.ul(servers.toArray(new ContainerTag[servers.size()]));
+		var nodeList = ul(servers.toArray(new ContainerTag[servers.size()]));
 		return dl(
 				dt("Client mode:"), dd(mode.name()),
 				dt("Cluster endpoint:"), dd(clusterEndpoint),

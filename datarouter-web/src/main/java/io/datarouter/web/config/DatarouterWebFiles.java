@@ -258,9 +258,7 @@ public class DatarouterWebFiles extends FilesRoot{
 
 	//used in datarouterHead.jsp
 	public static class RequirejsPluginsFiles extends PathNode{
-		public final PathNode asyncJs = leaf("async.js");
 		public final PathNode googJs = leaf("goog.js");
-		public final PathNode propertyParserJs = leaf("propertyParser.js");
 	}
 
 	//used in baseHead-b3.jsp

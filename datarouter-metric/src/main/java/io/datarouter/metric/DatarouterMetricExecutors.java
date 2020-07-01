@@ -31,6 +31,13 @@ public class DatarouterMetricExecutors{
 	}
 
 	@Singleton
+	public static class DatarouterCountFlushSchedulerExecutor extends ScheduledThreadPoolExecutor{
+		public DatarouterCountFlushSchedulerExecutor(){
+			super(1, new NamedThreadFactory("countFlushScheduler", true));
+		}
+	}
+
+	@Singleton
 	public static class DatarouterCountArchiveFlusherMemoryExecutor extends ScheduledThreadPoolExecutor{
 		public DatarouterCountArchiveFlusherMemoryExecutor(){
 			super(1, new NamedThreadFactory("countArchiveFlusherMemory", true));

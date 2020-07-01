@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.autoconfig.service;
+package io.datarouter.aws.s3;
 
-import io.datarouter.autoconfig.AutoConfigResponse;
+import java.util.regex.Pattern;
 
-public interface AutoConfigService{
+import io.datarouter.util.Require;
 
-	AutoConfigResponse autoConfig();
+public class S3Tool{
+
+	public static final Pattern S3_KEY_NON_SAFE_CHARACTERS = Pattern.compile("[^0-9a-zA-Z\\!\\-\\_\\.\\*\\'\\(\\)]");
+
+	public static String replaceS3KeyNonSafeCharacters(String input, String defaultReplacement){
+		if(input == null){
+			return input;
+		}
+		Require.isFalse(S3_KEY_NON_SAFE_CHARACTERS.matcher(defaultReplacement).find());
+		return S3_KEY_NON_SAFE_CHARACTERS.matcher(input).replaceAll(defaultReplacement);
+	}
 
 }

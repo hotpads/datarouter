@@ -114,6 +114,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 		private final Date finishTime;
 		private final String finishTimeString;
 		private final String triggeredBy;
+		private final String exceptionRecordId;
 
 		public LongRunningTaskJspDto(LongRunningTask task){
 			this.status = task.getJobExecutionStatus().getPersistentString();
@@ -130,6 +131,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 			this.finishTime = task.getFinishTime();
 			this.finishTimeString = task.getFinishTimeString();
 			this.triggeredBy = task.getTriggeredBy();
+			this.exceptionRecordId = task.getExceptionRecordId();
 		}
 
 		public String getStatus(){
@@ -207,6 +209,13 @@ public class LongRunningTasksHandler extends BaseHandler{
 			return triggeredBy;
 		}
 
+		public String getExceptionRecordId(){
+			return exceptionRecordId;
+		}
+
+		public String getHrefForException(){
+			return "exception/details?exceptionRecord=" + exceptionRecordId;
+		}
 	}
 
 }

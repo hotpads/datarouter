@@ -13,38 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.autoconfig;
+package io.datarouter.autoconfig.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AutoConfigResponse{
-	private static final Logger logger = LoggerFactory.getLogger(AutoConfigResponse.class);
+public interface AutoConfig extends Callable<String>{
+	static final Logger logger = LoggerFactory.getLogger(AutoConfig.class);
 
-	private static final String NEW_LINE = "\n";
+	static final String NEW_LINE = "\n";
+	static final String MARKER = "===============================================================================";
 
-	public final List<String> actionsCompleted;
-	public final String webappName;
+	String getName();
+	String configure();
 
-	public AutoConfigResponse(String webappName){
-		this.actionsCompleted = new ArrayList<>();
-		this.webappName = webappName;
-	}
-
-	public AutoConfigResponse log(String str){
-		actionsCompleted.add(str);
-		return this;
-	}
-
-	public String printAutoConfigLog(){
+	@Override
+	default String call(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(NEW_LINE);
-		sb.append("================================================================================").append(NEW_LINE);
-		sb.append(webappName).append(NEW_LINE);
-		actionsCompleted.forEach(str -> sb.append(str).append(NEW_LINE));
+		sb.append(MARKER).append(NEW_LINE);
+		sb.append(getName()).append(NEW_LINE);
+		try{
+			sb.append(" - ").append(configure()).append(NEW_LINE);
+		}catch(Exception e){
+			sb.append(" - Error: ").append(e.getMessage());
+		}
 		sb.append(NEW_LINE);
 		logger.warn(sb.toString());
 		return sb.toString();

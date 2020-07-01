@@ -81,7 +81,6 @@ public class AdminEditUserHandler extends BaseHandler{
 	private DatarouterUserEditService datarouterUserEditService;
 	@Inject
 	private DatarouterUserHistoryService datarouterUserHistoryService;
-
 	@Inject
 	private DatarouterAccountService datarouterAccountService;
 	@Inject

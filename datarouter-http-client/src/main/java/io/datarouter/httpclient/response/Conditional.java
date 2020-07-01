@@ -82,6 +82,10 @@ public class Conditional<T>{
 		return !success;
 	}
 
+	public void assertSuccess(){
+		orElseThrow();
+	}
+
 	public void ifSuccess(Consumer<? super T> consumer){
 		if(success){
 			consumer.accept(response);

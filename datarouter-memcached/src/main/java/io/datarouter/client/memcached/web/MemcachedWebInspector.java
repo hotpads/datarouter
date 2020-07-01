@@ -15,6 +15,7 @@
  */
 package io.datarouter.client.memcached.web;
 
+import static j2html.TagCreator.b;
 import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
@@ -22,10 +23,12 @@ import static j2html.TagCreator.dt;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
+import static j2html.TagCreator.ul;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -43,6 +46,7 @@ import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.MemcachedOptions;
 import io.datarouter.client.memcached.client.SpyMemcachedClient;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -65,16 +69,22 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private ServletContextSupplier servletContext;
+	@Inject
+	private ClientOptions clientOptions;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
 		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params, MemcachedClientType.class);
 		SpyMemcachedClient spyClient = memcachedClientManager.getSpyMemcachedClient(clientParams.getClientId());
 		String clientName = clientParams.getClientId().getName();
+		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
+		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 		var content = div(
 				h2("Datarouter " + clientName),
 				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientName),
 				h3("Client Summary"),
+				p(b("Client Name: " + clientName)),
+				clientOptionsTable,
 				buildOverview(clientParams.getClientId()),
 				buildStats(spyClient.getStats()))
 				.withClass("container my-3");
@@ -109,7 +119,7 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 				.map(InetSocketAddress::toString)
 				.map(TagCreator::li)
 				.collect(Collectors.toList());
-		var nodeList = TagCreator.ul(listElements.toArray(new ContainerTag[listElements.size()]));
+		var nodeList = ul(listElements.toArray(new ContainerTag[listElements.size()]));
 		return dl(
 				dt("Number of nodes:"), dd(listElements.size() + ""),
 				dt("Nodes:"), dd(nodeList));

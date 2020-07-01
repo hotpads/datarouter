@@ -13,10 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric.counter.collection.archive;
+package io.datarouter.tasktracker.web;
 
-public interface CountArchive extends Comparable<CountArchive>{
+public interface TaskTrackerExceptionLink{
 
-	long getPeriodMs();
+	String buildExceptionDetailLink(String exceptionRecordId);
+
+	public static class NoOpTaskTrackerExceptionLink implements TaskTrackerExceptionLink{
+
+		@Override
+		public String buildExceptionDetailLink(String exceptionRecordId){
+			return "";
+		}
+
+	}
 
 }

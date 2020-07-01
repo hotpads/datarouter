@@ -17,10 +17,19 @@ package io.datarouter.web.browse;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.h4;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.thead;
+import static j2html.TagCreator.tr;
+
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,6 +41,19 @@ import j2html.tags.ContainerTag;
 public interface DatarouterClientWebInspector{
 
 	Mav inspectClient(Params params, HttpServletRequest request);
+
+	default ContainerTag buildClientOptionsTable(Map<String,String> allClientOptions){
+		var thead = thead(tr(th("Option Key"), th("Option Value")));
+		var table = table()
+				.withClasses("sortable table table-sm table-striped my-4 border")
+				.with(thead);
+		allClientOptions.entrySet().stream()
+				.map(entry -> tr(td(entry.getKey()), td(entry.getValue())))
+				.forEach(table::with);
+		ContainerTag header = h4("Client Options:");
+		return div(header, table)
+				.withClass("container-fluid my-4");
+	}
 
 	static ContainerTag buildNav(String contextPath, String clientName){
 		var datarouterHome = a("Datarouter Home")

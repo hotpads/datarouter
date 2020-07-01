@@ -55,12 +55,6 @@ public class DatarouterWebRequireJs{
 	public static final String GOOG = register(
 			"goog",
 			FILES.requirejs.plugins.googJs);
-	public static final String ASYNC = register(
-			"async",
-			FILES.requirejs.plugins.asyncJs);
-	public static final String PEROPERTY_PARSER = register(
-			"propertyParser",
-			FILES.requirejs.plugins.propertyParserJs);
 
 	private static String register(String name, PathNode pathNode){
 		SCRIPTS.put(name, pathNode);

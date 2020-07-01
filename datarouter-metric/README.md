@@ -10,7 +10,7 @@ datarouter-metric is a tool that can be used to record counters or gauges on any
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metric</artifactId>
-	<version>0.0.37</version>
+	<version>0.0.38</version>
 </dependency>
 ```
 
@@ -26,29 +26,17 @@ You can install this module by adding its plugin to the `WebappBuilder`.
 ## Usage
 There are two types of metrics: Counts and Gauges.
 
-* Count - Records an increment which is then flushed and averaged based on of the MetricPeriods.
+* Count - Records an increment which is aggregated and flushed every 5 seconds
 * Gauge - Records any specified value at a certain point in time
-
-Metric Periods
-* 5 seconds
-* 20 seconds
-* 1 minute
-* 5 minutes
-* 20 minutes
-* 1 hour
-* 4 hours
-* 1 day
-
-Counts are partitioned by the MetricPeriod before they are sent to an external service, Gauges are not.
 
 ## Pipeline
 
-Counters are buffered in a queuing system that can be backed like external services like SQS. Counts are then sent over
- http to an external service. 
+Counters are held in memory for 5 second periods. Next they are asynchronously flushed to a queue which can be backed
+by a service like SQS. Finally they are handled in batches by CountPublisher.
 
-Gagues can generated in high volume and can overload the buffer, so they are first buffered in memory, which is backed
- by an `ArrayBlockingQueue`. Then the gauges are buffered in a third party queueing system like SQS, and then are
- posted to an external service.
+Gauges can be generated in high volume and overload the buffer, so they are first buffered in memory, which is backed
+by an `ArrayBlockingQueue`. Next gauges are buffered by a queue which can be backed by services like SQS. Finally they
+are handled by GaugePublisher.
 
 
 ## License

@@ -15,13 +15,17 @@
  */
 package io.datarouter.client.redis.web;
 
+import static j2html.TagCreator.b;
 import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.pre;
+
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +34,7 @@ import io.datarouter.client.redis.RedisClientType;
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.client.redis.client.RedisOptions;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -51,16 +56,23 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 	private ServletContextSupplier servletContext;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private ClientOptions clientOptions;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
 		var clientParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(params,
 				RedisClientType.class);
 		ClientId clientId = clientParams.getClientId();
+		String clientName = clientId.getName();
+		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
+		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 		var content = div(
 				h2("Datarouter " + clientId.getName()),
 				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientId.getName()),
 				h3("Client Summary"),
+				p(b("Client Name: " + clientName)),
+				clientOptionsTable,
 				buildOverview(clientId))
 				.withClass("container my-3");
 		return pageFactory.startBuilder(request)

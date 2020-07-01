@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.37</version>
+	<version>0.0.38</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -32,6 +32,7 @@
 		<module>datarouter-aws-rds</module>
 		<module>datarouter-aws-secrets-manager</module>
 		<module>datarouter-aws-sqs</module>
+		<module>datarouter-aws-s3</module>
 		<module>datarouter-batch-size-optimizer</module>
 		<module>datarouter-changelog</module>
 		<module>datarouter-checkstyle</module>

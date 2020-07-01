@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.exceptionrecord;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -73,7 +72,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(D databean){
-			return Arrays.asList(
+			return List.of(
 					new DateField(FieldKeys.created, databean.getCreated()),
 					new StringField(DatarouterServiceFieldKeys.serviceName, databean.getServiceName()),
 					new StringField(FieldKeys.serverName, databean.getServerName()),

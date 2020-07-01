@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.JobCounters;
@@ -213,7 +214,11 @@ public class JobScheduler{
 		}catch(Exception e){
 			jobCounters.exception(jobClass);
 			logger.warn("exception jobName={}", jobClass.getName(), e);
-			exceptionRecorder.tryRecordException(e, jobClass.getName(), JobExceptionCategory.JOB);
+			Optional<ExceptionRecordDto> exceptionRecord = exceptionRecorder.tryRecordException(e, jobClass.getName(),
+					JobExceptionCategory.JOB);
+			if(exceptionRecord.isPresent()){
+				jobWrapper.setExceptionRecordId(exceptionRecord.get().id);
+			}
 		}finally{
 			try{
 				scheduleNextRun(jobPackage);

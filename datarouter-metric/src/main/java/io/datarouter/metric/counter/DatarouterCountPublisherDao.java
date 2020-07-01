@@ -15,22 +15,19 @@
  */
 package io.datarouter.metric.counter;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.conveyor.message.ConveyorMessage.ConveyorMessageFielder;
 import io.datarouter.conveyor.message.ConveyorMessageKey;
-import io.datarouter.conveyor.queue.GroupQueueConsumer;
-import io.datarouter.scanner.Scanner;
+import io.datarouter.conveyor.queue.QueueConsumer;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
-import io.datarouter.storage.node.op.raw.GroupQueueStorage;
+import io.datarouter.storage.node.op.raw.QueueStorage;
 
 @Singleton
 public class DatarouterCountPublisherDao extends BaseDao{
@@ -43,26 +40,24 @@ public class DatarouterCountPublisherDao extends BaseDao{
 
 	}
 
-	private final GroupQueueStorage<ConveyorMessageKey,ConveyorMessage> node;
+	private final QueueStorage<ConveyorMessageKey,ConveyorMessage> node;
 
 	@Inject
 	public DatarouterCountPublisherDao(Datarouter datarouter, DatarouterCountPublisherDaoParams params,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
 		node = queueNodeFactory
-				.createGroupQueue(params.clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
-				.withQueueName("PublisherCount")
+				.createSingleQueue(params.clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
+				.withQueueName("CountPublisher")
 				.buildAndRegister();
 	}
 
-	public GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> getGroupQueueConsumerNewQueue(){
-		return new GroupQueueConsumer<>(node::peek, node::ack);
+	public void put(ConveyorMessage databean){
+		node.put(databean);
 	}
 
-	public void putMulti(List<ConveyorMessage> databeans){
-		Scanner.of(databeans)
-				.batch(100)
-				.forEach(node::putMulti);
+	public QueueConsumer<ConveyorMessageKey,ConveyorMessage> getQueueConsumer(){
+		return new QueueConsumer<>(node::peek, node::ack);
 	}
 
 }

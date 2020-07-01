@@ -13,12 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.handler.documentation;
+package io.datarouter.metric.counter.collection;
 
-import java.util.List;
+import java.time.Duration;
 
-public interface AutoBuildable{
+public enum CountPartitions{
+	PERIOD_5s(Duration.ofSeconds(5)),
+	PERIOD_20s(Duration.ofSeconds(20)),
+	PERIOD_1m(Duration.ofMinutes(1)),
+	PERIOD_5m(Duration.ofMinutes(5)),
+	PERIOD_20m(Duration.ofMinutes(20)),
+	PERIOD_1h(Duration.ofHours(1)),
+	PERIOD_4h(Duration.ofHours(4)),
+	PERIOD_1d(Duration.ofDays(1));
 
-	Object buildEmpty(List<Object> innerObjects);
+	private final Duration period;
+
+	CountPartitions(Duration period){
+		this.period = period;
+	}
+
+	public long getPeriodMs(){
+		return period.toMillis();
+	}
 
 }

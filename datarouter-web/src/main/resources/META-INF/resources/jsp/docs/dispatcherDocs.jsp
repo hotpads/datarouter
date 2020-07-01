@@ -176,8 +176,9 @@
 
 			const urlMatchOnPageLoad = window.location.search.match(/endpoint=(.*)(&|$)/)
 			if(urlMatchOnPageLoad){
-				// browser should already have scrolled this element into view
-				$('[data-url="' + decodeURIComponent(urlMatchOnPageLoad[1]) + '"]').click()
+				$('html, body').animate({
+					scrollTop: $('[data-url="' + decodeURIComponent(urlMatchOnPageLoad[1]) + '"]').click().parent().offset().top
+				})
 			}
 		})
 	});
@@ -273,7 +274,7 @@
 								<c:otherwise>None</c:otherwise>
 							</c:choose>
 							<h3>Response</h3>
-							${endpoint.response.type}
+							<c:out value="${endpoint.response.type}" escapeXml="true"/>
 							<c:if test="${empty endpoint.response}">
 								Nothing
 							</c:if>

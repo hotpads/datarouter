@@ -21,12 +21,8 @@ import java.util.stream.Collectors;
 
 public class AutoConfigResponseTool{
 
-	public static String buildResponse(String configurationStep){
-		return String.format("  -%s\n", configurationStep);
-	}
-
-	public static String buildResponse(String configurationStep, String description){
-		return String.format("  -%s: %s\n", configurationStep, description);
+	private static String buildResponse(String configurationStep, String description){
+		return String.format("    -%s: %s\n", configurationStep, description);
 	}
 
 	public static <A> String buildResponse(String configurationStep, Collection<A> items, Function<A,String> mapper){

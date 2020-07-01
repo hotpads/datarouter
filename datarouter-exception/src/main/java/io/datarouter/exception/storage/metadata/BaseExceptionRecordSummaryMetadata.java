@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.metadata;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -55,7 +54,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(D metadata){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.issue, metadata.getIssue()),
 					new BooleanField(FieldKeys.muted, metadata.getMuted()));
 		}

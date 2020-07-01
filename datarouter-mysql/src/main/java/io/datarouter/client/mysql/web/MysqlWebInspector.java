@@ -24,6 +24,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.p;
 
+import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -35,6 +36,7 @@ import io.datarouter.client.mysql.connection.C3p0StatsDto;
 import io.datarouter.client.mysql.connection.C3p0StatsService;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory.DatarouterWebRequestParams;
@@ -58,6 +60,8 @@ public class MysqlWebInspector implements DatarouterClientWebInspector{
 	private ServletContextSupplier servletContext;
 	@Inject
 	private DatarouterWebRequestParamsFactory paramsFactory;
+	@Inject
+	private ClientOptions clientOptions;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
@@ -68,11 +72,14 @@ public class MysqlWebInspector implements DatarouterClientWebInspector{
 
 		ClientId clientId = clientParams.getClientId();
 		String clientName = clientId.getName();
+		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
+		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 		var content = div(
 				h2("Datarouter " + clientName),
 				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientName),
 				h3("Client Summary"),
 				p(b("Client Name: " + clientName)),
+				clientOptionsTable,
 				getC3P0Stats(clientId, clientParams))
 				.withClass("container my-3");
 

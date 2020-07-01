@@ -15,7 +15,6 @@
  */
 package io.datarouter.trace.storage.span;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.instrumentation.trace.TraceSpanDto;
@@ -69,7 +68,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(D traceSpan){
-			return Arrays.asList(
+			return List.of(
 					new UInt31Field(FieldKeys.parentSequence, traceSpan.getParentSequence()),
 					new StringField(FieldKeys.name, traceSpan.getName()),
 					new StringField(FieldKeys.info, traceSpan.getInfo()),

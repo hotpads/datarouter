@@ -54,6 +54,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	private String triggeredBy;
 	private Long numItemsProcessed;
 	private String lastItemProcessed;
+	private String exceptionRecordId;
 
 	public static class FieldKeys{
 		public static final StringEnumFieldKey<LongRunningTaskType> type = new StringEnumFieldKey<>("type",
@@ -68,6 +69,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		public static final LongFieldKey numItemsProcessed = new LongFieldKey("numItemsProcessed");
 		private static final StringFieldKey lastItemProcessed = new StringFieldKey("lastItemProcessed")
 				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
+		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
 	}
 
 	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey,LongRunningTask>{
@@ -84,7 +86,8 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 					new StringEnumField<>(FieldKeys.longRunningTaskStatus, databean.jobExecutionStatus),
 					new StringField(FieldKeys.triggeredBy, databean.triggeredBy),
 					new LongField(FieldKeys.numItemsProcessed, databean.numItemsProcessed),
-					new StringField(FieldKeys.lastItemProcessed, databean.lastItemProcessed));
+					new StringField(FieldKeys.lastItemProcessed, databean.lastItemProcessed),
+					new StringField(FieldKeys.exceptionRecordId, databean.exceptionRecordId));
 		}
 	}
 
@@ -102,6 +105,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		this.triggeredBy = task.triggeredBy;
 		this.numItemsProcessed = task.numItemsProcessed;
 		this.lastItemProcessed = task.lastItemProcessed;
+		this.exceptionRecordId = task.exceptionRecordId;
 	}
 
 	@Override
@@ -234,6 +238,10 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 
 	public void setLastItemProcessed(String lastItemProcessed){
 		this.lastItemProcessed = lastItemProcessed;
+	}
+
+	public String getExceptionRecordId(){
+		return exceptionRecordId;
 	}
 
 }

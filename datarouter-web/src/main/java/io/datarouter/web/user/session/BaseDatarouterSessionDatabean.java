@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.user.session;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -38,9 +37,9 @@ extends BaseDatabean<PK,D>{
 	}
 
 	public List<Field<?>> getNonKeyFields(){
-		return Arrays.asList(
-			new DateField(FieldKeys.created, created),
-			new DateField(FieldKeys.updated, updated));
+		return List.of(
+				new DateField(FieldKeys.created, created),
+				new DateField(FieldKeys.updated, updated));
 	}
 
 	protected BaseDatarouterSessionDatabean(PK key){

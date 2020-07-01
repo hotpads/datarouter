@@ -16,9 +16,11 @@
 package io.datarouter.storage.client;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 
@@ -73,6 +75,16 @@ public class ClientOptions{
 
 	public Boolean getBooleanClientPropertyOrDefault(String propertyKey, String clientName, Boolean def){
 		return getClientPropertyOrDefault(typedProperties::getBoolean, propertyKey, clientName, def);
+	}
+
+	public Map<String,String> getAllClientOptions(String clientName){
+		String clientPrefixedName = PREFIX_client + clientName + ".";
+		return typedProperties.getUnmodifiablePropertiesList().stream()
+				.flatMap(properties -> properties.entrySet().stream())
+				.filter(entry -> entry.getKey().toString().startsWith(clientPrefixedName))
+				.collect(Collectors.toMap(
+						entry -> entry.getKey().toString().replace(clientPrefixedName, ""),
+						entry -> entry.getValue().toString()));
 	}
 
 	public static String makeClientTypeKey(String clientName){

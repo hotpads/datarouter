@@ -15,7 +15,6 @@
  */
 package io.datarouter.trace.storage.thread;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -73,7 +72,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(D traceThread){
-			return Arrays.asList(
+			return List.of(
 					new UInt63Field(FieldKeys.parentId, traceThread.getParentId()),
 					new StringField(FieldKeys.name, traceThread.getName()),
 					new StringField(FieldKeys.info, traceThread.getInfo()),
@@ -86,8 +85,6 @@ extends BaseDatabean<PK,D>{
 		}
 
 	}
-
-	/*------------------------------ construct ------------------------------*/
 
 	public BaseTraceThread(PK key){
 		super(key);
@@ -121,8 +118,6 @@ extends BaseDatabean<PK,D>{
 				getHostThreadName());
 	}
 
-	/*------------------------------- methods -------------------------------*/
-
 	@Override
 	public String toString(){
 		return super.toString() + "[" + name + "]";
@@ -131,8 +126,6 @@ extends BaseDatabean<PK,D>{
 	public Date getTime(){
 		return new Date(created);
 	}
-
-	/*------------------------------- get/set -------------------------------*/
 
 	public Long getThreadId(){
 		return getKey().getThreadId();

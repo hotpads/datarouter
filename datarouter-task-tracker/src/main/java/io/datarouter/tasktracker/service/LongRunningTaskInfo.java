@@ -35,6 +35,7 @@ public class LongRunningTaskInfo{
 	public long numItemsProcessed;
 	public String lastItemProcessed;
 	public Date heartbeatTime;
+	public String exceptionRecordId;
 
 	public LongRunningTaskInfo(Class<?> trackedClass, String serverName, LongRunningTaskType type, String triggeredBy){
 		this.name = trackedClass.getSimpleName();

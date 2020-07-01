@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.summary;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -51,7 +50,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(D databean){
-			return Arrays.asList(
+			return List.of(
 					new LongField(FieldKeys.numExceptions, databean.getNumExceptions()),
 					new StringField(FieldKeys.sampleExceptionRecordId, databean.getSampleExceptionRecordId()));
 		}

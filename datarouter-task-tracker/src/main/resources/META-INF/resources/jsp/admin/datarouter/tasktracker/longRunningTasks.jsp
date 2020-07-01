@@ -62,6 +62,7 @@
 							<th class="text-right">numItemsProcessed</th>
 							<th>jobExecutionStatus</th>
 							<th>triggeredBy</th>
+							<th>exceptionRecordId</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -93,6 +94,8 @@
 								class="table-warning"
 							</c:if>>${task.status}</td>
 							<td>${task.triggeredBy}</td>
+							<td><a href="${task.hrefForException}">
+									${task.exceptionRecordId}</a></td>
 						</tr>
 					</c:forEach>
 					</tbody>

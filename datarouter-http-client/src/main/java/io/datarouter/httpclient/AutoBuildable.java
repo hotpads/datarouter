@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.count;
+package io.datarouter.httpclient;
 
-public interface CountCollectorPeriod extends CountCollector{
+import java.util.List;
 
-	long getStartTimeMs();
-	long getPeriodMs();
-	long getNextStartTimeMs();
+public interface AutoBuildable{
+
+	Object buildEmpty(List<Object> innerObjects);
 
 }

@@ -22,8 +22,8 @@ import com.google.gson.Gson;
 
 import io.datarouter.conveyor.BaseConveyors;
 import io.datarouter.instrumentation.count.CountPublisher;
+import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao;
-import io.datarouter.metric.counter.setting.DatarouterCountSettingRoot;
 
 @Singleton
 public class CountConveyors extends BaseConveyors{
@@ -42,10 +42,9 @@ public class CountConveyors extends BaseConveyors{
 		start(new CountSqsDrainConveyor(
 				"countSqsToPublisher",
 				countSettings.runCountsFromSqsToPublisher,
-				countPublisherDao.getGroupQueueConsumerNewQueue(),
+				countPublisherDao.getQueueConsumer(),
 				gson,
-				countPublisher,
-				countSettings.compactExceptionLoggingForConveyors),
+				countPublisher),
 				countSettings.drainConveyorThreadCount.get());
 	}
 

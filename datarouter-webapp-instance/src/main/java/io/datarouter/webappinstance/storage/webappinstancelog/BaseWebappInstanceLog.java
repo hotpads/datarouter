@@ -15,7 +15,6 @@
  */
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -49,7 +48,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(D databean){
-			return Arrays.asList(
+			return List.of(
 					new StringField(BaseWebappInstance.FieldKeys.buildId, databean.getBuildId()),
 					new StringField(BaseWebappInstance.FieldKeys.commitId, databean.getCommitId()),
 					new StringField(BaseWebappInstance.FieldKeys.javaVersion, databean.getJavaVersion()),

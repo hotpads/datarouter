@@ -37,8 +37,10 @@ import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
@@ -65,6 +67,8 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private ServletContextSupplier servletContext;
+	@Inject
+	private ClientOptions clientOptions;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
@@ -74,11 +78,14 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 		}
 
 		String clientName = clientParams.getClientId().getName();
+		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
+		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 		var content = div(
 				h2("Datarouter " + clientName),
 				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientName),
 				h3("Client Summary"),
 				p(b("Client Name: " + clientName),
+				clientOptionsTable,
 				buildQueueNodeTable(clientParams.getClientId()),
 				buildReferenceTable()))
 				.withClass("container my-3");
@@ -95,7 +102,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 		List<String> sqsNodeNameSuffixes = nodes.getTableNamesForClient(clientId.getName());
 
 		for(String nodeNameSuffix : sqsNodeNameSuffixes){
-			var sqsNode = nodes.getPhysicalNodeForClientAndTable(clientId.getName(), nodeNameSuffix);
+			PhysicalNode<?,?,?> sqsNode = nodes.getPhysicalNodeForClientAndTable(clientId.getName(), nodeNameSuffix);
 			BaseSqsNode<?,?,?> baseSqsNode = (BaseSqsNode<?,?,?>)NodeTool.extractSinglePhysicalNode(sqsNode);
 			String queueUrl = baseSqsNode.getQueueUrl().get();
 			statsPerQueue.put(queueUrl, sqsClientManager.getAllQueueAttributes(clientId, queueUrl));

@@ -15,15 +15,18 @@
  */
 package io.datarouter.client.rediscluster.web;
 
+import static j2html.TagCreator.b;
 import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.pre;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,7 @@ import io.datarouter.client.rediscluster.client.RedisClusterClientManager;
 import io.datarouter.client.rediscluster.client.RedisClusterOptions;
 import io.datarouter.client.rediscluster.client.RedisClusterOptions.RedisClusterClientMode;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -56,16 +60,23 @@ public class RedisClusterWebInspector implements DatarouterClientWebInspector{
 	private ServletContextSupplier servletContext;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private ClientOptions clientOptions;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
 		var clientParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(params,
 				RedisClusterClientType.class);
 		ClientId clientId = clientParams.getClientId();
+		String clientName = clientId.getName();
+		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
+		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 		var content = div(
 				h2("Datarouter " + clientId.getName()),
 				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientId.getName()),
 				h3("Client Summary"),
+				p(b("Client Name: " + clientName)),
+				clientOptionsTable,
 				buildOverview(clientId))
 				.withClass("container my-3");
 		return pageFactory.startBuilder(request)
@@ -88,9 +99,7 @@ public class RedisClusterWebInspector implements DatarouterClientWebInspector{
 		ContainerTag clusterInfo = clientManager.getJedis(clientId).getClusterNodes().values().stream()
 				.findFirst()
 				.map(JedisPool::getResource)
-				.map(jedis -> {
-					return div(pre(jedis.clusterInfo()), pre(jedis.info()));
-				})
+				.map(jedis -> div(pre(jedis.clusterInfo()), pre(jedis.info())))
 				.get();
 		return dl(
 				dt("Client mode:"), dd(clientMode.getPersistentString()),

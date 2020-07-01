@@ -26,7 +26,6 @@ import io.datarouter.metric.counter.CountersAppListener;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao.DatarouterCountPublisherDaoParams;
 import io.datarouter.metric.counter.conveyor.CountConveyors;
-import io.datarouter.metric.counter.setting.DatarouterCountSettingRoot;
 import io.datarouter.metric.metric.DatabeanGauges;
 import io.datarouter.metric.metric.DatarouterGaugePublisherDao;
 import io.datarouter.metric.metric.DatarouterGaugePublisherDao.DatarouterGaugePublisherDaoParams;

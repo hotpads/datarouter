@@ -29,17 +29,17 @@
 
 		function dataTableStartingAfter(startDate){
 			const rows = ROWS.filter(row => row[3] > startDate)
-			const dataTable = new google.visualization.DataTable()
-			dataTable.addColumn({type: 'string', id: 'Role'})
-			dataTable.addColumn({type: 'string', id: 'Name'})
-			dataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}})
-			dataTable.addColumn({type: 'date', id: 'Start'})
-			dataTable.addColumn({type: 'date', id: 'End'})
-			dataTable.addRows(rows)
-			return dataTable
+			const data = new google.visualization.DataTable()
+			data.addColumn('string', 'Role')
+			data.addColumn('string', 'Name')
+			data.addColumn({type: 'string', role: 'tooltip', p: {html: true}})
+			data.addColumn('date', 'Start')
+			data.addColumn('date', 'End')
+			data.addRows(rows)
+			return data
 		}
 
-		require(['jquery', 'goog!visualization,1,packages:[timeline]'], function(){
+		require(['jquery', 'goog!timeline'], function(){
 			let showAll = false
 			const chart = new google.visualization.Timeline(document.getElementById('timeline'))
 			const drawGraph = () => {

@@ -15,17 +15,18 @@
  */
 package io.datarouter.autoconfig.service;
 
-import java.util.List;
+import java.util.Set;
 
-import javax.inject.Singleton;
+public class AutoConfigRegistry{
 
-@Singleton
-public class AutoConfigServiceClasses{
+	public final Set<Class<? extends AutoConfig>> autoConfigs;
+	public final Set<Class<? extends AutoConfigGroup>> autoConfigGroups;
 
-	public final List<Class<? extends AutoConfigService>> autoConfigServiceClasses;
-
-	public AutoConfigServiceClasses(List<Class<? extends AutoConfigService>> autoConfigServices){
-		this.autoConfigServiceClasses = autoConfigServices;
+	public AutoConfigRegistry(
+			Set<Class<? extends AutoConfig>> autoConfigs,
+			Set<Class<? extends AutoConfigGroup>> autoConfigGroups){
+		this.autoConfigs = autoConfigs;
+		this.autoConfigGroups = autoConfigGroups;
 	}
 
 }

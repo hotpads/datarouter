@@ -438,46 +438,83 @@ public interface Scanner<T> extends Closeable{
 
 	/*--------------------------- Reducing ops ----------------------------*/
 
+	/**
+	 * Apply the Predicate to every item in the Scanner, returning whether they all match.
+	 */
 	default boolean allMatch(Predicate<? super T> predicate){
 		return ScannerTool.allMatch(this, predicate);
 	}
 
+	/**
+	 * Apply the predicate to each item in the Scanner until one matches, returning true, otherwise return false if the
+	 * Scanner is consumed with no matches.
+	 */
 	default boolean anyMatch(Predicate<? super T> predicate){
 		return ScannerTool.anyMatch(this, predicate);
 	}
 
+	/**
+	 * Advance through every item in the Scanner, returning the count of items seen.
+	 */
 	default long count(){
 		return ScannerTool.count(this);
 	}
 
+	/**
+	 * Return any item encountered in the Scanner, wrapped in an Optional, otherwise Optional.empty() if no items
+	 * were found.
+	 */
 	default Optional<T> findAny(){
 		return ScannerTool.findAny(this);
 	}
 
+	/**
+	 * Return the first item encountered in the Scanner, wrapped in an Optional, otherwise Optional.empty() if no items
+	 * were found.
+	 */
 	default Optional<T> findFirst(){
 		return ScannerTool.findFirst(this);
 	}
 
+	/**
+	 * Advance through every item in the Scanner, returning the last item wrapped in an Optional, otherwise
+	 * Optional.empty() if the Scanner had no items.
+	 */
 	default Optional<T> findLast(){
 		return ScannerTool.findLast(this);
 	}
 
+	/**
+	 * Test whether the first advance() returns true.
+	 */
 	default boolean hasAny(){
 		return ScannerTool.hasAny(this);
 	}
 
+	/**
+	 * Test whether the first advance() returns false.
+	 */
 	default boolean isEmpty(){
 		return ScannerTool.isEmpty(this);
 	}
 
+	/**
+	 * Advance through all items, retaining the maximum as computed by the Comparator and returning it.
+	 */
 	default Optional<T> max(Comparator<? super T> comparator){
 		return ScannerTool.max(this, comparator);
 	}
 
+	/**
+	 * Advance through all items, retaining the minimum as computed by the Comparator and returning it.
+	 */
 	default Optional<T> min(Comparator<? super T> comparator){
 		return ScannerTool.min(this, comparator);
 	}
 
+	/**
+	 * Return false as soon as the Predicate passes, otherwise true if all items fail the Predicate.
+	 */
 	default boolean noneMatch(Predicate<? super T> predicate){
 		return ScannerTool.noneMatch(this, predicate);
 	}

@@ -15,14 +15,18 @@
  */
 package io.datarouter.instrumentation.count;
 
-import java.util.List;
+import java.util.Map;
 
 public class CountBatchDto{
 
-	public final List<CountDto> batch;
+	public final String serviceName;
+	public final String serverName;
+	public final Map<Long,Map<String,Long>> counts;
 
-	public CountBatchDto(List<CountDto> batch){
-		this.batch = batch;
+	public CountBatchDto(String serviceName, String serverName, Map<Long,Map<String,Long>> counts){
+		this.serviceName = serviceName;
+		this.serverName = serverName;
+		this.counts = counts;
 	}
 
 }

@@ -15,8 +15,6 @@
  */
 package io.datarouter.metric.counter.conveyor;
 
-import java.time.Duration;
-import java.util.List;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -26,15 +24,13 @@ import com.google.gson.Gson;
 
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.conveyor.message.ConveyorMessageKey;
-import io.datarouter.conveyor.queue.BaseGroupQueueConsumerConveyor;
-import io.datarouter.conveyor.queue.GroupQueueConsumer;
-import io.datarouter.instrumentation.count.CountBatchDto;
-import io.datarouter.instrumentation.count.CountDto;
+import io.datarouter.conveyor.queue.BaseQueueConsumerConveyor;
+import io.datarouter.conveyor.queue.QueueConsumer;
 import io.datarouter.instrumentation.count.CountPublisher;
+import io.datarouter.instrumentation.count.CountBatchDto;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
-import io.datarouter.scanner.Scanner;
 
-public class CountSqsDrainConveyor extends BaseGroupQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
+public class CountSqsDrainConveyor extends BaseQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
 	private static final Logger logger = LoggerFactory.getLogger(CountSqsDrainConveyor.class);
 
 	private final CountPublisher publisher;
@@ -42,22 +38,18 @@ public class CountSqsDrainConveyor extends BaseGroupQueueConsumerConveyor<Convey
 
 	public CountSqsDrainConveyor(
 			String name,
-			Supplier<Boolean> shouldRunSetting,
-			GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> groupQueueConsumer,
+			Supplier<Boolean> shouldRun,
+			QueueConsumer<ConveyorMessageKey,ConveyorMessage> queueConsumer,
 			Gson gson,
-			CountPublisher publisher,
-			Supplier<Boolean> compactExceptionLogging){
-		super(name, shouldRunSetting, groupQueueConsumer, compactExceptionLogging, Duration.ofSeconds(30));
+			CountPublisher publisher){
+		super(name, shouldRun, queueConsumer);
 		this.gson = gson;
 		this.publisher = publisher;
 	}
 
 	@Override
-	protected void processDatabeans(List<ConveyorMessage> databeans){
-		CountBatchDto dto = Scanner.of(databeans)
-				.map(ConveyorMessage::getMessage)
-				.map(message -> gson.fromJson(message, CountDto.class))
-				.listTo(CountBatchDto::new);
+	protected void processOne(ConveyorMessage databean){
+		CountBatchDto dto = gson.fromJson(databean.getMessage(), CountBatchDto.class);
 		PublishingResponseDto response = publisher.add(dto);
 		if(response.message.equals(PublishingResponseDto.DISCARD_MESSAGE)){
 			logger.info("The message was accepted but discarded");

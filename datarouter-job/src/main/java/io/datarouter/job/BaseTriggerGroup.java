@@ -17,7 +17,9 @@ package io.datarouter.job;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.apache.logging.log4j.core.util.CronExpression;
@@ -33,11 +35,13 @@ public abstract class BaseTriggerGroup{
 	private final String categoryName;
 	private final List<BaseTriggerGroup> subGroups;
 	private final List<JobPackage> jobPackages;
+	private final Map<String,Class<? extends BaseJob>> requestTriggeredJobs;
 
 	public BaseTriggerGroup(String categoryName){
 		this.categoryName = categoryName;
 		this.subGroups = new ArrayList<>();
 		this.jobPackages = new ArrayList<>();
+		this.requestTriggeredJobs = new HashMap<>();
 	}
 
 	protected void include(BaseTriggerGroup triggerGroup){
@@ -74,6 +78,10 @@ public abstract class BaseTriggerGroup{
 				warnOnReachingDuration);
 		jobPackages.add(JobPackage.createWithLock(categoryName, cronExpression, shouldRunSupplier, jobClass,
 				triggerLockConfig));
+	}
+
+	protected void registerRequestTriggered(String persistentString, Class<? extends BaseJob> jobClass){
+		requestTriggeredJobs.put(persistentString, jobClass);
 	}
 
 	/*----------------- misc --------------------*/

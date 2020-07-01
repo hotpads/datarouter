@@ -15,7 +15,6 @@
  */
 package io.datarouter.trace.storage.trace;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.instrumentation.trace.TraceDto;
@@ -66,7 +65,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(D databean){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.context, databean.getContext()),
 					new StringField(FieldKeys.type, databean.getType()),
 					new StringField(FieldKeys.params, databean.getParams()),
@@ -76,8 +75,6 @@ extends BaseDatabean<PK,D>{
 		}
 
 	}
-
-	/*------------------------------ construct ------------------------------*/
 
 	public BaseTrace(PK key){
 		super(key);
@@ -103,8 +100,6 @@ extends BaseDatabean<PK,D>{
 				getDuration(),
 				getDiscardedThreadCount());
 	}
-
-	/*------------------------------- get/set -------------------------------*/
 
 	public String getTraceId(){
 		return getKey().getEntityKey().getTraceEntityId();

@@ -160,7 +160,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(D record){
-			return Arrays.asList(
+			return List.of(
 					new DateField(FieldKeys.created, record.getCreated()),
 					new LongDateField(FieldKeys.receivedAt, record.getReceivedAt()),
 					new LongField(FieldKeys.duration, record.getDuration()),
