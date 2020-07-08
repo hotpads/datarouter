@@ -38,7 +38,7 @@ public class DatarouterSecretExample{
 	@Inject
 	private CachedSecretFactory cachedSecretFactory;
 
-	//SecretOpReason will be recorded to DatarouterSecretOpRecordDao
+	//SecretOpReason will be recorded using the configured SecretOpRecorder implementation
 	public void copyAppSecretToSharedSecret(){
 		String appSpecificSecret = secretService.read(SECRET_NAME, String.class, SecretOpReason.automatedOp(
 				"a job might do this"));

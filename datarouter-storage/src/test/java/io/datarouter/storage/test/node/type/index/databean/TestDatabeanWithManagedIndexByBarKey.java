@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test.node.type.index.databean;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -37,7 +36,7 @@ public class TestDatabeanWithManagedIndexByBarKey extends BaseRegularPrimaryKey<
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(TestDatabean.FieldKeys.bar, bar));
+		return List.of(new StringField(TestDatabean.FieldKeys.bar, bar));
 	}
 
 	public String getBar(){

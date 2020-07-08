@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class SortingScannerTests{
 	public void test(){
 		Scanner<Integer> input = Scanner.of(4, 1, 2, 4, 2, 3);
 		Comparator<Integer> comparator = Comparator.reverseOrder();
-		List<Integer> expected = Arrays.asList(4, 4, 3, 2, 2, 1);
+		List<Integer> expected = List.of(4, 4, 3, 2, 2, 1);
 		List<Integer> actual = input.sorted(comparator).list();
 		Assert.assertEquals(actual, expected);
 	}

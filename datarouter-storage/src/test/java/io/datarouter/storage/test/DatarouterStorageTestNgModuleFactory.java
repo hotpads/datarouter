@@ -15,7 +15,7 @@
  */
 package io.datarouter.storage.test;
 
-import java.util.Arrays;
+import java.util.List;
 
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.config.guice.DatarouterStorageTestGuiceModule;
@@ -24,7 +24,7 @@ import io.datarouter.testng.TestNgModuleFactory;
 public class DatarouterStorageTestNgModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterStorageTestNgModuleFactory(){
-		super(Arrays.asList(
+		super(List.of(
 				new DatarouterStorageGuiceModule(),
 				new DatarouterStorageTestGuiceModule()));
 	}

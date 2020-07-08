@@ -30,6 +30,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.handler.TestApiHandler.FooBar;
@@ -179,7 +180,7 @@ public class DefaultDecoderTests{
 				.build();
 		Object[] args = decoder.decode(request, method);
 		Assert.assertEquals(args.length, 3);
-		Assert.assertEquals(args[0], new HashSet<>(Arrays.asList(stringArray)));
+		Assert.assertEquals(args[0], Scanner.of(stringArray).collect(HashSet::new));
 		Assert.assertEquals(args[1], stringArray[2]);
 		Assert.assertEquals(args[2], Arrays.toString(stringArray));
 	}

@@ -15,7 +15,6 @@
  */
 package io.datarouter.nodewatch.storage.latesttablecount;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -35,7 +34,7 @@ public class LatestTableCountKey extends BaseRegularPrimaryKey<LatestTableCountK
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.clientName, clientName),
 				new StringField(FieldKeys.tableName, tableName));
 	}

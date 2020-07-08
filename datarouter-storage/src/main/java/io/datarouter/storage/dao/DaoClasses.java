@@ -16,7 +16,6 @@
 package io.datarouter.storage.dao;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
@@ -34,7 +33,7 @@ public class DaoClasses implements Supplier<List<Class<? extends Dao>>>{
 
 	@SafeVarargs
 	public DaoClasses(Class<? extends Dao>... daoClassVarArgs){
-		this(Arrays.asList(daoClassVarArgs));
+		this(List.of(daoClassVarArgs));
 	}
 
 	public DaoClasses(Collection<Class<? extends Dao>> daoClasses){

@@ -16,7 +16,6 @@
 package io.datarouter.storage.test.node.basic.sorted;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -35,7 +34,7 @@ public class SortedBeans{
 	public static final String S_ostrich = "ostrich";
 	public static final String S_pelican = "pelican";
 
-	public static final SortedSet<String> STRINGS = new TreeSet<>(Arrays.asList(
+	public static final SortedSet<String> STRINGS = Scanner.of(
 			S_aardvark,
 			S_albatross,
 			S_alpaca,
@@ -43,7 +42,8 @@ public class SortedBeans{
 			S_emu,
 			S_gopher,
 			S_ostrich,
-			S_pelican));
+			S_pelican)
+			.collect(TreeSet::new);
 
 	public static final String PREFIX_a = "a";
 	public static final int NUM_PREFIX_a = 3;

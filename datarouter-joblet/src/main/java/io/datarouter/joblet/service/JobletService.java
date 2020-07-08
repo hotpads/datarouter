@@ -15,7 +15,6 @@
  */
 package io.datarouter.joblet.service;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -145,8 +144,9 @@ public class JobletService{
 	}
 
 	public JobletPackage getJobletPackageForJobletRequest(JobletRequest jobletRequest){
-		List<JobletPackage> jobletPackages = getJobletPackagesForJobletRequests(Arrays.asList(jobletRequest));
-		return jobletPackages.stream().findFirst().orElse(null);
+		return getJobletPackagesForJobletRequests(List.of(jobletRequest)).stream()
+				.findFirst()
+				.orElse(null);
 	}
 
 	public boolean jobletRequestExistsWithTypeAndStatus(JobletType<?> jobletType, JobletStatus jobletStatus){

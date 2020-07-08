@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test.node.basic.sorted;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -51,7 +50,7 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(SortedBean databean){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.f1, databean.f1),
 					new LongField(FieldKeys.f2, databean.f2),
 					new StringField(FieldKeys.f3, databean.f3),

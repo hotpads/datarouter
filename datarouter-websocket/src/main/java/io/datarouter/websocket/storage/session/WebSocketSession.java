@@ -15,7 +15,6 @@
  */
 package io.datarouter.websocket.storage.session;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 
 		@Override
 		public List<Field<?>> getNonKeyFields(WebSocketSession webSocketSession){
-			return Arrays.asList(
+			return List.of(
 				new LongDateField(FieldKeys.openingDate, webSocketSession.openingDate),
 				new StringField(FieldKeys.serverName, webSocketSession.serverName));
 		}

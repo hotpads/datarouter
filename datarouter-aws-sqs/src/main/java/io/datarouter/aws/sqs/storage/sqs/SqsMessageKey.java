@@ -15,7 +15,6 @@
  */
 package io.datarouter.aws.sqs.storage.sqs;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -40,7 +39,7 @@ public class SqsMessageKey extends BaseRegularPrimaryKey<SqsMessageKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.messageId, messageId));
+		return List.of(new StringField(FieldKeys.messageId, messageId));
 	}
 
 	public String getMessageId(){

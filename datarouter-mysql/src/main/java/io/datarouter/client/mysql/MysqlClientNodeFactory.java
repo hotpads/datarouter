@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -69,7 +68,7 @@ public class MysqlClientNodeFactory extends BaseClientNodeFactory{
 
 		@Override
 		public List<UnaryOperator<PhysicalIndexedSortedMapStorageNode<PK,D,F>>> getAdapters(){
-			return Arrays.asList(
+			return List.of(
 					PhysicalIndexedSortedMapStorageSanitizationAdapter::new,
 					PhysicalIndexedSortedMapStorageCounterAdapter::new,
 					PhysicalIndexedSortedMapStorageTraceAdapter::new,

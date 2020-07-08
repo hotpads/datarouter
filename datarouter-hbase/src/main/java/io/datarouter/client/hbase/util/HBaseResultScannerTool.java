@@ -16,7 +16,6 @@
 package io.datarouter.client.hbase.util;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Result;
@@ -31,7 +30,7 @@ public class HBaseResultScannerTool{
 			TracerTool.appendToSpanInfo("limit", limit);
 			Result[] results = resultScanner.next(limit);
 			TracerTool.appendToSpanInfo("results", results.length);
-			return Arrays.asList(results);
+			return List.of(results);
 		}
 	}
 

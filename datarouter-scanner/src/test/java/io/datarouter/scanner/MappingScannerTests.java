@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -28,7 +27,7 @@ public class MappingScannerTests{
 	public void simpleTest(){
 		Scanner<Integer> input = Scanner.of(1, 2, 3);
 		Function<Integer,Integer> mapper = i -> i * 2;
-		List<Integer> expected = Arrays.asList(2, 4, 6);
+		List<Integer> expected = List.of(2, 4, 6);
 		List<Integer> actual = input.map(mapper).list();
 		Assert.assertEquals(actual, expected);
 	}

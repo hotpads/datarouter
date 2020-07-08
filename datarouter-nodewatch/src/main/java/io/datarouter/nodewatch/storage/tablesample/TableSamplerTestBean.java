@@ -15,7 +15,6 @@
  */
 package io.datarouter.nodewatch.storage.tablesample;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -32,7 +31,7 @@ public class TableSamplerTestBean extends BaseDatabean<TableSamplerTestBeanKey,T
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(TableSamplerTestBean databean){
-			return Arrays.asList();
+			return List.of();
 		}
 
 	}

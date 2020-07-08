@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -42,7 +41,7 @@ public class ConcatenatingScannerTests{
 		List<Integer> actual = batches
 				.concat(Scanner::of)
 				.list();
-		List<Integer> expected = Arrays.asList(0, 1, 2, 73, 3, 4);
+		List<Integer> expected = List.of(0, 1, 2, 73, 3, 4);
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -57,7 +56,7 @@ public class ConcatenatingScannerTests{
 		List<Integer> actual = Scanner.of(map.keySet())
 				.concatIter(map::get)
 				.list();
-		List<Integer> expected = Arrays.asList(0, 1, 2, 73, 3, 4);
+		List<Integer> expected = List.of(0, 1, 2, 73, 3, 4);
 		Assert.assertEquals(actual, expected);
 	}
 

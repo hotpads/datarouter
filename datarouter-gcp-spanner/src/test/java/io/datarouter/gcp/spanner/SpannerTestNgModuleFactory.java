@@ -15,7 +15,7 @@
  */
 package io.datarouter.gcp.spanner;
 
-import java.util.Arrays;
+import java.util.List;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
@@ -30,7 +30,7 @@ import io.datarouter.web.config.DatarouterWebGuiceModule;
 public class SpannerTestNgModuleFactory extends TestNgModuleFactory{
 
 	public SpannerTestNgModuleFactory(){
-		super(Arrays.asList(
+		super(List.of(
 				new DatarouterWebGuiceModule(),
 				new SpannerTestGuiceModule()));
 	}

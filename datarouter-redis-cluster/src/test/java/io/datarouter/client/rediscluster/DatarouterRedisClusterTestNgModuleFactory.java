@@ -15,7 +15,7 @@
  */
 package io.datarouter.client.rediscluster;
 
-import java.util.Arrays;
+import java.util.List;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
@@ -30,7 +30,7 @@ import io.datarouter.web.config.DatarouterWebGuiceModule;
 public class DatarouterRedisClusterTestNgModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterRedisClusterTestNgModuleFactory(){
-		super(Arrays.asList(
+		super(List.of(
 				new DatarouterWebGuiceModule(),
 				new RedisClusterGuiceModule()));
 	}

@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test.node.basic.sorted;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -41,7 +40,7 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return Arrays.asList(
+		return List.of(
 				new UInt31Field(FieldKeys.baz, baz),
 				new StringField(FieldKeys.qux, qux));
 	}

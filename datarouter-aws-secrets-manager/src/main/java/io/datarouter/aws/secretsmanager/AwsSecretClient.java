@@ -40,7 +40,7 @@ import com.amazonaws.services.secretsmanager.model.UpdateSecretRequest;
 
 import io.datarouter.secret.client.BaseSecretClient;
 import io.datarouter.secret.client.Secret;
-import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.secret.service.SecretStageDetector;
 
 /**
  * Notes:
@@ -56,7 +56,7 @@ public class AwsSecretClient extends BaseSecretClient{
 	private static final String US_EAST_1 = "us-east-1";
 
 	@Inject
-	private ServerTypeDetector serverTypeDetector;
+	private SecretStageDetector secretStageDetector;
 	@Inject
 	private AwsCredentialsSupplier awsCredentialsSupplier;
 
@@ -67,7 +67,7 @@ public class AwsSecretClient extends BaseSecretClient{
 		if(isInited){
 			return;
 		}
-		AWSCredentials awsCredentials = serverTypeDetector.mightBeProduction()
+		AWSCredentials awsCredentials = secretStageDetector.mightBeProduction()
 				? new BasicAWSCredentials(
 						awsCredentialsSupplier.getProdAccessKey(),
 						awsCredentialsSupplier.getProdSecretKey())

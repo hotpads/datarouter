@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.tally;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -40,7 +39,7 @@ public class Tally extends BaseDatabean<TallyKey,Tally>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(Tally databean){
-			return Arrays.asList(new LongField(FieldKeys.tally, databean.tally));
+			return List.of(new LongField(FieldKeys.tally, databean.tally));
 		}
 
 	}

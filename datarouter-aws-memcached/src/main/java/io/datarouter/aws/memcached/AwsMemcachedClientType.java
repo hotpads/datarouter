@@ -24,8 +24,7 @@ import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;
 
 @Singleton
-public class AwsMemcachedClientType
-implements ClientType<AwsMemcachedClientNodeFactory,AwsMemcachedClientManager>{
+public class AwsMemcachedClientType implements ClientType<AwsMemcachedClientNodeFactory,AwsMemcachedClientManager>{
 
 	public static final String NAME = "awsMemcached";
 

@@ -16,7 +16,6 @@
 
 package io.datarouter.auth.storage.account;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -41,7 +40,7 @@ public class DatarouterAccountKey extends BaseRegularPrimaryKey<DatarouterAccoun
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.accountName, accountName));
+		return List.of(new StringField(FieldKeys.accountName, accountName));
 	}
 
 	public String getAccountName(){

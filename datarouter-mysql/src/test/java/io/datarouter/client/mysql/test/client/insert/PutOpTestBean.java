@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.insert;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -49,7 +48,7 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 
 		@Override
 		public List<Field<?>> getNonKeyFields(PutOpTestBean databean){
-			return Arrays.asList(new StringField(FieldKeys.strC, databean.strC));
+			return List.of(new StringField(FieldKeys.strC, databean.strC));
 		}
 
 	}

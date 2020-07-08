@@ -15,9 +15,9 @@
  */
 package io.datarouter.client.mysql.test.client.imp.mysql.ddl.generate;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.testng.Assert;
@@ -37,14 +37,14 @@ public class SqlTableDiffGeneratorTests{
 
 	private static final String ID_STRING = "id";
 	private static final SqlColumn id = new SqlColumn(ID_STRING, MysqlColumnType.BIGINT);
-	private static final SqlIndex pk = SqlIndex.createPrimaryKey(Arrays.asList(ID_STRING));
+	private static final SqlIndex pk = SqlIndex.createPrimaryKey(List.of(ID_STRING));
 
 	@Test
 	public void testSameTableModified(){
 		SqlTable table = new SqlTable(
 				"degemer",
 				pk,
-				Arrays.asList(id),
+				List.of(id),
 				Collections.emptySet(),
 				Collections.emptySet(),
 				MysqlCharacterSet.utf8mb4,
@@ -58,14 +58,14 @@ public class SqlTableDiffGeneratorTests{
 	public void testIndexModifiedWithSameName(){
 		String column1 = "foo";
 		String column2 = "bar";
-		var previousIndex = new SqlIndex("foo", Arrays.asList(column1));
-		var nextIndex = new SqlIndex("foo", Arrays.asList(column1, column2));
-		Set<SqlIndex> previousIndexes = new HashSet<>(Arrays.asList(previousIndex));
-		Set<SqlIndex> nextIndexes = new HashSet<>(Arrays.asList(nextIndex));
+		var previousIndex = new SqlIndex("foo", List.of(column1));
+		var nextIndex = new SqlIndex("foo", List.of(column1, column2));
+		Set<SqlIndex> previousIndexes = new HashSet<>(List.of(previousIndex));
+		Set<SqlIndex> nextIndexes = new HashSet<>(List.of(nextIndex));
 		var previousTable = new SqlTable(
 				"degemer",
 				pk,
-				Arrays.asList(id),
+				List.of(id),
 				previousIndexes,
 				Collections.emptySet(),
 				MysqlCharacterSet.utf8mb4,
@@ -75,7 +75,7 @@ public class SqlTableDiffGeneratorTests{
 		var nextTable = new SqlTable(
 				"degemer",
 				pk,
-				Arrays.asList(id),
+				List.of(id),
 				nextIndexes,
 				Collections.emptySet(),
 				MysqlCharacterSet.utf8mb4,
@@ -87,7 +87,6 @@ public class SqlTableDiffGeneratorTests{
 		Assert.assertTrue(diff.isIndexesModified());
 		Assert.assertEquals(diff.getIndexesToAdd(), nextIndexes);
 		Assert.assertEquals(diff.getIndexesToRemove(), previousIndexes);
-
 	}
 
 }

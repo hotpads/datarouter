@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.txn;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -25,12 +24,14 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 
 	public static class TxnBeanFielder extends BaseDatabeanFielder<TxnBeanKey,TxnBean>{
+
 		public TxnBeanFielder(){
 			super(TxnBeanKey.class);
 		}
+
 		@Override
 		public List<Field<?>> getNonKeyFields(TxnBean bean){
-			return Arrays.asList();
+			return List.of();
 		}
 	}
 

@@ -15,7 +15,7 @@
  */
 package io.datarouter.logging;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Singleton;
@@ -83,7 +83,7 @@ public class Log4j2Configurator{
 	}
 
 	public void updateOrCreateLoggerConfig(String name, Level level, boolean additive, String... appendersRef){
-		updateOrCreateLoggerConfig(name, level, additive, Arrays.asList(appendersRef));
+		updateOrCreateLoggerConfig(name, level, additive, List.of(appendersRef));
 	}
 
 	public void updateOrCreateLoggerConfig(String name, Level level, boolean additive, Iterable<String> appendersRef){

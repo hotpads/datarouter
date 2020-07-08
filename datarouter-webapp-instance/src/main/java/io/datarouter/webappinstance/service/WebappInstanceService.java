@@ -81,7 +81,7 @@ public class WebappInstanceService{
 		return webappInstanceDao.scan().list();
 	}
 
-	public WebappInstance updateWebappInstanceTable(){
+	public void recordAppHeartbeatMetrics(){
 		String buildId = buildProperties.getBuildId();
 		String commitId = gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING);
 		Counters.inc("App heartbeat " + datarouterProperties.getServerTypeString());
@@ -89,6 +89,9 @@ public class WebappInstanceService{
 		Counters.inc("App heartbeat type-commit " + datarouterProperties.getServerTypeString() + " " + commitId);
 		Counters.inc("App heartbeat build " + buildId);
 		Counters.inc("App heartbeat commit " + commitId);
+	}
+
+	public WebappInstance updateWebappInstanceTable(){
 		WebappInstance webappInstance = buildCurrentWebappInstance();
 		webappInstanceDao.put(webappInstance);
 		webappInstanceLogDao.put(new WebappInstanceLog(webappInstance));

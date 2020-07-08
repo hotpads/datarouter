@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test.node.basic.map;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -94,12 +93,14 @@ public abstract class BaseMapStorageIntegrationTests{
 	public void testBlankDatabeanPut(){
 		var blankDatabean = new MapStorageBean(null);
 		var nonBlankDatabean = new MapStorageBean("a");
-		dao.putMulti(Arrays.asList(nonBlankDatabean, blankDatabean));
+		dao.putMulti(List.of(nonBlankDatabean, blankDatabean));
 		MapStorageBean roundTrippedBlank = dao.get(blankDatabean.getKey());
 		new MapStorageBeanFielder().getNonKeyFields(roundTrippedBlank).stream()
 				.map(Field::getValue)
 				.forEach(Assert::assertNull);
-		Scanner.of(blankDatabean, nonBlankDatabean).map(Databean::getKey).flush(dao::deleteMulti);
+		Scanner.of(blankDatabean, nonBlankDatabean)
+				.map(Databean::getKey)
+				.flush(dao::deleteMulti);
 		Assert.assertNull(dao.get(blankDatabean.getKey()));
 	}
 
@@ -113,7 +114,7 @@ public abstract class BaseMapStorageIntegrationTests{
 		dao.put(bean0);
 		dao.put(bean2);
 
-		List<MapStorageBeanKey> keysToGet = Arrays.asList(bean0.getKey(), bean1.getKey(), bean2.getKey());
+		List<MapStorageBeanKey> keysToGet = List.of(bean0.getKey(), bean1.getKey(), bean2.getKey());
 		List<MapStorageBeanKey> keysGotten = dao.getKeys(keysToGet);
 
 		Assert.assertTrue(keysGotten.contains(bean0.getKey()));

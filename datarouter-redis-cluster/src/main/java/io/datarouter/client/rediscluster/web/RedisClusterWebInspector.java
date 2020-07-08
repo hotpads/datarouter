@@ -15,34 +15,26 @@
  */
 package io.datarouter.client.rediscluster.web;
 
-import static j2html.TagCreator.b;
 import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h3;
-import static j2html.TagCreator.p;
 import static j2html.TagCreator.pre;
 
-import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.client.rediscluster.RedisClusterClientType;
 import io.datarouter.client.rediscluster.client.RedisClusterClientManager;
-import io.datarouter.client.rediscluster.client.RedisClusterOptions;
-import io.datarouter.client.rediscluster.client.RedisClusterOptions.RedisClusterClientMode;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.ContainerTag;
@@ -51,13 +43,9 @@ import redis.clients.jedis.JedisPool;
 public class RedisClusterWebInspector implements DatarouterClientWebInspector{
 
 	@Inject
-	private RedisClusterOptions options;
-	@Inject
 	private RedisClusterClientManager clientManager;
 	@Inject
-	private DatarouterWebRequestParamsFactory datarouterWebRequestParamsFactory;
-	@Inject
-	private ServletContextSupplier servletContext;
+	private DatarouterWebRequestParamsFactory paramsFactory;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
@@ -65,18 +53,17 @@ public class RedisClusterWebInspector implements DatarouterClientWebInspector{
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
-		var clientParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(params,
-				RedisClusterClientType.class);
-		ClientId clientId = clientParams.getClientId();
-		String clientName = clientId.getName();
+		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params, RedisClusterClientType.class);
+		var clientId = clientParams.getClientId();
+		if(clientId == null){
+			return new MessageMav("Client not found");
+		}
+
+		var clientName = clientId.getName();
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
-		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 		var content = div(
-				h2("Datarouter " + clientId.getName()),
-				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientId.getName()),
-				h3("Client Summary"),
-				p(b("Client Name: " + clientName)),
-				clientOptionsTable,
+				buildClientPageHeader(clientName),
+				buildClientOptionsTable(allClientOptions),
 				buildOverview(clientId))
 				.withClass("container my-3");
 		return pageFactory.startBuilder(request)
@@ -86,15 +73,6 @@ public class RedisClusterWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag buildOverview(ClientId clientId){
-		RedisClusterClientMode clientMode = options.getClientMode(clientId.getName());
-		String endpoint = "";
-		if(clientMode == RedisClusterClientMode.AUTO_DISCOVERY){
-			endpoint = options.getClusterEndpoint(clientId.getName()).get().toString();
-		}else{
-			endpoint = options.getNodes(clientId.getName()).stream()
-					.map(InetSocketAddress::toString)
-					.collect(Collectors.joining("\n"));
-		}
 		Set<String> nodes = clientManager.getJedis(clientId).getClusterNodes().keySet();
 		ContainerTag clusterInfo = clientManager.getJedis(clientId).getClusterNodes().values().stream()
 				.findFirst()
@@ -102,10 +80,8 @@ public class RedisClusterWebInspector implements DatarouterClientWebInspector{
 				.map(jedis -> div(pre(jedis.clusterInfo()), pre(jedis.info())))
 				.get();
 		return dl(
-				dt("Client mode:"), dd(clientMode.getPersistentString()),
-				dt("Endpoint:"), dd(endpoint),
-				dt("Nodes"), dd(String.join("\n", nodes)),
-				dt("Info"), dd(clusterInfo));
+				dt("Nodes:"), dd(String.join("\n", nodes)),
+				dt("Info:"), dd(clusterInfo));
 	}
 
 }

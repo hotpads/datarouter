@@ -142,14 +142,9 @@ public class DatarouterClients{
 	/*------------------------------ getNames ------------------------------ */
 
 	private Collection<ClientId> getClientNamesRequiringEagerInitialization(){
-		List<ClientId> clientNamesRequiringEagerInitialization = new ArrayList<>();
-		for(ClientId clientId : getClientIds()){
-			ClientInitMode mode = clientOptions.getInitMode(clientId, ClientInitMode.lazy);
-			if(ClientInitMode.eager == mode){
-				clientNamesRequiringEagerInitialization.add(clientId);
-			}
-		}
-		return clientNamesRequiringEagerInitialization;
+		return Scanner.of(getClientIds())
+				.include(clientId -> clientOptions.getInitMode(clientId, ClientInitMode.lazy) == ClientInitMode.eager)
+				.list();
 	}
 
 

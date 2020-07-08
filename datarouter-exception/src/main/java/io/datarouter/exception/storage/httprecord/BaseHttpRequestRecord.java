@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.httprecord;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -381,7 +380,7 @@ extends BaseDatabean<PK,D>{
 
 		@Override
 		public List<Field<?>> getFields(){
-			return Arrays.asList(new StringField(FieldKeys.exceptionRecordId, exceptionRecordId));
+			return List.of(new StringField(FieldKeys.exceptionRecordId, exceptionRecordId));
 		}
 
 	}

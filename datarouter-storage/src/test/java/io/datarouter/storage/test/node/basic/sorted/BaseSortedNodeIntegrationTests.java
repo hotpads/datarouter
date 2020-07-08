@@ -478,8 +478,7 @@ public abstract class BaseSortedNodeIntegrationTests extends BaseSortedBeanInteg
 		var startKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3, SortedBeans.S_aardvark);
 		var endKey2 = new SortedBeanKey(SortedBeans.S_albatross, SortedBeans.S_ostrich, 3, SortedBeans.S_emu);
 		var range2 = new Range<>(startKey2, endKey2);
-		Set<SortedBean> beans = dao.scanRanges(Arrays.asList(range1, range2),
-				new Config().setOutputBatchSize(4))
+		Set<SortedBean> beans = dao.scanRanges(Arrays.asList(range1, range2), new Config().setOutputBatchSize(4))
 				.collect(HashSet::new);
 		Set<SortedBean> expected = Scanner.of(range1, range2)
 				.concat(dao::scan)

@@ -17,7 +17,6 @@ package io.datarouter.tasktracker.storage;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -73,12 +72,14 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 
 	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey,LongRunningTask>{
+
 		public LongRunningTaskFielder(){
 			super(LongRunningTaskKey.class);
 		}
+
 		@Override
 		public List<Field<?>> getNonKeyFields(LongRunningTask databean){
-			return Arrays.asList(
+			return List.of(
 					new StringEnumField<>(FieldKeys.type, databean.type),
 					new DateField(FieldKeys.startTime, databean.startTime),
 					new DateField(FieldKeys.finishTime, databean.finishTime),

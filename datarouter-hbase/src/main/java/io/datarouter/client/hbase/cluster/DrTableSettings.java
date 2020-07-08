@@ -50,8 +50,7 @@ public class DrTableSettings{
 		COLUMN_SETTINGS.add(VERSIONS);
 	}
 
-	public static final List<String>
-			BLOOMFILTER_STRINGS = Arrays.asList("NONE", "ROW", "ROWCOL"),
+	public static final List<String> BLOOMFILTER_STRINGS = List.of("NONE", "ROW", "ROWCOL"),
 			COMPRESSION_STRINGS = Arrays.stream(Algorithm.values())
 					.map(Algorithm::toString)
 					.collect(Collectors.toList()),

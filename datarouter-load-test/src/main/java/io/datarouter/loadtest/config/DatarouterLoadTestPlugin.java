@@ -15,7 +15,6 @@
  */
 package io.datarouter.loadtest.config;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.loadtest.service.LoadTestGetDao;
@@ -24,12 +23,8 @@ import io.datarouter.loadtest.service.LoadTestInsertDao;
 import io.datarouter.loadtest.service.LoadTestInsertDao.NoOpLoadTestInsertDao;
 import io.datarouter.loadtest.service.LoadTestScanDao;
 import io.datarouter.loadtest.service.LoadTestScanDao.NoOpLoadTestScanDao;
-import io.datarouter.loadtest.storage.DatarouterLoadTestGetDao;
-import io.datarouter.loadtest.storage.DatarouterLoadTestGetDao.DatarouterLoadTestGetDaoParams;
-import io.datarouter.loadtest.storage.DatarouterLoadTestInsertDao;
-import io.datarouter.loadtest.storage.DatarouterLoadTestInsertDao.DatarouterLoadTestInsertDaoParams;
-import io.datarouter.loadtest.storage.DatarouterLoadTestScanDao;
-import io.datarouter.loadtest.storage.DatarouterLoadTestScanDao.DatarouterLoadTestScanDaoParams;
+import io.datarouter.loadtest.storage.DatarouterLoadTestDao;
+import io.datarouter.loadtest.storage.DatarouterLoadTestDao.LoadTestDaoParams;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
@@ -40,28 +35,28 @@ public class DatarouterLoadTestPlugin extends BaseWebPlugin{
 
 	private static final DatarouterLoadTestPaths PATHS = new DatarouterLoadTestPaths();
 
-	private final ClientId loadTestGetClientId;
-	private final ClientId loadTestInsertClientId;
-	private final ClientId loadTestScanClientId;
+	private final boolean enableInsert;
+	private final boolean enableGet;
+	private final boolean enableScan;
 
 	private DatarouterLoadTestPlugin(
 			DatarouterLoadTestDaosModule daosModule,
-			ClientId loadTestGetClientId,
-			ClientId loadTestInsertClientId,
-			ClientId loadTestScanClientId){
-		this.loadTestGetClientId = loadTestGetClientId;
-		this.loadTestInsertClientId = loadTestInsertClientId;
-		this.loadTestScanClientId = loadTestScanClientId;
+			boolean enableInsert,
+			boolean enableGet,
+			boolean enableScan){
+		this.enableInsert = enableInsert;
+		this.enableGet = enableGet;
+		this.enableScan = enableScan;
 
 		addRouteSet(DatarouterLoadTestRouteSet.class);
-		if(loadTestGetClientId != null){
-			addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.loadTest.get, "LoadTest - Get");
-		}
-		if(loadTestInsertClientId != null){
+		if(enableInsert){
 			addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.loadTest.insert,
 					"LoadTest - Insert");
 		}
-		if(loadTestScanClientId != null){
+		if(enableGet){
+			addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.loadTest.get, "LoadTest - Get");
+		}
+		if(enableScan){
 			addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.loadTest.scan, "LoadTest - Scan");
 		}
 		setDaosModule(daosModule);
@@ -74,107 +69,74 @@ public class DatarouterLoadTestPlugin extends BaseWebPlugin{
 
 	@Override
 	protected void configure(){
-		if(loadTestGetClientId == null){
+		if(enableGet){
+			bind(LoadTestGetDao.class).to(DatarouterLoadTestDao.class);
+		}else{
 			bind(LoadTestGetDao.class).to(NoOpLoadTestGetDao.class);
-		}else{
-			bind(LoadTestGetDao.class).to(DatarouterLoadTestGetDao.class);
 		}
-
-		if(loadTestInsertClientId == null){
+		if(enableInsert){
+			bind(LoadTestInsertDao.class).to(DatarouterLoadTestDao.class);
+		}else{
 			bind(LoadTestInsertDao.class).to(NoOpLoadTestInsertDao.class);
-		}else{
-			bind(LoadTestInsertDao.class).to(DatarouterLoadTestInsertDao.class);
 		}
-
-		if(loadTestScanClientId == null){
-			bind(LoadTestScanDao.class).to(NoOpLoadTestScanDao.class);
+		if(enableScan){
+			bind(LoadTestScanDao.class).to(DatarouterLoadTestDao.class);
 		}else{
-			bind(LoadTestScanDao.class).to(DatarouterLoadTestScanDao.class);
+			bind(LoadTestScanDao.class).to(NoOpLoadTestScanDao.class);
 		}
 	}
 
 	public static class DatarouterLoadTestPluginBuilder{
 
-		private ClientId loadTestGetClientId;
-		private ClientId loadTestInsertClientId;
-		private ClientId loadTestScanClientId;
+		private final ClientId defaultClientId;
+		private boolean enableInsert = false;
+		private boolean enableGet = false;
+		private boolean enableScan = false;
 
-		public DatarouterLoadTestPluginBuilder setLoadTestGetClientId(ClientId loadTestGetClientId){
-			this.loadTestGetClientId = loadTestGetClientId;
+		public DatarouterLoadTestPluginBuilder(ClientId clientId){
+			this.defaultClientId = clientId;
+		}
+
+		public DatarouterLoadTestPluginBuilder enableInsert(){
+			this.enableInsert = true;
 			return this;
 		}
 
-		public DatarouterLoadTestPluginBuilder setLoadTestInsertClientId(ClientId loadTestInsertClientId){
-			this.loadTestInsertClientId = loadTestInsertClientId;
+		public DatarouterLoadTestPluginBuilder enableGet(){
+			this.enableGet = true;
 			return this;
 		}
 
-		public DatarouterLoadTestPluginBuilder setLoadTestScanClientId(ClientId loadTestScanClientId){
-			this.loadTestScanClientId = loadTestScanClientId;
+		public DatarouterLoadTestPluginBuilder enableScan(){
+			this.enableScan = true;
 			return this;
 		}
 
 		public DatarouterLoadTestPlugin build(){
-			var daosModule = new DatarouterLoadTestDaosModule(
-					loadTestGetClientId,
-					loadTestInsertClientId,
-					loadTestScanClientId);
-			return new DatarouterLoadTestPlugin(
-					daosModule,
-					loadTestGetClientId,
-					loadTestInsertClientId,
-					loadTestScanClientId);
+			var daosModule = new DatarouterLoadTestDaosModule(defaultClientId);
+			return new DatarouterLoadTestPlugin(daosModule, enableInsert, enableGet, enableScan);
 		}
 
 	}
 
 	private static class DatarouterLoadTestDaosModule extends DaosModuleBuilder{
 
-		private final ClientId loadTestGetClientId;
-		private final ClientId loadTestInsertClientId;
-		private final ClientId loadTestScanClientId;
+		private final ClientId defaultClientId;
 
-		private DatarouterLoadTestDaosModule(
-				ClientId loadTestGetClientId,
-				ClientId loadTestInsertClientId,
-				ClientId loadTestScanClientId){
-			this.loadTestGetClientId = loadTestGetClientId;
-			this.loadTestInsertClientId = loadTestInsertClientId;
-			this.loadTestScanClientId = loadTestScanClientId;
+		private DatarouterLoadTestDaosModule(ClientId defaultClientId){
+			this.defaultClientId = defaultClientId;
 		}
 
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
-			List<Class<? extends Dao>> daos = new ArrayList<>();
-			if(loadTestGetClientId != null){
-				daos.add(DatarouterLoadTestGetDao.class);
-			}
-			if(loadTestInsertClientId != null){
-				daos.add(DatarouterLoadTestInsertDao.class);
-			}
-			if(loadTestScanClientId != null){
-				daos.add(DatarouterLoadTestScanDao.class);
-			}
-			return daos;
+			return List.of(DatarouterLoadTestDao.class);
 		}
 
 		@Override
 		protected void configure(){
-			if(loadTestGetClientId != null){
-				bind(DatarouterLoadTestGetDaoParams.class)
-						.toInstance(new DatarouterLoadTestGetDaoParams(loadTestGetClientId));
-			}
-			if(loadTestInsertClientId != null){
-				bind(DatarouterLoadTestInsertDaoParams.class)
-						.toInstance(new DatarouterLoadTestInsertDaoParams(loadTestInsertClientId));
-			}
-			if(loadTestScanClientId != null){
-				bind(DatarouterLoadTestScanDaoParams.class)
-						.toInstance(new DatarouterLoadTestScanDaoParams(loadTestScanClientId));
-			}
+			bind(LoadTestDaoParams.class).toInstance(new LoadTestDaoParams(defaultClientId));
 		}
 
 	}
-
 
 }

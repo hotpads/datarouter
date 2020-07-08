@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.storage.account;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -69,7 +68,7 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterAccount account){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.apiKey, account.apiKey),
 					new StringField(FieldKeys.secretKey, account.secretKey),
 					new DateField(FieldKeys.created, account.created),

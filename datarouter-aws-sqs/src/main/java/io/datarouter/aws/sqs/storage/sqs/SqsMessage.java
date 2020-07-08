@@ -15,7 +15,6 @@
  */
 package io.datarouter.aws.sqs.storage.sqs;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -42,7 +41,7 @@ public class SqsMessage extends BaseDatabean<SqsMessageKey,SqsMessage>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(SqsMessage sqsMessage){
-			return Arrays.asList(new StringField(FieldKeys.message, sqsMessage.message));
+			return List.of(new StringField(FieldKeys.message, sqsMessage.message));
 		}
 
 		@Override

@@ -15,7 +15,6 @@
  */
 package io.datarouter.util.enums;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -25,10 +24,12 @@ public class DatarouterEnumToolTests{
 
 	private enum SomeType implements StringEnum<SomeType>{
 		LARGE, CONDO, RENTAL, SALE, SUBLET;
+
 		@Override
 		public String getPersistentString(){
 			return name();
 		}
+
 		@Override
 		public SomeType fromPersistentString(String value){
 			for(SomeType st : SomeType.values()){
@@ -45,7 +46,7 @@ public class DatarouterEnumToolTests{
 		SomeType[] expected = {SomeType.LARGE, SomeType.CONDO};
 		List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(),
 				"large, funky, condo, dunno", false).get();
-		Assert.assertEquals(Arrays.asList(expected), actual);
+		Assert.assertEquals(List.of(expected), actual);
 	}
 
 	@Test
@@ -53,7 +54,7 @@ public class DatarouterEnumToolTests{
 		SomeType[] expected = {SomeType.LARGE, SomeType.CONDO};
 		List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(),
 				"large, funky, condo, large, condo, condo", false).get();
-		Assert.assertEquals(Arrays.asList(expected), actual);
+		Assert.assertEquals(List.of(expected), actual);
 	}
 
 
@@ -62,9 +63,9 @@ public class DatarouterEnumToolTests{
 		SomeType[] expected = {SomeType.RENTAL, SomeType.SALE, SomeType.SUBLET};
 		List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(),
 				"rental, funky, condoo, sale, sublet", false).get();
-		Assert.assertEquals(Arrays.asList(expected), actual);
+		Assert.assertEquals(List.of(expected), actual);
 
 		actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(), "ballons", true).get();
-		Assert.assertEquals(Arrays.asList(SomeType.values()), actual);
+		Assert.assertEquals(List.of(SomeType.values()), actual);
 	}
 }

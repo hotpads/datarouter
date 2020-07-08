@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.storage.deprovisioneduser;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +52,8 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 
 		@Override
 		public List<Field<?>> getNonKeyFields(DeprovisionedUser user){
-			return Arrays.asList(new DelimitedStringArrayField(FieldKeys.roles, user.roles),
+			return List.of(
+					new DelimitedStringArrayField(FieldKeys.roles, user.roles),
 					new StringEnumField<>(FieldKeys.status, user.status));
 		}
 

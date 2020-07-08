@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,7 +42,7 @@ public class ParallelMappingScannerTests{
 
 	@Test
 	public void testOrdered(){
-		List<Integer> expected = Arrays.asList(300, 50, 0, 200);
+		List<Integer> expected = List.of(300, 50, 0, 200);
 		Scanner<Integer> input = Scanner.of(expected);
 		ParallelScannerContext context = new ParallelScannerContext(executor, 5, false);
 		List<Integer> actual = input
@@ -56,7 +55,7 @@ public class ParallelMappingScannerTests{
 	@Test
 	public void testUnordered(){
 		Scanner<Integer> input = Scanner.of(300, 50, 0, 200);
-		List<Integer> expected = Arrays.asList(0, 50, 200, 300);
+		List<Integer> expected = List.of(0, 50, 200, 300);
 		ParallelScannerContext context = new ParallelScannerContext(executor, 5, true);
 		List<Integer> actual = input
 				.parallel(context)

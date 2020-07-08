@@ -15,7 +15,6 @@
  */
 package io.datarouter.trace.storage.thread;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -50,7 +49,7 @@ extends BaseEntityPrimaryKey<EK,PK>{
 
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return Arrays.asList(new LongField(FieldKeys.threadId, threadId));
+		return List.of(new LongField(FieldKeys.threadId, threadId));
 	}
 
 	public String getTraceId(){

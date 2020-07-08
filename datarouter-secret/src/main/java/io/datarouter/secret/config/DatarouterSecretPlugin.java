@@ -17,42 +17,50 @@ package io.datarouter.secret.config;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.datarouter.secret.client.LocalStorageSecretClient.LocalStorageDefaultSecretValues;
+import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClientSupplier;
-import io.datarouter.secret.client.SecretClientSupplier.NoOpSecretClientSupplier;
-import io.datarouter.secret.handler.SecretHandlerPermissions;
-import io.datarouter.secret.handler.SecretHandlerPermissions.NoOpSecretHandlerPermissions;
-import io.datarouter.secret.storage.oprecord.DatarouterSecretOpRecordDao;
-import io.datarouter.secret.storage.oprecord.DatarouterSecretOpRecordDao.DatarouterSecretOpRecordDaoParams;
-import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.dao.Dao;
-import io.datarouter.storage.dao.DaosModuleBuilder;
-import io.datarouter.web.config.BaseWebPlugin;
-import io.datarouter.web.navigation.DatarouterNavBarCategory;
+import io.datarouter.secret.client.local.LocalStorageConfig;
+import io.datarouter.secret.client.local.LocalStorageConfig.DefaultLocalStorageConfig;
+import io.datarouter.secret.client.local.LocalStorageSecretClient.LocalStorageDefaultSecretValues;
+import io.datarouter.secret.client.local.LocalStorageSecretClient.LocalStorageSecretClientSupplier;
+import io.datarouter.secret.service.SecretJsonSerializer;
+import io.datarouter.secret.service.SecretJsonSerializer.GsonToolJsonSerializer;
+import io.datarouter.secret.service.SecretNamespacer;
+import io.datarouter.secret.service.SecretNamespacer.EmptyNamespacer;
+import io.datarouter.secret.service.SecretOpRecorder;
+import io.datarouter.secret.service.SecretOpRecorder.NoOpSecretOpRecorder;
+import io.datarouter.secret.service.SecretStageDetector;
+import io.datarouter.secret.service.SecretStageDetector.DevelopmentSecretStageDetector;
 
-public class DatarouterSecretPlugin extends BaseWebPlugin{
+public class DatarouterSecretPlugin extends BasePlugin{
 
-	private final Class<? extends SecretHandlerPermissions> secretHandlerPermissions;
 	private final Class<? extends SecretClientSupplier> secretClientSupplier;
+	private final Class<? extends SecretNamespacer> secretNamespacer;
+	private final Class<? extends SecretOpRecorder> secretOpRecorder;
+	private final Class<? extends SecretJsonSerializer> jsonSerializer;
+	private final Class<? extends SecretStageDetector> secretStageDetector;
+	private final Class<? extends LocalStorageConfig> localStorageConfig;
 	private final Map<String,String> initialLocalStorageSecretValues;
 
 	private DatarouterSecretPlugin(
-			Class<? extends SecretHandlerPermissions> secretHandlerPermissions,
 			Class<? extends SecretClientSupplier> secretClientSupplier,
-			Map<String,String> initialLocalStorageSecretValues,
-			DatarouterSecretDaoModule daosModuleBuilder){
-		this.secretHandlerPermissions = secretHandlerPermissions;
+			Class<? extends SecretNamespacer> secretNamespacer,
+			Class<? extends SecretOpRecorder> secretOpRecorder,
+			Class<? extends SecretJsonSerializer> jsonSerializer,
+			Class<? extends SecretStageDetector> secretStageDetector,
+			Class<? extends LocalStorageConfig> localStorageConfig,
+			Map<String,String> initialLocalStorageSecretValues){
 		this.secretClientSupplier = secretClientSupplier;
+		this.secretNamespacer = secretNamespacer;
+		this.secretOpRecorder = secretOpRecorder;
+		this.jsonSerializer = jsonSerializer;
+		this.secretStageDetector = secretStageDetector;
+		this.localStorageConfig = localStorageConfig;
 		this.initialLocalStorageSecretValues = initialLocalStorageSecretValues;
-		addRouteSet(DatarouterSecretRouteSet.class);
-		setDaosModule(daosModuleBuilder);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, new DatarouterSecretPaths().datarouter.secrets,
-				"Secret");
 	}
 
 	@Override
@@ -63,85 +71,99 @@ public class DatarouterSecretPlugin extends BaseWebPlugin{
 	@Override
 	public void configure(){
 		bindActual(SecretClientSupplier.class, secretClientSupplier);
-		bindActual(SecretHandlerPermissions.class, secretHandlerPermissions);
-		bindActualInstance(LocalStorageDefaultSecretValues.class, new LocalStorageDefaultSecretValues(
-				initialLocalStorageSecretValues));
+		bindActual(SecretNamespacer.class, secretNamespacer);
+		bindActual(SecretOpRecorder.class, secretOpRecorder);
+		bindActual(SecretJsonSerializer.class, jsonSerializer);
+		bindActual(SecretStageDetector.class, secretStageDetector);
+		bindActual(LocalStorageConfig.class, localStorageConfig);
+		bindActualInstance(LocalStorageDefaultSecretValues.class,
+				new LocalStorageDefaultSecretValues(initialLocalStorageSecretValues));
 	}
 
-	public static class DatarouterSecretPluginBuilder{
-
-		private final ClientId defaultClientId;
+	public abstract static class DatarouterSecretPluginBuilder<T extends DatarouterSecretPluginBuilder<T>>{
 
 		private Map<String,String> initialLocalStorageSecretValues = new HashMap<>();
-		private DatarouterSecretDaoModule daoModule;
-		private Class<? extends SecretHandlerPermissions> secretHandlerPermissions = NoOpSecretHandlerPermissions.class;
-		private Class<? extends SecretClientSupplier> secretClientSupplier = NoOpSecretClientSupplier.class;
+		private Class<? extends SecretNamespacer> secretNamespacer = EmptyNamespacer.class;
+		private Class<? extends SecretOpRecorder> secretOpRecorder = NoOpSecretOpRecorder.class;
+		private Class<? extends SecretJsonSerializer> jsonSerializer = GsonToolJsonSerializer.class;
+		private Class<? extends SecretStageDetector> secretStageDetector = DevelopmentSecretStageDetector.class;
+		private Class<? extends LocalStorageConfig> localStorageConfig = DefaultLocalStorageConfig.class;
+		private Class<? extends SecretClientSupplier> secretClientSupplier = LocalStorageSecretClientSupplier.class;
 
-		public DatarouterSecretPluginBuilder(ClientId defaultClientId){
-			this.defaultClientId = defaultClientId;
+		public static class DatarouterSecretPluginBuilderImpl
+		extends DatarouterSecretPluginBuilder<DatarouterSecretPluginBuilderImpl>{
+
+			@Override
+			protected DatarouterSecretPluginBuilderImpl getSelf(){
+				return this;
+			}
+
 		}
 
-		public DatarouterSecretPluginBuilder setDaoModule(DatarouterSecretDaoModule daoModule){
-			this.daoModule = daoModule;
-			return this;
-		}
+		protected abstract T getSelf();
 
-		public DatarouterSecretPluginBuilder setSecretHandlerPermissions(
-				Class<? extends SecretHandlerPermissions> secretHandlerPermissions){
-			this.secretHandlerPermissions = secretHandlerPermissions;
-			return this;
-		}
-
-		public DatarouterSecretPluginBuilder setSecretClientSupplier(
+		public T setSecretClientSupplier(
 				Class<? extends SecretClientSupplier> secretClientSupplier){
 			this.secretClientSupplier = secretClientSupplier;
-			return this;
+			return getSelf();
 		}
 
-		public DatarouterSecretPluginBuilder setInitialLocalStorageSecrets(Collection<Secret> secrets){
+		public T setSecretNamespacer(Class<? extends SecretNamespacer> secretNamespacer){
+			this.secretNamespacer = secretNamespacer;
+			return getSelf();
+		}
+
+		public T setSecretOpRecorder(Class<? extends SecretOpRecorder> secretOpRecorder){
+			this.secretOpRecorder = secretOpRecorder;
+			return getSelf();
+		}
+
+		public T setJsonSerializer(Class<? extends SecretJsonSerializer> jsonSerializer){
+			this.jsonSerializer = jsonSerializer;
+			return getSelf();
+		}
+
+		public T setSecretStageDetector(
+				Class<? extends SecretStageDetector> secretStageDetector){
+			this.secretStageDetector = secretStageDetector;
+			return getSelf();
+		}
+
+		public T setLocalStorageConfig(Class<? extends LocalStorageConfig> localStorageConfig){
+			this.localStorageConfig = localStorageConfig;
+			return getSelf();
+		}
+
+		public T setInitialLocalStorageSecrets(Collection<Secret> secrets){
 			initialLocalStorageSecretValues = secrets.stream()
 					.collect(Collectors.toMap(Secret::getName, Secret::getValue));
-			return this;
+			return getSelf();
 		}
 
-		public DatarouterSecretPluginBuilder addInitialLocalStorageSecret(Secret secret){
+		public T addInitialLocalStorageSecret(Secret secret){
 			initialLocalStorageSecretValues.put(secret.getName(), secret.getValue());
-			return this;
+			return getSelf();
 		}
 
-		public DatarouterSecretPluginBuilder addInitialLocalStorageSecrets(Collection<Secret> secrets){
+		public T addInitialLocalStorageSecrets(Collection<Secret> secrets){
 			initialLocalStorageSecretValues.putAll(secrets.stream()
 					.collect(Collectors.toMap(Secret::getName, Secret::getValue)));
-			return this;
+			return getSelf();
 		}
 
-		public DatarouterSecretPlugin build(){
+		protected DatarouterSecretPlugin buildBasePlugin(){
 			return new DatarouterSecretPlugin(
-					secretHandlerPermissions,
 					secretClientSupplier,
-					initialLocalStorageSecretValues,
-					daoModule == null ? new DatarouterSecretDaoModule(defaultClientId) : daoModule);
+					secretNamespacer,
+					secretOpRecorder,
+					jsonSerializer,
+					secretStageDetector,
+					localStorageConfig,
+					initialLocalStorageSecretValues);
 		}
 
-	}
-
-	public static class DatarouterSecretDaoModule extends DaosModuleBuilder{
-
-		private final ClientId datarouterSecretOpRecordDaoClientId;
-
-		public DatarouterSecretDaoModule(ClientId datarouterSecretOpRecordDaoClientId){
-			this.datarouterSecretOpRecordDaoClientId = datarouterSecretOpRecordDaoClientId;
-		}
-
-		@Override
-		public List<Class<? extends Dao>> getDaoClasses(){
-			return List.of(DatarouterSecretOpRecordDao.class);
-		}
-
-		@Override
-		public void configure(){
-			bind(DatarouterSecretOpRecordDaoParams.class)
-					.toInstance(new DatarouterSecretOpRecordDaoParams(datarouterSecretOpRecordDaoClientId));
+		public BasePlugin build(){
+			return buildBasePlugin();
 		}
 
 	}

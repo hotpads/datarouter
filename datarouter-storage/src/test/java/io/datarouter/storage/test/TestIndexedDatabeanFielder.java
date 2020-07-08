@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.test;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,9 +26,7 @@ public class TestIndexedDatabeanFielder extends TestDatabeanFielder{
 
 	@Override
 	public Map<String,List<Field<?>>> getUniqueIndexes(TestDatabean databean){
-		Map<String,List<Field<?>>> indexes = new HashMap<>();
-		indexes.put("byBaz", new TestDatabeanByBazLookup(databean.getBaz()).getFields());
-		return indexes;
+		return Map.of("byBaz", new TestDatabeanByBazLookup(databean.getBaz()).getFields());
 	}
 
 	public static class TestDatabeanByBazLookup extends BaseUniqueKey<TestDatabeanKey>{
@@ -43,7 +39,7 @@ public class TestIndexedDatabeanFielder extends TestDatabeanFielder{
 
 		@Override
 		public List<Field<?>> getFields(){
-			return Arrays.asList(new StringField(TestDatabean.FieldKeys.baz, baz));
+			return List.of(new StringField(TestDatabean.FieldKeys.baz, baz));
 		}
 
 	}

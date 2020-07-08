@@ -15,7 +15,6 @@
  */
 package io.datarouter.util.serialization;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -135,8 +134,9 @@ public class OptionalTypeAdapterFactoryTests{
 		public ComplexOptionalDto(boolean initialize){
 			if(initialize){
 				theTitle = Optional.ofNullable("Complex Object");
-				stringArray = Optional.ofNullable(Arrays.asList(Optional.ofNullable("Hello"), Optional.ofNullable(
-						"World")));
+				stringArray = Optional.ofNullable(List.of(
+						Optional.ofNullable("Hello"),
+						Optional.ofNullable("World")));
 				theObject = Optional.ofNullable(new BasicOptionalDto(true));
 			}
 		}

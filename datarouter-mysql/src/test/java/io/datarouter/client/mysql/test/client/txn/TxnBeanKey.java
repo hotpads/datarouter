@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.txn;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -35,8 +34,7 @@ public class TxnBeanKey extends BaseRegularPrimaryKey<TxnBeanKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
-				new StringField(FieldKeys.id, id));
+		return List.of(new StringField(FieldKeys.id, id));
 	}
 
 	public TxnBeanKey(){

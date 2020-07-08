@@ -15,7 +15,6 @@
  */
 package io.datarouter.clustersetting.storage.clustersetting;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -49,8 +48,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterSetting databean){
-			return Arrays.asList(
-					new StringField(FieldKeys.value, databean.value));
+			return List.of(new StringField(FieldKeys.value, databean.value));
 		}
 	}
 

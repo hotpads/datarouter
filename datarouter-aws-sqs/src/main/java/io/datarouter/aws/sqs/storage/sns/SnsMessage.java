@@ -15,7 +15,6 @@
  */
 package io.datarouter.aws.sqs.storage.sns;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -42,7 +41,7 @@ public class SnsMessage extends BaseDatabean<SnsMessageKey,SnsMessage>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(SnsMessage snsMessage){
-			return Arrays.asList(new StringField(FieldKeys.message, snsMessage.message));
+			return List.of(new StringField(FieldKeys.message, snsMessage.message));
 		}
 
 		@Override

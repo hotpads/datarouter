@@ -8,14 +8,8 @@
 <body>
 	<%@ include file="/jsp/menu/common-navbar-b4.jsp" %>
 	<div class="container my-4">
-		<h2>Datarouter ${param.clientName}</h2>
-		<nav>
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="${contextPath}/datarouter">Datarouter Home</a></li>
-				<li class="breadcrumb-item active"><b>Client: </b>${param.clientName}</li>
-			</ol>
-		</nav>
-		<b>zookeeper.quorum: </b> ${address}<br>
+		${clientPageHeader}
+		${clientOptionsTable}
 		<table class="table table-striped table-bordered table-sm">
 			<caption style="caption-side: top">These are not node names. They are table names from HBaseAdmin.listTables();</caption>
 			<thead>

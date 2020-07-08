@@ -17,7 +17,6 @@ package io.datarouter.aws.memcached.client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -54,7 +53,9 @@ public class AwsMemcachedClientManager extends MemcachedClientManager{
 		List<InetSocketAddress> addresses;
 		if(clientMode == ClientMode.Dynamic){
 			// builds aws-memcached-client with cluster endpoint and enable auto-discovery
-			addresses = Arrays.asList(options.getClusterEndpoint(clientId.getName()).get());
+			addresses = options.getClusterEndpoint(clientId.getName())
+					.map(List::of)
+					.get();
 		}else{
 			// builds aws-memcached-client with list of nodes and does not enable auto-discovery
 			// builds memcached-client with list of nodes

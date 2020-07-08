@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -25,7 +24,7 @@ public class CountScannerConsumerTests{
 
 	@Test
 	public void testCount(){
-		List<Integer> input = Arrays.asList(1, 2, 3, 4);
+		List<Integer> input = List.of(1, 2, 3, 4);
 		long actual = Scanner.of(input).count();
 		int expected = input.size();
 		Assert.assertEquals(actual, expected);

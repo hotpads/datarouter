@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.caseinsensitive;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -40,8 +39,7 @@ public class CaseInsensitiveTestPrimaryKey extends BaseRegularPrimaryKey<CaseIns
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
-				new StringField(FieldKeys.stringFieldKey, stringField));
+		return List.of(new StringField(FieldKeys.stringFieldKey, stringField));
 	}
 
 }

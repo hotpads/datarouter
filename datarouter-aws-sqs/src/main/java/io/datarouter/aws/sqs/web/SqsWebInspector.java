@@ -15,12 +15,8 @@
  */
 package io.datarouter.aws.sqs.web;
 
-import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.p;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,7 +41,6 @@ import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
@@ -66,28 +61,23 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private ServletContextSupplier servletContext;
-	@Inject
 	private ClientOptions clientOptions;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
 		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params, SqsClientType.class);
-		if(clientParams.getClientId() == null){
+		var clientId = clientParams.getClientId();
+		if(clientId == null){
 			return new MessageMav("Client not found");
 		}
 
-		String clientName = clientParams.getClientId().getName();
+		var clientName = clientId.getName();
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
-		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 		var content = div(
-				h2("Datarouter " + clientName),
-				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientName),
-				h3("Client Summary"),
-				p(b("Client Name: " + clientName),
-				clientOptionsTable,
-				buildQueueNodeTable(clientParams.getClientId()),
-				buildReferenceTable()))
+				buildClientPageHeader(clientName),
+				buildClientOptionsTable(allClientOptions),
+				buildQueueNodeTable(clientId),
+				buildReferenceTable())
 				.withClass("container my-3");
 
 		return pageFactory.startBuilder(request)
@@ -129,7 +119,8 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.build(queueStatsRows);
 		ContainerTag header = h4("Queues");
 		return div(header, table)
-				.withClass("container-fluid my-4");
+				.withClass("container-fluid my-4")
+				.withStyle("padding-left: 0px");
 	}
 
 	private ContainerTag buildReferenceTable(){

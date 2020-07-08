@@ -16,7 +16,6 @@
 package io.datarouter.web.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -71,7 +70,7 @@ public class DatarouterServletGuiceModule extends BaseGuiceServletModule{
 	protected void configureServlets(){
 		//dispatcher and routeSet classes
 		bind(DispatcherServletClasses.class)
-				.toInstance(new DispatcherServletClasses(Arrays.asList(DefaultDispatcherServlet.class)));
+				.toInstance(new DispatcherServletClasses(List.of(DefaultDispatcherServlet.class)));
 
 		//https configuration implementation
 		bind(HttpsConfiguration.class).to(httpsConfiguration);

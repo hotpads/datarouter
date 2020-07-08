@@ -155,7 +155,12 @@ public class LoadTestInsertHandler extends BaseHandler{
 		ExecutorService executor = Executors.newFixedThreadPool(pNumThreads);
 		Scanner.of(IntStream.range(0, numBatches).mapToObj(Integer::valueOf))
 				.map(batchId -> LoadTestTool.makePredictableIdBatch(pNum, pBatchSize, batchId))
-				.map(ids -> new InsertBatchCallable(dao.getNode(), ids, pPersistentPut, pLogPeriod, lastBatchFinished,
+				.map(ids -> new InsertBatchCallable(
+						dao.getWriterNode(),
+						ids,
+						pPersistentPut,
+						pLogPeriod,
+						lastBatchFinished,
 						counter))
 				.parallel(new ParallelScannerContext(executor, pNumThreads, true))
 				.forEach(CallableTool::callUnchecked);

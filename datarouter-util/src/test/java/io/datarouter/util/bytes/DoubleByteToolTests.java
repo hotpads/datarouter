@@ -16,22 +16,32 @@
 package io.datarouter.util.bytes;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.scanner.Scanner;
+
 public class DoubleByteToolTests{
 
 	@Test
 	public void testComparableBytes(){
-		List<Double> interestingDoubles = Arrays.asList(Double.NEGATIVE_INFINITY, -Double.MAX_VALUE,
-				-Double.MIN_NORMAL, -Double.MIN_VALUE, -0D, +0D, Double.MIN_VALUE, Double.MIN_NORMAL,
-				Double.MAX_VALUE, Double.POSITIVE_INFINITY, Double.NaN);
-		Collections.sort(interestingDoubles);
+		List<Double> interestingDoubles = Scanner.of(
+				Double.NEGATIVE_INFINITY,
+				-Double.MAX_VALUE,
+				-Double.MIN_NORMAL,
+				-Double.MIN_VALUE,
+				-0D,
+				+0D,
+				Double.MIN_VALUE,
+				Double.MIN_NORMAL,
+				Double.MAX_VALUE,
+				Double.POSITIVE_INFINITY,
+				Double.NaN)
+				.sorted()
+				.list();
 		List<Double> roundTripped = interestingDoubles.stream()
 				.map(DoubleByteTool::toComparableBytes)
 				.sorted(ByteTool::bitwiseCompare)

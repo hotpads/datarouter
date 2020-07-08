@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -25,7 +24,7 @@ public class ListScannerConsumerTests{
 
 	@Test
 	public void testList(){
-		List<Integer> input = Arrays.asList(1, 2, 3, 4);
+		List<Integer> input = List.of(1, 2, 3, 4);
 		List<Integer> actual = Scanner.of(input).list();
 		List<Integer> expected = input;
 		Assert.assertEquals(actual, expected);

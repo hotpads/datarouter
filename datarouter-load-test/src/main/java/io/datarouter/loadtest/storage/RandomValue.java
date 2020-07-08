@@ -16,7 +16,6 @@
 package io.datarouter.loadtest.storage;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -60,8 +59,7 @@ public class RandomValue extends BaseDatabean<RandomValueKey,RandomValue>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(RandomValue databean){
-			return Arrays.asList(
-					new StringField(FieldKeys.value, databean.value));
+			return List.of(new StringField(FieldKeys.value, databean.value));
 		}
 
 	}

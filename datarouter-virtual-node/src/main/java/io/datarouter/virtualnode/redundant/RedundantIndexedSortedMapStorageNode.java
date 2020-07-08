@@ -15,7 +15,7 @@
  */
 package io.datarouter.virtualnode.redundant;
 
-import java.util.Arrays;
+import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -42,7 +42,7 @@ implements IndexedSortedMapStorageNode<PK,D,F>,
 	 */
 	@SafeVarargs
 	public RedundantIndexedSortedMapStorageNode(N... nodes){
-		super(Arrays.asList(nodes), nodes[0]);
+		super(List.of(nodes), nodes[0]);
 	}
 
 }

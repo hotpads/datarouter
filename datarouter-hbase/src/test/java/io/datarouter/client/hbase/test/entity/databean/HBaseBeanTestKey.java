@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.hbase.test.entity.databean;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -60,7 +59,7 @@ public class HBaseBeanTestKey extends BaseEntityPrimaryKey<HBaseBeanTestEntityKe
 
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.baz, baz),
 				new StringField(FieldKeys.qux, qux));
 	}

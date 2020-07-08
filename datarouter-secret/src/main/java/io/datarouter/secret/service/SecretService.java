@@ -16,25 +16,17 @@
 package io.datarouter.secret.service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.secret.client.LocalStorageSecretClient.LocalStorageDefaultSecretValues;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClientSupplier;
-import io.datarouter.secret.storage.oprecord.DatarouterSecretOpRecordDao;
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.web.handler.encoder.HandlerEncoder;
+import io.datarouter.secret.client.local.LocalStorageSecretClient.LocalStorageDefaultSecretValues;
 
 /**
  * This is the recommended interface for accessing {@link Secret}s that need to be written to, and namespacing is
@@ -44,30 +36,25 @@ import io.datarouter.web.handler.encoder.HandlerEncoder;
 @Singleton
 public class SecretService{
 
-	private static final String SHARED_NAMESPACE = "shared";
-
-	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
-	private DatarouterService datarouterService;
-	@Inject
-	private DatarouterSecretOpRecordDao datarouterSecretOpRecordDao;
-	@Inject
-	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
-	private JsonSerializer jsonSerializer;
 	@Inject
 	private LocalStorageDefaultSecretValues localStorageDefaultSecretValues;
 	@Inject
 	private SecretClientSupplier secretClientSupplier;
 	@Inject
-	private ServerTypeDetector serverTypeDetector;
+	private SecretJsonSerializer jsonSerializer;
+	@Inject
+	private SecretNamespacer secretNamespacer;
+	@Inject
+	private SecretOpRecorder secretOpRecorder;
+	@Inject
+	private SecretStageDetector secretStageDetector;
 
 	public List<String> listSecretNames(){
 		return listSecretNames(Optional.empty());
 	}
 
 	public List<String> listSecretNames(Optional<String> exclusivePrefix){
-		return listSecretNamesInternal(exclusivePrefix, getAppNamespace());
+		return listSecretNamesInternal(exclusivePrefix, secretNamespacer.getAppNamespace());
 	}
 
 	public List<String> listSecretNameSuffixes(String exclusivePrefix){
@@ -75,7 +62,7 @@ public class SecretService{
 	}
 
 	public List<String> listSecretNamesShared(){
-		return listSecretNamesInternal(Optional.empty(), getSharedNamespace());
+		return listSecretNamesInternal(Optional.empty(), secretNamespacer.getSharedNamespace());
 	}
 
 	private List<String> listSecretNamesInternal(Optional<String> exclusivePrefix, String namespace){
@@ -100,15 +87,15 @@ public class SecretService{
 	}
 
 	public String readRaw(String secretName, SecretOpReason reason){
-		return readRawInternal(getAppNamespace(), secretName, reason);
+		return readRawInternal(secretNamespacer.getAppNamespace(), secretName, reason);
 	}
 
 	public String readRawShared(String secretName, SecretOpReason reason){
-		return readRawInternal(getSharedNamespace(), secretName, reason);
+		return readRawInternal(secretNamespacer.getSharedNamespace(), secretName, reason);
 	}
 
 	private String readRawInternal(String namespace, String secretName, SecretOpReason reason){
-		recordOp(SecretOp.READ, namespace, secretName, reason);
+		record(SecretOp.READ, namespace, secretName, reason);
 		return secretClientSupplier.get().read(namespace + secretName).getValue();
 	}
 
@@ -122,8 +109,8 @@ public class SecretService{
 	}
 
 	public void createRaw(String secretName, String serializedValue, SecretOpReason reason){
-		recordOp(SecretOp.CREATE, getAppNamespace(), secretName, reason);
-		secretClientSupplier.get().create(namespaced(secretName), serializedValue);
+		record(SecretOp.CREATE, secretNamespacer.getAppNamespace(), secretName, reason);
+		secretClientSupplier.get().create(secretNamespacer.appNamespaced(secretName), serializedValue);
 	}
 
 	public <T> void update(String secretName, T secretValue, SecretOpReason reason){
@@ -131,8 +118,8 @@ public class SecretService{
 	}
 
 	public void updateRaw(String secretName, String serializedValue, SecretOpReason reason){
-		recordOp(SecretOp.UPDATE, getAppNamespace(), secretName, reason);
-		secretClientSupplier.get().update(namespaced(secretName), serializedValue);
+		record(SecretOp.UPDATE, secretNamespacer.getAppNamespace(), secretName, reason);
+		secretClientSupplier.get().update(secretNamespacer.appNamespaced(secretName), serializedValue);
 	}
 
 	public <T> void put(Supplier<String> secretName, T secretValue, SecretOpReason reason){
@@ -140,9 +127,9 @@ public class SecretService{
 	}
 
 	public <T> void put(String secretName, T secretValue, SecretOpReason reason){
-		recordOp(SecretOp.PUT, getAppNamespace(), secretName, reason);
+		record(SecretOp.PUT, secretNamespacer.getAppNamespace(), secretName, reason);
 		SecretClient secretClient = secretClientSupplier.get();
-		secretName = namespaced(secretName);
+		secretName = secretNamespacer.appNamespaced(secretName);
 		try{
 			secretClient.createQuiet(secretName, serialize(secretValue));
 		}catch(RuntimeException e){
@@ -151,20 +138,21 @@ public class SecretService{
 	}
 
 	public void delete(String secretName, SecretOpReason reason){
-		recordOp(SecretOp.DELETE, getAppNamespace(), secretName, reason);
-		secretClientSupplier.get().delete(namespaced(secretName));
+		record(SecretOp.DELETE, secretNamespacer.getAppNamespace(), secretName, reason);
+		secretClientSupplier.get().delete(secretNamespacer.appNamespaced(secretName));
 	}
 
 	public final <T> void registerDevelopmentDefaultValue(Supplier<String> secretName, T defaultValue,
 			boolean isShared){
-		String namespaced = isShared ? sharedNamespaced(secretName.get()) : namespaced(secretName.get());
-		if(serverTypeDetector.mightBeDevelopment()){
+		String namespaced = isShared ? secretNamespacer.sharedNamespaced(secretName.get()) : secretNamespacer
+				.appNamespaced(secretName.get());
+		if(secretStageDetector.mightBeDevelopment()){
 			localStorageDefaultSecretValues.registerDefaultValue(namespaced, serialize(defaultValue));
 		}
 	}
 
-	private void recordOp(SecretOp op, String namespace, String secretName, SecretOpReason reason){
-		datarouterSecretOpRecordDao.recordOp(namespace, secretName, op, reason);
+	private void record(SecretOp op, String namespace, String secretName, SecretOpReason reason){
+		secretOpRecorder.recordOp(namespace, secretName, op, reason);
 	}
 
 	private <T> String serialize(T value){
@@ -173,26 +161,6 @@ public class SecretService{
 
 	private <T> T deserialize(String value, Class<T> targetClass){
 		return jsonSerializer.deserialize(value, targetClass);
-	}
-
-	private String namespaced(String secretName){
-		return getAppNamespace() + secretName;
-	}
-
-	private String getAppNamespace(){
-		return getEnvironment() + '/' + Objects.requireNonNull(datarouterService.getName()) + '/';
-	}
-
-	private String sharedNamespaced(String secretName){
-		return getSharedNamespace() + secretName;
-	}
-
-	private String getSharedNamespace(){
-		return getEnvironment() + '/' + SHARED_NAMESPACE + '/';
-	}
-
-	private String getEnvironment(){
-		return Objects.requireNonNull(datarouterProperties.getEnvironmentType());
 	}
 
 	private static List<String> removePrefixes(List<String> strings, String prefix){

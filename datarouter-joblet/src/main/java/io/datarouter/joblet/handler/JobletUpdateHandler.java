@@ -17,9 +17,9 @@ package io.datarouter.joblet.handler;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -73,6 +73,7 @@ public class JobletUpdateHandler extends BaseHandler{
 			@Param(PARAM_executionOrder) Integer executionOrder,
 			@Param(PARAM_status) String status){
 		JobletType<?> jobletType = jobletTypeFactory.fromPersistentString(typeString);
+		Objects.requireNonNull(jobletType, "No joblet type found with name=" + typeString);
 		JobletStatus statusString = JobletStatus.fromPersistentStringStatic(status);
 		JobletRequestKey prefix = JobletRequestKey.create(jobletType, executionOrder, null, null);
 		jobletRequestDao.scanWithPrefix(prefix)
@@ -93,7 +94,7 @@ public class JobletUpdateHandler extends BaseHandler{
 	@Handler
 	private Mav copyJobletRequestsToQueues(@Param(PARAM_jobletType) OptionalString jobletType){
 		List<JobletType<?>> jobletTypes = jobletType.isPresent()
-				? Arrays.asList(jobletTypeFactory.fromPersistentString(jobletType.get()))
+				? List.of(jobletTypeFactory.fromPersistentString(jobletType.get()))
 				: jobletTypeFactory.getAllTypes();
 		long numCopied = 0;
 		for(JobletType<?> type : jobletTypes){

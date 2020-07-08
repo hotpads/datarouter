@@ -16,7 +16,6 @@
 package io.datarouter.scanner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -53,7 +52,7 @@ public class ScannerToolTests{
 
 	@Test
 	public void testFindAny(){
-		List<Integer> items = Arrays.asList(1, 2, 3);
+		List<Integer> items = List.of(1, 2, 3);
 		Integer any = Scanner.of(items).findAny().get();
 		Assert.assertTrue(items.contains(any));
 		Assert.assertFalse(Scanner.empty().findAny().isPresent());
@@ -171,15 +170,15 @@ public class ScannerToolTests{
 	public void testSkip(){
 		Scanner<Integer> input = Scanner.of(1, 2, 3, 4);
 		List<Integer> actual = input.skip(2).list();
-		List<Integer> expected = Arrays.asList(3, 4);
+		List<Integer> expected = List.of(3, 4);
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testTake(){
 		Scanner<Integer> input = Scanner.of(1, 2, 3, 4);
-		Assert.assertEquals(input.take(3), Arrays.asList(1, 2, 3));
-		Assert.assertEquals(input.take(3), Arrays.asList(4));
+		Assert.assertEquals(input.take(3), List.of(1, 2, 3));
+		Assert.assertEquals(input.take(3), List.of(4));
 	}
 
 	@Test

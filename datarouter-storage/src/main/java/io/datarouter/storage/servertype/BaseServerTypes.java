@@ -46,7 +46,7 @@ public class BaseServerTypes implements ServerTypes{
 		this.webServerType = webServerType;
 		this.jobServerType = jobServerType;
 		this.jobletServerType = jobletServerType;
-		this.serverTypes.addAll(Arrays.asList(webServerType, jobServerType, jobletServerType));
+		this.serverTypes.addAll(List.of(webServerType, jobServerType, jobletServerType));
 	}
 
 	public static ServerType makeProduction(String persistentString){

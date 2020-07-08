@@ -15,7 +15,6 @@
  */
 package io.datarouter.batchsizeoptimizer.storage.performancerecord;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -48,7 +47,7 @@ public class OpPerformanceRecordKey extends BaseRegularPrimaryKey<OpPerformanceR
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.opName, opName),
 				new LongField(FieldKeys.timestamp, timestamp),
 				new LongField(FieldKeys.nanotime, nanotime));

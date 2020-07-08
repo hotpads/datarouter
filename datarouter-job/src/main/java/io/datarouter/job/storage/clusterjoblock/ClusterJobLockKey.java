@@ -15,7 +15,6 @@
  */
 package io.datarouter.job.storage.clusterjoblock;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.job.storage.clustertriggerlock.ClusterTriggerLockKey;
@@ -36,7 +35,7 @@ public class ClusterJobLockKey extends BaseRegularPrimaryKey<ClusterJobLockKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(ClusterTriggerLockKey.FieldKeys.jobName, jobName));
+		return List.of(new StringField(ClusterTriggerLockKey.FieldKeys.jobName, jobName));
 	}
 
 	public String getJobName(){

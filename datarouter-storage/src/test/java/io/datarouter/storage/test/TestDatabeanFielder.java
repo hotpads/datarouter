@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -31,7 +30,7 @@ public class TestDatabeanFielder extends BaseDatabeanFielder<TestDatabeanKey,Tes
 
 	@Override
 	public List<Field<?>> getNonKeyFields(TestDatabean databean){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.bar, databean.getBar()),
 				new StringField(FieldKeys.baz, databean.getBaz()));
 	}

@@ -15,7 +15,7 @@
  */
 package io.datarouter.client.mysql.ddl.domain;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -28,8 +28,8 @@ public class SqlIndexTests{
 		String columnB = "b";
 		String aa = "a";
 		String bb = "b";
-		SqlIndex index1 = new SqlIndex("index", Arrays.asList(columnA, columnB));
-		SqlIndex index2 = new SqlIndex("index", Arrays.asList(aa, bb));
+		SqlIndex index1 = new SqlIndex("index", List.of(columnA, columnB));
+		SqlIndex index2 = new SqlIndex("index", List.of(aa, bb));
 		Assert.assertEquals(index1, index2);
 	}
 

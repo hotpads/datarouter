@@ -15,7 +15,6 @@
  */
 package io.datarouter.secret.client;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -136,7 +135,7 @@ public abstract class BaseSecretClient implements SecretClient{
 	}
 
 	private void countSuccess(String operation){
-		count(Arrays.asList(
+		count(List.of(
 				"",
 				"success",
 				operation,
@@ -149,7 +148,7 @@ public abstract class BaseSecretClient implements SecretClient{
 	}
 
 	private void countError(String operation, RuntimeException exc){
-		count(Arrays.asList(
+		count(List.of(
 				"",
 				"error",
 				"error " + exc.getClass().getCanonicalName(),

@@ -15,7 +15,6 @@
  */
 package io.datarouter.util;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,11 +25,11 @@ public class StreamToolTests{
 
 	@Test
 	public void testInstancesOf(){
-		List<CharSequence> charSequences = Arrays.asList(new StringBuilder("a"), "b", "c", new StringBuilder("d"));
+		List<CharSequence> charSequences = List.of(new StringBuilder("a"), "b", "c", new StringBuilder("d"));
 		List<String> strings = charSequences.stream()
 				.flatMap(StreamTool.instancesOf(String.class))
 				.collect(Collectors.toList());
-		List<String> expected = Arrays.asList("b", "c");
+		List<String> expected = List.of("b", "c");
 		Assert.assertEquals(strings, expected);
 	}
 

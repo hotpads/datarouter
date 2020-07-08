@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.38</version>
+	<version>0.0.39</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -65,6 +65,7 @@
 		<module>datarouter-redis-cluster</module>
 		<module>datarouter-scanner</module>
 		<module>datarouter-secret</module>
+		<module>datarouter-secret-web</module>
 		<module>datarouter-service-config</module>
 		<module>datarouter-storage</module>
 		<module>datarouter-task-tracker</module>

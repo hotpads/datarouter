@@ -15,7 +15,6 @@
  */
 package io.datarouter.nodewatch.storage.tablecount;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -39,7 +38,7 @@ public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.clientName, clientName),
 				new StringField(FieldKeys.tableName, tableName),
 				new LongField(FieldKeys.createdMs, createdMs));

@@ -17,7 +17,6 @@ package io.datarouter.joblet.storage.jobletrequest;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -92,13 +91,14 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	}
 
 	public static class JobletRequestFielder extends BaseDatabeanFielder<JobletRequestKey,JobletRequest>{
+
 		public JobletRequestFielder(){
 			super(JobletRequestKey.class);
 		}
 
 		@Override
 		public List<Field<?>> getNonKeyFields(JobletRequest databean){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.queueId, databean.queueId),
 					new StringField(FieldKeys.groupId, databean.groupId),
 					new StringEnumField<>(FieldKeys.status, databean.status),

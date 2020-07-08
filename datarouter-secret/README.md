@@ -6,17 +6,17 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-secret</artifactId>
-	<version>0.0.38</version>
+	<version>0.0.39</version>
 </dependency>
 ```
 
 ## Installation with Datarouter
 
-You can install this module by adding its plugin to the `WebappBuilder`.
+You can build this module as below. In the future a simple plugin configurer will be able to accept the module.
 
 ```java
-.addWebPlugin(new DatarouterSecretPluginBuilder(...)
-		...
+new DatarouterSecretPluginBuilder()
+		//...
 		.build()
 ```
 
@@ -26,7 +26,7 @@ This module provides a CRUD interface and various convenient wrappers for intera
 name and serialized `String` value.
 
 For production use, you must implement a `SecretClient` and corresponding `SecretClientSupplier`. These low-level
-clients allow all CRUD operations with no extra features.
+clients allow all CRUD operations with no extra features (namespacing, recording ops, etc.).
 
 `BaseSecretClient` is a recommended abstract implementation that adds counting and automated exception logging, so that
 exceptions will be recorded, even if they are later caught elsewhere without incident. The only concrete implementation
@@ -35,18 +35,8 @@ file system in a plaintext properties file.
 
 `SecretService` and especially `CachedSecretFactory` are the recommended ways to programmatically access `Secret`s,
 because they provide extra layers of convenience and are more audit-friendly. `SecretService` automatically namespaces
-and records every operation. `CachedSecretFactory` builds `CachedSecret`s for improved performance of frequently read
-`Secret`s, like API keys.
-
-`SecretHandler` is the recommended way to manually access `Secret`s. It is a simple CRUD UI that takes advantage of all
-the built-in features of `SecretService`. A `SecretHandlerPermissions` implementation is required to grant permissions
-for real use, but `DefaultSecretsHandlerPermissions`, which grants all permissions outside of production, is provided.
-
-The namespaces in `SecretService` are automatically applied and removed for all passed-in `Secret`s, so the
-`SecretClient` supplied by `SecretClientSupplier` will operate on the fully namespaced names. For "app-specific"
-`Secret`s, the namespace is "\<environment type\>/\<service name\>/", and for "shared" `Secret`s, the namespace is
-"\<environment type\>/shared/". Environment type is determined by `DatarouterProperties#getEnvironmentType`, and service
-name is determined by `DatarouterService#getName`.
+and records every operation based on `SecretNamespacer` and `SecretOpRecorder` implementations. `CachedSecretFactory`
+builds `CachedSecret`s for improved performance of frequently read `Secret`s, like API keys.
 
 ## Usage
 
@@ -76,7 +66,7 @@ public class DatarouterSecretExample{
 	@Inject
 	private CachedSecretFactory cachedSecretFactory;
 
-	//SecretOpReason will be recorded to DatarouterSecretOpRecordDao
+	//SecretOpReason will be recorded using the configured SecretOpRecorder implementation
 	public void copyAppSecretToSharedSecret(){
 		String appSpecificSecret = secretService.read(SECRET_NAME, String.class, SecretOpReason.automatedOp(
 				"a job might do this"));

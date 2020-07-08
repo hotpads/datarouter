@@ -16,7 +16,6 @@
 package io.datarouter.client.hbase.web;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +36,11 @@ import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.config.DatarouterHBaseFiles;
 import io.datarouter.client.hbase.config.DatarouterHBasePaths;
 import io.datarouter.pathnode.PathNode;
+import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
-import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory.DatarouterWebRequestParams;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
@@ -50,37 +49,46 @@ import io.datarouter.web.handler.params.Params;
 public class HBaseWebInspector implements DatarouterClientWebInspector{
 
 	@Inject
-	private DatarouterNodes datarouterNodes;
-	@Inject
-	private DatarouterWebRequestParamsFactory datarouterWebRequestParamsFactory;
+	private ClientOptions clientOptions;
 	@Inject
 	private DatarouterHBaseFiles files;
 	@Inject
-	private HBaseClientManager hBaseClientManager;
-	@Inject
 	private DatarouterHBasePaths datarouterHBasePaths;
+	@Inject
+	private DatarouterNodes datarouterNodes;
+	@Inject
+	private DatarouterWebRequestParamsFactory paramsFactory;
+	@Inject
+	private HBaseClientManager hBaseClientManager;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
-		Mav mav = new Mav();
-		DatarouterWebRequestParams<?> routerParams = datarouterWebRequestParamsFactory.new DatarouterWebRequestParams<>(
-				params, ClientType.class);
-		if(routerParams.getClientId() == null){
+		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params, ClientType.class);
+		var clientId = clientParams.getClientId();
+		if(clientId == null){
 			return new MessageMav("Client not found");
 		}
 
+		var clientName = clientId.getName();
+		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
+		var clientPageHeader = buildClientPageHeader(clientName);
+		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
+
+		Mav mav = new Mav();
 		mav.setViewName(files.jsp.admin.datarouter.hbase.hbaseClientSummaryJsp);
-		mav.put("address", hBaseClientManager.getConnection(routerParams.getClientId()).getConfiguration().get(
+		mav.put("clientPageHeader", clientPageHeader.render());
+		mav.put("clientOptionsTable", clientOptionsTable.render());
+		mav.put("address", hBaseClientManager.getConnection(clientId).getConfiguration().get(
 				HConstants.ZOOKEEPER_QUORUM));
 		List<HTableDescriptor> tables;
 		try{
-			tables = Arrays.asList(hBaseClientManager.getAdmin(routerParams.getClientId()).listTables());
+			tables = List.of(hBaseClientManager.getAdmin(clientId).listTables());
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 		Map<String,Map<String,String>> tableSummaryByName = new TreeMap<>();
 		Map<String,Map<String,Map<String,String>>> familySummaryByTableName = new TreeMap<>();
-		List<String> tableNamesForClient = getTableNames(routerParams);
+		List<String> tableNamesForClient = datarouterNodes.getTableNamesForClient(clientName);
 		for(HTableDescriptor table : tables){
 			String tableName = table.getNameAsString();
 			if(!tableNamesForClient.contains(tableName)){
@@ -97,7 +105,7 @@ public class HBaseWebInspector implements DatarouterClientWebInspector{
 		}
 		mav.put("tableSummaryByName", tableSummaryByName);
 		mav.put("familySummaryByTableName", familySummaryByTableName);
-		mav.put("clientType", routerParams.getClientType().getName());
+		mav.put("clientType", clientParams.getClientType().getName());
 		mav.put("hbaseHandlerPath", getHandlerPath().toSlashedString());
 		return mav;
 	}
@@ -118,10 +126,6 @@ public class HBaseWebInspector implements DatarouterClientWebInspector{
 			}
 		}
 		return familyAttributeByNameByFamilyName;
-	}
-
-	private List<String> getTableNames(DatarouterWebRequestParams<?> routerParams){
-		return datarouterNodes.getTableNamesForClient(routerParams.getClientId().getName());
 	}
 
 }

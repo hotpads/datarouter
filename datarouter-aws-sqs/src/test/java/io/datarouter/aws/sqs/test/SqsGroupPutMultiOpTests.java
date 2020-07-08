@@ -16,7 +16,6 @@
 package io.datarouter.aws.sqs.test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,14 +39,15 @@ public class SqsGroupPutMultiOpTests{
 				.collect(Collectors.toList());
 		Assert.assertEquals(SqsGroupPutMultiOp.concatGroup(group, "{".getBytes(), "}".getBytes(), SEPARATOR),
 				"{foo,bar,baz}");
-		Assert.assertEquals(SqsGroupPutMultiOp.concatGroup(Arrays.asList("foo".getBytes()), "{".getBytes(), "}"
+		Assert.assertEquals(SqsGroupPutMultiOp.concatGroup(List.of("foo".getBytes()), "{".getBytes(), "}"
 				.getBytes(), SEPARATOR), "{foo}");
 	}
 
 	@Test
 	public void testMakeGroups(){
 		byte[] fakeDatabean1 = new byte[MAX_BOUNDED_BYTES];
-		List<byte[]> fakeDatabeans = new ArrayList<>(Arrays.asList(fakeDatabean1));
+		List<byte[]> fakeDatabeans = new ArrayList<>();
+		fakeDatabeans.add(fakeDatabean1);
 		Set<List<byte[]>> groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
 		Assert.assertEquals(groups, Set.of(fakeDatabeans));
 
@@ -55,34 +55,34 @@ public class SqsGroupPutMultiOpTests{
 		fakeDatabeans.add(fakeDatabean2);
 		groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
 		Assert.assertEquals(groups, Set.of(
-				Arrays.asList(fakeDatabean1),
-				Arrays.asList(fakeDatabean2)));
+				List.of(fakeDatabean1),
+				List.of(fakeDatabean2)));
 
 		byte[] fakeDatabean3 = new byte[MAX_BOUNDED_BYTES / 2];
 		fakeDatabeans.add(fakeDatabean3);
 		groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
 		Assert.assertEquals(groups, Set.of(
-				Arrays.asList(fakeDatabean1),
-				Arrays.asList(fakeDatabean2),
-				Arrays.asList(fakeDatabean3)));
+				List.of(fakeDatabean1),
+				List.of(fakeDatabean2),
+				List.of(fakeDatabean3)));
 
 		byte[] fakeDatabean4 = new byte[MAX_BOUNDED_BYTES / 2];
 		fakeDatabeans.add(fakeDatabean4);
 		groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
 		Assert.assertEquals(groups, Set.of(
-				Arrays.asList(fakeDatabean1),
-				Arrays.asList(fakeDatabean2),
-				Arrays.asList(fakeDatabean3),
-				Arrays.asList(fakeDatabean4)));
+				List.of(fakeDatabean1),
+				List.of(fakeDatabean2),
+				List.of(fakeDatabean3),
+				List.of(fakeDatabean4)));
 
 		byte[] fakeDatabean5 = new byte[MAX_BOUNDED_BYTES / 2 - SEPARATOR.length];
 		fakeDatabeans.add(fakeDatabean5);
 		groups = SqsGroupPutMultiOp.makeGroups(fakeDatabeans, SEPARATOR, MAX_BOUNDED_BYTES);
 		Assert.assertEquals(groups, Set.of(
-				Arrays.asList(fakeDatabean1),
-				Arrays.asList(fakeDatabean2),
-				Arrays.asList(fakeDatabean3),
-				Arrays.asList(fakeDatabean4, fakeDatabean5)));
+				List.of(fakeDatabean1),
+				List.of(fakeDatabean2),
+				List.of(fakeDatabean3),
+				List.of(fakeDatabean4, fakeDatabean5)));
 	}
 
 }

@@ -16,7 +16,6 @@
 package io.datarouter.clustersetting.storage.clustersettinglog;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.clustersetting.ClusterSettingLogAction;
@@ -59,7 +58,7 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterSettingLog databean){
-			return Arrays.asList(
+			return List.of(
 					new StringEnumField<>(ClusterSettingKey.FieldKeys.scope, databean.scope),
 					new StringField(ClusterSettingKey.FieldKeys.serverType, databean.serverType),
 					new StringField(ClusterSettingKey.FieldKeys.serverName, databean.serverName),

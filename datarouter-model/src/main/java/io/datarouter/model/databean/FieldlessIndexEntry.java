@@ -15,7 +15,6 @@
  */
 package io.datarouter.model.databean;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.index.unique.UniqueIndexEntry;
@@ -53,7 +52,7 @@ implements UniqueIndexEntry<IK,FieldlessIndexEntry<IK,PK,D>,PK,D>{
 
 	@Override
 	public List<FieldlessIndexEntry<IK,PK,D>> createFromDatabean(D target){
-		return Arrays.asList(getKey().createFromDatabean(target));
+		return List.of(getKey().createFromDatabean(target));
 	}
 
 }

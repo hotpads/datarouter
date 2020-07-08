@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.storage.userhistory;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -73,7 +72,7 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterUserHistory databean){
-			return Arrays.asList(
+			return List.of(
 					new LongField(FieldKeys.editor, databean.editor),
 					new StringEnumField<>(FieldKeys.changeType, databean.changeType),
 					new StringField(FieldKeys.changes, databean.changes));

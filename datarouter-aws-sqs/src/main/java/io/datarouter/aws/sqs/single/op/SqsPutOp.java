@@ -15,7 +15,7 @@
  */
 package io.datarouter.aws.sqs.single.op;
 
-import java.util.Arrays;
+import java.util.List;
 
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
@@ -58,7 +58,7 @@ extends SqsOp<PK,D,F,Void>{
 		FieldGeneratorTool.generateAndSetValueForFieldIfNecessary(fieldInfo, databean);
 		String encodedDatabean = codec.toString(databean, fielder);
 		if(StringByteTool.getUtf8Bytes(encodedDatabean).length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
-			throw new SqsDataTooLargeException(Arrays.asList(encodedDatabean));
+			throw new SqsDataTooLargeException(List.of(encodedDatabean));
 		}
 		var request = new SendMessageRequest(queueUrl, encodedDatabean);
 		sqsClientManager.getAmazonSqs(clientId).sendMessage(request);

@@ -18,9 +18,7 @@ package io.datarouter.secret.service;
 import io.datarouter.util.Require;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
-import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.user.session.service.Session;
 
 public class SecretOpReason{
 
@@ -30,7 +28,7 @@ public class SecretOpReason{
 	public final String apiKey;
 	public final String reason;
 
-	private SecretOpReason(SecretOpReasonType type, String username, String userToken, String apiKey, String reason){
+	public SecretOpReason(SecretOpReasonType type, String username, String userToken, String apiKey, String reason){
 		this.type = type;
 		this.username = username;
 		this.userToken = userToken;
@@ -38,24 +36,9 @@ public class SecretOpReason{
 		this.reason = reason;
 	}
 
-	public static SecretOpReason apiOp(String apiKey, String reason){
-		Require.isTrue(StringTool.notEmptyNorWhitespace(apiKey));
-		Require.isTrue(StringTool.notEmptyNorWhitespace(reason));
-		return new SecretOpReason(SecretOpReasonType.API, null, null, apiKey, reason);
-	}
-
 	public static SecretOpReason automatedOp(String reason){
 		Require.isTrue(StringTool.notEmptyNorWhitespace(reason));
 		return new SecretOpReason(SecretOpReasonType.AUTOMATED, null, null, null, reason);
-	}
-
-	public static SecretOpReason manualOp(Session session, String reason){
-		ObjectTool.requireNonNulls(session, session.getUserToken(), session.getUsername());
-		Require.isTrue(StringTool.notEmptyNorWhitespace(session.getUserToken()));
-		Require.isTrue(StringTool.notEmptyNorWhitespace(session.getUsername()));
-		Require.isTrue(StringTool.notEmptyNorWhitespace(reason));
-		return new SecretOpReason(SecretOpReasonType.MANUAL, session.getUsername(), session.getUserToken(), null,
-				reason);
 	}
 
 	@Override

@@ -15,14 +15,10 @@
  */
 package io.datarouter.client.mysql.web;
 
-import static j2html.TagCreator.b;
 import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h3;
-import static j2html.TagCreator.p;
 
 import java.util.Map;
 import java.util.Optional;
@@ -37,10 +33,10 @@ import io.datarouter.client.mysql.connection.C3p0StatsService;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.storage.client.ClientOptionsBuilder;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory.DatarouterWebRequestParams;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
@@ -57,8 +53,6 @@ public class MysqlWebInspector implements DatarouterClientWebInspector{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private ServletContextSupplier servletContext;
-	@Inject
 	private DatarouterWebRequestParamsFactory paramsFactory;
 	@Inject
 	private ClientOptions clientOptions;
@@ -66,20 +60,18 @@ public class MysqlWebInspector implements DatarouterClientWebInspector{
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
 		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params, MysqlClientType.class);
-		if(clientParams.getClientId() == null){
+		var clientId = clientParams.getClientId();
+		if(clientId == null){
 			return new MessageMav("Client not found");
 		}
 
-		ClientId clientId = clientParams.getClientId();
-		String clientName = clientId.getName();
-		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
-		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
+		var clientName = clientId.getName();
+		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(ClientOptionsBuilder.DEFAULT_CLIENT_ID
+				.getName());
+		allClientOptions.putAll(clientOptions.getAllClientOptions(clientName));
 		var content = div(
-				h2("Datarouter " + clientName),
-				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientName),
-				h3("Client Summary"),
-				p(b("Client Name: " + clientName)),
-				clientOptionsTable,
+				buildClientPageHeader(clientName),
+				buildClientOptionsTable(allClientOptions),
 				getC3P0Stats(clientId, clientParams))
 				.withClass("container my-3");
 

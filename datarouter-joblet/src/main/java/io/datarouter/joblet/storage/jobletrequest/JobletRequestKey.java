@@ -17,7 +17,6 @@ package io.datarouter.joblet.storage.jobletrequest;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -52,7 +51,7 @@ public class JobletRequestKey extends BaseRegularPrimaryKey<JobletRequestKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.type, type),
 				new IntegerField(FieldKeys.executionOrder, executionOrder),
 				new LongField(FieldKeys.created, created),

@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.test;
 
-import java.util.Arrays;
+import java.util.List;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
@@ -30,7 +30,7 @@ import io.datarouter.web.config.DatarouterWebGuiceModule;
 public class DatarouterWebTestNgModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterWebTestNgModuleFactory(){
-		super(Arrays.asList(new DatarouterWebGuiceModule(), new WebTestGuiceModule()));
+		super(List.of(new DatarouterWebGuiceModule(), new WebTestGuiceModule()));
 	}
 
 	public static class WebTestGuiceModule extends BaseGuiceModule{

@@ -15,11 +15,7 @@
  */
 package io.datarouter.gcp.spanner.web;
 
-import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h3;
-import static j2html.TagCreator.p;
 
 import java.util.Map;
 
@@ -30,7 +26,6 @@ import io.datarouter.gcp.spanner.SpannerClientType;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
@@ -42,8 +37,6 @@ public class SpannerWebInspector implements DatarouterClientWebInspector{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private ServletContextSupplier servletContext;
-	@Inject
 	private DatarouterWebRequestParamsFactory paramsFactory;
 	@Inject
 	private ClientOptions clientOptions;
@@ -51,19 +44,16 @@ public class SpannerWebInspector implements DatarouterClientWebInspector{
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
 		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params, SpannerClientType.class);
-		if(clientParams.getClientId() == null){
+		var clientId = clientParams.getClientId();
+		if(clientId == null){
 			return new MessageMav("Client not found");
 		}
 
-		String clientName = clientParams.getClientId().getName();
+		var clientName = clientId.getName();
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
-		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
 		var content = div(
-				h2("Datarouter " + clientName),
-				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientName),
-				h3("Client Summary"),
-				p(b("Client Name: " + clientName)),
-				clientOptionsTable)
+				buildClientPageHeader(clientName),
+				buildClientOptionsTable(allClientOptions))
 				.withClass("container my-3");
 
 		return pageFactory.startBuilder(request)

@@ -32,7 +32,7 @@ public class ClientOptions{
 	private static final String PREFIX_client = "client.";
 	private static final String PARAM_initMode = "initMode";
 	private static final String PARAM_type = "type";
-	private static final String CLIENT_default = "default";
+	private static final String CLIENT_default = ClientOptionsBuilder.DEFAULT_CLIENT_ID.getName();
 
 	private final TypedProperties typedProperties = new TypedProperties();
 
@@ -65,26 +65,30 @@ public class ClientOptions{
 		return typedProperties.optInetSocketAddress(makeClientPrefixedKey(clientName, propertyKey));
 	}
 
-	public String getStringClientPropertyOrDefault(String propertyKey, String clientName, String def){
-		return getClientPropertyOrDefault(typedProperties::getString, propertyKey, clientName, def);
+	public String getStringClientPropertyOrDefault(String propertyKey, String clientName, String defaultValue){
+		return getClientPropertyOrDefault(typedProperties::getString, propertyKey, clientName, defaultValue);
 	}
 
-	public Integer getIntegerClientPropertyOrDefault(String propertyKey, String clientName, Integer def){
-		return getClientPropertyOrDefault(typedProperties::getInteger, propertyKey, clientName, def);
+	public Integer getIntegerClientPropertyOrDefault(String propertyKey, String clientName, Integer defaultValue){
+		return getClientPropertyOrDefault(typedProperties::getInteger, propertyKey, clientName, defaultValue);
 	}
 
-	public Boolean getBooleanClientPropertyOrDefault(String propertyKey, String clientName, Boolean def){
-		return getClientPropertyOrDefault(typedProperties::getBoolean, propertyKey, clientName, def);
+	public Boolean getBooleanClientPropertyOrDefault(String propertyKey, String clientName, Boolean defaultValue){
+		return getClientPropertyOrDefault(typedProperties::getBoolean, propertyKey, clientName, defaultValue);
 	}
 
 	public Map<String,String> getAllClientOptions(String clientName){
 		String clientPrefixedName = PREFIX_client + clientName + ".";
-		return typedProperties.getUnmodifiablePropertiesList().stream()
+		Map<String,String> allClientOptions = typedProperties.getUnmodifiablePropertiesList().stream()
 				.flatMap(properties -> properties.entrySet().stream())
 				.filter(entry -> entry.getKey().toString().startsWith(clientPrefixedName))
 				.collect(Collectors.toMap(
 						entry -> entry.getKey().toString().replace(clientPrefixedName, ""),
 						entry -> entry.getValue().toString()));
+		ClientInitMode initMode = getClientPropertyOrDefault((key, defaultValue) -> ClientInitMode.fromString(
+				typedProperties.getString(key), defaultValue), PARAM_initMode, clientName, ClientInitMode.lazy);
+		allClientOptions.put(PARAM_initMode, initMode.name());
+		return allClientOptions;
 	}
 
 	public static String makeClientTypeKey(String clientName){
@@ -100,9 +104,9 @@ public class ClientOptions{
 	}
 
 	private static <T> T getClientPropertyOrDefault(BiFunction<String,T,T> propertyGetter, String propertyKey,
-			String clientName, T def){
-		T defaultValue = propertyGetter.apply(makeClientPrefixedKey(CLIENT_default, propertyKey), def);
-		return propertyGetter.apply(makeClientPrefixedKey(clientName, propertyKey), defaultValue);
+			String clientName, T defaultValue){
+		T defaultAltValue = propertyGetter.apply(makeClientPrefixedKey(CLIENT_default, propertyKey), defaultValue);
+		return propertyGetter.apply(makeClientPrefixedKey(clientName, propertyKey), defaultAltValue);
 	}
 
 }

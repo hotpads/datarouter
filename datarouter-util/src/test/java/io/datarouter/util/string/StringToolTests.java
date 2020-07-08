@@ -15,7 +15,6 @@
  */
 package io.datarouter.util.string;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -53,19 +52,19 @@ public class StringToolTests{
 	@Test
 	public void testSplitOnCharNoRegexWithEmptyStrings(){
 		String input = "//";
-		List<String> expected = Arrays.asList("", "", "");
+		List<String> expected = List.of("", "", "");
 		List<String> decoded = StringTool.splitOnCharNoRegex(input, '/');
 		Assert.assertEquals(decoded, expected);
 	}
 
 	@Test
 	public void testSplitOnCharNoRegex(){
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("", '/'), Arrays.asList(""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("", '/'), List.of(""));
 		Assert.assertEquals(StringTool.splitOnCharNoRegex(null, '/'), Collections.emptyList());
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("/", '/'), Arrays.asList("", ""));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("  /", '/'), Arrays.asList("  ", ""));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("abc.def.g", '.'), Arrays.asList("abc", "def", "g"));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("..def.g.", '.'), Arrays.asList("", "", "def", "g", ""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("/", '/'), List.of("", ""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("  /", '/'), List.of("  ", ""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("abc.def.g", '.'), List.of("abc", "def", "g"));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("..def.g.", '.'), List.of("", "", "def", "g", ""));
 	}
 
 	@Test
@@ -109,6 +108,14 @@ public class StringToolTests{
 		Assert.assertEquals(StringTool.enforceNumeric("-"), "");
 		Assert.assertEquals(StringTool.enforceNumeric("555-555-5555"), "5555555555");
 		Assert.assertEquals(StringTool.enforceNumeric("-555-555-5555"), "-5555555555");
+	}
+
+	@Test
+	public void testRemoveNonStandardCharacters(){
+		Assert.assertEquals(StringTool.removeNonStandardCharacters("abc\t\n123"), "abc\t\n123");
+		Assert.assertEquals(StringTool.removeNonStandardCharacters("\u0000"), " ");
+		Assert.assertEquals(StringTool.removeNonStandardCharacters("\u001B"), " ");
+		Assert.assertEquals(StringTool.removeNonStandardCharacters("\u000B"), "\n");
 	}
 
 	@Test

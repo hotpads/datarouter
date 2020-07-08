@@ -15,7 +15,6 @@
  */
 package io.datarouter.loggerconfig.storage.loggerconfig;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -66,7 +65,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(LoggerConfig loggerConfig){
-			return Arrays.asList(
+			return List.of(
 					new StringEnumField<>(FieldKeys.level, loggerConfig.level),
 					new BooleanField(FieldKeys.additive, loggerConfig.additive),
 					new DelimitedStringArrayField(FieldKeys.appendersRef, loggerConfig.appendersRef),

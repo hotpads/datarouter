@@ -15,7 +15,6 @@
  */
 package io.datarouter.clustersetting.storage.clustersetting;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,7 +66,7 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.name, name),
 				new StringEnumField<>(FieldKeys.scope, scope),
 				new StringField(FieldKeys.serverType, serverType),

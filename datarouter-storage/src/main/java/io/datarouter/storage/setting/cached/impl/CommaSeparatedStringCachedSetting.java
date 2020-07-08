@@ -15,10 +15,10 @@
  */
 package io.datarouter.storage.setting.cached.impl;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -37,7 +37,8 @@ public class CommaSeparatedStringCachedSetting extends CachedSetting<Set<String>
 
 	@Override
 	public Set<String> parseStringValue(String stringValue){
-		return new HashSet<>(Arrays.asList(stringValue.split(",")));
+		return Scanner.of(stringValue.split(","))
+				.collect(HashSet::new);
 	}
 
 }

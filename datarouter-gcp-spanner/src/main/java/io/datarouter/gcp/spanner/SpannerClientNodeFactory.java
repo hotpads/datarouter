@@ -15,7 +15,6 @@
  */
 package io.datarouter.gcp.spanner;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -94,7 +93,7 @@ public class SpannerClientNodeFactory extends BaseClientNodeFactory{
 
 		@Override
 		protected List<UnaryOperator<PhysicalIndexedSortedMapStorageNode<PK,D,F>>> getAdapters(){
-			return Arrays.asList(
+			return List.of(
 					PhysicalIndexedSortedMapStorageSanitizationAdapter::new,
 					PhysicalIndexedSortedMapStorageCounterAdapter::new,
 					PhysicalIndexedSortedMapStorageTraceAdapter::new,
@@ -125,7 +124,7 @@ public class SpannerClientNodeFactory extends BaseClientNodeFactory{
 
 		@Override
 		protected List<UnaryOperator<PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>>> getAdapters(){
-			return Arrays.asList(
+			return List.of(
 					PhysicalSubEntitySortedMapStorageSanitizationAdapter::new,
 					PhysicalSubEntitySortedMapStorageCounterAdapter::new,
 					PhysicalSubEntitySortedMapStorageTraceAdapter::new,

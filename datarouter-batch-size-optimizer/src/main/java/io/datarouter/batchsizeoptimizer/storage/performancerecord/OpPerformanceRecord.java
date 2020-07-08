@@ -15,7 +15,6 @@
  */
 package io.datarouter.batchsizeoptimizer.storage.performancerecord;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -47,7 +46,7 @@ public class OpPerformanceRecord extends BaseDatabean<OpPerformanceRecordKey,OpP
 
 		@Override
 		public List<Field<?>> getNonKeyFields(OpPerformanceRecord databean){
-			return Arrays.asList(
+			return List.of(
 					new IntegerField(FieldKeys.batchSize, databean.batchSize),
 					new LongField(FieldKeys.rowCount, databean.rowCount),
 					new LongField(FieldKeys.timeSpent, databean.timeSpent));

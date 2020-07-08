@@ -30,7 +30,7 @@ import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.SettingRootsSupplier;
 import io.datarouter.storage.setting.SettingRootsSupplier.SettingRoots;
 
-public class DatarouterStoragePlugin extends BasePlugin{
+public class DatarouterStoragePlugin extends BaseStoragePlugin{
 
 	private final ServerTypes serverTypes;
 	private final Class<? extends ServerTypeDetector> serverTypeDetectorClass;

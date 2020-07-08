@@ -15,22 +15,32 @@
  */
 package io.datarouter.util.bytes;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.scanner.Scanner;
+
 public class FloatByteToolTests{
 
 	@Test
 	public void testComparableBytes(){
-		List<Float> interestingFloats = Arrays.asList(Float.NEGATIVE_INFINITY, -Float.MAX_VALUE,
-				-Float.MIN_NORMAL, -Float.MIN_VALUE, -0F, +0F, Float.MIN_VALUE, Float.MIN_NORMAL,
-				Float.MAX_VALUE, Float.POSITIVE_INFINITY, Float.NaN);
-		Collections.sort(interestingFloats);
+		List<Float> interestingFloats = Scanner.of(
+				Float.NEGATIVE_INFINITY,
+				-Float.MAX_VALUE,
+				-Float.MIN_NORMAL,
+				-Float.MIN_VALUE,
+				-0F,
+				+0F,
+				Float.MIN_VALUE,
+				Float.MIN_NORMAL,
+				Float.MAX_VALUE,
+				Float.POSITIVE_INFINITY,
+				Float.NaN)
+				.sorted()
+				.list();
 		List<Float> roundTripped = interestingFloats.stream()
 				.map(FloatByteTool::toComparableBytes)
 				.sorted(ByteTool::bitwiseCompare)

@@ -16,12 +16,7 @@
 package io.datarouter.client.memcached.web;
 
 import static j2html.TagCreator.b;
-import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.dl;
-import static j2html.TagCreator.dt;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.table;
@@ -32,7 +27,6 @@ import static j2html.TagCreator.ul;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,16 +35,17 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.client.memcached.MemcachedClientType;
 import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.MemcachedOptions;
 import io.datarouter.client.memcached.client.SpyMemcachedClient;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.storage.client.ClientType;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
-import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
@@ -60,69 +55,77 @@ import j2html.tags.ContainerTag;
 public class MemcachedWebInspector implements DatarouterClientWebInspector{
 
 	@Inject
-	private MemcachedOptions memcachedOptions;
+	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private ClientOptions clientOptions;
 	@Inject
 	private DatarouterWebRequestParamsFactory paramsFactory;
 	@Inject
 	private MemcachedClientManager memcachedClientManager;
 	@Inject
-	private Bootstrap4PageFactory pageFactory;
-	@Inject
-	private ServletContextSupplier servletContext;
-	@Inject
-	private ClientOptions clientOptions;
+	private MemcachedOptions memcachedOptions;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
-		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params, MemcachedClientType.class);
-		SpyMemcachedClient spyClient = memcachedClientManager.getSpyMemcachedClient(clientParams.getClientId());
-		String clientName = clientParams.getClientId().getName();
+		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params, ClientType.class);
+		var clientId = clientParams.getClientId();
+		if(clientId == null){
+			return new MessageMav("Client not found");
+		}
+
+		var clientName = clientId.getName();
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
-		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
+		SpyMemcachedClient spyClient = memcachedClientManager.getSpyMemcachedClient(clientId);
 		var content = div(
-				h2("Datarouter " + clientName),
-				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientName),
-				h3("Client Summary"),
-				p(b("Client Name: " + clientName)),
-				clientOptionsTable,
-				buildOverview(clientParams.getClientId()),
+				buildClientPageHeader(clientName),
+				buildOverview(clientId, spyClient),
+				buildClientOptionsTable(allClientOptions),
 				buildStats(spyClient.getStats()))
 				.withClass("container my-3");
 
 		return pageFactory.startBuilder(request)
-				.withTitle("Datarouter Client - Memcached")
+				.withTitle("Datarouter Client - " + clientOptions.getClientType(clientId))
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
 				.withContent(content)
 				.buildMav();
 	}
 
-	public ContainerTag buildStats(Map<SocketAddress,Map<String,String>> stats){
+	protected Pair<Integer,ContainerTag> getDetails(ClientId clientId, SpyMemcachedClient spyClient){
+		Pair<Integer,ContainerTag> nodeCountByNodeTag = new Pair<>();
+		List<ContainerTag> socketAddresses = memcachedOptions.getServers(clientId.getName()).stream()
+				.map(InetSocketAddress::toString)
+				.map(TagCreator::li)
+				.collect(Collectors.toList());
+		ContainerTag div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
+		nodeCountByNodeTag.setLeft(socketAddresses.size());
+		nodeCountByNodeTag.setRight(div);
+		return nodeCountByNodeTag;
+	}
+
+	private ContainerTag buildOverview(ClientId clientId, SpyMemcachedClient spyClient){
+		Pair<Integer,ContainerTag> listElements = getDetails(clientId, spyClient);
+		return div(
+				p(b("Number of nodes: " + listElements.getLeft())),
+				h4("Nodes"),
+				listElements.getRight());
+	}
+
+	private ContainerTag buildStats(Map<SocketAddress,Map<String,String>> statsPerSocketAddress){
 		var allStats = div();
-		stats.entrySet().stream()
+		statsPerSocketAddress.entrySet().stream()
 				.map(entry -> buildSingleNodeStats(entry.getKey().toString(), entry.getValue()))
 				.forEach(allStats::with);
 		return allStats;
 	}
 
-	private ContainerTag buildSingleNodeStats(String node, Map<String,String> stats){
+	private ContainerTag buildSingleNodeStats(String socketAddress, Map<String,String> stats){
 		var tbody = TagCreator.tbody();
 		stats.entrySet().stream()
-				.sorted(Comparator.comparing(Entry::getKey))
+				.sorted(Entry.comparingByKey())
 				.map(entry -> tr(th(entry.getKey()), td(entry.getValue())))
 				.forEach(tbody::with);
 		var table = table(tbody).withClass("table table-striped table-hover table-sm");
-		return div(h4(node), table);
-	}
-
-	private ContainerTag buildOverview(ClientId clientId){
-		List<ContainerTag> listElements = memcachedOptions.getServers(clientId.getName()).stream()
-				.map(InetSocketAddress::toString)
-				.map(TagCreator::li)
-				.collect(Collectors.toList());
-		var nodeList = ul(listElements.toArray(new ContainerTag[listElements.size()]));
-		return dl(
-				dt("Number of nodes:"), dd(listElements.size() + ""),
-				dt("Nodes:"), dd(nodeList));
+		return div(h4(socketAddress + " Node Details"), table);
 	}
 
 }

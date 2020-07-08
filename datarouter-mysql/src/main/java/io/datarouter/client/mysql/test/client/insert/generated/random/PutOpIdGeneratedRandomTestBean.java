@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.insert.generated.random;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.client.mysql.test.client.insert.generated.PutOpGeneratedTestBean;
@@ -44,7 +43,7 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey,PutOpIdGener
 
 		@Override
 		public List<Field<?>> getNonKeyFields(PutOpIdGeneratedRandomTestBean val){
-			return Arrays.asList(new StringField(FieldKeys.aa, val.aa));
+			return List.of(new StringField(FieldKeys.aa, val.aa));
 		}
 
 	}

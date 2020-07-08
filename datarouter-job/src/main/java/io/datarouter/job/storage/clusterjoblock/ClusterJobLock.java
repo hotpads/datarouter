@@ -15,7 +15,6 @@
  */
 package io.datarouter.job.storage.clusterjoblock;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,7 +41,7 @@ public class ClusterJobLock extends BaseDatabean<ClusterJobLockKey,ClusterJobLoc
 
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterJobLock databean){
-			return Arrays.asList(
+			return List.of(
 					new DateField(ClusterTriggerLockKey.FieldKeys.triggerTime, databean.triggerTime),
 					new DateField(ClusterTriggerLock.FieldKeys.expirationTime, databean.expirationTime),
 					new StringField(ClusterTriggerLock.FieldKeys.serverName, databean.serverName));

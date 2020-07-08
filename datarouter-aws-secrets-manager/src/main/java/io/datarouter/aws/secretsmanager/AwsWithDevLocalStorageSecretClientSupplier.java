@@ -18,10 +18,10 @@ package io.datarouter.aws.secretsmanager;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.secret.client.LocalStorageSecretClient;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClientSupplier;
-import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.secret.client.local.LocalStorageSecretClient;
+import io.datarouter.secret.service.SecretStageDetector;
 
 @Singleton
 public class AwsWithDevLocalStorageSecretClientSupplier implements SecretClientSupplier{
@@ -31,12 +31,12 @@ public class AwsWithDevLocalStorageSecretClientSupplier implements SecretClientS
 	@Inject
 	private LocalStorageSecretClient localStorageSecretClient;
 	@Inject
-	private ServerTypeDetector serverTypeDetector;
+	private SecretStageDetector secretStageDetector;
 
 	@Override
 	public SecretClient get(){
 		SecretClient clientToReturn = localStorageSecretClient;
-		if(!serverTypeDetector.mightBeDevelopment()){
+		if(!secretStageDetector.mightBeDevelopment()){
 			clientToReturn = awsSecretClient;
 		}
 		return clientToReturn;

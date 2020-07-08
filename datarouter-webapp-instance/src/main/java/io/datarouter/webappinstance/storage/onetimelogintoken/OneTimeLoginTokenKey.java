@@ -15,7 +15,6 @@
  */
 package io.datarouter.webappinstance.storage.onetimelogintoken;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -40,7 +39,7 @@ public class OneTimeLoginTokenKey extends BaseRegularPrimaryKey<OneTimeLoginToke
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new LongField(FieldKeys.userId, userId));
+		return List.of(new LongField(FieldKeys.userId, userId));
 	}
 
 	public Long getUserId(){

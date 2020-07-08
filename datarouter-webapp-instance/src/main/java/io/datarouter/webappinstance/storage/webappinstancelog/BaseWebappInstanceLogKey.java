@@ -15,7 +15,6 @@
  */
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +52,7 @@ public abstract class BaseWebappInstanceLogKey<PK extends RegularPrimaryKey<PK>>
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(BaseWebappInstanceKey.FieldKeys.webappName, webappName),
 				new StringField(BaseWebappInstanceKey.FieldKeys.serverName, serverName),
 				new DateField(BaseWebappInstance.FieldKeys.startupDate, startupDate),

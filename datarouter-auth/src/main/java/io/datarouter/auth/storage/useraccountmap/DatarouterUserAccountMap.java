@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.storage.useraccountmap;
 
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -41,7 +40,7 @@ public class DatarouterUserAccountMap extends BaseDatabean<DatarouterUserAccount
 
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterUserAccountMap databean){
-			return Collections.emptyList();
+			return List.of();
 		}
 
 	}

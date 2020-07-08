@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.exceptionrecord;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -42,7 +41,7 @@ extends BaseRegularPrimaryKey<PK>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.id, id));
+		return List.of(new StringField(FieldKeys.id, id));
 	}
 
 	public String getId(){

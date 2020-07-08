@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -242,13 +241,14 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	}
 
 	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldBeanKey,ManyFieldBean>{
+
 		public ManyFieldTypeBeanFielder(){
 			super(ManyFieldBeanKey.class);
 		}
 
 		@Override
 		public List<Field<?>> getNonKeyFields(ManyFieldBean databean){
-			return Arrays.asList(
+			return List.of(
 					new BooleanField(FieldKeys.booleanField, databean.booleanField),
 					new SignedByteField(FieldKeys.byteField, databean.byteField),
 					new ShortField(FieldKeys.shortField, databean.shortField),

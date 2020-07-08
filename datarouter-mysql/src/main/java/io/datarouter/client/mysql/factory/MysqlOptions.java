@@ -99,7 +99,8 @@ public class MysqlOptions{
 					String result = jsonSerializer.deserialize(
 							secretClientSupplier.get().read(secretLocation).getValue(),
 							String.class);
-					logger.info("using secret at secretLocation={}", secretLocation);
+					logger.warn("using secret at secretLocation={}", secretLocation);
+					log(result);
 					return result;
 				}catch(RuntimeException e){
 					logger.error("Failed to locate secretLocation=" + secretLocation + " for clientName=" + clientName,
@@ -108,6 +109,18 @@ public class MysqlOptions{
 				}
 			}).orElseGet(() -> clientOptions.getStringClientPropertyOrDefault(PROP_password, clientName, def));
 		});
+	}
+
+	private static void log(String password){
+		String toLog = "";
+		if(password == null){
+			toLog = "null";
+		}else if(password.length() < 8){
+			toLog = "tooshort";
+		}else{
+			toLog = password.substring(0, 3) + "..." + password.substring(password.length() - 4);
+		}
+		logger.warn("password={}", toLog);
 	}
 
 	public Integer minPoolSize(String clientName, Integer def){

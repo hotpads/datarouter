@@ -17,7 +17,7 @@ package io.datarouter.web.navigation;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.testng.Assert;
@@ -39,7 +39,7 @@ public class NavBarTests{
 	public static NavBar getAuthNavBar(){
 		return new NavBar(SRC, ALT, true){
 			{
-				dispatcherServlets = Arrays.asList(DispatcherServletTestServlet.getTestServlet());
+				dispatcherServlets = List.of(DispatcherServletTestServlet.getTestServlet());
 			}
 		};
 	}
@@ -47,7 +47,7 @@ public class NavBarTests{
 	public static NavBar getEmptyOptionalAuthNavBar(){
 		return new NavBar(SRC, ALT, Optional.empty()){
 			{
-				dispatcherServlets = Arrays.asList(DispatcherServletTestServlet.getTestServlet());
+				dispatcherServlets = List.of(DispatcherServletTestServlet.getTestServlet());
 			}
 		};
 	}

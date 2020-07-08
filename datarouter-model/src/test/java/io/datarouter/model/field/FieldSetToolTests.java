@@ -15,7 +15,6 @@
  */
 package io.datarouter.model.field;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +41,7 @@ public class FieldSetToolTests{
 		int someInt = 55;
 		String someStringA = "abc";
 		String someStringB = "xyz";
-		List<Field<?>> fields = Arrays.asList(
+		List<Field<?>> fields = List.of(
 				new UInt31Field(new UInt31FieldKey("someInt"), someInt),
 				new StringField(new StringFieldKey("someStringA"), someStringA),
 				new StringField(new StringFieldKey("someStringB"), someStringB));
@@ -60,7 +59,7 @@ public class FieldSetToolTests{
 		int testInt = 127;
 		String someStr0 = "first", someStr1 = "second";
 
-		List<Field<?>> fields = Arrays.asList(
+		List<Field<?>> fields = List.of(
 				new StringField(new StringFieldKey("hahah"), someStr0),
 				new StringField(new StringFieldKey("moose"), someStr1),
 				new UInt31Field(new UInt31FieldKey("integ"), testInt));
@@ -80,7 +79,7 @@ public class FieldSetToolTests{
 		UInt31FieldKey six = new UInt31FieldKey("six");
 		Long sameRefLong = 123456789000L;
 
-		List<Field<?>> left = Arrays.asList(
+		List<Field<?>> left = List.of(
 				new StringField(one, "help"),
 				new StringField(two, "smite"),
 				new BooleanField(three, true),
@@ -88,7 +87,7 @@ public class FieldSetToolTests{
 				new DoubleField(five, 5e6));
 				// omitted six
 
-		List<Field<?>> right = Arrays.asList(
+		List<Field<?>> right = List.of(
 				new StringField(one, "help"),
 				new StringField(two, "two"),
 				new BooleanField(three, null),

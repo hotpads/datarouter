@@ -15,7 +15,6 @@
  */
 package io.datarouter.loggerconfig.storage.loggerconfig;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -40,7 +39,7 @@ public class LoggerConfigKey extends BaseRegularPrimaryKey<LoggerConfigKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.name, name));
+		return List.of(new StringField(FieldKeys.name, name));
 	}
 
 	public String getName(){

@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.dispatcher;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -28,7 +27,7 @@ public class DispatcherServletClasses implements Supplier<List<Class<? extends D
 
 	@SafeVarargs
 	public DispatcherServletClasses(Class<? extends DispatcherServlet>... classes){
-		this(Arrays.asList(classes));
+		this(List.of(classes));
 	}
 
 	public DispatcherServletClasses(List<Class<? extends DispatcherServlet>> classes){

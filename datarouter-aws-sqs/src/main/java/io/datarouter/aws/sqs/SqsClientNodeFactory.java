@@ -15,7 +15,6 @@
  */
 package io.datarouter.aws.sqs;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -67,7 +66,7 @@ public class SqsClientNodeFactory extends BaseClientNodeFactory implements Queue
 
 		@Override
 		public List<UnaryOperator<PhysicalQueueStorageNode<PK,D,F>>> getAdapters(){
-			return Arrays.asList(
+			return List.of(
 					PhysicalQueueStorageCounterAdapter::new,
 					PhysicalQueueStorageSanitizationAdapter::new,
 					PhysicalQueueStorageTraceAdapter::new);

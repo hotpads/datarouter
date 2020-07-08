@@ -18,16 +18,4 @@ package io.datarouter.secret.client;
 import java.util.function.Supplier;
 
 public interface SecretClientSupplier extends Supplier<SecretClient>{
-
-	//TODO consider returning a List of SecretClients for fallback purposes
-
-	static class NoOpSecretClientSupplier implements SecretClientSupplier{
-
-		@Override
-		public SecretClient get(){
-			return null;
-		}
-
-	}
-
 }

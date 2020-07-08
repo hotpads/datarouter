@@ -15,7 +15,6 @@
  */
 package io.datarouter.nodewatch.storage.latesttablecount;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -54,7 +53,7 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 
 		@Override
 		public List<Field<?>> getNonKeyFields(LatestTableCount databean){
-			return Arrays.asList(
+			return List.of(
 					new LongField(FieldKeys.numRows, databean.numRows),
 					new DateField(FieldKeys.dateUpdated, databean.dateUpdated),
 					new LongField(FieldKeys.countTimeMs, databean.countTimeMs),
@@ -69,7 +68,7 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 	}
 
 	public LatestTableCount(){
-		super(new LatestTableCountKey(null,null));
+		super(new LatestTableCountKey(null, null));
 	}
 
 	public LatestTableCount(TableCount tableCount){

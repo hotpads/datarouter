@@ -17,7 +17,6 @@ package io.datarouter.logging;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +65,7 @@ public abstract class BaseLog4j2Configuration{
 	}
 
 	protected final void addLoggerConfig(String name, Level level, boolean additive, Appender... appenders){
-		addLoggerConfig(name, level, additive, Arrays.asList(appenders));
+		addLoggerConfig(name, level, additive, List.of(appenders));
 	}
 
 	private final void addLoggerConfig(String name, Level level, boolean additive, Iterable<Appender> appenders){

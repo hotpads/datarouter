@@ -15,7 +15,6 @@
  */
 package io.datarouter.webappinstance.storage.webappinstance;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -44,7 +43,7 @@ public abstract class BaseWebappInstanceKey<PK extends RegularPrimaryKey<PK>> ex
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.webappName, webappName),
 				new StringField(FieldKeys.serverName, serverName));
 	}

@@ -16,7 +16,6 @@
 package io.datarouter.scanner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -42,7 +41,7 @@ public class ScannerTests{
 		Assert.assertSame(Scanner.of(List.of(1)).getClass(), RandomAccessScanner.class);
 		// Collections.unmodifiableList returns UnmodifiableRandomAccessList if the input is RandomAccess
 		Assert.assertSame(Scanner.of(Collections.unmodifiableList(List.of(1))).getClass(), RandomAccessScanner.class);
-		Assert.assertSame(Scanner.of(Arrays.asList(1)).getClass(), RandomAccessScanner.class);
+		Assert.assertSame(Scanner.of(List.of(1)).getClass(), RandomAccessScanner.class);
 		Assert.assertSame(Scanner.of(new ArrayList<>(List.of(1))).getClass(), RandomAccessScanner.class);
 		Assert.assertSame(Scanner.of(new Vector<>(List.of(1))).getClass(), RandomAccessScanner.class);
 

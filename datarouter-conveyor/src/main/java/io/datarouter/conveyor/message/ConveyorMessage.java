@@ -15,7 +15,6 @@
  */
 package io.datarouter.conveyor.message;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -45,7 +44,7 @@ public class ConveyorMessage extends BaseDatabean<ConveyorMessageKey,ConveyorMes
 
 		@Override
 		public List<Field<?>> getNonKeyFields(ConveyorMessage databean){
-			return Arrays.asList(new StringField(FieldKeys.message, databean.message));
+			return List.of(new StringField(FieldKeys.message, databean.message));
 		}
 
 		@Override

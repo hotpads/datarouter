@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.caseinsensitive;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
@@ -36,7 +35,7 @@ extends BaseDatabean<CaseInsensitiveTestPrimaryKey,CaseInsensitiveTestDatabean>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(CaseInsensitiveTestDatabean databean){
-			return Arrays.asList();
+			return List.of();
 		}
 
 	}

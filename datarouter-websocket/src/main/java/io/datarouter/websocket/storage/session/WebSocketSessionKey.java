@@ -15,7 +15,6 @@
  */
 package io.datarouter.websocket.storage.session;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -39,7 +38,7 @@ public class WebSocketSessionKey extends BaseRegularPrimaryKey<WebSocketSessionK
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 			new StringField(FieldKeys.userToken, userToken),
 			new UInt63Field(FieldKeys.id, id));
 	}

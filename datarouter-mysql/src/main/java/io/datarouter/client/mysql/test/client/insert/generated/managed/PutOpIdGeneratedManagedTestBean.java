@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.insert.generated.managed;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.client.mysql.test.client.insert.generated.PutOpGeneratedTestBean;
@@ -44,7 +43,7 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey,PutOpIdGene
 
 		@Override
 		public List<Field<?>> getNonKeyFields(PutOpIdGeneratedManagedTestBean bean){
-			return Arrays.asList(new StringField(FieldKeys.foo, bean.foo));
+			return List.of(new StringField(FieldKeys.foo, bean.foo));
 		}
 
 	}

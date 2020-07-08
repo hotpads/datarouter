@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test.node.basic.manyfield;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -33,10 +32,10 @@ public class ManyFieldBeanKey extends BaseRegularPrimaryKey<ManyFieldBeanKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new UInt63Field(FieldKeys.id, id));
+		return List.of(new UInt63Field(FieldKeys.id, id));
 	}
 
-	public ManyFieldBeanKey(){// no-arg and public
+	public ManyFieldBeanKey(){
 		this.id = UInt63Field.nextPositiveRandom();
 	}
 

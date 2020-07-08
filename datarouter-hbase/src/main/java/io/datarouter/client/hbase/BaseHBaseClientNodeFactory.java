@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.hbase;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -97,7 +96,7 @@ public abstract class BaseHBaseClientNodeFactory extends BaseClientNodeFactory{
 
 		@Override
 		public List<UnaryOperator<PhysicalSortedMapStorageNode<PK,D,F>>> getAdapters(){
-			return Arrays.asList(
+			return List.of(
 					PhysicalSortedMapStorageSanitizationAdapter::new,
 					PhysicalSortedMapStorageCounterAdapter::new,
 					PhysicalSortedMapStorageTraceAdapter::new,
@@ -125,7 +124,7 @@ public abstract class BaseHBaseClientNodeFactory extends BaseClientNodeFactory{
 
 		@Override
 		public List<UnaryOperator<PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>>> getAdapters(){
-			return Arrays.asList(
+			return List.of(
 					PhysicalSubEntitySortedMapStorageSanitizationAdapter::new,
 					PhysicalSubEntitySortedMapStorageCounterAdapter::new,
 					PhysicalSubEntitySortedMapStorageTraceAdapter::new,

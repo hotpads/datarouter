@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -41,7 +40,7 @@ public class TestDatabeanKey extends BaseRegularPrimaryKey<TestDatabeanKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.foo, foo));
+		return List.of(new StringField(FieldKeys.foo, foo));
 	}
 
 	public String getFoo(){

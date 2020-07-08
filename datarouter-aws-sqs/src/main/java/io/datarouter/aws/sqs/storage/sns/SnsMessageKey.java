@@ -15,7 +15,6 @@
  */
 package io.datarouter.aws.sqs.storage.sns;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -33,7 +32,7 @@ public class SnsMessageKey extends BaseRegularPrimaryKey<SnsMessageKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.messageId, messageId));
+		return List.of(new StringField(FieldKeys.messageId, messageId));
 	}
 
 }

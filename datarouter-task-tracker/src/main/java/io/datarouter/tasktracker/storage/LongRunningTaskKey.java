@@ -15,7 +15,6 @@
  */
 package io.datarouter.tasktracker.storage;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -49,7 +48,7 @@ public class LongRunningTaskKey extends BaseRegularPrimaryKey<LongRunningTaskKey
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.name, name),
 				new LongDateField(FieldKeys.triggerTime, triggerTime),
 				new StringField(FieldKeys.serverName, serverName));

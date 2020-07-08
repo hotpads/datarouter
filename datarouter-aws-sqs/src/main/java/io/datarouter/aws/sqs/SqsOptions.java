@@ -68,8 +68,8 @@ public class SqsOptions{
 
 	private Optional<SqsCredentialsDto> readCredentialsSecret(String clientName){
 		return clientCredentials.computeIfAbsent(clientName, $ -> {
-			Optional<String> optionalCredentialsLocation = Optional.ofNullable(clientOptions
-					.getStringClientPropertyOrDefault(PROP_credentialsLocation, clientName, null));
+			Optional<String> optionalCredentialsLocation = clientOptions.optString(clientName,
+					PROP_credentialsLocation);
 			if(optionalCredentialsLocation.isEmpty()){
 				logger.warn("credentialsLocation not specified");
 			}
@@ -82,7 +82,7 @@ public class SqsOptions{
 				}catch(RuntimeException e){
 					logger.error("Failed to locate credentialsLocation=" + credentialsLocation + " for clientName="
 							+ clientName, e);
-					return (SqsCredentialsDto)null;
+					return null;
 				}
 			});
 		});

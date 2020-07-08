@@ -15,7 +15,6 @@
  */
 package io.datarouter.trace.storage.span;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -56,7 +55,7 @@ extends BaseEntityPrimaryKey<EK,PK>{
 
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return Arrays.asList(
+		return List.of(
 				new LongField(FieldKeys.threadId, threadId),
 				new IntegerField(FieldKeys.sequence, sequence));
 	}

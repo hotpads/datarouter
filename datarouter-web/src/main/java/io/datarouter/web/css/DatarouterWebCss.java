@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.css;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.pathnode.PathNode;
@@ -26,7 +25,7 @@ public class DatarouterWebCss{
 
 	private static final DatarouterWebFiles FILES = new DatarouterWebFiles();
 
-	private static final List<PathNode> CSS_PATHS = Arrays.asList(
+	private static final List<PathNode> CSS_PATHS = List.of(
 			FILES.bootstrap.v3.css.bootstrapCss,
 			FILES.css.commonB3Css);
 

@@ -15,7 +15,7 @@
  */
 package io.datarouter.virtualnode.redundant;
 
-import java.util.Arrays;
+import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -37,7 +37,7 @@ implements GroupQueueStorageNode<PK,D,F>, RedundantGroupQueueStorageMixin<PK,D,F
 	 */
 	@SafeVarargs
 	public RedundantGroupQueueStorageNode(N... nodes){
-		super(nodes[0], Arrays.asList(nodes));
+		super(nodes[0], List.of(nodes));
 	}
 
 }

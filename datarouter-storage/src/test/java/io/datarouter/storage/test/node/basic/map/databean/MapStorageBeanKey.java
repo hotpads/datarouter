@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test.node.basic.map.databean;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -35,7 +34,7 @@ public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntity
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new LongField(FieldKeys.id, id));
+		return List.of(new LongField(FieldKeys.id, id));
 	}
 
 	public MapStorageBeanKey(){
@@ -54,7 +53,7 @@ public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntity
 
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return Arrays.asList(new LongField(FieldKeys.id, id));
+		return List.of(new LongField(FieldKeys.id, id));
 	}
 
 	@Override

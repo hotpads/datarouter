@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.caseinsensitive;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -45,7 +44,7 @@ public class CaseInsensitiveScanIntegrationTests{
 		dao.put(new CaseInsensitiveTestDatabean("G"));
 		dao.put(new CaseInsensitiveTestDatabean("h"));
 		dao.put(new CaseInsensitiveTestDatabean("I"));
-		List<Range<CaseInsensitiveTestPrimaryKey>> ranges = Arrays.asList(
+		List<Range<CaseInsensitiveTestPrimaryKey>> ranges = List.of(
 				new Range<>(new CaseInsensitiveTestPrimaryKey("b"), new CaseInsensitiveTestPrimaryKey("d")),
 				new Range<>(new CaseInsensitiveTestPrimaryKey("f"), new CaseInsensitiveTestPrimaryKey("h")));
 		dao.scanRanges(ranges, 2)

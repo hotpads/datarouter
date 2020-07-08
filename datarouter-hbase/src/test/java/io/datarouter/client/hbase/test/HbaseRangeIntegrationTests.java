@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.hbase.test;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,7 +32,7 @@ import io.datarouter.util.tuple.Range;
 @Guice(moduleFactory = DatarouterHBaseTestNgModuleFactory.class)
 public class HbaseRangeIntegrationTests{
 
-	private static final Collection<TestDatabean> DATABEANS = Arrays.asList(
+	private static final Collection<TestDatabean> DATABEANS = List.of(
 			new TestDatabean("10", null, null),
 			new TestDatabean("11", null, null),
 			new TestDatabean("12", null, null),
@@ -52,7 +51,8 @@ public class HbaseRangeIntegrationTests{
 	public void testRange(){
 		testDatabeanDao.deleteAll();
 		testDatabeanDao.putMulti(DATABEANS);
-		List<TestDatabeanKey> list = testDatabeanDao.scanKeys(new Range<>(new TestDatabeanKey("12"), false)).list();
+		List<TestDatabeanKey> list = testDatabeanDao.scanKeys(new Range<>(new TestDatabeanKey("12"), false))
+				.list();
 		Assert.assertFalse(list.isEmpty());
 		Assert.assertEquals(list.get(0), new TestDatabeanKey("120"));
 	}

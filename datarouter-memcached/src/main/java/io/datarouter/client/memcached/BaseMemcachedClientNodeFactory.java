@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.memcached;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -70,7 +69,7 @@ public abstract class BaseMemcachedClientNodeFactory extends BaseClientNodeFacto
 
 		@Override
 		public List<UnaryOperator<PhysicalMapStorageNode<PK,D,F>>> getAdapters(){
-			return Arrays.asList(
+			return List.of(
 					PhysicalMapStorageCounterAdapter::new,
 					PhysicalMapStorageTraceAdapter::new,
 					physicalMapStorageAvailabilityAdapterFactory::create,

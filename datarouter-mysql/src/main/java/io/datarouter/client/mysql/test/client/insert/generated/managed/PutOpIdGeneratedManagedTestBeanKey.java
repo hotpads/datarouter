@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.insert.generated.managed;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.client.mysql.test.client.insert.generated.PutOpGeneratedTestBeanKey;
@@ -38,8 +37,7 @@ implements PutOpGeneratedTestBeanKey<PutOpIdGeneratedManagedTestBeanKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
-				new UInt63Field(FieldKeys.id, id));
+		return List.of(new UInt63Field(FieldKeys.id, id));
 	}
 
 	@Override

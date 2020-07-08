@@ -15,7 +15,6 @@
  */
 package io.datarouter.nodewatch.storage.tablesample;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -39,7 +38,7 @@ public class TableSamplerTestBeanKey extends BaseRegularPrimaryKey<TableSamplerT
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new LongField(FieldKeys.fieldA, fieldA),
 				new LongField(FieldKeys.fieldB, fieldB),
 				new StringField(FieldKeys.other, other));

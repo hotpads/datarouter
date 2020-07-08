@@ -16,7 +16,6 @@
 package io.datarouter.nodewatch.storage.tablesample;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -133,7 +132,7 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(TableSample databean){
-			return Arrays.asList(
+			return List.of(
 					new LongField(FieldKeys.numRows, databean.numRows),
 					new DateField(FieldKeys.dateCreated, databean.dateCreated),
 					new DateField(FieldKeys.dateUpdated, databean.dateUpdated),

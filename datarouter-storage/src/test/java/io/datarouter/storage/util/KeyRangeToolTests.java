@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.util;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -89,7 +88,7 @@ public class KeyRangeToolTests{
 
 		@Override
 		public List<Field<?>> getFields(){
-			return Arrays.asList(
+			return List.of(
 					new IntegerField(new IntegerFieldKey("foo"), foo),
 					new StringField(new StringFieldKey("bar"), bar),
 					new LongField(new LongFieldKey("baz"), baz));

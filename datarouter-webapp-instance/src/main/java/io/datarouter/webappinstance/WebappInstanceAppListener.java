@@ -47,6 +47,7 @@ public class WebappInstanceAppListener implements DatarouterAppListener{
 	@Override
 	public void onStartUp(){
 		try{
+			service.recordAppHeartbeatMetrics();
 			service.updateWebappInstanceTable();
 		}catch(Exception e){
 			// on start up exceptions might be thrown

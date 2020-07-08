@@ -28,6 +28,5 @@ import io.datarouter.web.handler.validator.RequestParamValidator;
 public @interface Param{
 	String value() default "";
 	String description() default "";
-	Class<? extends TypeProvider> typeProvider() default TypeProvider.class;
 	Class<? extends RequestParamValidator<?>> validator() default DefaultRequestParamValidator.class;
 }

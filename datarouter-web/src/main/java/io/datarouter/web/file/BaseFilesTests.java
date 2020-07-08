@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,8 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
-import io.datarouter.pathnode.PathNode;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 import io.datarouter.util.io.FileTool;
@@ -42,7 +41,7 @@ import io.datarouter.util.lang.ClassTool;
 public abstract class BaseFilesTests implements TestableService{
 	private static final Logger logger = LoggerFactory.getLogger(BaseFilesTests.class);
 
-	private static final List<String> OMITTED_WORDS = Arrays.asList(
+	private static final List<String> OMITTED_WORDS = List.of(
 			"src/main/webapp/META-INF",
 			"web.xml");
 

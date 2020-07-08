@@ -22,12 +22,12 @@ import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 
 public interface LoadTestGetDao{
 
-	MapStorageReader<RandomValueKey,RandomValue> getNode();
+	MapStorageReader<RandomValueKey,RandomValue> getReaderNode();
 
 	class NoOpLoadTestGetDao implements LoadTestGetDao{
 
 		@Override
-		public MapStorageReader<RandomValueKey,RandomValue> getNode(){
+		public MapStorageReader<RandomValueKey,RandomValue> getReaderNode(){
 			return new NoOpNode<>();
 		}
 

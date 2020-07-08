@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.storage.deprovisioneduser;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -33,7 +32,7 @@ public class DeprovisionedUserKey extends BaseRegularPrimaryKey<DeprovisionedUse
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.username, username));
+		return List.of(new StringField(FieldKeys.username, username));
 	}
 
 	public DeprovisionedUserKey(){

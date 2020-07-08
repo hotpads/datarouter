@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,7 +27,7 @@ public class AdvanceWhileScannerTests{
 	public void simpleTest(){
 		AtomicLong counter = new AtomicLong();
 		Scanner<Integer> input = Scanner.of(1, 2, 3);
-		List<Integer> expected = Arrays.asList(1, 2);
+		List<Integer> expected = List.of(1, 2);
 		List<Integer> actual = input
 				.each($ -> counter.incrementAndGet())
 				.advanceWhile($ -> counter.get() <= 2)

@@ -28,7 +28,7 @@ public class DeduplicatingScannerTests{
 
 	@Test
 	public void simpleTest(){
-		List<Integer> duplicates = Arrays.asList(0, 0, 1, 2, 3, 3, 4, 5, 9, 20, 20);
+		List<Integer> duplicates = List.of(0, 0, 1, 2, 3, 3, 4, 5, 9, 20, 20);
 		List<Integer> expected = new ArrayList<>(new TreeSet<>(duplicates));
 		List<Integer> actual = Scanner.of(duplicates)
 				.deduplicate()
@@ -54,7 +54,7 @@ public class DeduplicatingScannerTests{
 				new Person("Jane", 3),
 				new Person("Sam", 4),
 				new Person("Sam", 5));
-		List<Person> expected = Arrays.asList(
+		List<Person> expected = List.of(
 				new Person("Bob", 1),
 				new Person("Jane", 2),
 				new Person("Sam", 4));

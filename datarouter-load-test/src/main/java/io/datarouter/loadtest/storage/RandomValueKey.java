@@ -15,7 +15,6 @@
  */
 package io.datarouter.loadtest.storage;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -34,8 +33,7 @@ public class RandomValueKey extends BaseRegularPrimaryKey<RandomValueKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
-				new UInt31Field(FieldKeys.key, key));
+		return List.of(new UInt31Field(FieldKeys.key, key));
 	}
 
 	RandomValueKey(){

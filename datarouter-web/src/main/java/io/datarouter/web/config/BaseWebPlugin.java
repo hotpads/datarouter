@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.pathnode.PathNode;
-import io.datarouter.storage.config.BasePlugin;
+import io.datarouter.storage.config.BaseStoragePlugin;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
@@ -40,7 +40,7 @@ import io.datarouter.web.navigation.NavBarItem;
  *
  * NavBars (both datarouter and app) are sorted alphabetically for all menu items and each of the sub menu items.
  */
-public abstract class BaseWebPlugin extends BasePlugin{
+public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	/*------------------------------ route sets -----------------------------*/
 

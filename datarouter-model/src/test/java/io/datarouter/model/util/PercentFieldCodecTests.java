@@ -39,7 +39,7 @@ public class PercentFieldCodecTests{
 	@Test
 	public void testDecodeEmptyStrings(){
 		String encoded = "//";
-		List<String> expected = Arrays.asList("", "", "");
+		List<String> expected = List.of("", "", "");
 		List<String> decoded = PercentFieldCodec.decode(encoded);
 		Assert.assertEquals(decoded, expected);
 	}
@@ -71,7 +71,7 @@ public class PercentFieldCodecTests{
 		String[] inputs = new String[]{"*//a()&^$", "!~/.9"};
 		String encoded = PercentFieldCodec.encode(Arrays.stream(inputs));
 		List<String> decoded = PercentFieldCodec.decode(encoded);
-		Assert.assertEquals(decoded, Arrays.asList(inputs));
+		Assert.assertEquals(decoded, List.of(inputs));
 	}
 
 }

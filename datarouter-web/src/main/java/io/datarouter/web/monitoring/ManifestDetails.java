@@ -18,7 +18,6 @@ package io.datarouter.web.monitoring;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Manifest;
 
@@ -39,7 +38,7 @@ public class ManifestDetails{
 
 	public static final String FILE_NAME = "META-INF/MANIFEST.MF";
 
-	private static final List<String> BUILD_KEYWORDS = Arrays.asList("Build-Jdk", "Built-JDK", "Created-By");
+	private static final List<String> BUILD_KEYWORDS = List.of("Build-Jdk", "Built-JDK", "Created-By");
 
 	private Pair<String,String> buildPair;
 	private String manifestString;

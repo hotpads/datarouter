@@ -16,7 +16,6 @@
 package io.datarouter.storage.test.node.type.index;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +39,7 @@ import io.datarouter.storage.test.node.type.index.node.DatarouterTestDatabeanWit
 
 public abstract class BaseManagedIndexIntegrationTests{
 
-	private static final List<TestDatabean> TEST_DATABEANS = Arrays.asList(
+	private static final List<TestDatabean> TEST_DATABEANS = List.of(
 			new TestDatabean("un", "alarc'h", "un"),
 			new TestDatabean("alarc'h", "tra", "mor"),
 			new TestDatabean("war", "lein", "tour"),

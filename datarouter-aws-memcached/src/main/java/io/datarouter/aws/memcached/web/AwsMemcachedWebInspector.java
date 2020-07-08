@@ -15,110 +15,74 @@
  */
 package io.datarouter.aws.memcached.web;
 
-import static j2html.TagCreator.b;
-import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.dl;
-import static j2html.TagCreator.dt;
-import static j2html.TagCreator.h2;
-import static j2html.TagCreator.h3;
-import static j2html.TagCreator.p;
 import static j2html.TagCreator.ul;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.aws.memcached.AwsMemcachedClientType;
 import io.datarouter.aws.memcached.client.AwsMemcachedOptions;
-import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.SpyMemcachedClient;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.ClientOptions;
-import io.datarouter.web.browse.DatarouterClientWebInspector;
-import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
-import io.datarouter.web.config.ServletContextSupplier;
-import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.params.Params;
-import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
+import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import net.spy.memcached.ClientMode;
 
-public class AwsMemcachedWebInspector implements DatarouterClientWebInspector{
+public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 
 	@Inject
 	private AwsMemcachedOptions options;
-	@Inject
-	private DatarouterWebRequestParamsFactory paramsFactory;
-	@Inject
-	private MemcachedClientManager memcachedClientManager;
-	@Inject
-	private MemcachedWebInspector memcachedWebInspector;
-	@Inject
-	private ServletContextSupplier servletContext;
-	@Inject
-	private Bootstrap4PageFactory pageFactory;
-	@Inject
-	private ClientOptions clientOptions;
 
 	@Override
-	public Mav inspectClient(Params params, HttpServletRequest request){
-		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(
-				params,
-				AwsMemcachedClientType.class);
-		ClientId clientId = clientParams.getClientId();
+	protected Pair<Integer,ContainerTag> getDetails(ClientId clientId, SpyMemcachedClient spyClient){
+		ClientMode mode = options.getClientMode(clientId.getName());
+		Pair<Integer,ContainerTag> nodeCountByNodeTag = new Pair<>();
+		if(mode == ClientMode.Dynamic){
+			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = spyClient.getAllNodeEndPoints().stream()
+					.map(nodeEndPoint -> new AwsMemcachedNodeEndpointDto(
+							nodeEndPoint.getHostName(), nodeEndPoint.getIpAddress(), nodeEndPoint.getPort()))
+					.collect(Collectors.toList());
+			var table = new J2HtmlTable<AwsMemcachedNodeEndpointDto>()
+					.withClasses("sortable table table-sm table-striped my-4 border")
+					.withColumn("HostName", dto -> dto.hostName)
+					.withColumn("IpAddress", dto -> dto.ipAddress)
+					.withColumn("Port", dto -> dto.port)
+					.build(nodeEndpointDtos);
+			ContainerTag divTable = div(table)
+					.withClass("container-fluid my-4")
+					.withStyle("padding-left: 0px");
+			nodeCountByNodeTag.setLeft(nodeEndpointDtos.size());
+			nodeCountByNodeTag.setRight(divTable);
 
-		SpyMemcachedClient spyClient = memcachedClientManager.getSpyMemcachedClient(clientId);
-		String clientName = clientParams.getClientId().getName();
-		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
-		var clientOptionsTable = buildClientOptionsTable(allClientOptions);
-		var content = div(
-				h2("Datarouter " + clientId.getName()),
-				DatarouterClientWebInspector.buildNav(servletContext.get().getContextPath(), clientId.getName()),
-				h3("Client Summary"),
-				p(b("Client Name: " + clientName)),
-				clientOptionsTable,
-				buildOverview(clientId),
-				memcachedWebInspector.buildStats(spyClient.getStats()))
-				.withClass("container my-3");
-
-		return pageFactory.startBuilder(request)
-				.withTitle("Datarouter Client - AWS Memcached")
-				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
-				.withContent(content)
-				.buildMav();
+		}else{
+			List<ContainerTag> socketAddresses = spyClient.getAvailableServers().stream()
+					.map(Object::toString)
+					.map(TagCreator::li)
+					.collect(Collectors.toList());
+			ContainerTag div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
+			nodeCountByNodeTag.setLeft(socketAddresses.size());
+			nodeCountByNodeTag.setRight(div);
+		}
+		return nodeCountByNodeTag;
 	}
 
-	private ContainerTag buildOverview(ClientId clientId){
-		SpyMemcachedClient spyClient = memcachedClientManager.getSpyMemcachedClient(clientId);
-		ClientMode mode = options.getClientMode(clientId.getName());
+	private static class AwsMemcachedNodeEndpointDto{
 
-		String clusterEndpoint = "";
-		List<ContainerTag> servers;
-		if(mode == ClientMode.Dynamic){
-			clusterEndpoint = options.getClusterEndpoint(clientId.getName()).get().toString();
-			servers = spyClient.getAllNodeEndPoints().stream()
-					.map(Object::toString)
-					.map(TagCreator::li)
-					.collect(Collectors.toList());
-		}else{
-			servers = spyClient.getAvailableServers().stream()
-					.map(Object::toString)
-					.map(TagCreator::li)
-					.collect(Collectors.toList());
+		private final String hostName;
+		private final String ipAddress;
+		private final int port;
+
+		public AwsMemcachedNodeEndpointDto(String hostName, String ipAddress, int port){
+			this.hostName = hostName;
+			this.ipAddress = ipAddress;
+			this.port = port;
 		}
-		var nodeList = ul(servers.toArray(new ContainerTag[servers.size()]));
-		return dl(
-				dt("Client mode:"), dd(mode.name()),
-				dt("Cluster endpoint:"), dd(clusterEndpoint),
-				dt("Number of nodes:"), dd(servers.size() + ""),
-				dt("Nodes:"), dd(nodeList));
+
 	}
 
 }

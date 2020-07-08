@@ -15,8 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.testng.Assert;
@@ -27,16 +25,16 @@ public class CollatingScannerTests{
 	@Test
 	public void test(){
 		Scanner<List<Integer>> batches = Scanner.of(
-				Collections.emptyList(),
-				Arrays.asList(2, 7, 8),
-				Arrays.asList(1, 2, 7),
-				Collections.emptyList(),
-				Collections.emptyList(),
-				Arrays.asList(0, 9));
+				List.of(),
+				List.of(2, 7, 8),
+				List.of(1, 2, 7),
+				List.of(),
+				List.of(),
+				List.of(0, 9));
 		List<Integer> actual = batches
 				.collate(Scanner::of)
 				.list();
-		List<Integer> expected = Arrays.asList(0, 1, 2, 2, 7, 7, 8, 9);
+		List<Integer> expected = List.of(0, 1, 2, 2, 7, 7, 8, 9);
 		Assert.assertEquals(actual, expected);
 	}
 

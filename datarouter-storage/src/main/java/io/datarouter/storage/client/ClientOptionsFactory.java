@@ -17,6 +17,7 @@ package io.datarouter.storage.client;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -41,13 +42,13 @@ public interface ClientOptionsFactory{
 	}
 
 	default Properties mergeBuilders(ClientOptionsBuilder... builders){
-		return mergeBuilders(Arrays.asList(builders));
+		return mergeBuilders(List.of(builders));
 	}
 
 	default Properties mergeBuilders(
 			Collection<ClientOptionsBuilder> builderCollection,
 			ClientOptionsBuilder... builderVarargs){
-		return Scanner.of(builderCollection, Arrays.asList(builderVarargs))
+		return Scanner.of(builderCollection, List.of(builderVarargs))
 				.concat(Scanner::of)
 				.listTo(this::mergeBuilders);
 	}

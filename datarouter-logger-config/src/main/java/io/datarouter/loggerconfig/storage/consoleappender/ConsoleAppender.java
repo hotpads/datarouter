@@ -15,7 +15,6 @@
  */
 package io.datarouter.loggerconfig.storage.consoleappender;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
@@ -44,7 +43,7 @@ public class ConsoleAppender extends BaseDatabean<ConsoleAppenderKey,ConsoleAppe
 
 		@Override
 		public List<Field<?>> getNonKeyFields(ConsoleAppender consoleAppender){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.layout, consoleAppender.layout),
 					new StringField(FieldKeys.target, consoleAppender.target));
 		}

@@ -23,7 +23,6 @@ import static j2html.TagCreator.table;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.tr;
 
-import java.util.Arrays;
 import java.util.List;
 
 import j2html.tags.ContainerTag;
@@ -80,18 +79,18 @@ public class J2HtmlDatarouterEmail{
 	/*---------- non-static-final styles for hot code swap -----------*/
 
 	private static final List<String> makeBodyStyles(){
-		return Arrays.asList(
+		return List.of(
 				"font-family:Arial;");
 	}
 
 	private static List<String> makeLogoImgStyles(){
-		return Arrays.asList(
+		return List.of(
 				"display:inline;",
 				"height:40px;");
 	}
 
 	private static final List<String> makeTitleStyles(){
-		return Arrays.asList(
+		return List.of(
 				"text-decoration:none;",
 				"color:black;",
 				"font-size:24px;",
@@ -100,7 +99,7 @@ public class J2HtmlDatarouterEmail{
 	}
 
 	private static List<String> makeFilterStringStyles(){
-		return Arrays.asList(
+		return List.of(
 				"display:none;");
 	}
 

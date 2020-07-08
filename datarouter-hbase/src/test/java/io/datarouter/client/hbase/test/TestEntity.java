@@ -16,7 +16,6 @@
 package io.datarouter.client.hbase.test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +49,7 @@ public class TestEntity{
 
 		@Override
 		public List<Field<?>> getFields(){
-			return Arrays.asList(new StringField(FieldKeys.id, id));
+			return List.of(new StringField(FieldKeys.id, id));
 		}
 
 		public TestTraceEntityKey(){
@@ -153,7 +152,7 @@ public class TestEntity{
 
 			@Override
 			public List<Field<?>> getNonKeyFields(TestTrace databean){
-				return Arrays.asList(
+				return List.of(
 						new StringField(FieldKeys.context, databean.context),
 						new StringField(FieldKeys.type, databean.type),
 						new StringField(FieldKeys.params, databean.params),
@@ -234,7 +233,7 @@ public class TestEntity{
 
 		@Override
 		public List<Field<?>> getPostEntityKeyFields(){
-			return Arrays.asList(
+			return List.of(
 					new LongField(FieldKeys.threadId, threadId),
 					new IntegerField(FieldKeys.sequence, sequence));
 		}
@@ -279,7 +278,7 @@ public class TestEntity{
 
 			@Override
 			public List<Field<?>> getNonKeyFields(TestTraceSpan databean){
-				return Arrays.asList(
+				return List.of(
 						new UInt31Field(FieldKeys.parentSequence, databean.parentSequence),
 						new StringField(FieldKeys.name, databean.name),
 						new StringField(FieldKeys.info, databean.info),
@@ -345,7 +344,7 @@ public class TestEntity{
 
 		@Override
 		public List<Field<?>> getPostEntityKeyFields(){
-			return Arrays.asList(new LongField(FieldKeys.threadId, threadId));
+			return List.of(new LongField(FieldKeys.threadId, threadId));
 		}
 
 		@Override
@@ -396,7 +395,7 @@ public class TestEntity{
 
 			@Override
 			public List<Field<?>> getNonKeyFields(TestTraceThread databean){
-				return Arrays.asList(
+				return List.of(
 						new UInt63Field(FieldKeys.parentId, databean.parentId),
 						new StringField(FieldKeys.name, databean.name),
 						new StringField(FieldKeys.info, databean.info),

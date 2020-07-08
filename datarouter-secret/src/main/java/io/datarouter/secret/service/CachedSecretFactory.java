@@ -38,7 +38,7 @@ public class CachedSecretFactory{
 	private static final TimeUnit CACHE_LENGTH_UNIT = TimeUnit.SECONDS;
 
 	@Inject
-	private SecretService secretClientService;
+	private SecretService secretService;
 
 	//not shared
 
@@ -80,8 +80,7 @@ public class CachedSecretFactory{
 			Optional<T> defaultValue, boolean isShared){
 		ObjectTool.requireNonNulls(nameSupplier, secretClass);
 		Require.isFalse(StringTool.isNullOrEmptyOrWhitespace(nameSupplier.get()));
-		defaultValue.ifPresent(value -> secretClientService.registerDevelopmentDefaultValue(nameSupplier, value,
-				isShared));
+		defaultValue.ifPresent(value -> secretService.registerDevelopmentDefaultValue(nameSupplier, value, isShared));
 		return new CachedSecret<>(nameSupplier, secretClass, isShared);
 	}
 
@@ -100,8 +99,8 @@ public class CachedSecretFactory{
 
 		@Override
 		protected T reload(){
-			return isShared ? secretClientService.readShared(nameSupplier, secretClass, SecretOpReason.automatedOp(
-					"CachedSecret")) : secretClientService.read(nameSupplier, secretClass, SecretOpReason.automatedOp(
+			return isShared ? secretService.readShared(nameSupplier, secretClass, SecretOpReason.automatedOp(
+					"CachedSecret")) : secretService.read(nameSupplier, secretClass, SecretOpReason.automatedOp(
 					"CachedSecret"));
 		}
 

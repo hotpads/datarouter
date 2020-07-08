@@ -15,7 +15,6 @@
  */
 package io.datarouter.httpclient.client;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -146,7 +145,7 @@ public class DatarouterHttpRequestTests{
 		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, true);
 
 		Map<String,List<String>> expectedParams = new LinkedHashMap<>();
-		expectedParams.put("totally", Arrays.asList("valid"));
+		expectedParams.put("totally", List.of("valid"));
 		Map<String,String> params = new LinkedHashMap<>();
 		params.put("totally", "valid");
 		request.addPostParams(params);
@@ -182,7 +181,7 @@ public class DatarouterHttpRequestTests{
 		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, true);
 
 		Map<String,List<String>> expectedHeaders = new LinkedHashMap<>();
-		expectedHeaders.put("valid", Arrays.asList("header"));
+		expectedHeaders.put("valid", List.of("header"));
 		Map<String,String> headers = new LinkedHashMap<>();
 		headers.put("valid", "header");
 		request.addHeaders(headers);

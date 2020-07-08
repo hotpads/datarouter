@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -26,7 +25,7 @@ public class LimitingScannerTests{
 	@Test
 	public void simpleTest(){
 		Scanner<Integer> input = Scanner.of(0, 1, 2, 3, 4);
-		List<Integer> expected = Arrays.asList(2, 3);
+		List<Integer> expected = List.of(2, 3);
 		List<Integer> actual = input.skip(2).limit(2).list();
 		Assert.assertEquals(actual, expected);
 	}
@@ -34,7 +33,7 @@ public class LimitingScannerTests{
 	@Test
 	public void testExcessLimit(){
 		Scanner<Integer> input = Scanner.of(0, 1);
-		List<Integer> expected = Arrays.asList(0, 1);
+		List<Integer> expected = List.of(0, 1);
 		List<Integer> actual = input.limit(9).list();
 		Assert.assertEquals(actual, expected);
 	}

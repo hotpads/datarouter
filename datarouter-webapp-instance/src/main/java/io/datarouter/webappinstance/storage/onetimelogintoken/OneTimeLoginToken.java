@@ -15,7 +15,6 @@
  */
 package io.datarouter.webappinstance.storage.onetimelogintoken;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -38,8 +37,7 @@ public class OneTimeLoginToken extends BaseDatabean<OneTimeLoginTokenKey,OneTime
 		super(new OneTimeLoginTokenKey());
 	}
 
-	public OneTimeLoginToken(Long userId, String token, String targetServerName, String targetServerIp,
-			Date deadline){
+	public OneTimeLoginToken(Long userId, String token, String targetServerName, String targetServerIp, Date deadline){
 		super(new OneTimeLoginTokenKey(userId));
 		this.token = token;
 		this.targetServerName = targetServerName;
@@ -59,13 +57,14 @@ public class OneTimeLoginToken extends BaseDatabean<OneTimeLoginTokenKey,OneTime
 	}
 
 	public static class OneTimeLoginTokenFielder extends BaseDatabeanFielder<OneTimeLoginTokenKey,OneTimeLoginToken>{
+
 		public OneTimeLoginTokenFielder(){
 			super(OneTimeLoginTokenKey.class);
 		}
 
 		@Override
 		public List<Field<?>> getNonKeyFields(OneTimeLoginToken databean){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.token, databean.token),
 					new StringField(FieldKeys.targetServerName, databean.targetServerName),
 					new StringField(FieldKeys.targetServerIp, databean.targetServerIp),

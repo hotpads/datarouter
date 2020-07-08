@@ -15,8 +15,8 @@
  */
 package io.datarouter.client.hbase.util;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.hadoop.hbase.ServerName;
 
@@ -25,12 +25,12 @@ import io.datarouter.util.lang.ReflectionTool;
 public class ServerNameTool{
 
 	public static ServerName create(String hostname, int port, long startcode){
-		Collection<?> constructorParams = Arrays.asList(hostname, port, startcode);
+		Collection<?> constructorParams = List.of(hostname, port, startcode);
 		return ReflectionTool.createWithParameters(ServerName.class, constructorParams);
 	}
 
 	public static ServerName create(String serverName){
-		Collection<?> constructorParams = Arrays.asList(serverName);
+		Collection<?> constructorParams = List.of(serverName);
 		return ReflectionTool.createWithParameters(ServerName.class, constructorParams);
 	}
 

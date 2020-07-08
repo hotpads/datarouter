@@ -15,7 +15,6 @@
  */
 package io.datarouter.nodewatch.storage.tablecount;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -53,7 +52,7 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(TableCount databean){
-			return Arrays.asList(
+			return List.of(
 					new LongField(FieldKeys.numRows, databean.numRows),
 					new DateField(FieldKeys.dateUpdated, databean.dateUpdated),
 					new LongField(FieldKeys.countTimeMs, databean.countTimeMs),

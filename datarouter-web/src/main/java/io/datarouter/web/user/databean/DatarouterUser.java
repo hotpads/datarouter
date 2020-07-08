@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.user.databean;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -75,7 +74,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterUser user){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.username, user.username),
 					new StringField(FieldKeys.userToken, user.userToken),
 					new StringField(FieldKeys.passwordSalt, user.passwordSalt),
@@ -122,8 +121,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 
 		@Override
 		public List<Field<?>> getFields(){
-			return Arrays.asList(
-				new StringField(FieldKeys.username, id));
+			return List.of(new StringField(FieldKeys.username, id));
 		}
 	}
 
@@ -135,8 +133,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 
 		@Override
 		public List<Field<?>> getFields(){
-			return Arrays.asList(
-				new StringField(FieldKeys.userToken, id));
+			return List.of(new StringField(FieldKeys.userToken, id));
 		}
 	}
 

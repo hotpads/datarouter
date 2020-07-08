@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.hbase.test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Get;
@@ -52,14 +51,12 @@ public class DirectHBaseSubEntityGetOpsForTest<
 			PK primaryKey){
 		this.entityFieldInfo = subEntityNode.getEntityFieldInfo();
 		this.fieldInfo = subEntityNode.getFieldInfo();
-		HBaseSubEntityQueryBuilder<?,?,PK,?,?> queryBuilder = new HBaseSubEntityQueryBuilder<>(entityFieldInfo,
-				fieldInfo);
-
+		var queryBuilder = new HBaseSubEntityQueryBuilder<>(entityFieldInfo, fieldInfo);
 		String tableName = fieldInfo.getTableName();
 		MutableString progress = new MutableString("");
 		this.table = hBaseClientManager.checkOutTable(clientId, tableName, progress);
 
-		this.hbaseGetOps = queryBuilder.getGets(Arrays.asList(primaryKey), false);
+		this.hbaseGetOps = queryBuilder.getGets(List.of(primaryKey), false);
 	}
 
 }

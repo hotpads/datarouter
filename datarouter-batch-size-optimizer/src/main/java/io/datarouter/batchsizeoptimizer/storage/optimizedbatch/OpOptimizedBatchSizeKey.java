@@ -15,7 +15,6 @@
  */
 package io.datarouter.batchsizeoptimizer.storage.optimizedbatch;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -40,7 +39,7 @@ public class OpOptimizedBatchSizeKey extends BaseRegularPrimaryKey<OpOptimizedBa
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.opName, opName));
+		return List.of(new StringField(FieldKeys.opName, opName));
 	}
 
 	public String getOpName(){

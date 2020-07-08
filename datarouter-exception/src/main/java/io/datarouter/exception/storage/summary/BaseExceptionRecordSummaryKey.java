@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.summary;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
@@ -47,7 +46,7 @@ public abstract class BaseExceptionRecordSummaryKey<PK extends RegularPrimaryKey
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new LongField(FieldKeys.reversePeriodStart, reversePeriodStart),
 				new StringField(ExceptionRecord.FieldKeys.type, type),
 				new StringField(ExceptionRecord.FieldKeys.exceptionLocation, exceptionLocation));

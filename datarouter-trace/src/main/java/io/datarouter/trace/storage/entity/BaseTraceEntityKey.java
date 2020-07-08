@@ -17,7 +17,6 @@ package io.datarouter.trace.storage.entity;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -29,7 +28,7 @@ import io.datarouter.util.UlidTool;
 public abstract class BaseTraceEntityKey<EK extends BaseEntityKey<EK>>
 extends BaseEntityKey<EK>{
 
-	private String traceId; // ULID
+	private String traceId;
 
 	public static class FieldKeys{
 		public static final StringFieldKey traceId = new StringFieldKey("traceId");
@@ -37,7 +36,7 @@ extends BaseEntityKey<EK>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.traceId, traceId));
+		return List.of(new StringField(FieldKeys.traceId, traceId));
 	}
 
 	public BaseTraceEntityKey(){

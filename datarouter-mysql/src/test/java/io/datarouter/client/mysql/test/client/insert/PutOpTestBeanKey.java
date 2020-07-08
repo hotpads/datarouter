@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.test.client.insert;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -43,7 +42,9 @@ public class PutOpTestBeanKey extends BaseRegularPrimaryKey<PutOpTestBeanKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.first, first), new StringField(FieldKeys.second, second));
+		return List.of(
+				new StringField(FieldKeys.first, first),
+				new StringField(FieldKeys.second, second));
 	}
 
 	public String getA(){

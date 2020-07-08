@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.handler;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -26,7 +25,6 @@ import java.util.Set;
 import javax.inject.Singleton;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.util.DateTool;
@@ -37,7 +35,6 @@ import io.datarouter.web.handler.types.DefaultDecoder;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.handler.types.RequestBodyString;
-import io.datarouter.web.handler.types.TypeProvider;
 
 public class TestApiHandler extends BaseHandler{
 
@@ -81,7 +78,7 @@ public class TestApiHandler extends BaseHandler{
 		return new MessageMav(greeting + " " + firstname + " " + lastname + "!");
 	}
 
-	private static enum Honorific{
+	private enum Honorific{
 		Mr,
 		Miss,
 		Mrs,
@@ -193,20 +190,8 @@ public class TestApiHandler extends BaseHandler{
 		return new MessageMav(timer.toString());
 	}
 
-	/*
-	 * When you want generic types like Collection as parameters, you have to define a static type provider.
-	 */
-	public static class FooBarCollectionTypeProvider implements TypeProvider{
-
-		@Override
-		public Type get(){
-			return new TypeToken<Collection<FooBar>>(){}.getType();
-		}
-
-	}
-
 	@Handler
-	public Mav count(@Param(typeProvider = FooBarCollectionTypeProvider.class) Collection<FooBar> fooBars){
+	public Mav count(Collection<FooBar> fooBars){
 		return new MessageMav("There are/is " + fooBars.size() + " element(s) in this list.");
 	}
 
@@ -214,7 +199,7 @@ public class TestApiHandler extends BaseHandler{
 	 * MEGA COMBO
 	 */
 	@Handler
-	public int size(@Param(typeProvider = FooBarCollectionTypeProvider.class) Collection<FooBar> fooBars){
+	public int size(Collection<FooBar> fooBars){
 		return fooBars.size();
 	}
 

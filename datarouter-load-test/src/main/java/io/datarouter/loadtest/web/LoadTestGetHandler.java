@@ -152,7 +152,7 @@ public class LoadTestGetHandler extends BaseHandler{
 		ExecutorService executor = Executors.newFixedThreadPool(pNumThreads);
 		Scanner.of(IntStream.range(0, numBatches).mapToObj(Integer::valueOf))
 				.map(batchId -> LoadTestTool.makeRandomIdBatch(pNum, pMax, pBatchSize, batchId))
-				.map(ids -> new GetBatchCallable(dao.getNode(), ids, pLogPeriod, rowCounter, lastBatchFinished))
+				.map(ids -> new GetBatchCallable(dao.getReaderNode(), ids, pLogPeriod, rowCounter, lastBatchFinished))
 				.parallel(new ParallelScannerContext(executor, pNumThreads, true))
 				.forEach(CallableTool::callUnchecked);
 		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(5));

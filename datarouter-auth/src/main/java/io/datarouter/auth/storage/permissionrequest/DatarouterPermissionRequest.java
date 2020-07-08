@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.storage.permissionrequest;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -78,7 +77,7 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterPermissionRequest databean){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.requestText, databean.requestText),
 					new StringEnumField<>(FieldKeys.resolution, databean.resolution),
 					new DateField(FieldKeys.resolutionTime, databean.resolutionTime));

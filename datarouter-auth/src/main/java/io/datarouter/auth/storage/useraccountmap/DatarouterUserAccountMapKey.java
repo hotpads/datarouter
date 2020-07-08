@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.storage.useraccountmap;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
@@ -45,7 +44,7 @@ public class DatarouterUserAccountMapKey extends BaseRegularPrimaryKey<Dataroute
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new UInt63Field(FieldKeys.userId, userId),
 				new StringField(DatarouterAccountKey.FieldKeys.accountName, accountName));
 	}

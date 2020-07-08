@@ -15,7 +15,6 @@
  */
 package io.datarouter.scanner;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -26,7 +25,7 @@ public class NaturalSortingScannerTests{
 	@Test
 	public void test(){
 		Scanner<Integer> input = Scanner.of(4, 1, 2, 4, 2, 3);
-		List<Integer> expected = Arrays.asList(1, 2, 2, 3, 4, 4);
+		List<Integer> expected = List.of(1, 2, 2, 3, 4, 4);
 		List<Integer> actual = input.sorted().list();
 		Assert.assertEquals(actual, expected);
 	}

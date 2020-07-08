@@ -16,7 +16,6 @@
 package io.datarouter.virtualnode.caching;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,7 +81,7 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public List<? extends Node<PK,D,F>> getChildNodes(){
-		return Arrays.asList(backingNode, cachingNode);
+		return List.of(backingNode, cachingNode);
 	}
 
 	@Override

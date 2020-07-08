@@ -16,7 +16,6 @@
 package io.datarouter.web.html.form;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class HtmlForm{
 	}
 
 	public HtmlForm addFields(BaseHtmlFormField... fields){
-		this.fields.addAll(Arrays.asList(fields));
+		this.fields.addAll(List.of(fields));
 		return this;
 	}
 

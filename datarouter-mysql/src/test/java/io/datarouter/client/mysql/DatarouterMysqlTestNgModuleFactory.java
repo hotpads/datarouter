@@ -15,15 +15,15 @@
  */
 package io.datarouter.client.mysql;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.secret.config.DatarouterSecretTestGuiceModule;
+import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder.DatarouterSecretPluginBuilderImpl;
 import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
@@ -34,9 +34,9 @@ import io.datarouter.web.config.DatarouterWebGuiceModule;
 public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterMysqlTestNgModuleFactory(){
-		super(Arrays.asList(
+		super(List.of(
 				new DatarouterWebGuiceModule(),
-				new DatarouterSecretTestGuiceModule(),
+				new DatarouterSecretPluginBuilderImpl().build(),
 				new DatarouterMysqlTestGuiceModule()));
 	}
 

@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.util;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.testng.Assert;
@@ -36,7 +35,7 @@ public class PrimaryKeyPercentCodecToolTests{
 			SBK_NULL = new SortedBeanKey(null, null, 0, "c"),
 			SBK_EMPTY_STRING = new SortedBeanKey("", "", 0, "c");
 
-	private static List<SortedBeanKey> SBK_MULTI = Arrays.asList(SBK_0, SBK_1);
+	private static List<SortedBeanKey> SBK_MULTI = List.of(SBK_0, SBK_1);
 
 	@Test
 	public void testSimpleNumericPk(){
@@ -50,7 +49,7 @@ public class PrimaryKeyPercentCodecToolTests{
 	@Test
 	public void testMultiNumericPk(){
 		final char delimiter = ',';
-		List<String> ids = Arrays.asList("23", "52", "103");
+		List<String> ids = List.of("23", "52", "103");
 		List<TestKey> pks = Scanner.of(ids).map(TestKey::new).list();
 		String encoded = PrimaryKeyPercentCodecTool.encodeMulti(pks, delimiter);
 		List<TestKey> decodedPks = PrimaryKeyPercentCodecTool.decodeMulti(TestKey.class, delimiter, encoded);
@@ -92,7 +91,7 @@ public class PrimaryKeyPercentCodecToolTests{
 		Assert.assertEquals(decoded, SBK_EMPTY_STRING);
 	}
 
-	private static class TestKey extends BaseRegularPrimaryKey<TestKey>{
+	public static class TestKey extends BaseRegularPrimaryKey<TestKey>{
 
 		public String id;
 
@@ -100,7 +99,6 @@ public class PrimaryKeyPercentCodecToolTests{
 			public static final StringFieldKey id = new StringFieldKey("id");
 		}
 
-		@SuppressWarnings("unused")
 		public TestKey(){
 		}
 
@@ -110,7 +108,7 @@ public class PrimaryKeyPercentCodecToolTests{
 
 		@Override
 		public List<Field<?>> getFields(){
-			return Arrays.asList(new StringField(FieldKeys.id, id));
+			return List.of(new StringField(FieldKeys.id, id));
 		}
 
 		public String getId(){

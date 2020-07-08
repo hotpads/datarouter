@@ -22,12 +22,12 @@ import io.datarouter.storage.node.op.raw.write.StorageWriter;
 
 public interface LoadTestInsertDao{
 
-	StorageWriter<RandomValueKey,RandomValue> getNode();
+	StorageWriter<RandomValueKey,RandomValue> getWriterNode();
 
 	class NoOpLoadTestInsertDao implements LoadTestInsertDao{
 
 		@Override
-		public StorageWriter<RandomValueKey,RandomValue> getNode(){
+		public StorageWriter<RandomValueKey,RandomValue> getWriterNode(){
 			return new NoOpNode<>();
 		}
 

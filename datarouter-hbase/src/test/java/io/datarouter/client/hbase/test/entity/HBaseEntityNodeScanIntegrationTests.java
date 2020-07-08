@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.hbase.test.entity;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -55,7 +54,7 @@ public class HBaseEntityNodeScanIntegrationTests{
 			EK_ff_1 = new HBaseBeanTestEntityKey("ff", "1"),
 			EK_ff_2 = new HBaseBeanTestEntityKey("ff", "2");
 
-	private static final List<HBaseBeanTestEntityKey> EKS = Arrays.asList(
+	private static final List<HBaseBeanTestEntityKey> EKS = List.of(
 			EK_aa_1,
 			EK_bb_1,
 			EK_cc_1,
@@ -64,7 +63,7 @@ public class HBaseEntityNodeScanIntegrationTests{
 			EK_ff_1,
 			EK_ff_2);
 
-	private static final List<HBaseBeanTest> BEANS = Arrays.asList(
+	private static final List<HBaseBeanTest> BEANS = List.of(
 			new HBaseBeanTest(new HBaseBeanTestKey(EK_aa_1, "kid", "c"), "f3"),
 
 			new HBaseBeanTest(new HBaseBeanTestKey(EK_bb_1, "cat", "c"), "f3"),

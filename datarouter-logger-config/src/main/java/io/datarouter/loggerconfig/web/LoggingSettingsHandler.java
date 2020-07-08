@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -193,7 +192,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 				name,
 				level,
 				ADDITIVE,
-				Arrays.asList(appenders),
+				List.of(appenders),
 				getCurrentUsername(),
 				Duration.ofMinutes(ttlMinutes).toMillis());
 		preventSecondApply();

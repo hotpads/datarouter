@@ -350,11 +350,20 @@ public class StringTool{
 		if(input == null){
 			return null;
 		}
-		input = replaceCharsAbove126(input, ' ');
-		input = replaceCharactersInRange(input, 0, 8, ' ');
-		input = replaceCharactersInRange(input, 11, 13, '\n');
-		input = replaceCharactersInRange(input, 14, 31, ' ');
-		return input;
+		char[] chrs = input.toCharArray();
+		for(int i = 0; i < chrs.length; ++i){
+			char chr = chrs[i];
+			if(chr > 126){
+				chrs[i] = ' ';
+			}else if(0 <= chr && chr <= 8){
+				chrs[i] = ' ';
+			}else if(11 <= chr && chr <= 13){
+				chrs[i] = '\n';
+			}else if(14 <= chr && chr <= 31){
+				chrs[i] = ' ';
+			}
+		}
+		return new String(chrs);
 	}
 
 	public static String capitalizeFirstLetter(String input){

@@ -15,14 +15,10 @@
  */
 package io.datarouter.web.browse;
 
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.li;
-import static j2html.TagCreator.nav;
-import static j2html.TagCreator.ol;
-import static j2html.TagCreator.span;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
@@ -33,7 +29,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.params.Params;
 import j2html.tags.ContainerTag;
@@ -41,6 +36,12 @@ import j2html.tags.ContainerTag;
 public interface DatarouterClientWebInspector{
 
 	Mav inspectClient(Params params, HttpServletRequest request);
+
+	default ContainerTag buildClientPageHeader(String clientName){
+		return div(
+				h4("Client Summary"),
+				p(b("Client Name: " + clientName)));
+	}
 
 	default ContainerTag buildClientOptionsTable(Map<String,String> allClientOptions){
 		var thead = thead(tr(th("Option Key"), th("Option Value")));
@@ -50,21 +51,10 @@ public interface DatarouterClientWebInspector{
 		allClientOptions.entrySet().stream()
 				.map(entry -> tr(td(entry.getKey()), td(entry.getValue())))
 				.forEach(table::with);
-		ContainerTag header = h4("Client Options:");
+		ContainerTag header = h4("Client Options");
 		return div(header, table)
-				.withClass("container-fluid my-4");
-	}
-
-	static ContainerTag buildNav(String contextPath, String clientName){
-		var datarouterHome = a("Datarouter Home")
-				.withHref(contextPath + new DatarouterWebPaths().datarouter.toSlashedString());
-		var datarouterNavItem = li(datarouterHome)
-				.withClass("breadcrumb-item");
-		var client = span(clientName)
-				.withClass("breadcrumb-item active");
-		var clientNavItem = li(b("Client: "), client)
-				.withClass("breadcrumb");
-		return nav(ol(datarouterNavItem, clientNavItem));
+				.withClass("container-fluid my-4")
+				.withStyle("padding-left: 0px");
 	}
 
 }

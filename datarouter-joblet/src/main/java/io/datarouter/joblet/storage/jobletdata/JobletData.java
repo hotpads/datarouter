@@ -15,7 +15,6 @@
  */
 package io.datarouter.joblet.storage.jobletdata;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -39,14 +38,15 @@ public class JobletData extends BaseDatabean<JobletDataKey,JobletData>{
 	}
 
 
-	public static class JobletDataFielder extends BaseDatabeanFielder<JobletDataKey, JobletData>{
+	public static class JobletDataFielder extends BaseDatabeanFielder<JobletDataKey,JobletData>{
+
 		public JobletDataFielder(){
 			super(JobletDataKey.class);
 		}
 
 		@Override
 		public List<Field<?>> getNonKeyFields(JobletData databean){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.data, databean.data),
 					new LongField(FieldKeys.created, databean.created));
 		}

@@ -15,7 +15,7 @@
  */
 package io.datarouter.aws.memcached.test;
 
-import java.util.Arrays;
+import java.util.List;
 
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.TestDatarouterProperties;
@@ -28,7 +28,7 @@ import io.datarouter.testng.TestNgModuleFactory;
 public class DatarouterAwsMemcachedModuleFactory extends TestNgModuleFactory{
 
 	public DatarouterAwsMemcachedModuleFactory(){
-		super(Arrays.asList(
+		super(List.of(
 				new DatarouterStorageGuiceModule(),
 				new AwsMemcachedGuiceModule()));
 	}

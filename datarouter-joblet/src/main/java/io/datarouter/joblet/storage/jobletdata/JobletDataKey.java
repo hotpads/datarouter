@@ -15,7 +15,6 @@
  */
 package io.datarouter.joblet.storage.jobletdata;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -34,8 +33,7 @@ public class JobletDataKey extends BaseRegularPrimaryKey<JobletDataKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
-				new UInt63Field(FieldKeys.id, id));
+		return List.of(new UInt63Field(FieldKeys.id, id));
 	}
 
 	public JobletDataKey(Long id){

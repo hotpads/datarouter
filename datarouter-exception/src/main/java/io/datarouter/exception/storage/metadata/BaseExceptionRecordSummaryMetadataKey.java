@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.metadata;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.exception.storage.exceptionrecord.BaseExceptionRecord;
@@ -39,7 +38,7 @@ extends BaseRegularPrimaryKey<PK>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(BaseExceptionRecord.FieldKeys.type, type),
 				new StringField(BaseExceptionRecord.FieldKeys.exceptionLocation, exceptionLocation));
 	}

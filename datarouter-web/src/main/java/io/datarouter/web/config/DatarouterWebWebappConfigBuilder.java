@@ -32,11 +32,12 @@ import javax.servlet.http.HttpServlet;
 import com.google.inject.Module;
 
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptionsFactory;
-import io.datarouter.storage.config.BasePlugin;
+import io.datarouter.storage.config.BaseStoragePlugin;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.DatarouterStoragePlugin.DatarouterStoragePluginBuilder;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
@@ -349,7 +350,7 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	protected T addStoragePluginWithoutInstalling(BasePlugin plugin){
+	protected T addStoragePluginWithoutInstalling(BaseStoragePlugin plugin){
 		DaosModuleBuilder daosModule = plugin.getDaosModuleBuilder();
 		daoClasses.addAll(daosModule.getDaoClasses());
 		modules.add(plugin.getDaosModuleBuilder());

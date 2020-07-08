@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.css;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.pathnode.PathNode;
@@ -26,7 +25,7 @@ public class DatarouterWebCssV2{
 
 	private static final DatarouterWebFiles FILES = new DatarouterWebFiles();
 
-	private static final List<PathNode> CSS_PATHS = Arrays.asList(
+	private static final List<PathNode> CSS_PATHS = List.of(
 			FILES.css.commonB4Css,
 			FILES.fontAwesome.css.fontAwesomeBaseCss,
 			FILES.fontAwesome.css.fontAwesomeRegularCss,

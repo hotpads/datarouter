@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.user.databean;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -59,7 +58,7 @@ extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>
 
 		@Override
 		public List<Field<?>> getNonKeyFields(SamlAuthnRequestRedirectUrl databean){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.redirectUrl, databean.redirectUrl),
 					new DateField(FieldKeys.created, databean.created));
 		}

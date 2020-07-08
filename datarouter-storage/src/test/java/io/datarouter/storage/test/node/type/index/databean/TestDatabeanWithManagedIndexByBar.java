@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.test.node.type.index.databean;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +45,7 @@ implements UniqueIndexEntry<
 
 		@Override
 		public List<Field<?>> getNonKeyFields(TestDatabeanWithManagedIndexByBar databean){
-			return Arrays.asList(new StringField(TestDatabeanKey.FieldKeys.foo, databean.foo));
+			return List.of(new StringField(TestDatabeanKey.FieldKeys.foo, databean.foo));
 		}
 
 	}

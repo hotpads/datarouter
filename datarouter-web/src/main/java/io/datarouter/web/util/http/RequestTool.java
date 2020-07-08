@@ -74,9 +74,10 @@ public class RequestTool{
 	}
 
 	public static List<String> getSlashedUriParts(String uri){
-		List<String> uriVars = Arrays.asList(uri.split("/"));
 		//get rid of blanks
-		return Scanner.of(uriVars).include(StringTool::notEmpty).list();
+		return Scanner.of(uri.split("/"))
+				.include(StringTool::notEmpty)
+				.list();
 	}
 
 	public static String getStringParameterCheckOverrideVars(

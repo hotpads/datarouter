@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.user.databean;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -33,7 +32,7 @@ public class DatarouterUserKey extends BaseRegularPrimaryKey<DatarouterUserKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new UInt63Field(FieldKeys.id, id));
+		return List.of(new UInt63Field(FieldKeys.id, id));
 	}
 
 	public DatarouterUserKey(){

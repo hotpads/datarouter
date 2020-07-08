@@ -40,7 +40,7 @@ public class CompoundPortIdentifier implements PortIdentifier{
 			JETTY_SERVER_JMX_DOMAIN = "org.eclipse.jetty.server",
 			JBOSS_JMX_DOMAIN = "jboss.as";
 
-	private static final List<Triple<String,String,Class<? extends PortIdentifier>>> IDENTIFIERS = Arrays.asList(
+	private static final List<Triple<String,String,Class<? extends PortIdentifier>>> IDENTIFIERS = List.of(
 			new Triple<>("Tomcat", CATALINA_JMX_DOMAIN, TomcatPortIdentifier.class),
 			new Triple<>("Jetty", JETTY_SERVER_JMX_DOMAIN, JettyPortIdentifier.class),
 			new Triple<>("Wildfly (JBoss)", JBOSS_JMX_DOMAIN, WildFlyPortIdentifier.class));

@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.hbase.test.entity.databean;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -53,7 +52,7 @@ public class HBaseBeanTest extends BaseDatabean<HBaseBeanTestKey,HBaseBeanTest>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(HBaseBeanTest databean){
-			return Arrays.asList(new StringField(FieldKeys.corge, databean.corge));
+			return List.of(new StringField(FieldKeys.corge, databean.corge));
 		}
 
 	}

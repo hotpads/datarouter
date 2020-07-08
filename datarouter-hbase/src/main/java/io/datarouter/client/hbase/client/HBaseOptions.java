@@ -39,15 +39,21 @@ public class HBaseOptions{
 	}
 
 	public Integer maxHTables(String clientName, int def){
-		return clientOptions.getIntegerClientPropertyOrDefault(makeHbaseKey(PROP_maxHTables), clientName, def);
+		return clientOptions.optString(clientName, makeHbaseKey(PROP_maxHTables))
+				.map(Integer::valueOf)
+				.orElse(def);
 	}
 
 	public Integer minThreadsPerHTable(String clientName, int def){
-		return clientOptions.getIntegerClientPropertyOrDefault(makeHbaseKey(PROP_minThreadsPerHTable), clientName, def);
+		return clientOptions.optString(clientName, makeHbaseKey(PROP_minThreadsPerHTable))
+				.map(Integer::valueOf)
+				.orElse(def);
 	}
 
 	public Integer maxThreadsPerHTable(String clientName, int def){
-		return clientOptions.getIntegerClientPropertyOrDefault(makeHbaseKey(PROP_maxThreadsPerHTable), clientName, def);
+		return clientOptions.optString(clientName, makeHbaseKey(PROP_maxThreadsPerHTable))
+				.map(Integer::valueOf)
+				.orElse(def);
 	}
 
 	protected static String makeHbaseKey(String propertyKey){

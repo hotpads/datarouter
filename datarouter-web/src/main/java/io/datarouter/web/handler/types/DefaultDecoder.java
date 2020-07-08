@@ -31,7 +31,6 @@ import com.google.gson.JsonSyntaxException;
 
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.instrumentation.trace.TracerTool;
-import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
@@ -67,15 +66,12 @@ public class DefaultDecoder implements HandlerDecoder{
 		for(int i = 0; i < parameters.length; i++){
 			Parameter parameter = parameters[i];
 			String parameterName = parameter.getName();
-			Type parameterType = parameter.getType();
+			Type parameterType = parameter.getParameterizedType();
 			{
 				Param parameterAnnotation = parameter.getAnnotation(Param.class);
 				if(parameterAnnotation != null){
 					if(!parameterAnnotation.value().isEmpty()){
 						parameterName = parameterAnnotation.value();
-					}
-					if(!parameterAnnotation.typeProvider().equals(TypeProvider.class)){
-						parameterType = ReflectionTool.create(parameterAnnotation.typeProvider()).get();
 					}
 				}
 			}

@@ -15,7 +15,6 @@
  */
 package io.datarouter.exception.storage.httprecord;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -41,7 +40,7 @@ public abstract class BaseHttpRequestRecordKey<PK extends RegularPrimaryKey<PK>>
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.id, id));
+		return List.of(new StringField(FieldKeys.id, id));
 	}
 
 	public String getId(){

@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.storage.permissionrequest;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class DatarouterPermissionRequestKey extends BaseRegularPrimaryKey<Dataro
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new LongField(FieldKeys.userId, userId),
 				new DateField(FieldKeys.requestTime, requestTime));
 	}

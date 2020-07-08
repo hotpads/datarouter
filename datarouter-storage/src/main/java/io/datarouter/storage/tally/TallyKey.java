@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.tally;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -33,7 +32,7 @@ public class TallyKey extends BaseRegularPrimaryKey<TallyKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(new StringField(FieldKeys.id, id));
+		return List.of(new StringField(FieldKeys.id, id));
 	}
 
 	public TallyKey(){

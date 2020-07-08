@@ -15,7 +15,6 @@
  */
 package io.datarouter.loggerconfig.storage.fileappender;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -42,7 +41,7 @@ public class FileAppender extends BaseDatabean<FileAppenderKey,FileAppender>{
 
 		@Override
 		public List<Field<?>> getNonKeyFields(FileAppender appender){
-			return Arrays.asList(
+			return List.of(
 					new StringField(FieldKeys.layout, appender.layout),
 					new StringField(FieldKeys.fileName, appender.fileName));
 		}

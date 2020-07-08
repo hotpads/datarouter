@@ -15,7 +15,6 @@
  */
 package io.datarouter.batchsizeoptimizer.storage.optimizedbatch;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.batchsizeoptimizer.BatchSizeOptimizer;
@@ -46,7 +45,7 @@ public class OpOptimizedBatchSize extends BaseDatabean<OpOptimizedBatchSizeKey,O
 
 		@Override
 		public List<Field<?>> getNonKeyFields(OpOptimizedBatchSize databean){
-			return Arrays.asList(
+			return List.of(
 					new IntegerField(FieldKeys.batchSize, databean.batchSize),
 					new DoubleField(FieldKeys.curiosity, databean.curiosity));
 		}
