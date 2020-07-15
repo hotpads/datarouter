@@ -63,21 +63,24 @@ public class PathNode{
 	}
 
 	public static String toSlashedString(List<PathNode> nodes, boolean includeLeadingSlash){
-		return nodes.stream()
-				.map(pathNode -> pathNode.value)
-				.collect(Collectors.joining("/", includeLeadingSlash ? "/" : "", ""));
+		String prefix = includeLeadingSlash ? "/" : "";
+		return joinNodes(nodes, prefix, "/", "");
 	}
 
 	public String toSlashedString(){
-		return toSlashedStringAfter(null, true);
+		return join("/", "/", "");
 	}
 
 	public String toSlashedStringWithTrailingSlash(){
-		return toSlashedString() + "/";
+		return join("/", "/", "/");
 	}
 
 	public String toSlashedStringWithoutLeadingSlash(){
-		return toSlashedStringAfter(null, false);
+		return join("", "/", "");
+	}
+
+	public String join(String prefix, String delimiter, String suffix){
+		return joinNodes(nodesAfter(null, this), prefix, delimiter, suffix);
 	}
 
 	public static List<PathNode> nodesAfter(PathNode after, PathNode through){
@@ -134,6 +137,12 @@ public class PathNode{
 			pathNode = pathNode.branch(PathNode::new, pathPart.toString());
 		}
 		return pathNode;
+	}
+
+	private static String joinNodes(List<PathNode> nodes, String prefix, String delimiter, String suffix){
+		return nodes.stream()
+				.map(pathNode -> pathNode.value)
+				.collect(Collectors.joining(delimiter, prefix, suffix));
 	}
 
 }

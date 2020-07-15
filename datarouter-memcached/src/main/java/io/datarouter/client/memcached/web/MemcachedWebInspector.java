@@ -75,12 +75,11 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 
 		var clientName = clientId.getName();
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
-		SpyMemcachedClient spyClient = memcachedClientManager.getSpyMemcachedClient(clientId);
 		var content = div(
 				buildClientPageHeader(clientName),
-				buildOverview(clientId, spyClient),
+				buildOverview(clientId),
 				buildClientOptionsTable(allClientOptions),
-				buildStats(spyClient.getStats()))
+				buildStats(getClient(clientId).getStats()))
 				.withClass("container my-3");
 
 		return pageFactory.startBuilder(request)
@@ -90,7 +89,11 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	protected Pair<Integer,ContainerTag> getDetails(ClientId clientId, SpyMemcachedClient spyClient){
+	protected SpyMemcachedClient getClient(ClientId clientId){
+		return memcachedClientManager.getSpyMemcachedClient(clientId);
+	}
+
+	protected Pair<Integer,ContainerTag> getDetails(ClientId clientId){
 		Pair<Integer,ContainerTag> nodeCountByNodeTag = new Pair<>();
 		List<ContainerTag> socketAddresses = memcachedOptions.getServers(clientId.getName()).stream()
 				.map(InetSocketAddress::toString)
@@ -102,8 +105,8 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 		return nodeCountByNodeTag;
 	}
 
-	private ContainerTag buildOverview(ClientId clientId, SpyMemcachedClient spyClient){
-		Pair<Integer,ContainerTag> listElements = getDetails(clientId, spyClient);
+	private ContainerTag buildOverview(ClientId clientId){
+		Pair<Integer,ContainerTag> listElements = getDetails(clientId);
 		return div(
 				p(b("Number of nodes: " + listElements.getLeft())),
 				h4("Nodes"),

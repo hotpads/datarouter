@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.hbase.compaction;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Singleton;
@@ -27,7 +26,7 @@ public class DefaultHBaseCompactionInfo implements HBaseCompactionInfo{
 
 	@Override
 	public List<ClientId> getManagedClientIds(){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 }

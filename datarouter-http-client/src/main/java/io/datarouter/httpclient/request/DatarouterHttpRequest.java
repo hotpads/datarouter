@@ -22,7 +22,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -376,7 +375,7 @@ public class DatarouterHttpRequest{
 
 	private List<NameValuePair> urlEncodeFromMap(Map<String,String> data){
 		if(data == null || data.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return data.entrySet().stream()
 				.map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))

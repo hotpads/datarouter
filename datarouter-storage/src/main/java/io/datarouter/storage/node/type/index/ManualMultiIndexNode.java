@@ -16,7 +16,6 @@
 package io.datarouter.storage.node.type.index;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
@@ -49,7 +48,7 @@ implements MultiIndexNode<PK, D, IK, IE>{
 	@Override
 	public List<D> lookupMulti(IK indexKey, Config config){
 		if(indexKey == null){
-			return Collections.emptyList();
+			return List.of();
 		}
 		//hard-coding startInclusive to true because it will usually be true on the first call,
 		// but subsequent calls may want false, so consider adding as method param
@@ -63,7 +62,7 @@ implements MultiIndexNode<PK, D, IK, IE>{
 	@Override
 	public List<D> lookupMultiMulti(Collection<IK> indexKeys, Config config){
 		if(indexKeys == null || indexKeys.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return Scanner.of(indexKeys)
 				.map(indexKey -> new Range<>(indexKey, true, indexKey, true))

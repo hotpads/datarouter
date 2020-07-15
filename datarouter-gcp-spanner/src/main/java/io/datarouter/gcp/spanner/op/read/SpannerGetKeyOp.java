@@ -16,7 +16,6 @@
 package io.datarouter.gcp.spanner.op.read;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import com.google.cloud.spanner.DatabaseClient;
@@ -63,7 +62,7 @@ extends SpannerBaseReadOp<PK>{
 	@Override
 	public List<PK> wrappedCall(){
 		if(keys.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return callClient(
 				fieldInfo.getPrimaryKeyFieldColumnNames(),

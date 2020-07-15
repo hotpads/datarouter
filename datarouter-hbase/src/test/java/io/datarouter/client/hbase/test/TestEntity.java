@@ -16,7 +16,6 @@
 package io.datarouter.client.hbase.test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -109,7 +108,7 @@ public class TestEntity{
 
 		@Override
 		public List<Field<?>> getPostEntityKeyFields(){
-			return Collections.emptyList();
+			return List.of();
 		}
 
 		@Override

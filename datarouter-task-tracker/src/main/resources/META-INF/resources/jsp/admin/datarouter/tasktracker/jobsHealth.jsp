@@ -23,25 +23,27 @@
 			<button type="button" data-toggle="collapse" data-target="#tasklist"> Show Unique Jobs 
 			</button>
 			<div id="tasklist" class="collapse">
-		    <c:forEach items="${uniqueJobs}" var="task">
+			<c:forEach items="${uniqueJobs}" var="task">
 				<div>
 					${task}
 				</div>
 			</c:forEach>
-		  </div>
+			</div>
 		</div>
-		  
-		  <div class="card bg-light text-center mb-4">
+		<div class="card bg-light text-center mb-4">
 			<h4 class="card-body m-0">Number of Currently Running Jobs: ${numRunningJobs}</h4>
-		  </div>
+		</div>
 	</div>
-	
-	<div class="container mt-5">
-		<h4> All Non-Successful/Running Tasks </h4>
-	</div>
-	
+	<c:if test="${empty allBadTasks}">
+		<div class="container mt-5">
+			<h4> No Non-Successful/Running Tasks </h4>
+		</div>	
+	</c:if>
 	<div>
 		<c:if test="${not empty allBadTasks}">
+		<div class="container mt-5">
+			<h4> All Non-Successful/Running Tasks </h4>
+		</div>	
 			<div class="container-fluid">
 				<div class="table-responsive">
 					<table class="sortable table table-bordered table-sm">
@@ -58,6 +60,7 @@
 								<th class="text-right">numItemsProcessed</th>
 								<th>jobExecutionStatus</th>
 								<th>triggeredBy</th>
+								<th>exceptionRecordId</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -80,6 +83,8 @@
 									class="table-warning"
 								</c:if>>${task.status}</td>
 								<td>${task.triggeredBy}</td>
+								<td><a href="${task.hrefForException}">
+									${task.exceptionRecordId}</a></td>
 							</tr>
 						</c:forEach>
 						</tbody>
@@ -87,8 +92,7 @@
 				</div>
 			</div>
 		</c:if>
-	</div>				
-	
+	</div>
 	<div class="container mt-5">
 	${legend}
 	</div>	

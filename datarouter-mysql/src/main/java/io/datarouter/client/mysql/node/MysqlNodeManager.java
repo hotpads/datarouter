@@ -261,7 +261,7 @@ public class MysqlNodeManager{
 			F extends DatabeanFielder<PK,D>>
 	List<PK> getKeysInRanges(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<PK>> ranges, Config config){
 		if(ranges.stream().allMatch(Range::isEmpty)){
-			return Collections.emptyList();
+			return List.of();
 		}
 		String opName = SortedStorageReader.OP_getKeysInRange;
 		var op = new MysqlGetPrimaryKeyRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory, ranges,
@@ -274,7 +274,7 @@ public class MysqlNodeManager{
 			F extends DatabeanFielder<PK,D>>
 	List<D> getRanges(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, Collection<Range<PK>> ranges, Config config){
 		if(ranges.stream().allMatch(Range::isEmpty)){
-			return Collections.emptyList();
+			return List.of();
 		}
 		String opName = SortedStorageReader.OP_getRange;
 		var op = new MysqlGetRangesOp<>(datarouter, fieldInfo, fieldCodecFactory, mysqlSqlFactory, ranges, config,

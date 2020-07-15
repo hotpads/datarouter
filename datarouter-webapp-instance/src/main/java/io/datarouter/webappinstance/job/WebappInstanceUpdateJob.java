@@ -30,7 +30,6 @@ public class WebappInstanceUpdateJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		service.recordAppHeartbeatMetrics();
 		service.updateWebappInstanceTable();
 	}
 

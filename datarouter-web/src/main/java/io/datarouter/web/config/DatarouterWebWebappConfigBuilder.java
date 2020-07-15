@@ -16,7 +16,6 @@
 package io.datarouter.web.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -294,7 +293,7 @@ implements WebappBuilder{
 				webPlugin.getFinalAppListeners(),
 				webPlugin.getFinalWebAppListeners());
 
-		List<ServletContextListener> servletContextListeners = Arrays.asList(
+		List<ServletContextListener> servletContextListeners = List.of(
 				log4jServletContextListener,
 				new DatarouterGuiceServletContextListener(modules),
 				appListenerServletContextListener);

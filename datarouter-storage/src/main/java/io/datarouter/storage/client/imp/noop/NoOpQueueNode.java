@@ -16,7 +16,6 @@
 package io.datarouter.storage.client.imp.noop;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
@@ -48,7 +47,7 @@ implements QueueStorage<PK,D>{
 
 	@Override
 	public List<QueueMessage<PK,D>> peekMulti(Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override
@@ -63,7 +62,7 @@ implements QueueStorage<PK,D>{
 
 	@Override
 	public List<D> pollMulti(Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override

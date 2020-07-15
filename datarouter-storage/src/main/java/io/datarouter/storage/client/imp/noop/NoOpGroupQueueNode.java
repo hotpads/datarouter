@@ -16,7 +16,6 @@
 package io.datarouter.storage.client.imp.noop;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
@@ -47,17 +46,17 @@ implements GroupQueueStorage<PK,D>{
 
 	@Override
 	public List<GroupQueueMessage<PK,D>> peekMulti(Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override
 	public Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override
 	public List<D> pollMulti(Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 }

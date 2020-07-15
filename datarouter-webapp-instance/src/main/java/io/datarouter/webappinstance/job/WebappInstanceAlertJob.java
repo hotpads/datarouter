@@ -56,7 +56,7 @@ public class WebappInstanceAlertJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		WebappInstance webappInstance = webappInstanceService.updateWebappInstanceTable();
+		WebappInstance webappInstance = webappInstanceService.buildCurrentWebappInstance();
 		Date buildDate = webappInstance.getBuildDate();
 		long staleRunningTimeMs = DurationTool.sinceDate(buildDate).toMillis()
 				- settings.staleWebappInstanceThreshold.get().toJavaDuration().toMillis();

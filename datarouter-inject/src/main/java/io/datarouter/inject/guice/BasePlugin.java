@@ -25,4 +25,17 @@ public abstract class BasePlugin extends BaseGuiceModule{
 	 */
 	public abstract String getName();
 
+	/**
+	 * This is experimental.
+	 */
+	public BaseGuiceModule getAsDefaultBinderModule(){
+		return new BaseGuiceModule(){
+
+			@Override
+			protected void configure(){
+			}
+
+		};
+	}
+
 }

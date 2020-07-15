@@ -19,7 +19,7 @@ public interface TaskTrackerExceptionLink{
 
 	String buildExceptionDetailLink(String exceptionRecordId);
 
-	public static class NoOpTaskTrackerExceptionLink implements TaskTrackerExceptionLink{
+	class NoOpTaskTrackerExceptionLink implements TaskTrackerExceptionLink{
 
 		@Override
 		public String buildExceptionDetailLink(String exceptionRecordId){

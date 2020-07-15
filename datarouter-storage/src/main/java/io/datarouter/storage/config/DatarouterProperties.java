@@ -18,7 +18,6 @@ package io.datarouter.storage.config;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -256,7 +255,7 @@ public abstract class DatarouterProperties{
 	private Collection<String> findClusterDomains(){
 		String propertyValue = findProperty(SERVER_CLUSTER_DOMAINS);
 		if(StringTool.isNullOrEmptyOrWhitespace(propertyValue)){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return Stream.of(propertyValue.split(","))
 				.filter(StringTool::notEmptyNorWhitespace)

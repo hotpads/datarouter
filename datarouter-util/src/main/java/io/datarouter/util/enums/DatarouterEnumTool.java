@@ -18,7 +18,6 @@ package io.datarouter.util.enums;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -118,7 +117,7 @@ public class DatarouterEnumTool{
 
 	public static <E extends StringEnum<E>> List<String> getPersistentStrings(Collection<E> enums){
 		if(enums == null){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return enums.stream()
 				.map(E::getPersistentString)
@@ -128,7 +127,7 @@ public class DatarouterEnumTool{
 	public static <E extends StringEnum<E>> List<E> fromPersistentStrings(E enumInstance,
 			Collection<String> persistentStrings){
 		if(persistentStrings == null){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return persistentStrings.stream()
 				.map(enumInstance::fromPersistentString)

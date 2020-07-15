@@ -15,7 +15,6 @@
  */
 package io.datarouter.aws.rds.service;
 
-import java.util.Collections;
 import java.util.List;
 
 public interface AwsTags{
@@ -26,7 +25,7 @@ public interface AwsTags{
 
 		@Override
 		public List<AwsTag> getTags(){
-			return Collections.emptyList();
+			return List.of();
 		}
 
 	}

@@ -16,7 +16,6 @@
 package io.datarouter.client.hbase.node.subentity;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -167,7 +166,7 @@ public class HBaseSubEntityPageScanner<
 		protected List<Result> nextPage(ByteRange resumeFrom){
 			Require.isFalse(closed, "don't call me, i'm closed");
 			if(limit.isPresent() && numFetched >= limit.get()){
-				return Collections.emptyList();
+				return List.of();
 			}
 			if(resumeFrom != null){
 				mutableRange.setStart(resumeFrom);
@@ -185,7 +184,7 @@ public class HBaseSubEntityPageScanner<
 				return page;
 			}catch(IOException e){
 				if(closed){
-					return Collections.emptyList();
+					return List.of();
 				}
 				throw new RuntimeException(e);
 			}

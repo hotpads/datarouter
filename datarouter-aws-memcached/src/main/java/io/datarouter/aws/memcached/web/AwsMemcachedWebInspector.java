@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import io.datarouter.aws.memcached.client.AwsMemcachedOptions;
-import io.datarouter.client.memcached.client.SpyMemcachedClient;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.tuple.Pair;
@@ -39,13 +38,15 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 	private AwsMemcachedOptions options;
 
 	@Override
-	protected Pair<Integer,ContainerTag> getDetails(ClientId clientId, SpyMemcachedClient spyClient){
+	protected Pair<Integer,ContainerTag> getDetails(ClientId clientId){
 		ClientMode mode = options.getClientMode(clientId.getName());
 		Pair<Integer,ContainerTag> nodeCountByNodeTag = new Pair<>();
 		if(mode == ClientMode.Dynamic){
-			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = spyClient.getAllNodeEndPoints().stream()
+			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = getClient(clientId).getAllNodeEndPoints().stream()
 					.map(nodeEndPoint -> new AwsMemcachedNodeEndpointDto(
-							nodeEndPoint.getHostName(), nodeEndPoint.getIpAddress(), nodeEndPoint.getPort()))
+							nodeEndPoint.getHostName(),
+							nodeEndPoint.getIpAddress(),
+							nodeEndPoint.getPort()))
 					.collect(Collectors.toList());
 			var table = new J2HtmlTable<AwsMemcachedNodeEndpointDto>()
 					.withClasses("sortable table table-sm table-striped my-4 border")
@@ -60,7 +61,7 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 			nodeCountByNodeTag.setRight(divTable);
 
 		}else{
-			List<ContainerTag> socketAddresses = spyClient.getAvailableServers().stream()
+			List<ContainerTag> socketAddresses = getClient(clientId).getAvailableServers().stream()
 					.map(Object::toString)
 					.map(TagCreator::li)
 					.collect(Collectors.toList());

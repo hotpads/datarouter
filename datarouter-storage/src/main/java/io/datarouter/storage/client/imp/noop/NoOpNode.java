@@ -17,7 +17,6 @@ package io.datarouter.storage.client.imp.noop;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
@@ -41,7 +40,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override
@@ -51,7 +50,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override
@@ -91,7 +90,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override
@@ -107,7 +106,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override
@@ -115,7 +114,7 @@ public class NoOpNode<PK extends PrimaryKey<PK>, D extends Databean<PK,D>> imple
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override

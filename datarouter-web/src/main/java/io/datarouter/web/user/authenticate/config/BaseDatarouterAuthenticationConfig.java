@@ -16,7 +16,6 @@
 package io.datarouter.web.user.authenticate.config;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -89,7 +88,7 @@ public class BaseDatarouterAuthenticationConfig implements DatarouterAuthenticat
 
 	@Override
 	public List<DatarouterAuthenticator> getAuthenticators(HttpServletRequest request){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override

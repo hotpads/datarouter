@@ -16,7 +16,6 @@
 package io.datarouter.gcp.spanner.ddl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ public class SpannerIndex{
 
 	public List<Field<?>> getNonKeyFields(){
 		if(keyFields.size() == allFields.size()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		Map<String,Field<?>> keyMap = Scanner.of(keyFields)
 				.toMapSupplied(field -> field.getKey().getColumnName(), LinkedHashMap::new);

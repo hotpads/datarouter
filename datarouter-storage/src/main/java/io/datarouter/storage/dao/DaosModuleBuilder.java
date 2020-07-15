@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.dao;
 
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.inject.guice.BaseGuiceModule;
@@ -31,7 +30,7 @@ public abstract class DaosModuleBuilder extends BaseGuiceModule{
 
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
-			return Collections.emptyList();
+			return List.of();
 		}
 
 	}

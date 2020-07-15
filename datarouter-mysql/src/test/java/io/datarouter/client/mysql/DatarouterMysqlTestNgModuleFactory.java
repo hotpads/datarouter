@@ -17,6 +17,7 @@ package io.datarouter.client.mysql;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
@@ -26,6 +27,8 @@ import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder.DatarouterSecretPluginBuilderImpl;
 import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.schema.SchemaUpdateOptionsBuilder;
+import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
@@ -50,6 +53,7 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 					new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
 			bind(DatarouterProperties.class).to(MysqlDatarouterProperties.class);
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+			bindActual(SchemaUpdateOptionsFactory.class, DatarouterMysqlSchemaUpdateOptionsFactory.class);
 		}
 
 	}
@@ -59,6 +63,17 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 		@Override
 		public String getDatarouterPropertiesFileLocation(){
 			return getTestConfigDirectory() + "/mysql.properties";
+		}
+
+	}
+
+	public static class DatarouterMysqlSchemaUpdateOptionsFactory implements SchemaUpdateOptionsFactory{
+
+		@Override
+		public Properties getInternalConfigDirectoryTypeSchemaUpdateOptions(String internalConfigDirectoryTypeName){
+			return new SchemaUpdateOptionsBuilder(true)
+					.enableAllSchemaUpdateExecuteOptions()
+					.build();
 		}
 
 	}

@@ -16,7 +16,6 @@
 package io.datarouter.client.mysql.field.codec.factory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -155,7 +154,7 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		if(codecType == null){
 			throw new RuntimeException("no codec found for " + field.getClass());
 		}
-		return ReflectionTool.createWithParameters(codecType, Arrays.asList(field));
+		return ReflectionTool.createWithParameters(codecType, List.of(field));
 	}
 
 	@Override

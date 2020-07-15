@@ -15,7 +15,6 @@
  */
 package io.datarouter.model.field;
 
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
@@ -42,7 +41,7 @@ extends BaseDatabeanFielder<IK,FieldlessIndexEntry<IK,PK,D>>{
 
 	@Override
 	public List<Field<?>> getNonKeyFields(FieldlessIndexEntry<IK,PK,D> databean){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 }

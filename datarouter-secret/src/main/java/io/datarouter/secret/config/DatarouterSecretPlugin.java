@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClientSupplier;
@@ -76,8 +77,29 @@ public class DatarouterSecretPlugin extends BasePlugin{
 		bindActual(SecretJsonSerializer.class, jsonSerializer);
 		bindActual(SecretStageDetector.class, secretStageDetector);
 		bindActual(LocalStorageConfig.class, localStorageConfig);
-		bindActualInstance(LocalStorageDefaultSecretValues.class,
-				new LocalStorageDefaultSecretValues(initialLocalStorageSecretValues));
+		bindActualInstance(LocalStorageDefaultSecretValues.class, new LocalStorageDefaultSecretValues(
+				initialLocalStorageSecretValues));
+	}
+
+	@Override
+	public BaseGuiceModule getAsDefaultBinderModule(){
+		return new DatarouterSecretPluginDefaults();
+	}
+
+	public class DatarouterSecretPluginDefaults extends BaseGuiceModule{
+
+		@Override
+		public void configure(){
+			bindDefault(SecretClientSupplier.class, secretClientSupplier);
+			bindDefault(SecretNamespacer.class, secretNamespacer);
+			bindDefault(SecretOpRecorder.class, secretOpRecorder);
+			bindDefault(SecretJsonSerializer.class, jsonSerializer);
+			bindDefault(SecretStageDetector.class, secretStageDetector);
+			bindDefault(LocalStorageConfig.class, localStorageConfig);
+			bindDefaultInstance(LocalStorageDefaultSecretValues.class, new LocalStorageDefaultSecretValues(
+					initialLocalStorageSecretValues));
+		}
+
 	}
 
 	public abstract static class DatarouterSecretPluginBuilder<T extends DatarouterSecretPluginBuilder<T>>{

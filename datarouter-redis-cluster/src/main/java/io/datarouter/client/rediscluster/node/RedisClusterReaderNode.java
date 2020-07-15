@@ -16,7 +16,6 @@
 package io.datarouter.client.rediscluster.node;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -87,7 +86,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
 		if(keys == null || keys.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return Scanner.of(keys)
 				.parallel(new ParallelScannerContext(executor, 16, false))
@@ -99,7 +98,7 @@ implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config){
 		if(keys == null || keys.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return Scanner.of(getMulti(keys, config))
 				.map(Databean::getKey)

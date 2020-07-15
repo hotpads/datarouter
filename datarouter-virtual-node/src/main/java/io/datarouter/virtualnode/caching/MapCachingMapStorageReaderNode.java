@@ -18,7 +18,6 @@ package io.datarouter.virtualnode.caching;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -131,7 +130,7 @@ implements MapStorageReaderNode<PK,D,F>{
 	@Override
 	public List<D> getMulti(Collection<PK> keys, Config config){
 		if(keys == null || keys.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		if(!useCache(config)){
 			return backingNode.getMulti(keys, config);
@@ -163,7 +162,7 @@ implements MapStorageReaderNode<PK,D,F>{
 	@Override
 	public List<PK> getKeys(Collection<PK> keys, Config config){
 		if(keys == null || keys.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		if(!useCache(config)){
 			return backingNode.getKeys(keys, config);

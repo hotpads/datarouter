@@ -16,7 +16,6 @@
 package io.datarouter.storage.node.type.index;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.Databean;
@@ -40,7 +39,7 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 
 	@Override
 	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override
@@ -50,7 +49,7 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> uniqueKeys, Config config){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override

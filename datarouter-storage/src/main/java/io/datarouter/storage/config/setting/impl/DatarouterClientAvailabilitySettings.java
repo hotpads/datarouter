@@ -41,11 +41,12 @@ public class DatarouterClientAvailabilitySettings extends SettingNode{
 
 	@Inject
 	public DatarouterClientAvailabilitySettings(SettingFinder finder,
-			DatarouterClientAvailabilitySwitchThresholdSettings clientAvailabilitySwitchThresholdSettings){
+			DatarouterClientAvailabilitySwitchThresholdSettingsProvider
+			clientAvailabilitySwitchThresholdSettingsProvider){
 		super(finder, SETTING_PREFIX);
 		availabilityByClientName = new ConcurrentHashMap<>();
 
-		registerChild(clientAvailabilitySwitchThresholdSettings);
+		registerChild(clientAvailabilitySwitchThresholdSettingsProvider.get());
 	}
 
 	public AvailabilitySettingNode getAvailabilityForClientId(ClientId clientId){

@@ -16,7 +16,6 @@
 package io.datarouter.virtualnode.redundant.mixin;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -128,7 +127,7 @@ extends QueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 				return messages;
 			}
 		}
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override

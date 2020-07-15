@@ -17,7 +17,6 @@ package io.datarouter.client.hbase.node.subentity;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -137,7 +136,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 	@Override
 	public List<D> getMulti(Collection<PK> pks, Config config){
 		if(pks == null || pks.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		String clientName = getClientId().getName();
 		String nodeName = getName();
@@ -157,7 +156,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 	@Override
 	public List<PK> getKeys(Collection<PK> pks, Config config){
 		if(pks == null || pks.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		String clientName = getClientId().getName();
 		String nodeName = getName();

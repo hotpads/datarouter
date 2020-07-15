@@ -50,7 +50,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		addTraceIdHeader = registerBoolean("addTraceIdHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");
 		latencyRecordedHandlers = registerCommaSeparatedStrings("latencyRecordedHandlers", defaultTo(new HashSet<>()));
-		logCpuTime = registerBoolean("logCpuTime", false);
+		logCpuTime = registerBoolean("logCpuTime", true);
 	}
 
 }

@@ -19,10 +19,13 @@ import java.util.Date;
 
 import javax.inject.Inject;
 
+import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 
+@Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
 public class DatarouterEmailServiceIntegrationTester{
 
 	@Inject

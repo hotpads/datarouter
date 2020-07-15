@@ -15,7 +15,6 @@
  */
 package io.datarouter.model.key.primary.base;
 
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -44,7 +43,7 @@ implements RegularPrimaryKey<PK>{
 
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 }

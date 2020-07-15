@@ -18,7 +18,6 @@ package io.datarouter.client.hbase.node.entity;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,7 +80,7 @@ extends BasePhysicalEntityNode<EK,E>{
 	@Override
 	public List<E> getEntities(Collection<EK> entityKeys, Config config){
 		if(entityKeys == null || entityKeys.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		List<Get> gets = entityKeys.stream()
 				.map(queryBuilder::getRowBytesWithPartition)

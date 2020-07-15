@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.listener.DatarouterAppListener;
@@ -47,7 +48,6 @@ public class WebappInstanceAppListener implements DatarouterAppListener{
 	@Override
 	public void onStartUp(){
 		try{
-			service.recordAppHeartbeatMetrics();
 			service.updateWebappInstanceTable();
 		}catch(Exception e){
 			// on start up exceptions might be thrown
@@ -65,8 +65,12 @@ public class WebappInstanceAppListener implements DatarouterAppListener{
 		}
 		try{
 			logger.info("external webapp deregistration start");
-			publisher.delete(key.getWebappName(), key.getServerName());
-			logger.warn("external webapp deregistration complete");
+			PublishingResponseDto response = publisher.delete(key.getWebappName(), key.getServerName());
+			if(!response.success){
+				logger.warn("error on webapp deregistration. message={}", response.message);
+			}else{
+				logger.warn("external webapp deregistration complete");
+			}
 		}catch(Exception e){
 			// on dev environments exceptions might be thrown
 			if(serverTypeDetector.mightBeDevelopment()){

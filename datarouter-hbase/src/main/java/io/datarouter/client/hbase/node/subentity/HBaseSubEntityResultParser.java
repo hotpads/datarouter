@@ -16,7 +16,6 @@
 package io.datarouter.client.hbase.node.subentity;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -128,14 +127,14 @@ public class HBaseSubEntityResultParser<
 
 	public List<PK> getPrimaryKeysWithMatchingQualifierPrefix(Result row, Integer limit){
 		if(row == null){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return getPrimaryKeysWithMatchingQualifierPrefix(row.listCells(), limit);
 	}
 
 	public List<PK> getPrimaryKeysWithMatchingQualifierPrefix(List<Cell> cells, Integer limit){
 		if(cells == null || cells.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		ArrayList<PK> pks = new ArrayList<>();
 		PK previousPk = null;
@@ -159,14 +158,14 @@ public class HBaseSubEntityResultParser<
 
 	public List<D> getDatabeansWithMatchingQualifierPrefix(Result row, Integer limit){
 		if(row == null){
-			return Collections.emptyList();
+			return List.of();
 		}
 		return getDatabeansForKvsWithMatchingQualifierPrefix(row.listCells(), limit);
 	}
 
 	public List<D> getDatabeansForKvsWithMatchingQualifierPrefix(List<Cell> cells, Integer limit){
 		if(cells == null || cells.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		List<D> databeans = new ArrayList<>();
 		D databean = null;

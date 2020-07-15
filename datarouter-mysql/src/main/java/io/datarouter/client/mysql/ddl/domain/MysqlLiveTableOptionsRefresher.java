@@ -29,6 +29,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.client.mysql.MysqlClientManager;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
 import io.datarouter.client.mysql.ddl.generate.imp.ConnectionSqlTableGenerator;
@@ -43,6 +44,8 @@ public class MysqlLiveTableOptionsRefresher{
 
 	@Inject
 	private MysqlConnectionPoolHolder mysqlConnectionPoolHolder;
+	@Inject
+	private MysqlClientManager mysqlClientManager;
 
 	private final Map<ClientAndTable,MysqlLiveTableOptions> map = new ConcurrentHashMap<>();
 
@@ -54,16 +57,29 @@ public class MysqlLiveTableOptionsRefresher{
 		phaseTimer.add("getPool");
 		String schemaName = connectionPool.getSchemaName();
 		phaseTimer.add("getSchema");
+		boolean dedicatedConnection = false;
+		Connection connection = mysqlClientManager.getExistingConnection(clientAndTable.clientId);
+		phaseTimer.add("getExistingConnection");
+		if(connection == null){
+			mysqlClientManager.reserveConnection(clientAndTable.clientId);
+			phaseTimer.add("reserveConnection");
+			connection = mysqlClientManager.getExistingConnection(clientAndTable.clientId);
+			phaseTimer.add("getExistingConnection");
+			dedicatedConnection = true;
+		}
 		SqlTableMetadata sqlTableMetadata;
-		// TODO create a new connection or use a dedicated pool
-		try(Connection connection = connectionPool.checkOut()){
-			phaseTimer.add("checkOut");
+		try{
 			sqlTableMetadata = ConnectionSqlTableGenerator.fetchSqlTableMetadata(connection, schemaName,
 					clientAndTable.tableName);
+			phaseTimer.add("fetchSqlTableMetadata");
 		}catch(SQLException e){
 			throw new RuntimeException("schema=" + schemaName + " table=" + clientAndTable.tableName, e);
+		}finally{
+			if(dedicatedConnection){
+				mysqlClientManager.releaseConnection(clientAndTable.clientId);
+				phaseTimer.add("releaseConnection");
+			}
 		}
-		phaseTimer.add("fetchSqlTableMetadata");
 		logger.debug("{} {}", clientAndTable, phaseTimer);
 		counter.addAndGet(phaseTimer.getElapsedTimeBetweenFirstAndLastEvent());
 		return new MysqlLiveTableOptions(sqlTableMetadata.characterSet, sqlTableMetadata.collation);

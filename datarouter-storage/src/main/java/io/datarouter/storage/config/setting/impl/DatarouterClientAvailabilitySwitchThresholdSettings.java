@@ -26,6 +26,9 @@ import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
 
+/**
+ * It's recommended to use DatarouterClientAvailabilitySwitchThresholdSettingsProvider to avoid a circular dependency
+ */
 @Singleton
 public class DatarouterClientAvailabilitySwitchThresholdSettings extends SettingNode{
 

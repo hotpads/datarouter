@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.config.DatarouterEmailSettings;
 import io.datarouter.web.config.DatarouterEmailSettings.DatarouterEmailHostDetails;
+import io.datarouter.web.config.DatarouterEmailSettingsProvider;
 
 @Singleton
 public class DatarouterEmailService{
@@ -41,12 +41,12 @@ public class DatarouterEmailService{
 	@Inject
 	private DatarouterService datarouterService;
 	@Inject
-	private DatarouterEmailSettings datarouterEmailSettings;
+	private DatarouterEmailSettingsProvider datarouterEmailSettingsProvider;
 
 	public DatarouterEmailLinkBuilder startLinkBuilder(){
 		return new DatarouterEmailLinkBuilder()
 				.withProtocol("https")
-				.withHostPort(datarouterEmailSettings.emailLinkHostPort.get())
+				.withHostPort(datarouterEmailSettingsProvider.get().emailLinkHostPort())
 				.withContextPath(datarouterService.getContextPath());
 	}
 
@@ -69,11 +69,12 @@ public class DatarouterEmailService{
 
 	public void send(String fromEmail, String toEmail, String replyToEmail, String subject, String body, boolean html)
 	throws MessagingException{
-		if(!datarouterEmailSettings.sendDatarouterEmails.get()){
+		if(!datarouterEmailSettingsProvider.get().sendDatarouterEmails()){
 			return;
 		}
 		Properties props = new Properties();
-		DatarouterEmailHostDetails emailHostDetails = datarouterEmailSettings.getDatarouterEmailHostDetails();
+		DatarouterEmailHostDetails emailHostDetails = datarouterEmailSettingsProvider.get()
+				.getDatarouterEmailHostDetails();
 		if(StringTool.notNullNorEmpty(emailHostDetails.smtpPassword)){
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.starttls.enable", "true");

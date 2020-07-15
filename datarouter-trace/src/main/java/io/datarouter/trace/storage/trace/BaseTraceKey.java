@@ -15,7 +15,6 @@
  */
 package io.datarouter.trace.storage.trace;
 
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -34,7 +33,7 @@ extends BaseEntityPrimaryKey<EK,PK>{
 
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	@Override

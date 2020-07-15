@@ -20,7 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.config.DatarouterEmailSettings;
+import io.datarouter.web.config.DatarouterEmailSettingsProvider;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.html.email.J2HtmlDatarouterEmail;
@@ -39,7 +39,7 @@ public class DatarouterHtmlEmailService{
 	@Inject
 	private DatarouterEmailService datarouterEmailService;
 	@Inject
-	private DatarouterEmailSettings datarouterEmailSettings;
+	private DatarouterEmailSettingsProvider datarouterEmailSettingsProvider;
 
 	public void trySend(String fromEmail, String toEmail, String subject, String body){
 		datarouterEmailService.trySend(fromEmail, toEmail, subject, body, true);
@@ -60,7 +60,7 @@ public class DatarouterHtmlEmailService{
 	}
 
 	public J2HtmlDatarouterEmailBuilder startEmailBuilder(){
-		boolean includeLogo = datarouterEmailSettings.includeLogo.get();
+		boolean includeLogo = datarouterEmailSettingsProvider.get().includeLogo();
 		var emailBuilder = new J2HtmlDatarouterEmailBuilder()
 				.withWebappName(datarouterService.getName())
 				.withIncludeLogo(includeLogo);
@@ -76,7 +76,7 @@ public class DatarouterHtmlEmailService{
 	}
 
 	private String getEmailLogoHref(){
-		String configuredHref = datarouterEmailSettings.logoImgSrc.get();
+		String configuredHref = datarouterEmailSettingsProvider.get().logoImgSrc();
 		if(StringTool.notEmpty(configuredHref)){
 			return configuredHref;
 		}

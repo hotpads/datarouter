@@ -40,6 +40,16 @@ public class PathNodeTests{
 	}
 
 	@Test
+	public void testJoin(){
+		var paths = new TestPaths();
+		PathNode cc = paths.aa.bb.cc;
+		Assert.assertEquals(cc.join("/", "/", "/"), "/aa/bb/cc/");
+		Assert.assertEquals(cc.join("/", "/", ""), "/aa/bb/cc");
+		Assert.assertEquals(cc.join("", "/", "/"), "aa/bb/cc/");
+		Assert.assertEquals(cc.join("", "/", ""), "aa/bb/cc");
+	}
+
+	@Test
 	public void testToSlashedString(){
 		var paths = new TestPaths();
 		Assert.assertEquals(paths.aa.toSlashedString(), "/aa");

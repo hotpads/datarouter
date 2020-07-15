@@ -16,7 +16,6 @@
 package io.datarouter.gcp.spanner.op.read;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -99,7 +98,7 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 		}
 		List<F> result = createFromResultSet(rs, object, fields);
 		if(offset >= result.size()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		if(offset > 0){
 			return result.subList(offset, result.size());

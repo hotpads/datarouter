@@ -265,7 +265,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		protected List<Result> nextPage(ByteRange resumeFrom){
 			Require.isFalse(closed, "don't call me, i'm closed");
 			if(limit.isPresent() && numFetched >= limit.get()){
-				return Collections.emptyList();
+				return List.of();
 			}
 			if(resumeFrom != null){
 				mutableRange.setStart(resumeFrom);
@@ -283,7 +283,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				return page;
 			}catch(IOException e){
 				if(closed){
-					return Collections.emptyList();
+					return List.of();
 				}
 				throw new RuntimeException(e);
 			}

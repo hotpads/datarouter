@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.storage.accountpermission;
 
-import java.util.Collections;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -42,7 +41,7 @@ extends BaseDatabean<DatarouterAccountPermissionKey,DatarouterAccountPermission>
 
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterAccountPermission databean){
-			return Collections.emptyList();
+			return List.of();
 		}
 
 	}

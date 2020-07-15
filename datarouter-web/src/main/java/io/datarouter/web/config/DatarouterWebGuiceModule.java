@@ -24,6 +24,7 @@ import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.NoOpChangelogRecorder;
+import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder.DatarouterSecretPluginBuilderImpl;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
@@ -67,6 +68,7 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
 	@Override
 	protected void configureServlets(){
+		install(new DatarouterSecretPluginBuilderImpl().build().getAsDefaultBinderModule());
 		install(new DatarouterStorageGuiceModule());
 		bind(ServletContextSupplier.class).toInstance(new ServletContextProvider(getServletContext()));
 

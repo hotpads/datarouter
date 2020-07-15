@@ -15,13 +15,12 @@
  */
 package io.datarouter.pathnode;
 
-import java.util.Collections;
 import java.util.List;
 
 public abstract class FilesRoot extends PathNode{
 
 	public List<String> filesToOmit(){
-		return Collections.emptyList();
+		return List.of();
 	}
 
 	public static class NoOpFilesRoot extends FilesRoot{

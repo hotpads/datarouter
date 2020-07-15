@@ -15,7 +15,6 @@
  */
 package io.datarouter.plugin.copytable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -53,7 +52,7 @@ public interface CopyTableConfiguration{
 
 		@Override
 		public List<String> getFilterNames(){
-			return Collections.emptyList();
+			return List.of();
 		}
 
 		@Override

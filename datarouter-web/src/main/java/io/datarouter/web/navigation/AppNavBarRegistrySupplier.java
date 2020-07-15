@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.navigation;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -25,7 +24,7 @@ public interface AppNavBarRegistrySupplier extends Supplier<List<NavBarItem>>{
 
 		@Override
 		public List<NavBarItem> get(){
-			return Collections.emptyList();
+			return List.of();
 		}
 
 	}

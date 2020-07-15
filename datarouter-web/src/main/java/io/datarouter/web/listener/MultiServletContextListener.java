@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.listener;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public abstract class MultiServletContextListener implements ServletContextListe
 	private final List<ServletContextListener> listeners;
 
 	public MultiServletContextListener(List<ServletContextListener> listeners){
-		this.listeners = listeners;
+		this.listeners = new ArrayList<>(listeners); // needs to be mutable
 	}
 
 	@Override

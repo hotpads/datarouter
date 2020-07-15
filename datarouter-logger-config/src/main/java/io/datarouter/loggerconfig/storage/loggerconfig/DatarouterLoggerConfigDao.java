@@ -18,7 +18,6 @@ package io.datarouter.loggerconfig.storage.loggerconfig;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +109,7 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 				.filter(DatarouterLoggerConfigDao::shouldExpire)
 				.collect(Collectors.toSet());
 		if(expiredLoggerConfigs.isEmpty()){
-			return Collections.emptyList();
+			return List.of();
 		}
 		config.getLoggerConfigs().removeIf(expiredLoggerConfigs::contains);
 		deleteLoggerConfigs(expiredLoggerConfigs);

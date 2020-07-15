@@ -23,7 +23,7 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
-public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>{
+public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey,PutOpTestBean>{
 
 	private String strC;
 
@@ -65,4 +65,5 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey, PutOpTestBean>
 	public void setC(String strC){
 		this.strC = strC;
 	}
+
 }
