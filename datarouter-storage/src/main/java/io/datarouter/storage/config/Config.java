@@ -204,6 +204,11 @@ public class Config implements Cloneable{
 		return this;
 	}
 
+	public Config anyDelay(){
+		this.slaveOk = true;
+		return this;
+	}
+
 	/*---------------------------- cache ok ---------------------------------*/
 
 	public Boolean getCacheOk(){

@@ -39,8 +39,8 @@ public class WebSocketSessionKey extends BaseRegularPrimaryKey<WebSocketSessionK
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(
-			new StringField(FieldKeys.userToken, userToken),
-			new UInt63Field(FieldKeys.id, id));
+				new StringField(FieldKeys.userToken, userToken),
+				new UInt63Field(FieldKeys.id, id));
 	}
 
 	public WebSocketSessionKey(){

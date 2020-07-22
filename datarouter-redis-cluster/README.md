@@ -9,7 +9,7 @@ datarouter-redis-cluster is a simple client that implements the MapStorage inter
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-redis-cluster</artifactId>
-	<version>0.0.40</version>
+	<version>0.0.41</version>
 </dependency>
 ```
 

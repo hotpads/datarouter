@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.queue;
 
+import java.nio.charset.StandardCharsets;
+
 public class QueueMessageKey{
 
 	private byte[] handle;
@@ -25,6 +27,10 @@ public class QueueMessageKey{
 
 	public byte[] getHandle(){
 		return handle;
+	}
+
+	public String getStringHandle(){
+		return new String(handle, StandardCharsets.UTF_8);
 	}
 
 }

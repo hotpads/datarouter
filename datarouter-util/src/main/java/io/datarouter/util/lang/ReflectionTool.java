@@ -253,7 +253,7 @@ public class ReflectionTool{
 	 * @return a list of the declared Fields not including any inherited field.
 	 */
 	public static List<Field> getDeclaredFields(Class<?> cls){
-		return Arrays.asList(cls.getDeclaredFields());
+		return List.of(cls.getDeclaredFields());
 	}
 
 	/*------------------------- get Method ----------------------------------*/

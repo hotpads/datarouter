@@ -467,10 +467,10 @@ public class StringTool{
 		String stringValue = string;
 		//replace \ with \\
 		stringValue = RegexTool.BACKSLASH_PATTERN.matcher(stringValue)
-						.replaceAll(Matcher.quoteReplacement("\\\\"));
+				.replaceAll(Matcher.quoteReplacement("\\\\"));
 		//replace ' with \'
 		stringValue = RegexTool.APOSTROPHE_PATTERN.matcher(stringValue)
-						.replaceAll(Matcher.quoteReplacement("\\'"));
+				.replaceAll(Matcher.quoteReplacement("\\'"));
 		return "'" + stringValue + "'";
 	}
 

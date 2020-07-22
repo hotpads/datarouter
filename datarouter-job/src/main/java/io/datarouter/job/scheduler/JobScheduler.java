@@ -173,7 +173,7 @@ public class JobScheduler{
 		jobCounters.schedulingImmediately(jobPackage.jobClass);
 		BaseJob nextJobInstance = injector.getInstance(jobPackage.jobClass);
 		JobWrapper jobWrapper = jobWrapperFactory.createScheduled(jobPackage, nextJobInstance, officialTriggerTime,
-				new Date(), getClass().getSimpleName());
+				new Date(), getClass().getSimpleName() + " scheduleMissedRunImmediately");
 		schedule(jobWrapper, 0, TimeUnit.MILLISECONDS);
 	}
 

@@ -15,12 +15,11 @@
  */
 package io.datarouter.storage.servertype;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.web.HtmlSelectOptionBean;
 
 public class BaseServerTypes implements ServerTypes{
@@ -79,17 +78,17 @@ public class BaseServerTypes implements ServerTypes{
 
 	@Override
 	public ServerType fromPersistentString(String str){
-		return Arrays.stream(values())
-				.filter(serverType -> serverType.getPersistentString().equals(str))
+		return Scanner.of(values())
+				.include(serverType -> serverType.getPersistentString().equals(str))
 				.findAny()
 				.orElseThrow(() -> new RuntimeException("Unknown server type: " + str));
 	}
 
 	@Override
 	public List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames(){
-		return Arrays.stream(values())
+		return Scanner.of(values())
 				.map(serverType -> new HtmlSelectOptionBean(serverType.getDisplay(), serverType.getPersistentString()))
-				.collect(Collectors.toList());
+				.list();
 	}
 
 }

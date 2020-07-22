@@ -39,6 +39,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterClientFactoryExecutor;
 import io.datarouter.util.concurrent.FutureTool;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
@@ -131,9 +132,11 @@ public class DatarouterClients{
 		for(ClientId clientId : clientInitializationTracker.getInitializedClients()){
 			ClientManager clientManager = getClientManager(clientId);
 			try{
+				long start = System.currentTimeMillis();
 				clientManager.shutdown(clientId);
+				logger.warn("shutted down client={} duration={}", clientId.getName(), DatarouterDuration.ageMs(start));
 			}catch(Exception e){
-				logger.warn("swallowing exception while shutting down client " + clientId, e);
+				logger.warn("swallowing exception while shutting down client=" + clientId, e);
 			}
 		}
 	}

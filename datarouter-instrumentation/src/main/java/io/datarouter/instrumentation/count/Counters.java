@@ -64,7 +64,7 @@ public class Counters{
 
 	public static void inc(String key, long delta){
 		for(int i = 0; i < COLLECTORS.size(); ++i){
-			COLLECTORS.get(i).increment(key.intern(), delta);
+			COLLECTORS.get(i).increment(key, delta);
 		}
 	}
 

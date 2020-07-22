@@ -69,7 +69,7 @@ public class DatarouterAuthenticationFilter implements Filter{
 		final HttpServletResponse response = (HttpServletResponse)res;
 
 		if(shutdownService.isShutdownOngoing()){
-			logger.info("receiving path={}", RequestTool.getPath(request));
+			logger.warn("receiving path={}", RequestTool.getPath(request));
 		}else{
 			logger.debug("receiving path={}", RequestTool.getPath(request));
 		}

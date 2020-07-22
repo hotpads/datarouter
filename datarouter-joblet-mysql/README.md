@@ -9,7 +9,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-joblet-mysql</artifactId>
-	<version>0.0.40</version>
+	<version>0.0.41</version>
 </dependency>
 ```
 

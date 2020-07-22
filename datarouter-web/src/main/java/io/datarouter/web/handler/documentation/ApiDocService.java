@@ -223,7 +223,7 @@ public class ApiDocService{
 			ParameterizedType parameterizedType = (ParameterizedType)type;
 			Class<?> rawType = (Class<?>)parameterizedType.getRawType();
 			if(List.class.isAssignableFrom(rawType)){
-				return Arrays.asList(createBestExample(parameterizedType.getActualTypeArguments()[0], parentsWithType));
+				return List.of(createBestExample(parameterizedType.getActualTypeArguments()[0], parentsWithType));
 			}
 			if(Set.class.isAssignableFrom(rawType) || Collection.class.isAssignableFrom(rawType)){
 				return Collections.singleton(createBestExample(parameterizedType.getActualTypeArguments()[0],

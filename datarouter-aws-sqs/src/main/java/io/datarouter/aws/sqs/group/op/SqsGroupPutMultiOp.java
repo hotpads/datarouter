@@ -15,12 +15,9 @@
  */
 package io.datarouter.aws.sqs.group.op;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
@@ -42,9 +39,6 @@ public class SqsGroupPutMultiOp<
 extends SqsOp<PK,D,F,Void>{
 
 	private final Collection<D> databeans;
-	private final byte[] collectionPrefix;
-	private final byte[] collectionSeparator;
-	private final byte[] collectionSuffix;
 	private final int maxBoundedBytesPerMessage;
 	private final SqsClientManager sqsClientManager;
 	private final ClientId clientId;
@@ -59,11 +53,8 @@ extends SqsOp<PK,D,F,Void>{
 		this.databeans = databeans;
 		this.sqsClientManager = sqsClientManager;
 		this.clientId = clientId;
-		this.collectionPrefix = StringByteTool.getUtf8Bytes(codec.getCollectionPrefix());
-		this.collectionSeparator = StringByteTool.getUtf8Bytes(codec.getCollectionSeparator());
-		this.collectionSuffix = StringByteTool.getUtf8Bytes(codec.getCollectionSuffix());
-		this.maxBoundedBytesPerMessage = BaseSqsNode.MAX_BYTES_PER_MESSAGE - collectionPrefix.length
-				- collectionSuffix.length;
+		this.maxBoundedBytesPerMessage = BaseSqsNode.MAX_BYTES_PER_MESSAGE - codec.getCollectionPrefixBytes().length
+				- codec.getCollectionSuffixBytes().length;
 	}
 
 	@Override
@@ -82,7 +73,7 @@ extends SqsOp<PK,D,F,Void>{
 			}
 			encodedDatabeans.add(databeanAsBytes);
 		}
-		makeGroups(encodedDatabeans, collectionSeparator, maxBoundedBytesPerMessage).forEach(this::flush);
+		codec.makeGroups(encodedDatabeans, maxBoundedBytesPerMessage).forEach(this::flush);
 		if(!rejectedDatabeans.isEmpty()){
 			throw new SqsDataTooLargeException(rejectedDatabeans);
 		}
@@ -93,46 +84,9 @@ extends SqsOp<PK,D,F,Void>{
 		if(group.isEmpty()){
 			return;
 		}
-		String stringGroup = concatGroup(group, collectionPrefix, collectionSuffix, collectionSeparator);
+		String stringGroup = codec.concatGroup(group);
 		SendMessageRequest request = new SendMessageRequest(queueUrl, stringGroup);
 		sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
-	}
-
-	public static Set<List<byte[]>> makeGroups(
-			List<byte[]> encodedDatabeans,
-			byte[] separator,
-			int maxBoundedBytesPerMessage){
-		Set<List<byte[]>> groupsToFlush = new HashSet<>();
-		List<byte[]> group = new ArrayList<>();
-		int groupLengthWithoutSeparators = 0;
-		for(byte[] encodedDatabean : encodedDatabeans){
-			int totalGroupLength = groupLengthWithoutSeparators + encodedDatabean.length + separator.length * group
-					.size();
-			if(totalGroupLength > maxBoundedBytesPerMessage){
-				groupsToFlush.add(group);
-				group = new ArrayList<>();
-				groupLengthWithoutSeparators = 0;
-			}
-			group.add(encodedDatabean);
-			groupLengthWithoutSeparators += encodedDatabean.length;
-		}
-		if(!group.isEmpty()){
-			groupsToFlush.add(group);
-		}
-		return groupsToFlush;
-	}
-
-	public static String concatGroup(List<byte[]> group, byte[] prefix, byte[] suffix, byte[] separator){
-		var databeanGroup = new ByteArrayOutputStream();
-		databeanGroup.write(prefix, 0, prefix.length);
-		for(int i = 0; i < group.size(); i++){
-			databeanGroup.write(group.get(i), 0, group.get(i).length);
-			if(i < group.size() - 1){
-				databeanGroup.write(separator, 0, separator.length);
-			}
-		}
-		databeanGroup.write(suffix, 0, suffix.length);
-		return StringByteTool.fromUtf8Bytes(databeanGroup.toByteArray());
 	}
 
 }

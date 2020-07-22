@@ -15,7 +15,6 @@
  */
 package io.datarouter.storage.file;
 
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -47,7 +46,7 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 
 	@Override
 	public List<Field<?>> getFields(){
-		return Arrays.asList(
+		return List.of(
 				new StringField(FieldKeys.path, path),
 				new StringField(FieldKeys.file, file));
 	}

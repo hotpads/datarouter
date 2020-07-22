@@ -185,7 +185,7 @@ public class RequestTool{
 		if(StringTool.isEmpty(stringVal)){
 			return defaultValue;
 		}
-		return Arrays.asList(stringVal.split(delimiter));
+		return List.of(stringVal.split(delimiter));
 	}
 
 

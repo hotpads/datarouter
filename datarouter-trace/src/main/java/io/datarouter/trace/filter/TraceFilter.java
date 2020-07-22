@@ -37,6 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.management.ThreadMXBean;
+
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.trace.TraceDto;
@@ -62,6 +64,8 @@ import io.datarouter.web.util.http.RequestTool;
 
 public abstract class TraceFilter implements Filter, InjectorRetriever{
 	private static final Logger logger = LoggerFactory.getLogger(TraceFilter.class);
+
+	private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getPlatformMXBean(ThreadMXBean.class);
 
 	private DatarouterProperties datarouterProperties;
 	private DatarouterTraceFilterSettingRoot traceSettings;
@@ -109,9 +113,13 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			String requestThreadName = (request.getContextPath() + " request").trim();
 			tracer.createAndStartThread(requestThreadName, System.currentTimeMillis());
 
-			boolean saveCpuTime = traceSettings.logCpuTime.get();
-			Long threadId = saveCpuTime ? Thread.currentThread().getId() : null;
-			Long cpuTimeBegin = saveCpuTime ? ManagementFactory.getThreadMXBean().getThreadCpuTime(threadId) : null;
+			Long threadId = Thread.currentThread().getId();
+			boolean logCpuTime = traceSettings.logCpuTime.get();
+			Long cpuTimeBegin = logCpuTime ? THREAD_MX_BEAN.getThreadCpuTime(threadId) : null;
+			boolean logAllocatedBytes = traceSettings.logAllocatedBytes.get();
+			Long threadAllocatedBytesBegin = logAllocatedBytes
+					? THREAD_MX_BEAN.getThreadAllocatedBytes(threadId)
+					: null;
 
 			boolean errored = false;
 			try{
@@ -120,11 +128,15 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				errored = true;
 				throw e;
 			}finally{
-				Long cpuTime = saveCpuTime ? ManagementFactory.getThreadMXBean().getThreadCpuTime(threadId)
-						- cpuTimeBegin : null;
+				Long cpuTime = logCpuTime
+						? THREAD_MX_BEAN.getThreadCpuTime(threadId) - cpuTimeBegin
+						: null;
 				if(cpuTime != null){
 					cpuTime = TimeUnit.NANOSECONDS.toMillis(cpuTime);
 				}
+				Long threadAllocatedKB = logAllocatedBytes
+						? (THREAD_MX_BEAN.getThreadAllocatedBytes(threadId) - threadAllocatedBytesBegin) / 1024
+						: null;
 
 				tracer.finishThread();
 				trace.markFinished();
@@ -145,14 +157,15 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					String userToken = currentSessionInfo.getSession(request)
 							.map(Session::getUserToken)
 							.orElse("unknown");
-					logger.warn("Trace saved to={} traceId={} durationMs={} requestId={} path={} query={}"
-							+ " cpuTimeMs={} userAgent=\"{}\" userToken={}", destination, trace.getTraceId(),
-							traceDurationMs, requestId, trace.getType(), trace.getParams(),
-							cpuTime, userAgent, userToken);
+					logger.warn("Trace saved to={} traceId={} durationMs={} cpuTimeMs={} threadAllocatedKB={}"
+							+ " requestId={} path={} query={} userAgent=\"{}\" userToken={}", destination, trace
+							.getTraceId(), traceDurationMs, cpuTime, threadAllocatedKB, requestId, trace.getType(),
+							trace.getParams(), userAgent, userToken);
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()){
 					// only log once
-					logger.warn("Trace logged durationMs={} cpuTimeMs={} requestId={} path={} query={}",
-							traceDurationMs, cpuTime, requestId, trace.getType(), trace.getParams());
+					logger.warn("Trace logged durationMs={} cpuTimeMs={} threadAllocatedKB={} requestId={} path={}"
+							+ " query={}", traceDurationMs, cpuTime, threadAllocatedKB, requestId, trace.getType(),
+							trace.getParams());
 				}
 				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool
 						.get(request, BaseHandler.HANDLER_CLASS);
