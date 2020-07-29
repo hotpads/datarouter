@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.virtualnode.masterslave;
+package io.datarouter.virtualnode.replication;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,38 +33,38 @@ import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
-public abstract class BaseMasterSlaveNode<
+public abstract class BaseReplicationNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends Node<PK,D,F>>
 extends BaseNode<PK,D,F>
-implements MasterSlaveNode<PK,D,F,N>{
+implements ReplicationNode<PK,D,F,N>{
 
-	protected final N master;
-	protected final List<N> slaves;
-	protected final List<N> masterAndSlaves;
-	protected final AtomicInteger slaveRequestCounter;
+	protected final N primary;
+	protected final List<N> replicas;
+	protected final List<N> primaryAndReplicas;
+	protected final AtomicInteger replicaRequestCounter;
 
-	public BaseMasterSlaveNode(N master, Collection<N> slaves){
+	public BaseReplicationNode(N primary, Collection<N> replicas){
 		super(new NodeParamsBuilder<>(
-				master.getFieldInfo().getDatabeanSupplier(),
-				master.getFieldInfo().getFielderSupplier())
+				primary.getFieldInfo().getDatabeanSupplier(),
+				primary.getFieldInfo().getFielderSupplier())
 				.build());
-		this.slaves = new ArrayList<>();
-		this.masterAndSlaves = new ArrayList<>();
-		this.slaveRequestCounter = new AtomicInteger(0);
-		this.master = master;
-		this.masterAndSlaves.add(master);
-		this.slaves.addAll(slaves);
-		this.masterAndSlaves.addAll(slaves);
+		this.replicas = new ArrayList<>();
+		this.primaryAndReplicas = new ArrayList<>();
+		this.replicaRequestCounter = new AtomicInteger(0);
+		this.primary = primary;
+		this.primaryAndReplicas.add(primary);
+		this.replicas.addAll(replicas);
+		this.primaryAndReplicas.addAll(replicas);
 	}
 
 	/*--------------- node methods -------------------*/
 
 	@Override
 	public String getName(){
-		return masterAndSlaves.stream()
+		return primaryAndReplicas.stream()
 				.map(Node::getName)
 				.collect(Collectors.joining(",", getClass().getSimpleName() + "[", "]"));
 	}
@@ -72,8 +72,8 @@ implements MasterSlaveNode<PK,D,F,N>{
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodes(){
 		List<PhysicalNode<PK,D,F>> all = new ArrayList<>();
-		all.addAll(master.getPhysicalNodes());
-		slaves.stream()
+		all.addAll(primary.getPhysicalNodes());
+		replicas.stream()
 				.map(N::getPhysicalNodes)
 				.forEach(all::addAll);
 		return all;
@@ -82,17 +82,17 @@ implements MasterSlaveNode<PK,D,F,N>{
 	@Override
 	public List<PhysicalNode<PK,D,F>> getPhysicalNodesForClient(String clientName){
 		List<PhysicalNode<PK,D,F>> all = new ArrayList<>();
-		all.addAll(master.getPhysicalNodesForClient(clientName));
-		slaves.stream()
-				.map(slave -> slave.getPhysicalNodesForClient(clientName))
+		all.addAll(primary.getPhysicalNodesForClient(clientName));
+		replicas.stream()
+				.map(replica -> replica.getPhysicalNodesForClient(clientName))
 				.forEach(all::addAll);
 		return all;
 	}
 
 	@Override
 	public List<ClientId> getClientIds(){
-		Set<ClientId> clientIds = new HashSet<>(master.getClientIds());
-		slaves.stream()
+		Set<ClientId> clientIds = new HashSet<>(primary.getClientIds());
+		replicas.stream()
 				.map(N::getClientIds)
 				.forEach(clientIds::addAll);
 		return new ArrayList<>(clientIds);
@@ -100,34 +100,34 @@ implements MasterSlaveNode<PK,D,F,N>{
 
 	@Override
 	public boolean usesClient(String clientName){
-		if(master.usesClient(clientName)){
+		if(primary.usesClient(clientName)){
 			return true;
 		}
-		return slaves.stream()
-				.filter(slave -> slave.usesClient(clientName))
+		return replicas.stream()
+				.filter(replica -> replica.usesClient(clientName))
 				.findAny()
 				.isPresent();
 	}
 
-	/*---------------- MasterSlaveNode methods ---------------------*/
+	/*---------------- Replication methods ---------------------*/
 
 	@Override
-	public N getMaster(){
-		return master;
+	public N getPrimary(){
+		return primary;
 	}
 
 	@Override
 	public List<N> getChildNodes(){
-		return masterAndSlaves;
+		return primaryAndReplicas;
 	}
 
 	@Override
-	public N chooseSlave(Config config){
-		if(slaves.isEmpty()){
-			return master;
+	public N chooseReplica(Config config){
+		if(replicas.isEmpty()){
+			return primary;
 		}
-		int slaveIndex = slaveRequestCounter.incrementAndGet() % slaves.size();
-		return slaves.get(slaveIndex);
+		int replicaIndex = replicaRequestCounter.incrementAndGet() % replicas.size();
+		return replicas.get(replicaIndex);
 	}
 
 }

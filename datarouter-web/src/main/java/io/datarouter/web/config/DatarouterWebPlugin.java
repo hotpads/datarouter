@@ -309,7 +309,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		private final DatarouterService datarouterService;
 		private final ClientId defaultClientId;
-		private DatarouterWebDaoModule daoModule;
 
 		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
 		private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
@@ -403,11 +402,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder setDaoModule(DatarouterWebDaoModule daoModule){
-			this.daoModule = daoModule;
-			return this;
-		}
-
 		public DatarouterWebPluginBuilder setDatarouterNavBarMenuItems(
 				List<NavBarItem> datarouterNavBarPluginItems){
 			this.datarouterNavBarPluginItems = datarouterNavBarPluginItems;
@@ -474,7 +468,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
-					daoModule != null ? daoModule : new DatarouterWebDaoModule(defaultClientId),
+					new DatarouterWebDaoModule(defaultClientId),
 					homepageRouteSet,
 					customStaticFileFilterRegex);
 		}
@@ -494,7 +488,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					webAppListenerClasses,
 					roleManagerClass,
 					userSessionServiceClass,
-					daoModule == null ? new DatarouterWebDaoModule(defaultClientId) : daoModule,
+					new DatarouterWebDaoModule(defaultClientId),
 					datarouterNavBarPluginItems,
 					appNavBarPluginItems,
 					datarouterUserExternalDetail,

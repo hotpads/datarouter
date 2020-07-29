@@ -24,7 +24,6 @@ import javax.servlet.ServletContextListener;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.job.config.DatarouterJobWebappConfigBuilder;
-import io.datarouter.joblet.config.DatarouterJobletPlugin.DatarouterJobletDaoModule;
 import io.datarouter.joblet.config.DatarouterJobletPlugin.DatarouterJobletPluginBuilder;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.NoOpJobletExternalLinkBuilder;
@@ -97,9 +96,8 @@ extends DatarouterJobWebappConfigBuilder<T>{
 		addJobletPluginWithoutInstalling(jobletPluginBuilder.getSimplePluginData());
 		DatarouterJobletPlugin jobletPlugin = jobletPluginBuilder
 				.setJobletTypes(jobletTypes)
-				.setDaoModule(new DatarouterJobletDaoModule(defaultClientId, defaultQueueClientId, defaultClientId))
 				.setExternalLinkBuilderClass(jobletExternalLinkBuilder)
-          		.withSelectorTypes(selectorTypes)
+				.withSelectorTypes(selectorTypes)
 				.build();
 		modules.add(jobletPlugin);
 		return super.build();

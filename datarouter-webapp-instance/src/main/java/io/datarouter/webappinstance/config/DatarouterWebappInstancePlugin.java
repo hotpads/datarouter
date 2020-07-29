@@ -62,16 +62,10 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 	public static class DatarouterWebappInstancePluginBuilder{
 
 		private final ClientId defaultClientId;
-		private DatarouterWebappInstanceDaoModule daoModule;
 		private Class<? extends WebappInstancePublisher> webappInstancePublisher = NoOpWebappInstancePublisher.class;
 
 		public DatarouterWebappInstancePluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
-		}
-
-		public DatarouterWebappInstancePluginBuilder setDaoModule(DatarouterWebappInstanceDaoModule module){
-			this.daoModule = module;
-			return this;
 		}
 
 		public DatarouterWebappInstancePluginBuilder withWebappInstancePublisher(
@@ -82,9 +76,7 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 
 		public DatarouterWebappInstancePlugin build(){
 			return new DatarouterWebappInstancePlugin(
-					daoModule == null
-							? new DatarouterWebappInstanceDaoModule(defaultClientId, defaultClientId, defaultClientId)
-							: daoModule,
+					new DatarouterWebappInstanceDaoModule(defaultClientId, defaultClientId, defaultClientId),
 					webappInstancePublisher);
 		}
 

@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.41</version>
+		<version>0.0.42</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -45,12 +45,18 @@
 		<dependency><!-- used in FieldTool: StringEscapeUtils.escapeCsv -->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
-			<version>1.8</version>
+			<version>1.9</version>
 		</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
 			<version>${testng-version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-logging</artifactId>
+			<version>${datarouter-version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

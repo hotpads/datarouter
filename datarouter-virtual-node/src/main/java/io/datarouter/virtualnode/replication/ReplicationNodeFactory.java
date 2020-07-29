@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.virtualnode.masterslave;
+package io.datarouter.virtualnode.replication;
 
 import java.util.Collection;
 import java.util.List;
@@ -39,7 +39,7 @@ import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.node.tableconfig.NodewatchConfigurationBuilder;
 
 @Singleton
-public class MasterSlaveNodeFactory{
+public class ReplicationNodeFactory{
 
 	@Inject
 	private Datarouter datarouter;
@@ -51,15 +51,15 @@ public class MasterSlaveNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N build(
-			ClientId masterClientId,
-			Collection<ClientId> slaveClientIds,
+			ClientId primaryClientId,
+			Collection<ClientId> replicaClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-	N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier).build();
-		Function<ClientId,N> buildSlaveFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
+	N primary = nodeFactory.create(primaryClientId, databeanSupplier, fielderSupplier).build();
+		Function<ClientId,N> buildReplicaFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
 				fielderSupplier).build();
-		List<N> slaves = Scanner.of(slaveClientIds).map(buildSlaveFunction).list();
-		return make(master, slaves);
+		List<N> replicas = Scanner.of(replicaClientIds).map(buildReplicaFunction).list();
+		return make(primary, replicas);
 	}
 
 	public <PK extends RegularPrimaryKey<PK>,
@@ -67,18 +67,20 @@ public class MasterSlaveNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N build(
-			ClientId masterClientId,
-			Collection<ClientId> slaveClientIds,
+			ClientId primaryClientId,
+			Collection<ClientId> replicaClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			String tableName){
-		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier)
+		N primary = nodeFactory.create(primaryClientId, databeanSupplier, fielderSupplier)
 				.withTableName(tableName)
 				.build();
-		Function<ClientId,N> buildSlaveFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
-				fielderSupplier).withTableName(tableName).build();
-		List<N> slaves = Scanner.of(slaveClientIds).map(buildSlaveFunction).list();
-		return make(master, slaves);
+		Function<ClientId,N> buildReplicaFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
+				fielderSupplier)
+				.withTableName(tableName)
+				.build();
+		List<N> replicas = Scanner.of(replicaClientIds).map(buildReplicaFunction).list();
+		return make(primary, replicas);
 	}
 
 	public <PK extends RegularPrimaryKey<PK>,
@@ -86,18 +88,18 @@ public class MasterSlaveNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N build(
-			ClientId masterClientId,
-			Collection<ClientId> slaveClientIds,
+			ClientId primaryClientId,
+			Collection<ClientId> replicaClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			NodewatchConfigurationBuilder nodewatchConfigurationBuilder){
-		N master = nodeFactory.create(masterClientId, databeanSupplier, fielderSupplier)
+		N primary = nodeFactory.create(primaryClientId, databeanSupplier, fielderSupplier)
 				.withNodewatchConfigurationBuilder(nodewatchConfigurationBuilder)
 				.build();
-		Function<ClientId,N> buildSlaveFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
+		Function<ClientId,N> buildReplicaFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
 				fielderSupplier).build();
-		List<N> slaves = Scanner.of(slaveClientIds).map(buildSlaveFunction).list();
-		return make(master, slaves);
+		List<N> replicas = Scanner.of(replicaClientIds).map(buildReplicaFunction).list();
+		return make(primary, replicas);
 	}
 
 	public <EK extends EntityKey<EK>,
@@ -106,16 +108,16 @@ public class MasterSlaveNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N build(
-			ClientId masterClientId,
-			Collection<ClientId> slaveClientIds,
+			ClientId primaryClientId,
+			Collection<ClientId> replicaClientIds,
 			Supplier<EK> entityKeySupplier,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-		N master = nodeFactory.create(masterClientId, entityKeySupplier, databeanSupplier, fielderSupplier).build();
-		Function<ClientId,N> buildSlaveFunction = clientId -> nodeFactory.create(clientId, entityKeySupplier,
+		N primary = nodeFactory.create(primaryClientId, entityKeySupplier, databeanSupplier, fielderSupplier).build();
+		Function<ClientId,N> buildReplicaFunction = clientId -> nodeFactory.create(clientId, entityKeySupplier,
 				databeanSupplier, fielderSupplier).build();
-		List<N> slaves = Scanner.of(slaveClientIds).map(buildSlaveFunction).list();
-		return make(master, slaves);
+		List<N> replicas = Scanner.of(replicaClientIds).map(buildReplicaFunction).list();
+		return make(primary, replicas);
 	}
 
 	public <PK extends RegularPrimaryKey<PK>,
@@ -123,11 +125,11 @@ public class MasterSlaveNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N register(
-			ClientId masterClientId,
-			Collection<ClientId> slaveClientIds,
+			ClientId primaryClientId,
+			Collection<ClientId> replicaClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-		return datarouter.register(build(masterClientId, slaveClientIds, databeanSupplier, fielderSupplier));
+		return datarouter.register(build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier));
 	}
 
 	public <PK extends RegularPrimaryKey<PK>,
@@ -135,12 +137,13 @@ public class MasterSlaveNodeFactory{
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
 	N register(
-			ClientId masterClientId,
-			Collection<ClientId> slaveClientIds,
+			ClientId primaryClientId,
+			Collection<ClientId> replicaClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			String tableName){
-		return datarouter.register(build(masterClientId, slaveClientIds, databeanSupplier, fielderSupplier, tableName));
+		return datarouter.register(build(primaryClientId, replicaClientIds, databeanSupplier, fielderSupplier,
+				tableName));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -149,23 +152,24 @@ public class MasterSlaveNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			N extends NodeOps<PK,D>>
-	N make(N master, List<N> slaves){
-		if(master instanceof IndexedSortedMapStorageNode){
-			IndexedSortedMapStorageNode<PK,D,F> typedMaster = (IndexedSortedMapStorageNode<PK,D,F>)master;
-			List<IndexedSortedMapStorageNode<PK,D,F>> typedSlaves = (List<IndexedSortedMapStorageNode<PK,D,F>>)slaves;
-			return (N)new MasterSlaveIndexedSortedMapStorageNode<>(typedMaster, typedSlaves);
+	N make(N primary, List<N> replicas){
+		if(primary instanceof IndexedSortedMapStorageNode){
+			IndexedSortedMapStorageNode<PK,D,F> typedPrimary = (IndexedSortedMapStorageNode<PK,D,F>)primary;
+			List<IndexedSortedMapStorageNode<PK,D,F>> typedReplicas = (List<IndexedSortedMapStorageNode<PK,D,F>>)
+					replicas;
+			return (N)new ReplicationIndexedSortedMapStorageNode<>(typedPrimary, typedReplicas);
 		}
-		if(master instanceof SortedMapStorageNode){
-			SortedMapStorageNode<PK,D,F> typedMaster = (SortedMapStorageNode<PK,D,F>)master;
-			List<SortedMapStorageNode<PK,D,F>> typedSlaves = (List<SortedMapStorageNode<PK,D,F>>)slaves;
-			return (N)new MasterSlaveSortedMapStorageNode<>(typedMaster, typedSlaves);
+		if(primary instanceof SortedMapStorageNode){
+			SortedMapStorageNode<PK,D,F> typedPrimary = (SortedMapStorageNode<PK,D,F>)primary;
+			List<SortedMapStorageNode<PK,D,F>> typedReplicas = (List<SortedMapStorageNode<PK,D,F>>)replicas;
+			return (N)new ReplicationSortedMapStorageNode<>(typedPrimary, typedReplicas);
 		}
-		if(master instanceof MapStorageNode){
-			MapStorageNode<PK,D,F> typedMaster = (MapStorageNode<PK,D,F>)master;
-			List<MapStorageNode<PK,D,F>> typedSlaves = (List<MapStorageNode<PK,D,F>>)slaves;
-			return (N)new MasterSlaveMapStorageNode<>(typedMaster, typedSlaves);
+		if(primary instanceof MapStorageNode){
+			MapStorageNode<PK,D,F> typedPrimary = (MapStorageNode<PK,D,F>)primary;
+			List<MapStorageNode<PK,D,F>> typedReplicas = (List<MapStorageNode<PK,D,F>>)replicas;
+			return (N)new ReplicationMapStorageNode<>(typedPrimary, typedReplicas);
 		}
-		throw new UnsupportedOperationException("No MasterSlave implementation found for " + master.getClass());
+		throw new UnsupportedOperationException("No ReplicationNode implementation found for " + primary.getClass());
 	}
 
 }

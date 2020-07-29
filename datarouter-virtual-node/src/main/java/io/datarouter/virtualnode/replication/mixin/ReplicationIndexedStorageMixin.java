@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.virtualnode.masterslave.mixin;
+package io.datarouter.virtualnode.replication.mixin;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,23 +30,23 @@ import io.datarouter.storage.node.op.raw.IndexedStorage.IndexedStorageNode;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.util.tuple.Range;
-import io.datarouter.virtualnode.masterslave.MasterSlaveNode;
+import io.datarouter.virtualnode.replication.ReplicationNode;
 
-public interface MasterSlaveIndexedStorageMixin<
+public interface ReplicationIndexedStorageMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends IndexedStorageNode<PK,D,F>>
-extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
+extends ReplicationNode<PK,D,F,N>, IndexedStorage<PK,D>{
 
 	@Override
 	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
-		return chooseSlaveOrElseMaster(config).lookupUnique(uniqueKey, config);
+		return choosePrimaryOrReplica(config).lookupUnique(uniqueKey, config);
 	}
 
 	@Override
 	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		return chooseSlaveOrElseMaster(config).lookupMultiUnique(uniqueKeys, config);
+		return choosePrimaryOrReplica(config).lookupMultiUnique(uniqueKeys, config);
 	}
 
 	@Override
@@ -54,7 +54,7 @@ extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		return chooseSlaveOrElseMaster(config).getMultiFromIndex(keys, config, indexEntryFieldInfo);
+		return choosePrimaryOrReplica(config).getMultiFromIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		return chooseSlaveOrElseMaster(config).getMultiByIndex(keys, config, indexEntryFieldInfo);
+		return choosePrimaryOrReplica(config).getMultiByIndex(keys, config, indexEntryFieldInfo);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return chooseSlaveOrElseMaster(config).scanRangesIndex(indexEntryFieldInfo, ranges, config);
+		return choosePrimaryOrReplica(config).scanRangesIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
@@ -84,7 +84,7 @@ extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return chooseSlaveOrElseMaster(config).scanRangesByIndex(indexEntryFieldInfo, ranges, config);
+		return choosePrimaryOrReplica(config).scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
@@ -95,7 +95,7 @@ extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo,
 			Collection<Range<IK>> ranges,
 			Config config){
-		return chooseSlaveOrElseMaster(config).scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
+		return choosePrimaryOrReplica(config).scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 	}
 
 	@Override
@@ -110,17 +110,17 @@ extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
 
 	@Override
 	default List<ManagedNode<PK,D,?,?,?>> getManagedNodes(){
-		return getMaster().getManagedNodes();
+		return getPrimary().getManagedNodes();
 	}
 
 	@Override
 	default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
-		getMaster().deleteUnique(uniqueKey, config);
+		getPrimary().deleteUnique(uniqueKey, config);
 	}
 
 	@Override
 	default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		getMaster().deleteMultiUnique(uniqueKeys, config);
+		getPrimary().deleteMultiUnique(uniqueKeys, config);
 	}
 
 	@Override
@@ -128,7 +128,7 @@ extends MasterSlaveNode<PK,D,F,N>, IndexedStorage<PK,D>{
 			IE extends IndexEntry<IK, IE, PK, D>,
 			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		getMaster().deleteByIndex(keys, config, indexEntryFieldInfo);
+		getPrimary().deleteByIndex(keys, config, indexEntryFieldInfo);
 	}
 
 }

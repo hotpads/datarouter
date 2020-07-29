@@ -94,7 +94,6 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 	public static class DatarouterJobPluginBuilder{
 
 		private final ClientId defaultClientId;
-		private DatarouterJobDaoModule daoModule;
 
 		private List<Class<? extends BaseTriggerGroup>> triggerGroupClasses = new ArrayList<>();
 
@@ -108,20 +107,15 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 			return this;
 		}
 
-		public DatarouterJobPluginBuilder setDaoModule(DatarouterJobDaoModule daoModule){
-			this.daoModule = daoModule;
-			return this;
-		}
-
 		public DatarouterJobPlugin getSimplePluginData(){
 			return new DatarouterJobPlugin(
-					daoModule == null ? new DatarouterJobDaoModule(defaultClientId, defaultClientId) : daoModule);
+					new DatarouterJobDaoModule(defaultClientId, defaultClientId));
 		}
 
 		public DatarouterJobPlugin build(){
 			return new DatarouterJobPlugin(
 					triggerGroupClasses,
-					daoModule == null ? new DatarouterJobDaoModule(defaultClientId, defaultClientId) : daoModule);
+					new DatarouterJobDaoModule(defaultClientId, defaultClientId));
 		}
 
 	}

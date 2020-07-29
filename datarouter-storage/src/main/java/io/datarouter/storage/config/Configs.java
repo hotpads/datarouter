@@ -19,11 +19,8 @@ import java.time.Duration;
 
 public class Configs{
 
-	public static final boolean SLAVE_OK = true;
-	public static final boolean USE_MASTER = !SLAVE_OK;
-
-	public static Config slaveOk(){
-		return new Config().setSlaveOk(true);
+	public static Config anyDelay(){
+		return new Config().anyDelay();
 	}
 
 	public static Config noTimeout(){

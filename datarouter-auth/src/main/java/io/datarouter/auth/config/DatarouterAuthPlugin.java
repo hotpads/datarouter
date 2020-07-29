@@ -131,7 +131,6 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		private final boolean enableUserAuth;
 		private final ClientId defaultClientId;
 
-		private DatarouterAuthDaoModule daoModule;
 		private Class<? extends UserInfo> userInfoClass = DatarouterUserInfo.class;
 		private Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass =
 				DatarouterUserDeprovisioningService.class;
@@ -147,11 +146,6 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
 			this.defaultApiKey = defaultApiKey;
 			this.defaultSecretKey = defaultSecretKey;
-		}
-
-		public DatarouterAuthPluginBuilder setDaoModule(DatarouterAuthDaoModule daoModule){
-			this.daoModule = daoModule;
-			return this;
 		}
 
 		public DatarouterAuthPluginBuilder setUserInfoClass(Class<? extends UserInfo> userInfoClass){
@@ -173,17 +167,15 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		public DatarouterAuthPlugin build(){
 			return new DatarouterAuthPlugin(
 					enableUserAuth,
-					daoModule == null
-							? new DatarouterAuthDaoModule(
-									defaultClientId,
-									defaultClientId,
-									defaultClientId,
-									defaultClientId,
-									defaultClientId,
-									defaultClientId,
-									defaultClientId,
-									defaultClientId)
-							: daoModule,
+					new DatarouterAuthDaoModule(
+							defaultClientId,
+							defaultClientId,
+							defaultClientId,
+							defaultClientId,
+							defaultClientId,
+							defaultClientId,
+							defaultClientId,
+							defaultClientId),
 					userInfoClass,
 					shouldMarkUsersInsteadOfDeprovisioning,
 					userDeprovisioningServiceClass,

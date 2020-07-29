@@ -87,17 +87,11 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 		private final ClientId defaultClientId;
 
 		private Class<? extends TableCountPublisher> tableCountPublisherClass = NoOpTableCountPublisher.class;
-		private DatarouterNodewatchDaoModule daoModule;
 		private boolean enablePublishing = false;
 
 		public DatarouterNodewatchPluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
 			this.nodewatchClientIds = new ArrayList<>();
-		}
-
-		public DatarouterNodewatchPluginBuilder setDaoModule(DatarouterNodewatchDaoModule daoModule){
-			this.daoModule = daoModule;
-			return this;
 		}
 
 		public DatarouterNodewatchPluginBuilder addNodewatchClientId(ClientId clientId){
@@ -115,10 +109,8 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 		public DatarouterNodewatchPlugin build(){
 			return new DatarouterNodewatchPlugin(
 					nodewatchClientIds,
-					daoModule == null
-							? new DatarouterNodewatchDaoModule(defaultClientId, defaultClientId, defaultClientId,
-									defaultClientId)
-							: daoModule,
+					new DatarouterNodewatchDaoModule(defaultClientId, defaultClientId, defaultClientId,
+							defaultClientId),
 					tableCountPublisherClass,
 					enablePublishing);
 		}

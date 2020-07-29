@@ -26,16 +26,16 @@ public class SettingJspDto<T>{
 	private final String name;
 	private final Boolean hasRedundantCustomValue;
 	private final Boolean hasCustomValue;
-	private final T value;
-	private final T defaultValue;
+	private final String value;
+	private final String defaultValue;
 	private final List<ClusterSettingDefaultJspDto> codeOverrides;
 
 	public SettingJspDto(CachedSetting<T> setting){
 		this.name = setting.getName();
 		this.hasRedundantCustomValue = setting.getHasRedundantCustomValue();
 		this.hasCustomValue = setting.getHasCustomValue();
-		this.value = setting.get();
-		this.defaultValue = setting.getDefaultValue();
+		this.value = setting.toStringValue();
+		this.defaultValue = setting.toStringDefaultValue();
 		this.codeOverrides = toDefaults(setting.getDefaultSettingValue());
 	}
 
@@ -79,11 +79,11 @@ public class SettingJspDto<T>{
 		return hasCustomValue;
 	}
 
-	public T getValue(){
+	public String getValue(){
 		return value;
 	}
 
-	public T getDefaultValue(){
+	public String getDefaultValue(){
 		return defaultValue;
 	}
 

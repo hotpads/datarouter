@@ -47,21 +47,15 @@ public class DatarouterBatchSizePlugin extends BaseJobPlugin{
 	public static class DatarouterBatchSizePluginBuilder{
 
 		private final ClientId defaultClientId;
-		private DatarouterBatchSizeOptimizerDaoModule daoModule;
 
 		public DatarouterBatchSizePluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
 		}
 
-		public DatarouterBatchSizePluginBuilder setDaoModule(DatarouterBatchSizeOptimizerDaoModule daoModule){
-			this.daoModule = daoModule;
-			return this;
-		}
 
 		public DatarouterBatchSizePlugin build(){
-			return new DatarouterBatchSizePlugin(daoModule == null
-					? new DatarouterBatchSizeOptimizerDaoModule(defaultClientId, defaultClientId)
-					: daoModule);
+			return new DatarouterBatchSizePlugin(
+					new DatarouterBatchSizeOptimizerDaoModule(defaultClientId, defaultClientId));
 		}
 
 	}

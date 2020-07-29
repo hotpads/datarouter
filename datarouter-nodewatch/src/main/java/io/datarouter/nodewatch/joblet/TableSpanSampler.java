@@ -197,7 +197,7 @@ implements Callable<List<TableSample>>{
 			Config scanConfig = new Config()
 					.setScannerCaching(false)
 					.setOutputBatchSize(batchSize)
-					.setSlaveOk(true);
+					.anyDelay();
 			Iterator<PK> iterator = node.scanKeys(posiblyOpenEndedPkRange, scanConfig).iterator();
 			while(iterator.hasNext()){
 				counters.incrementRows(1);

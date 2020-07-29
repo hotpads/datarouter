@@ -62,7 +62,6 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 		private final ClientId defaultClientId;
 
 		private Class<? extends ChangelogPublisher> changelogPublisher = NoOpChangelogPublisher.class;
-		private DatarouterChangelogDaosModule daosModule;
 
 		public DatarouterChangelogPluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -74,15 +73,10 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterChangelogPluginBuilder setDaoModule(ClientId changelogClientId){
-			this.daosModule = new DatarouterChangelogDaosModule(changelogClientId);
-			return this;
-		}
-
 		public DatarouterChangelogPlugin build(){
 			return new DatarouterChangelogPlugin(
 					changelogPublisher,
-					daosModule == null ? new DatarouterChangelogDaosModule(defaultClientId) : daosModule);
+					new DatarouterChangelogDaosModule(defaultClientId));
 		}
 
 	}

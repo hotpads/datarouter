@@ -305,7 +305,7 @@ public abstract class BaseHandler{
 					}
 				});
 				encoder.sendHandledExceptionResponse(handledException, servletContext, response, request);
-				logger.warn("returning {} : {}", handledException.getHttpResponseCode(), cause.getMessage());
+				logger.warn("returning {}: {}", handledException.getHttpResponseCode(), cause.getMessage());
 				return;
 			}
 			if(cause instanceof RuntimeException){

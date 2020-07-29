@@ -227,7 +227,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		mav.put("nodeName", requestedNodeName);
 
 		Map<SimpleSettingCategory,Set<SettingNodeJspDto>> categoryMap = new LinkedHashMap<>();
-		for(Entry<SimpleSettingCategory,Set<SettingNode>> entry : settingRootFinder.getRootNodesByCategory()
+		for(Entry<SimpleSettingCategory,Set<SettingRoot>> entry : settingRootFinder.getRootNodesByCategory()
 				.entrySet()){
 			var nodes = entry.getValue().stream()
 					.map(SettingNodeJspDto::new)

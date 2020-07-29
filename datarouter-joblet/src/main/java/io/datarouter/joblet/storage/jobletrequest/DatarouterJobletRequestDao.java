@@ -78,8 +78,8 @@ public class DatarouterJobletRequestDao extends BaseDao{
 		return node.scan(range, new Config().setOutputBatchSize(outputBatchSize));
 	}
 
-	public Scanner<JobletRequest> scanSlaves(){
-		return node.scan(Configs.slaveOk());
+	public Scanner<JobletRequest> scanAnyDelay(){
+		return node.scan(Configs.anyDelay());
 	}
 
 	public String getName(){
@@ -133,15 +133,15 @@ public class DatarouterJobletRequestDao extends BaseDao{
 				.orElse(null);
 	}
 
-	public Scanner<JobletRequest> scanType(JobletType<?> type, boolean slaveOk){
+	public Scanner<JobletRequest> scanType(JobletType<?> type, boolean anyDelay){
 		var prefix = JobletRequestKey.create(type, null, null, null);
-		var config = new Config().setSlaveOk(slaveOk);
+		var config = new Config().setAnyDelay(anyDelay);
 		return node.scanWithPrefix(prefix, config);
 	}
 
-	public Scanner<JobletRequest> scanTypePriority(JobletType<?> type, JobletPriority priority, boolean slaveOk){
+	public Scanner<JobletRequest> scanTypePriority(JobletType<?> type, JobletPriority priority, boolean anyDelay){
 		var prefix = JobletRequestKey.create(type, priority.getExecutionOrder(), null, null);
-		var config = new Config().setSlaveOk(slaveOk);
+		var config = new Config().setAnyDelay(anyDelay);
 		return node.scanWithPrefix(prefix, config);
 	}
 
@@ -190,8 +190,8 @@ public class DatarouterJobletRequestDao extends BaseDao{
 				.collect(HashSet::new);
 	}
 
-	public long countGroup(JobletType<?> type, JobletPriority priority, String groupId, boolean slaveOk){
-		return scanTypePriority(type, priority, slaveOk)
+	public long countGroup(JobletType<?> type, JobletPriority priority, String groupId, boolean anyDelay){
+		return scanTypePriority(type, priority, anyDelay)
 				.include(jobletRequest -> Objects.equals(jobletRequest.getGroupId(), groupId))
 				.count();
 	}

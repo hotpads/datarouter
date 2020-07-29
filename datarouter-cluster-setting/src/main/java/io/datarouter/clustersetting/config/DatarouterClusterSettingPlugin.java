@@ -62,21 +62,13 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 
 		private final ClientId defaultClientId;
 
-		private DatarouterClusterSettingDaoModule daoModule;
-
 		public DatarouterClusterSettingPluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
 		}
 
-		public DatarouterClusterSettingPluginBuilder setDaoModule(DatarouterClusterSettingDaoModule module){
-			this.daoModule = module;
-			return this;
-		}
-
 		public DatarouterClusterSettingPlugin build(){
-			return new DatarouterClusterSettingPlugin(daoModule == null
-					? new DatarouterClusterSettingDaoModule(defaultClientId, defaultClientId)
-					: daoModule);
+			return new DatarouterClusterSettingPlugin(
+					new DatarouterClusterSettingDaoModule(defaultClientId, defaultClientId));
 		}
 
 	}

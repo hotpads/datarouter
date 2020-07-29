@@ -110,7 +110,6 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		private final ClientId defaultClientId;
 
 		private ClientId defaultQueueClientId;
-		private DatarouterExceptionDaoModule daoModule;
 		private Class<? extends ExceptionGraphLink> exceptionGraphLinkClass = NoOpExceptionGraphLink.class;
 		private Class<? extends ExceptionRecorder> exceptionRecorderClass = DefaultExceptionRecorder.class;
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass
@@ -125,11 +124,6 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		public DatarouterExceptionPluginBuilder setExceptionGraphLinkClass(
 				Class<? extends ExceptionGraphLink> exceptionGraphLinkClass){
 			this.exceptionGraphLinkClass = exceptionGraphLinkClass;
-			return this;
-		}
-
-		public DatarouterExceptionPluginBuilder setDaoModule(DatarouterExceptionDaoModule daoModule){
-			this.daoModule = daoModule;
 			return this;
 		}
 
@@ -160,9 +154,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 
 		public DatarouterExceptionPlugin build(){
 			return new DatarouterExceptionPlugin(
-					daoModule == null
-							? new DatarouterExceptionDaoModule(defaultClientId, defaultQueueClientId)
-							: daoModule,
+					new DatarouterExceptionDaoModule(defaultClientId, defaultQueueClientId),
 					exceptionGraphLinkClass,
 					exceptionRecorderClass,
 					exceptionHandlingConfigClass,

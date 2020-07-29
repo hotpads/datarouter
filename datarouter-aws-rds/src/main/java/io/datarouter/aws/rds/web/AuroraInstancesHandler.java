@@ -76,7 +76,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 			}
 		}
 		List<DomContent> fragments = new ArrayList<>();
-		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsService.checkSlaveEndpoint().getLeft()));
+		fragments.add(makeAuroraClientsTable("Aurora Clients", dnsService.checkReaderEndpoint().getLeft()));
 		if(otherReaderInstances.size() != 0){
 			fragments.add(makeAuroraClientsTable("Aurora Other Instances", otherReaderInstances));
 		}
@@ -102,7 +102,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 		var table = new J2HtmlTable<DnsHostEntryDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Client name", row -> {
-					if(row.isSlavePointedToMaster()){
+					if(row.isReaderPointedToWriter()){
 						return td(row.getClientName()).withClass("table-danger");
 					}
 					return td(row.getClientName());

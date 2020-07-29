@@ -51,21 +51,13 @@ public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 
 		private final ClientId defaultClientId;
 
-		private DatarouterLoggerConfigDaoModule daoModule;
-
 		public DatarouterLoggerConfigPluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
 		}
 
-		public DatarouterLoggerConfigPluginBuilder setDaoModule(DatarouterLoggerConfigDaoModule daoModule){
-			this.daoModule = daoModule;
-			return this;
-		}
-
 		public DatarouterLoggerConfigPlugin build(){
-			return new DatarouterLoggerConfigPlugin(daoModule == null
-					? new DatarouterLoggerConfigDaoModule(defaultClientId, defaultClientId, defaultClientId)
-					: daoModule);
+			return new DatarouterLoggerConfigPlugin(
+					new DatarouterLoggerConfigDaoModule(defaultClientId, defaultClientId, defaultClientId));
 		}
 
 	}

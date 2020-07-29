@@ -78,6 +78,18 @@ implements Setting<T>{
 				finder.getServerType(), finder.getServerName());
 	}
 
+	public String toStringValue(T value){
+		return String.valueOf(value);
+	}
+
+	public String toStringValue(){
+		return toStringValue(get());
+	}
+
+	public String toStringDefaultValue(){
+		return toStringValue(getDefaultValue());
+	}
+
 	@Override
 	public boolean getHasCustomValue(){
 		return get() != null;

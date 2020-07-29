@@ -13,6 +13,7 @@
 		.card-header{
 			font-size: 110%;
 		}
+		.copyable { cursor: pointer; }
 	</style>
 	<script>
 		function fetchCsrf(obj) {
@@ -166,18 +167,64 @@
 		}
 
 		$(function(){
+			function replaceQueryParam(name, value){
+				const val = encodeURIComponent(value)
+				const query = window.location.search
+				const match = query.match('[?&]' + name + '=[^?&]*')
+				let newSearch;
+				if(match){
+					const matchLen = match[0].length
+					const addition = val.length ? name.length + 2 : 0
+					const prev = match.input.slice(0, match.index + addition) // "...&key="
+					const next = match.input.slice(match.index + matchLen)
+					newSearch = (prev + val + next).replace(/^&/, '?')
+				}else if(val.length){
+					const prefix = query.length ? '&' : '?'
+					newSearch = query + prefix + name + '=' + val
+				}else{
+					return
+				}
+				history.replaceState(null, null, newSearch)
+			}
+
+			$('.paramValue').change(function(){
+				const $this = $(this)
+				replaceQueryParam($this.attr('name'), $this.val())
+			})
+
 			$('a[data-toggle="collapse"]').click(function(){
-				if($(this).parents('.card').find('.collapse').hasClass('show')){
+				const card = $(this).parents('.card')
+				if(card.find('.collapse').hasClass('show')){
 					history.replaceState(null, null, window.location.href.split('?')[0])
 				}else{
 					history.replaceState(null, null, '?endpoint=' + encodeURIComponent($(this).data('url')))
+					card.find('.paramValue').change()
 				}
 			})
 
-			const urlMatchOnPageLoad = window.location.search.match(/endpoint=(.*)(&|$)/)
+			$('pre.json').each(($, pre) => {
+				pre.innerHTML = syntaxHighlight(pre.innerHTML);
+			});
+
+			$('.copyable').click(event => {
+				const copyable = $(event.currentTarget);
+				$('#' + copyable.data('copydest')).text(copyable.text());
+			});
+
+			const urlMatchOnPageLoad = window.location.search.match(/endpoint=([^&]*)/)
 			if(urlMatchOnPageLoad){
+				const component = $('[data-url="' + decodeURIComponent(urlMatchOnPageLoad[1]) + '"]')
+				const card = component.closest('.card')
+				window.location.search
+					.replace(/^\?/, '')
+					.split('&')
+					.map(param => param.split('=', 2))
+					.map(pair => [pair[0], decodeURIComponent(pair[1])])
+					.forEach(pair => {
+						card.find('[name="' + pair[0] + '"]').val(pair[1])
+					})
 				$('html, body').animate({
-					scrollTop: $('[data-url="' + decodeURIComponent(urlMatchOnPageLoad[1]) + '"]').click().parent().offset().top
+					scrollTop: component.click().parent().offset().top
 				})
 			}
 		})
@@ -208,6 +255,7 @@
 					</div>
 					<div id="${collapseId}" class="collapse" data-parent="#accordion">
 						<div class="card-body">
+							<b>Handler:</b> ${endpoint.implementation}
 							<h3>Parameters</h3>
 							<form id="parameterForm" method="POST">
 							<c:choose>
@@ -235,9 +283,11 @@
 													<c:choose>
 														<c:when test="${parameter.requestBody}">
 															Request body
+															<c:set var="paramName" value="requestBody"></c:set>
 														</c:when>
 														<c:otherwise>
 															${parameter.name}
+															<c:set var="paramName" value="${parameter.name}"></c:set>
 														</c:otherwise>
 													</c:choose>
 												</td>
@@ -252,10 +302,10 @@
 												<td>
 													<c:choose>
 														<c:when test="${parameter.requestBody}">
-															<textarea class="form-control paramValue" style="display:table-cell; width:100%" rows="10">${predefinedValue}</textarea>
+															<textarea class="form-control paramValue" style="display:table-cell; width:100%" rows="10" id="${loop.index}-${paramName}" name="requestBody">${predefinedValue}</textarea>
 														</c:when>
 														<c:otherwise>
-															<input class="form-control paramValue" style="display:table-cell; width:100%" type="text" id="${parameter.name}"  placeholder="${note}" value="${predefinedValue}"/>
+															<input class="form-control paramValue" style="display:table-cell; width:100%" type="text" id="${loop.index}-${paramName}" name="${parameter.name}"  placeholder="${note}" value="${predefinedValue}"/>
 														</c:otherwise>
 													</c:choose>
 												</td>
@@ -264,7 +314,10 @@
 														; ${parameter.description}
 													</c:if>
 													<c:if test="${not empty parameter.example}">
-														<pre class="bg-light border p-2">${parameter.example}</pre>
+														<pre
+															class="bg-light border p-2 json copyable"
+															data-copydest="${loop.index}-${paramName}"
+															>${parameter.example}</pre>
 													</c:if>
 												</td>
 											</tr>
@@ -279,7 +332,7 @@
 								Nothing
 							</c:if>
 							<c:if test="${not empty endpoint.response.example}">
-								<pre class="bg-light border p-2">${endpoint.response.example}</pre>
+								<pre class="bg-light border p-2 json">${endpoint.response.example}</pre>
 							</c:if>
 							<div>
 								<button id="sendRequest" type="button" class="btn btn-primary"

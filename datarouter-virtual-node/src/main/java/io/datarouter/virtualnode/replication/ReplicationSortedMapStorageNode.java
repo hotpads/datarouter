@@ -13,31 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.virtualnode.masterslave;
+package io.datarouter.virtualnode.replication;
 
 import java.util.Collection;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
-import io.datarouter.virtualnode.masterslave.mixin.MasterSlaveIndexedStorageMixin;
-import io.datarouter.virtualnode.masterslave.mixin.MasterSlaveMapStorageMixin;
-import io.datarouter.virtualnode.masterslave.mixin.MasterSlaveSortedStorageMixin;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.replication.mixin.ReplicationMapStorageMixin;
+import io.datarouter.virtualnode.replication.mixin.ReplicationSortedStorageMixin;
 
-public class MasterSlaveIndexedSortedMapStorageNode<
+public class ReplicationSortedMapStorageNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
-		N extends IndexedSortedMapStorageNode<PK,D,F>>
-extends BaseMasterSlaveNode<PK,D,F,N>
-implements MasterSlaveIndexedStorageMixin<PK,D,F,N>,
-		MasterSlaveMapStorageMixin<PK,D,F,N>,
-		MasterSlaveSortedStorageMixin<PK,D,F,N>,
-		IndexedSortedMapStorageNode<PK,D,F>{
+		N extends SortedMapStorageNode<PK,D,F>>
+extends BaseReplicationNode<PK,D,F,N>
+implements ReplicationSortedStorageMixin<PK,D,F,N>,
+		ReplicationMapStorageMixin<PK,D,F,N>,
+		SortedMapStorageNode<PK,D,F>{
 
-	public MasterSlaveIndexedSortedMapStorageNode(N master, Collection<N> slaves){
-		super(master, slaves);
+	public ReplicationSortedMapStorageNode(N primary, Collection<N> replicas){
+		super(primary, replicas);
 	}
 
 }

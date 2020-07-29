@@ -17,8 +17,11 @@ package io.datarouter.httpclient;
 
 import java.util.List;
 
-public interface AutoBuildable{
+public interface DocumentedGenericHolder{
 
-	Object buildEmpty(List<Object> innerObjects);
+	/**
+	 * @return name of generic field sorted the way the class generics are defined
+	 */
+	List<String> getGenericFieldNames();
 
 }

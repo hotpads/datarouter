@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.virtualnode.masterslave.mixin;
+package io.datarouter.virtualnode.replication.mixin;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,58 +24,58 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
-import io.datarouter.virtualnode.masterslave.MasterSlaveNode;
+import io.datarouter.virtualnode.replication.ReplicationNode;
 
-public interface MasterSlaveMapStorageMixin<
+public interface ReplicationMapStorageMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageNode<PK,D,F>>
-extends MasterSlaveNode<PK,D,F,N>, MapStorage<PK,D>{
+extends ReplicationNode<PK,D,F,N>, MapStorage<PK,D>{
 
 	@Override
 	default void delete(PK key, Config config){
-		getMaster().delete(key, config);
+		getPrimary().delete(key, config);
 	}
 
 	@Override
 	default void deleteAll(Config config){
-		getMaster().deleteAll(config);
+		getPrimary().deleteAll(config);
 	}
 
 	@Override
 	default void deleteMulti(Collection<PK> keys, Config config){
-		getMaster().deleteMulti(keys, config);
+		getPrimary().deleteMulti(keys, config);
 	}
 
 	@Override
 	default void put(D databean, Config config){
-		getMaster().put(databean, config);
+		getPrimary().put(databean, config);
 	}
 
 	@Override
 	default void putMulti(Collection<D> databeans, Config config){
-		getMaster().putMulti(databeans, config);
+		getPrimary().putMulti(databeans, config);
 	}
 
 	@Override
 	default boolean exists(PK key, Config config){
-		return chooseSlaveOrElseMaster(config).exists(key, config);
+		return choosePrimaryOrReplica(config).exists(key, config);
 	}
 
 	@Override
 	default D get(PK key, Config config){
-		return chooseSlaveOrElseMaster(config).get(key, config);
+		return choosePrimaryOrReplica(config).get(key, config);
 	}
 
 	@Override
 	default List<D> getMulti(Collection<PK> keys, Config config){
-		return chooseSlaveOrElseMaster(config).getMulti(keys, config);
+		return choosePrimaryOrReplica(config).getMulti(keys, config);
 	}
 
 	@Override
 	default List<PK> getKeys(Collection<PK> keys, Config config){
-		return chooseSlaveOrElseMaster(config).getKeys(keys, config);
+		return choosePrimaryOrReplica(config).getKeys(keys, config);
 	}
 
 }

@@ -13,31 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.virtualnode.masterslave;
+package io.datarouter.virtualnode.replication;
 
-import java.util.List;
+import java.util.Collection;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.config.Config;
-import io.datarouter.storage.node.Node;
+import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
+import io.datarouter.virtualnode.replication.mixin.ReplicationMapStorageMixin;
 
-public interface MasterSlaveNode<
+public class ReplicationMapStorageNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
-		N extends Node<PK,D,F>>
-extends Node<PK,D,F>{
+		N extends MapStorageNode<PK,D,F>>
+extends BaseReplicationNode<PK,D,F,N>
+implements ReplicationMapStorageMixin<PK,D,F,N>, MapStorageNode<PK,D,F>{
 
-	N getMaster();
-	N chooseSlave(Config config);
-
-	@Override
-	List<N> getChildNodes();
-
-	default N chooseSlaveOrElseMaster(Config config){
-		return config.getSlaveOk() ? chooseSlave(config) : getMaster();
+	public ReplicationMapStorageNode(N primary, Collection<N> replicas){
+		super(primary, replicas);
 	}
 
 }

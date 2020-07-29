@@ -13,29 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.virtualnode.masterslave;
+package io.datarouter.virtualnode.replication;
 
-import java.util.Collection;
+import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
-import io.datarouter.virtualnode.masterslave.mixin.MasterSlaveMapStorageMixin;
-import io.datarouter.virtualnode.masterslave.mixin.MasterSlaveSortedStorageMixin;
+import io.datarouter.storage.config.Config;
+import io.datarouter.storage.node.Node;
 
-public class MasterSlaveSortedMapStorageNode<
+public interface ReplicationNode<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
-		N extends SortedMapStorageNode<PK,D,F>>
-extends BaseMasterSlaveNode<PK,D,F,N>
-implements MasterSlaveSortedStorageMixin<PK,D,F,N>,
-		MasterSlaveMapStorageMixin<PK,D,F,N>,
-		SortedMapStorageNode<PK,D,F>{
+		N extends Node<PK,D,F>>
+extends Node<PK,D,F>{
 
-	public MasterSlaveSortedMapStorageNode(N master, Collection<N> slaves){
-		super(master, slaves);
+	N getPrimary();
+	N chooseReplica(Config config);
+
+	@Override
+	List<N> getChildNodes();
+
+	default N choosePrimaryOrReplica(Config config){
+		return config.getAnyDelay() ? chooseReplica(config) : getPrimary();
 	}
 
 }

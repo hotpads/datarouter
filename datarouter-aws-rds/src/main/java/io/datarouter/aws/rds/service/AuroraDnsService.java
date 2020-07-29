@@ -46,7 +46,7 @@ public class AuroraDnsService{
 
 	public static final String WRITER = "Writer";
 	public static final String READER = "Reader";
-	public static final String SLAVE = "Slave";
+	public static final String SLAVE = "Slave";//could be used in dns entries
 	public static final String IPADDRESS_PATTERN =
 				"^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
 				+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
@@ -133,23 +133,23 @@ public class AuroraDnsService{
 				+ rdsSettings.dnsSuffix.get();
 	}
 
-	public Pair<Collection<DnsHostEntryDto>,List<DnsHostEntryDto>> checkSlaveEndpoint(){
+	public Pair<Collection<DnsHostEntryDto>,List<DnsHostEntryDto>> checkReaderEndpoint(){
 		Map<String,DnsHostEntryDto> dnsEntryByHostname = getDnsEntryForClients();
 		logger.debug("dnsEntryByHostname={}", gson.toJson(dnsEntryByHostname));
-		List<DnsHostEntryDto> mismatchedSlaveEntries = new ArrayList<>();
+		List<DnsHostEntryDto> mismatchedReaderEntries = new ArrayList<>();
 		for(DnsHostEntryDto dnsEntry : dnsEntryByHostname.values()){
-			if(dnsEntry.slave){
-				DnsHostEntryDto slaveEntry = dnsEntry;
-				String masterClientName = slaveEntry.hostname.replace("slave", "");
-				DnsHostEntryDto masterEntry = dnsEntryByHostname.get(masterClientName);
-				logger.debug("slave={} master={}", gson.toJson(slaveEntry), gson.toJson(masterEntry));
-				if(slaveEntry.ip != null && slaveEntry.ip.equals(masterEntry.ip)){
-					slaveEntry.slavePointedToMaster = true;
-					mismatchedSlaveEntries.add(slaveEntry);
+			if(dnsEntry.reader){
+				DnsHostEntryDto readerEntry = dnsEntry;
+				String writerClientName = readerEntry.hostname.replace("slave", "");
+				DnsHostEntryDto writerEntry = dnsEntryByHostname.get(writerClientName);
+				logger.debug("reader={} writer={}", gson.toJson(readerEntry), gson.toJson(writerEntry));
+				if(readerEntry.ip != null && readerEntry.ip.equals(writerEntry.ip)){
+					readerEntry.readerPointedToWriter = true;
+					mismatchedReaderEntries.add(readerEntry);
 				}
 			}
 		}
-		return new Pair<>(dnsEntryByHostname.values(), mismatchedSlaveEntries);
+		return new Pair<>(dnsEntryByHostname.values(), mismatchedReaderEntries);
 	}
 
 	public static class DnsHostEntryDto{
@@ -161,14 +161,14 @@ public class AuroraDnsService{
 		private final String instanceHostname;
 		private final String ip;
 		private boolean isAuroraInstance = false;
-		private boolean slavePointedToMaster = false;
+		private boolean readerPointedToWriter = false;
 
-		public final boolean slave;
+		public final boolean reader;
 
 		public DnsHostEntryDto(String clientName, String hostname, String clusterHostname, boolean writer,
 				String instanceHostname, String ip, boolean isAuroraInstance){
 			this.clientName = clientName;
-			this.slave = clientName.contains(SLAVE);
+			this.reader = clientName.contains(SLAVE);
 			this.hostname = hostname;
 			this.clusterHostname = clusterHostname;
 			this.replicationRole = writer ? WRITER : READER;
@@ -201,8 +201,8 @@ public class AuroraDnsService{
 			return ip;
 		}
 
-		public boolean isSlavePointedToMaster(){
-			return slavePointedToMaster;
+		public boolean isReaderPointedToWriter(){
+			return readerPointedToWriter;
 		}
 
 		public boolean isAuroraInstance(){

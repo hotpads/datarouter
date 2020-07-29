@@ -18,10 +18,17 @@ package io.datarouter.storage.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.inject.InjectionTool;
 import io.datarouter.inject.guice.BasePlugin;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.dao.DaosModuleBuilder.EmptyDaosModuleBuilder;
 import io.datarouter.storage.setting.SettingRoot;
+import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.util.tuple.Pair;
 
 /**
  * Plugins are verbose wrappers around GuiceModules for easy installation of datarouter modules. They use a builder
@@ -41,6 +48,35 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 
 	protected void setDaosModule(DaosModuleBuilder daosModule){
 		this.daosModule = daosModule;
+	}
+
+	protected void setDaosModule(List<Pair<Class<? extends Dao>,ClientId>> daosAndClients){
+		this.daosModule = new DaosModuleBuilder(){
+
+			@Override
+			public List<Class<? extends Dao>> getDaoClasses(){
+				return Scanner.of(daosAndClients).<Class<? extends Dao>>map(Pair::getLeft).list();
+			}
+
+			@Override
+			protected void configure(){
+				for(Pair<Class<? extends Dao>,ClientId> pair : daosAndClients){
+					buildAndBindDaoParam(pair);
+				}
+			}
+
+			private <T> void buildAndBindDaoParam(Pair<Class<? extends Dao>,ClientId> pair){
+				@SuppressWarnings("unchecked")
+				Class<T> daoParamsClass = (Class<T>)InjectionTool.findInjectableClasses(pair.getLeft())
+						.include(clazz -> BaseDaoParams.class.isAssignableFrom(clazz))
+						.findAny()
+						.orElseThrow(() ->
+								new RuntimeException("no injected BaseDaoParams found for " + pair.getLeft()));
+				T daoParamInstance = ReflectionTool.createWithParameters(daoParamsClass, List.of(pair.getRight()));
+				bind(daoParamsClass).toInstance(daoParamInstance);
+			}
+
+		};
 	}
 
 	public DaosModuleBuilder getDaosModuleBuilder(){

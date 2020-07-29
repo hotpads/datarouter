@@ -17,8 +17,6 @@ package io.datarouter.client.mysql.ddl.generate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -189,7 +187,6 @@ public class SqlAlterTableGeneratorFactory{
 						getAlterTableForModifyingColumns(diff.getColumnsToModify()),
 						false);
 			}
-			boolean skipTempPkDrop = false;
 			if(printOrExecute(schemaUpdateOptions::getModifyPrimaryKey) && diff.isPrimaryKeyModified()){
 				boolean execute = schemaUpdateOptions.getModifyPrimaryKey(false);
 				List<String> pkColumNames = requested.getPrimaryKey().getColumnNames();
@@ -199,7 +196,6 @@ public class SqlAlterTableGeneratorFactory{
 							.anyMatch(index -> index.getColumnNames().equals(pkColumNames));
 					if(pkUniqueIndexExsist){
 						addPk(ddlBuilder, execute, pkColumNames, PrintVersion.THOROUGH);
-						skipTempPkDrop = true;
 					}else{
 						var sqlIndex = new SqlIndex("temp_pk", pkColumNames);
 						ddlBuilder.add(
@@ -213,25 +209,12 @@ public class SqlAlterTableGeneratorFactory{
 			if(printOrExecute(schemaUpdateOptions::getDropIndexes)){
 				ddlBuilder.add(
 						schemaUpdateOptions.getDropIndexes(false),
-						getAlterTableForRemovingIndexes(diff.getUniqueIndexesToRemove()),
-						false,
-						PrintVersion.QUICK);
-				Set<SqlIndex> uniqueIndexesToRemoveVersionb = new HashSet<>(diff.getUniqueIndexesToRemove());
-				if(skipTempPkDrop){
-					Iterator<SqlIndex> it = uniqueIndexesToRemoveVersionb.iterator();
-					while(it.hasNext()){
-						SqlIndex sqlIndex = it.next();
-						if(sqlIndex.getName().equals("temp_pk")){
-							it.remove();
-							break;
-						}
-					}
-				}
+						getAlterTableForRemovingIndexes(diff.getIndexesToRemove()),
+						false);
 				ddlBuilder.add(
 						schemaUpdateOptions.getDropIndexes(false),
-						getAlterTableForRemovingIndexes(uniqueIndexesToRemoveVersionb),
-						false,
-						PrintVersion.THOROUGH);
+						getAlterTableForRemovingIndexes(diff.getUniqueIndexesToRemove()),
+						false);
 			}
 			if(printOrExecute(schemaUpdateOptions::getAddIndexes)){
 				ddlBuilder.add(

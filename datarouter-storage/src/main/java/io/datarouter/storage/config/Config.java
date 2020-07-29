@@ -36,8 +36,8 @@ public class Config implements Cloneable{
 
 	private Boolean useSession = true;
 
-	//slaves
-	private Boolean slaveOk = false;
+	//staleness
+	private Boolean anyDelay = false;
 
 	//put options
 	private PutMethod putMethod = PutMethod.DEFAULT_PUT_METHOD;
@@ -100,7 +100,7 @@ public class Config implements Cloneable{
 		clone
 			.setUseSession(useSession)
 
-			.setSlaveOk(slaveOk)
+			.setAnyDelay(anyDelay)
 
 			.setPutMethod(putMethod)
 			.setIgnoreNullFields(ignoreNullFields)
@@ -193,20 +193,19 @@ public class Config implements Cloneable{
 		return this;
 	}
 
-	/*---------------------------- slave ok ---------------------------------*/
+	/*---------------------------- staleness ---------------------------------*/
 
-	public Boolean getSlaveOk(){
-		return slaveOk;
+	public Boolean getAnyDelay(){
+		return anyDelay;
 	}
 
-	public Config setSlaveOk(Boolean slaveOk){
-		this.slaveOk = slaveOk;
+	public Config setAnyDelay(boolean anyDelay){
+		this.anyDelay = anyDelay;
 		return this;
 	}
 
 	public Config anyDelay(){
-		this.slaveOk = true;
-		return this;
+		return setAnyDelay(true);
 	}
 
 	/*---------------------------- cache ok ---------------------------------*/

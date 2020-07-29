@@ -20,28 +20,34 @@ import java.util.List;
 public class DocumentedEndpointJspDto{
 
 	private final String url;
+	private final String implementation;
 	private final List<DocumentedParameterJspDto> parameters;
 	private final String description;
 	private final DocumentedResponseJspDto response;
 
-	public DocumentedEndpointJspDto(String url, List<DocumentedParameterJspDto> parameters, String description,
-			DocumentedResponseJspDto response){
+	public DocumentedEndpointJspDto(String url, String implementation, List<DocumentedParameterJspDto> parameters,
+			String description, DocumentedResponseJspDto response){
 		this.url = url;
+		this.implementation = implementation;
 		this.parameters = parameters;
 		this.description = description;
 		this.response = response;
-	}
-
-	public String getDescription(){
-		return description;
 	}
 
 	public String getUrl(){
 		return url;
 	}
 
+	public String getImplementation(){
+		return implementation;
+	}
+
 	public List<DocumentedParameterJspDto> getParameters(){
 		return parameters;
+	}
+
+	public String getDescription(){
+		return description;
 	}
 
 	public DocumentedResponseJspDto getResponse(){

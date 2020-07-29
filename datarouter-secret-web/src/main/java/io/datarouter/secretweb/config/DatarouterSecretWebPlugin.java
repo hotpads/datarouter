@@ -64,7 +64,6 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 	extends DatarouterSecretPluginBuilder<T>{
 
 		private final ClientId defaultClientId;
-		private DatarouterSecretDaoModule daoModule;
 		private Class<? extends SecretHandlerPermissions> secretHandlerPermissions = DefaultSecretHandlerPermissions
 				.class;
 
@@ -91,11 +90,6 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 			setJsonSerializer(DefaultHandlerSerializer.class);
 		}
 
-		public T setDaoModule(DatarouterSecretDaoModule daoModule){
-			this.daoModule = daoModule;
-			return getSelf();
-		}
-
 		public T setSecretHandlerPermissions(
 				Class<? extends SecretHandlerPermissions> secretHandlerPermissions){
 			this.secretHandlerPermissions = secretHandlerPermissions;
@@ -106,7 +100,7 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 			return new DatarouterSecretWebPlugin(
 					buildBasePlugin(),
 					secretHandlerPermissions,
-					daoModule == null ? new DatarouterSecretDaoModule(defaultClientId) : daoModule);
+					new DatarouterSecretDaoModule(defaultClientId));
 		}
 
 		@Override

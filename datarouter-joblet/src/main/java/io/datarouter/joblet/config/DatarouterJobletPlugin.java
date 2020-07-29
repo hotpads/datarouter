@@ -18,8 +18,6 @@ package io.datarouter.joblet.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.inject.Provides;
-
 import io.datarouter.joblet.DatarouterJobletAppListener;
 import io.datarouter.joblet.enums.JobletQueueMechanism;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
@@ -30,17 +28,13 @@ import io.datarouter.joblet.queue.QueueJobletRequestSelector;
 import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
-import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao.DatarouterJobletDataDaoParams;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
-import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao.DatarouterJobletRequestDaoParams;
 import io.datarouter.joblet.storage.jobletrequestqueue.DatarouterJobletQueueDao;
-import io.datarouter.joblet.storage.jobletrequestqueue.DatarouterJobletQueueDao.DatarouterJobletQueueDaoParams;
 import io.datarouter.joblet.test.SleepingJoblet;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
-import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
@@ -50,15 +44,15 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 	private final JobletSelectorRegistry jobletSelectorRegistry;
 	private final Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass;
 
-	private DatarouterJobletPlugin(DatarouterJobletDaoModule daosModule){
-		this(null, null, null, daosModule);
+	private DatarouterJobletPlugin(List<Pair<Class<? extends Dao>,ClientId>> daosAndClients){
+		this(null, null, null, daosAndClients);
 	}
 
 	private DatarouterJobletPlugin(
 			List<JobletType<?>> jobletTypes,
 			JobletSelectorRegistry jobletSelectorRegistry,
 			Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass,
-			DatarouterJobletDaoModule daosModule){
+			List<Pair<Class<? extends Dao>,ClientId>> daosAndClients){
 		this.jobletTypes = jobletTypes;
 		this.jobletSelectorRegistry = jobletSelectorRegistry;
 		this.externalLinkBuilderClass = externalLinkBuilderClass;
@@ -68,7 +62,7 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		addRouteSet(DatarouterJobletRouteSet.class);
 		addTriggerGroup(DatarouterJobletTriggerGroup.class);
 		addSettingRoot(DatarouterJobletSettingRoot.class);
-		setDaosModule(daosModule);
+		setDaosModule(daosAndClients);
 		addJobletType(SleepingJoblet.JOBLET_TYPE);
 	}
 
@@ -86,27 +80,36 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 
 	public static class DatarouterJobletPluginBuilder{
 
-		private final ClientId defaultClientId;
-		private final ClientId defaultQueueClientId;
-
+		private ClientId datarouterJobletDataClientId;
+		private ClientId datarouterJobletQueueClientId;
+		private ClientId datarouterJobletRequestClientId;
 		private final List<JobletType<?>> jobletTypes = new ArrayList<>();
 		private final JobletSelectorRegistry jobletSelectorRegistry = new JobletSelectorRegistry();
 		private Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass
 				= NoOpJobletExternalLinkBuilder.class;
-		private DatarouterJobletDaoModule daoModule;
 
 		public DatarouterJobletPluginBuilder(ClientId defaultClientId, ClientId defaultQueueClientId){
-			this.defaultClientId = defaultClientId;
-			this.defaultQueueClientId = defaultQueueClientId;
+			this.datarouterJobletDataClientId = defaultClientId;
+			this.datarouterJobletQueueClientId = defaultQueueClientId;
+			this.datarouterJobletRequestClientId = defaultClientId;
 			withSelector(
 					JobletQueueMechanism.QUEUE.getPersistentString(),
 					QueueJobletRequestSelector.class);
 		}
 
-		public DatarouterJobletPluginBuilder setDaoModule(DatarouterJobletDaoModule daoModule){
-			this.daoModule = daoModule;
-			return this;
+		// == the three following methods allow you to customize client id for each dao
+		public void setDatarouterJobletDataClientId(ClientId datarouterJobletDataClientId){
+			this.datarouterJobletDataClientId = datarouterJobletDataClientId;
 		}
+
+		public void setDatarouterJobletQueueClientId(ClientId datarouterJobletQueueClientId){
+			this.datarouterJobletQueueClientId = datarouterJobletQueueClientId;
+		}
+
+		public void setDatarouterJobletRequestClientId(ClientId datarouterJobletRequestClientId){
+			this.datarouterJobletRequestClientId = datarouterJobletRequestClientId;
+		}
+		// ==
 
 		public DatarouterJobletPluginBuilder setJobletTypes(List<JobletType<?>> jobletTypes){
 			this.jobletTypes.addAll(jobletTypes);
@@ -133,9 +136,11 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		}
 
 		public DatarouterJobletPlugin getSimplePluginData(){
-			return new DatarouterJobletPlugin(daoModule == null
-					? new DatarouterJobletDaoModule(defaultClientId, defaultQueueClientId, defaultClientId)
-					: daoModule);
+			return new DatarouterJobletPlugin(
+					List.of(
+							new Pair<>(DatarouterJobletDataDao.class, datarouterJobletDataClientId),
+							new Pair<>(DatarouterJobletQueueDao.class, datarouterJobletQueueClientId),
+							new Pair<>(DatarouterJobletRequestDao.class, datarouterJobletRequestClientId)));
 		}
 
 		public DatarouterJobletPlugin build(){
@@ -143,47 +148,10 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 					jobletTypes,
 					jobletSelectorRegistry,
 					externalLinkBuilderClass,
-					daoModule == null
-							? new DatarouterJobletDaoModule(defaultClientId, defaultQueueClientId, defaultClientId)
-							: daoModule);
-		}
-
-	}
-
-	public static class DatarouterJobletDaoModule extends DaosModuleBuilder{
-
-		private final ClientId datarouterJobletDataClientId;
-		private final ClientId datarouterJobletQueueClientId;
-		private final ClientId datarouterJobletRequestClientId;
-
-		public DatarouterJobletDaoModule(
-				ClientId datarouterJobletDataClientId,
-				ClientId datarouterJobletQueueClientId,
-				ClientId datarouterJobletRequestClientId){
-			this.datarouterJobletDataClientId = datarouterJobletDataClientId;
-			this.datarouterJobletQueueClientId = datarouterJobletQueueClientId;
-			this.datarouterJobletRequestClientId = datarouterJobletRequestClientId;
-		}
-
-		@Override
-		public List<Class<? extends Dao>> getDaoClasses(){
-			return List.of(
-					DatarouterJobletDataDao.class,
-					DatarouterJobletQueueDao.class,
-					DatarouterJobletRequestDao.class);
-		}
-
-		@Override
-		public void configure(){
-			bind(DatarouterJobletRequestDaoParams.class)
-					.toInstance(new DatarouterJobletRequestDaoParams(datarouterJobletRequestClientId));
-			bind(DatarouterJobletDataDaoParams.class)
-					.toInstance(new DatarouterJobletDataDaoParams(datarouterJobletDataClientId));
-		}
-
-		@Provides
-		public DatarouterJobletQueueDaoParams getDatarouterJobletQueueRouterParams(){
-			return new DatarouterJobletQueueDaoParams(datarouterJobletQueueClientId);
+					List.of(
+							new Pair<>(DatarouterJobletDataDao.class, datarouterJobletDataClientId),
+							new Pair<>(DatarouterJobletQueueDao.class, datarouterJobletQueueClientId),
+							new Pair<>(DatarouterJobletRequestDao.class, datarouterJobletRequestClientId)));
 		}
 
 	}

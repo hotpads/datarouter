@@ -24,7 +24,6 @@ import javax.servlet.ServletContextListener;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.job.BaseTriggerGroup;
-import io.datarouter.job.config.DatarouterJobPlugin.DatarouterJobDaoModule;
 import io.datarouter.job.config.DatarouterJobPlugin.DatarouterJobPluginBuilder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -80,7 +79,6 @@ extends DatarouterWebWebappConfigBuilder<T>{
 		addJobPluginWithoutInstalling(jobPluginBuilder.getSimplePluginData());
 		DatarouterJobPlugin jobPlugin = jobPluginBuilder
 				.setTriggerGroupClasses(triggerGroups)
-				.setDaoModule(new DatarouterJobDaoModule(defaultClientId, defaultClientId))
 				.build();
 
 		modules.add(jobPlugin);

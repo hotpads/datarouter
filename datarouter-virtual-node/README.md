@@ -6,14 +6,14 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-virtual-node</artifactId>
-	<version>0.0.41</version>
+	<version>0.0.42</version>
 </dependency>
 ```
 
 ## About
 
 Virtual nodes are classes that implement datarouter storage interfaces by wrapping underlying phyiscal nodes.  For example, Caching nodes wrap a persistent
-node plus a cache node, making it easier to keep the cache up to date.  Or MasterSlave nodes wrap a master database node plus zero or more slave database nodes,
+node plus a cache node, making it easier to keep the cache up to date.  Or Replication nodes wrap a primary database node plus zero or more replica nodes,
 making it easier to create all the nodes and then control which physical node serves a read request.
 
 ## Types
@@ -27,13 +27,13 @@ pass them to the CachingNode constructor along with two booleans that shoud usua
 
 For some performance crticical situations, it's possible to chain the virtual CachingNodes together to build a tiered cache.
 
-### MasterSlave
+### Replication
 
-The MasterSlave node is typically used with databases performing their own replication to possibly multiple slaves.  Rather than building an explicit node
-for each slave and accessing them individually at runtime, you pass the masterClientId and multiple slaveClientIds to the virtual node and it will
-create all the unerlying nodes for you.  Then at runtime, you can use `new Config().setSlaveOk(true)` to notify the MasterSlave node that you prefer to
-read from a slave if one exists, presumably because you want to reduce load on the harder-to-scale master database.  The current version uses a simple round-robin 
-approach to pick the slave for each read which is usually fine as long as there is only one slave or the multiple slaves are keeping up on replication.
+The Replication node is typically used with databases performing their own replication to possibly multiple replicas.  Rather than building an explicit node
+for each replica and accessing them individually at runtime, you pass the primaryClientId and multiple replicaClientIds to the virtual node and it will
+create all the unerlying nodes for you.  Then at runtime, you can use `new Config().anyDelay()` to notify the Replication node that you prefer to
+read from a replica if one exists, presumably because you want to reduce load on the harder-to-scale primary database.  The current version uses a simple round-robin 
+approach to pick the replica for each read which is usually fine as long as there is only one replica or the multiple replicas are keeping up on replication.
 
 ### Redundant
 

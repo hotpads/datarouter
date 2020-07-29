@@ -40,7 +40,7 @@ public class JobletCounterJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		jobletRequestDao.scanSlaves()
+		jobletRequestDao.scanAnyDelay()
 				.advanceUntil($ -> tracker.increment().shouldStop())
 				.map(JobletSummary::new)
 				//aggregate by (status, type, queueId)

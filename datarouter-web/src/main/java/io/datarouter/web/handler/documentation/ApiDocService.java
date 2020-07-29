@@ -46,7 +46,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.UnsafeAllocator;
 
-import io.datarouter.httpclient.AutoBuildable;
+import io.datarouter.httpclient.DocumentedGenericHolder;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
@@ -106,6 +106,7 @@ public class ApiDocService{
 							.getName();
 					url = url.replace(BaseRouteSet.REGEX_ONE_DIRECTORY, "") + urlSuffix;
 				}
+				String implementation = handler.getSimpleName();
 				List<DocumentedParameterJspDto> parameters = new ArrayList<>();
 				String description = method.getAnnotation(Handler.class).description();
 				parameters.addAll(createApplicableSecurityParameters(rule));
@@ -124,33 +125,32 @@ public class ApiDocService{
 						logger.warn("Could not create response example for {}", responseType, e);
 					}
 				}
-				String responseTypeString;
-				if(responseType instanceof Class){
-					responseTypeString = ((Class<?>)responseType).getSimpleName();
-				}else if(responseType instanceof ParameterizedType){
-					ParameterizedType parameterizedType = (ParameterizedType)responseType;
-					responseTypeString = ((Class<?>)parameterizedType.getRawType()).getSimpleName();
-					responseTypeString += "<";
-					responseTypeString += Arrays.stream(parameterizedType.getActualTypeArguments())
-							.map(type -> {
-								if(type instanceof Class){
-									return ((Class<?>)type).getSimpleName();
-								}
-								return type.toString();
-							})
-							.collect(Collectors.joining(","));
-					responseTypeString += ">";
-				}else{
-					responseTypeString = responseType.toString();
-				}
+				String responseTypeString = buildTypeString(responseType);
 				DocumentedResponseJspDto response = new DocumentedResponseJspDto(responseTypeString, responseExample);
-				DocumentedEndpointJspDto endpoint = new DocumentedEndpointJspDto(url, parameters, description,
-						response);
+				DocumentedEndpointJspDto endpoint = new DocumentedEndpointJspDto(url, implementation, parameters,
+						description, response);
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
 		}
 		return endpoints;
+	}
+
+	private static String buildTypeString(Type type){
+		if(type instanceof Class){
+			return ((Class<?>)type).getSimpleName();
+		}else if(type instanceof ParameterizedType){
+			ParameterizedType parameterizedType = (ParameterizedType)type;
+			String responseTypeString = ((Class<?>)parameterizedType.getRawType()).getSimpleName();
+			responseTypeString += "<";
+			responseTypeString += Arrays.stream(parameterizedType.getActualTypeArguments())
+					.map(ApiDocService::buildTypeString)
+					.collect(Collectors.joining(","));
+			responseTypeString += ">";
+			return responseTypeString;
+		}else{
+			return type.toString();
+		}
 	}
 
 	private List<DocumentedParameterJspDto> createMethodParameters(Method method){
@@ -215,9 +215,14 @@ public class ApiDocService{
 	}
 
 	private static Object createBestExample(Type type, Set<Type> parents){
+		return createBestExample(type, parents, 0);
+	}
+
+	private static Object createBestExample(Type type, Set<Type> parents, int callWithoutWarning){
 		if(parents.contains(type)){
 			return null;
 		}
+		callWithoutWarning = callWithoutWarning - 1;
 		Set<Type> parentsWithType = Scanner.concat(Scanner.of(parents), Scanner.of(type)).collect(HashSet::new);
 		if(type instanceof ParameterizedType){
 			ParameterizedType parameterizedType = (ParameterizedType)type;
@@ -237,22 +242,38 @@ public class ApiDocService{
 			if(Optional.class.isAssignableFrom(rawType)){
 				return Optional.of(createBestExample(parameterizedType.getActualTypeArguments()[0], parentsWithType));
 			}
-			if(AutoBuildable.class.isAssignableFrom(rawType)){
-				AutoBuildable autoBuildable = createWithNulls(rawType.asSubclass(AutoBuildable.class));
+			if(DocumentedGenericHolder.class.isAssignableFrom(rawType)){
+				DocumentedGenericHolder autoBuildable = (DocumentedGenericHolder)createBestExample(rawType, parents, 3);
 				List<Object> innerObjects = Arrays.stream(parameterizedType.getActualTypeArguments())
 						.map(paramType -> createBestExample(paramType, parentsWithType))
 						.collect(Collectors.toList());
-				return autoBuildable.buildEmpty(innerObjects);
+				List<String> fieldNames = autoBuildable.getGenericFieldNames();
+				for(int i = 0; i < innerObjects.size(); i++){
+					String fieldName = fieldNames.get(i);
+					Field field;
+					try{
+						field = rawType.getDeclaredField(fieldName);
+					}catch(NoSuchFieldException | SecurityException e){
+						logger.warn("fieldName={} rawType={}", fieldName, rawType, e);
+						continue;
+					}
+					field.setAccessible(true);
+					Object value = innerObjects.get(i);
+					ReflectionTool.set(field, autoBuildable, value);
+				}
+				return autoBuildable;
 			}
 			return createBestExample(rawType, parentsWithType);
 		}
 		// undocumented generic (T or E or PK)
 		if(type instanceof TypeVariable){
-			logger.warn("undocumneted generic, please use AutoBuildable type={}", type);
+			if(callWithoutWarning < 1){
+				logger.warn("undocumneted generic, please use AutoBuildable type={} parents={}", type, parents);
+			}
 			return null;
 		}
 		if(type instanceof WildcardType){
-			logger.warn("please document type={}", type);
+			logger.warn("please document type={} parents={}", type, parents);
 			return null;
 		}
 		Class<?> clazz = (Class<?>)type;
@@ -295,7 +316,7 @@ public class ApiDocService{
 			}
 			field.setAccessible(true);
 			try{
-				Object fieldExample = createBestExample(field.getGenericType(), parentsWithType);
+				Object fieldExample = createBestExample(field.getGenericType(), parentsWithType, callWithoutWarning);
 				try{
 					field.set(example, fieldExample);
 				}catch(Exception e){

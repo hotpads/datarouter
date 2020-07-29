@@ -63,10 +63,14 @@ public class NodeParams<
 
 	private final boolean disableForcePrimary;
 
+	// indicate if is a system table (to filter when exploring)
+	private final boolean isSystemTable;
+
 	private NodeParams(ClientId clientId, String parentName, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier,
 			Integer schemaVersion, String physicalName, String namespace, String entityNodePrefix,
 			String remoteRouterName, String remoteNodeName, Supplier<Boolean> recordCallsites, String streamName,
-			String queueUrl, NodewatchConfiguration nodewatchConfiguration, boolean disableForcePrimary){
+			String queueUrl, NodewatchConfiguration nodewatchConfiguration, boolean disableForcePrimary,
+			boolean isSystemTable){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
@@ -83,6 +87,7 @@ public class NodeParams<
 		this.queueUrl = queueUrl;
 		this.nodewatchConfiguration = nodewatchConfiguration;
 		this.disableForcePrimary = disableForcePrimary;
+		this.isSystemTable = isSystemTable;
 	}
 
 	/*----------------------------- builder ---------------------------------*/
@@ -110,6 +115,8 @@ public class NodeParams<
 		private NodewatchConfiguration nodewatchConfiguration;
 
 		private boolean disableForcePrimary;
+
+		private boolean isSystemTable;
 
 		/*--------------------------- construct -----------------------------*/
 
@@ -176,12 +183,17 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withIsSystemTable(boolean isSystemTable){
+			this.isSystemTable = isSystemTable;
+			return this;
+		}
+
 		/*----------------------------- build -------------------------------*/
 
 		public NodeParams<PK,D,F> build(){
 			return new NodeParams<>(clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
 					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
-					streamName, queueUrl, nodewatchConfiguration, disableForcePrimary);
+					streamName, queueUrl, nodewatchConfiguration, disableForcePrimary, isSystemTable);
 		}
 	}
 
@@ -256,6 +268,10 @@ public class NodeParams<
 
 	public boolean getDisableForcePrimary(){
 		return disableForcePrimary;
+	}
+
+	public boolean getIsSystemTable(){
+		return isSystemTable;
 	}
 
 }

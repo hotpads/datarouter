@@ -34,8 +34,8 @@ import io.datarouter.util.string.StringTool;
 
 public class SettingRoot extends SettingNode{
 
-	private final Set<SettingNode> rootNodes = Collections.synchronizedSet(new LinkedHashSet<>());
-	private final Map<SimpleSettingCategory,Set<SettingNode>> map = Collections.synchronizedMap(new LinkedHashMap<>());
+	private final Set<SettingRoot> rootNodes = Collections.synchronizedSet(new LinkedHashSet<>());
+	private final Map<SimpleSettingCategory,Set<SettingRoot>> map = Collections.synchronizedMap(new LinkedHashMap<>());
 	private final SimpleSettingCategory category;
 
 	public SettingRoot(SettingFinder finder, SettingCategory category, String name){
@@ -115,7 +115,7 @@ public class SettingRoot extends SettingNode{
 		map.computeIfAbsent(root.getSettingCategory().toSimpleSettingCategory(), $ -> new LinkedHashSet<>()).add(root);
 	}
 
-	public Map<SimpleSettingCategory,Set<SettingNode>> getRootNodesByCategory(){
+	public Map<SimpleSettingCategory,Set<SettingRoot>> getRootNodesByCategory(){
 		return map;
 	}
 

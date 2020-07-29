@@ -13,7 +13,7 @@ deployed in a while.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-webapp-instance</artifactId>
-	<version>0.0.41</version>
+	<version>0.0.42</version>
 </dependency>
 ```
 
@@ -36,7 +36,7 @@ This can help track when each version of the code was deployed.
 
 #### Stale Webapp Alerts
 
-For teams that manually deploy their code and want to ensure it doesn't fall too far behind their master branch, a
+For teams that manually deploy their code and want to ensure it doesn't fall too far behind their main branch, a
 WebappInstanceAlertJob will email the administrators when it finds any instances older than some configured time.  The
 default alert threshold is set to 7 days.
 

@@ -53,7 +53,6 @@ import io.datarouter.storage.setting.SettingRootsSupplier.SettingRoots;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.util.ordered.OrderedTool;
-import io.datarouter.web.config.DatarouterWebPlugin.DatarouterWebDaoModule;
 import io.datarouter.web.config.DatarouterWebPlugin.DatarouterWebPluginBuilder;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
@@ -244,7 +243,6 @@ implements WebappBuilder{
 				.setUserSesssionServiceClass(userSessionService)
 				.setAppListenerClasses(OrderedTool.combine(appListenersOrdered, appListenersUnordered))
 				.setWebAppListenerClasses(OrderedTool.combine(webAppListenersOrdered, webAppListenersUnordered))
-				.setDaoModule(new DatarouterWebDaoModule(defaultClientId))
 				.setDatarouterNavBarMenuItems(datarouterNavBarPluginItems)
 				.setAppNavBarMenuItems(appNavBarPluginItems)
 				.setDatarouterUserExternalDetails(datarouterUserExternalDetail)

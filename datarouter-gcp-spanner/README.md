@@ -9,7 +9,7 @@ datarouter-gcp-spanner is an implementation of [datarouter-storage](../dataroute
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-gcp-spanner</artifactId>
-	<version>0.0.41</version>
+	<version>0.0.42</version>
 </dependency>
 ```
 

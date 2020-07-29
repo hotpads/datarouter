@@ -162,7 +162,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 					.setOutputBatchSize(batchSize.orElse(1000))
 					.setScannerCaching(false) //disabled due to BigTable bug?
 					.setTimeout(Duration.ofMinutes(1))
-					.setSlaveOk(true)
+					.anyDelay()
 					.setNumAttempts(1);
 			limit.ifPresent(config::setLimit);
 			int printBatchSize = logBatchSize.orElse(100_000);

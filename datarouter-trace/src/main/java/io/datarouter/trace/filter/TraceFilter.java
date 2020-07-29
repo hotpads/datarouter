@@ -141,13 +141,14 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				tracer.finishThread();
 				trace.markFinished();
 
+				boolean saveTraces = traceSettings.saveTraces.get();
 				int saveCutoff = traceSettings.saveTracesOverMs.get();
 				boolean requestForceSave = RequestTool.getBoolean(request, "trace", false);
 				boolean tracerForceSave = tracer.getForceSave();
 				String requestId = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.X_REQUEST_ID);
 
 				Long traceDurationMs = trace.getDuration();
-				if(traceDurationMs > saveCutoff || requestForceSave || tracerForceSave || errored){
+				if(saveTraces && traceDurationMs > saveCutoff || requestForceSave || tracerForceSave || errored){
 					List<TraceThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
 					List<TraceSpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 					trace.setDiscardedThreadCount(tracer.getDiscardedThreadCount());

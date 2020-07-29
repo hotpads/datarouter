@@ -17,6 +17,7 @@ package io.datarouter.storage.setting.cached.impl;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.DefaultSettingValue;
@@ -39,6 +40,13 @@ public class CommaSeparatedStringCachedSetting extends CachedSetting<Set<String>
 	public Set<String> parseStringValue(String stringValue){
 		return Scanner.of(stringValue.split(","))
 				.collect(HashSet::new);
+	}
+
+	@Override
+	public String toStringValue(Set<String> value){
+		return value.stream()
+			.sorted()
+			.collect(Collectors.joining(","));
 	}
 
 }

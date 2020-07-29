@@ -92,7 +92,6 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 	public static class DatarouterTaskTrackerPluginBuilder{
 
 		private final ClientId defaultClientId;
-		private DatarouterTaskTrackerDaoModule daoModule;
 
 		private Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLinkClass =
 				NoOpLongRunningTaskGraphLink.class;
@@ -115,16 +114,11 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterTaskTrackerPluginBuilder setDaoModule(DatarouterTaskTrackerDaoModule daoModule){
-			this.daoModule = daoModule;
-			return this;
-		}
-
 		public DatarouterTaskTrackerPlugin build(){
 			return new DatarouterTaskTrackerPlugin(
 					longRunningTaskGraphLinkClass,
 					exceptionLinkClass,
-					daoModule == null ? new DatarouterTaskTrackerDaoModule(defaultClientId) : daoModule);
+					new DatarouterTaskTrackerDaoModule(defaultClientId));
 		}
 
 	}

@@ -58,17 +58,17 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		List<DnsHostEntryDto> mismatchedSlaveEntries = dnsService.checkSlaveEndpoint().getRight();
-		if(mismatchedSlaveEntries.isEmpty()){
+		List<DnsHostEntryDto> mismatchedReaderEntries = dnsService.checkReaderEndpoint().getRight();
+		if(mismatchedReaderEntries.isEmpty()){
 			return;
 		}
-		Scanner.of(mismatchedSlaveEntries)
+		Scanner.of(mismatchedReaderEntries)
 				.map(config::fixDatabaseDns)
-				.flush(fixes -> sendEmail(mismatchedSlaveEntries, fixes));
-		mismatchedSlaveEntries.forEach(entry -> recordChangelog(entry.getInstanceHostname()));
+				.flush(fixes -> sendEmail(mismatchedReaderEntries, fixes));
+		mismatchedReaderEntries.forEach(entry -> recordChangelog(entry.getInstanceHostname()));
 	}
 
-	private void sendEmail(List<DnsHostEntryDto> mismatchedSlaveEntries, List<String> fixes){
+	private void sendEmail(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
 		String fromEmail = datarouterProperties.getAdministratorEmail();
 		String toEmail = additionalAdministratorEmailService.getAdministratorEmailAddressesCsv();
 		String primaryHref = htmlEmailService.startLinkBuilder()
@@ -77,17 +77,17 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withTitle("Aurora DNS")
 				.withTitleHref(primaryHref)
-				.withContent(makeEmailContent(mismatchedSlaveEntries, fixes));
+				.withContent(makeEmailContent(mismatchedReaderEntries, fixes));
 		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
 	}
 
-	private static ContainerTag makeEmailContent(List<DnsHostEntryDto> mismatchedSlaveEntries, List<String> fixes){
-		var message = h3("Some of the slave DB instances are pointed to the writer instance.");
+	private static ContainerTag makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
+		var message = h3("Some of the reader DB instances are pointed to the writer instance.");
 		var table = new J2HtmlEmailTable<DnsHostEntryDto>()
 				.withColumn("client name", row -> row.getClientName())
 				.withColumn("hostname", row -> row.getHostname())
 				.withColumn("instance hostname", row -> row.getInstanceHostname())
-				.build(mismatchedSlaveEntries);
+				.build(mismatchedReaderEntries);
 		var fixList = div()
 				.with(h3("Executing suggested fixes to reset DNS:"));
 		fixes.forEach(fix -> fixList

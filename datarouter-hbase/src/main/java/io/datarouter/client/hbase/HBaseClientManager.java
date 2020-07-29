@@ -141,7 +141,6 @@ public class HBaseClientManager extends BaseClientManager{
 
 	@Override
 	public void shutdown(ClientId clientId){
-		logger.warn("shutting down client:" + clientId.getName());
 		hBaseSchemaUpdateService.gatherSchemaUpdates(true);
 		getHTablePool(clientId).shutdown();
 		eagerlyInitializeShutdownHookManager();

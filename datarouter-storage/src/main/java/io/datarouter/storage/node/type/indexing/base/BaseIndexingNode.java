@@ -52,7 +52,7 @@ extends BaseNode<PK,D,F>{
 
 	/*--------------------------- node methods ------------------------------*/
 
-	// TODO allow indexes to be on different clients than the master node
+	// TODO allow indexes to be on different clients than the primary node
 
 	@Override
 	public final String getName(){

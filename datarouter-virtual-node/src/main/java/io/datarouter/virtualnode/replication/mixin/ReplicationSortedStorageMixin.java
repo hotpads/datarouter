@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.virtualnode.masterslave.mixin;
+package io.datarouter.virtualnode.replication.mixin;
 
 import java.util.Collection;
 
@@ -25,23 +25,23 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.SortedStorage;
 import io.datarouter.storage.node.op.raw.SortedStorage.SortedStorageNode;
 import io.datarouter.util.tuple.Range;
-import io.datarouter.virtualnode.masterslave.MasterSlaveNode;
+import io.datarouter.virtualnode.replication.ReplicationNode;
 
-public interface MasterSlaveSortedStorageMixin<
+public interface ReplicationSortedStorageMixin<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>,
 		N extends SortedStorageNode<PK,D,F>>
-extends MasterSlaveNode<PK,D,F,N>, SortedStorage<PK,D>{
+extends ReplicationNode<PK,D,F,N>, SortedStorage<PK,D>{
 
 	@Override
 	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
-		return chooseSlaveOrElseMaster(config).scanRangesKeys(ranges, config);
+		return choosePrimaryOrReplica(config).scanRangesKeys(ranges, config);
 	}
 
 	@Override
 	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
-		return chooseSlaveOrElseMaster(config).scanRanges(ranges, config);
+		return choosePrimaryOrReplica(config).scanRanges(ranges, config);
 	}
 
 }

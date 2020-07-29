@@ -51,6 +51,7 @@ public class NodeBuilder<
 	private Integer schemaVersion;
 	private NodewatchConfigurationBuilder nodewatchConfigurationBuilder;
 	private boolean disableForcePrimary;
+	private boolean isSystemTable;
 
 	public NodeBuilder(
 			BaseNodeFactory nodeFactory,
@@ -85,6 +86,11 @@ public class NodeBuilder<
 
 	public NodeBuilder<EK,PK,D,F> withDisableForcePrimary(boolean disableForcePrimary){
 		this.disableForcePrimary = disableForcePrimary;
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> withIsSystemTable(boolean isSystemTable){
+		this.isSystemTable = isSystemTable;
 		return this;
 	}
 
@@ -165,6 +171,7 @@ public class NodeBuilder<
 				.withSchemaVersion(schemaVersion)
 				.withTableConfiguration(tableConfig)
 				.withDisableForcePrimary(disableForcePrimary)
+				.withIsSystemTable(isSystemTable)
 				.build();
 		EntityNodeParams<EK,DefaultEntity<EK>> entityNodeParams = new EntityNodeParams<>(
 				clientId.getName() + "." + entityName,

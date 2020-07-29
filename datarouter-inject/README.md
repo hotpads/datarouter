@@ -8,7 +8,7 @@ datarouter-inject provides an interface for dependency injection frameworks. It 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-inject</artifactId>
-	<version>0.0.41</version>
+	<version>0.0.42</version>
 </dependency>
 ```
 
