@@ -24,13 +24,13 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import io.datarouter.aws.memcached.client.AwsMemcachedOptions;
+import io.datarouter.aws.memcached.client.MemcachedClientMode;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
-import net.spy.memcached.ClientMode;
 
 public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 
@@ -39,9 +39,9 @@ public class AwsMemcachedWebInspector extends MemcachedWebInspector{
 
 	@Override
 	protected Pair<Integer,ContainerTag> getDetails(ClientId clientId){
-		ClientMode mode = options.getClientMode(clientId.getName());
+		MemcachedClientMode mode = options.getClientMode(clientId.getName());
 		Pair<Integer,ContainerTag> nodeCountByNodeTag = new Pair<>();
-		if(mode == ClientMode.Dynamic){
+		if(mode == MemcachedClientMode.DYNAMIC){
 			List<AwsMemcachedNodeEndpointDto> nodeEndpointDtos = getClient(clientId).getAllNodeEndPoints().stream()
 					.map(nodeEndPoint -> new AwsMemcachedNodeEndpointDto(
 							nodeEndPoint.getHostName(),

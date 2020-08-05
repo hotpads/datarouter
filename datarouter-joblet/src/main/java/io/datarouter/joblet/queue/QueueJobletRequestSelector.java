@@ -23,10 +23,10 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.joblet.DatarouterJobletConstants;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.enums.JobletStatus;
+import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
@@ -48,6 +48,8 @@ public class QueueJobletRequestSelector implements JobletRequestSelector{
 	private DatarouterJobletCounters datarouterJobletCounters;
 	@Inject
 	private DatarouterJobletQueueDao jobletQueueDao;
+	@Inject
+	private DatarouterJobletSettingRoot datarouterJobletSettingRoot;
 
 	@Override
 	public Optional<JobletRequest> getJobletRequestForProcessing(
@@ -63,7 +65,7 @@ public class QueueJobletRequestSelector implements JobletRequestSelector{
 			// set timeout to 0 so we return immediately. processor threads can do the waiting
 			Config config = new Config()
 					.setTimeout(Duration.ofMillis(0))
-					.setVisibilityTimeoutMs(DatarouterJobletConstants.RUNNING_JOBLET_TIMEOUT_MS);
+					.setVisibilityTimeoutMs(datarouterJobletSettingRoot.jobletTimeout.get().toMillis());
 			QueueMessage<JobletRequestKey,JobletRequest> message = jobletQueueDao.getQueue(queueKey).peek(config);
 			timer.add("peek");
 			if(message == null){

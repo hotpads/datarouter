@@ -24,7 +24,6 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import java.text.DecimalFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
@@ -33,7 +32,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.job.TableSizeMonitoringJob.CountStat;
-import io.datarouter.nodewatch.storage.tablecount.TableCount;
+import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -55,7 +54,7 @@ public class TableSizeMonitoringEmailBuilder{
 			List<CountStat> thresholdRows,
 			float percentageThreshold,
 			List<CountStat> percentageRows,
-			List<TableCount> staleRows){
+			List<LatestTableCount> staleRows){
 		var body = body()
 				.with(h4("Service: " + serviceName));
 		if(thresholdRows.size() > 0){
@@ -72,13 +71,14 @@ public class TableSizeMonitoringEmailBuilder{
 		if(staleRows.size() > 0){
 			var header = h4("Unrecognized tables");
 			var header2 = p("Please reply-all to confirm these tables can be dropped from the database.");
-			var table = new J2HtmlEmailTable<TableCount>()
+			var table = new J2HtmlEmailTable<LatestTableCount>()
 					.withColumn("CLIENT", row -> row.getKey().getClientName())
-					.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(row)))
+					.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(
+							row.getKey().getTableName(),
+							row.getKey().getClientName())))
 					.withColumn(alignRight("LATEST COUNT", row -> NumberFormatter.addCommas(row.getNumRows())))
-					.withColumn(alignRight("DATE CREATED", row -> DateTool.getNumericDate(
-							new Date(row.getKey().getCreatedMs()))))
 					.withColumn(alignRight("DATE UPDATED", row -> DateTool.getNumericDate(row.getDateUpdated())))
+					.withColumn(alignRight("UPDATED AGO", row -> DateTool.getAgoString(row.getDateUpdated().getTime())))
 					.build(staleRows);
 			body.with(div(header, header2, table));
 		}
@@ -91,7 +91,9 @@ public class TableSizeMonitoringEmailBuilder{
 	private ContainerTag makeCountStatTable(String comparableCount, List<CountStat> stats){
 		return new J2HtmlEmailTable<CountStat>()
 				.withColumn("CLIENT", row -> row.latestSample.getKey().getClientName())
-				.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(row.latestSample)))
+				.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(
+						row.latestSample.getKey().getTableName(),
+						row.latestSample.getKey().getClientName())))
 				.withColumn("DATE UPDATED", row -> DateTool.getDateTime(row.latestSample.getDateUpdated()))
 				.withColumn(alignRight(comparableCount, row -> NumberFormatter.addCommas(row.previousCount)))
 				.withColumn(alignRight("LATEST COUNT", row -> NumberFormatter.addCommas(row.latestSample.getNumRows())))
@@ -106,14 +108,14 @@ public class TableSizeMonitoringEmailBuilder{
 				.withStyle("text-align:right");
 	}
 
-	private ContainerTag makeTableLink(TableCount tableCount){
+	private ContainerTag makeTableLink(String tableName, String clientName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.withParam("submitAction", "singleTable")
-				.withParam("tableName", tableCount.getKey().getTableName())
-				.withParam("clientName", tableCount.getKey().getClientName())
+				.withParam("tableName", tableName)
+				.withParam("clientName", clientName)
 				.build();
-		return a(tableCount.getKey().getTableName())
+		return a(tableName)
 				.withHref(href);
 	}
 

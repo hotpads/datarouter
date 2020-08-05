@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
+import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
@@ -29,6 +30,7 @@ import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsBuilder;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao.DatarouterClusterSchemaUpdateLockDaoParams;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
@@ -54,6 +56,8 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 			bind(DatarouterProperties.class).to(MysqlDatarouterProperties.class);
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
 			bindActual(SchemaUpdateOptionsFactory.class, DatarouterMysqlSchemaUpdateOptionsFactory.class);
+			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
+					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(DatarouterMysqlTestClientids.MYSQL));
 		}
 
 	}

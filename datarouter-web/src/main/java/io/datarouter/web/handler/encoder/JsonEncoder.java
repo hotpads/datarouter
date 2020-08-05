@@ -81,10 +81,11 @@ public class JsonEncoder implements HandlerEncoder{
 	}
 
 	private String getJsonForException(HandledException exception){
-		if(exception.getHttpResponseBody() == null){
+		Object httpResponseBody = exception.getHttpResponseBody();
+		if(httpResponseBody == null){
 			return ResponseTool.getJsonForMessage(exception.getHttpResponseCode(), exception.getMessage());
 		}
-		return serialize(exception.getHttpResponseBody());
+		return serialize(httpResponseBody);
 	}
 
 	@Override

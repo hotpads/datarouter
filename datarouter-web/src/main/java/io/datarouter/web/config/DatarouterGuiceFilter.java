@@ -17,25 +17,20 @@ package io.datarouter.web.config;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.servlet.GuiceFilter;
 
-import io.datarouter.util.timer.PhaseTimer;
-
-@WebFilter(value = "/*")
 public class DatarouterGuiceFilter extends GuiceFilter{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterGuiceFilter.class);
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException{
-		PhaseTimer timer = new PhaseTimer();
+		long start = System.currentTimeMillis();
 		super.init(filterConfig);
-		timer.add("DatarouterGuiceFilter");
-		logger.warn("{}", timer);
+		logger.warn("DatarouterGuiceFilterInitMs={}", System.currentTimeMillis() - start);
 	}
 
 }

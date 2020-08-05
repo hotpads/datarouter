@@ -20,7 +20,6 @@ import java.util.Properties;
 import io.datarouter.aws.memcached.AwsMemcachedClientType;
 import io.datarouter.client.memcached.client.MemcachedClientOptionsBuilder;
 import io.datarouter.storage.client.ClientId;
-import net.spy.memcached.ClientMode;
 
 public class AwsMemcachedClientOptionsBuilder extends MemcachedClientOptionsBuilder{
 
@@ -28,10 +27,10 @@ public class AwsMemcachedClientOptionsBuilder extends MemcachedClientOptionsBuil
 		super(clientId, AwsMemcachedClientType.NAME);
 	}
 
-	public AwsMemcachedClientOptionsBuilder withClientMode(ClientMode clientMode){
+	public AwsMemcachedClientOptionsBuilder withClientMode(MemcachedClientMode clientMode){
 		String optionKeySuffix = AwsMemcachedOptions.makeAwsMemcachedKey(AwsMemcachedOptions.PROP_clientMode);
 		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, clientMode.name().toLowerCase());
+		properties.setProperty(optionKey, clientMode.getPersistentString());
 		return this;
 	}
 

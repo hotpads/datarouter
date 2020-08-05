@@ -25,7 +25,6 @@ import javax.inject.Singleton;
 import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.SpyMemcachedClient;
 import io.datarouter.storage.client.ClientId;
-import net.spy.memcached.ClientMode;
 import net.spy.memcached.DefaultConnectionFactory;
 import net.spy.memcached.KetamaConnectionFactory;
 
@@ -37,10 +36,10 @@ public class AwsMemcachedClientManager extends MemcachedClientManager{
 
 	@Override
 	protected SpyMemcachedClient buildSpyClient(ClientId clientId){
-		ClientMode clientMode = options.getClientMode(clientId.getName());
+		MemcachedClientMode clientMode = options.getClientMode(clientId.getName());
 		// use KetamaConnectionFactory for consistent hashing between memcached nodes
 		var ketamaConnectionFactory = new KetamaConnectionFactory(
-				clientMode,
+				clientMode.getClientMode(),
 				DefaultConnectionFactory.DEFAULT_OP_QUEUE_LEN,
 				DefaultConnectionFactory.DEFAULT_READ_BUFFER_SIZE,
 				DefaultConnectionFactory.DEFAULT_OP_QUEUE_MAX_BLOCK_TIME){
@@ -51,7 +50,7 @@ public class AwsMemcachedClientManager extends MemcachedClientManager{
 		};
 
 		List<InetSocketAddress> addresses;
-		if(clientMode == ClientMode.Dynamic){
+		if(clientMode == MemcachedClientMode.DYNAMIC){
 			// builds aws-memcached-client with cluster endpoint and enable auto-discovery
 			addresses = options.getClusterEndpoint(clientId.getName())
 					.map(List::of)

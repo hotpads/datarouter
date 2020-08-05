@@ -87,7 +87,7 @@ implements Setting<T>{
 	}
 
 	public String toStringDefaultValue(){
-		return toStringValue(getDefaultValue());
+		return toStringValue(defaultSettingValue.getGlobalDefault());
 	}
 
 	@Override

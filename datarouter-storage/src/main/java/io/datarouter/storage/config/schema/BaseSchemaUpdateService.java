@@ -15,13 +15,13 @@
  */
 package io.datarouter.storage.config.schema;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,13 +30,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import javax.inject.Provider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.ClusterSchemaUpdateLock;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.mutable.MutableString;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
@@ -49,6 +54,9 @@ public abstract class BaseSchemaUpdateService{
 	private final DatarouterProperties datarouterProperties;
 	private final DatarouterAdministratorEmailService adminEmailService;
 	private final DatarouterSchemaUpdateScheduler executor;
+	private final Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao;
+	private final Provider<ChangelogRecorder> changelogRecorder;
+	private final String buildId;
 
 	private final Map<ClientId,Supplier<List<String>>> existingTableNamesByClient;
 	private final List<Future<Optional<SchemaUpdateResult>>> futures;
@@ -56,10 +64,16 @@ public abstract class BaseSchemaUpdateService{
 	public BaseSchemaUpdateService(
 			DatarouterProperties datarouterProperties,
 			DatarouterAdministratorEmailService adminEmailService,
-			DatarouterSchemaUpdateScheduler executor){
+			DatarouterSchemaUpdateScheduler executor,
+			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
+			Provider<ChangelogRecorder> changelogRecorder,
+			String buildId){
 		this.datarouterProperties = datarouterProperties;
 		this.adminEmailService = adminEmailService;
 		this.executor = executor;
+		this.schemaUpdateLockDao = schemaUpdateLockDao;
+		this.changelogRecorder = changelogRecorder;
+		this.buildId = buildId;
 
 		this.futures = Collections.synchronizedList(new ArrayList<>());
 		this.existingTableNamesByClient = new ConcurrentHashMap<>();
@@ -110,8 +124,10 @@ public abstract class BaseSchemaUpdateService{
 				shouldNotify = false;
 			}
 		}
-		if(shouldNotify){
+
+		if(shouldNotify && acquireSchemaUpdateLock(printedSchemaUpdates)){
 			sendEmail(printedSchemaUpdates);
+			recordChangelog(printedSchemaUpdates);
 		}
 		if(!oneStartupBlockReason.getString().isEmpty()){
 			logger.error(oneStartupBlockReason.getString());
@@ -123,16 +139,18 @@ public abstract class BaseSchemaUpdateService{
 		if(printedSchemaUpdates.isEmpty()){
 			return;
 		}
-		for(Entry<ClientId,List<String>> clientAndDdls : printedSchemaUpdates.entrySet()){
-			String subject = "SchemaUpdate request on " + clientAndDdls.getKey().getName() + " from "
+		printedSchemaUpdates.forEach((clientId, ddlList) -> {
+			String subject = "SchemaUpdate request on " + clientId.getName() + " from "
 					+ datarouterProperties.getEnvironment();
-			StringBuilder body = new StringBuilder();
-			for(String update : clientAndDdls.getValue()){
-				body.append(update + "\n\n");
-			}
-			sendEmail(datarouterProperties.getAdministratorEmail(),
-					adminEmailService.getAdministratorEmailAddressesCsv(), subject, body.toString());
-		}
+			StringBuilder allStatements = new StringBuilder();
+			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));
+			logger.warn("Sending schema update email for client={}", clientId.getName());
+			sendEmail(
+					datarouterProperties.getAdministratorEmail(),
+					adminEmailService.getAdministratorEmailAddressesCsv(),
+					subject,
+					allStatements.toString());
+		});
 	}
 
 	protected abstract void sendEmail(String fromEmail, String toEmail, String subject, String body);
@@ -142,5 +160,46 @@ public abstract class BaseSchemaUpdateService{
 	}
 
 	protected abstract List<String> fetchExistingTables(ClientId clientId);
+
+	private boolean acquireSchemaUpdateLock(Map<ClientId,List<String>> printedSchemaUpdates){
+		if(printedSchemaUpdates.isEmpty()){
+			return false;
+		}
+		String statement = printedSchemaUpdates.entrySet().stream()
+				.findFirst()
+				.map(entry -> String.join("\n\n", entry.getValue()))
+				.get();
+		Instant now = Instant.now();
+		Integer build = Optional.ofNullable(buildId)
+				.filter(buildId -> !"${env.BUILD_NUMBER}".equals(buildId))
+				.map(Integer::valueOf)
+				.orElseGet(() -> (int)now.getEpochSecond());
+		ClusterSchemaUpdateLock lock = new ClusterSchemaUpdateLock(
+				build,
+				statement,
+				datarouterProperties.getServerName(),
+				now);
+		try{
+			schemaUpdateLockDao.get().putAndAcquire(lock);
+			logger.warn("Acquired schema update lock for hash={}", lock.getKey().getStatementHash());
+			return true;
+		}catch(Exception ex){
+			logger.warn("Didn't acquire schema update lock for hash={}", lock.getKey().getStatementHash());
+			return false;
+		}
+	}
+
+	private void recordChangelog(Map<ClientId,List<String>> printedSchemaUpdates){
+		printedSchemaUpdates.forEach((clientId, ddlList) -> {
+			StringBuilder allStatements = new StringBuilder();
+			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));
+			changelogRecorder.get().record(
+					"SchemaUpdate",
+					"clientId: " + clientId.getName(),
+					"SchemaUpdate request",
+					datarouterProperties.getAdministratorEmail(),
+					allStatements.toString());
+		});
+	}
 
 }

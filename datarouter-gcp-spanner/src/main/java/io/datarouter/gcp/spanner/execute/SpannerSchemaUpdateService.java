@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import com.google.cloud.spanner.DatabaseClient;
@@ -33,15 +34,18 @@ import com.google.cloud.spanner.Statement;
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.ddl.SpannerSingleTableSchemaUpdateFactory;
 import io.datarouter.gcp.spanner.ddl.SpannerTableOperationsGenerator;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.monitoring.BuildProperties;
 
 @Singleton
 public class SpannerSchemaUpdateService extends BaseSchemaUpdateService{
@@ -61,8 +65,16 @@ public class SpannerSchemaUpdateService extends BaseSchemaUpdateService{
 			DatarouterSchemaUpdateScheduler executor,
 			SpannerDatabaseClientsHolder clientPoolHolder,
 			DatarouterHtmlEmailService htmlEmailService,
-			DatarouterWebPaths datarouterWebPaths){
-		super(datarouterProperties, adminEmailService, executor);
+			DatarouterWebPaths datarouterWebPaths,
+			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
+			Provider<ChangelogRecorder> changelogRecorder,
+			BuildProperties buildProperties){
+		super(datarouterProperties,
+				adminEmailService,
+				executor,
+				schemaUpdateLockDao,
+				changelogRecorder,
+				buildProperties.getBuildId());
 		this.singleTableSchemaUpdateFactory = singleTableSchemaUpdateFactory;
 		this.tableOperationsGenerator = tableOperationsGenerator;
 		this.clientPoolHolder = clientPoolHolder;

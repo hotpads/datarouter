@@ -25,19 +25,23 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.util.MysqlTool;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.monitoring.BuildProperties;
 
 @Singleton
 public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
@@ -55,8 +59,16 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 			DatarouterSchemaUpdateScheduler executor,
 			DatarouterHtmlEmailService htmlEmailService,
 			MysqlConnectionPoolHolder mysqlConnectionPoolHolder,
-			DatarouterWebPaths datarouterWebPaths){
-		super(datarouterProperties, adminEmailService, executor);
+			DatarouterWebPaths datarouterWebPaths,
+			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
+			Provider<ChangelogRecorder> changelogRecorder,
+			BuildProperties buildProperties){
+		super(datarouterProperties,
+				adminEmailService,
+				executor,
+				schemaUpdateLockDao,
+				changelogRecorder,
+				buildProperties.getBuildId());
 		this.mysqlSingleTableSchemaUpdateService = mysqlSingleTableSchemaUpdateService;
 		this.htmlEmailService = htmlEmailService;
 		this.mysqlConnectionPoolHolder = mysqlConnectionPoolHolder;

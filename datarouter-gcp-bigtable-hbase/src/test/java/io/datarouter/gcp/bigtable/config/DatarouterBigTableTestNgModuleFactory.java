@@ -16,12 +16,17 @@
 package io.datarouter.gcp.bigtable.config;
 
 import java.util.List;
+import java.util.Properties;
 
+import io.datarouter.gcp.bigtable.test.DatarouterBigTableTestClientIds;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.schema.SchemaUpdateOptionsBuilder;
+import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao.DatarouterClusterSchemaUpdateLockDaoParams;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
@@ -42,6 +47,10 @@ public class DatarouterBigTableTestNgModuleFactory extends TestNgModuleFactory{
 			bind(DatarouterService.class).to(NoOpDatarouterService.class);
 			bind(DatarouterProperties.class).to(BigTableTestDatarouterProperties.class);
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+			bindActual(SchemaUpdateOptionsFactory.class, DatarouterBigTableSchemaUpdateOptionsFactory.class);
+			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
+					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
+							DatarouterBigTableTestClientIds.BIG_TABLE));
 		}
 
 	}
@@ -51,6 +60,17 @@ public class DatarouterBigTableTestNgModuleFactory extends TestNgModuleFactory{
 		@Override
 		public String getDatarouterPropertiesFileLocation(){
 			return getTestConfigDirectory() + "/bigtable.properties";
+		}
+
+	}
+
+	public static class DatarouterBigTableSchemaUpdateOptionsFactory implements SchemaUpdateOptionsFactory{
+
+		@Override
+		public Properties getInternalConfigDirectoryTypeSchemaUpdateOptions(String internalConfigDirectoryTypeName){
+			return new SchemaUpdateOptionsBuilder(true)
+					.enableAllSchemaUpdateExecuteOptions()
+					.build();
 		}
 
 	}

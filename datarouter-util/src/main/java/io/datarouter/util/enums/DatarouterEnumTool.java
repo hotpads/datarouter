@@ -16,7 +16,6 @@
 package io.datarouter.util.enums;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -25,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
@@ -76,8 +76,8 @@ public class DatarouterEnumTool{
 		if(value == null){
 			return Optional.empty();
 		}
-		return Arrays.stream(values)
-				.filter(type -> type.getPersistentInteger().equals(value))
+		return Scanner.of(values)
+				.include(type -> type.getPersistentInteger().equals(value))
 				.findFirst();
 	}
 
@@ -90,6 +90,7 @@ public class DatarouterEnumTool{
 		return getEnumFromStringOptional(values, value, true).orElse(defaultEnum);
 	}
 
+	// TODO rename to findEnumFromString
 	public static <T extends PersistentString> Optional<T> getEnumFromStringOptional(T[] values, String value){
 		return getEnumFromStringOptional(values, value, true);
 	}

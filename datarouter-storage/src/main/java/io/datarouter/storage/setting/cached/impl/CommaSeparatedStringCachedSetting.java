@@ -26,6 +26,8 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 
 public class CommaSeparatedStringCachedSetting extends CachedSetting<Set<String>>{
 
+	private static final String SEPARATOR = ",";
+
 	public CommaSeparatedStringCachedSetting(SettingFinder finder, String name,
 			DefaultSettingValue<Set<String>> defaultValue){
 		super(finder, name, defaultValue);
@@ -38,7 +40,7 @@ public class CommaSeparatedStringCachedSetting extends CachedSetting<Set<String>
 
 	@Override
 	public Set<String> parseStringValue(String stringValue){
-		return Scanner.of(stringValue.split(","))
+		return Scanner.of(stringValue.split(SEPARATOR))
 				.collect(HashSet::new);
 	}
 
@@ -46,7 +48,7 @@ public class CommaSeparatedStringCachedSetting extends CachedSetting<Set<String>
 	public String toStringValue(Set<String> value){
 		return value.stream()
 			.sorted()
-			.collect(Collectors.joining(","));
+			.collect(Collectors.joining(SEPARATOR));
 	}
 
 }

@@ -51,7 +51,7 @@ public class DatarouterHtmlEmailService{
 			J2HtmlDatarouterEmailBuilder emailBuilder){
 		J2HtmlDatarouterEmail email = emailBuilder.build();
 		ContainerTag body = email.build();
-		String bodyString = body.renderFormatted();
+		String bodyString = body.render();
 		trySend(fromEmail, toEmail, emailBuilder.getSubject(), bodyString);
 	}
 

@@ -263,7 +263,7 @@
 							current: <strong>${setting.value}</strong>
 						</div>
 						<div class="w-100 py-1 px-1 px-sm-4 text-break">
-							default: <strong>${setting.defaultValue}</strong>
+							global default: <strong>${setting.defaultValue}</strong>
 						</div>
 						<div class="w-100 py-1 px-1 px-sm-4">
 							<span class="font-weight-bold">${fn:length(setting.codeOverrides)}</span> code overrides

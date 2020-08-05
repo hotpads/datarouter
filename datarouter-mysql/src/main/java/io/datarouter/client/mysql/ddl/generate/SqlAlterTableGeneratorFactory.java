@@ -25,12 +25,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.ddl.domain.SqlIndex;
 import io.datarouter.client.mysql.ddl.domain.SqlTable;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 
+@Singleton
 public class SqlAlterTableGeneratorFactory{
 
 	private enum PrintVersion{
@@ -102,9 +104,9 @@ public class SqlAlterTableGeneratorFactory{
 					scanner = Stream.of(quickPrintAlters, thoroughPrintAlters);
 				}
 				print = Optional.of(scanner
-						.map(cluases -> makeAlter(alterTablePrefix, cluases) + "\n"
+						.map(clauses -> makeAlter(alterTablePrefix, clauses) + "\n"
 								+ "\n"
-								+ percona(hostname, databaseName, tableName, cluases))
+								+ percona(hostname, databaseName, tableName, clauses))
 						.collect(Collectors.joining("\n\n")));
 			}
 			return new Ddl(

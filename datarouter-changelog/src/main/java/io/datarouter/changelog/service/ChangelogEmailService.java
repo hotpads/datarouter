@@ -16,7 +16,7 @@
 package io.datarouter.changelog.service;
 
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.text;
+import static j2html.TagCreator.span;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +33,7 @@ import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 
@@ -84,12 +85,16 @@ public class ChangelogEmailService{
 				new Twin<>("Comment", comment));
 		return new J2HtmlEmailTable<Twin<String>>()
 				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> text(row.getRight())))
+				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeSpanWhiteSpacePre(row.getRight())))
 				.build(rows);
 	}
 
 	private static DomContent makeDivBoldRight(String text){
 		return div(text).withStyle("font-weight:bold;text-align:right;");
+	}
+
+	private static DomContent makeSpanWhiteSpacePre(String text){
+		return TagCreator.rawHtml(span(text).withStyle("white-space:pre").render());
 	}
 
 }

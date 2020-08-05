@@ -55,6 +55,7 @@ public abstract class BaseJoblet<T> implements Joblet<T>{
 			throw new UncheckedInterruptedException("interrupted");
 		}
 		if(jobletRequest.getShutdownRequested().isTrue()){
+			logger.warn("throwing UIE because shutdownRequested");
 			throw new UncheckedInterruptedException("shutdownRequested");
 		}
 	}

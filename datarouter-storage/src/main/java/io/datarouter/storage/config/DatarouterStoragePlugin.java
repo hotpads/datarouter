@@ -18,12 +18,16 @@ package io.datarouter.storage.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptionsFactory;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
 import io.datarouter.storage.config.setting.DatarouterSettingOverrides;
 import io.datarouter.storage.config.setting.DatarouterStorageSettingRoot;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao.DatarouterClusterSchemaUpdateLockDaoParams;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaoClasses;
+import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
@@ -40,10 +44,11 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 	private final Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 	private final Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass;
 	private final List<Class<? extends Dao>> daoClasses;
+	private final DatarouterStorageDaosModule daosModule;
 
 	// only used to get simple data from plugin
-	private DatarouterStoragePlugin(){
-		this(null, null, null, null, null, null, null, null);
+	private DatarouterStoragePlugin(DatarouterStorageDaosModule daosModule){
+		this(null, null, null, null, null, null, null, null, daosModule);
 	}
 
 	private DatarouterStoragePlugin(
@@ -54,8 +59,9 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 			SettingRoots settingRoots,
 			Class<? extends ClientOptionsFactory> clientOptionsFactoryClass,
 			Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass,
-			List<Class<? extends Dao>> daoClasses){
-		addSettingRoot(DatarouterStorageSettingRoot.class);
+			List<Class<? extends Dao>> daoClasses,
+			DatarouterStorageDaosModule daosModule){
+		this.daosModule = daosModule;
 		this.serverTypes = serverTypes;
 		this.serverTypeDetectorClass = serverTypeDetectorClass;
 		this.datarouterProperties = datarouterProperties;
@@ -64,11 +70,18 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		this.clientOptionsFactoryClass = clientOptionsFactoryClass;
 		this.schemaUpdateOptionsFactoryClass = schemaUpdateOptionsFactoryClass;
 		this.daoClasses = daoClasses;
+
+		addSettingRoot(DatarouterStorageSettingRoot.class);
+		setDaosModule(daosModule);
 	}
 
 	@Override
 	public String getName(){
 		return "DatarouterStorage";
+	}
+
+	public List<Class<? extends Dao>> getDatarouterStorageDaoClasses(){
+		return daosModule.getDaoClasses();
 	}
 
 	@Override
@@ -95,6 +108,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 
 		private final ServerTypes serverTypes;
 		private final DatarouterProperties datarouterProperties;
+		private final ClientId defaultClientId;
 
 		private Class<? extends ServerTypeDetector> serverTypeDetectorClass = NoOpServerTypeDetector.class;
 		private Class<? extends DatarouterSettingOverrides> settingOverridesClass;
@@ -103,9 +117,13 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		private Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass;
 		private List<Class<? extends Dao>> daoClasses = new ArrayList<>();
 
-		public DatarouterStoragePluginBuilder(ServerTypes serverTypes, DatarouterProperties datarouterProperties){
+		public DatarouterStoragePluginBuilder(
+				ServerTypes serverTypes,
+				DatarouterProperties datarouterProperties,
+				ClientId defaultClientId){
 			this.serverTypes = serverTypes;
 			this.datarouterProperties = datarouterProperties;
+			this.defaultClientId = defaultClientId;
 		}
 
 		public DatarouterStoragePluginBuilder setServerTypeDetector(
@@ -148,7 +166,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		}
 
 		public DatarouterStoragePlugin getSimplePluginData(){
-			return new DatarouterStoragePlugin();
+			return new DatarouterStoragePlugin(new DatarouterStorageDaosModule(defaultClientId));
 		}
 
 		public DatarouterStoragePlugin build(){
@@ -160,9 +178,30 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 					settingRoots,
 					clientOptionsFactoryClass,
 					schemaUpdateOptionsFactoryClass,
-					daoClasses);
+					daoClasses,
+					new DatarouterStorageDaosModule(defaultClientId));
 		}
 
+	}
+
+	public static class DatarouterStorageDaosModule extends DaosModuleBuilder{
+
+		private final ClientId defaultClientId;
+
+		public DatarouterStorageDaosModule(ClientId defaultClientId){
+			this.defaultClientId = defaultClientId;
+		}
+
+		@Override
+		public List<Class<? extends Dao>> getDaoClasses(){
+			return List.of(DatarouterClusterSchemaUpdateLockDao.class);
+		}
+
+		@Override
+		public void configure(){
+			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
+					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(defaultClientId));
+		}
 	}
 
 }

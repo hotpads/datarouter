@@ -31,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -284,7 +283,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 					.flush(customSettings -> customSettingsByName.put(setting.getName(), customSettings));
 		}
 
-		mav.put("listSettings", Scanner.of(settingsList).map(setting -> new SettingJspDto<>(setting)).list());
+		mav.put("listSettings", Scanner.of(settingsList).map(setting -> new SettingJspDto(setting)).list());
 		mav.put("mapListsCustomSettings", customSettingsByName);
 
 		return mav;
@@ -316,8 +315,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 			return result.markError(error);
 		}
 		String oldValue = setting
-				.map(Setting::get)
-				.map(Objects::toString)
+				.map(CachedSetting::toStringValue)
 				.orElse("?");
 		String changedBy = getRequestorsUsername();
 		var clusterSettingLog = new ClusterSettingLog(clusterSetting, action, changedBy, comment);

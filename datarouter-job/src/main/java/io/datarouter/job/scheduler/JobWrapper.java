@@ -61,6 +61,11 @@ public class JobWrapper implements Callable<Void>{
 			Date now = new Date();
 			return new JobWrapper(jobPackage, longRunningTaskTrackerFactory, jobCounters, job, now, now, triggeredBy);
 		}
+
+		public JobWrapper createRequestTriggered(BaseJob job, String triggeredBy){
+			Date now = new Date();
+			return new JobWrapper(longRunningTaskTrackerFactory, jobCounters, job, now, now, triggeredBy);
+		}
 	}
 
 	//singletons
@@ -87,6 +92,19 @@ public class JobWrapper implements Callable<Void>{
 		this.triggeredBy = triggeredBy;
 		this.jobClass = job.getClass();
 		this.tracker = initTracker(jobPackage, scheduledTime, longRunningTaskTrackerFactory, triggeredBy, jobClass);
+	}
+
+	private JobWrapper(LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
+			JobCounters jobCounters, BaseJob job, Date triggerTime, Date scheduledTime, String triggeredBy){
+		this.jobPackage = null;
+		this.jobCounters = jobCounters;
+		this.job = job;
+		this.triggerTime = triggerTime;
+		this.scheduledTime = scheduledTime;
+		this.triggeredBy = triggeredBy;
+		this.jobClass = job.getClass();
+		this.tracker = longRunningTaskTrackerFactory.create(jobClass, LongRunningTaskType.JOB, null, false,
+				triggeredBy);
 	}
 
 	@Override
@@ -152,7 +170,6 @@ public class JobWrapper implements Callable<Void>{
 		Duration elapsedTime = Duration.between(startedAt, tracker.getFinishTime());
 		jobCounters.duration(jobClass, elapsedTime);
 		Optional<Date> nextJobTriggerTime = jobPackage.getNextValidTimeAfter(scheduledTime);
-
 		String jobCompletionLog = "finished in " + new DatarouterDuration(elapsedTime) + " jobName="
 				+ jobClass.getSimpleName() + " durationMs=" + elapsedTime.toMillis();
 		if(startDelayMs > 1000){

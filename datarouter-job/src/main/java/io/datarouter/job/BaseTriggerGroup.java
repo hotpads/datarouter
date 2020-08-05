@@ -95,6 +95,10 @@ public abstract class BaseTriggerGroup{
 		return jobPackagesIncludingSubGroups;
 	}
 
+	public Map<String,Class<? extends BaseJob>> getRequestTriggeredJobs(){
+		return requestTriggeredJobs;
+	}
+
 	public static String lockName(Class<? extends BaseJob> jobClass){
 		return jobClass.getSimpleName();
 	}

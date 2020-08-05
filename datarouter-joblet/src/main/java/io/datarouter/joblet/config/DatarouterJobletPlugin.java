@@ -136,11 +136,7 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		}
 
 		public DatarouterJobletPlugin getSimplePluginData(){
-			return new DatarouterJobletPlugin(
-					List.of(
-							new Pair<>(DatarouterJobletDataDao.class, datarouterJobletDataClientId),
-							new Pair<>(DatarouterJobletQueueDao.class, datarouterJobletQueueClientId),
-							new Pair<>(DatarouterJobletRequestDao.class, datarouterJobletRequestClientId)));
+			return new DatarouterJobletPlugin(makeDaosAndClients());
 		}
 
 		public DatarouterJobletPlugin build(){
@@ -148,10 +144,14 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 					jobletTypes,
 					jobletSelectorRegistry,
 					externalLinkBuilderClass,
-					List.of(
-							new Pair<>(DatarouterJobletDataDao.class, datarouterJobletDataClientId),
-							new Pair<>(DatarouterJobletQueueDao.class, datarouterJobletQueueClientId),
-							new Pair<>(DatarouterJobletRequestDao.class, datarouterJobletRequestClientId)));
+					makeDaosAndClients());
+		}
+
+		private List<Pair<Class<? extends Dao>,ClientId>> makeDaosAndClients(){
+			return List.of(
+					new Pair<>(DatarouterJobletDataDao.class, datarouterJobletDataClientId),
+					new Pair<>(DatarouterJobletQueueDao.class, datarouterJobletQueueClientId),
+					new Pair<>(DatarouterJobletRequestDao.class, datarouterJobletRequestClientId));
 		}
 
 	}

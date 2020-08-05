@@ -21,7 +21,6 @@ import java.util.List;
 import org.testng.IModuleFactory;
 import org.testng.ITestContext;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 
@@ -35,17 +34,8 @@ public class TestNgModuleFactory implements IModuleFactory{
 
 	@Override
 	public Module createModule(ITestContext context, Class<?> testClass){
-
-		Module globalModule = new AbstractModule(){
-
-			@Override
-			protected void configure(){
-				modules.forEach(this::install);
-			}
-
-		};
 		Iterable<? extends Module> overriders = getOverriders();
-		return Modules.override(globalModule).with(overriders);
+		return Modules.override(modules).with(overriders);
 	}
 
 	protected List<Module> getOverriders(){

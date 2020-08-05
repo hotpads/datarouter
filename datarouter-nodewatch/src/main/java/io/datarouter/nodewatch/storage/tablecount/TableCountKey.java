@@ -57,10 +57,6 @@ public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 		return new TableCountKey(clientName, tableName, null);
 	}
 
-	public TableCountKey getClientTableKey(){
-		return createClientTableKey(clientName, tableName);
-	}
-
 	public String getClientName(){
 		return clientName;
 	}

@@ -120,7 +120,7 @@ public class SessionExecutor{
 			}
 			if(wasRolledBackAndShouldRetry(e)){
 				//make sure MysqlRollbackRetryingCallable catches this particular exception
-				throw new SessionExecutorPleaseRetryException(e);
+				throw new SessionExecutorPleaseRetryException("", e);
 			}
 			try{
 				clientManager.rollbackTxn(clientId);

@@ -28,6 +28,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -44,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.hbase.client.HBaseConnectionHolder;
 import io.datarouter.client.hbase.util.HBaseClientTool;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
 import io.datarouter.storage.client.ClientId;
@@ -54,12 +56,14 @@ import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateTool;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.monitoring.BuildProperties;
 
 @Singleton
 public class HBaseSchemaUpdateService extends BaseSchemaUpdateService{
@@ -83,8 +87,16 @@ public class HBaseSchemaUpdateService extends BaseSchemaUpdateService{
 			DatarouterHtmlEmailService htmlEmailService,
 			HBaseConnectionHolder hBaseConnectionHolder,
 			SchemaUpdateOptions schemaUpdateOptions,
-			DatarouterWebPaths datarouterWebPaths){
-		super(datarouterProperties, adminEmailService, executor);
+			DatarouterWebPaths datarouterWebPaths,
+			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
+			Provider<ChangelogRecorder> changelogRecorder,
+			BuildProperties buildProperties){
+		super(datarouterProperties,
+				adminEmailService,
+				executor,
+				schemaUpdateLockDao,
+				changelogRecorder,
+				buildProperties.getBuildId());
 		this.htmlEmailService = htmlEmailService;
 		this.hBaseConnectionHolder = hBaseConnectionHolder;
 		this.schemaUpdateOptions = schemaUpdateOptions;

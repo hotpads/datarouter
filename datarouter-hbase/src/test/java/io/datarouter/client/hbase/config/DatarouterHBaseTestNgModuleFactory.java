@@ -16,12 +16,17 @@
 package io.datarouter.client.hbase.config;
 
 import java.util.List;
+import java.util.Properties;
 
+import io.datarouter.client.hbase.test.DatarouterHBaseTestClientIds;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.schema.SchemaUpdateOptionsBuilder;
+import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
+import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao.DatarouterClusterSchemaUpdateLockDaoParams;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
@@ -42,6 +47,9 @@ public class DatarouterHBaseTestNgModuleFactory extends TestNgModuleFactory{
 			bind(DatarouterService.class).to(NoOpDatarouterService.class);
 			bind(DatarouterProperties.class).to(HbaseDatarouterProperties.class);
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+			bindActual(SchemaUpdateOptionsFactory.class, DatarouterHbaseSchemaUpdateOptionsFactory.class);
+			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
+					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(DatarouterHBaseTestClientIds.HBASE));
 		}
 
 	}
@@ -51,6 +59,17 @@ public class DatarouterHBaseTestNgModuleFactory extends TestNgModuleFactory{
 		@Override
 		public String getDatarouterPropertiesFileLocation(){
 			return getTestConfigDirectory() + "/hbase.properties";
+		}
+
+	}
+
+	public static class DatarouterHbaseSchemaUpdateOptionsFactory implements SchemaUpdateOptionsFactory{
+
+		@Override
+		public Properties getInternalConfigDirectoryTypeSchemaUpdateOptions(String internalConfigDirectoryTypeName){
+			return new SchemaUpdateOptionsBuilder(true)
+					.enableAllSchemaUpdateExecuteOptions()
+					.build();
 		}
 
 	}

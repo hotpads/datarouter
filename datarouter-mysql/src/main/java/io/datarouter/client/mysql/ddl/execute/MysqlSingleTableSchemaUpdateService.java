@@ -90,11 +90,11 @@ public class MysqlSingleTableSchemaUpdateService{
 		}
 
 		String schemaName = connectionPool.getSchemaName();
-		DatabeanFieldInfo<?, ?, ?> fieldInfo = physicalNode.getFieldInfo();
+		DatabeanFieldInfo<?,?,?> fieldInfo = physicalNode.getFieldInfo();
 		List<Field<?>> primaryKeyFields = fieldInfo.getPrimaryKeyFields();
 		List<Field<?>> nonKeyFields = fieldInfo.getNonKeyFields();
-		Map<String, List<Field<?>>> indexes = Collections.emptyMap();
-		Map<String, List<Field<?>>> uniqueIndexes = fieldInfo.getUniqueIndexes();
+		Map<String,List<Field<?>>> indexes = Collections.emptyMap();
+		Map<String,List<Field<?>>> uniqueIndexes = fieldInfo.getUniqueIndexes();
 		MysqlTableOptions mysqlTableOptions = MysqlTableOptions.make(fieldInfo.getSampleFielder());
 		MysqlCollation collation = mysqlTableOptions.getCollation();
 		MysqlCharacterSet characterSet = mysqlTableOptions.getCharacterSet();

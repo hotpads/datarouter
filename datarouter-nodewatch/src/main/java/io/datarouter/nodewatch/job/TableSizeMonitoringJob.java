@@ -18,10 +18,8 @@ package io.datarouter.nodewatch.job;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -32,10 +30,11 @@ import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.storage.alertthreshold.DatarouterTableSizeAlertThresholdDao;
 import io.datarouter.nodewatch.storage.alertthreshold.TableSizeAlertThreshold;
 import io.datarouter.nodewatch.storage.alertthreshold.TableSizeAlertThresholdKey;
+import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
+import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -44,7 +43,6 @@ import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.html.email.J2HtmlDatarouterEmailBuilder;
 import j2html.tags.ContainerTag;
@@ -75,6 +73,8 @@ public class TableSizeMonitoringJob extends BaseJob{
 	private DatarouterService datarouterService;
 	@Inject
 	private TableSizeMonitoringEmailBuilder emailBuilder;
+	@Inject
+	private DatarouterLatestTableCountDao datarouterLatestTableCountDao;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -126,7 +126,7 @@ public class TableSizeMonitoringJob extends BaseJob{
 				}
 				//check if node numRows exceeds threshold
 				if(threshold != null && latest.getNumRows() >= threshold){
-						aboveThresholdList.add(calculateStats(latest, threshold));
+					aboveThresholdList.add(calculateStats(latest, threshold));
 				}
 			}
 
@@ -140,7 +140,7 @@ public class TableSizeMonitoringJob extends BaseJob{
 				}
 			}
 		}
-		List<TableCount> staleList = getStaleTableEntries();
+		List<LatestTableCount> staleList = getStaleTableEntries();
 		if(aboveThresholdList.size() > 0
 				|| abovePercentageList.size() > 0
 				|| staleList.size() > 0){
@@ -148,7 +148,7 @@ public class TableSizeMonitoringJob extends BaseJob{
 		}
 	}
 
-	private boolean checkStaleEntries(TableCount latestSample){
+	private boolean checkStaleEntries(LatestTableCount latestSample){
 		int ago = DateTool.getDatesBetween(latestSample.getDateUpdated(), new Date());
 		return ago > REPORT_DAYS_AFTER;
 	}
@@ -157,31 +157,18 @@ public class TableSizeMonitoringJob extends BaseJob{
 		return numberOfRows < IGNORE_THRESHOLD;
 	}
 
-	private List<TableCount> getStaleTableEntries(){
-		Scanner<TableCount> tableCountEntries = tableCountDao.scan();
-		Set<TableCount> tableCounts = new HashSet<>();
-		TableCount prev = null;
-		for(TableCount currEntry : tableCountEntries.iterable()){
-			ClientTableEntityPrefixNameWrapper nodeName = new ClientTableEntityPrefixNameWrapper(
-					currEntry.getKey().getClientName(), currEntry.getKey().getTableName(), null);
-			NodewatchConfiguration nodeConfig = tableConfigurationService.getTableConfigMap().get(nodeName);
-
-			//continue if the nodeConfig isCountable is set to false
-			if(nodeConfig != null && !nodeConfig.isCountable){
-				continue;
-			}
-			if(prev == null){
-				prev = currEntry;
-				continue;
-			}
-			if(ObjectTool.notEquals(prev.getKey().getClientTableKey(), currEntry.getKey().getClientTableKey())){
-				if(checkStaleEntries(prev)){
-					tableCounts.add(prev);
-				}
-			}
-			prev = currEntry;
-		}
-		return new ArrayList<>(tableCounts);
+	private List<LatestTableCount> getStaleTableEntries(){
+		return datarouterLatestTableCountDao.scan()
+				.exclude(latestTableCount -> {
+					ClientTableEntityPrefixNameWrapper nodeName = new ClientTableEntityPrefixNameWrapper(
+							latestTableCount.getKey().getClientName(),
+							latestTableCount.getKey().getTableName(),
+							null);
+					NodewatchConfiguration nodeConfig = tableConfigurationService.getTableConfigMap().get(nodeName);
+					return nodeConfig != null && !nodeConfig.isCountable;
+				})
+				.include(this::checkStaleEntries)
+				.list();
 	}
 
 	private CountStat calculateStats(TableCount latestSample, long comparableCount){
@@ -191,7 +178,7 @@ public class TableSizeMonitoringJob extends BaseJob{
 	}
 
 	private void sendEmail(List<CountStat> aboveThresholdList, List<CountStat> abovePercentageList,
-			List<TableCount> staleList){
+			List<LatestTableCount> staleList){
 		String fromEmail = datarouterProperties.getAdministratorEmail();
 		String toEmail = adminEmailService.getAdministratorEmailAddressesCsv();
 		String primaryHref = emailService.startLinkBuilder()

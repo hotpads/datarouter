@@ -17,6 +17,7 @@ package io.datarouter.joblet.setting;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,6 +28,7 @@ import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import io.datarouter.util.duration.DatarouterDuration;
 
 @Singleton
 public class DatarouterJobletSettingRoot extends SettingRoot{
@@ -41,6 +43,7 @@ public class DatarouterJobletSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runJobletInstanceCounterJob;
 	public final CachedSetting<Boolean> runJobletVacuum;
 	public final CachedSetting<Boolean> runJobletDataVacuum;
+	public final CachedSetting<DatarouterDuration> jobletTimeout;
 
 	@Inject
 	public DatarouterJobletSettingRoot(
@@ -64,6 +67,7 @@ public class DatarouterJobletSettingRoot extends SettingRoot{
 		runJobletInstanceCounterJob = registerBoolean("runJobletInstanceCounterJob", false);
 		runJobletVacuum = registerBooleans("runJobletVacuum", defaultTo(false));
 		runJobletDataVacuum = registerBooleans("runJobletDataVacuum", defaultTo(false));
+		jobletTimeout = registerDuration("jobletTimeout", new DatarouterDuration(10, TimeUnit.MINUTES));
 	}
 
 	public Integer getClusterThreadCountForJobletType(JobletType<?> jobletType){

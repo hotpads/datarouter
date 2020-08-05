@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.joblet.enums.JobletStatus;
+import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequestKey;
@@ -39,12 +40,15 @@ public class JobletRequestSqlBuilder{
 			JobletRequest.FieldKeys.status, JobletStatus.RUNNING);
 	private static final BooleanField RESTARTABLE_FIELD = new BooleanField(JobletRequest.FieldKeys.restartable, true);
 
+	private final DatarouterJobletSettingRoot datarouterJobletSettingRoot;
 	private final DatarouterJobletRequestDao jobletRequestDao;
 
 	private final String tableName;
 
 	@Inject
-	public JobletRequestSqlBuilder(DatarouterJobletRequestDao jobletRequestDao){
+	public JobletRequestSqlBuilder(DatarouterJobletSettingRoot datarouterJobletSettingRoot,
+			DatarouterJobletRequestDao jobletRequestDao){
+		this.datarouterJobletSettingRoot = datarouterJobletSettingRoot;
 		this.jobletRequestDao = jobletRequestDao;
 		PhysicalNode<?,?,?> physicalNode = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode());
 		this.tableName = physicalNode.getFieldInfo().getTableName();
@@ -100,7 +104,7 @@ public class JobletRequestSqlBuilder{
 	}
 
 	private Long computeReservedBeforeMs(){
-		return System.currentTimeMillis() - DatarouterJobletConstants.RUNNING_JOBLET_TIMEOUT_MS;
+		return System.currentTimeMillis() - datarouterJobletSettingRoot.jobletTimeout.get().toMillis();
 	}
 
 }

@@ -152,11 +152,7 @@ public abstract class SettingNode{
 	}
 
 	public List<SettingNode> getListChildren(){
-		ArrayList<SettingNode> list = new ArrayList<>();
-		for(String childName : children.keySet()){
-			list.add(children.get(childName));
-		}
-		return list;
+		return new ArrayList<>(children.values());
 	}
 
 	public ArrayList<CachedSetting<?>> getListSettings(){

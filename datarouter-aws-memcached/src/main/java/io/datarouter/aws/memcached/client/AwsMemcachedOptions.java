@@ -23,7 +23,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.client.memcached.client.MemcachedOptions;
 import io.datarouter.storage.client.ClientOptions;
-import net.spy.memcached.ClientMode;
 
 @Singleton
 public class AwsMemcachedOptions extends MemcachedOptions{
@@ -34,11 +33,12 @@ public class AwsMemcachedOptions extends MemcachedOptions{
 	@Inject
 	private ClientOptions clientOptions;
 
-	public ClientMode getClientMode(String clientName){
+	public MemcachedClientMode getClientMode(String clientName){
 		return clientOptions.optString(clientName, makeAwsMemcachedKey(PROP_clientMode))
-				.filter("dynamic"::equals)
-				.map($ -> ClientMode.Dynamic)
-				.orElse(ClientMode.Static);
+				.map(MemcachedClientMode::fromPersistentStringStatic)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.orElse(MemcachedClientMode.STATIC);
 	}
 
 	public Optional<InetSocketAddress> getClusterEndpoint(String clientName){

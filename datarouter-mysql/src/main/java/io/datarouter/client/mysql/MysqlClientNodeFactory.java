@@ -43,13 +43,20 @@ import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndex
 @Singleton
 public class MysqlClientNodeFactory extends BaseClientNodeFactory{
 
-	@Inject
-	private PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory
+	private final PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory
 			physicalIndexedSortedMapStorageAvailabilityAdapterFactory;
+	private final MysqlClientType mysqlClientType;
+	private final MysqlNodeManager mysqlNodeManager;
+
 	@Inject
-	private MysqlClientType mysqlClientType;
-	@Inject
-	private MysqlNodeManager mysqlNodeManager;
+	public MysqlClientNodeFactory(
+			PhysicalIndexedSortedMapStorageAvailabilityAdapterFactory availabilityAdapterFactory,
+			MysqlClientType mysqlClientType,
+			MysqlNodeManager mysqlNodeManager){
+		this.physicalIndexedSortedMapStorageAvailabilityAdapterFactory = availabilityAdapterFactory;
+		this.mysqlClientType = mysqlClientType;
+		this.mysqlNodeManager = mysqlNodeManager;
+	}
 
 	public class MysqlWrappedNodeFactory<
 			EK extends EntityKey<EK>,
