@@ -30,7 +30,10 @@ public class JobPackageFilter{
 	@Inject
 	private JobPackageTracker jobPackageTracker;
 
-	public Stream<JobPackage> streamMatches(String categoryName, String keyword, boolean hideEnabled,
+	public Stream<JobPackage> streamMatches(
+			String categoryName,
+			String keyword,
+			boolean hideEnabled,
 			boolean hideDisabled){
 		return jobPackageTracker.getJobPackages().stream()
 				.filter(jobPackage -> matchesEnabled(jobPackage, hideEnabled, hideDisabled))

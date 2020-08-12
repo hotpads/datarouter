@@ -18,6 +18,7 @@ package io.datarouter.web.html.j2html;
 import static j2html.TagCreator.caption;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -75,15 +77,16 @@ public class J2HtmlTable<T>{
 	}
 
 	public ContainerTag build(Collection<T> rows){
+		boolean includeHeader = columns.stream()
+				.map(column -> column.name)
+				.anyMatch(Objects::nonNull);
 		var thead = thead(tr(each(columns, column -> th(column.name))));
-		var table = table()
+		var tbody = tbody(each(rows, this::makeTr));
+		return table()
 				.withClasses(classes.toArray(String[]::new))
 				.condWith(caption != null, caption(caption))
-				.with(thead);
-		rows.stream()
-				.map(this::makeTr)
-				.forEach(table::with);
-		return table;
+				.condWith(includeHeader, thead)
+				.with(tbody);
 	}
 
 	private ContainerTag makeTr(T dto){

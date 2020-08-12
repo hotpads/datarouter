@@ -18,6 +18,7 @@ package io.datarouter.storage.node.factory;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.databean.Databean;
@@ -25,7 +26,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.ClientNodeFactory;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.client.imp.QueueClientNodeFactory;
@@ -36,6 +36,7 @@ import io.datarouter.storage.node.builder.GroupQueueNodeBuilder;
 import io.datarouter.storage.node.builder.QueueNodeBuilder;
 import io.datarouter.storage.node.builder.SingleQueueNodeBuilder;
 
+@Singleton
 public class QueueNodeFactory{
 
 	@Inject
@@ -82,8 +83,8 @@ public class QueueNodeFactory{
 				.withNamespace(namespace)
 				.withQueueUrl(queueUrl)
 				.build();
-		ClientType<?,?> clientType = getClientTypeInstance(clientId);
-		QueueClientNodeFactory clientFactories = (QueueClientNodeFactory) getClientFactories(clientType);
+		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
+		QueueClientNodeFactory clientFactories = getClientFactories(clientType);
 		return BaseNodeFactory.cast(clientFactories.createSingleQueueNode(params));
 	}
 
@@ -104,17 +105,13 @@ public class QueueNodeFactory{
 				.withNamespace(namespace)
 				.withQueueUrl(queueUrl)
 				.build();
-		ClientType<?,?> clientType = getClientTypeInstance(clientId);
-		QueueClientNodeFactory clientFactories = (QueueClientNodeFactory) getClientFactories(clientType);
+		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
+		QueueClientNodeFactory clientFactories = getClientFactories(clientType);
 		return BaseNodeFactory.cast(clientFactories.createGroupQueueNode(params));
 	}
 
-	private ClientType<?,?> getClientTypeInstance(ClientId clientId){
-		return clients.getClientTypeInstance(clientId);
-	}
-
-	private ClientNodeFactory getClientFactories(ClientType<?,?> clientType){
-		return injector.getInstance(clientType.getClientNodeFactoryClass());
+	private QueueClientNodeFactory getClientFactories(ClientType<?,?> clientType){
+		return (QueueClientNodeFactory) injector.getInstance(clientType.getClientNodeFactoryClass());
 	}
 
 }

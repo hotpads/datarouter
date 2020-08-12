@@ -137,85 +137,8 @@
 	<%@ include file="/jsp/menu/common-navbar-b4.jsp" %>
 	<div class="container-fluid my-3">
 		<div class="row">
-			<div class="col-12 col-sm-6">
-				<table class="table table-striped table-bordered table-sm">
-					<caption style="caption-side: top">Server Info</caption>
-					<tr>
-						<td>configDirectory</td>
-						<td>${configDirectory}</td>
-					</tr>
-					<tr>
-						<td>environmentType</td>
-						<td>${environmentType}</td>
-					</tr>
-					<tr>
-						<td>environment</td>
-						<td>${environment}</td>
-					</tr>
-					<tr>
-						<td>server.type</td>
-						<td>${serverType}</td>
-					</tr>
-					<tr>
-						<td>server.name</td>
-						<td>${serverName}</td>
-					</tr>
-					<tr>
-						<td>administrator.email</td>
-						<td>${administratorEmail}</td>
-					</tr>
-					<tr>
-						<td>server.privateIp</td>
-						<td>${serverPrivateIp}</td>
-					</tr>
-					<tr>
-						<td>server.publicIp</td>
-						<td>${serverPublicIp}</td>
-					</tr>
-				</table>
-			</div>
-			<div class="col-12 col-sm-6">
-				<table class="table table-striped table-bordered table-sm">
-					<caption style="caption-side: top">
-						Clients 
-						<c:if test="${hasUninitializedClients}">
-							[<a href="${contextPath}${initAllClientsPath}">init remaining clients</a>]
-						</c:if>
-					</caption>
-					<c:forEach items="${clients}" var="row">
-						<c:set var="clientName" value="${row.clientName}" />
-						<tr>
-							<c:choose>
-								<c:when test="${row.initialized}">
-									<c:set var="checkResult" value="${row.checkResult}" />
-									<td>
-										<c:choose>
-											<c:when test="${empty checkResult}">
-												<span class="status"></span>
-											</c:when>
-											<c:otherwise>
-												<a class="status ${checkResult.cssClass}"
-													title="${checkResult}" href="${checkResult.graphLink}">
-												</a>
-											</c:otherwise>
-										</c:choose>
-										<a href="${contextPath}${inspectClientPath}?clientName=${clientName}">
-											${clientName}
-										</a>
-									</td>
-									<td>${row.clientTypeName}</td>
-								</c:when>
-								<c:otherwise>
-									<td><span class="status"></span> ${clientName}</td>
-									<td>
-										[<a href="${contextPath}${initClientPath}?clientName=${clientName}">init</a>]
-									</td>
-								</c:otherwise>
-							</c:choose>
-						</tr>
-					</c:forEach>
-				</table>
-			</div>
+			${serverPropertiesTable}
+			${clientsTable}
 		</div>
 		<div class="row mt-3">
 			<div id="nodeSearch" class="col-12"></div>

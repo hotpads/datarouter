@@ -32,7 +32,6 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.SettingRootsSupplier;
-import io.datarouter.storage.setting.SettingRootsSupplier.SettingRoots;
 
 public class DatarouterStoragePlugin extends BaseStoragePlugin{
 
@@ -40,7 +39,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 	private final Class<? extends ServerTypeDetector> serverTypeDetectorClass;
 	private final DatarouterProperties datarouterProperties;
 	private final Class<? extends DatarouterSettingOverrides> settingOverridesClass;
-	private final SettingRoots settingRoots;
+	private final SettingRootsSupplier settingRoots;
 	private final Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 	private final Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass;
 	private final List<Class<? extends Dao>> daoClasses;
@@ -56,7 +55,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 			Class<? extends ServerTypeDetector> serverTypeDetectorClass,
 			DatarouterProperties datarouterProperties,
 			Class<? extends DatarouterSettingOverrides> settingOverridesClass,
-			SettingRoots settingRoots,
+			SettingRootsSupplier settingRoots,
 			Class<? extends ClientOptionsFactory> clientOptionsFactoryClass,
 			Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass,
 			List<Class<? extends Dao>> daoClasses,
@@ -112,7 +111,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 
 		private Class<? extends ServerTypeDetector> serverTypeDetectorClass = NoOpServerTypeDetector.class;
 		private Class<? extends DatarouterSettingOverrides> settingOverridesClass;
-		private SettingRoots settingRoots;
+		private SettingRootsSupplier settingRoots;
 		private Class<? extends ClientOptionsFactory> clientOptionsFactoryClass;
 		private Class<? extends SchemaUpdateOptionsFactory> schemaUpdateOptionsFactoryClass;
 		private List<Class<? extends Dao>> daoClasses = new ArrayList<>();
@@ -138,7 +137,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 			return this;
 		}
 
-		public DatarouterStoragePluginBuilder setSettingRootsClass(SettingRoots settingRoots){
+		public DatarouterStoragePluginBuilder setSettingRootsClass(SettingRootsSupplier settingRoots){
 			this.settingRoots = settingRoots;
 			return this;
 		}

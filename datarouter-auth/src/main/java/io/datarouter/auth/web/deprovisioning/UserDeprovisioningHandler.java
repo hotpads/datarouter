@@ -22,7 +22,7 @@ import javax.inject.Inject;
 
 import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
-import io.datarouter.auth.service.UserDeprovisioningService;
+import io.datarouter.auth.service.deprovisioning.UserDeprovisioningService;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUser;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao;
 import io.datarouter.scanner.Scanner;
@@ -80,7 +80,7 @@ public class UserDeprovisioningHandler extends BaseHandler{
 			@RequestBody UserDeprovisioningHandlerGeneralDto request){
 		return Scanner.of(Objects.requireNonNull(request.usernamesToRestore))
 				.batch(DB_BATCH_SIZE)
-				.map(userDeprovisioningService::restoreDeprovisionedUsers)
+				.map(userDeprovisioningService::restoreUsers)
 				.concat(Scanner::of)
 				.listTo(UserDeprovisioningHandlerGeneralDto::restoreUsersResponse);
 	}

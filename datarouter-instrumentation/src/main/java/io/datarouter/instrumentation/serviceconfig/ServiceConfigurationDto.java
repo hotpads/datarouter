@@ -25,7 +25,10 @@ public class ServiceConfigurationDto{
 	public final String serviceDescription;
 	public final Map<String,String> serviceDocumentationNamesAndLinks;
 
-	public ServiceConfigurationDto(String serviceName, Set<String> administratorsEmails, String serviceDescription,
+	public ServiceConfigurationDto(
+			String serviceName,
+			Set<String> administratorsEmails,
+			String serviceDescription,
 			Map<String,String> serviceDocumentationNamesAndLinks){
 		this.serviceName = serviceName;
 		this.administratorsEmails = administratorsEmails;

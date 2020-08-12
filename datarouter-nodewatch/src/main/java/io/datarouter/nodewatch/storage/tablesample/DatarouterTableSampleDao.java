@@ -27,7 +27,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.util.tuple.Range;
 
@@ -42,7 +42,7 @@ public class DatarouterTableSampleDao extends BaseDao{
 
 	}
 
-	private final SortedMapStorageNode<TableSampleKey,TableSample,TableSampleFielder> node;
+	private final SortedMapStorage<TableSampleKey,TableSample> node;
 
 	@Inject
 	public DatarouterTableSampleDao(Datarouter datarouter, NodeFactory nodeFactory,

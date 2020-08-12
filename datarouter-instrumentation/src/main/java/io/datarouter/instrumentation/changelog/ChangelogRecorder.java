@@ -27,7 +27,12 @@ public interface ChangelogRecorder{
 		record(changelogType, name, action, username, comment);
 	}
 
-	void recordAndSendEmail(String changelogType, String name, String action, String username, Optional<String> comment,
+	void recordAndSendEmail(
+			String changelogType,
+			String name,
+			String action,
+			String username,
+			Optional<String> comment,
 			Optional<String> additionalSendTos);
 
 	class NoOpChangelogRecorder implements ChangelogRecorder{
@@ -37,8 +42,13 @@ public interface ChangelogRecorder{
 		}
 
 		@Override
-		public void recordAndSendEmail(String changelogType, String name, String action, String username,
-				Optional<String> comment, Optional<String> additionalSendTos){
+		public void recordAndSendEmail(
+				String changelogType,
+				String name,
+				String action,
+				String username,
+				Optional<String> comment,
+				Optional<String> additionalSendTos){
 		}
 
 	}

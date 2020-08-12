@@ -152,7 +152,9 @@ public class JobHandler extends BaseHandler{
 		return selectedCategory.isPresent() && category.equals(selectedCategory.get());
 	}
 
-	private TriggerJspDto jobToTriggerJspDto(int rowId, JobPackage jobPackage,
+	private TriggerJspDto jobToTriggerJspDto(
+			int rowId,
+			JobPackage jobPackage,
 			LongRunningTaskSummaryDto longRunningTaskSummary){
 		String taskName = LongRunningTaskTrackerFactory.taskNameForClass(jobPackage.jobClass);
 		LongRunningTask currentlyRunningTask = longRunningTaskSummary.currentlyRunningTasks.get(taskName);
@@ -205,8 +207,16 @@ public class JobHandler extends BaseHandler{
 		public final Long lastFinishSortableTime;
 		public final String runningOnServers;
 
-		public TriggerJspDto(int rowId, String className, String classSimpleName, boolean shouldRun, String status,
-				String cronExpression, String categoryName, String lastFinishTime, long lastFinishSortableTime,
+		public TriggerJspDto(
+				int rowId,
+				String className,
+				String classSimpleName,
+				boolean shouldRun,
+				String status,
+				String cronExpression,
+				String categoryName,
+				String lastFinishTime,
+				long lastFinishSortableTime,
 				String runningOnServers){
 			this.rowId = rowId;
 			this.className = className;

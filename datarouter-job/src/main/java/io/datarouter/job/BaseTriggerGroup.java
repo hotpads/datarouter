@@ -50,28 +50,40 @@ public abstract class BaseTriggerGroup{
 
 	/*----------------- register -----------------*/
 
-	protected void registerContinuous(String cronString, Supplier<Boolean> shouldRunSupplier,
+	protected void registerContinuous(
+			String cronString,
+			Supplier<Boolean> shouldRunSupplier,
 			Class<? extends BaseJob> jobClass){
 		registerParallel(cronString, shouldRunSupplier, jobClass);
 	}
 
-	protected void registerParallel(String cronString, Supplier<Boolean> shouldRunSupplier,
+	protected void registerParallel(
+			String cronString,
+			Supplier<Boolean> shouldRunSupplier,
 			Class<? extends BaseJob> jobClass){
 		CronExpression cronExpression = CronExpressionTool.parse(cronString);
 		validateParallelTriggerCron(jobClass, cronExpression);
 		jobPackages.add(JobPackage.createParallel(categoryName, cronExpression, shouldRunSupplier, jobClass));
 	}
 
-	protected void registerLocked(String cronString, Supplier<Boolean> shouldRunSupplier,
-			Class<? extends BaseJob> jobClass, boolean warnOnReachingDuration){
+	protected void registerLocked(
+			String cronString,
+			Supplier<Boolean> shouldRunSupplier,
+			Class<? extends BaseJob> jobClass,
+			boolean warnOnReachingDuration){
 		CronExpression cronExpression = CronExpressionTool.parse(cronString);
 		Duration lockDuration = CronExpressionTool.durationBetweenNextTwoTriggers(cronExpression);
 		registerLockedWithName(cronString, shouldRunSupplier, jobClass, lockName(jobClass), lockDuration,
 				warnOnReachingDuration);
 	}
 
-	protected void registerLockedWithName(String cronString, Supplier<Boolean> shouldRunSupplier,
-			Class<? extends BaseJob> jobClass, String lockName, Duration lockDuration, boolean warnOnReachingDuration){
+	protected void registerLockedWithName(
+			String cronString,
+			Supplier<Boolean> shouldRunSupplier,
+			Class<? extends BaseJob> jobClass,
+			String lockName,
+			Duration lockDuration,
+			boolean warnOnReachingDuration){
 		CronExpression cronExpression = CronExpressionTool.parse(cronString);
 		validateLockedTriggerCron(jobClass, cronExpression);
 		TriggerLockConfig triggerLockConfig = new TriggerLockConfig(lockName, cronExpression, lockDuration,
@@ -144,7 +156,8 @@ public abstract class BaseTriggerGroup{
 		throw new IllegalArgumentException(message);
 	}
 
-	private void validateMinTimeBetweenLockedTriggers(Class<? extends BaseJob> jobClass,
+	private void validateMinTimeBetweenLockedTriggers(
+			Class<? extends BaseJob> jobClass,
 			CronExpression cronExpression){
 		Duration timeBetween = CronExpressionTool.durationBetweenNextTwoTriggers(cronExpression);
 		if(ComparableTool.lt(timeBetween, TriggerLockConfig.MIN_PERIOD_BETWEEN_LOCKED_TRIGGERS)){

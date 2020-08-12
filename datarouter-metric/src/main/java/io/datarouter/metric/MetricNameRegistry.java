@@ -22,9 +22,9 @@ import javax.inject.Singleton;
 @Singleton
 public class MetricNameRegistry{
 
-	public final List<String> metricNames;
+	public final List<MetricName> metricNames;
 
-	public MetricNameRegistry(List<String> metricNames){
+	public MetricNameRegistry(List<MetricName> metricNames){
 		this.metricNames = metricNames;
 	}
 

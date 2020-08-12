@@ -29,7 +29,13 @@ public class TraceThreadDto{
 	private Integer discardedSpanCount;
 	private String hostThreadName;
 
-	public TraceThreadDto(String traceId, Long threadId, Long parentId, String serverId, String name, Long created,
+	public TraceThreadDto(
+			String traceId,
+			Long threadId,
+			Long parentId,
+			String serverId,
+			String name,
+			Long created,
 			String hostThreadName){
 		this.traceId = traceId;
 		this.threadId = threadId;
@@ -40,8 +46,18 @@ public class TraceThreadDto{
 		this.hostThreadName = hostThreadName;
 	}
 
-	public TraceThreadDto(String traceId, Long threadId, Long parentId, String name, String info, String serverId,
-			Long created, Long queuedDuration, Long runningDuration, Integer discardedSpanCount, String hostThreadName){
+	public TraceThreadDto(
+			String traceId,
+			Long threadId,
+			Long parentId,
+			String name,
+			String info,
+			String serverId,
+			Long created,
+			Long queuedDuration,
+			Long runningDuration,
+			Integer discardedSpanCount,
+			String hostThreadName){
 		this(traceId, threadId, parentId, serverId, name, created, hostThreadName);
 		this.info = info;
 		this.queuedDuration = queuedDuration;

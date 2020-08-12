@@ -31,8 +31,17 @@ public class ExceptionRecordDto{
 	public final Integer lineNumber;
 	public final String callOrigin;
 
-	public ExceptionRecordDto(String id, Date created, String serviceName, String serverName, String stackTrace,
-			String type, String appVersion, String exceptionLocation, String methodName, Integer lineNumber,
+	public ExceptionRecordDto(
+			String id,
+			Date created,
+			String serviceName,
+			String serverName,
+			String stackTrace,
+			String type,
+			String appVersion,
+			String exceptionLocation,
+			String methodName,
+			Integer lineNumber,
 			String callOrigin){
 		this.id = id;
 		this.created = created;

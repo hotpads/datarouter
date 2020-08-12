@@ -241,7 +241,9 @@ public class JobScheduler{
 		return Duration.ofMillis(totalDelayMs);
 	}
 
-	private boolean tryAcquireClusterLockAndRun(JobWrapper jobWrapper, TriggerLockConfig triggerLockConfig,
+	private boolean tryAcquireClusterLockAndRun(
+			JobWrapper jobWrapper,
+			TriggerLockConfig triggerLockConfig,
 			Duration delay){
 		if(!clusterTriggerLockService.acquireJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime, delay)){
 			return false;

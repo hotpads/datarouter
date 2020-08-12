@@ -34,9 +34,21 @@ public class WebappInstanceDto{
 	public final String servletContainerVersion;
 	public final String gitBranch;
 
-	public WebappInstanceDto(String webappName, String serverName, String serverType, String servletContextPath,
-			String serverPublicIp, String serverPrivateIp, Date refreshedLast, Date startupDate, Date buildDate,
-			String buildId, String commitId, String javaVersion, String servletContainerVersion, String gitBranch){
+	public WebappInstanceDto(
+			String webappName,
+			String serverName,
+			String serverType,
+			String servletContextPath,
+			String serverPublicIp,
+			String serverPrivateIp,
+			Date refreshedLast,
+			Date startupDate,
+			Date buildDate,
+			String buildId,
+			String commitId,
+			String javaVersion,
+			String servletContainerVersion,
+			String gitBranch){
 		this.webappName = webappName;
 		this.serverName = serverName;
 		this.serverType = serverType;

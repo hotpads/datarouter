@@ -51,7 +51,11 @@ public class JobWrapper implements Callable<Void>{
 		@Inject
 		private JobCounters jobCounters;
 
-		public JobWrapper createScheduled(JobPackage jobPackage, BaseJob job, Date triggerTime, Date scheduledTime,
+		public JobWrapper createScheduled(
+				JobPackage jobPackage,
+				BaseJob job,
+				Date triggerTime,
+				Date scheduledTime,
 				String triggeredBy){
 			return new JobWrapper(jobPackage, longRunningTaskTrackerFactory, jobCounters, job, triggerTime,
 					scheduledTime, triggeredBy);
@@ -82,8 +86,14 @@ public class JobWrapper implements Callable<Void>{
 	//mutable tracking fields
 	private Instant startedAt;
 
-	private JobWrapper(JobPackage jobPackage, LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
-			JobCounters jobCounters, BaseJob job, Date triggerTime, Date scheduledTime, String triggeredBy){
+	private JobWrapper(
+			JobPackage jobPackage,
+			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
+			JobCounters jobCounters,
+			BaseJob job,
+			Date triggerTime,
+			Date scheduledTime,
+			String triggeredBy){
 		this.jobPackage = jobPackage;
 		this.jobCounters = jobCounters;
 		this.job = job;
@@ -94,8 +104,13 @@ public class JobWrapper implements Callable<Void>{
 		this.tracker = initTracker(jobPackage, scheduledTime, longRunningTaskTrackerFactory, triggeredBy, jobClass);
 	}
 
-	private JobWrapper(LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
-			JobCounters jobCounters, BaseJob job, Date triggerTime, Date scheduledTime, String triggeredBy){
+	private JobWrapper(
+			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
+			JobCounters jobCounters,
+			BaseJob job,
+			Date triggerTime,
+			Date scheduledTime,
+			String triggeredBy){
 		this.jobPackage = null;
 		this.jobCounters = jobCounters;
 		this.job = job;
@@ -130,8 +145,11 @@ public class JobWrapper implements Callable<Void>{
 		tracker.setExceptionRecordId(exceptionRecordId);
 	}
 
-	private static LongRunningTaskTracker initTracker(JobPackage jobPackage, Date triggerTime,
-			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory, String triggeredBy,
+	private static LongRunningTaskTracker initTracker(
+			JobPackage jobPackage,
+			Date triggerTime,
+			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
+			String triggeredBy,
 			Class<? extends BaseJob> jobClass){
 		Instant deadline = jobPackage.getSoftDeadline(triggerTime).orElse(null);
 		boolean warnOnReachingDeadline = jobPackage.getWarnOnReachingDuration().orElse(false);

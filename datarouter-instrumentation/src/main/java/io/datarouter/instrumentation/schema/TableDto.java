@@ -27,7 +27,12 @@ public class TableDto{
 	public final Instant created;
 	public final Boolean isSystemTable;
 
-	public TableDto(String serviceName, String clientName, String tableName, List<FieldDto> fields, Instant created,
+	public TableDto(
+			String serviceName,
+			String clientName,
+			String tableName,
+			List<FieldDto> fields,
+			Instant created,
 			Boolean isSystemTable){
 		this.serviceName = serviceName;
 		this.clientName = clientName;

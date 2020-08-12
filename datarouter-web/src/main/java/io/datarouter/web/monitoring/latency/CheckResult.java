@@ -98,6 +98,10 @@ public class CheckResult{
 			return checkResult == null ? null : checkResult.getCssClass();
 		}
 
+		public CheckResult getCheckResult(){
+			return checkResult;
+		}
+
 		public String getGraphLink(){
 			return graphLink;
 		}

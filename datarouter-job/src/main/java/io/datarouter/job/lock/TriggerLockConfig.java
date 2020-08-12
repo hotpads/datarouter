@@ -37,7 +37,10 @@ public class TriggerLockConfig{
 	private final Optional<Duration> customMaxDuration;
 	public final boolean warnOnReachingMaxDuration;
 
-	public TriggerLockConfig(String name, CronExpression cronExpression, Duration duration,
+	public TriggerLockConfig(
+			String name,
+			CronExpression cronExpression,
+			Duration duration,
 			boolean warnOnReachingMaxDuration){
 		this.jobName = name;
 		this.cronExpression = Optional.ofNullable(cronExpression);

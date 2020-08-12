@@ -38,8 +38,6 @@ import io.datarouter.util.string.StringTool;
 public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpRecorder{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterSecretOpRecordDao.class);
 
-	private final SortedMapStorage<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord> node;
-
 	public static class DatarouterSecretOpRecordDaoParams extends BaseDaoParams{
 
 		public DatarouterSecretOpRecordDaoParams(ClientId clientId){
@@ -47,6 +45,8 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 		}
 
 	}
+
+	private final SortedMapStorage<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord> node;
 
 	@Inject
 	public DatarouterSecretOpRecordDao(Datarouter datarouter, NodeFactory nodeFactory,

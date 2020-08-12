@@ -33,7 +33,6 @@ import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 
@@ -94,7 +93,7 @@ public class ChangelogEmailService{
 	}
 
 	private static DomContent makeSpanWhiteSpacePre(String text){
-		return TagCreator.rawHtml(span(text).withStyle("white-space:pre").render());
+		return span(text).withStyle("white-space:pre");
 	}
 
 }

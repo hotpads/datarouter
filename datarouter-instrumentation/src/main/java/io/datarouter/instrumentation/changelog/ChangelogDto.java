@@ -25,8 +25,14 @@ public class ChangelogDto{
 	public final String username;
 	public final String comment;
 
-	public ChangelogDto(String serviceName, String changelogType, String name, long dateMs, String action,
-			String username, String comment){
+	public ChangelogDto(
+			String serviceName,
+			String changelogType,
+			String name,
+			long dateMs,
+			String action,
+			String username,
+			String comment){
 		this.serviceName = serviceName;
 		this.changelogType = changelogType;
 		this.name = name;

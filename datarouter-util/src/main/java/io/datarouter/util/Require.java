@@ -36,14 +36,15 @@ public class Require{
 		}
 	}
 
-	public static void notNull(Object argument){
-		notNull(argument, null);
+	public static <T> T notNull(T argument){
+		return notNull(argument, null);
 	}
 
-	public static void notNull(Object argument, String message){
+	public static <T> T notNull(T argument, String message){
 		if(argument == null){
 			throw new IllegalArgumentException(message);
 		}
+		return argument;
 	}
 
 	public static <T> void equals(T first, T second){

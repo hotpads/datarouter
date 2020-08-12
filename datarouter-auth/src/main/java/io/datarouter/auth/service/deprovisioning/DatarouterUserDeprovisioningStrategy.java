@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.auth.service;
+package io.datarouter.auth.service.deprovisioning;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.UserSessionService;
 
 @Singleton
-public class DatarouterUserDeprovisioningService implements UserDeprovisioningService{
+public class DatarouterUserDeprovisioningStrategy implements UserDeprovisioningStrategy{
 
 	@Inject
 	private DatarouterUserDao datarouterUserDao;
@@ -46,12 +46,10 @@ public class DatarouterUserDeprovisioningService implements UserDeprovisioningSe
 	@Inject
 	private RoleManager roleManager;
 	@Inject
-	private ShouldFlagUsersInsteadOfDeprovisioningSupplier shouldFlagUsersInsteadOfDeprovisioningSupplier;
-	@Inject
 	private UserSessionService userSessionService;
 
 	@Override
-	public List<String> flagUsersForDeprovisioning(List<String> usernames){
+	public List<String> flagUsers(List<String> usernames){
 		return doFlagOrDeprovision(usernames, false);
 	}
 
@@ -82,7 +80,7 @@ public class DatarouterUserDeprovisioningService implements UserDeprovisioningSe
 	}
 
 	@Override
-	public List<String> restoreDeprovisionedUsers(List<String> usernames){
+	public List<String> restoreUsers(List<String> usernames){
 		Set<Role> validRoles = roleManager.getAllRoles();
 		var deprovisionedRolesByUsername = Scanner.of(usernames)
 				.map(DeprovisionedUserKey::new)
@@ -110,11 +108,6 @@ public class DatarouterUserDeprovisioningService implements UserDeprovisioningSe
 				.map(DatarouterUser::getUsername)
 				.flush(deprovisionedUserDao::deleteMultiUsernames)
 				.list();
-	}
-
-	@Override
-	public boolean shouldFlagUsersInsteadOfDeprovisioning(){
-		return shouldFlagUsersInsteadOfDeprovisioningSupplier.get();
 	}
 
 }

@@ -46,7 +46,6 @@ public class AuroraDnsService{
 
 	public static final String WRITER = "Writer";
 	public static final String READER = "Reader";
-	public static final String SLAVE = "Slave";//could be used in dns entries
 	public static final String IPADDRESS_PATTERN =
 				"^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
 				+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
@@ -140,7 +139,7 @@ public class AuroraDnsService{
 		for(DnsHostEntryDto dnsEntry : dnsEntryByHostname.values()){
 			if(dnsEntry.reader){
 				DnsHostEntryDto readerEntry = dnsEntry;
-				String writerClientName = readerEntry.hostname.replace("slave", "");
+				String writerClientName = readerEntry.hostname.replace("reader", "");
 				DnsHostEntryDto writerEntry = dnsEntryByHostname.get(writerClientName);
 				logger.debug("reader={} writer={}", gson.toJson(readerEntry), gson.toJson(writerEntry));
 				if(readerEntry.ip != null && readerEntry.ip.equals(writerEntry.ip)){
@@ -168,7 +167,7 @@ public class AuroraDnsService{
 		public DnsHostEntryDto(String clientName, String hostname, String clusterHostname, boolean writer,
 				String instanceHostname, String ip, boolean isAuroraInstance){
 			this.clientName = clientName;
-			this.reader = clientName.contains(SLAVE);
+			this.reader = clientName.contains(READER);
 			this.hostname = hostname;
 			this.clusterHostname = clusterHostname;
 			this.replicationRole = writer ? WRITER : READER;

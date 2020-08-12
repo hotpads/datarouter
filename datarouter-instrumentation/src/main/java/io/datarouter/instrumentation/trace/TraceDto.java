@@ -30,7 +30,13 @@ public class TraceDto{
 		this.created = created;
 	}
 
-	public TraceDto(String traceId, String context, String type, String params, Long created, Long duration,
+	public TraceDto(
+			String traceId,
+			String context,
+			String type,
+			String params,
+			Long created,
+			Long duration,
 			Integer discardedThreadCount){
 		this(traceId, created);
 		this.context = context;

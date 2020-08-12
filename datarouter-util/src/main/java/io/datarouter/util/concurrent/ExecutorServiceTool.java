@@ -51,13 +51,13 @@ public class ExecutorServiceTool{
 				if(!exec.awaitTermination(halfTimeoutMs, TimeUnit.MILLISECONDS)){
 					logger.error("not terminated name={} timeout={} {}", name, timeout, exec);
 				}else{
-					logger.warn("executor shuted down after interupt name={} {}", name, exec);
+					logger.warn("executor shutdown after interupt name={} {}", name, exec);
 				}
 			}else{
-				logger.warn("executor shuted down cleanly name={} {}", name, exec);
+				logger.warn("executor shutdown cleanly name={} {}", name, exec);
 			}
 		}catch(InterruptedException e){
-			logger.warn("interrupted while waiting for shut down name={} {}", name, exec);
+			logger.warn("interrupted while waiting for shutdown name={} {}", name, exec);
 			exec.shutdownNow();
 			Thread.currentThread().interrupt();
 		}

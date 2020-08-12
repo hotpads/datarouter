@@ -23,7 +23,9 @@ public class TraceEntityDto{
 	public final Collection<TraceThreadDto> traceThreadDtos;
 	public final Collection<TraceSpanDto> traceSpanDtos;
 
-	public TraceEntityDto(TraceDto traceDto, Collection<TraceThreadDto> traceThreadDtos,
+	public TraceEntityDto(
+			TraceDto traceDto,
+			Collection<TraceThreadDto> traceThreadDtos,
 			Collection<TraceSpanDto> traceSpanDtos){
 		this.traceDto = traceDto;
 		this.traceThreadDtos = traceThreadDtos;

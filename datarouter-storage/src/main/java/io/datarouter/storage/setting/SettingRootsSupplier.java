@@ -16,26 +16,13 @@
 package io.datarouter.storage.setting;
 
 import java.util.List;
-import java.util.function.Supplier;
 
-import javax.inject.Singleton;
+public class SettingRootsSupplier{
 
-public interface SettingRootsSupplier extends Supplier<List<Class<? extends SettingRoot>>>{
+	public final List<Class<? extends SettingRoot>> settingRoots;
 
-	@Singleton
-	class SettingRoots implements SettingRootsSupplier{
-
-		private final List<Class<? extends SettingRoot>> settingRoots;
-
-		public SettingRoots(List<Class<? extends SettingRoot>> settingRoots){
-			this.settingRoots = settingRoots;
-		}
-
-		@Override
-		public List<Class<? extends SettingRoot>> get(){
-			return settingRoots;
-		}
-
+	public SettingRootsSupplier(List<Class<? extends SettingRoot>> settingRoots){
+		this.settingRoots = settingRoots;
 	}
 
 }

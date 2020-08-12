@@ -17,15 +17,16 @@ package io.datarouter.auth.config;
 
 import java.util.List;
 
-import io.datarouter.auth.service.DatarouterUserDeprovisioningService;
 import io.datarouter.auth.service.DatarouterUserInfo;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeys;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
 import io.datarouter.auth.service.DefaultDatarouterUserPassword;
 import io.datarouter.auth.service.DefaultDatarouterUserPasswordSupplier;
-import io.datarouter.auth.service.UserDeprovisioningService;
-import io.datarouter.auth.service.UserDeprovisioningService.ShouldFlagUsersInsteadOfDeprovisioningSupplier;
 import io.datarouter.auth.service.UserInfo;
+import io.datarouter.auth.service.deprovisioning.DatarouterUserDeprovisioningStrategy;
+import io.datarouter.auth.service.deprovisioning.UserDeprovisioningListeners;
+import io.datarouter.auth.service.deprovisioning.UserDeprovisioningListeners.EmptyUserDeprovisioningListeners;
+import io.datarouter.auth.service.deprovisioning.UserDeprovisioningStrategy;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountDao.DatarouterAccountDaoParams;
@@ -61,8 +62,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 	private static final DatarouterAuthPaths PATHS = new DatarouterAuthPaths();
 
 	private final Class<? extends UserInfo> userInfoClass;
-	private final boolean shouldMarkUsersInsteadOfDeprovisioning;
-	private final Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass;
+	private final Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass;
+	private final Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass;
 	private final String defaultDatarouterUserPassword;
 	private final String defaultApiKey;
 	private final String defaultSecretKey;
@@ -71,14 +72,14 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			boolean enableUserAuth,
 			DatarouterAuthDaoModule daosModuleBuilder,
 			Class<? extends UserInfo> userInfoClass,
-			boolean shouldMarkUsersInsteadOfDeprovisioning,
-			Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass,
+			Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass,
+			Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass,
 			String defaultDatarouterUserPassword,
 			String defaultApiKey,
 			String defaultSecretKey){
 		this.userInfoClass = userInfoClass;
-		this.shouldMarkUsersInsteadOfDeprovisioning = shouldMarkUsersInsteadOfDeprovisioning;
-		this.userDeprovisioningServiceClass = userDeprovisioningServiceClass;
+		this.userDeprovisioningStrategyClass = userDeprovisioningStrategyClass;
+		this.userDeprovisioningListenersClass = userDeprovisioningListenersClass;
 		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
 		this.defaultApiKey = defaultApiKey;
 		this.defaultSecretKey = defaultSecretKey;
@@ -117,9 +118,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		bindActual(BaseDatarouterUserAccountMapDao.class, DatarouterUserAccountMapDao.class);
 		bindActual(BaseDatarouterSamlDao.class, DatarouterSamlDao.class);
 		bind(UserInfo.class).to(userInfoClass);
-		bind(ShouldFlagUsersInsteadOfDeprovisioningSupplier.class).toInstance(
-				new ShouldFlagUsersInsteadOfDeprovisioningSupplier(shouldMarkUsersInsteadOfDeprovisioning));
-		bind(UserDeprovisioningService.class).to(userDeprovisioningServiceClass);
+		bind(UserDeprovisioningStrategy.class).to(userDeprovisioningStrategyClass);
+		bindActual(UserDeprovisioningListeners.class, userDeprovisioningListenersClass);
 		bindActualInstance(DefaultDatarouterUserPasswordSupplier.class,
 				new DefaultDatarouterUserPassword(defaultDatarouterUserPassword));
 		bindActualInstance(DefaultDatarouterAccountKeysSupplier.class,
@@ -132,12 +132,13 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		private final ClientId defaultClientId;
 
 		private Class<? extends UserInfo> userInfoClass = DatarouterUserInfo.class;
-		private Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass =
-				DatarouterUserDeprovisioningService.class;
+		private Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass =
+				DatarouterUserDeprovisioningStrategy.class;
+		private Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass =
+				EmptyUserDeprovisioningListeners.class;
 		private String defaultDatarouterUserPassword = "";
 		private String defaultApiKey = "";
 		private String defaultSecretKey = "";
-		private boolean shouldMarkUsersInsteadOfDeprovisioning = false;
 
 		public DatarouterAuthPluginBuilder(boolean enableUserAuth, ClientId defaultClientId,
 				String defaultDatarouterUserPassword, String defaultApiKey, String defaultSecretKey){
@@ -153,14 +154,15 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			return this;
 		}
 
-		public DatarouterAuthPluginBuilder setUserDeprovisioningServiceClass(
-				Class<? extends UserDeprovisioningService> userDeprovisioningServiceClass){
-			this.userDeprovisioningServiceClass = userDeprovisioningServiceClass;
+		public DatarouterAuthPluginBuilder setUserDeprovisioningStrategyClass(
+				Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass){
+			this.userDeprovisioningStrategyClass = userDeprovisioningStrategyClass;
 			return this;
 		}
 
-		public DatarouterAuthPluginBuilder enableMarkingUsersInsteadOfDeprovisioning(){
-			this.shouldMarkUsersInsteadOfDeprovisioning = true;
+		public DatarouterAuthPluginBuilder setUserDeprovisioningListenersClass(
+				Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass){
+			this.userDeprovisioningListenersClass = userDeprovisioningListenersClass;
 			return this;
 		}
 
@@ -177,8 +179,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 							defaultClientId,
 							defaultClientId),
 					userInfoClass,
-					shouldMarkUsersInsteadOfDeprovisioning,
-					userDeprovisioningServiceClass,
+					userDeprovisioningStrategyClass,
+					userDeprovisioningListenersClass,
 					defaultDatarouterUserPassword,
 					defaultApiKey,
 					defaultSecretKey);

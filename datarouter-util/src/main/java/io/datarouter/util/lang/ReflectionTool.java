@@ -63,7 +63,10 @@ public class ReflectionTool{
 			try{
 				constructor.setAccessible(true);
 				return type.cast(constructor.newInstance(requiredParameters.toArray()));
-			}catch(SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
+			}catch(SecurityException
+					| InstantiationException
+					| IllegalAccessException
+					| IllegalArgumentException
 					| InvocationTargetException e){
 				throw new RuntimeException(e);
 			}

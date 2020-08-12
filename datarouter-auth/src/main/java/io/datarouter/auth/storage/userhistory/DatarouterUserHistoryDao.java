@@ -27,7 +27,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
 
 @Singleton
 public class DatarouterUserHistoryDao extends BaseDao{
@@ -40,7 +40,7 @@ public class DatarouterUserHistoryDao extends BaseDao{
 
 	}
 
-	private final IndexedSortedMapStorage<DatarouterUserHistoryKey,DatarouterUserHistory> node;
+	private final SortedMapStorage<DatarouterUserHistoryKey,DatarouterUserHistory> node;
 
 	@Inject
 	public DatarouterUserHistoryDao(

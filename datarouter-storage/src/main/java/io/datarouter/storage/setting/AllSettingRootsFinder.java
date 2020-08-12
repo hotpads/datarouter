@@ -30,10 +30,10 @@ public class AllSettingRootsFinder{
 	@Inject
 	private DatarouterInjector injector;
 	@Inject
-	private SettingRootsSupplier setingRootsSupplier;
+	private SettingRootsSupplier settingRootsSupplier;
 
 	public List<SettingRoot> getSettingRoots(){
-		return setingRootsSupplier.get().stream()
+		return settingRootsSupplier.settingRoots.stream()
 				.filter(Objects::nonNull)
 				.map(injector::getInstance)
 				.collect(Collectors.toList());

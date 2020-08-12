@@ -29,8 +29,15 @@ public class FieldDto{
 	public final boolean isFixedLength;
 	public final Optional<Integer> size;
 
-	public FieldDto(String name, String type, boolean isKey, List<FieldAttributeDto> attributes, boolean isNullable,
-			int order, boolean isFixedLength, Optional<Integer> size){
+	public FieldDto(
+			String name,
+			String type,
+			boolean isKey,
+			List<FieldAttributeDto> attributes,
+			boolean isNullable,
+			int order,
+			boolean isFixedLength,
+			Optional<Integer> size){
 		this.name = name;
 		this.type = type;
 		this.isKey = isKey;

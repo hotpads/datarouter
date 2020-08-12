@@ -49,13 +49,13 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 	}
 
 	private final IndexedSortedMapStorageNode<ClusterSettingLogKey,ClusterSettingLog,ClusterSettingLogFielder>
-			clusterSettingLog;
+			node;
 	private final IndexReader<
 			ClusterSettingLogKey,
 			ClusterSettingLog,
 			ClusterSettingLogByReversedCreatedMsKey,
 			FieldlessIndexEntry<ClusterSettingLogByReversedCreatedMsKey,ClusterSettingLogKey,ClusterSettingLog>>
-			clusterSettingLogByReversedCreatedMs;
+			byReversedCreatedMs;
 
 	@Inject
 	public DatarouterClusterSettingLogDao(
@@ -64,42 +64,42 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 			DatarouterClusterSettingLogDaoParams params,
 			IndexingNodeFactory indexingNodeFactory){
 		super(datarouter);
-		clusterSettingLog = settinglessNodeFactory.create(
+		node = settinglessNodeFactory.create(
 				params.clientId,
 				ClusterSettingLog::new,
 				ClusterSettingLogFielder::new)
 				.build();
-		clusterSettingLogByReversedCreatedMs = indexingNodeFactory.createKeyOnlyManagedIndex(
-				ClusterSettingLogByReversedCreatedMsKey.class, clusterSettingLog)
+		byReversedCreatedMs = indexingNodeFactory.createKeyOnlyManagedIndex(
+				ClusterSettingLogByReversedCreatedMsKey.class, node)
 				.build();
-		datarouter.register(clusterSettingLog);
+		datarouter.register(node);
 	}
 
 	public void put(ClusterSettingLog databean){
-		clusterSettingLog.put(databean);
+		node.put(databean);
 	}
 
 	public void putMulti(Collection<ClusterSettingLog> databeans){
-		clusterSettingLog.putMulti(databeans);
+		node.putMulti(databeans);
 	}
 
 	public Scanner<ClusterSettingLog> scanWithPrefix(ClusterSettingLogKey prefix){
-		return clusterSettingLog.scanWithPrefix(prefix);
+		return node.scanWithPrefix(prefix);
 	}
 
 	public Scanner<ClusterSettingLog> scanWithPrefixes(Collection<ClusterSettingLogKey> prefixes){
-		return clusterSettingLog.scanWithPrefixes(prefixes);
+		return node.scanWithPrefixes(prefixes);
 	}
 
 	public Scanner<ClusterSettingLog> scanByReversedCreatedMs(
 			Range<ClusterSettingLogByReversedCreatedMsKey>range,
 			int limit){
-		return clusterSettingLogByReversedCreatedMs.scanDatabeans(range, new Config().setLimit(limit));
+		return byReversedCreatedMs.scanDatabeans(range, new Config().setLimit(limit));
 	}
 
 	public boolean isOldDatabaseSetting(ClusterSetting databeanSetting, int numOfDays){
 		Date maxSettingAge = DateTool.getDaysAgo(numOfDays);
-		return clusterSettingLog
+		return node
 				.scanKeysWithPrefix(ClusterSettingLogKey.createPrefix(databeanSetting.getName()),
 						new Config().setLimit(1))
 				.findFirst()

@@ -133,6 +133,19 @@ public class ByteTool{
 		return sb.toString();
 	}
 
+	public static String getIntString(byte[] bytes){
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		for(int i = 0; i < bytes.length; ++i){
+			if(i > 0){
+				sb.append(",");
+			}
+			sb.append(Byte.toUnsignedInt(bytes[i]));
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+
 	public static byte[] copyOfRange(byte[] in, int offset, int length){
 		byte[] out = new byte[length];
 		System.arraycopy(in, offset, out, 0, length);
@@ -173,6 +186,14 @@ public class ByteTool{
 	}
 
 	/*------------------------- byte arrays ---------------------------------*/
+
+	public static byte[] concatenate(List<byte[]> ins){
+		byte[][] arrays = new byte[ins.size()][];
+		for(int i = 0; i < ins.size(); ++i){
+			arrays[i] = ins.get(i);
+		}
+		return concatenate(arrays);
+	}
 
 	public static byte[] concatenate(byte[]... ins){
 		if(ins == null){

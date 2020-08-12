@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
@@ -365,6 +366,11 @@ public abstract class DatarouterProperties{
 
 	public Properties getAllComputedServerProperties(){
 		return allComputedServerProperties;
+	}
+
+	public Map<String,String> getAllComputedServerPropertiesMap(){
+		return allComputedServerProperties.entrySet().stream()
+				.collect(Collectors.toMap(entry -> entry.getKey().toString(), entry -> entry.getValue().toString()));
 	}
 
 	public abstract String getDatarouterPropertiesFileLocation();

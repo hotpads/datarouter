@@ -29,7 +29,7 @@ import io.datarouter.storage.config.Configs;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
 
 @Singleton
 public class DatarouterJobletDataDao extends BaseDao{
@@ -41,7 +41,7 @@ public class DatarouterJobletDataDao extends BaseDao{
 		}
 	}
 
-	private final SortedMapStorageNode<JobletDataKey,JobletData,JobletDataFielder> node;
+	private final SortedMapStorage<JobletDataKey,JobletData> node;
 
 	@Inject
 	public DatarouterJobletDataDao(

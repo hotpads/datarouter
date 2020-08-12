@@ -36,8 +36,15 @@ public class TraceSpanDto{
 		this.created = created;
 	}
 
-	public TraceSpanDto(String traceId, Long threadId, Integer sequence, Integer parentSequence, String name,
-			String info, Long created, Long duration){
+	public TraceSpanDto(
+			String traceId,
+			Long threadId,
+			Integer sequence,
+			Integer parentSequence,
+			String name,
+			String info,
+			Long created,
+			Long duration){
 		this(traceId, threadId, sequence, parentSequence, created);
 		this.name = name;
 		this.info = info;

@@ -22,6 +22,9 @@ import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.instrumentation.count.CountPublisher.NoOpCountPublisher;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.gauge.GaugePublisher.NoOpGaugePublisher;
+import io.datarouter.metric.MetricLinkBuilder;
+import io.datarouter.metric.MetricLinkBuilder.NoOpMetricLinkBuilder;
+import io.datarouter.metric.MetricName;
 import io.datarouter.metric.MetricNameRegistry;
 import io.datarouter.metric.counter.CountersAppListener;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao;
@@ -44,17 +47,20 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 	private final Class<? extends CountPublisher> countPublisher;
 	private final Class<? extends GaugePublisher> gaugePublisher;
-	private final List<String> metricNames;
+	private final Class<? extends MetricLinkBuilder> metricLinkBuilder;
+	private final List<MetricName> metricNames;
 
 	private DatarouterMetricsPlugin(
 			DatarouterMetricsDaosModule daosModuleBuilder,
 			Class<? extends CountPublisher> countPublisher,
 			Class<? extends GaugePublisher> gaugePublisher,
+			Class<? extends MetricLinkBuilder> metricLinkBuilder,
 			boolean enableCountPublishing,
 			boolean enableGaugePublishing,
-			List<String> metricNames){
+			List<MetricName> metricNames){
 		this.countPublisher = countPublisher;
 		this.gaugePublisher = gaugePublisher;
+		this.metricLinkBuilder = metricLinkBuilder;
 		this.metricNames = metricNames;
 
 		if(enableCountPublishing){
@@ -83,15 +89,17 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		bind(GaugePublisher.class).to(gaugePublisher);
 		bindActual(Gauges.class, DatabeanGauges.class);
 		bindActualInstance(MetricNameRegistry.class, new MetricNameRegistry(metricNames));
+		bind(MetricLinkBuilder.class).to(metricLinkBuilder);
 	}
 
 	public static class DatarouterMetricsPluginBuilder{
 
 		private final ClientId defaultQueueClientId;
-		private final List<String> metricNames;
+		private final List<MetricName> metricNames;
 
 		private Class<? extends CountPublisher> countPublisher = NoOpCountPublisher.class;
 		private Class<? extends GaugePublisher> gaugePublisher = NoOpGaugePublisher.class;
+		private Class<? extends MetricLinkBuilder> metricLinkBuilder = NoOpMetricLinkBuilder.class;
 
 		private DatarouterMetricsDaosModule daosModule;
 
@@ -120,8 +128,14 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterMetricsPluginBuilder addMetricNames(List<String> names){
+		public DatarouterMetricsPluginBuilder addMetricNames(List<MetricName> names){
 			this.metricNames.addAll(names);
+			return this;
+		}
+
+		public DatarouterMetricsPluginBuilder withMetricLinkBuilder(
+				Class<? extends MetricLinkBuilder> metricLinkBuilder){
+			this.metricLinkBuilder = metricLinkBuilder;
 			return this;
 		}
 
@@ -136,6 +150,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 							: daosModule,
 					countPublisher,
 					gaugePublisher,
+					metricLinkBuilder,
 					enableCountPublishing,
 					enableGaugePublishing,
 					metricNames);

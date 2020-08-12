@@ -63,13 +63,45 @@ public class HttpRequestRecordDto{
 	public final String xRequestedWith;
 	public final String otherHeaders;
 
-	public HttpRequestRecordDto(String id, Date created, Date receivedAt, Long duration, String exceptionRecordId,
-			String httpMethod, String httpParams, String protocol, String hostname, int port, String contextPath,
-			String path, String queryString, byte[] binaryBody, String ip, String userRoles, String userToken,
-			String acceptCharset, String acceptEncoding, String acceptLanguage, String accept, String cacheControl,
-			String connection, String contentEncoding, String contentLanguage, String contentLength, String contentType,
-			String cookie, String dnt, String host, String ifModifiedSince, String origin, String pragma,
-			String referer, String userAgent, String xForwardedFor, String xRequestedWith, String otherHeaders){
+	public HttpRequestRecordDto(
+			String id,
+			Date created,
+			Date receivedAt,
+			Long duration,
+			String exceptionRecordId,
+			String httpMethod,
+			String httpParams,
+			String protocol,
+			String hostname,
+			int port,
+			String contextPath,
+			String path,
+			String queryString,
+			byte[] binaryBody,
+			String ip,
+			String userRoles,
+			String userToken,
+			String acceptCharset,
+			String acceptEncoding,
+			String acceptLanguage,
+			String accept,
+			String cacheControl,
+			String connection,
+			String contentEncoding,
+			String contentLanguage,
+			String contentLength,
+			String contentType,
+			String cookie,
+			String dnt,
+			String host,
+			String ifModifiedSince,
+			String origin,
+			String pragma,
+			String referer,
+			String userAgent,
+			String xForwardedFor,
+			String xRequestedWith,
+			String otherHeaders){
 		this.id = id;
 		this.created = created;
 		this.receivedAt = receivedAt;

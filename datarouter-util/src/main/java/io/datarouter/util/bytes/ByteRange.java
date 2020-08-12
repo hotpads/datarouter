@@ -16,7 +16,7 @@
 package io.datarouter.util.bytes;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 
 import io.datarouter.util.array.ArrayTool;
 
@@ -138,13 +138,21 @@ public class ByteRange implements Comparable<ByteRange>{
 		return bytes;
 	}
 
+	public int getOffset(){
+		return offset;
+	}
+
 	public int getLength(){
 		return length;
 	}
 
 	@Override
 	public String toString(){
-		return Arrays.toString(bytes);
+		return ByteTool.getIntString(copyToNewArray());
+	}
+
+	public String toUtf8String(){
+		return new String(copyToNewArray(), StandardCharsets.UTF_8);
 	}
 
 }

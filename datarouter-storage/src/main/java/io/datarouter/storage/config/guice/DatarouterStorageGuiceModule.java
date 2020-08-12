@@ -32,7 +32,6 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRootsSupplier;
-import io.datarouter.storage.setting.SettingRootsSupplier.SettingRoots;
 
 public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 
@@ -42,7 +41,7 @@ public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
 		bindDefault(Gauges.class, NoOpGauges.class);
-		bindDefaultInstance(SettingRootsSupplier.class, new SettingRoots(Collections.emptyList()));
+		bindDefaultInstance(SettingRootsSupplier.class, new SettingRootsSupplier(Collections.emptyList()));
 
 		bindDefault(ClientOptionsFactory.class, NoOpClientOptionsFactory.class);
 		bindDefault(SchemaUpdateOptionsFactory.class, NoOpSchemaUpdateOptionsFactory.class);
