@@ -16,7 +16,7 @@
 package io.datarouter.metric;
 
 public enum MetricType{
-	COUNTER("counter"),
+	COUNT("count"),
 	GAUGE("gauge"),
 	;
 

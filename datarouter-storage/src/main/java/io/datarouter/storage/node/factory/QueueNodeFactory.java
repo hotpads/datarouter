@@ -76,12 +76,14 @@ public class QueueNodeFactory{
 			String queueName,
 			Supplier<F> fielderSupplier,
 			String namespace,
-			String queueUrl){
+			String queueUrl,
+			boolean isSystemTable){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withTableName(queueName)
 				.withNamespace(namespace)
 				.withQueueUrl(queueUrl)
+				.withIsSystemTable(isSystemTable)
 				.build();
 		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
 		QueueClientNodeFactory clientFactories = getClientFactories(clientType);
@@ -98,12 +100,14 @@ public class QueueNodeFactory{
 			String queueName,
 			Supplier<F> fielderSupplier,
 			String namespace,
-			String queueUrl){
+			String queueUrl,
+			boolean isSystemTable){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withTableName(queueName)
 				.withNamespace(namespace)
 				.withQueueUrl(queueUrl)
+				.withIsSystemTable(isSystemTable)
 				.build();
 		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
 		QueueClientNodeFactory clientFactories = getClientFactories(clientType);

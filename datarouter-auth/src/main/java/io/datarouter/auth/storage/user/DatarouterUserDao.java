@@ -52,6 +52,7 @@ public class DatarouterUserDao extends BaseDao{
 	public DatarouterUserDao(Datarouter datarouter, NodeFactory nodeFactory, DatarouterUserDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, DatarouterUser::new, DatarouterUserFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

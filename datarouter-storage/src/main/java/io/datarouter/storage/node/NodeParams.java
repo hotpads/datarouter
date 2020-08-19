@@ -42,6 +42,7 @@ public class NodeParams<
 	//name the table different than the databean class
 	private final String physicalName;
 	private final Optional<String> namespace;
+	private final String path;
 
 	private final String entityNodePrefix;
 
@@ -66,15 +67,29 @@ public class NodeParams<
 	// indicate if is a system table (to filter when exploring)
 	private final boolean isSystemTable;
 
-	private NodeParams(ClientId clientId, String parentName, Supplier<D> databeanSupplier, Supplier<F> fielderSupplier,
-			Integer schemaVersion, String physicalName, String namespace, String entityNodePrefix,
-			String remoteRouterName, String remoteNodeName, Supplier<Boolean> recordCallsites, String streamName,
-			String queueUrl, NodewatchConfiguration nodewatchConfiguration, boolean disableForcePrimary,
+	private NodeParams(
+			ClientId clientId,
+			String parentName,
+			Supplier<D> databeanSupplier,
+			Supplier<F> fielderSupplier,
+			Integer schemaVersion,
+			String physicalName,
+			String namespace,
+			String path,
+			String entityNodePrefix,
+			String remoteRouterName,
+			String remoteNodeName,
+			Supplier<Boolean> recordCallsites,
+			String streamName,
+			String queueUrl,
+			NodewatchConfiguration nodewatchConfiguration,
+			boolean disableForcePrimary,
 			boolean isSystemTable){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
 		this.namespace = Optional.ofNullable(namespace);
+		this.path = path;
 		this.databeanName = databeanSupplier.get().getDatabeanName();
 		this.fielderSupplier = fielderSupplier;
 		this.schemaVersion = schemaVersion;
@@ -103,6 +118,7 @@ public class NodeParams<
 		private Integer schemaVersion;
 		private String physicalName;
 		private String namespace;
+		private String path;
 		private String entityNodePrefix;
 		private String remoteRouterName;
 		private String remoteNodeName;
@@ -142,6 +158,11 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withBucketName(String physicalName){
+			this.physicalName = physicalName;
+			return this;
+		}
+
 		public NodeParamsBuilder<PK,D,F> withTableName(String physicalName){
 			this.physicalName = physicalName;
 			return this;
@@ -160,6 +181,11 @@ public class NodeParams<
 
 		public NodeParamsBuilder<PK,D,F> withNamespace(String namespace){
 			this.namespace = namespace;
+			return this;
+		}
+
+		public NodeParamsBuilder<PK,D,F> withPath(String path){
+			this.path = path;
 			return this;
 		}
 
@@ -191,10 +217,26 @@ public class NodeParams<
 		/*----------------------------- build -------------------------------*/
 
 		public NodeParams<PK,D,F> build(){
-			return new NodeParams<>(clientId, parentName, databeanSupplier, fielderSupplier, schemaVersion,
-					physicalName, namespace, entityNodePrefix, remoteRouterName, remoteNodeName, recordCallsites,
-					streamName, queueUrl, nodewatchConfiguration, disableForcePrimary, isSystemTable);
+			return new NodeParams<>(
+					clientId,
+					parentName,
+					databeanSupplier,
+					fielderSupplier,
+					schemaVersion,
+					physicalName,
+					namespace,
+					path,
+					entityNodePrefix,
+					remoteRouterName,
+					remoteNodeName,
+					recordCallsites,
+					streamName,
+					queueUrl,
+					nodewatchConfiguration,
+					disableForcePrimary,
+					isSystemTable);
 		}
+
 	}
 
 	/*-------------------------------- get ----------------------------------*/
@@ -236,6 +278,10 @@ public class NodeParams<
 
 	public Optional<String> getNamespace(){
 		return namespace;
+	}
+
+	public String getPath(){
+		return path;
 	}
 
 	public String getRemoteRouterName(){

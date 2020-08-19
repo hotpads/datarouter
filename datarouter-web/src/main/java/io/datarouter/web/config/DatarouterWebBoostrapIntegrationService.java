@@ -16,6 +16,7 @@
 package io.datarouter.web.config;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,10 +24,12 @@ import javax.inject.Singleton;
 import io.datarouter.httpclient.client.BaseApplicationHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.instrumentation.test.TestableService;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.DaosTestService;
 import io.datarouter.storage.setting.SettingNode;
+import io.datarouter.util.Require;
 import io.datarouter.util.clazz.AnnotationTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -34,6 +37,9 @@ import io.datarouter.web.dispatcher.DispatcherServletTestService;
 import io.datarouter.web.file.AppFilesTestService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.listener.AppListenersClasses;
+import io.datarouter.web.user.role.DatarouterUserRole;
+import io.datarouter.web.user.session.service.Role;
+import io.datarouter.web.user.session.service.RoleManager;
 
 /**
  * Use this class to check for injection problems
@@ -61,6 +67,8 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	private AppListenersClasses appListeners;
 	@Inject
 	private SingletonTestService singletonTestService;
+	@Inject
+	private RoleManager manager;
 
 	@Override
 	public void testAll(){
@@ -69,6 +77,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		testFiles();
 		testSingletons();
 		testSingletonsForAppListeners();
+		testAllRoles();
 	}
 
 	@Override
@@ -96,6 +105,14 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 
 	private void testSingletonsForAppListeners(){
 		appListeners.getAppListenerClasses().forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, true));
+	}
+
+	// Make sure RoleEnum overriders have all values
+	private void testAllRoles(){
+		Set<Role> roles = manager.getAllRoles();
+		Scanner.of(DatarouterUserRole.values())
+				.forEach(role -> Require.isTrue(roles.contains(role.getRole()),
+						role.getPersistentString() + " needs to be added to the RoleEnum"));
 	}
 
 }

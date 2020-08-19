@@ -52,6 +52,7 @@ public class DatarouterUserHistoryDao extends BaseDao{
 				params.clientId,
 				DatarouterUserHistory::new,
 				DatarouterUserHistoryFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

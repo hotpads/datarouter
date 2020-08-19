@@ -51,6 +51,7 @@ public class DatarouterTableSampleDao extends BaseDao{
 		node = nodeFactory.create(params.clientId, TableSample::new, TableSampleFielder::new)
 				.disableNodewatch()
 				.withTableName("TableRowSample") // Some datastores list 'TableSample' as a reserved word
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

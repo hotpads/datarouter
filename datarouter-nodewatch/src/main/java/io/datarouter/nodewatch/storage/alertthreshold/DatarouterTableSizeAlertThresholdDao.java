@@ -47,6 +47,7 @@ public class DatarouterTableSizeAlertThresholdDao extends BaseDao{
 			DatarouterTableSizeAlertThresholdDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, TableSizeAlertThreshold::new, TableSizeAlertThresholdFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

@@ -47,6 +47,7 @@ public class DeprovisionedUserDao extends BaseDao{
 	public DeprovisionedUserDao(Datarouter datarouter, NodeFactory nodeFactory, DeprovisionedUserDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, DeprovisionedUser::new, DeprovisionedUserFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

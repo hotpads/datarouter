@@ -64,11 +64,13 @@ public class TallyNodeFactory{
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			int version,
-			String tableName){
+			String tableName,
+			boolean isSystemTable){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withSchemaVersion(version)
 				.withTableName(tableName)
+				.withIsSystemTable(isSystemTable)
 				.build();
 		ClientType<?,?> clientType = getClientTypeInstance(clientId);
 		TallyClientNodeFactory clientFactories = (TallyClientNodeFactory) getClientFactories(clientType);

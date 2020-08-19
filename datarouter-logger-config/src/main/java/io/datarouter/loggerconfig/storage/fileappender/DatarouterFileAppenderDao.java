@@ -45,6 +45,7 @@ public class DatarouterFileAppenderDao extends BaseDao{
 			DatarouterFileAppenderDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, FileAppender::new, FileAppenderFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

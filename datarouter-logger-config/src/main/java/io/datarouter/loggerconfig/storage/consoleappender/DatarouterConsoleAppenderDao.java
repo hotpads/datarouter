@@ -47,6 +47,7 @@ public class DatarouterConsoleAppenderDao extends BaseDao{
 			DatarouterConsoleAppenderDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, ConsoleAppender::new, ConsoleAppenderFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

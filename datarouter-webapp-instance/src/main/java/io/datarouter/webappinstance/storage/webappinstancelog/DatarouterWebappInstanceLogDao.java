@@ -45,6 +45,7 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 			DatarouterWebappInstanceLogDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, WebappInstanceLog::new, WebappInstanceLogFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

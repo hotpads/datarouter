@@ -53,6 +53,7 @@ public class DatarouterOpOptimizedBatchSizeDao extends BaseDao{
 				params.clientId,
 				OpOptimizedBatchSize::new,
 				OpOptimizedBatchSizeFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

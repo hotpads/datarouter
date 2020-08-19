@@ -38,7 +38,9 @@ public class DatarouterLoadTestRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+		return rule
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_TOOLS)
+				.withIsSystemDispatchRule(true);
 	}
 
 }

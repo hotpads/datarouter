@@ -25,7 +25,8 @@ public enum CountPartitions{
 	PERIOD_20m(Duration.ofMinutes(20)),
 	PERIOD_1h(Duration.ofHours(1)),
 	PERIOD_4h(Duration.ofHours(4)),
-	PERIOD_1d(Duration.ofDays(1));
+	PERIOD_1d(Duration.ofDays(1)),
+	;
 
 	private final Duration period;
 

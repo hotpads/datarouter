@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.file;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -63,6 +64,30 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 			Require.isTrue(isValidFile(file));
 		}
 		this.file = file;
+	}
+
+	public static PathbeanKey of(String pathAndFile){
+		int lastSlashIndex = pathAndFile.lastIndexOf('/');
+		String keyDirectory;
+		String keyFile;
+		if(lastSlashIndex < 0){// file only
+			keyDirectory = "";
+			keyFile = pathAndFile;
+		}else{
+			keyDirectory = pathAndFile.substring(0, lastSlashIndex);
+			keyFile = pathAndFile.substring(lastSlashIndex);
+		}
+		return new PathbeanKey(keyDirectory, keyFile);
+	}
+
+	public static PathbeanKey of(Path path){
+		Require.greaterThan(path.getNameCount(), 0);
+		int nameCount = path.getNameCount();
+		String keyPath = nameCount == 1
+				? ""
+				: path.subpath(0, nameCount - 1) + "/";
+		String keyFile = path.getFileName().toString();
+		return new PathbeanKey(keyPath, keyFile);
 	}
 
 	public static final boolean isValidPath(String path){

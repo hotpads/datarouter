@@ -54,6 +54,7 @@ public class DatarouterWebappInstanceDao extends BaseDao{
 			DatarouterWebappInstanceDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, WebappInstance::new, WebappInstanceFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.client.hbase.web.HBaseHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
@@ -28,9 +29,14 @@ public class DatarouterHBaseRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterHBaseRouteSet(DatarouterHBasePaths paths){
 		super(paths.datarouter.clients.hbase);
-		handle(paths.datarouter.clients.hbase)
-				.withHandler(HBaseHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+		handle(paths.datarouter.clients.hbase).withHandler(HBaseHandler.class);
+	}
+
+	@Override
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.withIsSystemDispatchRule(true);
 	}
 
 }

@@ -26,7 +26,7 @@ public class DatarouterAwsElbTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterAwsElbTriggerGroup(DatarouterAwsElbSettingRoot settings){
-		super("DatarouterAwsElb");
+		super("DatarouterAwsElb", true);
 		registerLocked(
 				"0 0 14 ? * MON,TUE,WED,THU,FRI *",
 				settings.runConfigurationScanReportEmailJob,

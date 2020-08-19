@@ -49,6 +49,7 @@ public class DatarouterCountPublisherDao extends BaseDao{
 		node = queueNodeFactory
 				.createSingleQueue(params.clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
 				.withQueueName("CountPublisher")
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

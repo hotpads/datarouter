@@ -28,7 +28,7 @@ public class DatarouterHBaseTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterHBaseTriggerGroup(DatarouterHBaseSettingRoot settings, HBaseCompactionInfo compactionInfo){
-		super("DatarouterHbase");
+		super("DatarouterHbase", true);
 		long compactTriggerPeriodMinutes = compactionInfo.getCompactionTriggerPeriod().toMinutes();
 		registerLocked(
 				"41 7/" + compactTriggerPeriodMinutes + " * * * ?",

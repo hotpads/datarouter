@@ -26,7 +26,7 @@ public class DatarouterAwsRdsTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterAwsRdsTriggerGroup(DatarouterAwsRdsSettingRoot settings){
-		super("DatarouterAwsRds");
+		super("DatarouterAwsRds", true);
 		registerLocked(
 				"0 0 0/2 * * ?",
 				settings.auroraDnsMonitoringJob,

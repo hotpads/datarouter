@@ -53,7 +53,7 @@ public enum MemcachedClientMode implements StringEnum<MemcachedClientMode>{
 	}
 
 	public static Optional<MemcachedClientMode> fromPersistentStringStatic(String string){
-		return DatarouterEnumTool.getEnumFromStringOptional(values(), string);
+		return DatarouterEnumTool.findEnumFromString(values(), string);
 	}
 
 }

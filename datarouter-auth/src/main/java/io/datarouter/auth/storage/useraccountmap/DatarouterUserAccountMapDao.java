@@ -52,6 +52,7 @@ public class DatarouterUserAccountMapDao extends BaseDao implements BaseDatarout
 				params.clientId,
 				DatarouterUserAccountMap::new,
 				DatarouterUserAccountMapFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

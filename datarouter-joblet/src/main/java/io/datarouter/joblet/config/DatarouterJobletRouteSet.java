@@ -34,7 +34,7 @@ public class DatarouterJobletRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterJobletRouteSet(DatarouterJobletPaths paths){
-		super(paths.datarouter);
+		super(paths.datarouter.joblets);
 		handle(paths.datarouter.joblets.copyJobletRequestsToQueues).withHandler(JobletUpdateHandler.class);
 		handle(paths.datarouter.joblets.createSleepingJoblets).withHandler(SleepingJobletHandler.class);
 		handle(paths.datarouter.joblets.deleteGroup).withHandler(JobletUpdateHandler.class);
@@ -50,7 +50,9 @@ public class DatarouterJobletRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_JOB);
+		return rule
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_JOB)
+				.withIsSystemDispatchRule(true);
 	}
 
 }

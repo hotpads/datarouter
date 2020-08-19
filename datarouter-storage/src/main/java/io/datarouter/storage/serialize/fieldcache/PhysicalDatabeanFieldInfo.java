@@ -44,7 +44,11 @@ extends DatabeanFieldInfo<PK,D,F>{
 			this.tableName = params.getPhysicalName();
 		}else if(StringTool.notEmpty(params.getPhysicalName())){
 			//explicitly set tableName.  do after entity check since that also sets a table name
-			this.tableName = params.getPhysicalName();
+			if(params.getPath() == null){
+				this.tableName = params.getPhysicalName();
+			}else{
+				this.tableName = params.getPhysicalName() + "/" + params.getPath();
+			}
 		}else{//default to using the databean's name as the table name
 			this.tableName = params.getDatabeanSupplier().get().getDatabeanName();
 		}

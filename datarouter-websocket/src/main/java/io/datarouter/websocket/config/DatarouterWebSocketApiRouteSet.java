@@ -22,6 +22,7 @@ import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DefaultApiKeyPredicate;
+import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.security.DefaultCsrfValidator;
 import io.datarouter.web.security.DefaultSignatureValidator;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -45,6 +46,12 @@ public class DatarouterWebSocketApiRouteSet extends BaseRouteSet{
 		handleDir(paths.datarouter.websocketTool)
 				.withHandler(WebSocketToolHandler.class)
 				.allowRoles(DatarouterUserRole.ADMIN);
+	}
+
+	@Override
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule
+				.withIsSystemDispatchRule(true);
 	}
 
 }

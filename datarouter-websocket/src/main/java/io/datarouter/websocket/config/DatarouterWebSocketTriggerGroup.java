@@ -26,7 +26,7 @@ public class DatarouterWebSocketTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterWebSocketTriggerGroup(DatarouterWebSocketSettingRoot settings){
-		super("DatarouterWebSocket");
+		super("DatarouterWebSocket", true);
 		registerLocked(
 				// High frequency to keep the table as consistent as possible after some sessions failed to delete
 				"1/30 * * * * ?",

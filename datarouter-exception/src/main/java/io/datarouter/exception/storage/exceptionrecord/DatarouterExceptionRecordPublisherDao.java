@@ -48,6 +48,7 @@ public class DatarouterExceptionRecordPublisherDao extends BaseDao{
 		super(datarouter);
 		node = queueNodeFactory.createGroupQueue(params.clientId, ExceptionRecord::new, ExceptionRecordFielder::new)
 				.withQueueName("PublisherExceptionRecord")
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

@@ -85,7 +85,7 @@ public class RedisClusterOptions{
 		}
 
 		public static RedisClusterClientMode fromPersistentStringStatic(String string){
-			return DatarouterEnumTool.getEnumFromStringOptional(values(), string)
+			return DatarouterEnumTool.findEnumFromString(values(), string)
 					.orElseThrow();
 		}
 

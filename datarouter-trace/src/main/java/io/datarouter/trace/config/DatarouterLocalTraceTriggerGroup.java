@@ -29,7 +29,7 @@ public class DatarouterLocalTraceTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterLocalTraceTriggerGroup(DatarouterTraceLocalSettingRoot settings){
-		super("DatarouterTrace");
+		super("DatarouterTrace", true);
 		registerLocked(
 				"3 15 0/2 ? * *",
 				settings.runVacuumJob,

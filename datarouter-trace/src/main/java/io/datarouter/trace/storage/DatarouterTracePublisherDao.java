@@ -50,6 +50,7 @@ public class DatarouterTracePublisherDao extends BaseDao{
 		super(datarouter);
 		node = queueNodeFactory.createGroupQueue(params.clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
 				.withQueueName("PublisherTrace")
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

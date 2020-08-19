@@ -103,9 +103,7 @@ public class Log4j2Configurator{
 
 	private void updateAppenders(LoggerConfig loggerConfig, Iterable<String> appendersRef){
 		Map<String,Appender> appenders = loggerConfig.getAppenders();
-		for(String string : appenders.keySet()){
-			loggerConfig.removeAppender(string);
-		}
+		appenders.keySet().forEach(loggerConfig::removeAppender);
 		for(String appenderRef : appendersRef){
 			Appender appender = config.getAppender(appenderRef);
 			if(appender != null){

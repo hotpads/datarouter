@@ -28,7 +28,7 @@ public class DatarouterExceptionTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterExceptionTriggerGroup(DatarouterExceptionSettingRoot settings){
-		super("DatarouterException");
+		super("DatarouterException", true);
 		registerLocked(
 				"0 0 14 * * ?",
 				settings.runExceptionRecordVacuum,

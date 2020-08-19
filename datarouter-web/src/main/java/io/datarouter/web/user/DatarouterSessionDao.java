@@ -48,6 +48,7 @@ public class DatarouterSessionDao extends BaseDao implements BaseDatarouterSessi
 	public DatarouterSessionDao(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSessionDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, DatarouterSession::new, DatarouterSessionFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

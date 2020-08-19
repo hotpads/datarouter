@@ -15,6 +15,10 @@
  */
 package io.datarouter.storage.node.op.raw.read;
 
+import java.nio.charset.StandardCharsets;
+
+import io.datarouter.model.databean.Databean;
+import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
@@ -23,14 +27,28 @@ import io.datarouter.storage.node.op.NodeOps;
 /**
  * Methods for reading from an object store such as the filesystem or S3.
  */
-public interface ObjectStorageReader
-extends NodeOps<PathbeanKey,Pathbean>{
+public interface ObjectStorageReader<
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>>
+extends NodeOps<PK,D>{
 
 	public static final String OP_exists = "exists";
+	public static final String OP_read = "read";
+	public static final String OP_readUtf8 = "readUtf8";
 	public static final String OP_list = "list";
 	public static final String OP_listWithPrefix = "listWithPrefix";
 
+	String getBucket();
+	String getRootPath();
+
 	boolean exists(PathbeanKey key);
+
+	byte[] read(PathbeanKey key);
+
+	default String readUtf8(PathbeanKey key){
+		return new String(read(key), StandardCharsets.UTF_8);
+	}
+
 	Scanner<PathbeanKey> scanKeys();
 	Scanner<Pathbean> scan();
 

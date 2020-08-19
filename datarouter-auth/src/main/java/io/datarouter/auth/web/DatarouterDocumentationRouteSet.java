@@ -38,7 +38,8 @@ public class DatarouterDocumentationRouteSet extends BaseRouteSet{
 				DatarouterUserRole.ADMIN,
 				DatarouterUserRole.DATAROUTER_ADMIN,
 				DatarouterUserRole.DOC_USER,
-				DatarouterUserRole.USER);
+				DatarouterUserRole.USER)
+				.withIsSystemDispatchRule(true);
 	}
 
 }

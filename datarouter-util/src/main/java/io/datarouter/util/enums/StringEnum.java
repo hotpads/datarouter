@@ -15,8 +15,9 @@
  */
 package io.datarouter.util.enums;
 
-import java.util.Arrays;
 import java.util.Optional;
+
+import io.datarouter.scanner.Scanner;
 
 public interface StringEnum<E> extends Comparable<E>, PersistentString{
 
@@ -40,8 +41,9 @@ public interface StringEnum<E> extends Comparable<E>, PersistentString{
 	}
 
 	static int findLongestPersistentString(StringEnum<?>... values){
-		return Arrays.stream(values)
+		return Scanner.of(values)
 				.map(StringEnum::getPersistentString)
+				.stream()
 				.mapToInt(String::length)
 				.max()
 				.orElse(0);

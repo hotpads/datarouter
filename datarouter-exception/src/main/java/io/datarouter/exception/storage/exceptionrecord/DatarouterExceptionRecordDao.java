@@ -63,6 +63,7 @@ public class DatarouterExceptionRecordDao extends BaseDao{
 				params.clientId,
 				ExceptionRecord::new,
 				ExceptionRecordFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 		node = new WriteBehindSortedMapStorageNode<>(scheduler, writeExecutor, backingNode);
 	}

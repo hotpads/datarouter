@@ -52,6 +52,7 @@ public class DatarouterExceptionRecordSummaryDao extends BaseDao{
 				params.clientId,
 				ExceptionRecordSummary::new,
 				ExceptionRecordSummaryFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

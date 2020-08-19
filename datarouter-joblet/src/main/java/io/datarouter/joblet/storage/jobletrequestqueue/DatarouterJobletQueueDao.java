@@ -63,6 +63,7 @@ public class DatarouterJobletQueueDao extends BaseDao{
 									JobletRequest::new,
 									JobletRequestFielder::new)
 									.withQueueName(nodeName)
+									.withIsSystemTable(true)
 									.buildAndRegister();
 						});
 	}

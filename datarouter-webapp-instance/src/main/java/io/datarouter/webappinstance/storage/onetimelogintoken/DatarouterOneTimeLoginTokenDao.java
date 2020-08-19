@@ -44,6 +44,7 @@ public class DatarouterOneTimeLoginTokenDao extends BaseDao{
 			DatarouterOneTimeLoginTokenDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, OneTimeLoginToken::new, OneTimeLoginTokenFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

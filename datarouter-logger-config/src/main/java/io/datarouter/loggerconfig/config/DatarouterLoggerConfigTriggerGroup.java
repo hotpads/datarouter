@@ -27,7 +27,7 @@ public class DatarouterLoggerConfigTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterLoggerConfigTriggerGroup(DatarouterLoggerConfigSettingRoot settings){
-		super("DatarouterLoggerConfig");
+		super("DatarouterLoggerConfig", true);
 		registerParallel(
 				"0/15 * * * * ?",
 				settings.runLoggerConfigUpdaterJob,

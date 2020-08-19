@@ -47,6 +47,7 @@ public class DatarouterTableCountDao extends BaseDao{
 			DatarouterTableCountDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, TableCount::new, TableCountFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

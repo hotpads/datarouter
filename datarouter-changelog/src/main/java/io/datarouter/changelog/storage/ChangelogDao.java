@@ -44,6 +44,7 @@ public class ChangelogDao extends BaseDao{
 	public ChangelogDao(Datarouter datarouter, ChangelogDaoParams params, NodeFactory nodeFactory){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, Changelog::new, ChangelogFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

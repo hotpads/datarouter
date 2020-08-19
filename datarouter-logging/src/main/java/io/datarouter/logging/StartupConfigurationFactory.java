@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -61,7 +60,10 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 			Class<? extends BaseLog4j2Configuration> configurationClass = Class.forName(fullyQualifiedClassName)
 					.asSubclass(BaseLog4j2Configuration.class);
 			log4j2Configuration = configurationClass.getDeclaredConstructor().newInstance();
-		}catch(InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException
+		}catch(InstantiationException
+				| IllegalAccessException
+				| ClassNotFoundException
+				| NoSuchMethodException
 				| InvocationTargetException e){
 			throw new RuntimeException(e);
 		}
@@ -73,9 +75,7 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 			configuration.addLogger(loggerConfig.getName(), loggerConfig);
 			staticLoggerConfigs.add(loggerConfig);
 		}
-		for(Filter filter : log4j2Configuration.getFilters()){
-			configuration.addFilter(filter);
-		}
+		log4j2Configuration.getFilters().forEach(configuration::addFilter);
 		LOGGER.info("LoggingConfig initiated");
 		return configuration;
 	}

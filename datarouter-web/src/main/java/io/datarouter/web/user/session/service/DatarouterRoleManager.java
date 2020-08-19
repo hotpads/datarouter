@@ -15,15 +15,13 @@
  */
 package io.datarouter.web.user.session.service;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
@@ -39,9 +37,9 @@ public class DatarouterRoleManager extends BaseRoleManager{
 
 	@Override
 	public Set<Role> getAllRoles(){
-		return Arrays.stream(DatarouterUserRole.values())
+		return Scanner.of(DatarouterUserRole.values())
 				.map(RoleEnum::getRole)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 	}
 
 	@Override
@@ -64,13 +62,14 @@ public class DatarouterRoleManager extends BaseRoleManager{
 
 	@Override
 	protected Set<Role> getDefaultRoles(){
-		return Collections.singleton(DatarouterUserRole.REQUESTOR.getRole());
+		return Set.of(DatarouterUserRole.REQUESTOR.getRole());
 	}
 
 	@Override
 	protected Set<Role> getAdminRoles(){
 		return Set.of(
 				DatarouterUserRole.ADMIN.getRole(),
+				DatarouterUserRole.DATAROUTER_ACCOUNTS.getRole(),
 				DatarouterUserRole.DATAROUTER_ADMIN.getRole(),
 				DatarouterUserRole.DATAROUTER_JOB.getRole(),
 				DatarouterUserRole.DATAROUTER_MONITORING.getRole(),

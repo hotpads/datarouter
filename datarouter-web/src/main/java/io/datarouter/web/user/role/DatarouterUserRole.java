@@ -22,6 +22,7 @@ import io.datarouter.web.user.session.service.RoleEnum;
 public enum DatarouterUserRole implements RoleEnum<DatarouterUserRole>{
 	ADMIN("admin"),
 	API_USER("apiUser"),
+	DATAROUTER_ACCOUNTS("datarouterAccounts"),
 	DATAROUTER_ADMIN("datarouterAdmin"),
 	DATAROUTER_JOB("datarouterJob"),
 	DATAROUTER_MONITORING("datarouterMonitoring"),

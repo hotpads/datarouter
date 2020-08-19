@@ -31,7 +31,7 @@ public class DatarouterJobletTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterJobletTriggerGroup(DatarouterJobletSettingRoot settings){
-		super("DatarouterJoblet");
+		super("DatarouterJoblet", true);
 		registerLocked(
 				"26 2/5 * * * ?",
 				settings.runJobletCounterJob,

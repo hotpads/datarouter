@@ -52,6 +52,7 @@ public class DatarouterClusterJobLockDao extends BaseDao{
 			DatarouterClusterJobLockDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, ClusterJobLock::new, ClusterJobLockFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

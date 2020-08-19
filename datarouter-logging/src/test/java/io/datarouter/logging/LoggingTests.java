@@ -80,7 +80,6 @@ public class LoggingTests{
 			Assert.assertNull(reader.readLine());
 		}
 
-
 		Assert.assertNull(configurator.getAppender(TEST_APPENDER_2_NAME));
 		configurator.addFileAppender(TEST_APPENDER_2_NAME, TEST_FILE_2_NAME, BaseLog4j2Configuration.defaultPattern);
 		Assert.assertNotNull(configurator.getAppender(TEST_APPENDER_2_NAME));

@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.gcp.bigtable.paths.DatarouterBigTablePaths;
 import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
@@ -28,9 +29,14 @@ public class DatarouterBigTableRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterBigTableRouteSet(DatarouterBigTablePaths paths){
 		super(paths.datarouter.clients.bigtable);
-		handle(paths.datarouter.clients.bigtable)
-				.withHandler(BigTableHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+		handle(paths.datarouter.clients.bigtable).withHandler(BigTableHandler.class);
+	}
+
+	@Override
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.withIsSystemDispatchRule(true);
 	}
 
 }

@@ -18,8 +18,9 @@ package io.datarouter.metric.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.metric.web.ViewRegisteredMetricNamesHandler;
+import io.datarouter.metric.web.ViewMetricNamesHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
@@ -29,8 +30,14 @@ public class DatarouterMetricRouteSet extends BaseRouteSet{
 	public DatarouterMetricRouteSet(DatarouterMetricPaths paths){
 		super(paths.datarouter);
 		handle(paths.datarouter.metric.viewMetricNames)
-				.withHandler(ViewRegisteredMetricNamesHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+				.withHandler(ViewMetricNamesHandler.class);
+	}
+
+	@Override
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.withIsSystemDispatchRule(true);
 	}
 
 }

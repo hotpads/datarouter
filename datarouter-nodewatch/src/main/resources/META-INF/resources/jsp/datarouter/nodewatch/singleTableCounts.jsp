@@ -99,7 +99,7 @@
 			<caption style="caption-side: top">
 				Table order by decreasing date
 				<div class="float-right">
-					<a class="btn btn-secondary btn-sm" tabindex="0" onclick="return recount()">Count now</a>
+					<a class="btn btn-secondary btn-sm" tabindex="0" onclick="return recount()">Count now (Not Persisted)</a>
 					<a class="btn btn-warning btn-sm ml-1" href="?submitAction=resample&clientName=${clientName}&tableName=${tableName}" onclick="return confirm('Resample now?')">Resample</a>
 				</div>
 			</caption>

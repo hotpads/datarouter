@@ -15,9 +15,15 @@
  */
 package io.datarouter.storage.metric;
 
+import io.datarouter.pathnode.PathNode;
+
 public interface Gauges{
 
 	void save(String key, long value);
+
+	default void save(PathNode key, long value){
+		save(key.join("", " ", ""), value);
+	}
 
 	default void save(String key, int value){
 		save(key, Long.valueOf(value));

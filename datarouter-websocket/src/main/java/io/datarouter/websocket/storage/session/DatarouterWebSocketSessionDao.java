@@ -51,6 +51,7 @@ public class DatarouterWebSocketSessionDao extends BaseDao{
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, WebSocketSession::new, WebSocketSessionFielder::new)
 				.disableNodewatchPercentageAlert()
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

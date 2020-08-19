@@ -63,6 +63,7 @@ public class DatarouterWebSocketSubscriptionDao extends BaseDao{
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, WebSocketSubscription::new, WebSocketSubscriptionFielder::new)
 				.disableNodewatchPercentageAlert()
+				.withIsSystemTable(true)
 				.build();
 		byToken = indexingNodeFactory.createKeyOnlyManagedIndex(WebSocketSubscriptionByUserTokenKey.class, node)
 				.build();

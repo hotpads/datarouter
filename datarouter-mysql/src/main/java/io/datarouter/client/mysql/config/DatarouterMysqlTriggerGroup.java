@@ -27,7 +27,7 @@ public class DatarouterMysqlTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterMysqlTriggerGroup(DatarouterMysqlSettingRoot settings){
-		super("DatarouterMysql");
+		super("DatarouterMysql", true);
 		registerParallel(
 				"5/15 * * * * ? *",
 				() -> settings.runFastMysqlLiveTableOptionsRefresherSpeed.get().equals("slow"),

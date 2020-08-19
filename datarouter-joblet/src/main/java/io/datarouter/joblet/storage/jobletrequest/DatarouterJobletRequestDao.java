@@ -63,6 +63,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 		node = nodeFactory.create(params.clientId, JobletRequest::new, JobletRequestFielder::new)
 				.disableNodewatchPercentageAlert()
 				.disableNodewatchThresholdAlert()
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

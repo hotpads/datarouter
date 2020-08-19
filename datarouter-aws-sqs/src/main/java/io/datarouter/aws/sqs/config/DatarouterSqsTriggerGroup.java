@@ -26,7 +26,7 @@ public class DatarouterSqsTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterSqsTriggerGroup(DatarouterSqsSettingsRoot settings){
-		super("DatarouterSqs");
+		super("DatarouterSqs", true);
 		registerLocked(
 				"0 * * * * ?",
 				settings.runSqsQueueLengthMonitoringJob,

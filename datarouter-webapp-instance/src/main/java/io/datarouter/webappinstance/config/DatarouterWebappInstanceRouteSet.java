@@ -40,7 +40,9 @@ public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+		return rule
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.withIsSystemDispatchRule(true);
 	}
 
 }

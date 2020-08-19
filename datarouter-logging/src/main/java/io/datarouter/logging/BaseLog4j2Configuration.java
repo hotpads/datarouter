@@ -70,9 +70,7 @@ public abstract class BaseLog4j2Configuration{
 
 	private final void addLoggerConfig(String name, Level level, boolean additive, Iterable<Appender> appenders){
 		LoggerConfig loggerConfig = new LoggerConfig(name, level, additive);
-		for(Appender appender : appenders){
-			loggerConfig.addAppender(appender, null, null);
-		}
+		appenders.forEach(appender -> loggerConfig.addAppender(appender, null, null));
 		loggerConfigs.put(loggerConfig.getName(), loggerConfig);
 	}
 
@@ -91,16 +89,13 @@ public abstract class BaseLog4j2Configuration{
 		}catch(InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e){
 			throw new RuntimeException(e);
 		}
-		for(Appender appender : configuration.getAppenders()){
-			addAppender(appender);
-		}
-		for(LoggerConfig loggerConfig : configuration.getLoggerConfigs()){
-			addLoggerConfig(loggerConfig.getName(), loggerConfig.getLevel(), loggerConfig.isAdditive(), loggerConfig
-					.getAppenders().values());
-		}
-		for(Filter filter : configuration.getFilters()){
-			addFilter(filter);
-		}
+		configuration.getAppenders().forEach(this::addAppender);
+		configuration.getLoggerConfigs().forEach(loggerConfig -> addLoggerConfig(
+				loggerConfig.getName(),
+				loggerConfig.getLevel(),
+				loggerConfig.isAdditive(),
+				loggerConfig.getAppenders().values()));
+		configuration.getFilters().forEach(this::addFilter);
 	}
 
 }

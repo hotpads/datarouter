@@ -54,6 +54,7 @@ public class DatarouterClusterTriggerLockDao extends BaseDao{
 			DatarouterClusterTriggerLockDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, ClusterTriggerLock::new, ClusterTriggerLockFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

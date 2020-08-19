@@ -34,7 +34,8 @@ public class DatarouterAccountRouteSet extends BaseRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.ADMIN, DatarouterUserRole.DATAROUTER_ADMIN);
+		return rule.allowRoles(DatarouterUserRole.DATAROUTER_ACCOUNTS, DatarouterUserRole.DATAROUTER_ADMIN)
+				.withIsSystemDispatchRule(true);
 	}
 
 }

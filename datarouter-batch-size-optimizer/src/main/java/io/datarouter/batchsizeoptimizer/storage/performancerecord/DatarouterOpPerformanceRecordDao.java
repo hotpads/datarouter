@@ -59,6 +59,7 @@ public class DatarouterOpPerformanceRecordDao extends BaseDao{
 				nodeFactory.create(params.clientId,
 				OpPerformanceRecord::new,
 				OpPerformanceRecordFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister());
 	}
 

@@ -130,8 +130,8 @@ public class TableCountHandler extends BaseHandler{
 
 	@Handler
 	private Mav resample(String clientName, String tableName){
-		PhysicalSortedStorageReaderNode<?,?,?> node = (PhysicalSortedStorageReaderNode<?,?,?>)nodes
-				.getPhysicalNodeForClientAndTable(clientName, tableName);
+		var node = (PhysicalSortedStorageReaderNode<?,?,?>)nodes.getPhysicalNodeForClientAndTable(clientName,
+				tableName);
 		tableSpanSamplerJobletCreatorFactory.create(
 				node,
 				tableSamplerService.getSampleInterval(node),
@@ -160,9 +160,14 @@ public class TableCountHandler extends BaseHandler{
 		tableSampleDao.deleteWithPrefix(tableSampleKeyPrefix);
 
 		//delete from LatestTableCount
-		recordChangelog(clientName, tableName);
 		var latestTableCountKey = new LatestTableCountKey(clientName, tableName);
 		latestTableCountDao.delete(latestTableCountKey);
+
+		changelogRecorder.record(
+				"Nodewatch",
+				clientName + "." + tableName,
+				"deleted metadata",
+				getSessionInfo().getNonEmptyUsernameOrElse(""));
 		return new InContextRedirectMav(request, paths.datarouter.nodewatch.tableCount.toSlashedString());
 	}
 
@@ -177,14 +182,6 @@ public class TableCountHandler extends BaseHandler{
 		List<TableCount> data = tableCountDao.getForTable(clientName, tableName);
 		JsonArray jsonData = getRowCountJson(data);
 		return jsonData;
-	}
-
-	private void recordChangelog(String clientName, String tableName){
-		changelogRecorder.record(
-				"Nodewatch",
-				clientName + "." + tableName,
-				"deleted metadata",
-				getSessionInfo().getNonEmptyUsernameOrElse(""));
 	}
 
 	private JsonArray getRowCountJson(List<TableCount> records){

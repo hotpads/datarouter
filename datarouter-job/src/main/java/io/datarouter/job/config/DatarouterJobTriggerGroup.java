@@ -29,7 +29,7 @@ public class DatarouterJobTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterJobTriggerGroup(DatarouterJobSettingRoot settings){
-		super("DatarouterJob");
+		super("DatarouterJob", true);
 		registerLocked(
 				"53 0/2 * * * ?",
 				settings.runLongRunningTaskVacuum,

@@ -51,6 +51,7 @@ public class DatarouterGaugePublisherDao extends BaseDao{
 		node = queueNodeFactory
 				.createGroupQueue(params.clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
 				.withQueueName("PublisherGauge")
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

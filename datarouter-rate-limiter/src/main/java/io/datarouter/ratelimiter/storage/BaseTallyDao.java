@@ -38,6 +38,7 @@ public abstract class BaseTallyDao extends BaseDao{
 		node = nodeFactory.createTally(clientId, Tally::new, TallyFielder::new)
 				.withSchemaVersion(version)
 				.withTableName("Tally")
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

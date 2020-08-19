@@ -63,6 +63,7 @@ public class DispatchRule{
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder = DefaultDecoder.class;
 	private String persistentString;
 	private boolean transmitsPii;
+	private boolean isSystem;
 
 	public DispatchRule(BaseRouteSet routeSet, String regex){
 		this.routeSet = routeSet;
@@ -136,6 +137,11 @@ public class DispatchRule{
 		return this;
 	}
 
+	public DispatchRule withIsSystemDispatchRule(boolean isSystem){
+		this.isSystem = isSystem;
+		return this;
+	}
+
 	/*------------------------------ getters --------------------------------*/
 
 	public BaseRouteSet getRouteSet(){
@@ -196,6 +202,10 @@ public class DispatchRule{
 
 	public boolean doesTransmitPii(){
 		return transmitsPii;
+	}
+
+	public boolean isSystemDispatchRule(){
+		return isSystem;
 	}
 
 	private SecurityValidationResult checkApiKey(HttpServletRequest request){

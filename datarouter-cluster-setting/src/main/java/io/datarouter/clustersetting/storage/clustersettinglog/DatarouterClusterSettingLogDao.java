@@ -68,6 +68,7 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 				params.clientId,
 				ClusterSettingLog::new,
 				ClusterSettingLogFielder::new)
+				.withIsSystemTable(true)
 				.build();
 		byReversedCreatedMs = indexingNodeFactory.createKeyOnlyManagedIndex(
 				ClusterSettingLogByReversedCreatedMsKey.class, node)

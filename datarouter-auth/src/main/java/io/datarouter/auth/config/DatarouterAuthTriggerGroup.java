@@ -30,7 +30,7 @@ public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterAuthTriggerGroup(DatarouterAuthSettingRoot settings){
-		super("DatarouterAuth");
+		super("DatarouterAuth", true);
 		registerLocked(
 				"50 20 * * * ?",
 				settings.runSamlAuthnRequestRedirectUrlVacuumJob,

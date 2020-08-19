@@ -69,10 +69,10 @@ public class DatarouterEnumTool{
 	/*------------------------- methods -------------------------------------*/
 
 	public static <T extends IntegerEnum<T>> T getEnumFromInteger(T[] values, Integer value, T defaultEnum){
-		return getEnumFromIntegerOptional(values, value).orElse(defaultEnum);
+		return findEnumFromInteger(values, value).orElse(defaultEnum);
 	}
 
-	public static <T extends IntegerEnum<T>> Optional<T> getEnumFromIntegerOptional(T[] values, Integer value){
+	public static <T extends IntegerEnum<T>> Optional<T> findEnumFromInteger(T[] values, Integer value){
 		if(value == null){
 			return Optional.empty();
 		}
@@ -83,19 +83,18 @@ public class DatarouterEnumTool{
 
 	public static <T extends PersistentString> T getEnumFromString(T[] values, String value, T defaultEnum,
 			boolean caseSensitive){
-		return getEnumFromStringOptional(values, value, caseSensitive).orElse(defaultEnum);
+		return findEnumFromString(values, value, caseSensitive).orElse(defaultEnum);
 	}
 
 	public static <T extends PersistentString> T getEnumFromString(T[] values, String value, T defaultEnum){
-		return getEnumFromStringOptional(values, value, true).orElse(defaultEnum);
+		return findEnumFromString(values, value, true).orElse(defaultEnum);
 	}
 
-	// TODO rename to findEnumFromString
-	public static <T extends PersistentString> Optional<T> getEnumFromStringOptional(T[] values, String value){
-		return getEnumFromStringOptional(values, value, true);
+	public static <T extends PersistentString> Optional<T> findEnumFromString(T[] values, String value){
+		return findEnumFromString(values, value, true);
 	}
 
-	public static <T extends PersistentString> Optional<T> getEnumFromStringOptional(T[] values, String value,
+	public static <T extends PersistentString> Optional<T> findEnumFromString(T[] values, String value,
 			boolean caseSensitive){
 		for(T enumEntry : values){
 			String persistentString = enumEntry.getPersistentString();

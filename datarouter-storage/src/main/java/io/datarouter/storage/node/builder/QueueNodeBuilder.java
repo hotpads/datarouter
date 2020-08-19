@@ -39,6 +39,7 @@ public abstract class QueueNodeBuilder<
 	protected String queueName;
 	protected String namespace;
 	protected String queueUrl;
+	protected boolean isSystemTable;
 
 	public QueueNodeBuilder(
 			Datarouter datarouter,
@@ -65,6 +66,11 @@ public abstract class QueueNodeBuilder<
 
 	public QueueNodeBuilder<PK,D,F> withQueueUrl(String queueUrl){
 		this.queueUrl = queueUrl;
+		return this;
+	}
+
+	public QueueNodeBuilder<PK,D,F> withIsSystemTable(boolean isSystemTable){
+		this.isSystemTable = isSystemTable;
 		return this;
 	}
 

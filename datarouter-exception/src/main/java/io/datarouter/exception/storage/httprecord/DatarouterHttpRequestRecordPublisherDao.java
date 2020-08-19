@@ -48,6 +48,7 @@ public class DatarouterHttpRequestRecordPublisherDao extends BaseDao{
 		super(datarouter);
 		node = queueNodeFactory.createGroupQueue(params.clientId, HttpRequestRecord::new, HttpRequestRecordFielder::new)
 				.withQueueName("PublisherHttpRequestRecord")
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

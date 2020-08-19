@@ -26,7 +26,7 @@ public class DatarouterBatchSizeOptimizerTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterBatchSizeOptimizerTriggerGroup(DatarouterBatchSizeOptimizerSettings batchSizeOptimizerSettings){
-		super("DatarouterBatchSizeOptimizer");
+		super("DatarouterBatchSizeOptimizer", true);
 		registerLocked(
 				"24 * * * * ?",
 				batchSizeOptimizerSettings.runOpPerformanceRecordAggregationJob,

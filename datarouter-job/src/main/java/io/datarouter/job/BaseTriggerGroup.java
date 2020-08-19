@@ -36,12 +36,18 @@ public abstract class BaseTriggerGroup{
 	private final List<BaseTriggerGroup> subGroups;
 	private final List<JobPackage> jobPackages;
 	private final Map<String,Class<? extends BaseJob>> requestTriggeredJobs;
+	public final boolean isSystemTriggerGoup;
 
 	public BaseTriggerGroup(String categoryName){
+		this(categoryName, false);
+	}
+
+	public BaseTriggerGroup(String categoryName, boolean isSystemTriggerGoup){
 		this.categoryName = categoryName;
 		this.subGroups = new ArrayList<>();
 		this.jobPackages = new ArrayList<>();
 		this.requestTriggeredJobs = new HashMap<>();
+		this.isSystemTriggerGoup = isSystemTriggerGoup;
 	}
 
 	protected void include(BaseTriggerGroup triggerGroup){

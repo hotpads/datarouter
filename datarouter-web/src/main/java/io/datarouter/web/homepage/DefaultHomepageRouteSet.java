@@ -31,7 +31,9 @@ public class DefaultHomepageRouteSet extends HomepageRouteSet{
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule.allowRoles(DatarouterUserRole.USER);
+		return rule
+				.allowRoles(DatarouterUserRole.USER)
+				.withIsSystemDispatchRule(true);
 	}
 
 }

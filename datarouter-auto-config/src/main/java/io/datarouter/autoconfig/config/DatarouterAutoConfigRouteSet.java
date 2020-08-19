@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.autoconfig.web.DatarouterAutoConfigHandler;
 import io.datarouter.autoconfig.web.ViewAutoConfigsHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
 
 @Singleton
@@ -38,6 +39,11 @@ public class DatarouterAutoConfigRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.autoConfigs.runForName)
 				.withHandler(ViewAutoConfigsHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
+	}
+
+	@Override
+	protected DispatchRule applyDefault(DispatchRule rule){
+		return rule.withIsSystemDispatchRule(true);
 	}
 
 }

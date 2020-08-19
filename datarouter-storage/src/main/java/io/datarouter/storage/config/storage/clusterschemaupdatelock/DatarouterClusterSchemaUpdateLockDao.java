@@ -49,6 +49,7 @@ public class DatarouterClusterSchemaUpdateLockDao extends BaseDao{
 			DatarouterClusterSchemaUpdateLockDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, ClusterSchemaUpdateLock::new, ClusterSchemaUpdateLockFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

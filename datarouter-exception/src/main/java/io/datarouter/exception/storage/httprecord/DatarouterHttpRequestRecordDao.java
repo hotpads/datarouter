@@ -62,6 +62,7 @@ public class DatarouterHttpRequestRecordDao extends BaseDao{
 		super(datarouter);
 		IndexedSortedMapStorage<HttpRequestRecordKey,HttpRequestRecord> backingNode = nodeFactory
 				.create(params.clientId, HttpRequestRecord::new, HttpRequestRecordFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 		node = new WriteBehindIndexedSortedMapStorageNode<>(scheduler, writeExecutor, backingNode);
 	}

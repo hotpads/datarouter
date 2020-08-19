@@ -47,6 +47,7 @@ public class DatarouterLongRunningTaskDao extends BaseDao{
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, LongRunningTask::new, LongRunningTaskFielder::new)
 				.disableNodewatchPercentageAlert()
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

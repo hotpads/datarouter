@@ -26,7 +26,7 @@ public class DatarouterTableCountPublisherTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterTableCountPublisherTriggerGroup(DatarouterTableCountPublisherSettingRoot settings){
-		super("DatarouterLatestTableCountPublisher");
+		super("DatarouterLatestTableCountPublisher", true);
 		registerLocked(
 				"7 7 0/2 ? * *",
 				settings.runLatestTableCountPublisherJob,

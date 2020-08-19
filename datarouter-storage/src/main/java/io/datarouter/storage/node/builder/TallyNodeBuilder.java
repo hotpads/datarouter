@@ -38,6 +38,7 @@ public class TallyNodeBuilder<
 
 	private int version;
 	private String tableName;
+	private boolean isSystemTable;
 
 	public TallyNodeBuilder(
 			Datarouter datarouter,
@@ -62,8 +63,14 @@ public class TallyNodeBuilder<
 		return this;
 	}
 
+	public TallyNodeBuilder<PK,D,F> withIsSystemTable(boolean isSystemTable){
+		this.isSystemTable = isSystemTable;
+		return this;
+	}
+
 	public <N extends NodeOps<PK,D>> N build(){
-		return nodeFactory.createTallyNode(clientId, databeanSupplier, fielderSupplier, version, tableName);
+		return nodeFactory.createTallyNode(clientId, databeanSupplier, fielderSupplier, version, tableName,
+				isSystemTable);
 	}
 
 	public <N extends NodeOps<PK,D>> N buildAndRegister(){

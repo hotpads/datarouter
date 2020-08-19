@@ -61,26 +61,37 @@ public class J2HtmlTable<T>{
 		return this;
 	}
 
+	public J2HtmlTable<T> withHtmlColumn(DomContent name, Function<T,DomContent> valueFunction){
+		columns.add(new J2HtmlTableColumn<>(name, valueFunction));
+		return this;
+	}
+
 	public J2HtmlTable<T> withCaption(String caption){
 		this.caption = caption;
 		return this;
 	}
 
 	private static class J2HtmlTableColumn<T>{
-		private String name;
+
+		private DomContent name;
 		private Function<T,DomContent> valueFunction;
 
 		public J2HtmlTableColumn(String name, Function<T,DomContent> valueFunction){
+			this(th(name), valueFunction);
+		}
+
+		public J2HtmlTableColumn(DomContent name, Function<T,DomContent> valueFunction){
 			this.name = name;
 			this.valueFunction = valueFunction;
 		}
+
 	}
 
 	public ContainerTag build(Collection<T> rows){
 		boolean includeHeader = columns.stream()
 				.map(column -> column.name)
 				.anyMatch(Objects::nonNull);
-		var thead = thead(tr(each(columns, column -> th(column.name))));
+		var thead = thead(tr(each(columns, column -> column.name)));
 		var tbody = tbody(each(rows, this::makeTr));
 		return table()
 				.withClasses(classes.toArray(String[]::new))

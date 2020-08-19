@@ -52,6 +52,7 @@ public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 		node = nodeFactory.create(params.clientId, SamlAuthnRequestRedirectUrl::new,
 				SamlAuthnRequestRedirectUrlFielder::new)
 				.disableNodewatch()
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

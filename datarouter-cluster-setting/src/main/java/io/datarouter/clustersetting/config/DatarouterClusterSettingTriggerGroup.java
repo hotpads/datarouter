@@ -28,7 +28,7 @@ public class DatarouterClusterSettingTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterClusterSettingTriggerGroup(DatarouterClusterSettingRoot settings){
-		super("DatarouterClusterSetting");
+		super("DatarouterClusterSetting", true);
 		registerParallel(
 				"5/10 * * * * ?",
 				() -> true,

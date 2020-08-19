@@ -53,6 +53,7 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 			DatarouterSecretOpRecordDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, DatarouterSecretOpRecord::new, DatarouterSecretOpRecordFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

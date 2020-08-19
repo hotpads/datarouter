@@ -60,6 +60,7 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 				params.clientId,
 				DatarouterAccount::new,
 				DatarouterAccountFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 		accountByApiKeyCache = new AtomicReference<>(getAccountsByApiKey());
 		executor.scheduleWithFixedDelay(this::refreshAccountByApiKeyCache, 30, 30, TimeUnit.SECONDS);

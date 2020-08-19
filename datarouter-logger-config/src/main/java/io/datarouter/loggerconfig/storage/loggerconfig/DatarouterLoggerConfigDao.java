@@ -58,6 +58,7 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 			DatarouterLoggerConfigDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, LoggerConfig::new, LoggerConfigFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

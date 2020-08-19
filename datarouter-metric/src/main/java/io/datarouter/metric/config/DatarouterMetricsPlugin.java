@@ -74,7 +74,10 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		}
 
 		addRouteSet(DatarouterMetricRouteSet.class);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.metric.viewMetricNames, "Metric Names");
+		String viewMetricNamesPaths = PATHS.datarouter.metric.viewMetricNames.toSlashedString();
+		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, viewMetricNamesPaths, "Metric Names - App");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, viewMetricNamesPaths + "?showSystemInfo=true",
+				"Metric Names - System");
 		setDaosModule(daosModuleBuilder);
 	}
 

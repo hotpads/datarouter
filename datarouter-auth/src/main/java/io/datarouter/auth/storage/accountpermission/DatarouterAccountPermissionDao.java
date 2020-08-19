@@ -50,6 +50,7 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 				params.clientId,
 				DatarouterAccountPermission::new,
 				DatarouterAccountPermissionFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

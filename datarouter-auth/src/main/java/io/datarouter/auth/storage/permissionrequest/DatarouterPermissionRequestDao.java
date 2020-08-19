@@ -56,6 +56,7 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 				params.clientId,
 				DatarouterPermissionRequest::new,
 				DatarouterPermissionRequestFielder::new)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 

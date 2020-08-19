@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.44</version>
+		<version>0.0.45</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -32,6 +32,11 @@
 	<description>datarouter-storage</description>
 
 	<dependencies>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-path-node</artifactId>
+			<version>${datarouter-version}</version>
+		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-inject</artifactId>
