@@ -23,25 +23,27 @@ import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
 
 public class LoggingConfig{
 
-	public static String computeSignature(List<ConsoleAppender> consoles, List<FileAppender> files,
-			List<LoggerConfig> loggers){
+	public static String computeSignature(
+			List<ConsoleAppender> consoleAppenders,
+			List<FileAppender> fileAppenders,
+			List<LoggerConfig> loggerConfigs){
 		StringBuilder builder = new StringBuilder();
-		for(ConsoleAppender consoleAppender : consoles){
+		consoleAppenders.forEach(consoleAppender -> {
 			builder.append(consoleAppender.getKey().getName());
 			builder.append(consoleAppender.getLayout());
 			builder.append(consoleAppender.getTarget());
-		}
-		for(FileAppender fileAppender : files){
+		});
+		fileAppenders.forEach(fileAppender -> {
 			builder.append(fileAppender.getName());
 			builder.append(fileAppender.getLayout());
 			builder.append(fileAppender.getFileName());
-		}
-		for(LoggerConfig loggerConfig : loggers){
+		});
+		loggerConfigs.forEach(loggerConfig -> {
 			builder.append(loggerConfig.getName());
 			builder.append(loggerConfig.getLevel());
 			builder.append(loggerConfig.getAdditive());
 			builder.append(loggerConfig.getAppendersRef());
-		}
+		});
 		return builder.toString();
 	}
 
@@ -49,7 +51,9 @@ public class LoggingConfig{
 	private List<FileAppender> fileAppenders;
 	private List<LoggerConfig> loggerConfigs;
 
-	public LoggingConfig(List<ConsoleAppender> consoleAppenders, List<FileAppender> fileAppenders,
+	public LoggingConfig(
+			List<ConsoleAppender> consoleAppenders,
+			List<FileAppender> fileAppenders,
 			List<LoggerConfig> loggerConfigs){
 		this.consoleAppenders = consoleAppenders;
 		this.fileAppenders = fileAppenders;

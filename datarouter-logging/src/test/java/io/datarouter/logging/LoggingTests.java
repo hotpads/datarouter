@@ -87,7 +87,9 @@ public class LoggingTests{
 		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, TEST_APPENDER_2_NAME);
 		logger.warn("degemer");
 
-		configurator.addConsoleAppender("second-console-appender", Target.SYSTEM_ERR,
+		configurator.addConsoleAppender(
+				"second-console-appender",
+				Target.SYSTEM_ERR,
 				BaseLog4j2Configuration.defaultPattern);
 		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, ERR_CONSOLE_APPENDER_NAME);
 		logger.warn("ar");//going to err console

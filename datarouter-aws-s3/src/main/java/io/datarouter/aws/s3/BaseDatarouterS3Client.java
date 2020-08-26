@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -63,7 +64,6 @@ import io.datarouter.util.bytes.ByteUnitTool;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.io.ReaderTool;
 import io.datarouter.util.number.NumberFormatter;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -98,7 +98,8 @@ import software.amazon.awssdk.services.s3.model.UploadPartResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
-public abstract class BaseDatarouterS3Client implements DatarouterS3Client{
+@SuppressWarnings("serial")
+public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Serializable{
 	private static final Logger logger = LoggerFactory.getLogger(BaseDatarouterS3Client.class);
 
 	/**
@@ -113,20 +114,33 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client{
 	private static final Pattern EXPECTED_REGION_EXTRACTOR = Pattern.compile("expecting '(.*)'");
 	private static final int MIN_UPLOAD_PART_SIZE_BYTES = 5 * 1024 * 1024;
 
-	private final Map<Region,S3Client> s3ClientByRegion;
-	private final Map<String,Region> regionByBucket;
-	private final S3Presigner s3Presigner;
-	private final AwsCredentialsProvider awsCredentialsProvider;
-	private final Map<Region,TransferManager> transferManagerByRegion;
+	private final SerializableAwsCredentialsProviderProvider<?> awsCredentialsProviderProvider;
 
-	public BaseDatarouterS3Client(AwsCredentialsProvider awsCredentialsProvider){
-		this.awsCredentialsProvider = awsCredentialsProvider;
+	private transient Map<Region,S3Client> s3ClientByRegion;
+	private transient Map<String,Region> regionByBucket;
+	private transient S3Presigner s3Presigner;
+	private transient Map<Region,TransferManager> transferManagerByRegion;
+
+	public BaseDatarouterS3Client(SerializableAwsCredentialsProviderProvider<?> awsCredentialsProviderProvider){
+		this.awsCredentialsProviderProvider = awsCredentialsProviderProvider;
+		init();
+	}
+
+	/**
+	 * Part of the {@link Serializable} interface, sets up transient fields
+	 */
+	public Object readResolve(){
+		init();
+		return this;
+	}
+
+	private void init(){
 		this.s3ClientByRegion = new ConcurrentHashMap<>();
 		this.regionByBucket = new ConcurrentHashMap<>();
 		this.transferManagerByRegion = new ConcurrentHashMap<>();
 		this.s3ClientByRegion.put(Region.US_EAST_1, createClient(Region.US_EAST_1));
 		this.s3Presigner = S3Presigner.builder()
-				.credentialsProvider(awsCredentialsProvider)
+				.credentialsProvider(awsCredentialsProviderProvider.get())
 				.region(Region.US_EAST_1)
 				.build();
 	}
@@ -533,7 +547,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client{
 
 	private S3Client createClient(Region region){
 		return S3Client.builder()
-				.credentialsProvider(awsCredentialsProvider)
+				.credentialsProvider(awsCredentialsProviderProvider.get())
 				.region(region)
 				.build();
 	}
@@ -542,7 +556,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client{
 		return TransferManagerBuilder.standard()
 				.withS3Client(AmazonS3ClientBuilder.standard()
 						.withRegion(Regions.fromName(region.id()))
-						.withCredentials(new AwsSdkV2ToV1CredentialsProvider(awsCredentialsProvider))
+						.withCredentials(new AwsSdkV2ToV1CredentialsProvider(awsCredentialsProviderProvider.get()))
 						.build())
 				.build();
 	}

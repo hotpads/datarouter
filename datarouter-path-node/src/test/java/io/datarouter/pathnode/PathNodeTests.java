@@ -42,11 +42,17 @@ public class PathNodeTests{
 	@Test
 	public void testJoin(){
 		var paths = new TestPaths();
-		PathNode cc = paths.aa.bb.cc;
-		Assert.assertEquals(cc.join("/", "/", "/"), "/aa/bb/cc/");
-		Assert.assertEquals(cc.join("/", "/", ""), "/aa/bb/cc");
-		Assert.assertEquals(cc.join("", "/", "/"), "aa/bb/cc/");
-		Assert.assertEquals(cc.join("", "/", ""), "aa/bb/cc");
+
+		Assert.assertEquals(paths.aa.join("/"), "aa");
+		Assert.assertEquals(paths.aa.bb.join("/"), "aa/bb");
+		Assert.assertEquals(paths.aa.bb.cc.join("/"), "aa/bb/cc");
+		Assert.assertEquals(paths.aa.bb.cc.join(""), "aabbcc");
+		Assert.assertEquals(paths.aa.bb.cc.join(" dog "), "aa dog bb dog cc");
+
+		Assert.assertEquals(paths.aa.bb.cc.join("/", "/", "/"), "/aa/bb/cc/");
+		Assert.assertEquals(paths.aa.bb.cc.join("/", "/", ""), "/aa/bb/cc");
+		Assert.assertEquals(paths.aa.bb.cc.join("", "/", "/"), "aa/bb/cc/");
+		Assert.assertEquals(paths.aa.bb.cc.join("", "/", ""), "aa/bb/cc");
 	}
 
 	@Test
@@ -63,14 +69,6 @@ public class PathNodeTests{
 		Assert.assertEquals(paths.aa.toSlashedStringWithTrailingSlash(), "/aa/");
 		Assert.assertEquals(paths.aa.bb.toSlashedStringWithTrailingSlash(), "/aa/bb/");
 		Assert.assertEquals(paths.aa.bb.cc.toSlashedStringWithTrailingSlash(), "/aa/bb/cc/");
-	}
-
-	@Test
-	public void testToSlashedStringWithoutLeadingSlash(){
-		var paths = new TestPaths();
-		Assert.assertEquals(paths.aa.toSlashedStringWithoutLeadingSlash(), "aa");
-		Assert.assertEquals(paths.aa.bb.toSlashedStringWithoutLeadingSlash(), "aa/bb");
-		Assert.assertEquals(paths.aa.bb.cc.toSlashedStringWithoutLeadingSlash(), "aa/bb/cc");
 	}
 
 	@Test
@@ -102,7 +100,7 @@ public class PathNodeTests{
 		var paths = new TestPaths();
 		PathNode cc = paths.aa.bb.cc;
 		Assert.assertEquals(PathNode.parse(cc.toSlashedString()), cc);
-		Assert.assertEquals(PathNode.parse(cc.toSlashedStringWithoutLeadingSlash()), cc);
+		Assert.assertEquals(PathNode.parse(cc.join("/")), cc);
 		Assert.assertEquals(PathNode.parse(cc.toSlashedStringWithTrailingSlash()), cc);
 		PathNode aa = paths.aa;
 		Assert.assertEquals(PathNode.parse(aa.toSlashedString()), aa);

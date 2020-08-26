@@ -109,7 +109,7 @@ public class DatarouterUserEditService{
 
 		if(changes.size() > 0){
 			history.setChanges(String.join(", ", changes));
-			userHistoryService.recordRoleEdit(user, history, signinUrl);
+			userHistoryService.putAndRecordRoleEdit(user, history, signinUrl);
 			if(shouldUpdateSessions || shouldDeleteSessions){
 				List<DatarouterSession> sessions = datarouterSessionDao.scan()
 						.include(session -> session.getUserToken().equals(user.getUserToken()))
@@ -165,7 +165,7 @@ public class DatarouterUserEditService{
 				DatarouterUserChangeType.RESET, null);
 		updateUserPassword(user, newPassword);
 		history.setChanges("password");
-		userHistoryService.recordPasswordChange(user, history, signinUrl);
+		userHistoryService.putAndRecordPasswordChange(user, history, signinUrl);
 	}
 
 	private void updateUserPassword(DatarouterUser user, String password){

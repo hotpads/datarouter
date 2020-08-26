@@ -45,6 +45,7 @@ import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.RandomTool;
+import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.util.tuple.Pair;
 
 public class TableSpanSamplerJobletCreator<
@@ -109,6 +110,7 @@ implements Callable<List<JobletPackage>>{
 
 	@Override
 	public List<JobletPackage> call(){
+		var timer = new PhaseTimer(nodeNames.toString());
 		PeekingIterator<TableSample> existingSamples = new PeekingIterator<>(tableSampleDao.streamForNode(
 				nodeNames).iterator());
 		if(!existingSamples.hasNext()){
@@ -131,8 +133,14 @@ implements Callable<List<JobletPackage>>{
 		}
 		//TODO check if first sample was considered or merged
 		logSummary();
+		timer.add("scan");
 		if(jobletPackages.size() > 0 && submitJoblets){
 			jobletService.submitJobletPackages(jobletPackages);
+		}
+		timer.add("submitJoblets");
+		logger.debug("{}", timer);
+		if(timer.getElapsedTimeBetweenFirstAndLastEvent() > Duration.ofSeconds(5).toMillis()){
+			logger.warn("{}", timer);
 		}
 		return jobletPackages;
 	}

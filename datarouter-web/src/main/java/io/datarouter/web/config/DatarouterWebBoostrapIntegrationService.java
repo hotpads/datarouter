@@ -15,7 +15,7 @@
  */
 package io.datarouter.web.config;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -23,6 +23,8 @@ import javax.inject.Singleton;
 
 import io.datarouter.httpclient.client.BaseApplicationHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
+import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
@@ -31,7 +33,6 @@ import io.datarouter.storage.dao.DaosTestService;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.util.Require;
 import io.datarouter.util.clazz.AnnotationTool;
-import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatcherServletTestService;
 import io.datarouter.web.file.AppFilesTestService;
@@ -47,13 +48,13 @@ import io.datarouter.web.user.session.service.RoleManager;
 @Singleton
 public class DatarouterWebBoostrapIntegrationService implements TestableService{
 
-	private static final List<Pair<Class<?>,Boolean>> SINGLETON_CHECKS = List.of(
-			new Pair<>(BaseDao.class, true),
-			new Pair<>(SettingNode.class, true),
-			new Pair<>(BaseHandler.class, false),
-			new Pair<>(BaseRouteSet.class, true),
-			new Pair<>(BaseApplicationHttpClient.class, true),
-			new Pair<>(DatarouterHttpClient.class, true));
+	private static final Map<Class<?>,Boolean> SINGLETON_CHECKS = Map.of(
+			BaseDao.class, true,
+			SettingNode.class, true,
+			BaseHandler.class, false,
+			BaseRouteSet.class, true,
+			BaseApplicationHttpClient.class, true,
+			DatarouterHttpClient.class, true);
 
 	@Inject
 	private Datarouter datarouter;
@@ -69,6 +70,8 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	private SingletonTestService singletonTestService;
 	@Inject
 	private RoleManager manager;
+	@Inject
+	private DatarouterInjector injector;
 
 	@Override
 	public void testAll(){
@@ -77,6 +80,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		testFiles();
 		testSingletons();
 		testSingletonsForAppListeners();
+		testSingletonsForSeralizers();
 		testAllRoles();
 	}
 
@@ -99,12 +103,20 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	}
 
 	private void testSingletons(){
-		SINGLETON_CHECKS.forEach(pair -> singletonTestService.checkSingletonForSubClasses(pair.getLeft(), pair
-				.getRight()));
+		SINGLETON_CHECKS.forEach((key, value) -> singletonTestService.checkSingletonForSubClasses(key, value));
 	}
 
 	private void testSingletonsForAppListeners(){
 		appListeners.getAppListenerClasses().forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, true));
+	}
+
+
+	private void testSingletonsForSeralizers(){
+		injector.getInstancesOfType(DatarouterHttpClient.class).values().stream()
+				.map(DatarouterHttpClient::getJsonSerializer)
+				.distinct()
+				.map(JsonSerializer::getClass)
+				.forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, true));
 	}
 
 	// Make sure RoleEnum overriders have all values

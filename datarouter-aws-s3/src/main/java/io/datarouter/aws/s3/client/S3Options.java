@@ -25,14 +25,12 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.aws.s3.S3CredentialsDto;
+import io.datarouter.aws.s3.SerializableStaticAwsCredentialsProviderProvider;
+import io.datarouter.aws.s3.SerializableStaticAwsCredentialsProviderProvider.S3CredentialsDto;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.secret.client.SecretClientSupplier;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 
 @Singleton
 public class S3Options{
@@ -52,11 +50,10 @@ public class S3Options{
 	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
 	private JsonSerializer jsonSerializer;
 
-	public AwsCredentialsProvider makeCredentialsProvider(String clientName){
+	public SerializableStaticAwsCredentialsProviderProvider makeCredentialsProvider(String clientName){
 		String accessKey = getAccessKey(clientName);
 		String secretKey = getSecretKey(clientName);
-		AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKey, secretKey);
-		return StaticCredentialsProvider.create(awsBasicCredentials);
+		return new SerializableStaticAwsCredentialsProviderProvider(new S3CredentialsDto(accessKey, secretKey));
 	}
 
 	private String getAccessKey(String clientName){

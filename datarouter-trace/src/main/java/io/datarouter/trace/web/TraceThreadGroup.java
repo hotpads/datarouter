@@ -133,9 +133,7 @@ public class TraceThreadGroup{
 
 	public String getHtml(){
 		StringBuilder sb = new StringBuilder();
-		sb.append("<table style=\"width: 100%;\" class=\"table border\">");
 		appendThreadGroupHtml(sb, this, 0);
-		sb.append("</table>");
 		return sb.toString();
 	}
 
@@ -156,6 +154,7 @@ public class TraceThreadGroup{
 	}
 
 	private void appendLeafThreadHtml(StringBuilder sb, TraceThreadDto thread, int leafNum){
+		sb.append("<table style=\"width: 100%;\" class=\"table border\">");
 		var tr = tr(
 				td(leafNum + ") " + thread.getName() + " " + thread.getHostThreadName()),
 				td(NumberFormatter.addCommas(thread.getTotalDuration()) + "ms").withStyle("text-align: right;"))
@@ -174,6 +173,7 @@ public class TraceThreadGroup{
 		Map<Integer,List<TraceSpanDto>> spanByParentSequenceId = Scanner.of(spans)
 				.groupBy(TraceSpanDto::getParentSequenceOrMinusOne);
 		sb.append(buildSubSpans(new TimeDto(thread), spanByParentSequenceId.get(-1), spanByParentSequenceId, 0));
+		sb.append("</table>");
 	}
 
 	private static StringBuilder buildSubSpans(TimeDto parentSpan, List<TraceSpanDto> spans,

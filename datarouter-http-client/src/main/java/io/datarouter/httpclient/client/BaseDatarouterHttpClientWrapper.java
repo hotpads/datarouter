@@ -22,6 +22,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.pool.PoolStats;
 
+import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
@@ -106,6 +107,11 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	@Override
 	public CloseableHttpClient getApacheHttpClient(){
 		return datarouterHttpClient.getApacheHttpClient();
+	}
+
+	@Override
+	public JsonSerializer getJsonSerializer(){
+		return datarouterHttpClient.getJsonSerializer();
 	}
 
 }

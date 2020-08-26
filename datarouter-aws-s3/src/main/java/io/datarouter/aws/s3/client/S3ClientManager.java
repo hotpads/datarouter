@@ -25,10 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
+import io.datarouter.aws.s3.SerializableAwsCredentialsProviderProvider;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.timer.PhaseTimer;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 
 @Singleton
 public class S3ClientManager extends BaseClientManager{
@@ -57,7 +57,8 @@ public class S3ClientManager extends BaseClientManager{
 	}
 
 	private DatarouterS3Client create(ClientId clientId){
-		AwsCredentialsProvider awsCredentialsProvider = options.makeCredentialsProvider(clientId.getName());
+		SerializableAwsCredentialsProviderProvider<?> awsCredentialsProvider = options.makeCredentialsProvider(
+				clientId.getName());
 		return new GenericDatarouterS3Client(awsCredentialsProvider);
 	}
 

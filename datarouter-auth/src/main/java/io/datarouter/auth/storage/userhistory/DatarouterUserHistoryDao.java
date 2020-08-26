@@ -60,6 +60,10 @@ public class DatarouterUserHistoryDao extends BaseDao{
 		node.put(databean);
 	}
 
+	public void putMulti(Collection<DatarouterUserHistory> databeans){
+		node.putMulti(databeans);
+	}
+
 	public List<DatarouterUserHistory> getMulti(Collection<DatarouterUserHistoryKey> keys){
 		return node.getMulti(keys);
 	}

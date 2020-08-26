@@ -18,6 +18,7 @@ package io.datarouter.web.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.BaseStoragePlugin;
 import io.datarouter.util.ordered.Ordered;
@@ -176,6 +177,18 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	public List<FieldKeyOverrider> getFieldKeyOverrides(){
 		return fieldKeyOverrides;
+	}
+
+	/*------------------------------ testable -------------------------------*/
+
+	private final List<Class<? extends TestableService>> testableServiceClasses = new ArrayList<>();
+
+	public void addTestable(Class<? extends TestableService> testableService){
+		testableServiceClasses.add(testableService);
+	}
+
+	public List<Class<? extends TestableService>> getTestableServiceClasses(){
+		return testableServiceClasses;
 	}
 
 }

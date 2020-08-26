@@ -20,10 +20,14 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobSchedulerTestService;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.util.clazz.AnnotationTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.SingletonTestService;
 
@@ -34,9 +38,12 @@ import io.datarouter.web.config.SingletonTestService;
 public class DatarouterJobBootstrapIntegrationService implements TestableService{
 
 	private static final List<Pair<Class<?>,Boolean>> SINGLETON_CHECKS = List.of(
-			new Pair<>(BaseJob.class, false),
 			new Pair<>(BaseTriggerGroup.class, true));
 
+	@Inject
+	private TriggerGroupClasses triggerGroupClasses;
+	@Inject
+	private DatarouterInjector injector;
 	@Inject
 	private JobSchedulerTestService jobSchedulerTestService;
 	@Inject
@@ -44,6 +51,7 @@ public class DatarouterJobBootstrapIntegrationService implements TestableService
 
 	@Override
 	public void testAll(){
+		injector.getInstancesOfType(BaseJob.class);
 		testSingletons();
 		testJobs();
 	}
@@ -53,6 +61,12 @@ public class DatarouterJobBootstrapIntegrationService implements TestableService
 	}
 
 	private void testSingletons(){
+		Scanner.of(triggerGroupClasses.get())
+				.map(injector::getInstance)
+				.map(BaseTriggerGroup::getJobPackages)
+				.concat(Scanner::of)
+				.map(jobPackage -> jobPackage.jobClass)
+				.forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, false));
 		SINGLETON_CHECKS.forEach(pair -> singletonTestService.checkSingletonForSubClasses(pair.getLeft(), pair
 				.getRight()));
 	}

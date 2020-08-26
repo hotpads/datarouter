@@ -104,7 +104,11 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 	}
 
 	public DatarouterPermissionRequest decline(){
-		return resolve(DatarouterPermissionRequestResolution.DECLINED, new Date());
+		return decline(new Date());
+	}
+
+	public DatarouterPermissionRequest decline(Date time){
+		return resolve(DatarouterPermissionRequestResolution.DECLINED, time);
 	}
 
 	@Override

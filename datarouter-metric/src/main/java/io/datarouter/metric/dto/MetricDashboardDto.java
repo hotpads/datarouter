@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.aws.s3;
+package io.datarouter.metric.dto;
 
-//TODO DATAROUTER-2799
-public class S3CredentialsDto{
+public class MetricDashboardDto{
 
-	public final String accessKey;
-	public final String secretKey;
+	public final String displayName;
+	public final String id;
 
-	public S3CredentialsDto(String accessKey, String secretKey){
-		this.accessKey = accessKey;
-		this.secretKey = secretKey;
+	public MetricDashboardDto(String displayName, String id){
+		this.displayName = displayName;
+		this.id = id;
 	}
 
 }

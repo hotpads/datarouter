@@ -65,9 +65,7 @@ public class DatarouterUserCreationService{
 		logger.warn("Created default admin user account");
 	}
 
-	/**
-	 * This should be used for tests where particular persistence timing and no history are required
-	 */
+	//This should be used for tests where particular persistence timing and no history are required
 	public DatarouterUser createAutomaticUserWithoutPersist(String username, String description, Set<Role> roles){
 		return createAutomaticUser(username, description, roles, false);
 	}
@@ -131,7 +129,7 @@ public class DatarouterUserCreationService{
 
 	private DatarouterUser finishCreate(DatarouterUser user, Long editorId, String description){
 		datarouterUserService.assertUserDoesNotExist(user.getId(), user.getUserToken(), user.getUsername());
-		userHistoryService.recordCreate(user, editorId, description);
+		userHistoryService.putAndRecordCreate(user, editorId, description);
 		return user;
 	}
 

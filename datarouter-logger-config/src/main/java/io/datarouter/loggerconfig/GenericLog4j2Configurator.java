@@ -18,38 +18,45 @@ package io.datarouter.loggerconfig;
 import javax.inject.Singleton;
 
 import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import io.datarouter.logging.Log4j2Configurator;
 import io.datarouter.logging.StartupConfigurationFactory;
+import io.datarouter.scanner.Scanner;
 
 @Singleton
 public class GenericLog4j2Configurator extends Log4j2Configurator{
 
 	public void applyConfig(LoggingConfig config){
 		removeAllAppender();
-		config.getConsoleAppenders().forEach(appender -> addConsoleAppender(appender.getKey().getName(),
-				appender.getTarget(), appender.getLayout()));
-		config.getFileAppenders().forEach(appender -> addFileAppender(appender.getName(), appender.getFileName(),
+		config.getConsoleAppenders().forEach(appender -> addConsoleAppender(
+				appender.getKey().getName(),
+				appender.getTarget(),
+				appender.getLayout()));
+		config.getFileAppenders().forEach(appender -> addFileAppender(
+				appender.getName(),
+				appender.getFileName(),
 				appender.getLayout()));
 		removeAllConfigLogger();
-		config.getLoggerConfigs().forEach(loggerConfig -> updateOrCreateLoggerConfig(loggerConfig.getName(),
-				loggerConfig.getLevel().getLevel(), loggerConfig.getAdditive(), loggerConfig.getAppendersRef()));
+		config.getLoggerConfigs().forEach(loggerConfig -> updateOrCreateLoggerConfig(
+				loggerConfig.getName(),
+				loggerConfig.getLevel().getLevel(),
+				loggerConfig.getAdditive(),
+				loggerConfig.getAppendersRef()));
 	}
 
 	private void removeAllConfigLogger(){
-		for(org.apache.logging.log4j.core.config.LoggerConfig config : getConfigs().values()){
-			if(!StartupConfigurationFactory.staticLoggerConfigs.contains(config)){
-				deleteLoggerConfig(config.getName());
-			}
-		}
+		Scanner.of(getConfigs().values())
+				.exclude(StartupConfigurationFactory.staticLoggerConfigs::contains)
+				.map(LoggerConfig::getName)
+				.forEach(this::deleteLoggerConfig);
 	}
 
 	private void removeAllAppender(){
-		for(Appender appender : getAppenders().values()){
-			if(!StartupConfigurationFactory.staticAppenders.contains(appender)){
-				deleteAppender(appender.getName());
-			}
-		}
+		Scanner.of(getAppenders().values())
+				.exclude(StartupConfigurationFactory.staticAppenders::contains)
+				.map(Appender::getName)
+				.forEach(this::deleteAppender);
 	}
 
 }

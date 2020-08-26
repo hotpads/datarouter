@@ -22,6 +22,7 @@ import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.instrumentation.count.CountPublisher.NoOpCountPublisher;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.gauge.GaugePublisher.NoOpGaugePublisher;
+import io.datarouter.metric.MetricDashboardRegistry;
 import io.datarouter.metric.MetricLinkBuilder;
 import io.datarouter.metric.MetricLinkBuilder.NoOpMetricLinkBuilder;
 import io.datarouter.metric.MetricName;
@@ -30,6 +31,7 @@ import io.datarouter.metric.counter.CountersAppListener;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao.DatarouterCountPublisherDaoParams;
 import io.datarouter.metric.counter.conveyor.CountConveyors;
+import io.datarouter.metric.dto.MetricDashboardDto;
 import io.datarouter.metric.metric.DatabeanGauges;
 import io.datarouter.metric.metric.DatarouterGaugePublisherDao;
 import io.datarouter.metric.metric.DatarouterGaugePublisherDao.DatarouterGaugePublisherDaoParams;
@@ -49,6 +51,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 	private final Class<? extends GaugePublisher> gaugePublisher;
 	private final Class<? extends MetricLinkBuilder> metricLinkBuilder;
 	private final List<MetricName> metricNames;
+	private final List<MetricDashboardDto> dashboards;
 
 	private DatarouterMetricsPlugin(
 			DatarouterMetricsDaosModule daosModuleBuilder,
@@ -57,11 +60,13 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			Class<? extends MetricLinkBuilder> metricLinkBuilder,
 			boolean enableCountPublishing,
 			boolean enableGaugePublishing,
-			List<MetricName> metricNames){
+			List<MetricName> metricNames,
+			List<MetricDashboardDto> dashboards){
 		this.countPublisher = countPublisher;
 		this.gaugePublisher = gaugePublisher;
 		this.metricLinkBuilder = metricLinkBuilder;
 		this.metricNames = metricNames;
+		this.dashboards = dashboards;
 
 		if(enableCountPublishing){
 			addAppListener(CountConveyors.class);
@@ -74,10 +79,10 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		}
 
 		addRouteSet(DatarouterMetricRouteSet.class);
-		String viewMetricNamesPaths = PATHS.datarouter.metric.viewMetricNames.toSlashedString();
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, viewMetricNamesPaths, "Metric Names - App");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, viewMetricNamesPaths + "?showSystemInfo=true",
-				"Metric Names - System");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.INFO,
+				PATHS.datarouter.metric.metricNames.appHandlers,
+				"Metric Links");
 		setDaosModule(daosModuleBuilder);
 	}
 
@@ -91,7 +96,8 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		bind(CountPublisher.class).to(countPublisher);
 		bind(GaugePublisher.class).to(gaugePublisher);
 		bindActual(Gauges.class, DatabeanGauges.class);
-		bindActualInstance(MetricNameRegistry.class, new MetricNameRegistry(metricNames));
+		bind(MetricNameRegistry.class).toInstance(new MetricNameRegistry(metricNames));
+		bind(MetricDashboardRegistry.class).toInstance(new MetricDashboardRegistry(dashboards));
 		bind(MetricLinkBuilder.class).to(metricLinkBuilder);
 	}
 
@@ -99,6 +105,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		private final ClientId defaultQueueClientId;
 		private final List<MetricName> metricNames;
+		private final List<MetricDashboardDto> dashboards;
 
 		private Class<? extends CountPublisher> countPublisher = NoOpCountPublisher.class;
 		private Class<? extends GaugePublisher> gaugePublisher = NoOpGaugePublisher.class;
@@ -114,6 +121,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			this.countPublisher = countPublisher;
 			this.gaugePublisher = gaugePublisher;
 			this.metricNames = new ArrayList<>();
+			this.dashboards = new ArrayList<>();
 		}
 
 		public DatarouterMetricsPluginBuilder withDaosModule(DatarouterMetricsDaosModule daosModule){
@@ -133,6 +141,11 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		public DatarouterMetricsPluginBuilder addMetricNames(List<MetricName> names){
 			this.metricNames.addAll(names);
+			return this;
+		}
+
+		public DatarouterMetricsPluginBuilder addDashboards(List<MetricDashboardDto> dashboards){
+			this.dashboards.addAll(dashboards);
 			return this;
 		}
 
@@ -156,7 +169,8 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 					metricLinkBuilder,
 					enableCountPublishing,
 					enableGaugePublishing,
-					metricNames);
+					metricNames,
+					dashboards);
 		}
 
 	}

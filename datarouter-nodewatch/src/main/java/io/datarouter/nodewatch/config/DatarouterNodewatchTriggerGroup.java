@@ -31,7 +31,7 @@ public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 	public DatarouterNodewatchTriggerGroup(DatarouterNodewatchSettingRoot settings){
 		super("DatarouterNodewatch", true);
 		registerLocked(
-				"43 3/" + TableSamplerJob.SCHEDULING_INTERVAL.toMinutes() + " * * * ?",
+				"43 0/" + TableSamplerJob.SCHEDULING_INTERVAL.toMinutes() + " * * * ?",
 				settings.tableSamplerJob,
 				TableSamplerJob.class,
 				true);

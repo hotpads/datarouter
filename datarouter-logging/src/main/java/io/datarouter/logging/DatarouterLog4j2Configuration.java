@@ -24,7 +24,9 @@ public final class DatarouterLog4j2Configuration extends BaseLog4j2Configuration
 	public static final String CONSOLE_APPENDER_NAME = "Console";
 
 	public DatarouterLog4j2Configuration(){
-		Appender out = Log4j2Configurator.createConsoleAppender(CONSOLE_APPENDER_NAME, Target.SYSTEM_OUT,
+		Appender out = Log4j2Configurator.createConsoleAppender(
+				CONSOLE_APPENDER_NAME,
+				Target.SYSTEM_OUT,
 				defaultPattern);
 		addAppender(out);
 		addLoggerConfig("", Level.WARN, false, out); // Indicate the root logger because blank name

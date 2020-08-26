@@ -67,14 +67,14 @@ public class StartupConfigurationFactory extends ConfigurationFactory{
 				| InvocationTargetException e){
 			throw new RuntimeException(e);
 		}
-		for(Appender appender : log4j2Configuration.getAppenders()){
+		log4j2Configuration.getAppenders().forEach(appender -> {
 			configuration.addAppender(appender);
 			staticAppenders.add(appender);
-		}
-		for(LoggerConfig loggerConfig : log4j2Configuration.getLoggerConfigs()){
+		});
+		log4j2Configuration.getLoggerConfigs().forEach(loggerConfig -> {
 			configuration.addLogger(loggerConfig.getName(), loggerConfig);
 			staticLoggerConfigs.add(loggerConfig);
-		}
+		});
 		log4j2Configuration.getFilters().forEach(configuration::addFilter);
 		LOGGER.info("LoggingConfig initiated");
 		return configuration;

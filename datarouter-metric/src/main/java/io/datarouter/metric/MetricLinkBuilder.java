@@ -18,7 +18,8 @@ package io.datarouter.metric;
 public interface MetricLinkBuilder{
 
 	String availableMetricsLink(String prefix);
-	String exactMetricLink(String name, String metricType);
+	String exactMetricLink(String name, MetricType metricType);
+	String dashboardLink(String id);
 
 	static class NoOpMetricLinkBuilder implements MetricLinkBuilder{
 
@@ -28,7 +29,12 @@ public interface MetricLinkBuilder{
 		}
 
 		@Override
-		public String exactMetricLink(String name, String metricType){
+		public String exactMetricLink(String name, MetricType metricType){
+			return "";
+		}
+
+		@Override
+		public String dashboardLink(String id){
 			return "";
 		}
 

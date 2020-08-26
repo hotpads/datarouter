@@ -266,4 +266,9 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		return httpClient;
 	}
 
+	@Override
+	public JsonSerializer getJsonSerializer(){
+		return jsonSerializer;
+	}
+
 }

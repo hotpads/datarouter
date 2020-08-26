@@ -17,6 +17,7 @@ package io.datarouter.auth.storage.permissionrequest;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -79,7 +80,13 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 
 	public Scanner<DatarouterPermissionRequest> scanOpenPermissionRequestsForUser(Long userId){
 		Objects.requireNonNull(userId);
-		return scanPermissionRequestsForUser(userId)
+		return scanOpenPermissionRequestsForUsers(List.of(userId));
+	}
+
+	public Scanner<DatarouterPermissionRequest> scanOpenPermissionRequestsForUsers(List<Long> userIds){
+		return Scanner.of(userIds)
+				.map(userId -> new DatarouterPermissionRequestKey(userId, null))
+				.listTo(node::scanWithPrefixes)
 				.include(request -> request.getResolution() == null);
 	}
 

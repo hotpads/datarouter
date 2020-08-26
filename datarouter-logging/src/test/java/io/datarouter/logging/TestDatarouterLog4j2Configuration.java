@@ -39,7 +39,9 @@ public final class TestDatarouterLog4j2Configuration extends BaseLog4j2Configura
 		public TestDatarouterParentLog4j2Configuration() throws IllegalAccessException{
 			addFilter(RegexFilter.createFilter(".*password.*", null, true, Result.DENY, Result.NEUTRAL));
 
-			FileAppender testFileAppender = Log4j2Configurator.createFileAppender(TEST_APPENDER_NAME, TEST_FILE_NAME,
+			FileAppender testFileAppender = Log4j2Configurator.createFileAppender(
+					TEST_APPENDER_NAME,
+					TEST_FILE_NAME,
 					defaultPattern);
 			addAppender(testFileAppender);
 			addLoggerConfig(getClass().getPackage().getName(), Level.ALL, false, testFileAppender);

@@ -139,8 +139,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 				email = DEFAULT_EMAIL;
 				canDelete = false;
 			}
-			LoggerConfigMetadata mergedLoggerConfig = new LoggerConfigMetadata(config, email, lastUpdated, canDelete,
-					ttlMinutes);
+			var mergedLoggerConfig = new LoggerConfigMetadata(config, email, lastUpdated, canDelete, ttlMinutes);
 			mergedConfigs.put(name, mergedLoggerConfig);
 			appenderMap.put(mergedLoggerConfig, config.getAppenders().keySet());
 		}
@@ -358,7 +357,11 @@ public class LoggingSettingsHandler extends BaseHandler{
 		private boolean canDelete;
 		private final Integer ttlMinutes;
 
-		LoggerConfigMetadata(LoggerConfig config, String email, Date lastUpdated, boolean canDelete,
+		LoggerConfigMetadata(
+				LoggerConfig config,
+				String email,
+				Date lastUpdated,
+				boolean canDelete,
 				Integer ttlMinutes){
 			this.name = config.getName();
 			this.level = config.getLevel();

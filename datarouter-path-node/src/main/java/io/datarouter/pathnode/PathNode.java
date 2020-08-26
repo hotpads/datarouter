@@ -75,8 +75,14 @@ public class PathNode{
 		return join("/", "/", "/");
 	}
 
-	public String toSlashedStringWithoutLeadingSlash(){
-		return join("", "/", "");
+	/**
+	 * prefix and suffix are empty strings
+	 *
+	 * @param delimiter delimiter
+	 * @return joined string
+	 */
+	public String join(String delimiter){
+		return join("", delimiter, "");
 	}
 
 	public String join(String prefix, String delimiter, String suffix){

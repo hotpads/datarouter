@@ -46,7 +46,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.tally.TallyKey;
@@ -56,7 +55,7 @@ public class MemcachedReaderNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
-implements MapStorageReader<PK,D>, TallyStorageReader<PK,D>{
+implements TallyStorageReader<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedReaderNode.class);
 
 	protected static final Boolean DEFAULT_IGNORE_EXCEPTION = true;

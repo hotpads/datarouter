@@ -17,13 +17,16 @@ package io.datarouter.auth.service.deprovisioning;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.auth.service.DatarouterUserHistoryService;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUser;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUser.UserDeprovisioningStatus;
 import io.datarouter.auth.storage.deprovisioneduser.DeprovisionedUserDao;
@@ -42,6 +45,8 @@ public class DatarouterUserDeprovisioningStrategy implements UserDeprovisioningS
 	@Inject
 	private DatarouterUserDao datarouterUserDao;
 	@Inject
+	private DatarouterUserHistoryService datarouterUserHistoryService;
+	@Inject
 	private DeprovisionedUserDao deprovisionedUserDao;
 	@Inject
 	private RoleManager roleManager;
@@ -49,16 +54,17 @@ public class DatarouterUserDeprovisioningStrategy implements UserDeprovisioningS
 	private UserSessionService userSessionService;
 
 	@Override
-	public List<String> flagUsers(List<String> usernames){
-		return doFlagOrDeprovision(usernames, false);
+	public List<String> flagUsers(List<String> usernames, Optional<String> editorUsername){
+		return doFlagOrDeprovision(usernames, false, editorUsername);
 	}
 
 	@Override
-	public List<String> deprovisionUsers(List<String> usernames){
-		return doFlagOrDeprovision(usernames, true);
+	public List<String> deprovisionUsers(List<String> usernames, Optional<String> editorUsername){
+		return doFlagOrDeprovision(usernames, true, editorUsername);
 	}
 
-	private List<String> doFlagOrDeprovision(List<String> usernames, boolean shouldDeprovision){
+	private List<String> doFlagOrDeprovision(List<String> usernames, boolean shouldDeprovision,
+			Optional<String> editorUsername){
 		userSessionService.deleteUserSessions(usernames);
 		List<DeprovisionedUser> deprovisionedUsers = new ArrayList<>();
 		List<DatarouterUser> users = Scanner.of(usernames)
@@ -74,13 +80,17 @@ public class DatarouterUserDeprovisioningStrategy implements UserDeprovisioningS
 		});
 		deprovisionedUserDao.putMulti(deprovisionedUsers);
 		if(shouldDeprovision){
+			Optional<DatarouterUser> editor = editorUsername
+					.map(DatarouterUserByUsernameLookup::new)
+					.map(datarouterUserDao::getByUsername);
 			datarouterUserDao.putMulti(users);
+			datarouterUserHistoryService.recordDeprovisions(users, editor);
 		}
 		return deprovisionedUsernames;
 	}
 
 	@Override
-	public List<String> restoreUsers(List<String> usernames){
+	public List<String> restoreUsers(List<String> usernames, Optional<String> editorUsername){
 		Set<Role> validRoles = roleManager.getAllRoles();
 		var deprovisionedRolesByUsername = Scanner.of(usernames)
 				.map(DeprovisionedUserKey::new)
@@ -105,9 +115,17 @@ public class DatarouterUserDeprovisioningStrategy implements UserDeprovisioningS
 					return datarouterUser;
 				})
 				.flush(datarouterUserDao::putMulti)
+				.flush(buildRecordRestoreConsumer(editorUsername))
 				.map(DatarouterUser::getUsername)
 				.flush(deprovisionedUserDao::deleteMultiUsernames)
 				.list();
+	}
+
+	private Consumer<List<DatarouterUser>> buildRecordRestoreConsumer(Optional<String> editorUsername){
+		Optional<DatarouterUser> editor = editorUsername
+				.map(DatarouterUserByUsernameLookup::new)
+				.map(datarouterUserDao::getByUsername);
+		return users -> datarouterUserHistoryService.recordRestores(users, editor);
 	}
 
 }

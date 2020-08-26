@@ -15,6 +15,9 @@
  */
 package io.datarouter.aws.s3.node;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -33,54 +36,55 @@ public class S3Node<
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements PhysicalObjectStorageNode<PK,D,F>, ObjectStorageWriter<PK,D>{
+	private static final Logger logger = LoggerFactory.getLogger(S3Node.class);
 
-	private final S3DirectoryManager directoryManager;
+	private final S3DirectoryManager s3DirectoryManager;
 
 	public S3Node(NodeParams<PK,D,F> params, ClientType<?,?> clientType, S3DirectoryManager directoryManager){
 		super(params, clientType);
-		this.directoryManager = directoryManager;
+		this.s3DirectoryManager = directoryManager;
 	}
 
 	@Override
 	public String getBucket(){
-		return directoryManager.getBucket();
+		return s3DirectoryManager.getBucket();
 	}
 
 	@Override
 	public String getRootPath(){
-		return directoryManager.getRootPath();
+		return s3DirectoryManager.getRootPath();
 	}
 
 	@Override
 	public byte[] read(PathbeanKey key){
-		return directoryManager.read(key.getPathAndFile());
+		return s3DirectoryManager.read(key.getPathAndFile());
 	}
 
 	@Override
 	public void write(PathbeanKey key, byte[] content){
-		directoryManager.write(key.getPathAndFile(), content);
+		s3DirectoryManager.write(key.getPathAndFile(), content);
 	}
 
 	@Override
 	public String readUtf8(PathbeanKey key){
-		return directoryManager.readUtf8(key.getPathAndFile());
+		return s3DirectoryManager.readUtf8(key.getPathAndFile());
 	}
 
 	@Override
 	public void delete(PathbeanKey key){
-		directoryManager.delete(key.getPathAndFile());
+		s3DirectoryManager.delete(key.getPathAndFile());
 	}
 
 	@Override
 	public boolean exists(PathbeanKey key){
-		return directoryManager.exists(key.getPathAndFile());
+		return s3DirectoryManager.exists(key.getPathAndFile());
 	}
 
 	@Override
 	public Scanner<Pathbean> scan(){
-		return directoryManager.scanS3Objects()
+		return s3DirectoryManager.scanS3Objects()
 				.map(s3Object -> {
-					PathbeanKey key = PathbeanKey.of(directoryManager.relativePath(s3Object.key()));
+					PathbeanKey key = PathbeanKey.of(s3DirectoryManager.relativePath(s3Object.key()));
 					Long size = s3Object.size();
 					return new Pathbean(key, size);
 				});
@@ -88,7 +92,7 @@ implements PhysicalObjectStorageNode<PK,D,F>, ObjectStorageWriter<PK,D>{
 
 	@Override
 	public Scanner<PathbeanKey> scanKeys(){
-		return directoryManager.scanKeys()
+		return s3DirectoryManager.scanKeys()
 				.map(PathbeanKey::of);
 	}
 

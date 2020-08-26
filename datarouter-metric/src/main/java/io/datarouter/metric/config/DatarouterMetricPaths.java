@@ -30,7 +30,21 @@ public class DatarouterMetricPaths extends PathNode implements PathsRoot{
 	}
 
 	public static class MetricPaths extends PathNode{
-		public final PathNode viewMetricNames = leaf("viewMetricNames");
+		public final MetricNamePaths metricNames = branch(MetricNamePaths::new, "metricNames");
+	}
+
+	public static class MetricNamePaths extends PathNode{
+		public final PathNode appHandlers = leaf("appHandlers");
+		public final PathNode appJobs = leaf("appJobs");
+		public final PathNode appTables = leaf("appTables");
+
+		public final PathNode datarouterHandlers = leaf("datarouterHandlers");
+		public final PathNode datarouterJobs = leaf("datarouterJobs");
+		public final PathNode datarouterTables = leaf("datarouterTables");
+
+		public final PathNode registeredNames = leaf("registeredNames");
+
+		public final PathNode metricDashboards = leaf("metricDashboards");
 	}
 
 }

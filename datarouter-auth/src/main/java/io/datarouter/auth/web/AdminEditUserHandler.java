@@ -333,7 +333,6 @@ public class AdminEditUserHandler extends BaseHandler{
 				.getResolutionTime(), entry.getValue().orElse(null));
 	}
 
-	//TODO DATAROUTER-2801
 	private static DeprovisionedUserDto buildDeprovisionedUserDto(SessionBasedUser user, Set<Role> roles){
 		UserDeprovisioningStatusDto status = user.isEnabled() ? UserDeprovisioningStatusDto.PROVISIONED
 				: UserDeprovisioningStatusDto.UNRESTORABLE;

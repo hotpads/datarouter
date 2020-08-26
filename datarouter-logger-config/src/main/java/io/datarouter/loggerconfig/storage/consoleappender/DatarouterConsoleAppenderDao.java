@@ -43,7 +43,9 @@ public class DatarouterConsoleAppenderDao extends BaseDao{
 	private final SortedMapStorage<ConsoleAppenderKey,ConsoleAppender> node;
 
 	@Inject
-	public DatarouterConsoleAppenderDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterConsoleAppenderDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterConsoleAppenderDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, ConsoleAppender::new, ConsoleAppenderFielder::new)

@@ -26,7 +26,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.counter.TallyStorageWriterCounterAdapter;
-import io.datarouter.storage.node.adapter.counter.mixin.MapStorageCounterAdapterMixin;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 
@@ -37,7 +36,6 @@ public class PhysicalTallyStorageCounterAdapter<
 		N extends PhysicalTallyStorageNode<PK,D,F>>
 extends TallyStorageWriterCounterAdapter<PK,D,F,N>
 implements PhysicalTallyStorageNode<PK,D,F>,
-		MapStorageCounterAdapterMixin<PK,D,F,N>,
 		PhysicalAdapterMixin<PK,D,F,N>{
 
 	public PhysicalTallyStorageCounterAdapter(N backingNode){

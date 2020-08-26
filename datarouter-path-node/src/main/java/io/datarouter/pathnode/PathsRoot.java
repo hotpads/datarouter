@@ -15,5 +15,8 @@
  */
 package io.datarouter.pathnode;
 
+/**
+ * Marker interface for finding PathNode classes in ides
+ */
 public interface PathsRoot{
 }

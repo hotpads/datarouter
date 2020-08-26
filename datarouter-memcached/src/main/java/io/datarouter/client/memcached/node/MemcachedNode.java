@@ -35,7 +35,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.tally.TallyKey;
 
@@ -44,8 +43,7 @@ public class MemcachedNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends MemcachedReaderNode<PK,D,F>
-implements PhysicalMapStorageNode<PK,D,F>,
-		PhysicalTallyStorageNode<PK,D,F>{
+implements PhysicalTallyStorageNode<PK,D,F>{
 	private static final Logger logger = LoggerFactory.getLogger(MemcachedNode.class);
 
 	protected static final int MEGABYTE = 1024 * 1024;

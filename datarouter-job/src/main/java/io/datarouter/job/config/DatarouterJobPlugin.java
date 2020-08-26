@@ -49,6 +49,7 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, new DatarouterJobPaths().datarouter.triggers.list,
 				"Triggers");
+		addTestable(DatarouterJobBootstrapIntegrationService.class);
 		this.triggerGroupClasses = triggerGroupClasses;
 	}
 

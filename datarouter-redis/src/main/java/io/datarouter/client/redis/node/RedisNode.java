@@ -31,7 +31,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.tally.TallyKey;
 import redis.clients.jedis.Jedis;
@@ -42,8 +41,7 @@ public class RedisNode<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends RedisReaderNode<PK,D,F>
-implements PhysicalMapStorageNode<PK,D,F>,
-		PhysicalTallyStorageNode<PK,D,F>{
+implements PhysicalTallyStorageNode<PK,D,F>{
 	private static final Logger logger = LoggerFactory.getLogger(RedisNode.class);
 
 	//redis can handle a max keys size of 32 megabytes

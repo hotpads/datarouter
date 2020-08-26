@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric.web;
+package io.datarouter.metric.service;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
@@ -26,16 +26,18 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobPackage;
+import io.datarouter.metric.MetricDashboardRegistry;
 import io.datarouter.metric.MetricLinkBuilder;
 import io.datarouter.metric.MetricName;
-import io.datarouter.metric.MetricNameRegistry;
 import io.datarouter.metric.MetricNameType;
 import io.datarouter.metric.MetricType;
+import io.datarouter.metric.dto.MetricDashboardDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
@@ -44,22 +46,13 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 
-public class ViewMetricNamesHandler extends BaseHandler{
+@Singleton
+public class ViewMetricNameService{
 
-	@Inject
-	private Bootstrap4PageFactory pageFactory;
-	@Inject
-	private MetricNameRegistry registry;
-	@Inject
-	private MetricLinkBuilder linkBuilder;
 	@Inject
 	private DatarouterClients clients;
 	@Inject
@@ -70,24 +63,12 @@ public class ViewMetricNamesHandler extends BaseHandler{
 	private TriggerGroupClasses triggerGroupClasses;
 	@Inject
 	private RouteSetRegistry routeSetRegistry;
+	@Inject
+	private MetricLinkBuilder linkBuilder;
+	@Inject
+	private MetricDashboardRegistry dashboardRegistry;
 
-	@Handler(defaultHandler = true)
-	public Mav view(OptionalBoolean showSystemInfo){
-		boolean showSystem = showSystemInfo.orElse(false);
-		var customNames = makeTable("Custom", registry.metricNames);
-		var tables = makeTable("Tables", getNodeTableMetricNames(showSystem));
-		var jobs = makeTable("Jobs", getJobMetricNames(showSystem));
-		var handlers = makeTable("Handlers", getHandlerMetricNames(showSystem));
-		var content = div(customNames, handlers, jobs, tables)
-				.withClass("container my-4");
-		String title = "Suggested Metric Names - " + (showSystem ? "System" : "App");
-		return pageFactory.startBuilder(request)
-				.withTitle(title)
-				.withContent(content)
-				.buildMav();
-	}
-
-	private ContainerTag makeTable(String header, List<MetricName> rows){
+	public ContainerTag makeMetricNameTable(String header, List<MetricName> rows){
 		if(rows.size() == 0){
 			return div();
 		}
@@ -97,24 +78,26 @@ public class ViewMetricNamesHandler extends BaseHandler{
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn(th("Metric Name").withClass("w-50"), row -> td(row.displayName))
 				.withHtmlColumn(th("Type").withClass("w-25"), row -> td(row.nameType.type))
-				.withHtmlColumn(th("").withClass("w-25"), this::getLink)
+				.withHtmlColumn(th("").withClass("w-25"), this::getMetricNameLink)
+				.withCaption("Total " + rows.size())
 				.build(rows);
-		return div(h2, table);
+		return div(h2, table)
+				.withClass("container my-4");
 	}
 
-	private DomContent getLink(MetricName metricName){
+	private DomContent getMetricNameLink(MetricName metricName){
 		String link;
 		if(metricName.nameType == MetricNameType.AVAILABLE){
 			link = linkBuilder.availableMetricsLink(metricName.getNameOrPrefix());
 		}else{
-			link = linkBuilder.exactMetricLink(metricName.getNameOrPrefix(), metricName.metricType.type);
+			link = linkBuilder.exactMetricLink(metricName.getNameOrPrefix(), metricName.metricType);
 		}
 		return td(a(i().withClass("fa fa-link"))
 				.withClass("btn btn-link w-100 py-0")
 				.withHref(link));
 	}
 
-	private List<MetricName> getNodeTableMetricNames(boolean showSystemInfo){
+	public List<MetricName> getNodeTableMetricNames(boolean showSystemInfo){
 		return Scanner.of(clients.getClientIds())
 				.include(ClientId::getWritable)
 				.map(ClientId::getName)
@@ -139,7 +122,7 @@ public class ViewMetricNamesHandler extends BaseHandler{
 				.list();
 	}
 
-	private List<MetricName> getJobMetricNames(boolean showSystemInfo){
+	public List<MetricName> getJobMetricNames(boolean showSystemInfo){
 		return Scanner.of(injector.getInstances(triggerGroupClasses.get()))
 				.include(triggerGroup -> {
 					if(showSystemInfo){
@@ -157,8 +140,8 @@ public class ViewMetricNamesHandler extends BaseHandler{
 				.list();
 	}
 
-	private List<MetricName> getHandlerMetricNames(boolean showSystemInfo){
-		return Scanner.of(routeSetRegistry.get())
+	public ContainerTag getHandlerMetricNames(String title, boolean showSystemInfo){
+		var list = Scanner.of(routeSetRegistry.get())
 				.map(BaseRouteSet::getDispatchRules)
 				.concat(Scanner::of)
 				.include(dispatchRule -> {
@@ -170,17 +153,47 @@ public class ViewMetricNamesHandler extends BaseHandler{
 				.map(DispatchRule::getHandlerClass)
 				.map(Class::getSimpleName)
 				.distinct()
-				.map(name -> {
-					String classPrefix = "Datarouter handler class " + name;
-					var metricNameHandlerClass = MetricName.exactMetric(name + " class", classPrefix, MetricType.COUNT);
-
-					String methodPrefix = "Datarouter handler method " + name;
-					var metricNameMethods = MetricName.availableMetric(name + " endpoints", methodPrefix);
-
-					return List.of(metricNameHandlerClass, metricNameMethods);
-				})
 				.concat(Scanner::of)
+				.sorted()
 				.list();
+		if(list.size() == 0){
+			return div();
+		}
+		var h2 = h2(title);
+		var table = new J2HtmlTable<String>()
+				.withClasses("table table-sm table-striped my-4 border")
+				.withHtmlColumn(th("Handlers").withClass("w-50"), row -> td(row))
+				.withHtmlColumn(th("Exact").withClass("w-25"), row -> td(a("Class")
+						.withHref(linkBuilder.exactMetricLink("Datarouter handler class " + row, MetricType.COUNT))))
+				.withHtmlColumn(th("Available").withClass("w-25"), row -> td(a("Endpoints")
+						.withHref(linkBuilder.availableMetricsLink("Datarouter handler method " + row))))
+				.withCaption("Total " + list.size())
+				.build(list);
+		return div(h2, table)
+				.withClass("container my-4");
+	}
+
+	public ContainerTag getDashboardsTable(){
+		var dasboards = dashboardRegistry.dashboards;
+		if(dasboards.size() == 0){
+			return div();
+		}
+		var h2 = h2("Metric Dashboards");
+		dasboards.sort(Comparator.comparing(metricName -> metricName.displayName));
+		var table = new J2HtmlTable<MetricDashboardDto>()
+				.withClasses("table table-sm table-striped my-4 border")
+				.withHtmlColumn(th("Dashboard Name").withClass("w-50"), row -> td(row.displayName))
+				.withHtmlColumn(th("").withClass("w-25"), this::getDashboardLink)
+				.build(dasboards);
+		return div(h2, table)
+				.withClass("container my-4");
+	}
+
+	private DomContent getDashboardLink(MetricDashboardDto dashboard){
+		String link = linkBuilder.dashboardLink(dashboard.id);
+		return td(a(i().withClass("fa fa-link"))
+				.withClass("btn btn-link w-100 py-0")
+				.withHref(link));
 	}
 
 }

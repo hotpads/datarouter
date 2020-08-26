@@ -51,6 +51,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.navigation.AppNavBarCategory;
+import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao;
@@ -94,9 +95,9 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		}
 
 		addAppListener(DatarouterAccountConfigAppListener.class);
-		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.admin.accounts, "Account Manager");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.admin.accounts, "Account Manager");
 		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.userDeprovisioning, "User Deprovisioning");
-		addAppNavBarItem(AppNavBarCategory.API_DOCS, PATHS.docs.toSlashedStringWithTrailingSlash(), "Documentation");
+		addAppNavBarItem(AppNavBarCategory.API_DOCS, PATHS.docs.join("/", "/", "/"), "Documentation");
 		addRouteSet(DatarouterAccountRouteSet.class);
 		addRouteSet(DatarouterDocumentationRouteSet.class);
 		addRouteSet(UserDeprovisioningRouteSet.class);

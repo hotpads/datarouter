@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.config;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.storage.client.ClientId;
@@ -29,6 +31,7 @@ import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.DatarouterAdditionalAdministrators;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.storage.setting.SettingBootstrapIntegrationService;
 import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier.NodeWidgetDatabeanExporterLink;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
@@ -71,6 +74,8 @@ import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier.DatarouterServiceDescription;
 import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier.DatarouterServiceDocumentationNamesAndLinks;
+import io.datarouter.web.test.TestableServiceClassRegistry;
+import io.datarouter.web.test.TestableServiceClassRegistry.DefaultTestableServiceClassRegistry;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
@@ -121,6 +126,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final String nodeWidgetTableCountLink;
 	private final String serviceDescription;
 	private final Map<String,String> serviceDocumentationNamesAndLinks;
+	private final List<Class<? extends TestableService>> testableServiceClasses;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -128,7 +134,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends HomepageRouteSet> homepageRouteSet,
 			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
-				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null);
+				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -156,7 +162,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			String nodeWidgetDatabeanExporterLink,
 			String nodeWidgetTableCountLink,
 			String serviceDescription,
-			Map<String,String> serviceDocumentationNamesAndLinks){
+			Map<String,String> serviceDocumentationNamesAndLinks,
+			List<Class<? extends TestableService>> testableServiceClasses){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 
@@ -197,6 +204,10 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.plugins, "Plugins");
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Email Test");
+
+		addTestable(DatarouterWebBoostrapIntegrationService.class);
+		addTestable(SettingBootstrapIntegrationService.class);
+
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;
 		this.authenticationConfigClass = authenticationConfigClass;
@@ -220,6 +231,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
 		this.serviceDescription = serviceDescription;
 		this.serviceDocumentationNamesAndLinks = serviceDocumentationNamesAndLinks;
+		this.testableServiceClasses = testableServiceClasses;
 	}
 
 	@Override
@@ -262,6 +274,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		}
 		bindActualInstance(ServiceDocumentationNamesAndLinksSupplier.class,
 				new DatarouterServiceDocumentationNamesAndLinks(serviceDocumentationNamesAndLinks));
+
+		bindActualInstance(TestableServiceClassRegistry.class,
+				new DefaultTestableServiceClassRegistry(testableServiceClasses));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -333,6 +348,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private String nodeWidgetTableCountLink;
 		private String serviceDescription;
 		private Map<String,String> serviceDocumentationNamesAndLinks = new HashMap<>();
+		private List<Class<? extends TestableService>> testableServiceClasses = new ArrayList<>();
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -466,6 +482,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setTestableServiceClasses(
+				List<Class<? extends TestableService>> testableServiceClasses){
+			this.testableServiceClasses = testableServiceClasses;
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
 					new DatarouterWebDaoModule(defaultClientId),
@@ -500,7 +522,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					nodeWidgetDatabeanExporterLink,
 					nodeWidgetTableCountLink,
 					serviceDescription,
-					serviceDocumentationNamesAndLinks);
+					serviceDocumentationNamesAndLinks,
+					testableServiceClasses);
 		}
 
 	}

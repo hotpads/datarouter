@@ -56,13 +56,14 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 	}
 
 	public PathbeanKey(String path, String file){
-		if(path != null){
-			Require.isTrue(isValidPath(path));
+		boolean isValidPath = path == null || isValidPath(path);
+		boolean isValidFile = file == null || isValidFile(file);
+		if(!isValidPath || !isValidFile){
+			String message = String.format("validPath=%s, validFile=%s in [path=%s][file=%s]", isValidPath, isValidFile,
+					path, file);
+			throw new IllegalArgumentException(message);
 		}
 		this.path = path;
-		if(file != null){
-			Require.isTrue(isValidFile(file));
-		}
 		this.file = file;
 	}
 
@@ -74,8 +75,8 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 			keyDirectory = "";
 			keyFile = pathAndFile;
 		}else{
-			keyDirectory = pathAndFile.substring(0, lastSlashIndex);
-			keyFile = pathAndFile.substring(lastSlashIndex);
+			keyDirectory = pathAndFile.substring(0, lastSlashIndex + 1);
+			keyFile = pathAndFile.substring(lastSlashIndex + 1);
 		}
 		return new PathbeanKey(keyDirectory, keyFile);
 	}
@@ -126,6 +127,12 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 
 	public String getFile(){
 		return file;
+	}
+
+	// override default toString() which uses percent encoding that obscures the slashes
+	@Override
+	public String toString(){
+		return getClass().getSimpleName() + "." + getPathAndFile();
 	}
 
 }

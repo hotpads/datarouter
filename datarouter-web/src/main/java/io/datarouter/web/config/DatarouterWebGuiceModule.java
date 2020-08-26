@@ -16,6 +16,7 @@
 package io.datarouter.web.config;
 
 import java.util.Collections;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.inject.name.Names;
@@ -50,6 +51,8 @@ import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier.NoOpServiceDescription;
 import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier.NoOpServiceDocumentationNamesAndLinks;
+import io.datarouter.web.test.TestableServiceClassRegistry;
+import io.datarouter.web.test.TestableServiceClassRegistry.DefaultTestableServiceClassRegistry;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
@@ -104,6 +107,7 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(ServiceDocumentationNamesAndLinksSupplier.class, NoOpServiceDocumentationNamesAndLinks.class);
 
 		bindDefault(ChangelogRecorder.class, NoOpChangelogRecorder.class);
+		bindDefaultInstance(TestableServiceClassRegistry.class, new DefaultTestableServiceClassRegistry(List.of()));
 
 		// define as singleton for everybody
 		bind(Gson.class).toInstance(GsonTool.GSON);

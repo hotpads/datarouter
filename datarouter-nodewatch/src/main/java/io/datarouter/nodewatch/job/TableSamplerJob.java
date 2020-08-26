@@ -29,7 +29,9 @@ import io.datarouter.util.concurrent.CallableTool;
 
 public class TableSamplerJob extends BaseJob{
 
-	public static final Duration SCHEDULING_INTERVAL = Duration.ofMinutes(10);
+	// If this runs too frequently, then the table with the most samples may not be able to finish scanning the samples
+	// and creating joblets
+	public static final Duration SCHEDULING_INTERVAL = Duration.ofMinutes(3);
 
 	@Inject
 	private DatarouterTableSamplerExecutor executor;

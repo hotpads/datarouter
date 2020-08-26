@@ -116,8 +116,8 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.orElse(null));
 		Set<String> additionalPermissionEmails = permissionRequestAdditionalEmails.get();
 		mav.put("email", administratorEmailService.getAdministratorEmailAddressesCsv(additionalPermissionEmails));
-		mav.put("submitPath", paths.permissionRequest.submit.toSlashedStringWithoutLeadingSlash());
-		mav.put("declinePath", paths.permissionRequest.declineAll.toSlashedStringWithoutLeadingSlash());
+		mav.put("submitPath", paths.permissionRequest.submit.join("/"));
+		mav.put("declinePath", paths.permissionRequest.declineAll.join("/"));
 		return mav;
 	}
 

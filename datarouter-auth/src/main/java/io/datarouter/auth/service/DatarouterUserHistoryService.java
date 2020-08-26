@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -80,23 +81,52 @@ public class DatarouterUserHistoryService{
 				.map(historyKey -> historyMap.getOrDefault(historyKey, request.getResolution().getPersistentString()));
 	}
 
-	public void recordCreate(DatarouterUser user, Long editorId, String description){
+	public void putAndRecordCreate(DatarouterUser user, Long editorId, String description){
 		baseDatarouterUserDao.put(user);
 		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), user.getCreated(), editorId,
 				DatarouterUserChangeType.CREATE, description));
 	}
 
-	public void recordPasswordChange(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
-		recordEdit(user, history);
+	public void putAndRecordPasswordChange(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
+		doPutAndRecordEdit(user, history);
 		sendPasswordChangeEmail(user, history, signinUrl);
 	}
 
-	public void recordRoleEdit(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
-		recordEdit(user, history);
+	public void putAndRecordRoleEdit(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
+		doPutAndRecordEdit(user, history);
 		sendRoleEditEmail(user, history, signinUrl);
 	}
 
-	private void recordEdit(DatarouterUser user, DatarouterUserHistory history){
+	public void recordDeprovisions(List<DatarouterUser> users, Optional<DatarouterUser> editor){
+		Date time = new Date();
+		Long editorId = editor.map(DatarouterUser::getId)
+				.orElse(null);
+		Map<Long, DatarouterUserHistory> histories = Scanner.of(users)
+				.map(user -> new DatarouterUserHistory(user.getId(), time, editorId, DatarouterUserChangeType
+						.DEPROVISION, "deprovisioned"))
+				.flush(baseDatarouterUserHistoryDao::putMulti)
+				.toMap(history -> history.getKey().getUserId());
+		Scanner.of(users)
+				.map(DatarouterUser::getId)
+				.listTo(permissionRequestDao::scanOpenPermissionRequestsForUsers)
+				.map(request -> request.decline(time))
+				.flush(permissionRequestDao::putMulti);
+		editor.ifPresent(editorUser -> {
+			users.forEach(user -> sendDeprovisioningEmail(user, histories.get(user.getId()), editorUser));
+		});
+	}
+
+	public void recordRestores(List<DatarouterUser> users, Optional<DatarouterUser> editor){
+		Date time = new Date();
+		Long editorId = editor.map(DatarouterUser::getId)
+				.orElse(null);
+		Scanner.of(users)
+				.map(user -> new DatarouterUserHistory(user.getId(), time, editorId, DatarouterUserChangeType.RESTORE,
+						"restored"))
+				.flush(baseDatarouterUserHistoryDao::putMulti);
+	}
+
+	private void doPutAndRecordEdit(DatarouterUser user, DatarouterUserHistory history){
 		baseDatarouterUserDao.put(user);
 		baseDatarouterUserHistoryDao.put(history);
 		permissionRequestDao.scanOpenPermissionRequestsForUser(history.getKey().getUserId())
@@ -135,6 +165,19 @@ public class DatarouterUserHistoryService{
 				.withTitleHref(signInUrl)
 				.withContent(content);
 		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
+	}
+
+	private void sendDeprovisioningEmail(DatarouterUser user, DatarouterUserHistory history, DatarouterUser editor){
+		var content = div(p(String.format("Your user (%s) has been %s by user %s (%s).",
+				user.getUsername(),
+				history.getChanges(),
+				editor.getId(),
+				editor.getUsername())));
+		var emailBuilder = htmlEmailService.startEmailBuilder()
+				.withSubject(userEditService.getPermissionRequestEmailSubject(user))
+				.withTitle("Permissions Changed")
+				.withContent(content);
+		htmlEmailService.trySendJ2Html(user.getUsername(), user.getUsername(), emailBuilder);
 	}
 
 	private static ContainerTag makeSignInParagraph(String signInUrl){

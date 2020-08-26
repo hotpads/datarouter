@@ -54,8 +54,8 @@ public class JobletSubnavFactory{
 		return new Dropdown("Monitoring")
 				.addItem("Exceptions", contextPath + paths.datarouter.joblets.exceptions.toSlashedString())
 				.addItem("Local Running Joblets", contextPath + paths.datarouter.joblets.running.toSlashedString())
-				.addItem("Sleeping (Test) Joblets", contextPath + paths.datarouter.joblets.createSleepingJoblets
-						.toSlashedString())
+				.addItem("Sleeping (Test) Joblets",
+						contextPath + paths.datarouter.joblets.createSleepingJoblets.toSlashedString())
 				.addItem("Thread Counts", contextPath + paths.datarouter.joblets.threadCounts.toSlashedString());
 	}
 
@@ -71,8 +71,9 @@ public class JobletSubnavFactory{
 	private Dropdown status(String contextPath){
 		var dropdown = new Dropdown("Status");
 		JobletStatus.stream()
-				.map(status -> new DropdownItem(status.getPersistentString(), localLinkBuilder.listWithStatus(
-						contextPath, status)))
+				.map(status -> new DropdownItem(
+						status.getPersistentString(),
+						localLinkBuilder.listWithStatus(contextPath, status)))
 				.forEach(dropdown::add);
 		return dropdown;
 	}

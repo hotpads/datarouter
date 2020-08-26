@@ -80,8 +80,14 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 		super(new LoggerConfigKey());
 	}
 
-	public LoggerConfig(String name, LoggingLevel level, boolean additive, List<String> appendersRef, String email,
-			Date lastUpdated, Long ttlMillis){
+	public LoggerConfig(
+			String name,
+			LoggingLevel level,
+			boolean additive,
+			List<String> appendersRef,
+			String email,
+			Date lastUpdated,
+			Long ttlMillis){
 		super(new LoggerConfigKey(name));
 		this.level = level;
 		this.additive = additive;
@@ -91,8 +97,14 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 		this.ttlMillis = ttlMillis;
 	}
 
-	public LoggerConfig(String name, Level level, boolean additive, List<String> appendersRef, String email,
-			Date lastUpdated, Long ttlMillis){
+	public LoggerConfig(
+			String name,
+			Level level,
+			boolean additive,
+			List<String> appendersRef,
+			String email,
+			Date lastUpdated,
+			Long ttlMillis){
 		this(name, LoggingLevel.fromString(level.name()), additive, appendersRef, email, lastUpdated, ttlMillis);
 	}
 

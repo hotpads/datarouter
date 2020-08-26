@@ -16,11 +16,12 @@
 package io.datarouter.aws.s3.client;
 
 import io.datarouter.aws.s3.BaseDatarouterS3Client;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import io.datarouter.aws.s3.SerializableAwsCredentialsProviderProvider;
 
+@SuppressWarnings("serial")
 public class GenericDatarouterS3Client extends BaseDatarouterS3Client{
 
-	public GenericDatarouterS3Client(AwsCredentialsProvider awsCredentialsProvider){
+	public GenericDatarouterS3Client(SerializableAwsCredentialsProviderProvider<?> awsCredentialsProvider){
 		super(awsCredentialsProvider);
 	}
 

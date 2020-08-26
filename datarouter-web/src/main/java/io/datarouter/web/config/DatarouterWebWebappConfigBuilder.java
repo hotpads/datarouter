@@ -32,6 +32,7 @@ import com.google.inject.Module;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.inject.guice.BasePlugin;
+import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.storage.client.ClientId;
@@ -105,6 +106,7 @@ implements WebappBuilder{
 	private final List<Ordered<Class<? extends BaseRouteSet>>> routeSetOrdered;
 	private final List<Class<? extends BaseRouteSet>> routeSetsUnordered;
 	private final Set<String> additionalPermissionRequestEmails;
+	private final List<Class<? extends TestableService>> testableServiceClasses;
 
 	private Class<? extends RoleManager> roleManager;
 	private Class<? extends CurrentSessionInfo> currentSessionInfo;
@@ -203,6 +205,7 @@ implements WebappBuilder{
 		this.servletParams = new ArrayList<>();
 		this.datarouterNavBarPluginItems = new ArrayList<>();
 		this.appNavBarPluginItems = new ArrayList<>();
+		this.testableServiceClasses = new ArrayList<>();
 
 		// additional
 		this.modules = new ArrayList<>();
@@ -254,6 +257,7 @@ implements WebappBuilder{
 				.withNodeWidgetTableCountLink(nodeWidgetTableCountLink)
 				.setServiceDescription(serviceDescription)
 				.setServiceDocumentationNamesAndLinks(serviceDocumentationNamesAndLinks)
+				.setTestableServiceClasses(testableServiceClasses)
 				.build();
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
@@ -347,6 +351,8 @@ implements WebappBuilder{
 
 		fieldKeyOverriders.addAll(plugin.getFieldKeyOverrides());
 
+		testableServiceClasses.addAll(plugin.getTestableServiceClasses());
+
 		return getSelf();
 	}
 
@@ -362,6 +368,11 @@ implements WebappBuilder{
 
 	public T addFieldKeyOverrider(FieldKeyOverrider fieldKeyOverrider){
 		fieldKeyOverriders.add(fieldKeyOverrider);
+		return getSelf();
+	}
+
+	public T addTestableService(Class<? extends TestableService> testableService){
+		testableServiceClasses.add(testableService);
 		return getSelf();
 	}
 

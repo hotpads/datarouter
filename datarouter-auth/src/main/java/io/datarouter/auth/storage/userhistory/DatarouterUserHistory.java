@@ -88,16 +88,8 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 		return editor;
 	}
 
-	public void setEditor(Long editor){
-		this.editor = editor;
-	}
-
 	public DatarouterUserChangeType getChangeType(){
 		return changeType;
-	}
-
-	public void setChangeType(DatarouterUserChangeType changeType){
-		this.changeType = changeType;
 	}
 
 	public String getChanges(){
@@ -116,7 +108,10 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 	public enum DatarouterUserChangeType implements StringEnum<DatarouterUserChangeType>{
 		CREATE("create"),//user created
 		EDIT("edit"),//changes to roles or flags
-		RESET("reset");//any kind of password/key reset
+		RESET("reset"),//any kind of password/key reset
+		DEPROVISION("deprovision"),//user deprovisioned
+		RESTORE("restore"),//user restored after being deprovisioned
+		;
 
 		private final String persistentString;
 

@@ -19,6 +19,7 @@ public enum DatarouterNavBarCategory implements NavBarCategory{
 	CHANGELOG("Changelog"),
 	JOBS("Jobs"),
 	INFO("Info"),
+	KEYS("Keys"),
 	SETTINGS("Settings"),
 	MONITORING("Monitoring"),
 	TOOLS("Tools"),

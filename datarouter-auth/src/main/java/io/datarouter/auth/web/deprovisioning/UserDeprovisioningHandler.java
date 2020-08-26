@@ -17,6 +17,7 @@ package io.datarouter.auth.web.deprovisioning;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -30,6 +31,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
+import io.datarouter.web.user.session.service.Session;
 
 public class UserDeprovisioningHandler extends BaseHandler{
 
@@ -68,9 +70,10 @@ public class UserDeprovisioningHandler extends BaseHandler{
 	@Handler
 	protected UserDeprovisioningHandlerGeneralDto deprovisionUsers(
 			@RequestBody UserDeprovisioningHandlerGeneralDto request){
+		Optional<String> currentUsername = getSessionInfo().getSession().map(Session::getUsername);
 		return Scanner.of(Objects.requireNonNull(request.usernamesToDeprovision))
 				.batch(DB_BATCH_SIZE)
-				.map(userDeprovisioningService::deprovisionUsers)
+				.map(usernames -> userDeprovisioningService.deprovisionUsers(usernames, currentUsername))
 				.concat(Scanner::of)
 				.listTo(UserDeprovisioningHandlerGeneralDto::deprovisionUsersResponse);
 	}
@@ -78,9 +81,10 @@ public class UserDeprovisioningHandler extends BaseHandler{
 	@Handler
 	protected UserDeprovisioningHandlerGeneralDto restoreUsers(
 			@RequestBody UserDeprovisioningHandlerGeneralDto request){
+		Optional<String> currentUsername = getSessionInfo().getSession().map(Session::getUsername);
 		return Scanner.of(Objects.requireNonNull(request.usernamesToRestore))
 				.batch(DB_BATCH_SIZE)
-				.map(userDeprovisioningService::restoreUsers)
+				.map(usernames -> userDeprovisioningService.restoreUsers(usernames, currentUsername))
 				.concat(Scanner::of)
 				.listTo(UserDeprovisioningHandlerGeneralDto::restoreUsersResponse);
 	}

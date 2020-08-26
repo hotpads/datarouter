@@ -16,15 +16,16 @@
 package io.datarouter.instrumentation.schema;
 
 import io.datarouter.instrumentation.response.PublishingResponseDto;
+import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationDto;
 
 public interface TableSchemaPublisher{
 
-	PublishingResponseDto add(TableBatchDto dto);
+	PublishingResponseDto add(TableBatchDto schemaDto, ServiceConfigurationDto serviceConfigDto);
 
 	class NoOpTableSchemaPublisher implements TableSchemaPublisher{
 
 		@Override
-		public PublishingResponseDto add(TableBatchDto dto){
+		public PublishingResponseDto add(TableBatchDto schemaDto, ServiceConfigurationDto serviceConfigDto){
 			return PublishingResponseDto.NO_OP;
 		}
 
