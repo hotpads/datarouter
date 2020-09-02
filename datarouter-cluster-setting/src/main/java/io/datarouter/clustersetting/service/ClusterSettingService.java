@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 
 import javax.inject.Inject;
@@ -94,27 +93,22 @@ public class ClusterSettingService{
 	}
 
 	public Scanner<ClusterSetting> streamWithValidity(ClusterSettingValidity validity){
-		Map<String,String> serverTypeByServerName = webappInstanceDao.getServerTypeByServerName();
 		return clusterSettingDao.scan()
 				.exclude(setting -> setting.getName().startsWith("datarouter"))
-				.include(setting -> getValidity(serverTypeByServerName, setting) == validity);
+				.include(setting -> getValidity(setting) == validity);
 	}
 
 	public Scanner<ClusterSettingAndValidityJspDto> scanClusterSettingAndValidityWithPrefix(String prefix){
-		Map<String,String> serverTypeByServerName = webappInstanceDao.getServerTypeByServerName();
 		Range<ClusterSettingKey> range = prefix == null
 				? Range.everything()
 				: KeyRangeTool.forPrefixWithWildcard(
 						prefix,
-						value -> new ClusterSettingKey(value, null, null, null, null));
+						value -> new ClusterSettingKey(value, null, null, null));
 		return clusterSettingDao.scan(range)
-				.map(setting -> new ClusterSettingAndValidityJspDto(setting, getValidity(serverTypeByServerName,
-						setting)));
+				.map(setting -> new ClusterSettingAndValidityJspDto(setting, getValidity(setting)));
 	}
 
-	private ClusterSettingValidity getValidity(
-			Map<String,String> serverTypeByServerName,
-			ClusterSetting databeanSetting){
+	private ClusterSettingValidity getValidity(ClusterSetting databeanSetting){
 		String name = databeanSetting.getName();
 		ClusterSettingScope scope = databeanSetting.getScope();
 
@@ -127,18 +121,19 @@ public class ClusterSettingService{
 			return ClusterSettingValidity.EXPIRED;
 		}
 
-		String serverType = null;
-		String serverName = databeanSetting.getServerName();
 		if(scope == ClusterSettingScope.SERVER_TYPE){
-			serverType = databeanSetting.getServerType();
-		}else if(scope == ClusterSettingScope.SERVER_NAME){
-			serverType = serverTypeByServerName.get(serverName);
+			String serverType = databeanSetting.getServerType();
+			try{
+				serverTypes.fromPersistentString(serverType);
+			}catch(RuntimeException e){
+				return ClusterSettingValidity.INVALID_SERVER_TYPE;
+			}
 		}
 
-		//TODO check for INVALID_SERVER_TYPE
-
 		if(scope == ClusterSettingScope.SERVER_NAME){
-			if(StringTool.isEmpty(serverType)){
+			String serverName = databeanSetting.getServerName();
+			String serverTypeFromWebappInstanceDao = webappInstanceDao.getServerTypeByServerName().get(serverName);
+			if(StringTool.isEmpty(serverTypeFromWebappInstanceDao)){
 				return ClusterSettingValidity.INVALID_SERVER_NAME;
 			}
 		}
@@ -157,15 +152,11 @@ public class ClusterSettingService{
 			return ClusterSettingValidity.REDUNDANT;
 		}
 
-		if(scope != ClusterSettingScope.APPLICATION){
-			int oldSettingAlertThresholdDays = clusterSettingRoot.oldSettingAlertThresholdDays.get();
-			Set<String> settingsExcludedFromOldSettingsAlert = clusterSettingRoot.settingsExcludedFromOldSettingsAlert
-					.get();
-			if(settingsExcludedFromOldSettingsAlert.stream()
-					.noneMatch(setting -> StringTool.containsCaseInsensitive(name, setting))){
-						if(clusterSettingLogDao.isOldDatabaseSetting(databeanSetting, oldSettingAlertThresholdDays)){
-							return ClusterSettingValidity.OLD;
-						}
+		int oldSettingAlertThresholdDays = clusterSettingRoot.oldSettingAlertThresholdDays.get();
+		if(clusterSettingRoot.settingsExcludedFromOldSettingsAlert.get().stream()
+				.noneMatch(setting -> StringTool.containsCaseInsensitive(name, setting))){
+			if(clusterSettingLogDao.isOldDatabaseSetting(databeanSetting, oldSettingAlertThresholdDays)){
+				return ClusterSettingValidity.OLD;
 			}
 		}
 
@@ -173,7 +164,7 @@ public class ClusterSettingService{
 	}
 
 	public Optional<ClusterSetting> getSettingByName(String name){
-		var prefix = new ClusterSettingKey(name, null, null, null, null);
+		var prefix = new ClusterSettingKey(name, null, null, null);
 		return clusterSettingDao.scanWithPrefix(prefix)
 				.findFirst();
 	}

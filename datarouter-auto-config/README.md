@@ -9,7 +9,7 @@ datarouter-auto-config is a tool that can be used to do any type of automatic co
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auto-config</artifactId>
-	<version>0.0.46</version>
+	<version>0.0.47</version>
 </dependency>
 ```
 

@@ -109,7 +109,7 @@ public class ClusterSettingFinder implements SettingFinder{
 	}
 
 	public List<ClusterSetting> getAllSettingsWithName(String name){
-		var prefix = new ClusterSettingKey(name, null, null, null, null);
+		var prefix = new ClusterSettingKey(name, null, null, null);
 		return clusterSettingDao.scanWithPrefix(prefix).list();
 	}
 
@@ -122,14 +122,6 @@ public class ClusterSettingFinder implements SettingFinder{
 				ClusterSettingScope.DEFAULT_SCOPE,
 				ServerType.UNKNOWN
 				.getPersistentString(),
-				EMPTY_STRING,
-				EMPTY_STRING));
-
-		keys.add(new ClusterSettingKey(
-				name,
-				ClusterSettingScope.CLUSTER,
-				ServerType.ALL.getPersistentString(),
-				EMPTY_STRING,
 				EMPTY_STRING));
 
 		ClusterSettingKey serverTypeSetting = getKeyForServerType(name);
@@ -142,10 +134,6 @@ public class ClusterSettingFinder implements SettingFinder{
 			keys.add(serverNameSetting);
 		}
 
-		ClusterSettingKey applicationSetting = getKeyForApplication(name);
-		if(applicationSetting != null){
-			keys.add(applicationSetting);
-		}
 		return keys;
 	}
 
@@ -158,7 +146,6 @@ public class ClusterSettingFinder implements SettingFinder{
 				name,
 				ClusterSettingScope.SERVER_TYPE,
 				serverType.getPersistentString(),
-				EMPTY_STRING,
 				EMPTY_STRING);
 	}
 
@@ -171,21 +158,7 @@ public class ClusterSettingFinder implements SettingFinder{
 				name,
 				ClusterSettingScope.SERVER_NAME,
 				ServerType.UNKNOWN.getPersistentString(),
-				serverName,
-				EMPTY_STRING);
-	}
-
-	private ClusterSettingKey getKeyForApplication(String name){
-		String application = clusterSettingFinderConfig.getApplication();
-		if(StringTool.isEmpty(application)){
-			return null;
-		}
-		return new ClusterSettingKey(
-				name,
-				ClusterSettingScope.APPLICATION,
-				ServerType.UNKNOWN.getPersistentString(),
-				EMPTY_STRING,
-				application);
+				serverName);
 	}
 
 }

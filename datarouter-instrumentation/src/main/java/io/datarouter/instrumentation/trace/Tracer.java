@@ -28,7 +28,10 @@ public interface Tracer{
 	Integer getDiscardedThreadCount();
 	void incrementDiscardedThreadCount(int discardedThreadCount);
 
-	void createAndStartThread(String name, long queueTimeMs);
+	default void createAndStartThread(String name, long queueTimeMs){
+		createThread(name, queueTimeMs);
+		startThread();
+	}
 	void createThread(String name, long queueTimeMs);
 	void startThread();
 	void addThread(TraceThreadDto thread);
@@ -44,5 +47,7 @@ public interface Tracer{
 
 	boolean getForceSave();
 	void setForceSave();
+
+	Tracer createChildTracer();
 
 }

@@ -44,44 +44,38 @@ public class DatarouterClusterSettingConfigScanner{
 	private DatarouterClusterSettingPaths paths;
 
 	public ConfigScanDto checkForRedundantClusterSettings(){
-		List<String> settings = clusterSettingService.streamWithValidity(ClusterSettingValidity.REDUNDANT)
-				.map(ClusterSetting::getName)
-				.distinct()
-				.list();
-		if(settings.isEmpty()){
-			return ConfigScanResponseTool.buildEmptyResponse();
-		}
-		String header = "Found " + settings.size() + " redundant cluster settings";
-		return Scanner.of(settings)
-				.map(this::makeBrowseSettingLink)
-				.listTo(links -> ConfigScanResponseTool.buildResponse(header, links));
+		return scanClusterSettingWithValidity(ClusterSettingValidity.REDUNDANT);
 	}
 
 	public ConfigScanDto checkForNonexistentClusterSettings(){
-		List<String> settings = clusterSettingService.streamWithValidity(ClusterSettingValidity.EXPIRED)
-				.map(ClusterSetting::getName)
-				.distinct()
-				.list();
-		if(settings.isEmpty()){
-			return ConfigScanResponseTool.buildEmptyResponse();
-		}
-		String header = "Found " + settings.size() + " nonexistent cluster settings";
-		return Scanner.of(settings)
-				.map(this::makeBrowseSettingLink)
-				.listTo(links -> ConfigScanResponseTool.buildResponse(header, links));
+		return scanClusterSettingWithValidity(ClusterSettingValidity.EXPIRED);
+	}
+
+	public ConfigScanDto checkForInvalidServerTypeClusterSettings(){
+		return scanClusterSettingWithValidity(ClusterSettingValidity.INVALID_SERVER_TYPE);
 	}
 
 	public ConfigScanDto checkForOldClusterSettings(){
-		int oldSettingAlertThresholdDays = clusterSettingsRoot.oldSettingAlertThresholdDays.get();
-		List<String> settings = clusterSettingService.streamWithValidity(ClusterSettingValidity.OLD)
+		String additionalMessage = ", older than the alert threshold of "
+				+ clusterSettingsRoot.oldSettingAlertThresholdDays.get() + " days";
+		return scanClusterSettingWithValidity(ClusterSettingValidity.OLD, additionalMessage);
+	}
+
+	private ConfigScanDto scanClusterSettingWithValidity(ClusterSettingValidity validity){
+		return scanClusterSettingWithValidity(validity, "");
+	}
+
+	private ConfigScanDto scanClusterSettingWithValidity(ClusterSettingValidity validity, String additionalMessage){
+		List<String> settings = clusterSettingService.streamWithValidity(validity)
 				.map(ClusterSetting::getName)
 				.distinct()
 				.list();
 		if(settings.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
-		String header = "Found " + settings.size() + " cluster settings older than " + oldSettingAlertThresholdDays
-				+ " days";
+		int size = settings.size();
+		String header = "Found " + size + " " + validity.persistentString + " cluster setting" + (size > 1 ? "s" : "")
+				+ (additionalMessage.isEmpty() ? "" : " " + additionalMessage);
 		return Scanner.of(settings)
 				.map(this::makeBrowseSettingLink)
 				.listTo(links -> ConfigScanResponseTool.buildResponse(header, links));

@@ -277,13 +277,13 @@ public class ClusterSettingsHandler extends BaseHandler{
 
 		Map<String,List<ClusterSettingJspDto>> customSettingsByName = new HashMap<>();
 		for(CachedSetting<?> setting : settingsList){
-			ClusterSettingKey settingKey = new ClusterSettingKey(setting.getName(), null, null, null, null);
+			ClusterSettingKey settingKey = new ClusterSettingKey(setting.getName(), null, null, null);
 			clusterSettingDao.scanWithPrefix(settingKey)
 					.map(ClusterSettingJspDto::new)
 					.flush(customSettings -> customSettingsByName.put(setting.getName(), customSettings));
 		}
 
-		mav.put("listSettings", Scanner.of(settingsList).map(setting -> new SettingJspDto(setting)).list());
+		mav.put("listSettings", Scanner.of(settingsList).map(SettingJspDto::new).list());
 		mav.put("mapListsCustomSettings", customSettingsByName);
 
 		return mav;
@@ -296,7 +296,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 
 	/*-------------------------------- private -------------------------------*/
 
-	public ClusterSettingActionResultJson putSettingFromParams(){
+	private ClusterSettingActionResultJson putSettingFromParams(){
 		ClusterSettingKey clusterSettingKey = parseClusterSettingKeyFromParams();
 		String comment = parseCommentFromParams();
 		String value = params.optional("value").orElse(null);
@@ -354,9 +354,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 		// allow unrecognized serverType
 		String serverTypePersistentString = params.required("serverType");
 		String serverName = params.optional("serverName").orElse("");
-		String application = params.optional("application").orElse("");
-		ClusterSettingScope scope = ClusterSettingScope.fromParams(serverTypePersistentString, serverName, application);
-		return new ClusterSettingKey(name, scope, serverTypePersistentString, serverName, application);
+		ClusterSettingScope scope = ClusterSettingScope.fromParams(serverTypePersistentString, serverName);
+		return new ClusterSettingKey(name, scope, serverTypePersistentString, serverName);
 	}
 
 	private void sendEmail(ClusterSettingLog log, String oldValue){
@@ -376,9 +375,11 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private static String buildLegend(){
 		var legend = new J2HtmlLegendTable()
 					.withClass("table table-sm my-4 border");
-		ClusterSettingValidity.stream().forEach(validity -> {
-			legend.withEntry(validity.persistentString, validity.description, validity.color);
-		});
+		ClusterSettingValidity.stream()
+				.forEach(validity -> legend.withEntry(
+						validity.persistentString,
+						validity.description,
+						validity.color));
 		return legend.build()
 				.renderFormatted();
 	}
@@ -417,9 +418,6 @@ public class ClusterSettingsHandler extends BaseHandler{
 			if(StringTool.notEmpty(log.getServerName())){
 				kvs.add(new Pair<>("serverName", makeText(log.getServerName())));
 			}
-			if(StringTool.notEmpty(log.getApplication())){
-				kvs.add(new Pair<>("application", makeText(log.getApplication())));
-			}
 			if(ClusterSettingLogAction.INSERTED != log.getAction()){
 				kvs.add(new Pair<>("old value", makeText(oldValue)));
 			}
@@ -433,7 +431,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 
 			return new J2HtmlEmailTable<Pair<String,DomContent>>()
 					.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-					.withColumn(new J2HtmlEmailTableColumn<>(null, row -> row.getRight()))
+					.withColumn(new J2HtmlEmailTableColumn<>(null, Pair::getRight))
 					.build(kvs);
 		}
 

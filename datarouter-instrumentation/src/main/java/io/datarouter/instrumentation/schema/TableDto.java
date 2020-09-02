@@ -22,6 +22,7 @@ public class TableDto{
 
 	public final String serviceName;
 	public final String clientName;
+	public final String clientType;
 	public final String tableName;
 	public final List<FieldDto> fields;
 	public final Instant created;
@@ -30,12 +31,14 @@ public class TableDto{
 	public TableDto(
 			String serviceName,
 			String clientName,
+			String clientType,
 			String tableName,
 			List<FieldDto> fields,
 			Instant created,
 			Boolean isSystemTable){
 		this.serviceName = serviceName;
 		this.clientName = clientName;
+		this.clientType = clientType;
 		this.tableName = tableName;
 		this.fields = fields;
 		this.created = created;

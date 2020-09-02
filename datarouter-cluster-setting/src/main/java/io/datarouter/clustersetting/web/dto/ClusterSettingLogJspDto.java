@@ -35,7 +35,6 @@ public class ClusterSettingLogJspDto{
 	private final ClusterSettingScope scope;
 	private final String serverType;
 	private final String serverName;
-	private final String application;
 	private final String value;
 	private final ClusterSettingLogAction action;
 	private final String changedBy;
@@ -47,7 +46,6 @@ public class ClusterSettingLogJspDto{
 		this.scope = clusterSettingLog.getScope();
 		this.serverType = clusterSettingLog.getServerType();
 		this.serverName = clusterSettingLog.getServerName();
-		this.application = clusterSettingLog.getApplication();
 		this.value = clusterSettingLog.getValue();
 		this.action = clusterSettingLog.getAction();
 		this.changedBy = clusterSettingLog.getChangedBy();
@@ -83,10 +81,6 @@ public class ClusterSettingLogJspDto{
 		return serverName;
 	}
 
-	public String getApplication(){
-		return application;
-	}
-
 	public String getValue(){
 		return value;
 	}
@@ -113,10 +107,6 @@ public class ClusterSettingLogJspDto{
 
 	public String getHtmlSafeServerName(){
 		return htmlSafe(serverName);
-	}
-
-	public String getHtmlSafeApplication(){
-		return htmlSafe(application);
 	}
 
 	public String getHtmlSafeValue(){

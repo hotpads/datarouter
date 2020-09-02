@@ -15,13 +15,10 @@
  */
 package io.datarouter.secret.service;
 
-import javax.inject.Singleton;
-
 public interface SecretOpRecorder{
 
 	void recordOp(String namespace, String secretName, SecretOp op, SecretOpReason reason);
 
-	@Singleton
 	public static class NoOpSecretOpRecorder implements SecretOpRecorder{
 
 		@Override

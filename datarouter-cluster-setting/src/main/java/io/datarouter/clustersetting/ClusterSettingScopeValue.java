@@ -33,10 +33,6 @@ public class ClusterSettingScopeValue implements Comparable<ClusterSettingScopeV
 			this.value = "";
 			this.displayString = "Default Scope";
 			break;
-		case CLUSTER:
-			this.value = "";
-			this.displayString = "Cluster Scope";
-			break;
 		case SERVER_TYPE:
 			this.value = setting.getServerType();
 			this.displayString = "Server Type: " + setting.getServerType();
@@ -44,10 +40,6 @@ public class ClusterSettingScopeValue implements Comparable<ClusterSettingScopeV
 		case SERVER_NAME:
 			this.value = setting.getServerName();
 			this.displayString = "Server Name: " + setting.getServerName();
-			break;
-		case APPLICATION:
-			this.value = setting.getApplication();
-			this.displayString = "Webapp Name: " + setting.getApplication();
 			break;
 		default:
 			throw new RuntimeException("Failed to construct ClusterSettingScopeValue from ClusterSettingKey: "
@@ -76,14 +68,10 @@ public class ClusterSettingScopeValue implements Comparable<ClusterSettingScopeV
 		ClusterSettingScope scope = ClusterSettingScope.fromPersistentStringStatic(parts[0]);
 		switch(scope){
 		case DEFAULT_SCOPE:
-		case CLUSTER:
-			return new ClusterSettingScopeValue(new ClusterSettingKey(null, scope, null, null, null));
 		case SERVER_TYPE:
-			return new ClusterSettingScopeValue(new ClusterSettingKey(null, scope, parts[1], null, null));
+			return new ClusterSettingScopeValue(new ClusterSettingKey(null, scope, parts[1], null));
 		case SERVER_NAME:
-			return new ClusterSettingScopeValue(new ClusterSettingKey(null, scope, null, parts[1], null));
-		case APPLICATION:
-			return new ClusterSettingScopeValue(new ClusterSettingKey(null, scope, null, null, parts[1]));
+			return new ClusterSettingScopeValue(new ClusterSettingKey(null, scope, null, parts[1]));
 		default:
 			throw new RuntimeException("Failed to parse ClusterSettingScopeValue from string: " + persistentString);
 		}
@@ -93,18 +81,11 @@ public class ClusterSettingScopeValue implements Comparable<ClusterSettingScopeV
 		switch(scope){
 		case DEFAULT_SCOPE:
 			return new ClusterSettingKey(settingName, scope, ServerType.UNKNOWN.getPersistentString(),
-					EMPTY_STRING, EMPTY_STRING);
-		case CLUSTER:
-			return new ClusterSettingKey(settingName, scope, ServerType.ALL.getPersistentString(), EMPTY_STRING,
 					EMPTY_STRING);
 		case SERVER_TYPE:
-			return new ClusterSettingKey(settingName, scope, value, EMPTY_STRING, EMPTY_STRING);
+			return new ClusterSettingKey(settingName, scope, value, EMPTY_STRING);
 		case SERVER_NAME:
-			return new ClusterSettingKey(settingName, scope, ServerType.UNKNOWN.getPersistentString(), value,
-					EMPTY_STRING);
-		case APPLICATION:
-			return new ClusterSettingKey(settingName, scope, ServerType.UNKNOWN.getPersistentString(),
-					EMPTY_STRING, value);
+			return new ClusterSettingKey(settingName, scope, ServerType.UNKNOWN.getPersistentString(), value);
 		default:
 			return null;
 		}

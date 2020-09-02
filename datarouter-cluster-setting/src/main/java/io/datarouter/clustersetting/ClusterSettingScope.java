@@ -15,8 +15,6 @@
  */
 package io.datarouter.clustersetting;
 
-import java.util.Objects;
-
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
@@ -24,11 +22,9 @@ import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 
 public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
-	DEFAULT_SCOPE("defaultScope", 100000),
-	CLUSTER("cluster", 10000),
-	SERVER_TYPE("serverType", 1000),
-	SERVER_NAME("serverName", 100),
-	APPLICATION("application", 10);
+	DEFAULT_SCOPE("defaultScope", 1000),
+	SERVER_TYPE("serverType", 100),
+	SERVER_NAME("serverName", 10);
 
 	private final String persistentString;
 	private final int specificity;
@@ -52,23 +48,16 @@ public enum ClusterSettingScope implements StringEnum<ClusterSettingScope>{
 		return fromPersistentStringStatic(str);
 	}
 
-	public static ClusterSettingScope fromParams(ServerType serverType, String serverName, String application){
-		return fromParams(serverType.getPersistentString(), serverName, application);
+	public static ClusterSettingScope fromParams(ServerType serverType, String serverName){
+		return fromParams(serverType.getPersistentString(), serverName);
 	}
 
-	public static ClusterSettingScope fromParams(
-			String serverTypePersistentString,
-			String serverName,
-			String application){
-		if(StringTool.notEmpty(application)){
-			return ClusterSettingScope.APPLICATION;
-		}else if(StringTool.notEmpty(serverName)){
+	public static ClusterSettingScope fromParams(String serverTypePersistentString, String serverName){
+		if(StringTool.notEmpty(serverName)){
 			return ClusterSettingScope.SERVER_NAME;
 		}else if(ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), serverTypePersistentString)
 				&& ObjectTool.notEquals(ServerType.ALL.getPersistentString(), serverTypePersistentString)){
 			return ClusterSettingScope.SERVER_TYPE;
-		}else if(Objects.equals(ServerType.ALL.getPersistentString(), serverTypePersistentString)){
-			return ClusterSettingScope.CLUSTER;
 		}
 		return ClusterSettingScope.DEFAULT_SCOPE;
 	}

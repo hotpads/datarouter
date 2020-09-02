@@ -21,10 +21,12 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.secret.service.SecretOp;
 import io.datarouter.secret.service.SecretOpReason;
 import io.datarouter.secret.service.SecretOpRecorder;
+import io.datarouter.secret.service.SecretOpRecorderSupplier;
 import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecord.DatarouterSecretOpRecordFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -66,6 +68,19 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 			reasonString = StringTool.trimToSize(reasonString, CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
 		}
 		node.put(new DatarouterSecretOpRecord(namespace, name, secretOp, reason.type, reasonString));
+	}
+
+	@Singleton
+	public static class DaoSecretOpRecorderSupplier implements SecretOpRecorderSupplier{
+
+		@Inject
+		private DatarouterInjector injector;
+
+		@Override
+		public SecretOpRecorder get(){
+			return injector.getInstance(DatarouterSecretOpRecordDao.class);
+		}
+
 	}
 
 }

@@ -32,12 +32,14 @@ import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobPackage;
-import io.datarouter.metric.MetricDashboardRegistry;
-import io.datarouter.metric.MetricLinkBuilder;
-import io.datarouter.metric.MetricName;
-import io.datarouter.metric.MetricNameType;
-import io.datarouter.metric.MetricType;
 import io.datarouter.metric.dto.MetricDashboardDto;
+import io.datarouter.metric.dto.MetricName;
+import io.datarouter.metric.dto.MiscMetricLinksDto;
+import io.datarouter.metric.links.MetricDashboardRegistry;
+import io.datarouter.metric.links.MetricLinkBuilder;
+import io.datarouter.metric.links.MiscMetricsLinksRegistry;
+import io.datarouter.metric.types.MetricNameType;
+import io.datarouter.metric.types.MetricType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
@@ -67,6 +69,8 @@ public class ViewMetricNameService{
 	private MetricLinkBuilder linkBuilder;
 	@Inject
 	private MetricDashboardRegistry dashboardRegistry;
+	@Inject
+	private MiscMetricsLinksRegistry miscMetricLinksRegistry;
 
 	public ContainerTag makeMetricNameTable(String header, List<MetricName> rows){
 		if(rows.size() == 0){
@@ -194,6 +198,26 @@ public class ViewMetricNameService{
 		return td(a(i().withClass("fa fa-link"))
 				.withClass("btn btn-link w-100 py-0")
 				.withHref(link));
+	}
+
+	public ContainerTag miscMetricLinksTable(){
+		var links = miscMetricLinksRegistry.miscMetricLinks;
+		if(links.size() == 0){
+			return div();
+		}
+		var h2 = h2("Misc Metric Links");
+		links.sort(Comparator.comparing(dto -> dto.display));
+		var table = new J2HtmlTable<MiscMetricLinksDto>()
+				.withClasses("table table-sm table-striped my-4 border")
+				.withHtmlColumn(th("Metric Name").withClass("w-50"), row -> td(row.display))
+				.withHtmlColumn(th("").withClass("w-25"), row -> {
+					return td(a(i().withClass("fa fa-link"))
+							.withClass("btn btn-link w-100 py-0")
+							.withHref(row.link));
+				})
+				.build(links);
+		return div(h2, table)
+				.withClass("container my-4");
 	}
 
 }

@@ -1,7 +1,7 @@
 # datarouter-redis
 
 datarouter-redis is a simple client that implements the MapStorage interface with and talks to a Redis instance with
- the jedis client.
+ the lettuce.io client.
 
 ## Installation with Maven
 
@@ -9,7 +9,7 @@ datarouter-redis is a simple client that implements the MapStorage interface wit
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-redis</artifactId>
-	<version>0.0.46</version>
+	<version>0.0.47</version>
 </dependency>
 ```
 

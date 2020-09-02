@@ -34,10 +34,13 @@ import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 
 	private String value;
+	private String application;
 
 	public static class FieldKeys{
 		public static final StringFieldKey value = new StringFieldKey("value")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
+		public static final StringFieldKey application = new StringFieldKey("application")
+				.withSize(CommonFieldSizes.LENGTH_50);
 	}
 
 	public static class ClusterSettingFielder extends BaseDatabeanFielder<ClusterSettingKey,ClusterSetting>{
@@ -48,17 +51,20 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterSetting databean){
-			return List.of(new StringField(FieldKeys.value, databean.value));
+			return List.of(
+					new StringField(FieldKeys.value, databean.value),
+					new StringField(FieldKeys.application, databean.application));
 		}
 	}
 
 	public ClusterSetting(){
-		super(new ClusterSettingKey(null, null, null, null, null));
+		super(new ClusterSettingKey(null, null, null, null));
 	}
 
 	public ClusterSetting(ClusterSettingKey key, String value){
 		super(key);
 		this.value = value;
+		application = null;
 	}
 
 	public ClusterSetting(
@@ -68,8 +74,9 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 			String serverName,
 			String application,
 			String value){
-		super(new ClusterSettingKey(name, scope, serverType, serverName, application));
+		super(new ClusterSettingKey(name, scope, serverType, serverName));
 		this.value = value;
+		this.application = application;
 	}
 
 	@Override
@@ -105,7 +112,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 			Setting<T> settingForTypeAndDefault){
 		return clusterSetting
 				.map(setting -> setting.getTypedValue(settingForTypeAndDefault))
-				.orElse(settingForTypeAndDefault.getDefaultValue());
+				.orElseGet(settingForTypeAndDefault::getDefaultValue);
 	}
 
 	/*------------------------------- methods -------------------------------*/
@@ -156,11 +163,11 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 	}
 
 	public String getApplication(){
-		return getKey().getApplication();
+		return application;
 	}
 
 	public void setApplication(String application){
-		getKey().setApplication(application);
+		this.application = application;
 	}
 
 	public String getName(){

@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.redis.client.RedisClientManager;
+import io.datarouter.client.redis.config.RedisExecutors.RedisBatchOpExecutor;
 import io.datarouter.client.redis.node.RedisNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
@@ -55,6 +56,8 @@ public class RedisClientNodeFactory extends BaseClientNodeFactory implements Tal
 	private RedisClientManager redisClientManager;
 	@Inject
 	private RedisNodeFactory redisNodeFactory;
+	@Inject
+	private RedisBatchOpExecutor executor;
 
 	public class RedisWrappedNodeFactory<
 			EK extends EntityKey<EK>,
@@ -68,7 +71,7 @@ public class RedisClientNodeFactory extends BaseClientNodeFactory implements Tal
 		public PhysicalMapStorageNode<PK,D,F> createNode(
 				EntityNodeParams<EK,E> entityNodeParams,
 				NodeParams<PK,D,F> nodeParams){
-			return new RedisNode<>(nodeParams, redisClientType, redisClientManager, nodeParams.getClientId());
+			return new RedisNode<>(nodeParams, redisClientType, redisClientManager, nodeParams.getClientId(), executor);
 		}
 
 		@Override

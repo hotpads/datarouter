@@ -24,6 +24,7 @@ import io.datarouter.secretweb.service.DatarouterPropertiesLocalStorageConfig;
 import io.datarouter.secretweb.service.DefaultHandlerSerializer;
 import io.datarouter.secretweb.service.ServerTypeDetectorSecretStageDetector;
 import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao;
+import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao.DaoSecretOpRecorderSupplier;
 import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecordDao.DatarouterSecretOpRecordDaoParams;
 import io.datarouter.secretweb.web.DefaultSecretHandlerPermissions;
 import io.datarouter.secretweb.web.SecretHandlerPermissions;
@@ -85,7 +86,7 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 			this.defaultClientId = defaultClientId;
 			setSecretNamespacer(DatarouterPropertiesAndServiceSecretNamespacer.class);
 			setSecretStageDetector(ServerTypeDetectorSecretStageDetector.class);
-			setSecretOpRecorder(DatarouterSecretOpRecordDao.class);
+			setSecretOpRecorderSupplier(DaoSecretOpRecorderSupplier.class);
 			setLocalStorageConfig(DatarouterPropertiesLocalStorageConfig.class);
 			setJsonSerializer(DefaultHandlerSerializer.class);
 		}

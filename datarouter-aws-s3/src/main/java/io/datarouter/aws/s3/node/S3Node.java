@@ -15,9 +15,6 @@
  */
 package io.datarouter.aws.s3.node;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -36,7 +33,6 @@ public class S3Node<
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
 implements PhysicalObjectStorageNode<PK,D,F>, ObjectStorageWriter<PK,D>{
-	private static final Logger logger = LoggerFactory.getLogger(S3Node.class);
 
 	private final S3DirectoryManager s3DirectoryManager;
 

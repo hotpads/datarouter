@@ -122,7 +122,7 @@ public abstract class SettingNode{
 		return name;
 	}
 
-	public List<SettingNode> getDescendanceByName(String nameParam){
+	public List<SettingNode> getDescendantsByName(String nameParam){
 		ArrayList<SettingNode> list = new ArrayList<>();
 		if(getName().equals(nameParam)){
 			list.add(this);
@@ -133,7 +133,7 @@ public abstract class SettingNode{
 		String nextChildPath = getName() + nextChildShortName.substring(0, index + 1);
 		if(getChildren().containsKey(nextChildPath)){
 			list.add(this);
-			list.addAll(getChildren().get(nextChildPath).getDescendanceByName(nameParam));
+			list.addAll(getChildren().get(nextChildPath).getDescendantsByName(nameParam));
 		}
 		return list;
 	}

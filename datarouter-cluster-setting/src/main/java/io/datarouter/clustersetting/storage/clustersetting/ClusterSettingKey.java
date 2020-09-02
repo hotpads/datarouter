@@ -37,7 +37,6 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 	private ClusterSettingScope scope;
 	private String serverType;
 	private String serverName;
-	private String application;
 
 	public static class FieldKeys{
 		public static final StringFieldKey name = new StringFieldKey("name");
@@ -47,21 +46,17 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 				.withSize(LEN_SERVER_TYPE);
 		public static final StringFieldKey serverName = new StringFieldKey("serverName")
 				.withSize(DEFAULT_MEDIUM_STRING_LENGTH);
-		public static final StringFieldKey application = new StringFieldKey("application")
-				.withSize(DEFAULT_MEDIUM_STRING_LENGTH);
 	}
 
 
 	ClusterSettingKey(){
 	}
 
-	public ClusterSettingKey(String name, ClusterSettingScope scope, String serverType, String serverName,
-			String application){
+	public ClusterSettingKey(String name, ClusterSettingScope scope, String serverType, String serverName){
 		this.name = name;
 		this.scope = scope;
 		this.serverType = serverType;
 		this.serverName = serverName;
-		this.application = application;
 	}
 
 	@Override
@@ -70,21 +65,16 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 				new StringField(FieldKeys.name, name),
 				new StringEnumField<>(FieldKeys.scope, scope),
 				new StringField(FieldKeys.serverType, serverType),
-				new StringField(FieldKeys.serverName, serverName),
-				new StringField(FieldKeys.application, application));
+				new StringField(FieldKeys.serverName, serverName));
 	}
 
 	public boolean appliesToWebappInstance(WebappInstance app){
 		if(ClusterSettingScope.DEFAULT_SCOPE == scope){
 			return true;
-		}else if(ClusterSettingScope.CLUSTER == scope){
-			return true;
 		}else if(ClusterSettingScope.SERVER_TYPE == scope){
 			return Objects.equals(serverType, app.getServerType());
 		}else if(ClusterSettingScope.SERVER_NAME == scope){
 			return Objects.equals(serverName, app.getKey().getServerName());
-		}else if(ClusterSettingScope.APPLICATION == scope){
-			return Objects.equals(application, app.getKey().getWebappName());
 		}
 		throw new RuntimeException("unknown key.scope");
 	}
@@ -111,14 +101,6 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 
 	public void setServerName(String serverName){
 		this.serverName = serverName;
-	}
-
-	public String getApplication(){
-		return application;
-	}
-
-	public void setApplication(String application){
-		this.application = application;
 	}
 
 	public String getName(){

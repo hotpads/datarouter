@@ -32,18 +32,28 @@ public class MemorySorter<T>{
 	public final LinkedHashMap<String,SortOption<T>> sortOptions = new LinkedHashMap<>();
 
 	public <U extends Comparable<? super U>>
-	MemorySorter<T> withAsc(String name, Function<? super T,? extends U> keyExtractor){
+	MemorySorter<T> withAsc(
+			String name,
+			Function<? super T,? extends U> keyExtractor){
 		return with(name, keyExtractor, false);
 	}
 
 	public <U extends Comparable<? super U>>
-	MemorySorter<T> withDesc(String name, Function<? super T,? extends U> keyExtractor){
+	MemorySorter<T> withDesc(
+			String name,
+			Function<? super T,? extends U> keyExtractor){
 		return with(name, keyExtractor, true);
 	}
 
 	private <U extends Comparable<? super U>>
-	MemorySorter<T> with(String name, Function<? super T,? extends U> keyExtractor, boolean reversed){
-		Comparator<T> comparator = Comparator.nullsFirst(Comparator.comparing(keyExtractor));
+	MemorySorter<T> with(
+			String name,
+			Function<? super T,? extends U> keyExtractor,
+			boolean reversed){
+		Comparator<? super T> keyComparator = Comparator.comparing(
+				keyExtractor,
+				Comparator.nullsFirst(Comparator.naturalOrder()));
+		Comparator<T> comparator = Comparator.nullsFirst(keyComparator);
 		if(reversed){
 			comparator = comparator.reversed();
 		}

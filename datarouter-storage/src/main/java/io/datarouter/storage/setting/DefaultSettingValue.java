@@ -40,47 +40,37 @@ public class DefaultSettingValue<T>{
 
 	/*--------- builder ---------------*/
 
-	public DefaultSettingValue<T> withEnvironmentType(Supplier<DatarouterEnvironmentType> environmentType, T value){
-		return withEnvironmentType(environmentType.get(), value);
-	}
-
-	public DefaultSettingValue<T> withEnvironmentType(DatarouterEnvironmentType environmentType, T value){
-		valueByEnvironmentType.put(environmentType, value);
-		return this;
-	}
-
-	public DefaultSettingValue<T> withEnvironmentName(Supplier<DatarouterEnvironmentType> environmentType,
-		String environment, T value){
-		return withEnvironmentName(environmentType.get(), environment, value);
-	}
-
-	public DefaultSettingValue<T> withEnvironmentName(DatarouterEnvironmentType environmentType, String environment,
-		T value){
-		valueByEnvironmentNameByEnvironmentType.putIfAbsent(environmentType, new HashMap<>());
-		valueByEnvironmentNameByEnvironmentType.get(environmentType).put(environment, value);
-		return this;
-	}
-
-	public DefaultSettingValue<T> withServerType(Supplier<DatarouterEnvironmentType> environmentType,
-			ServerType serverType, T value){
-		return withServerType(environmentType.get(), serverType, value);
-	}
-
-	public DefaultSettingValue<T> withServerType(DatarouterEnvironmentType environmentType, ServerType serverType,
+	public DefaultSettingValue<T> withEnvironmentType(
+			Supplier<DatarouterEnvironmentType> environmentTypeSupplier,
 			T value){
-		valueByServerTypeByEnvironmentType.putIfAbsent(environmentType, new HashMap<>());
-		valueByServerTypeByEnvironmentType.get(environmentType).put(serverType.getPersistentString(), value);
+		valueByEnvironmentType.put(environmentTypeSupplier.get(), value);
 		return this;
 	}
 
-	public DefaultSettingValue<T> withServerName(Supplier<DatarouterEnvironmentType> environmentType, String serverName,
+	public DefaultSettingValue<T> withEnvironmentName(
+			Supplier<DatarouterEnvironmentType> environmentTypeSupplier,
+			String environment,
 			T value){
-		return withServerName(environmentType.get(), serverName, value);
+		valueByEnvironmentNameByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), $ -> new HashMap<>())
+				.put(environment, value);
+		return this;
 	}
 
-	public DefaultSettingValue<T> withServerName(DatarouterEnvironmentType environmentType, String serverName, T value){
-		valueByServerNameByEnvironmentType.putIfAbsent(environmentType, new HashMap<>());
-		valueByServerNameByEnvironmentType.get(environmentType).put(serverName, value);
+	public DefaultSettingValue<T> withServerType(
+			Supplier<DatarouterEnvironmentType> environmentTypeSupplier,
+			ServerType serverType,
+			T value){
+		valueByServerTypeByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), $ -> new HashMap<>())
+				.put(serverType.getPersistentString(), value);
+		return this;
+	}
+
+	public DefaultSettingValue<T> withServerName(
+			Supplier<DatarouterEnvironmentType> environmentTypeSupplier,
+			String serverName,
+			T value){
+		valueByServerNameByEnvironmentType.computeIfAbsent(environmentTypeSupplier.get(), $ -> new HashMap<>())
+				.put(serverName, value);
 		return this;
 	}
 

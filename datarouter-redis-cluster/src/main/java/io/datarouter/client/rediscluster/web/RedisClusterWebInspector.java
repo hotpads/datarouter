@@ -19,13 +19,15 @@ import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
-import static j2html.TagCreator.pre;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.rediscluster.RedisClusterClientType;
 import io.datarouter.client.rediscluster.client.RedisClusterClientManager;
@@ -38,9 +40,9 @@ import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.ContainerTag;
-import redis.clients.jedis.JedisPool;
 
 public class RedisClusterWebInspector implements DatarouterClientWebInspector{
+	private static final Logger logger = LoggerFactory.getLogger(RedisClusterWebInspector.class);
 
 	@Inject
 	private RedisClusterClientManager clientManager;
@@ -73,14 +75,16 @@ public class RedisClusterWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag buildOverview(ClientId clientId){
-		Set<String> nodes = clientManager.getJedis(clientId).getClusterNodes().keySet();
-		ContainerTag clusterInfo = clientManager.getJedis(clientId).getClusterNodes().values().stream()
-				.findFirst()
-				.map(JedisPool::getResource)
-				.map(jedis -> div(pre(jedis.clusterInfo()), pre(jedis.info())))
-				.get();
+		String clusterNodes = "";
+		String clusterInfo = "";
+		try{
+			clusterNodes = clientManager.getClient(clientId).async().clusterNodes().get();
+			clusterInfo = clientManager.getClient(clientId).async().clusterInfo().get();
+		}catch(InterruptedException | ExecutionException e){
+			logger.warn("", e);
+		}
 		return dl(
-				dt("Nodes:"), dd(String.join("\n", nodes)),
+				dt("Nodes:"), dd(clusterNodes),
 				dt("Info:"), dd(clusterInfo));
 	}
 

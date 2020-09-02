@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric;
+package io.datarouter.metric.types;
 
-public enum MetricType{
-	COUNT("count"),
-	GAUGE("gauge"),
+public enum MetricNameType{
+	AVAILABLE("Available Metric"),
+	EXACT("Exact Metric"),
 	;
 
 	public final String type;
 
-	MetricType(String type){
+	MetricNameType(String type){
 		this.type = type;
 	}
 

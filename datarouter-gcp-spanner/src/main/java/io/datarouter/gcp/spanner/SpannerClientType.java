@@ -45,4 +45,9 @@ public class SpannerClientType implements ClientType<SpannerClientNodeFactory,Sp
 		return SpannerClientManager.class;
 	}
 
+	@Override
+	public boolean supportsOffsetSampling(){
+		return true;
+	}
+
 }

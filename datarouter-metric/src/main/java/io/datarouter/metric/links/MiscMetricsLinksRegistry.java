@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric;
+package io.datarouter.metric.links;
 
 import java.util.List;
 
 import javax.inject.Singleton;
 
-import io.datarouter.metric.dto.MetricDashboardDto;
+import io.datarouter.metric.dto.MiscMetricLinksDto;
 
 @Singleton
-public class MetricDashboardRegistry{
+public class MiscMetricsLinksRegistry{
 
-	public final List<MetricDashboardDto> dashboards;
+	public final List<MiscMetricLinksDto> miscMetricLinks;
 
-	public MetricDashboardRegistry(List<MetricDashboardDto> dashboards){
-		this.dashboards = dashboards;
+	public MiscMetricsLinksRegistry(List<MiscMetricLinksDto> miscMetricLinks){
+		this.miscMetricLinks = miscMetricLinks;
 	}
 
 }

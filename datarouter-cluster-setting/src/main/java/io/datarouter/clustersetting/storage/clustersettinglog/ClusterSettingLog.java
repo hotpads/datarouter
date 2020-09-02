@@ -62,7 +62,7 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 					new StringEnumField<>(ClusterSettingKey.FieldKeys.scope, databean.scope),
 					new StringField(ClusterSettingKey.FieldKeys.serverType, databean.serverType),
 					new StringField(ClusterSettingKey.FieldKeys.serverName, databean.serverName),
-					new StringField(ClusterSettingKey.FieldKeys.application, databean.application),
+					new StringField(ClusterSetting.FieldKeys.application, databean.application),
 					new StringField(ClusterSetting.FieldKeys.value, databean.value),
 					new StringEnumField<>(FieldKeys.action, databean.action),
 					new StringField(FieldKeys.changedBy, databean.changedBy),

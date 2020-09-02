@@ -45,7 +45,7 @@ public class SecretService{
 	@Inject
 	private SecretNamespacer secretNamespacer;
 	@Inject
-	private SecretOpRecorder secretOpRecorder;
+	private SecretOpRecorderSupplier secretOpRecorderSupplier;
 	@Inject
 	private SecretStageDetector secretStageDetector;
 
@@ -84,6 +84,13 @@ public class SecretService{
 
 	public <T> T readShared(String secretName, Class<T> secretClass, SecretOpReason reason){
 		return deserialize(readRawShared(secretName, reason), secretClass);
+	}
+
+	//skips the recording step. this is necessary if the recorder uses the same DB that the secret is needed to init.
+	public <T> T readSharedWithoutRecord(String secretName, Class<T> secretClass){
+		String namespace = secretNamespacer.getSharedNamespace();
+		String result = secretClientSupplier.get().read(namespace + secretName).getValue();
+		return deserialize(result, secretClass);
 	}
 
 	public String readRaw(String secretName, SecretOpReason reason){
@@ -152,7 +159,7 @@ public class SecretService{
 	}
 
 	private void record(SecretOp op, String namespace, String secretName, SecretOpReason reason){
-		secretOpRecorder.recordOp(namespace, secretName, op, reason);
+		secretOpRecorderSupplier.get().recordOp(namespace, secretName, op, reason);
 	}
 
 	private <T> String serialize(T value){

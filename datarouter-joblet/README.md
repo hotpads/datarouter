@@ -10,7 +10,7 @@ The datarouter-joblet module helps you build a user-friendly queue processing sy
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-joblet</artifactId>
-	<version>0.0.46</version>
+	<version>0.0.47</version>
 </dependency>
 ```
 

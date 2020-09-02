@@ -30,24 +30,14 @@ public class ClusterSettingTests{
 		String serverType = "myServerType";
 		var app = new WebappInstance(application, serverName, serverType);
 
-		var keyDefault = new ClusterSettingKey("a", ClusterSettingScope.DEFAULT_SCOPE, null, null, null);
+		var keyDefault = new ClusterSettingKey("a", ClusterSettingScope.DEFAULT_SCOPE, null, null);
 		Assert.assertTrue(keyDefault.appliesToWebappInstance(app));
 
-		var keyCluster = new ClusterSettingKey("b", ClusterSettingScope.CLUSTER, null, null, null);
-		Assert.assertTrue(keyCluster.appliesToWebappInstance(app));
-
-		var keyServerType = new ClusterSettingKey("c", ClusterSettingScope.SERVER_TYPE, serverType, null, null);
+		var keyServerType = new ClusterSettingKey("c", ClusterSettingScope.SERVER_TYPE, serverType, null);
 		Assert.assertTrue(keyServerType.appliesToWebappInstance(app));
 
-		var keyServerName = new ClusterSettingKey("d", ClusterSettingScope.SERVER_NAME, null, serverName, null);
+		var keyServerName = new ClusterSettingKey("d", ClusterSettingScope.SERVER_NAME, null, serverName);
 		Assert.assertTrue(keyServerName.appliesToWebappInstance(app));
-
-		var keyApplication = new ClusterSettingKey("e", ClusterSettingScope.APPLICATION, null, null, application);
-		Assert.assertTrue(keyApplication.appliesToWebappInstance(app));
-
-		var keyApplicationFalse = new ClusterSettingKey("eFalse", ClusterSettingScope.APPLICATION, null, null, "not-"
-				+ application);
-		Assert.assertFalse(keyApplicationFalse.appliesToWebappInstance(app));
 	}
 
 }

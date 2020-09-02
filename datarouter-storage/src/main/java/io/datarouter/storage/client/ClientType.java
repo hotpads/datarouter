@@ -21,4 +21,8 @@ public interface ClientType<CF extends ClientNodeFactory,CM extends ClientManage
 	Class<CF> getClientNodeFactoryClass();
 	Class<CM> getClientManagerClass();
 
+	default boolean supportsOffsetSampling(){
+		return false;
+	}
+
 }

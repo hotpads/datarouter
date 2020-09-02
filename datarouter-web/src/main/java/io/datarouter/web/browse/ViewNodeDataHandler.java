@@ -20,7 +20,6 @@ import static j2html.TagCreator.text;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -141,8 +140,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		}
 		PhysicalNode<?,?,?> physicalNode = NodeTool.extractSinglePhysicalNode(node);
 		//TODO replace strings with more formal client detection
-		boolean clientSupportsOffsetting = Set.of("mysql", "spanner").contains(physicalNode.getClientType().getName());
-		boolean actualUseOffsetting = useOffsetting.orElse(clientSupportsOffsetting);
+		boolean actualUseOffsetting = useOffsetting.orElse(physicalNode.getClientType().supportsOffsetSampling());
 		@SuppressWarnings("unchecked")
 		SortedStorageReader<PK,D> sortedNode = (SortedStorageReader<PK,D>)node;
 		long count = 0;

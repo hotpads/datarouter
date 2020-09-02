@@ -37,7 +37,6 @@ import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.ContainerTag;
-import redis.clients.jedis.Jedis;
 
 public class RedisWebInspector implements DatarouterClientWebInspector{
 
@@ -72,10 +71,7 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag buildOverview(ClientId clientId){
-		ContainerTag infoDiv;
-		try(Jedis client = clientManager.getJedis(clientId).getResource()){
-			infoDiv = pre(client.info());
-		}
+		ContainerTag infoDiv = pre(clientManager.getClient(clientId).sync().info());
 		return dl(dt("Info:"), dd(infoDiv));
 	}
 

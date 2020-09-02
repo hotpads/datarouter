@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric;
+package io.datarouter.metric.dto;
 
 import java.util.Objects;
 
+import io.datarouter.metric.types.MetricNameType;
+import io.datarouter.metric.types.MetricType;
 import io.datarouter.pathnode.PathNode;
 
 public class MetricName{

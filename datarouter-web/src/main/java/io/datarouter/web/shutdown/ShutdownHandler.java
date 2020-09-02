@@ -34,15 +34,16 @@ public class ShutdownHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	protected Integer shutdown(String secret){
-		if(secret.equals(settingRoot.shutdownSecret.get())){
-			int newSatusCode = shutdownService.advance();
-			logger.warn("advanced to next shutdown stage newSatusCode={}", newSatusCode);
-			return newSatusCode;
-		}
+		//prevent shutting down with empty secret param (even if that is the shutdownSecret's actual value)
 		if(StringTool.isEmptyOrWhitespace(secret)){
 			logger.error("please pass a secret string matching the value stored in Setting {}",
 					settingRoot.shutdownSecret.getName());
 			return null;
+		}
+		if(secret.equals(settingRoot.shutdownSecret.get())){
+			int newSatusCode = shutdownService.advance();
+			logger.warn("advanced to next shutdown stage newSatusCode={}", newSatusCode);
+			return newSatusCode;
 		}
 		logger.error("invalid secret={}", secret);
 		return null;

@@ -20,27 +20,27 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
-import redis.clients.jedis.JedisCluster;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 
 @Singleton
 public class RedisClusterClientManager extends BaseClientManager{
 
 	@Inject
-	private JedisClusterHolder jedisHolder;
+	private RedisClusterClientHolder holder;
 
 	@Override
 	public void shutdown(ClientId clientId){
-		jedisHolder.get(clientId).close();
+		holder.get(clientId).close();
 	}
 
 	@Override
 	protected void safeInitClient(ClientId clientId){
-		jedisHolder.registerClient(clientId);
+		holder.registerClient(clientId);
 	}
 
-	public JedisCluster getJedis(ClientId clientId){
+	public StatefulRedisClusterConnection<String,String> getClient(ClientId clientId){
 		initClient(clientId);
-		return jedisHolder.get(clientId);
+		return holder.get(clientId);
 	}
 
 }

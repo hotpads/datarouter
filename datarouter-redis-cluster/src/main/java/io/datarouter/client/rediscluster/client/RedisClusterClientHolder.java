@@ -16,60 +16,58 @@
 package io.datarouter.client.rediscluster.client;
 
 import java.net.InetSocketAddress;
-import java.time.Duration;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.rediscluster.client.RedisClusterOptions.RedisClusterClientMode;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.JedisPoolConfig;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 
 @Singleton
-public class JedisClusterHolder{
+public class RedisClusterClientHolder{
 
-	private static final int CONNECTION_TIMEOUT = (int) Duration.ofSeconds(3).toMillis();
+	private final RedisClusterOptions redisOptions;
+	private final Map<ClientId,StatefulRedisClusterConnection<String,String>> redisByClientId;
 
 	@Inject
-	private RedisClusterOptions redisOptions;
-
-	private final Map<ClientId,JedisCluster> jedisByClient = new ConcurrentHashMap<>();
+	public RedisClusterClientHolder(RedisClusterOptions redisOptions){
+		this.redisOptions = redisOptions;
+		redisByClientId = new ConcurrentHashMap<>();
+	}
 
 	public void registerClient(ClientId clientId){
-		if(jedisByClient.containsKey(clientId)){
+		if(redisByClientId.containsKey(clientId)){
 			throw new RuntimeException(clientId + " already registered a JedisClient");
 		}
-		jedisByClient.put(clientId, buildClient(clientId));
+		redisByClientId.put(clientId, buildClient(clientId));
 	}
 
-	public JedisCluster get(ClientId clientId){
-		return jedisByClient.get(clientId);
+	public StatefulRedisClusterConnection<String,String> get(ClientId clientId){
+		return redisByClientId.get(clientId);
 	}
 
-	private JedisCluster buildClient(ClientId clientId){
-		JedisPoolConfig poolConfig = new JedisPoolConfig();
-		poolConfig.setMaxTotal(128);
-		poolConfig.setMaxIdle(128);
-		poolConfig.setMinIdle(16);
+	private StatefulRedisClusterConnection<String,String> buildClient(ClientId clientId){
 
 		RedisClusterClientMode mode = redisOptions.getClientMode(clientId.getName());
 		if(mode == RedisClusterClientMode.AUTO_DISCOVERY){
 			InetSocketAddress address = redisOptions.getClusterEndpoint(clientId.getName()).get();
 			String host = address.getHostName();
 			int port = address.getPort();
-			return new JedisCluster(new HostAndPort(host, port), CONNECTION_TIMEOUT, poolConfig);
+			return RedisClusterClient.create(RedisURI.create(host, port)).connect();
 		}
 		// mode == RedisClusterClientMode.MULTI_NODE
-		Set<HostAndPort> nodes = redisOptions.getNodes(clientId.getName()).stream()
-				.map(address -> new HostAndPort(address.getHostName(), address.getPort()))
-				.collect(Collectors.toSet());
-		return new JedisCluster(nodes, CONNECTION_TIMEOUT, poolConfig);
+		Set<RedisURI> nodes = Scanner.of(redisOptions.getNodes(clientId.getName()))
+				.map(address -> RedisURI.create(address.getHostName(), address.getPort()))
+				.collect(HashSet::new);
+		return RedisClusterClient.create(nodes).connect();
 	}
 
 }

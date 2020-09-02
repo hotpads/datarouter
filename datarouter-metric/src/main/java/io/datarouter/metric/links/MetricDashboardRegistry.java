@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric;
+package io.datarouter.metric.links;
 
-public enum MetricNameType{
-	AVAILABLE("Available Metric"),
-	EXACT("Exact Metric"),
-	;
+import java.util.List;
 
-	public final String type;
+import javax.inject.Singleton;
 
-	MetricNameType(String type){
-		this.type = type;
+import io.datarouter.metric.dto.MetricDashboardDto;
+
+@Singleton
+public class MetricDashboardRegistry{
+
+	public final List<MetricDashboardDto> dashboards;
+
+	public MetricDashboardRegistry(List<MetricDashboardDto> dashboards){
+		this.dashboards = dashboards;
 	}
 
 }

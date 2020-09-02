@@ -45,10 +45,9 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		boolean isParent = parentThread.getId() == currentThread.getId();
 		boolean shouldStartNestedTrace = hasParent && !isParent;
 
-		DatarouterTracer tracer = null;
+		Tracer tracer = null;
 		if(shouldStartNestedTrace){
-			tracer = new DatarouterTracer(parentTracer.getServerName(), parentTracer.getTraceId(), parentTracer
-					.getCurrentThreadId());
+			tracer = parentTracer.createChildTracer();
 			TracerThreadLocal.bindToThread(tracer);
 			TracerTool.createAndStartThread(tracer, traceThreadName, queueTimeMs);
 		}

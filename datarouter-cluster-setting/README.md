@@ -15,7 +15,7 @@ same webapp, where the fleet of services will have a ClusterSetting table for ea
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-cluster-setting</artifactId>
-	<version>0.0.46</version>
+	<version>0.0.47</version>
 </dependency>
 ```
 
@@ -35,8 +35,6 @@ You can install this module by adding its plugin to the `WebappBuilder`.
 
 Several scopes are defined in the `ClusterSettingScope` enum.  From most specific to least specific:
 
-- `application`
-  - in cases where multiple applications are sharing the same `ClusterSetting` table, the webapp's name can be specified
 - `serverName`
   - a specific server like `prod-hello-world-3`
 - `serverType`
@@ -57,10 +55,8 @@ will go searching for the most specific scope that applies to it.  When resolvin
 to select the 4 potential database overrides (application, serverName, serverType, and default), and combine them with
 the 6 potential code overrides
 
-It then works backwards from `application` scope to `default`, prioritizing database over code:
+It then works backwards from `serverName` scope to `default`, prioritizing database over code:
 
-- `application/database`
-- `application/code`
 - `serverName/database`
 - `serverName/code`
 - `serverType/database`
@@ -78,9 +74,6 @@ at least a `serverType` scope.  The `default` scope will not replace it.
 
 There's no option to override the `environmentName` nor `environmentType` defaults in the 
 database because all instances of the webapp in a running cluster should share the same scopes.
-
-The `application` scope may be rarely used because most services should have an independent `ClusterSetting` table.
-It may be useful during the transition period when an application is being split but the database is still shared.
 
 ## Features
 
@@ -128,6 +121,9 @@ The job sends an email identifying database overrides with any of these problems
 - `invalidServerName`
   - the datarouter-webapp-instance system indicates this server is no longer providing a heartbeat, so the setting can
   likely be deleted
+- `invalidServerType`
+  - the db setting has an unknown server type value, likely left after a server type decommission. Server
+  types are stored in one of the `ServerTypes` implementations.
 
 ## License
 

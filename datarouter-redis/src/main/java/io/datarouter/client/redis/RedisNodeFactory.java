@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.redis.client.RedisClientManager;
+import io.datarouter.client.redis.config.RedisExecutors.RedisBatchOpExecutor;
 import io.datarouter.client.redis.node.RedisNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -32,12 +33,14 @@ public class RedisNodeFactory{
 	private RedisClientType clientType;
 	@Inject
 	private RedisClientManager clientManager;
+	@Inject
+	private RedisBatchOpExecutor executor;
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	RedisNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> params){
-		return new RedisNode<>(params, clientType, clientManager, params.getClientId());
+		return new RedisNode<>(params, clientType, clientManager, params.getClientId(), executor);
 	}
 
 }

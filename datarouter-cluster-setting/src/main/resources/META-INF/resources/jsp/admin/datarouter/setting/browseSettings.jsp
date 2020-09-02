@@ -20,7 +20,6 @@
 				$clone.find('.setting-scope').text(setting.scope)
 				$clone.find('.setting-type').text(setting.serverType)
 				$clone.find('.setting-serverName').text(setting.serverName)
-				$clone.find('.setting-application').text(setting.application)
 				$clone.find('form.update-form input.setting-value').attr('value', setting.value)
 				const escapedName = settingsTools.escape(setting.name)
 				$('#rowc_' + escapedName).closest('.dbOverridesTable').show()
@@ -136,7 +135,6 @@
 			<td class="setting-scope"></td>
 			<td class="setting-type"></td>
 			<td class="setting-serverName"></td>
-			<td class="setting-application"></td>
 			<td>
 				<form class='update-form'>
 					<input class='input-mini setting-value'>
@@ -162,7 +160,6 @@
 				<option value="defaultScope">Default</option>
 				<option value="serverType">Server Type</option>
 				<option value="serverName">Server Name</option>
-				<option value="application">Application</option>
 			</select>
 			<label for="serverType">Server Type</label>
 			<select name="serverType" class="server-type setting-type input-small disableable" disabled>
@@ -180,8 +177,6 @@
 			</select>
 			<label for="serverName">Server Name</label>
 			<input type="text" name="serverName" class="server-name input-small disableable" placeholder="Server Name" value="" disabled>
-			<label for="application">Application</label>
-			<input type="text" name="application" class="application input-small disableable" placeholder="Application" value="" disabled>
 			<label for="value">Value</label>
 			<input type="text" name="value" class="value input-mini" placeholder="Value" value="">
 			<hr>
@@ -271,22 +266,20 @@
 								<div class="w-100 py-2 px-0 px-sm-4 table-responsive">
 									<table class="table table-sm settings-table">
 										<tr>
-											<th>Profile</th>
-											<th>Environment</th>
+											<th>Environment Type</th>
+											<th>Environment Name</th>
 											<th>Server Type</th>
 											<th>Server Name</th>
-											<th>Application</th>
 											<th>Value</th>
 										</tr>
 										<c:forEach var="def" items="${setting.codeOverrides}">
 											<tr>
 												<input type="hidden" name="node-name" value="${nodeName}">
 												<input type="hidden" name="name" class="setting-name" value="${settingName}">
-												<td class="setting-default">${def.globalOrProfile}</td>
-												<td class="setting-environment">${def.environment}</td>
+												<td class="setting-default">${def.globalOrEnvironmentType}</td>
+												<td class="setting-environment">${def.environmentName}</td>
 												<td class="setting-type">${def.serverType}</td>
 												<td class="setting-serverName">${def.serverName}</td>
-												<td class="setting-application"></td>
 												<td class="setting-value">${def.value}</td>
 											</tr>
 										</c:forEach>
@@ -307,7 +300,6 @@
 											<th>Scope</th>
 											<th>Server Type</th>
 											<th>Server Name</th>
-											<th>Application</th>
 											<th>Value</th>
 											<th>Action</th>
 										</tr>
@@ -329,7 +321,6 @@
 											<td class="setting-scope">${customSetting.scope.persistentString}</td>
 											<td class="setting-type">${customSetting.serverType}</td>
 											<td class="setting-serverName">${customSetting.serverName}</td>
-											<td class="setting-application">${customSetting.application}</td>
 											<td>
 												<form class="update-form">
 													<input value="${customSetting.value}" class="form-control setting-value"

@@ -21,18 +21,15 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.handler.encoder.HandlerEncoder;
 
 @Singleton
 public class MysqlOptions{
@@ -41,10 +38,7 @@ public class MysqlOptions{
 	@Inject
 	private ClientOptions clientOptions;
 	@Inject
-	private SecretClientSupplier secretClientSupplier;
-	@Inject
-	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
-	private JsonSerializer jsonSerializer;
+	private SecretService secretService;
 
 	private final ConcurrentHashMap<String,String> clientPasswords = new ConcurrentHashMap<>();
 
@@ -96,9 +90,7 @@ public class MysqlOptions{
 					.getStringClientPropertyOrDefault(PROP_passwordLocation, clientName, null));
 			return optionalSecretLocation.map(secretLocation -> {
 				try{
-					String result = jsonSerializer.deserialize(
-							secretClientSupplier.get().read(secretLocation).getValue(),
-							String.class);
+					String result = secretService.readSharedWithoutRecord(secretLocation, String.class);
 					logger.warn("using secret at secretLocation={}", secretLocation);
 					log(result);
 					return result;

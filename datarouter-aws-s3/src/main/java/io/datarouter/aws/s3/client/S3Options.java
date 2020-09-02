@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
@@ -27,10 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.aws.s3.SerializableStaticAwsCredentialsProviderProvider;
 import io.datarouter.aws.s3.SerializableStaticAwsCredentialsProviderProvider.S3CredentialsDto;
-import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.service.SecretOpReason;
+import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
-import io.datarouter.web.handler.encoder.HandlerEncoder;
 
 @Singleton
 public class S3Options{
@@ -45,10 +43,7 @@ public class S3Options{
 	@Inject
 	private ClientOptions clientOptions;
 	@Inject
-	private SecretClientSupplier secretClientSupplier;
-	@Inject
-	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
-	private JsonSerializer jsonSerializer;
+	private SecretService secretService;
 
 	public SerializableStaticAwsCredentialsProviderProvider makeCredentialsProvider(String clientName){
 		String accessKey = getAccessKey(clientName);
@@ -77,8 +72,8 @@ public class S3Options{
 			}
 			return optionalCredentialsLocation.map(credentialsLocation -> {
 				try{
-					S3CredentialsDto result = jsonSerializer.deserialize(secretClientSupplier.get().read(
-							credentialsLocation).getValue(), S3CredentialsDto.class);
+					S3CredentialsDto result = secretService.readShared(credentialsLocation, S3CredentialsDto.class,
+							SecretOpReason.automatedOp(this.getClass().getName()));
 					logger.info("using secret at credentialsLocation={}", credentialsLocation);
 					return result;
 				}catch(RuntimeException e){

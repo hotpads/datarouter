@@ -25,6 +25,7 @@ import io.datarouter.metric.web.MetricLinksHandlers.MetricNamesAppTables;
 import io.datarouter.metric.web.MetricLinksHandlers.MetricNamesDatarouterHandler;
 import io.datarouter.metric.web.MetricLinksHandlers.MetricNamesDatarouterJobs;
 import io.datarouter.metric.web.MetricLinksHandlers.MetricNamesDatarouterTables;
+import io.datarouter.metric.web.MetricLinksHandlers.MiscMetricLinksHandler;
 import io.datarouter.metric.web.MetricLinksHandlers.RegisteredMetricNames;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -45,8 +46,8 @@ public class DatarouterMetricRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.metric.metricNames.datarouterTables).withHandler(MetricNamesDatarouterTables.class);
 
 		handle(paths.datarouter.metric.metricNames.registeredNames).withHandler(RegisteredMetricNames.class);
-
 		handle(paths.datarouter.metric.metricNames.metricDashboards).withHandler(MetricDashboardHandler.class);
+		handle(paths.datarouter.metric.metricNames.miscMetricLinks).withHandler(MiscMetricLinksHandler.class);
 	}
 
 	@Override

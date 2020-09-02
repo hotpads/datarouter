@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.MemcachedEncodedKey;
-import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.model.databean.Databean;
@@ -135,7 +134,7 @@ implements TallyStorageReader<PK,D>{
 	protected Map<String,Object> fetchBytesByStringKey(Collection<? extends PrimaryKey<?>> keys, Config config){
 		List<String> memcachedKeys = buildMemcachedKeys(keys);
 		long start = 0;
-		try(var $ = startTraceSpan("get bulk")){
+		try(var $ = TracerTool.startSpan(getName() + " get bulk")){
 			try{
 				start = System.currentTimeMillis();
 				Map<String,Object> results = memcachedClientManager.getSpyMemcachedClient(clientId)
@@ -199,10 +198,6 @@ implements TallyStorageReader<PK,D>{
 
 	protected List<String> buildMemcachedKeys(Collection<? extends PrimaryKey<?>> pks){
 		return MemcachedEncodedKey.getVersionedKeyStrings(getName(), databeanVersion, pks);
-	}
-
-	protected TraceSpanFinisher startTraceSpan(String opName){
-		return TracerTool.startSpan(getName() + " " + opName);
 	}
 
 }

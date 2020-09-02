@@ -41,7 +41,7 @@ public class SettingJspDto{
 
 	private <T> List<ClusterSettingDefaultJspDto> toDefaults(CachedSetting<T> setting, DefaultSettingValue<T> defaults){
 		List<ClusterSettingDefaultJspDto> dtos = new ArrayList<>();
-		// profile overrides
+		// environmentType overrides
 		defaults.getValueByEnvironmentType().forEach((profile, value) -> {
 			String profileString = profile.getPersistentString();
 			String stringValue = setting.toStringValue(value);
@@ -59,7 +59,7 @@ public class SettingJspDto{
 			defaultByServerName.forEach((serverName, value) -> dtos.add(new ClusterSettingDefaultJspDto(false,
 					profileString, null, null, serverName, setting.toStringValue(value))));
 		});
-		// environment overrides
+		// environmentName overrides
 		defaults.getValueByEnvironmentNameByEnvironmentType().forEach((profile, defaultByEnvironment) -> {
 			String profileString = profile.getPersistentString();
 			defaultByEnvironment.forEach((environment, value) -> dtos.add(new ClusterSettingDefaultJspDto(false,

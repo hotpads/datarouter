@@ -37,6 +37,7 @@ public class ClusterSettingConfigurationScanJob extends BaseJob{
 		List<ConfigScanDto> scans = List.of(
 				configScanner.checkForNonexistentClusterSettings(),
 				configScanner.checkForRedundantClusterSettings(),
+				configScanner.checkForInvalidServerTypeClusterSettings(),
 				configScanner.checkForOldClusterSettings());
 		reportService.scanConfigurationAndSendEmail("ClusterSetting Alert", scans);
 	}

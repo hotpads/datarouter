@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -94,7 +93,7 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 				SortedStorageReaderNode.class);
 		Objects.requireNonNull(node, "node not found for " + params.nodeNames);
 		//TODO replace strings with more formal client detection
-		boolean clientSupportsOffsetting = Set.of("mysql", "spanner").contains(physicalNode.getClientType().getName());
+		boolean clientSupportsOffsetting = physicalNode.getClientType().supportsOffsetSampling();
 		Instant deadline = Instant.now().plus(MAX_RUNNING_TIME);
 		samples = new TableSpanSampler<>(
 				node,

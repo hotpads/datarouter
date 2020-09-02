@@ -58,6 +58,13 @@ public class DatarouterTracer implements Tracer{
 		this.hostThreadName = Thread.currentThread().getName();
 	}
 
+	/*---------------------------- Tracer------------------------------------*/
+
+	@Override
+	public Tracer createChildTracer(){
+		return new DatarouterTracer(serverName, traceId, getCurrentThreadId());
+	}
+
 	/*---------------------------- TraceThread ------------------------------*/
 
 	@Override
@@ -66,12 +73,6 @@ public class DatarouterTracer implements Tracer{
 			return null;
 		}
 		return getCurrentThread().getThreadId();
-	}
-
-	@Override
-	public void createAndStartThread(String name, long queueTimeMs){
-		createThread(name, queueTimeMs);
-		startThread();
 	}
 
 	@Override

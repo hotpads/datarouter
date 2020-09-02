@@ -54,8 +54,8 @@ public class JsonDatabeanTool{
 
 	/*-------------------------- databean to json ---------------------------*/
 
-	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>>
-	JsonObject databeanToJson(D databean, DatabeanFielder<PK,D> fielder){
+	public static <PK extends PrimaryKey<PK>,D extends Databean<PK,D>> JsonObject databeanToJson(D databean,
+			DatabeanFielder<PK,D> fielder){
 		return databeanToJson(databean, fielder, false);
 	}
 
@@ -208,7 +208,7 @@ public class JsonDatabeanTool{
 
 	/*------------------------------- util ----------------------------------*/
 
-	private static JsonObject stringToJsonObject(String string){
+	public static JsonObject stringToJsonObject(String string){
 		return JsonParser.parseString(string).getAsJsonObject();
 	}
 

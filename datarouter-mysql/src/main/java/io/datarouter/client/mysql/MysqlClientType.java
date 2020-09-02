@@ -47,4 +47,9 @@ public class MysqlClientType implements ClientType<MysqlClientNodeFactory,MysqlC
 		return MysqlClientManager.class;
 	}
 
+	@Override
+	public boolean supportsOffsetSampling(){
+		return true;
+	}
+
 }

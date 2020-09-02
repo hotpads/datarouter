@@ -13,31 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric;
+package io.datarouter.metric.dto;
 
-public interface MetricLinkBuilder{
+public class MiscMetricLinksDto{
 
-	String availableMetricsLink(String prefix);
-	String exactMetricLink(String name, MetricType metricType);
-	String dashboardLink(String id);
+	public final String display;
+	public final String link;
 
-	static class NoOpMetricLinkBuilder implements MetricLinkBuilder{
-
-		@Override
-		public String availableMetricsLink(String prefix){
-			return "";
-		}
-
-		@Override
-		public String exactMetricLink(String name, MetricType metricType){
-			return "";
-		}
-
-		@Override
-		public String dashboardLink(String id){
-			return "";
-		}
-
+	public MiscMetricLinksDto(String display, String link){
+		this.display = display;
+		this.link = link;
 	}
 
 }

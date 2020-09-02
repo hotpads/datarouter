@@ -56,7 +56,9 @@ public class MetricNamesSubnavFactory{
 				.addItem("Registered Metric Names",
 						contextPath + paths.datarouter.metric.metricNames.registeredNames.toSlashedString())
 				.addItem("Dashboards",
-						contextPath + paths.datarouter.metric.metricNames.metricDashboards.toSlashedString());
+						contextPath + paths.datarouter.metric.metricNames.metricDashboards.toSlashedString())
+				.addItem("Misc Metric Links",
+						contextPath + paths.datarouter.metric.metricNames.miscMetricLinks.toSlashedString());
 	}
 
 }

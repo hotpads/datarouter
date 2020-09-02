@@ -79,7 +79,6 @@
 			td:nth-of-type(4):before { content: "Scope"; }
 			td:nth-of-type(5):before { content: "Server Type"; }
 			td:nth-of-type(6):before { content: "Server Name"; }
-			td:nth-of-type(7):before { content: "Application"; }
 			td:nth-of-type(8):before { content: "Changed by"; }
 			td:nth-of-type(9):before { content: "Comment"; }
 			td:nth-of-type(10):before { content: "Value"; }
@@ -129,7 +128,6 @@
 					<th>Scope</th>
 					<th>Server Type</th>
 					<th>Server Name</th>
-					<th>Application</th>
 					<th>Changed By</th>
 					<th>Comment</th>
 					<th>Value</th>
@@ -157,7 +155,6 @@
 						<td>${log.htmlSafeScope}</td>
 						<td>${log.htmlSafeServerType}</td>
 						<td>${log.htmlSafeServerName}</td>
-						<td>${log.htmlSafeApplication}</td>
 						<td>${log.htmlSafeChangedBy}</td>
 						<td>${log.htmlSafeComment}</td>
 						<td>${log.htmlSafeValue}</td>

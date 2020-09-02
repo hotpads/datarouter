@@ -47,15 +47,6 @@ public class ClusterSettingComparatorTests{
 				"");
 		settings.add(serverName);
 		Assert.assertEquals(Collections.min(settings, new ClusterSettingScopeComparator()), serverName);
-		var app = new ClusterSetting(
-				"instance1",
-				ClusterSettingScope.APPLICATION,
-				ServerType.UNKNOWN.getPersistentString(),
-				"",
-				"myApp",
-				"");
-		settings.add(app);
-		Assert.assertEquals(Collections.min(settings, new ClusterSettingScopeComparator()), app);
 	}
 
 }

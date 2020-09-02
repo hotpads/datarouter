@@ -330,6 +330,12 @@ public class DateTool{
 				.orElse(null);
 	}
 
+	public static Long toReverseLong(Long timestamp){
+		return Optional.ofNullable(timestamp)
+				.map(nonNullTimestamp -> Long.MAX_VALUE - nonNullTimestamp)
+				.orElse(null);
+	}
+
 	public static Instant fromReverseInstantLong(Long reverseInstantLong){
 		return Optional.ofNullable(reverseInstantLong)
 				.map(nonNullReverseInstantLong -> Instant.ofEpochMilli(Long.MAX_VALUE - nonNullReverseInstantLong))

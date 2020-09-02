@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric;
-
-import java.util.List;
+package io.datarouter.client.redis.config;
 
 import javax.inject.Singleton;
 
-@Singleton
-public class MetricNameRegistry{
+import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 
-	public final List<MetricName> metricNames;
+public class RedisExecutors{
 
-	public MetricNameRegistry(List<MetricName> metricNames){
-		this.metricNames = metricNames;
+	@Singleton
+	public static class RedisBatchOpExecutor extends ScalingThreadPoolExecutor{
+
+		public RedisBatchOpExecutor(){
+			super("RedisBatchOp", 100);
+		}
+
 	}
 
 }

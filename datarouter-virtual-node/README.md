@@ -6,13 +6,13 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-virtual-node</artifactId>
-	<version>0.0.46</version>
+	<version>0.0.47</version>
 </dependency>
 ```
 
 ## About
 
-Virtual nodes are classes that implement datarouter storage interfaces by wrapping underlying phyiscal nodes.  For example, Caching nodes wrap a persistent
+Virtual nodes are classes that implement datarouter storage interfaces by wrapping underlying physical nodes.  For example, Caching nodes wrap a persistent
 node plus a cache node, making it easier to keep the cache up to date.  Or Replication nodes wrap a primary database node plus zero or more replica nodes,
 making it easier to create all the nodes and then control which physical node serves a read request.
 
@@ -21,17 +21,17 @@ making it easier to create all the nodes and then control which physical node se
 ### Caching
 
 A caching node is typically used to add a cache like memcached in front of persistent storage like mysql.  After creating the memcached and mysql nodes, 
-pass them to the CachingNode constructor along with two booleans that shoud usually both be true:
+pass them to the CachingNode constructor along with two booleans that should usually both be true:
 - cacheOnRead: if there is a cache miss and the data is found in the backing node, then store it in the cache
 - cacheOnWrite: update the cached value on every write.
 
-For some performance crticical situations, it's possible to chain the virtual CachingNodes together to build a tiered cache.
+For some performance critical situations, it's possible to chain the virtual CachingNodes together to build a tiered cache.
 
 ### Replication
 
 The Replication node is typically used with databases performing their own replication to possibly multiple replicas.  Rather than building an explicit node
 for each replica and accessing them individually at runtime, you pass the primaryClientId and multiple replicaClientIds to the virtual node and it will
-create all the unerlying nodes for you.  Then at runtime, you can use `new Config().anyDelay()` to notify the Replication node that you prefer to
+create all the underlying nodes for you.  Then at runtime, you can use `new Config().anyDelay()` to notify the Replication node that you prefer to
 read from a replica if one exists, presumably because you want to reduce load on the harder-to-scale primary database.  The current version uses a simple round-robin 
 approach to pick the replica for each read which is usually fine as long as there is only one replica or the multiple replicas are keeping up on replication.
 
@@ -53,7 +53,7 @@ Their purpose is to reduce the latency of the write for the application, so it c
 work to be done by the WriteBehind nodes's internal thread.  The naming is to signify it has the opposite effect of a write-ahead log whose purpose is to safely
 persist the data before completing a request.
 
-WriteBehind nodes have mostly been superceded by the Conveyor functionality in datarouter-conveyor.  Along with more consistent monitoring and configuration, the 
+WriteBehind nodes have mostly been superseded by the Conveyor functionality in datarouter-conveyor.  Along with more consistent monitoring and configuration, the 
 conveyors allow simpler memory storage using MemoryBuffer and more reliable (and potentially multi-threaded) background flushing using the conveyor library.
 
 ## License

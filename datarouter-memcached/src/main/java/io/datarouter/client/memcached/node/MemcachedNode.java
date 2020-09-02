@@ -149,21 +149,19 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 	}
 
 	private void clientSet(String memcachedKey, int expiration, byte[] bytes){
-		try(var $ = startTraceSpan("set")){
+		try(var $ = TracerTool.startSpan(getName() + " " + "set")){
 			TracerTool.appendToSpanInfo("bytes", bytes.length);
 			memcachedClientManager.getSpyMemcachedClient(clientId).set(memcachedKey, expiration, bytes);
 		}
 	}
 
 	private long clientIncr(String memcacheKey, int delta, int expiration){
-		try(var $ = startTraceSpan("incr")){
-			// this cannot be async and use the client wide operationTimeout, with default of 2.5s
-			return memcachedClientManager.getSpyMemcachedClient(clientId).incr(memcacheKey, delta, delta, expiration);
-		}
+		// this cannot be async and use the client wide operationTimeout, with default of 2.5s
+		return memcachedClientManager.getSpyMemcachedClient(clientId).incr(memcacheKey, delta, delta, expiration);
 	}
 
 	private void clientDelete(String memcacheKey, Duration timeout){
-		try(var $ = startTraceSpan("delete")){
+		try(var $ = TracerTool.startSpan(getName() + " " + "delete")){
 			long start = System.currentTimeMillis();
 			try{
 				memcachedClientManager.getSpyMemcachedClient(clientId)

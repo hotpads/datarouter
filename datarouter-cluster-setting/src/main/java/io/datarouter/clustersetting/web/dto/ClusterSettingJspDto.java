@@ -24,7 +24,6 @@ public class ClusterSettingJspDto{
 	private final ClusterSettingScope scope;
 	private final String serverType;
 	private final String serverName;
-	private final String application;
 	private final String value;
 
 	public ClusterSettingJspDto(ClusterSetting setting){
@@ -32,7 +31,6 @@ public class ClusterSettingJspDto{
 		this.scope = setting.getKey().getScope();
 		this.serverType = setting.getKey().getServerType();
 		this.serverName = setting.getKey().getServerName();
-		this.application = setting.getKey().getApplication();
 		this.value = setting.getValue();
 	}
 
@@ -50,10 +48,6 @@ public class ClusterSettingJspDto{
 
 	public String getServerName(){
 		return serverName;
-	}
-
-	public String getApplication(){
-		return application;
 	}
 
 	public String getValue(){

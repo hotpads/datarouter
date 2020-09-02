@@ -17,7 +17,7 @@ package io.datarouter.metric.web;
 
 import javax.inject.Inject;
 
-import io.datarouter.metric.MetricNameRegistry;
+import io.datarouter.metric.links.MetricNameRegistry;
 import io.datarouter.metric.service.ViewMetricNameService;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.handler.BaseHandler;
@@ -173,6 +173,25 @@ public class MetricLinksHandlers{
 				// non production server types won't have the same dashboard ids as production
 				content = TagCreator.div();
 			}
+			return pageFactory.startBuilder(request)
+					.withTitle(METRIC_LINKS + title)
+					.withContent(content)
+					.buildMav();
+		}
+
+	}
+
+	public static class MiscMetricLinksHandler extends BaseHandler{
+
+		@Inject
+		private MetricNamesPageFactory pageFactory;
+		@Inject
+		private ViewMetricNameService service;
+
+		@Handler(defaultHandler = true)
+		public Mav view(){
+			String title = "Misc Metric Links";
+			var content = service.miscMetricLinksTable();
 			return pageFactory.startBuilder(request)
 					.withTitle(METRIC_LINKS + title)
 					.withContent(content)

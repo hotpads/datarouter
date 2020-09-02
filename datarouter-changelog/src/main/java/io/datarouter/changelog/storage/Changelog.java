@@ -78,4 +78,8 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 		return username;
 	}
 
+	public String getComment(){
+		return comment;
+	}
+
 }

@@ -32,8 +32,8 @@ import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretJsonSerializer.GsonToolJsonSerializer;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretNamespacer.EmptyNamespacer;
-import io.datarouter.secret.service.SecretOpRecorder;
-import io.datarouter.secret.service.SecretOpRecorder.NoOpSecretOpRecorder;
+import io.datarouter.secret.service.SecretOpRecorderSupplier;
+import io.datarouter.secret.service.SecretOpRecorderSupplier.NoOpSecretOpRecorderSupplier;
 import io.datarouter.secret.service.SecretStageDetector;
 import io.datarouter.secret.service.SecretStageDetector.DevelopmentSecretStageDetector;
 
@@ -41,7 +41,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 	private final Class<? extends SecretClientSupplier> secretClientSupplier;
 	private final Class<? extends SecretNamespacer> secretNamespacer;
-	private final Class<? extends SecretOpRecorder> secretOpRecorder;
+	private final Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier;
 	private final Class<? extends SecretJsonSerializer> jsonSerializer;
 	private final Class<? extends SecretStageDetector> secretStageDetector;
 	private final Class<? extends LocalStorageConfig> localStorageConfig;
@@ -50,14 +50,14 @@ public class DatarouterSecretPlugin extends BasePlugin{
 	private DatarouterSecretPlugin(
 			Class<? extends SecretClientSupplier> secretClientSupplier,
 			Class<? extends SecretNamespacer> secretNamespacer,
-			Class<? extends SecretOpRecorder> secretOpRecorder,
+			Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier,
 			Class<? extends SecretJsonSerializer> jsonSerializer,
 			Class<? extends SecretStageDetector> secretStageDetector,
 			Class<? extends LocalStorageConfig> localStorageConfig,
 			Map<String,String> initialLocalStorageSecretValues){
 		this.secretClientSupplier = secretClientSupplier;
 		this.secretNamespacer = secretNamespacer;
-		this.secretOpRecorder = secretOpRecorder;
+		this.secretOpRecorderSupplier = secretOpRecorderSupplier;
 		this.jsonSerializer = jsonSerializer;
 		this.secretStageDetector = secretStageDetector;
 		this.localStorageConfig = localStorageConfig;
@@ -73,7 +73,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 	public void configure(){
 		bindActual(SecretClientSupplier.class, secretClientSupplier);
 		bindActual(SecretNamespacer.class, secretNamespacer);
-		bindActual(SecretOpRecorder.class, secretOpRecorder);
+		bindActual(SecretOpRecorderSupplier.class, secretOpRecorderSupplier);
 		bindActual(SecretJsonSerializer.class, jsonSerializer);
 		bindActual(SecretStageDetector.class, secretStageDetector);
 		bindActual(LocalStorageConfig.class, localStorageConfig);
@@ -92,7 +92,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 		public void configure(){
 			bindDefault(SecretClientSupplier.class, secretClientSupplier);
 			bindDefault(SecretNamespacer.class, secretNamespacer);
-			bindDefault(SecretOpRecorder.class, secretOpRecorder);
+			bindDefault(SecretOpRecorderSupplier.class, secretOpRecorderSupplier);
 			bindDefault(SecretJsonSerializer.class, jsonSerializer);
 			bindDefault(SecretStageDetector.class, secretStageDetector);
 			bindDefault(LocalStorageConfig.class, localStorageConfig);
@@ -106,7 +106,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 		private Map<String,String> initialLocalStorageSecretValues = new HashMap<>();
 		private Class<? extends SecretNamespacer> secretNamespacer = EmptyNamespacer.class;
-		private Class<? extends SecretOpRecorder> secretOpRecorder = NoOpSecretOpRecorder.class;
+		private Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier = NoOpSecretOpRecorderSupplier.class;
 		private Class<? extends SecretJsonSerializer> jsonSerializer = GsonToolJsonSerializer.class;
 		private Class<? extends SecretStageDetector> secretStageDetector = DevelopmentSecretStageDetector.class;
 		private Class<? extends LocalStorageConfig> localStorageConfig = DefaultLocalStorageConfig.class;
@@ -135,8 +135,8 @@ public class DatarouterSecretPlugin extends BasePlugin{
 			return getSelf();
 		}
 
-		public T setSecretOpRecorder(Class<? extends SecretOpRecorder> secretOpRecorder){
-			this.secretOpRecorder = secretOpRecorder;
+		public T setSecretOpRecorderSupplier(Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier){
+			this.secretOpRecorderSupplier = secretOpRecorderSupplier;
 			return getSelf();
 		}
 
@@ -177,7 +177,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 			return new DatarouterSecretPlugin(
 					secretClientSupplier,
 					secretNamespacer,
-					secretOpRecorder,
+					secretOpRecorderSupplier,
 					jsonSerializer,
 					secretStageDetector,
 					localStorageConfig,

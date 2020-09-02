@@ -14,7 +14,6 @@
 			$clone.find('.setting-scope').text(setting.scope)
 			$clone.find('.setting-type').text(setting.serverType)
 			$clone.find('.setting-serverName').text(setting.serverName)
-			$clone.find('.setting-application').text(setting.application)
 			$clone.find('form.update-form input[name="value"]').attr('value', setting.value)
 			$('.settings-table tbody').prepend($clone)
 				.first().highlight() // highlight newly appended row
@@ -51,7 +50,6 @@
 		<td class="setting-scope"></td>
 		<td class="setting-type"></td>
 		<td class="setting-serverName"></td>
-		<td class="setting-application"></td>
 		<td>
 			<form class="update-form">
 				<input name="value" class="input-medium setting-value">
@@ -92,7 +90,6 @@
 								<option value="defaultScope">Default</option>
 								<option value="serverType">Server Type</option>
 								<option value="serverName">Server Name</option>
-								<option value="application">Application</option>
 							</select>
 						</div>
 					</div>
@@ -118,12 +115,6 @@
 						<label for="serverName" class="col-form-label col-sm-2 d-none d-md-block">Server Name</label>
 						<div class="col-12 col-md-auto">
 							<input type="text" name="serverName" class="server-name form-control disableable" placeholder="Server Name" value="" disabled>
-						</div>
-					</div>
-					<div class="form-group row">
-						<label for="application" class="col-form-label col-sm-2 d-none d-md-block">Application</label>
-						<div class="col-12 col-md-auto">
-							<input type="text" name="application" class="application form-control disableable" placeholder="Application" value="" disabled>
 						</div>
 					</div>
 					<div class="form-group row">
@@ -170,7 +161,6 @@
 							<th>Scope</th>
 							<th>ServerType</th>
 							<th>ServerName</th>
-							<th>Application</th>
 							<th>Value</th>
 							<th>Delete</th>
 							<th>Update</th>
@@ -190,7 +180,6 @@
 								<td class="setting-scope">${setting.scope.persistentString}</td>
 								<td class="setting-type">${setting.serverType}</td>
 								<td class="setting-serverName">${setting.serverName}</td>
-								<td class="setting-application">${setting.application}</td>
 								<td>
 									<form class="update-form">
 										<input name="value" class="setting-value form-control" style="min-width: 100px" value="${setting.value}">

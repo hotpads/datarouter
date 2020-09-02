@@ -100,7 +100,7 @@ public class DatarouterUserHistoryService{
 	public void recordDeprovisions(List<DatarouterUser> users, Optional<DatarouterUser> editor){
 		Date time = new Date();
 		Long editorId = editor.map(DatarouterUser::getId)
-				.orElse(null);
+				.orElse(DatarouterUserCreationService.ADMIN_ID);
 		Map<Long, DatarouterUserHistory> histories = Scanner.of(users)
 				.map(user -> new DatarouterUserHistory(user.getId(), time, editorId, DatarouterUserChangeType
 						.DEPROVISION, "deprovisioned"))

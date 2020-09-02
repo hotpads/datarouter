@@ -22,6 +22,7 @@ import io.datarouter.util.enums.PersistentString;
 
 public enum ClusterSettingValidity implements PersistentString{
 	VALID("valid", "table-default", "Valid override"),
+	INVALID_SERVER_TYPE("invalidServerType", "table-primary", "Unknown serverType"),
 	INVALID_SERVER_NAME("invalidServerName", "table-success", "Unknown serverName"),
 	REDUNDANT("redundant", "table-warning", "Value duplicates the default value"),
 	OLD("old", "table-info", "Setting hasn't changed in a while - consider moving it in the code"),

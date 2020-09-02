@@ -15,9 +15,13 @@
  */
 package io.datarouter.client.redis.node;
 
-import java.util.ArrayList;
+import java.time.Duration;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +32,14 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.JsonDatabeanTool;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.ParallelScannerContext;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.TallyStorage.PhysicalTallyStorageNode;
 import io.datarouter.storage.tally.TallyKey;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.params.SetParams;
+import io.lettuce.core.RedisFuture;
 
 public class RedisNode<
 		PK extends PrimaryKey<PK>,
@@ -51,8 +56,9 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			NodeParams<PK,D,F> params,
 			RedisClientType redisClientType,
 			RedisClientManager redisClientManager,
-			ClientId clientId){
-		super(params, redisClientType, redisClientManager, clientId);
+			ClientId clientId,
+			ExecutorService executor){
+		super(params, redisClientType, redisClientManager, clientId, executor);
 	}
 
 	@Override
@@ -71,29 +77,27 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			ttl = getTtlMs(config);
 		}
 		String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, getFieldInfo().getSampleFielder());
-		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
-			if(ttl == null){
-				client.set(key, jsonBean);
-			}else{
-				// XX - Only set they key if it already exists
-				// PX - Milliseconds
-				client.set(key, jsonBean, new SetParams().xx().px(ttl));
+		if(ttl == null){
+			try{
+				getAsyncClient().set(key, jsonBean).get();
+			}catch(InterruptedException | ExecutionException e){
+				logger.error("", e);
+			}
+		}else{
+			try{
+				getAsyncClient().psetex(key, ttl, jsonBean).get();
+			}catch(InterruptedException | ExecutionException e){
+				logger.error("", e);
 			}
 		}
 	}
 
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
-		if(databeans == null || databeans.size() == 0){
+		if(databeans == null || databeans.isEmpty()){
 			return;
 		}
-		if(config != null && config.getTtl() != null){
-			// redis cannot handle both batch-puts and setting ttl
-			databeans.forEach(databean -> put(databean, config));
-			return;
-		}
-		List<String> keysAndDatabeans = new ArrayList<>();
-		// redis mset(key1, value1, key2, value2, key3, value3, ...)
+		Map<String,String> keysAndDatabeans = new HashMap<>();
 		for(D databean : databeans){
 			String key = buildRedisKey(databean.getKey());
 			if(key.length() > MAX_REDIS_KEY_SIZE){
@@ -101,11 +105,29 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 				continue;
 			}
 			String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, getFieldInfo().getSampleFielder());
-			keysAndDatabeans.add(key);
-			keysAndDatabeans.add(jsonBean);
+			keysAndDatabeans.put(key, jsonBean);
 		}
-		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
-			client.mset(keysAndDatabeans.toArray(new String[keysAndDatabeans.size()]));
+		Long ttl = null;
+		if(config != null && config.getTtl() != null){
+			ttl = getTtlMs(config);
+		}
+		if(ttl == null){
+			try{
+				getAsyncClient().mset(keysAndDatabeans).get();
+			}catch(InterruptedException | ExecutionException e){
+				logger.error("", e);
+			}
+		}else{
+			long ttlMs = ttl;
+			Scanner.of(keysAndDatabeans.entrySet())
+					.parallel(new ParallelScannerContext(executor, 16, true))
+					.forEach(entry -> {
+						try{
+							getAsyncClient().psetex(entry.getKey(), ttlMs, entry.getValue()).get();
+						}catch(InterruptedException | ExecutionException e){
+							logger.error("", e);
+						}
+					});
 		}
 	}
 
@@ -119,8 +141,10 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		if(key == null){
 			return;
 		}
-		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
-			client.del(buildRedisKey(key));
+		try{
+			getAsyncClient().del(buildRedisKey(key)).get();
+		}catch(InterruptedException | ExecutionException e){
+			logger.error("", e);
 		}
 	}
 
@@ -129,8 +153,10 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		if(keys == null || keys.isEmpty()){
 			return;
 		}
-		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
-			client.del(buildRedisKeys(keys).toArray(new String[keys.size()]));
+		try{
+			getAsyncClient().del(buildRedisKeys(keys).toArray(new String[keys.size()])).get();
+		}catch(InterruptedException | ExecutionException e){
+			logger.error("", e);
 		}
 	}
 
@@ -140,15 +166,20 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			return null;
 		}
 		String tallyKey = buildRedisKey(new TallyKey(key));
+		RedisFuture<Long> increment = getAsyncClient().incrby(tallyKey, delta);
 		Long expiration = getTtlMs(config);
-		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
-			if(expiration == null){
-				return client.incrBy(tallyKey, delta).longValue();
-			}
-			Long response = client.incrBy(tallyKey, delta);
-			client.pexpire(tallyKey, expiration);
-			return response.longValue();
+		RedisFuture<Boolean> expire = null;
+		if(expiration != null){
+			expire = getAsyncClient().pexpire(tallyKey, expiration);
 		}
+		try{
+			long count = increment.get();
+			expire.get();
+			return count;
+		}catch(InterruptedException | ExecutionException e){
+			logger.error("", e);
+		}
+		return null;
 	}
 
 	@Override
@@ -156,8 +187,10 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		if(key == null){
 			return;
 		}
-		try(Jedis client = redisClientManager.getJedis(clientId).getResource()){
-			client.del(buildRedisKey(new TallyKey(key)));
+		try{
+			getAsyncClient().del(buildRedisKey(new TallyKey(key))).get();
+		}catch(InterruptedException | ExecutionException e){
+			logger.error("", e);
 		}
 	}
 
@@ -165,7 +198,9 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		if(config == null){
 			return null;
 		}
-		return config.getTtl() == null ? Long.MAX_VALUE : config.getTtl().toMillis();
+		return Optional.ofNullable(config.getTtl())
+				.map(Duration::toMillis)
+				.orElse(Long.MAX_VALUE);
 	}
 
 }

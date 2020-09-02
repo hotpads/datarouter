@@ -13,7 +13,7 @@ deployed in a while.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-webapp-instance</artifactId>
-	<version>0.0.46</version>
+	<version>0.0.47</version>
 </dependency>
 ```
 

@@ -19,16 +19,14 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.service.SecretOpReason;
+import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
-import io.datarouter.web.handler.encoder.HandlerEncoder;
 
 @Singleton
 public class SqsOptions{
@@ -45,10 +43,7 @@ public class SqsOptions{
 	@Inject
 	private ClientOptions clientOptions;
 	@Inject
-	private SecretClientSupplier secretClientSupplier;
-	@Inject
-	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
-	private JsonSerializer jsonSerializer;
+	private SecretService secretService;
 
 	public String getAccessKey(String clientName){
 		return readCredentialsSecret(clientName)
@@ -75,8 +70,8 @@ public class SqsOptions{
 			}
 			return optionalCredentialsLocation.map(credentialsLocation -> {
 				try{
-					SqsCredentialsDto result = jsonSerializer.deserialize(secretClientSupplier.get().read(
-							credentialsLocation).getValue(), SqsCredentialsDto.class);
+					SqsCredentialsDto result = secretService.readShared(credentialsLocation, SqsCredentialsDto.class,
+							SecretOpReason.automatedOp(this.getClass().getName()));
 					logger.info("using secret at credentialsLocation={}", credentialsLocation);
 					return result;
 				}catch(RuntimeException e){

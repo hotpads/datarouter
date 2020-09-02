@@ -20,7 +20,6 @@ define('settings-tools', ['jquery-ui'], function(){
 		retVal["scope"] = row.find(".setting-scope").text();
 		retVal["serverType"] = row.find(".setting-type").text();
 		retVal["serverName"] = row.find(".setting-serverName").text();
-		retVal["application"] = row.find(".setting-application").text();
 		retVal["value"] = row.find(".setting-value").val();
 		return retVal;
 	}
@@ -39,8 +38,7 @@ define('settings-tools', ['jquery-ui'], function(){
 	function sameSettings(rowData, settings) {
 		return rowData["name"] === settings["name"]
 			&& rowData["serverType"] === settings["serverType"]
-			&& rowData["serverName"] === settings["serverName"]
-			&& rowData["application"] === settings["application"];
+			&& rowData["serverName"] === settings["serverName"];
 	}
 
 	function update(setting){
@@ -70,7 +68,6 @@ define('settings-tools', ['jquery-ui'], function(){
 			nodeName: form.find('.node').val(),
 			serverType: form.find('.server-type option:selected').val(),
 			serverName: form.find('.server-name').val(),
-			application: form.find('.application').val(),
 			value: form.find('.value') && form.find('.value').val(),
 			scope: form.find('.scope').val(),
 			comment: form.find('[name="comment"]').val()
@@ -175,11 +172,6 @@ define('settings-tools', ['jquery-ui'], function(){
 				form.find('.server-name').prop('disabled', false);
 				form.find('.server-type').val('unknown');
 				break;
-			case 'application':
-				disableAndClearAll();
-				form.find('.application').prop('disabled', false);
-				form.find('.server-type').val('unknown');
-				break;
 			}
 		},
 		getValidatorOptionsWithHandler: function(submitHandler, formElem){
@@ -192,11 +184,6 @@ define('settings-tools', ['jquery-ui'], function(){
 					serverName: {
 						required: function() {
 							return formElem.find('.scope option[value="serverName"]').prop('selected') == true;
-						}
-					},
-					application: {
-						required: function() {
-							return formElem.find('.scope option[value="application"]').prop('selected') == true;
 						}
 					}
 				},

@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.task.TaskStatus;
+import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.JobCounters;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
@@ -36,6 +37,7 @@ import io.datarouter.tasktracker.service.LongRunningTaskTracker;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.duration.DatarouterDuration;
+import io.datarouter.util.tracer.DatarouterSummaryTracer;
 
 /**
  * A wrapper around jobs for instrumentation purposes.
@@ -124,9 +126,11 @@ public class JobWrapper implements Callable<Void>{
 
 	@Override
 	public Void call() throws Exception{
+		startTraceSummary();
 		trackBefore();
 		job.run(tracker);
 		trackAfter();
+		endTraceSummary();
 		logSuccess();
 		return null;
 	}
@@ -155,6 +159,15 @@ public class JobWrapper implements Callable<Void>{
 		boolean warnOnReachingDeadline = jobPackage.getWarnOnReachingDuration().orElse(false);
 		return longRunningTaskTrackerFactory.create(jobClass, LongRunningTaskType.JOB, deadline, warnOnReachingDeadline,
 				triggeredBy);
+	}
+
+	private void startTraceSummary(){
+		TracerThreadLocal.bindToThread(new DatarouterSummaryTracer());
+	}
+
+	private void endTraceSummary(){
+		logger.info("job={}, {}", jobClass.getSimpleName(), TracerThreadLocal.get());
+		TracerThreadLocal.clearFromThread();
 	}
 
 	private void trackBefore(){
