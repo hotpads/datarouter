@@ -34,15 +34,19 @@ import io.datarouter.util.UlidTool;
 
 public class DatarouterSummaryTracer implements Tracer{
 
+	private static final Long MAX_SUMMARY_KEYS = 1_000L;
+
 	public static final String INTERSPAN = "interspan";
 
 	private final String traceId;
 	private final String keyPrefix;
 
-	private Deque<SpanRecord> spans = new ConcurrentLinkedDeque<>();
+	private final Deque<SpanRecord> spans = new ConcurrentLinkedDeque<>();
 
 	private final List<DatarouterSummaryTracer> childSummaryTracers = new ArrayList<>();
 	private final Map<String,SpanSummary> summaryMap = new HashMap<>();
+
+	private boolean truncated = false;
 
 	public DatarouterSummaryTracer(){
 		this(UlidTool.nextUlid(), null);
@@ -74,7 +78,7 @@ public class DatarouterSummaryTracer implements Tracer{
 				.entrySet().stream()
 				.map(ent -> String.format("%s count=%s duration=%s", ent.getKey(), ent.getValue().count, ent.getValue()
 						.duration))
-				.collect(Collectors.joining(", ", "traceId=" + traceId + ", ", ""));
+				.collect(Collectors.joining(", ", "traceId=" + traceId + ", truncated=" + truncated + ", ", ""));
 	}
 
 	/*---------------------------- TraceThread ------------------------------*/
@@ -202,12 +206,19 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	private void addSummary(String key, Long spanStartMs, boolean skipIf0Duration){
-		long durationMs = System.currentTimeMillis() - spanStartMs;
-		if(skipIf0Duration && durationMs == 0){
-			return;
+		if(!truncated){
+			long durationMs = System.currentTimeMillis() - spanStartMs;
+			if(skipIf0Duration && durationMs == 0){
+				return;
+			}
+
+			if(summaryMap.size() <= MAX_SUMMARY_KEYS){
+				summaryMap.computeIfAbsent(key, $ -> new SpanSummary())
+						.addSpan(durationMs);
+			}else{
+				truncated = true;
+			}
 		}
-		summaryMap.computeIfAbsent(key, $ -> new SpanSummary())
-				.addSpan(durationMs);
 	}
 
 	private static class SpanRecord{

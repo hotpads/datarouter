@@ -6,17 +6,22 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-secret</artifactId>
-	<version>0.0.47</version>
+	<version>0.0.48</version>
 </dependency>
 ```
 
 ## Installation with Datarouter
 
-You can build this module as below. In the future a simple plugin configurer will be able to accept the module.
+You can build this module as below.
 
 ```java
-new DatarouterSecretPluginBuilder()
-		//...
+new DatarouterSecretPluginBuilderImpl()
+		//.setSecretClientSupplier() default LocalStorageSecretClientSupplier.class
+		//.setSecretNamespacer() default EmptyNamespacer.class
+		//.setSecretOpRecorderSupplier() default NoOpSecretOpRecorderSupplier.class
+		//.setJsonSerializer() default GsonToolJsonSerializer.class
+		//.setSecretStageDetector() default DevelopmentSecretStageDetector
+		//.setLocalStorageConfig() default DefaultLocalStorageConfig
 		.build()
 ```
 
@@ -35,8 +40,14 @@ file system in a plaintext properties file.
 
 `SecretService` and especially `CachedSecretFactory` are the recommended ways to programmatically access `Secret`s,
 because they provide extra layers of convenience and are more audit-friendly. `SecretService` automatically namespaces
-and records every operation based on `SecretNamespacer` and `SecretOpRecorder` implementations. `CachedSecretFactory`
-builds `CachedSecret`s for improved performance of frequently read `Secret`s, like API keys.
+and records every operation based on `SecretNamespacer` and `SecretOpRecorder` (configured with
+`SecretOpRecorderSupplier`) implementations. `CachedSecretFactory` builds `CachedSecret`s for improved performance of
+frequently read `Secret`s, like API keys.
+
+Note on `SecretOpRecorder`: if the implementation relies on reading a secret to initialize itself, then that read
+operation must either use a `SecretClient` method directly or use `SecretService#readSharedWithoutRecord`. Otherwise it
+will be impossible to initialize the recorder because it will be stuck recursively trying to fetch the secret and record
+fetching the secret.
 
 ## Usage
 

@@ -35,7 +35,6 @@ public class ClusterSettingComparatorTests{
 				ClusterSettingScope.SERVER_TYPE,
 				ServerType.DEV.getPersistentString(),
 				"",
-				"",
 				"");
 		settings.add(serverType);
 		var serverName = new ClusterSetting(
@@ -43,7 +42,6 @@ public class ClusterSettingComparatorTests{
 				ClusterSettingScope.SERVER_NAME,
 				ServerType.UNKNOWN.getPersistentString(),
 				"mySevrer",
-				"",
 				"");
 		settings.add(serverName);
 		Assert.assertEquals(Collections.min(settings, new ClusterSettingScopeComparator()), serverName);

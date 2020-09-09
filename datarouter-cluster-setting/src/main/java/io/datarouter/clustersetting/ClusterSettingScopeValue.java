@@ -80,8 +80,7 @@ public class ClusterSettingScopeValue implements Comparable<ClusterSettingScopeV
 	public ClusterSettingKey toClusterSettingKey(String settingName){
 		switch(scope){
 		case DEFAULT_SCOPE:
-			return new ClusterSettingKey(settingName, scope, ServerType.UNKNOWN.getPersistentString(),
-					EMPTY_STRING);
+			return new ClusterSettingKey(settingName, scope, ServerType.UNKNOWN.getPersistentString(), EMPTY_STRING);
 		case SERVER_TYPE:
 			return new ClusterSettingKey(settingName, scope, value, EMPTY_STRING);
 		case SERVER_NAME:

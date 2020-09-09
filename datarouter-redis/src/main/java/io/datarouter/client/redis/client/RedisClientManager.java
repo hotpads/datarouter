@@ -38,7 +38,7 @@ public class RedisClientManager extends BaseClientManager{
 		holder.registerClient(clientId);
 	}
 
-	public StatefulRedisConnection<String,String> getClient(ClientId clientId){
+	public StatefulRedisConnection<byte[],byte[]> getClient(ClientId clientId){
 		initClient(clientId);
 		return holder.get(clientId);
 	}

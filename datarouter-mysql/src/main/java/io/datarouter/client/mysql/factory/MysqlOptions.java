@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
@@ -37,6 +38,8 @@ public class MysqlOptions{
 
 	@Inject
 	private ClientOptions clientOptions;
+	@Inject
+	private SecretNamespacer secretNamespacer;
 	@Inject
 	private SecretService secretService;
 
@@ -89,30 +92,18 @@ public class MysqlOptions{
 			Optional<String> optionalSecretLocation = Optional.ofNullable(clientOptions
 					.getStringClientPropertyOrDefault(PROP_passwordLocation, clientName, null));
 			return optionalSecretLocation.map(secretLocation -> {
+				String namespacedLocationForLogs = secretNamespacer.sharedNamespaced(secretLocation);
 				try{
 					String result = secretService.readSharedWithoutRecord(secretLocation, String.class);
-					logger.warn("using secret at secretLocation={}", secretLocation);
-					log(result);
+					logger.warn("using secret at secretLocation={}", namespacedLocationForLogs);
 					return result;
 				}catch(RuntimeException e){
-					logger.error("Failed to locate secretLocation=" + secretLocation + " for clientName=" + clientName,
-							e);
+					logger.error("Failed to locate secretLocation={} for clientName={}", namespacedLocationForLogs,
+							clientName, e);
 					return (String)null;
 				}
 			}).orElseGet(() -> clientOptions.getStringClientPropertyOrDefault(PROP_password, clientName, def));
 		});
-	}
-
-	private static void log(String password){
-		String toLog = "";
-		if(password == null){
-			toLog = "null";
-		}else if(password.length() < 8){
-			toLog = "tooshort";
-		}else{
-			toLog = password.substring(0, 3) + "..." + password.substring(password.length() - 4);
-		}
-		logger.warn("password={}", toLog);
 	}
 
 	public Integer minPoolSize(String clientName, Integer def){

@@ -64,7 +64,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 	public ClusterSetting(ClusterSettingKey key, String value){
 		super(key);
 		this.value = value;
-		application = null;
+		application = "";
 	}
 
 	public ClusterSetting(
@@ -72,11 +72,10 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 			ClusterSettingScope scope,
 			String serverType,
 			String serverName,
-			String application,
 			String value){
 		super(new ClusterSettingKey(name, scope, serverType, serverName));
 		this.value = value;
-		this.application = application;
+		application = "";
 	}
 
 	@Override
@@ -160,14 +159,6 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 
 	public void setServerName(String serverName){
 		getKey().setServerName(serverName);
-	}
-
-	public String getApplication(){
-		return application;
-	}
-
-	public void setApplication(String application){
-		this.application = application;
 	}
 
 	public String getName(){

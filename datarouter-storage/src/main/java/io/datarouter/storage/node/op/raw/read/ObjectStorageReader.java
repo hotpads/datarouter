@@ -32,12 +32,6 @@ public interface ObjectStorageReader<
 		D extends Databean<PK,D>>
 extends NodeOps<PK,D>{
 
-	public static final String OP_exists = "exists";
-	public static final String OP_read = "read";
-	public static final String OP_readUtf8 = "readUtf8";
-	public static final String OP_list = "list";
-	public static final String OP_listWithPrefix = "listWithPrefix";
-
 	String getBucket();
 	String getRootPath();
 

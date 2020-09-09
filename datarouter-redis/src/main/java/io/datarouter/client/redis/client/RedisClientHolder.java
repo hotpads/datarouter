@@ -26,12 +26,13 @@ import io.datarouter.storage.client.ClientId;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.codec.ByteArrayCodec;
 
 @Singleton
 public class RedisClientHolder{
 
 	private final RedisOptions redisOptions;
-	private final Map<ClientId,StatefulRedisConnection<String,String>> redisByClientId;
+	private final Map<ClientId,StatefulRedisConnection<byte[],byte[]>> redisByClientId;
 
 	@Inject
 	public RedisClientHolder(RedisOptions redisOptions){
@@ -46,13 +47,14 @@ public class RedisClientHolder{
 		redisByClientId.put(clientId, buildClient(clientId));
 	}
 
-	public StatefulRedisConnection<String,String> get(ClientId clientId){
+	public StatefulRedisConnection<byte[],byte[]> get(ClientId clientId){
 		return redisByClientId.get(clientId);
 	}
 
-	private StatefulRedisConnection<String,String> buildClient(ClientId clientId){
+	private StatefulRedisConnection<byte[],byte[]> buildClient(ClientId clientId){
 		InetSocketAddress address = redisOptions.getEndpoint(clientId.getName());
-		return RedisClient.create(RedisURI.create(address.getHostName(), address.getPort())).connect();
+		return RedisClient.create(RedisURI.create(address.getHostName(), address.getPort()))
+				.connect(ByteArrayCodec.INSTANCE);
 	}
 
 }

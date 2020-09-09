@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.client.rediscluster.RedisClusterClientType;
 import io.datarouter.client.rediscluster.client.RedisClusterClientManager;
 import io.datarouter.model.databean.Databean;
+import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.JsonDatabeanTool;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
@@ -66,26 +66,25 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		if(databean == null){
 			return;
 		}
-		String key = buildRedisKey(databean.getKey());
-		if(key.length() > MAX_REDIS_KEY_SIZE){
-			String jsonKey = JsonDatabeanTool.fieldsToJson(databean.getKey().getFields()).toString();
-			logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + jsonKey);
+		byte[] key = buildKey(databean.getKey());
+		if(key.length > MAX_REDIS_KEY_SIZE){
+			logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + key);
 			return;
 		}
 		Long ttl = null;
 		if(config != null && config.getTtl() != null){
 			ttl = getTtlMs(config);
 		}
-		String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, getFieldInfo().getSampleFielder());
+		byte[] databeanBytes = DatabeanTool.getBytes(databean, getFieldInfo().getSampleFielder());
 		if(ttl == null){
 			try{
-				getAsyncClient().set(key, jsonBean).get();
+				getAsyncClient().set(key, databeanBytes).get();
 			}catch(InterruptedException | ExecutionException e){
 				logger.error("", e);
 			}
 		}else{
 			try{
-				getAsyncClient().psetex(key, ttl, jsonBean).get();
+				getAsyncClient().psetex(key, ttl, databeanBytes).get();
 			}catch(InterruptedException | ExecutionException e){
 				logger.error("", e);
 			}
@@ -97,15 +96,15 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		if(databeans == null || databeans.isEmpty()){
 			return;
 		}
-		Map<String,String> keysAndDatabeans = new HashMap<>();
+		Map<byte[],byte[]> keysAndDatabeans = new HashMap<>();
 		for(D databean : databeans){
-			String key = buildRedisKey(databean.getKey());
-			if(key.length() > MAX_REDIS_KEY_SIZE){
+			byte[] key = buildKey(databean.getKey());
+			if(key.length > MAX_REDIS_KEY_SIZE){
 				logger.error("redis object too big for redis! " + databean.getDatabeanName() + ", key: " + key);
 				continue;
 			}
-			String jsonBean = JsonDatabeanTool.databeanToJsonString(databean, getFieldInfo().getSampleFielder());
-			keysAndDatabeans.put(key, jsonBean);
+			byte[] databeanBytes = DatabeanTool.getBytes(databean, getFieldInfo().getSampleFielder());
+			keysAndDatabeans.put(key, databeanBytes);
 		}
 		Long ttl = null;
 		if(config != null && config.getTtl() != null){
@@ -142,7 +141,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			return;
 		}
 		try{
-			getAsyncClient().del(buildRedisKey(key)).get();
+			getAsyncClient().del(buildKey(key)).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -154,7 +153,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			return;
 		}
 		try{
-			getAsyncClient().del(buildRedisKeys(keys).toArray(new String[keys.size()])).get();
+			getAsyncClient().del(buildKeys(keys)).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -165,7 +164,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		if(key == null){
 			return null;
 		}
-		String tallyKey = buildRedisKey(new TallyKey(key));
+		byte[] tallyKey = buildKey(new TallyKey(key));
 		RedisFuture<Long> increment = getAsyncClient().incrby(tallyKey, delta);
 		Long expiration = getTtlMs(config);
 		RedisFuture<Boolean> expire = null;
@@ -188,7 +187,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			return;
 		}
 		try{
-			getAsyncClient().del(buildRedisKey(new TallyKey(key))).get();
+			getAsyncClient().del(buildKey(new TallyKey(key))).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}

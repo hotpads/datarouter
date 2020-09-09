@@ -62,6 +62,7 @@ public class DatarouterClusterSettingDao extends BaseDao{
 				ClusterSetting::new,
 				ClusterSettingFielder::new)
 				.withIsSystemTable(true)
+				.withDisableForcePrimary(true)
 				.buildAndRegister();
 		cacheRefSupplier = SingletonSupplier.of(() -> new AtomicReference<>(loadCache()));
 	}

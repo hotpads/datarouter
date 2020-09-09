@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.task.TaskStatus;
+import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.JobCounters;
@@ -162,12 +163,17 @@ public class JobWrapper implements Callable<Void>{
 	}
 
 	private void startTraceSummary(){
-		TracerThreadLocal.bindToThread(new DatarouterSummaryTracer());
+		if(logger.isInfoEnabled()){
+			TracerThreadLocal.bindToThread(new DatarouterSummaryTracer());
+		}
 	}
 
 	private void endTraceSummary(){
-		logger.info("job={}, {}", jobClass.getSimpleName(), TracerThreadLocal.get());
-		TracerThreadLocal.clearFromThread();
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer != null){
+			logger.info("job={}, {}", jobClass.getSimpleName(), TracerThreadLocal.get());
+			TracerThreadLocal.clearFromThread();
+		}
 	}
 
 	private void trackBefore(){

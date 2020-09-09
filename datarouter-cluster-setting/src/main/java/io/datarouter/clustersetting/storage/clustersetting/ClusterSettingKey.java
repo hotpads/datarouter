@@ -30,9 +30,6 @@ import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 
 public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 
-	public static final int DEFAULT_MEDIUM_STRING_LENGTH = CommonFieldSizes.LENGTH_50;
-	public static final int LEN_SERVER_TYPE = CommonFieldSizes.LENGTH_50;
-
 	private String name;
 	private ClusterSettingScope scope;
 	private String serverType;
@@ -43,9 +40,9 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 		public static final StringEnumFieldKey<ClusterSettingScope> scope = new StringEnumFieldKey<>("scope",
 				ClusterSettingScope.class);
 		public static final StringFieldKey serverType = new StringFieldKey("serverType")
-				.withSize(LEN_SERVER_TYPE);
+				.withSize(CommonFieldSizes.LENGTH_50);
 		public static final StringFieldKey serverName = new StringFieldKey("serverName")
-				.withSize(DEFAULT_MEDIUM_STRING_LENGTH);
+				.withSize(CommonFieldSizes.LENGTH_50);
 	}
 
 

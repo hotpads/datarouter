@@ -38,7 +38,7 @@ public class RedisClusterClientManager extends BaseClientManager{
 		holder.registerClient(clientId);
 	}
 
-	public StatefulRedisClusterConnection<String,String> getClient(ClientId clientId){
+	public StatefulRedisClusterConnection<byte[],byte[]> getClient(ClientId clientId){
 		initClient(clientId);
 		return holder.get(clientId);
 	}

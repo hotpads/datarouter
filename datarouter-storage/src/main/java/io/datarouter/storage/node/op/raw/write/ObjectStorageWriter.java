@@ -30,10 +30,6 @@ public interface ObjectStorageWriter<
 		D extends Databean<PK,D>>
 extends ObjectStorageReader<PK,D>{
 
-	public static final String OP_write = "write";
-	public static final String OP_writeUtf8 = "writeUtf8";
-	public static final String OP_delete = "delete";
-
 	void write(PathbeanKey key, byte[] bytes);
 
 	default void writeUtf8(PathbeanKey key, String string){

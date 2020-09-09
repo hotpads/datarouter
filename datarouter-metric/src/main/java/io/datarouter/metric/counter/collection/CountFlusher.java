@@ -79,7 +79,9 @@ public class CountFlusher{
 					return;
 				}
 				var dto = new CountBatchDto(serviceName, serverName, counts);
-				var message = new ConveyorMessage(UlidTool.nextUlid(), gson.toJson(dto));
+				var json = gson.toJson(dto);
+				var message = new ConveyorMessage(UlidTool.nextUlid(), json);
+				logger.info("counts keys={}, jsonLength={}", counts.size(), json.length());
 				publisherDao.put(message);
 				flushQueue.poll();
 			}

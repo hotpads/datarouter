@@ -16,6 +16,7 @@
 package io.datarouter.client.rediscluster.client;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -28,14 +29,17 @@ import io.datarouter.client.rediscluster.client.RedisClusterOptions.RedisCluster
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import io.lettuce.core.codec.ByteArrayCodec;
 
 @Singleton
 public class RedisClusterClientHolder{
 
 	private final RedisClusterOptions redisOptions;
-	private final Map<ClientId,StatefulRedisClusterConnection<String,String>> redisByClientId;
+	private final Map<ClientId,StatefulRedisClusterConnection<byte[],byte[]>> redisByClientId;
 
 	@Inject
 	public RedisClusterClientHolder(RedisClusterOptions redisOptions){
@@ -50,24 +54,34 @@ public class RedisClusterClientHolder{
 		redisByClientId.put(clientId, buildClient(clientId));
 	}
 
-	public StatefulRedisClusterConnection<String,String> get(ClientId clientId){
+	public StatefulRedisClusterConnection<byte[],byte[]> get(ClientId clientId){
 		return redisByClientId.get(clientId);
 	}
 
-	private StatefulRedisClusterConnection<String,String> buildClient(ClientId clientId){
-
+	private StatefulRedisClusterConnection<byte[],byte[]> buildClient(ClientId clientId){
 		RedisClusterClientMode mode = redisOptions.getClientMode(clientId.getName());
 		if(mode == RedisClusterClientMode.AUTO_DISCOVERY){
 			InetSocketAddress address = redisOptions.getClusterEndpoint(clientId.getName()).get();
 			String host = address.getHostName();
 			int port = address.getPort();
-			return RedisClusterClient.create(RedisURI.create(host, port)).connect();
+			return RedisClusterClient.create(RedisURI.create(host, port)).connect(ByteArrayCodec.INSTANCE);
 		}
 		// mode == RedisClusterClientMode.MULTI_NODE
 		Set<RedisURI> nodes = Scanner.of(redisOptions.getNodes(clientId.getName()))
 				.map(address -> RedisURI.create(address.getHostName(), address.getPort()))
 				.collect(HashSet::new);
-		return RedisClusterClient.create(nodes).connect();
+
+		ClusterTopologyRefreshOptions refreshOptions = ClusterTopologyRefreshOptions.builder()
+				.enableAllAdaptiveRefreshTriggers()
+				.enablePeriodicRefresh()
+				.refreshPeriod(Duration.ofSeconds(10))
+				.build();
+		ClusterClientOptions clusterClientOptions = ClusterClientOptions.builder()
+				.topologyRefreshOptions(refreshOptions)
+				.build();
+		RedisClusterClient redisClusterClient = RedisClusterClient.create(nodes);
+		redisClusterClient.setOptions(clusterClientOptions);
+		return redisClusterClient.connect(ByteArrayCodec.INSTANCE);
 	}
 
 }

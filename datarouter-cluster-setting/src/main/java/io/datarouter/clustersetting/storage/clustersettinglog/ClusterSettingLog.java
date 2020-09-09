@@ -30,13 +30,13 @@ import io.datarouter.model.field.imp.custom.LongDateFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.model.util.CommonFieldSizes;
 
 public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,ClusterSettingLog>{
 
 	private ClusterSettingScope scope;
 	private String serverType;
 	private String serverName;
-	private String application;
 	private String value;
 	private ClusterSettingLogAction action;
 	private String changedBy;
@@ -44,9 +44,11 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 
 	public static class FieldKeys{
 		public static final LongDateFieldKey timestamp = new LongDateFieldKey("timestamp");
-		public static final StringFieldKey changedBy = new StringFieldKey("changedBy");
+		public static final StringFieldKey changedBy = new StringFieldKey("changedBy")
+				.withSize(CommonFieldSizes.LENGTH_50);
 		public static final StringEnumFieldKey<ClusterSettingLogAction> action = new StringEnumFieldKey<>("action",
-				ClusterSettingLogAction.class);
+				ClusterSettingLogAction.class)
+				.withSize(20);
 		public static final StringFieldKey comment = new StringFieldKey("comment");
 	}
 
@@ -62,7 +64,6 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 					new StringEnumField<>(ClusterSettingKey.FieldKeys.scope, databean.scope),
 					new StringField(ClusterSettingKey.FieldKeys.serverType, databean.serverType),
 					new StringField(ClusterSettingKey.FieldKeys.serverName, databean.serverName),
-					new StringField(ClusterSetting.FieldKeys.application, databean.application),
 					new StringField(ClusterSetting.FieldKeys.value, databean.value),
 					new StringEnumField<>(FieldKeys.action, databean.action),
 					new StringField(FieldKeys.changedBy, databean.changedBy),
@@ -84,7 +85,6 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 		this.scope = clusterSetting.getScope();
 		this.serverType = clusterSetting.getServerType();
 		this.serverName = clusterSetting.getServerName();
-		this.application = clusterSetting.getApplication();
 		this.value = clusterSetting.getValue();
 		this.action = action;
 		this.changedBy = changedBy;
@@ -131,14 +131,6 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 
 	public void setServerName(String serverName){
 		this.serverName = serverName;
-	}
-
-	public String getApplication(){
-		return application;
-	}
-
-	public void setApplication(String application){
-		this.application = application;
 	}
 
 	public ClusterSettingLogAction getAction(){

@@ -24,6 +24,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretOpReason;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
@@ -42,6 +43,8 @@ public class SqsOptions{
 
 	@Inject
 	private ClientOptions clientOptions;
+	@Inject
+	private SecretNamespacer secretNamespacer;
 	@Inject
 	private SecretService secretService;
 
@@ -69,14 +72,15 @@ public class SqsOptions{
 				logger.warn("credentialsLocation not specified");
 			}
 			return optionalCredentialsLocation.map(credentialsLocation -> {
+				String namespacedLocationForLogs = secretNamespacer.sharedNamespaced(credentialsLocation);
 				try{
 					SqsCredentialsDto result = secretService.readShared(credentialsLocation, SqsCredentialsDto.class,
 							SecretOpReason.automatedOp(this.getClass().getName()));
-					logger.info("using secret at credentialsLocation={}", credentialsLocation);
+					logger.info("using secret at credentialsLocation={}", namespacedLocationForLogs);
 					return result;
 				}catch(RuntimeException e){
-					logger.error("Failed to locate credentialsLocation=" + credentialsLocation + " for clientName="
-							+ clientName, e);
+					logger.error("Failed to locate credentialsLocation={} for clientName={}", namespacedLocationForLogs,
+							clientName, e);
 					return null;
 				}
 			});
