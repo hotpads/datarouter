@@ -15,34 +15,64 @@
  */
 package io.datarouter.aws.s3.client;
 
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h4;
+import static j2html.TagCreator.td;
 
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.http.client.utils.URIBuilder;
+
+import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3ClientType;
+import io.datarouter.aws.s3.config.DatarouterAwsS3Executors.BucketRegionExecutor;
+import io.datarouter.aws.s3.config.DatarouterAwsS3Paths;
+import io.datarouter.aws.s3.node.S3Node;
+import io.datarouter.aws.s3.web.S3BucketHandler;
+import io.datarouter.scanner.ParallelScannerContext;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.storage.node.DatarouterNodes;
+import io.datarouter.storage.node.NodeTool;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
+import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
+import j2html.tags.ContainerTag;
+import software.amazon.awssdk.regions.Region;
 
 public class S3WebInspector implements DatarouterClientWebInspector{
 
+	@Inject
+	private DatarouterNodes nodes;
 	@Inject
 	private DatarouterWebRequestParamsFactory paramsFactory;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private ClientOptions clientOptions;
+	@Inject
+	private S3ClientManager s3ClientManager;
+	@Inject
+	private DatarouterAwsS3Paths paths;
+	@Inject
+	private BucketRegionExecutor bucketRegionExecutor;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
+		String contextPath = request.getContextPath();
 		var clientParams = paramsFactory.new DatarouterWebRequestParams<>(params, S3ClientType.class);
 		var clientId = clientParams.getClientId();
 		if(clientId == null){
@@ -53,7 +83,9 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
 		var content = div(
 				buildClientPageHeader(clientName),
-				buildClientOptionsTable(allClientOptions))
+				buildClientOptionsTable(allClientOptions),
+				buildNodeTable(clientId),
+				buildBucketTable(contextPath, clientId))
 				.withClass("container my-3");
 
 		return pageFactory.startBuilder(request)
@@ -61,6 +93,88 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
 				.withContent(content)
 				.buildMav();
+	}
+
+	private ContainerTag buildNodeTable(ClientId clientId){
+		List<S3NodeDto> nodeDtos = Scanner.of(nodes.getTableNamesForClient(clientId.getName()))
+				.map(tableName -> nodes.getPhysicalNodeForClientAndTable(
+						clientId.getName(),
+						tableName))
+				.map(node -> NodeTool.extractSinglePhysicalNode(node))
+				.map(S3Node.class::cast)
+				.map(s3Node -> new S3NodeDto(s3Node.getBucket(), s3Node.getRootPath()))
+				.list();
+		var table = new J2HtmlTable<S3NodeDto>()
+				.withClasses("sortable table table-sm table-striped my-4 border")
+				.withColumn("Bucket", row -> row.bucket)
+				.withColumn("Root Path", row -> row.rootPath)
+				.build(nodeDtos);
+		return div(h4("Nodes - " + nodeDtos.size()), table)
+				.withClass("container-fluid my-4")
+				.withStyle("padding-left: 0px");
+	}
+
+	private static class S3NodeDto{
+
+		final String bucket;
+		final String rootPath;
+
+		S3NodeDto(String bucket, String rootPath){
+			this.bucket = bucket;
+			this.rootPath = rootPath;
+		}
+
+	}
+
+	private ContainerTag buildBucketTable(String contextPath, ClientId clientId){
+		DatarouterS3Client client = s3ClientManager.getClient(clientId);
+		List<S3BucketDto> buckets = client.scanBuckets()
+				.parallel(new ParallelScannerContext(
+						bucketRegionExecutor,
+						bucketRegionExecutor.getMaximumPoolSize(),
+						true))
+				.map(bucket -> {
+					Region region = client.getBucketRegion(bucket.name()); // RPC
+					return new S3BucketDto(
+							clientId.getName(),
+							bucket.name(),
+							region,
+							bucket.creationDate());
+				})
+				.sorted(Comparator.comparing(bucket -> bucket.bucketName.toLowerCase()))
+				.list();
+		var table = new J2HtmlTable<S3BucketDto>()
+				.withClasses("sortable table table-sm table-striped my-4 border")
+				.withHtmlColumn("Name", bucket -> {
+					String href = new URIBuilder()
+							.setPath(contextPath + paths.datarouter.clients.awsS3.listObjects.toSlashedString())
+							.addParameter(S3BucketHandler.P_client, bucket.clientName)
+							.addParameter(S3BucketHandler.P_bucket, bucket.bucketName)
+							.toString();
+					return td(a(bucket.bucketName).withHref(href));
+				})
+				.withColumn("Region", bucket -> bucket.region)
+				.withColumn("Created", bucket -> bucket.creationDate)
+				.build(buckets);
+		return div(h4("Buckets - " + buckets.size()), table)
+				.withClass("container-fluid my-4")
+				.withStyle("padding-left: 0px");
+	}
+
+	private static class S3BucketDto{
+
+		final String clientName;
+		final String bucketName;
+		final Region region;
+		final Instant creationDate;
+
+		public S3BucketDto(String clientName, String bucketName, Region region, Instant creationDate){
+			this.clientName = clientName;
+			this.bucketName = bucketName;
+			this.region = region;
+			this.creationDate = creationDate;
+		}
+
 	}
 
 }

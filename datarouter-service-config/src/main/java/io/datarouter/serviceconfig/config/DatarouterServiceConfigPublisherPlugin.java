@@ -27,6 +27,7 @@ public class DatarouterServiceConfigPublisherPlugin extends BaseWebPlugin{
 		this.publisher = publisher;
 		addSettingRoot(DatarouterServiceConfigurationSettings.class);
 		addAppListener(DatarouterServiceConfigurationAppListener.class);
+		addDatarouterGithubDocLink("datarouter-service-config");
 	}
 
 	@Override

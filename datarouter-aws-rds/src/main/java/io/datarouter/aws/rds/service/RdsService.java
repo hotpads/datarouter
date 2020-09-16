@@ -26,6 +26,7 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClientBuilder;
+import com.amazonaws.services.rds.model.AddTagsToResourceRequest;
 import com.amazonaws.services.rds.model.CreateDBInstanceRequest;
 import com.amazonaws.services.rds.model.DBCluster;
 import com.amazonaws.services.rds.model.DBClusterMember;
@@ -34,8 +35,10 @@ import com.amazonaws.services.rds.model.DescribeDBClustersRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.ListTagsForResourceRequest;
 import com.amazonaws.services.rds.model.ListTagsForResourceResult;
+import com.amazonaws.services.rds.model.Tag;
 
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
+import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings.RdsCredentialsDto;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.retry.RetryableTool;
 
@@ -121,13 +124,31 @@ public class RdsService{
 		return getAmazonRdsReadOnlyClient().listTagsForResource(listTagsRequest);
 	}
 
-	//get RDS client for rdsReadOnly IAM user
+	public void applyMissingTags(String instanceName, List<Tag> missingTags){
+		AddTagsToResourceRequest addTagsRequest = new AddTagsToResourceRequest()
+				.withResourceName(getInstanceArn(instanceName));
+		addTagsRequest.setTags(missingTags);
+		getAmazonRdsAddTagsClient().addTagsToResource(addTagsRequest);
+	}
+
+	private String getInstanceArn(String instanceName){
+		return getInstance(instanceName).getDBInstanceArn();
+	}
+
 	private AmazonRDS getAmazonRdsReadOnlyClient(){
-		AWSCredentials awsCredentials2 = new BasicAWSCredentials(
-				rdsSettings.iamRdsReadOnlyUserAccessKey.get(),
-				rdsSettings.iamRdsReadOnlyUserSecretKey.get());
+		RdsCredentialsDto credentialsDto = rdsSettings.rdsReadOnlyCredentials.get();
+		AWSCredentials credentials = new BasicAWSCredentials(credentialsDto.accessKey, credentialsDto.secretKey);
 		return AmazonRDSClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials2))
+				.withCredentials(new AWSStaticCredentialsProvider(credentials))
+				.withRegion(rdsSettings.region.get())
+				.build();
+	}
+
+	private AmazonRDS getAmazonRdsAddTagsClient(){
+		RdsCredentialsDto credentialsDto = rdsSettings.rdsAddTagsCredentials.get();
+		AWSCredentials awsCredentials = new BasicAWSCredentials(credentialsDto.accessKey, credentialsDto.secretKey);
+		return AmazonRDSClientBuilder.standard()
+				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
 				.withRegion(rdsSettings.region.get())
 				.build();
 	}

@@ -16,6 +16,7 @@
 package io.datarouter.instrumentation.schema;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class FieldDto{
@@ -46,6 +47,36 @@ public class FieldDto{
 		this.order = order;
 		this.isFixedLength = isFixedLength;
 		this.size = size;
+	}
+
+	@Override
+	public boolean equals(Object obj){
+		if(obj instanceof FieldDto){
+			FieldDto that = (FieldDto)obj;
+			return this.name.equals(that.name)
+					&& this.type.equals(that.type)
+					&& this.isKey == that.isKey
+					&& this.attributes.equals(that.attributes)
+					&& this.isNullable == that.isNullable
+					&& this.order == that.order
+					&& this.isFixedLength == that.isFixedLength
+					&& this.size.equals(that.size);
+		}else{
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode(){
+		return Objects.hash(
+				this.name,
+				this.type,
+				this.isKey,
+				this.attributes,
+				this.isNullable,
+				this.order,
+				this.isFixedLength,
+				this.size);
 	}
 
 }

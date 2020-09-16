@@ -38,7 +38,8 @@ public class ClusterSettingKey extends BaseRegularPrimaryKey<ClusterSettingKey>{
 	public static class FieldKeys{
 		public static final StringFieldKey name = new StringFieldKey("name");
 		public static final StringEnumFieldKey<ClusterSettingScope> scope = new StringEnumFieldKey<>("scope",
-				ClusterSettingScope.class);
+				ClusterSettingScope.class)
+				.withSize(20);
 		public static final StringFieldKey serverType = new StringFieldKey("serverType")
 				.withSize(CommonFieldSizes.LENGTH_50);
 		public static final StringFieldKey serverName = new StringFieldKey("serverName")

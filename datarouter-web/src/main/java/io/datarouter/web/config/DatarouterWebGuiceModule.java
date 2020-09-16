@@ -45,12 +45,13 @@ import io.datarouter.web.navigation.AppNavBarRegistrySupplier.NoOpAppNavBarRegis
 import io.datarouter.web.navigation.AppPluginNavBarSupplier;
 import io.datarouter.web.navigation.DatarouterNavBarCreator;
 import io.datarouter.web.navigation.DatarouterNavBarSupplier;
+import io.datarouter.web.navigation.DynamicNavBarItemRegistry;
 import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.web.port.PortIdentifier;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.NoOpDocumentationNamesAndLinks;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier.NoOpServiceDescription;
-import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
-import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier.NoOpServiceDocumentationNamesAndLinks;
 import io.datarouter.web.test.TestableServiceClassRegistry;
 import io.datarouter.web.test.TestableServiceClassRegistry.DefaultTestableServiceClassRegistry;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
@@ -103,8 +104,9 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefaultInstance(DatarouterNavBarSupplier.class, new DatarouterNavBarCreator(Collections.emptyList()));
 		bindDefaultInstance(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(Collections.emptyList()));
 		bindDefault(AppNavBarRegistrySupplier.class, NoOpAppNavBarRegistry.class);
+		bindDefaultInstance(DynamicNavBarItemRegistry.class, new DynamicNavBarItemRegistry(List.of()));
 		bindDefault(ServiceDescriptionSupplier.class, NoOpServiceDescription.class);
-		bindDefault(ServiceDocumentationNamesAndLinksSupplier.class, NoOpServiceDocumentationNamesAndLinks.class);
+		bindDefault(DocumentationNamesAndLinksSupplier.class, NoOpDocumentationNamesAndLinks.class);
 
 		bindDefault(ChangelogRecorder.class, NoOpChangelogRecorder.class);
 		bindDefaultInstance(TestableServiceClassRegistry.class, new DefaultTestableServiceClassRegistry(List.of()));

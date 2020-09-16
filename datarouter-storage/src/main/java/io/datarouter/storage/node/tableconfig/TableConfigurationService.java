@@ -18,12 +18,11 @@ package io.datarouter.storage.node.tableconfig;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.dao.Daos;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
@@ -40,19 +39,19 @@ public class TableConfigurationService{
 	private DatarouterNodes datarouterNodes;
 
 	public List<NodewatchConfiguration> getTableConfigurations(){
-		return datarouterNodes.getAllNodes().stream()
+		return Scanner.of(datarouterNodes.getAllNodes())
 				.map(Node::getPhysicalNodes)
-				.flatMap(List::stream)
+				.concat(Scanner::of)
 				.map(PhysicalNode::getFieldInfo)
 				.map(PhysicalDatabeanFieldInfo::getTableConfiguration)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
+				.exclude(Objects::isNull)
+				.distinct()
+				.list();
 	}
 
 	public Map<ClientTableEntityPrefixNameWrapper,NodewatchConfiguration> getTableConfigMap(){
-		return getTableConfigurations().stream()
-				.distinct()
-				.collect(Collectors.toMap(config -> config.nodeNameWrapper, Function.identity()));
+		return Scanner.of(getTableConfigurations())
+				.toMap(config -> config.nodeNameWrapper);
 	}
 
 }

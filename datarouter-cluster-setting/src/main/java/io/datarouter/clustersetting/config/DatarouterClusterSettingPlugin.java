@@ -46,6 +46,7 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS,
 				new DatarouterClusterSettingPaths().datarouter.settings, "Custom Settings");
 		setDaosModule(daosModuleBuilder);
+		addDatarouterGithubDocLink("datarouter-cluster-setting");
 	}
 
 	@Override

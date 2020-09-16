@@ -65,6 +65,7 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		setDaosModule(daosAndClients);
 		addJobletType(SleepingJoblet.JOBLET_TYPE);
 		addTestable(DatarouterJobletBootstrapIntegrationService.class);
+		addDatarouterGithubDocLink("datarouter-joblet");
 	}
 
 	@Override

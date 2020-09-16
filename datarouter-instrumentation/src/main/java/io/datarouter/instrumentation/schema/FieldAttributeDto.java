@@ -15,6 +15,8 @@
  */
 package io.datarouter.instrumentation.schema;
 
+import java.util.Objects;
+
 public class FieldAttributeDto{
 
 	public final String name;
@@ -23,6 +25,21 @@ public class FieldAttributeDto{
 	public FieldAttributeDto(String name, String value){
 		this.name = name;
 		this.value = value;
+	}
+
+	@Override
+	public boolean equals(Object obj){
+		if(obj instanceof FieldAttributeDto){
+			FieldAttributeDto that = (FieldAttributeDto)obj;
+			return this.name.equals(that.name) && this.value.equals(that.value);
+		}else{
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode(){
+		return Objects.hash(this.name, this.value);
 	}
 
 }

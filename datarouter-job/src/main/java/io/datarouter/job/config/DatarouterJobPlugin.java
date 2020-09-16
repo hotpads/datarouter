@@ -51,6 +51,7 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 				"Triggers");
 		addTestable(DatarouterJobBootstrapIntegrationService.class);
 		this.triggerGroupClasses = triggerGroupClasses;
+		addDatarouterGithubDocLink("datarouter-job");
 	}
 
 	@Override

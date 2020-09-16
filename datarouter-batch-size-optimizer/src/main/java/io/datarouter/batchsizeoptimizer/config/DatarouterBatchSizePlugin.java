@@ -37,6 +37,7 @@ public class DatarouterBatchSizePlugin extends BaseJobPlugin{
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS,
 				new DatarouterBatchSizeOptimizerPaths().datarouter.batchSizeOptimizer, "Batch Size Optimizer");
+		addDatarouterGithubDocLink("datarouter-batch-size-optimizer");
 	}
 
 	@Override

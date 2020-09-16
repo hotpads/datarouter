@@ -21,9 +21,10 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.navigation.DynamicNavBarItem.DynamicNavBarItemType;
 import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
-import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
 public class AppNavBar extends NavBar{
@@ -36,17 +37,21 @@ public class AppNavBar extends NavBar{
 			Optional<DatarouterAuthenticationConfig> config,
 			AppPluginNavBarSupplier pluginSupplier,
 			AppNavBarRegistrySupplier registrySupplier,
-			ServiceDocumentationNamesAndLinksSupplier docNameAndLinksSupplier){
+			DynamicNavBarItemRegistry dynamicNavBarItemRegistry,
+			DatarouterInjector injector){
 		super("", "", config);
-		List<NavBarItem> readmeLinks = docNameAndLinksSupplier.get().entrySet().stream()
-				.map(entry -> new NavBarItem(AppNavBarCategory.README, entry.getValue(), entry.getKey()))
-				.collect(Collectors.toList());
+		List<NavBarItem> dynamicNavBarItems = Scanner.of(dynamicNavBarItemRegistry.items)
+				.map(injector::getInstance)
+				.include(item -> item.getType() == DynamicNavBarItemType.APP)
+				.include(DynamicNavBarItem::shouldDisplay)
+				.map(DynamicNavBarItem::getNavBarItem)
+				.list();
 		Scanner.concat(
 				List.of(new NavBarItem(new SimpleNavBarCategory("Home", AppNavBarCategoryGrouping.HOME, true), "/",
 						"Home")),
 				pluginSupplier.get(),
 				registrySupplier.get(),
-				readmeLinks)
+				dynamicNavBarItems)
 				.groupBy(item -> item.category.toDto())
 				.entrySet()
 				.stream()

@@ -24,8 +24,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.navigation.DynamicNavBarItem.DynamicNavBarItemType;
 import io.datarouter.web.navigation.NavBarCategory.SimpleNavBarCategory;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 
@@ -34,9 +36,16 @@ public class DatarouterNavBar extends NavBar{
 
 	@Inject
 	public DatarouterNavBar(DatarouterWebFiles webFiles, Optional<DatarouterAuthenticationConfig> config,
-			DatarouterNavBarSupplier navBarSupplier){
+			DatarouterNavBarSupplier navBarSupplier, DynamicNavBarItemRegistry dynamicNavBarItemRegistry,
+			DatarouterInjector injector){
 		super(webFiles.jeeAssets.datarouterLogoPng.toSlashedString(), "Datarouter logo", config);
-		Scanner.of(navBarSupplier.get())
+		List<NavBarItem> dynamicNavBarItems = Scanner.of(dynamicNavBarItemRegistry.items)
+				.map(injector::getInstance)
+				.include(item -> item.getType() == DynamicNavBarItemType.DATAROUTER)
+				.include(DynamicNavBarItem::shouldDisplay)
+				.map(DynamicNavBarItem::getNavBarItem)
+				.list();
+		Scanner.concat(navBarSupplier.get(), dynamicNavBarItems)
 				.groupBy(item -> item.category.toDto())
 				.entrySet()
 				.stream()

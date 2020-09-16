@@ -44,6 +44,7 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 		setDaosModule(daosModule);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.CHANGELOG, PATHS.datarouter.changelog.view, "View Changelog");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.CHANGELOG, PATHS.datarouter.changelog.insert, "Add");
+		addDatarouterGithubDocLink("datarouter-changelog");
 	}
 
 	@Override

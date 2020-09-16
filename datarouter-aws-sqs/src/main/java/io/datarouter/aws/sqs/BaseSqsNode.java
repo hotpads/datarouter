@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.QueueAttributeName;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.model.databean.Databean;
@@ -37,6 +38,7 @@ import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.tuple.Twin;
 
 public abstract class BaseSqsNode<
 		PK extends PrimaryKey<PK>,
@@ -53,14 +55,16 @@ implements QueueStorageWriter<PK,D>{
 	public static final int MAX_BYTES_PER_PAYLOAD = 256 * 1024;
 	// SQS default is 30 sec
 	public static final long DEFAULT_VISIBILITY_TIMEOUT_MS = Duration.ofSeconds(30).toMillis();
+	private static final long RETENTION_S = Duration.ofDays(14).getSeconds();
 
 	private final DatarouterProperties datarouterProperties;
 	private final DatarouterService datarouterService;
 	private final NodeParams<PK,D,F> params;
-	private final Supplier<String> queueUrl;
+	private final Supplier<Twin<String>> queueUrlAndName;
 	private final SqsClientManager sqsClientManager;
 	private final ClientId clientId;
 	protected final SqsOpFactory<PK,D,F> sqsOpFactory;
+	private final boolean owned;
 
 	public BaseSqsNode(
 			DatarouterProperties datarouterProperties,
@@ -75,29 +79,35 @@ implements QueueStorageWriter<PK,D>{
 		this.params = params;
 		this.sqsClientManager = sqsClientManager;
 		this.clientId = clientId;
-		this.queueUrl = SingletonSupplier.of(this::getOrCreateQueueUrl);
+		this.queueUrlAndName = SingletonSupplier.of(this::getOrCreateQueueUrl);
 		this.sqsOpFactory = new SqsOpFactory<>(this, sqsClientManager, clientId);
+		this.owned = params.getQueueUrl() == null;
 	}
 
-	private String getOrCreateQueueUrl(){
+	private Twin<String> getOrCreateQueueUrl(){
 		String queueUrl;
-		if(params.getQueueUrl() != null){
+		String queueName;
+		if(!owned){
 			queueUrl = params.getQueueUrl();
+			queueName = queueUrl.substring(queueUrl.lastIndexOf('/') + 1);
 			//don't issue the createQueue request because it is probably someone else's queue
 		}else{
 			String serviceName = datarouterService.getName();
 			String namespace = params.getNamespace().orElse(datarouterProperties.getEnvironment() + "-" + serviceName);
-			String queueName = StringTool.isEmpty(namespace)
+			queueName = StringTool.isEmpty(namespace)
 					? getFieldInfo().getTableName()
 					: namespace + "-" + getFieldInfo().getTableName();
-			queueUrl = tryCreateQueueAndGetUrl(queueName);
+			queueUrl = createQueueAndGetUrl(queueName);
+			sqsClientManager.updateAttr(clientId, queueUrl, QueueAttributeName.MessageRetentionPeriod, RETENTION_S);
+			logger.warn("retention updated queueName=" + queueName);
 		}
-		logger.warn("nodeName={}, queueName={}", getName(), queueUrl);
-		return queueUrl;
+		logger.warn("nodeName={}, queueUrl={}", getName(), queueUrl);
+		return new Twin<>(queueUrl, queueName);
 	}
 
-	private String tryCreateQueueAndGetUrl(String queueName){
+	private String createQueueAndGetUrl(String queueName){
 		var createQueueRequest = new CreateQueueRequest(queueName);
+//				.addAttributesEntry(QueueAttributeName.MessageRetentionPeriod.name(), String.valueOf(RETENTION_S));
 		try{
 			return sqsClientManager.getAmazonSqs(clientId).createQueue(createQueueRequest).getQueueUrl();
 		}catch(RuntimeException e){
@@ -105,8 +115,12 @@ implements QueueStorageWriter<PK,D>{
 		}
 	}
 
-	public Supplier<String> getQueueUrl(){
-		return queueUrl;
+	public Supplier<Twin<String>> getQueueUrlAndName(){
+		return queueUrlAndName;
+	}
+
+	public boolean isOwned(){
+		return owned;
 	}
 
 	@Override

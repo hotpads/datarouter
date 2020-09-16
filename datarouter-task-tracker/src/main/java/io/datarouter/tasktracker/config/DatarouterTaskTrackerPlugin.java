@@ -48,6 +48,7 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 				new DatarouterTaskTrackerPaths().datarouter.jobsHealth, "Jobs Health");
 		addSettingRoot(DatarouterTaskTrackerSettingRoot.class);
 		addRouteSet(DatarouterTaskTrackerRouteSet.class);
+		addDatarouterGithubDocLink("datarouter-task-tracker");
 	}
 
 	@Override

@@ -19,30 +19,32 @@ import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.pre;
+import static j2html.TagCreator.ul;
 
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.client.rediscluster.RedisClusterClientType;
 import io.datarouter.client.rediscluster.client.RedisClusterClientManager;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
 public class RedisClusterWebInspector implements DatarouterClientWebInspector{
-	private static final Logger logger = LoggerFactory.getLogger(RedisClusterWebInspector.class);
 
 	@Inject
 	private RedisClusterClientManager clientManager;
@@ -75,17 +77,17 @@ public class RedisClusterWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag buildOverview(ClientId clientId){
-		String clusterNodes = "";
-		String clusterInfo = "";
-		try{
-			clusterNodes = clientManager.getClient(clientId).async().clusterNodes().get();
-			clusterInfo = clientManager.getClient(clientId).async().clusterInfo().get();
-		}catch(InterruptedException | ExecutionException e){
-			logger.warn("", e);
-		}
+		var client = clientManager.getClient(clientId).sync();
+		List<String> clusterNodes = Scanner.of(client.clusterNodes().split("\n"))
+				.list();
+		String clusterInfo = client.clusterInfo();
+		String info = client.info();
 		return dl(
-				dt("Nodes:"), dd(clusterNodes),
-				dt("Info:"), dd(clusterInfo));
+				dt("Nodes: " + clusterNodes.size()), dd(ul(each(clusterNodes, TagCreator::li))),
+				dt("Cluster Info:"), dd(pre(clusterInfo)),
+				dt("Info:"), dd(pre(info)),
+				dt("Lettuce Options:"),
+						dd(pre(GsonTool.GSON_PRETTY_PRINT.toJson(clientManager.getClient(clientId).getOptions()))));
 	}
 
 }

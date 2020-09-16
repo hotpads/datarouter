@@ -29,6 +29,7 @@ public class DatarouterRateLimiterPlugin extends BaseWebPlugin{
 
 	private DatarouterRateLimiterPlugin(DatarouterRateLimiterDaoModule daosModule){
 		setDaosModule(daosModule);
+		addDatarouterGithubDocLink("datarouter-rate-limiter");
 	}
 
 	@Override

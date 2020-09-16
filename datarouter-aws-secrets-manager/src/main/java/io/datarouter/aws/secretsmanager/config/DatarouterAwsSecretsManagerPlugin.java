@@ -32,6 +32,7 @@ public class DatarouterAwsSecretsManagerPlugin extends BaseWebPlugin{
 		this.devSecretKey = devSecretKey;
 		this.prodAccessKey = prodAccessKey;
 		this.prodSecretkey = prodSecretkey;
+		addDatarouterGithubDocLink("datarouter-aws-secrets-manager");
 	}
 
 	@Override

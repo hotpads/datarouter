@@ -40,6 +40,7 @@ public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS,
 				new DatarouterLoggingConfigPaths().datarouter.logging, "Logger Config");
+		addDatarouterGithubDocLink("datarouter-logger-config");
 	}
 
 	@Override

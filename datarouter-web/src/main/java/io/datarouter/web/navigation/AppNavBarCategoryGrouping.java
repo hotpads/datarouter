@@ -18,12 +18,11 @@ package io.datarouter.web.navigation;
 public enum AppNavBarCategoryGrouping{
 	HOME(1),
 	ADMIN(2),
-	README(3),
-	API_DOCS(4),
-	PLATFORM(5),
-	APP(6),
-	PLUGINS(7),
-	MISC(8),
+	DOCS(3),
+	PLATFORM(4),
+	APP(5),
+	PLUGINS(6),
+	MISC(7),
 	;
 
 	public final int group;

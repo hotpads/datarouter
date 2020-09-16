@@ -28,8 +28,8 @@ import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationPublisher
 import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.web.listener.DatarouterAppListener;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
-import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
 
 @Singleton
 public class DatarouterServiceConfigurationAppListener implements DatarouterAppListener{
@@ -47,7 +47,7 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 	@Inject
 	private ServiceDescriptionSupplier serviceDescriptionSupplier;
 	@Inject
-	private ServiceDocumentationNamesAndLinksSupplier serviceReadmeLinkSupplier;
+	private DocumentationNamesAndLinksSupplier documentationNamesAndLinksSupplier;
 
 	@Override
 	public void onStartUp(){
@@ -61,7 +61,7 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 				datarouterService.getName(),
 				admins,
 				serviceDescriptionSupplier.get(),
-				serviceReadmeLinkSupplier.get());
+				documentationNamesAndLinksSupplier.getReadmeDocs());
 		try{
 			serviceConfigurationPublisher.add(dto);
 		}catch(Exception e){

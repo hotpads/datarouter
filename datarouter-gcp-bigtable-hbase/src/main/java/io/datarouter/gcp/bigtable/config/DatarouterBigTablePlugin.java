@@ -22,6 +22,7 @@ public class DatarouterBigTablePlugin extends BaseWebPlugin{
 
 	public DatarouterBigTablePlugin(){
 		addRouteSet(DatarouterBigTableRouteSet.class);
+		addDatarouterGithubDocLink("datarouter-gcp-bigtable");
 	}
 
 	@Override

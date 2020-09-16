@@ -47,6 +47,7 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
 				new DatarouterWebappInstancePaths().datarouter.webappInstances, "Webapp Instances");
+		addDatarouterGithubDocLink("datarouter-webapp-instance");
 	}
 
 	@Override

@@ -34,6 +34,7 @@ public class DatarouterHbasePlugin extends BaseJobPlugin{
 		addRouteSet(DatarouterHBaseRouteSet.class);
 		addSettingRoot(DatarouterHBaseSettingRoot.class);
 		addTriggerGroup(DatarouterHBaseTriggerGroup.class);
+		addDatarouterGithubDocLink("datarouter-hbase");
 	}
 
 	@Override

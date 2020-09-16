@@ -68,6 +68,7 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 				GuiceWebSocketAuthenticationFilter.class));
 		addRouteSet(DatarouterWebSocketApiRouteSet.class);
 		setDaosModule(daosModule);
+		addDatarouterGithubDocLink("datarouter-websocket");
 	}
 
 	@Override

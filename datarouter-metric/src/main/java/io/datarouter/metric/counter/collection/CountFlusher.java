@@ -34,6 +34,7 @@ import io.datarouter.instrumentation.count.CountBatchDto;
 import io.datarouter.metric.DatarouterMetricExecutors.DatarouterCountFlushSchedulerExecutor;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.UlidTool;
 
@@ -81,13 +82,20 @@ public class CountFlusher{
 				var dto = new CountBatchDto(serviceName, serverName, counts);
 				var json = gson.toJson(dto);
 				var message = new ConveyorMessage(UlidTool.nextUlid(), json);
-				logger.info("counts keys={}, jsonLength={}", counts.size(), json.length());
+				logCountsSpec(counts, json);
 				publisherDao.put(message);
 				flushQueue.poll();
 			}
 		}catch(Exception e){
 			logger.warn("", e);
 		}
+	}
+
+	private static void logCountsSpec(Map<Long,Map<String,Long>> counts, String countsJson){
+		int names = Scanner.of(counts.values())
+				.map(Map::size)
+				.reduce(0, Integer::sum);
+		logger.info("counts buckets={}, names={}, jsonLength={}", counts.size(), names, countsJson.length());
 	}
 
 	@Singleton

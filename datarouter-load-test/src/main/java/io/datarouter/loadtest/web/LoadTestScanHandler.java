@@ -16,8 +16,12 @@
 package io.datarouter.loadtest.web;
 
 import static j2html.TagCreator.br;
+import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.dl;
+import static j2html.TagCreator.dt;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,6 +44,7 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 
 public class LoadTestScanHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(LoadTestScanHandler.class);
@@ -67,7 +72,7 @@ public class LoadTestScanHandler extends BaseHandler{
 		form.addTextField()
 				.withDisplay("Num")
 				.withName(P_num)
-				.withPlaceholder("100000")
+				.withPlaceholder("100,000")
 				.withValue(num.orElse(null));
 		form.addTextField()
 				.withDisplay("Batch Size")
@@ -89,10 +94,12 @@ public class LoadTestScanHandler extends BaseHandler{
 		//params
 		int pNum = num
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM);
 		int pBatchSize = batchSize
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_BATCH_SIZE);
 
@@ -106,8 +113,24 @@ public class LoadTestScanHandler extends BaseHandler{
 		timer.add("scanned " + rowCounter.get());
 
 		//results
-		String message = timer + " @" + timer.getItemsPerSecond(rowCounter.get()) + "/s";
-		logger.warn(message);
+		DomContent message = div(
+				h2("Load Test Scan Results"),
+				div(
+					h3("Results"),
+					dl(
+							dt("Total Time"), dd(timer.getElapsedString()),
+							dt("Rows per second"), dd(timer.getItemsPerSecond(rowCounter.get()) + ""))),
+				div(
+					h3("Params"),
+					dl(
+							dt("Num"), dd(pNum + ""),
+							dt("Batch Size"), dd(pBatchSize + ""))))
+				.withClass("container");
+		logger.warn("total={}, rps={}, num={}, batchSize={}",
+				timer.getElapsedString(),
+				timer.getItemsPerSecond(rowCounter.get()),
+				pNum,
+				pBatchSize);
 		return pageFactory.message(request, message);
 	}
 

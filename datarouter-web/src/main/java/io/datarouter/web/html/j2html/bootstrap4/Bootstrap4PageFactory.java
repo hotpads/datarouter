@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.MavPropertiesFactory;
+import j2html.tags.DomContent;
 
 @Singleton
 public class Bootstrap4PageFactory{
@@ -40,6 +41,14 @@ public class Bootstrap4PageFactory{
 	public Mav message(HttpServletRequest request, String message){
 		var content = div(h5(message))
 				.withStyle("margin:40px;");
+		return startBuilder(request)
+				.withTitle("Message")
+				.withContent(content)
+				.buildMav();
+	}
+
+	public Mav message(HttpServletRequest request, DomContent message){
+		var content = div(message);
 		return startBuilder(request)
 				.withTitle("Message")
 				.withContent(content)

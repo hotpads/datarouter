@@ -20,6 +20,8 @@ import javax.inject.Singleton;
 
 import com.amazonaws.regions.Regions;
 
+import io.datarouter.secret.service.CachedSecretFactory;
+import io.datarouter.secret.service.CachedSecretFactory.CachedSecret;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -27,8 +29,10 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterAwsRdsConfigSettings extends SettingNode{
 
-	public final CachedSetting<String> iamRdsReadOnlyUserAccessKey;
-	public final CachedSetting<String> iamRdsReadOnlyUserSecretKey;
+	public final CachedSetting<String> rdsReadOnlyCredentialsLocation;
+	public final CachedSecret<RdsCredentialsDto> rdsReadOnlyCredentials;
+	public final CachedSetting<String> rdsAddTagsCredentialsLocation;
+	public final CachedSecret<RdsCredentialsDto> rdsAddTagsCredentials;
 	public final CachedSetting<String> iamRdsOtherCreateUserAccessKey;
 	public final CachedSetting<String> iamRdsOtherCreateUserSecretKey;
 	public final CachedSetting<String> region;
@@ -43,11 +47,15 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 	public final CachedSetting<Integer> dbOtherPromotionTier;
 
 	@Inject
-	public DatarouterAwsRdsConfigSettings(SettingFinder finder){
+	public DatarouterAwsRdsConfigSettings(SettingFinder finder, CachedSecretFactory cachedSecretFactory){
 		super(finder, "datarouterAwsRds.config.");
 
-		iamRdsReadOnlyUserAccessKey = registerStrings("iamRdsReadOnlyUserAccessKey", defaultTo(""));
-		iamRdsReadOnlyUserSecretKey = registerStrings("iamRdsReadOnlyUserSecretKey", defaultTo(""));
+		rdsReadOnlyCredentialsLocation = registerString("rdsReadOnlyCredentialsLocation", "placeholder");
+		rdsReadOnlyCredentials = cachedSecretFactory.cacheSharedSecret(rdsReadOnlyCredentialsLocation, RdsCredentialsDto
+				.class);
+		rdsAddTagsCredentialsLocation = registerString("rdsAddTagsCredentialsLocation", "placeholder");
+		rdsAddTagsCredentials = cachedSecretFactory.cacheSharedSecret(rdsAddTagsCredentialsLocation, RdsCredentialsDto
+				.class);
 		iamRdsOtherCreateUserAccessKey = registerStrings("iamRdsOtherCreateUserAccessKey", defaultTo(""));
 		iamRdsOtherCreateUserSecretKey = registerStrings("iamRdsOtherCreateUserSecretKey", defaultTo(""));
 		region = registerStrings("region", defaultTo(Regions.US_EAST_1.getName()));
@@ -60,6 +68,18 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 		dbOtherEngine = registerString("dbOtherEngine", "");
 		dbOtherParameterGroup = registerString("dbOtherParameterGroup", "");
 		dbOtherPromotionTier = registerInteger("dbOtherPromotionTier", 15);
+	}
+
+	public static class RdsCredentialsDto{
+
+		public final String accessKey;
+		public final String secretKey;
+
+		public RdsCredentialsDto(String accessKey, String secretKey){
+			this.accessKey = accessKey;
+			this.secretKey = secretKey;
+		}
+
 	}
 
 }

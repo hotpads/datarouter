@@ -16,8 +16,12 @@
 package io.datarouter.loadtest.web;
 
 import static j2html.TagCreator.br;
+import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.dl;
+import static j2html.TagCreator.dt;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 
 import java.time.Duration;
 import java.util.List;
@@ -87,7 +91,7 @@ public class LoadTestGetHandler extends BaseHandler{
 		form.addTextField()
 				.withDisplay("Num")
 				.withName(P_num)
-				.withPlaceholder("100000")
+				.withPlaceholder("100,000")
 				.withValue(num.orElse(null));
 		form.addTextField()
 				.withDisplay("Max")
@@ -107,7 +111,7 @@ public class LoadTestGetHandler extends BaseHandler{
 		form.addTextField()
 				.withDisplay("Log Period")
 				.withName(P_logPeriod)
-				.withPlaceholder("10000")
+				.withPlaceholder("1,0000")
 				.withValue(logPeriod.orElse(null));
 		form.addButton()
 				.withDisplay("Run Get")
@@ -124,22 +128,27 @@ public class LoadTestGetHandler extends BaseHandler{
 		//params
 		int pNum = num
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM);
 		int pMax = max
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(pNum);
 		int pNumThreads = numThreads
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM_THREADS);
 		int pBatchSize = batchSize
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_BATCH_SIZE);
 		int pLogPeriod = logPeriod
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_LOG_PERIOD);
 
@@ -158,9 +167,30 @@ public class LoadTestGetHandler extends BaseHandler{
 		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(5));
 		timer.add("got " + rowCounter.get());
 
-		//results
-		String message = timer + " @" + timer.getItemsPerSecond(rowCounter.get()) + "/s";
-		logger.warn(message);
+		var message = div(
+				h2("Load Test Get Results"),
+				div(
+					h3("Results"),
+					dl(
+							dt("Total Time"), dd(timer.getElapsedString()),
+							dt("Rows per second"), dd(timer.getItemsPerSecond(rowCounter.get()) + ""))),
+				div(
+					h3("Params"),
+					dl(
+							dt("Num"), dd(pNum + ""),
+							dt("Max"), dd(pMax + ""),
+							dt("Num Threads"), dd(pNumThreads + ""),
+							dt("Batch Size"), dd(pBatchSize + ""),
+							dt("Log Period"), dd(pLogPeriod + ""))))
+				.withClass("container");
+		logger.warn("total={}, rps={}, num={}, max={}, numThreads={} batchSize={}, logPeriod={}",
+				timer.getElapsedString(),
+				timer.getItemsPerSecond(rowCounter.get()),
+				pNum,
+				pMax,
+				pNumThreads,
+				pBatchSize,
+				pLogPeriod);
 		return pageFactory.message(request, message);
 	}
 

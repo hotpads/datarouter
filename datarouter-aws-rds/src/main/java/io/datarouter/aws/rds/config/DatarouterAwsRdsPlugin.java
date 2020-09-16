@@ -55,6 +55,7 @@ public class DatarouterAwsRdsPlugin extends BaseJobPlugin{
 		addSettingRoot(DatarouterAwsRdsSettingRoot.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
 				new DatarouterAwsPaths().datarouter.auroraInstances, "Aurora Clients");
+		addDatarouterGithubDocLink("datarouter-aws-rds");
 	}
 
 	@Override

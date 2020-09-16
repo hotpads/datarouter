@@ -63,6 +63,7 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 		addSettingRoot(DatarouterNodewatchSettingRoot.class);
 		addTriggerGroup(DatarouterNodewatchTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
+		addDatarouterGithubDocLink("datarouter-nodewatch");
 		if(enablePublishing){
 			addSettingRoot(DatarouterTableCountPublisherSettingRoot.class);
 			addTriggerGroup(DatarouterTableCountPublisherTriggerGroup.class);

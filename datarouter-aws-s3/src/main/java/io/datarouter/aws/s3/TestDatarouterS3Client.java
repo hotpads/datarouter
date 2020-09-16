@@ -32,6 +32,8 @@ import javax.inject.Singleton;
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.scanner.Scanner;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -50,6 +52,16 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 
 	public Path getTestFolder(){
 		return testFolder;
+	}
+
+	@Override
+	public Scanner<Bucket> scanBuckets(){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Region getBucketRegion(String bucket){
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -176,6 +188,16 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 
 	@Override
 	public Scanner<S3Object> listObjects(String bucket, String prefix){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Scanner<S3Object> scanObjects(String bucket, String prefix, String startAfter, String delimiter){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Scanner<String> scanPrefixes(String bucket, String prefix, String startAfter, String delimiter){
 		throw new UnsupportedOperationException();
 	}
 

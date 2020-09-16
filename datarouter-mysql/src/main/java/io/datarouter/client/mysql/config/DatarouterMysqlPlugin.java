@@ -35,6 +35,7 @@ public class DatarouterMysqlPlugin extends BaseJobPlugin{
 		addAppListener(MysqlAppListener.class);
 		addSettingRoot(DatarouterMysqlSettingRoot.class);
 		addTriggerGroup(DatarouterMysqlTriggerGroup.class);
+		addDatarouterGithubDocLink("datarouter-mysql");
 	}
 
 	@Override

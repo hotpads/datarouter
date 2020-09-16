@@ -18,11 +18,11 @@ package io.datarouter.aws.sqs.web;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h4;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +36,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
@@ -88,26 +87,23 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag buildQueueNodeTable(ClientId clientId){
-		Map<String,Map<String,String>> statsPerQueue = new HashMap<>();
-		List<String> sqsNodeNameSuffixes = nodes.getTableNamesForClient(clientId.getName());
-
-		for(String nodeNameSuffix : sqsNodeNameSuffixes){
-			PhysicalNode<?,?,?> sqsNode = nodes.getPhysicalNodeForClientAndTable(clientId.getName(), nodeNameSuffix);
-			BaseSqsNode<?,?,?> baseSqsNode = (BaseSqsNode<?,?,?>)NodeTool.extractSinglePhysicalNode(sqsNode);
-			String queueUrl = baseSqsNode.getQueueUrl().get();
-			statsPerQueue.put(queueUrl, sqsClientManager.getAllQueueAttributes(clientId, queueUrl));
-		}
-
-		List<SqsWebInspectorDto> queueStatsRows = new ArrayList<>();
-		statsPerQueue.forEach((sqsQueueUrl, attributesMap) -> {
-			String queueName = sqsQueueUrl.substring(sqsQueueUrl.lastIndexOf('/') + 1);
-			queueStatsRows.add(new SqsWebInspectorDto(
-					queueName,
-					attributesMap.get(QueueAttributeName.ApproximateNumberOfMessages.name()),
-					attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesDelayed.name()),
-					attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name())));
-		});
-		queueStatsRows.sort(Comparator.comparing((SqsWebInspectorDto dto) -> dto.queueName));
+		List<SqsWebInspectorDto> queueStatsRows = nodes.getPhysicalNodesForClient(clientId.getName()).stream()
+				.map(NodeTool::extractSinglePhysicalNode)
+				.map(physicalNode -> (BaseSqsNode<?,?,?>)physicalNode)
+				.map(BaseSqsNode::getQueueUrlAndName)
+				.map(Supplier::get)
+				.map(queueUrlAndName -> {
+					String queueName = queueUrlAndName.getRight();
+					String queueUrl = queueUrlAndName.getLeft();
+					Map<String,String> attributesMap = sqsClientManager.getAllQueueAttributes(clientId, queueUrl);
+					return new SqsWebInspectorDto(
+							queueName,
+							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessages.name()),
+							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesDelayed.name()),
+							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name()));
+				})
+				.sorted(Comparator.comparing(dto -> dto.queueName))
+				.collect(Collectors.toList());
 
 		var table = new J2HtmlTable<SqsWebInspectorDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")

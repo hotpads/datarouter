@@ -70,6 +70,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.CommonPrefix;
 import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest;
 import software.amazon.awssdk.services.s3.model.CompletedMultipartUpload;
@@ -86,6 +87,7 @@ import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketResponse;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
@@ -113,6 +115,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	 */
 	private static final Pattern EXPECTED_REGION_EXTRACTOR = Pattern.compile("expecting '(.*)'");
 	private static final int MIN_UPLOAD_PART_SIZE_BYTES = 5 * 1024 * 1024;
+	private static final Region DEFAULT_REGION = Region.US_EAST_1;
 
 	private final SerializableAwsCredentialsProviderProvider<?> awsCredentialsProviderProvider;
 
@@ -138,11 +141,18 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		this.s3ClientByRegion = new ConcurrentHashMap<>();
 		this.regionByBucket = new ConcurrentHashMap<>();
 		this.transferManagerByRegion = new ConcurrentHashMap<>();
-		this.s3ClientByRegion.put(Region.US_EAST_1, createClient(Region.US_EAST_1));
+		this.s3ClientByRegion.put(DEFAULT_REGION, createClient(DEFAULT_REGION));
 		this.s3Presigner = S3Presigner.builder()
 				.credentialsProvider(awsCredentialsProviderProvider.get())
-				.region(Region.US_EAST_1)
+				.region(DEFAULT_REGION)
 				.build();
+	}
+
+	@Override
+	public Scanner<Bucket> scanBuckets(){
+		S3Client client = getS3ClientForRegion(DEFAULT_REGION);
+		ListBucketsResponse response = client.listBuckets();
+		return Scanner.of(response.buckets());
 	}
 
 	@Override
@@ -422,6 +432,31 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
+	public Scanner<S3Object> scanObjects(String bucket, String prefix, String startAfter, String delimiter){
+		var requestBuilder = ListObjectsV2Request.builder()
+				.bucket(bucket);
+		Optional.ofNullable(prefix).ifPresent(requestBuilder::prefix);
+		Optional.ofNullable(startAfter).ifPresent(requestBuilder::startAfter);
+		Optional.ofNullable(delimiter).ifPresent(requestBuilder::delimiter);
+		var responsePages = getS3ClientForBucket(bucket).listObjectsV2Paginator(requestBuilder.build());
+		return Scanner.of(responsePages)
+				.concatIter(ListObjectsV2Response::contents);
+	}
+
+	@Override
+	public Scanner<String> scanPrefixes(String bucket, String prefix, String startAfter, String delimiter){
+		var requestBuilder = ListObjectsV2Request.builder()
+				.bucket(bucket);
+		Optional.ofNullable(prefix).ifPresent(requestBuilder::prefix);
+		Optional.ofNullable(startAfter).ifPresent(requestBuilder::startAfter);
+		Optional.ofNullable(delimiter).ifPresent(requestBuilder::delimiter);
+		var responsePages = getS3ClientForBucket(bucket).listObjectsV2Paginator(requestBuilder.build());
+		return Scanner.of(responsePages)
+				.concatIter(ListObjectsV2Response::commonPrefixes)
+				.map(CommonPrefix::prefix);
+	}
+
+	@Override
 	public List<String> getCommonPrefixes(String bucket, String prefix, String delimiter){
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		ListObjectsV2Request request = ListObjectsV2Request.builder()
@@ -503,14 +538,19 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		return transferManagerByRegion.computeIfAbsent(region, this::createTransferManager);
 	}
 
-	private S3Client getS3ClientForBucket(String bucket){
-		Region region = regionByBucket.computeIfAbsent(bucket, this::getBucketRegion);
+	private S3Client getS3ClientForRegion(Region region){
 		return s3ClientByRegion.computeIfAbsent(region, this::createClient);
 	}
 
-	private Region getBucketRegion(String bucket){
+	private S3Client getS3ClientForBucket(String bucket){
+		Region region = regionByBucket.computeIfAbsent(bucket, this::getBucketRegion);
+		return getS3ClientForRegion(region);
+	}
+
+	@Override
+	public Region getBucketRegion(String bucket){
 		String region;
-		S3Client s3Client = s3ClientByRegion.get(Region.US_EAST_1);
+		S3Client s3Client = s3ClientByRegion.get(DEFAULT_REGION);
 		try{
 			GetBucketLocationRequest request = GetBucketLocationRequest.builder()
 					.bucket(bucket)
@@ -542,7 +582,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				}
 			}
 		}
-		return region.isEmpty() ? Region.US_EAST_1 : Region.of(region);
+		return region.isEmpty() ? DEFAULT_REGION : Region.of(region);
 	}
 
 	private S3Client createClient(Region region){

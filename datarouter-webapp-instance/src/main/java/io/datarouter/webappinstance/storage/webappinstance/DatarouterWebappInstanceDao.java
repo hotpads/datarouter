@@ -58,8 +58,8 @@ public class DatarouterWebappInstanceDao extends BaseDao{
 				.buildAndRegister();
 	}
 
-	public SortedMapStorage<WebappInstanceKey,WebappInstance> getNode(){
-		return node;
+	public Scanner<WebappInstanceKey> scanKeys(){
+		return node.scanKeys();
 	}
 
 	public Scanner<WebappInstance> scan(){

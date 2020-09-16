@@ -30,6 +30,7 @@ import io.datarouter.client.redis.RedisClientType;
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
+import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.handler.mav.Mav;
@@ -72,7 +73,9 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 
 	private ContainerTag buildOverview(ClientId clientId){
 		ContainerTag infoDiv = pre(clientManager.getClient(clientId).sync().info());
-		return dl(dt("Info:"), dd(infoDiv));
+		return dl(dt("Info:"), dd(infoDiv),
+				dt("Lettuce Info:"),
+						dd(pre(GsonTool.GSON_PRETTY_PRINT.toJson(clientManager.getClient(clientId).getOptions()))));
 	}
 
 }

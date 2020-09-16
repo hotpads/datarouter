@@ -42,7 +42,7 @@ implements Callable<V>{
 
 	public SqsOp(Config config, BaseSqsNode<PK,D,F> sqsNode){
 		this.config = config;
-		this.queueUrl = sqsNode.getQueueUrl().get();
+		this.queueUrl = sqsNode.getQueueUrlAndName().get().getLeft();
 		this.databeanSupplier = sqsNode.getFieldInfo().getDatabeanSupplier();
 		this.fielder = sqsNode.getFieldInfo().getSampleFielder();
 		this.codec = fielder.getStringDatabeanCodec();

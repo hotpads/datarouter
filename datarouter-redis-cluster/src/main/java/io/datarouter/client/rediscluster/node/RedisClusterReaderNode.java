@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.rediscluster.node;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,9 +31,9 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.client.rediscluster.RedisClusterClientType;
 import io.datarouter.client.rediscluster.client.RedisClusterClientManager;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.field.FieldSetTool;
-import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.model.serialize.codec.BinaryDatabeanCodec;
+import io.datarouter.model.serialize.codec.BinaryDatabeanCodec.BinaryDatabeanCodecBuilder;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
@@ -43,8 +42,6 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.read.TallyStorageReader;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.tally.TallyKey;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.IntegerByteTool;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.cluster.api.async.RedisAdvancedClusterAsyncCommands;
 
@@ -56,10 +53,11 @@ extends BasePhysicalNode<PK,D,F>
 implements TallyStorageReader<PK,D>{
 	private static final Logger logger = LoggerFactory.getLogger(RedisClusterReaderNode.class);
 
-	private final Integer databeanVersion;
-	protected final RedisClusterClientManager redisClientManager;
 	protected final ExecutorService executor;
+	protected final BinaryDatabeanCodec codec;
+
 	private final ClientId clientId;
+	private final RedisClusterClientManager redisClientManager;
 
 	public RedisClusterReaderNode(
 			NodeParams<PK,D,F> params,
@@ -68,16 +66,21 @@ implements TallyStorageReader<PK,D>{
 			ClientId clientId,
 			ExecutorService executor){
 		super(params, redisClientType);
-		this.redisClientManager = redisClientManager;
-		this.clientId = clientId;
-		this.databeanVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
 		this.executor = executor;
+		this.codec = new BinaryDatabeanCodecBuilder()
+				.setDatabeanVersion(Optional.ofNullable(params.getSchemaVersion()).orElse(1))
+				.setAllowNulls(false)
+				.setTerminateIntermediateString(true)
+				.setTerminateFinalString(true)
+				.build();
+		this.clientId = clientId;
+		this.redisClientManager = redisClientManager;
 	}
 
 	@Override
 	public boolean exists(PK key, Config config){
 		try{
-			return getAsyncClient().exists(buildKey(key)).get() == 1;
+			return client().exists(codec.encode(key)).get() == 1;
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -91,7 +94,7 @@ implements TallyStorageReader<PK,D>{
 		}
 		byte[] bytes = null;
 		try{
-			bytes = getAsyncClient().get(buildKey(key)).get();
+			bytes = client().get(codec.encode(key)).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -99,11 +102,11 @@ implements TallyStorageReader<PK,D>{
 			return null;
 		}
 		try{
-			return FieldSetTool.fieldSetFromBytes(
+			return codec.decode(
 					getFieldInfo().getDatabeanSupplier(),
 					getFieldInfo().getFieldByPrefixedName(),
 					bytes);
-		}catch(IOException e){
+		}catch(Exception e){
 			logger.error("", e);
 		}
 		return null;
@@ -116,7 +119,7 @@ implements TallyStorageReader<PK,D>{
 		}
 		List<KeyValue<byte[],byte[]>> response = new ArrayList<>();
 		try{
-			response = getAsyncClient().mget(buildKeys(keys)).get();
+			response = client().mget(encodeKeys(keys)).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -126,11 +129,11 @@ implements TallyStorageReader<PK,D>{
 				.exclude(Objects::isNull)
 				.map(bytes -> {
 					try{
-						return FieldSetTool.fieldSetFromBytes(
+						return codec.decode(
 								getFieldInfo().getDatabeanSupplier(),
 								getFieldInfo().getFieldByPrefixedName(),
 								bytes);
-					}catch(IOException e){
+					}catch(Exception e){
 						logger.error("", e);
 					}
 					return null;
@@ -155,7 +158,7 @@ implements TallyStorageReader<PK,D>{
 		}
 		byte[] byteTally = null;
 		try{
-			byteTally = getAsyncClient().get(buildKey(new TallyKey(key))).get();
+			byteTally = client().get(codec.encode(new TallyKey(key))).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -175,21 +178,12 @@ implements TallyStorageReader<PK,D>{
 				.toMap(Function.identity(), key -> findTallyCount(key).orElse(0L));
 	}
 
-	protected byte[] buildKey(PrimaryKey<?> pk){
-		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields(), false, true, true);
-		return ByteTool.concatenate(IntegerByteTool.getRawBytes(databeanVersion), key);
+	protected byte[][] encodeKeys(Collection<? extends PrimaryKey<?>> pks){
+		return codec.encodeMulti(pks).toArray(new byte[pks.size()][]);
 	}
 
-	protected byte[][] buildKeys(Collection<? extends PrimaryKey<?>> pks){
-		return Scanner.of(pks)
-				.map(this::buildKey)
-				.list()
-				.toArray(new byte[pks.size()][]);
-	}
-
-	protected RedisAdvancedClusterAsyncCommands<byte[],byte[]> getAsyncClient(){
+	protected RedisAdvancedClusterAsyncCommands<byte[],byte[]> client(){
 		return redisClientManager.getClient(clientId).async();
 	}
-
 
 }

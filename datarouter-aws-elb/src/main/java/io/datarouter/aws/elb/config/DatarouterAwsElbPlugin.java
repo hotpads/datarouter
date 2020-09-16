@@ -22,6 +22,7 @@ public class DatarouterAwsElbPlugin extends BaseJobPlugin{
 	public DatarouterAwsElbPlugin(){
 		addTriggerGroup(DatarouterAwsElbTriggerGroup.class);
 		addSettingRoot(DatarouterAwsElbSettingRoot.class);
+		addDatarouterGithubDocLink("datarouter-aws-elb");
 	}
 
 	@Override

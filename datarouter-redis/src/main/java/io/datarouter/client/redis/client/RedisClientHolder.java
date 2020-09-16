@@ -53,8 +53,8 @@ public class RedisClientHolder{
 
 	private StatefulRedisConnection<byte[],byte[]> buildClient(ClientId clientId){
 		InetSocketAddress address = redisOptions.getEndpoint(clientId.getName());
-		return RedisClient.create(RedisURI.create(address.getHostName(), address.getPort()))
-				.connect(ByteArrayCodec.INSTANCE);
+		RedisClient client = RedisClient.create(RedisURI.create(address.getHostName(), address.getPort()));
+		return client.connect(ByteArrayCodec.INSTANCE);
 	}
 
 }

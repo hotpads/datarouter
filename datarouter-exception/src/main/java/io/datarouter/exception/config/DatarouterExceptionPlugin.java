@@ -82,6 +82,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 				DatarouterNavBarCategory.MONITORING,
 				new DatarouterExceptionPaths().datarouter.exception.browse,
 				"Exceptions");
+		addDatarouterGithubDocLink("datarouter-exception");
 		if(!exceptionRecordPublisher.isInstance(NoOpExceptionRecordPublisher.class)){
 			addAppListener(ExceptionQueueConveyors.class);
 		}

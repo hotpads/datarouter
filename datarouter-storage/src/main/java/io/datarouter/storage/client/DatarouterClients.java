@@ -134,7 +134,8 @@ public class DatarouterClients{
 			try{
 				long start = System.currentTimeMillis();
 				clientManager.shutdown(clientId);
-				logger.warn("shutted down client={} duration={}", clientId.getName(), DatarouterDuration.ageMs(start));
+				logger.warn("finished shutting down client={} duration={}", clientId.getName(), DatarouterDuration
+						.ageMs(start));
 			}catch(Exception e){
 				logger.warn("swallowing exception while shutting down client=" + clientId, e);
 			}

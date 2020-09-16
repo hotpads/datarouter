@@ -24,7 +24,6 @@ import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.ObjectStorage.PhysicalObjectStorageNode;
-import io.datarouter.storage.node.op.raw.write.ObjectStorageWriter;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 
 public class S3Node<
@@ -32,7 +31,7 @@ public class S3Node<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
-implements PhysicalObjectStorageNode<PK,D,F>, ObjectStorageWriter<PK,D>{
+implements PhysicalObjectStorageNode<PK,D,F>{
 
 	private final S3DirectoryManager s3DirectoryManager;
 

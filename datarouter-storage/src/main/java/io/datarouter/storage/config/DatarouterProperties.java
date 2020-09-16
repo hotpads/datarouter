@@ -133,8 +133,15 @@ public abstract class DatarouterProperties{
 				"InetAddress.getLocalHost().getHostName()");
 		this.serverType = serverTypeOptions.fromPersistentString(findProperty(SERVER_TYPE));
 		this.administratorEmail = findProperty(ADMINISTRATOR_EMAIL);
-		this.privateIp = findProperty(SERVER_PRIVATE_IP, Ec2InstanceTool::getEc2InstancePrivateIp,
-				Ec2InstanceTool.EC2_PRIVATE_IP_URL);
+		this.privateIp = findProperty(
+				SERVER_PRIVATE_IP,
+				List.of(
+						new FallbackPropertyValueSupplierDto(
+								"InetAddress.getLocalHost().getHostAddress()",
+								SystemTool::getHostPrivateIp),
+						new FallbackPropertyValueSupplierDto(
+								Ec2InstanceTool.EC2_PRIVATE_IP_URL,
+								Ec2InstanceTool::getEc2InstancePrivateIp)));
 		this.publicIp = findProperty(SERVER_PUBLIC_IP, Ec2InstanceTool::getEc2InstancePublicIp,
 				Ec2InstanceTool.EC2_PUBLIC_IP_URL);
 		this.clusterDomains = findClusterDomains();
@@ -201,8 +208,17 @@ public abstract class DatarouterProperties{
 		return findProperty(propertyName, defaultValue, null);
 	}
 
-	//use what available in the following order: jvmArg then configFile then default then null
 	private String findProperty(String propertyName, Supplier<String> defaultValueSupplier, String defaultSource){
+		return findProperty(
+				propertyName,
+				List.of(new FallbackPropertyValueSupplierDto(defaultSource, defaultValueSupplier)));
+	}
+
+	// use what is available in the following order: jvmArg -> properties file -> loop through the default supplier dto
+	// list based on priority. defaults to null
+	private String findProperty(
+			String propertyName,
+			List<FallbackPropertyValueSupplierDto> defaultValueSupplierDtos){
 		Optional<Pair<String,String>> propertyValueBySource = getPropFromJvmArg(propertyName)
 				.or(() -> getPropFromConfigFile(propertyName));
 
@@ -211,13 +227,21 @@ public abstract class DatarouterProperties{
 			return propertyValueBySource.get().getLeft();
 		}
 
-		if(defaultValueSupplier != null){
-			String defaultValue = defaultValueSupplier.get();
-			if(defaultValue != null){
-				allComputedServerProperties.setProperty(propertyName, defaultValue);
-				logSource(propertyName, defaultValue, defaultSource == null ? "default" : defaultSource);
-				return defaultValue;
-			}
+		Optional<String> valueFromSupplier = defaultValueSupplierDtos.stream()
+				.filter(dto -> dto.fallbackSupplier != null)
+				.map(dto -> {
+					String defaultSource = dto.propertySource != null ? dto.propertySource : "default";
+					String defaultValue = dto.fallbackSupplier.get();
+					if(defaultValue != null){
+						allComputedServerProperties.setProperty(propertyName, defaultValue);
+						logSource(propertyName, defaultValue, defaultSource);
+					}
+					return defaultValue;
+				})
+				.filter(Objects::nonNull)
+				.findFirst();
+		if(valueFromSupplier.isPresent()){
+			return valueFromSupplier.get();
 		}
 
 		if(propertyValueBySource.isPresent()){
@@ -374,5 +398,17 @@ public abstract class DatarouterProperties{
 	}
 
 	public abstract String getDatarouterPropertiesFileLocation();
+
+
+	private static class FallbackPropertyValueSupplierDto{
+
+		private final String propertySource;
+		private final Supplier<String> fallbackSupplier;
+
+		private FallbackPropertyValueSupplierDto(String propertySource, Supplier<String> fallbackSupplier){
+			this.propertySource = propertySource;
+			this.fallbackSupplier = fallbackSupplier;
+		}
+	}
 
 }

@@ -60,6 +60,7 @@ public class DatarouterLoadTestPlugin extends BaseWebPlugin{
 			addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.loadTest.scan, "LoadTest - Scan");
 		}
 		setDaosModule(daosModule);
+		addDatarouterGithubDocLink("datarouter-load-test");
 	}
 
 	@Override

@@ -32,10 +32,12 @@ import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.D
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.setting.SettingBootstrapIntegrationService;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier.NodeWidgetDatabeanExporterLink;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier.NodeWidgetTableCountLink;
+import io.datarouter.web.dispatcher.DatarouterWebDocsRouteSet;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
@@ -67,13 +69,17 @@ import io.datarouter.web.navigation.AppPluginNavBarSupplier;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.DatarouterNavBarCreator;
 import io.datarouter.web.navigation.DatarouterNavBarSupplier;
+import io.datarouter.web.navigation.DynamicNavBarItem;
+import io.datarouter.web.navigation.DynamicNavBarItemRegistry;
 import io.datarouter.web.navigation.NavBarItem;
+import io.datarouter.web.navigation.ReadmeDocsNavBarItem;
+import io.datarouter.web.navigation.SystemDocsNavBarItem;
 import io.datarouter.web.plugin.PluginRegistrySupplier;
 import io.datarouter.web.plugin.PluginRegistrySupplier.PluginRegistry;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier.DefaultDocumentationNamesAndLinks;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier.DatarouterServiceDescription;
-import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
-import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier.DatarouterServiceDocumentationNamesAndLinks;
 import io.datarouter.web.test.TestableServiceClassRegistry;
 import io.datarouter.web.test.TestableServiceClassRegistry.DefaultTestableServiceClassRegistry;
 import io.datarouter.web.user.DatarouterSessionDao;
@@ -125,8 +131,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final String nodeWidgetDatabeanExporterLink;
 	private final String nodeWidgetTableCountLink;
 	private final String serviceDescription;
-	private final Map<String,String> serviceDocumentationNamesAndLinks;
+	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
 	private final List<Class<? extends TestableService>> testableServiceClasses;
+	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -134,7 +141,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends HomepageRouteSet> homepageRouteSet,
 			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
-				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null, null);
+				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null, null,
+				null);
 	}
 
 	private DatarouterWebPlugin(
@@ -162,10 +170,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			String nodeWidgetDatabeanExporterLink,
 			String nodeWidgetTableCountLink,
 			String serviceDescription,
-			Map<String,String> serviceDocumentationNamesAndLinks,
-			List<Class<? extends TestableService>> testableServiceClasses){
+			Map<String,Pair<String,Boolean>> documentationNamesAndLinks,
+			List<Class<? extends TestableService>> testableServiceClasses,
+			List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
+		addRouteSet(DatarouterWebDocsRouteSet.class);
 
 		addSettingRoot(DatarouterWebSettingRoot.class);
 		setDaosModule(daosModuleBuilder);
@@ -205,8 +215,13 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Email Test");
 
+		addDynamicNavBarItem(ReadmeDocsNavBarItem.class);
+		addDynamicNavBarItem(SystemDocsNavBarItem.class);
+
 		addTestable(DatarouterWebBoostrapIntegrationService.class);
 		addTestable(SettingBootstrapIntegrationService.class);
+
+		addDatarouterGithubDocLink("datarouter-web");
 
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;
@@ -230,8 +245,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.nodeWidgetDatabeanExporterLink = nodeWidgetDatabeanExporterLink;
 		this.nodeWidgetTableCountLink = nodeWidgetTableCountLink;
 		this.serviceDescription = serviceDescription;
-		this.serviceDocumentationNamesAndLinks = serviceDocumentationNamesAndLinks;
+		this.documentationNamesAndLinks = documentationNamesAndLinks;
 		this.testableServiceClasses = testableServiceClasses;
+		this.dynamicNavBarItems = dynamicNavBarItems;
 	}
 
 	@Override
@@ -258,8 +274,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualNullSafe(UserSessionService.class, userSessionServiceClass);
 		bindActualInstanceNullSafe(DatarouterNavBarSupplier.class,
 				new DatarouterNavBarCreator(datarouterNavBarPluginItems));
-		bindActualInstanceNullSafe(AppPluginNavBarSupplier.class,
-				new AppNavBarPluginCreator(appNavBarPluginItems));
+		bindActualInstanceNullSafe(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(appNavBarPluginItems));
+		bindActualInstanceNullSafe(DynamicNavBarItemRegistry.class, new DynamicNavBarItemRegistry(dynamicNavBarItems));
 		bindActualNullSafe(DatarouterUserExternalDetailService.class, datarouterUserExternalDetailClass);
 		bindActualNullSafe(AppNavBarRegistrySupplier.class, appNavBarRegistrySupplier);
 		bind(HomepageHandler.class).to(homepageHandler);
@@ -272,8 +288,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		if(serviceDescription != null){
 			bindActualInstance(ServiceDescriptionSupplier.class, new DatarouterServiceDescription(serviceDescription));
 		}
-		bindActualInstance(ServiceDocumentationNamesAndLinksSupplier.class,
-				new DatarouterServiceDocumentationNamesAndLinks(serviceDocumentationNamesAndLinks));
+		bindActualInstance(DocumentationNamesAndLinksSupplier.class,
+				new DefaultDocumentationNamesAndLinks(documentationNamesAndLinks));
 
 		bindActualInstance(TestableServiceClassRegistry.class,
 				new DefaultTestableServiceClassRegistry(testableServiceClasses));
@@ -347,8 +363,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private String nodeWidgetDatabeanExporterLink;
 		private String nodeWidgetTableCountLink;
 		private String serviceDescription;
-		private Map<String,String> serviceDocumentationNamesAndLinks = new HashMap<>();
+		private Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
 		private List<Class<? extends TestableService>> testableServiceClasses = new ArrayList<>();
+		private List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -476,15 +493,21 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
-		public DatarouterWebPluginBuilder setServiceDocumentationNamesAndLinks(
-				Map<String,String> serviceDocumentationNamesAndLinks){
-			this.serviceDocumentationNamesAndLinks = serviceDocumentationNamesAndLinks;
+		public DatarouterWebPluginBuilder setDocumentationNamesAndLinks(
+				Map<String,Pair<String,Boolean>> documentationNamesAndLinks){
+			this.documentationNamesAndLinks = documentationNamesAndLinks;
 			return this;
 		}
 
 		public DatarouterWebPluginBuilder setTestableServiceClasses(
 				List<Class<? extends TestableService>> testableServiceClasses){
 			this.testableServiceClasses = testableServiceClasses;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder setDynamicNavBarItems(
+				List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems){
+			this.dynamicNavBarItems.addAll(dynamicNavBarItems);
 			return this;
 		}
 
@@ -522,8 +545,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					nodeWidgetDatabeanExporterLink,
 					nodeWidgetTableCountLink,
 					serviceDescription,
-					serviceDocumentationNamesAndLinks,
-					testableServiceClasses);
+					documentationNamesAndLinks,
+					testableServiceClasses,
+					dynamicNavBarItems);
 		}
 
 	}

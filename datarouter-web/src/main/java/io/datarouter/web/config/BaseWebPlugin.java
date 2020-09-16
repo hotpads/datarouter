@@ -16,16 +16,20 @@
 package io.datarouter.web.config;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.BaseStoragePlugin;
 import io.datarouter.util.ordered.Ordered;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
+import io.datarouter.web.navigation.DynamicNavBarItem;
 import io.datarouter.web.navigation.NavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
 
@@ -142,6 +146,7 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	private final List<NavBarItem> datarouterNavBarItems = new ArrayList<>();
 	private final List<NavBarItem> appNavBarItems = new ArrayList<>();
+	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
 
 	protected void addDatarouterNavBarItem(NavBarCategory category, PathNode pathNode, String name){
 		datarouterNavBarItems.add(new NavBarItem(category, pathNode, name));
@@ -159,12 +164,20 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 		appNavBarItems.add(new NavBarItem(category, path, name));
 	}
 
+	protected void addDynamicNavBarItem(Class<? extends DynamicNavBarItem> dynamicNavBarItem){
+		this.dynamicNavBarItems.add(dynamicNavBarItem);
+	}
+
 	public List<NavBarItem> getDatarouterNavBarItems(){
 		return datarouterNavBarItems;
 	}
 
 	public List<NavBarItem> getAppNavBarItems(){
 		return appNavBarItems;
+	}
+
+	public List<Class<? extends DynamicNavBarItem>> getDynamicNavBarItems(){
+		return dynamicNavBarItems;
 	}
 
 	/*-------------------------- field attributes ---------------------------*/
@@ -189,6 +202,31 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	public List<Class<? extends TestableService>> getTestableServiceClasses(){
 		return testableServiceClasses;
+	}
+
+	/*--------------------- documentationNamesAndLinks ----------------------*/
+
+	public final Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
+
+	public void addDocumentation(String name, String link, boolean isSystem){
+		documentationNamesAndLinks.put(name, new Pair<>(link, isSystem));
+	}
+
+	public void addReadme(String name, String link){
+		documentationNamesAndLinks.put(name, new Pair<>(link, false));
+	}
+
+	public void addSystemDoc(String name, String link){
+		documentationNamesAndLinks.put(name, new Pair<>(link, true));
+	}
+
+	public void addDatarouterGithubDocLink(String name){
+		String linkPrefix = "https://github.com/hotpads/datarouter/tree/master/";
+		documentationNamesAndLinks.put(name, new Pair<>(linkPrefix + name, true));
+	}
+
+	public Map<String,Pair<String,Boolean>> getDocumentationNamesAndLinks(){
+		return documentationNamesAndLinks;
 	}
 
 }

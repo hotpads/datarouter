@@ -18,14 +18,13 @@ package io.datarouter.storage.node.op.raw;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.op.raw.read.ObjectStorageReader;
 import io.datarouter.storage.node.op.raw.write.ObjectStorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 public interface ObjectStorage<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
-extends ObjectStorageReader<PK,D>, ObjectStorageWriter<PK,D>{
+extends ObjectStorageWriter<PK,D>{
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 

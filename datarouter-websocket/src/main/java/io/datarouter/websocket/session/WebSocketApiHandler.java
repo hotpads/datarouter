@@ -25,6 +25,7 @@ import javax.websocket.RemoteEndpoint.Basic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.websocket.WebSocketCounters;
@@ -60,7 +61,11 @@ public class WebSocketApiHandler extends BaseHandler{
 		Basic basicRemote = connection.get().session.getBasicRemote();
 		// Synchronize on the connection because sendText is not thread-safe
 		synchronized(connection.get().lock){
-			basicRemote.sendText(webSocketCommand.getMessage());
+			try(var $ = TracerTool.startSpan("websocket sendText")){
+				String message = webSocketCommand.getMessage();
+				TracerTool.appendToSpanInfo("characters", message.length());
+				basicRemote.sendText(message);
+			}
 		}
 		return true;
 	}
@@ -84,7 +89,9 @@ public class WebSocketApiHandler extends BaseHandler{
 		// Synchronize on the connection
 		try{
 			synchronized(connection.get().lock){
-				basicRemote.sendPing(ByteBuffer.allocate(0));
+				try(var $ = TracerTool.startSpan("websocket sendPing")){
+					basicRemote.sendPing(ByteBuffer.allocate(0));
+				}
 			}
 		}catch(Exception e){
 			logger.info("detected broken connection session={}", webSocketCommand.getWebSocketSessionKey(), e);

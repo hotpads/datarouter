@@ -37,6 +37,7 @@ public class DatarouterCopyTablePlugin extends BaseJobletPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.copyTableSingleThread,
 				"Copy Table - Single Thread");
 		addJobletType(CopyTableJoblet.JOBLET_TYPE);
+		addDatarouterGithubDocLink("datarouter-copy-table");
 	}
 
 	@Override

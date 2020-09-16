@@ -40,6 +40,7 @@ public class DatarouterAutoConfigPlugin extends BaseWebPlugin{
 		addRouteSet(DatarouterAutoConfigRouteSet.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.autoConfigs.viewAutoConfigs,
 				"AutoConfigs");
+		addDatarouterGithubDocLink("datarouter-auto-config");
 	}
 
 	@Override

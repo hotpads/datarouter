@@ -19,6 +19,12 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
+import org.apache.http.conn.ConnectTimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.httpclient.response.exception.DatarouterHttpConnectionAbortedException;
+import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeException;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.util.DatabeanVacuum;
@@ -31,6 +37,7 @@ import io.datarouter.websocket.storage.session.WebSocketSession;
 import io.datarouter.websocket.storage.session.WebSocketSessionKey;
 
 public class WebSocketSessionVacuumJob extends BaseJob{
+	private static final Logger logger = LoggerFactory.getLogger(WebSocketSessionVacuumJob.class);
 
 	@Inject
 	private DatarouterWebSocketSessionDao dao;
@@ -53,9 +60,31 @@ public class WebSocketSessionVacuumJob extends BaseJob{
 	}
 
 	private boolean shouldDelete(WebSocketSession webSocketSession){
-		boolean isAlive = pushService.isAlive(webSocketSession);
+		boolean isAlive;
+		String reason;
+		try{
+			isAlive = pushService.isAlive(webSocketSession);
+			reason = "remoteResponse";
+		}catch(DatarouterHttpRuntimeException e){
+			Throwable throwable = e.getCause();
+			logger.warn("e={} throwable={}", e, throwable.toString());
+			if(throwable != null && throwable instanceof DatarouterHttpConnectionAbortedException){
+				throwable = throwable.getCause();
+				logger.warn("throwable={}", throwable.toString());
+				if(throwable != null && throwable instanceof ConnectTimeoutException){
+					// the server is offline, has probably been decommissioned
+					isAlive = false;
+					reason = "connectTimeout";
+				}else{
+					throw e;
+				}
+			}else{
+				throw e;
+			}
+		}
 		if(!isAlive){
 			WebSocketCounters.inc("vacuum delete");
+			WebSocketCounters.inc("vacuum delete " + reason);
 		}
 		return !isAlive;
 	}

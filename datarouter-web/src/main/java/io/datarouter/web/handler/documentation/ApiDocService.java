@@ -95,20 +95,20 @@ public class ApiDocService{
 				if(!method.isAnnotationPresent(Handler.class)){
 					continue;
 				}
+				Handler handlerAnnotation = method.getAnnotation(Handler.class);
 				String url = rule.getPattern().pattern();
 				if(!url.contains(BaseRouteSet.REGEX_ONE_DIRECTORY)){ // not a handleDir
-					if(!url.endsWith(method.getName())){
+					if(!url.endsWith(method.getName()) && !handlerAnnotation.defaultHandler()){
 						continue;
 					}
 				}
 				if(url.contains(BaseRouteSet.REGEX_ONE_DIRECTORY)){
-					String urlSuffix = method.getAnnotation(Handler.class).defaultHandler() ? "" : "/" + method
-							.getName();
+					String urlSuffix = handlerAnnotation.defaultHandler() ? "" : "/" + method.getName();
 					url = url.replace(BaseRouteSet.REGEX_ONE_DIRECTORY, "") + urlSuffix;
 				}
 				String implementation = handler.getSimpleName();
 				List<DocumentedParameterJspDto> parameters = new ArrayList<>();
-				String description = method.getAnnotation(Handler.class).description();
+				String description = handlerAnnotation.description();
 				parameters.addAll(createApplicableSecurityParameters(rule));
 				parameters.addAll(createMethodParameters(method));
 

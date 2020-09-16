@@ -28,10 +28,16 @@ import java.util.Optional;
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.scanner.Scanner;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 public interface DatarouterS3Client{
+
+	Scanner<Bucket> scanBuckets();
+
+	Region getBucketRegion(String bucket);
 
 	void copyObject(String bucket, String sourceKey, String destinationKey, ObjectCannedACL acl);
 
@@ -79,6 +85,10 @@ public interface DatarouterS3Client{
 	URL generateLink(String bucket, String key, Duration expireAfter);
 
 	Scanner<S3Object> listObjects(String bucket, String prefix);
+
+	Scanner<S3Object> scanObjects(String bucket, String prefix, String startAfter, String delimiter);
+
+	Scanner<String> scanPrefixes(String bucket, String prefix, String startAfter, String delimiter);
 
 	List<String> getCommonPrefixes(String bucket, String prefix, String delimiter);
 

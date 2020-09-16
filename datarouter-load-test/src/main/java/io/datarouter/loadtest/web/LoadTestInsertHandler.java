@@ -16,8 +16,12 @@
 package io.datarouter.loadtest.web;
 
 import static j2html.TagCreator.br;
+import static j2html.TagCreator.dd;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.dl;
+import static j2html.TagCreator.dt;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 
 import java.time.Duration;
 import java.util.List;
@@ -54,6 +58,7 @@ import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 
 public class LoadTestInsertHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(LoadTestInsertHandler.class);
@@ -89,7 +94,7 @@ public class LoadTestInsertHandler extends BaseHandler{
 		form.addTextField()
 				.withDisplay("Num")
 				.withName(P_num)
-				.withPlaceholder("100000")
+				.withPlaceholder("100,000")
 				.withValue(num.orElse(null));
 		form.addTextField()
 				.withDisplay("Num Threads")
@@ -104,7 +109,7 @@ public class LoadTestInsertHandler extends BaseHandler{
 		form.addTextField()
 				.withDisplay("Log Period")
 				.withName(P_logPeriod)
-				.withPlaceholder("10000")
+				.withPlaceholder("10,000")
 				.withValue(logPeriod.orElse(null));
 		form.addTextField()
 				.withDisplay("Persistent Put")
@@ -125,18 +130,22 @@ public class LoadTestInsertHandler extends BaseHandler{
 		//params
 		int pNum = num
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM);
 		int pNumThreads = numThreads
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_NUM_THREADS);
 		int pBatchSize = batchSize
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_BATCH_SIZE);
 		int pLogPeriod = logPeriod
 				.map(StringTool::nullIfEmpty)
+				.map(number -> number.replaceAll(",", ""))
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_LOG_PERIOD);
 		boolean pPersistentPut = persistentPut
@@ -168,8 +177,30 @@ public class LoadTestInsertHandler extends BaseHandler{
 		timer.add("inserted " + counter.get());
 
 		//results
-		String message = timer.toString() + " @" + timer.getItemsPerSecond(counter.get()) + "/s";
-		logger.warn(message);
+		DomContent message = div(
+				h2("Load Test Insert Results"),
+				div(
+					h3("Results"),
+					dl(
+							dt("Total Time"), dd(timer.getElapsedString()),
+							dt("Rows per second"), dd(timer.getItemsPerSecond(counter.get()) + ""))),
+				div(
+					h3("Params"),
+					dl(
+							dt("Num"), dd(pNum + ""),
+							dt("Num Threads"), dd(pNumThreads + ""),
+							dt("Batch Size"), dd(pBatchSize + ""),
+							dt("Log Period"), dd(pLogPeriod + ""),
+							dt("Persistent Put"), dd(pPersistentPut + ""))))
+				.withClass("container");
+		logger.warn("total={}, rps={}, num={}, numThreads={} batchSize={}, logPeriod={}, persistentPut={}",
+				timer.getElapsedString(),
+				timer.getItemsPerSecond(counter.get()),
+				pNum,
+				pNumThreads,
+				pBatchSize,
+				pLogPeriod,
+				pPersistentPut);
 		return pageFactory.message(request, message);
 	}
 

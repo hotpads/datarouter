@@ -89,6 +89,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 				PATHS.datarouter.metric.metricNames.appHandlers,
 				"Metric Links");
 		setDaosModule(daosModuleBuilder);
+		addDatarouterGithubDocLink("datarouter-metric");
 	}
 
 	@Override

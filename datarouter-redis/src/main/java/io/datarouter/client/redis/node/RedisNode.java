@@ -78,13 +78,13 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		byte[] databeanBytes = DatabeanTool.getBytes(databean, getFieldInfo().getSampleFielder());
 		if(ttl == null){
 			try{
-				client.set(key, databeanBytes).get();
+				client().set(key, databeanBytes).get();
 			}catch(InterruptedException | ExecutionException e){
 				logger.error("", e);
 			}
 		}else{
 			try{
-				client.psetex(key, ttl, databeanBytes).get();
+				client().psetex(key, ttl, databeanBytes).get();
 			}catch(InterruptedException | ExecutionException e){
 				logger.error("", e);
 			}
@@ -112,7 +112,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		}
 		if(ttl == null){
 			try{
-				client.mset(keysAndDatabeans).get();
+				client().mset(keysAndDatabeans).get();
 			}catch(InterruptedException | ExecutionException e){
 				logger.error("", e);
 			}
@@ -122,7 +122,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 					.parallel(new ParallelScannerContext(executor, 16, true))
 					.forEach(entry -> {
 						try{
-							client.psetex(entry.getKey(), ttlMs, entry.getValue()).get();
+							client().psetex(entry.getKey(), ttlMs, entry.getValue()).get();
 						}catch(InterruptedException | ExecutionException e){
 							logger.error("", e);
 						}
@@ -141,7 +141,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			return;
 		}
 		try{
-			client.del(codec.encode(key)).get();
+			client().del(codec.encode(key)).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -153,7 +153,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			return;
 		}
 		try{
-			client.del(encodeKeys(keys)).get();
+			client().del(encodeKeys(keys)).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -165,11 +165,11 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			return null;
 		}
 		byte[] tallyKey = codec.encode(new TallyKey(key));
-		RedisFuture<Long> increment = client.incrby(tallyKey, delta);
+		RedisFuture<Long> increment = client().incrby(tallyKey, delta);
 		Long expiration = getTtlMs(config);
 		RedisFuture<Boolean> expire = null;
 		if(expiration != null){
-			expire = client.pexpire(tallyKey, expiration);
+			expire = client().pexpire(tallyKey, expiration);
 		}
 		try{
 			long count = increment.get();
@@ -187,7 +187,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 			return;
 		}
 		try{
-			client.del(codec.encode(new TallyKey(key))).get();
+			client().del(codec.encode(new TallyKey(key))).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}

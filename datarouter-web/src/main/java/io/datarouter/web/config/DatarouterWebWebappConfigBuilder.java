@@ -54,6 +54,7 @@ import io.datarouter.storage.setting.SettingRootsSupplier;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.util.ordered.OrderedTool;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebPlugin.DatarouterWebPluginBuilder;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
@@ -67,6 +68,8 @@ import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterGuiceAppListenerServletContextListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
+import io.datarouter.web.navigation.DynamicNavBarItem;
+import io.datarouter.web.navigation.NavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.user.authenticate.DatarouterAuthenticationFilter;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
@@ -119,7 +122,7 @@ implements WebappBuilder{
 	private String nodeWidgetDatabeanExporterLink;
 	private String nodeWidgetTableCountLink;
 	private String serviceDescription;
-	private Map<String,String> serviceDocumentationNamesAndLinks = new HashMap<>();
+	private Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
 	protected boolean useDatarouterAuth;
 
 	// datarouter-web servlet
@@ -127,6 +130,7 @@ implements WebappBuilder{
 	private final List<FilterParams> filterParamsUnordered;
 	private final List<NavBarItem> datarouterNavBarPluginItems;
 	private final List<NavBarItem> appNavBarPluginItems;
+	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems;
 	private final List<ServletParams> servletParams;
 
 	private boolean renderJspsUsingServletContainer;
@@ -205,6 +209,7 @@ implements WebappBuilder{
 		this.servletParams = new ArrayList<>();
 		this.datarouterNavBarPluginItems = new ArrayList<>();
 		this.appNavBarPluginItems = new ArrayList<>();
+		this.dynamicNavBarItems = new ArrayList<>();
 		this.testableServiceClasses = new ArrayList<>();
 
 		// additional
@@ -256,8 +261,9 @@ implements WebappBuilder{
 				.withNodeWidgetDatabeanExporterLink(nodeWidgetDatabeanExporterLink)
 				.withNodeWidgetTableCountLink(nodeWidgetTableCountLink)
 				.setServiceDescription(serviceDescription)
-				.setServiceDocumentationNamesAndLinks(serviceDocumentationNamesAndLinks)
+				.setDocumentationNamesAndLinks(documentationNamesAndLinks)
 				.setTestableServiceClasses(testableServiceClasses)
+				.setDynamicNavBarItems(dynamicNavBarItems)
 				.build();
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
@@ -348,10 +354,13 @@ implements WebappBuilder{
 
 		datarouterNavBarPluginItems.addAll(plugin.getDatarouterNavBarItems());
 		appNavBarPluginItems.addAll(plugin.getAppNavBarItems());
+		dynamicNavBarItems.addAll(plugin.getDynamicNavBarItems());
 
 		fieldKeyOverriders.addAll(plugin.getFieldKeyOverrides());
 
 		testableServiceClasses.addAll(plugin.getTestableServiceClasses());
+
+		documentationNamesAndLinks.putAll(plugin.getDocumentationNamesAndLinks());
 
 		return getSelf();
 	}
@@ -566,8 +575,28 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	public T addServiceDocumentationLink(String name, String link){
-		this.serviceDocumentationNamesAndLinks.put(name, link);
+	public T addReadme(String name, String link){
+		this.documentationNamesAndLinks.put(name, new Pair<>(link, false));
+		return getSelf();
+	}
+
+	public T addSystemDocumentation(String name, String link){
+		this.documentationNamesAndLinks.put(name, new Pair<>(link, true));
+		return getSelf();
+	}
+
+	public T addAppNavBarItem(NavBarCategory category, String path, String name){
+		this.appNavBarPluginItems.add(new NavBarItem(category, path, name));
+		return getSelf();
+	}
+
+	public T addDatarouterNavBarItem(NavBarCategory category, String path, String name){
+		this.datarouterNavBarPluginItems.add(new NavBarItem(category, path, name));
+		return getSelf();
+	}
+
+	public T addDynamicNavBarItem(Class<? extends DynamicNavBarItem> dynamicNavBarItem){
+		this.dynamicNavBarItems.add(dynamicNavBarItem);
 		return getSelf();
 	}
 

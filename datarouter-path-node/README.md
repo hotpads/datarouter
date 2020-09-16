@@ -10,7 +10,7 @@ datarouter-path-node is a simple object that can be used for building tree-like 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-path-node</artifactId>
-	<version>0.0.48</version>
+	<version>0.0.49</version>
 </dependency>
 ```
 

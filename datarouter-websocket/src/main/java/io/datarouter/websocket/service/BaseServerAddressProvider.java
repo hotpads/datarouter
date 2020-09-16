@@ -38,12 +38,12 @@ public abstract class BaseServerAddressProvider implements ServerAddressProvider
 	@Override
 	public String get(){
 		String hostName = getHostName();
-		String port = getPort();
+		int port = getPort();
 		String contextPath = getContextPath();
 		return hostName + ":" + port + contextPath + dispatcherUrl;
 	}
 
-	private String getHostName(){
+	protected String getHostName(){
 		String localIp = datarouterProperties.getServerPrivateIp();
 		if(localIp != null){
 			return localIp;
@@ -51,12 +51,12 @@ public abstract class BaseServerAddressProvider implements ServerAddressProvider
 		return "localhost";
 	}
 
-	private String getPort(){
+	protected int getPort(){
 		if(datarouterProperties.getServerType().getPersistentString().equals(ServerType.DEV
 				.getPersistentString())){
-			return String.valueOf(UrlConstants.PORT_HTTP_DEV);
+			return UrlConstants.PORT_HTTP_DEV;
 		}
-		return String.valueOf(UrlConstants.PORT_HTTP_STANDARD);
+		return UrlConstants.PORT_HTTP_STANDARD;
 	}
 
 	private String getContextPath(){

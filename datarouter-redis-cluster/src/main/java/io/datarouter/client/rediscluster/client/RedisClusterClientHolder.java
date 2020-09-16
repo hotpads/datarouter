@@ -16,10 +16,9 @@
 package io.datarouter.client.rediscluster.client;
 
 import java.net.InetSocketAddress;
-import java.time.Duration;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
@@ -60,26 +59,28 @@ public class RedisClusterClientHolder{
 
 	private StatefulRedisClusterConnection<byte[],byte[]> buildClient(ClientId clientId){
 		RedisClusterClientMode mode = redisOptions.getClientMode(clientId.getName());
+		RedisClusterClient redisClusterClient;
+		List<RedisURI> redisUris = new ArrayList<>();
 		if(mode == RedisClusterClientMode.AUTO_DISCOVERY){
 			InetSocketAddress address = redisOptions.getClusterEndpoint(clientId.getName()).get();
 			String host = address.getHostName();
 			int port = address.getPort();
-			return RedisClusterClient.create(RedisURI.create(host, port)).connect(ByteArrayCodec.INSTANCE);
+			redisUris.add(RedisURI.create(host, port));
+		}else{
+			// mode == RedisClusterClientMode.MULTI_NODE
+			Scanner.of(redisOptions.getNodes(clientId.getName()))
+					.map(address -> RedisURI.create(address.getHostName(), address.getPort()))
+					.distinct()
+					.forEach(redisUris::add);
 		}
-		// mode == RedisClusterClientMode.MULTI_NODE
-		Set<RedisURI> nodes = Scanner.of(redisOptions.getNodes(clientId.getName()))
-				.map(address -> RedisURI.create(address.getHostName(), address.getPort()))
-				.collect(HashSet::new);
-
 		ClusterTopologyRefreshOptions refreshOptions = ClusterTopologyRefreshOptions.builder()
 				.enableAllAdaptiveRefreshTriggers()
-				.enablePeriodicRefresh()
-				.refreshPeriod(Duration.ofSeconds(10))
 				.build();
 		ClusterClientOptions clusterClientOptions = ClusterClientOptions.builder()
 				.topologyRefreshOptions(refreshOptions)
+				.validateClusterNodeMembership(false)
 				.build();
-		RedisClusterClient redisClusterClient = RedisClusterClient.create(nodes);
+		redisClusterClient = RedisClusterClient.create(redisUris);
 		redisClusterClient.setOptions(clusterClientOptions);
 		return redisClusterClient.connect(ByteArrayCodec.INSTANCE);
 	}

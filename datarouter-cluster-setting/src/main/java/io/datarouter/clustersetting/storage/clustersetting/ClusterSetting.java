@@ -34,13 +34,10 @@ import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 
 	private String value;
-	private String application;
 
 	public static class FieldKeys{
 		public static final StringFieldKey value = new StringFieldKey("value")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
-		public static final StringFieldKey application = new StringFieldKey("application")
-				.withSize(CommonFieldSizes.LENGTH_50);
 	}
 
 	public static class ClusterSettingFielder extends BaseDatabeanFielder<ClusterSettingKey,ClusterSetting>{
@@ -51,9 +48,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterSetting databean){
-			return List.of(
-					new StringField(FieldKeys.value, databean.value),
-					new StringField(FieldKeys.application, databean.application));
+			return List.of(new StringField(FieldKeys.value, databean.value));
 		}
 	}
 
@@ -64,7 +59,6 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 	public ClusterSetting(ClusterSettingKey key, String value){
 		super(key);
 		this.value = value;
-		application = "";
 	}
 
 	public ClusterSetting(
@@ -75,7 +69,6 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 			String value){
 		super(new ClusterSettingKey(name, scope, serverType, serverName));
 		this.value = value;
-		application = "";
 	}
 
 	@Override

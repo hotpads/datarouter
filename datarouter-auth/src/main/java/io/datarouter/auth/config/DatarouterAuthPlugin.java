@@ -90,20 +90,21 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.admin.viewUsers, "View Users");
 			addAppNavBarItem(AppNavBarCategory.USER, PATHS.admin.editUser, "Edit User");
 			addAppNavBarItem(AppNavBarCategory.USER, PATHS.permissionRequest, "Permission Request");
-			addAppNavBarItem(AppNavBarCategory.USER, PATHS.admin.createUser, "Create User");
+			addDynamicNavBarItem(CreateUserNavBarItem.class);
 			addRouteSetOrdered(DatarouterAuthRouteSet.class, DatarouterJobRouteSet.class);
 		}
 
 		addAppListener(DatarouterAccountConfigAppListener.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.KEYS, PATHS.admin.accounts, "Account Manager");
 		addAppNavBarItem(AppNavBarCategory.ADMIN, PATHS.userDeprovisioning, "User Deprovisioning");
-		addAppNavBarItem(AppNavBarCategory.API_DOCS, PATHS.docs.join("/", "/", "/"), "Documentation");
+		addDynamicNavBarItem(ApiDocsNavBarItem.class);
 		addRouteSet(DatarouterAccountRouteSet.class);
 		addRouteSet(DatarouterDocumentationRouteSet.class);
 		addRouteSet(UserDeprovisioningRouteSet.class);
 		addSettingRoot(DatarouterAuthSettingRoot.class);
 		addTriggerGroup(DatarouterAuthTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
+		addDatarouterGithubDocLink("datarouter-auth");
 	}
 
 	@Override

@@ -45,4 +45,14 @@ public class SystemTool{
 		return hostname;
 	}
 
+	public static String getHostPrivateIp(){
+		String privateIp = null;
+		try{
+			privateIp = InetAddress.getLocalHost().getHostAddress();
+		}catch(UnknownHostException e){
+			logger.error("Unable to get the private IP from InetAddress.getLocalHost().getHostAddress()");
+		}
+		return privateIp;
+	}
+
 }

@@ -22,6 +22,7 @@ public class DatarouterSqsPlugin extends BaseJobPlugin{
 	public DatarouterSqsPlugin(){
 		addSettingRoot(DatarouterSqsSettingsRoot.class);
 		addTriggerGroup(DatarouterSqsTriggerGroup.class);
+		addDatarouterGithubDocLink("datarouter-aws-sqs");
 	}
 
 	@Override

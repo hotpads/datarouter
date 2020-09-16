@@ -84,6 +84,7 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		}
 		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, GuiceTraceFilter.class));
 		setDaosModule(daosModule);
+		addDatarouterGithubDocLink("datarouter-trace");
 	}
 
 	@Override

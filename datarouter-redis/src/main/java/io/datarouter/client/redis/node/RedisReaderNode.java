@@ -55,7 +55,9 @@ implements TallyStorageReader<PK,D>{
 
 	protected final ExecutorService executor;
 	protected final BinaryDatabeanCodec codec;
-	protected final RedisAsyncCommands<byte[],byte[]> client;
+
+	private final RedisClientManager redisClientManager;
+	private final ClientId clientId;
 
 	public RedisReaderNode(
 			NodeParams<PK,D,F> params,
@@ -71,13 +73,14 @@ implements TallyStorageReader<PK,D>{
 				.setTerminateIntermediateString(true)
 				.setTerminateFinalString(true)
 				.build();
-		this.client = redisClientManager.getClient(clientId).async();
+		this.redisClientManager = redisClientManager;
+		this.clientId = clientId;
 	}
 
 	@Override
 	public boolean exists(PK key, Config config){
 		try{
-			return client.exists(codec.encode(key)).get() == 1;
+			return client().exists(codec.encode(key)).get() == 1;
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -91,7 +94,7 @@ implements TallyStorageReader<PK,D>{
 		}
 		byte[] bytes = null;
 		try{
-			bytes = client.get(codec.encode(key)).get();
+			bytes = client().get(codec.encode(key)).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -116,7 +119,7 @@ implements TallyStorageReader<PK,D>{
 		}
 		List<KeyValue<byte[],byte[]>> response = new ArrayList<>();
 		try{
-			response = client.mget(encodeKeys(keys)).get();
+			response = client().mget(encodeKeys(keys)).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -155,7 +158,7 @@ implements TallyStorageReader<PK,D>{
 		}
 		byte[] byteTally = null;
 		try{
-			byteTally = client.get(codec.encode(new TallyKey(key))).get();
+			byteTally = client().get(codec.encode(new TallyKey(key))).get();
 		}catch(InterruptedException | ExecutionException e){
 			logger.error("", e);
 		}
@@ -177,6 +180,11 @@ implements TallyStorageReader<PK,D>{
 
 	protected byte[][] encodeKeys(Collection<? extends PrimaryKey<?>> pks){
 		return codec.encodeMulti(pks).toArray(new byte[pks.size()][]);
+	}
+
+	protected RedisAsyncCommands<byte[],byte[]> client(){
+		return redisClientManager.getClient(clientId).async();
+
 	}
 
 }

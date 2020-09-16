@@ -36,8 +36,8 @@ import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppPluginNavBarSupplier;
 import io.datarouter.web.navigation.NavBarItem;
 import io.datarouter.web.navigation.NavBarItem.NavBarItemGroup;
+import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
-import io.datarouter.web.service.ServiceDocumentationNamesAndLinksSupplier;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 
@@ -51,7 +51,7 @@ public class Bootstrap4HomepageCreatorService{
 	@Inject
 	private ServiceDescriptionSupplier serviceDescriptionSupplier;
 	@Inject
-	private ServiceDocumentationNamesAndLinksSupplier serviceDocNamesAndLinks;
+	private DocumentationNamesAndLinksSupplier documentationNamesAndLinksSupplier;
 	@Inject
 	private AppNavBarRegistrySupplier appNavBarSupplier;
 	@Inject
@@ -92,7 +92,7 @@ public class Bootstrap4HomepageCreatorService{
 	}
 
 	public ContainerTag docLinks(){
-		return ul(each(serviceDocNamesAndLinks.get().entrySet(), entry -> {
+		return ul(each(documentationNamesAndLinksSupplier.getReadmeDocs().entrySet(), entry -> {
 			return li(a(entry.getKey()).withHref(entry.getValue()));
 		}));
 	}
