@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.navigation;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.testng.Assert;
@@ -48,9 +50,9 @@ public class NavBarMenuItemTests{
 	private static final String PARENT_HREF = "";
 	private static final String PARENT_TEXT = "parText";
 
-	//helpers
+	// helpers
 	private static NavBarMenuItem getParentItem(NavBar navBar){
-		return new NavBarMenuItem(PARENT_TEXT, getSingleItem(navBar));
+		return new NavBarMenuItem(PARENT_TEXT, List.of(getSingleItem(navBar)));
 	}
 
 	public static NavBarMenuItem getSingleItem(NavBar navBar){
@@ -58,10 +60,10 @@ public class NavBarMenuItemTests{
 	}
 
 	private static NavBarMenuItem getSingleItemWithHref(String href, NavBar navBar){
-		return new NavBarMenuItem(href, SINGLE_TEXT, navBar);
+		return new NavBarMenuItem(href, SINGLE_TEXT, false, navBar);
 	}
 
-	//tests
+	// tests
 	@Test
 	private void testConstruction(){
 		NavBarMenuItem parent = getParentItem(noAuthNavBar);
@@ -86,21 +88,21 @@ public class NavBarMenuItemTests{
 
 	@Test
 	private void testIsAllowed(){
-		//request isn't checked when no auth or when no handler exists
+		// request isn't checked when no auth or when no handler exists
 		Assert.assertTrue(getSingleItem(noAuthNavBar).isAllowed(null));
 
-		//everyone can access anon
+		// everyone can access anon
 		NavBarMenuItem anonItem = getSingleItemWithHref(ANON_REQ_HREF, authNavBar);
 		Assert.assertTrue(anonItem.isAllowed(anonRequest));
 		Assert.assertTrue(anonItem.isAllowed(userRequest));
 		Assert.assertTrue(anonItem.isAllowed(allDatarouterRolesRequest));
 
-		//anon can't access other roles, but correct roles can
+		// anon can't access other roles, but correct roles can
 		NavBarMenuItem userItem = getSingleItemWithHref(USER_REQ_HREF, authNavBar);
 		Assert.assertFalse(userItem.isAllowed(anonRequest));
 		Assert.assertTrue(userItem.isAllowed(userRequest));
 
-		//having multiple roles, including the allowed one, also works
+		// having multiple roles, including the allowed one, also works
 		Assert.assertTrue(userItem.isAllowed(allDatarouterRolesRequest));
 	}
 
@@ -108,7 +110,7 @@ public class NavBarMenuItemTests{
 	private void testGetSubItemsWithoutAuth(){
 		NavBarMenuItem subItem1 = getSingleItem(noAuthNavBar);
 		NavBarMenuItem subItem2 = getSingleItem(noAuthNavBar);
-		NavBarMenuItem parentItem = new NavBarMenuItem("", subItem1, subItem2);
+		NavBarMenuItem parentItem = new NavBarMenuItem("", List.of(subItem1, subItem2));
 
 		Assert.assertEquals(parentItem.subItems.size(), 2);
 		Assert.assertEquals(parentItem.subItems.get(0), subItem1);
@@ -120,9 +122,8 @@ public class NavBarMenuItemTests{
 	private void testGetSubItemsWithAuth(){
 		NavBarMenuItem subItem1 = getSingleItemWithHref(ANON_REQ_HREF, authNavBar);
 		NavBarMenuItem subItem2 = getSingleItemWithHref(USER_REQ_HREF, authNavBar);
-		NavBarMenuItem subItem3 = getSingleItemWithHref(DR_ADMIN_REQ_HREF,
-				authNavBar);
-		NavBarMenuItem parentItem = new NavBarMenuItem("", subItem1, subItem2, subItem3);
+		NavBarMenuItem subItem3 = getSingleItemWithHref(DR_ADMIN_REQ_HREF, authNavBar);
+		NavBarMenuItem parentItem = new NavBarMenuItem("", List.of(subItem1, subItem2, subItem3));
 
 		Assert.assertEquals(parentItem.getSubItems(anonRequest).size(), 1);
 		Assert.assertEquals(parentItem.getSubItems(anonRequest).get(0), parentItem.subItems.get(0));

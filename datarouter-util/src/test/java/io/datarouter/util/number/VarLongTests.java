@@ -24,7 +24,7 @@ import java.util.Random;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.varint.VarLong;
+import io.datarouter.util.bytes.VarLong;
 
 
 public class VarLongTests{

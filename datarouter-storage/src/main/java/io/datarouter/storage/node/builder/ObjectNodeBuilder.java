@@ -24,6 +24,7 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.ObjectNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
+import io.datarouter.storage.util.Subpath;
 
 public class ObjectNodeBuilder<
 		PK extends PrimaryKey<PK>,
@@ -37,7 +38,7 @@ public class ObjectNodeBuilder<
 	protected final Supplier<F> fielderSupplier;
 
 	protected String bucket;
-	protected String path;
+	protected Subpath path;
 
 	public ObjectNodeBuilder(
 			Datarouter datarouter,

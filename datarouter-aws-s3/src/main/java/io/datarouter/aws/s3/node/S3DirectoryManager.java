@@ -21,6 +21,7 @@ import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3Headers;
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.Require;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -29,9 +30,9 @@ public class S3DirectoryManager{
 
 	private final DatarouterS3Client client;
 	private final String bucket;
-	private final String rootPath;
+	private final Subpath rootPath;
 
-	public S3DirectoryManager(DatarouterS3Client client, String bucket, String rootPath){
+	public S3DirectoryManager(DatarouterS3Client client, String bucket, Subpath rootPath){
 		this.client = client;
 		this.bucket = bucket;
 		this.rootPath = rootPath;
@@ -43,45 +44,45 @@ public class S3DirectoryManager{
 		return bucket;
 	}
 
-	public String getRootPath(){
+	public Subpath getRootPath(){
 		return rootPath;
 	}
 
-	public String fullPath(String relativePath){
-		return rootPath + relativePath;
+	public String fullPath(String suffix){
+		return rootPath.toString() + suffix;
 	}
 
 	public String relativePath(String fullPath){
-		Require.isTrue(fullPath.startsWith(rootPath));
-		return fullPath.substring(rootPath.length());
+		Require.isTrue(fullPath.startsWith(rootPath.toString()));
+		return fullPath.substring(rootPath.toString().length());
 	}
 
 	public S3DirectoryManager createSubdirectory(String name){
 		return new S3DirectoryManager(
 				client,
 				bucket,
-				rootPath + name + "/");
+				rootPath.append(name));
 	}
 
 	/*-------------- read ------------------*/
 
-	public boolean exists(String relativePath){
-		String fullPath = fullPath(relativePath);
+	public boolean exists(String suffix){
+		String fullPath = fullPath(suffix);
 		return client.exists(bucket, fullPath);
 	}
 
-	public byte[] read(String relativePath){
-		String fullPath = fullPath(relativePath);
+	public byte[] read(String suffix){
+		String fullPath = fullPath(suffix);
 		return client.getObjectAsBytes(bucket, fullPath);
 	}
 
-	public String readUtf8(String relativePath){
-		byte[] bytes = read(relativePath);
+	public String readUtf8(String suffix){
+		byte[] bytes = read(suffix);
 		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
-	public Long size(String relativePath){
-		String fullPath = fullPath(relativePath);
+	public Long size(String suffix){
+		String fullPath = fullPath(suffix);
 		return client.listObjects(bucket, fullPath)
 				.findFirst()
 				.map(S3Object::size)
@@ -90,20 +91,20 @@ public class S3DirectoryManager{
 
 	/*-------------- scan -----------------*/
 
-	public Scanner<S3Object> scanS3Objects(){
-		return client.listObjects(bucket, rootPath);
+	public Scanner<S3Object> scanS3Objects(Subpath subpath){
+		return client.listObjects(bucket, rootPath.append(subpath).toString());
 	}
 
-	public Scanner<String> scanKeys(){
-		return client.listObjects(bucket, rootPath)
+	public Scanner<String> scanKeys(Subpath subpath){
+		return client.listObjects(bucket, rootPath.append(subpath).toString())
 				.map(S3Object::key)
 				.map(this::relativePath);
 	}
 
 	/*------------ write -----------*/
 
-	public void write(String relativePath, byte[] content){
-		String fullPath = fullPath(relativePath);
+	public void write(String suffix, byte[] content){
+		String fullPath = fullPath(suffix);
 		client.putObjectAsBytes(
 				bucket,
 				fullPath,
@@ -113,14 +114,14 @@ public class S3DirectoryManager{
 				content);
 	}
 
-	public void writeUtf8(String relativePath, String content){
-		write(relativePath, content.getBytes(StandardCharsets.UTF_8));
+	public void writeUtf8(String suffix, String content){
+		write(suffix, content.getBytes(StandardCharsets.UTF_8));
 	}
 
 	/*------------ delete -------------*/
 
-	public void delete(String relativePath){
-		String fullPath = fullPath(relativePath);
+	public void delete(String suffix){
+		String fullPath = fullPath(suffix);
 		client.deleteObject(bucket, fullPath);
 	}
 

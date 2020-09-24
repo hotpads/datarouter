@@ -22,19 +22,26 @@ import io.datarouter.trace.config.DatarouterTracePaths;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.web.config.ServletContextSupplier;
 
-@Singleton
-public class TraceUrlService{
+public interface TraceUrlBuilder{
 
-	@Inject
-	private DatarouterTracePaths paths;
-	@Inject
-	private DatarouterTraceFilterSettingRoot settings;
-	@Inject
-	private ServletContextSupplier servletContext;
+	String buildTraceForCurrentServer(String traceId);
 
-	public String buildTraceForCurrentServer(String traceId){
-		return "https://" + settings.traceDomain.get() + servletContext.get().getContextPath()
-				+ paths.datarouter.traces.toSlashedString() + "?id=" + traceId;
+	@Singleton
+	class LocalTraceUrlBulder implements TraceUrlBuilder{
+
+		@Inject
+		private DatarouterTracePaths paths;
+		@Inject
+		private DatarouterTraceFilterSettingRoot settings;
+		@Inject
+		private ServletContextSupplier servletContext;
+
+		@Override
+		public String buildTraceForCurrentServer(String traceId){
+			return "https://" + settings.traceDomain.get() + servletContext.get().getContextPath()
+					+ paths.datarouter.traces.toSlashedString() + "?id=" + traceId;
+		}
+
 	}
 
 }

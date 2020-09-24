@@ -98,7 +98,8 @@ public class ViewMetricNameService{
 		}
 		return td(a(i().withClass("fa fa-link"))
 				.withClass("btn btn-link w-100 py-0")
-				.withHref(link));
+				.withHref(link)
+				.withTarget("_blank"));
 	}
 
 	public List<MetricName> getNodeTableMetricNames(boolean showSystemInfo){
@@ -168,9 +169,11 @@ public class ViewMetricNameService{
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn(th("Handlers").withClass("w-50"), row -> td(row))
 				.withHtmlColumn(th("Exact").withClass("w-25"), row -> td(a("Class")
-						.withHref(linkBuilder.exactMetricLink("Datarouter handler class " + row, MetricType.COUNT))))
+						.withHref(linkBuilder.exactMetricLink("Datarouter handler class " + row, MetricType.COUNT))
+						.withTarget("_blank")))
 				.withHtmlColumn(th("Available").withClass("w-25"), row -> td(a("Endpoints")
-						.withHref(linkBuilder.availableMetricsLink("Datarouter handler method " + row))))
+						.withHref(linkBuilder.availableMetricsLink("Datarouter handler method " + row))
+						.withTarget("_blank")))
 				.withCaption("Total " + list.size())
 				.build(list);
 		return div(h2, table)
@@ -197,7 +200,8 @@ public class ViewMetricNameService{
 		String link = linkBuilder.dashboardLink(dashboard.id);
 		return td(a(i().withClass("fa fa-link"))
 				.withClass("btn btn-link w-100 py-0")
-				.withHref(link));
+				.withHref(link)
+				.withTarget("_blank"));
 	}
 
 	public ContainerTag miscMetricLinksTable(){
@@ -213,7 +217,8 @@ public class ViewMetricNameService{
 				.withHtmlColumn(th("").withClass("w-25"), row -> {
 					return td(a(i().withClass("fa fa-link"))
 							.withClass("btn btn-link w-100 py-0")
-							.withHref(row.link));
+							.withHref(row.link)
+							.withTarget("_blank"));
 				})
 				.build(links);
 		return div(h2, table)

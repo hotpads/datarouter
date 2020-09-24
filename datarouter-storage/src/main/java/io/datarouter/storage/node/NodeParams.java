@@ -23,6 +23,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
+import io.datarouter.storage.util.Subpath;
 
 public class NodeParams<
 		PK extends PrimaryKey<PK>,
@@ -42,7 +43,7 @@ public class NodeParams<
 	//name the table different than the databean class
 	private final String physicalName;
 	private final Optional<String> namespace;
-	private final String path;
+	private final Subpath path;
 
 	private final String entityNodePrefix;
 
@@ -75,7 +76,7 @@ public class NodeParams<
 			Integer schemaVersion,
 			String physicalName,
 			String namespace,
-			String path,
+			Subpath path,
 			String entityNodePrefix,
 			String remoteRouterName,
 			String remoteNodeName,
@@ -118,7 +119,7 @@ public class NodeParams<
 		private Integer schemaVersion;
 		private String physicalName;
 		private String namespace;
-		private String path;
+		private Subpath path;
 		private String entityNodePrefix;
 		private String remoteRouterName;
 		private String remoteNodeName;
@@ -184,7 +185,7 @@ public class NodeParams<
 			return this;
 		}
 
-		public NodeParamsBuilder<PK,D,F> withPath(String path){
+		public NodeParamsBuilder<PK,D,F> withPath(Subpath path){
 			this.path = path;
 			return this;
 		}
@@ -280,7 +281,7 @@ public class NodeParams<
 		return namespace;
 	}
 
-	public String getPath(){
+	public Subpath getPath(){
 		return path;
 	}
 

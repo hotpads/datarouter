@@ -156,12 +156,20 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 		datarouterNavBarItems.add(new NavBarItem(category, path, name));
 	}
 
+	protected void addDatarouterNavBarItem(NavBarItem item){
+		datarouterNavBarItems.add(item);
+	}
+
 	protected void addAppNavBarItem(NavBarCategory category, PathNode pathNode, String name){
 		appNavBarItems.add(new NavBarItem(category, pathNode, name));
 	}
 
 	protected void addAppNavBarItem(NavBarCategory category, String path, String name){
 		appNavBarItems.add(new NavBarItem(category, path, name));
+	}
+
+	protected void addAppNavBarItem(NavBarItem item){
+		appNavBarItems.add(item);
 	}
 
 	protected void addDynamicNavBarItem(Class<? extends DynamicNavBarItem> dynamicNavBarItem){

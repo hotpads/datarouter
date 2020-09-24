@@ -36,7 +36,7 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
 import io.datarouter.storage.node.builder.ObjectNodeBuilder;
 import io.datarouter.storage.node.op.raw.ObjectStorage.PhysicalObjectStorageNode;
-import io.datarouter.util.Require;
+import io.datarouter.storage.util.Subpath;
 
 @Singleton
 public class ObjectNodeFactory{
@@ -67,7 +67,7 @@ public class ObjectNodeFactory{
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier,
 			String bucketName,
-			String path){
+			Subpath path){
 		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
 				.withClientId(clientId)
 				.withBucketName(bucketName)
@@ -84,9 +84,8 @@ public class ObjectNodeFactory{
 			PathbeanFielder>
 	createSubdirectory(
 			PhysicalObjectStorageNode<PathbeanKey,Pathbean,PathbeanFielder> node,
-			String subdirectoryPath){
-		Require.isTrue(subdirectoryPath.endsWith("/"));
-		String fullPath = node.getRootPath() + subdirectoryPath;
+			Subpath subdirectoryPath){
+		Subpath fullPath = node.getRootPath().append(subdirectoryPath);
 		return create(
 				node.getClientId(),
 				Pathbean::new,

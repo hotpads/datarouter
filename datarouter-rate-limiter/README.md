@@ -9,7 +9,7 @@ Rate-limiters utilize the `TallyStorage` interface, which is implemented by data
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-rate-limiter</artifactId>
-	<version>0.0.49</version>
+	<version>0.0.50</version>
 </dependency>
 ```
 

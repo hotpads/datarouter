@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.cached;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 //TODO rename to TimeCached? and move the cachedAtMs field from BaseCached to here.
@@ -24,6 +25,10 @@ public abstract class Cached<T> extends BaseCached<T>{
 
 	public Cached(long cacheFor, TimeUnit timeUnit){
 		this.cacheForMs = timeUnit.toMillis(cacheFor);
+	}
+
+	public Cached(Duration ttl){
+		this.cacheForMs = ttl.toMillis();
 	}
 
 	@Override

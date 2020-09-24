@@ -38,6 +38,7 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.raw.ObjectStorage.PhysicalObjectStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.util.Subpath;
 
 @Singleton
 public class S3ClientNodeFactory extends BaseClientNodeFactory implements ObjectClientNodeFactory{
@@ -93,7 +94,7 @@ public class S3ClientNodeFactory extends BaseClientNodeFactory implements Object
 	S3Node<PK,D,F> createInternal(NodeParams<PK,D,F> nodeParams){
 		DatarouterS3Client client = s3ClientManager.getClient(nodeParams.getClientId());
 		String bucket = nodeParams.getPhysicalName();
-		String path = nodeParams.getPath();
+		Subpath path = nodeParams.getPath();
 		var s3DirectoryManager = new S3DirectoryManager(client, bucket, path);
 		return new S3Node<>(nodeParams, s3ClientType, s3DirectoryManager);
 	}

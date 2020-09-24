@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+import io.datarouter.scanner.Scanner;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -87,8 +88,31 @@ public class J2HtmlTable<T>{
 
 	}
 
+	public static class J2HtmlTableRow<T>{
+
+		private final T value;
+		private final List<String> styles;
+
+		public J2HtmlTableRow(T value){
+			this.value = value;
+			this.styles = new ArrayList<>();
+		}
+
+		public J2HtmlTableRow<T> withStyle(String style){
+			styles.add(style);
+			return this;
+		}
+	}
+
 	public ContainerTag build(Collection<T> rows){
-		boolean includeHeader = columns.stream()
+		return build(rows, J2HtmlTableRow::new);
+	}
+
+	public ContainerTag build(Collection<T> values, Function<T,J2HtmlTableRow<T>> rowFunction){
+		List<J2HtmlTableRow<T>> rows = Scanner.of(values)
+				.map(rowFunction)
+				.list();
+		boolean includeHeader = Scanner.of(columns)
 				.map(column -> column.name)
 				.anyMatch(Objects::nonNull);
 		var thead = thead(tr(each(columns, column -> column.name)));
@@ -100,8 +124,16 @@ public class J2HtmlTable<T>{
 				.with(tbody);
 	}
 
-	private ContainerTag makeTr(T dto){
-		return tr(each(columns, column -> column.valueFunction.apply(dto)));
+	private ContainerTag makeTr(J2HtmlTableRow<T> row){
+		var tr = TagCreator.tr();
+		if(!row.styles.isEmpty()){
+			tr.withStyle(String.join(";", row.styles) + ";");
+		}
+		return makeTd(tr, row.value);
+	}
+
+	private ContainerTag makeTd(ContainerTag tableRow, T value){
+		return tableRow.with(each(columns, column -> column.valueFunction.apply(value)));
 	}
 
 }

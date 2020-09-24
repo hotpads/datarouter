@@ -63,12 +63,16 @@ public class AppNavBar extends NavBar{
 
 	private NavBarMenuItemWrapper createMenuItem(Entry<SimpleNavBarCategory,List<NavBarItem>> entry){
 		if(entry.getValue().size() == 1 && entry.getKey().allowSingleItemMenu()){
-			var item = new NavBarMenuItem(entry.getValue().get(0).path, entry.getKey().getDisplay(), this);
+			var item = new NavBarMenuItem(
+					entry.getValue().get(0).path,
+					entry.getKey().getDisplay(),
+					entry.getValue().get(0).openInNewTab,
+					this);
 			return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping().group);
 		}
 		List<NavBarMenuItem> menuItems = entry.getValue().stream()
 				.sorted(Comparator.comparing((NavBarItem item) -> item.name))
-				.map(item -> new NavBarMenuItem(item.path, item.name, this))
+				.map(item -> new NavBarMenuItem(item.path, item.name, item.openInNewTab, this))
 				.collect(Collectors.toList());
 		var item = new NavBarMenuItem(entry.getKey().getDisplay(), menuItems);
 		return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping().group);

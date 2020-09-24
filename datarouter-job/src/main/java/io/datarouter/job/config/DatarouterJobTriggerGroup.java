@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.job.monitoring.LongRunningTaskFailureAlertJob;
 import io.datarouter.job.vacuum.ClusterJobLockVacuumJob;
 import io.datarouter.job.vacuum.ClusterTriggerLockVacuumJob;
 import io.datarouter.job.vacuum.LongRunningTaskVacuumJob;
@@ -48,6 +49,11 @@ public class DatarouterJobTriggerGroup extends BaseTriggerGroup{
 				"24 3 * * * ?",
 				settings.runClusterTriggerLockVacuumJob,
 				ClusterTriggerLockVacuumJob.class,
+				true);
+		registerLocked(
+				"0 0 13 * * ?",
+				settings.runTaskFailureAlertJob,
+				LongRunningTaskFailureAlertJob.class,
 				true);
 	}
 

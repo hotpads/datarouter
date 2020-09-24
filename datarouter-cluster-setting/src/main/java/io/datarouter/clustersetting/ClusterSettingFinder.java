@@ -120,8 +120,7 @@ public class ClusterSettingFinder implements SettingFinder{
 		keys.add(new ClusterSettingKey(
 				name,
 				ClusterSettingScope.DEFAULT_SCOPE,
-				ServerType.UNKNOWN
-				.getPersistentString(),
+				ServerType.UNKNOWN.getPersistentString(),
 				EMPTY_STRING));
 
 		ClusterSettingKey serverTypeSetting = getKeyForServerType(name);

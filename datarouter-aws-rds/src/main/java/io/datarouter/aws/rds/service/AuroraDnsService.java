@@ -127,7 +127,7 @@ public class AuroraDnsService{
 				.collect(Collectors.toList());
 	}
 
-	private String buildOtherClientUrl(String clientName){
+	public String buildOtherClientUrl(String clientName){
 		return rdsSettings.dbPrefix.get() + clientName + rdsSettings.dbOtherInstanceSuffix.get()
 				+ rdsSettings.dnsSuffix.get();
 	}

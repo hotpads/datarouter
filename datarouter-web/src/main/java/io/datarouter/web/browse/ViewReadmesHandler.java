@@ -67,7 +67,8 @@ public class ViewReadmesHandler extends BaseHandler{
 				.withHtmlColumn(th("").withClass("w-25"), row -> {
 					return td(a(i().withClass("fa fa-link"))
 							.withClass("btn btn-link w-100 py-0")
-							.withHref(row.getValue()));
+							.withHref(row.getValue())
+							.withTarget("_blank"));
 				})
 				.build(entrySet);
 		return div(header, table)

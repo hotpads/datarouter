@@ -105,7 +105,6 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("otherLibraries", loadedLibraries.otherLibraries);
 		mav.put("tomcatThreadMetrics", tomcatThreadMetrics.getTomcatPoolMetrics());
 
-		Runtime runtime = Runtime.getRuntime();
 		MemoryUsage heap = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
 		mav.put("heap", new MemoryUsageForDisplay(heap));
 		MemoryUsage nonHeapMemoryUsage = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
@@ -138,13 +137,14 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("heaps", heaps);
 		mav.put("nonHeaps", nonHeaps);
 
-		ThreadMXBean threadMxBean = ManagementFactory.getThreadMXBean();
+		Runtime runtime = Runtime.getRuntime();
 		int procNumber = runtime.availableProcessors();
-		int threadCount = threadMxBean.getThreadCount();
-		int daemonCount = threadMxBean.getDaemonThreadCount();
-
 		mav.put("procNumber", procNumber);
+
+		ThreadMXBean threadMxBean = ManagementFactory.getThreadMXBean();
+		int threadCount = threadMxBean.getThreadCount();
 		mav.put("threadCount", threadCount);
+		int daemonCount = threadMxBean.getDaemonThreadCount();
 		mav.put("daemon", daemonCount);
 		mav.put("nonDaemon", threadCount - daemonCount);
 		mav.put("peak", threadMxBean.getPeakThreadCount());

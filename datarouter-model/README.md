@@ -9,7 +9,7 @@ collections which will treat them similarly to persistent datastores.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-model</artifactId>
-	<version>0.0.49</version>
+	<version>0.0.50</version>
 </dependency>
 ```
 

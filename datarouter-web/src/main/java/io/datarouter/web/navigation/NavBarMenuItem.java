@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.web.dispatcher.DispatchRule;
@@ -38,6 +37,8 @@ public class NavBarMenuItem{
 	private final URI href;//this is what will appear in HTML
 	private final URI path;//this is used to look up dispatch rules (no query params)
 	private final String text;
+	private final boolean openInNewTab;
+
 	protected final List<NavBarMenuItem> subItems;
 
 	protected Supplier<Optional<DispatchRule>> dispatchRule;
@@ -50,30 +51,20 @@ public class NavBarMenuItem{
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		this.dispatchRule = SingletonSupplier.of(Optional::empty);
+		this.openInNewTab = false;
 	}
 
-	public NavBarMenuItem(String text, NavBarMenuItem... subItems){
-		this(text, Scanner.of(subItems).list());
+	public NavBarMenuItem(String path, String text, boolean openInNewTab, NavBar parentNavBar){
+		this(path, "", text, openInNewTab, parentNavBar);
 	}
 
-	public NavBarMenuItem(String path, String text, NavBar parentNavBar){
-		this(path, "", text, parentNavBar);
-	}
-
-	public NavBarMenuItem(String path, String queryParamStr, String text, NavBar parentNavBar){
+	private NavBarMenuItem(String path, String queryParamStr, String text, boolean openInNewTab, NavBar parentNavBar){
 		this.href = URI.create(path + queryParamStr);
 		this.path = URI.create(path);
 		this.text = text;
+		this.openInNewTab = openInNewTab;
 		this.subItems = null;
 		this.dispatchRule = SingletonSupplier.of(() -> findRequiredDispatchRule(parentNavBar));
-	}
-
-	public NavBarMenuItem(PathNode pathNode, String text, NavBar parentNavBar){
-		this(pathNode.toSlashedString(), text, parentNavBar);
-	}
-
-	public NavBarMenuItem(PathNode pathNode, String queryParamString, String text, NavBar parentNavBar){
-		this(pathNode.toSlashedString(), queryParamString, text, parentNavBar);
 	}
 
 	private Optional<DispatchRule> findRequiredDispatchRule(NavBar parentNavBar){
@@ -111,8 +102,14 @@ public class NavBarMenuItem{
 		return text;
 	}
 
+	public boolean openInNewTab(){
+		return openInNewTab;
+	}
+
 	public List<NavBarMenuItem> getSubItems(HttpServletRequest request){
-		return Scanner.of(subItems).include(item -> item.isAllowed(request)).list();
+		return Scanner.of(subItems)
+				.include(item -> item.isAllowed(request))
+				.list();
 	}
 
 }

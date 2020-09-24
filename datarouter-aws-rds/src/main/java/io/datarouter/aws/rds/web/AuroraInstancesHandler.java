@@ -37,6 +37,7 @@ import io.datarouter.aws.rds.config.DatarouterAwsPaths;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
 import io.datarouter.aws.rds.service.AuroraDnsService;
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
+import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.aws.rds.service.RdsService;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.web.handler.BaseHandler;
@@ -62,6 +63,8 @@ public class AuroraInstancesHandler extends BaseHandler{
 	private DatarouterAwsRdsConfigSettings rdsSettings;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private DatabaseAdministrationConfiguration config;
 
 	@Handler(defaultHandler = true)
 	public Mav inspectClientUrl(){
@@ -94,6 +97,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 	@Handler
 	public Mav createOtherInstance(@Param(P_clientName) String clientName){
 		rdsService.createOtherInstance(rdsSettings.dbPrefix.get() + clientName);
+		config.addOtherDatabaseDns(clientName);
 		return new InContextRedirectMav(request, paths.datarouter.auroraInstances.toSlashedString());
 	}
 

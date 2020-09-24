@@ -18,6 +18,7 @@ package io.datarouter.job.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
@@ -31,6 +32,7 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runClusterTriggerLockVacuumJob;
 
 	public final CachedSetting<Boolean> runLongRunningTaskVacuum;
+	public final CachedSetting<Boolean> runTaskFailureAlertJob;
 
 	public final CachedSetting<Boolean> scheduleMissedJobsOnStartup;
 	public final CachedSetting<Boolean> processJobs;
@@ -44,6 +46,8 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 		runClusterTriggerLockVacuumJob = registerBoolean("runClusterTriggerLockVacuumJob", true);
 
 		runLongRunningTaskVacuum = registerBoolean("runLongRunningTaskVacuum", false);
+		runTaskFailureAlertJob = registerBooleans("runTaskFailureAlertJob",
+				defaultTo(false).withEnvironmentType(EnvironmentType.PRODUCTION, true));
 
 		scheduleMissedJobsOnStartup = registerBoolean("scheduleMissedJobsOnStartup", false);
 		processJobs = registerBoolean("processJobs", true);

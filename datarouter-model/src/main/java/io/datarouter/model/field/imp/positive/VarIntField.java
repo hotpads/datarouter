@@ -16,8 +16,8 @@
 package io.datarouter.model.field.imp.positive;
 
 import io.datarouter.model.field.BasePrimitiveField;
+import io.datarouter.util.bytes.VarInt;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.varint.VarInt;
 
 public class VarIntField extends BasePrimitiveField<Integer,VarIntFieldKey>{
 

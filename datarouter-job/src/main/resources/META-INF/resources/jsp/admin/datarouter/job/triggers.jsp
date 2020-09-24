@@ -4,29 +4,18 @@
 <head>
 	<title>Job Triggers</title>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
-	<script>require(['sorttable'])</script>
 	<script type="text/javascript">
-		function confirmRunJob(jobName, shouldRun, serverName) {
-			var displayText = "shouldRun is " + shouldRun +  ". Are you sure you want to run "+jobName+" on "+serverName+"?";
-			return confirm(displayText);
-		}
-
-		function displayMessageOnload(msg) {
-			if (msg != "") {
-				alert('Message : ' + msg);
-			}
-			clearQueryParams();
-		}
-		function clearQueryParams(){
-			var uri = window.location.toString();
-			if (uri.indexOf("?") > 0) {
-				var clean_uri = uri.substring(0, uri.indexOf("?"));
-				window.history.replaceState({}, document.title, clean_uri);
+		require(['sorttable'])
+		function runJob(jobName, shouldRun, serverName, url){
+			if(confirm('shouldRun is ' + shouldRun + '. Are you sure you want to run ' + jobName + ' on ' + serverName + '?')){
+				fetch(url)
+					.then(response => response.text())
+					.then(alert);
 			}
 		}
 	</script>
 </head>
-<body onload="displayMessageOnload('${message}');">
+<body>
 	<%@ include file="/jsp/menu/common-navbar-b4.jsp"%>
 	<div class="container mt-5">
 		<h2 class="pb-3 border-bottom">Job triggers</h2>
@@ -42,7 +31,7 @@
 				<br />
 				<div class="form-inline">
 					<input type="hidden" name="category" value="${param.category}" />
-					<input class="form-control mr-3" type="text" name="keyword" placeholder="[partial name]" autofocus="autofocus" />
+					<input class="form-control mr-3" type="text" name="keyword" placeholder="[partial name]" autofocus="autofocus" value="${param.keyword}" />
 					<div class="form-check mr-3">
 						<input class="form-check-input" type="checkbox" id="disable" name="disabled" <c:if test="${param.disabled=='on'}">checked</c:if>>
 						<label class="form-check-label" for="disable">Hide Disabled</label>
@@ -65,6 +54,7 @@
 					<th>Job</th>
 					<th class="sorttable_nosort">CronExpression</th>
 					<th>Category</th>
+					<th style="white-space: nowrap">Locking</th>
 					<th>LastCompletion</th>
 					<th>RunningOn</th>
 					<th class="sorttable_nosort">Interrupt</th>
@@ -80,8 +70,8 @@
 								<c:when test="${row.shouldRun}">btn-success</c:when>
 								<c:otherwise>btn-warning</c:otherwise>
 							</c:choose>"
-							href="run?name=${row.className}"
-							onclick="return confirmRunJob('${row.classSimpleName}', '${row.shouldRun}', '${serverName}')">
+							type="button"
+							onclick="runJob('${row.classSimpleName}', '${row.shouldRun}', '${serverName}', 'run?name=${row.className}')">
 							run
 						</a>
 					</td>
@@ -93,7 +83,12 @@
 						${row.classSimpleName}
 					</td>
 					<td><code class="text-nowrap">${row.cronExpression}</code></td>
-					<td>${row.categoryName}</td>
+					<td>
+						<a href="?category=${row.categoryName}">
+							${row.categoryName}
+						</a>
+					</td>
+					<td>${row.jobSchedule}</td>
 					<td sorttable_customkey="${row.lastFinishSortableTime}">${row.lastFinishTime}</td>
 					<td>${row.runningOnServers}</td>
 					<td>

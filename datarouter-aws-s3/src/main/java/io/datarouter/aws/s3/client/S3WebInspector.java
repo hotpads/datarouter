@@ -102,7 +102,7 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 						tableName))
 				.map(node -> NodeTool.extractSinglePhysicalNode(node))
 				.map(S3Node.class::cast)
-				.map(s3Node -> new S3NodeDto(s3Node.getBucket(), s3Node.getRootPath()))
+				.map(s3Node -> new S3NodeDto(s3Node.getBucket(), s3Node.getRootPath().toString()))
 				.list();
 		var table = new J2HtmlTable<S3NodeDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")

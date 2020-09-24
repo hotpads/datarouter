@@ -15,6 +15,9 @@
  */
 package io.datarouter.util;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.fasterxml.uuid.EthernetAddress;
@@ -23,11 +26,27 @@ import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 public class UuidTool{
 
+	private static final long GREGORIAN_CALENDAR_BEGINNING = ZonedDateTime.of(1582, 10, 15, 0, 0, 0, 0, ZoneOffset.UTC)
+			.toInstant()
+			.toEpochMilli();
+
 	public static String generateV1Uuid(){
 		EthernetAddress addr = EthernetAddress.fromInterface();
 		TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
 		UUID uuid = uuidGenerator.generate();
 		return uuid.toString();
+	}
+
+	public static Optional<Long> getTimestamp(String v1Uuid){
+		long timestamp;
+		try{
+			UUID uuid = UUID.fromString(v1Uuid);
+			timestamp = uuid.timestamp();
+		}catch(Exception e){
+			return Optional.empty();
+		}
+		long ms = timestamp / 10_000;
+		return Optional.of(ms + GREGORIAN_CALENDAR_BEGINNING);
 	}
 
 }

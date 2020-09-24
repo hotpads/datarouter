@@ -33,11 +33,12 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 	public final CachedSecret<RdsCredentialsDto> rdsReadOnlyCredentials;
 	public final CachedSetting<String> rdsAddTagsCredentialsLocation;
 	public final CachedSecret<RdsCredentialsDto> rdsAddTagsCredentials;
-	public final CachedSetting<String> iamRdsOtherCreateUserAccessKey;
-	public final CachedSetting<String> iamRdsOtherCreateUserSecretKey;
+	public final CachedSetting<String> rdsOtherCredentialsLocation;
+	public final CachedSecret<RdsCredentialsDto> rdsOtherCredentials;
 	public final CachedSetting<String> region;
 	public final CachedSetting<String> rdsClusterEndpoint;
 	public final CachedSetting<String> rdsInstanceEndpoint;
+	public final CachedSetting<String> rdsInstanceHostnameSuffix;
 	public final CachedSetting<String> dnsSuffix;
 	public final CachedSetting<String> dbPrefix;
 	public final CachedSetting<String> dbOtherInstanceSuffix;
@@ -56,12 +57,14 @@ public class DatarouterAwsRdsConfigSettings extends SettingNode{
 		rdsAddTagsCredentialsLocation = registerString("rdsAddTagsCredentialsLocation", "placeholder");
 		rdsAddTagsCredentials = cachedSecretFactory.cacheSharedSecret(rdsAddTagsCredentialsLocation, RdsCredentialsDto
 				.class);
-		iamRdsOtherCreateUserAccessKey = registerStrings("iamRdsOtherCreateUserAccessKey", defaultTo(""));
-		iamRdsOtherCreateUserSecretKey = registerStrings("iamRdsOtherCreateUserSecretKey", defaultTo(""));
+		rdsOtherCredentialsLocation = registerString("rdsOtherCredentialsLocation", "placeholder");
+		rdsOtherCredentials = cachedSecretFactory.cacheSharedSecret(rdsOtherCredentialsLocation, RdsCredentialsDto
+				.class);
 		region = registerStrings("region", defaultTo(Regions.US_EAST_1.getName()));
 		dnsSuffix = registerString("dnsSuffix", "");
 		rdsClusterEndpoint = registerString("rdsClusterEndpoint", "");
 		rdsInstanceEndpoint = registerString("rdsInstanceEndpoint", "");
+		rdsInstanceHostnameSuffix = registerString("rdsInstanceHostnameSuffix", "");
 		dbPrefix = registerString("dbPrefix", "");
 		dbOtherInstanceSuffix = registerString("dbOtherInstanceSuffix", "");
 		dbOtherInstanceClass = registerString("dbOtherInstanceClass", "");

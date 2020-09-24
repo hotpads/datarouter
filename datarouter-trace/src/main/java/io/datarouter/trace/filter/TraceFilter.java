@@ -50,7 +50,7 @@ import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.trace.conveyor.local.FilterToMemoryBufferForLocal;
 import io.datarouter.trace.conveyor.publisher.FilterToMemoryBufferForPublisher;
-import io.datarouter.trace.service.TraceUrlService;
+import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.util.UlidTool;
 import io.datarouter.util.tracer.DatarouterTracer;
@@ -71,7 +71,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	private DatarouterTraceFilterSettingRoot traceSettings;
 	private FilterToMemoryBufferForLocal traceBufferForLocal;
 	private FilterToMemoryBufferForPublisher traceBufferForPublisher;
-	private TraceUrlService urlService;
+	private TraceUrlBuilder urlBuilder;
 	private CurrentSessionInfo currentSessionInfo;
 	private HandlerMetrics handlerMetrics;
 
@@ -82,7 +82,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		traceBufferForLocal = injector.getInstance(FilterToMemoryBufferForLocal.class);
 		traceBufferForPublisher = injector.getInstance(FilterToMemoryBufferForPublisher.class);
 		traceSettings = injector.getInstance(DatarouterTraceFilterSettingRoot.class);
-		urlService = injector.getInstance(TraceUrlService.class);
+		urlBuilder = injector.getInstance(TraceUrlBuilder.class);
 		currentSessionInfo = injector.getInstance(CurrentSessionInfo.class);
 		handlerMetrics = injector.getInstance(HandlerMetrics.class);
 	}
@@ -94,7 +94,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			HttpServletResponse response = (HttpServletResponse)res;
 
 			String traceId = UlidTool.nextUlid();
-			RequestAttributeTool.set(request, BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE, urlService
+			RequestAttributeTool.set(request, BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE, urlBuilder
 					.buildTraceForCurrentServer(traceId));
 			if(traceSettings.addTraceIdHeader.get()){
 				response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.X_TRACE_ID, traceId);

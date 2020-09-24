@@ -35,6 +35,7 @@ public class DatarouterAwsS3Paths extends PathNode implements PathsRoot{
 
 	public static class AwsS3Paths extends PathNode{
 		public final PathNode listObjects = leaf("listObjects");
+		public final PathNode countObjects = leaf("countObjects");
 	}
 
 }

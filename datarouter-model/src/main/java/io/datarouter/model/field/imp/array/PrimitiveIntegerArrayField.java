@@ -16,10 +16,12 @@
 package io.datarouter.model.field.imp.array;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.bytes.IntegerByteTool;
+import io.datarouter.util.serialization.GsonTool;
 
 public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 
@@ -55,12 +57,14 @@ public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 
 	@Override
 	public String getStringEncodedValue(){
-		throw new UnsupportedOperationException();
+		return Optional.ofNullable(value)
+				.map(GsonTool.GSON::toJson)
+				.orElse(null);
 	}
 
 	@Override
 	public int[] parseStringEncodedValueButDoNotSet(String value){
-		throw new UnsupportedOperationException();
+		return GsonTool.GSON.fromJson(value, getKey().getValueType());
 	}
 
 	@Override

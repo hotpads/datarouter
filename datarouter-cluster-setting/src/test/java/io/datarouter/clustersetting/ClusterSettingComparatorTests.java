@@ -16,7 +16,6 @@
 package io.datarouter.clustersetting;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.testng.Assert;
@@ -30,21 +29,29 @@ public class ClusterSettingComparatorTests{
 	@Test
 	public void testClusterSettingComparator(){
 		List<ClusterSetting> settings = new ArrayList<>();
-		var serverType = new ClusterSetting(
-				"dev1",
+		var defaultScopedSetting = new ClusterSetting(
+				"defaultScopedSetting",
+				ClusterSettingScope.DEFAULT_SCOPE,
+				ServerType.UNKNOWN.getPersistentString(),
+				"",
+				"");
+		settings.add(defaultScopedSetting);
+		var serverTypeScopedSetting = new ClusterSetting(
+				"serverTypeScopedSetting",
 				ClusterSettingScope.SERVER_TYPE,
 				ServerType.DEV.getPersistentString(),
 				"",
 				"");
-		settings.add(serverType);
-		var serverName = new ClusterSetting(
-				"instance1",
+		settings.add(serverTypeScopedSetting);
+		Assert.assertEquals(ClusterSetting.getMostSpecificSetting(settings).orElse(null), serverTypeScopedSetting);
+		var serverNameScopedSetting = new ClusterSetting(
+				"serverNameScopedSetting",
 				ClusterSettingScope.SERVER_NAME,
 				ServerType.UNKNOWN.getPersistentString(),
 				"mySevrer",
 				"");
-		settings.add(serverName);
-		Assert.assertEquals(Collections.min(settings, new ClusterSettingScopeComparator()), serverName);
+		settings.add(serverNameScopedSetting);
+		Assert.assertEquals(ClusterSetting.getMostSpecificSetting(settings).orElse(null), serverNameScopedSetting);
 	}
 
 }

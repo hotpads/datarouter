@@ -34,10 +34,10 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.bytes.StringByteTool;
+import io.datarouter.util.bytes.VarInt;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
-import io.datarouter.util.varint.VarInt;
 
 public class FieldSetTool{
 

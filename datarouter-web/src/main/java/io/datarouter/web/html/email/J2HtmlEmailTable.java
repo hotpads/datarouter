@@ -15,6 +15,13 @@
  */
 package io.datarouter.web.html.email;
 
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.thead;
+import static j2html.TagCreator.tr;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -90,34 +97,25 @@ public class J2HtmlEmailTable<T>{
 
 	public ContainerTag build(Collection<T> values, Function<T,J2HtmlEmailTableRow<T>> rowFunction){
 		Collection<J2HtmlEmailTableRow<T>> rows = Scanner.of(values).map(rowFunction).list();
-		var table = TagCreator.table()
-				.attr(Attr.BORDER, 1)
-				.attr("cellpadding", 5)
-				.withStyle("border-collapse:collapse;");
 		boolean includeHead = Scanner.of(j2HtmlEmailTableColumns)
 				.map(column -> column.name)
-				.include(Objects::nonNull)
-				.hasAny();
-		if(includeHead){
-			var thead = TagCreator.thead(TagCreator.tr(TagCreator.each(j2HtmlEmailTableColumns, column -> TagCreator.th(
-					column.name))));
-			table.with(thead);
-		}
-		rows.stream()
-				.map(this::makeTr)
-				.forEach(table::with);
-		return table;
+				.anyMatch(Objects::nonNull);
+		var thead = thead(tr(each(j2HtmlEmailTableColumns, column -> th(column.name))));
+		var tbody = tbody(each(rows, this::makeTr));
+		return table()
+			.attr(Attr.BORDER, 1)
+			.attr("cellpadding", 5)
+			.withStyle("border-collapse:collapse;")
+			.condWith(includeHead, thead)
+			.with(tbody);
 	}
 
 	private ContainerTag makeTr(J2HtmlEmailTableRow<T> row){
-		var tr = TagCreator.tr();
+		var tableRow = TagCreator.tr();
 		if(!row.styles.isEmpty()){
-			tr.withStyle(String.join(";", row.styles) + ";");
+			tableRow.withStyle(String.join(";", row.styles) + ";");
 		}
-		j2HtmlEmailTableColumns.stream()
-				.map(column -> makeTd(column, row.value))
-				.forEach(tr::with);
-		return tr;
+		return tableRow.with(each(j2HtmlEmailTableColumns, column -> makeTd(column, row.value)));
 	}
 
 	private ContainerTag makeTd(J2HtmlEmailTableColumn<T> column, T row){

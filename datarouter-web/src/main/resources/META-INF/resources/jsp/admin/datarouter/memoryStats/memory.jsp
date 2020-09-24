@@ -6,9 +6,7 @@
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
 	<style type="text/css">
 		table.definition{
-			white-space: nowrap;
 			width: 100%;
-			letter-spacing: .2px; /*increases readability*/
 		}
 		table.definition tr td:first-child{
 			font-weight: bold;

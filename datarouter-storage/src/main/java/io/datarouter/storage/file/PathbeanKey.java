@@ -22,6 +22,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
+import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.Require;
 
 public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
@@ -89,6 +90,12 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 				: path.subpath(0, nameCount - 1) + "/";
 		String keyFile = path.getFileName().toString();
 		return new PathbeanKey(keyPath, keyFile);
+	}
+
+	public static PathbeanKey of(Subpath subpath, String file){
+		Require.notNull(subpath);
+		Require.notNull(file);
+		return new PathbeanKey(subpath.toString(), file);
 	}
 
 	public static final boolean isValidPath(String path){

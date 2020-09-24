@@ -23,6 +23,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.NodeOps;
+import io.datarouter.storage.util.Subpath;
 
 /**
  * Methods for reading from an object store such as the filesystem or S3.
@@ -33,7 +34,7 @@ public interface ObjectStorageReader<
 extends NodeOps<PK,D>{
 
 	String getBucket();
-	String getRootPath();
+	Subpath getRootPath();
 
 	boolean exists(PathbeanKey key);
 
@@ -43,7 +44,7 @@ extends NodeOps<PK,D>{
 		return new String(read(key), StandardCharsets.UTF_8);
 	}
 
-	Scanner<PathbeanKey> scanKeys();
-	Scanner<Pathbean> scan();
+	Scanner<PathbeanKey> scanKeys(Subpath subpath);
+	Scanner<Pathbean> scan(Subpath subpath);
 
 }

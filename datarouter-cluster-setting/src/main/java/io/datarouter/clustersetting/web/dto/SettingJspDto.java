@@ -42,29 +42,41 @@ public class SettingJspDto{
 	private <T> List<ClusterSettingDefaultJspDto> toDefaults(CachedSetting<T> setting, DefaultSettingValue<T> defaults){
 		List<ClusterSettingDefaultJspDto> dtos = new ArrayList<>();
 		// environmentType overrides
-		defaults.getValueByEnvironmentType().forEach((profile, value) -> {
-			String profileString = profile.getPersistentString();
-			String stringValue = setting.toStringValue(value);
-			dtos.add(new ClusterSettingDefaultJspDto(false, profileString, null, null, null, stringValue));
-		});
+		defaults.getValueByEnvironmentType().forEach((environmentType, value) ->
+				dtos.add(new ClusterSettingDefaultJspDto(
+						false,
+						environmentType.getPersistentString(),
+						null,
+						null,
+						null,
+						setting.toStringValue(value))));
 		// serverType overrides
-		defaults.getValueByServerTypeByEnvironmentType().forEach((profile, defaultByServerType) -> {
-			String profileString = profile.getPersistentString();
-			defaultByServerType.forEach((serverType, value) -> dtos.add(new ClusterSettingDefaultJspDto(false,
-					profileString, null, serverType, null, setting.toStringValue(value))));
-		});
+		defaults.getValueByServerTypeByEnvironmentType().forEach((environmentType, defaultByServerType) ->
+				defaultByServerType.forEach((serverType, value) -> dtos.add(new ClusterSettingDefaultJspDto(
+						false,
+						environmentType.getPersistentString(),
+						null,
+						serverType,
+						null,
+						setting.toStringValue(value)))));
 		// serverName overrides
-		defaults.getValueByServerNameByEnvironmentType().forEach((profile, defaultByServerName) -> {
-			String profileString = profile.getPersistentString();
-			defaultByServerName.forEach((serverName, value) -> dtos.add(new ClusterSettingDefaultJspDto(false,
-					profileString, null, null, serverName, setting.toStringValue(value))));
-		});
+		defaults.getValueByServerNameByEnvironmentType().forEach((environmentType, defaultByServerName) ->
+				defaultByServerName.forEach((serverName, value) -> dtos.add(new ClusterSettingDefaultJspDto(
+						false,
+						environmentType.getPersistentString(),
+						null,
+						null,
+						serverName,
+						setting.toStringValue(value)))));
 		// environmentName overrides
-		defaults.getValueByEnvironmentNameByEnvironmentType().forEach((profile, defaultByEnvironment) -> {
-			String profileString = profile.getPersistentString();
-			defaultByEnvironment.forEach((environment, value) -> dtos.add(new ClusterSettingDefaultJspDto(false,
-					profileString, environment, null, null, setting.toStringValue(value))));
-		});
+		defaults.getValueByEnvironmentNameByEnvironmentType().forEach((environmentType, defaultByEnvironment) ->
+				defaultByEnvironment.forEach((environmentName, value) -> dtos.add(new ClusterSettingDefaultJspDto(
+						false,
+						environmentType.getPersistentString(),
+						environmentName,
+						null,
+						null,
+						setting.toStringValue(value)))));
 		return dtos;
 	}
 

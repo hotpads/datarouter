@@ -77,7 +77,7 @@ public class DefaultSettingValue<T>{
 	/*---------- override ---------------*/
 
 	public DefaultSettingValue<T> setGlobalDefault(T value){
-		this.globalDefault = value;
+		globalDefault = value;
 		return this;
 	}
 
@@ -99,12 +99,16 @@ public class DefaultSettingValue<T>{
 		return valueByEnvironmentType;
 	}
 
-	public Map<String,T> getValueByServerType(DatarouterEnvironmentType environmentType){
-		return valueByServerTypeByEnvironmentType.get(environmentType);
+	public Map<String,T> getValueByServerName(DatarouterEnvironmentType environmentType){
+		return valueByServerNameByEnvironmentType.getOrDefault(environmentType, new HashMap<>());
 	}
 
-	public Map<String,T> getValueByServerName(DatarouterEnvironmentType environmentType){
-		return valueByServerNameByEnvironmentType.get(environmentType);
+	public Map<String,T> getValueByServerType(DatarouterEnvironmentType environmentType){
+		return valueByServerTypeByEnvironmentType.getOrDefault(environmentType, new HashMap<>());
+	}
+
+	public Map<String,T> getValueByEnvironmentName(DatarouterEnvironmentType environmentType){
+		return valueByEnvironmentNameByEnvironmentType.getOrDefault(environmentType, new HashMap<>());
 	}
 
 	/*--------- getValue ---------------*/
@@ -125,28 +129,28 @@ public class DefaultSettingValue<T>{
 
 	public T getValue(DatarouterEnvironmentType environmentType, String environmentName, String serverTypeString,
 			String serverName){
-		Map<String, T> valueByEnvironmentType = valueByEnvironmentNameByEnvironmentType.get(environmentType);
-		if(valueByEnvironmentType != null){
-			T value = valueByEnvironmentType.get(environmentName);
-			if(value != null){
-				return value;
-			}
-		}
-		Map<String,T> valueByServerType = valueByServerTypeByEnvironmentType.get(environmentType);
-		if(valueByServerType != null){
-			T value = valueByServerType.get(serverTypeString);
-			if(value != null){
-				return value;
-			}
-		}
-		Map<String,T> valueByServerName = valueByServerNameByEnvironmentType.get(environmentType);
-		if(valueByServerName != null){
+		Map<String,T> valueByServerName = getValueByServerName(environmentType);
+		if(!valueByServerName.isEmpty()){
 			T value = valueByServerName.get(serverName);
 			if(value != null){
 				return value;
 			}
 		}
-		return this.valueByEnvironmentType.getOrDefault(environmentType, globalDefault);
+		Map<String,T> valueByServerType = getValueByServerType(environmentType);
+		if(!valueByServerType.isEmpty()){
+			T value = valueByServerType.get(serverTypeString);
+			if(value != null){
+				return value;
+			}
+		}
+		Map<String,T> valueByEnvironmentName = getValueByEnvironmentName(environmentType);
+		if(!valueByEnvironmentName.isEmpty()){
+			T value = valueByEnvironmentName.get(environmentName);
+			if(value != null){
+				return value;
+			}
+		}
+		return valueByEnvironmentType.getOrDefault(environmentType, globalDefault);
 	}
 
 }

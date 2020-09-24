@@ -155,11 +155,10 @@ public class RdsService{
 
 	//get RDS client for su_rdsdbothers IAM user
 	private AmazonRDS getAmazonRdsCreateOtherClient(){
-		AWSCredentials awsCredentials2 = new BasicAWSCredentials(
-				rdsSettings.iamRdsOtherCreateUserAccessKey.get(),
-				rdsSettings.iamRdsOtherCreateUserSecretKey.get());
+		RdsCredentialsDto credentialsDto = rdsSettings.rdsOtherCredentials.get();
+		AWSCredentials awsCredentials = new BasicAWSCredentials(credentialsDto.accessKey, credentialsDto.secretKey);
 		return AmazonRDSClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials2))
+				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
 				.withRegion(rdsSettings.region.get())
 				.build();
 	}

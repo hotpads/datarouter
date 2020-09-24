@@ -20,12 +20,17 @@ import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
 public interface DatabaseAdministrationConfiguration{
 
 	String fixDatabaseDns(DnsHostEntryDto dnsHostEntryDto);
+	void addOtherDatabaseDns(String clientName);
 
 	class NoOpDatabaseAdministrationConfiguration implements DatabaseAdministrationConfiguration{
 
 		@Override
 		public String fixDatabaseDns(DnsHostEntryDto dnsHostEntryDto){
 			return "";
+		}
+
+		@Override
+		public void addOtherDatabaseDns(String clientName){
 		}
 
 	}

@@ -27,15 +27,25 @@ public class NavBarItem{
 	public final NavBarCategory category;
 	public final String path;
 	public final String name;
-
-	public NavBarItem(NavBarCategory category, PathNode pathNode, String name){
-		this(category, pathNode.toSlashedString(), name);
-	}
+	public final boolean openInNewTab;
 
 	public NavBarItem(NavBarCategory category, String path, String name){
+		this(category, path, name, false);
+	}
+
+	public NavBarItem(NavBarCategory category, PathNode pathNode, String name){
+		this(category, pathNode.toSlashedString(), name, false);
+	}
+
+	public NavBarItem(NavBarCategory category, PathNode pathNode, String name, boolean openInNewTab){
+		this(category, pathNode.toSlashedString(), name, openInNewTab);
+	}
+
+	public NavBarItem(NavBarCategory category, String path, String name, boolean openInNewTab){
 		this.category = category;
 		this.path = path;
 		this.name = name;
+		this.openInNewTab = openInNewTab;
 	}
 
 	public static class NavBarItemGroup{
@@ -63,4 +73,5 @@ public class NavBarItem{
 		}
 
 	}
+
 }

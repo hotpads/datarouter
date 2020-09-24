@@ -85,7 +85,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		addRouteSet(DatarouterMetricRouteSet.class);
 		addDatarouterNavBarItem(
-				DatarouterNavBarCategory.INFO,
+				DatarouterNavBarCategory.EXTERNAL,
 				PATHS.datarouter.metric.metricNames.appHandlers,
 				"Metric Links");
 		setDaosModule(daosModuleBuilder);

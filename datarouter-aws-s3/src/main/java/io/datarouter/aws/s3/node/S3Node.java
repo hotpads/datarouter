@@ -25,6 +25,7 @@ import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.ObjectStorage.PhysicalObjectStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
+import io.datarouter.storage.util.Subpath;
 
 public class S3Node<
 		PK extends PrimaryKey<PK>,
@@ -46,7 +47,7 @@ implements PhysicalObjectStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public String getRootPath(){
+	public Subpath getRootPath(){
 		return s3DirectoryManager.getRootPath();
 	}
 
@@ -76,8 +77,8 @@ implements PhysicalObjectStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public Scanner<Pathbean> scan(){
-		return s3DirectoryManager.scanS3Objects()
+	public Scanner<Pathbean> scan(Subpath subpath){
+		return s3DirectoryManager.scanS3Objects(subpath)
 				.map(s3Object -> {
 					PathbeanKey key = PathbeanKey.of(s3DirectoryManager.relativePath(s3Object.key()));
 					Long size = s3Object.size();
@@ -86,8 +87,8 @@ implements PhysicalObjectStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public Scanner<PathbeanKey> scanKeys(){
-		return s3DirectoryManager.scanKeys()
+	public Scanner<PathbeanKey> scanKeys(Subpath subpath){
+		return s3DirectoryManager.scanKeys(subpath)
 				.map(PathbeanKey::of);
 	}
 

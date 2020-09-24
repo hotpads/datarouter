@@ -105,9 +105,11 @@ public class WebappNavbarV2Html{
 	}
 
 	private ContainerTag makeDropdownLink(NavBarMenuItem menuItem){
+		String target = menuItem.openInNewTab() ? "_blank" : "";
 		return a(menuItem.getText())
 				.withClass("dropdown-item")
-				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString());
+				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString())
+				.withTarget(target);
 	}
 
 	private ContainerTag makeNonDropdownMenuItem(NavBarMenuItem menuItem){

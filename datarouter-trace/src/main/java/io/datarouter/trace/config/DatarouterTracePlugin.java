@@ -33,6 +33,8 @@ import io.datarouter.trace.conveyor.publisher.FilterToMemoryBufferForPublisher.N
 import io.datarouter.trace.conveyor.publisher.TracePublisherConveyors;
 import io.datarouter.trace.conveyor.publisher.TracePublisherFilterToMemoryBuffer;
 import io.datarouter.trace.filter.GuiceTraceFilter;
+import io.datarouter.trace.service.TraceUrlBuilder;
+import io.datarouter.trace.service.TraceUrlBuilder.LocalTraceUrlBulder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.trace.settings.DatarouterTraceLocalSettingRoot;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
@@ -53,19 +55,22 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 public class DatarouterTracePlugin extends BaseJobPlugin{
 
 	private final Class<? extends TracePublisher> tracePublisher;
+	private final Class<? extends TraceUrlBuilder> traceUrlBuilder;
 
-	private boolean enableLocalTraces;
-	private boolean enablePublisherTraces;
+	private final boolean enableLocalTraces;
+	private final boolean enablePublisherTraces;
 
 	private DatarouterTracePlugin(
 			boolean enableLocalTraces,
 			boolean enablePublisherTraces,
 			DatarouterTraceDaoModule daosModule,
 			Class<? extends TracePublisher> tracePublisher,
-			boolean addLocalVacuumJobs){
+			boolean addLocalVacuumJobs,
+			Class<? extends TraceUrlBuilder> traceUrlBuilder){
 		this.tracePublisher = tracePublisher;
 		this.enableLocalTraces = enableLocalTraces;
 		this.enablePublisherTraces = enablePublisherTraces;
+		this.traceUrlBuilder = traceUrlBuilder;
 
 		addSettingRoot(DatarouterTraceFilterSettingRoot.class);
 		if(enableLocalTraces){
@@ -111,6 +116,8 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 			bind(FilterToMemoryBufferForPublisher.class).to(NoOpFilterToMemoryBufferForPublisher.class);
 			bind(TracePublisher.class).to(NoOpTracePublisher.class);
 		}
+
+		bind(TraceUrlBuilder.class).to(traceUrlBuilder);
 	}
 
 	public static class DatarouterTracePluginBuilder{
@@ -126,6 +133,8 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		private ClientId publishingTraceQueueClientId;
 		private Class<? extends TracePublisher> tracePublisher;
 		private boolean addLocalVacuumJobs = false;
+
+		private Class<? extends TraceUrlBuilder> traceUrlBuilder = LocalTraceUrlBulder.class;
 
 		/**
 		 * @param localTraceEntityClientId clientId for trace entities
@@ -170,6 +179,11 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterTracePluginBuilder setTraceUrlBuilder(Class<? extends TraceUrlBuilder> traceUrlBuilder){
+			this.traceUrlBuilder = traceUrlBuilder;
+			return this;
+		}
+
 		public DatarouterTracePlugin build(){
 			DatarouterTraceDaoModule module;
 			if(daoModule == null){
@@ -183,7 +197,8 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 				module = daoModule;
 			}
 			return new DatarouterTracePlugin(enableTraceLocal, enableTracePublisher, module, tracePublisher,
-					addLocalVacuumJobs);
+					addLocalVacuumJobs,
+					traceUrlBuilder);
 		}
 
 	}

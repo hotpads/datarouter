@@ -68,12 +68,6 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 	}
 
 	@Override
-	public String toString(){
-		return "ExceptionRecord(" + getKey() + ", " + getCreated() + ", " + getServerName() + ", stackTrace("
-				+ getStackTrace().length() + "))";
-	}
-
-	@Override
 	public int compareTo(Databean<?,?> that){
 		int diff = ClassTool.compareClass(this, that);
 		if(diff != 0){

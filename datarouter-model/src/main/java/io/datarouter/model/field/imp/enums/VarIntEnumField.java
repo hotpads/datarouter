@@ -17,9 +17,9 @@ package io.datarouter.model.field.imp.enums;
 
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
+import io.datarouter.util.bytes.VarInt;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.IntegerEnum;
-import io.datarouter.util.varint.VarInt;
 
 public class VarIntEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 

@@ -17,9 +17,7 @@ package io.datarouter.job.web;
 
 import java.time.Duration;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -50,6 +48,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
+import io.datarouter.web.handler.mav.imp.StringMav;
 import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
 
@@ -105,29 +104,26 @@ public class JobHandler extends BaseHandler{
 	}
 
 	@Handler
-	Mav run(String name){
+	StringMav run(String name){
 		Class<? extends BaseJob> jobClass = BaseJob.parseClass(name);
-		Map<String,Object> jobTriggerResponse = new HashMap<>();
 		Date startTime = new Date();
 		String triggeredBy = getSessionInfo().getRequiredSession().getUsername();
 		boolean started = jobScheduler.triggerManualJob(jobClass, triggeredBy);
+		String message;
 		if(!started){
-			String message = "Could not start " + jobClass.getSimpleName();
-			logger.warn(message);
-			jobTriggerResponse.put("jobTriggerResponseMessage", message);
-			return new InContextRedirectMav(request, datarouterJobPaths.datarouter.triggers.list, jobTriggerResponse);
+			message = "Could not start " + jobClass.getSimpleName();
+		}else{
+			Duration elapsedTime = DurationTool.sinceDate(startTime);
+			message = "Finished manual trigger of " + jobClass.getSimpleName() + " in " + DurationTool.toString(
+					elapsedTime);
+			changelogRecorder.record(
+					"Job",
+					name,
+					"run",
+					getSessionInfo().getRequiredSession().getUsername());
 		}
-		Duration elapsedTime = DurationTool.sinceDate(startTime);
-		String message = "Finished manual trigger of " + jobClass.getSimpleName() + " in " + DurationTool.toString(
-				elapsedTime);
 		logger.warn(message);
-		jobTriggerResponse.put("jobTriggerResponseMessage", message);
-		changelogRecorder.record(
-				"Job",
-				name,
-				"run",
-				getSessionInfo().getRequiredSession().getUsername());
-		return new InContextRedirectMav(request, datarouterJobPaths.datarouter.triggers.list, jobTriggerResponse);
+		return new StringMav(message);
 	}
 
 	@Handler
@@ -168,6 +164,7 @@ public class JobHandler extends BaseHandler{
 				jobPackage.jobClass.getSimpleName(),
 				jobPackage.shouldRunSupplier.get(),
 				heartbeatStatus,
+				jobPackage.triggerLockConfig.isEmpty() ? "parallel" : "locked",
 				jobPackage.getCronExpressionString().orElse(""),
 				jobPackage.jobCategoryName,
 				lastFinishedTask == null ? null : lastFinishedTask.getFinishTimeString(),
@@ -201,6 +198,7 @@ public class JobHandler extends BaseHandler{
 		public final String classSimpleName;
 		public final boolean shouldRun;
 		public final String heartbeatStatus;
+		public final String jobSchedule;
 		public final String cronExpression;
 		public final String categoryName;
 		public final String lastFinishTime;
@@ -213,6 +211,7 @@ public class JobHandler extends BaseHandler{
 				String classSimpleName,
 				boolean shouldRun,
 				String status,
+				String jobSchedule,
 				String cronExpression,
 				String categoryName,
 				String lastFinishTime,
@@ -223,6 +222,7 @@ public class JobHandler extends BaseHandler{
 			this.classSimpleName = classSimpleName;
 			this.shouldRun = shouldRun;
 			this.heartbeatStatus = status;
+			this.jobSchedule = jobSchedule;
 			this.cronExpression = cronExpression;
 			this.categoryName = categoryName;
 			this.lastFinishTime = lastFinishTime;
@@ -248,6 +248,10 @@ public class JobHandler extends BaseHandler{
 
 		public String getHeartbeatStatus(){
 			return heartbeatStatus;
+		}
+
+		public String getJobSchedule(){
+			return jobSchedule;
 		}
 
 		public String getCronExpression(){
