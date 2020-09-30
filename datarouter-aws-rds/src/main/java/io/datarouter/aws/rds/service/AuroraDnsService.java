@@ -127,9 +127,8 @@ public class AuroraDnsService{
 				.collect(Collectors.toList());
 	}
 
-	public String buildOtherClientUrl(String clientName){
-		return rdsSettings.dbPrefix.get() + clientName + rdsSettings.dbOtherInstanceSuffix.get()
-				+ rdsSettings.dnsSuffix.get();
+	public String buildOtherClientUrl(String clusterName){
+		return clusterName + rdsSettings.dbOtherInstanceSuffix.get() + rdsSettings.dnsSuffix.get();
 	}
 
 	public Pair<Collection<DnsHostEntryDto>,List<DnsHostEntryDto>> checkReaderEndpoint(){

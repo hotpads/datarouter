@@ -112,4 +112,8 @@ public class NavBarMenuItem{
 				.list();
 	}
 
+	public void setDispatchRule(DispatchRule dispatchRule){
+		this.dispatchRule = () -> Optional.ofNullable(dispatchRule);
+	}
+
 }

@@ -88,4 +88,12 @@ public class DatarouterDurationTests{
 		Assert.assertEquals(new DatarouterDuration(1, TimeUnit.SECONDS).toMillis(), 1000);
 	}
 
+	@Test
+	public void testIsLongerThan(){
+		Assert.assertTrue(new DatarouterDuration(2, TimeUnit.DAYS)
+				.isLongerThan(new DatarouterDuration(1, TimeUnit.DAYS)));
+		Assert.assertFalse(new DatarouterDuration(3, TimeUnit.DAYS)
+				.isLongerThan(new DatarouterDuration(4, TimeUnit.DAYS)));
+	}
+
 }

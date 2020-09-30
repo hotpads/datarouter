@@ -68,11 +68,16 @@ public class AppNavBar extends NavBar{
 					entry.getKey().getDisplay(),
 					entry.getValue().get(0).openInNewTab,
 					this);
+			entry.getValue().get(0).dispatchRule.ifPresent(item::setDispatchRule);
 			return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping().group);
 		}
 		List<NavBarMenuItem> menuItems = entry.getValue().stream()
 				.sorted(Comparator.comparing((NavBarItem item) -> item.name))
-				.map(item -> new NavBarMenuItem(item.path, item.name, item.openInNewTab, this))
+				.map(item -> {
+					var menuItem = new NavBarMenuItem(item.path, item.name, item.openInNewTab, this);
+					item.dispatchRule.ifPresent(menuItem::setDispatchRule);
+					return menuItem;
+				})
 				.collect(Collectors.toList());
 		var item = new NavBarMenuItem(entry.getKey().getDisplay(), menuItems);
 		return new NavBarMenuItemWrapper(item, entry.getKey().getGrouping().group);

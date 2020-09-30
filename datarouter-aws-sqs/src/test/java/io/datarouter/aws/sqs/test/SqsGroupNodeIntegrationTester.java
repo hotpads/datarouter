@@ -64,9 +64,7 @@ public class SqsGroupNodeIntegrationTester{
 	}
 
 	private void drainQueue(){
-		for(GroupQueueMessage<TestDatabeanKey,TestDatabean> message : dao.peekUntilEmpty(Duration.ofSeconds(4))){
-			dao.ack(message.getKey(), Duration.ofSeconds(4));
-		}
+		dao.peekUntilEmpty(Duration.ofSeconds(4)).forEach(message -> dao.ack(message.getKey(), Duration.ofSeconds(4)));
 	}
 
 	@Test

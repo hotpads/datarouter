@@ -22,6 +22,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
@@ -79,7 +80,7 @@ public class DatarouterSqsGroupTestDao extends BaseDao implements TestDao, SqsTe
 		return node.peek();
 	}
 
-	public Iterable<GroupQueueMessage<TestDatabeanKey,TestDatabean>> peekUntilEmpty(Duration timeout){
+	public Scanner<GroupQueueMessage<TestDatabeanKey,TestDatabean>> peekUntilEmpty(Duration timeout){
 		return node.peekUntilEmpty(new Config().setTimeout(timeout));
 	}
 

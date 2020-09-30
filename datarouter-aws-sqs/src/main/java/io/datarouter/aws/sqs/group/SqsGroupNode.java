@@ -80,10 +80,9 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>{
 
 	@SuppressWarnings("resource")
 	@Override
-	public Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
+	public Scanner<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
 		return new PeekMultiGroupUntilEmptyQueueStorageScanner<>(this, config)
-				.concat(Scanner::of)
-				.iterable();
+				.concat(Scanner::of);
 	}
 
 	/*------------ reader/writer ---------------*/

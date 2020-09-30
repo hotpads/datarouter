@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.queue.GroupQueueMessage;
@@ -41,9 +42,9 @@ public interface GroupQueueStorageReader<PK extends PrimaryKey<PK>,D extends Dat
 		return peekMulti(new Config());
 	}
 
-	Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config);
+	Scanner<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config);
 
-	default Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(){
+	default Scanner<GroupQueueMessage<PK,D>> peekUntilEmpty(){
 		return peekUntilEmpty(new Config());
 	}
 

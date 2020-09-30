@@ -43,7 +43,8 @@ public class ClusterSettingComparatorTests{
 				"",
 				"");
 		settings.add(serverTypeScopedSetting);
-		Assert.assertEquals(ClusterSetting.getMostSpecificSetting(settings).orElse(null), serverTypeScopedSetting);
+		Assert.assertEquals(ClusterSettingComparisonTool.getMostSpecificSetting(settings).orElse(null),
+				serverTypeScopedSetting);
 		var serverNameScopedSetting = new ClusterSetting(
 				"serverNameScopedSetting",
 				ClusterSettingScope.SERVER_NAME,
@@ -51,7 +52,8 @@ public class ClusterSettingComparatorTests{
 				"mySevrer",
 				"");
 		settings.add(serverNameScopedSetting);
-		Assert.assertEquals(ClusterSetting.getMostSpecificSetting(settings).orElse(null), serverNameScopedSetting);
+		Assert.assertEquals(ClusterSettingComparisonTool.getMostSpecificSetting(settings).orElse(null),
+				serverNameScopedSetting);
 	}
 
 }

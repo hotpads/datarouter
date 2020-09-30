@@ -24,8 +24,10 @@ import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.clustersetting.ClusterSettingComparisonTool;
 import io.datarouter.clustersetting.ClusterSettingFinder;
 import io.datarouter.clustersetting.ClusterSettingScope;
+import io.datarouter.clustersetting.ClusterSettingScopeComparator;
 import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingRoot;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
@@ -45,6 +47,7 @@ import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.webappinstance.service.WebappInstanceService;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 
@@ -67,15 +70,16 @@ public class ClusterSettingService{
 	private SettingRootFinder settingRootFinder;
 	@Inject
 	private ServerTypes serverTypes;
+	@Inject
+	private WebappInstanceService webappInstanceService;
 
 	public <T> T getSettingValueForWebappInstance(CachedSetting<T> memorySetting, WebappInstance webappInstance){
 		// try database first
 		List<ClusterSetting> settingsWithName = clusterSettingFinder.getAllSettingsWithName(memorySetting.getName());
-		List<ClusterSetting> settingsForWebappInstance = ClusterSetting.filterForWebappInstance(settingsWithName,
-				webappInstance);
-		Optional<ClusterSetting> mostSpecificSetting = ClusterSetting.getMostSpecificSetting(settingsForWebappInstance);
+		Optional<ClusterSetting> mostSpecificSetting = ClusterSettingComparisonTool
+				.getMostSpecificSettingForWebappInstance(settingsWithName, webappInstance);
 		if(mostSpecificSetting.isPresent()){
-			return ClusterSetting.getTypedValueOrUseDefaultFrom(mostSpecificSetting, memorySetting);
+			return ClusterSettingComparisonTool.getTypedValueOrUseDefaultFrom(mostSpecificSetting, memorySetting);
 		}
 		// use default
 		var environmentType = new DatarouterEnvironmentType(datarouterProperties.getEnvironmentType());
@@ -88,27 +92,43 @@ public class ClusterSettingService{
 
 	public <T> Map<WebappInstance,T> getSettingValueByWebappInstance(CachedSetting<T> memorySetting){
 		return webappInstanceDao.scan()
-				.toMap(Function.identity(),
-						instance -> getSettingValueForWebappInstance(memorySetting, instance));
+				.toMap(Function.identity(), instance -> getSettingValueForWebappInstance(memorySetting, instance));
 	}
 
-	public Scanner<ClusterSetting> streamWithValidity(ClusterSettingValidity validity){
+	public Scanner<ClusterSetting> scanWithValidity(ClusterSettingValidity validity){
+		WebappInstance currentWebappInstance = webappInstanceDao.get(webappInstanceService
+				.buildCurrentWebappInstanceKey());
 		return clusterSettingDao.scan()
 				.exclude(setting -> setting.getName().startsWith("datarouter"))
-				.include(setting -> getValidity(setting) == validity);
+				.include(setting -> getValidityForWebappInstance(setting, currentWebappInstance) == validity);
+	}
+
+	public Scanner<ClusterSetting> scanAllWebappInstancesWithRedundantValidity(){
+		List<WebappInstance> allWebappInstances = webappInstanceDao.scan().list();
+		return clusterSettingDao.scan()
+				.exclude(setting -> setting.getName().startsWith("datarouter"))
+				.include(setting -> Scanner.of(allWebappInstances)
+						.allMatch(webappInstance -> getValidityForWebappInstance(setting, webappInstance)
+								== ClusterSettingValidity.REDUNDANT));
 	}
 
 	public Scanner<ClusterSettingAndValidityJspDto> scanClusterSettingAndValidityWithPrefix(String prefix){
+		WebappInstance currentWebappInstance = webappInstanceDao.get(webappInstanceService
+				.buildCurrentWebappInstanceKey());
 		Range<ClusterSettingKey> range = prefix == null
 				? Range.everything()
 				: KeyRangeTool.forPrefixWithWildcard(
 						prefix,
-						value -> new ClusterSettingKey(value, null, null, null));
+						name -> new ClusterSettingKey(name, null, null, null));
 		return clusterSettingDao.scan(range)
-				.map(setting -> new ClusterSettingAndValidityJspDto(setting, getValidity(setting)));
+				.map(setting -> {
+					ClusterSettingValidity validity = getValidityForWebappInstance(setting, currentWebappInstance);
+					return new ClusterSettingAndValidityJspDto(setting, validity);
+				});
 	}
 
-	private ClusterSettingValidity getValidity(ClusterSetting databeanSetting){
+	private ClusterSettingValidity getValidityForWebappInstance(ClusterSetting databeanSetting,
+			WebappInstance webappInstance){
 		String name = databeanSetting.getName();
 		ClusterSettingScope scope = databeanSetting.getScope();
 
@@ -116,8 +136,8 @@ public class ClusterSettingService{
 			return ClusterSettingValidity.UNKNOWN;
 		}
 
-		Optional<CachedSetting<?>> memorySetting = settingRootFinder.getSettingByName(name);
-		if(memorySetting.isEmpty()){
+		CachedSetting<?> memorySetting = settingRootFinder.getSettingByName(name).orElse(null);
+		if(memorySetting == null){
 			return ClusterSettingValidity.EXPIRED;
 		}
 
@@ -138,17 +158,7 @@ public class ClusterSettingService{
 			}
 		}
 
-		var environmentType = new DatarouterEnvironmentType(datarouterProperties.getEnvironmentType());
-		DefaultSettingValue<?> defaultSettingValue = memorySetting.get().getDefaultSettingValue();
-		String environmentName = datarouterProperties.getEnvironment();
-		ServerType currentServerType = datarouterProperties.getServerType();
-		String currentServerName = datarouterProperties.getServerName();
-		Object defaultValue = defaultSettingValue.getValue(environmentType, environmentName, currentServerType,
-				currentServerName);
-		Object databeanValue = databeanSetting.getTypedValue(memorySetting.get());
-		boolean redundant = Objects.equals(defaultValue, databeanValue);
-
-		if(redundant){
+		if(isClusterSettingRedundantForWebappInstance(memorySetting, databeanSetting, webappInstance)){
 			return ClusterSettingValidity.REDUNDANT;
 		}
 
@@ -163,10 +173,38 @@ public class ClusterSettingService{
 		return ClusterSettingValidity.VALID;
 	}
 
-	public Optional<ClusterSetting> getSettingByName(String name){
-		var prefix = new ClusterSettingKey(name, null, null, null);
-		return clusterSettingDao.scanWithPrefix(prefix)
-				.findFirst();
+	private boolean isClusterSettingRedundantForWebappInstance(
+			CachedSetting<?> memorySetting,
+			ClusterSetting databeanSetting,
+			WebappInstance webappInstance){
+		// get all db setting overrides with name
+		List<ClusterSetting> databeanSettings = clusterSettingFinder.getAllSettingsWithName(memorySetting.getName());
+		// filter for settings that apply only for current webapp instance
+		List<ClusterSetting> appliesToWebappInstance = ClusterSettingComparisonTool
+				.appliesToWebappInstance(databeanSettings, webappInstance);
+		// do not check for redundancy if setting does not apply to current webapp instance
+		if(!appliesToWebappInstance.contains(databeanSetting)){
+			return false;
+		}
+		// necessary sort
+		appliesToWebappInstance.sort(new ClusterSettingScopeComparator().reversed());
+
+		// check if all settings in the chain have the same value, up to the current databean setting
+		boolean allMatch = Scanner.of(appliesToWebappInstance)
+				.advanceUntil(setting -> ClusterSettingComparisonTool.equal(databeanSetting, setting))
+				.allMatch(setting -> setting.getValue().equals(databeanSetting.getValue()));
+
+		// only compare with the code default if all databean setting values in the evaluation chain match
+		if(allMatch){
+			DefaultSettingValue<?> defaultSettingValue = memorySetting.getDefaultSettingValue();
+			Object defaultValue = defaultSettingValue.getValue(
+					new DatarouterEnvironmentType(datarouterProperties.getEnvironmentType()),
+					datarouterProperties.getEnvironment(),
+					datarouterProperties.getServerType(),
+					datarouterProperties.getServerName());
+			return Objects.equals(defaultValue, databeanSetting.getTypedValue(memorySetting));
+		}
+		return false;
 	}
 
 	public String checkValidJobSettingOnAnyServerType(CachedSetting<Boolean> setting){

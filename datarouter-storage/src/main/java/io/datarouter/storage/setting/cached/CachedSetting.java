@@ -17,6 +17,7 @@ package io.datarouter.storage.setting.cached;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -57,6 +58,10 @@ implements Setting<T>{
 	@Override
 	protected T reload(){
 		return finder.getSettingValue(name).map(this::parseStringValue).orElseGet(this::getDefaultValue);
+	}
+
+	public Optional<T> getMostSpecificDatabeanValue(){
+		return finder.getSettingValue(name).map(this::parseStringValue);
 	}
 
 	public void validateAllCustomValuesCanBeParsed(){
@@ -119,7 +124,7 @@ implements Setting<T>{
 	}
 
 	public CachedSetting<T> setEnvironmentNameDefault(Supplier<DatarouterEnvironmentType> environmentType,
-		String environmentName, T value){
+			String environmentName, T value){
 		defaultSettingValue.withEnvironmentName(environmentType, environmentName, value);
 		return this;
 	}

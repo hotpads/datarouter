@@ -65,6 +65,10 @@ public class DispatchRule{
 	private boolean transmitsPii;
 	private boolean isSystem;
 
+	public DispatchRule(){
+		this(null, "");
+	}
+
 	public DispatchRule(BaseRouteSet routeSet, String regex){
 		this.routeSet = routeSet;
 		this.regex = regex;

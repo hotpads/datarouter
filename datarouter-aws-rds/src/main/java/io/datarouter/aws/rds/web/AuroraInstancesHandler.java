@@ -96,7 +96,8 @@ public class AuroraInstancesHandler extends BaseHandler{
 
 	@Handler
 	public Mav createOtherInstance(@Param(P_clientName) String clientName){
-		rdsService.createOtherInstance(rdsSettings.dbPrefix.get() + clientName);
+		String clusterName = rdsSettings.dbPrefix.get() + clientName;
+		rdsService.createOtherInstance(clusterName);
 		config.addOtherDatabaseDns(clientName);
 		return new InContextRedirectMav(request, paths.datarouter.auroraInstances.toSlashedString());
 	}

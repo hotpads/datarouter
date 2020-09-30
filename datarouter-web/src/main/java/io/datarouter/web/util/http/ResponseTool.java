@@ -58,8 +58,9 @@ public class ResponseTool{
 
 	public static void sendJson(HttpServletResponse response, String body) throws IOException{
 		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
-		try(OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8);
-				var $ = TracerTool.startSpan(TracerThreadLocal.get(), "ResponseTool sendJson")){
+		// close the writer before the trace to be able to include the close() duration in the measure
+		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "ResponseTool sendJson");
+				OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)){
 			writer.append(body);
 		}
 	}

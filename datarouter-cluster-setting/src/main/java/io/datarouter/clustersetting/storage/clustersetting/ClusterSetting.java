@@ -15,13 +15,9 @@
  */
 package io.datarouter.clustersetting.storage.clustersetting;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import io.datarouter.clustersetting.ClusterSettingScope;
-import io.datarouter.clustersetting.ClusterSettingScopeComparator;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -29,7 +25,6 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.setting.Setting;
-import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 
 public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSetting>{
 
@@ -76,51 +71,14 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 		return ClusterSettingKey.class;
 	}
 
-	/*------------------------------- static --------------------------------*/
-
-	public static Optional<ClusterSetting> getMostSpecificSettingForWebappInstance(
-			List<ClusterSetting> settings,
-			WebappInstance webappInstance){
-		List<ClusterSetting> settingsForWebappInstance = filterForWebappInstance(settings, webappInstance);
-		return getMostSpecificSetting(settingsForWebappInstance);
-	}
-
-	public static List<ClusterSetting> filterForWebappInstance(
-			List<ClusterSetting> settings,
-			WebappInstance webappInstance){
-		return settings.stream()
-				.filter(setting -> setting.getKey().appliesToWebappInstance(webappInstance))
-				.collect(Collectors.toList());
-	}
-
-	public static Optional<ClusterSetting> getMostSpecificSetting(List<ClusterSetting> settings){
-		return settings.isEmpty()
-				? Optional.empty()
-				: Optional.of(Collections.min(settings, new ClusterSettingScopeComparator()));
-	}
-
-	public static <T> T getTypedValueOrUseDefaultFrom(
-			Optional<ClusterSetting> clusterSetting,
-			Setting<T> settingForTypeAndDefault){
-		return clusterSetting
-				.map(setting -> setting.getTypedValue(settingForTypeAndDefault))
-				.orElseGet(settingForTypeAndDefault::getDefaultValue);
-	}
-
-	/*------------------------------- methods -------------------------------*/
-
-	public <T> T getTypedValue(Setting<T> parser){
-		return parser.parseStringValue(value);
-	}
-
-	/*--------------------------- Object methods ----------------------------*/
-
 	@Override
 	public String toString(){
 		return getKey().toString() + ":" + value;
 	}
 
-	/*--------------------------- getters/setters ---------------------------*/
+	public <T> T getTypedValue(Setting<T> parser){
+		return parser.parseStringValue(value);
+	}
 
 	public String getValue(){
 		return value;

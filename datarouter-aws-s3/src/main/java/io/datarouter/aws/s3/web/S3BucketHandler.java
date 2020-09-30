@@ -59,7 +59,7 @@ public class S3BucketHandler extends BaseHandler{
 
 	public static final String P_client = "client";
 	public static final String P_bucket = "bucket";
-	private static final String P_prefix = "prefix";
+	public static final String P_prefix = "prefix";
 	private static final String P_after = "after";
 	private static final String P_offset = "offset";
 	private static final String P_limit = "limit";

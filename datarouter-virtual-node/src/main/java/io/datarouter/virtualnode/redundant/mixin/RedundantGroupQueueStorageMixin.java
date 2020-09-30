@@ -123,10 +123,10 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 	}
 
 	@Override
-	default Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
+	default Scanner<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
 		List<GroupQueueMessage<PK,D>> messages = new ArrayList<>();
 		getReadNodes().forEach(node -> node.peekUntilEmpty(config).iterator().forEachRemaining(messages::add));
-		return messages;
+		return Scanner.of(messages);
 	}
 
 }

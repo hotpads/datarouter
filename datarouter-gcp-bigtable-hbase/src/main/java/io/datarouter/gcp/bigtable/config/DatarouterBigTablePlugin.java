@@ -15,19 +15,47 @@
  */
 package io.datarouter.gcp.bigtable.config;
 
+import io.datarouter.gcp.bigtable.config.BigtableProjectIdAndInstanceIdSupplier.NoOpBigtableProjectIdAndInstanceIdSupplier;
 import io.datarouter.gcp.bigtable.web.DatarouterBigTableRouteSet;
 import io.datarouter.web.config.BaseWebPlugin;
 
 public class DatarouterBigTablePlugin extends BaseWebPlugin{
 
-	public DatarouterBigTablePlugin(){
+	private final Class<? extends BigtableProjectIdAndInstanceIdSupplier> projectIdAndInstanceIdSupplier;
+
+	private DatarouterBigTablePlugin(
+			Class<? extends BigtableProjectIdAndInstanceIdSupplier> projectIdAndInstanceIdSupplier){
+		this.projectIdAndInstanceIdSupplier = projectIdAndInstanceIdSupplier;
 		addRouteSet(DatarouterBigTableRouteSet.class);
 		addDatarouterGithubDocLink("datarouter-gcp-bigtable");
+		addDynamicNavBarItem(GcpBigTableNavBarItem.class);
 	}
 
 	@Override
 	public String getName(){
 		return "DatarouterBigTable";
+	}
+
+	@Override
+	protected void configure(){
+		bind(BigtableProjectIdAndInstanceIdSupplier.class).to(projectIdAndInstanceIdSupplier);
+	}
+
+	public static class DatarouterBigTablePluginBuilder{
+
+		private Class<? extends BigtableProjectIdAndInstanceIdSupplier> projectIdAndInstanceIdSupplier
+				= NoOpBigtableProjectIdAndInstanceIdSupplier.class;
+
+		public DatarouterBigTablePluginBuilder setProjectIdAndInstanceId(
+				Class<? extends BigtableProjectIdAndInstanceIdSupplier> projectIdAndInstanceIdSupplier){
+			this.projectIdAndInstanceIdSupplier = projectIdAndInstanceIdSupplier;
+			return this;
+		}
+
+		public DatarouterBigTablePlugin build(){
+			return new DatarouterBigTablePlugin(projectIdAndInstanceIdSupplier);
+		}
+
 	}
 
 }

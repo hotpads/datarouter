@@ -47,6 +47,14 @@ public class SpannerClientOptions{
 		return clientOptions.getRequiredString(clientName, makeSpannerKey(PROP_instanceId));
 	}
 
+	public String findProjectId(String clientName){
+		return clientOptions.optString(clientName, makeSpannerKey(PROP_projectId)).orElse("");
+	}
+
+	public String findInstanceId(String clientName){
+		return clientOptions.optString(clientName, makeSpannerKey(PROP_instanceId)).orElse("");
+	}
+
 	public String databaseName(String clientName){
 		return clientOptions.getRequiredString(clientName, makeSpannerKey(PROP_databaseName));
 	}

@@ -47,6 +47,14 @@ public class BigTableOptions extends HBaseOptions{
 		return clientOptions.getRequiredString(clientName, makeBigtableKey(PROP_instanceId));
 	}
 
+	public String findProjectId(String clientName){
+		return clientOptions.optString(clientName, makeBigtableKey(PROP_projectId)).orElse("");
+	}
+
+	public String findInstanceId(String clientName){
+		return clientOptions.optString(clientName, makeBigtableKey(PROP_instanceId)).orElse("");
+	}
+
 	public String credentialsLocation(String clientName){
 		String provided = clientOptions.getRequiredString(clientName, makeBigtableKey(PROP_credentialsLocation));
 		String corrected = provided.replace("~", SystemTool.getUserHome());

@@ -138,8 +138,8 @@ public class SqsPerformanceTester{
 		ExecutorService exec = Executors.newCachedThreadPool();
 		for(int i = 0; i < numThreads; ++i){
 			exec.submit(() -> {
-				for(GroupQueueMessage<TestDatabeanKey,TestDatabean> message : dao.peekUntilEmpty(Duration.ofSeconds(
-						3))){
+				for(GroupQueueMessage<TestDatabeanKey,TestDatabean> message : dao.peekUntilEmpty(Duration.ofSeconds(3))
+						.iterable()){
 					List<TestDatabean> databeans = message.getDatabeans();
 					numDatabeansDrained.addAndGet(databeans.size());
 					dao.ack(message.getKey());

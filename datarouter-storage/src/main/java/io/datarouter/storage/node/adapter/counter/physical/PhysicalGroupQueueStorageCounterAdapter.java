@@ -20,6 +20,7 @@ import java.util.List;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.PhysicalAdapterMixin;
 import io.datarouter.storage.node.adapter.counter.QueueStorageWriterCounterAdapter;
@@ -59,7 +60,7 @@ implements PhysicalGroupQueueStorageNode<PK,D,F>, PhysicalAdapterMixin<PK,D,F,N>
 	}
 
 	@Override
-	public Iterable<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
+	public Scanner<GroupQueueMessage<PK,D>> peekUntilEmpty(Config config){
 		counter.count(QueueStorageReader.OP_peekUntilEmpty);
 		return backingNode.peekUntilEmpty(config);
 	}

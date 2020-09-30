@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.serialization.GsonTool;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
@@ -59,12 +60,18 @@ public class J2HtmlEmailTable<T>{
 
 		public J2HtmlEmailTableColumn(String name, Function<T,DomContent> valueFunction){
 			this.name = name;
-			this.valueFunction = dto -> valueFunction.apply(dto);
+			this.valueFunction = valueFunction;
 			this.styles = new ArrayList<>();
 		}
 
 		public static <T> J2HtmlEmailTableColumn<T> ofText(String name, Function<T,Object> valueFunction){
-			return new J2HtmlEmailTableColumn<>(name, row -> TagCreator.text(valueFunction.apply(row).toString()));
+			return new J2HtmlEmailTableColumn<>(name, row -> {
+				try{
+					return TagCreator.text(valueFunction.apply(row).toString());
+				}catch(Exception e){
+					throw new RuntimeException("error column=" + name + " row=" + GsonTool.GSON.toJson(row), e);
+				}
+			});
 		}
 
 		public J2HtmlEmailTableColumn<T> withStyle(String style){

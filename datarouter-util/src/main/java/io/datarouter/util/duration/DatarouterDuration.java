@@ -144,4 +144,8 @@ public class DatarouterDuration{
 		return nano == other.nano;
 	}
 
+	public boolean isLongerThan(DatarouterDuration other){
+		return this.nano > other.nano;
+	}
+
 }

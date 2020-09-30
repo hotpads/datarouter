@@ -47,4 +47,8 @@ public class ConfigScanResponseTool{
 		return new ConfigScanDto(h4.renderFormatted() + "\n" + ul.renderFormatted(), true);
 	}
 
+	public static ConfigScanDto buildResponse(ContainerTag containerTag){
+		return new ConfigScanDto(containerTag.renderFormatted(), true);
+	}
+
 }

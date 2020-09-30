@@ -15,12 +15,14 @@
  */
 package io.datarouter.aws.s3.node;
 
+import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.ObjectStorage.PhysicalObjectStorageNode;
@@ -34,11 +36,26 @@ public class S3Node<
 extends BasePhysicalNode<PK,D,F>
 implements PhysicalObjectStorageNode<PK,D,F>{
 
+	private final DatarouterS3Client datarouterS3Client;
 	private final S3DirectoryManager s3DirectoryManager;
 
-	public S3Node(NodeParams<PK,D,F> params, ClientType<?,?> clientType, S3DirectoryManager directoryManager){
+	public S3Node(
+			NodeParams<PK,D,F> params,
+			ClientType<?,?> clientType,
+			DatarouterS3Client datarouterS3Client,
+			S3DirectoryManager directoryManager){
 		super(params, clientType);
+		this.datarouterS3Client = datarouterS3Client;
 		this.s3DirectoryManager = directoryManager;
+	}
+
+	public static S3Node<PathbeanKey,Pathbean,PathbeanFielder> cast(
+			ObjectStorageNode<PathbeanKey,Pathbean,PathbeanFielder> objectStorageNode){
+		return (S3Node<PathbeanKey,Pathbean,PathbeanFielder>)objectStorageNode;
+	}
+
+	public DatarouterS3Client getDatarouterS3Client(){
+		return datarouterS3Client;
 	}
 
 	@Override

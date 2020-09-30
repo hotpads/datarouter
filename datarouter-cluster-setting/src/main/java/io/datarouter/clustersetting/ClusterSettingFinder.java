@@ -40,8 +40,6 @@ public class ClusterSettingFinder implements SettingFinder{
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private ClusterSettingFinderConfig clusterSettingFinderConfig;
-	@Inject
 	private DatarouterClusterSettingDao clusterSettingDao;
 
 	private final List<CachedSetting<?>> allCachedSettings = new ArrayList<>();
@@ -100,7 +98,7 @@ public class ClusterSettingFinder implements SettingFinder{
 	public Optional<String> getSettingValue(String name){
 		List<ClusterSettingKey> keys = generateKeysForSelection(name);
 		List<ClusterSetting> settings = clusterSettingDao.getMultiFromCache(keys);
-		return ClusterSetting.getMostSpecificSetting(settings).map(ClusterSetting::getValue);
+		return ClusterSettingComparisonTool.getMostSpecificSetting(settings).map(ClusterSetting::getValue);
 	}
 
 	@Override
@@ -137,7 +135,7 @@ public class ClusterSettingFinder implements SettingFinder{
 	}
 
 	private ClusterSettingKey getKeyForServerType(String name){
-		ServerType serverType = clusterSettingFinderConfig.getServerType();
+		ServerType serverType = datarouterProperties.getServerType();
 		if(serverType == null || serverType.getPersistentString().equals(ServerType.UNKNOWN.getPersistentString())){
 			return null;
 		}
@@ -149,7 +147,7 @@ public class ClusterSettingFinder implements SettingFinder{
 	}
 
 	private ClusterSettingKey getKeyForServerName(String name){
-		String serverName = clusterSettingFinderConfig.getServerName();
+		String serverName = datarouterProperties.getServerName();
 		if(StringTool.isEmpty(serverName)){
 			return null;
 		}

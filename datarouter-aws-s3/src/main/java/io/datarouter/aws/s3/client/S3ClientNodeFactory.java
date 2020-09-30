@@ -96,7 +96,7 @@ public class S3ClientNodeFactory extends BaseClientNodeFactory implements Object
 		String bucket = nodeParams.getPhysicalName();
 		Subpath path = nodeParams.getPath();
 		var s3DirectoryManager = new S3DirectoryManager(client, bucket, path);
-		return new S3Node<>(nodeParams, s3ClientType, s3DirectoryManager);
+		return new S3Node<>(nodeParams, s3ClientType, client, s3DirectoryManager);
 	}
 
 }

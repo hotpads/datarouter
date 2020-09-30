@@ -17,10 +17,12 @@ package io.datarouter.web.navigation;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.dispatcher.DispatchRule;
 
 public class NavBarItem{
 
@@ -28,24 +30,58 @@ public class NavBarItem{
 	public final String path;
 	public final String name;
 	public final boolean openInNewTab;
+	public final Optional<DispatchRule> dispatchRule;
 
 	public NavBarItem(NavBarCategory category, String path, String name){
-		this(category, path, name, false);
+		this(category, path, name, false, null);
 	}
 
 	public NavBarItem(NavBarCategory category, PathNode pathNode, String name){
-		this(category, pathNode.toSlashedString(), name, false);
+		this(category, pathNode.toSlashedString(), name, false, null);
 	}
 
-	public NavBarItem(NavBarCategory category, PathNode pathNode, String name, boolean openInNewTab){
-		this(category, pathNode.toSlashedString(), name, openInNewTab);
-	}
-
-	public NavBarItem(NavBarCategory category, String path, String name, boolean openInNewTab){
+	private NavBarItem(NavBarCategory category, String path, String name, boolean openInNewTab,
+			DispatchRule dispatchRule){
 		this.category = category;
 		this.path = path;
 		this.name = name;
 		this.openInNewTab = openInNewTab;
+		this.dispatchRule = Optional.ofNullable(dispatchRule);
+	}
+
+	public static class NavBarItemBuilder{
+
+		private final NavBarCategory category;
+		private final String path;
+		private final String name;
+
+		private boolean openInNewTab = false;
+		private DispatchRule dispatchRule;
+
+		public NavBarItemBuilder(NavBarCategory category, PathNode pathNode, String name){
+			this(category, pathNode.toSlashedString(), name);
+		}
+
+		public NavBarItemBuilder(NavBarCategory category, String path, String name){
+			this.category = category;
+			this.path = path;
+			this.name = name;
+		}
+
+		public NavBarItemBuilder openInNewTab(){
+			openInNewTab = true;
+			return this;
+		}
+
+		public NavBarItemBuilder setDispatchRule(DispatchRule dispatchRule){
+			this.dispatchRule = dispatchRule;
+			return this;
+		}
+
+		public NavBarItem build(){
+			return new NavBarItem(category, path, name, openInNewTab, dispatchRule);
+		}
+
 	}
 
 	public static class NavBarItemGroup{

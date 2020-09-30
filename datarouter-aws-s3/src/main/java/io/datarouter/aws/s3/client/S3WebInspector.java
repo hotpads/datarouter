@@ -84,7 +84,7 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 		var content = div(
 				buildClientPageHeader(clientName),
 				buildClientOptionsTable(allClientOptions),
-				buildNodeTable(clientId),
+				buildNodeTable(contextPath, clientId),
 				buildBucketTable(contextPath, clientId))
 				.withClass("container my-3");
 
@@ -95,7 +95,7 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag buildNodeTable(ClientId clientId){
+	private ContainerTag buildNodeTable(String contextPath, ClientId clientId){
 		List<S3NodeDto> nodeDtos = Scanner.of(nodes.getTableNamesForClient(clientId.getName()))
 				.map(tableName -> nodes.getPhysicalNodeForClientAndTable(
 						clientId.getName(),
@@ -106,6 +106,15 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 				.list();
 		var table = new J2HtmlTable<S3NodeDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
+				.withHtmlColumn("Browse", row -> {
+					String href = new URIBuilder()
+							.setPath(contextPath + paths.datarouter.clients.awsS3.listObjects.toSlashedString())
+							.addParameter(S3BucketHandler.P_client, clientId.getName())
+							.addParameter(S3BucketHandler.P_bucket, row.bucket)
+							.addParameter(S3BucketHandler.P_prefix, row.rootPath)
+							.toString();
+					return td(a("Browse").withHref(href));
+				})
 				.withColumn("Bucket", row -> row.bucket)
 				.withColumn("Root Path", row -> row.rootPath)
 				.build(nodeDtos);
