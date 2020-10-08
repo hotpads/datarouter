@@ -46,8 +46,6 @@ public class SecretService{
 	private SecretNamespacer secretNamespacer;
 	@Inject
 	private SecretOpRecorderSupplier secretOpRecorderSupplier;
-	@Inject
-	private SecretStageDetector secretStageDetector;
 
 	public List<String> listSecretNames(){
 		return listSecretNames(Optional.empty());
@@ -153,7 +151,7 @@ public class SecretService{
 			boolean isShared){
 		String namespaced = isShared ? secretNamespacer.sharedNamespaced(secretName.get()) : secretNamespacer
 				.appNamespaced(secretName.get());
-		if(secretStageDetector.mightBeDevelopment()){
+		if(secretNamespacer.isDevelopment()){
 			localStorageDefaultSecretValues.registerDefaultValue(namespaced, serialize(defaultValue));
 		}
 	}

@@ -21,6 +21,8 @@ import io.datarouter.util.Require;
 
 public class S3Tool{
 
+	public static final String S3_ENDPOINT = "https://s3.amazonaws.com";
+
 	public static final Pattern S3_KEY_NON_SAFE_CHARACTERS = Pattern.compile("[^0-9a-zA-Z\\!\\-\\_\\.\\*\\'\\(\\)]");
 
 	public static String replaceS3KeyNonSafeCharacters(String input, String defaultReplacement){

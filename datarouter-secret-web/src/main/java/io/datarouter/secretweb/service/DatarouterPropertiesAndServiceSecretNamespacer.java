@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.environment.EnvironmentType;
 
 @Singleton
 public class DatarouterPropertiesAndServiceSecretNamespacer implements SecretNamespacer{
@@ -44,6 +45,11 @@ public class DatarouterPropertiesAndServiceSecretNamespacer implements SecretNam
 	@Override
 	public String getSharedNamespace(){
 		return getEnvironment() + '/' + SHARED + '/';
+	}
+
+	@Override
+	public boolean isDevelopment(){
+		return EnvironmentType.DEVELOPMENT.get().getPersistentString().equals(getEnvironment());
 	}
 
 }

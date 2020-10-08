@@ -24,6 +24,7 @@ import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet;
 import io.datarouter.nodewatch.service.GenericNodewatchClientConfiguration;
 import io.datarouter.nodewatch.service.NodewatchClientConfiguration;
+import io.datarouter.nodewatch.service.NodewatchDailyDigest;
 import io.datarouter.nodewatch.storage.alertthreshold.DatarouterTableSizeAlertThresholdDao;
 import io.datarouter.nodewatch.storage.alertthreshold.DatarouterTableSizeAlertThresholdDao.DatarouterTableSizeAlertThresholdDaoParams;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
@@ -68,6 +69,7 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 			addSettingRoot(DatarouterTableCountPublisherSettingRoot.class);
 			addTriggerGroup(DatarouterTableCountPublisherTriggerGroup.class);
 		}
+		addDailyDigest(NodewatchDailyDigest.class);
 	}
 
 	@Override

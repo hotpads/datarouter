@@ -13,28 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.secretweb.service;
+package io.datarouter.web.digest;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import java.util.Optional;
 
-import io.datarouter.secret.service.SecretStageDetector;
-import io.datarouter.storage.servertype.ServerTypeDetector;
+import j2html.tags.ContainerTag;
 
-@Singleton
-public class ServerTypeDetectorSecretStageDetector implements SecretStageDetector{
+public interface DailyDigest{
 
-	@Inject
-	private ServerTypeDetector serverTypeDetector;
-
-	@Override
-	public boolean mightBeDevelopment(){
-		return serverTypeDetector.mightBeDevelopment();
-	}
-
-	@Override
-	public boolean mightBeProduction(){
-		return serverTypeDetector.mightBeProduction();
-	}
+	Optional<ContainerTag> getContent();
 
 }

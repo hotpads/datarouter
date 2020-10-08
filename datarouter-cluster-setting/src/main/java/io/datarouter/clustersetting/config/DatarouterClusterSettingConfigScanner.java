@@ -105,7 +105,7 @@ public class DatarouterClusterSettingConfigScanner{
 		return div(h4(header), table);
 	}
 
-	private ContainerTag makeSettingLink(String settingName){
+	public ContainerTag makeSettingLink(String settingName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.settings)
 				.withParam("submitAction", "browseSettings")

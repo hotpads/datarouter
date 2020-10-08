@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-secret</artifactId>
-	<version>0.0.51</version>
+	<version>0.0.52</version>
 </dependency>
 ```
 
@@ -20,7 +20,6 @@ new DatarouterSecretPluginBuilderImpl()
 		//.setSecretNamespacer() default EmptyNamespacer.class
 		//.setSecretOpRecorderSupplier() default NoOpSecretOpRecorderSupplier.class
 		//.setJsonSerializer() default GsonToolJsonSerializer.class
-		//.setSecretStageDetector() default DevelopmentSecretStageDetector
 		//.setLocalStorageConfig() default DefaultLocalStorageConfig
 		.build()
 ```

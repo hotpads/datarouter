@@ -22,6 +22,7 @@ import static j2html.TagCreator.td;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -69,7 +70,13 @@ public class ViewChangelogHandler extends BaseHandler{
 				.withClass("mt-4");
 		var linkBar = Bootstrap4PagerHtml.renderLinkBar(page)
 				.withClass("mt-2");
-		var table = new J2HtmlTable<Changelog>()
+		var table = buildTable(page.rows);
+		return div(form, linkBar, table)
+				.withClass("container-fluid");
+	}
+
+	public static ContainerTag buildTable(List<Changelog> rows){
+		return new J2HtmlTable<Changelog>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withColumn("Date", row -> {
 					Long reversedDateMs = row.getKey().getReversedDateMs();
@@ -83,9 +90,7 @@ public class ViewChangelogHandler extends BaseHandler{
 					String id = row.getKey().getReversedDateMs() + "" + RandomTool.nextPositiveInt();
 					return makeCommentModal(id, row.getComment());
 				})
-				.build(page.rows);
-		return div(form, linkBar, table)
-				.withClass("container-fluid");
+				.build(rows);
 	}
 
 	public static DomContent makeCommentModal(String id, String comment){

@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClientSupplier;
 import io.datarouter.secret.client.local.LocalStorageSecretClient;
-import io.datarouter.secret.service.SecretStageDetector;
+import io.datarouter.secret.service.SecretNamespacer;
 
 @Singleton
 public class AwsWithDevLocalStorageSecretClientSupplier implements SecretClientSupplier{
@@ -31,12 +31,12 @@ public class AwsWithDevLocalStorageSecretClientSupplier implements SecretClientS
 	@Inject
 	private LocalStorageSecretClient localStorageSecretClient;
 	@Inject
-	private SecretStageDetector secretStageDetector;
+	private SecretNamespacer secretNamespacer;
 
 	@Override
 	public SecretClient get(){
 		SecretClient clientToReturn = localStorageSecretClient;
-		if(!secretStageDetector.mightBeDevelopment()){
+		if(!secretNamespacer.isDevelopment()){
 			clientToReturn = awsSecretClient;
 		}
 		return clientToReturn;

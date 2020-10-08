@@ -74,6 +74,11 @@ implements PhysicalObjectStorageNode<PK,D,F>{
 	}
 
 	@Override
+	public byte[] read(PathbeanKey key, long offset, int length){
+		return s3DirectoryManager.read(key.getPathAndFile(), offset, length);
+	}
+
+	@Override
 	public void write(PathbeanKey key, byte[] content){
 		s3DirectoryManager.write(key.getPathAndFile(), content);
 	}

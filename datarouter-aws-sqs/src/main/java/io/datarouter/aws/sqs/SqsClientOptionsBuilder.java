@@ -58,6 +58,12 @@ public class SqsClientOptionsBuilder implements ClientOptionsBuilder{
 		return this;
 	}
 
+	public SqsClientOptionsBuilder withNamespace(String namespace){
+		String optionKey = makeKey(SqsOptions.PROP_namespace);
+		properties.setProperty(optionKey, namespace);
+		return this;
+	}
+
 	@Override
 	public Properties build(){
 		return properties;

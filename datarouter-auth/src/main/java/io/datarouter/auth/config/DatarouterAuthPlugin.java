@@ -22,6 +22,7 @@ import io.datarouter.auth.service.DefaultDatarouterAccountKeys;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
 import io.datarouter.auth.service.DefaultDatarouterUserPassword;
 import io.datarouter.auth.service.DefaultDatarouterUserPasswordSupplier;
+import io.datarouter.auth.service.PermissionRequestDailyDigest;
 import io.datarouter.auth.service.UserInfo;
 import io.datarouter.auth.service.deprovisioning.DatarouterUserDeprovisioningStrategy;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningListeners;
@@ -105,6 +106,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		addTriggerGroup(DatarouterAuthTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-auth");
+		addDailyDigest(PermissionRequestDailyDigest.class);
 	}
 
 	@Override

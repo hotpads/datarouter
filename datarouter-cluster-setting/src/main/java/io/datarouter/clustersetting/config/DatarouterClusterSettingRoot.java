@@ -38,7 +38,7 @@ public class DatarouterClusterSettingRoot extends SettingRoot{
 
 		oldSettingAlertThresholdDays = registerInteger("oldSettingAlertThresholdDays", 14);
 		settingsExcludedFromOldSettingsAlert = registerCommaSeparatedString("settingsExcludedFromOldSettingsAlert",
-				Set.of("key", "password", "username", "secret"));
+				Set.of("key", "password", "username", "secret", "token"));
 		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
 	}
 

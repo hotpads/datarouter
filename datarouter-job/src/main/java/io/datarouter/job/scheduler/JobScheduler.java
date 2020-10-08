@@ -117,6 +117,7 @@ public class JobScheduler{
 
 	public void shutdown(){
 		shutdown.set(true);
+		ThreadTool.sleepUnchecked(1_000);
 		localTriggerLockService.onShutdown();
 		triggerExecutor.shutdown(); // start rejecting new triggers
 		jobExecutor.shutdownNow(); // interrupt all jobs
@@ -213,8 +214,6 @@ public class JobScheduler{
 		}catch(Exception e){
 			jobCounters.exception(jobClass);
 			logger.warn("exception jobName={}", jobClass.getName(), e);
-			exceptionRecorder.tryRecordException(e, jobClass.getName(), JobExceptionCategory.JOB)
-				.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
 		}finally{
 			try{
 				scheduleNextRun(jobPackage);
@@ -278,7 +277,10 @@ public class JobScheduler{
 				return false;
 			}
 			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.ERRORED);
-			throw new RuntimeException("rejected jobName=" + jobClass.getName(), e);
+			var exception = new RuntimeException("rejected jobName=" + jobClass.getName(), e);
+			exceptionRecorder.tryRecordException(exception, jobClass.getName(), JobExceptionCategory.JOB)
+					.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
+			throw exception;
 		}
 		try{
 			future.get(hardTimeoutMs, TimeUnit.MILLISECONDS);
@@ -289,7 +291,11 @@ public class JobScheduler{
 			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
 					TimeUnit.MILLISECONDS);
 			var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
+			var exception = new RuntimeException("interrupted jobName=" + jobClass.getName() + " elapsed=" + elapsed
+					+ " deadline=" + deadline, e);
 			logger.warn("interrupted jobName={} elapsed={} deadline={}", jobClass.getName(), elapsed, deadline);
+			exceptionRecorder.tryRecordException(exception, jobClass.getName(), JobExceptionCategory.JOB)
+					.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
 			jobCounters.interrupted(jobClass);
 			return true;
 		}catch(ExecutionException e){
@@ -297,17 +303,23 @@ public class JobScheduler{
 			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
 					TimeUnit.MILLISECONDS);
 			var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
-			throw new RuntimeException("failed jobName=" + jobClass.getName() + " elapsed=" + elapsed + " deadline="
-					+ deadline, e);
+			var exception = new RuntimeException("failed jobName=" + jobClass.getName() + " elapsed=" + elapsed
+					+ " deadline=" + deadline, e);
+			exceptionRecorder.tryRecordException(exception, jobClass.getName(), JobExceptionCategory.JOB)
+					.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
+			throw exception;
 		}catch(TimeoutException e){
 			future.cancel(true);
 			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.TIMED_OUT);
 			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
 					TimeUnit.MILLISECONDS);
 			var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
+			var exception = new RuntimeException("didn't complete on time jobName=" + jobClass.getName() + " elapsed="
+					+ elapsed + " deadline=" + deadline, e);
+			exceptionRecorder.tryRecordException(exception, jobClass.getName(), JobExceptionCategory.JOB)
+					.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
 			jobCounters.timedOut(jobClass);
-			throw new RuntimeException("didn't complete on time jobName=" + jobClass.getName() + " elapsed=" + elapsed
-					+ " deadline=" + deadline, e);
+			throw exception;
 		}finally{
 			localTriggerLockService.release(jobClass);
 		}

@@ -202,7 +202,8 @@ public class ClusterSettingService{
 					datarouterProperties.getEnvironment(),
 					datarouterProperties.getServerType(),
 					datarouterProperties.getServerName());
-			return Objects.equals(defaultValue, databeanSetting.getTypedValue(memorySetting));
+			Object databeanSettingValue = databeanSetting.getTypedValue(memorySetting);
+			return Objects.equals(defaultValue, databeanSettingValue);
 		}
 		return false;
 	}

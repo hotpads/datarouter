@@ -76,6 +76,11 @@ public class S3DirectoryManager{
 		return client.getObjectAsBytes(bucket, fullPath);
 	}
 
+	public byte[] read(String suffix, long offset, int length){
+		String fullPath = fullPath(suffix);
+		return client.getPartialObject(bucket, fullPath, offset, length);
+	}
+
 	public String readUtf8(String suffix){
 		byte[] bytes = read(suffix);
 		return new String(bytes, StandardCharsets.UTF_8);

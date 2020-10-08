@@ -39,6 +39,7 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final InfoPaths info = branch(InfoPaths::new, "info");
 		public final NodesPaths nodes = branch(NodesPaths::new, "nodes");
 
+		public final PathNode dailyDigest = leaf("dailyDigest");
 		public final PathNode deployment = leaf("deployment");
 		public final PathNode emailTest = leaf("emailTest");
 		public final PathNode executors = leaf("executors");

@@ -25,6 +25,11 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.webappinstance.WebappInstanceAppListener;
+import io.datarouter.webappinstance.service.WebappInstanceBuildIdLink;
+import io.datarouter.webappinstance.service.WebappInstanceBuildIdLink.NoOpWebappInstanceBuilIdLink;
+import io.datarouter.webappinstance.service.WebappInstanceCommitIdLink;
+import io.datarouter.webappinstance.service.WebappInstanceCommitIdLink.NoOpWebappInstanceCommitIdLink;
+import io.datarouter.webappinstance.service.WebappInstanceDailyDigest;
 import io.datarouter.webappinstance.storage.onetimelogintoken.DatarouterOneTimeLoginTokenDao;
 import io.datarouter.webappinstance.storage.onetimelogintoken.DatarouterOneTimeLoginTokenDao.DatarouterOneTimeLoginTokenDaoParams;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
@@ -35,11 +40,18 @@ import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappIn
 public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 
 	private final Class<? extends WebappInstancePublisher> webappInstancePublisher;
+	private final Class<? extends WebappInstanceBuildIdLink> buildIdLink;
+	private final Class<? extends WebappInstanceCommitIdLink> commitIdLink;
 
 	private DatarouterWebappInstancePlugin(
 			DatarouterWebappInstanceDaoModule daosModuleBuilder,
-			Class<? extends WebappInstancePublisher> webappInstancePublisher){
+			Class<? extends WebappInstancePublisher> webappInstancePublisher,
+			Class<? extends WebappInstanceBuildIdLink> buildIdLink,
+			Class<? extends WebappInstanceCommitIdLink> commitIdLink){
 		this.webappInstancePublisher = webappInstancePublisher;
+		this.buildIdLink = buildIdLink;
+		this.commitIdLink = commitIdLink;
+
 		addAppListener(WebappInstanceAppListener.class);
 		addRouteSet(DatarouterWebappInstanceRouteSet.class);
 		addSettingRoot(DatarouterWebappInstanceSettingRoot.class);
@@ -48,6 +60,7 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
 				new DatarouterWebappInstancePaths().datarouter.webappInstances, "Webapp Instances");
 		addDatarouterGithubDocLink("datarouter-webapp-instance");
+		addDailyDigest(WebappInstanceDailyDigest.class);
 	}
 
 	@Override
@@ -58,12 +71,16 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 	@Override
 	protected void configure(){
 		bind(WebappInstancePublisher.class).to(webappInstancePublisher);
+		bind(WebappInstanceBuildIdLink.class).to(buildIdLink);
+		bind(WebappInstanceCommitIdLink.class).to(commitIdLink);
 	}
 
 	public static class DatarouterWebappInstancePluginBuilder{
 
 		private final ClientId defaultClientId;
 		private Class<? extends WebappInstancePublisher> webappInstancePublisher = NoOpWebappInstancePublisher.class;
+		private Class<? extends WebappInstanceBuildIdLink> buildIdLink = NoOpWebappInstanceBuilIdLink.class;
+		private Class<? extends WebappInstanceCommitIdLink> commitIdLink = NoOpWebappInstanceCommitIdLink.class;
 
 		public DatarouterWebappInstancePluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -75,10 +92,24 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterWebappInstancePluginBuilder setBuildIdLink(
+				Class<? extends WebappInstanceBuildIdLink> buildIdLink){
+			this.buildIdLink = buildIdLink;
+			return this;
+		}
+
+		public DatarouterWebappInstancePluginBuilder setCommitIdLink(
+				Class<? extends WebappInstanceCommitIdLink> commitIdLink){
+			this.commitIdLink = commitIdLink;
+			return this;
+		}
+
 		public DatarouterWebappInstancePlugin build(){
 			return new DatarouterWebappInstancePlugin(
 					new DatarouterWebappInstanceDaoModule(defaultClientId, defaultClientId, defaultClientId),
-					webappInstancePublisher);
+					webappInstancePublisher,
+					buildIdLink,
+					commitIdLink);
 		}
 
 	}

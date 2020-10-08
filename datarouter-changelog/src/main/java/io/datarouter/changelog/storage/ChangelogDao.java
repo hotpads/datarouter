@@ -26,6 +26,7 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.util.tuple.Range;
 
 @Singleton
 public class ChangelogDao extends BaseDao{
@@ -54,6 +55,10 @@ public class ChangelogDao extends BaseDao{
 
 	public Scanner<Changelog> scan(){
 		return node.scan();
+	}
+
+	public Scanner<Changelog> scan(Range<ChangelogKey> range){
+		return node.scan(range);
 	}
 
 }

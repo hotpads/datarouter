@@ -17,6 +17,7 @@ package io.datarouter.changelog.config;
 
 import java.util.List;
 
+import io.datarouter.changelog.service.ChangelogDailyDigest;
 import io.datarouter.changelog.service.ChangelogRecorderService;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogDao.ChangelogDaoParams;
@@ -42,9 +43,10 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 		addSettingRoot(DatarouterChangelogSettingRoot.class);
 		addRouteSet(DatarouterChangelogRouteSet.class);
 		setDaosModule(daosModule);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.CHANGELOG, PATHS.datarouter.changelog.view, "View Changelog");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.CHANGELOG, PATHS.datarouter.changelog.view, "View All");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.CHANGELOG, PATHS.datarouter.changelog.insert, "Add");
 		addDatarouterGithubDocLink("datarouter-changelog");
+		addDailyDigest(ChangelogDailyDigest.class);
 	}
 
 	@Override

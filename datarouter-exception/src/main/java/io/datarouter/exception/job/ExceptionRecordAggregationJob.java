@@ -15,6 +15,7 @@
  */
 package io.datarouter.exception.job;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -30,12 +31,11 @@ import io.datarouter.exception.storage.summary.ExceptionRecordSummaryKey;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Range;
 
 public class ExceptionRecordAggregationJob extends BaseJob{
 
-	private static final long PERIOD_MS = DateTool.MILLISECONDS_IN_HOUR;
+	private static final long PERIOD_MS = Duration.ofHours(1).toMillis();
 
 	@Inject
 	private DatarouterExceptionRecordSummaryDao exceptionRecordSummaryDao;

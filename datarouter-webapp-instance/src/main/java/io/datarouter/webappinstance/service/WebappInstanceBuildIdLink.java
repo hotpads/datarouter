@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.secret.service;
+package io.datarouter.webappinstance.service;
 
-import javax.inject.Singleton;
+public interface WebappInstanceBuildIdLink{
 
-public interface SecretStageDetector{
+	String getLinkPrefix();
 
-	boolean mightBeDevelopment();
-	boolean mightBeProduction();
+	default String getLink(String buildId){
+		return getLinkPrefix() + buildId;
+	}
 
-	@Singleton
-	public static class DevelopmentSecretStageDetector implements SecretStageDetector{
-
-		@Override
-		public boolean mightBeDevelopment(){
-			return true;
-		}
+	class NoOpWebappInstanceBuilIdLink implements WebappInstanceBuildIdLink{
 
 		@Override
-		public boolean mightBeProduction(){
-			return false;
+		public String getLinkPrefix(){
+			return "";
 		}
 
 	}

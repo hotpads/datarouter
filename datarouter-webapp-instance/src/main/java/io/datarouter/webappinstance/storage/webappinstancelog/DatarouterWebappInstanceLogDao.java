@@ -18,13 +18,17 @@ package io.datarouter.webappinstance.storage.webappinstancelog;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import io.datarouter.storage.node.op.index.IndexReader;
+import io.datarouter.util.tuple.Range;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog.WebappInstanceLogFielder;
 
 @Singleton
@@ -38,15 +42,20 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 
 	}
 
-	private final SortedMapStorage<WebappInstanceLogKey,WebappInstanceLog> node;
+	private final IndexedSortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node;
+	private final IndexReader<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogByBuildDateKey,
+			FieldlessIndexEntry<WebappInstanceLogByBuildDateKey,WebappInstanceLogKey,WebappInstanceLog>> byBuildDate;
 
 	@Inject
 	public DatarouterWebappInstanceLogDao(Datarouter datarouter, NodeFactory nodeFactory,
-			DatarouterWebappInstanceLogDaoParams params){
+			IndexingNodeFactory indexingNodeFactory, DatarouterWebappInstanceLogDaoParams params){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, WebappInstanceLog::new, WebappInstanceLogFielder::new)
 				.withIsSystemTable(true)
-				.buildAndRegister();
+				.build();
+		byBuildDate = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildDateKey.class, node)
+				.build();
+		datarouter.register(node);
 	}
 
 	public void put(WebappInstanceLog log){
@@ -55,6 +64,10 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 
 	public Scanner<WebappInstanceLog> scanWithPrefix(WebappInstanceLogKey key){
 		return node.scanWithPrefix(key);
+	}
+
+	public Scanner<WebappInstanceLog> scanDatabeans(Range<WebappInstanceLogByBuildDateKey> range){
+		return byBuildDate.scanDatabeans(range);
 	}
 
 }

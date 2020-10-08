@@ -167,6 +167,11 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
+	public byte[] getPartialObject(String bucket, String key, long offset, int length){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public String getObjectAsString(String bucket, String key){
 		throw new UnsupportedOperationException();
 	}

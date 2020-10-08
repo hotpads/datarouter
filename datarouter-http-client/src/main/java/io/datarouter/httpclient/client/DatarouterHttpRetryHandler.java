@@ -47,7 +47,8 @@ public class DatarouterHttpRetryHandler implements HttpRequestRetryHandler{
 			TracerTool.appendToSpanInfo("willRetry", exception.getMessage());
 		}else{
 			// don't log everything, caller will get details in an Exception
-			logger.warn("failure target={} id={} failureCount={} (final)", url, requestId, executionCount);
+			logger.warn("failure target={} id={} failureCount={} (final) {}", url, requestId, executionCount,
+					exception);
 		}
 		return willRetry;
 	}

@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.51</version>
+	<version>0.0.52</version>
 </dependency>
 ```
 
@@ -128,7 +128,8 @@ The argument passed to parallel(..) is a `ParallelScannerContext` which contains
 - `int maxThreads`
   - constrains threads used by this scanner, despite a potentially larger executor
 - `boolean allowUnorderedResults`
-  - return items in the order they finish processing, potentially avoiding blocking all threads on a slow item
+  - return items in the order they finish processing, which might be different than the original order, potentially
+    avoiding stalling other threads on slow items
 
 ## License
 

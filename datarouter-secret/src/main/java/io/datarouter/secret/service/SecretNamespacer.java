@@ -23,26 +23,33 @@ public interface SecretNamespacer{
 
 	String getAppNamespace();
 	String getSharedNamespace();
+	boolean isDevelopment();
 
 	default String appNamespaced(String secretName){
 		return getAppNamespace() + secretName;
 	}
-
 	default String sharedNamespaced(String secretName){
 		return getSharedNamespace() + secretName;
 	}
 
 	@Singleton
-	public static class EmptyNamespacer implements SecretNamespacer{
+	public static class DevelopmentNamespacer implements SecretNamespacer{
+
+		private static final String DEVELOPMENT = "development";
 
 		@Override
 		public String getAppNamespace(){
-			return "";
+			return DEVELOPMENT + "/";
 		}
 
 		@Override
 		public String getSharedNamespace(){
-			return SHARED + '/';
+			return getAppNamespace() + SHARED + '/';
+		}
+
+		@Override
+		public boolean isDevelopment(){
+			return true;
 		}
 
 	}

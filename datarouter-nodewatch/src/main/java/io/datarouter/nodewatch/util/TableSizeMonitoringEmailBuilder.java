@@ -31,7 +31,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
-import io.datarouter.nodewatch.job.TableSizeMonitoringJob.CountStat;
+import io.datarouter.nodewatch.service.TableSizeMonitoringService.CountStat;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
@@ -108,7 +108,7 @@ public class TableSizeMonitoringEmailBuilder{
 				.withStyle("text-align:right");
 	}
 
-	private ContainerTag makeTableLink(String tableName, String clientName){
+	public ContainerTag makeTableLink(String tableName, String clientName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.withParam("submitAction", "singleTable")

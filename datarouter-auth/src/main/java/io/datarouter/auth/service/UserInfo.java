@@ -26,17 +26,12 @@ public interface UserInfo{
 
 	//TODO DATAROUTER-2794
 	Scanner<? extends SessionBasedUser> scanAllUsers(boolean enabledOnly, Set<Role> includedRoles);
-
 	Optional<? extends SessionBasedUser> getUserByUsername(String username, boolean allowCached);
-
 	Optional<? extends SessionBasedUser> getUserByToken(String token, boolean allowCached);
-
 	Optional<? extends SessionBasedUser> getUserById(Long id, boolean allowCached);
 
 	Set<Role> getRolesByUsername(String username, boolean allowCached);
-
 	Set<Role> getRolesByToken(String token, boolean allowCached);
-
 	Set<Role> getRolesById(Long id, boolean allowCached);
 
 	default Boolean hasRoleByUsername(String username, Role role, boolean allowCached){

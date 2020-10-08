@@ -22,6 +22,8 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.factory.ObjectNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.util.Subpath;
@@ -53,11 +55,9 @@ public class ObjectNodeBuilder<
 		this.fielderSupplier = fielderSupplier;
 	}
 
-	public <N extends NodeOps<PK,D>> N build(){
+	public <N extends NodeOps<PathbeanKey,Pathbean>> N build(){
 		return objectNodeFactory.create(
 				clientId,
-				databeanSupplier,
-				fielderSupplier,
 				bucket,
 				path);
 	}

@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -193,7 +194,9 @@ public class DateTool{
 		return msDif / (double)periodLengthMs;
 	}
 
-	/*---------------- XsdDateTime ----------------*/
+	public static String getInternetDate(TemporalAccessor temporalValue){
+		return JAVA_TIME_INTERNET_FORMATTER.format(temporalValue);
+	}
 
 	/* as specified in RFC 3339 / ISO 8601 */
 	public static String getInternetDate(Date date){
@@ -201,23 +204,28 @@ public class DateTool{
 	}
 
 	public static String getInternetDate(Date date, int msCount){
-		TimeZone tz = TimeZone.getTimeZone("GMT+00:00");
-		StringBuilder sb = new StringBuilder();
-		sb.append("yyyy-MM-dd'T'HH:mm:ss");
-		if(msCount > 0){
-			sb.append('.');
-			for(int i = 0; i < msCount; i++){
-				sb.append('S');
-			}
-		}
-		sb.append("'Z'");
-		SimpleDateFormat sdf = new SimpleDateFormat(sb.toString());
-		sdf.setTimeZone(tz);
-		return sdf.format(date);
+		ThreadLocal<SimpleDateFormat> sdf = SDFS.computeIfAbsent(msCount, DateTool::makeSdf);
+		return sdf.get().format(date);
 	}
 
-	public static String getInternetDate(TemporalAccessor temporalValue){
-		return JAVA_TIME_INTERNET_FORMATTER.format(temporalValue);
+	private static final ConcurrentHashMap<Integer,ThreadLocal<SimpleDateFormat>> SDFS = new ConcurrentHashMap<>();
+
+	private static ThreadLocal<SimpleDateFormat> makeSdf(int msCount){
+		return ThreadLocal.withInitial(() -> {
+			TimeZone tz = TimeZone.getTimeZone("GMT+00:00");
+			StringBuilder sb = new StringBuilder();
+			sb.append("yyyy-MM-dd'T'HH:mm:ss");
+			if(msCount > 0){
+				sb.append('.');
+				for(int i = 0; i < msCount; i++){
+					sb.append('S');
+				}
+			}
+			sb.append("'Z'");
+			SimpleDateFormat sdf = new SimpleDateFormat(sb.toString());
+			sdf.setTimeZone(tz);
+			return sdf;
+		});
 	}
 
 	public static Date parseIso(String str){

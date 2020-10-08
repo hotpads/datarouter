@@ -15,6 +15,13 @@
  */
 package io.datarouter.webappinstance.web;
 
+import static j2html.TagCreator.a;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.strong;
+import static j2html.TagCreator.text;
+import static j2html.TagCreator.ul;
+
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.Date;
@@ -22,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,9 +44,10 @@ import io.datarouter.webappinstance.config.DatarouterWebappInstanceFiles;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.job.WebappInstanceUpdateJob;
 import io.datarouter.webappinstance.service.OneTimeLoginService;
+import io.datarouter.webappinstance.service.WebappInstanceBuildIdLink;
+import io.datarouter.webappinstance.service.WebappInstanceCommitIdLink;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
 public class WebappInstanceHandler extends BaseHandler{
@@ -55,6 +64,10 @@ public class WebappInstanceHandler extends BaseHandler{
 	private OneTimeLoginService oneTimeLoginService;
 	@Inject
 	private DatarouterWebappInstanceFiles files;
+	@Inject
+	private WebappInstanceBuildIdLink buildIdLink;
+	@Inject
+	private WebappInstanceCommitIdLink commitIdLink;
 
 	@Handler(defaultHandler = true)
 	protected Mav view(){
@@ -71,8 +84,10 @@ public class WebappInstanceHandler extends BaseHandler{
 								instances -> getMostCommonValue(instances, WebappInstance::getCommitId))));
 
 		var webappStats = new UsageStatsJspDto(webappInstances, instance -> instance.getKey().getWebappName());
-		var buildIdStats = new UsageStatsJspDto(webappInstances, WebappInstance::getBuildId);
-		var commitIdStats = new UsageStatsJspDto(webappInstances, WebappInstance::getCommitId);
+		var buildIdStats = new UsageStatsJspDto(webappInstances, WebappInstance::getBuildId,
+				Optional.of(buildIdLink.getLinkPrefix()));
+		var commitIdStats = new UsageStatsJspDto(webappInstances, WebappInstance::getCommitId,
+				Optional.of(commitIdLink.getLinkPrefix()));
 		var publicIpStats = new UsageStatsJspDto(webappInstances, WebappInstance::getServerPublicIp);
 		var buildDateStats = new UsageStatsJspDto(webappInstances, WebappInstance::getBuildDate);
 		var javaVersionStats = new UsageStatsJspDto(webappInstances, WebappInstance::getJavaVersion);
@@ -82,11 +97,13 @@ public class WebappInstanceHandler extends BaseHandler{
 		List<WebappInstanceJspDto> dtos = Scanner.of(webappInstances)
 				.map(instance -> new WebappInstanceJspDto(
 						instance,
-						!buildIdStats.getMostCommon().equals(instance.getBuildId()),
+						!Objects.equals(buildIdStats.getMostCommon(), instance.getBuildId()),
 						!mostPopularCommitIdByWebapp.get(instance.getKey().getWebappName()).equals(instance
 								.getCommitId()),
 						!javaVersionStats.getMostCommon().equals(instance.getJavaVersion()),
-						!servletVersionStats.getMostCommon().equals(instance.getServletContainerVersion())))
+						!servletVersionStats.getMostCommon().equals(instance.getServletContainerVersion()),
+						buildIdLink.getLinkPrefix(),
+						commitIdLink.getLinkPrefix()))
 				.list();
 
 		mav.put("webappInstances", dtos);
@@ -143,8 +160,17 @@ public class WebappInstanceHandler extends BaseHandler{
 		private final String servletContainerVersion;
 		private final boolean highlightServletContainerVersion;
 
-		public WebappInstanceJspDto(WebappInstance databean, boolean highlightBuildId, boolean highlightCommitId,
-				boolean highlightJavaVersion, boolean highlightServletContainerVersion){
+		private final String buildIdLinkPrefix;
+		private final String commitIdLinkPrefix;
+
+		public WebappInstanceJspDto(
+				WebappInstance databean,
+				boolean highlightBuildId,
+				boolean highlightCommitId,
+				boolean highlightJavaVersion,
+				boolean highlightServletContainerVersion,
+				String buildIdLinkPrefix,
+				String commitIdLinkPrefix){
 			this(
 					databean.getKey().getWebappName(),
 					databean.getKey().getServerName(),
@@ -162,14 +188,31 @@ public class WebappInstanceHandler extends BaseHandler{
 					databean.getJavaVersion(),
 					highlightJavaVersion,
 					databean.getServletContainerVersion(),
-					highlightServletContainerVersion);
+					highlightServletContainerVersion,
+					buildIdLinkPrefix,
+					commitIdLinkPrefix);
 		}
 
-		protected WebappInstanceJspDto(String webappName, String serverName, String serverType,
-				String servletContextPath, String serverPublicIp, String serverPrivateIp, Date refreshedLast,
-				Date startupDate, Date buildDate, String buildId, boolean highlightBuildId, String commitId,
-				boolean highlightCommitId, String javaVersion, boolean highlightJavaVersion,
-				String servletContainerVersion, boolean highlightServletContainerVersion){
+		protected WebappInstanceJspDto(
+				String webappName,
+				String serverName,
+				String serverType,
+				String servletContextPath,
+				String serverPublicIp,
+				String serverPrivateIp,
+				Date refreshedLast,
+				Date startupDate,
+				Date buildDate,
+				String buildId,
+				boolean highlightBuildId,
+				String commitId,
+				boolean highlightCommitId,
+				String javaVersion,
+				boolean highlightJavaVersion,
+				String servletContainerVersion,
+				boolean highlightServletContainerVersion,
+				String buildIdLinkPrefix,
+				String commitIdLinkPrefix){
 			this.webappName = webappName;
 			this.serverName = serverName;
 			this.serverType = serverType;
@@ -187,6 +230,9 @@ public class WebappInstanceHandler extends BaseHandler{
 			this.highlightJavaVersion = highlightJavaVersion;
 			this.servletContainerVersion = servletContainerVersion;
 			this.highlightServletContainerVersion = highlightServletContainerVersion;
+
+			this.buildIdLinkPrefix = buildIdLinkPrefix;
+			this.commitIdLinkPrefix = commitIdLinkPrefix;
 		}
 
 		public String getLastUpdatedTimeAgoPrintable(){
@@ -270,12 +316,38 @@ public class WebappInstanceHandler extends BaseHandler{
 			return highlightBuildId;
 		}
 
+		public String getBuildIdRendered(){
+			var tag = span(buildId);
+			if(highlightBuildId){
+				tag.withClass("badge badge-warning");
+			}
+			if(!buildIdLinkPrefix.isEmpty()){
+				tag = a(tag)
+						.withHref(buildIdLinkPrefix + buildId)
+						.withTarget("_blank");
+			}
+			return tag.renderFormatted();
+		}
+
 		public String getCommitId(){
 			return commitId;
 		}
 
 		public boolean getHighlightCommitId(){
 			return highlightCommitId;
+		}
+
+		public String getCommitIdRendered(){
+			var tag = span(commitId);
+			if(highlightCommitId){
+				tag.withClass("badge badge-warning");
+			}
+			if(!commitIdLinkPrefix.isEmpty()){
+				tag = a(tag)
+						.withHref(commitIdLinkPrefix + commitId)
+						.withTarget("_blank");
+			}
+			return tag.renderFormatted();
 		}
 
 		public String getJavaVersion(){
@@ -286,12 +358,32 @@ public class WebappInstanceHandler extends BaseHandler{
 			return highlightJavaVersion;
 		}
 
+		public String getJavaVersionsRendered(){
+			if(highlightJavaVersion){
+				return span(javaVersion)
+						.withClass("badge badge-warning")
+						.renderFormatted();
+			}
+			return span(javaVersion)
+					.renderFormatted();
+		}
+
 		public String getServletContainerVersion(){
 			return servletContainerVersion;
 		}
 
 		public boolean getHighlightServletContainerVersion(){
 			return highlightServletContainerVersion;
+		}
+
+		public String getServletContainerVersionsRendered(){
+			if(highlightServletContainerVersion){
+				return span(servletContainerVersion)
+						.withClass("badge badge-warning")
+						.renderFormatted();
+			}
+			return span(servletContainerVersion)
+					.renderFormatted();
 		}
 
 		public boolean getStaleWebappInstance(){
@@ -310,8 +402,13 @@ public class WebappInstanceHandler extends BaseHandler{
 		private final int uniqueCount;
 		private final boolean allCommon;
 		private final Object mostCommon;
+		private final Optional<String> externalLink;
 
 		public <T> UsageStatsJspDto(List<T> instances, Function<T,?> mapper){
+			this(instances, mapper, Optional.empty());
+		}
+
+		public <T> UsageStatsJspDto(List<T> instances, Function<T,?> mapper, Optional<String> externalLink){
 			Map<?,Long> frequency = instances.stream()
 					.map(mapper)
 					.filter(Objects::nonNull)
@@ -326,6 +423,7 @@ public class WebappInstanceHandler extends BaseHandler{
 					.sorted(Entry.comparingByValue(Comparator.reverseOrder()))
 					.map(entry -> new UsageEntry(entry.getKey(), entry.getValue() / (float)instances.size() * 100))
 					.collect(Collectors.toList());
+			this.externalLink = externalLink;
 		}
 
 		public int getUniqueCount(){
@@ -340,12 +438,42 @@ public class WebappInstanceHandler extends BaseHandler{
 			return mostCommon;
 		}
 
+		public String getMostCommonRendered(){
+			if(mostCommon == null){
+				return null;
+			}
+			if(externalLink.isEmpty()){
+				return text(mostCommon.toString())
+						.render();
+			}
+			return a(mostCommon.toString())
+					.withHref(externalLink.get() + mostCommon.toString())
+					.withTarget("_blank")
+					.renderFormatted();
+		}
+
 		public String getUsageBreakdownHtml(){
-			ContainerTag ul = TagCreator.ul();
+			ContainerTag ul = ul();
 			for(UsageEntry entry : usage){
-				ul.with(TagCreator.li(
-						TagCreator.strong(entry.getUsagePercentagePrintable() + '%'),
-						TagCreator.text(" - " + entry.key)));
+				String entryValue = " - " + Optional.ofNullable(entry.key)
+					.map(Object::toString)
+					.orElse("");
+				var listElement = li(
+						strong(entry.getUsagePercentagePrintable() + '%'),
+						text(entryValue));
+				if(externalLink.isPresent()){
+					var aTag = a(
+							strong(entry.getUsagePercentagePrintable() + '%'),
+							text(entryValue))
+							.withHref(externalLink.get() + entryValue)
+							.withTarget("_blank");
+					listElement = li(aTag);
+				}else{
+					listElement = li(
+							strong(entry.getUsagePercentagePrintable() + '%'),
+							text(entryValue));
+				}
+				ul.with(listElement);
 			}
 			return ul.render();
 		}

@@ -115,10 +115,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 
 	public Duration getDuration(){
-		if(startTime == null){
-			return null;
-		}
-		Instant from = startTime.toInstant();
+		Instant from = startTime != null ? startTime.toInstant() : getKey().getTriggerTime().toInstant();
 		Instant to;
 		if(finishTime != null){
 			to = finishTime.toInstant();
@@ -133,9 +130,6 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 
 	public String getDurationString(){
-		if(startTime == null){
-			return "";
-		}
 		Duration duration = getDuration();
 		if(duration == null){
 			return "Unknown";

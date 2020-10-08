@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.datarouter.clustersetting.ClusterSettingFinder;
 import io.datarouter.clustersetting.listener.SettingNodeValidationAppListener;
+import io.datarouter.clustersetting.service.ClusterSettingDailyDigest;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao.DatarouterClusterSettingDaoParams;
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
@@ -47,6 +48,7 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 				new DatarouterClusterSettingPaths().datarouter.settings, "Custom Settings");
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-cluster-setting");
+		addDailyDigest(ClusterSettingDailyDigest.class);
 	}
 
 	@Override

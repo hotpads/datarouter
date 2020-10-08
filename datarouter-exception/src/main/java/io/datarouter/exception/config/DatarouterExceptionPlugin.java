@@ -20,6 +20,7 @@ import java.util.List;
 
 import io.datarouter.exception.conveyors.ExceptionQueueConveyors;
 import io.datarouter.exception.filter.GuiceExceptionHandlingFilter;
+import io.datarouter.exception.service.ExceptionRecordAggregationDailyDigest;
 import io.datarouter.exception.service.DefaultExceptionHandlingConfig;
 import io.datarouter.exception.service.DefaultExceptionRecorder;
 import io.datarouter.exception.service.ExceptionGraphLink;
@@ -86,6 +87,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		if(!exceptionRecordPublisher.isInstance(NoOpExceptionRecordPublisher.class)){
 			addAppListener(ExceptionQueueConveyors.class);
 		}
+		addDailyDigest(ExceptionRecordAggregationDailyDigest.class);
 	}
 
 	@Override

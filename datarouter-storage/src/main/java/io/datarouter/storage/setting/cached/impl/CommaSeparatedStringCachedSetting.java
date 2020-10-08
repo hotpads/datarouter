@@ -40,6 +40,9 @@ public class CommaSeparatedStringCachedSetting extends CachedSetting<Set<String>
 
 	@Override
 	public Set<String> parseStringValue(String stringValue){
+		if(stringValue.isEmpty()){
+			return new HashSet<>();
+		}
 		return Scanner.of(stringValue.split(SEPARATOR))
 				.collect(HashSet::new);
 	}

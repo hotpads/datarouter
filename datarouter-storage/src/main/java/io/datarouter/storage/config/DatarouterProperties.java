@@ -201,11 +201,11 @@ public abstract class DatarouterProperties{
 	}
 
 	private String findProperty(String propertyName){
-		return findProperty(propertyName, null, null);
+		return findProperty(propertyName, List.of());
 	}
 
 	private String findProperty(String propertyName, Supplier<String> defaultValue){
-		return findProperty(propertyName, defaultValue, null);
+		return findProperty(propertyName, List.of(new FallbackPropertyValueSupplierDto(defaultValue)));
 	}
 
 	private String findProperty(String propertyName, Supplier<String> defaultValueSupplier, String defaultSource){
@@ -214,39 +214,29 @@ public abstract class DatarouterProperties{
 				List.of(new FallbackPropertyValueSupplierDto(defaultSource, defaultValueSupplier)));
 	}
 
-	// use what is available in the following order: jvmArg -> properties file -> loop through the default supplier dto
-	// list based on priority. defaults to null
+	// finds a property value, logs the result (and its source when available), sets it in allComputedServerProperties,
+	// and returns it. sources are used in the following order until a non-empty one is found:
+	// 1. jvmArg
+	// 2. properties file
+	// 3. caller-defined defaults
+	// 4. empty (sets value to "" in allComputedServerProperties and returns null)
 	private String findProperty(
 			String propertyName,
 			List<FallbackPropertyValueSupplierDto> defaultValueSupplierDtos){
 		Optional<Pair<String,String>> propertyValueBySource = getPropFromJvmArg(propertyName)
-				.or(() -> getPropFromConfigFile(propertyName));
-
+				.or(() -> getPropFromConfigFile(propertyName))
+				.or(() -> getPropFromDefaults(propertyName, defaultValueSupplierDtos));
 		if(propertyValueBySource.isPresent() && !propertyValueBySource.get().getLeft().isEmpty()){
+			//successfully found property name and non-empty value
 			allComputedServerProperties.setProperty(propertyName, propertyValueBySource.get().getLeft());
 			return propertyValueBySource.get().getLeft();
 		}
 
-		Optional<String> valueFromSupplier = defaultValueSupplierDtos.stream()
-				.filter(dto -> dto.fallbackSupplier != null)
-				.map(dto -> {
-					String defaultSource = dto.propertySource != null ? dto.propertySource : "default";
-					String defaultValue = dto.fallbackSupplier.get();
-					if(defaultValue != null){
-						allComputedServerProperties.setProperty(propertyName, defaultValue);
-						logSource(propertyName, defaultValue, defaultSource);
-					}
-					return defaultValue;
-				})
-				.filter(Objects::nonNull)
-				.findFirst();
-		if(valueFromSupplier.isPresent()){
-			return valueFromSupplier.get();
-		}
-
 		if(propertyValueBySource.isPresent()){
+			//property name is found, but the value is empty
 			logger.error("found {} with empty value from {}", propertyName, propertyValueBySource.get().getRight());
 		}else{
+			//both name and value are unknown
 			logger.error("couldn't find " + propertyName + ", no default provided");
 		}
 		allComputedServerProperties.setProperty(propertyName, "");
@@ -275,6 +265,21 @@ public abstract class DatarouterProperties{
 			logJvmArgSource(jvmArg, jvmArgValue, jvmArgName);
 		}
 		return Optional.of(new Pair<>(jvmArgValue, jvmArgName));
+	}
+
+	protected Optional<Pair<String,String>> getPropFromDefaults(String propertyName,
+			List<FallbackPropertyValueSupplierDto> defaultValueSupplierDtos){
+		var optionalValueAndSource = defaultValueSupplierDtos.stream()
+				.map(dto -> new Pair<>(dto.fallbackSupplier.get(), dto.propertySource))
+				//supplied value should only be used if it is not null
+				.filter(valueAndSource -> valueAndSource.getLeft() != null)
+				.findFirst();
+		if(optionalValueAndSource.isPresent()){
+			var valueAndSource = optionalValueAndSource.get();
+			logSource(propertyName, valueAndSource.getLeft(), valueAndSource.getRight());
+			return optionalValueAndSource;
+		}
+		return Optional.empty();
 	}
 
 	private Collection<String> findClusterDomains(){
@@ -405,7 +410,13 @@ public abstract class DatarouterProperties{
 		private final String propertySource;
 		private final Supplier<String> fallbackSupplier;
 
+		private FallbackPropertyValueSupplierDto(Supplier<String> fallbackSupplier){
+			this("default", fallbackSupplier);
+		}
+
 		private FallbackPropertyValueSupplierDto(String propertySource, Supplier<String> fallbackSupplier){
+			Require.notNull(fallbackSupplier);
+			Require.isTrue(StringTool.notNullNorEmptyNorWhitespace(propertySource));
 			this.propertySource = propertySource;
 			this.fallbackSupplier = fallbackSupplier;
 		}

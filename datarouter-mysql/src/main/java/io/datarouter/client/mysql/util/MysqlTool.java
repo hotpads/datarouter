@@ -50,7 +50,7 @@ public class MysqlTool{
 	private static final String TABLE_CATALOG = "TABLE_CAT";
 
 	public static Connection openConnection(String hostname, int port, String user, String password){
-		logger.warn("hostname={}, port={}, user={}, password={}", hostname, port, user, obfuscatePassword(password));
+		logger.warn("hostname={}, port={}, user={}", hostname, port, user);
 		try{
 			String url = String.format("jdbc:mysql://%s:%s?user=%s&password=%s&logger=%s",
 					hostname,
@@ -66,16 +66,6 @@ public class MysqlTool{
 					user);
 			throw new RuntimeException(message, e);
 		}
-	}
-
-	private static String obfuscatePassword(String password){
-		if(password == null){
-			return "null";
-		}
-		if(password.length() < 8){
-			return "tooshort";
-		}
-		return password.substring(0, 3) + "..." + password.substring(password.length() - 4);
 	}
 
 	public static List<String> showTables(Connection connection, String schemaName){

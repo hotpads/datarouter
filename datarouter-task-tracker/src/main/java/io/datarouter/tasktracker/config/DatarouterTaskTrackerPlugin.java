@@ -20,6 +20,7 @@ import java.util.List;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.tasktracker.service.LongRunningTaskDailyDigest;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao.DatarouterLongRunningTaskDaoParams;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
@@ -49,6 +50,7 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 		addSettingRoot(DatarouterTaskTrackerSettingRoot.class);
 		addRouteSet(DatarouterTaskTrackerRouteSet.class);
 		addDatarouterGithubDocLink("datarouter-task-tracker");
+		addDailyDigest(LongRunningTaskDailyDigest.class);
 	}
 
 	@Override

@@ -28,4 +28,8 @@ public class DatarouterUserExternalDetailService{
 		return Optional.empty();
 	}
 
+	public Optional<String> getUserProfileUrl(@SuppressWarnings("unused") String username){
+		return Optional.empty();
+	}
+
 }

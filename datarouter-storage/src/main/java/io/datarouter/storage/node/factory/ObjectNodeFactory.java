@@ -59,16 +59,14 @@ public class ObjectNodeFactory{
 	}
 
 	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			N extends PhysicalObjectStorageNode<PK,D,F>>
+			N extends PhysicalObjectStorageNode<PathbeanKey,Pathbean,PathbeanFielder>>
 	N create(
 			ClientId clientId,
-			Supplier<D> databeanSupplier,
-			Supplier<F> fielderSupplier,
 			String bucketName,
 			Subpath path){
-		NodeParams<PK,D,F> params = new NodeParamsBuilder<>(databeanSupplier, fielderSupplier)
+		NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params = new NodeParamsBuilder<>(
+				Pathbean::new,
+				PathbeanFielder::new)
 				.withClientId(clientId)
 				.withBucketName(bucketName)
 				.withPath(path)
@@ -88,8 +86,6 @@ public class ObjectNodeFactory{
 		Subpath fullPath = node.getRootPath().append(subdirectoryPath);
 		return create(
 				node.getClientId(),
-				Pathbean::new,
-				PathbeanFielder::new,
 				node.getBucket(),
 				fullPath);
 

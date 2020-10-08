@@ -76,6 +76,8 @@ public interface DatarouterS3Client{
 
 	byte[] getObjectAsBytes(String bucket, String key);
 
+	byte[] getPartialObject(String bucket, String key, long offset, int length);
+
 	String getObjectAsString(String bucket, String key);
 
 	Optional<Instant> findLastModified(String bucket, String key);

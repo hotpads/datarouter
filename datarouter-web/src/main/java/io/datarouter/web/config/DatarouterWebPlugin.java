@@ -37,6 +37,8 @@ import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier.NodeWidgetDatabeanExporterLink;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier.NodeWidgetTableCountLink;
+import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestRegistry;
 import io.datarouter.web.dispatcher.DatarouterWebDocsRouteSet;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
@@ -134,6 +136,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
 	private final List<Class<? extends TestableService>> testableServiceClasses;
 	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems;
+	private final List<Class<? extends DailyDigest>> dailyDigest;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -142,7 +145,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
 				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null, null,
-				null);
+				null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -172,7 +175,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			String serviceDescription,
 			Map<String,Pair<String,Boolean>> documentationNamesAndLinks,
 			List<Class<? extends TestableService>> testableServiceClasses,
-			List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems){
+			List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems,
+			List<Class<? extends DailyDigest>> dailyDigest){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 		addRouteSet(DatarouterWebDocsRouteSet.class);
@@ -203,6 +207,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.executors, "Executors");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.memory, "Server Status");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.dailyDigest, "Daily Digest");
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.tableConfiguration,
 				"Custom Table Configs");
@@ -248,6 +253,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.documentationNamesAndLinks = documentationNamesAndLinks;
 		this.testableServiceClasses = testableServiceClasses;
 		this.dynamicNavBarItems = dynamicNavBarItems;
+		this.dailyDigest = dailyDigest;
 	}
 
 	@Override
@@ -290,9 +296,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		}
 		bindActualInstance(DocumentationNamesAndLinksSupplier.class,
 				new DefaultDocumentationNamesAndLinks(documentationNamesAndLinks));
-
 		bindActualInstance(TestableServiceClassRegistry.class,
 				new DefaultTestableServiceClassRegistry(testableServiceClasses));
+		bindActualInstance(DailyDigestRegistry.class, new DailyDigestRegistry(dailyDigest));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -366,6 +372,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
 		private List<Class<? extends TestableService>> testableServiceClasses = new ArrayList<>();
 		private List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
+		private List<Class<? extends DailyDigest>> dailyDigest = new ArrayList<>();
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
 			this.datarouterService = datarouterService;
@@ -511,6 +518,12 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setDailyDigest(
+				List<Class<? extends DailyDigest>> dailyDigest){
+			this.dailyDigest.addAll(dailyDigest);
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
 					new DatarouterWebDaoModule(defaultClientId),
@@ -547,7 +560,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					serviceDescription,
 					documentationNamesAndLinks,
 					testableServiceClasses,
-					dynamicNavBarItems);
+					dynamicNavBarItems,
+					dailyDigest);
 		}
 
 	}

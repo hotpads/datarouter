@@ -18,8 +18,8 @@ package io.datarouter.secretweb.web;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.secret.service.SecretStageDetector;
 import io.datarouter.secretweb.web.SecretHandlerOpRequestDto.SecretOpDto;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.user.session.service.Session;
 
 /**
@@ -30,14 +30,14 @@ import io.datarouter.web.user.session.service.Session;
 public class DefaultSecretHandlerPermissions implements SecretHandlerPermissions{
 
 	@Inject
-	private SecretStageDetector secretStageDetector;
+	private ServerTypeDetector serverTypeDetector;
 
 	@Override
 	public boolean isAuthorized(Session session, SecretOpDto secretOp){
 		if(SecretOpDto.LIST_ALL == secretOp){
 			return true;
 		}
-		if(secretStageDetector.mightBeProduction()){
+		if(serverTypeDetector.mightBeProduction()){
 			return false;
 		}
 		return true;

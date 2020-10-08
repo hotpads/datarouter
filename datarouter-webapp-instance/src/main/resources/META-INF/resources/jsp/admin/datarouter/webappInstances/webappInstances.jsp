@@ -19,13 +19,13 @@
 		or commitIdStats.allCommon
 		or buildIdStats.allCommon}">
 		<div class="alert alert-info">
-			<c:if test="${javaVersionStats.allCommon}">All instances are running java version <strong>${javaVersionStats.mostCommon}</strong><br/></c:if>
-			<c:if test="${servletVersionStats.allCommon}">All instances are running servlet container <strong>${servletVersionStats.mostCommon}</strong><br/></c:if>
-			<c:if test="${publicIpStats.allCommon}">All instances have public ip <strong>${publicIpStats.mostCommon}</strong><br/></c:if>
-			<c:if test="${lastUpdatedStats.allCommon}">All instances were updated <strong>${lastUpdatedStats.mostCommon}</strong><br/></c:if>
-			<c:if test="${buildDateStats.allCommon}">All instances were built <strong>${buildDateStats.mostCommon}</strong><br/></c:if>
-			<c:if test="${buildIdStats.allCommon}">All instances have build id <strong>${buildIdStats.mostCommon}</strong><br/></c:if>
-			<c:if test="${commitIdStats.allCommon}">All instances have commit id <strong>${commitIdStats.mostCommon}</strong><br/></c:if>
+			<c:if test="${javaVersionStats.allCommon}">All instances are running java version <strong>${javaVersionStats.mostCommonRendered}</strong><br/></c:if>
+			<c:if test="${servletVersionStats.allCommon}">All instances are running servlet container <strong>${servletVersionStats.mostCommonRendered}</strong><br/></c:if>
+			<c:if test="${publicIpStats.allCommon}">All instances have public ip <strong>${publicIpStats.mostCommonRendered}</strong><br/></c:if>
+			<c:if test="${lastUpdatedStats.allCommon}">All instances were updated <strong>${lastUpdatedStats.mostCommonRendered}</strong><br/></c:if>
+			<c:if test="${buildDateStats.allCommon}">All instances were built <strong>${buildDateStats.mostCommonRendered}</strong><br/></c:if>
+			<c:if test="${buildIdStats.allCommon}">All instances have build id <strong>${buildIdStats.mostCommonRendered}</strong><br/></c:if>
+			<c:if test="${commitIdStats.allCommon}">All instances have commit id <strong>${commitIdStats.mostCommonRendered}</strong><br/></c:if>
 		</div>
 	</c:if>
 	<c:if test="${not javaVersionStats.allCommon
@@ -112,30 +112,10 @@
 					${webapp.buildTimeAgoPrintable}
 				</td>
 			</c:if>
-			<c:if test="${not buildIdStats.allCommon}"><td>
-				<c:choose>
-				<c:when test="${webapp.highlightBuildId}"><span class="badge badge-warning">${webapp.buildId}</span></c:when>
-				<c:otherwise>${webapp.buildId}</c:otherwise>
-				</c:choose>
-			</td></c:if>
-			<c:if test="${not commitIdStats.allCommon}"><td>
-				<c:choose>
-				<c:when test="${webapp.highlightCommitId}"><span class="badge badge-warning">${webapp.commitId}</span></c:when>
-				<c:otherwise>${webapp.commitId}</c:otherwise>
-				</c:choose>
-			</td></c:if>
-			<c:if test="${not javaVersionStats.allCommon}"><td>
-				<c:choose>
-				<c:when test="${webapp.highlightJavaVersion}"><span class="badge badge-warning">${webapp.javaVersion}</span></c:when>
-				<c:otherwise>${webapp.javaVersion}</c:otherwise>
-				</c:choose>
-			</td></c:if>
-			<c:if test="${not servletVersionStats.allCommon}"><td>
-				<c:choose>
-				<c:when test="${webapp.highlightServletContainerVersion}"><span class="badge badge-warning">${webapp.servletContainerVersion}</span></c:when>
-				<c:otherwise>${webapp.servletContainerVersion}</c:otherwise>
-				</c:choose>
-			</td></c:if>
+			<c:if test="${not buildIdStats.allCommon}"><td>${webapp.buildIdRendered}</td></c:if>
+			<c:if test="${not commitIdStats.allCommon}"><td>${webapp.commitIdRendered}</td></c:if>
+			<c:if test="${not javaVersionStats.allCommon}"><td>${webapp.javaVersionsRendered}</td></c:if>
+			<c:if test="${not servletVersionStats.allCommon}"><td>${webapp.servletContainerVersionsRendered}</td></c:if>
 			<td>
 				<a class="btn btn-link w-100 py-0" tabindex="0" href="${contextPath}${logPath}?webappName=${webapp.webappName}&serverName=${webapp.serverName}">
 					<i class="far fa-list-alt"></i>

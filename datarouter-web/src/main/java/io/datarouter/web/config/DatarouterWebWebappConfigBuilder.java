@@ -56,6 +56,7 @@ import io.datarouter.util.ordered.Ordered;
 import io.datarouter.util.ordered.OrderedTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebPlugin.DatarouterWebPluginBuilder;
+import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.ServletParams;
@@ -110,6 +111,8 @@ implements WebappBuilder{
 	private final List<Class<? extends BaseRouteSet>> routeSetsUnordered;
 	private final Set<String> additionalPermissionRequestEmails;
 	private final List<Class<? extends TestableService>> testableServiceClasses;
+	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
+	private final List<Class<? extends DailyDigest>> dailyDigest;
 
 	private Class<? extends RoleManager> roleManager;
 	private Class<? extends CurrentSessionInfo> currentSessionInfo;
@@ -122,7 +125,6 @@ implements WebappBuilder{
 	private String nodeWidgetDatabeanExporterLink;
 	private String nodeWidgetTableCountLink;
 	private String serviceDescription;
-	private Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
 	protected boolean useDatarouterAuth;
 
 	// datarouter-web servlet
@@ -197,6 +199,8 @@ implements WebappBuilder{
 		this.customStaticFileFilterRegex = null;
 		this.homepageRouteSet = DefaultHomepageRouteSet.class;
 		this.homepageHandler = SimpleHomepageHandler.class;
+		this.documentationNamesAndLinks = new HashMap<>();
+		this.dailyDigest = new ArrayList<>();
 		this.useDatarouterAuth = true;
 
 		// datarouter-web servlet
@@ -264,6 +268,7 @@ implements WebappBuilder{
 				.setDocumentationNamesAndLinks(documentationNamesAndLinks)
 				.setTestableServiceClasses(testableServiceClasses)
 				.setDynamicNavBarItems(dynamicNavBarItems)
+				.setDailyDigest(dailyDigest)
 				.build();
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
@@ -361,6 +366,8 @@ implements WebappBuilder{
 		testableServiceClasses.addAll(plugin.getTestableServiceClasses());
 
 		documentationNamesAndLinks.putAll(plugin.getDocumentationNamesAndLinks());
+
+		dailyDigest.addAll(plugin.getDailyDigestRegistry());
 
 		return getSelf();
 	}
@@ -597,6 +604,11 @@ implements WebappBuilder{
 
 	public T addDynamicNavBarItem(Class<? extends DynamicNavBarItem> dynamicNavBarItem){
 		this.dynamicNavBarItems.add(dynamicNavBarItem);
+		return getSelf();
+	}
+
+	public T addDailyDigest(Class<? extends DailyDigest> dailyDigest){
+		this.dailyDigest.add(dailyDigest);
 		return getSelf();
 	}
 

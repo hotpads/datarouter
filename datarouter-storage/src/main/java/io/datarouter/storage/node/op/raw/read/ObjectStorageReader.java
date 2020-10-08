@@ -39,6 +39,7 @@ extends NodeOps<PK,D>{
 	boolean exists(PathbeanKey key);
 
 	byte[] read(PathbeanKey key);
+	byte[] read(PathbeanKey key, long offset, int length);
 
 	default String readUtf8(PathbeanKey key){
 		return new String(read(key), StandardCharsets.UTF_8);

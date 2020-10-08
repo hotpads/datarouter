@@ -25,6 +25,7 @@ import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.BaseStoragePlugin;
 import io.datarouter.util.ordered.Ordered;
 import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.listener.DatarouterAppListener;
@@ -214,7 +215,7 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	/*--------------------- documentationNamesAndLinks ----------------------*/
 
-	public final Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
+	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
 
 	public void addDocumentation(String name, String link, boolean isSystem){
 		documentationNamesAndLinks.put(name, new Pair<>(link, isSystem));
@@ -235,6 +236,18 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	public Map<String,Pair<String,Boolean>> getDocumentationNamesAndLinks(){
 		return documentationNamesAndLinks;
+	}
+
+	/*---------------------------- daily digest -----------------------------*/
+
+	private final List<Class<? extends DailyDigest>> dailyDigestRegistry = new ArrayList<>();
+
+	public void addDailyDigest(Class<? extends DailyDigest> dailyDigest){
+		dailyDigestRegistry.add(dailyDigest);
+	}
+
+	public List<Class<? extends DailyDigest>> getDailyDigestRegistry(){
+		return dailyDigestRegistry;
 	}
 
 }

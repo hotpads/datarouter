@@ -26,6 +26,7 @@ import io.datarouter.web.browse.NodeSearchHandler;
 import io.datarouter.web.browse.ViewNodeDataHandler;
 import io.datarouter.web.browse.ViewTableConfigurationHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.digest.DailyDigestHandler;
 import io.datarouter.web.email.EmailTestHandler;
 import io.datarouter.web.handler.IpDetectionHandler;
 import io.datarouter.web.handler.TestApiHandler;
@@ -73,6 +74,7 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.info.routeSets).withHandler(DatarouterRouteSetViewHandler.class);
 		handle(paths.datarouter.info.plugins).withHandler(ViewPluginsHandler.class);
 		handle(paths.datarouter.info.properties).withHandler(DatarouterPropertiesViewHandler.class);
+		handle(paths.datarouter.dailyDigest).withHandler(DailyDigestHandler.class);
 
 		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
 		handleDir(paths.datarouter.testApi).withHandler(TestApiHandler.class);

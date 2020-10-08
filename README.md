@@ -217,7 +217,7 @@ is often handled with weakly typed objects like Lists of rows containing Maps to
 database is still accessing the same data pages as if you ran two selects and joined the data in Java. The more 
 complicated the join, the more work the database must do.
 
-A single master database is generally harder to scale than the application servers that use it, so it’s beneficial to 
+A single database is generally harder to scale than the application servers that use it, so it’s beneficial to 
 move as much of the processing as possible to the application servers. With SQL it’s easy to add a few order-by clauses 
 to the end of a query, but that sorting can be very expensive for the database to do. It can be better to pre-sort the 
 data via primary and secondary indexes or to bring the data back to the scalable application tier before sorting.
@@ -241,13 +241,13 @@ application if you choose, which is more predictable and debuggable and doesn’
 
 ### Multiple databases
 Traditional ORMs make the assumption that the application uses a single RDBMS. Many successful applications may start 
-with a single RDBMS but soon find that they need to add slave databases for extra read capacity. To get further 
+with a single RDBMS but soon find that they need to add replicated databases for extra read capacity. To get further 
 performance, they need to add a caching layer like memcached or redis and a messaging system like SQS. These caching and 
 messaging layers don’t speak SQL, forcing the developers to write custom code for each cache scenario or use more complicated
 ORM extensions or plugins. As data grows further, they need to move some large or frequently accessed tables to separate 
 database machines. 
 
-These slave databases, caches, messaging queues, and multiple databases break the original assumptions of the ORM. 
+These replicated databases, caches, messaging queues, and multiple databases break the original assumptions of the ORM. 
 Hand-crafted SQL that joins two tables together must be rewritten into multiple queries so the join is done in the
 application. The links between databeans that were configured into the data model (usually via annotations) must be 
 removed, and code that relied on them must be modified.
@@ -260,7 +260,7 @@ this splitting of databases you must be careful to identify where transactions w
 Datarouter advocates for assuming that all tables are on separate database servers from the start. Joins are done at the 
 application layer, not caring which machines the data resides on or if those machines change. Transactions, where 
 necessary, are explicitly coded into the application forcing you think ahead of time where they are necessary and making 
-it easier to reason about which tables can be split apart. Datarouter provides a master/slave abstraction that can be 
-inserted without changing business logic. Queries that are okay with stale data can pass a `slaveOk` parameter even if no 
-slave databases exist yet. The caching layer is accessed with the same put, get, and delete operations as the RDBMS, 
-making it easy to insert caching without changing the business logic.
+it easier to reason about which tables can be split apart. Datarouter provides a replication abstraction 
+that can be inserted without changing business logic. Queries that are okay with stale data can pass a `anyDelay` parameter 
+even if no replicated databases exist yet. The caching layer is accessed with the same put, get, and delete operations 
+as the RDBMS, making it easy to insert caching without changing the business logic.

@@ -32,8 +32,10 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobPaths;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.html.email.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
@@ -52,13 +54,17 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterLongRunningTaskDao longRunningTaskDao;
+	@Inject
+	private DatarouterTaskTrackerPaths taskPaths;
+	@Inject
+	private TaskTrackerExceptionLink exceptionLink;
 
 	@Override
 	public void run(TaskTracker tracker){
 		longRunningTaskDao.scan()
-				.include(task -> task.getStartTime() == null
-				|| task.getStartTime().getTime() > System.currentTimeMillis() - Duration.ofDays(1).toMillis())
-				.include(task -> task.isBadState())
+				.include(task -> task.getKey().getTriggerTime().getTime()
+						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
+				.include(LongRunningTask::isBadState)
 				.flush(this::sendEmail);
 	}
 
@@ -86,8 +92,9 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 		var header = h4("There" + headerVerb + longRunningTaskList.size()
 				+ " non-successful long running tasks in the last 24 hours.");
 		ContainerTag taskTable = new J2HtmlEmailTable<LongRunningTask>()
-				.withColumn("NAME", row -> row.getKey().getName())
-				.withColumn("START TIME", row -> row.getStartTime())
+				.withColumn(new J2HtmlEmailTableColumn<>("NAME",
+						row -> makeTaskLink(row.getKey().getName())))
+				.withColumn("TRIGGER TIME", row -> row.getKey().getTriggerTime())
 				.withColumn("DURATION", row -> row.getDurationString())
 				.withColumn("TRIGGERED BY", row -> row.getTriggeredBy())
 				.withColumn("STATUS", row -> row.getJobExecutionStatus().getPersistentString())
@@ -101,10 +108,19 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 				span("Sent from: " + serverNameString));
 	}
 
+	private ContainerTag makeTaskLink(String longRunningTaskName){
+		String href = emailService.startLinkBuilder()
+				.withLocalPath(taskPaths.datarouter.longRunningTasks)
+				.withParam("name", longRunningTaskName)
+				.withParam("status", "all")
+				.build();
+		return a(longRunningTaskName)
+				.withHref(href);
+	}
+
 	private ContainerTag makeExceptionLink(String exceptionRecordId){
 		String href = emailService.startLinkBuilder()
-				.withLocalPath("/datarouter/exception/details?")
-				.withParam("exceptionRecord", exceptionRecordId)
+				.withLocalPath(exceptionLink.buildExceptionDetailLink(exceptionRecordId))
 				.build();
 		return a(exceptionRecordId)
 				.withHref(href);

@@ -396,6 +396,18 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
+	public byte[] getPartialObject(String bucket, String key, long offset, int length){
+		S3Client s3Client = getS3ClientForBucket(bucket);
+		GetObjectRequest request = makeGetPartialObjectRequest(bucket, key, offset, length);
+		ResponseBytes<GetObjectResponse> response;
+		try(var $ = TracerTool.startSpan("S3 getPartialObject")){
+			response = s3Client.getObjectAsBytes(request);
+			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
+		}
+		return response.asByteArray();
+	}
+
+	@Override
 	public String getObjectAsString(String bucket, String key){
 		return new String(getObjectAsBytes(bucket, key));
 	}
@@ -605,6 +617,19 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		return GetObjectRequest.builder()
 				.bucket(bucket)
 				.key(key)
+				.build();
+	}
+
+	private static GetObjectRequest makeGetPartialObjectRequest(String bucket, String key, long offset, int length){
+		long startInclusive = offset;
+		long endInclusive = offset + length - 1;
+		// https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
+		// https://github.com/aws/aws-sdk-java-v2/issues/1472
+		String range = "bytes=" + startInclusive + "-" + endInclusive;
+		return GetObjectRequest.builder()
+				.bucket(bucket)
+				.key(key)
+				.range(range)
 				.build();
 	}
 

@@ -101,6 +101,7 @@
 				<div class="float-right">
 					<a class="btn btn-secondary btn-sm" tabindex="0" onclick="return recount()">Count now (Not Persisted)</a>
 					<a class="btn btn-warning btn-sm ml-1" href="?submitAction=resample&clientName=${clientName}&tableName=${tableName}" onclick="return confirm('Resample now?')">Resample</a>
+					<a class="btn btn-warning btn-sm ml-1" href="?submitAction=deleteSampleEntries&clientName=${clientName}&tableName=${tableName}" onclick="return window.confirm('Are you sure you want to delete all entries of ${count.tableName}? from TableRowCount, TableRowSample, and LatestTableRowCount tables')">Delete</a>	
 				</div>
 			</caption>
 			<thead>
