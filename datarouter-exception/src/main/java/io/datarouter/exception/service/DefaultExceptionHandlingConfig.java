@@ -45,7 +45,7 @@ public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 	private ExceptionRecordService exceptionRecordService;
 
 	@Override
-	public boolean shouldDisplayStackTrace(HttpServletRequest request, Exception exception){
+	public boolean shouldDisplayStackTrace(HttpServletRequest request, Throwable exception){
 		return !settings.forceHideStackTrace.get() && isInternalUser(request);
 	}
 

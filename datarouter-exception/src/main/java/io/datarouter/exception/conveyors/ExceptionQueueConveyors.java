@@ -23,6 +23,7 @@ import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordPublisherDao;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao;
 import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
 public class ExceptionQueueConveyors extends BaseConveyors{
@@ -35,6 +36,8 @@ public class ExceptionQueueConveyors extends BaseConveyors{
 	private DatarouterHttpRequestRecordPublisherDao httpRequestRecordPublisherDao;
 	@Inject
 	private ExceptionRecordPublisher exceptionRecordPublisher;
+	@Inject
+	private ExceptionRecorder exceptionRecorder;
 
 	@Override
 	public void onStartUp(){
@@ -43,14 +46,16 @@ public class ExceptionQueueConveyors extends BaseConveyors{
 				exceptionsSettings.publishRecords,
 				exceptionRecordPublisherDao.getGroupQueueConsumer(),
 				exceptionRecordPublisher,
-				exceptionsSettings.compactExceptionLoggingForConveyors),
+				exceptionsSettings.compactExceptionLoggingForConveyors,
+				exceptionRecorder),
 				1);
 		start(new HttpRequestRecordQueueConveyor(
 				"httpRequestRecordQueuePublisher",
 				exceptionsSettings.publishRecords,
 				httpRequestRecordPublisherDao.getGroupQueueConsumer(),
 				exceptionRecordPublisher,
-				exceptionsSettings.compactExceptionLoggingForConveyors),
+				exceptionsSettings.compactExceptionLoggingForConveyors,
+				exceptionRecorder),
 				1);
 	}
 

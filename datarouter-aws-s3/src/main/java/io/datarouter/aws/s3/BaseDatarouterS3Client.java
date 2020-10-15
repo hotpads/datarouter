@@ -319,7 +319,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 
 	@Override
 	public void downloadFilesToDirectory(String bucket, String prefix, Path path){
-		listObjects(bucket, prefix)
+		scanObjects(bucket, prefix)
 				.map(S3Object::key)
 				.forEach(key -> downloadFileToDirectory(bucket, key, path));
 	}
@@ -355,7 +355,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 
 	@Override
 	public Scanner<List<String>> scanBatchesOfLinesWithPrefix(String bucket, String prefix, int batchSize){
-		return listObjects(bucket, prefix)
+		return scanObjects(bucket, prefix)
 				.map(S3Object::key)
 				.concat(key -> scanBatchesOfLines(bucket, key, batchSize));
 	}
@@ -420,7 +420,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 
 	@Override
 	public Optional<S3Object> findLastModifiedObjectWithPrefix(String bucket, String prefix){
-		return listObjects(bucket, prefix)
+		return scanObjects(bucket, prefix)
 				.max(Comparator.comparing(S3Object::lastModified));
 	}
 
@@ -434,7 +434,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public Scanner<S3Object> listObjects(String bucket, String prefix){
+	public Scanner<S3Object> scanObjects(String bucket, String prefix){
 		return Scanner.of(getS3ClientForBucket(bucket).listObjectsV2Paginator(ListObjectsV2Request.builder()
 				.bucket(bucket)
 				.prefix(prefix)
@@ -495,7 +495,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 
 	@Override
 	public boolean existsPrefix(String bucket, String prefix){
-		return listObjects(bucket, prefix).hasAny();
+		return scanObjects(bucket, prefix).hasAny();
 	}
 
 	private void putObjectWithAcl(String bucket, String key, ContentType contentType, Path path, ObjectCannedACL acl){

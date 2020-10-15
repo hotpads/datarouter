@@ -192,7 +192,7 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public Scanner<S3Object> listObjects(String bucket, String prefix){
+	public Scanner<S3Object> scanObjects(String bucket, String prefix){
 		throw new UnsupportedOperationException();
 	}
 

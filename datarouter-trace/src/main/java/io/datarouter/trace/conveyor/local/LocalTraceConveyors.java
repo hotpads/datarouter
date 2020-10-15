@@ -25,6 +25,7 @@ import io.datarouter.trace.conveyor.TraceMemoryToSqsConveyor;
 import io.datarouter.trace.settings.DatarouterTraceLocalSettingRoot;
 import io.datarouter.trace.storage.BaseDatarouterTraceDao;
 import io.datarouter.trace.storage.BaseDatarouterTraceQueueDao;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
 public class LocalTraceConveyors extends BaseConveyors{
@@ -39,6 +40,8 @@ public class LocalTraceConveyors extends BaseConveyors{
 	private BaseDatarouterTraceQueueDao traceQueueDao;
 	@Inject
 	private BaseDatarouterTraceDao traceDao;
+	@Inject
+	private ExceptionRecorder exceptionRecorder;
 
 	@Override
 	public void onStartUp(){
@@ -49,14 +52,16 @@ public class LocalTraceConveyors extends BaseConveyors{
 				memoryBuffer.buffer,
 				traceQueueDao,
 				traceDao,
-				gson),
+				gson,
+				exceptionRecorder),
 				1);
 		start(new TraceSqsDrainConveyor(
 				"traceSqsToLocalStorage",
 				settings.drainSqsToLocal,
 				traceQueueDao.getGroupQueueConsumer(),
 				traceDao,
-				gson),
+				gson,
+				exceptionRecorder),
 				1);
 	}
 

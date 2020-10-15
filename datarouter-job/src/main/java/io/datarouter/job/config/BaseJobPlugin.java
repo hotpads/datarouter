@@ -37,4 +37,16 @@ public abstract class BaseJobPlugin extends BaseWebPlugin{
 		return triggerGroups;
 	}
 
+	/*--------------------------- add job plugins ---------------------------*/
+
+	private final List<BaseJobPlugin> jobPlugins = new ArrayList<>();
+
+	protected void addJobPlugin(BaseJobPlugin plugin){
+		jobPlugins.add(plugin);
+	}
+
+	public List<BaseJobPlugin> getJobPlugins(){
+		return jobPlugins;
+	}
+
 }

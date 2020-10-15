@@ -28,6 +28,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.GroupQueueMessage;
 import io.datarouter.util.timer.PhaseTimer;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public abstract class BaseGroupQueueConsumerConveyor<
 		PK extends PrimaryKey<PK>,
@@ -43,8 +44,9 @@ extends BaseConveyor{
 			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<PK,D> consumer,
 			Supplier<Boolean> compactExceptionLogging,
-			Duration peekTimeout){
-		super(name, shouldRun, compactExceptionLogging);
+			Duration peekTimeout,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, compactExceptionLogging, exceptionRecorder);
 		this.consumer = consumer;
 		this.peekTimeout = peekTimeout;
 	}

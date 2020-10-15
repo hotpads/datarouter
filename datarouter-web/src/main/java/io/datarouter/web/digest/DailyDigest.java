@@ -21,6 +21,12 @@ import j2html.tags.ContainerTag;
 
 public interface DailyDigest{
 
-	Optional<ContainerTag> getContent();
+	Optional<ContainerTag> getPageContent();
+	Optional<ContainerTag> getEmailContent();
+	String getTitle();
+
+	default String getId(){
+		return getTitle().replace(" ", "_");
+	}
 
 }

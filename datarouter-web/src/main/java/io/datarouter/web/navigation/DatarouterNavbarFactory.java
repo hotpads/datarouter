@@ -15,6 +15,9 @@
  */
 package io.datarouter.web.navigation;
 
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.script;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +33,6 @@ import io.datarouter.web.handler.mav.MavProperties;
 import io.datarouter.web.handler.mav.MavPropertiesFactory;
 import io.datarouter.web.html.j2html.J2HtmlTool;
 import io.datarouter.web.js.DatarouterWebJsTool;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
 
@@ -47,7 +49,8 @@ public class DatarouterNavbarFactory{
 	//called by common-navbar-b3.jsp
 	public String buildCommonNavbar(HttpServletRequest request){
 		MavProperties mavProperties = mavPropertiesFactory.getExistingOrNew(request);
-		NavBar navbar = mavProperties.getIsDatarouterPage() ? mavProperties.getDatarouterNavBar()
+		NavBar navbar = mavProperties.getIsDatarouterPage()
+				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
 		List<String> fragments = new ArrayList<>();
 		if(mavProperties.getIsAdmin()){
@@ -79,7 +82,7 @@ public class DatarouterNavbarFactory{
 
 	public static ContainerTag makeNavbarRequestTimingScript(String contextPath){
 		String rawHtml = String.format("addNavbarRequestTiming('%s')", contextPath);
-		return TagCreator.script(TagCreator.rawHtml(rawHtml));
+		return script(rawHtml(rawHtml));
 	}
 
 	/*----------- v2 common-navbar-b4.jsp --------------*/
@@ -123,7 +126,7 @@ public class DatarouterNavbarFactory{
 
 	public static ContainerTag makeNavbarRequestTimingScriptV2(String contextPath){
 		String rawHtml = String.format("addNavbarRequestTiming('%s')", contextPath);
-		return TagCreator.script(TagCreator.rawHtml(rawHtml));
+		return script(rawHtml(rawHtml));
 	}
 
 }

@@ -27,6 +27,7 @@ import io.datarouter.instrumentation.trace.TraceEntityDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.trace.conveyor.BaseTraceMemoryToSqsConveyor;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public class TraceMemoryToSqsConveyorPublishing extends BaseTraceMemoryToSqsConveyor{
 
@@ -39,8 +40,9 @@ public class TraceMemoryToSqsConveyorPublishing extends BaseTraceMemoryToSqsConv
 			Setting<Boolean> shouldBufferInSqs,
 			MemoryBuffer<TraceEntityDto> buffer,
 			Consumer<Collection<ConveyorMessage>> putMultiConsumer,
-			Gson gson){
-		super(name, shouldRunSetting, buffer, gson);
+			Gson gson,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRunSetting, buffer, gson, exceptionRecorder);
 		this.shouldBufferInSqs = shouldBufferInSqs;
 		this.putMultiConsumer = putMultiConsumer;
 	}

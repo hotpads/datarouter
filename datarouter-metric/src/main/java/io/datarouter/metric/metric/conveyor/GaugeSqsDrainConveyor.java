@@ -33,6 +33,7 @@ import io.datarouter.instrumentation.gauge.GaugeDto;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public class GaugeSqsDrainConveyor extends BaseGroupQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
 	private static final Logger logger = LoggerFactory.getLogger(GaugeSqsDrainConveyor.class);
@@ -46,8 +47,9 @@ public class GaugeSqsDrainConveyor extends BaseGroupQueueConsumerConveyor<Convey
 			GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> groupQueueConsumer,
 			Gson gson,
 			GaugePublisher publisher,
-			Supplier<Boolean> compactExceptionLogging){
-		super(name, shouldRun, groupQueueConsumer, compactExceptionLogging, Duration.ofSeconds(30));
+			Supplier<Boolean> compactExceptionLogging,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, groupQueueConsumer, compactExceptionLogging, Duration.ofSeconds(30), exceptionRecorder);
 		this.gson = gson;
 		this.publisher = publisher;
 	}

@@ -88,7 +88,7 @@ public class S3DirectoryManager{
 
 	public Long size(String suffix){
 		String fullPath = fullPath(suffix);
-		return client.listObjects(bucket, fullPath)
+		return client.scanObjects(bucket, fullPath)
 				.findFirst()
 				.map(S3Object::size)
 				.orElse(null);
@@ -97,11 +97,11 @@ public class S3DirectoryManager{
 	/*-------------- scan -----------------*/
 
 	public Scanner<S3Object> scanS3Objects(Subpath subpath){
-		return client.listObjects(bucket, rootPath.append(subpath).toString());
+		return client.scanObjects(bucket, rootPath.append(subpath).toString());
 	}
 
 	public Scanner<String> scanKeys(Subpath subpath){
-		return client.listObjects(bucket, rootPath.append(subpath).toString())
+		return client.scanObjects(bucket, rootPath.append(subpath).toString())
 				.map(S3Object::key)
 				.map(this::relativePath);
 	}

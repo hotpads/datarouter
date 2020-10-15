@@ -38,4 +38,16 @@ public abstract class BaseJobletPlugin extends BaseJobPlugin{
 		return jobletTypes;
 	}
 
+	/*-------------------------- add joblet plugins -------------------------*/
+
+	private final List<BaseJobletPlugin> jobletPlugins = new ArrayList<>();
+
+	protected void addJobletPlugin(BaseJobletPlugin plugin){
+		jobletPlugins.add(plugin);
+	}
+
+	public List<BaseJobletPlugin> getJobletPlugins(){
+		return jobletPlugins;
+	}
+
 }

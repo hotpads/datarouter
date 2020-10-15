@@ -13,29 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.node.op.raw.write;
+package io.datarouter.storage.node.op.raw.read;
 
 import java.nio.charset.StandardCharsets;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.storage.node.op.raw.read.ObjectStorageReader;
+import io.datarouter.storage.node.op.NodeOps;
+import io.datarouter.storage.util.Subpath;
 
 /**
- * Methods for writing to an object store such as the filesystem or S3.
+ * Methods for reading from an blob store such as the filesystem or S3.
  */
-public interface ObjectStorageWriter<
+public interface BlobStorageReader<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
-extends ObjectStorageReader<PK,D>{
+extends NodeOps<PK,D>{
 
-	void write(PathbeanKey key, byte[] value);
+	String getBucket();
+	Subpath getRootPath();
 
-	default void writeUtf8(PathbeanKey key, String value){
-		write(key, value.getBytes(StandardCharsets.UTF_8));
+	boolean exists(PathbeanKey key);
+
+	byte[] read(PathbeanKey key);
+	byte[] read(PathbeanKey key, long offset, int length);
+
+	default String readUtf8(PathbeanKey key){
+		return new String(read(key), StandardCharsets.UTF_8);
 	}
 
-	void delete(PathbeanKey key);
+	Scanner<PathbeanKey> scanKeys(Subpath subpath);
+	Scanner<Pathbean> scan(Subpath subpath);
 
 }

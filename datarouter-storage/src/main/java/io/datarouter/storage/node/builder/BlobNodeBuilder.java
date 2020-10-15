@@ -24,17 +24,17 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.storage.node.factory.ObjectNodeFactory;
+import io.datarouter.storage.node.factory.BlobNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.util.Subpath;
 
-public class ObjectNodeBuilder<
+public class BlobNodeBuilder<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>{
 
 	protected final Datarouter datarouter;
-	protected final ObjectNodeFactory objectNodeFactory;
+	protected final BlobNodeFactory blobNodeFactory;
 	protected final ClientId clientId;
 	protected final Supplier<D> databeanSupplier;
 	protected final Supplier<F> fielderSupplier;
@@ -42,21 +42,21 @@ public class ObjectNodeBuilder<
 	protected String bucket;
 	protected Subpath path;
 
-	public ObjectNodeBuilder(
+	public BlobNodeBuilder(
 			Datarouter datarouter,
-			ObjectNodeFactory objectNodeFactory,
+			BlobNodeFactory blobNodeFactory,
 			ClientId clientId,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
 		this.datarouter = datarouter;
-		this.objectNodeFactory = objectNodeFactory;
+		this.blobNodeFactory = blobNodeFactory;
 		this.clientId = clientId;
 		this.databeanSupplier = databeanSupplier;
 		this.fielderSupplier = fielderSupplier;
 	}
 
 	public <N extends NodeOps<PathbeanKey,Pathbean>> N build(){
-		return objectNodeFactory.create(
+		return blobNodeFactory.create(
 				clientId,
 				bucket,
 				path);

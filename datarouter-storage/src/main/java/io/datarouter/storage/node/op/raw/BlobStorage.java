@@ -13,35 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.conveyor.queue;
-
-import java.util.function.Consumer;
+package io.datarouter.storage.node.op.raw;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.setting.Setting;
-import io.datarouter.web.exception.ExceptionRecorder;
+import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.node.op.raw.write.BlobStorageWriter;
+import io.datarouter.storage.node.type.physical.PhysicalNode;
 
-public class BasePutQueueConsumerConveyor<
+public interface BlobStorage<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>>
-extends BaseQueueConsumerConveyor<PK,D>{
+extends BlobStorageWriter<PK,D>{
 
-	private final Consumer<D> putConsumer;
+	/*---------------------------- sub-interfaces ---------------------------*/
 
-	public BasePutQueueConsumerConveyor(
-			String name,
-			Setting<Boolean> shouldRun,
-			QueueConsumer<PK,D> groupConsumer,
-			Consumer<D> putConsumer,
-			ExceptionRecorder exceptionRecorder){
-		super(name, shouldRun, groupConsumer, exceptionRecorder);
-		this.putConsumer = putConsumer;
+	public interface BlobStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	extends BlobStorage<PK,D>{
 	}
 
-	@Override
-	protected void processOne(D databean){
-		putConsumer.accept(databean);
+	public interface PhysicalBlobStorageNode<
+			PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	extends BlobStorageNode<PK,D,F>, PhysicalNode<PK,D,F>{
 	}
 
 }

@@ -153,7 +153,7 @@ public class SessionExecutor{
 
 	private void finishTrace(String traceName){
 		if(shouldTrace(traceName)){
-			TracerTool.finishSpan(TracerThreadLocal.get());
+			TracerTool.finishSpan();
 		}
 	}
 

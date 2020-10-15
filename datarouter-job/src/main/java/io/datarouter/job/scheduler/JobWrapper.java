@@ -87,7 +87,7 @@ public class JobWrapper implements Callable<Void>{
 	//convenience
 	public final Class<? extends BaseJob> jobClass;
 	//mutable tracking fields
-	private Instant startedAt;
+	public Instant startedAt;
 
 	private JobWrapper(
 			JobPackage jobPackage,

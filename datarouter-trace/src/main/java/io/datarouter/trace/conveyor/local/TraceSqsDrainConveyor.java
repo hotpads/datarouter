@@ -31,6 +31,7 @@ import io.datarouter.trace.storage.BaseDatarouterTraceDao;
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.thread.TraceThread;
 import io.datarouter.trace.storage.trace.Trace;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public class TraceSqsDrainConveyor extends BaseGroupQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
 
@@ -42,8 +43,9 @@ public class TraceSqsDrainConveyor extends BaseGroupQueueConsumerConveyor<Convey
 			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> groupQueueConsumer,
 			BaseDatarouterTraceDao traceDao,
-			Gson gson){
-		super(name, shouldRun, groupQueueConsumer, () -> false, Duration.ofSeconds(30));
+			Gson gson,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, groupQueueConsumer, () -> false, Duration.ofSeconds(30), exceptionRecorder);
 		this.gson = gson;
 		this.traceDao = traceDao;
 	}

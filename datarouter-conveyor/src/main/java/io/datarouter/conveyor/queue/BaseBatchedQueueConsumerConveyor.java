@@ -33,6 +33,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.queue.QueueMessage;
 import io.datarouter.storage.queue.QueueMessageKey;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 /**
  * Drains the queue and stores the data in a buffer. When the buffer hits a set limit it will trigger the processing as
@@ -55,8 +56,9 @@ extends BaseConveyor{
 	public BaseBatchedQueueConsumerConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
-			BatchedQueueConsumer<PK,D> queueConsumer){
-		super(name, shouldRun, () -> false);
+			BatchedQueueConsumer<PK,D> queueConsumer,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, () -> false, exceptionRecorder);
 		this.queueConsumer = queueConsumer;
 		this.buffer = new ArrayList<>(BATCH_SIZE);
 	}

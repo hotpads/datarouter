@@ -21,23 +21,28 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.conveyor.exception.ConveyorExceptionCategory;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.util.ExceptionTool;
 
 public abstract class BaseConveyor implements Conveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseConveyor.class);
 
 	protected final String name;
+	protected final ExceptionRecorder exceptionRecorder;
 	private final Supplier<Boolean> shouldRunSetting;
 	private final Supplier<Boolean> compactExceptionLogging;
 
 	public BaseConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
-			Supplier<Boolean> compactExceptionLogging){
+			Supplier<Boolean> compactExceptionLogging,
+			ExceptionRecorder exceptionRecorder){
 		this.name = name;
 		this.shouldRunSetting = shouldRun;
 		this.compactExceptionLogging = compactExceptionLogging;
+		this.exceptionRecorder = exceptionRecorder;
 	}
 
 	public abstract ProcessBatchResult processBatch();
@@ -86,6 +91,9 @@ public abstract class BaseConveyor implements Conveyor{
 				logger.warn("logging exception so ScheduledExecutorService restarts this Runnable {}", e.toString());
 			}else{
 				logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
+			}
+			if(!isInterrupted){
+				exceptionRecorder.tryRecordException(e, getClass().getName(), ConveyorExceptionCategory.CONVEYOR);
 			}
 		}
 	}

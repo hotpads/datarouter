@@ -88,13 +88,19 @@ extends DatarouterWebWebappConfigBuilder<T>{
 	/*-------------------------- add job plugins ----------------------------*/
 
 	public T addJobPlugin(BaseJobPlugin jobPlugin){
+		addJobPluginInternal(jobPlugin);
+		jobPlugin.getWebPlugins().forEach(this::addWebPluginInternal);
+		jobPlugin.getJobPlugins().forEach(this::addJobPluginInternal);
+		return getSelf();
+	}
+
+	protected void addJobPluginInternal(BaseJobPlugin jobPlugin){
 		boolean containsPlugin = jobPlugins.stream()
 				.anyMatch(plugin -> plugin.getName().equals(jobPlugin.getName()));
 		if(containsPlugin){
 			throw new IllegalStateException(jobPlugin.getName() + " has already been added. It needs to be overridden");
 		}
 		jobPlugins.add(jobPlugin);
-		return getSelf();
 	}
 
 	public T overrideJobPlugin(BaseJobPlugin jobPlugin){

@@ -25,7 +25,7 @@ import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.op.raw.ObjectStorage.PhysicalObjectStorageNode;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
 
@@ -34,7 +34,7 @@ public class S3Node<
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
 extends BasePhysicalNode<PK,D,F>
-implements PhysicalObjectStorageNode<PK,D,F>{
+implements PhysicalBlobStorageNode<PK,D,F>{
 
 	private final DatarouterS3Client datarouterS3Client;
 	private final S3DirectoryManager s3DirectoryManager;
@@ -50,7 +50,7 @@ implements PhysicalObjectStorageNode<PK,D,F>{
 	}
 
 	public static S3Node<PathbeanKey,Pathbean,PathbeanFielder> cast(
-			ObjectStorageNode<PathbeanKey,Pathbean,PathbeanFielder> objectStorageNode){
+			BlobStorageNode<PathbeanKey,Pathbean,PathbeanFielder> objectStorageNode){
 		return (S3Node<PathbeanKey,Pathbean,PathbeanFielder>)objectStorageNode;
 	}
 
@@ -91,6 +91,11 @@ implements PhysicalObjectStorageNode<PK,D,F>{
 	@Override
 	public void delete(PathbeanKey key){
 		s3DirectoryManager.delete(key.getPathAndFile());
+	}
+
+	@Override
+	public void deleteAll(){
+		scanKeys(Subpath.empty()).forEach(this::delete);
 	}
 
 	@Override

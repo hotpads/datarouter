@@ -28,18 +28,18 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.client.imp.ObjectClientNodeFactory;
+import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.NodeParams.NodeParamsBuilder;
-import io.datarouter.storage.node.builder.ObjectNodeBuilder;
-import io.datarouter.storage.node.op.raw.ObjectStorage.PhysicalObjectStorageNode;
+import io.datarouter.storage.node.builder.BlobNodeBuilder;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.util.Subpath;
 
 @Singleton
-public class ObjectNodeFactory{
+public class BlobNodeFactory{
 
 	@Inject
 	private DatarouterInjector injector;
@@ -51,15 +51,15 @@ public class ObjectNodeFactory{
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	ObjectNodeBuilder<PK,D,F> create(
+	BlobNodeBuilder<PK,D,F> create(
 			ClientId clientId,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-		return new ObjectNodeBuilder<>(datarouter, this, clientId, databeanSupplier, fielderSupplier);
+		return new BlobNodeBuilder<>(datarouter, this, clientId, databeanSupplier, fielderSupplier);
 	}
 
 	public <PK extends PrimaryKey<PK>,
-			N extends PhysicalObjectStorageNode<PathbeanKey,Pathbean,PathbeanFielder>>
+			N extends PhysicalBlobStorageNode<PathbeanKey,Pathbean,PathbeanFielder>>
 	N create(
 			ClientId clientId,
 			String bucketName,
@@ -72,16 +72,16 @@ public class ObjectNodeFactory{
 				.withPath(path)
 				.build();
 		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
-		ObjectClientNodeFactory clientFactories = getClientFactories(clientType);
+		BlobClientNodeFactory clientFactories = getClientFactories(clientType);
 		return BaseNodeFactory.cast(clientFactories.createObjectNode(params));
 	}
 
-	public PhysicalObjectStorageNode<
+	public PhysicalBlobStorageNode<
 			PathbeanKey,
 			Pathbean,
 			PathbeanFielder>
 	createSubdirectory(
-			PhysicalObjectStorageNode<PathbeanKey,Pathbean,PathbeanFielder> node,
+			PhysicalBlobStorageNode<PathbeanKey,Pathbean,PathbeanFielder> node,
 			Subpath subdirectoryPath){
 		Subpath fullPath = node.getRootPath().append(subdirectoryPath);
 		return create(
@@ -91,8 +91,8 @@ public class ObjectNodeFactory{
 
 	}
 
-	private ObjectClientNodeFactory getClientFactories(ClientType<?,?> clientType){
-		return (ObjectClientNodeFactory) injector.getInstance(clientType.getClientNodeFactoryClass());
+	private BlobClientNodeFactory getClientFactories(ClientType<?,?> clientType){
+		return (BlobClientNodeFactory) injector.getInstance(clientType.getClientNodeFactoryClass());
 	}
 
 }

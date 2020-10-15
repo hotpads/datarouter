@@ -25,6 +25,7 @@ import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.DatabeanBuffer;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public class DatabeanBufferConveyor<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends BaseConveyor{
 
@@ -37,8 +38,9 @@ public class DatabeanBufferConveyor<PK extends PrimaryKey<PK>,D extends Databean
 			String name,
 			Supplier<Boolean> shouldRun,
 			DatabeanBuffer<PK,D> databeanBuffer,
-			Consumer<Collection<D>> putMultiConsumer){
-		super(name, shouldRun, () -> false);
+			Consumer<Collection<D>> putMultiConsumer,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, () -> false, exceptionRecorder);
 		this.databeanBuffer = databeanBuffer;
 		this.putMultiConsumer = putMultiConsumer;
 	}

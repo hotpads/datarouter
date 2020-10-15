@@ -16,7 +16,6 @@
 package io.datarouter.nodewatch.service;
 
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h3;
 import static j2html.TagCreator.td;
 
 import java.util.List;
@@ -25,11 +24,15 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestService;
+import io.datarouter.web.html.email.J2HtmlEmailTable;
+import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.ContainerTag;
 
@@ -40,25 +43,59 @@ public class NodewatchDailyDigest implements DailyDigest{
 	private TableSizeMonitoringService monitoringService;
 	@Inject
 	private TableSizeMonitoringEmailBuilder emailBuilder;
+	@Inject
+	private DatarouterNodewatchPaths paths;
+	@Inject
+	private DailyDigestService digestService;
 
 	@Override
-	public Optional<ContainerTag> getContent(){
+	public Optional<ContainerTag> getPageContent(){
 		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
 		if(staleTables.isEmpty()){
 			return Optional.empty();
 		}
-		var header = h3("Stale Tables");
-		var table = makeStaleCountTable(staleTables);
+		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount);
+		var table = makePageTable(staleTables);
 		return Optional.of(div(header, table));
 	}
 
-	private ContainerTag makeStaleCountTable(List<LatestTableCount> staleRows){
+	@Override
+	public Optional<ContainerTag> getEmailContent(){
+		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
+		if(staleTables.isEmpty()){
+			return Optional.empty();
+		}
+		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount);
+		var table = makeEmailTable(staleTables);
+		return Optional.of(div(header, table));
+	}
+
+	@Override
+	public String getTitle(){
+		return "Nodewatch";
+	}
+
+	private ContainerTag makePageTable(List<LatestTableCount> staleRows){
 		return new J2HtmlTable<LatestTableCount>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Client", row -> row.getKey().getClientName())
 				.withHtmlColumn("Table", row -> td(emailBuilder.makeTableLink(
 						row.getKey().getTableName(),
 						row.getKey().getClientName())))
+				.withColumn("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows()))
+				.withColumn("Date Updated", row -> DateTool.getNumericDate(row.getDateUpdated()))
+				.withColumn("UpdatedAgo ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime()))
+				.build(staleRows);
+	}
+
+	private ContainerTag makeEmailTable(List<LatestTableCount> staleRows){
+		return new J2HtmlEmailTable<LatestTableCount>()
+				.withColumn("Client", row -> row.getKey().getClientName())
+				.withColumn(new J2HtmlEmailTableColumn<>(
+						"Table",
+						row -> td(emailBuilder.makeTableLink(
+						row.getKey().getTableName(),
+						row.getKey().getClientName()))))
 				.withColumn("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows()))
 				.withColumn("Date Updated", row -> DateTool.getNumericDate(row.getDateUpdated()))
 				.withColumn("UpdatedAgo ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime()))

@@ -32,6 +32,7 @@ import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.gauge.GaugeDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public class GaugeMemoryToSqsConveyor extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(GaugeMemoryToSqsConveyor.class);
@@ -49,8 +50,9 @@ public class GaugeMemoryToSqsConveyor extends BaseConveyor{
 			Setting<Boolean> shouldBufferInSqs,
 			Consumer<Collection<ConveyorMessage>> putMultiConsumer,
 			MemoryBuffer<GaugeDto> buffer,
-			Gson gson){
-		super(name, shouldRun, () -> false);
+			Gson gson,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, () -> false, exceptionRecorder);
 		this.shouldBufferInSqs = shouldBufferInSqs;
 		this.putMultiConsumer = putMultiConsumer;
 		this.buffer = buffer;

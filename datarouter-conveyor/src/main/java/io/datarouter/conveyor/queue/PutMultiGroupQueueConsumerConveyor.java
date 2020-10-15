@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public class PutMultiGroupQueueConsumerConveyor<
 		PK extends PrimaryKey<PK>,
@@ -36,8 +37,9 @@ extends BaseGroupQueueConsumerConveyor<PK,D>{
 			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<PK,D> groupQueueConsumer,
 			Consumer<Collection<D>> putMultiConsumer,
-			Duration peekTimeout){
-		super(name, shouldRun, groupQueueConsumer, () -> false, peekTimeout);
+			Duration peekTimeout,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, groupQueueConsumer, () -> false, peekTimeout, exceptionRecorder);
 		this.putMultiConsumer = putMultiConsumer;
 	}
 

@@ -30,6 +30,7 @@ import io.datarouter.instrumentation.trace.TraceEntityBatchDto;
 import io.datarouter.instrumentation.trace.TraceEntityDto;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public class TraceSqsDrainConveyorPublisher extends BaseGroupQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
 
@@ -42,8 +43,9 @@ public class TraceSqsDrainConveyorPublisher extends BaseGroupQueueConsumerConvey
 			GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> groupQueueConsumer,
 			Gson gson,
 			TracePublisher tracePublisher,
-			Supplier<Boolean> compactExceptionLogging){
-		super(name, shouldRun, groupQueueConsumer, compactExceptionLogging, Duration.ofSeconds(30));
+			Supplier<Boolean> compactExceptionLogging,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, groupQueueConsumer, compactExceptionLogging, Duration.ofSeconds(30), exceptionRecorder);
 		this.gson = gson;
 		this.tracePublisher = tracePublisher;
 	}

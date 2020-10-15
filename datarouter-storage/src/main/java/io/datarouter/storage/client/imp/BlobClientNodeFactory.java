@@ -13,33 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.node.op.raw;
+package io.datarouter.storage.client.imp;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.node.op.raw.write.ObjectStorageWriter;
+import io.datarouter.storage.client.ClientNodeFactory;
+import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
-public interface ObjectStorage<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>>
-extends ObjectStorageWriter<PK,D>{
+public interface BlobClientNodeFactory extends ClientNodeFactory{
 
-	/*---------------------------- sub-interfaces ---------------------------*/
-
-	public interface ObjectStorageNode<
-			PK extends PrimaryKey<PK>,
+	<PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	extends ObjectStorage<PK,D>{
-	}
-
-	public interface PhysicalObjectStorageNode<
-			PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	extends ObjectStorageNode<PK,D,F>, PhysicalNode<PK,D,F>{
-	}
+	PhysicalNode<PK,D,F> createObjectNode(NodeParams<PK,D,F> nodeParams);
 
 }

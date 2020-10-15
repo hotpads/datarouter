@@ -104,6 +104,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 		private final String heartbeatStatus;
 		private final String name;
 		private final String serverName;
+		private final Date triggerTime;
 		private final Date startTime;
 		private final Duration duration;
 		private final String durationString;
@@ -121,6 +122,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 			this.heartbeatStatus = task.getHeartbeatStatus();
 			this.name = task.getKey().getName();
 			this.serverName = task.getKey().getServerName();
+			this.triggerTime = task.getKey().getTriggerTime();
 			this.startTime = task.getStartTime();
 			this.duration = task.getDuration();
 			this.durationString = task.getDurationString();
@@ -154,8 +156,12 @@ public class LongRunningTasksHandler extends BaseHandler{
 			return serverName;
 		}
 
-		public Date getStartTime(){
-			return startTime;
+		public long getStartTime(){
+			return startTime != null ? startTime.getTime() : triggerTime.getTime();
+		}
+
+		public String getStartString(){
+			return startTime != null ? startTime.toString() : triggerTime + " (trigger)";
 		}
 
 		public Date getFinishTime(){
@@ -168,6 +174,10 @@ public class LongRunningTasksHandler extends BaseHandler{
 
 		public String getDurationString(){
 			return durationString;
+		}
+
+		public Date getLastHeartbeat(){
+			return lastHeartbeat;
 		}
 
 		public Long getSortableLastHeartbeat(){
@@ -197,12 +207,15 @@ public class LongRunningTasksHandler extends BaseHandler{
 					.orElse(null);
 		}
 
-		public String getStartTimeString(){
+		public String getStartSubtitle(){
+			var trigger = "Triggered " + triggerTime
+					+ "\nTriggered " + DateTool.getAgoString(triggerTime.toInstant());
 			return Optional.ofNullable(startTime)
 					.map(Date::toInstant)
 					.map(DateTool::getAgoString)
-					.map("Started "::concat)
-					.orElse(null);
+					.map("\nStarted "::concat)
+					.map(trigger::concat)
+					.orElse(trigger);
 		}
 
 		public String getTriggeredBy(){

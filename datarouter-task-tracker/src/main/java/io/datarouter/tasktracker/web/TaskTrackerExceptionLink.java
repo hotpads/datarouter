@@ -15,14 +15,30 @@
  */
 package io.datarouter.tasktracker.web;
 
+import io.datarouter.pathnode.PathNode;
+
 public interface TaskTrackerExceptionLink{
 
 	String buildExceptionDetailLink(String exceptionRecordId);
+
+	PathNode getPath();
+
+	String getParamName();
 
 	class NoOpTaskTrackerExceptionLink implements TaskTrackerExceptionLink{
 
 		@Override
 		public String buildExceptionDetailLink(String exceptionRecordId){
+			return "";
+		}
+
+		@Override
+		public PathNode getPath(){
+			return null;
+		}
+
+		@Override
+		public String getParamName(){
 			return "";
 		}
 

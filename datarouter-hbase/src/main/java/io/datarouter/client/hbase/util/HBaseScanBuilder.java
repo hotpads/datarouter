@@ -90,6 +90,9 @@ public class HBaseScanBuilder{
 		Scan scan = getScanForRange();
 		//note that bigtable ignores setMaxResultsPerColumnFamily, setBatch, and setCaching
 		scan.setCacheBlocks(cacheBlocks);
+		if(limit != null){
+			scan.setLimit(limit);
+		}
 		makeFilter().ifPresent(scan::setFilter);
 		return scan;
 	}

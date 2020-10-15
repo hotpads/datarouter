@@ -26,6 +26,7 @@ import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.queue.QueueMessage;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public abstract class BaseQueueConsumerConveyor<
 		PK extends PrimaryKey<PK>,
@@ -40,8 +41,9 @@ extends BaseConveyor{
 	public BaseQueueConsumerConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
-			QueueConsumer<PK,D> queueConsumer){
-		super(name, shouldRun, () -> false);
+			QueueConsumer<PK,D> queueConsumer,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, () -> false, exceptionRecorder);
 		this.queueConsumer = queueConsumer;
 	}
 

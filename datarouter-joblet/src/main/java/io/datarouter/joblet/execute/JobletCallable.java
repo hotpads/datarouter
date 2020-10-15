@@ -96,7 +96,7 @@ public class JobletCallable implements Callable<Void>{
 						UncheckedInterruptedException.class, InterruptedIOException.class);
 				Exception wrappingException = new Exception("isInterrupted=" + isInterrupted + " jobletPackage="
 						+ GsonTool.GSON.toJson(jobletPackage.get()), e);
-				logger.error("", wrappingException);
+				logger.error("joblet failed", wrappingException);
 				if(isInterrupted){
 					try{
 						jobletService.handleJobletInterruption(timer, jobletRequest);

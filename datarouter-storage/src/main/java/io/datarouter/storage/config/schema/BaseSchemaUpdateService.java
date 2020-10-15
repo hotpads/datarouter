@@ -126,7 +126,7 @@ public abstract class BaseSchemaUpdateService{
 		}
 
 		if(shouldNotify && acquireSchemaUpdateLock(printedSchemaUpdates)){
-			sendEmail(printedSchemaUpdates);
+			sendEmail(printedSchemaUpdates, !oneStartupBlockReason.getString().isEmpty());
 			recordChangelog(printedSchemaUpdates);
 		}
 		if(!oneStartupBlockReason.getString().isEmpty()){
@@ -135,12 +135,13 @@ public abstract class BaseSchemaUpdateService{
 		}
 	}
 
-	private void sendEmail(Map<ClientId,List<String>> printedSchemaUpdates){
+	private void sendEmail(Map<ClientId,List<String>> printedSchemaUpdates, boolean isBlocking){
 		if(printedSchemaUpdates.isEmpty()){
 			return;
 		}
 		printedSchemaUpdates.forEach((clientId, ddlList) -> {
-			String subject = "SchemaUpdate request on " + clientId.getName() + " from "
+			String blocking = isBlocking ? " - Blocking " : " ";
+			String subject = "SchemaUpdate Request" + blocking + "on " + clientId.getName() + " from "
 					+ datarouterProperties.getEnvironment();
 			StringBuilder allStatements = new StringBuilder();
 			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));

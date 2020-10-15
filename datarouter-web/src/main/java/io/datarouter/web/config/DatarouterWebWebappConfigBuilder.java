@@ -320,13 +320,18 @@ implements WebappBuilder{
 	/*-------------------------- add web plugins ----------------------------*/
 
 	public T addWebPlugin(BaseWebPlugin webPlugin){
+		addWebPluginInternal(webPlugin);
+		webPlugin.getWebPlugins().forEach(this::addWebPluginInternal);
+		return getSelf();
+	}
+
+	protected void addWebPluginInternal(BaseWebPlugin webPlugin){
 		boolean containsPlugin = webPlugins.stream()
 				.anyMatch(plugin -> plugin.getName().equals(webPlugin.getName()));
 		if(containsPlugin){
 			throw new IllegalStateException(webPlugin.getName() + " has already been added. It needs to be overridden");
 		}
 		webPlugins.add(webPlugin);
-		return getSelf();
 	}
 
 	public T overrideWebPlugin(BaseWebPlugin webPlugin){
@@ -375,7 +380,7 @@ implements WebappBuilder{
 	protected T addStoragePluginWithoutInstalling(BaseStoragePlugin plugin){
 		DaosModuleBuilder daosModule = plugin.getDaosModuleBuilder();
 		daoClasses.addAll(daosModule.getDaoClasses());
-		modules.add(plugin.getDaosModuleBuilder());
+		modules.add(daosModule);
 		settingRoots.addAll(plugin.getSettingRoots());
 		return getSelf();
 	}

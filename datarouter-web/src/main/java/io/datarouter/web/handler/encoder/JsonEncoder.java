@@ -101,7 +101,7 @@ public class JsonEncoder implements HandlerEncoder{
 	}
 
 	@Override
-	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Exception exception,
+	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Throwable exception,
 			Optional<String> exceptionId) throws IOException{
 		Optional<Object> errorObject;
 		if(exceptionHandlingConfig.shouldDisplayStackTrace(request, exception)){
@@ -115,13 +115,13 @@ public class JsonEncoder implements HandlerEncoder{
 		}
 	}
 
-	protected void finishSendException(@SuppressWarnings("unused") Exception exception, Object errorObject,
+	protected void finishSendException(@SuppressWarnings("unused") Throwable exception, Object errorObject,
 			HttpServletResponse response, HttpServletRequest request) throws IOException{
 		finishRequest(errorObject, null, response, request);
 	}
 
 	// override this to write a custom json object containing detailed info for debugging by developer
-	protected Optional<Object> buildDetailedErrorObject(Exception exception, Optional<String> exceptionId){
+	protected Optional<Object> buildDetailedErrorObject(Throwable exception, Optional<String> exceptionId){
 		String exceptionRecordUrl = exceptionId
 				.map(exceptionHandlingConfig::buildExceptionLinkForCurrentServer)
 				.orElse(null);
@@ -135,7 +135,7 @@ public class JsonEncoder implements HandlerEncoder{
 	 * @param httpStatusCode The HTTP status code that will be returned
 	 */
 	@SuppressWarnings("unused")
-	protected Optional<Object> buildSimpleErrorObject(Exception exception, int httpStatusCode,
+	protected Optional<Object> buildSimpleErrorObject(Throwable exception, int httpStatusCode,
 			Optional<String> exceptionId){
 		return exceptionId.map(SimpleError::new);
 	}

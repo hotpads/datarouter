@@ -16,7 +16,6 @@
 package io.datarouter.changelog.service;
 
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h3;
 import static j2html.TagCreator.small;
 
 import java.time.Instant;
@@ -30,12 +29,15 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.changelog.web.ViewChangelogHandler;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestService;
+import io.datarouter.web.html.email.J2HtmlEmailTable;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -43,24 +45,58 @@ public class ChangelogDailyDigest implements DailyDigest{
 
 	@Inject
 	private ChangelogDao dao;
+	@Inject
+	private DailyDigestService digestService;
+	@Inject
+	private DatarouterChangelogPaths paths;
 
 	@Override
-	public Optional<ContainerTag> getContent(){
-		var start = new ChangelogKey(atEndOfDay(), null, null);
-		var stop = new ChangelogKey(atStartOfDay(), null, null);
-		Range<ChangelogKey> range = new Range<>(start, true, stop, true);
-		var list = dao.scan(range).list();
+	public Optional<ContainerTag> getPageContent(){
+		var list = getChangelogs();
 		if(list.size() == 0){
 			return Optional.empty();
 		}
-		return Optional.of(makeContent(list));
+		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.view);
+		var description = small("For the current day");
+		var table = ViewChangelogHandler.buildTable(list);
+		return Optional.of(div(header, description, table));
 	}
 
-	private static ContainerTag makeContent(List<Changelog> rows){
-		var header = h3("Changelog");
+	@Override
+	public Optional<ContainerTag> getEmailContent(){
+		var list = getChangelogs();
+		if(list.size() == 0){
+			return Optional.empty();
+		}
+		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.view);
 		var description = small("For the current day");
-		var table = ViewChangelogHandler.buildTable(rows);
-		return div(header, description, table);
+		var table = buildEmailTable(list);
+		return Optional.of(div(header, description, table));
+	}
+
+	@Override
+	public String getTitle(){
+		return "Changelog";
+	}
+
+	private List<Changelog> getChangelogs(){
+		var start = new ChangelogKey(atEndOfDay(), null, null);
+		var stop = new ChangelogKey(atStartOfDay(), null, null);
+		Range<ChangelogKey> range = new Range<>(start, true, stop, true);
+		return dao.scan(range).list();
+	}
+
+	private ContainerTag buildEmailTable(List<Changelog> rows){
+		return new J2HtmlEmailTable<Changelog>()
+				.withColumn("Date", row -> {
+					Long reversedDateMs = row.getKey().getReversedDateMs();
+					return new Date(Long.MAX_VALUE - reversedDateMs);
+				})
+				.withColumn("Type", row -> row.getKey().getChangelogType())
+				.withColumn("Name", row -> row.getKey().getName())
+				.withColumn("Action", row -> row.getAction())
+				.withColumn("User", row -> row.getUsername())
+				.build(rows);
 	}
 
 	private static long atStartOfDay(){

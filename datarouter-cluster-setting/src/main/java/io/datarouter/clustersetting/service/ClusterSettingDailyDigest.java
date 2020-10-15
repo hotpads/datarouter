@@ -17,7 +17,6 @@ package io.datarouter.clustersetting.service;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
@@ -30,9 +29,13 @@ import javax.inject.Singleton;
 
 import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingConfigScanner;
+import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestService;
+import io.datarouter.web.html.email.J2HtmlEmailTable;
+import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -44,17 +47,21 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	private DatarouterClusterSettingConfigScanner configScanner;
 	@Inject
 	private ClusterSettingService settingService;
+	@Inject
+	private DailyDigestService digestService;
+	@Inject
+	private DatarouterClusterSettingPaths paths;
 
 	@Override
-	public Optional<ContainerTag> getContent(){
+	public Optional<ContainerTag> getPageContent(){
 		Optional<ContainerTag> redundantTable = settingService.scanWithValidity(ClusterSettingValidity.REDUNDANT)
-				.listTo(settings -> makeBrowserSettingTable(settings, "Redundant"));
+				.listTo(settings -> makePageTable(settings, "Redundant"));
 		Optional<ContainerTag> expiredTable = settingService.scanWithValidity(ClusterSettingValidity.EXPIRED)
-				.listTo(settings -> makeBrowserSettingTable(settings, "Expired"));
+				.listTo(settings -> makePageTable(settings, "Expired"));
 		Optional<ContainerTag> oldTable = settingService.scanWithValidity(ClusterSettingValidity.OLD)
-				.listTo(settings -> makeBrowserSettingTable(settings, "Old"));
+				.listTo(settings -> makePageTable(settings, "Old"));
 		Optional<ContainerTag> unknownTable = settingService.scanWithValidity(ClusterSettingValidity.UNKNOWN)
-				.listTo(settings -> makeBrowserSettingTable(settings, "Unknown"));
+				.listTo(settings -> makePageTable(settings, "Unknown"));
 
 		List<ContainerTag> tables = Scanner.of(redundantTable, expiredTable, oldTable, unknownTable)
 				.include(Optional::isPresent)
@@ -63,11 +70,38 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = h3("Settings");
+		var header = digestService.makeHeader("Settings", paths.datarouter.settings);
 		return Optional.of(div(header, each(tables, TagCreator::div)));
 	}
 
-	private Optional<ContainerTag> makeBrowserSettingTable(List<ClusterSetting> settings, String header){
+	@Override
+	public Optional<ContainerTag> getEmailContent(){
+		Optional<ContainerTag> redundantTable = settingService.scanWithValidity(ClusterSettingValidity.REDUNDANT)
+				.listTo(settings -> makeEmailTable(settings, "Redundant"));
+		Optional<ContainerTag> expiredTable = settingService.scanWithValidity(ClusterSettingValidity.EXPIRED)
+				.listTo(settings -> makeEmailTable(settings, "Expired"));
+		Optional<ContainerTag> oldTable = settingService.scanWithValidity(ClusterSettingValidity.OLD)
+				.listTo(settings -> makeEmailTable(settings, "Old"));
+		Optional<ContainerTag> unknownTable = settingService.scanWithValidity(ClusterSettingValidity.UNKNOWN)
+				.listTo(settings -> makeEmailTable(settings, "Unknown"));
+
+		List<ContainerTag> tables = Scanner.of(redundantTable, expiredTable, oldTable, unknownTable)
+				.include(Optional::isPresent)
+				.map(Optional::get)
+				.list();
+		if(tables.size() == 0){
+			return Optional.empty();
+		}
+		var header = digestService.makeHeader("Settings", paths.datarouter.settings);
+		return Optional.of(div(header, each(tables, TagCreator::div)));
+	}
+
+	@Override
+	public String getTitle(){
+		return "Cluster Settings";
+	}
+
+	private Optional<ContainerTag> makePageTable(List<ClusterSetting> settings, String header){
 		if(settings.isEmpty()){
 			return Optional.empty();
 		}
@@ -75,6 +109,17 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn(th("Name").withClass("w-50"), row -> td(configScanner.makeSettingLink(row.getName())))
 				.withHtmlColumn(th("Value").withClass("w-50"), row -> td(row.getValue()))
+				.build(settings);
+		return Optional.of(div(h4(header), table));
+	}
+
+	private Optional<ContainerTag> makeEmailTable(List<ClusterSetting> settings, String header){
+		if(settings.isEmpty()){
+			return Optional.empty();
+		}
+		var table = new J2HtmlEmailTable<ClusterSetting>()
+				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> configScanner.makeSettingLink(row.getName())))
+				// don't send values in an email
 				.build(settings);
 		return Optional.of(div(h4(header), table));
 	}

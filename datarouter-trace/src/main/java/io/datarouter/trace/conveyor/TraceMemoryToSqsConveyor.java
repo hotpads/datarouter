@@ -28,6 +28,7 @@ import io.datarouter.trace.storage.BaseDatarouterTraceQueueDao;
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.thread.TraceThread;
 import io.datarouter.trace.storage.trace.Trace;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public class TraceMemoryToSqsConveyor extends BaseTraceMemoryToSqsConveyor{
 
@@ -42,8 +43,9 @@ public class TraceMemoryToSqsConveyor extends BaseTraceMemoryToSqsConveyor{
 			MemoryBuffer<TraceEntityDto> buffer,
 			BaseDatarouterTraceQueueDao traceQueueDao,
 			BaseDatarouterTraceDao traceDao,
-			Gson gson){
-		super(name, shouldRunSetting, buffer, gson);
+			Gson gson,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRunSetting, buffer, gson, exceptionRecorder);
 		this.shouldBufferInSqs = shouldBufferInSqs;
 		this.traceQueueDao = traceQueueDao;
 		this.traceDao = traceDao;

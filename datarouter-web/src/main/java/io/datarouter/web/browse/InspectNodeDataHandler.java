@@ -36,6 +36,7 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.collection.ListTool;
+import io.datarouter.util.net.UrlTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -102,7 +103,8 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 				List<Field<?>> databeanFieldKeys = databean.getKeyFields();
 				String databeanFieldKey = "";
 				for(Field<?> field : databeanFieldKeys){
-					databeanFieldKey += "&" + field.getKey().getName() + "=" + field.getStringEncodedValue();
+					String urlEncodedValue = UrlTool.encode(field.getStringEncodedValue());
+					databeanFieldKey += "&" + field.getKey().getName() + "=" + urlEncodedValue;
 				}
 				fieldKeysAndValues.add(databeanFieldKey);
 			}

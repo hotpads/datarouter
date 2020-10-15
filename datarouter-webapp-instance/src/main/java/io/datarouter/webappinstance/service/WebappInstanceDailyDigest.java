@@ -17,7 +17,6 @@ package io.datarouter.webappinstance.service;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h3;
 import static j2html.TagCreator.td;
 
 import java.time.Instant;
@@ -38,7 +37,11 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestService;
+import io.datarouter.web.html.email.J2HtmlEmailTable;
+import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
+import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogByBuildDateKey;
@@ -54,27 +57,51 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	private WebappInstanceBuildIdLink buildIdLink;
 	@Inject
 	private WebappInstanceCommitIdLink commitIdLink;
+	@Inject
+	private DatarouterWebappInstancePaths paths;
+	@Inject
+	private DailyDigestService digestService;
 
 	@Override
-	public Optional<ContainerTag> getContent(){
+	public Optional<ContainerTag> getPageContent(){
+		var logs = getLogs();
+		if(logs.isEmpty()){
+			return Optional.empty();
+		}
+		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
+		var table = buildPageTable(logs);
+		return Optional.of(div(header, table));
+	}
+
+	@Override
+	public Optional<ContainerTag> getEmailContent(){
+		var logs = getLogs();
+		if(logs.isEmpty()){
+			return Optional.empty();
+		}
+		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
+		var table = buildEmailTable(logs);
+		return Optional.of(div(header, table));
+	}
+
+	@Override
+	public String getTitle(){
+		return "Deployments";
+	}
+
+	private List<WebappInstanceLogDto> getLogs(){
 		var start = new WebappInstanceLogByBuildDateKey(startOfDay(), null, null, null);
 		var stop = new WebappInstanceLogByBuildDateKey(endOfDay(), null, null, null);
 		var range = new Range<>(start, true, stop, true);
 		Map<WebappInstanceLogKeyDto,List<WebappInstanceLog>> ranges = dao.scanDatabeans(range)
 				.groupBy(WebappInstanceLogKeyDto::new);
-		var logs = Scanner.of(ranges.entrySet())
+		return Scanner.of(ranges.entrySet())
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
 				.sorted(Comparator.comparing((WebappInstanceLogDto dto) -> dto.buildDate))
 				.list();
-		if(logs.isEmpty()){
-			return Optional.empty();
-		}
-		var header = h3("Deployments");
-		var table = buildTable(logs);
-		return Optional.of(div(header, table));
 	}
 
-	private ContainerTag buildTable(List<WebappInstanceLogDto> rows){
+	private ContainerTag buildPageTable(List<WebappInstanceLogDto> rows){
 		return new J2HtmlTable<WebappInstanceLogDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Build Date", row -> row.buildDate)
@@ -85,6 +112,19 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.withHtmlColumn("CommitId", row -> td(a(row.commitId)
 						.withTarget("_blank")
 						.withHref(commitIdLink.getLink(row.commitId))))
+				.build(rows);
+	}
+
+	private ContainerTag buildEmailTable(List<WebappInstanceLogDto> rows){
+		return new J2HtmlEmailTable<WebappInstanceLogDto>()
+				.withColumn("Build Date", row -> row.buildDate)
+				.withColumn("Startup Range", row -> row.getStartupRangeStart() + " - " + row.getStartupRangeEnd())
+				.withColumn(new J2HtmlEmailTableColumn<>(
+						"BuildId",
+						row -> a(Optional.ofNullable(row.buildId).orElse(""))
+						.withHref(buildIdLink.getLink(Optional.ofNullable(row.buildId).orElse("")))))
+				.withColumn(new J2HtmlEmailTableColumn<>(
+						"CommitId", row -> a(row.commitId).withHref(commitIdLink.getLink(row.commitId))))
 				.build(rows);
 	}
 

@@ -34,7 +34,7 @@ public class ScanSanitizer{
 		if(range.getStart() == null && isValueOfFirstFieldNull(range.getEnd())
 				|| range.getEnd() == null && isValueOfFirstFieldNull(range.getStart())
 				|| isValueOfFirstFieldNull(range.getStart()) && isValueOfFirstFieldNull(range.getEnd())){
-			throw new RuntimeException("unexcepted full scan detected for range=" + range);
+			throw new RuntimeException("unexpected full scan detected for range=" + range);
 		}
 	}
 

@@ -22,7 +22,7 @@ import io.datarouter.web.monitoring.exception.ExceptionDto;
 
 public interface ExceptionHandlingConfig{
 
-	boolean shouldDisplayStackTrace(HttpServletRequest request, Exception exception);
+	boolean shouldDisplayStackTrace(HttpServletRequest request, Throwable exception);
 	boolean shouldReportError(ExceptionRecordDto exceptionRecord);
 	boolean shouldReportError(ExceptionDto dto);
 
@@ -34,7 +34,7 @@ public interface ExceptionHandlingConfig{
 	static class NoOpExceptionHandlingConfig implements ExceptionHandlingConfig{
 
 		@Override
-		public boolean shouldDisplayStackTrace(HttpServletRequest request, Exception exception){
+		public boolean shouldDisplayStackTrace(HttpServletRequest request, Throwable exception){
 			return false;
 		}
 

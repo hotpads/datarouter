@@ -76,19 +76,13 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 		Collections.reverse(listenersToShutdown);
 		var timer = new PhaseTimer();
 		Scanner.of(listenersToShutdown)
+				.each(listener -> logger.warn("shuting down {}", listener.getClass().getSimpleName()))
 				.each(DatarouterAppListener::onShutDown)
 				.map(Object::getClass)
 				.map(Class::getSimpleName)
 				.forEach(timer::add);
 		logger.warn("shutDown {}", timer);
 		listenersToShutdown.clear();
-	}
-
-	public List<Class<? extends DatarouterAppListener>> getAppListenerClasses(){
-		List<Class<? extends DatarouterAppListener>> list = new ArrayList<>();
-		list.addAll(listenerClasses);
-		list.addAll(webListenerClasses);
-		return list;
 	}
 
 }

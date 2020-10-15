@@ -17,7 +17,6 @@ package io.datarouter.exception.service;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h3;
 import static j2html.TagCreator.i;
 import static j2html.TagCreator.small;
 import static j2html.TagCreator.td;
@@ -45,6 +44,9 @@ import io.datarouter.exception.web.ExceptionAnalysisHandler;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestService;
+import io.datarouter.web.html.email.J2HtmlEmailTable;
+import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.ContainerTag;
 
@@ -60,10 +62,38 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	@Inject
 	private DatarouterExceptionPaths paths;
 	@Inject
-	private ServletContextSupplier servletContextSupplier;
+	private ServletContextSupplier contextSupplier;
+	@Inject
+	private DailyDigestService digestService;
 
 	@Override
-	public Optional<ContainerTag> getContent(){
+	public Optional<ContainerTag> getPageContent(){
+		List<AggregatedExceptionDto> aggregated = getExceptions();
+		if(aggregated.size() == 0){
+			return Optional.empty();
+		}
+		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse);
+		var description = small("Aggregated for the current day");
+		return Optional.of(div(header, description, makePageTable(aggregated)));
+	}
+
+	@Override
+	public Optional<ContainerTag> getEmailContent(){
+		List<AggregatedExceptionDto> aggregated = getExceptions();
+		if(aggregated.size() == 0){
+			return Optional.empty();
+		}
+		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse);
+		var description = small("Aggregated for the current day");
+		return Optional.of(div(header, description, makeEmailTable(aggregated)));
+	}
+
+	@Override
+	public String getTitle(){
+		return "Exception Records";
+	}
+
+	private List<AggregatedExceptionDto> getExceptions(){
 		Map<AggregatedExceptionKeyDto,AggregatedExceptionValueDto> aggregatedExceptions = new HashMap<>();
 		for(ExceptionRecordSummary exception : dao.scan()
 				.advanceUntil(key -> key.getKey().getReversePeriodStart() > atStartOfDay())
@@ -76,27 +106,21 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 			}
 			aggregatedExceptions.put(key, value);
 		}
-		List<AggregatedExceptionDto> aggregated = Scanner.of(aggregatedExceptions.entrySet())
+		return Scanner.of(aggregatedExceptions.entrySet())
 				.map(entry -> new AggregatedExceptionDto(entry.getKey(), entry.getValue()))
 				.sorted(COMPARATOR)
 				.list();
-		if(aggregated.size() == 0){
-			return Optional.empty();
-		}
-		return Optional.of(makeContent(aggregated));
 	}
 
-	public ContainerTag makeContent(List<AggregatedExceptionDto> rows){
-		var header = h3("Exceptions");
-		var description = small("Aggregated for the current day");
-		var table = new J2HtmlTable<AggregatedExceptionDto>()
+	private ContainerTag makePageTable(List<AggregatedExceptionDto> rows){
+		return new J2HtmlTable<AggregatedExceptionDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.key.type)
 				.withColumn("Location", row -> row.key.location)
 				.withColumn("Count", row -> row.value.count)
 				.withHtmlColumn("Details", row -> {
 					String id = row.value.detailsLink;
-					String link = servletContextSupplier.get().getContextPath() + paths.datarouter.exception.details
+					String link = contextSupplier.get().getContextPath() + paths.datarouter.exception.details
 							.toSlashedString() + "?" + ExceptionAnalysisHandler.P_exceptionRecord + "=" + id;
 					return td(a(i().withClass("far fa-file-alt"))
 							.withClass("btn btn-link w-100 py-0")
@@ -104,7 +128,24 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 				})
 				.withCaption("Total " + rows.size())
 				.build(rows);
-		return div(header, description, table);
+	}
+
+	private ContainerTag makeEmailTable(List<AggregatedExceptionDto> rows){
+		return new J2HtmlEmailTable<AggregatedExceptionDto>()
+				.withColumn("Type", row -> row.key.type)
+				.withColumn("Location", row -> row.key.location)
+				.withColumn("Count", row -> row.value.count)
+				.withColumn(new J2HtmlEmailTableColumn<>(
+						"Details",
+						row -> {
+							String id = row.value.detailsLink;
+							String link = contextSupplier.get().getContextPath()
+									+ paths.datarouter.exception.details
+									.toSlashedString() + "?" + ExceptionAnalysisHandler.P_exceptionRecord + "=" + id;
+							return a(id)
+									.withHref(link);
+						}))
+				.build(rows);
 	}
 
 	private static class AggregatedExceptionDto{

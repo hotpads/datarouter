@@ -133,7 +133,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			ex = new DatarouterHttpRequestInterruptedException(e, requestStartTimeMs, requestId, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
 		}finally{
-			TracerTool.finishSpan(TracerThreadLocal.get());
+			TracerTool.finishSpan();
 		}
 		// connection might have gone bad, destroying it
 		if(internalHttpRequest != null){

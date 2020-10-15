@@ -33,6 +33,7 @@ import io.datarouter.instrumentation.exception.ExceptionRecordBatchDto;
 import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
 public class ExceptionRecordQueueConveyor extends BaseGroupQueueConsumerConveyor<ExceptionRecordKey,ExceptionRecord>{
@@ -46,8 +47,9 @@ public class ExceptionRecordQueueConveyor extends BaseGroupQueueConsumerConveyor
 			Supplier<Boolean> shouldRun,
 			GroupQueueConsumer<ExceptionRecordKey,ExceptionRecord> consumer,
 			ExceptionRecordPublisher publisher,
-			Supplier<Boolean> compactExceptionLogging){
-		super(name, shouldRun, consumer, compactExceptionLogging, Duration.ofSeconds(30));
+			Supplier<Boolean> compactExceptionLogging,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, consumer, compactExceptionLogging, Duration.ofSeconds(30), exceptionRecorder);
 		this.publisher = publisher;
 	}
 

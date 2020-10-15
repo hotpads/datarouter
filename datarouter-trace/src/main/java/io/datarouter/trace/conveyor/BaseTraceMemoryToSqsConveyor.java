@@ -29,6 +29,7 @@ import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.instrumentation.trace.TraceEntityDto;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public abstract class BaseTraceMemoryToSqsConveyor extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseTraceMemoryToSqsConveyor.class);
@@ -42,8 +43,9 @@ public abstract class BaseTraceMemoryToSqsConveyor extends BaseConveyor{
 			String name,
 			Supplier<Boolean> shouldRun,
 			MemoryBuffer<TraceEntityDto> buffer,
-			Gson gson){
-		super(name, shouldRun, () -> false);
+			Gson gson,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, () -> false, exceptionRecorder);
 		this.buffer = buffer;
 		this.gson = gson;
 	}

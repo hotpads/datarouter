@@ -61,6 +61,8 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 				datarouterService.getName(),
 				admins,
 				serviceDescriptionSupplier.get(),
+				datarouterService.getDomainPreferPublic(),
+				datarouterService.getContextName(),
 				documentationNamesAndLinksSupplier.getReadmeDocs());
 		try{
 			serviceConfigurationPublisher.add(dto);

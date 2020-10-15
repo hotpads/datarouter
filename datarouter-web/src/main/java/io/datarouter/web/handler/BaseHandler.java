@@ -119,7 +119,7 @@ public abstract class BaseHandler{
 	protected Params params;
 	protected List<RequestParamValidator<?>> paramValidators = new ArrayList<>();
 
-	private Supplier<RequestAwareCurrentSessionInfo> requestAwareCurrentSessionInfo = SingletonSupplier.of(
+	private final Supplier<RequestAwareCurrentSessionInfo> requestAwareCurrentSessionInfo = SingletonSupplier.of(
 			() -> requestAwareCurrentSessionInfoFactory.build(request));
 
 	/**
@@ -437,7 +437,7 @@ public abstract class BaseHandler{
 
 		@Override
 		public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response,
-				Exception exception, Optional<String> exceptionId){
+				Throwable exception, Optional<String> exceptionId){
 			throw new UnsupportedOperationException();
 		}
 

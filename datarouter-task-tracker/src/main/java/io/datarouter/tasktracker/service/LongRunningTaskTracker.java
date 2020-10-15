@@ -220,7 +220,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	@Override
 	public TaskTracker requestStop(){
-		logger.info("requestStop on " + task.name);
+		logger.warn("requestStop on " + task.name);
 		stopRequested.set(true);
 		return this;
 	}

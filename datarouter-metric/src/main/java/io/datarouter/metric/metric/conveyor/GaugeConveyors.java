@@ -24,6 +24,7 @@ import io.datarouter.conveyor.BaseConveyors;
 import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.metric.config.DatarouterGaugeSettingRoot;
 import io.datarouter.metric.metric.DatarouterGaugePublisherDao;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
 public class GaugeConveyors extends BaseConveyors{
@@ -38,6 +39,8 @@ public class GaugeConveyors extends BaseConveyors{
 	private GaugePublisher publisher;
 	@Inject
 	private GaugeBuffers buffers;
+	@Inject
+	private ExceptionRecorder exceptionRecorder;
 
 	@Override
 	public void onStartUp(){
@@ -47,7 +50,8 @@ public class GaugeConveyors extends BaseConveyors{
 				settings.sendGaugesFromMemoryToSqs,
 				dao::putMulti,
 				buffers.gaugeBuffer,
-				gson),
+				gson,
+				exceptionRecorder),
 				settings.memoryConveyorThreadCount.get());
 		start(new GaugeSqsDrainConveyor(
 				"gaugeSqsToPublisher",
@@ -55,7 +59,8 @@ public class GaugeConveyors extends BaseConveyors{
 				dao.getGroupQueueConsumer(),
 				gson,
 				publisher,
-				settings.compactExceptionLoggingForConveyors),
+				settings.compactExceptionLoggingForConveyors,
+				exceptionRecorder),
 				settings.drainConveyorThreadCount.get());
 	}
 

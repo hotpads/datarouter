@@ -120,7 +120,8 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 
 	private ContainerTag makeExceptionLink(String exceptionRecordId){
 		String href = emailService.startLinkBuilder()
-				.withLocalPath(exceptionLink.buildExceptionDetailLink(exceptionRecordId))
+				.withLocalPath(exceptionLink.getPath())
+				.withParam(exceptionLink.getParamName(), exceptionRecordId)
 				.build();
 		return a(exceptionRecordId)
 				.withHref(href);

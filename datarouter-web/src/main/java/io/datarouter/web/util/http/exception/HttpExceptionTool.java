@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class HttpExceptionTool{
 
-	public static int getHttpStatusCodeForException(HttpServletResponse response, Exception exception){
+	public static int getHttpStatusCodeForException(HttpServletResponse response, Throwable exception){
 		int httpStatusCode;
 		if(exception instanceof HttpException){
 			httpStatusCode = ((HttpException)exception).getHttpResponseCode();

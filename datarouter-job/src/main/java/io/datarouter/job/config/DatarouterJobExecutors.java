@@ -28,6 +28,7 @@ public class DatarouterJobExecutors{
 	public static class DatarouterJobScheduler extends ScheduledThreadPoolExecutor{
 		public DatarouterJobScheduler(){
 			super(100, new NamedThreadFactory("datarouterJobScheduler", true));
+			setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
 		}
 	}
 

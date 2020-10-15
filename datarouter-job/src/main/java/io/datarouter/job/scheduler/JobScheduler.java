@@ -116,10 +116,10 @@ public class JobScheduler{
 	}
 
 	public void shutdown(){
-		shutdown.set(true);
-		ThreadTool.sleepUnchecked(1_000);
-		localTriggerLockService.onShutdown();
+		shutdown.set(true); // stop scheduling new jobs
+		localTriggerLockService.onShutdown(); // tell currently running jobs to stop
 		triggerExecutor.shutdown(); // start rejecting new triggers
+		ThreadTool.sleepUnchecked(5_000); // give some time for currently running jobs to stop
 		jobExecutor.shutdownNow(); // interrupt all jobs
 		triggerExecutor.shutdownNow(); // interrupt all triggers
 		releaseThisServersActiveTriggerLocks();
@@ -179,14 +179,14 @@ public class JobScheduler{
 	}
 
 	private void schedule(JobWrapper jobWrapper, long delay, TimeUnit unit){
+		if(shutdown.get()){
+			logger.warn("Job scheduler is shutdown, not scheduling {}", jobWrapper.jobClass.getSimpleName());
+			return;
+		}
 		try{
 			triggerExecutor.schedule(() -> triggerScheduled(jobWrapper), delay, unit);
 		}catch(RejectedExecutionException e){
-			if(shutdown.get()){
-				logger.warn("Job scheduler is shutdown, not scheduling {}", jobWrapper.jobClass.getSimpleName());
-			}else{
-				throw e;
-			}
+			throw e;
 		}
 	}
 
@@ -288,12 +288,15 @@ public class JobScheduler{
 		}catch(InterruptedException e){
 			future.cancel(true);
 			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.INTERRUPTED);
-			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
-					TimeUnit.MILLISECONDS);
+			var elapsedFromTrigger = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime
+					.getTime(), TimeUnit.MILLISECONDS);
+			var elapsedFromStart = jobWrapper.startedAt == null ? null : new DatarouterDuration(
+					System.currentTimeMillis() - jobWrapper.startedAt.toEpochMilli(), TimeUnit.MILLISECONDS);
 			var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
-			var exception = new RuntimeException("interrupted jobName=" + jobClass.getName() + " elapsed=" + elapsed
-					+ " deadline=" + deadline, e);
-			logger.warn("interrupted jobName={} elapsed={} deadline={}", jobClass.getName(), elapsed, deadline);
+			var exception = new RuntimeException("interrupted jobName=" + jobClass.getName() + " elapsedFromTrigger="
+					+ elapsedFromTrigger + " elapsedFromStart=" + elapsedFromStart + " deadline=" + deadline, e);
+			logger.warn("interrupted jobName={} elapsedFromTrigger={} elapsedFromStart={} deadline={}", jobClass
+					.getName(), elapsedFromTrigger, elapsedFromStart, deadline);
 			exceptionRecorder.tryRecordException(exception, jobClass.getName(), JobExceptionCategory.JOB)
 					.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
 			jobCounters.interrupted(jobClass);

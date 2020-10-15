@@ -52,17 +52,17 @@
 					<caption class="text-right">SORTABLE TABLE</caption>
 					<thead>
 						<tr>
-							<th>jobClass</th>
-							<th>serverName</th>
-							<th>startTime</th>
-							<th>finishTime</th>
+							<th>name</th>
+							<th>server</th>
+							<th>start</th>
+							<th>finish</th>
 							<th class="text-right">duration</th>
-							<th class="text-right">lastHeartbeat</th>
-							<th class="sorttable_nosort">lastItemProcessed</th>
-							<th class="text-right">numItemsProcessed</th>
-							<th>jobExecutionStatus</th>
-							<th>triggeredBy</th>
-							<th>exceptionRecordId</th>
+							<th class="text-right">last heartbeat</th>
+							<th class="sorttable_nosort">last item</th>
+							<th class="text-right">item count</th>
+							<th>status</th>
+							<th>cause</th>
+							<th>exception</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -79,23 +79,26 @@
 								</c:choose>
 							</td>
 							<td>${task.serverName}</td>
-							<td sorttable_customkey="${task.startTime.time}" title="${task.startTimeString}">${task.startTime}</td>
+							<td sorttable_customkey="${task.startTime}" title="${task.startSubtitle}">${task.startString}</td>
 							<td sorttable_customkey="${task.sortableFinishTime}" title="${task.finishTimeString}">${task.finishTime}</td>
 							<td sorttable_customkey="${task.sortableDuration}" class="text-right">${task.durationString}</td>
-							<td sorttable_customkey="${task.sortableLastHeartbeat}" class="text-right
+							<td sorttable_customkey="${task.sortableLastHeartbeat}" title="${task.lastHeartbeat}" class="text-right
 								<c:choose>
 									<c:when test="${task.heartbeatStatus == 'stalled'}">table-danger</c:when>
 									<c:when test="${task.heartbeatStatus == 'warning'}">table-warning</c:when>
 									<c:when test="${task.heartbeatStatus == 'ok'}">table-success</c:when>
-								</c:choose>">${task.lastHeartbeatString}</td>
+								</c:choose>">
+								${task.lastHeartbeatString}
+							</td>
 							<td>${task.lastItemProcessed}</td>
 							<td class="text-right">${task.numItemsProcessed}</td>
 							<td <c:if test="${param.status == allStatusesValue and task.status != 'success' and task.status != 'running'}">
 								class="table-warning"
 							</c:if>>${task.status}</td>
 							<td>${task.triggeredBy}</td>
-							<td><a href="${task.hrefForException}">
-									${task.exceptionRecordId}</a></td>
+							<td>
+								<a href="${task.hrefForException}">${task.exceptionRecordId}</a>
+							</td>
 						</tr>
 					</c:forEach>
 					</tbody>

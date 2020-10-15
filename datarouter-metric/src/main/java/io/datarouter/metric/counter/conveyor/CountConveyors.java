@@ -24,6 +24,7 @@ import io.datarouter.conveyor.BaseConveyors;
 import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
 public class CountConveyors extends BaseConveyors{
@@ -36,6 +37,8 @@ public class CountConveyors extends BaseConveyors{
 	private Gson gson;
 	@Inject
 	private CountPublisher countPublisher;
+	@Inject
+	private ExceptionRecorder exceptionRecorder;
 
 	@Override
 	public void onStartUp(){
@@ -44,7 +47,8 @@ public class CountConveyors extends BaseConveyors{
 				countSettings.runCountsFromSqsToPublisher,
 				countPublisherDao.getQueueConsumer(),
 				gson,
-				countPublisher),
+				countPublisher,
+				exceptionRecorder),
 				countSettings.drainConveyorThreadCount.get());
 	}
 

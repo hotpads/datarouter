@@ -242,12 +242,24 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	private final List<Class<? extends DailyDigest>> dailyDigestRegistry = new ArrayList<>();
 
-	public void addDailyDigest(Class<? extends DailyDigest> dailyDigest){
+	protected void addDailyDigest(Class<? extends DailyDigest> dailyDigest){
 		dailyDigestRegistry.add(dailyDigest);
 	}
 
 	public List<Class<? extends DailyDigest>> getDailyDigestRegistry(){
 		return dailyDigestRegistry;
+	}
+
+	/*--------------------------- add web plugins ---------------------------*/
+
+	private final List<BaseWebPlugin> webPlugins = new ArrayList<>();
+
+	protected void addWebPlugin(BaseWebPlugin webPlugin){
+		webPlugins.add(webPlugin);
+	}
+
+	public List<BaseWebPlugin> getWebPlugins(){
+		return webPlugins;
 	}
 
 }

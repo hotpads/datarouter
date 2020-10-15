@@ -23,16 +23,22 @@ public class ServiceConfigurationDto{
 	public final String serviceName;
 	public final Set<String> administratorsEmails;
 	public final String serviceDescription;
+	public final String domain;
+	public final String contextName;
 	public final Map<String,String> serviceDocumentationNamesAndLinks;
 
 	public ServiceConfigurationDto(
 			String serviceName,
 			Set<String> administratorsEmails,
 			String serviceDescription,
+			String domain,
+			String contextName,
 			Map<String,String> serviceDocumentationNamesAndLinks){
 		this.serviceName = serviceName;
 		this.administratorsEmails = administratorsEmails;
 		this.serviceDescription = serviceDescription;
+		this.domain = domain;
+		this.contextName = contextName;
 		this.serviceDocumentationNamesAndLinks = serviceDocumentationNamesAndLinks;
 	}
 

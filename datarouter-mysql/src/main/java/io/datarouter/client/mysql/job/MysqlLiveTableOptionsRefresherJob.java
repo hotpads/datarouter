@@ -28,7 +28,7 @@ public class MysqlLiveTableOptionsRefresherJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		mysqlLiveTableOptionsRefresher.refresh();
+		mysqlLiveTableOptionsRefresher.refresh(tracker);
 	}
 
 }

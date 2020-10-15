@@ -29,7 +29,7 @@ import io.datarouter.web.security.SecurityValidationResult;
 
 public interface HandlerEncoder{
 
-	public static final String DEFAULT_HANDLER_SERIALIZER = "defaultHandlerSerializer";
+	String DEFAULT_HANDLER_SERIALIZER = "defaultHandlerSerializer";
 
 	void finishRequest(Object result, ServletContext servletContext, HttpServletResponse response,
 			HttpServletRequest request) throws ServletException, IOException;
@@ -37,7 +37,7 @@ public interface HandlerEncoder{
 	void sendHandledExceptionResponse(HandledException exception, ServletContext servletContext,
 			HttpServletResponse response, HttpServletRequest request) throws ServletException, IOException;
 
-	void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Exception exception,
+	void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Throwable exception,
 			Optional<String> exceptionId) throws IOException;
 
 	void sendInvalidRequestParamResponse(RequestParamValidatorErrorResponseDto errorResponseDto,

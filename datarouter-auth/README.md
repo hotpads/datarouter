@@ -8,7 +8,7 @@ datarouter-auth is a framework that brings in users and apikey accounts to datar
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-auth</artifactId>
-	<version>0.0.52</version>
+	<version>0.0.53</version>
 </dependency>
 ```
 

@@ -24,6 +24,7 @@ import io.datarouter.conveyor.BaseConveyors;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
 import io.datarouter.trace.storage.DatarouterTracePublisherDao;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
 public class TracePublisherConveyors extends BaseConveyors{
@@ -38,6 +39,8 @@ public class TracePublisherConveyors extends BaseConveyors{
 	private TracePublisherFilterToMemoryBuffer memoryBuffer;
 	@Inject
 	private DatarouterTracePublisherDao tracePublisherDao;
+	@Inject
+	private ExceptionRecorder exceptionRecorder;
 
 	@Override
 	public void onStartUp(){
@@ -47,7 +50,8 @@ public class TracePublisherConveyors extends BaseConveyors{
 				settings.bufferInSqs,
 				memoryBuffer.buffer,
 				tracePublisherDao::putMulti,
-				gson),
+				gson,
+				exceptionRecorder),
 				1);
 		start(new TraceSqsDrainConveyorPublisher(
 				"traceSqsToPublisher",
@@ -55,7 +59,8 @@ public class TracePublisherConveyors extends BaseConveyors{
 				tracePublisherDao.getGroupQueueConsumer(),
 				gson,
 				tracePublisher,
-				settings.compactExceptionLoggingForConveyors),
+				settings.compactExceptionLoggingForConveyors,
+				exceptionRecorder),
 				1);
 	}
 

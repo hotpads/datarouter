@@ -106,6 +106,14 @@ extends DatarouterJobWebappConfigBuilder<T>{
 	/*------------------------- add joblet plugins --------------------------*/
 
 	public T addJobletPlugin(BaseJobletPlugin jobletPlugin){
+		addJobletPluginInternal(jobletPlugin);
+		jobletPlugin.getWebPlugins().forEach(this::addWebPluginInternal);
+		jobletPlugin.getJobPlugins().forEach(this::addJobPluginInternal);
+		jobletPlugin.getJobletPlugins().forEach(this::addJobletPluginInternal);
+		return getSelf();
+	}
+
+	protected void addJobletPluginInternal(BaseJobletPlugin jobletPlugin){
 		boolean containsPlugin = jobletPlugins.stream()
 				.anyMatch(plugin -> plugin.getName().equals(jobletPlugin.getName()));
 		if(containsPlugin){
@@ -113,7 +121,6 @@ extends DatarouterJobWebappConfigBuilder<T>{
 					+ " has already been added. It needs to be overridden");
 		}
 		jobletPlugins.add(jobletPlugin);
-		return getSelf();
 	}
 
 	public T overrideJobletPlugin(BaseJobletPlugin jobletPlugin){

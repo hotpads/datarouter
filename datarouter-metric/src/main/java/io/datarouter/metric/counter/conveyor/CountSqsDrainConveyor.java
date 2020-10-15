@@ -26,9 +26,10 @@ import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.BaseQueueConsumerConveyor;
 import io.datarouter.conveyor.queue.QueueConsumer;
-import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.instrumentation.count.CountBatchDto;
+import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
+import io.datarouter.web.exception.ExceptionRecorder;
 
 public class CountSqsDrainConveyor extends BaseQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
 	private static final Logger logger = LoggerFactory.getLogger(CountSqsDrainConveyor.class);
@@ -41,8 +42,9 @@ public class CountSqsDrainConveyor extends BaseQueueConsumerConveyor<ConveyorMes
 			Supplier<Boolean> shouldRun,
 			QueueConsumer<ConveyorMessageKey,ConveyorMessage> queueConsumer,
 			Gson gson,
-			CountPublisher publisher){
-		super(name, shouldRun, queueConsumer);
+			CountPublisher publisher,
+			ExceptionRecorder exceptionRecorder){
+		super(name, shouldRun, queueConsumer, exceptionRecorder);
 		this.gson = gson;
 		this.publisher = publisher;
 	}

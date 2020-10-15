@@ -162,6 +162,7 @@ public class MysqlConnectionPoolHolder{
 
 		public void shutdown(){
 			try{
+				logger.warn("destroying {} {}", schemaName, pool);
 				DataSources.destroy(pool);
 			}catch(SQLException e){
 				logger.error("", e);

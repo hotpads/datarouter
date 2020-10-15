@@ -34,6 +34,7 @@ import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder.MysqlConnectionPool;
 import io.datarouter.client.mysql.ddl.generate.imp.ConnectionSqlTableGenerator;
 import io.datarouter.client.mysql.ddl.generate.imp.SqlTableMetadata;
+import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.timer.PhaseTimer;
 
@@ -89,9 +90,12 @@ public class MysqlLiveTableOptionsRefresher{
 		return map.computeIfAbsent(new ClientAndTable(clientId, tableName), this::read);
 	}
 
-	public void refresh(){
+	public void refresh(TaskTracker tracker){
 		long blockingTime = counter.getAndSet(0);
 		for(Entry<ClientAndTable,MysqlLiveTableOptions> entry : map.entrySet()){
+			if(tracker.shouldStop()){
+				return;
+			}
 			MysqlLiveTableOptions newOptions = read(entry.getKey());
 			if(!newOptions.equals(entry.getValue())){
 				logger.warn("collation change detected {} => {}", entry.getValue().toString("old"), newOptions

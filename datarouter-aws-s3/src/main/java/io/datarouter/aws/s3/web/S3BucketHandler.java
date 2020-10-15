@@ -201,7 +201,7 @@ public class S3BucketHandler extends BaseHandler{
 		var count = new AtomicLong();
 		var size = new AtomicLong();
 		var message = new AtomicReference<String>();
-		s3Client.listObjects(
+		s3Client.scanObjects(
 				bucket,
 				prefix.orElse(""))
 				.each($ -> count.incrementAndGet())

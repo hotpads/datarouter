@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.client.imp;
+package io.datarouter.conveyor.exception;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.client.ClientNodeFactory;
-import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.exception.ExceptionCategory;
 
-public interface ObjectClientNodeFactory extends ClientNodeFactory{
+public enum ConveyorExceptionCategory implements ExceptionCategory{
 
-	<PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	PhysicalNode<PK,D,F> createObjectNode(NodeParams<PK,D,F> nodeParams);
-
+	CONVEYOR
 }

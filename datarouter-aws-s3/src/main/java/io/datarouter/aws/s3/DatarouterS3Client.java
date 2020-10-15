@@ -86,7 +86,7 @@ public interface DatarouterS3Client{
 
 	URL generateLink(String bucket, String key, Duration expireAfter);
 
-	Scanner<S3Object> listObjects(String bucket, String prefix);
+	Scanner<S3Object> scanObjects(String bucket, String prefix);
 
 	Scanner<S3Object> scanObjects(String bucket, String prefix, String startAfter, String delimiter);
 

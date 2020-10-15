@@ -18,7 +18,6 @@ package io.datarouter.exception.filter;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
@@ -84,12 +83,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		RequestAttributeTool.set(request, BaseHandler.REQUEST_RECEIVED_AT, new Date());
 		try{
 			fc.doFilter(req, res);
-		}catch(OutOfMemoryError error){
-			logger.error("The current number of threads at OOM are: " + ManagementFactory.getThreadMXBean()
-					.getThreadCount());
-			dumpAllStackTraces();
-			throw error;
-		}catch(Exception e){
+		}catch(Throwable e){
 			Optional<String> exceptionId = tryRecordExceptionAndRequestNotification(request, e)
 					.map(ExceptionRecordKey::getId);
 			logger.error("ExceptionHandlingFilter caught an exception exceptionId={}", exceptionId.orElse(""), e);
@@ -118,7 +112,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 
 	private Optional<ExceptionRecordKey> tryRecordExceptionAndRequestNotification(
 			HttpServletRequest request,
-			Exception exception){
+			Throwable exception){
 		try{
 			String location;
 			String methodName = null;
@@ -132,6 +126,8 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 					location = element.get().getClassName();
 					methodName = element.get().getMethodName();
 					lineNumber = element.get().getLineNumber();
+				}else{
+					location = "unknown location";
 				}
 			}
 			String callOrigin;
@@ -154,7 +150,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		}
 	}
 
-	private Optional<StackTraceElement> searchClassName(Exception exception){
+	private Optional<StackTraceElement> searchClassName(Throwable exception){
 		Throwable cause = exception;
 		Set<String> highlights = webSettings.stackTraceHighlights.get();
 		do{
@@ -170,7 +166,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		return Optional.empty();
 	}
 
-	private static Pair<String,Integer> searchJspName(Exception exception){
+	private static Pair<String,Integer> searchJspName(Throwable exception){
 		String place;
 		Integer lineNumber = null;
 		Throwable cause = exception;
@@ -239,7 +235,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 
 	private void writeExceptionToResponseWriter(
 			HttpServletResponse response,
-			Exception exception,
+			Throwable exception,
 			HttpServletRequest request,
 			Optional<String> exceptionId){
 		try{

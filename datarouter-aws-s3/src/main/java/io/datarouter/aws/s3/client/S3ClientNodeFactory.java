@@ -32,16 +32,16 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.imp.BaseClientNodeFactory;
-import io.datarouter.storage.client.imp.ObjectClientNodeFactory;
+import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.node.op.raw.ObjectStorage.PhysicalObjectStorageNode;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.util.Subpath;
 
 @Singleton
-public class S3ClientNodeFactory extends BaseClientNodeFactory implements ObjectClientNodeFactory{
+public class S3ClientNodeFactory extends BaseClientNodeFactory implements BlobClientNodeFactory{
 
 	@Inject
 	private S3ClientType s3ClientType;
@@ -54,17 +54,17 @@ public class S3ClientNodeFactory extends BaseClientNodeFactory implements Object
 			PK extends EntityPrimaryKey<EK,PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	extends WrappedNodeFactory<EK,E,PK,D,F,PhysicalObjectStorageNode<PK,D,F>>{
+	extends WrappedNodeFactory<EK,E,PK,D,F,PhysicalBlobStorageNode<PK,D,F>>{
 
 		@Override
-		public PhysicalObjectStorageNode<PK,D,F> createNode(
+		public PhysicalBlobStorageNode<PK,D,F> createNode(
 				EntityNodeParams<EK,E> entityNodeParams,
 				NodeParams<PK,D,F> nodeParams){
 			return createInternal(nodeParams);
 		}
 
 		@Override
-		public List<UnaryOperator<PhysicalObjectStorageNode<PK,D,F>>> getAdapters(){
+		public List<UnaryOperator<PhysicalBlobStorageNode<PK,D,F>>> getAdapters(){
 			return List.of();
 		}
 

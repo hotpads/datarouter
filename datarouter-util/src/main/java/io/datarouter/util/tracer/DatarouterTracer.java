@@ -200,9 +200,7 @@ public class DatarouterTracer implements Tracer{
 		if(spanStack == null || spanStack.isEmpty()){
 			return null;
 		}
-		TraceSpanDto span = getCurrentSpan();
-		spanStack.remove(spanStack.size() - 1);
-		return span;
+		return spanStack.remove(spanStack.size() - 1);
 	}
 
 	/*---------------------------- object -----------------------------------*/

@@ -82,7 +82,7 @@ public class DefaultEncoder implements HandlerEncoder{
 	}
 
 	@Override
-	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Exception exception,
+	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Throwable exception,
 			Optional<String> exceptionId)
 	throws IOException{
 		if(shouldSendHtml(request)){
