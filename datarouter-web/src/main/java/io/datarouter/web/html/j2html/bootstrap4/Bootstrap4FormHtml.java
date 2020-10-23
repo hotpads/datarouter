@@ -26,11 +26,14 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.textarea;
 
+import java.text.SimpleDateFormat;
+
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.form.HtmlForm.BaseHtmlFormField;
 import io.datarouter.web.html.form.HtmlFormButton;
 import io.datarouter.web.html.form.HtmlFormCheckbox;
+import io.datarouter.web.html.form.HtmlFormDate;
 import io.datarouter.web.html.form.HtmlFormEmail;
 import io.datarouter.web.html.form.HtmlFormPassword;
 import io.datarouter.web.html.form.HtmlFormSelect;
@@ -42,6 +45,7 @@ import j2html.tags.ContainerTag;
 public class Bootstrap4FormHtml{
 
 	private static final String LABEL_CLASS = "form-label mr-2";
+	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	public static ContainerTag render(HtmlForm htmlForm){
 		return render(htmlForm, false);
@@ -76,6 +80,8 @@ public class Bootstrap4FormHtml{
 			div = textField((HtmlFormText)field);
 		}else if(field instanceof HtmlFormTextArea){
 			div = textField((HtmlFormTextArea)field);
+		}else if(field instanceof HtmlFormDate){
+			div = dateField((HtmlFormDate)field);
 		}else{
 			throw new IllegalArgumentException(field.getClass() + "is an unknown subclass of "
 					+ BaseHtmlFormField.class);
@@ -194,5 +200,24 @@ public class Bootstrap4FormHtml{
 				.withClass("form-group");
 	}
 
+	private static ContainerTag dateField(HtmlFormDate field){
+		String inputClass = "form-control";
+		if(field.getError() != null){
+			inputClass += " is-invalid";
+		}
+		var label = label(text(field.getDisplay()))
+				.condWith(field.isRequired(), span("*").withClass("text-danger"))
+				.withClass(LABEL_CLASS);
+		var input = input()
+				.withClass(inputClass)
+				.withName(field.getName())
+				.withPlaceholder(field.getPlaceholder())
+				.withType("date")
+				.withValue(field.getValue());
+		var error = field.getError() == null ? null : div(field.getError())
+				.withClass("invalid-feedback");
+		return div(label, input, error)
+				.withClass("form-group");
+	}
 
 }

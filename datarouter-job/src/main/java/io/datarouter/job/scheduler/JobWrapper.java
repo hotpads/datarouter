@@ -83,7 +83,7 @@ public class JobWrapper implements Callable<Void>{
 	public final Date triggerTime;//time the job should run, used for locking
 	public final Date scheduledTime;//can be different from triggerTime if a job is scheduled late
 	public final String triggeredBy;
-	private final LongRunningTaskTracker tracker;
+	protected final LongRunningTaskTracker tracker;
 	//convenience
 	public final Class<? extends BaseJob> jobClass;
 	//mutable tracking fields
@@ -107,7 +107,7 @@ public class JobWrapper implements Callable<Void>{
 		this.tracker = initTracker(jobPackage, scheduledTime, longRunningTaskTrackerFactory, triggeredBy, jobClass);
 	}
 
-	private JobWrapper(
+	protected JobWrapper(
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
 			JobCounters jobCounters,
 			BaseJob job,
@@ -162,13 +162,13 @@ public class JobWrapper implements Callable<Void>{
 				triggeredBy);
 	}
 
-	private void startTraceSummary(){
+	protected void startTraceSummary(){
 		if(logger.isInfoEnabled()){
 			TracerThreadLocal.bindToThread(new DatarouterSummaryTracer());
 		}
 	}
 
-	private void endTraceSummary(){
+	protected void endTraceSummary(){
 		Tracer tracer = TracerThreadLocal.get();
 		if(tracer != null){
 			logger.info("job={}, {}", jobClass.getSimpleName(), TracerThreadLocal.get());
@@ -176,7 +176,7 @@ public class JobWrapper implements Callable<Void>{
 		}
 	}
 
-	private void trackBefore(){
+	protected void trackBefore(){
 		jobCounters.started(jobClass);
 		startedAt = Instant.now();
 		tracker.setStartTime(startedAt);
@@ -185,7 +185,7 @@ public class JobWrapper implements Callable<Void>{
 		tracker.persistIfShould();
 	}
 
-	private void trackAfter(){
+	protected void trackAfter(){
 		jobCounters.finished(jobClass);
 		tracker.onFinish();
 		if(tracker.getStatus() == TaskStatus.RUNNING){
@@ -202,7 +202,7 @@ public class JobWrapper implements Callable<Void>{
 		}
 	}
 
-	private void logSuccess(){
+	protected void logSuccess(){
 		long startDelayMs = startedAt.toEpochMilli() - scheduledTime.getTime();
 		Duration elapsedTime = Duration.between(startedAt, tracker.getFinishTime());
 		jobCounters.duration(jobClass, elapsedTime);

@@ -32,6 +32,7 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestD
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestKey;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -83,6 +84,11 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 		return "Permission Requests";
 	}
 
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.HIGH;
+	}
+
 	private List<? extends SessionBasedUser> getOpenRequests(){
 		return permissionRequestDao.scanOpenPermissionRequests()
 				.map(DatarouterPermissionRequest::getKey)
@@ -119,17 +125,14 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 						"Profile",
 						row -> {
 							String detailsLink = detailsService.getUserProfileUrl(row.getUsername()).get();
-							return td(a(detailsLink)
-									.withHref(detailsLink));
+							return a(detailsLink)
+									.withHref(detailsLink);
 						}))
 				.withColumn(new J2HtmlEmailTableColumn<>(
 						"Details",
 						row -> {
-							String link = servletContextSupplier.get().getContextPath()
-									+ paths.admin.editUser.toSlashedString()
-									+ "?username=" + row.getUsername();
-							return a("Edit User Page")
-									.withHref(link);
+							String link = paths.admin.editUser.toSlashedString() + "?username=" + row.getUsername();
+							return digestService.makeATagLink("Edit User Page", link);
 						}))
 				.build(rows);
 	}

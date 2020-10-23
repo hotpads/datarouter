@@ -407,7 +407,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		private ContainerTag build(){
 			List<Pair<String,DomContent>> kvs = new ArrayList<>();
 			kvs.add(new Pair<>("environment", makeText(datarouterProperties.getEnvironment())));
-			kvs.add(new Pair<>("service", makeText(datarouterService.getName())));
+			kvs.add(new Pair<>("service", makeText(datarouterService.getServiceName())));
 			kvs.add(new Pair<>("host", makeText(datarouterProperties.getServerName())));
 			kvs.add(new Pair<>("user", makeText(log.getChangedBy())));
 			kvs.add(new Pair<>("action", makeText(log.getAction().getPersistentString())));

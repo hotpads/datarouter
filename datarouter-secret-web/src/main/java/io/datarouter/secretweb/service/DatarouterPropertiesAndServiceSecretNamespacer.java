@@ -39,7 +39,7 @@ public class DatarouterPropertiesAndServiceSecretNamespacer implements SecretNam
 
 	@Override
 	public String getAppNamespace(){
-		return getEnvironment() + '/' + Objects.requireNonNull(datarouterService.getName()) + '/';
+		return getEnvironment() + '/' + Objects.requireNonNull(datarouterService.getServiceName()) + '/';
 	}
 
 	@Override

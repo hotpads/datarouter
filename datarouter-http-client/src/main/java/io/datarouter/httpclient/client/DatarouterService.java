@@ -17,7 +17,7 @@ package io.datarouter.httpclient.client;
 
 public interface DatarouterService{
 
-	String getName();
+	String getServiceName();
 	String getPrivateDomain();// includes host and port, like localhost:8443
 	String getPublicDomain();// includes host and port, like localhost:8443
 	String getContextName();// root path segment
@@ -42,10 +42,10 @@ public interface DatarouterService{
 		return getContextName() == null ? "" : "/" + getContextName();
 	}
 
-	public static class NoOpDatarouterService implements DatarouterService{
+	class NoOpDatarouterService implements DatarouterService{
 
 		@Override
-		public String getName(){
+		public String getServiceName(){
 			return "";
 		}
 

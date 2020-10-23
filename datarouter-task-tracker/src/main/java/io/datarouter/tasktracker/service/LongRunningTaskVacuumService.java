@@ -15,7 +15,6 @@
  */
 package io.datarouter.tasktracker.service;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +26,7 @@ import javax.inject.Singleton;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.util.collection.ListTool;
@@ -35,11 +35,10 @@ import io.datarouter.util.lang.ObjectTool;
 @Singleton
 public class LongRunningTaskVacuumService{
 
-	private static final Duration DELETE_OLDER_THAN = Duration.ofDays(100);
-	private static final Integer KEEP_LATEST_N = 5;
-
 	@Inject
 	private DatarouterLongRunningTaskDao dao;
+	@Inject
+	private DatarouterTaskTrackerSettingRoot datarouterTaskTrackerSettingRoot;
 
 	public void run(TaskTracker tracker){
 		List<LongRunningTask> relatedTasks = new ArrayList<>();
@@ -62,7 +61,7 @@ public class LongRunningTaskVacuumService{
 
 	private void vacuumRelatedTasks(List<LongRunningTask> tasks){
 		// remove really old entries
-		Instant tooOldCutoff = Instant.now().minus(DELETE_OLDER_THAN);
+		Instant tooOldCutoff = Instant.now().minus(datarouterTaskTrackerSettingRoot.maxAge.get().toJavaDuration());
 		List<LongRunningTask> tooOld = tasks.stream()
 				.filter(task -> task.getKey().getTriggerTime().toInstant().isBefore(tooOldCutoff))
 				.collect(Collectors.toList());
@@ -70,11 +69,11 @@ public class LongRunningTaskVacuumService{
 		// keep the latest N
 		List<LongRunningTask> remaining = new ArrayList<>(tasks);
 		remaining.removeAll(tooOld);
-		if(remaining.size() <= KEEP_LATEST_N){
+		if(remaining.size() <= datarouterTaskTrackerSettingRoot.countToKeep.get()){
 			return;
 		}
 		Scanner.of(remaining)
-				.limit(remaining.size() - KEEP_LATEST_N)
+				.limit(remaining.size() - datarouterTaskTrackerSettingRoot.countToKeep.get())
 				.map(Databean::getKey)
 				.then(dao::deleteBatched);
 	}

@@ -62,7 +62,7 @@ public class DatarouterHtmlEmailService{
 	public J2HtmlDatarouterEmailBuilder startEmailBuilder(){
 		boolean includeLogo = datarouterEmailSettingsProvider.get().includeLogo();
 		var emailBuilder = new J2HtmlDatarouterEmailBuilder()
-				.withWebappName(datarouterService.getName())
+				.withWebappName(datarouterService.getServiceName())
 				.withIncludeLogo(includeLogo);
 		if(includeLogo){
 			String logoHref = datarouterEmailService.startLinkBuilder()

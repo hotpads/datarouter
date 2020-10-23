@@ -21,6 +21,7 @@ import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.web.port.CompoundPortIdentifier;
 
 public abstract class BaseServerAddressProvider implements ServerAddressProvider{
 
@@ -28,6 +29,8 @@ public abstract class BaseServerAddressProvider implements ServerAddressProvider
 	private DatarouterProperties datarouterProperties;
 	@Inject
 	private ServletContextSupplier servletContext;
+	@Inject
+	private CompoundPortIdentifier portIdentifier;
 
 	private final String dispatcherUrl;
 
@@ -52,11 +55,10 @@ public abstract class BaseServerAddressProvider implements ServerAddressProvider
 	}
 
 	protected int getPort(){
-		if(datarouterProperties.getServerType().getPersistentString().equals(ServerType.DEV
-				.getPersistentString())){
+		if(datarouterProperties.getServerType().getPersistentString().equals(ServerType.DEV.getPersistentString())){
 			return UrlConstants.PORT_HTTP_DEV;
 		}
-		return UrlConstants.PORT_HTTP_STANDARD;
+		return portIdentifier.getHttpPort();
 	}
 
 	private String getContextPath(){

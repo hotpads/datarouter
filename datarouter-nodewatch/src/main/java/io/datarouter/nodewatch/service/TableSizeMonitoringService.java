@@ -184,7 +184,7 @@ public class TableSizeMonitoringService{
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.build();
 		ContainerTag content = emailBuilder.build(
-				datarouterService.getName(),
+				datarouterService.getServiceName(),
 				datarouterProperties.getServerName(),
 				aboveThresholdList,
 				PERCENTAGE_THRESHOLD,

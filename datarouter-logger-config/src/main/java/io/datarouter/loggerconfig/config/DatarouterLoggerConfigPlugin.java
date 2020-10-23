@@ -18,6 +18,7 @@ package io.datarouter.loggerconfig.config;
 import java.util.List;
 
 import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.loggerconfig.service.LoggerConfigDailyDigest;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao;
 import io.datarouter.loggerconfig.storage.consoleappender.DatarouterConsoleAppenderDao.DatarouterConsoleAppenderDaoParams;
 import io.datarouter.loggerconfig.storage.fileappender.DatarouterFileAppenderDao;
@@ -41,6 +42,7 @@ public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS,
 				new DatarouterLoggingConfigPaths().datarouter.logging, "Logger Config");
 		addDatarouterGithubDocLink("datarouter-logger-config");
+		addDailyDigest(LoggerConfigDailyDigest.class);
 	}
 
 	@Override

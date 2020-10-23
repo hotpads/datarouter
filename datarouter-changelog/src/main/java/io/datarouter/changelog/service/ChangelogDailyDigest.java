@@ -33,9 +33,9 @@ import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
-import io.datarouter.changelog.web.ViewChangelogHandler;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import j2html.tags.ContainerTag;
@@ -49,6 +49,8 @@ public class ChangelogDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 	@Inject
 	private DatarouterChangelogPaths paths;
+	@Inject
+	private ViewChangelogService viewChangelogService;
 
 	@Override
 	public Optional<ContainerTag> getPageContent(){
@@ -56,9 +58,9 @@ public class ChangelogDailyDigest implements DailyDigest{
 		if(list.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.view);
+		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);
 		var description = small("For the current day");
-		var table = ViewChangelogHandler.buildTable(list);
+		var table = viewChangelogService.buildTable(list);
 		return Optional.of(div(header, description, table));
 	}
 
@@ -68,7 +70,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 		if(list.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.view);
+		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);
 		var description = small("For the current day");
 		var table = buildEmailTable(list);
 		return Optional.of(div(header, description, table));
@@ -77,6 +79,11 @@ public class ChangelogDailyDigest implements DailyDigest{
 	@Override
 	public String getTitle(){
 		return "Changelog";
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
 	}
 
 	private List<Changelog> getChangelogs(){

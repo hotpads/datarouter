@@ -48,6 +48,7 @@ public class DispatcherServletTestService{
 				.map(BaseRouteSet::getDispatchRules)
 				.flatMap(List::stream)
 				.map(DispatchRule::getHandlerClass)
+				.distinct()
 				.filter(handler -> !NonEagerInitHandler.class.isAssignableFrom(handler))
 				.forEach(injector::getInstance);
 	}

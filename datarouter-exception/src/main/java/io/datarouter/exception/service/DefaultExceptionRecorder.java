@@ -121,7 +121,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		ExceptionCounters.inc(callOrigin);
 		ExceptionCounters.inc(exception.getClass().getName() + " " + callOrigin);
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
-				datarouterService.getName(),
+				datarouterService.getServiceName(),
 				datarouterProperties.getServerName(),
 				ExceptionTool.getStackTraceAsString(exception),
 				exception.getClass().getName(),

@@ -43,7 +43,7 @@ public class CountersAppListener implements DatarouterAppListener{
 	public CountersAppListener(DatarouterProperties datarouterProperties, DatarouterService datarouterService,
 			DatarouterCountSettingRoot settings, CountFlusherFactory flusherFactory){
 		this.serverName = datarouterProperties.getServerName();
-		this.serviceName = datarouterService.getName();
+		this.serviceName = datarouterService.getServiceName();
 		this.settings = settings;
 		this.flusherFactory = flusherFactory;
 	}

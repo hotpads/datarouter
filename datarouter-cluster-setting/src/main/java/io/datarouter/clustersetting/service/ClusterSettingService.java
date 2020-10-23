@@ -133,6 +133,10 @@ public class ClusterSettingService{
 		ClusterSettingScope scope = databeanSetting.getScope();
 
 		if(!settingRootFinder.isRecognized(name)){
+			if(clusterSettingRoot.settingsExcludedFromUnknownSettingsAlert.get().stream()
+					.anyMatch(setting -> StringTool.containsCaseInsensitive(name, setting))){
+				return ClusterSettingValidity.VALID;
+			}
 			return ClusterSettingValidity.UNKNOWN;
 		}
 
@@ -163,13 +167,13 @@ public class ClusterSettingService{
 		}
 
 		int oldSettingAlertThresholdDays = clusterSettingRoot.oldSettingAlertThresholdDays.get();
-		if(clusterSettingRoot.settingsExcludedFromOldSettingsAlert.get().stream()
-				.noneMatch(setting -> StringTool.containsCaseInsensitive(name, setting))){
-			if(clusterSettingLogDao.isOldDatabaseSetting(databeanSetting, oldSettingAlertThresholdDays)){
-				return ClusterSettingValidity.OLD;
+		if(clusterSettingLogDao.isOldDatabaseSetting(databeanSetting, oldSettingAlertThresholdDays)){
+			if(clusterSettingRoot.settingsExcludedFromOldSettingsAlert.get().stream()
+					.anyMatch(setting -> StringTool.containsCaseInsensitive(name, setting))){
+				return ClusterSettingValidity.VALID;
 			}
+			return ClusterSettingValidity.OLD;
 		}
-
 		return ClusterSettingValidity.VALID;
 	}
 

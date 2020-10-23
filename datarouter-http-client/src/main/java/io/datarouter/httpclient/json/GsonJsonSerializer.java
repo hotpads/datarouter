@@ -36,11 +36,19 @@ public class GsonJsonSerializer implements JsonSerializer{
 
 	@Override
 	public <T> String serialize(T toSerialize){
+		return toJson(toSerialize);
+	}
+
+	public <T> String toJson(T toSerialize){
 		return gson.toJson(toSerialize);
 	}
 
 	@Override
 	public <T> T deserialize(String toDeserialize, Type returnType){
+		return fromJson(toDeserialize, returnType);
+	}
+
+	public <T> T fromJson(String toDeserialize, Type returnType){
 		try{
 			return gson.fromJson(toDeserialize, returnType);
 		}catch(JsonSyntaxException e){

@@ -46,7 +46,7 @@ public class LatestTableCountPublisherJob extends BaseJob{
 
 	private TableCountDto toDto(LatestTableCount count){
 		return new TableCountDto(
-				datarouterService.getName(),
+				datarouterService.getServiceName(),
 				count.getKey().getClientName(),
 				count.getKey().getTableName(),
 				count.getNumRows(),

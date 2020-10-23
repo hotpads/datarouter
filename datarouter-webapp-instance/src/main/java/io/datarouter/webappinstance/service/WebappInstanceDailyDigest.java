@@ -37,6 +37,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -87,6 +88,11 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	@Override
 	public String getTitle(){
 		return "Deployments";
+	}
+
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
 	}
 
 	private List<WebappInstanceLogDto> getLogs(){

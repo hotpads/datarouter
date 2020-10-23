@@ -134,9 +134,9 @@ public class S3BucketHandler extends BaseHandler{
 		if(prefixes.orElse(false)){
 			List<String> prefixesList = s3Client.scanPrefixes(
 					bucket,
+					prefix.orElse(null),
 					after.orElse(null),
-					delimiter.orElse(null),
-					prefix.orElse(null))
+					delimiter.orElse(null))
 					.skip(offset.orElse(0))
 					.limit(limit.orElse(100))
 					.list();

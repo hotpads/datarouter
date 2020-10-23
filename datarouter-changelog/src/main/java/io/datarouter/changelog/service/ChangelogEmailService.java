@@ -62,10 +62,10 @@ public class ChangelogEmailService{
 		String to = String.join(",", toEmails);
 
 		String primaryHref = htmlEmailService.startLinkBuilder()
-				.withLocalPath(paths.datarouter.changelog.view)
+				.withLocalPath(paths.datarouter.changelog.viewAll)
 				.build();
 		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject("Changelog - " + changelogType + " - " + datarouterService.getName())
+				.withSubject("Changelog - " + changelogType + " - " + datarouterService.getServiceName())
 				.withTitle("Changelog - " + changelogType)
 				.withTitleHref(primaryHref)
 				.withContent(makeEmailContent(changelogType, name, action, username, comment.orElse("")));
@@ -75,7 +75,7 @@ public class ChangelogEmailService{
 	private ContainerTag makeEmailContent(String changelogType, String name, String action, String username,
 			String comment){
 		var rows = List.of(
-				new Twin<>("Service", datarouterService.getName()),
+				new Twin<>("Service", datarouterService.getServiceName()),
 				new Twin<>("ServerName", datarouterProperties.getServerName()),
 				new Twin<>("ChangelogType", changelogType),
 				new Twin<>("Name", name),

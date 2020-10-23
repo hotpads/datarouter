@@ -48,7 +48,12 @@ public abstract class BaseRouteSet{
 	}
 
 	protected DispatchRule handle(String regex){
-		DispatchRule rule = applyDefault(new DispatchRule(this, regex));
+		DispatchRule rule = new DispatchRule(this, regex);
+		return applyDefaultAndAdd(rule);
+	}
+
+	protected DispatchRule applyDefaultAndAdd(DispatchRule rule){
+		applyDefault(rule);
 		this.dispatchRules.add(rule);
 		return rule;
 	}
@@ -71,11 +76,6 @@ public abstract class BaseRouteSet{
 
 	protected DispatchRule handleAnyPrefix(String prefix){
 		return handle(prefix + MATCHING_ANY);
-	}
-
-	protected BaseRouteSet handleOthers(Class<? extends BaseHandler> defaultHandlerClass){
-		this.defaultHandlerClass = defaultHandlerClass;
-		return this;
 	}
 
 	protected DispatchRule applyDefault(DispatchRule rule){

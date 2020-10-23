@@ -15,14 +15,21 @@
  */
 package io.datarouter.web.digest;
 
+import java.util.Comparator;
 import java.util.Optional;
 
 import j2html.tags.ContainerTag;
 
 public interface DailyDigest{
 
+	static final Comparator<DailyDigest> COMPARATOR = Comparator
+			.comparing(DailyDigest::getGrouping)
+			.thenComparing(DailyDigest::getTitle);
+
 	Optional<ContainerTag> getPageContent();
 	Optional<ContainerTag> getEmailContent();
+
+	DailyDigestGrouping getGrouping();
 	String getTitle();
 
 	default String getId(){

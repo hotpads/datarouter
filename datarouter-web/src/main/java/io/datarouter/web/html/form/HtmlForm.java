@@ -104,6 +104,13 @@ public class HtmlForm{
 		return field;
 	}
 
+	public HtmlFormDate addDateField(){
+		var field = new HtmlFormDate();
+		fields.add(field);
+		return field;
+	}
+
+
 	public String getAction(){
 		return action;
 	}

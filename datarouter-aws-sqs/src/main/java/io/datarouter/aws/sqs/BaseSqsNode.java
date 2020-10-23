@@ -92,7 +92,7 @@ implements QueueStorageWriter<PK,D>{
 			queueName = queueUrl.substring(queueUrl.lastIndexOf('/') + 1);
 			//don't issue the createQueue request because it is probably someone else's queue
 		}else{
-			String serviceName = datarouterService.getName();
+			String serviceName = datarouterService.getServiceName();
 			String namespace = params.getNamespace().orElse(datarouterProperties.getEnvironment() + "-" + serviceName);
 			queueName = StringTool.isEmpty(namespace)
 					? getFieldInfo().getTableName()

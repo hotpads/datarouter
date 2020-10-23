@@ -46,7 +46,7 @@ public class ChangelogRecorderService implements ChangelogRecorder{
 	@Override
 	public void record(String changelogType, String name, String action, String username, String comment){
 		var dto = new ChangelogDto(
-				datarouterService.getName(),
+				datarouterService.getServiceName(),
 				changelogType,
 				name,
 				new Date().getTime(),

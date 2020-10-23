@@ -46,4 +46,16 @@ public class DailyDigestService{
 				.withHref(url));
 	}
 
+	public ContainerTag makeATagLink(String title, PathNode path){
+		String link = "https://" + datarouterService.getDomainPreferPublic() + servletContext.get().getContextPath()
+				+ path.join("/", "/", "");
+		return a(title).withHref(link);
+	}
+
+	public ContainerTag makeATagLink(String title, String path){
+		String link = "https://" + datarouterService.getDomainPreferPublic() + servletContext.get().getContextPath()
+				+ path;
+		return a(title).withHref(link);
+	}
+
 }

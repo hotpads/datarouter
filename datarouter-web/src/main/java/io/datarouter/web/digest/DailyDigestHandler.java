@@ -21,7 +21,6 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ul;
 
-import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -48,7 +47,7 @@ public class DailyDigestHandler extends BaseHandler{
 		List<? extends DailyDigest> digests = Scanner.of(dailyDigestRegistry.registry)
 				.map(injector::getInstance)
 				.include(dailyDigest -> dailyDigest.getPageContent().isPresent())
-				.sorted(Comparator.comparing(DailyDigest::getTitle))
+				.sorted(DailyDigest.COMPARATOR)
 				.list();
 
 		ContainerTag content;

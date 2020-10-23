@@ -34,7 +34,7 @@ public class DatarouterDocumentationHandler extends DatarouterUserBasedDocumenta
 	public Mav viewDocumentation(){
 		return Scanner.of(routeSetRegistry.get())
 				.include(clazz -> clazz instanceof DocumentationRouteSet)
-				.listTo(routeSets -> createDocumentationMav(datarouterService.getName(), "", routeSets));
+				.listTo(routeSets -> createDocumentationMav(datarouterService.getServiceName(), "", routeSets));
 	}
 
 }

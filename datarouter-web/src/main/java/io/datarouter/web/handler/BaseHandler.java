@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Pair;
@@ -295,17 +294,21 @@ public abstract class BaseHandler{
 			if(cause instanceof HandledException){
 				HandledException handledException = (HandledException)cause;
 				Exception exception = (Exception)cause;//don't allow HandledExceptions to be Throwable
-				exceptionRecorder.ifPresent(recorder -> {
-					try{
-						ExceptionRecordDto exceptionRecordDto = recorder.recordExceptionAndHttpRequest(exception,
-								getClass().getName(), method.getName(), null, request, null);
-						response.setHeader(HttpHeaders.X_EXCEPTION_ID, exceptionRecordDto.id);
-					}catch(Exception recordingException){
-						logger.warn("Error recording exception", recordingException);
-					}
-				});
+				Optional<String> eid = exceptionRecorder
+						.map(recorder -> {
+							try{
+								return recorder.recordExceptionAndHttpRequest(exception,
+										getClass().getName(), method.getName(), null, request, null);
+							}catch(Exception recordingException){
+								logger.warn("Error recording exception", recordingException);
+								return null;
+							}
+						})
+						.map(exexceptionRecordDto -> exexceptionRecordDto.id);
+				eid.ifPresent(exceptionId -> response.setHeader(HttpHeaders.X_EXCEPTION_ID, exceptionId));
 				encoder.sendHandledExceptionResponse(handledException, servletContext, response, request);
-				logger.warn("returning {}: {}", handledException.getHttpResponseCode(), cause.getMessage());
+				logger.warn("returning statusCode={} eid={} message={}", handledException.getHttpResponseCode(),
+						eid.orElse(null), cause.getMessage());
 				return;
 			}
 			if(cause instanceof RuntimeException){

@@ -30,6 +30,7 @@ import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -75,6 +76,11 @@ public class NodewatchDailyDigest implements DailyDigest{
 		return "Nodewatch";
 	}
 
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.LOW;
+	}
+
 	private ContainerTag makePageTable(List<LatestTableCount> staleRows){
 		return new J2HtmlTable<LatestTableCount>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
@@ -93,9 +99,7 @@ public class NodewatchDailyDigest implements DailyDigest{
 				.withColumn("Client", row -> row.getKey().getClientName())
 				.withColumn(new J2HtmlEmailTableColumn<>(
 						"Table",
-						row -> td(emailBuilder.makeTableLink(
-						row.getKey().getTableName(),
-						row.getKey().getClientName()))))
+						row -> emailBuilder.makeTableLink(row.getKey().getTableName(), row.getKey().getClientName())))
 				.withColumn("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows()))
 				.withColumn("Date Updated", row -> DateTool.getNumericDate(row.getDateUpdated()))
 				.withColumn("UpdatedAgo ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime()))

@@ -75,6 +75,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		webSettings = injector.getInstance(DatarouterWebSettingRoot.class);
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc) throws IOException{
 		HttpServletResponse response = (HttpServletResponse)res;
@@ -97,6 +98,7 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static void dumpAllStackTraces() throws IOException{
 		long timeMillis = System.currentTimeMillis();
 		try(var out = new BufferedWriter(new FileWriter("/tmp/StackTrace" + timeMillis + ".log"))){

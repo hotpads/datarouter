@@ -34,6 +34,7 @@ import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
@@ -96,10 +97,15 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		return "Long Running Tasks";
 	}
 
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.HIGH;
+	}
+
 	private ContainerTag buildPageTable(List<LongRunningTask> rows){
 		return new J2HtmlTable<LongRunningTask>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withHtmlColumn("Name", row -> makeTaskLink(row.getKey().getName()))
+				.withHtmlColumn("Name", row -> td(makeTaskLink(row.getKey().getName())))
 				.withColumn("Trigger Time", row -> row.getKey().getTriggerTime())
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())

@@ -61,7 +61,7 @@ public class Bootstrap4HomepageCreatorService{
 		var content = div(tags)
 				.withClass("container-fluid");
 		return factory.startBuilder(request)
-				.withTitle(datarouterService.getName())
+				.withTitle(datarouterService.getServiceName())
 				.withContent(content)
 				.buildMav();
 	}
@@ -70,23 +70,23 @@ public class Bootstrap4HomepageCreatorService{
 		var content = div(tags)
 				.withClass(containerClass);
 		return factory.startBuilder(request)
-				.withTitle(datarouterService.getName())
+				.withTitle(datarouterService.getServiceName())
 				.withContent(content)
 				.buildMav();
 	}
 
 	public ContainerTag header(){
-		return div(h2(datarouterService.getName()).withClass("text-capitalize"))
+		return div(h2(datarouterService.getServiceName()).withClass("text-capitalize"))
 				.withClass("pb-2 mt-4 mb-2 border-bottom");
 	}
 
 	public ContainerTag headerAndDescription(){
 		String description = serviceDescriptionSupplier.get();
 		if(description.isBlank()){
-			return h2(text(datarouterService.getName()));
+			return h2(text(datarouterService.getServiceName()));
 		}
 		return div(
-				h2(datarouterService.getName()).withClass("text-capitalize"),
+				h2(datarouterService.getServiceName()).withClass("text-capitalize"),
 				h4(description))
 				.withClass("pb-2 mt-4 mb-2 border-bottom");
 	}

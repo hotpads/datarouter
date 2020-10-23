@@ -30,8 +30,10 @@ public class DatarouterChangelogPaths extends PathNode implements PathsRoot{
 	}
 
 	public static class ChangelogPaths extends PathNode{
-		public final PathNode view = leaf("view");
 		public final PathNode insert = leaf("insert");
+		public final PathNode viewAll = leaf("viewAll");
+		public final PathNode viewExact = leaf("viewExact");
+		public final PathNode viewForDateRange = leaf("viewForDateRange");
 	}
 
 }

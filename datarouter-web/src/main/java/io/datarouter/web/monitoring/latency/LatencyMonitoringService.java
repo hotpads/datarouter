@@ -176,7 +176,7 @@ public class LatencyMonitoringService{
 	}
 
 	public String getGraphLink(String checkName){
-		String webapps = datarouterService.getName();
+		String webapps = datarouterService.getServiceName();
 		String servers = datarouterProperties.getServerName();
 		String counters = GAUGE_PREFIX + checkName;
 		return latencyMonitoringGraphLink.getGraphLink(webapps, servers, counters);

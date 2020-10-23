@@ -15,6 +15,8 @@
  */
 package io.datarouter.changelog.storage;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -47,6 +49,10 @@ public class ChangelogDao extends BaseDao{
 		node = nodeFactory.create(params.clientId, Changelog::new, ChangelogFielder::new)
 				.withIsSystemTable(true)
 				.buildAndRegister();
+	}
+
+	public Optional<Changelog> find(ChangelogKey key){
+		return node.find(key);
 	}
 
 	public void put(Changelog databean){

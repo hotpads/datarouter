@@ -15,18 +15,26 @@
  */
 package io.datarouter.tasktracker.config;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
+import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import io.datarouter.storage.setting.cached.impl.DurationCachedSetting;
+import io.datarouter.util.duration.DatarouterDuration;
 
 @Singleton
 public class DatarouterTaskTrackerSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> saveLongRunningTasks;
+
+	public final Setting<Integer> countToKeep;
+	public final DurationCachedSetting maxAge;
 
 	@Inject
 	public DatarouterTaskTrackerSettingRoot(SettingFinder finder){
@@ -34,6 +42,8 @@ public class DatarouterTaskTrackerSettingRoot extends SettingRoot{
 
 		saveLongRunningTasks = registerBoolean("saveLongRunningTasks", true);
 
+		countToKeep = registerIntegers("countToKeep", defaultTo(5));
+		maxAge = registerDurations("maxAge", defaultTo(new DatarouterDuration(100, TimeUnit.DAYS)));
 	}
 
 }

@@ -193,7 +193,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	private List<Twin<String>> makeEmailTableValues(){
 		return List.of(
 				Twin.of("environment", datarouterProperties.getEnvironment()),
-				Twin.of("service", datarouterService.getName()),
+				Twin.of("service", datarouterService.getServiceName()),
 				Twin.of("host", datarouterProperties.getServerName()));
 	}
 

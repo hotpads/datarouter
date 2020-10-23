@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.53</version>
+	<version>0.0.54</version>
 </dependency>
 ```
 ## Installation with Datarouter

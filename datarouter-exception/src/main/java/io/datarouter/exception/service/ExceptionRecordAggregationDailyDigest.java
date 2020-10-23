@@ -44,6 +44,7 @@ import io.datarouter.exception.web.ExceptionAnalysisHandler;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -93,6 +94,11 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 		return "Exception Records";
 	}
 
+	@Override
+	public DailyDigestGrouping getGrouping(){
+		return DailyDigestGrouping.HIGH;
+	}
+
 	private List<AggregatedExceptionDto> getExceptions(){
 		Map<AggregatedExceptionKeyDto,AggregatedExceptionValueDto> aggregatedExceptions = new HashMap<>();
 		for(ExceptionRecordSummary exception : dao.scan()
@@ -139,11 +145,9 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 						"Details",
 						row -> {
 							String id = row.value.detailsLink;
-							String link = contextSupplier.get().getContextPath()
-									+ paths.datarouter.exception.details
+							String link = paths.datarouter.exception.details
 									.toSlashedString() + "?" + ExceptionAnalysisHandler.P_exceptionRecord + "=" + id;
-							return a(id)
-									.withHref(link);
+							return digestService.makeATagLink(id, link);
 						}))
 				.build(rows);
 	}

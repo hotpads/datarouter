@@ -54,6 +54,7 @@ public class DatarouterHttpClientBuilder{
 	private static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
+	private int connectTimeoutMs;
 	private int maxTotalConnections;
 	private int maxConnectionsPerRoute;
 	private Optional<Integer> validateAfterInactivityMs;
@@ -72,6 +73,7 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClientBuilder(){
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
+		this.connectTimeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
 		this.maxTotalConnections = 100;
 		this.maxConnectionsPerRoute = 100;
 		this.validateAfterInactivityMs = Optional.empty();
@@ -86,7 +88,7 @@ public class DatarouterHttpClientBuilder{
 		httpClientBuilder.setServiceUnavailableRetryStrategy(new DatarouterServiceUnavailableRetryStrategy(retryCount));
 		RequestConfig defaultRequestConfig = RequestConfig.custom()
 				.setCookieSpec(CookieSpecs.STANDARD)
-				.setConnectTimeout(timeoutMs)
+				.setConnectTimeout(connectTimeoutMs)
 				.setConnectionRequestTimeout(timeoutMs)
 				.setSocketTimeout(timeoutMs)
 				.build();
@@ -199,6 +201,12 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClientBuilder setTimeout(Duration timeout){
 		this.timeoutMs = (int)timeout.toMillis();
+		this.connectTimeoutMs = timeoutMs;
+		return this;
+	}
+
+	public DatarouterHttpClientBuilder setConnectTimeoutMs(Duration connectTimeoutMs){
+		this.connectTimeoutMs = (int)connectTimeoutMs.toMillis();
 		return this;
 	}
 

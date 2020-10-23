@@ -15,6 +15,8 @@
  */
 package io.datarouter.util.lang;
 
+import java.util.Optional;
+
 import io.datarouter.util.string.StringTool;
 
 public class ClassTool{
@@ -95,6 +97,15 @@ public class ClassTool{
 				|| primitive.equals(classA) && boxed.equals(classB)
 				|| boxed.equals(classA) && primitive.equals(classB)
 				|| boxed.equals(classA) && boxed.equals(classB);
+	}
+
+	public static <T> Optional<Class<? extends T>> castIfPossible(Class<T> wanted, Class<?> candidate){
+		if(wanted.isAssignableFrom(candidate)){
+			@SuppressWarnings("unchecked") // checked by the test above
+			Class<? extends T> result = (Class<? extends T>)candidate;
+			return Optional.of(result);
+		}
+		return Optional.empty();
 	}
 
 }

@@ -189,7 +189,7 @@ public class DatarouterUserEditService{
 	}
 
 	public String getPermissionRequestEmailSubject(DatarouterUser user){
-		return String.format("Datarouter - Permission Request - %s - %s", datarouterService.getName(), user
+		return String.format("Datarouter - Permission Request - %s - %s", datarouterService.getServiceName(), user
 				.getUsername());
 	}
 

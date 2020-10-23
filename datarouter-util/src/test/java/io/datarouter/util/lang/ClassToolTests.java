@@ -15,6 +15,8 @@
  */
 package io.datarouter.util.lang;
 
+import java.util.Optional;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -30,6 +32,29 @@ public class ClassToolTests{
 		Assert.assertFalse(ClassTool.isEquivalentBoxedType(long.class, int.class));
 		Assert.assertFalse(ClassTool.isEquivalentBoxedType(long.class, Integer.class));
 		Assert.assertFalse(ClassTool.isEquivalentBoxedType(String.class, String.class));// not primitive
+	}
+
+	static class A{
+	}
+	static class B extends A{
+	}
+	static class C extends B{
+	}
+	static class D extends A{
+	}
+
+	@Test
+	public void testCastIfPossible(){
+		Class<? extends A> candidate;
+		Optional<Class<? extends B>> result;
+
+		candidate = C.class;
+		result = ClassTool.castIfPossible(B.class, candidate);
+		Assert.assertTrue(result.isPresent());
+
+		candidate = D.class;
+		result = ClassTool.castIfPossible(B.class, candidate);
+		Assert.assertTrue(result.isEmpty());
 	}
 
 }

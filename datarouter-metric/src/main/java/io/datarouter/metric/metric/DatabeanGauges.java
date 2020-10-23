@@ -45,7 +45,7 @@ public class DatabeanGauges implements Gauges{
 		}
 		GaugeDto dto = new GaugeDto(
 				key,
-				datarouterService.getName(),
+				datarouterService.getServiceName(),
 				datarouterProperties.getServerName(),
 				UlidTool.nextUlid(),//pass the timestamp of the event.  periods are a server-side concern
 				value);

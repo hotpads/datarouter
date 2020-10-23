@@ -58,7 +58,7 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 		Optional.ofNullable(datarouterProperties.getAdministratorEmail()).ifPresent(admins::add);
 		admins.addAll(additionalAdministrators.get());
 		ServiceConfigurationDto dto = new ServiceConfigurationDto(
-				datarouterService.getName(),
+				datarouterService.getServiceName(),
 				admins,
 				serviceDescriptionSupplier.get(),
 				datarouterService.getDomainPreferPublic(),

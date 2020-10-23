@@ -15,6 +15,7 @@
  */
 package io.datarouter.websocket.job;
 
+import java.net.NoRouteToHostException;
 import java.util.Collection;
 
 import javax.inject.Inject;
@@ -67,14 +68,17 @@ public class WebSocketSessionVacuumJob extends BaseJob{
 			reason = "remoteResponse";
 		}catch(DatarouterHttpRuntimeException e){
 			Throwable throwable = e.getCause();
-			logger.warn("e={} throwable={}", e, throwable.toString());
+			logger.warn("e={} throwable={}", e, throwable);
 			if(throwable != null && throwable instanceof DatarouterHttpConnectionAbortedException){
 				throwable = throwable.getCause();
-				logger.warn("throwable={}", throwable.toString());
+				logger.warn("throwable={}", String.valueOf(throwable));
 				if(throwable != null && throwable instanceof ConnectTimeoutException){
 					// the server is offline, has probably been decommissioned
 					isAlive = false;
 					reason = "connectTimeout";
+				}else if(throwable != null && throwable instanceof NoRouteToHostException){
+					isAlive = false;
+					reason = "noRouteToHost";
 				}else{
 					throw e;
 				}

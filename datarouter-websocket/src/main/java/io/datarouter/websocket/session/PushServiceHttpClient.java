@@ -15,6 +15,8 @@
  */
 package io.datarouter.websocket.session;
 
+import java.time.Duration;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -32,6 +34,8 @@ public class PushServiceHttpClient extends BaseDatarouterHttpClientWrapper{
 				.setSignatureGenerator(new DefaultSignatureGenerator(settings::getSalt))
 				.setCsrfGenerator(new DefaultCsrfGenerator(settings::getCipherKey))
 				.setApiKeySupplier(settings::getApiKey)
+				// fail fast on dead server but keep normal response wait timeout
+				.setConnectTimeoutMs(Duration.ofMillis(50))
 				.build());
 	}
 
