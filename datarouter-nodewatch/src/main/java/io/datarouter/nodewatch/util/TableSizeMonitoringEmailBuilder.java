@@ -71,15 +71,7 @@ public class TableSizeMonitoringEmailBuilder{
 		if(staleRows.size() > 0){
 			var header = h4("Unrecognized tables");
 			var header2 = p("Please reply-all to confirm these tables can be dropped from the database.");
-			var table = new J2HtmlEmailTable<LatestTableCount>()
-					.withColumn("CLIENT", row -> row.getKey().getClientName())
-					.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(
-							row.getKey().getTableName(),
-							row.getKey().getClientName())))
-					.withColumn(alignRight("LATEST COUNT", row -> NumberFormatter.addCommas(row.getNumRows())))
-					.withColumn(alignRight("DATE UPDATED", row -> DateTool.getNumericDate(row.getDateUpdated())))
-					.withColumn(alignRight("UPDATED AGO", row -> DateTool.getAgoString(row.getDateUpdated().getTime())))
-					.build(staleRows);
+			var table = makeEmailStaleTable(staleRows);
 			body.with(div(header, header2, table));
 		}
 		return body.with(
@@ -88,18 +80,30 @@ public class TableSizeMonitoringEmailBuilder{
 				span("Sent from: " + serverNameString));
 	}
 
-	private ContainerTag makeCountStatTable(String comparableCount, List<CountStat> stats){
-		return new J2HtmlEmailTable<CountStat>()
-				.withColumn("CLIENT", row -> row.latestSample.getKey().getClientName())
+	public ContainerTag makeEmailStaleTable(List<LatestTableCount> staleRows){
+		return new J2HtmlEmailTable<LatestTableCount>()
+				.withColumn("Client", row -> row.getKey().getClientName())
 				.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(
+						row.getKey().getTableName(),
+						row.getKey().getClientName())))
+				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows())))
+				.withColumn(alignRight("Date Updated", row -> DateTool.getNumericDate(row.getDateUpdated())))
+				.withColumn(alignRight("Updated Agp", row -> DateTool.getAgoString(row.getDateUpdated().getTime())))
+				.build(staleRows);
+	}
+
+	public ContainerTag makeCountStatTable(String comparableCount, List<CountStat> stats){
+		return new J2HtmlEmailTable<CountStat>()
+				.withColumn("Client", row -> row.latestSample.getKey().getClientName())
+				.withColumn(new J2HtmlEmailTableColumn<>("Table", row -> makeTableLink(
 						row.latestSample.getKey().getTableName(),
 						row.latestSample.getKey().getClientName())))
-				.withColumn("DATE UPDATED", row -> DateTool.getDateTime(row.latestSample.getDateUpdated()))
+				.withColumn("Date Updated", row -> DateTool.getDateTime(row.latestSample.getDateUpdated()))
 				.withColumn(alignRight(comparableCount, row -> NumberFormatter.addCommas(row.previousCount)))
-				.withColumn(alignRight("LATEST COUNT", row -> NumberFormatter.addCommas(row.latestSample.getNumRows())))
-				.withColumn(alignRight("% INCREASE", row -> new DecimalFormat("#,###.##").format(row.percentageIncrease)
+				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.latestSample.getNumRows())))
+				.withColumn(alignRight("% Increase", row -> new DecimalFormat("#,###.##").format(row.percentageIncrease)
 						+ "%"))
-				.withColumn(alignRight("COUNT INCREASE", row -> NumberFormatter.addCommas(row.countDifference)))
+				.withColumn(alignRight("Count Increase", row -> NumberFormatter.addCommas(row.countDifference)))
 				.build(stats);
 	}
 

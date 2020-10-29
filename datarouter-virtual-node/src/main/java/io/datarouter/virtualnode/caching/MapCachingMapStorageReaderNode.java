@@ -21,8 +21,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -145,12 +143,12 @@ implements MapStorageReaderNode<PK,D,F>{
 			return backingNode.getMulti(keys, config);
 		}
 		countHits();
-		Set<PK> cachedKeys = resultBuilder.stream()
+		Set<PK> cachedKeys = Scanner.of(resultBuilder)
 				.map(Databean::getKey)
-				.collect(Collectors.toSet());
-		Set<PK> uncachedKeys = keys.stream()
-				.filter(Predicate.not(cachedKeys::contains))
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
+		Set<PK> uncachedKeys = Scanner.of(keys)
+				.exclude(cachedKeys::contains)
+				.collect(HashSet::new);
 		if(uncachedKeys.isEmpty()){
 			return resultBuilder;
 		}
@@ -178,9 +176,9 @@ implements MapStorageReaderNode<PK,D,F>{
 		}
 		countHits();
 		Set<PK> cachedKeys = new HashSet<>(resultBuilder);
-		Set<PK> uncachedKeys = keys.stream()
-				.filter(Predicate.not(cachedKeys::contains))
-				.collect(Collectors.toSet());
+		Set<PK> uncachedKeys = Scanner.of(keys)
+				.exclude(cachedKeys::contains)
+				.collect(HashSet::new);
 		if(uncachedKeys.isEmpty()){
 			return resultBuilder;
 		}

@@ -17,7 +17,6 @@ package io.datarouter.util.bytes;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.ReadableByteChannel;
 
 public class VarInt{
 
@@ -55,10 +54,6 @@ public class VarInt{
 
 	public static VarInt fromInputStream(InputStream is) throws IOException{
 		return new VarInt(VarLong.fromInputStream(is));
-	}
-
-	public static VarInt fromReadableByteChannel(ReadableByteChannel fs) throws IOException{
-		return new VarInt(VarLong.fromReadableByteChannel(fs));
 	}
 
 }

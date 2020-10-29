@@ -40,8 +40,7 @@ implements SimpleDatarouterHttpClientSettings{
 			SettingFinder finder,
 			String settingNodeName){
 		super(finder, settingNodeName);
-		timeout = registerDurations("timeout", defaultTo(new DatarouterDuration(getTimeoutDefault().toMillis(),
-				TimeUnit.MILLISECONDS)));
+		timeout = registerDurations("timeout", getTimeoutDefaultSettingValue());
 		numRetries = registerIntegers("numRetries", defaultTo(getNumRetriesDefault()));
 		enableBreakers = registerBooleans("enableBreakers", getEnableBreakersDefault());
 	}
@@ -71,6 +70,14 @@ implements SimpleDatarouterHttpClientSettings{
 
 	protected DefaultSettingValue<Boolean> getEnableBreakersDefault(){
 		return defaultTo(false);
+	}
+
+	protected DefaultSettingValue<DatarouterDuration> getTimeoutDefaultSettingValue(){
+		return defaultTo(getDefaultTimeoutDatarouterDuration());
+	}
+
+	protected DatarouterDuration getDefaultTimeoutDatarouterDuration(){
+		return new DatarouterDuration(getTimeoutDefault().toMillis(), TimeUnit.MILLISECONDS);
 	}
 
 }

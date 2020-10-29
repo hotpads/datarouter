@@ -17,8 +17,6 @@ package io.datarouter.util.number;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.Random;
 
 import org.testng.Assert;
@@ -124,14 +122,6 @@ public class VarLongTests{
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testNegativeInteger(){
 		new VarLong(-1);
-	}
-
-	@Test
-	public void testFileChannels() throws IOException{
-		ByteArrayInputStream is = new ByteArrayInputStream(new byte[]{0});
-		ReadableByteChannel channel = Channels.newChannel(is);
-		VarLong v0 = VarLong.fromReadableByteChannel(channel);
-		Assert.assertEquals(v0.getValue(), 0);
 	}
 
 }

@@ -20,7 +20,7 @@ public interface DefaultDatarouterAccountKeysSupplier{
 	String getDefaultApiKey();
 	String getDefaultSecretKey();
 
-	static class NoOpDefaultDatarouterAccountKeysSupplier implements DefaultDatarouterAccountKeysSupplier{
+	class NoOpDefaultDatarouterAccountKeysSupplier implements DefaultDatarouterAccountKeysSupplier{
 
 		@Override
 		public String getDefaultApiKey(){

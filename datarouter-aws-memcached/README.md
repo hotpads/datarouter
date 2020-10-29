@@ -8,7 +8,7 @@ datarouter-aws-memcached uses the elasticache-java-cluster-client to talk to Ama
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-memcached</artifactId>
-	<version>0.0.54</version>
+	<version>0.0.55</version>
 </dependency>
 ```
 

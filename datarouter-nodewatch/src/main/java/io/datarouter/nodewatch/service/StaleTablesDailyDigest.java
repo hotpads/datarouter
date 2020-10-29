@@ -32,13 +32,11 @@ import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.ContainerTag;
 
 @Singleton
-public class NodewatchDailyDigest implements DailyDigest{
+public class StaleTablesDailyDigest implements DailyDigest{
 
 	@Inject
 	private TableSizeMonitoringService monitoringService;
@@ -67,13 +65,13 @@ public class NodewatchDailyDigest implements DailyDigest{
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount);
-		var table = makeEmailTable(staleTables);
+		var table = emailBuilder.makeEmailStaleTable(staleTables);
 		return Optional.of(div(header, table));
 	}
 
 	@Override
 	public String getTitle(){
-		return "Nodewatch";
+		return "Stale Tables";
 	}
 
 	@Override
@@ -90,19 +88,7 @@ public class NodewatchDailyDigest implements DailyDigest{
 						row.getKey().getClientName())))
 				.withColumn("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows()))
 				.withColumn("Date Updated", row -> DateTool.getNumericDate(row.getDateUpdated()))
-				.withColumn("UpdatedAgo ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime()))
-				.build(staleRows);
-	}
-
-	private ContainerTag makeEmailTable(List<LatestTableCount> staleRows){
-		return new J2HtmlEmailTable<LatestTableCount>()
-				.withColumn("Client", row -> row.getKey().getClientName())
-				.withColumn(new J2HtmlEmailTableColumn<>(
-						"Table",
-						row -> emailBuilder.makeTableLink(row.getKey().getTableName(), row.getKey().getClientName())))
-				.withColumn("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows()))
-				.withColumn("Date Updated", row -> DateTool.getNumericDate(row.getDateUpdated()))
-				.withColumn("UpdatedAgo ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime()))
+				.withColumn("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime()))
 				.build(staleRows);
 	}
 

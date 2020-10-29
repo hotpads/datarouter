@@ -73,7 +73,7 @@ public class DatarouterDuration{
 		nano = unit.toNanos(amount);
 	}
 
-	public DatarouterDuration(java.time.Duration duration){
+	public DatarouterDuration(Duration duration){
 		nano = duration.toNanos();
 	}
 

@@ -42,6 +42,7 @@ import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.DateTool;
+import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.html.email.J2HtmlDatarouterEmailBuilder;
 import j2html.tags.ContainerTag;
@@ -50,7 +51,7 @@ import j2html.tags.ContainerTag;
 public class TableSizeMonitoringService{
 
 	private static final int IGNORE_THRESHOLD = 100;
-	private static final float PERCENTAGE_THRESHOLD = 50;
+	public static final float PERCENTAGE_THRESHOLD = 50;
 	private static final int REPORT_DAYS_AFTER = 1;
 
 	@Inject
@@ -77,6 +78,18 @@ public class TableSizeMonitoringService{
 	private DatarouterLatestTableCountDao datarouterLatestTableCountDao;
 
 	public void run(){
+		Twin<List<CountStat>> twin = getAboveThresholdLists();
+		List<CountStat> aboveThresholdList = twin.getLeft();
+		List<CountStat> abovePercentageList = twin.getRight();
+		List<LatestTableCount> staleList = getStaleTableEntries();
+		if(aboveThresholdList.size() > 0
+				|| abovePercentageList.size() > 0
+				|| staleList.size() > 0){
+			sendEmail(aboveThresholdList, abovePercentageList, staleList);
+		}
+	}
+
+	public Twin<List<CountStat>> getAboveThresholdLists(){
 		List<CountStat> aboveThresholdList = new ArrayList<>();
 		List<CountStat> abovePercentageList = new ArrayList<>();
 
@@ -139,12 +152,7 @@ public class TableSizeMonitoringService{
 				}
 			}
 		}
-		List<LatestTableCount> staleList = getStaleTableEntries();
-		if(aboveThresholdList.size() > 0
-				|| abovePercentageList.size() > 0
-				|| staleList.size() > 0){
-			sendEmail(aboveThresholdList, abovePercentageList, staleList);
-		}
+		return new Twin<>(aboveThresholdList, abovePercentageList);
 	}
 
 	private boolean checkStaleEntries(LatestTableCount latestSample){

@@ -27,13 +27,22 @@ import io.datarouter.util.concurrent.UncheckedInterruptedException;
 public class RetryableTool{
 	private static final Logger logger = LoggerFactory.getLogger(RetryableTool.class);
 
-	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, int numAttempts, long initialBackoffMs,
-			boolean logExceptions){
-		return tryNTimesWithBackoffUnchecked(callable, numAttempts, initialBackoffMs, logExceptions, $ -> true);
+	public static <T> T tryNTimesWithBackoffAndRandomInitialDelayUnchecked(Retryable<T> callable, int numAttempts,
+			long initialBackoffMs, boolean logExceptions){
+		return tryNTimesWithBackoffUnchecked(callable, numAttempts, initialBackoffMs, logExceptions, true, $ -> true);
 	}
 
 	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, int numAttempts, long initialBackoffMs,
-			boolean logExceptions, Predicate<T> successCondition){
+			boolean logExceptions){
+		return tryNTimesWithBackoffUnchecked(callable, numAttempts, initialBackoffMs, logExceptions, false, $ -> true);
+	}
+
+	public static <T> T tryNTimesWithBackoffUnchecked(Retryable<T> callable, int numAttempts, long initialBackoffMs,
+			boolean logExceptions, boolean useRandomInitialDelay, Predicate<T> successCondition){
+		if(useRandomInitialDelay){
+			long randomSleepMs = ThreadLocalRandom.current().nextLong(0, 5);
+			ThreadTool.sleepUnchecked(randomSleepMs * 1000);
+		}
 		long backoffMs = initialBackoffMs;
 		int attemptNum = 1;
 		for(; attemptNum <= numAttempts && !Thread.interrupted(); ++attemptNum){

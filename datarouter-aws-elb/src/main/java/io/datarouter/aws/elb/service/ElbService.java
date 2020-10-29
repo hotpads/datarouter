@@ -56,7 +56,7 @@ public class ElbService{
 	public List<LoadBalancer> getLoadBalancers(){
 		var request = new DescribeLoadBalancersRequest();
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
-		return RetryableTool.tryNTimesWithBackoffUnchecked(
+		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
 				() -> amazonElasticLoadBalancing.get().describeLoadBalancers(request).getLoadBalancers(),
 				NUM_ATTEMPTS,
 				randomSleepMs,
@@ -66,7 +66,7 @@ public class ElbService{
 	public List<String> getTargetGroupsArn(String loadBalancerArn){
 		var request = new DescribeListenersRequest().withLoadBalancerArn(loadBalancerArn);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
-		return RetryableTool.tryNTimesWithBackoffUnchecked(
+		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
 				() -> amazonElasticLoadBalancing.get().describeListeners(request).getListeners().stream()
 						.map(Listener::getDefaultActions)
 						.flatMap(List::stream)
@@ -82,7 +82,7 @@ public class ElbService{
 	public List<String> getTargetEc2InstancesId(String targetGroupArn){
 		var request = new DescribeTargetHealthRequest().withTargetGroupArn(targetGroupArn);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
-		return RetryableTool.tryNTimesWithBackoffUnchecked(
+		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
 				() -> amazonElasticLoadBalancing.get().describeTargetHealth(request).getTargetHealthDescriptions()
 						.stream()
 						.map(TargetHealthDescription::getTarget)

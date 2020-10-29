@@ -34,17 +34,24 @@ public class HandlerMetrics{
 	private static final String PACKAGED_CLASS = "packagedClass";
 	private static final String METHOD = "method";
 	private static final String PACKAGED_METHOD = "packagedMethod";
+	private static final String ACCOUNT = "account";
 	private static final String LATENCY_MS = "latencyMs";
 
 	@Inject
 	private Gauges gauges;
 
-	public void incMethodInvocation(BaseHandler handler, Method method){
+	public void incMethodInvocation(Class<?> handler, String methodName){
 		incInternal(CALL);
-		incInternal(CLASS, handler.getClass().getSimpleName());
-		incInternal(PACKAGED_CLASS, handler.getClass().getName());
-		incInternal(METHOD, handler.getClass().getSimpleName() + " " + method.getName());
-		incInternal(PACKAGED_METHOD, handler.getClass().getName() + " " + method.getName());
+		incInternal(CLASS, handler.getSimpleName());
+		incInternal(PACKAGED_CLASS, handler.getName());
+		incInternal(METHOD, handler.getSimpleName() + " " + methodName);
+		incInternal(PACKAGED_METHOD, handler.getName() + " " + methodName);
+	}
+
+	public void incMethodInvocationByApiKeyPredicateName(Class<?> handler, String methodName, String accountName){
+		incInternal(ACCOUNT + " " + accountName + " " + CALL);
+		incInternal(ACCOUNT + " " + accountName + " " + CLASS, handler.getSimpleName());
+		incInternal(ACCOUNT + " " + accountName + " " + METHOD, handler.getSimpleName() + " " + methodName);
 	}
 
 	private void incInternal(String format){

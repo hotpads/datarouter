@@ -223,7 +223,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 		Mav mav = new Mav(files.jsp.admin.datarouter.setting.browseSettingsJsp);
 
 		String requestedNodeName = name.orElse(settingRootFinder.getName());
-		mav.put("nodeName", requestedNodeName);
+		mav.put("nodeName", name.orElse(""));
 
 		Map<SimpleSettingCategory,Set<SettingNodeJspDto>> categoryMap = new LinkedHashMap<>();
 		for(Entry<SimpleSettingCategory,Set<SettingRoot>> entry : settingRootFinder.getRootNodesByCategory()
@@ -233,8 +233,12 @@ public class ClusterSettingsHandler extends BaseHandler{
 					.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(
 							SettingNodeJspDto::getShortName))));
 			categoryMap.put(entry.getKey(), nodes);
-			mav.put("currentCategory", entry.getKey().getDisplay());
 		}
+		Optional<String> currentCategory = settingRootFinder.getRootNodesByCategory().entrySet().stream()
+				.findFirst()
+				.map(Entry::getKey)
+				.map(SimpleSettingCategory::getDisplay);
+		mav.put("currentCategory", currentCategory.orElse(""));
 		mav.put("categoryMap", categoryMap);
 
 		mav.put("serverTypeOptions", serverTypes.getHtmlSelectOptionsVarNames());

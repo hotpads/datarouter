@@ -34,8 +34,10 @@ public class DefaultApiKeyPredicate implements ApiKeyPredicate{
 	@Override
 	public Pair<Boolean,String> check(DispatchRule rule, HttpServletRequest request){
 		String apiKeyCandidate = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
-		return new Pair<>(apiKeySupplier.get().equals(apiKeyCandidate), "no match for " + ApiKeyPredicate.obfuscate(
-				apiKeyCandidate));
+		if(apiKeySupplier.get().equals(apiKeyCandidate)){
+			return new Pair<>(true, "");
+		}
+		return new Pair<>(false, "no match for " + ApiKeyPredicate.obfuscate(apiKeyCandidate));
 	}
 
 }

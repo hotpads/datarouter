@@ -21,6 +21,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -348,6 +349,36 @@ public class DateTool{
 		return Optional.ofNullable(reverseInstantLong)
 				.map(nonNullReverseInstantLong -> Instant.ofEpochMilli(Long.MAX_VALUE - nonNullReverseInstantLong))
 				.orElse(null);
+	}
+
+	/*---------------- current day --------------------*/
+
+	public static long atStartOfDayReversedMs(){
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
+		return Long.MAX_VALUE - localDateTimeToDate(startOfDay).getTime();
+	}
+
+	public static long atEndOfDayReversedMs(){
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+		LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
+		return Long.MAX_VALUE - localDateTimeToDate(endOfDay).getTime();
+	}
+
+	public static long atStartOfDayMs(){
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
+		return localDateTimeToDate(startOfDay).getTime();
+	}
+
+	public static long atEndOfDayMs(){
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+		LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
+		return localDateTimeToDate(endOfDay).getTime();
+	}
+
+	private static Date localDateTimeToDate(LocalDateTime localDateTime){
+		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 }

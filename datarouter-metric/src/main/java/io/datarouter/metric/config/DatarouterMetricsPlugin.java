@@ -79,9 +79,11 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			addAppListener(GaugeConveyors.class);
 			addSettingRoot(DatarouterGaugeSettingRoot.class);
 		}
+		if(enableCountPublishing || enableGaugePublishing){
+			addDynamicNavBarItem(MetricLinksNavBarItem.class);
+		}
 
 		addRouteSet(DatarouterMetricRouteSet.class);
-		addDynamicNavBarItem(MetricLinksNavBarItem.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-metric");
 	}

@@ -99,9 +99,14 @@ public class CachedSecretFactory{
 
 		@Override
 		protected T reload(){
-			return isShared ? secretService.readShared(nameSupplier, secretClass, SecretOpReason.automatedOp(
-					"CachedSecret")) : secretService.read(nameSupplier, secretClass, SecretOpReason.automatedOp(
-					"CachedSecret"));
+			return isShared
+					? secretService.readShared(nameSupplier, secretClass, SecretOpReason.automatedOp("CachedSecret"))
+					: secretService.read(nameSupplier, secretClass, SecretOpReason.automatedOp("CachedSecret"));
+		}
+
+		@Override
+		public String toString(){
+			return "CachedSecret=" + nameSupplier.get();
 		}
 
 	}

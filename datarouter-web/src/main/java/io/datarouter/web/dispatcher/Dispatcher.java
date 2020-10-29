@@ -31,6 +31,7 @@ import org.apache.commons.fileupload.FileUploadException;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.net.UrlTool;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.params.MultipartParams;
@@ -98,6 +99,12 @@ public class Dispatcher{
 				RequestAttributeTool.set(request, BaseHandler.HANDLER_ENCODER_ATTRIBUTE, injector.getInstance(rule
 						.getDefaultHandlerEncoder()));
 				RequestAttributeTool.set(request, TRANSMITS_PII, rule.doesTransmitPii());
+				if(rule.hasApiKey()){
+					Pair<Boolean,String> apiKeyPredicateExistsWithName = rule.getApiKeyPredicate().check(rule, request);
+					if(apiKeyPredicateExistsWithName.getLeft()){
+						handler.setApiKeyPredicateName(apiKeyPredicateExistsWithName.getRight());
+					}
+				}
 				break;
 			}
 		}

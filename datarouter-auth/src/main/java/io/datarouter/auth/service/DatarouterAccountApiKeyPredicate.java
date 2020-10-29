@@ -49,10 +49,9 @@ public class DatarouterAccountApiKeyPredicate implements ApiKeyPredicate{
 			return new Pair<>(false, "key not found");
 		}
 		Optional<String> endpoint = rule.getPersistentString();
-		return new Pair<>(check(
-				endpoint,
-				apiKeyCandidate).isPresent(),
-				"no account for " + ApiKeyPredicate.obfuscate(apiKeyCandidate));
+		return check(endpoint, apiKeyCandidate)
+				.map(accountName -> new Pair<>(true, accountName))
+				.orElseGet(() -> new Pair<>(false, "no account for " + ApiKeyPredicate.obfuscate(apiKeyCandidate)));
 	}
 
 	public Optional<String> check(Optional<String> endpoint, String apiKeyCandidate){

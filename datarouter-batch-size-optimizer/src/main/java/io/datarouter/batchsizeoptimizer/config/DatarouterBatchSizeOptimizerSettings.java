@@ -19,15 +19,15 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
-import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
+import io.datarouter.storage.setting.cached.CachedSetting;
 
 @Singleton
 public class DatarouterBatchSizeOptimizerSettings extends SettingRoot{
 
-	public final Setting<Boolean> runBatchSizeOptimizingJob;
-	public final Setting<Boolean> runOpPerformanceRecordAggregationJob;
+	public final CachedSetting<Boolean> runBatchSizeOptimizingJob;
+	public final CachedSetting<Boolean> runOpPerformanceRecordAggregationJob;
 
 	@Inject
 	public DatarouterBatchSizeOptimizerSettings(SettingFinder finder){

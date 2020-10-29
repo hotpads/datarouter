@@ -22,6 +22,7 @@ import static j2html.TagCreator.h5;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -60,8 +61,7 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 	public Mav viewForDateRange(
 			@Param(P_reversedDateMs_exact) OptionalString dateExact,
 			@Param(P_reversedDateMs_start) OptionalString dateStart,
-			@Param(P_reversedDateMs_end) OptionalString dateEnd)
-	throws ParseException{
+			@Param(P_reversedDateMs_end) OptionalString dateEnd){
 		var formExact = new HtmlForm();
 		formExact.addDateField()
 				.withDisplay("Exact Date")
@@ -95,24 +95,16 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 		Scanner<Changelog> scanner = Scanner.empty();
 
 		if(dateExact.isPresent() && dateStart.isEmpty() && dateEnd.isEmpty()){
-			long dateStartMs = Bootstrap4FormHtml.DATE_FORMAT.parse(dateExact.get()).getTime();
-			long dateEndMs = dateStartMs + Duration.ofDays(1).toMillis();
-			long reversedateMsStart = Long.MAX_VALUE - dateStartMs;
-			long reversedateMsEnd = Long.MAX_VALUE - dateEndMs;
-			ChangelogKey start = new ChangelogKey(reversedateMsStart, null, null);
-			ChangelogKey stop = new ChangelogKey(reversedateMsEnd, null, null);
-			Range<ChangelogKey> range = new Range<>(stop, true, start, true);
-			scanner = dao.scan(range);
+			var range = makeRange(dateExact.get());
+			if(range.isPresent()){
+				scanner = dao.scan(range.get());
+			}
 		}
 		if(dateExact.isEmpty() && dateStart.isPresent() && dateEnd.isPresent()){
-			long dateStartMs = Bootstrap4FormHtml.DATE_FORMAT.parse(dateStart.get()).getTime();
-			long dateEndMs = Bootstrap4FormHtml.DATE_FORMAT.parse(dateEnd.get()).getTime();
-			long reversedateMsStart = Long.MAX_VALUE - dateStartMs;
-			long reversedateMsEnd = Long.MAX_VALUE - dateEndMs;
-			ChangelogKey start = new ChangelogKey(reversedateMsStart, null, null);
-			ChangelogKey stop = new ChangelogKey(reversedateMsEnd, null, null);
-			Range<ChangelogKey> range = new Range<>(stop, true, start, true);
-			scanner = dao.scan(range);
+			var range = makeRange(dateStart.get(), dateEnd.get());
+			if(range.isPresent()){
+				scanner = dao.scan(range.get());
+			}
 		}
 
 		return pageFactory.startBuilder(request)
@@ -125,6 +117,43 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 		var table = service.buildTable(rows);
 		return div(br(), formExact, h5("or"), formRange, table)
 				.withClass("container-fluid");
+	}
+
+	private Optional<Range<ChangelogKey>> makeRange(String dateExact){
+		if(dateExact.isEmpty()){
+			return Optional.empty();
+		}
+		long dateStartMs;
+		try{
+			dateStartMs = Bootstrap4FormHtml.DATE_FORMAT.parse(dateExact).getTime();
+		}catch(ParseException e){
+			return Optional.empty();
+		}
+		long dateEndMs = dateStartMs + Duration.ofDays(1).toMillis();
+		return Optional.of(makeRangeInternal(dateStartMs, dateEndMs));
+	}
+
+	private Optional<Range<ChangelogKey>> makeRange(String dateStart, String dateEnd){
+		if(dateStart.isEmpty() || dateEnd.isEmpty()){
+			return Optional.empty();
+		}
+		long dateStartMs;
+		long dateEndMs;
+		try{
+			dateStartMs = Bootstrap4FormHtml.DATE_FORMAT.parse(dateStart).getTime();
+			dateEndMs = Bootstrap4FormHtml.DATE_FORMAT.parse(dateEnd).getTime();
+		}catch(ParseException e){
+			return Optional.empty();
+		}
+		return Optional.of(makeRangeInternal(dateStartMs, dateEndMs));
+	}
+
+	private Range<ChangelogKey> makeRangeInternal(long dateStartMs, long dateEndMs){
+		long reversedateMsStart = Long.MAX_VALUE - dateStartMs;
+		long reversedateMsEnd = Long.MAX_VALUE - dateEndMs;
+		var start = new ChangelogKey(reversedateMsStart, null, null);
+		var stop = new ChangelogKey(reversedateMsEnd, null, null);
+		return new Range<>(stop, true, start, true);
 	}
 
 }

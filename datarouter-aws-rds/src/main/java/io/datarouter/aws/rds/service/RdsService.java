@@ -45,7 +45,7 @@ import io.datarouter.util.retry.RetryableTool;
 @Singleton
 public class RdsService{
 
-	private static final int NUM_ATTEMPTS = 3;
+	private static final int NUM_ATTEMPTS = 5;
 
 	@Inject
 	private DatarouterAwsRdsConfigSettings rdsSettings;
@@ -57,16 +57,10 @@ public class RdsService{
 				.collect(Collectors.toList());
 	}
 
-	public List<String> getInstanceIds(String clusterName){
-		return getCluster(clusterName).getDBClusterMembers().stream()
-				.map(DBClusterMember::getDBInstanceIdentifier)
-				.collect(Collectors.toList());
-	}
-
 	public DBInstance getInstance(String instanceName){
 		var request = new DescribeDBInstancesRequest().withDBInstanceIdentifier(instanceName);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
-		return RetryableTool.tryNTimesWithBackoffUnchecked(
+		return RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
 				() -> getAmazonRdsReadOnlyClient().describeDBInstances(request).getDBInstances().get(0),
 				NUM_ATTEMPTS,
 				randomSleepMs,
@@ -103,7 +97,7 @@ public class RdsService{
 	public DBCluster getCluster(String clusterName){
 		var request = new DescribeDBClustersRequest().withDBClusterIdentifier(clusterName);
 		int randomSleepMs = RandomTool.getRandomIntBetweenTwoNumbers(0, 3_000);
-		List<DBCluster> result = RetryableTool.tryNTimesWithBackoffUnchecked(
+		List<DBCluster> result = RetryableTool.tryNTimesWithBackoffAndRandomInitialDelayUnchecked(
 				() -> getAmazonRdsReadOnlyClient().describeDBClusters(request).getDBClusters(),
 				NUM_ATTEMPTS,
 				randomSleepMs,
@@ -112,10 +106,6 @@ public class RdsService{
 			throw new RuntimeException(result.size() + " clusters found for " + clusterName);
 		}
 		return result.get(0);
-	}
-
-	public List<DBClusterMember> getClusterMembers(String clusterName){
-		return getCluster(clusterName).getDBClusterMembers();
 	}
 
 	public ListTagsForResourceResult getTags(String instance){

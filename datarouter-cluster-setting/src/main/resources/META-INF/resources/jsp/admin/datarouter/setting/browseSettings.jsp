@@ -343,7 +343,12 @@
 				</c:forEach>
 			</c:when>
 			<c:otherwise>
-				<h3>No settings found for "${nodeName}"</h3>
+				<c:if test="${!nodeName.isEmpty()}">
+					<div>
+						<h3>No settings found for "${nodeName}"</h3>
+						<a href="?submitAction=logsForName&name=${nodeName}">try logs</a>
+					</div>
+				</c:if>
 			</c:otherwise>
 		</c:choose>
 	</div>

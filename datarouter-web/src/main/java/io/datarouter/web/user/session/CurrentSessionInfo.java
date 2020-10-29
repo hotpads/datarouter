@@ -83,7 +83,7 @@ public interface CurrentSessionInfo{
 				.anyMatch(roles::contains);
 	}
 
-	static class NoOpCurrentSessionInfo implements CurrentSessionInfo{
+	class NoOpCurrentSessionInfo implements CurrentSessionInfo{
 
 		@Override
 		public Optional<? extends Session> getSession(ServletRequest request){

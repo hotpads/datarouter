@@ -20,4 +20,5 @@ import io.datarouter.storage.exception.ExceptionCategory;
 public enum ConveyorExceptionCategory implements ExceptionCategory{
 
 	CONVEYOR
+
 }

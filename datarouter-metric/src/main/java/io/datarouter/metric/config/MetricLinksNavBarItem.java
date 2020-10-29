@@ -28,10 +28,6 @@ public class MetricLinksNavBarItem implements DynamicNavBarItem{
 
 	@Inject
 	private DatarouterMetricPaths paths;
-	@Inject
-	private DatarouterCountSettingRoot countSettings;
-	@Inject
-	private DatarouterGaugeSettingRoot gaugeSettings;
 
 	@Override
 	public NavBarItem getNavBarItem(){
@@ -44,7 +40,7 @@ public class MetricLinksNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public Boolean shouldDisplay(){
-		return countSettings.runCountsFromSqsToPublisher.get() || gaugeSettings.runGaugeSqsToPublisher.get();
+		return true;
 	}
 
 	@Override

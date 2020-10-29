@@ -18,8 +18,6 @@ package io.datarouter.util.bytes;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
 
 public class VarLong{
 
@@ -93,23 +91,6 @@ public class VarLong{
 			}
 			baos.write(byteVar);
 		}while(byteVar >= 128);
-		return fromByteArray(baos.toByteArray());
-	}
-
-	public static VarLong fromReadableByteChannel(ReadableByteChannel fs) throws IOException{
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ByteBuffer byteBuffer = ByteBuffer.allocate(1);
-		while(true){
-			byteBuffer.clear();
-			if(fs.read(byteBuffer) == -1){// unexpectedly hit the end of the input stream
-				throw new IllegalArgumentException("end of InputStream");
-			}
-			int byteVar = byteBuffer.get(0);
-			baos.write(byteVar);
-			if(byteVar < 128){
-				break;
-			}
-		}
 		return fromByteArray(baos.toByteArray());
 	}
 

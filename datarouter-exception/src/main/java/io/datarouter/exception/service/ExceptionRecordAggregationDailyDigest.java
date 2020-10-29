@@ -21,12 +21,7 @@ import static j2html.TagCreator.i;
 import static j2html.TagCreator.small;
 import static j2html.TagCreator.td;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +37,7 @@ import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
 import io.datarouter.exception.storage.summary.ExceptionRecordSummaryKey;
 import io.datarouter.exception.web.ExceptionAnalysisHandler;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.DateTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -102,7 +98,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private List<AggregatedExceptionDto> getExceptions(){
 		Map<AggregatedExceptionKeyDto,AggregatedExceptionValueDto> aggregatedExceptions = new HashMap<>();
 		for(ExceptionRecordSummary exception : dao.scan()
-				.advanceUntil(key -> key.getKey().getReversePeriodStart() > atStartOfDay())
+				.advanceUntil(key -> key.getKey().getReversePeriodStart() > DateTool.atStartOfDayReversedMs())
 				.iterable()){
 			var key = new AggregatedExceptionKeyDto(exception.getKey());
 			var value = new AggregatedExceptionValueDto(exception);
@@ -207,16 +203,6 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 			this.count = this.count + count;
 		}
 
-	}
-
-	private static long atStartOfDay(){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-		return Long.MAX_VALUE - localDateTimeToDate(startOfDay).getTime();
-	}
-
-	private static Date localDateTimeToDate(LocalDateTime localDateTime){
-		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 }

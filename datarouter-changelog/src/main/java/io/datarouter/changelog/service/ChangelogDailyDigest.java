@@ -18,10 +18,6 @@ package io.datarouter.changelog.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.small;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +29,7 @@ import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -87,8 +84,8 @@ public class ChangelogDailyDigest implements DailyDigest{
 	}
 
 	private List<Changelog> getChangelogs(){
-		var start = new ChangelogKey(atEndOfDay(), null, null);
-		var stop = new ChangelogKey(atStartOfDay(), null, null);
+		var start = new ChangelogKey(DateTool.atEndOfDayReversedMs(), null, null);
+		var stop = new ChangelogKey(DateTool.atStartOfDayReversedMs(), null, null);
 		Range<ChangelogKey> range = new Range<>(start, true, stop, true);
 		return dao.scan(range).list();
 	}
@@ -104,22 +101,6 @@ public class ChangelogDailyDigest implements DailyDigest{
 				.withColumn("Action", row -> row.getAction())
 				.withColumn("User", row -> row.getUsername())
 				.build(rows);
-	}
-
-	private static long atStartOfDay(){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-		return Long.MAX_VALUE - localDateTimeToDate(startOfDay).getTime();
-	}
-
-	private static long atEndOfDay(){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
-		return Long.MAX_VALUE - localDateTimeToDate(endOfDay).getTime();
-	}
-
-	private static Date localDateTimeToDate(LocalDateTime localDateTime){
-		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 }
