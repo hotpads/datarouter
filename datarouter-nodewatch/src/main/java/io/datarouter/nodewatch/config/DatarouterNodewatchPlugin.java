@@ -89,12 +89,12 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 	public static class DatarouterNodewatchPluginBuilder{
 
 		private final List<ClientId> nodewatchClientIds;
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 
 		private Class<? extends TableCountPublisher> tableCountPublisherClass = NoOpTableCountPublisher.class;
 		private boolean enablePublishing = false;
 
-		public DatarouterNodewatchPluginBuilder(ClientId defaultClientId){
+		public DatarouterNodewatchPluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
 			this.nodewatchClientIds = new ArrayList<>();
 		}
@@ -124,20 +124,20 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 
 	public static class DatarouterNodewatchDaoModule extends DaosModuleBuilder{
 
-		private final ClientId latestTableCountClientId;
-		private final ClientId tableCountClientId;
-		private final ClientId tableSampleClientId;
-		private final ClientId tableSizeAlertThresholdClientId;
+		private final List<ClientId> latestTableCountClientIds;
+		private final List<ClientId> tableCountClientIds;
+		private final List<ClientId> tableSampleClientIds;
+		private final List<ClientId> tableSizeAlertThresholdClientIds;
 
 		public DatarouterNodewatchDaoModule(
-				ClientId latestTableCountClientId,
-				ClientId tableCountClientId,
-				ClientId tableSampleClientId,
-				ClientId tableSizeAlertThresholdClientId){
-			this.latestTableCountClientId = latestTableCountClientId;
-			this.tableCountClientId = tableCountClientId;
-			this.tableSampleClientId = tableSampleClientId;
-			this.tableSizeAlertThresholdClientId = tableSizeAlertThresholdClientId;
+				List<ClientId> latestTableCountClientIds,
+				List<ClientId> tableCountClientIds,
+				List<ClientId> tableSampleClientIds,
+				List<ClientId> tableSizeAlertThresholdClientIds){
+			this.latestTableCountClientIds = latestTableCountClientIds;
+			this.tableCountClientIds = tableCountClientIds;
+			this.tableSampleClientIds = tableSampleClientIds;
+			this.tableSizeAlertThresholdClientIds = tableSizeAlertThresholdClientIds;
 		}
 
 		@Override
@@ -152,12 +152,13 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 		@Override
 		public void configure(){
 			bind(DatarouterLatestTableCountDaoParams.class)
-					.toInstance(new DatarouterLatestTableCountDaoParams(latestTableCountClientId));
-			bind(DatarouterTableCountDaoParams.class).toInstance(new DatarouterTableCountDaoParams(tableCountClientId));
+					.toInstance(new DatarouterLatestTableCountDaoParams(latestTableCountClientIds));
+			bind(DatarouterTableCountDaoParams.class)
+					.toInstance(new DatarouterTableCountDaoParams(tableCountClientIds));
 			bind(DatarouterTableSampleDaoParams.class)
-					.toInstance(new DatarouterTableSampleDaoParams(tableSampleClientId));
+					.toInstance(new DatarouterTableSampleDaoParams(tableSampleClientIds));
 			bind(DatarouterTableSizeAlertThresholdDaoParams.class)
-					.toInstance(new DatarouterTableSizeAlertThresholdDaoParams(tableSizeAlertThresholdClientId));
+					.toInstance(new DatarouterTableSizeAlertThresholdDaoParams(tableSizeAlertThresholdClientIds));
 		}
 
 	}

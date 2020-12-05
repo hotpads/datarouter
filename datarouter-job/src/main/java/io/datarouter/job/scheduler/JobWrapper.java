@@ -61,17 +61,28 @@ public class JobWrapper implements Callable<Void>{
 				Date scheduledTime,
 				String triggeredBy){
 			return new JobWrapper(jobPackage, longRunningTaskTrackerFactory, jobCounters, job, triggerTime,
-					scheduledTime, triggeredBy);
+					scheduledTime, true, triggeredBy);
+		}
+
+		public JobWrapper createRetriggered(
+				JobPackage jobPackage,
+				BaseJob job,
+				Date triggerTime,
+				Date scheduledTime,
+				String triggeredBy){
+			return new JobWrapper(jobPackage, longRunningTaskTrackerFactory, jobCounters, job, triggerTime,
+					scheduledTime, false, triggeredBy);
 		}
 
 		public JobWrapper createManual(JobPackage jobPackage, BaseJob job, String triggeredBy){
 			Date now = new Date();
-			return new JobWrapper(jobPackage, longRunningTaskTrackerFactory, jobCounters, job, now, now, triggeredBy);
+			return new JobWrapper(jobPackage, longRunningTaskTrackerFactory, jobCounters, job, now, now, false,
+					triggeredBy);
 		}
 
 		public JobWrapper createRequestTriggered(BaseJob job, String triggeredBy){
 			Date now = new Date();
-			return new JobWrapper(longRunningTaskTrackerFactory, jobCounters, job, now, now, triggeredBy);
+			return new JobWrapper(longRunningTaskTrackerFactory, jobCounters, job, now, now, false, triggeredBy);
 		}
 	}
 
@@ -82,6 +93,7 @@ public class JobWrapper implements Callable<Void>{
 	public final BaseJob job;
 	public final Date triggerTime;//time the job should run, used for locking
 	public final Date scheduledTime;//can be different from triggerTime if a job is scheduled late
+	public final boolean reschedule;//not created by the normal scheduler
 	public final String triggeredBy;
 	protected final LongRunningTaskTracker tracker;
 	//convenience
@@ -96,15 +108,10 @@ public class JobWrapper implements Callable<Void>{
 			BaseJob job,
 			Date triggerTime,
 			Date scheduledTime,
+			boolean reschedule,
 			String triggeredBy){
-		this.jobPackage = jobPackage;
-		this.jobCounters = jobCounters;
-		this.job = job;
-		this.triggerTime = triggerTime;
-		this.scheduledTime = scheduledTime;
-		this.triggeredBy = triggeredBy;
-		this.jobClass = job.getClass();
-		this.tracker = initTracker(jobPackage, scheduledTime, longRunningTaskTrackerFactory, triggeredBy, jobClass);
+		this(jobPackage, jobCounters, job, triggerTime, scheduledTime, reschedule, triggeredBy,
+				initTracker(jobPackage, scheduledTime, longRunningTaskTrackerFactory, triggeredBy, job.getClass()));
 	}
 
 	protected JobWrapper(
@@ -113,16 +120,31 @@ public class JobWrapper implements Callable<Void>{
 			BaseJob job,
 			Date triggerTime,
 			Date scheduledTime,
+			boolean reschedule,
 			String triggeredBy){
-		this.jobPackage = null;
+		this(null, jobCounters, job, triggerTime, scheduledTime, reschedule, triggeredBy,
+				longRunningTaskTrackerFactory.create(job.getClass(), LongRunningTaskType.JOB, null, false,
+						triggeredBy));
+	}
+
+	protected JobWrapper(
+			JobPackage jobPackage,
+			JobCounters jobCounters,
+			BaseJob job,
+			Date triggerTime,
+			Date scheduledTime,
+			boolean reschedule,
+			String triggeredBy,
+			LongRunningTaskTracker taskTracker){
+		this.jobPackage = jobPackage;
 		this.jobCounters = jobCounters;
 		this.job = job;
 		this.triggerTime = triggerTime;
 		this.scheduledTime = scheduledTime;
+		this.reschedule = reschedule;
 		this.triggeredBy = triggeredBy;
 		this.jobClass = job.getClass();
-		this.tracker = longRunningTaskTrackerFactory.create(jobClass, LongRunningTaskType.JOB, null, false,
-				triggeredBy);
+		this.tracker = taskTracker;
 	}
 
 	@Override

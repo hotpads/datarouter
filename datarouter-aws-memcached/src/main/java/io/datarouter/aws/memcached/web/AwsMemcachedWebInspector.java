@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import io.datarouter.aws.memcached.client.AwsMemcachedOptions;
 import io.datarouter.aws.memcached.client.MemcachedClientMode;
+import io.datarouter.aws.memcached.client.options.AwsMemcachedOptions;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.tuple.Pair;

@@ -44,7 +44,7 @@ public class HBaseEntityQueryBuilder<
 		if(ek == null){
 			throw new IllegalArgumentException("no nulls");
 		}
-		return FieldTool.getConcatenatedValueBytes(ek.getFields(), true, true, false);
+		return FieldTool.getConcatenatedValueBytesUnterminated(ek.getFields());
 	}
 
 	public byte[] getRowBytesWithPartition(EK ek){

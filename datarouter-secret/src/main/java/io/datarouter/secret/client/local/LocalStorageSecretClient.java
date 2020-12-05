@@ -18,41 +18,37 @@ package io.datarouter.secret.client.local;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import io.datarouter.secret.client.BaseSecretClient;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient;
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.exception.SecretExistsException;
+import io.datarouter.secret.exception.SecretNotFoundException;
 import io.datarouter.util.properties.PropertiesTool;
 
 /**
  * This is an implementation of {@link SecretClient} that stores all {@link Secret}s in a local plaintext properties
  * file. It is only suitable for local development work, since all storage is plaintext.
  */
-@Singleton
 public class LocalStorageSecretClient extends BaseSecretClient{
 
-	@Inject
-	private LocalStorageConfig config;
-	@Inject
-	private LocalStorageDefaultSecretValues localStorageDefaultSecretValues;
+	private final LocalStorageConfig config;
+
+	public LocalStorageSecretClient(LocalStorageConfig config){
+		this.config = config;
+	}
 
 	private Properties readSecrets(){
 		try{
 			return PropertiesTool.parse(config.getConfigFilePath());
-		}catch(RuntimeException e){
+		}catch(RuntimeException e1){
 			File file = new File(config.getConfigFilePath());
 			try{
 				file.createNewFile();
-			}catch(IOException e1){
+			}catch(IOException e2){
 				throw new RuntimeException("failed to create properties file");
 			}
 			return PropertiesTool.parse(config.getConfigFilePath());
@@ -68,7 +64,7 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 	public synchronized void createInternal(Secret secret){
 		Properties secrets = readSecrets();
 		if(secrets.containsKey(secret.getName())){
-			throw new RuntimeException("secret exists name=" + secret.getName());
+			throw new SecretExistsException(secret.getName());
 		}
 		secrets.put(secret.getName(), secret.getValue());
 		writeSecrets(secrets);
@@ -78,8 +74,7 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 	public synchronized Secret readInternal(String name){
 		Properties secrets = readSecrets();
 		if(!secrets.containsKey(name)){
-			return localStorageDefaultSecretValues.readDefaultValue(name)
-					.orElseThrow(() -> new RuntimeException("secret does not exist name=" + name));
+			throw new SecretNotFoundException(name);
 		}
 		return new Secret(name, secrets.getProperty(name));
 	}
@@ -101,7 +96,7 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 	public synchronized void updateInternal(Secret secret){
 		Properties secrets = readSecrets();
 		if(!secrets.containsKey(secret.getName())){
-			throw new RuntimeException("secret does not exist name=" + secret.getName());
+			throw new SecretNotFoundException(secret.getName());
 		}
 		secrets.put(secret.getName(), secret.getValue());
 		writeSecrets(secrets);
@@ -111,51 +106,10 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 	public synchronized void deleteInternal(String name){
 		Properties secrets = readSecrets();
 		if(!secrets.containsKey(name)){
-			throw new RuntimeException("secret does not exist name=" + name);
+			throw new SecretNotFoundException(name);
 		}
 		secrets.remove(name);
 		writeSecrets(secrets);
-	}
-
-	@Singleton
-	public static class LocalStorageSecretClientSupplier implements SecretClientSupplier{
-
-		@Inject
-		private LocalStorageSecretClient localStorageSecretClient;
-
-		@Override
-		public SecretClient get(){
-			return localStorageSecretClient;
-		}
-
-	}
-
-	@Singleton
-	public static final class LocalStorageDefaultSecretValues{
-
-		private final ConcurrentHashMap<String,String> defaultSecretValues;
-
-		public LocalStorageDefaultSecretValues(Map<String,String> initialLocalStorageSecretValues){
-			defaultSecretValues = new ConcurrentHashMap<>(initialLocalStorageSecretValues);
-		}
-
-		private Optional<Secret> readDefaultValue(String name){
-			return Optional.ofNullable(defaultSecretValues.get(name))
-					.map(value -> new Secret(name, value));
-		}
-
-		public void registerDefaultValue(String name, String value){
-			defaultSecretValues.compute(name, (key, oldValue) -> {
-				if(oldValue == null){
-					return value;
-				}
-				if(!value.equals(oldValue)){
-					throw new RuntimeException("Multiple conflicting default values for secret name=" + name);
-				}
-				return oldValue;
-			});
-		}
-
 	}
 
 }

@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
 	<%@ include file="/jsp/generic/datarouterHead.jsp" %>
+	<c:set var="showName" value="${showingAllSettings or showingNodeSettings}"/>
 	<title>${showingAllSettings ? 'All Settings Log' : 'Cluster Settings Log'} | Datarouter</title>
 	<script>
 		require(["jquery"], function() {
@@ -74,14 +75,16 @@
 
 			/* Add column labels before the content of the cell on every row */
 			td:nth-of-type(1):before { content: "Time stamp"; }
+			<c:if test="${showName}">
 			td:nth-of-type(2):before { content: "Name"; }
-			td:nth-of-type(3):before { content: "Action"; }
-			td:nth-of-type(4):before { content: "Scope"; }
-			td:nth-of-type(5):before { content: "Server Type"; }
-			td:nth-of-type(6):before { content: "Server Name"; }
-			td:nth-of-type(8):before { content: "Changed by"; }
-			td:nth-of-type(9):before { content: "Comment"; }
-			td:nth-of-type(10):before { content: "Value"; }
+			</c:if>
+			td:nth-of-type(${showName ? '3' : '2'}):before { content: "Action"; }
+			td:nth-of-type(${showName ? '4' : '3'}):before { content: "Scope"; }
+			td:nth-of-type(${showName ? '5' : '4'}):before { content: "Server Type"; }
+			td:nth-of-type(${showName ? '6' : '5'}):before { content: "Server Name"; }
+			td:nth-of-type(${showName ? '7' : '6'}):before { content: "Changed by"; }
+			td:nth-of-type(${showName ? '8' : '7'}):before { content: "Comment"; }
+			td:nth-of-type(${showName ? '9' : '8'}):before { content: "Value"; }
 		}
 	</style>
 </head>
@@ -89,7 +92,7 @@
 	<%@ include file="/jsp/menu/common-navbar-b4.jsp" %>
 	<div class="container-fluid mt-5">
 		<div class="container">
-			<h2 class="pb-2 mb-3 border-bottom">
+			<h2 class="pb-2 mb-3 border-bottom text-break">
 				Log for
 				<c:choose>
 					<c:when test="${showingAllSettings}">all cluster settings</c:when>

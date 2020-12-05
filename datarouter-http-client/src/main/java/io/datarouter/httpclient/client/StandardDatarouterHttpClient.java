@@ -39,8 +39,10 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.request.BaseRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.request.DatarouterHttpRequestBuilder;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
@@ -113,6 +115,16 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	}
 
 	@Override
+	public <E> E execute(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request){
+		try{
+			var datarouterRequest = requestBuilder.makeRequest(request);
+			return executeChecked(datarouterRequest, request.responseType);
+		}catch(DatarouterHttpException e){
+			throw new DatarouterHttpRuntimeException(e);
+		}
+	}
+
+	@Override
 	public <E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
 		String entity = executeChecked(request).getEntity();
 		try(var $ = TracerTool.startSpan("JsonSerializer deserialize")){
@@ -124,6 +136,13 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public DatarouterHttpResponse executeChecked(DatarouterHttpRequest request) throws DatarouterHttpException{
 		return executeChecked(request, (Consumer<HttpEntity>)null);
+	}
+
+	@Override
+	public <E> E executeChecked(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request)
+	throws DatarouterHttpException{
+		var datarouterRequest = requestBuilder.makeRequest(request);
+		return executeChecked(datarouterRequest, request.responseType);
 	}
 
 	@Override

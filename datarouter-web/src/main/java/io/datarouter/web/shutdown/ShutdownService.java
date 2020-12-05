@@ -15,14 +15,27 @@
  */
 package io.datarouter.web.shutdown;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.util.duration.DatarouterDuration;
+import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
 public class ShutdownService{
+	private static final Logger logger = LoggerFactory.getLogger(ShutdownService.class);
 
 	public static final int SHUTDOWN_STATUS_CODE = 555;
 
+	private static final DatarouterDuration AGE_TO_LOG = new DatarouterDuration(10, TimeUnit.SECONDS);
+
 	private volatile ShutdownState state;
+	private volatile long shutdownStartTime = Long.MAX_VALUE;
 
 	public ShutdownService(){
 		this.state = ShutdownState.RUNNING;
@@ -30,6 +43,9 @@ public class ShutdownService{
 
 	public int advance(){
 		state = state.getNextState();
+		if(shutdownStartTime == Long.MAX_VALUE){
+			shutdownStartTime = System.currentTimeMillis();
+		}
 		return state.keepAliveErrorCode;
 	}
 
@@ -41,7 +57,7 @@ public class ShutdownService{
 		return state.keepAliveErrorCode;
 	}
 
-	private static enum ShutdownState{
+	private enum ShutdownState{
 		OFF(null, SHUTDOWN_STATUS_CODE),
 		SHUTTING_DOWN(OFF, 404),
 		RUNNING(SHUTTING_DOWN, 200);
@@ -61,6 +77,15 @@ public class ShutdownService{
 			return nextState;
 		}
 
+	}
+
+	public void logIfLate(HttpServletRequest request){
+		DatarouterDuration age = DatarouterDuration.ageMs(shutdownStartTime);
+		if(age.isLongerThan(AGE_TO_LOG)){
+			logger.warn("receiving path={} age={} ageMs={}", RequestTool.getPath(request), age, age.toMillis());
+		}else{
+			logger.debug("receiving path={}", RequestTool.getPath(request));
+		}
 	}
 
 }

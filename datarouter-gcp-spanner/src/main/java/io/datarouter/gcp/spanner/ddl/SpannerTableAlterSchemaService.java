@@ -21,7 +21,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -55,7 +54,7 @@ public class SpannerTableAlterSchemaService{
 		List<SpannerColumn> columns = extractColumns(columnResult);
 		List<SpannerColumn> colToAdd = columnNameDifferences(currentColumns, columns);
 		List<SpannerColumn> colToRemove = columnNameDifferences(columns, currentColumns);
-		List<SpannerColumn> colToAlter = colmumnsToAlter(currentColumns, columns);
+		List<SpannerColumn> colToAlter = columnsToAlter(currentColumns, columns);
 		if(!colToAdd.isEmpty()){
 			colToAdd.forEach(col -> statements.updateFunction(
 					tableOperationsGenerator.addColumns(tableName, col),
@@ -86,14 +85,14 @@ public class SpannerTableAlterSchemaService{
 	}
 
 	public boolean indexEqual(SpannerIndex index, ResultSet rs){
-		List<String> indexKeyColumns = index.getKeyFields().stream()
+		List<String> indexKeyColumns = Scanner.of(index.getKeyFields())
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
-				.collect(Collectors.toList());
-		List<String> nonKeyColumns = index.getNonKeyFields().stream()
+				.list();
+		List<String> nonKeyColumns = Scanner.of(index.getNonKeyFields())
 				.map(Field::getKey)
 				.map(FieldKey::getColumnName)
-				.collect(Collectors.toList());
+				.list();
 		boolean runOnce = false;
 		while(rs.next()){
 			runOnce = true;
@@ -129,15 +128,13 @@ public class SpannerTableAlterSchemaService{
 		return new ArrayList<>(col1Map.values());
 	}
 
-	private List<SpannerColumn> colmumnsToAlter(
-			List<SpannerColumn> currentColumns,
-			List<SpannerColumn> existingColumns){
+	private List<SpannerColumn> columnsToAlter(List<SpannerColumn> currentColumns, List<SpannerColumn> existingColumns){
 		Map<String,SpannerColumn> columnMap = Scanner.of(existingColumns)
 				.toMapSupplied(SpannerColumn::getName, LinkedHashMap::new);
-		return currentColumns.stream()
-				.filter(col -> columnMap.containsKey(col.getName()))
-				.filter(col -> !columnMap.get(col.getName()).getType().equals(col.getType()))
-				.collect(Collectors.toList());
+		return Scanner.of(currentColumns)
+				.include(col -> columnMap.containsKey(col.getName()))
+				.exclude(col -> columnMap.get(col.getName()).getType() == col.getType())
+				.list();
 	}
 
 }

@@ -38,6 +38,7 @@ import io.datarouter.aws.s3.config.DatarouterAwsS3Paths;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
@@ -52,7 +53,6 @@ import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.ContainerTag;
-import software.amazon.awssdk.services.s3.model.S3Object;
 
 public class S3BucketHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(S3BucketHandler.class);
@@ -63,8 +63,8 @@ public class S3BucketHandler extends BaseHandler{
 	private static final String P_after = "after";
 	private static final String P_offset = "offset";
 	private static final String P_limit = "limit";
-	private static final String P_prefixes = "prefixes";
-	private static final String P_delimiter = "delimiter";
+	private static final String P_currentDirectory = "currentDirectory";
+	public static final String P_delimiter = "delimiter";
 
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
@@ -83,7 +83,7 @@ public class S3BucketHandler extends BaseHandler{
 			@Param(P_after) OptionalString after,
 			@Param(P_offset) OptionalInteger offset,
 			@Param(P_limit) OptionalInteger limit,
-			@Param(P_prefixes) OptionalBoolean prefixes,
+			@Param(P_currentDirectory) OptionalBoolean currentDirectory,
 			@Param(P_delimiter) OptionalString delimiter){
 
 		var form = new HtmlForm()
@@ -119,9 +119,9 @@ public class S3BucketHandler extends BaseHandler{
 				.withName(P_delimiter)
 				.withValue(delimiter.orElse(""));
 		form.addCheckboxField()
-				.withDisplay("Prefixes")
-				.withName(P_prefixes)
-				.withChecked(prefixes.orElse(false));
+				.withDisplay("currentDirectory")
+				.withName(P_currentDirectory)
+				.withChecked(currentDirectory.orElse(false));
 		form.addButton()
 				.withDisplay("Submit")
 				.withValue("");
@@ -131,54 +131,48 @@ public class S3BucketHandler extends BaseHandler{
 		ClientId clientId = clients.getClientId(client);
 		DatarouterS3Client s3Client = s3ClientManager.getClient(clientId);
 		ContainerTag table = null;
-		if(prefixes.orElse(false)){
-			List<String> prefixesList = s3Client.scanPrefixes(
-					bucket,
-					prefix.orElse(null),
-					after.orElse(null),
-					delimiter.orElse(null))
-					.skip(offset.orElse(0))
-					.limit(limit.orElse(100))
-					.list();
-			table = new J2HtmlTable<String>()
-					.withClasses("sortable table table-sm table-striped my-4 border")
-					.withColumn("Prefix", rowPrefix -> rowPrefix)
-					.withHtmlColumn("Count", rowPrefix -> {
+		List<DirectoryDto> objects = s3Client.scanSubdirectories(
+				bucket,
+				prefix.orElse(null),
+				after.orElse(null),
+				delimiter.orElse(null),
+				limit.orElse(100),
+				currentDirectory.orElse(false))
+				.list();
+		int sizePadding = sizePadding(objects);
+		table = new J2HtmlTable<DirectoryDto>()
+				.withClasses("sortable table table-sm table-striped my-4 border")
+				.withHtmlColumn("Key", object -> {
+					String name = object.name;
+					if(object.isDirectory){
+						return td(makePrefixLink(client, bucket, name, "/"));
+					}
+					return td(name);
+				})
+				.withHtmlColumn("Directory", object -> {
+					boolean isDirectory = object.isDirectory;
+					if(isDirectory){
 						String href = new URIBuilder()
 								.setPath(request.getContextPath() + paths.datarouter.clients.awsS3.countObjects
 										.toSlashedString())
 								.addParameter(P_client, client)
 								.addParameter(P_bucket, bucket)
-								.addParameter(P_prefix, rowPrefix)
+								.addParameter(P_prefix, object.name)
 								.toString();
-						return td(a("Count").withHref(href));
-					})
-					.build(prefixesList)
-					.withStyle("font-family:monospace; font-size:.9em;");
-		}else{
-			List<S3Object> objects = s3Client.scanObjects(
-					bucket,
-					prefix.orElse(null),
-					after.orElse(null),
-					delimiter.orElse(null))
-					.skip(offset.orElse(0))
-					.limit(limit.orElse(100))
-					.list();
-			int sizePadding = sizePadding(objects);
-			table = new J2HtmlTable<S3Object>()
-					.withClasses("sortable table table-sm table-striped my-4 border")
-					.withColumn("Key", object -> object.key())
-					.withHtmlColumn("Size", object -> {
-						String commas = NumberFormatter.addCommas(object.size());
-						String padded = StringTool.pad(commas, ' ', sizePadding);
-						String escaped = padded.replaceAll(" ", "&nbsp;");
-						return td(rawHtml(escaped));
-					})
-					.withColumn("Last Modified", object -> object.lastModified())
-					.withColumn("Storage Class", object -> object.storageClassAsString().toLowerCase())
-					.build(objects)
-					.withStyle("font-family:monospace; font-size:.9em;");
-		}
+						return td(a("true, view count").withHref(href));
+					}
+					return td(String.valueOf(isDirectory));
+				})
+				.withHtmlColumn("Size", object -> {
+					String commas = NumberFormatter.addCommas(object.size);
+					String padded = StringTool.pad(commas, ' ', sizePadding);
+					String escaped = padded.replaceAll(" ", "&nbsp;");
+					return td(rawHtml(escaped));
+				})
+				.withColumn("Last Modified", object -> object.lastModified)
+				.withColumn("Storage Class", object -> object.storageClass)
+				.build(objects)
+				.withStyle("font-family:monospace; font-size:.9em;");
 		var content = div(
 				htmlForm,
 				h4(bucket),
@@ -219,9 +213,22 @@ public class S3BucketHandler extends BaseHandler{
 		return pageFactory.message(request, message.get());
 	}
 
-	private static int sizePadding(List<S3Object> objects){
+	private ContainerTag makePrefixLink(String client, String bucket, String prefix, String delimiter){
+		String href = new URIBuilder()
+				.setPath(request.getContextPath() + paths.datarouter.clients.awsS3.listObjects
+						.toSlashedString())
+				.addParameter(P_client, client)
+				.addParameter(P_bucket, bucket)
+				.addParameter(P_prefix, prefix)
+				.addParameter(P_delimiter, delimiter)
+				.toString();
+		return a(prefix)
+				.withHref(href);
+	}
+
+	private static int sizePadding(List<DirectoryDto> objects){
 		return Scanner.of(objects)
-				.map(S3Object::size)
+				.map(object -> object.size)
 				.map(NumberFormatter::addCommas)
 				.map(String::length)
 				.max(Comparator.naturalOrder())

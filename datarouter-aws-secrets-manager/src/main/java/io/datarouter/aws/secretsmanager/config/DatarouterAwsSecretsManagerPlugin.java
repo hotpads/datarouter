@@ -15,21 +15,25 @@
  */
 package io.datarouter.aws.secretsmanager.config;
 
-import io.datarouter.aws.secretsmanager.AwsCredentialsSupplier;
-import io.datarouter.aws.secretsmanager.AwsCredentialsSupplier.DatarouterAwsCredentials;
+import io.datarouter.aws.secretsmanager.AwsSecretClientCredentialsHolder;
+import io.datarouter.aws.secretsmanager.AwsSecretClientCredentialsHolder.HardcodedAwsSecretClientCredentialsHolder;
 import io.datarouter.web.config.BaseWebPlugin;
 
 public class DatarouterAwsSecretsManagerPlugin extends BaseWebPlugin{
 
 	private final String devAccessKey;
 	private final String devSecretKey;
+	private final String stagingAccessKey;
+	private final String stagingSecretKey;
 	private final String prodAccessKey;
 	private final String prodSecretkey;
 
-	private DatarouterAwsSecretsManagerPlugin(String devAccessKey, String devSecretKey, String prodAccessKey,
-			String prodSecretkey){
+	private DatarouterAwsSecretsManagerPlugin(String devAccessKey, String devSecretKey, String stagingAccessKey,
+			String stagingSecretKey, String prodAccessKey, String prodSecretkey){
 		this.devAccessKey = devAccessKey;
 		this.devSecretKey = devSecretKey;
+		this.stagingAccessKey = stagingAccessKey;
+		this.stagingSecretKey = stagingSecretKey;
 		this.prodAccessKey = prodAccessKey;
 		this.prodSecretkey = prodSecretkey;
 		addDatarouterGithubDocLink("datarouter-aws-secrets-manager");
@@ -42,21 +46,25 @@ public class DatarouterAwsSecretsManagerPlugin extends BaseWebPlugin{
 
 	@Override
 	protected void configure(){
-		bind(AwsCredentialsSupplier.class)
-				.toInstance(new DatarouterAwsCredentials(devAccessKey, devSecretKey, prodAccessKey, prodSecretkey));
+		bind(AwsSecretClientCredentialsHolder.class).toInstance(new HardcodedAwsSecretClientCredentialsHolder(
+				devAccessKey, devSecretKey, stagingAccessKey, stagingSecretKey, prodAccessKey, prodSecretkey));
 	}
 
 	public static class DatarouterAwsSecretsManagerPluginBuilder{
 
 		private final String devAccessKey;
 		private final String devSecretKey;
+		private final String stagingAccessKey;
+		private final String stagingSecretKey;
 		private final String prodAccessKey;
 		private final String prodSecretkey;
 
-		public DatarouterAwsSecretsManagerPluginBuilder(String devAccessKey, String devSecretKey, String prodAccessKey,
-				String prodSecretkey){
+		public DatarouterAwsSecretsManagerPluginBuilder(String devAccessKey, String devSecretKey,
+				String stagingAccessKey, String stagingSecretKey, String prodAccessKey, String prodSecretkey){
 			this.devAccessKey = devAccessKey;
 			this.devSecretKey = devSecretKey;
+			this.stagingAccessKey = stagingAccessKey;
+			this.stagingSecretKey = stagingSecretKey;
 			this.prodAccessKey = prodAccessKey;
 			this.prodSecretkey = prodSecretkey;
 		}
@@ -65,6 +73,8 @@ public class DatarouterAwsSecretsManagerPlugin extends BaseWebPlugin{
 			return new DatarouterAwsSecretsManagerPlugin(
 					devAccessKey,
 					devSecretKey,
+					stagingAccessKey,
+					stagingSecretKey,
 					prodAccessKey,
 					prodSecretkey);
 		}

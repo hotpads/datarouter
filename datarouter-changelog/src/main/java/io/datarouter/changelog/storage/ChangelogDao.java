@@ -15,6 +15,7 @@
  */
 package io.datarouter.changelog.storage;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -25,30 +26,38 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class ChangelogDao extends BaseDao{
 
-	public static class ChangelogDaoParams extends BaseDaoParams{
+	public static class ChangelogDaoParams extends BaseRedundantDaoParams{
 
-		public ChangelogDaoParams(ClientId clientId){
-			super(clientId);
+		public ChangelogDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<ChangelogKey,Changelog> node;
+	private final SortedMapStorageNode<ChangelogKey,Changelog,ChangelogFielder> node;
 
 	@Inject
 	public ChangelogDao(Datarouter datarouter, ChangelogDaoParams params, NodeFactory nodeFactory){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, Changelog::new, ChangelogFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<ChangelogKey,Changelog,ChangelogFielder> node =
+							nodeFactory.create(clientId, Changelog::new, ChangelogFielder::new)
+						.withIsSystemTable(true)
+						.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public Optional<Changelog> find(ChangelogKey key){

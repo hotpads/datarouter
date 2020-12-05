@@ -18,6 +18,7 @@ package io.datarouter.client.redis.client;
 import java.util.Properties;
 
 import io.datarouter.client.redis.RedisClientType;
+import io.datarouter.client.redis.client.RedisOptions.RedisClientMode;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientOptionsBuilder;
@@ -33,12 +34,38 @@ public class RedisClientOptionsBuilder implements ClientOptionsBuilder{
 		properties.setProperty(ClientOptions.makeClientTypeKey(clientIdName), RedisClientType.NAME);
 	}
 
+	/*--------------------------------- redis -------------------------------*/
+
 	public RedisClientOptionsBuilder withEndpoint(String endpoint){
 		String optionKeySuffix = RedisOptions.makeRedisKey(RedisOptions.PROP_endpoint);
 		String optionKey = makeKey(optionKeySuffix);
 		properties.setProperty(optionKey, endpoint);
 		return this;
 	}
+
+	public RedisClientOptionsBuilder withNumNodes(int numberOfNodes){
+		String optionKeySuffix = RedisOptions.makeRedisKey(RedisOptions.PROP_numNodes);
+		String optionKey = makeKey(optionKeySuffix);
+		properties.setProperty(optionKey, String.valueOf(numberOfNodes));
+		return this;
+	}
+
+	public RedisClientOptionsBuilder withNodeIndexAndHostAndPort(int nodeIndex,
+			String inetSocketAddress){
+		String optionKeySuffix = RedisOptions.makeRedisKey(RedisOptions.PROP_node + "." + nodeIndex);
+		String optionKey = makeKey(optionKeySuffix);
+		properties.setProperty(optionKey, inetSocketAddress);
+		return this;
+	}
+
+	public RedisClientOptionsBuilder withClientMode(RedisClientMode clientMode){
+		String optionKeySuffix = RedisOptions.makeRedisKey(RedisOptions.PROP_clientMode);
+		String optionKey = makeKey(optionKeySuffix);
+		properties.setProperty(optionKey, clientMode.getPersistentString());
+		return this;
+	}
+
+	/*-------------------------------- helper -------------------------------*/
 
 	@Override
 	public Properties build(){

@@ -18,20 +18,18 @@ package io.datarouter.loggerconfig.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.small;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
+import io.datarouter.util.DateTool;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -48,9 +46,11 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 	@Inject
 	private DatarouterLoggingConfigPaths paths;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(){
+	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
 		List<LoggerConfig> loggers = getTodaysLoggers();
 		if(loggers.size() == 0){
 			return Optional.empty();
@@ -62,7 +62,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
 				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> row.getLastUpdated())
+				.withColumn("Updated", row -> DateTool.formatDateWithZone(row.getLastUpdated(), zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}
@@ -75,11 +75,12 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 		}
 		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging);
 		var description = small("Updated Today");
+		ZoneId zoneId = datarouterService.getZoneId();
 		var table = new J2HtmlEmailTable<LoggerConfig>()
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
 				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> row.getLastUpdated())
+				.withColumn("Updated", row -> DateTool.formatDateWithZone(row.getLastUpdated(), zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}
@@ -97,14 +98,8 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private List<LoggerConfig> getTodaysLoggers(){
 		return dao.scan()
 				.exclude(config -> config.getLastUpdated() == null)
-				.exclude(config -> config.getLastUpdated().getTime() < atStartOfDay())
+				.exclude(config -> config.getLastUpdated().getTime() < DateTool.atStartOfDayMs())
 				.list();
-	}
-
-	private static long atStartOfDay(){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-		return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant()).getTime();
 	}
 
 }

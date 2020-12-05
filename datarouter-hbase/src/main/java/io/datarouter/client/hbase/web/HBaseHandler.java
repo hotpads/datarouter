@@ -51,7 +51,6 @@ import io.datarouter.client.hbase.cluster.DrRegionListFactory.DrRegionList;
 import io.datarouter.client.hbase.cluster.DrServerInfo;
 import io.datarouter.client.hbase.cluster.DrServerList;
 import io.datarouter.client.hbase.cluster.DrTableSettings;
-import io.datarouter.client.hbase.compaction.HBaseCompactionInfo;
 import io.datarouter.client.hbase.config.DatarouterHBaseFiles;
 import io.datarouter.client.hbase.util.HBaseClientTool;
 import io.datarouter.client.hbase.util.ServerNameTool;
@@ -81,8 +80,6 @@ public class HBaseHandler extends BaseHandler{
 	private static final String HBASE_TABLE_PARAM_MAX_FILESIZE = "MAX_FILESIZE";
 	private static final String HBASE_TABLE_PARAM_MEMSTORE_FLUSHSIZE = "MEMSTORE_FLUSHSIZE";
 
-	@Inject
-	private HBaseCompactionInfo compactionInfo;
 	@Inject
 	private HBaseBalancerFactory balancerFactory;
 	@Inject
@@ -118,8 +115,7 @@ public class HBaseHandler extends BaseHandler{
 				datarouterWebRequestParams.getTableName(),
 				datarouterWebRequestParams.getPhysicalNode(),
 				balancerFactory.getBalancerForTable(datarouterWebRequestParams.getClientId(),
-				datarouterWebRequestParams.getTableName()),
-				compactionInfo));
+				datarouterWebRequestParams.getTableName())));
 	}
 
 	/*---------------------------- view handlers ----------------------------*/
@@ -291,8 +287,7 @@ public class HBaseHandler extends BaseHandler{
 	@Handler
 	public Mav compactHBaseTableRegions() throws IOException{
 		initialize();
-		for(int i = 0; i < encodedRegionNameStrings.size(); ++i){
-			String encodedRegionNameString = encodedRegionNameStrings.get(i);
+		for(String encodedRegionNameString : encodedRegionNameStrings){
 			DrRegionInfo<?> region = regionList.get().getRegionByEncodedName(encodedRegionNameString);
 			hBaseClientManager.getAdmin(datarouterWebRequestParams.getClientId()).compactRegion(region.getRegion()
 					.getRegionName());
@@ -312,8 +307,7 @@ public class HBaseHandler extends BaseHandler{
 	@Handler
 	public Mav majorCompactHBaseTableRegions() throws IOException{
 		initialize();
-		for(int i = 0; i < encodedRegionNameStrings.size(); ++i){
-			String encodedRegionNameString = encodedRegionNameStrings.get(i);
+		for(String encodedRegionNameString : encodedRegionNameStrings){
 			DrRegionInfo<?> region = regionList.get().getRegionByEncodedName(encodedRegionNameString);
 			hBaseClientManager.getAdmin(datarouterWebRequestParams.getClientId()).majorCompactRegion(region.getRegion()
 					.getRegionName());
@@ -335,8 +329,7 @@ public class HBaseHandler extends BaseHandler{
 	@Handler
 	public Mav flushHBaseTableRegions() throws IOException{
 		initialize();
-		for(int i = 0; i < encodedRegionNameStrings.size(); ++i){
-			String encodedRegionNameString = encodedRegionNameStrings.get(i);
+		for(String encodedRegionNameString : encodedRegionNameStrings){
 			DrRegionInfo<?> region = regionList.get().getRegionByEncodedName(encodedRegionNameString);
 			hBaseClientManager.getAdmin(datarouterWebRequestParams.getClientId()).flushRegion(region.getRegion()
 					.getRegionName());

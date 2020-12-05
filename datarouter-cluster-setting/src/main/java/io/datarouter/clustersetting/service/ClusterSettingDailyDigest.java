@@ -21,6 +21,7 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +57,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	private DatarouterClusterSettingPaths paths;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(){
+	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
 		var redundantTable = settingService.scanWithValidity(ClusterSettingValidity.REDUNDANT)
 				.listTo(settings -> makePageTable(settings, "Redundant"));
 		var expiredTable = settingService.scanWithValidity(ClusterSettingValidity.EXPIRED)

@@ -70,7 +70,7 @@ public class JobletSubnavFactory{
 
 	private Dropdown status(String contextPath){
 		var dropdown = new Dropdown("Status");
-		JobletStatus.stream()
+		JobletStatus.scan()
 				.map(status -> new DropdownItem(
 						status.getPersistentString(),
 						localLinkBuilder.listWithStatus(contextPath, status)))

@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.datarouter.model.field.compare.FieldSetComparator;
 import io.datarouter.model.util.PercentFieldCodec;
+import io.datarouter.scanner.Scanner;
 
 public abstract class BaseFieldSet<F extends FieldSet<F>>
 implements FieldSet<F>{
@@ -62,17 +63,26 @@ implements FieldSet<F>{
 
 	@Override
 	public List<String> getFieldNames(){
-		return FieldTool.getFieldNames(getFields());
+		return Scanner.of(getFields())
+				.map(Field::getKey)
+				.map(FieldKey::getName)
+				.list();
 	}
 
 	@Override
 	public List<?> getFieldValues(){
-		return FieldTool.getFieldValues(getFields());
+		return Scanner.of(getFields())
+				.map(Field::getValue)
+				.list();
 	}
 
 	@Override
 	public Object getFieldValue(String fieldName){
-		return FieldTool.getFieldValue(getFields(), fieldName);
+		return Scanner.of(getFields())
+				.include(field -> field.getKey().getName().equals(fieldName))
+				.findFirst()
+				.map(Field::getValue)
+				.orElse(null);
 	}
 
 	//allows us to use the databean itself as the default Fielder

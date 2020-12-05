@@ -56,9 +56,11 @@ public class DrRegionListFactory{
 
 	@Inject
 	private HBaseClientManager hBaseClientManager;
+	@Inject
+	private HBaseCompactionInfo compactionInfo;
 
 	public DrRegionList make(ClientId clientId, DrServerList servers, String tableName, PhysicalNode<?,?,?> node,
-			BaseHBaseRegionBalancer balancer, HBaseCompactionInfo compactionInfo){
+			BaseHBaseRegionBalancer balancer){
 		List<DrRegionInfo<?>> regions = new ArrayList<>();
 		EntityFieldInfo<?,?> entityFieldInfo = HBaseClientTool.getEntityFieldInfo(node);
 		EntityPartitioner<?> entityPartitioner = entityFieldInfo.getEntityPartitioner();

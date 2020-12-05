@@ -18,6 +18,7 @@ package io.datarouter.nodewatch.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.td;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +49,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(){
+	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
 		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
 		if(staleTables.isEmpty()){
 			return Optional.empty();

@@ -28,6 +28,7 @@ public class DatarouterWebappInstancePaths extends PathNode implements PathsRoot
 	public static class DatarouterPaths extends PathNode{
 		public final PathNode webappInstances = leaf("webappInstances");
 		public final PathNode webappInstanceLog = leaf("webappInstanceLog");
+		public final PathNode webappInstanceServers = leaf("webappInstanceServers");
 	}
 
 }

@@ -23,10 +23,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -53,6 +55,8 @@ public class WebappInstanceAlertJob extends BaseJob{
 	private DatarouterAdministratorEmailService additionalAdministratorEmailService;
 	@Inject
 	private DatarouterWebappInstancePaths paths;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -79,11 +83,13 @@ public class WebappInstanceAlertJob extends BaseJob{
 		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
 	}
 
-	private static ContainerTag makeContent(WebappInstance webappInstance){
+	private ContainerTag makeContent(WebappInstance webappInstance){
 		var rows = List.of(
 				new Twin<>("webapp", webappInstance.getKey().getWebappName()),
-				new Twin<>("build date", webappInstance.getBuildDate() + ""),
-				new Twin<>("startup date", webappInstance.getStartupDate() + ""),
+				new Twin<>("build date", DateTool.formatDateWithZone(webappInstance.getBuildDate(),
+						datarouterService.getZoneId())),
+				new Twin<>("startup date", DateTool.formatDateWithZone(webappInstance.getStartupDate(),
+						datarouterService.getZoneId())),
 				new Twin<>("commitId", webappInstance.getCommitId()));
 		return new J2HtmlEmailTable<Twin<String>>()
 				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))

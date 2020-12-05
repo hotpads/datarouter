@@ -23,7 +23,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.pool.PoolStats;
 
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.request.BaseRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
+import io.datarouter.httpclient.request.DatarouterHttpRequestBuilder;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
@@ -52,6 +54,11 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	}
 
 	@Override
+	public <E> E execute(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request){
+		return datarouterHttpClient.execute(requestBuilder, request);
+	}
+
+	@Override
 	public <E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
 		return datarouterHttpClient.executeChecked(request, deserializeToType);
 	}
@@ -65,6 +72,12 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	public DatarouterHttpResponse executeChecked(DatarouterHttpRequest request, Consumer<HttpEntity> httpEntityConsumer)
 	throws DatarouterHttpException{
 		return datarouterHttpClient.executeChecked(request, httpEntityConsumer);
+	}
+
+	@Override
+	public <E> E executeChecked(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request)
+	throws DatarouterHttpException{
+		return datarouterHttpClient.executeChecked(requestBuilder, request);
 	}
 
 	@Override

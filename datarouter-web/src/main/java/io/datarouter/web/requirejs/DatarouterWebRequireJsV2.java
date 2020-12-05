@@ -49,6 +49,9 @@ public class DatarouterWebRequireJsV2{
 	public static final String DYGRAPH = register(
 			"dygraph",
 			FILES.dygraph.dygraphCombinedJs);
+	public static final String CHART = register(
+			"chart",
+			FILES.chart.chartJs);
 	public static final String DYGRAPH_EXTRA = register(
 			"dygraph-extra",
 			FILES.dygraph.dygraphExtraJs);

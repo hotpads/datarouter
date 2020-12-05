@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.digest;
 
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -26,7 +27,7 @@ public interface DailyDigest{
 			.comparing(DailyDigest::getGrouping)
 			.thenComparing(DailyDigest::getTitle);
 
-	Optional<ContainerTag> getPageContent();
+	Optional<ContainerTag> getPageContent(ZoneId zoneId);
 	Optional<ContainerTag> getEmailContent();
 
 	DailyDigestGrouping getGrouping();

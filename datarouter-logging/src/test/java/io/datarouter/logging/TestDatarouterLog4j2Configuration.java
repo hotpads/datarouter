@@ -42,7 +42,7 @@ public final class TestDatarouterLog4j2Configuration extends BaseLog4j2Configura
 			FileAppender testFileAppender = Log4j2Configurator.createFileAppender(
 					TEST_APPENDER_NAME,
 					TEST_FILE_NAME,
-					defaultPattern);
+					DEFAULT_PATTERN);
 			addAppender(testFileAppender);
 			addLoggerConfig(getClass().getPackage().getName(), Level.ALL, false, testFileAppender);
 		}

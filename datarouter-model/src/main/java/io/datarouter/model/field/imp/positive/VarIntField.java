@@ -16,7 +16,7 @@
 package io.datarouter.model.field.imp.positive;
 
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.bytes.VarInt;
+import io.datarouter.util.bytes.VarIntTool;
 import io.datarouter.util.string.StringTool;
 
 public class VarIntField extends BasePrimitiveField<Integer,VarIntFieldKey>{
@@ -43,17 +43,18 @@ public class VarIntField extends BasePrimitiveField<Integer,VarIntFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : new VarInt(value).getBytes();
+		return value == null ? null : VarIntTool.encode(value);
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return VarInt.fromByteArray(bytes, offset).getNumBytes();
+		long value = VarIntTool.decodeLong(bytes, offset);
+		return VarIntTool.length(value);
 	}
 
 	@Override
 	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
-		return VarInt.fromByteArray(bytes, offset).getValue();
+		return VarIntTool.decodeInt(bytes, offset);
 	}
 
 	public static Integer assertInRange(Integer value){

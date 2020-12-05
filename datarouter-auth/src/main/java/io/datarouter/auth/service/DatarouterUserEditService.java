@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.service;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -37,6 +38,7 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.util.BooleanTool;
@@ -66,6 +68,8 @@ public class DatarouterUserEditService{
 	private PermissionRequestAdditionalEmailsSupplier permissionRequestAdditionalEmails;
 	@Inject
 	private DatarouterService datarouterService;
+	@Inject
+	private ChangelogRecorder changelogRecorder;
 
 	public void editUser(
 			DatarouterUser user,
@@ -73,7 +77,8 @@ public class DatarouterUserEditService{
 			Set<Role> requestedRoles,
 			Boolean enabled,
 			String signinUrl,
-			Set<DatarouterAccountKey> requestedAccounts){
+			Set<DatarouterAccountKey> requestedAccounts,
+			String zoneId){
 		var history = new DatarouterUserHistory(user.getId(), new Date(), editor.getId(), DatarouterUserChangeType.EDIT,
 				null);
 		List<String> changes = new ArrayList<>();
@@ -107,6 +112,18 @@ public class DatarouterUserEditService{
 
 		handleAccountChanges(user, requestedAccounts).ifPresent(changes::add);
 
+		if(zoneId != null){
+			Optional<ZoneId> currentZoneId = user.getZoneId();
+			boolean sameZoneId = currentZoneId
+					.map(ZoneId::getId)
+					.orElse("")
+					.equals(zoneId);
+			if(!sameZoneId){
+				user.setZoneId(zoneId);
+				changes.add(change("timezone", currentZoneId.map(ZoneId::getId).orElse(""), zoneId));
+			}
+		}
+
 		if(changes.size() > 0){
 			history.setChanges(String.join(", ", changes));
 			userHistoryService.putAndRecordRoleEdit(user, history, signinUrl);
@@ -121,6 +138,12 @@ public class DatarouterUserEditService{
 					datarouterSessionDao.putMulti(sessions);
 				}
 			}
+			changelogRecorder.record(
+					"Admin Edit User",
+					"User Edited - " + user.getUsername(),
+					"Edit",
+					editor.getUsername(),
+					String.join(", ", changes));
 		}else{
 			logger.warn("User {} submitted edit request for user {}, but no changes were made.", editor.toString(),
 					user.toString());

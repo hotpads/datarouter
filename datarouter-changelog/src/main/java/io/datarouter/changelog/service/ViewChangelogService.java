@@ -20,6 +20,7 @@ import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.td;
 
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import javax.inject.Singleton;
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.html.j2html.J2HtmlTable;
@@ -43,7 +45,7 @@ public class ViewChangelogService{
 	@Inject
 	private DatarouterChangelogPaths paths;
 
-	public ContainerTag buildTable(List<Changelog> rows){
+	public ContainerTag buildTable(List<Changelog> rows, ZoneId zoneId){
 		return new J2HtmlTable<Changelog>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn("", row -> {
@@ -59,7 +61,8 @@ public class ViewChangelogService{
 				})
 				.withColumn("Date", row -> {
 					Long reversedDateMs = row.getKey().getReversedDateMs();
-					return new Date(Long.MAX_VALUE - reversedDateMs);
+					Date date = new Date(Long.MAX_VALUE - reversedDateMs);
+					return DateTool.formatDateWithZone(date, zoneId);
 				})
 				.withColumn("Type", row -> row.getKey().getChangelogType())
 				.withColumn("Name", row -> row.getKey().getName())

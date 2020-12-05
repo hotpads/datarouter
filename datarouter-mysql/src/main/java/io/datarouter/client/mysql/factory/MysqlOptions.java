@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientId;
@@ -94,7 +95,8 @@ public class MysqlOptions{
 			return optionalSecretLocation.map(secretLocation -> {
 				String namespacedLocationForLogs = secretNamespacer.sharedNamespaced(secretLocation);
 				try{
-					String result = secretService.readSharedWithoutRecord(secretLocation, String.class);
+					String result = secretService.readSharedWithoutRecord(secretLocation, String.class, SecretOpReason
+							.automatedOp(this.getClass().getSimpleName()));
 					logger.warn("using secret at secretLocation={}", namespacedLocationForLogs);
 					return result;
 				}catch(RuntimeException e){

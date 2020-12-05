@@ -25,16 +25,16 @@ public class SpannerUpdateStatements{
 	private List<String> printStatements = new ArrayList<>();
 	private Boolean preventStartUp = false;
 
-	public void updateFunction(String statment, Function<Boolean,Boolean> updateFunction, Boolean required){
+	public void updateFunction(String statement, Function<Boolean,Boolean> updateFunction, Boolean required){
 		if(updateFunction.apply(false)){
-			executeStatements.add(statment);
+			executeStatements.add(statement);
 		}else{
-			printStatements.add(statment);
+			printStatements.add(statement);
 			preventStartUp = preventStartUp || required;
 		}
 	}
 
-	public List<String> getExcuteStatments(){
+	public List<String> getExecuteStatements(){
 		return executeStatements;
 	}
 

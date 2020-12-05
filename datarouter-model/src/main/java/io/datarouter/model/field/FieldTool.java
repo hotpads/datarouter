@@ -15,78 +15,68 @@
  */
 package io.datarouter.model.field;
 
-import java.io.ByteArrayOutputStream;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
-import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.bytes.VarInt;
+import io.datarouter.util.bytes.VarIntTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 
 public class FieldTool{
 
-	public static int countNonNullLeadingFields(Iterable<Field<?>> fields){
-		int count = 0;
-		for(Field<?> field : fields){
-			if(field.getValue() != null){
-				++count;
-			}else{
-				break;
-			}
+	private static final byte[] EMPTY_BYTES = new byte[]{};
+
+	public static int countNonNullLeadingFields(List<Field<?>> fields){
+		int num = 0;
+		while(num < fields.size() && fields.get(num).getValue() != null){
+			++num;
 		}
-		return count;
+		return num;
 	}
 
-
-	/*------------------------------- bytes ---------------------------------*/
-
-	/*
-	 * the trailingSeparatorAfterEndingString is for backwards compatibility with some early tables
-	 * that appended a trailing 0 to the byte[] even though it wasn't necessary
-	 */
-	public static byte[] getConcatenatedValueBytes(
-			Collection<Field<?>> fields,
-			boolean allowNulls,
-			boolean terminateIntermediateString,
-			boolean terminateFinalString){
-		int totalFields = fields == null ? 0 : fields.size();
-		int numNonNullFields = FieldTool.countNonNullLeadingFields(fields);
-		if(numNonNullFields == 0){
-			return null;
+	public static byte[] getPartitionerInput(List<Field<?>> fields){
+		int numTokens = FieldTool.countNonNullLeadingFields(fields);
+		if(numTokens == 0){
+			throw new IllegalArgumentException("Partitioner needs at least one field");
 		}
-		byte[][] fieldArraysWithSeparators = new byte[totalFields][];
-		int fieldIdx = -1;
-		for(Field<?> field : fields){
-			++fieldIdx;
-			boolean finalField = fieldIdx == totalFields - 1;
-			boolean lastNonNullField = fieldIdx == numNonNullFields - 1;
-			if(!allowNulls && field.getValue() == null){
-				throw new IllegalArgumentException("field:" + field.getKey().getName() + " cannot be null in");
-			}
-			if(finalField){
-				if(terminateFinalString){
-					fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
-				}else{
-					fieldArraysWithSeparators[fieldIdx] = field.getBytes();
-				}
-			}else if(lastNonNullField){
-				if(terminateIntermediateString){
-					fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
-				}else{
-					fieldArraysWithSeparators[fieldIdx] = field.getBytes();
-				}
-			}else{
-				fieldArraysWithSeparators[fieldIdx] = field.getBytesWithSeparator();
-			}
-			if(lastNonNullField){
-				break;
-			}
+		byte[][] tokens = new byte[numTokens][];
+		for(int i = 0; i < numTokens; ++i){
+			Field<?> field = fields.get(i);
+			boolean finalField = i == numTokens - 1;
+			tokens[i] = finalField
+					? field.getBytes()
+					: field.getBytesWithSeparator();
 		}
-		return ByteTool.concatenate(fieldArraysWithSeparators);
+		return ByteTool.concatenate(tokens);
+	}
+
+	public static byte[] getConcatenatedValueBytesUnterminated(List<Field<?>> fields){
+		int numTokens = FieldTool.countNonNullLeadingFields(fields);
+		if(numTokens == 0){
+			return EMPTY_BYTES;
+		}
+		byte[][] tokens = new byte[numTokens][];
+		for(int i = 0; i < numTokens; ++i){
+			Field<?> field = fields.get(i);
+			boolean finalField = i == fields.size() - 1;
+			tokens[i] = finalField
+					? field.getBytes()
+					: field.getBytesWithSeparator();
+		}
+		return ByteTool.concatenate(tokens);
+	}
+
+	public static byte[] getConcatenatedValueBytes(List<Field<?>> fields){
+		int numTokens = FieldTool.countNonNullLeadingFields(fields);
+		if(numTokens == 0){
+			return EMPTY_BYTES;
+		}
+		byte[][] tokens = new byte[numTokens][];
+		for(int i = 0; i < numTokens; ++i){
+			tokens[i] = fields.get(i).getBytesWithSeparator();
+		}
+		return ByteTool.concatenate(tokens);
 	}
 
 	/**
@@ -94,100 +84,39 @@ public class FieldTool{
 	 * @param skipNullValues important to include nulls in PK's, but usually skip them in normal fields
 	 */
 	public static byte[] getSerializedKeyValues(
-			Collection<Field<?>> fields,
+			List<Field<?>> fields,
 			boolean includePrefix,
 			boolean skipNullValues){
-		if(fields == null || fields.isEmpty()){
-			return new byte[0];
-		}
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[][] tokens = new byte[4 * fields.size()][];
+		int index = 0;
 		for(Field<?> field : fields){
-			//prep the values
-			byte[] keyBytes;
-			if(includePrefix){
-				keyBytes = StringByteTool.getUtf8Bytes(field.getPrefixedName());
-			}else{
-				keyBytes = field.getKey().getColumnNameBytes();
-			}
-			VarInt keyLength = new VarInt(ArrayTool.length(keyBytes));
-			byte[] valueBytes = field.getBytes();
-			VarInt valueLength = new VarInt(ArrayTool.length(valueBytes));
-			//abort if value is 0 bytes
-			if(valueBytes == null && skipNullValues){
+			byte[] value = field.getBytes();
+			if(value == null && skipNullValues){
 				continue;
 			}
-			try{
-				//write out the bytes
-				baos.write(keyLength.getBytes());
-				baos.write(keyBytes);
-				baos.write(valueLength.getBytes());
-				baos.write(valueBytes);
-			}catch(Exception e){
-				throw new RuntimeException("Failed writing " + field, e);
-			}
+			byte[] key = includePrefix
+					? StringByteTool.getUtf8Bytes(field.getPrefixedName())
+					: field.getKey().getColumnNameBytes();
+
+			tokens[index++] = VarIntTool.encode(key.length);
+			tokens[index++] = key;
+			tokens[index++] = VarIntTool.encode(value.length);
+			tokens[index++] = value;
 		}
-		return baos.toByteArray();
-	}
-
-
-	/*-------------------------------- csv ----------------------------------*/
-
-	public static String getCsvColumnNames(Iterable<Field<?>> fields){
-		StringBuilder sb = new StringBuilder();
-		appendCsvColumnNames(sb, fields);
-		return sb.toString();
-	}
-
-	public static void appendCsvColumnNames(StringBuilder sb, Iterable<Field<?>> fields){
-		int appended = 0;
-		for(Field<?> field : fields){
-			if(appended > 0){
-				sb.append(", ");
-			}
-			sb.append(field.getKey().getColumnName());
-			++appended;
-		}
-	}
-
-	public static List<String> getFieldNames(List<Field<?>> fields){
-		List<String> fieldNames = new LinkedList<>();
-		for(Field<?> field : fields){
-			fieldNames.add(field.getKey().getName());
-		}
-		return fieldNames;
-	}
-
-	public static List<?> getFieldValues(List<Field<?>> fields){
-		List<Object> fieldValues = new LinkedList<>();
-		for(Field<?> field : fields){
-			fieldValues.add(field.getValue());
-		}
-		return fieldValues;
-	}
-
-	public static Object getFieldValue(List<Field<?>> fields, String fieldName){
-		for(Field<?> field : fields){
-			if(field.getKey().getName().equals(fieldName)){
-				return field.getValue();
-			}
-		}
-		return null;
+		return ByteTool.concatenate(tokens);
 	}
 
 	//prepend a new prefix to an existing prefix
 	public static List<Field<?>> prependPrefixes(String prefixPrefix, List<Field<?>> fields){
-		for(Field<?> field : fields){
+		fields.forEach(field -> {
 			if(StringTool.isEmpty(field.getPrefix())){
 				field.setPrefix(prefixPrefix);
 			}else{
 				field.setPrefix(prefixPrefix + "." + field.getPrefix());
 			}
-		}
+		});
 		return fields;
 	}
-
-
-	/*----------------------------- reflection ------------------------------*/
 
 	public static Object getNestedFieldSet(Object object, Field<?> field){
 		if(StringTool.isEmpty(field.getPrefix())){

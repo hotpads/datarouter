@@ -2,7 +2,7 @@
 
 ## About
 
-This is a small module that provides the AWS Secrets Manager client implementation/concrete class of `SecretClient`/`BaseSecretClient` from datarouter-secret. It also provides a `SecretClientSupplier` implementation that returns the AWS client for non-development and `LocalStorageSecretClient` for development.
+This is a small module that provides the AWS Secrets Manager client implementation of `BaseSecretClient` and `SecretClientSupplier` from datarouter-secret.
 
 ## Installation with Maven
 
@@ -10,7 +10,7 @@ This is a small module that provides the AWS Secrets Manager client implementati
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-secrets-manager</artifactId>
-	<version>0.0.55</version>
+	<version>0.0.56</version>
 </dependency>
 ```
 
@@ -19,15 +19,13 @@ This is a small module that provides the AWS Secrets Manager client implementati
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addWebPlugin(new DatarouterAwsSecretsPluginBuilder(...)
+.addWebPlugin(new DatarouterAwsSecretsManagerPluginBuilder(...)
 	.build()
 ```
 
 ## Usage
 
 See datarouter-secret's README for usage. This module only provides the AWS client implementation and helpers.
-
-`DatarouterAwsCredentials` allows separate credentials for production and non-production usage of AWS Secrets Manager. Proper AWS user/policy/role configuration is necessary for these to be useful.
 
 ## License
 

@@ -18,6 +18,7 @@ package io.datarouter.changelog.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.small;
 
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -29,12 +30,15 @@ import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
+import io.datarouter.changelog.web.ViewExactChangelogHandler;
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
+import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -48,16 +52,18 @@ public class ChangelogDailyDigest implements DailyDigest{
 	private DatarouterChangelogPaths paths;
 	@Inject
 	private ViewChangelogService viewChangelogService;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(){
+	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
 		var list = getChangelogs();
 		if(list.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);
 		var description = small("For the current day");
-		var table = viewChangelogService.buildTable(list);
+		var table = viewChangelogService.buildTable(list, zoneId);
 		return Optional.of(div(header, description, table));
 	}
 
@@ -91,10 +97,18 @@ public class ChangelogDailyDigest implements DailyDigest{
 	}
 
 	private ContainerTag buildEmailTable(List<Changelog> rows){
+		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<Changelog>()
+				.withColumn(new J2HtmlEmailTableColumn<>("", row -> {
+					String href = paths.datarouter.changelog.viewExact.toSlashedString()
+							+ "?" + ViewExactChangelogHandler.P_reversedDateMs + "=" + row.getKey().getReversedDateMs()
+							+ "&" + ViewExactChangelogHandler.P_changelogType + "=" + row.getKey().getChangelogType()
+							+ "&" + ViewExactChangelogHandler.P_name + "=" + row.getKey().getName();
+					return digestService.makeATagLink("#", href);
+				}))
 				.withColumn("Date", row -> {
 					Long reversedDateMs = row.getKey().getReversedDateMs();
-					return new Date(Long.MAX_VALUE - reversedDateMs);
+					return DateTool.formatDateWithZone(new Date(Long.MAX_VALUE - reversedDateMs), zoneId);
 				})
 				.withColumn("Type", row -> row.getKey().getChangelogType())
 				.withColumn("Name", row -> row.getKey().getName())

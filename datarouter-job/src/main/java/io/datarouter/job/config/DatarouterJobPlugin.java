@@ -66,14 +66,14 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 
 	public static class DatarouterJobDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterClusterJobLockClientId;
-		private final ClientId datarouterClusterTriggerLockClientId;
+		private final List<ClientId> datarouterClusterJobLockClientIds;
+		private final List<ClientId> datarouterClusterTriggerLockClientIds;
 
 		public DatarouterJobDaoModule(
-				ClientId datarouterClusterJobLockClientId,
-				ClientId datarouterClusterTriggerLockClientId){
-			this.datarouterClusterJobLockClientId = datarouterClusterJobLockClientId;
-			this.datarouterClusterTriggerLockClientId = datarouterClusterTriggerLockClientId;
+				List<ClientId> datarouterClusterJobLockClientIds,
+				List<ClientId> datarouterClusterTriggerLockClientIds){
+			this.datarouterClusterJobLockClientIds = datarouterClusterJobLockClientIds;
+			this.datarouterClusterTriggerLockClientIds = datarouterClusterTriggerLockClientIds;
 		}
 
 		@Override
@@ -86,21 +86,21 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 		@Override
 		public void configure(){
 			bind(DatarouterClusterTriggerLockDaoParams.class)
-					.toInstance(new DatarouterClusterTriggerLockDaoParams(datarouterClusterTriggerLockClientId));
+					.toInstance(new DatarouterClusterTriggerLockDaoParams(datarouterClusterTriggerLockClientIds));
 			bind(DatarouterClusterJobLockDaoParams.class)
-					.toInstance(new DatarouterClusterJobLockDaoParams(datarouterClusterJobLockClientId));
+					.toInstance(new DatarouterClusterJobLockDaoParams(datarouterClusterJobLockClientIds));
 		}
 
 	}
 
 	public static class DatarouterJobPluginBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientIds;
 
 		private List<Class<? extends BaseTriggerGroup>> triggerGroupClasses = new ArrayList<>();
 
-		public DatarouterJobPluginBuilder(ClientId defaultClientId){
-			this.defaultClientId = defaultClientId;
+		public DatarouterJobPluginBuilder(List<ClientId> defaultClientIds){
+			this.defaultClientIds = defaultClientIds;
 		}
 
 		public DatarouterJobPluginBuilder setTriggerGroupClasses(
@@ -111,13 +111,13 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 
 		public DatarouterJobPlugin getSimplePluginData(){
 			return new DatarouterJobPlugin(
-					new DatarouterJobDaoModule(defaultClientId, defaultClientId));
+					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds));
 		}
 
 		public DatarouterJobPlugin build(){
 			return new DatarouterJobPlugin(
 					triggerGroupClasses,
-					new DatarouterJobDaoModule(defaultClientId, defaultClientId));
+					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds));
 		}
 
 	}

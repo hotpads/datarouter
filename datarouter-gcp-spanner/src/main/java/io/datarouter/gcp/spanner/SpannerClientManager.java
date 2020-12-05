@@ -17,7 +17,6 @@ package io.datarouter.gcp.spanner;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -28,28 +27,23 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.api.gax.longrunning.OperationFuture;
-import com.google.api.gax.paging.Page;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.spanner.Database;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.DatabaseId;
-import com.google.cloud.spanner.Options;
 import com.google.cloud.spanner.Spanner;
 import com.google.cloud.spanner.SpannerOptions;
-import com.google.spanner.admin.database.v1.CreateDatabaseMetadata;
 
 import io.datarouter.gcp.spanner.client.SpannerClientOptions;
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
+import io.datarouter.gcp.spanner.ddl.SpannerDatabaseCreator;
 import io.datarouter.gcp.spanner.execute.SpannerSchemaUpdateService;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.util.timer.PhaseTimer;
 
 @Singleton
@@ -64,6 +58,8 @@ public class SpannerClientManager extends BaseClientManager{
 	private SchemaUpdateOptions schemaUpdateOptions;
 	@Inject
 	private SpannerSchemaUpdateService schemaUpdateService;
+	@Inject
+	private SpannerDatabaseCreator databaseCreator;
 
 	@Override
 	protected Future<Optional<SchemaUpdateResult>> doSchemaUpdate(PhysicalNode<?,?,?> node){
@@ -71,6 +67,11 @@ public class SpannerClientManager extends BaseClientManager{
 			return schemaUpdateService.queueNodeForSchemaUpdate(node.getClientId(), node);
 		}
 		return CompletableFuture.completedFuture(Optional.empty());
+	}
+
+	@Override
+	public void gatherSchemaUpdates(){
+		schemaUpdateService.gatherSchemaUpdates(true);
 	}
 
 	@Override
@@ -91,32 +92,8 @@ public class SpannerClientManager extends BaseClientManager{
 				spannerClientOptions.projectId(clientId.getName()),
 				spannerClientOptions.instanceId(clientId.getName()),
 				spannerClientOptions.databaseName(clientId.getName()));
-		Page<Database> page = spanner.getDatabaseAdminClient().listDatabases(
-				databaseId.getInstanceId().getInstance(),
-				Options.pageSize(1));
-		Database database = null;
-		while(page != null){
-			Database current = Scanner.of(page.getValues()).findFirst().orElse(null);
-			if(current == null || current.getId().equals(databaseId)){
-				database = current;
-				break;
-			}
-			page = page.getNextPage();
-		}
-		timer.add("search database");
-		if(database == null){
-			if(schemaUpdateOptions.getCreateDatabases(false)){
-				OperationFuture<Database,CreateDatabaseMetadata> op = spanner.getDatabaseAdminClient().createDatabase(
-						databaseId.getInstanceId().getInstance(),
-						databaseId.getDatabase(),
-						Collections.emptyList());
-				database = FutureTool.get(op);
-				timer.add("create database");
-			}else{
-				throw new RuntimeException("Must create database before executing updates for database=" + databaseId
-						.getDatabase());
-			}
-		}
+		Database database = databaseCreator.createDatabaseIfNeeded(databaseId, spanner);
+		timer.add("create database");
 		databaseClientsHolder.register(clientId, spanner.getDatabaseClient(databaseId), spanner, database);
 		logger.warn(timer.toString());
 	}

@@ -353,24 +353,28 @@ public class DateTool{
 
 	/*---------------- current day --------------------*/
 
+	//TODO pass zoneId instead of using systemDefault
 	public static long atStartOfDayReversedMs(){
 		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
 		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
 		return Long.MAX_VALUE - localDateTimeToDate(startOfDay).getTime();
 	}
 
+	//TODO pass zoneId instead of using systemDefault
 	public static long atEndOfDayReversedMs(){
 		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
 		LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
 		return Long.MAX_VALUE - localDateTimeToDate(endOfDay).getTime();
 	}
 
+	//TODO pass zoneId instead of using systemDefault
 	public static long atStartOfDayMs(){
 		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
 		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
 		return localDateTimeToDate(startOfDay).getTime();
 	}
 
+	//TODO pass zoneId instead of using systemDefault
 	public static long atEndOfDayMs(){
 		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
 		LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
@@ -379,6 +383,13 @@ public class DateTool{
 
 	private static Date localDateTimeToDate(LocalDateTime localDateTime){
 		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
+
+	public static String formatDateWithZone(Date date, ZoneId zoneId){
+		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), zoneId);
+		return FORMATTER.format(zonedDateTime);
 	}
 
 }

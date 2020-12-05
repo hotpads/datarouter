@@ -10,7 +10,7 @@ datarouter-metric is a tool that can be used to record counters or gauges on any
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metric</artifactId>
-	<version>0.0.55</version>
+	<version>0.0.56</version>
 </dependency>
 ```
 

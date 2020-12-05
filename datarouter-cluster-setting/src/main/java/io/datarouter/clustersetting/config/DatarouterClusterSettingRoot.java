@@ -24,6 +24,7 @@ import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import io.datarouter.util.string.StringTool;
 
 @Singleton
 public class DatarouterClusterSettingRoot extends SettingRoot{
@@ -50,6 +51,11 @@ public class DatarouterClusterSettingRoot extends SettingRoot{
 		settingsExcludedFromUnknownSettingsAlert = registerCommaSeparatedString(
 				"settingsExcludedFromUnknownSettingsAlert", Set.of());
 		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
+	}
+
+	public boolean isExcludedOldSettingString(String settingName){
+		return settingsExcludedFromOldSettingsAlert.get().stream()
+				.anyMatch(setting -> StringTool.containsCaseInsensitive(settingName, setting));
 	}
 
 }

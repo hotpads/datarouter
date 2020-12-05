@@ -56,7 +56,7 @@ public class HBaseNonEntityResultParser<
 
 	public PK toPk(byte[] rowWithPrefix){
 		byte[] rowWithoutPrefix = rowWithoutPrefix(rowWithPrefix);
-		PK primaryKey = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
+		PK primaryKey = fieldInfo.getPrimaryKeySupplier().get();
 		if(ArrayTool.isEmpty(rowWithoutPrefix)){
 			return primaryKey;
 		}

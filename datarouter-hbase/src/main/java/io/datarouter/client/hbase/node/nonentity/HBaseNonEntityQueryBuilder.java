@@ -15,12 +15,14 @@
  */
 package io.datarouter.client.hbase.node.nonentity;
 
+import java.util.Objects;
+
 import io.datarouter.model.databean.Databean;
-import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.bytes.ByteRange;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.tuple.Range;
@@ -40,18 +42,19 @@ public class HBaseNonEntityQueryBuilder<
 			EK extends EntityKey<EK>,
 			PK extends EntityPrimaryKey<EK,PK>>
 	boolean isSingleRowRange(Range<PK> range){
-		return range.equalsStartEnd()
+		return range.hasStart()
+				&& range.equalsStartEnd()
 				&& range.getStartInclusive()
 				&& range.getEndInclusive()
-				&& FieldSetTool.areAllFieldsNonNull(range.getStart());
+				&& Scanner.of(range.getStart().getFieldValues()).noneMatch(Objects::isNull);
 	}
 
 	private byte[] getEkBytes(EK ek){
-		return FieldTool.getConcatenatedValueBytes(ek.getFields(), true, true, false);
+		return FieldTool.getConcatenatedValueBytesUnterminated(ek.getFields());
 	}
 
 	private byte[] getPkBytes(PK pk){
-		return FieldTool.getConcatenatedValueBytes(pk.getFields(), true, true, false);
+		return FieldTool.getConcatenatedValueBytesUnterminated(pk.getFields());
 	}
 
 	public byte[] getPkBytesWithPartition(PK pk){

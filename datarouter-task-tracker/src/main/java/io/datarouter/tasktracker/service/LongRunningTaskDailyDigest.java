@@ -21,6 +21,7 @@ import static j2html.TagCreator.small;
 import static j2html.TagCreator.td;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,7 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
+import io.datarouter.util.DateTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -61,7 +63,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	private DatarouterService datarouterService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(){
+	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
 		List<LongRunningTask> failedTasks = longRunningTaskDao.scan()
 				.include(task -> task.getKey().getTriggerTime().getTime()
 						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
@@ -72,7 +74,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		}
 		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks);
 		var description = small("From the last 24 hours");
-		var table = buildPageTable(failedTasks);
+		var table = buildPageTable(failedTasks, zoneId);
 		return Optional.of(div(header, description, table));
 	}
 
@@ -102,11 +104,11 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		return DailyDigestGrouping.HIGH;
 	}
 
-	private ContainerTag buildPageTable(List<LongRunningTask> rows){
+	private ContainerTag buildPageTable(List<LongRunningTask> rows, ZoneId zoneId){
 		return new J2HtmlTable<LongRunningTask>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Name", row -> td(makeTaskLink(row.getKey().getName())))
-				.withColumn("Trigger Time", row -> row.getKey().getTriggerTime())
+				.withColumn("Trigger Time", row -> DateTool.formatDateWithZone(row.getKey().getTriggerTime(), zoneId))
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())
 				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())
@@ -115,9 +117,10 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	}
 
 	private ContainerTag buildEmailTable(List<LongRunningTask> rows){
+		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> makeTaskLink(row.getKey().getName())))
-				.withColumn("Trigger Time", row -> row.getKey().getTriggerTime())
+				.withColumn("Trigger Time", row -> DateTool.formatDateWithZone(row.getKey().getTriggerTime(), zoneId))
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())
 				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())

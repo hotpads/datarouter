@@ -22,25 +22,28 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserHistoryFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterUserHistoryDao extends BaseDao{
 
-	public static class DatarouterUserHistoryDaoParams extends BaseDaoParams{
+	public static class DatarouterUserHistoryDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterUserHistoryDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterUserHistoryDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<DatarouterUserHistoryKey,DatarouterUserHistory> node;
+	private final SortedMapStorageNode<DatarouterUserHistoryKey,DatarouterUserHistory,
+			DatarouterUserHistoryFielder> node;
 
 	@Inject
 	public DatarouterUserHistoryDao(
@@ -48,12 +51,17 @@ public class DatarouterUserHistoryDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterUserHistoryDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(
-				params.clientId,
-				DatarouterUserHistory::new,
-				DatarouterUserHistoryFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<DatarouterUserHistoryKey,DatarouterUserHistory,
+					DatarouterUserHistoryFielder> node =
+							nodeFactory.create(clientId, DatarouterUserHistory::new, DatarouterUserHistoryFielder::new)
+						.withIsSystemTable(true)
+						.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public void put(DatarouterUserHistory databean){

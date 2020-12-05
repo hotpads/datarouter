@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.aws.s3.SerializableStaticAwsCredentialsProviderProvider;
 import io.datarouter.aws.s3.SerializableStaticAwsCredentialsProviderProvider.S3CredentialsDto;
+import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.SecretNamespacer;
-import io.datarouter.secret.service.SecretOpReason;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
 

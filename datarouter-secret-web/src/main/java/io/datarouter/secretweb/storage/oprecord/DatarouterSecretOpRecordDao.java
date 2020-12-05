@@ -15,6 +15,8 @@
  */
 package io.datarouter.secretweb.storage.oprecord;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -23,51 +25,62 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.secret.service.SecretOp;
-import io.datarouter.secret.service.SecretOpReason;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.secret.op.SecretOpInfo;
 import io.datarouter.secret.service.SecretOpRecorder;
 import io.datarouter.secret.service.SecretOpRecorderSupplier;
 import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecord.DatarouterSecretOpRecordFielder;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpRecorder{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterSecretOpRecordDao.class);
 
-	public static class DatarouterSecretOpRecordDaoParams extends BaseDaoParams{
-
-		public DatarouterSecretOpRecordDaoParams(ClientId clientId){
+	public static class DatarouterSecretOpRecordDaoParams extends BaseRedundantDaoParams{
+		public DatarouterSecretOpRecordDaoParams(List<ClientId> clientId){
 			super(clientId);
 		}
 
 	}
 
-	private final SortedMapStorage<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord> node;
+	private final SortedMapStorageNode<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord,
+		DatarouterSecretOpRecordFielder> node;
 
 	@Inject
 	public DatarouterSecretOpRecordDao(Datarouter datarouter, NodeFactory nodeFactory,
 			DatarouterSecretOpRecordDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, DatarouterSecretOpRecord::new, DatarouterSecretOpRecordFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord,
+					DatarouterSecretOpRecordFielder> node =
+							nodeFactory.create(clientId, DatarouterSecretOpRecord::new,
+									DatarouterSecretOpRecordFielder::new)
+							.withIsSystemTable(true)
+							.buildAndRegister();
+					return node;
+					})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	@Override
-	public void recordOp(String namespace, String name, SecretOp secretOp, SecretOpReason reason){
-		String reasonString = reason.toString();
+	public void recordOp(SecretOpInfo opInfo){
+		String reasonString = opInfo.reason.toString();
 		if(reasonString.length() > CommonFieldSizes.DEFAULT_LENGTH_VARCHAR){
 			logger.warn("SecretOpReason too long: {}. Max length={}", reasonString,
 					CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
 			reasonString = StringTool.trimToSize(reasonString, CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
 		}
-		node.put(new DatarouterSecretOpRecord(namespace, name, secretOp, reason.type, reasonString));
+		node.put(new DatarouterSecretOpRecord(opInfo.namespace, opInfo.name, opInfo.op, opInfo.reason.type,
+				reasonString));
 	}
 
 	@Singleton

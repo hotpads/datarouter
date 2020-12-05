@@ -28,7 +28,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.websocket.storage.session.WebSocketSession.WebSocketSessionFielder;
 
@@ -43,7 +43,7 @@ public class DatarouterWebSocketSessionDao extends BaseDao{
 
 	}
 
-	private final SortedMapStorage<WebSocketSessionKey,WebSocketSession> node;
+	private final SortedMapStorageNode<WebSocketSessionKey,WebSocketSession,WebSocketSessionFielder> node;
 
 	@Inject
 	public DatarouterWebSocketSessionDao(Datarouter datarouter, NodeFactory nodeFactory,

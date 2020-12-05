@@ -15,6 +15,8 @@
  */
 package io.datarouter.httpclient.client;
 
+import java.time.ZoneId;
+
 public interface DatarouterService{
 
 	String getServiceName();
@@ -40,6 +42,10 @@ public interface DatarouterService{
 
 	default String getContextPath(){
 		return getContextName() == null ? "" : "/" + getContextName();
+	}
+
+	default ZoneId getZoneId(){
+		return ZoneId.systemDefault();
 	}
 
 	class NoOpDatarouterService implements DatarouterService{

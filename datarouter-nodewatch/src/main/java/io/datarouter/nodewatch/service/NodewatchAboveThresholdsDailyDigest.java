@@ -20,6 +20,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.td;
 
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,7 @@ import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.CountStat;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -52,12 +54,12 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 	private DatarouterNodewatchPaths paths;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(){
+	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
 		var aboveThresholdList = Scanner.of(monitoringService.getAboveThresholdLists().getLeft())
-				.listTo(rows -> makePageTable(rows, "Tables exceeding threshold"));
+				.listTo(rows -> makePageTable(rows, "Tables exceeding threshold", zoneId));
 		var abovePercentageList = Scanner.of(monitoringService.getAboveThresholdLists().getRight())
 				.listTo(rows -> makePageTable(rows, "Tables that grew or shrank by more than "
-						+ TableSizeMonitoringService.PERCENTAGE_THRESHOLD + "%"));
+						+ TableSizeMonitoringService.PERCENTAGE_THRESHOLD + "%", zoneId));
 		List<ContainerTag> tables = Scanner.of(aboveThresholdList, abovePercentageList)
 				.include(Optional::isPresent)
 				.map(Optional::get)
@@ -91,7 +93,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		return Optional.of(div(header, each(tables, TagCreator::div)));
 	}
 
-	private Optional<Pair<String,ContainerTag>> makePageTable(List<CountStat> rows, String header){
+	private Optional<Pair<String,ContainerTag>> makePageTable(List<CountStat> rows, String header, ZoneId zoneId){
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
@@ -101,7 +103,8 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 				.withHtmlColumn("Table", row -> td(emailBuilder.makeTableLink(
 						row.latestSample.getKey().getTableName(),
 						row.latestSample.getKey().getClientName())))
-				.withColumn("Date Updated", row -> row.latestSample.getDateUpdated())
+				.withColumn("Date Updated",
+						row -> DateTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
 				.withColumn("Previous Count ", row -> row.latestSample.getDateUpdated())
 				.withColumn("Latest Count", row -> row.latestSample.getDateUpdated())
 				.withColumn("% Increase", row -> row.latestSample.getDateUpdated())

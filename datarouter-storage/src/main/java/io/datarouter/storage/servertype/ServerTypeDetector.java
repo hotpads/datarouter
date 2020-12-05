@@ -40,4 +40,18 @@ public interface ServerTypeDetector{
 
 	}
 
+	static class OnlyDevelopmentServerTypeDetector implements ServerTypeDetector{
+
+		@Override
+		public boolean mightBeProduction(){
+			return false;
+		}
+
+		@Override
+		public boolean mightBeDevelopment(){
+			return true;
+		}
+
+	}
+
 }

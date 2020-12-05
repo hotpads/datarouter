@@ -25,6 +25,8 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.webappinstance.WebappInstanceAppListener;
+import io.datarouter.webappinstance.service.StandardDeploymentCount;
+import io.datarouter.webappinstance.service.StandardDeploymentCount.GenericStandardDeploymentCount;
 import io.datarouter.webappinstance.service.WebappInstanceBuildIdLink;
 import io.datarouter.webappinstance.service.WebappInstanceBuildIdLink.NoOpWebappInstanceBuilIdLink;
 import io.datarouter.webappinstance.service.WebappInstanceCommitIdLink;
@@ -42,15 +44,18 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 	private final Class<? extends WebappInstancePublisher> webappInstancePublisher;
 	private final Class<? extends WebappInstanceBuildIdLink> buildIdLink;
 	private final Class<? extends WebappInstanceCommitIdLink> commitIdLink;
+	private final int numStandardDeployments;
 
 	private DatarouterWebappInstancePlugin(
 			DatarouterWebappInstanceDaoModule daosModuleBuilder,
 			Class<? extends WebappInstancePublisher> webappInstancePublisher,
 			Class<? extends WebappInstanceBuildIdLink> buildIdLink,
-			Class<? extends WebappInstanceCommitIdLink> commitIdLink){
+			Class<? extends WebappInstanceCommitIdLink> commitIdLink,
+			int numStandardDeployments){
 		this.webappInstancePublisher = webappInstancePublisher;
 		this.buildIdLink = buildIdLink;
 		this.commitIdLink = commitIdLink;
+		this.numStandardDeployments = numStandardDeployments;
 
 		addAppListener(WebappInstanceAppListener.class);
 		addRouteSet(DatarouterWebappInstanceRouteSet.class);
@@ -59,6 +64,8 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 		setDaosModule(daosModuleBuilder);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
 				new DatarouterWebappInstancePaths().datarouter.webappInstances, "Webapp Instances");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
+				new DatarouterWebappInstancePaths().datarouter.webappInstanceServers, "Webapp Servers");
 		addDatarouterGithubDocLink("datarouter-webapp-instance");
 		addDailyDigest(WebappInstanceDailyDigest.class);
 	}
@@ -73,6 +80,7 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 		bind(WebappInstancePublisher.class).to(webappInstancePublisher);
 		bind(WebappInstanceBuildIdLink.class).to(buildIdLink);
 		bind(WebappInstanceCommitIdLink.class).to(commitIdLink);
+		bindActualInstance(StandardDeploymentCount.class, new GenericStandardDeploymentCount(numStandardDeployments));
 	}
 
 	public static class DatarouterWebappInstancePluginBuilder{
@@ -81,6 +89,7 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 		private Class<? extends WebappInstancePublisher> webappInstancePublisher = NoOpWebappInstancePublisher.class;
 		private Class<? extends WebappInstanceBuildIdLink> buildIdLink = NoOpWebappInstanceBuilIdLink.class;
 		private Class<? extends WebappInstanceCommitIdLink> commitIdLink = NoOpWebappInstanceCommitIdLink.class;
+		private int numStandardDeployments = 2;
 
 		public DatarouterWebappInstancePluginBuilder(ClientId defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -104,12 +113,18 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterWebappInstancePluginBuilder setNumberOfStandardDeployments(int numStandardDeployments){
+			this.numStandardDeployments = numStandardDeployments;
+			return this;
+		}
+
 		public DatarouterWebappInstancePlugin build(){
 			return new DatarouterWebappInstancePlugin(
 					new DatarouterWebappInstanceDaoModule(defaultClientId, defaultClientId, defaultClientId),
 					webappInstancePublisher,
 					buildIdLink,
-					commitIdLink);
+					commitIdLink,
+					numStandardDeployments);
 		}
 
 	}

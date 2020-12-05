@@ -135,4 +135,9 @@ public class Conditional<T>{
 		return this;
 	}
 
+	@Override
+	public String toString(){
+		return "Conditional [success=" + success + ", response=" + response + ", exception=" + exception + "]";
+	}
+
 }

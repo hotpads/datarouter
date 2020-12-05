@@ -28,10 +28,10 @@ import javax.inject.Inject;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
-import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.pathnode.PathNode;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
@@ -123,12 +123,17 @@ public abstract class InspectNodeDataHandler extends BaseHandler{
 			return new HashMap<>();
 		}
 		D first = databeans.stream().findFirst().orElse(null);
-		List<String> fieldNames = FieldTool.getFieldNames(fielder.getFields(first));
+		List<String> fieldNames = Scanner.of(fielder.getFields(first))
+				.map(Field::getKey)
+				.map(FieldKey::getName)
+				.list();
 		List<Integer> maxLengths = new ArrayList<>();
 		IntStream.range(0, fieldNames.size()).forEach($ -> maxLengths.add(0));
 
-		for(D d : databeans){
-			List<?> values = FieldTool.getFieldValues(fielder.getFields(d));
+		for(D databean : databeans){
+			List<?> values = Scanner.of(fielder.getFields(databean))
+					.map(Field::getValue)
+					.list();
 			for(int i = 0; i < values.size(); ++i){
 				int length = values.get(i) == null ? 0 : StringTool.length(values.get(i).toString());
 				if(length > maxLengths.get(i)){

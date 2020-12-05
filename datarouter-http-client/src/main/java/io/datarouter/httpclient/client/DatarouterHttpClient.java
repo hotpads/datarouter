@@ -23,7 +23,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.pool.PoolStats;
 
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.request.BaseRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
+import io.datarouter.httpclient.request.DatarouterHttpRequestBuilder;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
@@ -31,22 +33,19 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 public interface DatarouterHttpClient{
 
 	DatarouterHttpResponse execute(DatarouterHttpRequest request);
-
 	DatarouterHttpResponse execute(DatarouterHttpRequest request, Consumer<HttpEntity> httpEntityConsumer);
 
 	<E> E execute(DatarouterHttpRequest request, Type deserializeToType);
-
+	<E> E execute(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request);
 	<E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException;
-
+	<E> E executeChecked(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request)
+	throws DatarouterHttpException;
 	DatarouterHttpResponse executeChecked(DatarouterHttpRequest request) throws DatarouterHttpException;
-
 	DatarouterHttpResponse executeChecked(DatarouterHttpRequest request, Consumer<HttpEntity> httpEntityConsumer)
 	throws DatarouterHttpException;
 
 	Conditional<DatarouterHttpResponse> tryExecute(DatarouterHttpRequest request);
-
 	<E> Conditional<E> tryExecute(DatarouterHttpRequest request, Type deserializeToType);
-
 	Conditional<DatarouterHttpResponse> tryExecute(
 			DatarouterHttpRequest request,
 			Consumer<HttpEntity> httpEntityConsumer);

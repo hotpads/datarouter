@@ -64,12 +64,12 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 
 	public static class DatarouterChangelogPluginBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> clientIds;
 
 		private Class<? extends ChangelogPublisher> changelogPublisher = NoOpChangelogPublisher.class;
 
-		public DatarouterChangelogPluginBuilder(ClientId defaultClientId){
-			this.defaultClientId = defaultClientId;
+		public DatarouterChangelogPluginBuilder(List<ClientId> clientIds){
+			this.clientIds = clientIds;
 		}
 
 		public DatarouterChangelogPluginBuilder enableChangelogPublishing(
@@ -81,17 +81,17 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 		public DatarouterChangelogPlugin build(){
 			return new DatarouterChangelogPlugin(
 					changelogPublisher,
-					new DatarouterChangelogDaosModule(defaultClientId));
+					new DatarouterChangelogDaosModule(clientIds));
 		}
 
 	}
 
 	public static class DatarouterChangelogDaosModule extends DaosModuleBuilder{
 
-		private final ClientId changelogClientId;
+		private final List<ClientId> changelogClientIds;
 
-		public DatarouterChangelogDaosModule(ClientId changelogClientId){
-			this.changelogClientId = changelogClientId;
+		public DatarouterChangelogDaosModule(List<ClientId> changelogClientIds){
+			this.changelogClientIds = changelogClientIds;
 		}
 
 		@Override
@@ -101,7 +101,7 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 
 		@Override
 		public void configure(){
-			bind(ChangelogDaoParams.class).toInstance(new ChangelogDaoParams(changelogClientId));
+			bind(ChangelogDaoParams.class).toInstance(new ChangelogDaoParams(changelogClientIds));
 		}
 
 	}

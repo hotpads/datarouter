@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.node.op.raw.write;
 
-import java.nio.charset.StandardCharsets;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.file.PathbeanKey;
@@ -31,10 +29,6 @@ public interface BlobStorageWriter<
 extends BlobStorageReader<PK,D>{
 
 	void write(PathbeanKey key, byte[] value);
-
-	default void writeUtf8(PathbeanKey key, String value){
-		write(key, value.getBytes(StandardCharsets.UTF_8));
-	}
 
 	void delete(PathbeanKey key);
 

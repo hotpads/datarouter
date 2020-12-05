@@ -24,12 +24,14 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import java.text.DecimalFormat;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.CountStat;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
@@ -47,6 +49,8 @@ public class TableSizeMonitoringEmailBuilder{
 	private DatarouterHtmlEmailService emailService;
 	@Inject
 	private DatarouterNodewatchPaths paths;
+	@Inject
+	private DatarouterService datarouterService;
 
 	public ContainerTag build(
 			String serviceName,
@@ -81,24 +85,28 @@ public class TableSizeMonitoringEmailBuilder{
 	}
 
 	public ContainerTag makeEmailStaleTable(List<LatestTableCount> staleRows){
+		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<LatestTableCount>()
 				.withColumn("Client", row -> row.getKey().getClientName())
 				.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(
 						row.getKey().getTableName(),
 						row.getKey().getClientName())))
 				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows())))
-				.withColumn(alignRight("Date Updated", row -> DateTool.getNumericDate(row.getDateUpdated())))
+				.withColumn(alignRight("Date Updated",
+						row -> DateTool.formatDateWithZone(row.getDateUpdated(), zoneId)))
 				.withColumn(alignRight("Updated Agp", row -> DateTool.getAgoString(row.getDateUpdated().getTime())))
 				.build(staleRows);
 	}
 
 	public ContainerTag makeCountStatTable(String comparableCount, List<CountStat> stats){
+		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<CountStat>()
 				.withColumn("Client", row -> row.latestSample.getKey().getClientName())
 				.withColumn(new J2HtmlEmailTableColumn<>("Table", row -> makeTableLink(
 						row.latestSample.getKey().getTableName(),
 						row.latestSample.getKey().getClientName())))
-				.withColumn("Date Updated", row -> DateTool.getDateTime(row.latestSample.getDateUpdated()))
+				.withColumn("Date Updated",
+						row -> DateTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
 				.withColumn(alignRight(comparableCount, row -> NumberFormatter.addCommas(row.previousCount)))
 				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.latestSample.getNumRows())))
 				.withColumn(alignRight("% Increase", row -> new DecimalFormat("#,###.##").format(row.percentageIncrease)

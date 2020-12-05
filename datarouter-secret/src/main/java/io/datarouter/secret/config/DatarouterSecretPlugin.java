@@ -15,19 +15,14 @@
  */
 package io.datarouter.secret.config;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.inject.guice.BasePlugin;
-import io.datarouter.secret.client.Secret;
-import io.datarouter.secret.client.SecretClientSupplier;
 import io.datarouter.secret.client.local.LocalStorageConfig;
 import io.datarouter.secret.client.local.LocalStorageConfig.DefaultLocalStorageConfig;
-import io.datarouter.secret.client.local.LocalStorageSecretClient.LocalStorageDefaultSecretValues;
-import io.datarouter.secret.client.local.LocalStorageSecretClient.LocalStorageSecretClientSupplier;
+import io.datarouter.secret.client.local.LocalStorageSecretClientSupplier;
+import io.datarouter.secret.client.memory.InjectedDefaultMemorySecretClientSupplier.DefaultMemorySecrets;
 import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretJsonSerializer.GsonToolJsonSerializer;
 import io.datarouter.secret.service.SecretNamespacer;
@@ -37,26 +32,26 @@ import io.datarouter.secret.service.SecretOpRecorderSupplier.NoOpSecretOpRecorde
 
 public class DatarouterSecretPlugin extends BasePlugin{
 
-	private final Class<? extends SecretClientSupplier> secretClientSupplier;
+	private final SecretClientConfigHolder secretClientConfigHolder;
 	private final Class<? extends SecretNamespacer> secretNamespacer;
 	private final Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier;
 	private final Class<? extends SecretJsonSerializer> jsonSerializer;
 	private final Class<? extends LocalStorageConfig> localStorageConfig;
-	private final Map<String,String> initialLocalStorageSecretValues;
+	private final DefaultMemorySecrets defaultMemorySecrets;
 
 	private DatarouterSecretPlugin(
-			Class<? extends SecretClientSupplier> secretClientSupplier,
+			SecretClientConfigHolder secretClientConfigHolder,
 			Class<? extends SecretNamespacer> secretNamespacer,
 			Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier,
 			Class<? extends SecretJsonSerializer> jsonSerializer,
 			Class<? extends LocalStorageConfig> localStorageConfig,
-			Map<String,String> initialLocalStorageSecretValues){
-		this.secretClientSupplier = secretClientSupplier;
+			DefaultMemorySecrets defaultMemorySecrets){
+		this.secretClientConfigHolder = secretClientConfigHolder;
 		this.secretNamespacer = secretNamespacer;
 		this.secretOpRecorderSupplier = secretOpRecorderSupplier;
 		this.jsonSerializer = jsonSerializer;
 		this.localStorageConfig = localStorageConfig;
-		this.initialLocalStorageSecretValues = initialLocalStorageSecretValues;
+		this.defaultMemorySecrets = defaultMemorySecrets;
 	}
 
 	@Override
@@ -66,13 +61,12 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 	@Override
 	public void configure(){
-		bindActual(SecretClientSupplier.class, secretClientSupplier);
+		bindActualInstance(SecretClientConfigHolder.class, secretClientConfigHolder);
 		bindActual(SecretNamespacer.class, secretNamespacer);
 		bindActual(SecretOpRecorderSupplier.class, secretOpRecorderSupplier);
 		bindActual(SecretJsonSerializer.class, jsonSerializer);
 		bindActual(LocalStorageConfig.class, localStorageConfig);
-		bindActualInstance(LocalStorageDefaultSecretValues.class, new LocalStorageDefaultSecretValues(
-				initialLocalStorageSecretValues));
+		bindActualInstance(DefaultMemorySecrets.class, defaultMemorySecrets);
 	}
 
 	@Override
@@ -84,25 +78,25 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 		@Override
 		public void configure(){
-			bindDefault(SecretClientSupplier.class, secretClientSupplier);
+			bindDefaultInstance(SecretClientConfigHolder.class, secretClientConfigHolder);
 			bindDefault(SecretNamespacer.class, secretNamespacer);
 			bindDefault(SecretOpRecorderSupplier.class, secretOpRecorderSupplier);
 			bindDefault(SecretJsonSerializer.class, jsonSerializer);
 			bindDefault(LocalStorageConfig.class, localStorageConfig);
-			bindDefaultInstance(LocalStorageDefaultSecretValues.class, new LocalStorageDefaultSecretValues(
-					initialLocalStorageSecretValues));
+			bindDefaultInstance(DefaultMemorySecrets.class, defaultMemorySecrets);
 		}
 
 	}
 
 	public abstract static class DatarouterSecretPluginBuilder<T extends DatarouterSecretPluginBuilder<T>>{
 
-		private Map<String,String> initialLocalStorageSecretValues = new HashMap<>();
+		private SecretClientConfigHolder secretClientConfigHolder = new SecretClientConfigHolder(List.of(
+				SecretClientConfig.allOps(LocalStorageSecretClientSupplier.class)));
 		private Class<? extends SecretNamespacer> secretNamespacer = DevelopmentNamespacer.class;
 		private Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier = NoOpSecretOpRecorderSupplier.class;
 		private Class<? extends SecretJsonSerializer> jsonSerializer = GsonToolJsonSerializer.class;
 		private Class<? extends LocalStorageConfig> localStorageConfig = DefaultLocalStorageConfig.class;
-		private Class<? extends SecretClientSupplier> secretClientSupplier = LocalStorageSecretClientSupplier.class;
+		private DefaultMemorySecrets defaultMemorySecrets = new DefaultMemorySecrets();
 
 		public static class DatarouterSecretPluginBuilderImpl
 		extends DatarouterSecretPluginBuilder<DatarouterSecretPluginBuilderImpl>{
@@ -116,9 +110,8 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 		protected abstract T getSelf();
 
-		public T setSecretClientSupplier(
-				Class<? extends SecretClientSupplier> secretClientSupplier){
-			this.secretClientSupplier = secretClientSupplier;
+		public T setSecretClientConfigHolder(SecretClientConfigHolder secretClientConfigHolder){
+			this.secretClientConfigHolder = secretClientConfigHolder;
 			return getSelf();
 		}
 
@@ -142,31 +135,19 @@ public class DatarouterSecretPlugin extends BasePlugin{
 			return getSelf();
 		}
 
-		public T setInitialLocalStorageSecrets(Collection<Secret> secrets){
-			initialLocalStorageSecretValues = secrets.stream()
-					.collect(Collectors.toMap(Secret::getName, Secret::getValue));
-			return getSelf();
-		}
-
-		public T addInitialLocalStorageSecret(Secret secret){
-			initialLocalStorageSecretValues.put(secret.getName(), secret.getValue());
-			return getSelf();
-		}
-
-		public T addInitialLocalStorageSecrets(Collection<Secret> secrets){
-			initialLocalStorageSecretValues.putAll(secrets.stream()
-					.collect(Collectors.toMap(Secret::getName, Secret::getValue)));
+		public T setDefaultMemorySecrets(DefaultMemorySecrets defaultMemorySecrets){
+			this.defaultMemorySecrets = defaultMemorySecrets;
 			return getSelf();
 		}
 
 		protected DatarouterSecretPlugin buildBasePlugin(){
 			return new DatarouterSecretPlugin(
-					secretClientSupplier,
+					secretClientConfigHolder,
 					secretNamespacer,
 					secretOpRecorderSupplier,
 					jsonSerializer,
 					localStorageConfig,
-					initialLocalStorageSecretValues);
+					defaultMemorySecrets);
 		}
 
 		public BasePlugin build(){

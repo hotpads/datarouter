@@ -399,10 +399,14 @@ public class StringTool{
 	}
 
 	public static String getStringBeforeFirstOccurrence(char ch, String sourceString){
+		return getStringBeforeFirstOccurrence(Character.toString(ch), sourceString);
+	}
+
+	public static String getStringBeforeFirstOccurrence(String searchFor, String sourceString){
 		if(sourceString == null){
 			return null;
 		}
-		int firstOccurence = sourceString.indexOf(ch);
+		int firstOccurence = sourceString.indexOf(searchFor);
 		if(firstOccurence == -1){
 			return sourceString;
 		}

@@ -45,4 +45,8 @@ implements IndexedSortedMapStorageNode<PK,D,F>,
 		super(List.of(nodes), nodes[0]);
 	}
 
+	public RedundantIndexedSortedMapStorageNode(List<N> nodes){
+		super(nodes, nodes.get(0));
+	}
+
 }

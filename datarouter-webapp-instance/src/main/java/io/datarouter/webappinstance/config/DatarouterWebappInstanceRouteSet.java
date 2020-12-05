@@ -23,6 +23,7 @@ import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.webappinstance.web.WebappInstanceHandler;
 import io.datarouter.webappinstance.web.WebappInstanceLogHandler;
+import io.datarouter.webappinstance.web.WebappInstanceServersHandler;
 
 @Singleton
 public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{
@@ -30,18 +31,15 @@ public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterWebappInstanceRouteSet(DatarouterWebappInstancePaths paths){
 		super(paths.datarouter);
-		handleDir(paths.datarouter.webappInstances)
-				.withHandler(WebappInstanceHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
-		handleDir(paths.datarouter.webappInstanceLog)
-				.withHandler(WebappInstanceLogHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+		handleDir(paths.datarouter.webappInstances).withHandler(WebappInstanceHandler.class);
+		handleDir(paths.datarouter.webappInstanceLog).withHandler(WebappInstanceLogHandler.class);
+		handleDir(paths.datarouter.webappInstanceServers).withHandler(WebappInstanceServersHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_MONITORING)
 				.withIsSystemDispatchRule(true);
 	}
 

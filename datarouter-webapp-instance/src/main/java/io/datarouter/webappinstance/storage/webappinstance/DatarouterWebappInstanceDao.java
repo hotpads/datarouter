@@ -30,7 +30,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
@@ -47,7 +47,7 @@ public class DatarouterWebappInstanceDao extends BaseDao{
 
 	}
 
-	private final SortedMapStorage<WebappInstanceKey,WebappInstance> node;
+	private final SortedMapStorageNode<WebappInstanceKey,WebappInstance,WebappInstanceFielder> node;
 
 	@Inject
 	public DatarouterWebappInstanceDao(Datarouter datarouter, NodeFactory nodeFactory,

@@ -15,7 +15,11 @@
  */
 package io.datarouter.httpclient.json;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,12 +39,38 @@ public class GsonJsonSerializer implements JsonSerializer{
 	}
 
 	@Override
-	public <T> String serialize(T toSerialize){
+	public String serialize(Object toSerialize){
 		return toJson(toSerialize);
 	}
 
-	public <T> String toJson(T toSerialize){
-		return gson.toJson(toSerialize);
+	public String toJson(Object toSerialize){
+		try{
+			return gson.toJson(toSerialize);
+		}catch(IllegalArgumentException e){
+			throw new IllegalArgumentException("error class=" + toSerialize.getClass().getName()
+					+ " " + describeFields(toSerialize), e);
+		}
+	}
+
+	private static String describeFields(Object object){
+		return Arrays.stream(object.getClass().getDeclaredFields())
+				.map(field ->
+						field.getGenericType()
+						+ "-" + field.getName()
+						+ "=" + Optional.ofNullable(get(field, object))
+								.map(Object::getClass)
+								.map(Class::getName)
+								.orElse(null))
+				.collect(Collectors.joining(" "));
+	}
+
+	private static Object get(Field field, Object object){
+		field.setAccessible(true);
+		try{
+			return field.get(object);
+		}catch(IllegalArgumentException | IllegalAccessException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

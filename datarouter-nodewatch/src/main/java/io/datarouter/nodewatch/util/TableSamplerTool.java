@@ -24,12 +24,15 @@ import io.datarouter.storage.node.Node;
 
 public class TableSamplerTool{
 
-	public static <PK extends PrimaryKey<PK>> PK extractPrimaryKeyFromSampleKey(Node<PK,?,?> node,
+	public static <PK extends PrimaryKey<PK>> PK extractPrimaryKeyFromSampleKey(
+			Node<PK,?,?> node,
 			TableSampleKey sampleKey){
 		return Optional.ofNullable(sampleKey)
 				.map(TableSampleKey::getRowKeyBytes)
-				.map(bytes -> FieldSetTool.fromConcatenatedValueBytes(node.getFieldInfo().getPrimaryKeyClass(),
-						node.getFieldInfo().getPrimaryKeyFields(), bytes))
+				.map(bytes -> FieldSetTool.fromConcatenatedValueBytes(
+						node.getFieldInfo().getPrimaryKeyClass(),
+						node.getFieldInfo().getPrimaryKeyFields(),
+						bytes))
 				.orElse(null);
 	}
 

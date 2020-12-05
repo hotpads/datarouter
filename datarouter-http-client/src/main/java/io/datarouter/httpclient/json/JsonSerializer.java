@@ -19,7 +19,8 @@ import java.lang.reflect.Type;
 
 public interface JsonSerializer{
 
-	<T> String serialize(T toSerialize);
+	String serialize(Object toSerialize);
+
 	<T> T deserialize(String toDeserialize, Type classOfT);
 
 }

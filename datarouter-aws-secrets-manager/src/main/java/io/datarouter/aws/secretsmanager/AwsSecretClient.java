@@ -19,12 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.CreateSecretRequest;
@@ -40,7 +35,8 @@ import com.amazonaws.services.secretsmanager.model.UpdateSecretRequest;
 
 import io.datarouter.secret.client.BaseSecretClient;
 import io.datarouter.secret.client.Secret;
-import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.secret.exception.SecretExistsException;
+import io.datarouter.secret.exception.SecretNotFoundException;
 
 /**
  * Notes:
@@ -50,54 +46,31 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
  * versioning tracking/manipulation. the latter is intended for rotation, rather than just explicit versioning. but the
  * form is a randomly generated UUID, so I don't know if it makes sense to manually use it instead.
  */
-@Singleton
 public class AwsSecretClient extends BaseSecretClient{
 
-	private static final String US_EAST_1 = "us-east-1";
+	private final AWSSecretsManager client;
 
-	@Inject
-	private ServerTypeDetector serverTypeDetector;
-	@Inject
-	private AwsCredentialsSupplier awsCredentialsSupplier;
-
-	private AWSSecretsManager client;
-	private boolean isInited;
-
-	private void init(){
-		if(isInited){
-			return;
-		}
-		AWSCredentials awsCredentials = serverTypeDetector.mightBeProduction()
-				? new BasicAWSCredentials(
-						awsCredentialsSupplier.getProdAccessKey(),
-						awsCredentialsSupplier.getProdSecretKey())
-				: new BasicAWSCredentials(
-						awsCredentialsSupplier.getDevAccessKey(),
-						awsCredentialsSupplier.getDevSecretKey());
-
+	public AwsSecretClient(AWSCredentialsProvider awsCredentialsProvider, String region){
 		client = AWSSecretsManagerClientBuilder.standard()
-				.withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-				.withRegion(US_EAST_1)
+				.withCredentials(awsCredentialsProvider)
+				.withRegion(region)
 				.build();
-		isInited = true;
 	}
 
 	@Override
 	protected void createInternal(Secret secret){
-		init();
 		var request = new CreateSecretRequest()
 				.withName(secret.getName())
 				.withSecretString(secret.getValue());
 		try{
 			client.createSecret(request);
 		}catch(ResourceExistsException e){
-			throw new RuntimeException("secret already exists for create name=" + secret.getName(), e);
+			throw new SecretExistsException(secret.getName(), e);
 		}
 	}
 
 	@Override
 	protected Secret readInternal(String name){
-		init();
 		var request = new GetSecretValueRequest()
 				.withSecretId(name);
 				// NOTES:
@@ -108,13 +81,12 @@ public class AwsSecretClient extends BaseSecretClient{
 			GetSecretValueResult result = client.getSecretValue(request);
 			return new Secret(name, result.getSecretString());
 		}catch(ResourceNotFoundException e){
-			throw new RuntimeException("failed to find secret for get name=" + name, e);
+			throw new SecretNotFoundException(name, e);
 		}
 	}
 
 	@Override
 	protected List<String> listInternal(Optional<String> exclusivePrefix){
-		init();
 		List<String> secretNames = new ArrayList<>();
 		String nextToken = null;
 		do{
@@ -134,7 +106,6 @@ public class AwsSecretClient extends BaseSecretClient{
 
 	@Override
 	protected void updateInternal(Secret secret){
-		init();
 		// this can update various stuff (like description and kms key) AND updates the version stage to AWSCURRENT.
 		// for rotation, use PutSecretValue, which only updates the version stages and value of a secret explicitly
 		var request = new UpdateSecretRequest()
@@ -143,15 +114,14 @@ public class AwsSecretClient extends BaseSecretClient{
 		try{
 			client.updateSecret(request);
 		}catch(ResourceExistsException e){
-			throw new RuntimeException("duplicate inconsistent update name=" + secret.getName(), e);
+			throw new SecretExistsException("Requested update already exists.", secret.getName(), e);
 		}catch(ResourceNotFoundException e){
-			throw new RuntimeException("failed to find secret for update name=" + secret.getName(), e);
+			throw new SecretNotFoundException(secret.getName(), e);
 		}
 	}
 
 	@Override
 	protected void deleteInternal(String name){
-		init();
 		var request = new DeleteSecretRequest()
 				.withSecretId(name);
 				// additional options:
@@ -160,7 +130,7 @@ public class AwsSecretClient extends BaseSecretClient{
 		try{
 			client.deleteSecret(request);
 		}catch(ResourceNotFoundException e){
-			throw new RuntimeException("failed to find secret for delete name=" + name, e);
+			throw new SecretNotFoundException(name, e);
 		}
 	}
 

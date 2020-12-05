@@ -68,7 +68,7 @@
 							<tr>
 								<td>${task.name}</td>
 								<td>${task.serverName}</td>
-								<td sorttable_customkey="${task.startTime.time}" title="${task.startTimeString}">${task.startTime}</td>
+								<td sorttable_customkey="${task.startTime}" title="${task.startTime}">${task.startString}</td>
 								<td sorttable_customkey="${task.sortableFinishTime}" title="${task.finishTimeString}">${task.finishTime}</td>
 								<td sorttable_customkey="${task.sortableDuration}" class="text-right">${task.durationString}</td>
 								<td sorttable_customkey="${task.sortableLastHeartbeat}" class="text-right
@@ -83,8 +83,7 @@
 									class="table-warning"
 								</c:if>>${task.status}</td>
 								<td>${task.triggeredBy}</td>
-								<td><a href="${task.hrefForException}">
-									${task.exceptionRecordId}</a></td>
+								<td><a href="${task.hrefForException}">${task.exceptionRecordId}</a></td>
 							</tr>
 						</c:forEach>
 						</tbody>

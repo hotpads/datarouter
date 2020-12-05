@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldSet;
-import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.tuple.Range;
@@ -74,7 +73,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 		append(" into ");
 		append(tableName);
 		append(" (");
-		FieldTool.appendCsvColumnNames(sqlBuilder, databeans.get(0));
+		appendCsvColumnNames(sqlBuilder, databeans.get(0));
 		append(") values ");
 		boolean didOneDatabean = false;
 		for(List<Field<?>> databeanFields : databeans){
@@ -188,7 +187,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 	}
 
 	private boolean addPrefixWhereClause(FieldSet<?> prefix, boolean shouldAppendWhere){
-		int numNonNullFields = FieldSetTool.getNumNonNullLeadingFields(prefix);
+		int numNonNullFields = FieldTool.countNonNullLeadingFields(prefix.getFields());
 		if(numNonNullFields == 0){
 			return true;
 		}
@@ -360,7 +359,7 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 
 	public Q addSelectFromClause(String tableName, List<Field<?>> selectFields){
 		append("select ");
-		FieldTool.appendCsvColumnNames(sqlBuilder, selectFields);
+		appendCsvColumnNames(sqlBuilder, selectFields);
 		append(" from " + tableName);
 		return implementation;
 	}
@@ -401,6 +400,17 @@ public abstract class Sql<C,P,Q extends Sql<C,P,Q>>{
 	@Override
 	public String toString(){
 		return sqlBuilder.toString();
+	}
+
+	private static void appendCsvColumnNames(StringBuilder sb, List<Field<?>> fields){
+		int appended = 0;
+		for(Field<?> field : fields){
+			if(appended > 0){
+				sb.append(", ");
+			}
+			sb.append(field.getKey().getColumnName());
+			++appended;
+		}
 	}
 
 }

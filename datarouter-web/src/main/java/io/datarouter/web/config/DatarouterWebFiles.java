@@ -27,6 +27,7 @@ public class DatarouterWebFiles extends FilesRoot{
 	public final BootstrapFiles bootstrap = branch(BootstrapFiles::new, "bootstrap");
 	public final FontAwesomeFiles fontAwesome = branch(FontAwesomeFiles::new, "font-awesome");
 	public final CssFiles css = branch(CssFiles::new, "css");
+	public final ChartFiles chart = branch(ChartFiles::new, "chart");
 	public final DygraphFiles dygraph = branch(DygraphFiles::new, "dygraph");
 	public final JeeAssetsFiles jeeAssets = branch(JeeAssetsFiles::new, "jee-assets");
 	public final JqueryFiles jquery = branch(JqueryFiles::new, "jquery");
@@ -36,6 +37,10 @@ public class DatarouterWebFiles extends FilesRoot{
 	public final JspFiles jsp = branch(JspFiles::new, "jsp");
 	public final RequirejsFiles requirejs = branch(RequirejsFiles::new, "requirejs");
 	public final SorttableFiles sorttable = branch(SorttableFiles::new, "sorttable");
+
+	public static class ChartFiles extends PathNode{
+		public final PathNode chartJs = leaf("Chart.min.js");
+	}
 
 	public static class AutocompleteFiles extends PathNode{
 		public final PathNode autocompleteJs = leaf("autocomplete.js");
@@ -196,6 +201,7 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final JspCssFiles css = branch(JspCssFiles::new, "css");
 		public final JspDocsFiles docs = branch(JspDocsFiles::new, "docs");
 		public final JspGenericFiles generic = branch(JspGenericFiles::new, "generic");
+		public final JspHttpFiles http = branch(JspHttpFiles::new, "http");
 		public final JspMenuFiles menu = branch(JspMenuFiles::new, "menu");
 	}
 
@@ -244,6 +250,10 @@ public class DatarouterWebFiles extends FilesRoot{
 		public final PathNode messageJsp = leaf("message.jsp");
 		public final PathNode preludeJsp = leaf("prelude.jspf");
 		public final PathNode stringJsp = leaf("string.jsp");
+	}
+
+	public static class JspHttpFiles extends PathNode{
+		public final PathNode httpTesterJsp = leaf("httpTester.jsp");
 	}
 
 	public static class JspMenuFiles extends PathNode{

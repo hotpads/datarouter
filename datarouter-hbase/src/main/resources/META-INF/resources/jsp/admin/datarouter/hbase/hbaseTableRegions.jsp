@@ -229,8 +229,8 @@
 								<td class="right"><fmt:formatNumber type="number" value="${region.load.writeRequestsCount}" /></td>
 								<td>${region.compactionScheduler.nextCompactTimeFormatted}</td>
 								<td>${region.partition}</td>
-								<td><c:if test="${not empty region.startKey}">${region.startKey}</c:if></td>
-								<td><c:if test="${not empty region.endKey}">${region.endKey}</c:if></td>
+								<td title="${region.startRowKey}">${region.startKeyString}</td>
+								<td title="${region.endRowKey}">${region.endKeyString}</td>
 								<td class="right">${region.region.regionId}</td>
 								<td>${region.region.encodedName}</td>
 								<td>${region.region.regionNameAsString}</td>

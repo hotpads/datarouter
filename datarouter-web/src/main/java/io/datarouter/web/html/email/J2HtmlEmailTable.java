@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.serialization.GsonTool;
 import j2html.TagCreator;
 import j2html.attributes.Attr;
@@ -62,6 +63,11 @@ public class J2HtmlEmailTable<T>{
 			this.name = name;
 			this.valueFunction = valueFunction;
 			this.styles = new ArrayList<>();
+		}
+
+		public static <T> J2HtmlEmailTableColumn<T> ofNumber(String name, Function<T,Number> valueFunction){
+			return J2HtmlEmailTableColumn.ofText(name, valueFunction.andThen(NumberFormatter::addCommas))
+					.withStyle("text-align:right");
 		}
 
 		public static <T> J2HtmlEmailTableColumn<T> ofText(String name, Function<T,Object> valueFunction){
@@ -107,7 +113,8 @@ public class J2HtmlEmailTable<T>{
 		boolean includeHead = Scanner.of(j2HtmlEmailTableColumns)
 				.map(column -> column.name)
 				.anyMatch(Objects::nonNull);
-		var thead = thead(tr(each(j2HtmlEmailTableColumns, column -> th(column.name))));
+		var thead = thead(tr(each(j2HtmlEmailTableColumns, column -> th(column.name)
+				.withStyle(String.join(";", column.styles) + ";"))));
 		var tbody = tbody(each(rows, this::makeTr));
 		return table()
 			.attr(Attr.BORDER, 1)

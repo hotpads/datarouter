@@ -44,6 +44,7 @@ import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.dispatcher.NonEagerInitHandler;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.monitoring.OutgoingIpFinderService.OutGoingIpWrapper;
 
 /**
  * This class needs to access a folder containing a library which doesn't exist during unit tests
@@ -72,6 +73,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	private ManifestDetails manifestDetails;
 	@Inject
 	private HostMemoryService hostMemoryService;
+	@Inject
+	private OutgoingIpFinderService ipService;
 
 	@Handler(defaultHandler = true)
 	protected Mav view(){
@@ -82,6 +85,9 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		Map<String,GitPropertiesJspDto> gitDetailedLibraries = Scanner.of(loadedLibraries.gitDetailedLibraries
 				.entrySet())
 				.toMapSupplied(Entry::getKey, entry -> new GitPropertiesJspDto(entry.getValue()), LinkedHashMap::new);
+		OutGoingIpWrapper ipAddress = ipService.getIpForServer();
+		mav.put("ipSource", ipAddress.ipSource);
+		mav.put("ipAddr", ipAddress.ipAddress);
 		mav.put("startTime", FORMATTER.format(Instant.ofEpochMilli(startTime)));
 		mav.put("upTime", new DatarouterDuration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
 		mav.put("serverName", datarouterProperties.getServerName());

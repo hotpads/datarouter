@@ -44,7 +44,8 @@ public class DatarouterUserCreationService{
 			DatarouterUserRole.DATAROUTER_ADMIN,
 			DatarouterUserRole.ADMIN,
 			DatarouterUserRole.USER,
-			DatarouterUserRole.API_USER)
+			DatarouterUserRole.API_USER,
+			DatarouterUserRole.REQUESTOR)
 			.map(DatarouterUserRole::getRole)
 			.collect(Collectors.toSet());
 

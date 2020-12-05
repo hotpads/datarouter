@@ -24,8 +24,8 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.secret.service.SecretOp;
-import io.datarouter.secret.service.SecretOpReason.SecretOpReasonType;
+import io.datarouter.secret.op.SecretOp;
+import io.datarouter.secret.op.SecretOpReason.SecretOpReasonType;
 
 public class DatarouterSecretOpRecord
 extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{

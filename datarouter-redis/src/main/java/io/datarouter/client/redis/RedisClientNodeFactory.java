@@ -71,7 +71,7 @@ public class RedisClientNodeFactory extends BaseClientNodeFactory implements Tal
 		public PhysicalMapStorageNode<PK,D,F> createNode(
 				EntityNodeParams<EK,E> entityNodeParams,
 				NodeParams<PK,D,F> nodeParams){
-			return new RedisNode<>(nodeParams, redisClientType, redisClientManager, nodeParams.getClientId(), executor);
+			return new RedisNode<>(nodeParams, redisClientType, redisClientManager, executor);
 		}
 
 		@Override

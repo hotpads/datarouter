@@ -64,14 +64,14 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 	public abstract static class DatarouterSecretWebPluginBuilder<T extends DatarouterSecretWebPluginBuilder<T>>
 	extends DatarouterSecretPluginBuilder<T>{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 		private Class<? extends SecretHandlerPermissions> secretHandlerPermissions = DefaultSecretHandlerPermissions
 				.class;
 
 		public static class DatarouterSecretWebPluginBuilderImpl
 		extends DatarouterSecretWebPluginBuilder<DatarouterSecretWebPluginBuilderImpl>{
 
-			public DatarouterSecretWebPluginBuilderImpl(ClientId defaultClientId){
+			public DatarouterSecretWebPluginBuilderImpl(List<ClientId> defaultClientId){
 				super(defaultClientId);
 			}
 
@@ -82,7 +82,7 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 
 		}
 
-		public DatarouterSecretWebPluginBuilder(ClientId defaultClientId){
+		public DatarouterSecretWebPluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
 			setSecretNamespacer(DatarouterPropertiesAndServiceSecretNamespacer.class);
 			setSecretOpRecorderSupplier(DaoSecretOpRecorderSupplier.class);
@@ -112,9 +112,9 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 
 	public static class DatarouterSecretDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterSecretOpRecordDaoClientId;
+		private final List<ClientId> datarouterSecretOpRecordDaoClientId;
 
-		public DatarouterSecretDaoModule(ClientId datarouterSecretOpRecordDaoClientId){
+		public DatarouterSecretDaoModule(List<ClientId> datarouterSecretOpRecordDaoClientId){
 			this.datarouterSecretOpRecordDaoClientId = datarouterSecretOpRecordDaoClientId;
 		}
 

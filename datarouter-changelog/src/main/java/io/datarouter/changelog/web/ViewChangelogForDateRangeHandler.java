@@ -40,6 +40,7 @@ import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.ContainerTag;
 
 public class ViewChangelogForDateRangeHandler extends BaseHandler{
@@ -56,6 +57,8 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 	private DatarouterChangelogPaths paths;
 	@Inject
 	private ViewChangelogService service;
+	@Inject
+	private CurrentUserSessionInfoService currentSessionInfoService;
 
 	@Handler(defaultHandler = true)
 	public Mav viewForDateRange(
@@ -114,7 +117,7 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 	}
 
 	private ContainerTag makeContent(ContainerTag formExact, ContainerTag formRange, List<Changelog> rows){
-		var table = service.buildTable(rows);
+		var table = service.buildTable(rows, currentSessionInfoService.getZoneId(request));
 		return div(br(), formExact, h5("or"), formRange, table)
 				.withClass("container-fluid");
 	}

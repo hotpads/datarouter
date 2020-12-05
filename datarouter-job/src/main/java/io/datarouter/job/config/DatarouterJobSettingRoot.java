@@ -37,6 +37,7 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> scheduleMissedJobsOnStartup;
 	public final CachedSetting<Boolean> processJobs;
+	public final CachedSetting<Boolean> runJobRetriggeringJob;
 
 	@Inject
 	public DatarouterJobSettingRoot(SettingFinder finder, ServerTypes serverTypes){
@@ -52,6 +53,7 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 
 		scheduleMissedJobsOnStartup = registerBoolean("scheduleMissedJobsOnStartup", false);
 		processJobs = registerBoolean("processJobs", true);
+		runJobRetriggeringJob = registerBoolean("runJobRetriggeringJob", false);
 	}
 
 }

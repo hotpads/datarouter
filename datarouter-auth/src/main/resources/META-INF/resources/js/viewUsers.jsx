@@ -216,12 +216,15 @@ class ViewUser extends React.Component{
 			currentRoles: [],
 			availableAccounts: [],
 			currentAccounts: [],
-			newPassword: ''
+			newPassword: '',
+			availableZoneIds: [],
+			currentZoneId: null
 		}
 		this.updateUserDetails = this.updateUserDetails.bind(this)
 		this.refresh = this.refresh.bind(this)
 		this.handleToggleRole = this.handleToggleRole.bind(this)
 		this.handleToggleAccount = this.handleToggleAccount.bind(this)
+		this.handleToggleTimeZone = this.handleToggleTimeZone.bind(this)
 	}
 
 	updateUserDetails(userDetails, callback = () => {}){
@@ -237,7 +240,9 @@ class ViewUser extends React.Component{
 				availableRoles: userDetails.availableRoles,
 				currentRoles: userDetails.currentRoles,
 				availableAccounts: userDetails.availableAccounts,
-				currentAccounts: userDetails.currentAccounts
+				currentAccounts: userDetails.currentAccounts,
+				availableZoneIds: userDetails.availableZoneIds,
+				currentZoneId: userDetails.currentZoneId
 			}, callback)
 		}else{
 			this.setState({error: userDetails.message, loaded:false})
@@ -258,6 +263,10 @@ class ViewUser extends React.Component{
 
 	handleToggleAccount(event){
 		this.handleToggle('currentAccounts', event.target.id)
+	}
+
+	handleToggleTimeZone(event){
+		this.setState({'currentZoneId': event.target.value});
 	}
 
 	handleToggle(object, key){
@@ -307,7 +316,10 @@ class ViewUser extends React.Component{
 				disabled={deprovisioned}
 				handleToggleRole={this.handleToggleRole}
 				handleToggleAccount={this.handleToggleAccount}
-				updateUserDetails={this.updateUserDetails} />
+				updateUserDetails={this.updateUserDetails}
+				availableZoneIds={this.state.availableZoneIds}
+				currentZoneId={this.state.currentZoneId}
+				handleToggleTimeZone={this.handleToggleTimeZone}/>
 			<EditPasswordCard username={this.state.username}
 				disabled={deprovisioned}
 				updateUserDetails={this.updateUserDetails} />
@@ -459,7 +471,8 @@ class EditRolesAndAccounts extends React.Component{
 			id: this.props.id,
 			token: this.props.token,
 			currentRoles: this.props.currentRoles,
-			currentAccounts: this.props.currentAccounts
+			currentAccounts: this.props.currentAccounts,
+			currentZoneId: this.props.currentZoneId
 		}
 		doFetch(PATHS.updateUserDetails, {}, editUserDetailsDto, userDetails => {
 					if(userDetails.success){
@@ -494,8 +507,15 @@ class EditRolesAndAccounts extends React.Component{
 						/>
 				</div>
 			</div>
+			<div class="col-sm-12">
+				<Select title={'Time Zone'}
+					options={this.props.availableZoneIds}
+					defaultValue={this.props.currentZoneId}
+					handleToggle={this.props.handleToggleTimeZone}
+					/>
+			</div>
 			<hr/>
-			<button class="btn btn-primary mx-auto" type="submit" disabled={this.props.disabled} onClick={this.handleSubmit}>Save Role and Account Changes</button>
+			<button class="btn btn-primary mx-auto" type="submit" disabled={this.props.disabled} onClick={this.handleSubmit}>Save</button>
 		</div>
 	}
 
@@ -513,6 +533,17 @@ const CheckList = props => {
 						</div>
 					)
 				}
+	</div>
+}
+
+const Select = props => {
+	const {title, options, defaultValue, handleToggle} = props
+	const zoneOptions = options.map((zone) =>
+		<option selected={defaultValue == zone} value={zone}>{zone}</option>
+	);
+	return <div>
+		<h4 class="card-title">{title}</h4>
+		<select onChange={handleToggle}> {zoneOptions} </select>
 	</div>
 }
 

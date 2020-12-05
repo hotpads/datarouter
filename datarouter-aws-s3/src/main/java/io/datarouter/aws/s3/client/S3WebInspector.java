@@ -159,6 +159,7 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 							.setPath(contextPath + paths.datarouter.clients.awsS3.listObjects.toSlashedString())
 							.addParameter(S3BucketHandler.P_client, bucket.clientName)
 							.addParameter(S3BucketHandler.P_bucket, bucket.bucketName)
+							.addParameter(S3BucketHandler.P_delimiter, "/")
 							.toString();
 					return td(a(bucket.bucketName).withHref(href));
 				})

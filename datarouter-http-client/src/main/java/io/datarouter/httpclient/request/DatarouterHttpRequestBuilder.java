@@ -100,4 +100,17 @@ public class DatarouterHttpRequestBuilder{
 		return finalUrl.normalize().toString();
 	}
 
+	public DatarouterHttpRequest makeRequest(BaseRequest<?> baseRequest){
+		DatarouterHttpRequest request = null;
+		if(HttpRequestMethod.GET == baseRequest.method){
+			request = createGet(baseRequest.path);
+		}else if(HttpRequestMethod.POST == baseRequest.method){
+			request = createPost(baseRequest.path);
+		}else{
+			throw new IllegalArgumentException("Only GET and POST methods supported");
+		}
+		request.addParams(baseRequest.params);
+		return request;
+	}
+
 }

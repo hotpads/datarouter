@@ -32,6 +32,7 @@ import io.datarouter.web.html.pager.Bootstrap4PagerHtml;
 import io.datarouter.web.html.pager.MemoryPager;
 import io.datarouter.web.html.pager.MemoryPager.Page;
 import io.datarouter.web.html.pager.MemorySorter;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.ContainerTag;
 
 public class ViewChangelogHandler extends BaseHandler{
@@ -44,6 +45,8 @@ public class ViewChangelogHandler extends BaseHandler{
 	private DatarouterChangelogPaths paths;
 	@Inject
 	private ViewChangelogService service;
+	@Inject
+	private CurrentUserSessionInfoService currentSessionInfoService;
 
 	@Handler(defaultHandler = true)
 	public Mav viewAll(){
@@ -65,7 +68,7 @@ public class ViewChangelogHandler extends BaseHandler{
 				.withClass("mt-4");
 		var linkBar = Bootstrap4PagerHtml.renderLinkBar(page)
 				.withClass("mt-2");
-		var table = service.buildTable(page.rows);
+		var table = service.buildTable(page.rows, currentSessionInfoService.getZoneId(request));
 		return div(form, linkBar, table)
 				.withClass("container-fluid");
 	}

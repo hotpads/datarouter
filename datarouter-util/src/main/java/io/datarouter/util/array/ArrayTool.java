@@ -24,9 +24,7 @@ public class ArrayTool{
 		if(in == null){
 			return null;
 		}
-		byte[] out = new byte[in.length];
-		System.arraycopy(in, 0, out, 0, in.length);
-		return out;
+		return Arrays.copyOf(in, in.length);
 	}
 
 	public static byte[] nullSafe(byte[] array){
@@ -81,33 +79,12 @@ public class ArrayTool{
 		return !isEmpty(array);
 	}
 
-	public static boolean notEmpty(byte[] array){
-		return !isEmpty(array);
-	}
-
-	public static byte[] concatenate(byte[]... arrays){
-		int totalLength = 0;
-		for(int i = 0; i < length(arrays); ++i){
-			totalLength += length(arrays[i]);
-		}
-		byte[] result = new byte[totalLength];
-		int nextStartIndex = 0;
-		for(int i = 0; i < length(arrays); ++i){
-			int argArrayLength = length(arrays[i]);
-			if(argArrayLength > 0){
-				System.arraycopy(arrays[i], 0, result, nextStartIndex, argArrayLength);
-				nextStartIndex += argArrayLength;
-			}
-		}
-		return result;
-	}
-
 	public static boolean containsUnsorted(byte[] array, byte key){
 		if(isEmpty(array)){
 			return false;
 		}
-		for(byte element : array){
-			if(element == key){
+		for(int i = 0; i < array.length; ++i){
+			if(array[i] == key){
 				return true;
 			}
 		}

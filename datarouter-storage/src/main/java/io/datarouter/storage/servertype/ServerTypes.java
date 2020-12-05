@@ -17,6 +17,7 @@ package io.datarouter.storage.servertype;
 
 import java.util.List;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.web.HtmlSelectOptionBean;
 
 public interface ServerTypes{
@@ -30,6 +31,8 @@ public interface ServerTypes{
 	default ServerType getJobletServerType(){
 		return getJobServerType();
 	}
+
+	Scanner<ServerType> values();
 
 	List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames();
 

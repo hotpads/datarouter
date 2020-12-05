@@ -58,6 +58,10 @@ public class DatarouterHttpResponse{
 		return response.getHeaders(name);
 	}
 
+	public Header[] getAllHeaders(){
+		return response.getAllHeaders();
+	}
+
 	public List<Cookie> getCookies(){
 		return cookies;
 	}

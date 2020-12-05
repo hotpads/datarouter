@@ -121,7 +121,9 @@ public class StringToolTests{
 	@Test
 	public void testGetStringBeforeFirstOccurrence(){
 		Assert.assertEquals(StringTool.getStringBeforeFirstOccurrence('.', "v1.2"), "v1");
+		Assert.assertEquals(StringTool.getStringBeforeFirstOccurrence("1.", "v1.2"), "v");
 		Assert.assertEquals(StringTool.getStringBeforeFirstOccurrence('.', "v1"), "v1");
+		Assert.assertEquals(StringTool.getStringBeforeFirstOccurrence(".", "v1"), "v1");
 		Assert.assertEquals(StringTool.getStringBeforeFirstOccurrence('.', ""), "");
 	}
 

@@ -29,11 +29,11 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 public abstract class BaseLog4j2Configuration{
 
+	public static final String DEFAULT_PATTERN = "%d %-5level [%t] <${web:servletContextName:-${sys:user.name}}>"
+			+ " %logger{36}:%line - %msg%n%rEx";
+
 	private static final String DEFAULT_CATALINA_OUT_DIR = "/mnt/logs";
 	private static final String CATALINA_OUT_DIR_ENV_VARIABLE = "CATALINA_OUT_DIR";
-
-	public static final String defaultPattern = "%d %-5level [%t] <${web:servletContextName:-${sys:user.name}}>"
-			+ " %logger{36}:%line - %msg%n%rEx";
 	public static final String CATALINA_OUT_DIR;
 	static{
 		String catalinaOutDir = System.getenv(CATALINA_OUT_DIR_ENV_VARIABLE);

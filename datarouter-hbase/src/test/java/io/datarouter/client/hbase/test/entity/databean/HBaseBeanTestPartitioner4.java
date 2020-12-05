@@ -27,7 +27,7 @@ public class HBaseBeanTestPartitioner4 extends BaseEntityPartitioner<HBaseBeanTe
 
 	@Override
 	public int getPartition(HBaseBeanTestEntityKey ek){
-		long hash = HashMethods.longDjbHash(FieldTool.getConcatenatedValueBytes(ek.getFields(), false, false, false));
+		long hash = HashMethods.longDjbHash(FieldTool.getPartitionerInput(ek.getFields()));
 		return (int)(hash % getNumPartitions());
 	}
 

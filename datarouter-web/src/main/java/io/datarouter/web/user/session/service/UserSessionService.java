@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.user.session.service;
 
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +54,8 @@ public interface UserSessionService{
 	//looks up all Sessions for each user and deletes them
 	void deleteUserSessions(List<String> usernames);
 
+	Optional<ZoneId> getZoneId(String username);
+
 	static class NoOpUserSessionService implements UserSessionService{
 
 		@Override
@@ -79,6 +82,11 @@ public interface UserSessionService{
 
 		@Override
 		public void deleteUserSessions(List<String> usernames){
+		}
+
+		@Override
+		public Optional<ZoneId> getZoneId(String username){
+			return Optional.empty();
 		}
 
 	}

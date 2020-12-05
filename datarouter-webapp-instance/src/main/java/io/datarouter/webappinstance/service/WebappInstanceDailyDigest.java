@@ -33,7 +33,9 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
@@ -62,22 +64,26 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	private DatarouterWebappInstancePaths paths;
 	@Inject
 	private DailyDigestService digestService;
+	@Inject
+	private DatarouterService datarouterService;
+	@Inject
+	private StandardDeploymentCount standardDeploymentCount;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(){
+	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
 		var logs = getLogs();
 		if(logs.isEmpty()){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
-		var table = buildPageTable(logs);
+		var table = buildPageTable(logs, zoneId);
 		return Optional.of(div(header, table));
 	}
 
 	@Override
 	public Optional<ContainerTag> getEmailContent(){
 		var logs = getLogs();
-		if(logs.isEmpty()){
+		if(logs.isEmpty() || logs.size() <= standardDeploymentCount.getNumberOfStandardDeployments()){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
@@ -103,34 +109,40 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.groupBy(WebappInstanceLogKeyDto::new);
 		return Scanner.of(ranges.entrySet())
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
-				.sorted(Comparator.comparing((WebappInstanceLogDto dto) -> dto.buildDate))
+				.sorted(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.buildDate))
 				.list();
 	}
 
-	private ContainerTag buildPageTable(List<WebappInstanceLogDto> rows){
+	private ContainerTag buildPageTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
 		return new J2HtmlTable<WebappInstanceLogDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Build Date", row -> row.buildDate)
-				.withColumn("Startup Range", row -> row.getStartupRangeStart() + " - " + row.getStartupRangeEnd())
-				.withHtmlColumn("BuildId", row -> td(a(Optional.ofNullable(row.buildId).orElse(""))
+				.withColumn("Build Date", row -> DateTool.formatDateWithZone(row.key.buildDate, zoneId))
+				.withColumn("Startup Range", row -> row.getStartupRangeStart(zoneId)
+						+ " - "
+						+ row.getStartupRangeEnd(zoneId))
+				.withHtmlColumn("BuildId", row -> td(a(Optional.ofNullable(row.key.buildId).orElse(""))
 						.withTarget("_blank")
-						.withHref(buildIdLink.getLink(Optional.ofNullable(row.buildId).orElse("")))))
-				.withHtmlColumn("CommitId", row -> td(a(row.commitId)
+						.withHref(buildIdLink.getLink(Optional.ofNullable(row.key.buildId).orElse("")))))
+				.withHtmlColumn("CommitId", row -> td(a(row.key.commitId)
 						.withTarget("_blank")
-						.withHref(commitIdLink.getLink(row.commitId))))
+						.withHref(commitIdLink.getLink(row.key.commitId))))
 				.build(rows);
 	}
 
 	private ContainerTag buildEmailTable(List<WebappInstanceLogDto> rows){
+		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<WebappInstanceLogDto>()
-				.withColumn("Build Date", row -> row.buildDate)
-				.withColumn("Startup Range", row -> row.getStartupRangeStart() + " - " + row.getStartupRangeEnd())
+				.withColumn("Build Date", row -> DateTool.formatDateWithZone(row.key.buildDate, zoneId))
+				.withColumn("Startup Range", row ->
+						row.getStartupRangeStart(zoneId)
+						+ " - "
+						+ row.getStartupRangeEnd(zoneId))
 				.withColumn(new J2HtmlEmailTableColumn<>(
 						"BuildId",
-						row -> a(Optional.ofNullable(row.buildId).orElse(""))
-						.withHref(buildIdLink.getLink(Optional.ofNullable(row.buildId).orElse("")))))
+						row -> a(Optional.ofNullable(row.key.buildId).orElse(""))
+						.withHref(buildIdLink.getLink(Optional.ofNullable(row.key.buildId).orElse("")))))
 				.withColumn(new J2HtmlEmailTableColumn<>(
-						"CommitId", row -> a(row.commitId).withHref(commitIdLink.getLink(row.commitId))))
+						"CommitId", row -> a(row.key.commitId).withHref(commitIdLink.getLink(row.key.commitId))))
 				.build(rows);
 	}
 
@@ -181,15 +193,11 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 
 	private static class WebappInstanceLogDto{
 
-		public final Date buildDate;
-		public final String buildId;
-		public final String commitId;
+		public final WebappInstanceLogKeyDto key;
 		private final List<Date> startupDates;
 
 		public WebappInstanceLogDto(WebappInstanceLogKeyDto key, List<WebappInstanceLog> logRanges){
-			this.buildDate = key.buildDate;
-			this.buildId = key.buildId;
-			this.commitId = key.commitId;
+			this.key = key;
 			this.startupDates = Scanner.of(logRanges)
 					.map(WebappInstanceLog::getKey)
 					.map(WebappInstanceLogKey::getStartupDate)
@@ -197,17 +205,19 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 					.list();
 		}
 
-		public String getStartupRangeStart(){
+		public String getStartupRangeStart(ZoneId zoneId){
 			return Scanner.of(startupDates)
 					.findFirst()
-					.map(Date::toString)
+					.map(date -> DateTool.formatDateWithZone(date, zoneId))
 					.get();
 		}
 
-		public String getStartupRangeEnd(){
+		// this should check the refreshed last fields, not the startup dates
+		public String getStartupRangeEnd(ZoneId zoneId){
 			return ListTool.findLast(startupDates)
-					.map(Date::toString)
-					.get();
+						.map(date -> DateTool.formatDateWithZone(date, zoneId))
+						.get();
+
 		}
 
 	}

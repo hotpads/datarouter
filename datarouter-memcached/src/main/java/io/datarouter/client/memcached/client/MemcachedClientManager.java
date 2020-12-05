@@ -23,6 +23,9 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.client.memcached.client.options.MemcachedOptions;
+import io.datarouter.client.memcached.client.spy.SpyMemcachedClient;
+import io.datarouter.client.memcached.client.spy.SpyMemcachedClientHolder;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.util.timer.PhaseTimer;

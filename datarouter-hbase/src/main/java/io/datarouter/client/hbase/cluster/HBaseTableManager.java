@@ -16,6 +16,7 @@
 package io.datarouter.client.hbase.cluster;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -25,7 +26,7 @@ import org.apache.hadoop.hbase.client.Admin;
 
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.balancer.HBaseBalancerFactory;
-import io.datarouter.client.hbase.compaction.HBaseCompactionInfo;
+import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
@@ -44,8 +45,6 @@ public class HBaseTableManager<PK extends PrimaryKey<PK>>{
 		private DrRegionListFactory hbaseRegionListFactory;
 		@Inject
 		private HBaseBalancerFactory hbaseBalancerFactory;
-		@Inject
-		private HBaseCompactionInfo hbaseCompactionInfo;
 
 		public <PK extends PrimaryKey<PK>> HBaseTableManager<PK> make(Node<PK,?,?> node){
 			PhysicalNode<PK,?,?> physicalNode = NodeTool.extractSinglePhysicalNode(node);
@@ -58,8 +57,7 @@ public class HBaseTableManager<PK extends PrimaryKey<PK>>{
 					servers,
 					tableName,
 					physicalNode,
-					hbaseBalancerFactory.getBalancerForTable(clientId, tableName),
-					hbaseCompactionInfo)
+					hbaseBalancerFactory.getBalancerForTable(clientId, tableName))
 					.getRegions();
 			return new HBaseTableManager<>(physicalNode.getFieldInfo().getPrimaryKeyClass(), regionSupplier);
 		}
@@ -77,7 +75,9 @@ public class HBaseTableManager<PK extends PrimaryKey<PK>>{
 	public Scanner<PK> scanPartitionEndKeys(){
 		return Scanner.of(regionSupplier.get())
 				.include(region -> region.getPartition() == 0)
-				.map(DrRegionInfo::getEndKey)
+				.map(DrRegionInfo::getEndKeyTyped)
+				.map(Conditional::orElseThrow)
+				.map(Optional::orElseThrow)
 				.map(pkClass::cast);
 	}
 

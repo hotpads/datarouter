@@ -22,8 +22,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.aws.memcached.client.options.AwsMemcachedOptions;
 import io.datarouter.client.memcached.client.MemcachedClientManager;
-import io.datarouter.client.memcached.client.SpyMemcachedClient;
+import io.datarouter.client.memcached.client.spy.SpyMemcachedClient;
 import io.datarouter.storage.client.ClientId;
 import net.spy.memcached.DefaultConnectionFactory;
 import net.spy.memcached.KetamaConnectionFactory;

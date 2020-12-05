@@ -75,7 +75,7 @@ extends DatarouterWebWebappConfigBuilder<T>{
 				.forEach(registeredPlugins::add);
 		modules.addAll(jobPlugins);
 
-		DatarouterJobPluginBuilder jobPluginBuilder = new DatarouterJobPluginBuilder(defaultClientId);
+		DatarouterJobPluginBuilder jobPluginBuilder = new DatarouterJobPluginBuilder(List.of(defaultClientId));
 		addJobPluginWithoutInstalling(jobPluginBuilder.getSimplePluginData());
 		DatarouterJobPlugin jobPlugin = jobPluginBuilder
 				.setTriggerGroupClasses(triggerGroups)

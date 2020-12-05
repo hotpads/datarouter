@@ -15,11 +15,15 @@
  */
 package io.datarouter.web.user.session.service;
 
+import java.time.ZoneId;
+import java.util.Optional;
+
 public interface SessionBasedUser{
 
 	String getUsername();
 	String getToken();
 	Long getId();
 	Boolean isEnabled();
+	Optional<ZoneId> getZoneId();
 
 }

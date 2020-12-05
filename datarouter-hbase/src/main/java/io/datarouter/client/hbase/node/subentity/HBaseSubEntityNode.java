@@ -138,13 +138,14 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 				Delete delete = new Delete(ekBytes);
 				for(D databean : ekAndPks.getValue()){
 					PK pk = databean.getKey();
-					byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk, true);
+					byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk);
 					List<Field<?>> fields = getFieldInfo().getNonKeyFieldsWithValues(databean);
 					boolean didAtLeastOneField = false;
 					for(Field<?> field : fields){// TODO only put modified fields
-						byte[] fullQualifierBytes = ByteTool.concatenate(getFieldInfo()
-								.getEntityColumnPrefixBytes(), qualifierPkBytes, field.getKey()
-								.getColumnNameBytes());
+						byte[] fullQualifierBytes = ByteTool.concatenate(
+								getFieldInfo().getEntityColumnPrefixBytes(),
+								qualifierPkBytes,
+								field.getKey().getColumnNameBytes());
 						byte[] fieldValueBytes = field.getBytes();
 						if(fieldValueBytes == null){
 							boolean ignoreNulls = config.findIgnoreNullFields().orElse(false);
@@ -163,9 +164,10 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 					}
 					if(!didAtLeastOneField){
 						Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
-						byte[] dummyQualifierBytes = ByteTool.concatenate(getFieldInfo()
-								.getEntityColumnPrefixBytes(), qualifierPkBytes, dummyField.getKey()
-										.getColumnNameBytes());
+						byte[] dummyQualifierBytes = ByteTool.concatenate(
+								getFieldInfo().getEntityColumnPrefixBytes(),
+								qualifierPkBytes,
+								dummyField.getKey().getColumnNameBytes());
 						byte[] dummyValueBytes = dummyField.getBytes();
 						put.addColumn(FAM, dummyQualifierBytes, dummyValueBytes);
 						putBytes += dummyQualifierBytes.length;
@@ -216,11 +218,13 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 			byte[] ekBytes = queryBuilder.getRowBytesWithPartition(ekAndPks.getKey());
 			Increment increment = new Increment(ekBytes);
 			for(PK key : ekAndPks.getValue()){
-				byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(key, true);
+				byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(key);
 				for(Entry<String, Long> entry : countByColumnByKey.get(key).entrySet()){
 					assertColumnIsUInt63Field(entry.getKey());
-					byte[] fullQualifierBytes = ByteTool.concatenate(getFieldInfo().getEntityColumnPrefixBytes(),
-							qualifierPkBytes, StringByteTool.getUtf8Bytes(entry.getKey()));
+					byte[] fullQualifierBytes = ByteTool.concatenate(
+							getFieldInfo().getEntityColumnPrefixBytes(),
+							qualifierPkBytes,
+							StringByteTool.getUtf8Bytes(entry.getKey()));
 					increment.addColumn(HBaseSubEntityNode.FAM, fullQualifierBytes, entry.getValue());
 					++cellCount;
 				}
@@ -320,13 +324,14 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 						delete.addColumns(FAM, qualifier);
 						deletes.add(delete);
 					}
-					byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk, true);
+					byte[] qualifierPkBytes = queryBuilder.getQualifierPkBytes(pk);
 					Delete delete = new Delete(rowBytes);
 					delete.setDurability(durability);
 					Field<?> dummyField = new SignedByteField(DUMMY, (byte)0);
-					byte[] dummyQualifierBytes = ByteTool.concatenate(getFieldInfo()
-							.getEntityColumnPrefixBytes(), qualifierPkBytes, dummyField.getKey()
-									.getColumnNameBytes());
+					byte[] dummyQualifierBytes = ByteTool.concatenate(
+							getFieldInfo().getEntityColumnPrefixBytes(),
+							qualifierPkBytes,
+							dummyField.getKey().getColumnNameBytes());
 					delete.addColumns(FAM, dummyQualifierBytes);
 					deletes.add(delete);
 				}

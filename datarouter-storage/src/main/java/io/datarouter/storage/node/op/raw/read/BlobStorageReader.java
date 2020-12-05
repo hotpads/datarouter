@@ -15,8 +15,6 @@
  */
 package io.datarouter.storage.node.op.raw.read;
 
-import java.nio.charset.StandardCharsets;
-
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
@@ -40,10 +38,6 @@ extends NodeOps<PK,D>{
 
 	byte[] read(PathbeanKey key);
 	byte[] read(PathbeanKey key, long offset, int length);
-
-	default String readUtf8(PathbeanKey key){
-		return new String(read(key), StandardCharsets.UTF_8);
-	}
 
 	Scanner<PathbeanKey> scanKeys(Subpath subpath);
 	Scanner<Pathbean> scan(Subpath subpath);

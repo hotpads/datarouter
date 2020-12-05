@@ -29,7 +29,7 @@ import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.util.HashMethods;
-import io.datarouter.util.array.ArrayTool;
+import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
 
 public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
@@ -71,7 +71,7 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 			this.subEntityPrefix = Optional.ofNullable(nodeNames.getSubEntityPrefix()).orElse("");
 		}
 		if(rowKeyFields != null){
-			this.rowKeyBytes = FieldTool.getConcatenatedValueBytes(rowKeyFields, false, true, false);
+			this.rowKeyBytes = FieldTool.getConcatenatedValueBytesUnterminated(rowKeyFields);
 		}
 	}
 
@@ -98,7 +98,7 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 
 	//DJB shifts left 5 bits after each byte, so should be plenty large
 	public long positiveLongHashCode(){
-		byte[] hashInput = ArrayTool.concatenate(
+		byte[] hashInput = ByteTool.concatenate(
 				StringByteTool.getUtf8Bytes(clientName),
 				StringByteTool.getUtf8Bytes(tableName),
 				StringByteTool.getUtf8Bytes(subEntityPrefix),

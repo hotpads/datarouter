@@ -25,30 +25,38 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterTableCountDao extends BaseDao{
 
-	public static class DatarouterTableCountDaoParams extends BaseDaoParams{
+	public static class DatarouterTableCountDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterTableCountDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterTableCountDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<TableCountKey,TableCount> node;
+	private final SortedMapStorageNode<TableCountKey,TableCount,TableCountFielder> node;
 
 	@Inject
 	public DatarouterTableCountDao(Datarouter datarouter, NodeFactory nodeFactory,
 			DatarouterTableCountDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, TableCount::new, TableCountFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<TableCountKey,TableCount,TableCountFielder> node =
+							nodeFactory.create(clientId, TableCount::new, TableCountFielder::new)
+							.withIsSystemTable(true)
+							.buildAndRegister();
+					return node;
+					})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	//currently not depending on table sort order

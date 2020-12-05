@@ -62,6 +62,10 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 		node.put(log);
 	}
 
+	public Scanner<WebappInstanceLog> scan(){
+		return node.scan();
+	}
+
 	public Scanner<WebappInstanceLog> scanWithPrefix(WebappInstanceLogKey key){
 		return node.scanWithPrefix(key);
 	}

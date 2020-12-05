@@ -15,6 +15,8 @@
  */
 package io.datarouter.loggerconfig.storage.consoleappender;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -25,32 +27,37 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterConsoleAppenderDao extends BaseDao{
 
-	public static class DatarouterConsoleAppenderDaoParams extends BaseDaoParams{
+	public static class DatarouterConsoleAppenderDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterConsoleAppenderDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterConsoleAppenderDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<ConsoleAppenderKey,ConsoleAppender> node;
+	private final SortedMapStorageNode<ConsoleAppenderKey,ConsoleAppender,ConsoleAppenderFielder> node;
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Inject
 	public DatarouterConsoleAppenderDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
 			DatarouterConsoleAppenderDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, ConsoleAppender::new, ConsoleAppenderFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = new RedundantSortedMapStorageNode(Scanner.of(params.clientIds)
+				.map(clientId -> nodeFactory.create(clientId, ConsoleAppender::new, ConsoleAppenderFielder::new)
+						.withIsSystemTable(true)
+						.buildAndRegister())
+				.list());
+		datarouter.register(node);
 	}
 
 	public Scanner<ConsoleAppender> scan(){

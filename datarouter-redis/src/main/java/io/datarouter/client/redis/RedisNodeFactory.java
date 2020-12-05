@@ -40,7 +40,7 @@ public class RedisNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	RedisNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> params){
-		return new RedisNode<>(params, clientType, clientManager, params.getClientId(), executor);
+		return new RedisNode<>(params, clientType, clientManager, executor);
 	}
 
 }

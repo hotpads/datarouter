@@ -73,7 +73,7 @@ public class BlobNodeFactory{
 				.build();
 		ClientType<?,?> clientType = clients.getClientTypeInstance(clientId);
 		BlobClientNodeFactory clientFactories = getClientFactories(clientType);
-		return BaseNodeFactory.cast(clientFactories.createObjectNode(params));
+		return BaseNodeFactory.cast(clientFactories.createBlobNode(params));
 	}
 
 	public PhysicalBlobStorageNode<

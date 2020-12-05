@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
-import io.datarouter.secret.service.SecretOpReason;
+import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.secretweb.config.DatarouterSecretFiles;
 import io.datarouter.secretweb.config.DatarouterSecretPaths;
@@ -137,9 +137,9 @@ public class SecretHandler extends BaseHandler{
 				secretService.delete(requestDto.name, opReason);
 				return SecretHandlerOpResultDto.success();
 			case LIST_ALL:
-				List<String> appNames = secretService.listSecretNames(Optional.ofNullable(requestDto.name));
+				List<String> appNames = secretService.listSecretNames(Optional.ofNullable(requestDto.name), opReason);
 				appNames.sort(String.CASE_INSENSITIVE_ORDER);
-				List<String> sharedNames = secretService.listSecretNamesShared();
+				List<String> sharedNames = secretService.listSecretNamesShared(opReason);
 				sharedNames.sort(String.CASE_INSENSITIVE_ORDER);
 				return SecretHandlerOpResultDto.list(appNames, sharedNames);
 			default:

@@ -27,7 +27,7 @@ public class DefaultEntityPartitioner<EK extends EntityKey<EK>> extends BaseByte
 
 	@Override
 	public byte[] makeByteArrayHashInput(EK ek){
-		return FieldTool.getConcatenatedValueBytes(ek.getFields(), false, false, false);
+		return FieldTool.getPartitionerInput(ek.getFields());
 	}
 
 }

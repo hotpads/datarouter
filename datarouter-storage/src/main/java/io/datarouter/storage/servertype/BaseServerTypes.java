@@ -57,8 +57,9 @@ public class BaseServerTypes implements ServerTypes{
 		return this;
 	}
 
-	public ServerType[] values(){
-		return serverTypes.toArray(ServerType[]::new);
+	@Override
+	public Scanner<ServerType> values(){
+		return Scanner.of(serverTypes);
 	}
 
 	@Override
@@ -78,7 +79,7 @@ public class BaseServerTypes implements ServerTypes{
 
 	@Override
 	public ServerType fromPersistentString(String str){
-		return Scanner.of(values())
+		return values()
 				.include(serverType -> serverType.getPersistentString().equals(str))
 				.findAny()
 				.orElseThrow(() -> new RuntimeException("Unknown server type: " + str));
@@ -86,7 +87,7 @@ public class BaseServerTypes implements ServerTypes{
 
 	@Override
 	public List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames(){
-		return Scanner.of(values())
+		return values()
 				.map(serverType -> new HtmlSelectOptionBean(serverType.getDisplay(), serverType.getPersistentString()))
 				.list();
 	}

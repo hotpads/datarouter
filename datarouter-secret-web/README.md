@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-secret-web</artifactId>
-	<version>0.0.55</version>
+	<version>0.0.56</version>
 </dependency>
 ```
 
@@ -15,7 +15,7 @@
 You can install this module by adding its plugin to the `WebappBuilder`.
 
 ```java
-.addWebPlugin(new DatarouterSecretWebPluginBuilder(...)
+.addWebPlugin(new DatarouterSecretWebPluginBuilderImpl(...)
 		...
 		.build()
 ```

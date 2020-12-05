@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.secret.exception.SecretClientException;
+import io.datarouter.secret.exception.SecretValidationException;
 
 /**
  * This class adds a layer of logging and {@link Counters} to make sure problems with {@link Secret}s are properly
@@ -55,7 +57,7 @@ public abstract class BaseSecretClient implements SecretClient{
 		try{
 			createInternal(secret);
 			countSuccess("create");
-		}catch(RuntimeException e){
+		}catch(SecretClientException e){
 			if(shouldReportError){
 				reportError("create", e);
 			}
@@ -70,7 +72,7 @@ public abstract class BaseSecretClient implements SecretClient{
 			Secret secret = readInternal(name);
 			countSuccess("read");
 			return secret;
-		}catch(RuntimeException e){
+		}catch(SecretClientException e){
 			reportError("read", e);
 			throw e;
 		}
@@ -82,7 +84,7 @@ public abstract class BaseSecretClient implements SecretClient{
 		try{
 			updateInternal(secret);
 			countSuccess("update");
-		}catch(RuntimeException e){
+		}catch(SecretClientException e){
 			reportError("update", e);
 			throw e;
 		}
@@ -94,7 +96,7 @@ public abstract class BaseSecretClient implements SecretClient{
 		try{
 			deleteInternal(name);
 			countSuccess("delete");
-		}catch(RuntimeException e){
+		}catch(SecretClientException e){
 			reportError("delete", e);
 			throw e;
 		}
@@ -106,7 +108,7 @@ public abstract class BaseSecretClient implements SecretClient{
 			List<String> names = listInternal(exclusivePrefix);
 			countSuccess("list");
 			return names;
-		}catch(RuntimeException e){
+		}catch(SecretClientException e){
 			reportError("list", e);
 			throw e;
 		}
@@ -119,7 +121,7 @@ public abstract class BaseSecretClient implements SecretClient{
 			countSuccess("validateSecret");
 		}catch(RuntimeException e){
 			reportError("validateSecret", e);
-			throw e;
+			throw new SecretValidationException(e);
 		}
 	}
 
@@ -130,7 +132,7 @@ public abstract class BaseSecretClient implements SecretClient{
 			countSuccess("validateName");
 		}catch(RuntimeException e){
 			reportError("validateName", e);
-			throw e;
+			throw new SecretValidationException(e);
 		}
 	}
 

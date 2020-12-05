@@ -84,11 +84,6 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public String readUtf8(PathbeanKey key){
-		return s3DirectoryManager.readUtf8(key.getPathAndFile());
-	}
-
-	@Override
 	public void delete(PathbeanKey key){
 		s3DirectoryManager.delete(key.getPathAndFile());
 	}

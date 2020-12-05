@@ -60,23 +60,19 @@ extends HBaseEntityQueryBuilder<EK,E>{
 	public byte[] getQualifier(PK primaryKey, String fieldName){
 		return ByteTool.concatenate(
 				fieldInfo.getEntityColumnPrefixBytes(),
-				getQualifierPkBytes(primaryKey, true),
+				getQualifierPkBytes(primaryKey),
 				StringByteTool.getUtf8Bytes(fieldName));
 	}
 
 	private byte[] getQualifierPrefix(PK primaryKey){
-		return ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey, true));
+		return ByteTool.concatenate(fieldInfo.getEntityColumnPrefixBytes(), getQualifierPkBytes(primaryKey));
 	}
 
-	public byte[] getQualifierPkBytes(PK primaryKey, boolean trailingSeparatorAfterEndingString){
+	public byte[] getQualifierPkBytes(PK primaryKey){
 		if(primaryKey == null){
 			return new byte[]{};
 		}
-		return FieldTool.getConcatenatedValueBytes(
-				primaryKey.getPostEntityKeyFields(),
-				true,
-				trailingSeparatorAfterEndingString,
-				trailingSeparatorAfterEndingString);
+		return FieldTool.getConcatenatedValueBytes(primaryKey.getPostEntityKeyFields());
 	}
 
 	/*---------------------------- get/getMulti -----------------------------*/

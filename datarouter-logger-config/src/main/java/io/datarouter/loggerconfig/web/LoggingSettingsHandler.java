@@ -254,7 +254,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			mav.put("target", appender.getTarget());
 			mav.put("layout", layout);
 		}else{
-			mav.put("layout", BaseLog4j2Configuration.defaultPattern);
+			mav.put("layout", BaseLog4j2Configuration.DEFAULT_PATTERN);
 		}
 		recordChangelog("ConsoleAppender", name, action);
 		return mav;
@@ -280,7 +280,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			mav.put("layout", layout);
 			mav.put("fileName", appender.getFileName());
 		}else{
-			mav.put("layout", BaseLog4j2Configuration.defaultPattern);
+			mav.put("layout", BaseLog4j2Configuration.DEFAULT_PATTERN);
 		}
 		recordChangelog("FileAppender", name, action);
 		return mav;

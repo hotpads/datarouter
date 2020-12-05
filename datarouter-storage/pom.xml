@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.55</version>
+		<version>0.0.56</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -57,7 +57,6 @@
 			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-logging</artifactId>
 			<version>${datarouter-version}</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -88,5 +87,19 @@
 				</executions>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.0</version>
+					<configuration>
+						<compilerId>eclipse</compilerId>
+						<source>11</source>
+						<target>11</target>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 </project>

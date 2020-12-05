@@ -32,7 +32,7 @@ import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.Statement;
 
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
-import io.datarouter.gcp.spanner.ddl.SpannerSingleTableSchemaUpdateFactory;
+import io.datarouter.gcp.spanner.ddl.SpannerSingleTableSchemaUpdateService;
 import io.datarouter.gcp.spanner.ddl.SpannerTableOperationsGenerator;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
@@ -50,7 +50,7 @@ import io.datarouter.web.monitoring.BuildProperties;
 @Singleton
 public class SpannerSchemaUpdateService extends BaseSchemaUpdateService{
 
-	private final SpannerSingleTableSchemaUpdateFactory singleTableSchemaUpdateFactory;
+	private final SpannerSingleTableSchemaUpdateService singleTableSchemaUpdateFactory;
 	private final SpannerTableOperationsGenerator tableOperationsGenerator;
 	private final SpannerDatabaseClientsHolder clientPoolHolder;
 	private final DatarouterHtmlEmailService htmlEmailService;
@@ -60,7 +60,7 @@ public class SpannerSchemaUpdateService extends BaseSchemaUpdateService{
 	public SpannerSchemaUpdateService(
 			DatarouterProperties datarouterProperties,
 			DatarouterAdministratorEmailService adminEmailService,
-			SpannerSingleTableSchemaUpdateFactory singleTableSchemaUpdateFactory,
+			SpannerSingleTableSchemaUpdateService singleTableSchemaUpdateFactory,
 			SpannerTableOperationsGenerator tableOperationsGenerator,
 			DatarouterSchemaUpdateScheduler executor,
 			SpannerDatabaseClientsHolder clientPoolHolder,
@@ -87,7 +87,7 @@ public class SpannerSchemaUpdateService extends BaseSchemaUpdateService{
 			ClientId clientId,
 			Supplier<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> node){
-		return singleTableSchemaUpdateFactory.new SpannerSingleTableSchemaUpdate(clientId, existingTableNames, node);
+		return () -> singleTableSchemaUpdateFactory.performSchemaUpdate(clientId, existingTableNames, node);
 	}
 
 	@Override

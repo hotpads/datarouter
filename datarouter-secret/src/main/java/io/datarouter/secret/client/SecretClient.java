@@ -27,10 +27,9 @@ import io.datarouter.secret.service.SecretService;
 /**
  * This is an interface that enables simple CRUD methods for {@link Secret} storage without any namespacing logic.
  *
- * The recommended way to use this interface is to implement a {@link SecretClient} and
- * {@link SecretClientSupplier}, then use {@link CachedSecretFactory} to obtain a {@link CachedSecret} for reading.
- * If more than just reading is required, {@link SecretService} should be used, because it supports simple namespacing.
- * This interface should be used only as a last resort or for migrations across namespaces.
+ * The recommended way to use this interface is to implement use {@link CachedSecretFactory} to obtain a
+ * {@link CachedSecret} for reading. If more than just reading is required, {@link SecretService} should be used.
+ * This interface should be used directly only as a last resort or for migrations across namespaces.
  */
 public interface SecretClient{
 

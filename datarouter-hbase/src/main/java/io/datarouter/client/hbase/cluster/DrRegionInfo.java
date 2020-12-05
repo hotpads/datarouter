@@ -16,6 +16,8 @@
 package io.datarouter.client.hbase.cluster;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 
 import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.RegionLoad;
@@ -28,10 +30,12 @@ import io.datarouter.client.hbase.compaction.DrhCompactionScheduler;
 import io.datarouter.client.hbase.compaction.HBaseCompactionInfo;
 import io.datarouter.client.hbase.node.nonentity.HBaseReaderNode;
 import io.datarouter.client.hbase.node.subentity.HBaseSubEntityReaderNode;
+import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.storage.node.Node;
+import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.EntityFieldInfo;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.lang.ClassTool;
@@ -45,8 +49,7 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 	private final String name;
 	private final HRegionInfo regionInfo;
 	private final ServerName serverName;
-	private final PhysicalNode<?,?,?> node;
-	private final DatabeanFieldInfo<?,?,?> fieldInfo;
+	private final Function<byte[],FieldSet<?>> keyParser;
 	private final Integer partition;
 	private final RegionLoad load;
 	private final DrhCompactionScheduler<PK> compactionScheduler;
@@ -60,7 +63,7 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 			String tableName,
 			HRegionInfo regionInfo,
 			ServerName serverName,
-			PhysicalNode<?,?,?> node,
+			PhysicalNode<?,?,?> nodeOrAdapter,
 			RegionLoad load,
 			HBaseCompactionInfo compactionInfo,
 			EntityFieldInfo<?,?> entityFieldInfo){
@@ -70,25 +73,30 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 		this.name = new String(regionInfo.getRegionName());
 		this.regionInfo = regionInfo;
 		this.serverName = serverName;
-		this.node = node;
-		this.fieldInfo = node.getFieldInfo();//set before calling getKey
+		// unwrap from adapters to expose real implementation and the getResultParser method
+		// it's ok to do so because the node is used only for non rpc byte parsing methods
+		Node<?,?,?> node = NodeTool.getUnderlyingNode(nodeOrAdapter);
+		if(node.getFieldInfo().isSubEntity()){
+			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
+			keyParser = subEntityNode.getResultParser()::getEkFromRowBytes;
+		}else{
+			HBaseReaderNode<?,?,?,?,?> nonEntityNode = (HBaseReaderNode<?,?,?,?,?>)node;
+			keyParser = nonEntityNode.getResultParser()::toPk;
+		}
 		this.load = load;
 		this.compactionScheduler = new DrhCompactionScheduler<>(compactionInfo, this);
 		this.entityFieldInfo = entityFieldInfo;
 		this.partition = calculatePartition(regionInfo.getStartKey());//after setting entityFieldInfo
 	}
 
-	private FieldSet<?> getKey(byte[] bytes){
+	private Conditional<Optional<FieldSet<?>>> getKey(byte[] bytes){
+		if(bytes.length == 0){
+			return Conditional.success(Optional.empty());
+		}
 		try{
-			if(fieldInfo.isSubEntity()){
-				HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
-				return subEntityNode.getResultParser().getEkFromRowBytes(bytes);
-			}
-			HBaseReaderNode<?,?,?,?,?> nonEntityNode = (HBaseReaderNode<?,?,?,?,?>)node;
-			return nonEntityNode.getResultParser().toPk(bytes);
-		}catch(RuntimeException e){
-			logger.warn("error on {}, {}", node.getName(), Bytes.toStringBinary(bytes), e);
-			return null;
+			return Conditional.success(Optional.of(keyParser.apply(bytes)));
+		}catch(Exception e){
+			return Conditional.failure(e);
 		}
 	}
 
@@ -169,15 +177,39 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 	}
 
 	//used in hbaseTableRegions.jsp
-	public FieldSet<?> getStartKey(){
-		byte[] startKey = regionInfo.getStartKey();
-		return startKey.length == 0 ? null : getKey(startKey);
+	public String getStartRowKey(){
+		return Bytes.toStringBinary(regionInfo.getStartKey());
 	}
 
 	//used in hbaseTableRegions.jsp
-	public FieldSet<?> getEndKey(){
-		byte[] endKey = regionInfo.getEndKey();
-		return endKey.length == 0 ? null : getKey(endKey);
+	public Object getStartKeyString(){
+		return getStartKeyTyped()
+				.<Object>map(opt -> opt.orElse(null))
+				.peekFailure(e -> logger.warn("", e))
+				.orElseGet(e -> e);
+	}
+
+	public Conditional<Optional<FieldSet<?>>> getStartKeyTyped(){
+		byte[] bytes = regionInfo.getStartKey();
+		return getKey(bytes);
+	}
+
+	//used in hbaseTableRegions.jsp
+	public String getEndRowKey(){
+		return Bytes.toStringBinary(regionInfo.getEndKey());
+	}
+
+	//used in hbaseTableRegions.jsp
+	public Object getEndKeyString(){
+		return getEndKeyTyped()
+				.<Object>map(opt -> opt.orElse(null))
+				.peekFailure(e -> logger.warn("", e))
+				.orElseGet(e -> e);
+	}
+
+	public Conditional<Optional<FieldSet<?>>> getEndKeyTyped(){
+		byte[] bytes = regionInfo.getEndKey();
+		return getKey(bytes);
 	}
 
 	public Integer getPartition(){

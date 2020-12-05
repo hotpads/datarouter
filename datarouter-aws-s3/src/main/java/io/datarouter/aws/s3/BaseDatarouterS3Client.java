@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -59,6 +60,7 @@ import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import io.datarouter.util.Require;
 import io.datarouter.util.bytes.ByteUnitTool;
 import io.datarouter.util.concurrent.ThreadTool;
@@ -97,6 +99,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.model.UploadPartRequest;
 import software.amazon.awssdk.services.s3.model.UploadPartResponse;
+import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
@@ -486,6 +489,37 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				.stream()
 				.map(CommonPrefix::prefix)
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public Scanner<DirectoryDto> scanSubdirectories(String bucket, String prefix, String startAfter, String delimiter,
+			int pageSize, boolean currentDirectory){
+		ListObjectsV2Request request = ListObjectsV2Request.builder()
+				.bucket(bucket)
+				.prefix(prefix)
+				.startAfter(startAfter)
+				.delimiter(delimiter)
+				.maxKeys(pageSize)
+				.build();
+		ListObjectsV2Iterable pages;
+		try(var $ = TracerTool.startSpan("S3 listObjectsV2Paginator")){
+			pages = getS3ClientForBucket(bucket).listObjectsV2Paginator(request);
+		}
+		return Scanner.of(pages)
+				.map(res -> {
+					Scanner<DirectoryDto> objects = Scanner.of(res.contents())
+							.map(object -> new DirectoryDto(
+									object.key(),
+									false,
+									object.size(),
+									object.lastModified(),
+									object.storageClass().name()));
+					Scanner<DirectoryDto> prefixes = Scanner.of(res.commonPrefixes())
+							.map(commonPrefix -> new DirectoryDto(commonPrefix.prefix(), true, 0L, null, null));
+
+					return Scanner.concat(objects, prefixes);
+				})
+				.concat(Function.identity());
 	}
 
 	@Override

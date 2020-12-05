@@ -97,8 +97,7 @@ public class HBaseRegionBalancerJob extends BaseJob{
 			BaseHBaseRegionBalancer balancer = balancerFactory.getBalancerForTable(clientId, tableName);
 			DrRegionList regionList;
 			try{
-				regionList = drRegionListFactory.make(clientId, serverList, tableName, physicalNodeForTable, balancer,
-						compactionInfo);
+				regionList = drRegionListFactory.make(clientId, serverList, tableName, physicalNodeForTable, balancer);
 			}catch(Exception e){
 				logger.error("skipping table " + tableName, e);
 				continue;

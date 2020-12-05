@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.service;
 
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import io.datarouter.util.BooleanTool;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.databean.DatarouterUser;
+import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
 import io.datarouter.web.user.session.DatarouterSession;
 import io.datarouter.web.user.session.DatarouterSessionKey;
 import io.datarouter.web.user.session.DatarouterSessionManager;
@@ -105,6 +107,11 @@ public class DatarouterUserSessionService implements UserSessionService{
 				.include(session -> usernameSet.contains(session.getUsername()))
 				.map(DatarouterSession::getKey)
 				.flush(sessionDao::deleteMulti);
+	}
+
+	@Override
+	public Optional<ZoneId> getZoneId(String username){
+		return userDao.getByUsername(new DatarouterUserByUsernameLookup(username)).getZoneId();
 	}
 
 }

@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.client.memcached.client.MemcachedClientManager;
+import io.datarouter.client.memcached.client.nodefactory.MemcachedClientNodeFactory;
 import io.datarouter.client.memcached.web.MemcachedWebInspector;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.web.browse.DatarouterClientWebInspectorRegistry;

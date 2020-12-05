@@ -15,12 +15,14 @@
  */
 package io.datarouter.web.user.databean;
 
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -53,6 +55,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	private List<String> roles;
 	private Date created;
 	private Date lastLoggedIn;
+	private String zoneId;
 
 	public static class FieldKeys{
 		public static final StringFieldKey username = new StringFieldKey("username");
@@ -64,6 +67,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
 		public static final DateFieldKey created = new DateFieldKey("created");
 		public static final DateFieldKey lastLoggedIn = new DateFieldKey("lastLoggedIn");
+		public static final StringFieldKey zoneId = new StringFieldKey("zoneId");
 	}
 
 	public static class DatarouterUserFielder extends BaseDatabeanFielder<DatarouterUserKey,DatarouterUser>{
@@ -82,7 +86,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 					new BooleanField(FieldKeys.enabled, user.enabled),
 					new DelimitedStringArrayField(FieldKeys.roles, user.roles),
 					new DateField(FieldKeys.created, user.created),
-					new DateField(FieldKeys.lastLoggedIn, user.lastLoggedIn));
+					new DateField(FieldKeys.lastLoggedIn, user.lastLoggedIn),
+					new StringField(FieldKeys.zoneId, user.zoneId));
 		}
 
 		@Override
@@ -170,7 +175,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 				&& Objects.equals(first.getEnabled(), second.getEnabled())
 				&& Objects.equals(first.getRoles(), second.getRoles())
 				&& Objects.equals(first.getCreated(), second.getCreated())
-				&& Objects.equals(first.getLastLoggedIn(), second.getLastLoggedIn());
+				&& Objects.equals(first.getLastLoggedIn(), second.getLastLoggedIn())
+				&& Objects.equals(first.getZoneId(), second.getZoneId());
 	}
 
 	public Date getCreated(){
@@ -243,6 +249,16 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 
 	public void setLastLoggedIn(Date lastLoggedIn){
 		this.lastLoggedIn = lastLoggedIn;
+	}
+
+	@Override
+	public Optional<ZoneId> getZoneId(){
+		return Optional.ofNullable(zoneId)
+				.map(ZoneId::of);
+	}
+
+	public void setZoneId(String zoneId){
+		this.zoneId = zoneId;
 	}
 
 }

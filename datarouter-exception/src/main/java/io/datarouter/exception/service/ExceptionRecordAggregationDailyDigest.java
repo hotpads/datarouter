@@ -20,7 +20,9 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.i;
 import static j2html.TagCreator.small;
 import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
 
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +40,7 @@ import io.datarouter.exception.storage.summary.ExceptionRecordSummaryKey;
 import io.datarouter.exception.web.ExceptionAnalysisHandler;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.DateTool;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -62,9 +65,11 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private ServletContextSupplier contextSupplier;
 	@Inject
 	private DailyDigestService digestService;
+	@Inject
+	private ExemptDailyDigestExceptions exemptDailyDigestExceptions;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(){
+	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
 		List<AggregatedExceptionDto> aggregated = getExceptions();
 		if(aggregated.size() == 0){
 			return Optional.empty();
@@ -100,6 +105,9 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 		for(ExceptionRecordSummary exception : dao.scan()
 				.advanceUntil(key -> key.getKey().getReversePeriodStart() > DateTool.atStartOfDayReversedMs())
 				.iterable()){
+			if(exemptDailyDigestExceptions.isExempt(exception)){
+				continue;
+			}
 			var key = new AggregatedExceptionKeyDto(exception.getKey());
 			var value = new AggregatedExceptionValueDto(exception);
 			AggregatedExceptionValueDto mapValue = aggregatedExceptions.get(key);
@@ -119,33 +127,33 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.key.type)
 				.withColumn("Location", row -> row.key.location)
-				.withColumn("Count", row -> row.value.count)
-				.withHtmlColumn("Details", row -> {
-					String id = row.value.detailsLink;
-					String link = contextSupplier.get().getContextPath() + paths.datarouter.exception.details
-							.toSlashedString() + "?" + ExceptionAnalysisHandler.P_exceptionRecord + "=" + id;
-					return td(a(i().withClass("far fa-file-alt"))
-							.withClass("btn btn-link w-100 py-0")
-							.withHref(link));
-				})
+				.withHtmlColumn(th("Count").withStyle("text-align:right"), row -> makeNumericPageTableCell(row.value
+						.count))
+				.withHtmlColumn("Details", row -> td(a(i().withClass("far fa-file-alt"))
+						.withClass("btn btn-link w-100 py-0")
+						.withHref(contextSupplier.get().getContextPath() + makeExceptionRecordPath(row))))
 				.withCaption("Total " + rows.size())
 				.build(rows);
 	}
 
 	private ContainerTag makeEmailTable(List<AggregatedExceptionDto> rows){
 		return new J2HtmlEmailTable<AggregatedExceptionDto>()
-				.withColumn("Type", row -> row.key.type)
+				.withColumn(new J2HtmlEmailTableColumn<>("Type", row -> digestService.makeATagLink(row.key.type,
+						makeExceptionRecordPath(row))))
 				.withColumn("Location", row -> row.key.location)
-				.withColumn("Count", row -> row.value.count)
-				.withColumn(new J2HtmlEmailTableColumn<>(
-						"Details",
-						row -> {
-							String id = row.value.detailsLink;
-							String link = paths.datarouter.exception.details
-									.toSlashedString() + "?" + ExceptionAnalysisHandler.P_exceptionRecord + "=" + id;
-							return digestService.makeATagLink(id, link);
-						}))
+				.withColumn(J2HtmlEmailTableColumn.ofNumber("Count", row -> row.value.count))
 				.build(rows);
+	}
+
+	private ContainerTag makeNumericPageTableCell(long value){
+		return td(NumberFormatter.addCommas(value))
+				.attr("sorttable_customkey", value)
+				.withStyle("text-align:right");
+	}
+
+	private String makeExceptionRecordPath(AggregatedExceptionDto dto){
+		return paths.datarouter.exception.details.toSlashedString()
+				+ "?" + ExceptionAnalysisHandler.P_exceptionRecord + "=" + dto.value.detailsLink;
 	}
 
 	private static class AggregatedExceptionDto{

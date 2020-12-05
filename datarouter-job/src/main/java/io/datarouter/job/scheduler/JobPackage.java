@@ -86,6 +86,10 @@ public class JobPackage implements Comparable<JobPackage>{
 		return cronExpression.map(cronExpression -> cronExpression.getNextValidTimeAfter(date));
 	}
 
+	public boolean usesLocking(){
+		return triggerLockConfig.isPresent();
+	}
+
 	public Optional<Instant> getSoftDeadline(Date triggerTime){
 		return triggerLockConfig.map(config -> config.getSoftDeadline(triggerTime));
 	}

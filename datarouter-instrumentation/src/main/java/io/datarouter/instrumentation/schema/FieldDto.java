@@ -29,6 +29,7 @@ public class FieldDto{
 	public final int order;
 	public final boolean isFixedLength;
 	public final Optional<Integer> size;
+	public final String doc;
 
 	public FieldDto(
 			String name,
@@ -38,7 +39,8 @@ public class FieldDto{
 			boolean isNullable,
 			int order,
 			boolean isFixedLength,
-			Optional<Integer> size){
+			Optional<Integer> size,
+			String doc){
 		this.name = name;
 		this.type = type;
 		this.isKey = isKey;
@@ -47,6 +49,7 @@ public class FieldDto{
 		this.order = order;
 		this.isFixedLength = isFixedLength;
 		this.size = size;
+		this.doc = doc;
 	}
 
 	@Override
@@ -60,7 +63,8 @@ public class FieldDto{
 					&& this.isNullable == that.isNullable
 					&& this.order == that.order
 					&& this.isFixedLength == that.isFixedLength
-					&& this.size.equals(that.size);
+					&& this.size.equals(that.size)
+					&& this.doc.equals(that.doc);
 		}else{
 			return false;
 		}
@@ -76,7 +80,8 @@ public class FieldDto{
 				this.isNullable,
 				this.order,
 				this.isFixedLength,
-				this.size);
+				this.size,
+				this.doc);
 	}
 
 }

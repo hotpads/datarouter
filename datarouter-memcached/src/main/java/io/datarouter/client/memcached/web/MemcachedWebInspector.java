@@ -36,8 +36,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import io.datarouter.client.memcached.client.MemcachedClientManager;
-import io.datarouter.client.memcached.client.MemcachedOptions;
-import io.datarouter.client.memcached.client.SpyMemcachedClient;
+import io.datarouter.client.memcached.client.options.MemcachedOptions;
+import io.datarouter.client.memcached.client.spy.SpyMemcachedClient;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientType;

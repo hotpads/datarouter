@@ -73,9 +73,9 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 
 	public static class DatarouterTaskTrackerDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterLongRunningTaskClientId;
+		private final List<ClientId> datarouterLongRunningTaskClientId;
 
-		public DatarouterTaskTrackerDaoModule(ClientId datarouterLongRunningTaskClientId){
+		public DatarouterTaskTrackerDaoModule(List<ClientId> datarouterLongRunningTaskClientId){
 			this.datarouterLongRunningTaskClientId = datarouterLongRunningTaskClientId;
 		}
 
@@ -94,15 +94,19 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 
 	public static class DatarouterTaskTrackerPluginBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 
 		private Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLinkClass =
 				NoOpLongRunningTaskGraphLink.class;
 		private Class<? extends TaskTrackerExceptionLink> exceptionLinkClass =
 				NoOpTaskTrackerExceptionLink.class;
 
-		public DatarouterTaskTrackerPluginBuilder(ClientId defaultClientId){
+		public DatarouterTaskTrackerPluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
+		}
+
+		public DatarouterTaskTrackerPluginBuilder(ClientId defaultClientId){
+			this(List.of(defaultClientId));
 		}
 
 		public DatarouterTaskTrackerPluginBuilder setLongRunningTaskGraphLinkClass(

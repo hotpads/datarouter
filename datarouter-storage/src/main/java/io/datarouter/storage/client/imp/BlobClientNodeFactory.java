@@ -27,6 +27,6 @@ public interface BlobClientNodeFactory extends ClientNodeFactory{
 	<PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
-	PhysicalNode<PK,D,F> createObjectNode(NodeParams<PK,D,F> nodeParams);
+	PhysicalNode<PK,D,F> createBlobNode(NodeParams<PK,D,F> nodeParams);
 
 }

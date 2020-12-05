@@ -15,9 +15,7 @@
  */
 package io.datarouter.joblet.enums;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
 
@@ -28,23 +26,24 @@ public enum JobletStatus implements StringEnum<JobletStatus>{
 	COMPLETE("complete", false),
 	INTERRUPTED("interrupted", false),
 	FAILED("failed", false),
-	TIMED_OUT("timedOut", false);
+	TIMED_OUT("timedOut", false),
+	;
 
-	private String varName;
-	private boolean isRunning;
+	private final String persistentString;
+	private final boolean isRunning;
 
-	private JobletStatus(String varName, boolean isRunning){
+	JobletStatus(String persistentString, boolean isRunning){
+		this.persistentString = persistentString;
 		this.isRunning = isRunning;
-		this.varName = varName;
 	}
 
-	public static Stream<JobletStatus> stream(){
-		return Arrays.stream(values());
+	public static Scanner<JobletStatus> scan(){
+		return Scanner.of(values());
 	}
 
 	@Override
 	public String getPersistentString(){
-		return varName;
+		return persistentString;
 	}
 
 	public static JobletStatus fromPersistentStringStatic(String string){

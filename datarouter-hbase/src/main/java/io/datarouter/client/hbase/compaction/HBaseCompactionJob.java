@@ -92,7 +92,7 @@ public class HBaseCompactionJob extends BaseJob{
 			return;
 		}
 		DrRegionList regionList = drRegionListFactory.make(clientId, servers, tableName, physicalNodeForTable,
-				balancerFactory.getBalancerForTable(clientId, tableName), compactionInfo);
+				balancerFactory.getBalancerForTable(clientId, tableName));
 		LongAdder numRegionsTriggeredInTable = new LongAdder();
 		for(DrRegionInfo<?> region : regionList.getRegions()){
 			if(tracker.heartbeat(numRegions.sum()).shouldStop()){
@@ -121,12 +121,13 @@ public class HBaseCompactionJob extends BaseJob{
 		PhaseTimer timer = new PhaseTimer("compact " + numRegionsTriggeredInTable + " of " + region.getTableName());
 		String encodedRegionNameString = region.getRegion().getEncodedName();
 		try{
-			String startKey = region.getStartKey() == null ? "" : region.getStartKey().toString();
-			String timerMessage = String.format("major_compact server=%s table=%s region=%s startKey=%s",
+			admin.majorCompactRegion(region.getRegion().getRegionName());
+			Object startKey = region.getStartKeyString();
+			// trailing space because expected for formating in timer.toString
+			String timerMessage = String.format("major_compact server=%s table=%s region=%s startKey=%s ",
 					region.getServerName(), region.getTableName(), encodedRegionNameString, startKey);
 			timer.add(timerMessage);
 			logger.warn(timer.toString());
-			admin.majorCompactRegion(region.getRegion().getRegionName());
 		}catch(Exception e){
 			logger.warn("failed to compact region:{} because of:", encodedRegionNameString, e);
 		}

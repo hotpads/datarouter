@@ -187,6 +187,15 @@ public class ByteTool{
 
 	/*------------------------- byte arrays ---------------------------------*/
 
+	public static int totalLength(byte[]... arrays){
+		int total = 0;
+		for(int i = 0; i < arrays.length; ++i){
+			byte[] array = arrays[i];
+			total += array == null ? 0 : array.length;
+		}
+		return total;
+	}
+
 	public static byte[] concatenate(List<byte[]> ins){
 		byte[][] arrays = new byte[ins.size()][];
 		for(int i = 0; i < ins.size(); ++i){
@@ -199,18 +208,14 @@ public class ByteTool{
 		if(ins == null){
 			return new byte[0];
 		}
-		int totalLength = 0;
-		for(byte[] in : ins){
-			totalLength += ArrayTool.length(in);
-		}
-		byte[] out = new byte[totalLength];
+		byte[] out = new byte[totalLength(ins)];
 		int startIndex = 0;
-		for(byte[] in : ins){
-			if(in == null){
-				continue;
+		for(int i = 0; i < ins.length; ++i){
+			byte[] in = ins[i];
+			if(in != null){
+				System.arraycopy(in, 0, out, startIndex, in.length);
+				startIndex += in.length;
 			}
-			System.arraycopy(in, 0, out, startIndex, in.length);
-			startIndex += in.length;
 		}
 		return out;
 	}

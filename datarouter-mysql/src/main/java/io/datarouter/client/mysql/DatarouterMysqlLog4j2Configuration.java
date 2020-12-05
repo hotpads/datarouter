@@ -24,7 +24,6 @@ import io.datarouter.client.mysql.ddl.execute.MysqlSingleTableSchemaUpdateServic
 import io.datarouter.logging.BaseLog4j2Configuration;
 import io.datarouter.logging.DatarouterLog4j2Configuration;
 import io.datarouter.logging.Log4j2Configurator;
-import io.datarouter.storage.callsite.CallsiteRecorder;
 
 public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 
@@ -41,15 +40,6 @@ public class DatarouterMysqlLog4j2Configuration extends BaseLog4j2Configuration{
 		addAppender(schemaUpdateAppender);
 		addLoggerConfig(MysqlSingleTableSchemaUpdateService.class.getName(), Level.INFO, false, schemaUpdateAppender);
 		addLoggerConfig(DatabaseCreator.class.getName(), Level.INFO, false, schemaUpdateAppender);
-
-		// move to datarouter-storage or datarouter-webapp-utils (see CallsiteHandler)?
-		String callsiteLogFile = CATALINA_OUT_DIR + "/callsite.log";
-		Appender callsiteAppender = Log4j2Configurator.createFileAppender(
-				"callsite",
-				callsiteLogFile,
-				"%d %-5level [%t] %logger{36}:%line - %msg%n%rEx");
-		addAppender(callsiteAppender);
-		addLoggerConfig(CallsiteRecorder.class.getName(), Level.TRACE, false, callsiteAppender);
 	}
 
 }

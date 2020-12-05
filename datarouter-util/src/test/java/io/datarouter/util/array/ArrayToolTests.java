@@ -30,12 +30,6 @@ public class ArrayToolTests{
 	}
 
 	@Test
-	public void testConcatenateVarargBytes(){
-		byte[] concat = ArrayTool.concatenate(new byte[]{0, 1}, new byte[]{2}, new byte[]{3, 4});
-		Assert.assertEquals(concat, new byte[]{0, 1, 2, 3, 4});
-	}
-
-	@Test
 	public void testTrimToSize(){
 		byte[] array = new byte[]{0, 1, 2, 3, 4};
 		Assert.assertEquals(ArrayTool.trimToSize(new byte[]{}, 2), new byte[2]);

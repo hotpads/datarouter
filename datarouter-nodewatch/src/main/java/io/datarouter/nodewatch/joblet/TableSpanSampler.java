@@ -32,13 +32,13 @@ import com.mysql.cj.jdbc.exceptions.MysqlDataTruncation;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.exception.DataAccessException;
-import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.nodewatch.TableSamplerCounters;
 import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
+import io.datarouter.nodewatch.util.TableSamplerTool;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
@@ -292,7 +292,7 @@ implements Callable<List<TableSample>>{
 				+ ", markInterrupted=" + markInterrupted
 				+ ", isLastSpan=" + isLastSpan
 				+ ", " + this;
-		logger.warn(log);
+		logger.info(log);
 
 		Date sampleDateCreated = Optional.ofNullable(forceCreatedAt)
 				.map(Date::from)
@@ -399,10 +399,7 @@ implements Callable<List<TableSample>>{
 	}
 
 	private PK sampleKeyToPk(TableSampleKey sampleKey){
-		return FieldSetTool.fromConcatenatedValueBytes(
-				node.getFieldInfo().getPrimaryKeyClass(),
-				node.getFieldInfo().getPrimaryKeyFields(),
-				sampleKey.getRowKeyBytes());
+		return TableSamplerTool.extractPrimaryKeyFromSampleKey(node, sampleKey);
 	}
 
 	//TODO remove when default pk.toString() uses PrimaryKeyPercentCodec

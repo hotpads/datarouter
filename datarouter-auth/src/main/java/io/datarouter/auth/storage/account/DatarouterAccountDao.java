@@ -31,22 +31,23 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccountDao{
 
-	public static class DatarouterAccountDaoParams extends BaseDaoParams{
+	public static class DatarouterAccountDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterAccountDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterAccountDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<DatarouterAccountKey,DatarouterAccount> node;
+	private final SortedMapStorageNode<DatarouterAccountKey,DatarouterAccount,DatarouterAccountFielder> node;
 	private final AtomicReference<Map<String,DatarouterAccount>> accountByApiKeyCache;
 
 	@Inject
@@ -56,12 +57,16 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 			DatarouterAccountDaoParams params,
 			DatarouterAccountByApiKeyCacheExecutor executor){
 		super(datarouter);
-		node = nodeFactory.create(
-				params.clientId,
-				DatarouterAccount::new,
-				DatarouterAccountFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<DatarouterAccountKey,DatarouterAccount,DatarouterAccountFielder> node =
+							nodeFactory.create(clientId, DatarouterAccount::new, DatarouterAccountFielder::new)
+						.withIsSystemTable(true)
+						.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 		accountByApiKeyCache = new AtomicReference<>(getAccountsByApiKey());
 		executor.scheduleWithFixedDelay(this::refreshAccountByApiKeyCache, 30, 30, TimeUnit.SECONDS);
 	}

@@ -52,10 +52,6 @@ public class JobCounters{
 		count(jobClass, "missed next trigger");
 	}
 
-	public void schedulingImmediately(Class<? extends BaseJob> jobClass){
-		count(jobClass, "scheduling immediately");
-	}
-
 	public void started(Class<? extends BaseJob> jobClass){
 		count(jobClass, "started");
 	}

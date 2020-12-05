@@ -168,8 +168,7 @@ public class ClusterSettingService{
 
 		int oldSettingAlertThresholdDays = clusterSettingRoot.oldSettingAlertThresholdDays.get();
 		if(clusterSettingLogDao.isOldDatabaseSetting(databeanSetting, oldSettingAlertThresholdDays)){
-			if(clusterSettingRoot.settingsExcludedFromOldSettingsAlert.get().stream()
-					.anyMatch(setting -> StringTool.containsCaseInsensitive(name, setting))){
+			if(clusterSettingRoot.isExcludedOldSettingString(name)){
 				return ClusterSettingValidity.VALID;
 			}
 			return ClusterSettingValidity.OLD;

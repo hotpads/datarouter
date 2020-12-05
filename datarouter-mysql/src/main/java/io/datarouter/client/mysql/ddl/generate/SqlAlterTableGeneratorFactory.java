@@ -191,15 +191,15 @@ public class SqlAlterTableGeneratorFactory{
 			}
 			if(printOrExecute(schemaUpdateOptions::getModifyPrimaryKey) && diff.isPrimaryKeyModified()){
 				boolean execute = schemaUpdateOptions.getModifyPrimaryKey(false);
-				List<String> pkColumNames = requested.getPrimaryKey().getColumnNames();
-				addPk(ddlBuilder, execute, pkColumNames, PrintVersion.QUICK);
+				List<String> pkColumnNames = requested.getPrimaryKey().getColumnNames();
+				addPk(ddlBuilder, execute, pkColumnNames, PrintVersion.QUICK);
 				if(!execute){
-					boolean pkUniqueIndexExsist = current.getUniqueIndexes().stream()
-							.anyMatch(index -> index.getColumnNames().equals(pkColumNames));
-					if(pkUniqueIndexExsist){
-						addPk(ddlBuilder, execute, pkColumNames, PrintVersion.THOROUGH);
+					boolean pkUniqueIndexExists = current.getUniqueIndexes().stream()
+							.anyMatch(index -> index.getColumnNames().equals(pkColumnNames));
+					if(pkUniqueIndexExists){
+						addPk(ddlBuilder, execute, pkColumnNames, PrintVersion.THOROUGH);
 					}else{
-						var sqlIndex = new SqlIndex("temp_pk", pkColumNames);
+						var sqlIndex = new SqlIndex("temp_pk", pkColumnNames);
 						ddlBuilder.add(
 								execute,
 								getAlterTableForAddingIndexes(Set.of(sqlIndex), true),

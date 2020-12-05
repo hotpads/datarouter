@@ -133,7 +133,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 	public static class DatarouterAuthPluginBuilder{
 
 		private final boolean enableUserAuth;
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 
 		private Class<? extends UserInfo> userInfoClass = DatarouterUserInfo.class;
 		private Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass =
@@ -144,7 +144,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		private String defaultApiKey = "";
 		private String defaultSecretKey = "";
 
-		public DatarouterAuthPluginBuilder(boolean enableUserAuth, ClientId defaultClientId,
+		public DatarouterAuthPluginBuilder(boolean enableUserAuth, List<ClientId> defaultClientId,
 				String defaultDatarouterUserPassword, String defaultApiKey, String defaultSecretKey){
 			this.enableUserAuth = enableUserAuth;
 			this.defaultClientId = defaultClientId;
@@ -194,32 +194,32 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 
 	public static class DatarouterAuthDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterAccountClientId;
-		private final ClientId datarouterAccountPermissionClientId;
-		private final ClientId datarouterPermissionRequestClientId;
-		private final ClientId datarouterSamlClientId;
-		private final ClientId datarouterUserAccountMapClientId;
-		private final ClientId datarouterUserClientId;
-		private final ClientId datarouterUserHistoryClientId;
-		private final ClientId deprovisionedUserClientId;
+		private final List<ClientId> datarouterAccountClientIds;
+		private final List<ClientId> datarouterAccountPermissionClientIds;
+		private final List<ClientId> datarouterPermissionRequestClientIds;
+		private final List<ClientId> datarouterSamlClientIds;
+		private final List<ClientId> datarouterUserAccountMapClientIds;
+		private final List<ClientId> datarouterUserClientIds;
+		private final List<ClientId> datarouterUserHistoryClientIds;
+		private final List<ClientId> deprovisionedUserClientIds;
 
 		public DatarouterAuthDaoModule(
-				ClientId datarouterAccountClientId,
-				ClientId datarouterAccountPermissionClientId,
-				ClientId datarouterPermissionRequestClientId,
-				ClientId datarouterSamlClientId,
-				ClientId datarouterUserAccountMapClientId,
-				ClientId datarouterUserClientId,
-				ClientId datarouterUserHistoryClientId,
-				ClientId deprovisionedUserClientId){
-			this.datarouterAccountClientId = datarouterAccountClientId;
-			this.datarouterAccountPermissionClientId = datarouterAccountPermissionClientId;
-			this.datarouterPermissionRequestClientId = datarouterPermissionRequestClientId;
-			this.datarouterSamlClientId = datarouterSamlClientId;
-			this.datarouterUserAccountMapClientId = datarouterUserAccountMapClientId;
-			this.datarouterUserClientId = datarouterUserClientId;
-			this.datarouterUserHistoryClientId = datarouterUserHistoryClientId;
-			this.deprovisionedUserClientId = deprovisionedUserClientId;
+				List<ClientId> datarouterAccountClientIds,
+				List<ClientId> datarouterAccountPermissionClientIds,
+				List<ClientId> datarouterPermissionRequestClientIds,
+				List<ClientId> datarouterSamlClientIds,
+				List<ClientId> datarouterUserAccountMapClientIds,
+				List<ClientId> datarouterUserClientIds,
+				List<ClientId> datarouterUserHistoryClientIds,
+				List<ClientId> deprovisionedUserClientIds){
+			this.datarouterAccountClientIds = datarouterAccountClientIds;
+			this.datarouterAccountPermissionClientIds = datarouterAccountPermissionClientIds;
+			this.datarouterPermissionRequestClientIds = datarouterPermissionRequestClientIds;
+			this.datarouterSamlClientIds = datarouterSamlClientIds;
+			this.datarouterUserAccountMapClientIds = datarouterUserAccountMapClientIds;
+			this.datarouterUserClientIds = datarouterUserClientIds;
+			this.datarouterUserHistoryClientIds = datarouterUserHistoryClientIds;
+			this.deprovisionedUserClientIds = deprovisionedUserClientIds;
 		}
 
 		@Override
@@ -238,21 +238,21 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		@Override
 		public void configure(){
 			bind(DatarouterUserDaoParams.class)
-					.toInstance(new DatarouterUserDaoParams(datarouterUserClientId));
+					.toInstance(new DatarouterUserDaoParams(datarouterUserClientIds));
 			bind(DatarouterUserHistoryDaoParams.class)
-					.toInstance(new DatarouterUserHistoryDaoParams(datarouterUserHistoryClientId));
+					.toInstance(new DatarouterUserHistoryDaoParams(datarouterUserHistoryClientIds));
 			bind(DatarouterPermissionRequestDaoParams.class)
-					.toInstance(new DatarouterPermissionRequestDaoParams(datarouterPermissionRequestClientId));
+					.toInstance(new DatarouterPermissionRequestDaoParams(datarouterPermissionRequestClientIds));
 			bind(DatarouterAccountDaoParams.class)
-					.toInstance(new DatarouterAccountDaoParams(datarouterAccountClientId));
+					.toInstance(new DatarouterAccountDaoParams(datarouterAccountClientIds));
 			bind(DatarouterAccountPermissionDaoParams.class)
-					.toInstance(new DatarouterAccountPermissionDaoParams(datarouterAccountPermissionClientId));
+					.toInstance(new DatarouterAccountPermissionDaoParams(datarouterAccountPermissionClientIds));
 			bind(DatarouterUserAccountMapDaoParams.class)
-					.toInstance(new DatarouterUserAccountMapDaoParams(datarouterUserAccountMapClientId));
+					.toInstance(new DatarouterUserAccountMapDaoParams(datarouterUserAccountMapClientIds));
 			bind(DatarouterSamlDaoParams.class)
-					.toInstance(new DatarouterSamlDaoParams(datarouterSamlClientId));
+					.toInstance(new DatarouterSamlDaoParams(datarouterSamlClientIds));
 			bind(DeprovisionedUserDaoParams.class)
-					.toInstance(new DeprovisionedUserDaoParams(deprovisionedUserClientId));
+					.toInstance(new DeprovisionedUserDaoParams(deprovisionedUserClientIds));
 		}
 
 	}

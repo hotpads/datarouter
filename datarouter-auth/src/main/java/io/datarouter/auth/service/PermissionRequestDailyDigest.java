@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.i;
 import static j2html.TagCreator.td;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,7 +59,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(){
+	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
 		List<? extends SessionBasedUser> openRequests = getOpenRequests();
 		if(openRequests.size() == 0){
 			return Optional.empty();

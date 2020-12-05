@@ -29,23 +29,25 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 //TODO DATAROUTER-2759 rename to PermissionRequestDao and consider switching key to username or userToken
 @Singleton
 public class DatarouterPermissionRequestDao extends BaseDao{
 
-	public static class DatarouterPermissionRequestDaoParams extends BaseDaoParams{
+	public static class DatarouterPermissionRequestDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterPermissionRequestDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterPermissionRequestDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<DatarouterPermissionRequestKey,DatarouterPermissionRequest> node;
+	private final SortedMapStorageNode<DatarouterPermissionRequestKey,DatarouterPermissionRequest,
+			DatarouterPermissionRequestFielder> node;
 
 	@Inject
 	public DatarouterPermissionRequestDao(
@@ -53,12 +55,18 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterPermissionRequestDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(
-				params.clientId,
-				DatarouterPermissionRequest::new,
-				DatarouterPermissionRequestFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<DatarouterPermissionRequestKey,DatarouterPermissionRequest,
+					DatarouterPermissionRequestFielder> node =
+							nodeFactory.create(clientId, DatarouterPermissionRequest::new,
+									DatarouterPermissionRequestFielder::new)
+						.withIsSystemTable(true)
+						.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public void putMulti(Collection<DatarouterPermissionRequest> databeans){

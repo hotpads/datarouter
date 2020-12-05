@@ -35,21 +35,22 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterLoggerConfigDao extends BaseDao{
 
-	public static class DatarouterLoggerConfigDaoParams extends BaseDaoParams{
+	public static class DatarouterLoggerConfigDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterLoggerConfigDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterLoggerConfigDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 	}
 
-	private final SortedMapStorage<LoggerConfigKey,LoggerConfig> node;
+	private final SortedMapStorageNode<LoggerConfigKey,LoggerConfig,LoggerConfigFielder> node;
 
 	@Inject
 	public DatarouterLoggerConfigDao(
@@ -57,9 +58,16 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterLoggerConfigDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, LoggerConfig::new, LoggerConfigFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<LoggerConfigKey,LoggerConfig,LoggerConfigFielder> node =
+							nodeFactory.create(clientId, LoggerConfig::new, LoggerConfigFielder::new)
+						.withIsSystemTable(true)
+						.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public Scanner<LoggerConfig> scan(){

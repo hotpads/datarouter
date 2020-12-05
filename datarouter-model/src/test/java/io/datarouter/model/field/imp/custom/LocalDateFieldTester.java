@@ -23,6 +23,8 @@ import java.time.format.DateTimeFormatter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.time.ZoneIds;
+
 public class LocalDateFieldTester{
 
 	@Test
@@ -42,10 +44,10 @@ public class LocalDateFieldTester{
 		String dateStrEst = "2016-06-22 19:20:14.100"; // EST
 		String dateStrPst = "2016-06-22 16:20:14.100"; // PST
 		LocalDateTimeField field = new LocalDateTimeField(new LocalDateTimeFieldKey("test"), null);
-		ZonedDateTime zonedDateTimeEst = field.parseStringEncodedValueButDoNotSet(dateStrEst).atZone(ZoneId.of(
-				"America/New_York"));
-		ZonedDateTime zonedDateTimePst = field.parseStringEncodedValueButDoNotSet(dateStrPst).atZone(ZoneId.of(
-				"America/Los_Angeles"));
+		ZonedDateTime zonedDateTimeEst = field.parseStringEncodedValueButDoNotSet(dateStrEst)
+				.atZone(ZoneIds.AMERICA_NEW_YORK);
+		ZonedDateTime zonedDateTimePst = field.parseStringEncodedValueButDoNotSet(dateStrPst)
+				.atZone(ZoneIds.AMERICA_LOS_ANGELES);
 		Assert.assertEquals(zonedDateTimeEst.toInstant(), zonedDateTimePst.toInstant());
 		Assert.assertEquals(zonedDateTimePst.toInstant().toEpochMilli(), 1466637614100L);
 		Assert.assertEquals(zonedDateTimeEst.toInstant().toEpochMilli(), 1466637614100L);

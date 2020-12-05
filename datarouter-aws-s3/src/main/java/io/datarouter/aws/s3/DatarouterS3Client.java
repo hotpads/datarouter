@@ -28,6 +28,7 @@ import java.util.Optional;
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
@@ -93,6 +94,9 @@ public interface DatarouterS3Client{
 	Scanner<String> scanPrefixes(String bucket, String prefix, String startAfter, String delimiter);
 
 	List<String> getCommonPrefixes(String bucket, String prefix, String delimiter);
+
+	Scanner<DirectoryDto> scanSubdirectories(String bucket, String prefix, String startAfter, String delimiter,
+			int pageSize, boolean currentDirectory);
 
 	boolean exists(String bucket, String key);
 

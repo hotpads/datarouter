@@ -23,7 +23,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.raw.MapStorage;
+import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.webappinstance.storage.onetimelogintoken.OneTimeLoginToken.OneTimeLoginTokenFielder;
 
 @Singleton
@@ -37,7 +37,7 @@ public class DatarouterOneTimeLoginTokenDao extends BaseDao{
 
 	}
 
-	private final MapStorage<OneTimeLoginTokenKey,OneTimeLoginToken> node;
+	private final MapStorageNode<OneTimeLoginTokenKey,OneTimeLoginToken,OneTimeLoginTokenFielder> node;
 
 	@Inject
 	public DatarouterOneTimeLoginTokenDao(Datarouter datarouter, NodeFactory nodeFactory,

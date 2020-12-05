@@ -323,6 +323,10 @@ public class Config implements Cloneable{
 		return ttl;
 	}
 
+	public Optional<Duration> findTtl(){
+		return Optional.ofNullable(ttl);
+	}
+
 	public Config setTtl(Duration ttl){
 		this.ttl = ttl;
 		return this;

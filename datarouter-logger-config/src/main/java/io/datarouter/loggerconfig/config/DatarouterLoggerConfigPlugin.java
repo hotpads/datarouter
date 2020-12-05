@@ -52,9 +52,9 @@ public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 
 	public static class DatarouterLoggerConfigPluginBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 
-		public DatarouterLoggerConfigPluginBuilder(ClientId defaultClientId){
+		public DatarouterLoggerConfigPluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
 		}
 
@@ -67,17 +67,17 @@ public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 
 	public static class DatarouterLoggerConfigDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterConsoleAppenderClientId;
-		private final ClientId datarouterFileAppenderClientId;
-		private final ClientId datarouterLoggerConfigClientId;
+		private final List<ClientId> datarouterConsoleAppenderClientIds;
+		private final List<ClientId> datarouterFileAppenderClientIds;
+		private final List<ClientId> datarouterLoggerConfigClientIds;
 
 		public DatarouterLoggerConfigDaoModule(
-				ClientId datarouterConsoleAppenderClientId,
-				ClientId datarouterFileAppenderClientId,
-				ClientId datarouterLoggerConfigClientId){
-			this.datarouterConsoleAppenderClientId = datarouterConsoleAppenderClientId;
-			this.datarouterFileAppenderClientId = datarouterFileAppenderClientId;
-			this.datarouterLoggerConfigClientId = datarouterLoggerConfigClientId;
+				List<ClientId> datarouterConsoleAppenderClientIds,
+				List<ClientId> datarouterFileAppenderClientIds,
+				List<ClientId> datarouterLoggerConfigClientIds){
+			this.datarouterConsoleAppenderClientIds = datarouterConsoleAppenderClientIds;
+			this.datarouterFileAppenderClientIds = datarouterFileAppenderClientIds;
+			this.datarouterLoggerConfigClientIds = datarouterLoggerConfigClientIds;
 		}
 
 		@Override
@@ -91,11 +91,11 @@ public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 		@Override
 		public void configure(){
 			bind(DatarouterConsoleAppenderDaoParams.class)
-					.toInstance(new DatarouterConsoleAppenderDaoParams(datarouterConsoleAppenderClientId));
+					.toInstance(new DatarouterConsoleAppenderDaoParams(datarouterConsoleAppenderClientIds));
 			bind(DatarouterFileAppenderDaoParams.class)
-					.toInstance(new DatarouterFileAppenderDaoParams(datarouterFileAppenderClientId));
+					.toInstance(new DatarouterFileAppenderDaoParams(datarouterFileAppenderClientIds));
 			bind(DatarouterLoggerConfigDaoParams.class)
-					.toInstance(new DatarouterLoggerConfigDaoParams(datarouterLoggerConfigClientId));
+					.toInstance(new DatarouterLoggerConfigDaoParams(datarouterLoggerConfigClientIds));
 		}
 
 	}

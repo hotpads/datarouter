@@ -20,7 +20,6 @@ import java.util.List;
 
 import io.datarouter.exception.conveyors.ExceptionQueueConveyors;
 import io.datarouter.exception.filter.GuiceExceptionHandlingFilter;
-import io.datarouter.exception.service.ExceptionRecordAggregationDailyDigest;
 import io.datarouter.exception.service.DefaultExceptionHandlingConfig;
 import io.datarouter.exception.service.DefaultExceptionRecorder;
 import io.datarouter.exception.service.ExceptionGraphLink;
@@ -28,6 +27,9 @@ import io.datarouter.exception.service.ExceptionGraphLink.NoOpExceptionGraphLink
 import io.datarouter.exception.service.ExceptionIssueLinkPrefixSupplier;
 import io.datarouter.exception.service.ExceptionIssueLinkPrefixSupplier.ExceptionIssueLinkPrefix;
 import io.datarouter.exception.service.ExceptionIssueLinkPrefixSupplier.NoOpExceptionIssueLinkPrefixSupplier;
+import io.datarouter.exception.service.ExceptionRecordAggregationDailyDigest;
+import io.datarouter.exception.service.ExemptDailyDigestExceptions;
+import io.datarouter.exception.service.ExemptDailyDigestExceptions.NoOpExemptDailyDigestExceptions;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao.DatarouterExceptionRecordDaoParams;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordPublisherDao;
@@ -59,6 +61,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 	private final Class<? extends ExceptionRecorder> exceptionRecorderClass;
 	private final Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass;
 	private final Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher;
+	private final Class<? extends ExemptDailyDigestExceptions> exemptDailyDigestExceptions;
 	private final String issueLinkPrefix;
 
 	private DatarouterExceptionPlugin(DatarouterExceptionDaoModule daosModuleBuilder,
@@ -66,11 +69,13 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 			Class<? extends ExceptionRecorder> exceptionRecorderClass,
 			Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass,
 			Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher,
+			Class<? extends ExemptDailyDigestExceptions> exemptDailyDigestExceptions,
 			String issueLinkPrefix){
 		this.exceptionGraphLinkClass = exceptionGraphLinkClass;
 		this.exceptionRecorderClass = exceptionRecorderClass;
 		this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
 		this.exceptionRecordPublisher = exceptionRecordPublisher;
+		this.exemptDailyDigestExceptions = exemptDailyDigestExceptions;
 		this.issueLinkPrefix = issueLinkPrefix;
 		addFilterParamsOrdered(
 				new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, GuiceExceptionHandlingFilter.class),
@@ -101,6 +106,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		bindActual(ExceptionRecorder.class, exceptionRecorderClass);
 		bindActual(ExceptionHandlingConfig.class, exceptionHandlingConfigClass);
 		bind(ExceptionRecordPublisher.class).to(exceptionRecordPublisher);
+		bind(ExemptDailyDigestExceptions.class).to(exemptDailyDigestExceptions);
 		if(issueLinkPrefix == null){
 			bind(ExceptionIssueLinkPrefixSupplier.class).to(NoOpExceptionIssueLinkPrefixSupplier.class);
 		}else{
@@ -118,6 +124,8 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass
 				= DefaultExceptionHandlingConfig.class;
 		private Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher = NoOpExceptionRecordPublisher.class;
+		private Class<? extends ExemptDailyDigestExceptions> exemptDailyDigestExceptions
+				= NoOpExemptDailyDigestExceptions.class;
 		private String issueLinkPrefix;
 
 		public DatarouterExceptionPluginBuilder(ClientId defaultClientId){
@@ -142,6 +150,12 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterExceptionPluginBuilder setExemptDailyDigestExceptions(
+				Class<? extends ExemptDailyDigestExceptions> exemptDailyDigestExceptions){
+			this.exemptDailyDigestExceptions = exemptDailyDigestExceptions;
+			return this;
+		}
+
 		public DatarouterExceptionPluginBuilder enablePublishing(
 				Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher,
 				ClientId defaultQueueClientId){
@@ -162,6 +176,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 					exceptionRecorderClass,
 					exceptionHandlingConfigClass,
 					exceptionRecordPublisher,
+					exemptDailyDigestExceptions,
 					issueLinkPrefix);
 		}
 

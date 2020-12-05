@@ -18,7 +18,7 @@ package io.datarouter.client.memcached.test;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.client.memcached.client.MemcachedEncodedKey;
+import io.datarouter.client.memcached.codec.MemcachedKey;
 import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 
@@ -27,16 +27,17 @@ public class DatarouterMemcachedKeyTests{
 	@Test
 	public void roundTrip(){
 		String nodeName = "myClient.Tally";
-		Integer databeanVersion = 1;
-		TallyKey tallyKey = new TallyKey("one1566858501940!20190826152821");
-		MemcachedEncodedKey memcachedKey = new MemcachedEncodedKey(nodeName, databeanVersion, tallyKey);
+		int databeanVersion = 1;
+		var tallyKey = new TallyKey("one1566858501940!20190826152821");
 
-		String versionedKeyString = memcachedKey.getVersionedKeyString();
-		String expected = MemcachedEncodedKey.ENCODING_VERSION + ":" + nodeName + ":" + databeanVersion
+		String versionedKeyString = MemcachedKey.encode(nodeName, databeanVersion, tallyKey);
+		String expected = MemcachedKey.CODEC_VERSION
+				+ ":" + nodeName
+				+ ":" + databeanVersion
 				+ ":" + PrimaryKeyPercentCodecTool.encode(tallyKey);
 		Assert.assertEquals(versionedKeyString, expected);
 
-		MemcachedEncodedKey decodedMemcachedKey = MemcachedEncodedKey.parse(versionedKeyString, TallyKey.class);
+		var decodedMemcachedKey = MemcachedKey.decode(versionedKeyString, TallyKey.class);
 		Assert.assertEquals(decodedMemcachedKey.nodeName, nodeName);
 		Assert.assertEquals(decodedMemcachedKey.databeanVersion, databeanVersion);
 		Assert.assertEquals(decodedMemcachedKey.primaryKey, tallyKey);
@@ -44,12 +45,12 @@ public class DatarouterMemcachedKeyTests{
 
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testNotEnough(){
-		MemcachedEncodedKey.parse("3:myClient.Tally:1one1566858501940%2120190826152821", null);
+		MemcachedKey.decode("3:myClient.Tally:1one1566858501940%2120190826152821", null);
 	}
 
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testTooMuch(){
-		MemcachedEncodedKey.parse("3:myClient.Tally:1:one15668:58501940%2120190826152821", null);
+		MemcachedKey.decode("3:myClient.Tally:1:one15668:58501940%2120190826152821", null);
 	}
 
 }

@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.util.Require;
 import io.datarouter.util.cached.Cached;
 import io.datarouter.util.lang.ObjectTool;
@@ -39,6 +40,8 @@ public class CachedSecretFactory{
 
 	@Inject
 	private SecretService secretService;
+	@Inject
+	private SecretNamespacer secretNamespacer;
 
 	//not shared
 
@@ -80,8 +83,7 @@ public class CachedSecretFactory{
 			Optional<T> defaultValue, boolean isShared){
 		ObjectTool.requireNonNulls(nameSupplier, secretClass);
 		Require.isFalse(StringTool.isNullOrEmptyOrWhitespace(nameSupplier.get()));
-		defaultValue.ifPresent(value -> secretService.registerDevelopmentDefaultValue(nameSupplier, value, isShared));
-		return new CachedSecret<>(nameSupplier, secretClass, isShared);
+		return new CachedSecret<>(nameSupplier, secretClass, isShared, defaultValue);
 	}
 
 	public final class CachedSecret<T> extends Cached<T>{
@@ -89,19 +91,30 @@ public class CachedSecretFactory{
 		private final Supplier<String> nameSupplier;
 		private final Class<T> secretClass;
 		private final boolean isShared;
+		private final Optional<T> defaultValue;
 
-		private CachedSecret(Supplier<String> nameSupplier, Class<T> secretClass, boolean isShared){
+		private CachedSecret(Supplier<String> nameSupplier, Class<T> secretClass, boolean isShared,
+				Optional<T> defaultValue){
 			super(CACHE_LENGTH, CACHE_LENGTH_UNIT);
 			this.nameSupplier = nameSupplier;
 			this.secretClass = secretClass;
 			this.isShared = isShared;
+			this.defaultValue = defaultValue;
 		}
 
 		@Override
 		protected T reload(){
-			return isShared
-					? secretService.readShared(nameSupplier, secretClass, SecretOpReason.automatedOp("CachedSecret"))
-					: secretService.read(nameSupplier, secretClass, SecretOpReason.automatedOp("CachedSecret"));
+			try{
+				return isShared ? secretService.readShared(nameSupplier, secretClass, SecretOpReason.automatedOp(
+						"CachedSecret")) : secretService.read(nameSupplier, secretClass, SecretOpReason.automatedOp(
+						"CachedSecret"));
+			}catch(RuntimeException e){
+				//TODO consider making environment-based behavior possible (unless removing cached defaults)
+				if(secretNamespacer.isDevelopment()){
+					return defaultValue.orElseThrow(() -> e);
+				}
+				throw e;
+			}
 		}
 
 		@Override

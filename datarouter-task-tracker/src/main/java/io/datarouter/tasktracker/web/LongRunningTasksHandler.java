@@ -30,6 +30,7 @@ import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.util.DateTool;
+import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
@@ -192,8 +193,8 @@ public class LongRunningTasksHandler extends BaseHandler{
 			return lastItemProcessed;
 		}
 
-		public Long getNumItemsProcessed(){
-			return numItemsProcessed;
+		public String getNumItemsProcessed(){
+			return NumberFormatter.addCommas(numItemsProcessed);
 		}
 
 		public Long getSortableFinishTime(){

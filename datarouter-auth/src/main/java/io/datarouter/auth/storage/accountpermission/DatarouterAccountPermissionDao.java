@@ -15,6 +15,8 @@
  */
 package io.datarouter.auth.storage.accountpermission;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -23,22 +25,25 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 
 @Singleton
 public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatarouterAccountPermissionDao{
 
-	public static class DatarouterAccountPermissionDaoParams extends BaseDaoParams{
+	public static class DatarouterAccountPermissionDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterAccountPermissionDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterAccountPermissionDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<DatarouterAccountPermissionKey,DatarouterAccountPermission> node;
+	private final SortedMapStorageNode<DatarouterAccountPermissionKey,DatarouterAccountPermission,
+			DatarouterAccountPermissionFielder> node;
 
 	@Inject
 	public DatarouterAccountPermissionDao(
@@ -46,12 +51,18 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 			NodeFactory nodeFactory,
 			DatarouterAccountPermissionDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(
-				params.clientId,
-				DatarouterAccountPermission::new,
-				DatarouterAccountPermissionFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					IndexedSortedMapStorageNode<DatarouterAccountPermissionKey,DatarouterAccountPermission,
+					DatarouterAccountPermissionFielder> node =
+							nodeFactory.create(clientId, DatarouterAccountPermission::new,
+									DatarouterAccountPermissionFielder::new)
+						.withIsSystemTable(true)
+						.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantIndexedSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	@Override

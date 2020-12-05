@@ -219,6 +219,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.plugins, "Plugins");
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Email Test");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.httpTester, "HTTP Tester");
+
 
 		addDynamicNavBarItem(ReadmeDocsNavBarItem.class);
 		addDynamicNavBarItem(SystemDocsNavBarItem.class);
@@ -323,9 +325,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 	public static class DatarouterWebDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterSessionClientId;
+		private final List<ClientId> datarouterSessionClientId;
 
-		public DatarouterWebDaoModule(ClientId datarouterSessionClientId){
+		public DatarouterWebDaoModule(List<ClientId> datarouterSessionClientId){
 			this.datarouterSessionClientId = datarouterSessionClientId;
 		}
 
@@ -345,7 +347,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	public static class DatarouterWebPluginBuilder{
 
 		private final DatarouterService datarouterService;
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 
 		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
 		private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
@@ -374,9 +376,13 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
 		private List<Class<? extends DailyDigest>> dailyDigest = new ArrayList<>();
 
-		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
+		public DatarouterWebPluginBuilder(DatarouterService datarouterService, List<ClientId> defaultClientId){
 			this.datarouterService = datarouterService;
 			this.defaultClientId = defaultClientId;
+		}
+
+		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
+			this(datarouterService, List.of(defaultClientId));
 		}
 
 		public DatarouterWebPluginBuilder setFilesClass(Class<? extends FilesRoot> filesClass){

@@ -17,6 +17,7 @@ package io.datarouter.changelog.web;
 
 import static j2html.TagCreator.div;
 
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
@@ -25,12 +26,14 @@ import javax.inject.Inject;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
+import io.datarouter.util.DateTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import j2html.tags.ContainerTag;
 
 public class ViewExactChangelogHandler extends BaseHandler{
@@ -43,6 +46,8 @@ public class ViewExactChangelogHandler extends BaseHandler{
 	private ChangelogDao dao;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private CurrentUserSessionInfoService sessionInfoService;
 
 	@Handler(defaultHandler = true)
 	public Mav viewExact(
@@ -65,7 +70,7 @@ public class ViewExactChangelogHandler extends BaseHandler{
 				.withClass("table table-sm border table-striped")
 				.withSingleRow(false)
 
-				.withEntry("Date", new Date(changelog.getKey().getReversedDateMs()).toString())
+				.withEntry("Date", getDate(changelog))
 				.withEntry("Changelog Type", changelog.getKey().getChangelogType())
 				.withEntry("Name", changelog.getKey().getName())
 				.withEntry("Action", changelog.getAction())
@@ -74,6 +79,13 @@ public class ViewExactChangelogHandler extends BaseHandler{
 				.build();
 		return div(table)
 				.withClass("container my-4");
+	}
+
+	private String getDate(Changelog row){
+		ZoneId zoneId = sessionInfoService.getZoneId(request);
+		Long reversedDateMs = row.getKey().getReversedDateMs();
+		Date date = new Date(Long.MAX_VALUE - reversedDateMs);
+		return DateTool.formatDateWithZone(date, zoneId);
 	}
 
 }

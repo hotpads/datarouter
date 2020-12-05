@@ -15,6 +15,7 @@
  */
 package io.datarouter.nodewatch.web;
 
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -30,6 +31,7 @@ import javax.inject.Inject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.nodewatch.config.DatarouterNodewatchFiles;
@@ -50,6 +52,7 @@ import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -80,6 +83,8 @@ public class TableCountHandler extends BaseHandler{
 	private DatarouterNodes datarouterNodes;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Handler(defaultHandler = true)
 	private Mav latestTableCounts(){
@@ -95,7 +100,7 @@ public class TableCountHandler extends BaseHandler{
 					.sorted(Comparator.comparing(LatestTableCount::getNumRows).reversed())
 					.list();
 			latestTableCountDtoMap.put(clientName, Scanner.of(latestCountsByClientList)
-					.map(TableCountJspDto::new)
+					.map(count -> new TableCountJspDto(count, datarouterService.getZoneId()))
 					.list());
 		});
 		mav.put("latestTableCountDtoMap", latestTableCountDtoMap);
@@ -117,7 +122,9 @@ public class TableCountHandler extends BaseHandler{
 		mav.put("tableName", tableName);
 		List<TableCount> results = tableCountDao.getForTable(clientName, tableName);
 		Collections.sort(results, new TableCount.TableCountLatestEntryComparator());
-		mav.put("results", Scanner.of(results).map(TableCountJspDto::new).list());
+		mav.put("results", Scanner.of(results)
+				.map(count -> new TableCountJspDto(count, datarouterService.getZoneId()))
+				.list());
 		mav.put("jsonData", getRowCountData(clientName, tableName));
 		return mav;
 	}
@@ -125,7 +132,7 @@ public class TableCountHandler extends BaseHandler{
 	@Handler
 	private TableCountJspDto recount(String clientName, String tableName){
 		TableCount recount = tableSamplerService.getCurrentTableCountFromSamples(clientName, tableName);
-		return new TableCountJspDto(recount);
+		return new TableCountJspDto(recount, datarouterService.getZoneId());
 	}
 
 	@Handler
@@ -210,7 +217,9 @@ public class TableCountHandler extends BaseHandler{
 		private final Long numSpans;
 		private final Long numSlowSpans;
 
-		public TableCountJspDto(LatestTableCount latestTableCount){
+		private final ZoneId zoneId;
+
+		public TableCountJspDto(LatestTableCount latestTableCount, ZoneId zoneId){
 			this.clientName = latestTableCount.getKey().getClientName();
 			this.tableName = latestTableCount.getKey().getTableName();
 			this.numRows = latestTableCount.getNumRows();
@@ -220,9 +229,11 @@ public class TableCountHandler extends BaseHandler{
 			this.dateUpdated = latestTableCount.getDateUpdated();
 			this.numSpans = latestTableCount.getNumSpans();
 			this.numSlowSpans = latestTableCount.getNumSlowSpans();
+
+			this.zoneId = zoneId;
 		}
 
-		public TableCountJspDto(TableCount tableCount){
+		public TableCountJspDto(TableCount tableCount, ZoneId zoneId){
 			this.clientName = tableCount.getKey().getClientName();
 			this.tableName = tableCount.getKey().getTableName();
 			this.numRows = tableCount.getNumRows();
@@ -233,10 +244,12 @@ public class TableCountHandler extends BaseHandler{
 			this.dateCreatedTime = tableCount.getKey().getCreatedMs();
 			this.numSpans = tableCount.getNumSpans();
 			this.numSlowSpans = tableCount.getNumSlowSpans();
+
+			this.zoneId = zoneId;
 		}
 
-		public Date getDateCreated(){
-			return dateCreated;
+		public String getDateCreated(){
+			return DateTool.formatDateWithZone(dateCreated, zoneId);
 		}
 
 		public Long getDateCreatedTime(){
@@ -263,8 +276,8 @@ public class TableCountHandler extends BaseHandler{
 			return countTimeMs;
 		}
 
-		public Date getDateUpdated(){
-			return dateUpdated;
+		public String getDateUpdated(){
+			return DateTool.formatDateWithZone(dateUpdated, zoneId);
 		}
 
 		public Long getnumSpans(){

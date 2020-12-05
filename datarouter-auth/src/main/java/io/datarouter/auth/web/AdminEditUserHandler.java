@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.web;
 
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -53,6 +54,7 @@ import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.time.ZoneIds;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
@@ -223,7 +225,7 @@ public class AdminEditUserHandler extends BaseHandler{
 				.map(DatarouterAccountKey::new)
 				.collect(HashSet::new);
 		datarouterUserEditService.editUser(userToEdit, currentUser, userRoles, null, getSigninUrl(),
-				requestedAccounts);
+				requestedAccounts, dto.currentZoneId);
 		return getEditUserDetailsDto(dto.username);
 	}
 
@@ -246,7 +248,6 @@ public class AdminEditUserHandler extends BaseHandler{
 		datarouterUserEditService.changePassword(userToEdit, currentUser, dto.newPassword, getSigninUrl());
 		return getEditUserDetailsDto(userToEdit.getUsername());
 	}
-
 
 	/*----------------- helpers --------------------*/
 
@@ -322,7 +323,8 @@ public class AdminEditUserHandler extends BaseHandler{
 				datarouterAccountService.getAllAccountNamesWithUserMappingsEnabled(),
 				datarouterAccountService.findAccountNamesForUser(user),
 				true,
-				"");
+				"",
+				user.getZoneId().map(ZoneId::getId).orElse(ZoneId.systemDefault().getId()));
 	}
 
 	//TODO DATAROUTER-2789
@@ -334,7 +336,8 @@ public class AdminEditUserHandler extends BaseHandler{
 	}
 
 	private static DeprovisionedUserDto buildDeprovisionedUserDto(SessionBasedUser user, Set<Role> roles){
-		UserDeprovisioningStatusDto status = user.isEnabled() ? UserDeprovisioningStatusDto.PROVISIONED
+		UserDeprovisioningStatusDto status = user.isEnabled()
+				? UserDeprovisioningStatusDto.PROVISIONED
 				: UserDeprovisioningStatusDto.UNRESTORABLE;
 		return new DeprovisionedUserDto(user.getUsername(), Scanner.of(roles).map(Role::getPersistentString).list(),
 				status);
@@ -385,6 +388,8 @@ public class AdminEditUserHandler extends BaseHandler{
 		public final Map<String,Boolean> currentRoles;
 		public final List<String> availableAccounts;
 		public final Map<String,Boolean> currentAccounts;
+		public final List<String> availableZoneIds;
+		public final String currentZoneId;
 
 		//TODO DATAROUTER-2788
 		public final boolean success;
@@ -393,7 +398,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		public EditUserDetailsDto(String username, String id, String token, List<PermissionRequestDto> requests,
 				DeprovisionedUserDto deprovisionedUserDto, Collection<Role> availableRoles,
 				Collection<Role> currentRoles, Collection<String> availableAccounts, Collection<String> currentAccounts,
-				boolean success, String message){
+				boolean success, String message, String currentZoneId){
 			this.username = username;
 			this.id = id;
 			this.token = token;
@@ -419,6 +424,11 @@ public class AdminEditUserHandler extends BaseHandler{
 					.toMap(Function.identity(), currentAccountsSet::contains);
 			this.success = success;
 			this.message = message;
+			this.availableZoneIds = Scanner.of(ZoneIds.ZONE_IDS)
+					.map(ZoneId::getId)
+					.sorted()
+					.list();
+			this.currentZoneId = currentZoneId;
 		}
 
 		public EditUserDetailsDto(String errorMessage){
@@ -433,6 +443,8 @@ public class AdminEditUserHandler extends BaseHandler{
 			this.currentAccounts = null;
 			this.success = false;
 			this.message = errorMessage;
+			this.availableZoneIds = null;
+			this.currentZoneId = null;
 		}
 
 	}

@@ -15,6 +15,8 @@
  */
 package io.datarouter.job.storage.clusterjoblock;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -25,25 +27,26 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.util.DateTool;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterClusterJobLockDao extends BaseDao{
 
-	public static class DatarouterClusterJobLockDaoParams extends BaseDaoParams{
+	public static class DatarouterClusterJobLockDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterClusterJobLockDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterClusterJobLockDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<ClusterJobLockKey,ClusterJobLock> node;
+	private final SortedMapStorageNode<ClusterJobLockKey,ClusterJobLock,ClusterJobLockFielder> node;
 
 	@Inject
 	public DatarouterClusterJobLockDao(
@@ -51,9 +54,16 @@ public class DatarouterClusterJobLockDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterClusterJobLockDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, ClusterJobLock::new, ClusterJobLockFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<ClusterJobLockKey,ClusterJobLock,ClusterJobLockFielder> node =
+							nodeFactory.create(clientId, ClusterJobLock::new, ClusterJobLockFielder::new)
+							.withIsSystemTable(true)
+							.buildAndRegister();
+					return node;
+					})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public void putAndAcquire(ClusterJobLock databean){
@@ -64,6 +74,10 @@ public class DatarouterClusterJobLockDao extends BaseDao{
 
 	public ClusterJobLock get(ClusterJobLockKey key){
 		return node.get(key);
+	}
+
+	public boolean exists(ClusterJobLockKey key){
+		return node.exists(key);
 	}
 
 	public void delete(ClusterJobLockKey key){

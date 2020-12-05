@@ -15,6 +15,8 @@
  */
 package io.datarouter.loggerconfig.storage.fileappender;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -23,30 +25,38 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterFileAppenderDao extends BaseDao{
 
-	public static class DatarouterFileAppenderDaoParams extends BaseDaoParams{
+	public static class DatarouterFileAppenderDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterFileAppenderDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterFileAppenderDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<FileAppenderKey,FileAppender> node;
+	private final SortedMapStorageNode<FileAppenderKey,FileAppender,FileAppenderFielder> node;
 
 	@Inject
 	public DatarouterFileAppenderDao(Datarouter datarouter, NodeFactory nodeFactory,
 			DatarouterFileAppenderDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, FileAppender::new, FileAppenderFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<FileAppenderKey,FileAppender,FileAppenderFielder> node =
+							nodeFactory.create(clientId, FileAppender::new, FileAppenderFielder::new)
+						.withIsSystemTable(true)
+						.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public void createAndputFileAppender(String name, String pattern, String fileName){

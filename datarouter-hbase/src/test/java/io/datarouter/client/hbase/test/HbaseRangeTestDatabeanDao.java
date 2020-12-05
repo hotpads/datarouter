@@ -47,7 +47,7 @@ public class HbaseRangeTestDatabeanDao extends BaseDao implements TestDao{
 
 		@Override
 		public byte[] makeByteArrayHashInput(TestDatabeanKey ek){
-			return FieldTool.getConcatenatedValueBytes(ek.getFields(), false, false, false);
+			return FieldTool.getPartitionerInput(ek.getFields());
 		}
 
 	}

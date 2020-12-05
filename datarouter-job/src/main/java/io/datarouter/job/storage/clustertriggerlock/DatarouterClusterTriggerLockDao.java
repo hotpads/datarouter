@@ -18,34 +18,37 @@ package io.datarouter.job.storage.clustertriggerlock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.job.storage.clustertriggerlock.ClusterTriggerLock.ClusterTriggerLockFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.util.PrimaryKeyVacuum;
 import io.datarouter.storage.util.PrimaryKeyVacuum.PrimaryKeyVacuumBuilder;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterClusterTriggerLockDao extends BaseDao{
 
-	public static class DatarouterClusterTriggerLockDaoParams extends BaseDaoParams{
+	public static class DatarouterClusterTriggerLockDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterClusterTriggerLockDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterClusterTriggerLockDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<ClusterTriggerLockKey,ClusterTriggerLock> node;
+	private final SortedMapStorageNode<ClusterTriggerLockKey,ClusterTriggerLock,ClusterTriggerLockFielder> node;
 
 	@Inject
 	public DatarouterClusterTriggerLockDao(
@@ -53,9 +56,16 @@ public class DatarouterClusterTriggerLockDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterClusterTriggerLockDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, ClusterTriggerLock::new, ClusterTriggerLockFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<ClusterTriggerLockKey,ClusterTriggerLock,ClusterTriggerLockFielder> node =
+							nodeFactory.create(clientId, ClusterTriggerLock::new, ClusterTriggerLockFielder::new)
+							.withIsSystemTable(true)
+							.buildAndRegister();
+					return node;
+					})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public void putAndAcquire(ClusterTriggerLock databean){

@@ -81,7 +81,7 @@ public class LoggingTests{
 		}
 
 		Assert.assertNull(configurator.getAppender(TEST_APPENDER_2_NAME));
-		configurator.addFileAppender(TEST_APPENDER_2_NAME, TEST_FILE_2_NAME, BaseLog4j2Configuration.defaultPattern);
+		configurator.addFileAppender(TEST_APPENDER_2_NAME, TEST_FILE_2_NAME, BaseLog4j2Configuration.DEFAULT_PATTERN);
 		Assert.assertNotNull(configurator.getAppender(TEST_APPENDER_2_NAME));
 
 		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, TEST_APPENDER_2_NAME);
@@ -90,7 +90,7 @@ public class LoggingTests{
 		configurator.addConsoleAppender(
 				"second-console-appender",
 				Target.SYSTEM_ERR,
-				BaseLog4j2Configuration.defaultPattern);
+				BaseLog4j2Configuration.DEFAULT_PATTERN);
 		configurator.updateOrCreateLoggerConfig(getClass(), Level.ALL, false, ERR_CONSOLE_APPENDER_NAME);
 		logger.warn("ar");//going to err console
 

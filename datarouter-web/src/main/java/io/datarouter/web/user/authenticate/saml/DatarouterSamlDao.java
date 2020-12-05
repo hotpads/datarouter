@@ -17,18 +17,21 @@ package io.datarouter.web.user.authenticate.saml;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrl.SamlAuthnRequestRedirectUrlFielder;
 import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
@@ -36,24 +39,33 @@ import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
 @Singleton
 public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 
-	public static class DatarouterSamlDaoParams extends BaseDaoParams{
+	public static class DatarouterSamlDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterSamlDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterSamlDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl> node;
+	private final SortedMapStorageNode<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl,
+			SamlAuthnRequestRedirectUrlFielder> node;
 
 	@Inject
 	public DatarouterSamlDao(Datarouter datarouter, NodeFactory nodeFactory, DatarouterSamlDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, SamlAuthnRequestRedirectUrl::new,
-				SamlAuthnRequestRedirectUrlFielder::new)
-				.disableNodewatch()
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl,
+					SamlAuthnRequestRedirectUrlFielder> node =
+							nodeFactory.create(clientId, SamlAuthnRequestRedirectUrl::new,
+									SamlAuthnRequestRedirectUrlFielder::new)
+						.withIsSystemTable(true)
+						.disableNodewatchPercentageAlert()
+						.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	@Override

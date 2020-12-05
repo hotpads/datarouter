@@ -26,9 +26,10 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
+import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUserTokenLookup;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
@@ -38,22 +39,29 @@ import io.datarouter.web.user.databean.DatarouterUserKey;
 @Singleton
 public class DatarouterUserDao extends BaseDao{
 
-	public static class DatarouterUserDaoParams extends BaseDaoParams{
+	public static class DatarouterUserDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterUserDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterUserDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final IndexedSortedMapStorage<DatarouterUserKey,DatarouterUser> node;
+	private final IndexedSortedMapStorageNode<DatarouterUserKey,DatarouterUser,DatarouterUserFielder> node;
 
 	@Inject
 	public DatarouterUserDao(Datarouter datarouter, NodeFactory nodeFactory, DatarouterUserDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, DatarouterUser::new, DatarouterUserFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					IndexedSortedMapStorageNode<DatarouterUserKey,DatarouterUser,DatarouterUserFielder> node =
+							nodeFactory.create(clientId, DatarouterUser::new, DatarouterUserFielder::new)
+							.withIsSystemTable(true)
+							.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantIndexedSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public DatarouterUser get(DatarouterUserKey key){

@@ -159,6 +159,25 @@ public class DatarouterJobletRequestDao extends BaseDao{
 	}
 
 	/**
+	 * Scan JobletRequests that have
+	 *
+	 * @param jobletType the given jobletType
+	 * @param minPriority higher than or equal to the minPriority
+	 * @param jobletStatus the given jobletStatus
+	 */
+	public Scanner<JobletRequest> scanJobletRequestsWithHigherOrEqualPriority(
+			JobletType<?> jobletType,
+			JobletPriority minPriority,
+			JobletStatus jobletStatus){
+		var startPriority = JobletPriority.getHighestPriority();
+		var startKey = new JobletRequestKey(jobletType, startPriority, null, null);
+		var endKey = new JobletRequestKey(jobletType, minPriority, Long.MAX_VALUE, Integer.MAX_VALUE);
+		var jobletRequestKeyRange = new Range<>(startKey, true, endKey, true);
+		return node.scan(jobletRequestKeyRange)
+				.include(jobletRequest -> jobletRequest.getStatus() == jobletStatus);
+	}
+
+	/**
 	 * Count JobletRequests that have
 	 *
 	 * @param jobletType the given jobletType
@@ -173,12 +192,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 			JobletPriority minPriority,
 			JobletStatus jobletStatus,
 			long countLimit){
-		var startPriority = JobletPriority.getHighestPriority();
-		var startKey = new JobletRequestKey(jobletType, startPriority, null, null);
-		var endKey = new JobletRequestKey(jobletType, minPriority, Long.MAX_VALUE, Integer.MAX_VALUE);
-		var jobletRequestKeyRange = new Range<>(startKey, true, endKey, true);
-		return node.scan(jobletRequestKeyRange)
-				.include(jobletRequest -> jobletRequest.getStatus() == jobletStatus)
+		return scanJobletRequestsWithHigherOrEqualPriority(jobletType, minPriority, jobletStatus)
 				.limit(countLimit)
 				.count();
 	}
@@ -195,6 +209,11 @@ public class DatarouterJobletRequestDao extends BaseDao{
 		return scanTypePriority(type, priority, anyDelay)
 				.include(jobletRequest -> Objects.equals(jobletRequest.getGroupId(), groupId))
 				.count();
+	}
+
+	public Scanner<JobletRequest> scanFailedJoblets(){
+		return node.scan()
+				.include(JobletRequest::hasReachedMaxFailures);
 	}
 
 }

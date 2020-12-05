@@ -15,6 +15,8 @@
  */
 package io.datarouter.tasktracker.storage;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -22,18 +24,19 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.tasktracker.storage.LongRunningTask.LongRunningTaskFielder;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterLongRunningTaskDao extends BaseDao{
 
-	public static class DatarouterLongRunningTaskDaoParams extends BaseDaoParams{
+	public static class DatarouterLongRunningTaskDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterLongRunningTaskDaoParams(ClientId clientId){
+		public DatarouterLongRunningTaskDaoParams(List<ClientId> clientId){
 			super(clientId);
 		}
 
@@ -45,10 +48,17 @@ public class DatarouterLongRunningTaskDao extends BaseDao{
 	public DatarouterLongRunningTaskDao(Datarouter datarouter, NodeFactory nodeFactory,
 			DatarouterLongRunningTaskDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, LongRunningTask::new, LongRunningTaskFielder::new)
-				.disableNodewatchPercentageAlert()
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<LongRunningTaskKey,LongRunningTask,LongRunningTaskFielder> node =
+							nodeFactory.create(clientId, LongRunningTask::new, LongRunningTaskFielder::new)
+							.withIsSystemTable(true)
+							.disableNodewatchPercentageAlert()
+							.buildAndRegister();
+					return node;
+					})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public SortedMapStorageNode<LongRunningTaskKey,LongRunningTask,LongRunningTaskFielder> getNode(){

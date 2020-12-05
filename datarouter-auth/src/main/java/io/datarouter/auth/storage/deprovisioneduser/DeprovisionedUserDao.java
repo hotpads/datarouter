@@ -16,6 +16,7 @@
 package io.datarouter.auth.storage.deprovisioneduser;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -26,29 +27,37 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DeprovisionedUserDao extends BaseDao{
 
-	public static class DeprovisionedUserDaoParams extends BaseDaoParams{
+	public static class DeprovisionedUserDaoParams extends BaseRedundantDaoParams{
 
-		public DeprovisionedUserDaoParams(ClientId clientId){
-			super(clientId);
+		public DeprovisionedUserDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<DeprovisionedUserKey,DeprovisionedUser> node;
+	private final SortedMapStorageNode<DeprovisionedUserKey,DeprovisionedUser,DeprovisionedUserFielder> node;
 
 	@Inject
 	public DeprovisionedUserDao(Datarouter datarouter, NodeFactory nodeFactory, DeprovisionedUserDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, DeprovisionedUser::new, DeprovisionedUserFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<DeprovisionedUserKey,DeprovisionedUser,DeprovisionedUserFielder> node =
+							nodeFactory.create(clientId, DeprovisionedUser::new, DeprovisionedUserFielder::new)
+						.withIsSystemTable(true)
+						.buildAndRegister();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public Optional<DeprovisionedUser> find(DeprovisionedUserKey key){

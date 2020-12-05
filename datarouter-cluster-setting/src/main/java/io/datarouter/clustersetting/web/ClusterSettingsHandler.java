@@ -42,6 +42,7 @@ import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingFiles;
+import io.datarouter.clustersetting.config.DatarouterClusterSettingRoot;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService.SettingNameMatchResult;
 import io.datarouter.clustersetting.service.ClusterSettingService;
@@ -119,6 +120,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private ClusterSettingSearchService clusterSettingSearchService;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private DatarouterClusterSettingRoot settings;
 
 	@Handler(defaultHandler = true)
 	public Mav customSettings(OptionalString prefix){
@@ -191,7 +194,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 			logScanner = clusterSettingLogDao.scanWithPrefix(prefix);
 		}
 		logScanner
-				.map(ClusterSettingLogJspDto::new)
+				.map(setting -> new ClusterSettingLogJspDto(setting, datarouterService.getZoneId()))
 				.flush(logs -> mav.put("logs", logs));
 		return mav;
 	}
@@ -211,7 +214,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 				new ClusterSettingLogByReversedCreatedMsKey(reverseStartCreatedMs, null), inclusiveStart.orElse(false));
 		clusterSettingLogDao
 				.scanByReversedCreatedMs(range, CLUSTER_SETTING_LOGS_PAGE_SIZE)
-				.map(ClusterSettingLogJspDto::new)
+				.map(setting -> new ClusterSettingLogJspDto(setting, datarouterService.getZoneId()))
 				.flush(logs -> mav.put("logs", logs))
 				.flush(logs -> mav.put("hasNextPage", logs.size() == CLUSTER_SETTING_LOGS_PAGE_SIZE));
 		mav.put("hasPreviousPage", explicitStartIso.isPresent());
@@ -369,10 +372,11 @@ public class ClusterSettingsHandler extends BaseHandler{
 		String title = "Setting Update";
 		String primaryHref = completeLink(datarouterHtmlEmailService.startLinkBuilder(), log)
 				.build();
+		boolean displayValue = !settings.isExcludedOldSettingString(log.getKey().getName());
 		J2HtmlDatarouterEmailBuilder emailBuilder = datarouterHtmlEmailService.startEmailBuilder()
 				.withTitle(title)
 				.withTitleHref(primaryHref)
-				.withContent(new ClusterSettingChangeEmailContent(log, oldValue).build());
+				.withContent(new ClusterSettingChangeEmailContent(log, oldValue, displayValue).build());
 		datarouterHtmlEmailService.trySendJ2Html(from, to, emailBuilder);
 	}
 
@@ -402,10 +406,12 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private class ClusterSettingChangeEmailContent{
 		private final ClusterSettingLog log;
 		private final String oldValue;
+		private final boolean displayValue;
 
-		public ClusterSettingChangeEmailContent(ClusterSettingLog log, String oldValue){
+		public ClusterSettingChangeEmailContent(ClusterSettingLog log, String oldValue, boolean displayValue){
 			this.log = log;
 			this.oldValue = oldValue;
+			this.displayValue = displayValue;
 		}
 
 		private ContainerTag build(){
@@ -422,11 +428,13 @@ public class ClusterSettingsHandler extends BaseHandler{
 			if(StringTool.notEmpty(log.getServerName())){
 				kvs.add(new Pair<>("serverName", makeText(log.getServerName())));
 			}
-			if(ClusterSettingLogAction.INSERTED != log.getAction()){
-				kvs.add(new Pair<>("old value", makeText(oldValue)));
-			}
-			if(ClusterSettingLogAction.DELETED != log.getAction()){
-				kvs.add(new Pair<>("new value", makeText(log.getValue())));
+			if(displayValue){
+				if(ClusterSettingLogAction.INSERTED != log.getAction()){
+					kvs.add(new Pair<>("old value", makeText(oldValue)));
+				}
+				if(ClusterSettingLogAction.DELETED != log.getAction()){
+					kvs.add(new Pair<>("new value", makeText(log.getValue())));
+				}
 			}
 			String comment = StringTool.notNullNorEmptyNorWhitespace(log.getComment())
 					? log.getComment()

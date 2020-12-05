@@ -18,9 +18,10 @@ package io.datarouter.client.redis.client;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.client.redis.client.RedisOptions.RedisClientMode;
 import io.datarouter.storage.client.BaseClientManager;
 import io.datarouter.storage.client.ClientId;
-import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 
 @Singleton
 public class RedisClientManager extends BaseClientManager{
@@ -30,7 +31,7 @@ public class RedisClientManager extends BaseClientManager{
 
 	@Override
 	public void shutdown(ClientId clientId){
-		holder.get(clientId).close();
+		// holder.get(clientId).shutdown(false);
 	}
 
 	@Override
@@ -38,9 +39,13 @@ public class RedisClientManager extends BaseClientManager{
 		holder.registerClient(clientId);
 	}
 
-	public StatefulRedisConnection<byte[],byte[]> getClient(ClientId clientId){
+	public RedisClusterAsyncCommands<byte[],byte[]> getClient(ClientId clientId){
 		initClient(clientId);
 		return holder.get(clientId);
+	}
+
+	public RedisClientMode getMode(ClientId clientId){
+		return holder.getClientMode(clientId);
 	}
 
 }

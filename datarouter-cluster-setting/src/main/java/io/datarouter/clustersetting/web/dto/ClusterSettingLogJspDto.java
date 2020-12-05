@@ -23,6 +23,7 @@ import java.util.Date;
 import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.enums.StringEnum;
 import io.datarouter.util.string.StringTool;
 
@@ -40,7 +41,9 @@ public class ClusterSettingLogJspDto{
 	private final String changedBy;
 	private final String comment;
 
-	public ClusterSettingLogJspDto(ClusterSettingLog clusterSettingLog){
+	private final ZoneId zoneId;
+
+	public ClusterSettingLogJspDto(ClusterSettingLog clusterSettingLog, ZoneId zoneId){
 		this.name = clusterSettingLog.getKey().getName();
 		this.created = clusterSettingLog.getKey().getCreated();
 		this.scope = clusterSettingLog.getScope();
@@ -50,6 +53,8 @@ public class ClusterSettingLogJspDto{
 		this.action = clusterSettingLog.getAction();
 		this.changedBy = clusterSettingLog.getChangedBy();
 		this.comment = clusterSettingLog.getComment();
+
+		this.zoneId = zoneId;
 	}
 
 	public String getName(){
@@ -60,12 +65,12 @@ public class ClusterSettingLogJspDto{
 		return name.split("\\.");
 	}
 
-	public Date getCreated(){
-		return created;
+	public String getCreated(){
+		return DateTool.formatDateWithZone(created, zoneId);
 	}
 
 	public String getCreatedIsoLocalDateTime(){
-		return ZonedDateTime.ofInstant(getCreated().toInstant(), ZoneId.systemDefault())
+		return ZonedDateTime.ofInstant(created.toInstant(), ZoneId.systemDefault())
 				.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 	}
 
