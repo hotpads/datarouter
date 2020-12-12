@@ -441,6 +441,10 @@ public class RequestTool{
 		return request.getHeader("user-agent");
 	}
 
+	public static Optional<String> findUserAgent(HttpServletRequest request){
+		return Optional.ofNullable(getUserAgent(request));
+	}
+
 	private static List<String> getAllHeaderValuesOrdered(HttpServletRequest request, String headerName){
 		return Collections.list(request.getHeaders(headerName)).stream()
 				.map(str -> str.split(HEADER_VALUE_DELIMITER))

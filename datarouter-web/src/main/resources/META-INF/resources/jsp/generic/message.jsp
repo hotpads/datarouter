@@ -8,7 +8,7 @@
 </head>
 <body>
 	<pre class="container" style="margin-top: 10%">
-		<h4>${message}</h4>
+		<h4>${fn:escapeXml(message)}</h4>
 	</pre>
 </body>
 </html>

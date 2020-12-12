@@ -15,8 +15,6 @@
  */
 package io.datarouter.gcp.spanner;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -28,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.auth.Credentials;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.spanner.Database;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.DatabaseId;
@@ -77,13 +74,7 @@ public class SpannerClientManager extends BaseClientManager{
 	@Override
 	protected void safeInitClient(ClientId clientId){
 		PhaseTimer timer = new PhaseTimer(clientId.getName());
-		String credentialsLocation = spannerClientOptions.credentialsLocation(clientId.getName());
-		Credentials credentials;
-		try{
-			credentials = GoogleCredentials.fromStream(new FileInputStream(credentialsLocation));
-		}catch(IOException ex){
-			throw new RuntimeException("Cannot find google credentials file: " + credentialsLocation, ex);
-		}
+		Credentials credentials = spannerClientOptions.credentials(clientId.getName());
 		timer.add("read credentials");
 		SpannerOptions options = SpannerOptions.newBuilder().setCredentials(credentials).build();
 		Spanner spanner = options.getService();

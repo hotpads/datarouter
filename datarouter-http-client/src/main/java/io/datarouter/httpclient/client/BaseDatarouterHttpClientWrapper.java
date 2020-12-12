@@ -25,7 +25,6 @@ import org.apache.http.pool.PoolStats;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.BaseRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequestBuilder;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
@@ -54,8 +53,8 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	}
 
 	@Override
-	public <E> E execute(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request){
-		return datarouterHttpClient.execute(requestBuilder, request);
+	public <E> E execute(BaseRequest<E> request){
+		return datarouterHttpClient.execute(request);
 	}
 
 	@Override
@@ -75,9 +74,8 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	}
 
 	@Override
-	public <E> E executeChecked(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request)
-	throws DatarouterHttpException{
-		return datarouterHttpClient.executeChecked(requestBuilder, request);
+	public <E> E executeChecked(BaseRequest<E> request) throws DatarouterHttpException{
+		return datarouterHttpClient.executeChecked(request);
 	}
 
 	@Override

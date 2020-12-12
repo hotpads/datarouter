@@ -54,10 +54,18 @@ public class SpannerClientOptionsBuilder implements ClientOptionsBuilder{
 		return this;
 	}
 
-	public SpannerClientOptionsBuilder withCredentialsLocation(String credentialsLocation){
-		String optionKeySuffix = SpannerClientOptions.makeSpannerKey(SpannerClientOptions.PROP_credentialsLocation);
+	public SpannerClientOptionsBuilder withCredentialsFileLocation(String credentialsFileLocation){
+		String optionKeySuffix = SpannerClientOptions.makeSpannerKey(SpannerClientOptions.PROP_credentialsFileLocation);
 		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, credentialsLocation);
+		properties.setProperty(optionKey, credentialsFileLocation);
+		return this;
+	}
+
+	public SpannerClientOptionsBuilder withCredentialsSecretLocation(String credentialsSecretLocation){
+		String optionKeySuffix = SpannerClientOptions.makeSpannerKey(SpannerClientOptions
+				.PROP_credentialsSecretLocation);
+		String optionKey = makeKey(optionKeySuffix);
+		properties.setProperty(optionKey, credentialsSecretLocation);
 		return this;
 	}
 

@@ -15,7 +15,9 @@
  */
 package io.datarouter.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -61,6 +63,23 @@ public class Count{
 		return counts.stream()
 				.map(Object::toString)
 				.collect(Collectors.joining(", "));
+	}
+
+	public static class Counts{
+
+		private final List<Count> counts = new ArrayList<>();
+
+		public Count add(String name){
+			var count = new Count(name);
+			counts.add(count);
+			return count;
+		}
+
+		@Override
+		public String toString(){
+			return Count.toString(counts);
+		}
+
 	}
 
 }

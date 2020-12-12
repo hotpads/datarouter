@@ -41,10 +41,17 @@ public class BigTableClientOptionsBuilder extends HBaseClientOptionsBuilder{
 		return this;
 	}
 
-	public BigTableClientOptionsBuilder withCredentialsLocation(String credentialsLocation){
-		String optionKeySuffix = BigTableOptions.makeBigtableKey(BigTableOptions.PROP_credentialsLocation);
+	public BigTableClientOptionsBuilder withCredentialsFileLocation(String credentialsFileLocation){
+		String optionKeySuffix = BigTableOptions.makeBigtableKey(BigTableOptions.PROP_credentialsFileLocation);
 		String optionKey = makeKey(optionKeySuffix);
-		properties.setProperty(optionKey, credentialsLocation);
+		properties.setProperty(optionKey, credentialsFileLocation);
+		return this;
+	}
+
+	public BigTableClientOptionsBuilder withCredentialsSecretLocation(String credentialsSecretLocation){
+		String optionKeySuffix = BigTableOptions.makeBigtableKey(BigTableOptions.PROP_credentialsSecretLocation);
+		String optionKey = makeKey(optionKeySuffix);
+		properties.setProperty(optionKey, credentialsSecretLocation);
 		return this;
 	}
 

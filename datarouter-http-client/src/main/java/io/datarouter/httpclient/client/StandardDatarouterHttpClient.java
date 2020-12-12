@@ -41,8 +41,7 @@ import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCi
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.BaseRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
-import io.datarouter.httpclient.request.DatarouterHttpRequestBuilder;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
@@ -115,10 +114,9 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	}
 
 	@Override
-	public <E> E execute(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request){
+	public <E> E execute(BaseRequest<E> request){
 		try{
-			var datarouterRequest = requestBuilder.makeRequest(request);
-			return executeChecked(datarouterRequest, request.responseType);
+			return executeChecked(request, request.responseType);
 		}catch(DatarouterHttpException e){
 			throw new DatarouterHttpRuntimeException(e);
 		}
@@ -139,10 +137,8 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	}
 
 	@Override
-	public <E> E executeChecked(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request)
-	throws DatarouterHttpException{
-		var datarouterRequest = requestBuilder.makeRequest(request);
-		return executeChecked(datarouterRequest, request.responseType);
+	public <E> E executeChecked(BaseRequest<E> request) throws DatarouterHttpException{
+		return executeChecked(request, request.responseType);
 	}
 
 	@Override

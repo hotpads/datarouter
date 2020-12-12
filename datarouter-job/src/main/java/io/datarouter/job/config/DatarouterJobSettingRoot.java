@@ -35,7 +35,6 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runLongRunningTaskVacuum;
 	public final CachedSetting<Boolean> runTaskFailureAlertJob;
 
-	public final CachedSetting<Boolean> scheduleMissedJobsOnStartup;
 	public final CachedSetting<Boolean> processJobs;
 	public final CachedSetting<Boolean> runJobRetriggeringJob;
 
@@ -51,7 +50,6 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 		runTaskFailureAlertJob = registerBooleans("runTaskFailureAlertJob", defaultTo(false)
 				.withServerType(EnvironmentType.PRODUCTION, serverTypes.getJobServerType(), true));
 
-		scheduleMissedJobsOnStartup = registerBoolean("scheduleMissedJobsOnStartup", false);
 		processJobs = registerBoolean("processJobs", true);
 		runJobRetriggeringJob = registerBoolean("runJobRetriggeringJob", false);
 	}

@@ -8,7 +8,7 @@ datarouter-http-client wraps Apache HTTP Client and adds a JSON serialization la
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-http-client</artifactId>
-	<version>0.0.56</version>
+	<version>0.0.57</version>
 </dependency>
 ```
 
@@ -21,23 +21,23 @@ First, you need to create a `DatarouterHttpClient` using the builder. There are 
 ```java
 // By default, datarouter-http-client uses vanilla gson.
 // You can implement the JsonSerializer interface or create a GsonJsonSerializer.
-	JsonSerializer jsonSerializer = new GsonJsonSerializer(new GsonBuilder()
-			.serializeNulls()
-			.create());
+JsonSerializer jsonSerializer = new GsonJsonSerializer(new GsonBuilder()
+		.serializeNulls()
+		.create());
 
-	DatarouterHttpClient httpClient = new DatarouterHttpClientBuilder()
-			// Retry the requests twice
-			.setRetryCount(() -> 2)
-			// Add apiKey=SECRET to each request
-			.setApiKeySupplier(() -> "SECRET")
-			// Change the maximum number of connections in the pool	
-			.setMaxConnectionsPerRoute(100)
-			.setMaxTotalConnections(100)
-			// Ignore invalid SSL certificates
-			.setIgnoreSsl(true)
-			// Use a custom JSON serializer
-			.setJsonSerializer(jsonSerializer)
-			.build();
+DatarouterHttpClient httpClient = new DatarouterHttpClientBuilder()
+		// Retry the requests twice
+		.setRetryCount(() -> 2)
+		// Add apiKey=SECRET to each request
+		.setApiKeySupplier(() -> "SECRET")
+		// Change the maximum number of connections in the pool	
+		.setMaxConnectionsPerRoute(100)
+		.setMaxTotalConnections(100)
+		// Ignore invalid SSL certificates
+		.setIgnoreSsl(true)
+		// Use a custom JSON serializer
+		.setJsonSerializer(jsonSerializer)
+		.build();
 ```
 
 ### Making a request
@@ -48,10 +48,10 @@ To make a request, you need to create a `DatarouterHttpRequest` and submit it to
 // reuse this client
 DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
 
-DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET,
-		"https://example.com/api",
-		true);
-request.addGetParam("id", "1"); // Passing a GET parameter
+DatarouterHttpRequest request = new DatarouterHttpRequest(
+		HttpRequestMethod.GET, 
+		"https://example.com/api")
+		.addGetParam("id", "1"); // Passing a GET parameter
 DatarouterHttpResponse response = client.execute(request);
 String stringResult = response.getEntity();
 ```
@@ -68,10 +68,9 @@ public static class ExampleDataTransferObject{
 
 public static void main(String[] args){
 	DatarouterHttpRequest request = new DatarouterHttpRequest(
-			HttpRequestMethod.GET,
-			"https://example.com/api",
-			true);
-	request.addGetParam("id", "1");
+			HttpRequestMethod.GET, 
+			"https://example.com/api")
+			.addGetParam("id", "1");
 	DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
 	ExampleDataTransferObject dto = client.execute(request, ExampleDataTransferObject.class);
 }

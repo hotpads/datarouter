@@ -26,7 +26,7 @@ import org.apache.http.Header;
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
@@ -50,9 +50,11 @@ public class HttpTestHandler extends BaseHandler{
 	public Mav httpTest(OptionalString url, OptionalString method){
 		Mav mav = new Mav(files.jsp.http.httpTesterJsp);
 		if(url.isPresent() && method.isPresent()){
-			HttpRequestMethod requestMethod = "POST".equals(method.get()) ? HttpRequestMethod.POST
+			HttpRequestMethod requestMethod = "POST".equals(method.get())
+					? HttpRequestMethod.POST
 					: HttpRequestMethod.GET;
-			DatarouterHttpRequest request = new DatarouterHttpRequest(requestMethod, url.get(), true);
+			DatarouterHttpRequest request = new DatarouterHttpRequest(requestMethod, url.get())
+					.setRetrySafe(true);
 			Long start = System.currentTimeMillis();
 			Conditional<DatarouterHttpResponse> response = testerClient.tryExecute(request);
 			Long elapsedMs = System.currentTimeMillis() - start;

@@ -19,7 +19,6 @@ import java.net.URI;
 
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClientSettings;
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
 import io.datarouter.pathnode.PathNode;
 
 public class DatarouterHttpRequestBuilder{
@@ -35,7 +34,7 @@ public class DatarouterHttpRequestBuilder{
 	/*--------------------------------- get ---------------------------------*/
 
 	public DatarouterHttpRequest createGet(String path){
-		return new DatarouterHttpRequest(HttpRequestMethod.GET, buildUrl(path), true);
+		return new DatarouterHttpRequest(HttpRequestMethod.GET, buildUrl(path));
 	}
 
 	public DatarouterHttpRequest createGet(PathNode pathNode){
@@ -53,11 +52,11 @@ public class DatarouterHttpRequestBuilder{
 	}
 
 	public DatarouterHttpRequest createPost(String path){
-		return new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path), false);
+		return new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path));
 	}
 
 	public DatarouterHttpRequest createPost(String path, Object entityDto){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path), false);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path));
 		httpClient.setEntityDto(request, entityDto);
 		return request;
 	}
@@ -73,11 +72,13 @@ public class DatarouterHttpRequestBuilder{
 	}
 
 	public DatarouterHttpRequest createPostWithRetries(String path){
-		return new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path), true);
+		return new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path))
+				.setRetrySafe(true);
 	}
 
 	public DatarouterHttpRequest createPostWithRetries(String path, Object entityDto){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path), true);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path));
+		request.setRetrySafe(true);
 		httpClient.setEntityDto(request, entityDto);
 		return request;
 	}
@@ -85,32 +86,28 @@ public class DatarouterHttpRequestBuilder{
 	/*-------------------------------- put ----------------------------------*/
 
 	public DatarouterHttpRequest createPut(String path){
-		return new DatarouterHttpRequest(HttpRequestMethod.PUT, buildUrl(path), true);
+		return new DatarouterHttpRequest(HttpRequestMethod.PUT, buildUrl(path))
+				.setRetrySafe(true);
 	}
 
 	public DatarouterHttpRequest createDelete(String path){
-		return new DatarouterHttpRequest(HttpRequestMethod.DELETE, buildUrl(path), true);
+		return new DatarouterHttpRequest(HttpRequestMethod.DELETE, buildUrl(path))
+				.setRetrySafe(true);
 	}
 
 	/*------------------------------- other ---------------------------------*/
 
 	public String buildUrl(String path){
-		URI endpointUrl = settings.getEndpointUrl();
-		URI finalUrl = URI.create(endpointUrl + "/" + path);
-		return finalUrl.normalize().toString();
+		return buildUrl(settings.getEndpointUrl(), path);
 	}
 
-	public DatarouterHttpRequest makeRequest(BaseRequest<?> baseRequest){
-		DatarouterHttpRequest request = null;
-		if(HttpRequestMethod.GET == baseRequest.method){
-			request = createGet(baseRequest.path);
-		}else if(HttpRequestMethod.POST == baseRequest.method){
-			request = createPost(baseRequest.path);
-		}else{
-			throw new IllegalArgumentException("Only GET and POST methods supported");
-		}
-		request.addParams(baseRequest.params);
-		return request;
+	public String buildUrl(PathNode path){
+		return buildUrl(settings.getEndpointUrl(), path.toSlashedString());
+	}
+
+	private static String buildUrl(URI endpointUrl, String path){
+		URI finalUrl = URI.create(endpointUrl + "/" + path);
+		return finalUrl.normalize().toString();
 	}
 
 }

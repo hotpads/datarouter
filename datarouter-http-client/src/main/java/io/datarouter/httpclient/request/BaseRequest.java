@@ -15,41 +15,39 @@
  */
 package io.datarouter.httpclient.request;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.apache.http.entity.ContentType;
 
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.pathnode.PathNode;
 
-public abstract class BaseRequest<T>{
+public abstract class BaseRequest<T> extends DatarouterHttpRequest{
 
-	public final HttpRequestMethod method;
-	public final String path;
 	public final Class<T> responseType;
-
-	public final Map<String,String> params;
 
 	public BaseRequest(HttpRequestMethod method, PathNode path, Class<T> responseType){
 		this(method, path.toSlashedString(), responseType);
 	}
 
 	public BaseRequest(HttpRequestMethod method, String path, Class<T> responseType){
-		this.method = method;
-		this.path = path;
+		super(method, path);
 		this.responseType = responseType;
-		this.params = new LinkedHashMap<>();
 	}
 
 	protected void addParam(String key, String value){
-		params.put(key, value);
+		addParam(key, value);
 	}
 
 	protected void addIntParam(String key, int value){
-		params.put(key, value + "");
+		addParam(key, value + "");
 	}
 
 	protected void addLongParam(String key, long value){
-		params.put(key, value + "");
+		addParam(key, value + "");
+	}
+
+	protected void setEntityDto(JsonSerializer jsonSerializer, Object dto){
+		String serializedDto = jsonSerializer.serialize(dto);
+		setEntity(serializedDto, ContentType.APPLICATION_JSON);
 	}
 
 }

@@ -77,6 +77,14 @@ public class ByteReader{
 		return value;
 	}
 
+	public int[] varInts(int count){
+		int[] value = new int[count];
+		for(int i = 0; i < count; ++i){
+			value[i] = varInt();
+		}
+		return value;
+	}
+
 	/*-------------- long -----------------*/
 
 	public int skipLongs(int num){

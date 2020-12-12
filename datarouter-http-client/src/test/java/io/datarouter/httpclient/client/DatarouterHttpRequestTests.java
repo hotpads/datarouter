@@ -25,7 +25,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 
 public class DatarouterHttpRequestTests{
 
@@ -45,7 +45,9 @@ public class DatarouterHttpRequestTests{
 		}
 	};
 
-	private final DatarouterHttpClient client = new DatarouterHttpClientBuilder().setConfig(config).build();
+	private final DatarouterHttpClient client = new DatarouterHttpClientBuilder()
+			.setConfig(config)
+			.build();
 
 	private static final class Thing{
 		@SuppressWarnings("unused") // serialized
@@ -58,7 +60,7 @@ public class DatarouterHttpRequestTests{
 
 	@Test
 	public void testGetParams(){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, true);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL);
 		Assert.assertEquals(request.getUrl(), URL);
 
 		String expected = URL + "?test=parameter";
@@ -66,7 +68,7 @@ public class DatarouterHttpRequestTests{
 		params.put("test", "parameter");
 		request.addGetParams(params);
 		Assert.assertEquals(request.getUrl(), expected);
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected, true).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected).getUrl(), expected);
 
 		expected = URL + "?test=parameter&hello=world&multiple=entries";
 		params = new LinkedHashMap<>();
@@ -74,7 +76,7 @@ public class DatarouterHttpRequestTests{
 		params.put("multiple", "entries");
 		request.addGetParams(params);
 		Assert.assertEquals(request.getUrl(), expected);
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected, true).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected).getUrl(), expected);
 
 		expected = URL + "?test=parameter&hello=world&multiple=entries&a=b&empty&sort";
 		params = new LinkedHashMap<>();
@@ -85,7 +87,7 @@ public class DatarouterHttpRequestTests{
 		params.put("sort", null);
 		request.addGetParams(params);
 		Assert.assertEquals(request.getUrl(), expected);
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected, true).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected).getUrl(), expected);
 
 		expected = URL + "?test=parameter&hello=world&multiple=entries&a=b&empty&sort&s=+%2B+%3D&%3F%26=%2F-%26";
 		params = new LinkedHashMap<>();
@@ -93,33 +95,33 @@ public class DatarouterHttpRequestTests{
 		params.put("?&", "/-&");
 		request.addGetParams(params);
 		Assert.assertEquals(request.getUrl(), expected);
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected, true).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected).getUrl(), expected);
 
 		expected = URL + "?test=some%3Dvalid";
 		params = Collections.singletonMap("test", "some=valid");
-		request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, true).addGetParams(params);
+		request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL).addGetParams(params);
 		Assert.assertEquals(request.getUrl(), expected);
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected, true).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected).getUrl(), expected);
 
 		String url = "kitty:2020?nothing=&";
 		expected = "kitty:2020?nothing";
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, url, true).getUrl(), expected);
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected, true).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, url).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected).getUrl(), expected);
 
 		url = "kitty?blah=blah%3F#something++";
 		expected = "kitty?blah=blah%3F";
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, url, true).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, url).getUrl(), expected);
 
 		url = "kitty:2020#?nothing&blah=blah?#something++";
 		expected = "kitty:2020";
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, url, true).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, url).getUrl(), expected);
 
 		params = Collections.singletonMap("q", "SELECT pikachu,megaman,sonic, fifa from some.Names where thing=true");
 		url = "lolcat";
 		expected = "lolcat?q=SELECT+pikachu%2Cmegaman%2Csonic%2C+fifa+from+some.Names+where+thing%3Dtrue";
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, url, true).addGetParams(params)
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, url).addGetParams(params)
 				.getUrl(), expected);
-		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected, true).getUrl(), expected);
+		Assert.assertEquals(new DatarouterHttpRequest(HttpRequestMethod.GET, expected).getUrl(), expected);
 	}
 
 	@Test
@@ -128,21 +130,21 @@ public class DatarouterHttpRequestTests{
 		DatarouterHttpRequest request;
 
 		url = "blah?something#thing";
-		request = new DatarouterHttpRequest(HttpRequestMethod.GET, url, true);
+		request = new DatarouterHttpRequest(HttpRequestMethod.GET, url);
 		Assert.assertEquals(request.getUrlFragment(), "thing");
 
 		url = "blah?#something#thing";
-		request = new DatarouterHttpRequest(HttpRequestMethod.GET, url, true);
+		request = new DatarouterHttpRequest(HttpRequestMethod.GET, url);
 		Assert.assertEquals(request.getUrlFragment(), "something#thing");
 
 		url = "blah#?something#thing";
-		request = new DatarouterHttpRequest(HttpRequestMethod.GET, url, true);
+		request = new DatarouterHttpRequest(HttpRequestMethod.GET, url);
 		Assert.assertEquals(request.getUrlFragment(), "?something#thing");
 	}
 
 	@Test
 	public void testPostParams(){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, true);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
 
 		Map<String,List<String>> expectedParams = new LinkedHashMap<>();
 		expectedParams.put("totally", List.of("valid"));
@@ -160,7 +162,7 @@ public class DatarouterHttpRequestTests{
 
 	@Test
 	public void testAddDtosToPayload(){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, true);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
 
 		var thing = new Thing();
 
@@ -178,7 +180,7 @@ public class DatarouterHttpRequestTests{
 
 	@Test
 	public void testAddHeaders(){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, true);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
 
 		Map<String,List<String>> expectedHeaders = new LinkedHashMap<>();
 		expectedHeaders.put("valid", List.of("header"));
@@ -203,17 +205,17 @@ public class DatarouterHttpRequestTests{
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testNullMethod(){
-		new DatarouterHttpRequest(null, URL, false);
+		new DatarouterHttpRequest(null, URL);
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testNullUrl(){
-		new DatarouterHttpRequest(HttpRequestMethod.HEAD, null, false);
+		new DatarouterHttpRequest(HttpRequestMethod.HEAD, null).setRetrySafe(false);
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testEmptyUrl(){
-		new DatarouterHttpRequest(HttpRequestMethod.HEAD, "", false);
+		new DatarouterHttpRequest(HttpRequestMethod.HEAD, "").setRetrySafe(false);
 	}
 
 }

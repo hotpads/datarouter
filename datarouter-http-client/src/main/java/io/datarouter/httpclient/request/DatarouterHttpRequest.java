@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
@@ -40,11 +39,6 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -58,15 +52,12 @@ import io.datarouter.httpclient.client.DatarouterHttpClientConfig;
 public class DatarouterHttpRequest{
 
 	private static final String CONTENT_TYPE = "Content-Type";
-	private static final Set<HttpRequestMethod> METHODS_ALLOWING_ENTITY = Set.of(
-			HttpRequestMethod.DELETE,
-			HttpRequestMethod.PATCH,
-			HttpRequestMethod.POST,
-			HttpRequestMethod.PUT);
 
 	private final HttpRequestMethod method;
 	private final String path;
-	private boolean retrySafe;
+	private final List<BasicClientCookie> cookies;
+
+	private Boolean retrySafe;
 	private Duration timeout;
 	private HttpEntity entity;
 	private String fragment;
@@ -75,17 +66,12 @@ public class DatarouterHttpRequest{
 	private Map<String,List<String>> postParams;
 	private DatarouterHttpClientConfig config;
 	private HttpHost proxy;
-	private final List<BasicClientCookie> cookies;
-
-	public enum HttpRequestMethod{
-		DELETE, GET, HEAD, PATCH, POST, PUT
-	}
 
 	/**
 	 * Expects query string parameters to already be UTF-8 encoded. See AdvancedStringTool.makeUrlParameters().
 	 * URL fragment is stripped from URL when sent to server.
 	 */
-	public DatarouterHttpRequest(HttpRequestMethod method, String url, boolean retrySafe){
+	public DatarouterHttpRequest(HttpRequestMethod method, String url){
 		Args.notBlank(url, "request url");
 		Args.notNull(method, "http method");
 
@@ -109,7 +95,6 @@ public class DatarouterHttpRequest{
 		}
 		this.method = method;
 		this.path = path;
-		this.retrySafe = retrySafe;
 		this.fragment = fragment;
 		this.headers = new HashMap<>();
 		this.queryParams = queryParams;
@@ -166,22 +151,7 @@ public class DatarouterHttpRequest{
 	}
 
 	private HttpRequestBase getRequest(String url){
-		switch(method){
-		case DELETE:
-			return new DatarouterHttpDeleteRequestWithEntity(url);
-		case GET:
-			return new HttpGet(url);
-		case HEAD:
-			return new HttpHead(url);
-		case PATCH:
-			return new HttpPatch(url);
-		case POST:
-			return new HttpPost(url);
-		case PUT:
-			return new HttpPut(url);
-		default:
-			throw new IllegalArgumentException("Invalid or null HttpMethod: " + method);
-		}
+		return method.httpRequestBase.apply(url);
 	}
 
 	public String getUrl(){
@@ -298,7 +268,7 @@ public class DatarouterHttpRequest{
 	 * Entities only exist in HttpPut, HttpPatch, HttpPost, DatarouterHttpDeleteRequestWithEntity
 	 */
 	public boolean canHaveEntity(){
-		return METHODS_ALLOWING_ENTITY.contains(method);
+		return method.allowEntity;
 	}
 
 	/**
@@ -435,7 +405,15 @@ public class DatarouterHttpRequest{
 	}
 
 	public boolean getRetrySafe(){
+		if(retrySafe == null){
+			return getMethod().defaultRetrySafe;
+		}
 		return retrySafe;
+	}
+
+	public DatarouterHttpRequest setRetrySafe(boolean retrySafe){
+		this.retrySafe = retrySafe;
+		return this;
 	}
 
 	public Duration getTimeout(){

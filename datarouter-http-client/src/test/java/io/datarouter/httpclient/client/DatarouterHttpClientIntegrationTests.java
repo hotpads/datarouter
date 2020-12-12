@@ -35,7 +35,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.HttpStatusCode;
 import io.datarouter.httpclient.response.exception.DatarouterHttpConnectionAbortedException;
@@ -121,7 +121,8 @@ public class DatarouterHttpClientIntegrationTests{
 	@Test(expectedExceptions = DatarouterHttpRuntimeException.class)
 	public void testUncheckedException(){
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation", false);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation")
+				.setRetrySafe(false);
 		client.execute(request);
 	}
 
@@ -130,8 +131,9 @@ public class DatarouterHttpClientIntegrationTests{
 		server.setResponseDelay(200);
 		try{
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, false)
-					.setTimeout(Duration.ofMillis(100));
+			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+					.setTimeout(Duration.ofMillis(100))
+					.setRetrySafe(false);
 			client.executeChecked(request);
 		}finally{
 			server.setResponseDelay(0);
@@ -141,7 +143,8 @@ public class DatarouterHttpClientIntegrationTests{
 	@Test(expectedExceptions = DatarouterHttpConnectionAbortedException.class, timeOut = 1000)
 	public void testInvalidLocation() throws DatarouterHttpException{
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation", false);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation")
+				.setRetrySafe(false);
 		client.executeChecked(request);
 	}
 
@@ -150,7 +153,7 @@ public class DatarouterHttpClientIntegrationTests{
 		server.setResponse(HttpStatus.SC_MOVED_PERMANENTLY,
 				"301 status code throws exception when not provided a location header");
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, false);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL).setRetrySafe(false);
 		client.executeChecked(request);
 	}
 
@@ -159,7 +162,8 @@ public class DatarouterHttpClientIntegrationTests{
 		server.setResponseDelay(200);
 		try{
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().setRetryCount(() -> 10).build();
-			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, true)
+			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+					.setRetrySafe(true)
 					.setTimeout(Duration.ofMillis(100));
 			client.executeChecked(request);
 		}finally{
@@ -173,7 +177,8 @@ public class DatarouterHttpClientIntegrationTests{
 		String expectedResponse = UUID.randomUUID().toString();
 		server.setResponse(status, expectedResponse);
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, false);
+		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+				.setRetrySafe(false);
 		DatarouterHttpResponse response = client.execute(request);
 		Assert.assertEquals(response.getEntity(), expectedResponse);
 		Assert.assertEquals(response.getStatusCode(), status);
@@ -186,7 +191,8 @@ public class DatarouterHttpClientIntegrationTests{
 			String expectedResponse = UUID.randomUUID().toString();
 			server.setResponse(status, expectedResponse);
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, false);
+			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+					.setRetrySafe(false);
 			client.executeChecked(request);
 		}catch(DatarouterHttpResponseException e){
 			Assert.assertTrue(e.isClientError());
@@ -204,7 +210,8 @@ public class DatarouterHttpClientIntegrationTests{
 			String expectedResponse = UUID.randomUUID().toString();
 			server.setResponse(status, expectedResponse);
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, false);
+			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+					.setRetrySafe(false);
 			client.executeChecked(request);
 		}catch(DatarouterHttpResponseException e){
 			Assert.assertTrue(e.isServerError());
@@ -244,7 +251,9 @@ public class DatarouterHttpClientIntegrationTests{
 		server.setResponse(HttpStatus.SC_ACCEPTED, expectedResponse);
 
 		// GET request cannot be signed
-		request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL, false).addPostParams(params);
+		request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+				.setRetrySafe(false)
+				.addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getFirstPostParams();
 		Assert.assertEquals(response.getEntity(), expectedResponse);
@@ -261,7 +270,7 @@ public class DatarouterHttpClientIntegrationTests{
 				.build();
 
 		// entity enclosing request with no entity or params cannot be signed
-		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, false);
+		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL);
 		response = client.execute(request);
 		postParams = request.getFirstPostParams();
 		Assert.assertEquals(response.getEntity(), expectedResponse);
@@ -278,7 +287,8 @@ public class DatarouterHttpClientIntegrationTests{
 				.build();
 
 		// entity enclosing request already with an entity cannot be signed, even with params
-		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL, false)
+		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL)
+				.setRetrySafe(false)
 				.setEntity(params)
 				.addPostParams(params);
 		response = client.execute(request);
@@ -297,7 +307,7 @@ public class DatarouterHttpClientIntegrationTests{
 				.build();
 
 		// entity enclosing request is signed with entity from post params
-		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL, false).addPostParams(params);
+		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getFirstPostParams();
 		Assert.assertEquals(response.getEntity(), expectedResponse);
@@ -312,7 +322,9 @@ public class DatarouterHttpClientIntegrationTests{
 				.setCsrfGenerator(csrfGenerator)
 				.build();
 
-		request = new DatarouterHttpRequest(HttpRequestMethod.PUT, URL, false).addPostParams(params);
+		request = new DatarouterHttpRequest(HttpRequestMethod.PUT, URL)
+				.setRetrySafe(false)
+				.addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getFirstPostParams();
 		Assert.assertEquals(response.getEntity(), expectedResponse);
@@ -324,7 +336,9 @@ public class DatarouterHttpClientIntegrationTests{
 
 		client = new DatarouterHttpClientBuilder().setApiKeySupplier(apiKeySupplier).build();
 
-		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL, false).addPostParams(params);
+		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL)
+				.setRetrySafe(false)
+				.addPostParams(params);
 		response = client.execute(request);
 		postParams = request.getFirstPostParams();
 		Assert.assertEquals(response.getEntity(), expectedResponse);

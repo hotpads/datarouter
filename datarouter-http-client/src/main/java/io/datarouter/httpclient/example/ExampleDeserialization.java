@@ -18,7 +18,7 @@ package io.datarouter.httpclient.example;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 
 @SuppressWarnings("unused")
 public class ExampleDeserialization{
@@ -29,11 +29,10 @@ public class ExampleDeserialization{
 	}
 
 	public static void main(String[] args){
-		var request = new DatarouterHttpRequest(
+		DatarouterHttpRequest request = new DatarouterHttpRequest(
 				HttpRequestMethod.GET,
-				"https://example.com/api",
-				true);
-		request.addGetParam("id", "1");
+				"https://example.com/api")
+				.addGetParam("id", "1");
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
 		ExampleDataTransferObject dto = client.execute(request, ExampleDataTransferObject.class);
 	}

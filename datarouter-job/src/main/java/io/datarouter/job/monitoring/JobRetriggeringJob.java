@@ -18,7 +18,6 @@ package io.datarouter.job.monitoring;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -38,6 +37,7 @@ import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.util.Count;
+import io.datarouter.util.Count.Counts;
 
 public class JobRetriggeringJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(JobRetriggeringJob.class);
@@ -55,22 +55,16 @@ public class JobRetriggeringJob extends BaseJob{
 	@Inject
 	private DatarouterClusterJobLockDao clusterJobLockDao;
 
+	private final Counts counts = new Counts();
+
 	private final Count
-			total = new Count("total"),
-			usesLocking = new Count("usesLocking"),
-			notRunningAgainSoon = new Count("notRunningAgainSoon"),
-			shouldRun = new Count("shouldRun"),
-			notLocked = new Count("notLocked"),
-			hasLastCompletionTime = new Count("hasLastCompletionTime"),
-			retriggered = new Count("retriggered");
-	private final List<Count> counts = List.of(
-			total,
-			usesLocking,
-			notRunningAgainSoon,
-			shouldRun,
-			notLocked,
-			hasLastCompletionTime,
-			retriggered);
+			total = counts.add("total"),
+			usesLocking = counts.add("usesLocking"),
+			notRunningAgainSoon = counts.add("notRunningAgainSoon"),
+			shouldRun = counts.add("shouldRun"),
+			notLocked = counts.add("notLocked"),
+			hasLastCompletionTime = counts.add("hasLastCompletionTime"),
+			retriggered = counts.add("retriggered");
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -86,7 +80,7 @@ public class JobRetriggeringJob extends BaseJob{
 				.exclude(this::isLocked)
 				.each(notLocked::increment)
 				.forEach(this::retriggerIfNecessary);
-		logger.warn(Count.toString(counts));
+		logger.warn(counts.toString());
 	}
 
 	private boolean runningAgainSoon(JobPackage jobPackage){

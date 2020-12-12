@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-virtual-node</artifactId>
-	<version>0.0.56</version>
+	<version>0.0.57</version>
 </dependency>
 ```
 

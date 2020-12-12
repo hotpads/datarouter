@@ -40,15 +40,14 @@ public interface ExemptDailyDigestExceptions{
 
 	public static class ExemptDailyDigestException{
 
-		private final Class<? extends Exception> type;
 		private final Class<?> location;
+		private final Class<? extends Exception> type;
 
-		public ExemptDailyDigestException(Class<? extends Exception> exception, Class<?> location){
-			this.type = exception;
+		public ExemptDailyDigestException(Class<?> location, Class<? extends Exception> exception){
 			this.location = location;
+			this.type = exception;
 		}
 
 	}
-
 
 }

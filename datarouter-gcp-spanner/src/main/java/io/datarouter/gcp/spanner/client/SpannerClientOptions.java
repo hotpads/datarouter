@@ -15,12 +15,25 @@
  */
 package io.datarouter.gcp.spanner.client;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
+
+import io.datarouter.secret.op.SecretOpReason;
+import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.lang.ObjectTool;
@@ -34,10 +47,13 @@ public class SpannerClientOptions{
 	protected static final String PROP_projectId = "projectId";
 	protected static final String PROP_instanceId = "instanceId";
 	protected static final String PROP_databaseName = "databaseName";
-	protected static final String PROP_credentialsLocation = "credentialsLocation";
+	protected static final String PROP_credentialsFileLocation = "credentialsFileLocation";
+	protected static final String PROP_credentialsSecretLocation = "credentialsSecretLocation";
 
 	@Inject
 	private ClientOptions clientOptions;
+	@Inject
+	private SecretService secretService;
 
 	public String projectId(String clientName){
 		return clientOptions.getRequiredString(clientName, makeSpannerKey(PROP_projectId));
@@ -59,17 +75,55 @@ public class SpannerClientOptions{
 		return clientOptions.getRequiredString(clientName, makeSpannerKey(PROP_databaseName));
 	}
 
-	public String credentialsLocation(String clientName){
-		String provided = clientOptions.getRequiredString(clientName, makeSpannerKey(PROP_credentialsLocation));
-		String corrected = provided.replace("~", SystemTool.getUserHome());
-		if(ObjectTool.notEquals(provided, corrected)){
-			logger.warn("updated credentialsLocation from {} to {}", provided, corrected);
+	public Credentials credentials(String clientName){
+		InputStream inputStream = readCredentialsSecret(clientName)
+				.or(() -> readCredentialsFile(clientName))
+				.orElseThrow(() -> new RuntimeException("no spanner credentials configuration found"));
+		try{
+			return GoogleCredentials.fromStream(inputStream);
+		}catch(IOException e){
+			throw new RuntimeException(e);
 		}
-		return corrected;
 	}
 
 	protected static String makeSpannerKey(String propertyKey){
 		return PREFIX_SPANNER + propertyKey;
+	}
+
+	private Optional<InputStream> readCredentialsFile(String clientName){
+		Optional<String> optProvided = clientOptions.optString(clientName, makeSpannerKey(
+				PROP_credentialsFileLocation));
+		if(optProvided.isEmpty()){
+			logger.warn("{} not specified", PROP_credentialsFileLocation);
+			return Optional.empty();
+		}
+		return optProvided.map(provided -> {
+			String corrected = provided.replace("~", SystemTool.getUserHome());
+			if(ObjectTool.notEquals(provided, corrected)){
+				logger.warn("updated credentialsLocation from {} to {}", provided, corrected);
+			}
+			return corrected;
+		}).map(filename -> {
+			try{
+				return new FileInputStream(filename);
+			}catch(FileNotFoundException e){
+				throw new RuntimeException(e);
+			}
+		});
+	}
+
+	private Optional<InputStream> readCredentialsSecret(String clientName){
+		Optional<String> optSecretLocation = clientOptions.optString(clientName, makeSpannerKey(
+				PROP_credentialsSecretLocation));
+		if(optSecretLocation.isEmpty()){
+			logger.warn("{} not specified", PROP_credentialsSecretLocation);
+			return Optional.empty();
+		}
+		return optSecretLocation
+				.map($ -> secretService.readRawSharedWithoutRecord($, SecretOpReason.automatedOp(this.getClass()
+						.getSimpleName())))
+				.map(str -> str.getBytes(StandardCharsets.UTF_8))
+				.map(ByteArrayInputStream::new);
 	}
 
 }

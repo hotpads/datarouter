@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
@@ -110,7 +110,7 @@ public class PushService{
 	private DatarouterHttpResponse executeCommand(PathNode path, WebSocketSession webSocketSession, String message){
 		WebSocketCounters.inc("command " + path.getValue());
 		String url = "http://" + webSocketSession.getServerName() + path.toSlashedString();
-		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, url, false);
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, url);
 		WebSocketCommand webSocketCommand = new WebSocketCommand(webSocketSession.getKey(), message);
 		httpClient.addDtoToPayload(request, webSocketCommand, null);
 		return httpClient.execute(request);

@@ -103,10 +103,14 @@ public class SecretService{
 
 	//skips the recording step. this is necessary if the recorder uses the same DB that the secret is needed to init.
 	public <T> T readSharedWithoutRecord(String secretName, Class<T> secretClass, SecretOpReason reason){
+		return deserialize(readRawSharedWithoutRecord(secretName, reason), secretClass);
+	}
+
+	//skips the recording step. this is necessary if the recorder uses the same DB that the secret is needed to init.
+	public String readRawSharedWithoutRecord(String secretName, SecretOpReason reason){
 		String namespace = secretNamespacer.getSharedNamespace();
 		SecretOpInfo opInfo = new SecretOpInfo(SecretOp.READ, namespace, secretName, reason);
-		String result = helper.apply(opInfo, client -> client.read(namespace + secretName).getValue());
-		return deserialize(result, secretClass);
+		return helper.apply(opInfo, client -> client.read(namespace + secretName).getValue());
 	}
 
 	public String readRaw(String secretName, SecretOpReason reason){
@@ -199,10 +203,10 @@ public class SecretService{
 		private SecretClientConfigHolder config;
 
 		/**
-		 * injects and returns appropriate {@link SecretClientSupplier}s based on opInfo and
-		 * {@link SecretClientConfig}s from config
+		 * injects and returns appropriate {@link SecretClientSupplier}s based on opInfo and {@link SecretClientConfig}s
+		 * from config
+		 *
 		 * @param opInfo passed to {@link SecretClientConfig#allowed(SecretOpInfo)}
-		 * @return
 		 */
 		private Iterator<? extends SecretClientSupplier> getSuppliers(SecretOpInfo opInfo){
 			return config.getAllowedSecretClientSupplierClasses(secretNamespacer.isDevelopment(), opInfo)
@@ -212,12 +216,13 @@ public class SecretService{
 
 		/**
 		 * attempts to apply func with appropriately configured {@link SecretClientSupplier}s until one succeeds
+		 *
 		 * @param <T> return type of func
 		 * @param opInfo passed to getSuppliers
 		 * @param func parameterized function to apply with the supplied {@link SecretClient}s
 		 * @return result of func
 		 * @throws exception thrown by func when applied with last configured {@link SecretClientSupplier} or
-		 * {@link NoConfiguredSecretClientSupplierException} if none are appropriately configured
+		 *         {@link NoConfiguredSecretClientSupplierException} if none are appropriately configured
 		 */
 		private <T> T apply(SecretOpInfo opInfo, Function<SecretClient,T> func){
 			List<String> attemptedSecretClientSuppliers = new ArrayList<>();

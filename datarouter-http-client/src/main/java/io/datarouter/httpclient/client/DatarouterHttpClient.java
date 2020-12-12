@@ -25,7 +25,6 @@ import org.apache.http.pool.PoolStats;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.BaseRequest;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequestBuilder;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
@@ -36,10 +35,11 @@ public interface DatarouterHttpClient{
 	DatarouterHttpResponse execute(DatarouterHttpRequest request, Consumer<HttpEntity> httpEntityConsumer);
 
 	<E> E execute(DatarouterHttpRequest request, Type deserializeToType);
-	<E> E execute(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request);
+	<E> E execute(BaseRequest<E> request);
+
 	<E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException;
-	<E> E executeChecked(DatarouterHttpRequestBuilder requestBuilder, BaseRequest<E> request)
-	throws DatarouterHttpException;
+	<E> E executeChecked(BaseRequest<E> request) throws DatarouterHttpException;
+
 	DatarouterHttpResponse executeChecked(DatarouterHttpRequest request) throws DatarouterHttpException;
 	DatarouterHttpResponse executeChecked(DatarouterHttpRequest request, Consumer<HttpEntity> httpEntityConsumer)
 	throws DatarouterHttpException;
@@ -53,13 +53,10 @@ public interface DatarouterHttpClient{
 	void shutdown();
 
 	DatarouterHttpClient addDtoToPayload(DatarouterHttpRequest request, Object dto, String dtoType);
-
 	DatarouterHttpClient setEntityDto(DatarouterHttpRequest request, Object dto);
 
 	PoolStats getPoolStats();
-
 	CloseableHttpClient getApacheHttpClient();
-
 	JsonSerializer getJsonSerializer();
 
 }

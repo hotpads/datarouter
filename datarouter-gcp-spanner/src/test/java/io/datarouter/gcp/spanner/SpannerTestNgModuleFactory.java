@@ -54,7 +54,6 @@ public class SpannerTestNgModuleFactory extends TestNgModuleFactory{
 
 	}
 
-
 	public static class SpannerTestDatarouterProperties extends TestDatarouterProperties{
 
 		@Override

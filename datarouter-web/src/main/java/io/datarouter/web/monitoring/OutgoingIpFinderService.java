@@ -23,7 +23,7 @@ import javax.inject.Singleton;
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.Conditional;
 
 @Singleton
@@ -54,7 +54,8 @@ public class OutgoingIpFinderService{
 	}
 
 	private Conditional<String> tryGetIp(String url){
-		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, url, false);
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, url)
+				.setRetrySafe(false);
 		return ipClient.tryExecute(request, String.class);
 	}
 

@@ -15,16 +15,23 @@
  */
 package io.datarouter.gcp.bigtable.client;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.cloud.bigtable.hbase.BigtableOptionsFactory;
+
 import io.datarouter.client.hbase.client.HBaseOptions;
+import io.datarouter.secret.op.SecretOpReason;
+import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.lang.ObjectTool;
+import io.datarouter.util.tuple.Twin;
 
 @Singleton
 public class BigTableOptions extends HBaseOptions{
@@ -34,10 +41,13 @@ public class BigTableOptions extends HBaseOptions{
 
 	protected static final String PROP_projectId = "projectId";
 	protected static final String PROP_instanceId = "instanceId";
-	protected static final String PROP_credentialsLocation = "credentialsLocation";
+	protected static final String PROP_credentialsFileLocation = "credentialsFileLocation";
+	protected static final String PROP_credentialsSecretLocation = "credentialsSecretLocation";
 
 	@Inject
 	private ClientOptions clientOptions;
+	@Inject
+	private SecretService secretService;
 
 	public String projectId(String clientName){
 		return clientOptions.getRequiredString(clientName, makeBigtableKey(PROP_projectId));
@@ -55,13 +65,39 @@ public class BigTableOptions extends HBaseOptions{
 		return clientOptions.optString(clientName, makeBigtableKey(PROP_instanceId)).orElse("");
 	}
 
-	public String credentialsLocation(String clientName){
-		String provided = clientOptions.getRequiredString(clientName, makeBigtableKey(PROP_credentialsLocation));
-		String corrected = provided.replace("~", SystemTool.getUserHome());
-		if(ObjectTool.notEquals(provided, corrected)){
-			logger.warn("updated credentialsLocation from {} to {}", provided, corrected);
+	public Twin<String> bigtableConfigurationCredentialsKeyValue(String clientName){
+		return readCredentialsSecretKeyValue(clientName)
+				.or(() -> readCredentialsFileKeyValue(clientName))
+				.orElseThrow(() -> new RuntimeException("no bigtable credentials configuration found"));
+	}
+
+	public Optional<Twin<String>> readCredentialsFileKeyValue(String clientName){
+		Optional<String> optProvided = clientOptions.optString(clientName, makeBigtableKey(
+				PROP_credentialsFileLocation));
+		if(optProvided.isEmpty()){
+			logger.warn("{} not specified", PROP_credentialsFileLocation);
+			return Optional.empty();
 		}
-		return corrected;
+		return optProvided.map(provided -> {
+			String corrected = provided.replace("~", SystemTool.getUserHome());
+			if(ObjectTool.notEquals(provided, corrected)){
+				logger.warn("updated credentialsLocation from {} to {}", provided, corrected);
+			}
+			return corrected;
+		}).map($ -> new Twin<>(BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_KEYFILE_LOCATION_KEY, $));
+	}
+
+	public Optional<Twin<String>> readCredentialsSecretKeyValue(String clientName){
+		Optional<String> optSecretLocation = clientOptions.optString(clientName, makeBigtableKey(
+				PROP_credentialsSecretLocation));
+		if(optSecretLocation.isEmpty()){
+			logger.warn("{} not specified", PROP_credentialsSecretLocation);
+			return Optional.empty();
+		}
+		return optSecretLocation
+				.map($ -> secretService.readRawSharedWithoutRecord($, SecretOpReason.automatedOp(this.getClass()
+						.getSimpleName())))
+				.map($ -> new Twin<>(BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_VALUE_KEY, $));
 	}
 
 	protected static String makeBigtableKey(String propertyKey){

@@ -18,7 +18,7 @@ package io.datarouter.httpclient.example;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
-import io.datarouter.httpclient.request.DatarouterHttpRequest.HttpRequestMethod;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 
 @SuppressWarnings("unused")
@@ -28,11 +28,10 @@ public class ExampleMakeRequest{
 		// reuse this client
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
 
-		var request = new DatarouterHttpRequest(
+		DatarouterHttpRequest request = new DatarouterHttpRequest(
 				HttpRequestMethod.GET,
-				"https://example.com/api",
-				true);
-		request.addGetParam("id", "1"); // Passing a GET parameter
+				"https://example.com/api")
+				.addGetParam("id", "1"); // Passing a GET parameter
 		DatarouterHttpResponse response = client.execute(request);
 		String stringResult = response.getEntity();
 	}

@@ -22,9 +22,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 
 import com.google.cloud.bigtable.hbase.BigtableConfiguration;
-import com.google.cloud.bigtable.hbase.BigtableOptionsFactory;
 
 import io.datarouter.client.hbase.HBaseClientManager;
+import io.datarouter.util.tuple.Twin;
 
 @Singleton
 public class BigTableClientManager extends HBaseClientManager{
@@ -42,8 +42,8 @@ public class BigTableClientManager extends HBaseClientManager{
 		String projectId = bigTableOptions.projectId(clientName);
 		String instanceId = bigTableOptions.instanceId(clientName);
 		Configuration config = BigtableConfiguration.configure(projectId, instanceId);
-		String credsLocation = bigTableOptions.credentialsLocation(clientName);
-		config.set(BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_KEYFILE_LOCATION_KEY, credsLocation);
+		Twin<String> credentialsKeyValue = bigTableOptions.bigtableConfigurationCredentialsKeyValue(clientName);
+		config.set(credentialsKeyValue.getLeft(), credentialsKeyValue.getRight());
 		return BigtableConfiguration.connect(config);
 	}
 

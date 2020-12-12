@@ -46,7 +46,6 @@ import io.datarouter.job.lock.LocalTriggerLockService;
 import io.datarouter.job.lock.TriggerLockConfig;
 import io.datarouter.job.scheduler.JobWrapper.JobWrapperFactory;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
-import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
@@ -68,7 +67,6 @@ public class JobScheduler{
 	private final DatarouterJobScheduler triggerExecutor;
 	private final DatarouterJobExecutor jobExecutor;
 	private final DatarouterJobSettingRoot jobSettings;
-	private final LongRunningTaskService longRunningTaskService;
 	private final JobCategoryTracker jobCategoryTracker;
 	private final JobPackageTracker jobPackageTracker;
 	private final LocalTriggerLockService localTriggerLockService;
@@ -84,7 +82,6 @@ public class JobScheduler{
 			DatarouterJobScheduler triggerExecutor,
 			DatarouterJobExecutor jobExecutor,
 			DatarouterJobSettingRoot jobSettings,
-			LongRunningTaskService longRunningTaskService,
 			JobCategoryTracker jobCategoryTracker,
 			JobPackageTracker jobPackageTracker,
 			LocalTriggerLockService localTriggerLockService,
@@ -96,7 +93,6 @@ public class JobScheduler{
 		this.triggerExecutor = triggerExecutor;
 		this.jobExecutor = jobExecutor;
 		this.jobSettings = jobSettings;
-		this.longRunningTaskService = longRunningTaskService;
 		this.jobCategoryTracker = jobCategoryTracker;
 		this.jobPackageTracker = jobPackageTracker;
 		this.localTriggerLockService = localTriggerLockService;
@@ -131,31 +127,6 @@ public class JobScheduler{
 
 	/*-------------- schedule ----------------*/
 
-	private void scheduleFirstRun(JobPackage jobPackage){
-		Class<? extends BaseJob> jobClass = jobPackage.jobClass;
-		if(!jobSettings.scheduleMissedJobsOnStartup.get()){
-			scheduleNextRun(jobPackage);
-			return;
-		}
-		if(!configuredToRun(jobPackage)){
-			scheduleNextRun(jobPackage);
-			return;
-		}
-		Optional<Date> lastCompletionTime = longRunningTaskService.findLastSuccessDate(jobClass.getSimpleName());
-		if(lastCompletionTime.isEmpty()){//has never run, schedule for next normal time
-			scheduleNextRun(jobPackage);
-			return;
-		}
-		//getNextValidTimeAfter should be present, because only non-manual jobs get scheduled
-		Date nextValidTime = jobPackage.getNextValidTimeAfter(lastCompletionTime.get()).get();
-		boolean haventMissedNextTrigger = new Date().before(nextValidTime);
-		if(haventMissedNextTrigger){
-			scheduleNextRun(jobPackage);
-			return;
-		}
-		scheduleMissedRunImmediately(jobPackage, nextValidTime);
-	}
-
 	private void scheduleNextRun(JobPackage jobPackage){
 		long nowMs = System.currentTimeMillis();
 		Optional<Long> optionalDelay = getDelayBeforeNextTriggerTimeMs(jobPackage, nowMs);
@@ -169,15 +140,6 @@ public class JobScheduler{
 		JobWrapper jobWrapper = jobWrapperFactory.createScheduled(jobPackage, nextJobInstance, nextTriggerTime,
 				nextTriggerTime, getClass().getSimpleName());
 		schedule(jobWrapper, delay, TimeUnit.MILLISECONDS, false);
-	}
-
-	private void scheduleMissedRunImmediately(JobPackage jobPackage, Date officialTriggerTime){
-		logger.warn("scheduling {} with official triggerTime {} to run immediately", jobPackage.jobClass
-				.getSimpleName(), DateTool.formatAlphanumeric(officialTriggerTime.getTime()));
-		BaseJob nextJobInstance = injector.getInstance(jobPackage.jobClass);
-		JobWrapper jobWrapper = jobWrapperFactory.createScheduled(jobPackage, nextJobInstance, officialTriggerTime,
-				new Date(), getClass().getSimpleName() + " scheduleMissedRunImmediately");
-		schedule(jobWrapper, 0, TimeUnit.MILLISECONDS, true);
 	}
 
 	public void scheduleRetriggeredJob(JobPackage jobPackage, Date officialTriggerTime){
@@ -373,7 +335,7 @@ public class JobScheduler{
 	private void register(JobPackage jobPackage){
 		jobPackageTracker.register(jobPackage);
 		jobCategoryTracker.register(jobPackage.jobCategoryName);
-		scheduleFirstRun(jobPackage);
+		scheduleNextRun(jobPackage);
 	}
 
 	private boolean configuredToRun(JobPackage jobPackage){
