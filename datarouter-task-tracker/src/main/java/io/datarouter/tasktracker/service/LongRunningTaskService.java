@@ -27,7 +27,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
-import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskKey;
 import io.datarouter.util.tuple.Range;
@@ -36,7 +36,7 @@ import io.datarouter.util.tuple.Range;
 public class LongRunningTaskService{
 
 	@Inject
-	private DatarouterLongRunningTaskDao dao;
+	private LongRunningTaskDao dao;
 
 	public Optional<LongRunningTask> getLastRun(TaskTracker tracker){
 		String name = tracker.getName();

@@ -15,7 +15,6 @@
  */
 package io.datarouter.util;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -33,8 +32,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.datarouter.util.duration.DurationUnit;
 import io.datarouter.util.duration.DurationWithCarriedUnits;
@@ -57,71 +54,6 @@ public class DateTool{
 			DayOfWeek.SUNDAY);
 
 	public static final DateTimeFormatter JAVA_TIME_INTERNET_FORMATTER = DateTimeFormatter.ISO_INSTANT;
-
-	@Deprecated
-	protected static final String BAD_ISO_FORMAT = "yyyy MM dd'T'hh mm ss'Z'";
-
-	/**
-	 * Parse the provided date string using a sequence of common date formats
-	 * that users might input. If minimumYear is provided, it is used to
-	 * validate the result and try alternate date formats.
-	 */
-	public static Date parseUserInputDate(String originalInput, Integer minimumYear){
-		if(originalInput == null){
-			return null;
-		}
-		String date = originalInput.replaceAll("[\\W\\s_]+", " ");
-
-		Pattern ordinalPattern = Pattern.compile("\\d(th|nd|st)");
-		String strippedDate = date;
-		Matcher ordinalMatcher = ordinalPattern.matcher(strippedDate);
-		while(ordinalMatcher.find()){
-			int ordinalIndex = ordinalMatcher.end();
-			String start = strippedDate.substring(0, ordinalIndex - 2);
-			String end = strippedDate.substring(ordinalIndex);
-			strippedDate = start + end;
-			ordinalMatcher = ordinalPattern.matcher(strippedDate);
-		}
-		date = strippedDate;
-		String[] commonFormats = {
-				"E MMM dd hh mm ss z yyyy",
-				BAD_ISO_FORMAT,
-				"yyyy MM dd hh mm ss",
-				"MM dd yy",
-				"MMM dd yy",
-				"MMMMM dd yy",
-				"MMMMM yyyy",
-				"yyyyMMdd",
-				"yyyyMM",
-				"MMMMM dd"
-		};//"MM dd", "MMM dd","MMMMM dd", };
-
-		for(String fmt : commonFormats){
-			try{
-				Date parsed = new SimpleDateFormat(fmt).parse(date);
-				if(fmt == BAD_ISO_FORMAT){
-					throw new RuntimeException("illegal parser input=" + originalInput + " parsed=" + parsed);
-				}
-				if(minimumYear != null){
-					if(fmt.contains("y")){
-						if(getYearInteger(parsed) < minimumYear){
-							continue;
-						}
-						return parsed;
-					}
-					//year is null or not a result of parsing
-					Calendar calendar = Calendar.getInstance();
-					calendar.setTime(parsed);
-					calendar.set(Calendar.YEAR, getYearInteger());
-					parsed = calendar.getTime();
-				}
-				return parsed;
-			}catch(ParseException pe){
-				//expected
-			}
-		}
-		return null;
-	}
 
 	public static String getNumericDate(Date date){
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -323,14 +255,9 @@ public class DateTool{
 
 	/*---------------- reverse ------------------*/
 
-	@Deprecated // Use toReverseInstantLong
-	public static Long toReverseDateLong(Date date){
-		return date == null ? null : Long.MAX_VALUE - date.getTime();
-	}
-
-	@Deprecated // Use fromReverseInstantLong
+	// Use fromReverseInstantLong
 	public static Date fromReverseDateLong(Long dateLong){
-		return dateLong == null ? null : new Date(Long.MAX_VALUE - dateLong);
+		return new Date(Long.MAX_VALUE - dateLong);
 	}
 
 	public static Long toReverseInstantLong(Instant instant){

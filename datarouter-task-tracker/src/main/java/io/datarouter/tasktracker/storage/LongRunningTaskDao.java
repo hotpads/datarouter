@@ -32,11 +32,11 @@ import io.datarouter.util.tuple.Range;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
-public class DatarouterLongRunningTaskDao extends BaseDao{
+public class LongRunningTaskDao extends BaseDao{
 
-	public static class DatarouterLongRunningTaskDaoParams extends BaseRedundantDaoParams{
+	public static class LongRunningTaskDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterLongRunningTaskDaoParams(List<ClientId> clientId){
+		public LongRunningTaskDaoParams(List<ClientId> clientId){
 			super(clientId);
 		}
 
@@ -45,8 +45,7 @@ public class DatarouterLongRunningTaskDao extends BaseDao{
 	private final SortedMapStorageNode<LongRunningTaskKey,LongRunningTask,LongRunningTaskFielder> node;
 
 	@Inject
-	public DatarouterLongRunningTaskDao(Datarouter datarouter, NodeFactory nodeFactory,
-			DatarouterLongRunningTaskDaoParams params){
+	public LongRunningTaskDao(Datarouter datarouter, NodeFactory nodeFactory, LongRunningTaskDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {

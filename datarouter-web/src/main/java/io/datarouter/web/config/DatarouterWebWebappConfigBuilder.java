@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServlet;
 import com.google.inject.Module;
 
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
@@ -126,6 +127,7 @@ implements WebappBuilder{
 	private String nodeWidgetTableCountLink;
 	private String serviceDescription;
 	protected boolean useDatarouterAuth;
+	private Class<? extends RequestProxySetter> requestProxy;
 
 	// datarouter-web servlet
 	private final List<Ordered<FilterParams>> filterParamsOrdered;
@@ -215,6 +217,7 @@ implements WebappBuilder{
 		this.appNavBarPluginItems = new ArrayList<>();
 		this.dynamicNavBarItems = new ArrayList<>();
 		this.testableServiceClasses = new ArrayList<>();
+		this.requestProxy = NoOpRequestProxySetter.class;
 
 		// additional
 		this.modules = new ArrayList<>();
@@ -269,6 +272,7 @@ implements WebappBuilder{
 				.setTestableServiceClasses(testableServiceClasses)
 				.setDynamicNavBarItems(dynamicNavBarItems)
 				.setDailyDigest(dailyDigest)
+				.setRequestProxy(requestProxy)
 				.build();
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
@@ -614,6 +618,11 @@ implements WebappBuilder{
 
 	public T addDailyDigest(Class<? extends DailyDigest> dailyDigest){
 		this.dailyDigest.add(dailyDigest);
+		return getSelf();
+	}
+
+	public T setRequestProxy(Class<? extends RequestProxySetter> requestProxy){
+		this.requestProxy = requestProxy;
 		return getSelf();
 	}
 

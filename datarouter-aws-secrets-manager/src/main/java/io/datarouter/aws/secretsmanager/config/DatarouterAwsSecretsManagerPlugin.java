@@ -16,6 +16,7 @@
 package io.datarouter.aws.secretsmanager.config;
 
 import io.datarouter.aws.secretsmanager.AwsSecretClientCredentialsHolder;
+import io.datarouter.aws.secretsmanager.AwsSecretClientCredentialsHolder.DefaultAwsSecretClientCredentialsHolder;
 import io.datarouter.aws.secretsmanager.AwsSecretClientCredentialsHolder.HardcodedAwsSecretClientCredentialsHolder;
 import io.datarouter.web.config.BaseWebPlugin;
 
@@ -46,8 +47,9 @@ public class DatarouterAwsSecretsManagerPlugin extends BaseWebPlugin{
 
 	@Override
 	protected void configure(){
-		bind(AwsSecretClientCredentialsHolder.class).toInstance(new HardcodedAwsSecretClientCredentialsHolder(
+		bind(HardcodedAwsSecretClientCredentialsHolder.class).toInstance(new HardcodedAwsSecretClientCredentialsHolder(
 				devAccessKey, devSecretKey, stagingAccessKey, stagingSecretKey, prodAccessKey, prodSecretkey));
+		bind(AwsSecretClientCredentialsHolder.class).to(DefaultAwsSecretClientCredentialsHolder.class);
 	}
 
 	public static class DatarouterAwsSecretsManagerPluginBuilder{

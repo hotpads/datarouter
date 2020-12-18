@@ -8,7 +8,7 @@ datarouter-aws-elb provides tools to monitor amazon's elastic-load-balancer conf
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-elb</artifactId>
-	<version>0.0.57</version>
+	<version>0.0.58</version>
 </dependency>
 ```
 

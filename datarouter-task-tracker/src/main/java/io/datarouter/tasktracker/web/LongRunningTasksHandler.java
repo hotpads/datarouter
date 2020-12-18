@@ -27,7 +27,7 @@ import javax.inject.Inject;
 
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
-import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
@@ -45,7 +45,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 	public static final String P_status = "status";
 
 	@Inject
-	private DatarouterLongRunningTaskDao longRunningTaskDao;
+	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
 	private DatarouterTaskTrackerFiles files;
 

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
@@ -137,6 +138,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final List<Class<? extends TestableService>> testableServiceClasses;
 	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems;
 	private final List<Class<? extends DailyDigest>> dailyDigest;
+	private final Class<? extends RequestProxySetter> requestProxy;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -145,7 +147,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
 				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null, null,
-				null, null);
+				null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -176,7 +178,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Map<String,Pair<String,Boolean>> documentationNamesAndLinks,
 			List<Class<? extends TestableService>> testableServiceClasses,
 			List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems,
-			List<Class<? extends DailyDigest>> dailyDigest){
+			List<Class<? extends DailyDigest>> dailyDigest,
+			Class<? extends RequestProxySetter> requestProxy){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 		addRouteSet(DatarouterWebDocsRouteSet.class);
@@ -256,6 +259,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.testableServiceClasses = testableServiceClasses;
 		this.dynamicNavBarItems = dynamicNavBarItems;
 		this.dailyDigest = dailyDigest;
+		this.requestProxy = requestProxy;
 	}
 
 	@Override
@@ -301,6 +305,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(TestableServiceClassRegistry.class,
 				new DefaultTestableServiceClassRegistry(testableServiceClasses));
 		bindActualInstance(DailyDigestRegistry.class, new DailyDigestRegistry(dailyDigest));
+		bind(RequestProxySetter.class).to(requestProxy);
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -375,6 +380,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private List<Class<? extends TestableService>> testableServiceClasses = new ArrayList<>();
 		private List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
 		private List<Class<? extends DailyDigest>> dailyDigest = new ArrayList<>();
+		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, List<ClientId> defaultClientId){
 			this.datarouterService = datarouterService;
@@ -530,6 +536,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setRequestProxy(Class<? extends RequestProxySetter> requestProxy){
+			this.requestProxy = requestProxy;
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
 					new DatarouterWebDaoModule(defaultClientId),
@@ -567,7 +578,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					documentationNamesAndLinks,
 					testableServiceClasses,
 					dynamicNavBarItems,
-					dailyDigest);
+					dailyDigest,
+					requestProxy);
 		}
 
 	}

@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient.proxy;
+package io.datarouter.web.config;
 
-import java.util.Optional;
+import javax.inject.Singleton;
 
-import org.apache.http.HttpHost;
+import io.datarouter.httpclient.proxy.RequestProxySetter;
 
-import io.datarouter.httpclient.request.DatarouterHttpRequest;
+@Singleton
+public class NoOpRequestProxySetter implements RequestProxySetter{
 
-public interface RequestProxySetter{
+	@Override
+	public String getHost(){
+		return "";
+	}
 
-	String getHost();
-	Integer getPort();
-	String getScheme();
+	@Override
+	public Integer getPort(){
+		return -1;
+	}
 
-	default void setProxyOnRequest(DatarouterHttpRequest request){
-		Optional.ofNullable(getHost())
-				.filter(proxyHost -> !proxyHost.isEmpty())
-				.map(proxyHost -> new HttpHost(proxyHost, getPort(), getScheme()))
-				.ifPresent(request::setProxy);
+	@Override
+	public String getScheme(){
+		return "";
 	}
 
 }

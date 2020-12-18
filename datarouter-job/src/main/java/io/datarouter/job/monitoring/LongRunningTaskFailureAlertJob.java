@@ -33,7 +33,7 @@ import io.datarouter.job.config.DatarouterJobPaths;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
-import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -53,7 +53,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private DatarouterLongRunningTaskDao longRunningTaskDao;
+	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
 	private DatarouterTaskTrackerPaths taskPaths;
 	@Inject

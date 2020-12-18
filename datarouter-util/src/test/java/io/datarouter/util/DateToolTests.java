@@ -15,8 +15,6 @@
  */
 package io.datarouter.util;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,47 +22,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.duration.DurationUnit;
 
 public class DateToolTests{
-	private static final Logger logger = LoggerFactory.getLogger(DateToolTests.class);
-
-	private static final SimpleDateFormat df = new SimpleDateFormat("MM-dd-yyyy");
-
-	@Test
-	public void testParseCommonDate(){
-		/*
-		{"MM dd yy","MMM dd yy","MMMMM dd yy",
-			"MM dd", "MMM dd","MMMMM dd", };*/
-		testParseUserInputDate("11-05-2008", "11-05-08");
-		testParseUserInputDate("11-05-2008", "11-05-2008");
-		testParseUserInputDate("11-05-1982", "11-05-82");
-		testParseUserInputDate("11-05-1982", "11-05-1982");
-		testParseUserInputDate("11-05-2008", "Nov 5, 2008");
-		testParseUserInputDate("11-05-2008", "Nov 5, 08");
-		testParseUserInputDate("11-05-2008", "November 5, 2008");
-		testParseUserInputDate("11-05-2008", "November 05, 2008");
-		testParseUserInputDate("07-15-2011", "July 15th, 2011");
-		testParseUserInputDate("01-01-2008", "1/1/2008");
-		testParseUserInputDate("01-01-2008", "01/01/2008");
-		testParseUserInputDate("01-05-2008", "01/05/2008");
-		testParseUserInputDate("01-05-2008", "1/5/08");
-		testParseUserInputDate("06-01-2010", "June 2010");
-		testParseUserInputDate("06-01-2010", "201006");
-		testParseUserInputDate("06-01-2010", "20100601");
-
-		Assert.assertEquals(df.format(DateTool.parseUserInputDate("July 15th", 2000)),
-				"07-15-" + DateTool.getYearInteger());
-	}
-
-	private void testParseUserInputDate(String expected, String original){
-		Assert.assertEquals(df.format(DateTool.parseUserInputDate(original, null)), expected);
-	}
 
 	@Test
 	public void testAgoString(){
@@ -76,46 +39,6 @@ public class DateToolTests{
 		Assert.assertEquals(DateTool.getMillisAsString(10225950, 2, DurationUnit.MILLISECONDS), "2 hours, 50 minutes");
 		Assert.assertEquals(DateTool.getMillisAsString(240225950, 4, DurationUnit.MILLISECONDS),
 				"2 days, 18 hours, 43 minutes, 45 seconds");
-	}
-
-	@SuppressWarnings("deprecation")
-	@Test
-	public void testToReverseDateLong(){
-		Date now = new Date(), zero = new Date(0L), max = new Date(Long.MAX_VALUE);
-		Assert.assertEquals(DateTool.toReverseDateLong(now), (Long)(Long.MAX_VALUE - now.getTime()));
-		Assert.assertEquals(DateTool.toReverseDateLong(zero), (Long)Long.MAX_VALUE);
-		Assert.assertEquals(DateTool.toReverseDateLong(max), (Long)0L);
-		Assert.assertNull(DateTool.toReverseDateLong(null));
-	}
-
-	@SuppressWarnings("deprecation")
-	@Test
-	public void testFromReverseDateLong(){
-		Date now = new Date(), zero = new Date(0L), max = new Date(Long.MAX_VALUE);
-		Assert.assertEquals(DateTool.fromReverseDateLong(Long.MAX_VALUE - now.getTime()), now);
-		Assert.assertEquals(DateTool.fromReverseDateLong(Long.MAX_VALUE - zero.getTime()), zero);
-		Assert.assertEquals(DateTool.fromReverseDateLong(Long.MAX_VALUE - max.getTime()), max);
-		Assert.assertNull(DateTool.fromReverseDateLong(null));
-	}
-
-	@SuppressWarnings("deprecation")
-	@Test
-	public void testReverseDateLong(){
-		Date now = new Date();
-		Long nowTime = now.getTime();
-		Assert.assertEquals(DateTool.fromReverseDateLong(DateTool.toReverseDateLong(now)), now);
-		Assert.assertEquals(DateTool.toReverseDateLong(DateTool.fromReverseDateLong(nowTime)), nowTime);
-		Assert.assertNull(DateTool.fromReverseDateLong(DateTool.toReverseDateLong(null)));
-		Assert.assertNull(DateTool.toReverseDateLong(DateTool.fromReverseDateLong(null)));
-	}
-
-	@SuppressWarnings("deprecation")
-	@Test
-	public void testToReverseInstantLong(){
-		Instant instant = Instant.now();
-		Date date = Date.from(instant);
-		Assert.assertEquals(DateTool.toReverseDateLong(date), DateTool.toReverseInstantLong(instant));
-		Assert.assertEquals(DateTool.toReverseDateLong(null), DateTool.toReverseInstantLong(null));
 	}
 
 	@Test
@@ -155,18 +78,6 @@ public class DateToolTests{
 		d2 = new Date(d1.getTime() + DateTool.MILLISECONDS_IN_MINUTE * minutesApart - 10);
 		Assert.assertTrue(minutesApart > DateTool.getMinutesBetween(d1, d2));
 		Assert.assertTrue(minutesApart - 1 < DateTool.getMinutesBetween(d1, d2));
-	}
-
-	@Test
-	public void demonstrateBadParser() throws ParseException{
-		String withSpace = "2019 10 02T22 56 39Z";
-		String withDash = "2019-10-02T22:56:39Z";
-		@SuppressWarnings("deprecation")
-		Date incorrectPars = new SimpleDateFormat(DateTool.BAD_ISO_FORMAT).parse(withSpace);
-		Date correctParse = DateTool.parseIso(withDash);
-		logger.warn(incorrectPars.toString());
-		logger.warn(correctParse.toString());
-		logger.warn("matching:" + incorrectPars.equals(correctParse));
 	}
 
 	@Test

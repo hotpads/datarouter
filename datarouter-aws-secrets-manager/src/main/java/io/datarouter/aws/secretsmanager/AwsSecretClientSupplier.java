@@ -31,7 +31,7 @@ import io.datarouter.storage.servertype.ServerTypeDetector;
 @Singleton
 public class AwsSecretClientSupplier implements SecretClientSupplier{
 
-	private static final String REGION = Regions.US_EAST_1.getName();//TODO make this configurable
+	public static final String REGION = Regions.US_EAST_1.getName();//TODO make this configurable
 
 	@Inject
 	private AwsSecretClientCredentialsHolder awsCredentialsSupplier;

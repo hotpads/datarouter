@@ -27,7 +27,7 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
-import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.lang.ObjectTool;
@@ -36,7 +36,7 @@ import io.datarouter.util.lang.ObjectTool;
 public class LongRunningTaskVacuumService{
 
 	@Inject
-	private DatarouterLongRunningTaskDao dao;
+	private LongRunningTaskDao dao;
 	@Inject
 	private DatarouterTaskTrackerSettingRoot datarouterTaskTrackerSettingRoot;
 

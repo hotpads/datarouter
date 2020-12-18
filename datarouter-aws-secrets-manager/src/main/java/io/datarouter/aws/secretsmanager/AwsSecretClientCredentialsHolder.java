@@ -17,14 +17,26 @@ package io.datarouter.aws.secretsmanager;
 
 import java.util.Optional;
 
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.amazonaws.SdkClientException;
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSCredentialsProviderChain;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
+import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 
 import io.datarouter.util.string.StringTool;
 
 public interface AwsSecretClientCredentialsHolder{
 
+	//TODO change interface after getting rid of hardcoded provider
 	Optional<AWSCredentialsProvider> getDevCredentialsProvider();
 	Optional<AWSCredentialsProvider> getStagingCredentialsProvider();
 	Optional<AWSCredentialsProvider> getProdCredentialsProvider();
@@ -68,6 +80,51 @@ public interface AwsSecretClientCredentialsHolder{
 				return Optional.empty();
 			}
 			return Optional.of(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
+		}
+
+	}
+
+	class DefaultAwsSecretClientCredentialsHolder implements AwsSecretClientCredentialsHolder{
+		private static final Logger logger = LoggerFactory.getLogger(DefaultAwsSecretClientCredentialsHolder.class);
+
+		public static final String PROFILE_NAME = "secretsmanager";
+
+		@Inject
+		private HardcodedAwsSecretClientCredentialsHolder hardcodedCredentials;
+
+		@Override
+		public Optional<AWSCredentialsProvider> getDevCredentialsProvider(){
+			return getCredentialsProvider()
+					.or(hardcodedCredentials::getDevCredentialsProvider);
+		}
+
+		@Override
+		public Optional<AWSCredentialsProvider> getStagingCredentialsProvider(){
+			return getCredentialsProvider()
+					.or(hardcodedCredentials::getStagingCredentialsProvider);
+		}
+
+		@Override
+		public Optional<AWSCredentialsProvider> getProdCredentialsProvider(){
+			return getCredentialsProvider()
+					.or(hardcodedCredentials::getProdCredentialsProvider);
+		}
+
+		private Optional<AWSCredentialsProvider> getCredentialsProvider(){
+			AWSCredentialsProvider provider = new AWSCredentialsProviderChain(
+					new SystemPropertiesCredentialsProvider(),
+					new EnvironmentVariableCredentialsProvider(),
+					new ProfileCredentialsProvider(PROFILE_NAME));
+			try{
+				AWSCredentials credentials = provider.getCredentials();
+				//TODO change to info after getting rid of hardcoded provider
+				logger.warn("using accessKey={}", credentials.getAWSAccessKeyId());
+				return Optional.of(provider);
+			}catch(SdkClientException e){
+				//TODO update behavior after getting rid of hardcoded provider
+				logger.warn("failed to find AWS credentials. falling back to hardcoded credentials.");
+				return Optional.empty();
+			}
 		}
 
 	}

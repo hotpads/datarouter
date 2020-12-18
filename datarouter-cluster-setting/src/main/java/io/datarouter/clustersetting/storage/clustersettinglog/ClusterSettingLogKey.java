@@ -67,7 +67,6 @@ public class ClusterSettingLogKey extends BaseRegularPrimaryKey<ClusterSettingLo
 		return reverseCreatedMs;
 	}
 
-	@SuppressWarnings("deprecation")
 	public Date getCreated(){
 		return DateTool.fromReverseDateLong(reverseCreatedMs);
 	}

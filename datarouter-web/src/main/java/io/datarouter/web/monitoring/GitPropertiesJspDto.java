@@ -29,7 +29,6 @@ public class GitPropertiesJspDto{
 	private final String describeShort;
 	private final String branch;
 	private final String idAbbrev;
-	private final String tags;
 	private final String commitUserName;
 
 	public GitPropertiesJspDto(GitProperties gitProperties){
@@ -38,7 +37,6 @@ public class GitPropertiesJspDto{
 		this.describeShort = gitProperties.getDescribeShort().orElse(GitProperties.UNKNOWN_STRING);
 		this.branch = gitProperties.getBranch().orElse(GitProperties.UNKNOWN_STRING);
 		this.idAbbrev = gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING);
-		this.tags = gitProperties.getTags().orElse(GitProperties.UNKNOWN_STRING);
 		this.commitUserName = gitProperties.getCommitUserName().orElse(GitProperties.UNKNOWN_STRING);
 	}
 
@@ -60,10 +58,6 @@ public class GitPropertiesJspDto{
 
 	public String getIdAbbrev(){
 		return idAbbrev;
-	}
-
-	public String getTags(){
-		return tags;
 	}
 
 	public String getCommitUserName(){

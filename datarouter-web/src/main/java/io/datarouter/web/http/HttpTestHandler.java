@@ -15,16 +15,22 @@
  */
 package io.datarouter.web.http;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.http.Header;
+import org.apache.http.entity.ContentType;
+
+import com.google.gson.reflect.TypeToken;
 
 import io.datarouter.httpclient.client.BaseDatarouterHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
+import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.Conditional;
@@ -32,6 +38,7 @@ import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -45,35 +52,58 @@ public class HttpTestHandler extends BaseHandler{
 	private HttpTesterClient testerClient;
 	@Inject
 	private DatarouterProperties properties;
+	@Inject
+	private RequestProxySetter proxySetter;
 
 	@Handler(defaultHandler = true)
-	public Mav httpTest(OptionalString url, OptionalString method){
+	public Mav httpTest(OptionalString url, OptionalString method, OptionalString requestBody, OptionalString headers,
+			OptionalString contentType, OptionalString useProxy){
 		Mav mav = new Mav(files.jsp.http.httpTesterJsp);
-		if(url.isPresent() && method.isPresent()){
-			HttpRequestMethod requestMethod = "POST".equals(method.get())
-					? HttpRequestMethod.POST
-					: HttpRequestMethod.GET;
-			DatarouterHttpRequest request = new DatarouterHttpRequest(requestMethod, url.get())
-					.setRetrySafe(true);
-			Long start = System.currentTimeMillis();
-			Conditional<DatarouterHttpResponse> response = testerClient.tryExecute(request);
-			Long elapsedMs = System.currentTimeMillis() - start;
-			if(response.isFailure() && response.getException() instanceof DatarouterHttpResponseException){
-				DatarouterHttpResponseException responseException = (DatarouterHttpResponseException)response
-						.getException();
-				buildMavModel(mav, url.get(), elapsedMs, Optional.of(responseException.getResponse()), Optional.of(
-						responseException));
-			}else if(response.isFailure()){
-				buildMavModel(mav, url.get(), elapsedMs, Optional.empty(), Optional.of(response.getException()));
-			}
-			response.ifSuccess(httpResponse -> buildMavModel(mav, url.get(), elapsedMs, Optional.of(httpResponse),
-					Optional.empty()));
+		if(url.isEmpty() || method.isEmpty()){
+			return mav;
 		}
+		mav.put("url", url.get());
+		HttpRequestMethod requestMethod = "POST".equals(method.get()) ? HttpRequestMethod.POST : HttpRequestMethod.GET;
+		mav.put("method", requestMethod.name());
+		DatarouterHttpRequest request = new DatarouterHttpRequest(requestMethod, url.get()).setRetrySafe(true);
+		if(headers.isPresent()){
+			List<Map<String,String>> headerPairsList = GsonTool.GSON.fromJson(headers.get(),
+					new TypeToken<List<Map<String,String>>>(){}.getType());
+			Map<String,String> headersMap = headerPairsList.stream()
+					.flatMap(map -> map.entrySet().stream())
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			request.addHeaders(headersMap);
+			mav.put("headersMap", GsonTool.GSON.toJson(headersMap));
+		}
+		if(requestBody.isPresent()){
+			ContentType cont = contentType.isPresent() ? ContentType.getByMimeType(contentType.get())
+					: ContentType.APPLICATION_JSON;
+			request.setEntity(requestBody.get(), cont);
+			mav.put("requestBody", requestBody.get());
+			mav.put("contentType", cont.getMimeType());
+		}
+		if(useProxy.isPresent()){
+			mav.put("useProxy", true);
+			proxySetter.setProxyOnRequest(request);
+		}
+		Long start = System.currentTimeMillis();
+		Conditional<DatarouterHttpResponse> response = testerClient.tryExecute(request);
+		Long elapsedMs = System.currentTimeMillis() - start;
+		if(response.isFailure() && response.getException() instanceof DatarouterHttpResponseException){
+			DatarouterHttpResponseException responseException = (DatarouterHttpResponseException)response
+					.getException();
+			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(responseException.getResponse()), Optional.of(
+					responseException));
+		}else if(response.isFailure()){
+			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.empty(), Optional.of(response.getException()));
+		}
+		response.ifSuccess(httpResponse -> addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(httpResponse),
+				Optional.empty()));
 		return mav;
 	}
 
-	public void buildMavModel(Mav mav, String requestUrl, Long responseMs, Optional<DatarouterHttpResponse> response,
-			Optional<Exception> exception){
+	public void addResponseToMavModel(Mav mav, String requestUrl, Long responseMs,
+			Optional<DatarouterHttpResponse> response, Optional<Exception> exception){
 		mav.put("url", requestUrl);
 		mav.put("serverName", properties.getServerName());
 		mav.put("responseMs", responseMs);

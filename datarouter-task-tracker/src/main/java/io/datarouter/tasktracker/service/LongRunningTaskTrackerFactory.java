@@ -27,7 +27,7 @@ import io.datarouter.tasktracker.TaskTrackerCounters;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
-import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 
@@ -47,7 +47,7 @@ public class LongRunningTaskTrackerFactory{
 	@Inject
 	private DatarouterTaskTrackerSettingRoot settings;
 	@Inject
-	private DatarouterLongRunningTaskDao longRunningTaskDao;
+	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
 	private TaskTrackerCounters counters;
 	@Inject

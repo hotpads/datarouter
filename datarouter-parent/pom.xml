@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.57</version>
+		<version>0.0.58</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -33,18 +33,17 @@
 	<description>datarouter-parent</description>
 
 	<properties>
-		<aws-sdk-version>1.11.866</aws-sdk-version>
-		<aws-sdk-software-v2-version>2.14.22</aws-sdk-software-v2-version>
+		<aws-sdk-version>1.11.918</aws-sdk-version>
+		<aws-sdk-software-v2-version>2.15.46</aws-sdk-software-v2-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.8.0</commons-io-version>
-		<datarouter-version>0.0.57</datarouter-version>
+		<datarouter-version>0.0.58</datarouter-version>
 		<gson-version>2.8.6</gson-version>
 		<guice-version>4.2.3</guice-version>
-		<guava-version>29.0-jre</guava-version>
-		<httpclient-version>4.5.12</httpclient-version>
-		<log4j-version>2.13.3</log4j-version>
+		<guava-version>30.1-jre</guava-version>
+		<httpclient-version>4.5.13</httpclient-version>
+		<log4j-version>2.14.0</log4j-version>
 		<maven-jar-plugin-version>3.2.0</maven-jar-plugin-version>
-		<lettuce-io-version>6.0.0.RC2</lettuce-io-version>
 		<slf4j-version>1.7.30</slf4j-version>
 		<testng-version>7.3.0</testng-version>
 	</properties>
@@ -81,7 +80,7 @@
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
-				<version>2.2.6</version>
+				<version>4.0.3</version>
 				<executions>
 					<execution>
 						<goals>
@@ -92,6 +91,15 @@
 				<configuration>
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<useNativeGit>true</useNativeGit>
+					<includeOnlyProperties>
+						<includeOnlyProperties>git.branch</includeOnlyProperties>
+						<includeOnlyProperties>git.commit.id.abbrev</includeOnlyProperties>
+						<includeOnlyProperties>git.commit.id.describe-short</includeOnlyProperties>
+						<includeOnlyProperties>git.commit.time</includeOnlyProperties>
+						<includeOnlyProperties>git.commit.user.name</includeOnlyProperties>
+						<includeOnlyProperties>git.build.time</includeOnlyProperties>
+						<includeOnlyProperties>git.tags</includeOnlyProperties>
+					</includeOnlyProperties>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -115,7 +123,7 @@
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
-						<version>8.36.1</version>
+						<version>8.38</version>
 					</dependency>
 					<dependency>
 						<groupId>io.datarouter</groupId>

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
-import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskKey;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler.LongRunningTaskJspDto;
@@ -33,7 +33,7 @@ import io.datarouter.web.handler.mav.Mav;
 public class JobsHealthHandler extends BaseHandler{
 
 	@Inject
-	private DatarouterLongRunningTaskDao longRunningTaskDao;
+	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
 	private DatarouterTaskTrackerFiles files;
 

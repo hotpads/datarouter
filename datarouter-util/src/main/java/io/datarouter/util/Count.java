@@ -54,6 +54,14 @@ public class Count{
 		value.addAndGet(collection.size());
 	}
 
+	public long value(){
+		return value.get();
+	}
+
+	public int intValue(){
+		return value.intValue();
+	}
+
 	@Override
 	public String toString(){
 		return name + "=" + NumberFormatter.addCommas(value.get());

@@ -21,8 +21,8 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.tasktracker.service.LongRunningTaskDailyDigest;
-import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
-import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao.DatarouterLongRunningTaskDaoParams;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao.LongRunningTaskDaoParams;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink.NoOpLongRunningTaskGraphLink;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
@@ -73,21 +73,20 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 
 	public static class DatarouterTaskTrackerDaoModule extends DaosModuleBuilder{
 
-		private final List<ClientId> datarouterLongRunningTaskClientId;
+		private final List<ClientId> longRunningTaskClientId;
 
-		public DatarouterTaskTrackerDaoModule(List<ClientId> datarouterLongRunningTaskClientId){
-			this.datarouterLongRunningTaskClientId = datarouterLongRunningTaskClientId;
+		public DatarouterTaskTrackerDaoModule(List<ClientId> longRunningTaskClientId){
+			this.longRunningTaskClientId = longRunningTaskClientId;
 		}
 
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
-			return List.of(DatarouterLongRunningTaskDao.class);
+			return List.of(LongRunningTaskDao.class);
 		}
 
 		@Override
 		public void configure(){
-			bind(DatarouterLongRunningTaskDaoParams.class)
-					.toInstance(new DatarouterLongRunningTaskDaoParams(datarouterLongRunningTaskClientId));
+			bind(LongRunningTaskDaoParams.class).toInstance(new LongRunningTaskDaoParams(longRunningTaskClientId));
 		}
 
 	}

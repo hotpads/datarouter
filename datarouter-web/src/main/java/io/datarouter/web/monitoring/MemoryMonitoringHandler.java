@@ -101,7 +101,6 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("gitCommitUserName", gitProperties.getCommitUserName().orElse(GitProperties.UNKNOWN_STRING));
 		mav.put("gitCommitTime", FORMATTER.format(gitProperties.getCommitTime().orElse(GitProperties.UNKNOWN_DATE)));
 		mav.put("buildTime", FORMATTER.format(gitProperties.getBuildTime().orElse(GitProperties.UNKNOWN_DATE)));
-		mav.put("gitTags", gitProperties.getTags().orElse(GitProperties.UNKNOWN_STRING));
 		mav.put("buildId", buildProperties.getBuildId());
 		mav.put("buildJdk", manifestDetails.getBuildPair());
 		mav.put("manifest", manifestDetails.getManifestString());
@@ -206,10 +205,10 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 	public static class GarbageCollectorForDisplay{
 
-		private String name;
-		private long collectionCount;
-		private DatarouterDuration collectionTime;
-		private String[] memoryPoolNames;
+		private final String name;
+		private final long collectionCount;
+		private final DatarouterDuration collectionTime;
+		private final String[] memoryPoolNames;
 
 		public GarbageCollectorForDisplay(GarbageCollectorMXBean garbageCollectorMxBean){
 			name = garbageCollectorMxBean.getName();
@@ -238,12 +237,12 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 	public static class MemoryUsageForDisplay{
 
-		private String max;
-		private String unallocated;
-		private String allocated;
-		private String used;
-		private long usedBytes;
-		private String free;
+		private final String max;
+		private final String unallocated;
+		private final String allocated;
+		private final String used;
+		private final long usedBytes;
+		private final String free;
 
 		public MemoryUsageForDisplay(MemoryUsage memoryUsage){
 			long allocatedBytes = memoryUsage.getCommitted();
@@ -286,9 +285,9 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 	public static class MemoryPoolForDisplay{
 
-		private String name;
-		private String escapedName;
-		private MemoryUsageForDisplay usage;
+		private final String name;
+		private final String escapedName;
+		private final MemoryUsageForDisplay usage;
 
 		public MemoryPoolForDisplay(MemoryPoolMXBean memoryPoolMxBean){
 			this.name = memoryPoolMxBean.getName();
@@ -312,7 +311,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 	public static class GcEffect{
 
-		private String name;
+		private final String name;
 		private String saved;
 		private Double pct;
 

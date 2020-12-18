@@ -17,7 +17,11 @@ package io.datarouter.util.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -80,6 +84,21 @@ public final class FileTool{
 	public static String readFile(File file) throws IOException{
 		byte[] bytes = Files.readAllBytes(file.toPath());
 		return StringByteTool.fromUtf8Bytes(bytes);
+	}
+
+	public static void cacheRemoteFile(String remoteUrl, String localPath){
+		Path path = Path.of(localPath);
+		path.getParent().toFile().mkdirs();
+		if(Files.exists(path)){
+			return;
+		}
+		try{
+			URL url = new URL(remoteUrl);
+			InputStream inputStream = url.openStream();
+			Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 }

@@ -30,7 +30,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
-import io.datarouter.tasktracker.storage.DatarouterLongRunningTaskDao;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.util.DateTool;
@@ -48,7 +48,7 @@ import j2html.tags.ContainerTag;
 public class LongRunningTaskDailyDigest implements DailyDigest{
 
 	@Inject
-	private DatarouterLongRunningTaskDao longRunningTaskDao;
+	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
 	private TaskTrackerExceptionLink exceptionLink;
 	@Inject
