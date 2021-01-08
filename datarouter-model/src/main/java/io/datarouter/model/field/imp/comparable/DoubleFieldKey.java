@@ -28,8 +28,13 @@ public class DoubleFieldKey extends PrimitiveFieldKey<Double,DoubleFieldKey>{
 		super(name, Double.class);
 	}
 
-	private DoubleFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Double defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+	private DoubleFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			Double defaultValue,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, Double.class, fieldGeneratorType, defaultValue, attributes);
 	}
 

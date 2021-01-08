@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
+import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.PrefixFilter;
 
 import io.datarouter.model.entity.Entity;
@@ -52,7 +53,7 @@ public class HBaseEntityQueryBuilder<
 		return ByteTool.concatenate(partitionPrefix, getRowBytes(ek));
 	}
 
-	public List<Scan> getScanForEachPartition(EK startKey, boolean startKeyInclusive, boolean keysOnly){
+	public List<Scan> getScanForEachPartition(EK startKey, boolean startKeyInclusive){
 		byte[] ekBytesInclusive = new byte[0];
 		if(startKey != null){
 			byte[] ekBytes = getRowBytes(startKey);
@@ -63,9 +64,8 @@ public class HBaseEntityQueryBuilder<
 			byte[] scanStartBytes = ByteTool.concatenate(partitioner.getPrefix(partition), ekBytesInclusive);
 			FilterList filterList = new FilterList();
 			filterList.addFilter(new PrefixFilter(partitioner.getPrefix(partition)));
-			if(keysOnly){
-				filterList.addFilter(new FirstKeyOnlyFilter());//FirstKeyOnlyFilter avoids duplicate keys
-			}
+			filterList.addFilter(new FirstKeyOnlyFilter());//FirstKeyOnlyFilter avoids duplicate keys
+			filterList.addFilter(new KeyOnlyFilter());
 			Scan scan = new Scan()
 					.withStartRow(scanStartBytes)
 					.setFilter(filterList);

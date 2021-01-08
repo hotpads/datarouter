@@ -50,6 +50,7 @@ import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.auth.web.DatarouterPermissionRequestHandler.PermissionRequestDto;
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
 import io.datarouter.auth.web.deprovisioning.UserDeprovisioningStatusDto;
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerTypeDetector;
@@ -105,6 +106,8 @@ public class AdminEditUserHandler extends BaseHandler{
 	private Bootstrap4ReactPageFactory reactPageFactory;
 	@Inject
 	private UserInfo userInfo;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Handler
 	private Mav viewUsers(){
@@ -324,7 +327,7 @@ public class AdminEditUserHandler extends BaseHandler{
 				datarouterAccountService.findAccountNamesForUser(user),
 				true,
 				"",
-				user.getZoneId().map(ZoneId::getId).orElse(ZoneId.systemDefault().getId()));
+				user.getZoneId().map(ZoneId::getId).orElse(datarouterService.getZoneId().getId()));
 	}
 
 	//TODO DATAROUTER-2789

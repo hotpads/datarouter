@@ -91,7 +91,7 @@ public class JobletCallable implements Callable<Void>{
 			try{
 				processJobletWithStats(timer, jobletPackage.get());
 				jobletService.handleJobletCompletion(timer, jobletRequest);
-			}catch(Exception e){
+			}catch(Throwable e){
 				boolean isInterrupted = ExceptionTool.isFromInstanceOf(e, InterruptedException.class,
 						UncheckedInterruptedException.class, InterruptedIOException.class);
 				Exception wrappingException = new Exception("isInterrupted=" + isInterrupted + " jobletPackage="
@@ -153,7 +153,7 @@ public class JobletCallable implements Callable<Void>{
 		return String.join("_", serverName, timeString, threadIdString, idString);
 	}
 
-	private void processJobletWithStats(PhaseTimer timer, JobletPackage jobletPackage){
+	private void processJobletWithStats(PhaseTimer timer, JobletPackage jobletPackage) throws Throwable{
 		Joblet<?> joblet = jobletFactory.createForPackage(jobletPackage);
 		JobletRequest jobletRequest = jobletPackage.getJobletRequest();
 		long startTimeMs = System.currentTimeMillis();

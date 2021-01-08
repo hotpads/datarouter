@@ -127,7 +127,7 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public void deleteAll(){
+	public void deleteAll(Subpath subpath){
 		throw new UnsupportedOperationException();
 	}
 

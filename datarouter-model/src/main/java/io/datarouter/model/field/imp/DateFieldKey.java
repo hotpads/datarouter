@@ -37,8 +37,14 @@ public class DateFieldKey extends PrimitiveFieldKey<Date,DateFieldKey>{
 		this.numDecimalSeconds = DEFAULT_DECIMAL_SECONDS;
 	}
 
-	private DateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Date defaultValue, int numDecimalSeconds, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+	private DateFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			Date defaultValue,
+			int numDecimalSeconds,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, Date.class, fieldGeneratorType, defaultValue, attributes);
 		this.numDecimalSeconds = numDecimalSeconds;
 	}

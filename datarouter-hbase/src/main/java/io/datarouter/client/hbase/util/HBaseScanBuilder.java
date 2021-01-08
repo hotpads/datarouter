@@ -42,7 +42,8 @@ public class HBaseScanBuilder{
 	private Range<ByteRange> range = Range.everything();
 	private Filter columnPrefixFilter;
 	private Integer limit;
-	private Filter keyFilter;
+	private FirstKeyOnlyFilter firstKeyFilter;
+	private KeyOnlyFilter keyFilter;
 	private boolean cacheBlocks = true;
 
 	public HBaseScanBuilder withPrefix(byte[] prefix){
@@ -76,7 +77,8 @@ public class HBaseScanBuilder{
 
 	public HBaseScanBuilder withFirstKeyOnly(boolean firstKeyOnly){
 		if(firstKeyOnly){
-			this.keyFilter = FIRST_KEY_ONLY_FILTER;
+			this.firstKeyFilter = FIRST_KEY_ONLY_FILTER;
+			this.keyFilter = KEY_ONLY_FILTER;
 		}
 		return this;
 	}
@@ -115,7 +117,7 @@ public class HBaseScanBuilder{
 				scan = new Scan()
 						.withStartRow(startWithPrefix, range.getStartInclusive());
 				if(hasNextPrefix){
-						scan.withStopRow(nextPrefix, false);
+					scan.withStopRow(nextPrefix, false);
 				}
 			}else{
 				scan = new Scan()
@@ -130,6 +132,9 @@ public class HBaseScanBuilder{
 		FilterList filterList = new FilterList();
 		if(columnPrefixFilter != null){
 			filterList.addFilter(columnPrefixFilter);
+		}
+		if(firstKeyFilter != null){
+			filterList.addFilter(firstKeyFilter);
 		}
 		if(keyFilter != null){
 			filterList.addFilter(keyFilter);

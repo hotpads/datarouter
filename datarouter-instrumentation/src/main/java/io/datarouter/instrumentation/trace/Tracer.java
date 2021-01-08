@@ -15,12 +15,14 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 
 public interface Tracer{
 
 	String getServerName();
 	String getTraceId();
+	Optional<TraceContext> getTraceContext();
 	BlockingQueue<TraceThreadDto> getThreadQueue();
 	BlockingQueue<TraceSpanDto> getSpanQueue();
 

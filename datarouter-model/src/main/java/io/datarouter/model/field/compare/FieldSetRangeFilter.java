@@ -29,26 +29,36 @@ import io.datarouter.util.tuple.Range;
  */
 public class FieldSetRangeFilter{
 
-	public static <FS extends FieldSet<?>> boolean include(FieldSet<?> candidate, Range<? extends FS> range,
+	public static <FS extends FieldSet<?>> boolean include(
+			FieldSet<?> candidate,
+			Range<? extends FS> range,
 			String nodeName){
 		boolean matchesStart = true;
 		if(range.hasStart()){
-			matchesStart = isCandidateAfterStartOfRange(candidate.getFields(), range.getStart().getFields(), range
-					.getStartInclusive(), nodeName);
+			matchesStart = isCandidateAfterStartOfRange(
+					candidate.getFields(),
+					range.getStart().getFields(),
+					range.getStartInclusive(),
+					nodeName);
 		}
 
 		boolean matchesEnd = true;
 		if(range.hasEnd()){
-			matchesEnd = isCandidateBeforeEndOfRange(candidate.getFields(), range.getEnd().getFields(), range
-					.getEndInclusive());
+			matchesEnd = isCandidateBeforeEndOfRange(
+					candidate.getFields(),
+					range.getEnd().getFields(),
+					range.getEndInclusive());
 		}
 
 		return matchesStart && matchesEnd;
 	}
 
 	//is this any better than range.matchesStart(candidate)?
-	public static boolean isCandidateAfterStartOfRange(List<Field<?>> candidateFields,
-			List<Field<?>> startOfRangeFields, boolean inclusive, String nodeName){
+	public static boolean isCandidateAfterStartOfRange(
+			List<Field<?>> candidateFields,
+			List<Field<?>> startOfRangeFields,
+			boolean inclusive,
+			String nodeName){
 		if(startOfRangeFields == null){
 			return true;
 		}

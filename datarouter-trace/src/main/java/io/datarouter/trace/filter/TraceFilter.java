@@ -54,6 +54,7 @@ import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.util.UlidTool;
 import io.datarouter.util.tracer.DatarouterTracer;
+import io.datarouter.util.tracer.W3TraceContext;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.inject.InjectorRetriever;
@@ -105,9 +106,14 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			trace.setType(request.getRequestURI().toString());
 			trace.setParams(request.getQueryString());
 
+			// get or create TraceContext
+			String traceparent = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
+			String tracestate = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACESTATE);
+			W3TraceContext traceContext = new W3TraceContext(traceparent, tracestate, created);
+
 			// bind these to all threads, even if tracing is disabled
 			String serverName = datarouterProperties.getServerName();
-			Tracer tracer = new DatarouterTracer(serverName, traceId, null);
+			Tracer tracer = new DatarouterTracer(serverName, traceId, null, traceContext);
 			TracerThreadLocal.bindToThread(tracer);
 
 			String requestThreadName = (request.getContextPath() + " request").trim();
@@ -159,14 +165,14 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							.map(Session::getUserToken)
 							.orElse("unknown");
 					logger.warn("Trace saved to={} traceId={} durationMs={} cpuTimeMs={} threadAllocatedKB={}"
-							+ " requestId={} path={} query={} userAgent=\"{}\" userToken={}", destination, trace
-							.getTraceId(), traceDurationMs, cpuTime, threadAllocatedKB, requestId, trace.getType(),
-							trace.getParams(), userAgent, userToken);
+							+ " requestId={} path={} query={} userAgent=\"{}\" userToken={}, traceContext={}",
+							destination, trace.getTraceId(), traceDurationMs, cpuTime, threadAllocatedKB, requestId,
+							trace.getType(), trace.getParams(), userAgent, userToken, traceContext);
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()){
 					// only log once
 					logger.warn("Trace logged durationMs={} cpuTimeMs={} threadAllocatedKB={} requestId={} path={}"
-							+ " query={}", traceDurationMs, cpuTime, threadAllocatedKB, requestId, trace.getType(),
-							trace.getParams());
+							+ " query={}, traceContext={}", traceDurationMs, cpuTime, threadAllocatedKB, requestId,
+							trace.getType(), trace.getParams(), traceContext);
 				}
 				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool
 						.get(request, BaseHandler.HANDLER_CLASS);

@@ -28,8 +28,13 @@ public class BooleanFieldKey extends PrimitiveFieldKey<Boolean,BooleanFieldKey>{
 		super(name, Boolean.class);
 	}
 
-	private BooleanFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Boolean defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+	private BooleanFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			Boolean defaultValue,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, Boolean.class, fieldGeneratorType, defaultValue, attributes);
 	}
 

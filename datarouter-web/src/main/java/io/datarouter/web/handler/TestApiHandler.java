@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.handler;
 
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -27,7 +28,6 @@ import javax.inject.Singleton;
 import com.google.gson.GsonBuilder;
 
 import io.datarouter.httpclient.json.GsonJsonSerializer;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
@@ -223,7 +223,9 @@ public class TestApiHandler extends BaseHandler{
 
 	@Handler(decoder = TestApiHandlerDecoder.class)
 	public int year(Date date){
-		return DateTool.getYearInteger(date);
+		return date.toInstant()
+				.atZone(ZoneId.systemDefault())
+				.getYear();
 	}
 
 }

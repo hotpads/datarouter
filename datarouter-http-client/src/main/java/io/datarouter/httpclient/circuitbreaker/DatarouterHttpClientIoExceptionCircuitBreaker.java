@@ -42,6 +42,8 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterruptedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.trace.TraceContext;
+import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 
@@ -52,6 +54,8 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 
 	public static final String X_REQUEST_ID = "x-request-id";
 	public static final String X_TRACE_ID = "x-trace-id";
+	public static final String TRACEPARENT = "traceparent";
+	public static final String TRACESTATE = "tracestate";
 
 	public DatarouterHttpClientIoExceptionCircuitBreaker(String name){
 		super(name);
@@ -75,9 +79,19 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		String requestId = UUID.randomUUID().toString();
 		long requestStartTimeMs = System.currentTimeMillis();
 		try{
-			TracerTool.startSpan(TracerThreadLocal.get(), "http call " + request.getPath());
+			Tracer tracer = TracerThreadLocal.get();
+			TracerTool.startSpan(tracer, "http call " + request.getPath());
 			internalHttpRequest = request.getRequest();
 			internalHttpRequest.addHeader(X_REQUEST_ID, requestId);
+			if(tracer != null && tracer.getTraceContext().isPresent()){
+				TraceContext traceContext = tracer.getTraceContext().get();
+				traceContext.updateParentIdAndAddTracestateMember(requestStartTimeMs);
+				logger.debug("W3TraceContext={} passing to request={}", traceContext, request.getPath());
+				internalHttpRequest.addHeader(TRACEPARENT, traceContext.getTraceparent().toString());
+				internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
+			}else{
+				count("traceContext null");
+			}
 			context.setAttribute(X_REQUEST_ID, requestId);
 			count("request");
 			requestStartTimeMs = System.currentTimeMillis();

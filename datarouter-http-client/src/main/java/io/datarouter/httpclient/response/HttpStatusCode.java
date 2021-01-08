@@ -30,6 +30,7 @@ public enum HttpStatusCode{
 	SC_410_GONE(410, "Gone"),
 	SC_422_UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
 	SC_424_FAILED_DEPENDENCY(424, "Failed Dependency"),
+	SC_429_TOO_MANY_REQUESTS(429, "Too Many Requests"),
 	SC_500_INTERNAL_SERVER_ERROR(500, "Internal Server Error"),
 	SC_502_BAD_GATEWAY(502, "Bad Gateway"),
 	SC_503_SERVICE_UNAVAILABLE(503, "Service Unavailable"),

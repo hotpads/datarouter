@@ -216,17 +216,21 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		}
 	}
 
-	private DefaultExceptionRecorderDetails detectExceptionLocation(Throwable exception){
-		Throwable rootCause = ExceptionUtils.getRootCause(exception);
-		StackTraceElement stackTraceElement;
-		if(rootCause == null){
-			stackTraceElement = searchClassName(exception).orElseGet(() -> exception.getStackTrace()[0]);
+	private DefaultExceptionRecorderDetails detectExceptionLocation(Throwable wholeException){
+		Throwable rootCause = ExceptionUtils.getRootCause(wholeException);
+		Throwable exception = Optional.ofNullable(rootCause).orElse(wholeException);
+		StackTraceElement stackTraceElement = searchClassName(exception)
+				.orElseGet(() -> {
+					StackTraceElement[] stackTrace = exception.getStackTrace();
+					// stackTrace is often null in case of OOM
+					return stackTrace.length == 0 ? null : stackTrace[0];
+				});
+		if(stackTraceElement == null){
 			return new DefaultExceptionRecorderDetails(
-					stackTraceElement.getClassName(),
-					stackTraceElement.getMethodName(),
-					stackTraceElement.getLineNumber());
+					"noClass",
+					"noMethod",
+					0);
 		}
-		stackTraceElement = searchClassName(rootCause).orElseGet(() -> rootCause.getStackTrace()[0]);
 		return new DefaultExceptionRecorderDetails(
 				stackTraceElement.getClassName(),
 				stackTraceElement.getMethodName(),

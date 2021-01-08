@@ -29,8 +29,13 @@ public class LocalDateFieldKey extends PrimitiveFieldKey<LocalDate,LocalDateFiel
 		super(name, LocalDate.class);
 	}
 
-	private LocalDateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			LocalDate defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+	private LocalDateFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			LocalDate defaultValue,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, LocalDate.class, fieldGeneratorType, defaultValue, attributes);
 	}
 

@@ -17,12 +17,14 @@ package io.datarouter.util.tracer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.trace.TraceContext;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
@@ -39,6 +41,7 @@ public class DatarouterTracer implements Tracer{
 	private final String traceId;
 	private final Long traceThreadParentId;
 	private final String hostThreadName;
+	private final W3TraceContext w3TraceContext;
 
 	private Integer nextSpanSequence = 0;
 	private int discardedSpanCount = 0;
@@ -51,18 +54,19 @@ public class DatarouterTracer implements Tracer{
 	private final List<TraceSpanDto> spanStack = new ArrayList<>();
 	private final BlockingQueue<TraceSpanDto> spanQueue = new ArrayBlockingQueue<>(MAX_SPANS);
 
-	public DatarouterTracer(String serverName, String traceId, Long traceThreadParentId){
+	public DatarouterTracer(String serverName, String traceId, Long traceThreadParentId, W3TraceContext w3TraceContext){
 		this.serverName = serverName;
 		this.traceId = traceId;
 		this.traceThreadParentId = traceThreadParentId;
 		this.hostThreadName = Thread.currentThread().getName();
+		this.w3TraceContext = w3TraceContext;
 	}
 
 	/*---------------------------- Tracer------------------------------------*/
 
 	@Override
 	public Tracer createChildTracer(){
-		return new DatarouterTracer(serverName, traceId, getCurrentThreadId());
+		return new DatarouterTracer(serverName, traceId, getCurrentThreadId(), w3TraceContext);
 	}
 
 	/*---------------------------- TraceThread ------------------------------*/
@@ -276,6 +280,11 @@ public class DatarouterTracer implements Tracer{
 	@Override
 	public boolean getForceSave(){
 		return forceSave;
+	}
+
+	@Override
+	public Optional<TraceContext> getTraceContext(){
+		return Optional.of(w3TraceContext);
 	}
 
 }

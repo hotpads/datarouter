@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
 import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
 
@@ -31,6 +32,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessageKey;
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
 public class SqsAckMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -61,7 +63,11 @@ extends SqsOp<PK,D,F,Void>{
 					.map(key -> new DeleteMessageBatchRequestEntry(UUID.randomUUID().toString(), new String(key
 							.getHandle())))
 					.listTo(deleteEntries -> new DeleteMessageBatchRequest(queueUrl, deleteEntries));
-			sqsClientManager.getAmazonSqs(clientId).deleteMessageBatch(deleteRequest);
+			try{
+				sqsClientManager.getAmazonSqs(clientId).deleteMessageBatch(deleteRequest);
+			}catch(AbortedException e){
+				throw new UncheckedInterruptedException("", e);
+			}
 		}
 		return null;
 	}

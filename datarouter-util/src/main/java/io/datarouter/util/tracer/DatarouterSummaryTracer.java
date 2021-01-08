@@ -21,11 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
+import io.datarouter.instrumentation.trace.TraceContext;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
@@ -250,6 +252,11 @@ public class DatarouterSummaryTracer implements Tracer{
 			return this;
 		}
 
+	}
+
+	@Override
+	public Optional<TraceContext> getTraceContext(){
+		return Optional.empty();
 	}
 
 }

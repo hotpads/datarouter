@@ -22,6 +22,8 @@ import io.datarouter.util.array.ArrayTool;
 
 public class ByteTool{
 
+	public static final byte[] EMPTY_ARRAY = new byte[0];
+
 	public static ArrayList<Byte> getArrayList(byte[] ins){
 		ArrayList<Byte> outs = new ArrayList<>(ArrayTool.length(ins));
 		for(byte in : ArrayTool.nullSafe(ins)){

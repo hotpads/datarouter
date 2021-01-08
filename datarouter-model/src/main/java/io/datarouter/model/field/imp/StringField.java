@@ -112,7 +112,8 @@ public class StringField extends BaseField<String>{
 		}
 		int lastByteIndex = offset + lengthWithPossibleSeparator - 1;
 		boolean lastByteIsSeparator = bytes[lastByteIndex] == SEPARATOR;
-		int lengthWithoutSeparator = lastByteIsSeparator ? lengthWithPossibleSeparator - 1
+		int lengthWithoutSeparator = lastByteIsSeparator
+				? lengthWithPossibleSeparator - 1
 				: lengthWithPossibleSeparator;
 		return new String(bytes, offset, lengthWithoutSeparator, StandardCharsets.UTF_8);
 	}

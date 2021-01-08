@@ -26,17 +26,13 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
-import io.datarouter.storage.node.entity.EntityNode;
-import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.node.entity.SubEntitySortedMapStorageNode;
-import io.datarouter.storage.node.factory.EntityNodeFactory;
-import io.datarouter.storage.node.factory.WideNodeFactory;
+import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.util.PrimaryKeyVacuum;
 import io.datarouter.storage.util.PrimaryKeyVacuum.PrimaryKeyVacuumBuilder;
 import io.datarouter.trace.storage.entity.BaseTraceEntityKey;
 import io.datarouter.trace.storage.entity.TraceEntity;
 import io.datarouter.trace.storage.entity.TraceEntityKey;
-import io.datarouter.trace.storage.entity.TraceEntityPartitioner;
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.span.TraceSpan.TraceSpanFielder;
 import io.datarouter.trace.storage.span.TraceSpanKey;
@@ -58,53 +54,40 @@ public class DatarouterTraceDao extends BaseDao implements BaseDatarouterTraceDa
 
 	}
 
-	private static final EntityNodeParams<TraceEntityKey,TraceEntity> ENTITY_PARAMS = new EntityNodeParams<>(
-			"TraceEntity16",
-			TraceEntityKey::new,
-			TraceEntity::new,
-			TraceEntityPartitioner::new,
-			"TraceEntity16");
-
-	private final EntityNode<TraceEntityKey,TraceEntity> entity;
-	private final SubEntitySortedMapStorageNode<TraceEntityKey,TraceKey,Trace,TraceFielder> trace;
-	private final SubEntitySortedMapStorageNode<TraceEntityKey,TraceThreadKey,TraceThread,TraceThreadFielder>
-			traceThread;
-	private final SubEntitySortedMapStorageNode<TraceEntityKey,TraceSpanKey,TraceSpan,TraceSpanFielder> traceSpan;
+	private final SortedMapStorage<TraceKey,Trace> trace;
+	private final SortedMapStorage<TraceThreadKey,TraceThread> traceThread;
+	private final SortedMapStorage<TraceSpanKey,TraceSpan> traceSpan;
 
 	@Inject
-	public DatarouterTraceDao(Datarouter datarouter, EntityNodeFactory entityNodeFactory,
-			DatarouterTraceDaoParams params, WideNodeFactory wideNodeFactory){
+	public DatarouterTraceDao(
+			Datarouter datarouter,
+			DatarouterTraceDaoParams params,
+			NodeFactory nodeFactory){
 		super(datarouter);
-
-		entity = entityNodeFactory.create(params.clientId, ENTITY_PARAMS);
-
-		trace = datarouter.register(wideNodeFactory.subEntityNode(
-				ENTITY_PARAMS,
+		trace = nodeFactory.create(
 				params.clientId,
+				TraceEntityKey::new,
 				Trace::new,
-				TraceFielder::new,
-				TraceEntity.QUALIFIER_PREFIX_Trace));
-		entity.register(trace);
-
-		traceThread = datarouter.register(wideNodeFactory.subEntityNode(
-				ENTITY_PARAMS,
+				TraceFielder::new)
+				.buildAndRegister();
+		traceThread = nodeFactory.create(
 				params.clientId,
+				TraceEntityKey::new,
 				TraceThread::new,
-				TraceThreadFielder::new,
-				TraceEntity.QUALIFIER_PREFIX_TraceThread));
-		entity.register(traceThread);
-
-		traceSpan = datarouter.register(wideNodeFactory.subEntityNode(
-				ENTITY_PARAMS,
+				TraceThreadFielder::new)
+				.buildAndRegister();
+		traceSpan = nodeFactory.create(
 				params.clientId,
+				TraceEntityKey::new,
 				TraceSpan::new,
-				TraceSpanFielder::new,
-				TraceEntity.QUALIFIER_PREFIX_TraceSpan));
-		entity.register(traceSpan);
+				TraceSpanFielder::new)
+				.buildAndRegister();
 	}
 
 	@Override
-	public void putMulti(Collection<TraceThread> threadDatabeans, Collection<TraceSpan> spanDatabeans,
+	public void putMulti(
+			Collection<TraceThread> threadDatabeans,
+			Collection<TraceSpan> spanDatabeans,
 			Trace traceDatabean){
 		Config config = new Config()
 				.setIgnoreNullFields(true)
@@ -116,8 +99,12 @@ public class DatarouterTraceDao extends BaseDao implements BaseDatarouterTraceDa
 	}
 
 	@Override
-	public TraceEntity getEntity(TraceEntityKey key){
-		return entity.getEntity(key);
+	public TraceEntity getEntity(TraceEntityKey entityKey){
+		return new TraceEntity(
+				entityKey,
+				trace.get(new TraceKey(entityKey)),
+				traceThread.scanWithPrefix(new TraceThreadKey(entityKey)).list(),
+				traceSpan.scanWithPrefix(new TraceSpanKey(entityKey)).list());
 	}
 
 	public PrimaryKeyVacuum<TraceKey> makeTraceVacuum(){

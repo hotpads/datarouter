@@ -18,7 +18,6 @@ package io.datarouter.metric.counter.collection;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -46,11 +45,11 @@ public class CountFlusher{
 	private final Gson gson;
 	private final DatarouterCountPublisherDao publisherDao;
 	private final Queue<Map<Long,Map<String,Long>>> flushQueue;
-	private final ScheduledExecutorService flushScheduler;
+	private final DatarouterCountFlushSchedulerExecutor flushScheduler;
 	private final Setting<Boolean> saveCounts;
 
 	private CountFlusher(String serviceName, String serverName, Gson gson, DatarouterCountPublisherDao publisherDao,
-			ScheduledExecutorService flushScheduler, Setting<Boolean> saveCounts){
+			DatarouterCountFlushSchedulerExecutor flushScheduler, Setting<Boolean> saveCounts){
 		this.serviceName = serviceName;
 		this.serverName = serverName;
 		this.gson = gson;
@@ -86,7 +85,7 @@ public class CountFlusher{
 				publisherDao.put(message);
 				flushQueue.poll();
 			}
-		}catch(Exception e){
+		}catch(Throwable e){
 			logger.warn("", e);
 		}
 	}

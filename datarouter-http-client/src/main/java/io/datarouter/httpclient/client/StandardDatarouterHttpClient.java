@@ -17,6 +17,7 @@ package io.datarouter.httpclient.client;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.httpclient.request.BaseRequest;
+import io.datarouter.httpclient.request.BaseEndpoint;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.Conditional;
@@ -64,6 +65,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	private final PoolingHttpClientConnectionManager connectionManager;
 	private final DatarouterHttpClientIoExceptionCircuitBreaker circuitWrappedHttpClient;
 	private final Supplier<Boolean> enableBreakers;
+	private final Supplier<URI> urlPrefix;
 
 	StandardDatarouterHttpClient(
 			CloseableHttpClient httpClient,
@@ -74,7 +76,8 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 			DatarouterHttpClientConfig config,
 			PoolingHttpClientConnectionManager connectionManager,
 			String name,
-			Supplier<Boolean> enableBreakers){
+			Supplier<Boolean> enableBreakers,
+			Supplier<URI> urlPrefix){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureGenerator = signatureGenerator;
@@ -84,6 +87,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		this.connectionManager = connectionManager;
 		this.circuitWrappedHttpClient = new DatarouterHttpClientIoExceptionCircuitBreaker(name);
 		this.enableBreakers = enableBreakers;
+		this.urlPrefix = urlPrefix;
 	}
 
 	@Override
@@ -114,15 +118,6 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	}
 
 	@Override
-	public <E> E execute(BaseRequest<E> request){
-		try{
-			return executeChecked(request, request.responseType);
-		}catch(DatarouterHttpException e){
-			throw new DatarouterHttpRuntimeException(e);
-		}
-	}
-
-	@Override
 	public <E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
 		String entity = executeChecked(request).getEntity();
 		try(var $ = TracerTool.startSpan("JsonSerializer deserialize")){
@@ -134,11 +129,6 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public DatarouterHttpResponse executeChecked(DatarouterHttpRequest request) throws DatarouterHttpException{
 		return executeChecked(request, (Consumer<HttpEntity>)null);
-	}
-
-	@Override
-	public <E> E executeChecked(BaseRequest<E> request) throws DatarouterHttpException{
-		return executeChecked(request, request.responseType);
 	}
 
 	@Override
@@ -190,6 +180,14 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 			return Conditional.failure(e);
 		}
 		return Conditional.success(response);
+	}
+
+	@Override
+	public <E> Conditional<E> tryExecute(BaseEndpoint<E> baseEndpoint){
+		baseEndpoint.setUrlPrefix(urlPrefix.get());
+		var datarouterHttpRequest = baseEndpoint.toDatarouterHttpRequest();
+		baseEndpoint.entity.ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
+		return tryExecute(datarouterHttpRequest, baseEndpoint.responseType);
 	}
 
 	private void setSecurityProperties(DatarouterHttpRequest request){

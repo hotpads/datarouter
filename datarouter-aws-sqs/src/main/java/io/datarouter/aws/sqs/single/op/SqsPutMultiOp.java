@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 
@@ -34,6 +35,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.FieldGeneratorTool;
 import io.datarouter.util.bytes.StringByteTool;
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
 public class SqsPutMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -90,7 +92,11 @@ extends SqsOp<PK,D,F,Void>{
 
 	private void putBatch(List<SendMessageBatchRequestEntry> entries){
 		var request = new SendMessageBatchRequest(queueUrl, entries);
-		sqsClientManager.getAmazonSqs(clientId).sendMessageBatch(request);
+		try{
+			sqsClientManager.getAmazonSqs(clientId).sendMessageBatch(request);
+		}catch(AbortedException e){
+			throw new UncheckedInterruptedException("", e);
+		}
 	}
 
 }

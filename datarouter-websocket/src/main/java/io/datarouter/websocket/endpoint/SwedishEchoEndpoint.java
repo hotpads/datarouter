@@ -22,7 +22,7 @@ import io.datarouter.websocket.endpoint.SwedishEchoMessageHandler.SwedishEchoMes
 /**
  * return twice the message received
  */
-public class SwedishEchoEndpoint extends BaseEndpoint{
+public class SwedishEchoEndpoint extends BaseWebsocketEndpoint{
 
 	@Inject
 	private SwedishEchoMessageHandlerFactory swedishEchoMessageHandlerFactory;

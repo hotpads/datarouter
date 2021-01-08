@@ -23,13 +23,17 @@ public class TraceKey extends BaseTraceKey<TraceEntityKey,TraceKey>{
 		this.entityKey = new TraceEntityKey();
 	}
 
+	public TraceKey(TraceEntityKey entityKey){
+		this.entityKey = entityKey;
+	}
+
 	public TraceKey(String traceId){
 		this.entityKey = new TraceEntityKey(traceId);
 	}
 
 	@Override
 	public TraceKey prefixFromEntityKey(TraceEntityKey entityKey){
-		return new TraceKey(entityKey.getTraceEntityId());
+		return new TraceKey(entityKey);
 	}
 
 }

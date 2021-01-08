@@ -16,6 +16,7 @@
 package io.datarouter.httpclient.client;
 
 import java.lang.StackWalker.Option;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -70,6 +71,7 @@ public class DatarouterHttpClientBuilder{
 	private SSLContext customSslContext;
 	private String name;
 	private Supplier<Boolean> enableBreakers;
+	private Supplier<URI> urlPrefix;
 
 	public DatarouterHttpClientBuilder(){
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
@@ -148,7 +150,8 @@ public class DatarouterHttpClientBuilder{
 				this.config,
 				connectionManager,
 				name,
-				enableBreakers);
+				enableBreakers,
+				urlPrefix);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(Supplier<Integer> retryCount){
@@ -235,11 +238,21 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
+	public DatarouterHttpClientBuilder setUrlPrefix(Supplier<URI> urlPrefix){
+		this.urlPrefix = urlPrefix;
+		return this;
+	}
+
 	public DatarouterHttpClientBuilder forDatarouterHttpClientSettings(SimpleDatarouterHttpClientSettings settings){
 		return this
 				.setTimeout(settings.getTimeout())
 				.setRetryCount(settings.getNumRetries())
 				.setEnableBreakers(settings.getEnableBreakers());
+	}
+
+	public DatarouterHttpClientBuilder forDatarouterHttpClientSettings(DatarouterHttpClientSettings settings){
+		return forDatarouterHttpClientSettings((SimpleDatarouterHttpClientSettings)settings)
+				.setUrlPrefix(settings::getEndpointUrl);
 	}
 
 }

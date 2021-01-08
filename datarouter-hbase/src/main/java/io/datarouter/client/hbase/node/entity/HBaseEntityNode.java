@@ -124,7 +124,7 @@ extends BasePhysicalEntityNode<EK,E>{
 	@Override
 	public List<EK> listEntityKeys(EK startKey, boolean startKeyInclusive, Config config){
 		int limit = config.findLimit().orElse(DEFAULT_GET_KEYS_LIMIT);
-		return queryBuilder.getScanForEachPartition(startKey, startKeyInclusive, true).stream()
+		return queryBuilder.getScanForEachPartition(startKey, startKeyInclusive).stream()
 				.map(scan -> {
 					try(Table table = getTable();
 						ResultScanner resultScanner = HBaseTableTool.getResultScanner(table, scan)){

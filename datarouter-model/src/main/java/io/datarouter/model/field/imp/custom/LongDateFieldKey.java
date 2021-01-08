@@ -29,8 +29,13 @@ public class LongDateFieldKey extends PrimitiveFieldKey<Date,LongDateFieldKey>{
 		super(name, Date.class);
 	}
 
-	private LongDateFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Date defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+	private LongDateFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			Date defaultValue,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, Date.class, fieldGeneratorType, defaultValue, attributes);
 	}
 

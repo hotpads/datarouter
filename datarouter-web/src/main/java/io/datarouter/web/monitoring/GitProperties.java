@@ -53,8 +53,7 @@ public class GitProperties{
 			GIT_COMMIT_ID_DESCRIBE_SHORT = "git.commit.id.describe-short",
 			GIT_COMMIT_TIME = "git.commit.time",
 			GIT_COMMIT_USER_NAME = "git.commit.user.name",
-			GIT_BUILD_TIME = "git.build.time",
-			GIT_TAGS = "git.tags";
+			GIT_BUILD_TIME = "git.build.time";
 
 	private final Properties properties = new Properties();
 
@@ -103,10 +102,6 @@ public class GitProperties{
 
 	public Optional<Instant> getBuildTime(){
 		return getDateProperty(GIT_BUILD_TIME);
-	}
-
-	public Optional<String> getTags(){
-		return Optional.ofNullable(properties.getProperty(GIT_TAGS));
 	}
 
 	private Optional<Instant> getDateProperty(String propertyName){

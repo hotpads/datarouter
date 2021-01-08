@@ -18,6 +18,7 @@ package io.datarouter.nodewatch.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.td;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
@@ -47,6 +49,8 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	private DatarouterNodewatchPaths paths;
 	@Inject
 	private DailyDigestService digestService;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Override
 	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
@@ -81,6 +85,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	}
 
 	private ContainerTag makePageTable(List<LatestTableCount> staleRows){
+		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlTable<LatestTableCount>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Client", row -> row.getKey().getClientName())
@@ -88,8 +93,9 @@ public class StaleTablesDailyDigest implements DailyDigest{
 						row.getKey().getTableName(),
 						row.getKey().getClientName())))
 				.withColumn("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows()))
-				.withColumn("Date Updated", row -> DateTool.getNumericDate(row.getDateUpdated()))
-				.withColumn("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime()))
+				.withColumn("Date Updated (" + zoneId + ")",
+						row -> LocalDate.ofInstant(row.getDateUpdated().toInstant(), zoneId))
+				.withColumn("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated().toInstant()))
 				.build(staleRows);
 	}
 

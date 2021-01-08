@@ -72,8 +72,9 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	@Override
 	public E fromBytesButDoNotSet(byte[] bytes, int offset){
-		return IntegerEnum.fromPersistentIntegerSafe(getSampleValue(), IntegerByteTool.fromComparableBytes(bytes,
-				offset));
+		return IntegerEnum.fromPersistentIntegerSafe(
+				getSampleValue(),
+				IntegerByteTool.fromComparableBytes(bytes, offset));
 	}
 
 	@Override

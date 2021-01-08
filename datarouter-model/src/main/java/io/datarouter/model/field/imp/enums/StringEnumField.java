@@ -115,8 +115,12 @@ public class StringEnumField<E extends StringEnum<E>> extends BaseField<E>{
 			defaultValue = stringEnumField.getKey().getDefaultValue().getPersistentString();
 		}
 
-		StringFieldKey key = new StringFieldKey(stringEnumField.key.getName(), stringEnumField.key.getColumnName(),
-				stringEnumField.key.isNullable(), FieldGeneratorType.NONE, defaultValue, stringEnumField.key.getSize(),
+		StringFieldKey key = new StringFieldKey(
+				stringEnumField.key.getName(),
+				stringEnumField.key.getColumnName(),
+				stringEnumField.key.isNullable(),
+				FieldGeneratorType.NONE, defaultValue,
+				stringEnumField.key.getSize(),
 				stringEnumField.key.getAttributes());
 
 		return new StringField(stringEnumField.getPrefix(), key, value);

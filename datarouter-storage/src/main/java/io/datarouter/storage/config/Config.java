@@ -46,6 +46,7 @@ public class Config implements Cloneable{
 	private Boolean persistentPut = true;
 
 	//table scans
+	private Boolean scannerPrefetching;
 	private Boolean scannerCaching;
 	private Integer inputBatchSize;
 	private Integer outputBatchSize;
@@ -292,6 +293,17 @@ public class Config implements Cloneable{
 
 	public Config setIgnoreNullFields(Boolean ignoreNullFields){
 		this.ignoreNullFields = ignoreNullFields;
+		return this;
+	}
+
+	/*------------------------- scanner prefetching -----------------------------*/
+
+	public Optional<Boolean> findScannerPrefetching(){
+		return Optional.ofNullable(scannerPrefetching);
+	}
+
+	public Config setScannerPrefetching(Boolean scannerPrefetching){
+		this.scannerPrefetching = scannerPrefetching;
 		return this;
 	}
 

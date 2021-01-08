@@ -17,6 +17,7 @@ package io.datarouter.aws.sqs.single.op;
 
 import java.util.List;
 
+import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
@@ -30,6 +31,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.FieldGeneratorTool;
 import io.datarouter.util.bytes.StringByteTool;
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
 public class SqsPutOp<
 		PK extends PrimaryKey<PK>,
@@ -61,7 +63,11 @@ extends SqsOp<PK,D,F,Void>{
 			throw new SqsDataTooLargeException(List.of(encodedDatabean));
 		}
 		var request = new SendMessageRequest(queueUrl, encodedDatabean);
-		sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
+		try{
+			sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
+		}catch(AbortedException e){
+			throw new UncheckedInterruptedException("", e);
+		}
 		return null;
 	}
 

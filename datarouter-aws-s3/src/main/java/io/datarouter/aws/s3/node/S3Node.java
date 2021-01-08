@@ -89,8 +89,8 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public void deleteAll(){
-		scanKeys(Subpath.empty()).forEach(this::delete);
+	public void deleteAll(Subpath subpath){
+		scanKeys(subpath).forEach(this::delete);
 	}
 
 	@Override

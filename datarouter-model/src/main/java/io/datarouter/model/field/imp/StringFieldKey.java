@@ -34,8 +34,14 @@ public class StringFieldKey extends BaseFieldKey<String,StringFieldKey>{
 		this.size = DEFAULT_MAX_SIZE;
 	}
 
-	public StringFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			String defaultValue, int size, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+	public StringFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			String defaultValue,
+			int size,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, String.class, fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
 	}

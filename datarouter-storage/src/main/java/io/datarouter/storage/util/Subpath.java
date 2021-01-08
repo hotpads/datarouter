@@ -18,6 +18,7 @@ package io.datarouter.storage.util;
 import java.util.Collection;
 import java.util.List;
 
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 
 /**
@@ -53,6 +54,10 @@ public class Subpath{
 
 	public Subpath(List<String> segments){
 		this(segments.toArray(String[]::new));
+	}
+
+	public Subpath(PathNode pathNode){
+		this(pathNode.toStringArray());
 	}
 
 	public Subpath append(String segment){

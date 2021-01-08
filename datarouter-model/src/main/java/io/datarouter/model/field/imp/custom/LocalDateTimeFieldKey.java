@@ -35,8 +35,13 @@ public class LocalDateTimeFieldKey extends PrimitiveFieldKey<LocalDateTime,Local
 		this.numFractionalSeconds = 6;
 	}
 
-	private LocalDateTimeFieldKey(String name, String columnName, boolean nullable,
-			FieldGeneratorType fieldGeneratorType, LocalDateTime defaultValue, int numFractionalSeconds,
+	private LocalDateTimeFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			LocalDateTime defaultValue,
+			int numFractionalSeconds,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, LocalDateTime.class, fieldGeneratorType, defaultValue, attributes);
 		this.numFractionalSeconds = numFractionalSeconds;

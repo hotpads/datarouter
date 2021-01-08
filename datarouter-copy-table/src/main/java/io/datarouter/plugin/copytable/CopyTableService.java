@@ -29,6 +29,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTablePutMultiExecutor;
@@ -103,22 +104,28 @@ public class CopyTableService{
 		try{
 			sourceNode.scan(range, SCAN_CONFIG)
 					.each($ -> numScanned.incrementAndGet())
+					.each($ -> Counters.inc("copyTable " + sourceNodeName + " read"))
 					.include(shouldInclude)
+					.each($ -> Counters.inc("copyTable " + sourceNodeName + " include"))
 					.batch(batchSize)
 					.parallel(putMultiScannerContext.get(numThreads))
 					.each(batch -> processor.accept(batch, putConfig))
+					.each($ -> Counters.inc("copyTable " + sourceNodeName + " write"))
 					.forEach(batch -> {
 						numCopied.addAndGet(batch.size());
 						lastKey.set(ListTool.getLast(batch).getKey());
 						logProgress(false, numSkipped.get(), numScanned.get(), numCopied.get(), batchId, numBatches,
-								sourceNodeName, targetNodeName, lastKey.get());
+								sourceNodeName, targetNodeName, lastKey.get(), null);
 					});
 			logProgress(true, numSkipped.get(), numScanned.get(), numCopied.get(), batchId, numBatches,
-					sourceNodeName, targetNodeName, lastKey.get());
+					sourceNodeName, targetNodeName, lastKey.get(), null);
 			return new CopyTableSpanResult(true, null, numCopied.get(), null);
-		}catch(RuntimeException e){
-			logger.error("lastKey={}", lastKey.get(), e);
-			return new CopyTableSpanResult(false, e, numCopied.get(), PrimaryKeyPercentCodecTool.encode(lastKey.get()));
+		}catch(Throwable e){
+			PK pk = lastKey.get();
+			logProgress(false, numSkipped.get(), numScanned.get(), numCopied.get(), batchId, numBatches,
+					sourceNodeName, targetNodeName, pk, e);
+			String resumeFromKeyString = pk == null ? null : PrimaryKeyPercentCodecTool.encode(pk);
+			return new CopyTableSpanResult(false, e, numCopied.get(), resumeFromKeyString);
 		}
 	}
 
@@ -132,7 +139,8 @@ public class CopyTableService{
 			long numBatches,
 			String sourceNodeName,
 			String targetNodeName,
-			PK lastKey){
+			PK lastKey,
+			Throwable throwable){
 		String finishedString = finished ? "finished" : "intermediate";
 		logger.warn("{} skipped {} scanned {} copied {} for batch {}/{} from {} to {} through {}",
 				finishedString,
@@ -143,7 +151,8 @@ public class CopyTableService{
 				NumberFormatter.addCommas(numBatches),
 				sourceNodeName,
 				targetNodeName,
-				lastKey == null ? null : PrimaryKeyPercentCodecTool.encode(lastKey));
+				lastKey == null ? null : PrimaryKeyPercentCodecTool.encode(lastKey),
+				throwable);
 	}
 
 	private <PK extends PrimaryKey<PK>,
@@ -198,11 +207,11 @@ public class CopyTableService{
 	public static class CopyTableSpanResult{
 
 		public final boolean success;
-		public final RuntimeException exception;
+		public final Throwable exception;
 		public final long numCopied;
 		public final String resumeFromKeyString;
 
-		public CopyTableSpanResult(boolean success, RuntimeException exception, long numCopied,
+		public CopyTableSpanResult(boolean success, Throwable exception, long numCopied,
 				String resumeFromKeyString){
 			this.success = success;
 			this.exception = exception;

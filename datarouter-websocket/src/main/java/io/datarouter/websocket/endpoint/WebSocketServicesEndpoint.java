@@ -19,7 +19,7 @@ import javax.inject.Inject;
 
 import io.datarouter.websocket.endpoint.WebSocketServicesMessageHandler.WebSocketServicesMessageHandlerFactory;
 
-public class WebSocketServicesEndpoint extends BaseEndpoint{
+public class WebSocketServicesEndpoint extends BaseWebsocketEndpoint{
 
 	@Inject
 	private WebSocketServicesMessageHandlerFactory factory;

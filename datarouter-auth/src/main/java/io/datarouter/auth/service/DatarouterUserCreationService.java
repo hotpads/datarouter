@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
@@ -55,6 +56,8 @@ public class DatarouterUserCreationService{
 	private DatarouterUserService datarouterUserService;
 	@Inject
 	private DatarouterUserHistoryService userHistoryService;
+	@Inject
+	private DatarouterService datarouterService;
 
 	/*---------------- creation methods, helpers, and enum ------------------*/
 
@@ -120,6 +123,8 @@ public class DatarouterUserCreationService{
 		//AUTO users have no passwords. ADMIN and MANUAL users do have passwords.
 		user.setPasswordSalt(type == CreateType.AUTO ? null : PasswordTool.generateSalt());
 		user.setPasswordDigest(type == CreateType.AUTO ? null : PasswordTool.digest(user.getPasswordSalt(), password));
+
+		user.setZoneId(datarouterService.getZoneId().getId());
 	}
 
 	private void populateManualFields(DatarouterUser user, String username, Set<Role> roles, Boolean enabled){

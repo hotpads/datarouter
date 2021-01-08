@@ -26,6 +26,10 @@ public class TraceSpanKey extends BaseTraceSpanKey<TraceEntityKey,TraceSpanKey>{
 		this.entityKey = new TraceEntityKey();
 	}
 
+	public TraceSpanKey(TraceEntityKey entityKey){
+		this.entityKey = entityKey;
+	}
+
 	public TraceSpanKey(String traceId, Long threadId, Integer sequence){
 		super(threadId, sequence);
 		this.entityKey = new TraceEntityKey(traceId);
@@ -33,7 +37,7 @@ public class TraceSpanKey extends BaseTraceSpanKey<TraceEntityKey,TraceSpanKey>{
 
 	@Override
 	public TraceSpanKey prefixFromEntityKey(TraceEntityKey entityKey){
-		return new TraceSpanKey(entityKey.getTraceEntityId(), null, null);
+		return new TraceSpanKey(entityKey);
 	}
 
 }

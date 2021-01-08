@@ -32,8 +32,14 @@ public class ByteArrayFieldKey extends BaseFieldKey<byte[],ByteArrayFieldKey>{
 		this.size = CommonFieldSizes.MAX_KEY_LENGTH;
 	}
 
-	private ByteArrayFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			byte[] defaultValue, int size, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+	private ByteArrayFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			byte[] defaultValue,
+			int size,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, byte[].class, fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
 	}

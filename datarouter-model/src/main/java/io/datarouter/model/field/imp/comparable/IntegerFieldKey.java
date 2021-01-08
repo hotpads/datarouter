@@ -29,8 +29,13 @@ public class IntegerFieldKey extends PrimitiveFieldKey<Integer,IntegerFieldKey>{
 		super(name, Integer.class);
 	}
 
-	private IntegerFieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Integer defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+	private IntegerFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			Integer defaultValue,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, Integer.class, fieldGeneratorType, defaultValue, attributes);
 	}
 

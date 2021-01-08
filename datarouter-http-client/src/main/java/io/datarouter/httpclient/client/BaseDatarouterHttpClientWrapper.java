@@ -23,7 +23,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.pool.PoolStats;
 
 import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.httpclient.request.BaseRequest;
+import io.datarouter.httpclient.request.BaseEndpoint;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
@@ -53,11 +53,6 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	}
 
 	@Override
-	public <E> E execute(BaseRequest<E> request){
-		return datarouterHttpClient.execute(request);
-	}
-
-	@Override
 	public <E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
 		return datarouterHttpClient.executeChecked(request, deserializeToType);
 	}
@@ -71,11 +66,6 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	public DatarouterHttpResponse executeChecked(DatarouterHttpRequest request, Consumer<HttpEntity> httpEntityConsumer)
 	throws DatarouterHttpException{
 		return datarouterHttpClient.executeChecked(request, httpEntityConsumer);
-	}
-
-	@Override
-	public <E> E executeChecked(BaseRequest<E> request) throws DatarouterHttpException{
-		return datarouterHttpClient.executeChecked(request);
 	}
 
 	@Override
@@ -93,6 +83,11 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	@Override
 	public <E> Conditional<E> tryExecute(DatarouterHttpRequest request, Type deserializeToType){
 		return datarouterHttpClient.tryExecute(request, deserializeToType);
+	}
+
+	@Override
+	public <E> Conditional<E> tryExecute(BaseEndpoint<E> baseEndpoint){
+		return datarouterHttpClient.tryExecute(baseEndpoint);
 	}
 
 	@Override

@@ -56,6 +56,14 @@ public class PathNodeTests{
 	}
 
 	@Test
+	public void testToStringArray(){
+		var paths = new TestPaths();
+		Assert.assertEquals(paths.aa.toStringArray(), new String[]{"aa"});
+		Assert.assertEquals(paths.aa.bb.toStringArray(), new String[]{"aa", "bb"});
+		Assert.assertEquals(paths.aa.bb.cc.toStringArray(), new String[]{"aa", "bb", "cc"});
+	}
+
+	@Test
 	public void testToSlashedString(){
 		var paths = new TestPaths();
 		Assert.assertEquals(paths.aa.toSlashedString(), "/aa");

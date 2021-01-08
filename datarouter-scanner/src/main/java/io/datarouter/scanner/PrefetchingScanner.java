@@ -76,7 +76,7 @@ public class PrefetchingScanner<T> extends BaseLinkedScanner<T,List<T>>{
 			return future.get();
 		}catch(InterruptedException | ExecutionException e){
 			future.cancel(true);
-			throw new RuntimeException(e);
+			throw new RuntimeException("", e);
 		}
 	}
 

@@ -216,7 +216,7 @@
 		var inputElement = document.createElement('input');
 		inputElement.setAttribute('name', 'headers');
 		inputElement.setAttribute('type', 'hidden');
-		var objs = [];
+		let headers = {};
 		let formDiv = document.getElementById('headerRows');
 		let childCount = formDiv.childElementCount;
 		for (i = 0; i < childCount; i++) {
@@ -224,12 +224,10 @@
 			let headerValue = document.getElementById(headerValPrefix + i);
 			if (headerKey != null && headerKey.value != ''
 					&& headerValue != null && headerValue.value != '') {
-				var obj = {};
-				obj[headerKey.value] = headerValue.value;
-				objs.push(obj);
+				headers[headerKey.value] = headerValue.value;
 			}
 		}
-		inputElement.value = JSON.stringify(objs);
+		inputElement.value = JSON.stringify(headers);
 		form.append(inputElement);
 	}
 

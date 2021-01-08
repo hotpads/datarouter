@@ -26,6 +26,10 @@ public class TraceThreadKey extends BaseTraceThreadKey<TraceEntityKey,TraceThrea
 		entityKey = new TraceEntityKey();
 	}
 
+	public TraceThreadKey(TraceEntityKey entityKey){
+		this.entityKey = entityKey;
+	}
+
 	public TraceThreadKey(String traceId, Long threadId){
 		super(threadId);
 		entityKey = new TraceEntityKey(traceId);
@@ -33,7 +37,7 @@ public class TraceThreadKey extends BaseTraceThreadKey<TraceEntityKey,TraceThrea
 
 	@Override
 	public TraceThreadKey prefixFromEntityKey(TraceEntityKey entityKey){
-		return new TraceThreadKey(entityKey.getTraceEntityId(), null);
+		return new TraceThreadKey(entityKey);
 	}
 
 }

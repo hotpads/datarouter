@@ -35,8 +35,8 @@ import io.datarouter.websocket.service.WebSocketConnectionStore;
 import io.datarouter.websocket.session.PushService;
 import io.datarouter.websocket.storage.session.WebSocketSession;
 
-public abstract class BaseEndpoint extends Endpoint{
-	private static final Logger logger = LoggerFactory.getLogger(BaseEndpoint.class);
+public abstract class BaseWebsocketEndpoint extends Endpoint{
+	private static final Logger logger = LoggerFactory.getLogger(BaseWebsocketEndpoint.class);
 
 	@Inject
 	private PushService pushService;

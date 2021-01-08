@@ -133,6 +133,11 @@ public class ByteWriter{
 		return this;
 	}
 
+	public ByteWriter booleanByte(boolean value){
+		bytes(BooleanByteTool.getBytes(value));
+		return this;
+	}
+
 	public ByteWriter rawInt(int value){
 		bytes(IntegerByteTool.getRawBytes(value));
 		return this;

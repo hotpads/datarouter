@@ -127,7 +127,7 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 
 		private DatarouterTraceDaoModule daoModule;
 
-		private ClientId localTraceEntityClientId;
+		private ClientId localTraceClientId;
 		private ClientId localTraceQueueClientId;
 
 		private ClientId publishingTraceQueueClientId;
@@ -137,7 +137,7 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		private Class<? extends TraceUrlBuilder> traceUrlBuilder = LocalTraceUrlBulder.class;
 
 		/**
-		 * @param localTraceEntityClientId clientId for trace entities
+		 * @param localTraceClientId clientId for trace entities
 		 * @param localTraceQueueClientId clientId for buffering
 		 * @param addLocalVacuumJobs Traces have a ttl of 30 days. Clients like hbase and bigtable will get the ttl
 		 *        from the trace fielder. Other datastores like mysql and spanner will need this enabled to register the
@@ -145,11 +145,11 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		 * @return the builder
 		 */
 		public DatarouterTracePluginBuilder enableTraceLocal(
-				ClientId localTraceEntityClientId,
+				ClientId localTraceClientId,
 				ClientId localTraceQueueClientId,
 				boolean addLocalVacuumJobs){
 			this.enableTraceLocal = true;
-			this.localTraceEntityClientId = localTraceEntityClientId;
+			this.localTraceClientId = localTraceClientId;
 			this.localTraceQueueClientId = localTraceQueueClientId;
 			this.addLocalVacuumJobs = addLocalVacuumJobs;
 			return this;
@@ -167,13 +167,13 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		public DatarouterTracePluginBuilder setDaosModule(
 				boolean enableLocalTraces,
 				boolean enableTracePublisher,
-				ClientId localTraceEntityClientId,
+				ClientId localTraceClientId,
 				ClientId localTraceQueueClientId,
 				ClientId publishingTraceQueueClientId){
 			this.daoModule = new DatarouterTraceDaoModule(
 					enableLocalTraces,
 					enableTracePublisher,
-					localTraceEntityClientId,
+					localTraceClientId,
 					localTraceQueueClientId,
 					publishingTraceQueueClientId);
 			return this;
@@ -190,7 +190,7 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 				module = new DatarouterTraceDaoModule(
 						enableTraceLocal,
 						enableTracePublisher,
-						localTraceEntityClientId,
+						localTraceClientId,
 						localTraceQueueClientId,
 						publishingTraceQueueClientId);
 			}else{
@@ -207,19 +207,19 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 
 		private final boolean enableLocalTraces;
 		private final boolean enableTracePublisher;
-		private final ClientId localTraceEntityClientId;
+		private final ClientId localTraceClientId;
 		private final ClientId localTraceQueueClientId;
 		private final ClientId publishingTraceQueueClientId;
 
 		public DatarouterTraceDaoModule(
 				boolean enableTraceLocal,
 				boolean enableTracePublisher,
-				ClientId localTraceEntityClientId,
+				ClientId localTraceClientId,
 				ClientId localTraceQueueClientId,
 				ClientId publishingTraceQueueClientId){
 			this.enableLocalTraces = enableTraceLocal;
 			this.enableTracePublisher = enableTracePublisher;
-			this.localTraceEntityClientId = localTraceEntityClientId;
+			this.localTraceClientId = localTraceClientId;
 			this.localTraceQueueClientId = localTraceQueueClientId;
 			this.publishingTraceQueueClientId = publishingTraceQueueClientId;
 		}
@@ -241,7 +241,7 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		public void configure(){
 			if(enableLocalTraces){
 				bind(DatarouterTraceDaoParams.class)
-						.toInstance(new DatarouterTraceDaoParams(localTraceEntityClientId));
+						.toInstance(new DatarouterTraceDaoParams(localTraceClientId));
 				bind(DatarouterTraceQueueDaoParams.class)
 						.toInstance(new DatarouterTraceQueueDaoParams(localTraceQueueClientId));
 			}

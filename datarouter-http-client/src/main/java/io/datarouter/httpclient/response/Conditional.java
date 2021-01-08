@@ -43,7 +43,7 @@ public class Conditional<T>{
 		return new Conditional<>(false, null, exception);
 	}
 
-	public <U> Conditional<U> map(Function<? super T, ? extends U> mapper){
+	public <U> Conditional<U> map(Function<? super T,? extends U> mapper){
 		if(success){
 			return Conditional.success(mapper.apply(response));
 		}

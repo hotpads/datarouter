@@ -15,22 +15,21 @@
  */
 package io.datarouter.util;
 
-import java.text.SimpleDateFormat;
+
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.datarouter.util.duration.DurationUnit;
@@ -53,41 +52,6 @@ public class DateTool{
 			DayOfWeek.SATURDAY,
 			DayOfWeek.SUNDAY);
 
-	public static final DateTimeFormatter JAVA_TIME_INTERNET_FORMATTER = DateTimeFormatter.ISO_INSTANT;
-
-	public static String getNumericDate(Date date){
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		return sdf.format(date);
-	}
-
-	public static Calendar dateToCalendar(Date date){
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		return calendar;
-	}
-
-	public static int getCalendarField(Date date, int field){
-		Calendar calendar = dateToCalendar(date);
-		return calendar.get(field);
-	}
-
-	public static int getYearInteger(){
-		return getYearInteger(new Date());
-	}
-
-	public static int getYearInteger(Date date){
-		return getCalendarField(date, Calendar.YEAR);
-	}
-
-	public static int getDayInteger(Date date){
-		return getCalendarField(date, Calendar.DAY_OF_WEEK);
-	}
-
-	public static String getDayAbbreviation(Date date){
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE");
-		return sdf.format(date);
-	}
-
 	public static long getPeriodStart(long periodMs){
 		return getPeriodStart(System.currentTimeMillis(), periodMs);
 	}
@@ -96,9 +60,13 @@ public class DateTool{
 		return timeMs - timeMs % periodMs;
 	}
 
+	//TODO pass zoneId instead of using systemDefault
 	public static String getDateTime(Date date){
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return dateFormat.format(date);
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		return date.toInstant()
+				.atZone(ZoneId.systemDefault())
+				.toLocalDateTime()
+				.format(dateTimeFormatter);
 	}
 
 	/*---------------- time elapsed ----------------*/
@@ -128,37 +96,34 @@ public class DateTool{
 	}
 
 	public static String getInternetDate(TemporalAccessor temporalValue){
-		return JAVA_TIME_INTERNET_FORMATTER.format(temporalValue);
+		return DateTimeFormatter.ISO_INSTANT.format(temporalValue);
 	}
 
-	/* as specified in RFC 3339 / ISO 8601 */
+	/* as specified in RFC 3339 / ISO 8601 with second precision only*/
 	public static String getInternetDate(Date date){
 		return getInternetDate(date, 0);
 	}
 
+	private static final ConcurrentHashMap<Integer,DateTimeFormatter> DATE_TIME_MS_FORMATS = new ConcurrentHashMap<>();
+
 	public static String getInternetDate(Date date, int msCount){
-		ThreadLocal<SimpleDateFormat> sdf = SDFS.computeIfAbsent(msCount, DateTool::makeSdf);
-		return sdf.get().format(date);
+		DateTimeFormatter dateTimeFormat = DATE_TIME_MS_FORMATS.computeIfAbsent(msCount,
+				DateTool::makeDateTimeFormatter);
+		return dateTimeFormat.format(date.toInstant());
 	}
 
-	private static final ConcurrentHashMap<Integer,ThreadLocal<SimpleDateFormat>> SDFS = new ConcurrentHashMap<>();
-
-	private static ThreadLocal<SimpleDateFormat> makeSdf(int msCount){
-		return ThreadLocal.withInitial(() -> {
-			TimeZone tz = TimeZone.getTimeZone("GMT+00:00");
-			StringBuilder sb = new StringBuilder();
-			sb.append("yyyy-MM-dd'T'HH:mm:ss");
-			if(msCount > 0){
-				sb.append('.');
-				for(int i = 0; i < msCount; i++){
-					sb.append('S');
-				}
+	private static DateTimeFormatter makeDateTimeFormatter(int msCount){
+		StringBuilder sb = new StringBuilder();
+		sb.append("yyyy-MM-dd'T'HH:mm:ss");
+		if(msCount > 0){
+			sb.append('.');
+			for(int i = 0; i < msCount; i++){
+				sb.append('S');
 			}
-			sb.append("'Z'");
-			SimpleDateFormat sdf = new SimpleDateFormat(sb.toString());
-			sdf.setTimeZone(tz);
-			return sdf;
-		});
+		}
+		sb.append("'Z'");
+		return DateTimeFormatter.ofPattern(sb.toString())
+				.withZone(ZoneId.from(ZoneOffset.UTC));
 	}
 
 	public static Date parseIso(String str){
@@ -223,11 +188,13 @@ public class DateTool{
 		return wud.toStringByMaxUnitsMaxPrecision(maxPrecision, maxUnits);
 	}
 
+	//TODO pass zoneId instead of using systemDefault
 	public static Date getDaysAgo(int daysAgo, Date fromDate){
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(fromDate);
-		calendar.add(Calendar.DATE, -1 * daysAgo);
-		return calendar.getTime();
+		Instant pastIntsant = fromDate.toInstant()
+				.atZone(ZoneId.systemDefault())
+				.minusDays(daysAgo)
+				.toInstant();
+		return Date.from(pastIntsant);
 	}
 
 	public static Date getDaysAgo(int daysAgo){
@@ -236,7 +203,7 @@ public class DateTool{
 
 	public static int getDatesBetween(Date oldDate, Date newDate){
 		//round everything > .95 up to handle partial days due to DST and leap seconds
-		double daysBetween = DateTool.getDaysBetween(oldDate, newDate);
+		double daysBetween = getDaysBetween(oldDate, newDate);
 		return (int)Math.ceil(daysBetween - .95d);
 	}
 
@@ -256,7 +223,7 @@ public class DateTool{
 	/*---------------- reverse ------------------*/
 
 	// Use fromReverseInstantLong
-	public static Date fromReverseDateLong(Long dateLong){
+	public static Date fromReverseDateLong(long dateLong){
 		return new Date(Long.MAX_VALUE - dateLong);
 	}
 
@@ -312,6 +279,8 @@ public class DateTool{
 		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
+	// TODO: Should we rather use DateTimeFormatter.RFC_1123_DATE_TIME ?
+	// 'Tue, 3 Jun 2008 11:05:30 GMT'.
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
 
 	public static String formatDateWithZone(Date date, ZoneId zoneId){

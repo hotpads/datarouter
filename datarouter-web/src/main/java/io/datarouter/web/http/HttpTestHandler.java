@@ -15,10 +15,8 @@
  */
 package io.datarouter.web.http;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -67,11 +65,8 @@ public class HttpTestHandler extends BaseHandler{
 		mav.put("method", requestMethod.name());
 		DatarouterHttpRequest request = new DatarouterHttpRequest(requestMethod, url.get()).setRetrySafe(true);
 		if(headers.isPresent()){
-			List<Map<String,String>> headerPairsList = GsonTool.GSON.fromJson(headers.get(),
-					new TypeToken<List<Map<String,String>>>(){}.getType());
-			Map<String,String> headersMap = headerPairsList.stream()
-					.flatMap(map -> map.entrySet().stream())
-					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			Map<String,String> headersMap = GsonTool.GSON.fromJson(headers.get(),
+					new TypeToken<Map<String,String>>(){}.getType());
 			request.addHeaders(headersMap);
 			mav.put("headersMap", GsonTool.GSON.toJson(headersMap));
 		}

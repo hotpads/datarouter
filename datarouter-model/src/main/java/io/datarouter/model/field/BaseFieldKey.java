@@ -48,15 +48,25 @@ implements FieldKey<T>{
 	}
 
 	//full constructor with class
-	protected BaseFieldKey(String name, String columnName, boolean nullable, Class<T> valueType,
-			FieldGeneratorType fieldGeneratorType, T defaultValue,
+	protected BaseFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			Class<T> valueType,
+			FieldGeneratorType fieldGeneratorType,
+			T defaultValue,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		this(name, columnName, nullable, TypeToken.get(valueType), fieldGeneratorType, defaultValue, attributes);
 	}
 
 	//full constructor with type token
-	protected BaseFieldKey(String name, String columnName, boolean nullable, TypeToken<T> valueType,
-			FieldGeneratorType fieldGeneratorType, T defaultValue,
+	protected BaseFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			TypeToken<T> valueType,
+			FieldGeneratorType fieldGeneratorType,
+			T defaultValue,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		this.name = name;
 		this.columnName = columnName;

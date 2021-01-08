@@ -63,6 +63,9 @@ public abstract class BaseConveyor implements Conveyor{
 
 	@Override
 	public void run(){
+		if(!shouldRun()){
+			return;
+		}
 		try{
 			int iteration = 0;
 			long start = System.currentTimeMillis();
@@ -88,7 +91,7 @@ public abstract class BaseConveyor implements Conveyor{
 			}
 			ConveyorCounters.incException(this);
 			if(getCompactExceptionLogging()){
-				logger.warn("logging exception so ScheduledExecutorService restarts this Runnable {}", e.toString());
+				logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable {}", e.toString());
 			}else{
 				logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
 			}

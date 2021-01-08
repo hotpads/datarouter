@@ -16,6 +16,7 @@
 package io.datarouter.trace.storage.entity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.thread.TraceThread;
@@ -27,8 +28,15 @@ public class TraceEntity extends BaseTraceEntity<TraceEntityKey>{
 		super(null);
 	}
 
-	public TraceEntity(TraceEntityKey key){
-		super(key);
+	public TraceEntity(
+			TraceEntityKey entityKey,
+			Trace trace,
+			List<TraceThread> threads,
+			List<TraceSpan> spans){
+		super(entityKey);
+		addDatabeansForQualifierPrefix(QUALIFIER_PREFIX_Trace, List.of(trace));
+		addDatabeansForQualifierPrefix(QUALIFIER_PREFIX_TraceThread, threads);
+		addDatabeansForQualifierPrefix(QUALIFIER_PREFIX_TraceSpan, spans);
 	}
 
 	@Override

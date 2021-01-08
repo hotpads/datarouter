@@ -38,8 +38,15 @@ public class StringEnumFieldKey<E extends StringEnum<E>> extends BaseFieldKey<E,
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
 
-	private StringEnumFieldKey(String name, E sampleValue, String columnName, boolean nullable, Class<E> enumClass,
-			FieldGeneratorType fieldGeneratorType, E defaultValue, int size,
+	private StringEnumFieldKey(
+			String name,
+			E sampleValue,
+			String columnName,
+			boolean nullable,
+			Class<E> enumClass,
+			FieldGeneratorType fieldGeneratorType,
+			E defaultValue,
+			int size,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, enumClass, fieldGeneratorType, defaultValue, attributes);
 		this.size = size;
@@ -48,20 +55,44 @@ public class StringEnumFieldKey<E extends StringEnum<E>> extends BaseFieldKey<E,
 
 	@SuppressWarnings("unchecked")
 	public StringEnumFieldKey<E> withSize(int sizeOverride){
-		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, (Class<E>)valueType,
-				fieldGeneratorType, defaultValue, sizeOverride, attributes);
+		return new StringEnumFieldKey<>(
+				name,
+				sampleValue,
+				columnName,
+				nullable,
+				(Class<E>)valueType,
+				fieldGeneratorType,
+				defaultValue,
+				sizeOverride,
+				attributes);
 	}
 
 	@SuppressWarnings("unchecked")
 	public StringEnumFieldKey<E> withColumnName(String columnNameOverride){
-		return new StringEnumFieldKey<>(name, sampleValue, columnNameOverride, nullable, (Class<E>)valueType,
-				fieldGeneratorType, defaultValue, size, attributes);
+		return new StringEnumFieldKey<>(
+				name,
+				sampleValue,
+				columnNameOverride,
+				nullable,
+				(Class<E>)valueType,
+				fieldGeneratorType,
+				defaultValue,
+				size,
+				attributes);
 	}
 
 	@SuppressWarnings("unchecked")
 	public StringEnumFieldKey<E> withDefaultValue(E defaultValueOverride){
-		return new StringEnumFieldKey<>(name, sampleValue, columnName, nullable, (Class<E>)valueType,
-				fieldGeneratorType, defaultValueOverride, size, attributes);
+		return new StringEnumFieldKey<>(
+				name,
+				sampleValue,
+				columnName,
+				nullable,
+				(Class<E>)valueType,
+				fieldGeneratorType,
+				defaultValueOverride,
+				size,
+				attributes);
 	}
 
 	@Override

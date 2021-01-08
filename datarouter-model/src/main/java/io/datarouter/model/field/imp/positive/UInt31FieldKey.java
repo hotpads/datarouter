@@ -28,8 +28,13 @@ public class UInt31FieldKey extends PrimitiveFieldKey<Integer,UInt31FieldKey>{
 		super(name, Integer.class);
 	}
 
-	private UInt31FieldKey(String name, String columnName, boolean nullable, FieldGeneratorType fieldGeneratorType,
-			Integer defaultValue, Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
+	private UInt31FieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			FieldGeneratorType fieldGeneratorType,
+			Integer defaultValue,
+			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, Integer.class, fieldGeneratorType, defaultValue, attributes);
 	}
 

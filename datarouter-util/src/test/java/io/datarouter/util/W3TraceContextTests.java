@@ -18,8 +18,9 @@ package io.datarouter.util;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.instrumentation.trace.Traceparent;
+import io.datarouter.instrumentation.trace.Tracestate;
 import io.datarouter.util.tracer.W3TraceContext;
-import io.datarouter.util.tracer.W3TraceContext.Traceparent;
 
 public class W3TraceContextTests{
 
@@ -33,7 +34,7 @@ public class W3TraceContextTests{
 		W3TraceContext traceContext = new W3TraceContext(validTraceparent, validTracestate, UNIX_TIME_MILLIS);
 		Assert.assertEquals(traceContext.getTraceparent().traceId, "4bf92f3577b34da6a3ce929d0e0e4736");
 		Assert.assertEquals(traceContext.getTraceparent().parentId, traceContext.getTracestate().getLastestTracestate()
-				.getRight());
+				.value);
 		Assert.assertNotEquals(traceContext.getTimestamp().get(), UNIX_TIME_MILLIS);
 		Assert.assertEquals(traceContext.getTracestate().toString(), validTracestate);
 	}
@@ -42,13 +43,13 @@ public class W3TraceContextTests{
 	public void inValidTraceContextTest(){
 		String invalidTraceparent = "00-4bf92f3577b34da6a3ce-00000175e4110dbe-01";
 		String invalidTracestate = "datarouter=00000175e4110dbe,rojo=00f067aa0ba902b7,congo=t61rcWkgMzE";
-		String newTracestate = W3TraceContext.TRACESTATE_DR_KEY + "=" + Traceparent.createParentIdByTimestamp(
+		String newTracestate = Tracestate.TRACESTATE_DR_KEY + "=" + Traceparent.createParentIdByTimestamp(
 				UNIX_TIME_MILLIS);
 
 		W3TraceContext traceContext = new W3TraceContext(invalidTraceparent, invalidTracestate, UNIX_TIME_MILLIS);
 		Assert.assertNotEquals(traceContext.getTraceparent().traceId, "4bf92f3577b34da6a3ce");
 		Assert.assertEquals(traceContext.getTraceparent().parentId, traceContext.getTracestate().getLastestTracestate()
-				.getRight());
+				.value);
 		Assert.assertEquals(traceContext.getTraceparent().toString().length(), 55);
 		Assert.assertEquals(traceContext.getTimestamp().get(), UNIX_TIME_MILLIS);
 		Assert.assertNotEquals(traceContext.getTracestate().toString(), invalidTracestate);

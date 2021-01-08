@@ -33,8 +33,14 @@ public class IntegerEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<
 		this.sampleValue = ReflectionTool.create(enumClass);
 	}
 
-	public IntegerEnumFieldKey(String name, String columnName, boolean nullable, Class<E> enumClass,
-			FieldGeneratorType fieldGeneratorType, E defaultValue, E sampleValue,
+	public IntegerEnumFieldKey(
+			String name,
+			String columnName,
+			boolean nullable,
+			Class<E> enumClass,
+			FieldGeneratorType fieldGeneratorType,
+			E defaultValue,
+			E sampleValue,
 			Map<FieldKeyAttributeKey<?>,FieldKeyAttribute<?>> attributes){
 		super(name, columnName, nullable, enumClass, fieldGeneratorType, defaultValue, attributes);
 		this.sampleValue = sampleValue;
@@ -42,8 +48,15 @@ public class IntegerEnumFieldKey<E extends IntegerEnum<E>> extends BaseFieldKey<
 
 	@SuppressWarnings("unchecked")
 	public IntegerEnumFieldKey<E> withColumnName(String columnNameOverride){
-		return new IntegerEnumFieldKey<>(name, columnNameOverride, nullable, (Class<E>)getValueType(),
-				fieldGeneratorType, defaultValue, sampleValue, attributes);
+		return new IntegerEnumFieldKey<>(
+				name,
+				columnNameOverride,
+				nullable,
+				(Class<E>)getValueType(),
+				fieldGeneratorType,
+				defaultValue,
+				sampleValue,
+				attributes);
 	}
 
 	public E getSampleValue(){

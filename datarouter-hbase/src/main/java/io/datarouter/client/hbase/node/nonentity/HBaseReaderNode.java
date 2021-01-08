@@ -26,7 +26,9 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
+import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.config.DatarouterHBaseExecutors.DatarouterHbaseClientExecutor;
@@ -68,6 +70,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 
 	private static final int DEFAULT_SCAN_BATCH_SIZE = 100;
 	private static final FirstKeyOnlyFilter FIRST_KEY_ONLY_FILTER = new FirstKeyOnlyFilter();
+	private static final KeyOnlyFilter KEY_ONLY_FILTER = new KeyOnlyFilter();
 
 	private final HBaseClientManager hBaseClientManager;
 	private final ClientType<?,?> clientType;
@@ -155,7 +158,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 
 	private static void configureKeyOnlyFilter(Get get, boolean keysOnly){
 		if(keysOnly){
-			get.setFilter(FIRST_KEY_ONLY_FILTER);
+			get.setFilter(new FilterList(FIRST_KEY_ONLY_FILTER, KEY_ONLY_FILTER));
 		}
 	}
 
@@ -202,10 +205,11 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		int offset = config.findOffset().orElse(0);
 		Integer subscanLimit = config.findLimit().map(limit -> offset + limit).orElse(null);
 		int pageSize = config.findOutputBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
+		boolean prefetch = config.findScannerPrefetching().orElse(true);
 		boolean cacheBlocks = config.findScannerCaching().orElse(true);
 		Scanner<Result> collatedPartitions = partitioner.scanPrefixes(range)
-				.collate(prefix -> scanResultsInByteRange(prefix, byteRange, pageSize, subscanLimit, cacheBlocks,
-						keysOnly), resultComparator);
+				.collate(prefix -> scanResultsInByteRange(prefix, byteRange, pageSize, subscanLimit, prefetch,
+						cacheBlocks, keysOnly), resultComparator);
 		return ScannerConfigTool.applyOffsetAndLimit(collatedPartitions, config);
 	}
 
@@ -214,6 +218,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 			Range<ByteRange> range,
 			int pageSize,
 			Integer limit,
+			boolean prefetch,
 			boolean cacheBlocks,
 			boolean keysOnly){
 		if(range.isEmpty()){
@@ -221,9 +226,12 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		}
 		@SuppressWarnings("resource")
 		var pagingScanner = new ResultPagingScanner(pageSize, prefix, range, limit, cacheBlocks, keysOnly);
-		return pagingScanner
-				.concat(Scanner::of)
-				.prefetch(datarouterHbaseClientExecutor, pageSize);
+		Scanner<Result> results = pagingScanner
+				.concat(Scanner::of);
+		if(prefetch){
+			results = results.prefetch(datarouterHbaseClientExecutor, pageSize);
+		}
+		return results;
 	}
 
 	private class ResultPagingScanner extends PagingScanner<ByteRange,Result>{
@@ -285,7 +293,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 				if(closed){
 					return List.of();
 				}
-				throw new RuntimeException(e);
+				throw new RuntimeException("", e);
 			}
 		}
 

@@ -62,6 +62,12 @@ public class PathNode{
 		return paths;
 	}
 
+	public String[] toStringArray(){
+		return nodesAfter(null, this).stream()
+				.map(PathNode::getValue)
+				.toArray(String[]::new);
+	}
+
 	public static String toSlashedString(List<PathNode> nodes, boolean includeLeadingSlash){
 		String prefix = includeLeadingSlash ? "/" : "";
 		return joinNodes(nodes, prefix, "/", "");

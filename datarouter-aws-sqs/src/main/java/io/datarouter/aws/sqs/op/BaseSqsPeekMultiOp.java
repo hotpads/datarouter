@@ -18,6 +18,7 @@ package io.datarouter.aws.sqs.op;
 import java.time.Duration;
 import java.util.List;
 
+import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -29,6 +30,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
 public abstract class BaseSqsPeekMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -53,7 +55,12 @@ extends SqsOp<PK,D,F,List<T>>{
 	@Override
 	protected final List<T> run(){
 		ReceiveMessageRequest request = makeRequest();
-		ReceiveMessageResult result = sqsClientManager.getAmazonSqs(clientId).receiveMessage(request);
+		ReceiveMessageResult result;
+		try{
+			result = sqsClientManager.getAmazonSqs(clientId).receiveMessage(request);
+		}catch(AbortedException e){
+			throw new UncheckedInterruptedException("", e);
+		}
 		List<Message> messages = result.getMessages();
 		return messages.isEmpty() ? List.of() : extractDatabeans(messages);
 	}

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
@@ -31,6 +32,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.bytes.StringByteTool;
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
 public class SqsGroupPutMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -86,7 +88,11 @@ extends SqsOp<PK,D,F,Void>{
 		}
 		String stringGroup = codec.concatGroup(group);
 		SendMessageRequest request = new SendMessageRequest(queueUrl, stringGroup);
-		sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
+		try{
+			sqsClientManager.getAmazonSqs(clientId).sendMessage(request);
+		}catch(AbortedException e){
+			throw new UncheckedInterruptedException("", e);
+		}
 	}
 
 }

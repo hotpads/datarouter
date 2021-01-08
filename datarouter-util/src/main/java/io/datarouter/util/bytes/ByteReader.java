@@ -51,6 +51,14 @@ public class ByteReader{
 		}
 	}
 
+	/*-------------- boolean -----------------*/
+
+	public boolean booleanByte(){
+		boolean value = BooleanByteTool.fromBytes(bytes, position);
+		++position;
+		return value;
+	}
+
 	/*-------------- int -----------------*/
 
 	public int skipInts(int num){

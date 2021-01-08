@@ -13,26 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.node.op.raw.write;
+package io.datarouter.instrumentation.trace;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.storage.node.op.raw.read.BlobStorageReader;
-import io.datarouter.storage.util.Subpath;
+public interface TraceContext{
 
-/**
- * Methods for writing to an object store such as the filesystem or S3.
- */
-public interface BlobStorageWriter<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>>
-extends BlobStorageReader<PK,D>{
-
-	void write(PathbeanKey key, byte[] value);
-
-	void delete(PathbeanKey key);
-
-	void deleteAll(Subpath subpath);
+	Traceparent getTraceparent();
+	Tracestate getTracestate();
+	void updateParentIdAndAddTracestateMember(long createdTimestamp);
 
 }

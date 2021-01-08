@@ -307,26 +307,27 @@ public class ClusterSettingsHandler extends BaseHandler{
 		ClusterSettingKey clusterSettingKey = parseClusterSettingKeyFromParams();
 		String comment = parseCommentFromParams();
 		String value = params.optional("value").orElse(null);
-		var clusterSetting = new ClusterSetting(clusterSettingKey, value);
-		Optional<CachedSetting<?>> setting = settingRootFinder.getSettingByName(clusterSetting.getName());
+		var newClusterSetting = new ClusterSetting(clusterSettingKey, value);
+		Optional<CachedSetting<?>> setting = settingRootFinder.getSettingByName(newClusterSetting.getName());
 		ClusterSettingLogAction action;
-		if(clusterSettingDao.exists(clusterSettingKey)){
+		Optional<ClusterSetting> dbSetting = clusterSettingDao.find(clusterSettingKey);
+		if(dbSetting.isPresent()){
 			action = ClusterSettingLogAction.UPDATED;
 		}else{
 			action = ClusterSettingLogAction.INSERTED;
 		}
 		var result = new ClusterSettingActionResultJson(action);
-		if(setting.isPresent() && !setting.get().isValid(clusterSetting.getValue())){
-			String badNewValue = clusterSetting.getValue();
+		if(setting.isPresent() && !setting.get().isValid(newClusterSetting.getValue())){
+			String badNewValue = newClusterSetting.getValue();
 			String error = "Invalid value detected, setting did not accept new value: \"" + badNewValue + "\"";
 			return result.markError(error);
 		}
-		String oldValue = setting
-				.map(CachedSetting::toStringValue)
+		String oldValue = dbSetting
+				.map(ClusterSetting::getValue)
 				.orElse("?");
 		String changedBy = getRequestorsUsername();
-		var clusterSettingLog = new ClusterSettingLog(clusterSetting, action, changedBy, comment);
-		clusterSettingDao.put(clusterSetting);
+		var clusterSettingLog = new ClusterSettingLog(newClusterSetting, action, changedBy, comment);
+		clusterSettingDao.put(newClusterSetting);
 		clusterSettingLogDao.put(clusterSettingLog);
 		sendEmail(clusterSettingLog, oldValue);
 		recordChangelog(clusterSettingLog.getKey().getName(), clusterSettingLog.getAction().getPersistentString(),

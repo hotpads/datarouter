@@ -15,6 +15,7 @@
  */
 package io.datarouter.aws.sqs.op;
 
+import com.amazonaws.AbortedException;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
@@ -26,6 +27,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.bytes.StringByteTool;
+import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
 public class SqsAckOp<
 		PK extends PrimaryKey<PK>,
@@ -53,7 +55,11 @@ extends SqsOp<PK,D,F,Void>{
 	protected Void run(){
 		String handle = StringByteTool.fromUtf8Bytes(key.getHandle());
 		var deleteRequest = new DeleteMessageRequest(queueUrl, handle);
-		sqsClientManager.getAmazonSqs(clientId).deleteMessage(deleteRequest);
+		try{
+			sqsClientManager.getAmazonSqs(clientId).deleteMessage(deleteRequest);
+		}catch(AbortedException e){
+			throw new UncheckedInterruptedException("", e);
+		}
 		return null;
 	}
 

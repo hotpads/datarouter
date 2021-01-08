@@ -52,13 +52,17 @@ public abstract class BaseConveyors implements DatarouterAppListener{
 	}
 
 	protected void start(Conveyor conveyor, int numThreads){
+		start(conveyor, numThreads, DELAY_SEC);
+	}
+
+	protected void start(Conveyor conveyor, int numThreads, long delaySeconds){
 		String name = conveyor.getName();
 		Require.notContains(execsAndConveyorsByName.keySet(), name, name + " already exists");
 		String threadGroupName = name;
 		ThreadFactory threadFactory = new NamedThreadFactory(threadGroupName, true);
 		ScheduledExecutorService exec = Executors.newScheduledThreadPool(numThreads, threadFactory);
 		for(int i = 0; i < numThreads; ++i){
-			exec.scheduleWithFixedDelay(conveyor, DELAY_SEC, DELAY_SEC, TimeUnit.SECONDS);
+			exec.scheduleWithFixedDelay(conveyor, delaySeconds, delaySeconds, TimeUnit.SECONDS);
 		}
 		instanceRegistry.register(exec);
 		execsAndConveyorsByName.put(name, new Pair<>(exec, conveyor));

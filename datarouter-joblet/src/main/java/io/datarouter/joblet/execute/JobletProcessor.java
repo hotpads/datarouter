@@ -133,7 +133,7 @@ public class JobletProcessor{
 					continue;
 				}
 				tryEnqueueJobletCallable(numThreads);
-			}catch(Exception e){//catch everything; don't let the loop break
+			}catch(Throwable e){//catch everything; don't let the loop break
 				logger.error("", e);
 				try{
 					sleepABit(SLEEP_TIME_AFTER_EXCEPTION);
