@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.DatarouterAccountAvailableEndpointsProvider;
+import io.datarouter.auth.service.DatarouterAccountCounters;
 import io.datarouter.auth.service.DefaultDatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
@@ -37,8 +38,10 @@ import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermiss
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermission;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
@@ -57,6 +60,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final Bootstrap4ReactPageFactory reactPageFactory;
 	private final DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
 	private final ChangelogRecorder changelogRecorder;
+	private final MetricLinkBuilder metricLinkBuilder;
 
 	private final String path;
 
@@ -70,7 +74,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			DefaultDatarouterAccountAvailableEndpointsProvider defaultDatarouterAccountAvailableEndpointsProvider,
 			Bootstrap4ReactPageFactory reactPageFactory,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
-			ChangelogRecorder changelogRecorder){
+			ChangelogRecorder changelogRecorder,
+			MetricLinkBuilder metricLinkBuilder){
 		this(datarouterAccountDao,
 				datarouterAccountPermissionDao,
 				datarouterProperties,
@@ -79,6 +84,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				reactPageFactory,
 				defaultDatarouterAccountKeys,
 				changelogRecorder,
+				metricLinkBuilder,
 				paths.admin.accounts.toSlashedString());
 	}
 
@@ -91,6 +97,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			Bootstrap4ReactPageFactory reactPageFactory,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
 			ChangelogRecorder changelogRecorder,
+			MetricLinkBuilder metricLinkBuilder,
 			String path){
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
@@ -100,6 +107,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this.reactPageFactory = reactPageFactory;
 		this.defaultDatarouterAccountKeys = defaultDatarouterAccountKeys;
 		this.changelogRecorder = changelogRecorder;
+		this.metricLinkBuilder = metricLinkBuilder;
 
 		this.path = path;
 	}
@@ -221,10 +229,13 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	}
 
 	private DatarouterAccountDetails getDetailsForAccount(DatarouterAccount account){
+		String counterName = DatarouterCounters.PREFIX + " " + DatarouterAccountCounters.ACCOUNT + " "
+				+ DatarouterAccountCounters.NAME + " " + account.getKey().getAccountName();
+		String metricLink = metricLinkBuilder.exactMetricLink(counterName);
 		return datarouterAccountPermissionDao
 				.scanKeysWithPrefix(new DatarouterAccountPermissionKey(account.getKey().getAccountName()))
 				.map(TextPermission::create)
-				.listTo(permissions -> new DatarouterAccountDetails(account, permissions));
+				.listTo(permissions -> new DatarouterAccountDetails(account, permissions, metricLink));
 	}
 
 	public DatarouterAccountDetails getDetailsForAccountName(String accountName){
@@ -253,10 +264,12 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 		public final DatarouterAccount account;
 		public final List<TextPermission> permissions;
+		public final String metricLink;
 
-		public DatarouterAccountDetails(DatarouterAccount account, List<TextPermission> permissions){
+		public DatarouterAccountDetails(DatarouterAccount account, List<TextPermission> permissions, String metricLink){
 			this.account = account;
 			this.permissions = permissions;
+			this.metricLink = metricLink;
 		}
 
 	}

@@ -28,7 +28,9 @@ import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSett
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.storage.setting.SettingFinder;
+import io.datarouter.storage.setting.cached.CachedClusterSettingTags;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.string.StringTool;
 
@@ -41,6 +43,8 @@ public class ClusterSettingFinder implements SettingFinder{
 	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterClusterSettingDao clusterSettingDao;
+	@Inject
+	private CachedClusterSettingTags cachedClusterSettingTags;
 
 	private final List<CachedSetting<?>> allCachedSettings = new ArrayList<>();
 	private Boolean started = false;
@@ -92,6 +96,11 @@ public class ClusterSettingFinder implements SettingFinder{
 	@Override
 	public String getServerName(){
 		return datarouterProperties.getServerName();
+	}
+
+	@Override
+	public List<DatarouterSettingTag> getSettingTags(){
+		return cachedClusterSettingTags.get();
 	}
 
 	@Override

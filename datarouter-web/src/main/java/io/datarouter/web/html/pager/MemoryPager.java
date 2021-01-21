@@ -47,6 +47,7 @@ public class MemoryPager<T>{
 	public final List<BaseHtmlFormField> filterFields;
 	public final MemorySorter<T> memorySorter;
 	public final String path;
+	public final Map<String,String> requiredParams;
 	public final int pageSize;
 	public final int page;
 	public final String sort;
@@ -57,6 +58,7 @@ public class MemoryPager<T>{
 			List<BaseHtmlFormField> filterFields,
 			MemorySorter<T> sorter,
 			String path,
+			Map<String,String> requiredParams,
 			int pageSize,
 			int page,
 			String sort,
@@ -64,6 +66,7 @@ public class MemoryPager<T>{
 		this.filterFields = filterFields;
 		this.memorySorter = sorter != null ? sorter : new MemorySorter<>();
 		this.path = path;
+		this.requiredParams = requiredParams;
 		this.pageSize = pageSize;
 		this.page = page;
 		this.sort = sort;
@@ -75,11 +78,13 @@ public class MemoryPager<T>{
 			List<BaseHtmlFormField> filterFields,
 			MemorySorter<T> sorter,
 			String path,
+			Map<String,String> requiredParams,
 			Params params,
 			int defaultPageSize){
 		this(filterFields,
 				sorter,
 				path,
+				requiredParams,
 				params.optionalInteger(MemoryPager.P_pageSize).orElse(defaultPageSize),
 				params.optionalInteger(MemoryPager.P_page).orElse(1),
 				params.optional(MemoryPager.P_sort).orElse(null),
@@ -98,6 +103,7 @@ public class MemoryPager<T>{
 	public static class Page<T>{
 
 		public final String path;
+		public final Map<String,String> requiredParams;
 		public final List<BaseHtmlFormField> filterFields;
 		public final Map<String,String> sortDisplayByValue;
 		public final String sort;
@@ -121,6 +127,7 @@ public class MemoryPager<T>{
 				int totalRows){
 			this.filterFields = filterFields;
 			this.path = path;
+			this.requiredParams = pager.requiredParams;
 			this.sortDisplayByValue = pager.memorySorter.getDisplayByValue();
 			this.sort = pager.sort;
 			this.reverse = pager.reverse;
@@ -173,16 +180,18 @@ public class MemoryPager<T>{
 		public List<PageLink> getLinks(){
 			Optional<PageLink> first = page == 1
 					? Optional.empty()
-					: Optional.of(new PageLink(path, "first", sort, pageSize, 1, reverse));
+					: Optional.of(new PageLink(path, requiredParams, "first", sort, pageSize, 1, reverse));
 			Optional<PageLink> previous = previousPage == null
 					? Optional.empty()
-					: Optional.of(new PageLink(path, "previous", sort, pageSize, previousPage.intValue(), reverse));
+					: Optional.of(new PageLink(path, requiredParams, "previous", sort, pageSize,
+					previousPage.intValue(), reverse));
 			Optional<PageLink> next = nextPage == null
 					? Optional.empty()
-					: Optional.of(new PageLink(path, "next", sort, pageSize, nextPage.intValue(), reverse));
+					: Optional.of(new PageLink(path, requiredParams, "next", sort, pageSize, nextPage.intValue(),
+					reverse));
 			Optional<PageLink> last = nextPage == null
 					? Optional.empty()
-					: Optional.of(new PageLink(path, "last", sort, pageSize, totalPages, reverse));
+					: Optional.of(new PageLink(path, requiredParams, "last", sort, pageSize, totalPages, reverse));
 			return Stream.of(first, previous, next, last)
 					.filter(Optional::isPresent)
 					.map(Optional::get)
@@ -194,27 +203,31 @@ public class MemoryPager<T>{
 	public static class PageLink{
 
 		public final String path;
+		public final Map<String,String> requiredParams;
 		public final String text;
 		public final String href;
 
-		public PageLink(String path, String text, String sort, int pageSize, int page, boolean reverse){
+		public PageLink(String path, Map<String,String> requiredParams, String text, String sort, int pageSize,
+				int page, boolean reverse){
 			this.path = path;
+			this.requiredParams = requiredParams;
 			this.text = text;
-			this.href = makeHref(path, sort, pageSize, page, reverse);
+			this.href = makeHref(path, requiredParams, sort, pageSize, page, reverse);
 		}
 
-		public static String makeHref(String path, String sort, int pageSize, int page, boolean reverse){
+		public static String makeHref(String path, Map<String,String> requiredParams, String sort, int pageSize,
+				int page, boolean reverse){
 			var href = new URIBuilder()
 					.setPath(path)
 					.addParameter(P_sort, sort)
 					.addParameter(P_pageSize, pageSize + "")
 					.addParameter(P_page, page + "");
+			requiredParams.forEach(href::addParameter);
 			if(reverse){
 				href.addParameter(P_reverse, "on");
 			}
 			return href.toString();
 		}
-
 	}
 
 }

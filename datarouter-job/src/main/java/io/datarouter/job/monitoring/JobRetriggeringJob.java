@@ -104,11 +104,22 @@ public class JobRetriggeringJob extends BaseJob{
 		hasLastCompletionTime.increment();
 
 		//getNextValidTimeAfter should be present, because only non-manual jobs get scheduled
-		Date nextValidTime = jobPackage.getNextValidTimeAfter(lastCompletionTime.get()).get();
-		if(new Date().after(nextValidTime)){
-			jobScheduler.scheduleRetriggeredJob(jobPackage, nextValidTime);
-			retriggered.increment();
+		Date testTriggerTime = jobPackage.getNextValidTimeAfter(lastCompletionTime.get()).get();
+		Date now = new Date();
+		if(testTriggerTime.after(now)){
+			return;
 		}
+
+		//advance to the latest trigger time before the current date
+		Date triggerTime = testTriggerTime;
+		while(testTriggerTime.before(now)){
+			testTriggerTime = jobPackage.getNextValidTimeAfter(testTriggerTime).get();
+			if(testTriggerTime.before(now)){
+				triggerTime = testTriggerTime;
+			}
+		}
+		jobScheduler.scheduleRetriggeredJob(jobPackage, triggerTime);
+		retriggered.increment();
 	}
 
 }

@@ -16,6 +16,7 @@
 package io.datarouter.batchsizeoptimizer.storage.performancerecord;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,42 +26,43 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
-import io.datarouter.virtualnode.writebehind.WriteBehindSortedMapStorageNode;
-import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
-import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterOpPerformanceRecordDao extends BaseDao{
 
-	public static class DatarouterOpPerformanceRecordDaoParams extends BaseDaoParams{
+	public static class DatarouterOpPerformanceRecordDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterOpPerformanceRecordDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterOpPerformanceRecordDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<OpPerformanceRecordKey,OpPerformanceRecord> node;
+	private final SortedMapStorageNode<OpPerformanceRecordKey,OpPerformanceRecord,OpPerformanceRecordFielder> node;
+
 
 	@Inject
 	public DatarouterOpPerformanceRecordDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
-			DatarouterOpPerformanceRecordDaoParams params,
-			DatarouterWriteBehindScheduler scheduler,
-			DatarouterWriteBehindExecutor writeExecutor){
+			DatarouterOpPerformanceRecordDaoParams params){
 		super(datarouter);
-		node = new WriteBehindSortedMapStorageNode<>(
-				scheduler,
-				writeExecutor,
-				nodeFactory.create(params.clientId,
-				OpPerformanceRecord::new,
-				OpPerformanceRecordFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister());
+
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<OpPerformanceRecordKey,OpPerformanceRecord,OpPerformanceRecordFielder> node =
+							nodeFactory.create(clientId, OpPerformanceRecord::new, OpPerformanceRecordFielder::new)
+							.withIsSystemTable(true)
+							.buildAndRegister();
+					return node;
+					})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
+
 	}
 
 	public Scanner<OpPerformanceRecord> scan(){

@@ -55,10 +55,10 @@ public class DatabeanBufferConveyor<PK extends PrimaryKey<PK>,D extends Databean
 			putMultiConsumer.accept(databeans);
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
 			return new ProcessBatchResult(true);
-		}catch(Exception putMultiException){
+		}catch(RuntimeException putMultiException){
 			databeans.forEach(databeanBuffer::offer);// might as well try to save them for later
 			ConveyorCounters.inc(this, "putMulti exception", 1);
-			return new ProcessBatchResult(false);// backoff for a bit
+			throw putMultiException;
 		}
 	}
 

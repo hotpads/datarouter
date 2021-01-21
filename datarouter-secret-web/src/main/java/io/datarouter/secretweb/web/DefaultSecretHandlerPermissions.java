@@ -15,6 +15,8 @@
  */
 package io.datarouter.secretweb.web;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -33,7 +35,10 @@ public class DefaultSecretHandlerPermissions implements SecretHandlerPermissions
 	private ServerTypeDetector serverTypeDetector;
 
 	@Override
-	public boolean isAuthorized(Session session, SecretOpDto secretOp){
+	public final boolean isAuthorized(Session session, SecretOpDto secretOp){
+		if(getAuthorizedUsers().contains(session.getUsername())){
+			return true;
+		}
 		if(SecretOpDto.LIST_ALL == secretOp){
 			return true;
 		}
@@ -41,6 +46,10 @@ public class DefaultSecretHandlerPermissions implements SecretHandlerPermissions
 			return false;
 		}
 		return true;
+	}
+
+	public List<String> getAuthorizedUsers(){
+		return List.of();
 	}
 
 }

@@ -47,9 +47,9 @@ public class DatarouterBatchSizePlugin extends BaseJobPlugin{
 
 	public static class DatarouterBatchSizePluginBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 
-		public DatarouterBatchSizePluginBuilder(ClientId defaultClientId){
+		public DatarouterBatchSizePluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
 		}
 
@@ -63,12 +63,12 @@ public class DatarouterBatchSizePlugin extends BaseJobPlugin{
 
 	public static class DatarouterBatchSizeOptimizerDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterOpOptimizedBatchSizeClientId;
-		private final ClientId datarouterOpPerformanceRecordClientId;
+		private final List<ClientId> datarouterOpOptimizedBatchSizeClientId;
+		private final List<ClientId> datarouterOpPerformanceRecordClientId;
 
 		public DatarouterBatchSizeOptimizerDaoModule(
-				ClientId datarouterOpOptimizedBatchSizeClientId,
-				ClientId datarouterOpPerformanceRecordClientId){
+				List<ClientId> datarouterOpOptimizedBatchSizeClientId,
+				List<ClientId> datarouterOpPerformanceRecordClientId){
 			this.datarouterOpOptimizedBatchSizeClientId = datarouterOpOptimizedBatchSizeClientId;
 			this.datarouterOpPerformanceRecordClientId = datarouterOpPerformanceRecordClientId;
 		}
@@ -83,7 +83,8 @@ public class DatarouterBatchSizePlugin extends BaseJobPlugin{
 		@Override
 		public void configure(){
 			bind(DatarouterOpOptimizedBatchSizeDaoParams.class)
-					.toInstance(new DatarouterOpOptimizedBatchSizeDaoParams(datarouterOpOptimizedBatchSizeClientId));
+					.toInstance(new DatarouterOpOptimizedBatchSizeDaoParams(
+							datarouterOpOptimizedBatchSizeClientId));
 			bind(DatarouterOpPerformanceRecordDaoParams.class)
 					.toInstance(new DatarouterOpPerformanceRecordDaoParams(datarouterOpPerformanceRecordClientId));
 		}

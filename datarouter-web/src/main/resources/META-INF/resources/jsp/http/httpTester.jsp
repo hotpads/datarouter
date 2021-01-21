@@ -11,7 +11,7 @@
 	<div class="container mt-4">
 
 		<h2>HTTP Tester Tool</h2>
-		<form id="httpForm" action="${contextPath}/datarouter/httpTester">
+		<form id="httpForm" action="${contextPath}${path}">
 			<div class="form-row">
 				<div class="col-sm-2">
 					<select class="form-control" id="method" name="method">
@@ -45,6 +45,10 @@
 				</div>
 			</div>
 			<div class="form-check mt-2">
+				<input type="checkbox" class="form-check-input" id="followRedirects", name="followRedirects">
+				<label class="form-check-label" for="followRedirects">Follow Redirects</label>
+			</div>
+			<div class="form-check mt-2">
 				<input type="checkbox" class="form-check-input" id="proxyCheck", name="useProxy">
 				<label class="form-check-label" for="proxyCheck">Use Proxy</label>
 			</div>
@@ -66,39 +70,35 @@
 			</div>
 		</form>
 		<c:if test="${not empty url}">
+			<h5 class="mt-4">Response Details</h5>
 			<div class="table-responsive">
-				<table class="table table-striped mt-4">
-					<thead class>
-						<tr>
-							<th scope="col">url</th>
-							<th scope="col">server name</th>
-							<th scope="col">response ms</th>
-							<c:if test="${not empty statusCode}">
-								<th scope="col">status code</th>
-							</c:if>
-							<c:if test="${not empty cause}">
-								<th scope="col">exception cause</th>
-							</c:if>
-							<c:if test="${not empty message}">
-								<th scope="col">exception message</th>
-							</c:if>
-						</tr>
-					</thead>
+				<table class="table table-bordered table-striped mt-2"
+					style="table-layout: fixed; word-wrap: break-word;">
 					<tbody>
 						<tr>
+							<td><b>url</b></td>
 							<td>${url}</td>
-							<td>${serverName}</td>
-							<td>${responseMs}</td>
-							<c:if test="${not empty statusCode}">
-								<td>${statusCode}</td>
-							</c:if>
-							<c:if test="${not empty cause}">
-								<td>${cause}</td>
-							</c:if>
-							<c:if test="${not empty message}">
-								<td>${message}</td>
-							</c:if>
 						</tr>
+						<tr>
+							<td><b>server name</b></td>
+							<td>${serverName}</td>
+						</tr>
+						<tr>
+							<td><b>responseMs</b></td>
+							<td>${responseMs}</td>
+						</tr>
+						<c:if test="${not empty statusCode}">
+							<tr>
+								<td><b>statusCode</b></td>
+								<td>${statusCode}</td>
+							</tr>
+						</c:if>
+						<c:if test="${not empty message}">
+							<tr>
+								<td><b>exception message</b></td>
+								<td>${fn:escapeXml(message)}</td>
+							</tr>
+						</c:if>
 					</tbody>
 				</table>
 			</div>
@@ -106,11 +106,12 @@
 		<c:if test="${not empty headers}">
 			<h5 class="mt-4">Response Headers</h5>
 			<div class="table-responsive">
-				<table class="table table-sm table-striped table-hover mt-2">
+				<table class="table table-bordered table-striped mt-2"
+					style="table-layout: fixed; word-wrap: break-word;">
 					<thead>
 						<tr>
-							<th>Header</th>
-							<th>Value</th>
+							<th width="30%">Header</th>
+							<th width="70%">Value</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -122,6 +123,12 @@
 						</c:forEach>
 					</tbody>
 				</table>
+			</div>
+		</c:if>
+		<c:if test="${not empty stackTrace}">
+			<div id="responseBodyDiv">
+				<h5 class="mt-4">Stack Trace</h5>
+				<pre id="stackTrace" class="mt-2 bg-light text-dark p1 border">${stackTrace}</pre>
 			</div>
 		</c:if>
 		<c:if test="${not empty responseBody}">
@@ -140,6 +147,7 @@
 	var allMap = '${headersMap}';
 	var contentType = '${contentType}';
 	var useProxy = '${useProxy}';
+	var followRedirects = '${followRedirects}';
 	const headerKeyPrefix = 'headerKey';
 	const headerValPrefix = 'headerVal';
 	const headerClosePrefix = 'headerClose';
@@ -157,6 +165,10 @@
 	}
 	if(useProxy != ''){
 		var checkbox = document.getElementById("proxyCheck");
+		checkbox.checked = true;
+	}
+	if(followRedirects != ''){
+		var checkbox = document.getElementById("followRedirects");
 		checkbox.checked = true;
 	}
 	if (allMap != '') {

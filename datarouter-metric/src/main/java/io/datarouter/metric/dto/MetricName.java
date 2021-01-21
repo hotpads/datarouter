@@ -17,8 +17,8 @@ package io.datarouter.metric.dto;
 
 import java.util.Objects;
 
+import io.datarouter.instrumentation.metric.MetricType;
 import io.datarouter.metric.types.MetricNameType;
-import io.datarouter.metric.types.MetricType;
 import io.datarouter.pathnode.PathNode;
 
 public class MetricName{

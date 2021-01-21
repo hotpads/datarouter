@@ -24,6 +24,7 @@ import static j2html.TagCreator.li;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -121,9 +122,10 @@ public class Bootstrap4HomepageCreatorService{
 	}
 
 	private ContainerTag makeLink(NavBarItem item){
+		String href = URI.create(item.path).isAbsolute() ? item.path : datarouterService.getContextPath() + item.path;
 		return a(item.name)
 				.withClass("list-group-item list-group-item-action")
-				.withHref(datarouterService.getContextPath() + item.path);
+				.withHref(href);
 	}
 
 }

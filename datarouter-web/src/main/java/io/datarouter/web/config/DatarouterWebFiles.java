@@ -254,6 +254,7 @@ public class DatarouterWebFiles extends FilesRoot{
 
 	public static class JspHttpFiles extends PathNode{
 		public final PathNode httpTesterJsp = leaf("httpTester.jsp");
+		public final PathNode dnsLookupJsp = leaf("dnsLookup.jsp");
 	}
 
 	public static class JspMenuFiles extends PathNode{

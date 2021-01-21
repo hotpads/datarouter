@@ -63,6 +63,7 @@ implements CallsiteAdapter{
 
 	@Override
 	public void recordCallsite(LineOfCode lineOfCode, long startNs, int numItems){
+		DatarouterNodeUsageTracker.record(getBackingNode());
 		if(recordCallsites == null || BooleanTool.isFalseOrNull(recordCallsites.get())){
 			return;
 		}

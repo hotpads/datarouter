@@ -62,14 +62,17 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.DatarouterServerTypeDetector;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypes;
+import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingCategory;
 import io.datarouter.storage.setting.SettingCategory.SimpleSettingCategory;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
+import io.datarouter.storage.setting.cached.CachedClusterSettingTags;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
@@ -122,6 +125,10 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private DatarouterClusterSettingRoot settings;
+	@Inject
+	private DatarouterServerTypeDetector datarouterServerTypeDetector;
+	@Inject
+	private CachedClusterSettingTags cachedClusterSettingTags;
 
 	@Handler(defaultHandler = true)
 	public Mav customSettings(OptionalString prefix){
@@ -130,6 +137,14 @@ public class ClusterSettingsHandler extends BaseHandler{
 		mav.put("validities", buildLegend());
 		clusterSettingService.scanClusterSettingAndValidityWithPrefix(prefix.orElse(null))
 				.flush(settings -> mav.put("rows", settings));
+		boolean mightBeDevelopment = datarouterServerTypeDetector.mightBeDevelopment();
+		mav.put("mightBeDevelopment", mightBeDevelopment);
+		if(mightBeDevelopment){
+			mav.put("settingTagFilePath", CachedClusterSettingTags.getConfigFilePath());
+			List<DatarouterSettingTag> tags = cachedClusterSettingTags.get();
+			mav.put("settingTagValues", tags.stream().map(DatarouterSettingTag::getPersistentString).collect(Collectors
+					.joining(",")));
+		}
 		return mav;
 	}
 
@@ -151,6 +166,12 @@ public class ClusterSettingsHandler extends BaseHandler{
 	@Handler
 	public ClusterSettingActionResultJson update(){
 		return putSettingFromParams();
+	}
+
+	@Handler
+	public ClusterSettingActionResultJson updateSettingTags(String values){
+		cachedClusterSettingTags.writeToFile(values);
+		return new ClusterSettingActionResultJson(ClusterSettingLogAction.UPDATED).markSuccess();
 	}
 
 	@Handler
@@ -289,8 +310,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 					.map(ClusterSettingJspDto::new)
 					.flush(customSettings -> customSettingsByName.put(setting.getName(), customSettings));
 		}
-
 		mav.put("listSettings", Scanner.of(settingsList).map(SettingJspDto::new).list());
+		mav.put("mightBeDevelopment", datarouterServerTypeDetector.mightBeDevelopment());
 		mav.put("mapListsCustomSettings", customSettingsByName);
 
 		return mav;

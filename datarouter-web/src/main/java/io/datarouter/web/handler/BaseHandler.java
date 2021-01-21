@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Pair;
@@ -167,13 +167,13 @@ public abstract class BaseHandler{
 			}
 			Object parameterValue = optionalParameterValue.get();
 			Annotation[] parameterAnnotations = parameter.getAnnotations();
-			Optional<RequestParamValidatorErrorResponseDto> errorResponseDto = Arrays.stream(parameterAnnotations)
-					.filter(Param.class::isInstance)
+			Optional<RequestParamValidatorErrorResponseDto> errorResponseDto = Scanner.of(parameterAnnotations)
+					.include(Param.class::isInstance)
 					.map(Param.class::cast)
 					.map(Param::validator)
-					.filter(validatorClass -> !validatorClass.equals(DefaultRequestParamValidator.class))
+					.exclude(DefaultRequestParamValidator.class::equals)
 					.map(validate(parameterName, parameterValue))
-					.filter(responseDto -> !responseDto.success)
+					.exclude(responseDto -> responseDto.success)
 					.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto)
 					.findFirst();
 			if(errorResponseDto.isPresent()){
@@ -238,8 +238,7 @@ public abstract class BaseHandler{
 
 	private Pair<Method,Object[]> getHandlerMethodAndArgs(){
 		String methodName = handlerMethodName();
-		List<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName)
-				.stream()
+		List<Method> possibleMethods = ReflectionTool.getDeclaredMethodsWithName(getClass(), methodName).stream()
 				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
 				.collect(Collectors.toList());
 
@@ -301,8 +300,13 @@ public abstract class BaseHandler{
 				Optional<String> eid = exceptionRecorder
 						.map(recorder -> {
 							try{
-								return recorder.recordExceptionAndHttpRequest(exception,
-										getClass().getName(), method.getName(), null, request, null);
+								return recorder.recordExceptionAndHttpRequest(
+										exception,
+										getClass().getName(),
+										method.getName(),
+										null,
+										request,
+										null);
 							}catch(Exception recordingException){
 								logger.warn("Error recording exception", recordingException);
 								return null;
@@ -381,11 +385,11 @@ public abstract class BaseHandler{
 	}
 
 	private List<String> getMissingParameterNames(Method method){
-		return Stream.of(method.getParameters())
-				.filter(parameter -> !OptionalParameter.class.isAssignableFrom(parameter.getType()))
+		return Scanner.of(method.getParameters())
+				.exclude(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
 				.map(Parameter::getName)
-				.filter(param -> !params.toMap().keySet().contains(param))
-				.collect(Collectors.toList());
+				.exclude(param -> params.toMap().keySet().contains(param))
+				.list();
 	}
 
 	/*---------------- get/set -----------------*/
@@ -466,6 +470,7 @@ public abstract class BaseHandler{
 		public Object[] decode(HttpServletRequest request, Method method){
 			throw new UnsupportedOperationException();
 		}
+
 	}
 
 }

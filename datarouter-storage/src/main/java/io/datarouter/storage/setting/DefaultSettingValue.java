@@ -16,11 +16,14 @@
 package io.datarouter.storage.setting;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import io.datarouter.storage.config.environment.DatarouterEnvironmentType;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.setting.DefaultSettingValueWinner.DefaultSettingValueWinnerType;
 
 public class DefaultSettingValue<T>{
 
@@ -29,6 +32,8 @@ public class DefaultSettingValue<T>{
 	private final Map<DatarouterEnvironmentType,Map<String,T>> valueByServerTypeByEnvironmentType;
 	private final Map<DatarouterEnvironmentType,Map<String,T>> valueByServerNameByEnvironmentType;
 	private final Map<DatarouterEnvironmentType,Map<String,T>> valueByEnvironmentNameByEnvironmentType;
+	private final Map<DatarouterSettingTag,T> valueBySettingTag;
+	private DefaultSettingValueWinner defaultSettingValueWinner;
 
 	public DefaultSettingValue(T globalDefault){
 		this.globalDefault = globalDefault;
@@ -36,6 +41,8 @@ public class DefaultSettingValue<T>{
 		this.valueByServerTypeByEnvironmentType = new HashMap<>();
 		this.valueByServerNameByEnvironmentType = new HashMap<>();
 		this.valueByEnvironmentNameByEnvironmentType = new HashMap<>();
+		this.valueBySettingTag = new HashMap<>();
+		this.defaultSettingValueWinner = DefaultSettingValueWinner.globalDefault();
 	}
 
 	/*--------- builder ---------------*/
@@ -74,6 +81,13 @@ public class DefaultSettingValue<T>{
 		return this;
 	}
 
+	public DefaultSettingValue<T> withTag(
+			Supplier<DatarouterSettingTag> tagTypeSupplier,
+			T value){
+		valueBySettingTag.put(tagTypeSupplier.get(), value);
+		return this;
+	}
+
 	/*---------- override ---------------*/
 
 	public DefaultSettingValue<T> setGlobalDefault(T value){
@@ -99,6 +113,10 @@ public class DefaultSettingValue<T>{
 		return valueByEnvironmentType;
 	}
 
+	public Map<DatarouterSettingTag,T> getValueBySettingTag(){
+		return valueBySettingTag;
+	}
+
 	public Map<String,T> getValueByServerName(DatarouterEnvironmentType environmentType){
 		return valueByServerNameByEnvironmentType.getOrDefault(environmentType, new HashMap<>());
 	}
@@ -117,22 +135,26 @@ public class DefaultSettingValue<T>{
 		return globalDefault;
 	}
 
-	public T getValue(String environmentTypeString, String environmentName, ServerType serverType, String serverName){
-		return getValue(new DatarouterEnvironmentType(environmentTypeString), environmentName, serverType, serverName);
+	public T getValue(String environmentTypeString, String environmentName, ServerType serverType, String serverName,
+			List<DatarouterSettingTag> settingTags){
+		return getValue(new DatarouterEnvironmentType(environmentTypeString), environmentName, serverType, serverName,
+				settingTags);
 	}
 
 	public T getValue(DatarouterEnvironmentType environmentType, String environmentName, ServerType serverType,
-			String serverName){
+			String serverName, List<DatarouterSettingTag> settingTags){
 		String serverTypeString = serverType == null ? null : serverType.getPersistentString();
-		return getValue(environmentType, environmentName, serverTypeString, serverName);
+		return getValue(environmentType, environmentName, serverTypeString, serverName, settingTags);
 	}
 
 	public T getValue(DatarouterEnvironmentType environmentType, String environmentName, String serverTypeString,
-			String serverName){
+			String serverName, List<DatarouterSettingTag> settingTags){
 		Map<String,T> valueByServerName = getValueByServerName(environmentType);
 		if(!valueByServerName.isEmpty()){
 			T value = valueByServerName.get(serverName);
 			if(value != null){
+				defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.SERVER_NAME,
+						environmentType.getPersistentString(), null, null, serverName, String.valueOf(value));
 				return value;
 			}
 		}
@@ -140,6 +162,8 @@ public class DefaultSettingValue<T>{
 		if(!valueByServerType.isEmpty()){
 			T value = valueByServerType.get(serverTypeString);
 			if(value != null){
+				defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.SERVER_TYPE,
+						environmentType.getPersistentString(), null, serverTypeString, null, String.valueOf(value));
 				return value;
 			}
 		}
@@ -147,10 +171,33 @@ public class DefaultSettingValue<T>{
 		if(!valueByEnvironmentName.isEmpty()){
 			T value = valueByEnvironmentName.get(environmentName);
 			if(value != null){
+				defaultSettingValueWinner = new DefaultSettingValueWinner(
+						DefaultSettingValueWinnerType.ENVIRONMENT_NAME, environmentType.getPersistentString(),
+						environmentName, null, null, String.valueOf(value));
 				return value;
 			}
 		}
-		return valueByEnvironmentType.getOrDefault(environmentType, globalDefault);
+		T valueForEnvironmentType = valueByEnvironmentType.get(environmentType);
+        if(valueForEnvironmentType != null){
+			defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.ENVIRONMENT_TYPE,
+					environmentType.getPersistentString(), null, null, null, String.valueOf(valueForEnvironmentType));
+			return valueForEnvironmentType;
+		}
+		Optional<DatarouterSettingTag> matchedTag = settingTags.stream()
+			.filter(valueBySettingTag::containsKey)
+			.findFirst();
+		if(matchedTag.isPresent()){
+			T value = valueBySettingTag.get(matchedTag.get());
+			defaultSettingValueWinner = DefaultSettingValueWinner.settingTag(matchedTag.get().getPersistentString(),
+					String.valueOf(value));
+			return value;
+		}
+		defaultSettingValueWinner = DefaultSettingValueWinner.globalDefault();
+		return globalDefault;
+	}
+
+	public DefaultSettingValueWinner getDefaultSettingValueWinner(){
+		return defaultSettingValueWinner;
 	}
 
 }

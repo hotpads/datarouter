@@ -46,7 +46,8 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 
 		logRequests = registerBoolean("logRequests", false);
 		logTracesOverMs = registerInteger("logTracesOverMs", 500);
-		saveTraces = registerBoolean("saveTraces", false);
+		saveTraces = registerBooleans("saveTraces", defaultTo(false)
+				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, true));
 		saveTracesOverMs = registerInteger("saveTracesOverMs", 500);
 		addTraceIdHeader = registerBoolean("addTraceIdHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");

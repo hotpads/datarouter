@@ -80,22 +80,26 @@ public abstract class BaseConveyor implements Conveyor{
 			ConveyorCounters.incFinishDrain(this);
 			logger.info("drain finished for conveyor={} duration={} iterations={} ", name, duration, iteration);
 		}catch(Throwable e){
-			boolean isInterrupted = ExceptionTool.isFromInstanceOf(e, InterruptedException.class,
+			boolean interrupted = ExceptionTool.isFromInstanceOf(e, InterruptedException.class,
 					UncheckedInterruptedException.class, InterruptedIOException.class);
-			if(isInterrupted){
+			if(interrupted){
+				ConveyorCounters.incInterrupted(this);
 				try{
 					interrupted();
 				}catch(Exception ex){
-					logger.error(ex.getMessage(), ex);
+					logger.error("interuption handling failed", ex);
 				}
-			}
-			ConveyorCounters.incException(this);
-			if(getCompactExceptionLogging()){
-				logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable {}", e.toString());
 			}else{
-				logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable", e);
+				ConveyorCounters.incException(this);
 			}
-			if(!isInterrupted){
+			if(getCompactExceptionLogging()){
+				logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable interrupted={} {}",
+						interrupted, e);
+			}else{
+				logger.warn("swallowing exception so ScheduledExecutorService restarts this Runnable interrupted={}",
+						interrupted, e);
+			}
+			if(!interrupted){
 				exceptionRecorder.tryRecordException(e, getClass().getName(), ConveyorExceptionCategory.CONVEYOR);
 			}
 		}

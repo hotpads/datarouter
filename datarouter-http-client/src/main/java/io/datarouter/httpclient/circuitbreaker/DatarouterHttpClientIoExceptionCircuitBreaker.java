@@ -85,7 +85,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			internalHttpRequest.addHeader(X_REQUEST_ID, requestId);
 			if(tracer != null && tracer.getTraceContext().isPresent()){
 				TraceContext traceContext = tracer.getTraceContext().get();
-				traceContext.updateParentIdAndAddTracestateMember(requestStartTimeMs);
+				traceContext.updateParentIdAndAddTracestateMember();
 				logger.debug("W3TraceContext={} passing to request={}", traceContext, request.getPath());
 				internalHttpRequest.addHeader(TRACEPARENT, traceContext.getTraceparent().toString());
 				internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());

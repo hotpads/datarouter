@@ -19,6 +19,6 @@ public interface TraceContext{
 
 	Traceparent getTraceparent();
 	Tracestate getTracestate();
-	void updateParentIdAndAddTracestateMember(long createdTimestamp);
+	void updateParentIdAndAddTracestateMember();
 
 }

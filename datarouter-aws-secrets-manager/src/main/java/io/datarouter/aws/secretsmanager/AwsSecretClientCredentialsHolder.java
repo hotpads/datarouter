@@ -100,14 +100,12 @@ public interface AwsSecretClientCredentialsHolder{
 
 		@Override
 		public Optional<AWSCredentialsProvider> getStagingCredentialsProvider(){
-			return getCredentialsProvider()
-					.or(hardcodedCredentials::getStagingCredentialsProvider);
+			return getCredentialsProvider();
 		}
 
 		@Override
 		public Optional<AWSCredentialsProvider> getProdCredentialsProvider(){
-			return getCredentialsProvider()
-					.or(hardcodedCredentials::getProdCredentialsProvider);
+			return getCredentialsProvider();
 		}
 
 		private Optional<AWSCredentialsProvider> getCredentialsProvider(){

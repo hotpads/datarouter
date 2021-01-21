@@ -27,6 +27,7 @@ public interface SettingFinder{
 	String getEnvironmentName();
 	ServerType getServerType();
 	String getServerName();
+	List<DatarouterSettingTag> getSettingTags();
 	Optional<String> getSettingValue(String name);
 	List<String> getAllCustomSettingValues(String name);
 	void registerCachedSetting(CachedSetting<?> setting);

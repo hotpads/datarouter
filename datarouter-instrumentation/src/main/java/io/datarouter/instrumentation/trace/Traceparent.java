@@ -34,32 +34,28 @@ public class Traceparent{
 	}
 
 	public static Traceparent generateNew(long createdTimestamp){
-		return new Traceparent(createNewRandomTraceId(), createParentIdByTimestamp(createdTimestamp),
+		return new Traceparent(createNewTraceId(createdTimestamp), createNewParentId(),
 				createNewTraceFlag());
 	}
 
-	public Traceparent updateParentId(long createdTimestamp){
-		return new Traceparent(this.traceId, createParentIdByTimestamp(createdTimestamp), this.traceFlags);
+	public Traceparent updateParentId(){
+		return new Traceparent(this.traceId, createNewParentId(), this.traceFlags);
 	}
 
 	/*
-	 * TraceId is a 32 hex digit String. We convert a randomly generated integer to 8 digits hex (padded with 0s)
-	 * and do the same for 4 times.
+	 * TraceId is a 32 hex digit String. We convert the root request created unix time into lowercase base16
+	 * and append it with a randomly generated long lowercase base16 representation.
 	 * */
-	private static String createNewRandomTraceId(){
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < 4; i++){
-			sb.append(String.format("%08x", new Random().nextInt()));
-		}
-		return sb.toString();
+	private static String createNewTraceId(long createdTimestamp){
+		return String.format("%016x", createdTimestamp) + String.format("%016x", new Random().nextLong());
 	}
 
 	/*
-	 * ParentId is a 16 hex digit String. We convert the current unix timestamp to hex digits and padded with
-	 * leading 0s.
+	 * ParentId is a 16 hex digit String. We use a randomly generated long and convert it into lowercase base16
+	 * representation.
 	 * */
-	public static String createParentIdByTimestamp(long currentTimestampInMillis){
-		return String.format("%016x", currentTimestampInMillis);
+	public static String createNewParentId(){
+		return String.format("%016x", new Random().nextLong());
 	}
 
 	// TODO: we need to update the logic to determine the traceflag

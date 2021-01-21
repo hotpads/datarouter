@@ -222,7 +222,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.plugins, "Plugins");
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Email Test");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.httpTester, "HTTP Tester");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.tester, "HTTP Tester");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.dnsLookup, "DNS Lookup");
 
 
 		addDynamicNavBarItem(ReadmeDocsNavBarItem.class);

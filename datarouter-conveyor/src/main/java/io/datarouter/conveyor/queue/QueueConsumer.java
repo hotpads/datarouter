@@ -39,6 +39,12 @@ public class QueueConsumer<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
 		return peekFunction.apply(new Config().setTimeout(timeout));
 	}
 
+	public QueueMessage<PK,D> peek(Duration timeout, Duration visibilityTimeout){
+		return peekFunction.apply(new Config()
+				.setTimeout(timeout)
+				.setVisibilityTimeoutMs(visibilityTimeout.toMillis()));
+	}
+
 	public void ack(QueueMessageKey key){
 		ackConsumer.accept(key);
 	}

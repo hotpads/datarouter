@@ -37,6 +37,8 @@ public class Count{
 		this.value = new AtomicLong();
 	}
 
+	/*---------------- increment --------------*/
+
 	//enable calling by method reference in streams
 	public void increment(@SuppressWarnings("unused") Object ignored){
 		value.incrementAndGet();
@@ -53,6 +55,26 @@ public class Count{
 	public void incrementBySize(Collection<?> collection){
 		value.addAndGet(collection.size());
 	}
+
+	/*---------------- decrement --------------*/
+
+	public void decrement(@SuppressWarnings("unused") Object ignored){
+		value.decrementAndGet();
+	}
+
+	public void decrement(){
+		value.decrementAndGet();
+	}
+
+	public void decrementBy(long by){
+		value.addAndGet(-by);
+	}
+
+	public void decrementBySize(Collection<?> collection){
+		value.addAndGet(-collection.size());
+	}
+
+	/*---------------- value --------------*/
 
 	public long value(){
 		return value.get();

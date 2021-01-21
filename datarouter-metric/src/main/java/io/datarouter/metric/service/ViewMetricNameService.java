@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
 import io.datarouter.job.scheduler.JobPackage;
@@ -36,10 +37,8 @@ import io.datarouter.metric.dto.MetricDashboardDto;
 import io.datarouter.metric.dto.MetricName;
 import io.datarouter.metric.dto.MiscMetricLinksDto;
 import io.datarouter.metric.links.MetricDashboardRegistry;
-import io.datarouter.metric.links.MetricLinkBuilder;
 import io.datarouter.metric.links.MiscMetricsLinksRegistry;
 import io.datarouter.metric.types.MetricNameType;
-import io.datarouter.metric.types.MetricType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
@@ -90,12 +89,9 @@ public class ViewMetricNameService{
 	}
 
 	private DomContent getMetricNameLink(MetricName metricName){
-		String link;
-		if(metricName.nameType == MetricNameType.AVAILABLE){
-			link = linkBuilder.availableMetricsLink(metricName.getNameOrPrefix());
-		}else{
-			link = linkBuilder.exactMetricLink(metricName.getNameOrPrefix(), metricName.metricType);
-		}
+		String link = metricName.nameType == MetricNameType.AVAILABLE
+				? linkBuilder.availableMetricsLink(metricName.getNameOrPrefix())
+				: linkBuilder.exactMetricLink(metricName.getNameOrPrefix());
 		return td(a(i().withClass("fa fa-link"))
 				.withClass("btn btn-link w-100 py-0")
 				.withHref(link)
@@ -169,7 +165,7 @@ public class ViewMetricNameService{
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn(th("Handlers").withClass("w-50"), row -> td(row))
 				.withHtmlColumn(th("Exact").withClass("w-25"), row -> td(a("Class")
-						.withHref(linkBuilder.exactMetricLink("Datarouter handler class " + row, MetricType.COUNT))
+						.withHref(linkBuilder.exactMetricLink("Datarouter handler class " + row))
 						.withTarget("_blank")))
 				.withHtmlColumn(th("Available").withClass("w-25"), row -> td(a("Endpoints")
 						.withHref(linkBuilder.availableMetricsLink("Datarouter handler method " + row))

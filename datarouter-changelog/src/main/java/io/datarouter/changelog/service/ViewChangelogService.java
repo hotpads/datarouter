@@ -27,8 +27,11 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.http.client.utils.URIBuilder;
+
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.changelog.storage.Changelog;
+import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.RandomTool;
@@ -48,17 +51,7 @@ public class ViewChangelogService{
 	public ContainerTag buildTable(List<Changelog> rows, ZoneId zoneId){
 		return new J2HtmlTable<Changelog>()
 				.withClasses("table table-sm table-striped my-4 border")
-				.withHtmlColumn("", row -> {
-					String href = servletContext.get().getContextPath()
-							+ paths.datarouter.changelog.viewExact.toSlashedString()
-							+ "?" + ViewExactChangelogHandler.P_reversedDateMs + "=" + row.getKey().getReversedDateMs()
-							+ "&" + ViewExactChangelogHandler.P_changelogType + "=" + row.getKey().getChangelogType()
-							+ "&" + ViewExactChangelogHandler.P_name + "=" + row.getKey().getName();
-					var linkButton = a()
-							.withClass("fa fa-link")
-							.withHref(href);
-					return td(linkButton);
-				})
+				.withHtmlColumn("", row -> td(a().withClass("fa fa-link").withHref(buildViewExactHref(row))))
 				.withColumn("Date", row -> {
 					Long reversedDateMs = row.getKey().getReversedDateMs();
 					Date date = new Date(Long.MAX_VALUE - reversedDateMs);
@@ -106,6 +99,16 @@ public class ViewChangelogService{
 				.withRole("dialog");
 		return td(div(commentButton, modal))
 				.withStyle("text-align:center");
+	}
+
+	public String buildViewExactHref(Changelog log){
+		ChangelogKey key = log.getKey();
+		return new URIBuilder()
+				.setPath(servletContext.get().getContextPath() + paths.datarouter.changelog.viewExact.toSlashedString())
+				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getReversedDateMs().toString())
+				.addParameter(ViewExactChangelogHandler.P_changelogType, key.getChangelogType())
+				.addParameter(ViewExactChangelogHandler.P_name, key.getName())
+				.toString();
 	}
 
 }

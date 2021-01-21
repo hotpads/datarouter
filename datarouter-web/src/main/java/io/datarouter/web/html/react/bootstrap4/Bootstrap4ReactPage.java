@@ -17,13 +17,16 @@ package io.datarouter.web.html.react.bootstrap4;
 
 import static j2html.TagCreator.document;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import io.datarouter.pathnode.PathNode;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.css.DatarouterWebCssV2;
 import io.datarouter.web.handler.mav.Mav;
@@ -48,6 +51,7 @@ public class Bootstrap4ReactPage{
 	private MavProperties mavProperties;
 	private Set<String> require = new TreeSet<>();
 	private PathNode reactScript;
+	private List<String> externalJsLibraries = new ArrayList<>();
 	private Map<String,String> jsStringConstants = new LinkedHashMap<>();
 	private Map<String,String> jsRawConstants = new LinkedHashMap<>();
 	private String title;
@@ -76,7 +80,7 @@ public class Bootstrap4ReactPage{
 		NavBar navbar = mavProperties.getIsDatarouterPage() ? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
 		return new ReactHtml(
-				CloudflareImports.REACT_GROUP_2,
+				Scanner.concat(CloudflareImports.REACT_GROUP_2, externalJsLibraries).list(),
 				DatarouterWebCssV2.makeCssImportTags(contextPath),
 				DatarouterWebRequireJsV2.makeImportTag(contextPath),
 				DatarouterWebRequireJsV2.makeConfigScriptTag(contextPath),
@@ -112,6 +116,11 @@ public class Bootstrap4ReactPage{
 
 	public Bootstrap4ReactPage withReactScript(PathNode reactScript){
 		this.reactScript = reactScript;
+		return this;
+	}
+
+	public Bootstrap4ReactPage withExternalJsLibrary(String externalJsLibrary){
+		this.externalJsLibraries.add(externalJsLibrary);
 		return this;
 	}
 

@@ -36,6 +36,7 @@ import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptionsFactory;
 import io.datarouter.storage.config.BaseStoragePlugin;
@@ -599,6 +600,10 @@ implements WebappBuilder{
 	public T addSystemDocumentation(String name, String link){
 		this.documentationNamesAndLinks.put(name, new Pair<>(link, true));
 		return getSelf();
+	}
+
+	public T addAppNavBarItem(NavBarCategory category, PathNode path, String name){
+		return addAppNavBarItem(category, path.toSlashedString(), name);
 	}
 
 	public T addAppNavBarItem(NavBarCategory category, String path, String name){

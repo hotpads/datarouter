@@ -29,6 +29,12 @@
 					addRow(setting)
 				});
 			}))
+			$('#tagUpdate').click(function(){
+				$('#tagForm').submit(function(e) {
+					e.preventDefault();
+					settingsTools.updateSettingTags();
+				});
+			});
 			//these are delegated so they don't need to be bound to each newly added row
 			$('table').on('click', '.delete-setting-btn', function(){
 				settingsTools.deleteSetting(this, function(row){
@@ -70,6 +76,35 @@
 	<%@ include file="/jsp/menu/common-navbar-b4.jsp" %>
 	<div class="container mobile-friendly mt-4">
 		<a href="?submitAction=browseSettings" class="btn btn-primary"><i class="fas fa-xs fa-search"></i> Browse settings</a>
+		<c:if test="${mightBeDevelopment}">
+			<div class="card mt-4">
+				<nav class="navbar navbar-light bg-light">
+					<span class="navbar-brand py-0">Setting Tags</span>
+				</nav>
+				<div class="card-body">
+					<div class="form-group row">
+						<label for="path" class="col-form-label col-sm-2 d-none d-md-block">FilePath</label>
+						<span>
+							<p class="col-12 col-md-auto" style="display: inline-flex;align-items: center;">${settingTagFilePath}</p>
+						</span>
+					</div>
+					<div class="form-group row" id="tagValuesRow">
+						<label for="values" class="col-form-label col-sm-2 d-none d-md-block">Values</label>
+						<form id="tagForm">
+							<div class="col-md-auto input-group">
+								<input id="tagValues" type="text" class="tag-values form-control" value="${settingTagValues}">
+  								<span class="input-group-btn">
+    								<button id="tagUpdate" class="btn btn-warning tag-update-form">update</button>
+  								</span>
+  								<span>
+  									<p class="col-12 col-md-auto" style="display: inline-flex;align-items: center;">(it will take a few seconds to reflect the change)</p>
+  								</span>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</c:if>
 		<div class="card mt-4">
 			<nav class="navbar navbar-light bg-light">
 				<span class="navbar-brand py-0">Create</span>

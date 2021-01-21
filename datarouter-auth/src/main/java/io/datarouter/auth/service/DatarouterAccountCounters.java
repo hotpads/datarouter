@@ -24,8 +24,8 @@ import io.datarouter.storage.util.DatarouterCounters;
 @Singleton
 public class DatarouterAccountCounters{
 
-	private static final String ACCOUNT = "account";
-	private static final String NAME = "name";
+	public static final String ACCOUNT = "account";
+	public static final String NAME = "name";
 	private static final String ENDPOINT = "endpoint";
 
 	private final String prefix;

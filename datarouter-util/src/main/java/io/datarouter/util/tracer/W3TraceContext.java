@@ -70,15 +70,15 @@ public class W3TraceContext implements TraceContext{
 	}
 
 	@Override
-	public void updateParentIdAndAddTracestateMember(long createdTimestamp){
-		traceparent = traceparent.updateParentId(createdTimestamp);
+	public void updateParentIdAndAddTracestateMember(){
+		traceparent = traceparent.updateParentId();
 		tracestate.addDatarouterListMember(traceparent.parentId);
 	}
 
 	public Optional<Long> getTimestamp(){
 		// only parentId created by datarouter can be translated into timestamp
 		if(Tracestate.TRACESTATE_DR_KEY.equals(tracestate.getLastestTracestate().key)){
-			return Optional.of(Long.parseLong(traceparent.parentId, 16));
+			return Optional.of(Long.parseLong(traceparent.traceId.substring(0, 16), 16));
 		}
 		return Optional.empty();
 	}

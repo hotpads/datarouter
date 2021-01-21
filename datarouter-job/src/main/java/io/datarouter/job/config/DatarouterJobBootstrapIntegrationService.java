@@ -63,8 +63,7 @@ public class DatarouterJobBootstrapIntegrationService implements TestableService
 	private void testSingletons(){
 		Scanner.of(triggerGroupClasses.get())
 				.map(injector::getInstance)
-				.map(BaseTriggerGroup::getJobPackages)
-				.concat(Scanner::of)
+				.concatIter(BaseTriggerGroup::getJobPackages)
 				.map(jobPackage -> jobPackage.jobClass)
 				.forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, false));
 		SINGLETON_CHECKS.forEach(pair -> singletonTestService.checkSingletonForSubClasses(pair.getLeft(), pair

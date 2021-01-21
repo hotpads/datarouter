@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import io.datarouter.storage.config.environment.DatarouterEnvironmentType;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.setting.DefaultSettingValue;
+import io.datarouter.storage.setting.DefaultSettingValueWinner;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.util.cached.Cached;
@@ -80,7 +81,7 @@ implements Setting<T>{
 	@Override
 	public T getDefaultValue(){
 		return defaultSettingValue.getValue(finder.getEnvironmentType(), finder.getEnvironmentName(),
-				finder.getServerType(), finder.getServerName());
+				finder.getServerType(), finder.getServerName(), finder.getSettingTags());
 	}
 
 	public String toStringValue(T value){
@@ -143,6 +144,15 @@ implements Setting<T>{
 
 	public DefaultSettingValue<T> getDefaultSettingValue(){
 		return defaultSettingValue;
+	}
+
+	public Optional<DefaultSettingValueWinner> getDefaultSettingValueWinner(){
+		if(getMostSpecificDatabeanValue().isPresent()){
+			return Optional.empty();
+		}
+		defaultSettingValue.getValue(finder.getEnvironmentType(), finder.getEnvironmentName(),
+				finder.getServerType(), finder.getServerName(), finder.getSettingTags());
+		return Optional.of(defaultSettingValue.getDefaultSettingValueWinner());
 	}
 
 }

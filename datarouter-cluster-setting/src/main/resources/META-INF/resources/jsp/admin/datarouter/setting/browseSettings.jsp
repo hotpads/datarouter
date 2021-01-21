@@ -260,6 +260,35 @@
 						<div class="w-100 py-1 px-1 px-sm-4 text-break">
 							global default: <strong>${setting.defaultValue}</strong>
 						</div>
+						<c:if test="${mightBeDevelopment}">
+							<div class="w-100 py-1 px-1 px-sm-4">
+								<span class="font-weight-bold">${fn:length(setting.settingTags)}</span> tag overrides
+								<c:if test="${not empty setting.settingTags}">
+									<div class="w-100 py-2 px-0 px-sm-4 table-responsive">
+										<table class="table table-sm settings-table">
+											<tr>
+												<th>Setting Tag</th>
+												<th>Value</th>
+												<th>Active</th>
+											</tr>
+											<c:forEach var="def" items="${setting.settingTags}">
+												<c:if test="${def.active}">
+													<c:set var="rowStyle" value="style=\"background: #E1C2C2\""/>
+													<c:set var="rowContent" value="&#x2714;&#xfe0f;"/>
+												</c:if>
+												<tr ${rowStyle}>
+	    											<td>${def.settingTag}</td>
+													<td>${def.value}</td>
+													<td>${rowContent}</td>
+												</tr>
+												<c:remove var = "rowStyle"/>
+												<c:remove var = "rowContent"/>
+											</c:forEach>
+										</table>
+									</div>
+								</c:if>
+							</div>
+						</c:if>
 						<div class="w-100 py-1 px-1 px-sm-4">
 							<span class="font-weight-bold">${fn:length(setting.codeOverrides)}</span> code overrides
 							<c:if test="${not empty setting.codeOverrides}">
@@ -271,17 +300,23 @@
 											<th>Server Type</th>
 											<th>Server Name</th>
 											<th>Value</th>
+											<th>Active</th>
 										</tr>
 										<c:forEach var="def" items="${setting.codeOverrides}">
-											<tr>
-												<input type="hidden" name="node-name" value="${nodeName}">
-												<input type="hidden" name="name" class="setting-name" value="${settingName}">
+											<c:if test="${def.active}">
+												<c:set var="rowStyle" value="style=\"background: #E1C2C2\""/>
+												<c:set var="rowContent" value="&#x2714;&#xfe0f;"/>
+											</c:if>
+											<tr ${rowStyle}>
 												<td class="setting-default">${def.globalOrEnvironmentType}</td>
 												<td class="setting-environment">${def.environmentName}</td>
 												<td class="setting-type">${def.serverType}</td>
 												<td class="setting-serverName">${def.serverName}</td>
 												<td class="setting-value">${def.value}</td>
+												<td class="setting-active">${rowContent}</td>
 											</tr>
+											<c:remove var = "rowStyle"/>
+											<c:remove var = "rowContent"/>
 										</c:forEach>
 									</table>
 								</div>

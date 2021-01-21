@@ -30,18 +30,21 @@ public class MemorySettingFinder implements SettingFinder{
 	private final String environment;
 	private final ServerType serverType;
 	private final String serverName;
+	private final List<DatarouterSettingTag> settingTags;
 	// protected so subclasses can modify the settings
 	protected final Map<String,Object> settings;
 
 	public MemorySettingFinder(){
-		this(null, null, null, null);
+		this(null, null, null, null, List.of());
 	}
 
-	public MemorySettingFinder(String environmentType, String environment, ServerType serverType, String serverName){
+	public MemorySettingFinder(String environmentType, String environment, ServerType serverType, String serverName,
+			List<DatarouterSettingTag> settingTags){
 		this.environmentType = environmentType;
 		this.environment = environment;
 		this.serverType = serverType;
 		this.serverName = serverName;
+		this.settingTags = settingTags;
 		this.settings = new ConcurrentHashMap<>();
 	}
 
@@ -63,6 +66,11 @@ public class MemorySettingFinder implements SettingFinder{
 	@Override
 	public String getServerName(){
 		return serverName;
+	}
+
+	@Override
+	public List<DatarouterSettingTag> getSettingTags(){
+		return settingTags;
 	}
 
 	@Override

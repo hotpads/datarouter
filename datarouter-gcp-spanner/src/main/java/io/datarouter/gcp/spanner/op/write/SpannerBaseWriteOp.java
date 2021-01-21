@@ -30,8 +30,8 @@ public abstract class SpannerBaseWriteOp<T>extends SpannerBaseOp<Void>{
 
 	private static final Integer DEFAULT_BATCH_SIZE = 1000;
 
-	private final DatabaseClient client;
-	private final Optional<Integer> batchSize;
+	protected final DatabaseClient client;
+	protected final Optional<Integer> batchSize;
 
 	protected final String tableName;
 	protected final Collection<T> values;

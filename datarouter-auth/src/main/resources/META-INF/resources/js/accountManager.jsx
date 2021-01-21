@@ -73,10 +73,11 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 				<th>User Mappings</th>
 				<th/>
 				<th/>
+				<th/>
 			</tr>
 		</thead>
 		<tbody>
-			{accountDetails.map(({account, permissions}) => (
+			{accountDetails.map(({account, permissions, metricLink}) => (
 				<tr key={account.key.accountName}>
 					<td>{account.key.accountName}</td>
 					<td>{account.apiKey}</td>
@@ -105,12 +106,17 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 						}
 					</td>
 					<td>
-						<Link to={REACT_BASE_PATH + "details/" + account.key.accountName}>
+						<a href={metricLink} target="_blank" title="Account usage metrics">
+							<i class="fa fa-chart-line"></i>
+						</a>
+					</td>
+					<td>
+						<Link to={REACT_BASE_PATH + "details/" + account.key.accountName} title="Edit account">
 							<i class="fa fa-edit"></i>
 						</Link>
 					</td>
 					<td>
-						<a onClick={() => deleteAccount(account.key.accountName)}>
+						<a onClick={() => deleteAccount(account.key.accountName)} title="Delete account">
 							<i className="fas fa-trash"></i>
 						</a>
 					</td>

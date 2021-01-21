@@ -66,24 +66,7 @@ public abstract class DatarouterProperties{
 			ADMINISTRATOR_EMAIL,
 			INTERNAL_CONFIG_DIRECTORY);
 
-	private static final String BASE_CONFIG_DIRECTORY_ENV_VARIABLE = "BASE_CONFIG_DIRECTORY";
 	private static final String SERVER_CONFIG_FILE_NAME = "server.properties";
-	private static final String DEFAULT_BASE_CONFIG_DIRECTORY = "/etc/datarouter";
-	private static final String CONFIG_DIRECTORY;
-	private static final String TEST_CONFIG_DIRECTORY;
-	private static String source;
-
-	static{
-		String baseConfigDirectory = System.getenv(BASE_CONFIG_DIRECTORY_ENV_VARIABLE);
-		source = "environment variable";
-		if(StringTool.isEmpty(baseConfigDirectory)){
-			baseConfigDirectory = DEFAULT_BASE_CONFIG_DIRECTORY;
-			source = "default constant";
-		}
-		CONFIG_DIRECTORY = baseConfigDirectory + "/config";
-		TEST_CONFIG_DIRECTORY = baseConfigDirectory + "/test";
-	}
-
 	private final String webappName;
 	private final String configDirectory;
 	private final String testConfigDirectory;
@@ -105,7 +88,7 @@ public abstract class DatarouterProperties{
 	/*----------------- construct ------------------*/
 
 	protected DatarouterProperties(ServerTypes serverTypeOptions, String serviceName){
-		this(serverTypeOptions, serviceName, CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
+		this(serverTypeOptions, serviceName, ConfigDirectory.CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
 	}
 
 	protected DatarouterProperties(ServerTypes serverTypeOptions, String serviceName, String configDirectory,
@@ -123,7 +106,7 @@ public abstract class DatarouterProperties{
 
 		this.allComputedServerProperties = new Properties();
 		this.webappName = webappName;
-		this.testConfigDirectory = TEST_CONFIG_DIRECTORY;
+		this.testConfigDirectory = ConfigDirectory.TEST_CONFIG_DIRECTORY;
 
 		this.environment = findProperty(ENVIRONMENT);
 		this.environmentDomain = findProperty(ENVIRONMENT_DOMAIN);
@@ -144,7 +127,7 @@ public abstract class DatarouterProperties{
 								Ec2InstanceTool::getEc2InstancePrivateIp)));
 		this.publicIp = findProperty(SERVER_PUBLIC_IP, Ec2InstanceTool::getEc2InstancePublicIp,
 				Ec2InstanceTool.EC2_PUBLIC_IP_URL);
-		this.clusterDomains = findClusterDomains();
+		this.clusterDomains = findPropertyStringsSplitWithComma(SERVER_CLUSTER_DOMAINS);
 		this.internalConfigDirectory = findProperty(INTERNAL_CONFIG_DIRECTORY);
 
 		checkRequiredProperties();
@@ -171,7 +154,7 @@ public abstract class DatarouterProperties{
 			if(directoryFromJvmArg){
 				logJvmArgSource(CONFIG_DIRECTORY_PROP, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY_PROP);
 			}else{
-				logSource("config directory", configDirectory, source);
+				logSource("config directory", configDirectory, ConfigDirectory.SOURCE);
 			}
 		}else{
 			Require.isTrue(!directoryRequired, "config directory required but not found");
@@ -282,17 +265,6 @@ public abstract class DatarouterProperties{
 		return Optional.empty();
 	}
 
-	private Collection<String> findClusterDomains(){
-		String propertyValue = findProperty(SERVER_CLUSTER_DOMAINS);
-		if(StringTool.isNullOrEmptyOrWhitespace(propertyValue)){
-			return List.of();
-		}
-		return Stream.of(propertyValue.split(","))
-				.filter(StringTool::notEmptyNorWhitespace)
-				.map(String::trim)
-				.collect(Collectors.toUnmodifiableList());
-	}
-
 	private void logConfigFileProperties(){
 		Properties allProperties = propertiesFromConfigFile.orElseGet(Properties::new);
 		allProperties.stringPropertyNames().stream()
@@ -307,6 +279,17 @@ public abstract class DatarouterProperties{
 
 	private void logJvmArgSource(String name, String value, String jvmArgName){
 		logger.warn("found {}={} from -D{} JVM arg", name, value, jvmArgName);
+	}
+
+	private List<String> findPropertyStringsSplitWithComma(String propertyName){
+		String propertyValue = findProperty(propertyName);
+		if(StringTool.isNullOrEmptyOrWhitespace(propertyValue)){
+			return List.of();
+		}
+		return Stream.of(propertyValue.split(","))
+				.filter(StringTool::notEmptyNorWhitespace)
+				.map(String::trim)
+				.collect(Collectors.toUnmodifiableList());
 	}
 
 	/*------------------ helper methods ---------------*/

@@ -228,6 +228,11 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
+	public DatarouterHttpClientBuilder disableRedirectHandling(){
+		httpClientBuilder.disableRedirectHandling();
+		return this;
+	}
+
 	public DatarouterHttpClientBuilder setValidateAfterInactivityMs(int validateAfterInactivityMs){
 		this.validateAfterInactivityMs = Optional.of(validateAfterInactivityMs);
 		return this;

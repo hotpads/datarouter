@@ -15,8 +15,11 @@
  */
 package io.datarouter.web.http;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,25 +41,32 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.config.DatarouterWebFiles;
+import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalString;
+import io.datarouter.web.util.ExceptionTool;
 
 public class HttpTestHandler extends BaseHandler{
 
 	@Inject
 	private DatarouterWebFiles files;
 	@Inject
-	private HttpTesterClient testerClient;
+	private HttpTesterClient httpTesterClient;
+	@Inject
+	private HttpTesterWithoutRedirectClient httpTesterWithoutRedirectClient;
 	@Inject
 	private DatarouterProperties properties;
 	@Inject
 	private RequestProxySetter proxySetter;
+	@Inject
+	private DatarouterWebPaths paths;
 
 	@Handler(defaultHandler = true)
 	public Mav httpTest(OptionalString url, OptionalString method, OptionalString requestBody, OptionalString headers,
-			OptionalString contentType, OptionalString useProxy){
+			OptionalString contentType, OptionalString useProxy, OptionalString followRedirects){
 		Mav mav = new Mav(files.jsp.http.httpTesterJsp);
+		mav.put("path", paths.datarouter.http.tester.toSlashedString());
 		if(url.isEmpty() || method.isEmpty()){
 			return mav;
 		}
@@ -82,7 +92,13 @@ public class HttpTestHandler extends BaseHandler{
 			proxySetter.setProxyOnRequest(request);
 		}
 		Long start = System.currentTimeMillis();
-		Conditional<DatarouterHttpResponse> response = testerClient.tryExecute(request);
+		Conditional<DatarouterHttpResponse> response;
+		if(followRedirects.isPresent()){
+			mav.put("followRedirects", true);
+			response = httpTesterClient.tryExecute(request);
+		}else{
+			response = httpTesterWithoutRedirectClient.tryExecute(request);
+		}
 		Long elapsedMs = System.currentTimeMillis() - start;
 		if(response.isFailure() && response.getException() instanceof DatarouterHttpResponseException){
 			DatarouterHttpResponseException responseException = (DatarouterHttpResponseException)response
@@ -90,10 +106,35 @@ public class HttpTestHandler extends BaseHandler{
 			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(responseException.getResponse()), Optional.of(
 					responseException));
 		}else if(response.isFailure()){
+			if(response.getException().getCause() != null){
+				mav.put("stackTrace", ExceptionTool.getStackTraceAsString(response.getException().getCause()));
+			}
 			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.empty(), Optional.of(response.getException()));
 		}
 		response.ifSuccess(httpResponse -> addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(httpResponse),
 				Optional.empty()));
+		return mav;
+	}
+
+	@Handler
+	public Mav dnsLookup(OptionalString hostname){
+		Mav mav = new Mav(files.jsp.http.dnsLookupJsp);
+		mav.put("path", paths.datarouter.http.dnsLookup.toSlashedString());
+		if(hostname.isEmpty()){
+			return mav;
+		}
+		try{
+			mav.put("hostname", hostname.get());
+			Long start = System.currentTimeMillis();
+			InetAddress[] ipAddresses = InetAddress.getAllByName(hostname.get());
+			Long elapsedMs = System.currentTimeMillis() - start;
+			String ipAddressesFormatted = Scanner.of(ipAddresses).map(ip -> ip.getHostAddress()).collect(Collectors
+					.joining("\n"));
+			String formattedResponse = "duration: " + elapsedMs + " ms" + "\n\n" + "ips: " + ipAddressesFormatted;
+			mav.put("ipAddresses", formattedResponse);
+		}catch(UnknownHostException e){
+			mav.put("error", ExceptionTool.getStackTraceAsString(e));
+		}
 		return mav;
 	}
 
@@ -110,7 +151,6 @@ public class HttpTestHandler extends BaseHandler{
 			mav.put("headers", headerMap);
 		}
 		if(exception.isPresent()){
-			mav.put("cause", exception.get().getCause());
 			mav.put("message", exception.get().getMessage());
 		}
 	}
@@ -123,5 +163,15 @@ public class HttpTestHandler extends BaseHandler{
 		}
 
 	}
+
+	@Singleton
+	public static class HttpTesterWithoutRedirectClient extends BaseDatarouterHttpClientWrapper{
+
+		public HttpTesterWithoutRedirectClient(){
+			super(new DatarouterHttpClientBuilder().disableRedirectHandling().build());
+		}
+
+	}
+
 
 }

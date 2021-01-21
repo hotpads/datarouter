@@ -59,7 +59,10 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.emailTest)
 				.withHandler(EmailTestHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
-		handle(paths.datarouter.httpTester)
+		handle(paths.datarouter.http.dnsLookup)
+				.withHandler(HttpTestHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
+		handle(paths.datarouter.http.tester)
 				.withHandler(HttpTestHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
 		handleDir(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);

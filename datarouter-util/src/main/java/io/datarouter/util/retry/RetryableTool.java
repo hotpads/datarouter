@@ -56,12 +56,16 @@ public class RetryableTool{
 				if(attemptNum < numAttempts){
 					if(logExceptions){
 						logger.warn("exception on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
+					}else{
+						logger.info("exception on attempt {}/{}, sleeping {}ms", attemptNum, numAttempts, backoffMs, e);
 					}
 					ThreadTool.sleepUnchecked(backoffMs);
 				}else{
 					if(logExceptions){
 						logger.error("exception on final attempt {}", attemptNum);
 					}
+					// in case the caller swallow the exception
+					logger.info("exception on final attempt {}", attemptNum, e);
 					if(e instanceof RuntimeException){
 						throw (RuntimeException)e;
 					}

@@ -126,7 +126,7 @@ public class PhaseTimer{
 		return new DatarouterDuration(getElapsedTimeBetweenFirstAndLastEvent(), TimeUnit.MILLISECONDS).toString();
 	}
 
-	public float getItemsPerSecond(int numItems){
+	public float getItemsPerSecond(long numItems){
 		long elapsedTime = getElapsedTimeBetweenFirstAndLastEvent();
 		if(elapsedTime < 1){
 			elapsedTime = 1;

@@ -60,6 +60,10 @@ public abstract class BaseEndpoint<T>{
 		addParam(key, value + "");
 	}
 
+	protected void addBooleanParam(String key, boolean value){
+		addParam(key, String.valueOf(value));
+	}
+
 	public BaseEndpoint<T> setUrlPrefix(URI urlPrefix){
 		this.urlPrefix = urlPrefix.normalize().toString();
 		return this;

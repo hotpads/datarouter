@@ -43,13 +43,18 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode deployment = leaf("deployment");
 		public final PathNode emailTest = leaf("emailTest");
 		public final PathNode executors = leaf("executors");
-		public final PathNode httpTester = leaf("httpTester");
+		public final HttpPaths http = branch(HttpPaths::new, "http");
 		public final PathNode ipDetection = leaf("ipDetection");
 		public final PathNode memory = leaf("memory");
 		public final PathNode settings = leaf("settings");
 		public final PathNode shutdown = leaf("shutdown");
 		public final PathNode tableConfiguration = leaf("tableConfiguration");
 		public final PathNode testApi = leaf("testApi");
+	}
+
+	public static class HttpPaths extends PathNode{
+		public final PathNode tester = leaf("tester");
+		public final PathNode dnsLookup = leaf("dnsLookup");
 	}
 
 	public static class ClientPaths extends PathNode{

@@ -40,8 +40,10 @@ import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.environment.DatarouterEnvironmentType;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypes;
+import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
+import io.datarouter.storage.setting.cached.CachedClusterSettingTags;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.storage.util.KeyRangeTool;
 import io.datarouter.util.BooleanTool;
@@ -72,6 +74,8 @@ public class ClusterSettingService{
 	private ServerTypes serverTypes;
 	@Inject
 	private WebappInstanceService webappInstanceService;
+	@Inject
+	private CachedClusterSettingTags cachedClusterSettingTags;
 
 	public <T> T getSettingValueForWebappInstance(CachedSetting<T> memorySetting, WebappInstance webappInstance){
 		// try database first
@@ -87,7 +91,9 @@ public class ClusterSettingService{
 		ServerType webAppInstanceServerType = serverTypes.fromPersistentString(webappInstance.getServerType());
 		String serverName = datarouterProperties.getServerName();
 		String environmentName = datarouterProperties.getEnvironment();
-		return defaultSettingValue.getValue(environmentType, environmentName, webAppInstanceServerType, serverName);
+		List<DatarouterSettingTag> settingTags = cachedClusterSettingTags.get();
+		return defaultSettingValue.getValue(environmentType, environmentName, webAppInstanceServerType, serverName,
+				settingTags);
 	}
 
 	public <T> Map<WebappInstance,T> getSettingValueByWebappInstance(CachedSetting<T> memorySetting){
@@ -204,7 +210,8 @@ public class ClusterSettingService{
 					new DatarouterEnvironmentType(datarouterProperties.getEnvironmentType()),
 					datarouterProperties.getEnvironment(),
 					datarouterProperties.getServerType(),
-					datarouterProperties.getServerName());
+					datarouterProperties.getServerName(),
+					cachedClusterSettingTags.get());
 			Object databeanSettingValue = databeanSetting.getTypedValue(memorySetting);
 			return Objects.equals(defaultValue, databeanSettingValue);
 		}

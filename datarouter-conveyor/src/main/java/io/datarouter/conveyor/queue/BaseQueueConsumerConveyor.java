@@ -35,6 +35,7 @@ extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseQueueConsumerConveyor.class);
 
 	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(30);
+	private static final Duration VISIBILITY_TIMEOUT = Duration.ofSeconds(30);
 
 	private final QueueConsumer<PK,D> queueConsumer;
 
@@ -49,7 +50,7 @@ extends BaseConveyor{
 
 	@Override
 	public ProcessBatchResult processBatch(){
-		QueueMessage<PK,D> message = queueConsumer.peek(PEEK_TIMEOUT);
+		QueueMessage<PK,D> message = queueConsumer.peek(PEEK_TIMEOUT, getVisibilityTimeout());
 		if(message == null){
 			logger.info("peeked conveyor={} nullMessage", name);
 			return new ProcessBatchResult(false);
@@ -67,6 +68,10 @@ extends BaseConveyor{
 		logger.info("acked conveyor={} messageCount={}", name, 1);
 		ConveyorCounters.incAck(this);
 		return new ProcessBatchResult(true);
+	}
+
+	protected Duration getVisibilityTimeout(){
+		return VISIBILITY_TIMEOUT;
 	}
 
 	protected abstract void processOne(D databean);

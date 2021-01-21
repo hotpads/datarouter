@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -70,6 +71,7 @@ public class WebappInstanceServersHandler extends BaseHandler{
 				Collections.emptyList(),
 				new MemorySorter<>(),
 				request.getContextPath() + paths.datarouter.webappInstanceServers.toSlashedString(),
+				new HashMap<>(),
 				params,
 				50);
 		List<String> activeServerNames = webappInstanceDao.scanKeys()

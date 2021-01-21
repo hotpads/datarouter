@@ -143,6 +143,13 @@ public class ByteWriter{
 		return this;
 	}
 
+	public ByteWriter rawInts(int[] values){
+		for(int i = 0; i < values.length; ++i){
+			bytes(IntegerByteTool.getRawBytes(values[i]));
+		}
+		return this;
+	}
+
 	//could use varLong, but dedicated method is for readability
 	public ByteWriter varInt(int value){
 		bytes(VarIntTool.encode(value));

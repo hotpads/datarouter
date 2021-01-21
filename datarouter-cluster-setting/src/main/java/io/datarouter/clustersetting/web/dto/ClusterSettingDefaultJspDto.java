@@ -23,6 +23,7 @@ public class ClusterSettingDefaultJspDto{
 	private final String serverType;
 	private final String serverName;
 	private final String value;
+	private final boolean active;
 
 	public ClusterSettingDefaultJspDto(
 			boolean isGlobalDefault,
@@ -30,13 +31,15 @@ public class ClusterSettingDefaultJspDto{
 			String environmentName,
 			String serverType,
 			String serverName,
-			String value){
+			String value,
+			boolean active){
 		this.isGlobalDefault = isGlobalDefault;
 		this.environmentType = environmentType;
 		this.environmentName = environmentName;
 		this.serverType = serverType;
 		this.serverName = serverName;
 		this.value = value;
+		this.active = active;
 	}
 
 	public boolean isGlobalDefault(){
@@ -61,6 +64,10 @@ public class ClusterSettingDefaultJspDto{
 
 	public String getValue(){
 		return value;
+	}
+
+	public boolean getActive(){
+		return active;
 	}
 
 	public String getGlobalOrEnvironmentType(){

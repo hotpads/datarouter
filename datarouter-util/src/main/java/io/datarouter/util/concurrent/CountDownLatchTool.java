@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric.types;
+package io.datarouter.util.concurrent;
 
-public enum MetricType{
-	COUNT("count"),
-	GAUGE("gauge"),
-	;
+import java.util.concurrent.CountDownLatch;
 
-	public final String type;
+public class CountDownLatchTool{
 
-	MetricType(String type){
-		this.type = type;
+	public static void await(CountDownLatch latch){
+		try{
+			latch.await();
+		}catch(InterruptedException e){
+			throw new UncheckedInterruptedException(e);
+		}
 	}
 
 }

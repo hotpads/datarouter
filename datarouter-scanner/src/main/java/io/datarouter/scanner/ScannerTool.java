@@ -227,7 +227,7 @@ public class ScannerTool{
 	}
 
 	public static <T> List<T> take(Scanner<T> scanner, int numToTake){
-		List<T> items = new ArrayList<>();
+		List<T> items = new ArrayList<>(numToTake);
 		while(items.size() < numToTake){
 			if(!scanner.advance()){
 				scanner.close();

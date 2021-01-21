@@ -13,33 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric.links;
+package io.datarouter.trace.settings;
 
-import io.datarouter.metric.types.MetricType;
+import java.util.function.Supplier;
 
-public interface MetricLinkBuilder{
+import io.datarouter.storage.setting.DatarouterSettingTag;
 
-	String availableMetricsLink(String prefix);
-	String exactMetricLink(String name, MetricType metricType);
-	String dashboardLink(String id);
+public enum DatarouterTraceSettingTag implements Supplier<DatarouterSettingTag>{
+	TRACEPIPELINE("tracePipeline");
 
-	static class NoOpMetricLinkBuilder implements MetricLinkBuilder{
+	private final DatarouterSettingTag datarouterSettingTag;
 
-		@Override
-		public String availableMetricsLink(String prefix){
-			return "";
-		}
-
-		@Override
-		public String exactMetricLink(String name, MetricType metricType){
-			return "";
-		}
-
-		@Override
-		public String dashboardLink(String id){
-			return "";
-		}
-
+	DatarouterTraceSettingTag(String persistentString){
+		this.datarouterSettingTag = new DatarouterSettingTag(persistentString);
 	}
+
+	@Override
+	public DatarouterSettingTag get(){
+		return datarouterSettingTag;
+	}
+
 
 }

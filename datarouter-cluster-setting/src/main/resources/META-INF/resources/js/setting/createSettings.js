@@ -129,6 +129,14 @@ define('settings-tools', ['jquery-ui'], function(){
 				}
 			});
 		},
+		updateSettingTags: function(){ 
+			var data = {
+					values: $("#tagValues").val()
+			};
+			POST("settings?submitAction=updateSettingTags", data, function() {
+				$("#tagValuesRow").highlight();
+			});
+		},
 		deleteSetting: function(context, fn) {
 			var row = $(context).closest("tr");
 			var rowData = getRowData(row);

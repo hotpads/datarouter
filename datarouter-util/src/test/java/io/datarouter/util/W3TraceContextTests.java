@@ -43,8 +43,7 @@ public class W3TraceContextTests{
 	public void inValidTraceContextTest(){
 		String invalidTraceparent = "00-4bf92f3577b34da6a3ce-00000175e4110dbe-01";
 		String invalidTracestate = "datarouter=00000175e4110dbe,rojo=00f067aa0ba902b7,congo=t61rcWkgMzE";
-		String newTracestate = Tracestate.TRACESTATE_DR_KEY + "=" + Traceparent.createParentIdByTimestamp(
-				UNIX_TIME_MILLIS);
+		String newTracestate = Tracestate.TRACESTATE_DR_KEY + "=" + Traceparent.createNewParentId();
 
 		W3TraceContext traceContext = new W3TraceContext(invalidTraceparent, invalidTracestate, UNIX_TIME_MILLIS);
 		Assert.assertNotEquals(traceContext.getTraceparent().traceId, "4bf92f3577b34da6a3ce");
@@ -53,7 +52,7 @@ public class W3TraceContextTests{
 		Assert.assertEquals(traceContext.getTraceparent().toString().length(), 55);
 		Assert.assertEquals(traceContext.getTimestamp().get(), UNIX_TIME_MILLIS);
 		Assert.assertNotEquals(traceContext.getTracestate().toString(), invalidTracestate);
-		Assert.assertEquals(traceContext.getTracestate().toString(), newTracestate);
+		Assert.assertEquals(traceContext.getTracestate().toString().length(), newTracestate.length());
 	}
 
 }

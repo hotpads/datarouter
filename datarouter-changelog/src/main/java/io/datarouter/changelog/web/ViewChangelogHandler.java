@@ -18,6 +18,7 @@ package io.datarouter.changelog.web;
 import static j2html.TagCreator.div;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 import javax.inject.Inject;
 
@@ -54,6 +55,7 @@ public class ViewChangelogHandler extends BaseHandler{
 				Collections.emptyList(),
 				new MemorySorter<>(),
 				request.getContextPath() + paths.datarouter.changelog.viewAll.toSlashedString(),
+				new HashMap<>(),
 				params,
 				100);
 		Page<Changelog> page = pager.collect(dao.scan());
