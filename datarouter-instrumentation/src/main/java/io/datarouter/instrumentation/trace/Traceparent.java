@@ -21,6 +21,8 @@ public class Traceparent{
 
 	public static final String TRACEPARENT_DELIMITER = "-";
 	public static final String CURRENT_VERSION = "00";
+	private static final int TRACE_ID_HEX_SIZE = 32;
+	private static final int PARENT_ID_HEX_SIZE = 16;
 
 	public final String version = CURRENT_VERSION;
 	public final String traceId;
@@ -39,7 +41,7 @@ public class Traceparent{
 	}
 
 	public Traceparent updateParentId(){
-		return new Traceparent(this.traceId, createNewParentId(), this.traceFlags);
+		return new Traceparent(traceId, createNewParentId(), traceFlags);
 	}
 
 	/*

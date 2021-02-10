@@ -15,33 +15,25 @@
  */
 package io.datarouter.trace.storage.entity;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import io.datarouter.model.entity.BaseEntity;
-import io.datarouter.model.key.entity.base.BaseEntityKey;
 import io.datarouter.trace.storage.span.BaseTraceSpan;
 import io.datarouter.trace.storage.thread.BaseTraceThread;
 import io.datarouter.trace.storage.trace.BaseTrace;
 
-public abstract class BaseTraceEntity<EK extends BaseEntityKey<EK>> extends BaseEntity<EK>{
+public class UiTraceBundleDto{
 
-	// BaseEntity relies on these to store databeans, so they must be used by TraceNodes to add databeans to the entity
-	public static final String QUALIFIER_PREFIX_Trace = "T";
-	public static final String QUALIFIER_PREFIX_TraceThread = "TT";
-	public static final String QUALIFIER_PREFIX_TraceSpan = "TS";
+	public final String account;
+	public final BaseTrace<?,?,?> trace;
+	public final List<? extends BaseTraceThread<?,?,?>> threads;
+	public final List<? extends BaseTraceSpan<?,?,?,?>> spans;
 
-	public BaseTraceEntity(){
-		super(null);
+	public UiTraceBundleDto(String account, BaseTrace<?,?,?> trace, List<? extends BaseTraceThread<?,?,?>> threads,
+			List<? extends BaseTraceSpan<?,?,?,?>> spans){
+		this.account = account;
+		this.trace = trace;
+		this.threads = threads;
+		this.spans = spans;
 	}
-
-	public BaseTraceEntity(EK key){
-		super(key);
-	}
-
-	public abstract BaseTrace<?,?,?> getTrace();
-
-	public abstract ArrayList<? extends BaseTraceThread<?,?,?>> getTraceThreads();
-
-	public abstract ArrayList<? extends BaseTraceSpan<?,?,?,?>> getTraceSpans();
 
 }

@@ -146,13 +146,10 @@ implements Setting<T>{
 		return defaultSettingValue;
 	}
 
-	public Optional<DefaultSettingValueWinner> getDefaultSettingValueWinner(){
-		if(getMostSpecificDatabeanValue().isPresent()){
-			return Optional.empty();
-		}
+	public DefaultSettingValueWinner getDefaultSettingValueWinner(){
 		defaultSettingValue.getValue(finder.getEnvironmentType(), finder.getEnvironmentName(),
 				finder.getServerType(), finder.getServerName(), finder.getSettingTags());
-		return Optional.of(defaultSettingValue.getDefaultSettingValueWinner());
+		return defaultSettingValue.getDefaultSettingValueWinner();
 	}
 
 }

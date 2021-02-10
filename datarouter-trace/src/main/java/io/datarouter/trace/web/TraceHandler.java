@@ -20,8 +20,7 @@ import javax.inject.Inject;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.trace.config.DatarouterTraceFiles;
 import io.datarouter.trace.storage.BaseDatarouterTraceDao;
-import io.datarouter.trace.storage.entity.TraceEntity;
-import io.datarouter.trace.storage.entity.TraceEntityKey;
+import io.datarouter.trace.storage.entity.UiTraceBundleDto;
 
 public class TraceHandler extends BaseTraceHandler{
 
@@ -36,8 +35,8 @@ public class TraceHandler extends BaseTraceHandler{
 	}
 
 	@Override
-	protected TraceEntity getTrace(String traceId){
-		return dao.getEntity(new TraceEntityKey(traceId));
+	protected UiTraceBundleDto getTrace(String traceId) throws AccessException{
+		return dao.getEntity(traceId);
 	}
 
 }

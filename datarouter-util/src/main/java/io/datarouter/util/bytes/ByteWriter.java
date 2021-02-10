@@ -24,7 +24,6 @@ import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.collection.ListTool;
 
 public class ByteWriter{
 
@@ -33,6 +32,9 @@ public class ByteWriter{
 	private int lastPageSize;
 
 	public ByteWriter(int pageSize){
+		if(pageSize <= 0){
+			throw new IllegalArgumentException("pageSize must be > 0");
+		}
 		this.pageSize = pageSize;
 		this.pages = new ArrayList<>();
 		this.lastPageSize = 0;
@@ -43,21 +45,21 @@ public class ByteWriter{
 		return numFullPages * pageSize + lastPageSize;
 	}
 
-	public List<byte[]> trimmedPages(){
+	public byte[][] trimmedPages(){
 		if(pages.isEmpty()){
-			return List.of();
+			return new byte[][]{};
 		}
-		List<byte[]> trimmedPages = new ArrayList<>();
+		byte[][] trimmedPages = new byte[pages.size()][];
+		int nextPageIndex = 0;
 		for(int i = 0; i < pages.size() - 1; ++i){//full pages
-			trimmedPages.add(pages.get(i));
+			trimmedPages[nextPageIndex++] = pages.get(i);
 		}
-		byte[] lastPage = pages.get(pages.size() - 1);
 		if(lastPageSize == pageSize){
-			trimmedPages.add(lastPage);
+			trimmedPages[nextPageIndex++] = lastPage();
 		}else{
 			byte[] trimmedLastPage = new byte[lastPageSize];
-			System.arraycopy(lastPage, 0, trimmedLastPage, 0, lastPageSize);
-			trimmedPages.add(trimmedLastPage);
+			System.arraycopy(lastPage(), 0, trimmedLastPage, 0, lastPageSize);
+			trimmedPages[nextPageIndex++] = trimmedLastPage;
 		}
 		return trimmedPages;
 	}
@@ -78,6 +80,10 @@ public class ByteWriter{
 			return lastPageSize;
 		}
 		return pageSize;
+	}
+
+	private byte[] lastPage(){
+		return pages.get(pages.size() - 1);
 	}
 
 	private int lastPageFreeSpace(){
@@ -119,7 +125,7 @@ public class ByteWriter{
 		while(inputRemaining > 0){
 			addPageIfFull();
 			int chunkLength = Math.min(inputRemaining, lastPageFreeSpace());
-			System.arraycopy(value, inputOffset, ListTool.getLast(pages), lastPageSize, chunkLength);
+			System.arraycopy(value, inputOffset, lastPage(), lastPageSize, chunkLength);
 			inputOffset += chunkLength;
 			inputRemaining -= chunkLength;
 			lastPageSize += chunkLength;
@@ -139,13 +145,18 @@ public class ByteWriter{
 	}
 
 	public ByteWriter rawInt(int value){
-		bytes(IntegerByteTool.getRawBytes(value));
+		if(lastPageFreeSpace() < 4){
+			bytes(IntegerByteTool.getRawBytes(value));
+		}else{
+			IntegerByteTool.toRawBytes(value, lastPage(), lastPageSize);
+			lastPageSize += 4;
+		}
 		return this;
 	}
 
 	public ByteWriter rawInts(int[] values){
 		for(int i = 0; i < values.length; ++i){
-			bytes(IntegerByteTool.getRawBytes(values[i]));
+			rawInt(values[i]);
 		}
 		return this;
 	}
@@ -157,7 +168,12 @@ public class ByteWriter{
 	}
 
 	public ByteWriter rawLong(long value){
-		bytes(LongByteTool.getRawBytes(value));
+		if(lastPageFreeSpace() < 8){
+			bytes(LongByteTool.getRawBytes(value));
+		}else{
+			LongByteTool.toRawBytes(value, lastPage(), lastPageSize);
+			lastPageSize += 8;
+		}
 		return this;
 	}
 

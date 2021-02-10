@@ -34,10 +34,7 @@ public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>,Boole
 
 	@Override
 	public byte[] getBytes(){
-		if(value == null){
-			return null;
-		}
-		return BooleanByteTool.getBooleanByteArray(value);
+		return value == null ? null : BooleanByteTool.getBooleanByteArray(value);
 	}
 
 	@Override

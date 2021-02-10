@@ -56,9 +56,9 @@ public class DatarouterTableSizeAlertThresholdDao extends BaseDao{
 					TableSizeAlertThresholdFielder> node = nodeFactory.create(clientId, TableSizeAlertThreshold::new,
 							TableSizeAlertThresholdFielder::new)
 							.withIsSystemTable(true)
-							.buildAndRegister();
+							.build();
 					return node;
-					})
+				})
 				.listTo(RedundantSortedMapStorageNode::new);
 		datarouter.register(node);
 	}

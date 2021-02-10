@@ -34,10 +34,7 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>,DoubleAr
 
 	@Override
 	public byte[] getBytes(){
-		if(value == null){
-			return null;
-		}
-		return DoubleByteTool.getDoubleByteArray(value);
+		return value == null ? null : DoubleByteTool.getDoubleByteArray(value);
 	}
 
 	@Override

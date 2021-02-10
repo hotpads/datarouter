@@ -23,14 +23,24 @@ public class SecretOpInfo{
 	public final String namespace;
 	public final String name;
 	public final SecretOpReason reason;
+	public final boolean shouldRecord;
 
 	public SecretOpInfo(SecretOp op, String namespace, String name, SecretOpReason reason){
+		this(op, namespace, name, reason, false);
+	}
+
+	public SecretOpInfo(SecretOp op, String namespace, String name, SecretOpReason reason, boolean shouldRecord){
 		ObjectTool.requireNonNulls(op, namespace, name, reason);
 
 		this.op = op;
 		this.namespace = namespace;
 		this.name = name;
 		this.reason = reason;
+		this.shouldRecord = shouldRecord;
+	}
+
+	public String getNamespaced(){
+		return namespace + name;
 	}
 
 	@Override

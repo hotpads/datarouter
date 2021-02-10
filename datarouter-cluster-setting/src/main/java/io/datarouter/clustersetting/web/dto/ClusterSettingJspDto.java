@@ -25,13 +25,21 @@ public class ClusterSettingJspDto{
 	private final String serverType;
 	private final String serverName;
 	private final String value;
+	private final boolean active;
+	private final boolean winner;
 
-	public ClusterSettingJspDto(ClusterSetting setting){
+	public ClusterSettingJspDto(ClusterSetting setting, boolean active, boolean winner){
 		this.name = setting.getKey().getName();
 		this.scope = setting.getKey().getScope();
 		this.serverType = setting.getKey().getServerType();
 		this.serverName = setting.getKey().getServerName();
 		this.value = setting.getValue();
+		this.active = active;
+		this.winner = winner;
+	}
+
+	public ClusterSettingJspDto(ClusterSetting setting){
+		this(setting, false, false);
 	}
 
 	public String getName(){
@@ -52,6 +60,14 @@ public class ClusterSettingJspDto{
 
 	public String getValue(){
 		return value;
+	}
+
+	public boolean isActive(){
+		return active;
+	}
+
+	public boolean isWinner(){
+		return winner;
 	}
 
 }

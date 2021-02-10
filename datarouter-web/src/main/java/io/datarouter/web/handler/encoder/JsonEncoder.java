@@ -134,8 +134,8 @@ public class JsonEncoder implements HandlerEncoder{
 	 * @param exception The exception that occurred
 	 * @param httpStatusCode The HTTP status code that will be returned
 	 */
-	protected Optional<Object> buildSimpleErrorObject(Throwable exception, int httpStatusCode,
-			Optional<String> exceptionId){
+	protected Optional<Object> buildSimpleErrorObject(@SuppressWarnings("unused") Throwable exception,
+			@SuppressWarnings("unused") int httpStatusCode, Optional<String> exceptionId){
 		return exceptionId.map(SimpleError::new);
 	}
 

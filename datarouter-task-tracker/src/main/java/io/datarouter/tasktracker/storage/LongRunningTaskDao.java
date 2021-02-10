@@ -53,9 +53,9 @@ public class LongRunningTaskDao extends BaseDao{
 							nodeFactory.create(clientId, LongRunningTask::new, LongRunningTaskFielder::new)
 							.withIsSystemTable(true)
 							.disableNodewatchPercentageAlert()
-							.buildAndRegister();
+							.build();
 					return node;
-					})
+				})
 				.listTo(RedundantSortedMapStorageNode::new);
 		datarouter.register(node);
 	}

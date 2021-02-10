@@ -31,24 +31,25 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.SettinglessNodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterClusterSettingDao extends BaseDao{
 
-	public static class DatarouterClusterSettingDaoParams extends BaseDaoParams{
+	public static class DatarouterClusterSettingDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterClusterSettingDaoParams(ClientId clientId){
-			super(clientId);
+	public DatarouterClusterSettingDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<ClusterSettingKey,ClusterSetting> node;
+	private final SortedMapStorageNode<ClusterSettingKey,ClusterSetting,ClusterSettingFielder> node;
 	private final SingletonSupplier<AtomicReference<Map<ClusterSettingKey,ClusterSetting>>> cacheRefSupplier;
 
 	@Inject
@@ -57,13 +58,17 @@ public class DatarouterClusterSettingDao extends BaseDao{
 			SettinglessNodeFactory settinglessNodeFactory,
 			DatarouterClusterSettingDaoParams params){
 		super(datarouter);
-		node = settinglessNodeFactory.create(
-				params.clientId,
-				ClusterSetting::new,
-				ClusterSettingFielder::new)
-				.withIsSystemTable(true)
-				.withDisableForcePrimary(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<ClusterSettingKey,ClusterSetting,ClusterSettingFielder> node =
+							settinglessNodeFactory.create(clientId, ClusterSetting::new, ClusterSettingFielder::new)
+							.withIsSystemTable(true)
+							.withDisableForcePrimary(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 		cacheRefSupplier = SingletonSupplier.of(() -> new AtomicReference<>(loadCache()));
 	}
 

@@ -60,10 +60,7 @@ public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		if(value == null){
-			return null;
-		}
-		return LongByteTool.getUInt63Bytes(value.getTime());
+		return value == null ? null : LongByteTool.getUInt63Bytes(value.getTime());
 	}
 
 	@Override

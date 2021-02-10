@@ -25,8 +25,8 @@ import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public abstract class BaseWebappInstanceKey<PK extends RegularPrimaryKey<PK>> extends BaseRegularPrimaryKey<PK>{
 
-	private String webappName;
-	private String serverName;
+	private final String webappName;
+	private final String serverName;
 
 	public static class FieldKeys{
 		public static final StringFieldKey webappName = new StringFieldKey("webappName");
@@ -34,6 +34,7 @@ public abstract class BaseWebappInstanceKey<PK extends RegularPrimaryKey<PK>> ex
 	}
 
 	public BaseWebappInstanceKey(){
+		this(null, null);
 	}
 
 	public BaseWebappInstanceKey(String webappName, String serverName){

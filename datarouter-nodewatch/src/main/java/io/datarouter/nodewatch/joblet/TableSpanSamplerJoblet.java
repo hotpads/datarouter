@@ -68,15 +68,15 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 	private List<TableSample> samples;
 
 	@Override
-	public Long process(){
+	public void process(){
 		TableSample dbSample = tableSampleDao.get(params.endSample.getKey());
 		if(dbSample == null){
 			logger.warn("aborting because dbSample missing {}", params.endSample);
-			return null;
+			return;
 		}
 		if(ObjectTool.notEquals(params.samplerId, dbSample.getSamplerId())){
 			logger.warn("aborting because wrong samplerId={}, {}", params.samplerId, params.endSample);
-			return null;
+			return;
 		}
 		//TODO make expiration a generic joblet feature
 		Duration age = jobletRequest.getKey().getAge();
@@ -84,7 +84,7 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 			logger.warn("aborting expired joblet {} with age {}", jobletRequest, age);
 			datarouterJobletCounters.incNumJobletsExpired(1);
 			datarouterJobletCounters.incNumJobletsExpired(JOBLET_TYPE, 1);
-			return null;
+			return;
 			//the joblet creator will quickly create another one based on the stale dateScheduled
 		}
 		PhysicalNode<?,?,?> physicalNode = datarouterNodes.getPhysicalNodeForClientAndTable(params.nodeNames
@@ -109,7 +109,6 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 				params.scanUntilEnd,
 				deadline)
 				.call();
-		return null;
 	}
 
 	//for tests only

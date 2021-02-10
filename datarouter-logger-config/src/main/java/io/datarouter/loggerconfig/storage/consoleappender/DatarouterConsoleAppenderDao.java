@@ -55,7 +55,7 @@ public class DatarouterConsoleAppenderDao extends BaseDao{
 		node = new RedundantSortedMapStorageNode(Scanner.of(params.clientIds)
 				.map(clientId -> nodeFactory.create(clientId, ConsoleAppender::new, ConsoleAppenderFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister())
+						.build())
 				.list());
 		datarouter.register(node);
 	}

@@ -52,9 +52,9 @@ public class DatarouterTableCountDao extends BaseDao{
 					SortedMapStorageNode<TableCountKey,TableCount,TableCountFielder> node =
 							nodeFactory.create(clientId, TableCount::new, TableCountFielder::new)
 							.withIsSystemTable(true)
-							.buildAndRegister();
+							.build();
 					return node;
-					})
+				})
 				.listTo(RedundantSortedMapStorageNode::new);
 		datarouter.register(node);
 	}

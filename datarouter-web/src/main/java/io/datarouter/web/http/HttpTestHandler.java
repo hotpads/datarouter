@@ -103,16 +103,12 @@ public class HttpTestHandler extends BaseHandler{
 		if(response.isFailure() && response.getException() instanceof DatarouterHttpResponseException){
 			DatarouterHttpResponseException responseException = (DatarouterHttpResponseException)response
 					.getException();
-			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(responseException.getResponse()), Optional.of(
-					responseException));
+			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(responseException.getResponse()));
 		}else if(response.isFailure()){
-			if(response.getException().getCause() != null){
-				mav.put("stackTrace", ExceptionTool.getStackTraceAsString(response.getException().getCause()));
-			}
-			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.empty(), Optional.of(response.getException()));
+			mav.put("stackTrace", ExceptionTool.getStackTraceAsString(response.getException()));
+			addResponseToMavModel(mav, url.get(), elapsedMs, Optional.empty());
 		}
-		response.ifSuccess(httpResponse -> addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(httpResponse),
-				Optional.empty()));
+		response.ifSuccess(httpResponse -> addResponseToMavModel(mav, url.get(), elapsedMs, Optional.of(httpResponse)));
 		return mav;
 	}
 
@@ -128,7 +124,7 @@ public class HttpTestHandler extends BaseHandler{
 			Long start = System.currentTimeMillis();
 			InetAddress[] ipAddresses = InetAddress.getAllByName(hostname.get());
 			Long elapsedMs = System.currentTimeMillis() - start;
-			String ipAddressesFormatted = Scanner.of(ipAddresses).map(ip -> ip.getHostAddress()).collect(Collectors
+			String ipAddressesFormatted = Scanner.of(ipAddresses).map(InetAddress::getHostAddress).collect(Collectors
 					.joining("\n"));
 			String formattedResponse = "duration: " + elapsedMs + " ms" + "\n\n" + "ips: " + ipAddressesFormatted;
 			mav.put("ipAddresses", formattedResponse);
@@ -139,7 +135,7 @@ public class HttpTestHandler extends BaseHandler{
 	}
 
 	public void addResponseToMavModel(Mav mav, String requestUrl, Long responseMs,
-			Optional<DatarouterHttpResponse> response, Optional<Exception> exception){
+			Optional<DatarouterHttpResponse> response){
 		mav.put("url", requestUrl);
 		mav.put("serverName", properties.getServerName());
 		mav.put("responseMs", responseMs);
@@ -149,9 +145,6 @@ public class HttpTestHandler extends BaseHandler{
 			Map<String,String> headerMap = Scanner.of(response.get().getAllHeaders()).toMap(Header::getName,
 					Header::getValue);
 			mav.put("headers", headerMap);
-		}
-		if(exception.isPresent()){
-			mav.put("message", exception.get().getMessage());
 		}
 	}
 

@@ -25,7 +25,7 @@ import io.datarouter.util.serialization.GsonTool;
 
 public class PrimitiveLongArrayField extends BaseField<long[]>{
 
-	private PrimitiveLongArrayFieldKey key;
+	private final PrimitiveLongArrayFieldKey key;
 
 	public PrimitiveLongArrayField(PrimitiveLongArrayFieldKey key, long[] value){
 		super(null, value);
@@ -69,7 +69,7 @@ public class PrimitiveLongArrayField extends BaseField<long[]>{
 
 	@Override
 	public byte[] getBytes(){
-		return LongByteTool.getComparableByteArray(value);
+		return value == null ? null : LongByteTool.getComparableByteArray(value);
 	}
 
 	@Override

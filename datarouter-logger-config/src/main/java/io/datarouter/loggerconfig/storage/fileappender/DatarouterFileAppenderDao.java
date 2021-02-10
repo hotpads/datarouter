@@ -52,7 +52,7 @@ public class DatarouterFileAppenderDao extends BaseDao{
 					SortedMapStorageNode<FileAppenderKey,FileAppender,FileAppenderFielder> node =
 							nodeFactory.create(clientId, FileAppender::new, FileAppenderFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);

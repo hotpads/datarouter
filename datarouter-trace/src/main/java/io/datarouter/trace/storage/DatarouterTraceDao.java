@@ -31,8 +31,8 @@ import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.util.PrimaryKeyVacuum;
 import io.datarouter.storage.util.PrimaryKeyVacuum.PrimaryKeyVacuumBuilder;
 import io.datarouter.trace.storage.entity.BaseTraceEntityKey;
-import io.datarouter.trace.storage.entity.TraceEntity;
 import io.datarouter.trace.storage.entity.TraceEntityKey;
+import io.datarouter.trace.storage.entity.UiTraceBundleDto;
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.span.TraceSpan.TraceSpanFielder;
 import io.datarouter.trace.storage.span.TraceSpanKey;
@@ -42,6 +42,8 @@ import io.datarouter.trace.storage.thread.TraceThreadKey;
 import io.datarouter.trace.storage.trace.Trace;
 import io.datarouter.trace.storage.trace.Trace.TraceFielder;
 import io.datarouter.trace.storage.trace.TraceKey;
+import io.datarouter.trace.storage.trace.TraceTool;
+import io.datarouter.trace.web.AccessException;
 
 @Singleton
 public class DatarouterTraceDao extends BaseDao implements BaseDatarouterTraceDao{
@@ -54,9 +56,9 @@ public class DatarouterTraceDao extends BaseDao implements BaseDatarouterTraceDa
 
 	}
 
-	private final SortedMapStorage<TraceKey,Trace> trace;
-	private final SortedMapStorage<TraceThreadKey,TraceThread> traceThread;
-	private final SortedMapStorage<TraceSpanKey,TraceSpan> traceSpan;
+	private final SortedMapStorage<TraceKey,Trace> traceNode;
+	private final SortedMapStorage<TraceThreadKey,TraceThread> traceThreadNode;
+	private final SortedMapStorage<TraceSpanKey,TraceSpan> traceSpanNode;
 
 	@Inject
 	public DatarouterTraceDao(
@@ -64,19 +66,19 @@ public class DatarouterTraceDao extends BaseDao implements BaseDatarouterTraceDa
 			DatarouterTraceDaoParams params,
 			NodeFactory nodeFactory){
 		super(datarouter);
-		trace = nodeFactory.create(
+		traceNode = nodeFactory.create(
 				params.clientId,
 				TraceEntityKey::new,
 				Trace::new,
 				TraceFielder::new)
 				.buildAndRegister();
-		traceThread = nodeFactory.create(
+		traceThreadNode = nodeFactory.create(
 				params.clientId,
 				TraceEntityKey::new,
 				TraceThread::new,
 				TraceThreadFielder::new)
 				.buildAndRegister();
-		traceSpan = nodeFactory.create(
+		traceSpanNode = nodeFactory.create(
 				params.clientId,
 				TraceEntityKey::new,
 				TraceSpan::new,
@@ -92,45 +94,49 @@ public class DatarouterTraceDao extends BaseDao implements BaseDatarouterTraceDa
 		Config config = new Config()
 				.setIgnoreNullFields(true)
 				.setPersistentPut(false);
-		traceThread.putMulti(threadDatabeans, config);
-		traceSpan.putMulti(spanDatabeans, config);
+		traceThreadNode.putMulti(threadDatabeans, config);
+		traceSpanNode.putMulti(spanDatabeans, config);
 		// insert trace last to fix ui
-		trace.put(traceDatabean, config);
+		traceNode.put(traceDatabean, config);
 	}
 
 	@Override
-	public TraceEntity getEntity(TraceEntityKey entityKey){
-		return new TraceEntity(
-				entityKey,
-				trace.get(new TraceKey(entityKey)),
-				traceThread.scanWithPrefix(new TraceThreadKey(entityKey)).list(),
-				traceSpan.scanWithPrefix(new TraceSpanKey(entityKey)).list());
+	public UiTraceBundleDto getEntity(String traceId) throws AccessException{
+		Trace trace = traceNode.get(new TraceKey(traceId));
+		if(trace == null){
+			throw TraceTool.makeException(traceId);
+		}
+		return new UiTraceBundleDto(
+				"",
+				trace,
+				traceThreadNode.scanWithPrefix(new TraceThreadKey(traceId, null)).list(),
+				traceSpanNode.scanWithPrefix(new TraceSpanKey(traceId, null, null)).list());
 	}
 
 	public PrimaryKeyVacuum<TraceKey> makeTraceVacuum(){
 		Predicate<TraceKey> isExpired = key -> isExpired(key.getEntityKey());
 		return new PrimaryKeyVacuumBuilder<>(
-				trace.scanKeys().advanceWhile(isExpired),
+				traceNode.scanKeys().advanceWhile(isExpired),
 				$ -> true,
-				trace::deleteMulti)
+				traceNode::deleteMulti)
 				.build();
 	}
 
 	public PrimaryKeyVacuum<TraceSpanKey> makeTraceSpanVacuum(){
 		Predicate<TraceSpanKey> isExpired = key -> isExpired(key.getEntityKey());
 		return new PrimaryKeyVacuumBuilder<>(
-				traceSpan.scanKeys().advanceWhile(isExpired),
+				traceSpanNode.scanKeys().advanceWhile(isExpired),
 				$ -> true,
-				traceSpan::deleteMulti)
+				traceSpanNode::deleteMulti)
 				.build();
 	}
 
 	public PrimaryKeyVacuum<TraceThreadKey> makeTraceThreadVacuum(){
 		Predicate<TraceThreadKey> isExpired = key -> isExpired(key.getEntityKey());
 		return new PrimaryKeyVacuumBuilder<>(
-				traceThread.scanKeys().advanceWhile(isExpired),
+				traceThreadNode.scanKeys().advanceWhile(isExpired),
 				$ -> true,
-				traceThread::deleteMulti)
+				traceThreadNode::deleteMulti)
 				.build();
 	}
 

@@ -17,7 +17,9 @@ package io.datarouter.web.dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
+import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.handler.BaseHandler;
 
@@ -50,6 +52,10 @@ public abstract class BaseRouteSet{
 	protected DispatchRule handle(String regex){
 		DispatchRule rule = new DispatchRule(this, regex);
 		return applyDefaultAndAdd(rule);
+	}
+
+	protected DispatchRule handle(Supplier<BaseEndpoint<?>> baseEndpoint){
+		return handle(baseEndpoint.get().pathNode);
 	}
 
 	protected DispatchRule applyDefaultAndAdd(DispatchRule rule){

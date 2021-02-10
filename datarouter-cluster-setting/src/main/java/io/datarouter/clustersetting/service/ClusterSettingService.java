@@ -118,6 +118,12 @@ public class ClusterSettingService{
 								== ClusterSettingValidity.REDUNDANT));
 	}
 
+	public Optional<ClusterSetting> getMostSpecificClusterSetting(List<ClusterSetting> dbSettings){
+		WebappInstance currentWebappInstance = webappInstanceDao.get(webappInstanceService
+				.buildCurrentWebappInstanceKey());
+		return ClusterSettingComparisonTool.getMostSpecificSettingForWebappInstance(dbSettings, currentWebappInstance);
+	}
+
 	public Scanner<ClusterSettingAndValidityJspDto> scanClusterSettingAndValidityWithPrefix(String prefix){
 		WebappInstance currentWebappInstance = webappInstanceDao.get(webappInstanceService
 				.buildCurrentWebappInstanceKey());

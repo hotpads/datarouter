@@ -97,9 +97,20 @@ extends BaseDatabean<PK,D>{
 		super(key);
 	}
 
-	public BaseWebappInstance(PK key, String serverType, String servletContextPath, String serverPublicIp,
-			String serverPrivateIp, Date refreshedLast, Date startupDate, Date buildDate, String buildId,
-			String commitId, String javaVersion, String servletContainerVersion, String gitBranch){
+	public BaseWebappInstance(
+			PK key,
+			String serverType,
+			String servletContextPath,
+			String serverPublicIp,
+			String serverPrivateIp,
+			Date refreshedLast,
+			Date startupDate,
+			Date buildDate,
+			String buildId,
+			String commitId,
+			String javaVersion,
+			String servletContainerVersion,
+			String gitBranch){
 		super(key);
 		this.serverType = serverType;
 		this.servletContextPath = servletContextPath;
@@ -116,8 +127,18 @@ extends BaseDatabean<PK,D>{
 	}
 
 	public BaseWebappInstance(PK key, WebappInstanceDto dto){
-		this(key, dto.serverType, dto.servletContextPath, dto.serverPublicIp, dto.serverPrivateIp, dto.refreshedLast,
-				dto.startupDate, dto.buildDate, dto.buildId, dto.commitId, dto.javaVersion, dto.servletContainerVersion,
+		this(key,
+				dto.serverType,
+				dto.servletContextPath,
+				dto.serverPublicIp,
+				dto.serverPrivateIp,
+				dto.refreshedLast,
+				dto.startupDate,
+				dto.buildDate,
+				dto.buildId,
+				dto.commitId,
+				dto.javaVersion,
+				dto.servletContainerVersion,
 				dto.gitBranch);
 	}
 

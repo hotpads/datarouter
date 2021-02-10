@@ -62,7 +62,7 @@ implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildDateKey,WebappI
 
 	@Override
 	public FieldlessIndexEntry<WebappInstanceLogByBuildDateKey,WebappInstanceLogKey,WebappInstanceLog>
-			createFromDatabean(WebappInstanceLog target){
+	createFromDatabean(WebappInstanceLog target){
 		var index = new WebappInstanceLogByBuildDateKey(
 				target.getKey().getBuildDate(),
 				target.getKey().getWebappName(),

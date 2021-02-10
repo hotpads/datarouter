@@ -18,11 +18,11 @@ package io.datarouter.webappinstance.service;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.cached.Cached;
 import io.datarouter.web.app.WebappName;
@@ -40,7 +40,9 @@ public class CachedWebappInstancesOfThisServerType extends Cached<List<WebappIns
 	private final DatarouterWebappInstanceDao webappInstanceDao;
 
 	@Inject
-	public CachedWebappInstancesOfThisServerType(DatarouterProperties datarouterProperties, WebappName webappName,
+	public CachedWebappInstancesOfThisServerType(
+			DatarouterProperties datarouterProperties,
+			WebappName webappName,
 			DatarouterWebappInstanceDao webappInstanceDao){
 		super(20, TimeUnit.SECONDS);
 		this.datarouterProperties = datarouterProperties;
@@ -53,17 +55,18 @@ public class CachedWebappInstancesOfThisServerType extends Cached<List<WebappIns
 	}
 
 	public List<String> getSortedServerNamesForWebAppName(String webappName){
-		return get().stream()
+		return Scanner.of(get())
 				.map(WebappInstance::getKey)
-				.filter(key -> key.getWebappName().equals(webappName))
+				.include(key -> key.getWebappName().equals(webappName))
 				.map(WebappInstanceKey::getServerName)
 				.sorted()
-				.collect(Collectors.toList());
+				.list();
 	}
 
 	@Override
 	protected List<WebappInstance> reload(){
-		return webappInstanceDao.getWebappInstancesOfServerType(datarouterProperties.getServerType(),
+		return webappInstanceDao.getWebappInstancesOfServerType(
+				datarouterProperties.getServerType(),
 				HEARTBEAT_WITHIN);
 	}
 

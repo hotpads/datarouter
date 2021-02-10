@@ -15,12 +15,17 @@
  */
 package io.datarouter.trace.storage.trace;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 
 import io.datarouter.trace.storage.entity.BaseTraceEntityKey;
 import io.datarouter.trace.storage.span.BaseTraceSpan;
 import io.datarouter.trace.storage.span.BaseTraceSpanKey;
 import io.datarouter.trace.storage.thread.BaseTraceThreadKey;
+import io.datarouter.trace.web.AccessException;
+import io.datarouter.util.UlidTool;
+import io.datarouter.util.duration.DatarouterDuration;
 
 public class TraceTool{
 
@@ -35,5 +40,16 @@ public class TraceTool{
 				.sum();
 	}
 
+	public static AccessException makeException(String traceId){
+		Instant traceInstant;
+		try{
+			traceInstant = UlidTool.getInstant(traceId);
+		}catch(RuntimeException e){
+			return new AccessException(e.getMessage());
+		}
+		Duration duration = Duration.between(traceInstant, Instant.now());
+		String durationStr = new DatarouterDuration(duration).toString();
+		return new AccessException("not found (" + durationStr + " old)");
+	}
 
 }

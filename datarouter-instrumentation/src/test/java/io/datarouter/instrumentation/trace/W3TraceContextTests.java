@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util;
+package io.datarouter.instrumentation.trace;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.instrumentation.trace.Traceparent;
-import io.datarouter.instrumentation.trace.Tracestate;
-import io.datarouter.util.tracer.W3TraceContext;
 
 public class W3TraceContextTests{
 
@@ -32,8 +28,9 @@ public class W3TraceContextTests{
 		String validTracestate = "datarouter=00000175e4110dbe,rojo=00f067aa0ba902b7,congo=t61rcWkgMzE";
 
 		W3TraceContext traceContext = new W3TraceContext(validTraceparent, validTracestate, UNIX_TIME_MILLIS);
-		Assert.assertEquals(traceContext.getTraceparent().traceId, "4bf92f3577b34da6a3ce929d0e0e4736");
-		Assert.assertEquals(traceContext.getTraceparent().parentId, traceContext.getTracestate().getLastestTracestate()
+		Traceparent traceparent = traceContext.getTraceparent();
+		Assert.assertEquals(traceparent.traceId, "4bf92f3577b34da6a3ce929d0e0e4736");
+		Assert.assertEquals(traceparent.parentId, traceContext.getTracestate().getLastestTracestate()
 				.value);
 		Assert.assertNotEquals(traceContext.getTimestamp().get(), UNIX_TIME_MILLIS);
 		Assert.assertEquals(traceContext.getTracestate().toString(), validTracestate);

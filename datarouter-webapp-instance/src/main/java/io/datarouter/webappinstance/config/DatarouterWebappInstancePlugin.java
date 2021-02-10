@@ -62,10 +62,14 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 		addSettingRoot(DatarouterWebappInstanceSettingRoot.class);
 		addTriggerGroup(DatarouterWebappInstanceTriggerGroup.class);
 		setDaosModule(daosModuleBuilder);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
-				new DatarouterWebappInstancePaths().datarouter.webappInstances, "Webapp Instances");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING,
-				new DatarouterWebappInstancePaths().datarouter.webappInstanceServers, "Webapp Servers");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				new DatarouterWebappInstancePaths().datarouter.webappInstances,
+				"Webapp Instances");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.MONITORING,
+				new DatarouterWebappInstancePaths().datarouter.webappInstanceServers,
+				"Webapp Servers");
 		addDatarouterGithubDocLink("datarouter-webapp-instance");
 		addDailyDigest(WebappInstanceDailyDigest.class);
 	}
@@ -85,13 +89,13 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 
 	public static class DatarouterWebappInstancePluginBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 		private Class<? extends WebappInstancePublisher> webappInstancePublisher = NoOpWebappInstancePublisher.class;
 		private Class<? extends WebappInstanceBuildIdLink> buildIdLink = NoOpWebappInstanceBuilIdLink.class;
 		private Class<? extends WebappInstanceCommitIdLink> commitIdLink = NoOpWebappInstanceCommitIdLink.class;
 		private int numStandardDeployments = 2;
 
-		public DatarouterWebappInstancePluginBuilder(ClientId defaultClientId){
+		public DatarouterWebappInstancePluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
 		}
 
@@ -131,14 +135,14 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 
 	public static class DatarouterWebappInstanceDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterOneTimeLoginTokenClientId;
-		private final ClientId datarouterWebappInstanceClientId;
-		private final ClientId datarouterWebappInstanceLogClientId;
+		private final List<ClientId> datarouterOneTimeLoginTokenClientId;
+		private final List<ClientId> datarouterWebappInstanceClientId;
+		private final List<ClientId> datarouterWebappInstanceLogClientId;
 
 		public DatarouterWebappInstanceDaoModule(
-				ClientId datarouterOneTimeLoginTokenClientId,
-				ClientId datarouterWebappInstanceClientId,
-				ClientId datarouterWebappInstanceLogClientId){
+				List<ClientId> datarouterOneTimeLoginTokenClientId,
+				List<ClientId> datarouterWebappInstanceClientId,
+				List<ClientId> datarouterWebappInstanceLogClientId){
 			this.datarouterOneTimeLoginTokenClientId = datarouterOneTimeLoginTokenClientId;
 			this.datarouterWebappInstanceClientId = datarouterWebappInstanceClientId;
 			this.datarouterWebappInstanceLogClientId = datarouterWebappInstanceLogClientId;

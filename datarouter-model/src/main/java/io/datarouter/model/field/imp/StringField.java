@@ -66,8 +66,7 @@ public class StringField extends BaseField<String>{
 
 	@Override
 	public byte[] getBytes(){
-		byte[] bytes = StringByteTool.getUtf8Bytes(value);
-		return bytes;
+		return value == null ? null : StringByteTool.getUtf8Bytes(value);
 	}
 
 	@Override

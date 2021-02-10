@@ -24,6 +24,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,6 +45,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.internal.UnsafeAllocator;
 
 import io.datarouter.httpclient.DocumentedGenericHolder;
@@ -278,9 +281,14 @@ public class ApiDocService{
 		}
 		Class<?> clazz = (Class<?>)type;
 		if(clazz.isArray()){
-			Object[] array = (Object[])Array.newInstance(clazz.getComponentType(), 1);
-			array[0] = createBestExample(clazz.getComponentType(), parentsWithType);
-			return array;
+			if(clazz.getComponentType().isPrimitive()){
+				Object array = Array.newInstance(clazz.getComponentType(), 1);
+				return array;
+			}else{
+				Object[] array = (Object[])Array.newInstance(clazz.getComponentType(), 1);
+				array[0] = createBestExample(clazz.getComponentType(), parentsWithType);
+				return array;
+			}
 		}
 		if(clazz.isPrimitive()){
 			if(type == Boolean.TYPE){ // boolean is the only primitive that doesnt support 0
@@ -305,6 +313,15 @@ public class ApiDocService{
 		}
 		if(clazz == Number.class){
 			return 0;
+		}
+		if(clazz == LocalDateTime.class){
+			return LocalDateTime.now();
+		}
+		if(clazz == JsonArray.class){
+			return new JsonArray();
+		}
+		if(clazz == JsonObject.class){
+			return new JsonObject();
 		}
 		Object example = createWithNulls(clazz);
 		for(Field field : ReflectionTool.getDeclaredFieldsIncludingAncestors(clazz)){

@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.tracer;
+package io.datarouter.instrumentation.trace;
 
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.datarouter.instrumentation.trace.TraceContext;
-import io.datarouter.instrumentation.trace.Traceparent;
-import io.datarouter.instrumentation.trace.Tracestate;
-
-public class W3TraceContext implements TraceContext{
-	private static final Logger logger = LoggerFactory.getLogger(W3TraceContext.class);
+public class W3TraceContext{
 
 	public static final Pattern TRACEPARENT_PATTERN = Pattern.compile(
 			"^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$");
@@ -59,17 +51,14 @@ public class W3TraceContext implements TraceContext{
 		tracestate = Tracestate.generateNew(traceparent.parentId);
 	}
 
-	@Override
 	public Traceparent getTraceparent(){
 		return traceparent;
 	}
 
-	@Override
 	public Tracestate getTracestate(){
 		return tracestate;
 	}
 
-	@Override
 	public void updateParentIdAndAddTracestateMember(){
 		traceparent = traceparent.updateParentId();
 		tracestate.addDatarouterListMember(traceparent.parentId);
@@ -84,19 +73,15 @@ public class W3TraceContext implements TraceContext{
 	}
 
 	private boolean validateAndSetTraceparent(String traceparentStr){
-		logger.debug("traceparent={} recieved.", traceparentStr);
 		if(traceparentStr == null || traceparentStr.isEmpty()){
 			return false;
 		}else if(traceparentStr.length() < MIN_CHARS_TRACEPARENT){
-			logger.warn("traceparent={} length is shorter than {}", traceparentStr, MIN_CHARS_TRACEPARENT);
 			return false;
 		}else if(!TRACEPARENT_PATTERN.matcher(traceparentStr).matches()){
-			logger.warn("traceparent={} does not match w3 format", traceparentStr);
 			return false;
 		}
 		String[] tokens = traceparentStr.split(Traceparent.TRACEPARENT_DELIMITER);
 		if(!Traceparent.CURRENT_VERSION.equals(tokens[0])){
-			logger.warn("traceparent version={} is not supported", tokens[0]);
 			return false;
 		}
 		traceparent = new Traceparent(tokens[1], tokens[2], tokens[3]);
@@ -105,20 +90,16 @@ public class W3TraceContext implements TraceContext{
 	}
 
 	private void parseOrCreateNewTracestate(String tracestateStr){
-		logger.debug("tracestate={} recieved.", tracestateStr);
 		if(!hasValidTraceparent){
-			logger.debug("traceparent was not valid, generate a new tracestate");
 			tracestate = Tracestate.generateNew(traceparent.parentId);
 			return;
 		}
 		if(tracestateStr == null || tracestateStr.isEmpty()){
-			logger.debug("traceparent is null or empty.");
 			tracestate = Tracestate.generateNew(traceparent.parentId);
 			return;
 		}
 		Matcher matcher = TRACESTATE_PATTERN.matcher(tracestateStr);
 		if(!matcher.matches()){
-			logger.warn("tracestate=\"{}\" does not match w3 format", tracestateStr);
 			tracestate = Tracestate.generateNew(traceparent.parentId);
 			return;
 		}
@@ -129,7 +110,6 @@ public class W3TraceContext implements TraceContext{
 			String[] tokens = member.split(Tracestate.TRACESTATE_KEYVALUE_DELIMITER);
 			tracestate.addListMember(tokens[0], tokens[1]);
 		}
-		logger.debug("{} number of tracestate members found in {}.", members.length, tracestateStr);
 	}
 
 	@Override

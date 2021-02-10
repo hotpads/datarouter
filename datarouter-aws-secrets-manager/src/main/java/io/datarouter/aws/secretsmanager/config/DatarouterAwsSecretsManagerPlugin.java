@@ -15,28 +15,21 @@
  */
 package io.datarouter.aws.secretsmanager.config;
 
+import java.util.Optional;
+
 import io.datarouter.aws.secretsmanager.AwsSecretClientCredentialsHolder;
 import io.datarouter.aws.secretsmanager.AwsSecretClientCredentialsHolder.DefaultAwsSecretClientCredentialsHolder;
 import io.datarouter.aws.secretsmanager.AwsSecretClientCredentialsHolder.HardcodedAwsSecretClientCredentialsHolder;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.config.BaseWebPlugin;
 
 public class DatarouterAwsSecretsManagerPlugin extends BaseWebPlugin{
 
-	private final String devAccessKey;
-	private final String devSecretKey;
-	private final String stagingAccessKey;
-	private final String stagingSecretKey;
-	private final String prodAccessKey;
-	private final String prodSecretkey;
+	private final Optional<HardcodedAwsSecretClientCredentialsHolder> hardcodedCredentialsHolder;
 
-	private DatarouterAwsSecretsManagerPlugin(String devAccessKey, String devSecretKey, String stagingAccessKey,
-			String stagingSecretKey, String prodAccessKey, String prodSecretkey){
-		this.devAccessKey = devAccessKey;
-		this.devSecretKey = devSecretKey;
-		this.stagingAccessKey = stagingAccessKey;
-		this.stagingSecretKey = stagingSecretKey;
-		this.prodAccessKey = prodAccessKey;
-		this.prodSecretkey = prodSecretkey;
+	private DatarouterAwsSecretsManagerPlugin(
+			Optional<HardcodedAwsSecretClientCredentialsHolder> hardcodedCredentialsHolder){
+		this.hardcodedCredentialsHolder = hardcodedCredentialsHolder;
 		addDatarouterGithubDocLink("datarouter-aws-secrets-manager");
 	}
 
@@ -47,38 +40,37 @@ public class DatarouterAwsSecretsManagerPlugin extends BaseWebPlugin{
 
 	@Override
 	protected void configure(){
-		bind(HardcodedAwsSecretClientCredentialsHolder.class).toInstance(new HardcodedAwsSecretClientCredentialsHolder(
-				devAccessKey, devSecretKey, stagingAccessKey, stagingSecretKey, prodAccessKey, prodSecretkey));
-		bind(AwsSecretClientCredentialsHolder.class).to(DefaultAwsSecretClientCredentialsHolder.class);
+		requireBinding(ServerTypeDetector.class);
+		if(hardcodedCredentialsHolder.isPresent()){
+			bind(AwsSecretClientCredentialsHolder.class).toInstance(hardcodedCredentialsHolder.get());
+		}else{
+			bind(AwsSecretClientCredentialsHolder.class).to(DefaultAwsSecretClientCredentialsHolder.class);
+		}
 	}
 
 	public static class DatarouterAwsSecretsManagerPluginBuilder{
 
-		private final String devAccessKey;
-		private final String devSecretKey;
-		private final String stagingAccessKey;
-		private final String stagingSecretKey;
-		private final String prodAccessKey;
-		private final String prodSecretkey;
+		private Optional<HardcodedAwsSecretClientCredentialsHolder> hardcodedCredentialsHolder;
 
-		public DatarouterAwsSecretsManagerPluginBuilder(String devAccessKey, String devSecretKey,
-				String stagingAccessKey, String stagingSecretKey, String prodAccessKey, String prodSecretkey){
-			this.devAccessKey = devAccessKey;
-			this.devSecretKey = devSecretKey;
-			this.stagingAccessKey = stagingAccessKey;
-			this.stagingSecretKey = stagingSecretKey;
-			this.prodAccessKey = prodAccessKey;
-			this.prodSecretkey = prodSecretkey;
+		public DatarouterAwsSecretsManagerPluginBuilder(){
+			this.hardcodedCredentialsHolder = Optional.empty();
 		}
 
-		public DatarouterAwsSecretsManagerPlugin build(){
-			return new DatarouterAwsSecretsManagerPlugin(
+		public DatarouterAwsSecretsManagerPluginBuilder setHardcodedCredentials(String devAccessKey,
+				String devSecretKey, String stagingAccessKey, String stagingSecretKey, String prodAccessKey,
+				String prodSecretkey){
+			this.hardcodedCredentialsHolder = Optional.of(new HardcodedAwsSecretClientCredentialsHolder(
 					devAccessKey,
 					devSecretKey,
 					stagingAccessKey,
 					stagingSecretKey,
 					prodAccessKey,
-					prodSecretkey);
+					prodSecretkey));
+			return this;
+		}
+
+		public DatarouterAwsSecretsManagerPlugin build(){
+			return new DatarouterAwsSecretsManagerPlugin(hardcodedCredentialsHolder);
 		}
 
 	}

@@ -47,6 +47,7 @@ import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.trace.conveyor.local.FilterToMemoryBufferForLocal;
 import io.datarouter.trace.conveyor.publisher.FilterToMemoryBufferForPublisher;
@@ -54,7 +55,6 @@ import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.util.UlidTool;
 import io.datarouter.util.tracer.DatarouterTracer;
-import io.datarouter.util.tracer.W3TraceContext;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.inject.InjectorRetriever;
@@ -110,6 +110,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			String traceparent = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
 			String tracestate = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACESTATE);
 			W3TraceContext traceContext = new W3TraceContext(traceparent, tracestate, created);
+			traceContext.updateParentIdAndAddTracestateMember();
+
 
 			// bind these to all threads, even if tracing is disabled
 			String serverName = datarouterProperties.getServerName();
@@ -151,7 +153,6 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				int saveCutoff = traceSettings.saveTracesOverMs.get();
 				boolean requestForceSave = RequestTool.getBoolean(request, "trace", false);
 				boolean tracerForceSave = tracer.getForceSave();
-				String requestId = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.X_REQUEST_ID);
 
 				Long traceDurationMs = trace.getDuration();
 				if(saveTraces && traceDurationMs > saveCutoff || requestForceSave || tracerForceSave || errored){
@@ -165,14 +166,14 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							.map(Session::getUserToken)
 							.orElse("unknown");
 					logger.warn("Trace saved to={} traceId={} durationMs={} cpuTimeMs={} threadAllocatedKB={}"
-							+ " requestId={} path={} query={} userAgent=\"{}\" userToken={}, traceContext={}",
-							destination, trace.getTraceId(), traceDurationMs, cpuTime, threadAllocatedKB, requestId,
-							trace.getType(), trace.getParams(), userAgent, userToken, traceContext);
+							+ " path={} query={} userAgent=\"{}\" userToken={}, traceContext={}", destination, trace
+									.getTraceId(), traceDurationMs, cpuTime, threadAllocatedKB, trace.getType(), trace
+											.getParams(), userAgent, userToken, traceContext);
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()){
 					// only log once
-					logger.warn("Trace logged durationMs={} cpuTimeMs={} threadAllocatedKB={} requestId={} path={}"
-							+ " query={}, traceContext={}", traceDurationMs, cpuTime, threadAllocatedKB, requestId,
-							trace.getType(), trace.getParams(), traceContext);
+					logger.warn("Trace logged durationMs={} cpuTimeMs={} threadAllocatedKB={} path={}"
+							+ " query={}, traceContext={}", traceDurationMs, cpuTime, threadAllocatedKB, trace
+									.getType(), trace.getParams(), traceContext);
 				}
 				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool
 						.get(request, BaseHandler.HANDLER_CLASS);

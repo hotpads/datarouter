@@ -28,7 +28,6 @@ import io.datarouter.plugin.copytable.CopyTableJoblet.CopyTableJobletParams;
 import io.datarouter.plugin.copytable.CopyTableService.CopyTableSpanResult;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.number.NumberTool;
-import io.datarouter.util.timer.PhaseTimer;
 
 public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 
@@ -48,8 +47,7 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 	private CopyTableConfiguration copyTableConfiguration;
 
 	@Override
-	public Long process() throws Throwable{
-		var timer = new PhaseTimer();
+	public void process() throws Throwable{
 		params.optFilterName().ifPresent(copyTableConfiguration::assertValidFilter);
 		CopyTableSpanResult result = copyTableService.copyTableSpan(
 				params.sourceNodeName,
@@ -67,7 +65,6 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 		if(!result.success){
 			throw result.exception;
 		}
-		return timer.getElapsedTimeBetweenFirstAndLastEvent();
 	}
 
 	public static class CopyTableJobletParams{

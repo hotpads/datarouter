@@ -17,8 +17,6 @@ package io.datarouter.aws.secretsmanager;
 
 import java.util.Optional;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,13 +87,9 @@ public interface AwsSecretClientCredentialsHolder{
 
 		public static final String PROFILE_NAME = "secretsmanager";
 
-		@Inject
-		private HardcodedAwsSecretClientCredentialsHolder hardcodedCredentials;
-
 		@Override
 		public Optional<AWSCredentialsProvider> getDevCredentialsProvider(){
-			return getCredentialsProvider()
-					.or(hardcodedCredentials::getDevCredentialsProvider);
+			return getCredentialsProvider();
 		}
 
 		@Override
@@ -115,13 +109,10 @@ public interface AwsSecretClientCredentialsHolder{
 					new ProfileCredentialsProvider(PROFILE_NAME));
 			try{
 				AWSCredentials credentials = provider.getCredentials();
-				//TODO change to info after getting rid of hardcoded provider
-				logger.warn("using accessKey={}", credentials.getAWSAccessKeyId());
+				logger.info("using accessKey={}", credentials.getAWSAccessKeyId());
 				return Optional.of(provider);
 			}catch(SdkClientException e){
-				//TODO update behavior after getting rid of hardcoded provider
-				logger.warn("failed to find AWS credentials. falling back to hardcoded credentials.");
-				return Optional.empty();
+				throw new RuntimeException("failed to find AWS credentials.");
 			}
 		}
 

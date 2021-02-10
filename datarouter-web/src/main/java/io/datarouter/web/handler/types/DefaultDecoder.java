@@ -19,7 +19,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -31,6 +30,7 @@ import com.google.gson.JsonSyntaxException;
 
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
@@ -40,7 +40,7 @@ import io.datarouter.web.util.http.RequestTool;
 public class DefaultDecoder implements HandlerDecoder{
 
 	//TODO Rename JsonSerializer or add Serializer, we just want a (de)serializer here
-	private JsonSerializer deserializer;
+	private final JsonSerializer deserializer;
 
 	@Inject
 	public DefaultDecoder(@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER) JsonSerializer deserializer){
@@ -49,7 +49,7 @@ public class DefaultDecoder implements HandlerDecoder{
 
 	@Override
 	public Object[] decode(HttpServletRequest request, Method method){
-		Map<String, String[]> queryParams = request.getParameterMap();
+		Map<String,String[]> queryParams = request.getParameterMap();
 		Parameter[] parameters = method.getParameters();
 		long bodyParamCount = countRequestBodyParam(parameters);
 		if(queryParams.size() + bodyParamCount + getOptionalParameterCount(parameters) < parameters.length){
@@ -142,15 +142,16 @@ public class DefaultDecoder implements HandlerDecoder{
 	}
 
 	private static long countRequestBodyParam(Parameter[] parameters){
-		return Arrays.stream(parameters)
-				.filter(parameter -> parameter.isAnnotationPresent(RequestBody.class)
+		return Scanner.of(parameters)
+				.include(parameter -> parameter.isAnnotationPresent(RequestBody.class)
 						|| parameter.isAnnotationPresent(RequestBodyString.class))
 				.count();
 	}
 
 	private static long getOptionalParameterCount(Parameter[] parameters){
-		return Arrays.stream(parameters)
-				.filter(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
+		return Scanner.of(parameters)
+				.map(Parameter::getType)
+				.include(OptionalParameter.class::isAssignableFrom)
 				.count();
 	}
 

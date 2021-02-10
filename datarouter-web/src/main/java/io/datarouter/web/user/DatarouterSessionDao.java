@@ -54,9 +54,9 @@ public class DatarouterSessionDao extends BaseDao implements BaseDatarouterSessi
 					SortedMapStorageNode<DatarouterSessionKey,DatarouterSession,DatarouterSessionFielder> node =
 							nodeFactory.create(clientId, DatarouterSession::new, DatarouterSessionFielder::new)
 							.withIsSystemTable(true)
-							.buildAndRegister();
+							.build();
 					return node;
-					})
+				})
 				.listTo(RedundantSortedMapStorageNode::new);
 		datarouter.register(node);
 	}

@@ -24,10 +24,10 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.trace.TraceContext;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
+import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.string.StringTool;
 
@@ -283,7 +283,7 @@ public class DatarouterTracer implements Tracer{
 	}
 
 	@Override
-	public Optional<TraceContext> getTraceContext(){
+	public Optional<W3TraceContext> getTraceContext(){
 		return Optional.of(w3TraceContext);
 	}
 

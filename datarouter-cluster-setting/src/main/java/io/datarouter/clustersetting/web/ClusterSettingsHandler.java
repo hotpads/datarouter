@@ -306,8 +306,17 @@ public class ClusterSettingsHandler extends BaseHandler{
 		Map<String,List<ClusterSettingJspDto>> customSettingsByName = new HashMap<>();
 		for(CachedSetting<?> setting : settingsList){
 			ClusterSettingKey settingKey = new ClusterSettingKey(setting.getName(), null, null, null);
-			clusterSettingDao.scanWithPrefix(settingKey)
-					.map(ClusterSettingJspDto::new)
+			List<ClusterSetting> settingsInDb = clusterSettingDao.scanWithPrefix(settingKey).list();
+			Optional<ClusterSetting> mostSpecificSetting = clusterSettingService.getMostSpecificClusterSetting(
+					settingsInDb);
+			boolean isActive = setting.getMostSpecificDatabeanValue().isPresent();
+			Scanner.of(settingsInDb)
+					.map(settingFromDb -> {
+						boolean isWinner = mostSpecificSetting.isPresent() && settingFromDb.equals(mostSpecificSetting
+								.get());
+						ClusterSettingJspDto jspDto = new ClusterSettingJspDto(settingFromDb, isActive, isWinner);
+						return jspDto;
+					})
 					.flush(customSettings -> customSettingsByName.put(setting.getName(), customSettings));
 		}
 		mav.put("listSettings", Scanner.of(settingsList).map(SettingJspDto::new).list());

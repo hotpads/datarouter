@@ -62,7 +62,7 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 					SortedMapStorageNode<DatarouterAccountKey,DatarouterAccount,DatarouterAccountFielder> node =
 							nodeFactory.create(clientId, DatarouterAccount::new, DatarouterAccountFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);

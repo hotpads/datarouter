@@ -15,6 +15,8 @@
  */
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -23,21 +25,22 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog.WebappInstanceLogFielder;
 
 @Singleton
 public class DatarouterWebappInstanceLogDao extends BaseDao{
 
-	public static class DatarouterWebappInstanceLogDaoParams extends BaseDaoParams{
+	public static class DatarouterWebappInstanceLogDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterWebappInstanceLogDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterWebappInstanceLogDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
@@ -47,12 +50,21 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 			FieldlessIndexEntry<WebappInstanceLogByBuildDateKey,WebappInstanceLogKey,WebappInstanceLog>> byBuildDate;
 
 	@Inject
-	public DatarouterWebappInstanceLogDao(Datarouter datarouter, NodeFactory nodeFactory,
-			IndexingNodeFactory indexingNodeFactory, DatarouterWebappInstanceLogDaoParams params){
+	public DatarouterWebappInstanceLogDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
+			IndexingNodeFactory indexingNodeFactory,
+			DatarouterWebappInstanceLogDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, WebappInstanceLog::new, WebappInstanceLogFielder::new)
-				.withIsSystemTable(true)
-				.build();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					IndexedSortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node =
+							nodeFactory.create(clientId, WebappInstanceLog::new, WebappInstanceLogFielder::new)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+					})
+				.listTo(RedundantIndexedSortedMapStorageNode::new);
 		byBuildDate = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildDateKey.class, node)
 				.build();
 		datarouter.register(node);

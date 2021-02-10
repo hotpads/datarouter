@@ -13,7 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.trace.storage.entity;
+package io.datarouter.httpclient.endpoint;
 
-public class TraceEntityPartitioner extends BaseTraceEntityPartitioner<TraceEntityKey>{
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD})
+public @interface EndpointParam{
+	ParamType paramType();
 }

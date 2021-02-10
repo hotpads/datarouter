@@ -17,9 +17,7 @@ package io.datarouter.secret.client;
 
 import java.util.List;
 import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.secret.exception.SecretClientException;
@@ -30,7 +28,6 @@ import io.datarouter.secret.exception.SecretValidationException;
  * exposed, even if a user improperly handles the thrown exceptions.
  */
 public abstract class BaseSecretClient implements SecretClient{
-	private static final Logger logger = LoggerFactory.getLogger(BaseSecretClient.class);
 
 	protected abstract void createInternal(Secret secret);
 	protected abstract Secret readInternal(String name);
@@ -46,94 +43,94 @@ public abstract class BaseSecretClient implements SecretClient{
 		Secret.validateSecret(secret);
 	}
 
-	@Override
-	public final void create(Secret secret){
-		create(secret, true);
-	}
-
-	@Override
-	public final void create(Secret secret, boolean shouldReportError){
-		validateSecret(secret);
+	private <T> SecretClientOpResult<T> validateAndExecute(
+			Supplier<Void> validationMethod,
+			String validationCounterName,
+			Supplier<T> opMethod,
+			String opCounterName){
 		try{
-			createInternal(secret);
-			countSuccess("create");
-		}catch(SecretClientException e){
-			if(shouldReportError){
-				reportError("create", e);
-			}
-			throw e;
-		}
-	}
-
-	@Override
-	public final Secret read(String name){
-		validateName(name);
-		try{
-			Secret secret = readInternal(name);
-			countSuccess("read");
-			return secret;
-		}catch(SecretClientException e){
-			reportError("read", e);
-			throw e;
-		}
-	}
-
-	@Override
-	public void update(Secret secret){
-		validateSecret(secret);
-		try{
-			updateInternal(secret);
-			countSuccess("update");
-		}catch(SecretClientException e){
-			reportError("update", e);
-			throw e;
-		}
-	}
-
-	@Override
-	public final void delete(String name){
-		validateName(name);
-		try{
-			deleteInternal(name);
-			countSuccess("delete");
-		}catch(SecretClientException e){
-			reportError("delete", e);
-			throw e;
-		}
-	}
-
-	@Override
-	public final List<String> listNames(Optional<String> exclusivePrefix){
-		try{
-			List<String> names = listInternal(exclusivePrefix);
-			countSuccess("list");
-			return names;
-		}catch(SecretClientException e){
-			reportError("list", e);
-			throw e;
-		}
-	}
-
-	@Override
-	public final void validateSecret(Secret secret){
-		try{
-			validateSecretInternal(secret);
-			countSuccess("validateSecret");
+			validationMethod.get();
+			countSuccess(validationCounterName);
 		}catch(RuntimeException e){
-			reportError("validateSecret", e);
-			throw new SecretValidationException(e);
+			countError(validationCounterName, e);
+			return SecretClientOpResult.validationError(new SecretValidationException(e));
+		}
+		return execute(opMethod, opCounterName);
+	}
+
+	private <T> SecretClientOpResult<T> execute(Supplier<T> opMethod, String opCounterName){
+		try{
+			T opResult = opMethod.get();
+			countSuccess(opCounterName);
+			return SecretClientOpResult.opSuccess(opResult);
+		}catch(SecretClientException e){
+			countError(opCounterName, e);
+			return SecretClientOpResult.opError(e);
 		}
 	}
 
 	@Override
-	public final void validateName(String name){
-		try{
-			validateNameInternal(name);
-			countSuccess("validateName");
-		}catch(RuntimeException e){
-			reportError("validateName", e);
-			throw new SecretValidationException(e);
-		}
+	public final SecretClientOpResult<Void> create(Secret secret){
+		return validateAndExecute(
+				() -> validateSecret(secret),
+				"validateSecret",
+				() -> {
+					createInternal(secret);
+					return null;
+				},
+				"create");
+	}
+
+	@Override
+	public final SecretClientOpResult<Secret> read(String name){
+		return validateAndExecute(
+				() -> validateName(name),
+				"validateName",
+				() -> readInternal(name),
+				"read");
+	}
+
+	@Override
+	public SecretClientOpResult<Void> update(Secret secret){
+		return validateAndExecute(
+				() -> validateSecret(secret),
+				"validateSecret",
+				() -> {
+					updateInternal(secret);
+					return null;
+				},
+				"update");
+	}
+
+	@Override
+	public final SecretClientOpResult<Void> delete(String name){
+		return validateAndExecute(
+				() -> validateName(name),
+				"validateName",
+				() -> {
+					deleteInternal(name);
+					return null;
+				},
+				"delete");
+	}
+
+	@Override
+	public final SecretClientOpResult<List<String>> listNames(Optional<String> exclusivePrefix){
+		return execute(
+				() -> listInternal(exclusivePrefix),
+				"list");
+	}
+
+	@Override
+	public final Void validateSecret(Secret secret){
+		validateSecretInternal(secret);
+		return null;
+	}
+
+	@Override
+	public final Void validateName(String name){
+		validateNameInternal(name);
+		return null;
 	}
 
 	private void countSuccess(String operation){
@@ -142,11 +139,6 @@ public abstract class BaseSecretClient implements SecretClient{
 				"success",
 				operation,
 				operation + " success"));
-	}
-
-	private void reportError(String operation, RuntimeException exc){
-		countError(operation, exc);
-		logError(operation, exc);
 	}
 
 	private void countError(String operation, RuntimeException exc){
@@ -164,10 +156,6 @@ public abstract class BaseSecretClient implements SecretClient{
 		suffixes.stream()
 				.map(prefix::concat)
 				.forEach(Counters::inc);
-	}
-
-	private void logError(String operation, RuntimeException exc){
-		logger.warn(this.getClass().getSimpleName() + " failed operation=" + operation, exc);
 	}
 
 }

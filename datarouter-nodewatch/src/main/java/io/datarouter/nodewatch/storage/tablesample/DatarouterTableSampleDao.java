@@ -57,9 +57,9 @@ public class DatarouterTableSampleDao extends BaseDao{
 							.withIsSystemTable(true)
 							.disableNodewatch()
 							.withTableName("TableRowSample") // Some datastores list 'TableSample' as a reserved word
-							.buildAndRegister();
+							.build();
 					return node;
-					})
+				})
 				.listTo(RedundantSortedMapStorageNode::new);
 		datarouter.register(node);
 	}

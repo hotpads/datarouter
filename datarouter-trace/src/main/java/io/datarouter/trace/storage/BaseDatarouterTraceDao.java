@@ -17,16 +17,17 @@ package io.datarouter.trace.storage;
 
 import java.util.Collection;
 
-import io.datarouter.trace.storage.entity.TraceEntity;
-import io.datarouter.trace.storage.entity.TraceEntityKey;
+import io.datarouter.trace.storage.entity.UiTraceBundleDto;
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.thread.TraceThread;
 import io.datarouter.trace.storage.trace.Trace;
+import io.datarouter.trace.web.AccessException;
 
 public interface BaseDatarouterTraceDao{
 
 	void putMulti(Collection<TraceThread> threads, Collection<TraceSpan> spans, Trace trace);
-	TraceEntity getEntity(TraceEntityKey key);
+
+	UiTraceBundleDto getEntity(String traceId) throws AccessException;
 
 	static class NoOpDatarouterTraceDao implements BaseDatarouterTraceDao{
 
@@ -35,7 +36,7 @@ public interface BaseDatarouterTraceDao{
 		}
 
 		@Override
-		public TraceEntity getEntity(TraceEntityKey key){
+		public UiTraceBundleDto getEntity(String traceId){
 			return null;
 		}
 

@@ -63,9 +63,9 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 
 	public static class DatarouterClusterSettingPluginBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 
-		public DatarouterClusterSettingPluginBuilder(ClientId defaultClientId){
+		public DatarouterClusterSettingPluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
 		}
 
@@ -78,12 +78,12 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 
 	public static class DatarouterClusterSettingDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterClusterSettingClientId;
-		private final ClientId datarouterClusterSettingLogClientId;
+		private final List<ClientId> datarouterClusterSettingClientId;
+		private final List<ClientId> datarouterClusterSettingLogClientId;
 
 		public DatarouterClusterSettingDaoModule(
-				ClientId datarouterClusterSettingClientId,
-				ClientId datarouterClusterSettingLogClientId){
+				List<ClientId> datarouterClusterSettingClientId,
+				List<ClientId> datarouterClusterSettingLogClientId){
 			this.datarouterClusterSettingClientId = datarouterClusterSettingClientId;
 			this.datarouterClusterSettingLogClientId = datarouterClusterSettingLogClientId;
 		}

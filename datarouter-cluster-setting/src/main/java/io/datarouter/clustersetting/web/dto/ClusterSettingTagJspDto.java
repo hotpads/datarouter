@@ -19,19 +19,19 @@ public class ClusterSettingTagJspDto{
 
 	private final String settingTag;
 	private final String value;
-	private final boolean active;
+	private final boolean winner;
 
 	public ClusterSettingTagJspDto(
 			String settingTag,
 			String value,
-			boolean active){
+			boolean winner){
 		this.settingTag = settingTag;
 		this.value = value;
-		this.active = active;
+		this.winner = winner;
 	}
 
-	public boolean getActive(){
-		return active;
+	public boolean getWinner(){
+		return winner;
 	}
 
 	public String getSettingTag(){

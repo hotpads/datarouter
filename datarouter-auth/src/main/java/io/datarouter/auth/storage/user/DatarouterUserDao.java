@@ -25,6 +25,7 @@ import javax.inject.Singleton;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
@@ -57,7 +58,7 @@ public class DatarouterUserDao extends BaseDao{
 					IndexedSortedMapStorageNode<DatarouterUserKey,DatarouterUser,DatarouterUserFielder> node =
 							nodeFactory.create(clientId, DatarouterUser::new, DatarouterUserFielder::new)
 							.withIsSystemTable(true)
-							.buildAndRegister();
+							.build();
 					return node;
 				})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
@@ -116,8 +117,8 @@ public class DatarouterUserDao extends BaseDao{
 		node.deleteMulti(keys);
 	}
 
-	public long count(){
-		return node.scanKeys().count();
+	public boolean hasAny(){
+		return node.scanKeys(new Config().setLimit(1)).hasAny();
 	}
 
 	public boolean exists(DatarouterUserByUserTokenLookup key){

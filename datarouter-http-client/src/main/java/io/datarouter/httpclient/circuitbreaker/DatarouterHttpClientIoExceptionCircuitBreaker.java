@@ -42,17 +42,16 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterruptedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.instrumentation.count.Counters;
-import io.datarouter.instrumentation.trace.TraceContext;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.instrumentation.trace.W3TraceContext;
 
 public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCircuitBreaker{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClientIoExceptionCircuitBreaker.class);
 
 	private static final Duration LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(10);
 
-	public static final String X_REQUEST_ID = "x-request-id";
 	public static final String X_TRACE_ID = "x-trace-id";
 	public static final String TRACEPARENT = "traceparent";
 	public static final String TRACESTATE = "tracestate";
@@ -82,18 +81,19 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			Tracer tracer = TracerThreadLocal.get();
 			TracerTool.startSpan(tracer, "http call " + request.getPath());
 			internalHttpRequest = request.getRequest();
-			internalHttpRequest.addHeader(X_REQUEST_ID, requestId);
+			W3TraceContext traceContext;
 			if(tracer != null && tracer.getTraceContext().isPresent()){
-				TraceContext traceContext = tracer.getTraceContext().get();
+				traceContext = tracer.getTraceContext().get();
 				traceContext.updateParentIdAndAddTracestateMember();
-				logger.debug("W3TraceContext={} passing to request={}", traceContext, request.getPath());
-				internalHttpRequest.addHeader(TRACEPARENT, traceContext.getTraceparent().toString());
-				internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
 			}else{
 				count("traceContext null");
+				traceContext = new W3TraceContext(requestStartTimeMs);
 			}
-			context.setAttribute(X_REQUEST_ID, requestId);
 			count("request");
+			logger.debug("W3TraceContext={} passing to request={}", traceContext, request.getPath());
+			internalHttpRequest.addHeader(TRACEPARENT, traceContext.getTraceparent().toString());
+			internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
+			context.setAttribute(TRACEPARENT, traceContext.getTraceparent().toString());
 			requestStartTimeMs = System.currentTimeMillis();
 			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
 			Duration duration = Duration.ofMillis(System.currentTimeMillis() - requestStartTimeMs);

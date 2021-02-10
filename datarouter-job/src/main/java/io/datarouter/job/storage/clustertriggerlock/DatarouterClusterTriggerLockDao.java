@@ -61,9 +61,9 @@ public class DatarouterClusterTriggerLockDao extends BaseDao{
 					SortedMapStorageNode<ClusterTriggerLockKey,ClusterTriggerLock,ClusterTriggerLockFielder> node =
 							nodeFactory.create(clientId, ClusterTriggerLock::new, ClusterTriggerLockFielder::new)
 							.withIsSystemTable(true)
-							.buildAndRegister();
+							.build();
 					return node;
-					})
+				})
 				.listTo(RedundantSortedMapStorageNode::new);
 		datarouter.register(node);
 	}

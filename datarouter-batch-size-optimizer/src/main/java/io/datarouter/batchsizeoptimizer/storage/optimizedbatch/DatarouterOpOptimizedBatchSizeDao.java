@@ -56,9 +56,9 @@ public class DatarouterOpOptimizedBatchSizeDao extends BaseDao{
 					SortedMapStorageNode<OpOptimizedBatchSizeKey,OpOptimizedBatchSize,OpOptimizedBatchSizeFielder> node
 							= nodeFactory.create(clientId, OpOptimizedBatchSize::new, OpOptimizedBatchSizeFielder::new)
 							.withIsSystemTable(true)
-							.buildAndRegister();
+							.build();
 					return node;
-					})
+				})
 				.listTo(RedundantSortedMapStorageNode::new);
 		datarouter.register(node);
 

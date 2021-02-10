@@ -32,7 +32,7 @@ public class DefaultSettingValue<T>{
 	private final Map<DatarouterEnvironmentType,Map<String,T>> valueByServerTypeByEnvironmentType;
 	private final Map<DatarouterEnvironmentType,Map<String,T>> valueByServerNameByEnvironmentType;
 	private final Map<DatarouterEnvironmentType,Map<String,T>> valueByEnvironmentNameByEnvironmentType;
-	private final Map<DatarouterSettingTag,T> valueBySettingTag;
+	private final Map<DatarouterSettingTag,Supplier<T>> valueBySettingTag;
 	private DefaultSettingValueWinner defaultSettingValueWinner;
 
 	public DefaultSettingValue(T globalDefault){
@@ -83,7 +83,7 @@ public class DefaultSettingValue<T>{
 
 	public DefaultSettingValue<T> withTag(
 			Supplier<DatarouterSettingTag> tagTypeSupplier,
-			T value){
+			Supplier<T> value){
 		valueBySettingTag.put(tagTypeSupplier.get(), value);
 		return this;
 	}
@@ -113,7 +113,7 @@ public class DefaultSettingValue<T>{
 		return valueByEnvironmentType;
 	}
 
-	public Map<DatarouterSettingTag,T> getValueBySettingTag(){
+	public Map<DatarouterSettingTag,Supplier<T>> getValueBySettingTag(){
 		return valueBySettingTag;
 	}
 
@@ -154,7 +154,8 @@ public class DefaultSettingValue<T>{
 			T value = valueByServerName.get(serverName);
 			if(value != null){
 				defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.SERVER_NAME,
-						environmentType.getPersistentString(), null, null, serverName, String.valueOf(value));
+						environmentType.getPersistentString(), environmentName, serverTypeString, serverName, String
+								.valueOf(value));
 				return value;
 			}
 		}
@@ -163,7 +164,8 @@ public class DefaultSettingValue<T>{
 			T value = valueByServerType.get(serverTypeString);
 			if(value != null){
 				defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.SERVER_TYPE,
-						environmentType.getPersistentString(), null, serverTypeString, null, String.valueOf(value));
+						environmentType.getPersistentString(), environmentName, serverTypeString, serverName, String
+								.valueOf(value));
 				return value;
 			}
 		}
@@ -173,21 +175,22 @@ public class DefaultSettingValue<T>{
 			if(value != null){
 				defaultSettingValueWinner = new DefaultSettingValueWinner(
 						DefaultSettingValueWinnerType.ENVIRONMENT_NAME, environmentType.getPersistentString(),
-						environmentName, null, null, String.valueOf(value));
+						environmentName, serverTypeString, serverName, String.valueOf(value));
 				return value;
 			}
 		}
 		T valueForEnvironmentType = valueByEnvironmentType.get(environmentType);
         if(valueForEnvironmentType != null){
 			defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.ENVIRONMENT_TYPE,
-					environmentType.getPersistentString(), null, null, null, String.valueOf(valueForEnvironmentType));
+					environmentType.getPersistentString(), environmentName, serverTypeString, serverName, String
+							.valueOf(valueForEnvironmentType));
 			return valueForEnvironmentType;
 		}
 		Optional<DatarouterSettingTag> matchedTag = settingTags.stream()
 			.filter(valueBySettingTag::containsKey)
 			.findFirst();
 		if(matchedTag.isPresent()){
-			T value = valueBySettingTag.get(matchedTag.get());
+			T value = valueBySettingTag.get(matchedTag.get()).get();
 			defaultSettingValueWinner = DefaultSettingValueWinner.settingTag(matchedTag.get().getPersistentString(),
 					String.valueOf(value));
 			return value;

@@ -53,7 +53,7 @@ public class DeprovisionedUserDao extends BaseDao{
 					SortedMapStorageNode<DeprovisionedUserKey,DeprovisionedUser,DeprovisionedUserFielder> node =
 							nodeFactory.create(clientId, DeprovisionedUser::new, DeprovisionedUserFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);

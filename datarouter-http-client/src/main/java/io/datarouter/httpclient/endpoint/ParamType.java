@@ -13,16 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.trace.storage.entity;
+package io.datarouter.httpclient.endpoint;
 
-import io.datarouter.model.key.entity.base.BaseStringDjb16EntityPartitioner;
-
-public class BaseTraceEntityPartitioner<EK extends BaseTraceEntityKey<EK>>
-extends BaseStringDjb16EntityPartitioner<EK>{
-
-	@Override
-	protected String makeStringHashInput(EK ek){
-		return ek.getTraceEntityId();
-	}
+public enum ParamType{
+	GET,
+	POST,
+	;
 
 }

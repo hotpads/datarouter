@@ -57,9 +57,9 @@ public class DatarouterOpPerformanceRecordDao extends BaseDao{
 					SortedMapStorageNode<OpPerformanceRecordKey,OpPerformanceRecord,OpPerformanceRecordFielder> node =
 							nodeFactory.create(clientId, OpPerformanceRecord::new, OpPerformanceRecordFielder::new)
 							.withIsSystemTable(true)
-							.buildAndRegister();
+							.build();
 					return node;
-					})
+				})
 				.listTo(RedundantSortedMapStorageNode::new);
 		datarouter.register(node);
 

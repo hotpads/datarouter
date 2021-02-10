@@ -82,8 +82,15 @@ public class WebappInstanceLogHandler extends BaseHandler{
 					log.getServletContainerVersion());
 		}
 
-		protected WebappInstanceLogJspDto(String webappName, String serverName, Date startupDate, Date buildDate,
-				Date refreshedLast, String buildId, String commitId, String javaVersion,
+		protected WebappInstanceLogJspDto(
+				String webappName,
+				String serverName,
+				Date startupDate,
+				Date buildDate,
+				Date refreshedLast,
+				String buildId,
+				String commitId,
+				String javaVersion,
 				String servletContainerVersion){
 			this.webappName = webappName;
 			this.serverName = serverName;

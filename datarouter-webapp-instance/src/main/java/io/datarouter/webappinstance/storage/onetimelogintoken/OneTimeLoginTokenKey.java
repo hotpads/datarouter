@@ -24,9 +24,10 @@ import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public class OneTimeLoginTokenKey extends BaseRegularPrimaryKey<OneTimeLoginTokenKey>{
 
-	private Long userId;
+	private final Long userId;
 
 	public OneTimeLoginTokenKey(){
+		this(null);
 	}
 
 	public OneTimeLoginTokenKey(Long userId){
@@ -44,10 +45,6 @@ public class OneTimeLoginTokenKey extends BaseRegularPrimaryKey<OneTimeLoginToke
 
 	public Long getUserId(){
 		return userId;
-	}
-
-	public void setUserId(Long userId){
-		this.userId = userId;
 	}
 
 }

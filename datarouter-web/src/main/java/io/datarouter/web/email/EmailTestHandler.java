@@ -22,6 +22,7 @@ import static j2html.TagCreator.p;
 
 import javax.inject.Inject;
 
+import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -48,6 +49,8 @@ public class EmailTestHandler extends BaseHandler{
 	private DatarouterWebPaths paths;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private DatarouterAdministratorEmailService adminEmailService;
 
 	@Handler(defaultHandler = true)
 	private Mav sendEmailTest(@Param(P_submitAction) OptionalString submitAction){
@@ -62,7 +65,7 @@ public class EmailTestHandler extends BaseHandler{
 					.buildMav();
 		}
 		String fromEmail = getSessionInfo().getRequiredSession().getUsername();
-		String toEmail = datarouterProperties.getAdministratorEmail();
+		String toEmail = adminEmailService.getAdministratorEmailAddressesCsv();
 		String server = datarouterProperties.getServerName();
 		String webapp = webappName.getName();
 		String primaryHref = htmlEmailService.startLinkBuilder()

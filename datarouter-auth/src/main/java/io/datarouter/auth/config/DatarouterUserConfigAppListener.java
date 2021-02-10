@@ -35,7 +35,7 @@ public class DatarouterUserConfigAppListener implements DatarouterAppListener{
 
 	@Override
 	public void onStartUp(){
-		if(datarouterUserDao.count() != 0){
+		if(datarouterUserDao.hasAny()){
 			return;
 		}
 		datarouterUserCreationService.createFirstAdminUser(defaultDatarouterUserPassword.get());

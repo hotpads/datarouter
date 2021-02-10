@@ -15,25 +15,20 @@
  */
 package io.datarouter.trace.web;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import io.datarouter.instrumentation.trace.TraceDto;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.trace.storage.entity.BaseTraceEntity;
+import io.datarouter.trace.storage.entity.UiTraceBundleDto;
 import io.datarouter.trace.storage.span.BaseTraceSpan;
 import io.datarouter.trace.storage.thread.BaseTraceThread;
 import io.datarouter.trace.storage.trace.BaseTrace;
-import io.datarouter.util.UlidTool;
-import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -42,34 +37,34 @@ import io.datarouter.web.handler.types.optional.OptionalString;
 
 public abstract class BaseTraceHandler extends BaseHandler{
 
-	protected Mav initMav(){
+	protected Mav initMav(String traceId){
 		return new Mav(getViewTraceJsp());
 	}
 
 	@Handler(defaultHandler = true)
 	protected Mav viewTrace(OptionalString id){
-		Mav mav = initMav();
-		if(id.isEmpty()){
+		Optional<String> traceId = id.map(this::trimId);
+		Mav mav = initMav(traceId.orElse(null));
+		if(traceId.isEmpty()){
 			return mav;
 		}
-		String traceId = id.get();
-		traceId = trimId(traceId);
-		BaseTraceEntity<?> traceEnity = getTrace(traceId);
-		if(traceEnity == null){
-			Duration duration = Duration.between(UlidTool.getInstant(traceId), Instant.now());
-			String durationStr = new DatarouterDuration(duration.toNanos(), TimeUnit.NANOSECONDS).toString();
-			return new MessageMav("Trace with id=" + traceId + " (" + durationStr + " old) not found");
+
+		UiTraceBundleDto traceEnity;
+		try{
+			traceEnity = getTrace(traceId.get());
+		}catch(AccessException e){
+			mav.put("errorMessage", e.getMessage());
+			return mav;
 		}
-		mav.put("trace", toJspDto(traceEnity.getTrace()));
-		List<TraceThreadDto> threads = Scanner.of(traceEnity.getTraceThreads()).map(BaseTraceThread::toDto).list();
+		mav.put("trace", toJspDto(traceEnity.trace));
+		List<TraceThreadDto> threads = Scanner.of(traceEnity.threads).map(BaseTraceThread::toDto).list();
 		if(threads.isEmpty()){
 			return new MessageMav("no threads found (yet)");
 		}
-		Integer discardedThreadCount = getDiscardedThreadCountFromTrace(traceEnity.getTrace());
+		Integer discardedThreadCount = traceEnity.trace.getDiscardedThreadCount();
 		Integer discardedSpanCount = getDiscardedSpanCountFromThreads(threads);
-		TraceThreadGroup rootGroup = TraceThreadGroup.create(threads, makeFakeRootThread(traceEnity.getTrace()
-				.toDto()));
-		Collection<TraceSpanDto> spans = Scanner.of(traceEnity.getTraceSpans()).map(BaseTraceSpan::toDto).list();
+		TraceThreadGroup rootGroup = TraceThreadGroup.create(threads, makeFakeRootThread(traceEnity.trace.toDto()));
+		Collection<TraceSpanDto> spans = Scanner.of(traceEnity.spans).map(BaseTraceSpan::toDto).list();
 		rootGroup.setSpans(spans);
 		mav.put("spans", spans);
 		mav.put("numSpans", spans.size());
@@ -100,16 +95,11 @@ public abstract class BaseTraceHandler extends BaseHandler{
 				.sum();
 	}
 
-	private Integer getDiscardedThreadCountFromTrace(BaseTrace<?,?,?> baseTrace){
-		return baseTrace.getDiscardedThreadCount();
-	}
-
 	protected abstract PathNode getViewTraceJsp();
-	protected abstract BaseTraceEntity<?> getTrace(String traceId);
+	protected abstract UiTraceBundleDto getTrace(String traceId) throws AccessException;
 
 	protected TraceJspDto toJspDto(BaseTrace<?,?,?> trace){
 		return new TraceJspDto(
-				trace.getTraceId(),
 				trace.getType(),
 				trace.getParams(),
 				trace.getCreated(),
@@ -118,22 +108,16 @@ public abstract class BaseTraceHandler extends BaseHandler{
 
 	public static class TraceJspDto{
 
-		private final String traceId;
 		private final String type;
 		private final String params;
 		private final Long created;
 		private final Long duration;
 
-		public TraceJspDto(String traceId, String type, String params, Long created, Long duration){
-			this.traceId = traceId;
+		public TraceJspDto(String type, String params, Long created, Long duration){
 			this.created = created;
 			this.type = type;
 			this.params = params;
 			this.duration = duration;
-		}
-
-		public String getTraceId(){
-			return traceId;
 		}
 
 		public Long getDuration(){

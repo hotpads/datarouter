@@ -57,7 +57,7 @@ public class DatarouterUserHistoryDao extends BaseDao{
 					DatarouterUserHistoryFielder> node =
 							nodeFactory.create(clientId, DatarouterUserHistory::new, DatarouterUserHistoryFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);

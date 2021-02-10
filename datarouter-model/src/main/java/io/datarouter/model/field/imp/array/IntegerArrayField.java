@@ -34,10 +34,7 @@ public class IntegerArrayField extends BaseListField<Integer,List<Integer>,Integ
 
 	@Override
 	public byte[] getBytes(){
-		if(value == null){
-			return null;
-		}
-		return IntegerByteTool.getIntegerByteArray(value);
+		return value == null ? null : IntegerByteTool.getIntegerByteArray(value);
 	}
 
 	@Override

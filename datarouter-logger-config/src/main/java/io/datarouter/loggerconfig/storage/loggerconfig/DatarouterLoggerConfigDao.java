@@ -63,7 +63,7 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 					SortedMapStorageNode<LoggerConfigKey,LoggerConfig,LoggerConfigFielder> node =
 							nodeFactory.create(clientId, LoggerConfig::new, LoggerConfigFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);

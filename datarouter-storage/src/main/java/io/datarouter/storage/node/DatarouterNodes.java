@@ -56,10 +56,11 @@ public class DatarouterNodes{
 
 	public <PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>,N extends Node<PK,D,F>>
 	N register(N node){
-		ensureDuplicateNamesReferToSameNode(node);
 		List<Node<?,?,?>> nodeWithDescendants = NodeTool.getNodeAndDescendants(node);
-		topLevelNodes.add(node);
 		for(Node<?,?,?> nodeOrDescendant : nodeWithDescendants){
+			if(nodeByName.containsKey(nodeOrDescendant.getName())){
+				throw new RuntimeException(nodeOrDescendant.getName() + " is already registered");
+			}
 			nodeByName.put(nodeOrDescendant.getName(), nodeOrDescendant);
 			if(nodeOrDescendant instanceof PhysicalNode<?,?,?>){
 				PhysicalNode<?,?,?> physicalNode = (PhysicalNode<?,?,?>)nodeOrDescendant;
@@ -69,7 +70,7 @@ public class DatarouterNodes{
 						physicalNode);
 			}
 		}
-
+		topLevelNodes.add(node);
 		return node;
 	}
 
@@ -111,17 +112,6 @@ public class DatarouterNodes{
 				.map(PhysicalDatabeanFieldInfo::getTableName)
 				.distinct()
 				.collect(Collectors.toList());
-	}
-
-	private void ensureDuplicateNamesReferToSameNode(Node<?,?,?> node){
-		String thisName = node.getName();
-		Node<?,?,?> existingNode = nodeByName.get(thisName);
-		if(existingNode == null || existingNode == node){
-			return;
-		}
-		String existingNodeSimpleName = existingNode.getClass().getSimpleName();
-		throw new IllegalArgumentException("different node with this name already exists:" + thisName + "["
-				+ existingNodeSimpleName + "].");
 	}
 
 	public PhysicalNode<?,?,?> getPhysicalNodeForClientAndTable(String clientName, String tableName){

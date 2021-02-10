@@ -39,8 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
+import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.httpclient.request.BaseEndpoint;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.Conditional;
@@ -185,7 +185,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public <E> Conditional<E> tryExecute(BaseEndpoint<E> baseEndpoint){
 		baseEndpoint.setUrlPrefix(urlPrefix.get());
-		var datarouterHttpRequest = baseEndpoint.toDatarouterHttpRequest();
+		var datarouterHttpRequest = BaseEndpoint.toDatarouterHttpRequest(baseEndpoint);
 		baseEndpoint.entity.ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		return tryExecute(datarouterHttpRequest, baseEndpoint.responseType);
 	}

@@ -39,8 +39,9 @@
 							name="headerValue" placeholder="value">
 					</div>
 					<div class="col">
-						<button type="button" class="btn btn-light" onClick="addHeader()">add
-							header</button>
+						<button type="button" class="btn btn-light" onClick="addHeader()">
+							add header
+						</button>
 					</div>
 				</div>
 			</div>
@@ -84,19 +85,13 @@
 							<td>${serverName}</td>
 						</tr>
 						<tr>
-							<td><b>responseMs</b></td>
+							<td><b>duration (ms)</b></td>
 							<td>${responseMs}</td>
 						</tr>
 						<c:if test="${not empty statusCode}">
 							<tr>
-								<td><b>statusCode</b></td>
+								<td><b>status code</b></td>
 								<td>${statusCode}</td>
-							</tr>
-						</c:if>
-						<c:if test="${not empty message}">
-							<tr>
-								<td><b>exception message</b></td>
-								<td>${fn:escapeXml(message)}</td>
 							</tr>
 						</c:if>
 					</tbody>

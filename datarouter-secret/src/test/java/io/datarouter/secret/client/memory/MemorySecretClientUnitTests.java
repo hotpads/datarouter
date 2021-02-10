@@ -29,11 +29,11 @@ public class MemorySecretClientUnitTests extends BaseSecretClientInternalMethodU
 	@Test
 	public void testInitialization(){
 		MemorySecretClient client = new MemorySecretClient();
-		Assert.assertEquals(client.listNames(Optional.empty()).size(), 0);
+		Assert.assertEquals(client.listNames(Optional.empty()).result.get().size(), 0);
 		client = new MemorySecretClient(Map.of());
-		Assert.assertEquals(client.listNames(Optional.empty()).size(), 0);
+		Assert.assertEquals(client.listNames(Optional.empty()).result.get().size(), 0);
 		client = new MemorySecretClient(Map.of("key", "value"));
-		Assert.assertEquals(client.listNames(Optional.empty()).size(), 1);
+		Assert.assertEquals(client.listNames(Optional.empty()).result.get().size(), 1);
 	}
 
 	@Override

@@ -83,16 +83,32 @@ public class WebappInstanceHandler extends BaseHandler{
 						Collectors.collectingAndThen(Collectors.toList(),
 								instances -> getMostCommonValue(instances, WebappInstance::getCommitId))));
 
-		var webappStats = new UsageStatsJspDto(webappInstances, instance -> instance.getKey().getWebappName());
-		var buildIdStats = new UsageStatsJspDto(webappInstances, WebappInstance::getBuildId,
+		var webappStats = new UsageStatsJspDto(
+				webappInstances,
+				instance -> instance.getKey().getWebappName());
+		var buildIdStats = new UsageStatsJspDto(
+				webappInstances,
+				WebappInstance::getBuildId,
 				Optional.of(buildIdLink.getLinkPrefix()));
-		var commitIdStats = new UsageStatsJspDto(webappInstances, WebappInstance::getCommitId,
+		var commitIdStats = new UsageStatsJspDto(
+				webappInstances,
+				WebappInstance::getCommitId,
 				Optional.of(commitIdLink.getLinkPrefix()));
-		var publicIpStats = new UsageStatsJspDto(webappInstances, WebappInstance::getServerPublicIp);
-		var buildDateStats = new UsageStatsJspDto(webappInstances, WebappInstance::getBuildDate);
-		var javaVersionStats = new UsageStatsJspDto(webappInstances, WebappInstance::getJavaVersion);
-		var lastUpdatedStats = new UsageStatsJspDto(webappInstances, WebappInstance::getRefreshedLast);
-		var servletVersionStats = new UsageStatsJspDto(webappInstances, WebappInstance::getServletContainerVersion);
+		var publicIpStats = new UsageStatsJspDto(
+				webappInstances,
+				WebappInstance::getServerPublicIp);
+		var buildDateStats = new UsageStatsJspDto(
+				webappInstances,
+				WebappInstance::getBuildDate);
+		var javaVersionStats = new UsageStatsJspDto(
+				webappInstances,
+				WebappInstance::getJavaVersion);
+		var lastUpdatedStats = new UsageStatsJspDto(
+				webappInstances,
+				WebappInstance::getRefreshedLast);
+		var servletVersionStats = new UsageStatsJspDto(
+				webappInstances,
+				WebappInstance::getServletContainerVersion);
 
 		List<WebappInstanceJspDto> dtos = Scanner.of(webappInstances)
 				.map(instance -> new WebappInstanceJspDto(

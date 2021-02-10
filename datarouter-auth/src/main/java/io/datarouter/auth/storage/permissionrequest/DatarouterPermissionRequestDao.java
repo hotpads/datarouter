@@ -62,7 +62,7 @@ public class DatarouterPermissionRequestDao extends BaseDao{
 							nodeFactory.create(clientId, DatarouterPermissionRequest::new,
 									DatarouterPermissionRequestFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);

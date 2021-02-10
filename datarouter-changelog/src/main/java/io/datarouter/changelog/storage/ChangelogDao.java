@@ -53,7 +53,7 @@ public class ChangelogDao extends BaseDao{
 					SortedMapStorageNode<ChangelogKey,Changelog,ChangelogFielder> node =
 							nodeFactory.create(clientId, Changelog::new, ChangelogFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);

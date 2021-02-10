@@ -27,10 +27,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
-import io.datarouter.instrumentation.trace.TraceContext;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
+import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.UlidTool;
 
@@ -255,7 +255,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public Optional<TraceContext> getTraceContext(){
+	public Optional<W3TraceContext> getTraceContext(){
 		return Optional.empty();
 	}
 

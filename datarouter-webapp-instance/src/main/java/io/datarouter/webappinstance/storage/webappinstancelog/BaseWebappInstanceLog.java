@@ -62,8 +62,13 @@ extends BaseDatabean<PK,D>{
 		super(key);
 	}
 
-	public BaseWebappInstanceLog(PK key, String buildId, String commitId, String javaVersion,
-			String servletContainerVersion, Date refreshedLast){
+	public BaseWebappInstanceLog(
+			PK key,
+			String buildId,
+			String commitId,
+			String javaVersion,
+			String servletContainerVersion,
+			Date refreshedLast){
 		super(key);
 		this.buildId = buildId;
 		this.commitId = commitId;

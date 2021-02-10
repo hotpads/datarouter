@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.60</version>
+		<version>0.0.61</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -30,6 +30,15 @@
 
 	<name>datarouter-instrumentation</name>
 	<description>datarouter-instrumentation</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>${testng-version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>

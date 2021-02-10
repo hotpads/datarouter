@@ -37,9 +37,9 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 
 		bufferInSqs = registerBoolean("bufferInSqs", true);
 		runMemoryToSqs = registerBooleans("runMemoryToSqs", defaultTo(false)
-				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, true));
+				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> true));
 		drainSqsToPublisher = registerBooleans("drainSqsToPublisher", defaultTo(false)
-				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, true));
+				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> true));
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 	}
 

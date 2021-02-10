@@ -35,7 +35,7 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 	private static final long MAX_SEGMENT_MS = 1000;
 
 	@Override
-	public Long process(){
+	public void process(){
 		long startMs = System.currentTimeMillis();
 		long remainingMs = params.sleepTimeMs;
 		int numPreviousFailures = getJobletRequest().getNumFailures();
@@ -51,7 +51,6 @@ public class SleepingJoblet extends BaseJoblet<SleepingJobletParams>{
 			long totalElapsedMs = System.currentTimeMillis() - startMs;
 			remainingMs = params.sleepTimeMs - totalElapsedMs;
 		}
-		return params.sleepTimeMs;
 	}
 
 	public static class SleepingJobletParams{

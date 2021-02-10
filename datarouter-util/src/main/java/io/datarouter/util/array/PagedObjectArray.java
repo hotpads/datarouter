@@ -15,32 +15,37 @@
  */
 package io.datarouter.util.array;
 
-public class PagedObjectArray<T>{
+import java.util.Iterator;
+
+public class PagedObjectArray<T> implements Iterable<T>{
+
+	private static final int INITIAL_NUM_PAGES = 4;
 
 	private final int pageSize;
+	private final int pageBits;
+	private final int pageShift;
 	private T[][] pages;
-	private int numPages;// allocated pages which can be less than pages.length
 	private int numItems;
-	private int nextItemOffset;
 
 	public PagedObjectArray(int requestedPageSize){
 		pageSize = Integer.highestOneBit(requestedPageSize);// round down to nearest power of 2
-		pages = makePagesArray(0);
-		numPages = 0;
+		pageBits = pageSize - 1;
+		pageShift = Integer.bitCount(pageBits);
+		pages = makePagesArray(INITIAL_NUM_PAGES);
 		numItems = 0;
-		nextItemOffset = 0;
 	}
 
 	public PagedObjectArray<T> add(T value){
-		addPageIfFull();
-		int lastPageIndex = numPages - 1;
-		T[] lastPage = pages[lastPageIndex];
-		lastPage[nextItemOffset] = value;
-		++numItems;
-		++nextItemOffset;
-		if(nextItemOffset == pageSize){
-			nextItemOffset = 0;
+		int pageIndex = numItems >>> pageShift;
+		int indexInPage = numItems & pageBits;
+		if(indexInPage == 0){// new page
+			if(pageIndex == pages.length){// is pages array full?
+				expandPagesArray();
+			}
+			pages[pageIndex] = makePage(pageSize);
 		}
+		pages[pageIndex][indexInPage] = value;
+		++numItems;
 		return this;
 	}
 
@@ -49,10 +54,9 @@ public class PagedObjectArray<T>{
 	}
 
 	public T get(int index){
-		int pageIndex = index / pageSize;
-		int indexInPage = index % pageSize;
-		T[] page = pages[pageIndex];
-		return page[indexInPage];
+		int pageIndex = index >>> pageShift;
+		int indexInPage = index & pageBits;
+		return pages[pageIndex][indexInPage];
 	}
 
 	public T[] concat(){
@@ -72,24 +76,6 @@ public class PagedObjectArray<T>{
 
 	/*----------- private -------------*/
 
-	private void addPageIfFull(){
-		if(isLastPageFull()){
-			if(isPagesArrayFull()){
-				expandPagesArray();
-			}
-			pages[numPages] = makePage(pageSize);
-			++numPages;
-		}
-	}
-
-	private boolean isLastPageFull(){
-		return nextItemOffset == 0;
-	}
-
-	private boolean isPagesArrayFull(){
-		return numPages == pages.length;
-	}
-
 	private void expandPagesArray(){
 		int newPageArrayLength = pages.length == 0 ? 1 : pages.length * 2;
 		T[][] newPages = makePagesArray(newPageArrayLength);
@@ -105,6 +91,33 @@ public class PagedObjectArray<T>{
 	@SuppressWarnings("unchecked")
 	private T[][] makePagesArray(int length){
 		return (T[][])new Object[length][];
+	}
+
+	/*----------- Iterable -------------*/
+
+	@Override
+	public Iterator<T> iterator(){
+		return new PagedObjectArrayIterator();
+	}
+
+	private class PagedObjectArrayIterator implements Iterator<T>{
+
+		int index;
+
+		PagedObjectArrayIterator(){
+			index = 0;
+		}
+
+		@Override
+		public boolean hasNext(){
+			return index < numItems;
+		}
+
+		@Override
+		public T next(){
+			return get(index++);
+		}
+
 	}
 
 }

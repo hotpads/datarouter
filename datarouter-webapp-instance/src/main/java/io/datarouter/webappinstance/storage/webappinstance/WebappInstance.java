@@ -37,9 +37,20 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 	}
 
 	// refreshedLast is new Date() -- webapp update job assumes this is happening
-	public WebappInstance(String webAppName, String serverName, String serverType, String servletContextPath,
-			String publicIp, String privateIp, Date startupDate, Date buildDate, String buildId, String commitId,
-			String javaVersion, String servletContainerVersion, String gitBranch){
+	public WebappInstance(
+			String webAppName,
+			String serverName,
+			String serverType,
+			String servletContextPath,
+			String publicIp,
+			String privateIp,
+			Date startupDate,
+			Date buildDate,
+			String buildId,
+			String commitId,
+			String javaVersion,
+			String servletContainerVersion,
+			String gitBranch){
 		super(new WebappInstanceKey(webAppName, serverName), serverType, servletContextPath, publicIp, privateIp,
 				new Date(), startupDate, buildDate, buildId, commitId, javaVersion, servletContainerVersion, gitBranch);
 	}

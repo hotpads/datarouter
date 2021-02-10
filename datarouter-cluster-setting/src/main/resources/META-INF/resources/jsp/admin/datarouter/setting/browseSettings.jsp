@@ -257,9 +257,13 @@
 						<div class="w-100 py-1 px-1 px-sm-4 text-break">
 							current: <strong>${setting.value}</strong>
 						</div>
-						<div class="w-100 py-1 px-1 px-sm-4 text-break">
+						<c:if test="${setting.isGlobalDefault}">
+							<c:set var="rowStyle" value="style=\"background: #E1C2C2\""/>
+						</c:if>
+						<div class="w-100 py-1 px-1 px-sm-4 text-break" ${rowStyle}>
 							global default: <strong>${setting.defaultValue}</strong>
 						</div>
+						<c:remove var = "rowStyle"/>
 						<c:if test="${mightBeDevelopment}">
 							<div class="w-100 py-1 px-1 px-sm-4">
 								<span class="font-weight-bold">${fn:length(setting.settingTags)}</span> tag overrides
@@ -272,7 +276,7 @@
 												<th>Active</th>
 											</tr>
 											<c:forEach var="def" items="${setting.settingTags}">
-												<c:if test="${def.active}">
+												<c:if test="${def.winner}">
 													<c:set var="rowStyle" value="style=\"background: #E1C2C2\""/>
 													<c:set var="rowContent" value="&#x2714;&#xfe0f;"/>
 												</c:if>
@@ -303,8 +307,10 @@
 											<th>Active</th>
 										</tr>
 										<c:forEach var="def" items="${setting.codeOverrides}">
-											<c:if test="${def.active}">
+											<c:if test="${def.winner}">
 												<c:set var="rowStyle" value="style=\"background: #E1C2C2\""/>
+											</c:if>
+											<c:if test="${def.active}">
 												<c:set var="rowContent" value="&#x2714;&#xfe0f;"/>
 											</c:if>
 											<tr ${rowStyle}>
@@ -337,6 +343,7 @@
 											<th>Server Name</th>
 											<th>Value</th>
 											<th>Action</th>
+											<th>Active</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -350,7 +357,13 @@
 									</c:choose>
 									</tr>
 									<c:forEach var="customSetting" items="${customSettings}">
-										<tr>
+										<c:if test="${customSetting.active}">
+											<c:set var="rowContent" value="&#x2714;&#xfe0f;"/>
+										</c:if>
+										<c:if test="${customSetting.winner}">
+											<c:set var="rowStyle" value="style=\"background: #E1C2C2\""/>
+										</c:if>
+										<tr ${rowStyle}>
 											<input type="hidden" name="node-name" value="${nodeName}">
 											<input type="hidden" name="name" class="setting-name" value="${customSetting.name}">
 											<td class="setting-scope">${customSetting.scope.persistentString}</td>
@@ -368,7 +381,10 @@
 													<button id="dele_${settingName}" class="btn btn-mini btn-danger delete-setting-btn" type="button">delete</button>
 												</form>
 											</td>
+											<td class="setting-active">${rowContent}</td>
 										</tr>
+										<c:remove var = "rowStyle"/>
+										<c:remove var = "rowContent"/>
 									</c:forEach>
 									</tbody>
 								</table>

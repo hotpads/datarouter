@@ -23,6 +23,6 @@ public interface Joblet<P>{
 	void setJobletRequest(JobletRequest jobletRequest);
 
 	void setJobletParams(P params);
-	Long process() throws Throwable;
+	void process() throws Throwable;
 
 }

@@ -22,7 +22,7 @@ public interface Tracer{
 
 	String getServerName();
 	String getTraceId();
-	Optional<TraceContext> getTraceContext();
+	Optional<W3TraceContext> getTraceContext();
 	BlockingQueue<TraceThreadDto> getThreadQueue();
 	BlockingQueue<TraceSpanDto> getSpanQueue();
 

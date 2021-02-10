@@ -28,13 +28,13 @@ import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 
 public class OneTimeLoginToken extends BaseDatabean<OneTimeLoginTokenKey,OneTimeLoginToken>{
 
-	private String token;
-	private String targetServerName;
-	private String targetServerIp;
-	private Date deadline;
+	private final String token;
+	private final String targetServerName;
+	private final String targetServerIp;
+	private final Date deadline;
 
 	public OneTimeLoginToken(){
-		super(new OneTimeLoginTokenKey());
+		this(null, null, null, null, null);
 	}
 
 	public OneTimeLoginToken(Long userId, String token, String targetServerName, String targetServerIp, Date deadline){

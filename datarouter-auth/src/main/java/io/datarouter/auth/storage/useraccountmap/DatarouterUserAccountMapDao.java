@@ -58,7 +58,7 @@ public class DatarouterUserAccountMapDao extends BaseDao implements BaseDatarout
 							nodeFactory.create(clientId, DatarouterUserAccountMap::new,
 									DatarouterUserAccountMapFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);

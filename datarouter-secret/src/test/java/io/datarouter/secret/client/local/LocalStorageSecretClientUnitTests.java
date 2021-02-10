@@ -43,9 +43,9 @@ extends BaseSecretClientInternalMethodUnitTests<LocalStorageSecretClient>{
 		//client1, client2, and client3 all use the same file and therefore behave identically
 		LocalStorageConfig filename1 = new TestLocalStorageConfig(FILENAME_1);
 		LocalStorageSecretClient client1 = new LocalStorageSecretClient(filename1);
-		Assert.assertEquals(client1.listNames(Optional.empty()).size(), 0);
+		Assert.assertEquals(client1.listNames(Optional.empty()).result.get().size(), 0);
 		LocalStorageSecretClient client2 = new LocalStorageSecretClient(filename1);
-		Assert.assertEquals(client2.listNames(Optional.empty()).size(), 0);
+		Assert.assertEquals(client2.listNames(Optional.empty()).result.get().size(), 0);
 
 		client1.create("name1", "");
 		client2.create("name2", "");

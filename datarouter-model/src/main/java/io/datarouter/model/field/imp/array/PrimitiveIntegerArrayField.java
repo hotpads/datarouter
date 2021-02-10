@@ -25,7 +25,7 @@ import io.datarouter.util.serialization.GsonTool;
 
 public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 
-	private PrimitiveIntegerArrayFieldKey key;
+	private final PrimitiveIntegerArrayFieldKey key;
 
 	public PrimitiveIntegerArrayField(PrimitiveIntegerArrayFieldKey key, int[] value){
 		super(null, value);
@@ -69,7 +69,7 @@ public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 
 	@Override
 	public byte[] getBytes(){
-		return IntegerByteTool.getComparableByteArray(value);
+		return value == null ? null : IntegerByteTool.getComparableByteArray(value);
 	}
 
 	@Override

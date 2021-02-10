@@ -48,7 +48,11 @@ public class OneTimeLoginService{
 	@Inject
 	private DatarouterWebappInstancePaths paths;
 
-	public Mav createToken(Session session, String webappName, String serverName, Boolean shouldUseIp,
+	public Mav createToken(
+			Session session,
+			String webappName,
+			String serverName,
+			Boolean shouldUseIp,
 			HttpServletRequest request){
 		ObjectTool.requireNonNulls(session, session.getUserId());
 		WebappInstance target = webappInstanceDao.get(new WebappInstanceKey(webappName, serverName));
@@ -58,10 +62,15 @@ public class OneTimeLoginService{
 
 		String token = DatarouterTokenGenerator.generateRandomToken();
 		Instant deadline = Instant.now().plusSeconds(5);
-		oneTimeLoginDao.put(new OneTimeLoginToken(session.getUserId(), token, serverName, target.getServerPublicIp(),
-				Date.from(deadline)));
+		var oneTimeLoginToken = new OneTimeLoginToken(
+				session.getUserId(),
+				token,
+				serverName,
+				target.getServerPublicIp(),
+				Date.from(deadline));
+		oneTimeLoginDao.put(oneTimeLoginToken);
 
-		GlobalRedirectMav mav = new GlobalRedirectMav(buildRedirectUrl(request, target, shouldUseIp), true);
+		var mav = new GlobalRedirectMav(buildRedirectUrl(request, target, shouldUseIp), true);
 		mav.put(WebappInstanceHandler.P_USER_ID, session.getUserId());
 		mav.put(WebappInstanceHandler.P_TOKEN, token);
 		return mav;
@@ -95,7 +104,7 @@ public class OneTimeLoginService{
 
 	//get then delete OneTimeLoginToken
 	private OneTimeLoginToken getAuthenticatedToken(Long userId){
-		OneTimeLoginTokenKey key = new OneTimeLoginTokenKey(userId);
+		var key = new OneTimeLoginTokenKey(userId);
 		OneTimeLoginToken authenticatedToken = oneTimeLoginDao.get(key);
 		if(authenticatedToken == null){
 			throw new InvalidCredentialsException("No authenticated token exists for user " + userId);

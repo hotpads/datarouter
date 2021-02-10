@@ -59,9 +59,9 @@ public class DatarouterClusterJobLockDao extends BaseDao{
 					SortedMapStorageNode<ClusterJobLockKey,ClusterJobLock,ClusterJobLockFielder> node =
 							nodeFactory.create(clientId, ClusterJobLock::new, ClusterJobLockFielder::new)
 							.withIsSystemTable(true)
-							.buildAndRegister();
+							.build();
 					return node;
-					})
+				})
 				.listTo(RedundantSortedMapStorageNode::new);
 		datarouter.register(node);
 	}

@@ -15,37 +15,50 @@
  */
 package io.datarouter.webappinstance.storage.onetimelogintoken;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.webappinstance.storage.onetimelogintoken.OneTimeLoginToken.OneTimeLoginTokenFielder;
 
 @Singleton
 public class DatarouterOneTimeLoginTokenDao extends BaseDao{
 
-	public static class DatarouterOneTimeLoginTokenDaoParams extends BaseDaoParams{
+	public static class DatarouterOneTimeLoginTokenDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterOneTimeLoginTokenDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterOneTimeLoginTokenDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
-
 	}
 
 	private final MapStorageNode<OneTimeLoginTokenKey,OneTimeLoginToken,OneTimeLoginTokenFielder> node;
 
 	@Inject
-	public DatarouterOneTimeLoginTokenDao(Datarouter datarouter, NodeFactory nodeFactory,
+	public DatarouterOneTimeLoginTokenDao(
+			Datarouter datarouter,
+			NodeFactory nodeFactory,
 			DatarouterOneTimeLoginTokenDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, OneTimeLoginToken::new, OneTimeLoginTokenFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<OneTimeLoginTokenKey,OneTimeLoginToken,OneTimeLoginTokenFielder> node =
+							nodeFactory.create(clientId, OneTimeLoginToken::new, OneTimeLoginTokenFielder::new)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public OneTimeLoginToken get(OneTimeLoginTokenKey key){

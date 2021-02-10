@@ -28,21 +28,22 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance.WebappInstanceFielder;
 
 @Singleton
 public class DatarouterWebappInstanceDao extends BaseDao{
 
-	public static class DatarouterWebappInstanceDaoParams extends BaseDaoParams{
+	public static class DatarouterWebappInstanceDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterWebappInstanceDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterWebappInstanceDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
@@ -53,9 +54,16 @@ public class DatarouterWebappInstanceDao extends BaseDao{
 	public DatarouterWebappInstanceDao(Datarouter datarouter, NodeFactory nodeFactory,
 			DatarouterWebappInstanceDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, WebappInstance::new, WebappInstanceFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<WebappInstanceKey,WebappInstance,WebappInstanceFielder> node =
+							nodeFactory.create(clientId, WebappInstance::new, WebappInstanceFielder::new)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public Scanner<WebappInstanceKey> scanKeys(){

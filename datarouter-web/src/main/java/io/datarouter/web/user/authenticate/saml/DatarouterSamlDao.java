@@ -61,7 +61,7 @@ public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 									SamlAuthnRequestRedirectUrlFielder::new)
 						.withIsSystemTable(true)
 						.disableNodewatchPercentageAlert()
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantSortedMapStorageNode::new);

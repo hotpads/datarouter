@@ -64,7 +64,8 @@ public class WebappInstanceServersHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	private Mav view(){
-		Scanner<WebappInstanceLogDto> logs = Scanner.of(logDao.scan().groupBy(WebappInstanceLogKeyDto::new).entrySet())
+		Scanner<WebappInstanceLogDto> logs = Scanner.of(logDao.scan()
+				.groupBy(WebappInstanceLogKeyDto::new).entrySet())
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
 				.sorted(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.buildDate).reversed());
 		MemoryPager<WebappInstanceLogDto> pager = new MemoryPager<>(

@@ -17,7 +17,6 @@ package io.datarouter.clustersetting.web.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.datarouter.storage.setting.DefaultSettingValue;
@@ -32,6 +31,7 @@ public class SettingJspDto{
 	private final Boolean hasCustomValue;
 	private final String value;
 	private final String defaultValue;
+	private final boolean isGlobalDefault;
 	private final List<ClusterSettingDefaultJspDto> codeOverrides;
 	private final List<ClusterSettingTagJspDto> settingTags;
 
@@ -41,20 +41,29 @@ public class SettingJspDto{
 		this.hasCustomValue = setting.getHasCustomValue();
 		this.value = setting.toStringValue();
 		this.defaultValue = setting.toStringDefaultValue();
-		Optional<DefaultSettingValueWinner> defaultValueWinner = setting.getDefaultSettingValueWinner();
+		DefaultSettingValueWinner defaultValueWinner = setting.getDefaultSettingValueWinner();
+		this.isGlobalDefault = setting.getMostSpecificDatabeanValue().isEmpty()
+				&& defaultValueWinner.type == DefaultSettingValueWinnerType.GLOBAL_DEFAULT;
 		this.codeOverrides = toDefaults(setting, setting.getDefaultSettingValue(), defaultValueWinner);
 		this.settingTags = toSettingTagJspDto(setting.getDefaultSettingValue(), defaultValueWinner);
 	}
 
 	private <T> List<ClusterSettingDefaultJspDto> toDefaults(CachedSetting<T> setting, DefaultSettingValue<T> defaults,
-			Optional<DefaultSettingValueWinner> defaultValueWinner){
+			DefaultSettingValueWinner defaultValueWinner){
 		List<ClusterSettingDefaultJspDto> dtos = new ArrayList<>();
+		String winnerEnvironmentType = defaultValueWinner.environmentType != null ? defaultValueWinner.environmentType
+				: "";
+		String winnerServerType = defaultValueWinner.serverType != null ? defaultValueWinner.serverType : "";
+		String winnerServerName = defaultValueWinner.serverName != null ? defaultValueWinner.serverName : "";
+		String winnerEnvironmentName = defaultValueWinner.environmentName != null ? defaultValueWinner.environmentName
+				: "";
+		// database overrides have higher priority than code overrides
+		boolean hasDatabaseOverride = setting.getMostSpecificDatabeanValue().isPresent();
 		// environmentType overrides
 		defaults.getValueByEnvironmentType().forEach((environmentType, value) -> {
-				boolean active = defaultValueWinner
-					.filter(winner -> winner.type == DefaultSettingValueWinnerType.ENVIRONMENT_TYPE)
-					.filter(winner -> winner.environmentType.equals(environmentType.getPersistentString()))
-					.isPresent();
+			boolean isActive = winnerEnvironmentType.equals(environmentType.getPersistentString());
+			boolean isWinner = !hasDatabaseOverride && isActive
+					&& defaultValueWinner.type == DefaultSettingValueWinnerType.ENVIRONMENT_TYPE;
 				dtos.add(new ClusterSettingDefaultJspDto(
 						false,
 						environmentType.getPersistentString(),
@@ -62,16 +71,16 @@ public class SettingJspDto{
 						null,
 						null,
 						setting.toStringValue(value),
-						active));
+						isActive,
+						isWinner));
 				});
 		// serverType overrides
 		defaults.getValueByServerTypeByEnvironmentType().forEach((environmentType, defaultByServerType) ->
 				defaultByServerType.forEach((serverType, value) -> {
-					boolean active = defaultValueWinner
-							.filter(winner -> winner.type == DefaultSettingValueWinnerType.SERVER_TYPE)
-							.filter(winner -> winner.environmentType.equals(environmentType.getPersistentString()))
-							.filter(winner -> winner.serverType.equals(serverType))
-							.isPresent();
+					boolean isActive = winnerEnvironmentType.equals(environmentType.getPersistentString())
+							&& winnerServerType.equals(serverType);
+					boolean isWinner = !hasDatabaseOverride && isActive
+							&& defaultValueWinner.type == DefaultSettingValueWinnerType.SERVER_TYPE;
 					dtos.add(new ClusterSettingDefaultJspDto(
 						false,
 						environmentType.getPersistentString(),
@@ -79,16 +88,16 @@ public class SettingJspDto{
 						serverType,
 						null,
 						setting.toStringValue(value),
-						active));
+						isActive,
+						isWinner));
 					}));
 		// serverName overrides
 		defaults.getValueByServerNameByEnvironmentType().forEach((environmentType, defaultByServerName) ->
 				defaultByServerName.forEach((serverName, value) -> {
-					boolean active = defaultValueWinner
-							.filter(winner -> winner.type == DefaultSettingValueWinnerType.SERVER_NAME)
-							.filter(winner -> winner.environmentType.equals(environmentType.getPersistentString()))
-							.filter(winner -> winner.serverName.equals(serverName))
-							.isPresent();
+					boolean isActive = winnerEnvironmentType.equals(environmentType.getPersistentString())
+							&& winnerServerName.equals(serverName);
+					boolean isWinner = !hasDatabaseOverride && isActive
+							&& defaultValueWinner.type == DefaultSettingValueWinnerType.SERVER_NAME;
 					dtos.add(new ClusterSettingDefaultJspDto(
 						false,
 						environmentType.getPersistentString(),
@@ -96,16 +105,17 @@ public class SettingJspDto{
 						null,
 						serverName,
 						setting.toStringValue(value),
-						active));
+						isActive,
+						isWinner));
 					}));
 		// environmentName overrides
 		defaults.getValueByEnvironmentNameByEnvironmentType().forEach((environmentType, defaultByEnvironment) ->
 				defaultByEnvironment.forEach((environmentName, value) -> {
-					boolean active = defaultValueWinner
-							.filter(winner -> winner.type == DefaultSettingValueWinnerType.SERVER_NAME)
-							.filter(winner -> winner.environmentType.equals(environmentType.getPersistentString()))
-							.filter(winner -> winner.environmentName.equals(environmentName))
-							.isPresent();
+					boolean isActive = !isGlobalDefault
+							&& winnerEnvironmentType.equals(environmentType.getPersistentString())
+							&& winnerEnvironmentName.equals(environmentName);
+					boolean isWinner = !hasDatabaseOverride && isActive
+							&& defaultValueWinner.type == DefaultSettingValueWinnerType.ENVIRONMENT_NAME;
 					dtos.add(new ClusterSettingDefaultJspDto(
 						false,
 						environmentType.getPersistentString(),
@@ -113,23 +123,22 @@ public class SettingJspDto{
 						null,
 						null,
 						setting.toStringValue(value),
-						active));
+						isActive,
+						isWinner));
 					}));
 		return dtos;
 	}
 
 	private <T> List<ClusterSettingTagJspDto> toSettingTagJspDto(DefaultSettingValue<T> defaults,
-			Optional<DefaultSettingValueWinner> defaultValueWinner){
+			DefaultSettingValueWinner defaultValueWinner){
 		return defaults.getValueBySettingTag().entrySet().stream()
 				.map(tag -> {
-					boolean active = defaultValueWinner
-							.filter(winner -> winner.type == DefaultSettingValueWinnerType.SETTING_TAG)
-							.filter(winner -> winner.settingTag.equals(tag.getKey().getPersistentString()))
-							.isPresent();
+					boolean isWinner = defaultValueWinner.type == DefaultSettingValueWinnerType.SETTING_TAG
+							&& defaultValueWinner.settingTag.equals(tag.getKey().getPersistentString());
 					return new ClusterSettingTagJspDto(
 							tag.getKey().getPersistentString(),
-							String.valueOf(tag.getValue()),
-							active);
+							String.valueOf(tag.getValue().get()),
+							isWinner);
 				})
 				.collect(Collectors.toList());
 
@@ -153,6 +162,10 @@ public class SettingJspDto{
 
 	public String getDefaultValue(){
 		return defaultValue;
+	}
+
+	public boolean getIsGlobalDefault(){
+		return isGlobalDefault;
 	}
 
 	public List<ClusterSettingDefaultJspDto> getCodeOverrides(){

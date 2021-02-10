@@ -56,18 +56,18 @@ public class DatarouterServiceUnavailableRetryStrategy implements ServiceUnavail
 		}
 		HttpClientContext clientContext = HttpClientContext.adapt(context);
 		boolean willRetry = HttpRetryTool.shouldRetry(context, executionCount, retryCount);
-		String requestId = (String)context.getAttribute(DatarouterHttpClientIoExceptionCircuitBreaker.X_REQUEST_ID);
+		String traceparent = (String)context.getAttribute(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
 		String url = clientContext.getTargetHost() + clientContext.getRequest().getRequestLine().getUri();
 		if(willRetry){
 			HttpEntity httpEntity = response.getEntity();
 			String entity = HttpRetryTool.tryEntityToString(httpEntity);
-			logger.warn("failure target={} id={} failureCount={} statusCode={} entity={}", url, requestId,
+			logger.warn("failure target={} traceparent={} failureCount={} statusCode={} entity={}", url, traceparent,
 					executionCount, statusCode, entity);
 			TracerTool.appendToSpanInfo("willRetry", statusCode);
 		}else{
 			// don't log everything, caller will get details in an Exception
-			logger.warn("failure target={} id={} failureCount={} statusCode={} (final)", url, requestId, executionCount,
-					statusCode);
+			logger.warn("failure target={} traceparent={} failureCount={} statusCode={} (final)", url, traceparent,
+					executionCount, statusCode);
 		}
 		return willRetry;
 	}

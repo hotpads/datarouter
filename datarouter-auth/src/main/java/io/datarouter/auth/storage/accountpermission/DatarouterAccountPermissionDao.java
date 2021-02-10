@@ -58,7 +58,7 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 							nodeFactory.create(clientId, DatarouterAccountPermission::new,
 									DatarouterAccountPermissionFielder::new)
 						.withIsSystemTable(true)
-						.buildAndRegister();
+						.build();
 					return node;
 				})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);

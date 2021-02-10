@@ -18,6 +18,7 @@ package io.datarouter.webappinstance.service;
 public interface WebappInstanceCommitIdLink{
 
 	String getLinkPrefix();
+
 	default String getLink(String commitId){
 		return getLinkPrefix() + commitId;
 	}

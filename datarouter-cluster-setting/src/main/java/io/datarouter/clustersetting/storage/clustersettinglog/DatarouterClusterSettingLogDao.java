@@ -17,6 +17,7 @@ package io.datarouter.clustersetting.storage.clustersettinglog;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,21 +30,22 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.SettinglessNodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 
 @Singleton
 public class DatarouterClusterSettingLogDao extends BaseDao{
 
-	public static class DatarouterClusterSettingLogDaoParams extends BaseDaoParams{
+	public static class DatarouterClusterSettingLogDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterClusterSettingLogDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterClusterSettingLogDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
@@ -64,12 +66,16 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 			DatarouterClusterSettingLogDaoParams params,
 			IndexingNodeFactory indexingNodeFactory){
 		super(datarouter);
-		node = settinglessNodeFactory.create(
-				params.clientId,
-				ClusterSettingLog::new,
-				ClusterSettingLogFielder::new)
-				.withIsSystemTable(true)
-				.build();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					IndexedSortedMapStorageNode<ClusterSettingLogKey,ClusterSettingLog,ClusterSettingLogFielder> node =
+							settinglessNodeFactory.create(clientId, ClusterSettingLog::new,
+									ClusterSettingLogFielder::new)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+					})
+				.listTo(RedundantIndexedSortedMapStorageNode::new);
 		byReversedCreatedMs = indexingNodeFactory.createKeyOnlyManagedIndex(
 				ClusterSettingLogByReversedCreatedMsKey.class, node)
 				.build();
