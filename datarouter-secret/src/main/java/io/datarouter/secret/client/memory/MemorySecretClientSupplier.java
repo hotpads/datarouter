@@ -17,7 +17,8 @@ package io.datarouter.secret.client.memory;
 
 import javax.inject.Singleton;
 
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.client.SecretClient;
+import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 
 @Singleton
 public class MemorySecretClientSupplier implements SecretClientSupplier{
@@ -25,7 +26,7 @@ public class MemorySecretClientSupplier implements SecretClientSupplier{
 	private MemorySecretClient client;
 
 	@Override
-	public MemorySecretClient get(){
+	public SecretClient get(){
 		if(client == null){
 			synchronized(this){
 				if(client == null){

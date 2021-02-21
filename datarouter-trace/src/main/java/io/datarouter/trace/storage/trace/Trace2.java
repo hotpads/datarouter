@@ -18,6 +18,7 @@ package io.datarouter.trace.storage.trace;
 import java.time.Duration;
 import java.util.List;
 
+import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -33,6 +34,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 
 	public static final Duration TTL = Duration.ofDays(30);
 	public static final TtlFielderConfig TTL_FIELDER_CONFIG = new TtlFielderConfig(TTL);
+	public static final String DEFAULT_ACCOUNT_NAME = "default";
 
 	private String initialParentId;
 	private String context;
@@ -40,6 +42,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 	private String params;
 	private Long created;
 	private Long duration;
+	private String accountName; // multiple serviceNames could be tied to one accountName
 	private String serviceName;
 	private Integer discardedThreadCount;
 	private Integer totalThreadCount;
@@ -51,6 +54,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		public static final StringFieldKey params = new StringFieldKey("params");
 		public static final UInt63FieldKey created = new UInt63FieldKey("created");
 		public static final UInt63FieldKey duration = new UInt63FieldKey("duration");
+		public static final StringFieldKey accountName = new StringFieldKey("accountName");
 		public static final StringFieldKey serviceName = new StringFieldKey("serviceName");
 		public static final UInt31FieldKey discardedThreadCount = new UInt31FieldKey("discardedThreadCount");
 		public static final UInt31FieldKey totalThreadCount = new UInt31FieldKey("totalThreadCount");
@@ -72,20 +76,42 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 					new StringField(FieldKeys.params, databean.params),
 					new UInt63Field(FieldKeys.created, databean.created),
 					new UInt63Field(FieldKeys.duration, databean.duration),
+					new StringField(FieldKeys.accountName, databean.accountName),
 					new StringField(FieldKeys.serviceName, databean.serviceName),
 					new UInt31Field(FieldKeys.discardedThreadCount, databean.discardedThreadCount),
 					new UInt31Field(FieldKeys.totalThreadCount, databean.totalThreadCount));
 		}
 	}
 
+	public Trace2(){
+		this(new Trace2Key());
+	}
 
 	public Trace2(Trace2Key key){
 		super(key);
 	}
 
+	public Trace2(String accountName, Trace2Dto dto){
+		super(new Trace2Key(dto.traceparent));
+		this.initialParentId = dto.initialParentId;
+		this.context = dto.context;
+		this.type = dto.type;
+		this.params = dto.params;
+		this.created = dto.created;
+		this.duration = dto.duration;
+		this.serviceName = dto.serviceName;
+		this.accountName = accountName;
+		this.discardedThreadCount = dto.discardedThreadCount;
+		this.totalThreadCount = dto.totalThreadCount;
+	}
+
 	@Override
 	public Class<Trace2Key> getKeyClass(){
 		return Trace2Key.class;
+	}
+
+	public String getTraceId(){
+		return getKey().getEntityKey().getTrace2EntityId();
 	}
 
 	public String getInitialParentId(){
@@ -114,6 +140,10 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 
 	public String getServiceName(){
 		return serviceName;
+	}
+
+	public String getAccountName(){
+		return accountName;
 	}
 
 	public Integer getDiscardedThreadCount(){

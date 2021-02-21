@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.secret.client.SecretClient;
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 
 @Singleton
 public class LocalStorageSecretClientSupplier implements SecretClientSupplier{

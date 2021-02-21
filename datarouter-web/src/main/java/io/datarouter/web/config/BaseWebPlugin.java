@@ -30,6 +30,7 @@ import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
+import io.datarouter.web.metriclinks.MetricLinkPage;
 import io.datarouter.web.navigation.DynamicNavBarItem;
 import io.datarouter.web.navigation.NavBarCategory;
 import io.datarouter.web.navigation.NavBarItem;
@@ -248,6 +249,18 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 
 	public List<Class<? extends DailyDigest>> getDailyDigestRegistry(){
 		return dailyDigestRegistry;
+	}
+
+	/*-------------------------- metric link pages --------------------------*/
+
+	private final List<Class<? extends MetricLinkPage>> metricLinkPages = new ArrayList<>();
+
+	protected void addMetricLinkPages(Class<? extends MetricLinkPage> metricLinkPage){
+		metricLinkPages.add(metricLinkPage);
+	}
+
+	public List<Class<? extends MetricLinkPage>> getMetricLinkPages(){
+		return metricLinkPages;
 	}
 
 	/*--------------------------- add web plugins ---------------------------*/

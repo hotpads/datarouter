@@ -32,8 +32,8 @@ public class DatarouterWebappInstanceRouteSet extends BaseRouteSet{
 	public DatarouterWebappInstanceRouteSet(DatarouterWebappInstancePaths paths){
 		super(paths.datarouter);
 		handleDir(paths.datarouter.webappInstances).withHandler(WebappInstanceHandler.class);
-		handleDir(paths.datarouter.webappInstanceLog).withHandler(WebappInstanceLogHandler.class);
-		handleDir(paths.datarouter.webappInstanceServers).withHandler(WebappInstanceServersHandler.class);
+		handle(paths.datarouter.webappInstanceLog).withHandler(WebappInstanceLogHandler.class);
+		handle(paths.datarouter.webappInstanceServers).withHandler(WebappInstanceServersHandler.class);
 	}
 
 	@Override

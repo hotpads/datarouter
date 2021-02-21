@@ -15,6 +15,8 @@
  */
 package io.datarouter.aws.s3.node;
 
+import java.util.List;
+
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -81,6 +83,11 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	@Override
 	public void write(PathbeanKey key, byte[] content){
 		s3DirectoryManager.write(key.getPathAndFile(), content);
+	}
+
+	@Override
+	public void write(PathbeanKey key, List<byte[]> chunks){
+		s3DirectoryManager.write(key.getPathAndFile(), chunks);
 	}
 
 	@Override

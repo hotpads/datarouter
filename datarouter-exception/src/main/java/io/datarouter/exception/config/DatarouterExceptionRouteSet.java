@@ -31,10 +31,23 @@ public class DatarouterExceptionRouteSet extends BaseRouteSet{
 	public DatarouterExceptionRouteSet(DatarouterExceptionPaths paths){
 		super(paths.datarouter);
 
-		handleDir(paths.datarouter.exception)
+		handle(paths.datarouter.exception.details)
 				.withHandler(ExceptionAnalysisHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
-		handleDir(paths.datarouter.errorGenerator)
+		handle(paths.datarouter.exception.browse)
+				.withHandler(ExceptionAnalysisHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+		handle(paths.datarouter.exception.mute)
+				.withHandler(ExceptionAnalysisHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+		handle(paths.datarouter.exception.saveIssue)
+				.withHandler(ExceptionAnalysisHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+		handle(paths.datarouter.exception.recordIssueAndRedirect)
+				.withHandler(ExceptionAnalysisHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+
+		handle(paths.datarouter.errorGenerator.generate)
 				.withHandler(ExceptionGeneratorHandler.class)
 				.allowAnonymous();
 	}

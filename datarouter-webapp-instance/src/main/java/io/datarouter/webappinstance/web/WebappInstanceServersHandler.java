@@ -19,6 +19,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.td;
 
+import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,12 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.DateTool;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
@@ -96,6 +99,12 @@ public class WebappInstanceServersHandler extends BaseHandler{
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("", row -> {
 					if(activeServerNames.contains(row.key.serverName)){
+						if(row.shutdownDate.isEmpty()){
+							return td();
+						}
+						if(row.shutdownDate.get().getTime() < System.currentTimeMillis()){
+							return td();
+						}
 						return td(span("Active").withClass("badge badge-success"));
 					}
 					return td();
@@ -110,6 +119,14 @@ public class WebappInstanceServersHandler extends BaseHandler{
 						+ row.shutdownDate
 								.map(date -> DateTool.formatDateWithZone(date, zoneId))
 								.orElse("unknown"))
+				.withColumn("Up Time", row -> {
+						if(row.startupDate.isEmpty() || row.shutdownDate.isEmpty()){
+							return "unknown";
+						}
+						var duration = Duration.ofMillis(row.shutdownDate.get().getTime()
+								- row.startupDate.get().getTime());
+						return new DatarouterDuration(duration).toString(TimeUnit.MINUTES);
+				})
 				.build(page.rows);
 		return div(form, linkBar, table)
 				.withClass("container-fluid");

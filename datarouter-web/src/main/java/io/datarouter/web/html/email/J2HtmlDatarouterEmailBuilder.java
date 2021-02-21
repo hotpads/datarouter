@@ -20,6 +20,7 @@ import j2html.tags.ContainerTag;
 public class J2HtmlDatarouterEmailBuilder{
 
 	private String webappName;
+	private String environment;
 	private String subject;
 	private boolean includeLogo = true;
 	private String logoImgSrc;
@@ -33,13 +34,18 @@ public class J2HtmlDatarouterEmailBuilder{
 		return this;
 	}
 
+	public J2HtmlDatarouterEmailBuilder withEnvironment(String environment){
+		this.environment = environment;
+		return this;
+	}
+
 	public J2HtmlDatarouterEmailBuilder withSubject(String subject){
 		this.subject = subject;
 		return this;
 	}
 
 	public String getSubject(){
-		return subject == null ? String.format("Datarouter - %s - %s", title, webappName) : subject;
+		return subject == null ? String.format("%s - %s - %s", title, environment, webappName) : subject;
 	}
 
 	public J2HtmlDatarouterEmailBuilder withIncludeLogo(boolean includeLogo){

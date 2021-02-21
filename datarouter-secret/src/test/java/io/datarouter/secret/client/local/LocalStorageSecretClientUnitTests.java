@@ -43,22 +43,22 @@ extends BaseSecretClientInternalMethodUnitTests<LocalStorageSecretClient>{
 		//client1, client2, and client3 all use the same file and therefore behave identically
 		LocalStorageConfig filename1 = new TestLocalStorageConfig(FILENAME_1);
 		LocalStorageSecretClient client1 = new LocalStorageSecretClient(filename1);
-		Assert.assertEquals(client1.listNames(Optional.empty()).result.get().size(), 0);
+		Assert.assertEquals(client1.listNames(Optional.empty()).size(), 0);
 		LocalStorageSecretClient client2 = new LocalStorageSecretClient(filename1);
-		Assert.assertEquals(client2.listNames(Optional.empty()).result.get().size(), 0);
+		Assert.assertEquals(client2.listNames(Optional.empty()).size(), 0);
 
 		client1.create("name1", "");
 		client2.create("name2", "");
-		Assert.assertEquals(Set.copyOf(client1.listInternal(Optional.empty())), Set.of("name1", "name2"));
-		Assert.assertEquals(Set.copyOf(client2.listInternal(Optional.empty())), Set.of("name1", "name2"));
+		Assert.assertEquals(Set.copyOf(client1.listNames(Optional.empty())), Set.of("name1", "name2"));
+		Assert.assertEquals(Set.copyOf(client2.listNames(Optional.empty())), Set.of("name1", "name2"));
 
 		LocalStorageSecretClient client3 = new LocalStorageSecretClient(filename1);
-		Assert.assertEquals(Set.copyOf(client3.listInternal(Optional.empty())), Set.of("name1", "name2"));
+		Assert.assertEquals(Set.copyOf(client3.listNames(Optional.empty())), Set.of("name1", "name2"));
 
 		//client4 uses a different file and is independent
 		LocalStorageConfig filename2 = new TestLocalStorageConfig(FILENAME_2);
 		LocalStorageSecretClient client4 = new LocalStorageSecretClient(filename2);
-		Assert.assertEquals(client4.listInternal(Optional.empty()).size(), 0);
+		Assert.assertEquals(client4.listNames(Optional.empty()).size(), 0);
 	}
 
 	@Override

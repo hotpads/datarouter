@@ -20,7 +20,6 @@ import java.util.Optional;
 public interface JobletExternalLinkBuilder{
 
 	Optional<String> exception(String contextPath, String exceptionId);
-
 	Optional<String> counters(String counterNamePrefix);
 
 	public static class NoOpJobletExternalLinkBuilder implements JobletExternalLinkBuilder{

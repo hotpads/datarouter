@@ -18,7 +18,7 @@ package io.datarouter.secret.op;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
 
-public enum SecretOp implements StringEnum<SecretOp>{
+public enum SecretOpType implements StringEnum<SecretOpType>{
 
 	CREATE("CREATE"),
 	READ("READ"),
@@ -31,7 +31,7 @@ public enum SecretOp implements StringEnum<SecretOp>{
 
 	private final String persistentString;
 
-	SecretOp(String peristentString){
+	SecretOpType(String peristentString){
 		this.persistentString = peristentString;
 	}
 
@@ -41,7 +41,7 @@ public enum SecretOp implements StringEnum<SecretOp>{
 	}
 
 	@Override
-	public SecretOp fromPersistentString(String string){
+	public SecretOpType fromPersistentString(String string){
 		return DatarouterEnumTool.getEnumFromString(values(), string, null);
 	}
 

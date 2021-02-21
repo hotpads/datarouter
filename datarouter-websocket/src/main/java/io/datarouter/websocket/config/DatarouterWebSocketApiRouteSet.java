@@ -37,13 +37,23 @@ public class DatarouterWebSocketApiRouteSet extends BaseRouteSet{
 	public DatarouterWebSocketApiRouteSet(DatarouterWebSocketPaths paths, PushServiceSettingsSupplier settings){
 		super("");
 
-		handleDir(paths.websocketCommand)
+		handle(paths.websocketCommand.isAlive)
 				.withHandler(WebSocketApiHandler.class)
 				.allowAnonymous()
 				.withApiKey(new DefaultApiKeyPredicate(settings::getApiKey))
 				.withCsrfToken(new DefaultCsrfValidator(new DefaultCsrfGenerator(settings::getCipherKey)))
 				.withSignature(new DefaultSignatureValidator(new DefaultSignatureGenerator(settings::getSalt)));
-		handleDir(paths.datarouter.websocketTool)
+		handle(paths.websocketCommand.push)
+				.withHandler(WebSocketApiHandler.class)
+				.allowAnonymous()
+				.withApiKey(new DefaultApiKeyPredicate(settings::getApiKey))
+				.withCsrfToken(new DefaultCsrfValidator(new DefaultCsrfGenerator(settings::getCipherKey)))
+				.withSignature(new DefaultSignatureValidator(new DefaultSignatureGenerator(settings::getSalt)));
+
+		handle(paths.datarouter.websocketTool.list)
+				.withHandler(WebSocketToolHandler.class)
+				.allowRoles(DatarouterUserRole.ADMIN);
+		handle(paths.datarouter.websocketTool.subscriptions)
 				.withHandler(WebSocketToolHandler.class)
 				.allowRoles(DatarouterUserRole.ADMIN);
 	}

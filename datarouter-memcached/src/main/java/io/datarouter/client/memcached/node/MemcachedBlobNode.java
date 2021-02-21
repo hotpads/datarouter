@@ -122,6 +122,11 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
+	public void write(PathbeanKey key, List<byte[]> chunks){
+		write(key, ByteTool.concatenate(chunks));
+	}
+
+	@Override
 	public void delete(PathbeanKey key){
 		ops.delete(clientId, getName(), codec.encodeKey(key), Duration.ofSeconds(3));
 	}

@@ -30,7 +30,9 @@ public interface DatarouterInjector{
 	void injectMembers(Object instance);
 
 	default <T> List<? extends T> getInstances(List<Class<? extends T>> classes){
-		return Scanner.of(classes).map(this::getInstance).list();
+		return Scanner.of(classes)
+				.map(this::getInstance)
+				.list();
 	}
 
 }

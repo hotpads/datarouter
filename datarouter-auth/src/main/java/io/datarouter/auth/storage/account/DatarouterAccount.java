@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.storage.account;
 
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
+import io.datarouter.util.DateTool;
 import io.datarouter.web.util.PasswordTool;
 
 public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,DatarouterAccount>{
@@ -110,6 +112,13 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 
 	public void setLastUsed(Date lastUsed){
 		this.lastUsed = lastUsed;
+	}
+
+	public String getLastUsedDate(ZoneId zoneId){
+		if(lastUsed == null){
+			return "";
+		}
+		return DateTool.formatDateWithZone(lastUsed, zoneId);
 	}
 
 	public void toggleUserMappings(){

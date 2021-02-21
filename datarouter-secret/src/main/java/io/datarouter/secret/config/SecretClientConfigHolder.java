@@ -18,10 +18,12 @@ package io.datarouter.secret.config;
 import java.util.List;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.secret.client.SecretClientSupplier;
 import io.datarouter.secret.op.SecretOpInfo;
 
+//TODO rename to SecretClientSupplierConfigHolder
 public class SecretClientConfigHolder{
+
+	//TODO prevent multiple writers and put writer before readers in order
 
 	private final List<SecretClientConfig> developmentConfigs;
 	private final List<SecretClientConfig> configs;
@@ -40,11 +42,15 @@ public class SecretClientConfigHolder{
 		this.configs = List.copyOf(configs);
 	}
 
-	public Scanner<Class<? extends SecretClientSupplier>> getAllowedSecretClientSupplierClasses(boolean isDevelopment,
+	public Scanner<SecretClientConfig> getAllowedSecretClientConfigs(boolean isDevelopment,
 			SecretOpInfo secretOpInfo){
 		return Scanner.of(isDevelopment ? developmentConfigs : configs)
-				.include(secretClientSupplierConfig -> secretClientSupplierConfig.allowed(secretOpInfo))
-				.map(SecretClientConfig::getSecretClientSupplierClass);
+				.include(secretClientSupplierConfig -> secretClientSupplierConfig.allowed(secretOpInfo));
+	}
+
+
+	public List<SecretClientConfig> getConfigs(boolean isDevelopment){
+		return isDevelopment ? developmentConfigs : configs;
 	}
 
 }

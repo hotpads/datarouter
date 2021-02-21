@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import io.datarouter.secret.client.BaseSecretClient;
 import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretExistsException;
@@ -33,7 +32,7 @@ import io.datarouter.util.properties.PropertiesTool;
  * This is an implementation of {@link SecretClient} that stores all {@link Secret}s in a local plaintext properties
  * file. It is only suitable for local development work, since all storage is plaintext.
  */
-public class LocalStorageSecretClient extends BaseSecretClient{
+public class LocalStorageSecretClient implements SecretClient{
 
 	private final LocalStorageConfig config;
 
@@ -56,12 +55,12 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 
 	}
 
-	private void writeSecrets(Properties properties){
+	private final void writeSecrets(Properties properties){
 		PropertiesTool.writeToFile(properties, config.getConfigFilePath());
 	}
 
 	@Override
-	public synchronized void createInternal(Secret secret){
+	public final synchronized void create(Secret secret){
 		Properties secrets = readSecrets();
 		if(secrets.containsKey(secret.getName())){
 			throw new SecretExistsException(secret.getName());
@@ -71,7 +70,7 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	public synchronized Secret readInternal(String name){
+	public final synchronized Secret read(String name){
 		Properties secrets = readSecrets();
 		if(!secrets.containsKey(name)){
 			throw new SecretNotFoundException(name);
@@ -80,7 +79,7 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	public synchronized List<String> listInternal(Optional<String> exclusivePrefix){
+	public final synchronized List<String> listNames(Optional<String> exclusivePrefix){
 		Properties secrets = readSecrets();
 		return secrets.keySet().stream()
 				.map(obj -> (String)obj)
@@ -93,7 +92,7 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	public synchronized void updateInternal(Secret secret){
+	public final synchronized void update(Secret secret){
 		Properties secrets = readSecrets();
 		if(!secrets.containsKey(secret.getName())){
 			throw new SecretNotFoundException(secret.getName());
@@ -103,7 +102,7 @@ public class LocalStorageSecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	public synchronized void deleteInternal(String name){
+	public final synchronized void delete(String name){
 		Properties secrets = readSecrets();
 		if(!secrets.containsKey(name)){
 			throw new SecretNotFoundException(name);

@@ -15,8 +15,11 @@
  */
 package io.datarouter.secretweb.web;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -24,11 +27,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.secret.config.SecretClientConfig;
 import io.datarouter.secret.op.SecretOpReason;
+import io.datarouter.secret.op.SecretOpType;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.secretweb.config.DatarouterSecretFiles;
 import io.datarouter.secretweb.config.DatarouterSecretPaths;
 import io.datarouter.secretweb.service.WebSecretOpReason;
+import io.datarouter.secretweb.web.SecretClientSupplierConfigDto.SecretClientSupplierConfigsDto;
 import io.datarouter.secretweb.web.SecretHandlerOpRequestDto.SecretOpDto;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
@@ -57,9 +64,29 @@ public class SecretHandler extends BaseHandler{
 		return reactPageFactory.startBuilder(request)
 				.withTitle("Datarouter - Secrets")
 				.withReactScript(files.js.secretsJsx)
-				.withJsStringConstant("PATH", request.getContextPath() + paths.datarouter.secrets.handle
+				.withJsStringConstant("PATH_HANDLE", request.getContextPath() + paths.datarouter.secrets.handle
 						.toSlashedString())
+				.withJsStringConstant("PATH_CONFIG", request.getContextPath() + paths.datarouter.secrets
+						.getSecretClientSupplierConfig.toSlashedString())
 				.buildMav();
+	}
+
+	//TODO add Session-based permission/allowedOp UI features
+	@Handler
+	public SecretClientSupplierConfigsDto getSecretClientSupplierConfig(){
+		List<SecretClientConfig> secretClientSupplierConfigs = secretService.getSecretClientSupplierConfigs();
+		List<String> orderedConfigs = Scanner.of(secretClientSupplierConfigs)
+				.map(SecretClientConfig::getConfigName)
+				.list();
+		return new SecretClientSupplierConfigsDto(orderedConfigs, Scanner.of(secretClientSupplierConfigs)
+				.map(config -> {
+					return new SecretClientSupplierConfigDto(
+							config.getConfigName(),
+							config.getSecretClientSupplierClass().getSimpleName(),
+							buildAllowedOps(config.getAllowedOps()),
+							config.getAllowedNames().isPresent() ? Scanner.of(config.getAllowedNames().get()).toMap()
+									: Map.of());
+				}).toMap(dto -> dto.configName));
 	}
 
 	@Handler
@@ -76,6 +103,26 @@ public class SecretHandler extends BaseHandler{
 			}
 		}
 		return result;
+	}
+
+	private Map<SecretOpDto,SecretOpDto> buildAllowedOps(Set<SecretOpType> serviceOps){
+		Set<SecretOpDto> allowedOps = new HashSet<>();
+		if(serviceOps.contains(SecretOpType.CREATE) || serviceOps.contains(SecretOpType.PUT)){
+			allowedOps.add(SecretOpDto.CREATE);
+		}
+		if(serviceOps.contains(SecretOpType.READ)){
+			allowedOps.add(SecretOpDto.READ);
+		}
+		if(serviceOps.contains(SecretOpType.UPDATE) || serviceOps.contains(SecretOpType.PUT)){
+			allowedOps.add(SecretOpDto.UPDATE);
+		}
+		if(serviceOps.contains(SecretOpType.DELETE)){
+			allowedOps.add(SecretOpDto.DELETE);
+		}
+		if(serviceOps.contains(SecretOpType.LIST)){
+			allowedOps.add(SecretOpDto.LIST_ALL);
+		}
+		return Scanner.of(allowedOps).toMap();
 	}
 
 	private SecretHandlerOpResultDto validateRequest(SecretHandlerOpRequestDto requestDto){
@@ -96,7 +143,6 @@ public class SecretHandler extends BaseHandler{
 			}
 			break;
 		case READ:
-		case READ_SHARED:
 		case DELETE:
 			if(StringTool.isNullOrEmptyOrWhitespace(requestDto.name)){
 				return SecretHandlerOpResultDto.error("Name is required for this op.");
@@ -117,36 +163,37 @@ public class SecretHandler extends BaseHandler{
 		try{
 			SecretOpReason opReason = WebSecretOpReason.manualOp(getSessionInfo().getRequiredSession(),
 					"SecretHandler");
+			Optional<String> configName = StringTool.isEmptyOrWhitespace(requestDto.configName) ? Optional.empty()
+					: Optional.ofNullable(requestDto.configName);
 			switch(requestDto.op){
 			case CREATE:
 				try{
-					secretService.create(requestDto.name, requestDto.value, Class.forName(requestDto.secretClass),
-							opReason);
+					secretService.create(configName, requestDto.name, requestDto.value, Class.forName(requestDto
+							.secretClass), opReason);
 				}catch(ClassNotFoundException e){
 					return SecretHandlerOpResultDto.error("Provided class cannot be found.");
 				}
 				return SecretHandlerOpResultDto.success();
 			case UPDATE:
-				secretService.updateRaw(requestDto.name, requestDto.value, opReason);
+				secretService.updateRaw(configName, requestDto.name, requestDto.value, opReason);
 				return SecretHandlerOpResultDto.success();
 			case READ:
-				return SecretHandlerOpResultDto.read(secretService.readRaw(requestDto.name, opReason));
-			case READ_SHARED:
-				return SecretHandlerOpResultDto.read(secretService.readRawShared(requestDto.name, opReason));
+				return SecretHandlerOpResultDto.read(secretService.readRaw(configName, requestDto.name,
+						opReason));
 			case DELETE:
-				secretService.delete(requestDto.name, opReason);
+				secretService.delete(configName, requestDto.name, opReason);
 				return SecretHandlerOpResultDto.success();
 			case LIST_ALL:
-				List<String> appNames = secretService.listSecretNames(Optional.ofNullable(requestDto.name), opReason);
+				List<String> appNames = secretService.listSecretNames(configName, opReason);
 				appNames.sort(String.CASE_INSENSITIVE_ORDER);
-				List<String> sharedNames = secretService.listSecretNamesShared(opReason);
+				List<String> sharedNames = secretService.listSecretNamesShared(configName, opReason);
 				sharedNames.sort(String.CASE_INSENSITIVE_ORDER);
 				return SecretHandlerOpResultDto.list(appNames, sharedNames);
 			default:
 				return SecretHandlerOpResultDto.error("Unknown op.");
 			}
 		}catch(RuntimeException e){
-			logger.warn("Failed SecretsHandler operation: ", e);
+			logger.warn("Failed SecretHandler operation: ", e);
 			return SecretHandlerOpResultDto.error(e.getMessage());
 		}
 	}

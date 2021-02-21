@@ -23,6 +23,7 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -39,6 +40,7 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.util.DateTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceFiles;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
@@ -68,9 +70,11 @@ public class WebappInstanceHandler extends BaseHandler{
 	private WebappInstanceBuildIdLink buildIdLink;
 	@Inject
 	private WebappInstanceCommitIdLink commitIdLink;
+	@Inject
+	private CurrentUserSessionInfoService currentSessionInfoService;
 
 	@Handler(defaultHandler = true)
-	protected Mav view(){
+	public Mav view(){
 		Mav mav = new Mav(files.jsp.admin.datarouter.webappInstances.webappInstanceJsp);
 		List<WebappInstance> webappInstances = dao.scan()
 				.sorted(Comparator.comparing(webappInstance -> webappInstance.getKey().getServerName()))
@@ -82,6 +86,8 @@ public class WebappInstanceHandler extends BaseHandler{
 				.collect(Collectors.groupingBy(instance -> instance.getKey().getWebappName(),
 						Collectors.collectingAndThen(Collectors.toList(),
 								instances -> getMostCommonValue(instances, WebappInstance::getCommitId))));
+
+		ZoneId zoneId = currentSessionInfoService.getZoneId(request);
 
 		var webappStats = new UsageStatsJspDto(
 				webappInstances,
@@ -99,7 +105,7 @@ public class WebappInstanceHandler extends BaseHandler{
 				WebappInstance::getServerPublicIp);
 		var buildDateStats = new UsageStatsJspDto(
 				webappInstances,
-				WebappInstance::getBuildDate);
+				webappInstance -> DateTool.formatDateWithZone(webappInstance.getBuildDate(), zoneId));
 		var javaVersionStats = new UsageStatsJspDto(
 				webappInstances,
 				WebappInstance::getJavaVersion);

@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.web;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +49,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 
 public class DatarouterAccountManagerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountManagerHandler.class);
@@ -61,7 +63,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
 	private final ChangelogRecorder changelogRecorder;
 	private final MetricLinkBuilder metricLinkBuilder;
-
+	private final CurrentUserSessionInfoService currentSessionInfoService;
 	private final String path;
 
 	@Inject
@@ -75,7 +77,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			Bootstrap4ReactPageFactory reactPageFactory,
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
 			ChangelogRecorder changelogRecorder,
-			MetricLinkBuilder metricLinkBuilder){
+			MetricLinkBuilder metricLinkBuilder,
+			CurrentUserSessionInfoService currentSessionInfoService){
 		this(datarouterAccountDao,
 				datarouterAccountPermissionDao,
 				datarouterProperties,
@@ -85,6 +88,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				defaultDatarouterAccountKeys,
 				changelogRecorder,
 				metricLinkBuilder,
+				currentSessionInfoService,
 				paths.admin.accounts.toSlashedString());
 	}
 
@@ -98,6 +102,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
 			ChangelogRecorder changelogRecorder,
 			MetricLinkBuilder metricLinkBuilder,
+			CurrentUserSessionInfoService currentSessionInfoService,
 			String path){
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
@@ -108,6 +113,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this.defaultDatarouterAccountKeys = defaultDatarouterAccountKeys;
 		this.changelogRecorder = changelogRecorder;
 		this.metricLinkBuilder = metricLinkBuilder;
+		this.currentSessionInfoService = currentSessionInfoService;
 
 		this.path = path;
 	}
@@ -232,10 +238,14 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		String counterName = DatarouterCounters.PREFIX + " " + DatarouterAccountCounters.ACCOUNT + " "
 				+ DatarouterAccountCounters.NAME + " " + account.getKey().getAccountName();
 		String metricLink = metricLinkBuilder.exactMetricLink(counterName);
+		ZoneId zoneId = currentSessionInfoService.getZoneId(request);
 		return datarouterAccountPermissionDao
 				.scanKeysWithPrefix(new DatarouterAccountPermissionKey(account.getKey().getAccountName()))
 				.map(TextPermission::create)
-				.listTo(permissions -> new DatarouterAccountDetails(account, permissions, metricLink));
+				.listTo(permissions -> {
+					String lastUsedDate = account.getLastUsedDate(zoneId);
+					return new DatarouterAccountDetails(account, permissions, metricLink, lastUsedDate);
+				});
 	}
 
 	public DatarouterAccountDetails getDetailsForAccountName(String accountName){
@@ -265,11 +275,14 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		public final DatarouterAccount account;
 		public final List<TextPermission> permissions;
 		public final String metricLink;
+		public final String lastUsedDate;
 
-		public DatarouterAccountDetails(DatarouterAccount account, List<TextPermission> permissions, String metricLink){
+		public DatarouterAccountDetails(DatarouterAccount account, List<TextPermission> permissions, String metricLink,
+				String lastUsedDate){
 			this.account = account;
 			this.permissions = permissions;
 			this.metricLink = metricLink;
+			this.lastUsedDate = lastUsedDate;
 		}
 
 	}

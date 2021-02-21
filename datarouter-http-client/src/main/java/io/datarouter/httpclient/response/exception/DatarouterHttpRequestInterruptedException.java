@@ -21,10 +21,10 @@ public class DatarouterHttpRequestInterruptedException extends DatarouterHttpExc
 	public DatarouterHttpRequestInterruptedException(
 			Exception ex,
 			long requestStartTimeMs,
-			String requestId,
+			String traceparent,
 			String target){
-		super("HTTP request interrupted after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms requestId="
-				+ requestId + " target=" + target, ex);
+		super("HTTP request interrupted after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms traceparent="
+				+ traceparent + " target=" + target, ex);
 	}
 
 }

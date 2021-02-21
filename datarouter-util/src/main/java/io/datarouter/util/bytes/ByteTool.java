@@ -16,6 +16,7 @@
 package io.datarouter.util.bytes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.util.array.ArrayTool;
@@ -32,57 +33,20 @@ public class ByteTool{
 		return outs;
 	}
 
-	public static byte toUnsignedByte(int intValue){
-		// Assert.assertTrue(i >=0 && i <=255);
-		// if(i < 128){ return (byte)i; }
-		int ib = intValue - 128;
-		return (byte)ib;// subtract 256
-	}
-
-	// not really sure what this method means anymore
-	public static byte fromUnsignedInt0To255(int unsignedIntValue){
-		if(unsignedIntValue > 127){
-			return (byte)(unsignedIntValue - 0x100);// subtract 256
-		}
-		return (byte)unsignedIntValue;
-	}
-
 	public static int bitwiseCompare(byte[] bytesA, byte[] bytesB){
-		int lengthA = ArrayTool.length(bytesA);
-		int lengthB = ArrayTool.length(bytesB);
-		for(int i = 0, j = 0; i < lengthA && j < lengthB; ++i, ++j){
-			// need to trick the built in byte comparator which treats 10000000 < 00000000 because it's negative
-			int byteA = bytesA[i] & 0xff; // boost the "negative" numbers up to 128-255
-			int byteB = bytesB[j] & 0xff;
-			if(byteA != byteB){
-				return byteA - byteB;
-			}
-		}
-		return lengthA - lengthB;
+		return Arrays.compareUnsigned(bytesA, bytesB);
 	}
 
 	public static int bitwiseCompare(byte[] bytesA, int offsetA, int lengthA, byte[] bytesB, int offsetB, int lengthB){
-		for(int i = offsetA, j = offsetB; i < offsetA + lengthA && j < offsetB + lengthB; ++i, ++j){
-			// need to trick the built in byte comparator which treats 10000000 < 00000000 because it's negative
-			int byteA = bytesA[i] & 0xff; // boost the "negative" numbers up to 128-255
-			int byteB = bytesB[j] & 0xff;
-			if(byteA != byteB){
-				return byteA - byteB;
-			}
-		}
-		return lengthA - lengthB;
+		int toA = offsetA + lengthA;
+		int toB = offsetB + lengthB;
+		return Arrays.compareUnsigned(bytesA, offsetA, toA, bytesB, offsetB, toB);
 	}
 
 	public static boolean equals(byte[] bytesA, int offsetA, int lengthA, byte[] bytesB, int offsetB, int lengthB){
-		if(lengthA != lengthB){
-			return false;
-		}
-		for(int i = offsetA + lengthA - 1, j = offsetB + lengthB - 1; i >= 0 && j >= 0; --i, --j){
-			if(bytesA[i] != bytesB[j]){
-				return false;
-			}
-		}
-		return true;
+		int toA = offsetA + lengthA;
+		int toB = offsetB + lengthB;
+		return Arrays.equals(bytesA, offsetA, toA, bytesB, offsetB, toB);
 	}
 
 	public static byte[] getComparableBytes(byte value){
@@ -155,10 +119,10 @@ public class ByteTool{
 	}
 
 	public static byte[] unsignedIncrement(byte[] in){
-		byte[] copy = ArrayTool.clone(in);
-		if(copy == null){
-			throw new IllegalArgumentException("cannot increment null array");
+		if(in.length == 0){
+			throw new IllegalArgumentException("cannot increment empty array");
 		}
+		byte[] copy = Arrays.copyOf(in, in.length);
 		for(int i = copy.length - 1; i >= 0; --i){
 			if(copy[i] == -1){// -1 is all 1-bits, which is the unsigned maximum
 				copy[i] = 0;
@@ -175,7 +139,7 @@ public class ByteTool{
 	}
 
 	public static byte[] unsignedIncrementOverflowToNull(byte[] in){
-		byte[] out = ArrayTool.clone(in);
+		byte[] out = Arrays.copyOf(in, in.length);
 		for(int i = out.length - 1; i >= 0; --i){
 			if(out[i] == -1){// -1 is all 1-bits, which is the unsigned maximum
 				out[i] = 0;

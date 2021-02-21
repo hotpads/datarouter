@@ -29,15 +29,14 @@ public class DatarouterSecretRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterSecretRouteSet(DatarouterSecretPaths paths){
 		super(paths.datarouter);
-		handleDir(paths.datarouter.secrets)
-				.withHandler(SecretHandler.class)
-				.allowRoles(DatarouterUserRole.USER);
+		handle(paths.datarouter.secrets).withHandler(SecretHandler.class);
+		handle(paths.datarouter.secrets.handle).withHandler(SecretHandler.class);
+		handle(paths.datarouter.secrets.getSecretClientSupplierConfig).withHandler(SecretHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
-		return rule
-				.withIsSystemDispatchRule(true);
+		return rule.allowRoles(DatarouterUserRole.USER).withIsSystemDispatchRule(true);
 	}
 
 }

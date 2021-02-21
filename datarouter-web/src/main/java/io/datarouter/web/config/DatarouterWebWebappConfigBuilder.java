@@ -70,6 +70,7 @@ import io.datarouter.web.homepage.SimpleHomepageHandler;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterGuiceAppListenerServletContextListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
+import io.datarouter.web.metriclinks.MetricLinkPage;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.DynamicNavBarItem;
 import io.datarouter.web.navigation.NavBarCategory;
@@ -115,6 +116,7 @@ implements WebappBuilder{
 	private final List<Class<? extends TestableService>> testableServiceClasses;
 	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
 	private final List<Class<? extends DailyDigest>> dailyDigest;
+	private final List<Class<? extends MetricLinkPage>> metricLinkPages;
 
 	private Class<? extends RoleManager> roleManager;
 	private Class<? extends CurrentSessionInfo> currentSessionInfo;
@@ -204,6 +206,7 @@ implements WebappBuilder{
 		this.homepageHandler = SimpleHomepageHandler.class;
 		this.documentationNamesAndLinks = new HashMap<>();
 		this.dailyDigest = new ArrayList<>();
+		this.metricLinkPages = new ArrayList<>();
 		this.useDatarouterAuth = true;
 
 		// datarouter-web servlet
@@ -274,6 +277,7 @@ implements WebappBuilder{
 				.setDynamicNavBarItems(dynamicNavBarItems)
 				.setDailyDigest(dailyDigest)
 				.setRequestProxy(requestProxy)
+				.setMetricLinkPages(metricLinkPages)
 				.build();
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
@@ -378,6 +382,8 @@ implements WebappBuilder{
 		documentationNamesAndLinks.putAll(plugin.getDocumentationNamesAndLinks());
 
 		dailyDigest.addAll(plugin.getDailyDigestRegistry());
+
+		metricLinkPages.addAll(plugin.getMetricLinkPages());
 
 		return getSelf();
 	}

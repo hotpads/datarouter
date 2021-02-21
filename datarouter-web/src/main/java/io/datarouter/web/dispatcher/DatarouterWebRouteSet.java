@@ -28,6 +28,7 @@ import io.datarouter.web.browse.ViewTableConfigurationHandler;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.digest.DailyDigestHandler;
 import io.datarouter.web.email.EmailTestHandler;
+import io.datarouter.web.endpoint.EndpointInspectorHandler;
 import io.datarouter.web.handler.IpDetectionHandler;
 import io.datarouter.web.handler.TestApiHandler;
 import io.datarouter.web.http.HttpTestHandler;
@@ -50,10 +51,16 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.join("/", "/", "/") + "?")
 				.withHandler(DatarouterHomepageHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
-		handleDir(paths.datarouter.memory)
+		handle(paths.datarouter.memory.garbageCollector)
 				.withHandler(MemoryMonitoringHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
-		handleDir(paths.datarouter.executors)
+		handle(paths.datarouter.memory.view)
+				.withHandler(MemoryMonitoringHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+		handle(paths.datarouter.executors)
+				.withHandler(ExecutorsMonitoringHandler.class)
+				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+		handle(paths.datarouter.executors.getExecutors)
 				.withHandler(ExecutorsMonitoringHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
 		handle(paths.datarouter.emailTest)
@@ -65,17 +72,23 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.http.tester)
 				.withHandler(HttpTestHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_TOOLS);
-		handleDir(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);
+		handle(paths.datarouter.nodes.browseData).withHandler(ViewNodeDataHandler.class);
+		handle(paths.datarouter.nodes.browseData.browseData).withHandler(ViewNodeDataHandler.class);
+		handle(paths.datarouter.nodes.browseData.countKeys).withHandler(ViewNodeDataHandler.class);
 		handle(paths.datarouter.nodes.deleteData).withHandler(DeleteNodeDataHandler.class);
 		handle(paths.datarouter.nodes.getData).withHandler(GetNodeDataHandler.class);
 		handle(paths.datarouter.nodes.search).withHandler(NodeSearchHandler.class);
 		handle(paths.datarouter.tableConfiguration).withHandler(ViewTableConfigurationHandler.class);
-		handleDir(paths.datarouter.client).withHandler(DatarouterClientHandler.class);
+
+		handle(paths.datarouter.client.initAllClients).withHandler(DatarouterClientHandler.class);
+		handle(paths.datarouter.client.initClient).withHandler(DatarouterClientHandler.class);
+		handle(paths.datarouter.client.inspectClient).withHandler(DatarouterClientHandler.class);
+
 		handle(paths.datarouter.ipDetection).withHandler(IpDetectionHandler.class).allowAnonymous();
 		handle(paths.datarouter.deployment).withHandler(DeploymentReportingHandler.class).allowAnonymous();
 		handle(paths.datarouter.shutdown).withHandler(ShutdownHandler.class).allowAnonymous();
 
-
+		handle(paths.datarouter.info.endpoints).withHandler(EndpointInspectorHandler.class);
 		handle(paths.datarouter.info.filterParams).withHandler(DatarouterServletFilterParamsViewHandler.class);
 		handle(paths.datarouter.info.listeners).withHandler(DatarouterListenersViewHandler.class);
 		handle(paths.datarouter.info.routeSets).withHandler(DatarouterRouteSetViewHandler.class);
@@ -83,8 +96,24 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.info.properties).withHandler(DatarouterPropertiesViewHandler.class);
 		handle(paths.datarouter.dailyDigest).withHandler(DailyDigestHandler.class);
 
-		//example: /testApi or /testApidfadfa  or /testApi/ or /testApi/adfafa
-		handleDir(paths.datarouter.testApi).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.before).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.year).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.now).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.length).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.size).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.count).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.first).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.hi).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.hello).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.banana).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.bananas).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.describe).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.sumInBase).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.printPrimitiveIntArray).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.printIntegerObjectArray).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.printPrimitiveIntArrayNoParamName).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.printComplicatedArrayParams).withHandler(TestApiHandler.class);
+		handle(paths.datarouter.testApi.timeContains).withHandler(TestApiHandler.class);
 	}
 
 	@Override

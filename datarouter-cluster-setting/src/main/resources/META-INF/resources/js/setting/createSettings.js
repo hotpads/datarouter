@@ -108,7 +108,7 @@ define('settings-tools', ['jquery-ui'], function(){
 			var row = $(context).closest("tr");
 			var rowData = getRowData(row);
 			if(promptForComment(rowData, "Are you sure?\nAdd optional comment before pressing \"OK\".")){
-				POST("settings?submitAction=update", rowData, function(){
+				POST("?submitAction=update", rowData, function(){
 					row.highlight()
 				})
 			}
@@ -116,14 +116,14 @@ define('settings-tools', ['jquery-ui'], function(){
 		editSettingGroup: function(context) {
 			var row = $(context).closest("tr");
 			var rowData = getGroupRowData(row);
-			POST( "settings?submitAction=updateGroup", rowData, function(){
+			POST( "?submitAction=updateGroup", rowData, function(){
 				row.highlight()
 			});
 		},
 		createSetting: function(fn, form) {
 			var form = form || $('#form');
 			var formData = getFormData(form);
-			POST("settings?submitAction=create", formData, function() {
+			POST("?submitAction=create", formData, function() {
 				if (!update(formData)) {
 					fn(formData);
 				}
@@ -133,7 +133,7 @@ define('settings-tools', ['jquery-ui'], function(){
 			var data = {
 					values: $("#tagValues").val()
 			};
-			POST("settings?submitAction=updateSettingTags", data, function() {
+			POST("?submitAction=updateSettingTags", data, function() {
 				$("#tagValuesRow").highlight();
 			});
 		},
@@ -141,7 +141,7 @@ define('settings-tools', ['jquery-ui'], function(){
 			var row = $(context).closest("tr");
 			var rowData = getRowData(row);
 			if(promptForComment(rowData, "Are you sure?\nAdd optional comment before pressing \"OK\".")){
-				POST("settings?submitAction=delete", rowData, function() {
+				POST("?submitAction=delete", rowData, function() {
 					fn(row, rowData["name"]);
 				});
 			}

@@ -26,6 +26,7 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
+import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.dto.JobletSummary;
@@ -58,6 +59,8 @@ public class JobletHandler extends BaseHandler{
 	private JobletLocalLinkBuilder localLinkBuilder;
 	@Inject
 	private JobletExternalLinkBuilder externalLinkBuilder;
+	@Inject
+	private MetricLinkBuilder metricLinkBuilder;
 
 	@Handler
 	private Mav list(@Param(PARAM_whereStatus) OptionalString pStatus){
@@ -112,6 +115,11 @@ public class JobletHandler extends BaseHandler{
 				.withHtmlColumn("First created", row -> {
 					return tdAlignRight(row.getFirstCreatedAgo())
 							.attr("sorttable_customkey", row.getFirstCreatedMsAgo());
+				})
+				.withHtmlColumn("", row -> {
+					var chartIcon = i().withClass("fas fa-chart-line");
+					var href = metricLinkBuilder.availableMetricsLink("Joblet .* " + row.getType() + "$");
+					return td(a(chartIcon).withHref(href));
 				})
 				.withHtmlColumn("X", row -> {
 					var trashIcon = i().withClass("fas fa-trash");

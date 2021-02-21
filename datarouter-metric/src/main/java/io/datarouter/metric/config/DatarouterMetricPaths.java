@@ -45,6 +45,8 @@ public class DatarouterMetricPaths extends PathNode implements PathsRoot{
 		public final PathNode registeredNames = leaf("registeredNames");
 		public final PathNode metricDashboards = leaf("metricDashboards");
 		public final PathNode miscMetricLinks = leaf("miscMetricLinks");
+
+		public final PathNode metricLinksV2 = leaf("metricLinksV2");
 	}
 
 }

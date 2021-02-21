@@ -79,7 +79,7 @@ public class JobRetriggeringJob extends BaseJob{
 				.each(shouldRun::increment)
 				.exclude(this::isLocked)
 				.each(notLocked::increment)
-				.forEach(this::retriggerIfNecessary);
+				.forEach(jobPackage -> retriggerIfNecessary(jobPackage, tracker));
 		logger.warn(counts.toString());
 	}
 
@@ -95,7 +95,7 @@ public class JobRetriggeringJob extends BaseJob{
 		return clusterJobLockDao.exists(key);
 	}
 
-	private void retriggerIfNecessary(JobPackage jobPackage){
+	private void retriggerIfNecessary(JobPackage jobPackage, TaskTracker tracker){
 		Optional<Date> lastCompletionTime = longRunningTaskService.findLastSuccessDate(jobPackage.jobClass
 				.getSimpleName());
 		if(lastCompletionTime.isEmpty()){
@@ -120,6 +120,7 @@ public class JobRetriggeringJob extends BaseJob{
 		}
 		jobScheduler.scheduleRetriggeredJob(jobPackage, triggerTime);
 		retriggered.increment();
+		tracker.increment();
 	}
 
 }

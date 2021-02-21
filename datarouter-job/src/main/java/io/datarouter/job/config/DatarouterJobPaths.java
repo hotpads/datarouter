@@ -31,6 +31,9 @@ public class DatarouterJobPaths extends PathNode implements PathsRoot{
 
 	public static class TriggerPaths extends PathNode{
 		public final PathNode list = leaf("list");
+		public final PathNode run = leaf("run");
+		public final PathNode interrupt = leaf("interrupt");
+		public final PathNode defaultMethod = leaf("defaultMethod");
 	}
 
 }

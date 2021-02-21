@@ -90,8 +90,11 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 	public abstract static class DatarouterSecretPluginBuilder<T extends DatarouterSecretPluginBuilder<T>>{
 
+		public static final SecretClientConfig LOCAL_STORAGE_ALL_OPS = SecretClientConfig.allOps(
+				"LOCAL_STORAGE_ALL_OPS", LocalStorageSecretClientSupplier.class);
+
 		private SecretClientConfigHolder secretClientConfigHolder = new SecretClientConfigHolder(List.of(
-				SecretClientConfig.allOps(LocalStorageSecretClientSupplier.class)));
+				LOCAL_STORAGE_ALL_OPS));
 		private Class<? extends SecretNamespacer> secretNamespacer = DevelopmentNamespacer.class;
 		private Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier = NoOpSecretOpRecorderSupplier.class;
 		private Class<? extends SecretJsonSerializer> jsonSerializer = GsonToolJsonSerializer.class;

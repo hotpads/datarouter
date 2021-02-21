@@ -19,10 +19,8 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
@@ -90,19 +88,14 @@ public class TableCountHandler extends BaseHandler{
 	private Mav latestTableCounts(){
 		Mav mav = new Mav(files.jsp.datarouter.nodewatch.latestTableCountsJsp);
 		Map<String,List<TableCountJspDto>> latestTableCountDtoMap = new TreeMap<>();
-		Set<String> clientNameList = latestTableCountDao.scanKeys()
+		latestTableCountDao.scanKeys()
 				.map(LatestTableCountKey::getClientName)
-				.collect(HashSet::new);
-
-		clientNameList.forEach(clientName -> {
-			List<LatestTableCount> latestCountsByClientList = latestTableCountDao
-					.scanWithPrefix(new LatestTableCountKey(clientName, null))
-					.sorted(Comparator.comparing(LatestTableCount::getNumRows).reversed())
-					.list();
-			latestTableCountDtoMap.put(clientName, Scanner.of(latestCountsByClientList)
-					.map(count -> new TableCountJspDto(count, datarouterService.getZoneId()))
-					.list());
-		});
+				.forEach(clientName -> {
+					latestTableCountDao.scanWithPrefix(new LatestTableCountKey(clientName, null))
+							.sorted(Comparator.comparing(LatestTableCount::getNumRows).reversed())
+							.map(count -> new TableCountJspDto(count, datarouterService.getZoneId()))
+							.flush(list -> latestTableCountDtoMap.put(clientName, list));
+				});
 		mav.put("latestTableCountDtoMap", latestTableCountDtoMap);
 		return mav;
 	}

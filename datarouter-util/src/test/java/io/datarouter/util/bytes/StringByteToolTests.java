@@ -30,10 +30,9 @@ public class StringByteToolTests{
 	private byte[] letterAUtf16 = StringByteTool.getByteArray(letterA, StandardCharsets.UTF_16BE);
 	private byte[] letterAUtf8 = StringByteTool.getByteArray(letterA, StandardCharsets.UTF_8);
 
-	private String euroFromUsAscii = new String(new byte[]{ByteTool.fromUnsignedInt0To255(128), ByteTool
-			.fromUnsignedInt0To255(128)}, StandardCharsets.US_ASCII);
+	private String euroFromUsAscii = new String(new byte[]{(byte)128, (byte)128}, StandardCharsets.US_ASCII);
 
-	private String euroFromLatin1 = new String(new byte[]{ByteTool.fromUnsignedInt0To255(128)},
+	private String euroFromLatin1 = new String(new byte[]{(byte)128},
 			StandardCharsets.ISO_8859_1);
 
 	private Character unknownCharacter = euroFromUsAscii.charAt(0);
@@ -62,18 +61,18 @@ public class StringByteToolTests{
 		Assert.assertTrue(unknownCharacterInt.equals(65533));
 
 		for(int i = 0; i < 256; ++i){
-			String ascii = new String(new byte[]{ByteTool.fromUnsignedInt0To255(i)}, StandardCharsets.US_ASCII);
+			String ascii = new String(new byte[]{(byte)i}, StandardCharsets.US_ASCII);
 
-			String latin1 = new String(new byte[]{ByteTool.fromUnsignedInt0To255(i)},
+			String latin1 = new String(new byte[]{(byte)i},
 					StandardCharsets.ISO_8859_1);
 
-			String windows1252 = new String(new byte[]{ByteTool.fromUnsignedInt0To255(i)}, Charset.forName(
+			String windows1252 = new String(new byte[]{(byte)i}, Charset.forName(
 					"windows-1252"));
 
-			String utf16be = new String(new byte[]{(byte)0, ByteTool.fromUnsignedInt0To255(i)},
+			String utf16be = new String(new byte[]{(byte)0, (byte)i},
 					StandardCharsets.UTF_16BE);
 
-			String utf8 = new String(new byte[]{ByteTool.fromUnsignedInt0To255(i)}, StandardCharsets.UTF_8);
+			String utf8 = new String(new byte[]{(byte)i}, StandardCharsets.UTF_8);
 
 			if(i < 0x80){
 				Assert.assertEquals(latin1, ascii);

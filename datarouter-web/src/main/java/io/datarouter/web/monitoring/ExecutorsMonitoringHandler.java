@@ -15,16 +15,14 @@
  */
 package io.datarouter.web.monitoring;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import io.datarouter.inject.InstanceRegistry;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterWebFiles;
@@ -47,13 +45,10 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 
 	@Handler
 	public Collection<TextExecutor> getExecutors(){
-		List<ThreadPoolExecutor> allThreadPoolExecutors = new ArrayList<>();
-		instanceRegistry.getAllInstancesOfType(ThreadPoolExecutor.class)
-				.forEach(allThreadPoolExecutors::add);
-		return allThreadPoolExecutors.stream()
+		return Scanner.of(instanceRegistry.getAllInstancesOfType(ThreadPoolExecutor.class))
 				.map(TextExecutor::new)
 				.sorted(Comparator.comparing(executor -> StringTool.nullSafe(executor.name)))
-				.collect(Collectors.toList());
+				.list();
 	}
 
 	public static class TextExecutor{

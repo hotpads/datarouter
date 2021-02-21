@@ -66,6 +66,11 @@ import io.datarouter.web.listener.NoJavaSessionWebAppListener;
 import io.datarouter.web.listener.TomcatWebAppNamesWebAppListener;
 import io.datarouter.web.listener.WebAppListenersClasses;
 import io.datarouter.web.listener.WebAppListenersClasses.DatarouterWebAppListenersClasses;
+import io.datarouter.web.metriclinks.AppHandlerMetricLinkPage;
+import io.datarouter.web.metriclinks.DatarouterHandlerMetricLinkPage;
+import io.datarouter.web.metriclinks.MetricLinkPage;
+import io.datarouter.web.metriclinks.MetricLinkPageRegistry;
+import io.datarouter.web.metriclinks.MetricLinkPageRegistry.DefaultMetricLinkPageRegistry;
 import io.datarouter.web.navigation.AppNavBarPluginCreator;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppPluginNavBarSupplier;
@@ -139,6 +144,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems;
 	private final List<Class<? extends DailyDigest>> dailyDigest;
 	private final Class<? extends RequestProxySetter> requestProxy;
+	private final List<Class<? extends MetricLinkPage>> metricLinkPages;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -147,7 +153,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
 				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null, null,
-				null, null, null);
+				null, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -179,7 +185,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<Class<? extends TestableService>> testableServiceClasses,
 			List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems,
 			List<Class<? extends DailyDigest>> dailyDigest,
-			Class<? extends RequestProxySetter> requestProxy){
+			Class<? extends RequestProxySetter> requestProxy,
+			List<Class<? extends MetricLinkPage>> metricLinkPages){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 		addRouteSet(DatarouterWebDocsRouteSet.class);
@@ -209,7 +216,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, HttpsFilter.class));
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.executors, "Executors");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.memory, "Server Status");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.memory.view, "Server Status");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.dailyDigest, "Daily Digest");
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.tableConfiguration,
@@ -220,6 +227,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.properties,
 				"Datarouter Properties");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.plugins, "Plugins");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.info.endpoints, "Endpoints");
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.emailTest, "Email Test");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.http.tester, "HTTP Tester");
@@ -233,6 +241,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addTestable(SettingBootstrapIntegrationService.class);
 
 		addDatarouterGithubDocLink("datarouter-web");
+
+		addMetricLinkPages(DatarouterHandlerMetricLinkPage.class);
+		addMetricLinkPages(AppHandlerMetricLinkPage.class);
 
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;
@@ -261,6 +272,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.dynamicNavBarItems = dynamicNavBarItems;
 		this.dailyDigest = dailyDigest;
 		this.requestProxy = requestProxy;
+		this.metricLinkPages = metricLinkPages;
 	}
 
 	@Override
@@ -307,6 +319,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 				new DefaultTestableServiceClassRegistry(testableServiceClasses));
 		bindActualInstance(DailyDigestRegistry.class, new DailyDigestRegistry(dailyDigest));
 		bind(RequestProxySetter.class).to(requestProxy);
+		bindActualInstance(MetricLinkPageRegistry.class, new DefaultMetricLinkPageRegistry(metricLinkPages));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -382,6 +395,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
 		private List<Class<? extends DailyDigest>> dailyDigest = new ArrayList<>();
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
+		private final List<Class<? extends MetricLinkPage>> metricLinkPages = new ArrayList<>();
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, List<ClientId> defaultClientId){
 			this.datarouterService = datarouterService;
@@ -542,6 +556,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setMetricLinkPages(List<Class<? extends MetricLinkPage>> metricLinkPages){
+			this.metricLinkPages.addAll(metricLinkPages);
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
 					new DatarouterWebDaoModule(defaultClientId),
@@ -580,7 +599,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					testableServiceClasses,
 					dynamicNavBarItems,
 					dailyDigest,
-					requestProxy);
+					requestProxy,
+					metricLinkPages);
 		}
 
 	}

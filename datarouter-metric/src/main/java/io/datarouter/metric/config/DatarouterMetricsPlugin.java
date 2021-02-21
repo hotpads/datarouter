@@ -44,8 +44,12 @@ import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.web.config.BaseWebPlugin;
 import io.datarouter.web.listener.ExecutorsAppListener;
+import io.datarouter.web.navigation.DatarouterNavBarCategory;
+import io.datarouter.web.navigation.NavBarItem;
 
 public class DatarouterMetricsPlugin extends BaseWebPlugin{
+
+	private static final DatarouterMetricPaths PATHS = new DatarouterMetricPaths();
 
 	private final Class<? extends CountPublisher> countPublisher;
 	private final Class<? extends GaugePublisher> gaugePublisher;
@@ -87,6 +91,8 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		addRouteSet(DatarouterMetricRouteSet.class);
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-metric");
+		addDatarouterNavBarItem(new NavBarItem(DatarouterNavBarCategory.EXTERNAL,
+				PATHS.datarouter.metric.metricNames.metricLinksV2, "Metric Links V2"));
 	}
 
 	@Override

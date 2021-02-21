@@ -17,15 +17,12 @@ package io.datarouter.secret.client;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
-import io.datarouter.secret.exception.SecretClientException;
-import io.datarouter.secret.exception.SecretValidationException;
 import io.datarouter.secret.service.CachedSecretFactory;
 import io.datarouter.secret.service.CachedSecretFactory.CachedSecret;
 import io.datarouter.secret.service.SecretService;
 
-//TODO maybe split into read only and read/write versions?
-//TODO would an interface even make sense for the latter? consider java access control for one specific class instead.
 /**
  * This is an interface that enables simple CRUD methods for {@link Secret} storage without any namespacing logic.
  *
@@ -35,99 +32,60 @@ import io.datarouter.secret.service.SecretService;
  */
 public interface SecretClient{
 
-	public static enum SecretClientOpStatus{
-		SUCCESS,
-		VALIDATION_ERROR,
-		OP_ERROR
-	}
-
-	public static class SecretClientOpResult<T>{
-
-		public final SecretClientOpStatus status;
-		public final Optional<T> result;
-		public final Optional<SecretClientException> exception;
-
-		private SecretClientOpResult(SecretClientOpStatus status, Optional<T> result,
-				Optional<SecretClientException> exception){
-			this.status = status;
-			this.result = result;
-			this.exception = exception;
-		}
-
-		public static <T> SecretClientOpResult<T> validationError(SecretValidationException validationException){
-			return new SecretClientOpResult<>(
-					SecretClientOpStatus.VALIDATION_ERROR,
-					Optional.empty(),
-					Optional.of(validationException));
-		}
-
-		public static <T> SecretClientOpResult<T> opSuccess(T result){
-			return new SecretClientOpResult<>(
-					SecretClientOpStatus.SUCCESS,
-					Optional.ofNullable(result),
-					Optional.empty());
-		}
-
-		public static <T> SecretClientOpResult<T> opError(SecretClientException opException){
-			return new SecretClientOpResult<>(
-					SecretClientOpStatus.OP_ERROR,
-					Optional.empty(),
-					Optional.of(opException));
-		}
-
-		public Boolean isSuccess(){
-			return this.status == SecretClientOpStatus.SUCCESS;
-		}
-
-	}
-
 	/**
 	 * write the specified {@link Secret} to the secret storage for the first time
 	 */
-	SecretClientOpResult<Void> create(Secret secret);
+	void create(Secret secret);
 
 	/**
 	 * create a {@link Secret} as specified, then write it to the secret storage for the first time
 	 */
-	default SecretClientOpResult<Void> create(String name, String value){
-		return create(new Secret(name, value));
+	default void create(String name, String value){
+		create(new Secret(name, value));
 	}
 
 	/**
 	 * read the {@link Secret} with the given name and return a {@link Secret}
 	 */
-	SecretClientOpResult<Secret> read(String name);
+	Secret read(String name);
 
 	/**
 	 * returns the full {@link Secret} names that start with exclusive prefix
 	 */
-	SecretClientOpResult<List<String>> listNames(Optional<String> exclusivePrefix);
+	List<String> listNames(Optional<String> exclusivePrefix);
 
 	/**
 	 * update the current value of the {@link Secret} in the secret storage
 	 */
-	SecretClientOpResult<Void> update(Secret secret);
+	void update(Secret secret);
 
 	/**
 	 * create a {@link Secret} as specified, then update the current value of it in the secret storage
 	 */
-	default SecretClientOpResult<Void> update(String name, String value){
-		return update(new Secret(name, value));
+	default void update(String name, String value){
+		update(new Secret(name, value));
 	}
 
 	/**
 	 * delete the named {@link Secret} from the secret storage
 	 */
-	SecretClientOpResult<Void> delete(String name);
+	void delete(String name);
 
 	/**
 	 * validate the provided name according to the rules of the secret storage
 	 */
-	Void validateName(String name);
+	default void validateName(String name){
+		Secret.validateName(name);
+	}
 
 	/**
 	 * validate the provided {@link Secret} according to the rules of the secret storage
 	 */
-	Void validateSecret(Secret secret);
+	default void validateSecret(Secret secret){
+		Secret.validateSecret(secret);
+	}
+
+	public interface SecretClientSupplier extends Supplier<SecretClient>{
+	}
 
 }

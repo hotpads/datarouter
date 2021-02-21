@@ -416,6 +416,12 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
+	public Optional<Long> length(String bucket, String key){
+		return headObject(bucket, key)
+				.map(HeadObjectResponse::contentLength);
+	}
+
+	@Override
 	public Optional<Instant> findLastModified(String bucket, String key){
 		return headObject(bucket, key)
 				.map(HeadObjectResponse::lastModified);

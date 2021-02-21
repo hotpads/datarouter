@@ -89,7 +89,7 @@
 					settingsTools.editSetting(this);
 				});
 
-				const settingHref = settingName => "${contextPath}/datarouter/settings/browseSettings?name=" + settingName
+				const settingHref = settingName => "${contextPath}/datarouter/settings?submitAction=browseSettings&name=" + settingName
 
 				$.ui.autocomplete.prototype._renderItem = function(ul, matchResult) {
 					$(ul).addClass('shadow')
@@ -188,7 +188,7 @@
 	<!-- modal end -->
 	<%@ include file="/jsp/menu/common-navbar-b4.jsp" %>
 	<div class="container mt-4 mobile-friendly">
-		<a href="?" class="btn btn-primary"><i class="fas fa-angle-left"></i>&nbsp;All settings</a>
+		<a href="settings/customSettings" class="btn btn-primary"><i class="fas fa-angle-left"></i>&nbsp;All settings</a>
 		<h2 class="mt-5 pb-2 mb-3 d-flex justify-content-between position-relative">
 			Cluster Settings Browser
 			<input id="search-settings-autocomplete" class="d-none d-sm-block form-control w-auto" type="text" placeholder="Search...">

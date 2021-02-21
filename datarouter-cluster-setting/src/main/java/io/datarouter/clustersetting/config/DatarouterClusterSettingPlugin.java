@@ -33,19 +33,19 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 
+	private static final DatarouterClusterSettingPaths PATHS = new DatarouterClusterSettingPaths();
+
 	private DatarouterClusterSettingPlugin(DatarouterClusterSettingDaoModule daosModuleBuilder){
 		addSettingRoot(DatarouterClusterSettingRoot.class);
 		addRouteSet(DatarouterClusterSettingRouteSet.class);
 		addAppListener(SettingNodeValidationAppListener.class);
 		addTriggerGroup(DatarouterClusterSettingTriggerGroup.class);
-		String browseSettings = new DatarouterClusterSettingPaths().datarouter.settings.toSlashedString()
-				+ "?submitAction=browseSettings";
-		String settingLogs = new DatarouterClusterSettingPaths().datarouter.settings.toSlashedString()
-				+ "?submitAction=logsForAll";
+		String browseSettings = PATHS.datarouter.settings.toSlashedString() + "?submitAction=browseSettings";
+		String settingLogs = PATHS.datarouter.settings.toSlashedString() + "?submitAction=logsForAll";
 		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, browseSettings, "Browse Settings");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, settingLogs, "Setting logs");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS,
-				new DatarouterClusterSettingPaths().datarouter.settings, "Custom Settings");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.SETTINGS, PATHS.datarouter.settings.customSettings,
+				"Custom Settings");
 		setDaosModule(daosModuleBuilder);
 		addDatarouterGithubDocLink("datarouter-cluster-setting");
 		addDailyDigest(ClusterSettingDailyDigest.class);

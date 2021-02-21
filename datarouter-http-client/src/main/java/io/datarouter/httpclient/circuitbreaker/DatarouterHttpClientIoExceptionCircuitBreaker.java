@@ -18,7 +18,6 @@ package io.datarouter.httpclient.circuitbreaker;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -75,23 +74,23 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 
 		DatarouterHttpException ex;
 		HttpRequestBase internalHttpRequest = null;
-		String requestId = UUID.randomUUID().toString();
 		long requestStartTimeMs = System.currentTimeMillis();
+		Tracer tracer = TracerThreadLocal.get();
+		TracerTool.startSpan(tracer, "http call " + request.getPath());
+		internalHttpRequest = request.getRequest();
+		W3TraceContext traceContext;
+		if(tracer != null && tracer.getTraceContext().isPresent()){
+			traceContext = tracer.getTraceContext().get();
+			traceContext.updateParentIdAndAddTracestateMember();
+		}else{
+			count("traceContext null");
+			traceContext = new W3TraceContext(requestStartTimeMs);
+		}
+		String traceparent = traceContext.getTraceparent().toString();
 		try{
-			Tracer tracer = TracerThreadLocal.get();
-			TracerTool.startSpan(tracer, "http call " + request.getPath());
-			internalHttpRequest = request.getRequest();
-			W3TraceContext traceContext;
-			if(tracer != null && tracer.getTraceContext().isPresent()){
-				traceContext = tracer.getTraceContext().get();
-				traceContext.updateParentIdAndAddTracestateMember();
-			}else{
-				count("traceContext null");
-				traceContext = new W3TraceContext(requestStartTimeMs);
-			}
 			count("request");
 			logger.debug("W3TraceContext={} passing to request={}", traceContext, request.getPath());
-			internalHttpRequest.addHeader(TRACEPARENT, traceContext.getTraceparent().toString());
+			internalHttpRequest.addHeader(TRACEPARENT, traceparent);
 			internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
 			context.setAttribute(TRACEPARENT, traceContext.getTraceparent().toString());
 			requestStartTimeMs = System.currentTimeMillis();
@@ -123,7 +122,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			var response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
 			if(isBadStatusCode){
 				TracerTool.appendToSpanInfo("bad status code", statusCode);
-				ex = new DatarouterHttpResponseException(response, duration, requestId, request.getPath());
+				ex = new DatarouterHttpResponseException(response, duration, traceparent, request.getPath());
 				callResultQueue.insertFalseResultWithException(ex);
 				// no need to abort the connection, we received a response line, the connection is probably still good
 				response.tryClose();
@@ -140,12 +139,12 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		}catch(IOException e){
 			count("IOException");
 			TracerTool.appendToSpanInfo("exception", e.getMessage());
-			ex = new DatarouterHttpConnectionAbortedException(e, requestStartTimeMs, requestId, request.getPath());
+			ex = new DatarouterHttpConnectionAbortedException(e, requestStartTimeMs, traceparent, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
 		}catch(CancellationException e){
 			count("CancellationException");
 			TracerTool.appendToSpanInfo("exception", e.getMessage());
-			ex = new DatarouterHttpRequestInterruptedException(e, requestStartTimeMs, requestId, request.getPath());
+			ex = new DatarouterHttpRequestInterruptedException(e, requestStartTimeMs, traceparent, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
 		}finally{
 			TracerTool.finishSpan();

@@ -18,6 +18,7 @@ package io.datarouter.metric.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.metric.web.MetricLinksHandlerV2;
 import io.datarouter.metric.web.MetricLinksHandlers.MetricDashboardHandler;
 import io.datarouter.metric.web.MetricLinksHandlers.MetricNamesAppHandler;
 import io.datarouter.metric.web.MetricLinksHandlers.MetricNamesAppJobs;
@@ -48,6 +49,8 @@ public class DatarouterMetricRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.metric.metricNames.registeredNames).withHandler(RegisteredMetricNames.class);
 		handle(paths.datarouter.metric.metricNames.metricDashboards).withHandler(MetricDashboardHandler.class);
 		handle(paths.datarouter.metric.metricNames.miscMetricLinks).withHandler(MiscMetricLinksHandler.class);
+
+		handle(paths.datarouter.metric.metricNames.metricLinksV2).withHandler(MetricLinksHandlerV2.class);
 	}
 
 	@Override

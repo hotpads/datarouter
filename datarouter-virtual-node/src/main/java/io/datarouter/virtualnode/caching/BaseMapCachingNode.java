@@ -23,6 +23,7 @@ import java.util.Set;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.BaseNode;
@@ -86,12 +87,20 @@ extends BaseNode<PK,D,F>{
 
 	@Override
 	public List<? extends PhysicalNode<PK,D,F>> getPhysicalNodes(){
-		return backingNode.getPhysicalNodes();
+		return Scanner.of(
+				cachingNode.getPhysicalNodes(),
+				backingNode.getPhysicalNodes())
+				.concat(Scanner::of)
+				.list();
 	}
 
 	@Override
 	public List<? extends PhysicalNode<PK,D,F>> getPhysicalNodesForClient(String clientName){
-		return backingNode.getPhysicalNodesForClient(clientName);
+		return Scanner.of(
+				cachingNode.getPhysicalNodesForClient(clientName),
+				backingNode.getPhysicalNodesForClient(clientName))
+				.concat(Scanner::of)
+				.list();
 	}
 
 	@Override

@@ -45,7 +45,7 @@ public interface DatarouterHttpClient{
 	Conditional<DatarouterHttpResponse> tryExecute(
 			DatarouterHttpRequest request,
 			Consumer<HttpEntity> httpEntityConsumer);
-	<E> Conditional<E> tryExecute(BaseEndpoint<E> baseEndpoint);
+	<E> Conditional<E> tryExecute(BaseEndpoint<E> endpoint);
 
 	void shutdown();
 
@@ -55,5 +55,6 @@ public interface DatarouterHttpClient{
 	PoolStats getPoolStats();
 	CloseableHttpClient getApacheHttpClient();
 	JsonSerializer getJsonSerializer();
+	void initUrlPrefix(BaseEndpoint<?> endpoint);
 
 }

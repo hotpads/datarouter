@@ -23,7 +23,10 @@ public class CallableTool{
 		try{
 			return callable.call();
 		}catch(Exception e){
-			throw new RuntimeException(e);
+			if(e instanceof RuntimeException){
+				throw (RuntimeException)e;
+			}
+			throw new RuntimeException("", e);
 		}
 	}
 

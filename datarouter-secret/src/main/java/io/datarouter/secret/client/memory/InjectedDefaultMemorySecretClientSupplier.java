@@ -25,7 +25,8 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.client.SecretClient;
+import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretNamespacer;
 
@@ -43,7 +44,7 @@ public class InjectedDefaultMemorySecretClientSupplier implements SecretClientSu
 	private MemorySecretClient client;
 
 	@Override
-	public MemorySecretClient get(){
+	public SecretClient get(){
 		if(client == null){
 			synchronized(this){
 				if(client == null){

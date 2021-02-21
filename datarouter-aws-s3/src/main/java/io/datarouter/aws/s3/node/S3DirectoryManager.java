@@ -15,7 +15,11 @@
  */
 package io.datarouter.aws.s3.node;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3Headers;
@@ -117,6 +121,17 @@ public class S3DirectoryManager{
 				S3Headers.CACHE_CONTROL_NO_CACHE,
 				ObjectCannedACL.PRIVATE,
 				content);
+	}
+
+	public void write(String suffix, List<byte[]> content){
+		String fullPath = fullPath(suffix);
+		try(OutputStream outputStream = client.put(bucket, fullPath, ContentType.BINARY)){
+			for(byte[] chunk : content){
+				outputStream.write(chunk);
+			}
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
 	}
 
 	public void writeUtf8(String suffix, String content){

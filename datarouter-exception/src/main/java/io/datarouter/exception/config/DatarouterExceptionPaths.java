@@ -27,12 +27,19 @@ public class DatarouterExceptionPaths extends PathNode implements PathsRoot{
 
 	public static class DatarouterPaths extends PathNode{
 		public final ExceptionPaths exception = branch(ExceptionPaths::new, "exception");
-		public final PathNode errorGenerator = leaf("errorGenerator");
+		public final ErrorGeneratorPaths errorGenerator = branch(ErrorGeneratorPaths::new, "errorGenerator");
 	}
 
 	public static class ExceptionPaths extends PathNode{
 		public final PathNode browse = leaf("browse");
 		public final PathNode details = leaf("details");
+		public final PathNode mute = leaf("mute");
+		public final PathNode recordIssueAndRedirect = leaf("recordIssueAndRedirect");
+		public final PathNode saveIssue = leaf("saveIssue");
+	}
+
+	public static class ErrorGeneratorPaths extends PathNode{
+		public final PathNode generate = leaf("generate");
 	}
 
 }

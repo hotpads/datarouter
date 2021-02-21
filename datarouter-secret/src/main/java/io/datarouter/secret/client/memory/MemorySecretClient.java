@@ -23,12 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import io.datarouter.secret.client.BaseSecretClient;
 import io.datarouter.secret.client.Secret;
+import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretExistsException;
 import io.datarouter.secret.exception.SecretNotFoundException;
 
-public class MemorySecretClient extends BaseSecretClient{
+public class MemorySecretClient implements SecretClient{
 
 	private final ConcurrentMap<String,String> secrets;
 
@@ -41,21 +41,21 @@ public class MemorySecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	protected void createInternal(Secret secret){
+	public final void create(Secret secret){
 		if(secrets.putIfAbsent(secret.getName(), secret.getValue()) != null){
 			throw new SecretExistsException(secret.getName());
 		}
 	}
 
 	@Override
-	protected Secret readInternal(String name){
+	public final Secret read(String name){
 		return Optional.ofNullable(secrets.get(name))
 				.map(value -> new Secret(name, value))
 				.orElseThrow(() -> new SecretNotFoundException(name));
 	}
 
 	@Override
-	protected List<String> listInternal(Optional<String> exclusivePrefix){
+	public final List<String> listNames(Optional<String> exclusivePrefix){
 		Set<String> names;
 		synchronized(secrets){
 			names = Set.copyOf(secrets.keySet());
@@ -71,14 +71,14 @@ public class MemorySecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	protected void updateInternal(Secret secret){
+	public final void update(Secret secret){
 		if(secrets.computeIfPresent(secret.getName(), (key, value) -> secret.getValue()) == null){
 			throw new SecretNotFoundException(secret.getName());
 		}
 	}
 
 	@Override
-	protected void deleteInternal(String name){
+	public final void delete(String name){
 		if(secrets.remove(name) == null){
 			throw new SecretNotFoundException(name);
 		}

@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.trace;
+package io.datarouter.web.metriclinks;
 
-import java.util.Collection;
+import java.util.List;
 
-public class TraceBundleDto{
+public interface MetricLinkPageRegistry{
 
-	public final Trace2Dto traceDto;
-	public final Collection<Trace2ThreadDto> traceThreadDtos;
-	public final Collection<Trace2SpanDto> traceSpanDtos;
+	List<Class<? extends MetricLinkPage>> getMetricLinkPages();
 
-	public TraceBundleDto(
-			Trace2Dto traceDto,
-			Collection<Trace2ThreadDto> traceThreadDtos,
-			Collection<Trace2SpanDto> traceSpanDtos){
-		this.traceDto = traceDto;
-		this.traceThreadDtos = traceThreadDtos;
-		this.traceSpanDtos = traceSpanDtos;
+	class DefaultMetricLinkPageRegistry implements MetricLinkPageRegistry{
+
+		public final List<Class<? extends MetricLinkPage>> metricLinkPages;
+
+		public DefaultMetricLinkPageRegistry(List<Class<? extends MetricLinkPage>> metricLinkPages){
+			this.metricLinkPages = metricLinkPages;
+		}
+
+		@Override
+		public List<Class<? extends MetricLinkPage>> getMetricLinkPages(){
+			return metricLinkPages;
+		}
+
 	}
 
 }

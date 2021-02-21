@@ -24,9 +24,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
+import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import software.amazon.awssdk.regions.Region;
@@ -79,7 +81,38 @@ public interface DatarouterS3Client{
 
 	byte[] getPartialObject(String bucket, String key, long offset, int length);
 
+	default Scanner<byte[]> scanObjectChunks(
+			String bucket,
+			String key,
+			ExecutorService exec,
+			int numThreads,
+			int chunkSize){
+		long totalLength = length(bucket, key).orElseThrow();
+		var intialRange = new ChunkRange(0L, chunkSize);
+		return Scanner.iterate(intialRange, previous -> {
+					long start = previous.start + previous.length;
+					long remainingBytes = totalLength - start;
+					int length = (int)Math.min(chunkSize, remainingBytes);
+					return new ChunkRange(start, length);
+				})
+				.advanceWhile(range -> range.start + range.length < totalLength)
+				.parallel(new ParallelScannerContext(exec, numThreads, false))
+				.map(range -> getPartialObject(bucket, key, range.start, range.length));
+	}
+
+	static class ChunkRange{
+		final long start;
+		final int length;
+
+		ChunkRange(long start, int length){
+			this.start = start;
+			this.length = length;
+		}
+	}
+
 	String getObjectAsString(String bucket, String key);
+
+	Optional<Long> length(String bucket, String key);
 
 	Optional<Instant> findLastModified(String bucket, String key);
 

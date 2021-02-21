@@ -130,7 +130,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 	@Inject
 	private CachedClusterSettingTags cachedClusterSettingTags;
 
-	@Handler(defaultHandler = true)
+	@Handler
 	public Mav customSettings(OptionalString prefix){
 		Mav mav = new Mav(files.jsp.admin.datarouter.setting.editSettingsJsp);
 		mav.put("serverTypeOptions", serverTypes.getHtmlSelectOptionsVarNames());

@@ -56,6 +56,10 @@ public class Count{
 		value.addAndGet(collection.size());
 	}
 
+	public void incrementByLength(Object[] array){
+		value.addAndGet(array.length);
+	}
+
 	/*---------------- decrement --------------*/
 
 	public void decrement(@SuppressWarnings("unused") Object ignored){
@@ -72,6 +76,10 @@ public class Count{
 
 	public void decrementBySize(Collection<?> collection){
 		value.addAndGet(-collection.size());
+	}
+
+	public void decrementByLength(Object[] array){
+		value.addAndGet(-array.length);
 	}
 
 	/*---------------- value --------------*/

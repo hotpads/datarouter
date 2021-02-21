@@ -45,7 +45,7 @@ public class ManualChangelogHandler extends BaseHandler{
 	private ChangelogRecorder changelogRecorder;
 
 	@Handler(defaultHandler = true)
-	private Mav defaultHandler(
+	private Mav insert(
 			@Param(P_name) OptionalString name,
 			@Param(P_action) OptionalString action,
 			@Param(P_toEmail) OptionalString toEmail,

@@ -24,7 +24,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.regions.Regions;
 
 import io.datarouter.secret.client.SecretClient;
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 

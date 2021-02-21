@@ -95,4 +95,10 @@ public class ByteUnitToolTests{
 		Assert.assertEquals(ByteUnitType.GiB.getNumBytes() - ByteUnitType.GB.getNumBytes(), 73741824);
 		Assert.assertEquals(ByteUnitType.TiB.getNumBytes() - ByteUnitType.TB.getNumBytes(), 99511627776L);
 	}
+
+	@Test
+	public void testToBytes(){
+		Assert.assertEquals(ByteUnitType.KiB.toBytes(3), 3 * 1024);
+	}
+
 }

@@ -22,8 +22,8 @@ import com.google.gson.Gson;
 
 import io.datarouter.conveyor.BaseConveyors;
 import io.datarouter.instrumentation.trace.TracePublisher;
+import io.datarouter.trace.conveyor.Trace2MemoryBufferToSqsConveyor;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
-import io.datarouter.trace.storage.DatarouterTracePublisherDao;
 import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
@@ -38,7 +38,11 @@ public class TracePublisherConveyors extends BaseConveyors{
 	@Inject
 	private TracePublisherFilterToMemoryBuffer memoryBuffer;
 	@Inject
-	private DatarouterTracePublisherDao tracePublisherDao;
+	private Trace2ForPublisherFilterToMemoryBuffer trace2MemoryBuffer;
+	@Inject
+	private TraceQueuePublisherDao traceQueueDao;
+	@Inject
+	private Trace2ForPublisherQueueDao trace2QueueDao;
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
 
@@ -49,14 +53,35 @@ public class TracePublisherConveyors extends BaseConveyors{
 				settings.runMemoryToSqs,
 				settings.bufferInSqs,
 				memoryBuffer.buffer,
-				tracePublisherDao::putMulti,
+				traceQueueDao::putMulti,
 				gson,
 				exceptionRecorder),
 				1);
 		start(new TraceSqsDrainConveyorPublisher(
 				"traceSqsToPublisher",
 				settings.drainSqsToPublisher,
-				tracePublisherDao.getGroupQueueConsumer(),
+				traceQueueDao.getGroupQueueConsumer(),
+				gson,
+				tracePublisher,
+				settings.compactExceptionLoggingForConveyors,
+				exceptionRecorder),
+				1);
+
+		/***** trace2 *****/
+		start(new Trace2MemoryBufferToSqsConveyor(
+				"trace2MemoryToSqsPublisher",
+				settings.runMemoryToSqsForTrace2,
+				settings.bufferInSqsForTrace2,
+				trace2MemoryBuffer.buffer,
+				trace2QueueDao,
+				gson,
+				exceptionRecorder),
+				1);
+
+		start(new Trace2ForPublisherSqsDrainConveyor(
+				"trace2SqsToPublisher",
+				settings.drainSqsToPublisherForTrace2,
+				trace2QueueDao.getGroupQueueConsumer(),
 				gson,
 				tracePublisher,
 				settings.compactExceptionLoggingForConveyors,

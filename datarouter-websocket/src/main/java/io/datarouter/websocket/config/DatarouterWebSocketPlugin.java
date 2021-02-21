@@ -62,7 +62,7 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 		this.pushServiceApiKey = pushServiceApiKey;
 
 		addSettingRoot(DatarouterWebSocketSettingRoot.class);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.websocketTool, "WebSocket");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.websocketTool.list, "WebSocket");
 		addTriggerGroup(DatarouterWebSocketTriggerGroup.class);
 		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH,
 				GuiceWebSocketAuthenticationFilter.class));

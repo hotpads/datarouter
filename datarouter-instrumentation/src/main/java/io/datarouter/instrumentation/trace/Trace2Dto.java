@@ -24,6 +24,7 @@ public class Trace2Dto{
 	public final String params;
 	public final Long created;
 	public final Long duration;
+	public final String serviceName;
 	public final Integer discardedThreadCount;
 	public final Integer totalThreadCount;
 
@@ -34,6 +35,7 @@ public class Trace2Dto{
 			String type,
 			String params,
 			Long created,
+			String serviceName,
 			Integer discardedThreadCount,
 			Integer totalThreadCount){
 		this.traceparent = traceparent;
@@ -43,6 +45,7 @@ public class Trace2Dto{
 		this.type = type;
 		this.params = params;
 		this.duration = System.currentTimeMillis() - created;
+		this.serviceName = serviceName;
 		this.discardedThreadCount = discardedThreadCount;
 		this.totalThreadCount = totalThreadCount;
 	}
@@ -73,6 +76,10 @@ public class Trace2Dto{
 
 	public Long getDuration(){
 		return duration;
+	}
+
+	public String getServiceName(){
+		return serviceName;
 	}
 
 	public Integer getDiscardedThreadCount(){

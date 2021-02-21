@@ -19,22 +19,16 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.td;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
 import io.datarouter.autoconfig.config.DatarouterAutoConfigPaths;
-import io.datarouter.autoconfig.service.AutoConfigRegistry;
-import io.datarouter.inject.DatarouterInjector;
-import io.datarouter.scanner.Scanner;
+import io.datarouter.autoconfig.service.AutoConfigService;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.handler.BaseHandler;
-import io.datarouter.web.handler.encoder.RawStringEncoder;
 import io.datarouter.web.handler.mav.Mav;
-import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import j2html.TagCreator;
@@ -42,34 +36,21 @@ import j2html.tags.ContainerTag;
 
 public class ViewAutoConfigsHandler extends BaseHandler{
 
-	private static final String P_name = "name";
-
 	private final Bootstrap4PageFactory pageFactory;
 	private final ServerTypeDetector serverTypeDetector;
-	private final DatarouterInjector injector;
+	private final AutoConfigService autoConfigService;
 	private final DatarouterAutoConfigPaths paths;
-
-	private final Map<String,Class<? extends Callable<String>>> map;
 
 	@Inject
 	public ViewAutoConfigsHandler(
 			Bootstrap4PageFactory pageFactory,
 			ServerTypeDetector serverTypeDetector,
-			AutoConfigRegistry autoConfigRegistry,
-			DatarouterInjector injector,
+			AutoConfigService autoConfigService,
 			DatarouterAutoConfigPaths paths){
 		this.pageFactory = pageFactory;
 		this.serverTypeDetector = serverTypeDetector;
-		this.injector = injector;
+		this.autoConfigService = autoConfigService;
 		this.paths = paths;
-		map = new HashMap<>();
-
-		Scanner.of(autoConfigRegistry.autoConfigs)
-				.map(injector::getInstance)
-				.forEach(config -> map.put(config.getName(), config.getClass()));
-		Scanner.of(autoConfigRegistry.autoConfigGroups)
-				.map(injector::getInstance)
-				.forEach(config -> map.put(config.getName(), config.getClass()));
 	}
 
 	@Handler
@@ -82,7 +63,7 @@ public class ViewAutoConfigsHandler extends BaseHandler{
 				.withType("button")
 				.withHref(request.getServletContext().getContextPath() + paths.datarouter.autoConfig.toSlashedString());
 		var header = div(TagCreator.h2("AutoConfigs"), runAllButton);
-		var content = div(header, makeContent(map))
+		var content = div(header, makeContent())
 				.withClass("container-fluid");
 		return pageFactory.startBuilder(request)
 				.withTitle("Registered AutoConfig Classes")
@@ -90,28 +71,19 @@ public class ViewAutoConfigsHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	@Handler(encoder = RawStringEncoder.class)
-	public String runForName(@Param(P_name) String name) throws Exception{
-		if(serverTypeDetector.mightBeProduction()){
-			return "This is not supported on production";
-		}
-		Class<? extends Callable<String>> callableClass = map.get(name);
-		return injector.getInstance(callableClass).call();
-	}
-
-	private ContainerTag makeContent(Map<String,Class<? extends Callable<String>>> map){
-		var table = new J2HtmlTable<Entry<String,Class<? extends Callable<String>>>>()
+	private ContainerTag makeContent(){
+		var table = new J2HtmlTable<Entry<String,Callable<String>>>()
 				.withClasses("table table-sm table-striped my-4 border")
-				.withColumn("AutoConfig", row -> row.getKey())
+				.withColumn("AutoConfig", Entry::getKey)
 				.withHtmlColumn("Run", row ->
 						td(a("Trigger")
 								.withClass("btn btn-primary")
 								.withType("button")
 								.withHref(request.getServletContext().getContextPath()
 										+ paths.datarouter.autoConfigs.runForName.toSlashedString()
-										+ "?" + P_name + "=" + row.getKey())))
-				.withCaption("Total: " + map.size())
-				.build(map.entrySet());
+										+ "?" + DatarouterAutoConfigHandler.P_name + "=" + row.getKey())))
+				.withCaption("Total: " + autoConfigService.getAutoConfigByName().size())
+				.build(autoConfigService.getAutoConfigByName().entrySet());
 		return div(table)
 				.withClass("container my-4");
 	}

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.trace.conveyor;
+package io.datarouter.trace.conveyor.local;
 
 import java.util.List;
 
@@ -23,8 +23,9 @@ import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.instrumentation.trace.TraceEntityDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
+import io.datarouter.trace.conveyor.BaseTraceMemoryToSqsConveyor;
 import io.datarouter.trace.storage.BaseDatarouterTraceDao;
-import io.datarouter.trace.storage.BaseDatarouterTraceQueueDao;
+import io.datarouter.trace.storage.BaseTraceQueueDao;
 import io.datarouter.trace.storage.span.TraceSpan;
 import io.datarouter.trace.storage.thread.TraceThread;
 import io.datarouter.trace.storage.trace.Trace;
@@ -33,7 +34,7 @@ import io.datarouter.web.exception.ExceptionRecorder;
 public class TraceMemoryToSqsConveyor extends BaseTraceMemoryToSqsConveyor{
 
 	private final Setting<Boolean> shouldBufferInSqs;
-	private final BaseDatarouterTraceQueueDao traceQueueDao;
+	private final BaseTraceQueueDao traceQueueDao;
 	private final BaseDatarouterTraceDao traceDao;
 
 	public TraceMemoryToSqsConveyor(
@@ -41,7 +42,7 @@ public class TraceMemoryToSqsConveyor extends BaseTraceMemoryToSqsConveyor{
 			Setting<Boolean> shouldRunSetting,
 			Setting<Boolean> shouldBufferInSqs,
 			MemoryBuffer<TraceEntityDto> buffer,
-			BaseDatarouterTraceQueueDao traceQueueDao,
+			BaseTraceQueueDao traceQueueDao,
 			BaseDatarouterTraceDao traceDao,
 			Gson gson,
 			ExceptionRecorder exceptionRecorder){

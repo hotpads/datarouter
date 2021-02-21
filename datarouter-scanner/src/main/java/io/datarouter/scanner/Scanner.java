@@ -575,6 +575,10 @@ public interface Scanner<T> extends Closeable{
 
 	/*--------------------------- to HashMap ----------------------------*/
 
+	default Map<T,T> toMap(){
+		return apply(ScannerToMap.of());
+	}
+
 	default <K> Map<K,T> toMap(Function<T,K> keyFunction){
 		return apply(ScannerToMap.of(keyFunction));
 	}

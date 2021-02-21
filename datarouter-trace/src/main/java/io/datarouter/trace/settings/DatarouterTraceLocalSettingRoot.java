@@ -27,8 +27,11 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 public class DatarouterTraceLocalSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> bufferInSqs;
+	public final CachedSetting<Boolean> bufferInSqsForTrace2;
 	public final CachedSetting<Boolean> runMemoryToSqs;
+	public final CachedSetting<Boolean> runMemoryToSqsForTrace2;
 	public final CachedSetting<Boolean> drainSqsToLocal;
+	public final CachedSetting<Boolean> drainSqsToLocalForTrace2;
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
 
 	// Jobs are not registered by default
@@ -38,8 +41,11 @@ public class DatarouterTraceLocalSettingRoot extends SettingRoot{
 	public DatarouterTraceLocalSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterTraceLocal.");
 		bufferInSqs = registerBoolean("bufferInSqs", true);
+		bufferInSqsForTrace2 = registerBooleans("bufferInSqsForTrace2", defaultTo(false));
 		runMemoryToSqs = registerBoolean("runMemoryToSqs", false);
+		runMemoryToSqsForTrace2 = registerBooleans("runMemoryToSqsForTrace2", defaultTo(false));
 		drainSqsToLocal = registerBoolean("drainSqsToLocal", false);
+		drainSqsToLocalForTrace2 = registerBooleans("drainSqsToLocalForTrace2", defaultTo(false));
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 
 		runVacuumJob = registerBoolean("runVacuumJob", true);

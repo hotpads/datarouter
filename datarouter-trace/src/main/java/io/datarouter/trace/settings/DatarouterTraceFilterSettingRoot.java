@@ -47,9 +47,11 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		logRequests = registerBoolean("logRequests", false);
 		logTracesOverMs = registerInteger("logTracesOverMs", 500);
 		saveTraces = registerBooleans("saveTraces", defaultTo(false)
-				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> true));
+				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> true)
+				.withTag(DatarouterTraceSettingTag.TRACE2PIPELINE, () -> true));
 		saveTracesOverMs = registerIntegers("saveTracesOverMs", defaultTo(500)
-				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> 5));
+				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> 5)
+				.withTag(DatarouterTraceSettingTag.TRACE2PIPELINE, () -> 5));
 		addTraceIdHeader = registerBoolean("addTraceIdHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");
 		latencyRecordedHandlers = registerCommaSeparatedStrings("latencyRecordedHandlers", defaultTo(new HashSet<>()));

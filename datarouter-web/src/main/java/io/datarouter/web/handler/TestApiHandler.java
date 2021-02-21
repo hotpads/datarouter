@@ -50,7 +50,7 @@ public class TestApiHandler extends BaseHandler{
 
 	/*
 	 * These examples show the possibility to pass the query parameters directly as method parameters
-	 * - Note the use of the @P annotation to specify a different parameter name than the java one.
+	 * - Note the use of the @Param annotation to specify a different parameter name than the java one.
 	 * - You can overload a @Handler function : the handler will call the function that has the largest number of
 	 * parameters matching.
 	 */

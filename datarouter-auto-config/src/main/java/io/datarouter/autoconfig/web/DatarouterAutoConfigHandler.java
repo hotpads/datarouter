@@ -15,26 +15,27 @@
  */
 package io.datarouter.autoconfig.web;
 
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import io.datarouter.autoconfig.config.DatarouterAutoConfigExecutors.AutoConfigExecutor;
-import io.datarouter.autoconfig.service.AutoConfigRegistry;
-import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.autoconfig.service.AutoConfigService;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.encoder.RawStringEncoder;
+import io.datarouter.web.handler.types.Param;
 
 public class DatarouterAutoConfigHandler extends BaseHandler{
 
+	public static final String P_name = "name";
+
 	@Inject
-	private DatarouterInjector injector;
-	@Inject
-	private AutoConfigRegistry autoConfigRegistry;
+	private AutoConfigService autoConfigService;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
@@ -43,11 +44,8 @@ public class DatarouterAutoConfigHandler extends BaseHandler{
 	@Handler(defaultHandler = true, encoder = RawStringEncoder.class)
 	private String home(){
 		serverTypeDetector.assertNotProductionServer();
-		Scanner<Callable<String>> autoConfigScanner = Scanner.of(autoConfigRegistry.autoConfigs)
-				.map(injector::getInstance);
-		Scanner<Callable<String>> autoConfigGroupScanner = Scanner.of(autoConfigRegistry.autoConfigGroups)
-				.map(injector::getInstance);
-		return Scanner.concat(autoConfigScanner, autoConfigGroupScanner)
+		return Scanner.of(autoConfigService.getAutoConfigByName().entrySet())
+				.map(Entry::getValue)
 				.parallel(new ParallelScannerContext(executor, 8, true))
 				.map(callable -> {
 					try{
@@ -58,6 +56,13 @@ public class DatarouterAutoConfigHandler extends BaseHandler{
 					}
 				})
 				.collect(Collectors.joining("\n"));
+	}
+
+	@Handler(encoder = RawStringEncoder.class)
+	public String runForName(@Param(P_name) String name) throws Exception{
+		serverTypeDetector.assertNotProductionServer();
+		Callable<String> callable = autoConfigService.getAutoConfigByName().get(name);
+		return callable.call();
 	}
 
 }

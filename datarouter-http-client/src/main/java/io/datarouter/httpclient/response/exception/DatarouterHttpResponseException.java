@@ -41,7 +41,7 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 	private static String buildMessage(
 			DatarouterHttpResponse response,
 			Duration duration,
-			String requestId,
+			String traceparent,
 			String target){
 		String message = "bad response statusCode=" + response.getStatusCode();
 		Header header = response.getFirstHeader(HttpHeaders.X_EXCEPTION_ID);
@@ -49,7 +49,7 @@ public class DatarouterHttpResponseException extends DatarouterHttpException{
 			message += " exceptionId=" + header.getValue();
 		}
 		message += " durationMs=" + duration.toMillis();
-		message += " requestId=" + requestId;
+		message += " traceparent=" + traceparent;
 		message += " target=" + target;
 		String entity = response.getEntity();
 		if(entity != null && !entity.isEmpty() && entity.charAt(entity.length() - 1) == '\n'){

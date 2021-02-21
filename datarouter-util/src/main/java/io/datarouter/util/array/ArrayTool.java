@@ -20,13 +20,6 @@ import java.util.Collection;
 
 public class ArrayTool{
 
-	public static byte[] clone(byte[] in){
-		if(in == null){
-			return null;
-		}
-		return Arrays.copyOf(in, in.length);
-	}
-
 	public static byte[] nullSafe(byte[] array){
 		if(array == null){
 			return new byte[0];

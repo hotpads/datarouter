@@ -179,6 +179,11 @@
 			<property name="message" value="Non javax.inject annotation"/>
 		</module>
 		<module name="Regexp">
+			<property name="format" value="import .*shaded.*"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="No shaded imports"/>
+		</module>
+		<module name="Regexp">
 			<property name="format" value="(?:(?&lt;!\t)(?&lt;!=)(?&lt;!->))[ \t]\{$"/>
 			<property name="illegalPattern" value="true"/>
 			<property name="message" value="Whitespace before {"/>

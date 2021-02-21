@@ -18,7 +18,7 @@ if the tasks are not completing.  The datarouter-job framework automatically cre
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-task-tracker</artifactId>
-	<version>0.0.61</version>
+	<version>0.0.62</version>
 </dependency>
 ```
 

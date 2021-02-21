@@ -6,20 +6,27 @@ const FETCH_OPTIONS = {
 	}
 }
 
-class Secrets extends React.Component{
+const WRITE_OPS = ['CREATE','UPDATE','DELETE']
+
+class SecretClientSupplierConfigSecrets extends React.Component{
 	constructor(props){
 		super(props)
+
+		this.config = props.config
+		this.isReadOnly = !WRITE_OPS.some(element => this.config.allowedOps[element])
+		this.cardHeader = "name=" + this.config.configName + " supplierClass=" + this.config.supplierClass
+				+ (this.isReadOnly ? ' (read-only)' : ' (read/write)')
 
 		this.state = {
 			names: [],
 			secrets: {},
 			sharedNames: [],
-			sharedSecrets: {},
 			form: {name: '', value: '', secretClass: ''},
 			filter: "",
 			filteredNames: [],
 			filteredSharedNames: [],
 			tableMessage: 'Loading...',
+			sharedTableMessage: 'Loading...',
 			errorMessages: []
 		}
 
@@ -27,7 +34,6 @@ class Secrets extends React.Component{
 		this.handleForm = this.handleForm.bind(this)
 		this.createSecret = this.createSecret.bind(this)
 		this.readSecretValue = this.readSecretValue.bind(this)
-		this.readSharedSecretValue = this.readSharedSecretValue.bind(this)
 		this.handleNewValue = this.handleNewValue.bind(this)
 		this.updateSecretValue = this.updateSecretValue.bind(this)
 		this.deleteSecret = this.deleteSecret.bind(this)
@@ -46,10 +52,11 @@ class Secrets extends React.Component{
 				filteredNames: names,
 				filteredSharedNames: sharedNames,
 				secrets: names.reduce((acc, name) => { return {...acc, [name]: {name: name, value: null, newValue: ''}}}, {}),
-				sharedSecrets: sharedNames.reduce((acc, name) => { return {...acc, [name]: {name: name, value: null}}}, {}),
-				tableMessage: names.length === 0 ? 'No secrets found.' : ''})
+				tableMessage: names.length === 0 ? 'None' : '',
+				sharedTableMessage: sharedNames.length === 0 ? 'None' : ''})
 		}, (json) => {
-			this.setState({tableMessage: 'Failed to load secrets. Try reloading the page.'})
+			const message = 'Failed to load secrets. Try reloading the page.'
+			this.setState({tableMessage: message, sharedTableMessage: message})
 		})
 	}
 
@@ -80,12 +87,6 @@ class Secrets extends React.Component{
 	readSecretValue(name){
 		this.doFetch({op: 'READ', name: name}, (json) => {
 			this.setState((state) => this.updateSecretFields(state, name, {'value': json.value}))
-		})
-	}
-
-	readSharedSecretValue(name){
-		this.doFetch({op: 'READ_SHARED', name: name}, (json) => {
-			this.setState((state) => this.updateSharedSecretFields(state, name, {'value': json.value}))
 		})
 	}
 
@@ -135,18 +136,6 @@ class Secrets extends React.Component{
 		}
 	}
 
-	updateSharedSecretFields(state, name, newFields){
-		return {
-			sharedSecrets: {
-				...state.sharedSecrets,
-				[name]: {
-					...state.sharedSecrets[name],
-					...newFields
-				}
-			}
-		}
-	}
-
 	handleFilter(event){
 		const newValue = event.target.value
 		this.setState((state, props) => {
@@ -161,18 +150,18 @@ class Secrets extends React.Component{
 	}
 
 	doFetch(body, onSuccess, onError){
-		fetch(PATH, {...FETCH_OPTIONS, body: JSON.stringify(body)})
+		body = {...body, configName: this.config.configName}
+		fetch(PATH_HANDLE, {...FETCH_OPTIONS, body: JSON.stringify(body)})
 				.then(response => response.json())
 				.then(json => {
-					//console.log('JSON', json)
 					if(json && json.opStatus === 'SUCCESS'){
 						onSuccess && onSuccess(json)
 					}else{
-						//console.log('PROBLEM', 'opStatus', json.opStatus, 'message', json.message)
+						console.log('PROBLEM', 'opStatus', json.opStatus, 'message', json.message)
 						this.addErrorMessage('ERROR: ' + json.message)
 						onError && onError(json)
 					}
-				}).catch(error => {//TODO got this for 500 from ChangeLog
+				}).catch(error => {
 					this.addErrorMessage('Network error. Try again.')
 				})
 	}
@@ -207,33 +196,28 @@ class Secrets extends React.Component{
 
 	render(){
 		return(
-			<div>
-				<h2 style={{color: "red"}}>Value inputs are JSON. Please use quotes around plain strings, e.g. "example".</h2>
-				<ErrorMessages errorMessages={this.state.errorMessages} />
-				<CreateForm form={this.state.form}
-						handleForm={this.handleForm}
-						createSecret={this.createSecret} />
-				<h2>Secrets Filter</h2>
-				<Filters filter={this.state.filter}
-						handleFilter={this.handleFilter} />
-				<h2>Secrets List</h2>
-				<SecretsList tableMessage={this.state.tableMessage}
-						names={this.state.filteredNames}
-						secrets={this.state.secrets}
-						readSecretValue={this.readSecretValue}
-						updateSecretValue={this.updateSecretValue}
-						deleteSecret={this.deleteSecret}
-						handleNewValue={this.handleNewValue}
-						readOnly={false} />
-				<h2>Shared Secrets List</h2>
-				<SecretsList tableMessage={this.state.tableMessage}
-						names={this.state.filteredSharedNames}
-						secrets={this.state.sharedSecrets}
-						readSecretValue={this.readSharedSecretValue}
-						updateSecretValue={null}
-						deleteSecret={null}
-						handleNewValue={null}
-						readOnly={true} />
+			<div class="card mb-3">
+				<div class="card-header">{this.cardHeader}</div>
+				<div class="card-body">
+					<ErrorMessages errorMessages={this.state.errorMessages} />
+					{this.isReadOnly ? '' : (<div>
+						<CreateForm form={this.state.form}
+								handleForm={this.handleForm}
+								createSecret={this.createSecret} />
+					</div>)}
+					<Filters filter={this.state.filter}
+							handleFilter={this.handleFilter} />
+					<SecretsList tableMessage={this.state.tableMessage}
+							names={this.state.filteredNames}
+							secrets={this.state.secrets}
+							readSecretValue={this.readSecretValue}
+							updateSecretValue={this.updateSecretValue}
+							deleteSecret={this.deleteSecret}
+							handleNewValue={this.handleNewValue}
+							readOnly={this.isReadOnly} />
+					<SharedSecretNameList tableMessage={this.state.sharedTableMessage}
+							names={this.state.filteredSharedNames} />
+				</div>
 			</div>
 		)
 	}
@@ -250,6 +234,7 @@ const ErrorMessages = props =>
 const CreateForm = props =>
 	<div>
 		<h2>Create Secret</h2>
+		<h2 style={{color: "red"}}>Value inputs are JSON. Please use quotes around plain strings, e.g. "example".</h2>
 		<form class="form-inline" onSubmit={(e) => props.createSecret(e, props.form)}>
 			<label class="mb-3 mr-sm-2" for="name">Name:</label>
 			<input class="form-control mb-3 mr-sm-2" type="text" name="name" value={props.form.name} onChange={props.handleForm}/>
@@ -271,7 +256,9 @@ const Filters = props =>
 
 const SecretsList = props =>
 	<div>
-		<table className="table table-condensed">
+		<h2>Secrets</h2>
+		{props.names.length ?
+		(<table className="table table-condensed">
 			<thead>
 				<tr>
 					<th>Name</th>
@@ -300,13 +287,68 @@ const SecretsList = props =>
 					}
 				)}
 			</tbody>
-		</table>
+		</table>) : ''}
 		{props.tableMessage.length !== 0 ? <h3>{props.tableMessage}</h3> : ''}
 	</div>
 
-ReactDOM.render(
-	<div className="container">
-		<Secrets />
-	</div>,
-	document.getElementById('app')
-)
+const SharedSecretNameList = props =>
+	<div>
+		<h2>Available Shared Secret Names</h2>
+		{props.names.length ?
+		(<ul class="list-unstyled">
+			{props.names.map(name => <li>{name}</li>)}
+		</ul>) : ''}
+		{props.tableMessage.length !== 0 ? <h3>{props.tableMessage}</h3> : ''}
+	</div>
+
+class Secrets extends React.Component{
+
+	constructor(props){
+		super(props)
+
+		this.state = {
+			configNames: [],
+			configs: {},
+			pageMessage: 'Loading...',
+		}
+
+		this.loadConfigs = this.loadConfigs.bind(this)
+	}
+
+	loadConfigs(onSuccess, onError){
+		fetch(PATH_CONFIG, {...FETCH_OPTIONS})
+				.then(response => response.json())
+				.then(json => {
+					if(json && json.configNames){
+						this.setState({
+							configNames: json.configNames,
+							configs: json.configs,
+							pageMessage: json.configNames.length === 0 ? 'No configs found.' : ''
+						})
+					}else{
+						console.log('failure', json)
+						this.setState({pageMessage: 'Failed to load secret client supplier configs. Try refreshing.'})
+					}
+				}).catch(error => {
+					console.log('error', error)
+					this.setState({pageMessage: 'Failed to load secret client supplier configs. Try refreshing.'})
+				})
+	}
+
+	componentDidMount(){
+		this.loadConfigs()
+	}
+
+	render(){
+		return(
+			<div className="container-fluid">
+				<h1>Secrets by SecretClientSupplierConfig</h1>
+				{this.state.pageMessage ? (<h3>{this.state.pageMessage}</h3>) : ''}
+				{this.state.configNames.map(configName => <SecretClientSupplierConfigSecrets config={this.state.configs[configName]} key={configName} />)}
+			</div>
+		)
+	}
+
+}
+
+ReactDOM.render(<Secrets />, document.getElementById('app'))

@@ -18,6 +18,7 @@ package io.datarouter.trace.storage.thread;
 import java.util.Date;
 import java.util.List;
 
+import io.datarouter.instrumentation.trace.Trace2ThreadDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -79,8 +80,26 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 
 	}
 
+	public Trace2Thread(){
+		this(new Trace2ThreadKey());
+	}
+
 	public Trace2Thread(Trace2ThreadKey key){
 		super(key);
+	}
+
+	public Trace2Thread(Trace2ThreadDto dto){
+		super(new Trace2ThreadKey(dto.traceparent, dto.threadId));
+		this.parentThreadId = dto.parentThreadId;
+		this.name = dto.name;
+		this.info = dto.info;
+		this.serverName = dto.serverName;
+		this.created = dto.created;
+		this.queuedDuration = dto.queuedDuration;
+		this.runningDuration = dto.runningDuration;
+		this.discardedSpanCount = dto.discardedSpanCount;
+		this.hostThreadName = dto.hostThreadName;
+		this.totalSpanCount = dto.totalSpanCount;
 	}
 
 	@Override

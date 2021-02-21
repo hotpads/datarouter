@@ -30,9 +30,15 @@ public class DatarouterNodewatchPaths extends PathNode implements PathsRoot{
 	}
 
 	public static class NodewatchPaths extends PathNode{
-		public final PathNode threshold = leaf("threshold");
+		public final ThresholdPaths threshold = branch(ThresholdPaths::new, "threshold");
 		public final PathNode tableCount = leaf("tableCount");
 		public final PathNode tableCountChart = leaf("tableCountChart");
+	}
+
+	public static class ThresholdPaths extends PathNode{
+		public final PathNode displayThreshold = leaf("displayThreshold");
+		public final PathNode saveThresholds = leaf("saveThresholds");
+		public final PathNode updateThreshold = leaf("updateThreshold");
 	}
 
 }

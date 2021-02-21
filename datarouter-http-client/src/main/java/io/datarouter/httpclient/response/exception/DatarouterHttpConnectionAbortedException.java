@@ -21,10 +21,10 @@ public class DatarouterHttpConnectionAbortedException extends DatarouterHttpExce
 	public DatarouterHttpConnectionAbortedException(
 			Exception ex,
 			long requestStartTimeMs,
-			String requestId,
+			String traceparent,
 			String target){
-		super("HTTP connection aborted after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms requestId="
-				+ requestId + " target=" + target, ex);
+		super("HTTP connection aborted after " + (System.currentTimeMillis() - requestStartTimeMs) + "ms traceparent="
+				+ traceparent + " target=" + target, ex);
 	}
 
 }

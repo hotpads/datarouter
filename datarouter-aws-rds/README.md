@@ -8,7 +8,7 @@ datarouter-aws-rds provides tools to monitor amazon's relational-database-servic
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-elb</artifactId>
-	<version>0.0.61</version>
+	<version>0.0.62</version>
 </dependency>
 ```
 

@@ -120,4 +120,9 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 		return datarouterHttpClient.getJsonSerializer();
 	}
 
+	@Override
+	public void initUrlPrefix(BaseEndpoint<?> endpoint){
+		datarouterHttpClient.initUrlPrefix(endpoint);
+	}
+
 }

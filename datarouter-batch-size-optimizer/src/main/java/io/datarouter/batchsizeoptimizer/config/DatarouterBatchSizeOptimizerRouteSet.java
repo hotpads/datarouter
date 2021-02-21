@@ -29,7 +29,7 @@ public class DatarouterBatchSizeOptimizerRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterBatchSizeOptimizerRouteSet(DatarouterBatchSizeOptimizerPaths paths){
 		super(paths.datarouter);
-		handleDir(paths.datarouter.batchSizeOptimizer).withHandler(BatchSizeOptimizerMonitoringHandler.class);
+		handle(paths.datarouter.batchSizeOptimizer.view).withHandler(BatchSizeOptimizerMonitoringHandler.class);
 	}
 
 	@Override

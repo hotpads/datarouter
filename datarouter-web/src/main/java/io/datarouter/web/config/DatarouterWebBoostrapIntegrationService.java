@@ -15,8 +15,11 @@
  */
 package io.datarouter.web.config;
 
+import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,9 +37,11 @@ import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.util.Require;
 import io.datarouter.util.clazz.AnnotationTool;
 import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.dispatcher.DispatcherServletTestService;
 import io.datarouter.web.file.AppFilesTestService;
 import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.handler.BaseHandler.Handler;
 import io.datarouter.web.listener.AppListenersClasses;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.service.Role;
@@ -72,6 +77,8 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 	private RoleManager manager;
 	@Inject
 	private DatarouterInjector injector;
+	@Inject
+	private RouteSetRegistry routeSetRegistry;
 
 	@Override
 	public void testAll(){
@@ -82,6 +89,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		testSingletonsForAppListeners();
 		testSingletonsForSeralizers();
 		testAllRoles();
+		// testHandlerPublicMethods();
 	}
 
 	@Override
@@ -125,6 +133,25 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		Scanner.of(DatarouterUserRole.values())
 				.forEach(role -> Require.isTrue(roles.contains(role.getRole()),
 						role.getPersistentString() + " needs to be added to the RoleEnum"));
+	}
+
+	@SuppressWarnings("unused")
+	private void testHandlerPublicMethods(){
+		List<String> handlersWithPrivateMethods = Scanner.of(routeSetRegistry.get())
+				.concatIter(BaseRouteSet::getDispatchRules)
+				.map(DispatchRule::getHandlerClass)
+				.concatIter(clazz -> {
+					return Scanner.of(clazz.getDeclaredMethods())
+							.exclude(method -> method.getAnnotation(Handler.class) == null)
+							.include(method -> Modifier.isPrivate(method.getModifiers()))
+							.map(method -> clazz.getSimpleName() + "." + method.getName())
+							.list();
+				})
+				.distinct()
+				.sorted()
+				.list();
+		Require.isTrue(handlersWithPrivateMethods.size() == 0, "The following methods need to be public: \n"
+				+ handlersWithPrivateMethods.stream().collect(Collectors.joining("\n")));
 	}
 
 }

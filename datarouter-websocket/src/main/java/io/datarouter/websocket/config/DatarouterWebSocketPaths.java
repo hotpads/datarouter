@@ -29,7 +29,7 @@ public class DatarouterWebSocketPaths extends PathNode implements PathsRoot{
 	public final WsPaths ws = branch(WsPaths::new, WebSocketConfig.WEBSOCKET_URI_PREFIX);
 
 	public static class DatarouterPaths extends PathNode{
-		public final PathNode websocketTool = leaf("websocketTool");
+		public final WebsocketTool websocketTool = branch(WebsocketTool::new, "websocketTool");
 	}
 
 	public static class WebsocketCommandPaths extends PathNode{
@@ -40,6 +40,11 @@ public class DatarouterWebSocketPaths extends PathNode implements PathsRoot{
 	public static class WsPaths extends PathNode{
 		public final PathNode echo = leaf("echo");
 		public final PathNode services = leaf("services");
+	}
+
+	public static class WebsocketTool extends PathNode{
+		public final PathNode list = leaf("list");
+		public final PathNode subscriptions = leaf("subscriptions");
 	}
 
 }

@@ -26,7 +26,21 @@ public class DatarouterClusterSettingPaths extends PathNode implements PathsRoot
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
-		public final PathNode settings = leaf("settings");
+		public final SettingPaths settings = branch(SettingPaths::new, "settings");
+	}
+
+	public static class SettingPaths extends PathNode{
+		public final PathNode browseSettings = leaf("browseSettings");
+		public final PathNode create = leaf("create");
+		public final PathNode customSettings = leaf("customSettings");
+		public final PathNode delete = leaf("delete");
+		public final PathNode isRecognizedRoot = leaf("isRecognizedRoot");
+		public final PathNode logsForAll = leaf("logsForAll");
+		public final PathNode logsForName = leaf("logsForName");
+		public final PathNode roots = leaf("roots");
+		public final PathNode searchSettingNames = leaf("searchSettingNames");
+		public final PathNode update = leaf("update");
+		public final PathNode updateSettingTags = leaf("updateSettingTags");
 	}
 
 }

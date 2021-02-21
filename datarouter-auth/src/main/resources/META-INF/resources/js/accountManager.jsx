@@ -77,12 +77,12 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 			</tr>
 		</thead>
 		<tbody>
-			{accountDetails.map(({account, permissions, metricLink}) => (
+			{accountDetails.map(({account, permissions, metricLink, lastUsedDate}) => (
 				<tr key={account.key.accountName}>
 					<td>{account.key.accountName}</td>
 					<td>{account.apiKey}</td>
 					<td>{account.secretKey}</td>
-					<td>{account.lastUsed}</td>
+					<td>{lastUsedDate}</td>
 					<td className={permissions.length > 0 ? '' : 'table-warning'}>
 						{permissions.length > 0 ? (
 							<span

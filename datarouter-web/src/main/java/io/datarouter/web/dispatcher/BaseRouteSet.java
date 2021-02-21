@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.handler.BaseHandler;
+import io.datarouter.web.handler.types.EndpointDecoder;
 
 public abstract class BaseRouteSet{
 
@@ -54,8 +55,10 @@ public abstract class BaseRouteSet{
 		return applyDefaultAndAdd(rule);
 	}
 
-	protected DispatchRule handle(Supplier<BaseEndpoint<?>> baseEndpoint){
-		return handle(baseEndpoint.get().pathNode);
+	protected DispatchRule handle(Supplier<BaseEndpoint<?>> baseEndpoint, Class<? extends BaseHandler> handler){
+		return handle(baseEndpoint.get().pathNode)
+				.withDefaultHandlerDecoder(EndpointDecoder.class)
+				.withHandler(handler);
 	}
 
 	protected DispatchRule applyDefaultAndAdd(DispatchRule rule){
@@ -64,8 +67,9 @@ public abstract class BaseRouteSet{
 		return rule;
 	}
 
-	protected DispatchRule handleDir(PathNode regex){
-		return handleDir(regex.toSlashedString());
+	@Deprecated // Explicitly state each path for the handler with handle(PathNode)
+	protected DispatchRule handleDir(PathNode pathNode){
+		return handleDir(pathNode.toSlashedString());
 	}
 
 	protected DispatchRule handleDir(String regex){

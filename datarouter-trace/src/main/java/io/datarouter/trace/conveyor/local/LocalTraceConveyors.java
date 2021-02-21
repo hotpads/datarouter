@@ -21,10 +21,10 @@ import javax.inject.Singleton;
 import com.google.gson.Gson;
 
 import io.datarouter.conveyor.BaseConveyors;
-import io.datarouter.trace.conveyor.TraceMemoryToSqsConveyor;
+import io.datarouter.trace.conveyor.Trace2MemoryBufferToSqsConveyor;
 import io.datarouter.trace.settings.DatarouterTraceLocalSettingRoot;
 import io.datarouter.trace.storage.BaseDatarouterTraceDao;
-import io.datarouter.trace.storage.BaseDatarouterTraceQueueDao;
+import io.datarouter.trace.storage.Trace2ForLocalDao;
 import io.datarouter.web.exception.ExceptionRecorder;
 
 @Singleton
@@ -37,9 +37,15 @@ public class LocalTraceConveyors extends BaseConveyors{
 	@Inject
 	private TraceLocalFilterToMemoryBuffer memoryBuffer;
 	@Inject
-	private BaseDatarouterTraceQueueDao traceQueueDao;
+	private Trace2ForLocalFilterToMemoryBuffer trace2MemoryBuffer;
+	@Inject
+	private TraceQueueLocalDao traceQueueDao;
+	@Inject
+	private Trace2ForLocalQueueDao trace2QueueDao;
 	@Inject
 	private BaseDatarouterTraceDao traceDao;
+	@Inject
+	private Trace2ForLocalDao trace2Dao;
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
 
@@ -61,6 +67,27 @@ public class LocalTraceConveyors extends BaseConveyors{
 				traceQueueDao.getGroupQueueConsumer(),
 				traceDao,
 				gson,
+				exceptionRecorder),
+				1);
+
+		/*---- trace2 ----*/
+		start(new Trace2MemoryBufferToSqsConveyor(
+				"trace2LocalMemoryToSqs",
+				settings.runMemoryToSqsForTrace2,
+				settings.bufferInSqsForTrace2,
+				trace2MemoryBuffer.buffer,
+				trace2QueueDao,
+				gson,
+				exceptionRecorder),
+				1);
+
+		start(new Trace2ForLocalSqsDrainConveyor(
+				"trace2SqsToLocalStorage",
+				settings.drainSqsToLocalForTrace2,
+				trace2QueueDao.getGroupQueueConsumer(),
+				gson,
+				trace2Dao,
+				settings.compactExceptionLoggingForConveyors,
 				exceptionRecorder),
 				1);
 	}

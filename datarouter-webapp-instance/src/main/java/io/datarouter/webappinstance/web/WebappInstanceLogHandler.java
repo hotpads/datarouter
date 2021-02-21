@@ -39,7 +39,7 @@ public class WebappInstanceLogHandler extends BaseHandler{
 	private DatarouterWebappInstanceFiles files;
 
 	@Handler(defaultHandler = true)
-	public Mav viewLog(String webappName, String serverName){
+	public Mav webappInstanceLog(String webappName, String serverName){
 		Mav mav = new Mav(files.jsp.admin.datarouter.webappInstances.webappInstanceLogJsp);
 		WebappInstanceLogKey prefix = new WebappInstanceLogKey(webappName, serverName, null, null);
 		List<WebappInstanceLog> logs = dao.scanWithPrefix(prefix)

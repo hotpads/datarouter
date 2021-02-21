@@ -20,7 +20,8 @@ import java.util.function.Supplier;
 import io.datarouter.storage.setting.DatarouterSettingTag;
 
 public enum DatarouterTraceSettingTag implements Supplier<DatarouterSettingTag>{
-	TRACEPIPELINE("tracePipeline");
+	TRACEPIPELINE("tracePipeline"),
+	TRACE2PIPELINE("trace2Pipeline");
 
 	private final DatarouterSettingTag datarouterSettingTag;
 

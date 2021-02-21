@@ -21,19 +21,19 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 import io.datarouter.secret.client.local.LocalStorageSecretClientSupplier;
 import io.datarouter.secret.client.memory.MemorySecretClientSupplier;
-import io.datarouter.secret.op.SecretOp;
 import io.datarouter.secret.op.SecretOpInfo;
 import io.datarouter.secret.op.SecretOpReason;
+import io.datarouter.secret.op.SecretOpType;
 
 public class SecretClientConfigHolderIntegrationTests{
 
-	private static final SecretOpInfo READ_OP = new SecretOpInfo(SecretOp.READ, "", "", SecretOpReason.automatedOp(
+	private static final SecretOpInfo READ_OP = new SecretOpInfo(SecretOpType.READ, "", "", SecretOpReason.automatedOp(
 			SecretClientConfigHolderIntegrationTests.class.getSimpleName()));
-	private static final SecretOpInfo WRITE_OP = new SecretOpInfo(SecretOp.CREATE, "", "", SecretOpReason.automatedOp(
-			SecretClientConfigHolderIntegrationTests.class.getSimpleName()));
+	private static final SecretOpInfo WRITE_OP = new SecretOpInfo(SecretOpType.CREATE, "", "", SecretOpReason
+			.automatedOp(SecretClientConfigHolderIntegrationTests.class.getSimpleName()));
 
 	private static final List<Class<? extends SecretClientSupplier>> ONE_CLASSES = List.of(
 			MemorySecretClientSupplier.class);
@@ -51,16 +51,16 @@ public class SecretClientConfigHolderIntegrationTests{
 	@Test
 	public void testInit(){
 		SecretClientConfigHolder empty = new SecretClientConfigHolder();
-		Assert.assertEquals(empty.getAllowedSecretClientSupplierClasses(true, READ_OP).list(), List.of());
-		Assert.assertEquals(empty.getAllowedSecretClientSupplierClasses(false, READ_OP).list(), List.of());
+		assertConfigsContainClasses(empty.getAllowedSecretClientConfigs(true, READ_OP), List.of());
+		assertConfigsContainClasses(empty.getAllowedSecretClientConfigs(false, READ_OP), List.of());
 
 		SecretClientConfigHolder singleList = new SecretClientConfigHolder(ONE_CONFIG);
-		Assert.assertEquals(singleList.getAllowedSecretClientSupplierClasses(true, READ_OP).list(), ONE_CLASSES);
-		Assert.assertEquals(singleList.getAllowedSecretClientSupplierClasses(false, READ_OP).list(), ONE_CLASSES);
+		assertConfigsContainClasses(singleList.getAllowedSecretClientConfigs(true, READ_OP), ONE_CLASSES);
+		assertConfigsContainClasses(singleList.getAllowedSecretClientConfigs(false, READ_OP), ONE_CLASSES);
 
 		SecretClientConfigHolder separateLists = new SecretClientConfigHolder(ONE_CONFIG, TWO_CONFIG);
-		Assert.assertEquals(separateLists.getAllowedSecretClientSupplierClasses(true, READ_OP).list(), ONE_CLASSES);
-		Assert.assertEquals(separateLists.getAllowedSecretClientSupplierClasses(false, READ_OP).list(), TWO_CLASSES);
+		assertConfigsContainClasses(separateLists.getAllowedSecretClientConfigs(true, READ_OP), ONE_CLASSES);
+		assertConfigsContainClasses(separateLists.getAllowedSecretClientConfigs(false, READ_OP), TWO_CLASSES);
 	}
 
 	//NOTE: this is meant to test results of SecretClientConfigHolder#getAllowedSecretClientSupplierClasses, not the
@@ -68,24 +68,32 @@ public class SecretClientConfigHolderIntegrationTests{
 	@Test
 	public void testAllowed(){
 		SecretClientConfigHolder readWrite = new SecretClientConfigHolder(List.of(
-				SecretClientConfig.readOnly(MemorySecretClientSupplier.class),
-				SecretClientConfig.allOps(LocalStorageSecretClientSupplier.class)));
+				SecretClientConfig.readOnly("TEST", MemorySecretClientSupplier.class),
+				SecretClientConfig.allOps("TEST", LocalStorageSecretClientSupplier.class)));
 
-		Assert.assertEquals(readWrite.getAllowedSecretClientSupplierClasses(true, READ_OP).list(), TWO_CLASSES);
-		Assert.assertEquals(readWrite.getAllowedSecretClientSupplierClasses(true, WRITE_OP).list(), List.of(
+		assertConfigsContainClasses(readWrite.getAllowedSecretClientConfigs(true, READ_OP), TWO_CLASSES);
+		assertConfigsContainClasses(readWrite.getAllowedSecretClientConfigs(true, WRITE_OP), List.of(
 				LocalStorageSecretClientSupplier.class));
 
 
 		SecretClientConfigHolder writeRead = new SecretClientConfigHolder(List.of(
-				SecretClientConfig.allOps(MemorySecretClientSupplier.class),
-				SecretClientConfig.readOnly(LocalStorageSecretClientSupplier.class)));
-		Assert.assertEquals(writeRead.getAllowedSecretClientSupplierClasses(true, READ_OP).list(), TWO_CLASSES);
-		Assert.assertEquals(writeRead.getAllowedSecretClientSupplierClasses(true, WRITE_OP).list(), List.of(
+				SecretClientConfig.allOps("TEST", MemorySecretClientSupplier.class),
+				SecretClientConfig.readOnly("TEST", LocalStorageSecretClientSupplier.class)));
+		assertConfigsContainClasses(writeRead.getAllowedSecretClientConfigs(true, READ_OP), TWO_CLASSES);
+		assertConfigsContainClasses(writeRead.getAllowedSecretClientConfigs(true, WRITE_OP), List.of(
 				MemorySecretClientSupplier.class));
 	}
 
 	private static SecretClientConfig makeConfig(Class<? extends SecretClientSupplier> cls){
-		return SecretClientConfig.allOps(cls);
+		return SecretClientConfig.allOps("TEST", cls);
+	}
+
+	private static void assertConfigsContainClasses(Scanner<SecretClientConfig> secretClientConfigScanner,
+			List<Class<? extends SecretClientSupplier>> expected){
+		Assert.assertEquals(secretClientConfigScanner
+				.map(SecretClientConfig::getSecretClientSupplierClass)
+				.list(),
+				expected);
 	}
 
 }

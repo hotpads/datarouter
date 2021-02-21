@@ -22,8 +22,8 @@ public class SecretHandlerOpResultDto{
 	public final SecretOpStatus opStatus;
 	public final String message;
 	public final String value;//set for read
-	public final List<String> appSecretNames;//set for list
-	public final List<String> sharedSecretNames;//set for list
+	public final List<String> appSecretNames;
+	public final List<String> sharedSecretNames;
 
 	private SecretHandlerOpResultDto(SecretOpStatus opStatus, String message, String value, List<String> appSecretNames,
 			List<String> sharedSecretNames){

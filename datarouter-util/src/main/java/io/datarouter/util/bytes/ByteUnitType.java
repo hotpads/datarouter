@@ -131,4 +131,12 @@ public enum ByteUnitType{
 		return unitName;
 	}
 
+	public long toBytes(long input){
+		return input * numBytes;
+	}
+
+	public int toBytesInt(long input){
+		return (int)(input * numBytes);
+	}
+
 }

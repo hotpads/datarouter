@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.websocket.RemoteEndpoint.Basic;
+import javax.websocket.Session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,21 +81,27 @@ public class WebSocketApiHandler extends BaseHandler{
 		if(connection.isEmpty()){
 			return false;
 		}
+		Session session = connection.get().session;
+		if(!session.isOpen()){
+			// should I remove the session from the webSocketConnectionStore and invoke the onClose
+			logger.warn("websocket already closed session={}", webSocketCommand.getWebSocketSessionKey());
+			WebSocketCounters.inc("alreadyClosed");
+			return false;
+		}
 		if(!datarouterWebsocketSettingRoot.testConnectionWithPing.get()){
 			return true;
 		}
 		logger.info("sending ping session={}", webSocketCommand.getWebSocketSessionKey());
 		WebSocketCounters.inc("sendPing");
-		Basic basicRemote = connection.get().session.getBasicRemote();
 		// Synchronize on the connection
 		try{
 			synchronized(connection.get().lock){
 				try(var $ = TracerTool.startSpan("websocket sendPing")){
-					basicRemote.sendPing(ByteBuffer.allocate(0));
+					session.getBasicRemote().sendPing(ByteBuffer.allocate(0));
 				}
 			}
 		}catch(Exception e){
-			logger.info("detected broken connection session={}", webSocketCommand.getWebSocketSessionKey(), e);
+			logger.warn("detected broken connection session={}", webSocketCommand.getWebSocketSessionKey(), e);
 			return false;
 		}
 		return true;

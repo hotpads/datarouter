@@ -35,7 +35,8 @@ public class Trace2SpanDto{
 			Integer parentSequence,
 			String name,
 			String info,
-			Long created){
+			Long created,
+			Long duration){
 		this.traceparent = traceparent;
 		this.parentThreadId = parentThreadId;
 		this.sequence = sequence;
@@ -43,7 +44,7 @@ public class Trace2SpanDto{
 		this.created = created;
 		this.name = name;
 		this.info = info;
-		this.duration = System.currentTimeMillis() - created;
+		this.duration = duration;
 	}
 
 	public Traceparent getTraceparent(){

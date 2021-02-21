@@ -28,16 +28,25 @@ public class DatarouterLoggingConfigRouteSet extends BaseRouteSet{
 
 	@Inject
 	public DatarouterLoggingConfigRouteSet(DatarouterLoggingConfigPaths paths){
-		super(paths.datarouter);
-		handleDir(paths.datarouter.logging)
-				.withHandler(LoggingSettingsHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_SETTINGS, DatarouterUserRole.DATAROUTER_MONITORING);
+		super(paths.datarouter.logging);
+		handle(paths.datarouter.logging).withHandler(LoggingSettingsHandler.class);
+		handle(paths.datarouter.logging.createLoggerConfig).withHandler(LoggingSettingsHandler.class);
+		handle(paths.datarouter.logging.deleteAppender).withHandler(LoggingSettingsHandler.class);
+		handle(paths.datarouter.logging.deleteLoggerConfig).withHandler(LoggingSettingsHandler.class);
+		handle(paths.datarouter.logging.editConsoleAppender).withHandler(LoggingSettingsHandler.class);
+		handle(paths.datarouter.logging.editFileAppender).withHandler(LoggingSettingsHandler.class);
+		handle(paths.datarouter.logging.showForm).withHandler(LoggingSettingsHandler.class);
+		handle(paths.datarouter.logging.testLog).withHandler(LoggingSettingsHandler.class);
+		handle(paths.datarouter.logging.updateLoggerConfig).withHandler(LoggingSettingsHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(
+						DatarouterUserRole.DATAROUTER_ADMIN,
+						DatarouterUserRole.DATAROUTER_SETTINGS,
+						DatarouterUserRole.DATAROUTER_MONITORING)
 				.withIsSystemDispatchRule(true);
 	}
 

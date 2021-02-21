@@ -17,12 +17,15 @@ package io.datarouter.secretweb.web;
 
 public class SecretHandlerOpRequestDto{
 
+	public final String configName;
 	public final SecretOpDto op;
 	public final String name;//also used for prefix in list op
 	public final String value;
 	public final String secretClass;
 
-	public SecretHandlerOpRequestDto(SecretOpDto op, String name, String value, String secretClass){
+	public SecretHandlerOpRequestDto(String configName, SecretOpDto op, String name, String value,
+			String secretClass){
+		this.configName = configName;
 		this.op = op;
 		this.name = name;
 		this.value = value;
@@ -33,7 +36,6 @@ public class SecretHandlerOpRequestDto{
 
 		CREATE("create"),
 		READ("read"),
-		READ_SHARED("readShared"),
 		UPDATE("update"),
 		DELETE("delete"),
 		LIST_ALL("listAll"),

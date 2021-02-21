@@ -13,9 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.secret.client;
+package io.datarouter.trace.storage.entity;
 
-import java.util.function.Supplier;
+import java.util.List;
 
-public interface SecretClientSupplier extends Supplier<SecretClient>{
+import io.datarouter.trace.storage.span.Trace2Span;
+import io.datarouter.trace.storage.thread.Trace2Thread;
+import io.datarouter.trace.storage.trace.Trace2;
+
+public class UiTrace2BundleDto{
+
+	public final String account;
+	public final Trace2 trace;
+	public final List<Trace2Thread> threads;
+	public final List<Trace2Span> spans;
+
+	public UiTrace2BundleDto(String account, Trace2 trace, List<Trace2Thread> threads, List<Trace2Span> spans){
+		this.account = account;
+		this.trace = trace;
+		this.threads = threads;
+		this.spans = spans;
+	}
+
 }

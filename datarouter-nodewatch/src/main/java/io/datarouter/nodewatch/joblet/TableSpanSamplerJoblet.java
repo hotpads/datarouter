@@ -36,6 +36,7 @@ import io.datarouter.nodewatch.storage.tablesample.DatarouterTableSampleDao;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.storage.node.DatarouterNodes;
+import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -87,10 +88,10 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 			return;
 			//the joblet creator will quickly create another one based on the stale dateScheduled
 		}
-		PhysicalNode<?,?,?> physicalNode = datarouterNodes.getPhysicalNodeForClientAndTable(params.nodeNames
-				.getClientName(), params.nodeNames.getTableName());
-		SortedStorageReaderNode<?,?,?> node = (SortedStorageReaderNode<?,?,?>)datarouterNodes.findParent(physicalNode,
-				SortedStorageReaderNode.class);
+		PhysicalNode<?,?,?> physicalNode = datarouterNodes.getPhysicalNodeForClientAndTable(
+				params.nodeNames.getClientName(),
+				params.nodeNames.getTableName());
+		SortedStorageReaderNode<?,?,?> node = (PhysicalSortedStorageReaderNode<?,?,?>)physicalNode;
 		Objects.requireNonNull(node, "node not found for " + params.nodeNames);
 		//TODO replace strings with more formal client detection
 		boolean clientSupportsOffsetting = physicalNode.getClientType().supportsOffsetSampling();

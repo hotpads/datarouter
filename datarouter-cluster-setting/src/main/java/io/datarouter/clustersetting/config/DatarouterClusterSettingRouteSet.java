@@ -29,15 +29,24 @@ public class DatarouterClusterSettingRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterClusterSettingRouteSet(DatarouterClusterSettingPaths paths){
 		super(paths.datarouter);
-		handleDir(paths.datarouter.settings)
-				.withHandler(ClusterSettingsHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_SETTINGS);
+		handle(paths.datarouter.settings).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.update).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.delete).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.roots).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.create).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.browseSettings).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.isRecognizedRoot).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.updateSettingTags).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.logsForName).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.customSettings).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.logsForAll).withHandler(ClusterSettingsHandler.class);
+		handle(paths.datarouter.settings.searchSettingNames).withHandler(ClusterSettingsHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_SETTINGS)
 				.withIsSystemDispatchRule(true);
 	}
 

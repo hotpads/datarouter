@@ -76,8 +76,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	@Inject
 	private OutgoingIpFinderService ipService;
 
-	@Handler(defaultHandler = true)
-	protected Mav view(){
+	@Handler
+	public Mav view(){
 		Mav mav = new Mav(files.jsp.admin.datarouter.memoryStats.memoryJsp);
 		RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
 		long startTime = runtimeMxBean.getStartTime();
@@ -166,7 +166,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	}
 
 	@Handler
-	private GarbabeCollectingResult garbageCollector(){
+	public GarbabeCollectingResult garbageCollector(){
 		String serverName = params.required("serverName");
 		if(!serverName.equals(datarouterProperties.getServerName())){
 			return new GarbabeCollectingResult(false, null, null);

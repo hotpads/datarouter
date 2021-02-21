@@ -16,9 +16,12 @@
 package io.datarouter.util.array;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import io.datarouter.scanner.Scanner;
 
 public class PagedObjectArrayTests{
 
@@ -30,15 +33,15 @@ public class PagedObjectArrayTests{
 		PagedObjectArray<Integer> array = new PagedObjectArray<>(2);
 		array.add(value++);
 		array.add(value++);
-		Assert.assertEquals(array.concat(), new Integer[]{10, 11});
+		Assert.assertEquals(array.toArray(), new Integer[]{10, 11});
 		array.add(value++);
 		array.add(value++);
 		array.add(value++);
-		Assert.assertEquals(array.concat(), new Integer[]{10, 11, 12, 13, 14});
+		Assert.assertEquals(array.toArray(), new Integer[]{10, 11, 12, 13, 14});
 		array.add(value++);
 		array.add(value++);
 		array.add(value++);
-		Assert.assertEquals(array.concat(), new Integer[]{10, 11, 12, 13, 14, 15, 16, 17});
+		Assert.assertEquals(array.toArray(), new Integer[]{10, 11, 12, 13, 14, 15, 16, 17});
 
 		int length = value - first;
 
@@ -56,6 +59,52 @@ public class PagedObjectArrayTests{
 			Assert.assertEquals(actual, expected);
 		}
 		Assert.assertFalse(iterator.hasNext());
+	}
+
+	@Test
+	public void testToArray(){
+		PagedObjectArray<String> pagedArray = new PagedObjectArray<>(2);
+		pagedArray.add("hello");
+		pagedArray.add("world");
+
+		//convert to Object[]
+		Object[] objects = pagedArray.toArray();
+		Assert.assertEquals(objects.getClass().getComponentType(), Object.class);
+		boolean errored = false;
+		try{
+			String[] castedBad = (String[])pagedArray.toArray();
+			Assert.assertEquals(castedBad.length, 2);//Shouldn't get here
+		}catch(Exception e){
+			errored = true;
+		}
+		Assert.assertTrue(errored);
+
+		//convert to String[]
+		String[] strings = pagedArray.toArray(new String[0]);
+		Assert.assertEquals(strings.getClass().getComponentType(), String.class);
+		String[] castedGood = pagedArray.toArray(new String[0]);
+		Assert.assertEquals(castedGood.length, 2);
+	}
+
+	@Test
+	public void testWithScanner(){
+		List<Integer> expected = Scanner.iterate(0, i -> i + 1)
+				.limit(100)
+				.list();
+		PagedObjectArray<Integer> actual = Scanner.of(expected)
+				.collect(PagedObjectArray::new);
+		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void testContains(){
+		List<Integer> array = Scanner.iterate(0, i -> i + 1)
+				.limit(10)
+				.list();
+		Assert.assertTrue(array.contains(3));
+		Assert.assertFalse(array.contains(300));
+		Assert.assertTrue(array.containsAll(List.of(3, 5)));
+		Assert.assertFalse(array.containsAll(List.of(3, 5, 300)));
 	}
 
 }

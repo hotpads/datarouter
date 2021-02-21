@@ -37,24 +37,33 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 	public static class DatarouterPaths extends PathNode{
 		public final ClientPaths client = branch(ClientPaths::new, "client");
 		public final InfoPaths info = branch(InfoPaths::new, "info");
+		public final ExecutorPaths executors = branch(ExecutorPaths::new, "executors");
 		public final NodesPaths nodes = branch(NodesPaths::new, "nodes");
+		public final TestApiPaths testApi = branch(TestApiPaths::new, "testApi");
+		public final MemoryPaths memory = branch(MemoryPaths::new, "memory");
 
 		public final PathNode dailyDigest = leaf("dailyDigest");
 		public final PathNode deployment = leaf("deployment");
 		public final PathNode emailTest = leaf("emailTest");
-		public final PathNode executors = leaf("executors");
 		public final HttpPaths http = branch(HttpPaths::new, "http");
 		public final PathNode ipDetection = leaf("ipDetection");
-		public final PathNode memory = leaf("memory");
 		public final PathNode settings = leaf("settings");
 		public final PathNode shutdown = leaf("shutdown");
 		public final PathNode tableConfiguration = leaf("tableConfiguration");
-		public final PathNode testApi = leaf("testApi");
 	}
 
 	public static class HttpPaths extends PathNode{
 		public final PathNode tester = leaf("tester");
 		public final PathNode dnsLookup = leaf("dnsLookup");
+	}
+
+	public static class ExecutorPaths extends PathNode{
+		public final PathNode getExecutors = leaf("getExecutors");
+	}
+
+	public static class MemoryPaths extends PathNode{
+		public final PathNode garbageCollector = leaf("garbageCollector");
+		public final PathNode view = leaf("view");
 	}
 
 	public static class ClientPaths extends PathNode{
@@ -64,13 +73,21 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 	}
 
 	public static class NodesPaths extends PathNode{
-		public final PathNode browseData = leaf("browseData");
+		public final BrowseDataPaths browseData = branch(BrowseDataPaths::new, "browseData");
+		public final PathNode countKeys = leaf("countKeys");
 		public final PathNode deleteData = leaf("deleteData");
 		public final PathNode getData = leaf("getData");
 		public final PathNode search = leaf("search");
 	}
 
+	public static class BrowseDataPaths extends PathNode{
+		public final PathNode browseData = leaf("browseData");
+		public final PathNode countKeys = leaf("countKeys");
+	}
+
+
 	public static class InfoPaths extends PathNode{
+		public final PathNode endpoints = leaf("endpoints");
 		public final PathNode listeners = leaf("listeners");
 		public final PathNode routeSets = leaf("routeSets");
 		public final PathNode filterParams = leaf("filterParams");
@@ -92,6 +109,27 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 	public static class DocumentationPaths extends PathNode{
 		public final PathNode readmes = leaf("readmes");
 		public final PathNode systemDocs = leaf("systemDocs");
+	}
+
+	public static class TestApiPaths extends PathNode{
+		public final PathNode before = leaf("before");
+		public final PathNode year = leaf("year");
+		public final PathNode now = leaf("now");
+		public final PathNode length = leaf("length");
+		public final PathNode size = leaf("size");
+		public final PathNode count = leaf("count");
+		public final PathNode first = leaf("first");
+		public final PathNode hi = leaf("hi");
+		public final PathNode hello = leaf("hello");
+		public final PathNode banana = leaf("banana");
+		public final PathNode bananas = leaf("bananas");
+		public final PathNode describe = leaf("describe");
+		public final PathNode sumInBase = leaf("sumInBase");
+		public final PathNode printPrimitiveIntArray = leaf("printPrimitiveIntArray");
+		public final PathNode printIntegerObjectArray = leaf("printIntegerObjectArray");
+		public final PathNode printPrimitiveIntArrayNoParamName = leaf("printPrimitiveIntArrayNoParamName");
+		public final PathNode printComplicatedArrayParams = leaf("printComplicatedArrayParams");
+		public final PathNode timeContains = leaf("timeContains");
 	}
 
 }

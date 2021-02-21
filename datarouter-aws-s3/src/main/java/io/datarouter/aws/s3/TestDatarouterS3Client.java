@@ -178,6 +178,11 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
+	public Optional<Long> length(String bucket, String key){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public Optional<Instant> findLastModified(String bucket, String key){
 		throw new UnsupportedOperationException();
 	}

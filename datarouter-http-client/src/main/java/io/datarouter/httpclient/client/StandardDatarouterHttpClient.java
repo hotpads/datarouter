@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.request.DatarouterHttpRequest;
 import io.datarouter.httpclient.request.HttpRequestMethod;
@@ -183,11 +184,11 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	}
 
 	@Override
-	public <E> Conditional<E> tryExecute(BaseEndpoint<E> baseEndpoint){
-		baseEndpoint.setUrlPrefix(urlPrefix.get());
-		var datarouterHttpRequest = BaseEndpoint.toDatarouterHttpRequest(baseEndpoint);
-		baseEndpoint.entity.ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
-		return tryExecute(datarouterHttpRequest, baseEndpoint.responseType);
+	public <E> Conditional<E> tryExecute(BaseEndpoint<E> endpoint){
+		initUrlPrefix(endpoint);
+		var datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
+		endpoint.entity.ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
+		return tryExecute(datarouterHttpRequest, endpoint.responseType);
 	}
 
 	private void setSecurityProperties(DatarouterHttpRequest request){
@@ -282,6 +283,11 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public JsonSerializer getJsonSerializer(){
 		return jsonSerializer;
+	}
+
+	@Override
+	public void initUrlPrefix(BaseEndpoint<?> endpoint){
+		endpoint.setUrlPrefix(urlPrefix.get());
 	}
 
 }

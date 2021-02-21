@@ -33,8 +33,8 @@ import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
 import com.amazonaws.services.secretsmanager.model.SecretListEntry;
 import com.amazonaws.services.secretsmanager.model.UpdateSecretRequest;
 
-import io.datarouter.secret.client.BaseSecretClient;
 import io.datarouter.secret.client.Secret;
+import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.exception.SecretExistsException;
 import io.datarouter.secret.exception.SecretNotFoundException;
 
@@ -46,7 +46,7 @@ import io.datarouter.secret.exception.SecretNotFoundException;
  * versioning tracking/manipulation. the latter is intended for rotation, rather than just explicit versioning. but the
  * form is a randomly generated UUID, so I don't know if it makes sense to manually use it instead.
  */
-public class AwsSecretClient extends BaseSecretClient{
+public class AwsSecretClient implements SecretClient{
 
 	private final AWSSecretsManager client;
 
@@ -58,7 +58,7 @@ public class AwsSecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	protected void createInternal(Secret secret){
+	public final void create(Secret secret){
 		var request = new CreateSecretRequest()
 				.withName(secret.getName())
 				.withSecretString(secret.getValue());
@@ -70,7 +70,7 @@ public class AwsSecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	protected Secret readInternal(String name){
+	public final Secret read(String name){
 		var request = new GetSecretValueRequest()
 				.withSecretId(name);
 				// NOTES:
@@ -86,7 +86,7 @@ public class AwsSecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	protected List<String> listInternal(Optional<String> exclusivePrefix){
+	public final List<String> listNames(Optional<String> exclusivePrefix){
 		List<String> secretNames = new ArrayList<>();
 		String nextToken = null;
 		do{
@@ -105,7 +105,7 @@ public class AwsSecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	protected void updateInternal(Secret secret){
+	public final void update(Secret secret){
 		// this can update various stuff (like description and kms key) AND updates the version stage to AWSCURRENT.
 		// for rotation, use PutSecretValue, which only updates the version stages and value of a secret explicitly
 		var request = new UpdateSecretRequest()
@@ -121,7 +121,7 @@ public class AwsSecretClient extends BaseSecretClient{
 	}
 
 	@Override
-	protected void deleteInternal(String name){
+	public final void delete(String name){
 		var request = new DeleteSecretRequest()
 				.withSecretId(name);
 				// additional options:
@@ -140,11 +140,11 @@ public class AwsSecretClient extends BaseSecretClient{
 	 * Don't end your secret name with a hyphen followed by six characters.
 	 */
 	@Override
-	protected void validateNameInternal(String name){
+	public final void validateName(String name){
 		validateNameStatic(name);
 	}
 
-	protected static void validateNameStatic(String name){
+	public static final void validateNameStatic(String name){
 		if(name == null || name.length() == 0){
 			throw new RuntimeException("validation failed name=" + name);
 		}

@@ -22,7 +22,7 @@ public class Trace2ThreadDto{
 	public final Long parentThreadId;
 	public final String name;
 	public final String info;
-	public final String serverId;
+	public final String serverName;
 	public final Long created;
 	public final Long queuedDuration;
 	public final Long runningDuration;
@@ -36,22 +36,23 @@ public class Trace2ThreadDto{
 			Long parentThreadId,
 			String name,
 			String info,
-			String serverId,
+			String serverName,
 			Long created,
 			Long queuedDuration,
+			Long runningDuration,
 			Integer discardedSpanCount,
 			String hostThreadName,
 			Integer totalSpanCount){
 		this.traceparent = traceparent;
 		this.threadId = threadId;
 		this.parentThreadId = parentThreadId;
-		this.serverId = serverId;
+		this.serverName = serverName;
 		this.name = name;
 		this.created = created;
 		this.hostThreadName = hostThreadName;
 		this.info = info;
-		this.queuedDuration = System.currentTimeMillis() - queuedDuration;
-		this.runningDuration = System.currentTimeMillis() - queuedDuration - created;
+		this.queuedDuration = queuedDuration;
+		this.runningDuration = runningDuration;
 		this.discardedSpanCount = discardedSpanCount;
 		this.totalSpanCount = totalSpanCount;
 	}
@@ -82,8 +83,8 @@ public class Trace2ThreadDto{
 		return info;
 	}
 
-	public String getServerId(){
-		return serverId;
+	public String getServerName(){
+		return serverName;
 	}
 
 	public Long getCreated(){

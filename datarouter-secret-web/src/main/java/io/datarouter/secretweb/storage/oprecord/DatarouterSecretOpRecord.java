@@ -24,19 +24,19 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.secret.op.SecretOp;
+import io.datarouter.secret.op.SecretOpType;
 import io.datarouter.secret.op.SecretOpReason.SecretOpReasonType;
 
 public class DatarouterSecretOpRecord
 extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
 
-	private SecretOp secretOp;
+	private SecretOpType secretOp;
 	private SecretOpReasonType secretOpReasonType;
 	private String reason;
 
 	public static class FieldKeys{
-		public static final StringEnumFieldKey<SecretOp> secretOp = new StringEnumFieldKey<>("secretOp",
-				SecretOp.class);
+		public static final StringEnumFieldKey<SecretOpType> secretOp = new StringEnumFieldKey<>("secretOp",
+				SecretOpType.class);
 		public static final StringEnumFieldKey<SecretOpReasonType> secretOpReasonType = new StringEnumFieldKey<>(
 				"secretOpReasonType", SecretOpReasonType.class);
 		public static final StringFieldKey opType = new StringFieldKey("opType");
@@ -48,7 +48,7 @@ extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
 		super(new DatarouterSecretOpRecordKey());
 	}
 
-	public DatarouterSecretOpRecord(String namespace, String name, SecretOp secretOp,
+	public DatarouterSecretOpRecord(String namespace, String name, SecretOpType secretOp,
 			SecretOpReasonType secretOpReasonType, String reason){
 		super(new DatarouterSecretOpRecordKey(namespace, name));
 		this.secretOp = secretOp;
@@ -78,7 +78,7 @@ extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
 		return DatarouterSecretOpRecordKey.class;
 	}
 
-	public SecretOp getSecretOp(){
+	public SecretOpType getSecretOp(){
 		return secretOp;
 	}
 

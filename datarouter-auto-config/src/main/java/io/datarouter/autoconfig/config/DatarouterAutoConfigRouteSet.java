@@ -33,10 +33,10 @@ public class DatarouterAutoConfigRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.autoConfig)
 				.withHandler(DatarouterAutoConfigHandler.class)
 				.allowAnonymous();
-		handle(paths.datarouter.autoConfigs.viewAutoConfigs)
-				.withHandler(ViewAutoConfigsHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
 		handle(paths.datarouter.autoConfigs.runForName)
+				.withHandler(DatarouterAutoConfigHandler.class)
+				.allowAnonymous();
+		handle(paths.datarouter.autoConfigs.viewAutoConfigs)
 				.withHandler(ViewAutoConfigsHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN);
 	}

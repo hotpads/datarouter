@@ -95,6 +95,11 @@ public class ScannerToMap<T,K,V,M extends Map<K,V>> implements Function<Scanner<
 
 	/*--------------- Factories ----------------*/
 
+	public static <T>
+	Function<Scanner<T>,Map<T,T>> of(){
+		return new ScannerToMap<>(Function.identity(), Function.identity(), Replace.ALWAYS, null, HashMap::new);
+	}
+
 	public static <T,K>
 	Function<Scanner<T>,Map<K,T>> of(
 			Function<T,K> keyFunction){

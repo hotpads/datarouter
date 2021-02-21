@@ -26,7 +26,12 @@ public class DatarouterBatchSizeOptimizerPaths extends PathNode implements Paths
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
-		public final PathNode batchSizeOptimizer = leaf("batchSizeOptimizer");
+		public final BatchSizeOptimizerPaths batchSizeOptimizer = branch(BatchSizeOptimizerPaths::new,
+				"batchSizeOptimizer");
+	}
+
+	public static class BatchSizeOptimizerPaths extends PathNode{
+		public final PathNode view = leaf("view");
 	}
 
 }

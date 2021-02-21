@@ -26,7 +26,18 @@ public class DatarouterLoggingConfigPaths extends PathNode implements PathsRoot{
 	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
 	public static class DatarouterPaths extends PathNode{
-		public final PathNode logging = leaf("logging");
+		public final LoggerConfigPaths logging = branch(LoggerConfigPaths::new, "logging");
+	}
+
+	public static class LoggerConfigPaths extends PathNode{
+		public final PathNode createLoggerConfig = leaf("createLoggerConfig");
+		public final PathNode deleteAppender = leaf("deleteAppender");
+		public final PathNode deleteLoggerConfig = leaf("deleteLoggerConfig");
+		public final PathNode editConsoleAppender = leaf("editConsoleAppender");
+		public final PathNode editFileAppender = leaf("editFileAppender");
+		public final PathNode showForm = leaf("showForm");
+		public final PathNode testLog = leaf("testLog");
+		public final PathNode updateLoggerConfig = leaf("updateLoggerConfig");
 	}
 
 }

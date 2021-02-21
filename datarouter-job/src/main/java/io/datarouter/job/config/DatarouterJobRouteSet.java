@@ -29,15 +29,16 @@ public class DatarouterJobRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterJobRouteSet(DatarouterJobPaths paths){
 		super(paths.datarouter);
-		handleDir(paths.datarouter.triggers)
-				.withHandler(JobHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_JOB);
+		handle(paths.datarouter.triggers.list).withHandler(JobHandler.class);
+		handle(paths.datarouter.triggers.run).withHandler(JobHandler.class);
+		handle(paths.datarouter.triggers.interrupt).withHandler(JobHandler.class);
+		handle(paths.datarouter.triggers.defaultMethod).withHandler(JobHandler.class);
 	}
 
 	@Override
 	protected DispatchRule applyDefault(DispatchRule rule){
 		return rule
-				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN)
+				.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.DATAROUTER_JOB)
 				.withIsSystemDispatchRule(true);
 	}
 

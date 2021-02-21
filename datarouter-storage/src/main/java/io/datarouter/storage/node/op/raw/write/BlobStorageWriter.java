@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.node.op.raw.write;
 
+import java.util.List;
+
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.file.PathbeanKey;
@@ -30,6 +32,8 @@ public interface BlobStorageWriter<
 extends BlobStorageReader<PK,D>{
 
 	void write(PathbeanKey key, byte[] value);
+
+	void write(PathbeanKey key, List<byte[]> chunks);
 
 	void delete(PathbeanKey key);
 

@@ -17,50 +17,35 @@ package io.datarouter.trace.storage;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.conveyor.message.ConveyorMessage.ConveyorMessageFielder;
 import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.GroupQueueConsumer;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.GroupQueueStorage;
 
-@Singleton
-public class DatarouterTraceQueueDao extends BaseDao implements BaseDatarouterTraceQueueDao{
-
-	public static class DatarouterTraceQueueDaoParams extends BaseDaoParams{
-
-		public DatarouterTraceQueueDaoParams(ClientId clientId){
-			super(clientId);
-		}
-
-	}
+public abstract class BaseTraceQueueDao extends BaseDao{
 
 	private final GroupQueueStorage<ConveyorMessageKey,ConveyorMessage> node;
 
-	@Inject
-	public DatarouterTraceQueueDao(Datarouter datarouter,
-			DatarouterTraceQueueDaoParams params, QueueNodeFactory queueNodeFactory){
+	public BaseTraceQueueDao(String queueName, Datarouter datarouter, BaseDaoParams params,
+			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
 		node = queueNodeFactory.createGroupQueue(params.clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
-				.withQueueName("Trace")
+				.withQueueName(queueName)
+				.withIsSystemTable(true)
 				.buildAndRegister();
 	}
 
-	@Override
-	public GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> getGroupQueueConsumer(){
-		return new GroupQueueConsumer<>(node::peek, node::ack);
-	}
-
-	@Override
 	public void putMulti(Collection<ConveyorMessage> databeans){
 		node.putMulti(databeans);
+	}
+
+	public GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> getGroupQueueConsumer(){
+		return new GroupQueueConsumer<>(node::peek, node::ack);
 	}
 
 }

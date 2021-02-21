@@ -21,29 +21,19 @@ import org.testng.annotations.Test;
 public class ByteToolTests{
 
 	@Test
-	public void testToUnsignedByte(){
-		Assert.assertEquals(ByteTool.toUnsignedByte(0), -128);
-		Assert.assertEquals(ByteTool.toUnsignedByte(127), -1);
-		Assert.assertEquals(ByteTool.toUnsignedByte(128), 0);
-		Assert.assertEquals(ByteTool.toUnsignedByte(129), 1);
-		Assert.assertEquals(ByteTool.toUnsignedByte(255), 127);
-	}
-
-	@Test
-	public void testFromUnsignedInt0To255(){
-		Assert.assertEquals(ByteTool.fromUnsignedInt0To255(0), 0);
-		Assert.assertEquals(ByteTool.fromUnsignedInt0To255(127), 127);
-		Assert.assertEquals(ByteTool.fromUnsignedInt0To255(128), -128);
-		Assert.assertEquals(ByteTool.fromUnsignedInt0To255(255), -1);
-	}
-
-	@Test
 	public void testBitwiseCompare(){
-		byte[] bytesA = new byte[]{1, -1};
-		byte[] bytesB = new byte[]{-3};
+		// equal
+		Assert.assertEquals(ByteTool.bitwiseCompare(new byte[0], new byte[0]), 0);
+		// equal
+		Assert.assertEquals(ByteTool.bitwiseCompare(new byte[]{7}, new byte[]{7}), 0);
+		// 3 is 1 less than 4
+		Assert.assertEquals(ByteTool.bitwiseCompare(new byte[]{3}, new byte[]{4}), -1);
+		// a is equal but 2 shorter than b
+		Assert.assertEquals(ByteTool.bitwiseCompare(new byte[]{2}, new byte[]{2, 3, 4}), -2);
 		// positive numbers come before negative when bitwise
-		Assert.assertTrue(ByteTool.bitwiseCompare(bytesA, bytesB) < 0);
-		Assert.assertTrue(ByteTool.bitwiseCompare(bytesA, 1, 1, bytesB, 0, 1) > 0);// -1 is after -3
+		Assert.assertTrue(ByteTool.bitwiseCompare(new byte[]{1}, new byte[]{-3}) < 0);
+		// -1 (the second byte) is after -3
+		Assert.assertTrue(ByteTool.bitwiseCompare(new byte[]{1, -1}, 1, 1, new byte[]{-3}, 0, 1) > 0);
 	}
 
 	@Test

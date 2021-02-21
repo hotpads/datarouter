@@ -16,55 +16,74 @@
 package io.datarouter.secret.config;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.secret.client.SecretClientSupplier;
+import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 import io.datarouter.secret.client.memory.MemorySecretClientSupplier;
-import io.datarouter.secret.op.SecretOp;
 import io.datarouter.secret.op.SecretOpInfo;
 import io.datarouter.secret.op.SecretOpReason;
+import io.datarouter.secret.op.SecretOpType;
 
 public class SecretClientConfigUnitTests{
 
 	private static final Class<? extends SecretClientSupplier> SUPPLIER = MemorySecretClientSupplier.class;
 
-	private static final Set<SecretOp> WRITE_OPS = Set.of(SecretOp.CREATE, SecretOp.UPDATE, SecretOp.PUT, SecretOp
-			.DELETE, SecretOp.MIGRATE);
-	private static final Set<SecretOp> READ_OPS = Set.of(SecretOp.READ, SecretOp.LIST);
-	private static final Set<SecretOp> ALL_OPS = Scanner.concat(WRITE_OPS, READ_OPS).collect(HashSet::new);
+	private static final Set<SecretOpType> WRITE_OPS = Set.of(SecretOpType.CREATE, SecretOpType.UPDATE, SecretOpType
+			.PUT, SecretOpType.DELETE, SecretOpType.MIGRATE);
+	private static final Set<SecretOpType> READ_OPS = Set.of(SecretOpType.READ, SecretOpType.LIST);
+	private static final Set<SecretOpType> ALL_OPS = Scanner.concat(WRITE_OPS, READ_OPS).collect(HashSet::new);
 
 	private static SecretOpReason REASON = SecretOpReason.automatedOp(SecretClientConfigUnitTests.class
 			.getSimpleName());
 
 	@Test
 	public void testInitMethods(){
-		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.allOps(null));
-		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.readOnly(null));
-		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.readOnlyWithNames(null, null));
-		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.readOnlyWithNames(SUPPLIER, null));
-		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.readOnlyWithNames(SUPPLIER, Set
-				.of()));
+		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.allOps("TEST", null));
+		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.readOnly("TEST", null));
+		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.readOnlyWithNames("TEST", null,
+				null));
+		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.readOnlyWithNames("TEST", SUPPLIER,
+				null));
+		Assert.assertThrows(IllegalArgumentException.class, () -> SecretClientConfig.readOnlyWithNames("TEST", SUPPLIER,
+				Set.of()));
 
-		SecretClientConfig config = SecretClientConfig.allOps(SUPPLIER);
+		SecretClientConfig config = SecretClientConfig.allOps("TEST1", SUPPLIER);
+		Assert.assertEquals(config.getConfigName(), "TEST1");
 		Assert.assertEquals(config.getSecretClientSupplierClass(), SUPPLIER);
-		SecretClientConfig.readOnly(SUPPLIER);
+		config = SecretClientConfig.readOnly("TEST2", SUPPLIER);
+		Assert.assertEquals(config.getConfigName(), "TEST2");
 		Assert.assertEquals(config.getSecretClientSupplierClass(), SUPPLIER);
-		SecretClientConfig.readOnlyWithNames(SUPPLIER, Set.of("name"));
+		config = SecretClientConfig.readOnlyWithNames("TEST3", SUPPLIER, Set.of("name"));
+		Assert.assertEquals(config.getConfigName(), "TEST3");
 		Assert.assertEquals(config.getSecretClientSupplierClass(), SUPPLIER);
 	}
 
 	@Test
+	public void testAllowedTargetSecretClientConfig(){
+		SecretClientConfig allConfig = SecretClientConfig.allOps("TEST", SUPPLIER);
+		SecretOpInfo noTarget = emptyOpInfo(SecretOpType.DELETE);
+		Assert.assertTrue(allConfig.allowed(noTarget));
+
+		SecretOpInfo matchTarget = new SecretOpInfo(SecretOpType.DELETE, "", "", REASON, Optional.of("TEST"));
+		Assert.assertTrue(allConfig.allowed(matchTarget));
+
+		SecretOpInfo noMatchTarget = new SecretOpInfo(SecretOpType.DELETE, "", "", REASON, Optional.of("TEST2"));
+		Assert.assertFalse(allConfig.allowed(noMatchTarget));
+	}
+
+	@Test
 	public void testAllowedOps(){
-		SecretClientConfig allConfig = SecretClientConfig.allOps(SUPPLIER);
+		SecretClientConfig allConfig = SecretClientConfig.allOps("TEST", SUPPLIER);
 		Scanner.of(ALL_OPS)
 				.map(SecretClientConfigUnitTests::emptyOpInfo)
 				.forEach(opInfo -> Assert.assertTrue(allConfig.allowed(opInfo)));
 
-		SecretClientConfig readOnlyConfig = SecretClientConfig.readOnly(SUPPLIER);
+		SecretClientConfig readOnlyConfig = SecretClientConfig.readOnly("TEST", SUPPLIER);
 		Scanner.of(READ_OPS)
 				.map(SecretClientConfigUnitTests::emptyOpInfo)
 				.forEach(opInfo -> Assert.assertTrue(readOnlyConfig.allowed(opInfo)));
@@ -75,12 +94,12 @@ public class SecretClientConfigUnitTests{
 
 	@Test
 	public void testreadOnlyWithNames(){
-		SecretClientConfig namedConfig = SecretClientConfig.readOnlyWithNames(SUPPLIER, Set.of("allowed"));
+		SecretClientConfig namedConfig = SecretClientConfig.readOnlyWithNames("TEST", SUPPLIER, Set.of("allowed"));
 		//test read/write with allowed name
-		Scanner.of(SecretOp.READ)
+		Scanner.of(SecretOpType.READ)
 				.map(op -> namedOpInfo(op, "allowed"))
 				.forEach(opInfo -> Assert.assertTrue(namedConfig.allowed(opInfo)));
-		Scanner.of(SecretOp.LIST)
+		Scanner.of(SecretOpType.LIST)
 				.map(op -> namedOpInfo(op, "allowed"))
 				.forEach(opInfo -> Assert.assertFalse(namedConfig.allowed(opInfo)));
 		Scanner.of(WRITE_OPS)
@@ -93,11 +112,11 @@ public class SecretClientConfigUnitTests{
 				.forEach(opInfo -> Assert.assertFalse(namedConfig.allowed(opInfo)));
 	}
 
-	private static SecretOpInfo emptyOpInfo(SecretOp op){
+	private static SecretOpInfo emptyOpInfo(SecretOpType op){
 		return namedOpInfo(op, "");
 	}
 
-	private static SecretOpInfo namedOpInfo(SecretOp op, String name){
+	private static SecretOpInfo namedOpInfo(SecretOpType op, String name){
 		return new SecretOpInfo(op, "", name, REASON);
 	}
 

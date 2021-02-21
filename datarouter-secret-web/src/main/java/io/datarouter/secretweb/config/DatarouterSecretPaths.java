@@ -31,6 +31,7 @@ public class DatarouterSecretPaths extends PathNode implements PathsRoot{
 
 	public static class SecretPaths extends PathNode{
 		public final PathNode handle = leaf("handle");
+		public final PathNode getSecretClientSupplierConfig = leaf("getSecretClientSupplierConfig");
 	}
 
 }

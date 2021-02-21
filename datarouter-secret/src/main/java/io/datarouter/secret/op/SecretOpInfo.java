@@ -15,28 +15,42 @@
  */
 package io.datarouter.secret.op;
 
+import java.util.Optional;
+
 import io.datarouter.util.lang.ObjectTool;
 
 public class SecretOpInfo{
 
-	public final SecretOp op;
+	public final SecretOpType op;
 	public final String namespace;
 	public final String name;
 	public final SecretOpReason reason;
 	public final boolean shouldRecord;
+	public final Optional<String> targetSecretClientConfig;
 
-	public SecretOpInfo(SecretOp op, String namespace, String name, SecretOpReason reason){
+	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason){
 		this(op, namespace, name, reason, false);
 	}
 
-	public SecretOpInfo(SecretOp op, String namespace, String name, SecretOpReason reason, boolean shouldRecord){
-		ObjectTool.requireNonNulls(op, namespace, name, reason);
+	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason, boolean shouldRecord){
+		this(op, namespace, name, reason, shouldRecord, Optional.empty());
+	}
+
+	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason,
+			Optional<String> targetSecretClientConfig){
+		this(op, namespace, name, reason, false, targetSecretClientConfig);
+	}
+
+	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason, boolean shouldRecord,
+			Optional<String> targetSecretClientConfig){
+		ObjectTool.requireNonNulls(op, namespace, name, reason, targetSecretClientConfig);
 
 		this.op = op;
 		this.namespace = namespace;
 		this.name = name;
 		this.reason = reason;
 		this.shouldRecord = shouldRecord;
+		this.targetSecretClientConfig = targetSecretClientConfig;
 	}
 
 	public String getNamespaced(){
@@ -45,7 +59,8 @@ public class SecretOpInfo{
 
 	@Override
 	public String toString(){
-		return String.format("{op=%s, namespace=%s, name=%s, reason=\"%s\"}", op.name(), namespace, name, reason);
+		return String.format("{op=%s, namespace=%s, name=%s, reason=\"%s\" targetSecretClientConfig=%s}", op.name(),
+				namespace, name, reason, targetSecretClientConfig.orElse(""));
 	}
 
 }

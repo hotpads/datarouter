@@ -17,6 +17,7 @@ package io.datarouter.trace.storage.span;
 
 import java.util.List;
 
+import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -65,9 +66,21 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		}
 	}
 
+	public Trace2Span(){
+		this(new Trace2SpanKey());
+	}
 
 	public Trace2Span(Trace2SpanKey key){
 		super(key);
+	}
+
+	public Trace2Span(Trace2SpanDto dto){
+		super(new Trace2SpanKey(dto.traceparent, dto.parentThreadId, dto.sequence));
+		this.parentSequence = dto.parentSequence;
+		this.name = dto.name;
+		this.created = dto.created;
+		this.duration = dto.duration;
+		this.info = dto.info;
 	}
 
 	@Override
