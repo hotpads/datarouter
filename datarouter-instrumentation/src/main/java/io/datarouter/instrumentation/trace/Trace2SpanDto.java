@@ -26,7 +26,7 @@ public class Trace2SpanDto{
 	public final String name;
 	public final String info;
 	public final Long created;
-	public final Long duration;
+	public final Long ended;
 
 	public Trace2SpanDto(
 			Traceparent traceparent,
@@ -36,7 +36,7 @@ public class Trace2SpanDto{
 			String name,
 			String info,
 			Long created,
-			Long duration){
+			Long ended){
 		this.traceparent = traceparent;
 		this.parentThreadId = parentThreadId;
 		this.sequence = sequence;
@@ -44,7 +44,7 @@ public class Trace2SpanDto{
 		this.created = created;
 		this.name = name;
 		this.info = info;
-		this.duration = duration;
+		this.ended = ended;
 	}
 
 	public Traceparent getTraceparent(){
@@ -79,8 +79,8 @@ public class Trace2SpanDto{
 		return created;
 	}
 
-	public Long getDuration(){
-		return duration;
+	public Long getEnded(){
+		return ended;
 	}
 
 }

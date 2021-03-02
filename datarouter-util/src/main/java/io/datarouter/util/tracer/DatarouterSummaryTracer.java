@@ -63,7 +63,7 @@ public class DatarouterSummaryTracer implements Tracer{
 
 	@Override
 	public Tracer createChildTracer(){
-		var childTracer = new DatarouterSummaryTracer(traceId, getSpanRecordsPrefix());
+		DatarouterSummaryTracer childTracer = new DatarouterSummaryTracer(traceId, getSpanRecordsPrefix());
 		childSummaryTracers.add(childTracer);
 		return childTracer;
 	}

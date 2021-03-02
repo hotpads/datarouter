@@ -48,4 +48,8 @@ public class PublishingResponseDto{
 		return new PublishingResponseDto(false, errorMessage);
 	}
 
+	public static final PublishingResponseDto error(Exception exception){
+		return error(exception.getMessage());
+	}
+
 }

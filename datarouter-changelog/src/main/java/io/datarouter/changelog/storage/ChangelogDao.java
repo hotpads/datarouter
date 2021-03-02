@@ -76,4 +76,8 @@ public class ChangelogDao extends BaseDao{
 		return node.scan(range);
 	}
 
+	public Changelog get(ChangelogKey key){
+		return node.get(key);
+	}
+
 }

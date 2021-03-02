@@ -37,6 +37,7 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 			CopyTableJoblet.class)
 			.withShortQueueName("CopyTable") //unnecessary shortQueueName
 			.withPollingPeriod(Duration.ofMinutes(1))
+			.isSystem()
 			.build();
 
 	private static final boolean PERSISTENT_PUT = false;

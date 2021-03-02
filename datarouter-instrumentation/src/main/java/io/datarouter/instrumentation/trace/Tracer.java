@@ -30,11 +30,11 @@ public interface Tracer{
 	Integer getDiscardedThreadCount();
 	void incrementDiscardedThreadCount(int discardedThreadCount);
 
-	default void createAndStartThread(String name, long queueTimeMs){
-		createThread(name, queueTimeMs);
+	default void createAndStartThread(String name, long queueTimeNs){
+		createThread(name, queueTimeNs);
 		startThread();
 	}
-	void createThread(String name, long queueTimeMs);
+	void createThread(String name, long queueTimeNs);
 	void startThread();
 	void addThread(TraceThreadDto thread);
 	void appendToThreadInfo(String text);

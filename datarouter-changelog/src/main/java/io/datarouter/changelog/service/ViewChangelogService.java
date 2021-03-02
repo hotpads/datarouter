@@ -63,16 +63,21 @@ public class ViewChangelogService{
 				.withColumn("User", row -> row.getUsername())
 				.withHtmlColumn("Comment", row -> {
 					String id = row.getKey().getReversedDateMs() + "" + RandomTool.nextPositiveInt();
-					return makeCommentModal(id, row.getComment());
+					return makeModal(id, row.getComment(), "comment");
 				})
+				.withHtmlColumn("Note", row -> {
+					String id = row.getKey().getReversedDateMs() + "" + RandomTool.nextPositiveInt();
+					return makeModal(id, row.getNote(), "note");
+				})
+				.withHtmlColumn("Edit", row -> td(a().withClass("fa fa-edit").withHref(buildEditHref(row))))
 				.build(rows);
 	}
 
-	public DomContent makeCommentModal(String id, String comment){
+	public DomContent makeModal(String id, String comment, String type){
 		if(comment == null){
 			return td();
 		}
-		String modalId = "commentModal" + id;
+		String modalId = type + "Modal" + id;
 		var commentButton = a()
 				.withClass("fa fa-sticky-note")
 				.attr("data-toggle", "modal")
@@ -105,6 +110,16 @@ public class ViewChangelogService{
 		ChangelogKey key = log.getKey();
 		return new URIBuilder()
 				.setPath(servletContext.get().getContextPath() + paths.datarouter.changelog.viewExact.toSlashedString())
+				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getReversedDateMs().toString())
+				.addParameter(ViewExactChangelogHandler.P_changelogType, key.getChangelogType())
+				.addParameter(ViewExactChangelogHandler.P_name, key.getName())
+				.toString();
+	}
+
+	public String buildEditHref(Changelog log){
+		ChangelogKey key = log.getKey();
+		return new URIBuilder()
+				.setPath(servletContext.get().getContextPath() + paths.datarouter.changelog.edit.toSlashedString())
 				.addParameter(ViewExactChangelogHandler.P_reversedDateMs, key.getReversedDateMs().toString())
 				.addParameter(ViewExactChangelogHandler.P_changelogType, key.getChangelogType())
 				.addParameter(ViewExactChangelogHandler.P_name, key.getName())

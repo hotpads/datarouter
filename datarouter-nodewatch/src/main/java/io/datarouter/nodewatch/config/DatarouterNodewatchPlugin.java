@@ -22,6 +22,8 @@ import io.datarouter.instrumentation.tablecount.TableCountPublisher;
 import io.datarouter.instrumentation.tablecount.TableCountPublisher.NoOpTableCountPublisher;
 import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJoblet;
+import io.datarouter.nodewatch.metriclink.AppNodewatchMetricLinkPage;
+import io.datarouter.nodewatch.metriclink.DatarouterNodewatchMetricLinkPage;
 import io.datarouter.nodewatch.service.GenericNodewatchClientConfiguration;
 import io.datarouter.nodewatch.service.NodewatchAboveThresholdsDailyDigest;
 import io.datarouter.nodewatch.service.NodewatchClientConfiguration;
@@ -72,6 +74,9 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 		}
 		addDailyDigest(StaleTablesDailyDigest.class);
 		addDailyDigest(NodewatchAboveThresholdsDailyDigest.class);
+
+		addMetricLinkPages(AppNodewatchMetricLinkPage.class);
+		addMetricLinkPages(DatarouterNodewatchMetricLinkPage.class);
 	}
 
 	@Override

@@ -65,12 +65,23 @@ public class ByteWriter{
 	}
 
 	public byte[] concat(){
-		byte[] output = new byte[length()];
-		int startIndex = 0;
-		for(int i = 0; i < pages.size(); ++i){
-			int num = getPageSize(i);
-			System.arraycopy(pages.get(i), 0, output, startIndex, num);
-			startIndex += num;
+		return concat(0, length());
+	}
+
+	public byte[] concat(int from, int to){
+		int pageIndex = from / pageSize;
+		int byteIndex = from % pageSize;
+		int copied = 0;
+		int remaining = to - from;
+		byte[] output = new byte[remaining];
+		while(remaining > 0){
+			int remainingInPage = getPageSize(pageIndex) - byteIndex;
+			int copyLength = Math.min(remaining, remainingInPage);
+			System.arraycopy(pages.get(pageIndex), byteIndex, output, copied, copyLength);
+			copied += copyLength;
+			remaining -= copyLength;
+			++pageIndex;
+			byteIndex = 0;
 		}
 		return output;
 	}
@@ -117,11 +128,16 @@ public class ByteWriter{
 	/*----------- append bytes -------------*/
 
 	public ByteWriter bytes(byte[] value){
-		if(value.length == 0){
+		return bytes(value, 0, value.length);
+	}
+
+	public ByteWriter bytes(byte[] value, int from, int to){
+		int length = to - from;
+		if(length == 0){
 			return this;
 		}
-		int inputOffset = 0;
-		int inputRemaining = value.length;
+		int inputOffset = from;
+		int inputRemaining = length;
 		while(inputRemaining > 0){
 			addPageIfFull();
 			int chunkLength = Math.min(inputRemaining, lastPageFreeSpace());

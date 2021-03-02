@@ -18,6 +18,9 @@ package io.datarouter.web.email;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.string.StringTool;
@@ -30,6 +33,7 @@ import j2html.tags.ContainerTag;
 
 @Singleton
 public class DatarouterHtmlEmailService{
+	private static Logger logger = LoggerFactory.getLogger(DatarouterHtmlEmailService.class);
 
 	@Inject
 	private DatarouterWebFiles files;
@@ -75,6 +79,8 @@ public class DatarouterHtmlEmailService{
 			emailBuilder
 					.withLogoImgSrc(getEmailLogoHref())
 					.withLogoHref(logoHref);
+			logger.warn("building email for service={}, environment={}, includelogo={}, logoHref={}",
+					datarouterService.getServiceName(), datarouterProperties.getEnvironment(), includeLogo, logoHref);
 		}
 		return emailBuilder;
 	}

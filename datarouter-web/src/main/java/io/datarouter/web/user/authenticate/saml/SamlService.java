@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.messaging.context.MessageContext;
-import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.messaging.context.SAMLBindingContext;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -146,7 +145,7 @@ public class SamlService{
 					"",
 					null,
 					signingKeyPair);
-			MessageContext<SAMLObject> authnRequestContext = SamlTool.buildAuthnRequestAndContext(config);
+			MessageContext authnRequestContext = SamlTool.buildAuthnRequestAndContext(config);
 			persistAuthnRequestIdRedirectUrl(authnRequestContext, request);
 			SamlTool.redirectWithAuthnRequestContext(response, authnRequestContext);
 		}else{
@@ -154,7 +153,7 @@ public class SamlService{
 		}
 	}
 
-	private void persistAuthnRequestIdRedirectUrl(MessageContext<SAMLObject> authnRequest, HttpServletRequest request){
+	private void persistAuthnRequestIdRedirectUrl(MessageContext authnRequest, HttpServletRequest request){
 		String requestUrl = RequestTool.getRequestUrlString(request);
 		if(!isUrlOkForRedirect(requestUrl)){
 			//skip persisting bad URLs
@@ -174,7 +173,7 @@ public class SamlService{
 		}
 		SamlTool.throwUnlessHttps(request);
 
-		MessageContext<SAMLObject> responseMessageContext = SamlTool.getAndValidateResponseMessageContext(request,
+		MessageContext responseMessageContext = SamlTool.getAndValidateResponseMessageContext(request,
 				samlSettings.getSignatureCredential());
 		Response message = (Response)responseMessageContext.getMessage();
 
@@ -226,7 +225,7 @@ public class SamlService{
 	}
 
 	private void redirectAfterAuthentication(HttpServletRequest request, HttpServletResponse response,
-			MessageContext<SAMLObject> responseMessageContext){
+			MessageContext responseMessageContext){
 		String url = getRedirectUrl(request, responseMessageContext);
 		logger.debug("Redirecting to requested URL: " + url);
 		try{
@@ -236,7 +235,7 @@ public class SamlService{
 		}
 	}
 
-	private String getRedirectUrl(HttpServletRequest request, MessageContext<SAMLObject> responseContext){
+	private String getRedirectUrl(HttpServletRequest request, MessageContext responseContext){
 		String authnRequestId = ((Response)responseContext.getMessage()).getInResponseTo();
 		SamlAuthnRequestRedirectUrl redirect = samlDao.get(
 				new SamlAuthnRequestRedirectUrlKey(authnRequestId));
@@ -258,7 +257,7 @@ public class SamlService{
 		return true;
 	}
 
-	private static String getRedirectUrlFromResponseContext(MessageContext<SAMLObject> responseContext,
+	private static String getRedirectUrlFromResponseContext(MessageContext responseContext,
 			HttpServletRequest request){
 		SAMLBindingContext responseBindingContext = responseContext.getSubcontext(SAMLBindingContext.class, true);
 		String url = responseBindingContext.getRelayState();

@@ -31,7 +31,8 @@ public class MetricLinksNavBarItem implements DynamicNavBarItem{
 
 	@Override
 	public NavBarItem getNavBarItem(){
-		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL, paths.datarouter.metric.metricNames.appHandlers,
+		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL,
+				paths.datarouter.metric.metricLinks.view,
 				"Metric Links")
 				.setDispatchRule(new DispatchRule()
 						.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.USER))

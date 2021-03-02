@@ -23,4 +23,12 @@ public interface MetricLinkPage{
 	String getName();
 	List<MetricLinkDto> getMetricLinks();
 
+	default String getHtmlName(){
+		return getCategory().getName() + "-" + getName();
+	}
+
+	default String getHtmlId(){
+		return getCategory().getName() + "_" + getName();
+	}
+
 }

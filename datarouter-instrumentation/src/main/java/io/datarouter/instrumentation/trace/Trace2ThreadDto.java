@@ -24,8 +24,8 @@ public class Trace2ThreadDto{
 	public final String info;
 	public final String serverName;
 	public final Long created;
-	public final Long queuedDuration;
-	public final Long runningDuration;
+	public final Long queuedEnded;
+	public final Long ended;
 	public final Integer discardedSpanCount;
 	public final String hostThreadName;
 	public final Integer totalSpanCount;
@@ -38,8 +38,8 @@ public class Trace2ThreadDto{
 			String info,
 			String serverName,
 			Long created,
-			Long queuedDuration,
-			Long runningDuration,
+			Long queuedEnded,
+			Long ended,
 			Integer discardedSpanCount,
 			String hostThreadName,
 			Integer totalSpanCount){
@@ -51,16 +51,10 @@ public class Trace2ThreadDto{
 		this.created = created;
 		this.hostThreadName = hostThreadName;
 		this.info = info;
-		this.queuedDuration = queuedDuration;
-		this.runningDuration = runningDuration;
+		this.queuedEnded = queuedEnded;
+		this.ended = ended;
 		this.discardedSpanCount = discardedSpanCount;
 		this.totalSpanCount = totalSpanCount;
-	}
-
-	public Long getTotalDuration(){
-		long queued = queuedDuration == null ? 0 : queuedDuration;
-		long running = runningDuration == null ? 0 : runningDuration;
-		return queued + running;
 	}
 
 	public Traceparent getTraceparent(){
@@ -91,12 +85,12 @@ public class Trace2ThreadDto{
 		return created;
 	}
 
-	public Long getQueuedDuration(){
-		return queuedDuration;
+	public Long getQueuedEnded(){
+		return queuedEnded;
 	}
 
-	public Long getRunningDuration(){
-		return runningDuration;
+	public Long getEnced(){
+		return ended;
 	}
 
 	public Integer getDiscardedSpanCount(){

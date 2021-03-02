@@ -33,6 +33,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 	private final Class<? extends Joblet<P>> clazz;
 	private final boolean causesScaling;
 	public final Duration pollingPeriod;
+	public final boolean isSystem;
 
 	private JobletType(
 			String persistentString,
@@ -40,7 +41,8 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 			Supplier<JobletCodec<P>> codecSupplier,
 			Class<? extends Joblet<P>> clazz,
 			boolean causesScaling,
-			Duration pollingPeriod){
+			Duration pollingPeriod,
+			boolean isSystem){
 		this.persistentString = persistentString;
 		Require.isTrue(shortQueueName.length() <= DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME,
 				"shortQueueName length must be <= " + DatarouterJobletConstants.MAX_LENGTH_SHORT_QUEUE_NAME
@@ -50,6 +52,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 		this.clazz = clazz;
 		this.causesScaling = causesScaling;
 		this.pollingPeriod = pollingPeriod;
+		this.isSystem = isSystem;
 	}
 
 	public String getDisplay(){
@@ -102,6 +105,7 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 		private Class<? extends Joblet<P>> clazz;
 		private boolean causesScaling = true;
 		private Duration pollingPeriod = Duration.ofSeconds(5);
+		private boolean isSystem = false;
 
 		public JobletTypeBuilder(
 				String persistentString,
@@ -130,6 +134,11 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 			return this;
 		}
 
+		public JobletTypeBuilder<P> isSystem(){
+			this.isSystem = true;
+			return this;
+		}
+
 		public JobletType<P> build(){
 			return new JobletType<>(
 					persistentString,
@@ -137,7 +146,8 @@ public class JobletType<P> implements Comparable<JobletType<?>>{
 					codecSupplier,
 					clazz,
 					causesScaling,
-					pollingPeriod);
+					pollingPeriod,
+					isSystem);
 		}
 
 	}

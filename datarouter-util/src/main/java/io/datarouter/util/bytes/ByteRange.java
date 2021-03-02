@@ -17,6 +17,7 @@ package io.datarouter.util.bytes;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import io.datarouter.util.array.ArrayTool;
 
@@ -108,8 +109,10 @@ public class ByteRange implements Comparable<ByteRange>{
 		if(hashCode() != thatObject.hashCode()){
 			return false;
 		}
-		ByteRange that = (ByteRange)thatObject;
-		return ByteTool.equals(bytes, offset, length, that.bytes, that.offset, that.length);
+		ByteRange other = (ByteRange)thatObject;
+		int thisTo = offset + length;
+		int otherTo = other.offset + other.length;
+		return Arrays.equals(bytes, offset, thisTo, other.bytes, other.offset, otherTo);
 	}
 
 	@Override
@@ -130,8 +133,9 @@ public class ByteRange implements Comparable<ByteRange>{
 
 	@Override
 	public int compareTo(ByteRange other){
-		return ByteTool.bitwiseCompare(bytes, offset, length,
-				other.bytes, other.offset, other.length);
+		int thisTo = offset + length;
+		int otherTo = other.offset + other.length;
+		return Arrays.compareUnsigned(bytes, offset, thisTo, other.bytes, other.offset, otherTo);
 	}
 
 	public byte[] getBytes(){

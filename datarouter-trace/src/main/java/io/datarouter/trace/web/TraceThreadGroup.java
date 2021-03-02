@@ -157,7 +157,7 @@ public class TraceThreadGroup{
 		sb.append("<table style=\"width: 100%;\" class=\"table border\">");
 		var tr = tr(
 				td(leafNum + ") " + thread.getName() + " " + thread.getHostThreadName()),
-				td(NumberFormatter.addCommas(thread.getTotalDuration()) + "ms").withStyle("text-align: right;"))
+				td(NumberFormatter.addCommas(thread.getTotalDurationMs()) + "ms").withStyle("text-align: right;"))
 				.withStyle("font-weight: bold;");
 		sb.append(tr.render());
 
@@ -192,8 +192,8 @@ public class TraceThreadGroup{
 				prevEnd = parentSpan.created + parentSpan.queued;
 			}
 			// interspan
-			long interspanDuration = span.getCreated() - prevEnd;
-			if(interspanDuration != 0){
+			long interspanDuration = span.getCreatedMs() - prevEnd;
+			if(interspanDuration > 0){
 				var tr = tr(join(makeFirstCell(interspanDuration, "", indentation).toString(), td()))
 						.withStyle("background-color:#f9f9f9");
 				sb.append(tr.render());
@@ -201,16 +201,16 @@ public class TraceThreadGroup{
 			// span
 			String info = Optional.ofNullable(span.getInfo())
 					.orElse("");
-			var tr = tr(join(makeFirstCell(span.getDuration(), span.getName(), indentation).toString(), td(info)));
+			var tr = tr(join(makeFirstCell(span.getDurationMs(), span.getName(), indentation).toString(), td(info)));
 			sb.append(tr.render());
 			TimeDto dto = new TimeDto(span);
 			sb.append(buildSubSpans(dto, spanByParentSequenceId.get(span.getSequence()), spanByParentSequenceId,
 					indentation + 1));
-			prevEnd = span.getCreated() + span.getDuration();
+			prevEnd = span.getCreatedMs() + span.getDurationMs();
 		}
 		// last interspan
 		long lastInterspanDuration = parentSpan.created + parentSpan.duration - prevEnd;
-		if(lastInterspanDuration != 0){
+		if(lastInterspanDuration > 0){
 			var tr = tr(join(makeFirstCell(lastInterspanDuration, null, indentation).toString(), td()))
 					.withStyle("background-color:#f9f9f9");
 			sb.append(tr.render());
@@ -232,7 +232,7 @@ public class TraceThreadGroup{
 		}
 
 		var span = span(NumberFormatter.addCommas(durationMs) + " ms")
-				.withStyle("width:50px; display:inline-block;");
+				.withStyle("width:80px; display:inline-block;");
 		return sb.append(span.render())
 				.append(name)
 				.append("</td>");
@@ -274,15 +274,15 @@ public class TraceThreadGroup{
 		private final long duration;
 
 		public TimeDto(TraceSpanDto span){
-			this.created = span.getCreated();
+			this.created = span.getCreatedMs();
 			this.queued = 0;
-			this.duration = span.getDuration();
+			this.duration = span.getDurationMs();
 		}
 
 		public TimeDto(TraceThreadDto thread){
-			this.created = thread.getCreated();
-			this.queued = thread.getQueuedDuration();
-			this.duration = thread.getTotalDuration();
+			this.created = thread.getCreatedMs();
+			this.queued = thread.getQueuedDurationMs();
+			this.duration = thread.getTotalDurationMs();
 		}
 
 	}

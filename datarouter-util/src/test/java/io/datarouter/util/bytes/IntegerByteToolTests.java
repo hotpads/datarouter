@@ -16,6 +16,7 @@
 package io.datarouter.util.bytes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -64,8 +65,8 @@ public class IntegerByteToolTests{
 		byte[] p5 = IntegerByteTool.getComparableBytes(5);
 		byte[] n3 = IntegerByteTool.getComparableBytes(-3);
 		byte[] n7 = IntegerByteTool.getComparableBytes(-7);
-		Assert.assertTrue(ByteTool.bitwiseCompare(p5, n3) > 0);
-		Assert.assertTrue(ByteTool.bitwiseCompare(p5, n7) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(p5, n3) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(p5, n7) > 0);
 	}
 
 	@Test
@@ -92,7 +93,7 @@ public class IntegerByteToolTests{
 			byte[] bytes = IntegerByteTool.getComparableBytes(intValue);
 			int roundTripped = IntegerByteTool.fromComparableByteArray(bytes)[0];
 			try{
-				Assert.assertTrue(ByteTool.bitwiseCompare(lastBytes, bytes) < 0);
+				Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
 				Assert.assertEquals(roundTripped, intValue);
 			}catch(AssertionError e){
 				throw e;

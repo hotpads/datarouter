@@ -16,8 +16,10 @@
 package io.datarouter.aws.s3;
 
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -31,6 +33,7 @@ import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
+import io.datarouter.util.split.ChunkScannerTool;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
@@ -51,6 +54,14 @@ public interface DatarouterS3Client{
 	BufferedWriter putAsWriter(String bucket, String key, ContentType contentType);
 
 	OutputStream put(String bucket, String key, S3ContentType contentType);
+
+	default void put(String bucket, String key, S3ContentType contentType, InputStream inputStream){
+		try(OutputStream outputStream = put(bucket, key, contentType)){
+			inputStream.transferTo(outputStream);
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
+	}
 
 	void putObjectAsString(String bucket, String key, ContentType contentType, String content);
 
@@ -88,26 +99,9 @@ public interface DatarouterS3Client{
 			int numThreads,
 			int chunkSize){
 		long totalLength = length(bucket, key).orElseThrow();
-		var intialRange = new ChunkRange(0L, chunkSize);
-		return Scanner.iterate(intialRange, previous -> {
-					long start = previous.start + previous.length;
-					long remainingBytes = totalLength - start;
-					int length = (int)Math.min(chunkSize, remainingBytes);
-					return new ChunkRange(start, length);
-				})
-				.advanceWhile(range -> range.start + range.length < totalLength)
+		return ChunkScannerTool.scanChunks(totalLength, chunkSize)
 				.parallel(new ParallelScannerContext(exec, numThreads, false))
 				.map(range -> getPartialObject(bucket, key, range.start, range.length));
-	}
-
-	static class ChunkRange{
-		final long start;
-		final int length;
-
-		ChunkRange(long start, int length){
-			this.start = start;
-			this.length = length;
-		}
 	}
 
 	String getObjectAsString(String bucket, String key);

@@ -121,7 +121,7 @@ public class DatarouterHttpClientIntegrationTests{
 	@Test(expectedExceptions = DatarouterHttpRuntimeException.class)
 	public void testUncheckedException(){
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation")
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation")
 				.setRetrySafe(false);
 		client.execute(request);
 	}
@@ -131,7 +131,7 @@ public class DatarouterHttpClientIntegrationTests{
 		server.setResponseDelay(200);
 		try{
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
 					.setTimeout(Duration.ofMillis(100))
 					.setRetrySafe(false);
 			client.executeChecked(request);
@@ -143,7 +143,7 @@ public class DatarouterHttpClientIntegrationTests{
 	@Test(expectedExceptions = DatarouterHttpConnectionAbortedException.class, timeOut = 1000)
 	public void testInvalidLocation() throws DatarouterHttpException{
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation")
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, "invalidLocation")
 				.setRetrySafe(false);
 		client.executeChecked(request);
 	}
@@ -153,7 +153,7 @@ public class DatarouterHttpClientIntegrationTests{
 		server.setResponse(HttpStatus.SC_MOVED_PERMANENTLY,
 				"301 status code throws exception when not provided a location header");
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL).setRetrySafe(false);
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL).setRetrySafe(false);
 		client.executeChecked(request);
 	}
 
@@ -162,7 +162,7 @@ public class DatarouterHttpClientIntegrationTests{
 		server.setResponseDelay(200);
 		try{
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().setRetryCount(() -> 10).build();
-			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
 					.setRetrySafe(true)
 					.setTimeout(Duration.ofMillis(100));
 			client.executeChecked(request);
@@ -177,7 +177,7 @@ public class DatarouterHttpClientIntegrationTests{
 		String expectedResponse = UUID.randomUUID().toString();
 		server.setResponse(status, expectedResponse);
 		DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
 				.setRetrySafe(false);
 		DatarouterHttpResponse response = client.execute(request);
 		Assert.assertEquals(response.getEntity(), expectedResponse);
@@ -191,7 +191,7 @@ public class DatarouterHttpClientIntegrationTests{
 			String expectedResponse = UUID.randomUUID().toString();
 			server.setResponse(status, expectedResponse);
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
 					.setRetrySafe(false);
 			client.executeChecked(request);
 		}catch(DatarouterHttpResponseException e){
@@ -210,7 +210,7 @@ public class DatarouterHttpClientIntegrationTests{
 			String expectedResponse = UUID.randomUUID().toString();
 			server.setResponse(status, expectedResponse);
 			DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
-			var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+			DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
 					.setRetrySafe(false);
 			client.executeChecked(request);
 		}catch(DatarouterHttpResponseException e){

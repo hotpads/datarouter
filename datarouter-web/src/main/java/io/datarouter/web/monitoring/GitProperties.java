@@ -21,6 +21,8 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -106,7 +108,15 @@ public class GitProperties{
 
 	private Optional<Instant> getDateProperty(String propertyName){
 		return Optional.ofNullable(properties.getProperty(propertyName))
-				.map(value -> FORMAT.parse(value, Instant::from));
+				.map(value -> {
+					try{
+						return FORMAT.parse(value, Instant::from);
+					}catch(DateTimeParseException ex){
+						logger.warn("", ex);
+					}
+					return null;
+				})
+				.filter(Objects::nonNull);
 	}
 
 }

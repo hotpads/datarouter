@@ -16,21 +16,11 @@
 package io.datarouter.web.metriclinks;
 
 import java.util.List;
-import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.scanner.Scanner;
-import io.datarouter.web.config.RouteSetRegistry;
-import io.datarouter.web.dispatcher.BaseRouteSet;
-import io.datarouter.web.dispatcher.DispatchRule;
-
 @Singleton
-public class DatarouterHandlerMetricLinkPage implements MetricLinkPage{
-
-	@Inject
-	private RouteSetRegistry routeSetRegistry;
+public class DatarouterHandlerMetricLinkPage extends HandlerMetricLinkPage{
 
 	@Override
 	public MetricLinkCategory getCategory(){
@@ -38,27 +28,8 @@ public class DatarouterHandlerMetricLinkPage implements MetricLinkPage{
 	}
 
 	@Override
-	public String getName(){
-		return "Handlers";
-	}
-
-	@Override
 	public List<MetricLinkDto> getMetricLinks(){
-		return Scanner.of(routeSetRegistry.get())
-				.map(BaseRouteSet::getDispatchRules)
-				.concat(Scanner::of)
-				.include(DispatchRule::isSystemDispatchRule)
-				.map(DispatchRule::getHandlerClass)
-				.map(Class::getSimpleName)
-				.distinct()
-				.concat(Scanner::of)
-				.sorted()
-				.map(handlerName -> {
-					String exactMetric = "Datarouter handler class " + handlerName;
-					String availbleMetric = "Datarouter handler method " + handlerName;
-					return new MetricLinkDto(handlerName, Optional.of(exactMetric), Optional.of(availbleMetric));
-				})
-				.list();
+		return buildMetricLinks(true);
 	}
 
 }

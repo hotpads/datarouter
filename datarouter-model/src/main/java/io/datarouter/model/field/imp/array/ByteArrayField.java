@@ -102,7 +102,7 @@ public class ByteArrayField extends BaseField<byte[]>{
 
 	@Override
 	public int compareTo(Field<byte[]> other){
-		return ByteTool.bitwiseCompare(this.value, other.getValue());
+		return Arrays.compareUnsigned(this.value, other.getValue());
 	}
 
 }

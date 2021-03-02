@@ -30,11 +30,14 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 	private String action;
 	private String username;
 	private String comment;
+	private String note;
 
 	public static class FieldKeys{
 		public static final StringFieldKey action = new StringFieldKey("action");
 		public static final StringFieldKey username = new StringFieldKey("username");
 		public static final StringFieldKey comment = new StringFieldKey("comment")
+				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);;
+		public static final StringFieldKey note = new StringFieldKey("note")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);;
 	}
 
@@ -49,7 +52,8 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 			return List.of(
 					new StringField(FieldKeys.action, databean.action),
 					new StringField(FieldKeys.username, databean.username),
-					new StringField(FieldKeys.comment, databean.comment));
+					new StringField(FieldKeys.comment, databean.comment),
+					new StringField(FieldKeys.note, databean.note));
 		}
 
 	}
@@ -63,6 +67,7 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 		this.action = dto.action;
 		this.username = dto.username;
 		this.comment = dto.comment;
+		this.note = dto.note;
 	}
 
 	@Override
@@ -80,6 +85,26 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 
 	public String getComment(){
 		return comment;
+	}
+
+	public String getNote(){
+		return note;
+	}
+
+	public void setNote(String note){
+		this.note = note;
+	}
+
+	public ChangelogDto toDto(String serviceName){
+		return new ChangelogDto(
+				serviceName,
+				getKey().getChangelogType(),
+				getKey().getName(),
+				Long.MAX_VALUE - getKey().getReversedDateMs(),
+				action,
+				username,
+				comment,
+				note);
 	}
 
 }

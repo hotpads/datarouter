@@ -24,10 +24,14 @@ import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
 @Singleton
 public class LocalStorageSecretClientSupplier implements SecretClientSupplier{
 
-	@Inject
-	private LocalStorageConfig config;
+	private final LocalStorageConfig config;
+	private SecretClient localStorageSecretClient;
 
-	private LocalStorageSecretClient localStorageSecretClient;
+	@Inject
+	public LocalStorageSecretClientSupplier(LocalStorageConfig config){
+		this.config = config;
+		this.localStorageSecretClient = new LocalStorageSecretClient(config);
+	}
 
 	@Override
 	public SecretClient get(){

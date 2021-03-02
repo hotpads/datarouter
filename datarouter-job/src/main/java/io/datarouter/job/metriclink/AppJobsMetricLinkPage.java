@@ -13,26 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.metric.web;
+package io.datarouter.job.metriclink;
 
-import javax.inject.Inject;
+import java.util.List;
+
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageBuilder;
-import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4SubnavHtml;
+import io.datarouter.web.metriclinks.DefaultMetricLinkCategory;
+import io.datarouter.web.metriclinks.MetricLinkCategory;
+import io.datarouter.web.metriclinks.MetricLinkDto;
 
 @Singleton
-public class MetricNamesPageFactory extends Bootstrap4PageFactory{
-
-	@Inject
-	private MetricNamesSubnavFactory subnavFactory;
+public class AppJobsMetricLinkPage extends JobMetricLinkPage{
 
 	@Override
-	public Bootstrap4PageBuilder startBuilder(HttpServletRequest request){
-		return super.startBuilder(request)
-				.withNavbar(Bootstrap4SubnavHtml.render(subnavFactory.build(request.getContextPath())));
+	public MetricLinkCategory getCategory(){
+		return DefaultMetricLinkCategory.APP;
+	}
+
+	@Override
+	public List<MetricLinkDto> getMetricLinks(){
+		return buildMetricLinks(false);
 	}
 
 }

@@ -34,18 +34,18 @@ public class TracerTool{
 
 	/*---------------------------- TraceThread ------------------------------*/
 
-	public static void createAndStartThread(Tracer tracer, String name, long queueTimeMs){
+	public static void createAndStartThread(Tracer tracer, String name, long queueTimeNs){
 		if(tracer == null){
 			return;
 		}
-		tracer.createAndStartThread(name, queueTimeMs);
+		tracer.createAndStartThread(name, queueTimeNs);
 	}
 
-	public static void createThread(Tracer tracer, String name, long queueTimeMs){
+	public static void createThread(Tracer tracer, String name, long queueTimeNs){
 		if(tracer == null){
 			return;
 		}
-		tracer.createThread(name, queueTimeMs);
+		tracer.createThread(name, queueTimeNs);
 	}
 
 	public static void appendToThreadInfo(Tracer tracer, String text){

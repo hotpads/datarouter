@@ -13,47 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.io.split;
+package io.datarouter.util.split;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import io.datarouter.scanner.BaseLinkedScanner;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.array.PagedObjectArray;
 import io.datarouter.util.bytes.ByteTool;
 
-public class InputStreamSplitter<T>{
+public class ByteChunkSplitter<T>{
 
-	private final byte delimiter;
-	private final boolean skipFirst;
-	private final ByteSplitMapper<T> mapper;
+	private final Supplier<ByteChunkSplitterCollector<T>> collectorSupplier;
 
-	public InputStreamSplitter(
-			byte delimiter,
-			boolean skipFirst,
-			ByteSplitMapper<T> mapper){
-		this.delimiter = delimiter;
-		this.skipFirst = skipFirst;
-		this.mapper = mapper;
+	public ByteChunkSplitter(Supplier<ByteChunkSplitterCollector<T>> collectorSupplier){
+		this.collectorSupplier = collectorSupplier;
 	}
 
-	public Scanner<List<T>> split(Scanner<byte[]> byteArrays, ExecutorService exec, int numThreads){
-		var remainingSkipFirst = new AtomicBoolean(skipFirst);
+	public Scanner<List<T>> split(
+			Scanner<byte[]> byteArrays,
+			ExecutorService exec,
+			int numThreads,
+			byte delimiter,
+			boolean skipFirst){
+		AtomicBoolean remainingSkipFirst = new AtomicBoolean(skipFirst);
 		return byteArrays
 				.parallel(new ParallelScannerContext(exec, numThreads, false))
-				.map(chunk -> split(chunk, delimiter, remainingSkipFirst.getAndSet(false), mapper))
-				.link(chunkTokensScanner -> new ByteChunkParsingScanner<>(chunkTokensScanner, mapper));
-	}
-
-	public interface ByteSplitMapper<T>{
-
-		T apply(byte[] bytes, int start, int length);
-
+				.map(chunk -> split(chunk, delimiter, remainingSkipFirst.getAndSet(false), collectorSupplier.get()))
+				.link(chunkTokensScanner -> new ByteChunkParsingScanner<>(chunkTokensScanner, collectorSupplier.get()));
 	}
 
 	/**
@@ -63,10 +55,9 @@ public class InputStreamSplitter<T>{
 			byte[] chunk,
 			byte delimiter,
 			boolean skipFirst,
-			ByteSplitMapper<T> mapper){
+			ByteChunkSplitterCollector<T> collector){
 		boolean pendingSkip = skipFirst;
 		byte[] first = null;
-		PagedObjectArray<T> middle = new PagedObjectArray<>(16);
 		int count = 0;
 		int start = 0;
 		for(int i = 0; i < chunk.length; ++i){
@@ -78,8 +69,7 @@ public class InputStreamSplitter<T>{
 					if(count == 0){
 						first = ByteTool.copyOfRange(chunk, start, len);
 					}else{
-						T mapped = mapper.apply(chunk, start, len);
-						middle.add(mapped);
+						collector.collect(chunk, start, len);
 					}
 					++count;
 				}
@@ -91,8 +81,7 @@ public class InputStreamSplitter<T>{
 		if(lastTokenLength > 0){
 			byte[] lastToken = ByteTool.copyOfRange(chunk, start, lastTokenLength);
 			if(lastToken[lastToken.length - 1] == delimiter){
-				T mapped = mapper.apply(lastToken, start, lastTokenLength);
-				middle.add(mapped);
+				collector.collect(lastToken, start, lastTokenLength);
 			}else{
 				last = lastToken;
 			}
@@ -100,16 +89,16 @@ public class InputStreamSplitter<T>{
 		if(pendingSkip && count == 0){
 			throw new RuntimeException("Couldn't skip first token as delimiter not found in first chunk.");
 		}
-		return new ParsedByteChunk<>(first, middle, last);
+		return new ParsedByteChunk<>(first, collector.toList(), last);
 	}
 
 	public static class ParsedByteChunk<T>{
 
 		public final byte[] first;// potential continuation of previous token
-		public final PagedObjectArray<T> middle;// complete tokens
+		public final List<T> middle;// complete tokens
 		public final byte[] last;// potential prefix of later token
 
-		public ParsedByteChunk(byte[] first, PagedObjectArray<T> middle, byte[] last){
+		public ParsedByteChunk(byte[] first, List<T> middle, byte[] last){
 			if(first == null && middle.size() == 0 && last == null){
 				throw new IllegalArgumentException("no data");
 			}
@@ -132,7 +121,7 @@ public class InputStreamSplitter<T>{
 
 		@Override
 		public String toString(){
-			var sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 			if(first != null){
 				sb.append("f" + Arrays.toString(first));
 			}
@@ -147,13 +136,13 @@ public class InputStreamSplitter<T>{
 
 	public static class ByteChunkParsingScanner<T> extends BaseLinkedScanner<ParsedByteChunk<T>,List<T>>{
 
-		private final ByteSplitMapper<T> mapper;
+		private final ByteChunkSplitterCollector<T> collector;
 		private final PendingChunk<T> pending;
 		private byte[] carryover;
 
-		public ByteChunkParsingScanner(Scanner<ParsedByteChunk<T>> chunks, ByteSplitMapper<T> mapper){
+		public ByteChunkParsingScanner(Scanner<ParsedByteChunk<T>> chunks, ByteChunkSplitterCollector<T> collector){
 			super(chunks);
-			this.mapper = mapper;
+			this.collector = collector;
 			pending = new PendingChunk<>();
 			carryover = null;
 		}
@@ -164,7 +153,7 @@ public class InputStreamSplitter<T>{
 				if(carryover != null){
 					if(pending.hasFirst()){
 						carryover = ByteTool.concatenate(carryover, pending.takeFirst());
-						T mappedCarryover = mapper.apply(carryover, 0, carryover.length);
+						T mappedCarryover = collector.encode(carryover, 0, carryover.length);
 						current = Collections.singletonList(mappedCarryover);
 						carryover = null;
 						return true;
@@ -175,7 +164,7 @@ public class InputStreamSplitter<T>{
 				}
 				if(pending.hasFirst()){
 					byte[] first = pending.takeFirst();
-					T mappedFirst = mapper.apply(first, 0, first.length);
+					T mappedFirst = collector.encode(first, 0, first.length);
 					current = Collections.singletonList(mappedFirst);
 					return true;
 				}
@@ -193,7 +182,7 @@ public class InputStreamSplitter<T>{
 				break;
 			}
 			if(carryover != null){
-				T mappedCarryover = mapper.apply(carryover, 0, carryover.length);
+				T mappedCarryover = collector.encode(carryover, 0, carryover.length);
 				current = Collections.singletonList(mappedCarryover);
 				carryover = null;
 				return true;
@@ -240,7 +229,7 @@ public class InputStreamSplitter<T>{
 			if(first == null){
 				throw new IllegalStateException("first is missing");
 			}
-			var result = first;
+			byte[] result = first;
 			first = null;
 			return result;
 		}
@@ -249,7 +238,7 @@ public class InputStreamSplitter<T>{
 			if(middle == null){
 				throw new IllegalStateException("middle is missing");
 			}
-			var result = middle;
+			List<T> result = middle;
 			middle = null;
 			return result;
 		}
@@ -258,7 +247,7 @@ public class InputStreamSplitter<T>{
 			if(last == null){
 				throw new IllegalStateException("last is missing");
 			}
-			var result = last;
+			byte[] result = last;
 			last = null;
 			return result;
 		}

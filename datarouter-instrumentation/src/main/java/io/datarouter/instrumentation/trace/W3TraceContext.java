@@ -30,6 +30,7 @@ public class W3TraceContext{
 
 	private Traceparent traceparent;
 	private Tracestate tracestate;
+	private long createdTimestamp;
 	private boolean hasValidTraceparent = false;
 
 	/**
@@ -44,11 +45,23 @@ public class W3TraceContext{
 			tracestate = Tracestate.generateNew(traceparent.parentId);
 		}
 		parseOrCreateNewTracestate(tracestateStr);
+		this.createdTimestamp = createdTimestamp;
+	}
+
+	public W3TraceContext(Traceparent traceparent, Tracestate tracestate, long createdTimestamp){
+		this.traceparent = traceparent;
+		this.tracestate = tracestate;
+		this.createdTimestamp = createdTimestamp;
 	}
 
 	public W3TraceContext(long createdTimestamp){
-		traceparent = Traceparent.generateNew(createdTimestamp);
-		tracestate = Tracestate.generateNew(traceparent.parentId);
+		this.traceparent = Traceparent.generateNew(createdTimestamp);
+		this.tracestate = Tracestate.generateNew(traceparent.parentId);
+		this.createdTimestamp = createdTimestamp;
+	}
+
+	public W3TraceContext copy(){
+		return new W3TraceContext(traceparent, tracestate, createdTimestamp);
 	}
 
 	public Traceparent getTraceparent(){

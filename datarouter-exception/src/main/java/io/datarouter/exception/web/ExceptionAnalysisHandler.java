@@ -53,6 +53,7 @@ import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.util.BooleanTool;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.exception.ExceptionCounters;
@@ -63,6 +64,7 @@ import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.util.ExceptionService;
 import io.datarouter.web.util.http.CookieTool;
 
@@ -88,6 +90,8 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 	private ExceptionGraphLink exceptionGraphLink;
 	@Inject
 	private ExceptionIssueLinkPrefixSupplier issueLinkPrefixSupplier;
+	@Inject
+	private CurrentUserSessionInfoService currentUserSessionInfoService;
 
 	@Handler
 	public Mav browse(){
@@ -245,7 +249,8 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 				exceptionRecord.getCallOrigin(),
 				exceptionGraphLink.getMetricLink(exceptionRecord),
 				exceptionGraphLink.getCallOriginLink(exceptionRecord),
-				exceptionGraphLink.getExactMetricLink(exceptionRecord));
+				exceptionGraphLink.getExactMetricLink(exceptionRecord),
+				currentUserSessionInfoService.getZoneId(request));
 	}
 
 	public static class ExceptionRecordJspDto{
@@ -260,6 +265,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		private final String metricLink;
 		private final String callOriginLink;
 		private final String exactMetricLink;
+		private final ZoneId zoneId;
 
 		public ExceptionRecordJspDto(
 				String id,
@@ -271,7 +277,8 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 				String callOrigin,
 				String metricLink,
 				String callOriginLink,
-				String exactMetricLink){
+				String exactMetricLink,
+				ZoneId zoneId){
 			this.id = id;
 			this.created = created;
 			this.serverName = serverName;
@@ -282,14 +289,15 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 			this.metricLink = metricLink;
 			this.callOriginLink = callOriginLink;
 			this.exactMetricLink = exactMetricLink;
+			this.zoneId = zoneId;
 		}
 
 		public String getId(){
 			return id;
 		}
 
-		public Date getCreated(){
-			return created;
+		public String getCreated(){
+			return DateTool.formatDateWithZone(created, zoneId);
 		}
 
 		public String getServerName(){

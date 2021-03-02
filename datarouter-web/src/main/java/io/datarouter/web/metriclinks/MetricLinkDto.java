@@ -20,13 +20,33 @@ import java.util.Optional;
 public class MetricLinkDto{
 
 	public final String name;
-	public final Optional<String> exactMetricName;
-	public final Optional<String> availableMetricPrefix;
+	public final Optional<LinkDto> exactMetricName;
+	public final Optional<LinkDto> availableMetricPrefix;
 
-	public MetricLinkDto(String name, Optional<String> exactMetricName, Optional<String> availableMetricPrefix){
+	public MetricLinkDto(String name, Optional<LinkDto> exactMetricName, Optional<LinkDto> availableMetricPrefix){
 		this.name = name;
 		this.exactMetricName = exactMetricName;
 		this.availableMetricPrefix = availableMetricPrefix;
+	}
+
+	public static class LinkDto{
+
+		public final String display;
+		public final String metric;
+
+		private LinkDto(String display, String metric){
+			this.display = display;
+			this.metric = metric;
+		}
+
+		public static LinkDto of(String metric){
+			return new LinkDto("Link", metric);
+		}
+
+		public static LinkDto of(String display, String metric){
+			return new LinkDto(display, metric);
+		}
+
 	}
 
 }

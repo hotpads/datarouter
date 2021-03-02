@@ -405,6 +405,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		ResponseBytes<GetObjectResponse> response;
 		try(var $ = TracerTool.startSpan("S3 getPartialObject")){
 			response = s3Client.getObjectAsBytes(request);
+			TracerTool.appendToSpanInfo("offset", offset);
 			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
 		}
 		return response.asByteArray();

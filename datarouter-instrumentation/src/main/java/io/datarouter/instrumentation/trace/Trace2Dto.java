@@ -15,6 +15,9 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+
 public class Trace2Dto{
 
 	public final Traceparent traceparent;
@@ -23,7 +26,7 @@ public class Trace2Dto{
 	public final String type;
 	public final String params;
 	public final Long created;
-	public final Long duration;
+	public final Long ended;
 	public final String serviceName;
 	public final Integer discardedThreadCount;
 	public final Integer totalThreadCount;
@@ -44,7 +47,7 @@ public class Trace2Dto{
 		this.context = context;
 		this.type = type;
 		this.params = params;
-		this.duration = System.currentTimeMillis() - created;
+		this.ended = getCurrentTimeInNs();
 		this.serviceName = serviceName;
 		this.discardedThreadCount = discardedThreadCount;
 		this.totalThreadCount = totalThreadCount;
@@ -74,8 +77,8 @@ public class Trace2Dto{
 		return created;
 	}
 
-	public Long getDuration(){
-		return duration;
+	public Long getEnded(){
+		return ended;
 	}
 
 	public String getServiceName(){
@@ -88,6 +91,20 @@ public class Trace2Dto{
 
 	public Integer getTotalThreadCount(){
 		return totalThreadCount;
+	}
+
+	public static long getCurrentTimeInNs(){
+		Instant now = Instant.now();
+		return now.getEpochSecond() * 1_000_000_000 + now.getNano();
+	}
+
+	/*
+	 * TODO remove this method when all data in the Trace table is using nanosecond precision
+	 * Note: we need this method to support the old data (using millisecond precision) displayed in the UI
+	 */
+	public static long convertToMsFromNsIfNecessary(long timeInMsOrNs, long createdTimeInMsOrNs){
+		boolean isTimePrecisionInMillis = createdTimeInMsOrNs < 1_000_000_000_000_000L;
+		return isTimePrecisionInMillis ? timeInMsOrNs : TimeUnit.NANOSECONDS.toMillis(timeInMsOrNs);
 	}
 
 }

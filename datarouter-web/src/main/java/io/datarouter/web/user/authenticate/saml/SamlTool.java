@@ -30,6 +30,7 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -45,7 +46,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
@@ -80,6 +80,7 @@ import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Scoping;
+import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder;
 import org.opensaml.saml.saml2.core.impl.ScopingImpl;
 import org.opensaml.saml.saml2.metadata.Endpoint;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
@@ -102,7 +103,7 @@ import org.w3c.dom.Element;
 
 import io.datarouter.util.Require;
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.security.RandomIdentifierGenerationStrategy;
+import net.shibboleth.utilities.java.support.security.impl.RandomIdentifierGenerationStrategy;
 
 public class SamlTool{
 	private static final Logger logger = LoggerFactory.getLogger(SamlTool.class);
@@ -117,9 +118,9 @@ public class SamlTool{
 
 	// AuthnRequest
 
-	public static MessageContext<SAMLObject> buildAuthnRequestAndContext(AuthnRequestMessageConfig config){
+	public static MessageContext buildAuthnRequestAndContext(AuthnRequestMessageConfig config){
 		AuthnRequest authnRequest = build(AuthnRequest.DEFAULT_ELEMENT_NAME);
-		authnRequest.setIssueInstant(new DateTime());
+		authnRequest.setIssueInstant(Instant.now());
 		authnRequest.setDestination(config.identityProviderSingleSignOnServiceUrl);
 		authnRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
 		authnRequest.setAssertionConsumerServiceURL(config.serviceProviderAssertionConsumerServiceUrl);
@@ -130,7 +131,7 @@ public class SamlTool{
 		config.proxyCount.ifPresent(proxyCount -> authnRequest.setScoping(buildScoping(proxyCount)));
 		logSamlObject(authnRequest);
 
-		MessageContext<SAMLObject> authnRequestContext = new MessageContext<>();
+		MessageContext authnRequestContext = new MessageContext();
 		authnRequestContext.setMessage(authnRequest);
 		authnRequestContext.getSubcontext(SAMLBindingContext.class, true).setRelayState(config.relayState);
 		authnRequestContext.getSubcontext(SAMLPeerEntityContext.class, true).getSubcontext(SAMLEndpointContext.class,
@@ -155,7 +156,7 @@ public class SamlTool{
 	}
 
 	public static void redirectWithAuthnRequestContext(HttpServletResponse httpServletResponse,
-			MessageContext<SAMLObject> authnRequestContext){
+			MessageContext authnRequestContext){
 		HTTPRedirectDeflateEncoder encoder = new HTTPRedirectDeflateEncoder();
 		encoder.setHttpServletResponse(httpServletResponse);
 		encoder.setMessageContext(authnRequestContext);
@@ -175,9 +176,8 @@ public class SamlTool{
 	}
 
 	private static RequestedAuthnContext buildRequestedAuthnContext(){
-		AuthnContextClassRef passwordAuthnContextClassRef = build(AuthnContextClassRef
-				.DEFAULT_ELEMENT_NAME);
-		passwordAuthnContextClassRef.setAuthnContextClassRef(AuthnContext.PASSWORD_AUTHN_CTX);
+		AuthnContextClassRef passwordAuthnContextClassRef = new AuthnContextClassRefBuilder().buildObject();
+		passwordAuthnContextClassRef.setURI(AuthnContext.PASSWORD_AUTHN_CTX);
 
 		RequestedAuthnContext requestedAuthnContext = build(RequestedAuthnContext.DEFAULT_ELEMENT_NAME);
 		requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.MINIMUM);
@@ -194,10 +194,10 @@ public class SamlTool{
 
 	// response
 
-	public static MessageContext<SAMLObject> getAndValidateResponseMessageContext(HttpServletRequest request,
+	public static MessageContext getAndValidateResponseMessageContext(HttpServletRequest request,
 			Credential signatureCredential){
-		MessageContext<SAMLObject> responseMessageContext = decodeResponse(request);
-		logSamlObject(responseMessageContext.getMessage());
+		MessageContext responseMessageContext = decodeResponse(request);
+		logSamlObject((SAMLObject)responseMessageContext.getMessage());
 		validateMessageContext(responseMessageContext, request);
 		Response response = (Response)responseMessageContext.getMessage();
 		verifySignature(response, signatureCredential);
@@ -207,13 +207,11 @@ public class SamlTool{
 		return responseMessageContext;
 	}
 
-	// OpenSAML's generics are messed up and can't be used without warnings
-	@SuppressWarnings("unchecked")
-	private static void validateMessageContext(MessageContext<SAMLObject> context, HttpServletRequest request){
+	private static void validateMessageContext(MessageContext context, HttpServletRequest request){
 		// handler to check timing
 		MessageLifetimeSecurityHandler lifetimeSecurityHandler = new MessageLifetimeSecurityHandler();
-		lifetimeSecurityHandler.setClockSkew(1000);
-		lifetimeSecurityHandler.setMessageLifetime(Duration.ofMinutes(1).toMillis());
+		lifetimeSecurityHandler.setClockSkew(Duration.ofMillis(1000));
+		lifetimeSecurityHandler.setMessageLifetime(Duration.ofMinutes(1));
 		lifetimeSecurityHandler.setRequiredRule(true);
 
 		// handler to check that this is the right destination
@@ -221,10 +219,10 @@ public class SamlTool{
 		receivedEndpointSecurityHandler.setHttpServletRequest(request);
 
 		// run handlers
-		List<MessageHandler<SAMLObject>> handlers = new ArrayList<>();
+		List<MessageHandler> handlers = new ArrayList<>();
 		handlers.add(lifetimeSecurityHandler);
 		handlers.add(receivedEndpointSecurityHandler);
-		BasicMessageHandlerChain<SAMLObject> handlerChain = new BasicMessageHandlerChain<>();
+		BasicMessageHandlerChain handlerChain = new BasicMessageHandlerChain();
 		handlerChain.setHandlers(handlers);
 		try{
 			handlerChain.initialize();
@@ -301,7 +299,7 @@ public class SamlTool{
 
 	//encode/decode
 
-	private static MessageContext<SAMLObject> decodeResponse(HttpServletRequest request){
+	private static MessageContext decodeResponse(HttpServletRequest request){
 		HTTPPostDecoder samlMessageDecoder = new HTTPPostDecoder();
 		samlMessageDecoder.setHttpServletRequest(request);
 		try{

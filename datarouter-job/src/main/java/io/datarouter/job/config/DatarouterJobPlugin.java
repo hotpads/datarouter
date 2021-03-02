@@ -20,6 +20,8 @@ import java.util.List;
 
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
+import io.datarouter.job.metriclink.AppJobsMetricLinkPage;
+import io.datarouter.job.metriclink.DatarouterJobsMetricLinkPage;
 import io.datarouter.job.scheduler.JobSchedulerAppListener;
 import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao;
 import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao.DatarouterClusterJobLockDaoParams;
@@ -42,6 +44,8 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 	private DatarouterJobPlugin(
 			List<Class<? extends BaseTriggerGroup>> triggerGroupClasses,
 			DatarouterJobDaoModule daosModuleBuilder){
+		this.triggerGroupClasses = triggerGroupClasses;
+
 		addAppListener(JobSchedulerAppListener.class);
 		addRouteSetOrdered(DatarouterJobRouteSet.class, DatarouterWebRouteSet.class);
 		addSettingRoot(DatarouterJobSettingRoot.class);
@@ -50,8 +54,9 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, new DatarouterJobPaths().datarouter.triggers.list,
 				"Triggers");
 		addTestable(DatarouterJobBootstrapIntegrationService.class);
-		this.triggerGroupClasses = triggerGroupClasses;
 		addDatarouterGithubDocLink("datarouter-job");
+		addMetricLinkPages(AppJobsMetricLinkPage.class);
+		addMetricLinkPages(DatarouterJobsMetricLinkPage.class);
 	}
 
 	@Override

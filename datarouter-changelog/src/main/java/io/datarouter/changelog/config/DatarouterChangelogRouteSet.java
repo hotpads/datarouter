@@ -18,6 +18,7 @@ package io.datarouter.changelog.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.changelog.web.EditChangelogHandler;
 import io.datarouter.changelog.web.ManualChangelogHandler;
 import io.datarouter.changelog.web.ViewChangelogForDateRangeHandler;
 import io.datarouter.changelog.web.ViewChangelogHandler;
@@ -32,8 +33,9 @@ public class DatarouterChangelogRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterChangelogRouteSet(DatarouterChangelogPaths paths){
 		super(paths.datarouter.changelog);
-		handle(paths.datarouter.changelog.viewExact).withHandler(ViewExactChangelogHandler.class);
+		handle(paths.datarouter.changelog.edit).withHandler(EditChangelogHandler.class);
 		handle(paths.datarouter.changelog.insert).withHandler(ManualChangelogHandler.class);
+		handle(paths.datarouter.changelog.viewExact).withHandler(ViewExactChangelogHandler.class);
 		handle(paths.datarouter.changelog.viewAll).withHandler(ViewChangelogHandler.class);
 		handle(paths.datarouter.changelog.viewForDateRange).withHandler(ViewChangelogForDateRangeHandler.class);
 	}

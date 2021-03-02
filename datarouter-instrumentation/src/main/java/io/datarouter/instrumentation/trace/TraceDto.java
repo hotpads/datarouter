@@ -47,7 +47,7 @@ public class TraceDto{
 	}
 
 	public void markFinished(){
-		duration = System.currentTimeMillis() - created;
+		duration = Trace2Dto.getCurrentTimeInNs() - created;
 	}
 
 	public String getTraceId(){
@@ -86,12 +86,20 @@ public class TraceDto{
 		return created;
 	}
 
+	public Long getCreatedMs(){
+		return Trace2Dto.convertToMsFromNsIfNecessary(created, created);
+	}
+
 	public void setCreated(Long created){
 		this.created = created;
 	}
 
 	public Long getDuration(){
 		return duration;
+	}
+
+	public Long getDurationMs(){
+		return Trace2Dto.convertToMsFromNsIfNecessary(duration, created);
 	}
 
 	public void setDuration(Long duration){

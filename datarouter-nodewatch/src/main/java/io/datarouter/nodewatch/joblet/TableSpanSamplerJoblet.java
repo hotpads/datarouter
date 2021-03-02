@@ -53,6 +53,7 @@ public class TableSpanSamplerJoblet extends BaseJoblet<TableSpanSamplerJobletPar
 			.withShortQueueName("TableSampler") //unnecessary shortQueueName
 			.disableScaling()
 			.withPollingPeriod(Duration.ofSeconds(30))
+			.isSystem()
 			.build();
 
 	private static final Duration MAX_RUNNING_TIME = Duration.ofMinutes(10);

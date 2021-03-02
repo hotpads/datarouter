@@ -28,25 +28,13 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
-import io.datarouter.job.BaseTriggerGroup;
-import io.datarouter.job.TriggerGroupClasses;
-import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.metric.dto.MetricDashboardDto;
 import io.datarouter.metric.dto.MetricName;
 import io.datarouter.metric.dto.MiscMetricLinksDto;
 import io.datarouter.metric.links.MetricDashboardRegistry;
 import io.datarouter.metric.links.MiscMetricsLinksRegistry;
 import io.datarouter.metric.types.MetricNameType;
-import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.node.DatarouterNodes;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.web.config.RouteSetRegistry;
-import io.datarouter.web.dispatcher.BaseRouteSet;
-import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -54,16 +42,6 @@ import j2html.tags.DomContent;
 @Singleton
 public class ViewMetricNameService{
 
-	@Inject
-	private DatarouterClients clients;
-	@Inject
-	private DatarouterNodes datarouterNodes;
-	@Inject
-	private DatarouterInjector injector;
-	@Inject
-	private TriggerGroupClasses triggerGroupClasses;
-	@Inject
-	private RouteSetRegistry routeSetRegistry;
 	@Inject
 	private MetricLinkBuilder linkBuilder;
 	@Inject
@@ -98,83 +76,6 @@ public class ViewMetricNameService{
 				.withTarget("_blank"));
 	}
 
-	public List<MetricName> getNodeTableMetricNames(boolean showSystemInfo){
-		return Scanner.of(clients.getClientIds())
-				.include(ClientId::getWritable)
-				.map(ClientId::getName)
-				.map(datarouterNodes::getPhysicalNodesForClient)
-				.concat(Scanner::of)
-				.map(PhysicalNode::getFieldInfo)
-				.include(fieldInfo -> {
-					if(showSystemInfo){
-						return fieldInfo.getIsSystemTable();
-					}
-					return !fieldInfo.getIsSystemTable();
-				})
-				.map(fieldInfo -> {
-					String prefix = "Datarouter node "
-							+ clients.getClientTypeInstance(fieldInfo.getClientId()).getName()
-							+ " "
-							+ fieldInfo.getClientId().getName()
-							+ " "
-							+ fieldInfo.getNodeName();
-					return MetricName.availableMetric(fieldInfo.getNodeName(), prefix);
-				})
-				.list();
-	}
-
-	public List<MetricName> getJobMetricNames(boolean showSystemInfo){
-		return Scanner.of(injector.getInstances(triggerGroupClasses.get()))
-				.include(triggerGroup -> {
-					if(showSystemInfo){
-						return triggerGroup.isSystemTriggerGoup;
-					}
-					return !triggerGroup.isSystemTriggerGoup;
-				})
-				.map(BaseTriggerGroup::getJobPackages)
-				.concat(Scanner::of)
-				.map(JobPackage::toString)
-				.map(name -> {
-					String prefix = "Datarouter job " + name;
-					return MetricName.availableMetric(name, prefix);
-				})
-				.list();
-	}
-
-	public ContainerTag getHandlerMetricNames(String title, boolean showSystemInfo){
-		var list = Scanner.of(routeSetRegistry.get())
-				.map(BaseRouteSet::getDispatchRules)
-				.concat(Scanner::of)
-				.include(dispatchRule -> {
-					if(showSystemInfo){
-						return dispatchRule.isSystemDispatchRule();
-					}
-					return !dispatchRule.isSystemDispatchRule();
-				})
-				.map(DispatchRule::getHandlerClass)
-				.map(Class::getSimpleName)
-				.distinct()
-				.concat(Scanner::of)
-				.sorted()
-				.list();
-		if(list.size() == 0){
-			return div();
-		}
-		var h2 = h2(title);
-		var table = new J2HtmlTable<String>()
-				.withClasses("table table-sm table-striped my-4 border")
-				.withHtmlColumn(th("Handlers").withClass("w-50"), row -> td(row))
-				.withHtmlColumn(th("Exact").withClass("w-25"), row -> td(a("Class")
-						.withHref(linkBuilder.exactMetricLink("Datarouter handler class " + row))
-						.withTarget("_blank")))
-				.withHtmlColumn(th("Available").withClass("w-25"), row -> td(a("Endpoints")
-						.withHref(linkBuilder.availableMetricsLink("Datarouter handler method " + row))
-						.withTarget("_blank")))
-				.withCaption("Total " + list.size())
-				.build(list);
-		return div(h2, table)
-				.withClass("container my-4");
-	}
 
 	public ContainerTag getDashboardsTable(){
 		var dasboards = dashboardRegistry.dashboards;

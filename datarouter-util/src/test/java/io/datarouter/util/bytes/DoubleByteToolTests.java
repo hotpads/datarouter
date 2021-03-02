@@ -16,6 +16,7 @@
 package io.datarouter.util.bytes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class DoubleByteToolTests{
 				.list();
 		List<Double> roundTripped = interestingDoubles.stream()
 				.map(DoubleByteTool::toComparableBytes)
-				.sorted(ByteTool::bitwiseCompare)
+				.sorted(Arrays::compareUnsigned)
 				.map(bytes -> DoubleByteTool.fromComparableBytes(bytes, 0))
 				.collect(Collectors.toList());
 		Assert.assertEquals(roundTripped, interestingDoubles);
@@ -62,7 +63,7 @@ public class DoubleByteToolTests{
 		double bback = DoubleByteTool.fromBytes(bbytes, 0);
 		Assert.assertTrue(valueB == bback);
 
-		Assert.assertTrue(ByteTool.bitwiseCompare(abytes, bbytes) < 0);//positives and negatives are reversed
+		Assert.assertTrue(Arrays.compareUnsigned(abytes, bbytes) < 0);//positives and negatives are reversed
 	}
 
 	@Test

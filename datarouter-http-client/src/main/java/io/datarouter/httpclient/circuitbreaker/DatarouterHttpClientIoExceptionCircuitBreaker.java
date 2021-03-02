@@ -80,7 +80,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		internalHttpRequest = request.getRequest();
 		W3TraceContext traceContext;
 		if(tracer != null && tracer.getTraceContext().isPresent()){
-			traceContext = tracer.getTraceContext().get();
+			traceContext = tracer.getTraceContext().get().copy();
 			traceContext.updateParentIdAndAddTracestateMember();
 		}else{
 			count("traceContext null");
@@ -89,7 +89,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		String traceparent = traceContext.getTraceparent().toString();
 		try{
 			count("request");
-			logger.debug("W3TraceContext={} passing to request={}", traceContext, request.getPath());
+			logger.debug("traceparent={} passing to request={}", traceContext.getTraceparent(), request.getPath());
 			internalHttpRequest.addHeader(TRACEPARENT, traceparent);
 			internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
 			context.setAttribute(TRACEPARENT, traceContext.getTraceparent().toString());
@@ -119,7 +119,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				logger.warn("Slow request target={} duration={} remoteTraceId={}", request.getPath(), duration, traceId
 						.orElse(""));
 			}
-			var response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
+			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
 			if(isBadStatusCode){
 				TracerTool.appendToSpanInfo("bad status code", statusCode);
 				ex = new DatarouterHttpResponseException(response, duration, traceparent, request.getPath());

@@ -13,21 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.io.split;
+package io.datarouter.util.split;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.io.split.InputStreamSplitter.ByteChunkParsingScanner;
-import io.datarouter.util.io.split.InputStreamSplitter.ByteSplitMapper;
+import io.datarouter.util.split.ByteChunkSplitter.ByteChunkParsingScanner;
 
-public class ByteChunkParsingScannerTests{
+public class ByteChunkSplitterTests{
 
-	private static final byte DELIMITER = (byte)'$';
-	private static final ByteSplitMapper<String> MAPPER = InputStreamSplitters.TO_STRING_US_ASCII;
+	private static final byte DELIMITER = '$';
+
+	private static class Collector implements ByteChunkSplitterCollector<String>{
+
+		private final List<String> result = new ArrayList<>();
+
+		@Override
+		public String encode(byte[] bytes, int start, int length){
+			return new String(bytes, start, length, StandardCharsets.US_ASCII);
+		}
+
+		@Override
+		public void collect(byte[] bytes, int start, int length){
+			result.add(encode(bytes, start, length));
+		}
+
+		@Override
+		public List<String> toList(){
+			return result;
+		}
+
+	}
 
 	@Test
 	public void testByteChunkParsingScannerSingleChunk(){
@@ -54,8 +75,8 @@ public class ByteChunkParsingScannerTests{
 	private static List<String> split(List<String> chunkStrings){
 		return Scanner.of(chunkStrings)
 				.map(String::getBytes)
-				.map(chunk -> InputStreamSplitter.split(chunk, DELIMITER, false, MAPPER))
-				.link(chunkTokensScanner -> new ByteChunkParsingScanner<>(chunkTokensScanner, MAPPER))
+				.map(chunk -> ByteChunkSplitter.split(chunk, DELIMITER, false, new Collector()))
+				.link(chunkTokensScanner -> new ByteChunkParsingScanner<>(chunkTokensScanner, new Collector()))
 				.concat(Scanner::of)
 				.list();
 	}
@@ -63,11 +84,10 @@ public class ByteChunkParsingScannerTests{
 	@Test
 	public void testSkipFirst(){
 		List<String> chunkStrings = List.of("aaa$bbb$ccc$");
-		boolean skipFirst = true;
 		List<String> actual = Scanner.of(chunkStrings)
 				.map(String::getBytes)
-				.map(chunk -> InputStreamSplitter.split(chunk, DELIMITER, skipFirst, MAPPER))
-				.link(chunkTokensScanner -> new ByteChunkParsingScanner<>(chunkTokensScanner, MAPPER))
+				.map(chunk -> ByteChunkSplitter.split(chunk, DELIMITER, true, new Collector()))
+				.link(chunkTokensScanner -> new ByteChunkParsingScanner<>(chunkTokensScanner, new Collector()))
 				.concat(Scanner::of)
 				.list();
 		List<String> expected = List.of("bbb$", "ccc$");
@@ -76,7 +96,7 @@ public class ByteChunkParsingScannerTests{
 
 	@Test(expectedExceptions = {Exception.class})
 	public void testSkipFirstFailure(){
-		InputStreamSplitter.split(new byte[]{5, 5, 5, 5}, DELIMITER, true, InputStreamSplitters.TO_BYTES);
+		ByteChunkSplitter.split(new byte[]{5, 5, 5, 5}, DELIMITER, true, new Collector());
 	}
 
 }

@@ -18,6 +18,7 @@ package io.datarouter.util.io;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
 
@@ -65,7 +66,7 @@ public class InputStreamTool{
 
 	public static final byte[] readThroughByte(InputStream inputStream, byte throughByte){
 		int throughInt = Byte.toUnsignedInt(throughByte);
-		var result = new ByteArrayOutputStream();
+		ByteArrayOutputStream result = new ByteArrayOutputStream();
 		try{
 			while(true){
 				int in = inputStream.read();
@@ -89,6 +90,14 @@ public class InputStreamTool{
 				return bytes;
 			}
 			return Arrays.copyOfRange(bytes, 0, numRead);
+		}catch(IOException e){
+			throw new UncheckedIOException(e);
+		}
+	}
+
+	public static final void transfer(InputStream inputStream, OutputStream outputStream){
+		try{
+			inputStream.transferTo(outputStream);
 		}catch(IOException e){
 			throw new UncheckedIOException(e);
 		}

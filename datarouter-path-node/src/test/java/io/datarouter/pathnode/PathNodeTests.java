@@ -41,7 +41,7 @@ public class PathNodeTests{
 
 	@Test
 	public void testJoin(){
-		var paths = new TestPaths();
+		TestPaths paths = new TestPaths();
 
 		Assert.assertEquals(paths.aa.join("/"), "aa");
 		Assert.assertEquals(paths.aa.bb.join("/"), "aa/bb");
@@ -57,7 +57,7 @@ public class PathNodeTests{
 
 	@Test
 	public void testToStringArray(){
-		var paths = new TestPaths();
+		TestPaths paths = new TestPaths();
 		Assert.assertEquals(paths.aa.toStringArray(), new String[]{"aa"});
 		Assert.assertEquals(paths.aa.bb.toStringArray(), new String[]{"aa", "bb"});
 		Assert.assertEquals(paths.aa.bb.cc.toStringArray(), new String[]{"aa", "bb", "cc"});
@@ -65,7 +65,7 @@ public class PathNodeTests{
 
 	@Test
 	public void testToSlashedString(){
-		var paths = new TestPaths();
+		TestPaths paths = new TestPaths();
 		Assert.assertEquals(paths.aa.toSlashedString(), "/aa");
 		Assert.assertEquals(paths.aa.bb.toSlashedString(), "/aa/bb");
 		Assert.assertEquals(paths.aa.bb.cc.toSlashedString(), "/aa/bb/cc");
@@ -73,7 +73,7 @@ public class PathNodeTests{
 
 	@Test
 	public void testToSlashedStringWithEndingSlash(){
-		var paths = new TestPaths();
+		TestPaths paths = new TestPaths();
 		Assert.assertEquals(paths.aa.toSlashedStringWithTrailingSlash(), "/aa/");
 		Assert.assertEquals(paths.aa.bb.toSlashedStringWithTrailingSlash(), "/aa/bb/");
 		Assert.assertEquals(paths.aa.bb.cc.toSlashedStringWithTrailingSlash(), "/aa/bb/cc/");
@@ -81,14 +81,14 @@ public class PathNodeTests{
 
 	@Test
 	public void testNodesAfter(){
-		var paths = new TestPaths();
+		TestPaths paths = new TestPaths();
 		List<PathNode> nodesAfter = PathNode.nodesAfter(paths.aa, paths.aa.bb.cc);
 		Assert.assertEquals(PathNode.toSlashedString(nodesAfter, true), "/bb/cc");
 	}
 
 	@Test
 	public void testToSlashedStringAfter(){
-		var paths = new TestPaths();
+		TestPaths paths = new TestPaths();
 		PathNode cc = paths.aa.bb.cc;
 		Assert.assertEquals(cc.toSlashedStringAfter(null, true), "/aa/bb/cc");
 		Assert.assertEquals(cc.toSlashedStringAfter(paths.aa, true), "/bb/cc");
@@ -97,15 +97,15 @@ public class PathNodeTests{
 
 	@Test
 	public void testEquals(){
-		var paths1 = new TestPaths();
-		var paths2 = new TestPaths();
+		TestPaths paths1 = new TestPaths();
+		TestPaths paths2 = new TestPaths();
 		Assert.assertNotSame(paths1.aa, paths2.aa);
 		Assert.assertEquals(paths1.aa, paths2.aa);
 	}
 
 	@Test
 	public void testParse(){
-		var paths = new TestPaths();
+		TestPaths paths = new TestPaths();
 		PathNode cc = paths.aa.bb.cc;
 		Assert.assertEquals(PathNode.parse(cc.toSlashedString()), cc);
 		Assert.assertEquals(PathNode.parse(cc.join("/")), cc);

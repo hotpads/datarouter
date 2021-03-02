@@ -28,6 +28,9 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -45,6 +48,7 @@ import io.datarouter.web.monitoring.BuildProperties;
 
 @Singleton
 public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
+	private static Logger logger = LoggerFactory.getLogger(MysqlSchemaUpdateService.class);
 
 	private final MysqlSingleTableSchemaUpdateService mysqlSingleTableSchemaUpdateService;
 	private final DatarouterHtmlEmailService htmlEmailService;
@@ -94,6 +98,7 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 				.withTitleHref(primaryHref)
 				.withContent(pre(body));
 		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
+		logger.warn("Sending Schema update email from={}, with subject={}", fromEmail, subject);
 	}
 
 	@Override

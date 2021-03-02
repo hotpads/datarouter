@@ -108,7 +108,7 @@ public class Count{
 		private final List<Count> counts = new ArrayList<>();
 
 		public Count add(String name){
-			var count = new Count(name);
+			Count count = new Count(name);
 			counts.add(count);
 			return count;
 		}

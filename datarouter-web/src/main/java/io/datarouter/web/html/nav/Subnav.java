@@ -17,16 +17,25 @@ package io.datarouter.web.html.nav;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Subnav{
 
 	public final String name;
 	public final String href;
+	public final Optional<String> id;
 	public final List<Dropdown> dropdowns = new ArrayList<>();
+
+	public Subnav(String name, String href, String id){
+		this.name = name;
+		this.href = href;
+		this.id = Optional.of(id);
+	}
 
 	public Subnav(String name, String href){
 		this.name = name;
 		this.href = href;
+		this.id = Optional.empty();
 	}
 
 	public Subnav add(Dropdown dropdown){

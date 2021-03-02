@@ -17,6 +17,7 @@ package io.datarouter.util.tracer;
 
 import java.util.concurrent.Callable;
 
+import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -26,13 +27,13 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 	protected final String traceThreadName;
 	protected final Thread parentThread;
 	protected final Tracer parentTracer;
-	private final long queueTimeMs;
+	private final long queueTime;
 
 	public TracedCheckedCallable(String traceThreadName){
 		this.traceThreadName = traceThreadName;
 		this.parentThread = Thread.currentThread();
 		this.parentTracer = TracerThreadLocal.get();
-		this.queueTimeMs = System.currentTimeMillis(); // approximate queue time with task creation time
+		this.queueTime = Trace2Dto.getCurrentTimeInNs(); // approximate queue time with task creation time
 	}
 
 	@Override
@@ -49,7 +50,7 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 		if(shouldStartNestedTrace){
 			tracer = parentTracer.createChildTracer();
 			TracerThreadLocal.bindToThread(tracer);
-			TracerTool.createAndStartThread(tracer, traceThreadName, queueTimeMs);
+			TracerTool.createAndStartThread(tracer, traceThreadName, queueTime);
 		}
 
 		V result = wrappedCall();

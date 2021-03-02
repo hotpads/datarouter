@@ -15,13 +15,18 @@
  */
 package io.datarouter.storage.node.op.raw.read;
 
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.util.Subpath;
+import io.datarouter.util.split.ChunkScannerTool;
 
 /**
  * Methods for reading from an blob store such as the filesystem or S3.
@@ -35,11 +40,23 @@ extends NodeOps<PK,D>{
 	Subpath getRootPath();
 
 	boolean exists(PathbeanKey key);
+	Optional<Long> length(PathbeanKey key);
 
 	byte[] read(PathbeanKey key);
 	byte[] read(PathbeanKey key, long offset, int length);
 
 	Scanner<PathbeanKey> scanKeys(Subpath subpath);
 	Scanner<Pathbean> scan(Subpath subpath);
+
+	default Scanner<byte[]> scanChunks(
+			PathbeanKey key,
+			ExecutorService exec,
+			int numThreads,
+			int chunkSize){
+		long totalLength = length(key).orElseThrow();
+		return ChunkScannerTool.scanChunks(totalLength, chunkSize)
+				.parallel(new ParallelScannerContext(exec, numThreads, false))
+				.map(range -> read(key, range.start, range.length));
+	}
 
 }

@@ -33,7 +33,7 @@ import java.util.stream.StreamSupport;
 public class ScannerTool{
 
 	public static <T> boolean allMatch(Scanner<T> scanner, Predicate<? super T> predicate){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			while(scanner.advance()){
 				if(!predicate.test(scanner.current())){
 					return false;
@@ -44,7 +44,7 @@ public class ScannerTool{
 	}
 
 	public static <T> boolean anyMatch(Scanner<T> scanner, Predicate<? super T> predicate){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			while(scanner.advance()){
 				if(predicate.test(scanner.current())){
 					return true;
@@ -55,7 +55,7 @@ public class ScannerTool{
 	}
 
 	public static <T,C extends Collection<T>> C collect(Scanner<T> scanner, Supplier<C> collectionSupplier){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			C collection = collectionSupplier.get();
 			while(scanner.advance()){
 				collection.add(scanner.current());
@@ -65,7 +65,7 @@ public class ScannerTool{
 	}
 
 	public static <T> long count(Scanner<T> scanner){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			long count = 0;
 			while(scanner.advance()){
 				++count;
@@ -75,7 +75,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> findAny(Scanner<T> scanner){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			if(scanner.advance()){
 				return Optional.of(scanner.current());
 			}
@@ -84,7 +84,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> findFirst(Scanner<T> scanner){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			if(scanner.advance()){
 				return Optional.of(scanner.current());
 			}
@@ -93,7 +93,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> findLast(Scanner<T> scanner){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			T last = null;
 			boolean foundAny = false;
 			while(scanner.advance()){
@@ -111,7 +111,7 @@ public class ScannerTool{
 	}
 
 	public static <T> void forEach(Scanner<T> scanner, Consumer<? super T> action){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			while(scanner.advance()){
 				action.accept(scanner.current());
 			}
@@ -119,19 +119,19 @@ public class ScannerTool{
 	}
 
 	public static <T> boolean hasAny(Scanner<T> scanner){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			return scanner.advance();
 		}
 	}
 
 	public static <T> boolean isEmpty(Scanner<T> scanner){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			return !scanner.advance();
 		}
 	}
 
 	public static <T> ArrayList<T> list(Scanner<T> scanner){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			ArrayList<T> list = new ArrayList<>();
 			while(scanner.advance()){
 				list.add(scanner.current());
@@ -141,7 +141,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> max(Scanner<T> scanner, Comparator<? super T> comparator){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			T max = null;
 			while(scanner.advance()){
 				T current = scanner.current();
@@ -154,7 +154,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> min(Scanner<T> scanner, Comparator<? super T> comparator){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			T min = null;
 			while(scanner.advance()){
 				T current = scanner.current();
@@ -174,7 +174,7 @@ public class ScannerTool{
 	}
 
 	public static <T> boolean noneMatch(Scanner<T> scanner, Predicate<? super T> predicate){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			while(scanner.advance()){
 				if(predicate.test(scanner.current())){
 					return false;
@@ -185,7 +185,7 @@ public class ScannerTool{
 	}
 
 	public static <T> Optional<T> reduce(Scanner<T> scanner, BinaryOperator<T> reducer){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			T result = null;
 			boolean foundAny = false;
 			while(scanner.advance()){
@@ -201,7 +201,7 @@ public class ScannerTool{
 	}
 
 	public static <T> T reduce(Scanner<T> scanner, T seed, BinaryOperator<T> reducer){
-		try(var $ = scanner){
+		try(Scanner<T> $ = scanner){
 			T result = seed;
 			while(scanner.advance()){
 				result = reducer.apply(result, scanner.current());

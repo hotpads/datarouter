@@ -24,6 +24,7 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
@@ -80,7 +81,7 @@ public class DatarouterTracer implements Tracer{
 	}
 
 	@Override
-	public void createThread(String name, long queueTimeMs){
+	public void createThread(String name, long queueTimeNs){
 		if(traceId == null){
 			return;
 		}
@@ -92,7 +93,7 @@ public class DatarouterTracer implements Tracer{
 				parentId,
 				getServerName(),
 				name,
-				queueTimeMs,
+				queueTimeNs,
 				hostThreadName);
 		setCurrentThread(thread);
 	}
@@ -154,7 +155,7 @@ public class DatarouterTracer implements Tracer{
 				currentThread.getThreadId(),
 				nextSpanSequence,
 				parentSequence,
-				System.currentTimeMillis());
+				Trace2Dto.getCurrentTimeInNs());
 		span.setName(name);
 		getSpanStack().add(span);
 		++nextSpanSequence;

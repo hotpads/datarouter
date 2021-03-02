@@ -31,8 +31,8 @@ public class EndpointTool{
 	public static DatarouterHttpRequest toDatarouterHttpRequest(BaseEndpoint<?> endpoint){
 		Objects.requireNonNull(endpoint.urlPrefix);
 		String finalUrl = URI.create(endpoint.urlPrefix + endpoint.pathNode.toSlashedString()).normalize().toString();
-		var request = new DatarouterHttpRequest(endpoint.method, finalUrl);
-		endpoint.retrySafe.ifPresent(request::setRetrySafe);
+		DatarouterHttpRequest request = new DatarouterHttpRequest(endpoint.method, finalUrl);
+		request.setRetrySafe(endpoint.retrySafe);
 		endpoint.timeout.ifPresent(request::setTimeout);
 		for(Field field : endpoint.getClass().getFields()){
 			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);

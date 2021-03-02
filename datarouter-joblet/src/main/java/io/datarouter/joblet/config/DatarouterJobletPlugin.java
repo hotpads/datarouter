@@ -20,6 +20,8 @@ import java.util.List;
 
 import io.datarouter.joblet.DatarouterJobletAppListener;
 import io.datarouter.joblet.enums.JobletQueueMechanism;
+import io.datarouter.joblet.metriclink.AppJobletMetricLinkPage;
+import io.datarouter.joblet.metriclink.DatarouterJobletMetricLinkPage;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder;
 import io.datarouter.joblet.nav.JobletExternalLinkBuilder.NoOpJobletExternalLinkBuilder;
 import io.datarouter.joblet.queue.JobletRequestSelector;
@@ -68,6 +70,8 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		addTestable(DatarouterJobletBootstrapIntegrationService.class);
 		addDatarouterGithubDocLink("datarouter-joblet");
 		addDailyDigest(JobletDailyDigest.class);
+		addMetricLinkPages(AppJobletMetricLinkPage.class);
+		addMetricLinkPages(DatarouterJobletMetricLinkPage.class);
 	}
 
 	@Override

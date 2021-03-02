@@ -56,7 +56,7 @@ public class DatarouterHttpRequestBuilder{
 	}
 
 	public DatarouterHttpRequest createPost(String path, Object entityDto){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path));
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path));
 		httpClient.setEntityDto(request, entityDto);
 		return request;
 	}
@@ -77,7 +77,7 @@ public class DatarouterHttpRequestBuilder{
 	}
 
 	public DatarouterHttpRequest createPostWithRetries(String path, Object entityDto){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path));
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, buildUrl(path));
 		request.setRetrySafe(true);
 		httpClient.setEntityDto(request, entityDto);
 		return request;

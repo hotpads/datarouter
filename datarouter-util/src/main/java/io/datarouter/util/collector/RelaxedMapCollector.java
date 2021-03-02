@@ -51,7 +51,7 @@ public class RelaxedMapCollector{
 			Function<? super T,? extends K> keyMapper,
 			Function<? super T,? extends U> valueMapper,
 			Supplier<M> supplier){
-		return new Collector<>(){
+		return new Collector<T,M,M>(){
 
 			@Override
 			public Supplier<M> supplier(){

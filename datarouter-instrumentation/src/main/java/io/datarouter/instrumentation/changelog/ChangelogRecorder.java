@@ -20,11 +20,15 @@ import java.util.Optional;
 public interface ChangelogRecorder{
 
 	default void record(String changelogType, String name, String action, String username){
-		record(changelogType, name, action, username, null);
+		record(changelogType, name, action, username, null, null);
 	}
 
 	default void record(String changelogType, String name, String action, String username, String comment){
-		record(changelogType, name, action, username, comment);
+		record(changelogType, name, action, username, comment, null);
+	}
+
+	default void record(String changelogType, String name, String action, String username, String comment, String note){
+		record(changelogType, name, action, username, comment, note);
 	}
 
 	void recordAndSendEmail(
@@ -33,12 +37,16 @@ public interface ChangelogRecorder{
 			String action,
 			String username,
 			Optional<String> comment,
+			Optional<String> note,
 			Optional<String> additionalSendTos);
+
+	void update(ChangelogDto changelogDto);
 
 	class NoOpChangelogRecorder implements ChangelogRecorder{
 
 		@Override
-		public void record(String changelogType, String name, String action, String username, String comment){
+		public void record(String changelogType, String name, String action, String username, String comment,
+				String note){
 		}
 
 		@Override
@@ -48,7 +56,12 @@ public interface ChangelogRecorder{
 				String action,
 				String username,
 				Optional<String> comment,
+				Optional<String> note,
 				Optional<String> additionalSendTos){
+		}
+
+		@Override
+		public void update(ChangelogDto changelogDto){
 		}
 
 	}

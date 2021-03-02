@@ -51,6 +51,7 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeExceptio
 import io.datarouter.httpclient.security.CsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.httpclient.security.SignatureGenerator;
+import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 
 @Singleton
@@ -121,7 +122,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public <E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
 		String entity = executeChecked(request).getEntity();
-		try(var $ = TracerTool.startSpan("JsonSerializer deserialize")){
+		try(TraceSpanFinisher $ = TracerTool.startSpan("JsonSerializer deserialize")){
 			TracerTool.appendToSpanInfo("characters", entity.length());
 			return jsonSerializer.deserialize(entity, deserializeToType);
 		}
@@ -137,7 +138,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	throws DatarouterHttpException{
 		setSecurityProperties(request);
 
-		var context = new HttpClientContext();
+		HttpClientContext context = new HttpClientContext();
 		context.setAttribute(HttpRetryTool.RETRY_SAFE_ATTRIBUTE, request.getRetrySafe());
 		CookieStore cookieStore = new BasicCookieStore();
 		for(BasicClientCookie cookie : request.getCookies()){
@@ -186,7 +187,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public <E> Conditional<E> tryExecute(BaseEndpoint<E> endpoint){
 		initUrlPrefix(endpoint);
-		var datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
+		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		endpoint.entity.ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		return tryExecute(datarouterHttpRequest, endpoint.responseType);
 	}

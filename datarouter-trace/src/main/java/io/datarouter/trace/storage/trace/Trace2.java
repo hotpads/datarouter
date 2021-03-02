@@ -41,7 +41,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 	private String type;
 	private String params;
 	private Long created;
-	private Long duration;
+	private Long ended;
 	private String accountName; // multiple serviceNames could be tied to one accountName
 	private String serviceName;
 	private Integer discardedThreadCount;
@@ -53,7 +53,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		public static final StringFieldKey type = new StringFieldKey("type");
 		public static final StringFieldKey params = new StringFieldKey("params");
 		public static final UInt63FieldKey created = new UInt63FieldKey("created");
-		public static final UInt63FieldKey duration = new UInt63FieldKey("duration");
+		public static final UInt63FieldKey ended = new UInt63FieldKey("ended");
 		public static final StringFieldKey accountName = new StringFieldKey("accountName");
 		public static final StringFieldKey serviceName = new StringFieldKey("serviceName");
 		public static final UInt31FieldKey discardedThreadCount = new UInt31FieldKey("discardedThreadCount");
@@ -75,7 +75,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 					new StringField(FieldKeys.type, databean.type),
 					new StringField(FieldKeys.params, databean.params),
 					new UInt63Field(FieldKeys.created, databean.created),
-					new UInt63Field(FieldKeys.duration, databean.duration),
+					new UInt63Field(FieldKeys.ended, databean.ended),
 					new StringField(FieldKeys.accountName, databean.accountName),
 					new StringField(FieldKeys.serviceName, databean.serviceName),
 					new UInt31Field(FieldKeys.discardedThreadCount, databean.discardedThreadCount),
@@ -98,7 +98,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		this.type = dto.type;
 		this.params = dto.params;
 		this.created = dto.created;
-		this.duration = dto.duration;
+		this.ended = dto.ended;
 		this.serviceName = dto.serviceName;
 		this.accountName = accountName;
 		this.discardedThreadCount = dto.discardedThreadCount;
@@ -134,8 +134,8 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		return created;
 	}
 
-	public Long getDuration(){
-		return duration;
+	public Long getEnded(){
+		return ended;
 	}
 
 	public String getServiceName(){

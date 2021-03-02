@@ -29,6 +29,10 @@ public class ExecutorServiceTool{
 	private static final Logger logger = LoggerFactory.getLogger(ExecutorServiceTool.class);
 
 	public static void shutdown(ExecutorService exec, Duration timeout){
+		shutdown(exec, timeout, true);
+	}
+
+	public static void shutdown(ExecutorService exec, Duration timeout, boolean verboseLogging){
 		String name = "";
 		if(exec instanceof ThreadPoolExecutor){
 			ThreadPoolExecutor threadPool = (ThreadPoolExecutor)exec;
@@ -39,7 +43,9 @@ public class ExecutorServiceTool{
 		}
 		Duration halfTimeout = timeout.dividedBy(2);
 		long halfTimeoutMs = timeout.toMillis();
-		logger.warn("shutting down name={} {}", name, exec);
+		if(verboseLogging){
+			logger.warn("shutting down name={} {}", name, exec);
+		}
 		exec.shutdown();
 		try{
 			if(!exec.awaitTermination(halfTimeoutMs, TimeUnit.MILLISECONDS)){
@@ -54,7 +60,9 @@ public class ExecutorServiceTool{
 					logger.warn("executor shutdown after interupt name={} {}", name, exec);
 				}
 			}else{
-				logger.warn("executor shutdown cleanly name={} {}", name, exec);
+				if(verboseLogging){
+					logger.warn("executor shutdown cleanly name={} {}", name, exec);
+				}
 			}
 		}catch(InterruptedException e){
 			logger.warn("interrupted while waiting for shutdown name={} {}", name, exec);

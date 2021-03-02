@@ -16,10 +16,12 @@
 package io.datarouter.aws.s3.node;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Optional;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.aws.s3.S3Headers;
@@ -75,6 +77,11 @@ public class S3DirectoryManager{
 		return client.exists(bucket, fullPath);
 	}
 
+	public Optional<Long> length(String suffix){
+		String fullPath = fullPath(suffix);
+		return client.length(bucket, fullPath);
+	}
+
 	public byte[] read(String suffix){
 		String fullPath = fullPath(suffix);
 		return client.getObjectAsBytes(bucket, fullPath);
@@ -123,15 +130,20 @@ public class S3DirectoryManager{
 				content);
 	}
 
-	public void write(String suffix, List<byte[]> content){
+	public void write(String suffix, Iterator<byte[]> chunks){
 		String fullPath = fullPath(suffix);
 		try(OutputStream outputStream = client.put(bucket, fullPath, ContentType.BINARY)){
-			for(byte[] chunk : content){
-				outputStream.write(chunk);
+			while(chunks.hasNext()){
+				outputStream.write(chunks.next());
 			}
 		}catch(IOException e){
 			throw new UncheckedIOException(e);
 		}
+	}
+
+	public void write(String suffix, InputStream inputStream){
+		String fullPath = fullPath(suffix);
+		client.put(bucket, fullPath, ContentType.BINARY, inputStream);
 	}
 
 	public void writeUtf8(String suffix, String content){

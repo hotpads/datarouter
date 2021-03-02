@@ -22,11 +22,12 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.string.StringTool;
 
 public class ByteWriterTests{
 
 	@Test
-	public void test(){
+	public void testConcat(){
 		List<String> inputs = Scanner.iterate(0, i -> i + 1)
 				.limit(20)
 				.map(Long::toString)
@@ -34,12 +35,40 @@ public class ByteWriterTests{
 		String expected = Scanner.of(inputs)
 				.collect(Collectors.joining());
 
-		var writer = new ByteWriter(4);
+		ByteWriter writer = new ByteWriter(4);
 		Scanner.of(inputs)
 				.map(String::getBytes)
 				.forEach(writer::bytes);
-		String actual = new String(writer.concat());
+		byte[] actualBytes = writer.concat();
+		String actual = new String(actualBytes);
 
+		Assert.assertEquals(actual, expected);
+	}
+
+	@Test
+	public void testConcatRange(){
+		int tokenWidth = 2;
+
+		List<String> inputs = Scanner.iterate(0, i -> i + 1)
+				.limit(20)
+				.map(Long::toString)
+				.map(i -> StringTool.pad(i, '0', tokenWidth))
+				.list();
+
+		int from = 6;
+		int limit = 9;
+		int to = from + limit;
+		String expected = Scanner.of(inputs)
+				.skip(from)
+				.limit(9)
+				.collect(Collectors.joining());
+
+		ByteWriter writer = new ByteWriter(4);
+		Scanner.of(inputs)
+				.map(String::getBytes)
+				.forEach(writer::bytes);
+		byte[] actualBytes = writer.concat(from * tokenWidth, to * tokenWidth);
+		String actual = new String(actualBytes);
 		Assert.assertEquals(actual, expected);
 	}
 

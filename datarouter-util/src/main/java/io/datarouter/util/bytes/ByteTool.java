@@ -24,6 +24,7 @@ import io.datarouter.util.array.ArrayTool;
 public class ByteTool{
 
 	public static final byte[] EMPTY_ARRAY = new byte[0];
+	public static final byte[][] EMPTY_ARRAY_2 = new byte[0][];
 
 	public static ArrayList<Byte> getArrayList(byte[] ins){
 		ArrayList<Byte> outs = new ArrayList<>(ArrayTool.length(ins));
@@ -31,22 +32,6 @@ public class ByteTool{
 			outs.add(in);
 		}
 		return outs;
-	}
-
-	public static int bitwiseCompare(byte[] bytesA, byte[] bytesB){
-		return Arrays.compareUnsigned(bytesA, bytesB);
-	}
-
-	public static int bitwiseCompare(byte[] bytesA, int offsetA, int lengthA, byte[] bytesB, int offsetB, int lengthB){
-		int toA = offsetA + lengthA;
-		int toB = offsetB + lengthB;
-		return Arrays.compareUnsigned(bytesA, offsetA, toA, bytesB, offsetB, toB);
-	}
-
-	public static boolean equals(byte[] bytesA, int offsetA, int lengthA, byte[] bytesB, int offsetB, int lengthB){
-		int toA = offsetA + lengthA;
-		int toB = offsetB + lengthB;
-		return Arrays.equals(bytesA, offsetA, toA, bytesB, offsetB, toB);
 	}
 
 	public static byte[] getComparableBytes(byte value){

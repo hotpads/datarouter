@@ -15,50 +15,57 @@
  */
 package io.datarouter.metric.web;
 
+import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.metric.config.DatarouterMetricPaths;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.html.nav.Subnav;
 import io.datarouter.web.html.nav.Subnav.Dropdown;
+import io.datarouter.web.metriclinks.MetricLinkPage;
+import io.datarouter.web.metriclinks.MetricLinkPageRegistry;
 
 @Singleton
 public class MetricNamesSubnavFactory{
 
+	public static final String ID = "metric-link-subnav";
+
+	@Inject
+	private MetricLinkPageRegistry registry;
+	@Inject
+	private DatarouterInjector injector;
 	@Inject
 	private DatarouterMetricPaths paths;
 
 	public Subnav build(String contextPath){
-		return new Subnav("Metric Links", "")
-				.add(app(contextPath))
-				.add(datarouter(contextPath))
-				.add(other(contextPath));
-	}
-
-	private Dropdown app(String contextPath){
-		return new Dropdown("App")
-				.addItem("Handlers", contextPath + paths.datarouter.metric.metricNames.appHandlers.toSlashedString())
-				.addItem("Jobs", contextPath + paths.datarouter.metric.metricNames.appJobs.toSlashedString())
-				.addItem("Tables", contextPath + paths.datarouter.metric.metricNames.appTables.toSlashedString());
-	}
-
-	private Dropdown datarouter(String contextPath){
-		return new Dropdown("Datarouter")
-				.addItem("Handlers",
-						contextPath + paths.datarouter.metric.metricNames.datarouterHandlers.toSlashedString())
-				.addItem("Jobs", contextPath + paths.datarouter.metric.metricNames.datarouterJobs.toSlashedString())
-				.addItem("Tables",
-						contextPath + paths.datarouter.metric.metricNames.datarouterTables.toSlashedString());
+		Subnav subnav = new Subnav("Metric Links", "", ID);
+		Scanner.of(registry.getMetricLinkPages())
+				.map(injector::getInstance)
+				.collect(Collectors.groupingBy(MetricLinkPage::getCategory))
+				.entrySet()
+				.forEach(entry -> {
+					Dropdown dropdown = new Dropdown(entry.getKey().getName());
+					entry.getValue().forEach(page -> dropdown.addItem(page.getName(),
+							contextPath
+									+ paths.datarouter.metric.metricLinks.view.toSlashedString()
+									+ "#" + page.getHtmlId()));
+					subnav.add(dropdown);
+		});
+		subnav.add(other(contextPath));
+		return subnav;
 	}
 
 	private Dropdown other(String contextPath){
 		return new Dropdown("Other")
 				.addItem("Registered Metric Names",
-						contextPath + paths.datarouter.metric.metricNames.registeredNames.toSlashedString())
+						contextPath + paths.datarouter.metric.metricLinks.registeredNames.toSlashedString())
 				.addItem("Dashboards",
-						contextPath + paths.datarouter.metric.metricNames.metricDashboards.toSlashedString())
+						contextPath + paths.datarouter.metric.metricLinks.metricDashboards.toSlashedString())
 				.addItem("Misc Metric Links",
-						contextPath + paths.datarouter.metric.metricNames.miscMetricLinks.toSlashedString());
+						contextPath + paths.datarouter.metric.metricLinks.miscMetricLinks.toSlashedString());
 	}
 
 }

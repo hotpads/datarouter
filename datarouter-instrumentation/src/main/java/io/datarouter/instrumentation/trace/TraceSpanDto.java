@@ -27,6 +27,7 @@ public class TraceSpanDto{
 	private String info;
 	private Long created;
 	private Long duration;
+	private Long ended;
 
 	public TraceSpanDto(String traceId, Long threadId, Integer sequence, Integer parentSequence, Long created){
 		this.traceId = traceId;
@@ -52,7 +53,8 @@ public class TraceSpanDto{
 	}
 
 	public void markFinish(){
-		this.duration = System.currentTimeMillis() - this.created;
+		this.ended = Trace2Dto.getCurrentTimeInNs();
+		this.duration = this.ended - this.created;
 	}
 
 	public String getTraceId(){
@@ -111,6 +113,10 @@ public class TraceSpanDto{
 		return created;
 	}
 
+	public Long getCreatedMs(){
+		return Trace2Dto.convertToMsFromNsIfNecessary(created, created);
+	}
+
 	public void setCreated(Long created){
 		this.created = created;
 	}
@@ -119,8 +125,17 @@ public class TraceSpanDto{
 		return duration;
 	}
 
+	public Long getDurationMs(){
+		return Trace2Dto.convertToMsFromNsIfNecessary(duration, created);
+	}
+
 	public void setDuration(Long duration){
 		this.duration = duration;
 	}
+
+	public Long getEnded(){
+		return ended;
+	}
+
 
 }

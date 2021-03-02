@@ -28,4 +28,5 @@ public class OutputStreamTool{
 			throw new UncheckedIOException(e);
 		}
 	}
+
 }

@@ -52,13 +52,14 @@ public class DatarouterEmailSettings extends SettingNode{
 		sendDatarouterEmails = registerBoolean("sendDatarouterEmails", true);
 		useRemoteSmtp = registerBoolean("useRemoteSmtp", false);
 
-		// if below setting values are overridden, the overrides are only used if useRemoteSmtp is true
+		// if below smtp setting values are overridden, the overrides are only used if useRemoteSmtp is true
 		// see getDatarouterEmailHostDetails() method
 		smtpHost = registerString("smtpHost", DEFAULT_SMTP_HOST);
 		smtpPort = registerInteger("smtpPort", DEFAULT_SMTP_PORT);
 		smtpUsername = registerString("smtpUsername", "");
 		smtpPasswordName = registerString("smtpPasswordName", "datarouter/email/smtpPassword");
 		smtpPassword = cachedSecretFactory.cacheSharedSecretString(smtpPasswordName, "");
+
 		emailLinkHostPort = registerString("emailLinkHostPort", UrlConstants.LOCAL_DEV_SERVER_HTTPS);
 		includeLogo = registerBoolean("includeLogo", true);
 		logoImgSrc = registerString("logoImgSrc", "");//specify "" for default

@@ -26,16 +26,16 @@ public class InputStreamToolTests{
 	@Test
 	public void testReadThroughByte(){
 		byte throughByte = -100;
-		var input = new byte[]{0, 1, 2, throughByte, 3, 4};
-		var inputStream = new ByteArrayInputStream(input);
+		byte[] input = new byte[]{0, 1, 2, throughByte, 3, 4};
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
 		byte[] output = InputStreamTool.readThroughByte(inputStream, throughByte);
 		Assert.assertEquals(output, new byte[]{0, 1, 2, throughByte});
 	}
 
 	@Test
 	public void testReadNBytes(){
-		var input = new byte[]{0, 1, 2, 3, 4, 5};
-		var inputStream = new ByteArrayInputStream(input);
+		byte[] input = new byte[]{0, 1, 2, 3, 4, 5};
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
 		Assert.assertEquals(InputStreamTool.readNBytes(inputStream, 4), new byte[]{0, 1, 2, 3});
 		Assert.assertEquals(InputStreamTool.readNBytes(inputStream, 4), new byte[]{4, 5});
 		Assert.assertEquals(InputStreamTool.readNBytes(inputStream, 4), new byte[]{});
@@ -43,8 +43,8 @@ public class InputStreamToolTests{
 
 	@Test
 	public void testScanChunks(){
-		var input = new byte[]{0, 1, 2, 3, 4, 5};
-		var inputStream = new ByteArrayInputStream(input);
+		byte[] input = new byte[]{0, 1, 2, 3, 4, 5};
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
 		List<byte[]> chunks = InputStreamTool.scanChunks(inputStream, 4).list();
 		Assert.assertEquals(chunks.get(0), new byte[]{0, 1, 2, 3});
 		Assert.assertEquals(chunks.get(1), new byte[]{4, 5});

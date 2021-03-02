@@ -15,8 +15,6 @@
  */
 package io.datarouter.joblet.handler;
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -48,7 +46,7 @@ public class JobletScalingHandler extends BaseHandler{
 	public RecommendedJobletServerCountResponse getRecommendedJobletServerCount(String jobletServerType){
 		int serverCount = jobletScaler.getNumJobletServers(findJobletWebappInstance(jobletServerType));
 		String serverName = datarouterProperties.getServerName();
-		return new RecommendedJobletServerCountResponse(serverCount, serverName, Instant.now());
+		return new RecommendedJobletServerCountResponse(serverCount, serverName);
 	}
 
 
@@ -62,12 +60,10 @@ public class JobletScalingHandler extends BaseHandler{
 	public static class RecommendedJobletServerCountResponse{
 		public final int serverCount;
 		public final String serverName;
-		public final Date date; // what parses this date? TODO change its format to ISO_INSTANT
 
-		public RecommendedJobletServerCountResponse(int serverCount, String serverName, Instant instant){
+		public RecommendedJobletServerCountResponse(int serverCount, String serverName){
 			this.serverCount = serverCount;
 			this.serverName = serverName;
-			this.date = Date.from(instant);
 		}
 	}
 }

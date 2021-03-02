@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.TraceDto;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
@@ -84,8 +85,8 @@ public abstract class BaseTraceHandler extends BaseHandler{
 
 	// fake root for corrupted entity
 	private TraceThreadDto makeFakeRootThread(TraceDto trace){
-		return new TraceThreadDto(trace.getTraceId(), 0L, null, "Fake root thread", null, null, trace.getCreated(), 0L,
-				0L, 0, null);
+		return new TraceThreadDto(trace.getTraceId(), 0L, null, "Fake root thread", null, null, trace.getCreatedMs(),
+				0L, 0L, 0, null);
 	}
 
 	private Integer getDiscardedSpanCountFromThreads(Collection<TraceThreadDto> threads){
@@ -120,12 +121,12 @@ public abstract class BaseTraceHandler extends BaseHandler{
 			this.duration = duration;
 		}
 
-		public Long getDuration(){
-			return duration;
+		public Long getDurationMs(){
+			return Trace2Dto.convertToMsFromNsIfNecessary(duration, created);
 		}
 
-		public Long getCreated(){
-			return created;
+		public Long getCreatedMs(){
+			return Trace2Dto.convertToMsFromNsIfNecessary(created, created);
 		}
 
 		public Date getTime(){

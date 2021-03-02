@@ -44,7 +44,7 @@ public class ChangelogRecorderService implements ChangelogRecorder{
 	private ChangelogEmailService emailService;
 
 	@Override
-	public void record(String changelogType, String name, String action, String username, String comment){
+	public void record(String changelogType, String name, String action, String username, String comment, String note){
 		var dto = new ChangelogDto(
 				datarouterService.getServiceName(),
 				changelogType,
@@ -52,7 +52,8 @@ public class ChangelogRecorderService implements ChangelogRecorder{
 				new Date().getTime(),
 				action,
 				username,
-				comment);
+				comment,
+				note);
 		if(settings.publishChangelog.get()){
 			publisher.add(dto);
 		}
@@ -61,9 +62,17 @@ public class ChangelogRecorderService implements ChangelogRecorder{
 
 	@Override
 	public void recordAndSendEmail(String changelogType, String name, String action, String username,
-			Optional<String> comment, Optional<String> additionalSendTos){
-		record(changelogType, name, action, username, comment.orElse(null));
+			Optional<String> comment, Optional<String> note, Optional<String> additionalSendTos){
+		record(changelogType, name, action, username, comment.orElse(null), note.orElse(null));
 		emailService.sendEmail(changelogType, name, action, username, additionalSendTos, comment);
+	}
+
+	@Override
+	public void update(ChangelogDto changelogDto){
+		if(settings.publishChangelog.get()){
+			publisher.add(changelogDto);
+		}
+		dao.put(new Changelog(changelogDto));
 	}
 
 }

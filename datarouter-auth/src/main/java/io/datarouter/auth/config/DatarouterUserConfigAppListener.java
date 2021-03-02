@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.service.DefaultDatarouterUserPasswordSupplier;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.listener.DatarouterAppListener;
 
 @Singleton
@@ -32,13 +33,17 @@ public class DatarouterUserConfigAppListener implements DatarouterAppListener{
 	private DatarouterUserCreationService datarouterUserCreationService;
 	@Inject
 	private DefaultDatarouterUserPasswordSupplier defaultDatarouterUserPassword;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	@Override
 	public void onStartUp(){
 		if(datarouterUserDao.hasAny()){
 			return;
 		}
-		datarouterUserCreationService.createFirstAdminUser(defaultDatarouterUserPassword.get());
+		if(!serverTypeDetector.mightBeProduction()){
+			datarouterUserCreationService.createFirstAdminUser(defaultDatarouterUserPassword.get());
+		}
 	}
 
 }

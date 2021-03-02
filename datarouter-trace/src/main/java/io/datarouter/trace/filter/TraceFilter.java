@@ -115,7 +115,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			if(traceSettings.addTraceIdHeader.get()){
 				response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.X_TRACE_ID, traceId);
 			}
-			Long created = System.currentTimeMillis();
+			Long created = Trace2Dto.getCurrentTimeInNs();
 			TraceDto trace = new TraceDto(traceId, created);
 			trace.setContext(request.getContextPath());
 			trace.setType(request.getRequestURI().toString());
@@ -134,7 +134,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			TracerThreadLocal.bindToThread(tracer);
 
 			String requestThreadName = (request.getContextPath() + " request").trim();
-			tracer.createAndStartThread(requestThreadName, System.currentTimeMillis());
+			tracer.createAndStartThread(requestThreadName, Trace2Dto.getCurrentTimeInNs());
 
 			Long threadId = Thread.currentThread().getId();
 			boolean logCpuTime = traceSettings.logCpuTime.get();
@@ -170,7 +170,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				boolean tracerForceSave = tracer.getForceSave();
 
 				Trace2Dto trace2Dto = createTrace2Dto(traceContext, initialParentId, request, created, tracer);
-				Long traceDurationMs = trace.getDuration();
+				Long traceDurationMs = trace.getDurationMs();
 				if(saveTraces && traceDurationMs > saveCutoff || requestForceSave || tracerForceSave || errored){
 					List<TraceThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
 					List<TraceSpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
@@ -187,10 +187,19 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					String userToken = currentSessionInfo.getSession(request)
 							.map(Session::getUserToken)
 							.orElse("unknown");
-					logger.warn("Trace saved to={} traceId={} durationMs={} cpuTimeMs={} threadAllocatedKB={}"
-							+ " path={} query={} userAgent=\"{}\" userToken={}, traceContext={}", String.join(",",
-									destination, destination2), trace.getTraceId(), traceDurationMs, cpuTime,
-							threadAllocatedKB, trace.getType(), trace.getParams(), userAgent, userToken, traceContext);
+					logger.warn("Trace saved to={} traceId={} traceparent={} initialParentId={} durationMs={}"
+							+ " cpuTimeMs={} threadAllocatedKB={} path={} query={} userAgent=\"{}\" userToken={}",
+							String.join(",", destination, destination2),
+							trace.getTraceId(),
+							traceContext.getTraceparent(),
+							initialParentId,
+							traceDurationMs,
+							cpuTime,
+							threadAllocatedKB,
+							trace.getType(),
+							trace.getParams(),
+							userAgent,
+							userToken);
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()){
 					// only log once
 					logger.warn("Trace logged durationMs={} cpuTimeMs={} threadAllocatedKB={} path={}"
@@ -241,7 +250,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				.map(thread -> {
 					return new Trace2ThreadDto(traceparent, thread.getThreadId(), thread.getParentId(),
 							thread.getName(), thread.getInfo(), thread.getServerId(), thread.getCreated(),
-							thread.getQueuedDuration(), thread.getRunningDuration(), thread.getDiscardedSpanCount(),
+							thread.getQueuedEnded(), thread.getEnded(), thread.getDiscardedSpanCount(),
 							thread.getHostThreadName(), numSpans);
 				})
 				.list();
@@ -255,7 +264,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				.map(span -> {
 					return new Trace2SpanDto(traceparent, span.getThreadId(), span.getSequence(),
 							span.getParentSequence(), span.getName(), span.getInfo(), span.getCreated(),
-							span.getDuration());
+							span.getEnded());
 				})
 				.list();
 	}

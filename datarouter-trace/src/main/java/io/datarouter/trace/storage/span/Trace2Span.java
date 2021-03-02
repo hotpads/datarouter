@@ -36,7 +36,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 	private Integer parentSequence;
 	private String name;
 	private Long created;
-	private Long duration;
+	private Long ended;
 	private String info;
 
 	public static class FieldKeys{
@@ -45,7 +45,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 		public static final StringFieldKey info = new StringFieldKey("info");
 		public static final UInt63FieldKey created = new UInt63FieldKey("created");
-		public static final UInt63FieldKey duration = new UInt63FieldKey("duration");
+		public static final UInt63FieldKey ended = new UInt63FieldKey("ended");
 	}
 
 	public static class Trace2SpanFielder extends BaseDatabeanFielder<Trace2SpanKey,Trace2Span>{
@@ -62,7 +62,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 					new StringField(FieldKeys.name, databean.name),
 					new StringField(FieldKeys.info, databean.info),
 					new UInt63Field(FieldKeys.created, databean.created),
-					new UInt63Field(FieldKeys.duration, databean.duration));
+					new UInt63Field(FieldKeys.ended, databean.ended));
 		}
 	}
 
@@ -79,7 +79,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		this.parentSequence = dto.parentSequence;
 		this.name = dto.name;
 		this.created = dto.created;
-		this.duration = dto.duration;
+		this.ended = dto.ended;
 		this.info = dto.info;
 	}
 
@@ -100,8 +100,8 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		return created;
 	}
 
-	public Long getDuration(){
-		return duration;
+	public Long getEnded(){
+		return ended;
 	}
 
 	public Integer getParentSequence(){

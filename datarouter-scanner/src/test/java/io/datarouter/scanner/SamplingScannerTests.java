@@ -27,55 +27,55 @@ public class SamplingScannerTests{
 
 	@Test
 	public void testEvenExcludeLast(){
-		var actual = Scanner.of(EVEN_INPUTS)
+		List<Integer> actual = Scanner.of(EVEN_INPUTS)
 				.sample(2, false)
 				.list();
-		var expected = List.of(1, 3);
+		List<Integer> expected = List.of(1, 3);
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testEvenIncludeLast(){
-		var actual = Scanner.of(EVEN_INPUTS)
+		List<Integer> actual = Scanner.of(EVEN_INPUTS)
 				.sample(2, true)
 				.list();
-		var expected = List.of(1, 3);
+		List<Integer> expected = List.of(1, 3);
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testOddExcludeLast(){
-		var actual = Scanner.of(ODD_INPUTS)
+		List<Integer> actual = Scanner.of(ODD_INPUTS)
 				.sample(2, false)
 				.list();
-		var expected = List.of(1, 3);
+		List<Integer> expected = List.of(1, 3);
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testOddIncludeLast(){
-		var actual = Scanner.of(ODD_INPUTS)
+		List<Integer> actual = Scanner.of(ODD_INPUTS)
 				.sample(2, true)
 				.list();
-		var expected = List.of(1, 3, 4);
+		List<Integer> expected = List.of(1, 3, 4);
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testEmptyIncludeLast(){
-		var actual = Scanner.empty()
+		List<Integer> actual = Scanner.<Integer>empty()
 				.sample(2, true)
 				.list();
-		var expected = List.of();
+		List<Integer> expected = List.of();
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testEmptyExcludeLast(){
-		var actual = Scanner.empty()
+		List<Integer> actual = Scanner.<Integer>empty()
 				.sample(2, false)
 				.list();
-		var expected = List.of();
+		List<Integer> expected = List.of();
 		Assert.assertEquals(actual, expected);
 	}
 

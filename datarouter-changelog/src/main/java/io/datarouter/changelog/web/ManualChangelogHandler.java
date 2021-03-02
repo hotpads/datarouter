@@ -19,6 +19,8 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -36,7 +38,7 @@ public class ManualChangelogHandler extends BaseHandler{
 	private static final String P_name = "name";
 	private static final String P_action = "action";
 	private static final String P_toEmail = "toEmail";
-	private static final String P_comment = "comment";
+	private static final String P_note = "note";
 	private static final String P_submitAction = "submitAction";
 
 	@Inject
@@ -45,11 +47,11 @@ public class ManualChangelogHandler extends BaseHandler{
 	private ChangelogRecorder changelogRecorder;
 
 	@Handler(defaultHandler = true)
-	private Mav insert(
+	public Mav insert(
 			@Param(P_name) OptionalString name,
 			@Param(P_action) OptionalString action,
 			@Param(P_toEmail) OptionalString toEmail,
-			@Param(P_comment) OptionalString comment,
+			@Param(P_note) OptionalString note,
 			@Param(P_submitAction) OptionalString submitAction){
 		var form = new HtmlForm()
 				.withMethod("post");
@@ -69,10 +71,10 @@ public class ManualChangelogHandler extends BaseHandler{
 				.withPlaceholder("a@something.com,b@something.com")
 				.withValue(toEmail.orElse(null));
 		form.addTextAreaField()
-				.withDisplay("Comment (Optional)")
-				.withName(P_comment)
+				.withDisplay("Note (Optional)")
+				.withName(P_note)
 				.withPlaceholder("Migration for tables xyz")
-				.withValue(toEmail.orElse(null));
+				.withValue(note.orElse(null));
 		form.addButton()
 				.withDisplay("Record & Email")
 				.withValue("anything");
@@ -88,7 +90,8 @@ public class ManualChangelogHandler extends BaseHandler{
 				name.get(),
 				action.get(),
 				username,
-				comment.getOptional(),
+				Optional.empty(),
+				note.getOptional(),
 				toEmail.getOptional());
 		return pageFactory.preformattedMessage(request, "Recorded changelog entry.");
 	}

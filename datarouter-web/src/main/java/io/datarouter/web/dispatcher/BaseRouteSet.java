@@ -17,6 +17,7 @@ package io.datarouter.web.dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
@@ -56,6 +57,15 @@ public abstract class BaseRouteSet{
 	}
 
 	protected DispatchRule handle(Supplier<BaseEndpoint<?>> baseEndpoint, Class<? extends BaseHandler> handler){
+		return handle(baseEndpoint.get().pathNode)
+				.withDefaultHandlerDecoder(EndpointDecoder.class)
+				.withHandler(handler);
+	}
+
+	protected <R,T extends BaseEndpoint<R>> DispatchRule handle(
+			Supplier<T> baseEndpoint,
+			Class<? extends BaseHandler> handler,
+			@SuppressWarnings("unused") Function<T,R> function){
 		return handle(baseEndpoint.get().pathNode)
 				.withDefaultHandlerDecoder(EndpointDecoder.class)
 				.withHandler(handler);

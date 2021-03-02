@@ -37,8 +37,8 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 	private String info;
 	private String serverName;
 	private Long created;
-	private Long queuedDuration;
-	private Long runningDuration;
+	private Long queuedEnded;
+	private Long ended;
 	private Integer discardedSpanCount;
 	private String hostThreadName;
 	private Integer totalSpanCount;
@@ -49,8 +49,8 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		public static final StringFieldKey info = new StringFieldKey("info");
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 		public static final UInt63FieldKey created = new UInt63FieldKey("created");
-		public static final UInt63FieldKey queuedDuration = new UInt63FieldKey("queuedDuration");
-		public static final UInt63FieldKey runningDuration = new UInt63FieldKey("runningDuration");
+		public static final UInt63FieldKey queuedEnded = new UInt63FieldKey("queuedEnded");
+		public static final UInt63FieldKey ended = new UInt63FieldKey("ended");
 		public static final UInt31FieldKey discardedSpanCount = new UInt31FieldKey("discardedSpanCount");
 		public static final StringFieldKey hostThreadName = new StringFieldKey("hostThreadName");
 		public static final UInt31FieldKey totalSpanCount = new UInt31FieldKey("totalSpanCount");
@@ -71,8 +71,8 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 					new StringField(FieldKeys.info, traceThread.info),
 					new StringField(FieldKeys.serverName, traceThread.serverName),
 					new UInt63Field(FieldKeys.created, traceThread.created),
-					new UInt63Field(FieldKeys.queuedDuration, traceThread.queuedDuration),
-					new UInt63Field(FieldKeys.runningDuration, traceThread.runningDuration),
+					new UInt63Field(FieldKeys.queuedEnded, traceThread.queuedEnded),
+					new UInt63Field(FieldKeys.ended, traceThread.ended),
 					new UInt31Field(FieldKeys.discardedSpanCount, traceThread.discardedSpanCount),
 					new StringField(FieldKeys.hostThreadName, traceThread.hostThreadName),
 					new UInt31Field(FieldKeys.totalSpanCount, traceThread.totalSpanCount));
@@ -95,8 +95,8 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		this.info = dto.info;
 		this.serverName = dto.serverName;
 		this.created = dto.created;
-		this.queuedDuration = dto.queuedDuration;
-		this.runningDuration = dto.runningDuration;
+		this.queuedEnded = dto.queuedEnded;
+		this.ended = dto.ended;
 		this.discardedSpanCount = dto.discardedSpanCount;
 		this.hostThreadName = dto.hostThreadName;
 		this.totalSpanCount = dto.totalSpanCount;
@@ -131,12 +131,12 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		return created;
 	}
 
-	public Long getQueuedDuration(){
-		return queuedDuration;
+	public Long getQueuedEnded(){
+		return queuedEnded;
 	}
 
-	public Long getRunningDuration(){
-		return runningDuration;
+	public Long getEnded(){
+		return ended;
 	}
 
 	public Integer getDiscardedSpanCount(){

@@ -15,8 +15,11 @@
  */
 package io.datarouter.client.memcached.node;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +40,7 @@ import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.bytes.ByteTool;
+import io.datarouter.util.io.InputStreamTool;
 import io.datarouter.util.tuple.Pair;
 
 public class MemcachedBlobNode<
@@ -88,6 +92,16 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
+	public Optional<Long> length(PathbeanKey key){
+		//TODO avoid fetching the bytes?
+		return scanMultiInternal(List.of(key))
+				.map(Pair::getRight)
+				.map(bytes -> bytes.length)
+				.map(Integer::longValue)
+				.findFirst();
+	}
+
+	@Override
 	public byte[] read(PathbeanKey key){
 		return scanMultiInternal(List.of(key))
 				.findFirst()
@@ -122,8 +136,17 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public void write(PathbeanKey key, List<byte[]> chunks){
-		write(key, ByteTool.concatenate(chunks));
+	public void write(PathbeanKey key, Iterator<byte[]> chunks){
+		byte[] bytes = Scanner.of(chunks)
+				.listTo(ByteTool::concatenate);
+		write(key, bytes);
+	}
+
+	@Override
+	public void write(PathbeanKey key, InputStream inputStream){
+		var baos = new ByteArrayOutputStream();
+		InputStreamTool.transfer(inputStream, baos);
+		write(key, baos.toByteArray());
 	}
 
 	@Override

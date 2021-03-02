@@ -33,6 +33,7 @@ public class Bootstrap4SubnavHtml{
 		var title = a(subnav.name)
 				.withClass("navbar-brand mb-0 h1")
 				.withHref(subnav.href);
+		subnav.id.ifPresent(title::withId);
 		var ul = ul(each(subnav.dropdowns, Bootstrap4SubnavHtml::makeDropdown))
 				.withClass("navbar-nav mr-auto");
 		var div = div(ul)

@@ -60,7 +60,7 @@ public class DatarouterHttpRequestTests{
 
 	@Test
 	public void testGetParams(){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL);
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL);
 		Assert.assertEquals(request.getUrl(), URL);
 
 		String expected = URL + "?test=parameter";
@@ -144,7 +144,7 @@ public class DatarouterHttpRequestTests{
 
 	@Test
 	public void testPostParams(){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
 
 		Map<String,List<String>> expectedParams = new LinkedHashMap<>();
 		expectedParams.put("totally", List.of("valid"));
@@ -162,9 +162,9 @@ public class DatarouterHttpRequestTests{
 
 	@Test
 	public void testAddDtosToPayload(){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
 
-		var thing = new Thing();
+		Thing thing = new Thing();
 
 		client.addDtoToPayload(request, Collections.singleton(thing), Thing.class.getCanonicalName());
 		Map<String,String> postParams = request.getFirstPostParams();
@@ -180,7 +180,7 @@ public class DatarouterHttpRequestTests{
 
 	@Test
 	public void testAddHeaders(){
-		var request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
+		DatarouterHttpRequest request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).setRetrySafe(true);
 
 		Map<String,List<String>> expectedHeaders = new LinkedHashMap<>();
 		expectedHeaders.put("valid", List.of("header"));

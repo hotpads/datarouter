@@ -15,7 +15,9 @@
  */
 package io.datarouter.aws.s3.node;
 
-import java.util.List;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Optional;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.model.databean.Databean;
@@ -71,6 +73,11 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
+	public Optional<Long> length(PathbeanKey key){
+		return s3DirectoryManager.length(key.getPathAndFile());
+	}
+
+	@Override
 	public byte[] read(PathbeanKey key){
 		return s3DirectoryManager.read(key.getPathAndFile());
 	}
@@ -86,8 +93,13 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public void write(PathbeanKey key, List<byte[]> chunks){
+	public void write(PathbeanKey key, Iterator<byte[]> chunks){
 		s3DirectoryManager.write(key.getPathAndFile(), chunks);
+	}
+
+	@Override
+	public void write(PathbeanKey key, InputStream inputStream){
+		s3DirectoryManager.write(key.getPathAndFile(), inputStream);
 	}
 
 	@Override

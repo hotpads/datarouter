@@ -30,23 +30,23 @@ public abstract class BaseEndpoint<T>{
 	public final Class<T> responseType;
 	@IgnoredField
 	public final PathNode pathNode;
+	@IgnoredField
+	public final boolean retrySafe;
 
 	@IgnoredField
 	public String urlPrefix;
-	@IgnoredField
-	public Optional<Boolean> retrySafe;
 	@IgnoredField
 	public Optional<Duration> timeout;
 	@IgnoredField
 	public Optional<Object> entity;
 
-	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Class<T> responseType){
+	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Class<T> responseType, boolean retrySafe){
 		this.method = method;
 		this.pathNode = pathNode;
 		this.responseType = responseType;
+		this.retrySafe = retrySafe;
 
 		this.urlPrefix = null;
-		this.retrySafe = Optional.empty();
 		this.timeout = Optional.empty();
 		this.entity = Optional.empty();
 	}
@@ -60,10 +60,6 @@ public abstract class BaseEndpoint<T>{
 		// needs to be Optional.ofNullable for reflection
 		this.entity = Optional.ofNullable(entityDto);
 		return entityDto;
-	}
-
-	protected void setRetrySafe(boolean retrySafe){
-		this.retrySafe = Optional.of(retrySafe);
 	}
 
 	protected void setTimeout(Duration timeout){

@@ -15,6 +15,7 @@
  */
 package io.datarouter.changelog.web;
 
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 
 import java.time.ZoneId;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import io.datarouter.changelog.service.ViewChangelogService;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
@@ -48,6 +50,8 @@ public class ViewExactChangelogHandler extends BaseHandler{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private CurrentUserSessionInfoService sessionInfoService;
+	@Inject
+	private ViewChangelogService service;
 
 	@Handler(defaultHandler = true)
 	public Mav viewExact(
@@ -76,8 +80,12 @@ public class ViewExactChangelogHandler extends BaseHandler{
 				.withEntry("Action", changelog.getAction())
 				.withEntry("Username", changelog.getUsername())
 				.withEntry("Comment", Optional.ofNullable(changelog.getComment()).orElse(""))
+				.withEntry("Note", Optional.ofNullable(changelog.getNote()).orElse(""))
 				.build();
-		return div(table)
+		var editButton = a("Edit Note")
+				.withHref(service.buildEditHref(changelog))
+				.withClass("btn btn-primary");
+		return div(table, editButton)
 				.withClass("container my-4");
 	}
 

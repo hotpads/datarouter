@@ -15,40 +15,15 @@
  */
 package io.datarouter.util.bytes;
 
+import java.util.Arrays;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class ByteToolTests{
 
 	@Test
-	public void testBitwiseCompare(){
-		// equal
-		Assert.assertEquals(ByteTool.bitwiseCompare(new byte[0], new byte[0]), 0);
-		// equal
-		Assert.assertEquals(ByteTool.bitwiseCompare(new byte[]{7}, new byte[]{7}), 0);
-		// 3 is 1 less than 4
-		Assert.assertEquals(ByteTool.bitwiseCompare(new byte[]{3}, new byte[]{4}), -1);
-		// a is equal but 2 shorter than b
-		Assert.assertEquals(ByteTool.bitwiseCompare(new byte[]{2}, new byte[]{2, 3, 4}), -2);
-		// positive numbers come before negative when bitwise
-		Assert.assertTrue(ByteTool.bitwiseCompare(new byte[]{1}, new byte[]{-3}) < 0);
-		// -1 (the second byte) is after -3
-		Assert.assertTrue(ByteTool.bitwiseCompare(new byte[]{1, -1}, 1, 1, new byte[]{-3}, 0, 1) > 0);
-	}
-
-	@Test
-	public void testEquals(){
-		byte[] a1 = new byte[]{1, -1};
-		byte[] b1 = new byte[]{-3};
-		Assert.assertFalse(ByteTool.equals(a1, 0, a1.length, b1, 0, b1.length));
-		byte[] a2 = new byte[]{0, 1, 2, 3, 4, 5};
-		byte[] b2 = new byte[]{2, 3, 4, 5, 6, 7};
-		Assert.assertTrue(ByteTool.equals(a2, 2, 4, b2, 0, 4));
-
-	}
-
-	@Test
-	public void testGetOrderedBytes(){
+	public void testGetComparableBytes(){
 		byte min = Byte.MIN_VALUE;
 		Assert.assertEquals(min, -128);
 		byte max = Byte.MAX_VALUE;
@@ -57,7 +32,7 @@ public class ByteToolTests{
 
 		byte[] minArray = ByteTool.getComparableBytes(min);
 		byte[] maxArray = ByteTool.getComparableBytes(max);
-		Assert.assertTrue(ByteTool.bitwiseCompare(maxArray, minArray) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(maxArray, minArray) > 0);
 
 		byte negative = -3;
 		byte positive = 5;
@@ -65,7 +40,7 @@ public class ByteToolTests{
 
 		byte[] negativeArray = ByteTool.getComparableBytes(negative);
 		byte[] positiveArray = ByteTool.getComparableBytes(positive);
-		Assert.assertTrue(ByteTool.bitwiseCompare(positiveArray, negativeArray) > 0);
+		Assert.assertTrue(Arrays.compareUnsigned(positiveArray, negativeArray) > 0);
 	}
 
 	@Test

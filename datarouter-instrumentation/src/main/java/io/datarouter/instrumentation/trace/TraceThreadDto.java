@@ -25,7 +25,9 @@ public class TraceThreadDto{
 	private String serverId;
 	private Long created;
 	private Long queuedDuration;
+	private Long queuedEnded;
 	private Long runningDuration;
+	private Long ended;
 	private Integer discardedSpanCount;
 	private String hostThreadName;
 
@@ -66,17 +68,23 @@ public class TraceThreadDto{
 	}
 
 	public void markStart(){
-		queuedDuration = System.currentTimeMillis() - created;
+		queuedEnded = Trace2Dto.getCurrentTimeInNs();
+		queuedDuration = queuedEnded - created;
 	}
 
 	public void markFinish(){
-		runningDuration = System.currentTimeMillis() - queuedDuration - created;
+		ended = Trace2Dto.getCurrentTimeInNs();
+		runningDuration = ended - queuedDuration - created;
 	}
 
 	public Long getTotalDuration(){
 		long queued = queuedDuration == null ? 0 : queuedDuration;
 		long running = runningDuration == null ? 0 : runningDuration;
 		return queued + running;
+	}
+
+	public Long getTotalDurationMs(){
+		return Trace2Dto.convertToMsFromNsIfNecessary(getTotalDuration(), created);
 	}
 
 	public String getTraceId(){
@@ -131,12 +139,20 @@ public class TraceThreadDto{
 		return created;
 	}
 
+	public Long getCreatedMs(){
+		return Trace2Dto.convertToMsFromNsIfNecessary(created, created);
+	}
+
 	public void setCreated(Long created){
 		this.created = created;
 	}
 
 	public Long getQueuedDuration(){
 		return queuedDuration;
+	}
+
+	public Long getQueuedDurationMs(){
+		return Trace2Dto.convertToMsFromNsIfNecessary(queuedDuration, created);
 	}
 
 	public void setQueuedDuration(Long queuedDuration){
@@ -161,6 +177,14 @@ public class TraceThreadDto{
 
 	public String getHostThreadName(){
 		return hostThreadName;
+	}
+
+	public Long getQueuedEnded(){
+		return queuedEnded;
+	}
+
+	public Long getEnded(){
+		return ended;
 	}
 
 }

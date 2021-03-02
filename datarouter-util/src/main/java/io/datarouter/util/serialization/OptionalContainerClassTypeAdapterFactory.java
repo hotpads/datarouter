@@ -55,7 +55,7 @@ public class OptionalContainerClassTypeAdapterFactory implements TypeAdapterFact
 	private <T> TypeAdapter<T> getClassAdapter(Gson gson, TypeToken<T> type){
 		TypeAdapter<T> delegate = gson.getDelegateAdapter(this, type);
 		TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-		return new TypeAdapter<>(){
+		return new TypeAdapter<T>(){
 			@Override
 			public void write(JsonWriter out, T value) throws IOException{
 				JsonElement tree = delegate.toJsonTree(value);
