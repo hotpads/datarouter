@@ -77,7 +77,7 @@ public class JobletPackage{
 
 		//build JobletRequest
 		JobletRequest request = new JobletRequest(jobletType, priority, dateCreated, batchSequence, restartable,
-				getDataSignature(jobletType, params));
+				getDataSignature(encodedParams));
 		request.setQueueId(queueId);
 		request.setGroupId(groupId);
 		request.setNumItems(codec.calculateNumItems(params));
@@ -101,6 +101,11 @@ public class JobletPackage{
 	public static <P> Long getDataSignature(JobletType<P> jobletType, P params){
 		JobletCodec<P> codec = jobletType.getCodecSupplier().get();
 		String encodedParams = codec.marshallData(params);
+		return getDataSignature(encodedParams);
+	}
+
+	// use this method only if the caller already know the encodedParams
+	public static Long getDataSignature(String encodedParams){
 		return HashMethods.longMd5DjbHash(encodedParams);
 	}
 

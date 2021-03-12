@@ -43,16 +43,16 @@ public class ScannerToolTests{
 
 	@Test
 	public void testCollection(){
-		List<Integer> inputs = List.of(2, 1, 3, 1);
-		Assert.assertEquals(Scanner.of(inputs).collect(ArrayList::new), List.of(2, 1, 3, 1));
-		Assert.assertEquals(Scanner.of(inputs).collect(LinkedList::new), List.of(2, 1, 3, 1));
-		Assert.assertEquals(Scanner.of(inputs).collect(TreeSet::new), List.of(1, 2, 3));
-		Assert.assertEquals(Scanner.of(inputs).collect(LinkedHashSet::new), List.of(2, 1, 3));
+		List<Integer> inputs = Java9.listOf(2, 1, 3, 1);
+		Assert.assertEquals(Scanner.of(inputs).collect(ArrayList::new), Java9.listOf(2, 1, 3, 1));
+		Assert.assertEquals(Scanner.of(inputs).collect(LinkedList::new), Java9.listOf(2, 1, 3, 1));
+		Assert.assertEquals(Scanner.of(inputs).collect(TreeSet::new), Java9.listOf(1, 2, 3));
+		Assert.assertEquals(Scanner.of(inputs).collect(LinkedHashSet::new), Java9.listOf(2, 1, 3));
 	}
 
 	@Test
 	public void testFindAny(){
-		List<Integer> items = List.of(1, 2, 3);
+		List<Integer> items = Java9.listOf(1, 2, 3);
 		Integer any = Scanner.of(items).findAny().get();
 		Assert.assertTrue(items.contains(any));
 		Assert.assertFalse(Scanner.empty().findAny().isPresent());
@@ -136,7 +136,7 @@ public class ScannerToolTests{
 
 	@Test
 	public void testReduceEmpty(){
-		List<Integer> input = List.of();
+		List<Integer> input = Java9.listOf();
 		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
 		Optional<Integer> actual = Scanner.of(input).reduce(reducer);
 		Assert.assertFalse(actual.isPresent());
@@ -160,7 +160,7 @@ public class ScannerToolTests{
 
 	@Test
 	public void testReduceWithSeedEmpty(){
-		List<Integer> input = List.of();
+		List<Integer> input = Java9.listOf();
 		BinaryOperator<Integer> reducer = (a, b) -> Math.max(a, b);
 		int actual = Scanner.of(input).reduce(6, reducer);
 		Assert.assertEquals(actual, 6);
@@ -170,15 +170,15 @@ public class ScannerToolTests{
 	public void testSkip(){
 		Scanner<Integer> input = Scanner.of(1, 2, 3, 4);
 		List<Integer> actual = input.skip(2).list();
-		List<Integer> expected = List.of(3, 4);
+		List<Integer> expected = Java9.listOf(3, 4);
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testTake(){
 		Scanner<Integer> input = Scanner.of(1, 2, 3, 4);
-		Assert.assertEquals(input.take(3), List.of(1, 2, 3));
-		Assert.assertEquals(input.take(3), List.of(4));
+		Assert.assertEquals(input.take(3), Java9.listOf(1, 2, 3));
+		Assert.assertEquals(input.take(3), Java9.listOf(4));
 	}
 
 	@Test

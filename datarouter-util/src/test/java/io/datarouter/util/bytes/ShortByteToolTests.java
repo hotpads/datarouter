@@ -15,11 +15,10 @@
  */
 package io.datarouter.util.bytes;
 
-import java.util.Arrays;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.Java9;
 import io.datarouter.util.array.ArrayTool;
 
 public class ShortByteToolTests{
@@ -67,8 +66,8 @@ public class ShortByteToolTests{
 		byte[] p5 = ShortByteTool.getComparableBytes((short)5);
 		byte[] n3 = ShortByteTool.getComparableBytes((short)-3);
 		byte[] n7 = ShortByteTool.getComparableBytes((short)-7);
-		Assert.assertTrue(Arrays.compareUnsigned(p5, n3) > 0);
-		Assert.assertTrue(Arrays.compareUnsigned(p5, n7) > 0);
+		Assert.assertTrue(Java9.compareUnsigned(p5, n3) > 0);
+		Assert.assertTrue(Java9.compareUnsigned(p5, n7) > 0);
 	}
 
 	@Test
@@ -94,7 +93,7 @@ public class ShortByteToolTests{
 			byte[] bytes = ShortByteTool.getComparableBytes(shortValue);
 			short roundTripped = fromComparableByteArray(bytes)[0];
 			try{
-				Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
+				Assert.assertTrue(Java9.compareUnsigned(lastBytes, bytes) < 0);
 				Assert.assertEquals(roundTripped, shortValue);
 			}catch(AssertionError e){
 				throw e;

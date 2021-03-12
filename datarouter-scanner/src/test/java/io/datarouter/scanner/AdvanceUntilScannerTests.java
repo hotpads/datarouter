@@ -27,7 +27,7 @@ public class AdvanceUntilScannerTests{
 	public void simpleTest(){
 		AtomicLong counter = new AtomicLong();
 		Scanner<Integer> input = Scanner.of(1, 2, 3);
-		List<Integer> expected = List.of(1, 2);
+		List<Integer> expected = Java9.listOf(1, 2);
 		List<Integer> actual = input
 				.each($ -> counter.incrementAndGet())
 				.advanceUntil($ -> counter.get() == 3)

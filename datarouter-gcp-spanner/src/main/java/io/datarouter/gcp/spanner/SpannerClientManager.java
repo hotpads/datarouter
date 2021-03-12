@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.auth.Credentials;
-import com.google.cloud.spanner.Database;
+import com.google.cloud.spanner.DatabaseAdminClient;
 import com.google.cloud.spanner.DatabaseClient;
 import com.google.cloud.spanner.DatabaseId;
 import com.google.cloud.spanner.Spanner;
@@ -83,9 +83,12 @@ public class SpannerClientManager extends BaseClientManager{
 				spannerClientOptions.projectId(clientId.getName()),
 				spannerClientOptions.instanceId(clientId.getName()),
 				spannerClientOptions.databaseName(clientId.getName()));
-		Database database = databaseCreator.createDatabaseIfNeeded(databaseId, spanner);
+		databaseCreator.createIfMissing(spanner, databaseId);
 		timer.add("create database");
-		databaseClientsHolder.register(clientId, spanner.getDatabaseClient(databaseId), spanner, database);
+		//create the clients after the database exists or else they won't see the new database
+		DatabaseAdminClient databaseAdminClient = spanner.getDatabaseAdminClient();
+		DatabaseClient databaseClient = spanner.getDatabaseClient(databaseId);
+		databaseClientsHolder.register(clientId, databaseAdminClient, databaseClient, databaseId);
 		logger.warn(timer.toString());
 	}
 

@@ -27,7 +27,7 @@ public class IteratingScannerTests{
 		List<Integer> actual = Scanner.iterate(0, i -> i + 1)
 				.limit(3)
 				.list();
-		Assert.assertEquals(actual, List.of(0, 1, 2));
+		Assert.assertEquals(actual, Java9.listOf(0, 1, 2));
 	}
 
 	@Test
@@ -35,7 +35,7 @@ public class IteratingScannerTests{
 		List<Integer> actual = Scanner.iterate(0, i -> i + 1)
 				.advanceWhile(i -> i < 3)
 				.list();
-		Assert.assertEquals(actual, List.of(0, 1, 2));
+		Assert.assertEquals(actual, Java9.listOf(0, 1, 2));
 	}
 
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.io;
+package io.datarouter.storage.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -98,25 +98,25 @@ public class MultiByteArrayInputStream extends InputStream{
 				: Arrays.copyOf(buffer, numRead);
 	}
 
-    @Override
+	@Override
 	public int readNBytes(byte[] buffer, int off, int len){
-        int numBytesRead = read(buffer, off, len);
-        return numBytesRead == -1 ? 0 : numBytesRead;
-    }
+		int numBytesRead = read(buffer, off, len);
+		return numBytesRead == -1 ? 0 : numBytesRead;
+	}
 
-    @Override
-    public long transferTo(OutputStream out) throws IOException{
-    	long count = 0;
-    	count += remainingInCurrent();
+	@Override
+	public long transferTo(OutputStream out) throws IOException{
+		long count = 0;
+		count += remainingInCurrent();
 		out.write(current, position, remainingInCurrent());
 		while(advance()){
-	    	count += remainingInCurrent();
+			count += remainingInCurrent();
 			out.write(current, position, remainingInCurrent());
 		}
 		current = ByteTool.EMPTY_ARRAY;
 		position = 0;
 		return count;
-    }
+	}
 
 	private int remainingInCurrent(){
 		return current.length - position;

@@ -20,6 +20,8 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.util.Java9;
+
 public class DatarouterEnumToolTests{
 
 	private enum SomeType implements StringEnum<SomeType>{
@@ -46,7 +48,7 @@ public class DatarouterEnumToolTests{
 		SomeType[] expected = {SomeType.LARGE, SomeType.CONDO};
 		List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(),
 				"large, funky, condo, dunno", false).get();
-		Assert.assertEquals(List.of(expected), actual);
+		Assert.assertEquals(Java9.listOf(expected), actual);
 	}
 
 	@Test
@@ -54,7 +56,7 @@ public class DatarouterEnumToolTests{
 		SomeType[] expected = {SomeType.LARGE, SomeType.CONDO};
 		List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(),
 				"large, funky, condo, large, condo, condo", false).get();
-		Assert.assertEquals(List.of(expected), actual);
+		Assert.assertEquals(Java9.listOf(expected), actual);
 	}
 
 
@@ -63,9 +65,9 @@ public class DatarouterEnumToolTests{
 		SomeType[] expected = {SomeType.RENTAL, SomeType.SALE, SomeType.SUBLET};
 		List<SomeType> actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(),
 				"rental, funky, condoo, sale, sublet", false).get();
-		Assert.assertEquals(List.of(expected), actual);
+		Assert.assertEquals(Java9.listOf(expected), actual);
 
 		actual = DatarouterEnumTool.uniqueListFromCsvNames(SomeType.values(), "ballons", true).get();
-		Assert.assertEquals(List.of(SomeType.values()), actual);
+		Assert.assertEquals(Java9.listOf(SomeType.values()), actual);
 	}
 }

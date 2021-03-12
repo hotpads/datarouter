@@ -18,6 +18,7 @@ package io.datarouter.client.redis.client;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -133,14 +134,16 @@ public class RedisNodeOps<
 	public Optional<Long> nodeFindTallyCount(String stringKey){
 		byte[] tallyKeyBytes = tallyCodec.encodeKey(new TallyKey(stringKey));
 		Optional<byte[]> byteTally = ops.find(tallyKeyBytes);
-		if(byteTally.isEmpty() || byteTally.get().length == 0){
-			return Optional.empty();
-		}
-		// returned byte is ascii value of the long
-		return byteTally
-				.map(String::new)
-				.map(String::trim)
-				.map(Long::valueOf);
+		return tallyCodec.decodeTallyValue(byteTally);
+	}
+
+	public Map<String,Long> getMultiTallyCount(Collection<String> stringKeys){
+		return Scanner.of(stringKeys)
+				.map(TallyKey::new)
+				.map(tallyCodec::encodeKey)
+				.listTo(ops::mget)
+				.toMap(entry -> tallyCodec.decodeKey(entry.getKey()).getId(),
+						entry -> tallyCodec.decodeTallyValue(entry).orElse(0L));
 	}
 
 	public Long nodeIncrementAndGetCount(String stringKey, int delta, Config config){

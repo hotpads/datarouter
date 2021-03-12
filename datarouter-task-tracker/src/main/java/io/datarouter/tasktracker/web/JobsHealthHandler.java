@@ -16,6 +16,7 @@
 package io.datarouter.tasktracker.web;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,12 +24,13 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
-import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTaskKey;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler.LongRunningTaskJspDto;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 
 public class JobsHealthHandler extends BaseHandler{
 
@@ -36,6 +38,8 @@ public class JobsHealthHandler extends BaseHandler{
 	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
 	private DatarouterTaskTrackerFiles files;
+	@Inject
+	private CurrentUserSessionInfoService currentUserSessionInfoService;
 
 	@Handler(defaultHandler = true)
 	Mav uniqueTasks(){
@@ -50,10 +54,11 @@ public class JobsHealthHandler extends BaseHandler{
 				.distinct()
 				.collect(Collectors.toList());
 		Integer numRunningJobs = 0;
+		ZoneId zoneId = currentUserSessionInfoService.getZoneId(request);
 		List<LongRunningTaskJspDto> allBadTasks = new ArrayList<>();
 		for(LongRunningTask task : allTasks){
 			if(task.isBadState()){
-				allBadTasks.add(new LongRunningTaskJspDto(task));
+				allBadTasks.add(new LongRunningTaskJspDto(task, zoneId));
 			}else if(task.isRunning()){
 				numRunningJobs++;
 			}

@@ -28,6 +28,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
+import io.datarouter.util.Java11;
+
 /**
  * This factory creates an adaptor that correctly serialize Optionals.
  * @see OptionalContainerClassTypeAdapterFactory
@@ -55,7 +57,7 @@ public class OptionalTypeAdapterFactory implements TypeAdapterFactory{
 
 		@Override
 		public void write(JsonWriter out, Optional<E> value) throws IOException{
-			if(value == null || value.isEmpty()){
+			if(value == null || Java11.isEmpty(value)){
 				out.nullValue();
 			}else{
 				typeAdapter.write(out, value.get());

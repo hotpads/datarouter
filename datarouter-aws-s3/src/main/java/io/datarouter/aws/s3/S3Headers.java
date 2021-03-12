@@ -64,12 +64,14 @@ public class S3Headers{
 		TEXT_TSV("text/tsv","tsv"),
 		TEXT_XML("text/xml","xml"),
 		TEXT_SHELLSCRIPT("text/x-shellscript", "sh"),
+		APPLICATION_JSON("application/json","json"),
 		APPLICATION_XML("application/xml",null), //s3's default
 		TEXT_HTML("text/html","html"),
 		MULTIPART_MIXED("multipart/mixed",null),
 		GZIP("application/x-gzip","gz"),
 		ZIP("application/zip","zip"),
 		BINARY("binary/octet-stream", null),
+		PDF("application/pdf", "pdf"),
 		;
 
 		private final String mimeType;

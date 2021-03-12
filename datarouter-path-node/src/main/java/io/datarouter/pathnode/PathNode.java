@@ -18,6 +18,7 @@ package io.datarouter.pathnode;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -142,11 +143,12 @@ public class PathNode{
 		return value;
 	}
 
-	public static PathNode parse(String path){
-		Iterable<Path> pathParts = Path.of(path)::iterator;
+	public static PathNode parse(String stringPath){
+		Path path = Java11.pathOf(stringPath);
+		Iterator<Path> pathParts = path.iterator();
 		PathNode pathNode = new PathNode();
-		for(Path pathPart : pathParts){
-			pathNode = pathNode.branch(PathNode::new, pathPart.toString());
+		while(pathParts.hasNext()){
+			pathNode = pathNode.branch(PathNode::new, pathParts.next().toString());
 		}
 		return pathNode;
 	}

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.datarouter.util.Java11;
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.string.StringTool;
 
@@ -87,7 +88,7 @@ public final class FileTool{
 	}
 
 	public static void cacheRemoteFile(String remoteUrl, String localPath){
-		Path path = Path.of(localPath);
+		Path path = Java11.pathOf(localPath);
 		path.getParent().toFile().mkdirs();
 		if(Files.exists(path)){
 			return;

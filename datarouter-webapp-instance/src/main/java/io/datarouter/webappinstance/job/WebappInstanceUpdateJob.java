@@ -23,7 +23,7 @@ import io.datarouter.webappinstance.service.WebappInstanceService;
 
 public class WebappInstanceUpdateJob extends BaseJob{
 
-	public static final int WEBAPP_INSTANCE_UPDATE_SECONDS_DELAY = 20;
+	public static final int WEBAPP_INSTANCE_UPDATE_SECONDS_DELAY = 5;
 
 	@Inject
 	private WebappInstanceService service;

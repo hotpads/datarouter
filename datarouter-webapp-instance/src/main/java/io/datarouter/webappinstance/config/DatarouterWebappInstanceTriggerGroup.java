@@ -31,7 +31,7 @@ public class DatarouterWebappInstanceTriggerGroup extends BaseTriggerGroup{
 	public DatarouterWebappInstanceTriggerGroup(DatarouterWebappInstanceSettingRoot settings){
 		super("DatarouterWebappInstance", true);
 		registerParallel(
-				"5/" + WebappInstanceUpdateJob.WEBAPP_INSTANCE_UPDATE_SECONDS_DELAY + " * * * * ?",
+				"0/" + WebappInstanceUpdateJob.WEBAPP_INSTANCE_UPDATE_SECONDS_DELAY + " * * * * ?",
 				() -> true,
 				WebappInstanceUpdateJob.class);
 		registerParallel(

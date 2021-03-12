@@ -137,7 +137,7 @@ public class Require{
 	}
 
 	public static <T> Optional<T> isPresent(Optional<T> optional, String message){
-		if(optional == null || optional.isEmpty()){
+		if(optional == null || Java11.isEmpty(optional)){
 			throw new IllegalArgumentException(message);
 		}
 		return optional;

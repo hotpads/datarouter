@@ -27,15 +27,17 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobPaths;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
-import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
+import io.datarouter.util.DateTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.html.email.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.web.html.email.J2HtmlEmailTable;
@@ -58,6 +60,8 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	private DatarouterTaskTrackerPaths taskPaths;
 	@Inject
 	private TaskTrackerExceptionLink exceptionLink;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -92,13 +96,14 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 		var header = h4("There" + headerVerb + longRunningTaskList.size()
 				+ " non-successful long running tasks in the last 24 hours.");
 		ContainerTag taskTable = new J2HtmlEmailTable<LongRunningTask>()
-				.withColumn(new J2HtmlEmailTableColumn<>("NAME",
+				.withColumn(new J2HtmlEmailTableColumn<>("Name",
 						row -> makeTaskLink(row.getKey().getName())))
-				.withColumn("TRIGGER TIME", row -> row.getKey().getTriggerTime())
-				.withColumn("DURATION", row -> row.getDurationString())
-				.withColumn("TRIGGERED BY", row -> row.getTriggeredBy())
-				.withColumn("STATUS", row -> row.getJobExecutionStatus().getPersistentString())
-				.withColumn(new J2HtmlEmailTableColumn<>("EXCEPTION RECORD ID",
+				.withColumn("Trigger Time", row -> DateTool.formatDateWithZone(row.getKey().getTriggerTime(),
+						datarouterService.getZoneId()))
+				.withColumn("Duration", row -> row.getDurationString())
+				.withColumn("Triggered By", row -> row.getTriggeredBy())
+				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())
+				.withColumn(new J2HtmlEmailTableColumn<>("Exception Record Id",
 						row -> makeExceptionLink(row.getExceptionRecordId())))
 				.build(longRunningTaskList);
 		body.with(div(header, taskTable));

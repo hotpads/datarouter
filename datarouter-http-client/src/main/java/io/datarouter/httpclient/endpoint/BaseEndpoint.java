@@ -37,8 +37,6 @@ public abstract class BaseEndpoint<T>{
 	public String urlPrefix;
 	@IgnoredField
 	public Optional<Duration> timeout;
-	@IgnoredField
-	public Optional<Object> entity;
 
 	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Class<T> responseType, boolean retrySafe){
 		this.method = method;
@@ -48,18 +46,11 @@ public abstract class BaseEndpoint<T>{
 
 		this.urlPrefix = null;
 		this.timeout = Optional.empty();
-		this.entity = Optional.empty();
 	}
 
 	public BaseEndpoint<T> setUrlPrefix(URI urlPrefix){
 		this.urlPrefix = urlPrefix.normalize().toString();
 		return this;
-	}
-
-	protected <E> E setRequestBody(E entityDto){
-		// needs to be Optional.ofNullable for reflection
-		this.entity = Optional.ofNullable(entityDto);
-		return entityDto;
 	}
 
 	protected void setTimeout(Duration timeout){

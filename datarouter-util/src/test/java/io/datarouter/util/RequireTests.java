@@ -15,8 +15,6 @@
  */
 package io.datarouter.util;
 
-import java.util.List;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -101,32 +99,32 @@ public class RequireTests{
 
 	@Test
 	public void testContains(){
-		Require.contains(List.of("a", "b"), "a");
+		Require.contains(Java9.listOf("a", "b"), "a");
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testContainsThrowsException(){
-		Require.contains(List.of("a", "b"), "c");
+		Require.contains(Java9.listOf("a", "b"), "c");
 	}
 
 	@Test
 	public void testNotContains(){
-		Require.notContains(List.of("a", "b"), "c");
+		Require.notContains(Java9.listOf("a", "b"), "c");
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testNotContainsThrowsException(){
-		Require.notContains(List.of("a", "b"), "a");
+		Require.notContains(Java9.listOf("a", "b"), "a");
 	}
 
 	@Test
 	public void testNotEmpty(){
-		Require.notEmpty(List.of("a", "b"));
+		Require.notEmpty(Java9.listOf("a", "b"));
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testNotEmptyThrowsException(){
-		Require.notEmpty(List.of(), "empty list");
+		Require.notEmpty(Java9.listOf(), "empty list");
 	}
 
 }

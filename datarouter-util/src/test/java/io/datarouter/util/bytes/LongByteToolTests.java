@@ -15,11 +15,12 @@
  */
 package io.datarouter.util.bytes;
 
-import java.util.Arrays;
 import java.util.Random;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import io.datarouter.util.Java9;
 
 public class LongByteToolTests{
 
@@ -117,7 +118,7 @@ public class LongByteToolTests{
 			long roundTripped = LongByteTool.fromComparableByteArray(bytes)[0];
 			try{
 				Assert.assertTrue(value > lastValue);
-				Assert.assertTrue(Arrays.compareUnsigned(lastBytes, bytes) < 0);
+				Assert.assertTrue(Java9.compareUnsigned(lastBytes, bytes) < 0);
 				Assert.assertEquals(roundTripped, value);
 			}catch(AssertionError e){
 				throw e;

@@ -16,10 +16,9 @@
 package io.datarouter.httpclient.endpoint;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 public interface Endpoints{
 
-	List<Supplier<BaseEndpoint<?>>> getEndpoints();
+	List<Class<? extends BaseEndpoint<?>>> getEndpoints();
 
 }

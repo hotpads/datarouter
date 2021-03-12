@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.bytes;
+package io.datarouter.model.util;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import io.datarouter.util.array.ArrayTool;
+import io.datarouter.util.bytes.ByteTool;
 
 /**
  * lightweight, reusable class for specifying ranges of byte[]'s
@@ -35,7 +35,6 @@ public class ByteRange implements Comparable<ByteRange>{
 	private byte[] bytes;
 	private int offset;
 	private int length;
-	private int hash = 0;
 
 	public ByteRange(byte[] bytes){
 		set(bytes);
@@ -68,7 +67,6 @@ public class ByteRange implements Comparable<ByteRange>{
 		this.bytes = bytes;
 		this.offset = offset;
 		this.length = length;
-		calculateHashCode();
 		return this;
 	}
 
@@ -78,12 +76,8 @@ public class ByteRange implements Comparable<ByteRange>{
 		return result;
 	}
 
-	public byte[] copyToArrayNewArrayAndIncrement(){
-		return ByteTool.unsignedIncrement(toArray());
-	}
-
-	public ByteRange cloneAndIncrement(){
-		return new ByteRange(copyToArrayNewArrayAndIncrement());
+	public byte[] copyToNewArrayAndIncrement(){
+		return ByteTool.unsignedIncrement(copyToNewArray());
 	}
 
 	private boolean isFullArray(){
@@ -117,18 +111,11 @@ public class ByteRange implements Comparable<ByteRange>{
 
 	@Override
 	public int hashCode(){
-		return hash;
-	}
-
-	private void calculateHashCode(){
-		if(ArrayTool.isEmpty(bytes)){
-			hash = 0;
-			return;
+		int result = 1;
+		for(int i = 0; i < length; ++i){
+			result = 31 * result + bytes[offset + i];
 		}
-		int off = offset;
-		for(int i = 0; i < length; i++){
-			hash = 31 * hash + bytes[off++];
-		}
+		return result;
 	}
 
 	@Override

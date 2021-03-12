@@ -124,8 +124,9 @@ public class HttpTestHandler extends BaseHandler{
 			Long start = System.currentTimeMillis();
 			InetAddress[] ipAddresses = InetAddress.getAllByName(hostname.get());
 			Long elapsedMs = System.currentTimeMillis() - start;
-			String ipAddressesFormatted = Scanner.of(ipAddresses).map(InetAddress::getHostAddress).collect(Collectors
-					.joining("\n"));
+			String ipAddressesFormatted = Scanner.of(ipAddresses)
+					.map(InetAddress::getHostAddress)
+					.collect(Collectors.joining("\n"));
 			String formattedResponse = "duration: " + elapsedMs + " ms" + "\n\n" + "ips: " + ipAddressesFormatted;
 			mav.put("ipAddresses", formattedResponse);
 		}catch(UnknownHostException e){

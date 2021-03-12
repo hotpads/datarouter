@@ -44,6 +44,7 @@ import io.datarouter.httpclient.endpoint.ParamType;
 import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
@@ -71,7 +72,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 						.concatIter(EndpointRegistry::getEndpoints)
 						.map(Supplier::get)
 						.concatIter(Endpoints::getEndpoints)
-						.map(Supplier::get)
+						.map(ReflectionTool::createWithoutNoArgs)
 						.each(httpClient::initUrlPrefix)
 						.list();
 				})

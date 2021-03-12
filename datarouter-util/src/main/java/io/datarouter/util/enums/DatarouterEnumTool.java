@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.ComparableTool;
+import io.datarouter.util.Java9;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 
@@ -117,7 +118,7 @@ public class DatarouterEnumTool{
 
 	public static <E extends StringEnum<E>> List<String> getPersistentStrings(Collection<E> enums){
 		if(enums == null){
-			return List.of();
+			return Java9.listOf();
 		}
 		return enums.stream()
 				.map(E::getPersistentString)
@@ -127,7 +128,7 @@ public class DatarouterEnumTool{
 	public static <E extends StringEnum<E>> List<E> fromPersistentStrings(E enumInstance,
 			Collection<String> persistentStrings){
 		if(persistentStrings == null){
-			return List.of();
+			return Java9.listOf();
 		}
 		return persistentStrings.stream()
 				.map(enumInstance::fromPersistentString)

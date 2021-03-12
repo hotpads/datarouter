@@ -24,7 +24,7 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.positive.UInt31Field;
 import io.datarouter.model.field.imp.positive.UInt31FieldKey;
-import io.datarouter.util.bytes.ByteRange;
+import io.datarouter.model.util.ByteRange;
 
 public class FieldSetToolTests{
 

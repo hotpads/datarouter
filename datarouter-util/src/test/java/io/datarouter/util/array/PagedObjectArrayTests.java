@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.Java9;
 
 public class PagedObjectArrayTests{
 
@@ -103,8 +104,8 @@ public class PagedObjectArrayTests{
 				.list();
 		Assert.assertTrue(array.contains(3));
 		Assert.assertFalse(array.contains(300));
-		Assert.assertTrue(array.containsAll(List.of(3, 5)));
-		Assert.assertFalse(array.containsAll(List.of(3, 5, 300)));
+		Assert.assertTrue(array.containsAll(Java9.listOf(3, 5)));
+		Assert.assertFalse(array.containsAll(Java9.listOf(3, 5, 300)));
 	}
 
 }

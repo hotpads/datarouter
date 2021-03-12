@@ -25,6 +25,8 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.scanner.Java9.Entry;
+
 public class ConcatenatingScannerTests{
 
 	private static final Supplier<RuntimeException> EXCEPTION = () -> new RuntimeException(
@@ -33,30 +35,31 @@ public class ConcatenatingScannerTests{
 	@Test
 	public void testConcat(){
 		Scanner<List<Integer>> batches = Scanner.of(
-				List.of(),
-				List.of(0, 1),
-				List.of(2, 73),
-				List.of(),
-				List.of(3, 4));
+				Java9.listOf(),
+				Java9.listOf(0, 1),
+				Java9.listOf(2, 73),
+				Java9.listOf(),
+				Java9.listOf(3, 4));
 		List<Integer> actual = batches
 				.concat(Scanner::of)
 				.list();
-		List<Integer> expected = List.of(0, 1, 2, 73, 3, 4);
+		List<Integer> expected = Java9.listOf(0, 1, 2, 73, 3, 4);
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
 	public void testConcatIter(){
-		Map<String,List<Integer>> map = new TreeMap<>(Map.of(
-				"a", List.of(),
-				"b", List.of(0, 1),
-				"c", List.of(2, 73),
-				"d", List.of(),
-				"e", List.of(3, 4)));
+		Map<String,List<Integer>> map = new TreeMap<>(Java9.mapOf(
+				new Entry<>("a", Java9.listOf()),
+				new Entry<>("b", Java9.listOf(0, 1)),
+				new Entry<>("c", Java9.listOf(2, 73)),
+				new Entry<>("d", Java9.listOf()),
+				new Entry<>("e", Java9.listOf(3, 4))));
+
 		List<Integer> actual = Scanner.of(map.keySet())
 				.concatIter(map::get)
 				.list();
-		List<Integer> expected = List.of(0, 1, 2, 73, 3, 4);
+		List<Integer> expected = Java9.listOf(0, 1, 2, 73, 3, 4);
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -94,14 +97,20 @@ public class ConcatenatingScannerTests{
 	@Test
 	public void testStreamLazyness(){
 		AtomicBoolean seenOne = new AtomicBoolean();
-		Stream.of(1, 2)
-				.flatMap(foo -> Stream.of(foo, foo)
-						.peek($ -> {
-							if(seenOne.getAndSet(true)){
-								throw EXCEPTION.get();
-							}
-						}))
-				.findFirst();
+		try{
+			Stream.of(1, 2)
+					.flatMap(foo -> Stream.of(foo, foo)
+							.peek($ -> {
+								if(seenOne.getAndSet(true)){
+									throw EXCEPTION.get();
+								}
+							}))
+					.findFirst();
+		}catch(RuntimeException e){
+			if(Java9.IS_JAVA_9){
+				throw e;
+			}
+		}
 
 		try{
 			seenOne.set(false);

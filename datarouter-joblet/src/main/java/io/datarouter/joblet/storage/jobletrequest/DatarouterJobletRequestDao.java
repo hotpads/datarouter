@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +27,7 @@ import io.datarouter.joblet.enums.JobletPriority;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest.JobletRequestFielder;
 import io.datarouter.joblet.type.JobletType;
+import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -37,8 +37,11 @@ import io.datarouter.storage.config.Configs;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.node.type.index.UniqueIndexNode;
 import io.datarouter.util.tuple.Range;
 
 @Singleton
@@ -52,19 +55,33 @@ public class DatarouterJobletRequestDao extends BaseDao{
 
 	}
 
-	private final SortedMapStorageNode<JobletRequestKey,JobletRequest,JobletRequestFielder> node;
+	private final IndexedSortedMapStorageNode<JobletRequestKey,JobletRequest,JobletRequestFielder> node;
+	private final UniqueIndexNode<
+			JobletRequestKey,
+			JobletRequest,
+			JobletRequestByTypeAndDataSignatureKey,
+			FieldlessIndexEntry<
+					JobletRequestByTypeAndDataSignatureKey,
+					JobletRequestKey,
+					JobletRequest>> byTypeAndDataSignature;
 
 	@Inject
 	public DatarouterJobletRequestDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
-			DatarouterJobletRequestDaoParams params){
+			DatarouterJobletRequestDaoParams params,
+			IndexingNodeFactory indexingNodeFactory){
 		super(datarouter);
 		node = nodeFactory.create(params.clientId, JobletRequest::new, JobletRequestFielder::new)
 				.disableNodewatchPercentageAlert()
 				.disableNodewatchThresholdAlert()
 				.withIsSystemTable(true)
-				.buildAndRegister();
+				.build();
+		byTypeAndDataSignature = indexingNodeFactory.createKeyOnlyManagedIndex(
+				JobletRequestByTypeAndDataSignatureKey.class,
+				node)
+				.build();
+		datarouter.register(node);
 	}
 
 	public Scanner<JobletRequest> scan(){
@@ -197,14 +214,6 @@ public class DatarouterJobletRequestDao extends BaseDao{
 				.count();
 	}
 
-	//Jobs could use this method to avoid submitting duplicate joblets to JobletService
-	public Set<Long> getDataSignaturesForType(JobletType<?> jobletType){
-		return scanType(jobletType, false)
-				.map(JobletRequest::getDataSignature)
-				.include(Objects::nonNull)
-				.collect(HashSet::new);
-	}
-
 	public long countGroup(JobletType<?> type, JobletPriority priority, String groupId, boolean anyDelay){
 		return scanTypePriority(type, priority, anyDelay)
 				.include(jobletRequest -> Objects.equals(jobletRequest.getGroupId(), groupId))
@@ -214,6 +223,47 @@ public class DatarouterJobletRequestDao extends BaseDao{
 	public Scanner<JobletRequest> scanFailedJoblets(){
 		return node.scan()
 				.include(JobletRequest::hasReachedMaxFailures);
+	}
+
+	public boolean isDataAlreadyInQueue(JobletRequest jobletRequest){
+		return byTypeAndDataSignature.scanKeysWithPrefix(
+				new JobletRequestByTypeAndDataSignatureKey(
+						jobletRequest.getKey().getType(),
+						jobletRequest.getDataSignature(),
+						null,
+						null,
+						null),
+				new Config().setLimit(1))
+			.hasAny();
+	}
+
+	public List<JobletRequest> filterForDataNotAlreadyInQueue(List<JobletRequest> jobletRequests){
+		String type = assertSameType(jobletRequests);
+		Collection<Long> alreadyInQueue = Scanner.of(jobletRequests)
+				.map(JobletRequest::getDataSignature)
+				.map(dataSignature -> new JobletRequestByTypeAndDataSignatureKey(
+						type,
+						dataSignature,
+						null,
+						null,
+						null))
+				.listTo(byTypeAndDataSignature::scanKeysWithPrefixes)
+				.map(JobletRequestByTypeAndDataSignatureKey::getDataSignature)
+				.collect(HashSet::new);
+		return Scanner.of(jobletRequests)
+				.exclude(jobletRequest -> alreadyInQueue.contains(jobletRequest.getDataSignature()))
+				.list();
+	}
+
+	private String assertSameType(List<JobletRequest> jobletRequests){
+		String firstType = jobletRequests.get(0).getKey().getType();
+		for(JobletRequest jobletRequest : jobletRequests){
+			String type = jobletRequest.getKey().getType();
+			if(!type.equals(firstType)){
+				throw new RuntimeException(type + " is not a " + firstType);
+			}
+		}
+		return firstType;
 	}
 
 }

@@ -39,8 +39,8 @@ public class ScannerToGroupsTests{
 		Assert.assertSame(map.getClass(), HashMap.class);
 		Assert.assertEquals(map.size(), 2);
 		Assert.assertSame(map.get("a").getClass(), ArrayList.class);
-		Assert.assertEquals(map.get("a"), List.of("a1"));
-		Assert.assertEquals(map.get("b"), List.of("b2", "b1"));
+		Assert.assertEquals(map.get("a"), Java9.listOf("a1"));
+		Assert.assertEquals(map.get("b"), Java9.listOf("b2", "b1"));
 	}
 
 	@Test
@@ -50,8 +50,8 @@ public class ScannerToGroupsTests{
 		Assert.assertSame(map.getClass(), HashMap.class);
 		Assert.assertEquals(map.size(), 2);
 		Assert.assertSame(map.get("a").getClass(), ArrayList.class);
-		Assert.assertEquals(map.get("a"), List.of("1"));
-		Assert.assertEquals(map.get("b"), List.of("2", "1"));
+		Assert.assertEquals(map.get("a"), Java9.listOf("1"));
+		Assert.assertEquals(map.get("b"), Java9.listOf("2", "1"));
 	}
 
 	@Test
@@ -60,10 +60,10 @@ public class ScannerToGroupsTests{
 				.groupBy(FIRST, AFTER_FIRST, TreeMap::new);
 		Assert.assertSame(map.getClass(), TreeMap.class);
 		Assert.assertEquals(map.size(), 2);
-		Assert.assertEquals(Scanner.of(map.keySet()).list(), List.of("a", "b"));
+		Assert.assertEquals(Scanner.of(map.keySet()).list(), Java9.listOf("a", "b"));
 		Assert.assertSame(map.get("a").getClass(), ArrayList.class);
-		Assert.assertEquals(map.get("a"), List.of("1"));
-		Assert.assertEquals(map.get("b"), List.of("2", "1"));
+		Assert.assertEquals(map.get("a"), Java9.listOf("1"));
+		Assert.assertEquals(map.get("b"), Java9.listOf("2", "1"));
 	}
 
 	@Test
@@ -72,10 +72,10 @@ public class ScannerToGroupsTests{
 				.groupBy(FIRST, AFTER_FIRST, TreeMap::new, TreeSet::new);
 		Assert.assertSame(map.getClass(), TreeMap.class);
 		Assert.assertEquals(map.size(), 2);
-		Assert.assertEquals(Scanner.of(map.keySet()).list(), List.of("a", "b"));
+		Assert.assertEquals(Scanner.of(map.keySet()).list(), Java9.listOf("a", "b"));
 		Assert.assertSame(map.get("a").getClass(), TreeSet.class);
-		Assert.assertEquals(Scanner.of(map.get("a")).list(), List.of("1"));
-		Assert.assertEquals(Scanner.of(map.get("b")).list(), List.of("1", "2"));
+		Assert.assertEquals(Scanner.of(map.get("a")).list(), Java9.listOf("1"));
+		Assert.assertEquals(Scanner.of(map.get("b")).list(), Java9.listOf("1", "2"));
 	}
 
 }

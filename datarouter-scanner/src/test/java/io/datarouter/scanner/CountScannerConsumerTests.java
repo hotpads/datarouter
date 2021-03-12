@@ -24,7 +24,7 @@ public class CountScannerConsumerTests{
 
 	@Test
 	public void testCount(){
-		List<Integer> input = List.of(1, 2, 3, 4);
+		List<Integer> input = Java9.listOf(1, 2, 3, 4);
 		long actual = Scanner.of(input).count();
 		int expected = input.size();
 		Assert.assertEquals(actual, expected);

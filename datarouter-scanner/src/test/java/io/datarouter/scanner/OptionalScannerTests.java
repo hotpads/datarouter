@@ -25,11 +25,11 @@ public class OptionalScannerTests{
 
 	@Test
 	public void testOptionalOf(){
-		List<Optional<Integer>> input = List.of(Optional.of(1), Optional.empty(), Optional.of(2));
+		List<Optional<Integer>> input = Java9.listOf(Optional.of(1), Optional.empty(), Optional.of(2));
 		List<Integer> output = Scanner.of(input)
 				.concat(OptionalScanner::of)
 				.list();
-		Assert.assertEquals(output, List.of(1, 2));
+		Assert.assertEquals(output, Java9.listOf(1, 2));
 	}
 
 	@Test
@@ -37,7 +37,7 @@ public class OptionalScannerTests{
 		List<Integer> output = Scanner.<Optional<Integer>>of(Optional.of(1), Optional.empty(), Optional.of(2))
 				.concat(OptionalScanner::of)
 				.list();
-		Assert.assertEquals(output, List.of(1, 2));
+		Assert.assertEquals(output, Java9.listOf(1, 2));
 	}
 
 }

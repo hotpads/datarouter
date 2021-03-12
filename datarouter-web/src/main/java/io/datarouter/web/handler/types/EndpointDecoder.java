@@ -53,19 +53,24 @@ public class EndpointDecoder implements HandlerDecoder{
 	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
 	private JsonSerializer deserializer;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] decode(HttpServletRequest request, Method method){
 		Map<String,String[]> queryParams = request.getParameterMap();
 		Parameter[] parameters = method.getParameters();
-		boolean isEndpointObject = parameters.length == 1
-				&& parameters[0].getType().getClass().isInstance(BaseEndpoint.class);
+		Class<?> endpointType = parameters[0].getType();
+		boolean isEndpointObject = parameters.length == 1 && endpointType.getClass().isInstance(BaseEndpoint.class);
 		if(!isEndpointObject){
 			throw new RuntimeException("object needs to extend BaseEndpoint");
 		}
-		BaseEndpoint<?> baseEndpoint = (BaseEndpoint<?>)ReflectionTool.create(parameters[0].getType());
+
+		// populate the fields with baseEndpoint with dummy values and then repopulate in getArgsFromEndpointObject
+		BaseEndpoint<?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
+				(Class<? extends BaseEndpoint<?>>)endpointType);
 		if(baseEndpoint == null || baseEndpoint.getClass() == null || baseEndpoint.getClass().getFields() == null){
-			throw new RuntimeException("BaseEndpoint is null, a no-arg constructor might be missing");
+			throw new RuntimeException("BaseEndpoint is null");
 		}
+
 		String body = null;
 		if(getEntity(baseEndpoint.getClass().getFields()).isPresent()){
 			body = RequestTool.getBodyAsString(request);
@@ -156,7 +161,7 @@ public class EndpointDecoder implements HandlerDecoder{
 
 	// same as DefaultDecoder.decode (keeping duplicate code for now)
 	private Object decodeType(String string, Type type){
-		try(var $ = TracerTool.startSpan("DefaultDecoder deserialize")){
+		try(var $ = TracerTool.startSpan("EndpointDecoder deserialize")){
 			TracerTool.appendToSpanInfo("characters", string.length());
 			// this prevents empty strings from being decoded as null by gson
 			Object obj;

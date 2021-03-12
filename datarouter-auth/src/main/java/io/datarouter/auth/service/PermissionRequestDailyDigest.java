@@ -21,6 +21,7 @@ import static j2html.TagCreator.i;
 import static j2html.TagCreator.td;
 
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +32,9 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestKey;
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.scanner.OptionalScanner;
+import io.datarouter.util.DateTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -57,26 +61,28 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	private UserInfo userInfo;
 	@Inject
 	private DailyDigestService digestService;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Override
 	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
-		List<? extends SessionBasedUser> openRequests = getOpenRequests();
+		List<PermissionRequestDto> openRequests = getOpenRequests();
 		if(openRequests.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers);
-		var table = buildPageTable(openRequests);
+		var table = buildPageTable(openRequests, zoneId);
 		return Optional.of(div(header, table));
 	}
 
 	@Override
 	public Optional<ContainerTag> getEmailContent(){
-		List<? extends SessionBasedUser> openRequests = getOpenRequests();
+		List<PermissionRequestDto> openRequests = getOpenRequests();
 		if(openRequests.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers);
-		var table = buildEmailTable(openRequests);
+		var table = buildEmailTable(openRequests, datarouterService.getZoneId());
 		return Optional.of(div(header, table));
 	}
 
@@ -90,28 +96,32 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 		return DailyDigestGrouping.HIGH;
 	}
 
-	private List<? extends SessionBasedUser> getOpenRequests(){
+	private List<PermissionRequestDto> getOpenRequests(){
 		return permissionRequestDao.scanOpenPermissionRequests()
 				.map(DatarouterPermissionRequest::getKey)
-				.map(DatarouterPermissionRequestKey::getUserId)
-				.map(id -> userInfo.getUserById(id, true))
-				.include(Optional::isPresent)
-				.map(Optional::get)
+				.map(key -> Optional.of(key)
+						.map(DatarouterPermissionRequestKey::getUserId)
+						.map(id -> userInfo.getUserById(id, true))
+						.filter(Optional::isPresent)
+						.map(Optional::get)
+						.map(user -> new PermissionRequestDto(user, key.getRequestTime())))
+				.concat(OptionalScanner::of)
 				.list();
 	}
 
-	private <T extends SessionBasedUser> ContainerTag buildPageTable(List<T> rows){
-		return new J2HtmlTable<T>()
+	private ContainerTag buildPageTable(List<PermissionRequestDto> rows, ZoneId zoneId){
+		return new J2HtmlTable<PermissionRequestDto>()
 				.withClasses("table table-sm table-striped my-4 border")
-				.withColumn("Username", row -> row.getUsername())
+				.withColumn("Username", row -> row.user.getUsername())
 				.withHtmlColumn("Profile", row -> {
-					String detailsLink = detailsService.getUserProfileUrl(row.getUsername()).get();
+					String detailsLink = detailsService.getUserProfileUrl(row.user.getUsername()).get();
 					return td(a(detailsLink)
 							.withHref(detailsLink));
 				})
+				.withColumn("Date Requested", row -> row.getDateRequested(zoneId))
 				.withHtmlColumn("Details", row -> {
 					String link = servletContextSupplier.get().getContextPath() + paths.admin.editUser.toSlashedString()
-							+ "?username=" + row.getUsername();
+							+ "?username=" + row.user.getUsername();
 					return td(a(i().withClass("fa fa-link"))
 							.withClass("btn btn-link w-100 py-0")
 							.withHref(link));
@@ -119,23 +129,41 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private <T extends SessionBasedUser> ContainerTag buildEmailTable(List<T> rows){
-		return new J2HtmlEmailTable<T>()
-				.withColumn("Username", row -> row.getUsername())
+	private ContainerTag buildEmailTable(List<PermissionRequestDto> rows, ZoneId zoneId){
+		return new J2HtmlEmailTable<PermissionRequestDto>()
+				.withColumn("Username", row -> row.user.getUsername())
 				.withColumn(new J2HtmlEmailTableColumn<>(
 						"Profile",
 						row -> {
-							String detailsLink = detailsService.getUserProfileUrl(row.getUsername()).get();
+							String detailsLink = detailsService.getUserProfileUrl(row.user.getUsername()).get();
 							return a(detailsLink)
 									.withHref(detailsLink);
 						}))
+				.withColumn("Date Requested", row -> row.getDateRequested(zoneId))
 				.withColumn(new J2HtmlEmailTableColumn<>(
 						"Details",
 						row -> {
-							String link = paths.admin.editUser.toSlashedString() + "?username=" + row.getUsername();
+							String link = paths.admin.editUser.toSlashedString() + "?username="
+									+ row.user.getUsername();
 							return digestService.makeATagLink("Edit User Page", link);
 						}))
 				.build(rows);
+	}
+
+	private static class PermissionRequestDto{
+
+		public final SessionBasedUser user;
+		private final Date dateRequested;
+
+		public PermissionRequestDto(SessionBasedUser user, Date dateRequested){
+			this.user = user;
+			this.dateRequested = dateRequested;
+		}
+
+		public String getDateRequested(ZoneId zoneId){
+			return DateTool.formatDateWithZone(dateRequested, zoneId);
+		}
+
 	}
 
 }

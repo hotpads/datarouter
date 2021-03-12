@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.io;
+package io.datarouter.storage.util;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;

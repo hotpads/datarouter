@@ -25,16 +25,16 @@ public class CollatingScannerTests{
 	@Test
 	public void test(){
 		Scanner<List<Integer>> batches = Scanner.of(
-				List.of(),
-				List.of(2, 7, 8),
-				List.of(1, 2, 7),
-				List.of(),
-				List.of(),
-				List.of(0, 9));
+				Java9.listOf(),
+				Java9.listOf(2, 7, 8),
+				Java9.listOf(1, 2, 7),
+				Java9.listOf(),
+				Java9.listOf(),
+				Java9.listOf(0, 9));
 		List<Integer> actual = batches
 				.collate(Scanner::of)
 				.list();
-		List<Integer> expected = List.of(0, 1, 2, 2, 7, 7, 8, 9);
+		List<Integer> expected = Java9.listOf(0, 1, 2, 2, 7, 7, 8, 9);
 		Assert.assertEquals(actual, expected);
 	}
 

@@ -27,7 +27,7 @@ public class GeneratingScannerTests{
 		List<Integer> actual = Scanner.generate(() -> 1)
 				.limit(3)
 				.list();
-		Assert.assertEquals(actual, List.of(1, 1, 1));
+		Assert.assertEquals(actual, Java9.listOf(1, 1, 1));
 	}
 
 }

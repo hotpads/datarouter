@@ -15,6 +15,7 @@
  */
 package io.datarouter.scanner;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -28,7 +29,7 @@ public class FilteringScannerTests{
 		Scanner<Integer> input = Scanner.of(0, 1, 2, 3, 4, 5);
 		Predicate<Integer> predicate = i -> i % 2 == 0;
 		List<Integer> actual = input.include(predicate).list();
-		List<Integer> expected = List.of(0, 2, 4);
+		List<Integer> expected = Java9.listOf(0, 2, 4);
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -37,7 +38,7 @@ public class FilteringScannerTests{
 		Scanner<Integer> input = Scanner.of(0, 1, 2, 3, 4, 5);
 		Predicate<Integer> predicate = i -> i % 2 == 0;
 		List<Integer> actual = input.exclude(predicate).list();
-		List<Integer> expected = List.of(1, 3, 5);
+		List<Integer> expected = Arrays.asList(1, 3, 5);
 		Assert.assertEquals(actual, expected);
 	}
 

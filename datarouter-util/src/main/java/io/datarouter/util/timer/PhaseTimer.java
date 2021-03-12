@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.Java11;
 import io.datarouter.util.UlidTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.tuple.Pair;
@@ -67,7 +68,7 @@ public class PhaseTimer{
 
 	public PhaseTimer sum(String eventName){
 		Optional<Pair<String,Long>> nameAndTimeOpt = searchForName(eventName);
-		if(nameAndTimeOpt.isEmpty()){
+		if(Java11.isEmpty(nameAndTimeOpt)){
 			return add(eventName);
 		}
 		long newMarker = System.currentTimeMillis();

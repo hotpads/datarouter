@@ -21,25 +21,34 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Singleton;
 
 import com.google.cloud.spanner.Database;
+import com.google.cloud.spanner.DatabaseAdminClient;
 import com.google.cloud.spanner.DatabaseClient;
-import com.google.cloud.spanner.Spanner;
+import com.google.cloud.spanner.DatabaseId;
 
 import io.datarouter.storage.client.ClientId;
 
 @Singleton
 public class SpannerDatabaseClientsHolder{
 
+	private final Map<ClientId,DatabaseAdminClient> databaseAdminClientInstances = new ConcurrentHashMap<>();
 	private final Map<ClientId,DatabaseClient> databaseClientsInstances = new ConcurrentHashMap<>();
-	private final Map<ClientId,Spanner> spannerInstances = new ConcurrentHashMap<>();
-	private final Map<ClientId,Database> databaseInstances = new ConcurrentHashMap<>();
+	private final Map<ClientId,DatabaseId> databaseIdInstances = new ConcurrentHashMap<>();
 
-	public void register(ClientId clientId, DatabaseClient databaseClient, Spanner spanner, Database database){
+	public void register(
+			ClientId clientId,
+			DatabaseAdminClient databaseAdminClient,
+			DatabaseClient databaseClient,
+			DatabaseId databaseId){
 		if(databaseClientsInstances.containsKey(clientId)){
 			throw new RuntimeException(clientId + " already registered a client");
 		}
+		databaseAdminClientInstances.put(clientId, databaseAdminClient);
 		databaseClientsInstances.put(clientId, databaseClient);
-		spannerInstances.putIfAbsent(clientId, spanner);
-		databaseInstances.putIfAbsent(clientId, database);
+		databaseIdInstances.putIfAbsent(clientId, databaseId);
+	}
+
+	public DatabaseAdminClient getDatabaseAdminClient(ClientId clientId){
+		return databaseAdminClientInstances.get(clientId);
 	}
 
 	public DatabaseClient getDatabaseClient(ClientId clientId){
@@ -47,18 +56,21 @@ public class SpannerDatabaseClientsHolder{
 	}
 
 	public void close(ClientId clientId){
-		spannerInstances.get(clientId).close();
-		spannerInstances.remove(clientId);
+		databaseAdminClientInstances.remove(clientId);
 		databaseClientsInstances.remove(clientId);
-		databaseInstances.remove(clientId);
+		databaseIdInstances.remove(clientId);
 	}
 
-	public Spanner getSpanner(ClientId clientId){
-		return spannerInstances.get(clientId);
+	public DatabaseId getDatabaseId(ClientId clientId){
+		return databaseIdInstances.get(clientId);
 	}
 
 	public Database getDatabase(ClientId clientId){
-		return databaseInstances.get(clientId);
+		DatabaseAdminClient databaseAdminClient = getDatabaseAdminClient(clientId);
+		DatabaseId databaseId = getDatabaseId(clientId);
+		return databaseAdminClient.getDatabase(
+				databaseId.getInstanceId().getInstance(),
+				databaseId.getDatabase());
 	}
 
 }

@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import io.datarouter.instrumentation.Java11;
+
 public class TracerTool{
 
 	public static String getTraceId(Tracer tracer){
@@ -86,7 +88,7 @@ public class TracerTool{
 
 	public static void appendToSpanInfo(TraceSpanInfoBuilder spanInfoBuilder){
 		String text = spanInfoBuilder.joinEntries();
-		if(text.isBlank()){
+		if(Java11.isBlank(text)){
 			return;
 		}
 		appendToSpanInfo(text);

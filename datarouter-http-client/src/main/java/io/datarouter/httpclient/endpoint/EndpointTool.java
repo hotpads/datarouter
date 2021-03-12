@@ -71,6 +71,19 @@ public class EndpointTool{
 		return Optional.empty();
 	}
 
+	public static Optional<Object> findEntity(BaseEndpoint<?> endpoint){
+		for(Field field : endpoint.getClass().getFields()){
+			if(field.getAnnotation(EndpointEntity.class) != null){
+				try{
+					return Optional.of(field.get(endpoint));
+				}catch(IllegalArgumentException | IllegalAccessException ex){
+					logger.error("", ex);
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
 	private static Optional<String> getValue(Field field, Object value){
 		if(!field.getType().isAssignableFrom(Optional.class)){
 			return Optional.of(value.toString());

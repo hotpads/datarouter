@@ -15,10 +15,10 @@
  */
 package io.datarouter.util.bytes;
 
-import java.util.Arrays;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import io.datarouter.util.Java9;
 
 public class ByteToolTests{
 
@@ -32,7 +32,7 @@ public class ByteToolTests{
 
 		byte[] minArray = ByteTool.getComparableBytes(min);
 		byte[] maxArray = ByteTool.getComparableBytes(max);
-		Assert.assertTrue(Arrays.compareUnsigned(maxArray, minArray) > 0);
+		Assert.assertTrue(Java9.compareUnsigned(maxArray, minArray) > 0);
 
 		byte negative = -3;
 		byte positive = 5;
@@ -40,7 +40,7 @@ public class ByteToolTests{
 
 		byte[] negativeArray = ByteTool.getComparableBytes(negative);
 		byte[] positiveArray = ByteTool.getComparableBytes(positive);
-		Assert.assertTrue(Arrays.compareUnsigned(positiveArray, negativeArray) > 0);
+		Assert.assertTrue(Java9.compareUnsigned(positiveArray, negativeArray) > 0);
 	}
 
 	@Test

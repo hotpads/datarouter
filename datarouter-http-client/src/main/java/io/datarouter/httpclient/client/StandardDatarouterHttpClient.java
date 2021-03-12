@@ -188,7 +188,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	public <E> Conditional<E> tryExecute(BaseEndpoint<E> endpoint){
 		initUrlPrefix(endpoint);
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
-		endpoint.entity.ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
+		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
 		return tryExecute(datarouterHttpRequest, endpoint.responseType);
 	}
 

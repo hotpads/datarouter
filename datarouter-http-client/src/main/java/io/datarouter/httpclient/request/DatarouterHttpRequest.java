@@ -47,6 +47,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
+import io.datarouter.httpclient.Java9;
 import io.datarouter.httpclient.client.DatarouterHttpClientConfig;
 
 public class DatarouterHttpRequest{
@@ -353,7 +354,7 @@ public class DatarouterHttpRequest{
 
 	private List<NameValuePair> urlEncodeFromMap(Map<String,String> data){
 		if(data == null || data.isEmpty()){
-			return List.of();
+			return Java9.listOf();
 		}
 		return data.entrySet().stream()
 				.map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))

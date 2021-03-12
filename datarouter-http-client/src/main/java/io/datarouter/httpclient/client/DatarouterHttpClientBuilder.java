@@ -15,7 +15,6 @@
  */
 package io.datarouter.httpclient.client;
 
-import java.lang.StackWalker.Option;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -52,7 +51,6 @@ public class DatarouterHttpClientBuilder{
 	public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
 
 	private static final JsonSerializer DEFAULT_SERIALIZER = new GsonJsonSerializer(HttpClientGsonTool.GSON);
-	private static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
 	private int timeoutMs; // must be int due to RequestConfig.set*Timeout() methods
 	private int connectTimeoutMs;
@@ -82,7 +80,8 @@ public class DatarouterHttpClientBuilder{
 		this.httpClientBuilder = HttpClientBuilder.create()
 				.setRedirectStrategy(LaxRedirectStrategy.INSTANCE);
 		this.retryCount = () -> HttpRetryTool.DEFAULT_RETRY_COUNT;
-		this.name = STACK_WALKER.getCallerClass().getSimpleName();
+		String className = new Throwable().getStackTrace()[1].getClassName();
+		this.name = className.substring(className.lastIndexOf(".") + 1, className.length());
 	}
 
 	public DatarouterHttpClient build(){

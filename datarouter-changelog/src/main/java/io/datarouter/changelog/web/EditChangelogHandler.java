@@ -81,6 +81,7 @@ public class EditChangelogHandler extends BaseHandler{
 				.withEntry("Action", changelog.getAction())
 				.withEntry("Username", changelog.getUsername())
 				.withEntry("Comment", Optional.ofNullable(changelog.getComment()).orElse(""))
+				.withEntry("Note", Optional.ofNullable(changelog.getNote()).orElse(""))
 				.build();
 
 		var form = new HtmlForm()

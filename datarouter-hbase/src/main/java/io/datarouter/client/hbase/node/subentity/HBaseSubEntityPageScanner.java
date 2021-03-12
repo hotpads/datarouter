@@ -37,6 +37,7 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.model.util.ByteRange;
 import io.datarouter.scanner.PagingScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
@@ -45,7 +46,6 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.Require;
-import io.datarouter.util.bytes.ByteRange;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseSubEntityPageScanner<

@@ -15,12 +15,13 @@
  */
 package io.datarouter.util.string;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import io.datarouter.util.Java9;
 
 public class StringToolTests{
 
@@ -52,19 +53,19 @@ public class StringToolTests{
 	@Test
 	public void testSplitOnCharNoRegexWithEmptyStrings(){
 		String input = "//";
-		List<String> expected = List.of("", "", "");
+		List<String> expected = Java9.listOf("", "", "");
 		List<String> decoded = StringTool.splitOnCharNoRegex(input, '/');
 		Assert.assertEquals(decoded, expected);
 	}
 
 	@Test
 	public void testSplitOnCharNoRegex(){
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("", '/'), List.of(""));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex(null, '/'), Collections.emptyList());
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("/", '/'), List.of("", ""));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("  /", '/'), List.of("  ", ""));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("abc.def.g", '.'), List.of("abc", "def", "g"));
-		Assert.assertEquals(StringTool.splitOnCharNoRegex("..def.g.", '.'), List.of("", "", "def", "g", ""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("", '/'), Java9.listOf(""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex(null, '/'), Java9.listOf());
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("/", '/'), Java9.listOf("", ""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("  /", '/'), Java9.listOf("  ", ""));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("abc.def.g", '.'), Java9.listOf("abc", "def", "g"));
+		Assert.assertEquals(StringTool.splitOnCharNoRegex("..def.g.", '.'), Java9.listOf("", "", "def", "g", ""));
 	}
 
 	@Test

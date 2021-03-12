@@ -25,12 +25,13 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.Java9;
 
 public class RelaxedMapCollectorTests{
 
 	@Test
 	public void testToMap(){
-		List<String> list = List.of("a2", "bb3", "bb9", "c", "ddd4", "eeee5");
+		List<String> list = Java9.listOf("a2", "bb3", "bb9", "c", "ddd4", "eeee5");
 		Function<String,String> keyMapper = key -> key.startsWith("e") ? null : key.charAt(0) + "";
 		Function<String,Integer> valueMapper = key -> {
 			if(key.equals("c")){

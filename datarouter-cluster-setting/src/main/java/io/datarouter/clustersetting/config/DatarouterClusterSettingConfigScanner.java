@@ -100,7 +100,12 @@ public class DatarouterClusterSettingConfigScanner{
 				.withColumn("Scope", row -> row.getScope().getPersistentString())
 				.withColumn("Server Type", ClusterSetting::getServerType)
 				.withColumn("Server Name", ClusterSetting::getServerName)
-				.withColumn("Value", ClusterSetting::getValue)
+				.withColumn("Value", row -> {
+					if(clusterSettingsRoot.isExcludedOldSettingString(row.getName())){
+						return "********";
+					}
+					return row.getValue();
+				})
 				.build(settings);
 		return div(h4(header), table);
 	}

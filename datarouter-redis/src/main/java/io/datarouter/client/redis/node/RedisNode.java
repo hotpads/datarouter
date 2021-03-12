@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
 
 import io.datarouter.client.redis.RedisDatabeanCodec;
 import io.datarouter.client.redis.RedisTallyCodec;
@@ -30,7 +29,6 @@ import io.datarouter.client.redis.client.RedisOps;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.config.Config;
@@ -61,7 +59,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		this.executor = executor;
 		int version = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
 		this.codec = new RedisDatabeanCodec<>(version, getFieldInfo());
-		this.tallyCodec = new RedisTallyCodec(version);
+		this.tallyCodec = new RedisTallyCodec(version, getFieldInfo());
 		this.redisClientManager = redisClientManager;
 		this.clientId = params.getClientId();
 	}
@@ -129,8 +127,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 
 	@Override
 	public Map<String,Long> getMultiTallyCount(Collection<String> stringKeys, Config config){
-		return Scanner.of(stringKeys)
-				.toMap(Function.identity(), key -> findTallyCount(key).orElse(0L));
+		return nodeOps().getMultiTallyCount(stringKeys);
 	}
 
 	@Override

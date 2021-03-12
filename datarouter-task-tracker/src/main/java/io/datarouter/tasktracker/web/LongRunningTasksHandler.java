@@ -16,6 +16,7 @@
 package io.datarouter.tasktracker.web;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -27,8 +28,8 @@ import javax.inject.Inject;
 
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerFiles;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
-import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
@@ -37,6 +38,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 
 public class LongRunningTasksHandler extends BaseHandler{
 
@@ -48,6 +50,8 @@ public class LongRunningTasksHandler extends BaseHandler{
 	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
 	private DatarouterTaskTrackerFiles files;
+	@Inject
+	private CurrentUserSessionInfoService currentUserSessionInfoService;
 
 	@Handler(defaultHandler = true)
 	Mav longRunningTasks(OptionalString name, OptionalString status){
@@ -67,10 +71,11 @@ public class LongRunningTasksHandler extends BaseHandler{
 					.map(LongRunningTaskStatus::fromPersistentStringStatic)
 					.orElse(LongRunningTaskStatus.RUNNING);
 		}
+		ZoneId zoneId = currentUserSessionInfoService.getZoneId(request);
 		List<LongRunningTaskJspDto> longRunningTasks = longRunningTaskDao.scan()
 				.include(task -> task.getKey().getName().toLowerCase().contains(lowercaseNameSearch))
 				.include(task -> showAllStatuses || task.getJobExecutionStatus() == filteredStatus)
-				.map(LongRunningTaskJspDto::new)
+				.map(task -> new LongRunningTaskJspDto(task, zoneId))
 				.list();
 		Set<Pair<String,String>> statuses = Arrays.stream(LongRunningTaskStatus.values())
 				.map(jobExecutionStatus -> new Pair<>(jobExecutionStatus.name(), jobExecutionStatus
@@ -117,8 +122,9 @@ public class LongRunningTasksHandler extends BaseHandler{
 		private final String finishTimeString;
 		private final String triggeredBy;
 		private final String exceptionRecordId;
+		private final ZoneId zoneId;
 
-		public LongRunningTaskJspDto(LongRunningTask task){
+		public LongRunningTaskJspDto(LongRunningTask task, ZoneId zoneId){
 			this.status = task.getJobExecutionStatus().getPersistentString();
 			this.heartbeatStatus = task.getHeartbeatStatus();
 			this.name = task.getKey().getName();
@@ -135,6 +141,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 			this.finishTimeString = task.getFinishTimeString();
 			this.triggeredBy = task.getTriggeredBy();
 			this.exceptionRecordId = task.getExceptionRecordId();
+			this.zoneId = zoneId;
 		}
 
 		public String getStatus(){
@@ -162,11 +169,18 @@ public class LongRunningTasksHandler extends BaseHandler{
 		}
 
 		public String getStartString(){
-			return startTime != null ? startTime.toString() : triggerTime + " (trigger)";
+			if(startTime == null){
+				return DateTool.formatDateWithZone(triggerTime, zoneId) + " (trigger)";
+			}else{
+				return DateTool.formatDateWithZone(startTime, zoneId);
+			}
 		}
 
-		public Date getFinishTime(){
-			return finishTime;
+		public String getFinishTime(){
+			if(finishTime == null){
+				return "";
+			}
+			return DateTool.formatDateWithZone(finishTime, zoneId);
 		}
 
 		public Long getSortableDuration(){
@@ -230,6 +244,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 		public String getHrefForException(){
 			return "exception/details?exceptionRecord=" + exceptionRecordId;
 		}
+
 	}
 
 }

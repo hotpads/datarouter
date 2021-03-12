@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.datarouter.instrumentation.Java11;
 import io.datarouter.util.lang.ObjectTool;
 
 public class StringTool{
@@ -66,7 +67,7 @@ public class StringTool{
 	}
 
 	public static boolean isEmptyOrWhitespace(String input){
-		return isEmpty(input) || input.isBlank();
+		return isEmpty(input) || Java11.isBlank(input);
 	}
 
 	public static boolean isNullOrEmptyOrWhitespace(String input){

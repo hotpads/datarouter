@@ -22,8 +22,8 @@ import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
+import io.datarouter.model.util.ByteRange;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.ByteRange;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.tuple.Range;
 

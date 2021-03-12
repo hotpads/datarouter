@@ -32,6 +32,7 @@ import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.Java9;
 import io.datarouter.util.UlidTool;
 
 public class DatarouterSummaryTracer implements Tracer{
@@ -74,7 +75,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	public String toString(){
 		return Scanner.of(childSummaryTracers)
 				.map(DatarouterSummaryTracer::getSummaryMap)
-				.append(List.of(summaryMap))
+				.append(Java9.listOf(summaryMap))
 				.concatIter(Map::entrySet)
 				.toMap(Entry::getKey, Entry::getValue, SpanSummary::merge)
 				.entrySet().stream()

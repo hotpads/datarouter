@@ -18,6 +18,8 @@ package io.datarouter.util.time;
 import java.time.ZoneId;
 import java.util.List;
 
+import io.datarouter.util.Java9;
+
 public class ZoneIds{
 
 	public static final ZoneId AMERICA_ANCHORAGE = ZoneId.of("America/Anchorage");
@@ -32,7 +34,7 @@ public class ZoneIds{
 
 	public static final ZoneId UTC = ZoneId.of("UTC");
 
-	public static final List<ZoneId> ZONE_IDS = List.of(
+	public static final List<ZoneId> ZONE_IDS = Java9.listOf(
 			AMERICA_ANCHORAGE,
 			AMERICA_CHICAGO,
 			AMERICA_DENVER,

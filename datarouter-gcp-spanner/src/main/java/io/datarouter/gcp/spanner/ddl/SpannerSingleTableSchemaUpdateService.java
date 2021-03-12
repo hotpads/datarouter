@@ -17,11 +17,11 @@ package io.datarouter.gcp.spanner.ddl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -76,7 +76,6 @@ public class SpannerSingleTableSchemaUpdateService{
 			ClientId clientId,
 			Supplier<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> physicalNode){
-		Database database = clientsHolder.getDatabase(clientId);
 		String tableName;
 		List<Field<?>> primaryKeyFields = SpannerEntityKeyTool.getPrimaryKeyFields(
 				physicalNode.getFieldInfo().getSamplePrimaryKey(),
@@ -199,6 +198,7 @@ public class SpannerSingleTableSchemaUpdateService{
 			logger.info(SchemaUpdateTool.generateFullWidthMessage("Executing Spanner " + getClass().getSimpleName()
 					+ " SchemaUpdate"));
 			logger.info(String.join("\n\n", statements.getExecuteStatements()));
+			Database database = clientsHolder.getDatabase(clientId);
 			OperationFuture<Void,UpdateDatabaseDdlMetadata> future = database.updateDdl(
 					statements.getExecuteStatements(), null);
 			errorMessage = FutureTool.get(future.getPollingFuture().getAttemptResult()).getErrorMessage();
@@ -231,7 +231,7 @@ public class SpannerSingleTableSchemaUpdateService{
 		// told to explicitly store a primary key column
 		Set<String> primaryKeySet = Scanner.of(primaryKeyColumns)
 				.map(SpannerColumn::getName)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 		List<SpannerColumn> nonKeyColumns = Scanner.of(fieldCodecRegistry.createCodecs(index.getNonKeyFields()))
 				.map(codec -> codec.getSpannerColumn(false))
 				.exclude(col -> primaryKeySet.contains(col.getName()))

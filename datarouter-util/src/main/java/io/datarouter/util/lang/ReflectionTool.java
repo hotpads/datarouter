@@ -19,6 +19,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.Java9;
 import io.datarouter.util.string.StringTool;
 
 public class ReflectionTool{
@@ -110,7 +112,7 @@ public class ReflectionTool{
 
 	public static Object get(Field field, Object object){
 		if(field != null && object != null){
-			if(!field.canAccess(object)){
+			if(!Java9.canAccess(field, object)){
 				field.setAccessible(true);
 			}
 			try{
@@ -256,7 +258,7 @@ public class ReflectionTool{
 	 * @return a list of the declared Fields not including any inherited field.
 	 */
 	public static List<Field> getDeclaredFields(Class<?> cls){
-		return List.of(cls.getDeclaredFields());
+		return Java9.listOf(cls.getDeclaredFields());
 	}
 
 	/*------------------------- get Method ----------------------------------*/
@@ -360,6 +362,51 @@ public class ReflectionTool{
 		}catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static Object getDefaultValue(Parameter parameter){
+		if(parameter.getType().equals(boolean.class)){
+			return false;
+		}
+		if(parameter.getType().equals(short.class)){
+			return (short)0;
+		}
+		if(parameter.getType().equals(byte.class)){
+			return (byte)0;
+		}
+		if(parameter.getType().equals(int.class)
+				|| parameter.getType().equals(long.class)
+				|| parameter.getType().equals(float.class)
+				|| parameter.getType().equals(double.class)){
+			return 0;
+		}
+		if(parameter.getType().equals(char.class)){
+			return '\u0000';
+		}
+		return null;
+	}
+
+	private static Object[] getDefaultValues(Class<?> clazz){
+		return Scanner.of(clazz.getDeclaredConstructors()[0].getParameters())
+				.map(ReflectionTool::getDefaultValue)
+				.list()
+				.toArray();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T createWithoutNoArgs(Class<T> clazz){
+		Object[] dummyParams = ReflectionTool.getDefaultValues(clazz);
+		T object = null;
+		try{
+			object = (T)clazz.getDeclaredConstructors()[0].newInstance(dummyParams);
+		}catch(InstantiationException
+				| IllegalAccessException
+				| IllegalArgumentException
+				| InvocationTargetException
+				| SecurityException ex){
+			throw new RuntimeException(ex);
+		}
+		return object;
 	}
 
 }

@@ -16,7 +16,6 @@
 package io.datarouter.scanner;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -25,9 +24,9 @@ public class ArrayScannerTests{
 
 	@Test
 	public void test(){
-		Assert.assertEquals(Scanner.of().list(), List.of());
-		Assert.assertEquals(Scanner.of(1).list(), List.of(1));
-		Assert.assertEquals(Scanner.of(1, 2).list(), List.of(1, 2));
+		Assert.assertEquals(Scanner.of().list(), Java9.listOf());
+		Assert.assertEquals(Scanner.of(1).list(), Java9.listOf(1));
+		Assert.assertEquals(Scanner.of(1, 2).list(), Java9.listOf(1, 2));
 	}
 
 	@Test

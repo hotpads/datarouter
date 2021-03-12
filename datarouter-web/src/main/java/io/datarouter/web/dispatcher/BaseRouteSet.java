@@ -17,15 +17,18 @@ package io.datarouter.web.dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.pathnode.PathNode;
+import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.types.EndpointDecoder;
 
 public abstract class BaseRouteSet{
+	private static final Logger logger = LoggerFactory.getLogger(BaseRouteSet.class);
 
 	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 	public static final String REGEX_TWO_DIRECTORY_PLUS = "/\\w+/\\w+[/]?.*";
@@ -56,17 +59,10 @@ public abstract class BaseRouteSet{
 		return applyDefaultAndAdd(rule);
 	}
 
-	protected DispatchRule handle(Supplier<BaseEndpoint<?>> baseEndpoint, Class<? extends BaseHandler> handler){
-		return handle(baseEndpoint.get().pathNode)
-				.withDefaultHandlerDecoder(EndpointDecoder.class)
-				.withHandler(handler);
-	}
-
-	protected <R,T extends BaseEndpoint<R>> DispatchRule handle(
-			Supplier<T> baseEndpoint,
-			Class<? extends BaseHandler> handler,
-			@SuppressWarnings("unused") Function<T,R> function){
-		return handle(baseEndpoint.get().pathNode)
+	protected DispatchRule handle(Class<? extends BaseEndpoint<?>> baseEndpointClass,
+			Class<? extends BaseHandler> handler){
+		BaseEndpoint<?> baseEndpoint = ReflectionTool.createWithoutNoArgs(baseEndpointClass);
+		return handle(baseEndpoint.pathNode)
 				.withDefaultHandlerDecoder(EndpointDecoder.class)
 				.withHandler(handler);
 	}

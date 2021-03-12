@@ -19,8 +19,8 @@ import java.util.Set;
 
 public class BooleanTool{
 
-	private static final Set<String> TRUE_VALUES = Set.of("true", "1", "t", "yes", "y", "on");
-	private static final Set<String> FALSE_VALUES = Set.of("false", "0", "f", "no", "n", "off");
+	private static final Set<String> TRUE_VALUES = Java9.setOf("true", "1", "t", "yes", "y", "on");
+	private static final Set<String> FALSE_VALUES = Java9.setOf("false", "0", "f", "no", "n", "off");
 
 	public static boolean isTrue(String input){
 		if(input == null){

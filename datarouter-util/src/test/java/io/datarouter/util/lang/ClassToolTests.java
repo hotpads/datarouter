@@ -54,7 +54,7 @@ public class ClassToolTests{
 
 		candidate = D.class;
 		result = ClassTool.castIfPossible(B.class, candidate);
-		Assert.assertTrue(result.isEmpty());
+		Assert.assertFalse(result.isPresent());
 	}
 
 }

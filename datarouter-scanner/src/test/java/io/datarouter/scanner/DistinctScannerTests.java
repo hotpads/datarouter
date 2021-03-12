@@ -25,7 +25,7 @@ public class DistinctScannerTests{
 	@Test
 	public void testDistinct(){
 		Scanner<Integer> input = Scanner.of(3, 1, 4, 2, 1, 2, 2, 1, 4);
-		List<Integer> expected = List.of(1, 2, 3, 4);
+		List<Integer> expected = Java9.listOf(1, 2, 3, 4);
 		List<Integer> actual = input.distinct().list();
 		Assert.assertEquals(actual.size(), 4);
 		Assert.assertTrue(actual.containsAll(expected));
@@ -34,7 +34,7 @@ public class DistinctScannerTests{
 	@Test
 	public void testDistinctBy(){
 		Scanner<String> input = Scanner.of("aa", "ab", "bb", "ba");
-		List<String> expected = List.of("aa", "bb");
+		List<String> expected = Java9.listOf("aa", "bb");
 		List<String> actual = input.distinctBy(string -> string.substring(0, 1)).list();
 		Assert.assertEquals(actual.size(), 2);
 		Assert.assertTrue(actual.containsAll(expected));

@@ -15,7 +15,6 @@
  */
 package io.datarouter.util.cache;
 
-import java.lang.StackWalker.Option;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Iterator;
@@ -27,11 +26,10 @@ import java.util.function.Function;
 
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.util.lang.LineOfCode;
 
 //LRU TTL Loading Cache
 public class LoadingCache<K,V>{
-
-	private static final StackWalker walker = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
 
 	private final Map<K,CachedObject<V>> map;
 	private final Duration expireTtl;
@@ -63,7 +61,7 @@ public class LoadingCache<K,V>{
 		private Clock clock = Clock.systemDefaultZone();
 		private Function<K,V> loadingFunction;
 		private Function<K,RuntimeException> exceptionFunction = K -> new RuntimeException("Failed to lookup " + K);
-		private String name = walker.getCallerClass().getSimpleName();
+		private String name = new LineOfCode(1).getClassName();
 
 		public LoadingCacheBuilder<K,V> withExpireTtl(Duration expireTtl){
 			this.expireTtl = expireTtl;

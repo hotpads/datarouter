@@ -15,7 +15,6 @@
  */
 package io.datarouter.util.bytes;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.Java9;
 
 public class FloatByteToolTests{
 
@@ -44,7 +44,7 @@ public class FloatByteToolTests{
 				.list();
 		List<Float> roundTripped = interestingFloats.stream()
 				.map(FloatByteTool::toComparableBytes)
-				.sorted(Arrays::compareUnsigned)
+				.sorted(Java9::compareUnsigned)
 				.map(bytes -> FloatByteTool.fromComparableBytes(bytes, 0))
 				.collect(Collectors.toList());
 		Assert.assertEquals(roundTripped, interestingFloats);
@@ -62,7 +62,7 @@ public class FloatByteToolTests{
 		float backB = FloatByteTool.fromBytes(bytesB, 0);
 		Assert.assertTrue(floatB == backB);
 
-		Assert.assertTrue(Arrays.compareUnsigned(bytesA, bytesB) < 0); //positives and negatives are reversed
+		Assert.assertTrue(Java9.compareUnsigned(bytesA, bytesB) < 0); //positives and negatives are reversed
 	}
 
 }
