@@ -26,7 +26,6 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,9 +46,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.internal.UnsafeAllocator;
 
 import io.datarouter.httpclient.DocumentedGenericHolder;
+import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.EndpointParam;
+import io.datarouter.httpclient.endpoint.EndpointRequestBody;
+import io.datarouter.httpclient.endpoint.EndpointTool;
+import io.datarouter.httpclient.endpoint.IgnoredField;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
@@ -71,8 +74,6 @@ public class ApiDocService{
 			SecurityParameters.CSRF_TOKEN,
 			SecurityParameters.SIGNATURE);
 
-	private static final UnsafeAllocator UNSAFE_ALLOCATOR = UnsafeAllocator.create();
-
 	private static final Gson GSON = new GsonBuilder()
 			.registerTypeAdapter(Date.class, new CompatibleDateTypeAdapter())
 			.serializeNulls()
@@ -80,14 +81,12 @@ public class ApiDocService{
 			.create();
 
 	public List<DocumentedEndpointJspDto> buildDocumentation(String apiUrlContext, List<BaseRouteSet> routeSets){
-		return routeSets.stream()
-				.map(BaseRouteSet::getDispatchRules)
-				.flatMap(Collection::stream)
-				.filter(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
-				.map(this::buildEndpointDocumentation)
-				.flatMap(List::stream)
+		return Scanner.of(routeSets)
+				.concatIter(BaseRouteSet::getDispatchRules)
+				.include(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
+				.concatIter(this::buildEndpointDocumentation)
 				.sorted(Comparator.comparing(DocumentedEndpointJspDto::getUrl))
-				.collect(Collectors.toList());
+				.list();
 	}
 
 	private List<DocumentedEndpointJspDto> buildEndpointDocumentation(DispatchRule rule){
@@ -129,9 +128,8 @@ public class ApiDocService{
 					}
 				}
 				String responseTypeString = buildTypeString(responseType);
-				DocumentedResponseJspDto response = new DocumentedResponseJspDto(responseTypeString, responseExample);
-				DocumentedEndpointJspDto endpoint = new DocumentedEndpointJspDto(url, implementation, parameters,
-						description, response);
+				var response = new DocumentedResponseJspDto(responseTypeString, responseExample);
+				var endpoint = new DocumentedEndpointJspDto(url, implementation, parameters, description, response);
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
@@ -145,34 +143,47 @@ public class ApiDocService{
 		}else if(type instanceof ParameterizedType){
 			ParameterizedType parameterizedType = (ParameterizedType)type;
 			String responseTypeString = ((Class<?>)parameterizedType.getRawType()).getSimpleName();
-			responseTypeString += "<";
-			responseTypeString += Arrays.stream(parameterizedType.getActualTypeArguments())
+			String paramterizedType = Scanner.of(parameterizedType.getActualTypeArguments())
 					.map(ApiDocService::buildTypeString)
-					.collect(Collectors.joining(","));
-			responseTypeString += ">";
-			return responseTypeString;
+					.collect(Collectors.joining(",", "<", ">"));
+			return responseTypeString + paramterizedType;
 		}else{
 			return type.toString();
 		}
 	}
 
 	private List<DocumentedParameterJspDto> createMethodParameters(Method method){
-		List<DocumentedParameterJspDto> methodParameters = new ArrayList<>();
 		Parameter[] parameters = method.getParameters();
-		for(Parameter parameter : parameters){
-			String description = null;
-			String name = parameter.getName();
-			Param param = parameter.getAnnotation(Param.class);
-			if(param != null){
-				description = param.description();
-				if(!param.value().isEmpty()){
-					name = param.value();
-				}
-			}
-			methodParameters.add(createDocumentedParameter(name, parameter.getParameterizedType(),
-					parameter.isAnnotationPresent(RequestBody.class), description));
+		boolean isEndpointObject = EndpointTool.paramIsEndpointObject(method);
+		if(isEndpointObject){
+			@SuppressWarnings("unchecked")
+			BaseEndpoint<?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
+					(Class<? extends BaseEndpoint<?>>)method.getParameters()[0].getType());
+			return Scanner.of(baseEndpoint.getClass().getFields())
+					.exclude(field -> field.isAnnotationPresent(IgnoredField.class))
+					.map(this::createDocumentedParameterFromField)
+					.list();
 		}
-		return methodParameters;
+		return Scanner.of(parameters)
+				.map(this::createDocumentedParameterJspDto)
+				.list();
+	}
+
+	private DocumentedParameterJspDto createDocumentedParameterJspDto(Parameter parameter){
+		String description = null;
+		String name = parameter.getName();
+		Param param = parameter.getAnnotation(Param.class);
+		if(param != null){
+			description = param.description();
+			if(!param.value().isEmpty()){
+				name = param.value();
+			}
+		}
+		return createDocumentedParameter(
+				name,
+				parameter.getParameterizedType(),
+				parameter.isAnnotationPresent(RequestBody.class),
+				description);
 	}
 
 	private List<DocumentedParameterJspDto> createApplicableSecurityParameters(DispatchRule rule){
@@ -194,27 +205,71 @@ public class ApiDocService{
 
 	private DocumentedParameterJspDto createDocumentedParameter(String parameterName, Type parameterType,
 			boolean requestBody, String description){
-		DocumentedParameterJspDto documentedParameter = new DocumentedParameterJspDto();
-		documentedParameter.name = parameterName;
 		Type type = OptionalParameter.getOptionalInternalType(parameterType);
 		Optional<Class<?>> clazz = type instanceof Class ? Optional.of((Class<?>)type) : Optional.empty();
-		documentedParameter.type = clazz.map(Class::getSimpleName).orElse(type.toString());
-		try{
-			if(!clazz.map(cls -> Number.class.isAssignableFrom(cls)).orElse(false)
-					&& !clazz.map(cls -> String.class.isAssignableFrom(cls)).orElse(false)
-					&& !clazz.map(cls -> Boolean.class.isAssignableFrom(cls)).orElse(false)
-					&& !clazz.map(cls -> cls.isPrimitive()).orElse(false)){
-				documentedParameter.example = GSON.toJson(createBestExample(type, new HashSet<>()));
+		String example = null;
+		if(includeType(clazz)){
+			try{
+				example = GSON.toJson(createBestExample(type, new HashSet<>()));
+			}catch(Exception e){
+				logger.warn("Could not create parameter example {} for {}", type, parameterName, e);
 			}
-		}catch(Exception e){
-			logger.warn("Could not create parameter example {} for {}", type, parameterName, e);
 		}
-		documentedParameter.required = !(parameterType instanceof Class) || !OptionalParameter.class.isAssignableFrom(
-				(Class<?>)parameterType);
-		documentedParameter.requestBody = requestBody;
-		documentedParameter.description = description;
-		documentedParameter.hidden = HIDDEN_SPEC_PARAMS.contains(parameterName);
-		return documentedParameter;
+		boolean isRequired = !(parameterType instanceof Class)
+				|| !OptionalParameter.class.isAssignableFrom((Class<?>)parameterType);
+
+		return new DocumentedParameterJspDto(
+				parameterName,
+				clazz.map(Class::getSimpleName).orElse(type.toString()),
+				example,
+				isRequired,
+				requestBody,
+				HIDDEN_SPEC_PARAMS.contains(parameterName),
+				description);
+	}
+
+	private DocumentedParameterJspDto createDocumentedParameterFromField(Field field){
+		boolean isOptional = field.getType().isAssignableFrom(Optional.class);
+		String type;
+		String example = null;
+		if(isOptional){
+			Class<?> parameterizedType = (Class<?>)((ParameterizedType)field.getGenericType())
+					.getActualTypeArguments()[0];
+			type = parameterizedType.getSimpleName();
+			if(includeType(Optional.of(parameterizedType))){
+				try{
+					example = GSON.toJson(createBestExample(parameterizedType, new HashSet<>()));
+				}catch(Exception e){
+					logger.warn("Could not create parameter example {} for {}", field.getType(), field.getName(), e);
+				}
+			}
+		}else{
+			type = field.getType().getSimpleName();
+			if(includeType(Optional.of(field.getType()))){
+				try{
+					example = GSON.toJson(createBestExample(field.getType(), new HashSet<>()));
+				}catch(Exception e){
+					logger.warn("Could not create parameter example {} for {}", field.getType(), field.getName(), e);
+				}
+			}
+		}
+		return new DocumentedParameterJspDto(
+				EndpointTool.getFieldName(field),
+				type,
+				example,
+				!isOptional,
+				field.isAnnotationPresent(EndpointRequestBody.class),
+				HIDDEN_SPEC_PARAMS.contains(field.getName()),
+				Optional.ofNullable(field.getAnnotation(EndpointParam.class))
+						.map(EndpointParam::description)
+						.orElse(null));
+	}
+
+	private boolean includeType(Optional<Class<?>> type){
+		return !type.map(cls -> Number.class.isAssignableFrom(cls)).orElse(false)
+				&& !type.map(cls -> String.class.isAssignableFrom(cls)).orElse(false)
+				&& !type.map(cls -> Boolean.class.isAssignableFrom(cls)).orElse(false)
+				&& !type.map(cls -> cls.isPrimitive()).orElse(false);
 	}
 
 	private static Object createBestExample(Type type, Set<Type> parents){
@@ -226,30 +281,32 @@ public class ApiDocService{
 			return null;
 		}
 		callWithoutWarning = callWithoutWarning - 1;
-		Set<Type> parentsWithType = Scanner.concat(Scanner.of(parents), Scanner.of(type)).collect(HashSet::new);
+		Set<Type> parentsWithType = Scanner.of(parents)
+				.append(type)
+				.collect(HashSet::new);
 		if(type instanceof ParameterizedType){
 			ParameterizedType parameterizedType = (ParameterizedType)type;
 			Class<?> rawType = (Class<?>)parameterizedType.getRawType();
+			Type type0 = parameterizedType.getActualTypeArguments()[0];
 			if(List.class.isAssignableFrom(rawType)){
-				return List.of(createBestExample(parameterizedType.getActualTypeArguments()[0], parentsWithType));
+				return List.of(createBestExample(type0, parentsWithType));
 			}
 			if(Set.class.isAssignableFrom(rawType) || Collection.class.isAssignableFrom(rawType)){
-				return Collections.singleton(createBestExample(parameterizedType.getActualTypeArguments()[0],
-						parentsWithType));
+				return Collections.singleton(createBestExample(type0, parentsWithType));
 			}
 			if(Map.class.isAssignableFrom(rawType)){
-				Object key = createBestExample(parameterizedType.getActualTypeArguments()[0], parentsWithType);
+				Object key = createBestExample(type0, parentsWithType);
 				Object value = createBestExample(parameterizedType.getActualTypeArguments()[1], parentsWithType);
 				return Collections.singletonMap(key, value);
 			}
 			if(Optional.class.isAssignableFrom(rawType)){
-				return Optional.of(createBestExample(parameterizedType.getActualTypeArguments()[0], parentsWithType));
+				return Optional.of(createBestExample(type0, parentsWithType));
 			}
 			if(DocumentedGenericHolder.class.isAssignableFrom(rawType)){
 				DocumentedGenericHolder autoBuildable = (DocumentedGenericHolder)createBestExample(rawType, parents, 3);
-				List<Object> innerObjects = Arrays.stream(parameterizedType.getActualTypeArguments())
+				List<Object> innerObjects = Scanner.of(parameterizedType.getActualTypeArguments())
 						.map(paramType -> createBestExample(paramType, parentsWithType))
-						.collect(Collectors.toList());
+						.list();
 				List<String> fieldNames = autoBuildable.getGenericFieldNames();
 				for(int i = 0; i < innerObjects.size(); i++){
 					String fieldName = fieldNames.get(i);
@@ -302,16 +359,15 @@ public class ApiDocService{
 		if(clazz == String.class){
 			return "";
 		}
+		if(clazz == char.class || clazz == Character.class){
+			return 'c';
+		}
 		if(clazz == Date.class){
 			return new Date();
 		}
-		if(clazz == Integer.class){
-			return 0;
-		}
-		if(clazz == Long.class){
-			return 0L;
-		}
-		if(clazz == Number.class){
+		if(clazz == Integer.class
+				|| clazz == Long.class
+				|| clazz == Number.class){
 			return 0;
 		}
 		if(clazz == LocalDateTime.class){
@@ -323,7 +379,7 @@ public class ApiDocService{
 		if(clazz == JsonObject.class){
 			return new JsonObject();
 		}
-		Object example = createWithNulls(clazz);
+		Object example = ReflectionTool.createNullArgsWithUnsafeAllocator(clazz);
 		for(Field field : ReflectionTool.getDeclaredFieldsIncludingAncestors(clazz)){
 			if(clazz.equals(field.getType())){
 				continue;
@@ -344,14 +400,6 @@ public class ApiDocService{
 			}
 		}
 		return example;
-	}
-
-	private static <T> T createWithNulls(Class<T> type){
-		try{
-			return UNSAFE_ALLOCATOR.newInstance(type);
-		}catch(Exception e){
-			throw new RuntimeException("cannot call instanciate " + type, e);
-		}
 	}
 
 }

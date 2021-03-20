@@ -127,6 +127,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			W3TraceContext traceContext = new W3TraceContext(traceparent, tracestate, created);
 			String initialParentId = traceContext.getTraceparent().parentId;
 			traceContext.updateParentIdAndAddTracestateMember();
+			RequestAttributeTool.set(request, BaseHandler.TRACE_CONTEXT, traceContext.copy());
 
 			// bind these to all threads, even if tracing is disabled
 			String serverName = datarouterProperties.getServerName();
@@ -235,10 +236,16 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 
 	private Trace2Dto createTrace2Dto(W3TraceContext traceContext, String initialParentId, HttpServletRequest request,
 			Long created, Tracer tracer){
-		return new Trace2Dto(traceContext.getTraceparent(), initialParentId, request
-				.getContextPath(), request.getRequestURI().toString(), request.getQueryString(), created,
-				datarouterService.getServiceName(), tracer.getDiscardedThreadCount(), tracer.getThreadQueue()
-						.size());
+		return new Trace2Dto(
+				traceContext.getTraceparent(),
+				initialParentId,
+				request.getContextPath(),
+				request.getRequestURI().toString(),
+				request.getQueryString(),
+				created,
+				datarouterService.getServiceName(),
+				tracer.getDiscardedThreadCount(),
+				tracer.getThreadQueue().size());
 	}
 
 	/*
@@ -247,12 +254,19 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	private List<Trace2ThreadDto> convertToTrace2Thread(List<TraceThreadDto> threads, Traceparent traceparent,
 			int numSpans){
 		return Scanner.of(threads)
-				.map(thread -> {
-					return new Trace2ThreadDto(traceparent, thread.getThreadId(), thread.getParentId(),
-							thread.getName(), thread.getInfo(), thread.getServerId(), thread.getCreated(),
-							thread.getQueuedEnded(), thread.getEnded(), thread.getDiscardedSpanCount(),
-							thread.getHostThreadName(), numSpans);
-				})
+				.map(thread -> new Trace2ThreadDto(
+						traceparent,
+						thread.getThreadId(),
+						thread.getParentId(),
+						thread.getName(),
+						thread.getInfo(),
+						thread.getServerId(),
+						thread.getCreated(),
+						thread.getQueuedEnded(),
+						thread.getEnded(),
+						thread.getDiscardedSpanCount(),
+						thread.getHostThreadName(),
+						numSpans))
 				.list();
 	}
 
@@ -261,11 +275,15 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 	 */
 	private List<Trace2SpanDto> convertToTrace2Span(List<TraceSpanDto> spans, Traceparent traceparent){
 		return Scanner.of(spans)
-				.map(span -> {
-					return new Trace2SpanDto(traceparent, span.getThreadId(), span.getSequence(),
-							span.getParentSequence(), span.getName(), span.getInfo(), span.getCreated(),
-							span.getEnded());
-				})
+				.map(span -> new Trace2SpanDto(
+						traceparent,
+						span.getThreadId(),
+						span.getSequence(),
+						span.getParentSequence(),
+						span.getName(),
+						span.getInfo(),
+						span.getCreated(),
+						span.getEnded()))
 				.list();
 	}
 

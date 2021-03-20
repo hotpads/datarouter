@@ -29,14 +29,13 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
+import io.datarouter.aws.sqs.DatarouterAwsSqsTestNgModuleFactory;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.queue.GroupQueueMessage;
-import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanKey;
-import io.datarouter.web.config.DatarouterWebGuiceModule;
 
-@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class, modules = DatarouterWebGuiceModule.class)
+@Guice(moduleFactory = DatarouterAwsSqsTestNgModuleFactory.class)
 @Test(singleThreaded = true)
 public class SqsGroupNodeIntegrationTester{
 

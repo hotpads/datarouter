@@ -40,6 +40,9 @@ extends BlobStorageReader<PK,D>{
 
 	void delete(PathbeanKey key);
 
+	/**
+	 * Delete all descendants and the subpath directory
+	 */
 	void deleteAll(Subpath subpath);
 
 }

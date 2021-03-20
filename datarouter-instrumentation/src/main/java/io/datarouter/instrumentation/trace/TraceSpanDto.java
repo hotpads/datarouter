@@ -137,5 +137,4 @@ public class TraceSpanDto{
 		return ended;
 	}
 
-
 }

@@ -20,7 +20,6 @@ import io.datarouter.instrumentation.response.PublishingResponseDto;
 public interface TracePublisher{
 
 	PublishingResponseDto add(TraceEntityBatchDto traceEntityBatchDto);
-
 	PublishingResponseDto addBatch(Trace2BatchedBundleDto traceBatchedDto);
 
 	public static class NoOpTracePublisher implements TracePublisher{

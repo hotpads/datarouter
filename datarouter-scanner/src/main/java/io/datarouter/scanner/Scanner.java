@@ -485,6 +485,20 @@ public interface Scanner<T> extends Closeable{
 	}
 
 	/**
+	 * Advance through all items, retaining the maximum as computed by the Comparator and returning it.
+	 */
+	default Optional<T> findMax(Comparator<? super T> comparator){
+		return ScannerTool.max(this, comparator);
+	}
+
+	/**
+	 * Advance through all items, retaining the minimum as computed by the Comparator and returning it.
+	 */
+	default Optional<T> findMin(Comparator<? super T> comparator){
+		return ScannerTool.min(this, comparator);
+	}
+
+	/**
 	 * Test whether the first advance() returns true.
 	 */
 	default boolean hasAny(){
@@ -502,14 +516,14 @@ public interface Scanner<T> extends Closeable{
 	 * Advance through all items, retaining the maximum as computed by the Comparator and returning it.
 	 */
 	default Optional<T> max(Comparator<? super T> comparator){
-		return ScannerTool.max(this, comparator);
+		return findMax(comparator);
 	}
 
 	/**
 	 * Advance through all items, retaining the minimum as computed by the Comparator and returning it.
 	 */
 	default Optional<T> min(Comparator<? super T> comparator){
-		return ScannerTool.min(this, comparator);
+		return findMin(comparator);
 	}
 
 	/**
@@ -557,16 +571,31 @@ public interface Scanner<T> extends Closeable{
 		return mapper.apply(list());
 	}
 
+	/**
+	 * Collect all items into an List and return a Scanner that iterates through them backwards.
+	 */
+	default Scanner<T> reverse(){
+		return listTo(ReverseListScanner::of);
+	}
+
 	default Scanner<T> shuffle(){
 		return new ShufflingScanner<>(this);
 	}
 
-	default Scanner<T> sorted(){
+	default Scanner<T> sort(){
 		return new NaturalSortingScanner<>(this);
 	}
 
-	default Scanner<T> sorted(Comparator<? super T> comparator){
+	default Scanner<T> sort(Comparator<? super T> comparator){
 		return new SortingScanner<>(this, comparator);
+	}
+
+	default Scanner<T> sorted(){
+		return sort();
+	}
+
+	default Scanner<T> sorted(Comparator<? super T> comparator){
+		return sort(comparator);
 	}
 
 	default Object[] toArray(){

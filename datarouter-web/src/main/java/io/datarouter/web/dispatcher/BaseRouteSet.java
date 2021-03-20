@@ -18,9 +18,6 @@ package io.datarouter.web.dispatcher;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.util.lang.ReflectionTool;
@@ -28,7 +25,6 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.types.EndpointDecoder;
 
 public abstract class BaseRouteSet{
-	private static final Logger logger = LoggerFactory.getLogger(BaseRouteSet.class);
 
 	public static final String REGEX_ONE_DIRECTORY = "[/]?[^/]*";
 	public static final String REGEX_TWO_DIRECTORY_PLUS = "/\\w+/\\w+[/]?.*";
@@ -73,7 +69,6 @@ public abstract class BaseRouteSet{
 		return rule;
 	}
 
-	@Deprecated // Explicitly state each path for the handler with handle(PathNode)
 	protected DispatchRule handleDir(PathNode pathNode){
 		return handleDir(pathNode.toSlashedString());
 	}

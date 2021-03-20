@@ -33,12 +33,12 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
+import io.datarouter.aws.sqs.DatarouterAwsSqsTestNgModuleFactory;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 import io.datarouter.storage.test.TestDatabean;
 
-@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
+@Guice(moduleFactory = DatarouterAwsSqsTestNgModuleFactory.class)
 @Test(singleThreaded = true)
 public class SqsNodeIntegrationTester{
 	private static final Logger logger = LoggerFactory.getLogger(SqsNodeIntegrationTester.class);

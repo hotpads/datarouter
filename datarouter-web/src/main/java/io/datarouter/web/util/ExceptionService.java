@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.util;
 
+import static j2html.TagCreator.span;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -27,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.string.XmlStringTool;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
+import j2html.tags.ContainerTag;
 
 @Singleton
 public class ExceptionService{
@@ -36,7 +39,8 @@ public class ExceptionService{
 	private DatarouterWebSettingRoot datarouterWebSettingRoot;
 
 	public String getStackTraceStringForHtmlPreBlock(Throwable exception){
-		String stackTrace = exception != null ? ExceptionTool.getStackTraceAsString(exception)
+		String stackTrace = exception != null
+				? ExceptionTool.getStackTraceAsString(exception)
 				: "No exception defined.";
 		return getColorized(stackTrace);
 	}
@@ -46,10 +50,10 @@ public class ExceptionService{
 			return null;
 		}
 		stackTrace = XmlStringTool.escapeXml(stackTrace);
-		String highlightOpener = "<span style='color:red;font-weight:bold;font-size:1.5em;'>";
-		String highlightCloser = "</span>";
 		for(String highlight : datarouterWebSettingRoot.stackTraceHighlights.get()){
-			stackTrace = stackTrace.replace(highlight, highlightOpener + highlight + highlightCloser);
+			ContainerTag tag = span(highlight)
+					.withStyle("color:red; font-weight:bold; font-size:1.5em;");
+			stackTrace = stackTrace.replace(highlight, tag.render());
 		}
 		return stackTrace;
 	}

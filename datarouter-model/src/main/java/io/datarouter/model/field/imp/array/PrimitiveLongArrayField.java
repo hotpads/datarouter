@@ -23,6 +23,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.serialization.GsonTool;
 
+@Deprecated
 public class PrimitiveLongArrayField extends BaseField<long[]>{
 
 	private final PrimitiveLongArrayFieldKey key;

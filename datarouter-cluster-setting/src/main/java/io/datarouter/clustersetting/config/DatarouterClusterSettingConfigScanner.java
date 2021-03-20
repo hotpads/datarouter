@@ -58,7 +58,7 @@ public class DatarouterClusterSettingConfigScanner{
 	}
 
 	public ConfigScanDto checkForNonexistentClusterSettings(){
-		return scanClusterSettingWithValidity(ClusterSettingValidity.EXPIRED, "");
+		return scanClusterSettingWithValidity(ClusterSettingValidity.UNREFERENCED, "");
 	}
 
 	public ConfigScanDto checkForInvalidServerTypeClusterSettings(){

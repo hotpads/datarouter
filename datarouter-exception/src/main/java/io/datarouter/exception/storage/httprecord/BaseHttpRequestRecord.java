@@ -62,6 +62,8 @@ extends BaseDatabean<PK,D>{
 	private Long duration;
 
 	private String exceptionRecordId;
+	private String traceId;
+	private String parentId;
 
 	private String httpMethod;
 	private String httpParams;
@@ -105,6 +107,8 @@ extends BaseDatabean<PK,D>{
 		public static final LongDateFieldKey receivedAt = new LongDateFieldKey("receivedAt");
 		public static final LongFieldKey duration = new LongFieldKey("duration");
 		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
+		public static final StringFieldKey traceId = new StringFieldKey("traceId");
+		public static final StringFieldKey parentId = new StringFieldKey("parentId");
 		public static final StringFieldKey httpMethod = new StringFieldKey("httpMethod").withSize(16);
 		public static final StringFieldKey httpParams = new StringFieldKey("httpParams")
 				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
@@ -165,6 +169,8 @@ extends BaseDatabean<PK,D>{
 					new LongField(FieldKeys.duration, record.getDuration()),
 
 					new StringField(FieldKeys.exceptionRecordId, record.getExceptionRecordId()),
+					new StringField(FieldKeys.traceId, record.getTraceId()),
+					new StringField(FieldKeys.parentId, record.getParentId()),
 
 					new StringField(FieldKeys.httpMethod, record.getHttpMethod()),
 					new StringField(FieldKeys.httpParams, record.getHttpParams()),
@@ -215,6 +221,8 @@ extends BaseDatabean<PK,D>{
 			PK key,
 			Date receivedAt,
 			String exceptionRecordId,
+			String traceId,
+			String parentId,
 			String httpMethod,
 			String httpParams,
 			String protocol,
@@ -236,6 +244,8 @@ extends BaseDatabean<PK,D>{
 		}
 
 		this.exceptionRecordId = exceptionRecordId;
+		this.traceId = traceId;
+		this.parentId = parentId;
 
 		this.httpMethod = httpMethod;
 		this.httpParams = httpParams;
@@ -282,6 +292,8 @@ extends BaseDatabean<PK,D>{
 		this.receivedAt = dto.receivedAt;
 		this.duration = dto.duration;
 		this.exceptionRecordId = dto.exceptionRecordId;
+		this.traceId = dto.traceId;
+		this.parentId = dto.parentId;
 		this.httpMethod = dto.httpMethod;
 		this.httpParams = dto.httpParams;
 		this.protocol = dto.protocol;
@@ -385,6 +397,27 @@ extends BaseDatabean<PK,D>{
 
 	}
 
+	public abstract static class BaseHttpRequestRecordByTraceContext<
+			PK extends BaseHttpRequestRecordKey<PK>,
+			D extends BaseHttpRequestRecord<PK,D>>
+	extends BaseUniqueKey<PK>{
+
+		private String traceId;
+		private String parentId;
+
+		public BaseHttpRequestRecordByTraceContext(D httpRequestRecord){
+			this.traceId = httpRequestRecord.getTraceId();
+			this.parentId = httpRequestRecord.getParentId();
+		}
+
+		@Override
+		public List<Field<?>> getFields(){
+			return List.of(new StringField(FieldKeys.traceId, traceId),
+					new StringField(FieldKeys.parentId, parentId));
+		}
+
+	}
+
  	public Map<String,String> getHeaders(){
 		Map<String,String> map = new LinkedHashMap<>();
 		map.put(HttpHeaders.ACCEPT_CHARSET, acceptCharset);
@@ -425,6 +458,14 @@ extends BaseDatabean<PK,D>{
 
 	public void setExceptionRecordId(String exceptionRecordId){
 		this.exceptionRecordId = exceptionRecordId;
+	}
+
+	public String getTraceId(){
+		return traceId;
+	}
+
+	public String getParentId(){
+		return parentId;
 	}
 
 	public String getHttpMethod(){

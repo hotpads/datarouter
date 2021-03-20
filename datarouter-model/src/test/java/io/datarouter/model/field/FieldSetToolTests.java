@@ -24,7 +24,7 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.positive.UInt31Field;
 import io.datarouter.model.field.imp.positive.UInt31FieldKey;
-import io.datarouter.model.util.ByteRange;
+import io.datarouter.model.util.Bytes;
 
 public class FieldSetToolTests{
 
@@ -36,8 +36,8 @@ public class FieldSetToolTests{
 				new StringField(new StringFieldKey("c"), "xyz"));
 		int lengthWithout = 4 + 3 + 1 + 3;
 		int lengthWith = lengthWithout + 1;
-		ByteRange withoutTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytesUnterminated(fields));
-		ByteRange withTrailingByte = new ByteRange(FieldTool.getConcatenatedValueBytes(fields));
+		Bytes withoutTrailingByte = new Bytes(FieldTool.getConcatenatedValueBytesUnterminated(fields));
+		Bytes withTrailingByte = new Bytes(FieldTool.getConcatenatedValueBytes(fields));
 		Assert.assertEquals(withoutTrailingByte.getLength(), lengthWithout);
 		Assert.assertEquals(withTrailingByte.getLength(), lengthWith);
 	}

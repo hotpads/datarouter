@@ -16,9 +16,12 @@
 package io.datarouter.httpclient.endpoint;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +42,7 @@ public class EndpointTool{
 			if(ignoredField != null){
 				continue;
 			}
-			String key = field.getName();
+			String key = getFieldName(field);
 			Object value = null;
 			try{
 				value = field.get(endpoint);
@@ -48,7 +51,7 @@ public class EndpointTool{
 			}
 			EndpointParam param = field.getAnnotation(EndpointParam.class);
 			Optional<String> parsedValue = getValue(field, value);
-			if(param == null){
+			if(param == null || param.paramType() == null || param.paramType() == ParamType.DEFAULT){
 				parsedValue.ifPresent(paramValue -> request.addParam(key, paramValue));
 				continue;
 			}
@@ -64,7 +67,7 @@ public class EndpointTool{
 
 	public static Optional<Class<?>> hasEntity(BaseEndpoint<?> endpoint){
 		for(Field field : endpoint.getClass().getFields()){
-			if(field.getAnnotation(EndpointEntity.class) != null){
+			if(field.isAnnotationPresent(EndpointRequestBody.class)){
 				return Optional.of(field.getType());
 			}
 		}
@@ -73,7 +76,7 @@ public class EndpointTool{
 
 	public static Optional<Object> findEntity(BaseEndpoint<?> endpoint){
 		for(Field field : endpoint.getClass().getFields()){
-			if(field.getAnnotation(EndpointEntity.class) != null){
+			if(field.isAnnotationPresent(EndpointRequestBody.class)){
 				try{
 					return Optional.of(field.get(endpoint));
 				}catch(IllegalArgumentException | IllegalAccessException ex){
@@ -93,6 +96,29 @@ public class EndpointTool{
 			return Optional.of(optionalValue.get().toString());
 		}
 		return Optional.empty();
+	}
+
+	public static String getFieldName(Field field){
+		EndpointParam endpointParam = field.getAnnotation(EndpointParam.class);
+		return Optional.ofNullable(endpointParam)
+				.map(EndpointParam::serializedName)
+				.filter(name -> !name.isEmpty())
+				.orElseGet(field::getName);
+	}
+
+	public static Optional<Field> findRequestBody(Field[] fields){
+		return Stream.of(fields)
+				.filter(field -> field.isAnnotationPresent(EndpointRequestBody.class))
+				.findFirst();
+	}
+
+	public static boolean paramIsEndpointObject(Method method){
+		if(method.getParameterCount() != 1){
+			return false;
+		}
+		Parameter[] parameters = method.getParameters();
+		Class<?> endpointType = parameters[0].getType();
+		return method.getParameterCount() == 1 && BaseEndpoint.class.isAssignableFrom(endpointType);
 	}
 
 }

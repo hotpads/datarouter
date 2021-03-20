@@ -220,6 +220,14 @@ public class StringTool{
 		return str.substring(0, size);
 	}
 
+	public static String trimToSizeFromEnd(String str, int size){
+		int length = length(str);
+		if(length <= size){
+			return str;
+		}
+		return str.substring(length - size, length);
+	}
+
 	public static int countDigits(String input){
 		if(input == null){
 			return 0;

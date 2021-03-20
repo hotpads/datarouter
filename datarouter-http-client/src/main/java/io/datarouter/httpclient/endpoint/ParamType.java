@@ -16,6 +16,7 @@
 package io.datarouter.httpclient.endpoint;
 
 public enum ParamType{
+	DEFAULT, // DEFAULT will resolve to either GET or POST depending on the request type
 	GET,
 	POST,
 	;

@@ -19,12 +19,17 @@ import java.util.Date;
 
 public class HttpRequestRecordDto{
 
+	public static final byte[] CONFIDENTIALITY_MSG_BYTES = "body omitted for confidentiality".getBytes();
+	public static final int BINARY_BODY_MAX_SIZE = 10_000;
+
 	public final String id;
 	public final Date created;
 	public final Date receivedAt;
 	public final Long duration;
 
 	public final String exceptionRecordId;
+	public final String traceId;
+	public final String parentId;
 
 	public final String httpMethod;
 	public final String httpParams;
@@ -69,6 +74,8 @@ public class HttpRequestRecordDto{
 			Date receivedAt,
 			Long duration,
 			String exceptionRecordId,
+			String traceId,
+			String parentId,
 			String httpMethod,
 			String httpParams,
 			String protocol,
@@ -108,6 +115,8 @@ public class HttpRequestRecordDto{
 		this.duration = duration;
 
 		this.exceptionRecordId = exceptionRecordId;
+		this.traceId = traceId;
+		this.parentId = parentId;
 
 		this.httpMethod = httpMethod;
 		this.httpParams = httpParams;

@@ -25,7 +25,7 @@ import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.PageFilter;
 
-import io.datarouter.model.util.ByteRange;
+import io.datarouter.model.util.Bytes;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.tuple.Range;
@@ -39,7 +39,7 @@ public class HBaseScanBuilder{
 	private byte[] prefix = EMPTY_PREFIX;
 	private byte[] nextPrefix = EMPTY_PREFIX;
 	private boolean hasNextPrefix = false;
-	private Range<ByteRange> range = Range.everything();
+	private Range<Bytes> range = Range.everything();
 	private Filter columnPrefixFilter;
 	private Integer limit;
 	private FirstKeyOnlyFilter firstKeyFilter;
@@ -53,7 +53,7 @@ public class HBaseScanBuilder{
 		return this;
 	}
 
-	public HBaseScanBuilder withRange(Range<ByteRange> range){
+	public HBaseScanBuilder withRange(Range<Bytes> range){
 		this.range = range;
 		return this;
 	}
@@ -163,7 +163,7 @@ public class HBaseScanBuilder{
 			return new byte[]{};
 		}
 		if(range.getEndInclusive()){
-			return range.getEnd().copyToNewArrayAndIncrement();
+			return ByteTool.unsignedIncrement(range.getEnd().toArray());
 		}
 		return range.getEnd().toArray();
 	}

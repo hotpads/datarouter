@@ -18,6 +18,7 @@ package io.datarouter.exception.storage.httprecord;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
+import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.UuidTool;
 import io.datarouter.util.serialization.GsonTool;
@@ -37,8 +39,6 @@ import io.datarouter.web.util.http.RequestTool;
 
 public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKey,HttpRequestRecord>{
 
-	private static final byte[] CONFIDENTIALITY_MSG_BYTES = "body omitted for confidentiality".getBytes();
-
 	public static class HttpRequestRecordFielder
 	extends BaseHttpRequestRecordFielder<HttpRequestRecordKey,HttpRequestRecord>{
 
@@ -50,6 +50,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 		public Map<String,List<Field<?>>> getUniqueIndexes(HttpRequestRecord record){
 			Map<String,List<Field<?>>> indexes = new TreeMap<>();
 			indexes.put("unique_exceptionRecord", new HttpRequestRecordByExceptionRecord(record).getFields());
+			indexes.put("unique_traceContext", new HttpRequestRecordByTraceContext(record).getFields());
 			return indexes;
 		}
 
@@ -59,10 +60,12 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 		super(new HttpRequestRecordKey());
 	}
 
-	public HttpRequestRecord(String exceptionRecordId, HttpServletRequest request, String sessionRoles,
-			String userToken, boolean omitPayload){
+	public HttpRequestRecord(String exceptionRecordId, Optional<W3TraceContext> traceContext,
+			HttpServletRequest request, String sessionRoles, String userToken, boolean omitPayload){
 		this(RequestAttributeTool.get(request, BaseHandler.REQUEST_RECEIVED_AT).orElse(new Date()),
 				exceptionRecordId,
+				traceContext.map(trace -> trace.getTraceId()).orElse(null),
+				traceContext.map(trace -> trace.getParentId()).orElse(null),
 				request.getMethod(),
 				GsonTool.GSON.toJson(request.getParameterMap()),
 				request.getScheme(),
@@ -71,7 +74,8 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 				request.getContextPath(),
 				getRequestPath(request),
 				request.getQueryString(),
-				omitPayload ? CONFIDENTIALITY_MSG_BYTES : RequestTool.tryGetBodyAsByteArray(request),
+				omitPayload ? HttpRequestRecordDto.CONFIDENTIALITY_MSG_BYTES
+						: RequestTool.tryGetBodyAsByteArray(request),
 				RequestTool.getIpAddress(request),
 				sessionRoles,
 				userToken,
@@ -89,6 +93,8 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 	public HttpRequestRecord(
 			Date receivedAt,
 			String exceptionRecordId,
+			String traceId,
+			String parentId,
 			String httpMethod,
 			String httpParams,
 			String protocol,
@@ -102,9 +108,9 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 			String sessionRoles,
 			String userToken,
 			RecordedHttpHeaders headersWrapper){
-		super(new HttpRequestRecordKey(UuidTool.generateV1Uuid()), receivedAt, exceptionRecordId, httpMethod,
-				httpParams, protocol, hostname, port, contextPath, path, queryString, binaryBody, ip, sessionRoles,
-				userToken, headersWrapper);
+		super(new HttpRequestRecordKey(UuidTool.generateV1Uuid()), receivedAt, exceptionRecordId, traceId, parentId,
+				httpMethod, httpParams, protocol, hostname, port, contextPath, path, queryString, binaryBody, ip,
+				sessionRoles, userToken, headersWrapper);
 	}
 
 	public HttpRequestRecord(ExceptionDto exceptionDto, String exceptionRecordId){
@@ -119,6 +125,8 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 				getDuration(),
 
 				getExceptionRecordId(),
+				getTraceId(),
+				getParentId(),
 
 				getHttpMethod(),
 				getHttpParams(),
@@ -161,7 +169,8 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 	public static class HttpRequestRecordByExceptionRecord
 	extends BaseHttpRequestRecordByExceptionRecord<
 			HttpRequestRecordKey,
-			HttpRequestRecord,ExceptionRecordKey,
+			HttpRequestRecord,
+			ExceptionRecordKey,
 			ExceptionRecord>{
 
 		public HttpRequestRecordByExceptionRecord(HttpRequestRecord httpRequestRecord){
@@ -174,9 +183,20 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 
 	}
 
+	public static class HttpRequestRecordByTraceContext
+	extends BaseHttpRequestRecordByTraceContext<
+			HttpRequestRecordKey,
+			HttpRequestRecord>{
+
+		public HttpRequestRecordByTraceContext(HttpRequestRecord httpRequestRecord){
+			super(httpRequestRecord);
+		}
+
+	}
+
 	public static HttpRequestRecord createEmptyForTesting(){
-		return new HttpRequestRecord(null, null, null, null, null, null, 0, null, null, null, null, null, null, null,
-				new RecordedHttpHeaders((HttpServletRequest)null));
+		return new HttpRequestRecord(null, null, null, null, null, null, null, null, 0, null, null, null, null, null,
+				null, null, new RecordedHttpHeaders((HttpServletRequest)null));
 	}
 
 	@Override

@@ -29,12 +29,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
@@ -46,11 +46,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.HttpHeaders;
+import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Pair;
+import io.datarouter.web.endpoint.EndpointValidator;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.HandledException;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
@@ -88,6 +91,7 @@ public abstract class BaseHandler{
 	public static final RequestAttributeKey<Class<? extends BaseHandler>> HANDLER_CLASS = new RequestAttributeKey<>(
 			"handlerClass");
 	public static final RequestAttributeKey<Method> HANDLER_METHOD = new RequestAttributeKey<>("handlerMethod");
+	public static final RequestAttributeKey<W3TraceContext> TRACE_CONTEXT = new RequestAttributeKey<>("traceContext");
 
 	private static final Pattern LAST_SEGMENT_PATTERN = Pattern.compile("[^?]*/([^/?]+)[/?]?.*");
 	private static final String DEFAULT_HANDLER_METHOD_NAME = "noHandlerFound";
@@ -183,6 +187,16 @@ public abstract class BaseHandler{
 		return Optional.empty();
 	}
 
+	private Optional<RequestParamValidatorErrorResponseDto> validateRequestParamValidatorsFromEndpoint(Method method,
+			Object[] args){
+		return Optional.ofNullable(method.getParameters()[0].getAnnotation(EndpointValidator.class))
+				.map(EndpointValidator::validator)
+				.filter(Objects::nonNull)
+				.map(validate("endpoint", args[0]))
+				.filter(responseDto -> !responseDto.success)
+				.map(RequestParamValidatorErrorResponseDto::fromRequestParamValidatorResponseDto);
+	}
+
 	private <T> Function<Class<? extends RequestParamValidator<?>>,RequestParamValidatorResponseDto> validate(
 			String parameterName, Object parameterValue){
 		return validatorClass -> {
@@ -223,8 +237,13 @@ public abstract class BaseHandler{
 
 			HandlerEncoder encoder = getHandlerEncoder(method);
 			RequestAttributeTool.set(request, HANDLER_ENCODER_ATTRIBUTE, encoder);
-			Optional<RequestParamValidatorErrorResponseDto> errorResponseDtoOptional = validateRequestParamValidators(
-					method, args);
+
+			Optional<RequestParamValidatorErrorResponseDto> errorResponseDtoOptional;
+			if(EndpointTool.paramIsEndpointObject(method)){
+				errorResponseDtoOptional = validateRequestParamValidatorsFromEndpoint(method, args);
+			}else{
+				errorResponseDtoOptional = validateRequestParamValidators(method, args);
+			}
 			if(errorResponseDtoOptional.isPresent()){
 				RequestParamValidatorErrorResponseDto errorResponseDto = errorResponseDtoOptional.get();
 				encoder.sendInvalidRequestParamResponse(errorResponseDto, servletContext, response, request);
@@ -367,9 +386,9 @@ public abstract class BaseHandler{
 	}
 
 	private Optional<Method> getDefaultHandlerMethodForClass(Class<?> cls){
-		return Stream.of(cls.getDeclaredMethods())
-				.filter(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
-				.filter(possibleMethod -> possibleMethod.getDeclaredAnnotation(Handler.class).defaultHandler())
+		return Scanner.of(cls.getDeclaredMethods())
+				.include(possibleMethod -> possibleMethod.isAnnotationPresent(Handler.class))
+				.include(possibleMethod -> possibleMethod.getDeclaredAnnotation(Handler.class).defaultHandler())
 				.findFirst();
 	}
 

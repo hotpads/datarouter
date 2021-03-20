@@ -23,6 +23,7 @@ import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseMysqlFieldCodec;
 import io.datarouter.model.field.imp.array.PrimitiveLongArrayField;
 
+@Deprecated
 public class PrimitiveLongArrayMysqlFieldCodec extends BaseMysqlFieldCodec<long[],PrimitiveLongArrayField>{
 
 	public PrimitiveLongArrayMysqlFieldCodec(){

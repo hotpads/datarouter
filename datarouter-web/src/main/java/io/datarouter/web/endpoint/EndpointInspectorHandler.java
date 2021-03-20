@@ -34,14 +34,13 @@ import io.datarouter.httpclient.client.BaseDatarouterEndpointHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.EndpointEntity;
 import io.datarouter.httpclient.endpoint.EndpointParam;
 import io.datarouter.httpclient.endpoint.EndpointRegistry;
+import io.datarouter.httpclient.endpoint.EndpointRequestBody;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.httpclient.endpoint.Endpoints;
 import io.datarouter.httpclient.endpoint.IgnoredField;
 import io.datarouter.httpclient.endpoint.ParamType;
-import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
@@ -99,8 +98,8 @@ public class EndpointInspectorHandler extends BaseHandler{
 						.orElse(""))
 				.withHtmlColumn("Required Params", row -> {
 					List<String> paramDtos = Scanner.of(row.getClass().getFields())
-							.include(field -> field.getAnnotation(IgnoredField.class) == null)
-							.include(field -> field.getAnnotation(EndpointEntity.class) == null)
+							.exclude(field -> field.isAnnotationPresent(IgnoredField.class))
+							.exclude(field -> field.isAnnotationPresent(EndpointRequestBody.class))
 							.exclude(field -> field.getType().isAssignableFrom(Optional.class))
 							.map(field -> new EndpointInspectorParamDto(row, field))
 							.map(EndpointInspectorParamDto::toString)
@@ -109,8 +108,8 @@ public class EndpointInspectorHandler extends BaseHandler{
 				})
 				.withHtmlColumn("Optional Params", row -> {
 					List<String> paramDtos = Scanner.of(row.getClass().getFields())
-							.include(field -> field.getAnnotation(IgnoredField.class) == null)
-							.include(field -> field.getAnnotation(EndpointEntity.class) == null)
+							.exclude(field -> field.isAnnotationPresent(IgnoredField.class))
+							.exclude(field -> field.isAnnotationPresent(EndpointRequestBody.class))
 							.include(field -> field.getType().isAssignableFrom(Optional.class))
 							.map(field -> new EndpointInspectorParamDto(row, field))
 							.map(EndpointInspectorParamDto::toString)
@@ -125,8 +124,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 
 	private static class EndpointInspectorParamDto{
 
-		private final Optional<String> requestParamType;
-		private final HttpRequestMethod defaultRequestMethodType;
+		private final String requestParamType;
 		private final Field field;
 		private final boolean isOptional;
 
@@ -134,8 +132,8 @@ public class EndpointInspectorHandler extends BaseHandler{
 			this.field = field;
 			this.requestParamType = Optional.ofNullable(field.getAnnotation(EndpointParam.class))
 					.map(EndpointParam::paramType)
-					.map(ParamType::name);
-			this.defaultRequestMethodType = endpoint.method;
+					.map(ParamType::name)
+					.orElse(endpoint.method.name());
 			this.isOptional = field.getType().isAssignableFrom(Optional.class);
 		}
 
@@ -149,7 +147,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 
 		@Override
 		public String toString(){
-			return getType() + " " + field.getName() + " " + requestParamType.orElse(defaultRequestMethodType.name());
+			return getType() + " " + field.getName() + " " + requestParamType;
 		}
 
 	}

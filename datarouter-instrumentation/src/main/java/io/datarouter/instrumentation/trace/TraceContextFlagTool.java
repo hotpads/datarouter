@@ -13,14 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient.endpoint;
+package io.datarouter.instrumentation.trace;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public class TraceContextFlagTool{
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-public @interface EndpointEntity{
+	public static boolean shouldSampleTrace(){
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer.getTraceContext().isPresent()){
+			return TraceContextFlagMask.isTraceEnabled(tracer.getTraceContext().get().getTraceparent().traceFlags);
+		}
+		return false;
+	}
+
+	public static boolean shouldSampleLog(){
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer.getTraceContext().isPresent()){
+			return TraceContextFlagMask.isLogEnabled(tracer.getTraceContext().get().getTraceparent().traceFlags);
+		}
+		return false;
+	}
+
 }

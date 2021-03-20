@@ -143,6 +143,19 @@ public class ReflectionToolTests{
 		Assert.assertNull(dto2.dummyDto);
 	}
 
+	@Test
+	public void testCreateNullArgsWithUnsafeAllocator(){
+		ExampleDto dto = ReflectionTool.createNullArgsWithUnsafeAllocator(ExampleDto.class);
+		Assert.assertNull(dto.abc);
+		Assert.assertEquals(dto.def, 0);
+		Assert.assertNull(dto.dummyDto);
+
+		Example2Dto dto2 = ReflectionTool.createNullArgsWithUnsafeAllocator(Example2Dto.class);
+		Assert.assertNull(dto2.abc);
+		Assert.assertEquals(dto2.def, 0);
+		Assert.assertNull(dto2.dummyDto);
+	}
+
 	// p - primitive
 	// b - boxed
 	public static class TypesExampleDto{

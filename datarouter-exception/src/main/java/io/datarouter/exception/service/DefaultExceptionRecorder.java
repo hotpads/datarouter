@@ -33,6 +33,7 @@ import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPub
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
+import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.exception.ExceptionCategory;
 import io.datarouter.storage.exception.UnknownExceptionCategory;
@@ -43,6 +44,7 @@ import io.datarouter.web.exception.ExceptionCounters;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.WebExceptionCategory;
+import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.monitoring.GitProperties;
 import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.service.Session;
@@ -200,6 +202,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		boolean omitPayload = RequestAttributeTool.get(request, Dispatcher.TRANSMITS_PII).orElse(false);
 		HttpRequestRecord httpRequestRecord = new HttpRequestRecord(
 				exceptionRecord == null ? null : exceptionRecord.id,
+				RequestAttributeTool.get(request, BaseHandler.TRACE_CONTEXT),
 				request,
 				userRoles,
 				userToken.orElse(null),
@@ -210,7 +213,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		httpRequestRecord.trimPath();
 		httpRequestRecord.trimAcceptLanguage();
 		httpRequestRecordDao.put(httpRequestRecord);
-		httpRequestRecord.trimBinaryBody(10_000);
+		httpRequestRecord.trimBinaryBody(HttpRequestRecordDto.BINARY_BODY_MAX_SIZE);
 		if(publish && settings.publishRecords.get()){
 			httpRequestRecordPublisherDao.put(httpRequestRecord);
 		}

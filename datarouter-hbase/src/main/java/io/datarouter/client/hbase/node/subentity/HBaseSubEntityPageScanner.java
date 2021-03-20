@@ -37,7 +37,7 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.model.util.ByteRange;
+import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.PagingScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
@@ -94,7 +94,7 @@ public class HBaseSubEntityPageScanner<
 	}
 
 	public Scanner<Result> scanResults(Range<PK> range, Config config, boolean keysOnly){
-		Range<ByteRange> byteRange = range
+		Range<Bytes> byteRange = range
 				.map(EntityPrimaryKey::getEntityKey)
 				.map(queryBuilder::getEkByteRange)
 				//need to overscan and filter extra pks/databeans later
@@ -111,7 +111,7 @@ public class HBaseSubEntityPageScanner<
 
 	private Scanner<Result> scanResultsInByteRange(
 			byte[] prefix,
-			Range<ByteRange> range,
+			Range<Bytes> range,
 			int pageSize,
 			Integer limit,
 			boolean cacheBlocks,
@@ -127,9 +127,9 @@ public class HBaseSubEntityPageScanner<
 				.prefetch(datarouterHbaseClientExecutor, pageSize);
 	}
 
-	private class ResultPagingScanner extends PagingScanner<ByteRange,Result>{
+	private class ResultPagingScanner extends PagingScanner<Bytes,Result>{
 		private final byte[] prefix;
-		private final Range<ByteRange> mutableRange;
+		private final Range<Bytes> mutableRange;
 		private final boolean keysOnly;
 		private final Optional<Integer> limit;
 		private final boolean cacheBlocks;
@@ -139,7 +139,7 @@ public class HBaseSubEntityPageScanner<
 		public ResultPagingScanner(
 				int pageSize,
 				byte[] prefix,
-				Range<ByteRange> range,
+				Range<Bytes> range,
 				Integer limit,
 				boolean cacheBlocks,
 				boolean keysOnly){
@@ -154,16 +154,16 @@ public class HBaseSubEntityPageScanner<
 		}
 
 		@Override
-		protected ByteRange nextParam(Result lastSeenItem){
+		protected Bytes nextParam(Result lastSeenItem){
 			if(lastSeenItem == null){
 				return null;
 			}
 			byte[] rowWithoutPrefix = resultParser.rowWithoutPrefix(lastSeenItem.getRow());
-			return new ByteRange(rowWithoutPrefix);
+			return new Bytes(rowWithoutPrefix);
 		}
 
 		@Override
-		protected List<Result> nextPage(ByteRange resumeFrom){
+		protected List<Result> nextPage(Bytes resumeFrom){
 			Require.isFalse(closed, "don't call me, i'm closed");
 			if(limit.isPresent() && numFetched >= limit.get()){
 				return List.of();
@@ -198,7 +198,7 @@ public class HBaseSubEntityPageScanner<
 
 	private List<Result> getPageOfResults(
 			byte[] prefix,
-			Range<ByteRange> rowRange,
+			Range<Bytes> rowRange,
 			boolean keysOnly,
 			int limit,
 			boolean cacheBlocks)

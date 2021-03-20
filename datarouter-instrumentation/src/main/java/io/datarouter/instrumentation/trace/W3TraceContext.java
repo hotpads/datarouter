@@ -72,6 +72,14 @@ public class W3TraceContext{
 		return tracestate;
 	}
 
+	public String getTraceId(){
+		return traceparent.traceId;
+	}
+
+	public String getParentId(){
+		return traceparent.parentId;
+	}
+
 	public void updateParentIdAndAddTracestateMember(){
 		traceparent = traceparent.updateParentId();
 		tracestate.addDatarouterListMember(traceparent.parentId);

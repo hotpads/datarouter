@@ -22,7 +22,7 @@ import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
-import io.datarouter.model.util.ByteRange;
+import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.tuple.Range;
@@ -62,11 +62,11 @@ public class HBaseNonEntityQueryBuilder<
 		return ByteTool.concatenate(prefix, getPkBytes(pk));
 	}
 
-	public ByteRange getEkByteRange(EK ek){
-		return ek == null ? null : new ByteRange(getEkBytes(ek));
+	public Bytes getEkByteRange(EK ek){
+		return ek == null ? null : new Bytes(getEkBytes(ek));
 	}
 
-	public ByteRange getPkByteRange(PK pk){
+	public Bytes getPkByteRange(PK pk){
 		if(pk == null){
 			return null;
 		}
@@ -74,7 +74,7 @@ public class HBaseNonEntityQueryBuilder<
 		if(pkBytes == null){
 			return null;
 		}
-		return new ByteRange(pkBytes);
+		return new Bytes(pkBytes);
 	}
 
 }

@@ -15,6 +15,9 @@
  */
 package io.datarouter.web.email;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.inject.Inject;
@@ -33,6 +36,7 @@ import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.config.DatarouterEmailSettings.DatarouterEmailHostDetails;
 import io.datarouter.web.config.DatarouterEmailSettingsProvider;
+import io.datarouter.web.util.MimeMessageTool;
 
 @Singleton
 public class DatarouterEmailService{
@@ -64,13 +68,14 @@ public class DatarouterEmailService{
 
 	public void send(String fromEmail, String toEmail, String subject, String body, boolean html)
 	throws MessagingException{
-		send(fromEmail, toEmail, toEmail, subject, body, html);
+		sendAndGetMessageId(fromEmail, toEmail, toEmail, subject, body, html, Collections.emptyMap());
 	}
 
-	public void send(String fromEmail, String toEmail, String replyToEmail, String subject, String body, boolean html)
+	public Optional<String> sendAndGetMessageId(String fromEmail, String toEmail, String replyToEmail, String subject,
+			String body, boolean html, Map<String,String> headers)
 	throws MessagingException{
 		if(!datarouterEmailSettingsProvider.get().sendDatarouterEmails()){
-			return;
+			return Optional.empty();
 		}
 		Properties props = new Properties();
 		DatarouterEmailHostDetails emailHostDetails = datarouterEmailSettingsProvider.get()
@@ -92,9 +97,11 @@ public class DatarouterEmailService{
 			message.addRecipients(RecipientType.TO, addresses);
 			message.setReplyTo(InternetAddress.parse(replyToEmail));
 			message.setSubject(subject);
+			headers.entrySet().forEach(entry -> MimeMessageTool.setHeader(message, entry.getKey(), entry.getValue()));
 			String subType = html ? "html" : "plain";
 			message.setText(body, "UTF-8", subType);
 			transport.sendMessage(message, addresses);
+			return Optional.ofNullable(message.getMessageID());
 		}
 	}
 

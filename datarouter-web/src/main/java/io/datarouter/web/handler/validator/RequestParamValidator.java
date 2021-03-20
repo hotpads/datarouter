@@ -81,7 +81,6 @@ public abstract class RequestParamValidator<T>{
 	}
 
 	public abstract RequestParamValidatorResponseDto validate(HttpServletRequest request, T parameterValue);
-
 	public abstract Class<T> getParameterClass();
 
 	public String getParameterName(){

@@ -183,4 +183,10 @@ public class StringToolTests{
 		Assert.assertEquals(StringTool.escapeString(string), "'no apostrophes'");
 	}
 
+	@Test
+	public void testTrimToSizeFromEnd(){
+		Assert.assertEquals(StringTool.trimToSizeFromEnd("abcd", 2), "cd");
+		Assert.assertEquals(StringTool.trimToSizeFromEnd("abcd", 10), "abcd");
+	}
+
 }

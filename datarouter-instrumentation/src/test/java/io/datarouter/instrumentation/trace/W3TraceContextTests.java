@@ -52,4 +52,52 @@ public class W3TraceContextTests{
 		Assert.assertEquals(traceContext.getTracestate().toString().length(), newTracestate.length());
 	}
 
+	@Test
+	public void traceContextFlagValidationTest(){
+		int shift = 0;
+		int value = 1;
+		for(TraceContextFlagMask mask : TraceContextFlagMask.values()){
+			if(mask == TraceContextFlagMask.DEFAULT){
+				Assert.assertEquals(mask.getByteMask(), 0);
+			}else{
+				Assert.assertEquals(mask.getByteMask(), value);
+				shift++;
+				value <<= shift;
+			}
+		}
+	}
+
+	@Test
+	public void validateTraceFlag(){
+		bindTraceContextToLocalThread("00"); // 0b00000001
+		Assert.assertFalse(TraceContextFlagTool.shouldSampleTrace());
+		Assert.assertFalse(TraceContextFlagTool.shouldSampleLog());
+		TracerThreadLocal.clearFromThread();
+
+		bindTraceContextToLocalThread("01"); // 0b00000001
+		Assert.assertTrue(TraceContextFlagTool.shouldSampleTrace());
+		Assert.assertFalse(TraceContextFlagTool.shouldSampleLog());
+		TracerThreadLocal.clearFromThread();
+
+		bindTraceContextToLocalThread("02"); // 0b00000010
+		Assert.assertFalse(TraceContextFlagTool.shouldSampleTrace());
+		Assert.assertTrue(TraceContextFlagTool.shouldSampleLog());
+		TracerThreadLocal.clearFromThread();
+
+		bindTraceContextToLocalThread("6b"); // // 0b1101011
+		Assert.assertTrue(TraceContextFlagTool.shouldSampleTrace());
+		Assert.assertTrue(TraceContextFlagTool.shouldSampleLog());
+		TracerThreadLocal.clearFromThread();
+
+	}
+
+	private void bindTraceContextToLocalThread(String flagsInHextCode){
+		String validTraceparentWithoutFlag = "00-4bf92f3577b34da6a3ce929d0e0e4736-00000175e4110dbe-";
+		String validTracestate = "datarouter=00000175e4110dbe,rojo=00f067aa0ba902b7,congo=t61rcWkgMzE";
+		String validTraceparentWithFlags = validTraceparentWithoutFlag + flagsInHextCode;
+		W3TraceContext traceContext = new W3TraceContext(validTraceparentWithFlags, validTracestate, UNIX_TIME_MILLIS);
+		Tracer tracer = new TraceConextTestTracer(traceContext);
+		TracerThreadLocal.bindToThread(tracer);
+	}
+
 }

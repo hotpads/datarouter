@@ -17,13 +17,24 @@ package io.datarouter.web.handler.documentation;
 
 public class DocumentedParameterJspDto{
 
-	public String name;
-	public String type;
-	public String example;
-	public Boolean required;
-	public Boolean requestBody;
-	public Boolean hidden;
-	public String description;
+	private final String name;
+	private final String type;
+	private final String example;
+	private final Boolean required;
+	private final Boolean requestBody;
+	private final Boolean hidden;
+	private final String description;
+
+	public DocumentedParameterJspDto(String name, String type, String example, Boolean required, Boolean requestBody,
+			Boolean hidden, String description){
+		this.name = name;
+		this.type = type;
+		this.example = example;
+		this.required = required;
+		this.requestBody = requestBody;
+		this.hidden = hidden;
+		this.description = description;
+	}
 
 	public String getName(){
 		return name;

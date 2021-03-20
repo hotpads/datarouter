@@ -35,11 +35,11 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonSyntaxException;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
-import io.datarouter.httpclient.endpoint.EndpointEntity;
+import io.datarouter.httpclient.endpoint.EndpointRequestBody;
+import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.httpclient.endpoint.IgnoredField;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.instrumentation.trace.TracerTool;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
@@ -53,26 +53,21 @@ public class EndpointDecoder implements HandlerDecoder{
 	@Named(HandlerEncoder.DEFAULT_HANDLER_SERIALIZER)
 	private JsonSerializer deserializer;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] decode(HttpServletRequest request, Method method){
 		Map<String,String[]> queryParams = request.getParameterMap();
 		Parameter[] parameters = method.getParameters();
 		Class<?> endpointType = parameters[0].getType();
-		boolean isEndpointObject = parameters.length == 1 && endpointType.getClass().isInstance(BaseEndpoint.class);
-		if(!isEndpointObject){
+		if(!EndpointTool.paramIsEndpointObject(method)){
 			throw new RuntimeException("object needs to extend BaseEndpoint");
 		}
 
 		// populate the fields with baseEndpoint with dummy values and then repopulate in getArgsFromEndpointObject
+		@SuppressWarnings("unchecked")
 		BaseEndpoint<?> baseEndpoint = ReflectionTool.createWithoutNoArgs(
 				(Class<? extends BaseEndpoint<?>>)endpointType);
-		if(baseEndpoint == null || baseEndpoint.getClass() == null || baseEndpoint.getClass().getFields() == null){
-			throw new RuntimeException("BaseEndpoint is null");
-		}
-
 		String body = null;
-		if(getEntity(baseEndpoint.getClass().getFields()).isPresent()){
+		if(EndpointTool.findRequestBody(baseEndpoint.getClass().getFields()).isPresent()){
 			body = RequestTool.getBodyAsString(request);
 			if(StringTool.isEmpty(body)){
 				return null;
@@ -92,19 +87,18 @@ public class EndpointDecoder implements HandlerDecoder{
 	throws IllegalArgumentException, IllegalAccessException{
 		Field[] fields = baseEndpoint.getClass().getFields();
 		for(Field field : fields){
-			IgnoredField param = field.getAnnotation(IgnoredField.class);
-			if(param != null){
+			IgnoredField ignoredField = field.getAnnotation(IgnoredField.class);
+			if(ignoredField != null){
 				continue;
 			}
 			field.setAccessible(true);
-
-			String parameterName = field.getName();
+			String parameterName = EndpointTool.getFieldName(field);
 			Type parameterType = field.getType();
 			String[] queryParam = queryParams.get(parameterName);
 
-			if(field.getAnnotation(EndpointEntity.class) != null){
-				var entity = decodeType(body, parameterType);
-				field.set(baseEndpoint, entity);
+			if(field.isAnnotationPresent(EndpointRequestBody.class)){
+				var requestBody = decodeType(body, parameterType);
+				field.set(baseEndpoint, requestBody);
 				continue;
 			}
 
@@ -183,12 +177,6 @@ public class EndpointDecoder implements HandlerDecoder{
 			}
 			return obj;
 		}
-	}
-
-	private static Optional<Field> getEntity(Field[] fields){
-		return Scanner.of(fields)
-				.include(field -> field.getAnnotation(EndpointEntity.class) != null)
-				.findFirst();
 	}
 
 }

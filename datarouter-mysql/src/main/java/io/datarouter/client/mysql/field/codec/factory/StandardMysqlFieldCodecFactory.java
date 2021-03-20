@@ -87,6 +87,7 @@ import io.datarouter.model.field.imp.positive.UInt7Field;
 import io.datarouter.model.field.imp.positive.VarIntField;
 import io.datarouter.util.lang.ReflectionTool;
 
+@SuppressWarnings("deprecation")
 @Singleton
 public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 

@@ -42,7 +42,7 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.model.util.ByteRange;
+import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.PagingScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientTableNodeNames;
@@ -201,7 +201,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		if(HBaseNonEntityQueryBuilder.isSingleRowRange(range)){
 			return getResults(Collections.singleton(range.getStart()), config, keysOnly);
 		}
-		Range<ByteRange> byteRange = range.map(queryBuilder::getPkByteRange);
+		Range<Bytes> byteRange = range.map(queryBuilder::getPkByteRange);
 		int offset = config.findOffset().orElse(0);
 		Integer subscanLimit = config.findLimit().map(limit -> offset + limit).orElse(null);
 		int pageSize = config.findOutputBatchSize().orElse(DEFAULT_SCAN_BATCH_SIZE);
@@ -215,7 +215,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 
 	private Scanner<Result> scanResultsInByteRange(
 			byte[] prefix,
-			Range<ByteRange> range,
+			Range<Bytes> range,
 			int pageSize,
 			Integer limit,
 			boolean prefetch,
@@ -234,9 +234,9 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		return results;
 	}
 
-	private class ResultPagingScanner extends PagingScanner<ByteRange,Result>{
+	private class ResultPagingScanner extends PagingScanner<Bytes,Result>{
 		private final byte[] prefix;
-		private final Range<ByteRange> mutableRange;
+		private final Range<Bytes> mutableRange;
 		private final boolean keysOnly;
 		private final Optional<Integer> limit;
 		private final boolean cacheBlocks;
@@ -246,7 +246,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		public ResultPagingScanner(
 				int pageSize,
 				byte[] prefix,
-				Range<ByteRange> range,
+				Range<Bytes> range,
 				Integer limit,
 				boolean cacheBlocks,
 				boolean keysOnly){
@@ -261,16 +261,16 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 		}
 
 		@Override
-		protected ByteRange nextParam(Result lastSeenItem){
+		protected Bytes nextParam(Result lastSeenItem){
 			if(lastSeenItem == null){
 				return null;
 			}
 			byte[] rowWithoutPrefix = resultParser.rowWithoutPrefix(lastSeenItem.getRow());
-			return new ByteRange(rowWithoutPrefix);
+			return new Bytes(rowWithoutPrefix);
 		}
 
 		@Override
-		protected List<Result> nextPage(ByteRange resumeFrom){
+		protected List<Result> nextPage(Bytes resumeFrom){
 			Require.isFalse(closed, "don't call me, i'm closed");
 			if(limit.isPresent() && numFetched >= limit.get()){
 				return List.of();
@@ -305,7 +305,7 @@ implements MapStorageReader<PK,D>, SortedStorageReader<PK,D>{
 
 	private List<Result> getPageOfResults(
 			byte[] prefix,
-			Range<ByteRange> rowRange,
+			Range<Bytes> rowRange,
 			boolean keysOnly,
 			int limit,
 			boolean cacheBlocks)

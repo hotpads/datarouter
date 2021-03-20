@@ -26,7 +26,7 @@ public enum ClusterSettingValidity implements PersistentString{
 	INVALID_SERVER_NAME("invalidServerName", "table-success", "Unknown serverName"),
 	REDUNDANT("redundant", "table-warning", "Value duplicates the default value"),
 	OLD("old", "table-info", "Setting hasn't changed in a while - consider moving it in the code"),
-	EXPIRED("expired", "table-danger", "Setting not known to webapp - probably deleted from code"),
+	UNREFERENCED("unreferenced", "table-danger", "Setting not known to webapp - probably deleted from code"),
 	UNKNOWN("unknown", "table-secondary", "Root of setting not recognized by this webapp"),
 	;
 

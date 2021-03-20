@@ -34,12 +34,15 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.internal.UnsafeAllocator;
+
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Java9;
 import io.datarouter.util.string.StringTool;
 
 public class ReflectionTool{
 	private static final Logger logger = LoggerFactory.getLogger(ReflectionTool.class);
+	private static final UnsafeAllocator UNSAFE_ALLOCATOR = UnsafeAllocator.create();
 
 	public static <T> Supplier<T> supplier(Class<T> type){
 		return () -> ReflectionTool.create(type);
@@ -165,8 +168,8 @@ public class ReflectionTool{
 	}
 
 	private static class FieldInClass{
-		private Class<?> cls;
-		private String fieldName;
+		private final Class<?> cls;
+		private final String fieldName;
 
 		public FieldInClass(Class<?> cls, String fieldName){
 			this.cls = cls;
@@ -266,7 +269,7 @@ public class ReflectionTool{
 	public static Scanner<Method> getDeclaredMethodsIncludingAncestors(Class<?> clazz){
 		Scanner<Method> ownMethods = Scanner.of(clazz.getDeclaredMethods());
 		Scanner<Method> superMethods = Scanner.of(getAllSuperClassesAndInterfaces(clazz))
-			.map(superClass -> superClass.getDeclaredMethods())
+			.map(Class::getDeclaredMethods)
 			.concat(Scanner::of);
 		return Scanner.concat(ownMethods, superMethods);
 	}
@@ -365,22 +368,23 @@ public class ReflectionTool{
 	}
 
 	private static Object getDefaultValue(Parameter parameter){
-		if(parameter.getType().equals(boolean.class)){
+		Class<?> clazz = parameter.getType();
+		if(clazz == boolean.class){
 			return false;
 		}
-		if(parameter.getType().equals(short.class)){
+		if(clazz == short.class){
 			return (short)0;
 		}
-		if(parameter.getType().equals(byte.class)){
+		if(clazz == byte.class){
 			return (byte)0;
 		}
-		if(parameter.getType().equals(int.class)
-				|| parameter.getType().equals(long.class)
-				|| parameter.getType().equals(float.class)
-				|| parameter.getType().equals(double.class)){
+		if(clazz == int.class
+				|| clazz == long.class
+				|| clazz == float.class
+				|| clazz == double.class){
 			return 0;
 		}
-		if(parameter.getType().equals(char.class)){
+		if(clazz == char.class){
 			return '\u0000';
 		}
 		return null;
@@ -407,6 +411,14 @@ public class ReflectionTool{
 			throw new RuntimeException(ex);
 		}
 		return object;
+	}
+
+	public static <T> T createNullArgsWithUnsafeAllocator(Class<T> clazz){
+		try{
+			return UNSAFE_ALLOCATOR.newInstance(clazz);
+		}catch(Exception e){
+			throw new RuntimeException("cannot call newInstance " + clazz, e);
+		}
 	}
 
 }

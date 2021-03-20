@@ -154,7 +154,7 @@ public class ClusterSettingService{
 
 		CachedSetting<?> memorySetting = settingRootFinder.getSettingByName(name).orElse(null);
 		if(memorySetting == null){
-			return ClusterSettingValidity.EXPIRED;
+			return ClusterSettingValidity.UNREFERENCED;
 		}
 
 		if(scope == ClusterSettingScope.SERVER_TYPE){

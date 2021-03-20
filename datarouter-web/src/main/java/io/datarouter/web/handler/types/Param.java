@@ -26,7 +26,9 @@ import io.datarouter.web.handler.validator.RequestParamValidator;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Param{
+
 	String value() default "";
 	String description() default "";
 	Class<? extends RequestParamValidator<?>> validator() default DefaultRequestParamValidator.class;
+
 }

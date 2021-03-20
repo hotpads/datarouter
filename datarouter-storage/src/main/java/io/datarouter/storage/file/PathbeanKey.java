@@ -17,6 +17,7 @@ package io.datarouter.storage.file;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -134,6 +135,15 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 
 	public String getFile(){
 		return file;
+	}
+
+	public Optional<String> findFirstPathSegment(){
+		if(path.isEmpty()){
+			return Optional.empty();
+		}
+		int firstSlashPosition = path.indexOf('/');
+		String firstSegment = path.substring(0, firstSlashPosition);
+		return Optional.of(firstSegment);
 	}
 
 	// override default toString() which uses percent encoding that obscures the slashes

@@ -41,7 +41,7 @@ implements SimpleDatarouterHttpClientSettings{
 			String settingNodeName){
 		super(finder, settingNodeName);
 		timeout = registerDurations("timeout", getTimeoutDefaultSettingValue());
-		numRetries = registerIntegers("numRetries", defaultTo(getNumRetriesDefault()));
+		numRetries = registerIntegers("numRetries", getNumRetriesDefault());
 		enableBreakers = registerBooleans("enableBreakers", getEnableBreakersDefault());
 	}
 
@@ -64,8 +64,8 @@ implements SimpleDatarouterHttpClientSettings{
 		return DatarouterHttpClientBuilder.DEFAULT_TIMEOUT;
 	}
 
-	protected Integer getNumRetriesDefault(){
-		return HttpRetryTool.DEFAULT_RETRY_COUNT;
+	protected DefaultSettingValue<Integer> getNumRetriesDefault(){
+		return defaultTo(HttpRetryTool.DEFAULT_RETRY_COUNT);
 	}
 
 	protected DefaultSettingValue<Boolean> getEnableBreakersDefault(){

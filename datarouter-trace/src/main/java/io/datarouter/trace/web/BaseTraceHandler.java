@@ -15,10 +15,13 @@
  */
 package io.datarouter.trace.web;
 
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import javax.inject.Inject;
 
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.TraceDto;
@@ -30,15 +33,20 @@ import io.datarouter.trace.storage.entity.UiTraceBundleDto;
 import io.datarouter.trace.storage.span.BaseTraceSpan;
 import io.datarouter.trace.storage.thread.BaseTraceThread;
 import io.datarouter.trace.storage.trace.BaseTrace;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalString;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 
 public abstract class BaseTraceHandler extends BaseHandler{
 
-	protected Mav initMav(String traceId){
+	@Inject
+	private CurrentUserSessionInfoService currentUserSessionInfoService;
+
+	protected Mav initMav(@SuppressWarnings("unused") String traceId){
 		return new Mav(getViewTraceJsp());
 	}
 
@@ -57,7 +65,7 @@ public abstract class BaseTraceHandler extends BaseHandler{
 			mav.put("errorMessage", e.getMessage());
 			return mav;
 		}
-		mav.put("trace", toJspDto(traceEnity.trace));
+		mav.put("trace", toJspDto(traceEnity.trace, currentUserSessionInfoService.getZoneId(request)));
 		List<TraceThreadDto> threads = Scanner.of(traceEnity.threads).map(BaseTraceThread::toDto).list();
 		if(threads.isEmpty()){
 			return new MessageMav("no threads found (yet)");
@@ -99,12 +107,13 @@ public abstract class BaseTraceHandler extends BaseHandler{
 	protected abstract PathNode getViewTraceJsp();
 	protected abstract UiTraceBundleDto getTrace(String traceId) throws AccessException;
 
-	protected TraceJspDto toJspDto(BaseTrace<?,?,?> trace){
+	protected TraceJspDto toJspDto(BaseTrace<?,?,?> trace, ZoneId zoneId){
 		return new TraceJspDto(
 				trace.getType(),
 				trace.getParams(),
 				trace.getCreated(),
-				trace.getDuration());
+				trace.getDuration(),
+				zoneId);
 	}
 
 	public static class TraceJspDto{
@@ -113,12 +122,14 @@ public abstract class BaseTraceHandler extends BaseHandler{
 		private final String params;
 		private final Long created;
 		private final Long duration;
+		private final ZoneId zoneId;
 
-		public TraceJspDto(String type, String params, Long created, Long duration){
+		public TraceJspDto(String type, String params, Long created, Long duration, ZoneId zoneId){
 			this.created = created;
 			this.type = type;
 			this.params = params;
 			this.duration = duration;
+			this.zoneId = zoneId;
 		}
 
 		public Long getDurationMs(){
@@ -129,8 +140,9 @@ public abstract class BaseTraceHandler extends BaseHandler{
 			return Trace2Dto.convertToMsFromNsIfNecessary(created, created);
 		}
 
-		public Date getTime(){
-			return new Date(created);
+		public String getTime(){
+			Date date = new Date(getCreatedMs());
+			return DateTool.formatDateWithZone(date, zoneId);
 		}
 
 		public String getRequestString(){

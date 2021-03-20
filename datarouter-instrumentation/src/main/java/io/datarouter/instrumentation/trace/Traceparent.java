@@ -21,7 +21,9 @@ public class Traceparent{
 
 	public static final String TRACEPARENT_DELIMITER = "-";
 	public static final String CURRENT_VERSION = "00";
+	@SuppressWarnings("unused")
 	private static final int TRACE_ID_HEX_SIZE = 32;
+	@SuppressWarnings("unused")
 	private static final int PARENT_ID_HEX_SIZE = 16;
 
 	public final String version = CURRENT_VERSION;
@@ -62,7 +64,7 @@ public class Traceparent{
 
 	// TODO: we need to update the logic to determine the traceflag
 	private static String createNewTraceFlag(){
-		return "01";
+		return TraceContextFlagMask.DEFAULT.toHexCode();
 	}
 
 	@Override
