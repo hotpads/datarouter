@@ -43,6 +43,10 @@ public class Trace2EntityKey extends BaseEntityKey<Trace2EntityKey>{
 		this.traceId = traceparent.traceId;
 	}
 
+	public Trace2EntityKey(String traceId){
+		this.traceId = traceId;
+	}
+
 	public String getTrace2EntityId(){
 		return traceId;
 	}

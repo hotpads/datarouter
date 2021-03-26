@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
+import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
@@ -47,11 +48,11 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		logRequests = registerBoolean("logRequests", false);
 		logTracesOverMs = registerInteger("logTracesOverMs", 500);
 		saveTraces = registerBooleans("saveTraces", defaultTo(false)
-				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> true)
-				.withTag(DatarouterTraceSettingTag.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACEPIPELINE, () -> true)
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		saveTracesOverMs = registerIntegers("saveTracesOverMs", defaultTo(500)
-				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> 5)
-				.withTag(DatarouterTraceSettingTag.TRACE2PIPELINE, () -> 5));
+				.withTag(DatarouterSettingTagType.TRACEPIPELINE, () -> 5)
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> 5));
 		addTraceIdHeader = registerBoolean("addTraceIdHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");
 		latencyRecordedHandlers = registerCommaSeparatedStrings("latencyRecordedHandlers", defaultTo(new HashSet<>()));

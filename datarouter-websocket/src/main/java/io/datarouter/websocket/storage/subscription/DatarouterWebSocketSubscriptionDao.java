@@ -16,6 +16,7 @@
 package io.datarouter.websocket.storage.subscription;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,20 +26,21 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.index.IndexReader;
+import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 import io.datarouter.websocket.storage.subscription.WebSocketSubscription.WebSocketSubscriptionFielder;
 
 @Singleton
 public class DatarouterWebSocketSubscriptionDao extends BaseDao{
 
-	public static class DatarouterWebSocketSubscriptionDaoParams extends BaseDaoParams{
+	public static class DatarouterWebSocketSubscriptionDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterWebSocketSubscriptionDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterWebSocketSubscriptionDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
@@ -61,10 +63,17 @@ public class DatarouterWebSocketSubscriptionDao extends BaseDao{
 	public DatarouterWebSocketSubscriptionDao(Datarouter datarouter, NodeFactory nodeFactory,
 			IndexingNodeFactory indexingNodeFactory, DatarouterWebSocketSubscriptionDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, WebSocketSubscription::new, WebSocketSubscriptionFielder::new)
-				.disableNodewatchPercentageAlert()
-				.withIsSystemTable(true)
-				.build();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					IndexedSortedMapStorageNode<WebSocketSubscriptionKey,WebSocketSubscription,
+							WebSocketSubscriptionFielder> node =
+							nodeFactory.create(clientId, WebSocketSubscription::new, WebSocketSubscriptionFielder::new)
+							.withIsSystemTable(true)
+							.disableNodewatchPercentageAlert()
+							.build();
+					return node;
+				})
+				.listTo(RedundantIndexedSortedMapStorageNode::new);
 		byToken = indexingNodeFactory.createKeyOnlyManagedIndex(WebSocketSubscriptionByUserTokenKey.class, node)
 				.build();
 		datarouter.register(node);

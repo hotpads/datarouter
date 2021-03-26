@@ -108,10 +108,10 @@ public class JobHandler extends BaseHandler{
 		Class<? extends BaseJob> jobClass = BaseJob.parseClass(name);
 		Date startTime = new Date();
 		String triggeredBy = getSessionInfo().getRequiredSession().getUsername();
-		boolean started = jobScheduler.triggerManualJob(jobClass, triggeredBy);
+		var started = jobScheduler.triggerManualJob(jobClass, triggeredBy);
 		String message;
-		if(!started){
-			message = "Could not start " + jobClass.getSimpleName();
+		if(started.failed()){
+			message = "Could not start " + jobClass.getSimpleName() + " reason=" + started.reason();
 		}else{
 			Duration elapsedTime = DurationTool.sinceDate(startTime);
 			message = "Finished manual trigger of " + jobClass.getSimpleName() + " in " + DurationTool.toString(

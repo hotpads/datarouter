@@ -21,10 +21,15 @@ import java.util.Optional;
 
 import javax.servlet.ServletContextListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.config.DatarouterJobPlugin.DatarouterJobPluginBuilder;
+import io.datarouter.job.detached.DefaultDetachedJobExecutor;
+import io.datarouter.job.detached.DetachedJobExecutor;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypes;
@@ -33,9 +38,12 @@ import io.datarouter.web.config.DatarouterWebappConfig;
 
 public abstract class DatarouterJobWebappConfigBuilder<T extends DatarouterJobWebappConfigBuilder<T>>
 extends DatarouterWebWebappConfigBuilder<T>{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterJobWebappConfigBuilder.class);
 
 	private final List<Class<? extends BaseTriggerGroup>> triggerGroups;
 	private final List<BaseJobPlugin> jobPlugins;
+
+	private Class<? extends DetachedJobExecutor> detachedJobExecutorClass = DefaultDetachedJobExecutor.class;
 
 	public static class DatarouterJobWebappBuilderImpl
 	extends DatarouterJobWebappConfigBuilder<DatarouterJobWebappBuilderImpl>{
@@ -79,10 +87,17 @@ extends DatarouterWebWebappConfigBuilder<T>{
 		addJobPluginWithoutInstalling(jobPluginBuilder.getSimplePluginData());
 		DatarouterJobPlugin jobPlugin = jobPluginBuilder
 				.setTriggerGroupClasses(triggerGroups)
+				.withDetachedJobExecutorClass(detachedJobExecutorClass)
 				.build();
 
 		modules.add(jobPlugin);
+		logger.warn("done building " + getClass().getSimpleName());
 		return super.build();
+	}
+
+	public T withDetachedJobExecutorClass(Class<? extends DetachedJobExecutor> detachedJobExecutorClass){
+		this.detachedJobExecutorClass = detachedJobExecutorClass;
+		return getSelf();
 	}
 
 	/*-------------------------- add job plugins ----------------------------*/

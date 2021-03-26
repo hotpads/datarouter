@@ -410,6 +410,11 @@ extends BaseDatabean<PK,D>{
 			this.parentId = httpRequestRecord.getParentId();
 		}
 
+		public BaseHttpRequestRecordByTraceContext(String traceId, String parentId){
+			this.traceId = traceId;
+			this.parentId = parentId;
+		}
+
 		@Override
 		public List<Field<?>> getFields(){
 			return List.of(new StringField(FieldKeys.traceId, traceId),

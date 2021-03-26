@@ -43,6 +43,10 @@ extends BaseEntityPrimaryKey<Trace2EntityKey,Trace2Key>{
 		this.entityKey = entityKey;
 	}
 
+	public Trace2Key(String traceId){
+		this.entityKey = new Trace2EntityKey(traceId);
+	}
+
 	public Trace2Key(Traceparent traceparent){
 		this.entityKey = new Trace2EntityKey(traceparent);
 		this.parentId = traceparent.parentId;

@@ -21,6 +21,9 @@ import java.util.Optional;
 
 import javax.servlet.ServletContextListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.job.config.DatarouterJobWebappConfigBuilder;
@@ -39,6 +42,7 @@ import io.datarouter.web.config.DatarouterWebappConfig;
 
 public abstract class DatarouterJobletWebappConfigBuilder<T extends DatarouterJobletWebappConfigBuilder<T>>
 extends DatarouterJobWebappConfigBuilder<T>{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterJobletWebappConfigBuilder.class);
 
 	private final ClientId defaultQueueClientId;
 	private final List<JobletType<?>> jobletTypes;
@@ -100,6 +104,7 @@ extends DatarouterJobWebappConfigBuilder<T>{
 				.withSelectorTypes(selectorTypes)
 				.build();
 		modules.add(jobletPlugin);
+		logger.warn("done building " + getClass().getSimpleName());
 		return super.build();
 	}
 

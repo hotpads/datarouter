@@ -114,6 +114,10 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		return getKey().getEntityKey().getTrace2EntityId();
 	}
 
+	public String getParentId(){
+		return getKey().getParentId();
+	}
+
 	public String getInitialParentId(){
 		return initialParentId;
 	}

@@ -103,18 +103,19 @@ public class DatarouterAccountService{
 				.collect(HashSet::new);
 	}
 
-	public Set<String> findAccountNamesForUser(SessionBasedUser user){
-		return scanAccountKeysForUser(user.getId())
-				.map(DatarouterAccountKey::getAccountName)
-				.collect(HashSet::new);
-	}
-
 	public List<String> getAllAccountNamesWithUserMappingsEnabled(){
 		return datarouterAccountDao.scan()
 				.include(DatarouterAccount::getEnableUserMappings)
 				.map(DatarouterAccount::getKey)
 				.map(DatarouterAccountKey::getAccountName)
 				.list();
+	}
+
+	public Set<String> findAccountNamesForUserWithUserMappingsEnabled(SessionBasedUser user){
+		return scanAccountForUserWithUserMappingEnabled(user.getId())
+				.map(DatarouterAccount::getKey)
+				.map(DatarouterAccountKey::getAccountName)
+				.collect(HashSet::new);
 	}
 
 	public Set<String> findAccountNamesForUserWithUserMappingsEnabled(DatarouterUserKey userKey){
@@ -136,7 +137,11 @@ public class DatarouterAccountService{
 	}
 
 	public Scanner<DatarouterAccount> scanAccountForUserWithUserMappingEnabled(DatarouterUserKey userKey){
-		var prefix = new DatarouterUserAccountMapKey(userKey.getId(), null);
+		return scanAccountForUserWithUserMappingEnabled(userKey.getId());
+	}
+
+	public Scanner<DatarouterAccount> scanAccountForUserWithUserMappingEnabled(Long userId){
+		var prefix = new DatarouterUserAccountMapKey(userId, null);
 		return datarouterUserAccountMapDao.scanKeysWithPrefix(prefix)
 				.map(DatarouterUserAccountMapKey::getDatarouterAccountKey)
 				.listTo(keys -> Scanner.of(datarouterAccountDao.getMulti(keys)))

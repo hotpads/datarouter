@@ -32,6 +32,8 @@ public class DatarouterTraceLocalSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runMemoryToSqsForTrace2;
 	public final CachedSetting<Boolean> drainSqsToLocal;
 	public final CachedSetting<Boolean> drainSqsToLocalForTrace2;
+	public final CachedSetting<Boolean> drainSqsToLocalForTrace2HttpRequestRecord;
+
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
 
 	// Jobs are not registered by default
@@ -46,6 +48,8 @@ public class DatarouterTraceLocalSettingRoot extends SettingRoot{
 		runMemoryToSqsForTrace2 = registerBooleans("runMemoryToSqsForTrace2", defaultTo(false));
 		drainSqsToLocal = registerBoolean("drainSqsToLocal", false);
 		drainSqsToLocalForTrace2 = registerBooleans("drainSqsToLocalForTrace2", defaultTo(false));
+		drainSqsToLocalForTrace2HttpRequestRecord = registerBooleans("drainSqsToLocalForTrace2HttpRequestRecord",
+				defaultTo(false));
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 
 		runVacuumJob = registerBoolean("runVacuumJob", true);

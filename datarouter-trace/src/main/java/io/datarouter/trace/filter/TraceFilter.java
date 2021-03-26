@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +43,8 @@ import com.sun.management.ThreadMXBean;
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
+import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Trace2BundleDto;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
@@ -63,13 +66,19 @@ import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherFilterToMemoryBu
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.util.UlidTool;
+import io.datarouter.util.UuidTool;
+import io.datarouter.util.array.ArrayTool;
+import io.datarouter.util.serialization.GsonTool;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tracer.DatarouterTracer;
+import io.datarouter.web.dispatcher.Dispatcher;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerMetrics;
 import io.datarouter.web.inject.InjectorRetriever;
 import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.util.RequestAttributeTool;
+import io.datarouter.web.util.http.RecordedHttpHeaders;
 import io.datarouter.web.util.http.RequestTool;
 
 public abstract class TraceFilter implements Filter, InjectorRetriever{
@@ -176,6 +185,10 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					List<TraceThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
 					List<TraceSpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 					trace.setDiscardedThreadCount(tracer.getDiscardedThreadCount());
+					String userAgent = RequestTool.getUserAgent(request);
+					String userToken = currentSessionInfo.getSession(request)
+							.map(Session::getUserToken)
+							.orElse("unknown");
 					TraceEntityDto entityDto = new TraceEntityDto(trace, threads, spans);
 					String destination = offer(entityDto);
 					// temporary use Trace to create Trace2 since they have most of the data the same except for
@@ -183,11 +196,10 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					List<Trace2ThreadDto> trace2Threads = convertToTrace2Thread(threads, traceContext.getTraceparent(),
 							spans.size());
 					List<Trace2SpanDto> trace2Spans = convertToTrace2Span(spans, traceContext.getTraceparent());
-					String destination2 = offerTrace2(new Trace2BundleDto(trace2Dto, trace2Threads, trace2Spans));
-					String userAgent = RequestTool.getUserAgent(request);
-					String userToken = currentSessionInfo.getSession(request)
-							.map(Session::getUserToken)
-							.orElse("unknown");
+					HttpRequestRecordDto httpRequestRecord = buildHttpRequestRecord(errored, request, created,
+							userToken, traceContext.getTraceparent());
+					String destination2 = offerTrace2(new Trace2BundleDto(trace2Dto, trace2Threads, trace2Spans),
+							httpRequestRecord);
 					logger.warn("Trace saved to={} traceId={} traceparent={} initialParentId={} durationMs={}"
 							+ " cpuTimeMs={} threadAllocatedKB={} path={} query={} userAgent=\"{}\" userToken={}",
 							String.join(",", destination, destination2),
@@ -222,14 +234,84 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 		}
 	}
 
+	private HttpRequestRecordDto buildHttpRequestRecord(boolean errored, HttpServletRequest request, Long receivedAt,
+			String userToken, Traceparent traceparent){
+		if(errored){
+			// an exception in a request is recorded in the ExceptionRecorder already.
+			return null;
+		}
+		receivedAt = TimeUnit.NANOSECONDS.toMillis(receivedAt);
+		long created = TimeUnit.NANOSECONDS.toMillis(Trace2Dto.getCurrentTimeInNs());
+		RecordedHttpHeaders headersWrapper = new RecordedHttpHeaders(request);
+		return new HttpRequestRecordDto(UuidTool.generateV1Uuid(),
+				new Date(created),
+				new Date(receivedAt),
+				created - receivedAt,
+				null, // no exceptionRecordId
+				traceparent.traceId,
+				traceparent.parentId,
+				request.getMethod(),
+				GsonTool.GSON.toJson(request.getParameterMap()),
+				request.getScheme(),
+				request.getServerName(),
+				request.getServerPort(),
+				request.getContextPath(),
+				getRequestPath(request),
+				request.getQueryString(),
+				getBinaryBody(request),
+				RequestTool.getIpAddress(request),
+				currentSessionInfo.getRoles(request).toString(),
+				userToken,
+				headersWrapper.getAcceptCharset(),
+				headersWrapper.getAcceptEncoding(),
+				headersWrapper.getAcceptLanguage(),
+				headersWrapper.getAccept(),
+				headersWrapper.getCacheControl(),
+				headersWrapper.getConnection(),
+				headersWrapper.getContentEncoding(),
+				headersWrapper.getContentLanguage(),
+				headersWrapper.getContentLength(),
+				headersWrapper.getContentType(),
+				headersWrapper.getCookie(),
+				headersWrapper.getDnt(),
+				headersWrapper.getHost(),
+				headersWrapper.getIfModifiedSince(),
+				headersWrapper.getOrigin(),
+				headersWrapper.getPragma(),
+				headersWrapper.getReferer(),
+				headersWrapper.getUserAgent(),
+				headersWrapper.getXForwardedFor(),
+				headersWrapper.getXRequestedWith(),
+				headersWrapper.getOthers());
+	}
+
+	private static String getRequestPath(HttpServletRequest request){
+		String requestUri = request.getRequestURI();
+		return requestUri == null ? "" : requestUri.substring(StringTool.nullSafe(request.getContextPath()).length());
+	}
+
+	private static byte[] getBinaryBody(HttpServletRequest request){
+		if(RequestAttributeTool.get(request, Dispatcher.TRANSMITS_PII).orElse(false)){
+			return HttpRequestRecordDto.CONFIDENTIALITY_MSG_BYTES;
+		}else{
+			byte[] binaryBody = RequestTool.tryGetBodyAsByteArray(request);
+			int originalLength = binaryBody.length;
+			return originalLength > HttpRequestRecordDto.BINARY_BODY_MAX_SIZE ? ArrayTool.trimToSize(binaryBody,
+					HttpRequestRecordDto.BINARY_BODY_MAX_SIZE) : binaryBody;
+		}
+	}
+
 	private String offer(TraceEntityDto dto){
 		return Stream.of(traceBufferForLocal.offer(dto), traceBufferForPublisher.offer(dto))
 				.flatMap(Optional::stream)
 				.collect(Collectors.joining(", "));
 	}
 
-	private String offerTrace2(Trace2BundleDto traceBundle){
-		return Stream.of(trace2BufferForLocal.offer(traceBundle), trace2BufferForPublisher.offer(traceBundle))
+	private String offerTrace2(Trace2BundleDto traceBundle, HttpRequestRecordDto httpRequestRecord){
+		Trace2BundleAndHttpRequestRecordDto traceAndHttpRequest = new Trace2BundleAndHttpRequestRecordDto(traceBundle,
+				httpRequestRecord);
+		return Stream.of(trace2BufferForLocal.offer(traceAndHttpRequest), trace2BufferForPublisher.offer(
+				traceAndHttpRequest))
 				.flatMap(Optional::stream)
 				.collect(Collectors.joining(", "));
 	}

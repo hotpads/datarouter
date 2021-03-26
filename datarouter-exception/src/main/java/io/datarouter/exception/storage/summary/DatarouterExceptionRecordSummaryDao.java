@@ -16,6 +16,7 @@
 package io.datarouter.exception.storage.summary;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,21 +27,23 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterExceptionRecordSummaryDao extends BaseDao{
 
-	public static class DatarouterExceptionRecordSummaryDaoParams extends BaseDaoParams{
+	public static class DatarouterExceptionRecordSummaryDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterExceptionRecordSummaryDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterExceptionRecordSummaryDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 	}
 
-	private final SortedMapStorage<ExceptionRecordSummaryKey,ExceptionRecordSummary> node;
+	private final SortedMapStorageNode<ExceptionRecordSummaryKey,ExceptionRecordSummary,
+			ExceptionRecordSummaryFielder> node;
 
 	@Inject
 	public DatarouterExceptionRecordSummaryDao(
@@ -48,12 +51,18 @@ public class DatarouterExceptionRecordSummaryDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterExceptionRecordSummaryDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(
-				params.clientId,
-				ExceptionRecordSummary::new,
-				ExceptionRecordSummaryFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<ExceptionRecordSummaryKey,ExceptionRecordSummary,
+							ExceptionRecordSummaryFielder> node =
+							nodeFactory.create(clientId, ExceptionRecordSummary::new,
+									ExceptionRecordSummaryFielder::new)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public Scanner<ExceptionRecordSummary> scan(){

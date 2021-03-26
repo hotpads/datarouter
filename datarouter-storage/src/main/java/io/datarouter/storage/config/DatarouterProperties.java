@@ -217,10 +217,10 @@ public abstract class DatarouterProperties{
 
 		if(propertyValueBySource.isPresent()){
 			//property name is found, but the value is empty
-			logger.error("found {} with empty value from {}", propertyName, propertyValueBySource.get().getRight());
+			logger.warn("found {} with empty value from {}", propertyName, propertyValueBySource.get().getRight());
 		}else{
 			//both name and value are unknown
-			logger.error("couldn't find " + propertyName + ", no default provided");
+			logger.warn("couldn't find " + propertyName + ", no default provided");
 		}
 		allComputedServerProperties.setProperty(propertyName, "");
 		return null;

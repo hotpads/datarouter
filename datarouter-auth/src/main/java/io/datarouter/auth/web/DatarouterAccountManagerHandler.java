@@ -228,10 +228,20 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			Consumer<DatarouterAccount> updateFunction,
 			String logMessage){
 		DatarouterAccount account = datarouterAccountDao.get(new DatarouterAccountKey(accountName));
+		String apiKey = account.getApiKey();
 		updateFunction.accept(account);
+		//temporary handling to avoid inconsistencies between DatarouterAccount and DatarouterAccountCredential
+		if(!apiKey.equals(account.getApiKey())){
+			//prevent overwriting other DatarouterAccountCredentials that already exist
+			if(datarouterAccountDao.scan().map(DatarouterAccount::getApiKey).anyMatch(account.getApiKey()::equals)){
+				return new DatarouterAccountDetails("Specified API key already exists. Not overwritten.");
+			}
+			//prevents multiple DatarouterAccountCredentials from being created, since apiKey is only PK field
+			datarouterAccountDao.delete(new DatarouterAccountKey(accountName));
+		}
 		datarouterAccountDao.put(account);
 		logAndRecordAction(accountName, logMessage);
-		return getDetails(accountName);
+		return getDetailsForAccountName(accountName);
 	}
 
 	private DatarouterAccountDetails getDetailsForAccount(DatarouterAccount account){
@@ -276,6 +286,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		public final List<TextPermission> permissions;
 		public final String metricLink;
 		public final String lastUsedDate;
+		public final String error;
 
 		public DatarouterAccountDetails(DatarouterAccount account, List<TextPermission> permissions, String metricLink,
 				String lastUsedDate){
@@ -283,6 +294,15 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			this.permissions = permissions;
 			this.metricLink = metricLink;
 			this.lastUsedDate = lastUsedDate;
+			this.error = null;
+		}
+
+		public DatarouterAccountDetails(String error){
+			this.account = null;
+			this.permissions = null;
+			this.metricLink = null;
+			this.lastUsedDate = null;
+			this.error = error;
 		}
 
 	}

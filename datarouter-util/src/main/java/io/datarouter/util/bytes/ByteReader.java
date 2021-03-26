@@ -99,9 +99,23 @@ public class ByteReader{
 		return skip(num * 8);
 	}
 
+	public long comparableLong(){
+		long value = LongByteTool.fromComparableBytes(bytes, position);
+		position += 8;
+		return value;
+	}
+
 	public long rawLong(){
 		long value = LongByteTool.fromRawBytes(bytes, position);
 		position += 8;
+		return value;
+	}
+
+	public long[] rawLongs(int count){
+		long[] value = new long[count];
+		for(int i = 0; i < count; ++i){
+			value[i] = rawLong();
+		}
 		return value;
 	}
 
@@ -125,6 +139,17 @@ public class ByteReader{
 	}
 
 	/*-------------- utf8 -----------------*/
+
+	public String comparableUtf8(){
+		int terminatorPosition = position;
+		while(bytes[terminatorPosition] != 0){
+			++terminatorPosition;
+		}
+		int length = terminatorPosition - position;
+		String value = new String(bytes, position, length, StandardCharsets.UTF_8);
+		position = terminatorPosition + 1;
+		return value;
+	}
 
 	public String varUtf8(){
 		byte[] bytes = varBytes();

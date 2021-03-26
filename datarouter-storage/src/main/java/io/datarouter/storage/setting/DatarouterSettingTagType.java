@@ -13,31 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.scanner;
+package io.datarouter.storage.setting;
 
-import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class DeduplicatingScanner<T,R> extends BaseLinkedScanner<T,T>{
+public enum DatarouterSettingTagType implements Supplier<DatarouterSettingTag>{
+	TRACEPIPELINE("tracePipeline"),
+	TRACE2PIPELINE("trace2Pipeline");
 
-	private final Function<T,R> mapper;
-	private boolean hasSetCurrent = false;
+	private final DatarouterSettingTag datarouterSettingTag;
 
-	public DeduplicatingScanner(Scanner<T> input, Function<T,R> mapper){
-		super(input);
-		this.mapper = mapper;
+	DatarouterSettingTagType(String persistentString){
+		this.datarouterSettingTag = new DatarouterSettingTag(persistentString);
 	}
 
 	@Override
-	public boolean advanceInternal(){
-		while(input.advance()){
-			if(!hasSetCurrent || !Objects.equals(mapper.apply(current), mapper.apply(input.current()))){
-				current = input.current();
-				hasSetCurrent = true;
-				return true;
-			}
-		}
-		return false;
+	public DatarouterSettingTag get(){
+		return datarouterSettingTag;
 	}
+
 
 }

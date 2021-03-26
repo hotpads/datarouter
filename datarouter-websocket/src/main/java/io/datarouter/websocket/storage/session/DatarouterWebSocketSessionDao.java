@@ -26,19 +26,20 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 import io.datarouter.websocket.storage.session.WebSocketSession.WebSocketSessionFielder;
 
 @Singleton
 public class DatarouterWebSocketSessionDao extends BaseDao{
 
-	public static class DatarouterWebSocketDaoParams extends BaseDaoParams{
+	public static class DatarouterWebSocketDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterWebSocketDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterWebSocketDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
@@ -49,10 +50,17 @@ public class DatarouterWebSocketSessionDao extends BaseDao{
 	public DatarouterWebSocketSessionDao(Datarouter datarouter, NodeFactory nodeFactory,
 			DatarouterWebSocketDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, WebSocketSession::new, WebSocketSessionFielder::new)
-				.disableNodewatchPercentageAlert()
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<WebSocketSessionKey,WebSocketSession,WebSocketSessionFielder> node =
+							nodeFactory.create(clientId, WebSocketSession::new, WebSocketSessionFielder::new)
+							.withIsSystemTable(true)
+							.disableNodewatchPercentageAlert()
+							.build();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public void put(WebSocketSession databean){

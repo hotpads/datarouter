@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.test;
 
+import java.util.List;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,6 +45,21 @@ public class PathbeanKeyTests{
 
 		var key3 = PathbeanKey.of("file");
 		Assert.assertTrue(key3.findFirstPathSegment().isEmpty());
+	}
+
+	@Test
+	public void testGetPathSegments(){
+		var key1 = new PathbeanKey("path1/path2/path3/", "file");
+		Assert.assertEquals(key1.getPathSegments(), List.of("path1", "path2", "path3"));
+		Assert.assertEquals(key1.getFile(), "file");
+
+		var key2 = PathbeanKey.of("path1/path2/file");
+		Assert.assertEquals(key2.getPathSegments(), List.of("path1", "path2"));
+		Assert.assertEquals(key2.getFile(), "file");
+
+		var key3 = PathbeanKey.of("file");
+		Assert.assertEquals(key3.getPathSegments(), List.of());
+		Assert.assertEquals(key3.getFile(), "file");
 	}
 
 }

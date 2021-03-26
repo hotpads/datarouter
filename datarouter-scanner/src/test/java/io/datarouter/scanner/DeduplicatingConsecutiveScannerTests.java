@@ -24,7 +24,7 @@ import java.util.TreeSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class DeduplicatingScannerTests{
+public class DeduplicatingConsecutiveScannerTests{
 
 	@Test
 	public void simpleTest(){

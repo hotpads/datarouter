@@ -18,6 +18,7 @@ package io.datarouter.model.field.imp.array;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+@SuppressWarnings("deprecation")
 public class PrimitiveLongArrayFieldTests{
 
 	@Test

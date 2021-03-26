@@ -25,6 +25,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.scheduler.JobWrapper;
+import io.datarouter.job.util.Outcome;
 
 @Singleton
 public class LocalTriggerLockService{
@@ -37,9 +38,12 @@ public class LocalTriggerLockService{
 		this.jobWrapperByJobClass = new ConcurrentHashMap<>();
 	}
 
-	public boolean acquire(JobWrapper jobWrapper){
+	public Outcome acquire(JobWrapper jobWrapper){
 		JobWrapper existingJobWrapper = jobWrapperByJobClass.putIfAbsent(jobWrapper.job.getClass(), jobWrapper);
-		return existingJobWrapper == null; // no previous JobWrapper found, so we got the lock
+
+		return existingJobWrapper == null // no previous JobWrapper found, so we got the lock
+				? Outcome.success()
+				: Outcome.failure("Unable to acquire local lock for job " + jobWrapper.job);
 	}
 
 	public void release(Class<? extends BaseJob> jobClass){

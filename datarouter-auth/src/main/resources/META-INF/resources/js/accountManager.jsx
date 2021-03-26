@@ -176,35 +176,39 @@ const AccountDetailsBreakdown = ({
 	resetSecretKeyToDefault,
 	toggleUserMappings,
 	isServerTypeDev,
-	account
+	account,
+	error
 }) => (
-	<dl>
-		<dt>Name</dt>
-		<dd>{account.key.accountName}</dd>
-		<dt>API key</dt>
-		<dd>
-			<code style={{marginRight: '1em'}}>{account.apiKey}</code>
-			<SubmitButton compact onClick={generateApiKey} value="Generate Key" />
-			{!!isServerTypeDev && <SubmitButton compact onClick={resetApiKeyToDefault} value="Reset to Default" />}
+	<div>
+		{error ? <strong style={{color: 'red'}}>{error}</strong> : ''}
+		<dl>
+			<dt>Name</dt>
+			<dd>{account.key.accountName}</dd>
+			<dt>API key</dt>
+			<dd>
+				<code style={{marginRight: '1em'}}>{account.apiKey}</code>
+				<SubmitButton compact onClick={generateApiKey} value="Generate Key" />
+				{!!isServerTypeDev && <SubmitButton compact onClick={resetApiKeyToDefault} value="Reset to Default" />}
+			</dd>
+			<dt>Secret key</dt>
+			<dd>
+				<code style={{marginRight: '1em'}}>{account.secretKey}</code>
+				<SubmitButton compact onClick={generateSecretKey} value="Generate Key" />
+				{!!isServerTypeDev && <SubmitButton compact onClick={resetSecretKeyToDefault} value="Reset to Default" />}
+			</dd>
+			<dt>Created</dt>
+			<dd>{account.created}</dd>
+			<dt>Creator</dt>
+			<dd>{account.creator}</dd>
+			<dt>Last used</dt>
+			<dd>{account.lastUsed || '-'}</dd>
+			<dt>User Mapping Enabled</dt>
+			<dd>
+				<code style={{marginRight: '1em'}}>{account.enableUserMappings ? "true" : "false"}</code>
+				<SubmitButton compact onClick={toggleUserMappings} value="Toggle" />
 		</dd>
-		<dt>Secret key</dt>
-		<dd>
-			<code style={{marginRight: '1em'}}>{account.secretKey}</code>
-			<SubmitButton compact onClick={generateSecretKey} value="Generate Key" />
-			{!!isServerTypeDev && <SubmitButton compact onClick={resetSecretKeyToDefault} value="Reset to Default" />}
-		</dd>
-		<dt>Created</dt>
-		<dd>{account.created}</dd>
-		<dt>Creator</dt>
-		<dd>{account.creator}</dd>
-		<dt>Last used</dt>
-		<dd>{account.lastUsed || '-'}</dd>
-		<dt>User Mapping Enabled</dt>
-		<dd>
-			<code style={{marginRight: '1em'}}>{account.enableUserMappings ? "true" : "false"}</code>
-			<SubmitButton compact onClick={toggleUserMappings} value="Toggle" />
-	</dd>
-	</dl>
+		</dl>
+	</div>
 )
 
 class AccountDetails extends React.Component{
@@ -231,7 +235,13 @@ class AccountDetails extends React.Component{
 
 	updateAccount(endpoint){
 		Fetch.post(endpoint, {accountName: this.state.details.account.key.accountName})
-			.then(details => this.setState({details}))
+			.then(details => {
+				if(details.error){
+					this.setState(prevState => {return {details: {...prevState.details, error: details.error}}})
+				}else{
+					this.setState({details})
+				}
+			})
 	}
 
 	resetApiKeyToDefault = () => {
@@ -296,6 +306,7 @@ class AccountDetails extends React.Component{
 					toggleUserMappings={this.toggleUserMappings}
 					isServerTypeDev={isServerTypeDev}
 					account={details.account}
+					error={details.error}
 				/>
 				{!!availableEndpoints.length &&
 					<div>

@@ -146,6 +146,13 @@ public class PathbeanKey extends BaseRegularPrimaryKey<PathbeanKey>{
 		return Optional.of(firstSegment);
 	}
 
+	public List<String> getPathSegments(){
+		if(path.isEmpty()){
+			return List.of();
+		}
+		return List.of(path.split("/"));
+	}
+
 	// override default toString() which uses percent encoding that obscures the slashes
 	@Override
 	public String toString(){

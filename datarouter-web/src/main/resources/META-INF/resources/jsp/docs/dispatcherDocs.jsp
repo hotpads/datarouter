@@ -208,7 +208,7 @@
 
 			$('.copyable').click(event => {
 				const copyable = $(event.currentTarget);
-				$('#' + copyable.data('copydest')).text(copyable.text());
+				$('#' + copyable.data('copydest')).val(copyable.text());
 			});
 
 			const urlMatchOnPageLoad = window.location.search.match(/endpoint=([^&]*)/)
@@ -309,7 +309,8 @@
 														</c:otherwise>
 													</c:choose>
 												</td>
-												<td> ${parameter.type}
+												<td>
+													<c:out value="${parameter.type}" escapeXml="true"/>
 													<c:if test="${not empty parameter.description}">
 														; ${parameter.description}
 													</c:if>

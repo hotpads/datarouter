@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import com.google.gson.Gson;
 
 import io.datarouter.conveyor.BaseConveyors;
+import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
 import io.datarouter.instrumentation.trace.TracePublisher;
 import io.datarouter.trace.conveyor.Trace2MemoryBufferToSqsConveyor;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
@@ -36,6 +37,8 @@ public class TracePublisherConveyors extends BaseConveyors{
 	@Inject
 	private TracePublisher tracePublisher;
 	@Inject
+	private ExceptionRecordPublisher httpRequstRecordPublisher;
+	@Inject
 	private TracePublisherFilterToMemoryBuffer memoryBuffer;
 	@Inject
 	private Trace2ForPublisherFilterToMemoryBuffer trace2MemoryBuffer;
@@ -43,6 +46,8 @@ public class TracePublisherConveyors extends BaseConveyors{
 	private TraceQueuePublisherDao traceQueueDao;
 	@Inject
 	private Trace2ForPublisherQueueDao trace2QueueDao;
+	@Inject
+	private Trace2ForPublisherHttpRequestRecordQueueDao trace2HttpRequestRecordQueueDao;
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
 
@@ -74,6 +79,7 @@ public class TracePublisherConveyors extends BaseConveyors{
 				settings.bufferInSqsForTrace2,
 				trace2MemoryBuffer.buffer,
 				trace2QueueDao,
+				trace2HttpRequestRecordQueueDao,
 				gson,
 				exceptionRecorder),
 				1);
@@ -84,6 +90,16 @@ public class TracePublisherConveyors extends BaseConveyors{
 				trace2QueueDao.getGroupQueueConsumer(),
 				gson,
 				tracePublisher,
+				settings.compactExceptionLoggingForConveyors,
+				exceptionRecorder),
+				1);
+
+		start(new Trace2ForPublisherHttpRequestRecordSqsDrainConveyor(
+				"trace2HttpRequestRecordSqsToPublisher",
+				settings.drainSqsToPublisherForTrace2HttpRequestRecord,
+				trace2HttpRequestRecordQueueDao.getGroupQueueConsumer(),
+				gson,
+				httpRequstRecordPublisher,
 				settings.compactExceptionLoggingForConveyors,
 				exceptionRecorder),
 				1);

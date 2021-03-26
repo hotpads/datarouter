@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.65</version>
+	<version>0.0.66</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -56,6 +56,7 @@
 		<module>datarouter-memcached</module>
 		<module>datarouter-metadata-parent</module>
 		<module>datarouter-metric</module>
+		<module>datarouter-mockito</module>
 		<module>datarouter-model</module>
 		<module>datarouter-mysql</module>
 		<module>datarouter-nodewatch</module>

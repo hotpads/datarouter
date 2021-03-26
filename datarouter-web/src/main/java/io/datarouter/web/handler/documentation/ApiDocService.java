@@ -220,7 +220,7 @@ public class ApiDocService{
 
 		return new DocumentedParameterJspDto(
 				parameterName,
-				clazz.map(Class::getSimpleName).orElse(type.toString()),
+				buildTypeString(type),
 				example,
 				isRequired,
 				requestBody,
@@ -269,7 +269,7 @@ public class ApiDocService{
 		return !type.map(cls -> Number.class.isAssignableFrom(cls)).orElse(false)
 				&& !type.map(cls -> String.class.isAssignableFrom(cls)).orElse(false)
 				&& !type.map(cls -> Boolean.class.isAssignableFrom(cls)).orElse(false)
-				&& !type.map(cls -> cls.isPrimitive()).orElse(false);
+				&& !type.map(Class::isPrimitive).orElse(false);
 	}
 
 	private static Object createBestExample(Type type, Set<Type> parents){

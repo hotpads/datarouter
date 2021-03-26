@@ -98,6 +98,20 @@ public abstract class BaseTriggerGroup{
 				triggerLockConfig));
 	}
 
+	protected void registerDetached(
+			String cronString,
+			Supplier<Boolean> shouldRunSupplier,
+			Class<? extends BaseJob> jobClass,
+			boolean warnOnReachingDuration){
+		CronExpression cronExpression = CronExpressionTool.parse(cronString);
+		validateLockedTriggerCron(jobClass, cronExpression);
+		Duration lockDuration = CronExpressionTool.durationBetweenNextTwoTriggers(cronExpression);
+		TriggerLockConfig triggerLockConfig = new TriggerLockConfig(lockName(jobClass), cronExpression, lockDuration,
+				warnOnReachingDuration);
+		jobPackages.add(JobPackage.createDetached(categoryName, cronExpression, shouldRunSupplier, jobClass,
+				triggerLockConfig));
+	}
+
 	protected void registerRequestTriggered(String persistentString, Class<? extends BaseJob> jobClass){
 		requestTriggeredJobs.put(persistentString, jobClass);
 	}

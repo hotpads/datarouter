@@ -23,25 +23,28 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadata.ExceptionRecordSummaryMetadataFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterExceptionRecordSummaryMetadataDao extends BaseDao{
 
-	public static class DatarouterExceptionRecordSummaryMetadataDaoParams extends BaseDaoParams{
+	public static class DatarouterExceptionRecordSummaryMetadataDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterExceptionRecordSummaryMetadataDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterExceptionRecordSummaryMetadataDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final SortedMapStorage<ExceptionRecordSummaryMetadataKey,ExceptionRecordSummaryMetadata> node;
+	private final SortedMapStorageNode<ExceptionRecordSummaryMetadataKey,ExceptionRecordSummaryMetadata,
+			ExceptionRecordSummaryMetadataFielder> node;
 
 	@Inject
 	public DatarouterExceptionRecordSummaryMetadataDao(
@@ -49,12 +52,18 @@ public class DatarouterExceptionRecordSummaryMetadataDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterExceptionRecordSummaryMetadataDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(
-				params.clientId,
-				ExceptionRecordSummaryMetadata::new,
-				ExceptionRecordSummaryMetadataFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<ExceptionRecordSummaryMetadataKey,ExceptionRecordSummaryMetadata,
+							ExceptionRecordSummaryMetadataFielder> node =
+							nodeFactory.create(clientId, ExceptionRecordSummaryMetadata::new,
+									ExceptionRecordSummaryMetadataFielder::new)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public ExceptionRecordSummaryMetadata get(ExceptionRecordSummaryMetadataKey key){

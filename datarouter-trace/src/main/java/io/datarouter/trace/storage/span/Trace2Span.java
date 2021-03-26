@@ -92,6 +92,14 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		return this.parentSequence == null;
 	}
 
+	public Long getThreadId(){
+		return getKey().getThreadId();
+	}
+
+	public Integer getSequence(){
+		return getKey().getSequence();
+	}
+
 	public String getName(){
 		return name;
 	}

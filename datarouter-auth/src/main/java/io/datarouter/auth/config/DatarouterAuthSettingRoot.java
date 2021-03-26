@@ -30,6 +30,7 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runDatarouterAccountLastUsedFlushJob;
 	public final CachedSetting<Boolean> runUserSessionVacuumJob;
 	public final CachedSetting<Boolean> runConfigurationScanReportEmailJob;
+	public final CachedSetting<Boolean> shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount;
 
 	@Inject
 	public DatarouterAuthSettingRoot(SettingFinder finder){
@@ -39,6 +40,8 @@ public class DatarouterAuthSettingRoot extends SettingRoot{
 		runDatarouterAccountLastUsedFlushJob = registerBoolean("runDatarouterAccountLastUsedFlushJob", true);
 		runUserSessionVacuumJob = registerBoolean("runUserSessionVacuum", false);
 		runConfigurationScanReportEmailJob = registerBoolean("runConfigurationScanReportEmailJob", false);
+		shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount = registerBoolean(
+				"shouldUseDatarouterAccountCredentialInsteadOfDatarouterAccount", true);
 	}
 
 }

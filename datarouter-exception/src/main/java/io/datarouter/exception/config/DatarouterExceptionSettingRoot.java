@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
+import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -50,7 +51,8 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 		runExceptionRecordVacuum = registerBoolean("runExceptionRecordVacuum", false);
 		runHttpRequestRecordVacuumJob = registerBoolean("runHttpRequestRecordVacuumJob", false);
 
-		publishRecords = registerBoolean("publishRecords", false);
+		publishRecords = registerBooleans("publishRecords", defaultTo(false)
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 	}

@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.MemoryBuffer;
-import io.datarouter.instrumentation.trace.Trace2BundleDto;
+import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
 import io.datarouter.storage.setting.Setting;
 
 public abstract class BaseTrace2FilterToMemoryBuffer{
@@ -29,7 +29,7 @@ public abstract class BaseTrace2FilterToMemoryBuffer{
 
 	private static final int MAX_TRACES = 1_000;
 
-	public final MemoryBuffer<Trace2BundleDto> buffer;
+	public final MemoryBuffer<Trace2BundleAndHttpRequestRecordDto> buffer;
 	private final Setting<Boolean> shouldRunSetting;
 
 	public BaseTrace2FilterToMemoryBuffer(String bufferName, Setting<Boolean> shouldRun){
@@ -37,17 +37,17 @@ public abstract class BaseTrace2FilterToMemoryBuffer{
 		this.shouldRunSetting = shouldRun;
 	}
 
-	public Optional<String> offer(Trace2BundleDto dto){
+	public Optional<String> offer(Trace2BundleAndHttpRequestRecordDto dto){
 		return offerDtoToBuffer(dto);
 	}
 
-	private Optional<String> offerDtoToBuffer(Trace2BundleDto bundleDto){
+	private Optional<String> offerDtoToBuffer(Trace2BundleAndHttpRequestRecordDto dto){
 		if(!shouldRunSetting.get()){
 			return Optional.empty();
 		}
-		if(!buffer.offer(bundleDto)){
-			logger.warn("error offering trace entity buffer={} traceId={}", buffer.getName(), bundleDto.traceDto
-					.getTraceparent());
+		if(!buffer.offer(dto)){
+			logger.warn("error offering trace entity buffer={} traceId={}", buffer.getName(),
+					dto.traceBundleDto.traceDto.getTraceparent());
 			return Optional.empty();
 		}
 		return Optional.of(buffer.getName());

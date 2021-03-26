@@ -62,6 +62,18 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 		this.enableUserMappings = false;
 	}
 
+	//temporary
+	DatarouterAccount(String accountName, String apiKey, String secretKey, Date created, String creator, Date lastUsed,
+			Boolean enableUserMappings){
+		super(new DatarouterAccountKey(accountName));
+		this.apiKey = apiKey;
+		this.secretKey = secretKey;
+		this.created = created;
+		this.creator = creator;
+		this.lastUsed = lastUsed;
+		this.enableUserMappings = enableUserMappings;
+	}
+
 	public static class DatarouterAccountFielder extends BaseDatabeanFielder<DatarouterAccountKey,DatarouterAccount>{
 
 		public DatarouterAccountFielder(){
@@ -138,6 +150,20 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 
 	public void setEnableUserMappings(boolean enableUserMappings){
 		this.enableUserMappings = enableUserMappings;
+	}
+
+	//temporary methods
+
+	Date getCreated(){
+		return created;
+	}
+
+	String getCreator(){
+		return creator;
+	}
+
+	Date getLastUsed(){
+		return lastUsed;
 	}
 
 }

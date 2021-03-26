@@ -68,6 +68,10 @@ public class DatarouterClusterTriggerLockDao extends BaseDao{
 		datarouter.register(node);
 	}
 
+	public ClusterTriggerLock get(ClusterTriggerLockKey key){
+		return node.get(key);
+	}
+
 	public void putAndAcquire(ClusterTriggerLock databean){
 		node.put(databean, new Config()
 				.setPutMethod(PutMethod.INSERT_OR_BUST)

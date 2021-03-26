@@ -13,26 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.trace.storage.entity;
+package io.datarouter.instrumentation.trace;
 
-import java.util.List;
+import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 
-import io.datarouter.trace.storage.span.Trace2Span;
-import io.datarouter.trace.storage.thread.Trace2Thread;
-import io.datarouter.trace.storage.trace.Trace2;
+public class Trace2BundleAndHttpRequestRecordDto{
 
-public class UiTrace2BundleDto{
+	public final Trace2BundleDto traceBundleDto;
+	public final HttpRequestRecordDto httpRequestRecord;
 
-	public final String account;
-	public final Trace2 trace;
-	public final List<Trace2Thread> threads;
-	public final List<Trace2Span> spans;
-
-	public UiTrace2BundleDto(String account, Trace2 trace, List<Trace2Thread> threads, List<Trace2Span> spans){
-		this.account = account;
-		this.trace = trace;
-		this.threads = threads;
-		this.spans = spans;
+	public Trace2BundleAndHttpRequestRecordDto(Trace2BundleDto traceBundleDto, HttpRequestRecordDto httpRequestRecord){
+		this.traceBundleDto = traceBundleDto;
+		this.httpRequestRecord = httpRequestRecord;
 	}
 
 }

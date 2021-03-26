@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
+import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -32,6 +33,7 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runMemoryToSqsForTrace2;
 	public final CachedSetting<Boolean> drainSqsToPublisher;
 	public final CachedSetting<Boolean> drainSqsToPublisherForTrace2;
+	public final CachedSetting<Boolean> drainSqsToPublisherForTrace2HttpRequestRecord;
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
 
 	@Inject
@@ -40,15 +42,18 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 
 		bufferInSqs = registerBoolean("bufferInSqs", true);
 		bufferInSqsForTrace2 = registerBooleans("bufferInSqsForTrace2", defaultTo(false)
-				.withTag(DatarouterTraceSettingTag.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		runMemoryToSqs = registerBooleans("runMemoryToSqs", defaultTo(false)
-				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACEPIPELINE, () -> true));
 		runMemoryToSqsForTrace2 = registerBooleans("runMemoryToSqsForTrace2", defaultTo(false)
-				.withTag(DatarouterTraceSettingTag.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		drainSqsToPublisher = registerBooleans("drainSqsToPublisher", defaultTo(false)
-				.withTag(DatarouterTraceSettingTag.TRACEPIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACEPIPELINE, () -> true));
 		drainSqsToPublisherForTrace2 = registerBooleans("drainSqsToPublisherForTrace2", defaultTo(false)
-				.withTag(DatarouterTraceSettingTag.TRACE2PIPELINE, () -> true));
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		drainSqsToPublisherForTrace2HttpRequestRecord = registerBooleans(
+				"drainSqsToPublisherForTrace2HttpRequestRecord", defaultTo(false)
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 	}
 

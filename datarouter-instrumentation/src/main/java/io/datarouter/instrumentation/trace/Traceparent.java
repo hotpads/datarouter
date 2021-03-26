@@ -37,6 +37,10 @@ public class Traceparent{
 		this.traceFlags = traceFlags;
 	}
 
+	public Traceparent(String traceId, String parentId){
+		this(traceId, parentId, createNewTraceFlag());
+	}
+
 	public static Traceparent generateNew(long createdTimestamp){
 		return new Traceparent(createNewTraceId(createdTimestamp), createNewParentId(),
 				createNewTraceFlag());

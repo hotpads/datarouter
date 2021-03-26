@@ -35,6 +35,7 @@ public class JobPackage implements Comparable<JobPackage>{
 	public final Supplier<Boolean> shouldRunSupplier;
 	public final Class<? extends BaseJob> jobClass;
 	public final Optional<TriggerLockConfig> triggerLockConfig;
+	public final boolean shouldRunDetached;
 
 	public static JobPackage createParallel(
 			String jobCategoryName,
@@ -53,6 +54,15 @@ public class JobPackage implements Comparable<JobPackage>{
 		return new JobPackage(jobCategoryName, cronExpression, shouldRunSupplier, jobClass, triggerLockConfig);
 	}
 
+	public static JobPackage createDetached(
+			String jobCategoryName,
+			CronExpression cronExpression,
+			Supplier<Boolean> shouldRunSupplier,
+			Class<? extends BaseJob> jobClass,
+			TriggerLockConfig triggerLockConfig){
+		return new JobPackage(jobCategoryName, cronExpression, shouldRunSupplier, jobClass, triggerLockConfig, true);
+	}
+
 	public static JobPackage createManualFromScheduledPackage(JobPackage scheduled){
 		//if the job normally requires locking, then the manual trigger will respect that, but there is no deadline
 		TriggerLockConfig manualTriggerLockConfig = scheduled.triggerLockConfig
@@ -67,11 +77,22 @@ public class JobPackage implements Comparable<JobPackage>{
 			Supplier<Boolean> shouldRunSupplier,
 			Class<? extends BaseJob> jobClass,
 			TriggerLockConfig triggerLockConfig){
+		this(jobCategoryName, cronExpression, shouldRunSupplier, jobClass, triggerLockConfig, false);
+	}
+
+	private JobPackage(
+			String jobCategoryName,
+			CronExpression cronExpression,
+			Supplier<Boolean> shouldRunSupplier,
+			Class<? extends BaseJob> jobClass,
+			TriggerLockConfig triggerLockConfig,
+			boolean shouldRunDetached){
 		this.jobCategoryName = jobCategoryName;
 		this.cronExpression = Optional.ofNullable(cronExpression);
 		this.shouldRunSupplier = shouldRunSupplier;
 		this.jobClass = jobClass;
 		this.triggerLockConfig = Optional.ofNullable(triggerLockConfig);
+		this.shouldRunDetached = shouldRunDetached;
 	}
 
 	public boolean shouldRun(){

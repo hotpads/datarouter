@@ -20,6 +20,8 @@ import java.util.List;
 
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.TriggerGroupClasses;
+import io.datarouter.job.detached.DefaultDetachedJobExecutor;
+import io.datarouter.job.detached.DetachedJobExecutor;
 import io.datarouter.job.metriclink.AppJobsMetricLinkPage;
 import io.datarouter.job.metriclink.DatarouterJobsMetricLinkPage;
 import io.datarouter.job.scheduler.JobSchedulerAppListener;
@@ -36,15 +38,20 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 public class DatarouterJobPlugin extends BaseJobPlugin{
 
 	private final List<Class<? extends BaseTriggerGroup>> triggerGroupClasses;
+	private final Class<? extends DetachedJobExecutor> detachedJobExecutorClass;
 
-	private DatarouterJobPlugin(DatarouterJobDaoModule daosModuleBuilder){
-		this(null, daosModuleBuilder);
+	private DatarouterJobPlugin(
+			DatarouterJobDaoModule daosModuleBuilder,
+			Class<? extends DetachedJobExecutor> detachedJobExecutorClass){
+		this(null, daosModuleBuilder, detachedJobExecutorClass);
 	}
 
 	private DatarouterJobPlugin(
 			List<Class<? extends BaseTriggerGroup>> triggerGroupClasses,
-			DatarouterJobDaoModule daosModuleBuilder){
+			DatarouterJobDaoModule daosModuleBuilder,
+			Class<? extends DetachedJobExecutor> detachedJobExecutorClass){
 		this.triggerGroupClasses = triggerGroupClasses;
+		this.detachedJobExecutorClass = detachedJobExecutorClass;
 
 		addAppListener(JobSchedulerAppListener.class);
 		addRouteSetOrdered(DatarouterJobRouteSet.class, DatarouterWebRouteSet.class);
@@ -67,6 +74,7 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 	@Override
 	public void configure(){
 		bind(TriggerGroupClasses.class).toInstance(new TriggerGroupClasses(triggerGroupClasses));
+		bind(DetachedJobExecutor.class).to(this.detachedJobExecutorClass);
 	}
 
 	public static class DatarouterJobDaoModule extends DaosModuleBuilder{
@@ -104,6 +112,8 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 
 		private List<Class<? extends BaseTriggerGroup>> triggerGroupClasses = new ArrayList<>();
 
+		private Class<? extends DetachedJobExecutor> detachedJobExecutorClass = DefaultDetachedJobExecutor.class;
+
 		public DatarouterJobPluginBuilder(List<ClientId> defaultClientIds){
 			this.defaultClientIds = defaultClientIds;
 		}
@@ -114,15 +124,23 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterJobPluginBuilder withDetachedJobExecutorClass(
+				Class<? extends DetachedJobExecutor> detachedJobExecutorClass){
+			this.detachedJobExecutorClass = detachedJobExecutorClass;
+			return this;
+		}
+
 		public DatarouterJobPlugin getSimplePluginData(){
 			return new DatarouterJobPlugin(
-					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds));
+					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds),
+					detachedJobExecutorClass);
 		}
 
 		public DatarouterJobPlugin build(){
 			return new DatarouterJobPlugin(
 					triggerGroupClasses,
-					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds));
+					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds),
+					detachedJobExecutorClass);
 		}
 
 	}

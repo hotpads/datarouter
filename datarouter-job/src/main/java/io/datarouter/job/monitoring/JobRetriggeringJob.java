@@ -84,8 +84,10 @@ public class JobRetriggeringJob extends BaseJob{
 	}
 
 	private boolean runningAgainSoon(JobPackage jobPackage){
-		return jobPackage.getNextValidTimeAfter(new Date())
-				.map(nextTrigger -> Duration.between(Instant.now(), nextTrigger.toInstant()))
+		//look backwards a little to avoid jobs that are triggering at the same time as this JobRetriggeringJob
+		Instant from = Instant.now().minus(Duration.ofSeconds(30));
+		return jobPackage.getNextValidTimeAfter(Date.from(from))
+				.map(nextTrigger -> Duration.between(from, nextTrigger.toInstant()))
 				.map(delay -> delay.compareTo(THRESHOLD) < 0)
 				.orElse(true);
 	}

@@ -23,8 +23,12 @@ import io.datarouter.job.BaseJob;
 
 public class AccountPermissionCacheRefreshJob extends BaseJob{
 
+	private final DatarouterAccountPermissionKeysByPrefixCache cache;
+
 	@Inject
-	private DatarouterAccountPermissionKeysByPrefixCache cache;
+	public AccountPermissionCacheRefreshJob(DatarouterAccountPermissionKeysByPrefixCache cache){
+		this.cache = cache;
+	}
 
 	@Override
 	public void run(TaskTracker tracker){

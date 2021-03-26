@@ -120,6 +120,27 @@ public class ReplicationNodeFactory{
 		return make(primary, replicas);
 	}
 
+	public <EK extends EntityKey<EK>,
+			PK extends EntityPrimaryKey<EK,PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			N extends NodeOps<PK,D>>
+	N build(
+			ClientId primaryClientId,
+			Collection<ClientId> replicaClientIds,
+			Supplier<EK> entityKeySupplier,
+			Supplier<D> databeanSupplier,
+			Supplier<F> fielderSupplier,
+			NodewatchConfigurationBuilder nodewatchConfigurationBuilder){
+		N primary = nodeFactory.create(primaryClientId, entityKeySupplier, databeanSupplier, fielderSupplier)
+				.withNodewatchConfigurationBuilder(nodewatchConfigurationBuilder)
+				.build();
+		Function<ClientId,N> buildReplicaFunction = clientId -> nodeFactory.create(clientId, entityKeySupplier,
+				databeanSupplier, fielderSupplier).build();
+		List<N> replicas = Scanner.of(replicaClientIds).map(buildReplicaFunction).list();
+		return make(primary, replicas);
+	}
+
 	public <PK extends RegularPrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,

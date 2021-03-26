@@ -16,6 +16,7 @@
 package io.datarouter.trace.conveyor;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
@@ -27,9 +28,11 @@ import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
 import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.conveyor.message.ConveyorMessage;
-import io.datarouter.instrumentation.trace.Trace2BundleDto;
+import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Traceparent;
+import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.trace.storage.BaseTrace2HttpRequestRecordQueueDao;
 import io.datarouter.trace.storage.BaseTraceQueueDao;
 import io.datarouter.web.exception.ExceptionRecorder;
 
@@ -40,33 +43,40 @@ public class Trace2MemoryBufferToSqsConveyor extends BaseConveyor{
 
 	private final Supplier<Boolean> shouldBufferInSqs;
 	private final BaseTraceQueueDao traceQueueDao;
-	private final MemoryBuffer<Trace2BundleDto> buffer;
+	private final BaseTrace2HttpRequestRecordQueueDao traceHttpReqeustRecordDao;
+	private final MemoryBuffer<Trace2BundleAndHttpRequestRecordDto> buffer;
 	private final Gson gson;
 
 	public Trace2MemoryBufferToSqsConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
 			Supplier<Boolean> shouldBufferInSqs,
-			MemoryBuffer<Trace2BundleDto> buffer,
+			MemoryBuffer<Trace2BundleAndHttpRequestRecordDto> buffer,
 			BaseTraceQueueDao traceQueueDao,
+			BaseTrace2HttpRequestRecordQueueDao traceHttpReqeustRecordDao,
 			Gson gson,
 			ExceptionRecorder exceptionRecorder){
 		super(name, shouldRun, () -> false, exceptionRecorder);
 		this.shouldBufferInSqs = shouldBufferInSqs;
 		this.traceQueueDao = traceQueueDao;
+		this.traceHttpReqeustRecordDao = traceHttpReqeustRecordDao;
 		this.buffer = buffer;
 		this.gson = gson;
 	}
 
-	public void processTraceEntityDtos(List<Trace2BundleDto> dtos){
+	public void processTraceEntityDtos(List<Trace2BundleAndHttpRequestRecordDto> dtos){
 		if(shouldBufferInSqs.get()){
-			Scanner.of(dtos).map(this::toMessage).flush(traceQueueDao::putMulti);
+			Scanner.of(dtos).map(this::toTrace2Message).flush(traceQueueDao::putMulti);
+			Scanner.of(dtos)
+				.map(this::toHttpReqRecordMessage)
+				.concat(OptionalScanner::of)
+				.flush(traceHttpReqeustRecordDao::putMulti);
 		}
 	}
 
 	@Override
 	public ProcessBatchResult processBatch(){
-		List<Trace2BundleDto> dtos = buffer.pollMultiWithLimit(BATCH_SIZE);
+		List<Trace2BundleAndHttpRequestRecordDto> dtos = buffer.pollMultiWithLimit(BATCH_SIZE);
 		if(dtos.isEmpty()){
 			return new ProcessBatchResult(false);
 		}
@@ -75,15 +85,24 @@ public class Trace2MemoryBufferToSqsConveyor extends BaseConveyor{
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, dtos.size());
 			return new ProcessBatchResult(true);
 		}catch(RuntimeException putMultiException){
-			List<Traceparent> ids = Scanner.of(dtos).map(dto -> dto.traceDto.traceparent).list();
+			List<Traceparent> ids = Scanner.of(dtos).map(dto -> dto.traceBundleDto.traceDto.traceparent).list();
 			logger.warn("exception sending trace to sqs ids={}", ids, putMultiException);
 			ConveyorCounters.inc(this, "putMulti exception", 1);
 			return new ProcessBatchResult(false);//backoff for a bit
 		}
 	}
 
-	protected ConveyorMessage toMessage(Trace2BundleDto dto){
-		return new ConveyorMessage(dto.traceDto.traceparent.toString(), gson.toJson(dto));
+	protected ConveyorMessage toTrace2Message(Trace2BundleAndHttpRequestRecordDto dto){
+		return new ConveyorMessage(dto.traceBundleDto.traceDto.traceparent.toString(), gson.toJson(dto.traceBundleDto));
+	}
+
+	protected Optional<ConveyorMessage> toHttpReqRecordMessage(Trace2BundleAndHttpRequestRecordDto dto){
+		// when there's an exception, httpRequestRecord is recorded through exceptionRecorder
+		if(dto.httpRequestRecord == null){
+			return Optional.empty();
+		}
+		return Optional.of(new ConveyorMessage(dto.traceBundleDto.traceDto.traceparent.toString(), gson.toJson(
+				dto.httpRequestRecord)));
 	}
 
 }

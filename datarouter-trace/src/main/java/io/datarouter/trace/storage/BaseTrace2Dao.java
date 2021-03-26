@@ -19,14 +19,15 @@ import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.instrumentation.trace.Traceparent;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.trace.storage.entity.Trace2Bundle;
 import io.datarouter.trace.storage.entity.Trace2EntityKey;
-import io.datarouter.trace.storage.entity.UiTrace2BundleDto;
 import io.datarouter.trace.storage.span.Trace2Span;
 import io.datarouter.trace.storage.span.Trace2Span.Trace2SpanFielder;
 import io.datarouter.trace.storage.span.Trace2SpanKey;
@@ -94,9 +95,14 @@ public abstract class BaseTrace2Dao extends BaseDao{
 		traceNode.putMulti(traceDatabean, CONFIG);
 	}
 
-	public Optional<UiTrace2BundleDto> getEntity(Traceparent traceparent){
+	public Scanner<Trace2> scanWithPrefixAnyDelay(String traceId){
+		return traceNode.scanWithPrefix(new Trace2Key(traceId));
+	}
+
+
+	public Optional<Trace2Bundle> getEntity(Traceparent traceparent){
 		return traceNode.find(new Trace2Key(traceparent))
-				.map(trace -> new UiTrace2BundleDto(
+				.map(trace -> new Trace2Bundle(
 						trace.getServiceName(),
 						trace,
 						traceThreadNode.scanWithPrefix(new Trace2ThreadKey(traceparent, null)).list(),

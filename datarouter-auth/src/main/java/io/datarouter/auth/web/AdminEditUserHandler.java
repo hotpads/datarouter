@@ -324,7 +324,7 @@ public class AdminEditUserHandler extends BaseHandler{
 				roleManager.getConferrableRoles(getSessionInfo().getRoles()),
 				roles,
 				datarouterAccountService.getAllAccountNamesWithUserMappingsEnabled(),
-				datarouterAccountService.findAccountNamesForUser(user),
+				datarouterAccountService.findAccountNamesForUserWithUserMappingsEnabled(user),
 				true,
 				"",
 				user.getZoneId().map(ZoneId::getId).orElse(datarouterService.getZoneId().getId()));

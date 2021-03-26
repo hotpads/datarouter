@@ -98,6 +98,9 @@ public class ByteWriter{
 	}
 
 	private int lastPageFreeSpace(){
+		if(pages.isEmpty()){
+			return 0;
+		}
 		return pageSize - lastPageSize;
 	}
 
@@ -183,12 +186,29 @@ public class ByteWriter{
 		return this;
 	}
 
+	public ByteWriter comparableLong(long value){
+		if(lastPageFreeSpace() < 8){
+			bytes(LongByteTool.getComparableBytes(value));
+		}else{
+			LongByteTool.toComparableBytes(value, lastPage(), lastPageSize);
+			lastPageSize += 8;
+		}
+		return this;
+	}
+
 	public ByteWriter rawLong(long value){
 		if(lastPageFreeSpace() < 8){
 			bytes(LongByteTool.getRawBytes(value));
 		}else{
 			LongByteTool.toRawBytes(value, lastPage(), lastPageSize);
 			lastPageSize += 8;
+		}
+		return this;
+	}
+
+	public ByteWriter rawLongs(long[] values){
+		for(int i = 0; i < values.length; ++i){
+			rawLong(values[i]);
 		}
 		return this;
 	}
@@ -201,6 +221,13 @@ public class ByteWriter{
 	public ByteWriter varUtf8(String value){
 		byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
 		varBytes(bytes);
+		return this;
+	}
+
+	public ByteWriter comparableUtf8(String value){
+		byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+		bytes(bytes);
+		bytes(new byte[]{0});
 		return this;
 	}
 

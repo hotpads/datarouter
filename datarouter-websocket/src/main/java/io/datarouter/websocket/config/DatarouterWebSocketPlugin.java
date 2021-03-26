@@ -86,7 +86,7 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 
 	public static class DatarouterWebSocketPluginBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientId;
 		private final Class<? extends WebSocketServices> webSocketServices;
 		private final String pushServiceCipherKey;
 		private final String pushServiceSalt;
@@ -96,7 +96,7 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 		private DatarouterWebSocketDaoDaoModule daosModule;
 
 		public DatarouterWebSocketPluginBuilder(
-				ClientId defaultClientId,
+				List<ClientId> defaultClientId,
 				Class<? extends WebSocketServices> webSocketServicesClass,
 				@SuppressWarnings("unused")// found at runtime. ides will show this as unused
 				Class<? extends GuiceWebSocketConfig> webSocketConfig,
@@ -117,8 +117,8 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 		}
 
 		public DatarouterWebSocketPluginBuilder setDaosModule(
-				ClientId webSocketClientId,
-				ClientId webSocketSubscriptionClientId){
+				List<ClientId> webSocketClientId,
+				List<ClientId> webSocketSubscriptionClientId){
 			this.daosModule = new DatarouterWebSocketDaoDaoModule(webSocketClientId, webSocketSubscriptionClientId);
 			return this;
 		}
@@ -138,12 +138,12 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 
 	public static class DatarouterWebSocketDaoDaoModule extends DaosModuleBuilder{
 
-		private final ClientId webSocketClientId;
-		private final ClientId webSocketSubscriptionClientId;
+		private final List<ClientId> webSocketClientId;
+		private final List<ClientId> webSocketSubscriptionClientId;
 
 		public DatarouterWebSocketDaoDaoModule(
-				ClientId webSocketClientId,
-				ClientId webSocketSubscriptionClientId){
+				List<ClientId> webSocketClientId,
+				List<ClientId> webSocketSubscriptionClientId){
 			this.webSocketClientId = webSocketClientId;
 			this.webSocketSubscriptionClientId = webSocketSubscriptionClientId;
 		}

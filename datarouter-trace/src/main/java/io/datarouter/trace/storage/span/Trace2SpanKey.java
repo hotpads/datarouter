@@ -85,4 +85,8 @@ extends BaseEntityPrimaryKey<Trace2EntityKey,Trace2SpanKey>{
 		return threadId;
 	}
 
+	public Integer getSequence(){
+		return sequence;
+	}
+
 }

@@ -43,6 +43,8 @@ public class LocalTraceConveyors extends BaseConveyors{
 	@Inject
 	private Trace2ForLocalQueueDao trace2QueueDao;
 	@Inject
+	private Trace2ForLocalHttpRequestRecordQueueDao trace2HttpRequestRecordQueueDao;
+	@Inject
 	private BaseDatarouterTraceDao traceDao;
 	@Inject
 	private Trace2ForLocalDao trace2Dao;
@@ -77,6 +79,7 @@ public class LocalTraceConveyors extends BaseConveyors{
 				settings.bufferInSqsForTrace2,
 				trace2MemoryBuffer.buffer,
 				trace2QueueDao,
+				trace2HttpRequestRecordQueueDao,
 				gson,
 				exceptionRecorder),
 				1);
@@ -87,6 +90,15 @@ public class LocalTraceConveyors extends BaseConveyors{
 				trace2QueueDao.getGroupQueueConsumer(),
 				gson,
 				trace2Dao,
+				settings.compactExceptionLoggingForConveyors,
+				exceptionRecorder),
+				1);
+
+		start(new Trace2ForLocalHttpRequestRecordSqsDrainConveyor(
+				"trace2HttpRequestRecordSqsToLocalStorage",
+				settings.drainSqsToLocalForTrace2HttpRequestRecord,
+				trace2HttpRequestRecordQueueDao.getGroupQueueConsumer(),
+				gson,
 				settings.compactExceptionLoggingForConveyors,
 				exceptionRecorder),
 				1);
