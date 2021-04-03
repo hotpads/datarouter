@@ -25,10 +25,16 @@ import io.datarouter.util.concurrent.NamedThreadFactory;
 public class DatarouterAuthExecutors{
 
 	@Singleton
-	public static class DatarouterAccountByApiKeyCacheExecutor extends ScheduledThreadPoolExecutor{
-		public DatarouterAccountByApiKeyCacheExecutor(){
-			super(1, new NamedThreadFactory("DatarouterAccountByApiKeyCacheExecutor", true));
+	public static class DatarouterAccountCredentialCacheExecutor extends ScheduledThreadPoolExecutor{
+
+		public DatarouterAccountCredentialCacheExecutor(){
+			this("DatarouterAccountCredentialCacheExecutor");
 		}
+
+		public DatarouterAccountCredentialCacheExecutor(String name){
+			super(1, new NamedThreadFactory(name, true));
+		}
+
 	}
 
 }

@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.auth.storage.account.DatarouterAccount;
+import io.datarouter.auth.storage.account.DatarouterAccountCredential;
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.web.security.CsrfValidator;
@@ -66,8 +66,8 @@ public class DatarouterAccountCsrfValidator implements CsrfValidator{
 
 	private Optional<DefaultCsrfValidator> getCsrfValidatorForAccountWithApiKey(HttpServletRequest request){
 		String apiKey = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
-		return datarouterAccountService.findAccountForApiKey(apiKey)
-				.map(DatarouterAccount::getSecretKey)
+		return datarouterAccountService.findAccountCredentialForApiKeyAuth(apiKey)
+				.map(DatarouterAccountCredential::getSecretKey)
 				.map(secretKey -> (Supplier<String>)(() -> secretKey))
 				.map(secretKey -> new DefaultCsrfValidator(new DefaultCsrfGenerator(secretKey), requestTimeoutMs));
 	}

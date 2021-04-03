@@ -17,14 +17,12 @@ package io.datarouter.auth.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
-import io.datarouter.auth.storage.account.DatarouterAccount;
-import io.datarouter.auth.storage.account.DatarouterAccountKey;
+import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
+import io.datarouter.auth.storage.account.DatarouterAccountCredential;
 import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.autoconfig.ConfigScanDto;
@@ -36,41 +34,25 @@ import io.datarouter.web.user.databean.DatarouterUserKey;
 public class DatarouterAuthConfigScanner{
 
 	@Inject
-	private BaseDatarouterAccountDao datarouterAccountDao;
-	@Inject
-	private DatarouterAccountService datarouterAccountService;
+	private BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao;
 	@Inject
 	private DatarouterUserDao datarouterUserDao;
 	@Inject
 	private DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
 
 	public ConfigScanDto checkDatarouterAccountsWithDefaultKeys(){
-		List<String> accounts = datarouterAccountDao.scan()
-				.include(account -> StringTool.equalsCaseInsensitive(account.getApiKey(),
+		List<String> accounts = datarouterAccountCredentialDao.scan()
+				.include(credential -> StringTool.equalsCaseInsensitive(credential.getKey().getApiKey(),
 						defaultDatarouterAccountKeys.getDefaultApiKey())
-						|| StringTool.equalsCaseInsensitive(account.getSecretKey(),
+						|| StringTool.equalsCaseInsensitive(credential.getSecretKey(),
 								defaultDatarouterAccountKeys.getDefaultSecretKey()))
-				.map(DatarouterAccount::getKey)
-				.map(DatarouterAccountKey::getAccountName)
+				.map(DatarouterAccountCredential::getAccountName)
 				.list();
 		if(accounts.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
 		}
-		String header = "Found " + accounts.size() + " account(s) with the default apiKey or secretKey";
+		String header = "Found " + accounts.size() + " account credential(s) with the default apiKey or secretKey";
 		return ConfigScanResponseTool.buildResponse(header, accounts);
-	}
-
-
-	public ConfigScanDto checkDatarouterAccountsForDuplicateApiKeys(){
-		List<String> accountsWithDuplicateKeys = datarouterAccountService.getAccountsWithDuplicateApiKey().stream()
-				.map(DatarouterAccount::getKey)
-				.map(DatarouterAccountKey::getAccountName)
-				.collect(Collectors.toList());
-		if(accountsWithDuplicateKeys.isEmpty()){
-			return ConfigScanResponseTool.buildEmptyResponse();
-		}
-		String header = "Found " + accountsWithDuplicateKeys.size() + " accounts with duplicate api keys";
-		return ConfigScanResponseTool.buildResponse(header, accountsWithDuplicateKeys);
 	}
 
 	public ConfigScanDto checkForDefaultUserId(){

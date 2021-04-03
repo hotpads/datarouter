@@ -23,8 +23,12 @@ import io.datarouter.job.BaseJob;
 
 public class DatarouterAccountLastUsedFlushJob extends BaseJob{
 
+	private final DatarouterAccountLastUsedDateService service;
+
 	@Inject
-	private DatarouterAccountLastUsedDateService service;
+	public DatarouterAccountLastUsedFlushJob(DatarouterAccountLastUsedDateService service){
+		this.service = service;
+	}
 
 	@Override
 	public void run(TaskTracker tracker){

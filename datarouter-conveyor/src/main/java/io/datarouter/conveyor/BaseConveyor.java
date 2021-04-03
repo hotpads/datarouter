@@ -72,6 +72,7 @@ public abstract class BaseConveyor implements Conveyor{
 			while(shouldRun()){
 				iteration++;
 				ProcessBatchResult result = processBatch();
+				ConveyorCounters.incProcessBatch(this);
 				if(!result.shouldContinueImmediately){
 					break;
 				}

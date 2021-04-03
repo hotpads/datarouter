@@ -60,6 +60,10 @@ public class ConveyorCounters{
 		inc(conveyor, priority + " ack", 1);
 	}
 
+	public static void incProcessBatch(Conveyor conveyor){
+		inc(conveyor, "processBatch", 1);
+	}
+
 	public static void incInterrupted(Conveyor conveyor){
 		inc(conveyor, "interrupted", 1);
 	}

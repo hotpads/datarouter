@@ -170,8 +170,12 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				Long threadAllocatedKB = logAllocatedBytes
 						? (THREAD_MX_BEAN.getThreadAllocatedBytes(threadId) - threadAllocatedBytesBegin) / 1024
 						: null;
-
-				tracer.finishThread();
+				TraceThreadDto rootThread = null;
+				if(tracer.getCurrentThreadId() != null){
+					rootThread = ((DatarouterTracer)tracer).getCurrentThread();
+					rootThread.markFinish();
+					((DatarouterTracer)tracer).setCurrentThread(null);
+				}
 				trace.markFinished();
 
 				boolean saveTraces = traceSettings.saveTraces.get();
@@ -183,6 +187,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				Long traceDurationMs = trace.getDurationMs();
 				if(saveTraces && traceDurationMs > saveCutoff || requestForceSave || tracerForceSave || errored){
 					List<TraceThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
+					if(rootThread != null){
+						threads.add(rootThread); // force to save the rootThread even though the queue could be full
+					}
 					List<TraceSpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 					trace.setDiscardedThreadCount(tracer.getDiscardedThreadCount());
 					String userAgent = RequestTool.getUserAgent(request);

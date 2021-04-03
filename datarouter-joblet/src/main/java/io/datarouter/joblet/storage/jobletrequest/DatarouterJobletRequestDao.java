@@ -147,7 +147,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 				.addOption(option);
 		return node.scanWithPrefix(prefix, config)
 				.include(request -> Objects.equals(request.getReservedBy(), reservedBy))
-				.findAny()
+				.findFirst()
 				.orElse(null);
 	}
 

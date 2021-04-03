@@ -29,7 +29,6 @@ import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.util.DateTool;
-import io.datarouter.web.util.PasswordTool;
 
 public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,DatarouterAccount>{
 
@@ -55,23 +54,9 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 
 	public DatarouterAccount(String accountName, Date created, String creator){
 		super(new DatarouterAccountKey(accountName));
-		resetApiKey();
-		resetSecretKey();
 		this.created = created;
 		this.creator = creator;
 		this.enableUserMappings = false;
-	}
-
-	//temporary
-	DatarouterAccount(String accountName, String apiKey, String secretKey, Date created, String creator, Date lastUsed,
-			Boolean enableUserMappings){
-		super(new DatarouterAccountKey(accountName));
-		this.apiKey = apiKey;
-		this.secretKey = secretKey;
-		this.created = created;
-		this.creator = creator;
-		this.lastUsed = lastUsed;
-		this.enableUserMappings = enableUserMappings;
 	}
 
 	public static class DatarouterAccountFielder extends BaseDatabeanFielder<DatarouterAccountKey,DatarouterAccount>{
@@ -98,28 +83,15 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 		return DatarouterAccountKey.class;
 	}
 
-	public String getApiKey(){
-		return apiKey;
+	public String getCreatedDate(ZoneId zoneId){
+		if(created == null){
+			return "";
+		}
+		return DateTool.formatDateWithZone(created, zoneId);
 	}
 
-	public String getSecretKey(){
-		return secretKey;
-	}
-
-	public void resetApiKeyToDefault(String defaultApiKey){
-		apiKey = defaultApiKey;
-	}
-
-	public void resetSecretKeyToDefault(String defaultSecretKey){
-		secretKey = defaultSecretKey;
-	}
-
-	public void resetApiKey(){
-		apiKey = PasswordTool.generateSalt();
-	}
-
-	public void resetSecretKey(){
-		secretKey = PasswordTool.generateSalt();
+	public String getCreator(){
+		return creator;
 	}
 
 	public void setLastUsed(Date lastUsed){
@@ -150,20 +122,6 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 
 	public void setEnableUserMappings(boolean enableUserMappings){
 		this.enableUserMappings = enableUserMappings;
-	}
-
-	//temporary methods
-
-	Date getCreated(){
-		return created;
-	}
-
-	String getCreator(){
-		return creator;
-	}
-
-	Date getLastUsed(){
-		return lastUsed;
 	}
 
 }

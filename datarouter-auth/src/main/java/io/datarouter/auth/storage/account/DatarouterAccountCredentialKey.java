@@ -21,14 +21,12 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
-import io.datarouter.web.util.PasswordTool;
 
 public class DatarouterAccountCredentialKey extends BaseRegularPrimaryKey<DatarouterAccountCredentialKey>{
 
 	private String apiKey;
 
 	public DatarouterAccountCredentialKey(){
-		apiKey = PasswordTool.generateSalt();
 	}
 
 	public DatarouterAccountCredentialKey(String apiKey){

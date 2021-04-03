@@ -18,6 +18,7 @@ package io.datarouter.tasktracker.storage;
 import java.util.Date;
 import java.util.List;
 
+import io.datarouter.instrumentation.task.TaskTrackerKeyDto;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
@@ -64,6 +65,10 @@ public class LongRunningTaskKey extends BaseRegularPrimaryKey<LongRunningTaskKey
 
 	public String getServerName(){
 		return serverName;
+	}
+
+	public TaskTrackerKeyDto toDto(){
+		return new TaskTrackerKeyDto(name, triggerTime.toInstant(), serverName);
 	}
 
 }

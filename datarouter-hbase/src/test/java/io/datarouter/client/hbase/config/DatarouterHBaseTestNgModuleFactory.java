@@ -49,7 +49,8 @@ public class DatarouterHBaseTestNgModuleFactory extends TestNgModuleFactory{
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
 			bindActual(SchemaUpdateOptionsFactory.class, DatarouterHbaseSchemaUpdateOptionsFactory.class);
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
-					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(DatarouterHBaseTestClientIds.HBASE));
+					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
+							DatarouterHBaseTestClientIds.HBASE));
 		}
 
 	}

@@ -36,7 +36,6 @@ public class AuthConfigurationScanJob extends BaseJob{
 	public void run(TaskTracker tracker){
 		List<ConfigScanDto> scans = List.of(
 				configScanner.checkDatarouterAccountsWithDefaultKeys(),
-				configScanner.checkDatarouterAccountsForDuplicateApiKeys(),
 				configScanner.checkForDefaultUserId());
 		reportService.scanConfigurationAndSendEmail("AuthConfig Alert", scans);
 	}

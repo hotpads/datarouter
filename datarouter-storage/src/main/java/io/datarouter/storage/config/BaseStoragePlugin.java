@@ -69,7 +69,7 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 				@SuppressWarnings("unchecked")
 				Class<T> daoParamsClass = (Class<T>)InjectionTool.findInjectableClasses(pair.getLeft())
 						.include(clazz -> BaseDaoParams.class.isAssignableFrom(clazz))
-						.findAny()
+						.findFirst()
 						.orElseThrow(() ->
 								new RuntimeException("no injected BaseDaoParams found for " + pair.getLeft()));
 				T daoParamInstance = ReflectionTool.createWithParameters(daoParamsClass, List.of(pair.getRight()));

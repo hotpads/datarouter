@@ -38,6 +38,9 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> processJobs;
 	public final CachedSetting<Boolean> runJobRetriggeringJob;
 
+	public final CachedSetting<Boolean> runTaskTrackingPublishingJob;
+	public final CachedSetting<Integer> taskTrackerPublisherPutMultiBatchSize;
+
 	@Inject
 	public DatarouterJobSettingRoot(SettingFinder finder, ServerTypes serverTypes){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterJob.");
@@ -52,6 +55,9 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 
 		processJobs = registerBoolean("processJobs", true);
 		runJobRetriggeringJob = registerBoolean("runJobRetriggeringJob", false);
+
+		runTaskTrackingPublishingJob = registerBoolean("runTaskTrackingPublishingJob", false);
+		taskTrackerPublisherPutMultiBatchSize = registerInteger("taskTrackerPublisherPutMultiBatchSize", 50);
 	}
 
 }

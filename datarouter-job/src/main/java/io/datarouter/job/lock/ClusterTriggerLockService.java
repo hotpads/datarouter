@@ -129,6 +129,19 @@ public class ClusterTriggerLockService{
 		logger.info("releasing clusterTriggerLock {}, {}", key.getJobName(), key.getTriggerTime());
 	}
 
+	public void tryReleasingJobAndTriggerLocks(TriggerLockConfig triggerLockConfig, Date triggerTime){
+		try{
+			releaseTriggerLock(triggerLockConfig.jobName, triggerTime);
+		}catch(Exception e){
+			logger.warn("failed to release clusterTriggerLock {} - {}", triggerLockConfig.jobName, triggerTime, e);
+		}
+		try{
+			releaseJobLock(triggerLockConfig, triggerTime);
+		}catch(Exception e){
+			logger.warn("failed to release jobLock for {}", triggerLockConfig.jobName, e);
+		}
+	}
+
 	private ClusterJobLock toJobLock(TriggerLockConfig triggerLockConfig, Date triggerTime){
 		return toTriggerLock(triggerLockConfig, triggerTime).toClusterJobLock();
 	}

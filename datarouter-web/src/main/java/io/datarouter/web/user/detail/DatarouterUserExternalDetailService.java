@@ -32,4 +32,8 @@ public class DatarouterUserExternalDetailService{
 		return Optional.empty();
 	}
 
+	public Optional<String> getUserProfileDescription(){
+		return Optional.empty();
+	}
+
 }

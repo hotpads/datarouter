@@ -19,15 +19,30 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Base64.Encoder;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * http://howtodoinjava.com/2013/07/22/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/
  */
 public class PasswordTool{
+	private static final Logger logger = LoggerFactory.getLogger(PasswordTool.class);
 
 	private static final int NUM_DIGEST_ITERATIONS = 2471;
+	// no padding for consistency with previously used org.apache.commons.codec.binary.Base64.encodeBase64URLSafe
+	private static final Encoder BASE64_ENCODER = Base64.getUrlEncoder().withoutPadding();
+	private static final SecureRandom SECURE_RANDOM = initRandom();
+
+	private static SecureRandom initRandom(){
+		try{
+			return SecureRandom.getInstance("SHA1PRNG", "SUN");
+		}catch(NoSuchAlgorithmException | NoSuchProviderException e){
+			throw new RuntimeException(e);
+		}
+	}
 
 	public static String digest(String salt, String rawPassword){
 		String sr = salt + rawPassword;
@@ -37,17 +52,18 @@ public class PasswordTool{
 		return sr;
 	}
 
+	/**
+	 * this can be slow, call only if necessary
+	 */
 	public static String generateSalt(){
-		SecureRandom sr;
-		try{
-			sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
-		}catch(NoSuchAlgorithmException | NoSuchProviderException e){
-			throw new RuntimeException(e);
-		}
 		byte[] salt = new byte[16];
-		sr.nextBytes(salt);
-		// no padding for consistency with previously used org.apache.commons.codec.binary.Base64.encodeBase64URLSafe
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(salt);
+		long start = System.nanoTime();
+		SECURE_RANDOM.nextBytes(salt);
+		long durationNs = System.nanoTime() - start;
+		if(durationNs > 1_000_000){
+			logger.warn("slow random number generation durationNs={}", durationNs);
+		}
+		return BASE64_ENCODER.encodeToString(salt);
 	}
 
 }

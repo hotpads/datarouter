@@ -25,13 +25,13 @@ import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
 
 public enum LongRunningTaskStatus implements StringEnum<LongRunningTaskStatus>{
-	RUNNING(TaskStatus.RUNNING, "running", true),
-	SUCCESS(TaskStatus.SUCCESS, "success", false),
-	ERRORED(TaskStatus.ERRORED, "errored", false),
-	STOP_REQUESTED(TaskStatus.STOP_REQUESTED, "stopRequested", false),
-	MAX_DURATION_REACHED(TaskStatus.MAX_DURATION_REACHED, "maxDurationReached", false),
-	TIMED_OUT(TaskStatus.TIMED_OUT, "timedOut", false),
-	INTERRUPTED(TaskStatus.INTERRUPTED, "interrupted", false),
+	RUNNING(TaskStatus.RUNNING, "running", true, false),
+	SUCCESS(TaskStatus.SUCCESS, "success", false, false),
+	ERRORED(TaskStatus.ERRORED, "errored", false, true),
+	STOP_REQUESTED(TaskStatus.STOP_REQUESTED, "stopRequested", false, false),
+	MAX_DURATION_REACHED(TaskStatus.MAX_DURATION_REACHED, "maxDurationReached", false, false),
+	TIMED_OUT(TaskStatus.TIMED_OUT, "timedOut", false, true),
+	INTERRUPTED(TaskStatus.INTERRUPTED, "interrupted", false, true),
 	;
 
 	private static final Map<TaskStatus,LongRunningTaskStatus> BY_TASK_STATUS = Arrays.stream(values())
@@ -40,11 +40,13 @@ public enum LongRunningTaskStatus implements StringEnum<LongRunningTaskStatus>{
 	private final TaskStatus status;
 	private final String persistentString;
 	private final boolean isRunning;
+	public final boolean isBadState;
 
-	LongRunningTaskStatus(TaskStatus status, String persistentString, boolean isRunning){
+	LongRunningTaskStatus(TaskStatus status, String persistentString, boolean isRunning, boolean isBadState){
 		this.status = status;
 		this.persistentString = persistentString;
 		this.isRunning = isRunning;
+		this.isBadState = isBadState;
 	}
 
 	public static LongRunningTaskStatus fromTaskStatus(TaskStatus status){

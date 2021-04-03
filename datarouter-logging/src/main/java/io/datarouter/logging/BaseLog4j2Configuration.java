@@ -29,7 +29,8 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 public abstract class BaseLog4j2Configuration{
 
-	public static final String DEFAULT_PATTERN = "%d %-5level [%t] <${web:servletContextName:-${sys:user.name}}>"
+	public static final String DEFAULT_PATTERN = "%d %-5level [%t]"
+			+ " <%equals{${web:servletContextName}}{${web:servletContextName}}{%pid}>" // servlet name or pid
 			+ " %logger{36}:%line - %msg%n%rEx";
 
 	private static final String DEFAULT_CATALINA_OUT_DIR = "/mnt/logs";

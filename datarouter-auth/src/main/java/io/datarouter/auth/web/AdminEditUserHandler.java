@@ -324,7 +324,7 @@ public class AdminEditUserHandler extends BaseHandler{
 				roleManager.getConferrableRoles(getSessionInfo().getRoles()),
 				roles,
 				datarouterAccountService.getAllAccountNamesWithUserMappingsEnabled(),
-				datarouterAccountService.findAccountNamesForUserWithUserMappingsEnabled(user),
+				datarouterAccountService.findAccountNamesForUser(user),
 				true,
 				"",
 				user.getZoneId().map(ZoneId::getId).orElse(datarouterService.getZoneId().getId()));
@@ -410,7 +410,7 @@ public class AdminEditUserHandler extends BaseHandler{
 			this.availableRoles = Scanner.of(availableRoles)
 					.map(Role::getPersistentString)
 					.sorted(StringTool.COLLATOR_COMPARATOR)
-					.deduplicate()
+					.deduplicateConsecutive()
 					.list();
 			Set<String> currentRolesSet = Scanner.of(currentRoles)
 					.map(Role::getPersistentString)
@@ -420,7 +420,7 @@ public class AdminEditUserHandler extends BaseHandler{
 					.toMap(Function.identity(), currentRolesSet::contains);
 			this.availableAccounts = Scanner.of(availableAccounts)
 					.sorted(StringTool.COLLATOR_COMPARATOR)
-					.deduplicate()
+					.deduplicateConsecutive()
 					.list();
 			Set<String> currentAccountsSet = new HashSet<>(currentAccounts);
 			this.currentAccounts = Scanner.of(availableAccounts)

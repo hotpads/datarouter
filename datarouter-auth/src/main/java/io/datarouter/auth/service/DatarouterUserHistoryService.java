@@ -70,7 +70,7 @@ public class DatarouterUserHistoryService{
 				.toMap(DatarouterUserHistory::getKey, DatarouterUserHistory::getChanges);
 
 		return Scanner.of(requests)
-				.deduplicate()
+				.deduplicateConsecutive()
 				.toMap(Function.identity(), request -> request.toUserHistoryKey().map(historyKey -> historyMap
 						.getOrDefault(historyKey, request.getResolution().getPersistentString())));
 	}

@@ -288,4 +288,9 @@ public class DateTool{
 		return FORMATTER.format(zonedDateTime);
 	}
 
+	public static String formatInstantWithZone(Instant instant, ZoneId zoneId){
+		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId);
+		return FORMATTER.format(zonedDateTime);
+	}
+
 }

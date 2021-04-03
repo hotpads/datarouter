@@ -184,6 +184,11 @@
 			<property name="message" value="No shaded imports"/>
 		</module>
 		<module name="Regexp">
+			<property name="format" value="import org.threeten.bp.*|import org.joda.*"/>
+			<property name="illegalPattern" value="true"/>
+			<property name="message" value="Non jdk import"/>
+		</module>
+		<module name="Regexp">
 			<property name="format" value="(?:(?&lt;!\t)(?&lt;!=)(?&lt;!->))[ \t]\{$"/>
 			<property name="illegalPattern" value="true"/>
 			<property name="message" value="Whitespace before {"/>

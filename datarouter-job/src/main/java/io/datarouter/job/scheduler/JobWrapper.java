@@ -60,8 +60,15 @@ public class JobWrapper implements Callable<Void>{
 				Date triggerTime,
 				Date scheduledTime,
 				String triggeredBy){
-			return new JobWrapper(jobPackage, longRunningTaskTrackerFactory, jobCounters, job, triggerTime,
-					scheduledTime, true, triggeredBy);
+			return new JobWrapper(
+					jobPackage,
+					longRunningTaskTrackerFactory,
+					jobCounters,
+					job,
+					triggerTime,
+					scheduledTime,
+					true,
+					triggeredBy);
 		}
 
 		public JobWrapper createRetriggered(
@@ -70,13 +77,27 @@ public class JobWrapper implements Callable<Void>{
 				Date triggerTime,
 				Date scheduledTime,
 				String triggeredBy){
-			return new JobWrapper(jobPackage, longRunningTaskTrackerFactory, jobCounters, job, triggerTime,
-					scheduledTime, false, triggeredBy);
+			return new JobWrapper(
+					jobPackage,
+					longRunningTaskTrackerFactory,
+					jobCounters,
+					job,
+					triggerTime,
+					scheduledTime,
+					false,
+					triggeredBy);
 		}
 
 		public JobWrapper createManual(JobPackage jobPackage, BaseJob job, String triggeredBy){
 			Date now = new Date();
-			return new JobWrapper(jobPackage, longRunningTaskTrackerFactory, jobCounters, job, now, now, false,
+			return new JobWrapper(
+					jobPackage,
+					longRunningTaskTrackerFactory,
+					jobCounters,
+					job,
+					now,
+					now,
+					false,
 					triggeredBy);
 		}
 
@@ -111,7 +132,14 @@ public class JobWrapper implements Callable<Void>{
 			Date scheduledTime,
 			boolean reschedule,
 			String triggeredBy){
-		this(jobPackage, jobCounters, job, triggerTime, scheduledTime, reschedule, triggeredBy,
+		this(
+				jobPackage,
+				jobCounters,
+				job,
+				triggerTime,
+				scheduledTime,
+				reschedule,
+				triggeredBy,
 				initTracker(jobPackage, scheduledTime, longRunningTaskTrackerFactory, triggeredBy, job.getClass()),
 				jobPackage.shouldRunDetached);
 	}
@@ -124,9 +152,15 @@ public class JobWrapper implements Callable<Void>{
 			Date scheduledTime,
 			boolean reschedule,
 			String triggeredBy){
-		this(null, jobCounters, job, triggerTime, scheduledTime, reschedule, triggeredBy,
-				longRunningTaskTrackerFactory.create(job.getClass(), LongRunningTaskType.JOB, null, false,
-						triggeredBy),
+		this(
+				null,
+				jobCounters,
+				job,
+				triggerTime,
+				scheduledTime,
+				reschedule,
+				triggeredBy,
+				longRunningTaskTrackerFactory.create(job.getClass(), LongRunningTaskType.JOB, null, false, triggeredBy),
 				false);
 	}
 
@@ -185,7 +219,11 @@ public class JobWrapper implements Callable<Void>{
 			Class<? extends BaseJob> jobClass){
 		Instant deadline = jobPackage.getSoftDeadline(triggerTime).orElse(null);
 		boolean warnOnReachingDeadline = jobPackage.getWarnOnReachingDuration().orElse(false);
-		return longRunningTaskTrackerFactory.create(jobClass, LongRunningTaskType.JOB, deadline, warnOnReachingDeadline,
+		return longRunningTaskTrackerFactory.create(
+				jobClass,
+				LongRunningTaskType.JOB,
+				deadline,
+				warnOnReachingDeadline,
 				triggeredBy);
 	}
 

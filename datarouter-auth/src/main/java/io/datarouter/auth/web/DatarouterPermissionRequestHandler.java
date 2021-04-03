@@ -202,6 +202,8 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 	private void sendRequestEmail(DatarouterUser user, String reason, String specifics){
 		String userProfileUrl = userExternalDetailService.getUserProfileUrl(user).orElse(null);
+		String userProfileDescription = userExternalDetailService.getUserProfileDescription()
+				.orElse("user profile");
 		String userEmail = user.getUsername();
 		String recipients = userEditService.getUserEditEmailRecipients(user);
 		String primaryHref = htmlEmailService.startLinkBuilder()
@@ -211,7 +213,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		var table = table(tbody()
 				.with(createLabelValueTr("Service", text(datarouterService.getServiceName()))
 				.with(createLabelValueTr("User", text(userEmail + " - "), userProfileUrl == null ? null
-						: a("view user profile").withHref(userProfileUrl))))
+						: a("view " + userProfileDescription).withHref(userProfileUrl))))
 				.with(createLabelValueTr("Reason", text(reason)))
 				.condWith(StringTool.notEmpty(specifics), createLabelValueTr("Specifics", text(specifics))))
 				.withStyle("border-spacing: 0");

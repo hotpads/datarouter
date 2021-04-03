@@ -20,12 +20,14 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.instrumentation.task.TaskTrackerBatchDto;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
+import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.tasktracker.storage.LongRunningTask.LongRunningTaskFielder;
 import io.datarouter.util.tuple.Range;
@@ -60,7 +62,7 @@ public class LongRunningTaskDao extends BaseDao{
 		datarouter.register(node);
 	}
 
-	public SortedMapStorageNode<LongRunningTaskKey,LongRunningTask,LongRunningTaskFielder> getNode(){
+	public SortedMapStorage<LongRunningTaskKey,LongRunningTask> getNode(){
 		return node;
 	}
 
@@ -78,6 +80,15 @@ public class LongRunningTaskDao extends BaseDao{
 
 	public void deleteBatched(Scanner<LongRunningTaskKey> keys){
 		node.deleteBatched(keys);
+	}
+
+	public Scanner<TaskTrackerBatchDto> scanAll(int batchSize){
+		// probably not necessary to scan the whole table and send everything
+		// TODO figure out what data we want to send and add some filtering
+		return node.scan()
+				.map(LongRunningTask::toDto)
+				.batch(batchSize)
+				.map(TaskTrackerBatchDto::new);
 	}
 
 }

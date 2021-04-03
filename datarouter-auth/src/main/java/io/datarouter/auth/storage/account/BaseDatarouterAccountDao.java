@@ -16,7 +16,6 @@
 package io.datarouter.auth.storage.account;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.scanner.Scanner;
@@ -27,11 +26,10 @@ public interface BaseDatarouterAccountDao{
 	void putMulti(Collection<DatarouterAccount> databeans);
 	DatarouterAccount get(DatarouterAccountKey key);
 	Optional<DatarouterAccount> find(DatarouterAccountKey key);
-	List<DatarouterAccount> getMulti(Collection<DatarouterAccountKey> keys);
+	Scanner<DatarouterAccount> scanMulti(Collection<DatarouterAccountKey> keys);
 	Scanner<DatarouterAccount> scan();
 	Scanner<DatarouterAccountKey> scanKeys();
 	boolean exists(DatarouterAccountKey key);
 	void delete(DatarouterAccountKey key);
-	Optional<DatarouterAccount> getFromAccountByApiKeyCache(String apiKey);
 
 }

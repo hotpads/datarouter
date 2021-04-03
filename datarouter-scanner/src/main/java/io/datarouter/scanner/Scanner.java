@@ -347,24 +347,8 @@ public interface Scanner<T> extends Closeable{
 	 * Skips consecutive duplicates. Lighter weight than distinct() because all elements need not be collected into
 	 * memory.
 	 */
-	default Scanner<T> deduplicate(){
-		return deduplicateConsecutive();
-	}
-
-	/**
-	 * Skips consecutive duplicates. Lighter weight than distinct() because all elements need not be collected into
-	 * memory.
-	 */
 	default Scanner<T> deduplicateConsecutive(){
 		return new DeduplicatingConsecutiveScanner<>(this, Function.identity());
-	}
-
-	/**
-	 * Skips items where the mapper outputs the same value as the previous item. Lighter weight than distinctBy()
-	 * because all elements need not be collected into memory.
-	 */
-	default Scanner<T> deduplicateBy(Function<T,?> mapper){
-		return deduplicateConsecutiveBy(mapper);
 	}
 
 	/**
@@ -481,7 +465,7 @@ public interface Scanner<T> extends Closeable{
 	 * were found.
 	 */
 	default Optional<T> findAny(){
-		return ScannerTool.findAny(this);
+		return findFirst();
 	}
 
 	/**

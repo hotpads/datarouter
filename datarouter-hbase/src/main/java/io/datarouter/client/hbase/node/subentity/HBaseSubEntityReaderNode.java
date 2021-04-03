@@ -181,7 +181,7 @@ implements SubEntitySortedMapStorageReaderNode<EK,PK,D,F>{
 		Scanner<PK> scanner = makePageScanner(range, subscanConfig, true)
 				.map(resultParser::getPrimaryKeysWithMatchingQualifierPrefix)
 				.concat(Scanner::of)
-				.deduplicate()
+				.deduplicateConsecutive()
 				.include(pk -> KeyRangeTool.contains(range, pk));
 		return ScannerConfigTool.applyOffsetAndLimit(scanner, config);
 	}

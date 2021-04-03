@@ -16,7 +16,10 @@
 package io.datarouter.util.duration;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -96,6 +99,18 @@ public class DatarouterDuration{
 	public static DatarouterDuration ageMs(long dateMs){
 		long ageMs = System.currentTimeMillis() - dateMs;
 		return new DatarouterDuration(ageMs, TimeUnit.MILLISECONDS);
+	}
+
+	public static DatarouterDuration age(Date date){
+		return ageMs(date.getTime());
+	}
+
+	public static DatarouterDuration age(Instant instant){
+		return ageMs(instant.toEpochMilli());
+	}
+
+	public static DatarouterDuration age(ZonedDateTime zonedDateTime){
+		return age(zonedDateTime.toInstant());
 	}
 
 	@Override

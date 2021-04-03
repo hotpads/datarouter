@@ -27,8 +27,8 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
-import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.lang.ObjectTool;
 
@@ -38,7 +38,7 @@ public class LongRunningTaskVacuumService{
 	@Inject
 	private LongRunningTaskDao dao;
 	@Inject
-	private DatarouterTaskTrackerSettingRoot datarouterTaskTrackerSettingRoot;
+	private DatarouterTaskTrackerSettingRoot settings;
 
 	public void run(TaskTracker tracker){
 		List<LongRunningTask> relatedTasks = new ArrayList<>();
@@ -61,19 +61,22 @@ public class LongRunningTaskVacuumService{
 
 	private void vacuumRelatedTasks(List<LongRunningTask> tasks){
 		// remove really old entries
-		Instant tooOldCutoff = Instant.now().minus(datarouterTaskTrackerSettingRoot.maxAge.get().toJavaDuration());
+		Instant tooOldCutoff = Instant.now().minus(settings.maxAge.get().toJavaDuration());
 		List<LongRunningTask> tooOld = tasks.stream()
 				.filter(task -> task.getKey().getTriggerTime().toInstant().isBefore(tooOldCutoff))
 				.collect(Collectors.toList());
-		Scanner.of(tooOld).map(Databean::getKey).then(dao::deleteBatched);
+		Scanner.of(tooOld)
+				.map(Databean::getKey)
+				.then(dao::deleteBatched);
+
 		// keep the latest N
 		List<LongRunningTask> remaining = new ArrayList<>(tasks);
 		remaining.removeAll(tooOld);
-		if(remaining.size() <= datarouterTaskTrackerSettingRoot.countToKeep.get()){
+		if(remaining.size() <= settings.countToKeep.get()){
 			return;
 		}
 		Scanner.of(remaining)
-				.limit(remaining.size() - datarouterTaskTrackerSettingRoot.countToKeep.get())
+				.limit(remaining.size() - settings.countToKeep.get())
 				.map(Databean::getKey)
 				.then(dao::deleteBatched);
 	}

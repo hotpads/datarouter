@@ -15,7 +15,9 @@
  */
 package io.datarouter.auth.storage.accountpermission;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,6 +31,8 @@ import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.util.Require;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 
 @Singleton
@@ -36,8 +40,17 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 
 	public static class DatarouterAccountPermissionDaoParams extends BaseRedundantDaoParams{
 
+		public final Optional<String> tableName;
+
 		public DatarouterAccountPermissionDaoParams(List<ClientId> clientIds){
 			super(clientIds);
+			tableName = Optional.empty();
+		}
+
+		public DatarouterAccountPermissionDaoParams(List<ClientId> clientIds, String tableName){
+			super(clientIds);
+			Require.isTrue(StringTool.notNullNorEmpty(tableName));
+			this.tableName = Optional.of(tableName);
 		}
 
 	}
@@ -53,12 +66,13 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
 				.map(clientId -> {
+					var builder = nodeFactory.create(clientId, DatarouterAccountPermission::new,
+							DatarouterAccountPermissionFielder::new)
+							.withIsSystemTable(true);
+					params.tableName.ifPresent(builder::withTableName);
+
 					IndexedSortedMapStorageNode<DatarouterAccountPermissionKey,DatarouterAccountPermission,
-					DatarouterAccountPermissionFielder> node =
-							nodeFactory.create(clientId, DatarouterAccountPermission::new,
-									DatarouterAccountPermissionFielder::new)
-						.withIsSystemTable(true)
-						.build();
+						DatarouterAccountPermissionFielder> node = builder.build();
 					return node;
 				})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
@@ -86,8 +100,9 @@ public class DatarouterAccountPermissionDao extends BaseDao implements BaseDatar
 	}
 
 	@Override
-	public Scanner<DatarouterAccountPermissionKey> scanKeysWithPrefix(DatarouterAccountPermissionKey prefix){
-		return node.scanKeysWithPrefix(prefix);
+	public Scanner<DatarouterAccountPermissionKey> scanKeysWithPrefixes(
+			Collection<DatarouterAccountPermissionKey> prefixes){
+		return node.scanKeysWithPrefixes(prefixes);
 	}
 
 }

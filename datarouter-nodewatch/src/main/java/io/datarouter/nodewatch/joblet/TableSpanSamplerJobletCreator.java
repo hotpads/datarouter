@@ -148,7 +148,7 @@ implements Callable<List<JobletPackage>>{
 	private void handleNoExistingSamples(){
 		//quick check if the table is empty, to avoid creating the joblet for simpler monitoring and debugging
 		Optional<PK> optPk = node.scanKeys(new Config().setLimit(1))
-				.findAny();
+				.findFirst();
 		if(optPk.isPresent()){
 			// insert dummy sample to prevent future runs from creating duplicate joblets
 			long samplerId = RandomTool.nextPositiveLong();

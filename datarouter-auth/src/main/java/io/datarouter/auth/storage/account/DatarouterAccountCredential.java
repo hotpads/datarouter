@@ -54,25 +54,17 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 		super(new DatarouterAccountCredentialKey());
 	}
 
-	public DatarouterAccountCredential(String apiKey, String accountName, Date created, String creatorUsername){
+	public DatarouterAccountCredential(String apiKey, String secretKey, String accountName, String creatorUsername){
 		super(new DatarouterAccountCredentialKey(apiKey));
+		this.secretKey = secretKey;
 		this.accountName = accountName;
-		this.secretKey = PasswordTool.generateSalt();
-		this.created = created;
+		this.created = new Date();
 		this.creatorUsername = creatorUsername;
-		this.enableUserMappings = false;
 	}
 
-	//temporary
-	DatarouterAccountCredential(String apiKey, String accountName, String secretKey, Date created,
-			String creatorUsername, Date lastUsed, Boolean enableUserMappings){
-		super(new DatarouterAccountCredentialKey(apiKey));
-		this.accountName = accountName;
-		this.secretKey = secretKey;
-		this.created = created;
-		this.creatorUsername = creatorUsername;
-		this.lastUsed = lastUsed;
-		this.enableUserMappings = enableUserMappings;
+	public static DatarouterAccountCredential create(String accountName, String creatorUsername){
+		return new DatarouterAccountCredential(PasswordTool.generateSalt(), PasswordTool.generateSalt(), accountName,
+				creatorUsername);
 	}
 
 	public static class DatarouterAccountCredentialFielder
@@ -108,6 +100,17 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 		return secretKey;
 	}
 
+	public String getCreatedDate(ZoneId zoneId){
+		if(created == null){
+			return "";
+		}
+		return DateTool.formatDateWithZone(created, zoneId);
+	}
+
+	public String getCreatorUsername(){
+		return creatorUsername;
+	}
+
 	public void setLastUsed(Date lastUsed){
 		this.lastUsed = lastUsed;
 	}
@@ -117,39 +120,6 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 			return "";
 		}
 		return DateTool.formatDateWithZone(lastUsed, zoneId);
-	}
-
-	public void toggleUserMappings(){
-		if(enableUserMappings == null){
-			enableUserMappings = true;
-		}else{
-			enableUserMappings = !enableUserMappings;
-		}
-	}
-
-	public boolean getEnableUserMappings(){
-		if(enableUserMappings == null){
-			return false;
-		}
-		return enableUserMappings;
-	}
-
-	public void setEnableUserMappings(boolean enableUserMappings){
-		this.enableUserMappings = enableUserMappings;
-	}
-
-	//temporary methods
-
-	Date getCreated(){
-		return created;
-	}
-
-	String getCreatorUsername(){
-		return creatorUsername;
-	}
-
-	Date getLastUsed(){
-		return lastUsed;
 	}
 
 }

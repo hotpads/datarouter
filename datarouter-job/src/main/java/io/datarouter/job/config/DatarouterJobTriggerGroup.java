@@ -24,6 +24,7 @@ import io.datarouter.job.monitoring.LongRunningTaskFailureAlertJob;
 import io.datarouter.job.vacuum.ClusterJobLockVacuumJob;
 import io.datarouter.job.vacuum.ClusterTriggerLockVacuumJob;
 import io.datarouter.job.vacuum.LongRunningTaskVacuumJob;
+import io.datarouter.job.vacuum.TaskTrackerPublishJob;
 import io.datarouter.job.vacuum.TriggerLockVacuumUnlockJob;
 
 @Singleton
@@ -36,6 +37,11 @@ public class DatarouterJobTriggerGroup extends BaseTriggerGroup{
 				"53 0/2 * * * ?",
 				settings.runLongRunningTaskVacuum,
 				LongRunningTaskVacuumJob.class,
+				true);
+		registerLocked(
+				"12 0/5 * * * ?",
+				settings.runTaskTrackingPublishingJob,
+				TaskTrackerPublishJob.class,
 				true);
 		registerLocked(
 				"39 0/1 * * * ?",

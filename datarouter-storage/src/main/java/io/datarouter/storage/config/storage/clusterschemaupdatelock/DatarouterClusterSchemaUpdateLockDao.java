@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.config.storage.clusterschemaupdatelock;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -34,13 +36,22 @@ public class DatarouterClusterSchemaUpdateLockDao extends BaseDao{
 
 	public static class DatarouterClusterSchemaUpdateLockDaoParams extends BaseDaoParams{
 
+		public final Optional<ClientId> optRedundantClientId;
+
 		public DatarouterClusterSchemaUpdateLockDaoParams(ClientId clientId){
 			super(clientId);
+			this.optRedundantClientId = Optional.empty();
+		}
+
+		public DatarouterClusterSchemaUpdateLockDaoParams(ClientId clientId, ClientId optRedundantClientId){
+			super(clientId);
+			this.optRedundantClientId = Optional.of(optRedundantClientId);
 		}
 
 	}
 
-	private final SortedMapStorage<ClusterSchemaUpdateLockKey,ClusterSchemaUpdateLock> node;
+	private final SortedMapStorage<ClusterSchemaUpdateLockKey,ClusterSchemaUpdateLock> mainNode;
+	private final Optional<SortedMapStorage<ClusterSchemaUpdateLockKey,ClusterSchemaUpdateLock>> optRedundantNode;
 
 	@Inject
 	public DatarouterClusterSchemaUpdateLockDao(
@@ -48,27 +59,34 @@ public class DatarouterClusterSchemaUpdateLockDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterClusterSchemaUpdateLockDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, ClusterSchemaUpdateLock::new, ClusterSchemaUpdateLockFielder::new)
+		mainNode = nodeFactory.create(params.clientId, ClusterSchemaUpdateLock::new,
+				ClusterSchemaUpdateLockFielder::new)
 				.withIsSystemTable(true)
 				.buildAndRegister();
+
+		optRedundantNode = params.optRedundantClientId.map(clientId -> nodeFactory.create(clientId,
+				ClusterSchemaUpdateLock::new, ClusterSchemaUpdateLockFielder::new)
+				.withIsSystemTable(true)
+				.buildAndRegister());
 	}
 
 	public void putAndAcquire(ClusterSchemaUpdateLock databean){
-		node.put(databean, new Config()
-				.setPutMethod(PutMethod.INSERT_OR_BUST)
-				.setIgnoreException(true));
+		var config = new Config().setPutMethod(PutMethod.INSERT_OR_BUST).setIgnoreException(true);
+		mainNode.put(databean,config);
+		optRedundantNode.ifPresent(redundantNode -> redundantNode.put(databean, config));
 	}
 
 	public ClusterSchemaUpdateLock get(ClusterSchemaUpdateLockKey key){
-		return node.get(key);
+		return mainNode.get(key);
 	}
 
 	public void delete(ClusterSchemaUpdateLockKey key){
-		node.delete(key);
+		mainNode.delete(key);
+		optRedundantNode.ifPresent(redundantNode -> redundantNode.delete(key));
 	}
 
 	public Scanner<ClusterSchemaUpdateLock> scan(){
-		return node.scan();
+		return mainNode.scan();
 	}
 
 }

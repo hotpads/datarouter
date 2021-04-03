@@ -66,9 +66,8 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 		<thead>
 			<tr>
 				<th>Account name</th>
-				<th>API key</th>
-				<th>Secret key</th>
 				<th>Last used</th>
+				<th>Credentials</th>
 				<th>Permissions</th>
 				<th>User Mappings</th>
 				<th/>
@@ -77,17 +76,18 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 			</tr>
 		</thead>
 		<tbody>
-			{accountDetails.map(({account, permissions, metricLink, lastUsedDate}) => (
-				<tr key={account.key.accountName}>
-					<td>{account.key.accountName}</td>
-					<td>{account.apiKey}</td>
-					<td>{account.secretKey}</td>
-					<td>{lastUsedDate}</td>
-					<td className={permissions.length > 0 ? '' : 'table-warning'}>
-						{permissions.length > 0 ? (
+			{accountDetails.map(({account, credentials, permissions, metricLink}) => (
+				<tr key={account.accountName}>
+					<td>{account.accountName}</td>
+					<td>{account.lastUsed}</td>
+					<td className={credentials.length ? '' : 'table-warning'}>
+						{credentials.length ? credentials.length : 'No credentials'}
+					</td>
+					<td className={permissions.length ? '' : 'table-warning'}>
+						{permissions.length ? (
 							<span
 								data-toggle="tooltip"
-								title={`Permissions for ${account.key.accountName}:\n`
+								title={`Permissions for ${account.accountName}:\n`
 									+ permissions
 										.map((permission, idx) => `${idx+1}. ${permission.endpoint}`)
 										.join('\n')}
@@ -111,12 +111,12 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 						</a>
 					</td>
 					<td>
-						<Link to={REACT_BASE_PATH + "details/" + account.key.accountName} title="Edit account">
+						<Link to={REACT_BASE_PATH + "details/" + account.accountName} title="Edit account">
 							<i class="fa fa-edit"></i>
 						</Link>
 					</td>
 					<td>
-						<a onClick={() => deleteAccount(account.key.accountName)} title="Delete account">
+						<a onClick={() => deleteAccount(account.accountName)} title="Delete account">
 							<i className="fas fa-trash"></i>
 						</a>
 					</td>
@@ -124,6 +124,45 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 			))}
 		</tbody>
 	</table>
+)
+
+const CredentialTable = ({credentials, addCredential, deleteCredential}) => (
+	<div>
+		<h3>Credentials {!credentials.length && <span className="alert alert-warning">(This account has no credentials)</span>}</h3>
+		{credentials.length ? <table className="sortable table table-condensed table-striped">
+			<thead>
+				<tr>
+					<th>API key</th>
+					<th>Secret key</th>
+					<th>Last used</th>
+					<th>Created</th>
+					<th>Creator Username</th>
+					<th/>
+				</tr>
+			</thead>
+			<tbody>
+				{credentials.map(({apiKey, secretKey, lastUsed, created, creatorUsername}) => (
+					<tr key={apiKey}>
+						<td>{apiKey}</td>
+						<td>{secretKey}</td>
+						<td>{lastUsed}</td>
+						<td>{created}</td>
+						<td>{creatorUsername}</td>
+						<td>
+							<a onClick={() => deleteCredential(apiKey)} title="Delete credential">
+								<i className="fas fa-trash"></i>
+							</a>
+						</td>
+					</tr>
+				))}
+			</tbody>
+		</table> : ''}
+		<SubmitButton
+			className="form-control-static btn"
+			onClick={addCredential}
+			value="Add credential"
+		/>
+	</div>
 )
 
 class Accounts extends React.Component{
@@ -140,15 +179,15 @@ class Accounts extends React.Component{
 		Fetch.post('add', {accountName}).then(newAccountDetail => {
 			const newAccountDetails = [...this.state.accountDetails, newAccountDetail]
 			newAccountDetails.sort(({account: accountA}, {account: accountB}) =>
-				accountA.key.accountName < accountB.key.accountName ? -1 : 1)
+				accountA.accountName < accountB.accountName ? -1 : 1)
 			this.setState({accountDetails: newAccountDetails})
 		})
 	}
 
 	deleteAccount = (accountName) => {
-		if(confirm(`Are you sure you want to delete the account named: \n${accountName}?`)){
+		if(confirm(`Are you sure you want to delete the account named: \n${accountName}? This will also delete ALL of its credentials.`)){
 			Fetch.post('delete', {accountName}, false).then(() => {
-				const accountPredicate = ({account}) => account.key.accountName != accountName
+				const accountPredicate = ({account}) => account.accountName != accountName
 				this.setState({accountDetails: this.state.accountDetails.filter(accountPredicate)})
 			})
 		}
@@ -160,8 +199,6 @@ class Accounts extends React.Component{
 				<AccountTable
 					accountDetails={this.state.accountDetails}
 					deleteAccount={this.deleteAccount}
-					resetApiKey={this.resetApiKey}
-					resetSecretKey={this.resetSecretKey}
 				/>
 				<AddAccountForm addAccount={this.addAccount} />
 			</div>
@@ -170,12 +207,7 @@ class Accounts extends React.Component{
 }
 
 const AccountDetailsBreakdown = ({
-	generateApiKey,
-	resetApiKeyToDefault,
-	generateSecretKey,
-	resetSecretKeyToDefault,
 	toggleUserMappings,
-	isServerTypeDev,
 	account,
 	error
 }) => (
@@ -183,19 +215,7 @@ const AccountDetailsBreakdown = ({
 		{error ? <strong style={{color: 'red'}}>{error}</strong> : ''}
 		<dl>
 			<dt>Name</dt>
-			<dd>{account.key.accountName}</dd>
-			<dt>API key</dt>
-			<dd>
-				<code style={{marginRight: '1em'}}>{account.apiKey}</code>
-				<SubmitButton compact onClick={generateApiKey} value="Generate Key" />
-				{!!isServerTypeDev && <SubmitButton compact onClick={resetApiKeyToDefault} value="Reset to Default" />}
-			</dd>
-			<dt>Secret key</dt>
-			<dd>
-				<code style={{marginRight: '1em'}}>{account.secretKey}</code>
-				<SubmitButton compact onClick={generateSecretKey} value="Generate Key" />
-				{!!isServerTypeDev && <SubmitButton compact onClick={resetSecretKeyToDefault} value="Reset to Default" />}
-			</dd>
+			<dd>{account.accountName}</dd>
 			<dt>Created</dt>
 			<dd>{account.created}</dd>
 			<dt>Creator</dt>
@@ -218,7 +238,6 @@ class AccountDetails extends React.Component{
 			details: null,
 			availableEndpoints: [],
 			selectedEndpoint: null,
-			isServerTypeDev:false
 		}
 	}
 
@@ -228,13 +247,10 @@ class AccountDetails extends React.Component{
 
 		Fetch.get('getAvailableEndpoints')
 			.then(availableEndpoints => this.setState({availableEndpoints, selectedEndpoint: availableEndpoints[0]}))
-
-		Fetch.get('isServerTypeDev')
-			.then(isServerTypeDev => this.setState({isServerTypeDev}))
 	}
 
 	updateAccount(endpoint){
-		Fetch.post(endpoint, {accountName: this.state.details.account.key.accountName})
+		Fetch.post(endpoint, {accountName: this.state.details.account.accountName})
 			.then(details => {
 				if(details.error){
 					this.setState(prevState => {return {details: {...prevState.details, error: details.error}}})
@@ -242,22 +258,6 @@ class AccountDetails extends React.Component{
 					this.setState({details})
 				}
 			})
-	}
-
-	resetApiKeyToDefault = () => {
-		this.updateAccount('resetApiKeyToDefault');
-	}
-
-	resetSecretKeyToDefault = () => {
-		this.updateAccount('resetSecretKeyToDefault');
-	}
-
-	generateApiKey = () => {
-		this.updateAccount('generateApiKey');
-	}
-
-	generateSecretKey = () => {
-		this.updateAccount('generateSecretKey');
 	}
 
 	toggleUserMappings = () => {
@@ -270,16 +270,31 @@ class AccountDetails extends React.Component{
 
 	handleAddPermission = (event) => {
 		event.preventDefault();
-		const accountName = this.state.details.account.key.accountName
+		const accountName = this.state.details.account.accountName
 		const endpoint = this.state.selectedEndpoint
 		Fetch.post('addPermission', {accountName, endpoint})
 			.then(details => this.setState({details}))
 	}
 
 	deletePermission = (endpoint) => {
-		const accountName = this.state.details.account.key.accountName
+		const accountName = this.state.details.account.accountName
 		Fetch.post('deletePermission', {accountName, endpoint})
 			.then(details => this.setState({details}))
+	}
+
+	addCredential = () => {
+		event.preventDefault();
+		const accountName = this.state.details.account.accountName
+		Fetch.post('addCredential', {accountName})
+			.then(details => this.setState({details}))
+	}
+
+	deleteCredential = (apiKey) => {
+		if(confirm(`Are you sure you want to delete the credential with API key: \n${apiKey}?`)){
+			const accountName = this.state.details.account.accountName
+			Fetch.post('deleteCredential', {apiKey, accountName})
+				.then(details => this.setState({details}))
+		}
 	}
 
 	render(){
@@ -290,24 +305,22 @@ class AccountDetails extends React.Component{
 
 		const {
 			details,
-			details: {permissions},
+			details: {permissions, credentials},
 			selectedEndpoint,
-			isServerTypeDev,
 			availableEndpoints
 		} = this.state
 
 		return (
 			<div>
 				<AccountDetailsBreakdown
-					generateApiKey={this.generateApiKey}
-					resetApiKeyToDefault={this.resetApiKeyToDefault}
-					generateSecretKey={this.generateSecretKey}
-					resetSecretKeyToDefault={this.resetSecretKeyToDefault}
 					toggleUserMappings={this.toggleUserMappings}
-					isServerTypeDev={isServerTypeDev}
 					account={details.account}
 					error={details.error}
 				/>
+				<CredentialTable
+					credentials={credentials}
+					addCredential={this.addCredential}
+					deleteCredential={this.deleteCredential}/>
 				{!!availableEndpoints.length &&
 					<div>
 						<h3>Permissions {!permissions.length && <span className="alert alert-warning">(This account has no permissions)</span>}</h3>

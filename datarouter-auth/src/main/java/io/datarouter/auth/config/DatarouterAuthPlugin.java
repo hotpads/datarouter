@@ -28,7 +28,10 @@ import io.datarouter.auth.service.deprovisioning.DatarouterUserDeprovisioningStr
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningListeners;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningListeners.EmptyUserDeprovisioningListeners;
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningStrategy;
+import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
+import io.datarouter.auth.storage.account.DatarouterAccountCredentialDao;
+import io.datarouter.auth.storage.account.DatarouterAccountCredentialDao.DatarouterAccountCredentialDaoParams;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountDao.DatarouterAccountDaoParams;
 import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermissionDao;
@@ -118,6 +121,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 	protected void configure(){
 		bindActual(BaseDatarouterSessionDao.class, DatarouterSessionDao.class);
 		bindActual(BaseDatarouterAccountDao.class, DatarouterAccountDao.class);
+		bindActual(BaseDatarouterAccountCredentialDao.class, DatarouterAccountCredentialDao.class);
 		bindActual(BaseDatarouterAccountPermissionDao.class, DatarouterAccountPermissionDao.class);
 		bindActual(BaseDatarouterUserAccountMapDao.class, DatarouterUserAccountMapDao.class);
 		bindActual(BaseDatarouterSamlDao.class, DatarouterSamlDao.class);
@@ -181,6 +185,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 							defaultClientId,
 							defaultClientId,
 							defaultClientId,
+							defaultClientId,
 							defaultClientId),
 					userInfoClass,
 					userDeprovisioningStrategyClass,
@@ -195,6 +200,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 	public static class DatarouterAuthDaoModule extends DaosModuleBuilder{
 
 		private final List<ClientId> datarouterAccountClientIds;
+		private final List<ClientId> datarouterAccountCredentialClientIds;
 		private final List<ClientId> datarouterAccountPermissionClientIds;
 		private final List<ClientId> datarouterPermissionRequestClientIds;
 		private final List<ClientId> datarouterSamlClientIds;
@@ -205,6 +211,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 
 		public DatarouterAuthDaoModule(
 				List<ClientId> datarouterAccountClientIds,
+				List<ClientId> datarouterAccountCredentialClientIds,
 				List<ClientId> datarouterAccountPermissionClientIds,
 				List<ClientId> datarouterPermissionRequestClientIds,
 				List<ClientId> datarouterSamlClientIds,
@@ -213,6 +220,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 				List<ClientId> datarouterUserHistoryClientIds,
 				List<ClientId> deprovisionedUserClientIds){
 			this.datarouterAccountClientIds = datarouterAccountClientIds;
+			this.datarouterAccountCredentialClientIds = datarouterAccountCredentialClientIds;
 			this.datarouterAccountPermissionClientIds = datarouterAccountPermissionClientIds;
 			this.datarouterPermissionRequestClientIds = datarouterPermissionRequestClientIds;
 			this.datarouterSamlClientIds = datarouterSamlClientIds;
@@ -226,6 +234,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		public List<Class<? extends Dao>> getDaoClasses(){
 			return List.of(
 					DatarouterAccountDao.class,
+					DatarouterAccountCredentialDao.class,
 					DatarouterAccountPermissionDao.class,
 					DatarouterPermissionRequestDao.class,
 					DatarouterUserAccountMapDao.class,
@@ -245,6 +254,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 					.toInstance(new DatarouterPermissionRequestDaoParams(datarouterPermissionRequestClientIds));
 			bind(DatarouterAccountDaoParams.class)
 					.toInstance(new DatarouterAccountDaoParams(datarouterAccountClientIds));
+			bind(DatarouterAccountCredentialDaoParams.class)
+					.toInstance(new DatarouterAccountCredentialDaoParams(datarouterAccountCredentialClientIds));
 			bind(DatarouterAccountPermissionDaoParams.class)
 					.toInstance(new DatarouterAccountPermissionDaoParams(datarouterAccountPermissionClientIds));
 			bind(DatarouterUserAccountMapDaoParams.class)

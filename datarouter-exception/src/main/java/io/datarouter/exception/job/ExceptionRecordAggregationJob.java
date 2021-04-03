@@ -48,7 +48,7 @@ public class ExceptionRecordAggregationJob extends BaseJob{
 		long beginningOfCurrentHour = now - now % PERIOD_MS;
 		long lastPeriodToAggregate = beginningOfCurrentHour - PERIOD_MS;
 		long firstPeriodToAggregate = exceptionRecordSummaryDao.scanKeys(1)
-				.findAny()
+				.findFirst()
 				.map(ExceptionRecordSummaryKey::getPeriodStart)
 				.map(lastAggregatedPeriodStart -> lastAggregatedPeriodStart + PERIOD_MS)
 				.orElse(lastPeriodToAggregate);

@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.66</version>
+	<version>0.0.67</version>
 </dependency>
 ```
 
@@ -79,9 +79,9 @@ These methods share behavior with those in Stream but are implemented independen
   - equivalent to `Stream::filter`
 - `exclude` - discard items matching the `Predicate`
 - `distinctBy` - remove items where the output of the function has already been seen
-- `deduplicate` - remove *consecutive* duplicates
+- `deduplicateConsecutive` - remove *consecutive* duplicates
   - as opposed to `distinct()` which removes all duplicates
-- `deduplicateBy` - remove items where the function maps to the previously mapped value
+- `deduplicateConsecutiveBy` - remove items where the function maps to the previously mapped value
 
 #### Stop scanning based on Predicate
 - `advanceUntil` - terminate the Scanner when the `Predicate` passes

@@ -31,7 +31,7 @@ public class DeduplicatingConsecutiveScannerTests{
 		List<Integer> duplicates = Java9.listOf(0, 0, 1, 2, 3, 3, 4, 5, 9, 20, 20);
 		List<Integer> expected = new ArrayList<>(new TreeSet<>(duplicates));
 		List<Integer> actual = Scanner.of(duplicates)
-				.deduplicate()
+				.deduplicateConsecutive()
 				.list();
 		Assert.assertEquals(actual, expected);
 	}
@@ -41,13 +41,13 @@ public class DeduplicatingConsecutiveScannerTests{
 		List<Integer> duplicates = Arrays.asList(null, null, 1, null, null, 2, 2, null, null, 3, 3, 3);
 		List<Integer> expected = Arrays.asList(null, 1, null, 2, null, 3);
 		List<Integer> actual = Scanner.of(duplicates)
-				.deduplicate()
+				.deduplicateConsecutive()
 				.list();
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
-	public void testDeduplicateBy(){
+	public void testDeduplicateConsecutiveBy(){
 		List<Person> people = Java9.listOf(
 				new Person("Bob", 1),
 				new Person("Jane", 2),
@@ -59,13 +59,13 @@ public class DeduplicatingConsecutiveScannerTests{
 				new Person("Jane", 2),
 				new Person("Sam", 4));
 		List<Person> actual = Scanner.of(people)
-				.deduplicateBy(Person::getFirstName)
+				.deduplicateConsecutiveBy(Person::getFirstName)
 				.list();
 		Assert.assertEquals(actual, expected);
 	}
 
 	@Test
-	public void testDeduplicatedByWithNull(){
+	public void testDeduplicateConsecutiveByWithNull(){
 		List<Person> people = Arrays.asList(
 				new Person("Bob", 1),
 				null,
@@ -77,7 +77,7 @@ public class DeduplicatingConsecutiveScannerTests{
 				null,
 				new Person("Sam", 4));
 		List<Person> actual = Scanner.of(people)
-				.deduplicateBy(person -> person == null ? null : person.getFirstName())
+				.deduplicateConsecutiveBy(person -> person == null ? null : person.getFirstName())
 				.list();
 		Assert.assertEquals(actual, expected);
 	}

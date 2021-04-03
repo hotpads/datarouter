@@ -15,6 +15,8 @@
  */
 package io.datarouter.auth.storage.accountpermission;
 
+import java.util.Collection;
+
 import io.datarouter.scanner.Scanner;
 
 public interface BaseDatarouterAccountPermissionDao{
@@ -23,6 +25,6 @@ public interface BaseDatarouterAccountPermissionDao{
 	void deleteWithPrefix(DatarouterAccountPermissionKey prefix);
 	void delete(DatarouterAccountPermissionKey key);
 	Scanner<DatarouterAccountPermissionKey> scanKeys();
-	Scanner<DatarouterAccountPermissionKey> scanKeysWithPrefix(DatarouterAccountPermissionKey prefix);
+	Scanner<DatarouterAccountPermissionKey> scanKeysWithPrefixes(Collection<DatarouterAccountPermissionKey> prefixes);
 
 }

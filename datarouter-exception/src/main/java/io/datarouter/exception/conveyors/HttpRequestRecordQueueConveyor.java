@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
@@ -42,7 +41,6 @@ extends BaseGroupQueueConsumerConveyor<HttpRequestRecordKey,HttpRequestRecord>{
 
 	private final ExceptionRecordPublisher publisher;
 
-	@Inject
 	public HttpRequestRecordQueueConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,

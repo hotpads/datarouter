@@ -17,6 +17,8 @@ package io.datarouter.tasktracker.config;
 
 import java.util.List;
 
+import io.datarouter.instrumentation.task.TaskTrackerPublisher;
+import io.datarouter.instrumentation.task.TaskTrackerPublisher.NoOpTaskTrackerPublisher;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
@@ -32,21 +34,25 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 
-	private final Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLinkClass;
+	private static final DatarouterTaskTrackerPaths PATHS = new DatarouterTaskTrackerPaths();
+
+	private final Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLink;
 	private final DatarouterTaskTrackerDaoModule daosModuleBuilder;
-	private final Class<? extends TaskTrackerExceptionLink> exceptionLinkClass;
+	private final Class<? extends TaskTrackerExceptionLink> exceptionLink;
+	private final Class<? extends TaskTrackerPublisher> longRunningTaskPublisher;
 
 	private DatarouterTaskTrackerPlugin(
-			Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLinkClass,
-			Class<? extends TaskTrackerExceptionLink> exceptionLinkClass,
+			Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLink,
+			Class<? extends TaskTrackerExceptionLink> exceptionLink,
+			Class<? extends TaskTrackerPublisher> longRunningTaskPublisher,
 			DatarouterTaskTrackerDaoModule daosModuleBuilder){
-		this.longRunningTaskGraphLinkClass = longRunningTaskGraphLinkClass;
-		this.exceptionLinkClass = exceptionLinkClass;
+		this.longRunningTaskGraphLink = longRunningTaskGraphLink;
+		this.exceptionLink = exceptionLink;
+		this.longRunningTaskPublisher = longRunningTaskPublisher;
 		this.daosModuleBuilder = daosModuleBuilder;
-		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS,
-				new DatarouterTaskTrackerPaths().datarouter.longRunningTasks, "Long running tasks");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS,
-				new DatarouterTaskTrackerPaths().datarouter.jobsHealth, "Jobs Health");
+
+		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, PATHS.datarouter.longRunningTasks, "Long running tasks");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, PATHS.datarouter.jobsHealth, "Jobs Health");
 		addSettingRoot(DatarouterTaskTrackerSettingRoot.class);
 		addRouteSet(DatarouterTaskTrackerRouteSet.class);
 		addDatarouterGithubDocLink("datarouter-task-tracker");
@@ -65,10 +71,11 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 
 	@Override
 	public void configure(){
-		if(longRunningTaskGraphLinkClass != null){
-			bindActual(LongRunningTaskGraphLink.class, longRunningTaskGraphLinkClass);
+		if(longRunningTaskGraphLink != null){
+			bindActual(LongRunningTaskGraphLink.class, longRunningTaskGraphLink);
 		}
-		bind(TaskTrackerExceptionLink.class).to(exceptionLinkClass);
+		bind(TaskTrackerExceptionLink.class).to(exceptionLink);
+		bind(TaskTrackerPublisher.class).to(longRunningTaskPublisher);
 	}
 
 	public static class DatarouterTaskTrackerDaoModule extends DaosModuleBuilder{
@@ -95,10 +102,9 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 
 		private final List<ClientId> defaultClientId;
 
-		private Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLinkClass =
-				NoOpLongRunningTaskGraphLink.class;
-		private Class<? extends TaskTrackerExceptionLink> exceptionLinkClass =
-				NoOpTaskTrackerExceptionLink.class;
+		private Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLink = NoOpLongRunningTaskGraphLink.class;
+		private Class<? extends TaskTrackerExceptionLink> exceptionLink = NoOpTaskTrackerExceptionLink.class;
+		private Class<? extends TaskTrackerPublisher> longRunningTaskPublisher = NoOpTaskTrackerPublisher.class;
 
 		public DatarouterTaskTrackerPluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -109,21 +115,28 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 		}
 
 		public DatarouterTaskTrackerPluginBuilder setLongRunningTaskGraphLinkClass(
-				Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLinkClass){
-			this.longRunningTaskGraphLinkClass = longRunningTaskGraphLinkClass;
+				Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLink){
+			this.longRunningTaskGraphLink = longRunningTaskGraphLink;
 			return this;
 		}
 
 		public DatarouterTaskTrackerPluginBuilder setExceptionLinkClass(
-				Class<? extends TaskTrackerExceptionLink> exceptionLinkClass){
-			this.exceptionLinkClass = exceptionLinkClass;
+				Class<? extends TaskTrackerExceptionLink> exceptionLink){
+			this.exceptionLink = exceptionLink;
+			return this;
+		}
+
+		public DatarouterTaskTrackerPluginBuilder setLongRunningTaskPublisher(
+				 Class<? extends TaskTrackerPublisher> longRunningTaskPublisher){
+			this.longRunningTaskPublisher = longRunningTaskPublisher;
 			return this;
 		}
 
 		public DatarouterTaskTrackerPlugin build(){
 			return new DatarouterTaskTrackerPlugin(
-					longRunningTaskGraphLinkClass,
-					exceptionLinkClass,
+					longRunningTaskGraphLink,
+					exceptionLink,
+					longRunningTaskPublisher,
 					new DatarouterTaskTrackerDaoModule(defaultClientId));
 		}
 

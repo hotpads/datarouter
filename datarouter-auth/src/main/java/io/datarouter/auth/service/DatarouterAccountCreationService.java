@@ -23,8 +23,11 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
+import io.datarouter.auth.storage.account.DatarouterAccountCredential;
+import io.datarouter.auth.storage.account.DatarouterAccountCredentialKey;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermission;
@@ -45,6 +48,8 @@ public class DatarouterAccountCreationService{
 	@Inject
 	private BaseDatarouterAccountDao datarouterAccountDao;
 	@Inject
+	private BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao;
+	@Inject
 	private BaseDatarouterUserAccountMapDao userAccountMapDao;
 	@Inject
 	private BaseDatarouterAccountPermissionDao accountPermissionDao;
@@ -57,19 +62,33 @@ public class DatarouterAccountCreationService{
 		if(ObjectTool.notEquals(datarouterProperties.getServerTypeString(), ServerType.DEV.getPersistentString())){
 			return;
 		}
-		if(datarouterAccountDao.exists(new DatarouterAccountKey(DEFAULT_ACCOUNT_NAME))){
-			return;
-		}
-		DatarouterAccount account = new DatarouterAccount(DEFAULT_ACCOUNT_NAME, new Date(), DEFAULT_ACCOUNT_CREATOR);
-		account.setEnableUserMappings(true);
-		account.resetApiKeyToDefault(defaultDatarouterAccountKeys.getDefaultApiKey());
-		account.resetSecretKeyToDefault(defaultDatarouterAccountKeys.getDefaultSecretKey());
-		datarouterAccountDao.put(account);
-		logger.warn("Created default DatarouterAccount");
 
-		userAccountMapDao.put(new DatarouterUserAccountMap(DatarouterUserCreationService.ADMIN_ID,
-				DEFAULT_ACCOUNT_NAME));
-		logger.warn("Mapped the default admin user to the default account");
+		DatarouterAccount defaultAccount = datarouterAccountDao.get(new DatarouterAccountKey(DEFAULT_ACCOUNT_NAME));
+		boolean accountExists = defaultAccount != null && defaultAccount.getEnableUserMappings();
+		if(!accountExists){
+			if(defaultAccount == null){
+				defaultAccount = new DatarouterAccount(DEFAULT_ACCOUNT_NAME, new Date(),DEFAULT_ACCOUNT_CREATOR);
+			}
+			defaultAccount.setEnableUserMappings(true);
+			datarouterAccountDao.put(defaultAccount);
+			logger.warn("Created default DatarouterAccount");
+
+			userAccountMapDao.put(new DatarouterUserAccountMap(DatarouterUserCreationService.ADMIN_ID,
+					DEFAULT_ACCOUNT_NAME));
+			logger.warn("Mapped the default admin user to the default account");
+		}
+
+		String defaultApiKey = defaultDatarouterAccountKeys.getDefaultApiKey();
+		String defaultSecretKey = defaultDatarouterAccountKeys.getDefaultSecretKey();
+		DatarouterAccountCredential defaultCredential = datarouterAccountCredentialDao.get(
+				new DatarouterAccountCredentialKey(defaultApiKey));
+		boolean keyExists = defaultCredential != null && defaultSecretKey.equals(defaultCredential.getSecretKey());
+		if(!keyExists){
+			defaultCredential = new DatarouterAccountCredential(defaultApiKey, defaultSecretKey, DEFAULT_ACCOUNT_NAME,
+					DEFAULT_ACCOUNT_CREATOR);
+			datarouterAccountCredentialDao.put(defaultCredential);
+			logger.warn("Created default DatarouterAccountCredential");
+		}
 	}
 
 	public void createDefaultAccountPermission(){

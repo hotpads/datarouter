@@ -55,10 +55,10 @@ public class DatarouterAccountApiKeyPredicate implements ApiKeyPredicate{
 	}
 
 	public Optional<String> check(Optional<String> endpoint, String apiKeyCandidate){
-		Optional<DatarouterAccountPermissionKey> permission = datarouterAccountService.scanPermissionsForApiKey(
+		Optional<DatarouterAccountPermissionKey> permission = datarouterAccountService.scanPermissionsForApiKeyAuth(
 				apiKeyCandidate)
 				.include(candidate -> isValidEndpoint(candidate, endpoint))
-				.findAny();
+				.findFirst();
 		permission.ifPresent(datarouterAccountCounters::incPermissionUsage);
 		return permission
 				.map(DatarouterAccountPermissionKey::getAccountName);

@@ -308,7 +308,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 			task.triggerTime = new Date();
 		}
 		if(shouldPersist()){
-			node.put(new LongRunningTask(task));
+			put(task);
 			lastPersisted = Instant.now();
 		}
 	}
@@ -327,7 +327,12 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	public void setExceptionRecordId(String exceptionRecordId){
 		task.exceptionRecordId = exceptionRecordId;
-		node.put(new LongRunningTask(task));
+		put(task);
+	}
+
+	private void put(LongRunningTaskInfo task){
+		LongRunningTask longRunningTask = new LongRunningTask(task);
+		node.put(longRunningTask);
 	}
 
 }

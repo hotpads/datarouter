@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.ServletRequest;
 
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.web.user.session.service.UserSessionService;
 
 @Singleton
@@ -30,11 +31,13 @@ public class CurrentUserSessionInfoService{
 	private UserSessionService sessionService;
 	@Inject
 	private CurrentSessionInfo sessionInfo;
+	@Inject
+	private DatarouterService datarouterService;
 
 	public ZoneId getZoneId(ServletRequest request){
 		String username = sessionInfo.getRequiredSession(request).getUsername();
 		return sessionService.getZoneId(username)
-				.orElseGet(ZoneId::systemDefault);
+				.orElseGet(() -> datarouterService.getZoneId());
 	}
 
 }

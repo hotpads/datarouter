@@ -106,8 +106,6 @@
 			</div>
 		</div>
 	</c:if>
-	<div class="container mt-5">
 	${legend}
-	</div>
 </body>
 </html>

@@ -81,7 +81,7 @@ public class BaseServerTypes implements ServerTypes{
 	public ServerType fromPersistentString(String str){
 		return values()
 				.include(serverType -> serverType.getPersistentString().equals(str))
-				.findAny()
+				.findFirst()
 				.orElseThrow(() -> new RuntimeException("Unknown server type: " + str));
 	}
 

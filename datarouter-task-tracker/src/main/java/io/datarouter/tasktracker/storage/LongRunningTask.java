@@ -19,7 +19,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import io.datarouter.instrumentation.task.TaskTrackerDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
@@ -66,7 +68,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 				"jobExecutionStatus", LongRunningTaskStatus.class);
 		public static final StringFieldKey triggeredBy = new StringFieldKey("triggeredBy");
 		public static final LongFieldKey numItemsProcessed = new LongFieldKey("numItemsProcessed");
-		private static final StringFieldKey lastItemProcessed = new StringFieldKey("lastItemProcessed")
+		public static final StringFieldKey lastItemProcessed = new StringFieldKey("lastItemProcessed")
 				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
 		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
 	}
@@ -160,9 +162,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 
 	public boolean isBadState(){
-		return jobExecutionStatus == LongRunningTaskStatus.ERRORED
-				|| jobExecutionStatus == LongRunningTaskStatus.TIMED_OUT
-				|| jobExecutionStatus == LongRunningTaskStatus.INTERRUPTED;
+		return jobExecutionStatus.isBadState;
 	}
 
 	public String getHeartbeatStatus(){
@@ -237,6 +237,24 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 
 	public String getExceptionRecordId(){
 		return exceptionRecordId;
+	}
+
+	public TaskTrackerDto toDto(){
+		return new TaskTrackerDto(
+				getKey().toDto(),
+				type.getPersistentString(),
+				startTime.toInstant(),
+				Optional.ofNullable(finishTime)
+						.map(Date::toInstant)
+						.orElse(null),
+				Optional.ofNullable(heartbeatTime)
+						.map(Date::toInstant)
+						.orElse(null),
+				jobExecutionStatus.getPersistentString(),
+				triggeredBy,
+				numItemsProcessed,
+				lastItemProcessed,
+				exceptionRecordId);
 	}
 
 }

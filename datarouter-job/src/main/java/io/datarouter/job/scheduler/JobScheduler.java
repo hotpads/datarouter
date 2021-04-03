@@ -244,56 +244,56 @@ public class JobScheduler{
 		try{
 			var started = tryAcquireLocalLockAndRun(jobWrapper);
 			if(started.failed()){
+				clusterTriggerLockService.tryReleasingJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime);
 				return started;
 			}
-		}finally{
-			try{
-				clusterTriggerLockService.releaseJobLock(triggerLockConfig, jobWrapper.triggerTime);
-			}catch(Exception e){
-				logger.warn("failed to release lockName {}", triggerLockConfig, e);
-			}
+		}catch(Exception e){
+			clusterTriggerLockService.tryReleasingJobAndTriggerLocks(triggerLockConfig, jobWrapper.triggerTime);
+			throw e;
+		}
+		// On success release jobLock but keep clusterTriggerLock
+		try{
+			clusterTriggerLockService.releaseJobLock(triggerLockConfig, jobWrapper.triggerTime);
+		}catch(Exception e){
+			logger.warn("failed to release jobLock for {}", triggerLockConfig.jobName, e);
 		}
 		return Outcome.success();
 	}
 
 	private Outcome tryAcquireLocalLockAndRun(JobWrapper jobWrapper){
-		if(!jobWrapper.shouldRunDetached){
-			return tryAcquireLocalLockAndRunLocal(jobWrapper);
+		Outcome localLockAcquired = localTriggerLockService.acquire(jobWrapper);
+		if(localLockAcquired.failed()){
+			return localLockAcquired;
 		}
-
-		// Try running the job detached, but fallback to local run if not possible.
 		try{
-			return tryAcquireLocalLockAndRunDetached(jobWrapper);
-		}catch(RejectedExecutionException e){
-			logger.warn("Falling back to local execution...");
-			return tryAcquireLocalLockAndRunLocal(jobWrapper);
+			if(jobWrapper.shouldRunDetached){
+				try{
+					// Try running the job detached, but fallback to local execution if not possible.
+					return runDetached(jobWrapper);
+				}catch(RejectedExecutionException e){
+					logger.warn("Falling back to local execution...");
+				}
+			}
+			return runLocal(jobWrapper);
+		}finally{
+			localTriggerLockService.release(jobWrapper.jobClass);
 		}
 	}
 
-	private Outcome tryAcquireLocalLockAndRunDetached(JobWrapper jobWrapper){
+	private Outcome runDetached(JobWrapper jobWrapper){
 		Class<? extends BaseJob> jobClass = jobWrapper.job.getClass();
-		var localTriggerLockAcquired = localTriggerLockService.acquire(jobWrapper);
-		if(localTriggerLockAcquired.failed()){
-			return localTriggerLockAcquired;
-		}
 		try{
 			detachedJobExecutor.submit(jobWrapper);
 			return Outcome.success();
 		}catch(RejectedExecutionException e){
 			logger.warn("Unable to run detached-job: {}", jobClass.getSimpleName(), e);
 			throw e;
-		}finally{
-			localTriggerLockService.release(jobClass);
 		}
 	}
 
-	private Outcome tryAcquireLocalLockAndRunLocal(JobWrapper jobWrapper){
+	private Outcome runLocal(JobWrapper jobWrapper){
 		Class<? extends BaseJob> jobClass = jobWrapper.job.getClass();
 		long hardTimeoutMs = getDeadlineMs(jobWrapper);
-		var localTriggerLockAcquired = localTriggerLockService.acquire(jobWrapper);
-		if(localTriggerLockAcquired.failed()){
-			return localTriggerLockAcquired;
-		}
 		Future<?> future;
 		try{
 			future = jobExecutor.submit(jobWrapper);
@@ -315,13 +315,13 @@ public class JobScheduler{
 		}catch(InterruptedException e){
 			future.cancel(true);
 			onInterrupt(jobWrapper, jobClass, hardTimeoutMs, e);
-			return Outcome.success("Interrupted. exception=" + e);
+			return Outcome.failure("Interrupted. exception=" + e);
 		}catch(ExecutionException e){
 			boolean isInterrupted = ExceptionTool.isFromInstanceOf(e, InterruptedException.class,
 					UncheckedInterruptedException.class, InterruptedIOException.class);
 			if(isInterrupted){
 				onInterrupt(jobWrapper, jobClass, hardTimeoutMs, e);
-				return Outcome.success("Interrupted. exception=" + e);
+				return Outcome.failure("Interrupted. exception=" + e);
 			}
 			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.ERRORED);
 			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
@@ -344,8 +344,6 @@ public class JobScheduler{
 					.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
 			jobCounters.timedOut(jobClass);
 			throw exception;
-		}finally{
-			localTriggerLockService.release(jobClass);
 		}
 	}
 

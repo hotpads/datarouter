@@ -73,6 +73,9 @@ public class MetricLinksHandler extends BaseHandler{
 		var h2 = h2(join(page.getHtmlName(), a(i().withClass("fas fa-home"))
 				.withHref("#" + MetricNamesSubnavFactory.ID)))
 				.withId(page.getHtmlId());
+		List<MetricLinkDto> metricLinks = Scanner.of(page.getMetricLinks())
+				.sorted(Comparator.comparing(link -> link.name))
+				.list();
 		var table = new J2HtmlTable<MetricLinkDto>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn(th(page.getName()).withClass("w-50"), row -> td(row.name))
@@ -92,8 +95,8 @@ public class MetricLinksHandler extends BaseHandler{
 							.withHref(linkBuilder.availableMetricsLink(row.availableMetricPrefix.get().metric)))
 							.withTarget("_blank");
 				})
-				.withCaption("Total " + page.getMetricLinks().size())
-				.build(page.getMetricLinks());
+				.withCaption("Total " + metricLinks.size())
+				.build(metricLinks);
 		return div(h2, table)
 				.withClass("container my-4");
 	}
