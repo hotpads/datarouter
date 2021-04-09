@@ -71,6 +71,9 @@ public class SplittingScanner<T,R> extends BaseLinkedScanner<T,Scanner<T>>{
 
 		@Override
 		public boolean advance(){
+			if(!innerIsActive){
+				return false;
+			}
 			if(!innerStarted){
 				innerStarted = true;
 				return true;

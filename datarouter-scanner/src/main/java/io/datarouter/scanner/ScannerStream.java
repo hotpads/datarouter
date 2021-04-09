@@ -180,7 +180,7 @@ public class ScannerStream<T> implements Stream<T>{
 
 	@Override
 	public Optional<T> findAny(){
-		return scanner.findAny();
+		return scanner.findFirst();
 	}
 
 	@Override

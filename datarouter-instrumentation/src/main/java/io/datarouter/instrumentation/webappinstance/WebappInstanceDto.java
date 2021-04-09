@@ -15,6 +15,7 @@
  */
 package io.datarouter.instrumentation.webappinstance;
 
+import java.time.Instant;
 import java.util.Date;
 
 public class WebappInstanceDto{
@@ -25,9 +26,15 @@ public class WebappInstanceDto{
 	public final String servletContextPath;
 	public final String serverPublicIp;
 	public final String serverPrivateIp;
+	@Deprecated
 	public final Date refreshedLast;
+	@Deprecated
 	public final Date startupDate;
+	@Deprecated
 	public final Date buildDate;
+	public final Instant refreshedLastInstant;
+	public final Instant startup;
+	public final Instant build;
 	public final String buildId;
 	public final String commitId;
 	public final String javaVersion;
@@ -44,6 +51,9 @@ public class WebappInstanceDto{
 			Date refreshedLast,
 			Date startupDate,
 			Date buildDate,
+			Instant refreshedLastInstant,
+			Instant startup,
+			Instant build,
 			String buildId,
 			String commitId,
 			String javaVersion,
@@ -58,6 +68,9 @@ public class WebappInstanceDto{
 		this.refreshedLast = refreshedLast;
 		this.startupDate = startupDate;
 		this.buildDate = buildDate;
+		this.refreshedLastInstant = refreshedLastInstant;
+		this.startup = startup;
+		this.build = build;
 		this.buildId = buildId;
 		this.commitId = commitId;
 		this.javaVersion = javaVersion;

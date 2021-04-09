@@ -53,6 +53,34 @@ public class SplittingScannerTests{
 	}
 
 	@Test
+	public void testSplitAndBatch(){
+		List<List<String>> result = Scanner.of("a1", "b1", "c1", "d1", "e1")
+				.splitBy(FIRST)
+				.concat(tokens -> tokens.batch(2))
+				.list();
+		Iterator<List<String>> iter = result.iterator();
+		Assert.assertEquals(iter.next(), Java9.listOf("a1"));
+		Assert.assertEquals(iter.next(), Java9.listOf("b1"));
+		Assert.assertEquals(iter.next(), Java9.listOf("c1"));
+		Assert.assertEquals(iter.next(), Java9.listOf("d1"));
+		Assert.assertEquals(iter.next(), Java9.listOf("e1"));
+		Assert.assertFalse(iter.hasNext());
+	}
+
+	@Test
+	public void testSplitAndCount(){
+		List<Long> result = Scanner.of("a1", "a2", "a3", "b1", "c1", "c2")
+				.splitBy(FIRST)
+				.map(tokens -> tokens.count())
+				.list();
+		Iterator<Long> iter = result.iterator();
+		Assert.assertEquals(iter.next(), Long.valueOf(3));
+		Assert.assertEquals(iter.next(), Long.valueOf(1));
+		Assert.assertEquals(iter.next(), Long.valueOf(2));
+		Assert.assertFalse(iter.hasNext());
+	}
+
+	@Test
 	public void testUndrainedInnerScanner(){
 		List<Scanner<String>> result = Scanner.of("a1", "a2", "b1", "b2", "c1")
 				.splitBy(FIRST)

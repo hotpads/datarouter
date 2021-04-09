@@ -54,17 +54,18 @@ public abstract class CheckedSingletonSupplier<R,E extends Exception> implements
 		return get();
 	}
 
-	/*----------------------- CheckedLazyFunctional -------------------------*/
+	/*----------------------- CheckedSingletonSupplierFunctional -------------------------*/
 
 	public static <R,E extends Exception> CheckedSingletonSupplier<R,E> ofChecked(CheckedSupplier<R,E> supplier){
-		return new CheckedLazyFunctional<>(supplier);
+		return new CheckedSingletonSupplierFunctional<>(supplier);
 	}
 
-	private static class CheckedLazyFunctional<R,E extends Exception> extends CheckedSingletonSupplier<R,E>{
+	private static class CheckedSingletonSupplierFunctional<R,E extends Exception>
+	extends CheckedSingletonSupplier<R,E>{
 
 		private final CheckedSupplier<R,E> supplier;
 
-		public CheckedLazyFunctional(CheckedSupplier<R,E> supplier){
+		public CheckedSingletonSupplierFunctional(CheckedSupplier<R,E> supplier){
 			this.supplier = supplier;
 		}
 

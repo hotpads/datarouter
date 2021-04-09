@@ -51,19 +51,6 @@ public class ScannerToolTests{
 	}
 
 	@Test
-	public void testFindAny(){
-		List<Integer> items = Java9.listOf(1, 2, 3);
-		Integer any = Scanner.of(items).findAny().get();
-		Assert.assertTrue(items.contains(any));
-		Assert.assertFalse(Scanner.empty().findAny().isPresent());
-	}
-
-	@Test(expectedExceptions = NullPointerException.class)
-	public void testFindAnyNull(){
-		Scanner.of(null, null).findAny();
-	}
-
-	@Test
 	public void testFindFirst(){
 		Assert.assertEquals(Scanner.of(1, 3, 5).findFirst().get().intValue(), 1);
 		Assert.assertFalse(Scanner.empty().findFirst().isPresent());
@@ -117,6 +104,34 @@ public class ScannerToolTests{
 	public void testMin(){
 		Assert.assertFalse(Scanner.of(1).skip(1).min(Comparator.naturalOrder()).isPresent());
 		Assert.assertEquals(Scanner.of(2, 1, 3).min(Comparator.naturalOrder()).get().intValue(), 1);
+	}
+
+	@Test
+	public void testMaxN(){
+		List<Integer> inputs = Java9.listOf(4, 0, 1, 0, 3, 3, 3, 2);
+		Comparator<Integer> comparator = Comparator.naturalOrder();
+		List<Integer> max0 = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, 0).list();
+		Assert.assertEquals(max0, Java9.listOf());
+		List<Integer> max1 = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, 1).list();
+		Assert.assertEquals(max1, Java9.listOf(4));
+		List<Integer> max2 = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, 2).list();
+		Assert.assertEquals(max2, Java9.listOf(4, 3));
+		List<Integer> maxAll = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, inputs.size() * 2).list();
+		Assert.assertEquals(maxAll, Scanner.of(inputs).sorted(comparator.reversed()).list());
+	}
+
+	@Test
+	public void testMinN(){
+		List<Integer> inputs = Java9.listOf(4, 0, 1, 0, 3, 3, 3, 2);
+		Comparator<Integer> comparator = Comparator.naturalOrder();
+		List<Integer> min0 = ScannerTool.minNAsc(Scanner.of(inputs), comparator, 0).list();
+		Assert.assertEquals(min0, Java9.listOf());
+		List<Integer> min1 = ScannerTool.minNAsc(Scanner.of(inputs), comparator, 1).list();
+		Assert.assertEquals(min1, Java9.listOf(0));
+		List<Integer> min2 = ScannerTool.minNAsc(Scanner.of(inputs), comparator, 2).list();
+		Assert.assertEquals(min2, Java9.listOf(0, 0));
+		List<Integer> minAll = ScannerTool.minNAsc(Scanner.of(inputs), comparator, inputs.size() * 2).list();
+		Assert.assertEquals(minAll, Scanner.of(inputs).sorted(comparator).list());
 	}
 
 	@Test

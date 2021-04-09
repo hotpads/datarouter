@@ -97,7 +97,7 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 		datarouter.register(node);
 
 		accountCredentialByAccountNameCache = new AtomicReference<>(getAccountCredentialsByAccountName());
-		accountCredentialByApiKeyCache = new AtomicReference<>(getAccountCredentialsByAccountName());
+		accountCredentialByApiKeyCache = new AtomicReference<>(getAccountCredentialsByApiKey());
 		executor.scheduleWithFixedDelay(this::refreshCaches, 30, 30, TimeUnit.SECONDS);
 	}
 

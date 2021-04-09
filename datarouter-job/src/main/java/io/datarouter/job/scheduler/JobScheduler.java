@@ -15,16 +15,11 @@
  */
 package io.datarouter.job.scheduler;
 
-import java.io.InterruptedIOException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -37,8 +32,7 @@ import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.JobCounters;
-import io.datarouter.job.JobExceptionCategory;
-import io.datarouter.job.config.DatarouterJobExecutors.DatarouterJobExecutor;
+import io.datarouter.job.LocalJobProcessor;
 import io.datarouter.job.config.DatarouterJobExecutors.DatarouterJobScheduler;
 import io.datarouter.job.config.DatarouterJobSettingRoot;
 import io.datarouter.job.detached.DetachedJobExecutor;
@@ -47,14 +41,9 @@ import io.datarouter.job.lock.LocalTriggerLockService;
 import io.datarouter.job.lock.TriggerLockConfig;
 import io.datarouter.job.scheduler.JobWrapper.JobWrapperFactory;
 import io.datarouter.job.util.Outcome;
-import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.concurrent.ThreadTool;
-import io.datarouter.util.concurrent.UncheckedInterruptedException;
-import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.RandomTool;
-import io.datarouter.web.exception.ExceptionRecorder;
-import io.datarouter.web.util.ExceptionTool;
 
 /**
  * Provides scheduling, shouldRun, local and cluster locking for jobs.
@@ -67,44 +56,41 @@ public class JobScheduler{
 
 	private final DatarouterInjector injector;
 	private final DatarouterJobScheduler triggerExecutor;
-	private final DatarouterJobExecutor jobExecutor;
 	private final DetachedJobExecutor detachedJobExecutor;
 	private final DatarouterJobSettingRoot jobSettings;
 	private final JobCategoryTracker jobCategoryTracker;
 	private final JobPackageTracker jobPackageTracker;
+	private final LocalJobProcessor localJobProcessor;
 	private final LocalTriggerLockService localTriggerLockService;
 	private final ClusterTriggerLockService clusterTriggerLockService;
 	private final JobWrapperFactory jobWrapperFactory;
 	private final JobCounters jobCounters;
-	private final ExceptionRecorder exceptionRecorder;
 	private final AtomicBoolean shutdown;
 
 	@Inject
 	public JobScheduler(
 			DatarouterInjector injector,
 			DatarouterJobScheduler triggerExecutor,
-			DatarouterJobExecutor jobExecutor,
 			DetachedJobExecutor detachedJobExecutor,
 			DatarouterJobSettingRoot jobSettings,
 			JobCategoryTracker jobCategoryTracker,
 			JobPackageTracker jobPackageTracker,
+			LocalJobProcessor localJobProcessor,
 			LocalTriggerLockService localTriggerLockService,
 			ClusterTriggerLockService clusterTriggerLockService,
 			JobWrapperFactory jobWrapperFactory,
-			JobCounters jobCounters,
-			ExceptionRecorder exceptionRecorder){
+			JobCounters jobCounters){
 		this.injector = injector;
 		this.triggerExecutor = triggerExecutor;
-		this.jobExecutor = jobExecutor;
 		this.detachedJobExecutor = detachedJobExecutor;
 		this.jobSettings = jobSettings;
 		this.jobCategoryTracker = jobCategoryTracker;
 		this.jobPackageTracker = jobPackageTracker;
+		this.localJobProcessor = localJobProcessor;
 		this.localTriggerLockService = localTriggerLockService;
 		this.clusterTriggerLockService = clusterTriggerLockService;
 		this.jobWrapperFactory = jobWrapperFactory;
 		this.jobCounters = jobCounters;
-		this.exceptionRecorder = exceptionRecorder;
 		this.shutdown = new AtomicBoolean();
 	}
 
@@ -124,7 +110,7 @@ public class JobScheduler{
 		localTriggerLockService.onShutdown(); // tell currently running jobs to stop
 		triggerExecutor.shutdown(); // start rejecting new triggers
 		ThreadTool.sleepUnchecked(5_000); // give some time for currently running jobs to stop
-		jobExecutor.shutdownNow(); // interrupt all jobs
+		localJobProcessor.shutdown(); // interrupt all jobs
 		triggerExecutor.shutdownNow(); // interrupt all triggers
 		releaseThisServersActiveTriggerLocks();
 		clusterTriggerLockService.releaseThisServersJobLocks();
@@ -139,12 +125,12 @@ public class JobScheduler{
 			logger.warn("couldn't schedule " + getClass() + " because no trigger defined");
 			return;
 		}
-		Long delay = optionalDelay.get();
+		long delayMs = optionalDelay.get();
 		BaseJob nextJobInstance = injector.getInstance(jobPackage.jobClass);
-		Date nextTriggerTime = new Date(nowMs + delay);
+		Date nextTriggerTime = new Date(nowMs + delayMs);
 		JobWrapper jobWrapper = jobWrapperFactory.createScheduled(jobPackage, nextJobInstance, nextTriggerTime,
 				nextTriggerTime, getClass().getSimpleName());
-		schedule(jobWrapper, delay, TimeUnit.MILLISECONDS, false, false);
+		schedule(jobWrapper, delayMs, false, false);
 	}
 
 	public void scheduleRetriggeredJob(JobPackage jobPackage, Date officialTriggerTime){
@@ -158,19 +144,16 @@ public class JobScheduler{
 				officialTriggerTime,
 				new Date(),
 				getClass().getSimpleName() + " JobRetriggeringJob");
-		schedule(jobWrapper, 0, TimeUnit.MILLISECONDS, true, true);
+		schedule(jobWrapper, 0, true, true);
 	}
 
-	private void schedule(JobWrapper jobWrapper, long delay, TimeUnit unit, boolean logIfRan, boolean logIfDidNotRun){
+	private void schedule(JobWrapper jobWrapper, long delayMs, boolean logIfRan, boolean logIfDidNotRun){
 		if(shutdown.get()){
 			logger.warn("Job scheduler is shutdown, not scheduling {}", jobWrapper.jobClass.getSimpleName());
 			return;
 		}
-		try{
-			triggerExecutor.schedule(() -> triggerScheduled(jobWrapper, logIfRan, logIfDidNotRun), delay, unit);
-		}catch(RejectedExecutionException e){
-			throw e;
-		}
+		triggerExecutor.schedule(() -> triggerScheduled(jobWrapper, logIfRan, logIfDidNotRun), delayMs,
+				TimeUnit.MILLISECONDS);
 	}
 
 	private Optional<Long> getDelayBeforeNextTriggerTimeMs(JobPackage jobPackage, long nowMs){
@@ -182,6 +165,10 @@ public class JobScheduler{
 	/*-------------- trigger/run ----------------*/
 
 	private void triggerScheduled(JobWrapper jobWrapper, boolean logIfRan, boolean logIfDidNotRun){
+		if(shutdown.get()){
+			logger.warn("Job scheduler is shutdown, not running {}", jobWrapper.jobClass.getSimpleName());
+			return;
+		}
 		Class<? extends BaseJob> jobClass = jobWrapper.job.getClass();
 		JobPackage jobPackage = jobWrapper.jobPackage;
 		try{
@@ -269,6 +256,7 @@ public class JobScheduler{
 			if(jobWrapper.shouldRunDetached){
 				try{
 					// Try running the job detached, but fallback to local execution if not possible.
+					// Maybe this should be an option when registering the job.
 					return runDetached(jobWrapper);
 				}catch(RejectedExecutionException e){
 					logger.warn("Falling back to local execution...");
@@ -292,83 +280,7 @@ public class JobScheduler{
 	}
 
 	private Outcome runLocal(JobWrapper jobWrapper){
-		Class<? extends BaseJob> jobClass = jobWrapper.job.getClass();
-		long hardTimeoutMs = getDeadlineMs(jobWrapper);
-		Future<?> future;
-		try{
-			future = jobExecutor.submit(jobWrapper);
-		}catch(RejectedExecutionException e){
-			if(shutdown.get()){
-				String msg = "Job scheduler is shutdown, not running " + jobWrapper.jobClass.getSimpleName();
-				logger.warn(msg);
-				return Outcome.failure(msg);
-			}
-			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.ERRORED);
-			var exception = new RuntimeException("rejected jobName=" + jobClass.getName(), e);
-			exceptionRecorder.tryRecordException(exception, jobClass.getName(), JobExceptionCategory.JOB)
-					.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
-			throw exception;
-		}
-		try{
-			future.get(hardTimeoutMs, TimeUnit.MILLISECONDS);
-			return Outcome.success();
-		}catch(InterruptedException e){
-			future.cancel(true);
-			onInterrupt(jobWrapper, jobClass, hardTimeoutMs, e);
-			return Outcome.failure("Interrupted. exception=" + e);
-		}catch(ExecutionException e){
-			boolean isInterrupted = ExceptionTool.isFromInstanceOf(e, InterruptedException.class,
-					UncheckedInterruptedException.class, InterruptedIOException.class);
-			if(isInterrupted){
-				onInterrupt(jobWrapper, jobClass, hardTimeoutMs, e);
-				return Outcome.failure("Interrupted. exception=" + e);
-			}
-			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.ERRORED);
-			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
-					TimeUnit.MILLISECONDS);
-			var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
-			var exception = new RuntimeException("failed jobName=" + jobClass.getName() + " elapsed=" + elapsed
-					+ " deadline=" + deadline, e);
-			exceptionRecorder.tryRecordException(exception, jobClass.getName(), JobExceptionCategory.JOB)
-					.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
-			throw exception;
-		}catch(TimeoutException e){
-			future.cancel(true);
-			jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.TIMED_OUT);
-			var elapsed = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime.getTime(),
-					TimeUnit.MILLISECONDS);
-			var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
-			var exception = new RuntimeException("didn't complete on time jobName=" + jobClass.getName() + " elapsed="
-					+ elapsed + " deadline=" + deadline, e);
-			exceptionRecorder.tryRecordException(exception, jobClass.getName(), JobExceptionCategory.JOB)
-					.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
-			jobCounters.timedOut(jobClass);
-			throw exception;
-		}
-	}
-
-	private void onInterrupt(JobWrapper jobWrapper, Class<? extends BaseJob> jobClass, long hardTimeoutMs,
-			Exception ex){
-		jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.INTERRUPTED);
-		var elapsedFromTrigger = new DatarouterDuration(System.currentTimeMillis() - jobWrapper.triggerTime
-				.getTime(), TimeUnit.MILLISECONDS);
-		var elapsedFromStart = jobWrapper.startedAt == null ? null : new DatarouterDuration(
-				System.currentTimeMillis() - jobWrapper.startedAt.toEpochMilli(), TimeUnit.MILLISECONDS);
-		var deadline = new DatarouterDuration(hardTimeoutMs, TimeUnit.MILLISECONDS);
-		String message = String.format("interrupted jobName=%s elapsedFromTrigger=%s elapsedFromStart=%s deadline=%s",
-				jobClass.getName(), elapsedFromTrigger, elapsedFromStart, deadline);
-		var exception = new RuntimeException(message, ex);
-		logger.warn(message);
-		exceptionRecorder.tryRecordException(exception, jobClass.getName(), JobExceptionCategory.JOB)
-				.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
-		jobCounters.interrupted(jobClass);
-	}
-
-	private long getDeadlineMs(JobWrapper jobWrapper){
-		return jobWrapper.jobPackage.getHardDeadline(jobWrapper.triggerTime)
-				.map(deadline -> Duration.between(Instant.now(), deadline))
-				.map(Duration::toMillis)
-				.orElse(Long.MAX_VALUE);
+		return localJobProcessor.run(jobWrapper);
 	}
 
 	/*---------------- helpers -------------------*/

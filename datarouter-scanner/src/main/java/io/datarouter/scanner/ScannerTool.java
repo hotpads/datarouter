@@ -20,7 +20,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BinaryOperator;
@@ -163,6 +165,44 @@ public class ScannerTool{
 				}
 			}
 			return Optional.ofNullable(min);
+		}
+	}
+
+	public static <T> Scanner<T> maxNDesc(Scanner<T> scanner, Comparator<? super T> comparator, int num){
+		List<T> maxNAsc = maxNAsc(scanner, comparator, num);
+		return ReverseListScanner.of(maxNAsc);
+	}
+
+	public static <T> Scanner<T> minNAsc(Scanner<T> scanner, Comparator<? super T> comparator, int num){
+		List<T> minNDesc = maxNAsc(scanner, comparator.reversed(), num);
+		return ReverseListScanner.of(minNDesc);
+	}
+
+	private static <T> List<T> maxNAsc(Scanner<T> scanner, Comparator<? super T> comparator, int num){
+		try(Scanner<T> $ = scanner){
+			if(num == 0){
+				return Collections.emptyList();
+			}
+			if(num == 1){
+				return max(scanner, comparator)
+						.map(Collections::singletonList)
+						.orElseGet(Collections::emptyList);
+			}
+			PriorityQueue<T> heap = new PriorityQueue<>(comparator);
+			while(scanner.advance()){
+				T current = scanner.current();
+				Objects.requireNonNull(current, "PriorityQueue implementation doesn't support nulls");
+				heap.add(current);
+				if(heap.size() > num){
+					heap.poll();
+				}
+			}
+			int size = heap.size();
+			List<T> ordered = new ArrayList<>(size);
+			for(int i = 0; i < size; ++i){
+				ordered.add(heap.poll());
+			}
+			return ordered;
 		}
 	}
 

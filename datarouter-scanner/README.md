@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.67</version>
+	<version>0.0.68</version>
 </dependency>
 ```
 
@@ -35,7 +35,6 @@ These methods share behavior with those in Stream but are implemented independen
 - `allMatch`
 - `noneMatch`
 - `findFirst`
-- `findAny`
 - `empty`
 - `of`
 - `toArray`
@@ -47,6 +46,7 @@ These methods share behavior with those in Stream but are implemented independen
 - No primitive support
 - Less overhead as there are fewer objects involved
 - Less focused on behind-the-scenes parallelism for simplicity
+  - Scanner is missing findAny() as it's equivalent to findFirst()
 - More explicit parallelism on a step by step basis
   - Specify an executor and thread count for each parallel step
 
@@ -114,7 +114,7 @@ These methods share behavior with those in Stream but are implemented independen
 
 ### ParallelScanner
 ##### - [source code](./src/main/java/io/datarouter/scanner/ParallelScanner.java)
-Calling `.parallel(..)` returns a `ParallelScanner` which executes each operation in an executor, useful when the operations are CPU or IO intensive. It has these methods:
+Calling `.parallel(..)` returns a `ParallelScanner` which executes the next operation in an executor, useful when the operations are CPU or IO intensive. It has these methods:
 - `map`
 - `exclude`
 - `include`

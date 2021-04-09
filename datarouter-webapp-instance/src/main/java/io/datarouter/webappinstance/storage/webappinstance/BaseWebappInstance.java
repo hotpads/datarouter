@@ -30,6 +30,8 @@ import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.DateFieldKey;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.imp.comparable.InstantField;
+import io.datarouter.model.field.imp.comparable.InstantFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
 import io.datarouter.scanner.Scanner;
@@ -43,9 +45,15 @@ extends BaseDatabean<PK,D>{
 	private String servletContextPath;
 	private String serverPublicIp;
 	private String serverPrivateIp;
+	@Deprecated
 	private Date refreshedLast;
+	@Deprecated
 	private Date startupDate;
+	@Deprecated
 	private Date buildDate;
+	private Instant refreshedLastInstant;
+	private Instant startup;
+	private Instant build;
 	private String buildId;
 	private String commitId;
 	private String javaVersion;
@@ -57,9 +65,15 @@ extends BaseDatabean<PK,D>{
 		public static final StringFieldKey servletContextPath = new StringFieldKey("servletContextPath");
 		public static final StringFieldKey serverPublicIp = new StringFieldKey("serverPublicIp");
 		public static final StringFieldKey serverPrivateIp = new StringFieldKey("serverPrivateIp");
+		@Deprecated
 		public static final DateFieldKey refreshedLast = new DateFieldKey("refreshedLast");
+		@Deprecated
 		public static final DateFieldKey startupDate = new DateFieldKey("startupDate");
+		@Deprecated
 		public static final DateFieldKey buildDate = new DateFieldKey("buildDate");
+		public static final InstantFieldKey refreshedLastInstant = new InstantFieldKey("refreshedLastInstant");
+		public static final InstantFieldKey startup = new InstantFieldKey("startup");
+		public static final InstantFieldKey build = new InstantFieldKey("build");
 		public static final StringFieldKey buildId = new StringFieldKey("buildId");
 		public static final StringFieldKey commitId = new StringFieldKey("commitId");
 		public static final StringFieldKey javaVersion = new StringFieldKey("javaVersion");
@@ -86,6 +100,9 @@ extends BaseDatabean<PK,D>{
 					new DateField(FieldKeys.refreshedLast, databean.getRefreshedLast()),
 					new DateField(FieldKeys.startupDate, databean.getStartupDate()),
 					new DateField(FieldKeys.buildDate, databean.getBuildDate()),
+					new InstantField(FieldKeys.refreshedLastInstant, databean.getRefreshedLastInstant()),
+					new InstantField(FieldKeys.startup, databean.getStartupInstant()),
+					new InstantField(FieldKeys.build, databean.getBuildInstant()),
 					new StringField(FieldKeys.buildId, databean.getBuildId()),
 					new StringField(FieldKeys.commitId, databean.getCommitId()),
 					new StringField(FieldKeys.javaVersion, databean.getJavaVersion()),
@@ -106,6 +123,9 @@ extends BaseDatabean<PK,D>{
 			Date refreshedLast,
 			Date startupDate,
 			Date buildDate,
+			Instant refreshedLastInstant,
+			Instant startup,
+			Instant build,
 			String buildId,
 			String commitId,
 			String javaVersion,
@@ -119,6 +139,9 @@ extends BaseDatabean<PK,D>{
 		this.refreshedLast = refreshedLast;
 		this.startupDate = startupDate;
 		this.buildDate = buildDate;
+		this.refreshedLastInstant = refreshedLastInstant;
+		this.startup = startup;
+		this.build = build;
 		this.buildId = buildId;
 		this.commitId = commitId;
 		this.javaVersion = javaVersion;
@@ -135,6 +158,12 @@ extends BaseDatabean<PK,D>{
 				dto.refreshedLast,
 				dto.startupDate,
 				dto.buildDate,
+				dto.refreshedLast.toInstant(),
+				dto.startupDate.toInstant(),
+				dto.buildDate.toInstant(),
+				// dto.refreshedLastInstant,
+				// dto.startup,
+				// dto.build,
 				dto.buildId,
 				dto.commitId,
 				dto.javaVersion,
@@ -153,6 +182,12 @@ extends BaseDatabean<PK,D>{
 				getRefreshedLast(),
 				getStartupDate(),
 				getBuildDate(),
+				getRefreshedLast().toInstant(),
+				getStartupDate().toInstant(),
+				getBuildDate().toInstant(),
+//				getRefreshedLastInstant(),
+//				getStartupInstant(),
+//				getBuildInstant(),
 				getBuildId(),
 				getCommitId(),
 				getJavaVersion(),
@@ -173,7 +208,8 @@ extends BaseDatabean<PK,D>{
 		return Duration.ofMillis(nowMs - refreshedLastOrNowMs);
 	}
 
-	public Instant getRefreshedLastInstant(){
+	@Deprecated
+	public Instant getRefreshedLastInstantOld(){
 		return Optional.ofNullable(refreshedLast)
 				.map(Date::getTime)
 				.map(Instant::ofEpochMilli)
@@ -188,6 +224,7 @@ extends BaseDatabean<PK,D>{
 		return servletContextPath;
 	}
 
+	@Deprecated
 	public Date getRefreshedLast(){
 		return refreshedLast;
 	}
@@ -200,12 +237,26 @@ extends BaseDatabean<PK,D>{
 		return serverPrivateIp;
 	}
 
+	@Deprecated
 	public Date getStartupDate(){
 		return startupDate;
 	}
 
+	@Deprecated
 	public Date getBuildDate(){
 		return buildDate;
+	}
+
+	public Instant getRefreshedLastInstant(){
+		return refreshedLastInstant;
+	}
+
+	public Instant getStartupInstant(){
+		return startup;
+	}
+
+	public Instant getBuildInstant(){
+		return build;
 	}
 
 	public String getBuildId(){

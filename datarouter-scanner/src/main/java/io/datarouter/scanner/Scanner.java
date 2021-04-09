@@ -461,14 +461,6 @@ public interface Scanner<T> extends Closeable{
 	}
 
 	/**
-	 * Return any item encountered in the Scanner, wrapped in an Optional, otherwise Optional.empty() if no items
-	 * were found.
-	 */
-	default Optional<T> findAny(){
-		return findFirst();
-	}
-
-	/**
 	 * Return the first item encountered in the Scanner, wrapped in an Optional, otherwise Optional.empty() if no items
 	 * were found.
 	 */
@@ -569,6 +561,20 @@ public interface Scanner<T> extends Closeable{
 
 	default <R> R listTo(Function<List<T>,R> mapper){
 		return mapper.apply(list());
+	}
+
+	/**
+	 * Retains the max N items as defined by the comparator and returns a Scanner of them in descending order.
+	 */
+	default Scanner<T> maxN(Comparator<? super T> comparator, int num){
+		return ScannerTool.maxNDesc(this, comparator, num);
+	}
+
+	/**
+	 * Retains the min N items as defined by the comparator and returns a Scanner of them in ascending order.
+	 */
+	default Scanner<T> minN(Comparator<? super T> comparator, int num){
+		return ScannerTool.minNAsc(this, comparator, num);
 	}
 
 	/**
