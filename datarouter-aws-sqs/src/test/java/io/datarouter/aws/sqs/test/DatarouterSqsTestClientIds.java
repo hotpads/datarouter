@@ -19,6 +19,6 @@ import io.datarouter.storage.client.ClientId;
 
 public class DatarouterSqsTestClientIds{
 
-	public static final ClientId SQS = new ClientId("drTestSqs", true);
+	public static final ClientId SQS = ClientId.writer("drTestSqs", true);
 
 }

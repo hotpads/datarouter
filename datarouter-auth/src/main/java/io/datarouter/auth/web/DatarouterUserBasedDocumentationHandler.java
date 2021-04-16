@@ -24,8 +24,8 @@ import javax.inject.Inject;
 
 import org.apache.http.entity.StringEntity;
 
-import io.datarouter.auth.service.DatarouterAccountService;
-import io.datarouter.auth.storage.account.DatarouterAccountCredential;
+import io.datarouter.auth.service.DatarouterAccountCredentialService;
+import io.datarouter.auth.service.DatarouterAccountUserService;
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
@@ -41,7 +41,9 @@ import io.datarouter.web.util.http.RequestTool;
 public abstract class DatarouterUserBasedDocumentationHandler extends BaseHandler{
 
 	@Inject
-	private DatarouterAccountService datarouterAccountService;
+	private DatarouterAccountCredentialService datarouterAccountCredentialService;
+	@Inject
+	private DatarouterAccountUserService datarouterAccountUserService;
 	@Inject
 	private ApiDocService apiDocService;
 	@Inject
@@ -56,7 +58,7 @@ public abstract class DatarouterUserBasedDocumentationHandler extends BaseHandle
 
 		getSessionInfo().getSession().ifPresent(session -> {
 			model.put("apiKeyParameterName", SecurityParameters.API_KEY);
-			datarouterAccountService.findFirstAccountCredentialForUser(session)
+			datarouterAccountUserService.findFirstAccountCredentialForUser(session)
 					.ifPresent(credential -> model.put("apiKey", credential.getKey().getApiKey()));
 		});
 		model.put("hideAuth", true);
@@ -66,9 +68,8 @@ public abstract class DatarouterUserBasedDocumentationHandler extends BaseHandle
 	@Handler
 	public Map<String,String> getCsrfIv(){
 		Map<String,String> result = RequestTool.getParamMap(request);
-		Optional<String> secret = datarouterAccountService.findAccountCredentialForApiKeyAuth(result.get(
-				SecurityParameters.API_KEY))
-				.map(DatarouterAccountCredential::getSecretKey);
+		Optional<String> secret = datarouterAccountCredentialService.findSecretKeyForApiKeyAuth(result.get(
+				SecurityParameters.API_KEY));
 		if(secret.isEmpty()){
 			return result;
 		}
@@ -84,9 +85,8 @@ public abstract class DatarouterUserBasedDocumentationHandler extends BaseHandle
 	public Map<String,String> getSignature(){
 		Map<String,String> params = RequestTool.getParamMap(request);
 		String body = RequestTool.getBodyAsString(request);
-		Optional<String> secret = datarouterAccountService.findAccountCredentialForApiKeyAuth(params.get(
-				SecurityParameters.API_KEY))
-				.map(DatarouterAccountCredential::getSecretKey);
+		Optional<String> secret = datarouterAccountCredentialService.findSecretKeyForApiKeyAuth(params.get(
+				SecurityParameters.API_KEY));
 		if(secret.isEmpty()){
 			return params;
 		}

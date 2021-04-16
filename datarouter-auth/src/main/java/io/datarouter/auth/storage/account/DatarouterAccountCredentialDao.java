@@ -17,20 +17,18 @@ package io.datarouter.auth.storage.account;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.auth.config.DatarouterAuthExecutors.DatarouterAccountCredentialCacheExecutor;
 import io.datarouter.auth.storage.account.DatarouterAccountCredential.DatarouterAccountCredentialFielder;
 import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.config.Config;
+import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
@@ -68,16 +66,12 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 			DatarouterAccountCredentialByAccountNameKey,DatarouterAccountCredentialKey, DatarouterAccountCredential>>
 			byAccountName;
 
-	private final AtomicReference<Map<String,DatarouterAccountCredential>> accountCredentialByAccountNameCache;
-	private final AtomicReference<Map<String,DatarouterAccountCredential>> accountCredentialByApiKeyCache;
-
 	@Inject
 	public DatarouterAccountCredentialDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
 			IndexingNodeFactory indexingNodeFactory,
-			DatarouterAccountCredentialDaoParams params,
-			DatarouterAccountCredentialCacheExecutor executor){
+			DatarouterAccountCredentialDaoParams params){
 		super(datarouter);
 
 		node = Scanner.of(params.clientIds)
@@ -95,10 +89,6 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 		byAccountName = indexingNodeFactory.createKeyOnlyManagedIndex(DatarouterAccountCredentialByAccountNameKey.class,
 				node).build();
 		datarouter.register(node);
-
-		accountCredentialByAccountNameCache = new AtomicReference<>(getAccountCredentialsByAccountName());
-		accountCredentialByApiKeyCache = new AtomicReference<>(getAccountCredentialsByApiKey());
-		executor.scheduleWithFixedDelay(this::refreshCaches, 30, 30, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -107,8 +97,13 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 	}
 
 	@Override
-	public void putMulti(Collection<DatarouterAccountCredential> databeans){
-		node.putMulti(databeans);
+	public void insertOrBust(DatarouterAccountCredential databean){
+		node.put(databean, new Config().setPutMethod(PutMethod.INSERT_OR_BUST));
+	}
+
+	@Override
+	public void updateMultiIgnore(Collection<DatarouterAccountCredential> databeans){
+		node.putMulti(databeans, new Config().setPutMethod(PutMethod.UPDATE_IGNORE));
 	}
 
 	@Override
@@ -159,29 +154,6 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 	@Override
 	public Optional<DatarouterAccountCredential> find(DatarouterAccountCredentialKey key){
 		return node.find(key);
-	}
-
-	@Override
-	public Optional<DatarouterAccountCredential> getFromAccountCredentialByAccountNameCache(String accountName){
-		return Optional.ofNullable(accountCredentialByAccountNameCache.get().get(accountName));
-	}
-
-	@Override
-	public Optional<DatarouterAccountCredential> getFromAccountCredentialByApiKeyCache(String apiKey){
-		return Optional.ofNullable(accountCredentialByApiKeyCache.get().get(apiKey));
-	}
-
-	private Map<String,DatarouterAccountCredential> getAccountCredentialsByAccountName(){
-		return node.scan().toMap(databean -> databean.getAccountName());
-	}
-
-	private Map<String,DatarouterAccountCredential> getAccountCredentialsByApiKey(){
-		return node.scan().toMap(databean -> databean.getKey().getApiKey());
-	}
-
-	private void refreshCaches(){
-		accountCredentialByAccountNameCache.set(getAccountCredentialsByAccountName());
-		accountCredentialByApiKeyCache.set(getAccountCredentialsByApiKey());
 	}
 
 }

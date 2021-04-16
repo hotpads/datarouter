@@ -35,6 +35,8 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runExceptionRecordVacuum;
 	public final CachedSetting<Boolean> runHttpRequestRecordVacuumJob;
 
+	public final CachedSetting<Boolean> runExceptionRecordMemoryToDatabaseConveyor;
+
 	public final CachedSetting<Boolean> publishRecords;
 
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
@@ -50,6 +52,9 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 		runExceptionRecordAggregationJob = registerBoolean("runExceptionRecordAggregationJob", false);
 		runExceptionRecordVacuum = registerBoolean("runExceptionRecordVacuum", false);
 		runHttpRequestRecordVacuumJob = registerBoolean("runHttpRequestRecordVacuumJob", false);
+
+		runExceptionRecordMemoryToDatabaseConveyor = registerBoolean("runExceptionRecordMemoryToDatabaseConveyor",
+				true);
 
 		publishRecords = registerBooleans("publishRecords", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));

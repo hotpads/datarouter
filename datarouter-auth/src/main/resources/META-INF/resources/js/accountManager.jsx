@@ -12,6 +12,12 @@ const Fetch = {
 		body: $.param(data),
 		credentials: 'same-origin',
 		headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
+	}),
+	postJson: (url, data, returnsJson = true) => Fetch[returnsJson ? 'fetchJson' : 'fetchOnly'](url, {
+		method: 'POST',
+		body: JSON.stringify(data),
+		credentials: 'same-origin',
+		headers: {'Content-Type': 'application/json;charset=UTF-8'}
 	})
 }
 
@@ -76,12 +82,15 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 			</tr>
 		</thead>
 		<tbody>
-			{accountDetails.map(({account, credentials, permissions, metricLink}) => (
+			{accountDetails.map(({account, credentials, secretCredentials, permissions, metricLink}) => (
 				<tr key={account.accountName}>
 					<td>{account.accountName}</td>
 					<td>{account.lastUsed}</td>
 					<td className={credentials.length ? '' : 'table-warning'}>
 						{credentials.length ? credentials.length : 'No credentials'}
+					</td>
+					<td className={secretCredentials.length ? '' : 'table-warning'}>
+						{secretCredentials.length ? secretCredentials.length : 'No secret credentials'}
 					</td>
 					<td className={permissions.length ? '' : 'table-warning'}>
 						{permissions.length ? (
@@ -165,6 +174,61 @@ const CredentialTable = ({credentials, addCredential, deleteCredential}) => (
 	</div>
 )
 
+const SecretCredentialTable = ({secretCredentials, addSecretCredential, deleteSecretCredential,
+		setCredentialActivation}) => (
+	<div>
+		<h3>Secret Credentials {!secretCredentials.length && <span className="alert alert-warning">(This account has no secret credentials)</span>}</h3>
+		{secretCredentials.length ? <table className="sortable table table-condensed table-striped">
+			<thead>
+				<tr>
+					<th>Secret Name</th>
+					<th>Last used</th>
+					<th>Created</th>
+					<th>Creator Username</th>
+					<th>Status</th>
+					<th>Delete</th>
+				</tr>
+			</thead>
+			<tbody>
+				{secretCredentials.map(({secretName, lastUsed, created, creatorUsername, active}) => {
+					return (
+						<tr key={secretName}>
+							<td>{secretName}</td>
+							<td>{lastUsed}</td>
+							<td>{created}</td>
+							<td>{creatorUsername}</td>
+							<ActivationTd
+								active={active}
+								keyName="secretName"
+								value={secretName}
+								message={`Are you sure you want to deactivate the credential with secretName: \n${secretName}? It can be activated again later.`}
+								setCredentialActivation={setCredentialActivation}/>
+							<td>
+								<a onClick={() => deleteSecretCredential(secretName)} title="Delete secret credential">
+									<i className="fas fa-trash"></i>
+								</a>
+							</td>
+						</tr>
+					)
+				})}
+			</tbody>
+		</table> : ''}
+		<SubmitButton
+			className="form-control-static btn"
+			onClick={addSecretCredential}
+			value="Add secret credential"
+		/>
+	</div>
+)
+
+const ActivationTd = ({active, keyName, value, message, setCredentialActivation}) => {
+	message = active ? message : null
+	console.log(active, keyName, value, message)
+	return <td>
+		{active ? <span style={{color: 'green'}}>Active</span> : <span style={{color: 'red'}}>Inactive</span>} | <a href='' onClick={() => setCredentialActivation(keyName, value, !active, message)}>{active ? 'Deactivate' : 'Activate'}</a>
+	</td>
+}
+
 class Accounts extends React.Component{
 	constructor(props){
 		super(props)
@@ -231,13 +295,16 @@ const AccountDetailsBreakdown = ({
 	</div>
 )
 
+const Hr = <hr className={`mt-4 mb-3`} />
+
 class AccountDetails extends React.Component{
 	constructor(props){
-		super(props);
+		super(props)
 		this.state = {
 			details: null,
 			availableEndpoints: [],
 			selectedEndpoint: null,
+			keypair: null
 		}
 	}
 
@@ -261,15 +328,15 @@ class AccountDetails extends React.Component{
 	}
 
 	toggleUserMappings = () => {
-		this.updateAccount('toggleUserMappings');
+		this.updateAccount('toggleUserMappings')
 	}
 
 	handleSelectEndpoint = (event) => {
-		this.setState({selectedEndpoint: event.target.value});
+		this.setState({selectedEndpoint: event.target.value})
 	}
 
 	handleAddPermission = (event) => {
-		event.preventDefault();
+		event.preventDefault()
 		const accountName = this.state.details.account.accountName
 		const endpoint = this.state.selectedEndpoint
 		Fetch.post('addPermission', {accountName, endpoint})
@@ -283,7 +350,7 @@ class AccountDetails extends React.Component{
 	}
 
 	addCredential = () => {
-		event.preventDefault();
+		event.preventDefault()
 		const accountName = this.state.details.account.accountName
 		Fetch.post('addCredential', {accountName})
 			.then(details => this.setState({details}))
@@ -297,15 +364,65 @@ class AccountDetails extends React.Component{
 		}
 	}
 
-	render(){
-		const backButton = <Link className="btn btn-default" to={REACT_BASE_PATH + "manage"}>Back</Link>
+	//TODO add to regular credentials once active field is available
+	setCredentialActivation = (key, value, active, message) => {
+		event.preventDefault()
+		const accountName = this.state.details.account.accountName
+		if(!message || message && confirm(message)){
+			Fetch.postJson('setCredentialActivation', {accountName, active, [key]: value})
+				.then(details => this.setState({details}))
+		}
+	}
 
+	addSecretCredential = () => {
+		event.preventDefault()
+		const accountName = this.state.details.account.accountName
+		Fetch.post('addSecretCredential', {accountName})
+			.then(json => {
+				this.setState({details: json.details, keypair: json.keypair})
+			})
+	}
+
+	deleteSecretCredential = (secretName) => {
+		if(confirm(`Are you sure you want to delete the secret credential with name: \n${secretName}?`)){
+			const accountName = this.state.details.account.accountName
+			Fetch.post('deleteSecretCredential', {secretName, accountName})
+				.then(details => this.setState({details}))
+		}
+	}
+
+	clearKeypair = () => {
+		event.preventDefault()
+		this.setState({keypair: null})
+	}
+
+	render(){
+		if(this.state.keypair){
+			const {apiKey, secretKey} = this.state.keypair
+			return (
+				<div>
+					<h3>This is the new keypair. This is the <strong style={{color: 'red'}}>only time</strong> it will be displayed.</h3>
+					<dl>
+						<dt>API Key</dt>
+						<dd>{apiKey}</dd>
+						<dt>Secret Key</dt>
+						<dd>{secretKey}</dd>
+					</dl>
+					<SubmitButton
+						className="form-control-static btn"
+						onClick={this.clearKeypair}
+						value="Back"/>
+				</div>
+			)
+		}
+
+		const backButton = <Link className="btn btn-primary" to={REACT_BASE_PATH + "manage"}>Back</Link>
 		if (!this.state.details)
 			return backButton
 
 		const {
 			details,
-			details: {permissions, credentials},
+			details: {permissions, credentials, secretCredentials},
 			selectedEndpoint,
 			availableEndpoints
 		} = this.state
@@ -317,10 +434,18 @@ class AccountDetails extends React.Component{
 					account={details.account}
 					error={details.error}
 				/>
+				{Hr}
 				<CredentialTable
 					credentials={credentials}
 					addCredential={this.addCredential}
 					deleteCredential={this.deleteCredential}/>
+				{Hr}
+				<SecretCredentialTable
+					secretCredentials={secretCredentials}
+					addSecretCredential={this.addSecretCredential}
+					deleteSecretCredential={this.deleteSecretCredential}
+					setCredentialActivation={this.setCredentialActivation}/>
+				{Hr}
 				{!!availableEndpoints.length &&
 					<div>
 						<h3>Permissions {!permissions.length && <span className="alert alert-warning">(This account has no permissions)</span>}</h3>
@@ -369,7 +494,8 @@ class AccountDetails extends React.Component{
 						}
 					</div>
 				}
-				<Link className="btn btn-primary" to={REACT_BASE_PATH + "manage"}>Back</Link>
+				{Hr}
+				{backButton}
 			</div>
 		)
 	}

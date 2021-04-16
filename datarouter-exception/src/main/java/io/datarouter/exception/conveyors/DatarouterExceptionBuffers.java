@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.client;
+package io.datarouter.exception.conveyors;
 
-import java.util.Properties;
+import javax.inject.Singleton;
 
-public interface ClientOptionsBuilder{
+import io.datarouter.conveyor.DatabeanBuffer;
+import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
+import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 
-	// Used by other client option builders to configure defaults
-	ClientId DEFAULT_CLIENT_ID = ClientId.writer("default", true);
+@Singleton
+public class DatarouterExceptionBuffers{
 
-	Properties build();
+	public final DatabeanBuffer<ExceptionRecordKey,ExceptionRecord> exceptionRecordBuffer;
+
+	public DatarouterExceptionBuffers(){
+		this.exceptionRecordBuffer = new DatabeanBuffer<>("exceptionRecord", 10_000);
+	}
 
 }

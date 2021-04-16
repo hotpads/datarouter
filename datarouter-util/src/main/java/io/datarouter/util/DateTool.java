@@ -275,8 +275,12 @@ public class DateTool{
 		return localDateTimeToDate(endOfDay).getTime();
 	}
 
-	private static Date localDateTimeToDate(LocalDateTime localDateTime){
-		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+	public static Date localDateTimeToDate(LocalDateTime localDateTime, ZoneId zoneId){
+		return Date.from(localDateTime.atZone(zoneId).toInstant());
+	}
+
+	public static Date localDateTimeToDate(LocalDateTime localDateTime){
+		return localDateTimeToDate(localDateTime, ZoneId.systemDefault());
 	}
 
 	// TODO: Should we rather use DateTimeFormatter.RFC_1123_DATE_TIME ?

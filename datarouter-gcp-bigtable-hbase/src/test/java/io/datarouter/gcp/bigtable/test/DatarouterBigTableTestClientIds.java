@@ -19,6 +19,6 @@ import io.datarouter.storage.client.ClientId;
 
 public class DatarouterBigTableTestClientIds{
 
-	public static final ClientId BIG_TABLE = new ClientId("drTestBigTable", true);
+	public static final ClientId BIG_TABLE = ClientId.writer("drTestBigTable", true);
 
 }

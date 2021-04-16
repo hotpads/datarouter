@@ -19,6 +19,6 @@ import io.datarouter.storage.client.ClientId;
 
 public class DatarouterAwsMemcachedTestClientIds{
 
-	public static final ClientId AWS_MEMCACHED = new ClientId("drTestAwsMemcached", true);
+	public static final ClientId AWS_MEMCACHED = ClientId.writer("drTestAwsMemcached", true);
 
 }

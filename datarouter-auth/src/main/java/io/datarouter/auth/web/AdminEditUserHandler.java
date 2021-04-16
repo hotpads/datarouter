@@ -34,7 +34,7 @@ import javax.inject.Inject;
 
 import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
-import io.datarouter.auth.service.DatarouterAccountService;
+import io.datarouter.auth.service.DatarouterAccountUserService;
 import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.service.DatarouterUserEditService;
 import io.datarouter.auth.service.DatarouterUserHistoryService;
@@ -85,7 +85,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	@Inject
 	private DatarouterUserHistoryService datarouterUserHistoryService;
 	@Inject
-	private DatarouterAccountService datarouterAccountService;
+	private DatarouterAccountUserService datarouterAccountUserService;
 	@Inject
 	private DatarouterAuthenticationConfig authenticationConfig;
 	@Inject
@@ -323,8 +323,8 @@ public class AdminEditUserHandler extends BaseHandler{
 						.orElseGet(() -> buildDeprovisionedUserDto(user, roles)),
 				roleManager.getConferrableRoles(getSessionInfo().getRoles()),
 				roles,
-				datarouterAccountService.getAllAccountNamesWithUserMappingsEnabled(),
-				datarouterAccountService.findAccountNamesForUser(user),
+				datarouterAccountUserService.getAllAccountNamesWithUserMappingsEnabled(),
+				datarouterAccountUserService.findAccountNamesForUser(user),
 				true,
 				"",
 				user.getZoneId().map(ZoneId::getId).orElse(datarouterService.getZoneId().getId()));

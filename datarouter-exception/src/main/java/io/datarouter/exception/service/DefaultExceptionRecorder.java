@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
-import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
+import io.datarouter.exception.conveyors.DatarouterExceptionBuffers;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordPublisherDao;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao;
@@ -75,11 +75,11 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	@Inject
 	private DatarouterService datarouterService;
 	@Inject
-	private DatarouterExceptionRecordDao exceptionRecordDao;
-	@Inject
 	private DatarouterHttpRequestRecordDao httpRequestRecordDao;
 	@Inject
 	private DatarouterExceptionSettingRoot settings;
+	@Inject
+	private DatarouterExceptionBuffers exceptionBuffers;
 
 	@Override
 	public Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin){
@@ -132,7 +132,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				methodName,
 				lineNumber,
 				callOrigin);
-		exceptionRecordDao.put(exceptionRecord);
+		exceptionBuffers.exceptionRecordBuffer.offer(exceptionRecord);
 		logger.warn("Exception recorded ({})", exceptionRecordService.buildExceptionLinkForCurrentServer(
 				exceptionRecord));
 		if(settings.publishRecords.get()){

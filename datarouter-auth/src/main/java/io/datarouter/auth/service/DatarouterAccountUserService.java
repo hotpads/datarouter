@@ -22,44 +22,33 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.auth.cache.DatarouterAccountPermissionKeysByPrefixCache;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountCredential;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
-import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
 import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
-import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.user.session.service.SessionBasedUser;
-import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
-public class DatarouterAccountService{
+public class DatarouterAccountUserService{
 
 	private final BaseDatarouterAccountDao datarouterAccountDao;
 	private final BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao;
 	private final BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao;
-	private final DatarouterAccountPermissionKeysByPrefixCache datarouterAccountPermissionKeysByPrefixCache;
-	private final DatarouterAccountLastUsedDateService datarouterAccountLastUsedDateService;
 
 	@Inject
-	public DatarouterAccountService(
+	public DatarouterAccountUserService(
 			BaseDatarouterAccountDao datarouterAccountDao,
 			BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao,
-			BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao,
-			DatarouterAccountPermissionKeysByPrefixCache datarouterAccountPermissionKeysByPrefixCache,
-			DatarouterAccountLastUsedDateService datarouterAccountLastUsedDateService){
+			BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao){
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountCredentialDao = datarouterAccountCredentialDao;
 		this.datarouterUserAccountMapDao = datarouterUserAccountMapDao;
-		this.datarouterAccountPermissionKeysByPrefixCache = datarouterAccountPermissionKeysByPrefixCache;
-		this.datarouterAccountLastUsedDateService = datarouterAccountLastUsedDateService;
 	}
 
 	public List<String> getAllAccountNamesWithUserMappingsEnabled(){
@@ -69,41 +58,6 @@ public class DatarouterAccountService{
 				.map(DatarouterAccountKey::getAccountName)
 				.list();
 	}
-
-	//API key/request inputs
-
-	//intended for API key auth (updates last used date of key)
-	public Scanner<DatarouterAccountPermissionKey> scanPermissionsForApiKeyAuth(String apiKey){
-		return findAccountCredentialForApiKeyAuth(apiKey)
-				.map(DatarouterAccountCredential::getAccountName)
-				.map(DatarouterAccountPermissionKey::new)
-				.map(datarouterAccountPermissionKeysByPrefixCache::get)
-				.map(Scanner::of)
-				.orElseGet(Scanner::empty);
-	}
-
-	//intended for API key auth (updates last used date of key)
-	public Optional<DatarouterAccountCredential> findAccountCredentialForApiKeyAuth(String apiKey){
-		Optional<DatarouterAccountCredential> accountCredential = datarouterAccountCredentialDao
-				.getFromAccountCredentialByApiKeyCache(apiKey);
-		accountCredential.ifPresent(datarouterAccountLastUsedDateService::updateLastUsedDate);
-		return accountCredential;
-	}
-
-
-	public Optional<String> getCurrentDatarouterAccountName(HttpServletRequest request){
-		String apiKey = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
-		return Optional.ofNullable(apiKey)
-				.flatMap(datarouterAccountCredentialDao::getFromAccountCredentialByApiKeyCache)
-				.map(DatarouterAccountCredential::getAccountName);
-	}
-
-	public String getAccountNameForRequest(HttpServletRequest request){
-		return getCurrentDatarouterAccountName(request)
-				.orElseThrow();
-	}
-
-	//Session/SessionBasedUser inputs
 
 	public boolean userCanAccessAccount(Session session, String accountName){
 		if(!userCanAccessAccount(session.getUserId(), accountName)){
@@ -133,14 +87,13 @@ public class DatarouterAccountService{
 				.collect(HashSet::new);
 	}
 
+	//note: this does not return credentials from DatarouterAccountSecretCredentials
 	public Optional<DatarouterAccountCredential> findFirstAccountCredentialForUser(Session session){
-		if(session.getUserId() == null){
+		Set<String> accountsForUser = findAccountNamesForUser(session);
+		if(accountsForUser.isEmpty()){
 			return Optional.empty();
 		}
-		return scanAccountNamesForUserIdWithUserMappingEnabled(session.getUserId())
-				.map(datarouterAccountCredentialDao::getFromAccountCredentialByAccountNameCache)
-				.include(Optional::isPresent)
-				.map(Optional::get)
+		return datarouterAccountCredentialDao.scanByAccountName(accountsForUser)
 				.findFirst();
 	}
 

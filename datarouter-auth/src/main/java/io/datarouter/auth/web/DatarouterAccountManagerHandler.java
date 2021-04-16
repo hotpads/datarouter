@@ -18,7 +18,9 @@ package io.datarouter.auth.web;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
@@ -30,12 +32,13 @@ import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.DatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.service.DatarouterAccountCounters;
+import io.datarouter.auth.service.DatarouterAccountCredentialService;
+import io.datarouter.auth.service.DatarouterAccountCredentialService.DatarouterAccountSecretCredentialKeypairDto;
+import io.datarouter.auth.service.DatarouterAccountCredentialService.SecretCredentialDto;
 import io.datarouter.auth.service.DefaultDatarouterAccountAvailableEndpointsProvider;
-import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.account.DatarouterAccountCredential;
-import io.datarouter.auth.storage.account.DatarouterAccountCredentialKey;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermission;
@@ -43,6 +46,7 @@ import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionK
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.secretweb.service.WebSecretOpReason;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.util.DatarouterCounters;
@@ -50,16 +54,18 @@ import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.html.react.bootstrap4.Bootstrap4ReactPageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJs;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
+import io.datarouter.web.user.session.service.Session;
 
 public class DatarouterAccountManagerHandler extends BaseHandler{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountManagerHandler.class);
 
 	private final BaseDatarouterAccountDao datarouterAccountDao;
-	private final BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao;
 	private final BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao;
+	private final DatarouterAccountCredentialService acccountCredentialService;
 	private final DatarouterProperties datarouterProperties;
 	private final DatarouterAuthFiles files;
 	private final DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider;
@@ -72,8 +78,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	@Inject
 	public DatarouterAccountManagerHandler(
 			BaseDatarouterAccountDao datarouterAccountDao,
-			BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao,
 			BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao,
+			DatarouterAccountCredentialService acccountCredentialService,
 			DatarouterProperties datarouterProperties,
 			DatarouterAuthFiles files,
 			DatarouterAuthPaths paths,
@@ -83,8 +89,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			MetricLinkBuilder metricLinkBuilder,
 			CurrentUserSessionInfoService currentSessionInfoService){
 		this(datarouterAccountDao,
-				datarouterAccountCredentialDao,
 				datarouterAccountPermissionDao,
+				acccountCredentialService,
 				datarouterProperties,
 				files,
 				defaultDatarouterAccountAvailableEndpointsProvider,
@@ -97,8 +103,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	protected DatarouterAccountManagerHandler(
 			BaseDatarouterAccountDao datarouterAccountDao,
-			BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao,
 			BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao,
+			DatarouterAccountCredentialService acccountCredentialService,
 			DatarouterProperties datarouterProperties,
 			DatarouterAuthFiles files,
 			DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider,
@@ -108,8 +114,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			CurrentUserSessionInfoService currentSessionInfoService,
 			String path){
 		this.datarouterAccountDao = datarouterAccountDao;
-		this.datarouterAccountCredentialDao = datarouterAccountCredentialDao;
 		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
+		this.acccountCredentialService = acccountCredentialService;
 		this.datarouterProperties = datarouterProperties;
 		this.files = files;
 		this.datarouterAccountAvailableEndpointsProvider = datarouterAccountAvailableEndpointsProvider;
@@ -143,7 +149,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	@Handler
 	public DatarouterAccountDetails add(String accountName){
-		Require.isTrue(!accountName.isEmpty());
+		Require.isFalse(accountName.isEmpty());
 		String creator = getSessionInfo().getRequiredSession().getUsername();
 		var account = new DatarouterAccount(accountName, new Date(), creator);
 		datarouterAccountDao.put(account);
@@ -158,29 +164,62 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	@Handler
 	public void delete(String accountName){
+		DatarouterAccountPermissionKey prefix = new DatarouterAccountPermissionKey(accountName);
+		datarouterAccountPermissionDao.deleteWithPrefix(prefix);
+		acccountCredentialService.deleteAllCredentialsForAccount(accountName, getSessionInfo().getRequiredSession());
 		DatarouterAccountKey accountKey = new DatarouterAccountKey(accountName);
 		datarouterAccountDao.delete(accountKey);
-		DatarouterAccountPermissionKey prefix = new DatarouterAccountPermissionKey(accountName);
-		datarouterAccountCredentialDao.deleteByAccountName(accountName);
-		datarouterAccountPermissionDao.deleteWithPrefix(prefix);
 		logAndRecordAction(accountName, "delete");
 	}
 
 	@Handler
 	public DatarouterAccountDetails addCredential(String accountName){
-		Require.isTrue(!accountName.isEmpty());
+		Require.isFalse(accountName.isEmpty());
 		String creatorUsername = getSessionInfo().getRequiredSession().getUsername();
-		var credential = DatarouterAccountCredential.create(accountName, creatorUsername);
-		datarouterAccountCredentialDao.put(credential);
+		acccountCredentialService.createCredential(accountName, creatorUsername);
 		logAndRecordAction(accountName, "add credential");
 		return getDetailsForAccountName(accountName);
 	}
 
 	@Handler
 	public DatarouterAccountDetails deleteCredential(String apiKey, String accountName){
-		datarouterAccountCredentialDao.delete(new DatarouterAccountCredentialKey(apiKey));
+		acccountCredentialService.deleteCredential(apiKey);
 		logAndRecordAction(accountName, "delete credential");
 		return getDetailsForAccountName(accountName);
+	}
+
+	@Handler
+	public DatarouterAccountDetailsAndKeypair addSecretCredential(String accountName){
+		Require.isFalse(accountName.isEmpty());
+		Session session = getSessionInfo().getRequiredSession();
+		String creatorUsername = session.getUsername();
+		var secretOpReason = WebSecretOpReason.manualOp(session, getClass().getSimpleName());
+		var keypair = acccountCredentialService.createSecretCredential(accountName, creatorUsername, secretOpReason);
+		logAndRecordAction(accountName, "add secret credential");
+		return new DatarouterAccountDetailsAndKeypair(getDetailsForAccountName(accountName), keypair);
+	}
+
+	@Handler
+	public DatarouterAccountDetails deleteSecretCredential(String secretName, String accountName){
+		var secretOpReason = WebSecretOpReason.manualOp(getSessionInfo().getRequiredSession(), getClass()
+				.getSimpleName());
+		acccountCredentialService.deleteSecretCredential(secretName, secretOpReason);
+		logAndRecordAction(accountName, "delete secret credential");
+		return getDetailsForAccountName(accountName);
+	}
+
+	@Handler
+	public DatarouterAccountDetails setCredentialActivation(@RequestBody SetCredentialActivationDto dto){
+		Require.isFalse(dto.accountName.isEmpty());
+		Require.notNull(dto.active);
+		if(dto.secretName != null && StringTool.notEmptyNorWhitespace(dto.secretName)){
+			acccountCredentialService.setSecretCredentialActivation(dto.secretName, dto.active);
+		}else if(dto.secretName != null && StringTool.notEmptyNorWhitespace(dto.secretName)){
+			//TODO activate/deactive DatarouterAccountCredential once active field is added
+		}else{
+			throw new RuntimeException("apiKey or secretName is required");
+		}
+		return getDetails(dto.accountName);
 	}
 
 	@Handler
@@ -225,15 +264,14 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	private List<DatarouterAccountDetails> getDetailsForAccounts(List<DatarouterAccount> accounts){
 		ZoneId zoneId = currentSessionInfoService.getZoneId(request);
-		List<String> accountNames = Scanner.of(accounts)
+		Set<String> accountNames = Scanner.of(accounts)
 				.map(DatarouterAccount::getKey)
 				.map(DatarouterAccountKey::getAccountName)
-				.list();
+				.collect(HashSet::new);
 
-		var credentialsByAccountName = datarouterAccountCredentialDao.scanByAccountName(accountNames)
-				.map(credential -> new AccountCredentialDto(credential, zoneId))
-				.groupBy(credential -> credential.accountName);
-
+		var credentialsByAccountName = acccountCredentialService.getCredentialsByAccountName(accountNames, zoneId);
+		var secretCredentialsByAccountName = acccountCredentialService.getSecretCredentialsByAccountName(accountNames,
+				zoneId);
 		var permissionsByAccountName = Scanner.of(accountNames)
 				.map(DatarouterAccountPermissionKey::new)
 				.listTo(datarouterAccountPermissionDao::scanKeysWithPrefixes)
@@ -245,16 +283,17 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				.map(account -> getDetailsForAccount(
 						account,
 						credentialsByAccountName.get(account.accountName),
+						secretCredentialsByAccountName.get(account.accountName),
 						permissionsByAccountName.get(account.accountName)))
 				.list();
 	}
 
 	private DatarouterAccountDetails getDetailsForAccount(AccountDto account, List<AccountCredentialDto> credentials,
-			List<TextPermission> permissions){
+			List<SecretCredentialDto> secretCredentials, List<TextPermission> permissions){
 		String counterName = DatarouterCounters.PREFIX + " " + DatarouterAccountCounters.ACCOUNT + " "
 				+ DatarouterAccountCounters.NAME + " " + account.accountName;
 		String metricLink = metricLinkBuilder.exactMetricLink(counterName);
-		return new DatarouterAccountDetails(account, credentials, permissions, metricLink);
+		return new DatarouterAccountDetails(account, credentials, secretCredentials, permissions, metricLink);
 	}
 
 	public DatarouterAccountDetails getDetailsForAccountName(String accountName){
@@ -279,18 +318,33 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				getCurrentUsername());
 	}
 
+	public static class DatarouterAccountDetailsAndKeypair{
+
+		public final DatarouterAccountDetails details;
+		public final DatarouterAccountSecretCredentialKeypairDto keypair;
+
+		public DatarouterAccountDetailsAndKeypair(DatarouterAccountDetails details,
+				DatarouterAccountSecretCredentialKeypairDto keypair){
+			this.details = details;
+			this.keypair = keypair;
+		}
+
+	}
+
 	public static class DatarouterAccountDetails{
 
 		public final AccountDto account;
 		public final List<AccountCredentialDto> credentials;
+		public final List<SecretCredentialDto> secretCredentials;
 		public final List<TextPermission> permissions;
 		public final String metricLink;
 		public final String error;
 
 		public DatarouterAccountDetails(AccountDto account, List<AccountCredentialDto> credentials,
-				List<TextPermission> permissions, String metricLink){
+				List<SecretCredentialDto> secretCredentials, List<TextPermission> permissions, String metricLink){
 			this.account = account;
 			this.credentials = credentials == null ? List.of() : credentials;
+			this.secretCredentials = secretCredentials == null ? List.of() : secretCredentials;
 			this.permissions = permissions == null ? List.of() : permissions;
 			this.metricLink = metricLink;
 			this.error = null;
@@ -299,6 +353,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		public DatarouterAccountDetails(String error){
 			this.account = null;
 			this.credentials = null;
+			this.secretCredentials = null;
 			this.permissions = null;
 			this.metricLink = null;
 			this.error = error;
@@ -370,6 +425,22 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 		public static TextPermission create(DatarouterAccountPermissionKey permission){
 			return new TextPermission(permission.getAccountName(), permission.getEndpoint());
+		}
+
+	}
+
+	public static class SetCredentialActivationDto{
+
+		public final String apiKey;
+		public final String secretName;
+		public final Boolean active;
+		public final String accountName;
+
+		public SetCredentialActivationDto(String apiKey, String secretName, Boolean active, String accountName){
+			this.apiKey = apiKey;
+			this.secretName = secretName;
+			this.active = active;
+			this.accountName = accountName;
 		}
 
 	}

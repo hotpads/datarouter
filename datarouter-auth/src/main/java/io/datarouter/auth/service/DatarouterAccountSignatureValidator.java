@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.auth.storage.account.DatarouterAccountCredential;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.web.security.DefaultSignatureValidator;
@@ -38,18 +37,16 @@ public class DatarouterAccountSignatureValidator implements SignatureValidator{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountSignatureValidator.class);
 
 	@Inject
-	private DatarouterAccountService datarouterAccountService;
+	private DatarouterAccountCredentialService datarouterAccountCredentialService;
 
 	@Override
 	public SecurityValidationResult validate(HttpServletRequest request){
 		String apiKey = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
-		Optional<DatarouterAccountCredential> accountCredential = datarouterAccountService
-				.findAccountCredentialForApiKeyAuth(apiKey);
-		if(accountCredential.isEmpty()){
+		Optional<String> optionalSecretKey = datarouterAccountCredentialService.findSecretKeyForApiKeyAuth(apiKey);
+		if(optionalSecretKey.isEmpty()){
 			logger.warn("Missing account for apiKey={}", apiKey);
 		}
-		return accountCredential
-				.map(DatarouterAccountCredential::getSecretKey)
+		return optionalSecretKey
 				.map(secretKey -> (Supplier<String>)(() -> secretKey))
 				.map(DefaultSignatureGenerator::new)
 				.map(DefaultSignatureValidator::new)

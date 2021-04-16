@@ -31,14 +31,14 @@ import io.datarouter.web.util.http.RequestTool;
 @Singleton
 public class DatarouterAccountApiKeyPredicate implements ApiKeyPredicate{
 
-	private final DatarouterAccountService datarouterAccountService;
+	private final DatarouterAccountCredentialService datarouterAccountCredentialService;
 	private final DatarouterAccountCounters datarouterAccountCounters;
 
 	@Inject
 	public DatarouterAccountApiKeyPredicate(
-			DatarouterAccountService datarouterAccountService,
+			DatarouterAccountCredentialService datarouterAccountApiKeyService,
 			DatarouterAccountCounters datarouterAccountCounters){
-		this.datarouterAccountService = datarouterAccountService;
+		this.datarouterAccountCredentialService = datarouterAccountApiKeyService;
 		this.datarouterAccountCounters = datarouterAccountCounters;
 	}
 
@@ -55,8 +55,8 @@ public class DatarouterAccountApiKeyPredicate implements ApiKeyPredicate{
 	}
 
 	public Optional<String> check(Optional<String> endpoint, String apiKeyCandidate){
-		Optional<DatarouterAccountPermissionKey> permission = datarouterAccountService.scanPermissionsForApiKeyAuth(
-				apiKeyCandidate)
+		Optional<DatarouterAccountPermissionKey> permission = datarouterAccountCredentialService
+				.scanPermissionsForApiKeyAuth(apiKeyCandidate)
 				.include(candidate -> isValidEndpoint(candidate, endpoint))
 				.findFirst();
 		permission.ifPresent(datarouterAccountCounters::incPermissionUsage);

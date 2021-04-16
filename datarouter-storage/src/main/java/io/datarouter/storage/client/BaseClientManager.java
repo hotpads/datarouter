@@ -57,6 +57,7 @@ public abstract class BaseClientManager implements ClientManager{
 
 	@Override
 	public final void initClient(ClientId clientId){
+		clientId.getRelatedWriterClient().ifPresent(this::initClient);
 		if(clientInitializationTracker.isInitialized(clientId)){
 			return;
 		}

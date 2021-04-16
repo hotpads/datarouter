@@ -18,6 +18,7 @@ package io.datarouter.storage.client;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import io.datarouter.scanner.Scanner;
 
@@ -32,15 +33,21 @@ public class ClientId implements Comparable<ClientId>{
 	 * Usually the client holding the ClusterSetting node is the only one requiring disableable=false;
 	 */
 	private final boolean disableable;
+	private final ClientId relatedWriterClient;
 
-	public ClientId(String name, boolean writable){
-		this(name, writable, true);
-	}
-
-	public ClientId(String name, boolean writable, boolean disableable){
+	private ClientId(String name, boolean writable, boolean disableable, ClientId relatedWriterClient){
 		this.name = name;
 		this.writable = writable;
 		this.disableable = disableable;
+		this.relatedWriterClient = relatedWriterClient;
+	}
+
+	public static ClientId writer(String name, boolean disableable){
+		return new ClientId(name, true, disableable, null);
+	}
+
+	public static ClientId reader(String name, boolean disableable, ClientId relatedWriterClient){
+		return new ClientId(name, false, disableable, Objects.requireNonNull(relatedWriterClient));
 	}
 
 	@Override
@@ -110,6 +117,10 @@ public class ClientId implements Comparable<ClientId>{
 
 	public boolean getDisableable(){
 		return disableable;
+	}
+
+	public Optional<ClientId> getRelatedWriterClient(){
+		return Optional.ofNullable(relatedWriterClient);
 	}
 
 }

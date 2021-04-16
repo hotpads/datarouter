@@ -128,6 +128,10 @@ public class SecretService{
 		return deserialize(readRaw(Optional.empty(), secretName, reason), secretClass);
 	}
 
+	public <T> T readNamespaced(String secretNamespace, String secretName, Class<T> secretClass, SecretOpReason reason){
+		return deserialize(readRawInternal(Optional.empty(), secretNamespace, secretName, reason), secretClass);
+	}
+
 	public <T> T readShared(Supplier<String> secretName, Class<T> secretClass, SecretOpReason reason){
 		return deserialize(readRawShared(Optional.empty(), secretName.get(), reason), secretClass);
 	}
@@ -179,7 +183,17 @@ public class SecretService{
 
 	public void createRaw(Optional<String> targetSecretClientSupplierConfigName, String secretName,
 			String serializedValue, SecretOpReason reason){
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.CREATE, secretNamespacer.getAppNamespace(), secretName,
+		createRawNamespaced(targetSecretClientSupplierConfigName, secretNamespacer.getAppNamespace(), secretName,
+				serializedValue, reason);
+	}
+
+	public <T> void createNamespaced(String secretNamespace, String secretName, T secretValue, SecretOpReason reason){
+		createRawNamespaced(Optional.empty(), secretNamespace, secretName, serialize(secretValue), reason);
+	}
+
+	public void createRawNamespaced(Optional<String> targetSecretClientSupplierConfigName, String secretNamespace,
+			String secretName, String serializedValue, SecretOpReason reason){
+		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.CREATE, secretNamespace, secretName,
 				reason, targetSecretClientSupplierConfigName);
 		helper.apply(opInfo, CreateOp::new, new Secret(opInfo.getNamespaced(), serializedValue));
 	}
@@ -208,8 +222,12 @@ public class SecretService{
 	}
 
 	public void delete(Optional<String> targetSecretClientSupplierConfigName, String secretName, SecretOpReason reason){
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.DELETE, secretNamespacer.getAppNamespace(), secretName,
-				reason,
+		deleteNamespaced(targetSecretClientSupplierConfigName, secretNamespacer.getAppNamespace(), secretName, reason);
+	}
+
+	public void deleteNamespaced(Optional<String> targetSecretClientSupplierConfigName, String secretNamespace,
+			String secretName, SecretOpReason reason){
+		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.DELETE, secretNamespace, secretName, reason,
 				targetSecretClientSupplierConfigName);
 		helper.apply(opInfo, DeleteOp::new, opInfo.getNamespaced());
 	}

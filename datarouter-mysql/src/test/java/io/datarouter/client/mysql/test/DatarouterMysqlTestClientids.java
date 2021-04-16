@@ -19,6 +19,6 @@ import io.datarouter.storage.client.ClientId;
 
 public class DatarouterMysqlTestClientids{
 
-	public static final ClientId MYSQL = new ClientId("drTestMysql0", true);
+	public static final ClientId MYSQL = ClientId.writer("drTestMysql0", true);
 
 }

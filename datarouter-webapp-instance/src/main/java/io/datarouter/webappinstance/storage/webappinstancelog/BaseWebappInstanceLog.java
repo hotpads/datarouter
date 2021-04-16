@@ -130,7 +130,7 @@ extends BaseDatabean<PK,D>{
 	}
 
 	public Instant getStartup(){
-		return build;
+		return startup;
 	}
 
 	public Instant getBuild(){

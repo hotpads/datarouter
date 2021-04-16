@@ -247,7 +247,7 @@ public class JobWrapper implements Callable<Void>{
 		tracker.setStartTime(startedAt);
 		tracker.setStatus(TaskStatus.RUNNING);
 		tracker.setScheduledTime(scheduledTime.toInstant());
-		tracker.persistIfShould();
+		tracker.doReportTasks();
 	}
 
 	protected void trackAfter(){
@@ -261,7 +261,7 @@ public class JobWrapper implements Callable<Void>{
 
 	private void tryPersistTracker(){
 		try{
-			tracker.persistIfShould();
+			tracker.doReportTasks();
 		}catch(Exception e){
 			logger.error("error persisting LongRunningTask after job: {}", tracker.getName(), e);
 		}

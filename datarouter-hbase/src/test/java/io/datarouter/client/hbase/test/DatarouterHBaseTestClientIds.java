@@ -19,6 +19,6 @@ import io.datarouter.storage.client.ClientId;
 
 public class DatarouterHBaseTestClientIds{
 
-	public static final ClientId HBASE = new ClientId("drTestHBase", true);
+	public static final ClientId HBASE = ClientId.writer("drTestHBase", true);
 
 }

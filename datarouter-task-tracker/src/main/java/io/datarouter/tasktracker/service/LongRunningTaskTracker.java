@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +68,9 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private final Optional<Instant> deadline;
 	private final boolean warnOnReachingInterrupt;
 	private final MutableBoolean stopRequested;
-	private volatile Instant lastPersisted;
+	private volatile Instant lastReported;
 	private volatile boolean deadlineAlertAttempted;
+	private final Consumer<LongRunningTaskTracker> callback;
 
 	public LongRunningTaskTracker(
 			DatarouterTaskTrackerPaths datarouterTaskTrackerPaths,
@@ -82,7 +84,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 			ServerTypeDetector serverTypeDetector,
 			LongRunningTaskInfo task,
 			Instant deadline,
-			boolean warnOnReachingInterrupt){
+			boolean warnOnReachingInterrupt,
+			Consumer<LongRunningTaskTracker> callback){
 		this.datarouterTaskTrackerPaths = datarouterTaskTrackerPaths;
 		this.datarouterHtmlEmailService = datarouterHtmlEmailService;
 		this.datarouterProperties = datarouterProperties;
@@ -98,6 +101,35 @@ public class LongRunningTaskTracker implements TaskTracker{
 		this.warnOnReachingInterrupt = warnOnReachingInterrupt;
 		this.stopRequested = new MutableBoolean(false);
 		this.deadlineAlertAttempted = false;
+		this.callback = callback;
+	}
+
+	public LongRunningTaskTracker(
+			DatarouterTaskTrackerPaths datarouterTaskTrackerPaths,
+			DatarouterHtmlEmailService datarouterHtmlEmailService,
+			DatarouterProperties datarouterProperties,
+			DatarouterAdministratorEmailService datarouterAdministratorEmailService,
+			LongRunningTaskGraphLink longRunningTaskGraphLink,
+			Setting<Boolean> persistSetting,
+			SortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
+			TaskTrackerCounters counters,
+			ServerTypeDetector serverTypeDetector,
+			LongRunningTaskInfo task,
+			Instant deadline,
+			boolean warnOnReachingInterrupt){
+		this(datarouterTaskTrackerPaths,
+				datarouterHtmlEmailService,
+				datarouterProperties,
+				datarouterAdministratorEmailService,
+				longRunningTaskGraphLink,
+				persistSetting,
+				node,
+				counters,
+				serverTypeDetector,
+				task,
+				deadline,
+				warnOnReachingInterrupt,
+				$ -> {});
 	}
 
 	@Override
@@ -193,7 +225,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	public LongRunningTaskTracker heartbeat(){
 		counters.heartbeat(task.name);
 		task.heartbeatTime = new Date();
-		persistIfEnoughTimeElapsed();
+		reportIfEnoughTimeElapsed();
 		return this;
 	}
 
@@ -229,8 +261,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 	public boolean shouldStop(){
 		heartbeat();
 		if(stopRequested.get()){
-			onShouldStop("stop requested");
 			task.longRunningTaskStatus = LongRunningTaskStatus.STOP_REQUESTED;
+			onShouldStop("stop requested");
 			return true;
 		}
 		if(deadline.map(instant -> Instant.now().isAfter(instant)).orElse(false)){
@@ -250,7 +282,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private void onShouldStop(String reason){
 		counters.shouldStop(task.name, reason);
 		logger.warn("{} shouldStop because {}", task.name, reason);
-		persistIfShould();
+		doReportTasks();
 	}
 
 	private void sendMaxDurationAlertIfShould(){
@@ -291,48 +323,42 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	/*------------ persist -----------------*/
 
-	private void persistIfEnoughTimeElapsed(){
-		if(lastPersisted == null){
-			persistIfShould();
-			return;
-		}
-		Duration elapsed = Duration.between(lastPersisted, Instant.now());
-		if(ComparableTool.gt(elapsed, HEARTBEAT_PERSIST_PERIOD)){
-			persistIfShould();
+	private void reportIfEnoughTimeElapsed(){
+		if(lastReported == null
+				|| ComparableTool.gt(Duration.between(lastReported, Instant.now()), HEARTBEAT_PERSIST_PERIOD)){
+			doReportTasks();
 		}
 	}
 
-	public void persistIfShould(){
+	public void doReportTasks(){
 		if(task.triggerTime == null){
 			logger.warn("setting null triggerTime to now on {}", task.databeanName);
 			task.triggerTime = new Date();
 		}
-		if(shouldPersist()){
-			put(task);
-			lastPersisted = Instant.now();
-		}
+		reportCallback();
+		persist();
+		lastReported = Instant.now();
 	}
 
-	private boolean shouldPersist(){
-		if(node == null){
-			return false;
+	private void reportCallback(){
+		try{
+			callback.accept(this);
+		}catch(Exception e){
+			logger.warn("Unable to report taskTracker to callback for {}", task.name, e);
 		}
-		if(persistSetting == null){
-			return false;
-		}
-		return persistSetting.get();
 	}
 
 	/*------------ exception -----------------*/
 
 	public void setExceptionRecordId(String exceptionRecordId){
 		task.exceptionRecordId = exceptionRecordId;
-		put(task);
+		persist();
 	}
 
-	private void put(LongRunningTaskInfo task){
-		LongRunningTask longRunningTask = new LongRunningTask(task);
-		node.put(longRunningTask);
+	private void persist(){
+		if(node != null && persistSetting != null && persistSetting.get()){
+			node.put(new LongRunningTask(task));
+		}
 	}
 
 }

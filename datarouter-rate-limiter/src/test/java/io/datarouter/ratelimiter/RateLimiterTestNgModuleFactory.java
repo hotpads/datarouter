@@ -31,7 +31,7 @@ import io.datarouter.web.config.DatarouterWebGuiceModule;
 
 public class RateLimiterTestNgModuleFactory extends TestNgModuleFactory{
 
-	public static final ClientId RATE_LIMITER = new ClientId("rateLimiter", true);
+	public static final ClientId RATE_LIMITER = ClientId.writer("rateLimiter", true);
 
 	public RateLimiterTestNgModuleFactory(){
 		super(List.of(

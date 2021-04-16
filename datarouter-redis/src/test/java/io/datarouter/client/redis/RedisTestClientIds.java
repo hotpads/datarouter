@@ -19,6 +19,6 @@ import io.datarouter.storage.client.ClientId;
 
 public class RedisTestClientIds{
 
-	public static final ClientId REDIS = new ClientId("drTestRedis", true);
+	public static final ClientId REDIS = ClientId.writer("drTestRedis", true);
 
 }

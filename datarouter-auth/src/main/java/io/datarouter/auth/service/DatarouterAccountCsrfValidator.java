@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.auth.storage.account.DatarouterAccountCredential;
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.web.security.CsrfValidator;
@@ -32,22 +31,23 @@ import io.datarouter.web.util.http.RequestTool;
 public class DatarouterAccountCsrfValidator implements CsrfValidator{
 
 	private final Long requestTimeoutMs;
-	private final DatarouterAccountService datarouterAccountService;
+	private DatarouterAccountCredentialService datarouterAccountCredentialService;
 
 	@Singleton
 	public static class DatarouterAccountCsrfValidatorFactory{
 
 		@Inject
-		private DatarouterAccountService datarouterAccountService;
+		private DatarouterAccountCredentialService datarouterAccountCredentialService;
 
 		public DatarouterAccountCsrfValidator create(Long requestTimeoutMs){
-			return new DatarouterAccountCsrfValidator(requestTimeoutMs, datarouterAccountService);
+			return new DatarouterAccountCsrfValidator(requestTimeoutMs, datarouterAccountCredentialService);
 		}
 	}
 
-	private DatarouterAccountCsrfValidator(Long requestTimeoutMs, DatarouterAccountService accountService){
+	private DatarouterAccountCsrfValidator(Long requestTimeoutMs,
+			DatarouterAccountCredentialService datarouterAccountApiKeyService){
 		this.requestTimeoutMs = requestTimeoutMs;
-		this.datarouterAccountService = accountService;
+		this.datarouterAccountCredentialService = datarouterAccountApiKeyService;
 	}
 
 	@Override
@@ -66,8 +66,7 @@ public class DatarouterAccountCsrfValidator implements CsrfValidator{
 
 	private Optional<DefaultCsrfValidator> getCsrfValidatorForAccountWithApiKey(HttpServletRequest request){
 		String apiKey = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
-		return datarouterAccountService.findAccountCredentialForApiKeyAuth(apiKey)
-				.map(DatarouterAccountCredential::getSecretKey)
+		return datarouterAccountCredentialService.findSecretKeyForApiKeyAuth(apiKey)
 				.map(secretKey -> (Supplier<String>)(() -> secretKey))
 				.map(secretKey -> new DefaultCsrfValidator(new DefaultCsrfGenerator(secretKey), requestTimeoutMs));
 	}

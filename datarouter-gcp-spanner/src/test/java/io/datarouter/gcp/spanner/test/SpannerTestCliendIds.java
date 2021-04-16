@@ -19,6 +19,6 @@ import io.datarouter.storage.client.ClientId;
 
 public class SpannerTestCliendIds{
 
-	public static final ClientId SPANNER = new ClientId("drTestSpanner", true);
+	public static final ClientId SPANNER = ClientId.writer("drTestSpanner", true);
 
 }

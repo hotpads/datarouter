@@ -19,7 +19,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.conveyor.BaseConveyors;
+import io.datarouter.conveyor.queue.DatabeanBufferConveyor;
 import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
+import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordDao;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordPublisherDao;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao;
 import io.datarouter.instrumentation.exception.ExceptionRecordPublisher;
@@ -35,9 +37,13 @@ public class ExceptionQueueConveyors extends BaseConveyors{
 	@Inject
 	private DatarouterHttpRequestRecordPublisherDao httpRequestRecordPublisherDao;
 	@Inject
+	private DatarouterExceptionRecordDao exceptionRecordDao;
+	@Inject
 	private ExceptionRecordPublisher exceptionRecordPublisher;
 	@Inject
 	private ExceptionRecorder exceptionRecorder;
+	@Inject
+	private DatarouterExceptionBuffers exceptionBuffers;
 
 	@Override
 	public void onStartUp(){
@@ -55,6 +61,13 @@ public class ExceptionQueueConveyors extends BaseConveyors{
 				httpRequestRecordPublisherDao.getGroupQueueConsumer(),
 				exceptionRecordPublisher,
 				exceptionsSettings.compactExceptionLoggingForConveyors,
+				exceptionRecorder),
+				1);
+		start(new DatabeanBufferConveyor<>(
+				"exceptionRecordMemoryToDatabase",
+				exceptionsSettings.runExceptionRecordMemoryToDatabaseConveyor,
+				exceptionBuffers.exceptionRecordBuffer,
+				exceptionRecordDao::putMulti,
 				exceptionRecorder),
 				1);
 	}

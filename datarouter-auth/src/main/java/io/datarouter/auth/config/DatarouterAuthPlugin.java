@@ -30,10 +30,13 @@ import io.datarouter.auth.service.deprovisioning.UserDeprovisioningListeners.Emp
 import io.datarouter.auth.service.deprovisioning.UserDeprovisioningStrategy;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
+import io.datarouter.auth.storage.account.BaseDatarouterAccountSecretCredentialDao;
 import io.datarouter.auth.storage.account.DatarouterAccountCredentialDao;
 import io.datarouter.auth.storage.account.DatarouterAccountCredentialDao.DatarouterAccountCredentialDaoParams;
 import io.datarouter.auth.storage.account.DatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccountDao.DatarouterAccountDaoParams;
+import io.datarouter.auth.storage.account.DatarouterAccountSecretCredentialDao;
+import io.datarouter.auth.storage.account.DatarouterAccountSecretCredentialDao.DatarouterAccountSecretCredentialDaoParams;
 import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionDao;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionDao.DatarouterAccountPermissionDaoParams;
@@ -122,6 +125,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		bindActual(BaseDatarouterSessionDao.class, DatarouterSessionDao.class);
 		bindActual(BaseDatarouterAccountDao.class, DatarouterAccountDao.class);
 		bindActual(BaseDatarouterAccountCredentialDao.class, DatarouterAccountCredentialDao.class);
+		bindActual(BaseDatarouterAccountSecretCredentialDao.class, DatarouterAccountSecretCredentialDao.class);
 		bindActual(BaseDatarouterAccountPermissionDao.class, DatarouterAccountPermissionDao.class);
 		bindActual(BaseDatarouterUserAccountMapDao.class, DatarouterUserAccountMapDao.class);
 		bindActual(BaseDatarouterSamlDao.class, DatarouterSamlDao.class);
@@ -186,6 +190,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 							defaultClientId,
 							defaultClientId,
 							defaultClientId,
+							defaultClientId,
 							defaultClientId),
 					userInfoClass,
 					userDeprovisioningStrategyClass,
@@ -201,6 +206,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 
 		private final List<ClientId> datarouterAccountClientIds;
 		private final List<ClientId> datarouterAccountCredentialClientIds;
+		private final List<ClientId> datarouterAccountSecretCredentialClientIds;
 		private final List<ClientId> datarouterAccountPermissionClientIds;
 		private final List<ClientId> datarouterPermissionRequestClientIds;
 		private final List<ClientId> datarouterSamlClientIds;
@@ -212,6 +218,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		public DatarouterAuthDaoModule(
 				List<ClientId> datarouterAccountClientIds,
 				List<ClientId> datarouterAccountCredentialClientIds,
+				List<ClientId> datarouterAccountSecretCredentialClientIds,
 				List<ClientId> datarouterAccountPermissionClientIds,
 				List<ClientId> datarouterPermissionRequestClientIds,
 				List<ClientId> datarouterSamlClientIds,
@@ -221,6 +228,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 				List<ClientId> deprovisionedUserClientIds){
 			this.datarouterAccountClientIds = datarouterAccountClientIds;
 			this.datarouterAccountCredentialClientIds = datarouterAccountCredentialClientIds;
+			this.datarouterAccountSecretCredentialClientIds = datarouterAccountSecretCredentialClientIds;
 			this.datarouterAccountPermissionClientIds = datarouterAccountPermissionClientIds;
 			this.datarouterPermissionRequestClientIds = datarouterPermissionRequestClientIds;
 			this.datarouterSamlClientIds = datarouterSamlClientIds;
@@ -235,6 +243,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			return List.of(
 					DatarouterAccountDao.class,
 					DatarouterAccountCredentialDao.class,
+					DatarouterAccountSecretCredentialDao.class,
 					DatarouterAccountPermissionDao.class,
 					DatarouterPermissionRequestDao.class,
 					DatarouterUserAccountMapDao.class,
@@ -256,6 +265,9 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 					.toInstance(new DatarouterAccountDaoParams(datarouterAccountClientIds));
 			bind(DatarouterAccountCredentialDaoParams.class)
 					.toInstance(new DatarouterAccountCredentialDaoParams(datarouterAccountCredentialClientIds));
+			bind(DatarouterAccountSecretCredentialDaoParams.class)
+					.toInstance(new DatarouterAccountSecretCredentialDaoParams(
+					datarouterAccountSecretCredentialClientIds));
 			bind(DatarouterAccountPermissionDaoParams.class)
 					.toInstance(new DatarouterAccountPermissionDaoParams(datarouterAccountPermissionClientIds));
 			bind(DatarouterUserAccountMapDaoParams.class)

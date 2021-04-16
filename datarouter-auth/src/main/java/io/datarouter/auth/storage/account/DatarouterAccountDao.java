@@ -78,47 +78,47 @@ public class DatarouterAccountDao extends BaseDao implements BaseDatarouterAccou
 
 	@Override
 	public void put(DatarouterAccount databean){
-			node.put(databean);
+		node.put(databean);
 	}
 
 	@Override
 	public void putMulti(Collection<DatarouterAccount> databeans){
-			node.putMulti(databeans);
+		node.putMulti(databeans);
 	}
 
 	@Override
 	public DatarouterAccount get(DatarouterAccountKey key){
-			return node.get(key);
+		return node.get(key);
 	}
 
 	@Override
 	public Scanner<DatarouterAccount> scanMulti(Collection<DatarouterAccountKey> keys){
-			return node.scanMulti(keys);
+		return node.scanMulti(keys);
 	}
 
 	@Override
 	public Scanner<DatarouterAccount> scan(){
-			return node.scan();
+		return node.scan();
 	}
 
 	@Override
 	public Scanner<DatarouterAccountKey> scanKeys(){
-			return node.scanKeys();
+		return node.scanKeys();
 	}
 
 	@Override
 	public boolean exists(DatarouterAccountKey key){
-			return node.exists(key);
+		return node.exists(key);
 	}
 
 	@Override
 	public void delete(DatarouterAccountKey key){
-			node.delete(key);
+		node.delete(key);
 	}
 
 	@Override
 	public Optional<DatarouterAccount> find(DatarouterAccountKey key){
-			return node.find(key);
+		return node.find(key);
 	}
 
 }

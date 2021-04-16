@@ -23,7 +23,8 @@ import io.datarouter.scanner.Scanner;
 public interface BaseDatarouterAccountCredentialDao{
 
 	void put(DatarouterAccountCredential databean);
-	void putMulti(Collection<DatarouterAccountCredential> databeans);
+	void insertOrBust(DatarouterAccountCredential databean);
+	void updateMultiIgnore(Collection<DatarouterAccountCredential> databeans);
 	DatarouterAccountCredential get(DatarouterAccountCredentialKey key);
 	Optional<DatarouterAccountCredential> find(DatarouterAccountCredentialKey key);
 	Scanner<DatarouterAccountCredential> scan();
@@ -33,7 +34,6 @@ public interface BaseDatarouterAccountCredentialDao{
 	boolean exists(DatarouterAccountCredentialKey key);
 	void delete(DatarouterAccountCredentialKey key);
 	void deleteByAccountName(String accountName);
-	Optional<DatarouterAccountCredential> getFromAccountCredentialByAccountNameCache(String accountName);
-	Optional<DatarouterAccountCredential> getFromAccountCredentialByApiKeyCache(String apiKey);
+
 
 }

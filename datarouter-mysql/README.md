@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.68</version>
+	<version>0.0.69</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -158,7 +158,7 @@ import io.datarouter.storage.node.op.combo.SortedMapStorage;
 @Singleton
 public class MysqlExampleDao extends BaseDao{
 
-	private static final ClientId MYSQL_CLIENT = new ClientId("mysqlClient", true);
+	private static final ClientId MYSQL_CLIENT = ClientId.writer("mysqlClient", true);
 
 	public final SortedMapStorage<MysqlExampleDatabeanKey,MysqlExampleDatabean> node;
 
