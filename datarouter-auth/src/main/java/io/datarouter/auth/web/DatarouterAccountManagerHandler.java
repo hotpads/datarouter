@@ -214,8 +214,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		Require.notNull(dto.active);
 		if(dto.secretName != null && StringTool.notEmptyNorWhitespace(dto.secretName)){
 			acccountCredentialService.setSecretCredentialActivation(dto.secretName, dto.active);
-		}else if(dto.secretName != null && StringTool.notEmptyNorWhitespace(dto.secretName)){
-			//TODO activate/deactive DatarouterAccountCredential once active field is added
+		}else if(dto.apiKey != null && StringTool.notEmptyNorWhitespace(dto.apiKey)){
+			acccountCredentialService.setCredentialActivation(dto.apiKey, dto.active);
 		}else{
 			throw new RuntimeException("apiKey or secretName is required");
 		}
@@ -387,6 +387,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		public final String created;
 		public final String creatorUsername;
 		public final String lastUsed;
+		public final Boolean active;
 
 		public AccountCredentialDto(DatarouterAccountCredential credential, ZoneId zoneId){
 			this.apiKey = credential.getKey().getApiKey();
@@ -395,6 +396,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			this.created = credential.getCreatedDate(zoneId);
 			this.creatorUsername = credential.getCreatorUsername();
 			this.lastUsed = credential.getLastUsedDate(zoneId);
+			this.active = credential.getActive();
 		}
 
 	}

@@ -17,7 +17,7 @@ package io.datarouter.instrumentation.trace;
 
 public class TraceContextFlagTool{
 
-	public static boolean shouldSampleTrace(){
+	public static boolean shouldSample(){
 		Tracer tracer = TracerThreadLocal.get();
 		if(tracer.getTraceContext().isPresent()){
 			return TraceContextFlagMask.isTraceEnabled(tracer.getTraceContext().get().getTraceparent().traceFlags);
@@ -25,7 +25,7 @@ public class TraceContextFlagTool{
 		return false;
 	}
 
-	public static boolean shouldSampleLog(){
+	public static boolean shouldLog(){
 		Tracer tracer = TracerThreadLocal.get();
 		if(tracer.getTraceContext().isPresent()){
 			return TraceContextFlagMask.isLogEnabled(tracer.getTraceContext().get().getTraceparent().traceFlags);

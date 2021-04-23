@@ -49,6 +49,7 @@ import io.datarouter.instrumentation.trace.Trace2BundleDto;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceContextFlagTool;
 import io.datarouter.instrumentation.trace.TraceDto;
 import io.datarouter.instrumentation.trace.TraceEntityDto;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
@@ -178,14 +179,14 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				}
 				trace.markFinished();
 
-				boolean saveTraces = traceSettings.saveTraces.get();
-				int saveCutoff = traceSettings.saveTracesOverMs.get();
-				boolean requestForceSave = RequestTool.getBoolean(request, "trace", false);
-				boolean tracerForceSave = tracer.getForceSave();
-
 				Trace2Dto trace2Dto = createTrace2Dto(traceContext, initialParentId, request, created, tracer);
 				Long traceDurationMs = trace.getDurationMs();
-				if(saveTraces && traceDurationMs > saveCutoff || requestForceSave || tracerForceSave || errored){
+				if(traceSettings.saveTraces.get()
+						&& traceDurationMs > traceSettings.saveTracesOverMs.get()
+						|| RequestTool.getBoolean(request, "trace", false)
+						|| tracer.getForceSave()
+						|| errored
+						|| TraceContextFlagTool.shouldSample()){
 					List<TraceThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
 					if(rootThread != null){
 						threads.add(rootThread); // force to save the rootThread even though the queue could be full
@@ -220,7 +221,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							trace.getParams(),
 							userAgent,
 							userToken);
-				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()){
+				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()
+						|| TraceContextFlagTool.shouldLog()){
 					// only log once
 					logger.warn("Trace logged durationMs={} cpuTimeMs={} threadAllocatedKB={} path={}"
 							+ " query={}, traceContext={}", traceDurationMs, cpuTime, threadAllocatedKB, trace

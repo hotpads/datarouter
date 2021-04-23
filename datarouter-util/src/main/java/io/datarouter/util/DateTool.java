@@ -297,4 +297,12 @@ public class DateTool{
 		return FORMATTER.format(zonedDateTime);
 	}
 
+	public static String formatLongMsWithZone(long timeMs, ZoneId zoneId){
+		return formatInstantWithZone(Instant.ofEpochMilli(timeMs), zoneId);
+	}
+
+	public static String formatReversedLongMsWithZone(long reversedTimeMs, ZoneId zoneId){
+		return formatLongMsWithZone(Long.MAX_VALUE - reversedTimeMs, zoneId);
+	}
+
 }

@@ -17,6 +17,7 @@ package io.datarouter.exception.storage.exceptionrecord;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -26,20 +27,21 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterExceptionRecordDao extends BaseDao{
 
-	public static class DatarouterExceptionRecordDaoParams extends BaseDaoParams{
+	public static class DatarouterExceptionRecordDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterExceptionRecordDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterExceptionRecordDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
@@ -52,9 +54,16 @@ public class DatarouterExceptionRecordDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterExceptionRecordDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, ExceptionRecord::new, ExceptionRecordFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<ExceptionRecordKey,ExceptionRecord,ExceptionRecordFielder> node =
+							nodeFactory.create(clientId, ExceptionRecord::new, ExceptionRecordFielder::new)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public ExceptionRecord get(ExceptionRecordKey key){

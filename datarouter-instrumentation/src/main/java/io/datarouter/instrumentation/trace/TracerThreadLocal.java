@@ -15,21 +15,27 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import java.util.Optional;
+
 public class TracerThreadLocal{
 
-	private static final ThreadLocal<Tracer> tracerThreadLocal = new ThreadLocal<>();
+	private static final ThreadLocal<Tracer> TRACER_THREAD_LOCAL = new ThreadLocal<>();
 
 	public static Tracer bindToThread(Tracer tracer){
-		tracerThreadLocal.set(tracer);
+		TRACER_THREAD_LOCAL.set(tracer);
 		return tracer;
 	}
 
 	public static void clearFromThread(){
-		tracerThreadLocal.set(null);
+		TRACER_THREAD_LOCAL.set(null);
 	}
 
 	public static Tracer get(){
-		return tracerThreadLocal.get();
+		return TRACER_THREAD_LOCAL.get();
+	}
+
+	public static Optional<Tracer> opt(){
+		return Optional.ofNullable(TRACER_THREAD_LOCAL.get());
 	}
 
 }

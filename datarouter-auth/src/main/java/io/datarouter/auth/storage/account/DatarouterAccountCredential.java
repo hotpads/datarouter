@@ -39,7 +39,7 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 	private Date created;
 	private String creatorUsername;
 	private Date lastUsed;
-	private Boolean enableUserMappings;
+	private Boolean active;
 
 	static class FieldKeys{
 		static final StringFieldKey accountName = new StringFieldKey("accountName");
@@ -47,7 +47,7 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 		private static final DateFieldKey created = new DateFieldKey("created");
 		private static final StringFieldKey creatorUsername = new StringFieldKey("creatorUsername");
 		private static final DateFieldKey lastUsed = new DateFieldKey("lastUsed");
-		private static final BooleanFieldKey enableUserMappings = new BooleanFieldKey("enableUserMappings");
+		private static final BooleanFieldKey active = new BooleanFieldKey("active");
 	}
 
 	public DatarouterAccountCredential(){
@@ -60,6 +60,7 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 		this.accountName = accountName;
 		this.created = new Date();
 		this.creatorUsername = creatorUsername;
+		this.active = true;
 	}
 
 	public static DatarouterAccountCredential create(String accountName, String creatorUsername){
@@ -75,14 +76,14 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(DatarouterAccountCredential account){
+		public List<Field<?>> getNonKeyFields(DatarouterAccountCredential credential){
 			return List.of(
-					new StringField(FieldKeys.accountName, account.accountName),
-					new StringField(FieldKeys.secretKey, account.secretKey),
-					new DateField(FieldKeys.created, account.created),
-					new StringField(FieldKeys.creatorUsername, account.creatorUsername),
-					new DateField(FieldKeys.lastUsed, account.lastUsed),
-					new BooleanField(FieldKeys.enableUserMappings, account.enableUserMappings));
+					new StringField(FieldKeys.accountName, credential.accountName),
+					new StringField(FieldKeys.secretKey, credential.secretKey),
+					new DateField(FieldKeys.created, credential.created),
+					new StringField(FieldKeys.creatorUsername, credential.creatorUsername),
+					new DateField(FieldKeys.lastUsed, credential.lastUsed),
+					new BooleanField(FieldKeys.active, credential.active));
 		}
 
 	}
@@ -120,6 +121,18 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 			return "";
 		}
 		return DateTool.formatDateWithZone(lastUsed, zoneId);
+	}
+
+	public Boolean getActive(){
+		return active == null || active;//TODO after migration, remove null check
+	}
+
+	public void setActive(Boolean active){
+		this.active = active;
+	}
+
+	public Boolean needsMigration(){//TODO remove after migration
+		return active == null;
 	}
 
 }

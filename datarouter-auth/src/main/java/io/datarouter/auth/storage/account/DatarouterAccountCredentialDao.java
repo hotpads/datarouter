@@ -102,6 +102,11 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 	}
 
 	@Override
+	public void updateIgnore(DatarouterAccountCredential databean){
+		node.put(databean, new Config().setPutMethod(PutMethod.UPDATE_IGNORE));
+	}
+
+	@Override
 	public void updateMultiIgnore(Collection<DatarouterAccountCredential> databeans){
 		node.putMulti(databeans, new Config().setPutMethod(PutMethod.UPDATE_IGNORE));
 	}

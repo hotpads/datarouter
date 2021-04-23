@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.69</version>
+	<version>0.0.70</version>
 	<packaging>pom</packaging>
 
 	<modules>

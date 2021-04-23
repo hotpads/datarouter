@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.auth.job.AccountPermissionCacheRefreshJob;
 import io.datarouter.auth.job.AuthConfigurationScanJob;
+import io.datarouter.auth.job.DatarouterAccountCredentialActiveMigrationJob;
 import io.datarouter.auth.job.DatarouterAccountLastUsedFlushJob;
 import io.datarouter.auth.job.DatarouterSessionVacuumJob;
 import io.datarouter.auth.job.SamlAuthnRequestRedirectUrlVacuumJob;
@@ -54,6 +55,11 @@ public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 				"1/15 * * * * ?",
 				() -> true,
 				AccountPermissionCacheRefreshJob.class);
+		registerLocked(
+				"30 59 18 * * ?",
+				() -> true,
+				DatarouterAccountCredentialActiveMigrationJob.class,
+				false);
 	}
 
 }

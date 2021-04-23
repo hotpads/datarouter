@@ -46,8 +46,9 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 	}
 
 	private final IndexedSortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node;
-	private final IndexReader<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogByBuildDateKey,
-			FieldlessIndexEntry<WebappInstanceLogByBuildDateKey,WebappInstanceLogKey,WebappInstanceLog>> byBuildDate;
+	private final IndexReader<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogByBuildInstantKey,
+			FieldlessIndexEntry<WebappInstanceLogByBuildInstantKey,WebappInstanceLogKey,WebappInstanceLog>>
+			byBuildInstant;
 
 	@Inject
 	public DatarouterWebappInstanceLogDao(
@@ -65,7 +66,7 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 					return node;
 					})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
-		byBuildDate = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildDateKey.class, node)
+		byBuildInstant = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildInstantKey.class, node)
 				.build();
 		datarouter.register(node);
 	}
@@ -82,8 +83,8 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 		return node.scanWithPrefix(key);
 	}
 
-	public Scanner<WebappInstanceLog> scanDatabeans(Range<WebappInstanceLogByBuildDateKey> range){
-		return byBuildDate.scanDatabeans(range);
+	public Scanner<WebappInstanceLog> scanDatabeans(Range<WebappInstanceLogByBuildInstantKey> range){
+		return byBuildInstant.scanDatabeans(range);
 	}
 
 }

@@ -135,7 +135,7 @@ const AccountTable = ({accountDetails, deleteAccount}) => (
 	</table>
 )
 
-const CredentialTable = ({credentials, addCredential, deleteCredential}) => (
+const CredentialTable = ({credentials, addCredential, deleteCredential, setCredentialActivation}) => (
 	<div>
 		<h3>Credentials {!credentials.length && <span className="alert alert-warning">(This account has no credentials)</span>}</h3>
 		{credentials.length ? <table className="sortable table table-condensed table-striped">
@@ -146,17 +146,24 @@ const CredentialTable = ({credentials, addCredential, deleteCredential}) => (
 					<th>Last used</th>
 					<th>Created</th>
 					<th>Creator Username</th>
-					<th/>
+					<th>Status</th>
+					<th>Delete</th>
 				</tr>
 			</thead>
 			<tbody>
-				{credentials.map(({apiKey, secretKey, lastUsed, created, creatorUsername}) => (
+				{credentials.map(({apiKey, secretKey, lastUsed, created, creatorUsername, active}) => (
 					<tr key={apiKey}>
 						<td>{apiKey}</td>
 						<td>{secretKey}</td>
 						<td>{lastUsed}</td>
 						<td>{created}</td>
 						<td>{creatorUsername}</td>
+						<ActivationTd
+								active={active}
+								keyName="apiKey"
+								value={apiKey}
+								message={`Are you sure you want to deactivate the credential with apiKey: \n${apiKey}? It can be activated again later.`}
+								setCredentialActivation={setCredentialActivation}/>
 						<td>
 							<a onClick={() => deleteCredential(apiKey)} title="Delete credential">
 								<i className="fas fa-trash"></i>
@@ -364,7 +371,6 @@ class AccountDetails extends React.Component{
 		}
 	}
 
-	//TODO add to regular credentials once active field is available
 	setCredentialActivation = (key, value, active, message) => {
 		event.preventDefault()
 		const accountName = this.state.details.account.accountName
@@ -438,7 +444,8 @@ class AccountDetails extends React.Component{
 				<CredentialTable
 					credentials={credentials}
 					addCredential={this.addCredential}
-					deleteCredential={this.deleteCredential}/>
+					deleteCredential={this.deleteCredential}
+					setCredentialActivation={this.setCredentialActivation}/>
 				{Hr}
 				<SecretCredentialTable
 					secretCredentials={secretCredentials}

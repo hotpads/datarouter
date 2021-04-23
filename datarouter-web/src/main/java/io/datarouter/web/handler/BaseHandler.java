@@ -407,7 +407,7 @@ public abstract class BaseHandler{
 		return Scanner.of(method.getParameters())
 				.exclude(parameter -> OptionalParameter.class.isAssignableFrom(parameter.getType()))
 				.map(Parameter::getName)
-				.exclude(param -> params.toMap().keySet().contains(param))
+				.exclude(param -> params.toMap().containsKey(param))
 				.list();
 	}
 

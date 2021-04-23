@@ -24,47 +24,46 @@ import javax.inject.Singleton;
 
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord.HttpRequestRecordByExceptionRecord;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord.HttpRequestRecordFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage;
+import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
-import io.datarouter.virtualnode.writebehind.WriteBehindIndexedSortedMapStorageNode;
-import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindExecutor;
-import io.datarouter.virtualnode.writebehind.config.DatarouterVirtualNodeExecutors.DatarouterWriteBehindScheduler;
+import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 
 @Singleton
 public class DatarouterHttpRequestRecordDao extends BaseDao{
 
-	public static class DatarouterHttpRequestRecordDaoParams extends BaseDaoParams{
+	public static class DatarouterHttpRequestRecordDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterHttpRequestRecordDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterHttpRequestRecordDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final WriteBehindIndexedSortedMapStorageNode<
-			HttpRequestRecordKey,
-			HttpRequestRecord,
-			IndexedSortedMapStorage<HttpRequestRecordKey,HttpRequestRecord>> node;
+	private final IndexedSortedMapStorageNode<HttpRequestRecordKey,HttpRequestRecord,HttpRequestRecordFielder> node;
 
 	@Inject
 	public DatarouterHttpRequestRecordDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
-			DatarouterWriteBehindScheduler scheduler,
-			DatarouterWriteBehindExecutor writeExecutor,
 			DatarouterHttpRequestRecordDaoParams params){
 		super(datarouter);
-		IndexedSortedMapStorage<HttpRequestRecordKey,HttpRequestRecord> backingNode = nodeFactory
-				.create(params.clientId, HttpRequestRecord::new, HttpRequestRecordFielder::new)
-				.withIsSystemTable(true)
-				.buildAndRegister();
-		node = new WriteBehindIndexedSortedMapStorageNode<>(scheduler, writeExecutor, backingNode);
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					IndexedSortedMapStorageNode<HttpRequestRecordKey,HttpRequestRecord,HttpRequestRecordFielder> node =
+							nodeFactory.create(clientId, HttpRequestRecord::new, HttpRequestRecordFielder::new)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantIndexedSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public HttpRequestRecord lookupUnique(HttpRequestRecordByExceptionRecord key){

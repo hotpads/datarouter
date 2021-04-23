@@ -15,6 +15,7 @@
  */
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -22,25 +23,26 @@ import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.webappinstance.storage.webappinstance.BaseWebappInstance;
 import io.datarouter.webappinstance.storage.webappinstance.BaseWebappInstanceKey;
 
-public class WebappInstanceLogByBuildDateKey
-extends BaseRegularPrimaryKey<WebappInstanceLogByBuildDateKey>
-implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildDateKey,WebappInstanceLogKey,WebappInstanceLog>{
+public class WebappInstanceLogByBuildInstantKey
+extends BaseRegularPrimaryKey<WebappInstanceLogByBuildInstantKey>
+implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildInstantKey,WebappInstanceLogKey,WebappInstanceLog>{
 
-	private Date buildDate;
+	private Instant build;
 	private String webappName;
 	private String serverName;
 	private Date startupDate;
 
-	public WebappInstanceLogByBuildDateKey(){
+	public WebappInstanceLogByBuildInstantKey(){
 	}
 
-	public WebappInstanceLogByBuildDateKey(Date buildDate, String webappName, String serverName, Date startupDate){
-		this.buildDate = buildDate;
+	public WebappInstanceLogByBuildInstantKey(Instant build, String webappName, String serverName, Date startupDate){
+		this.build = build;
 		this.webappName = webappName;
 		this.serverName = serverName;
 		this.startupDate = startupDate;
@@ -49,7 +51,7 @@ implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildDateKey,WebappI
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(
-				new DateField(BaseWebappInstance.FieldKeys.buildDate, buildDate),
+				new InstantField(BaseWebappInstance.FieldKeys.build, build),
 				new StringField(BaseWebappInstanceKey.FieldKeys.webappName, webappName),
 				new StringField(BaseWebappInstanceKey.FieldKeys.serverName, serverName),
 				new DateField(BaseWebappInstance.FieldKeys.startupDate, startupDate));
@@ -57,22 +59,22 @@ implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildDateKey,WebappI
 
 	@Override
 	public WebappInstanceLogKey getTargetKey(){
-		return new WebappInstanceLogKey(webappName, serverName, startupDate, buildDate);
+		return new WebappInstanceLogKey(webappName, serverName, startupDate, new Date(build.toEpochMilli()));
 	}
 
 	@Override
-	public FieldlessIndexEntry<WebappInstanceLogByBuildDateKey,WebappInstanceLogKey,WebappInstanceLog>
+	public FieldlessIndexEntry<WebappInstanceLogByBuildInstantKey,WebappInstanceLogKey,WebappInstanceLog>
 	createFromDatabean(WebappInstanceLog target){
-		var index = new WebappInstanceLogByBuildDateKey(
-				target.getKey().getBuildDate(),
+		var index = new WebappInstanceLogByBuildInstantKey(
+				target.getBuild(),
 				target.getKey().getWebappName(),
 				target.getKey().getServerName(),
 				target.getKey().getStartupDate());
-		return new FieldlessIndexEntry<>(WebappInstanceLogByBuildDateKey.class, index);
+		return new FieldlessIndexEntry<>(WebappInstanceLogByBuildInstantKey.class, index);
 	}
 
-	public Date getBuildDate(){
-		return buildDate;
+	public Instant getBuild(){
+		return build;
 	}
 
 	public String getWebappName(){

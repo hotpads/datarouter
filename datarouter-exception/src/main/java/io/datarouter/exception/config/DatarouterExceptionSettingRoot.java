@@ -36,6 +36,7 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runHttpRequestRecordVacuumJob;
 
 	public final CachedSetting<Boolean> runExceptionRecordMemoryToDatabaseConveyor;
+	public final CachedSetting<Boolean> runHttpRequestRecordMemoryToDatabaseConveyor;
 
 	public final CachedSetting<Boolean> publishRecords;
 
@@ -54,6 +55,8 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 		runHttpRequestRecordVacuumJob = registerBoolean("runHttpRequestRecordVacuumJob", false);
 
 		runExceptionRecordMemoryToDatabaseConveyor = registerBoolean("runExceptionRecordMemoryToDatabaseConveyor",
+				true);
+		runHttpRequestRecordMemoryToDatabaseConveyor = registerBoolean("runHttpRequestRecordMemoryToDatabaseConveyor",
 				true);
 
 		publishRecords = registerBooleans("publishRecords", defaultTo(false)

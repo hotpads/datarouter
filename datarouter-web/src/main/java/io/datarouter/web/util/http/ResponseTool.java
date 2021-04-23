@@ -19,18 +19,28 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonObject;
 
+import io.datarouter.instrumentation.trace.Traceparent;
+import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.instrumentation.trace.W3TraceContext;
+import io.datarouter.util.duration.DatarouterDuration;
 
 public class ResponseTool{
+	private static final Logger logger = LoggerFactory.getLogger(ResponseTool.class);
 
 	private static final String CONTENT_TYPE_APPLICATION_JSON = "application/json";
+	private static final DatarouterDuration LOG_THRESHOLD = new DatarouterDuration(500, TimeUnit.MILLISECONDS);
 
 	public static void sendError(HttpServletResponse response, int code, String message){
 		try{
@@ -59,9 +69,22 @@ public class ResponseTool{
 	public static void sendJson(HttpServletResponse response, String body) throws IOException{
 		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
 		// close the writer before the trace to be able to include the close() duration in the measure
+		long start = System.currentTimeMillis();
 		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "ResponseTool sendJson");
 				OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)){
 			writer.append(body);
+		}
+		DatarouterDuration duration = DatarouterDuration.ageMs(start);
+		if(duration.isLongerThan(LOG_THRESHOLD)){
+			logger.warn("duration={} durationMs={} size={} traceContext={}",
+					duration,
+					duration.toMillis(),
+					body.length(),
+					TracerThreadLocal.opt()
+							.flatMap(Tracer::getTraceContext)
+							.map(W3TraceContext::getTraceparent)
+							.map(Traceparent::toString)
+							.orElse(""));
 		}
 	}
 

@@ -41,6 +41,7 @@ import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
+import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
@@ -70,6 +71,8 @@ public class DatarouterUserEditService{
 	private DatarouterService datarouterService;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private DatarouterProperties datarouterPropeties;
 
 	public void editUser(
 			DatarouterUser user,
@@ -211,9 +214,12 @@ public class DatarouterUserEditService{
 		return String.join(",", recipients);
 	}
 
+	// similar to standard datarouter-email subject, but required for proper email threading
 	public String getPermissionRequestEmailSubject(DatarouterUser user){
-		return String.format("Datarouter - Permission Request - %s - %s", datarouterService.getServiceName(), user
-				.getUsername());
+		return String.format("Permission Request %s - %s - %s",
+				user.getUsername(),
+				datarouterPropeties.getEnvironment(),
+				datarouterService.getServiceName());
 	}
 
 }

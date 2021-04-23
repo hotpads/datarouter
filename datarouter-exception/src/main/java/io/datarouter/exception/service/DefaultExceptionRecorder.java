@@ -28,7 +28,6 @@ import io.datarouter.exception.config.DatarouterExceptionSettingRoot;
 import io.datarouter.exception.conveyors.DatarouterExceptionBuffers;
 import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecordPublisherDao;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
-import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
 import io.datarouter.httpclient.client.DatarouterService;
@@ -74,8 +73,6 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	private WebappName webappName;
 	@Inject
 	private DatarouterService datarouterService;
-	@Inject
-	private DatarouterHttpRequestRecordDao httpRequestRecordDao;
 	@Inject
 	private DatarouterExceptionSettingRoot settings;
 	@Inject
@@ -212,7 +209,8 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		httpRequestRecord.trimXForwardedFor();
 		httpRequestRecord.trimPath();
 		httpRequestRecord.trimAcceptLanguage();
-		httpRequestRecordDao.put(httpRequestRecord);
+		httpRequestRecord.trimPragma();
+		exceptionBuffers.httpRequestRecordBuffer.offer(httpRequestRecord);
 		httpRequestRecord.trimBinaryBody(HttpRequestRecordDto.BINARY_BODY_MAX_SIZE);
 		if(publish && settings.publishRecords.get()){
 			httpRequestRecordPublisherDao.put(httpRequestRecord);

@@ -24,6 +24,7 @@ public interface BaseDatarouterAccountCredentialDao{
 
 	void put(DatarouterAccountCredential databean);
 	void insertOrBust(DatarouterAccountCredential databean);
+	void updateIgnore(DatarouterAccountCredential databean);
 	void updateMultiIgnore(Collection<DatarouterAccountCredential> databeans);
 	DatarouterAccountCredential get(DatarouterAccountCredentialKey key);
 	Optional<DatarouterAccountCredential> find(DatarouterAccountCredentialKey key);

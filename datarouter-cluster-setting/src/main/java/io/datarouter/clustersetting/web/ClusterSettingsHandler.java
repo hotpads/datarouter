@@ -74,6 +74,7 @@ import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
 import io.datarouter.storage.setting.cached.CachedClusterSettingTags;
 import io.datarouter.storage.setting.cached.CachedSetting;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
@@ -453,6 +454,9 @@ public class ClusterSettingsHandler extends BaseHandler{
 			kvs.add(new Pair<>("user", makeText(log.getChangedBy())));
 			kvs.add(new Pair<>("action", makeText(log.getAction().getPersistentString())));
 			kvs.add(new Pair<>("setting", makeClusterSettingLogLink()));
+			String timestamp = DateTool.formatReversedLongMsWithZone(log.getKey().getReverseCreatedMs(),
+					datarouterService.getZoneId());
+			kvs.add(new Pair<>("timestamp", makeText(timestamp)));
 			if(ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), log.getServerType())){
 				kvs.add(new Pair<>("serverType", makeText(log.getServerType())));
 			}

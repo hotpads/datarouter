@@ -634,36 +634,41 @@ extends BaseDatabean<PK,D>{
 	}
 
 	public void trimContentType(){
-		trimField(FieldKeys.contentType, contentType);
+		contentType = trimField(FieldKeys.contentType, contentType);
 	}
 
 	public void trimAcceptCharset(){
-		trimField(FieldKeys.acceptCharset, acceptCharset);
+		acceptCharset = trimField(FieldKeys.acceptCharset, acceptCharset);
 	}
 
 	public void trimXForwardedFor(){
-		trimField(FieldKeys.xForwardedFor, xForwardedFor);
+		xForwardedFor = trimField(FieldKeys.xForwardedFor, xForwardedFor);
 	}
 
 	public void trimPath(){
-		trimField(FieldKeys.path, path);
+		path = trimField(FieldKeys.path, path);
 	}
 
 	public void trimAcceptLanguage(){
-		trimField(FieldKeys.acceptLanguage, acceptLanguage);
+		acceptLanguage = trimField(FieldKeys.acceptLanguage, acceptLanguage);
 	}
 
-	private void trimField(StringFieldKey fieldKey, String field){
+	public void trimPragma(){
+		pragma = trimField(FieldKeys.pragma, pragma);
+	}
+
+	private String trimField(StringFieldKey fieldKey, String field){
 		if(field == null){
-			return;
+			return field;
 		}
 		int fieldSize = fieldKey.getSize();
 		int fieldValueLength = field.length();
 		if(fieldValueLength > fieldSize){
-			field = StringTool.trimToSize(field, fieldSize);
 			logger.warn("Trimmed {} to {} from {}, exceptionRecordId={}", fieldKey.getName(), fieldSize,
 					fieldValueLength, exceptionRecordId);
+			return StringTool.trimToSize(field, fieldSize);
 		}
+		return field;
 	}
 
 }

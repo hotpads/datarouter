@@ -20,14 +20,20 @@ import javax.inject.Singleton;
 import io.datarouter.conveyor.DatabeanBuffer;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
+import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
+import io.datarouter.exception.storage.httprecord.HttpRequestRecordKey;
 
 @Singleton
 public class DatarouterExceptionBuffers{
 
+	private static final int MAX_SIZE = 10_000;
+
 	public final DatabeanBuffer<ExceptionRecordKey,ExceptionRecord> exceptionRecordBuffer;
+	public final DatabeanBuffer<HttpRequestRecordKey,HttpRequestRecord> httpRequestRecordBuffer;
 
 	public DatarouterExceptionBuffers(){
-		this.exceptionRecordBuffer = new DatabeanBuffer<>("exceptionRecord", 10_000);
+		this.exceptionRecordBuffer = new DatabeanBuffer<>("exceptionRecord", MAX_SIZE);
+		this.httpRequestRecordBuffer = new DatabeanBuffer<>("httpRequestRecord", MAX_SIZE);
 	}
 
 }

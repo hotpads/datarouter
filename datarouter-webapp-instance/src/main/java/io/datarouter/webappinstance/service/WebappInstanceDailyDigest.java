@@ -47,7 +47,7 @@ import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
-import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogByBuildDateKey;
+import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogByBuildInstantKey;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLogKey;
 import j2html.tags.ContainerTag;
 
@@ -102,8 +102,8 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	}
 
 	private List<WebappInstanceLogDto> getLogs(){
-		var start = new WebappInstanceLogByBuildDateKey(startOfDay(), null, null, null);
-		var stop = new WebappInstanceLogByBuildDateKey(endOfDay(), null, null, null);
+		var start = new WebappInstanceLogByBuildInstantKey(startOfDay(), null, null, null);
+		var stop = new WebappInstanceLogByBuildInstantKey(endOfDay(), null, null, null);
 		var range = new Range<>(start, true, stop, true);
 		Map<WebappInstanceLogKeyDto,List<WebappInstanceLog>> ranges = dao.scanDatabeans(range)
 				.groupBy(WebappInstanceLogKeyDto::new);
@@ -146,16 +146,16 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private static Date startOfDay(){
+	private static Instant startOfDay(){
 		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
 		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-		return Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+		return startOfDay.atZone(ZoneId.systemDefault()).toInstant();
 	}
 
-	private static Date endOfDay(){
+	private static Instant endOfDay(){
 		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
 		LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
-		return Date.from(endOfDay.atZone(ZoneId.systemDefault()).toInstant());
+		return endOfDay.atZone(ZoneId.systemDefault()).toInstant();
 	}
 
 	private static class WebappInstanceLogKeyDto{

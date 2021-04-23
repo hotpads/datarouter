@@ -69,24 +69,24 @@ public class W3TraceContextTests{
 
 	@Test
 	public void validateTraceFlag(){
-		bindTraceContextToLocalThread("00"); // 0b00000001
-		Assert.assertFalse(TraceContextFlagTool.shouldSampleTrace());
-		Assert.assertFalse(TraceContextFlagTool.shouldSampleLog());
+		bindTraceContextToLocalThread("00"); // 0b00000000
+		Assert.assertFalse(TraceContextFlagTool.shouldSample());
+		Assert.assertFalse(TraceContextFlagTool.shouldLog());
 		TracerThreadLocal.clearFromThread();
 
 		bindTraceContextToLocalThread("01"); // 0b00000001
-		Assert.assertTrue(TraceContextFlagTool.shouldSampleTrace());
-		Assert.assertFalse(TraceContextFlagTool.shouldSampleLog());
+		Assert.assertTrue(TraceContextFlagTool.shouldSample());
+		Assert.assertFalse(TraceContextFlagTool.shouldLog());
 		TracerThreadLocal.clearFromThread();
 
 		bindTraceContextToLocalThread("02"); // 0b00000010
-		Assert.assertFalse(TraceContextFlagTool.shouldSampleTrace());
-		Assert.assertTrue(TraceContextFlagTool.shouldSampleLog());
+		Assert.assertFalse(TraceContextFlagTool.shouldSample());
+		Assert.assertTrue(TraceContextFlagTool.shouldLog());
 		TracerThreadLocal.clearFromThread();
 
 		bindTraceContextToLocalThread("6b"); // // 0b1101011
-		Assert.assertTrue(TraceContextFlagTool.shouldSampleTrace());
-		Assert.assertTrue(TraceContextFlagTool.shouldSampleLog());
+		Assert.assertTrue(TraceContextFlagTool.shouldSample());
+		Assert.assertTrue(TraceContextFlagTool.shouldLog());
 		TracerThreadLocal.clearFromThread();
 
 	}

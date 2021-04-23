@@ -141,6 +141,13 @@ public class DatarouterAccountCredentialService{
 		datarouterAccountCredentialDao.delete(new DatarouterAccountCredentialKey(apiKey));
 	}
 
+	public void setCredentialActivation(String apiKey, Boolean active){
+		var key = new DatarouterAccountCredentialKey(apiKey);
+		var databean = datarouterAccountCredentialDao.get(key);
+		databean.setActive(active);
+		datarouterAccountCredentialDao.updateIgnore(databean);
+	}
+
 	public DatarouterAccountSecretCredentialKeypairDto createSecretCredential(String accountName,
 			String creatorUsername, SecretOpReason reason){
 		String secretNamespace = secretNamespacer.getAppNamespace() + SECRET_NAMESPACE_SUFFIX;
@@ -215,7 +222,7 @@ public class DatarouterAccountCredentialService{
 
 	private void refreshCredentials(){
 		credentialAccountKeyByApiKey.set(datarouterAccountCredentialDao.scan()
-				//TODO active only, once active is added
+				.include(DatarouterAccountCredential::getActive)
 				.toMap(databean -> databean.getKey().getApiKey(), AccountKey::new));
 	}
 

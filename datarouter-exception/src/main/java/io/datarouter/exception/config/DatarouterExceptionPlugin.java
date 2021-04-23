@@ -184,24 +184,24 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 
 	public static class DatarouterExceptionDaoModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterExceptionRecordClientId;
+		private final List<ClientId> datarouterExceptionRecordClientId;
 		private final List<ClientId> datarouterExceptionRecordSummaryClientId;
 		private final List<ClientId> datarouterExceptionRecordSummaryMetadataClientId;
-		private final ClientId datarouterHttpRequestRecordClientId;
+		private final List<ClientId> datarouterHttpRequestRecordClientId;
 
 		private final ClientId datarouterExceptionRecordPublisherClientId;
 		private final ClientId datarouterHttpRequestRecordPublisherClientId;
 
 		public DatarouterExceptionDaoModule(ClientId defaultClientId, ClientId queueClientId){
-			this(defaultClientId, List.of(defaultClientId), List.of(defaultClientId), defaultClientId, queueClientId,
-					queueClientId);
+			this(List.of(defaultClientId), List.of(defaultClientId), List.of(defaultClientId), List.of(defaultClientId),
+					queueClientId, queueClientId);
 		}
 
 		public DatarouterExceptionDaoModule(
-				ClientId datarouterExceptionRecordClientId,
+				List<ClientId> datarouterExceptionRecordClientId,
 				List<ClientId> datarouterExceptionRecordSummaryClientId,
 				List<ClientId> datarouterExceptionRecordSummaryMetadataClientId,
-				ClientId datarouterHttpRequestRecordClientId,
+				List<ClientId> datarouterHttpRequestRecordClientId,
 				ClientId datarouterExceptionRecordPublisherClientId,
 				ClientId datarouterHttpRequestRecordPublisherClientId){
 			this.datarouterExceptionRecordClientId = datarouterExceptionRecordClientId;
