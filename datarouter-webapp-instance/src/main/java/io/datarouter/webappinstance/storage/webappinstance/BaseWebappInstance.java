@@ -32,6 +32,8 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.field.imp.comparable.InstantFieldKey;
+import io.datarouter.model.field.imp.comparable.IntegerField;
+import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
 import io.datarouter.scanner.Scanner;
@@ -59,6 +61,7 @@ extends BaseDatabean<PK,D>{
 	private String javaVersion;
 	private String servletContainerVersion;
 	private String gitBranch;
+	private Integer httpsPort;
 
 	public static class FieldKeys{
 		public static final StringFieldKey serverType = new StringFieldKey("serverType");
@@ -79,6 +82,7 @@ extends BaseDatabean<PK,D>{
 		public static final StringFieldKey javaVersion = new StringFieldKey("javaVersion");
 		public static final StringFieldKey servletContainerVersion = new StringFieldKey("servletContainerVersion");
 		public static final StringFieldKey gitBranch = new StringFieldKey("gitBranch");
+		public static final IntegerFieldKey httpsPort = new IntegerFieldKey("httpsPort");
 	}
 
 	public abstract static class BaseWebappInstanceFielder<
@@ -106,7 +110,8 @@ extends BaseDatabean<PK,D>{
 					new StringField(FieldKeys.buildId, databean.getBuildId()),
 					new StringField(FieldKeys.commitId, databean.getCommitId()),
 					new StringField(FieldKeys.javaVersion, databean.getJavaVersion()),
-					new StringField(FieldKeys.servletContainerVersion, databean.getServletContainerVersion()));
+					new StringField(FieldKeys.servletContainerVersion, databean.getServletContainerVersion()),
+					new IntegerField(FieldKeys.httpsPort, databean.getHttpsPort()));
 		}
 	}
 
@@ -130,7 +135,8 @@ extends BaseDatabean<PK,D>{
 			String commitId,
 			String javaVersion,
 			String servletContainerVersion,
-			String gitBranch){
+			String gitBranch,
+			Integer httpsPort){
 		super(key);
 		this.serverType = serverType;
 		this.servletContextPath = servletContextPath;
@@ -147,6 +153,7 @@ extends BaseDatabean<PK,D>{
 		this.javaVersion = javaVersion;
 		this.servletContainerVersion = servletContainerVersion;
 		this.gitBranch = gitBranch;
+		this.httpsPort = httpsPort;
 	}
 
 	public BaseWebappInstance(PK key, WebappInstanceDto dto){
@@ -168,7 +175,8 @@ extends BaseDatabean<PK,D>{
 				dto.commitId,
 				dto.javaVersion,
 				dto.servletContainerVersion,
-				dto.gitBranch);
+				dto.gitBranch,
+				dto.httpsPort);
 	}
 
 	public WebappInstanceDto toDto(){
@@ -192,7 +200,8 @@ extends BaseDatabean<PK,D>{
 				getCommitId(),
 				getJavaVersion(),
 				getServletContainerVersion(),
-				getGitBranch());
+				getGitBranch(),
+				getHttpsPort());
 	}
 
 	public static Set<String> getUniqueServerNames(Iterable<WebappInstance> ins){
@@ -277,6 +286,10 @@ extends BaseDatabean<PK,D>{
 
 	public String getGitBranch(){
 		return gitBranch;
+	}
+
+	public Integer getHttpsPort(){
+		return httpsPort;
 	}
 
 }

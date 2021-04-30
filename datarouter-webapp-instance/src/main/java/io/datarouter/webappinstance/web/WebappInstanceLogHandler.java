@@ -41,7 +41,7 @@ public class WebappInstanceLogHandler extends BaseHandler{
 	@Handler(defaultHandler = true)
 	public Mav webappInstanceLog(String webappName, String serverName){
 		Mav mav = new Mav(files.jsp.admin.datarouter.webappInstances.webappInstanceLogJsp);
-		WebappInstanceLogKey prefix = new WebappInstanceLogKey(webappName, serverName, null, null);
+		WebappInstanceLogKey prefix = new WebappInstanceLogKey(webappName, serverName, null, null, null, null);
 		List<WebappInstanceLog> logs = dao.scanWithPrefix(prefix)
 				.sorted(Comparator.comparing(log -> log.getKey().getStartupDate(), Collections.reverseOrder()))
 				.list();

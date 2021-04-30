@@ -15,6 +15,7 @@
  */
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
+import java.time.Instant;
 import java.util.Date;
 
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
@@ -24,8 +25,9 @@ public class WebappInstanceLogKey extends BaseWebappInstanceLogKey<WebappInstanc
 	public WebappInstanceLogKey(){
 	}
 
-	public WebappInstanceLogKey(String webappName, String serverName, Date startupDate, Date buildDate){
-		super(webappName, serverName, startupDate, buildDate);
+	public WebappInstanceLogKey(String webappName, String serverName, Date startupDate, Date buildDate, Instant startup,
+			Instant build){
+		super(webappName, serverName, startupDate, buildDate, startup, build);
 	}
 
 	public WebappInstanceLogKey(WebappInstance instance){

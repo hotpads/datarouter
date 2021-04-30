@@ -27,4 +27,14 @@ public class Trace2BundleAndHttpRequestRecordDto{
 		this.httpRequestRecord = httpRequestRecord;
 	}
 
+	public Traceparent getTraceparent(){
+		if(traceBundleDto.traceDto != null){
+			return traceBundleDto.traceDto.traceparent;
+		}
+		return traceBundleDto.traceSpanDtos.stream()
+				.findAny()
+				.map(spanDto -> spanDto.traceparent)
+				.orElse(null);
+	}
+
 }

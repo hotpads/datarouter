@@ -26,10 +26,9 @@ import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.dispatcher.ApiKeyPredicate;
 import io.datarouter.web.dispatcher.DispatchRule;
-import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
-public class DatarouterAccountApiKeyPredicate implements ApiKeyPredicate{
+public class DatarouterAccountApiKeyPredicate extends ApiKeyPredicate{
 
 	private final DatarouterAccountCredentialService datarouterAccountCredentialService;
 	private final DatarouterAccountCounters datarouterAccountCounters;
@@ -38,20 +37,23 @@ public class DatarouterAccountApiKeyPredicate implements ApiKeyPredicate{
 	public DatarouterAccountApiKeyPredicate(
 			DatarouterAccountCredentialService datarouterAccountApiKeyService,
 			DatarouterAccountCounters datarouterAccountCounters){
-		this.datarouterAccountCredentialService = datarouterAccountApiKeyService;
+		this(SecurityParameters.API_KEY, datarouterAccountApiKeyService, datarouterAccountCounters);
+	}
+
+	public DatarouterAccountApiKeyPredicate(String headerName,
+			DatarouterAccountCredentialService datarouterAccountCredentialService,
+			DatarouterAccountCounters datarouterAccountCounters){
+		super(headerName);
+		this.datarouterAccountCredentialService = datarouterAccountCredentialService;
 		this.datarouterAccountCounters = datarouterAccountCounters;
 	}
 
 	@Override
-	public Pair<Boolean,String> check(DispatchRule rule, HttpServletRequest request){
-		String apiKeyCandidate = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
-		if(apiKeyCandidate == null){
-			return new Pair<>(false, "key not found");
-		}
+	public Pair<Boolean,String> innerCheck(DispatchRule rule, HttpServletRequest request, String apiKeyCandidate){
 		Optional<String> endpoint = rule.getPersistentString();
 		return check(endpoint, apiKeyCandidate)
 				.map(accountName -> new Pair<>(true, accountName))
-				.orElseGet(() -> new Pair<>(false, "no account for " + ApiKeyPredicate.obfuscate(apiKeyCandidate)));
+				.orElseGet(() -> new Pair<>(false, "no account for " + obfuscate(apiKeyCandidate)));
 	}
 
 	public Optional<String> check(Optional<String> endpoint, String apiKeyCandidate){

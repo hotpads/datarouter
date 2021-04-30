@@ -78,6 +78,10 @@ public class LongRunningTaskDao extends BaseDao{
 		return node.scanWithPrefix(prefix);
 	}
 
+	public Scanner<LongRunningTaskKey> scanKeysWithPrefix(LongRunningTaskKey prefix){
+		return node.scanKeysWithPrefix(prefix);
+	}
+
 	public void deleteBatched(Scanner<LongRunningTaskKey> keys){
 		node.deleteBatched(keys);
 	}

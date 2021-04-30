@@ -66,6 +66,7 @@ import io.datarouter.web.js.DatarouterWebJsTool;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.SessionBasedUser;
@@ -108,6 +109,8 @@ public class AdminEditUserHandler extends BaseHandler{
 	private UserInfo userInfo;
 	@Inject
 	private DatarouterService datarouterService;
+	@Inject
+	private CurrentUserSessionInfoService currentUserSessionInfoService;
 
 	@Handler
 	private Mav viewUsers(){
@@ -310,7 +313,7 @@ public class AdminEditUserHandler extends BaseHandler{
 						requests).entrySet()))
 				.sorted(Comparator.comparing(Entry::getKey, DatarouterPermissionRequest
 						.REVERSE_CHRONOLOGICAL_COMPARATOR))
-				.map(AdminEditUserHandler::buildPermissionRequestDto)
+				.map(this::buildPermissionRequestDto)
 				.list();
 
 		return new EditUserDetailsDto(
@@ -331,11 +334,12 @@ public class AdminEditUserHandler extends BaseHandler{
 	}
 
 	//TODO DATAROUTER-2789
-	private static PermissionRequestDto buildPermissionRequestDto(Entry<DatarouterPermissionRequest,
+	private PermissionRequestDto buildPermissionRequestDto(Entry<DatarouterPermissionRequest,
 			Optional<String>> entry){
+		ZoneId zoneId = currentUserSessionInfoService.getZoneId(getRequest());
 		DatarouterPermissionRequest request = entry.getKey();
 		return new PermissionRequestDto(request.getKey().getRequestTime(), request.getRequestText(), request
-				.getResolutionTime(), entry.getValue().orElse(null));
+				.getResolutionTime(), entry.getValue().orElse(null), zoneId);
 	}
 
 	private static DeprovisionedUserDto buildDeprovisionedUserDto(SessionBasedUser user, Set<Role> roles){

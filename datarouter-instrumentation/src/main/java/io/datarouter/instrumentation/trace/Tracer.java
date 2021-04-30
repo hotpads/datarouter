@@ -46,6 +46,7 @@ public interface Tracer{
 	void appendToSpanInfo(String text);
 	void finishSpan();
 	void incrementDiscardedSpanCount(int discardedSpanCount);
+	TraceSpanDto getCurrentSpan();
 
 	boolean getForceSave();
 	void setForceSave();

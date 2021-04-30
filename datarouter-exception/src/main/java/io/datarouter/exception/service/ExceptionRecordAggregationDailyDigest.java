@@ -74,7 +74,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 		if(aggregated.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse);
+		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse, getType());
 		var description = small("Aggregated for the current day");
 		return Optional.of(div(header, description, makePageTable(aggregated)));
 	}
@@ -85,7 +85,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 		if(aggregated.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse);
+		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse, getType());
 		var description = small("Aggregated for the current day");
 		return Optional.of(div(header, description, makeEmailTable(aggregated)));
 	}
@@ -98,6 +98,11 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.HIGH;
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
 	}
 
 	private List<AggregatedExceptionDto> getExceptions(){

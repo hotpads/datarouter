@@ -98,7 +98,7 @@
 			<td>${webapp.serverName}</td>
 			<td>${webapp.serverType}</td>
 			<c:if test="${not publicIpStats.allCommon}"><td>${webapp.serverPublicIp}</td></c:if>
-			<td><a href="https://${webapp.serverPrivateIp}${webapp.servletContextPath}">${webapp.serverPrivateIp}</a></td>
+			<td><a href="https://${webapp.serverPrivateIp}:${webapp.httpsPort}${webapp.servletContextPath}">${webapp.serverPrivateIp}</a></td>
 			<td sorttable_customkey="${webapp.startupDate.time}" title="${webapp.startupDate}">${webapp.upTimePrintable}</td>
 			<c:if test="${not lastUpdatedStats.allCommon}">
 				<td sorttable_customkey="${webapp.refreshedLast.time}" ${webapp.highlightRefreshedLast ? 'class="table-warning"' : ''}>

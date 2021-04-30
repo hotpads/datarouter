@@ -48,6 +48,7 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 				null,
 				null,
 				null,
+				null,
 				null);
 	}
 
@@ -68,7 +69,8 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 			String commitId,
 			String javaVersion,
 			String servletContainerVersion,
-			String gitBranch){
+			String gitBranch,
+			Integer httpsPort){
 		super(new WebappInstanceKey(webappName, serverName),
 				serverType,
 				servletContextPath,
@@ -84,7 +86,8 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 				commitId,
 				javaVersion,
 				servletContainerVersion,
-				gitBranch);
+				gitBranch,
+				httpsPort);
 	}
 
 	@Override

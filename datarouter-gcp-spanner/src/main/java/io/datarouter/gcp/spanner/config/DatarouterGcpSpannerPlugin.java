@@ -16,6 +16,7 @@
 package io.datarouter.gcp.spanner.config;
 
 import io.datarouter.gcp.spanner.config.SpannerProjectIdAndInstanceIdSupplier.NoOpSpannerProjectIdAndInstanceIdSupplier;
+import io.datarouter.opencensus.DatarouterOpencensusAppListener;
 import io.datarouter.web.config.BaseWebPlugin;
 
 public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
@@ -27,6 +28,7 @@ public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 		this.spannerProjectIdAndInstanceIdSupplier = spannerProjectIdAndInstanceIdSupplier;
 		addDatarouterGithubDocLink("datarouter-gcp-spanner");
 		addDynamicNavBarItem(GcpSpannerNavBarItem.class);
+		addAppListener(DatarouterOpencensusAppListener.class);
 	}
 
 	@Override

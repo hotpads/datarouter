@@ -32,9 +32,23 @@ public interface DailyDigest{
 
 	DailyDigestGrouping getGrouping();
 	String getTitle();
+	DailyDigestType getType();
 
 	default String getId(){
 		return getTitle().replace(" ", "_");
+	}
+
+	enum DailyDigestType{
+		ACTIONABLE("Actionable"),
+		SUMMARY("Summary"),
+		;
+
+		public final String display;
+
+		DailyDigestType(String display){
+			this.display = display;
+		}
+
 	}
 
 }

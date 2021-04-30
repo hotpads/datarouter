@@ -15,12 +15,18 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 public class Traceparent{
 
-	public static final String TRACEPARENT_DELIMITER = "-";
-	public static final String CURRENT_VERSION = "00";
+	private static final Pattern TRACEPARENT_PATTERN = Pattern.compile(
+			"^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$");
+	private static final String TRACEPARENT_DELIMITER = "-";
+	private static final Integer MIN_CHARS_TRACEPARENT = 55;
+	private static final String CURRENT_VERSION = "00";
 	@SuppressWarnings("unused")
 	private static final int TRACE_ID_HEX_SIZE = 32;
 	@SuppressWarnings("unused")
@@ -74,6 +80,38 @@ public class Traceparent{
 	@Override
 	public String toString(){
 		return String.join(TRACEPARENT_DELIMITER, version, traceId, parentId, traceFlags);
+	}
+
+	@Override
+	public boolean equals(Object obj){
+		if(!(obj instanceof Traceparent)){
+			return false;
+		}
+		Traceparent other = (Traceparent)obj;
+		return Objects.equals(version, other.version)
+				&& Objects.equals(traceId, other.traceId)
+				&& Objects.equals(parentId, other.parentId)
+				&& Objects.equals(traceFlags, other.traceFlags);
+	}
+
+	@Override
+	public int hashCode(){
+		return Objects.hash(version, traceId, parentId, traceFlags);
+	}
+
+	public static Optional<Traceparent> parse(String traceparentStr){
+		if(traceparentStr == null || traceparentStr.isEmpty()){
+			return Optional.empty();
+		}else if(traceparentStr.length() < MIN_CHARS_TRACEPARENT){
+			return Optional.empty();
+		}else if(!TRACEPARENT_PATTERN.matcher(traceparentStr).matches()){
+			return Optional.empty();
+		}
+		String[] tokens = traceparentStr.split(Traceparent.TRACEPARENT_DELIMITER);
+		if(!Traceparent.CURRENT_VERSION.equals(tokens[0])){
+			return Optional.empty();
+		}
+		return Optional.of(new Traceparent(tokens[1], tokens[2], tokens[3]));
 	}
 
 }

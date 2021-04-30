@@ -18,7 +18,6 @@ package io.datarouter.job.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
@@ -50,8 +49,8 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 		runClusterTriggerLockVacuumJob = registerBoolean("runClusterTriggerLockVacuumJob", true);
 
 		runLongRunningTaskVacuum = registerBoolean("runLongRunningTaskVacuum", false);
-		runTaskFailureAlertJob = registerBooleans("runTaskFailureAlertJob", defaultTo(false)
-				.withServerType(EnvironmentType.PRODUCTION, serverTypes.getJobServerType(), true));
+		// this is included with the daily-digest-summary email
+		runTaskFailureAlertJob = registerBooleans("runTaskFailureAlertJob", defaultTo(false));
 
 		processJobs = registerBoolean("processJobs", true);
 		runJobRetriggeringJob = registerBoolean("runJobRetriggeringJob", false);

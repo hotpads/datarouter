@@ -142,7 +142,9 @@
 			<p>
 				<strong>Ip: </strong>${httpRequestRecord.ip}<br>
 				<strong>User: </strong>${httpRequestRecord.userToken}<br>
-				<strong>Roles: </strong>${httpRequestRecord.userRoles}
+				<strong>Roles: </strong>${httpRequestRecord.userRoles}<br>
+				<strong>TraceId: </strong>${httpRequestRecord.traceId}<br>
+				<strong>ParentId: </strong>${httpRequestRecord.parentId}<br>
 			</p>
 			<div class="mb-4">
 				<c:set var="cookiesMap" value="${httpRequestRecord.cookiesMap}"/>

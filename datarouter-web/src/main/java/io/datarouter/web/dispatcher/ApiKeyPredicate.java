@@ -17,13 +17,30 @@ package io.datarouter.web.dispatcher;
 
 import javax.servlet.http.HttpServletRequest;
 
+import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.util.tuple.Pair;
 
-public interface ApiKeyPredicate{
+public abstract class ApiKeyPredicate{
 
-	Pair<Boolean,String> check(DispatchRule rule, HttpServletRequest request);
+	private final String headerName;
 
-	static String obfuscate(String apiKeyCandidate){
+	public ApiKeyPredicate(String headerName){
+		this.headerName = headerName;
+	}
+
+	// the string on the right is the account name or the error message
+	public Pair<Boolean,String> check(DispatchRule rule, HttpServletRequest request){
+		String value = request.getParameter(SecurityParameters.API_KEY);
+		String apiKey = value != null ? value : request.getHeader(headerName);
+		if(apiKey == null){
+			return new Pair<>(false, "key not found");
+		}
+		return innerCheck(rule, request, apiKey);
+	}
+
+	protected abstract Pair<Boolean,String> innerCheck(DispatchRule rule, HttpServletRequest request, String apiKey);
+
+	public static String obfuscate(String apiKeyCandidate){
 		int start = Math.min((apiKeyCandidate.length() - 1) / 2, 2);
 		int end;
 		if(apiKeyCandidate.length() > 5){

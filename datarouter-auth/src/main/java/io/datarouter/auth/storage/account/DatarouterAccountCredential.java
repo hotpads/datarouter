@@ -124,15 +124,11 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 	}
 
 	public Boolean getActive(){
-		return active == null || active;//TODO after migration, remove null check
+		return active == null || active;
 	}
 
 	public void setActive(Boolean active){
 		this.active = active;
-	}
-
-	public Boolean needsMigration(){//TODO remove after migration
-		return active == null;
 	}
 
 }

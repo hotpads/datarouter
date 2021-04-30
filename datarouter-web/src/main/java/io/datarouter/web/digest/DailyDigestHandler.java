@@ -28,6 +28,7 @@ import javax.inject.Inject;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.web.digest.DailyDigest.DailyDigestType;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
@@ -47,11 +48,21 @@ public class DailyDigestHandler extends BaseHandler{
 	@Inject
 	private CurrentUserSessionInfoService currentSessionInfoService;
 
-	@Handler(defaultHandler = true)
-	public Mav view(){
+	@Handler
+	public Mav viewSummary(){
+		return view(DailyDigestType.SUMMARY);
+	}
+
+	@Handler
+	public Mav viewActionable(){
+		return view(DailyDigestType.ACTIONABLE);
+	}
+
+	private Mav view(DailyDigestType type){
 		ZoneId zoneId = currentSessionInfoService.getZoneId(request);
 		List<? extends DailyDigest> digests = Scanner.of(dailyDigestRegistry.registry)
 				.map(injector::getInstance)
+				.include(digest -> digest.getType() == type)
 				.include(dailyDigest -> dailyDigest.getPageContent(zoneId).isPresent())
 				.sorted(DailyDigest.COMPARATOR)
 				.list();
@@ -62,13 +73,13 @@ public class DailyDigestHandler extends BaseHandler{
 					.withClass("container-fluid");
 		}else{
 			ContainerTag toc = ul(each(digests, digest -> {
-				return li(a(digest.getTitle()).withHref("#" + digest.getId()));
+				return li(a(digest.getTitle() + digest.getType().name()).withHref("#" + digest.getId()));
 			}));
 			content = div(toc, each(digests, digest -> buildContent(digest, zoneId)))
 					.withClass("container-fluid");
 		}
 		return pageFactory.startBuilder(request)
-				.withTitle("Daily Digest")
+				.withTitle("Daily Digest " + type.display)
 				.withContent(content)
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
 				.buildMav();

@@ -171,6 +171,11 @@ public class DatarouterSummaryTracer implements Tracer{
 		return new ArrayBlockingQueue<>(1);//capacity must be >0
 	}
 
+	@Override
+	public TraceSpanDto getCurrentSpan(){
+		return null;
+	}
+
 	/*---------------------------- get/set ----------------------------------*/
 
 	@Override

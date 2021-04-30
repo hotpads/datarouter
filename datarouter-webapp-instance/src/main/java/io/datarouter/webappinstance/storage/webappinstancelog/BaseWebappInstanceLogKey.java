@@ -15,12 +15,13 @@
  */
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.StringField;
+import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.key.primary.RegularPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.webappinstance.storage.webappinstance.BaseWebappInstance;
@@ -30,24 +31,31 @@ public abstract class BaseWebappInstanceLogKey<PK extends RegularPrimaryKey<PK>>
 
 	private String webappName;
 	private String serverName;
-	private Date startupDate;
-	private Date buildDate;
+//	private Date startupDate;
+//	private Date buildDate;
+	private Instant startup;
+	private Instant build;
 
 	public BaseWebappInstanceLogKey(){
 	}
 
-	public BaseWebappInstanceLogKey(String webappName, String serverName, Date startupDate, Date buildDate){
+	public BaseWebappInstanceLogKey(String webappName, String serverName, Date startupDate, Date buildDate,
+			Instant startup, Instant build){
 		this.webappName = webappName;
 		this.serverName = serverName;
-		this.startupDate = startupDate;
-		this.buildDate = buildDate;
+//		this.startupDate = startupDate;
+//		this.buildDate = buildDate;
+		this.startup = startup;
+		this.build = build;
 	}
 
 	public BaseWebappInstanceLogKey(BaseWebappInstance<?,?> instance){
 		this.serverName = instance.getKey().getServerName();
 		this.webappName = instance.getKey().getWebappName();
-		this.startupDate = instance.getStartupDate();
-		this.buildDate = instance.getBuildDate();
+//		this.startupDate = instance.getStartupDate();
+//		this.buildDate = instance.getBuildDate();
+		this.startup = instance.getStartupInstant();
+		this.build = instance.getBuildInstant();
 	}
 
 	@Override
@@ -55,8 +63,10 @@ public abstract class BaseWebappInstanceLogKey<PK extends RegularPrimaryKey<PK>>
 		return List.of(
 				new StringField(BaseWebappInstanceKey.FieldKeys.webappName, webappName),
 				new StringField(BaseWebappInstanceKey.FieldKeys.serverName, serverName),
-				new DateField(BaseWebappInstance.FieldKeys.startupDate, startupDate),
-				new DateField(BaseWebappInstance.FieldKeys.buildDate, buildDate));
+//				new DateField(BaseWebappInstance.FieldKeys.startupDate, startupDate),
+//				new DateField(BaseWebappInstance.FieldKeys.buildDate, buildDate),
+				new InstantField(BaseWebappInstance.FieldKeys.startup, startup),
+				new InstantField(BaseWebappInstance.FieldKeys.build, build));
 	}
 
 	public String getWebappName(){
@@ -68,11 +78,19 @@ public abstract class BaseWebappInstanceLogKey<PK extends RegularPrimaryKey<PK>>
 	}
 
 	public Date getStartupDate(){
-		return startupDate;
+		return new Date(startup.toEpochMilli());
 	}
 
 	public Date getBuildDate(){
-		return buildDate;
+		return new Date(build.toEpochMilli());
+	}
+
+	public Instant getStartup(){
+		return startup;
+	}
+
+	public Instant getBuild(){
+		return build;
 	}
 
 }

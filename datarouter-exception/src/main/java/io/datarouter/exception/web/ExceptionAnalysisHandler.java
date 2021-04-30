@@ -352,6 +352,8 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 				httpRequestRecord.getIp(),
 				httpRequestRecord.getUserRoles(),
 				httpRequestRecord.getUserToken(),
+				httpRequestRecord.getTraceId(),
+				httpRequestRecord.getParentId(),
 				httpRequestRecord.getHeaders(),
 				httpRequestRecord.getOtherHeaders());
 	}
@@ -378,6 +380,8 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		private final String ip;
 		private final String userRoles;
 		private final String userToken;
+		private final String traceId;
+		private final String parentId;
 
 		private final Map<String,String> headers;
 		private final String otherHeaders;
@@ -399,6 +403,8 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 				String ip,
 				String userRoles,
 				String userToken,
+				String traceId,
+				String parentId,
 				Map<String,String> headers,
 				String otherHeaders){
 			this.created = created;
@@ -417,6 +423,8 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 			this.ip = ip;
 			this.userRoles = userRoles;
 			this.userToken = userToken;
+			this.traceId = traceId;
+			this.parentId = parentId;
 			this.headers = headers;
 			this.otherHeaders = otherHeaders;
 		}
@@ -515,6 +523,14 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 
 		public String getUserToken(){
 			return userToken;
+		}
+
+		public String getTraceId(){
+			return traceId;
+		}
+
+		public String getParentId(){
+			return parentId;
 		}
 
 	}

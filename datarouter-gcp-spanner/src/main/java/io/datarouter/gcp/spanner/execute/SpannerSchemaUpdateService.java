@@ -15,8 +15,6 @@
  */
 package io.datarouter.gcp.spanner.execute;
 
-import static j2html.TagCreator.pre;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,22 +37,20 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
-import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.handler.EmailingSchemaUpdateService;
 import io.datarouter.web.monitoring.BuildProperties;
 
 @Singleton
-public class SpannerSchemaUpdateService extends BaseSchemaUpdateService{
+public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 
 	private final SpannerSingleTableSchemaUpdateService singleTableSchemaUpdateFactory;
 	private final SpannerTableOperationsGenerator tableOperationsGenerator;
 	private final SpannerDatabaseClientsHolder clientPoolHolder;
-	private final DatarouterHtmlEmailService htmlEmailService;
-	private final DatarouterWebPaths datarouterWebPaths;
 
 	@Inject
 	public SpannerSchemaUpdateService(
@@ -74,12 +70,12 @@ public class SpannerSchemaUpdateService extends BaseSchemaUpdateService{
 				executor,
 				schemaUpdateLockDao,
 				changelogRecorder,
-				buildProperties.getBuildId());
+				buildProperties.getBuildId(),
+				htmlEmailService,
+				datarouterWebPaths);
 		this.singleTableSchemaUpdateFactory = singleTableSchemaUpdateFactory;
 		this.tableOperationsGenerator = tableOperationsGenerator;
 		this.clientPoolHolder = clientPoolHolder;
-		this.htmlEmailService = htmlEmailService;
-		this.datarouterWebPaths = datarouterWebPaths;
 	}
 
 	@Override
@@ -100,19 +96,6 @@ public class SpannerSchemaUpdateService extends BaseSchemaUpdateService{
 			existingTableNames.add(resultSet.getString("table_name"));
 		}
 		return existingTableNames;
-	}
-
-	@Override
-	protected void sendEmail(String fromEmail, String toEmail, String subject, String body){
-		String primaryHref = htmlEmailService.startLinkBuilder()
-				.withLocalPath(datarouterWebPaths.datarouter)
-				.build();
-		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(subject)
-				.withTitle("Spanner Schema Update")
-				.withTitleHref(primaryHref)
-				.withContent(pre(body));
-		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
 	}
 
 }

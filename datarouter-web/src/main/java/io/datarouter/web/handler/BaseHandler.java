@@ -114,7 +114,7 @@ public abstract class BaseHandler{
 
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder;
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
-	private String apiKeyPredicateName;
+	protected String apiKeyPredicateName;
 
 	//these are available to all handlers without passing them around
 	protected ServletContext servletContext;

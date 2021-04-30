@@ -35,8 +35,10 @@ import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.opencensus.adapter.DatarouterOpencensusTool;
 import io.datarouter.storage.config.Config;
 import io.datarouter.util.tuple.Range;
+import io.opencensus.trace.Span;
 
 public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 
@@ -76,10 +78,16 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 
 	protected <F> List<F> callClient(List<String> columnNames, List<Field<?>> fields, Supplier<F> object){
 		String spanName = getClass().getSimpleName();
+		Span opencensusSpan = null;
 		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+			opencensusSpan = DatarouterOpencensusTool.createOpencensusSpan();
 			List<F> results = callClientInternal(columnNames, fields, object);
 			TracerTool.appendToSpanInfo("got " + results.size());
 			return results;
+		}finally{
+			if(opencensusSpan != null){
+				opencensusSpan.end();
+			}
 		}
 	}
 

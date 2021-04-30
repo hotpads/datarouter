@@ -21,7 +21,6 @@ import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.DateField;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.comparable.InstantField;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
@@ -33,14 +32,12 @@ public abstract class BaseWebappInstanceLog<
 		D extends BaseWebappInstanceLog<PK,D>>
 extends BaseDatabean<PK,D>{
 
-	protected Instant startup;
-	protected Instant build;
 	protected String buildId;
 	protected String commitId;
 	protected String javaVersion;
 	protected String servletContainerVersion;
-	@Deprecated
-	protected Date refreshedLast;
+//	@Deprecated
+//	protected Date refreshedLast;
 	protected Instant refreshedLastInstant;
 
 	public abstract static class BaseWebappInstanceLogFielder<
@@ -55,14 +52,12 @@ extends BaseDatabean<PK,D>{
 		@Override
 		public List<Field<?>> getNonKeyFields(D databean){
 			return List.of(
-					new InstantField(BaseWebappInstance.FieldKeys.startup, databean.getStartup()),
-					new InstantField(BaseWebappInstance.FieldKeys.build, databean.getBuild()),
 					new StringField(BaseWebappInstance.FieldKeys.buildId, databean.getBuildId()),
 					new StringField(BaseWebappInstance.FieldKeys.commitId, databean.getCommitId()),
 					new StringField(BaseWebappInstance.FieldKeys.javaVersion, databean.getJavaVersion()),
 					new StringField(BaseWebappInstance.FieldKeys.servletContainerVersion,
 						databean.getServletContainerVersion()),
-					new DateField(BaseWebappInstance.FieldKeys.refreshedLast, databean.getRefreshedLast()),
+//					new DateField(BaseWebappInstance.FieldKeys.refreshedLast, databean.getRefreshedLast()),
 					new InstantField(BaseWebappInstance.FieldKeys.refreshedLastInstant,
 							databean.getRefreshedLastInstant()));
 		}
@@ -74,8 +69,6 @@ extends BaseDatabean<PK,D>{
 
 	public BaseWebappInstanceLog(
 			PK key,
-			Instant startup,
-			Instant build,
 			String buildId,
 			String commitId,
 			String javaVersion,
@@ -83,25 +76,21 @@ extends BaseDatabean<PK,D>{
 			Date refreshedLast,
 			Instant refreshedInstant){
 		super(key);
-		this.startup = startup;
-		this.build = build;
 		this.buildId = buildId;
 		this.commitId = commitId;
 		this.javaVersion = javaVersion;
 		this.servletContainerVersion = servletContainerVersion;
-		this.refreshedLast = refreshedLast;
+//		this.refreshedLast = refreshedLast;
 		this.refreshedLastInstant = refreshedInstant;
 	}
 
 	public BaseWebappInstanceLog(PK key, BaseWebappInstance<?,?> instance){
 		super(key);
-		this.startup = instance.getStartupInstant();
-		this.build = instance.getBuildInstant();
 		this.buildId = instance.getBuildId();
 		this.commitId = instance.getCommitId();
 		this.javaVersion = instance.getJavaVersion();
 		this.servletContainerVersion = instance.getServletContainerVersion();
-		this.refreshedLast = instance.getRefreshedLast();
+//		this.refreshedLast = instance.getRefreshedLast();
 		this.refreshedLastInstant = instance.getRefreshedLastInstant();
 	}
 
@@ -122,19 +111,11 @@ extends BaseDatabean<PK,D>{
 	}
 
 	public Date getRefreshedLast(){
-		return refreshedLast;
+		return new Date(refreshedLastInstant.toEpochMilli());
 	}
 
 	public Instant getRefreshedLastInstant(){
 		return refreshedLastInstant;
-	}
-
-	public Instant getStartup(){
-		return startup;
-	}
-
-	public Instant getBuild(){
-		return build;
 	}
 
 }

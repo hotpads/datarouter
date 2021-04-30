@@ -1,20 +1,20 @@
 # datarouter-virtual-node
 
+## About
+
+Virtual nodes are classes that implement datarouter storage interfaces by wrapping underlying physical nodes.  For example, Caching nodes wrap a persistent
+node plus a cache node, making it easier to keep the cache up to date.  Or Replication nodes wrap a primary database node plus zero or more replica nodes,
+making it easier to create all the nodes and then control which physical node serves a read request.
+
 ## Installation with Maven
 
 ```xml
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-virtual-node</artifactId>
-	<version>0.0.70</version>
+	<version>0.0.71</version>
 </dependency>
 ```
-
-## About
-
-Virtual nodes are classes that implement datarouter storage interfaces by wrapping underlying physical nodes.  For example, Caching nodes wrap a persistent
-node plus a cache node, making it easier to keep the cache up to date.  Or Replication nodes wrap a primary database node plus zero or more replica nodes,
-making it easier to create all the nodes and then control which physical node serves a read request.
 
 ## Types
 

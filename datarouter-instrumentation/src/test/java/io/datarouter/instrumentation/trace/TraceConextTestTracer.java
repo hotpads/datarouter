@@ -113,6 +113,11 @@ public class TraceConextTestTracer implements Tracer{
 	}
 
 	@Override
+	public TraceSpanDto getCurrentSpan(){
+		return null;
+	}
+
+	@Override
 	public boolean getForceSave(){
 		return false;
 	}

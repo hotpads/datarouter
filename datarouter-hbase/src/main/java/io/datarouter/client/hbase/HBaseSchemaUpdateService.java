@@ -15,8 +15,6 @@
  */
 package io.datarouter.client.hbase;
 
-import static j2html.TagCreator.pre;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -52,7 +50,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
-import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateTool;
@@ -63,10 +60,11 @@ import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.handler.EmailingSchemaUpdateService;
 import io.datarouter.web.monitoring.BuildProperties;
 
 @Singleton
-public class HBaseSchemaUpdateService extends BaseSchemaUpdateService{
+public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(HBaseSchemaUpdateService.class);
 
 	// default table configuration settings for new tables
@@ -75,10 +73,8 @@ public class HBaseSchemaUpdateService extends BaseSchemaUpdateService{
 	private static final long DEFAULT_MEMSTORE_FLUSH_SIZE_BYTES = 1L * 256 * 1024 * 1024;
 	private static final int MAX_VERSIONS = 1;
 
-	private final DatarouterHtmlEmailService htmlEmailService;
 	private final HBaseConnectionHolder hBaseConnectionHolder;
 	private final SchemaUpdateOptions schemaUpdateOptions;
-	private final DatarouterWebPaths datarouterWebPaths;
 
 	@Inject
 	public HBaseSchemaUpdateService(DatarouterProperties datarouterProperties,
@@ -96,11 +92,11 @@ public class HBaseSchemaUpdateService extends BaseSchemaUpdateService{
 				executor,
 				schemaUpdateLockDao,
 				changelogRecorder,
-				buildProperties.getBuildId());
-		this.htmlEmailService = htmlEmailService;
+				buildProperties.getBuildId(),
+				htmlEmailService,
+				datarouterWebPaths);
 		this.hBaseConnectionHolder = hBaseConnectionHolder;
 		this.schemaUpdateOptions = schemaUpdateOptions;
-		this.datarouterWebPaths = datarouterWebPaths;
 	}
 
 	@Override
@@ -111,18 +107,6 @@ public class HBaseSchemaUpdateService extends BaseSchemaUpdateService{
 		return () -> generateSchemaUpdate(clientId, existingTableNames, node);
 	}
 
-	@Override
-	protected void sendEmail(String fromEmail, String toEmail, String subject, String body){
-		String primaryHref = htmlEmailService.startLinkBuilder()
-				.withLocalPath(datarouterWebPaths.datarouter)
-				.build();
-		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(subject)
-				.withTitle("HBase Schema Update")
-				.withTitleHref(primaryHref)
-				.withContent(pre(body));
-		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
-	}
 
 	@Override
 	protected List<String> fetchExistingTables(ClientId clientId){
@@ -136,7 +120,6 @@ public class HBaseSchemaUpdateService extends BaseSchemaUpdateService{
 				.map(TableName::getNameAsString)
 				.collect(Collectors.toList());
 	}
-
 
 	private Optional<SchemaUpdateResult> generateSchemaUpdate(
 			ClientId clientId,

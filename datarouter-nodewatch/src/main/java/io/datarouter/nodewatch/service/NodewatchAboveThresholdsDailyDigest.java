@@ -69,7 +69,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
+		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold, getType());
 		return Optional.of(div(header, each(tables, TagCreator::div)));
 	}
 
@@ -89,8 +89,13 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
+		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold, getType());
 		return Optional.of(div(header, each(tables, TagCreator::div)));
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
 	}
 
 	private Optional<Pair<String,ContainerTag>> makePageTable(List<CountStat> rows, String header, ZoneId zoneId){

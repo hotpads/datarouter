@@ -34,6 +34,10 @@ public class TracerTool{
 		return getTraceId(TracerThreadLocal.get());
 	}
 
+	public static Long getCurrentThreadId(){
+		return TracerThreadLocal.get().getCurrentThreadId();
+	}
+
 	/*---------------------------- TraceThread ------------------------------*/
 
 	public static void createAndStartThread(Tracer tracer, String name, long queueTimeNs){

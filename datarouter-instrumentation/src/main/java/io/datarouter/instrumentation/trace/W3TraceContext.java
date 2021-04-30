@@ -21,12 +21,8 @@ import java.util.regex.Pattern;
 
 public class W3TraceContext{
 
-	public static final Pattern TRACEPARENT_PATTERN = Pattern.compile(
-			"^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$");
 	public static final Pattern TRACESTATE_PATTERN = Pattern.compile(
 			"^([a-z0-9_\\-*/@]*=[a-zA-Z0-9]*)(,[a-z0-9_\\-*/@]*=[a-zA-Z0-9]*)*$");
-
-	private static final Integer MIN_CHARS_TRACEPARENT = 55;
 
 	private Traceparent traceparent;
 	private Tracestate tracestate;
@@ -94,20 +90,11 @@ public class W3TraceContext{
 	}
 
 	private boolean validateAndSetTraceparent(String traceparentStr){
-		if(traceparentStr == null || traceparentStr.isEmpty()){
-			return false;
-		}else if(traceparentStr.length() < MIN_CHARS_TRACEPARENT){
-			return false;
-		}else if(!TRACEPARENT_PATTERN.matcher(traceparentStr).matches()){
-			return false;
+		Optional<Traceparent> parsedTraceparent = Traceparent.parse(traceparentStr);
+		if(parsedTraceparent.isPresent()){
+			traceparent = parsedTraceparent.get();
 		}
-		String[] tokens = traceparentStr.split(Traceparent.TRACEPARENT_DELIMITER);
-		if(!Traceparent.CURRENT_VERSION.equals(tokens[0])){
-			return false;
-		}
-		traceparent = new Traceparent(tokens[1], tokens[2], tokens[3]);
-		hasValidTraceparent = true;
-		return true;
+		return hasValidTraceparent = parsedTraceparent.isPresent();
 	}
 
 	private void parseOrCreateNewTracestate(String tracestateStr){

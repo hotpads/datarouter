@@ -15,8 +15,6 @@
  */
 package io.datarouter.client.mysql.ddl.execute;
 
-import static j2html.TagCreator.pre;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -28,9 +26,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -38,22 +33,19 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
-import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.handler.EmailingSchemaUpdateService;
 import io.datarouter.web.monitoring.BuildProperties;
 
 @Singleton
-public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
-	private static Logger logger = LoggerFactory.getLogger(MysqlSchemaUpdateService.class);
+public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 
 	private final MysqlSingleTableSchemaUpdateService mysqlSingleTableSchemaUpdateService;
-	private final DatarouterHtmlEmailService htmlEmailService;
 	private final MysqlConnectionPoolHolder mysqlConnectionPoolHolder;
-	private final DatarouterWebPaths datarouterWebPaths;
 
 	@Inject
 	public MysqlSchemaUpdateService(
@@ -72,11 +64,11 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 				executor,
 				schemaUpdateLockDao,
 				changelogRecorder,
-				buildProperties.getBuildId());
+				buildProperties.getBuildId(),
+				htmlEmailService,
+				datarouterWebPaths);
 		this.mysqlSingleTableSchemaUpdateService = mysqlSingleTableSchemaUpdateService;
-		this.htmlEmailService = htmlEmailService;
 		this.mysqlConnectionPoolHolder = mysqlConnectionPoolHolder;
-		this.datarouterWebPaths = datarouterWebPaths;
 	}
 
 	@Override
@@ -85,20 +77,6 @@ public class MysqlSchemaUpdateService extends BaseSchemaUpdateService{
 			Supplier<List<String>> existingTableNames,
 			PhysicalNode<?,?,?> node){
 		return () -> mysqlSingleTableSchemaUpdateService.performSchemaUpdate(clientId, existingTableNames, node);
-	}
-
-	@Override
-	protected void sendEmail(String fromEmail, String toEmail, String subject, String body){
-		String primaryHref = htmlEmailService.startLinkBuilder()
-				.withLocalPath(datarouterWebPaths.datarouter)
-				.build();
-		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject(subject)
-				.withTitle("MySQL Schema Update")
-				.withTitleHref(primaryHref)
-				.withContent(pre(body));
-		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
-		logger.warn("Sending Schema update email from={}, with subject={}", fromEmail, subject);
 	}
 
 	@Override

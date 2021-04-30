@@ -26,7 +26,7 @@ import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 
-public abstract class SpannerBaseWriteOp<T>extends SpannerBaseOp<Void>{
+public abstract class SpannerBaseWriteOp<T> extends SpannerBaseOp<Void>{
 
 	private static final Integer DEFAULT_BATCH_SIZE = 1000;
 

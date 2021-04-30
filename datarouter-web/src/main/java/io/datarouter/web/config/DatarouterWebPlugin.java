@@ -217,7 +217,10 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.executors, "Executors");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.memory.view, "Server Status");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.dailyDigest, "Daily Digest");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.dailyDigest.viewActionable,
+				"Daily Digest - Actionable");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.dailyDigest.viewSummary,
+				"Daily Digest - Summary");
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.INFO, PATHS.datarouter.tableConfiguration,
 				"Custom Table Configs");

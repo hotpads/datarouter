@@ -94,7 +94,8 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.info.routeSets).withHandler(DatarouterRouteSetViewHandler.class);
 		handle(paths.datarouter.info.plugins).withHandler(ViewPluginsHandler.class);
 		handle(paths.datarouter.info.properties).withHandler(DatarouterPropertiesViewHandler.class);
-		handle(paths.datarouter.dailyDigest).withHandler(DailyDigestHandler.class);
+		handle(paths.datarouter.dailyDigest.viewActionable).withHandler(DailyDigestHandler.class);
+		handle(paths.datarouter.dailyDigest.viewSummary).withHandler(DailyDigestHandler.class);
 
 		handle(paths.datarouter.testApi.before).withHandler(TestApiHandler.class);
 		handle(paths.datarouter.testApi.year).withHandler(TestApiHandler.class);

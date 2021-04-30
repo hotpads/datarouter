@@ -70,7 +70,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 		if(openRequests.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers);
+		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers, getType());
 		var table = buildPageTable(openRequests, zoneId);
 		return Optional.of(div(header, table));
 	}
@@ -81,7 +81,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 		if(openRequests.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers);
+		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers, getType());
 		var table = buildEmailTable(openRequests, datarouterService.getZoneId());
 		return Optional.of(div(header, table));
 	}
@@ -94,6 +94,11 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.HIGH;
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.ACTIONABLE;
 	}
 
 	private List<PermissionRequestDto> getOpenRequests(){

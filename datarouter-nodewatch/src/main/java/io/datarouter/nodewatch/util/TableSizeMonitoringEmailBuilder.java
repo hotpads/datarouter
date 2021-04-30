@@ -94,7 +94,7 @@ public class TableSizeMonitoringEmailBuilder{
 				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows())))
 				.withColumn(alignRight("Date Updated",
 						row -> DateTool.formatDateWithZone(row.getDateUpdated(), zoneId)))
-				.withColumn(alignRight("Updated Agp", row -> DateTool.getAgoString(row.getDateUpdated().getTime())))
+				.withColumn(alignRight("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime())))
 				.build(staleRows);
 	}
 

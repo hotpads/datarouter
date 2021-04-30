@@ -55,7 +55,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 		if(loggers.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging);
+		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging, getType());
 		var description = small("Updated Today");
 		var table = new J2HtmlTable<LoggerConfig>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
@@ -73,7 +73,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 		if(loggers.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging);
+		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging, getType());
 		var description = small("Updated Today");
 		ZoneId zoneId = datarouterService.getZoneId();
 		var table = new J2HtmlEmailTable<LoggerConfig>()
@@ -93,6 +93,11 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.LOW;
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
 	}
 
 	private List<LoggerConfig> getTodaysLoggers(){

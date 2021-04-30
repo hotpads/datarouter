@@ -36,13 +36,13 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 
 	public static class DatarouterPaths extends PathNode{
 		public final ClientPaths client = branch(ClientPaths::new, "client");
+		public final DailyDigestPaths dailyDigest = branch(DailyDigestPaths::new, "dailyDigest");
 		public final InfoPaths info = branch(InfoPaths::new, "info");
 		public final ExecutorPaths executors = branch(ExecutorPaths::new, "executors");
 		public final NodesPaths nodes = branch(NodesPaths::new, "nodes");
 		public final TestApiPaths testApi = branch(TestApiPaths::new, "testApi");
 		public final MemoryPaths memory = branch(MemoryPaths::new, "memory");
 
-		public final PathNode dailyDigest = leaf("dailyDigest");
 		public final PathNode deployment = leaf("deployment");
 		public final PathNode emailTest = leaf("emailTest");
 		public final HttpPaths http = branch(HttpPaths::new, "http");
@@ -130,6 +130,11 @@ public class DatarouterWebPaths extends PathNode implements PathsRoot{
 		public final PathNode printPrimitiveIntArrayNoParamName = leaf("printPrimitiveIntArrayNoParamName");
 		public final PathNode printComplicatedArrayParams = leaf("printComplicatedArrayParams");
 		public final PathNode timeContains = leaf("timeContains");
+	}
+
+	public static class DailyDigestPaths extends PathNode{
+		public final PathNode viewSummary = leaf("viewSummary");
+		public final PathNode viewActionable = leaf("viewActionable");
 	}
 
 }

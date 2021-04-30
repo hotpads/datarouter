@@ -27,7 +27,8 @@ import io.datarouter.joblet.nav.JobletExternalLinkBuilder.NoOpJobletExternalLink
 import io.datarouter.joblet.queue.JobletRequestSelector;
 import io.datarouter.joblet.queue.JobletSelectorRegistry;
 import io.datarouter.joblet.queue.QueueJobletRequestSelector;
-import io.datarouter.joblet.service.JobletDailyDigest;
+import io.datarouter.joblet.service.FailedJobletDailyDigest;
+import io.datarouter.joblet.service.OldJobletDailyDigest;
 import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
@@ -69,7 +70,8 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		addJobletType(SleepingJoblet.JOBLET_TYPE);
 		addTestable(DatarouterJobletBootstrapIntegrationService.class);
 		addDatarouterGithubDocLink("datarouter-joblet");
-		addDailyDigest(JobletDailyDigest.class);
+		addDailyDigest(FailedJobletDailyDigest.class);
+		addDailyDigest(OldJobletDailyDigest.class);
 		addMetricLinkPages(AppJobletMetricLinkPage.class);
 		addMetricLinkPages(DatarouterJobletMetricLinkPage.class);
 	}

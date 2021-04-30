@@ -191,7 +191,7 @@ public class SecretService{
 		createRawNamespaced(Optional.empty(), secretNamespace, secretName, serialize(secretValue), reason);
 	}
 
-	public void createRawNamespaced(Optional<String> targetSecretClientSupplierConfigName, String secretNamespace,
+	private void createRawNamespaced(Optional<String> targetSecretClientSupplierConfigName, String secretNamespace,
 			String secretName, String serializedValue, SecretOpReason reason){
 		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.CREATE, secretNamespace, secretName,
 				reason, targetSecretClientSupplierConfigName);

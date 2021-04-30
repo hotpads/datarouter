@@ -20,6 +20,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Guice;
 
 import io.datarouter.storage.Datarouter;
@@ -69,6 +70,11 @@ public abstract class BaseSortedBeanIntegrationTests{
 
 	protected long count(){
 		return dao.count();
+	}
+
+	@AfterClass
+	public void afterClass(){
+		datarouter.shutdown();
 	}
 
 }

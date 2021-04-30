@@ -61,7 +61,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 		if(list.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);
+		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll, getType());
 		var description = small("For the current day");
 		var table = viewChangelogService.buildTable(list, zoneId);
 		return Optional.of(div(header, description, table));
@@ -73,7 +73,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 		if(list.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);
+		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll, getType());
 		var description = small("For the current day");
 		var table = buildEmailTable(list);
 		return Optional.of(div(header, description, table));
@@ -87,6 +87,11 @@ public class ChangelogDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.LOW;
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
 	}
 
 	private List<Changelog> getChangelogs(){

@@ -75,7 +75,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		if(logs.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
+		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances, getType());
 		var table = buildPageTable(logs, zoneId);
 		return Optional.of(div(header, table));
 	}
@@ -86,7 +86,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		if(logs.isEmpty() || logs.size() <= standardDeploymentCount.getNumberOfStandardDeployments()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
+		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances, getType());
 		var table = buildEmailTable(logs);
 		return Optional.of(div(header, table));
 	}
@@ -101,9 +101,14 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		return DailyDigestGrouping.LOW;
 	}
 
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
+	}
+
 	private List<WebappInstanceLogDto> getLogs(){
-		var start = new WebappInstanceLogByBuildInstantKey(startOfDay(), null, null, null);
-		var stop = new WebappInstanceLogByBuildInstantKey(endOfDay(), null, null, null);
+		var start = new WebappInstanceLogByBuildInstantKey(startOfDay(), null, null, null, null);
+		var stop = new WebappInstanceLogByBuildInstantKey(endOfDay(), null, null, null, null);
 		var range = new Range<>(start, true, stop, true);
 		Map<WebappInstanceLogKeyDto,List<WebappInstanceLog>> ranges = dao.scanDatabeans(range)
 				.groupBy(WebappInstanceLogKeyDto::new);

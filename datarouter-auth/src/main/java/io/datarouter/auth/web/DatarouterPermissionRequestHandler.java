@@ -25,6 +25,7 @@ import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.tr;
 
+import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Objects;
@@ -46,6 +47,7 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestD
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.util.DateTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
@@ -257,16 +259,16 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	}
 
 	public static class PermissionRequestDto{
-		public final Date requestTime;
+		public final String requestTime;
 		public final String requestText;
-		public final Date resolutionTime;
+		public final String resolutionTime;
 		public final String resolution;
 
 		public PermissionRequestDto(Date requestTime, String requestText, Date resolutionTime,
-				String resolution){
-			this.requestTime = requestTime;
+				String resolution, ZoneId zoneId){
+			this.requestTime = DateTool.formatDateWithZone(requestTime, zoneId);
 			this.requestText = requestText;
-			this.resolutionTime = resolutionTime;
+			this.resolutionTime = resolutionTime == null ? null : DateTool.formatDateWithZone(resolutionTime, zoneId);
 			this.resolution = resolution;
 		}
 

@@ -44,7 +44,7 @@ public class SpannerPutOp<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
 		F extends DatabeanFielder<PK,D>>
-		extends SpannerBaseWriteOp<D>{
+extends SpannerBaseWriteOp<D>{
 
 	protected final Config config;
 	protected final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;

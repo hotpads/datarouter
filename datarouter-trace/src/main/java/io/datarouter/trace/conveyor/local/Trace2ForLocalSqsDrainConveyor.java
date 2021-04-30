@@ -15,6 +15,7 @@
  */
 package io.datarouter.trace.conveyor.local;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -51,10 +52,13 @@ public class Trace2ForLocalSqsDrainConveyor extends BaseTrace2SqsDrainConveyor{
 	@Override
 	public void persistData(Trace2BatchedBundleDto batchDto){
 		for(Trace2BundleDto dto : batchDto.batch){
-			Trace2 trace = new Trace2(Trace2.DEFAULT_ACCOUNT_NAME, dto.traceDto);
+			List<Trace2> traces = new ArrayList<>();
+			if(dto.traceDto != null){
+				traces.add(new Trace2(Trace2.DEFAULT_ACCOUNT_NAME, dto.traceDto));
+			}
 			List<Trace2Thread> threads = Scanner.of(dto.traceThreadDtos).map(Trace2Thread::new).list();
 			List<Trace2Span> spans = Scanner.of(dto.traceSpanDtos).map(Trace2Span::new).list();
-			traceDao.putMultiTraceBundles(threads, spans, List.of(trace));
+			traceDao.putMultiTraceBundles(threads, spans, traces);
 		}
 	}
 

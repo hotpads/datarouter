@@ -170,6 +170,7 @@ public class WebappInstanceHandler extends BaseHandler{
 		private final String servletContextPath;
 		private final String serverPublicIp;
 		private final String serverPrivateIp;
+		private final Integer httpsPort;
 		private final Date refreshedLast;
 		private final Date startupDate;
 		private final Date buildDate;
@@ -200,6 +201,7 @@ public class WebappInstanceHandler extends BaseHandler{
 					databean.getServletContextPath(),
 					databean.getServerPublicIp(),
 					databean.getServerPrivateIp(),
+					databean.getHttpsPort(),
 					databean.getRefreshedLast(),
 					databean.getStartupDate(),
 					databean.getBuildDate(),
@@ -222,6 +224,7 @@ public class WebappInstanceHandler extends BaseHandler{
 				String servletContextPath,
 				String serverPublicIp,
 				String serverPrivateIp,
+				Integer httpsPort,
 				Date refreshedLast,
 				Date startupDate,
 				Date buildDate,
@@ -241,6 +244,7 @@ public class WebappInstanceHandler extends BaseHandler{
 			this.servletContextPath = servletContextPath;
 			this.serverPublicIp = serverPublicIp;
 			this.serverPrivateIp = serverPrivateIp;
+			this.httpsPort = httpsPort;
 			this.refreshedLast = refreshedLast;
 			this.startupDate = startupDate;
 			this.buildDate = buildDate;
@@ -320,6 +324,10 @@ public class WebappInstanceHandler extends BaseHandler{
 
 		public String getServerPrivateIp(){
 			return serverPrivateIp;
+		}
+
+		public Integer getHttpsPort(){
+			return httpsPort;
 		}
 
 		public Date getStartupDate(){

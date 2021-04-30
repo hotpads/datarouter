@@ -30,6 +30,8 @@ import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.opencensus.adapter.physical.PhysicalIndexedSortedMapStorageOpencensusAdapter;
+import io.datarouter.opencensus.adapter.physical.PhysicalSubEntitySortedMapStorageOpencensusAdapter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientTableNodeNames;
 import io.datarouter.storage.client.imp.BaseClientNodeFactory;
@@ -96,6 +98,7 @@ public class SpannerClientNodeFactory extends BaseClientNodeFactory{
 			return List.of(
 					PhysicalIndexedSortedMapStorageSanitizationAdapter::new,
 					PhysicalIndexedSortedMapStorageCounterAdapter::new,
+					PhysicalIndexedSortedMapStorageOpencensusAdapter::new,
 					PhysicalIndexedSortedMapStorageTraceAdapter::new,
 					physicalIndexedSortedMapStorageAvailabilityAdapterFactory::create,
 					PhysicalIndexedSortedMapStorageCallsiteAdapter::new);
@@ -127,6 +130,7 @@ public class SpannerClientNodeFactory extends BaseClientNodeFactory{
 			return List.of(
 					PhysicalSubEntitySortedMapStorageSanitizationAdapter::new,
 					PhysicalSubEntitySortedMapStorageCounterAdapter::new,
+					PhysicalSubEntitySortedMapStorageOpencensusAdapter::new,
 					PhysicalSubEntitySortedMapStorageTraceAdapter::new,
 					physicalSubEntitySortedMapStorageAvailabilityAdapterFactory::create,
 					PhysicalSubEntitySortedMapStorageCallsiteAdapter::new);

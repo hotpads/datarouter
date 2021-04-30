@@ -32,6 +32,7 @@ import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.monitoring.BuildProperties;
 import io.datarouter.web.monitoring.GitProperties;
+import io.datarouter.web.port.CompoundPortIdentifier;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceSettingRoot;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
@@ -51,6 +52,7 @@ public class WebappInstanceService{
 	private final ServletContextSupplier servletContext;
 	private final DatarouterWebappInstanceSettingRoot settings;
 	private final WebappInstancePublisher webappInstancePublisher;
+	private final CompoundPortIdentifier portIdentifier;
 
 	@Deprecated
 	private final Date startTime;
@@ -66,7 +68,8 @@ public class WebappInstanceService{
 			DatarouterProperties datarouterProperties,
 			ServletContextSupplier servletContext,
 			WebappInstancePublisher webappInstancePublisher,
-			DatarouterWebappInstanceSettingRoot settings){
+			DatarouterWebappInstanceSettingRoot settings,
+			CompoundPortIdentifier portIdentifier){
 		this.webappInstanceDao = webappInstanceDao;
 		this.webappInstanceLogDao = webappInstanceLogDao;
 		this.webappName = webappName;
@@ -76,6 +79,7 @@ public class WebappInstanceService{
 		this.servletContext = servletContext;
 		this.webappInstancePublisher = webappInstancePublisher;
 		this.settings = settings;
+		this.portIdentifier = portIdentifier;
 
 		this.startTime = new Date(ManagementFactory.getRuntimeMXBean().getStartTime());
 		this.startup = Instant.ofEpochMilli(ManagementFactory.getRuntimeMXBean().getStartTime());
@@ -119,7 +123,8 @@ public class WebappInstanceService{
 				gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING),
 				SystemTool.getJavaVersion(),
 				servletContext.get().getServerInfo(),
-				gitProperties.getBranch().orElse(GitProperties.UNKNOWN_STRING));
+				gitProperties.getBranch().orElse(GitProperties.UNKNOWN_STRING),
+				portIdentifier.getHttpsPort());
 	}
 
 	public WebappInstanceKey buildCurrentWebappInstanceKey(){

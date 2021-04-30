@@ -100,6 +100,7 @@ public class Dispatcher{
 						.getDefaultHandlerEncoder()));
 				RequestAttributeTool.set(request, TRANSMITS_PII, rule.doesTransmitPii());
 				if(rule.hasApiKey()){
+					// TODO avoid re evaluating the rule
 					Pair<Boolean,String> apiKeyPredicateExistsWithName = rule.getApiKeyPredicate().check(rule, request);
 					if(apiKeyPredicateExistsWithName.getLeft()){
 						handler.setApiKeyPredicateName(apiKeyPredicateExistsWithName.getRight());

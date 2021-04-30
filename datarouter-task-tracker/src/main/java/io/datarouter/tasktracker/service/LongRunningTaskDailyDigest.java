@@ -30,8 +30,8 @@ import javax.inject.Singleton;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
-import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.util.DateTool;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -72,7 +72,8 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		if(failedTasks.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks);
+		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks,
+				getType());
 		var description = small("From the last 24 hours");
 		var table = buildPageTable(failedTasks, zoneId);
 		return Optional.of(div(header, description, table));
@@ -88,7 +89,8 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		if(failedTasks.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks);
+		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks,
+				getType());
 		var description = small("From the last 24 hours");
 		var table = buildEmailTable(failedTasks);
 		return Optional.of(div(header, description, table));
@@ -102,6 +104,11 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	@Override
 	public DailyDigestGrouping getGrouping(){
 		return DailyDigestGrouping.HIGH;
+	}
+
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.SUMMARY;
 	}
 
 	private ContainerTag buildPageTable(List<LongRunningTask> rows, ZoneId zoneId){

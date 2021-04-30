@@ -85,7 +85,9 @@ public class Trace2MemoryBufferToSqsConveyor extends BaseConveyor{
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, dtos.size());
 			return new ProcessBatchResult(true);
 		}catch(RuntimeException putMultiException){
-			List<Traceparent> ids = Scanner.of(dtos).map(dto -> dto.traceBundleDto.traceDto.traceparent).list();
+			List<Traceparent> ids = Scanner.of(dtos)
+					.map(Trace2BundleAndHttpRequestRecordDto::getTraceparent)
+					.list();
 			logger.warn("exception sending trace to sqs ids={}", ids, putMultiException);
 			ConveyorCounters.inc(this, "putMulti exception", 1);
 			return new ProcessBatchResult(false);//backoff for a bit
@@ -93,7 +95,7 @@ public class Trace2MemoryBufferToSqsConveyor extends BaseConveyor{
 	}
 
 	protected ConveyorMessage toTrace2Message(Trace2BundleAndHttpRequestRecordDto dto){
-		return new ConveyorMessage(dto.traceBundleDto.traceDto.traceparent.toString(), gson.toJson(dto.traceBundleDto));
+		return new ConveyorMessage(dto.getTraceparent().toString(), gson.toJson(dto.traceBundleDto));
 	}
 
 	protected Optional<ConveyorMessage> toHttpReqRecordMessage(Trace2BundleAndHttpRequestRecordDto dto){
@@ -101,8 +103,7 @@ public class Trace2MemoryBufferToSqsConveyor extends BaseConveyor{
 		if(dto.httpRequestRecord == null){
 			return Optional.empty();
 		}
-		return Optional.of(new ConveyorMessage(dto.traceBundleDto.traceDto.traceparent.toString(), gson.toJson(
-				dto.httpRequestRecord)));
+		return Optional.of(new ConveyorMessage(dto.getTraceparent().toString(), gson.toJson(dto.httpRequestRecord)));
 	}
 
 }

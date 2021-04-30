@@ -192,9 +192,8 @@ public class DatarouterTracer implements Tracer{
 		}
 	}
 
-	/*---------------------------- private TraceSpan ------------------------*/
-
-	private TraceSpanDto getCurrentSpan(){
+	@Override
+	public TraceSpanDto getCurrentSpan(){
 		if(spanStack == null || spanStack.isEmpty()){
 			return null;
 		}

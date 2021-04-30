@@ -40,6 +40,7 @@ public class WebappInstanceDto{
 	public final String javaVersion;
 	public final String servletContainerVersion;
 	public final String gitBranch;
+	public final Integer httpsPort;
 
 	public WebappInstanceDto(
 			String webappName,
@@ -58,7 +59,8 @@ public class WebappInstanceDto{
 			String commitId,
 			String javaVersion,
 			String servletContainerVersion,
-			String gitBranch){
+			String gitBranch,
+			Integer httpsPort){
 		this.webappName = webappName;
 		this.serverName = serverName;
 		this.serverType = serverType;
@@ -76,6 +78,7 @@ public class WebappInstanceDto{
 		this.javaVersion = javaVersion;
 		this.servletContainerVersion = servletContainerVersion;
 		this.gitBranch = gitBranch;
+		this.httpsPort = httpsPort;
 	}
 
 }

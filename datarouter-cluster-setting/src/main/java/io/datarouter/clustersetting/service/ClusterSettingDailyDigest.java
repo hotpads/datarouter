@@ -76,6 +76,11 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		return makeContent(new ClusterSettingDailyDigestEmailTableFormatter());
 	}
 
+	@Override
+	public DailyDigestType getType(){
+		return DailyDigestType.ACTIONABLE;
+	}
+
 	private Optional<ContainerTag> makeContent(ClusterSettingDailyDigestTableFormatter tableFormatter){
 		var redundantTable = settingService.scanWithValidity(ClusterSettingValidity.REDUNDANT)
 				.listTo(settings -> tableFormatter.makeTable(settings, "Redundant"));
@@ -95,7 +100,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Settings", paths.datarouter.settings);
+		var header = digestService.makeHeader("Settings", paths.datarouter.settings, getType());
 		return Optional.of(div(header, each(tables, TagCreator::div)));
 	}
 
