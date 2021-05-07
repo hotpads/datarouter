@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.email;
+package io.datarouter.email.email;
 
 import java.util.Collections;
 import java.util.Map;
@@ -32,11 +32,11 @@ import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.email.config.DatarouterEmailSettings.DatarouterEmailHostDetails;
+import io.datarouter.email.config.DatarouterEmailSettingsProvider;
+import io.datarouter.email.util.MimeMessageTool;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.config.DatarouterEmailSettings.DatarouterEmailHostDetails;
-import io.datarouter.web.config.DatarouterEmailSettingsProvider;
-import io.datarouter.web.util.MimeMessageTool;
 
 @Singleton
 public class DatarouterEmailService{
@@ -50,7 +50,7 @@ public class DatarouterEmailService{
 	public DatarouterEmailLinkBuilder startLinkBuilder(){
 		return new DatarouterEmailLinkBuilder()
 				.withProtocol("https")
-				.withHostPort(datarouterEmailSettingsProvider.get().emailLinkHostPort())
+				.withHostPort(datarouterEmailSettingsProvider.get().emailLinkHostPort.get())
 				.withContextPath(datarouterService.getContextPath());
 	}
 
@@ -74,7 +74,7 @@ public class DatarouterEmailService{
 	public Optional<String> sendAndGetMessageId(String fromEmail, String toEmail, String replyToEmail, String subject,
 			String body, boolean html, Map<String,String> headers)
 	throws MessagingException{
-		if(!datarouterEmailSettingsProvider.get().sendDatarouterEmails()){
+		if(!datarouterEmailSettingsProvider.get().sendDatarouterEmails.get()){
 			return Optional.empty();
 		}
 		Properties props = new Properties();

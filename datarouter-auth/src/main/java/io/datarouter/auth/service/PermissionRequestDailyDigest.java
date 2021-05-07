@@ -32,6 +32,8 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestKey;
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.util.DateTool;
@@ -39,8 +41,6 @@ import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
 import io.datarouter.web.user.session.service.SessionBasedUser;
@@ -70,7 +70,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 		if(openRequests.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers, getType());
+		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers);
 		var table = buildPageTable(openRequests, zoneId);
 		return Optional.of(div(header, table));
 	}
@@ -81,7 +81,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 		if(openRequests.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers, getType());
+		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers);
 		var table = buildEmailTable(openRequests, datarouterService.getZoneId());
 		return Optional.of(div(header, table));
 	}

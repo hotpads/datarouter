@@ -57,6 +57,11 @@ import io.datarouter.clustersetting.web.dto.ClusterSettingJspDto;
 import io.datarouter.clustersetting.web.dto.ClusterSettingLogJspDto;
 import io.datarouter.clustersetting.web.dto.SettingJspDto;
 import io.datarouter.clustersetting.web.dto.SettingNodeJspDto;
+import io.datarouter.email.email.DatarouterEmailLinkBuilder;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.scanner.Scanner;
@@ -80,15 +85,10 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.config.DatarouterWebPaths;
-import io.datarouter.web.email.DatarouterEmailLinkBuilder;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
-import io.datarouter.web.html.email.J2HtmlDatarouterEmailBuilder;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -398,6 +398,9 @@ public class ClusterSettingsHandler extends BaseHandler{
 	}
 
 	private void sendEmail(ClusterSettingLog log, String oldValue){
+		if(!settings.sendUpdateEmail.get()){
+			return;
+		}
 		String from = datarouterProperties.getAdministratorEmail();
 		String to = datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv() + ","
 				+ getSessionInfo().getNonEmptyUsernameOrElse("");

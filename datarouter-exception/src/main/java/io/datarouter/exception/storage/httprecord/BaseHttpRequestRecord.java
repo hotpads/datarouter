@@ -653,6 +653,10 @@ extends BaseDatabean<PK,D>{
 		acceptLanguage = trimField(FieldKeys.acceptLanguage, acceptLanguage);
 	}
 
+	public void trimOrigin(){
+		origin = trimField(FieldKeys.origin, origin);
+	}
+
 	public void trimPragma(){
 		pragma = trimField(FieldKeys.pragma, pragma);
 	}

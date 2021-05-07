@@ -126,8 +126,8 @@ public class DatarouterWebappInstanceDao extends BaseDao{
 
 	public DatabeanVacuum<WebappInstanceKey,WebappInstance> makeVacuum(){
 		Instant deleteBefore = Instant.now().minus(Duration.ofMinutes(20));
-		Predicate<WebappInstance> shouldDelete = databean -> databean.getRefreshedLast() == null
-				|| databean.getRefreshedLastInstantOld().isBefore(deleteBefore);
+		Predicate<WebappInstance> shouldDelete = databean -> databean.getRefreshedLastInstant() == null
+				|| databean.getRefreshedLastInstant().isBefore(deleteBefore);
 		return new DatabeanVacuumBuilder<>(node.scan(), shouldDelete, node::deleteMulti).build();
 	}
 

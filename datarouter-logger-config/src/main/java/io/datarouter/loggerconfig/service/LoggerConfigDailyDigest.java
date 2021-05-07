@@ -25,6 +25,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
@@ -33,7 +34,6 @@ import io.datarouter.util.DateTool;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.ContainerTag;
 
@@ -55,7 +55,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 		if(loggers.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging, getType());
+		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging);
 		var description = small("Updated Today");
 		var table = new J2HtmlTable<LoggerConfig>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
@@ -73,7 +73,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 		if(loggers.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging, getType());
+		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging);
 		var description = small("Updated Today");
 		ZoneId zoneId = datarouterService.getZoneId();
 		var table = new J2HtmlEmailTable<LoggerConfig>()

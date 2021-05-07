@@ -27,6 +27,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
+import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.TraceSpanDto;
 import io.datarouter.instrumentation.trace.TraceThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
@@ -43,6 +44,7 @@ public class DatarouterSummaryTracer implements Tracer{
 
 	private final String traceId;
 	private final String keyPrefix;
+	private final W3TraceContext w3TraceContext;
 
 	private final Deque<SpanRecord> spans = new ConcurrentLinkedDeque<>();
 
@@ -52,19 +54,21 @@ public class DatarouterSummaryTracer implements Tracer{
 	private boolean truncated = false;
 
 	public DatarouterSummaryTracer(){
-		this(UlidTool.nextUlid(), null);
+		this(UlidTool.nextUlid(), null, new W3TraceContext(Trace2Dto.getCurrentTimeInNs()));
 	}
 
-	private DatarouterSummaryTracer(String traceId, String keyPrefix){
+	private DatarouterSummaryTracer(String traceId, String keyPrefix, W3TraceContext w3TraceContext){
 		this.traceId = traceId;
 		this.keyPrefix = keyPrefix == null ? "" : (keyPrefix + " ");
+		this.w3TraceContext = w3TraceContext;
 	}
 
 	/*---------------------------- Tracer------------------------------------*/
 
 	@Override
 	public Tracer createChildTracer(){
-		DatarouterSummaryTracer childTracer = new DatarouterSummaryTracer(traceId, getSpanRecordsPrefix());
+		DatarouterSummaryTracer childTracer = new DatarouterSummaryTracer(traceId, getSpanRecordsPrefix(),
+				w3TraceContext);
 		childSummaryTracers.add(childTracer);
 		return childTracer;
 	}
@@ -262,7 +266,7 @@ public class DatarouterSummaryTracer implements Tracer{
 
 	@Override
 	public Optional<W3TraceContext> getTraceContext(){
-		return Optional.empty();
+		return Optional.of(w3TraceContext);
 	}
 
 }

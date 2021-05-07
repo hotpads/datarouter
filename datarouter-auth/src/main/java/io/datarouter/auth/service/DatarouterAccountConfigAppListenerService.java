@@ -39,8 +39,8 @@ import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.lang.ObjectTool;
 
 @Singleton
-public class DatarouterAccountCreationService{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountCreationService.class);
+public class DatarouterAccountConfigAppListenerService{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountConfigAppListenerService.class);
 
 	public static final String DEFAULT_ACCOUNT_NAME = "default";
 	public static final String DEFAULT_ACCOUNT_CREATOR = "defaultCreator";
@@ -80,6 +80,7 @@ public class DatarouterAccountCreationService{
 
 		String defaultApiKey = defaultDatarouterAccountKeys.getDefaultApiKey();
 		String defaultSecretKey = defaultDatarouterAccountKeys.getDefaultSecretKey();
+		//TODO add active logic
 		DatarouterAccountCredential defaultCredential = datarouterAccountCredentialDao.get(
 				new DatarouterAccountCredentialKey(defaultApiKey));
 		boolean keyExists = defaultCredential != null && defaultSecretKey.equals(defaultCredential.getSecretKey());

@@ -17,7 +17,6 @@ package io.datarouter.web.digest;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.h3;
-import static j2html.TagCreator.small;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,7 +24,6 @@ import javax.inject.Singleton;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.ServletContextSupplier;
-import io.datarouter.web.digest.DailyDigest.DailyDigestType;
 import j2html.tags.ContainerTag;
 
 // helper class for making html fragments
@@ -37,15 +35,21 @@ public class DailyDigestService{
 	@Inject
 	private ServletContextSupplier servletContext;
 
-	public ContainerTag makeHeader(String title, PathNode path, DailyDigestType type){
+	public ContainerTag makeHeader(String title, PathNode path, String pathSupplement){
 		String link = "https://" + datarouterService.getDomainPreferPublic() + servletContext.get().getContextPath()
-				+ path.join("/", "/", "");
-		return makeHeader(title, link, type);
+				+ path.join("/", "/", "") + pathSupplement;
+		return makeHeader(title, link);
 	}
 
-	public ContainerTag makeHeader(String title, String url, DailyDigestType type){
-		return h3(a(title + "-")
-				.withHref(url), small(type.display));
+	public ContainerTag makeHeader(String title, PathNode path){
+		String link = "https://" + datarouterService.getDomainPreferPublic() + servletContext.get().getContextPath()
+				+ path.join("/", "/", "");
+		return makeHeader(title, link);
+	}
+
+	public ContainerTag makeHeader(String title, String url){
+		return h3(a(title)
+				.withHref(url));
 	}
 
 	public ContainerTag makeATagLink(String title, PathNode path){

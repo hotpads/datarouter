@@ -36,6 +36,7 @@ import io.datarouter.metric.counter.DatarouterCountPublisherDao;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.util.UlidTool;
+import io.datarouter.util.number.RandomTool;
 
 public class CountFlusher{
 	private static final Logger logger = LoggerFactory.getLogger(CountFlusher.class);
@@ -78,7 +79,7 @@ public class CountFlusher{
 				if(counts == null){
 					return;
 				}
-				var dto = new CountBatchDto(serviceName, serverName, counts);
+				var dto = new CountBatchDto(RandomTool.nextPositiveLong(), serviceName, serverName, counts);
 				var json = gson.toJson(dto);
 				var message = new ConveyorMessage(UlidTool.nextUlid(), json);
 				logCountsSpec(counts, json);

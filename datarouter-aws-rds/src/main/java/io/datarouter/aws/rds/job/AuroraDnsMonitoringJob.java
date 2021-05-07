@@ -28,6 +28,8 @@ import javax.inject.Inject;
 import io.datarouter.aws.rds.config.DatarouterAwsPaths;
 import io.datarouter.aws.rds.service.AuroraDnsService;
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.task.TaskTracker;
@@ -35,8 +37,6 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
 import j2html.tags.ContainerTag;
 
 public class AuroraDnsMonitoringJob extends BaseJob{

@@ -20,10 +20,10 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.td;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -99,10 +99,10 @@ public class WebappInstanceServersHandler extends BaseHandler{
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("", row -> {
 					if(activeServerNames.contains(row.key.serverName)){
-						if(row.shutdownDate.isEmpty()){
+						if(row.shutdown.isEmpty()){
 							return td();
 						}
-						if(row.shutdownDate.get().getTime() < System.currentTimeMillis()){
+						if(row.shutdown.get().toEpochMilli() < System.currentTimeMillis()){
 							return td();
 						}
 						return td(span("Active").withClass("badge badge-success"));
@@ -110,21 +110,21 @@ public class WebappInstanceServersHandler extends BaseHandler{
 					return td();
 				})
 				.withColumn("Server Name", row -> row.key.serverName)
-				.withColumn("Build Date", row -> DateTool.formatDateWithZone(row.key.buildDate, zoneId))
+				.withColumn("Build Date", row -> DateTool.formatInstantWithZone(row.key.buildDate, zoneId))
 				.withColumn("Startup Range", row ->
-						row.startupDate
-								.map(date -> DateTool.formatDateWithZone(date, zoneId))
+						row.startup
+								.map(date -> DateTool.formatInstantWithZone(date, zoneId))
 								.orElse("unknown")
 						+ " - "
-						+ row.shutdownDate
-								.map(date -> DateTool.formatDateWithZone(date, zoneId))
+						+ row.shutdown
+								.map(date -> DateTool.formatInstantWithZone(date, zoneId))
 								.orElse("unknown"))
 				.withColumn("Up Time", row -> {
-						if(row.startupDate.isEmpty() || row.shutdownDate.isEmpty()){
+						if(row.startup.isEmpty() || row.shutdown.isEmpty()){
 							return "unknown";
 						}
-						var duration = Duration.ofMillis(row.shutdownDate.get().getTime()
-								- row.startupDate.get().getTime());
+						var duration = Duration.ofMillis(row.shutdown.get().toEpochMilli()
+								- row.startup.get().toEpochMilli());
 						return new DatarouterDuration(duration).toString(TimeUnit.MINUTES);
 				})
 				.build(page.rows);
@@ -135,13 +135,13 @@ public class WebappInstanceServersHandler extends BaseHandler{
 	private static class WebappInstanceLogKeyDto{
 
 		public final String serverName;
-		public final Date buildDate;
+		public final Instant buildDate;
 		public final String buildId;
 		public final String commitId;
 
 		public WebappInstanceLogKeyDto(WebappInstanceLog log){
 			this.serverName = log.getKey().getServerName();
-			this.buildDate = log.getKey().getBuildDate();
+			this.buildDate = log.getKey().getBuild();
 			this.buildId = log.getBuildId();
 			this.commitId = log.getCommitId();
 		}
@@ -172,17 +172,17 @@ public class WebappInstanceServersHandler extends BaseHandler{
 	private static class WebappInstanceLogDto{
 
 		public final WebappInstanceLogKeyDto key;
-		private final Optional<Date> startupDate;
-		private final Optional<Date> shutdownDate;
+		private final Optional<Instant> startup;
+		private final Optional<Instant> shutdown;
 
 		public WebappInstanceLogDto(WebappInstanceLogKeyDto key, List<WebappInstanceLog> logRanges){
 			this.key = key;
-			this.startupDate = Scanner.of(logRanges)
+			this.startup = Scanner.of(logRanges)
 					.map(WebappInstanceLog::getKey)
-					.map(WebappInstanceLogKey::getStartupDate)
+					.map(WebappInstanceLogKey::getStartup)
 					.sorted()
 					.findFirst();
-			this.shutdownDate = Scanner.of(logRanges)
+			this.shutdown = Scanner.of(logRanges)
 					.map(WebappInstanceLog::getRefreshedLast)
 					.exclude(Objects::isNull)
 					.sorted()

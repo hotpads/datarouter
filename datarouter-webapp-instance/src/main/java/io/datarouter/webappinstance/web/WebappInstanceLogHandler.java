@@ -15,6 +15,9 @@
  */
 package io.datarouter.webappinstance.web;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,6 +29,7 @@ import javax.inject.Inject;
 import io.datarouter.util.DateTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceFiles;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
 import io.datarouter.webappinstance.storage.webappinstancelog.WebappInstanceLog;
@@ -37,19 +41,22 @@ public class WebappInstanceLogHandler extends BaseHandler{
 	private DatarouterWebappInstanceLogDao dao;
 	@Inject
 	private DatarouterWebappInstanceFiles files;
+	@Inject
+	private CurrentUserSessionInfoService currentUserSessionInfoService;
 
 	@Handler(defaultHandler = true)
 	public Mav webappInstanceLog(String webappName, String serverName){
 		Mav mav = new Mav(files.jsp.admin.datarouter.webappInstances.webappInstanceLogJsp);
-		WebappInstanceLogKey prefix = new WebappInstanceLogKey(webappName, serverName, null, null, null, null);
+		WebappInstanceLogKey prefix = new WebappInstanceLogKey(webappName, serverName, null, null);
 		List<WebappInstanceLog> logs = dao.scanWithPrefix(prefix)
-				.sorted(Comparator.comparing(log -> log.getKey().getStartupDate(), Collections.reverseOrder()))
+				.sorted(Comparator.comparing(log -> log.getKey().getStartup(), Collections.reverseOrder()))
 				.list();
 		int logCount = logs.size();
+		ZoneId zoneId = currentUserSessionInfoService.getZoneId(request);
 		List<WebappInstanceLogJspDto> logJspDtos = new ArrayList<>(logCount);
 		for(int i = 0; i < logCount; ++i){
-			Date fallbackRefreshedLast = i == 0 ? new Date() : logs.get(i - 1).getKey().getStartupDate();
-			logJspDtos.add(new WebappInstanceLogJspDto(logs.get(i), fallbackRefreshedLast));
+			Instant fallbackRefreshedLast = i == 0 ? Instant.now() : logs.get(i - 1).getKey().getStartup();
+			logJspDtos.add(new WebappInstanceLogJspDto(logs.get(i), fallbackRefreshedLast, zoneId));
 		}
 		mav.put("logs", logJspDtos);
 		return mav;
@@ -61,46 +68,52 @@ public class WebappInstanceLogHandler extends BaseHandler{
 
 		private final String webappName;
 		private final String serverName;
-		private final Date startupDate;
-		private final Date refreshedLast;
-		private final Date buildDate;
+		private final Instant startup;
+		private final Instant refreshedLast;
+		private final Instant build;
 		private final String buildId;
 		private final String commitId;
 		private final String javaVersion;
 		private final String servletContainerVersion;
 
-		public WebappInstanceLogJspDto(WebappInstanceLog log, Date fallbackRefreshedLast){
+		private final ZoneId zoneId;
+
+		public WebappInstanceLogJspDto(WebappInstanceLog log, Instant fallbackRefreshedLast, ZoneId zoneId){
 			this(
 					log.getKey().getWebappName(),
 					log.getKey().getServerName(),
-					log.getKey().getStartupDate(),
-					log.getKey().getBuildDate(),
+					log.getKey().getStartup(),
+					log.getKey().getBuild(),
 					log.getRefreshedLast() == null ? fallbackRefreshedLast : log.getRefreshedLast(),
 					log.getBuildId(),
 					log.getCommitId(),
 					log.getJavaVersion(),
-					log.getServletContainerVersion());
+					log.getServletContainerVersion(),
+					zoneId);
 		}
 
 		protected WebappInstanceLogJspDto(
 				String webappName,
 				String serverName,
-				Date startupDate,
-				Date buildDate,
-				Date refreshedLast,
+				Instant startupDate,
+				Instant buildDate,
+				Instant refreshedLast,
 				String buildId,
 				String commitId,
 				String javaVersion,
-				String servletContainerVersion){
+				String servletContainerVersion,
+				ZoneId zoneId){
 			this.webappName = webappName;
 			this.serverName = serverName;
-			this.startupDate = startupDate;
-			this.buildDate = buildDate;
+			this.startup = startupDate;
+			this.build = buildDate;
 			this.refreshedLast = refreshedLast;
 			this.buildId = buildId;
 			this.commitId = commitId;
 			this.javaVersion = javaVersion;
 			this.servletContainerVersion = servletContainerVersion;
+
+			this.zoneId = zoneId;
 		}
 
 		public String getWebappName(){
@@ -111,24 +124,40 @@ public class WebappInstanceLogHandler extends BaseHandler{
 			return serverName;
 		}
 
+		public long getStartupMs(){
+			return startup.toEpochMilli();
+		}
+
+		public long getBuildMs(){
+			return build.toEpochMilli();
+		}
+
 		public Date getStartupDate(){
-			return startupDate;
+			return new Date(startup.toEpochMilli());
 		}
 
 		public Date getBuildDate(){
-			return buildDate;
+			return new Date(build.toEpochMilli());
 		}
 
-		public Date getRefreshedLast(){
+		public String getStartupString(){
+			return DateTool.formatInstantWithZone(startup, zoneId);
+		}
+
+		public Instant getRefreshedLast(){
 			return refreshedLast;
 		}
 
+		public long getRefreshedLastMs(){
+			return refreshedLast.toEpochMilli();
+		}
+
 		public String getStartupDatePrintable(){
-			return DateTool.getAgoString(startupDate.toInstant());
+			return DateTool.getAgoString(startup);
 		}
 
 		public String getBuildDatePrintable(){
-			return DateTool.getAgoString(buildDate.toInstant());
+			return DateTool.getAgoString(build);
 		}
 
 		public String getBuildId(){
@@ -140,7 +169,8 @@ public class WebappInstanceLogHandler extends BaseHandler{
 		}
 
 		public boolean getLatest(){
-			return DateTool.getDaysBetween(buildDate, new Date()) < LATEST_WEBAPP_INSTANCES;
+			Duration duration = Duration.between(build, Instant.now());
+			return duration.toDays() < LATEST_WEBAPP_INSTANCES;
 		}
 
 		public String getJavaVersion(){

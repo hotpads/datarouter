@@ -35,10 +35,10 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestD
 import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.user.databean.DatarouterUser;
 import j2html.tags.ContainerTag;
 

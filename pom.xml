@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-modules</artifactId>
-	<version>0.0.71</version>
+	<version>0.0.72</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -39,6 +39,7 @@
 		<module>datarouter-cluster-setting</module>
 		<module>datarouter-conveyor</module>
 		<module>datarouter-copy-table</module>
+		<module>datarouter-email</module>
 		<module>datarouter-exception</module>
 		<module>datarouter-gcp-bigtable-hbase</module>
 		<module>datarouter-gcp-spanner</module>

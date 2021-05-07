@@ -33,13 +33,13 @@ import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingConfigScanner;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -100,7 +100,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Settings", paths.datarouter.settings, getType());
+		var header = digestService.makeHeader("Settings", paths.datarouter.settings, "?submitAction=browseSettings");
 		return Optional.of(div(header, each(tables, TagCreator::div)));
 	}
 

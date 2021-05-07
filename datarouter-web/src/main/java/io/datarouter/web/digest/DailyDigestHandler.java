@@ -18,6 +18,7 @@ package io.datarouter.web.digest;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.h4;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ul;
 
@@ -72,10 +73,11 @@ public class DailyDigestHandler extends BaseHandler{
 			content = div("No content for the daily digest.")
 					.withClass("container-fluid");
 		}else{
+			ContainerTag header = h4("Daily Digest - " + type.display);
 			ContainerTag toc = ul(each(digests, digest -> {
 				return li(a(digest.getTitle() + digest.getType().name()).withHref("#" + digest.getId()));
 			}));
-			content = div(toc, each(digests, digest -> buildContent(digest, zoneId)))
+			content = div(header, toc, each(digests, digest -> buildContent(digest, zoneId)))
 					.withClass("container-fluid");
 		}
 		return pageFactory.startBuilder(request)

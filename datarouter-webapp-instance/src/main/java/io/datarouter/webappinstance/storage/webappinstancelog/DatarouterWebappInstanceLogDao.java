@@ -15,7 +15,6 @@
  */
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -51,12 +50,6 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 			FieldlessIndexEntry<WebappInstanceLogByBuildInstantKey,WebappInstanceLogKey,WebappInstanceLog>>
 			byBuildInstant;
 
-	private final IndexedSortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder>
-			newSchema;
-	private final IndexReader<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogByBuildInstantKey,
-			FieldlessIndexEntry<WebappInstanceLogByBuildInstantKey,WebappInstanceLogKey,WebappInstanceLog>>
-			byBuildInstant2;
-
 	@Inject
 	public DatarouterWebappInstanceLogDao(
 			Datarouter datarouter,
@@ -69,39 +62,17 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 					IndexedSortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node =
 							nodeFactory.create(clientId, WebappInstanceLog::new, WebappInstanceLogFielder::new)
 							.withIsSystemTable(true)
-							.withTableName("WebappInstanceLog_2")
 							.build();
 					return node;
 					})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
 		byBuildInstant = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildInstantKey.class, node)
-				.withTableName("WebappInstanceLogByBuildInstantKey_2")
 				.build();
 		datarouter.register(node);
-
-		newSchema = Scanner.of(params.clientIds)
-				.map(clientId -> {
-					IndexedSortedMapStorageNode<WebappInstanceLogKey,WebappInstanceLog,WebappInstanceLogFielder> node =
-							nodeFactory.create(clientId, WebappInstanceLog::new, WebappInstanceLogFielder::new)
-							.withIsSystemTable(true)
-							.build();
-					return node;
-					})
-				.listTo(RedundantIndexedSortedMapStorageNode::new);
-		byBuildInstant2 = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildInstantKey.class,
-				newSchema)
-				.build();
-		datarouter.register(newSchema);
 	}
 
 	public void put(WebappInstanceLog log){
 		node.put(log);
-		newSchema.put(log);
-	}
-
-	public void putMulti(Collection<WebappInstanceLog> log){
-		node.putMulti(log);
-		newSchema.putMulti(log);
 	}
 
 	public Scanner<WebappInstanceLog> scan(){

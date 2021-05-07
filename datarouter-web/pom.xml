@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.71</version>
+		<version>0.0.72</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -44,22 +44,12 @@
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-http-client</artifactId>
-			<version>${datarouter-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-storage</artifactId>
-			<version>${datarouter-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.datarouter</groupId>
-			<artifactId>datarouter-secret</artifactId>
-			<version>${datarouter-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.datarouter</groupId>
 			<artifactId>datarouter-virtual-node</artifactId>
+			<version>${datarouter-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.datarouter</groupId>
+			<artifactId>datarouter-email</artifactId>
 			<version>${datarouter-version}</version>
 		</dependency>
 		<dependency>
@@ -124,16 +114,6 @@
 					<artifactId>guava</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.j2html</groupId>
-			<artifactId>j2html</artifactId>
-			<version>1.4.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
-			<version>1.6.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>

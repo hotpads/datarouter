@@ -33,6 +33,8 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.exception.config.DatarouterExceptionPaths;
 import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryDao;
 import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
@@ -45,8 +47,6 @@ import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.ContainerTag;
 
@@ -74,7 +74,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 		if(aggregated.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse, getType());
+		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse);
 		var description = small("Aggregated for the current day");
 		return Optional.of(div(header, description, makePageTable(aggregated)));
 	}
@@ -85,7 +85,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 		if(aggregated.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse, getType());
+		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse);
 		var description = small("Aggregated for the current day");
 		return Optional.of(div(header, description, makeEmailTable(aggregated)));
 	}

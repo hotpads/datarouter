@@ -69,7 +69,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold, getType());
+		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
 		return Optional.of(div(header, each(tables, TagCreator::div)));
 	}
 
@@ -89,7 +89,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold, getType());
+		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
 		return Optional.of(div(header, each(tables, TagCreator::div)));
 	}
 
@@ -122,7 +122,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
-		var table = emailBuilder.makeCountStatTable(header, rows);
+		var table = emailBuilder.makeCountStatTable("Previous Count", rows);
 		return Optional.of(new Pair<>(header, div(h4(header), table)));
 	}
 

@@ -22,6 +22,7 @@ import static j2html.TagCreator.p;
 
 import javax.inject.Inject;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.web.app.WebappName;

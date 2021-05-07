@@ -18,12 +18,15 @@ package io.datarouter.joblet.service;
 import static j2html.TagCreator.div;
 
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.joblet.config.DatarouterJobletPaths;
+import io.datarouter.joblet.service.JobletDailyDigestService.OldJobletDto;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -45,18 +48,21 @@ public class OldJobletDailyDigest implements DailyDigest{
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Old Joblets", paths.datarouter.joblets.list, getType());
+		var header = digestService.makeHeader("Old Joblets", paths.datarouter.joblets.list);
 		var table = jobletDailyDigestService.makePageTableForOldJoblets(rows, zoneId);
 		return Optional.of(div(header, table));
 	}
 
 	@Override
 	public Optional<ContainerTag> getEmailContent(){
-		var rows = jobletDailyDigestService.getOldJoblets();
+		List<OldJobletDto> rows = jobletDailyDigestService.getOldJoblets().stream()
+				.map(OldJobletDto::new)
+				.distinct()
+				.collect(Collectors.toList());
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Old Joblets", paths.datarouter.joblets.list, getType());
+		var header = digestService.makeHeader("Old Joblets", paths.datarouter.joblets.list);
 		var table = jobletDailyDigestService.makeEmailTableForOldJoblets(rows);
 		return Optional.of(div(header, table));
 	}

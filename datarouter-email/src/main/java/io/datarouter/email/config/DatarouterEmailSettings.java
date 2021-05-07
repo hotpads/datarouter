@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.config;
+package io.datarouter.email.config;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.security.UrlConstants;
 import io.datarouter.secret.service.CachedSecretFactory;
 import io.datarouter.secret.service.CachedSecretFactory.CachedSecret;
 import io.datarouter.storage.setting.SettingFinder;
@@ -31,8 +30,8 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterEmailSettings extends SettingNode{
 
-	static final String DEFAULT_SMTP_HOST = "127.0.0.1";
-	static final Integer DEFAULT_SMTP_PORT = 25;
+	private static final String DEFAULT_SMTP_HOST = "127.0.0.1";
+	private static final Integer DEFAULT_SMTP_PORT = 25;
 
 	public final CachedSetting<String> smtpHost;
 	public final CachedSetting<Integer> smtpPort;
@@ -47,7 +46,7 @@ public class DatarouterEmailSettings extends SettingNode{
 
 	@Inject
 	public DatarouterEmailSettings(SettingFinder finder, CachedSecretFactory cachedSecretFactory){
-		super(finder, "datarouterWeb.email.");
+		super(finder, "datarouterEmail.email.");
 
 		sendDatarouterEmails = registerBoolean("sendDatarouterEmails", true);
 		useRemoteSmtp = registerBoolean("useRemoteSmtp", false);
@@ -60,54 +59,18 @@ public class DatarouterEmailSettings extends SettingNode{
 		smtpPasswordName = registerString("smtpPasswordName", "datarouter/email/smtpPassword");
 		smtpPassword = cachedSecretFactory.cacheSharedSecretString(smtpPasswordName, "");
 
-		emailLinkHostPort = registerString("emailLinkHostPort", UrlConstants.LOCAL_DEV_SERVER_HTTPS);
+		emailLinkHostPort = registerString("emailLinkHostPort", "localhost:8443");
 		includeLogo = registerBoolean("includeLogo", true);
 		logoImgSrc = registerString("logoImgSrc", "");//specify "" for default
 	}
 
-	public Boolean useRemoteSmtp(){
-		return useRemoteSmtp.get();
-	}
-
-	public String getSmtpHost(){
-		return smtpHost.get();
-	}
-
-	public int getSmtpPort(){
-		return smtpPort.get();
-	}
-
-	public String getSmtpUsername(){
-		return smtpUsername.get();
-	}
-
-	public String getSmtpPassword(){
-		return smtpPassword.get();
-	}
-
-	public Boolean sendDatarouterEmails(){
-		return sendDatarouterEmails.get();
-	}
-
-	public String emailLinkHostPort(){
-		return emailLinkHostPort.get();
-	}
-
-	public Boolean includeLogo(){
-		return includeLogo.get();
-	}
-
-	public String logoImgSrc(){
-		return logoImgSrc.get();
-	}
-
 	public DatarouterEmailHostDetails getDatarouterEmailHostDetails(){
-		if(useRemoteSmtp()){
+		if(useRemoteSmtp.get()){
 			return new DatarouterEmailHostDetails(
-					getSmtpHost(),
-					getSmtpPort(),
-					getSmtpUsername(),
-					getSmtpPassword());
+					smtpHost.get(),
+					smtpPort.get(),
+					smtpUsername.get(),
+					smtpPassword.get());
 		}
 		return new DatarouterEmailHostDetails(DEFAULT_SMTP_HOST, DEFAULT_SMTP_PORT, "", "");
 	}

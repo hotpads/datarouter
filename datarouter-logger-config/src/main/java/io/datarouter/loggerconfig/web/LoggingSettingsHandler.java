@@ -43,6 +43,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.loggerconfig.LoggingConfigService;
 import io.datarouter.loggerconfig.LoggingSettingAction;
@@ -58,7 +59,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import j2html.tags.ContainerTag;

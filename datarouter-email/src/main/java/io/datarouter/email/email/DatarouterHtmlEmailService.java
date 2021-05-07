@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.email;
+package io.datarouter.email.email;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,14 +21,12 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.email.config.DatarouterEmailSettingsProvider;
+import io.datarouter.email.html.J2HtmlDatarouterEmail;
+import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.config.DatarouterEmailSettingsProvider;
-import io.datarouter.web.config.DatarouterWebFiles;
-import io.datarouter.web.config.DatarouterWebPaths;
-import io.datarouter.web.html.email.J2HtmlDatarouterEmail;
-import io.datarouter.web.html.email.J2HtmlDatarouterEmailBuilder;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -36,9 +34,9 @@ public class DatarouterHtmlEmailService{
 	private static Logger logger = LoggerFactory.getLogger(DatarouterHtmlEmailService.class);
 
 	@Inject
-	private DatarouterWebFiles files;
+	private DatarouterEmailFiles files;
 	@Inject
-	private DatarouterWebPaths paths;
+	private DatarouterEmailPaths paths;
 	@Inject
 	private DatarouterService datarouterService;
 	@Inject
@@ -67,7 +65,7 @@ public class DatarouterHtmlEmailService{
 	}
 
 	public J2HtmlDatarouterEmailBuilder startEmailBuilder(){
-		boolean includeLogo = datarouterEmailSettingsProvider.get().includeLogo();
+		boolean includeLogo = datarouterEmailSettingsProvider.get().includeLogo.get();
 		var emailBuilder = new J2HtmlDatarouterEmailBuilder()
 				.withWebappName(datarouterService.getServiceName())
 				.withEnvironment(datarouterProperties.getEnvironment())
@@ -86,7 +84,7 @@ public class DatarouterHtmlEmailService{
 	}
 
 	private String getEmailLogoHref(){
-		String configuredHref = datarouterEmailSettingsProvider.get().logoImgSrc();
+		String configuredHref = datarouterEmailSettingsProvider.get().logoImgSrc.get();
 		if(StringTool.notEmpty(configuredHref)){
 			return configuredHref;
 		}

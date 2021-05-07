@@ -43,7 +43,7 @@ public class Trace2MemoryBufferToSqsConveyor extends BaseConveyor{
 
 	private final Supplier<Boolean> shouldBufferInSqs;
 	private final BaseTraceQueueDao traceQueueDao;
-	private final BaseTrace2HttpRequestRecordQueueDao traceHttpReqeustRecordDao;
+	private final BaseTrace2HttpRequestRecordQueueDao traceHttpRequestRecordQueueDao;
 	private final MemoryBuffer<Trace2BundleAndHttpRequestRecordDto> buffer;
 	private final Gson gson;
 
@@ -59,7 +59,7 @@ public class Trace2MemoryBufferToSqsConveyor extends BaseConveyor{
 		super(name, shouldRun, () -> false, exceptionRecorder);
 		this.shouldBufferInSqs = shouldBufferInSqs;
 		this.traceQueueDao = traceQueueDao;
-		this.traceHttpReqeustRecordDao = traceHttpReqeustRecordDao;
+		this.traceHttpRequestRecordQueueDao = traceHttpReqeustRecordDao;
 		this.buffer = buffer;
 		this.gson = gson;
 	}
@@ -70,7 +70,7 @@ public class Trace2MemoryBufferToSqsConveyor extends BaseConveyor{
 			Scanner.of(dtos)
 				.map(this::toHttpReqRecordMessage)
 				.concat(OptionalScanner::of)
-				.flush(traceHttpReqeustRecordDao::putMulti);
+				.flush(traceHttpRequestRecordQueueDao::putMulti);
 		}
 	}
 

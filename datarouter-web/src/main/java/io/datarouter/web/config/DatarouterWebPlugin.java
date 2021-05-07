@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.datarouter.email.config.DatarouterEmailPlugin;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.instrumentation.test.TestableService;
@@ -247,6 +248,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		addMetricLinkPages(DatarouterHandlerMetricLinkPage.class);
 		addMetricLinkPages(AppHandlerMetricLinkPage.class);
+
+		addStoragePlugin(new DatarouterEmailPlugin());
 
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;

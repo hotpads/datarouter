@@ -48,6 +48,7 @@ class AddAccountForm extends React.Component{
 	render(){
 		return (
 			<form>
+				<h3>Create Account</h3>
 				<div className="form-group">
 					<label>Account Name</label>
 					<div className="input-group">
@@ -62,6 +63,61 @@ class AddAccountForm extends React.Component{
 						</span>
 					</div>
 				</div>
+			</form>
+		)
+	}
+}
+
+class AccountLookupForm extends React.Component{
+
+	constructor(props){
+		super(props)
+		this.state = {apiKey: '', accounts: [], message: null}
+	}
+
+	handleChange = (event) => {
+		this.setState({apiKey: event.target.value})
+	}
+
+	submitForm = (event) => {
+		event.preventDefault()
+		Fetch.post('lookupAccount', {apiKey: this.state.apiKey})
+			.then(response => {
+				if(response && response.length){
+					console.log('stuff')
+					this.setState({message: null, accounts: response})
+				}else{
+					this.setState({message: 'Not found.', accounts: []})
+				}
+			})
+	}
+
+	render(){
+		return (
+			<form>
+				<h3>Lookup Account by apiKey</h3>
+				<div className="form-group">
+					<label>apiKey</label>
+					<div className="input-group">
+						<input type="text" placeholder="apiKey (xx*xx allowed)" className="form-control" value={this.state.apiKey} onChange={this.handleChange} />
+						<span className="input-group-append">
+							<SubmitButton
+								className="form-control-static btn"
+								onClick={this.submitForm}
+								disabled={!this.state.apiKey}
+								value="Lookup account"
+							/>
+						</span>
+					</div>
+				</div>
+				{this.state.accounts.map(account =>
+					<div>
+					<Link to={REACT_BASE_PATH + "details/" + account.accountName} title="Edit account">
+						Account name: {account.accountName} {account.secretName ? ' (Secret name: ' + account.secretName + ')' : ''}
+					</Link>
+					</div>
+				)}
+				{this.state.message && <p>{this.state.message}</p>}
 			</form>
 		)
 	}
@@ -230,7 +286,6 @@ const SecretCredentialTable = ({secretCredentials, addSecretCredential, deleteSe
 
 const ActivationTd = ({active, keyName, value, message, setCredentialActivation}) => {
 	message = active ? message : null
-	console.log(active, keyName, value, message)
 	return <td>
 		{active ? <span style={{color: 'green'}}>Active</span> : <span style={{color: 'red'}}>Inactive</span>} | <a href='' onClick={() => setCredentialActivation(keyName, value, !active, message)}>{active ? 'Deactivate' : 'Activate'}</a>
 	</td>
@@ -271,7 +326,10 @@ class Accounts extends React.Component{
 					accountDetails={this.state.accountDetails}
 					deleteAccount={this.deleteAccount}
 				/>
+				{Hr}
 				<AddAccountForm addAccount={this.addAccount} />
+				{Hr}
+				<AccountLookupForm />
 			</div>
 		)
 	}

@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.webappinstance.job;
+package io.datarouter.email.email;
 
-//public class OldWebappInstanceBackfillJob extends BaseJob{
-//
-//	@Inject
-//	private DatarouterWebappInstanceLogDao dao;
-//
-////	@Override
-////	public void run(TaskTracker tracker){
-////		dao.deleteOldLogs();
-////	}
-//
-//}
+import javax.inject.Singleton;
+
+import io.datarouter.pathnode.FilesRoot;
+import io.datarouter.pathnode.PathNode;
+
+@Singleton
+public class DatarouterEmailFiles extends FilesRoot{
+
+	public final JeeAssetsFiles jeeAssets = branch(JeeAssetsFiles::new, "jee-assets");
+
+	public static class JeeAssetsFiles extends PathNode{
+		public final PathNode datarouterLogoPng = leaf("datarouter-logo.png");
+	}
+
+}

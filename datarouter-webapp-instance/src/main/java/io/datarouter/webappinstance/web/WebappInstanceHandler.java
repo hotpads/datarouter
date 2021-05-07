@@ -23,6 +23,7 @@ import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Date;
@@ -105,13 +106,13 @@ public class WebappInstanceHandler extends BaseHandler{
 				WebappInstance::getServerPublicIp);
 		var buildDateStats = new UsageStatsJspDto(
 				webappInstances,
-				webappInstance -> DateTool.formatDateWithZone(webappInstance.getBuildDate(), zoneId));
+				webappInstance -> DateTool.formatInstantWithZone(webappInstance.getBuildInstant(), zoneId));
 		var javaVersionStats = new UsageStatsJspDto(
 				webappInstances,
 				WebappInstance::getJavaVersion);
 		var lastUpdatedStats = new UsageStatsJspDto(
 				webappInstances,
-				WebappInstance::getRefreshedLast);
+				WebappInstance::getRefreshedLastInstant);
 		var servletVersionStats = new UsageStatsJspDto(
 				webappInstances,
 				WebappInstance::getServletContainerVersion);
@@ -125,7 +126,8 @@ public class WebappInstanceHandler extends BaseHandler{
 						!javaVersionStats.getMostCommon().equals(instance.getJavaVersion()),
 						!servletVersionStats.getMostCommon().equals(instance.getServletContainerVersion()),
 						buildIdLink.getLinkPrefix(),
-						commitIdLink.getLinkPrefix()))
+						commitIdLink.getLinkPrefix(),
+						zoneId))
 				.list();
 
 		mav.put("webappInstances", dtos);
@@ -171,9 +173,9 @@ public class WebappInstanceHandler extends BaseHandler{
 		private final String serverPublicIp;
 		private final String serverPrivateIp;
 		private final Integer httpsPort;
-		private final Date refreshedLast;
-		private final Date startupDate;
-		private final Date buildDate;
+		private final Instant refreshedLast;
+		private final Instant startup;
+		private final Instant build;
 		private final String buildId;
 		private final boolean highlightBuildId;
 		private final String commitId;
@@ -185,6 +187,7 @@ public class WebappInstanceHandler extends BaseHandler{
 
 		private final String buildIdLinkPrefix;
 		private final String commitIdLinkPrefix;
+		private final ZoneId zoneId;
 
 		public WebappInstanceJspDto(
 				WebappInstance databean,
@@ -193,7 +196,8 @@ public class WebappInstanceHandler extends BaseHandler{
 				boolean highlightJavaVersion,
 				boolean highlightServletContainerVersion,
 				String buildIdLinkPrefix,
-				String commitIdLinkPrefix){
+				String commitIdLinkPrefix,
+				ZoneId zoneId){
 			this(
 					databean.getKey().getWebappName(),
 					databean.getKey().getServerName(),
@@ -202,9 +206,9 @@ public class WebappInstanceHandler extends BaseHandler{
 					databean.getServerPublicIp(),
 					databean.getServerPrivateIp(),
 					databean.getHttpsPort(),
-					databean.getRefreshedLast(),
-					databean.getStartupDate(),
-					databean.getBuildDate(),
+					databean.getRefreshedLastInstant(),
+					databean.getStartupInstant(),
+					databean.getBuildInstant(),
 					databean.getBuildId(),
 					highlightBuildId,
 					databean.getCommitId(),
@@ -214,7 +218,8 @@ public class WebappInstanceHandler extends BaseHandler{
 					databean.getServletContainerVersion(),
 					highlightServletContainerVersion,
 					buildIdLinkPrefix,
-					commitIdLinkPrefix);
+					commitIdLinkPrefix,
+					zoneId);
 		}
 
 		protected WebappInstanceJspDto(
@@ -225,9 +230,9 @@ public class WebappInstanceHandler extends BaseHandler{
 				String serverPublicIp,
 				String serverPrivateIp,
 				Integer httpsPort,
-				Date refreshedLast,
-				Date startupDate,
-				Date buildDate,
+				Instant refreshedLast,
+				Instant startup,
+				Instant build,
 				String buildId,
 				boolean highlightBuildId,
 				String commitId,
@@ -237,7 +242,8 @@ public class WebappInstanceHandler extends BaseHandler{
 				String servletContainerVersion,
 				boolean highlightServletContainerVersion,
 				String buildIdLinkPrefix,
-				String commitIdLinkPrefix){
+				String commitIdLinkPrefix,
+				ZoneId zoneId){
 			this.webappName = webappName;
 			this.serverName = serverName;
 			this.serverType = serverType;
@@ -246,8 +252,8 @@ public class WebappInstanceHandler extends BaseHandler{
 			this.serverPrivateIp = serverPrivateIp;
 			this.httpsPort = httpsPort;
 			this.refreshedLast = refreshedLast;
-			this.startupDate = startupDate;
-			this.buildDate = buildDate;
+			this.startup = startup;
+			this.build = build;
 			this.buildId = buildId;
 			this.highlightBuildId = highlightBuildId;
 			this.commitId = commitId;
@@ -259,34 +265,35 @@ public class WebappInstanceHandler extends BaseHandler{
 
 			this.buildIdLinkPrefix = buildIdLinkPrefix;
 			this.commitIdLinkPrefix = commitIdLinkPrefix;
+			this.zoneId = zoneId;
 		}
 
 		public String getLastUpdatedTimeAgoPrintable(){
 			if(refreshedLast == null){
 				return "inactive";
 			}
-			return DateTool.getAgoString(refreshedLast.toInstant());
+			return DateTool.getAgoString(refreshedLast);
 		}
 
 		public String getStartupDatePrintable(){
-			return DateTool.getDateTime(startupDate);
+			return DateTool.formatInstantWithZone(startup, zoneId);
 		}
 
 		public String getBuildDatePrintable(){
-			return DateTool.getDateTime(buildDate);
+			return DateTool.formatInstantWithZone(build, zoneId);
 		}
 
 		public String getUpTimePrintable(){
-			return DateTool.getAgoString(startupDate.toInstant());
+			return DateTool.getAgoString(startup);
 		}
 
 		public String getBuildTimeAgoPrintable(){
-			return DateTool.getAgoString(buildDate.toInstant());
+			return DateTool.getAgoString(build);
 		}
 
 		public Duration getDurationSinceLastUpdated(){
 			long nowMs = System.currentTimeMillis();
-			long refreshedLastOrNowMs = refreshedLast == null ? nowMs : refreshedLast.getTime();
+			long refreshedLastOrNowMs = refreshedLast == null ? nowMs : refreshedLast.toEpochMilli();
 			return Duration.ofMillis(nowMs - refreshedLastOrNowMs);
 		}
 
@@ -306,15 +313,11 @@ public class WebappInstanceHandler extends BaseHandler{
 			return servletContextPath;
 		}
 
-		public Date getRefreshedLast(){
-			return refreshedLast;
-		}
-
 		public boolean getHighlightRefreshedLast(){
 			if(refreshedLast == null){
 				return false;
 			}
-			double secondsSinceLastRefresh = DateTool.getSecondsBetween(refreshedLast, new Date());
+			long secondsSinceLastRefresh = Duration.between(refreshedLast, Instant.now()).toSeconds();
 			return secondsSinceLastRefresh > (WebappInstanceUpdateJob.WEBAPP_INSTANCE_UPDATE_SECONDS_DELAY + 1);
 		}
 
@@ -331,11 +334,29 @@ public class WebappInstanceHandler extends BaseHandler{
 		}
 
 		public Date getStartupDate(){
-			return startupDate;
+			return new Date(startup.toEpochMilli());
 		}
 
 		public Date getBuildDate(){
-			return buildDate;
+			return new Date(build.toEpochMilli());
+		}
+
+		public long getStartupMs(){
+			return Optional.ofNullable(startup)
+					.map(Instant::toEpochMilli)
+					.orElse(-1L);
+		}
+
+		public long getBuildMs(){
+			return build.toEpochMilli();
+		}
+
+		public Instant getRefreshedLast(){
+			return refreshedLast;
+		}
+
+		public long getRefreshedLastMs(){
+			return refreshedLast.toEpochMilli();
 		}
 
 		public String getBuildId(){
@@ -417,11 +438,11 @@ public class WebappInstanceHandler extends BaseHandler{
 		}
 
 		public boolean getStaleWebappInstance(){
-			return DateTool.getDaysBetween(buildDate, new Date()) > STALE_WEBAPP_INSTANCE_DAYS;
+			return Duration.between(build, Instant.now()).toDays() > STALE_WEBAPP_INSTANCE_DAYS;
 		}
 
 		public boolean getOldWebappInstance(){
-			return DateTool.getDaysBetween(buildDate, new Date()) > OLD_WEBAPP_INSTANCE_DAYS;
+			return Duration.between(build, Instant.now()).toDays() > OLD_WEBAPP_INSTANCE_DAYS;
 		}
 
 	}

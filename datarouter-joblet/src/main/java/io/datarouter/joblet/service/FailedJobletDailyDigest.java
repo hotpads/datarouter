@@ -45,7 +45,7 @@ public class FailedJobletDailyDigest implements DailyDigest{
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Failed Joblets", paths.datarouter.joblets.list, getType());
+		var header = digestService.makeHeader("Failed Joblets", paths.datarouter.joblets.list);
 		var table = jobletDailyDigestService.makePageTableForFailedJoblets(rows);
 		return Optional.of(div(header, table));
 	}
@@ -56,7 +56,7 @@ public class FailedJobletDailyDigest implements DailyDigest{
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Failed Joblets", paths.datarouter.joblets.list, getType());
+		var header = digestService.makeHeader("Failed Joblets", paths.datarouter.joblets.list);
 		var table = jobletDailyDigestService.makeEmailTableForFailedJoblets(rows);
 		return Optional.of(div(header, table));
 	}

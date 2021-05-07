@@ -20,6 +20,7 @@ import java.time.Instant;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
@@ -29,7 +30,6 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 
 @Singleton
 public class LongRunningTaskTrackerFactory{

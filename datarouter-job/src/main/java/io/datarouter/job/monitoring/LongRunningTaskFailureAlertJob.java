@@ -27,6 +27,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
@@ -38,10 +42,6 @@ import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.util.DateTool;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
-import io.datarouter.web.html.email.J2HtmlDatarouterEmailBuilder;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import j2html.tags.ContainerTag;
 
 public class LongRunningTaskFailureAlertJob extends BaseJob{

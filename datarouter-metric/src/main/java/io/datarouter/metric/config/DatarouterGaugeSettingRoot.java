@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
+import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -52,11 +53,15 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 	public DatarouterGaugeSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterGauge.");
 
-		saveGauges = registerBoolean("saveGauges", false);
-		sendGaugesFromMemoryToSqs = registerBoolean("sendGaugesFromMemoryToSqs", false);
+		saveGauges = registerBooleans("saveGauges", defaultTo(false)
+				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
+		sendGaugesFromMemoryToSqs = registerBooleans("sendGaugesFromMemoryToSqs", defaultTo(false)
+				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
 
-		runGaugeMemoryToSqs = registerBoolean("runGaugeMemoryToSqs", false);
-		runGaugeSqsToPublisher = registerBoolean("runGaugeSqsToPublisher", false);
+		runGaugeMemoryToSqs = registerBooleans("runGaugeMemoryToSqs", defaultTo(false)
+				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
+		runGaugeSqsToPublisher = registerBooleans("runGaugeSqsToPublisher", defaultTo(false)
+				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
 
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 		memoryConveyorThreadCount = registerInteger("memoryConveyorThreadCount", 2);

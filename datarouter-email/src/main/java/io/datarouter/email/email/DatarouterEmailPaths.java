@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.config;
+package io.datarouter.email.email;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.pathnode.PathNode;
+import io.datarouter.pathnode.PathsRoot;
 
-/**
- * The main purpose of this class is to break a circular dependency by injecting a Provider of the availability
- * setting node instead of using the node directly.
- */
 @Singleton
-public class DatarouterEmailSettingsProvider{
+public class DatarouterEmailPaths extends PathNode implements PathsRoot{
 
-	@Inject
-	private DatarouterInjector injector;
+	public final DatarouterPaths datarouter = branch(DatarouterPaths::new, "datarouter");
 
-	public DatarouterEmailSettings get(){
-		return injector.getInstance(DatarouterEmailSettings.class);
+	public static class DatarouterPaths extends PathNode{
 	}
 
 }

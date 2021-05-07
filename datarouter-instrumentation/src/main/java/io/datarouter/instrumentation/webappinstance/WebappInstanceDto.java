@@ -26,21 +26,19 @@ public class WebappInstanceDto{
 	public final String servletContextPath;
 	public final String serverPublicIp;
 	public final String serverPrivateIp;
-	@Deprecated
-	public final Date refreshedLast;
-	@Deprecated
-	public final Date startupDate;
-	@Deprecated
-	public final Date buildDate;
-	public final Instant refreshedLastInstant;
-	public final Instant startup;
-	public final Instant build;
+	private final Instant refreshedLastInstant;
+	private final Instant startup;
+	private final Instant build;
 	public final String buildId;
 	public final String commitId;
 	public final String javaVersion;
 	public final String servletContainerVersion;
 	public final String gitBranch;
 	public final Integer httpsPort;
+
+	private Date refreshedLast;
+	private Date startupDate;
+	private Date buildDate;
 
 	public WebappInstanceDto(
 			String webappName,
@@ -49,9 +47,6 @@ public class WebappInstanceDto{
 			String servletContextPath,
 			String serverPublicIp,
 			String serverPrivateIp,
-			Date refreshedLast,
-			Date startupDate,
-			Date buildDate,
 			Instant refreshedLastInstant,
 			Instant startup,
 			Instant build,
@@ -67,9 +62,6 @@ public class WebappInstanceDto{
 		this.servletContextPath = servletContextPath;
 		this.serverPublicIp = serverPublicIp;
 		this.serverPrivateIp = serverPrivateIp;
-		this.refreshedLast = refreshedLast;
-		this.startupDate = startupDate;
-		this.buildDate = buildDate;
 		this.refreshedLastInstant = refreshedLastInstant;
 		this.startup = startup;
 		this.build = build;
@@ -79,6 +71,27 @@ public class WebappInstanceDto{
 		this.servletContainerVersion = servletContainerVersion;
 		this.gitBranch = gitBranch;
 		this.httpsPort = httpsPort;
+	}
+
+	public Instant getRefreshedLast(){
+		if(refreshedLastInstant != null){
+			return refreshedLastInstant;
+		}
+		return refreshedLast.toInstant();
+	}
+
+	public Instant getStartup(){
+		if(startup != null){
+			return startup;
+		}
+		return startupDate.toInstant();
+	}
+
+	public Instant getBuild(){
+		if(build != null){
+			return build;
+		}
+		return buildDate.toInstant();
 	}
 
 }

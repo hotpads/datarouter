@@ -23,17 +23,25 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.auth.cache.DatarouterAccountPermissionKeysByPrefixCache;
 import io.datarouter.auth.config.DatarouterAuthExecutors.DatarouterAccountCredentialCacheExecutor;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountCredentialDao;
+import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountSecretCredentialDao;
 import io.datarouter.auth.storage.account.DatarouterAccountCredential;
 import io.datarouter.auth.storage.account.DatarouterAccountCredentialKey;
+import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.account.DatarouterAccountSecretCredential;
 import io.datarouter.auth.storage.account.DatarouterAccountSecretCredentialKey;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
@@ -51,9 +59,14 @@ import io.datarouter.web.util.http.RequestTool;
 
 @Singleton
 public class DatarouterAccountCredentialService{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterAccountCredentialService.class);
 
 	private static final String SECRET_NAMESPACE_SUFFIX = "drSecretCredentials/";
+	//matches <url safe base64 character(s)>*<url safe base64 character(s)>
+	private static final Pattern OBFUSCATED_API_KEY_PATTERN = Pattern
+			.compile("([a-zA-Z0-9\\-_]+)\\*([a-zA-Z0-9\\-_]+)");
 
+	private final BaseDatarouterAccountDao datarouterAccountDao;
 	private final BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao;
 	private final BaseDatarouterAccountSecretCredentialDao datarouterAccountSecretCredentialDao;
 	private final DatarouterAccountPermissionKeysByPrefixCache datarouterAccountPermissionKeysByPrefixCache;
@@ -67,6 +80,7 @@ public class DatarouterAccountCredentialService{
 
 	@Inject
 	public DatarouterAccountCredentialService(
+			BaseDatarouterAccountDao datarouterAccountDao,
 			BaseDatarouterAccountCredentialDao datarouterAccountCredentialDao,
 			BaseDatarouterAccountSecretCredentialDao datarouterAccountSecretCredentialDao,
 			DatarouterAccountPermissionKeysByPrefixCache datarouterAccountPermissionKeysByPrefixCache,
@@ -74,6 +88,7 @@ public class DatarouterAccountCredentialService{
 			DatarouterAccountCredentialCacheExecutor executor,
 			SecretService secretService,
 			SecretNamespacer secretNamespacer){
+		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountCredentialDao = datarouterAccountCredentialDao;
 		this.datarouterAccountSecretCredentialDao = datarouterAccountSecretCredentialDao;
 		this.datarouterAccountPermissionKeysByPrefixCache = datarouterAccountPermissionKeysByPrefixCache;
@@ -85,7 +100,7 @@ public class DatarouterAccountCredentialService{
 		secretCredentialApiKeyBySecretName = new AtomicReference<>(new HashMap<>());
 		secretCredentialAccountKeyByApiKey = new AtomicReference<>(new HashMap<>());
 		refreshCaches();
-		executor.scheduleWithFixedDelay(this::refreshCaches, 30, 30, TimeUnit.SECONDS);
+		executor.scheduleWithFixedDelay(this::refreshCaches, 15, 15, TimeUnit.SECONDS);
 	}
 
 	//intended for API key auth (updates last used date of key)
@@ -104,15 +119,37 @@ public class DatarouterAccountCredentialService{
 				.map(accountKey -> accountKey.secretKey);
 	}
 
+	public List<AccountLookupDto> lookupAccountName(String apiKey){
+		Matcher matcher = OBFUSCATED_API_KEY_PATTERN.matcher(apiKey);
+		if(matcher.matches()){
+			String prefix = matcher.group(1);
+			String suffix = matcher.group(2);
+			return Scanner.of(credentialAccountKeyByApiKey.get().values())
+					.append(secretCredentialAccountKeyByApiKey.get().values())
+					.include(accountKey -> accountKey.apiKey.startsWith(prefix) && accountKey.apiKey.endsWith(suffix))
+					.map(accountKey -> new AccountLookupDto(accountKey.accountName, accountKey.secretName))
+					.list();
+		}else{
+			return findAccountKeyApiKeyAuth(apiKey, false)
+					.map(accountKey -> new AccountLookupDto(accountKey.accountName, accountKey.secretName))
+					.map(List::of)
+					.orElseGet(List::of);
+		}
+	}
+
 	public Optional<String> getCurrentDatarouterAccountName(HttpServletRequest request){
 		String apiKey = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
 		return findAccountKeyApiKeyAuth(apiKey, false)
 				.map(accountKey -> accountKey.accountName);
 	}
 
-	public String getAccountNameForRequest(HttpServletRequest request){
-		return getCurrentDatarouterAccountName(request)
+	public String getAccountNameForRequest(HttpServletRequest request, String alreadyKnown){
+		String redoLogic = getCurrentDatarouterAccountName(request)
 				.orElseThrow();
+		if(!redoLogic.equals(alreadyKnown)){
+			logger.warn("redoLogic={} alreadyknown={} path={}", redoLogic, alreadyKnown, RequestTool.getPath(request));
+		}
+		return redoLogic;
 	}
 
 	public void deleteAllCredentialsForAccount(String accountName, Session session){
@@ -177,6 +214,23 @@ public class DatarouterAccountCredentialService{
 		secretService.deleteNamespaced(Optional.empty(), databean.getSecretNamespace(), secretName, reason);
 		datarouterAccountSecretCredentialDao.delete(key);
 		return true;
+	}
+
+	public void deleteOrphanedCredentials(){
+		Set<String> currentAccountNames = datarouterAccountDao.scanKeys()
+				.map(DatarouterAccountKey::getAccountName)
+				.collect(Collectors.toSet());
+		Scanner.of(credentialAccountKeyByApiKey.get().values())
+				.append(secretCredentialAccountKeyByApiKey.get().values())
+				.include(accountKey -> !currentAccountNames.contains(accountKey.accountName))
+				.forEach(accountKey -> {
+					if(accountKey.secretName != null){
+						deleteSecretCredential(accountKey.secretName, SecretOpReason.automatedOp(
+								"deleteOrphanedCredentials"));
+					}else{
+						deleteCredential(accountKey.apiKey);
+					}
+				});
 	}
 
 	public void setSecretCredentialActivation(String secretName, Boolean active){
@@ -310,6 +364,22 @@ public class DatarouterAccountCredentialService{
 		public static DatarouterAccountSecretCredentialKeypairDto create(){
 			return new DatarouterAccountSecretCredentialKeypairDto(PasswordTool.generateSalt(), PasswordTool
 					.generateSalt());
+		}
+
+	}
+
+	public static class AccountLookupDto{
+
+		public final String accountName;
+		public final String secretName;
+
+		private AccountLookupDto(String accountName, String secretName){
+			this.accountName = accountName;
+			this.secretName = secretName;
+		}
+
+		public static AccountLookupDto empty(){
+			return new AccountLookupDto(null, null);
 		}
 
 	}

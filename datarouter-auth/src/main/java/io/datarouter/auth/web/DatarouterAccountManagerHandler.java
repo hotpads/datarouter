@@ -33,6 +33,7 @@ import io.datarouter.auth.config.DatarouterAuthPaths;
 import io.datarouter.auth.service.DatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.service.DatarouterAccountCounters;
 import io.datarouter.auth.service.DatarouterAccountCredentialService;
+import io.datarouter.auth.service.DatarouterAccountCredentialService.AccountLookupDto;
 import io.datarouter.auth.service.DatarouterAccountCredentialService.DatarouterAccountSecretCredentialKeypairDto;
 import io.datarouter.auth.service.DatarouterAccountCredentialService.SecretCredentialDto;
 import io.datarouter.auth.service.DefaultDatarouterAccountAvailableEndpointsProvider;
@@ -170,6 +171,12 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		DatarouterAccountKey accountKey = new DatarouterAccountKey(accountName);
 		datarouterAccountDao.delete(accountKey);
 		logAndRecordAction(accountName, "delete");
+	}
+
+	@Handler
+	public List<AccountLookupDto> lookupAccount(String apiKey){
+		//TODO ideally this would be rate-limited to prevent someone from brute-forcing secret credential API keys
+		return acccountCredentialService.lookupAccountName(apiKey);
 	}
 
 	@Handler

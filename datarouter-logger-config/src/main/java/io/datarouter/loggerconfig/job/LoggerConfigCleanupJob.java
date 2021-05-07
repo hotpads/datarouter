@@ -30,6 +30,9 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.Level;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
@@ -42,9 +45,6 @@ import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Twin;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 

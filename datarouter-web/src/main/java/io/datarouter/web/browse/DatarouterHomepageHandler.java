@@ -44,6 +44,7 @@ import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.monitoring.latency.CheckResult.CheckResultJspDto;
 import io.datarouter.web.monitoring.latency.LatencyMonitoringService;
+import io.datarouter.web.user.role.DatarouterUserRole;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
@@ -76,22 +77,26 @@ public class DatarouterHomepageHandler extends BaseHandler{
 		mav.put("serverPropertiesTable", buildDatarouterPropertiesTable());
 
 		//Clients
-		mav.put("clientsTable", buildClientsTable());
+		var showStorage = getSessionInfo().hasRole(DatarouterUserRole.DATAROUTER_ADMIN);
+		mav.put("showStorage", showStorage);
+		if(showStorage){
+			mav.put("clientsTable", buildClientsTable());
 
-		mav.put("viewNodeDataPath", paths.datarouter.nodes.browseData.toSlashedString()
-				+ "?submitAction=browseData&nodeName=");
-		mav.put("getNodeDataPath", paths.datarouter.nodes.getData.toSlashedString() + "?nodeName=");
-		mav.put("countKeysPath", paths.datarouter.nodes.browseData.toSlashedString() + "/countKeys?nodeName=");
+			mav.put("viewNodeDataPath", paths.datarouter.nodes.browseData.toSlashedString()
+					+ "?submitAction=browseData&nodeName=");
+			mav.put("getNodeDataPath", paths.datarouter.nodes.getData.toSlashedString() + "?nodeName=");
+			mav.put("countKeysPath", paths.datarouter.nodes.browseData.toSlashedString() + "/countKeys?nodeName=");
 
-		Optional<String> exporterLink = Optional.ofNullable(nodeWidgetDatabeanExporterLink.get())
-				.map(link -> link + "?nodeName=");
-		mav.put("exporterLink", exporterLink.orElse(""));
-		mav.put("showExporterLink", exporterLink.isPresent());
+			Optional<String> exporterLink = Optional.ofNullable(nodeWidgetDatabeanExporterLink.get())
+					.map(link -> link + "?nodeName=");
+			mav.put("exporterLink", exporterLink.orElse(""));
+			mav.put("showExporterLink", exporterLink.isPresent());
 
-		Optional<String> tableCountLink = Optional.ofNullable(nodeWidgetTableCountLink.get())
-				.map(link -> link + "&nodeName=");
-		mav.put("tableCountLink", tableCountLink.orElse(""));
-		mav.put("showTableCountLink", tableCountLink.isPresent());
+			Optional<String> tableCountLink = Optional.ofNullable(nodeWidgetTableCountLink.get())
+					.map(link -> link + "&nodeName=");
+			mav.put("tableCountLink", tableCountLink.orElse(""));
+			mav.put("showTableCountLink", tableCountLink.isPresent());
+		}
 		return mav;
 	}
 

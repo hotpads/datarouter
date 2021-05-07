@@ -50,7 +50,11 @@ public class DatarouterWebRouteSet extends BaseRouteSet{
 		super(paths.datarouter);
 		handle(paths.datarouter.join("/", "/", "/") + "?")
 				.withHandler(DatarouterHomepageHandler.class)
-				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
+				.allowRoles(DatarouterUserRole.DATAROUTER_ACCOUNTS,
+						DatarouterUserRole.DATAROUTER_JOB,
+						DatarouterUserRole.DATAROUTER_MONITORING,
+						DatarouterUserRole.DATAROUTER_SETTINGS,
+						DatarouterUserRole.DATAROUTER_TOOLS);
 		handle(paths.datarouter.memory.garbageCollector)
 				.withHandler(MemoryMonitoringHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);

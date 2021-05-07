@@ -16,14 +16,13 @@
 package io.datarouter.web.dispatcher;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.OptionalScanner;
+import io.datarouter.scanner.Scanner;
 
 @Singleton
 public class DispatchRulePersistentStringsProvider{
@@ -32,21 +31,20 @@ public class DispatchRulePersistentStringsProvider{
 	private DatarouterInjector injector;
 
 	public List<String> getAvailableEndpoints(Class<? extends ApiKeyPredicate> predicateClass){
-		return injector.getInstancesOfType(DispatcherServlet.class).values().stream()
-				.map(DispatcherServlet::getRouteSets)
-				.flatMap(List::stream)
-				.flatMap(routeSet -> getApplicableEndpoints(routeSet, predicateClass))
-				.collect(Collectors.toList());
+		return Scanner.of(injector.getInstancesOfType(DispatcherServlet.class).values())
+				.concatIter(DispatcherServlet::getRouteSets)
+				.concat(routeSet -> getApplicableEndpoints(routeSet, predicateClass))
+				.distinct()
+				.list();
 	}
 
-	private static Stream<String> getApplicableEndpoints(BaseRouteSet routeSet,
+	private static Scanner<String> getApplicableEndpoints(BaseRouteSet routeSet,
 			Class<? extends ApiKeyPredicate> predicateClass){
-		return routeSet.getDispatchRules().stream()
-				.filter(DispatchRule::hasApiKey)
-				.filter(rule -> predicateClass.isAssignableFrom(rule.getApiKeyPredicate().getClass()))
+		return Scanner.of(routeSet.getDispatchRules())
+				.include(DispatchRule::hasApiKey)
+				.include(rule -> predicateClass.isAssignableFrom(rule.getApiKeyPredicate().getClass()))
 				.map(DispatchRule::getPersistentString)
-				.filter(Optional::isPresent)
-				.map(Optional::get);
+				.concat(OptionalScanner::of);
 	}
 
 }

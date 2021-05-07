@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.html.email;
+package io.datarouter.email.html;
 
 import j2html.tags.ContainerTag;
 

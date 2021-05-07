@@ -28,6 +28,9 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
@@ -38,9 +41,6 @@ import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.ContainerTag;
 
@@ -72,8 +72,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		if(failedTasks.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks,
-				getType());
+		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks);
 		var description = small("From the last 24 hours");
 		var table = buildPageTable(failedTasks, zoneId);
 		return Optional.of(div(header, description, table));
@@ -89,8 +88,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		if(failedTasks.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks,
-				getType());
+		var header = digestService.makeHeader("Failed Long Running Tasks", paths.datarouter.longRunningTasks);
 		var description = small("From the last 24 hours");
 		var table = buildEmailTable(failedTasks);
 		return Optional.of(div(header, description, table));

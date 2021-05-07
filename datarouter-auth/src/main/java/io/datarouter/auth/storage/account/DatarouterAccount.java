@@ -32,16 +32,12 @@ import io.datarouter.util.DateTool;
 
 public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,DatarouterAccount>{
 
-	private String apiKey;
-	private String secretKey;
 	private Date created;
 	private String creator;
 	private Date lastUsed;
 	private Boolean enableUserMappings;
 
 	private static class FieldKeys{
-		private static final StringFieldKey apiKey = new StringFieldKey("apiKey");
-		private static final StringFieldKey secretKey = new StringFieldKey("secretKey");
 		private static final DateFieldKey created = new DateFieldKey("created");
 		private static final StringFieldKey creator = new StringFieldKey("creator");
 		private static final DateFieldKey lastUsed = new DateFieldKey("lastUsed");
@@ -68,8 +64,6 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterAccount account){
 			return List.of(
-					new StringField(FieldKeys.apiKey, account.apiKey),
-					new StringField(FieldKeys.secretKey, account.secretKey),
 					new DateField(FieldKeys.created, account.created),
 					new StringField(FieldKeys.creator, account.creator),
 					new DateField(FieldKeys.lastUsed, account.lastUsed),

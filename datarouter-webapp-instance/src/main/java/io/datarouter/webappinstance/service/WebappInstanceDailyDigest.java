@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,6 +32,8 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.DateTool;
@@ -41,8 +42,6 @@ import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.storage.webappinstancelog.DatarouterWebappInstanceLogDao;
@@ -75,7 +74,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		if(logs.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances, getType());
+		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
 		var table = buildPageTable(logs, zoneId);
 		return Optional.of(div(header, table));
 	}
@@ -86,7 +85,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		if(logs.isEmpty() || logs.size() <= standardDeploymentCount.getNumberOfStandardDeployments()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances, getType());
+		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
 		var table = buildEmailTable(logs);
 		return Optional.of(div(header, table));
 	}
@@ -107,21 +106,21 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	}
 
 	private List<WebappInstanceLogDto> getLogs(){
-		var start = new WebappInstanceLogByBuildInstantKey(startOfDay(), null, null, null, null);
-		var stop = new WebappInstanceLogByBuildInstantKey(endOfDay(), null, null, null, null);
+		var start = new WebappInstanceLogByBuildInstantKey(startOfDay(), null, null, null);
+		var stop = new WebappInstanceLogByBuildInstantKey(endOfDay(), null, null, null);
 		var range = new Range<>(start, true, stop, true);
 		Map<WebappInstanceLogKeyDto,List<WebappInstanceLog>> ranges = dao.scanDatabeans(range)
 				.groupBy(WebappInstanceLogKeyDto::new);
 		return Scanner.of(ranges.entrySet())
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
-				.sorted(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.buildDate))
+				.sorted(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.build))
 				.list();
 	}
 
 	private ContainerTag buildPageTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
 		return new J2HtmlTable<WebappInstanceLogDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Build Date", row -> DateTool.formatDateWithZone(row.key.buildDate, zoneId))
+				.withColumn("Build Date", row -> DateTool.formatInstantWithZone(row.key.build, zoneId))
 				.withColumn("Startup Range", row -> row.getStartupRangeStart(zoneId)
 						+ " - "
 						+ row.getStartupRangeEnd(zoneId))
@@ -137,7 +136,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	private ContainerTag buildEmailTable(List<WebappInstanceLogDto> rows){
 		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<WebappInstanceLogDto>()
-				.withColumn("Build Date", row -> DateTool.formatDateWithZone(row.key.buildDate, zoneId))
+				.withColumn("Build Date", row -> DateTool.formatInstantWithZone(row.key.build, zoneId))
 				.withColumn("Startup Range", row ->
 						row.getStartupRangeStart(zoneId)
 						+ " - "
@@ -165,12 +164,12 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 
 	private static class WebappInstanceLogKeyDto{
 
-		public final Date buildDate;
+		public final Instant build;
 		public final String buildId;
 		public final String commitId;
 
 		public WebappInstanceLogKeyDto(WebappInstanceLog log){
-			this.buildDate = log.getKey().getBuildDate();
+			this.build = log.getKey().getBuild();
 			this.buildId = log.getBuildId();
 			this.commitId = log.getCommitId();
 		}
@@ -184,14 +183,14 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				return false;
 			}
 			WebappInstanceLogKeyDto that = (WebappInstanceLogKeyDto) other;
-			return Objects.equals(this.buildDate, that.buildDate)
+			return Objects.equals(this.build, that.build)
 					&& Objects.equals(this.buildId, that.buildId)
 					&& Objects.equals(this.commitId, that.commitId);
 		}
 
 		@Override
 		public int hashCode(){
-			return Objects.hash(buildDate, buildId, commitId);
+			return Objects.hash(build, buildId, commitId);
 		}
 
 	}
@@ -199,28 +198,28 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	private static class WebappInstanceLogDto{
 
 		public final WebappInstanceLogKeyDto key;
-		private final List<Date> startupDates;
+		private final List<Instant> startupInstants;
 
 		public WebappInstanceLogDto(WebappInstanceLogKeyDto key, List<WebappInstanceLog> logRanges){
 			this.key = key;
-			this.startupDates = Scanner.of(logRanges)
+			this.startupInstants = Scanner.of(logRanges)
 					.map(WebappInstanceLog::getKey)
-					.map(WebappInstanceLogKey::getStartupDate)
+					.map(WebappInstanceLogKey::getStartup)
 					.sorted()
 					.list();
 		}
 
 		public String getStartupRangeStart(ZoneId zoneId){
-			return Scanner.of(startupDates)
+			return Scanner.of(startupInstants)
 					.findFirst()
-					.map(date -> DateTool.formatDateWithZone(date, zoneId))
+					.map(date -> DateTool.formatInstantWithZone(date, zoneId))
 					.get();
 		}
 
 		// this should check the refreshed last fields, not the startup dates
 		public String getStartupRangeEnd(ZoneId zoneId){
-			return ListTool.findLast(startupDates)
-						.map(date -> DateTool.formatDateWithZone(date, zoneId))
+			return ListTool.findLast(startupInstants)
+						.map(date -> DateTool.formatInstantWithZone(date, zoneId))
 						.get();
 
 		}

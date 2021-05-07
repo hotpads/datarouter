@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.auth.job.AccountPermissionCacheRefreshJob;
 import io.datarouter.auth.job.AuthConfigurationScanJob;
+import io.datarouter.auth.job.DatarouterAccountCredentialCleanupJob;
 import io.datarouter.auth.job.DatarouterAccountLastUsedFlushJob;
 import io.datarouter.auth.job.DatarouterSessionVacuumJob;
 import io.datarouter.auth.job.SamlAuthnRequestRedirectUrlVacuumJob;
@@ -35,6 +36,11 @@ public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 				"50 20 * * * ?",
 				settings.runSamlAuthnRequestRedirectUrlVacuumJob,
 				SamlAuthnRequestRedirectUrlVacuumJob.class,
+				true);
+		registerLocked(
+				"45 47 * * * ?",
+				() -> true,
+				DatarouterAccountCredentialCleanupJob.class,
 				true);
 		registerParallel(
 				"0/5 * * * * ?",

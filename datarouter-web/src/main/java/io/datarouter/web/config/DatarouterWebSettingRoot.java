@@ -45,12 +45,10 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 	public DatarouterWebSettingRoot(
 			SettingFinder finder,
 			DatarouterAuthenticationSettings authenticationSettings,
-			DatarouterEmailSettingsProvider emailSettingsProvider,
 			DatarouterSamlSettings samlSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterWeb.");
 
 		registerChild(authenticationSettings);
-		registerChild(emailSettingsProvider.get());
 		registerChild(samlSettings);
 
 		maxCacheableContentLength = registerInteger("maxCacheableContentLength", ONE_MB);

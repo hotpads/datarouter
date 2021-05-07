@@ -16,7 +16,6 @@
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -36,8 +35,6 @@ extends BaseDatabean<PK,D>{
 	protected String commitId;
 	protected String javaVersion;
 	protected String servletContainerVersion;
-//	@Deprecated
-//	protected Date refreshedLast;
 	protected Instant refreshedLastInstant;
 
 	public abstract static class BaseWebappInstanceLogFielder<
@@ -57,9 +54,8 @@ extends BaseDatabean<PK,D>{
 					new StringField(BaseWebappInstance.FieldKeys.javaVersion, databean.getJavaVersion()),
 					new StringField(BaseWebappInstance.FieldKeys.servletContainerVersion,
 						databean.getServletContainerVersion()),
-//					new DateField(BaseWebappInstance.FieldKeys.refreshedLast, databean.getRefreshedLast()),
 					new InstantField(BaseWebappInstance.FieldKeys.refreshedLastInstant,
-							databean.getRefreshedLastInstant()));
+							databean.getRefreshedLast()));
 		}
 	}
 
@@ -73,14 +69,12 @@ extends BaseDatabean<PK,D>{
 			String commitId,
 			String javaVersion,
 			String servletContainerVersion,
-			Date refreshedLast,
 			Instant refreshedInstant){
 		super(key);
 		this.buildId = buildId;
 		this.commitId = commitId;
 		this.javaVersion = javaVersion;
 		this.servletContainerVersion = servletContainerVersion;
-//		this.refreshedLast = refreshedLast;
 		this.refreshedLastInstant = refreshedInstant;
 	}
 
@@ -90,7 +84,6 @@ extends BaseDatabean<PK,D>{
 		this.commitId = instance.getCommitId();
 		this.javaVersion = instance.getJavaVersion();
 		this.servletContainerVersion = instance.getServletContainerVersion();
-//		this.refreshedLast = instance.getRefreshedLast();
 		this.refreshedLastInstant = instance.getRefreshedLastInstant();
 	}
 
@@ -110,11 +103,7 @@ extends BaseDatabean<PK,D>{
 		return servletContainerVersion;
 	}
 
-	public Date getRefreshedLast(){
-		return new Date(refreshedLastInstant.toEpochMilli());
-	}
-
-	public Instant getRefreshedLastInstant(){
+	public Instant getRefreshedLast(){
 		return refreshedLastInstant;
 	}
 

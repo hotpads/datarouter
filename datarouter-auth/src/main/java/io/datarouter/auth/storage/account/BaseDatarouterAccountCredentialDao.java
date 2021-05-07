@@ -36,5 +36,4 @@ public interface BaseDatarouterAccountCredentialDao{
 	void delete(DatarouterAccountCredentialKey key);
 	void deleteByAccountName(String accountName);
 
-
 }

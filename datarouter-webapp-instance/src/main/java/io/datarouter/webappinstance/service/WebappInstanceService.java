@@ -17,7 +17,6 @@ package io.datarouter.webappinstance.service;
 
 import java.lang.management.ManagementFactory;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -54,8 +53,6 @@ public class WebappInstanceService{
 	private final WebappInstancePublisher webappInstancePublisher;
 	private final CompoundPortIdentifier portIdentifier;
 
-	@Deprecated
-	private final Date startTime;
 	private final Instant startup;
 
 	@Inject
@@ -81,7 +78,6 @@ public class WebappInstanceService{
 		this.settings = settings;
 		this.portIdentifier = portIdentifier;
 
-		this.startTime = new Date(ManagementFactory.getRuntimeMXBean().getStartTime());
 		this.startup = Instant.ofEpochMilli(ManagementFactory.getRuntimeMXBean().getStartTime());
 	}
 
@@ -115,8 +111,6 @@ public class WebappInstanceService{
 				servletContext.get().getContextPath(),
 				datarouterProperties.getServerPublicIp(),
 				datarouterProperties.getServerPrivateIp(),
-				startTime,
-				Date.from(gitProperties.getBuildTime().orElse(GitProperties.UNKNOWN_DATE)),
 				startup,
 				gitProperties.getBuildTime().orElse(GitProperties.UNKNOWN_DATE),
 				buildProperties.getBuildId(),

@@ -58,7 +58,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 		if(staleTables.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount, getType());
+		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount);
 		var table = makePageTable(staleTables);
 		return Optional.of(div(header, table));
 	}
@@ -69,7 +69,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 		if(staleTables.isEmpty()){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount, getType());
+		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount);
 		var table = emailBuilder.makeEmailStaleTable(staleTables);
 		return Optional.of(div(header, table));
 	}

@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.plugin.copytable.CopyTableConfiguration;
@@ -34,7 +35,6 @@ import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;

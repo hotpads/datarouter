@@ -16,7 +16,6 @@
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 import io.datarouter.model.databean.FieldlessIndexEntry;
@@ -35,18 +34,15 @@ implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildInstantKey,Weba
 	private Instant build;
 	private String webappName;
 	private String serverName;
-//	private Date startupDate;
 	private Instant startup;
 
 	public WebappInstanceLogByBuildInstantKey(){
 	}
 
-	public WebappInstanceLogByBuildInstantKey(Instant build, String webappName, String serverName, Date startupDate,
-			Instant startup){
+	public WebappInstanceLogByBuildInstantKey(Instant build, String webappName, String serverName, Instant startup){
 		this.build = build;
 		this.webappName = webappName;
 		this.serverName = serverName;
-//		this.startupDate = startupDate;
 		this.startup = startup;
 	}
 
@@ -56,14 +52,12 @@ implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildInstantKey,Weba
 				new InstantField(BaseWebappInstance.FieldKeys.build, build),
 				new StringField(BaseWebappInstanceKey.FieldKeys.webappName, webappName),
 				new StringField(BaseWebappInstanceKey.FieldKeys.serverName, serverName),
-//				new DateField(BaseWebappInstance.FieldKeys.startupDate, startupDate),
 				new InstantField(BaseWebappInstance.FieldKeys.startup, startup));
 	}
 
 	@Override
 	public WebappInstanceLogKey getTargetKey(){
-		return new WebappInstanceLogKey(webappName, serverName, new Date(startup.toEpochMilli()),
-				new Date(build.toEpochMilli()), startup, build);
+		return new WebappInstanceLogKey(webappName, serverName, startup, build);
 	}
 
 	@Override
@@ -73,7 +67,6 @@ implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildInstantKey,Weba
 				target.getKey().getBuild(),
 				target.getKey().getWebappName(),
 				target.getKey().getServerName(),
-				target.getKey().getStartupDate(),
 				target.getKey().getStartup());
 		return new FieldlessIndexEntry<>(WebappInstanceLogByBuildInstantKey.class, index);
 	}
@@ -90,8 +83,8 @@ implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildInstantKey,Weba
 		return serverName;
 	}
 
-	public Date getStartupDate(){
-		return new Date(startup.toEpochMilli());
+	public Instant getStartupDate(){
+		return startup;
 	}
 
 }

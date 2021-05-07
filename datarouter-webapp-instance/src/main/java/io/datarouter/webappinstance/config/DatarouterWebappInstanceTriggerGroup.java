@@ -48,11 +48,6 @@ public class DatarouterWebappInstanceTriggerGroup extends BaseTriggerGroup{
 				settings.runOneTimeLoginTokenVacuumJob,
 				OneTimeLoginTokenVacuumJob.class,
 				true);
-//		registerLocked(
-//				"12 12 0/2 * * ?",
-//				() -> true,
-//				OldWebappInstanceBackfillJob.class,
-//				true);
 	}
 
 }

@@ -203,7 +203,10 @@ implements PhysicalIndexedSortedMapStorageNode<PK,D,F>{
 	@Override
 	public <IK extends PrimaryKey<IK>,
 			IE extends IndexEntry<IK, IE, PK, D>,
-			IF extends DatabeanFielder<IK, IE>> void deleteByIndex(Collection<IK> keys, Config config,
+			IF extends DatabeanFielder<IK, IE>>
+	void deleteByIndex(
+			Collection<IK> keys,
+			Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
 		var op = new SpannerDeleteByIndexOp<>(
 				clientManager.getDatabaseClient(getClientId()),

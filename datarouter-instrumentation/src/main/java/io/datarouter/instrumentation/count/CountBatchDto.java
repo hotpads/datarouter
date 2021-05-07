@@ -19,11 +19,13 @@ import java.util.Map;
 
 public class CountBatchDto{
 
+	public final Long id;
 	public final String serviceName;
 	public final String serverName;
 	public final Map<Long,Map<String,Long>> counts;
 
-	public CountBatchDto(String serviceName, String serverName, Map<Long,Map<String,Long>> counts){
+	public CountBatchDto(Long id, String serviceName, String serverName, Map<Long,Map<String,Long>> counts){
+		this.id = id;
 		this.serviceName = serviceName;
 		this.serverName = serverName;
 		this.counts = counts;

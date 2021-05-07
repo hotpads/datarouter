@@ -16,7 +16,6 @@
 package io.datarouter.webappinstance.storage.webappinstance;
 
 import java.time.Instant;
-import java.util.Date;
 
 public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappInstance>{
 
@@ -46,13 +45,9 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 				null,
 				null,
 				null,
-				null,
-				null,
-				null,
 				null);
 	}
 
-	// refreshedLast is new Date() -- webapp update job assumes this is happening
 	// refreshedLastInstant is Instant.now() -- webapp update job assumes this is happening
 	public WebappInstance(
 			String webappName,
@@ -61,8 +56,6 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 			String servletContextPath,
 			String publicIp,
 			String privateIp,
-			Date startupDate,
-			Date buildDate,
 			Instant startup,
 			Instant build,
 			String buildId,
@@ -76,9 +69,6 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 				servletContextPath,
 				publicIp,
 				privateIp,
-				new Date(),
-				startupDate,
-				buildDate,
 				Instant.now(),
 				startup,
 				build,

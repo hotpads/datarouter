@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.util;
+package io.datarouter.client.mysql.config;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
+public interface MysqlSchemaProvider{
 
-public class MimeMessageTool{
+	boolean isPrimarySchemaDefaultSchema();
 
-	public static void setHeader(MimeMessage message, String key, String value){
-		try{
-			message.setHeader(key, value);
-		}catch(MessagingException e){
-			throw new RuntimeException(e);
+	class GenericMysqlSchemaProvider implements MysqlSchemaProvider{
+
+		private final boolean isPrimarySchema;
+
+		public GenericMysqlSchemaProvider(boolean isPrimarySchema){
+			this.isPrimarySchema = isPrimarySchema;
 		}
+
+		@Override
+		public boolean isPrimarySchemaDefaultSchema(){
+			return isPrimarySchema;
+		}
+
 	}
 
 }

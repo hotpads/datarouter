@@ -31,14 +31,14 @@ import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -61,7 +61,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 		if(list.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll, getType());
+		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);
 		var description = small("For the current day");
 		var table = viewChangelogService.buildTable(list, zoneId);
 		return Optional.of(div(header, description, table));
@@ -73,7 +73,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 		if(list.size() == 0){
 			return Optional.empty();
 		}
-		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll, getType());
+		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);
 		var description = small("For the current day");
 		var table = buildEmailTable(list);
 		return Optional.of(div(header, description, table));

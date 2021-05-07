@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
+import io.datarouter.storage.setting.DatarouterSettingTagType;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -38,10 +39,13 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 	public DatarouterCountSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterCount.");
 
-		saveCounts = registerBoolean("saveCounts", false);
+		saveCounts = registerBooleans("saveCounts", defaultTo(false)
+				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
 
-		runCountsToSqs = registerBoolean("runCountsToSqs", false);
-		runCountsFromSqsToPublisher = registerBoolean("runCountsFromSqsToPublisher", false);
+		runCountsToSqs = registerBooleans("runCountsToSqs", defaultTo(false)
+				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
+		runCountsFromSqsToPublisher = registerBooleans("runCountsFromSqsToPublisher", defaultTo(false)
+				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
 
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
 		drainConveyorThreadCount = registerInteger("drainConveyorThreadCount", 4);

@@ -87,4 +87,17 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 		return settingRoots;
 	}
 
+	/*--------------------------- add Storage plugins ---------------------------*/
+
+	private final List<BaseStoragePlugin> storagePlugins = new ArrayList<>();
+
+	protected void addStoragePlugin(BaseStoragePlugin storagePlugin){
+		storagePlugins.add(storagePlugin);
+	}
+
+	public List<BaseStoragePlugin> getStoragePlugins(){
+		return storagePlugins;
+	}
+
+
 }

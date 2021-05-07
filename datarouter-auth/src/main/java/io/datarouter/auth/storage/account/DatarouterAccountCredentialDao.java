@@ -148,7 +148,6 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 		node.delete(key);
 	}
 
-
 	@Override
 	public void deleteByAccountName(String accountName){
 		byAccountName.scanKeysWithPrefix(new DatarouterAccountCredentialByAccountNameKey(accountName, null))

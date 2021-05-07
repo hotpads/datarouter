@@ -63,7 +63,7 @@ public class HandlerMetrics{
 	}
 
 	public void saveMethodLatency(Class<? extends BaseHandler> handlerClass, Method method, long durationMs){
-		gauges.save(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass.getName() + " "
+		gauges.save(PREFIX + " " + HANDLER + " " + METHOD + " " + LATENCY_MS + " " + handlerClass.getSimpleName() + " "
 				+ method.getName(), durationMs);
 	}
 

@@ -148,6 +148,7 @@ implements WebappBuilder{
 
 	// additional
 	protected final List<Module> modules;
+	protected final List<BaseStoragePlugin> storagePlugins;
 	protected final List<BaseWebPlugin> webPlugins;
 	protected final List<String> registeredPlugins;
 
@@ -225,6 +226,7 @@ implements WebappBuilder{
 
 		// additional
 		this.modules = new ArrayList<>();
+		this.storagePlugins = new ArrayList<>();
 		this.webPlugins = new ArrayList<>();
 		this.modules.add(new DatarouterWebGuiceModule());
 		this.registeredPlugins = new ArrayList<>();
@@ -238,11 +240,16 @@ implements WebappBuilder{
 	public DatarouterWebappConfig build(){
 		onBuild();
 
+		storagePlugins.forEach(this::addStoragePluginWithoutInstalling);
 		webPlugins.forEach(this::addWebPluginWithoutInstalling);
 		fieldKeyOverriders.forEach(FieldKeyOverrider::override);
+		storagePlugins.stream()
+				.map(BasePlugin::getName)
+				.forEach(registeredPlugins::add);
 		webPlugins.stream()
 				.map(BasePlugin::getName)
 				.forEach(registeredPlugins::add);
+		modules.addAll(storagePlugins);
 		modules.addAll(webPlugins);
 
 		DatarouterWebPluginBuilder webPluginBuilder = new DatarouterWebPluginBuilder(
@@ -279,6 +286,16 @@ implements WebappBuilder{
 				.setRequestProxy(requestProxy)
 				.setMetricLinkPages(metricLinkPages)
 				.build();
+		webPlugin.getStoragePlugins().forEach(this::addStoragePluginWithoutInstalling);
+		webPlugin.getWebPlugins().forEach(this::addWebPluginWithoutInstalling);
+		webPlugin.getStoragePlugins().stream()
+				.map(BasePlugin::getName)
+				.forEach(registeredPlugins::add);
+		webPlugin.getWebPlugins().stream()
+				.map(BasePlugin::getName)
+				.forEach(registeredPlugins::add);
+		modules.addAll(webPlugin.getStoragePlugins());
+		modules.addAll(webPlugin.getWebPlugins());
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
 				serverTypes,
@@ -330,8 +347,19 @@ implements WebappBuilder{
 
 	public T addWebPlugin(BaseWebPlugin webPlugin){
 		addWebPluginInternal(webPlugin);
+		webPlugin.getStoragePlugins().forEach(this::addStoragePluginInternal);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginInternal);
 		return getSelf();
+	}
+
+	protected void addStoragePluginInternal(BaseStoragePlugin storagePlugin){
+		boolean containsPlugin = storagePlugins.stream()
+				.anyMatch(plugin -> plugin.getName().equals(storagePlugin.getName()));
+		if(containsPlugin){
+			throw new IllegalStateException(storagePlugin.getName()
+					+ " has already been added. It needs to be overridden");
+		}
+		storagePlugins.add(storagePlugin);
 	}
 
 	protected void addWebPluginInternal(BaseWebPlugin webPlugin){

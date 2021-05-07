@@ -112,6 +112,7 @@ extends DatarouterJobWebappConfigBuilder<T>{
 
 	public T addJobletPlugin(BaseJobletPlugin jobletPlugin){
 		addJobletPluginInternal(jobletPlugin);
+		jobletPlugin.getStoragePlugins().forEach(this::addStoragePluginInternal);
 		jobletPlugin.getWebPlugins().forEach(this::addWebPluginInternal);
 		jobletPlugin.getJobPlugins().forEach(this::addJobPluginInternal);
 		jobletPlugin.getJobletPlugins().forEach(this::addJobletPluginInternal);

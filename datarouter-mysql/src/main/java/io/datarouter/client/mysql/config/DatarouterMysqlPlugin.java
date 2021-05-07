@@ -18,6 +18,7 @@ package io.datarouter.client.mysql.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.datarouter.client.mysql.config.MysqlSchemaProvider.GenericMysqlSchemaProvider;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
@@ -28,10 +29,13 @@ import io.datarouter.model.field.Field;
 public class DatarouterMysqlPlugin extends BaseJobPlugin{
 
 	private final Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByField;
+	private final boolean isPrimarySchema;
 
 	private DatarouterMysqlPlugin(
-			Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByField){
+			Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByField,
+					boolean isPrimarySchema){
 		this.additionalCodecClassByField = additionalCodecClassByField;
+		this.isPrimarySchema = isPrimarySchema;
 		addAppListener(MysqlAppListener.class);
 		addSettingRoot(DatarouterMysqlSettingRoot.class);
 		addTriggerGroup(DatarouterMysqlTriggerGroup.class);
@@ -47,11 +51,13 @@ public class DatarouterMysqlPlugin extends BaseJobPlugin{
 	public void configure(){
 		bindDefaultInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(
 				additionalCodecClassByField));
+		bind(MysqlSchemaProvider.class).toInstance(new GenericMysqlSchemaProvider(isPrimarySchema));
 	}
 
 	public static class DatarouterMysqlPluginBuilder{
 
 		private Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> codecsByField = new HashMap<>();
+		private boolean isPrimarySchema = true;
 
 		public DatarouterMysqlPluginBuilder addMysqlFieldCodec(
 				Class<? extends Field<?>> field,
@@ -60,8 +66,13 @@ public class DatarouterMysqlPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterMysqlPluginBuilder setPrimarySchema(boolean isPrimarySchema){
+			this.isPrimarySchema = isPrimarySchema;
+			return this;
+		}
+
 		public DatarouterMysqlPlugin build(){
-			return new DatarouterMysqlPlugin(codecsByField);
+			return new DatarouterMysqlPlugin(codecsByField, isPrimarySchema);
 		}
 
 	}

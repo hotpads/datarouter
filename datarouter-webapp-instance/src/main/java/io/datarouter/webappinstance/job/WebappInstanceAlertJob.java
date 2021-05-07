@@ -18,11 +18,14 @@ package io.datarouter.webappinstance.job;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
@@ -31,9 +34,6 @@ import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.util.tuple.Twin;
-import io.datarouter.web.email.DatarouterHtmlEmailService;
-import io.datarouter.web.html.email.J2HtmlEmailTable;
-import io.datarouter.web.html.email.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceSettingRoot;
 import io.datarouter.webappinstance.service.WebappInstanceService;
@@ -61,8 +61,8 @@ public class WebappInstanceAlertJob extends BaseJob{
 	@Override
 	public void run(TaskTracker tracker){
 		WebappInstance webappInstance = webappInstanceService.buildCurrentWebappInstance();
-		Date buildDate = webappInstance.getBuildDate();
-		long staleRunningTimeMs = DurationTool.sinceDate(buildDate).toMillis()
+		Instant build = webappInstance.getBuildInstant();
+		long staleRunningTimeMs = DurationTool.sinceInstant(build).toMillis()
 				- settings.staleWebappInstanceThreshold.get().toJavaDuration().toMillis();
 		if(staleRunningTimeMs > 0){
 			sendEmail(webappInstance);
@@ -86,9 +86,9 @@ public class WebappInstanceAlertJob extends BaseJob{
 	private ContainerTag makeContent(WebappInstance webappInstance){
 		var rows = List.of(
 				new Twin<>("webapp", webappInstance.getKey().getWebappName()),
-				new Twin<>("build date", DateTool.formatDateWithZone(webappInstance.getBuildDate(),
+				new Twin<>("build date", DateTool.formatInstantWithZone(webappInstance.getBuildInstant(),
 						datarouterService.getZoneId())),
-				new Twin<>("startup date", DateTool.formatDateWithZone(webappInstance.getStartupDate(),
+				new Twin<>("startup date", DateTool.formatInstantWithZone(webappInstance.getStartupInstant(),
 						datarouterService.getZoneId())),
 				new Twin<>("commitId", webappInstance.getCommitId()));
 		return new J2HtmlEmailTable<Twin<String>>()

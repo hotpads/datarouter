@@ -18,19 +18,19 @@ package io.datarouter.auth.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.auth.service.DatarouterAccountCreationService;
+import io.datarouter.auth.service.DatarouterAccountConfigAppListenerService;
 import io.datarouter.web.listener.DatarouterAppListener;
 
 @Singleton
 public class DatarouterAccountConfigAppListener implements DatarouterAppListener{
 
 	@Inject
-	private DatarouterAccountCreationService accountCreationService;
+	private DatarouterAccountConfigAppListenerService service;
 
 	@Override
 	public void onStartUp(){
-		accountCreationService.createDefaultAccountAndMapToDefaultAdminUser();
-		accountCreationService.createDefaultAccountPermission();
+		service.createDefaultAccountAndMapToDefaultAdminUser();
+		service.createDefaultAccountPermission();
 	}
 
 }

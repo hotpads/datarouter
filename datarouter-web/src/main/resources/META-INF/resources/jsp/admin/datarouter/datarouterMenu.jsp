@@ -124,13 +124,15 @@
 			);
 		}
 	}
-	ReactDOM.render(
-		<div>
-			<h3>Nodes</h3>
-			<Search />
-		</div>,
-		document.getElementById('nodeSearch')
-	)
+	if(!!${showStorage}){
+		ReactDOM.render(
+			<div>
+				<h3>Nodes</h3>
+				<Search />
+			</div>,
+			document.getElementById('nodeSearch')
+		)
+	}
 	</script>
 </head>
 <body>
@@ -138,7 +140,9 @@
 	<div class="container-fluid my-3">
 		<div class="row">
 			${serverPropertiesTable}
-			${clientsTable}
+			<c:if test="${showStorage}">
+				${clientsTable}
+			</c:if>
 		</div>
 		<div class="row mt-3">
 			<div id="nodeSearch" class="col-12"></div>
