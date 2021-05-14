@@ -150,7 +150,7 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 							region,
 							bucket.creationDate());
 				})
-				.sorted(Comparator.comparing(bucket -> bucket.bucketName.toLowerCase()))
+				.sort(Comparator.comparing(bucket -> bucket.bucketName.toLowerCase()))
 				.list();
 		var table = new J2HtmlTable<S3BucketDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")

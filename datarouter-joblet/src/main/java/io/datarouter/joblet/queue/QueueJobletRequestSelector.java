@@ -66,6 +66,7 @@ public class QueueJobletRequestSelector implements JobletRequestSelector{
 			Config config = new Config()
 					.setTimeout(Duration.ofMillis(0))
 					.setVisibilityTimeoutMs(datarouterJobletSettingRoot.jobletTimeout.get().toMillis());
+			logger.info("jobletType={} queue={}", type, jobletQueueDao.getQueue(queueKey));
 			QueueMessage<JobletRequestKey,JobletRequest> message = jobletQueueDao.getQueue(queueKey).peek(config);
 			timer.add("peek");
 			if(message == null){

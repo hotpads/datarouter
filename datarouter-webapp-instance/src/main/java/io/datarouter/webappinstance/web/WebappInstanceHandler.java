@@ -78,7 +78,7 @@ public class WebappInstanceHandler extends BaseHandler{
 	public Mav view(){
 		Mav mav = new Mav(files.jsp.admin.datarouter.webappInstances.webappInstanceJsp);
 		List<WebappInstance> webappInstances = dao.scan()
-				.sorted(Comparator.comparing(webappInstance -> webappInstance.getKey().getServerName()))
+				.sort(Comparator.comparing(webappInstance -> webappInstance.getKey().getServerName()))
 				.list();
 		if(webappInstances.isEmpty()){
 			return mav;

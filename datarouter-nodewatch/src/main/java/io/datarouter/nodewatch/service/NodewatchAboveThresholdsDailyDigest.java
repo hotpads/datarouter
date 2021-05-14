@@ -63,7 +63,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		List<ContainerTag> tables = Scanner.of(aboveThresholdList, abovePercentageList)
 				.include(Optional::isPresent)
 				.map(Optional::get)
-				.sorted(Comparator.comparing(Pair::getLeft))
+				.sort(Comparator.comparing(Pair::getLeft))
 				.map(Pair::getRight)
 				.list();
 		if(tables.size() == 0){
@@ -83,7 +83,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		List<ContainerTag> tables = Scanner.of(aboveThresholdList, abovePercentageList)
 				.include(Optional::isPresent)
 				.map(Optional::get)
-				.sorted(Comparator.comparing(Pair::getLeft))
+				.sort(Comparator.comparing(Pair::getLeft))
 				.map(Pair::getRight)
 				.list();
 		if(tables.size() == 0){

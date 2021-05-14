@@ -57,7 +57,7 @@ extends BasePrimitiveMysqlFieldCodec<Double,Field<Double>>{
 				ps.setDouble(parameterIndex, field.getValue());
 			}
 		}catch(SQLException e){
-			throw new DataAccessException(e);
+			throw new DataAccessException("error building query sql=" + ps, e);
 		}
 	}
 

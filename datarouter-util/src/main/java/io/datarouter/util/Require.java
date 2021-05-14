@@ -18,6 +18,7 @@ package io.datarouter.util;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import io.datarouter.util.lang.ObjectTool;
 
@@ -64,12 +65,18 @@ public class Require{
 	}
 
 	public static void isTrue(boolean argument){
-		isTrue(argument, null);
+		isTrue(argument, (String)null);
 	}
 
 	public static void isTrue(boolean argument, String message){
 		if(!argument){
 			throw new IllegalArgumentException(message);
+		}
+	}
+
+	public static void isTrue(boolean argument, Supplier<String> message){
+		if(!argument){
+			throw new IllegalArgumentException(message.get());
 		}
 	}
 

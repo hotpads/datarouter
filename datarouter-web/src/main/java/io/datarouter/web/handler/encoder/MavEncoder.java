@@ -17,6 +17,7 @@ package io.datarouter.web.handler.encoder;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -97,9 +98,9 @@ public class MavEncoder implements HandlerEncoder{
 	public void sendExceptionResponse(HttpServletRequest request, HttpServletResponse response, Throwable exception,
 			Optional<String> exceptionId)
 	throws IOException{
+		response.setContentType("text/html;charset=" + StandardCharsets.UTF_8.name());
 		PrintWriter out = response.getWriter();
 		if(exceptionHandlingConfig.shouldDisplayStackTrace(request, exception)){
-			response.setContentType("text/html");
 			try{
 				response.resetBuffer();
 			}catch(IllegalStateException e){

@@ -184,7 +184,7 @@
 			<property name="message" value="No shaded imports"/>
 		</module>
 		<module name="Regexp">
-			<property name="format" value="import org.threeten.bp.*|import org.joda.*"/>
+			<property name="format" value="import org.threeten.bp.*|import org.joda.*|import com.google.common.collect.Lists;|import com.google.common.collect.Sets;"/>
 			<property name="illegalPattern" value="true"/>
 			<property name="message" value="Non jdk import"/>
 		</module>

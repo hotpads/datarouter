@@ -311,7 +311,7 @@ public class AdminEditUserHandler extends BaseHandler{
 				.scanPermissionRequestsForUser(user.getId())
 				.listTo(requests -> Scanner.of(datarouterUserHistoryService.getResolvedRequestToHistoryChangesMap(
 						requests).entrySet()))
-				.sorted(Comparator.comparing(Entry::getKey, DatarouterPermissionRequest
+				.sort(Comparator.comparing(Entry::getKey, DatarouterPermissionRequest
 						.REVERSE_CHRONOLOGICAL_COMPARATOR))
 				.map(this::buildPermissionRequestDto)
 				.list();
@@ -413,7 +413,7 @@ public class AdminEditUserHandler extends BaseHandler{
 			this.deprovisionedUserDto = deprovisionedUserDto;
 			this.availableRoles = Scanner.of(availableRoles)
 					.map(Role::getPersistentString)
-					.sorted(StringTool.COLLATOR_COMPARATOR)
+					.sort(StringTool.COLLATOR_COMPARATOR)
 					.deduplicateConsecutive()
 					.list();
 			Set<String> currentRolesSet = Scanner.of(currentRoles)
@@ -423,7 +423,7 @@ public class AdminEditUserHandler extends BaseHandler{
 					.map(Role::getPersistentString)
 					.toMap(Function.identity(), currentRolesSet::contains);
 			this.availableAccounts = Scanner.of(availableAccounts)
-					.sorted(StringTool.COLLATOR_COMPARATOR)
+					.sort(StringTool.COLLATOR_COMPARATOR)
 					.deduplicateConsecutive()
 					.list();
 			Set<String> currentAccountsSet = new HashSet<>(currentAccounts);
@@ -433,7 +433,7 @@ public class AdminEditUserHandler extends BaseHandler{
 			this.message = message;
 			this.availableZoneIds = Scanner.of(ZoneIds.ZONE_IDS)
 					.map(ZoneId::getId)
-					.sorted()
+					.sort()
 					.list();
 			this.currentZoneId = currentZoneId;
 		}

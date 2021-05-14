@@ -123,7 +123,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 		}
 		return Scanner.of(aggregatedExceptions.entrySet())
 				.map(entry -> new AggregatedExceptionDto(entry.getKey(), entry.getValue()))
-				.sorted(COMPARATOR)
+				.sort(COMPARATOR)
 				.list();
 	}
 

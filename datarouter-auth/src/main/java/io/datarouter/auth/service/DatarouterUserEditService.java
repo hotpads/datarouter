@@ -39,6 +39,7 @@ import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -141,12 +142,14 @@ public class DatarouterUserEditService{
 					datarouterSessionDao.putMulti(sessions);
 				}
 			}
-			changelogRecorder.record(
+			var dto = new DatarouterChangelogDtoBuilder(
 					"Admin Edit User",
 					"User Edited - " + user.getUsername(),
 					"Edit",
-					editor.getUsername(),
-					String.join(", ", changes));
+					editor.getUsername())
+					.withComment(String.join(", ", changes))
+					.build();
+			changelogRecorder.record(dto);;
 		}else{
 			logger.warn("User {} submitted edit request for user {}, but no changes were made.", editor.toString(),
 					user.toString());

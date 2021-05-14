@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobFiles;
 import io.datarouter.job.config.DatarouterJobPaths;
@@ -116,11 +117,8 @@ public class JobHandler extends BaseHandler{
 			Duration elapsedTime = DurationTool.sinceDate(startTime);
 			message = "Finished manual trigger of " + jobClass.getSimpleName() + " in " + DurationTool.toString(
 					elapsedTime);
-			changelogRecorder.record(
-					"Job",
-					name,
-					"run",
-					getSessionInfo().getRequiredSession().getUsername());
+			changelogRecorder.record(new DatarouterChangelogDtoBuilder("Job", name, "run",
+					getSessionInfo().getRequiredSession().getUsername()).build());
 		}
 		logger.warn(message);
 		return new StringMav(message);
@@ -130,11 +128,8 @@ public class JobHandler extends BaseHandler{
 	Mav interrupt(String name){
 		Class<? extends BaseJob> jobClass = BaseJob.parseClass(name);
 		localTriggerLockService.getForClass(jobClass).requestStop();
-		changelogRecorder.record(
-				"Job",
-				name,
-				"interrupt",
-				getSessionInfo().getRequiredSession().getUsername());
+		changelogRecorder.record(new DatarouterChangelogDtoBuilder("Job", name, "interrupt",
+				getSessionInfo().getRequiredSession().getUsername()).build());
 		return new MessageMav("requested stop for " + name);
 	}
 

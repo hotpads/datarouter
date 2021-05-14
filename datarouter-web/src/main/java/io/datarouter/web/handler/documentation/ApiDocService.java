@@ -85,7 +85,7 @@ public class ApiDocService{
 				.concatIter(BaseRouteSet::getDispatchRules)
 				.include(rule -> rule.getPattern().pattern().startsWith(apiUrlContext))
 				.concatIter(this::buildEndpointDocumentation)
-				.sorted(Comparator.comparing(DocumentedEndpointJspDto::getUrl))
+				.sort(Comparator.comparing(DocumentedEndpointJspDto::getUrl))
 				.list();
 	}
 

@@ -57,7 +57,7 @@ public class MetricLinksHandler extends BaseHandler{
 	public Mav view(){
 		List<ContainerTag> tags = Scanner.of(registry.getMetricLinkPages())
 				.map(injector::getInstance)
-				.sorted(Comparator.comparing(MetricLinkPage::getHtmlName))
+				.sort(Comparator.comparing(MetricLinkPage::getHtmlName))
 				.exclude(page -> page.getMetricLinks().isEmpty())
 				.map(this::makeContent)
 				.list();
@@ -74,7 +74,7 @@ public class MetricLinksHandler extends BaseHandler{
 				.withHref("#" + MetricNamesSubnavFactory.ID)))
 				.withId(page.getHtmlId());
 		List<MetricLinkDto> metricLinks = Scanner.of(page.getMetricLinks())
-				.sorted(Comparator.comparing(link -> link.name))
+				.sort(Comparator.comparing(link -> link.name))
 				.list();
 		var table = new J2HtmlTable<MetricLinkDto>()
 				.withClasses("table table-sm table-striped my-4 border")

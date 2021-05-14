@@ -19,14 +19,15 @@ import static j2html.TagCreator.div;
 
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.joblet.config.DatarouterJobletPaths;
 import io.datarouter.joblet.service.JobletDailyDigestService.OldJobletDto;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -55,10 +56,8 @@ public class OldJobletDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<ContainerTag> getEmailContent(){
-		List<OldJobletDto> rows = jobletDailyDigestService.getOldJoblets().stream()
-				.map(OldJobletDto::new)
-				.distinct()
-				.collect(Collectors.toList());
+		Map<OldJobletDto,List<OldJobletDto>> rows = Scanner.of(jobletDailyDigestService.getOldJoblets())
+				.groupBy(OldJobletDto::new, OldJobletDto::new);
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}

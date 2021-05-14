@@ -21,7 +21,8 @@ public enum DatarouterSettingTagType implements Supplier<DatarouterSettingTag>{
 	COUNTPIPELINE("countPipeline"),
 	GAUGEPIPELINE("gaugePipeline"),
 	TRACEPIPELINE("tracePipeline"),
-	TRACE2PIPELINE("trace2Pipeline");
+	TRACE2PIPELINE("trace2Pipeline"),
+	;
 
 	private final DatarouterSettingTag datarouterSettingTag;
 

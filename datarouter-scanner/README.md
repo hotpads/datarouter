@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.72</version>
+	<version>0.0.73</version>
 </dependency>
 ```
 
@@ -23,7 +23,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 These methods share behavior with those in Stream but are implemented independently:
 - `map`
 - `distinct`
-- `sorted`
+- `sort`
 - `limit`
 - `skip`
 - `forEach`
@@ -106,7 +106,8 @@ These methods share behavior with those in Stream but are implemented independen
 - `prefetch` - load the next N items using the provided `ExecutorService`
 - `shuffle` - collect the items internally and randomly select one of the remaining items on each `advance()`
 - `splitBy` - split `Scanner<T>` into `Scanner<Scanner<T>>` based on the provided mapper `Function<T,R>`
-- `to` - pass the Scanner to a method that accepts it, and invoke the method.  The method is responsible for terminating the Scanner.
+- `apply` - Apply the provided Function which returns another Scanner.  The returned Scanner is responsible for consuming the input Scanner.
+- `then` - pass the Scanner to a method that accepts it, and invoke the method.  The method is responsible for terminating the Scanner.
 
 ### Collectors
 

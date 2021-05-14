@@ -64,6 +64,8 @@ import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -209,7 +211,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 					.map(ClusterSettingLogKey::createPrefix)
 					.collect(Collectors.toList());
 			logScanner = clusterSettingLogDao.scanWithPrefixes(prefixes)
-					.sorted(Comparator.comparing((ClusterSettingLog log) -> log.getKey().getCreated()).reversed());
+					.sort(Comparator.comparing((ClusterSettingLog log) -> log.getKey().getCreated()).reversed());
 		}else{
 			// logs for single setting
 			ClusterSettingLogKey prefix = ClusterSettingLogKey.createPrefix(settingName);
@@ -435,7 +437,10 @@ public class ClusterSettingsHandler extends BaseHandler{
 	}
 
 	private void recordChangelog(String name, String action, String username, String comment){
-		changelogRecorder.record("ClusterSetting", name, action, username, comment);
+		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder("ClusterSetting", name, action, username)
+				.withComment(comment)
+				.build();
+		changelogRecorder.record(dto);
 	}
 
 	private class ClusterSettingChangeEmailContent{

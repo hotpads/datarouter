@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.loggerconfig.LoggingConfigService;
 import io.datarouter.loggerconfig.LoggingSettingAction;
 import io.datarouter.loggerconfig.config.DatarouterLoggerConfigFiles;
@@ -339,11 +340,8 @@ public class LoggingSettingsHandler extends BaseHandler{
 	}
 
 	private void recordChangelog(String changelogType, String name, String action){
-		changelogRecorder.record(
-				changelogType,
-				name,
-				action,
-				getCurrentUsername());
+		changelogRecorder.record(new DatarouterChangelogDtoBuilder(changelogType, name, action, getCurrentUsername())
+				.build());
 	}
 
 	public static class LoggerConfigMetadata{

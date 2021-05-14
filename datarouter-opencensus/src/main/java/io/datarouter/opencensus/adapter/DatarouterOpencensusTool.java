@@ -15,8 +15,9 @@
  */
 package io.datarouter.opencensus.adapter;
 
+import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
-import io.datarouter.instrumentation.trace.TracerTool;
+import io.datarouter.util.tracer.DatarouterTracer;
 import io.opencensus.trace.AttributeValue;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracing;
@@ -30,18 +31,15 @@ public class DatarouterOpencensusTool{
 	public static Span createOpencensusSpan(){
 		Span span = Tracing.getTracer().spanBuilderWithExplicitParent("datarouter binding span", null).startSpan();
 		Tracing.getTracer().withSpan(span);
-		if(TracerThreadLocal.get() != null){
-			String traceparent = TracerThreadLocal.get().getTraceContext().get().getTraceparent().toString();
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer instanceof DatarouterTracer){
+			String traceparent = tracer.getTraceContext().get().getTraceparent().toString();
 			span.putAttribute(TRACEPARENT_ATTRIBUTE_KEY, AttributeValue.stringAttributeValue(traceparent));
-			span.putAttribute(THREAD_ID_ATTRIBUTE_KEY, AttributeValue.longAttributeValue(TracerTool
-					.getCurrentThreadId()));
-			span.putAttribute(SEQUENCE_PARENT_ATTRIBUTE_KEY, AttributeValue.longAttributeValue(getParentSequence()));
+			span.putAttribute(THREAD_ID_ATTRIBUTE_KEY, AttributeValue.longAttributeValue(tracer.getCurrentThreadId()));
+			span.putAttribute(SEQUENCE_PARENT_ATTRIBUTE_KEY, AttributeValue.longAttributeValue(tracer.getCurrentSpan()
+					.getSequence()));
 		}
 		return span;
-	}
-
-	private static long getParentSequence(){
-		return TracerThreadLocal.get().getCurrentSpan().getSequence();
 	}
 
 }

@@ -19,11 +19,11 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 
-import java.util.Optional;
-
 import javax.inject.Inject;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
@@ -85,14 +85,14 @@ public class ManualChangelogHandler extends BaseHandler{
 					.buildMav();
 		}
 		String username = getSessionInfo().getRequiredSession().getUsername();
-		changelogRecorder.recordAndSendEmail(
-				"ManualEntry",
-				name.get(),
-				action.get(),
-				username,
-				Optional.empty(),
-				note.getOptional(),
-				toEmail.getOptional());
+		DatarouterChangelogDtoBuilder dto = new DatarouterChangelogDtoBuilder("ManualEntry", name.get(), action.get(),
+				username);
+		note.ifPresent(dto::withNote);
+		if(toEmail.isPresent()){
+			Scanner.of(toEmail.get().split(",")).forEach(dto::additionalSendTos);
+		}
+		dto.sendEmail();
+		changelogRecorder.record(dto.build());
 		return pageFactory.preformattedMessage(request, "Recorded changelog entry.");
 	}
 

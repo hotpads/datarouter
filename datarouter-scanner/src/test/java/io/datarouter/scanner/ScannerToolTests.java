@@ -117,7 +117,7 @@ public class ScannerToolTests{
 		List<Integer> max2 = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, 2).list();
 		Assert.assertEquals(max2, Java9.listOf(4, 3));
 		List<Integer> maxAll = ScannerTool.maxNDesc(Scanner.of(inputs), comparator, inputs.size() * 2).list();
-		Assert.assertEquals(maxAll, Scanner.of(inputs).sorted(comparator.reversed()).list());
+		Assert.assertEquals(maxAll, Scanner.of(inputs).sort(comparator.reversed()).list());
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class ScannerToolTests{
 		List<Integer> min2 = ScannerTool.minNAsc(Scanner.of(inputs), comparator, 2).list();
 		Assert.assertEquals(min2, Java9.listOf(0, 0));
 		List<Integer> minAll = ScannerTool.minNAsc(Scanner.of(inputs), comparator, inputs.size() * 2).list();
-		Assert.assertEquals(minAll, Scanner.of(inputs).sorted(comparator).list());
+		Assert.assertEquals(minAll, Scanner.of(inputs).sort(comparator).list());
 	}
 
 	@Test

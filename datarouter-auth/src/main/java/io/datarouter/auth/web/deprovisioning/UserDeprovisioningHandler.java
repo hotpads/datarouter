@@ -63,7 +63,7 @@ public class UserDeprovisioningHandler extends BaseHandler{
 	protected UserDeprovisioningHandlerGeneralDto fetchDeprovisionedUsers(){
 		return deprovisionedUserDao.scan()
 				.map(DeprovisionedUser::toDto)
-				.sorted(DeprovisionedUserDto.COMPARATOR)
+				.sort(DeprovisionedUserDto.COMPARATOR)
 				.listTo(UserDeprovisioningHandlerGeneralDto::fetchDeprovisionedUsers);
 	}
 

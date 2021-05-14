@@ -41,7 +41,7 @@ public class DoubleByteToolTests{
 				Double.MAX_VALUE,
 				Double.POSITIVE_INFINITY,
 				Double.NaN)
-				.sorted()
+				.sort()
 				.list();
 		List<Double> roundTripped = interestingDoubles.stream()
 				.map(DoubleByteTool::toComparableBytes)

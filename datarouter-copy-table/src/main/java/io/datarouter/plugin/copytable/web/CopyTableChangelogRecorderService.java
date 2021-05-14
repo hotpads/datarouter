@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.web.user.session.RequestAwareCurrentSessionInfoFactory.RequestAwareCurrentSessionInfo;
 
 @Singleton
@@ -29,11 +30,13 @@ public class CopyTableChangelogRecorderService{
 
 	public void recordChangelog(RequestAwareCurrentSessionInfo sessionInfo, String changelogType, String sourceNode,
 			String targetNode){
-		changelogRecorder.record(
+		var dto = new DatarouterChangelogDtoBuilder(
 				"CopyTable-" + changelogType,
 				sourceNode + " to " + targetNode,
 				"migrate",
-				sessionInfo.getNonEmptyUsernameOrElse(""));
+				sessionInfo.getNonEmptyUsernameOrElse(""))
+				.build();
+		changelogRecorder.record(dto);
 	}
 
 }

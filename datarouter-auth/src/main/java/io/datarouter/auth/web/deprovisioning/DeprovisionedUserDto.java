@@ -32,7 +32,7 @@ public class DeprovisionedUserDto{
 
 	public DeprovisionedUserDto(String username, List<String> roles, UserDeprovisioningStatusDto status){
 		this.username = username;
-		this.roles = Scanner.of(roles).sorted(String.CASE_INSENSITIVE_ORDER).list();
+		this.roles = Scanner.of(roles).sort(String.CASE_INSENSITIVE_ORDER).list();
 		this.status = status;
 	}
 

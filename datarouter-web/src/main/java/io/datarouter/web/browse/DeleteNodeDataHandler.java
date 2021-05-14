@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
@@ -69,11 +70,13 @@ public class DeleteNodeDataHandler extends InspectNodeDataHandler{
 		}
 		mapStorageNode.delete(primaryKey);
 		logger.warn("deleted databean {}", encodedPk);
-		changelogRecorder.record(
+		var dto = new DatarouterChangelogDtoBuilder(
 				"Inspect Node Data",
 				node.getName(),
 				"delete",
-				getSessionInfo().getRequiredSession().getUsername());
+				getSessionInfo().getRequiredSession().getUsername())
+				.build();
+		changelogRecorder.record(dto);
 		return new MessageMav("deleted databean " + encodedPk);
 	}
 

@@ -75,7 +75,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 						.each(httpClient::initUrlPrefix)
 						.list();
 				})
-				.sorted(Comparator.comparing(endpoint -> endpoint.getClass().getSimpleName()))
+				.sort(Comparator.comparing(endpoint -> endpoint.getClass().getSimpleName()))
 				.list();
 		var content = makeContent(endpoints);
 		return pageFactory.startBuilder(request)

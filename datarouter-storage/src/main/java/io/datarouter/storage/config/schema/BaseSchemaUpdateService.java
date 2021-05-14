@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -194,12 +195,14 @@ public abstract class BaseSchemaUpdateService{
 		printedSchemaUpdates.forEach((clientId, ddlList) -> {
 			StringBuilder allStatements = new StringBuilder();
 			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));
-			changelogRecorder.get().record(
+			var dto = new DatarouterChangelogDtoBuilder(
 					"SchemaUpdate",
 					"clientId: " + clientId.getName(),
 					"SchemaUpdate request",
-					datarouterProperties.getAdministratorEmail(),
-					allStatements.toString());
+					datarouterProperties.getAdministratorEmail())
+					.withComment(allStatements.toString())
+					.build();
+				changelogRecorder.get().record(dto);
 		});
 	}
 

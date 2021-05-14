@@ -53,6 +53,9 @@ implements QueueStorageWriter<PK,D>{
 	public static final int MAX_TIMEOUT_SECONDS = 20;
 	public static final int MAX_BYTES_PER_MESSAGE = 256 * 1024;
 	public static final int MAX_BYTES_PER_PAYLOAD = 256 * 1024;
+	public static final int MIN_QUEUE_NAME_LENGTH = 1;
+	public static final int MAX_QUEUE_NAME_LENGTH = 80;
+
 	// SQS default is 30 sec
 	public static final long DEFAULT_VISIBILITY_TIMEOUT_MS = Duration.ofSeconds(30).toMillis();
 	private static final long RETENTION_S = Duration.ofDays(14).getSeconds();
@@ -93,10 +96,16 @@ implements QueueStorageWriter<PK,D>{
 			//don't issue the createQueue request because it is probably someone else's queue
 		}else{
 			String serviceName = datarouterService.getServiceName();
-			String namespace = params.getNamespace().orElse(datarouterProperties.getEnvironment() + "-" + serviceName);
+			String namespace = params.getNamespace().orElse(buildFullNameSpace(datarouterProperties.getEnvironment(),
+					serviceName));
 			queueName = StringTool.isEmpty(namespace)
 					? getFieldInfo().getTableName()
-					: namespace + "-" + getFieldInfo().getTableName();
+					: buildFullQueueName(datarouterProperties.getEnvironment(), serviceName,
+							getFieldInfo().getTableName());
+			if(queueName.length() > MAX_QUEUE_NAME_LENGTH){
+				// Future change to a throw.
+				logger.error("queue={} overflows the max size {}", queueName, MAX_QUEUE_NAME_LENGTH);
+			}
 			queueUrl = createQueueAndGetUrl(queueName);
 			sqsClientManager.updateAttr(clientId, queueUrl, QueueAttributeName.MessageRetentionPeriod, RETENTION_S);
 			logger.warn("retention updated queueName=" + queueName);
@@ -113,6 +122,14 @@ implements QueueStorageWriter<PK,D>{
 		}catch(RuntimeException e){
 			throw new RuntimeException("queueName=" + queueName + " queueNameLength=" + queueName.length(), e);
 		}
+	}
+
+	private static String buildFullNameSpace(String environment, String serviceName){
+		return environment + "-" + serviceName;
+	}
+
+	public static String buildFullQueueName(String environment, String serviceName, String tableName){
+		return buildFullNameSpace(environment, serviceName) + "-" + tableName;
 	}
 
 	public Supplier<Twin<String>> getQueueUrlAndName(){

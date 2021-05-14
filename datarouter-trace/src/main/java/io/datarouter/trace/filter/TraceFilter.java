@@ -137,6 +137,9 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			W3TraceContext traceContext = new W3TraceContext(traceparent, tracestate, created);
 			String initialParentId = traceContext.getTraceparent().parentId;
 			traceContext.updateParentIdAndAddTracestateMember();
+			if(traceSettings.addTraceIdHeader.get()){
+				response.setHeader("x-traceparent", traceContext.getTraceparent().toString());
+			}
 			RequestAttributeTool.set(request, BaseHandler.TRACE_CONTEXT, traceContext.copy());
 
 			// bind these to all threads, even if tracing is disabled

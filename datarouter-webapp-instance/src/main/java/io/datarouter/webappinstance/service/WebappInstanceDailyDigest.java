@@ -113,7 +113,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.groupBy(WebappInstanceLogKeyDto::new);
 		return Scanner.of(ranges.entrySet())
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
-				.sorted(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.build))
+				.sort(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.build))
 				.list();
 	}
 
@@ -205,7 +205,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 			this.startupInstants = Scanner.of(logRanges)
 					.map(WebappInstanceLog::getKey)
 					.map(WebappInstanceLogKey::getStartup)
-					.sorted()
+					.sort()
 					.list();
 		}
 

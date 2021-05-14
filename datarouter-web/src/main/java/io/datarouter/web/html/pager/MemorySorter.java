@@ -81,7 +81,7 @@ public class MemorySorter<T>{
 		}
 		SortOption<T> sortOption = sortOptions.getOrDefault(sort, sortOptions.values().iterator().next());
 		Comparator<T> comparator = reversed ? sortOption.comparator.reversed() : sortOption.comparator;
-		return scanner.sorted(comparator);
+		return scanner.sort(comparator);
 	}
 
 	public static class SortOption<T>{

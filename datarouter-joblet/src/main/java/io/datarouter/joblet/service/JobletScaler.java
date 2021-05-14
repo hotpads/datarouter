@@ -97,7 +97,7 @@ public class JobletScaler{
 					.include(request -> STATUSES_TO_CONSIDER.contains(request.getStatus()))
 					.map(Databean::getKey)
 					.map(JobletRequestKey::getAge)
-					.sorted(Comparator.reverseOrder())
+					.sort(Comparator.reverseOrder())
 					.skip(IGNORE_OLDEST_N_JOBLETS)
 					.findFirst()
 					.ifPresent(age -> oldestAgeByJobletType.put(jobletType, age));

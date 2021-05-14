@@ -18,7 +18,7 @@ package io.datarouter.web.digest;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.h4;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ul;
 
@@ -65,7 +65,7 @@ public class DailyDigestHandler extends BaseHandler{
 				.map(injector::getInstance)
 				.include(digest -> digest.getType() == type)
 				.include(dailyDigest -> dailyDigest.getPageContent(zoneId).isPresent())
-				.sorted(DailyDigest.COMPARATOR)
+				.sort(DailyDigest.COMPARATOR)
 				.list();
 
 		ContainerTag content;
@@ -73,9 +73,9 @@ public class DailyDigestHandler extends BaseHandler{
 			content = div("No content for the daily digest.")
 					.withClass("container-fluid");
 		}else{
-			ContainerTag header = h4("Daily Digest - " + type.display);
+			ContainerTag header = h2("Daily Digest - " + type.display);
 			ContainerTag toc = ul(each(digests, digest -> {
-				return li(a(digest.getTitle() + digest.getType().name()).withHref("#" + digest.getId()));
+				return li(a(digest.getTitle()).withHref("#" + digest.getId()));
 			}));
 			content = div(header, toc, each(digests, digest -> buildContent(digest, zoneId)))
 					.withClass("container-fluid");

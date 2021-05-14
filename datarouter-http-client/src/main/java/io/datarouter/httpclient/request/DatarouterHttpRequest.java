@@ -242,7 +242,7 @@ public class DatarouterHttpRequest{
 	 * values in map cannot be null
 	 */
 	public DatarouterHttpRequest addParams(Map<String,String> params){
-		params.forEach((key, value) -> addParam(key, value));
+		params.forEach(this::addParam);
 		return this;
 	}
 

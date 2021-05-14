@@ -59,6 +59,20 @@ public class DatarouterAdministratorEmailService{
 		return String.join(",", emails);
 	}
 
+	// excludes main administrator email
+	public String getAdditionalAdministratorOnlyCsv(String... additionalEmailAddresses){
+		return String.join(",", getAdditionalAdministratorOnly(additionalEmailAddresses));
+	}
+
+	public List<String> getAdditionalAdministratorOnly(String... additionalEmailAddresses){
+		List<String> emails = new ArrayList<>();
+		if(adminEmailSettings.includeAdditionalAdministratorsEmails.get()){
+			emails.addAll(additionalAdministrators.get());
+		}
+		emails.addAll(Set.of(additionalEmailAddresses));
+		return emails;
+	}
+
 	public String getAdministratorEmailWithSupplement(String supplement){
 		return EmailTool.addSupplementToEmailAddress(datarouterProperties.getAdministratorEmail(), supplement);
 	}

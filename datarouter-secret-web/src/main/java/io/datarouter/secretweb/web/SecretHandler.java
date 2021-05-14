@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.secret.config.SecretClientConfig;
 import io.datarouter.secret.op.SecretOpReason;
@@ -95,11 +96,12 @@ public class SecretHandler extends BaseHandler{
 		if(result == null){
 			result = executeAuthorizedRequest(requestDto);
 			if(requestDto.op != SecretOpDto.LIST_ALL){
-				changelogRecorder.record(
+				var dto = new DatarouterChangelogDtoBuilder(
 						"Secrets",
 						requestDto.name,
 						requestDto.op.getPersistentString(),
-						getSessionInfo().getNonEmptyUsernameOrElse(""));
+						getSessionInfo().getNonEmptyUsernameOrElse("")).build();
+				changelogRecorder.record(dto);
 			}
 		}
 		return result;

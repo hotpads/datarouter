@@ -165,13 +165,14 @@ public class DatarouterAccountCredentialService{
 				});
 	}
 
-	public void createCredential(String accountName, String creatorUsername){
+	public AccountKey createCredential(String accountName, String creatorUsername){
 		//duplicate API keys are not allowed between regular and secret credentials
 		DatarouterAccountCredential credential;
 		do{
 			credential = DatarouterAccountCredential.create(accountName, creatorUsername);
 		}while(findAccountKeyApiKeyAuth(credential.getKey().getApiKey(), false).isPresent());
 		datarouterAccountCredentialDao.insertOrBust(credential);
+		return new AccountKey(credential);
 	}
 
 	public void deleteCredential(String apiKey){
@@ -185,7 +186,7 @@ public class DatarouterAccountCredentialService{
 		datarouterAccountCredentialDao.updateIgnore(databean);
 	}
 
-	public DatarouterAccountSecretCredentialKeypairDto createSecretCredential(String accountName,
+	public AccountKey createSecretCredential(String accountName,
 			String creatorUsername, SecretOpReason reason){
 		String secretNamespace = secretNamespacer.getAppNamespace() + SECRET_NAMESPACE_SUFFIX;
 		var credential = DatarouterAccountSecretCredential.create(secretNamespace, accountName, creatorUsername);
@@ -202,7 +203,7 @@ public class DatarouterAccountCredentialService{
 			datarouterAccountSecretCredentialDao.delete(credential.getKey());
 			throw e;
 		}
-		return keypair;
+		return new AccountKey(keypair, credential);
 	}
 
 	public boolean deleteSecretCredential(String secretName, SecretOpReason reason){
@@ -319,12 +320,12 @@ public class DatarouterAccountCredentialService{
 		refreshSecretCredentials();
 	}
 
-	private static class AccountKey{
+	public static class AccountKey{
 
-		private final String apiKey;
-		private final String secretKey;
-		private final String accountName;
-		private final String secretName;
+		public final String apiKey;
+		public final String secretKey;
+		public final String accountName;
+		public final String secretName;
 
 		private AccountKey(DatarouterAccountCredential credential){
 			this.apiKey = Require.notNull(credential.getKey().getApiKey());
@@ -347,6 +348,10 @@ public class DatarouterAccountCredentialService{
 
 		DatarouterAccountSecretCredentialKey getDatarouterAccountSecretCredentialKey(){
 			return new DatarouterAccountSecretCredentialKey(secretName);
+		}
+
+		public DatarouterAccountSecretCredentialKeypairDto getDatarouterAccountSecretCredentialKeypairDto(){
+			return new DatarouterAccountSecretCredentialKeypairDto(apiKey, secretKey);
 		}
 
 	}

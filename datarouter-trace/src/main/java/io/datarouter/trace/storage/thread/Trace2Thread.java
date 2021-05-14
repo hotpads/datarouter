@@ -155,6 +155,10 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		return totalSpanCount;
 	}
 
+	public Long getDuration(){
+		return ended - created;
+	}
+
 	@Override
 	public String toString(){
 		return super.toString() + "[" + name + "]";

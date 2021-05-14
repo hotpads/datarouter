@@ -49,7 +49,7 @@ public class WebappInstanceLogHandler extends BaseHandler{
 		Mav mav = new Mav(files.jsp.admin.datarouter.webappInstances.webappInstanceLogJsp);
 		WebappInstanceLogKey prefix = new WebappInstanceLogKey(webappName, serverName, null, null);
 		List<WebappInstanceLog> logs = dao.scanWithPrefix(prefix)
-				.sorted(Comparator.comparing(log -> log.getKey().getStartup(), Collections.reverseOrder()))
+				.sort(Comparator.comparing(log -> log.getKey().getStartup(), Collections.reverseOrder()))
 				.list();
 		int logCount = logs.size();
 		ZoneId zoneId = currentUserSessionInfoService.getZoneId(request);

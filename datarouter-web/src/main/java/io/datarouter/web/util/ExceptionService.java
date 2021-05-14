@@ -49,7 +49,7 @@ public class ExceptionService{
 		if(stackTrace == null){
 			return null;
 		}
-		stackTrace = XmlStringTool.escapeXml(stackTrace);
+		stackTrace = XmlStringTool.escapeXmlKeepSpecialChar(stackTrace);
 		for(String highlight : datarouterWebSettingRoot.stackTraceHighlights.get()){
 			ContainerTag tag = span(highlight)
 					.withStyle("color:red; font-weight:bold; font-size:1.5em;");

@@ -31,6 +31,7 @@ import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -208,11 +209,12 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				Twin.of("server", properties.getServerName()),
 				Twin.of("triggeredBy", getSessionInfo().getRequiredSession().getUsername()));
 		sendEmail(node.getName(), emailKvs);
-		changelogRecorder.record(
+		var dto = new DatarouterChangelogDtoBuilder(
 				"Inspect Node Data",
 				node.getName(),
 				"countKeys",
-				getSessionInfo().getRequiredSession().getUsername());
+				getSessionInfo().getRequiredSession().getUsername()).build();
+		changelogRecorder.record(dto);
 		return pageFactory.message(request, message);
 	}
 

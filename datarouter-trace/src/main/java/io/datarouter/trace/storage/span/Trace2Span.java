@@ -120,6 +120,10 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		return info;
 	}
 
+	public Long getDuration(){
+		return ended - created;
+	}
+
 	@Override
 	public String toString(){
 		return getKey() + "[" + name + "][" + info + "]";

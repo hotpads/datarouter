@@ -37,6 +37,7 @@ import io.datarouter.trace.storage.thread.Trace2ThreadKey;
 import io.datarouter.trace.storage.trace.Trace2;
 import io.datarouter.trace.storage.trace.Trace2.Trace2Fielder;
 import io.datarouter.trace.storage.trace.Trace2Key;
+import io.datarouter.util.tuple.Range;
 
 public abstract class BaseTrace2Dao extends BaseDao{
 
@@ -99,6 +100,13 @@ public abstract class BaseTrace2Dao extends BaseDao{
 		return traceNode.scanWithPrefix(new Trace2Key(traceId));
 	}
 
+	public Scanner<Trace2> scanWithRange(Range<Trace2Key> range){
+		return traceNode.scan(range);
+	}
+
+	public Scanner<Trace2Span> scanTraceSpanWithRange(Range<Trace2SpanKey> range){
+		return traceSpanNode.scan(range);
+	}
 
 	public Optional<Trace2Bundle> getEntity(Traceparent traceparent){
 		return traceNode.find(new Trace2Key(traceparent))

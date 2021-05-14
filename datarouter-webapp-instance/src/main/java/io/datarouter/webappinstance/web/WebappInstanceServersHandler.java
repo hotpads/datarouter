@@ -70,7 +70,7 @@ public class WebappInstanceServersHandler extends BaseHandler{
 		Scanner<WebappInstanceLogDto> logs = Scanner.of(logDao.scan()
 				.groupBy(WebappInstanceLogKeyDto::new).entrySet())
 				.map(entry -> new WebappInstanceLogDto(entry.getKey(), entry.getValue()))
-				.sorted(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.buildDate).reversed());
+				.sort(Comparator.comparing((WebappInstanceLogDto dto) -> dto.key.buildDate).reversed());
 		MemoryPager<WebappInstanceLogDto> pager = new MemoryPager<>(
 				Collections.emptyList(),
 				new MemorySorter<>(),
@@ -180,12 +180,12 @@ public class WebappInstanceServersHandler extends BaseHandler{
 			this.startup = Scanner.of(logRanges)
 					.map(WebappInstanceLog::getKey)
 					.map(WebappInstanceLogKey::getStartup)
-					.sorted()
+					.sort()
 					.findFirst();
 			this.shutdown = Scanner.of(logRanges)
 					.map(WebappInstanceLog::getRefreshedLast)
 					.exclude(Objects::isNull)
-					.sorted()
+					.sort()
 					.findLast();
 		}
 

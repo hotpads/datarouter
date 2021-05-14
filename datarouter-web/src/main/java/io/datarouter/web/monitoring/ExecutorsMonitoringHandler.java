@@ -47,7 +47,7 @@ public class ExecutorsMonitoringHandler extends BaseHandler{
 	public Collection<TextExecutor> getExecutors(){
 		return Scanner.of(instanceRegistry.getAllInstancesOfType(ThreadPoolExecutor.class))
 				.map(TextExecutor::new)
-				.sorted(Comparator.comparing(executor -> StringTool.nullSafe(executor.name)))
+				.sort(Comparator.comparing(executor -> StringTool.nullSafe(executor.name)))
 				.list();
 	}
 

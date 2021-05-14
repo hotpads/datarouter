@@ -36,6 +36,10 @@ public class XmlStringTool{
 			return null;
 		}
 		input = StringTool.removeNonStandardCharacters(input);
+		return escapeXmlKeepSpecialChar(input);
+	}
+
+	public static String escapeXmlKeepSpecialChar(String input){
 		input = AMP.matcher(input).replaceAll("&");
 		input = LT.matcher(input).replaceAll("<");
 		input = GG_TT.matcher(input).replaceAll(">");
@@ -47,7 +51,6 @@ public class XmlStringTool{
 		input = GT_CHAR.matcher(input).replaceAll("&gt;");
 		input = SINGLE_QUOTE_CHAR.matcher(input).replaceAll("&apos;");
 		input = DOUBLE_QUOTE_CHAR.matcher(input).replaceAll("&quot;");
-
 		return input;
 	}
 

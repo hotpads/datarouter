@@ -59,7 +59,7 @@ public class CachedWebappInstancesOfThisServerType extends Cached<List<WebappIns
 				.map(WebappInstance::getKey)
 				.include(key -> key.getWebappName().equals(webappName))
 				.map(WebappInstanceKey::getServerName)
-				.sorted()
+				.sort()
 				.list();
 	}
 

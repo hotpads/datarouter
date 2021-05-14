@@ -98,8 +98,8 @@ public class MysqlLiveTableOptionsRefresher{
 			}
 			MysqlLiveTableOptions newOptions = read(entry.getKey());
 			if(!newOptions.equals(entry.getValue())){
-				logger.warn("collation change detected {} => {}", entry.getValue().toString("old"), newOptions
-						.toString("new"));
+				logger.warn("collation change detected {} => {} {}", entry.getValue().toString("old"), newOptions
+						.toString("new"), entry.getKey());
 				entry.setValue(newOptions);
 			}
 		}

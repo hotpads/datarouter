@@ -73,8 +73,8 @@ public class AwsElbConfigScanner{
 		if(!datarouterService.hasPublicDomain() && hasPublicAlb){
 			return ConfigScanResponseTool.buildResponse("Server has unexpected public load balancer");
 		}
-		if((datarouterService.hasPublicDomain() && !hasPublicAlb)
-				&& (datarouterService.hasPrivateDomain() && !hasPrivateAlb)){
+		if(datarouterService.hasPublicDomain() && !hasPublicAlb
+				&& datarouterService.hasPrivateDomain() && !hasPrivateAlb){
 			return ConfigScanResponseTool.buildResponse("Server expects both public and private load"
 					+ " balancers but it is " + hasPublicAlb + " for public ALB and " + hasPrivateAlb
 					+ " for private ALB");

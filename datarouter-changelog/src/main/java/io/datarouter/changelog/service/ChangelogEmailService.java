@@ -18,9 +18,8 @@ package io.datarouter.changelog.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,6 +29,7 @@ import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.tuple.Twin;
@@ -50,25 +50,30 @@ public class ChangelogEmailService{
 	@Inject
 	private DatarouterChangelogPaths paths;
 
-	public void sendEmail(String changelogType, String name, String action, String username,
-			Optional<String> toEmailParam, Optional<String> comment){
+	public void sendEmail(DatarouterChangelogDto dto){
 		String from = datarouterProperties.getAdministratorEmail();
-		List<String> toEmails = additionalAdministratorEmailService.getAdministratorEmailAddresses();
-		toEmails.add(username);
-		toEmailParam
-				.map(email -> email.split(","))
-				.map(Arrays::stream)
-				.ifPresent(stream -> stream.forEach(toEmails::add));
+		List<String> toEmails = new ArrayList<>();
+		toEmails.add(dto.username);
+		if(dto.includeMainDatarouterAdmin){
+			toEmails.add(datarouterProperties.getAdministratorEmail());
+		}
+		if(dto.includeAdditionalAdministrators){
+			toEmails.addAll(additionalAdministratorEmailService.getAdditionalAdministratorOnly());
+		}
 		String to = String.join(",", toEmails);
 
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.changelog.viewAll)
 				.build();
 		var emailBuilder = htmlEmailService.startEmailBuilder()
-				.withSubject("Changelog - " + changelogType + " - " + datarouterService.getServiceName())
-				.withTitle("Changelog - " + changelogType)
+				.withTitle("Changelog - " + dto.changelogType)
 				.withTitleHref(primaryHref)
-				.withContent(makeEmailContent(changelogType, name, action, username, comment.orElse("")));
+				.withContent(makeEmailContent(
+						dto.changelogType,
+						dto.name,
+						dto.action,
+						dto.username,
+						dto.comment.orElse("")));
 		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
 	}
 

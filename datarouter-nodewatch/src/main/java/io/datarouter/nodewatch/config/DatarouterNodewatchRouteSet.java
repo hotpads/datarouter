@@ -35,7 +35,7 @@ public class DatarouterNodewatchRouteSet extends BaseRouteSet{
 				.withHandler(TableCountHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_MONITORING);
 
-		handle(paths.datarouter.nodewatch.threshold.displayThreshold)
+		handle(paths.datarouter.nodewatch.threshold)
 				.withHandler(TableSizeAlertThresholdHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_SETTINGS);
 		handle(paths.datarouter.nodewatch.threshold.saveThresholds)

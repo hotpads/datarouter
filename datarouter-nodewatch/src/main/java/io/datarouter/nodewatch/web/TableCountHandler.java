@@ -31,6 +31,7 @@ import com.google.gson.JsonObject;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.nodewatch.config.DatarouterNodewatchFiles;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
@@ -92,7 +93,7 @@ public class TableCountHandler extends BaseHandler{
 				.map(LatestTableCountKey::getClientName)
 				.forEach(clientName -> {
 					latestTableCountDao.scanWithPrefix(new LatestTableCountKey(clientName, null))
-							.sorted(Comparator.comparing(LatestTableCount::getNumRows).reversed())
+							.sort(Comparator.comparing(LatestTableCount::getNumRows).reversed())
 							.map(count -> new TableCountJspDto(count, datarouterService.getZoneId()))
 							.flush(list -> latestTableCountDtoMap.put(clientName, list));
 				});
@@ -140,11 +141,13 @@ public class TableCountHandler extends BaseHandler{
 				true,
 				System.currentTimeMillis())
 				.call();
-		changelogRecorder.record(
+		var dto = new DatarouterChangelogDtoBuilder(
 				"Nodewatch",
 				clientName + "." + tableName,
 				"resample",
-				getSessionInfo().getNonEmptyUsernameOrElse(""));
+				getSessionInfo().getNonEmptyUsernameOrElse(""))
+				.build();
+		changelogRecorder.record(dto);
 		return new InContextRedirectMav(request, paths.datarouter.nodewatch.tableCount.toSlashedString()
 				+ "?submitAction=singleTable&clientName=" + clientName + "&tableName=" + tableName);
 	}
@@ -163,11 +166,13 @@ public class TableCountHandler extends BaseHandler{
 		var latestTableCountKey = new LatestTableCountKey(clientName, tableName);
 		latestTableCountDao.delete(latestTableCountKey);
 
-		changelogRecorder.record(
+		var dto = new DatarouterChangelogDtoBuilder(
 				"Nodewatch",
 				clientName + "." + tableName,
 				"deleted metadata",
-				getSessionInfo().getNonEmptyUsernameOrElse(""));
+				getSessionInfo().getNonEmptyUsernameOrElse(""))
+				.build();
+		changelogRecorder.record(dto);
 		return new InContextRedirectMav(request, paths.datarouter.nodewatch.tableCount.toSlashedString());
 	}
 

@@ -77,14 +77,15 @@ public class JobletDailyDigestService{
 				.build(joblets);
 	}
 
-	public ContainerTag makeEmailTableForOldJoblets(List<OldJobletDto> joblets){
-		return new J2HtmlEmailTable<OldJobletDto>()
-				.withColumn("Type", row -> row.type)
-				.withColumn("Execution Order", row -> row.executionOrder)
-				.withColumn("Status", row -> row.status.getPersistentString())
-				.withColumn("Num Timeouts", row -> row.numTimeouts)
-				.withColumn("Num Failures", row -> row.numFailures)
-				.build(joblets);
+	public ContainerTag makeEmailTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
+		return new J2HtmlEmailTable<Entry<OldJobletDto,List<OldJobletDto>>>()
+				.withColumn("Type", row -> row.getKey().type)
+				.withColumn("Execution Order", row -> row.getKey().executionOrder)
+				.withColumn("Status", row -> row.getKey().status.getPersistentString())
+				.withColumn("Num Timeouts", row -> row.getKey().numTimeouts)
+				.withColumn("Num Failures", row -> row.getKey().numFailures)
+				.withColumn("Count", row -> row.getValue().size())
+				.build(joblets.entrySet());
 	}
 
 	public ContainerTag makePageTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){

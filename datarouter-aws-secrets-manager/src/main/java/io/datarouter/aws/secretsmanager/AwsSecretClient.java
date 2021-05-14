@@ -169,7 +169,7 @@ public class AwsSecretClient implements SecretClient{
 				}
 				return false;
 			});
-		if(!allCharactersAllowed || (name.length() > 6 && name.charAt(name.length() - 7) == '-')){
+		if(!allCharactersAllowed || name.length() > 6 && name.charAt(name.length() - 7) == '-'){
 			throw new RuntimeException("validation failed name=" + name);
 		}
 	}

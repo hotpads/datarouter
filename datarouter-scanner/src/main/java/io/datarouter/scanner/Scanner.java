@@ -596,14 +596,6 @@ public interface Scanner<T> extends Closeable{
 		return new SortingScanner<>(this, comparator);
 	}
 
-	default Scanner<T> sorted(){
-		return sort();
-	}
-
-	default Scanner<T> sorted(Comparator<? super T> comparator){
-		return sort(comparator);
-	}
-
 	default Object[] toArray(){
 		return ScannerTool.toArray(this);
 	}

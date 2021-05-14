@@ -21,6 +21,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.nodewatch.config.DatarouterNodewatchFiles;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.storage.alertthreshold.DatarouterTableSizeAlertThresholdDao;
@@ -70,11 +71,12 @@ public class TableSizeAlertThresholdHandler extends BaseHandler{
 	public Mav updateThreshold(String tableName, String clientName, Long threshold){
 		TableSizeAlertThreshold tableSizeAlertThreshold = new TableSizeAlertThreshold(clientName, tableName, threshold);
 		tableSizeAlertThresholdDao.put(tableSizeAlertThreshold);
-		changelogRecorder.record(
+		var dto = new DatarouterChangelogDtoBuilder(
 				"Nodewatch",
 				clientName + "." + tableName,
 				"update threshold",
-				getSessionInfo().getNonEmptyUsernameOrElse(""));
+				getSessionInfo().getNonEmptyUsernameOrElse("")).build();
+		changelogRecorder.record(dto);
 		return getRedirectMav();
 	}
 

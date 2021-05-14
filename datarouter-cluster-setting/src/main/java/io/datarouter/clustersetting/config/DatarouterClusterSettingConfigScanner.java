@@ -81,7 +81,7 @@ public class DatarouterClusterSettingConfigScanner{
 			String additionalMessage){
 		List<ClusterSetting> clusterSettings = settingsScanner
 				.distinctBy(BaseDatabean::getKey)
-				.sorted(Comparator.comparing(ClusterSetting::getName)
+				.sort(Comparator.comparing(ClusterSetting::getName)
 						.thenComparing(new ClusterSettingScopeComparator().reversed()))
 				.list();
 		if(clusterSettings.isEmpty()){

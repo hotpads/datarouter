@@ -148,7 +148,7 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 							.list();
 				})
 				.distinct()
-				.sorted()
+				.sort()
 				.list();
 		Require.isTrue(handlersWithPrivateMethods.size() == 0, "The following methods need to be public: \n"
 				+ handlersWithPrivateMethods.stream().collect(Collectors.joining("\n")));

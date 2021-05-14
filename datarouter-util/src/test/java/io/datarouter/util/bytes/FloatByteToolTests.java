@@ -40,7 +40,7 @@ public class FloatByteToolTests{
 				Float.MAX_VALUE,
 				Float.POSITIVE_INFINITY,
 				Float.NaN)
-				.sorted()
+				.sort()
 				.list();
 		List<Float> roundTripped = interestingFloats.stream()
 				.map(FloatByteTool::toComparableBytes)

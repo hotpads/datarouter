@@ -158,4 +158,8 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		return totalThreadCount;
 	}
 
+	public Long getDuration(){
+		return ended - created;
+	}
+
 }

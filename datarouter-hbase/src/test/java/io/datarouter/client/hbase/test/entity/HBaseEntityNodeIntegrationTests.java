@@ -101,7 +101,7 @@ public class HBaseEntityNodeIntegrationTests{
 	public void testScanForRowDatabean1to1(){
 		List<SortedBean> expectedBeans = Scanner.of(normalBeans, extraBeans)
 				.concat(Scanner::of)
-				.sorted()
+				.sort()
 				.list();
 
 		//purposefully tiny batch size

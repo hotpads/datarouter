@@ -50,7 +50,7 @@ public abstract class HandlerMetricLinkPage implements MetricLinkPage{
 				.map(Class::getSimpleName)
 				.distinct()
 				.concat(Scanner::of)
-				.sorted()
+				.sort()
 				.map(handlerName -> {
 					var exactMetric = LinkDto.of("Class", "Datarouter handler class " + handlerName);
 					var availbleMetric = LinkDto.of("Endpoints", "Datarouter handler method " + handlerName);

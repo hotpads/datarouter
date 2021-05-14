@@ -87,7 +87,7 @@ extends BasePhysicalEntityNode<EK,E>{
 						entityFieldInfo.getEntityTableName(), partition, startKey, startKeyInclusive))
 				.map(EntityListOp::wrappedCall)
 				.concat(Scanner::of)
-				.sorted()
+				.sort()
 				.limit(limit)
 				.list();
 	}

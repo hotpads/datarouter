@@ -153,12 +153,12 @@ public class ScannerStream<T> implements Stream<T>{
 
 	@Override
 	public Stream<T> sorted(){
-		return scanner.sorted().stream();
+		return scanner.sort().stream();
 	}
 
 	@Override
 	public Stream<T> sorted(Comparator<? super T> comparator){
-		return scanner.sorted(comparator).stream();
+		return scanner.sort(comparator).stream();
 	}
 
 	/*----------- terminate using Scanner ------------*/

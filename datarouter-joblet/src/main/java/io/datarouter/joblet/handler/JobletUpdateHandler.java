@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.queue.JobletRequestQueueManager;
@@ -83,11 +84,13 @@ public class JobletUpdateHandler extends BaseHandler{
 				.forEach(jobletRequestDao::deleteMulti);
 		String message = String.format("Deleted joblets with type %s, status %s, executionOrder %s", typeString, status,
 				executionOrder);
-		changelogRecorder.record(
+		var dto = new DatarouterChangelogDtoBuilder(
 				"Joblet",
 				typeString + " " + status + " " + executionOrder,
 				"deleteGroup",
-				getSessionInfo().getRequiredSession().getUsername());
+				getSessionInfo().getRequiredSession().getUsername())
+				.build();
+		changelogRecorder.record(dto);
 		return pageFactory.message(request, message);
 	}
 
@@ -111,11 +114,13 @@ public class JobletUpdateHandler extends BaseHandler{
 				logger.warn("copied {}", numCopied);
 			}
 		}
-		changelogRecorder.record(
+		var dto = new DatarouterChangelogDtoBuilder(
 				"Joblet",
 				jobletType.orElse("all"),
 				"requeue",
-				getSessionInfo().getRequiredSession().getUsername());
+				getSessionInfo().getRequiredSession().getUsername())
+				.build();
+		changelogRecorder.record(dto);
 		return pageFactory.message(request, "copied " + numCopied);
 	}
 
@@ -133,11 +138,13 @@ public class JobletUpdateHandler extends BaseHandler{
 				numRestarted += jobletService.restartJoblets(jobletType, jobletStatus);
 			}
 		}
-		changelogRecorder.record(
+		var dto = new DatarouterChangelogDtoBuilder(
 				"Joblet",
 				type.orElse("all") + " " + status,
 				"restart",
-				getSessionInfo().getRequiredSession().getUsername());
+				getSessionInfo().getRequiredSession().getUsername())
+				.build();
+		changelogRecorder.record(dto);
 		return pageFactory.message(request, "restarted " + numRestarted);
 	}
 
@@ -160,11 +167,8 @@ public class JobletUpdateHandler extends BaseHandler{
 			jobletRequestDao.putMulti(toSave);
 			logger.warn("copied {}", numTimedOut);
 		}
-		changelogRecorder.record(
-				"Joblet",
-				type,
-				"timeoutStuckRunning",
-				getSessionInfo().getRequiredSession().getUsername());
+		changelogRecorder.record(new DatarouterChangelogDtoBuilder("Joblet", type, "timeoutStuckRunning",
+				getSessionInfo().getRequiredSession().getUsername()).build());
 		return pageFactory.message(request, "timedOut " + numTimedOut);
 	}
 

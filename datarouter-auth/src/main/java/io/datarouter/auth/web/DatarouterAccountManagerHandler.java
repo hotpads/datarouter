@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -45,6 +45,7 @@ import io.datarouter.auth.storage.accountpermission.BaseDatarouterAccountPermiss
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermission;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.secretweb.service.WebSecretOpReason;
@@ -53,6 +54,7 @@ import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.Require;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.web.dispatcher.ApiKeyPredicate;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.RequestBody;
@@ -160,7 +162,11 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	@Handler
 	public DatarouterAccountDetails toggleUserMappings(String accountName){
-		return updateAccount(accountName, DatarouterAccount::toggleUserMappings, "toggleUserMappings");
+		DatarouterAccount account = datarouterAccountDao.get(new DatarouterAccountKey(accountName));
+		account.toggleUserMappings();
+		datarouterAccountDao.put(account);
+		logAndRecordAction(accountName, "toggleUserMappings");
+		return getDetailsForAccountName(accountName);
 	}
 
 	@Handler
@@ -183,15 +189,15 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	public DatarouterAccountDetails addCredential(String accountName){
 		Require.isFalse(accountName.isEmpty());
 		String creatorUsername = getSessionInfo().getRequiredSession().getUsername();
-		acccountCredentialService.createCredential(accountName, creatorUsername);
-		logAndRecordAction(accountName, "add credential");
+		var accountKey = acccountCredentialService.createCredential(accountName, creatorUsername);
+		logAndRecordAction(accountName, "addCredential", getCredentialNote(accountKey.apiKey));
 		return getDetailsForAccountName(accountName);
 	}
 
 	@Handler
 	public DatarouterAccountDetails deleteCredential(String apiKey, String accountName){
 		acccountCredentialService.deleteCredential(apiKey);
-		logAndRecordAction(accountName, "delete credential");
+		logAndRecordAction(accountName, "deleteCredential", getCredentialNote(apiKey));
 		return getDetailsForAccountName(accountName);
 	}
 
@@ -201,9 +207,11 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		Session session = getSessionInfo().getRequiredSession();
 		String creatorUsername = session.getUsername();
 		var secretOpReason = WebSecretOpReason.manualOp(session, getClass().getSimpleName());
-		var keypair = acccountCredentialService.createSecretCredential(accountName, creatorUsername, secretOpReason);
-		logAndRecordAction(accountName, "add secret credential");
-		return new DatarouterAccountDetailsAndKeypair(getDetailsForAccountName(accountName), keypair);
+		var accountKey = acccountCredentialService.createSecretCredential(accountName, creatorUsername, secretOpReason);
+		logAndRecordAction(accountName, "addSecretCredential", getSecretCredentialNote(accountKey.secretName, accountKey
+				.apiKey));
+		return new DatarouterAccountDetailsAndKeypair(getDetailsForAccountName(accountName), accountKey
+				.getDatarouterAccountSecretCredentialKeypairDto());
 	}
 
 	@Handler
@@ -211,7 +219,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		var secretOpReason = WebSecretOpReason.manualOp(getSessionInfo().getRequiredSession(), getClass()
 				.getSimpleName());
 		acccountCredentialService.deleteSecretCredential(secretName, secretOpReason);
-		logAndRecordAction(accountName, "delete secret credential");
+		logAndRecordAction(accountName, "deleteSecretCredential", getSecretCredentialNote(secretName));
 		return getDetailsForAccountName(accountName);
 	}
 
@@ -219,10 +227,14 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	public DatarouterAccountDetails setCredentialActivation(@RequestBody SetCredentialActivationDto dto){
 		Require.isFalse(dto.accountName.isEmpty());
 		Require.notNull(dto.active);
+		String active = dto.active ? "Active" : "Inactive";
 		if(dto.secretName != null && StringTool.notEmptyNorWhitespace(dto.secretName)){
 			acccountCredentialService.setSecretCredentialActivation(dto.secretName, dto.active);
+			logAndRecordAction(dto.accountName, "setSecretCredential" + active, getSecretCredentialNote(dto
+					.secretName));
 		}else if(dto.apiKey != null && StringTool.notEmptyNorWhitespace(dto.apiKey)){
 			acccountCredentialService.setCredentialActivation(dto.apiKey, dto.active);
+			logAndRecordAction(dto.accountName, "setCredential" + active, getCredentialNote(dto.apiKey));
 		}else{
 			throw new RuntimeException("apiKey or secretName is required");
 		}
@@ -240,14 +252,14 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	@Handler
 	public DatarouterAccountDetails addPermission(String accountName, String endpoint){
 		datarouterAccountPermissionDao.put(new DatarouterAccountPermission(accountName, endpoint));
-		logAndRecordAction(accountName, "addPermission");
+		logAndRecordAction(accountName, "addPermission", Optional.of(endpoint));
 		return getDetails(accountName);
 	}
 
 	@Handler
 	public DatarouterAccountDetails deletePermission(String accountName, String endpoint){
 		datarouterAccountPermissionDao.delete(new DatarouterAccountPermissionKey(accountName, endpoint));
-		logAndRecordAction(accountName, "deletePermission");
+		logAndRecordAction(accountName, "deletePermission", Optional.of(endpoint));
 		return getDetails(accountName);
 	}
 
@@ -256,17 +268,6 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		return StringTool.equalsCaseInsensitive(
 				datarouterProperties.getServerTypeString(),
 				ServerType.DEV.getPersistentString());
-	}
-
-	private DatarouterAccountDetails updateAccount(
-			String accountName,
-			Consumer<DatarouterAccount> updateFunction,
-			String logMessage){
-		DatarouterAccount account = datarouterAccountDao.get(new DatarouterAccountKey(accountName));
-		updateFunction.accept(account);
-		datarouterAccountDao.put(account);
-		logAndRecordAction(accountName, logMessage);
-		return getDetailsForAccountName(accountName);
 	}
 
 	private List<DatarouterAccountDetails> getDetailsForAccounts(List<DatarouterAccount> accounts){
@@ -309,20 +310,27 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	}
 
 	private void logAndRecordAction(String account, String action){
-		recordChangelog("DatarouterAccount", account, action);
-		logger.warn("account={} action={} by={}", account, action, getCurrentUsername());
+		logAndRecordAction(account, action, Optional.empty());
 	}
 
-	private String getCurrentUsername(){
-		return getSessionInfo().getNonEmptyUsernameOrElse("unknown");
+	private void logAndRecordAction(String account, String action, Optional<String> note){
+		var username = getSessionInfo().getNonEmptyUsernameOrElse("unknown");
+		logger.warn("account={} action={} by={} note: {}", account, action, username, note.orElse("none"));
+		var changelogBuilder = new DatarouterChangelogDtoBuilder("DatarouterAccount", account, action, username);
+		note.ifPresent(changelogBuilder::withNote);
+		changelogRecorder.record(changelogBuilder.build());
 	}
 
-	private void recordChangelog(String changelogType, String name, String action){
-		changelogRecorder.record(
-				changelogType,
-				name,
-				action,
-				getCurrentUsername());
+	private static Optional<String> getCredentialNote(String apiKey){
+		return Optional.of("apiKey=" + ApiKeyPredicate.obfuscate(apiKey));
+	}
+
+	private static Optional<String> getSecretCredentialNote(String secretName){
+		return Optional.of("secretName=" + secretName);
+	}
+
+	private static Optional<String> getSecretCredentialNote(String secretName, String apiKey){
+		return Optional.of(getSecretCredentialNote(secretName).get() + " " + getCredentialNote(apiKey).get());
 	}
 
 	public static class DatarouterAccountDetailsAndKeypair{
