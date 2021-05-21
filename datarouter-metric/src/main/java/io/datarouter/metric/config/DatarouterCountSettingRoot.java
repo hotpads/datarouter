@@ -29,8 +29,8 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> saveCounts;
 
-	public final CachedSetting<Boolean> runCountsToSqs;
-	public final CachedSetting<Boolean> runCountsFromSqsToPublisher;
+	public final CachedSetting<Boolean> runCountsToQueue;
+	public final CachedSetting<Boolean> runCountsFromQueueToPublisher;
 
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
 	public final CachedSetting<Integer> drainConveyorThreadCount;
@@ -42,9 +42,9 @@ public class DatarouterCountSettingRoot extends SettingRoot{
 		saveCounts = registerBooleans("saveCounts", defaultTo(false)
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
 
-		runCountsToSqs = registerBooleans("runCountsToSqs", defaultTo(false)
+		runCountsToQueue = registerBooleans("runCountsToQueue", defaultTo(false)
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
-		runCountsFromSqsToPublisher = registerBooleans("runCountsFromSqsToPublisher", defaultTo(false)
+		runCountsFromQueueToPublisher = registerBooleans("runCountsFromQueueToPublisher", defaultTo(false)
 				.withTag(DatarouterSettingTagType.COUNTPIPELINE, () -> true));
 
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);

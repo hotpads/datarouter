@@ -34,26 +34,26 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.web.exception.ExceptionRecorder;
 
-public class GaugeMemoryToSqsConveyor extends BaseConveyor{
-	private static final Logger logger = LoggerFactory.getLogger(GaugeMemoryToSqsConveyor.class);
+public class GaugeMemoryToQueueConveyor extends BaseConveyor{
+	private static final Logger logger = LoggerFactory.getLogger(GaugeMemoryToQueueConveyor.class);
 
 	private static final int BATCH_SIZE = 100;
 
-	private final Setting<Boolean> shouldBufferInSqs;
+	private final Setting<Boolean> shouldBufferInQueue;
 	private final Consumer<Collection<ConveyorMessage>> putMultiConsumer;
 	private final MemoryBuffer<GaugeDto> buffer;
 	private final Gson gson;
 
-	public GaugeMemoryToSqsConveyor(
+	public GaugeMemoryToQueueConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
-			Setting<Boolean> shouldBufferInSqs,
+			Setting<Boolean> shouldBufferInQueue,
 			Consumer<Collection<ConveyorMessage>> putMultiConsumer,
 			MemoryBuffer<GaugeDto> buffer,
 			Gson gson,
 			ExceptionRecorder exceptionRecorder){
 		super(name, shouldRun, () -> false, exceptionRecorder);
-		this.shouldBufferInSqs = shouldBufferInSqs;
+		this.shouldBufferInQueue = shouldBufferInQueue;
 		this.putMultiConsumer = putMultiConsumer;
 		this.buffer = buffer;
 		this.gson = gson;
@@ -66,7 +66,7 @@ public class GaugeMemoryToSqsConveyor extends BaseConveyor{
 			return new ProcessBatchResult(false);
 		}
 		try{
-			if(shouldBufferInSqs.get()){
+			if(shouldBufferInQueue.get()){
 				Scanner.of(dtos)
 						.map(this::toConveyorMessage)
 						.flush(putMultiConsumer::accept);

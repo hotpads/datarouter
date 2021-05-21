@@ -42,9 +42,9 @@ public class CountConveyors extends BaseConveyors{
 
 	@Override
 	public void onStartUp(){
-		start(new CountSqsDrainConveyor(
-				"countSqsToPublisher",
-				countSettings.runCountsFromSqsToPublisher,
+		start(new CountQueueDrainConveyor(
+				"countQueueToPublisher",
+				countSettings.runCountsFromQueueToPublisher,
 				countPublisherDao.getQueueConsumer(),
 				gson,
 				countPublisher,

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.conveyor.exception.ConveyorExceptionCategory;
+import io.datarouter.util.Require;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.util.ExceptionTool;
@@ -39,7 +40,7 @@ public abstract class BaseConveyor implements Conveyor{
 			Supplier<Boolean> shouldRun,
 			Supplier<Boolean> compactExceptionLogging,
 			ExceptionRecorder exceptionRecorder){
-		this.name = name;
+		this.name = Require.notBlank(name);
 		this.shouldRunSetting = shouldRun;
 		this.compactExceptionLogging = compactExceptionLogging;
 		this.exceptionRecorder = exceptionRecorder;

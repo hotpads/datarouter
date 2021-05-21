@@ -111,6 +111,7 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 		RESET("reset"),//any kind of password/key reset
 		DEPROVISION("deprovision"),//user deprovisioned
 		RESTORE("restore"),//user restored after being deprovisioned
+		INFO("info"),//no change to this user
 		;
 
 		private final String persistentString;

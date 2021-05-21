@@ -52,7 +52,7 @@ public class CountersAppListener implements DatarouterAppListener{
 	@Override
 	public void onStartUp(){
 		CountFlusher flusher = flusherFactory.create(serviceName, serverName);
-		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, flusher, settings.runCountsToSqs);
+		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, flusher, settings.runCountsToQueue);
 		Counters.addCollector(collector);
 	}
 

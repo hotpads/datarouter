@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Singleton;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +30,14 @@ import io.datarouter.util.DatarouterRuntimeTool;
 import io.datarouter.util.RunNativeDto;
 import io.datarouter.util.string.StringTool;
 
-@Singleton
-public class HostMemoryService{
-	private static final Logger logger = LoggerFactory.getLogger(HostMemoryService.class);
+public class HostMemoryTool{
+	private static final Logger logger = LoggerFactory.getLogger(HostMemoryTool.class);
 
 	public static final String HOST_MEM_NAME = "Mem";
 	public static final String HOST_USED_LABEL = "used";
 	public static final String HOST_TOTAL_LABEL = "total";
 
-	public Conditional<Map<String,Map<String,Long>>> getHostMemoryStats(){
+	public static Conditional<Map<String,Map<String,Long>>> getHostMemoryStats(){
 		try{
 			return Conditional.success(getHostMemoryStatsInternal());
 		}catch(Exception e){
@@ -48,7 +45,7 @@ public class HostMemoryService{
 		}
 	}
 
-	private HashMap<String,Map<String,Long>> getHostMemoryStatsInternal(){
+	private static HashMap<String,Map<String,Long>> getHostMemoryStatsInternal(){
 		RunNativeDto output = DatarouterRuntimeTool.runNative("free");
 		String[] lines = output.stdout.split("\n");
 		List<String> headers = null;
@@ -74,7 +71,7 @@ public class HostMemoryService{
 		return result;
 	}
 
-	public Conditional<CgroupMemoryStats> getCgroupMemoryStats(){
+	public static Conditional<CgroupMemoryStats> getCgroupMemoryStats(){
 		try{
 			var stats = new CgroupMemoryStats(
 					readFileToLong("/sys/fs/cgroup/memory/memory.usage_in_bytes"),
@@ -85,7 +82,7 @@ public class HostMemoryService{
 		}
 	}
 
-	private long readFileToLong(String path){
+	private static long readFileToLong(String path){
 		try{
 			return Long.parseLong(Files.readAllLines(Paths.get(path)).get(0));
 		}catch(IOException e){
@@ -94,9 +91,8 @@ public class HostMemoryService{
 	}
 
 	public static void main(String[] args){
-		HostMemoryService hostMemoryService = new HostMemoryService();
-		logger.warn(hostMemoryService.getHostMemoryStats().toString());
-		CgroupMemoryStats cgroupMemoryStats = hostMemoryService.getCgroupMemoryStats().orElseThrow();
+		logger.warn(getHostMemoryStats().toString());
+		CgroupMemoryStats cgroupMemoryStats = getCgroupMemoryStats().orElseThrow();
 		logger.warn(cgroupMemoryStats.usage + " / " + cgroupMemoryStats.limit);
 	}
 

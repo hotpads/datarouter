@@ -50,6 +50,7 @@ public class DatarouterAuthPaths extends PathNode implements PathsRoot{
 		public final PathNode listUsers = leaf("listUsers");
 		public final PathNode updateUserDetails = leaf("updateUserDetails");
 		public final PathNode updatePassword = leaf("updatePassword");
+		public final PathNode copyUser = leaf("copyUser");
 		public final PathNode viewUsers = leaf("viewUsers");
 	}
 

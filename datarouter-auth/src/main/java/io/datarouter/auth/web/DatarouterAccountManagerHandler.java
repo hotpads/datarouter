@@ -181,7 +181,6 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	@Handler
 	public List<AccountLookupDto> lookupAccount(String apiKey){
-		//TODO ideally this would be rate-limited to prevent someone from brute-forcing secret credential API keys
 		return acccountCredentialService.lookupAccountName(apiKey);
 	}
 

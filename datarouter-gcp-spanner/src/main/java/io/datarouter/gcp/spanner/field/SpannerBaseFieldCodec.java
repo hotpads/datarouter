@@ -39,7 +39,10 @@ public abstract class SpannerBaseFieldCodec<T,F extends Field<T>>{
 	public abstract T getValueFromResultSet(ResultSet rs);
 
 	public final WriteBuilder setMutation(WriteBuilder mutation){
-		return mutation.set(field.getKey().getColumnName()).to(getSpannerValue());
+		Value spannerValue = field.getValue() == null
+				? getSpannerColumnType().nullValue()
+				: getSpannerValue();
+		return mutation.set(field.getKey().getColumnName()).to(spannerValue);
 	}
 
 	public SpannerColumn getSpannerColumn(Boolean allowNullable){
@@ -68,6 +71,6 @@ public abstract class SpannerBaseFieldCodec<T,F extends Field<T>>{
 
 	public void setParameterValue(Statement.Builder statementBuilder, int index){
 		 statementBuilder.bind(getParameterName(index, false)).to(getSpannerValue());
-	 }
+	}
 
 }

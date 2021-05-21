@@ -15,7 +15,10 @@
  */
 package io.datarouter.auth.service;
 
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,7 +66,7 @@ public class DatarouterUserCreationService{
 
 	public void createFirstAdminUser(String defaultPassword){
 		var user = new DatarouterUser();
-		populateGeneratedFields(user, CreateType.ADMIN, defaultPassword);
+		populateGeneratedFields(user, CreateType.ADMIN, defaultPassword, Optional.empty());
 		populateManualFields(user, datarouterProperties.getAdministratorEmail(), DEFAULT_ADMIN_ROLES, true);
 		finishCreate(user, ADMIN_ID, "Automatically created admin user.");
 		logger.warn("Created default admin user account");
@@ -89,7 +92,7 @@ public class DatarouterUserCreationService{
 			boolean shouldPersist){
 		roles.add(DatarouterUserRole.REQUESTOR.getRole());
 		var user = new DatarouterUser();
-		populateGeneratedFields(user, CreateType.AUTO, null);
+		populateGeneratedFields(user, CreateType.AUTO, null, Optional.empty());
 		populateManualFields(user, username, roles, true);
 		if(shouldPersist){
 			return finishCreate(user, ADMIN_ID, description);
@@ -102,18 +105,23 @@ public class DatarouterUserCreationService{
 			String username,
 			String password,
 			Set<Role> requestedRoles,
-			boolean enabled){
+			boolean enabled,
+			Optional<ZoneId> zoneId,
+			Optional<String> description){
 		var user = new DatarouterUser();
-		populateGeneratedFields(user, CreateType.MANUAL, password);
+		populateGeneratedFields(user, CreateType.MANUAL, password, zoneId);
 		populateManualFields(
 				user,
 				username,
 				datarouterUserService.getAllowedUserRoles(creator, requestedRoles),
 				enabled);
-		return finishCreate(user, creator.getId(), "User manually created by " + creator.getUsername());
+		String roles = user.getRoles().isEmpty() ? "" : (": roles: " + List.of() + " => " + user.getRoles());
+		String historyDescription = description.orElse("User manually created by " + creator.getUsername()) + roles;
+		return finishCreate(user, creator.getId(), historyDescription);
 	}
 
-	private void populateGeneratedFields(DatarouterUser user, CreateType type, String password){
+	private void populateGeneratedFields(DatarouterUser user, CreateType type, String password,
+			Optional<ZoneId> zoneId){
 		user.getKey().setId(type == CreateType.ADMIN ? ADMIN_ID : RandomTool.nextPositiveLong());
 		user.setUserToken(DatarouterTokenGenerator.generateRandomToken());
 
@@ -122,9 +130,12 @@ public class DatarouterUserCreationService{
 
 		//AUTO users have no passwords. ADMIN and MANUAL users do have passwords.
 		user.setPasswordSalt(type == CreateType.AUTO ? null : PasswordTool.generateSalt());
-		user.setPasswordDigest(type == CreateType.AUTO ? null : PasswordTool.digest(user.getPasswordSalt(), password));
+		user.setPasswordDigest(type == CreateType.AUTO || password == null ? null : PasswordTool.digest(user
+				.getPasswordSalt(), password));
 
-		user.setZoneId(datarouterService.getZoneId().getId());
+		if(zoneId.isPresent()){
+			user.setZoneId(datarouterService.getZoneId());
+		}
 	}
 
 	private void populateManualFields(DatarouterUser user, String username, Set<Role> roles, Boolean enabled){

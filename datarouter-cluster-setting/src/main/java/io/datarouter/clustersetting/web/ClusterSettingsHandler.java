@@ -64,7 +64,6 @@ import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
-import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
@@ -182,10 +181,10 @@ public class ClusterSettingsHandler extends BaseHandler{
 		ClusterSettingLogAction action = ClusterSettingLogAction.DELETED;
 		var result = new ClusterSettingActionResultJson(action);
 		ClusterSettingKey clusterSettingKey = parseClusterSettingKeyFromParams();
-		String comment = parseCommentFromParams();
+		Optional<String> comment = parseCommentFromParams();
 		String changedBy = getRequestorsUsername();
 		ClusterSetting clusterSetting = clusterSettingDao.get(clusterSettingKey);
-		var clusterSettingLog = new ClusterSettingLog(clusterSetting, action, changedBy, comment);
+		var clusterSettingLog = new ClusterSettingLog(clusterSetting, action, changedBy, comment.orElse(null));
 		clusterSettingDao.delete(clusterSettingKey);
 		clusterSettingLogDao.put(clusterSettingLog);
 		String oldValue = clusterSetting.getValue();
@@ -338,7 +337,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 
 	private ClusterSettingActionResultJson putSettingFromParams(){
 		ClusterSettingKey clusterSettingKey = parseClusterSettingKeyFromParams();
-		String comment = parseCommentFromParams();
+		Optional<String> comment = parseCommentFromParams();
 		String value = params.optional("value").orElse(null);
 		var newClusterSetting = new ClusterSetting(clusterSettingKey, value);
 		Optional<CachedSetting<?>> setting = settingRootFinder.getSettingByName(newClusterSetting.getName());
@@ -359,12 +358,15 @@ public class ClusterSettingsHandler extends BaseHandler{
 				.map(ClusterSetting::getValue)
 				.orElse("?");
 		String changedBy = getRequestorsUsername();
-		var clusterSettingLog = new ClusterSettingLog(newClusterSetting, action, changedBy, comment);
+		var log = new ClusterSettingLog(newClusterSetting, action, changedBy, comment.orElse(null));
 		clusterSettingDao.put(newClusterSetting);
-		clusterSettingLogDao.put(clusterSettingLog);
-		sendEmail(clusterSettingLog, oldValue);
-		recordChangelog(clusterSettingLog.getKey().getName(), clusterSettingLog.getAction().getPersistentString(),
-				clusterSettingLog.getChangedBy(), clusterSettingLog.getComment());
+		clusterSettingLogDao.put(log);
+		sendEmail(log, oldValue);
+		recordChangelog(
+				log.getKey().getName(),
+				log.getAction().getPersistentString(),
+				log.getChangedBy(),
+				Optional.ofNullable(log.getComment()));
 		return result.markSuccess();
 	}
 
@@ -384,10 +386,9 @@ public class ClusterSettingsHandler extends BaseHandler{
 		return getSessionInfo().getNonEmptyUsernameOrElse("");
 	}
 
-	private String parseCommentFromParams(){
+	private Optional<String> parseCommentFromParams(){
 		return params.optional("comment")
-				.filter(StringTool::notNullNorEmptyNorWhitespace)
-				.orElse(null);
+				.filter(StringTool::notNullNorEmptyNorWhitespace);
 	}
 
 	private ClusterSettingKey parseClusterSettingKeyFromParams(){
@@ -436,11 +437,10 @@ public class ClusterSettingsHandler extends BaseHandler{
 				.withParam("name", log.getKey().getName());
 	}
 
-	private void recordChangelog(String name, String action, String username, String comment){
-		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder("ClusterSetting", name, action, username)
-				.withComment(comment)
-				.build();
-		changelogRecorder.record(dto);
+	private void recordChangelog(String name, String action, String username, Optional<String> comment){
+		var dto = new DatarouterChangelogDtoBuilder("ClusterSetting", name, action, username);
+		comment.ifPresent(dto::withComment);
+		changelogRecorder.record(dto.build());
 	}
 
 	private class ClusterSettingChangeEmailContent{

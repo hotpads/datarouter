@@ -18,6 +18,7 @@ package io.datarouter.job.monitoring;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -68,7 +69,8 @@ public class JobRetriggeringJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		Scanner.of(injector.getInstances(triggerGroupClasses.get()))
+		List<? extends BaseTriggerGroup> triggerGroups = injector.getInstances(triggerGroupClasses.get());
+		Scanner.of(triggerGroups)
 				.concatIter(BaseTriggerGroup::getJobPackages)
 				.each(total::increment)
 				.include(JobPackage::usesLocking)

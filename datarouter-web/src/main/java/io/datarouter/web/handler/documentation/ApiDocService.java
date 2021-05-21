@@ -129,7 +129,15 @@ public class ApiDocService{
 				}
 				String responseTypeString = buildTypeString(responseType);
 				var response = new DocumentedResponseJspDto(responseTypeString, responseExample);
-				var endpoint = new DocumentedEndpointJspDto(url, implementation, parameters, description, response);
+				boolean isDeprecated = method.isAnnotationPresent(Deprecated.class)
+						|| handler.isAnnotationPresent(Deprecated.class);
+				var endpoint = new DocumentedEndpointJspDto(
+						url,
+						implementation,
+						parameters,
+						description,
+						response,
+						isDeprecated);
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);

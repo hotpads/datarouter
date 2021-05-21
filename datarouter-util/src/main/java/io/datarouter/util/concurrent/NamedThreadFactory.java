@@ -19,6 +19,8 @@ import java.util.Optional;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.datarouter.util.Require;
+
 public class NamedThreadFactory implements ThreadFactory{
 
 	protected final String groupName;
@@ -26,7 +28,7 @@ public class NamedThreadFactory implements ThreadFactory{
 	protected final AtomicInteger threadNumber = new AtomicInteger(1);
 
 	public NamedThreadFactory(String groupName, boolean makeDaemonsByDefault){
-		this.groupName = groupName;
+		this.groupName = Require.notBlank(groupName);
 		this.makeDaemonsByDefault = makeDaemonsByDefault;
 	}
 

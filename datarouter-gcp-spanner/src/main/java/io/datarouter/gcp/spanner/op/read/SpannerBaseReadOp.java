@@ -17,6 +17,7 @@ package io.datarouter.gcp.spanner.op.read;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.google.cloud.spanner.DatabaseClient;
@@ -78,16 +79,14 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 
 	protected <F> List<F> callClient(List<String> columnNames, List<Field<?>> fields, Supplier<F> object){
 		String spanName = getClass().getSimpleName();
-		Span opencensusSpan = null;
+		Optional<Span> opencensusSpan = Optional.empty();
 		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
 			opencensusSpan = DatarouterOpencensusTool.createOpencensusSpan();
 			List<F> results = callClientInternal(columnNames, fields, object);
 			TracerTool.appendToSpanInfo("got " + results.size());
 			return results;
 		}finally{
-			if(opencensusSpan != null){
-				opencensusSpan.end();
-			}
+			opencensusSpan.ifPresent(Span::end);
 		}
 	}
 

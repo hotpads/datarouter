@@ -96,6 +96,11 @@ public abstract class BaseManyFieldIntegrationTests{
 		Assert.assertNotSame(roundTrippedFalse, bean);
 		Assert.assertEquals(roundTrippedFalse.getBooleanField(), bean.getBooleanField());
 
+		//test null value
+		bean.setBooleanField(null);
+		dao.put(bean);
+		ManyFieldBean roundTrippedNull = dao.get(bean.getKey());
+		Assert.assertNull(roundTrippedNull.getBooleanField());
 	}
 
 	@Test

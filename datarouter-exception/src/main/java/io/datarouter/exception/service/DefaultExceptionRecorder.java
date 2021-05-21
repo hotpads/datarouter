@@ -204,13 +204,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				userRoles,
 				userToken.orElse(null),
 				omitPayload);
-		httpRequestRecord.trimContentType();
-		httpRequestRecord.trimAcceptCharset();
-		httpRequestRecord.trimXForwardedFor();
-		httpRequestRecord.trimPath();
-		httpRequestRecord.trimAcceptLanguage();
-		httpRequestRecord.trimOrigin();
-		httpRequestRecord.trimPragma();
+		httpRequestRecord.trimFields();
 		exceptionBuffers.httpRequestRecordBuffer.offer(httpRequestRecord);
 		httpRequestRecord.trimBinaryBody(HttpRequestRecordDto.BINARY_BODY_MAX_SIZE);
 		if(publish && settings.publishRecords.get()){

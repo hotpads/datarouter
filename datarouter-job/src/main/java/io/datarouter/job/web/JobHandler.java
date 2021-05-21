@@ -100,7 +100,7 @@ public class JobHandler extends BaseHandler{
 				.map(jobClass -> jobToTriggerJspDto(rowId.incrementAndGet(), jobClass, longRunningTaskSummary))
 				.collect(Collectors.toList());
 		mav.put("triggerRows", triggerRows);
-		mav.put("legend", LongRunningTasksHandler.legend());
+		mav.put("legend", LongRunningTasksHandler.legend().renderFormatted());
 		return mav;
 	}
 

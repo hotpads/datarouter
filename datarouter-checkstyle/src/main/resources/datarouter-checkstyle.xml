@@ -31,6 +31,7 @@
 		<property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
 		<property name="fileExtensions" value="java" />
 	</module>
+	<module name="SuppressWithPlainTextCommentFilter"/>
 	<module name="TreeWalker">
 		<module name="SuppressWarningsHolder" />
 		<module name="OuterTypeFilename"/>

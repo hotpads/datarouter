@@ -257,8 +257,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 				.map(ZoneId::of);
 	}
 
-	public void setZoneId(String zoneId){
-		this.zoneId = zoneId;
+	public void setZoneId(ZoneId zoneId){
+		this.zoneId = zoneId.getId();
 	}
 
 }

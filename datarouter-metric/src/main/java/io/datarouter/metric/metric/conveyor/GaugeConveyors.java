@@ -44,18 +44,18 @@ public class GaugeConveyors extends BaseConveyors{
 
 	@Override
 	public void onStartUp(){
-		start(new GaugeMemoryToSqsConveyor(
-				"gaugeMemoryToSqs",
-				settings.runGaugeMemoryToSqs,
-				settings.sendGaugesFromMemoryToSqs,
+		start(new GaugeMemoryToQueueConveyor(
+				"gaugeMemoryToQueue",
+				settings.runGaugeMemoryToQueue,
+				settings.sendGaugesFromMemoryToQueue,
 				dao::putMulti,
 				buffers.gaugeBuffer,
 				gson,
 				exceptionRecorder),
 				settings.memoryConveyorThreadCount.get());
-		start(new GaugeSqsDrainConveyor(
-				"gaugeSqsToPublisher",
-				settings.runGaugeSqsToPublisher,
+		start(new GaugeQueueDrainConveyor(
+				"gaugeQueueToPublisher",
+				settings.runGaugeQueueToPublisher,
 				dao.getGroupQueueConsumer(),
 				gson,
 				publisher,

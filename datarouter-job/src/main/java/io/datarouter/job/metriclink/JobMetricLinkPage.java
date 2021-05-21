@@ -42,7 +42,8 @@ public abstract class JobMetricLinkPage implements MetricLinkPage{
 	}
 
 	protected List<MetricLinkDto> buildMetricLinks(boolean isSystem){
-		return Scanner.of(injector.getInstances(triggerGroupClasses.get()))
+		List<? extends BaseTriggerGroup> triggerGroups = injector.getInstances(triggerGroupClasses.get());
+		return Scanner.of(triggerGroups)
 				.include(triggerGroup -> {
 					if(isSystem){
 						return triggerGroup.isSystemTriggerGroup;

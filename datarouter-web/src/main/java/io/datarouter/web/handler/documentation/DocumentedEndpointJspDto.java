@@ -24,14 +24,16 @@ public class DocumentedEndpointJspDto{
 	private final List<DocumentedParameterJspDto> parameters;
 	private final String description;
 	private final DocumentedResponseJspDto response;
+	private final boolean isDeprecated;
 
 	public DocumentedEndpointJspDto(String url, String implementation, List<DocumentedParameterJspDto> parameters,
-			String description, DocumentedResponseJspDto response){
+			String description, DocumentedResponseJspDto response, boolean isDeprecated){
 		this.url = url;
 		this.implementation = implementation;
 		this.parameters = parameters;
 		this.description = description;
 		this.response = response;
+		this.isDeprecated = isDeprecated;
 	}
 
 	public String getUrl(){
@@ -52,6 +54,10 @@ public class DocumentedEndpointJspDto{
 
 	public DocumentedResponseJspDto getResponse(){
 		return response;
+	}
+
+	public boolean getIsDeprecated(){
+		return isDeprecated;
 	}
 
 }

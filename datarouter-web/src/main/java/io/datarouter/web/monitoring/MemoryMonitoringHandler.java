@@ -72,8 +72,6 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	@Inject
 	private ManifestDetails manifestDetails;
 	@Inject
-	private HostMemoryService hostMemoryService;
-	@Inject
 	private OutgoingIpFinderService ipService;
 
 	@Handler
@@ -115,13 +113,13 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		MemoryUsage nonHeapMemoryUsage = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
 		mav.put("nonHeap", new MemoryUsageForDisplay(nonHeapMemoryUsage));
 
-		hostMemoryService.getHostMemoryStats().ifSuccess(hostMemoryStats -> {
+		HostMemoryTool.getHostMemoryStats().ifSuccess(hostMemoryStats -> {
 			mav.put("hostMemoryUsed", ByteUnitTool.byteCountToDisplaySize(hostMemoryStats.get(
-					HostMemoryService.HOST_MEM_NAME).get(HostMemoryService.HOST_USED_LABEL)));
+					HostMemoryTool.HOST_MEM_NAME).get(HostMemoryTool.HOST_USED_LABEL)));
 			mav.put("hostMemoryTotal", ByteUnitTool.byteCountToDisplaySize(hostMemoryStats.get(
-					HostMemoryService.HOST_MEM_NAME).get(HostMemoryService.HOST_TOTAL_LABEL)));
+					HostMemoryTool.HOST_MEM_NAME).get(HostMemoryTool.HOST_TOTAL_LABEL)));
 		});
-		hostMemoryService.getCgroupMemoryStats().ifSuccess(cgroupMemoryStats -> {
+		HostMemoryTool.getCgroupMemoryStats().ifSuccess(cgroupMemoryStats -> {
 			mav.put("cgroupMemoryUsage", ByteUnitTool.byteCountToDisplaySize(cgroupMemoryStats.usage));
 			mav.put("cgroupMemoryLimit", ByteUnitTool.byteCountToDisplaySize(cgroupMemoryStats.limit));
 		});

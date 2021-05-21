@@ -52,7 +52,7 @@ implements OpencensusAdapter{
 			return Optional.empty();
 		}
 		try{
-			return Optional.of(DatarouterOpencensusTool.createOpencensusSpan());
+			return DatarouterOpencensusTool.createOpencensusSpan();
 		}catch(Exception e){
 			logger.error("", e);
 			return Optional.empty();

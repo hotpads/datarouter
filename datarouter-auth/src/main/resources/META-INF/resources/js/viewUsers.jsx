@@ -44,11 +44,13 @@ class Users extends React.Component{
 			filteredUsers: [],
 			index: 0,
 			requestorsOnly: false,
-			emailFilter: ""
+			emailFilter: "",
+			listRefreshTimestamp: Date.now()
 		}
 		this.loadStartPage = this.loadStartPage.bind(this)
 		this.loadPrevPage = this.loadPrevPage.bind(this)
 		this.loadNextPage = this.loadNextPage.bind(this)
+		this.refreshList = this.refreshList.bind(this)
 		this.loadData = this.loadData.bind(this)
 		this.handleRequestorToggle = this.handleRequestorToggle.bind(this)
 		this.handleEmailFilter = this.handleEmailFilter.bind(this)
@@ -72,9 +74,22 @@ class Users extends React.Component{
 		}))
 	}
 
-	loadData(){
-		fetch("listUsers", FETCH_OPTIONS)//TODO DATAROUTER-2788 (and path)
+	fetchUsers(){
+		return fetch("listUsers", FETCH_OPTIONS)//TODO DATAROUTER-2788 (and path)
 				.then(response => response.json())
+	}
+
+	refreshList(){
+		this.fetchUsers()
+				.then(json => this.setState({
+					users: json,
+					filteredUsers: this.applyFilters(json, this.state.requestorsOnly, this.state.emailFilter),
+					listRefreshTimestamp: Date.now()
+				}))
+	}
+
+	loadData(){
+		this.fetchUsers()
 				.then(json => this.setState({
 					users: json,
 					filteredUsers: json
@@ -124,6 +139,9 @@ class Users extends React.Component{
 	render(){
 		if(!this.props.display){
 			return null
+		}
+		if(this.props.requestListRefreshTimestamp > this.state.listRefreshTimestamp){
+			this.refreshList()
 		}
 		return(
 			<div>
@@ -295,7 +313,6 @@ class ViewUser extends React.Component{
 				</div>
 			</div>
 		}
-
 		const deprovisioned = this.state.loaded && !this.state.deprovisionedUserDto.status.isUserEditable
 		return this.state.loaded && <div>
 			{header}
@@ -306,6 +323,10 @@ class ViewUser extends React.Component{
 				hasOpenPermissionRequest={this.state.requests.length > 0 && !this.state.requests[0].resolution} />
 			<ProvisioningStatusCard deprovisionedUserDto={this.state.deprovisionedUserDto}
 				refresh={this.refresh} />
+			<CopyUserFormCard updateUserDetails={this.updateUserDetails}
+				username={this.state.username}
+				disabled={false}
+				requestListRefresh={this.props.requestListRefresh} />
 			<EditRolesAndAccountsCard id={this.state.id}
 				username={this.state.username}
 				token={this.state.token}
@@ -456,6 +477,50 @@ class ProvisioningStatusForm extends React.Component{
 }
 
 const ProvisioningStatusCard = withAlertCardContainer(ProvisioningStatusForm, 'Provisioning Status')
+
+class CopyUserForm extends React.Component{
+
+	constructor(props){
+		super(props)
+		this.handleNewUsernameInput = this.handleNewUsernameInput.bind(this)
+		this.handleCopy = this.handleCopy.bind(this)
+
+		this.state = {
+			newUsername: ''
+		}
+	}
+
+	handleNewUsernameInput(event){
+		this.setState({newUsername: event.target.value})
+	}
+
+	handleCopy(event){
+		event.preventDefault()
+		const query = '?oldUsername=' + this.props.username + '&newUsername=' + this.state.newUsername
+		doFetch(PATHS.copyUser + query, {}, {}, userDetails => {
+					if(userDetails.success){
+						this.props.updateUserDetails(userDetails, () => {this.setState({newUsername: ''})})
+					}else{
+						this.props.handleDanger('Failed to copy user. ' + userDetails.message)
+					}
+				}, error => {
+					this.props.handleDanger('Failed to copy user. ' + error)
+				})
+		this.props.requestListRefresh()
+	}
+
+	render(){
+		return <form class="form-inline">
+			<div class="form-group mr-3">
+				<label for="newUsername" class="mr-3">Recipient Username</label>
+				<input type="text" class="form-control" id="newUsername" disabled={this.props.disabled} value={this.state.newUsername} onChange={this.handleNewUsernameInput}/>
+			</div>
+			<button type="submit" class="btn btn-primary" disabled={this.props.disabled} onClick={this.handleCopy}>Copy User Details</button>
+		</form>
+	}
+}
+
+const CopyUserFormCard = withAlertCardContainer(CopyUserForm, 'Copy User Details')
 
 class EditRolesAndAccounts extends React.Component{
 
@@ -655,6 +720,7 @@ class ListAndEditUserPage extends React.Component{
 
 		this.openEditUser = this.openEditUser.bind(this)
 		this.closeEditUser = this.closeEditUser.bind(this)
+		this.requestListRefresh = this.requestListRefresh.bind(this)
 		this.handleOnPopState = this.handleOnPopState.bind(this)
 
 		window.onpopstate = this.handleOnPopState
@@ -664,7 +730,8 @@ class ListAndEditUserPage extends React.Component{
 		const usernameToEdit = INITIAL_USERNAME
 		return {
 			activeUsername: usernameToEdit ? usernameToEdit : null,
-			isEditing: usernameToEdit ? true : false
+			isEditing: usernameToEdit ? true : false,
+			requestListRefreshTimestamp: Date.now()
 		}
 	}
 
@@ -685,6 +752,10 @@ class ListAndEditUserPage extends React.Component{
 		})
 	}
 
+	requestListRefresh(){
+		this.setState({requestListRefreshTimestamp: Date.now()})
+	}
+
 	handleOnPopState(event){
 		const stateToLoad = event.state ? event.state : this.determineInitialState()
 		//avoid setting activeUsername unless the user is actually being edited, since it can trigger API requests
@@ -697,9 +768,11 @@ class ListAndEditUserPage extends React.Component{
 			<ViewUser display={this.state.isEditing === true}
 				key={this.state.activeUsername}
 				defaultUsername={this.state.activeUsername}
-				closeEditUser={this.closeEditUser}/>
+				closeEditUser={this.closeEditUser}
+				requestListRefresh={this.requestListRefresh}/>
 			<Users display={this.state.isEditing === false}
-				openEditUser={this.openEditUser}/>
+				openEditUser={this.openEditUser}
+				requestListRefreshTimestamp={this.state.requestListRefreshTimestamp}/>
 		</div>
 	}
 

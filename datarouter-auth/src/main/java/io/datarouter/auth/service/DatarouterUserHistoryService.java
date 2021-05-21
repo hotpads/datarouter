@@ -35,9 +35,9 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestD
 import io.datarouter.auth.storage.user.DatarouterUserDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
-import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.user.databean.DatarouterUser;
 import j2html.tags.ContainerTag;
@@ -95,6 +95,11 @@ public class DatarouterUserHistoryService{
 	public void putAndRecordRoleEdit(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
 		doPutAndRecordEdit(user, history);
 		sendRoleEditEmail(user, history, signinUrl);
+	}
+
+	public void recordMessage(DatarouterUser user, DatarouterUser editor, String message){
+		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), new Date(), editor.getId(),
+				DatarouterUserChangeType.INFO, message));
 	}
 
 	public void recordDeprovisions(List<DatarouterUser> users, Optional<DatarouterUser> editor){

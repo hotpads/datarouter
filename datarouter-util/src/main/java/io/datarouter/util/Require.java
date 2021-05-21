@@ -128,6 +128,13 @@ public class Require{
 		}
 	}
 
+	public static String notBlank(String string){
+		if(string == null || Java11.isBlank(string)){
+			throw new IllegalArgumentException();
+		}
+		return string;
+	}
+
 	public static <T,C extends Collection<T>> C notEmpty(C items){
 		return notEmpty(items, null);
 	}

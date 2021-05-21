@@ -249,13 +249,21 @@
 				<div class="card" id="${endpoint.url}">
 					<div class="card-header">
 						<a tabindex="0" data-toggle="collapse" data-target="#${collapseId}" data-url="${endpoint.url}">
-							${endpoint.url}
+						<c:choose>
+							<c:when test="${endpoint.isDeprecated}"><strike>${endpoint.url}</strike></c:when>
+							<c:otherwise>${endpoint.url}</c:otherwise>
+						</c:choose>
 						</a>
 						<span class="float-right text-muted">${endpoint.description}</span>
 					</div>
 					<div id="${collapseId}" class="collapse" data-parent="#accordion">
 						<div class="card-body">
 							<b>Handler:</b> ${endpoint.implementation}
+							<c:choose>
+								<c:when test="${endpoint.isDeprecated}">
+									<span class="badge badge-warning">Deprecated</span>
+								</c:when>
+							</c:choose>
 							<h3>Parameters</h3>
 							<form id="parameterForm" method="POST">
 							<c:choose>

@@ -82,7 +82,8 @@ public class DatarouterUserEditService{
 			Boolean enabled,
 			String signinUrl,
 			Set<DatarouterAccountKey> requestedAccounts,
-			String zoneId){
+			Optional<ZoneId> optionalZoneId,
+			Optional<String> description){
 		var history = new DatarouterUserHistory(user.getId(), new Date(), editor.getId(), DatarouterUserChangeType.EDIT,
 				null);
 		List<String> changes = new ArrayList<>();
@@ -115,31 +116,28 @@ public class DatarouterUserEditService{
 		}
 
 		handleAccountChanges(user, requestedAccounts).ifPresent(changes::add);
-
-		if(zoneId != null){
+		optionalZoneId.ifPresent(zoneId -> {
 			Optional<ZoneId> currentZoneId = user.getZoneId();
-			boolean sameZoneId = currentZoneId
-					.map(ZoneId::getId)
-					.orElse("")
-					.equals(zoneId);
+			boolean sameZoneId = currentZoneId.isPresent() && currentZoneId.get().equals(zoneId);
 			if(!sameZoneId){
 				user.setZoneId(zoneId);
-				changes.add(change("timezone", currentZoneId.map(ZoneId::getId).orElse(""), zoneId));
+				changes.add(change("timezone", currentZoneId.map(ZoneId::getId).orElse(""), zoneId.getId()));
 			}
-		}
+		});
 
-		if(changes.size() > 0){
-			history.setChanges(String.join(", ", changes));
+		if(changes.size() > 0 || description.isPresent()){
+			String colon = changes.size() > 0 && description.isPresent() ? ": " : "";
+			history.setChanges(description.orElse("") + colon + String.join(", ", changes));
 			userHistoryService.putAndRecordRoleEdit(user, history, signinUrl);
 			if(shouldUpdateSessions || shouldDeleteSessions){
-				List<DatarouterSession> sessions = datarouterSessionDao.scan()
-						.include(session -> session.getUserToken().equals(user.getUserToken()))
-						.list();
+				Scanner<DatarouterSession> sessions = datarouterSessionDao.scan()
+						.include(session -> session.getUserToken().equals(user.getUserToken()));
 				if(shouldDeleteSessions){
-					Scanner.of(sessions).map(DatarouterSession::getKey).flush(datarouterSessionDao::deleteMulti);
+					sessions.map(DatarouterSession::getKey)
+							.flush(datarouterSessionDao::deleteMulti);
 				}else{
-					sessions.forEach(session -> session.setRoles(user.getRoles()));
-					datarouterSessionDao.putMulti(sessions);
+					sessions.each(session -> session.setRoles(user.getRoles()))
+							.flush(datarouterSessionDao::putMulti);
 				}
 			}
 			var dto = new DatarouterChangelogDtoBuilder(
@@ -149,7 +147,7 @@ public class DatarouterUserEditService{
 					editor.getUsername())
 					.withComment(String.join(", ", changes))
 					.build();
-			changelogRecorder.record(dto);;
+			changelogRecorder.record(dto);
 		}else{
 			logger.warn("User {} submitted edit request for user {}, but no changes were made.", editor.toString(),
 					user.toString());

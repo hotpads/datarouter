@@ -30,20 +30,20 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> saveGauges;
 
 	/**
-	 * Additional setting to control running gauges from memory to sqs. Could be useful if you want to drain the buffer
-	 * and not send messages to sqs.
+	 * Additional setting to control running gauges from memory to queue. Could be useful if you want to drain the
+	 * buffer and not send messages to queues.
 	 */
-	public final CachedSetting<Boolean> sendGaugesFromMemoryToSqs;
+	public final CachedSetting<Boolean> sendGaugesFromMemoryToQueue;
 
 	/**
-	 * Used to run gauges from memory to sqs
+	 * Used to run gauges from memory to queues
 	 */
-	public final CachedSetting<Boolean> runGaugeMemoryToSqs;
+	public final CachedSetting<Boolean> runGaugeMemoryToQueue;
 
 	/**
-	 * Used to run gauges from sqs to publisher
+	 * Used to run gauges from queues to publisher
 	 */
-	public final CachedSetting<Boolean> runGaugeSqsToPublisher;
+	public final CachedSetting<Boolean> runGaugeQueueToPublisher;
 
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
 	public final CachedSetting<Integer> memoryConveyorThreadCount;
@@ -55,12 +55,12 @@ public class DatarouterGaugeSettingRoot extends SettingRoot{
 
 		saveGauges = registerBooleans("saveGauges", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
-		sendGaugesFromMemoryToSqs = registerBooleans("sendGaugesFromMemoryToSqs", defaultTo(false)
+		sendGaugesFromMemoryToQueue = registerBooleans("sendGaugesFromMemoryToQueue", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
 
-		runGaugeMemoryToSqs = registerBooleans("runGaugeMemoryToSqs", defaultTo(false)
+		runGaugeMemoryToQueue = registerBooleans("runGaugeMemoryToQueue", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
-		runGaugeSqsToPublisher = registerBooleans("runGaugeSqsToPublisher", defaultTo(false)
+		runGaugeQueueToPublisher = registerBooleans("runGaugeQueueToPublisher", defaultTo(false)
 				.withTag(DatarouterSettingTagType.GAUGEPIPELINE, () -> true));
 
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);

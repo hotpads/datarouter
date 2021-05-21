@@ -39,6 +39,7 @@ import com.amazonaws.services.rds.model.Tag;
 
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings;
 import io.datarouter.aws.rds.config.DatarouterAwsRdsConfigSettings.RdsCredentialsDto;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.retry.RetryableTool;
 
@@ -55,6 +56,13 @@ public class RdsService{
 				.filter(m -> !m.isClusterWriter())
 				.map(DBClusterMember::getDBInstanceIdentifier)
 				.collect(Collectors.toList());
+	}
+
+	public boolean isReaderInstance(String instanceName, String clusterName){
+		return Scanner.of(getCluster(clusterName).getDBClusterMembers())
+				.include(clusterMember -> !clusterMember.isClusterWriter())
+				.map(DBClusterMember::getDBInstanceIdentifier)
+				.anyMatch(instanceId -> instanceId.equals(instanceName));
 	}
 
 	public DBInstance getInstance(String instanceName){

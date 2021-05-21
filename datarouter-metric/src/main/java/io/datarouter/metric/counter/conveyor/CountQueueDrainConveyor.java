@@ -31,13 +31,13 @@ import io.datarouter.instrumentation.count.CountPublisher;
 import io.datarouter.instrumentation.response.PublishingResponseDto;
 import io.datarouter.web.exception.ExceptionRecorder;
 
-public class CountSqsDrainConveyor extends BaseQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
-	private static final Logger logger = LoggerFactory.getLogger(CountSqsDrainConveyor.class);
+public class CountQueueDrainConveyor extends BaseQueueConsumerConveyor<ConveyorMessageKey,ConveyorMessage>{
+	private static final Logger logger = LoggerFactory.getLogger(CountQueueDrainConveyor.class);
 
 	private final CountPublisher publisher;
 	private final Gson gson;
 
-	public CountSqsDrainConveyor(
+	public CountQueueDrainConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
 			QueueConsumer<ConveyorMessageKey,ConveyorMessage> queueConsumer,

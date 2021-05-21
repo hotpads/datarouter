@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -164,7 +165,8 @@ public class AdminEditUserHandler extends BaseHandler{
 				.collect(Collectors.toSet());
 		boolean enabled = params.optionalBoolean(authenticationConfig.getEnabledParam(), true);
 
-		datarouterUserCreationService.createManualUser(currentUser, username, password, requestedRoles, enabled);
+		datarouterUserCreationService.createManualUser(currentUser, username, password, requestedRoles, enabled,
+				Optional.empty(), Optional.empty());
 		return new InContextRedirectMav(request, paths.admin.viewUsers);
 	}
 
@@ -220,7 +222,7 @@ public class AdminEditUserHandler extends BaseHandler{
 			return null;
 		}
 
-		Set<Role> userRoles = Scanner.of(dto.currentRoles.entrySet())
+		Set<Role> requestedUserRoles = Scanner.of(dto.currentRoles.entrySet())
 				.include(Entry::getValue)
 				.map(Entry::getKey)
 				.map(roleManager::getRoleFromPersistentString)
@@ -230,8 +232,8 @@ public class AdminEditUserHandler extends BaseHandler{
 				.map(Entry::getKey)
 				.map(DatarouterAccountKey::new)
 				.collect(HashSet::new);
-		datarouterUserEditService.editUser(userToEdit, currentUser, userRoles, null, getSigninUrl(),
-				requestedAccounts, dto.currentZoneId);
+		datarouterUserEditService.editUser(userToEdit, currentUser, requestedUserRoles, null, getSigninUrl(),
+				requestedAccounts, Optional.ofNullable(dto.currentZoneId).map(ZoneId::of), Optional.empty());
 		return getEditUserDetailsDto(dto.username);
 	}
 
@@ -243,16 +245,68 @@ public class AdminEditUserHandler extends BaseHandler{
 				|| StringTool.isNullOrEmptyOrWhitespace(dto.newPassword)){
 			return new EditUserDetailsDto("Invalid request.");
 		}
-		DatarouterUser currentUser = getCurrentUser();
+		DatarouterUser editor = getCurrentUser();
 		DatarouterUser userToEdit = datarouterUserDao.getByUsername(new DatarouterUserByUsernameLookup(dto.username));
-		if(!checkEditPermission(currentUser, userToEdit, datarouterUserService::canEditUserPassword)){
+		if(!checkEditPermission(editor, userToEdit, datarouterUserService::canEditUserPassword)){
 			return null;
 		}
 		if(!datarouterUserService.canHavePassword(userToEdit)){
 			return new EditUserDetailsDto("This user is externally authenticated and cannot have a password.");
 		}
-		datarouterUserEditService.changePassword(userToEdit, currentUser, dto.newPassword, getSigninUrl());
+		datarouterUserEditService.changePassword(userToEdit, editor, dto.newPassword, getSigninUrl());
 		return getEditUserDetailsDto(userToEdit.getUsername());
+	}
+
+	@Handler
+	private EditUserDetailsDto copyUser(String oldUsername, String newUsername){
+		if(StringTool.isNullOrEmptyOrWhitespace(oldUsername)
+				|| StringTool.isNullOrEmptyOrWhitespace(newUsername)){
+			return new EditUserDetailsDto("Invalid request.");
+		}
+		DatarouterUser editor = getCurrentUser();
+		DatarouterUser oldUser = datarouterUserDao.getByUsername(new DatarouterUserByUsernameLookup(oldUsername));
+		if(editor.getUsername().equals(oldUser.getUsername())){
+			return new EditUserDetailsDto("Cannot copy yourself.");
+		}
+		if(!datarouterUserService.canEditUser(editor, oldUser)){
+			return new EditUserDetailsDto("Cannot copy user.");
+		}
+
+		Set<Role> requestedRoles;
+		if(oldUser.isEnabled()){
+			requestedRoles = new HashSet<>(oldUser.getRoles());
+		}else{
+			//copy roles from deprovisioned user info, if present
+			requestedRoles = deprovisionedUserDao.find(new DeprovisionedUserKey(oldUsername))
+					.map(DeprovisionedUser::getRoles)
+					.orElseGet(HashSet::new);
+		}
+		Set<DatarouterAccountKey> requestedAccounts = Scanner.of(datarouterAccountUserService.findAccountNamesForUser(
+				oldUser))
+				.map(DatarouterAccountKey::new)
+				.collect(Collectors.toCollection(HashSet::new));
+		Optional<ZoneId> zoneId = oldUser.getZoneId();
+
+		//if newUser exists, do an "edit"; else do a "create" then "edit" (since accounts are not set in "create")
+		DatarouterUser newUser = datarouterUserDao.getByUsername(new DatarouterUserByUsernameLookup(newUsername));
+		var description = Optional.of("User copied from " + oldUsername + " by " + editor.getUsername());
+		if(newUser == null){
+			newUser = datarouterUserCreationService.createManualUser(editor, newUsername, null, requestedRoles, true,
+					zoneId, description);
+		}else{
+			//preserve existing roles and accounts that are not present on the source user of the copy
+			requestedRoles.addAll(newUser.getRoles());
+			Scanner.of(datarouterAccountUserService.findAccountNamesForUser(newUser))
+					.map(DatarouterAccountKey::new)
+					.forEach(requestedAccounts::add);
+		}
+		var signinUrl = getSigninUrl();
+		datarouterUserEditService.editUser(newUser, editor, requestedRoles, true, signinUrl, requestedAccounts, zoneId,
+				description);
+		//add history to user that was copied from
+		datarouterUserHistoryService.recordMessage(oldUser, editor, "User copied to " + newUsername + " by " + editor
+				.getUsername());
+		return getEditUserDetailsDto(oldUsername);
 	}
 
 	/*----------------- helpers --------------------*/
@@ -351,7 +405,8 @@ public class AdminEditUserHandler extends BaseHandler{
 	}
 
 	private Map<String,String> buildPaths(String contextPath){
-		return Map.of(
+		Map<String,String> allPaths = new HashMap<>();
+		allPaths.putAll(Map.of(
 				"editUser", getPath(contextPath, paths.admin.editUser),
 				"getUserDetails", getPath(contextPath, paths.admin.getUserDetails),
 				"listUsers", getPath(contextPath, paths.admin.listUsers),
@@ -361,7 +416,10 @@ public class AdminEditUserHandler extends BaseHandler{
 				"permissionRequest", getPath(contextPath, paths.permissionRequest),
 				"declinePermissionRequests", getPath(contextPath, paths.permissionRequest.declinePermissionRequests),
 				"deprovisionUsers", getPath(contextPath, paths.userDeprovisioning.deprovisionUsers),
-				"restoreUsers", getPath(contextPath, paths.userDeprovisioning.restoreUsers));
+				"restoreUsers", getPath(contextPath, paths.userDeprovisioning.restoreUsers)));
+		//too many to fit in Map.of anymore
+		allPaths.put("copyUser", getPath(contextPath, paths.admin.copyUser));
+		return allPaths;
 	}
 
 	private static String getPath(String contextPath, PathNode pathNode){

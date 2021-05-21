@@ -624,6 +624,16 @@ extends BaseDatabean<PK,D>{
 		return binaryBody;
 	}
 
+	public void trimFields(){
+		trimContentType();
+		trimAcceptCharset();
+		trimXForwardedFor();
+		trimPath();
+		trimAcceptLanguage();
+		trimOrigin();
+		trimPragma();
+	}
+
 	public void trimBinaryBody(int size){
 		int originalLength = binaryBody.length;
 		if(originalLength > size){

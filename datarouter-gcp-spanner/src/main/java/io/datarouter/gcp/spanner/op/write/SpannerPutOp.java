@@ -121,9 +121,7 @@ extends SpannerBaseWriteOp<D>{
 			}
 		}
 		for(SpannerBaseFieldCodec<?,?> codec : nonKeyCodecs){
-			if(codec.getField().getValue() != null){
-				mutation = codec.setMutation(mutation);
-			}
+			mutation = codec.setMutation(mutation);
 		}
 		return mutation.build();
 	}
