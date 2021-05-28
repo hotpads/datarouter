@@ -21,7 +21,7 @@
 
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-metadata-parent</artifactId>
-	<version>0.0.74</version>
+	<version>0.0.75</version>
 	<packaging>pom</packaging>
 
 	<name>datarouter-metadata-parent</name>

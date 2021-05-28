@@ -500,6 +500,7 @@ class CopyUserForm extends React.Component{
 		doFetch(PATHS.copyUser + query, {}, {}, userDetails => {
 					if(userDetails.success){
 						this.props.updateUserDetails(userDetails, () => {this.setState({newUsername: ''})})
+						this.props.handleSuccess('Successfully copied.')
 					}else{
 						this.props.handleDanger('Failed to copy user. ' + userDetails.message)
 					}

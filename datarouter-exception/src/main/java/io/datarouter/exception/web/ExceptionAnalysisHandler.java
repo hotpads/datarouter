@@ -44,7 +44,6 @@ import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
-import io.datarouter.exception.storage.httprecord.HttpRequestRecord.HttpRequestRecordByExceptionRecord;
 import io.datarouter.exception.storage.metadata.DatarouterExceptionRecordSummaryMetadataDao;
 import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadata;
 import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadataKey;
@@ -142,16 +141,13 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		if(record == null){
 			return new MessageMav("Exception record with id=" + exceptionRecordId + " does not exist");
 		}
-		HttpRequestRecordJspDto httpRequestRecordJspDto = null;
 		mav.put("exceptionRecord", toJspDto(record));
 		mav.put("coloredStackTrace", exceptionService.getColorized(record.getStackTrace()));
 		mav.put("shortStackTrace", exceptionService.getShortStackTrace(record.getStackTrace()));
 		mav.put("serviceName", record.getServiceName());
-		HttpRequestRecord httpRequestRecord = getHttpRequestRecord(record);
-		if(httpRequestRecord != null){
-			httpRequestRecordJspDto = toJspDto(httpRequestRecord);
-			mav.put("httpRequestRecord", httpRequestRecordJspDto);
-		}
+		findHttpRequestRecord(record)
+				.map(this::toJspDto)
+				.ifPresent(dto -> mav.put("httpRequestRecord", dto));
 		mav.put("browsePath", paths.datarouter.exception.browse.toSlashedString());
 		return mav;
 	}
@@ -220,9 +216,9 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		return exceptionRecordDao.get(new ExceptionRecordKey(id));
 	}
 
-	protected HttpRequestRecord getHttpRequestRecord(ExceptionRecord exceptionRecord){
-		var key = new HttpRequestRecordByExceptionRecord(exceptionRecord);
-		return httpRequestRecordDao.lookupUnique(key);
+	protected Optional<HttpRequestRecord> findHttpRequestRecord(ExceptionRecord exceptionRecord){
+		return httpRequestRecordDao.scanByExceptionRecordIdPrefix(exceptionRecord.getKey().getId())
+				.findFirst();
 	}
 
 	protected ExceptionRecordSummaryMetadataKey getExceptionRecordSummaryMetadataKey(

@@ -165,17 +165,17 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		return jobExecutionStatus.isBadState;
 	}
 
-	public String getHeartbeatStatus(){
+	public LongRunningTaskHeartBeatStatus getHeartbeatStatus(){
 		if(heartbeatTime == null || !isRunning()){
 			return null;
 		}
 		Duration elapsed = DurationTool.sinceDate(heartbeatTime);
 		if(ComparableTool.gt(elapsed, HEARTBEAT_STATUS_STALLED)){
-			return "stalled";
+			return LongRunningTaskHeartBeatStatus.STALLED;
 		}else if(ComparableTool.gt(elapsed, HEARTBEAT_STATUS_WARNING)){
-			return "warning";
+			return LongRunningTaskHeartBeatStatus.WARNING;
 		}else{
-			return "ok";
+			return LongRunningTaskHeartBeatStatus.OK;
 		}
 	}
 

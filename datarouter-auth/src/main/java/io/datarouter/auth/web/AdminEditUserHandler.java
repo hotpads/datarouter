@@ -35,6 +35,7 @@ import javax.inject.Inject;
 
 import io.datarouter.auth.config.DatarouterAuthFiles;
 import io.datarouter.auth.config.DatarouterAuthPaths;
+import io.datarouter.auth.service.CopyUserListener;
 import io.datarouter.auth.service.DatarouterAccountUserService;
 import io.datarouter.auth.service.DatarouterUserCreationService;
 import io.datarouter.auth.service.DatarouterUserEditService;
@@ -112,6 +113,8 @@ public class AdminEditUserHandler extends BaseHandler{
 	private DatarouterService datarouterService;
 	@Inject
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
+	@Inject
+	private CopyUserListener copyUserListener;
 
 	@Handler
 	private Mav viewUsers(){
@@ -306,6 +309,7 @@ public class AdminEditUserHandler extends BaseHandler{
 		//add history to user that was copied from
 		datarouterUserHistoryService.recordMessage(oldUser, editor, "User copied to " + newUsername + " by " + editor
 				.getUsername());
+		copyUserListener.onCopiedUser(oldUsername, newUsername);
 		return getEditUserDetailsDto(oldUsername);
 	}
 

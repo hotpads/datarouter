@@ -17,6 +17,8 @@ package io.datarouter.auth.config;
 
 import java.util.List;
 
+import io.datarouter.auth.service.CopyUserListener;
+import io.datarouter.auth.service.CopyUserListener.DefaultCopyUserListener;
 import io.datarouter.auth.service.DatarouterUserInfo;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeys;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
@@ -72,6 +74,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 	private final Class<? extends UserInfo> userInfoClass;
 	private final Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass;
 	private final Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass;
+	private final Class<? extends CopyUserListener> copyUserListenerClass;
 	private final String defaultDatarouterUserPassword;
 	private final String defaultApiKey;
 	private final String defaultSecretKey;
@@ -82,12 +85,14 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			Class<? extends UserInfo> userInfoClass,
 			Class<? extends UserDeprovisioningStrategy> userDeprovisioningStrategyClass,
 			Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass,
+			Class<? extends CopyUserListener> copyUserListenerClass,
 			String defaultDatarouterUserPassword,
 			String defaultApiKey,
 			String defaultSecretKey){
 		this.userInfoClass = userInfoClass;
 		this.userDeprovisioningStrategyClass = userDeprovisioningStrategyClass;
 		this.userDeprovisioningListenersClass = userDeprovisioningListenersClass;
+		this.copyUserListenerClass = copyUserListenerClass;
 		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
 		this.defaultApiKey = defaultApiKey;
 		this.defaultSecretKey = defaultSecretKey;
@@ -132,6 +137,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		bind(UserInfo.class).to(userInfoClass);
 		bind(UserDeprovisioningStrategy.class).to(userDeprovisioningStrategyClass);
 		bindActual(UserDeprovisioningListeners.class, userDeprovisioningListenersClass);
+		bindActual(CopyUserListener.class, copyUserListenerClass);
 		bindActualInstance(DefaultDatarouterUserPasswordSupplier.class,
 				new DefaultDatarouterUserPassword(defaultDatarouterUserPassword));
 		bindActualInstance(DefaultDatarouterAccountKeysSupplier.class,
@@ -148,6 +154,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 				DatarouterUserDeprovisioningStrategy.class;
 		private Class<? extends UserDeprovisioningListeners> userDeprovisioningListenersClass =
 				EmptyUserDeprovisioningListeners.class;
+		private Class<? extends CopyUserListener> copyUserListenerClass = DefaultCopyUserListener.class;
 		private String defaultDatarouterUserPassword = "";
 		private String defaultApiKey = "";
 		private String defaultSecretKey = "";
@@ -178,6 +185,12 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterAuthPluginBuilder setCopyUserListenerClass(
+				Class<? extends CopyUserListener> copyUserListenerClass){
+			this.copyUserListenerClass = copyUserListenerClass;
+			return this;
+		}
+
 		public DatarouterAuthPlugin build(){
 			return new DatarouterAuthPlugin(
 					enableUserAuth,
@@ -195,6 +208,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 					userInfoClass,
 					userDeprovisioningStrategyClass,
 					userDeprovisioningListenersClass,
+					copyUserListenerClass,
 					defaultDatarouterUserPassword,
 					defaultApiKey,
 					defaultSecretKey);

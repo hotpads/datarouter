@@ -431,7 +431,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	@Override
 	public Optional<S3Object> findLastModifiedObjectWithPrefix(String bucket, String prefix){
 		return scanObjects(bucket, prefix)
-				.max(Comparator.comparing(S3Object::lastModified));
+				.findMax(Comparator.comparing(S3Object::lastModified));
 	}
 
 	@Override

@@ -231,7 +231,7 @@ public class S3BucketHandler extends BaseHandler{
 				.map(object -> object.size)
 				.map(NumberFormatter::addCommas)
 				.map(String::length)
-				.max(Comparator.naturalOrder())
+				.findMax(Comparator.naturalOrder())
 				.orElse(0);
 	}
 

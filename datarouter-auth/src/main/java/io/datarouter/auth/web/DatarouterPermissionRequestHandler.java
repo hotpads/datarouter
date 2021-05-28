@@ -28,6 +28,7 @@ import static j2html.TagCreator.tr;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -45,9 +46,11 @@ import io.datarouter.auth.service.DatarouterUserService;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
@@ -57,7 +60,6 @@ import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalLong;
 import io.datarouter.web.handler.types.optional.OptionalString;
-import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
@@ -94,9 +96,11 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterUserExternalDetailService userExternalDetailService;
 	@Inject
-	private PermissionRequestAdditionalEmailsSupplier permissionRequestAdditionalEmails;
+	private PermissionRequestEmailType permissionRequestEmailType;
 	@Inject
 	private DatarouterService datarouterService;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	@Handler(defaultHandler = true)
 	private Mav showForm(OptionalString deniedUrl, OptionalString allowedRoles){
@@ -114,9 +118,12 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		mav.put("defaultSpecifics", defaultSpecifics);
 		DatarouterUser user = getCurrentUser();
 		mav.put("currentRequest", datarouterPermissionRequestDao.scanOpenPermissionRequestsForUser(user.getId())
-				.max(Comparator.comparing(request -> request.getKey().getRequestTime()))
+				.findMax(Comparator.comparing(request -> request.getKey().getRequestTime()))
 				.orElse(null));
-		Set<String> additionalPermissionEmails = permissionRequestAdditionalEmails.get();
+		Set<String> additionalPermissionEmails = new HashSet<>();
+		if(serverTypeDetector.mightBeProduction()){
+			additionalPermissionEmails.addAll(permissionRequestEmailType.tos);
+		}
 		mav.put("email", administratorEmailService.getAdministratorEmailAddressesCsv(additionalPermissionEmails));
 		mav.put("submitPath", paths.permissionRequest.submit.join("/"));
 		mav.put("declinePath", paths.permissionRequest.declineAll.join("/"));

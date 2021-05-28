@@ -22,15 +22,17 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.exception.storage.httprecord.HttpRequestRecord.HttpRequestRecordByExceptionRecord;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord.HttpRequestRecordFielder;
+import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
+import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
+import io.datarouter.storage.node.op.index.IndexReader;
 import io.datarouter.storage.util.DatabeanVacuum;
 import io.datarouter.storage.util.DatabeanVacuum.DatabeanVacuumBuilder;
 import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
@@ -47,11 +49,15 @@ public class DatarouterHttpRequestRecordDao extends BaseDao{
 	}
 
 	private final IndexedSortedMapStorageNode<HttpRequestRecordKey,HttpRequestRecord,HttpRequestRecordFielder> node;
+	private final IndexReader<HttpRequestRecordKey,HttpRequestRecord,HttpRequestRecordByExceptionRecordIdKey,
+			FieldlessIndexEntry<HttpRequestRecordByExceptionRecordIdKey,HttpRequestRecordKey,HttpRequestRecord>>
+			byExceptionRecordId;
 
 	@Inject
 	public DatarouterHttpRequestRecordDao(
 			Datarouter datarouter,
 			NodeFactory nodeFactory,
+			IndexingNodeFactory indexingNodeFactory,
 			DatarouterHttpRequestRecordDaoParams params){
 		super(datarouter);
 		node = Scanner.of(params.clientIds)
@@ -63,11 +69,10 @@ public class DatarouterHttpRequestRecordDao extends BaseDao{
 					return node;
 				})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
+		byExceptionRecordId = indexingNodeFactory.createKeyOnlyManagedIndex(
+				HttpRequestRecordByExceptionRecordIdKey.class, node)
+				.build();
 		datarouter.register(node);
-	}
-
-	public HttpRequestRecord lookupUnique(HttpRequestRecordByExceptionRecord key){
-		return node.lookupUnique(key);
 	}
 
 	public void put(HttpRequestRecord databean){
@@ -84,6 +89,11 @@ public class DatarouterHttpRequestRecordDao extends BaseDao{
 
 	public List<HttpRequestRecord> getMulti(Collection<HttpRequestRecordKey> keys){
 		return node.getMulti(keys);
+	}
+
+	public Scanner<HttpRequestRecord> scanByExceptionRecordIdPrefix(String exceptionRecordId){
+		return byExceptionRecordId.scanDatabeansWithPrefix(new HttpRequestRecordByExceptionRecordIdKey(
+				exceptionRecordId, null));
 	}
 
 	public void deleteAll(){

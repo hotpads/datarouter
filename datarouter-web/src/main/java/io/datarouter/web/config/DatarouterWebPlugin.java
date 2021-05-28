@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.datarouter.email.config.DatarouterEmailPlugin;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.instrumentation.test.TestableService;
@@ -93,8 +92,6 @@ import io.datarouter.web.test.TestableServiceClassRegistry;
 import io.datarouter.web.test.TestableServiceClassRegistry.DefaultTestableServiceClassRegistry;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.DatarouterSessionDao.DatarouterSessionDaoParams;
-import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
-import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
 import io.datarouter.web.user.session.CurrentSessionInfo;
@@ -124,7 +121,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass;
 	private final Class<? extends ExceptionRecorder> exceptionRecorderClass;
 	private final Set<String> additionalAdministrators;
-	private final Set<String> additionalPermissionRequestEmails;
 	private final List<Class<? extends DatarouterAppListener>> appListenerClasses;
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
 
@@ -152,7 +148,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			DatarouterWebDaoModule daosModuleBuilder,
 			Class<? extends HomepageRouteSet> homepageRouteSet,
 			String customStaticFileFilterRegex){
-		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
+		this(null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
 				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null, null,
 				null, null, null, null);
 	}
@@ -165,7 +161,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass,
 			Class<? extends ExceptionRecorder> exceptionRecorderClass,
 			Set<String> additionalAdministrators,
-			Set<String> additionalPermissionRequestEmails,
 			List<Class<? extends DatarouterAppListener>> appListenerClasses,
 			List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses,
 			Class<? extends RoleManager> roleManagerClass,
@@ -249,7 +244,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addMetricLinkPages(DatarouterHandlerMetricLinkPage.class);
 		addMetricLinkPages(AppHandlerMetricLinkPage.class);
 
-		addStoragePlugin(new DatarouterEmailPlugin());
+		//addStoragePlugin(new DatarouterEmailPlugin());
 
 		this.datarouterService = datarouterService;
 		this.filesClass = filesClass;
@@ -258,7 +253,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
 		this.exceptionRecorderClass = exceptionRecorderClass;
 		this.additionalAdministrators = additionalAdministrators;
-		this.additionalPermissionRequestEmails = additionalPermissionRequestEmails;
 		this.appListenerClasses = appListenerClasses;
 		this.webAppListenerClasses = webAppListenerClasses;
 		this.roleManagerClass = roleManagerClass;
@@ -297,8 +291,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindDefault(ExceptionHandlingConfig.class, exceptionHandlingConfigClass);
 		bindActualInstanceNullSafe(DatarouterAdditionalAdministratorsSupplier.class,
 				new DatarouterAdditionalAdministrators(additionalAdministrators));
-		bindActualInstanceNullSafe(PermissionRequestAdditionalEmailsSupplier.class,
-				new PermissionRequestAdditionalEmails(additionalPermissionRequestEmails));
 		bindActualInstance(AppListenersClasses.class, new DatarouterAppListenersClasses(appListenerClasses));
 		bindActualInstance(WebAppListenersClasses.class, new DatarouterWebAppListenersClasses(webAppListenerClasses));
 		bindActualNullSafe(RoleManager.class, roleManagerClass);
@@ -380,7 +372,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfig = NoOpExceptionHandlingConfig.class;
 		private Class<? extends ExceptionRecorder> exceptionRecorder;
 		private Set<String> additionalAdministrators = Collections.emptySet();
-		private Set<String> additionalPermissionRequestEmails = Collections.emptySet();
 		private List<Class<? extends DatarouterAppListener>> appListenerClasses;
 		private List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
 		private Class<? extends RoleManager> roleManagerClass;
@@ -443,12 +434,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		public DatarouterWebPluginBuilder setAdditionalAdministrators(Set<String> additionalAdministrators){
 			this.additionalAdministrators = additionalAdministrators;
-			return this;
-		}
-
-		public DatarouterWebPluginBuilder setAdditionalPermissionRequestEmails(
-				Set<String> additionalPermissionRequestEmails){
-			this.additionalPermissionRequestEmails = additionalPermissionRequestEmails;
 			return this;
 		}
 
@@ -584,7 +569,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					exceptionHandlingConfig,
 					exceptionRecorder,
 					additionalAdministrators,
-					additionalPermissionRequestEmails,
 					appListenerClasses,
 					webAppListenerClasses,
 					roleManagerClass,

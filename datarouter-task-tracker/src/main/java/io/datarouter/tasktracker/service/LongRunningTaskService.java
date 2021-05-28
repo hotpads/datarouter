@@ -27,8 +27,8 @@ import javax.inject.Singleton;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
-import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTaskKey;
 import io.datarouter.util.tuple.Range;
 
@@ -53,7 +53,7 @@ public class LongRunningTaskService{
 		return dao.scanWithPrefix(key)
 				.include(task -> task.getJobExecutionStatus() == LongRunningTaskStatus.SUCCESS)
 				.map(LongRunningTask::getFinishTime)
-				.max(Date::compareTo);
+				.findMax(Date::compareTo);
 	}
 
 	public LongRunningTaskSummaryDto getSummary(){

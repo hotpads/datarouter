@@ -36,13 +36,19 @@ import io.datarouter.web.user.session.service.Session;
 public interface CurrentSessionInfo{
 
 	/**
+	 * find the username
+	 */
+	default Optional<String> findNonEmptyUsername(ServletRequest request){
+		return getSession(request)
+				.map(Session::getUsername)
+				.filter(StringTool::notEmpty);
+	}
+
+	/**
 	 * Gets the username or an alternate value
 	 */
 	default String getNonEmptyUsernameOrElse(ServletRequest request, String other){
-		return getSession(request)
-				.map(Session::getUsername)
-				.filter(StringTool::notEmpty)
-				.orElse(other);
+		return findNonEmptyUsername(request).orElse(other);
 	}
 
 	Optional<? extends Session> getSession(ServletRequest request);

@@ -62,14 +62,15 @@ import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.email.type.DatarouterEmailTypes.ClusterSettingEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.DatarouterServerTypeDetector;
 import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.storage.setting.Setting;
@@ -116,8 +117,6 @@ public class ClusterSettingsHandler extends BaseHandler{
 	@Inject
 	private ClusterSettingService clusterSettingService;
 	@Inject
-	private DatarouterAdministratorEmailService datarouterAdministratorEmailService;
-	@Inject
 	private DatarouterService datarouterService;
 	@Inject
 	private DatarouterWebPaths datarouterWebPaths;
@@ -131,6 +130,10 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private DatarouterServerTypeDetector datarouterServerTypeDetector;
 	@Inject
 	private CachedClusterSettingTags cachedClusterSettingTags;
+	@Inject
+	private ClusterSettingEmailType clusterSettingEmailType;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	@Handler
 	public Mav customSettings(OptionalString prefix){
@@ -404,9 +407,17 @@ public class ClusterSettingsHandler extends BaseHandler{
 		if(!settings.sendUpdateEmail.get()){
 			return;
 		}
+		Optional<String> user = getSessionInfo().findNonEmptyUsername();
+		if(user.isEmpty()){
+			return;
+		}
 		String from = datarouterProperties.getAdministratorEmail();
-		String to = datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv() + ","
-				+ getSessionInfo().getNonEmptyUsernameOrElse("");
+		String to;
+		if(serverTypeDetector.mightBeProduction()){
+			to = clusterSettingEmailType.getAsCsv(user.get());
+		}else{
+			to = user.get();
+		}
 		String title = "Setting Update";
 		String primaryHref = completeLink(datarouterHtmlEmailService.startLinkBuilder(), log)
 				.build();

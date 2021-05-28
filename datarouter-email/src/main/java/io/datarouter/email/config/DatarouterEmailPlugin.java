@@ -15,17 +15,60 @@
  */
 package io.datarouter.email.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.datarouter.email.type.DatarouterEmailTypes.ClusterSettingEmailType;
+import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.storage.config.BaseStoragePlugin;
 
 public class DatarouterEmailPlugin extends BaseStoragePlugin{
 
-	public DatarouterEmailPlugin(){
+	private final List<String> emailRecipientsClusterSettingUpdate;
+	private final List<String> emailRecipientsPermissionRequests;
+
+	private DatarouterEmailPlugin(
+			List<String> emailRecipientsClusterSettingUpdate,
+			List<String> emailRecipientsPermissionRequests){
 		addSettingRoot(DatarouterEmailSettingRoot.class);
+		this.emailRecipientsClusterSettingUpdate = emailRecipientsClusterSettingUpdate;
+		this.emailRecipientsPermissionRequests = emailRecipientsPermissionRequests;
 	}
 
 	@Override
 	public String getName(){
 		return "DatarouterEmail";
+	}
+
+	@Override
+	protected void configure(){
+		bind(ClusterSettingEmailType.class)
+				.toInstance(new ClusterSettingEmailType(emailRecipientsClusterSettingUpdate));
+		bind(PermissionRequestEmailType.class)
+				.toInstance(new PermissionRequestEmailType(emailRecipientsPermissionRequests));
+	}
+
+	public static class DatarouterEmailPluginBuilder{
+
+		private final List<String> emailRecipientsClusterSettingUpdate = new ArrayList<>();
+		private final List<String> emailRecipientsPermissionRequests = new ArrayList<>();
+
+		public DatarouterEmailPluginBuilder addClusterSettingEmailRecipients(List<String> tos){
+			emailRecipientsClusterSettingUpdate.addAll(tos);
+			return this;
+		}
+
+		public DatarouterEmailPluginBuilder addPermissionRequestEmailRecipients(List<String> tos){
+			emailRecipientsPermissionRequests.addAll(tos);
+			return this;
+		}
+
+		public DatarouterEmailPlugin build(){
+			return new DatarouterEmailPlugin(
+					emailRecipientsClusterSettingUpdate,
+					emailRecipientsPermissionRequests);
+		}
+
 	}
 
 }

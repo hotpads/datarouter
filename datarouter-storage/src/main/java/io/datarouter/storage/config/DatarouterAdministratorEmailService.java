@@ -17,6 +17,7 @@ package io.datarouter.storage.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -53,8 +54,8 @@ public class DatarouterAdministratorEmailService{
 		return getAdministratorEmailAddressesCsv(Set.of(additionalEmailAddresses));
 	}
 
-	public String getAdministratorEmailAddressesCsv(Set<String> additionalEmailAddresses){
-		Collection<String> emails = getAdministratorEmailAddresses();
+	public String getAdministratorEmailAddressesCsv(Collection<String> additionalEmailAddresses){
+		Set<String> emails = new HashSet<>(getAdministratorEmailAddresses());
 		emails.addAll(additionalEmailAddresses);
 		return String.join(",", emails);
 	}

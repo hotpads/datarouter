@@ -95,15 +95,15 @@ public class ScannerToolTests{
 	}
 
 	@Test
-	public void testMax(){
-		Assert.assertFalse(Scanner.of(1).skip(1).max(Comparator.naturalOrder()).isPresent());
-		Assert.assertEquals(Scanner.of(2, 1, 3).max(Comparator.naturalOrder()).get().intValue(), 3);
+	public void testFindMax(){
+		Assert.assertFalse(Scanner.of(1).skip(1).findMax(Comparator.naturalOrder()).isPresent());
+		Assert.assertEquals(Scanner.of(2, 1, 3).findMax(Comparator.naturalOrder()).get().intValue(), 3);
 	}
 
 	@Test
-	public void testMin(){
-		Assert.assertFalse(Scanner.of(1).skip(1).min(Comparator.naturalOrder()).isPresent());
-		Assert.assertEquals(Scanner.of(2, 1, 3).min(Comparator.naturalOrder()).get().intValue(), 1);
+	public void testFindMin(){
+		Assert.assertFalse(Scanner.of(1).skip(1).findMin(Comparator.naturalOrder()).isPresent());
+		Assert.assertEquals(Scanner.of(2, 1, 3).findMin(Comparator.naturalOrder()).get().intValue(), 1);
 	}
 
 	@Test

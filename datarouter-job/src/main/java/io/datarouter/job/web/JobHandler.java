@@ -43,6 +43,7 @@ import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.tasktracker.service.LongRunningTaskService.LongRunningTaskSummaryDto;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.tasktracker.storage.LongRunningTask;
+import io.datarouter.tasktracker.storage.LongRunningTaskHeartBeatStatus;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.web.handler.BaseHandler;
@@ -149,7 +150,10 @@ public class JobHandler extends BaseHandler{
 			LongRunningTaskSummaryDto longRunningTaskSummary){
 		String taskName = LongRunningTaskTrackerFactory.taskNameForClass(jobPackage.jobClass);
 		LongRunningTask currentlyRunningTask = longRunningTaskSummary.currentlyRunningTasks.get(taskName);
-		String heartbeatStatus = currentlyRunningTask == null ? null : currentlyRunningTask.getHeartbeatStatus();
+		String heartbeatStatus = Optional.ofNullable(currentlyRunningTask)
+				.map(LongRunningTask::getHeartbeatStatus)
+				.map(LongRunningTaskHeartBeatStatus::getPersistentString)
+				.orElse(null);
 		LongRunningTask lastFinishedTask = longRunningTaskSummary.lastCompletions.get(taskName);
 		Set<String> servers = longRunningTaskSummary.runningOnServers.getOrDefault(taskName, new TreeSet<>());
 		String serversCsv = String.join(",", servers);

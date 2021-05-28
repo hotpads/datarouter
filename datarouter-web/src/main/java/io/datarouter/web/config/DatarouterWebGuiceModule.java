@@ -56,8 +56,6 @@ import io.datarouter.web.test.TestableServiceClassRegistry;
 import io.datarouter.web.test.TestableServiceClassRegistry.DefaultTestableServiceClassRegistry;
 import io.datarouter.web.user.BaseDatarouterSessionDao;
 import io.datarouter.web.user.BaseDatarouterSessionDao.NoOpDatarouterSessionDao;
-import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
-import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier.PermissionRequestAdditionalEmails;
 import io.datarouter.web.user.authenticate.config.BaseDatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.authenticate.saml.BaseDatarouterSamlDao;
@@ -99,8 +97,6 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefaultInstance(DatarouterAdditionalAdministratorsSupplier.class,
 				new DatarouterAdditionalAdministrators(Collections.emptySet()));
 		bindDefault(LatencyMonitoringGraphLink.class, NoOpLatencyMonitoringGraphLink.class);
-		bindDefaultInstance(PermissionRequestAdditionalEmailsSupplier.class,
-				new PermissionRequestAdditionalEmails(Collections.emptySet()));
 		bindDefaultInstance(DatarouterNavBarSupplier.class, new DatarouterNavBarCreator(Collections.emptyList()));
 		bindDefaultInstance(AppPluginNavBarSupplier.class, new AppNavBarPluginCreator(Collections.emptyList()));
 		bindDefault(AppNavBarRegistrySupplier.class, NoOpAppNavBarRegistry.class);

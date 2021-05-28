@@ -130,7 +130,8 @@ public class LongRunningTasksHandler extends BaseHandler{
 
 		public LongRunningTaskJspDto(LongRunningTask task, ZoneId zoneId){
 			this.status = task.getJobExecutionStatus().getPersistentString();
-			this.heartbeatStatus = task.getHeartbeatStatus();
+			this.heartbeatStatus = task.getHeartbeatStatus() == null ? null
+					: task.getHeartbeatStatus().getPersistentString();
 			this.name = task.getKey().getName();
 			this.serverName = task.getKey().getServerName();
 			this.triggerTime = task.getKey().getTriggerTime();

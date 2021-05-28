@@ -112,7 +112,6 @@ implements WebappBuilder{
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenersUnordered;
 	private final List<Ordered<Class<? extends BaseRouteSet>>> routeSetOrdered;
 	private final List<Class<? extends BaseRouteSet>> routeSetsUnordered;
-	private final Set<String> additionalPermissionRequestEmails;
 	private final List<Class<? extends TestableService>> testableServiceClasses;
 	private final Map<String,Pair<String,Boolean>> documentationNamesAndLinks;
 	private final List<Class<? extends DailyDigest>> dailyDigest;
@@ -201,7 +200,6 @@ implements WebappBuilder{
 		this.webAppListenersUnordered = new ArrayList<>();
 		this.authenticationConfig = null;
 		this.additionalAdministrators = new HashSet<>();
-		this.additionalPermissionRequestEmails = new HashSet<>();
 		this.customStaticFileFilterRegex = null;
 		this.homepageRouteSet = DefaultHomepageRouteSet.class;
 		this.homepageHandler = SimpleHomepageHandler.class;
@@ -264,7 +262,6 @@ implements WebappBuilder{
 				.setDatarouterAuthConfig(authenticationConfig)
 				.setCurrentSessionInfoClass(currentSessionInfo)
 				.setAdditionalAdministrators(additionalAdministrators)
-				.setAdditionalPermissionRequestEmails(additionalPermissionRequestEmails)
 				.setRoleManagerClass(roleManager)
 				.setUserSesssionServiceClass(userSessionService)
 				.setAppListenerClasses(OrderedTool.combine(appListenersOrdered, appListenersUnordered))
@@ -344,6 +341,12 @@ implements WebappBuilder{
 	}
 
 	/*-------------------------- add web plugins ----------------------------*/
+
+	public T addStoragePlugin(BaseStoragePlugin storagePlugin){
+		addStoragePluginInternal(storagePlugin);
+		storagePlugin.getStoragePlugins().forEach(this::addStoragePluginInternal);
+		return getSelf();
+	}
 
 	public T addWebPlugin(BaseWebPlugin webPlugin){
 		addWebPluginInternal(webPlugin);
@@ -515,11 +518,6 @@ implements WebappBuilder{
 
 	public T addAdministratorEmail(String additionalAdministrator){
 		additionalAdministrators.add(additionalAdministrator);
-		return getSelf();
-	}
-
-	public T addAdditionalPermissionRequestEmail(String additionalPermissionRequestEmail){
-		additionalPermissionRequestEmails.add(additionalPermissionRequestEmail);
 		return getSelf();
 	}
 

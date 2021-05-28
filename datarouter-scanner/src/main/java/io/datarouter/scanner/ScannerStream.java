@@ -200,12 +200,12 @@ public class ScannerStream<T> implements Stream<T>{
 
 	@Override
 	public Optional<T> max(Comparator<? super T> comparator){
-		return scanner.max(comparator);
+		return scanner.findMax(comparator);
 	}
 
 	@Override
 	public Optional<T> min(Comparator<? super T> comparator){
-		return scanner.min(comparator);
+		return scanner.findMin(comparator);
 	}
 
 	@Override

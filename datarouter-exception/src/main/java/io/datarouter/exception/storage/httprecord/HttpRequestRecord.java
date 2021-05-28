@@ -23,7 +23,6 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
@@ -49,7 +48,6 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 		@Override
 		public Map<String,List<Field<?>>> getUniqueIndexes(HttpRequestRecord record){
 			Map<String,List<Field<?>>> indexes = new TreeMap<>();
-			indexes.put("unique_exceptionRecord", new HttpRequestRecordByExceptionRecord(record).getFields());
 			indexes.put("unique_traceContext", new HttpRequestRecordByTraceContext(record).getFields());
 			return indexes;
 		}
@@ -164,23 +162,6 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 				getxForwardedFor(),
 				getxRequestedWith(),
 				getOtherHeaders());
-	}
-
-	public static class HttpRequestRecordByExceptionRecord
-	extends BaseHttpRequestRecordByExceptionRecord<
-			HttpRequestRecordKey,
-			HttpRequestRecord,
-			ExceptionRecordKey,
-			ExceptionRecord>{
-
-		public HttpRequestRecordByExceptionRecord(HttpRequestRecord httpRequestRecord){
-			super(httpRequestRecord);
-		}
-
-		public HttpRequestRecordByExceptionRecord(ExceptionRecord exceptionRecord){
-			super(exceptionRecord);
-		}
-
 	}
 
 	public static class HttpRequestRecordByTraceContext

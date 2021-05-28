@@ -50,6 +50,10 @@ public class RequestAwareCurrentSessionInfoFactory{
 			this.request = request;
 		}
 
+		public Optional<String> findNonEmptyUsername(){
+			return currentSessionInfo.findNonEmptyUsername(request);
+		}
+
 		public String getNonEmptyUsernameOrElse(String other){
 			return currentSessionInfo.getNonEmptyUsernameOrElse(request, other);
 		}

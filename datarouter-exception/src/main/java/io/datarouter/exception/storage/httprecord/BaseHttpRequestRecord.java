@@ -23,8 +23,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.exception.storage.exceptionrecord.BaseExceptionRecord;
-import io.datarouter.exception.storage.exceptionrecord.BaseExceptionRecordKey;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.model.databean.BaseDatabean;
@@ -371,30 +369,6 @@ extends BaseDatabean<PK,D>{
 		this.xRequestedWith = dto.requestedWith;
 
 		this.otherHeaders = GsonTool.GSON.toJson(dto.others);
-	}
-
-	public abstract static class BaseHttpRequestRecordByExceptionRecord<
-			PK extends BaseHttpRequestRecordKey<PK>,
-			D extends BaseHttpRequestRecord<PK,D>,
-			IK extends BaseExceptionRecordKey<IK>,
-			I extends BaseExceptionRecord<IK,I>>
-	extends BaseUniqueKey<PK>{
-
-		private String exceptionRecordId;
-
-		public BaseHttpRequestRecordByExceptionRecord(D httpRequestRecord){
-			this.exceptionRecordId = httpRequestRecord.getExceptionRecordId();
-		}
-
-		public BaseHttpRequestRecordByExceptionRecord(I exceptionRecord){
-			this.exceptionRecordId = exceptionRecord.getKey().getId();
-		}
-
-		@Override
-		public List<Field<?>> getFields(){
-			return List.of(new StringField(FieldKeys.exceptionRecordId, exceptionRecordId));
-		}
-
 	}
 
 	public abstract static class BaseHttpRequestRecordByTraceContext<

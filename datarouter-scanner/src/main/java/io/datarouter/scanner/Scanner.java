@@ -505,20 +505,6 @@ public interface Scanner<T> extends Closeable{
 	}
 
 	/**
-	 * Advance through all items, retaining the maximum as computed by the Comparator and returning it.
-	 */
-	default Optional<T> max(Comparator<? super T> comparator){
-		return findMax(comparator);
-	}
-
-	/**
-	 * Advance through all items, retaining the minimum as computed by the Comparator and returning it.
-	 */
-	default Optional<T> min(Comparator<? super T> comparator){
-		return findMin(comparator);
-	}
-
-	/**
 	 * Return false as soon as the Predicate passes, otherwise true if all items fail the Predicate.
 	 */
 	default boolean noneMatch(Predicate<? super T> predicate){

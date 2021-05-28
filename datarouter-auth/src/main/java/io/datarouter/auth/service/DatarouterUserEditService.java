@@ -37,15 +37,16 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMap;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
+import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.web.user.DatarouterSessionDao;
-import io.datarouter.web.user.authenticate.PermissionRequestAdditionalEmailsSupplier;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.role.DatarouterUserRole;
 import io.datarouter.web.user.session.DatarouterSession;
@@ -67,13 +68,15 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterUserService datarouterUserService;
 	@Inject
-	private PermissionRequestAdditionalEmailsSupplier permissionRequestAdditionalEmails;
+	private PermissionRequestEmailType permissionRequestEmailType;
 	@Inject
 	private DatarouterService datarouterService;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private DatarouterProperties datarouterPropeties;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	public void editUser(
 			DatarouterUser user,
@@ -210,7 +213,9 @@ public class DatarouterUserEditService{
 		Set<String> recipients = Arrays.stream(users)
 				.map(DatarouterUser::getUsername)
 				.collect(Collectors.toSet());
-		permissionRequestAdditionalEmails.get().forEach(recipients::add);
+		if(serverTypeDetector.mightBeProduction()){
+			permissionRequestEmailType.tos.forEach(recipients::add);
+		}
 		adminEmailService.getAdministratorEmailAddresses().forEach(recipients::add);
 		return String.join(",", recipients);
 	}

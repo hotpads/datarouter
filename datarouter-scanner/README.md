@@ -11,7 +11,7 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-scanner</artifactId>
-	<version>0.0.74</version>
+	<version>0.0.75</version>
 </dependency>
 ```
 
@@ -23,13 +23,13 @@ A Scanner can be converted to a single-use Iterable with `.iterable()` or to a S
 These methods share behavior with those in Stream but are implemented independently:
 - `map`
 - `distinct`
-- `sort`
+- `sort` (Stream `sorted`)
 - `limit`
 - `skip`
 - `forEach`
 - `reduce`
-- `min`
-- `max`
+- `findMin` (Stream `min`)
+- `findMax` (Stream `max`)
 - `count`
 - `anyMatch`
 - `allMatch`

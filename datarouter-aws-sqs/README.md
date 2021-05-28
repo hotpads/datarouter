@@ -11,7 +11,7 @@ SQS is a hosted messaging service with high availability and elasticity and pred
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-aws-sqs</artifactId>
-	<version>0.0.74</version>
+	<version>0.0.75</version>
 </dependency>
 ```
 
