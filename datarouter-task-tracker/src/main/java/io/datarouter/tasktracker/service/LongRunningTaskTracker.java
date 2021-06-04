@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
 import io.datarouter.instrumentation.task.TaskStatus;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
@@ -63,6 +64,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private final SortedMapStorage<LongRunningTaskKey,LongRunningTask> node;
 	private final TaskTrackerCounters counters;
 	private final ServerTypeDetector serverTypeDetector;
+	private final LongRunningTaskTrackerEmailType longRunningTaskTrackerEmailType;
+	private final Setting<Boolean> sendAlertEmail;
 
 	private final LongRunningTaskInfo task;
 	private final Optional<Instant> deadline;
@@ -82,6 +85,9 @@ public class LongRunningTaskTracker implements TaskTracker{
 			SortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
 			TaskTrackerCounters counters,
 			ServerTypeDetector serverTypeDetector,
+			LongRunningTaskTrackerEmailType longRunningTaskTrackerEmailType,
+			Setting<Boolean> sendAlertEmail,
+
 			LongRunningTaskInfo task,
 			Instant deadline,
 			boolean warnOnReachingInterrupt,
@@ -95,6 +101,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 		this.node = node;
 		this.counters = counters;
 		this.serverTypeDetector = serverTypeDetector;
+		this.longRunningTaskTrackerEmailType = longRunningTaskTrackerEmailType;
+		this.sendAlertEmail = sendAlertEmail;
 
 		this.task = task;
 		this.deadline = Optional.ofNullable(deadline);
@@ -114,10 +122,13 @@ public class LongRunningTaskTracker implements TaskTracker{
 			SortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
 			TaskTrackerCounters counters,
 			ServerTypeDetector serverTypeDetector,
+			LongRunningTaskTrackerEmailType longRunningTaskTrackerEmailType,
+			Setting<Boolean> sendAlertEmail,
 			LongRunningTaskInfo task,
 			Instant deadline,
 			boolean warnOnReachingInterrupt){
-		this(datarouterTaskTrackerPaths,
+		this(
+				datarouterTaskTrackerPaths,
 				datarouterHtmlEmailService,
 				datarouterProperties,
 				datarouterAdministratorEmailService,
@@ -126,6 +137,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 				node,
 				counters,
 				serverTypeDetector,
+				longRunningTaskTrackerEmailType,
+				sendAlertEmail,
 				task,
 				deadline,
 				warnOnReachingInterrupt,
@@ -267,7 +280,9 @@ public class LongRunningTaskTracker implements TaskTracker{
 		}
 		if(deadline.map(instant -> Instant.now().isAfter(instant)).orElse(false)){
 			task.longRunningTaskStatus = LongRunningTaskStatus.MAX_DURATION_REACHED;
-			sendMaxDurationAlertIfShould();
+			if(sendAlertEmail.get()){
+				sendMaxDurationAlertIfShould();
+			}
 			onShouldStop("maxDuration reached");
 			return true;
 		}
@@ -298,7 +313,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 		if(serverTypeDetector.mightBeDevelopment()){
 			to = datarouterProperties.getAdministratorEmail();
 		}else{
-			to = datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv();
+			to = longRunningTaskTrackerEmailType.getAsCsv(
+					datarouterAdministratorEmailService.getAdministratorEmailAddresses());
 		}
 		String primaryHref = datarouterHtmlEmailService.startLinkBuilder()
 				.withLocalPath(datarouterTaskTrackerPaths.datarouter.longRunningTasks)

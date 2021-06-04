@@ -39,6 +39,7 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 	public static class FieldKeys{
 		public static final LongFieldKey numRows = new LongFieldKey("numRows");
 		public static final LongFieldKey countTimeMs = new LongFieldKey("countTimeMs");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey dateUpdated = new DateFieldKey("dateUpdated");
 		public static final LongFieldKey numSpans = new LongFieldKey("numSpans");
 		public static final LongFieldKey numSlowSpans = new LongFieldKey("numSlowSpans");
@@ -51,6 +52,7 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 			super(LatestTableCountKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(LatestTableCount databean){
 			return List.of(

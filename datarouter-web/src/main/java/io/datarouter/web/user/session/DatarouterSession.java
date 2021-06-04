@@ -68,6 +68,7 @@ implements Session{
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
 		public static final StringFieldKey username = new StringFieldKey("username");
 		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey userCreated = new DateFieldKey("userCreated");
 	}
 
@@ -77,6 +78,7 @@ implements Session{
 			super(DatarouterSessionKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterSession databean){
 			List<Field<?>> nonKeyFields = new ArrayList<>(databean.getNonKeyFields());

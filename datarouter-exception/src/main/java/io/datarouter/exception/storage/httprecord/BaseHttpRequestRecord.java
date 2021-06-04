@@ -101,6 +101,7 @@ extends BaseDatabean<PK,D>{
 	private String otherHeaders;
 
 	public static class FieldKeys{
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey created = new DateFieldKey("created");
 		public static final LongDateFieldKey receivedAt = new LongDateFieldKey("receivedAt");
 		public static final LongFieldKey duration = new LongFieldKey("duration");
@@ -159,6 +160,7 @@ extends BaseDatabean<PK,D>{
 			super(primaryKeyFielderClass);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(D record){
 			return List.of(

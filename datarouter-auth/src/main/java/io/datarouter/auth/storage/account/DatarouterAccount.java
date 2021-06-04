@@ -38,8 +38,10 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 	private Boolean enableUserMappings;
 
 	private static class FieldKeys{
+		@SuppressWarnings("deprecation")
 		private static final DateFieldKey created = new DateFieldKey("created");
 		private static final StringFieldKey creator = new StringFieldKey("creator");
+		@SuppressWarnings("deprecation")
 		private static final DateFieldKey lastUsed = new DateFieldKey("lastUsed");
 		private static final BooleanFieldKey enableUserMappings = new BooleanFieldKey("enableUserMappings");
 	}
@@ -61,6 +63,7 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 			super(DatarouterAccountKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterAccount account){
 			return List.of(

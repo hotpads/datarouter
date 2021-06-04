@@ -42,6 +42,7 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestRegistry;
 import io.datarouter.web.dispatcher.DatarouterWebDocsRouteSet;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
+import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionHandlingConfig.NoOpExceptionHandlingConfig;
@@ -105,12 +106,14 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private static final FilterParams DEFAULT_STATIC_FILE_FILTER_PARAMS = new FilterParams(
 			false,
 			DatarouterServletGuiceModule.ROOT_PATH,
-			StaticFileFilter.class);
+			StaticFileFilter.class,
+			FilterParamGrouping.DATAROUTER);
 
 	public static final FilterParams REQUEST_CACHING_FILTER_PARAMS = new FilterParams(
 			false,
 			DatarouterServletGuiceModule.ROOT_PATH,
-			GuiceRequestCachingFilter.class);
+			GuiceRequestCachingFilter.class,
+			FilterParamGrouping.DATAROUTER);
 
 	private static final DatarouterWebPaths PATHS = new DatarouterWebPaths();
 
@@ -204,12 +207,17 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		if(customStaticFileFilterRegex == null){
 			staticFileFilterParams = DEFAULT_STATIC_FILE_FILTER_PARAMS;
 		}else{
-			staticFileFilterParams = new FilterParams(true, customStaticFileFilterRegex, StaticFileFilter.class);
+			staticFileFilterParams = new FilterParams(
+					true,
+					customStaticFileFilterRegex,
+					StaticFileFilter.class,
+					FilterParamGrouping.DATAROUTER);
 		}
 
 		addFilterParamsOrdered(staticFileFilterParams, null);
 		addFilterParamsOrdered(REQUEST_CACHING_FILTER_PARAMS, staticFileFilterParams);
-		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, HttpsFilter.class));
+		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, HttpsFilter.class,
+				FilterParamGrouping.DATAROUTER));
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.executors, "Executors");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.memory.view, "Server Status");

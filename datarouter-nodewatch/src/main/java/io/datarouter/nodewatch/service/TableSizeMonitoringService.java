@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
+import io.datarouter.email.type.DatarouterEmailTypes.NodewatchEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.storage.alertthreshold.DatarouterTableSizeAlertThresholdDao;
@@ -37,7 +38,6 @@ import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
@@ -57,7 +57,7 @@ public class TableSizeMonitoringService{
 	@Inject
 	private Datarouter datarouter;
 	@Inject
-	private DatarouterAdministratorEmailService adminEmailService;
+	private NodewatchEmailType nodewatchEmailType;
 	@Inject
 	private DatarouterTableSizeAlertThresholdDao tableSizeAlertThresholdDao;
 	@Inject
@@ -184,10 +184,12 @@ public class TableSizeMonitoringService{
 		return new CountStat(latestSample, comparableCount, percentIncrease);
 	}
 
-	private void sendEmail(List<CountStat> aboveThresholdList, List<CountStat> abovePercentageList,
+	private void sendEmail(
+			List<CountStat> aboveThresholdList,
+			List<CountStat> abovePercentageList,
 			List<LatestTableCount> staleList){
 		String fromEmail = datarouterProperties.getAdministratorEmail();
-		String toEmail = adminEmailService.getAdministratorEmailAddressesCsv();
+		String toEmail = nodewatchEmailType.getAsCsv();
 		String primaryHref = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.build();

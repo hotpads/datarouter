@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
@@ -52,6 +53,8 @@ public class LongRunningTaskTrackerFactory{
 	private TaskTrackerCounters counters;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
+	@Inject
+	private LongRunningTaskTrackerEmailType longRunningTaskTrackerEmailType;
 
 	public LongRunningTaskTracker create(
 			Class<?> trackedClass,
@@ -74,6 +77,8 @@ public class LongRunningTaskTrackerFactory{
 				longRunningTaskDao.getNode(),
 				counters,
 				serverTypeDetector,
+				longRunningTaskTrackerEmailType,
+				settings.sendAlertEmail,
 				task,
 				deadline,
 				warnOnReachingDeadline);

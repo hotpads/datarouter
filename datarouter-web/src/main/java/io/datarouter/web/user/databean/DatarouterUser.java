@@ -65,7 +65,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 		public static final BooleanFieldKey enabled = new BooleanFieldKey("enabled");
 		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey created = new DateFieldKey("created");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey lastLoggedIn = new DateFieldKey("lastLoggedIn");
 		public static final StringFieldKey zoneId = new StringFieldKey("zoneId");
 	}
@@ -76,6 +78,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 			super(DatarouterUserKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterUser user){
 			return List.of(

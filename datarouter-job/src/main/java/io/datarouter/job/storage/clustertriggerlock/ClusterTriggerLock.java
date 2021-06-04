@@ -33,6 +33,7 @@ public class ClusterTriggerLock extends BaseDatabean<ClusterTriggerLockKey,Clust
 	private String serverName;
 
 	public static class FieldKeys{
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey expirationTime = new DateFieldKey("expirationTime");
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 	}
@@ -43,6 +44,7 @@ public class ClusterTriggerLock extends BaseDatabean<ClusterTriggerLockKey,Clust
 			super(ClusterTriggerLockKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterTriggerLock databean){
 			return List.of(

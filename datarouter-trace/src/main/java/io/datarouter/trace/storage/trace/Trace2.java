@@ -19,6 +19,7 @@ import java.time.Duration;
 import java.util.List;
 
 import io.datarouter.instrumentation.trace.Trace2Dto;
+import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
@@ -160,6 +161,10 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 
 	public Long getDuration(){
 		return ended - created;
+	}
+
+	public Traceparent getTraceparent(){
+		return new Traceparent(getTraceId(), getParentId());
 	}
 
 }

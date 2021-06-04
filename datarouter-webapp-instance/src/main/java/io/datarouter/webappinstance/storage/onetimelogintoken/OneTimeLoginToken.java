@@ -53,6 +53,7 @@ public class OneTimeLoginToken extends BaseDatabean<OneTimeLoginTokenKey,OneTime
 		public static final StringFieldKey token = new StringFieldKey("token");
 		public static final StringFieldKey targetServerName = new StringFieldKey("targetServerName");
 		public static final StringFieldKey targetServerIp = new StringFieldKey("targetServerIp");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey deadline = new DateFieldKey("deadline");
 	}
 
@@ -62,6 +63,7 @@ public class OneTimeLoginToken extends BaseDatabean<OneTimeLoginTokenKey,OneTime
 			super(OneTimeLoginTokenKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(OneTimeLoginToken databean){
 			return List.of(

@@ -31,7 +31,16 @@ public class DateFieldKey extends PrimitiveFieldKey<Date,DateFieldKey>{
 
 	/**
 	 * Defines a DateFieldKey with seconds precision
+	 *
+	 * New usages should try to use Instants, LocalDate, LocalDateTime, or Longs. Daylight savings and database timezone
+	 * migrations result in broken date field parsing.
+	 *
+	 * @deprecated use {@link io.datarouter.model.field.imp.comparable.InstantFieldKey},
+	 *             {@link io.datarouter.model.field.imp.LocalDateFieldKey},
+	 *             {@link io.datarouter.model.field.imp.custom.LocalDateTimeFieldKey},
+	 *             {@link io.datarouter.model.field.imp.comparable.LongFieldKey}
 	 */
+	@Deprecated
 	public DateFieldKey(String name){
 		super(name, Date.class);
 		this.numDecimalSeconds = DEFAULT_DECIMAL_SECONDS;
@@ -66,6 +75,7 @@ public class DateFieldKey extends PrimitiveFieldKey<Date,DateFieldKey>{
 		return new DateFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, precision, attributes);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public DateField createValueField(Date value){
 		return new DateField(this, value);

@@ -66,6 +66,7 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
 		public static final StringEnumFieldKey<DatarouterPermissionRequestResolution> resolution =
 				new StringEnumFieldKey<>("resolution", DatarouterPermissionRequestResolution.class);
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey resolutionTime = new DateFieldKey("resolutionTime");
 	}
 
@@ -75,6 +76,7 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 			super(DatarouterPermissionRequestKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterPermissionRequest databean){
 			return List.of(

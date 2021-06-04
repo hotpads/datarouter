@@ -46,6 +46,7 @@ extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>
 	public static class FieldKeys{
 		public static final StringFieldKey redirectUrl = new StringFieldKey("redirectUrl")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey created = new DateFieldKey("created");
 	}
 
@@ -56,6 +57,7 @@ extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>
 			super(SamlAuthnRequestRedirectUrlKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(SamlAuthnRequestRedirectUrl databean){
 			return List.of(

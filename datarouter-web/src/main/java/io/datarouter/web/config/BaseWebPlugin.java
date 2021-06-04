@@ -128,6 +128,15 @@ public abstract class BaseWebPlugin extends BaseStoragePlugin{
 	private final List<Ordered<FilterParams>> filterParamsOrdered = new ArrayList<>();
 	private final List<FilterParams> filterParamsUnordered = new ArrayList<>();
 
+
+	/**
+	 * Filters are first grouped by FilterGrouping. The ordered and unordered lists are combined by each group and then
+	 * each group is combined at the end.
+	 *
+	 * list order:
+	 *
+	 * Group1_ordered, Group1_unordered, Group2_ordered, Group2_unordered, ..., GroupN_ordered, GroupN_unordered
+	 */
 	protected void addFilterParamsOrdered(FilterParams filterParam, FilterParams after){
 		filterParamsOrdered.add(new Ordered<>(filterParam, after));
 	}

@@ -32,6 +32,7 @@ import io.datarouter.util.duration.DatarouterDuration;
 public class DatarouterTaskTrackerSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> saveLongRunningTasks;
+	public final CachedSetting<Boolean> sendAlertEmail;
 
 	public final Setting<Integer> countToKeep;
 	public final DurationCachedSetting maxAge;
@@ -41,6 +42,7 @@ public class DatarouterTaskTrackerSettingRoot extends SettingRoot{
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterTaskTracker.");
 
 		saveLongRunningTasks = registerBoolean("saveLongRunningTasks", true);
+		sendAlertEmail = registerBoolean("sendAlertEmail", false);
 
 		countToKeep = registerIntegers("countToKeep", defaultTo(5));
 		maxAge = registerDurations("maxAge", defaultTo(new DatarouterDuration(100, TimeUnit.DAYS)));

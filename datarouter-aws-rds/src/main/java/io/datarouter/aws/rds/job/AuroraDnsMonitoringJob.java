@@ -31,6 +31,7 @@ import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
+import io.datarouter.email.type.DatarouterEmailTypes.AwsRdsEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.instrumentation.task.TaskTracker;
@@ -56,6 +57,8 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 	private DatarouterAwsPaths paths;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private AwsRdsEmailType awsRdsEmailType;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -71,7 +74,8 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 
 	private void sendEmail(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
 		String fromEmail = datarouterProperties.getAdministratorEmail();
-		String toEmail = additionalAdministratorEmailService.getAdministratorEmailAddressesCsv();
+		String toEmail = awsRdsEmailType.getAsCsv(additionalAdministratorEmailService
+				.getAdministratorEmailAddressesCsv());
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.auroraInstances)
 				.build();

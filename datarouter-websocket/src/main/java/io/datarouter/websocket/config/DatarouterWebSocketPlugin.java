@@ -23,6 +23,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.config.DatarouterServletGuiceModule;
+import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.websocket.auth.GuiceWebSocketAuthenticationFilter;
@@ -64,8 +65,11 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 		addSettingRoot(DatarouterWebSocketSettingRoot.class);
 		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.websocketTool.list, "WebSocket");
 		addTriggerGroup(DatarouterWebSocketTriggerGroup.class);
-		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH,
-				GuiceWebSocketAuthenticationFilter.class));
+		addFilterParams(new FilterParams(
+				false,
+				DatarouterServletGuiceModule.ROOT_PATH,
+				GuiceWebSocketAuthenticationFilter.class,
+				FilterParamGrouping.DATAROUTER));
 		addRouteSet(DatarouterWebSocketApiRouteSet.class);
 		setDaosModule(daosModule);
 		addDatarouterGithubDocLink("datarouter-websocket");

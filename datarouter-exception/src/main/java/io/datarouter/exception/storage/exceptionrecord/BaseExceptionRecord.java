@@ -49,6 +49,7 @@ extends BaseDatabean<PK,D>{
 	private String callOrigin;
 
 	public static class FieldKeys{
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey created = new DateFieldKey("created");
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
 		public static final StringFieldKey stackTrace = new StringFieldKey("stackTrace")
@@ -70,6 +71,7 @@ extends BaseDatabean<PK,D>{
 			super(primaryKeyFielderClass);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(D databean){
 			return List.of(

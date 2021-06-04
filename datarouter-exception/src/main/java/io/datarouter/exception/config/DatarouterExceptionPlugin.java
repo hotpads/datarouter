@@ -50,6 +50,7 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.web.config.DatarouterServletGuiceModule;
 import io.datarouter.web.config.DatarouterWebPlugin;
+import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -78,7 +79,11 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		this.exemptDailyDigestExceptions = exemptDailyDigestExceptions;
 		this.issueLinkPrefix = issueLinkPrefix;
 		addFilterParamsOrdered(
-				new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, GuiceExceptionHandlingFilter.class),
+				new FilterParams(
+						false,
+						DatarouterServletGuiceModule.ROOT_PATH,
+						GuiceExceptionHandlingFilter.class,
+						FilterParamGrouping.DATAROUTER),
 				DatarouterWebPlugin.REQUEST_CACHING_FILTER_PARAMS);
 		addRouteSet(DatarouterExceptionRouteSet.class);
 		addSettingRoot(DatarouterExceptionSettingRoot.class);

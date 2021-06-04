@@ -42,6 +42,7 @@ import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingFiles;
+import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.config.DatarouterClusterSettingRoot;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService;
 import io.datarouter.clustersetting.service.ClusterSettingSearchService.SettingNameMatchResult;
@@ -81,9 +82,9 @@ import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.SettingRoot.SettingRootFinder;
 import io.datarouter.storage.setting.cached.CachedClusterSettingTags;
 import io.datarouter.storage.setting.cached.CachedSetting;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -134,6 +135,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private ClusterSettingEmailType clusterSettingEmailType;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
+	@Inject
+	private DatarouterClusterSettingPaths paths;
 
 	@Handler
 	public Mav customSettings(OptionalString prefix){
@@ -250,7 +253,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 	@Handler
 	public Mav browseSettings(OptionalString name){
 		Mav mav = new Mav(files.jsp.admin.datarouter.setting.browseSettingsJsp);
-
+		String path = servletContext.getContextPath() + paths.datarouter.settings.customSettings.toSlashedString();
+		mav.put("customSettingsPath", path);
 		String requestedNodeName = name.orElse(settingRootFinder.getName());
 		mav.put("nodeName", name.orElse(""));
 
@@ -473,7 +477,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 			kvs.add(new Pair<>("user", makeText(log.getChangedBy())));
 			kvs.add(new Pair<>("action", makeText(log.getAction().getPersistentString())));
 			kvs.add(new Pair<>("setting", makeClusterSettingLogLink()));
-			String timestamp = DateTool.formatReversedLongMsWithZone(log.getKey().getReverseCreatedMs(),
+			String timestamp = ZonedDateFormaterTool.formatReversedLongMsWithZone(log.getKey().getReverseCreatedMs(),
 					datarouterService.getZoneId());
 			kvs.add(new Pair<>("timestamp", makeText(timestamp)));
 			if(ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), log.getServerType())){

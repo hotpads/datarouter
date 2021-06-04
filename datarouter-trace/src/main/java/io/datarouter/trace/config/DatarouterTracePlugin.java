@@ -26,17 +26,17 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.trace.conveyor.local.FilterToMemoryBufferForLocal;
 import io.datarouter.trace.conveyor.local.FilterToMemoryBufferForLocal.NoOpFilterToMemoryBufferForLocal;
-import io.datarouter.trace.conveyor.local.Trace2ForLocalHttpRequestRecordQueueDao.Trace2ForLocalHttpRequestRecordQueueDaoParams;
 import io.datarouter.trace.conveyor.local.LocalTraceConveyors;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalHttpRequestRecordQueueDao;
+import io.datarouter.trace.conveyor.local.Trace2ForLocalHttpRequestRecordQueueDao.Trace2ForLocalHttpRequestRecordQueueDaoParams;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalQueueDao;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalQueueDao.Trace2ForLocalQueueDaoParams;
 import io.datarouter.trace.conveyor.local.TraceLocalFilterToMemoryBuffer;
 import io.datarouter.trace.conveyor.local.TraceQueueLocalDao;
 import io.datarouter.trace.conveyor.local.TraceQueueLocalDao.TraceQueueLocalDaoParams;
 import io.datarouter.trace.conveyor.publisher.FilterToMemoryBufferForPublisher;
-import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherHttpRequestRecordQueueDao;
 import io.datarouter.trace.conveyor.publisher.FilterToMemoryBufferForPublisher.NoOpFilterToMemoryBufferForPublisher;
+import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherHttpRequestRecordQueueDao;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherHttpRequestRecordQueueDao.Trace2ForPublisherHttpRequestRecordQueueDaoParams;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherQueueDao;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherQueueDao.Trace2ForPublisherQueueDaoParams;
@@ -57,6 +57,7 @@ import io.datarouter.trace.storage.DatarouterTraceDao.DatarouterTraceDaoParams;
 import io.datarouter.trace.storage.Trace2ForLocalDao;
 import io.datarouter.trace.storage.Trace2ForLocalDao.Trace2ForLocalDaoParams;
 import io.datarouter.web.config.DatarouterServletGuiceModule;
+import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
@@ -95,7 +96,8 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 			addAppListener(TracePublisherConveyors.class);
 			addSettingRoot(DatarouterTracePublisherSettingRoot.class);
 		}
-		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, GuiceTraceFilter.class));
+		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, GuiceTraceFilter.class,
+				FilterParamGrouping.DATAROUTER));
 		setDaosModule(daosModule);
 		addDatarouterGithubDocLink("datarouter-trace");
 	}

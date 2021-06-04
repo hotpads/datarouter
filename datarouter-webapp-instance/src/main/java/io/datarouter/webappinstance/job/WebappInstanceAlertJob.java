@@ -26,11 +26,13 @@ import javax.inject.Inject;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.email.type.DatarouterEmailTypes.WebappInstanceAlertEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.util.tuple.Twin;
@@ -57,6 +59,10 @@ public class WebappInstanceAlertJob extends BaseJob{
 	private DatarouterWebappInstancePaths paths;
 	@Inject
 	private DatarouterService datarouterService;
+	@Inject
+	private WebappInstanceAlertEmailType webappInstanceAlertEmailType;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -71,7 +77,13 @@ public class WebappInstanceAlertJob extends BaseJob{
 
 	private void sendEmail(WebappInstance webappInstance){
 		String from = datarouterProperties.getAdministratorEmail();
-		String to = additionalAdministratorEmailService.getAdministratorEmailAddressesCsv();
+		String to;
+		if(serverTypeDetector.mightBeProduction()){
+			to = webappInstanceAlertEmailType.getAsCsv(additionalAdministratorEmailService
+					.getAdministratorEmailAddresses());
+		}else{
+			to = datarouterProperties.getAdministratorEmail();
+		}
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.webappInstances)
 				.build();

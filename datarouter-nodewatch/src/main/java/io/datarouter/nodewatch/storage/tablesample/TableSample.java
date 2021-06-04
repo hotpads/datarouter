@@ -112,7 +112,9 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 
 	private static class FieldKeys{
 		private static final LongFieldKey numRows = new LongFieldKey("numRows");
+		@SuppressWarnings("deprecation")
 		private static final DateFieldKey dateCreated = new DateFieldKey("dateCreated");
+		@SuppressWarnings("deprecation")
 		private static final DateFieldKey dateUpdated = new DateFieldKey("dateUpdated");
 		private static final LongFieldKey samplerId = new LongFieldKey("samplerId");
 		private static final DateFieldKey dateScheduled = new DateFieldKey("dateScheduled");
@@ -130,6 +132,7 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 			super(TableSampleKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(TableSample databean){
 			return List.of(

@@ -13,31 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.scanner;
+package io.datarouter.web.dispatcher;
 
-public class SteppingScanner<T> extends BaseLinkedScanner<T,T>{
+public enum FilterParamGrouping{
+	DATAROUTER(1),
+	PLATFORM(2),
+	APP(3),
+	OTHER(4),
+	;
 
-	private final long stepSize;
+	public final int group;
 
-	private long counter;
-
-	public SteppingScanner(Scanner<T> input, long stepSize){
-		super(input);
-		this.stepSize = stepSize;
-		this.counter = 0;
-	}
-
-	@Override
-	public boolean advanceInternal(){
-		while(input.advance()){
-			long modulo = counter % stepSize;
-			++counter;
-			if(modulo == 0){
-				current = input.current();
-				return true;
-			}
-		}
-		return false;
+	FilterParamGrouping(int group){
+		this.group = group;
 	}
 
 }

@@ -32,10 +32,13 @@ extends BaseDatabean<PK,D>{
 	private Date updated;//last heartbeat time
 
 	public static class FieldKeys{
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey created = new DateFieldKey("created");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey updated = new DateFieldKey("updated");
 	}
 
+	@SuppressWarnings("deprecation")
 	public List<Field<?>> getNonKeyFields(){
 		return List.of(
 				new DateField(FieldKeys.created, created),

@@ -31,12 +31,14 @@ import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskFailureAlertEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobPaths;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
@@ -62,6 +64,10 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	private TaskTrackerExceptionLink exceptionLink;
 	@Inject
 	private DatarouterService datarouterService;
+	@Inject
+	private LongRunningTaskFailureAlertEmailType longRunningTaskFailureAlertEmailType;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -75,7 +81,13 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	private void sendEmail(List<LongRunningTask> longRunningTaskList){
 		if(longRunningTaskList.size() > 0){
 			String fromEmail = datarouterProperties.getAdministratorEmail();
-			String toEmail = adminEmailService.getAdministratorEmailAddressesCsv();
+			String toEmail;
+			if(serverTypeDetector.mightBeProduction()){
+				toEmail = longRunningTaskFailureAlertEmailType.getAsCsv(adminEmailService
+						.getAdministratorEmailAddresses());
+			}else{
+				toEmail = datarouterProperties.getAdministratorEmail();
+			}
 			String primaryHref = emailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.triggers)
 					.build();

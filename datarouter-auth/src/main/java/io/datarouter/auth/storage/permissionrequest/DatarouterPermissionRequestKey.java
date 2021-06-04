@@ -40,9 +40,11 @@ public class DatarouterPermissionRequestKey extends BaseRegularPrimaryKey<Dataro
 
 	public static class FieldKeys{
 		public static final LongFieldKey userId = new LongFieldKey("userId");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey requestTime = new DateFieldKey("requestTime");
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(

@@ -60,9 +60,12 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public static class FieldKeys{
 		public static final StringEnumFieldKey<LongRunningTaskType> type = new StringEnumFieldKey<>("type",
 				LongRunningTaskType.class);
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey startTime = new DateFieldKey("startTime");
 		public static final BooleanFieldKey interrupt = new BooleanFieldKey("interrupt");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey finishTime = new DateFieldKey("finishTime");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey heartbeatTime = new DateFieldKey("heartbeatTime");
 		public static final StringEnumFieldKey<LongRunningTaskStatus> longRunningTaskStatus = new StringEnumFieldKey<>(
 				"jobExecutionStatus", LongRunningTaskStatus.class);
@@ -79,6 +82,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 			super(LongRunningTaskKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(LongRunningTask databean){
 			return List.of(

@@ -23,6 +23,7 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import org.apache.logging.log4j.Level;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.email.type.DatarouterEmailTypes.LoggerConfigCleanupEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
@@ -45,7 +47,9 @@ import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
 import io.datarouter.logging.Log4j2Configurator;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.DateTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.util.tuple.Twin;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -70,6 +74,10 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	private DatarouterService datarouterService;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private LoggerConfigCleanupEmailType loggerConfigCleanupEmailType;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	private int maxAgeLimitDays;
 	private int loggingConfigSendEmailAlertDays;
@@ -91,7 +99,15 @@ public class LoggerConfigCleanupJob extends BaseJob{
 
 		boolean handleLoggerConfigDeletionAlerts = settings.handleLoggerConfigDeletionAlerts.get();
 		if(!handleLoggerConfigDeletionAlerts && settings.sendLoggerConfigCleanupJobEmails.get()){
-			String toEmails = adminEmailService.getAdministratorEmailAddressesCsv(log.getEmail());
+			String toEmails;
+			if(serverTypeDetector.mightBeProduction()){
+				List<String> emails = new ArrayList<>();
+				emails.addAll(adminEmailService.getAdministratorEmailAddresses());
+				emails.add(log.getEmail());
+				toEmails = loggerConfigCleanupEmailType.getAsCsv(emails);
+			}else{
+				toEmails = log.getEmail();
+			}
 			sendAlertEmail(toEmails, makeDefaultOldLoggerConfigDetails(log));
 			return;
 		}
@@ -170,7 +186,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text("The LoggerConfig "),
 				b(log.getName()),
 				text(" was last updated on "),
-				b(DateTool.formatDateWithZone(log.getLastUpdated(), datarouterService.getZoneId())),
+				b(ZonedDateFormaterTool.formatDateWithZone(log.getLastUpdated(), datarouterService.getZoneId())),
 				text(" so it's older than the maximum age threshold of "),
 				b(maxAgeLimitDays + ""),
 				text(" days."),

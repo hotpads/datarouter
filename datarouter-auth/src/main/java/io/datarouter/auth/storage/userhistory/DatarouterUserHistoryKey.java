@@ -40,9 +40,11 @@ public class DatarouterUserHistoryKey extends BaseRegularPrimaryKey<DatarouterUs
 
 	public static class FieldKeys{
 		public static final LongFieldKey userId = new LongFieldKey("userId");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey time = new DateFieldKey("time");
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(

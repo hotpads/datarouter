@@ -39,6 +39,7 @@ public class ClusterJobLock extends BaseDatabean<ClusterJobLockKey,ClusterJobLoc
 			super(ClusterJobLockKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(ClusterJobLock databean){
 			return List.of(

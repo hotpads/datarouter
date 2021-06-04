@@ -38,6 +38,7 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 
 	public static class FieldKeys{
 		public static final LongFieldKey numRows = new LongFieldKey("numRows");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey dateUpdated = new DateFieldKey("dateUpdated");
 		public static final LongFieldKey countTimeMs = new LongFieldKey("countTimeMs");
 		public static final LongFieldKey numSpans = new LongFieldKey("numSpans");
@@ -50,6 +51,7 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 			super(TableCountKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(TableCount databean){
 			return List.of(

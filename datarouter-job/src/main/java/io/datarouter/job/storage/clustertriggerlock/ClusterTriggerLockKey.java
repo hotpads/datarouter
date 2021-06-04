@@ -32,6 +32,7 @@ public class ClusterTriggerLockKey extends BaseRegularPrimaryKey<ClusterTriggerL
 
 	public static class FieldKeys{
 		public static final StringFieldKey jobName = new StringFieldKey("jobName");
+		@SuppressWarnings("deprecation")
 		public static final DateFieldKey triggerTime = new DateFieldKey("triggerTime");
 	}
 
@@ -43,6 +44,7 @@ public class ClusterTriggerLockKey extends BaseRegularPrimaryKey<ClusterTriggerL
 		this.triggerTime = triggerTime;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(

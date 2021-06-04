@@ -94,6 +94,20 @@ public class AnsiParsingScannerTests{
 	}
 
 	@Test
+	public void testStackedModifierHtml(){
+		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+
+		List<String> output = Scanner.of("\u001B[33m\u001B[44mStacked classes")
+				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
+				.list();
+
+		Assert.assertEquals(output, Java9.listOf("Stacked classes"));
+		Assert.assertEquals(consumedLogs, Java9.listOf(
+				new Pair<>("<span class=\"sgr-33 sgr-44\">Stacked classes</span>", true)));
+	}
+
+	@Test
 	public void testChangingStyleHtml(){
 		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
 		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
@@ -104,7 +118,21 @@ public class AnsiParsingScannerTests{
 
 		Assert.assertEquals(output, Java9.listOf("Hello World!"));
 		Assert.assertEquals(consumedLogs, Java9.listOf(
-				new Pair<>("<span class=\"sgr-33\">Hello <span class=\"sgr-44\">World</span></span>!", true)));
+				new Pair<>("<span class=\"sgr-33\">Hello </span><span class=\"sgr-33 sgr-44\">World</span>!", true)));
+	}
+
+	@Test
+	public void testTrailingHtml(){
+		List<Pair<String,Boolean>> consumedLogs = new ArrayList<>();
+		Consumer<AnsiParsedLine> logConsumer = line -> consumedLogs.add(new Pair<>(line.line, line.isHtml));
+
+		List<String> output = Scanner.of("Hello \u001B[44mWorld!")
+				.link(scanner -> new AnsiParsingScanner(scanner, "sgr-", logConsumer))
+				.list();
+
+		Assert.assertEquals(output, Java9.listOf("Hello World!"));
+		Assert.assertEquals(consumedLogs, Java9.listOf(
+				new Pair<>("Hello <span class=\"sgr-44\">World!</span>", true)));
 	}
 
 	@Test

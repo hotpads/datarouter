@@ -15,6 +15,7 @@
  */
 package io.datarouter.util.process;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -59,29 +60,37 @@ public class AnsiParsingScanner extends BaseLinkedScanner<String,String>{
 		Matcher resetMatcher = RESET.matcher(line);
 		Matcher sgrMatcher = SGR.matcher(line);
 
+		List<String> currentColors = new ArrayList<>();
 		boolean isHtml = false;
-		int depth = 0;
+		boolean inTag = false;
 		int lineIndex = 0;
 		while(true){
 			boolean resetMatch = resetMatcher.find(lineIndex);
 			boolean sgrMatch = sgrMatcher.find(lineIndex);
 
 			if(resetMatch && (!sgrMatch || sgrMatcher.start() >= resetMatcher.start())){
+				maybeWrapBefore(inTag, htmlClassNamePrefix, currentColors, html);
 				appendBeforeMatch(line, lineIndex, resetMatcher, text, html);
-				appendHtmlClosingTag(depth, html);
-				depth = 0;
+				maybeWrapAfter(inTag, html);
+				inTag = false;
+				currentColors.clear();
 				lineIndex = resetMatcher.end();
 			}else if(sgrMatch){
+				if(sgrMatcher.start() > lineIndex){
+					maybeWrapBefore(inTag, htmlClassNamePrefix, currentColors, html);
+					appendBeforeMatch(line, lineIndex, sgrMatcher, text, html);
+					maybeWrapAfter(inTag, html);
+					inTag = false;
+				}
 				isHtml = true;
-				appendBeforeMatch(line, lineIndex, sgrMatcher, text, html);
-				String color = sgrMatcher.group("color");
-				html.append("<span class=\"" + String.join(" ", parseColorClasses(color, htmlClassNamePrefix)) + "\">");
-				depth++;
+				currentColors.add(sgrMatcher.group("color"));
+				inTag = true;
 				lineIndex = sgrMatcher.end();
 			}else{
+				maybeWrapBefore(inTag, htmlClassNamePrefix, currentColors, html);
 				appendSubstring(line, lineIndex, line.length(), text, html);
-				appendHtmlClosingTag(depth, html);
-				depth = 0;
+				maybeWrapAfter(inTag, html);
+				inTag = false;
 				break;
 			}
 		}
@@ -96,18 +105,28 @@ public class AnsiParsingScanner extends BaseLinkedScanner<String,String>{
 		}
 	}
 
+	private static void maybeWrapBefore(boolean inTag, String htmlClassNamePrefix, List<String> currentColors,
+		StringBuilder htmlSb){
+		if(inTag){
+			htmlSb.append("<span class=\"" + String.join(" ", formatColorClasses(currentColors,
+					htmlClassNamePrefix)) + "\">");
+		}
+	}
+
+	private static void maybeWrapAfter(boolean inTag, StringBuilder htmlSb){
+		if(inTag){
+			htmlSb.append("</span>");
+		}
+	}
+
 	private static void appendBeforeMatch(String line, int lineIndex, Matcher matchedMatcher, StringBuilder...sbs){
 		appendSubstring(line, lineIndex, matchedMatcher.start(), sbs);
 	}
 
-	private static void appendHtmlClosingTag(int depth, StringBuilder sb){
-		for(int i = 0; i < depth; ++i){
-			sb.append("</span>");
-		}
-	}
-
-	private static List<String> parseColorClasses(String color, String htmlClassNamePrefix){
-		return Scanner.of(color.split(";"))
+	private static List<String> formatColorClasses(List<String> colors, String htmlClassNamePrefix){
+		return Scanner.of(colors)
+				.map(color -> color.split(";"))
+				.concat(Scanner::of)
 				.exclude(String::isEmpty)
 				.map(htmlClassNamePrefix::concat)
 				.list();

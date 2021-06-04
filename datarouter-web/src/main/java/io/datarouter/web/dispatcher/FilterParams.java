@@ -22,11 +22,14 @@ public class FilterParams{
 	public final boolean isRegex;
 	public final String path;
 	public final Class<? extends Filter> filterClass;
+	public final FilterParamGrouping grouping;
 
-	public FilterParams(boolean isRegex, String path, Class<? extends Filter> filterClass){
+	public FilterParams(boolean isRegex, String path, Class<? extends Filter> filterClass,
+			FilterParamGrouping grouping){
 		this.isRegex = isRegex;
 		this.path = path;
 		this.filterClass = filterClass;
+		this.grouping = grouping;
 	}
 
 }

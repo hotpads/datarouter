@@ -41,11 +41,13 @@ extends BaseDatabean<DatarouterAccountSecretCredentialKey,DatarouterAccountSecre
 	private Date lastUsed;
 	private Boolean active;
 
-	static class FieldKeys{
+	public static class FieldKeys{
 		private static final StringFieldKey secretNamespace = new StringFieldKey("secretNamespace");
 		private static final StringFieldKey accountName = new StringFieldKey("accountName");
+		@SuppressWarnings("deprecation")
 		private static final DateFieldKey created = new DateFieldKey("created");
 		private static final StringFieldKey creatorUsername = new StringFieldKey("creatorUsername");
+		@SuppressWarnings("deprecation")
 		private static final DateFieldKey lastUsed = new DateFieldKey("lastUsed");
 		private static final BooleanFieldKey active = new BooleanFieldKey("active");
 	}
@@ -77,6 +79,7 @@ extends BaseDatabean<DatarouterAccountSecretCredentialKey,DatarouterAccountSecre
 			super(DatarouterAccountSecretCredentialKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterAccountSecretCredential credential){
 			return List.of(

@@ -17,9 +17,14 @@ package io.datarouter.email.type;
 
 import java.util.List;
 
+/*
+ * TODO
+ * - changelog (count keys)
+ * - schema update
+ * - configuration scan (job)
+ */
 public class DatarouterEmailTypes{
 
-	// TODO move this down to datarouter-cluster-setting?
 	public static class ClusterSettingEmailType extends SimpleEmailType{
 		public ClusterSettingEmailType(List<String> tos){
 			super(tos);
@@ -28,6 +33,54 @@ public class DatarouterEmailTypes{
 
 	public static class PermissionRequestEmailType extends SimpleEmailType{
 		public PermissionRequestEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class NodewatchEmailType extends SimpleEmailType{
+		public NodewatchEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class WebappInstanceAlertEmailType extends SimpleEmailType{
+		public WebappInstanceAlertEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class LongRunningTaskFailureAlertEmailType extends SimpleEmailType{
+		public LongRunningTaskFailureAlertEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class LongRunningTaskTrackerEmailType extends SimpleEmailType{
+		public LongRunningTaskTrackerEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class LoggerConfigCleanupEmailType extends SimpleEmailType{
+		public LoggerConfigCleanupEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class AvailabilitySwitchEmailType extends SimpleEmailType{
+		public AvailabilitySwitchEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class AwsRdsEmailType extends SimpleEmailType{
+		public AwsRdsEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class DailyDigestEmailType extends SimpleEmailType{
+		public DailyDigestEmailType(List<String> tos){
 			super(tos);
 		}
 	}

@@ -53,6 +53,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 		private static final DelimitedStringArrayFieldKey appendersRef = new DelimitedStringArrayFieldKey(
 				"appendersRef", ",");
 		private static final StringFieldKey email = new StringFieldKey("email");
+		@SuppressWarnings("deprecation")
 		private static final DateFieldKey lastUpdated = new DateFieldKey("lastUpdated");
 		private static final LongFieldKey ttlMillis = new LongFieldKey("ttlMillis");
 	}
@@ -63,6 +64,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 			super(LoggerConfigKey.class);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public List<Field<?>> getNonKeyFields(LoggerConfig loggerConfig){
 			return List.of(

@@ -20,7 +20,6 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -34,6 +33,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.datarouter.util.duration.DurationUnit;
 import io.datarouter.util.duration.DurationWithCarriedUnits;
+import io.datarouter.util.time.LocalDateTimeTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 
 public class DateTool{
 
@@ -247,62 +248,54 @@ public class DateTool{
 
 	/*---------------- current day --------------------*/
 
-	//TODO pass zoneId instead of using systemDefault
+	@Deprecated // specify zoneId
 	public static long atStartOfDayReversedMs(){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-		return Long.MAX_VALUE - localDateTimeToDate(startOfDay).getTime();
+		return LocalDateTimeTool.atStartOfDayReversedMs(ZoneId.systemDefault());
 	}
 
-	//TODO pass zoneId instead of using systemDefault
+	@Deprecated // specify zoneId
 	public static long atEndOfDayReversedMs(){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
-		return Long.MAX_VALUE - localDateTimeToDate(endOfDay).getTime();
+		return LocalDateTimeTool.atEndOfDayReversedMs(ZoneId.systemDefault());
 	}
 
-	//TODO pass zoneId instead of using systemDefault
+	@Deprecated // specify zoneId
 	public static long atStartOfDayMs(){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-		return localDateTimeToDate(startOfDay).getTime();
+		return LocalDateTimeTool.atStartOfDay(ZoneId.systemDefault()).toEpochMilli();
 	}
 
-	//TODO pass zoneId instead of using systemDefault
+	@Deprecated // specify zoneId
 	public static long atEndOfDayMs(){
-		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
-		return localDateTimeToDate(endOfDay).getTime();
+		return LocalDateTimeTool.atEndOfDay(ZoneId.systemDefault()).toEpochMilli();
 	}
 
+	@Deprecated // specify zoneId
 	public static Date localDateTimeToDate(LocalDateTime localDateTime, ZoneId zoneId){
 		return Date.from(localDateTime.atZone(zoneId).toInstant());
 	}
 
+	@Deprecated // specify zoneId
 	public static Date localDateTimeToDate(LocalDateTime localDateTime){
 		return localDateTimeToDate(localDateTime, ZoneId.systemDefault());
 	}
 
-	// TODO: Should we rather use DateTimeFormatter.RFC_1123_DATE_TIME ?
-	// 'Tue, 3 Jun 2008 11:05:30 GMT'.
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
-
+	@Deprecated // inline
 	public static String formatDateWithZone(Date date, ZoneId zoneId){
-		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), zoneId);
-		return FORMATTER.format(zonedDateTime);
+		return ZonedDateFormaterTool.formatDateWithZone(date, zoneId);
 	}
 
+	@Deprecated // inline
 	public static String formatInstantWithZone(Instant instant, ZoneId zoneId){
-		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, zoneId);
-		return FORMATTER.format(zonedDateTime);
+		return ZonedDateFormaterTool.formatInstantWithZone(instant, zoneId);
 	}
 
+	@Deprecated // inline
 	public static String formatLongMsWithZone(long timeMs, ZoneId zoneId){
-		return formatInstantWithZone(Instant.ofEpochMilli(timeMs), zoneId);
+		return ZonedDateFormaterTool.formatLongMsWithZone(timeMs, zoneId);
 	}
 
+	@Deprecated // inline
 	public static String formatReversedLongMsWithZone(long reversedTimeMs, ZoneId zoneId){
-		return formatLongMsWithZone(Long.MAX_VALUE - reversedTimeMs, zoneId);
+		return ZonedDateFormaterTool.formatReversedLongMsWithZone(reversedTimeMs, zoneId);
 	}
 
 }

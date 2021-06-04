@@ -26,10 +26,28 @@ import io.datarouter.util.string.StringTool;
 
 public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 
+	/**
+	 * New usages should try to use Instants, LocalDate, LocalDateTime, or Longs. Daylight savings and database timezone
+	 * migrations result in broken date field parsing.
+	 *
+	 * @deprecated use {@link io.datarouter.model.field.imp.comparable.InstantField},
+	 *             {@link io.datarouter.model.field.imp.LocalDateField},
+	 *             {@link io.datarouter.model.field.imp.custom.LocalDateTimeField},
+	 *             {@link io.datarouter.model.field.imp.comparable.LongField}
+	 */
+	@Deprecated
 	public DateField(DateFieldKey key, Date value){
 		this(null, key, value);
 	}
 
+	/**
+	 * New usages should try to use Instants, LocalDate, LocalDateTime, or Longs. Daylight savings and database timezone
+	 * migrations result in broken date field parsing.
+	 *
+	 * @deprecated use {@link io.datarouter.model.field.imp.comparable.InstantField} or
+	 *             {@link io.datarouter.model.field.imp.comparable.LongField}
+	 */
+	@Deprecated
 	public DateField(String prefix, DateFieldKey key, Date value){
 		super(prefix, key, value);
 	}

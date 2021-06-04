@@ -37,6 +37,7 @@ import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.pathnode.PathNode;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptionsFactory;
 import io.datarouter.storage.config.BaseStoragePlugin;
@@ -60,6 +61,7 @@ import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebPlugin.DatarouterWebPluginBuilder;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.dispatcher.BaseRouteSet;
+import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.dispatcher.ServletParams;
 import io.datarouter.web.filter.https.HttpsOnlyHttpsConfiguration;
@@ -317,7 +319,16 @@ implements WebappBuilder{
 		List<Class<? extends BaseRouteSet>> finalRouteSetClasses = OrderedTool.combine(routeSetOrdered,
 				routeSetsUnordered);
 
-		List<FilterParams> finalFilterParams = OrderedTool.combine(filterParamsOrdered, filterParamsUnordered);
+		Map<FilterParamGrouping,List<Ordered<FilterParams>>> orderedFilterParams = Scanner.of(filterParamsOrdered)
+				.groupBy(filterParam -> filterParam.item.grouping);
+		Map<FilterParamGrouping,List<FilterParams>> unorderedFilterParams = Scanner.of(filterParamsUnordered)
+				.groupBy(filterParam -> filterParam.grouping);
+		List<FilterParams> finalFilterParams = new ArrayList<>();
+		for(FilterParamGrouping group : FilterParamGrouping.values()){
+			List<Ordered<FilterParams>> orderedInGroup = orderedFilterParams.getOrDefault(group, List.of());
+			List<FilterParams> unorderedInGroup = unorderedFilterParams.getOrDefault(group, List.of());
+			finalFilterParams.addAll(OrderedTool.combine(orderedInGroup, unorderedInGroup));
+		}
 
 		Module defaultServletModule = new DatarouterServletGuiceModule(
 				finalFilterParams,
@@ -521,28 +532,53 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
+	@Deprecated // specify group
 	public T addFilter(String path, Class<? extends Filter> filter){
-		filterParamsUnordered.add(new FilterParams(false, path, filter));
+		return addFilter(path, filter, FilterParamGrouping.APP);
+	}
+
+	public T addFilter(String path, Class<? extends Filter> filter, FilterParamGrouping grouping){
+		filterParamsUnordered.add(new FilterParams(false, path, filter, grouping));
 		return getSelf();
 	}
 
+	@Deprecated // specify group
 	public T addFilters(Collection<String> paths, Class<? extends Filter> filter){
-		paths.forEach(path -> addFilter(path, filter));
+		return addFilters(paths, filter, FilterParamGrouping.APP);
+	}
+
+	public T addFilters(Collection<String> paths, Class<? extends Filter> filter, FilterParamGrouping grouping){
+		paths.forEach(path -> addFilter(path, filter, grouping));
 		return getSelf();
 	}
 
+	@Deprecated
 	public T addRegexFilter(String regex, Class<? extends Filter> filter){
-		filterParamsUnordered.add(new FilterParams(true, regex, filter));
+		return addRegexFilter(regex, filter, FilterParamGrouping.APP);
+	}
+
+	public T addRegexFilter(String regex, Class<? extends Filter> filter, FilterParamGrouping grouping){
+		filterParamsUnordered.add(new FilterParams(true, regex, filter, grouping));
 		return getSelf();
 	}
 
+	@Deprecated
 	public T addRegexFilters(Collection<String> regexes, Class<? extends Filter> filter){
-		regexes.forEach(regex -> addRegexFilter(regex, filter));
+		return addRegexFilters(regexes, filter, FilterParamGrouping.APP);
+	}
+
+	public T addRegexFilters(Collection<String> regexes, Class<? extends Filter> filter, FilterParamGrouping grouping){
+		regexes.forEach(regex -> addRegexFilter(regex, filter, grouping));
 		return getSelf();
 	}
 
+	@Deprecated
 	public T addRootFilters(Class<? extends Filter> filter){
-		filterParamsUnordered.add(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, filter));
+		return addRootFilters(filter, FilterParamGrouping.APP);
+	}
+
+	public T addRootFilters(Class<? extends Filter> filter, FilterParamGrouping grouping){
+		filterParamsUnordered.add(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, filter, grouping));
 		return getSelf();
 	}
 

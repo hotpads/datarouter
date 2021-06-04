@@ -25,6 +25,7 @@ public class DateFieldTests{
 	@Test
 	public void testParseStringEncodedValueButDoNotSet(){
 		String dateStr = "2016-06-22T19:20:14Z";
+		@SuppressWarnings("deprecation")
 		DateField field = new DateField(new DateFieldKey("test"), null);
 		Date date = field.parseStringEncodedValueButDoNotSet(dateStr);
 		Assert.assertEquals(date.getTime(), 1466623214000L);
@@ -34,6 +35,7 @@ public class DateFieldTests{
 	@Test
 	public void testRoundTrip(){
 		Date date = new Date(1573098803000L);
+		@SuppressWarnings("deprecation")
 		DateField dateField = new DateField(new DateFieldKey("key"), date);
 		String string = dateField.getStringEncodedValue();
 		Date newDate = dateField.parseStringEncodedValueButDoNotSet(string);
@@ -42,7 +44,9 @@ public class DateFieldTests{
 
 	@Test
 	public void testNumDecimalSecondsParse(){
+		@SuppressWarnings("deprecation")
 		DateField dateFieldMs = new DateField(new DateFieldKey("key").withPrecision(3), null);
+		@SuppressWarnings("deprecation")
 		DateField dateFieldNoMs = new DateField(new DateFieldKey("key").withPrecision(0), null);
 
 		Date noMsDate = new Date(1573098803000L);
@@ -66,6 +70,7 @@ public class DateFieldTests{
 		Assert.assertEquals(parsedDate, noMsDate);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testNumDecimalSecondsSerialize(){
 		DateFieldKey dateFieldMs = new DateFieldKey("key").withPrecision(3);
