@@ -80,11 +80,6 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterNodewatch";
-	}
-
-	@Override
 	public void configure(){
 		bindActualInstance(NodewatchClientConfiguration.class, new GenericNodewatchClientConfiguration(
 				nodewatchClientIds));

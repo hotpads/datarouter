@@ -46,8 +46,8 @@ public abstract class BaseTrace2FilterToMemoryBuffer{
 			return Optional.empty();
 		}
 		if(!buffer.offer(dto)){
-			logger.warn("error offering trace entity buffer={} traceId={}", buffer.getName(),
-					dto.traceBundleDto.traceDto.getTraceparent());
+			logger.warn("error offering trace entity buffer={} traceparent={}", buffer.getName(),
+					dto.traceBundleDto.traceDto.traceparent);
 			return Optional.empty();
 		}
 		return Optional.of(buffer.getName());

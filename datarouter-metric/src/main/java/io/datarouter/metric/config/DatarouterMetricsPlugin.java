@@ -90,11 +90,6 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterMetrics";
-	}
-
-	@Override
 	public void configure(){
 		bind(CountPublisher.class).to(countPublisher);
 		bind(GaugePublisher.class).to(gaugePublisher);

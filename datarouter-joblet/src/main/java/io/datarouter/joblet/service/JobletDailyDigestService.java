@@ -35,7 +35,7 @@ import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
-import io.datarouter.util.DateTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.ContainerTag;
@@ -69,7 +69,8 @@ public class JobletDailyDigestService{
 		return new J2HtmlTable<JobletRequest>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.getKey().getType())
-				.withColumn("Created", row -> DateTool.formatLongMsWithZone(row.getKey().getCreated(), zoneId))
+				.withColumn("Created", row -> ZonedDateFormaterTool.formatLongMsWithZone(row.getKey().getCreated(),
+						zoneId))
 				.withColumn("Execution Order", row -> row.getKey().getExecutionOrder())
 				.withColumn("Status", row -> row.getStatus().getPersistentString())
 				.withColumn("Num Timeouts", row -> row.getNumTimeouts())

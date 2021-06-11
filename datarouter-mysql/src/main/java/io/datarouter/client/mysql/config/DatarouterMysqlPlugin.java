@@ -43,11 +43,6 @@ public class DatarouterMysqlPlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterMysql";
-	}
-
-	@Override
 	public void configure(){
 		bindDefaultInstance(MysqlFieldCodecFactory.class, new StandardMysqlFieldCodecFactory(
 				additionalCodecClassByField));

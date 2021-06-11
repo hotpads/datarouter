@@ -73,11 +73,7 @@ implements SimpleDatarouterHttpClientSettings{
 	}
 
 	protected DefaultSettingValue<DatarouterDuration> getTimeoutDefaultSettingValue(){
-		return defaultTo(getDefaultTimeoutDatarouterDuration());
-	}
-
-	protected DatarouterDuration getDefaultTimeoutDatarouterDuration(){
-		return new DatarouterDuration(getTimeoutDefault().toMillis(), TimeUnit.MILLISECONDS);
+		return defaultTo(new DatarouterDuration(getTimeoutDefault().toMillis(), TimeUnit.MILLISECONDS));
 	}
 
 }

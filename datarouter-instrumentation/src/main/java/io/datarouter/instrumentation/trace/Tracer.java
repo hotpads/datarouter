@@ -21,10 +21,9 @@ import java.util.concurrent.BlockingQueue;
 public interface Tracer{
 
 	String getServerName();
-	String getTraceId();
 	Optional<W3TraceContext> getTraceContext();
-	BlockingQueue<TraceThreadDto> getThreadQueue();
-	BlockingQueue<TraceSpanDto> getSpanQueue();
+	BlockingQueue<Trace2ThreadDto> getThreadQueue();
+	BlockingQueue<Trace2SpanDto> getSpanQueue();
 
 	Long getCurrentThreadId();
 	Integer getDiscardedThreadCount();
@@ -36,20 +35,25 @@ public interface Tracer{
 	}
 	void createThread(String name, long queueTimeNs);
 	void startThread();
-	void addThread(TraceThreadDto thread);
+	void addThread(Trace2ThreadDto thread);
 	void appendToThreadInfo(String text);
 	void finishThread();
 
 	Integer getDiscardedSpanCount();
 	void startSpan(String name);
-	void addSpan(TraceSpanDto span);
+	void addSpan(Trace2SpanDto span);
 	void appendToSpanInfo(String text);
 	void finishSpan();
 	void incrementDiscardedSpanCount(int discardedSpanCount);
-	TraceSpanDto getCurrentSpan();
+	Trace2SpanDto getCurrentSpan();
 
 	boolean getForceSave();
 	void setForceSave();
+
+	void setSaveThreadCpuTime(boolean saveThreadCpuTime);
+	void setSaveThreadMemoryAllocated(boolean saveThreadMemoryAllocated);
+	void setSaveSpanCpuTime(boolean saveSpanCpuTime);
+	void setSaveSpanMemoryAllocated(boolean saveSpanMemoryAllocated);
 
 	Tracer createChildTracer();
 

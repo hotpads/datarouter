@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.client.hbase.client.HBaseConnectionHolder;
 import io.datarouter.client.hbase.util.HBaseClientTool;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
@@ -86,7 +87,8 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 			DatarouterWebPaths datarouterWebPaths,
 			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
 			Provider<ChangelogRecorder> changelogRecorder,
-			BuildProperties buildProperties){
+			BuildProperties buildProperties,
+			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService){
 		super(datarouterProperties,
 				adminEmailService,
 				executor,
@@ -94,7 +96,8 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 				changelogRecorder,
 				buildProperties.getBuildId(),
 				htmlEmailService,
-				datarouterWebPaths);
+				datarouterWebPaths,
+				standardDatarouterEmailHeaderService);
 		this.hBaseConnectionHolder = hBaseConnectionHolder;
 		this.schemaUpdateOptions = schemaUpdateOptions;
 	}

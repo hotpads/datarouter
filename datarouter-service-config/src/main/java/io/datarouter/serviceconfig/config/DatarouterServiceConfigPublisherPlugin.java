@@ -31,11 +31,6 @@ public class DatarouterServiceConfigPublisherPlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterServiceConfig";
-	}
-
-	@Override
 	public void configure(){
 		bind(ServiceConfigurationPublisher.class).to(publisher);
 	}

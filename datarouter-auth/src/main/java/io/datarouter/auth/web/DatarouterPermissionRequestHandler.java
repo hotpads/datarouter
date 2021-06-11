@@ -51,8 +51,8 @@ import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
@@ -273,9 +273,11 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 		public PermissionRequestDto(Date requestTime, String requestText, Date resolutionTime,
 				String resolution, ZoneId zoneId){
-			this.requestTime = DateTool.formatDateWithZone(requestTime, zoneId);
+			this.requestTime = ZonedDateFormaterTool.formatDateWithZone(requestTime, zoneId);
 			this.requestText = requestText;
-			this.resolutionTime = resolutionTime == null ? null : DateTool.formatDateWithZone(resolutionTime, zoneId);
+			this.resolutionTime = resolutionTime == null
+					? null
+					: ZonedDateFormaterTool.formatDateWithZone(resolutionTime, zoneId);
 			this.resolution = resolution;
 		}
 

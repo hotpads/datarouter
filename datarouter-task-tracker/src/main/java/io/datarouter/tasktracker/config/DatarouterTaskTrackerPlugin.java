@@ -60,11 +60,6 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterTaskTracker";
-	}
-
-	@Override
 	public DatarouterTaskTrackerDaoModule getDaosModuleBuilder(){
 		return daosModuleBuilder;
 	}

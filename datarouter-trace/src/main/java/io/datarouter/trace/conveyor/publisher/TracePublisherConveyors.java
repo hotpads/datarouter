@@ -39,11 +39,7 @@ public class TracePublisherConveyors extends BaseConveyors{
 	@Inject
 	private ExceptionRecordPublisher httpRequstRecordPublisher;
 	@Inject
-	private TracePublisherFilterToMemoryBuffer memoryBuffer;
-	@Inject
 	private Trace2ForPublisherFilterToMemoryBuffer trace2MemoryBuffer;
-	@Inject
-	private TraceQueuePublisherDao traceQueueDao;
 	@Inject
 	private Trace2ForPublisherQueueDao trace2QueueDao;
 	@Inject
@@ -53,26 +49,7 @@ public class TracePublisherConveyors extends BaseConveyors{
 
 	@Override
 	public void onStartUp(){
-		start(new TraceMemoryToSqsConveyorPublishing(
-				"traceMemoryToSqsPublisher",
-				settings.runMemoryToSqs,
-				settings.bufferInSqs,
-				memoryBuffer.buffer,
-				traceQueueDao::putMulti,
-				gson,
-				exceptionRecorder),
-				1);
-		start(new TraceSqsDrainConveyorPublisher(
-				"traceSqsToPublisher",
-				settings.drainSqsToPublisher,
-				traceQueueDao.getGroupQueueConsumer(),
-				gson,
-				tracePublisher,
-				settings.compactExceptionLoggingForConveyors,
-				exceptionRecorder),
-				1);
 
-		/***** trace2 *****/
 		start(new Trace2MemoryBufferToSqsConveyor(
 				"trace2MemoryToSqsPublisher",
 				settings.runMemoryToSqsForTrace2,

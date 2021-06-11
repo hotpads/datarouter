@@ -15,6 +15,7 @@
  */
 package io.datarouter.plugin.copytable.web;
 
+import static j2html.TagCreator.body;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
@@ -25,6 +26,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.plugin.copytable.CopyTableConfiguration;
@@ -78,6 +80,9 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private CopyTableChangelogRecorderService changelogRecorderService;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+
 
 	@Handler(defaultHandler = true)
 	private <PK extends PrimaryKey<PK>,
@@ -221,10 +226,12 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 					result.resumeFromKeyString);
 			return pageFactory.message(request, message);
 		}
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		String message = String.format("Successfully migrated %s records from %s to %s",
 				NumberFormatter.addCommas(result.numCopied),
 				sourceNodeName.get(),
 				targetNodeName.get());
+		var body = body(header, p(message));
 		if(!toEmail.get().isEmpty()){
 			String fromEmail = datarouterProperties.getAdministratorEmail();
 			String primaryHref = htmlEmailService.startLinkBuilder()
@@ -233,7 +240,7 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 			var emailBuilder = htmlEmailService.startEmailBuilder()
 					.withTitle("Copy Table")
 					.withTitleHref(primaryHref)
-					.withContent(p(message));
+					.withContent(body);
 			htmlEmailService.trySendJ2Html(fromEmail, toEmail.get(), emailBuilder);
 		}
 		changelogRecorderService.recordChangelog(getSessionInfo(), "Single Thread", sourceNodeName.get(), targetNodeName

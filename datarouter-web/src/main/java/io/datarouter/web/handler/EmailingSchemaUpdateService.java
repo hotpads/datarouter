@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.handler;
 
+import static j2html.TagCreator.body;
 import static j2html.TagCreator.pre;
 
 import javax.inject.Provider;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
@@ -36,6 +38,7 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 
 	private final DatarouterHtmlEmailService htmlEmailService;
 	private final DatarouterWebPaths datarouterWebPaths;
+	private final StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	public EmailingSchemaUpdateService(DatarouterProperties datarouterProperties,
 			DatarouterAdministratorEmailService adminEmailService,
@@ -44,14 +47,17 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 			Provider<ChangelogRecorder> changelogRecorder,
 			String buildId,
 			DatarouterHtmlEmailService htmlEmailService,
-			DatarouterWebPaths datarouterWebPaths){
+			DatarouterWebPaths datarouterWebPaths,
+			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService){
 		super(datarouterProperties, adminEmailService, executor, schemaUpdateLockDao, changelogRecorder, buildId);
 		this.htmlEmailService = htmlEmailService;
 		this.datarouterWebPaths = datarouterWebPaths;
+		this.standardDatarouterEmailHeaderService = standardDatarouterEmailHeaderService;
 	}
 
 	@Override
 	protected void sendEmail(String fromEmail, String toEmail, String subject, String body){
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(datarouterWebPaths.datarouter)
 				.build();
@@ -59,7 +65,7 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 				.withSubject(subject)
 				.withTitle("Schema Update")
 				.withTitleHref(primaryHref)
-				.withContent(pre(body));
+				.withContent(body(header, pre(body)));
 		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
 		logger.warn("Sending Schema update email from={}, with subject={}", fromEmail, subject);
 	}

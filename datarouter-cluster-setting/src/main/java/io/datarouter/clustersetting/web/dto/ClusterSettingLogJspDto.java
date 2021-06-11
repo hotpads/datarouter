@@ -23,9 +23,9 @@ import java.util.Date;
 import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.clustersetting.storage.clustersettinglog.ClusterSettingLog;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.enums.StringEnum;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 
 public class ClusterSettingLogJspDto{
 
@@ -66,7 +66,7 @@ public class ClusterSettingLogJspDto{
 	}
 
 	public String getCreated(){
-		return DateTool.formatDateWithZone(created, zoneId);
+		return ZonedDateFormaterTool.formatDateWithZone(created, zoneId);
 	}
 
 	public String getCreatedIsoLocalDateTime(){

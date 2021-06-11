@@ -29,6 +29,7 @@ import javax.inject.Singleton;
 import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
@@ -58,7 +59,8 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 			DatarouterWebPaths datarouterWebPaths,
 			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
 			Provider<ChangelogRecorder> changelogRecorder,
-			BuildProperties buildProperties){
+			BuildProperties buildProperties,
+			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService){
 		super(datarouterProperties,
 				adminEmailService,
 				executor,
@@ -66,7 +68,8 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 				changelogRecorder,
 				buildProperties.getBuildId(),
 				htmlEmailService,
-				datarouterWebPaths);
+				datarouterWebPaths,
+				standardDatarouterEmailHeaderService);
 		this.mysqlSingleTableSchemaUpdateService = mysqlSingleTableSchemaUpdateService;
 		this.mysqlConnectionPoolHolder = mysqlConnectionPoolHolder;
 	}

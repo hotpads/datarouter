@@ -40,11 +40,6 @@ public class DatarouterBatchSizePlugin extends BaseJobPlugin{
 		addDatarouterGithubDocLink("datarouter-batch-size-optimizer");
 	}
 
-	@Override
-	public String getName(){
-		return "DatarouterBatchSizeOptimizer";
-	}
-
 	public static class DatarouterBatchSizePluginBuilder{
 
 		private final List<ClientId> defaultClientId;

@@ -308,7 +308,7 @@ public class SecretService{
 				}
 
 				//success (short circuit the rest of the suppliers, if any)
-				if(attemptedOps.size() > 1){
+				if(attemptedOps.size() > 1 && !secretNamespacer.isDevelopment()){
 					String attemptedSecretClientConfigs = Scanner.of(attemptedOps)
 							.map(opAttempt -> opAttempt.secretClientConfig)
 							.map(SecretClientConfig::getConfigName)

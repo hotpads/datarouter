@@ -18,20 +18,22 @@ package io.datarouter.instrumentation.trace;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import io.datarouter.instrumentation.Java11;
 
 public class TracerTool{
 
-	public static String getTraceId(Tracer tracer){
+	public static Optional<Traceparent> getTraceparent(Tracer tracer){
 		if(tracer == null){
-			return null;
+			return Optional.empty();
 		}
-		return tracer.getTraceId();
+		return tracer.getTraceContext()
+				.map(W3TraceContext::getTraceparent);
 	}
 
-	public static String getCurrentTraceId(){
-		return getTraceId(TracerThreadLocal.get());
+	public static Optional<Traceparent> getCurrentTraceparent(){
+		return getTraceparent(TracerThreadLocal.get());
 	}
 
 	/*---------------------------- TraceThread ------------------------------*/

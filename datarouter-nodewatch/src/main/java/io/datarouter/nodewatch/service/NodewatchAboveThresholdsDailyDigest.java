@@ -32,7 +32,7 @@ import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.CountStat;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.DateTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -109,7 +109,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 						row.latestSample.getKey().getTableName(),
 						row.latestSample.getKey().getClientName())))
 				.withColumn("Date Updated",
-						row -> DateTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
+						row -> ZonedDateFormaterTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
 				.withColumn("Previous Count ", row -> row.latestSample.getDateUpdated())
 				.withColumn("Latest Count", row -> row.latestSample.getDateUpdated())
 				.withColumn("% Increase", row -> row.latestSample.getDateUpdated())

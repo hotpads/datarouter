@@ -387,7 +387,6 @@ public abstract class DatarouterProperties{
 
 	public abstract String getDatarouterPropertiesFileLocation();
 
-
 	private static class FallbackPropertyValueSupplierDto{
 
 		private final String propertySource;
@@ -403,6 +402,7 @@ public abstract class DatarouterProperties{
 			this.propertySource = propertySource;
 			this.fallbackSupplier = fallbackSupplier;
 		}
+
 	}
 
 }

@@ -23,7 +23,9 @@ public abstract class BasePlugin extends BaseGuiceModule{
 	 *
 	 * @return the name of the plugin
 	 */
-	public abstract String getName();
+	public final String getName(){
+		return getClass().getSimpleName();
+	}
 
 	/**
 	 * This is experimental.

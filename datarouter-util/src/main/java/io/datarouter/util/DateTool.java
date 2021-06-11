@@ -15,7 +15,6 @@
  */
 package io.datarouter.util;
 
-
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
@@ -33,8 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.datarouter.util.duration.DurationUnit;
 import io.datarouter.util.duration.DurationWithCarriedUnits;
-import io.datarouter.util.time.LocalDateTimeTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
 
 public class DateTool{
 
@@ -244,58 +241,6 @@ public class DateTool{
 		return Optional.ofNullable(reverseInstantLong)
 				.map(nonNullReverseInstantLong -> Instant.ofEpochMilli(Long.MAX_VALUE - nonNullReverseInstantLong))
 				.orElse(null);
-	}
-
-	/*---------------- current day --------------------*/
-
-	@Deprecated // specify zoneId
-	public static long atStartOfDayReversedMs(){
-		return LocalDateTimeTool.atStartOfDayReversedMs(ZoneId.systemDefault());
-	}
-
-	@Deprecated // specify zoneId
-	public static long atEndOfDayReversedMs(){
-		return LocalDateTimeTool.atEndOfDayReversedMs(ZoneId.systemDefault());
-	}
-
-	@Deprecated // specify zoneId
-	public static long atStartOfDayMs(){
-		return LocalDateTimeTool.atStartOfDay(ZoneId.systemDefault()).toEpochMilli();
-	}
-
-	@Deprecated // specify zoneId
-	public static long atEndOfDayMs(){
-		return LocalDateTimeTool.atEndOfDay(ZoneId.systemDefault()).toEpochMilli();
-	}
-
-	@Deprecated // specify zoneId
-	public static Date localDateTimeToDate(LocalDateTime localDateTime, ZoneId zoneId){
-		return Date.from(localDateTime.atZone(zoneId).toInstant());
-	}
-
-	@Deprecated // specify zoneId
-	public static Date localDateTimeToDate(LocalDateTime localDateTime){
-		return localDateTimeToDate(localDateTime, ZoneId.systemDefault());
-	}
-
-	@Deprecated // inline
-	public static String formatDateWithZone(Date date, ZoneId zoneId){
-		return ZonedDateFormaterTool.formatDateWithZone(date, zoneId);
-	}
-
-	@Deprecated // inline
-	public static String formatInstantWithZone(Instant instant, ZoneId zoneId){
-		return ZonedDateFormaterTool.formatInstantWithZone(instant, zoneId);
-	}
-
-	@Deprecated // inline
-	public static String formatLongMsWithZone(long timeMs, ZoneId zoneId){
-		return ZonedDateFormaterTool.formatLongMsWithZone(timeMs, zoneId);
-	}
-
-	@Deprecated // inline
-	public static String formatReversedLongMsWithZone(long reversedTimeMs, ZoneId zoneId){
-		return ZonedDateFormaterTool.formatReversedLongMsWithZone(reversedTimeMs, zoneId);
 	}
 
 }

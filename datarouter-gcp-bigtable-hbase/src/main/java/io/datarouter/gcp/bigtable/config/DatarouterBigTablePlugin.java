@@ -32,11 +32,6 @@ public class DatarouterBigTablePlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterBigTable";
-	}
-
-	@Override
 	protected void configure(){
 		bind(BigtableProjectIdAndInstanceIdSupplier.class).to(projectIdAndInstanceIdSupplier);
 	}

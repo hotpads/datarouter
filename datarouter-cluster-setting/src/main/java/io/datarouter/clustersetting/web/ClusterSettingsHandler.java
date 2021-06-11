@@ -16,7 +16,6 @@
 package io.datarouter.clustersetting.web;
 
 import static j2html.TagCreator.a;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
 import java.time.Instant;
@@ -60,9 +59,8 @@ import io.datarouter.clustersetting.web.dto.SettingJspDto;
 import io.datarouter.clustersetting.web.dto.SettingNodeJspDto;
 import io.datarouter.email.email.DatarouterEmailLinkBuilder;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
-import io.datarouter.email.html.J2HtmlEmailTable;
-import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.email.type.DatarouterEmailTypes.ClusterSettingEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -137,6 +135,8 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	@Handler
 	public Mav customSettings(OptionalString prefix){
@@ -471,47 +471,31 @@ public class ClusterSettingsHandler extends BaseHandler{
 
 		private ContainerTag build(){
 			List<Pair<String,DomContent>> kvs = new ArrayList<>();
-			kvs.add(new Pair<>("environment", makeText(datarouterProperties.getEnvironment())));
-			kvs.add(new Pair<>("service", makeText(datarouterService.getServiceName())));
-			kvs.add(new Pair<>("host", makeText(datarouterProperties.getServerName())));
-			kvs.add(new Pair<>("user", makeText(log.getChangedBy())));
-			kvs.add(new Pair<>("action", makeText(log.getAction().getPersistentString())));
+			kvs.add(new Pair<>("user", text(log.getChangedBy())));
+			kvs.add(new Pair<>("action", text(log.getAction().getPersistentString())));
 			kvs.add(new Pair<>("setting", makeClusterSettingLogLink()));
 			String timestamp = ZonedDateFormaterTool.formatReversedLongMsWithZone(log.getKey().getReverseCreatedMs(),
 					datarouterService.getZoneId());
-			kvs.add(new Pair<>("timestamp", makeText(timestamp)));
+			kvs.add(new Pair<>("timestamp", text(timestamp)));
 			if(ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), log.getServerType())){
-				kvs.add(new Pair<>("serverType", makeText(log.getServerType())));
+				kvs.add(new Pair<>("serverType", text(log.getServerType())));
 			}
 			if(StringTool.notEmpty(log.getServerName())){
-				kvs.add(new Pair<>("serverName", makeText(log.getServerName())));
+				kvs.add(new Pair<>("serverName", text(log.getServerName())));
 			}
 			if(displayValue){
 				if(ClusterSettingLogAction.INSERTED != log.getAction()){
-					kvs.add(new Pair<>("old value", makeText(oldValue)));
+					kvs.add(new Pair<>("old value", text(oldValue)));
 				}
 				if(ClusterSettingLogAction.DELETED != log.getAction()){
-					kvs.add(new Pair<>("new value", makeText(log.getValue())));
+					kvs.add(new Pair<>("new value", text(log.getValue())));
 				}
 			}
 			String comment = StringTool.notNullNorEmptyNorWhitespace(log.getComment())
 					? log.getComment()
 					: "No comment provided";
-			kvs.add(new Pair<>("comment", makeText(comment)));
-
-			return new J2HtmlEmailTable<Pair<String,DomContent>>()
-					.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-					.withColumn(new J2HtmlEmailTableColumn<>(null, Pair::getRight))
-					.build(kvs);
-		}
-
-		private DomContent makeDivBoldRight(String text){
-			return div(text)
-					.withStyle("font-weight:bold;text-align:right;");
-		}
-
-		private DomContent makeText(String text){
-			return text(text);
+			kvs.add(new Pair<>("comment", text(comment)));
+			return standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplements(kvs);
 		}
 
 		private DomContent makeClusterSettingLogLink(){

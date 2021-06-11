@@ -45,11 +45,6 @@ public class DatarouterLoggerConfigPlugin extends BaseJobPlugin{
 		addDailyDigest(LoggerConfigDailyDigest.class);
 	}
 
-	@Override
-	public String getName(){
-		return "DatarouterLoggerConfig";
-	}
-
 	public static class DatarouterLoggerConfigPluginBuilder{
 
 		private final List<ClientId> defaultClientId;

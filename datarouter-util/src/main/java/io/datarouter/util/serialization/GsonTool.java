@@ -19,6 +19,7 @@ import java.util.Date;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 
 public class GsonTool{
 
@@ -29,5 +30,9 @@ public class GsonTool{
 	public static final Gson GSON_PRETTY_PRINT = new GsonBuilder()
 			.setPrettyPrinting()
 			.create();
+
+	public static String prettyPrint(String json){
+		return GSON_PRETTY_PRINT.toJson(GSON.fromJson(json, JsonElement.class));
+	}
 
 }

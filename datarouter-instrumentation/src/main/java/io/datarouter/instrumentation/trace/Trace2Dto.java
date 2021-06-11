@@ -30,6 +30,10 @@ public class Trace2Dto{
 	public final String serviceName;
 	public final Integer discardedThreadCount;
 	public final Integer totalThreadCount;
+	public final Long cpuTimeCreatedNs;
+	public final Long cpuTimeEndedNs;
+	public final Long memoryAllocatedBytesBegin;
+	public final Long memoryAllocatedBytesEnded;
 
 	public Trace2Dto(
 			Traceparent traceparent,
@@ -40,7 +44,11 @@ public class Trace2Dto{
 			Long created,
 			String serviceName,
 			Integer discardedThreadCount,
-			Integer totalThreadCount){
+			Integer totalThreadCount,
+			Long cpuTimeCreatedNs,
+			Long cpuTimeEndedNs,
+			Long memoryAllocatedBytesBegin,
+			Long memoryAllocatedBytesEnded){
 		this.traceparent = traceparent;
 		this.created = created;
 		this.initialParentId = initialParentId;
@@ -51,46 +59,18 @@ public class Trace2Dto{
 		this.serviceName = serviceName;
 		this.discardedThreadCount = discardedThreadCount;
 		this.totalThreadCount = totalThreadCount;
+		this.cpuTimeCreatedNs = cpuTimeCreatedNs;
+		this.cpuTimeEndedNs = cpuTimeEndedNs;
+		this.memoryAllocatedBytesBegin = memoryAllocatedBytesBegin;
+		this.memoryAllocatedBytesEnded = memoryAllocatedBytesEnded;
 	}
 
-	public Traceparent getTraceparent(){
-		return traceparent;
+	public long getDurationInNs(){
+		return ended - created;
 	}
 
-	public String getInitialParentId(){
-		return initialParentId;
-	}
-
-	public String getContext(){
-		return context;
-	}
-
-	public String getType(){
-		return type;
-	}
-
-	public String getParams(){
-		return params;
-	}
-
-	public Long getCreated(){
-		return created;
-	}
-
-	public Long getEnded(){
-		return ended;
-	}
-
-	public String getServiceName(){
-		return serviceName;
-	}
-
-	public Integer getDiscardedThreadCount(){
-		return discardedThreadCount;
-	}
-
-	public Integer getTotalThreadCount(){
-		return totalThreadCount;
+	public long getDurationInMs(){
+		return TimeUnit.NANOSECONDS.toMillis(getDurationInNs());
 	}
 
 	public static long getCurrentTimeInNs(){

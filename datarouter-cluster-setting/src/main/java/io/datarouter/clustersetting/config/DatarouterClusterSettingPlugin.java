@@ -52,11 +52,6 @@ public class DatarouterClusterSettingPlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterClusterSetting";
-	}
-
-	@Override
 	protected void configure(){
 		bindActual(SettingFinder.class, ClusterSettingFinder.class);
 	}

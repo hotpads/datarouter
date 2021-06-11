@@ -38,11 +38,6 @@ public class DatarouterHbasePlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterHbase";
-	}
-
-	@Override
 	protected void configure(){
 		bind(HBaseCompactionInfo.class).to(hbaseCompactionInfoClass);
 		bind(HBaseBalancerFactory.class).to(hbaseBalancerFactoryClass);

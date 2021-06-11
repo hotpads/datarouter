@@ -155,7 +155,7 @@ public class SecretHandler extends BaseHandler{
 		default:
 			return SecretHandlerOpResultDto.error("Unknown op.");
 		}
-		if(!permissions.isAuthorized(getSessionInfo().getRequiredSession(), requestDto.op)){
+		if(!permissions.isAuthorized(getSessionInfo().getRequiredSession(), requestDto)){
 			return SecretHandlerOpResultDto.denied("Permission denied for " + requestDto.op + " op.");
 		}
 		return null;

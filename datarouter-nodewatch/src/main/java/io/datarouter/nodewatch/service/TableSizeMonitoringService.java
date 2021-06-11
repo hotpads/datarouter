@@ -27,7 +27,6 @@ import javax.inject.Singleton;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.type.DatarouterEmailTypes.NodewatchEmailType;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.storage.alertthreshold.DatarouterTableSizeAlertThresholdDao;
 import io.datarouter.nodewatch.storage.alertthreshold.TableSizeAlertThreshold;
@@ -70,8 +69,6 @@ public class TableSizeMonitoringService{
 	private TableConfigurationService tableConfigurationService;
 	@Inject
 	private DatarouterNodewatchPaths paths;
-	@Inject
-	private DatarouterService datarouterService;
 	@Inject
 	private TableSizeMonitoringEmailBuilder emailBuilder;
 	@Inject
@@ -194,8 +191,6 @@ public class TableSizeMonitoringService{
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.build();
 		ContainerTag content = emailBuilder.build(
-				datarouterService.getServiceName(),
-				datarouterProperties.getServerName(),
 				aboveThresholdList,
 				PERCENTAGE_THRESHOLD,
 				abovePercentageList,

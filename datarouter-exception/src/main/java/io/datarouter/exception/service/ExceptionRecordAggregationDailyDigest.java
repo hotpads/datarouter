@@ -40,9 +40,10 @@ import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryD
 import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
 import io.datarouter.exception.storage.summary.ExceptionRecordSummaryKey;
 import io.datarouter.exception.web.ExceptionAnalysisHandler;
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
+import io.datarouter.util.time.LocalDateTimeTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -52,6 +53,8 @@ import j2html.tags.ContainerTag;
 
 @Singleton
 public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
+
+	private static final int EXCEPTIONS_THRESHOLD = 100;
 
 	private static final Comparator<AggregatedExceptionDto> COMPARATOR = Comparator
 			.comparing((AggregatedExceptionDto dto) -> dto.value.count)
@@ -67,26 +70,28 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 	@Inject
 	private ExemptDailyDigestExceptions exemptDailyDigestExceptions;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Override
 	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
-		List<AggregatedExceptionDto> aggregated = getExceptions();
+		List<AggregatedExceptionDto> aggregated = getExceptions(zoneId);
 		if(aggregated.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse);
-		var description = small("Aggregated for the current day");
+		var description = small("Aggregated for the current day (over " + EXCEPTIONS_THRESHOLD + ")");
 		return Optional.of(div(header, description, makePageTable(aggregated)));
 	}
 
 	@Override
 	public Optional<ContainerTag> getEmailContent(){
-		List<AggregatedExceptionDto> aggregated = getExceptions();
+		List<AggregatedExceptionDto> aggregated = getExceptions(datarouterService.getZoneId());
 		if(aggregated.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Exceptions", paths.datarouter.exception.browse);
-		var description = small("Aggregated for the current day");
+		var description = small("Aggregated for the current day (over " + EXCEPTIONS_THRESHOLD + ")");
 		return Optional.of(div(header, description, makeEmailTable(aggregated)));
 	}
 
@@ -105,10 +110,11 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 		return DailyDigestType.SUMMARY;
 	}
 
-	private List<AggregatedExceptionDto> getExceptions(){
+	private List<AggregatedExceptionDto> getExceptions(ZoneId zoneId){
 		Map<AggregatedExceptionKeyDto,AggregatedExceptionValueDto> aggregatedExceptions = new HashMap<>();
 		for(ExceptionRecordSummary exception : dao.scan()
-				.advanceUntil(key -> key.getKey().getReversePeriodStart() > DateTool.atStartOfDayReversedMs())
+				.advanceUntil(key -> key.getKey().getReversePeriodStart() > LocalDateTimeTool.atStartOfDayReversedMs(
+						zoneId))
 				.iterable()){
 			if(exemptDailyDigestExceptions.isExempt(exception)){
 				continue;
@@ -122,6 +128,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 			aggregatedExceptions.put(key, value);
 		}
 		return Scanner.of(aggregatedExceptions.entrySet())
+				.exclude(entry -> entry.getValue().count < EXCEPTIONS_THRESHOLD)
 				.map(entry -> new AggregatedExceptionDto(entry.getKey(), entry.getValue()))
 				.sort(COMPARATOR)
 				.list();

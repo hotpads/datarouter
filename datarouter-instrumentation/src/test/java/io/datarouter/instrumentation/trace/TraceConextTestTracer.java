@@ -32,22 +32,17 @@ public class TraceConextTestTracer implements Tracer{
 	}
 
 	@Override
-	public String getTraceId(){
-		return null;
-	}
-
-	@Override
 	public Optional<W3TraceContext> getTraceContext(){
 		return Optional.of(traceContext);
 	}
 
 	@Override
-	public BlockingQueue<TraceThreadDto> getThreadQueue(){
+	public BlockingQueue<Trace2ThreadDto> getThreadQueue(){
 		return null;
 	}
 
 	@Override
-	public BlockingQueue<TraceSpanDto> getSpanQueue(){
+	public BlockingQueue<Trace2SpanDto> getSpanQueue(){
 		return null;
 	}
 
@@ -76,7 +71,7 @@ public class TraceConextTestTracer implements Tracer{
 	}
 
 	@Override
-	public void addThread(TraceThreadDto thread){
+	public void addThread(Trace2ThreadDto thread){
 	}
 
 	@Override
@@ -97,7 +92,7 @@ public class TraceConextTestTracer implements Tracer{
 	}
 
 	@Override
-	public void addSpan(TraceSpanDto span){
+	public void addSpan(Trace2SpanDto span){
 	}
 
 	@Override
@@ -113,7 +108,7 @@ public class TraceConextTestTracer implements Tracer{
 	}
 
 	@Override
-	public TraceSpanDto getCurrentSpan(){
+	public Trace2SpanDto getCurrentSpan(){
 		return null;
 	}
 
@@ -124,6 +119,26 @@ public class TraceConextTestTracer implements Tracer{
 
 	@Override
 	public void setForceSave(){
+	}
+
+	@Override
+	public void setSaveThreadCpuTime(boolean saveThreadCpuTime){
+		return;
+	}
+
+	@Override
+	public void setSaveThreadMemoryAllocated(boolean saveThreadMemoryAllocated){
+		return;
+	}
+
+	@Override
+	public void setSaveSpanCpuTime(boolean saveSpanCpuTime){
+		return;
+	}
+
+	@Override
+	public void setSaveSpanMemoryAllocated(boolean saveSpanMemoryAllocated){
+		return;
 	}
 
 	@Override

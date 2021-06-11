@@ -76,11 +76,6 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterWebSocket";
-	}
-
-	@Override
 	public void configure(){
 		bind(WebSocketServices.class).to(webSocketServices);
 		bind(ServerAddressProvider.class).to(serverAddressProvider);

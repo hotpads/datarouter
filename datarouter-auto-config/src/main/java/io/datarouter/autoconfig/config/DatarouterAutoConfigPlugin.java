@@ -44,11 +44,6 @@ public class DatarouterAutoConfigPlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterAutoConfig";
-	}
-
-	@Override
 	public void configure(){
 		bind(AutoConfigRegistry.class).toInstance(new AutoConfigRegistry(autoConfigs, autoConfigGroups));
 	}

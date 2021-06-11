@@ -58,7 +58,9 @@ extends BaseConveyor{
 		D databean = message.getDatabean();
 		logger.info("peeked conveyor={} messageCount={}", name, 1);
 		try{
-			processOne(databean);
+			if(!processOneShouldAck(databean)){
+				return new ProcessBatchResult(true);
+			}
 		}catch(Exception e){
 			throw new RuntimeException("databean=" + databean, e);
 		}
@@ -74,6 +76,13 @@ extends BaseConveyor{
 		return VISIBILITY_TIMEOUT;
 	}
 
-	protected abstract void processOne(D databean);
+	protected boolean processOneShouldAck(D databean){
+		processOne(databean);
+		return true;
+	}
+
+	protected void processOne(@SuppressWarnings("unused") D databean){
+		throw new UnsupportedOperationException();
+	}
 
 }

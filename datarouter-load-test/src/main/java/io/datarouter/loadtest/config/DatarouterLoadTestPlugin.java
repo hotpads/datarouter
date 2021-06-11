@@ -64,11 +64,6 @@ public class DatarouterLoadTestPlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterLoadTest";
-	}
-
-	@Override
 	protected void configure(){
 		if(enableGet){
 			bind(LoadTestGetDao.class).to(DatarouterLoadTestDao.class);

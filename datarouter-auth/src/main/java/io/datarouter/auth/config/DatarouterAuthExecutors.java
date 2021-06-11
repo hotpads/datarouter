@@ -21,6 +21,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import javax.inject.Singleton;
 
 import io.datarouter.util.concurrent.NamedThreadFactory;
+import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 
 public class DatarouterAuthExecutors{
 
@@ -33,6 +34,15 @@ public class DatarouterAuthExecutors{
 
 		public DatarouterAccountCredentialCacheExecutor(String name){
 			super(1, new NamedThreadFactory(name, true));
+		}
+
+	}
+
+	@Singleton
+	public static class DatarouterAccountDeleteActionExecutor extends ScalingThreadPoolExecutor{
+
+		public DatarouterAccountDeleteActionExecutor(){
+			super("datarouterAccountDeleteAction", 10);
 		}
 
 	}

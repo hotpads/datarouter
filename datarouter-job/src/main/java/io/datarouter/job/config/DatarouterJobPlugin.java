@@ -67,11 +67,6 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterJob";
-	}
-
-	@Override
 	public void configure(){
 		bind(TriggerGroupClasses.class).toInstance(new TriggerGroupClasses(triggerGroupClasses));
 		bind(DetachedJobExecutor.class).to(this.detachedJobExecutorClass);

@@ -21,40 +21,34 @@ public class Trace2ThreadDto{
 	public final Long threadId;
 	public final Long parentThreadId;
 	public final String name;
-	public final String info;
 	public final String serverName;
-	public final Long created;
-	public final Long queuedEnded;
-	public final Long ended;
-	public final Integer discardedSpanCount;
 	public final String hostThreadName;
-	public final Integer totalSpanCount;
+	public final Long created;
+	private String info;
+	private Long queuedEnded;
+	private Long ended;
+	private Integer discardedSpanCount;
+	private Integer totalSpanCount;
+	private Long cpuTimeCreatedNs;
+	private Long cpuTimeEndedNs;
+	private Long memoryAllocatedBytesBegin;
+	private Long memoryAllocatedBytesEnded;
 
 	public Trace2ThreadDto(
 			Traceparent traceparent,
 			Long threadId,
 			Long parentThreadId,
 			String name,
-			String info,
 			String serverName,
-			Long created,
-			Long queuedEnded,
-			Long ended,
-			Integer discardedSpanCount,
 			String hostThreadName,
-			Integer totalSpanCount){
+			Long created){
 		this.traceparent = traceparent;
 		this.threadId = threadId;
 		this.parentThreadId = parentThreadId;
-		this.serverName = serverName;
 		this.name = name;
-		this.created = created;
+		this.serverName = serverName;
 		this.hostThreadName = hostThreadName;
-		this.info = info;
-		this.queuedEnded = queuedEnded;
-		this.ended = ended;
-		this.discardedSpanCount = discardedSpanCount;
-		this.totalSpanCount = totalSpanCount;
+		this.created = created;
 	}
 
 	public Traceparent getTraceparent(){
@@ -73,8 +67,32 @@ public class Trace2ThreadDto{
 		return name;
 	}
 
+	public String getHostThreadName(){
+		return hostThreadName;
+	}
+
 	public String getInfo(){
 		return info;
+	}
+
+	public void setInfo(String info){
+		this.info = info;
+	}
+
+	public Long getQueuedEnded(){
+		return queuedEnded;
+	}
+
+	public void markStart(){
+		this.queuedEnded = Trace2Dto.getCurrentTimeInNs();
+	}
+
+	public Long getEnded(){
+		return ended;
+	}
+
+	public void markFinish(){
+		this.ended = Trace2Dto.getCurrentTimeInNs();;
 	}
 
 	public String getServerName(){
@@ -85,24 +103,52 @@ public class Trace2ThreadDto{
 		return created;
 	}
 
-	public Long getQueuedEnded(){
-		return queuedEnded;
-	}
-
-	public Long getEnced(){
-		return ended;
-	}
-
 	public Integer getDiscardedSpanCount(){
 		return discardedSpanCount;
 	}
 
-	public String getHostThreadName(){
-		return hostThreadName;
+	public void setDiscardedSpanCount(Integer discardedSpanCount){
+		this.discardedSpanCount = discardedSpanCount;
 	}
 
 	public Integer getTotalSpanCount(){
 		return totalSpanCount;
+	}
+
+	public void setTotalSpanCount(Integer totalSpanCount){
+		this.totalSpanCount = totalSpanCount;
+	}
+
+	public Long getCpuTimeCreatedNs(){
+		return cpuTimeCreatedNs;
+	}
+
+	public void setCpuTimeCreatedNs(Long cpuTimeCreatedNs){
+		this.cpuTimeCreatedNs = cpuTimeCreatedNs;
+	}
+
+	public Long getCpuTimeEndedNs(){
+		return cpuTimeEndedNs;
+	}
+
+	public void setCpuTimeEndedNs(Long cpuTimeEndedNs){
+		this.cpuTimeEndedNs = cpuTimeEndedNs;
+	}
+
+	public Long getMemoryAllocatedBytesBegin(){
+		return memoryAllocatedBytesBegin;
+	}
+
+	public void setMemoryAllocatedBytesBegin(Long memoryAllocatedBytesBegin){
+		this.memoryAllocatedBytesBegin = memoryAllocatedBytesBegin;
+	}
+
+	public Long getMemoryAllocatedBytesEnded(){
+		return memoryAllocatedBytesEnded;
+	}
+
+	public void setMemoryAllocatedBytesEnded(Long memoryAllocatedBytesEnded){
+		this.memoryAllocatedBytesEnded = memoryAllocatedBytesEnded;
 	}
 
 }

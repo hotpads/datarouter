@@ -76,15 +76,6 @@ public class ScannerTool{
 		}
 	}
 
-	public static <T> Optional<T> findAny(Scanner<T> scanner){
-		try(Scanner<T> $ = scanner){
-			if(scanner.advance()){
-				return Optional.of(scanner.current());
-			}
-			return Optional.empty();
-		}
-	}
-
 	public static <T> Optional<T> findFirst(Scanner<T> scanner){
 		try(Scanner<T> $ = scanner){
 			if(scanner.advance()){

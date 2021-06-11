@@ -39,6 +39,10 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 	private Long created;
 	private Long ended;
 	private String info;
+	private Long cpuTimeCreatedNs;
+	private Long cpuTimeEndedNs;
+	private Long memoryAllocatedBytesBegin;
+	private Long memoryAllocatedBytesEnded;
 
 	public static class FieldKeys{
 		public static final UInt31FieldKey parentSequence = new UInt31FieldKey("parentSequence");
@@ -47,6 +51,10 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		public static final StringFieldKey info = new StringFieldKey("info");
 		public static final UInt63FieldKey created = new UInt63FieldKey("created");
 		public static final UInt63FieldKey ended = new UInt63FieldKey("ended");
+		public static final UInt63FieldKey cpuTimeCreatedNs = new UInt63FieldKey("cpuTimeCreatedNs");
+		public static final UInt63FieldKey cpuTimeEndedNs = new UInt63FieldKey("cpuTimeEndedNs");
+		public static final UInt63FieldKey memoryAllocatedBytesBegin = new UInt63FieldKey("memoryAllocatedBytesBegin");
+		public static final UInt63FieldKey memoryAllocatedBytesEnded = new UInt63FieldKey("memoryAllocatedBytesEnded");
 	}
 
 	public static class Trace2SpanFielder extends BaseDatabeanFielder<Trace2SpanKey,Trace2Span>{
@@ -63,7 +71,11 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 					new StringField(FieldKeys.name, databean.name),
 					new StringField(FieldKeys.info, databean.info),
 					new UInt63Field(FieldKeys.created, databean.created),
-					new UInt63Field(FieldKeys.ended, databean.ended));
+					new UInt63Field(FieldKeys.ended, databean.ended),
+					new UInt63Field(FieldKeys.cpuTimeCreatedNs, databean.cpuTimeCreatedNs),
+					new UInt63Field(FieldKeys.cpuTimeEndedNs, databean.cpuTimeEndedNs),
+					new UInt63Field(FieldKeys.memoryAllocatedBytesBegin, databean.memoryAllocatedBytesBegin),
+					new UInt63Field(FieldKeys.memoryAllocatedBytesEnded, databean.memoryAllocatedBytesEnded));
 		}
 	}
 
@@ -80,8 +92,12 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		this.parentSequence = dto.parentSequence;
 		this.name = dto.name;
 		this.created = dto.created;
-		this.ended = dto.ended;
-		this.info = dto.info;
+		this.ended = dto.getEnded();
+		this.info = dto.getInfo();
+		this.cpuTimeCreatedNs = dto.getCpuTimeCreatedNs();
+		this.cpuTimeEndedNs = dto.getCpuTimeEndedNs();
+		this.memoryAllocatedBytesBegin = dto.getMemoryAllocatedBytesBegin();
+		this.memoryAllocatedBytesEnded = dto.getMemoryAllocatedBytesEnded();
 	}
 
 	@Override

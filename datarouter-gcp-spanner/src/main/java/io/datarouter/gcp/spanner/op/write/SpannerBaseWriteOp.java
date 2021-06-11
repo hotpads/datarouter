@@ -28,7 +28,7 @@ import io.datarouter.storage.config.Config;
 
 public abstract class SpannerBaseWriteOp<T> extends SpannerBaseOp<Void>{
 
-	private static final Integer DEFAULT_BATCH_SIZE = 1000;
+	private static final Integer DEFAULT_BATCH_SIZE = 100;
 
 	protected final DatabaseClient client;
 	protected final Optional<Integer> batchSize;

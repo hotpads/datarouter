@@ -74,11 +74,6 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		setDaosModule(daosModule);
 	}
 
-	@Override
-	public String getName(){
-		return "DatarouterStorage";
-	}
-
 	public List<Class<? extends Dao>> getDatarouterStorageDaoClasses(){
 		return daosModule.getDaoClasses();
 	}

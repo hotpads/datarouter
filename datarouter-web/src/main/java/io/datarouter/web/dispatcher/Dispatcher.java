@@ -103,7 +103,7 @@ public class Dispatcher{
 					// TODO avoid re evaluating the rule
 					Pair<Boolean,String> apiKeyPredicateExistsWithName = rule.getApiKeyPredicate().check(rule, request);
 					if(apiKeyPredicateExistsWithName.getLeft()){
-						handler.setApiKeyPredicateName(apiKeyPredicateExistsWithName.getRight());
+						handler.setAccountName(apiKeyPredicateExistsWithName.getRight());
 					}
 				}
 				break;

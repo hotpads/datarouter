@@ -62,7 +62,9 @@ extends BaseConveyor{
 		List<D> databeans = message.getDatabeans();
 		logger.info("peeked conveyor={} messageCount={}", name, databeans.size());
 		timer.add("peek");
-		processDatabeans(databeans);
+		if(!processDatabeansShouldAck(databeans)){
+			return new ProcessBatchResult(true);
+		}
 		logger.info("wrote conveyor={} messageCount={}", name, databeans.size());
 		timer.add("wrote");
 		ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
@@ -75,6 +77,13 @@ extends BaseConveyor{
 		return new ProcessBatchResult(true);
 	}
 
-	protected abstract void processDatabeans(List<D> databeans);
+	protected boolean processDatabeansShouldAck(List<D> databeans){
+		processDatabeans(databeans);
+		return true;
+	}
+
+	protected void processDatabeans(@SuppressWarnings("unused") List<D> databeans){
+		throw new UnsupportedOperationException();
+	}
 
 }

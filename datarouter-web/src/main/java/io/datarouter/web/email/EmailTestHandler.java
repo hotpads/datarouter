@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.email;
 
+import static j2html.TagCreator.body;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
@@ -23,6 +24,7 @@ import static j2html.TagCreator.p;
 import javax.inject.Inject;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.web.app.WebappName;
@@ -52,6 +54,8 @@ public class EmailTestHandler extends BaseHandler{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private DatarouterAdministratorEmailService adminEmailService;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	@Handler(defaultHandler = true)
 	private Mav sendEmailTest(@Param(P_submitAction) OptionalString submitAction){
@@ -72,9 +76,10 @@ public class EmailTestHandler extends BaseHandler{
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.emailTest)
 				.build();
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		String message = String.format("Test email sent to %s, from server %s, webapp %s. Email initiated by %s.",
 				toEmail, server, webapp, fromEmail);
-		var content = p(message);
+		var content = body(header, p(message));
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withTitle("Email Test")
 				.withTitleHref(primaryHref)

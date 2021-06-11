@@ -28,6 +28,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -43,7 +44,7 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
-import io.datarouter.util.DateTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import j2html.tags.ContainerTag;
 
 public class LongRunningTaskFailureAlertJob extends BaseJob{
@@ -68,6 +69,8 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	private LongRunningTaskFailureAlertEmailType longRunningTaskFailureAlertEmailType;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -105,20 +108,21 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 			List<LongRunningTask> longRunningTaskList){
 		var body = body();
 		String headerVerb = longRunningTaskList.size() == 1 ? " is " : " are ";
-		var header = h4("There" + headerVerb + longRunningTaskList.size()
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
+		var description = h4("There" + headerVerb + longRunningTaskList.size()
 				+ " non-successful long running tasks in the last 24 hours.");
 		ContainerTag taskTable = new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name",
 						row -> makeTaskLink(row.getKey().getName())))
-				.withColumn("Trigger Time", row -> DateTool.formatDateWithZone(row.getKey().getTriggerTime(),
-						datarouterService.getZoneId()))
+				.withColumn("Trigger Time", row -> ZonedDateFormaterTool.formatDateWithZone(row.getKey()
+						.getTriggerTime(), datarouterService.getZoneId()))
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())
 				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())
 				.withColumn(new J2HtmlEmailTableColumn<>("Exception Record Id",
 						row -> makeExceptionLink(row.getExceptionRecordId())))
 				.build(longRunningTaskList);
-		body.with(div(header, taskTable));
+		body.with(div(header, description, taskTable));
 		return body.with(
 				br(),
 				br(),

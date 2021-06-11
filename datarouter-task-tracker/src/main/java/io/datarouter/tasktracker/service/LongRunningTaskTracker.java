@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
 import io.datarouter.instrumentation.task.TaskStatus;
 import io.datarouter.instrumentation.task.TaskTracker;
@@ -66,6 +67,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private final ServerTypeDetector serverTypeDetector;
 	private final LongRunningTaskTrackerEmailType longRunningTaskTrackerEmailType;
 	private final Setting<Boolean> sendAlertEmail;
+	private final StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	private final LongRunningTaskInfo task;
 	private final Optional<Instant> deadline;
@@ -73,7 +75,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private final MutableBoolean stopRequested;
 	private volatile Instant lastReported;
 	private volatile boolean deadlineAlertAttempted;
-	private final Consumer<LongRunningTaskTracker> callback;
+
+	private Consumer<LongRunningTaskTracker> callback;
 
 	public LongRunningTaskTracker(
 			DatarouterTaskTrackerPaths datarouterTaskTrackerPaths,
@@ -87,11 +90,10 @@ public class LongRunningTaskTracker implements TaskTracker{
 			ServerTypeDetector serverTypeDetector,
 			LongRunningTaskTrackerEmailType longRunningTaskTrackerEmailType,
 			Setting<Boolean> sendAlertEmail,
-
+			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			LongRunningTaskInfo task,
 			Instant deadline,
-			boolean warnOnReachingInterrupt,
-			Consumer<LongRunningTaskTracker> callback){
+			boolean warnOnReachingInterrupt){
 		this.datarouterTaskTrackerPaths = datarouterTaskTrackerPaths;
 		this.datarouterHtmlEmailService = datarouterHtmlEmailService;
 		this.datarouterProperties = datarouterProperties;
@@ -103,46 +105,15 @@ public class LongRunningTaskTracker implements TaskTracker{
 		this.serverTypeDetector = serverTypeDetector;
 		this.longRunningTaskTrackerEmailType = longRunningTaskTrackerEmailType;
 		this.sendAlertEmail = sendAlertEmail;
+		this.standardDatarouterEmailHeaderService = standardDatarouterEmailHeaderService;
 
 		this.task = task;
 		this.deadline = Optional.ofNullable(deadline);
 		this.warnOnReachingInterrupt = warnOnReachingInterrupt;
 		this.stopRequested = new MutableBoolean(false);
 		this.deadlineAlertAttempted = false;
-		this.callback = callback;
-	}
 
-	public LongRunningTaskTracker(
-			DatarouterTaskTrackerPaths datarouterTaskTrackerPaths,
-			DatarouterHtmlEmailService datarouterHtmlEmailService,
-			DatarouterProperties datarouterProperties,
-			DatarouterAdministratorEmailService datarouterAdministratorEmailService,
-			LongRunningTaskGraphLink longRunningTaskGraphLink,
-			Setting<Boolean> persistSetting,
-			SortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
-			TaskTrackerCounters counters,
-			ServerTypeDetector serverTypeDetector,
-			LongRunningTaskTrackerEmailType longRunningTaskTrackerEmailType,
-			Setting<Boolean> sendAlertEmail,
-			LongRunningTaskInfo task,
-			Instant deadline,
-			boolean warnOnReachingInterrupt){
-		this(
-				datarouterTaskTrackerPaths,
-				datarouterHtmlEmailService,
-				datarouterProperties,
-				datarouterAdministratorEmailService,
-				longRunningTaskGraphLink,
-				persistSetting,
-				node,
-				counters,
-				serverTypeDetector,
-				longRunningTaskTrackerEmailType,
-				sendAlertEmail,
-				task,
-				deadline,
-				warnOnReachingInterrupt,
-				$ -> {});
+		this.callback = $ -> {};
 	}
 
 	@Override
@@ -294,6 +265,10 @@ public class LongRunningTaskTracker implements TaskTracker{
 		return false;
 	}
 
+	public void setCallback(Consumer<LongRunningTaskTracker> callback){
+		this.callback = callback;
+	}
+
 	private void onShouldStop(String reason){
 		counters.shouldStop(task.name, reason);
 		logger.warn("{} shouldStop because {}", task.name, reason);
@@ -329,12 +304,13 @@ public class LongRunningTaskTracker implements TaskTracker{
 	}
 
 	private ContainerTag makeEmailBody(String name, String serverName, String detailsHref){
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var message = p(
 				a("Deadline reached for " + name).withHref(detailsHref),
 				text(String.format(" on %s. Consider extending the trigger period.", serverName)));
 		var tasksLink = a("Tasks").withHref(detailsHref);
 		var counterLink = a("Counters").withHref(longRunningTaskGraphLink.getLink(name));
-		return body(message, br(), tasksLink, br(), counterLink);
+		return body(header, message, br(), tasksLink, br(), counterLink);
 	}
 
 	/*------------ persist -----------------*/

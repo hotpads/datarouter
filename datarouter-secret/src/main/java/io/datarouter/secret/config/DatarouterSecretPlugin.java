@@ -55,11 +55,6 @@ public class DatarouterSecretPlugin extends BasePlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterSecret";
-	}
-
-	@Override
 	public void configure(){
 		bindActualInstance(SecretClientConfigHolder.class, secretClientConfigHolder);
 		bindActual(SecretNamespacer.class, secretNamespacer);

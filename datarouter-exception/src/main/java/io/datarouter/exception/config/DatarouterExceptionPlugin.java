@@ -101,11 +101,6 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterException";
-	}
-
-	@Override
 	protected void configure(){
 		bindDefault(ExceptionGraphLink.class, exceptionGraphLinkClass);
 		bindActual(ExceptionRecorder.class, exceptionRecorderClass);

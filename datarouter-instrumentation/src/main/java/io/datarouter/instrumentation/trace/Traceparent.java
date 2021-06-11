@@ -52,6 +52,11 @@ public class Traceparent{
 				createNewTraceFlag());
 	}
 
+	public static Traceparent generateNewWithCurrentTimeInNs(){
+		return new Traceparent(createNewTraceId(Trace2Dto.getCurrentTimeInNs()), createNewParentId(),
+				createNewTraceFlag());
+	}
+
 	public Traceparent updateParentId(){
 		return new Traceparent(traceId, createNewParentId(), traceFlags);
 	}

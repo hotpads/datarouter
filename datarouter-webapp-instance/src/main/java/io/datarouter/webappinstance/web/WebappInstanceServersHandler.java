@@ -34,8 +34,8 @@ import javax.inject.Inject;
 
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.duration.DatarouterDuration;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
@@ -110,14 +110,14 @@ public class WebappInstanceServersHandler extends BaseHandler{
 					return td();
 				})
 				.withColumn("Server Name", row -> row.key.serverName)
-				.withColumn("Build Date", row -> DateTool.formatInstantWithZone(row.key.buildDate, zoneId))
+				.withColumn("Build Date", row -> ZonedDateFormaterTool.formatInstantWithZone(row.key.buildDate, zoneId))
 				.withColumn("Startup Range", row ->
 						row.startup
-								.map(date -> DateTool.formatInstantWithZone(date, zoneId))
+								.map(date -> ZonedDateFormaterTool.formatInstantWithZone(date, zoneId))
 								.orElse("unknown")
 						+ " - "
 						+ row.shutdown
-								.map(date -> DateTool.formatInstantWithZone(date, zoneId))
+								.map(date -> ZonedDateFormaterTool.formatInstantWithZone(date, zoneId))
 								.orElse("unknown"))
 				.withColumn("Up Time", row -> {
 						if(row.startup.isEmpty() || row.shutdown.isEmpty()){

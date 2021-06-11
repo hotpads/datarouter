@@ -36,7 +36,7 @@ import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.OptionalScanner;
-import io.datarouter.util.DateTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -166,7 +166,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 		}
 
 		public String getDateRequested(ZoneId zoneId){
-			return DateTool.formatDateWithZone(dateRequested, zoneId);
+			return ZonedDateFormaterTool.formatDateWithZone(dateRequested, zoneId);
 		}
 
 	}

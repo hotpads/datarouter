@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.trace.conveyor.local;
+package io.datarouter.storage.config;
 
-import java.util.Optional;
+import javax.inject.Inject;
 
-import javax.inject.Singleton;
+import org.testng.Assert;
+import org.testng.annotations.Guice;
+import org.testng.annotations.Test;
 
-import io.datarouter.instrumentation.trace.TraceEntityDto;
-import io.datarouter.trace.conveyor.FilterToMemoryBuffer;
+import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 
-public interface FilterToMemoryBufferForLocal extends FilterToMemoryBuffer{
+@Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
+public class DatarouterPropertiesTests{
 
-	@Singleton
-	static class NoOpFilterToMemoryBufferForLocal implements FilterToMemoryBufferForLocal{
+	@Inject
+	private DatarouterProperties datarouterProperties;
 
-		@Override
-		public Optional<String> offer(TraceEntityDto dto){
-			return Optional.empty();
-		}
-
+	@Test
+	public void testInternalConfigDirectory(){
+		Assert.assertNotEquals("production", datarouterProperties.getInternalConfigDirectory());
 	}
 
 }

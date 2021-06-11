@@ -30,6 +30,7 @@ import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.Statement;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.gcp.spanner.connection.SpannerDatabaseClientsHolder;
 import io.datarouter.gcp.spanner.ddl.SpannerSingleTableSchemaUpdateService;
 import io.datarouter.gcp.spanner.ddl.SpannerTableOperationsGenerator;
@@ -64,7 +65,8 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 			DatarouterWebPaths datarouterWebPaths,
 			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
 			Provider<ChangelogRecorder> changelogRecorder,
-			BuildProperties buildProperties){
+			BuildProperties buildProperties,
+			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService){
 		super(datarouterProperties,
 				adminEmailService,
 				executor,
@@ -72,7 +74,8 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 				changelogRecorder,
 				buildProperties.getBuildId(),
 				htmlEmailService,
-				datarouterWebPaths);
+				datarouterWebPaths,
+				standardDatarouterEmailHeaderService);
 		this.singleTableSchemaUpdateFactory = singleTableSchemaUpdateFactory;
 		this.tableOperationsGenerator = tableOperationsGenerator;
 		this.clientPoolHolder = clientPoolHolder;

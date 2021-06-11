@@ -30,6 +30,7 @@ import io.datarouter.aws.rds.service.AuroraDnsService;
 import io.datarouter.aws.rds.service.AuroraDnsService.DnsHostEntryDto;
 import io.datarouter.aws.rds.service.DatabaseAdministrationConfiguration;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.type.DatarouterEmailTypes.AwsRdsEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -59,6 +60,8 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private AwsRdsEmailType awsRdsEmailType;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -86,7 +89,8 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
 	}
 
-	private static ContainerTag makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
+	private ContainerTag makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var message = h3("Some of the reader DB instances are pointed to the writer instance.");
 		var table = new J2HtmlEmailTable<DnsHostEntryDto>()
 				.withColumn("client name", row -> row.getClientName())
@@ -98,7 +102,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		fixes.forEach(fix -> fixList
 				.with(rawHtml(fix))
 				.with(br()));
-		return body(message, table, fixList);
+		return body(header, message, table, fixList);
 	}
 
 	private void recordChangelog(String database){

@@ -25,9 +25,4 @@ public class DatarouterAwsElbPlugin extends BaseJobPlugin{
 		addDatarouterGithubDocLink("datarouter-aws-elb");
 	}
 
-	@Override
-	public String getName(){
-		return "DatarouterAwsElb";
-	}
-
 }

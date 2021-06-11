@@ -90,4 +90,8 @@ public class DatarouterUserAccountMapDao extends BaseDao implements BaseDatarout
 		return node.exists(key);
 	}
 
+	public Scanner<DatarouterUserAccountMapKey> scanKeys(){
+		return node.scanKeys();
+	}
+
 }

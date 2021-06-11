@@ -532,19 +532,9 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	@Deprecated // specify group
-	public T addFilter(String path, Class<? extends Filter> filter){
-		return addFilter(path, filter, FilterParamGrouping.APP);
-	}
-
 	public T addFilter(String path, Class<? extends Filter> filter, FilterParamGrouping grouping){
 		filterParamsUnordered.add(new FilterParams(false, path, filter, grouping));
 		return getSelf();
-	}
-
-	@Deprecated // specify group
-	public T addFilters(Collection<String> paths, Class<? extends Filter> filter){
-		return addFilters(paths, filter, FilterParamGrouping.APP);
 	}
 
 	public T addFilters(Collection<String> paths, Class<? extends Filter> filter, FilterParamGrouping grouping){
@@ -552,29 +542,14 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	@Deprecated
-	public T addRegexFilter(String regex, Class<? extends Filter> filter){
-		return addRegexFilter(regex, filter, FilterParamGrouping.APP);
-	}
-
 	public T addRegexFilter(String regex, Class<? extends Filter> filter, FilterParamGrouping grouping){
 		filterParamsUnordered.add(new FilterParams(true, regex, filter, grouping));
 		return getSelf();
 	}
 
-	@Deprecated
-	public T addRegexFilters(Collection<String> regexes, Class<? extends Filter> filter){
-		return addRegexFilters(regexes, filter, FilterParamGrouping.APP);
-	}
-
 	public T addRegexFilters(Collection<String> regexes, Class<? extends Filter> filter, FilterParamGrouping grouping){
 		regexes.forEach(regex -> addRegexFilter(regex, filter, grouping));
 		return getSelf();
-	}
-
-	@Deprecated
-	public T addRootFilters(Class<? extends Filter> filter){
-		return addRootFilters(filter, FilterParamGrouping.APP);
 	}
 
 	public T addRootFilters(Class<? extends Filter> filter, FilterParamGrouping grouping){

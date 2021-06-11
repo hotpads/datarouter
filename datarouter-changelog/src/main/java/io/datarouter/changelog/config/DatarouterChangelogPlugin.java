@@ -59,11 +59,6 @@ public class DatarouterChangelogPlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterChangelog";
-	}
-
-	@Override
 	protected void configure(){
 		bind(ChangelogPublisher.class).to(changelogPublisher);
 		bindActual(ChangelogRecorder.class, ChangelogRecorderService.class);

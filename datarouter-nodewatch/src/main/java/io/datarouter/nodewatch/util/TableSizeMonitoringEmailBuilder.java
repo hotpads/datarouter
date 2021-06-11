@@ -17,11 +17,9 @@ package io.datarouter.nodewatch.util;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.body;
-import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h4;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
 
 import java.text.DecimalFormat;
 import java.time.ZoneId;
@@ -32,6 +30,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
@@ -40,6 +39,7 @@ import io.datarouter.nodewatch.service.TableSizeMonitoringService.CountStat;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -51,16 +51,16 @@ public class TableSizeMonitoringEmailBuilder{
 	private DatarouterNodewatchPaths paths;
 	@Inject
 	private DatarouterService datarouterService;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	public ContainerTag build(
-			String serviceName,
-			String serverNameString,
 			List<CountStat> thresholdRows,
 			float percentageThreshold,
 			List<CountStat> percentageRows,
 			List<LatestTableCount> staleRows){
-		var body = body()
-				.with(h4("Service: " + serviceName));
+		var mainHeader = standardDatarouterEmailHeaderService.makeStandardHeader();
+		var body = body(mainHeader);
 		if(thresholdRows.size() > 0){
 			var header = h4("Tables exceeding threshold");
 			var table = makeCountStatTable("THRESHOLD", thresholdRows);
@@ -78,10 +78,7 @@ public class TableSizeMonitoringEmailBuilder{
 			var table = makeEmailStaleTable(staleRows);
 			body.with(div(header, header2, table));
 		}
-		return body.with(
-				br(),
-				br(),
-				span("Sent from: " + serverNameString));
+		return body;
 	}
 
 	public ContainerTag makeEmailStaleTable(List<LatestTableCount> staleRows){
@@ -93,7 +90,7 @@ public class TableSizeMonitoringEmailBuilder{
 						row.getKey().getClientName())))
 				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows())))
 				.withColumn(alignRight("Date Updated",
-						row -> DateTool.formatDateWithZone(row.getDateUpdated(), zoneId)))
+						row -> ZonedDateFormaterTool.formatDateWithZone(row.getDateUpdated(), zoneId)))
 				.withColumn(alignRight("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime())))
 				.build(staleRows);
 	}
@@ -106,7 +103,7 @@ public class TableSizeMonitoringEmailBuilder{
 						row.latestSample.getKey().getTableName(),
 						row.latestSample.getKey().getClientName())))
 				.withColumn("Date Updated",
-						row -> DateTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
+						row -> ZonedDateFormaterTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
 				.withColumn(alignRight(comparableCount, row -> NumberFormatter.addCommas(row.previousCount)))
 				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.latestSample.getNumRows())))
 				.withColumn(alignRight("% Increase", row -> new DecimalFormat("#,###.##").format(row.percentageIncrease)

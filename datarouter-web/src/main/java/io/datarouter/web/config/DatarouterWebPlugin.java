@@ -284,11 +284,6 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterWeb";
-	}
-
-	@Override
 	public void configure(){
 		bind(FilesRoot.class).to(filesClass);
 		bindActualNullSafe(ExceptionRecorder.class, exceptionRecorderClass);

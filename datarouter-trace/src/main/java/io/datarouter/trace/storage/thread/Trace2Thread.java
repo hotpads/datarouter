@@ -42,6 +42,10 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 	private Integer discardedSpanCount;
 	private String hostThreadName;
 	private Integer totalSpanCount;
+	private Long cpuTimeCreatedNs;
+	private Long cpuTimeEndedNs;
+	private Long memoryAllocatedBytesBegin;
+	private Long memoryAllocatedBytesEnded;
 
 	public static class FieldKeys{
 		public static final UInt63FieldKey parentThreadId = new UInt63FieldKey("parentThreadId");
@@ -54,6 +58,10 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		public static final UInt31FieldKey discardedSpanCount = new UInt31FieldKey("discardedSpanCount");
 		public static final StringFieldKey hostThreadName = new StringFieldKey("hostThreadName");
 		public static final UInt31FieldKey totalSpanCount = new UInt31FieldKey("totalSpanCount");
+		public static final UInt63FieldKey cpuTimeCreatedNs = new UInt63FieldKey("cpuTimeCreatedNs");
+		public static final UInt63FieldKey cpuTimeEndedNs = new UInt63FieldKey("cpuTimeEndedNs");
+		public static final UInt63FieldKey memoryAllocatedBytesBegin = new UInt63FieldKey("memoryAllocatedBytesBegin");
+		public static final UInt63FieldKey memoryAllocatedBytesEnded = new UInt63FieldKey("memoryAllocatedBytesEnded");
 	}
 
 	public static class Trace2ThreadFielder extends BaseDatabeanFielder<Trace2ThreadKey,Trace2Thread>{
@@ -64,18 +72,22 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		}
 
 		@Override
-		public List<Field<?>> getNonKeyFields(Trace2Thread traceThread){
+		public List<Field<?>> getNonKeyFields(Trace2Thread databean){
 			return List.of(
-					new UInt63Field(FieldKeys.parentThreadId, traceThread.parentThreadId),
-					new StringField(FieldKeys.name, traceThread.name),
-					new StringField(FieldKeys.info, traceThread.info),
-					new StringField(FieldKeys.serverName, traceThread.serverName),
-					new UInt63Field(FieldKeys.created, traceThread.created),
-					new UInt63Field(FieldKeys.queuedEnded, traceThread.queuedEnded),
-					new UInt63Field(FieldKeys.ended, traceThread.ended),
-					new UInt31Field(FieldKeys.discardedSpanCount, traceThread.discardedSpanCount),
-					new StringField(FieldKeys.hostThreadName, traceThread.hostThreadName),
-					new UInt31Field(FieldKeys.totalSpanCount, traceThread.totalSpanCount));
+					new UInt63Field(FieldKeys.parentThreadId, databean.parentThreadId),
+					new StringField(FieldKeys.name, databean.name),
+					new StringField(FieldKeys.info, databean.info),
+					new StringField(FieldKeys.serverName, databean.serverName),
+					new UInt63Field(FieldKeys.created, databean.created),
+					new UInt63Field(FieldKeys.queuedEnded, databean.queuedEnded),
+					new UInt63Field(FieldKeys.ended, databean.ended),
+					new UInt31Field(FieldKeys.discardedSpanCount, databean.discardedSpanCount),
+					new StringField(FieldKeys.hostThreadName, databean.hostThreadName),
+					new UInt31Field(FieldKeys.totalSpanCount, databean.totalSpanCount),
+					new UInt63Field(FieldKeys.cpuTimeCreatedNs, databean.cpuTimeCreatedNs),
+					new UInt63Field(FieldKeys.cpuTimeEndedNs, databean.cpuTimeEndedNs),
+					new UInt63Field(FieldKeys.memoryAllocatedBytesBegin, databean.memoryAllocatedBytesBegin),
+					new UInt63Field(FieldKeys.memoryAllocatedBytesEnded, databean.memoryAllocatedBytesEnded));
 		}
 
 	}
@@ -92,14 +104,18 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		super(new Trace2ThreadKey(dto.traceparent, dto.threadId));
 		this.parentThreadId = dto.parentThreadId;
 		this.name = dto.name;
-		this.info = dto.info;
+		this.info = dto.getInfo();
 		this.serverName = dto.serverName;
 		this.created = dto.created;
-		this.queuedEnded = dto.queuedEnded;
-		this.ended = dto.ended;
-		this.discardedSpanCount = dto.discardedSpanCount;
+		this.queuedEnded = dto.getQueuedEnded();
+		this.ended = dto.getEnded();
+		this.discardedSpanCount = dto.getDiscardedSpanCount();
 		this.hostThreadName = dto.hostThreadName;
-		this.totalSpanCount = dto.totalSpanCount;
+		this.totalSpanCount = dto.getTotalSpanCount();
+		this.cpuTimeCreatedNs = dto.getCpuTimeCreatedNs();
+		this.cpuTimeEndedNs = dto.getCpuTimeEndedNs();
+		this.memoryAllocatedBytesBegin = dto.getMemoryAllocatedBytesBegin();
+		this.memoryAllocatedBytesEnded = dto.getMemoryAllocatedBytesEnded();
 	}
 
 	@Override

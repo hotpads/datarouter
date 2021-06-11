@@ -29,14 +29,9 @@
 	<script>
 		require(['jquery'], function(){
 			$(() => {
-				try{
-					const parsedJson = JSON.parse($('#request-body').text())
-					const formattedJson = JSON.stringify(parsedJson, null, 2) // formats with tabs and newlines
-					$('#request-body-formatted').text(formattedJson)
-					$('#request-body-toggle').show() // show toggle button
-					$('.request-body').toggle() // toggle both <pre> blocks
-				}catch(e){
-					console.info(e) // can't parse as json
+				if(!$('#request-body-formatted').is(':empty')){
+					$('#request-body-toggle').show()
+					$('.request-body').toggle()
 				}
 			})
 		})
@@ -125,19 +120,19 @@
 					</c:otherwise>
 				</c:choose>
 			</div>
-			<div>
-				<div class="d-flex justify-content-between">
-					<strong>Body : </strong>
-					<a id="request-body-toggle" tabindex="-1" onclick="$(this).children().toggle(); $('.request-body').toggle()" style="display: none">
-						<span>Show original</span>
-						<span style="display: none">Show parsed</span>
-					</a>
-				</div>
-				<c:if test="${not empty httpRequestRecord.stringBody}">
+			<c:if test="${not empty httpRequestRecord.stringBody}">
+				<div>
+					<div class="d-flex justify-content-between">
+						<strong>Body : </strong>
+						<a id="request-body-toggle" tabindex="-1" onclick="$(this).children().toggle(); $('.request-body').toggle()" style="display: none">
+							<span>Show original</span>
+							<span style="display: none">Show parsed</span>
+						</a>
+					</div>
 					<pre class="bg-light p-2 rounded border request-body" id="request-body">${fn:escapeXml(httpRequestRecord.stringBody)}</pre>
-					<pre class="bg-light p-2 rounded border request-body" id="request-body-formatted" style="display: none"></pre>
-				</c:if>
-			</div>
+					<pre class="bg-light p-2 rounded border request-body" id="request-body-formatted" style="display: none">${fn:escapeXml(httpRequestRecord.prettyPrintedJsonBody)}</pre>
+				</div>	
+			</c:if>
 			<h3 class="mt-5">Client</h3>
 			<p>
 				<strong>Ip: </strong>${httpRequestRecord.ip}<br>

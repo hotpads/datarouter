@@ -27,11 +27,8 @@ import io.datarouter.storage.setting.cached.CachedSetting;
 @Singleton
 public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 
-	public final CachedSetting<Boolean> bufferInSqs;
 	public final CachedSetting<Boolean> bufferInSqsForTrace2;
-	public final CachedSetting<Boolean> runMemoryToSqs;
 	public final CachedSetting<Boolean> runMemoryToSqsForTrace2;
-	public final CachedSetting<Boolean> drainSqsToPublisher;
 	public final CachedSetting<Boolean> drainSqsToPublisherForTrace2;
 	public final CachedSetting<Boolean> drainSqsToPublisherForTrace2HttpRequestRecord;
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
@@ -40,15 +37,10 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 	public DatarouterTracePublisherSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterTracePublisher.");
 
-		bufferInSqs = registerBoolean("bufferInSqs", true);
 		bufferInSqsForTrace2 = registerBooleans("bufferInSqsForTrace2", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		runMemoryToSqs = registerBooleans("runMemoryToSqs", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACEPIPELINE, () -> true));
 		runMemoryToSqsForTrace2 = registerBooleans("runMemoryToSqsForTrace2", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
-		drainSqsToPublisher = registerBooleans("drainSqsToPublisher", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACEPIPELINE, () -> true));
 		drainSqsToPublisherForTrace2 = registerBooleans("drainSqsToPublisherForTrace2", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		drainSqsToPublisherForTrace2HttpRequestRecord = registerBooleans(

@@ -16,6 +16,8 @@
 package io.datarouter.util.timer;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -138,11 +140,19 @@ public class PhaseTimer{
 
 	public Map<String,Long> asMap(){
 		return Scanner.of(phaseNamesAndTimes)
-				.toMap(Pair::getLeft, Pair::getRight);
+				.toMapSupplied(Pair::getLeft, Pair::getRight, LinkedHashMap::new);
 	}
 
 	public void setName(String name){
 		this.name = name;
+	}
+
+	public String getName(){
+		return name;
+	}
+
+	public List<Pair<String,Long>> getPhaseNamesAndTimes(){
+		return Collections.unmodifiableList(phaseNamesAndTimes);
 	}
 
 }

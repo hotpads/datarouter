@@ -15,6 +15,7 @@
  */
 package io.datarouter.loggerconfig.web;
 
+import static j2html.TagCreator.body;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
@@ -44,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.loggerconfig.LoggingConfigService;
@@ -105,6 +107,8 @@ public class LoggingSettingsHandler extends BaseHandler{
 	private DatarouterConsoleAppenderDao consoleAppenderDao;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	@Handler(defaultHandler = true)
 	protected Mav showForm(){
@@ -313,11 +317,8 @@ public class LoggingSettingsHandler extends BaseHandler{
 			String loggerConfigName,
 			String oldLevel,
 			LoggingSettingAction action){
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		List<String> lines = new ArrayList<>();
-		lines.add("Change made on:");
-		lines.add("- environment: " + datarouterProperties.getEnvironment());
-		lines.add("- host: " + datarouterProperties.getServerName());
-		lines.add("");
 		lines.add("Change details:");
 		lines.add("- user: " + getCurrentUsername());
 		lines.add("- action: " + action.getPersistentString());
@@ -332,7 +333,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 		var content = div();
 		lines.forEach(line -> content.with(text(line)).with(br()));
-		return content;
+		return body(header, content);
 	}
 
 	private String getCurrentUsername(){

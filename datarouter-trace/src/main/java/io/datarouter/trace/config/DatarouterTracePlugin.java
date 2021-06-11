@@ -24,26 +24,16 @@ import io.datarouter.job.config.BaseJobPlugin;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
-import io.datarouter.trace.conveyor.local.FilterToMemoryBufferForLocal;
-import io.datarouter.trace.conveyor.local.FilterToMemoryBufferForLocal.NoOpFilterToMemoryBufferForLocal;
 import io.datarouter.trace.conveyor.local.LocalTraceConveyors;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalHttpRequestRecordQueueDao;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalHttpRequestRecordQueueDao.Trace2ForLocalHttpRequestRecordQueueDaoParams;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalQueueDao;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalQueueDao.Trace2ForLocalQueueDaoParams;
-import io.datarouter.trace.conveyor.local.TraceLocalFilterToMemoryBuffer;
-import io.datarouter.trace.conveyor.local.TraceQueueLocalDao;
-import io.datarouter.trace.conveyor.local.TraceQueueLocalDao.TraceQueueLocalDaoParams;
-import io.datarouter.trace.conveyor.publisher.FilterToMemoryBufferForPublisher;
-import io.datarouter.trace.conveyor.publisher.FilterToMemoryBufferForPublisher.NoOpFilterToMemoryBufferForPublisher;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherHttpRequestRecordQueueDao;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherHttpRequestRecordQueueDao.Trace2ForPublisherHttpRequestRecordQueueDaoParams;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherQueueDao;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherQueueDao.Trace2ForPublisherQueueDaoParams;
 import io.datarouter.trace.conveyor.publisher.TracePublisherConveyors;
-import io.datarouter.trace.conveyor.publisher.TracePublisherFilterToMemoryBuffer;
-import io.datarouter.trace.conveyor.publisher.TraceQueuePublisherDao;
-import io.datarouter.trace.conveyor.publisher.TraceQueuePublisherDao.TraceQueuePublisherDaoParams;
 import io.datarouter.trace.filter.GuiceTraceFilter;
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.service.TraceUrlBuilder.LocalTraceUrlBulder;
@@ -103,25 +93,16 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterTrace";
-	}
-
-	@Override
 	public void configure(){
 		if(enableLocalTraces){
-			bind(FilterToMemoryBufferForLocal.class).to(TraceLocalFilterToMemoryBuffer.class);
 			bindActual(BaseDatarouterTraceDao.class, DatarouterTraceDao.class);
 		}else{
-			bind(FilterToMemoryBufferForLocal.class).to(NoOpFilterToMemoryBufferForLocal.class);
 			bindActual(BaseDatarouterTraceDao.class, NoOpDatarouterTraceDao.class);
 		}
 
 		if(enablePublisherTraces){
-			bind(FilterToMemoryBufferForPublisher.class).to(TracePublisherFilterToMemoryBuffer.class);
 			bind(TracePublisher.class).to(tracePublisher);
 		}else{
-			bind(FilterToMemoryBufferForPublisher.class).to(NoOpFilterToMemoryBufferForPublisher.class);
 			bind(TracePublisher.class).to(NoOpTracePublisher.class);
 		}
 
@@ -237,13 +218,11 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 			List<Class<? extends Dao>> daos = new ArrayList<>();
 			if(enableLocalTraces){
 				daos.add(DatarouterTraceDao.class);
-				daos.add(TraceQueueLocalDao.class);
 				daos.add(Trace2ForLocalQueueDao.class);
 				daos.add(Trace2ForLocalDao.class);
 				daos.add(Trace2ForLocalHttpRequestRecordQueueDao.class);
 			}
 			if(enableTracePublisher){
-				daos.add(TraceQueuePublisherDao.class);
 				daos.add(Trace2ForPublisherQueueDao.class);
 				daos.add(Trace2ForPublisherHttpRequestRecordQueueDao.class);
 			}
@@ -255,8 +234,6 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 			if(enableLocalTraces){
 				bind(DatarouterTraceDaoParams.class)
 						.toInstance(new DatarouterTraceDaoParams(localTraceClientId));
-				bind(TraceQueueLocalDaoParams.class)
-						.toInstance(new TraceQueueLocalDaoParams(localTraceQueueClientId));
 				bind(Trace2ForLocalDaoParams.class)
 						.toInstance(new Trace2ForLocalDaoParams(localTraceClientId));
 				bind(Trace2ForLocalQueueDaoParams.class)
@@ -265,8 +242,6 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 						.toInstance(new Trace2ForLocalHttpRequestRecordQueueDaoParams(localTraceQueueClientId));
 			}
 			if(enableTracePublisher){
-				bind(TraceQueuePublisherDaoParams.class)
-						.toInstance(new TraceQueuePublisherDaoParams(publishingTraceQueueClientId));
 				bind(Trace2ForPublisherQueueDaoParams.class)
 						.toInstance(new Trace2ForPublisherQueueDaoParams(publishingTraceQueueClientId));
 				bind(Trace2ForPublisherHttpRequestRecordQueueDaoParams.class)

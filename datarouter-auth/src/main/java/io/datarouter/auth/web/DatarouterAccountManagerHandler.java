@@ -36,6 +36,7 @@ import io.datarouter.auth.service.DatarouterAccountCredentialService;
 import io.datarouter.auth.service.DatarouterAccountCredentialService.AccountLookupDto;
 import io.datarouter.auth.service.DatarouterAccountCredentialService.DatarouterAccountSecretCredentialKeypairDto;
 import io.datarouter.auth.service.DatarouterAccountCredentialService.SecretCredentialDto;
+import io.datarouter.auth.service.DatarouterAccountDeleteAction;
 import io.datarouter.auth.service.DefaultDatarouterAccountAvailableEndpointsProvider;
 import io.datarouter.auth.storage.account.BaseDatarouterAccountDao;
 import io.datarouter.auth.storage.account.DatarouterAccount;
@@ -76,6 +77,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final ChangelogRecorder changelogRecorder;
 	private final MetricLinkBuilder metricLinkBuilder;
 	private final CurrentUserSessionInfoService currentSessionInfoService;
+	private final DatarouterAccountDeleteAction datarouterAccountDeleteAction;
 	private final String path;
 
 	@Inject
@@ -90,7 +92,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			Bootstrap4ReactPageFactory reactPageFactory,
 			ChangelogRecorder changelogRecorder,
 			MetricLinkBuilder metricLinkBuilder,
-			CurrentUserSessionInfoService currentSessionInfoService){
+			CurrentUserSessionInfoService currentSessionInfoService,
+			DatarouterAccountDeleteAction datarouterAccountDeleteAction){
 		this(datarouterAccountDao,
 				datarouterAccountPermissionDao,
 				acccountCredentialService,
@@ -101,6 +104,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 				changelogRecorder,
 				metricLinkBuilder,
 				currentSessionInfoService,
+				datarouterAccountDeleteAction,
 				paths.admin.accounts.toSlashedString());
 	}
 
@@ -115,6 +119,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			ChangelogRecorder changelogRecorder,
 			MetricLinkBuilder metricLinkBuilder,
 			CurrentUserSessionInfoService currentSessionInfoService,
+			DatarouterAccountDeleteAction datarouterAccountDeleteAction,
 			String path){
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
@@ -126,6 +131,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this.changelogRecorder = changelogRecorder;
 		this.metricLinkBuilder = metricLinkBuilder;
 		this.currentSessionInfoService = currentSessionInfoService;
+		this.datarouterAccountDeleteAction = datarouterAccountDeleteAction;
 
 		this.path = path;
 	}
@@ -175,6 +181,8 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		datarouterAccountPermissionDao.deleteWithPrefix(prefix);
 		acccountCredentialService.deleteAllCredentialsForAccount(accountName, getSessionInfo().getRequiredSession());
 		DatarouterAccountKey accountKey = new DatarouterAccountKey(accountName);
+		DatarouterAccount account = datarouterAccountDao.get(accountKey);
+		datarouterAccountDeleteAction.onDelete(account);
 		datarouterAccountDao.delete(accountKey);
 		logAndRecordAction(accountName, "delete");
 	}

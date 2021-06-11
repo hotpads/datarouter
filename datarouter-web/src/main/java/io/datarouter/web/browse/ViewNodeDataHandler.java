@@ -15,9 +15,6 @@
  */
 package io.datarouter.web.browse;
 
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.text;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -28,8 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.html.J2HtmlEmailTable;
-import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.model.databean.Databean;
@@ -38,7 +34,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
@@ -59,7 +54,6 @@ import io.datarouter.web.handler.types.optional.OptionalInteger;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.util.ExceptionTool;
 import io.datarouter.web.util.http.RequestTool;
-import j2html.tags.DomContent;
 
 public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ViewNodeDataHandler.class);
@@ -71,13 +65,13 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
-	private DatarouterProperties properties;
-	@Inject
 	private DatarouterWebPaths paths;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	@Override
 	protected PathNode getFormPath(){
@@ -206,7 +200,6 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				Twin.of("lastKey", last == null ? "?" : last.toString()),
 				Twin.of("averageRps", NumberFormatter.addCommas(avgRps)),
 				Twin.of("duration", duration + ""),
-				Twin.of("server", properties.getServerName()),
 				Twin.of("triggeredBy", getSessionInfo().getRequiredSession().getUsername()));
 		sendEmail(node.getName(), emailKvs);
 		var dto = new DatarouterChangelogDtoBuilder(
@@ -222,10 +215,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		String from = getSessionInfo().getRequiredSession().getUsername();
 		String to = administratorEmailService.getAdministratorEmailAddressesCsv(from);
 		String title = "Count Keys Result";
-		var table = new J2HtmlEmailTable<Twin<String>>()
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> text(row.getRight())))
-				.build(kvs);
+		var table = standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplementsText(kvs);
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodes.browseData)
 				.withParam("nodeName", nodeName)
@@ -235,10 +225,6 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				.withTitleHref(primaryHref)
 				.withContent(table);
 		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
-	}
-
-	private static DomContent makeDivBoldRight(String text){
-		return div(text).withStyle("font-weight:bold;text-align:right;");
 	}
 
 }

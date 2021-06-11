@@ -69,11 +69,6 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterEmail";
-	}
-
-	@Override
 	protected void configure(){
 		bind(ClusterSettingEmailType.class)
 				.toInstance(new ClusterSettingEmailType(emailRecipientsClusterSettingUpdate));

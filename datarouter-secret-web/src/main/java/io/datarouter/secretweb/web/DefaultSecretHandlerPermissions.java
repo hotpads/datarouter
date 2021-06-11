@@ -35,11 +35,12 @@ public class DefaultSecretHandlerPermissions implements SecretHandlerPermissions
 	private ServerTypeDetector serverTypeDetector;
 
 	@Override
-	public final boolean isAuthorized(Session session, SecretOpDto secretOp){
+	public final boolean isAuthorized(Session session, SecretHandlerOpRequestDto secretOpRequest){
+		var opType = secretOpRequest.op;
 		if(getAuthorizedUsers().contains(session.getUsername())){
 			return true;
 		}
-		if(SecretOpDto.LIST_ALL == secretOp){
+		if(SecretOpDto.LIST_ALL == opType){
 			return true;
 		}
 		if(serverTypeDetector.mightBeProduction()){

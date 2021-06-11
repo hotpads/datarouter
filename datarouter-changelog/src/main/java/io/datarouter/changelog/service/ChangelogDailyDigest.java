@@ -34,7 +34,8 @@ import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.util.DateTool;
+import io.datarouter.util.time.LocalDateTimeTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -57,7 +58,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
-		var list = getChangelogs();
+		var list = getChangelogs(zoneId);
 		if(list.size() == 0){
 			return Optional.empty();
 		}
@@ -69,7 +70,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<ContainerTag> getEmailContent(){
-		var list = getChangelogs();
+		var list = getChangelogs(datarouterService.getZoneId());
 		if(list.size() == 0){
 			return Optional.empty();
 		}
@@ -94,9 +95,9 @@ public class ChangelogDailyDigest implements DailyDigest{
 		return DailyDigestType.SUMMARY;
 	}
 
-	private List<Changelog> getChangelogs(){
-		var start = new ChangelogKey(DateTool.atEndOfDayReversedMs(), null, null);
-		var stop = new ChangelogKey(DateTool.atStartOfDayReversedMs(), null, null);
+	private List<Changelog> getChangelogs(ZoneId zoneId){
+		var start = new ChangelogKey(LocalDateTimeTool.atEndOfDayReversedMs(zoneId), null, null);
+		var stop = new ChangelogKey(LocalDateTimeTool.atStartOfDayReversedMs(zoneId), null, null);
 		Range<ChangelogKey> range = new Range<>(start, true, stop, true);
 		return dao.scan(range).list();
 	}
@@ -113,7 +114,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 				}))
 				.withColumn("Date", row -> {
 					Long reversedDateMs = row.getKey().getReversedDateMs();
-					return DateTool.formatDateWithZone(new Date(Long.MAX_VALUE - reversedDateMs), zoneId);
+					return ZonedDateFormaterTool.formatDateWithZone(new Date(Long.MAX_VALUE - reversedDateMs), zoneId);
 				})
 				.withColumn("Type", row -> row.getKey().getChangelogType())
 				.withColumn("Name", row -> row.getKey().getName())

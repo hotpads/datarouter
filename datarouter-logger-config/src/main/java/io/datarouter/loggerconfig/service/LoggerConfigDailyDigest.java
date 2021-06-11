@@ -30,7 +30,8 @@ import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
-import io.datarouter.util.DateTool;
+import io.datarouter.util.time.LocalDateTimeTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -51,7 +52,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 
 	@Override
 	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
-		List<LoggerConfig> loggers = getTodaysLoggers();
+		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
 		if(loggers.size() == 0){
 			return Optional.empty();
 		}
@@ -62,14 +63,14 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
 				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> DateTool.formatDateWithZone(row.getLastUpdated(), zoneId))
+				.withColumn("Updated", row -> ZonedDateFormaterTool.formatDateWithZone(row.getLastUpdated(), zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}
 
 	@Override
 	public Optional<ContainerTag> getEmailContent(){
-		List<LoggerConfig> loggers = getTodaysLoggers();
+		List<LoggerConfig> loggers = getTodaysLoggers(datarouterService.getZoneId());
 		if(loggers.size() == 0){
 			return Optional.empty();
 		}
@@ -80,7 +81,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
 				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> DateTool.formatDateWithZone(row.getLastUpdated(), zoneId))
+				.withColumn("Updated", row -> ZonedDateFormaterTool.formatDateWithZone(row.getLastUpdated(), zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}
@@ -100,10 +101,11 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 		return DailyDigestType.SUMMARY;
 	}
 
-	private List<LoggerConfig> getTodaysLoggers(){
+	private List<LoggerConfig> getTodaysLoggers(ZoneId zoneId){
 		return dao.scan()
 				.exclude(config -> config.getLastUpdated() == null)
-				.exclude(config -> config.getLastUpdated().getTime() < DateTool.atStartOfDayMs())
+				.exclude(config -> config.getLastUpdated().getTime()
+						< LocalDateTimeTool.atStartOfDay(zoneId).toEpochMilli())
 				.list();
 	}
 

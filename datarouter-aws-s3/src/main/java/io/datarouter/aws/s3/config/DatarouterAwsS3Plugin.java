@@ -25,11 +25,6 @@ public class DatarouterAwsS3Plugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterAwsS3";
-	}
-
-	@Override
 	protected void configure(){
 	}
 

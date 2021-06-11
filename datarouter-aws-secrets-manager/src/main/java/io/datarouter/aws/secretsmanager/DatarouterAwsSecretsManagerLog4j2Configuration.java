@@ -27,7 +27,7 @@ public class DatarouterAwsSecretsManagerLog4j2Configuration extends BaseLog4j2Co
 		registerParent(DatarouterLog4j2Configuration.class);
 
 		Appender console = getAppender(DatarouterLog4j2Configuration.CONSOLE_APPENDER_NAME);
-		addLoggerConfig("com.amazonaws.auth.AWSCredentialsProviderChain", Level.DEBUG, false, console);
+		addLoggerConfig("com.amazonaws.auth.profile.internal.BasicProfileConfigLoader", Level.ERROR, false, console);
 	}
 
 }

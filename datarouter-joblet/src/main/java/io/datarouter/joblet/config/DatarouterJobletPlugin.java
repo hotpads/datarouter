@@ -77,11 +77,6 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterJoblet";
-	}
-
-	@Override
 	public void configure(){
 		bindActualInstance(JobletTypeFactory.class, new JobletTypeFactory(jobletTypes));
 		bind(JobletSelectorRegistry.class).toInstance(jobletSelectorRegistry);

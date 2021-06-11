@@ -24,9 +24,28 @@ public class Trace2SpanDto{
 	public final Integer sequence;
 	public final Integer parentSequence;
 	public final String name;
-	public final String info;
 	public final Long created;
-	public final Long ended;
+	private String info;
+	private Long ended;
+	private Long cpuTimeCreatedNs;
+	private Long cpuTimeEndedNs;
+	private Long memoryAllocatedBytesBegin;
+	private Long memoryAllocatedBytesEnded;
+
+	public Trace2SpanDto(
+			Traceparent traceparent,
+			Long parentThreadId,
+			Integer sequence,
+			Integer parentSequence,
+			String name,
+			Long created){
+		this.traceparent = traceparent;
+		this.parentThreadId = parentThreadId;
+		this.sequence = sequence;
+		this.parentSequence = parentSequence;
+		this.name = name;
+		this.created = created;
+	}
 
 	public Trace2SpanDto(
 			Traceparent traceparent,
@@ -37,12 +56,7 @@ public class Trace2SpanDto{
 			String info,
 			Long created,
 			Long ended){
-		this.traceparent = traceparent;
-		this.parentThreadId = parentThreadId;
-		this.sequence = sequence;
-		this.parentSequence = parentSequence;
-		this.created = created;
-		this.name = name;
+		this(traceparent, parentThreadId, sequence, parentSequence, name, created);
 		this.info = info;
 		this.ended = ended;
 	}
@@ -75,12 +89,52 @@ public class Trace2SpanDto{
 		return info;
 	}
 
+	public void setInfo(String info){
+		this.info = info;
+	}
+
 	public Long getCreated(){
 		return created;
 	}
 
 	public Long getEnded(){
 		return ended;
+	}
+
+	public void markFinish(){
+		this.ended = Trace2Dto.getCurrentTimeInNs();
+	}
+
+	public Long getCpuTimeCreatedNs(){
+		return cpuTimeCreatedNs;
+	}
+
+	public void setCpuTimeCreated(Long cpuTimeCreatedNs){
+		this.cpuTimeCreatedNs = cpuTimeCreatedNs;
+	}
+
+	public Long getCpuTimeEndedNs(){
+		return cpuTimeEndedNs;
+	}
+
+	public void setCpuTimeEndedNs(Long cpuTimeEndedNs){
+		this.cpuTimeEndedNs = cpuTimeEndedNs;
+	}
+
+	public Long getMemoryAllocatedBytesBegin(){
+		return memoryAllocatedBytesBegin;
+	}
+
+	public void setMemoryAllocatedBegin(Long memoryAllocatedBytesBegin){
+		this.memoryAllocatedBytesBegin = memoryAllocatedBytesBegin;
+	}
+
+	public Long getMemoryAllocatedBytesEnded(){
+		return memoryAllocatedBytesEnded;
+	}
+
+	public void setMemoryAllocatedBytesEnded(Long memoryAllocatedBytesEnded){
+		this.memoryAllocatedBytesEnded = memoryAllocatedBytesEnded;
 	}
 
 }

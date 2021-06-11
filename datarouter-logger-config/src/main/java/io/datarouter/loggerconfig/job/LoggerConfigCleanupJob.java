@@ -32,8 +32,7 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.Level;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.html.J2HtmlEmailTable;
-import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.LoggerConfigCleanupEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -50,9 +49,7 @@ import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.time.ZonedDateFormaterTool;
-import io.datarouter.util.tuple.Twin;
 import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 
 public class LoggerConfigCleanupJob extends BaseJob{
 
@@ -78,6 +75,8 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	private LoggerConfigCleanupEmailType loggerConfigCleanupEmailType;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	private int maxAgeLimitDays;
 	private int loggingConfigSendEmailAlertDays;
@@ -210,24 +209,10 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	}
 
 	private ContainerTag makeEmailContent(ContainerTag details){
-		var header = h3("Old LoggerConfig alert from:");
-		var table = new J2HtmlEmailTable<Twin<String>>()
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> text(row.getRight())))
-				.build(makeEmailTableValues());
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
+		var description = h3("Old LoggerConfig alert from:");
 		var detailsHeader = h4("Details:");
-		return div(header, table, detailsHeader, details);
-	}
-
-	private List<Twin<String>> makeEmailTableValues(){
-		return List.of(
-				Twin.of("environment", datarouterProperties.getEnvironment()),
-				Twin.of("service", datarouterService.getServiceName()),
-				Twin.of("host", datarouterProperties.getServerName()));
-	}
-
-	private static DomContent makeDivBoldRight(String text){
-		return div(text).withStyle("font-weight:bold;text-align:right;");
+		return div(header, description, detailsHeader, details);
 	}
 
 }

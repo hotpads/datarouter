@@ -36,7 +36,7 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
-import io.datarouter.util.DateTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -113,7 +113,8 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		return new J2HtmlTable<LongRunningTask>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Name", row -> td(makeTaskLink(row.getKey().getName())))
-				.withColumn("Trigger Time", row -> DateTool.formatDateWithZone(row.getKey().getTriggerTime(), zoneId))
+				.withColumn("Trigger Time", row -> ZonedDateFormaterTool.formatDateWithZone(row.getKey()
+						.getTriggerTime(), zoneId))
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())
 				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())
@@ -125,7 +126,8 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> makeTaskLink(row.getKey().getName())))
-				.withColumn("Trigger Time", row -> DateTool.formatDateWithZone(row.getKey().getTriggerTime(), zoneId))
+				.withColumn("Trigger Time", row -> ZonedDateFormaterTool.formatDateWithZone(row.getKey()
+						.getTriggerTime(), zoneId))
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())
 				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())

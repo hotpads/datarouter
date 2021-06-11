@@ -36,11 +36,6 @@ public class DatarouterGcpSpannerPlugin extends BaseWebPlugin{
 		bind(SpannerProjectIdAndInstanceIdSupplier.class).to(spannerProjectIdAndInstanceIdSupplier);
 	}
 
-	@Override
-	public String getName(){
-		return "DatarouterGcpSpanner";
-	}
-
 	public static class DatarouterGcpSpannerPluginBuilder{
 
 		private Class<? extends SpannerProjectIdAndInstanceIdSupplier> spannerProjectIdAndInstanceIdSupplier

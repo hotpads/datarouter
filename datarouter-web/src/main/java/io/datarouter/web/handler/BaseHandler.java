@@ -114,7 +114,10 @@ public abstract class BaseHandler{
 
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder;
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
-	protected String apiKeyPredicateName;
+	/**
+	 * same as apiKeyPredicateName
+	 */
+	protected String accountName;
 
 	//these are available to all handlers without passing them around
 	protected ServletContext servletContext;
@@ -303,8 +306,8 @@ public abstract class BaseHandler{
 	public void invokeHandlerMethod(Method method, Object[] args, HandlerEncoder encoder)
 	throws ServletException, IOException{
 		handlerMetrics.incMethodInvocation(getClass(), method.getName());
-		if(apiKeyPredicateName != null && !apiKeyPredicateName.isEmpty()){
-			handlerMetrics.incMethodInvocationByApiKeyPredicateName(getClass(), method.getName(), apiKeyPredicateName);
+		if(accountName != null && !accountName.isEmpty()){
+			handlerMetrics.incMethodInvocationByApiKeyPredicateName(getClass(), method.getName(), accountName);
 		}
 		Object result;
 		try{
@@ -445,8 +448,12 @@ public abstract class BaseHandler{
 		this.defaultHandlerDecoder = defaultHandlerDecoder;
 	}
 
-	public void setApiKeyPredicateName(String apiKeyPredicateName){
-		this.apiKeyPredicateName = apiKeyPredicateName;
+	/**
+	 *
+	 * @param accountName same as apiKeyPredicateName
+	 */
+	public void setAccountName(String accountName){
+		this.accountName = accountName;
 	}
 
 	private static class NullHandlerEncoder implements HandlerEncoder{

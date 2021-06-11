@@ -28,13 +28,4 @@ public class DatarouterSnapshotPlugin extends BaseWebPlugin{
 				"Snapshot");
 	}
 
-	@Override
-	protected void configure(){
-	}
-
-	@Override
-	public String getName(){
-		return "DatarouterSnapshot";
-	}
-
 }

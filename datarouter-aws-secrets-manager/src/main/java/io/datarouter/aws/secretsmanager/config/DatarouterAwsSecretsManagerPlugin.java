@@ -34,11 +34,6 @@ public class DatarouterAwsSecretsManagerPlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterAwsSecretsManager";
-	}
-
-	@Override
 	protected void configure(){
 		requireBinding(ServerTypeDetector.class);
 		if(hardcodedCredentialsHolder.isPresent()){

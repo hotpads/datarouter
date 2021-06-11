@@ -41,11 +41,6 @@ public class DatarouterCopyTablePlugin extends BaseJobletPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterCopyTable";
-	}
-
-	@Override
 	public void configure(){
 		bind(CopyTableConfiguration.class).to(copyTableConfiguration);
 	}

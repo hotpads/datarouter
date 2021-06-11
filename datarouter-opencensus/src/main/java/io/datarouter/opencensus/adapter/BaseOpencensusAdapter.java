@@ -48,7 +48,7 @@ implements OpencensusAdapter{
 
 	@Override
 	public Optional<Span> startSpan(){
-		if(TracerTool.getCurrentTraceId() == null){
+		if(TracerTool.getCurrentTraceparent() == null){
 			return Optional.empty();
 		}
 		try{

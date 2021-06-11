@@ -28,8 +28,8 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 import io.datarouter.instrumentation.trace.Trace2Dto;
-import io.datarouter.instrumentation.trace.TraceSpanDto;
-import io.datarouter.instrumentation.trace.TraceThreadDto;
+import io.datarouter.instrumentation.trace.Trace2SpanDto;
+import io.datarouter.instrumentation.trace.Trace2ThreadDto;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
@@ -106,7 +106,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public void addThread(TraceThreadDto thread){
+	public void addThread(Trace2ThreadDto thread){
 		return;
 	}
 
@@ -126,7 +126,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public BlockingQueue<TraceThreadDto> getThreadQueue(){
+	public BlockingQueue<Trace2ThreadDto> getThreadQueue(){
 		return new ArrayBlockingQueue<>(1);//capacity must be >0
 	}
 
@@ -151,7 +151,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public void addSpan(TraceSpanDto span){
+	public void addSpan(Trace2SpanDto span){
 		return;
 	}
 
@@ -171,12 +171,12 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public BlockingQueue<TraceSpanDto> getSpanQueue(){
+	public BlockingQueue<Trace2SpanDto> getSpanQueue(){
 		return new ArrayBlockingQueue<>(1);//capacity must be >0
 	}
 
 	@Override
-	public TraceSpanDto getCurrentSpan(){
+	public Trace2SpanDto getCurrentSpan(){
 		return null;
 	}
 
@@ -188,13 +188,13 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public String getTraceId(){
-		return traceId;
+	public Long getCurrentThreadId(){
+		return null;
 	}
 
 	@Override
-	public Long getCurrentThreadId(){
-		return null;
+	public Optional<W3TraceContext> getTraceContext(){
+		return Optional.of(w3TraceContext);
 	}
 
 	@Override
@@ -204,6 +204,26 @@ public class DatarouterSummaryTracer implements Tracer{
 
 	@Override
 	public void setForceSave(){
+		return;
+	}
+
+	@Override
+	public void setSaveThreadCpuTime(boolean saveThreadCpuTime){
+		return;
+	}
+
+	@Override
+	public void setSaveThreadMemoryAllocated(boolean saveThreadMemoryAllocated){
+		return;
+	}
+
+	@Override
+	public void setSaveSpanCpuTime(boolean saveSpanCpuTime){
+		return;
+	}
+
+	@Override
+	public void setSaveSpanMemoryAllocated(boolean saveSpanMemoryAllocated){
 		return;
 	}
 
@@ -262,11 +282,6 @@ public class DatarouterSummaryTracer implements Tracer{
 			return this;
 		}
 
-	}
-
-	@Override
-	public Optional<W3TraceContext> getTraceContext(){
-		return Optional.of(w3TraceContext);
 	}
 
 }

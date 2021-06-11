@@ -25,9 +25,4 @@ public class DatarouterSqsPlugin extends BaseJobPlugin{
 		addDatarouterGithubDocLink("datarouter-aws-sqs");
 	}
 
-	@Override
-	public String getName(){
-		return "DatarouterSqs";
-	}
-
 }

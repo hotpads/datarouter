@@ -28,7 +28,7 @@ import io.datarouter.changelog.service.ViewChangelogService;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
-import io.datarouter.util.DateTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
@@ -93,7 +93,7 @@ public class ViewExactChangelogHandler extends BaseHandler{
 		ZoneId zoneId = sessionInfoService.getZoneId(request);
 		Long reversedDateMs = row.getKey().getReversedDateMs();
 		Date date = new Date(Long.MAX_VALUE - reversedDateMs);
-		return DateTool.formatDateWithZone(date, zoneId);
+		return ZonedDateFormaterTool.formatDateWithZone(date, zoneId);
 	}
 
 }

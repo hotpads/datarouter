@@ -27,6 +27,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.datarouter.util.DateTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
@@ -141,7 +142,7 @@ public class WebappInstanceLogHandler extends BaseHandler{
 		}
 
 		public String getStartupString(){
-			return DateTool.formatInstantWithZone(startup, zoneId);
+			return ZonedDateFormaterTool.formatInstantWithZone(startup, zoneId);
 		}
 
 		public Instant getRefreshedLast(){

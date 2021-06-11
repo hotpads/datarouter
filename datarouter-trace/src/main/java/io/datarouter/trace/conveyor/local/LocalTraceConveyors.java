@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import io.datarouter.conveyor.BaseConveyors;
 import io.datarouter.trace.conveyor.Trace2MemoryBufferToSqsConveyor;
 import io.datarouter.trace.settings.DatarouterTraceLocalSettingRoot;
-import io.datarouter.trace.storage.BaseDatarouterTraceDao;
 import io.datarouter.trace.storage.Trace2ForLocalDao;
 import io.datarouter.web.exception.ExceptionRecorder;
 
@@ -35,17 +34,11 @@ public class LocalTraceConveyors extends BaseConveyors{
 	@Inject
 	private Gson gson;
 	@Inject
-	private TraceLocalFilterToMemoryBuffer memoryBuffer;
-	@Inject
 	private Trace2ForLocalFilterToMemoryBuffer trace2MemoryBuffer;
-	@Inject
-	private TraceQueueLocalDao traceQueueDao;
 	@Inject
 	private Trace2ForLocalQueueDao trace2QueueDao;
 	@Inject
 	private Trace2ForLocalHttpRequestRecordQueueDao trace2HttpRequestRecordQueueDao;
-	@Inject
-	private BaseDatarouterTraceDao traceDao;
 	@Inject
 	private Trace2ForLocalDao trace2Dao;
 	@Inject
@@ -53,26 +46,6 @@ public class LocalTraceConveyors extends BaseConveyors{
 
 	@Override
 	public void onStartUp(){
-		start(new TraceMemoryToSqsConveyor(
-				"traceMemoryToSqs",
-				settings.runMemoryToSqs,
-				settings.bufferInSqs,
-				memoryBuffer.buffer,
-				traceQueueDao,
-				traceDao,
-				gson,
-				exceptionRecorder),
-				1);
-		start(new TraceSqsDrainConveyor(
-				"traceSqsToLocalStorage",
-				settings.drainSqsToLocal,
-				traceQueueDao.getGroupQueueConsumer(),
-				traceDao,
-				gson,
-				exceptionRecorder),
-				1);
-
-		/*---- trace2 ----*/
 		start(new Trace2MemoryBufferToSqsConveyor(
 				"trace2LocalMemoryToSqs",
 				settings.runMemoryToSqsForTrace2,

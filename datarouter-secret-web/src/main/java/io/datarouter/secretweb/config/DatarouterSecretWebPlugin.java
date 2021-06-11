@@ -51,11 +51,6 @@ public class DatarouterSecretWebPlugin extends BaseWebPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterSecret";
-	}
-
-	@Override
 	public void configure(){
 		install(basePlugin);
 		bindActual(SecretHandlerPermissions.class, secretHandlerPermissions);

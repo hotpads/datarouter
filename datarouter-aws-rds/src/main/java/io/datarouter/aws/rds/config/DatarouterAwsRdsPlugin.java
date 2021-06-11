@@ -59,11 +59,6 @@ public class DatarouterAwsRdsPlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterAws";
-	}
-
-	@Override
 	public void configure(){
 		bind(DatabaseAdministrationConfiguration.class).to(databaseAdministrationConfiguration);
 		bind(AwsTags.class).to(awsTags);

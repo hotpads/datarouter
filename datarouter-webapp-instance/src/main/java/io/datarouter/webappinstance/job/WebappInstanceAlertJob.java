@@ -15,6 +15,7 @@
  */
 package io.datarouter.webappinstance.job;
 
+import static j2html.TagCreator.body;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
@@ -24,6 +25,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.email.type.DatarouterEmailTypes.WebappInstanceAlertEmailType;
@@ -33,8 +35,8 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.time.DurationTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceSettingRoot;
@@ -63,6 +65,8 @@ public class WebappInstanceAlertJob extends BaseJob{
 	private WebappInstanceAlertEmailType webappInstanceAlertEmailType;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -87,20 +91,23 @@ public class WebappInstanceAlertJob extends BaseJob{
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.webappInstances)
 				.build();
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withSubject("Datarouter - Stale Webapp - " + webappInstance.getKey().getServerName())
 				.withTitle("Stale Webapp")
 				.withTitleHref(primaryHref)
-				.withContent(makeContent(webappInstance));
+				.withContent(body(header, makeContent(webappInstance)));
 		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
 	}
 
 	private ContainerTag makeContent(WebappInstance webappInstance){
 		var rows = List.of(
 				new Twin<>("webapp", webappInstance.getKey().getWebappName()),
-				new Twin<>("build date", DateTool.formatInstantWithZone(webappInstance.getBuildInstant(),
+				new Twin<>("build date", ZonedDateFormaterTool.formatInstantWithZone(
+						webappInstance.getBuildInstant(),
 						datarouterService.getZoneId())),
-				new Twin<>("startup date", DateTool.formatInstantWithZone(webappInstance.getStartupInstant(),
+				new Twin<>("startup date", ZonedDateFormaterTool.formatInstantWithZone(
+						webappInstance.getStartupInstant(),
 						datarouterService.getZoneId())),
 				new Twin<>("commitId", webappInstance.getCommitId()));
 		return new J2HtmlEmailTable<Twin<String>>()

@@ -16,9 +16,11 @@
 package io.datarouter.auth.config;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.datarouter.auth.service.CopyUserListener;
 import io.datarouter.auth.service.CopyUserListener.DefaultCopyUserListener;
+import io.datarouter.auth.service.DatarouterAccountDeleteAction;
 import io.datarouter.auth.service.DatarouterUserInfo;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeys;
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
@@ -78,6 +80,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 	private final String defaultDatarouterUserPassword;
 	private final String defaultApiKey;
 	private final String defaultSecretKey;
+	private final Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction;
 
 	private DatarouterAuthPlugin(
 			boolean enableUserAuth,
@@ -88,7 +91,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			Class<? extends CopyUserListener> copyUserListenerClass,
 			String defaultDatarouterUserPassword,
 			String defaultApiKey,
-			String defaultSecretKey){
+			String defaultSecretKey,
+			Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction){
 		this.userInfoClass = userInfoClass;
 		this.userDeprovisioningStrategyClass = userDeprovisioningStrategyClass;
 		this.userDeprovisioningListenersClass = userDeprovisioningListenersClass;
@@ -96,6 +100,7 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		this.defaultDatarouterUserPassword = defaultDatarouterUserPassword;
 		this.defaultApiKey = defaultApiKey;
 		this.defaultSecretKey = defaultSecretKey;
+		this.datarouterAccountDeleteAction = datarouterAccountDeleteAction;
 
 		if(enableUserAuth){
 			addAppListener(DatarouterUserConfigAppListener.class);
@@ -121,11 +126,6 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterAuth";
-	}
-
-	@Override
 	protected void configure(){
 		bindActual(BaseDatarouterSessionDao.class, DatarouterSessionDao.class);
 		bindActual(BaseDatarouterAccountDao.class, DatarouterAccountDao.class);
@@ -142,6 +142,9 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 				new DefaultDatarouterUserPassword(defaultDatarouterUserPassword));
 		bindActualInstance(DefaultDatarouterAccountKeysSupplier.class,
 				new DefaultDatarouterAccountKeys(defaultApiKey, defaultSecretKey));
+		datarouterAccountDeleteAction.ifPresent(clazz -> {
+			bind(DatarouterAccountDeleteAction.class).to(clazz);
+		});
 	}
 
 	public static class DatarouterAuthPluginBuilder{
@@ -158,6 +161,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 		private String defaultDatarouterUserPassword = "";
 		private String defaultApiKey = "";
 		private String defaultSecretKey = "";
+		private Optional<Class<? extends DatarouterAccountDeleteAction>> datarouterAccountDeleteAction = Optional
+				.empty();
 
 		public DatarouterAuthPluginBuilder(boolean enableUserAuth, List<ClientId> defaultClientId,
 				String defaultDatarouterUserPassword, String defaultApiKey, String defaultSecretKey){
@@ -191,6 +196,12 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 			return this;
 		}
 
+		public DatarouterAuthPluginBuilder setDatarouterAccountDeleteAction(
+				Class<? extends DatarouterAccountDeleteAction> datarouterAccountDeleteAction){
+			this.datarouterAccountDeleteAction = Optional.of(datarouterAccountDeleteAction);
+			return this;
+		}
+
 		public DatarouterAuthPlugin build(){
 			return new DatarouterAuthPlugin(
 					enableUserAuth,
@@ -211,7 +222,8 @@ public class DatarouterAuthPlugin extends BaseJobPlugin{
 					copyUserListenerClass,
 					defaultDatarouterUserPassword,
 					defaultApiKey,
-					defaultSecretKey);
+					defaultSecretKey,
+					datarouterAccountDeleteAction);
 		}
 
 	}

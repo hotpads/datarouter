@@ -18,7 +18,6 @@ package io.datarouter.job.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h3;
-import static j2html.TagCreator.text;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,16 +26,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.html.J2HtmlEmailTable;
-import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
+import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.config.DatarouterWebPaths;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
-import j2html.tags.DomContent;
 
 @Singleton
 public class ConfigurationScanReportService{
@@ -49,8 +45,10 @@ public class ConfigurationScanReportService{
 	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterWebPaths paths;
+	@Inject
+	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
-	public void scanConfigurationAndSendEmail(String subject, List<ConfigScanDto> scans){
+	public void scanConfigurationAndSendEmail(String description, List<ConfigScanDto> scans){
 		List<String> configResponses = scans.stream()
 				.filter(item -> item.shouldSendEmail)
 				.map(item -> item.response)
@@ -58,19 +56,12 @@ public class ConfigurationScanReportService{
 		if(configResponses.isEmpty()){
 			return;
 		}
-		var headerRows = List.of(
-				Twin.of("environment", datarouterProperties.getEnvironment()),
-				Twin.of("host", datarouterProperties.getServerName()),
-				Twin.of("webapp", datarouterProperties.getWebappName()));
-		var headerTable = new J2HtmlEmailTable<Twin<String>>()
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
-				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> text(row.getRight())))
-				.build(headerRows);
+		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var content = div(
-				h3(subject),
-				headerTable,
+				header,
+				h3(description),
 				each(configResponses, TagCreator::rawHtml));
-		sendEmail(content, subject);
+		sendEmail(content, description);
 	}
 
 	private void sendEmail(ContainerTag content, String subject){
@@ -88,10 +79,6 @@ public class ConfigurationScanReportService{
 				.withTitleHref(primaryHref)
 				.withContent(content);
 		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
-	}
-
-	private static DomContent makeDivBoldRight(String text){
-		return div(text).withStyle("font-weight:bold;text-align:right;");
 	}
 
 }

@@ -17,7 +17,6 @@ package io.datarouter.trace.web;
 
 import java.time.ZoneId;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +32,8 @@ import io.datarouter.trace.storage.entity.UiTraceBundleDto;
 import io.datarouter.trace.storage.span.BaseTraceSpan;
 import io.datarouter.trace.storage.thread.BaseTraceThread;
 import io.datarouter.trace.storage.trace.BaseTrace;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
@@ -141,8 +140,7 @@ public abstract class BaseTraceHandler extends BaseHandler{
 		}
 
 		public String getTime(){
-			Date date = new Date(getCreatedMs());
-			return DateTool.formatDateWithZone(date, zoneId);
+			return ZonedDateFormaterTool.formatLongMsWithZone(getCreatedMs(), zoneId);
 		}
 
 		public String getRequestString(){

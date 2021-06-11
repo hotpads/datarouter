@@ -33,7 +33,7 @@ import io.datarouter.model.serialize.fielder.TtlFielderConfig;
 
 public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 
-	public static final Duration TTL = Duration.ofDays(30);
+	public static final Duration TTL = Duration.ofDays(15);
 	public static final TtlFielderConfig TTL_FIELDER_CONFIG = new TtlFielderConfig(TTL);
 	public static final String DEFAULT_ACCOUNT_NAME = "default";
 
@@ -47,6 +47,10 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 	private String serviceName;
 	private Integer discardedThreadCount;
 	private Integer totalThreadCount;
+	private Long cpuTimeCreatedNs;
+	private Long cpuTimeEndedNs;
+	private Long memoryAllocatedBytesBegin;
+	private Long memoryAllocatedBytesEnded;
 
 	public static class FieldKeys{
 		public static final StringFieldKey initialParentId = new StringFieldKey("initialParentId");
@@ -59,6 +63,10 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		public static final StringFieldKey serviceName = new StringFieldKey("serviceName");
 		public static final UInt31FieldKey discardedThreadCount = new UInt31FieldKey("discardedThreadCount");
 		public static final UInt31FieldKey totalThreadCount = new UInt31FieldKey("totalThreadCount");
+		public static final UInt63FieldKey cpuTimeCreatedNs = new UInt63FieldKey("cpuTimeCreatedNs");
+		public static final UInt63FieldKey cpuTimeEndedNs = new UInt63FieldKey("cpuTimeEndedNs");
+		public static final UInt63FieldKey memoryAllocatedBytesBegin = new UInt63FieldKey("memoryAllocatedBytesBegin");
+		public static final UInt63FieldKey memoryAllocatedBytesEnded = new UInt63FieldKey("memoryAllocatedBytesEnded");
 	}
 
 	public static class Trace2Fielder extends BaseDatabeanFielder<Trace2Key,Trace2>{
@@ -80,7 +88,11 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 					new StringField(FieldKeys.accountName, databean.accountName),
 					new StringField(FieldKeys.serviceName, databean.serviceName),
 					new UInt31Field(FieldKeys.discardedThreadCount, databean.discardedThreadCount),
-					new UInt31Field(FieldKeys.totalThreadCount, databean.totalThreadCount));
+					new UInt31Field(FieldKeys.totalThreadCount, databean.totalThreadCount),
+					new UInt63Field(FieldKeys.cpuTimeCreatedNs, databean.cpuTimeCreatedNs),
+					new UInt63Field(FieldKeys.cpuTimeEndedNs, databean.cpuTimeEndedNs),
+					new UInt63Field(FieldKeys.memoryAllocatedBytesBegin, databean.memoryAllocatedBytesBegin),
+					new UInt63Field(FieldKeys.memoryAllocatedBytesEnded, databean.memoryAllocatedBytesEnded));
 		}
 	}
 
@@ -104,6 +116,10 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		this.accountName = accountName;
 		this.discardedThreadCount = dto.discardedThreadCount;
 		this.totalThreadCount = dto.totalThreadCount;
+		this.cpuTimeCreatedNs = dto.cpuTimeCreatedNs;
+		this.cpuTimeEndedNs = dto.cpuTimeEndedNs;
+		this.memoryAllocatedBytesBegin = dto.memoryAllocatedBytesBegin;
+		this.memoryAllocatedBytesEnded = dto.memoryAllocatedBytesEnded;
 	}
 
 	@Override

@@ -75,11 +75,6 @@ public class DatarouterWebappInstancePlugin extends BaseJobPlugin{
 	}
 
 	@Override
-	public String getName(){
-		return "DatarouterWebappInstance";
-	}
-
-	@Override
 	protected void configure(){
 		bind(WebappInstancePublisher.class).to(webappInstancePublisher);
 		bind(WebappInstanceBuildIdLink.class).to(buildIdLink);

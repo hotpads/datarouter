@@ -32,11 +32,6 @@ public class DatarouterRateLimiterPlugin extends BaseWebPlugin{
 		addDatarouterGithubDocLink("datarouter-rate-limiter");
 	}
 
-	@Override
-	public String getName(){
-		return "DatarouterRateLimiter";
-	}
-
 	public static class DatarouterRateLimiterPluginBuilder{
 
 		private final ClientId clientId;

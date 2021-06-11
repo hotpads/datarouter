@@ -16,7 +16,6 @@
 package io.datarouter.secretweb.web;
 
 import io.datarouter.secret.client.Secret;
-import io.datarouter.secretweb.web.SecretHandlerOpRequestDto.SecretOpDto;
 import io.datarouter.web.user.session.service.Session;
 
 /**
@@ -24,6 +23,6 @@ import io.datarouter.web.user.session.service.Session;
  */
 public interface SecretHandlerPermissions{
 
-	boolean isAuthorized(Session session, SecretOpDto secretOp);
+	boolean isAuthorized(Session session, SecretHandlerOpRequestDto secretOpRequest);
 
 }

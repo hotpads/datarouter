@@ -52,9 +52,9 @@ import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.exception.ExceptionCounters;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -124,13 +124,9 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		return mav;
 	}
 
-	protected Mav initDetailsMav(){
-		return new Mav(files.jsp.datarouter.exception.exceptionDetailsJsp);
-	}
-
 	@Handler
 	public Mav details(@Param(P_exceptionRecord) OptionalString exceptionRecord){
-		Mav mav = initDetailsMav();
+		Mav mav = new Mav(files.jsp.datarouter.exception.exceptionDetailsJsp);
 		mav.put("detailsPath", paths.datarouter.exception.details.toSlashedString());
 		if(exceptionRecord.isEmpty()){
 			return mav;
@@ -293,7 +289,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		}
 
 		public String getCreated(){
-			return DateTool.formatDateWithZone(created, zoneId);
+			return ZonedDateFormaterTool.formatDateWithZone(created, zoneId);
 		}
 
 		public String getServerName(){
@@ -455,6 +451,14 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 				return new String(binaryBody);
 			}
 			return null;
+		}
+
+		public String getPrettyPrintedJsonBody(){
+			try{
+				return GsonTool.prettyPrint(getStringBody());
+			}catch(Exception e){
+				return null;
+			}
 		}
 
 		public Date getCreated(){
