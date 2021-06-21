@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
@@ -107,14 +108,16 @@ public class S3DirectoryManager{
 
 	/*-------------- scan -----------------*/
 
-	public Scanner<S3Object> scanS3Objects(Subpath subpath){
-		return client.scanObjects(bucket, rootPath.append(subpath).toString());
+	public Scanner<List<S3Object>> scanS3ObjectsPaged(Subpath subpath){
+		return client.scanObjectsPaged(bucket, rootPath.append(subpath).toString());
 	}
 
-	public Scanner<String> scanKeys(Subpath subpath){
-		return client.scanObjects(bucket, rootPath.append(subpath).toString())
-				.map(S3Object::key)
-				.map(this::relativePath);
+	public Scanner<List<String>> scanKeysPaged(Subpath subpath){
+		return client.scanObjectsPaged(bucket, rootPath.append(subpath).toString())
+				.map(page -> Scanner.of(page)
+						.map(S3Object::key)
+						.map(this::relativePath)
+						.list());
 	}
 
 	/*------------ write -----------*/

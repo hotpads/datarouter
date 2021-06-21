@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -41,6 +42,7 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterruptedException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -74,7 +76,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 
 		DatarouterHttpException ex;
 		HttpRequestBase internalHttpRequest = null;
-		long requestStartTimeMs = System.currentTimeMillis();
+		long requestStartTimeNs = Trace2Dto.getCurrentTimeInNs();
 		Tracer tracer = TracerThreadLocal.get();
 		TracerTool.startSpan(tracer, "http call " + request.getPath());
 		internalHttpRequest = request.getRequest();
@@ -84,7 +86,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			traceContext.updateParentIdAndAddTracestateMember();
 		}else{
 			count("traceContext null");
-			traceContext = new W3TraceContext(requestStartTimeMs);
+			traceContext = new W3TraceContext(requestStartTimeNs);
 		}
 		String traceparent = traceContext.getTraceparent().toString();
 		try{
@@ -93,9 +95,9 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			internalHttpRequest.addHeader(TRACEPARENT, traceparent);
 			internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
 			context.setAttribute(TRACEPARENT, traceContext.getTraceparent().toString());
-			requestStartTimeMs = System.currentTimeMillis();
+			requestStartTimeNs = Trace2Dto.getCurrentTimeInNs();
 			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
-			Duration duration = Duration.ofMillis(System.currentTimeMillis() - requestStartTimeMs);
+			Duration duration = Duration.ofNanos(Trace2Dto.getCurrentTimeInNs() - requestStartTimeNs);
 			String entity = null;
 			int statusCode = httpResponse.getStatusLine().getStatusCode();
 			count("response " + statusCode);
@@ -139,12 +141,14 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		}catch(IOException e){
 			count("IOException");
 			TracerTool.appendToSpanInfo("exception", e.getMessage());
-			ex = new DatarouterHttpConnectionAbortedException(e, requestStartTimeMs, traceparent, request.getPath());
+			ex = new DatarouterHttpConnectionAbortedException(e, TimeUnit.NANOSECONDS.toMillis(requestStartTimeNs),
+					traceparent, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
 		}catch(CancellationException e){
 			count("CancellationException");
 			TracerTool.appendToSpanInfo("exception", e.getMessage());
-			ex = new DatarouterHttpRequestInterruptedException(e, requestStartTimeMs, traceparent, request.getPath());
+			ex = new DatarouterHttpRequestInterruptedException(e, TimeUnit.NANOSECONDS.toMillis(requestStartTimeNs),
+					traceparent, request.getPath());
 			callResultQueue.insertFalseResultWithException(ex);
 		}finally{
 			TracerTool.finishSpan();

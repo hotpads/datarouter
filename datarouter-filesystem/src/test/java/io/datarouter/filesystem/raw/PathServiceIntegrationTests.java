@@ -15,8 +15,11 @@
  */
 package io.datarouter.filesystem.raw;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -26,6 +29,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.RetainingGroup;
+import io.datarouter.scanner.Scanner;
 
 @Guice
 public class PathServiceIntegrationTests{
@@ -36,10 +40,11 @@ public class PathServiceIntegrationTests{
 
 	@Test
 	public void testScanDescendents(){
-		Path datarouterPath = Paths.get("..");
-		pathService.scanDescendants(datarouterPath, true, true)
+		Path datarouterPath = Paths.get("../datarouter-filesystem/src/");
+		pathService.scanDescendantsPaged(datarouterPath, true, true)
+				.each(page -> logger.info("{}", pathsToString(page)))
+				.concat(Scanner::of)
 				.map(PathService::pathToString)
-				.each(logger::info)
 				.retain(1)
 				.forEach(this::assertSorted);
 	}
@@ -54,6 +59,14 @@ public class PathServiceIntegrationTests{
 			throw new RuntimeException(message);
 		}
 
+	}
+
+	public static String pathsToString(List<Path> paths){
+		return Scanner.of(paths)
+				.map(path -> Files.isDirectory(path)
+						? path.toString() + "/"
+						: path.getFileName().toString())
+				.collect(Collectors.joining(", "));
 	}
 
 }

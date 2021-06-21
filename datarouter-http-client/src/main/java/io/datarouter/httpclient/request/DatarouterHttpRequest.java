@@ -219,6 +219,11 @@ public class DatarouterHttpRequest{
 		return addEntriesToMap(this.headers, headers);
 	}
 
+	public DatarouterHttpRequest setHeaders(Map<String,List<String>> headers){
+		this.headers = headers;
+		return this;
+	}
+
 	public DatarouterHttpRequest setContentType(ContentType contentType){
 		if(contentType != null){
 			headers.computeIfAbsent(CONTENT_TYPE, $ -> new ArrayList<>()).add(contentType.getMimeType());
@@ -265,6 +270,11 @@ public class DatarouterHttpRequest{
 		return addEntriesToMap(this.postParams, params);
 	}
 
+	public DatarouterHttpRequest setPostParams(Map<String,List<String>> params){
+		this.postParams = params;
+		return this;
+	}
+
 	/**
 	 * Entities only exist in HttpPut, HttpPatch, HttpPost, DatarouterHttpDeleteRequestWithEntity
 	 */
@@ -289,6 +299,11 @@ public class DatarouterHttpRequest{
 
 	public DatarouterHttpRequest addGetParams(HttpRequestConfig config){
 		return config == null ? this : addGetParams(config.getParameterMap());
+	}
+
+	public DatarouterHttpRequest setGetParams(Map<String,List<String>> params){
+		this.queryParams = params;
+		return this;
 	}
 
 	private DatarouterHttpRequest addEntriesToMap(Map<String,List<String>> map, Map<String,String> entriesToAdd){

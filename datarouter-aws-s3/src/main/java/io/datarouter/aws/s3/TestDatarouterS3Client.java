@@ -33,8 +33,10 @@ import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -154,6 +156,11 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
+	public ResponseInputStream<GetObjectResponse> getObjectResponse(String bucket, String key){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public InputStream getObject(String bucket, String key){
 		try{
 			return Files.newInputStream(testFolder.resolve(Path.of(bucket, key)));
@@ -198,7 +205,7 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
-	public Scanner<S3Object> scanObjects(String bucket, String prefix){
+	public Scanner<List<S3Object>> scanObjectsPaged(String bucket, String prefix){
 		throw new UnsupportedOperationException();
 	}
 

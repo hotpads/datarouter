@@ -15,9 +15,14 @@
  */
 package io.datarouter.httpclient.security;
 
+import io.datarouter.instrumentation.refreshable.Refreshable;
+
 public interface CsrfGenerator{
 
 	String generateCsrfIv();
 	String generateCsrfToken(String cipherIv);
+
+	public static interface RefreshableCsrfGenerator extends CsrfGenerator, Refreshable{
+	}
 
 }

@@ -375,7 +375,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public InputStream getObject(String bucket, String key){
+	public ResponseInputStream<GetObjectResponse> getObjectResponse(String bucket, String key){
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		GetObjectRequest request = makeGetObjectRequest(bucket, key);
 		ResponseInputStream<GetObjectResponse> response;
@@ -384,6 +384,11 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
 		}
 		return response;
+	}
+
+	@Override
+	public InputStream getObject(String bucket, String key){
+		return getObjectResponse(bucket, key);
 	}
 
 	@Override
@@ -444,13 +449,14 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
-	public Scanner<S3Object> scanObjects(String bucket, String prefix){
-		return Scanner.of(getS3ClientForBucket(bucket).listObjectsV2Paginator(ListObjectsV2Request.builder()
+	public Scanner<List<S3Object>> scanObjectsPaged(String bucket, String prefix){
+		var requestBuilder = ListObjectsV2Request.builder()
 				.bucket(bucket)
 				.prefix(prefix)
-				.build()))
-				.map(ListObjectsV2Response::contents)
-				.concat(Scanner::of);
+				.build();
+		var paginator = getS3ClientForBucket(bucket).listObjectsV2Paginator(requestBuilder);
+		return Scanner.of(paginator)
+				.map(ListObjectsV2Response::contents);
 	}
 
 	@Override

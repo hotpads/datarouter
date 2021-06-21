@@ -44,7 +44,10 @@ import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.HttpClientGsonTool;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.httpclient.security.CsrfGenerator;
+import io.datarouter.httpclient.security.CsrfGenerator.RefreshableCsrfGenerator;
 import io.datarouter.httpclient.security.SignatureGenerator;
+import io.datarouter.httpclient.security.SignatureGenerator.RefreshableSignatureGenerator;
+import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 
 public class DatarouterHttpClientBuilder{
 
@@ -64,6 +67,9 @@ public class DatarouterHttpClientBuilder{
 	private SignatureGenerator signatureGenerator;
 	private CsrfGenerator csrfGenerator;
 	private Supplier<String> apiKeySupplier;
+	private RefreshableSignatureGenerator refreshableSignatureGenerator;
+	private RefreshableCsrfGenerator refreshableCsrfGenerator;
+	private RefreshableSupplier<String> refreshableApiKeySupplier;
 	private DatarouterHttpClientConfig config;
 	private boolean ignoreSsl;
 	private SSLContext customSslContext;
@@ -146,6 +152,9 @@ public class DatarouterHttpClientBuilder{
 				this.signatureGenerator,
 				this.csrfGenerator,
 				this.apiKeySupplier,
+				this.refreshableSignatureGenerator,
+				this.refreshableCsrfGenerator,
+				this.refreshableApiKeySupplier,
 				this.config,
 				connectionManager,
 				name,
@@ -183,6 +192,23 @@ public class DatarouterHttpClientBuilder{
 
 	public DatarouterHttpClientBuilder setApiKeySupplier(Supplier<String> apiKeySupplier){
 		this.apiKeySupplier = apiKeySupplier;
+		return this;
+	}
+
+	public DatarouterHttpClientBuilder setRefreshableSignatureGenerator(
+			RefreshableSignatureGenerator refreshableSignatureGenerator){
+		this.refreshableSignatureGenerator = refreshableSignatureGenerator;
+		return this;
+	}
+
+	public DatarouterHttpClientBuilder setRefreshableCsrfGenerator(RefreshableCsrfGenerator refreshableCsrfGenerator){
+		this.refreshableCsrfGenerator = refreshableCsrfGenerator;
+		return this;
+	}
+
+	public DatarouterHttpClientBuilder setRefreshableApiKeySupplier(
+			RefreshableSupplier<String> refreshableApiKeySupplier){
+		this.refreshableApiKeySupplier = refreshableApiKeySupplier;
 		return this;
 	}
 

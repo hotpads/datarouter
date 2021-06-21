@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,9 @@ import java.util.function.Supplier;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
+
+import io.datarouter.instrumentation.refreshable.RefreshableStringSupplier;
+import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 
 public class DefaultSignatureGenerator implements SignatureGenerator{
 
@@ -88,6 +92,27 @@ public class DefaultSignatureGenerator implements SignatureGenerator{
 			value[i] = i < limitToHide ? '*' : string.charAt(i);
 		}
 		return new String(value);
+	}
+
+	public static class RefreshableDefaultSignatureGenerator extends DefaultSignatureGenerator
+	implements RefreshableSignatureGenerator{
+
+		private final RefreshableSupplier<String> supplier;
+
+		public RefreshableDefaultSignatureGenerator(RefreshableSupplier<String> supplier){
+			super(supplier);
+			this.supplier = supplier;
+		}
+
+		public RefreshableDefaultSignatureGenerator(Supplier<String> supplier){
+			this(new RefreshableStringSupplier(supplier::get));
+		}
+
+		@Override
+		public Instant refresh(){
+			return supplier.refresh();
+		}
+
 	}
 
 }

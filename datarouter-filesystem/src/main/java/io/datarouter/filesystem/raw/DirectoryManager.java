@@ -22,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -100,6 +99,12 @@ public class DirectoryManager{
 		return path.subpath(root.getNameCount(), path.getNameCount());
 	}
 
+	private Subpath afterRootSubpath(Path path){
+		return Scanner.of(afterRoot(path))
+				.map(Path::toString)
+				.listTo(Subpath::new);
+	}
+
 	/*---------- paths ------------*/
 
 	public boolean exists(String relativePathString){
@@ -125,13 +130,15 @@ public class DirectoryManager{
 	}
 
 	public Scanner<Path> scanChildren(Subpath subpath, Set<String> excludingFilenames, int limit, boolean sorted){
-		return pathService.scanChildren(resolveSubpath(subpath), excludingFilenames, limit, sorted)
+		return Scanner.of(pathService.listChildren(resolveSubpath(subpath), excludingFilenames, limit, sorted))
 				.map(this::afterRoot);
 	}
 
-	public Scanner<Path> scanDescendants(Subpath subpath, boolean includeDirectories, boolean sorted){
-		return pathService.scanDescendants(resolveSubpath(subpath), includeDirectories, sorted)
-				.map(this::afterRoot);
+	public Scanner<List<Path>> scanDescendantsPaged(Subpath subpath, boolean includeDirectories, boolean sorted){
+		return pathService.scanDescendantsPaged(resolveSubpath(subpath), includeDirectories, sorted)
+				.map(page -> Scanner.of(page)
+						.map(this::afterRoot)
+						.list());
 	}
 
 	public Long size(String relativePathString){
@@ -186,14 +193,13 @@ public class DirectoryManager{
 	}
 
 	public DirectoryManager deleteDescendants(Subpath subpath){
-		//Delete files
-		scanDescendants(subpath, false, false)
+		scanChildren(subpath, Set.of(), Integer.MAX_VALUE, false)
 				.map(this::resolve)
-				.forEach(pathService::delete);
-		//Delete directories
-		scanDescendants(subpath, true, true)
-				.sort(Comparator.reverseOrder())
-				.map(this::resolve)
+				.each(path -> {
+					if(Files.isDirectory(path)){
+						deleteDescendants(afterRootSubpath(path));
+					}
+				})
 				.forEach(pathService::delete);
 		return this;
 	}

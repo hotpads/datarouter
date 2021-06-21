@@ -19,9 +19,14 @@ import java.util.Map;
 
 import org.apache.http.HttpEntity;
 
+import io.datarouter.instrumentation.refreshable.Refreshable;
+
 public interface SignatureGenerator{
 
 	RequestSignatureDto getHexSignature(Map<String,String> params, HttpEntity entity);
 	RequestSignatureDto getHexSignature(Map<String,String> params);
+
+	public static interface RefreshableSignatureGenerator extends SignatureGenerator, Refreshable{
+	}
 
 }

@@ -17,10 +17,10 @@ package io.datarouter.opencensus.adapter;
 
 import java.util.Optional;
 
-import io.opencensus.trace.Span;
+import io.opencensus.common.Scope;
 
 public interface OpencensusAdapter{
 
-	Optional<Span> startSpan();
+	Optional<Scope> startSpan();
 
 }

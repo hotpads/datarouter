@@ -34,8 +34,10 @@ import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
 import io.datarouter.util.split.ChunkScannerTool;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
@@ -86,6 +88,8 @@ public interface DatarouterS3Client{
 
 	Scanner<List<String>> scanBatchesOfLines(String bucket, String key, int batchSize);
 
+	ResponseInputStream<GetObjectResponse> getObjectResponse(String bucket, String key);
+
 	InputStream getObject(String bucket, String key);
 
 	byte[] getObjectAsBytes(String bucket, String key);
@@ -114,7 +118,12 @@ public interface DatarouterS3Client{
 
 	URL generateLink(String bucket, String key, Duration expireAfter);
 
-	Scanner<S3Object> scanObjects(String bucket, String prefix);
+	Scanner<List<S3Object>> scanObjectsPaged(String bucket, String prefix);
+
+	default Scanner<S3Object> scanObjects(String bucket, String prefix){
+		return scanObjectsPaged(bucket, prefix)
+				.concat(Scanner::of);
+	}
 
 	Scanner<S3Object> scanObjects(String bucket, String prefix, String startAfter, String delimiter);
 

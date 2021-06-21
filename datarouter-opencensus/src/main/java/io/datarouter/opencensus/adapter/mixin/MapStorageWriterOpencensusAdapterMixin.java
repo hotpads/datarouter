@@ -25,7 +25,7 @@ import io.datarouter.opencensus.adapter.OpencensusAdapter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.MapStorage.MapStorageNode;
 import io.datarouter.storage.node.op.raw.write.MapStorageWriter;
-import io.opencensus.trace.Span;
+import io.opencensus.common.Scope;
 
 public interface MapStorageWriterOpencensusAdapterMixin<
 		PK extends PrimaryKey<PK>,
@@ -38,51 +38,51 @@ extends MapStorageWriter<PK,D>, OpencensusAdapter{
 
 	@Override
 	public default void put(D databean, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			getBackingNode().put(databean, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	public default void putMulti(Collection<D> databeans, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			getBackingNode().putMulti(databeans, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	public default void delete(PK key, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			getBackingNode().delete(key, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	public default void deleteMulti(Collection<PK> keys, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			getBackingNode().deleteMulti(keys, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	public default void deleteAll(Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			getBackingNode().deleteAll(config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 

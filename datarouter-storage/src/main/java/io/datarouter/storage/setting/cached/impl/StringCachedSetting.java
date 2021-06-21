@@ -15,6 +15,9 @@
  */
 package io.datarouter.storage.setting.cached.impl;
 
+import java.time.Duration;
+
+import io.datarouter.instrumentation.refreshable.BaseMemoizedRefreshableSupplier;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -29,6 +32,38 @@ public class StringCachedSetting extends CachedSetting<String> implements String
 	@Override
 	public boolean isValid(String value){
 		return true;
+	}
+
+	public static class RefreshableStringCachedSetting extends BaseMemoizedRefreshableSupplier<String>{
+
+		private final CachedSetting<String> setting;
+
+		public RefreshableStringCachedSetting(CachedSetting<String> setting){
+			this(setting, Duration.ofSeconds(30L));
+		}
+
+		public RefreshableStringCachedSetting(CachedSetting<String> setting, Duration minimumTtl){
+			this(setting, minimumTtl, minimumTtl);
+		}
+
+		public RefreshableStringCachedSetting(CachedSetting<String> setting, Duration minimumTtl,
+				Duration attemptInterval){
+			super(minimumTtl, attemptInterval);
+			this.setting = setting;
+			refresh();
+		}
+
+		@Override
+		protected String readNewValue(){
+			setting.expire();
+			return setting.get();
+		}
+
+		@Override
+		protected String getIdentifier(){
+			return setting.getName();
+		}
+
 	}
 
 }

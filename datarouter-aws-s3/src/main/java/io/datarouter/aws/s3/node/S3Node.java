@@ -17,6 +17,7 @@ package io.datarouter.aws.s3.node;
 
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
@@ -118,19 +119,23 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public Scanner<Pathbean> scan(Subpath subpath){
-		return s3DirectoryManager.scanS3Objects(subpath)
-				.map(s3Object -> {
-					PathbeanKey key = PathbeanKey.of(s3DirectoryManager.relativePath(s3Object.key()));
-					Long size = s3Object.size();
-					return new Pathbean(key, size);
-				});
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
+		return s3DirectoryManager.scanS3ObjectsPaged(subpath)
+				.map(page -> Scanner.of(page)
+						.map(s3Object -> {
+							PathbeanKey key = PathbeanKey.of(s3DirectoryManager.relativePath(s3Object.key()));
+							Long size = s3Object.size();
+							return new Pathbean(key, size);
+						})
+						.list());
 	}
 
 	@Override
-	public Scanner<PathbeanKey> scanKeys(Subpath subpath){
-		return s3DirectoryManager.scanKeys(subpath)
-				.map(PathbeanKey::of);
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
+		return s3DirectoryManager.scanKeysPaged(subpath)
+				.map(page -> Scanner.of(page)
+						.map(PathbeanKey::of)
+						.list());
 	}
 
 }

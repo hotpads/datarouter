@@ -32,7 +32,7 @@ import io.datarouter.storage.node.op.raw.IndexedStorage.IndexedStorageNode;
 import io.datarouter.storage.node.type.index.ManagedNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
 import io.datarouter.util.tuple.Range;
-import io.opencensus.trace.Span;
+import io.opencensus.common.Scope;
 
 public interface IndexedStorageOpencensusAdapterMixin<
 		PK extends PrimaryKey<PK>,
@@ -45,21 +45,21 @@ extends IndexedStorage<PK,D>, OpencensusAdapter{
 
 	@Override
 	default void deleteUnique(UniqueKey<PK> uniqueKey, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			getBackingNode().deleteUnique(uniqueKey, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	default void deleteMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			getBackingNode().deleteMultiUnique(uniqueKeys, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
@@ -68,31 +68,31 @@ extends IndexedStorage<PK,D>, OpencensusAdapter{
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>> void deleteByIndex(Collection<IK> keys, Config config,
 			IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			getBackingNode().deleteByIndex(keys, config, indexEntryFieldInfo);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	default D lookupUnique(UniqueKey<PK> uniqueKey, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().lookupUnique(uniqueKey, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	default List<D> lookupMultiUnique(Collection<? extends UniqueKey<PK>> uniqueKeys, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().lookupMultiUnique(uniqueKeys, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
@@ -101,11 +101,11 @@ extends IndexedStorage<PK,D>, OpencensusAdapter{
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<IE> getMultiFromIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().getMultiFromIndex(keys, config, indexEntryFieldInfo);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
@@ -114,11 +114,11 @@ extends IndexedStorage<PK,D>, OpencensusAdapter{
 			IE extends IndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
 	List<D> getMultiByIndex(Collection<IK> keys, Config config, IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().getMultiByIndex(keys, config, indexEntryFieldInfo);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
@@ -128,11 +128,11 @@ extends IndexedStorage<PK,D>, OpencensusAdapter{
 			IF extends DatabeanFielder<IK,IE>>
 	Scanner<IE> scanRangesIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().scanRangesIndex(indexEntryFieldInfo, ranges, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
@@ -142,11 +142,11 @@ extends IndexedStorage<PK,D>, OpencensusAdapter{
 			IF extends DatabeanFielder<IK,IE>>
 	Scanner<D> scanRangesByIndex(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().scanRangesByIndex(indexEntryFieldInfo, ranges, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
@@ -156,11 +156,11 @@ extends IndexedStorage<PK,D>, OpencensusAdapter{
 			IF extends DatabeanFielder<IK,IE>>
 	Scanner<IK> scanRangesIndexKeys(IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo, Collection<Range<IK>> ranges,
 			Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().scanRangesIndexKeys(indexEntryFieldInfo, ranges, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 

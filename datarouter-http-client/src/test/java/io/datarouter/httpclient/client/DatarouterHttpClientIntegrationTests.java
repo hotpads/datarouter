@@ -43,8 +43,11 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeException;
 import io.datarouter.httpclient.security.DefaultCsrfGenerator;
+import io.datarouter.httpclient.security.DefaultCsrfGenerator.RefreshableDefaultCsrfGenerator;
 import io.datarouter.httpclient.security.DefaultSignatureGenerator;
+import io.datarouter.httpclient.security.DefaultSignatureGenerator.RefreshableDefaultSignatureGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
+import io.datarouter.instrumentation.refreshable.RefreshableStringSupplier;
 
 public class DatarouterHttpClientIntegrationTests{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClientIntegrationTests.class);
@@ -236,6 +239,133 @@ public class DatarouterHttpClientIntegrationTests{
 		DefaultSignatureGenerator signatureGenerator = new DefaultSignatureGenerator(() -> salt);
 		DefaultCsrfGenerator csrfGenerator = new DefaultCsrfGenerator(() -> cipherKey);
 		Supplier<String> apiKeySupplier = () -> apiKey;
+
+		client = new DatarouterHttpClientBuilder()
+				.setSignatureGenerator(signatureGenerator)
+				.setCsrfGenerator(csrfGenerator)
+				.setApiKeySupplier(apiKeySupplier).build();
+
+		Map<String,String> params = new HashMap<>();
+		params.put("1", UUID.randomUUID().toString());
+		params.put("2", Integer.toString(RANDOM.nextInt()));
+		params.put("3", "Everything is awesome! Everything is cool when you're part of a team!");
+
+		String expectedResponse = Arrays.toString(params.entrySet().toArray());
+		server.setResponse(HttpStatus.SC_ACCEPTED, expectedResponse);
+
+		// GET request cannot be signed
+		request = new DatarouterHttpRequest(HttpRequestMethod.GET, URL)
+				.setRetrySafe(false)
+				.addPostParams(params);
+		response = client.execute(request);
+		postParams = request.getFirstPostParams();
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), params.size());
+		Assert.assertNull(postParams.get(SecurityParameters.CSRF_IV));
+		Assert.assertNull(postParams.get(SecurityParameters.CSRF_TOKEN));
+		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
+		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
+
+		client = new DatarouterHttpClientBuilder()
+				.setSignatureGenerator(signatureGenerator)
+				.setCsrfGenerator(csrfGenerator)
+				.setApiKeySupplier(apiKeySupplier)
+				.build();
+
+		// entity enclosing request with no entity or params cannot be signed
+		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL);
+		response = client.execute(request);
+		postParams = request.getFirstPostParams();
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(request.getPostParams().size(), 4);
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_IV));
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
+		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
+		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
+
+		client = new DatarouterHttpClientBuilder()
+				.setSignatureGenerator(signatureGenerator)
+				.setCsrfGenerator(csrfGenerator)
+				.setApiKeySupplier(apiKeySupplier)
+				.build();
+
+		// entity enclosing request already with an entity cannot be signed, even with params
+		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL)
+				.setRetrySafe(false)
+				.setEntity(params)
+				.addPostParams(params);
+		response = client.execute(request);
+		postParams = request.getFirstPostParams();
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), 3);
+		Assert.assertNull(postParams.get(SecurityParameters.CSRF_IV));
+		Assert.assertNull(postParams.get(SecurityParameters.CSRF_TOKEN));
+		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
+		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
+
+		client = new DatarouterHttpClientBuilder()
+				.setSignatureGenerator(signatureGenerator)
+				.setCsrfGenerator(csrfGenerator)
+				.setApiKeySupplier(apiKeySupplier)
+				.build();
+
+		// entity enclosing request is signed with entity from post params
+		request = new DatarouterHttpRequest(HttpRequestMethod.POST, URL).addPostParams(params);
+		response = client.execute(request);
+		postParams = request.getFirstPostParams();
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), params.size() + 4);
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_IV));
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
+		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
+		Assert.assertNotNull(postParams.get(SecurityParameters.SIGNATURE));
+
+		// test equivalence classes
+		client = new DatarouterHttpClientBuilder()
+				.setCsrfGenerator(csrfGenerator)
+				.build();
+
+		request = new DatarouterHttpRequest(HttpRequestMethod.PUT, URL)
+				.setRetrySafe(false)
+				.addPostParams(params);
+		response = client.execute(request);
+		postParams = request.getFirstPostParams();
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), params.size() + 2);
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_IV));
+		Assert.assertNotNull(postParams.get(SecurityParameters.CSRF_TOKEN));
+		Assert.assertNull(postParams.get(SecurityParameters.API_KEY));
+		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
+
+		client = new DatarouterHttpClientBuilder().setApiKeySupplier(apiKeySupplier).build();
+
+		request = new DatarouterHttpRequest(HttpRequestMethod.PATCH, URL)
+				.setRetrySafe(false)
+				.addPostParams(params);
+		response = client.execute(request);
+		postParams = request.getFirstPostParams();
+		Assert.assertEquals(response.getEntity(), expectedResponse);
+		Assert.assertEquals(postParams.size(), params.size() + 1);
+		Assert.assertNull(postParams.get(SecurityParameters.CSRF_IV));
+		Assert.assertNull(postParams.get(SecurityParameters.CSRF_TOKEN));
+		Assert.assertNotNull(postParams.get(SecurityParameters.API_KEY));
+		Assert.assertNull(postParams.get(SecurityParameters.SIGNATURE));
+	}
+
+	@Test
+	public void testSecurityComponentsWithRefreshableSuppliers(){
+		DatarouterHttpClient client;
+		DatarouterHttpRequest request;
+		DatarouterHttpResponse response;
+		Map<String,String> postParams;
+
+		String salt = "some super secure salty salt " + UUID.randomUUID().toString();
+		String cipherKey = "kirg king kind " + UUID.randomUUID().toString();
+		String apiKey = "apiKey advanced placement incremental key " + UUID.randomUUID().toString();
+
+		DefaultSignatureGenerator signatureGenerator = new RefreshableDefaultSignatureGenerator(() -> salt);
+		DefaultCsrfGenerator csrfGenerator = new RefreshableDefaultCsrfGenerator(() -> cipherKey);
+		Supplier<String> apiKeySupplier = new RefreshableStringSupplier(() -> apiKey);
 
 		client = new DatarouterHttpClientBuilder()
 				.setSignatureGenerator(signatureGenerator)

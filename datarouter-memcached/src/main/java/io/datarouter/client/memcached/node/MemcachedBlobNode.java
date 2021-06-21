@@ -119,12 +119,12 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public Scanner<PathbeanKey> scanKeys(Subpath subpath){
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Scanner<Pathbean> scan(Subpath subpath){
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
 		throw new UnsupportedOperationException();
 	}
 

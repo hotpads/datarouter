@@ -17,10 +17,20 @@ package io.datarouter.httpclient.client;
 
 import java.net.URI;
 
+import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
+
 public interface DatarouterHttpClientSettings extends SimpleDatarouterHttpClientSettings{
 
 	URI getEndpointUrl();
 	String getApiKey();
 	String getPrivateKey();
+
+	default RefreshableSupplier<String> getRefreshableApiKey(){
+		throw new UnsupportedOperationException();
+	}
+
+	default RefreshableSupplier<String> getRefreshablePrivateKey(){
+		throw new UnsupportedOperationException();
+	}
 
 }

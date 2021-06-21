@@ -69,18 +69,22 @@ public class DirectoryBlobStorage{
 		directoryManager.write(key.getPathAndFile(), inputStream);
 	}
 
-	public Scanner<Pathbean> scan(Subpath subpath){
-		return directoryManager.scanDescendants(subpath, false, true)
-				.map(path -> {
-					PathbeanKey key = PathbeanKey.of(path);
-					Long size = directoryManager.size(key.getPathAndFile());
-					return new Pathbean(key, size);
-				});
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
+		return directoryManager.scanDescendantsPaged(subpath, false, true)
+				.map(paths -> Scanner.of(paths)
+						.map(path -> {
+							PathbeanKey key = PathbeanKey.of(path);
+							Long size = directoryManager.size(key.getPathAndFile());
+							return new Pathbean(key, size);
+						})
+						.list());
 	}
 
-	public Scanner<PathbeanKey> scanKeys(Subpath subpath){
-		return directoryManager.scanDescendants(subpath, false, true)
-				.map(PathbeanKey::of);
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
+		return directoryManager.scanDescendantsPaged(subpath, false, true)
+				.map(paths -> Scanner.of(paths)
+						.map(PathbeanKey::of)
+						.list());
 	}
 
 	public void delete(PathbeanKey key){

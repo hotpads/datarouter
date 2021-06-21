@@ -27,7 +27,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.SortedStorageReaderNode;
 import io.datarouter.util.tuple.Range;
-import io.opencensus.trace.Span;
+import io.opencensus.common.Scope;
 
 public interface SortedStorageReaderOpencensusAdapterMixin<
 		PK extends PrimaryKey<PK>,
@@ -40,41 +40,41 @@ extends SortedStorageReader<PK,D>, OpencensusAdapter{
 
 	@Override
 	default Scanner<PK> scanKeys(Range<PK> range, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().scanKeys(range, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	default Scanner<PK> scanRangesKeys(Collection<Range<PK>> ranges, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().scanRangesKeys(ranges, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	default Scanner<D> scan(Range<PK> range, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().scan(range, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	default Scanner<D> scanRanges(Collection<Range<PK>> ranges, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().scanRanges(ranges, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 

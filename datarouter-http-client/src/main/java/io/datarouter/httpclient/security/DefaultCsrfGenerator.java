@@ -21,6 +21,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.function.Supplier;
 
@@ -28,6 +29,9 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import io.datarouter.instrumentation.refreshable.RefreshableStringSupplier;
+import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 
 public class DefaultCsrfGenerator implements CsrfGenerator{
 
@@ -83,6 +87,27 @@ public class DefaultCsrfGenerator implements CsrfGenerator{
 		byte[] salt = new byte[16];
 		sr.nextBytes(salt);
 		return Base64.getEncoder().encodeToString(salt);
+	}
+
+	public static class RefreshableDefaultCsrfGenerator extends DefaultCsrfGenerator
+	implements RefreshableCsrfGenerator{
+
+		private final RefreshableSupplier<String> supplier;
+
+		public RefreshableDefaultCsrfGenerator(RefreshableSupplier<String> supplier){
+			super(supplier);
+			this.supplier = supplier;
+		}
+
+		public RefreshableDefaultCsrfGenerator(Supplier<String> supplier){
+			this(new RefreshableStringSupplier(supplier::get));
+		}
+
+		@Override
+		public Instant refresh(){
+			return supplier.refresh();
+		}
+
 	}
 
 }

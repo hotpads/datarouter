@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.filesystem.raw.DirectoryManager;
 import io.datarouter.filesystem.raw.DirectoryManager.DirectoryManagerFactory;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.Subpath;
 
@@ -69,7 +70,8 @@ public class DirectoryBlobStorageTests{
 
 	@Test
 	public void testScanKeys(){
-		blobStorage.scanKeys(Subpath.empty())
+		blobStorage.scanKeysPaged(Subpath.empty())
+				.concat(Scanner::of)
 				.each(pathbeanKey -> Assert.assertFalse(pathbeanKey.getFile().isEmpty()))
 				.map(PathbeanKey::getPathAndFile)
 				.forEach(logger::info);
@@ -77,7 +79,8 @@ public class DirectoryBlobStorageTests{
 
 	@Test
 	public void testScan(){
-		blobStorage.scan(Subpath.empty())
+		blobStorage.scanPaged(Subpath.empty())
+				.concat(Scanner::of)
 				.each(pathbean -> Assert.assertFalse(pathbean.getKey().getFile().isEmpty()))
 				.map(pathbean -> String.format("%s[%s]", pathbean.getKey().getPathAndFile(), pathbean.getSize()))
 				.forEach(logger::info);

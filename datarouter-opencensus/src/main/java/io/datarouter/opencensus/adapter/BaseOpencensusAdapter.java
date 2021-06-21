@@ -26,7 +26,7 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.adapter.BaseAdapter;
-import io.opencensus.trace.Span;
+import io.opencensus.common.Scope;
 
 public abstract class BaseOpencensusAdapter<
 		PK extends PrimaryKey<PK>,
@@ -47,7 +47,7 @@ implements OpencensusAdapter{
 	}
 
 	@Override
-	public Optional<Span> startSpan(){
+	public Optional<Scope> startSpan(){
 		if(TracerTool.getCurrentTraceparent() == null){
 			return Optional.empty();
 		}

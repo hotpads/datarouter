@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-java8-parent</artifactId>
-		<version>0.0.77</version>
+		<version>0.0.78</version>
 		<relativePath>../datarouter-java8-parent</relativePath>
 	</parent>
 
@@ -33,10 +33,16 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j-version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
 			<version>${testng-version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 </project>

@@ -74,7 +74,9 @@ public class DirectoryQueue{
 	/*--------------- counts ----------------------*/
 
 	public long estNumMessages(){
-		return directoryManager.scanDescendants(Subpath.empty(), false, false).count();
+		return directoryManager.scanDescendantsPaged(Subpath.empty(), false, false)
+				.concat(Scanner::of)
+				.count();
 	}
 
 	public long estNumOpenMessages(){
@@ -82,7 +84,8 @@ public class DirectoryQueue{
 	}
 
 	public long estNumWaitingMessages(){
-		return directoryManager.scanDescendants(Subpath.empty(), false, false)
+		return directoryManager.scanDescendantsPaged(Subpath.empty(), false, false)
+				.concat(Scanner::of)
 				.map(Path::getFileName)
 				.map(Path::toString)
 				.map(DirectoryQueue::filenameToId)

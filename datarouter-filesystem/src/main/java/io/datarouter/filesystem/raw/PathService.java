@@ -41,9 +41,9 @@ public class PathService{
 				: path.toString();
 	}
 
-	public Scanner<Path> scanChildren(Path fullPath, Set<String> excludingFilenames, int limit, boolean sorted){
+	public List<Path> listChildren(Path fullPath, Set<String> excludingFilenames, int limit, boolean sorted){
 		try{
-			return checkedPathService.scanChildren(fullPath, excludingFilenames, limit, sorted);
+			return checkedPathService.listChildren(fullPath, excludingFilenames, limit, sorted);
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
@@ -51,22 +51,31 @@ public class PathService{
 
 	/**
 	 * Recursively scan directories, optionally sorting them in String ordering, since the filesystem may return them
-	 * in any order, which is often the order that subdirectories were added to a parent.
+	 * in any order, which is often the order that sub-directories were added to a parent.
+	 *
+	 * This allows us to mimic the "list" operation provided by S3 or GCS.
 	 *
 	 * @param fullPath  Path from the root of the filesystem or relative to the execution point.
 	 * @param includeDirectories  False for results similar to an object store like S3 or GCS
-	 * @param sorted  If true, sort each subdirectory before recursing, so that full paths match String sorting.
+	 * @param sorted  If true, sort each sub-directory before recursing, so that full paths match String sorting.
+	 * @return Lists of Paths grouped by leaf directory, with the leaf directory as the first Path in each List.
+	 * 		In the case of a directory with mixed sub-directories and files, group consecutive files into the same List.
+	 * 		The number of Lists tries to approximate the number of filesystem operations, but it's probably
+	 * 		over-counting by returning each directory as a singleton list.
 	 */
-	public Scanner<Path> scanDescendants(Path fullPath, boolean includeDirectories, boolean sorted){
-		return scanChildren(fullPath, Set.of(), Integer.MAX_VALUE, sorted)
-				.concat(child -> {
-					Scanner<Path> childScanner = ObjectScanner.of(child);//Path is Iterable
-					if(Files.isDirectory(child)){
-						return includeDirectories
-								? Scanner.concat(childScanner, scanDescendants(child, includeDirectories, sorted))
-								: scanDescendants(child, includeDirectories, sorted);
+	public Scanner<List<Path>> scanDescendantsPaged(Path fullPath, boolean includeDirectories, boolean sorted){
+		return Scanner.of(listChildren(fullPath, Set.of(), Integer.MAX_VALUE, sorted))
+				.splitBy(Files::isDirectory)
+				.map(Scanner::list)
+				.concat(directoriesOrFiles -> {
+					if(!Files.isDirectory(directoriesOrFiles.get(0))){// it's a list of leaf files
+						return ObjectScanner.of(directoriesOrFiles);
 					}
-					return childScanner;
+					return Scanner.of(directoriesOrFiles)
+							.concat(directory -> includeDirectories
+									? ObjectScanner.of(List.of(directory))
+											.append(scanDescendantsPaged(directory, includeDirectories, sorted))
+									: scanDescendantsPaged(directory, includeDirectories, sorted));
 				});
 	}
 
@@ -91,7 +100,11 @@ public class PathService{
 
 		public static final Comparator<Path> PATH_COMPARATOR = Comparator.comparing(PathService::pathToString);
 
-		public Scanner<Path> scanChildren(Path fullPath, Set<String> excludingFilenames, int limit, boolean sorted)
+		public List<Path> listChildren(
+				Path fullPath,
+				Set<String> excludingFilenames,
+				int limit,
+				boolean sorted)
 		throws IOException{
 			try(DirectoryStream<Path> iterable = Files.newDirectoryStream(fullPath)){
 				Scanner<Path> childPaths = Scanner.of(iterable)
@@ -99,11 +112,10 @@ public class PathService{
 				if(sorted){
 					childPaths = childPaths.sort(PATH_COMPARATOR);
 				}
-				//must collect the paths in the try block before the Scanner is closed
-				List<Path> childPathsList = childPaths
+				//must collect the paths in the try block before the DirectoryStream is closed
+				return childPaths
 						.limit(limit)
 						.list();
-				return Scanner.of(childPathsList);
 			}
 		}
 

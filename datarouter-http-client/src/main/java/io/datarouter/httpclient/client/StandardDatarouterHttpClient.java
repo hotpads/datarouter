@@ -18,14 +18,20 @@ package io.datarouter.httpclient.client;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -47,10 +53,14 @@ import io.datarouter.httpclient.request.HttpRequestMethod;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpException;
+import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.httpclient.response.exception.DatarouterHttpRuntimeException;
 import io.datarouter.httpclient.security.CsrfGenerator;
+import io.datarouter.httpclient.security.CsrfGenerator.RefreshableCsrfGenerator;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.httpclient.security.SignatureGenerator;
+import io.datarouter.httpclient.security.SignatureGenerator.RefreshableSignatureGenerator;
+import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
 import io.datarouter.instrumentation.trace.TracerTool;
 
@@ -63,6 +73,9 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	private final SignatureGenerator signatureGenerator;
 	private final CsrfGenerator csrfGenerator;
 	private final Supplier<String> apiKeySupplier;
+	private final RefreshableSignatureGenerator refreshableSignatureGenerator;
+	private final RefreshableCsrfGenerator refreshableCsrfGenerator;
+	private final RefreshableSupplier<String> refreshableApiKeySupplier;
 	private final DatarouterHttpClientConfig config;
 	private final PoolingHttpClientConnectionManager connectionManager;
 	private final DatarouterHttpClientIoExceptionCircuitBreaker circuitWrappedHttpClient;
@@ -75,6 +88,9 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 			SignatureGenerator signatureGenerator,
 			CsrfGenerator csrfGenerator,
 			Supplier<String> apiKeySupplier,
+			RefreshableSignatureGenerator refreshableSignatureGenerator,
+			RefreshableCsrfGenerator refreshableCsrfGenerator,
+			RefreshableSupplier<String> refreshableApiKeySupplier,
 			DatarouterHttpClientConfig config,
 			PoolingHttpClientConnectionManager connectionManager,
 			String name,
@@ -85,6 +101,9 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		this.signatureGenerator = signatureGenerator;
 		this.csrfGenerator = csrfGenerator;
 		this.apiKeySupplier = apiKeySupplier;
+		this.refreshableSignatureGenerator = refreshableSignatureGenerator;
+		this.refreshableCsrfGenerator = refreshableCsrfGenerator;
+		this.refreshableApiKeySupplier = refreshableApiKeySupplier;
 		this.config = config;
 		this.connectionManager = connectionManager;
 		this.circuitWrappedHttpClient = new DatarouterHttpClientIoExceptionCircuitBreaker(name);
@@ -136,6 +155,31 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public DatarouterHttpResponse executeChecked(DatarouterHttpRequest request, Consumer<HttpEntity> httpEntityConsumer)
 	throws DatarouterHttpException{
+		//store info needed to retry
+		Instant firstAttemptInstant = Instant.now();
+		Map<String,List<String>> originalGetParams = request.getGetParams().entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey, entry -> new ArrayList<>(entry.getValue())));
+		Map<String,List<String>> originalPostParams = request.getPostParams().entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey, entry -> new ArrayList<>(entry.getValue())));
+		Map<String,List<String>> originalHeaders = request.getHeaders().entrySet().stream()
+				.collect(Collectors.toMap(Entry::getKey, entry -> new ArrayList<>(entry.getValue())));
+		try{
+			return executeCheckedInternal(request, httpEntityConsumer);
+		}catch(DatarouterHttpResponseException e){
+			if(shouldRerun40x(firstAttemptInstant, e.getResponse().getStatusCode())){
+				//reset any changes to request made during the first attempt
+				request.setGetParams(originalGetParams);
+				request.setPostParams(originalPostParams);
+				request.setHeaders(originalHeaders);
+				logger.warn("retrying {}", e.getResponse().getStatusCode());
+				return executeCheckedInternal(request, httpEntityConsumer);
+			}
+			throw e;
+		}
+	}
+
+	private DatarouterHttpResponse executeCheckedInternal(DatarouterHttpRequest request,
+			Consumer<HttpEntity> httpEntityConsumer) throws DatarouterHttpException{
 		setSecurityProperties(request);
 
 		HttpClientContext context = new HttpClientContext();
@@ -193,12 +237,17 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	}
 
 	private void setSecurityProperties(DatarouterHttpRequest request){
+		SignatureGenerator signatureGenerator = chooseSignatureGenerator();
+		CsrfGenerator csrfGenerator = chooseCsrfGenerator();
+		Supplier<String> apiKeySupplier = chooseApiKeySupplier();
+
 		Map<String,String> params = new HashMap<>();
 		if(csrfGenerator != null){
 			String csrfIv = csrfGenerator.generateCsrfIv();
 			params.put(SecurityParameters.CSRF_IV, csrfIv);
 			params.put(SecurityParameters.CSRF_TOKEN, csrfGenerator.generateCsrfToken(csrfIv));
 		}
+
 		if(apiKeySupplier != null){
 			params.put(SecurityParameters.API_KEY, apiKeySupplier.get());
 		}
@@ -224,6 +273,30 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 				request.addHeader(SecurityParameters.SIGNATURE, signature);
 			}
 		}
+	}
+
+	private Supplier<String> chooseApiKeySupplier(){
+		return refreshableApiKeySupplier != null ? refreshableApiKeySupplier : apiKeySupplier != null ? apiKeySupplier
+				: null;
+	}
+
+	private SignatureGenerator chooseSignatureGenerator(){
+		return refreshableSignatureGenerator != null ? refreshableSignatureGenerator : signatureGenerator != null
+				? signatureGenerator : null;
+	}
+
+	private CsrfGenerator chooseCsrfGenerator(){
+		return refreshableCsrfGenerator != null ? refreshableCsrfGenerator : csrfGenerator != null
+				? csrfGenerator : null;
+	}
+
+	private boolean shouldRerun40x(Instant previous, int statusCode){
+		if(HttpStatus.SC_UNAUTHORIZED != statusCode && HttpStatus.SC_FORBIDDEN != statusCode){
+			return false;
+		}
+		return refreshableSignatureGenerator != null && !refreshableSignatureGenerator.refresh().isBefore(previous)
+				|| refreshableCsrfGenerator != null && !refreshableCsrfGenerator.refresh().isBefore(previous)
+				|| refreshableApiKeySupplier != null && !refreshableApiKeySupplier.refresh().isBefore(previous);
 	}
 
 	@Override

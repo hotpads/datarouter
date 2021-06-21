@@ -17,6 +17,7 @@ package io.datarouter.storage.file;
 
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.scanner.Scanner;
@@ -103,15 +104,19 @@ implements BlobStorage<PathbeanKey,Pathbean>{
 	}
 
 	@Override
-	public Scanner<PathbeanKey> scanKeys(Subpath subpath){
-		return storage.scanKeys(subpathInStorage.append(subpath))
-				.map(this::removeStoragePath);
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
+		return storage.scanKeysPaged(subpathInStorage.append(subpath))
+				.map(keys -> Scanner.of(keys)
+						.map(this::removeStoragePath)
+						.list());
 	}
 
 	@Override
-	public Scanner<Pathbean> scan(Subpath subpath){
-		return storage.scan(subpathInStorage.append(subpath))
-				.map(pathbean -> new Pathbean(removeStoragePath(pathbean.getKey()), pathbean.getSize()));
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
+		return storage.scanPaged(subpathInStorage.append(subpath))
+				.map(page -> Scanner.of(page)
+						.map(pathbean -> new Pathbean(removeStoragePath(pathbean.getKey()), pathbean.getSize()))
+						.list());
 	}
 
 	private PathbeanKey prependStoragePath(PathbeanKey directoryKey){

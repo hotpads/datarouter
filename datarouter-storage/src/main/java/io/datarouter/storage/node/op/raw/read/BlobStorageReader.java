@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.node.op.raw.read;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
@@ -45,8 +46,19 @@ extends NodeOps<PK,D>{
 	byte[] read(PathbeanKey key);
 	byte[] read(PathbeanKey key, long offset, int length);
 
-	Scanner<PathbeanKey> scanKeys(Subpath subpath);
-	Scanner<Pathbean> scan(Subpath subpath);
+	Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath);
+	Scanner<List<Pathbean>> scanPaged(Subpath subpath);
+
+
+	default Scanner<PathbeanKey> scanKeys(Subpath subpath){
+		return scanKeysPaged(subpath)
+				.concat(Scanner::of);
+	}
+
+	default Scanner<Pathbean> scan(Subpath subpath){
+		return scanPaged(subpath)
+				.concat(Scanner::of);
+	}
 
 	default Scanner<byte[]> scanChunks(
 			PathbeanKey key,

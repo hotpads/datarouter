@@ -102,13 +102,13 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public Scanner<Pathbean> scan(Subpath subpath){
-		return directoryBlobStorage.scan(subpath);
+	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
+		return directoryBlobStorage.scanPaged(subpath);
 	}
 
 	@Override
-	public Scanner<PathbeanKey> scanKeys(Subpath subpath){
-		return directoryBlobStorage.scanKeys(subpath);
+	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
+		return directoryBlobStorage.scanKeysPaged(subpath);
 	}
 
 	@Override

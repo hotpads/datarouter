@@ -26,7 +26,7 @@ import io.datarouter.opencensus.adapter.OpencensusAdapter;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader.MapStorageReaderNode;
-import io.opencensus.trace.Span;
+import io.opencensus.common.Scope;
 
 public interface MapStorageReaderOpencensusAdapterMixin<
 		PK extends PrimaryKey<PK>,
@@ -39,41 +39,41 @@ extends MapStorageReader<PK,D>, OpencensusAdapter{
 
 	@Override
 	default boolean exists(PK key, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().exists(key, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	default D get(PK key, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().get(key, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	default List<D> getMulti(Collection<PK> keys, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().getMulti(keys, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
 	@Override
 	default List<PK> getKeys(Collection<PK> keys, Config config){
-		Optional<Span> span = startSpan();
+		Optional<Scope> span = startSpan();
 		try{
 			return getBackingNode().getKeys(keys, config);
 		}finally{
-			span.ifPresent(Span::end);
+			span.ifPresent(Scope::close);
 		}
 	}
 
