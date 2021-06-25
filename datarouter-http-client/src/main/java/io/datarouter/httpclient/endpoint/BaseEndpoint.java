@@ -32,6 +32,10 @@ public abstract class BaseEndpoint<T>{
 	public final PathNode pathNode;
 	@IgnoredField
 	public final boolean retrySafe;
+	@IgnoredField
+	public final boolean shouldSkipSecurity;
+	@IgnoredField
+	public final boolean shouldSkipLogs;
 
 	@IgnoredField
 	public String urlPrefix;
@@ -39,10 +43,17 @@ public abstract class BaseEndpoint<T>{
 	public Optional<Duration> timeout;
 
 	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Class<T> responseType, boolean retrySafe){
+		this(method, pathNode, responseType, retrySafe, false, false);
+	}
+
+	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Class<T> responseType, boolean retrySafe,
+			boolean shouldSkipSecurity, boolean shouldSkipLogs){
 		this.method = method;
 		this.pathNode = pathNode;
 		this.responseType = responseType;
 		this.retrySafe = retrySafe;
+		this.shouldSkipSecurity = shouldSkipSecurity;
+		this.shouldSkipLogs = shouldSkipLogs;
 
 		this.urlPrefix = null;
 		this.timeout = Optional.empty();

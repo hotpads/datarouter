@@ -40,4 +40,8 @@ implements QueueStorageNode<PK,D,F>, RedundantQueueStorageMixin<PK,D,F,N>{
 		super(nodes[0], List.of(nodes));
 	}
 
+	public RedundantQueueStorageNode(List<N> nodes){
+		super(nodes.get(0), nodes);
+	}
+
 }

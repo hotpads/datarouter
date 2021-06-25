@@ -130,7 +130,7 @@ public class DatarouterLoggerConfigDao extends BaseDao{
 		if(ttl == null || ttl == 0){
 			return false;
 		}
-		return Instant.now().isAfter(loggerConfig.getLastUpdated().toInstant().plus(ttl, ChronoUnit.MILLIS));
+		return Instant.now().isAfter(loggerConfig.getLastUpdated().plus(ttl, ChronoUnit.MILLIS));
 	}
 
 }

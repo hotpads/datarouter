@@ -96,7 +96,7 @@ public class W3TraceContextTests{
 		String validTracestate = "datarouter=00000175e4110dbe,rojo=00f067aa0ba902b7,congo=t61rcWkgMzE";
 		String validTraceparentWithFlags = validTraceparentWithoutFlag + flagsInHextCode;
 		W3TraceContext traceContext = new W3TraceContext(validTraceparentWithFlags, validTracestate, UNIX_TIME_MILLIS);
-		Tracer tracer = new TraceConextTestTracer(traceContext);
+		Tracer tracer = new TraceContextTestTracer(traceContext);
 		TracerThreadLocal.bindToThread(tracer);
 	}
 

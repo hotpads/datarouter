@@ -21,31 +21,41 @@ import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.conveyor.message.ConveyorMessage.ConveyorMessageFielder;
 import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.GroupQueueConsumer;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
-import io.datarouter.storage.node.op.raw.GroupQueueStorage;
+import io.datarouter.storage.node.op.raw.GroupQueueStorage.GroupQueueStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantGroupQueueStorageNode;
 
 public abstract class BaseTrace2HttpRequestRecordQueueDao extends BaseDao{
 
-	private final GroupQueueStorage<ConveyorMessageKey,ConveyorMessage> node;
+	private final GroupQueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> queueNode;
 
-	public BaseTrace2HttpRequestRecordQueueDao(String queueName, Datarouter datarouter, BaseDaoParams params,
+	public BaseTrace2HttpRequestRecordQueueDao(String queueName, Datarouter datarouter, BaseRedundantDaoParams params,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
-		node = queueNodeFactory.createGroupQueue(params.clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
-				.withQueueName(queueName)
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		queueNode = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					GroupQueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> node =
+							queueNodeFactory.createGroupQueue(clientId, ConveyorMessage::new,
+									ConveyorMessageFielder::new)
+							.withQueueName(queueName)
+							.withIsSystemTable(true)
+							.build();
+					return node;
+					})
+					.listTo(RedundantGroupQueueStorageNode::new);
+		datarouter.register(queueNode);
 	}
 
 	public void putMulti(Collection<ConveyorMessage> databeans){
-		node.putMulti(databeans);
+		queueNode.putMulti(databeans);
 	}
 
 	public GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> getGroupQueueConsumer(){
-		return new GroupQueueConsumer<>(node::peek, node::ack);
+		return new GroupQueueConsumer<>(queueNode::peek, queueNode::ack);
 	}
 
 }

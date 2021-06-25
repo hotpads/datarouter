@@ -17,22 +17,17 @@ package io.datarouter.httpclient.client;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.EndpointRegistry;
-import io.datarouter.httpclient.response.Conditional;
 
 public abstract class BaseDatarouterEndpointHttpClientWrapper<
 		T extends BaseEndpoint<?>,
 		R extends EndpointRegistry>
-extends BaseDatarouterHttpClientWrapper{
+extends BaseDatarouterHttpClientWrapper implements DatarouterServiceHttpClient{
 
 	public final R endpoints;
 
 	public BaseDatarouterEndpointHttpClientWrapper(DatarouterHttpClient datarouterHttpClient, R endpoints){
 		super(datarouterHttpClient);
 		this.endpoints = endpoints;
-	}
-
-	public <E,A extends BaseEndpoint<E>> Conditional<E> call(A endpoint){
-		return super.tryExecute(endpoint);
 	}
 
 }

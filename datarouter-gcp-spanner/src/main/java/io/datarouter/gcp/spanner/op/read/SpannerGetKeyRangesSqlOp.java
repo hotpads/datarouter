@@ -27,7 +27,7 @@ import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.gcp.spanner.op.SpannerBaseOp;
 import io.datarouter.gcp.spanner.sql.SpannerSql;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -65,7 +65,7 @@ extends SpannerBaseOp<List<PK>>{
 	@Override
 	public List<PK> wrappedCall(){
 		String spanName = getClass().getSimpleName();
-		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+		try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 			List<PK> results = wrappedCallInternal();
 			TracerTool.appendToSpanInfo("offset " + config.findOffset().orElse(0));
 			TracerTool.appendToSpanInfo("got " + results.size());

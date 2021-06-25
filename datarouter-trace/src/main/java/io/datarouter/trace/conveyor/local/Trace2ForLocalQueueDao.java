@@ -15,22 +15,24 @@
  */
 package io.datarouter.trace.conveyor.local;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.trace.storage.BaseTraceQueueDao;
 
 @Singleton
 public class Trace2ForLocalQueueDao extends BaseTraceQueueDao{
 
-	public static class Trace2ForLocalQueueDaoParams extends BaseDaoParams{
+	public static class Trace2ForLocalQueueDaoParams extends BaseRedundantDaoParams{
 
-		public Trace2ForLocalQueueDaoParams(ClientId clientId){
-			super(clientId);
+		public Trace2ForLocalQueueDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 	}
 

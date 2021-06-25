@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.storage.permissionrequest;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -60,8 +61,8 @@ public class DatarouterPermissionRequestKey extends BaseRegularPrimaryKey<Dataro
 		this.userId = userId;
 	}
 
-	public Date getRequestTime(){
-		return requestTime;
+	public Instant getRequestTime(){
+		return requestTime.toInstant();
 	}
 
 	public void setRequestTime(Date requestTime){

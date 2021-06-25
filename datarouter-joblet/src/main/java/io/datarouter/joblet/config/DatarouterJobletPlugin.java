@@ -48,7 +48,7 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 	private final JobletSelectorRegistry jobletSelectorRegistry;
 	private final Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass;
 
-	private DatarouterJobletPlugin(List<Pair<Class<? extends Dao>,ClientId>> daosAndClients){
+	private DatarouterJobletPlugin(List<Pair<Class<? extends Dao>,List<ClientId>>> daosAndClients){
 		this(null, null, null, daosAndClients);
 	}
 
@@ -56,7 +56,7 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 			List<JobletType<?>> jobletTypes,
 			JobletSelectorRegistry jobletSelectorRegistry,
 			Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass,
-			List<Pair<Class<? extends Dao>,ClientId>> daosAndClients){
+			List<Pair<Class<? extends Dao>,List<ClientId>>> daosAndClients){
 		this.jobletTypes = jobletTypes;
 		this.jobletSelectorRegistry = jobletSelectorRegistry;
 		this.externalLinkBuilderClass = externalLinkBuilderClass;
@@ -85,15 +85,15 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 
 	public static class DatarouterJobletPluginBuilder{
 
-		private ClientId datarouterJobletDataClientId;
-		private ClientId datarouterJobletQueueClientId;
-		private ClientId datarouterJobletRequestClientId;
+		private List<ClientId> datarouterJobletDataClientId;
+		private List<ClientId> datarouterJobletQueueClientId;
+		private List<ClientId> datarouterJobletRequestClientId;
 		private final List<JobletType<?>> jobletTypes = new ArrayList<>();
 		private final JobletSelectorRegistry jobletSelectorRegistry = new JobletSelectorRegistry();
 		private Class<? extends JobletExternalLinkBuilder> externalLinkBuilderClass
 				= NoOpJobletExternalLinkBuilder.class;
 
-		public DatarouterJobletPluginBuilder(ClientId defaultClientId, ClientId defaultQueueClientId){
+		public DatarouterJobletPluginBuilder(List<ClientId> defaultClientId, List<ClientId> defaultQueueClientId){
 			this.datarouterJobletDataClientId = defaultClientId;
 			this.datarouterJobletQueueClientId = defaultQueueClientId;
 			this.datarouterJobletRequestClientId = defaultClientId;
@@ -103,15 +103,15 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 		}
 
 		// == the three following methods allow you to customize client id for each dao
-		public void setDatarouterJobletDataClientId(ClientId datarouterJobletDataClientId){
+		public void setDatarouterJobletDataClientId(List<ClientId> datarouterJobletDataClientId){
 			this.datarouterJobletDataClientId = datarouterJobletDataClientId;
 		}
 
-		public void setDatarouterJobletQueueClientId(ClientId datarouterJobletQueueClientId){
+		public void setDatarouterJobletQueueClientId(List<ClientId> datarouterJobletQueueClientId){
 			this.datarouterJobletQueueClientId = datarouterJobletQueueClientId;
 		}
 
-		public void setDatarouterJobletRequestClientId(ClientId datarouterJobletRequestClientId){
+		public void setDatarouterJobletRequestClientId(List<ClientId> datarouterJobletRequestClientId){
 			this.datarouterJobletRequestClientId = datarouterJobletRequestClientId;
 		}
 		// ==
@@ -152,7 +152,7 @@ public class DatarouterJobletPlugin extends BaseJobletPlugin{
 					makeDaosAndClients());
 		}
 
-		private List<Pair<Class<? extends Dao>,ClientId>> makeDaosAndClients(){
+		private List<Pair<Class<? extends Dao>,List<ClientId>>> makeDaosAndClients(){
 			return List.of(
 					new Pair<>(DatarouterJobletDataDao.class, datarouterJobletDataClientId),
 					new Pair<>(DatarouterJobletQueueDao.class, datarouterJobletQueueClientId),

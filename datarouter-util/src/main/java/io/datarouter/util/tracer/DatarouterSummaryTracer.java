@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.scanner.Scanner;
@@ -133,7 +134,7 @@ public class DatarouterSummaryTracer implements Tracer{
 	/*---------------------------- TraceSpan --------------------------------*/
 
 	@Override
-	public void startSpan(String name){
+	public void startSpan(String name, TraceSpanGroupType groupType){
 		SpanRecord prevRecord = spans.peek();
 		if(prevRecord != null && prevRecord.name == INTERSPAN){
 			addSummary(INTERSPAN, prevRecord.startMs, true);
@@ -147,7 +148,7 @@ public class DatarouterSummaryTracer implements Tracer{
 		String summaryKey = getSpanRecordsPrefix();
 		SpanRecord currentSpan = spans.pop();
 		addSummary(summaryKey, currentSpan.startMs, false);
-		startSpan(INTERSPAN);
+		startSpan(INTERSPAN, TraceSpanGroupType.NONE);
 	}
 
 	@Override

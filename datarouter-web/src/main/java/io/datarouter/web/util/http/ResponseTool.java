@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
@@ -70,7 +71,7 @@ public class ResponseTool{
 		response.setContentType(ResponseTool.CONTENT_TYPE_APPLICATION_JSON);
 		// close the writer before the trace to be able to include the close() duration in the measure
 		long start = System.currentTimeMillis();
-		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "ResponseTool sendJson");
+		try(var $ = TracerTool.startSpan("ResponseTool sendJson", TraceSpanGroupType.HTTP);
 				OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8)){
 			writer.append(body);
 		}

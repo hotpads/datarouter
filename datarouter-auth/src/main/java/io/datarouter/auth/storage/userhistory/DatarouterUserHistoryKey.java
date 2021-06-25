@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.storage.userhistory;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -33,9 +34,9 @@ public class DatarouterUserHistoryKey extends BaseRegularPrimaryKey<DatarouterUs
 	public DatarouterUserHistoryKey(){
 	}
 
-	public DatarouterUserHistoryKey(Long userId, Date time){
+	public DatarouterUserHistoryKey(Long userId, Instant time){
 		this.userId = userId;
-		this.time = time;
+		this.time = Date.from(time);
 	}
 
 	public static class FieldKeys{
@@ -60,8 +61,8 @@ public class DatarouterUserHistoryKey extends BaseRegularPrimaryKey<DatarouterUs
 		this.userId = userId;
 	}
 
-	public Date getTime(){
-		return time;
+	public Instant getTime(){
+		return time.toInstant();
 	}
 
 	public void setTime(Date time){

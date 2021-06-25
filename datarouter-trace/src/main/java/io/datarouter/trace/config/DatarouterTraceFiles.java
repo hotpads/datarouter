@@ -34,7 +34,6 @@ public class DatarouterTraceFiles extends FilesRoot{
 	}
 
 	public static class TraceFiles extends PathNode{
-		public final PathNode viewTraceJsp = leaf("viewTrace.jsp");
 	}
 
 }

@@ -15,7 +15,7 @@
  */
 package io.datarouter.auth.service;
 
-import java.util.Date;
+import java.time.Instant;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -75,7 +75,7 @@ public class DatarouterSigninFormAuthenticator implements DatarouterAuthenticato
 
 		DatarouterUser user = lookupAndValidateUser(username, password);
 
-		user.setLastLoggedIn(new Date());
+		user.setLastLoggedIn(Instant.now());
 		datarouterUserDao.put(user);
 
 		DatarouterSession session = DatarouterSession.createFromUser(user);

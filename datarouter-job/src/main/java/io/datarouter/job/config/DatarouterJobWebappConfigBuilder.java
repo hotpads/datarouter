@@ -52,9 +52,9 @@ extends DatarouterWebWebappConfigBuilder<T>{
 				DatarouterService datarouterService,
 				ServerTypes serverTypes,
 				DatarouterProperties datarouterProperties,
-				ClientId defaultClientId,
+				List<ClientId> defaultClientIds,
 				ServletContextListener log4jServletContextListener){
-			super(datarouterService, serverTypes, datarouterProperties, defaultClientId, log4jServletContextListener);
+			super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, log4jServletContextListener);
 		}
 
 		@Override
@@ -68,9 +68,9 @@ extends DatarouterWebWebappConfigBuilder<T>{
 			DatarouterService datarouterService,
 			ServerTypes serverTypes,
 			DatarouterProperties datarouterProperties,
-			ClientId defaultClientId,
+			List<ClientId> defaultClientIds,
 			ServletContextListener log4jServletContextListener){
-		super(datarouterService, serverTypes, datarouterProperties, defaultClientId, log4jServletContextListener);
+		super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, log4jServletContextListener);
 		this.triggerGroups = new ArrayList<>();
 		this.jobPlugins = new ArrayList<>();
 	}
@@ -83,7 +83,7 @@ extends DatarouterWebWebappConfigBuilder<T>{
 				.forEach(registeredPlugins::add);
 		modules.addAll(jobPlugins);
 
-		DatarouterJobPluginBuilder jobPluginBuilder = new DatarouterJobPluginBuilder(List.of(defaultClientId));
+		DatarouterJobPluginBuilder jobPluginBuilder = new DatarouterJobPluginBuilder(defaultClientIds);
 		addJobPluginWithoutInstalling(jobPluginBuilder.getSimplePluginData());
 		DatarouterJobPlugin jobPlugin = jobPluginBuilder
 				.setTriggerGroupClasses(triggerGroups)

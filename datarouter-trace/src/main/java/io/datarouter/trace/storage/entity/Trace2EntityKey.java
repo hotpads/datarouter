@@ -15,6 +15,8 @@
  */
 package io.datarouter.trace.storage.entity;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import io.datarouter.instrumentation.trace.Traceparent;
@@ -49,6 +51,10 @@ public class Trace2EntityKey extends BaseEntityKey<Trace2EntityKey>{
 
 	public String getTrace2EntityId(){
 		return traceId;
+	}
+
+	public Duration getAge(){
+		return Duration.between(new Traceparent(traceId).getInstant(), Instant.now());
 	}
 
 }

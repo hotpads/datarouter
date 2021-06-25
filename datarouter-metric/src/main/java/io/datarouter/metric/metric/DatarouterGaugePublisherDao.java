@@ -16,6 +16,7 @@
 package io.datarouter.metric.metric;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,43 +25,52 @@ import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.conveyor.message.ConveyorMessage.ConveyorMessageFielder;
 import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.GroupQueueConsumer;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
-import io.datarouter.storage.node.op.raw.GroupQueueStorage;
+import io.datarouter.storage.node.op.raw.GroupQueueStorage.GroupQueueStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantGroupQueueStorageNode;
 
 @Singleton
 public class DatarouterGaugePublisherDao extends BaseDao{
 
-	public static class DatarouterGaugePublisherDaoParams extends BaseDaoParams{
+	public static class DatarouterGaugePublisherDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterGaugePublisherDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterGaugePublisherDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final GroupQueueStorage<ConveyorMessageKey,ConveyorMessage> node;
+	private final GroupQueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> queueNode;
 
 	@Inject
 	public DatarouterGaugePublisherDao(Datarouter datarouter, DatarouterGaugePublisherDaoParams params,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
-		node = queueNodeFactory
-				.createGroupQueue(params.clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
-				.withQueueName("PublisherGauge")
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		queueNode = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					GroupQueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> node =
+							queueNodeFactory.createGroupQueue(
+									clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
+							.withQueueName("PublisherGauge")
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantGroupQueueStorageNode::new);
+		datarouter.register(queueNode);
 	}
 
 	public void putMulti(Collection<ConveyorMessage> databeans){
-		node.putMulti(databeans);
+		queueNode.putMulti(databeans);
 	}
 
 	public GroupQueueConsumer<ConveyorMessageKey,ConveyorMessage> getGroupQueueConsumer(){
-		return new GroupQueueConsumer<>(node::peek, node::ack);
+		return new GroupQueueConsumer<>(queueNode::peek, queueNode::ack);
 	}
 
 }

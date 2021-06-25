@@ -26,6 +26,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.util.serialization.GsonTool;
@@ -33,7 +34,7 @@ import io.datarouter.util.serialization.GsonTool;
 public class HBaseTableTool{
 
 	public static Result[] getUnchecked(Table table, List<Get> gets){
-		try(var $ = TracerTool.startSpan(table.getName() + " get")){
+		try(var $ = TracerTool.startSpan(table.getName() + " get", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo("gets", gets.size());
 			Result[] results = table.get(gets);
 			TracerTool.appendToSpanInfo("results", results.length);
@@ -44,7 +45,7 @@ public class HBaseTableTool{
 	}
 
 	public static void deleteUnchecked(Table table, List<Delete> deletes){
-		try(var $ = TracerTool.startSpan(table.getName() + " delete")){
+		try(var $ = TracerTool.startSpan(table.getName() + " delete", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo("deletes", deletes.size());
 			table.delete(deletes);
 		}catch(IOException e){
@@ -54,7 +55,7 @@ public class HBaseTableTool{
 
 	public static ResultScanner getResultScanner(Table table, Scan scan) throws IOException{
 		String start = Bytes.toStringBinary(scan.getStartRow());
-		try(var $ = TracerTool.startSpan(table.getName() + " getScanner")){
+		try(var $ = TracerTool.startSpan(table.getName() + " getScanner", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo("start", start);
 			return table.getScanner(scan);
 		}catch(IOException e){

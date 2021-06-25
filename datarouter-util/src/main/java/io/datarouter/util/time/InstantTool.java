@@ -13,31 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- */
-package io.datarouter.trace.storage.span;
+package io.datarouter.util.time;
 
-import io.datarouter.trace.storage.entity.TraceEntityKey;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
-public class TraceSpanKey extends BaseTraceSpanKey<TraceEntityKey,TraceSpanKey>{
+public class InstantTool{
 
-	public TraceSpanKey(){
-		this.entityKey = new TraceEntityKey();
-	}
-
-	public TraceSpanKey(TraceEntityKey entityKey){
-		this.entityKey = entityKey;
-	}
-
-	public TraceSpanKey(String traceId, Long threadId, Integer sequence){
-		super(threadId, sequence);
-		this.entityKey = new TraceEntityKey(traceId);
-	}
-
-	@Override
-	public TraceSpanKey prefixFromEntityKey(TraceEntityKey entityKey){
-		return new TraceSpanKey(entityKey);
+	public static Instant getDaysAgo(int daysAgo){
+		return Instant.now().minus(daysAgo, ChronoUnit.DAYS);
 	}
 
 }

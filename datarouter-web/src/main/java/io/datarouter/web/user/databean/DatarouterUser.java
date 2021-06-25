@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.user.databean;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
@@ -131,6 +132,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		public List<Field<?>> getFields(){
 			return List.of(new StringField(FieldKeys.username, id));
 		}
+
 	}
 
 	public static class DatarouterUserByUserTokenLookup extends BaseStringUniqueKey<DatarouterUserKey>{
@@ -146,7 +148,9 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	}
 
 	public Collection<Role> getRoles(){
-		return IterableScanner.ofNullable(roles).map(Role::new).list();
+		return IterableScanner.ofNullable(roles)
+				.map(Role::new)
+				.list();
 	}
 
 	public void setRoles(Collection<Role> roles){
@@ -182,8 +186,13 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 				&& Objects.equals(first.getZoneId(), second.getZoneId());
 	}
 
+	@Deprecated // use getCreatedInstant
 	public Date getCreated(){
-		return this.created;
+		return created;
+	}
+
+	public Instant getCreatedInstant(){
+		return created.toInstant();
 	}
 
 	public void setCreated(Date created){
@@ -246,12 +255,18 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 		this.enabled = enabled;
 	}
 
-	public Date getLastLoggedIn(){
-		return lastLoggedIn;
+	public Instant getLastLoggedIn(){
+		return Optional.ofNullable(lastLoggedIn)
+				.map(Date::toInstant)
+				.orElse(null);
 	}
 
-	public void setLastLoggedIn(Date lastLoggedIn){
-		this.lastLoggedIn = lastLoggedIn;
+	public void setLastLoggedIn(Instant lastLoggedIn){
+		if(lastLoggedIn == null){
+			this.lastLoggedIn = null;
+		}else{
+			this.lastLoggedIn = Date.from(lastLoggedIn);
+		}
 	}
 
 	@Override

@@ -30,6 +30,7 @@ import com.sun.management.ThreadMXBean;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.util.number.RandomTool;
@@ -168,7 +169,7 @@ public class DatarouterTracer implements Tracer{
 	/*---------------------------- TraceSpan --------------------------------*/
 
 	@Override
-	public void startSpan(String name){
+	public void startSpan(String name, TraceSpanGroupType groupType){
 		if(currentThread == null){
 			return;
 		}
@@ -184,6 +185,7 @@ public class DatarouterTracer implements Tracer{
 				nextSpanSequence,
 				parentSequence,
 				name,
+				groupType,
 				Trace2Dto.getCurrentTimeInNs());
 		if(saveSpanCpuTime){
 			span.setCpuTimeCreated(THREAD_MX_BEAN.getCurrentThreadCpuTime());

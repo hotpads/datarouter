@@ -126,7 +126,7 @@ public class DatarouterUserCreationService{
 		user.setUserToken(DatarouterTokenGenerator.generateRandomToken());
 
 		user.setCreated(new Date());
-		user.setLastLoggedIn(type == CreateType.ADMIN ? user.getCreated() : null);
+		user.setLastLoggedIn(type == CreateType.ADMIN ? user.getCreatedInstant() : null);
 
 		//AUTO users have no passwords. ADMIN and MANUAL users do have passwords.
 		user.setPasswordSalt(type == CreateType.AUTO ? null : PasswordTool.generateSalt());

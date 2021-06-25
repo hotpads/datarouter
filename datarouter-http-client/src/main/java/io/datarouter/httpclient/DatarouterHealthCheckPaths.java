@@ -13,30 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.trace.web;
+package io.datarouter.httpclient;
 
-import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.datarouter.pathnode.PathNode;
-import io.datarouter.trace.config.DatarouterTraceFiles;
-import io.datarouter.trace.storage.BaseDatarouterTraceDao;
-import io.datarouter.trace.storage.entity.UiTraceBundleDto;
+import io.datarouter.pathnode.PathsRoot;
 
-public class TraceHandler extends BaseTraceHandler{
+@Singleton
+public class DatarouterHealthCheckPaths extends PathNode implements PathsRoot{
 
-	@Inject
-	private DatarouterTraceFiles files;
-	@Inject
-	private BaseDatarouterTraceDao dao;
+	public final DatarouterHealthCheckSubPaths datarouter = branch(DatarouterHealthCheckSubPaths::new, "datarouter");
 
-	@Override
-	protected PathNode getViewTraceJsp(){
-		return files.jsp.datarouter.trace.viewTraceJsp;
-	}
-
-	@Override
-	protected UiTraceBundleDto getTrace(String traceId) throws AccessException{
-		return dao.getEntity(traceId);
+	public static class DatarouterHealthCheckSubPaths extends PathNode{
+		public final PathNode healthcheck = leaf("healthcheck");
 	}
 
 }

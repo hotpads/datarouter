@@ -64,9 +64,15 @@ public class ParallelMappingScanner<T,R> extends BaseScanner<R>{
 	}
 
 	private void submitCallables(int limit){
-		input.take(limit).stream()
-				.map(this::makeCallable)
-				.forEach(this::submitCallable);
+		for(int i = 0; i < limit; i++){
+			if(input.advance()){
+				T item = input.current();
+				Callable<R> callable = makeCallable(item);
+				submitCallable(callable);
+			}else{
+				return;
+			}
+		}
 	}
 
 	private Callable<R> makeCallable(T item){

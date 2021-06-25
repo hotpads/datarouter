@@ -59,7 +59,6 @@ import io.datarouter.trace.conveyor.local.Trace2ForLocalFilterToMemoryBuffer;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherFilterToMemoryBuffer;
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
-import io.datarouter.util.UlidTool;
 import io.datarouter.util.UuidTool;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.serialization.GsonTool;
@@ -108,13 +107,6 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			HttpServletRequest request = (HttpServletRequest)req;
 			HttpServletResponse response = (HttpServletResponse)res;
 
-			String traceId = UlidTool.nextUlid();
-			RequestAttributeTool.set(request, BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE, urlBuilder
-					.buildTraceForCurrentServer(traceId));
-			if(traceSettings.addTraceIdHeader.get()){
-				response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.X_TRACE_ID, traceId);
-			}
-
 			// get or create TraceContext
 			Long traceCreated = Trace2Dto.getCurrentTimeInNs();
 			String traceparent = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
@@ -122,9 +114,12 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			W3TraceContext traceContext = new W3TraceContext(traceparent, tracestate, traceCreated);
 			String initialParentId = traceContext.getTraceparent().parentId;
 			traceContext.updateParentIdAndAddTracestateMember();
-			if(traceSettings.addTraceIdHeader.get()){
-				response.setHeader("x-traceparent", traceContext.getTraceparent().toString());
+			if(traceSettings.addTraceparentHeader.get()){
+				response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT, traceContext
+						.getTraceparent().toString());
 			}
+			RequestAttributeTool.set(request, BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE, urlBuilder
+					.buildTraceForCurrentServer(traceContext.getTraceId(), traceContext.getParentId()));
 			RequestAttributeTool.set(request, BaseHandler.TRACE_CONTEXT, traceContext.copy());
 
 			// bind these to all threads, even if tracing is disabled

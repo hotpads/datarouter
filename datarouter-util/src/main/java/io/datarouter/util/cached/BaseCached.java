@@ -18,6 +18,7 @@ package io.datarouter.util.cached;
 import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.lang.ObjectTool;
 
@@ -40,7 +41,7 @@ public abstract class BaseCached<T> implements Supplier<T>{
 			return false;
 		}
 		T original;
-		try(TraceSpanFinisher $ = TracerTool.startSpan("BaseCached reload")){
+		try(TraceSpanFinisher $ = TracerTool.startSpan("BaseCached reload", TraceSpanGroupType.NONE)){
 			TracerTool.appendToSpanInfo(toString());
 			synchronized(this){
 				original = value;

@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.scanner.Scanner;
@@ -45,7 +46,7 @@ public class MemcachedOps{
 			String nodeName,
 			String memcachedStringKey,
 			Duration timeout){
-		try(var $ = TracerTool.startSpan(nodeName + " " + "delete")){
+		try(var $ = TracerTool.startSpan(nodeName + " " + "delete", TraceSpanGroupType.DATABASE)){
 			long start = System.currentTimeMillis();
 			try{
 				memcachedClientManager.getSpyMemcachedClient(clientId)
@@ -72,7 +73,7 @@ public class MemcachedOps{
 			return Scanner.empty();
 		}
 		long start = System.currentTimeMillis();
-		try(var $ = TracerTool.startSpan(nodeName + " get bulk")){
+		try(var $ = TracerTool.startSpan(nodeName + " get bulk", TraceSpanGroupType.DATABASE)){
 			try{
 				Map<String,Object> results = memcachedClientManager.getSpyMemcachedClient(clientId)
 						.asyncGetBulk(memcachedStringKeys)
@@ -115,7 +116,7 @@ public class MemcachedOps{
 			String memcachedStringKey,
 			int expiration,
 			byte[] bytes){
-		try(var $ = TracerTool.startSpan(nodeName + " " + "set")){
+		try(var $ = TracerTool.startSpan(nodeName + " " + "set", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo("bytes", bytes.length);
 			memcachedClientManager
 					.getSpyMemcachedClient(clientId)

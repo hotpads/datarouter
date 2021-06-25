@@ -15,8 +15,8 @@
  */
 package io.datarouter.auth.service;
 
+import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -79,7 +79,7 @@ public class DatarouterUserSessionService implements UserSessionService{
 			throw new InvalidCredentialsException("user not enabled (" + username + ")");
 		}
 
-		user.setLastLoggedIn(new Date());
+		user.setLastLoggedIn(Instant.now());
 		user.setRoles(Scanner.concat(roles, user.getRoles()).collect(HashSet::new));
 		userDao.put(user);
 

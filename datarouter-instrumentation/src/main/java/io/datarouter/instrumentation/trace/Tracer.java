@@ -40,7 +40,7 @@ public interface Tracer{
 	void finishThread();
 
 	Integer getDiscardedSpanCount();
-	void startSpan(String name);
+	void startSpan(String name, TraceSpanGroupType groupType);
 	void addSpan(Trace2SpanDto span);
 	void appendToSpanInfo(String text);
 	void finishSpan();

@@ -15,30 +15,34 @@
  */
 package io.datarouter.exception.storage.exceptionrecord;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.conveyor.queue.GroupQueueConsumer;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord.ExceptionRecordFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
-import io.datarouter.storage.node.op.raw.GroupQueueStorage;
+import io.datarouter.storage.node.op.raw.GroupQueueStorage.GroupQueueStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantGroupQueueStorageNode;
 
 @Singleton
 public class DatarouterExceptionRecordPublisherDao extends BaseDao{
 
-	public static class DatarouterExceptionPublisherRouterParams extends BaseDaoParams{
+	public static class DatarouterExceptionPublisherRouterParams extends BaseRedundantDaoParams{
 
-		public DatarouterExceptionPublisherRouterParams(ClientId clientId){
-			super(clientId);
+		public DatarouterExceptionPublisherRouterParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final GroupQueueStorage<ExceptionRecordKey,ExceptionRecord> node;
+	private final GroupQueueStorageNode<ExceptionRecordKey,ExceptionRecord,ExceptionRecordFielder> queueNode;
 
 	@Inject
 	public DatarouterExceptionRecordPublisherDao(
@@ -46,18 +50,26 @@ public class DatarouterExceptionRecordPublisherDao extends BaseDao{
 			DatarouterExceptionPublisherRouterParams params,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
-		node = queueNodeFactory.createGroupQueue(params.clientId, ExceptionRecord::new, ExceptionRecordFielder::new)
-				.withQueueName("PublisherExceptionRecord")
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		queueNode = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					GroupQueueStorageNode<ExceptionRecordKey,ExceptionRecord,ExceptionRecordFielder> node =
+							queueNodeFactory.createGroupQueue(clientId, ExceptionRecord::new,
+									ExceptionRecordFielder::new)
+							.withQueueName("PublisherExceptionRecord")
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantGroupQueueStorageNode::new);
+		datarouter.register(queueNode);
 	}
 
 	public GroupQueueConsumer<ExceptionRecordKey,ExceptionRecord> getGroupQueueConsumer(){
-		return new GroupQueueConsumer<>(node::peek, node::ack);
+		return new GroupQueueConsumer<>(queueNode::peek, queueNode::ack);
 	}
 
 	public void put(ExceptionRecord exceptionRecord){
-		node.put(exceptionRecord);
+		queueNode.put(exceptionRecord);
 	}
 
 }

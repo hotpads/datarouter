@@ -15,22 +15,24 @@
  */
 package io.datarouter.trace.conveyor.publisher;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.trace.storage.BaseTraceQueueDao;
 
 @Singleton
 public class Trace2ForPublisherQueueDao extends BaseTraceQueueDao{
 
-	public static class Trace2ForPublisherQueueDaoParams extends BaseDaoParams{
+	public static class Trace2ForPublisherQueueDaoParams extends BaseRedundantDaoParams{
 
-		public Trace2ForPublisherQueueDaoParams(ClientId clientId){
-			super(clientId);
+		public Trace2ForPublisherQueueDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 	}
 

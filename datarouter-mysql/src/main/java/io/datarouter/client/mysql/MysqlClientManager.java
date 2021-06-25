@@ -37,7 +37,7 @@ import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.ddl.execute.DatabaseCreator;
 import io.datarouter.client.mysql.ddl.execute.MysqlSchemaUpdateService;
 import io.datarouter.client.mysql.op.Isolation;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.storage.client.BaseClientManager;
@@ -127,7 +127,7 @@ public class MysqlClientManager extends BaseClientManager implements MysqlConnec
 	public void reserveConnection(ClientId clientId){
 		initClient(clientId);
 		DatarouterCounters.incClient(clientType, "connection open", clientId.getName(), 1);
-		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "reserve " + clientId.getName())){
+		try(var $ = TracerTool.startSpan("reserve " + clientId.getName(), TraceSpanGroupType.DATABASE)){
 			ConnectionHandle existingHandle = getExistingHandle(clientId);
 			if(existingHandle != null){
 				// logger.warn("got existing connection:"+existingHandle);

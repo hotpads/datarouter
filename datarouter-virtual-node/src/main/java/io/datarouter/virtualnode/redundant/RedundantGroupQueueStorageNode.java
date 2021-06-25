@@ -40,4 +40,8 @@ implements GroupQueueStorageNode<PK,D,F>, RedundantGroupQueueStorageMixin<PK,D,F
 		super(nodes[0], List.of(nodes));
 	}
 
+	public RedundantGroupQueueStorageNode(List<N> nodes){
+		super(nodes.get(0), nodes);
+	}
+
 }

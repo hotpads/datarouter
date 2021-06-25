@@ -58,6 +58,7 @@ import com.amazonaws.services.s3.transfer.Upload;
 
 import io.datarouter.aws.s3.S3Headers.ContentType;
 import io.datarouter.aws.s3.S3Headers.S3ContentType;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.raw.read.DirectoryDto;
@@ -70,6 +71,7 @@ import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
@@ -92,6 +94,7 @@ import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -168,7 +171,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				.acl(acl)
 				.build();
 		S3Client s3Client = getS3ClientForBucket(bucket);
-		try(var $ = TracerTool.startSpan("S3 copyObject")){
+		try(var $ = TracerTool.startSpan("S3 copyObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.copyObject(request);
 		}
 	}
@@ -180,7 +183,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				.key(key)
 				.build();
 		S3Client s3Client = getS3ClientForBucket(bucket);
-		try(var $ = TracerTool.startSpan("S3 deleteObject")){
+		try(var $ = TracerTool.startSpan("S3 deleteObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.deleteObject(request);
 		}
 	}
@@ -211,7 +214,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				.contentType(contentType.getMimeType())
 				.build();
 		CreateMultipartUploadResponse response;
-		try(var $ = TracerTool.startSpan("S3 createMultipartUpload")){
+		try(var $ = TracerTool.startSpan("S3 createMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.createMultipartUpload(request);
 		}
 		String uploadId = response.uploadId();
@@ -230,7 +233,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 						.build();
 				RequestBody requestBody = RequestBody.fromBytes(buffer.toByteArray());
 				UploadPartResponse response;
-				try(var $ = TracerTool.startSpan("S3 uploadPart")){
+				try(var $ = TracerTool.startSpan("S3 uploadPart", TraceSpanGroupType.CLOUD_STORAGE)){
 					response = s3Client.uploadPart(uploadPartRequest, requestBody);
 					TracerTool.appendToSpanInfo("Content-Length", uploadPartRequest.contentLength());
 				}
@@ -275,7 +278,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 						.uploadId(uploadId)
 						.multipartUpload(completedMultipartUpload)
 						.build();
-				try(var $ = TracerTool.startSpan("S3 completeMultipartUpload")){
+				try(var $ = TracerTool.startSpan("S3 completeMultipartUpload", TraceSpanGroupType.CLOUD_STORAGE)){
 					s3Client.completeMultipartUpload(completeMultipartUploadRequest);
 				}
 				closed = true;
@@ -289,7 +292,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		PutObjectRequest request = makePutObjectRequest(bucket, key, contentType);
 		RequestBody requestBody = RequestBody.fromString(content);
-		try(var $ = TracerTool.startSpan("S3 putObject")){
+		try(var $ = TracerTool.startSpan("S3 putObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}
@@ -304,7 +307,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				.acl(acl)
 				.build();
 		RequestBody requestBody = RequestBody.fromBytes(bytes);
-		try(var $ = TracerTool.startSpan("S3 putObject")){
+		try(var $ = TracerTool.startSpan("S3 putObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}
@@ -339,7 +342,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		prepareFileDestination(path);
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		GetObjectRequest request = makeGetObjectRequest(bucket, key);
-		try(var $ = TracerTool.startSpan("S3 getObject")){
+		try(var $ = TracerTool.startSpan("S3 getObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			GetObjectResponse response = s3Client.getObject(request, ResponseTransformer.toFile(path));
 			TracerTool.appendToSpanInfo("Content-Length", response.contentLength());
 		}
@@ -350,7 +353,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		prepareFileDestination(path);
 		TransferManager transferManager = getTransferManagerForBucket(bucket);
 		Download download;
-		try(var $ = TracerTool.startSpan("S3 download")){
+		try(var $ = TracerTool.startSpan("S3 download", TraceSpanGroupType.CLOUD_STORAGE)){
 			download = transferManager.download(bucket, key, path.toFile());
 		}
 		handleTransfer(download, heartbeat);
@@ -379,7 +382,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		GetObjectRequest request = makeGetObjectRequest(bucket, key);
 		ResponseInputStream<GetObjectResponse> response;
-		try(var $ = TracerTool.startSpan("S3 getObject")){
+		try(var $ = TracerTool.startSpan("S3 getObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.getObject(request);
 			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
 		}
@@ -396,7 +399,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		GetObjectRequest request = makeGetObjectRequest(bucket, key);
 		ResponseBytes<GetObjectResponse> response;
-		try(var $ = TracerTool.startSpan("S3 getObjectAsBytes")){
+		try(var $ = TracerTool.startSpan("S3 getObjectAsBytes", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.getObjectAsBytes(request);
 			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
 		}
@@ -408,7 +411,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		GetObjectRequest request = makeGetPartialObjectRequest(bucket, key, offset, length);
 		ResponseBytes<GetObjectResponse> response;
-		try(var $ = TracerTool.startSpan("S3 getPartialObject")){
+		try(var $ = TracerTool.startSpan("S3 getPartialObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.getObjectAsBytes(request);
 			TracerTool.appendToSpanInfo("offset", offset);
 			TracerTool.appendToSpanInfo("Content-Length", response.response().contentLength());
@@ -493,7 +496,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				.delimiter(delimiter)
 				.build();
 		ListObjectsV2Response response;
-		try(var $ = TracerTool.startSpan("S3 listObjectsV2")){
+		try(var $ = TracerTool.startSpan("S3 listObjectsV2", TraceSpanGroupType.CLOUD_STORAGE)){
 			response = s3Client.listObjectsV2(request);
 			TracerTool.appendToSpanInfo("size", response.contents().size());
 		}
@@ -515,7 +518,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				.maxKeys(pageSize)
 				.build();
 		ListObjectsV2Iterable pages;
-		try(var $ = TracerTool.startSpan("S3 listObjectsV2Paginator")){
+		try(var $ = TracerTool.startSpan("S3 listObjectsV2Paginator", TraceSpanGroupType.CLOUD_STORAGE)){
 			pages = getS3ClientForBucket(bucket).listObjectsV2Paginator(request);
 		}
 		return Scanner.of(pages)
@@ -551,7 +554,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 				.acl(acl)
 				.build();
 		RequestBody requestBody = RequestBody.fromFile(path);
-		try(var $ = TracerTool.startSpan("S3 putObject")){
+		try(var $ = TracerTool.startSpan("S3 putObject", TraceSpanGroupType.CLOUD_STORAGE)){
 			s3Client.putObject(request, requestBody);
 			TracerTool.appendToSpanInfo("Content-Length", request.contentLength());
 		}
@@ -582,7 +585,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 					.key(key)
 					.build();
 			HeadObjectResponse response;
-			try(var $ = TracerTool.startSpan("S3 headObject")){
+			try(var $ = TracerTool.startSpan("S3 headObject", TraceSpanGroupType.CLOUD_STORAGE)){
 				response = s3Client.headObject(request);
 				TracerTool.appendToSpanInfo("Content-Length", response.contentLength());
 			}
@@ -615,10 +618,12 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 					.bucket(bucket)
 					.build();
 			GetBucketLocationResponse response;
-			try(var $ = TracerTool.startSpan("S3 getBucketLocation")){
+			try(var $ = TracerTool.startSpan("S3 getBucketLocation", TraceSpanGroupType.CLOUD_STORAGE)){
 				response = s3Client.getBucketLocation(request);
 			}
 			region = response.locationConstraintAsString();
+		}catch(NoSuchBucketException e){
+			throw new RuntimeException("bucket not found name=" + bucket, e);
 		}catch(S3Exception e){
 			Matcher matcher = EXPECTED_REGION_EXTRACTOR.matcher(e.getMessage());
 			if(matcher.find()){
@@ -629,7 +634,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 							.bucket(bucket)
 							.build();
 					HeadBucketResponse response;
-					try(var $ = TracerTool.startSpan("S3 headBucket")){
+					try(var $ = TracerTool.startSpan("S3 headBucket", TraceSpanGroupType.CLOUD_STORAGE)){
 						response = s3Client.headBucket(request);
 					}
 					region = response
@@ -648,6 +653,7 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		return S3Client.builder()
 				.credentialsProvider(awsCredentialsProviderProvider.get())
 				.region(region)
+				.httpClientBuilder(ApacheHttpClient.builder().maxConnections(50_000))
 				.build();
 	}
 

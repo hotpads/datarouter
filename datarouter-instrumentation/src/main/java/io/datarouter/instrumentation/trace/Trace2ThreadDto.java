@@ -92,7 +92,7 @@ public class Trace2ThreadDto{
 	}
 
 	public void markFinish(){
-		this.ended = Trace2Dto.getCurrentTimeInNs();;
+		this.ended = Trace2Dto.getCurrentTimeInNs();
 	}
 
 	public String getServerName(){

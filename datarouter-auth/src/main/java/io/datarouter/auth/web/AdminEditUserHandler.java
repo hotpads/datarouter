@@ -396,8 +396,12 @@ public class AdminEditUserHandler extends BaseHandler{
 			Optional<String>> entry){
 		ZoneId zoneId = currentUserSessionInfoService.getZoneId(getRequest());
 		DatarouterPermissionRequest request = entry.getKey();
-		return new PermissionRequestDto(request.getKey().getRequestTime(), request.getRequestText(), request
-				.getResolutionTime(), entry.getValue().orElse(null), zoneId);
+		return new PermissionRequestDto(
+				request.getKey().getRequestTime(),
+				request.getRequestText(),
+				request.getResolutionTime(),
+				entry.getValue().orElse(null),
+				zoneId);
 	}
 
 	private static DeprovisionedUserDto buildDeprovisionedUserDto(SessionBasedUser user, Set<Role> roles){

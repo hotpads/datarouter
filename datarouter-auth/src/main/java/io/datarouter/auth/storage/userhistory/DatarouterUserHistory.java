@@ -15,7 +15,7 @@
  */
 package io.datarouter.auth.storage.userhistory;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
@@ -44,7 +44,7 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 
 	public DatarouterUserHistory(
 			Long userId,
-			Date time,
+			Instant time,
 			Long editor,
 			DatarouterUserChangeType changeType,
 			String changes){

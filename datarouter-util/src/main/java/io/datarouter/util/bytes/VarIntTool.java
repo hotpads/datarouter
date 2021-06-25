@@ -60,7 +60,7 @@ public class VarIntTool{
 			throw new IllegalArgumentException("invalid bytes " + ByteTool.getBinaryStringBigEndian(bytes));
 		}
 		long value = 0;
-		for(int i = 0;; ++i){
+		for(int i = 0; ; ++i){
 			byte byteVar = bytes[i + offset];
 			long shifted = BYTE_7_RIGHT_BITS_SET & bytes[i + offset];// kill leftmost bit
 			shifted <<= 7 * i;

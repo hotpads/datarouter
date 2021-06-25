@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.httpclient.json.JsonSerializer;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.HandledException;
@@ -56,7 +56,7 @@ public class JsonEncoder implements HandlerEncoder{
 	}
 
 	protected String serialize(Object result){
-		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), "JsonEncoder serialize")){
+		try(var $ = TracerTool.startSpan("JsonEncoder serialize", TraceSpanGroupType.SERIALIZATION)){
 			String string = jsonSerializer.serialize(result);
 			TracerTool.appendToSpanInfo("characters", string.length());
 			return string;

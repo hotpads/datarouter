@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.trace.conveyor;
+package io.datarouter.httpclient.endpoint;
 
-import java.util.Optional;
+import io.datarouter.httpclient.DatarouterHealthCheckPaths;
+import io.datarouter.httpclient.request.HttpRequestMethod;
 
-import io.datarouter.instrumentation.trace.TraceEntityDto;
+public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object>{
 
-public interface FilterToMemoryBuffer{
+	private DatarouterServiceHealthcheckEndpoint(){
+		super(HttpRequestMethod.GET, new DatarouterHealthCheckPaths().datarouter.healthcheck, Object.class, false,
+				true, true);
+	}
 
-	Optional<String> offer(TraceEntityDto dto);
+	public static DatarouterServiceHealthcheckEndpoint getEndpoint(){
+		return new DatarouterServiceHealthcheckEndpoint();
+	}
 
 }

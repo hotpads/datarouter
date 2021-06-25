@@ -24,6 +24,7 @@ public class Trace2SpanDto{
 	public final Integer sequence;
 	public final Integer parentSequence;
 	public final String name;
+	public final TraceSpanGroupType groupType;
 	public final Long created;
 	private String info;
 	private Long ended;
@@ -38,12 +39,14 @@ public class Trace2SpanDto{
 			Integer sequence,
 			Integer parentSequence,
 			String name,
+			TraceSpanGroupType groupType,
 			Long created){
 		this.traceparent = traceparent;
 		this.parentThreadId = parentThreadId;
 		this.sequence = sequence;
 		this.parentSequence = parentSequence;
 		this.name = name;
+		this.groupType = groupType;
 		this.created = created;
 	}
 
@@ -53,10 +56,11 @@ public class Trace2SpanDto{
 			Integer sequence,
 			Integer parentSequence,
 			String name,
+			TraceSpanGroupType groupType,
 			String info,
 			Long created,
 			Long ended){
-		this(traceparent, parentThreadId, sequence, parentSequence, name, created);
+		this(traceparent, parentThreadId, sequence, parentSequence, name, groupType, created);
 		this.info = info;
 		this.ended = ended;
 	}

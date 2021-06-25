@@ -26,6 +26,7 @@ import javax.websocket.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.types.Param;
@@ -62,7 +63,7 @@ public class WebSocketApiHandler extends BaseHandler{
 		Basic basicRemote = connection.get().session.getBasicRemote();
 		// Synchronize on the connection because sendText is not thread-safe
 		synchronized(connection.get().lock){
-			try(var $ = TracerTool.startSpan("websocket sendText")){
+			try(var $ = TracerTool.startSpan("websocket sendText", TraceSpanGroupType.HTTP)){
 				String message = webSocketCommand.getMessage();
 				TracerTool.appendToSpanInfo("characters", message.length());
 				basicRemote.sendText(message);
@@ -96,7 +97,7 @@ public class WebSocketApiHandler extends BaseHandler{
 		// Synchronize on the connection
 		try{
 			synchronized(connection.get().lock){
-				try(var $ = TracerTool.startSpan("websocket sendPing")){
+				try(var $ = TracerTool.startSpan("websocket sendPing", TraceSpanGroupType.HTTP)){
 					session.getBasicRemote().sendPing(ByteBuffer.allocate(0));
 				}
 			}

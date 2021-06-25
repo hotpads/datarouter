@@ -97,7 +97,7 @@ implements WebappBuilder{
 	private final Set<String> additionalAdministrators;
 	private final List<Class<? extends SettingRoot>> settingRoots;
 	private final List<Class<? extends Dao>> daoClasses;
-	protected final ClientId defaultClientId;
+	protected final List<ClientId> defaultClientIds;
 	private final List<FieldKeyOverrider> fieldKeyOverriders;
 
 	private Class<? extends FilesRoot> filesRoot;
@@ -160,9 +160,9 @@ implements WebappBuilder{
 				DatarouterService datarouterService,
 				ServerTypes serverTypes,
 				DatarouterProperties datarouterProperties,
-				ClientId defaultClientId,
+				List<ClientId> defaultClientIds,
 				ServletContextListener log4jServletContextListener){
-			super(datarouterService, serverTypes, datarouterProperties, defaultClientId, log4jServletContextListener);
+			super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, log4jServletContextListener);
 		}
 
 		@Override
@@ -176,12 +176,12 @@ implements WebappBuilder{
 			DatarouterService datarouterService,
 			ServerTypes serverTypes,
 			DatarouterProperties datarouterProperties,
-			ClientId defaultClientId,
+			List<ClientId> defaultClientIds,
 			ServletContextListener log4jServletContextListener){
 		this.datarouterService = datarouterService;
 		this.serverTypes = serverTypes;
 		this.datarouterProperties = datarouterProperties;
-		this.defaultClientId = defaultClientId;
+		this.defaultClientIds = defaultClientIds;
 		this.log4jServletContextListener = log4jServletContextListener;
 
 		// datarouter-storage
@@ -254,7 +254,7 @@ implements WebappBuilder{
 
 		DatarouterWebPluginBuilder webPluginBuilder = new DatarouterWebPluginBuilder(
 				datarouterService,
-				defaultClientId)
+				defaultClientIds)
 				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex)
 				.setHomepageRouteSet(homepageRouteSet);
 		addWebPluginWithoutInstalling(webPluginBuilder.getSimplePluginData());
@@ -299,7 +299,7 @@ implements WebappBuilder{
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
 				serverTypes,
 				datarouterProperties,
-				defaultClientId)
+				defaultClientIds)
 				.setSettingOverridesClass(settingOverrides)
 				.setSettingRootsClass(new SettingRootsSupplier(settingRoots))
 				.setClientOptionsFactoryClass(clientOptionsFactory)

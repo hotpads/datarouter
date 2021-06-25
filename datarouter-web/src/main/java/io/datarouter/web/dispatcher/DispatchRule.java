@@ -16,18 +16,20 @@
 package io.datarouter.web.dispatcher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.encoder.DefaultEncoder;
@@ -110,7 +112,11 @@ public class DispatchRule{
 	}
 
 	public DispatchRule allowRoles(RoleEnum<?>... roles){
-		Stream.of(roles)
+		return allowRoles(Arrays.asList(roles));
+	}
+
+	public DispatchRule allowRoles(Collection<RoleEnum<?>> roles){
+		Scanner.of(roles)
 				.map(RoleEnum::getRole)
 				.forEach(allowedRoles::add);
 		return this;

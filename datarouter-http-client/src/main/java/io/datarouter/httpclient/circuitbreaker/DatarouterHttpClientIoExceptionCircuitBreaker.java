@@ -43,6 +43,8 @@ import io.datarouter.httpclient.response.exception.DatarouterHttpRequestInterrup
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.trace.Trace2Dto;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
+import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
@@ -53,7 +55,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 
 	private static final Duration LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(10);
 
-	public static final String X_TRACE_ID = "x-trace-id";
+	public static final String X_TRACEPARENT = "x-traceparent";
 	public static final String TRACEPARENT = "traceparent";
 	public static final String TRACESTATE = "tracestate";
 
@@ -78,7 +80,7 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		HttpRequestBase internalHttpRequest = null;
 		long requestStartTimeNs = Trace2Dto.getCurrentTimeInNs();
 		Tracer tracer = TracerThreadLocal.get();
-		TracerTool.startSpan(tracer, "http call " + request.getPath());
+		TracerTool.startSpan(tracer, "http call " + request.getPath(), TraceSpanGroupType.HTTP);
 		internalHttpRequest = request.getRequest();
 		W3TraceContext traceContext;
 		if(tracer != null && tracer.getTraceContext().isPresent()){
@@ -114,12 +116,15 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				logger.warn("null http entity statusCode={} target={} duration={}", statusCode, request.getPath(),
 						duration);
 			}
-			Optional<String> traceId = Optional.ofNullable(httpResponse.getFirstHeader(X_TRACE_ID))
-					.map(Header::getValue);
-			traceId.ifPresent(remoteTraceId -> TracerTool.appendToSpanInfo("remote trace", remoteTraceId));
+			Optional<Traceparent> remoteTraceparent = Optional.ofNullable(httpResponse.getFirstHeader(X_TRACEPARENT))
+					.map(Header::getValue)
+					.map(Traceparent::parse)
+					.filter(Optional::isPresent)
+					.map(Optional::get);
+			remoteTraceparent.ifPresent(tp -> TracerTool.appendToSpanInfo("remote parentId=", tp.parentId));
 			if(duration.compareTo(LOG_SLOW_REQUEST_THRESHOLD) > 0){
-				logger.warn("Slow request target={} duration={} remoteTraceId={}", request.getPath(), duration, traceId
-						.orElse(""));
+				logger.warn("Slow request target={} duration={} remoteTraceparent={}", request.getPath(), duration,
+						remoteTraceparent.orElse(null));
 			}
 			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
 			if(isBadStatusCode){

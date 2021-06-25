@@ -27,6 +27,7 @@ import io.datarouter.client.mysql.op.BaseMysqlOp;
 import io.datarouter.client.mysql.op.Isolation;
 import io.datarouter.client.mysql.op.read.MysqlGetOpExecutor;
 import io.datarouter.client.mysql.util.MysqlTool;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.exception.DataAccessException;
@@ -96,7 +97,7 @@ extends BaseMysqlOp<List<IE>>{
 	private List<IE> select(PreparedStatement ps){
 		try{
 			String spanName = fieldInfo.getNodeName() + " " + opName + " PreparedStatement.execute";
-			try(var $ = TracerTool.startSpan(spanName)){
+			try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 				ps.execute();
 			}
 			ResultSet rs = ps.getResultSet();

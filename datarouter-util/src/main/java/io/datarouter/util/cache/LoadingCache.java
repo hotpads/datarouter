@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.lang.LineOfCode;
 
@@ -100,7 +101,7 @@ public class LoadingCache<K,V>{
 	}
 
 	public Optional<V> get(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " get")){
+		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " get", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo(key.toString());
 			return getSynchronized(key);
 		}
@@ -112,7 +113,7 @@ public class LoadingCache<K,V>{
 	}
 
 	public V getOrThrow(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " getOrThrows")){
+		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " getOrThrows", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo(key.toString());
 			return getOrThrowsSynchronized(key);
 		}
@@ -132,7 +133,7 @@ public class LoadingCache<K,V>{
 	 * @return whether the value exists in the cache before inserting
 	 */
 	public boolean load(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " load")){
+		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " load", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo(key.toString());
 			return loadSynchronized(key);
 		}
@@ -150,7 +151,7 @@ public class LoadingCache<K,V>{
 	 * @return whether the key exists in the cache
 	 */
 	public boolean contains(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " contains")){
+		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " contains", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo(key.toString());
 			return containsSynchronized(key);
 		}
@@ -162,7 +163,7 @@ public class LoadingCache<K,V>{
 	}
 
 	private boolean put(K key, V value){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " put")){
+		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " put", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo(key.toString());
 			return putSynchronized(key, value);
 		}
@@ -206,7 +207,7 @@ public class LoadingCache<K,V>{
 	}
 
 	private CachedObject<V> getIfNotExpired(K key){
-		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " getIfNotExpired")){
+		try(TraceSpanFinisher $ = TracerTool.startSpan(name + " getIfNotExpired", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo(key.toString());
 			return getIfNotExpiredSynchronized(key);
 		}

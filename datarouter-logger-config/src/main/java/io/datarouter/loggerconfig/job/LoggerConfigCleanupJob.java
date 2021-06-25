@@ -23,8 +23,10 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -47,7 +49,6 @@ import io.datarouter.logging.Log4j2Configurator;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.util.DateTool;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import j2html.tags.ContainerTag;
 
@@ -90,9 +91,9 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	}
 
 	private void handleCustomLogLevel(LoggerConfig log){
-		Date lastUpdatedThreshold = DateTool.getDaysAgo(maxAgeLimitDays);
-		Date loggerLastUpdatedDate = log.getLastUpdated();
-		if(loggerLastUpdatedDate.after(lastUpdatedThreshold)){
+		Instant lastUpdatedThreshold = Instant.now().minus(maxAgeLimitDays, ChronoUnit.DAYS);
+		Instant loggerLastUpdatedDate = log.getLastUpdated();
+		if(loggerLastUpdatedDate.isAfter(lastUpdatedThreshold)){
 			return;
 		}
 
@@ -117,8 +118,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				&& settings.sendLoggerConfigCleanupJobEmails.get()){
 			sendAlertEmail(log.getEmail(), makeLoggerLevelAlertDetails(log, rootLoggerLevel));
 		}
-
-		int daysSinceLastUpdatedThreshold = DateTool.getDatesBetween(loggerLastUpdatedDate, lastUpdatedThreshold);
+		int daysSinceLastUpdatedThreshold = (int)Duration.between(loggerLastUpdatedDate, lastUpdatedThreshold).toDays();
 		int daysLeftBeforeDeletingLogger = loggingConfigSendEmailAlertDays - daysSinceLastUpdatedThreshold;
 		if(daysLeftBeforeDeletingLogger <= 0){
 			loggerConfigDao.delete(log.getKey());
@@ -185,7 +185,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text("The LoggerConfig "),
 				b(log.getName()),
 				text(" was last updated on "),
-				b(ZonedDateFormaterTool.formatDateWithZone(log.getLastUpdated(), datarouterService.getZoneId())),
+				b(ZonedDateFormaterTool.formatInstantWithZone(log.getLastUpdated(), datarouterService.getZoneId())),
 				text(" so it's older than the maximum age threshold of "),
 				b(maxAgeLimitDays + ""),
 				text(" days."),

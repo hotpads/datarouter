@@ -15,8 +15,10 @@
  */
 package io.datarouter.loggerconfig.storage.loggerconfig;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Level;
 
@@ -127,8 +129,10 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 		return email;
 	}
 
-	public Date getLastUpdated(){
-		return lastUpdated;
+	public Instant getLastUpdated(){
+		return Optional.ofNullable(lastUpdated)
+				.map(Date::toInstant)
+				.orElse(null);
 	}
 
 	public LoggingLevel getLevel(){

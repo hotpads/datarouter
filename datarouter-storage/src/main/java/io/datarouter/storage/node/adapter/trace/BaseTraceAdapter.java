@@ -16,7 +16,7 @@
 package io.datarouter.storage.node.adapter.trace;
 
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -44,7 +44,7 @@ implements TraceAdapter<PK,D,F,N>{
 	@Override
 	public TraceSpanFinisher startSpanForOp(String opName){
 		String traceName = getName() + " " + opName;
-		return TracerTool.startSpan(TracerThreadLocal.get(), traceName);
+		return TracerTool.startSpan(traceName, TraceSpanGroupType.DATABASE);
 	}
 
 }

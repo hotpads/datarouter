@@ -19,12 +19,12 @@ import javax.inject.Inject;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
-import io.datarouter.trace.storage.DatarouterTraceDao;
+import io.datarouter.trace.storage.Trace2ForLocalDao;
 
 public class TraceThreadVacuumJob extends BaseJob{
 
 	@Inject
-	private DatarouterTraceDao dao;
+	private Trace2ForLocalDao dao;
 
 	@Override
 	public void run(TaskTracker tracker){

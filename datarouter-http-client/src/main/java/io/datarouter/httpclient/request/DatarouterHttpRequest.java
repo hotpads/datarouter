@@ -67,12 +67,19 @@ public class DatarouterHttpRequest{
 	private Map<String,List<String>> postParams;
 	private DatarouterHttpClientConfig config;
 	private HttpHost proxy;
+	private Boolean shouldSkipSecurity;
+	private Boolean shouldSkipLogs;
 
 	/**
 	 * Expects query string parameters to already be UTF-8 encoded. See AdvancedStringTool.makeUrlParameters().
 	 * URL fragment is stripped from URL when sent to server.
 	 */
 	public DatarouterHttpRequest(HttpRequestMethod method, String url){
+		this(method, url, false, false);
+	}
+
+	public DatarouterHttpRequest(HttpRequestMethod method, String url, boolean shouldSkipSecurity,
+			boolean shouldSkipLogs){
 		Args.notBlank(url, "request url");
 		Args.notNull(method, "http method");
 
@@ -101,6 +108,8 @@ public class DatarouterHttpRequest{
 		this.queryParams = queryParams;
 		this.postParams = new HashMap<>();
 		this.cookies = new ArrayList<>();
+		this.shouldSkipSecurity = shouldSkipSecurity;
+		this.shouldSkipLogs = shouldSkipLogs;
 	}
 
 	private Map<String,List<String>> extractQueryParams(String queryString){
@@ -461,6 +470,24 @@ public class DatarouterHttpRequest{
 
 	public String getPath(){
 		return path;
+	}
+
+	public boolean getShouldSkipSecurity(){
+		return shouldSkipSecurity;
+	}
+
+	public DatarouterHttpRequest setShouldSkipSecurity(boolean shouldSkipSecurity){
+		this.shouldSkipSecurity = shouldSkipSecurity;
+		return this;
+	}
+
+	public boolean getShouldSkipLogs(){
+		return shouldSkipLogs;
+	}
+
+	public DatarouterHttpRequest setShouldSkipLogs(boolean shouldSkipLogs){
+		this.shouldSkipLogs = shouldSkipLogs;
+		return this;
 	}
 
 }

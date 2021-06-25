@@ -29,6 +29,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.number.NumberFormatter;
 
@@ -44,7 +45,7 @@ public class MultipartParams extends Params{
 		this.request = request;
 		this.filesMap = new LinkedHashMap<>();
 		this.defaultCharset = defaultCharset == null ? null : defaultCharset.displayName();
-		try(var $ = TracerTool.startSpan("read multipart")){
+		try(var $ = TracerTool.startSpan("read multipart", TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("content length", NumberFormatter.addCommas(request.getContentLength()));
 			this.fileItems = new ServletFileUpload(newDiskItemFactory()).parseRequest(this.request);
 			for(FileItem fileItem : this.fileItems){

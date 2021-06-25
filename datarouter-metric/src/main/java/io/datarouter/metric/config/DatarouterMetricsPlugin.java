@@ -102,7 +102,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 	public static class DatarouterMetricsPluginBuilder{
 
-		private final ClientId defaultQueueClientId;
+		private final List<ClientId> defaultQueueClientId;
 		private final List<MetricName> metricNames;
 		private final List<MetricDashboardDto> dashboards;
 		private final List<MiscMetricLinksDto> miscMetricLinks;
@@ -114,7 +114,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		private DatarouterMetricsDaosModule daosModule;
 
 		public DatarouterMetricsPluginBuilder(
-				ClientId defaultQueueClientId,
+				List<ClientId> defaultQueueClientId,
 				Class<? extends CountPublisher> countPublisher,
 				Class<? extends GaugePublisher> gaugePublisher){
 			this.defaultQueueClientId = defaultQueueClientId;
@@ -199,20 +199,20 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 	public static class DatarouterMetricsDaosModule extends DaosModuleBuilder{
 
-		private final ClientId datarouterCountPublisherClientId;
-		private final ClientId datarouterGaugePublisherClientId;
+		private final List<ClientId> datarouterCountPublisherClientId;
+		private final List<ClientId> datarouterGaugePublisherClientId;
 
 		private final boolean enableCountPublishing;
 		private final boolean enableGaugePublishing;
 
-		public DatarouterMetricsDaosModule(ClientId defaultQueueClientId, boolean countPublishing,
+		public DatarouterMetricsDaosModule(List<ClientId> defaultQueueClientId, boolean countPublishing,
 				boolean gaugePublishing){
 			this(defaultQueueClientId, defaultQueueClientId, countPublishing, gaugePublishing);
 		}
 
 		public DatarouterMetricsDaosModule(
-				ClientId datarouterCountPublisherClientId,
-				ClientId datarouterGaugePublisherClientId,
+				List<ClientId> datarouterCountPublisherClientId,
+				List<ClientId> datarouterGaugePublisherClientId,
 				boolean enableCountPublishing,
 				boolean enableGaugePublishing){
 			this.datarouterCountPublisherClientId = datarouterCountPublisherClientId;

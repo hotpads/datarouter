@@ -44,7 +44,7 @@ public abstract class DatarouterJobletWebappConfigBuilder<T extends DatarouterJo
 extends DatarouterJobWebappConfigBuilder<T>{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterJobletWebappConfigBuilder.class);
 
-	private final ClientId defaultQueueClientId;
+	private final List<ClientId> defaultQueueClientIds;
 	private final List<JobletType<?>> jobletTypes;
 	private final List<BaseJobletPlugin> jobletPlugins;
 	private final List<Pair<String,Class<? extends JobletRequestSelector>>> selectorTypes;
@@ -58,10 +58,10 @@ extends DatarouterJobWebappConfigBuilder<T>{
 				DatarouterService datarouterService,
 				ServerTypes serverTypes,
 				DatarouterProperties datarouterProperties,
-				ClientId defaultClientId,
-				ClientId defaultQueueClientId,
+				List<ClientId> defaultClientIds,
+				List<ClientId> defaultQueueClientIds,
 				ServletContextListener log4jServletContextListener){
-			super(datarouterService, serverTypes, datarouterProperties, defaultClientId, defaultQueueClientId,
+			super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, defaultQueueClientIds,
 					log4jServletContextListener);
 		}
 
@@ -76,11 +76,11 @@ extends DatarouterJobWebappConfigBuilder<T>{
 			DatarouterService datarouterService,
 			ServerTypes serverTypes,
 			DatarouterProperties datarouterProperties,
-			ClientId defaultClientId,
-			ClientId defaultQueueClientId,
+			List<ClientId> defaultClientIds,
+			List<ClientId> defaultQueueClientIds,
 			ServletContextListener log4jServletContextListener){
-		super(datarouterService, serverTypes, datarouterProperties, defaultClientId, log4jServletContextListener);
-		this.defaultQueueClientId = defaultQueueClientId;
+		super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, log4jServletContextListener);
+		this.defaultQueueClientIds = defaultQueueClientIds;
 		this.jobletTypes = new ArrayList<>();
 		this.jobletExternalLinkBuilder = NoOpJobletExternalLinkBuilder.class;
 		this.jobletPlugins = new ArrayList<>();
@@ -95,8 +95,8 @@ extends DatarouterJobWebappConfigBuilder<T>{
 				.forEach(registeredPlugins::add);
 		modules.addAll(jobletPlugins);
 
-		DatarouterJobletPluginBuilder jobletPluginBuilder = new DatarouterJobletPluginBuilder(defaultClientId,
-				defaultQueueClientId);
+		DatarouterJobletPluginBuilder jobletPluginBuilder = new DatarouterJobletPluginBuilder(defaultClientIds,
+				defaultQueueClientIds);
 		addJobletPluginWithoutInstalling(jobletPluginBuilder.getSimplePluginData());
 		DatarouterJobletPlugin jobletPlugin = jobletPluginBuilder
 				.setJobletTypes(jobletTypes)

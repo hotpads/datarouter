@@ -38,6 +38,7 @@ import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory.Counting
 import io.datarouter.client.hbase.config.DatarouterHBaseExecutors.DatarouterHbaseClientExecutor;
 import io.datarouter.client.hbase.node.HBaseIncrement;
 import io.datarouter.client.hbase.util.HBaseConfigTool;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.model.databean.Databean;
@@ -116,7 +117,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 				.batch(batchSize)
 				.map(ActionBatch::new)
 				.forEach(batch -> {
-					try(var $ = TracerTool.startSpan("Table batchCallback")){
+					try(var $ = TracerTool.startSpan("Table batchCallback", TraceSpanGroupType.DATABASE)){
 						traceAndCount(batch.actions.size(), batch.numCellsPut, batch.numCellsDeleted, batch.putBytes,
 								batch.putValueBytes, batch.deleteBytes);
 						execute(batch.actions, putMultiCallback);

@@ -15,6 +15,8 @@
  */
 package io.datarouter.metric.counter;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -22,43 +24,51 @@ import io.datarouter.conveyor.message.ConveyorMessage;
 import io.datarouter.conveyor.message.ConveyorMessage.ConveyorMessageFielder;
 import io.datarouter.conveyor.message.ConveyorMessageKey;
 import io.datarouter.conveyor.queue.QueueConsumer;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
-import io.datarouter.storage.node.op.raw.QueueStorage;
+import io.datarouter.storage.node.op.raw.QueueStorage.QueueStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantQueueStorageNode;
 
 @Singleton
 public class DatarouterCountPublisherDao extends BaseDao{
 
-	public static class DatarouterCountPublisherDaoParams extends BaseDaoParams{
+	public static class DatarouterCountPublisherDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterCountPublisherDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterCountPublisherDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
 
-	private final QueueStorage<ConveyorMessageKey,ConveyorMessage> node;
+	private final QueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> queueNode;
 
 	@Inject
 	public DatarouterCountPublisherDao(Datarouter datarouter, DatarouterCountPublisherDaoParams params,
 			QueueNodeFactory queueNodeFactory){
 		super(datarouter);
-		node = queueNodeFactory
-				.createSingleQueue(params.clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
-				.withQueueName("CountPublisher")
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		queueNode = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					QueueStorageNode<ConveyorMessageKey,ConveyorMessage,ConveyorMessageFielder> node = queueNodeFactory
+							.createSingleQueue(clientId, ConveyorMessage::new, ConveyorMessageFielder::new)
+							.withQueueName("CountPublisher")
+							.withIsSystemTable(true)
+							.build();
+					return node;
+				})
+				.listTo(RedundantQueueStorageNode::new);
+		datarouter.register(queueNode);
 	}
 
 	public void put(ConveyorMessage databean){
-		node.put(databean);
+		queueNode.put(databean);
 	}
 
 	public QueueConsumer<ConveyorMessageKey,ConveyorMessage> getQueueConsumer(){
-		return new QueueConsumer<>(node::peek, node::ack);
+		return new QueueConsumer<>(queueNode::peek, queueNode::ack);
 	}
 
 }

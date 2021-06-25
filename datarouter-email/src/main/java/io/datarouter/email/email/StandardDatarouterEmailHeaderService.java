@@ -15,6 +15,7 @@
  */
 package io.datarouter.email.email;
 
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
@@ -51,10 +52,11 @@ public class StandardDatarouterEmailHeaderService{
 		rows.add(new Pair<>("service", makeText(datarouterService.getServiceName())));
 		rows.add(new Pair<>("serverName", makeText(datarouterProperties.getServerName())));
 		supplements.forEach(row -> rows.add(new Pair<>(row.getLeft(), row.getRight())));
-		return new J2HtmlEmailTable<Pair<String,DomContent>>()
+		var table = new J2HtmlEmailTable<Pair<String,DomContent>>()
 				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
 				.withColumn(new J2HtmlEmailTableColumn<>(null, Pair::getRight))
 				.build(rows);
+		return div(table, br());
 	}
 
 	public ContainerTag makeStandardHeaderWithSupplementsText(List<Twin<String>> supplements){
@@ -63,10 +65,11 @@ public class StandardDatarouterEmailHeaderService{
 		rows.add(new Pair<>("service", makeText(datarouterService.getServiceName())));
 		rows.add(new Pair<>("serverName", makeText(datarouterProperties.getServerName())));
 		supplements.forEach(row -> rows.add(new Pair<>(row.getLeft(), text(row.getRight()))));
-		return new J2HtmlEmailTable<Pair<String,DomContent>>()
+		var table = new J2HtmlEmailTable<Pair<String,DomContent>>()
 				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
 				.withColumn(new J2HtmlEmailTableColumn<>(null, Pair::getRight))
 				.build(rows);
+		return div(table, br());
 	}
 
 	private DomContent makeDivBoldRight(String text){

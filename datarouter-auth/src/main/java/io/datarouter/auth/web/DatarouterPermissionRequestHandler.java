@@ -25,6 +25,7 @@ import static j2html.TagCreator.td;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.tr;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Date;
@@ -271,13 +272,13 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		public final String resolutionTime;
 		public final String resolution;
 
-		public PermissionRequestDto(Date requestTime, String requestText, Date resolutionTime,
+		public PermissionRequestDto(Instant requestTime, String requestText, Optional<Instant> resolutionTime,
 				String resolution, ZoneId zoneId){
-			this.requestTime = ZonedDateFormaterTool.formatDateWithZone(requestTime, zoneId);
+			this.requestTime = ZonedDateFormaterTool.formatInstantWithZone(requestTime, zoneId);
 			this.requestText = requestText;
-			this.resolutionTime = resolutionTime == null
-					? null
-					: ZonedDateFormaterTool.formatDateWithZone(resolutionTime, zoneId);
+			this.resolutionTime = resolutionTime
+					.map(instant -> ZonedDateFormaterTool.formatInstantWithZone(instant, zoneId))
+					.orElse(null);
 			this.resolution = resolution;
 		}
 

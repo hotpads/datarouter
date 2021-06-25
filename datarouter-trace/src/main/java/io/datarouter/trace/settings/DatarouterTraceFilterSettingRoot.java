@@ -35,7 +35,7 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 	public final CachedSetting<Integer> logTracesOverMs;
 	public final CachedSetting<Boolean> saveTraces;
 	public final CachedSetting<Integer> saveTracesOverMs;
-	public final Setting<Boolean> addTraceIdHeader;
+	public final Setting<Boolean> addTraceparentHeader;
 	public final CachedSetting<String> traceDomain;
 	public final Setting<Set<String>> latencyRecordedHandlers;
 	public final CachedSetting<Boolean> logCpuTime;
@@ -52,12 +52,10 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		logRequests = registerBoolean("logRequests", false);
 		logTracesOverMs = registerInteger("logTracesOverMs", 500);
 		saveTraces = registerBooleans("saveTraces", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACEPIPELINE, () -> true)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		saveTracesOverMs = registerIntegers("saveTracesOverMs", defaultTo(500)
-				.withTag(DatarouterSettingTagType.TRACEPIPELINE, () -> 5)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> 5));
-		addTraceIdHeader = registerBoolean("addTraceIdHeader", true);
+		addTraceparentHeader = registerBoolean("addTraceparentHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");
 		latencyRecordedHandlers = registerCommaSeparatedStrings("latencyRecordedHandlers", defaultTo(new HashSet<>()));
 		logCpuTime = registerBoolean("logCpuTime", true);

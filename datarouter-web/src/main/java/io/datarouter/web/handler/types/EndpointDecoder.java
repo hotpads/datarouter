@@ -39,6 +39,7 @@ import io.datarouter.httpclient.endpoint.EndpointRequestBody;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.httpclient.endpoint.IgnoredField;
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
@@ -155,7 +156,7 @@ public class EndpointDecoder implements HandlerDecoder{
 
 	// same as DefaultDecoder.decode (keeping duplicate code for now)
 	private Object decodeType(String string, Type type){
-		try(var $ = TracerTool.startSpan("EndpointDecoder deserialize")){
+		try(var $ = TracerTool.startSpan("EndpointDecoder deserialize", TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", string.length());
 			// this prevents empty strings from being decoded as null by gson
 			Object obj;

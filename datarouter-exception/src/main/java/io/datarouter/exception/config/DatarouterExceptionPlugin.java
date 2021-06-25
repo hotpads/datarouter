@@ -118,7 +118,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 
 		private final ClientId defaultClientId;
 
-		private ClientId defaultQueueClientId;
+		private List<ClientId> defaultQueueClientId;
 		private Class<? extends ExceptionGraphLink> exceptionGraphLinkClass = NoOpExceptionGraphLink.class;
 		private Class<? extends ExceptionRecorder> exceptionRecorderClass = DefaultExceptionRecorder.class;
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass
@@ -158,7 +158,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 
 		public DatarouterExceptionPluginBuilder enablePublishing(
 				Class<? extends ExceptionRecordPublisher> exceptionRecordPublisher,
-				ClientId defaultQueueClientId){
+				List<ClientId> defaultQueueClientId){
 			this.exceptionRecordPublisher = exceptionRecordPublisher;
 			this.defaultQueueClientId = defaultQueueClientId;
 			return this;
@@ -189,10 +189,10 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		private final List<ClientId> datarouterExceptionRecordSummaryMetadataClientId;
 		private final List<ClientId> datarouterHttpRequestRecordClientId;
 
-		private final ClientId datarouterExceptionRecordPublisherClientId;
-		private final ClientId datarouterHttpRequestRecordPublisherClientId;
+		private final List<ClientId> datarouterExceptionRecordPublisherClientId;
+		private final List<ClientId> datarouterHttpRequestRecordPublisherClientId;
 
-		public DatarouterExceptionDaoModule(ClientId defaultClientId, ClientId queueClientId){
+		public DatarouterExceptionDaoModule(ClientId defaultClientId, List<ClientId> queueClientId){
 			this(List.of(defaultClientId), List.of(defaultClientId), List.of(defaultClientId), List.of(defaultClientId),
 					queueClientId, queueClientId);
 		}
@@ -202,8 +202,8 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 				List<ClientId> datarouterExceptionRecordSummaryClientId,
 				List<ClientId> datarouterExceptionRecordSummaryMetadataClientId,
 				List<ClientId> datarouterHttpRequestRecordClientId,
-				ClientId datarouterExceptionRecordPublisherClientId,
-				ClientId datarouterHttpRequestRecordPublisherClientId){
+				List<ClientId> datarouterExceptionRecordPublisherClientId,
+				List<ClientId> datarouterHttpRequestRecordPublisherClientId){
 			this.datarouterExceptionRecordClientId = datarouterExceptionRecordClientId;
 			this.datarouterExceptionRecordSummaryClientId = datarouterExceptionRecordSummaryClientId;
 			this.datarouterExceptionRecordSummaryMetadataClientId = datarouterExceptionRecordSummaryMetadataClientId;

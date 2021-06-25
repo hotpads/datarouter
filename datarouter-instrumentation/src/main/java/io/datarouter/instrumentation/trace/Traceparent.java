@@ -15,6 +15,7 @@
  */
 package io.datarouter.instrumentation.trace;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
@@ -41,6 +42,10 @@ public class Traceparent{
 		this.traceId = traceId;
 		this.parentId = parentId;
 		this.traceFlags = traceFlags;
+	}
+
+	public Traceparent(String traceId){
+		this(traceId, createNewParentId());
 	}
 
 	public Traceparent(String traceId, String parentId){
@@ -75,6 +80,14 @@ public class Traceparent{
 	 * */
 	public static String createNewParentId(){
 		return String.format("%016x", new Random().nextLong());
+	}
+
+	public long getTimestampInMs(){
+		return Long.parseLong(traceId.substring(0, 16), 16);
+	}
+
+	public Instant getInstant(){
+		return Instant.ofEpochMilli(getTimestampInMs());
 	}
 
 	// TODO: we need to update the logic to determine the traceflag

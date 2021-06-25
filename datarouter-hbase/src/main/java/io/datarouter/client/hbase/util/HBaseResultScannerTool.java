@@ -21,12 +21,13 @@ import java.util.List;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 
 public class HBaseResultScannerTool{
 
 	public static List<Result> resultScannerNext(ResultScanner resultScanner, int limit) throws IOException{
-		try(var $ = TracerTool.startSpan("ResultScanner next(limit)")){
+		try(var $ = TracerTool.startSpan("ResultScanner next(limit)", TraceSpanGroupType.DATABASE)){
 			TracerTool.appendToSpanInfo("limit", limit);
 			Result[] results = resultScanner.next(limit);
 			TracerTool.appendToSpanInfo("results", results.length);

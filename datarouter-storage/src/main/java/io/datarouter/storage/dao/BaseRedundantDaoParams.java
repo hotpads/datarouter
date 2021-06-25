@@ -19,7 +19,7 @@ import java.util.List;
 
 import io.datarouter.storage.client.ClientId;
 
-public class BaseRedundantDaoParams{
+public abstract class BaseRedundantDaoParams{
 
 	public final List<ClientId> clientIds;
 

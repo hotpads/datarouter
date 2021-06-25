@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.storage.permissionrequest;
 
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -88,29 +89,31 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 
 	public Optional<DatarouterUserHistoryKey> toUserHistoryKey(){
 		return Optional.ofNullable(resolutionTime)
+				.map(Date::toInstant)
 				.map(time -> new DatarouterUserHistoryKey(getKey().getUserId(), time));
 	}
 
-	private DatarouterPermissionRequest resolve(DatarouterPermissionRequestResolution resolution, Date resolutionTime){
+	private DatarouterPermissionRequest resolve(DatarouterPermissionRequestResolution resolution,
+			Optional<Instant> resolutionTime){
 		setResolution(resolution);
-		setResolutionTime(resolutionTime);
+		setResolutionTime(resolutionTime.orElse(null));
 		return this;
 	}
 
 	public DatarouterPermissionRequest changeUser(DatarouterUserHistory change){
-		return resolve(DatarouterPermissionRequestResolution.USER_CHANGED, change.getKey().getTime());
+		return resolve(DatarouterPermissionRequestResolution.USER_CHANGED, Optional.of(change.getKey().getTime()));
 	}
 
 	public DatarouterPermissionRequest supercede(){
-		return resolve(DatarouterPermissionRequestResolution.SUPERCEDED, new Date());
+		return resolve(DatarouterPermissionRequestResolution.SUPERCEDED, Optional.of(Instant.now()));
 	}
 
 	public DatarouterPermissionRequest decline(){
-		return decline(new Date());
+		return decline(Instant.now());
 	}
 
-	public DatarouterPermissionRequest decline(Date time){
-		return resolve(DatarouterPermissionRequestResolution.DECLINED, time);
+	public DatarouterPermissionRequest decline(Instant time){
+		return resolve(DatarouterPermissionRequestResolution.DECLINED, Optional.ofNullable(time));
 	}
 
 	@Override
@@ -134,12 +137,13 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 		this.resolution = resolution;
 	}
 
-	public Date getResolutionTime(){
-		return resolutionTime;
+	public Optional<Instant> getResolutionTime(){
+		return Optional.ofNullable(resolutionTime)
+				.map(Date::toInstant);
 	}
 
-	public void setResolutionTime(Date resolutionTime){
-		this.resolutionTime = resolutionTime;
+	public void setResolutionTime(Instant resolutionTime){
+		this.resolutionTime = Date.from(resolutionTime);
 	}
 
 	public enum DatarouterPermissionRequestResolution implements StringEnum<DatarouterPermissionRequestResolution>{

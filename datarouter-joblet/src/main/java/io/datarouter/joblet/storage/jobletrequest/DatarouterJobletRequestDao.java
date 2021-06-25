@@ -36,7 +36,7 @@ import io.datarouter.storage.config.ConfigValue;
 import io.datarouter.storage.config.Configs;
 import io.datarouter.storage.config.PutMethod;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.IndexingNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSortedMapStorageNode;
@@ -47,10 +47,10 @@ import io.datarouter.util.tuple.Range;
 @Singleton
 public class DatarouterJobletRequestDao extends BaseDao{
 
-	public static class DatarouterJobletRequestDaoParams extends BaseDaoParams{
+	public static class DatarouterJobletRequestDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterJobletRequestDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterJobletRequestDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
@@ -72,7 +72,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 			DatarouterJobletRequestDaoParams params,
 			IndexingNodeFactory indexingNodeFactory){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, JobletRequest::new, JobletRequestFielder::new)
+		node = nodeFactory.create(params.clientIds.get(0), JobletRequest::new, JobletRequestFielder::new)
 				.disableNodewatchPercentageAlert()
 				.disableNodewatchThresholdAlert()
 				.withIsSystemTable(true)

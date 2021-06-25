@@ -22,7 +22,7 @@ import io.datarouter.inject.InjectionTool;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.dao.DaosModuleBuilder.EmptyDaosModuleBuilder;
@@ -50,7 +50,7 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 		this.daosModule = daosModule;
 	}
 
-	protected void setDaosModule(List<Pair<Class<? extends Dao>,ClientId>> daosAndClients){
+	protected void setDaosModule(List<Pair<Class<? extends Dao>,List<ClientId>>> daosAndClients){
 		this.daosModule = new DaosModuleBuilder(){
 
 			@Override
@@ -60,19 +60,21 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 
 			@Override
 			protected void configure(){
-				for(Pair<Class<? extends Dao>,ClientId> pair : daosAndClients){
+				for(Pair<Class<? extends Dao>,List<ClientId>> pair : daosAndClients){
 					buildAndBindDaoParam(pair);
 				}
 			}
 
-			private <T> void buildAndBindDaoParam(Pair<Class<? extends Dao>,ClientId> pair){
+			private <T> void buildAndBindDaoParam(Pair<Class<? extends Dao>,List<ClientId>> pair){
 				@SuppressWarnings("unchecked")
 				Class<T> daoParamsClass = (Class<T>)InjectionTool.findInjectableClasses(pair.getLeft())
-						.include(clazz -> BaseDaoParams.class.isAssignableFrom(clazz))
+						.include(clazz -> BaseRedundantDaoParams.class.isAssignableFrom(clazz))
 						.findFirst()
 						.orElseThrow(() ->
 								new RuntimeException("no injected BaseDaoParams found for " + pair.getLeft()));
-				T daoParamInstance = ReflectionTool.createWithParameters(daoParamsClass, List.of(pair.getRight()));
+				T daoParamInstance = ReflectionTool.createWithParameters(
+						daoParamsClass,
+						List.of(pair.getRight()));//need a List<List<ClientIds>>
 				bind(daoParamsClass).toInstance(daoParamInstance);
 			}
 

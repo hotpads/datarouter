@@ -86,8 +86,8 @@ public abstract class BaseDatarouterHttpClientWrapper implements DatarouterHttpC
 	}
 
 	@Override
-	public <E> Conditional<E> tryExecute(BaseEndpoint<E> baseEndpoint){
-		return datarouterHttpClient.tryExecute(baseEndpoint);
+	public <E> Conditional<E> call(BaseEndpoint<E> baseEndpoint){
+		return datarouterHttpClient.call(baseEndpoint);
 	}
 
 	@Override

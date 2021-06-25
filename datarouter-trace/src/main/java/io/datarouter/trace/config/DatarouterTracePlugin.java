@@ -40,10 +40,6 @@ import io.datarouter.trace.service.TraceUrlBuilder.LocalTraceUrlBulder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
 import io.datarouter.trace.settings.DatarouterTraceLocalSettingRoot;
 import io.datarouter.trace.settings.DatarouterTracePublisherSettingRoot;
-import io.datarouter.trace.storage.BaseDatarouterTraceDao;
-import io.datarouter.trace.storage.BaseDatarouterTraceDao.NoOpDatarouterTraceDao;
-import io.datarouter.trace.storage.DatarouterTraceDao;
-import io.datarouter.trace.storage.DatarouterTraceDao.DatarouterTraceDaoParams;
 import io.datarouter.trace.storage.Trace2ForLocalDao;
 import io.datarouter.trace.storage.Trace2ForLocalDao.Trace2ForLocalDaoParams;
 import io.datarouter.web.config.DatarouterServletGuiceModule;
@@ -74,7 +70,6 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		addSettingRoot(DatarouterTraceFilterSettingRoot.class);
 		if(enableLocalTraces){
 			addAppListener(LocalTraceConveyors.class);
-			addRouteSet(DatarouterTraceRouteSet.class);
 			addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, new DatarouterTracePaths().datarouter.traces,
 					"Traces");
 			addSettingRoot(DatarouterTraceLocalSettingRoot.class);
@@ -94,12 +89,6 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 
 	@Override
 	public void configure(){
-		if(enableLocalTraces){
-			bindActual(BaseDatarouterTraceDao.class, DatarouterTraceDao.class);
-		}else{
-			bindActual(BaseDatarouterTraceDao.class, NoOpDatarouterTraceDao.class);
-		}
-
 		if(enablePublisherTraces){
 			bind(TracePublisher.class).to(tracePublisher);
 		}else{
@@ -117,9 +106,9 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		private DatarouterTraceDaoModule daoModule;
 
 		private ClientId localTraceClientId;
-		private ClientId localTraceQueueClientId;
+		private List<ClientId> localTraceQueueClientId;
 
-		private ClientId publishingTraceQueueClientId;
+		private List<ClientId> publishingTraceQueueClientId;
 		private Class<? extends TracePublisher> tracePublisher;
 		private boolean addLocalVacuumJobs = false;
 
@@ -135,7 +124,7 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		 */
 		public DatarouterTracePluginBuilder enableTraceLocal(
 				ClientId localTraceClientId,
-				ClientId localTraceQueueClientId,
+				List<ClientId> localTraceQueueClientId,
 				boolean addLocalVacuumJobs){
 			this.enableTraceLocal = true;
 			this.localTraceClientId = localTraceClientId;
@@ -145,7 +134,7 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		}
 
 		public DatarouterTracePluginBuilder enableTracePublishing(
-				ClientId publishingTraceQueueClientId,
+				List<ClientId> publishingTraceQueueClientId,
 				Class<? extends TracePublisher> tracePublisher){
 			this.enableTracePublisher = true;
 			this.publishingTraceQueueClientId = publishingTraceQueueClientId;
@@ -157,8 +146,8 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 				boolean enableLocalTraces,
 				boolean enableTracePublisher,
 				ClientId localTraceClientId,
-				ClientId localTraceQueueClientId,
-				ClientId publishingTraceQueueClientId){
+				List<ClientId> localTraceQueueClientId,
+				List<ClientId> publishingTraceQueueClientId){
 			this.daoModule = new DatarouterTraceDaoModule(
 					enableLocalTraces,
 					enableTracePublisher,
@@ -197,15 +186,15 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		private final boolean enableLocalTraces;
 		private final boolean enableTracePublisher;
 		private final ClientId localTraceClientId;
-		private final ClientId localTraceQueueClientId;
-		private final ClientId publishingTraceQueueClientId;
+		private final List<ClientId> localTraceQueueClientId;
+		private final List<ClientId> publishingTraceQueueClientId;
 
 		public DatarouterTraceDaoModule(
 				boolean enableTraceLocal,
 				boolean enableTracePublisher,
 				ClientId localTraceClientId,
-				ClientId localTraceQueueClientId,
-				ClientId publishingTraceQueueClientId){
+				List<ClientId> localTraceQueueClientId,
+				List<ClientId> publishingTraceQueueClientId){
 			this.enableLocalTraces = enableTraceLocal;
 			this.enableTracePublisher = enableTracePublisher;
 			this.localTraceClientId = localTraceClientId;
@@ -217,7 +206,6 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		public List<Class<? extends Dao>> getDaoClasses(){
 			List<Class<? extends Dao>> daos = new ArrayList<>();
 			if(enableLocalTraces){
-				daos.add(DatarouterTraceDao.class);
 				daos.add(Trace2ForLocalQueueDao.class);
 				daos.add(Trace2ForLocalDao.class);
 				daos.add(Trace2ForLocalHttpRequestRecordQueueDao.class);
@@ -232,8 +220,6 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 		@Override
 		public void configure(){
 			if(enableLocalTraces){
-				bind(DatarouterTraceDaoParams.class)
-						.toInstance(new DatarouterTraceDaoParams(localTraceClientId));
 				bind(Trace2ForLocalDaoParams.class)
 						.toInstance(new Trace2ForLocalDaoParams(localTraceClientId));
 				bind(Trace2ForLocalQueueDaoParams.class)

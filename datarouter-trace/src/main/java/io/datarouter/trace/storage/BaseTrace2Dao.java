@@ -17,6 +17,7 @@ package io.datarouter.trace.storage;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.scanner.Scanner;
@@ -26,6 +27,8 @@ import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.storage.util.PrimaryKeyVacuum;
+import io.datarouter.storage.util.PrimaryKeyVacuum.PrimaryKeyVacuumBuilder;
 import io.datarouter.trace.storage.entity.Trace2Bundle;
 import io.datarouter.trace.storage.entity.Trace2EntityKey;
 import io.datarouter.trace.storage.span.Trace2Span;
@@ -108,6 +111,10 @@ public abstract class BaseTrace2Dao extends BaseDao{
 		return traceSpanNode.scan(range);
 	}
 
+	public List<Trace2> getTraceMulti(List<Trace2Key> keys){
+		return traceNode.getMulti(keys);
+	}
+
 	public Optional<Trace2Bundle> getEntity(Traceparent traceparent){
 		return traceNode.find(new Trace2Key(traceparent))
 				.map(trace -> new Trace2Bundle(
@@ -115,6 +122,37 @@ public abstract class BaseTrace2Dao extends BaseDao{
 						trace,
 						traceThreadNode.scanWithPrefix(new Trace2ThreadKey(traceparent, null)).list(),
 						traceSpanNode.scanWithPrefix(new Trace2SpanKey(traceparent, null, null)).list()));
+	}
+
+	public PrimaryKeyVacuum<Trace2Key> makeTraceVacuum(){
+		Predicate<Trace2Key> isExpired = key -> isExpired(key.getEntityKey());
+		return new PrimaryKeyVacuumBuilder<>(
+				traceNode.scanKeys().advanceWhile(isExpired),
+				$ -> true,
+				traceNode::deleteMulti)
+				.build();
+	}
+
+	public PrimaryKeyVacuum<Trace2SpanKey> makeTraceSpanVacuum(){
+		Predicate<Trace2SpanKey> isExpired = key -> isExpired(key.getEntityKey());
+		return new PrimaryKeyVacuumBuilder<>(
+				traceSpanNode.scanKeys().advanceWhile(isExpired),
+				$ -> true,
+				traceSpanNode::deleteMulti)
+				.build();
+	}
+
+	public PrimaryKeyVacuum<Trace2ThreadKey> makeTraceThreadVacuum(){
+		Predicate<Trace2ThreadKey> isExpired = key -> isExpired(key.getEntityKey());
+		return new PrimaryKeyVacuumBuilder<>(
+				traceThreadNode.scanKeys().advanceWhile(isExpired),
+				$ -> true,
+				traceThreadNode::deleteMulti)
+				.build();
+	}
+
+	private boolean isExpired(Trace2EntityKey entityKey){
+		return entityKey.getAge().compareTo(Trace2.TTL) > 0;
 	}
 
 }

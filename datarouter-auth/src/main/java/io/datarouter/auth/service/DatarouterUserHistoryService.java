@@ -20,7 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.text;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -83,7 +83,7 @@ public class DatarouterUserHistoryService{
 
 	public void putAndRecordCreate(DatarouterUser user, Long editorId, String description){
 		baseDatarouterUserDao.put(user);
-		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), user.getCreated(), editorId,
+		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), user.getCreatedInstant(), editorId,
 				DatarouterUserChangeType.CREATE, description));
 	}
 
@@ -98,12 +98,12 @@ public class DatarouterUserHistoryService{
 	}
 
 	public void recordMessage(DatarouterUser user, DatarouterUser editor, String message){
-		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), new Date(), editor.getId(),
+		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), Instant.now(), editor.getId(),
 				DatarouterUserChangeType.INFO, message));
 	}
 
 	public void recordDeprovisions(List<DatarouterUser> users, Optional<DatarouterUser> editor){
-		Date time = new Date();
+		Instant time = Instant.now();
 		Long editorId = editor.map(DatarouterUser::getId)
 				.orElse(DatarouterUserCreationService.ADMIN_ID);
 		Map<Long, DatarouterUserHistory> histories = Scanner.of(users)
@@ -122,7 +122,7 @@ public class DatarouterUserHistoryService{
 	}
 
 	public void recordRestores(List<DatarouterUser> users, Optional<DatarouterUser> editor){
-		Date time = new Date();
+		Instant time = Instant.now();
 		Long editorId = editor.map(DatarouterUser::getId)
 				.orElse(null);
 		Scanner.of(users)

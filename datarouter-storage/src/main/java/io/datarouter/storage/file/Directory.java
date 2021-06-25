@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.node.op.raw.BlobStorage;
 import io.datarouter.storage.util.Subpath;
@@ -32,103 +33,142 @@ import io.datarouter.util.Require;
 public class Directory
 implements BlobStorage<PathbeanKey,Pathbean>{
 
-	private final BlobStorage<PathbeanKey,Pathbean> storage;
-	private final Subpath subpathInStorage;
+	private final BlobStorage<PathbeanKey,Pathbean> parent;
+	private final Subpath subpathInParent;
+	private final String counterName;
 
-	public Directory(BlobStorage<PathbeanKey,Pathbean> storage){
-		this(storage, Subpath.empty());
+	public Directory(BlobStorage<PathbeanKey,Pathbean> parent){
+		this(parent, Subpath.empty(), null);
 	}
 
-	public Directory(BlobStorage<PathbeanKey,Pathbean> storage, Subpath subpathInStorage){
-		this.storage = storage;
-		this.subpathInStorage = subpathInStorage;
+	public Directory(BlobStorage<PathbeanKey,Pathbean> parent, Subpath subpathInParent){
+		this(parent, subpathInParent, null);
+	}
+
+	public Directory(BlobStorage<PathbeanKey,Pathbean> parent, Subpath subpathInParent, String counterName){
+		this.parent = parent;
+		this.subpathInParent = subpathInParent;
+		this.counterName = counterName;
 	}
 
 	public Directory subdirectory(Subpath subpathInThisDirectory){
-		return new Directory(storage, subpathInStorage.append(subpathInThisDirectory));
+		return new Directory(parent, subpathInParent.append(subpathInThisDirectory));
+	}
+
+	public Directory subdirectory(Subpath subpathInThisDirectory, String counterName){
+		return new Directory(parent, subpathInParent.append(subpathInThisDirectory), counterName);
 	}
 
 	@Override
 	public void write(PathbeanKey key, byte[] value){
-		storage.write(prependStoragePath(key), value);
+		parent.write(prependStoragePath(key), value);
+		count("write ops", 1);
+		count("write bytes", value.length);
 	}
 
 	@Override
 	public void write(PathbeanKey key, Iterator<byte[]> chunks){
-		storage.write(prependStoragePath(key), chunks);
+		parent.write(prependStoragePath(key), chunks);
 	}
 
 	@Override
 	public void write(PathbeanKey key, InputStream inputStream){
-		storage.write(prependStoragePath(key), inputStream);
+		parent.write(prependStoragePath(key), inputStream);
 	}
 
 	@Override
 	public void delete(PathbeanKey key){
-		storage.delete(prependStoragePath(key));
+		parent.delete(prependStoragePath(key));
+		count("delete ops", 1);
 	}
 
 	@Override
 	public void deleteAll(Subpath subpath){
-		storage.deleteAll(subpathInStorage.append(subpath));
+		parent.deleteAll(subpathInParent.append(subpath));
+		count("deleteAll ops", 1);
 	}
 
 	@Override
 	public String getBucket(){
-		return storage.getBucket();
+		return parent.getBucket();
 	}
 
 	@Override
 	public Subpath getRootPath(){
-		return storage.getRootPath().append(subpathInStorage);
+		return parent.getRootPath().append(subpathInParent);
 	}
 
 	@Override
 	public boolean exists(PathbeanKey key){
-		return storage.exists(prependStoragePath(key));
+		boolean exists = parent.exists(prependStoragePath(key));
+		count("exists ops", 1);
+		return exists;
 	}
 
 	@Override
 	public Optional<Long> length(PathbeanKey key){
-		return storage.length(prependStoragePath(key));
+		Optional<Long> optLength = parent.length(prependStoragePath(key));
+		count("length ops", 1);
+		return optLength;
 	}
 
 	@Override
 	public byte[] read(PathbeanKey key){
-		return storage.read(prependStoragePath(key));
+		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key)));
+		count("read ops", 1);
+		optBytes.map(bytes -> bytes.length)
+				.ifPresent(length -> count("read bytes", length));
+		return optBytes.orElse(null);
 	}
 
 	@Override
 	public byte[] read(PathbeanKey key, long offset, int length){
-		return storage.read(prependStoragePath(key), offset, length);
+		Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key), offset, length));
+		count("readOffsetLimit ops", 1);
+		optBytes.map(bytes -> bytes.length)
+				.ifPresent(actualLength -> count("readOffsetLimit bytes", actualLength));
+		return optBytes.orElse(null);
 	}
 
 	@Override
 	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
-		return storage.scanKeysPaged(subpathInStorage.append(subpath))
+		return parent.scanKeysPaged(subpathInParent.append(subpath))
 				.map(keys -> Scanner.of(keys)
 						.map(this::removeStoragePath)
-						.list());
+						.list())
+				.each($ -> count("scanKeys ops", 1))
+				.each(page -> count("scanKeys items", page.size()));
 	}
 
 	@Override
 	public Scanner<List<Pathbean>> scanPaged(Subpath subpath){
-		return storage.scanPaged(subpathInStorage.append(subpath))
+		return parent.scanPaged(subpathInParent.append(subpath))
 				.map(page -> Scanner.of(page)
 						.map(pathbean -> new Pathbean(removeStoragePath(pathbean.getKey()), pathbean.getSize()))
-						.list());
+						.list())
+				.each($ -> count("scan ops", 1))
+				.each(page -> count("scan items", page.size()));
 	}
 
+	/*------------------ private ---------------------*/
+
 	private PathbeanKey prependStoragePath(PathbeanKey directoryKey){
-		Subpath storagePath = subpathInStorage.append(directoryKey.getSubpath());
+		Subpath storagePath = subpathInParent.append(directoryKey.getSubpath());
 		return PathbeanKey.of(storagePath, directoryKey.getFile());
 	}
 
 	private PathbeanKey removeStoragePath(PathbeanKey storageKey){
 		String storagePath = storageKey.getPath();
-		Require.isTrue(storagePath.startsWith(subpathInStorage.toString()));
-		String directoryPath = storagePath.substring(subpathInStorage.toString().length());
+		Require.isTrue(storagePath.startsWith(subpathInParent.toString()));
+		String directoryPath = storagePath.substring(subpathInParent.toString().length());
 		return new PathbeanKey(directoryPath, storageKey.getFile());
+	}
+
+	private void count(String suffix, long by){
+		if(counterName != null){
+			String name = String.format("Directory %s %s", counterName, suffix);
+			Counters.inc(name, by);
+		}
 	}
 
 }

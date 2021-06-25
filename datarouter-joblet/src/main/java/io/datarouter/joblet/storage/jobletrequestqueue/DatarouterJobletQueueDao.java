@@ -15,6 +15,7 @@
  */
 package io.datarouter.joblet.storage.jobletrequestqueue;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -30,17 +31,17 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.QueueNodeFactory;
 import io.datarouter.storage.node.op.raw.QueueStorage;
 
 @Singleton
 public class DatarouterJobletQueueDao extends BaseDao{
 
-	public static class DatarouterJobletQueueDaoParams extends BaseDaoParams{
+	public static class DatarouterJobletQueueDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterJobletQueueDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterJobletQueueDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 
 	}
@@ -59,7 +60,7 @@ public class DatarouterJobletQueueDao extends BaseDao{
 						queueKey -> {
 							String nodeName = DatarouterJobletConstants.QUEUE_PREFIX + queueKey.getQueueName();
 							return queueNodeFactory.createSingleQueue(
-									params.clientId,
+									params.clientIds.get(0),
 									JobletRequest::new,
 									JobletRequestFielder::new)
 									.withQueueName(nodeName)

@@ -102,7 +102,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 
 		private final ServerTypes serverTypes;
 		private final DatarouterProperties datarouterProperties;
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientIds;
 
 		private Class<? extends ServerTypeDetector> serverTypeDetectorClass = NoOpServerTypeDetector.class;
 		private Class<? extends DatarouterSettingOverrides> settingOverridesClass;
@@ -114,10 +114,10 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		public DatarouterStoragePluginBuilder(
 				ServerTypes serverTypes,
 				DatarouterProperties datarouterProperties,
-				ClientId defaultClientId){
+				List<ClientId> defaultClientIds){
 			this.serverTypes = serverTypes;
 			this.datarouterProperties = datarouterProperties;
-			this.defaultClientId = defaultClientId;
+			this.defaultClientIds = defaultClientIds;
 		}
 
 		public DatarouterStoragePluginBuilder setServerTypeDetector(
@@ -160,7 +160,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		}
 
 		public DatarouterStoragePlugin getSimplePluginData(){
-			return new DatarouterStoragePlugin(new DatarouterStorageDaosModule(defaultClientId));
+			return new DatarouterStoragePlugin(new DatarouterStorageDaosModule(defaultClientIds));
 		}
 
 		public DatarouterStoragePlugin build(){
@@ -173,17 +173,17 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 					clientOptionsFactoryClass,
 					schemaUpdateOptionsFactoryClass,
 					daoClasses,
-					new DatarouterStorageDaosModule(defaultClientId));
+					new DatarouterStorageDaosModule(defaultClientIds));
 		}
 
 	}
 
 	public static class DatarouterStorageDaosModule extends DaosModuleBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientIds;
 
-		public DatarouterStorageDaosModule(ClientId defaultClientId){
-			this.defaultClientId = defaultClientId;
+		public DatarouterStorageDaosModule(List<ClientId> defaultClientId){
+			this.defaultClientIds = defaultClientId;
 		}
 
 		@Override
@@ -194,7 +194,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		@Override
 		public void configure(){
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
-					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(defaultClientId));
+					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(defaultClientIds.get(0)));
 		}
 	}
 

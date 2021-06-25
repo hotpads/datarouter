@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.trace.storage.trace;
+package io.datarouter.instrumentation.trace;
 
-import io.datarouter.trace.storage.entity.TraceEntityKey;
+public enum TraceSpanGroupType{
+	DATABASE("database"),
+	HTTP("http"),
+	SERIALIZATION("serialization"),
+	CLOUD_STORAGE("cloudStorage"),
+	NONE("none"),
+	;
 
-public class TraceKey extends BaseTraceKey<TraceEntityKey,TraceKey>{
+	public final String type;
 
-	public TraceKey(){
-		this.entityKey = new TraceEntityKey();
-	}
-
-	public TraceKey(TraceEntityKey entityKey){
-		this.entityKey = entityKey;
-	}
-
-	public TraceKey(String traceId){
-		this.entityKey = new TraceEntityKey(traceId);
-	}
-
-	@Override
-	public TraceKey prefixFromEntityKey(TraceEntityKey entityKey){
-		return new TraceKey(entityKey);
+	TraceSpanGroupType(String type){
+		this.type = type;
 	}
 
 }

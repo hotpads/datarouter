@@ -51,7 +51,7 @@ public class DatarouterSqsTestDao extends BaseDao implements TestDao, SqsTestHel
 	}
 
 	public void put(TestDatabean databean){
-		node.put(databean);;
+		node.put(databean);
 	}
 
 	public Scanner<TestDatabean> pollUntilEmpty(Duration timeout){

@@ -367,7 +367,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	public static class DatarouterWebPluginBuilder{
 
 		private final DatarouterService datarouterService;
-		private final List<ClientId> defaultClientId;
+		private final List<ClientId> defaultClientIds;
 
 		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
 		private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
@@ -397,9 +397,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
 		private final List<Class<? extends MetricLinkPage>> metricLinkPages = new ArrayList<>();
 
-		public DatarouterWebPluginBuilder(DatarouterService datarouterService, List<ClientId> defaultClientId){
+		public DatarouterWebPluginBuilder(DatarouterService datarouterService, List<ClientId> defaultClientIds){
 			this.datarouterService = datarouterService;
-			this.defaultClientId = defaultClientId;
+			this.defaultClientIds = defaultClientIds;
 		}
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
@@ -557,7 +557,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
-					new DatarouterWebDaoModule(defaultClientId),
+					new DatarouterWebDaoModule(defaultClientIds),
 					homepageRouteSet,
 					customStaticFileFilterRegex);
 		}
@@ -576,7 +576,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					webAppListenerClasses,
 					roleManagerClass,
 					userSessionServiceClass,
-					new DatarouterWebDaoModule(defaultClientId),
+					new DatarouterWebDaoModule(defaultClientIds),
 					datarouterNavBarPluginItems,
 					appNavBarPluginItems,
 					datarouterUserExternalDetail,

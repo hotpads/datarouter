@@ -27,17 +27,17 @@ import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Configs;
 import io.datarouter.storage.dao.BaseDao;
-import io.datarouter.storage.dao.BaseDaoParams;
+import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 
 @Singleton
 public class DatarouterJobletDataDao extends BaseDao{
 
-	public static class DatarouterJobletDataDaoParams extends BaseDaoParams{
+	public static class DatarouterJobletDataDaoParams extends BaseRedundantDaoParams{
 
-		public DatarouterJobletDataDaoParams(ClientId clientId){
-			super(clientId);
+		public DatarouterJobletDataDaoParams(List<ClientId> clientIds){
+			super(clientIds);
 		}
 	}
 
@@ -49,7 +49,7 @@ public class DatarouterJobletDataDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterJobletDataDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientId, JobletData::new, JobletDataFielder::new)
+		node = nodeFactory.create(params.clientIds.get(0), JobletData::new, JobletDataFielder::new)
 				.disableNodewatchPercentageAlert()
 				.disableNodewatchThresholdAlert()
 				.withIsSystemTable(true)

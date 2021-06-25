@@ -28,6 +28,7 @@ public class DatarouterEmailLinkBuilder{
 	private String hostPort;
 	private String contextPath;
 	private String localPath;
+	private String fragment;
 	private LinkedHashMap<String,String> params = new LinkedHashMap<>();
 
 	public DatarouterEmailLinkBuilder withProtocol(String hrefProtocol){
@@ -60,12 +61,18 @@ public class DatarouterEmailLinkBuilder{
 		return this;
 	}
 
+	public DatarouterEmailLinkBuilder withFragment(String fragment){
+		this.fragment = fragment;
+		return this;
+	}
+
 	public String build(){
 		URIBuilder builder = new URIBuilder();
 		builder.setScheme(protocol);
 		builder.setHost(hostPort);
 		builder.setPath(contextPath + localPath);
 		params.forEach(builder::addParameter);
+		builder.setFragment(fragment);
 		try{
 			return builder.build().toString();
 		}catch(URISyntaxException e){

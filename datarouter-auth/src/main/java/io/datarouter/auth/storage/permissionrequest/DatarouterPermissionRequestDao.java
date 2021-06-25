@@ -34,7 +34,6 @@ import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
-//TODO DATAROUTER-2759 rename to PermissionRequestDao and consider switching key to username or userToken
 @Singleton
 public class DatarouterPermissionRequestDao extends BaseDao{
 

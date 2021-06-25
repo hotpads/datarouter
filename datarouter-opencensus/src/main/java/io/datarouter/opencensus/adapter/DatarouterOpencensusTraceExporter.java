@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Trace2BundleDto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalFilterToMemoryBuffer;
@@ -97,6 +98,7 @@ public class DatarouterOpencensusTraceExporter extends Handler{
 							sequence,
 							sequenceParent,
 							spanData.getName(),
+							TraceSpanGroupType.DATABASE,
 							null,
 							toNanoTimestamp(toInstant(spanData.getStartTimestamp())),
 							toNanoTimestamp(toInstant(spanData.getEndTimestamp())));

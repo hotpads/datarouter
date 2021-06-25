@@ -23,6 +23,8 @@ import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
+import io.datarouter.model.field.imp.enums.StringEnumField;
+import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.field.imp.positive.UInt31Field;
 import io.datarouter.model.field.imp.positive.UInt31FieldKey;
 import io.datarouter.model.field.imp.positive.UInt63Field;
@@ -36,6 +38,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 
 	private Integer parentSequence;
 	private String name;
+	private Trace2SpanGroupType groupType;
 	private Long created;
 	private Long ended;
 	private String info;
@@ -48,6 +51,8 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		public static final UInt31FieldKey parentSequence = new UInt31FieldKey("parentSequence");
 		public static final StringFieldKey name = new StringFieldKey("name")
 				.withSize(CommonFieldSizes.MAX_LENGTH_TEXT);
+		public static final StringEnumFieldKey<Trace2SpanGroupType> groupType = new StringEnumFieldKey<>("groupType",
+				Trace2SpanGroupType.class);
 		public static final StringFieldKey info = new StringFieldKey("info");
 		public static final UInt63FieldKey created = new UInt63FieldKey("created");
 		public static final UInt63FieldKey ended = new UInt63FieldKey("ended");
@@ -69,6 +74,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 			return List.of(
 					new UInt31Field(FieldKeys.parentSequence, databean.parentSequence),
 					new StringField(FieldKeys.name, databean.name),
+					new StringEnumField<>(FieldKeys.groupType, databean.groupType),
 					new StringField(FieldKeys.info, databean.info),
 					new UInt63Field(FieldKeys.created, databean.created),
 					new UInt63Field(FieldKeys.ended, databean.ended),
@@ -91,6 +97,8 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		super(new Trace2SpanKey(dto.traceparent, dto.parentThreadId, dto.sequence));
 		this.parentSequence = dto.parentSequence;
 		this.name = dto.name;
+		this.groupType = dto.groupType != null ? Trace2SpanGroupType.fromPersistentStringStatic(dto.groupType.type)
+				: null;
 		this.created = dto.created;
 		this.ended = dto.getEnded();
 		this.info = dto.getInfo();
@@ -119,6 +127,10 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 
 	public String getName(){
 		return name;
+	}
+
+	public Trace2SpanGroupType getGroupType(){
+		return groupType;
 	}
 
 	public Long getCreated(){

@@ -15,7 +15,7 @@
  */
 package io.datarouter.changelog.service;
 
-import java.util.Date;
+import java.time.Instant;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -48,7 +48,7 @@ public class ChangelogRecorderService implements ChangelogRecorder{
 				datarouterService.getServiceName(),
 				changelogDto.changelogType,
 				changelogDto.name,
-				new Date().getTime(),
+				Instant.now().toEpochMilli(),
 				changelogDto.action,
 				changelogDto.username,
 				changelogDto.comment.orElse(null),

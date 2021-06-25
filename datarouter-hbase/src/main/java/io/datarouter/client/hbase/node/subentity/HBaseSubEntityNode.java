@@ -43,6 +43,7 @@ import io.datarouter.client.hbase.node.HBaseIncrement;
 import io.datarouter.client.hbase.node.nonentity.HBaseNode;
 import io.datarouter.client.hbase.util.HBaseConfigTool;
 import io.datarouter.client.hbase.util.HBaseTableTool;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
 import io.datarouter.model.databean.Databean;
@@ -191,7 +192,8 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 			DatarouterCounters.incClientNodeCustom(clientType, "entities put", clientName, nodeName,
 					databeansByEntityKey.size());
 			if(!actions.isEmpty()){
-				try(Table table = getTable(); var $ = TracerTool.startSpan("Table batchCallback")){
+				try(Table table = getTable(); var $ = TracerTool.startSpan("Table batchCallback",
+						TraceSpanGroupType.DATABASE)){
 					TracerTool.appendToSpanInfo(new TraceSpanInfoBuilder()
 							.add("actions", actions.size())
 							.add("cellsPut", numCellsPut)

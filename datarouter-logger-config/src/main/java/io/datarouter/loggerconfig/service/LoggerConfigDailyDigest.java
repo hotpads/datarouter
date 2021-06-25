@@ -63,7 +63,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
 				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> ZonedDateFormaterTool.formatDateWithZone(row.getLastUpdated(), zoneId))
+				.withColumn("Updated", row -> ZonedDateFormaterTool.formatInstantWithZone(row.getLastUpdated(), zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}
@@ -81,7 +81,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
 				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> ZonedDateFormaterTool.formatDateWithZone(row.getLastUpdated(), zoneId))
+				.withColumn("Updated", row -> ZonedDateFormaterTool.formatInstantWithZone(row.getLastUpdated(), zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}
@@ -104,8 +104,8 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private List<LoggerConfig> getTodaysLoggers(ZoneId zoneId){
 		return dao.scan()
 				.exclude(config -> config.getLastUpdated() == null)
-				.exclude(config -> config.getLastUpdated().getTime()
-						< LocalDateTimeTool.atStartOfDay(zoneId).toEpochMilli())
+				.exclude(config -> config.getLastUpdated()
+						.isBefore(LocalDateTimeTool.atStartOfDay(zoneId)))
 				.list();
 	}
 

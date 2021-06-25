@@ -74,7 +74,7 @@ public abstract class QueueNodeBuilder<
 		return this;
 	}
 
-	protected abstract <N extends NodeOps<PK,D>> N build();
+	public abstract <N extends NodeOps<PK,D>> N build();
 
 	public <N extends NodeOps<PK,D>> N buildAndRegister(){
 		return datarouter.register(build());

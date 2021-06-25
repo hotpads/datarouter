@@ -68,16 +68,20 @@ public class TracerTool{
 
 	/*---------------------------- TraceSpan --------------------------------*/
 
-	public static TraceSpanFinisher startSpan(Tracer tracer, String name){
+	public static TraceSpanFinisher startSpan(Tracer tracer, String name, TraceSpanGroupType groupType){
 		if(tracer == null){
 			return new TraceSpanFinisher(tracer);
 		}
-		tracer.startSpan(name);
+		tracer.startSpan(name, groupType);
 		return new TraceSpanFinisher(tracer);
 	}
 
-	public static TraceSpanFinisher startSpan(String name){
-		return startSpan(TracerThreadLocal.get(), name);
+	public static TraceSpanFinisher startSpan(String name, TraceSpanGroupType groupType){
+		return startSpan(TracerThreadLocal.get(), name, groupType);
+	}
+
+	public static TraceSpanFinisher startSpanNoGroupType(String name){
+		return startSpan(name, TraceSpanGroupType.NONE);
 	}
 
 	public static void appendToSpanInfo(String text){

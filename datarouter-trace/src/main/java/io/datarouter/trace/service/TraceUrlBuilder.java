@@ -24,7 +24,7 @@ import io.datarouter.web.config.ServletContextSupplier;
 
 public interface TraceUrlBuilder{
 
-	String buildTraceForCurrentServer(String traceId);
+	String buildTraceForCurrentServer(String traceId, String parentId);
 
 	@Singleton
 	class LocalTraceUrlBulder implements TraceUrlBuilder{
@@ -37,9 +37,9 @@ public interface TraceUrlBuilder{
 		private ServletContextSupplier servletContext;
 
 		@Override
-		public String buildTraceForCurrentServer(String traceId){
+		public String buildTraceForCurrentServer(String traceId, String parentId){
 			return "https://" + settings.traceDomain.get() + servletContext.get().getContextPath()
-					+ paths.datarouter.traces.toSlashedString() + "?id=" + traceId;
+					+ paths.datarouter.traces.toSlashedString() + "?traceId=" + traceId + "&parentId=" + parentId;
 		}
 
 	}

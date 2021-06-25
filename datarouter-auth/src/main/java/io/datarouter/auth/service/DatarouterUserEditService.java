@@ -15,10 +15,9 @@
  */
 package io.datarouter.auth.service;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -74,7 +73,7 @@ public class DatarouterUserEditService{
 	@Inject
 	private ChangelogRecorder changelogRecorder;
 	@Inject
-	private DatarouterProperties datarouterPropeties;
+	private DatarouterProperties datarouterProperties;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 
@@ -87,7 +86,11 @@ public class DatarouterUserEditService{
 			Set<DatarouterAccountKey> requestedAccounts,
 			Optional<ZoneId> optionalZoneId,
 			Optional<String> description){
-		var history = new DatarouterUserHistory(user.getId(), new Date(), editor.getId(), DatarouterUserChangeType.EDIT,
+		var history = new DatarouterUserHistory(
+				user.getId(),
+				Instant.now(),
+				editor.getId(),
+				DatarouterUserChangeType.EDIT,
 				null);
 		List<String> changes = new ArrayList<>();
 
@@ -191,8 +194,12 @@ public class DatarouterUserEditService{
 	}
 
 	public void changePassword(DatarouterUser user, DatarouterUser editor, String newPassword, String signinUrl){
-		var history = new DatarouterUserHistory(user.getId(), new Date(), editor.getId(),
-				DatarouterUserChangeType.RESET, null);
+		var history = new DatarouterUserHistory(
+				user.getId(),
+				Instant.now(),
+				editor.getId(),
+				DatarouterUserChangeType.RESET,
+				null);
 		updateUserPassword(user, newPassword);
 		history.setChanges("password");
 		userHistoryService.putAndRecordPasswordChange(user, history, signinUrl);
@@ -210,13 +217,16 @@ public class DatarouterUserEditService{
 	}
 
 	public String getUserEditEmailRecipients(DatarouterUser... users){
-		Set<String> recipients = Arrays.stream(users)
+		Set<String> recipients = Scanner.of(users)
 				.map(DatarouterUser::getUsername)
-				.collect(Collectors.toSet());
+				.collect(HashSet::new);
 		if(serverTypeDetector.mightBeProduction()){
 			permissionRequestEmailType.tos.forEach(recipients::add);
+			adminEmailService.getAdditionalAdministratorOnly().forEach(recipients::add);
 		}
-		adminEmailService.getAdministratorEmailAddresses().forEach(recipients::add);
+		if(serverTypeDetector.mightBeDevelopment()){
+			recipients.add(datarouterProperties.getAdministratorEmail());
+		}
 		return String.join(",", recipients);
 	}
 
@@ -224,7 +234,7 @@ public class DatarouterUserEditService{
 	public String getPermissionRequestEmailSubject(DatarouterUser user){
 		return String.format("Permission Request %s - %s - %s",
 				user.getUsername(),
-				datarouterPropeties.getEnvironment(),
+				datarouterProperties.getEnvironment(),
 				datarouterService.getServiceName());
 	}
 

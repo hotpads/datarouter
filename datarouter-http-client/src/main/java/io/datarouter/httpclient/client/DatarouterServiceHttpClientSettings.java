@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.trace;
+package io.datarouter.httpclient.client;
 
-import java.util.Collection;
+/**
+ * for use specifically with servers that are built on datarouter-web
+ */
+public interface DatarouterServiceHttpClientSettings extends DatarouterHttpClientSettings{
 
-public class TraceEntityDto{
-
-	public final TraceDto traceDto;
-	public final Collection<TraceThreadDto> traceThreadDtos;
-	public final Collection<TraceSpanDto> traceSpanDtos;
-
-	public TraceEntityDto(
-			TraceDto traceDto,
-			Collection<TraceThreadDto> traceThreadDtos,
-			Collection<TraceSpanDto> traceSpanDtos){
-		this.traceDto = traceDto;
-		this.traceThreadDtos = traceThreadDtos;
-		this.traceSpanDtos = traceSpanDtos;
-	}
+	boolean shouldHealthcheck();
 
 }

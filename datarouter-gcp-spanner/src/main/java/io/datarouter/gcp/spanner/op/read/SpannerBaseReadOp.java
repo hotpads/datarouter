@@ -32,7 +32,7 @@ import com.google.cloud.spanner.ResultSet;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.gcp.spanner.op.SpannerBaseOp;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -80,7 +80,7 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 	protected <F> List<F> callClient(List<String> columnNames, List<Field<?>> fields, Supplier<F> object){
 		String spanName = getClass().getSimpleName();
 		Optional<Scope> opencensusSpan = Optional.empty();
-		try(var $ = TracerTool.startSpan(TracerThreadLocal.get(), spanName)){
+		try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 			opencensusSpan = DatarouterOpencensusTool.createOpencensusSpan();
 			List<F> results = callClientInternal(columnNames, fields, object);
 			TracerTool.appendToSpanInfo("got " + results.size());

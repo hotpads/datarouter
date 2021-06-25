@@ -18,11 +18,11 @@ package io.datarouter.instrumentation.trace;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 
-public class TraceConextTestTracer implements Tracer{
+public class TraceContextTestTracer implements Tracer{
 
 	private final W3TraceContext traceContext;
 
-	public TraceConextTestTracer(W3TraceContext traceContext){
+	public TraceContextTestTracer(W3TraceContext traceContext){
 		this.traceContext = traceContext;
 	}
 
@@ -88,7 +88,7 @@ public class TraceConextTestTracer implements Tracer{
 	}
 
 	@Override
-	public void startSpan(String name){
+	public void startSpan(String name, TraceSpanGroupType groupType){
 	}
 
 	@Override

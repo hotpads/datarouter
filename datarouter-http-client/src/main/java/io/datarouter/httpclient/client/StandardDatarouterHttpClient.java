@@ -62,6 +62,7 @@ import io.datarouter.httpclient.security.SignatureGenerator;
 import io.datarouter.httpclient.security.SignatureGenerator.RefreshableSignatureGenerator;
 import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 import io.datarouter.instrumentation.trace.TraceSpanFinisher;
+import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 
 @Singleton
@@ -141,7 +142,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	@Override
 	public <E> E executeChecked(DatarouterHttpRequest request, Type deserializeToType) throws DatarouterHttpException{
 		String entity = executeChecked(request).getEntity();
-		try(TraceSpanFinisher $ = TracerTool.startSpan("JsonSerializer deserialize")){
+		try(TraceSpanFinisher $ = TracerTool.startSpan("JsonSerializer deserialize", TraceSpanGroupType.SERIALIZATION)){
 			TracerTool.appendToSpanInfo("characters", entity.length());
 			return jsonSerializer.deserialize(entity, deserializeToType);
 		}
@@ -166,7 +167,7 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		try{
 			return executeCheckedInternal(request, httpEntityConsumer);
 		}catch(DatarouterHttpResponseException e){
-			if(shouldRerun40x(firstAttemptInstant, e.getResponse().getStatusCode())){
+			if(shouldRerun40x(firstAttemptInstant, e.getResponse().getStatusCode(), request.getShouldSkipSecurity())){
 				//reset any changes to request made during the first attempt
 				request.setGetParams(originalGetParams);
 				request.setPostParams(originalPostParams);
@@ -222,14 +223,16 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		try{
 			response = executeChecked(request, deserializeToType);
 		}catch(DatarouterHttpException e){
-			logger.warn("", e);
+			if(!request.getShouldSkipLogs()){
+				logger.warn("", e);
+			}
 			return Conditional.failure(e);
 		}
 		return Conditional.success(response);
 	}
 
 	@Override
-	public <E> Conditional<E> tryExecute(BaseEndpoint<E> endpoint){
+	public <E> Conditional<E> call(BaseEndpoint<E> endpoint){
 		initUrlPrefix(endpoint);
 		DatarouterHttpRequest datarouterHttpRequest = EndpointTool.toDatarouterHttpRequest(endpoint);
 		EndpointTool.findEntity(endpoint).ifPresent(entity -> setEntityDto(datarouterHttpRequest, entity));
@@ -237,6 +240,13 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	}
 
 	private void setSecurityProperties(DatarouterHttpRequest request){
+		if(request.getShouldSkipSecurity()){
+			//the only case from below that is relevant without security is populating the entity
+			if(request.canHaveEntity() && request.getEntity() == null){
+				request.setEntity(request.getFirstPostParams());
+			}
+			return;
+		}
 		SignatureGenerator signatureGenerator = chooseSignatureGenerator();
 		CsrfGenerator csrfGenerator = chooseCsrfGenerator();
 		Supplier<String> apiKeySupplier = chooseApiKeySupplier();
@@ -290,8 +300,8 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 				? csrfGenerator : null;
 	}
 
-	private boolean shouldRerun40x(Instant previous, int statusCode){
-		if(HttpStatus.SC_UNAUTHORIZED != statusCode && HttpStatus.SC_FORBIDDEN != statusCode){
+	private boolean shouldRerun40x(Instant previous, int statusCode, boolean shouldSkipSecurity){
+		if(HttpStatus.SC_UNAUTHORIZED != statusCode && HttpStatus.SC_FORBIDDEN != statusCode || shouldSkipSecurity){
 			return false;
 		}
 		return refreshableSignatureGenerator != null && !refreshableSignatureGenerator.refresh().isBefore(previous)

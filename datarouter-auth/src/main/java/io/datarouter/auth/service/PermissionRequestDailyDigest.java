@@ -20,8 +20,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.i;
 import static j2html.TagCreator.td;
 
+import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -123,7 +123,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 					return td(a(detailsLink)
 							.withHref(detailsLink));
 				})
-				.withColumn("Date Requested", row -> row.getDateRequested(zoneId))
+				.withColumn("Date Requested", row -> row.getInstantRequested(zoneId))
 				.withHtmlColumn("Details", row -> {
 					String link = servletContextSupplier.get().getContextPath() + paths.admin.editUser.toSlashedString()
 							+ "?username=" + row.user.getUsername();
@@ -144,7 +144,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 							return a(detailsLink)
 									.withHref(detailsLink);
 						}))
-				.withColumn("Date Requested", row -> row.getDateRequested(zoneId))
+				.withColumn("Date Requested", row -> row.getInstantRequested(zoneId))
 				.withColumn(new J2HtmlEmailTableColumn<>(
 						"Details",
 						row -> {
@@ -158,15 +158,15 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	private static class PermissionRequestDto{
 
 		public final SessionBasedUser user;
-		private final Date dateRequested;
+		private final Instant instantRequested;
 
-		public PermissionRequestDto(SessionBasedUser user, Date dateRequested){
+		public PermissionRequestDto(SessionBasedUser user, Instant instantRequested){
 			this.user = user;
-			this.dateRequested = dateRequested;
+			this.instantRequested = instantRequested;
 		}
 
-		public String getDateRequested(ZoneId zoneId){
-			return ZonedDateFormaterTool.formatDateWithZone(dateRequested, zoneId);
+		public String getInstantRequested(ZoneId zoneId){
+			return ZonedDateFormaterTool.formatInstantWithZone(instantRequested, zoneId);
 		}
 
 	}

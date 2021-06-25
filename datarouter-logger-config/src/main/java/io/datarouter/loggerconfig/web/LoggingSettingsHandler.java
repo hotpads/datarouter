@@ -21,11 +21,12 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
+import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.loggerconfig.LoggingConfigService;
@@ -70,7 +72,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 	private static final String DEFAULT_TEST_LOG_MESSAGE = "LoggingSettingsHandler.testLog()";
 	private static final String DEFAULT_EMAIL = "System";
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private static final Boolean ADDITIVE = false;
 
 	private static final Level[] LEVELS = new Level[]{
@@ -109,6 +111,8 @@ public class LoggingSettingsHandler extends BaseHandler{
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private DatarouterService datarouterService;
 
 	@Handler(defaultHandler = true)
 	protected Mav showForm(){
@@ -129,7 +133,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 			io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig configWithMetadata
 					= configsWithMetadata.get(name);
 			String email;
-			Date lastUpdated = null;
+			Instant lastUpdated = null;
 			Integer ttlMinutes = null;
 			boolean canDelete = true;
 			if(configWithMetadata != null){
@@ -144,7 +148,13 @@ public class LoggingSettingsHandler extends BaseHandler{
 				email = DEFAULT_EMAIL;
 				canDelete = false;
 			}
-			var mergedLoggerConfig = new LoggerConfigMetadata(config, email, lastUpdated, canDelete, ttlMinutes);
+			var mergedLoggerConfig = new LoggerConfigMetadata(
+					config,
+					email,
+					lastUpdated,
+					canDelete,
+					ttlMinutes,
+					datarouterService.getZoneId());
 			mergedConfigs.put(name, mergedLoggerConfig);
 			appenderMap.put(mergedLoggerConfig, config.getAppenders().keySet());
 		}
@@ -359,16 +369,17 @@ public class LoggingSettingsHandler extends BaseHandler{
 		LoggerConfigMetadata(
 				LoggerConfig config,
 				String email,
-				Date lastUpdated,
+				Instant lastUpdated,
 				boolean canDelete,
-				Integer ttlMinutes){
+				Integer ttlMinutes,
+				ZoneId zoneId){
 			this.name = config.getName();
 			this.level = config.getLevel();
 			this.additive = config.isAdditive();
 			this.appenderRefs = new ArrayList<>(config.getAppenders().keySet());
 			this.email = email;
 			if(lastUpdated != null){
-				this.lastUpdated = DATE_FORMAT.format(lastUpdated);
+				this.lastUpdated = DATE_FORMAT.withZone(zoneId).format(lastUpdated);
 			}
 			this.canDelete = canDelete;
 			this.ttlMinutes = ttlMinutes;

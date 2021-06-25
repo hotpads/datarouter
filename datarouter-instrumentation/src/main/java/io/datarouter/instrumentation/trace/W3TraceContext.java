@@ -84,7 +84,7 @@ public class W3TraceContext{
 	public Optional<Long> getTimestamp(){
 		// only parentId created by datarouter can be translated into timestamp
 		if(Tracestate.TRACESTATE_DR_KEY.equals(tracestate.getLastestTracestate().key)){
-			return Optional.of(Long.parseLong(traceparent.traceId.substring(0, 16), 16));
+			return Optional.of(traceparent.getTimestampInMs());
 		}
 		return Optional.empty();
 	}

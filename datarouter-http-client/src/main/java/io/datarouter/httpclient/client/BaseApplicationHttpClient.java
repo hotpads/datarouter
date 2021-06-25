@@ -15,16 +15,26 @@
  */
 package io.datarouter.httpclient.client;
 
+import io.datarouter.httpclient.endpoint.DatarouterServiceHealthcheckEndpoint;
 import io.datarouter.httpclient.request.DatarouterHttpRequestBuilder;
+import io.datarouter.httpclient.response.Conditional;
 
 public abstract class BaseApplicationHttpClient{
 
-	protected final DatarouterHttpClient httpClient;
+	protected final DatarouterServiceHttpClient httpClient;
 	protected final DatarouterHttpRequestBuilder requestBuilder;
 
-	public BaseApplicationHttpClient(DatarouterHttpClient httpClient, DatarouterHttpClientSettings settings){
+	public BaseApplicationHttpClient(DatarouterServiceHttpClient httpClient, DatarouterHttpClientSettings settings){
 		this.httpClient = httpClient;
 		this.requestBuilder = new DatarouterHttpRequestBuilder(settings, httpClient);
+	}
+
+	/**
+	 * makes a request to the service's healthcheck API to test its availability
+	 * @return {@link Conditional#success(Object)} or {@link Conditional#failure(Exception)} as appropriate
+	 */
+	public Conditional<Object> checkHealth(){
+		return httpClient.call(DatarouterServiceHealthcheckEndpoint.getEndpoint());
 	}
 
 }
