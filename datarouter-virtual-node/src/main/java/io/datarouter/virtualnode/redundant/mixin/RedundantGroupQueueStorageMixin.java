@@ -61,7 +61,7 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 				phaseTimer.add("success " + node);
 				return;
 			}catch(RuntimeException e){
-				SqsRedundantNodeTool.swallowIfNotFound(e, node);
+				RedundantQueueNodeTool.swallowIfNotFound(e, node);
 				phaseTimer.add("failed node " + node);
 			}
 		}
@@ -76,7 +76,7 @@ extends GroupQueueStorage<PK,D>, RedundantQueueNode<PK,D,F,N>{
 				phaseTimer.add("success " + node);
 				return;
 			}catch(RuntimeException e){
-				SqsRedundantNodeTool.swallowIfNotFound(e, node);
+				RedundantQueueNodeTool.swallowIfNotFound(e, node);
 				phaseTimer.add("failed node " + node);
 			}
 		}

@@ -116,7 +116,6 @@ public class JobWrapper implements Callable<Void>{
 	public final Date scheduledTime;//can be different from triggerTime if a job is scheduled late
 	public final boolean reschedule;//not created by the normal scheduler
 	public final String triggeredBy;
-	public final boolean shouldRunDetached;
 	protected final LongRunningTaskTracker tracker;
 	//convenience
 	public final Class<? extends BaseJob> jobClass;
@@ -140,8 +139,7 @@ public class JobWrapper implements Callable<Void>{
 				scheduledTime,
 				reschedule,
 				triggeredBy,
-				initTracker(jobPackage, scheduledTime, longRunningTaskTrackerFactory, triggeredBy, job.getClass()),
-				jobPackage.shouldRunDetached);
+				initTracker(jobPackage, scheduledTime, longRunningTaskTrackerFactory, triggeredBy, job.getClass()));
 	}
 
 	protected JobWrapper(
@@ -160,8 +158,8 @@ public class JobWrapper implements Callable<Void>{
 				scheduledTime,
 				reschedule,
 				triggeredBy,
-				longRunningTaskTrackerFactory.create(job.getClass(), LongRunningTaskType.JOB, null, false, triggeredBy),
-				false);
+				longRunningTaskTrackerFactory.create(
+						job.getClass(), LongRunningTaskType.JOB, null, false, triggeredBy));
 	}
 
 	protected JobWrapper(
@@ -172,8 +170,7 @@ public class JobWrapper implements Callable<Void>{
 			Date scheduledTime,
 			boolean reschedule,
 			String triggeredBy,
-			LongRunningTaskTracker taskTracker,
-			boolean shouldRunDetached){
+			LongRunningTaskTracker taskTracker){
 		this.jobPackage = jobPackage;
 		this.jobCounters = jobCounters;
 		this.job = job;
@@ -183,7 +180,6 @@ public class JobWrapper implements Callable<Void>{
 		this.triggeredBy = triggeredBy;
 		this.jobClass = job.getClass();
 		this.tracker = taskTracker;
-		this.shouldRunDetached = shouldRunDetached;
 	}
 
 	@Override

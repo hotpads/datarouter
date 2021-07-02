@@ -342,6 +342,10 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	/*------------ exception -----------------*/
 
+	public String getExceptionRecordId(){
+		return task.exceptionRecordId;
+	}
+
 	public void setExceptionRecordId(String exceptionRecordId){
 		task.exceptionRecordId = exceptionRecordId;
 		persist();

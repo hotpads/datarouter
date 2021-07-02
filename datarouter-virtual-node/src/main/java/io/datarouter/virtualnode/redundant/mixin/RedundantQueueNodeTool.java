@@ -20,15 +20,17 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.storage.node.Node;
 
-public class SqsRedundantNodeTool{
-	private static final Logger logger = LoggerFactory.getLogger(SqsRedundantNodeTool.class);
+public class RedundantQueueNodeTool{
+	private static final Logger logger = LoggerFactory.getLogger(RedundantQueueNodeTool.class);
 
-	// sqs specific error message for a exception we want to handle only in case of redundant node
-	private static final String MSG_PART_1 = "The receipt handle";
-	private static final String MSG_PART_2 = "is not valid for this queue";
+	private static final String SQS_MSG = "The input receipt handle";
+	private static final String SQS_KEYWORD = "is invalid";
+	private static final String GCP_PUBSUB_MSG = "io.grpc.StatusRuntimeException:";
+	private static final String GCP_PUBSUB_KEYWORD = "ack ID";
 
 	public static void swallowIfNotFound(RuntimeException exception, Node<?,?,?> node){
-		if(exception.getMessage().startsWith(MSG_PART_1) && exception.getMessage().contains(MSG_PART_2)){
+		if(exception.getMessage().startsWith(SQS_MSG) && exception.getMessage().contains(SQS_KEYWORD) || exception
+				.getMessage().startsWith(GCP_PUBSUB_MSG) && exception.getMessage().contains(GCP_PUBSUB_KEYWORD)){
 			logger.info("not found in node={}", node, exception);
 			return;
 		}

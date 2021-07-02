@@ -18,8 +18,10 @@ package io.datarouter.job.util;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import org.apache.logging.log4j.core.util.CronExpression;
 
@@ -37,12 +39,15 @@ public class CronExpressionTool{
 
 	/*--------------- parse -------------------*/
 
-	public static CronExpression parse(String cronString){
+	public static CronExpression parse(String cronString, ZoneId zoneId){
+		CronExpression cronExpression;
 		try{
-			return new CronExpression(cronString);
+			cronExpression = new CronExpression(cronString);
 		}catch(ParseException e){
 			throw new IllegalArgumentException(e);
 		}
+		cronExpression.setTimeZone(TimeZone.getTimeZone(zoneId));
+		return cronExpression;
 	}
 
 	private static Optional<Integer> parseInterval(String cronPart){
@@ -52,8 +57,8 @@ public class CronExpressionTool{
 
 	/*---------------- interval -----------------*/
 
-	public static Duration durationBetweenNextTwoTriggers(String cronString){
-		return durationBetweenNextTwoTriggers(parse(cronString));
+	public static Duration durationBetweenNextTwoTriggers(String cronString, ZoneId zoneId){
+		return durationBetweenNextTwoTriggers(parse(cronString, zoneId));
 	}
 
 	public static Duration durationBetweenNextTwoTriggers(CronExpression cronExpression){

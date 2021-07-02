@@ -43,6 +43,7 @@ import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.IndexedSorted
 import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
 import io.datarouter.storage.node.type.index.UniqueIndexNode;
 import io.datarouter.util.tuple.Range;
+import io.datarouter.virtualnode.redundant.RedundantIndexedSortedMapStorageNode;
 
 @Singleton
 public class DatarouterJobletRequestDao extends BaseDao{
@@ -72,11 +73,17 @@ public class DatarouterJobletRequestDao extends BaseDao{
 			DatarouterJobletRequestDaoParams params,
 			IndexingNodeFactory indexingNodeFactory){
 		super(datarouter);
-		node = nodeFactory.create(params.clientIds.get(0), JobletRequest::new, JobletRequestFielder::new)
-				.disableNodewatchPercentageAlert()
-				.disableNodewatchThresholdAlert()
-				.withIsSystemTable(true)
-				.build();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					IndexedSortedMapStorageNode<JobletRequestKey,JobletRequest,JobletRequestFielder> node =
+							nodeFactory.create(clientId, JobletRequest::new, JobletRequestFielder::new)
+						.disableNodewatchPercentageAlert()
+						.disableNodewatchThresholdAlert()
+						.withIsSystemTable(true)
+						.build();
+					return node;
+				})
+				.listTo(RedundantIndexedSortedMapStorageNode::new);
 		byTypeAndDataSignature = indexingNodeFactory.createKeyOnlyManagedIndex(
 				JobletRequestByTypeAndDataSignatureKey.class,
 				node)

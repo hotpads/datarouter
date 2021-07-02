@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.core.util.CronExpression;
 
 import io.datarouter.job.BaseJob;
+import io.datarouter.job.detached.DetachedJobResource;
 import io.datarouter.job.lock.TriggerLockConfig;
 
 //TODO Job system currently limited to one class simpleName
@@ -36,6 +37,7 @@ public class JobPackage implements Comparable<JobPackage>{
 	public final Class<? extends BaseJob> jobClass;
 	public final Optional<TriggerLockConfig> triggerLockConfig;
 	public final boolean shouldRunDetached;
+	public final DetachedJobResource detachedJobResource;
 
 	public static JobPackage createParallel(
 			String jobCategoryName,
@@ -59,8 +61,10 @@ public class JobPackage implements Comparable<JobPackage>{
 			CronExpression cronExpression,
 			Supplier<Boolean> shouldRunSupplier,
 			Class<? extends BaseJob> jobClass,
-			TriggerLockConfig triggerLockConfig){
-		return new JobPackage(jobCategoryName, cronExpression, shouldRunSupplier, jobClass, triggerLockConfig, true);
+			TriggerLockConfig triggerLockConfig,
+			DetachedJobResource detachedJobResource){
+		return new JobPackage(jobCategoryName, cronExpression, shouldRunSupplier, jobClass, triggerLockConfig,
+				true, detachedJobResource);
 	}
 
 	public static JobPackage createManualFromScheduledPackage(JobPackage scheduled){
@@ -77,7 +81,7 @@ public class JobPackage implements Comparable<JobPackage>{
 			Supplier<Boolean> shouldRunSupplier,
 			Class<? extends BaseJob> jobClass,
 			TriggerLockConfig triggerLockConfig){
-		this(jobCategoryName, cronExpression, shouldRunSupplier, jobClass, triggerLockConfig, false);
+		this(jobCategoryName, cronExpression, shouldRunSupplier, jobClass, triggerLockConfig, false, null);
 	}
 
 	private JobPackage(
@@ -86,13 +90,15 @@ public class JobPackage implements Comparable<JobPackage>{
 			Supplier<Boolean> shouldRunSupplier,
 			Class<? extends BaseJob> jobClass,
 			TriggerLockConfig triggerLockConfig,
-			boolean shouldRunDetached){
+			boolean shouldRunDetached,
+			DetachedJobResource detachedJobResource){
 		this.jobCategoryName = jobCategoryName;
 		this.cronExpression = Optional.ofNullable(cronExpression);
 		this.shouldRunSupplier = shouldRunSupplier;
 		this.jobClass = jobClass;
 		this.triggerLockConfig = Optional.ofNullable(triggerLockConfig);
 		this.shouldRunDetached = shouldRunDetached;
+		this.detachedJobResource = detachedJobResource;
 	}
 
 	public boolean shouldRun(){

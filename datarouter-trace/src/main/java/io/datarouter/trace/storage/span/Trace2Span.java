@@ -133,11 +133,11 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		return groupType;
 	}
 
-	public Long getCreated(){
+	public Long getCreatedNs(){
 		return created;
 	}
 
-	public Long getEnded(){
+	public Long getEndedNs(){
 		return ended;
 	}
 
@@ -149,7 +149,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 		return info;
 	}
 
-	public Long getDuration(){
+	public Long getDurationNs(){
 		return ended - created;
 	}
 

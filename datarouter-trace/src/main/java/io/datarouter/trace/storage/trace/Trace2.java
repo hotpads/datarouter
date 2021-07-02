@@ -17,6 +17,7 @@ package io.datarouter.trace.storage.trace;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Traceparent;
@@ -151,11 +152,15 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		return type;
 	}
 
-	public Long getCreated(){
+	public Long getCreatedNs(){
 		return created;
 	}
 
-	public Long getEnded(){
+	public Long getCreatedMs(){
+		return TimeUnit.NANOSECONDS.toMillis(created);
+	}
+
+	public Long getEndedNs(){
 		return ended;
 	}
 
@@ -175,8 +180,17 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 		return totalThreadCount;
 	}
 
-	public Long getDuration(){
+	public Long getDurationNs(){
 		return ended - created;
+	}
+
+	public Long getCpuTimeUsedNs(){
+		return cpuTimeEndedNs != null && cpuTimeCreatedNs != null ? cpuTimeEndedNs - cpuTimeCreatedNs : null;
+	}
+
+	public Long getMemoryAllocatedBytes(){
+		return memoryAllocatedBytesEnded != null && memoryAllocatedBytesBegin != null ? memoryAllocatedBytesEnded
+				- memoryAllocatedBytesBegin : null;
 	}
 
 	public Traceparent getTraceparent(){

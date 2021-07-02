@@ -8,7 +8,7 @@ datarouter-http-client wraps Apache HTTP Client and adds a JSON serialization la
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-http-client</artifactId>
-	<version>0.0.79</version>
+	<version>0.0.80</version>
 </dependency>
 ```
 
@@ -44,6 +44,7 @@ DatarouterHttpClient httpClient = new DatarouterHttpClientBuilder()
 
 To make a request, you need to create a `DatarouterHttpRequest` and submit it to your `DatarouterHttpClient`.
 
+#### Example with a GET param
 ```java
 // reuse this client
 DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
@@ -52,6 +53,41 @@ DatarouterHttpRequest request = new DatarouterHttpRequest(
 		HttpRequestMethod.GET, 
 		"https://example.com/api")
 		.addGetParam("id", "1"); // Passing a GET parameter
+DatarouterHttpResponse response = client.execute(request);
+String stringResult = response.getEntity();
+```
+
+#### Example with a POST param
+```java
+// reuse this client
+DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
+
+DatarouterHttpRequest request = new DatarouterHttpRequest(
+		HttpRequestMethod.POST, 
+		"https://example.com/api")
+		.addPostParam("id", "1"); // Passing a POST parameter
+DatarouterHttpResponse response = client.execute(request);
+String stringResult = response.getEntity();
+```
+
+#### Example with a JSON body
+```java
+public class BodyExample{
+	public final int id;
+
+	public BodyExample(int id){
+		this.id = id;
+	}
+}
+```
+```java
+// reuse this client
+DatarouterHttpClient client = new DatarouterHttpClientBuilder().build();
+
+DatarouterHttpRequest request = new DatarouterHttpRequest(
+		HttpRequestMethod.POST, 
+		"https://example.com/api");
+client.setEntityDto(request, new BodyExample(1)); // Sets the body or entity for the request. Can be any object serializable in JSON.
 DatarouterHttpResponse response = client.execute(request);
 String stringResult = response.getEntity();
 ```

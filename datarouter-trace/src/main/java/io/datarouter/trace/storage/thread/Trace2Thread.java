@@ -17,6 +17,7 @@ package io.datarouter.trace.storage.thread;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
 import io.datarouter.model.databean.BaseDatabean;
@@ -124,7 +125,7 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 	}
 
 	public Date getTime(){
-		return new Date(created);
+		return new Date(TimeUnit.NANOSECONDS.toMillis(created));
 	}
 
 	public Long getThreadId(){
@@ -143,15 +144,15 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		return name;
 	}
 
-	public Long getCreated(){
+	public Long getCreatedNs(){
 		return created;
 	}
 
-	public Long getQueuedEnded(){
+	public Long getQueuedEndedNs(){
 		return queuedEnded;
 	}
 
-	public Long getEnded(){
+	public Long getEndedNs(){
 		return ended;
 	}
 
@@ -171,8 +172,12 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 		return totalSpanCount;
 	}
 
-	public Long getDuration(){
+	public Long getDurationNs(){
 		return ended - created;
+	}
+
+	public Long getQueueDurationNs(){
+		return queuedEnded - created;
 	}
 
 	@Override

@@ -19,7 +19,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
 import java.util.Date;
 
 import org.testng.Assert;
@@ -52,9 +51,7 @@ public class DateToolTests{
 	@Test
 	public void testGetDaysAgo(){
 		Date date1 = new Date(1527182116155L);
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(1526836516155L);
-		Date date2 = calendar.getTime();
+		Date date2 = Date.from(Instant.ofEpochMilli(1526836516155L));
 		Assert.assertEquals(DateTool.getDaysAgo(4, date1), date2);
 	}
 

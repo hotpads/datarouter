@@ -29,7 +29,8 @@ import io.datarouter.storage.config.Configs;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.BaseRedundantDaoParams;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.op.combo.SortedMapStorage;
+import io.datarouter.storage.node.op.combo.SortedMapStorage.SortedMapStorageNode;
+import io.datarouter.virtualnode.redundant.RedundantSortedMapStorageNode;
 
 @Singleton
 public class DatarouterJobletDataDao extends BaseDao{
@@ -41,7 +42,7 @@ public class DatarouterJobletDataDao extends BaseDao{
 		}
 	}
 
-	private final SortedMapStorage<JobletDataKey,JobletData> node;
+	private final SortedMapStorageNode<JobletDataKey,JobletData,JobletDataFielder> node;
 
 	@Inject
 	public DatarouterJobletDataDao(
@@ -49,11 +50,18 @@ public class DatarouterJobletDataDao extends BaseDao{
 			NodeFactory nodeFactory,
 			DatarouterJobletDataDaoParams params){
 		super(datarouter);
-		node = nodeFactory.create(params.clientIds.get(0), JobletData::new, JobletDataFielder::new)
-				.disableNodewatchPercentageAlert()
-				.disableNodewatchThresholdAlert()
-				.withIsSystemTable(true)
-				.buildAndRegister();
+		node = Scanner.of(params.clientIds)
+				.map(clientId -> {
+					SortedMapStorageNode<JobletDataKey,JobletData,JobletDataFielder> node =
+							nodeFactory.create(clientId, JobletData::new, JobletDataFielder::new)
+						.disableNodewatchPercentageAlert()
+						.disableNodewatchThresholdAlert()
+						.withIsSystemTable(true)
+						.build();
+					return node;
+				})
+				.listTo(RedundantSortedMapStorageNode::new);
+		datarouter.register(node);
 	}
 
 	public void delete(JobletDataKey key){

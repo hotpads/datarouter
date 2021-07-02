@@ -16,6 +16,7 @@
 package io.datarouter.job;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,11 +25,13 @@ import java.util.function.Supplier;
 
 import org.apache.logging.log4j.core.util.CronExpression;
 
+import io.datarouter.job.detached.DetachedJobResource;
 import io.datarouter.job.lock.TriggerLockConfig;
 import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.util.CronExpressionTool;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.time.ZoneIds;
 
 public abstract class BaseTriggerGroup{
 
@@ -36,14 +39,32 @@ public abstract class BaseTriggerGroup{
 	private final List<BaseTriggerGroup> subGroups;
 	private final List<JobPackage> jobPackages;
 	private final Map<String,Class<? extends BaseJob>> requestTriggeredJobs;
+	private final ZoneId zoneId;
 	public final boolean isSystemTriggerGroup;
 
+	/**
+	 * @deprecated use {@link #BaseTriggerGroup(String, ZoneId)}
+	 */
+	@Deprecated
 	public BaseTriggerGroup(String categoryName){
-		this(categoryName, false);
+		this(categoryName, ZoneIds.AMERICA_NEW_YORK);
 	}
 
+	public BaseTriggerGroup(String categoryName, ZoneId zoneId){
+		this(categoryName, false, zoneId);
+	}
+
+	/**
+	 * @deprecated use {@link #BaseTriggerGroup(String, boolean, ZoneId)}
+	 */
+	@Deprecated
 	public BaseTriggerGroup(String categoryName, boolean isSystemTriggerGroup){
+		this(categoryName, isSystemTriggerGroup, ZoneIds.AMERICA_NEW_YORK);
+	}
+
+	public BaseTriggerGroup(String categoryName, boolean isSystemTriggerGroup, ZoneId zoneId){
 		this.categoryName = categoryName;
+		this.zoneId = zoneId;
 		this.subGroups = new ArrayList<>();
 		this.jobPackages = new ArrayList<>();
 		this.requestTriggeredJobs = new HashMap<>();
@@ -67,7 +88,7 @@ public abstract class BaseTriggerGroup{
 			String cronString,
 			Supplier<Boolean> shouldRunSupplier,
 			Class<? extends BaseJob> jobClass){
-		CronExpression cronExpression = CronExpressionTool.parse(cronString);
+		CronExpression cronExpression = CronExpressionTool.parse(cronString, zoneId);
 		validateParallelTriggerCron(jobClass, cronExpression);
 		jobPackages.add(JobPackage.createParallel(categoryName, cronExpression, shouldRunSupplier, jobClass));
 	}
@@ -77,7 +98,7 @@ public abstract class BaseTriggerGroup{
 			Supplier<Boolean> shouldRunSupplier,
 			Class<? extends BaseJob> jobClass,
 			boolean warnOnReachingDuration){
-		CronExpression cronExpression = CronExpressionTool.parse(cronString);
+		CronExpression cronExpression = CronExpressionTool.parse(cronString, zoneId);
 		Duration lockDuration = CronExpressionTool.durationBetweenNextTwoTriggers(cronExpression);
 		registerLockedWithName(cronString, shouldRunSupplier, jobClass, lockName(jobClass), lockDuration,
 				warnOnReachingDuration);
@@ -90,7 +111,7 @@ public abstract class BaseTriggerGroup{
 			String lockName,
 			Duration lockDuration,
 			boolean warnOnReachingDuration){
-		CronExpression cronExpression = CronExpressionTool.parse(cronString);
+		CronExpression cronExpression = CronExpressionTool.parse(cronString, zoneId);
 		validateLockedTriggerCron(jobClass, cronExpression);
 		TriggerLockConfig triggerLockConfig = new TriggerLockConfig(lockName, cronExpression, lockDuration,
 				warnOnReachingDuration);
@@ -103,13 +124,22 @@ public abstract class BaseTriggerGroup{
 			Supplier<Boolean> shouldRunSupplier,
 			Class<? extends BaseJob> jobClass,
 			boolean warnOnReachingDuration){
-		CronExpression cronExpression = CronExpressionTool.parse(cronString);
+		registerDetached(cronString, shouldRunSupplier, jobClass, warnOnReachingDuration, null);
+	}
+
+		protected void registerDetached(
+				String cronString,
+				Supplier<Boolean> shouldRunSupplier,
+				Class<? extends BaseJob> jobClass,
+				boolean warnOnReachingDuration,
+				DetachedJobResource detachedJobResource){
+		CronExpression cronExpression = CronExpressionTool.parse(cronString, zoneId);
 		validateLockedTriggerCron(jobClass, cronExpression);
 		Duration lockDuration = CronExpressionTool.durationBetweenNextTwoTriggers(cronExpression);
 		TriggerLockConfig triggerLockConfig = new TriggerLockConfig(lockName(jobClass), cronExpression, lockDuration,
 				warnOnReachingDuration);
 		jobPackages.add(JobPackage.createDetached(categoryName, cronExpression, shouldRunSupplier, jobClass,
-				triggerLockConfig));
+				triggerLockConfig, detachedJobResource));
 	}
 
 	protected void registerRequestTriggered(String persistentString, Class<? extends BaseJob> jobClass){

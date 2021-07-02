@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.util.ComparableTool;
+import io.datarouter.util.time.ZoneIds;
 
 public class CronExpressionToolTests{
 
@@ -35,20 +36,20 @@ public class CronExpressionToolTests{
 
 	@Test
 	public void testDurationBetweenNextTwoTriggersFast(){
-		CronExpression cron = CronExpressionTool.parse("3/15 * * * * ?");
+		CronExpression cron = CronExpressionTool.parse("3/15 * * * * ?", ZoneIds.UTC);
 		Duration duration = CronExpressionTool.durationBetweenNextTwoTriggers(cron);
 		Assert.assertEquals(duration, Duration.ofSeconds(15));
 	}
 
 	@Test
 	public void testDurationBetweenNextTwoTriggersSlow(){
-		Duration duration = CronExpressionTool.durationBetweenNextTwoTriggers("43 17 5 1 * ?");
+		Duration duration = CronExpressionTool.durationBetweenNextTwoTriggers("43 17 5 1 * ?", ZoneIds.UTC);
 		Assert.assertTrue(ComparableTool.gt(duration, Duration.ofDays(27)));
 	}
 
 	@Test(expectedExceptions = IllegalArgumentException.class)
 	public void testBadCronExpression(){
-		CronExpressionTool.parse("not a cron expression");
+		CronExpressionTool.parse("not a cron expression", ZoneIds.UTC);
 	}
 
 }

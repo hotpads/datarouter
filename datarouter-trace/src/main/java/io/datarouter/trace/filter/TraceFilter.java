@@ -134,10 +134,10 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			tracer.createAndStartThread(requestThreadName, Trace2Dto.getCurrentTimeInNs());
 
 			Long threadId = Thread.currentThread().getId();
-			boolean logCpuTime = traceSettings.logCpuTime.get();
-			Long cpuTimeBegin = logCpuTime ? THREAD_MX_BEAN.getCurrentThreadCpuTime() : null;
-			boolean logAllocatedBytes = traceSettings.logAllocatedBytes.get();
-			Long threadAllocatedBytesBegin = logAllocatedBytes
+			boolean saveCpuTime = traceSettings.saveTraceCpuTime.get();
+			Long cpuTimeBegin = saveCpuTime ? THREAD_MX_BEAN.getCurrentThreadCpuTime() : null;
+			boolean saveAllocatedBytes = traceSettings.saveTraceAllocatedBytes.get();
+			Long threadAllocatedBytesBegin = saveAllocatedBytes
 					? THREAD_MX_BEAN.getThreadAllocatedBytes(threadId)
 					: null;
 
@@ -148,8 +148,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				errored = true;
 				throw e;
 			}finally{
-				Long cpuTimeEnded = logCpuTime ? THREAD_MX_BEAN.getCurrentThreadCpuTime() : null;
-				Long threadAllocatedBytesEnded = logAllocatedBytes ? THREAD_MX_BEAN.getThreadAllocatedBytes(threadId)
+				Long cpuTimeEnded = saveCpuTime ? THREAD_MX_BEAN.getCurrentThreadCpuTime() : null;
+				Long threadAllocatedBytesEnded = saveAllocatedBytes ? THREAD_MX_BEAN.getThreadAllocatedBytes(threadId)
 						: null;
 				Trace2ThreadDto rootThread = null;
 				if(tracer.getCurrentThreadId() != null){
@@ -175,8 +175,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 						threadAllocatedBytesEnded);
 
 				Long traceDurationMs = trace2.getDurationInMs();
-				Long cpuTime = logCpuTime ? TimeUnit.NANOSECONDS.toMillis(cpuTimeEnded - cpuTimeBegin) : null;
-				Long threadAllocatedKB = logAllocatedBytes ? (threadAllocatedBytesEnded - threadAllocatedBytesBegin)
+				Long cpuTime = saveCpuTime ? TimeUnit.NANOSECONDS.toMillis(cpuTimeEnded - cpuTimeBegin) : null;
+				Long threadAllocatedKB = saveAllocatedBytes ? (threadAllocatedBytesEnded - threadAllocatedBytesBegin)
 						/ 1024 : null;
 				if(traceSettings.saveTraces.get()
 						&& traceDurationMs > traceSettings.saveTracesOverMs.get()

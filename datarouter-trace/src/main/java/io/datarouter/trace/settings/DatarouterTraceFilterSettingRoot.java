@@ -38,8 +38,8 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 	public final Setting<Boolean> addTraceparentHeader;
 	public final CachedSetting<String> traceDomain;
 	public final Setting<Set<String>> latencyRecordedHandlers;
-	public final CachedSetting<Boolean> logCpuTime;
-	public final CachedSetting<Boolean> logAllocatedBytes;
+	public final CachedSetting<Boolean> saveTraceCpuTime;
+	public final CachedSetting<Boolean> saveTraceAllocatedBytes;
 	public final CachedSetting<Boolean> saveThreadCpuTime;
 	public final CachedSetting<Boolean> saveThreadMemoryAllocated;
 	public final CachedSetting<Boolean> saveSpanCpuTime;
@@ -54,13 +54,12 @@ public class DatarouterTraceFilterSettingRoot extends SettingRoot{
 		saveTraces = registerBooleans("saveTraces", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		saveTracesOverMs = registerIntegers("saveTracesOverMs", defaultTo(500)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> 5));
+				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> 500));
 		addTraceparentHeader = registerBoolean("addTraceparentHeader", true);
 		traceDomain = registerString("traceDomain", "localhost:8443");
 		latencyRecordedHandlers = registerCommaSeparatedStrings("latencyRecordedHandlers", defaultTo(new HashSet<>()));
-		logCpuTime = registerBoolean("logCpuTime", true);
-		logAllocatedBytes = registerBooleans("logAllocatedBytes", defaultTo(false)
-				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
+		saveTraceCpuTime = registerBoolean("saveTraceCpuTime", true);
+		saveTraceAllocatedBytes = registerBoolean("saveTraceAllocatedBytes", true);
 		saveThreadCpuTime = registerBooleans("saveThreadCpuTime", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		saveThreadMemoryAllocated = registerBooleans("saveThreadMemoryAllocated", defaultTo(false)

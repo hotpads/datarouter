@@ -15,7 +15,7 @@
  */
 package io.datarouter.joblet.job;
 
-import java.util.Calendar;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +45,7 @@ public class JobletDataVacuumJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker) throws RuntimeException{
-		long earliestCreated = Calendar.getInstance().getTimeInMillis();
+		long earliestCreated = Instant.now().toEpochMilli();
 		for(JobletRequest jobletRequest : jobletRequestDao.scan().iterable()){
 			if(tracker.increment().shouldStop()){
 				return;

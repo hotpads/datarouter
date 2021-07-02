@@ -253,7 +253,7 @@ public class JobScheduler{
 			return localLockAcquired;
 		}
 		try{
-			if(jobWrapper.shouldRunDetached){
+			if(jobWrapper.jobPackage.shouldRunDetached){
 				try{
 					// Try running the job detached, but fallback to local execution if not possible.
 					// Maybe this should be an option when registering the job.
