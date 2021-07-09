@@ -15,7 +15,6 @@
  */
 package io.datarouter.filesystem.snapshot.storage.file;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +23,7 @@ import io.datarouter.filesystem.snapshot.compress.CompressedBlock;
 import io.datarouter.filesystem.snapshot.compress.CompressedBlocks;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.path.SnapshotPaths;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Directory;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.MultiByteArrayInputStream;
@@ -62,12 +62,12 @@ public class BlobStorageSnapshotFileStorage implements SnapshotFileStorage{
 	}
 
 	private void add(String path, CompressedBlocks compressedBlocks){
-		Iterator<byte[]> chunks = compressedBlocks.chunkIterator();
+		Scanner<byte[]> chunks = compressedBlocks.chunkScanner();
 		if(USE_CHUNK_WRITER){
+			directory.write(PathbeanKey.of(path), chunks);
+		}else{
 			var inputStream = new MultiByteArrayInputStream(chunks);
 			directory.write(PathbeanKey.of(path), inputStream);
-		}else{
-			directory.write(PathbeanKey.of(path), chunks);
 		}
 	}
 

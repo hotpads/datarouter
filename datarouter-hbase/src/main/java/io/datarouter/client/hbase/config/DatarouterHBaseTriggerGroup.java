@@ -22,13 +22,14 @@ import io.datarouter.client.hbase.balancer.HBaseRegionBalancerJob;
 import io.datarouter.client.hbase.compaction.HBaseCompactionInfo;
 import io.datarouter.client.hbase.compaction.HBaseCompactionJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterHBaseTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterHBaseTriggerGroup(DatarouterHBaseSettingRoot settings, HBaseCompactionInfo compactionInfo){
-		super("DatarouterHbase", true);
+		super("DatarouterHbase", true, ZoneIds.AMERICA_NEW_YORK);
 		long compactTriggerPeriodMinutes = compactionInfo.getCompactionTriggerPeriod().toMinutes();
 		registerLocked(
 				"41 7/" + compactTriggerPeriodMinutes + " * * * ?",

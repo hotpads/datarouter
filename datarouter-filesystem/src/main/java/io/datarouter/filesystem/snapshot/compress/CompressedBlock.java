@@ -15,9 +15,7 @@
  */
 package io.datarouter.filesystem.snapshot.compress;
 
-import java.util.Arrays;
-import java.util.Iterator;
-
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.bytes.ByteTool;
 
 public class CompressedBlock{
@@ -38,8 +36,8 @@ public class CompressedBlock{
 		this.chunks = chunks;
 	}
 
-	public Iterator<byte[]> chunkIterator(){
-		return Arrays.asList(chunks).iterator();
+	public Scanner<byte[]> chunkScanner(){
+		return Scanner.of(chunks);
 	}
 
 }

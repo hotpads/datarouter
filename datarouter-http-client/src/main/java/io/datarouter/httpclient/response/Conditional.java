@@ -40,7 +40,11 @@ public class Conditional<T>{
 	}
 
 	public static <T> Conditional<T> failure(Exception exception){
-		return new Conditional<>(false, null, exception);
+		return failure(exception, null);
+	}
+
+	public static <T> Conditional<T> failure(Exception exception, T failureResponse){
+		return new Conditional<>(false, failureResponse, exception);
 	}
 
 	public <U> Conditional<U> map(Function<? super T,? extends U> mapper){

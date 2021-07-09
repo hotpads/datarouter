@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient;
+package io.datarouter.auth.web;
 
-import javax.inject.Singleton;
+import javax.inject.Inject;
 
-import io.datarouter.pathnode.PathNode;
-import io.datarouter.pathnode.PathsRoot;
+import io.datarouter.auth.service.DatarouterAccountCredentialService;
+import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
+import io.datarouter.web.handler.BaseHandler;
 
-@Singleton
-public class DatarouterHealthCheckPaths extends PathNode implements PathsRoot{
+public class DatarouterAccountApiHandler extends BaseHandler{
 
-	public final DatarouterHealthCheckSubPaths datarouter = branch(DatarouterHealthCheckSubPaths::new, "datarouter");
+	@Inject
+	private DatarouterAccountCredentialService acccountCredentialService;
 
-	public static class DatarouterHealthCheckSubPaths extends PathNode{
-		public final PathNode healthcheck = leaf("healthcheck");
+	@Handler
+	public DatarouterAccountCredentialStatusDto checkCredential(){
+		return acccountCredentialService.getCredentialStatusDto(request);
 	}
 
 }

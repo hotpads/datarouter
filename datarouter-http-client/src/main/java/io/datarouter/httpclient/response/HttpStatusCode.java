@@ -20,6 +20,8 @@ public enum HttpStatusCode{
 	SC_201_CREATED(201, "Created"),
 	SC_202_ACCEPTED(202, "Accepted"),
 	SC_301_MOVED_PERMANENTLY(301, "Moved Permanently"),
+	SC_302_MOVED_TEMPORARILY(302, "Moved Temporarily"),
+	SC_307_TEMPORARILY_REDIRECT(307, "Temporarily Redirect"),
 	SC_400_BAD_REQUEST(400, "Bad Request"),
 	SC_401_UNATHORIZED(401, "Unauthorized"),
 	SC_403_FORBIDDEN(403, "Forbidden"),

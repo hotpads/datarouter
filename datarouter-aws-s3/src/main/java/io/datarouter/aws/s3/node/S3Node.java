@@ -16,7 +16,6 @@
 package io.datarouter.aws.s3.node;
 
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -94,7 +93,7 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public void write(PathbeanKey key, Iterator<byte[]> chunks){
+	public void write(PathbeanKey key, Scanner<byte[]> chunks){
 		s3DirectoryManager.write(key.getPathAndFile(), chunks);
 	}
 

@@ -20,13 +20,14 @@ import javax.inject.Singleton;
 
 import io.datarouter.aws.elb.job.AwsElbConfigurationScanJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterAwsElbTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterAwsElbTriggerGroup(DatarouterAwsElbSettingRoot settings){
-		super("DatarouterAwsElb", true);
+		super("DatarouterAwsElb", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"0 0 14 ? * MON,TUE,WED,THU,FRI *",
 				settings.runConfigurationScanReportEmailJob,

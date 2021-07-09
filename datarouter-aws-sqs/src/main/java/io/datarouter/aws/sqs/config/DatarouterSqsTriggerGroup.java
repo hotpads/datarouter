@@ -20,13 +20,14 @@ import javax.inject.Singleton;
 
 import io.datarouter.aws.sqs.job.SqsQueuesLengthMonitoringJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterSqsTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterSqsTriggerGroup(DatarouterSqsSettingsRoot settings){
-		super("DatarouterSqs", true);
+		super("DatarouterSqs", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"0 * * * * ?",
 				settings.runSqsQueueLengthMonitoringJob,

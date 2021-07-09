@@ -22,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.filesystem.raw.small.BinaryFileService;
 import io.datarouter.filesystem.raw.small.Utf8SmallFileService;
+import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.timer.PhaseTimer;
@@ -148,10 +148,10 @@ public class DirectoryManager{
 	/*------------ read/write -----------*/
 
 	public DirectoryManager write(String relativePathString, byte[] contents){
-		return write(relativePathString, List.of(contents).iterator());
+		return write(relativePathString, ObjectScanner.of(contents));
 	}
 
-	public DirectoryManager write(String relativePathString, Iterator<byte[]> chunks){
+	public DirectoryManager write(String relativePathString, Scanner<byte[]> chunks){
 		binaryFileService.writeBytes(resolveString(relativePathString), chunks);
 		return this;
 	}

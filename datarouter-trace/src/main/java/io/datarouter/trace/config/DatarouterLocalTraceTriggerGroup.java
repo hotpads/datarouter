@@ -23,13 +23,14 @@ import io.datarouter.trace.job.TraceSpanVacuumJob;
 import io.datarouter.trace.job.TraceThreadVacuumJob;
 import io.datarouter.trace.job.TraceVacuumJob;
 import io.datarouter.trace.settings.DatarouterTraceLocalSettingRoot;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterLocalTraceTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterLocalTraceTriggerGroup(DatarouterTraceLocalSettingRoot settings){
-		super("DatarouterTrace", true);
+		super("DatarouterTrace", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"3 15 0/2 ? * *",
 				settings.runVacuumJob,

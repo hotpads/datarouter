@@ -15,7 +15,6 @@
  */
 package io.datarouter.filesystem.snapshot.compress;
 
-import java.util.Iterator;
 import java.util.List;
 
 import io.datarouter.scanner.Scanner;
@@ -35,11 +34,10 @@ public class CompressedBlocks{
 				.sum();
 	}
 
-	public Iterator<byte[]> chunkIterator(){
+	public Scanner<byte[]> chunkScanner(){
 		return Scanner.of(blocks)
 				.map(block -> block.chunks)
-				.concat(Scanner::of)
-				.iterator();
+				.concat(Scanner::of);
 	}
 
 	public byte[] concat(){

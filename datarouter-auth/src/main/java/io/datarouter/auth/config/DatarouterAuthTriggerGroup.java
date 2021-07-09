@@ -25,13 +25,14 @@ import io.datarouter.auth.job.DatarouterAccountLastUsedFlushJob;
 import io.datarouter.auth.job.DatarouterSessionVacuumJob;
 import io.datarouter.auth.job.SamlAuthnRequestRedirectUrlVacuumJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterAuthTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterAuthTriggerGroup(DatarouterAuthSettingRoot settings){
-		super("DatarouterAuth", true);
+		super("DatarouterAuth", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"50 20 * * * ?",
 				settings.runSamlAuthnRequestRedirectUrlVacuumJob,

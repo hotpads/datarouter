@@ -15,6 +15,7 @@
  */
 package io.datarouter.httpclient.endpoint;
 
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Optional;
@@ -27,7 +28,7 @@ public abstract class BaseEndpoint<T>{
 	@IgnoredField
 	public final HttpRequestMethod method;
 	@IgnoredField
-	public final Class<T> responseType;
+	public final Type responseType;
 	@IgnoredField
 	public final PathNode pathNode;
 	@IgnoredField
@@ -42,11 +43,11 @@ public abstract class BaseEndpoint<T>{
 	@IgnoredField
 	public Optional<Duration> timeout;
 
-	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Class<T> responseType, boolean retrySafe){
+	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Type responseType, boolean retrySafe){
 		this(method, pathNode, responseType, retrySafe, false, false);
 	}
 
-	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Class<T> responseType, boolean retrySafe,
+	public BaseEndpoint(HttpRequestMethod method, PathNode pathNode, Type responseType, boolean retrySafe,
 			boolean shouldSkipSecurity, boolean shouldSkipLogs){
 		this.method = method;
 		this.pathNode = pathNode;

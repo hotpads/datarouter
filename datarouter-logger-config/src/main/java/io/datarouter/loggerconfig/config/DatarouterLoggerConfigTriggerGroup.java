@@ -21,13 +21,14 @@ import javax.inject.Singleton;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.loggerconfig.job.LoggerConfigCleanupJob;
 import io.datarouter.loggerconfig.job.LoggerConfigUpdaterJob;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterLoggerConfigTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterLoggerConfigTriggerGroup(DatarouterLoggerConfigSettingRoot settings){
-		super("DatarouterLoggerConfig", true);
+		super("DatarouterLoggerConfig", true, ZoneIds.AMERICA_NEW_YORK);
 		registerParallel(
 				"0/15 * * * * ?",
 				settings.runLoggerConfigUpdaterJob,

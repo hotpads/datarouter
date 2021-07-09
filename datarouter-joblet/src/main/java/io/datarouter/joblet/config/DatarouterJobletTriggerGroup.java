@@ -25,13 +25,14 @@ import io.datarouter.joblet.job.JobletInstanceCounterJob;
 import io.datarouter.joblet.job.JobletRequeueJob;
 import io.datarouter.joblet.job.JobletVacuumJob;
 import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterJobletTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterJobletTriggerGroup(DatarouterJobletSettingRoot settings){
-		super("DatarouterJoblet", true);
+		super("DatarouterJoblet", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"26 2/5 * * * ?",
 				settings.runJobletCounterJob,

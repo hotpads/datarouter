@@ -53,7 +53,7 @@ public class BlobStorageSnapshotBlockStorage implements SnapshotBlockStorage{
 	}
 
 	private void add(String path, CompressedBlock block){
-		blobStorage.write(PathbeanKey.of(path), block.chunkIterator());
+		blobStorage.write(PathbeanKey.of(path), block.chunkScanner());
 	}
 
 	/*---------------- get ---------------*/

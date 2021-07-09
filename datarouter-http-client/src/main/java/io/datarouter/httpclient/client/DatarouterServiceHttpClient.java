@@ -17,7 +17,12 @@ package io.datarouter.httpclient.client;
 
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.DatarouterServiceCheckCredentialEndpoint;
 import io.datarouter.httpclient.endpoint.DatarouterServiceHealthcheckEndpoint;
 import io.datarouter.httpclient.response.Conditional;
 
@@ -27,19 +32,48 @@ import io.datarouter.httpclient.response.Conditional;
  * for use specifically with servers that are built on datarouter-web
  */
 public interface DatarouterServiceHttpClient extends DatarouterHttpClient{
+	final Logger logger = LoggerFactory.getLogger(DatarouterServiceHttpClient.class);
 
 	default Conditional<Object> checkHealth(){
 		return call(DatarouterServiceHealthcheckEndpoint.getEndpoint());
 	}
 
 	default <E> Conditional<E> callWithHealthcheck(BaseEndpoint<E> endpoint, Supplier<Boolean> shouldCheckHealth){
-		return shouldCheckHealth.get() ? callWithHealthcheck(endpoint) : call(endpoint);
+		return shouldCheckHealth.get()
+				? callWithHealthcheck(endpoint)
+				: call(endpoint);
 	}
 
 	default <E> Conditional<E> callWithHealthcheck(BaseEndpoint<E> endpoint){
-		return checkHealth()
-				.map($ -> call(endpoint))
-				.orElse(Conditional.failure(new RuntimeException("healtcheck failed")));
+		Conditional<Object> healthcheckResponse = checkHealth();
+		if(healthcheckResponse.isFailure()){
+			return Conditional.failure(new RuntimeException("healthcheck failed"));
+		}
+		return call(endpoint);
+	}
+
+	default <E> Conditional<E> callWithHealthcheckV2(
+			BaseEndpoint<E> endpoint,
+			Supplier<Boolean> shouldCheckHealth,
+			E healthCheckFailureResponse){
+		if(shouldCheckHealth.get()){
+			Conditional<Object> healthcheckResponse = checkHealth();
+			if(healthcheckResponse.isFailure()){
+				logger.warn("{} is unavailable", endpoint.getClass().getSimpleName());
+				return Conditional.failure(new Exception("healthcheck fialed"), healthCheckFailureResponse);
+			}
+		}
+		return call(endpoint);
+	}
+
+	default <E> Conditional<E> callWithHealthcheckV2(
+			BaseEndpoint<E> endpoint,
+			Supplier<Boolean> shouldCheckHealth){
+		return callWithHealthcheckV2(endpoint, shouldCheckHealth, null);
+	}
+
+	default Conditional<DatarouterAccountCredentialStatusDto> checkCredential(){
+		return call(DatarouterServiceCheckCredentialEndpoint.getEndpoint());
 	}
 
 }

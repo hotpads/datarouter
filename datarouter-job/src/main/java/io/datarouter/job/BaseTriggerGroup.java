@@ -31,7 +31,6 @@ import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.util.CronExpressionTool;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZoneIds;
 
 public abstract class BaseTriggerGroup{
 
@@ -42,24 +41,8 @@ public abstract class BaseTriggerGroup{
 	private final ZoneId zoneId;
 	public final boolean isSystemTriggerGroup;
 
-	/**
-	 * @deprecated use {@link #BaseTriggerGroup(String, ZoneId)}
-	 */
-	@Deprecated
-	public BaseTriggerGroup(String categoryName){
-		this(categoryName, ZoneIds.AMERICA_NEW_YORK);
-	}
-
 	public BaseTriggerGroup(String categoryName, ZoneId zoneId){
 		this(categoryName, false, zoneId);
-	}
-
-	/**
-	 * @deprecated use {@link #BaseTriggerGroup(String, boolean, ZoneId)}
-	 */
-	@Deprecated
-	public BaseTriggerGroup(String categoryName, boolean isSystemTriggerGroup){
-		this(categoryName, isSystemTriggerGroup, ZoneIds.AMERICA_NEW_YORK);
 	}
 
 	public BaseTriggerGroup(String categoryName, boolean isSystemTriggerGroup, ZoneId zoneId){

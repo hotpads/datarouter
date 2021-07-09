@@ -16,13 +16,13 @@
 package io.datarouter.filesystem.node.object;
 
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.file.Pathbean;
@@ -88,11 +88,11 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 
 	@Override
 	public void write(PathbeanKey key, byte[] content){
-		write(key, List.of(content).iterator());
+		write(key, ObjectScanner.of(content));
 	}
 
 	@Override
-	public void write(PathbeanKey key, Iterator<byte[]> chunks){
+	public void write(PathbeanKey key, Scanner<byte[]> chunks){
 		directoryBlobStorage.write(key, chunks);
 	}
 

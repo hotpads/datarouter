@@ -18,12 +18,13 @@ package io.datarouter.job.readme;
 import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class ExampleTriggerGroup extends BaseTriggerGroup{
 
 	public ExampleTriggerGroup(){
-		super("Example"); // category name
+		super("Example", ZoneIds.AMERICA_NEW_YORK); // category name
 		registerLocked(
 				"3 * * * * ?", // trigger on the 3rd second of every minute
 				() -> true, //  run unconditionally, or alternatively pass a dynamic setting

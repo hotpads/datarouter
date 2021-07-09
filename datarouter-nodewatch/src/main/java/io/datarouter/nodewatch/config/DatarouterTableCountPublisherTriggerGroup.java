@@ -20,13 +20,14 @@ import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.nodewatch.job.LatestTableCountPublisherJob;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterTableCountPublisherTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterTableCountPublisherTriggerGroup(DatarouterTableCountPublisherSettingRoot settings){
-		super("DatarouterLatestTableCountPublisher", true);
+		super("DatarouterLatestTableCountPublisher", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"7 7 0/2 ? * *",
 				settings.runLatestTableCountPublisherJob,

@@ -20,22 +20,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Iterator;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.bytes.ByteTool;
 
 public class MultiByteArrayInputStream extends InputStream{
 
-	private final Iterator<byte[]> iter;
+	private final Scanner<byte[]> scanner;
 	private byte[] current;
 	private int position;
 
 	public MultiByteArrayInputStream(Iterable<byte[]> arrays){
-		this(arrays.iterator());
+		this(Scanner.of(arrays));
 	}
 
-	public MultiByteArrayInputStream(Iterator<byte[]> arrays){
-		this.iter = arrays;
+	public MultiByteArrayInputStream(Scanner<byte[]> arrays){
+		this.scanner = arrays;
 		this.current = ByteTool.EMPTY_ARRAY;
 		this.position = 0;
 	}
@@ -124,8 +124,8 @@ public class MultiByteArrayInputStream extends InputStream{
 
 	private boolean advance(){
 		position = 0;
-		if(iter.hasNext()){
-			current = iter.next();
+		if(scanner.advance()){
+			current = scanner.current();
 			return true;
 		}else{
 			current = ByteTool.EMPTY_ARRAY;

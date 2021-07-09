@@ -16,7 +16,6 @@
 package io.datarouter.storage.file;
 
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,8 +66,16 @@ implements BlobStorage<PathbeanKey,Pathbean>{
 	}
 
 	@Override
-	public void write(PathbeanKey key, Iterator<byte[]> chunks){
-		parent.write(prependStoragePath(key), chunks);
+	public void write(PathbeanKey key, Scanner<byte[]> chunks){
+		Scanner<byte[]> chunksWithCounts = chunks;
+		if(counterName != null){ //slightly optimized for small chunks with fast disks
+			chunksWithCounts = chunks.each(chunk -> {
+				count("writeChunks chunks", 1);
+				count("writeChunks bytes", chunk.length);
+			});
+		}
+		parent.write(prependStoragePath(key), chunksWithCounts);
+		count("writeChunks ops", 1);
 	}
 
 	@Override

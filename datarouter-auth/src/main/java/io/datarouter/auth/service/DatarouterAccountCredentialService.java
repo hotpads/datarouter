@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.service;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ import io.datarouter.auth.storage.account.DatarouterAccountSecretCredential;
 import io.datarouter.auth.storage.account.DatarouterAccountSecretCredentialKey;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
 import io.datarouter.auth.web.DatarouterAccountManagerHandler.AccountCredentialDto;
+import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.secret.op.SecretOpReason;
@@ -77,6 +79,7 @@ public class DatarouterAccountCredentialService{
 	private final AtomicReference<Map<String,AccountKey>> credentialAccountKeyByApiKey;
 	private final AtomicReference<Map<String,String>> secretCredentialApiKeyBySecretName;
 	private final AtomicReference<Map<String,AccountKey>> secretCredentialAccountKeyByApiKey;
+	private final AtomicReference<Map<String,Instant>> mostRecentCreatedInstantByAccountName;
 
 	@Inject
 	public DatarouterAccountCredentialService(
@@ -99,6 +102,7 @@ public class DatarouterAccountCredentialService{
 		credentialAccountKeyByApiKey = new AtomicReference<>(new HashMap<>());
 		secretCredentialApiKeyBySecretName = new AtomicReference<>(new HashMap<>());
 		secretCredentialAccountKeyByApiKey = new AtomicReference<>(new HashMap<>());
+		mostRecentCreatedInstantByAccountName = new AtomicReference<>(new HashMap<>());
 		refreshCaches();
 		executor.scheduleWithFixedDelay(this::refreshCaches, 15, 15, TimeUnit.SECONDS);
 	}
@@ -135,6 +139,36 @@ public class DatarouterAccountCredentialService{
 					.map(List::of)
 					.orElseGet(List::of);
 		}
+	}
+
+	public DatarouterAccountCredentialStatusDto getCredentialStatusDto(HttpServletRequest request){
+		String apiKey = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
+		AccountKey accountKey = findAccountKeyApiKeyAuth(apiKey, false).get();
+		if(accountKey.secretName != null){
+			var credential = datarouterAccountSecretCredentialDao.get(new DatarouterAccountSecretCredentialKey(
+					accountKey.secretName));
+			return new DatarouterAccountCredentialStatusDto(
+					accountKey.accountName,
+					accountKey.secretName,
+					credential.getCreatedInstant(),
+					shouldRotate(accountKey.accountName, credential.getCreatedInstant()),
+					null,
+					null);
+		}else{
+			var credential = datarouterAccountCredentialDao.get(new DatarouterAccountCredentialKey(apiKey));
+			return new DatarouterAccountCredentialStatusDto(
+					accountKey.accountName,
+					null,//TODO figure out secure identifier for non-secret credentials
+					credential.getCreatedInstant(),
+					shouldRotate(accountKey.accountName, credential.getCreatedInstant()),
+					null,
+					null);
+		}
+
+	}
+
+	private boolean shouldRotate(String accountName, Instant currentCredentialCreated){
+		return mostRecentCreatedInstantByAccountName.get().get(accountName).isAfter(currentCredentialCreated);
 	}
 
 	public Optional<String> getCurrentDatarouterAccountName(HttpServletRequest request){
@@ -275,19 +309,26 @@ public class DatarouterAccountCredentialService{
 		return Optional.empty();
 	}
 
-	private void refreshCredentials(){
+	private HashMap<String,Instant> refreshCredentials(){
+		HashMap<String,Instant> mostRecentCreatedInstantByAccountName = new HashMap<>();
 		credentialAccountKeyByApiKey.set(datarouterAccountCredentialDao.scan()
 				.include(DatarouterAccountCredential::getActive)
+				.each(credential -> mostRecentCreatedInstantByAccountName.merge(credential.getAccountName(), credential
+						.getCreatedInstant(), DatarouterAccountCredentialService::maxInstant))
 				.toMap(databean -> databean.getKey().getApiKey(), AccountKey::new));
+		return mostRecentCreatedInstantByAccountName;
 	}
 
-	private void refreshSecretCredentials(){
+	private HashMap<String,Instant> refreshSecretCredentials(){
+		HashMap<String,Instant> mostRecentCreatedInstantByAccountName = new HashMap<>();
 		var oldApiKeyBySecretName = secretCredentialApiKeyBySecretName.get();
 		var oldAccountKeyByApiKey = secretCredentialAccountKeyByApiKey.get();
 		Map<String,String> newApiKeyBySecretName = new HashMap<>();
 		Map<String,AccountKey> newAccountKeyByApiKey = new HashMap<>();
 		datarouterAccountSecretCredentialDao.scan()
 				.include(DatarouterAccountSecretCredential::getActive)
+				.each(credential -> mostRecentCreatedInstantByAccountName.merge(credential.getAccountName(), credential
+						.getCreatedInstant(), DatarouterAccountCredentialService::maxInstant))
 				.forEach(credential -> {
 					String secretName = credential.getKey().getSecretName();
 					String oldApiKey = oldApiKeyBySecretName.get(secretName);
@@ -307,6 +348,7 @@ public class DatarouterAccountCredentialService{
 				});
 		secretCredentialApiKeyBySecretName.set(newApiKeyBySecretName);
 		secretCredentialAccountKeyByApiKey.set(newAccountKeyByApiKey);
+		return mostRecentCreatedInstantByAccountName;
 	}
 
 	private DatarouterAccountSecretCredentialKeypairDto readKeypair(DatarouterAccountSecretCredential secretCredential,
@@ -316,8 +358,16 @@ public class DatarouterAccountCredentialService{
 	}
 
 	private void refreshCaches(){
-		refreshCredentials();
-		refreshSecretCredentials();
+		HashMap<String,Instant> combinedMostRecentRefreshes = refreshCredentials();
+		HashMap<String,Instant> mostRecentSecretRefreshes = refreshSecretCredentials();
+		mostRecentSecretRefreshes.forEach((accountName, created) -> combinedMostRecentRefreshes.merge(accountName,
+				created, DatarouterAccountCredentialService::maxInstant));
+		mostRecentCreatedInstantByAccountName.set(combinedMostRecentRefreshes);
+
+	}
+
+	private static Instant maxInstant(Instant i1, Instant i2){
+		return i1.isAfter(i2) ? i1 : i2;
 	}
 
 	public static class AccountKey{

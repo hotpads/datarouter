@@ -24,14 +24,13 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.split.ChunkScannerTool;
@@ -43,10 +42,10 @@ public class BinaryFileService{
 	private CheckedBinaryFileService checkedService;
 
 	public void writeBytes(Path fullPath, byte[] contents){
-		writeBytes(fullPath, List.of(contents).iterator());
+		writeBytes(fullPath, ObjectScanner.of(contents));
 	}
 
-	public void writeBytes(Path fullPath, Iterator<byte[]> chunks){
+	public void writeBytes(Path fullPath, Scanner<byte[]> chunks){
 		try{
 			checkedService.writeBytes(fullPath, chunks);
 		}catch(IOException e){
@@ -102,16 +101,16 @@ public class BinaryFileService{
 
 		public void writeBytes(Path fullPath, byte[] contents)
 		throws IOException{
-			writeBytes(fullPath, List.of(contents).iterator());
+			writeBytes(fullPath, ObjectScanner.of(contents));
 		}
 
-		public void writeBytes(Path fullPath, Iterator<byte[]> chunks)
+		public void writeBytes(Path fullPath, Scanner<byte[]> chunks)
 		throws IOException{
 			fullPath.getParent().toFile().mkdirs();
 			fullPath.toFile().createNewFile();
 			try(OutputStream outputStream = Files.newOutputStream(fullPath, StandardOpenOption.APPEND)){
-				while(chunks.hasNext()){
-					outputStream.write(chunks.next());
+				for(byte[] chunk : chunks.iterable()){
+					outputStream.write(chunk);
 				}
 			}
 		}

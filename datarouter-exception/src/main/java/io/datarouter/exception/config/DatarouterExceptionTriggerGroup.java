@@ -22,13 +22,14 @@ import io.datarouter.exception.job.ExceptionRecordAggregationJob;
 import io.datarouter.exception.job.ExceptionRecordVacuumJob;
 import io.datarouter.exception.job.HttpRequestRecordVacuumJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterExceptionTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterExceptionTriggerGroup(DatarouterExceptionSettingRoot settings){
-		super("DatarouterException", true);
+		super("DatarouterException", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"0 0 14 * * ?",
 				settings.runExceptionRecordVacuum,

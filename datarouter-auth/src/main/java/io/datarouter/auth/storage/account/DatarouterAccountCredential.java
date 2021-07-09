@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.storage.account;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -105,10 +106,14 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 	}
 
 	public String getCreatedDate(ZoneId zoneId){
+		return ZonedDateFormaterTool.formatInstantWithZone(getCreatedInstant(), zoneId);
+	}
+
+	public Instant getCreatedInstant(){
 		if(created == null){
-			return "";
+			return Instant.EPOCH;
 		}
-		return ZonedDateFormaterTool.formatDateWithZone(created, zoneId);
+		return created.toInstant();
 	}
 
 	public String getCreatorUsername(){
@@ -120,10 +125,14 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 	}
 
 	public String getLastUsedDate(ZoneId zoneId){
+		return ZonedDateFormaterTool.formatInstantWithZone(getLastUsedInstant(), zoneId);
+	}
+
+	public Instant getLastUsedInstant(){
 		if(lastUsed == null){
-			return "";
+			return Instant.EPOCH;
 		}
-		return ZonedDateFormaterTool.formatDateWithZone(lastUsed, zoneId);
+		return lastUsed.toInstant();
 	}
 
 	public Boolean getActive(){

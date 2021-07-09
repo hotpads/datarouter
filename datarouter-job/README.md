@@ -8,7 +8,7 @@ datarouter-job makes it easy to schedule jobs across a cluster of servers.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-job</artifactId>
-	<version>0.0.80</version>
+	<version>0.0.81</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -71,7 +71,7 @@ import io.datarouter.job.BaseTriggerGroup;
 public class ExampleTriggerGroup extends BaseTriggerGroup{
 
 	public ExampleTriggerGroup(){
-		super("Example"); // category name
+		super("Example", ZoneIds.AMERICA_NEW_YORK); // category name
 		registerLocked(
 				"3 * * * * ?", // trigger on the 3rd second of every minute
 				() -> true, //  run unconditionally, or alternatively pass a dynamic setting

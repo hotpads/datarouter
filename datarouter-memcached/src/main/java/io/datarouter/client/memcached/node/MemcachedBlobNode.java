@@ -19,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -136,8 +135,8 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	}
 
 	@Override
-	public void write(PathbeanKey key, Iterator<byte[]> chunks){
-		byte[] bytes = Scanner.of(chunks)
+	public void write(PathbeanKey key, Scanner<byte[]> chunks){
+		byte[] bytes = chunks
 				.listTo(ByteTool::concatenate);
 		write(key, bytes);
 	}

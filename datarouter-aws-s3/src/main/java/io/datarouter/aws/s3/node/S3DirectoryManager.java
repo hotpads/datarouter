@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -133,11 +132,11 @@ public class S3DirectoryManager{
 				content);
 	}
 
-	public void write(String suffix, Iterator<byte[]> chunks){
+	public void write(String suffix, Scanner<byte[]> chunks){
 		String fullPath = fullPath(suffix);
 		try(OutputStream outputStream = client.put(bucket, fullPath, ContentType.BINARY)){
-			while(chunks.hasNext()){
-				outputStream.write(chunks.next());
+			for(byte[] chunk : chunks.iterable()){
+				outputStream.write(chunk);
 			}
 		}catch(IOException e){
 			throw new UncheckedIOException(e);

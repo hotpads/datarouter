@@ -17,18 +17,16 @@ package io.datarouter.instrumentation.response;
 
 public class PublishingResponseDto{
 
-	public static final String SUCCESS_MESSAGE = "success";
-	public static final String DISABLED_ON_CLIENT_MESSAGE = "disabled on client";
-	public static final String NO_OP_MESSAGE = "noOp";
 	public static final String DISCARD_MESSAGE = "discard";
-	public static final String REJECT_MESSAGE = "reject";
 
-	public static final PublishingResponseDto REJECT = new PublishingResponseDto(false, REJECT_MESSAGE);
+	public static final PublishingResponseDto REJECT = new PublishingResponseDto(false, "reject");
 	public static final PublishingResponseDto DISCARD = new PublishingResponseDto(true, DISCARD_MESSAGE);
-	public static final PublishingResponseDto NO_OP = new PublishingResponseDto(null, NO_OP_MESSAGE);
-	public static final PublishingResponseDto SUCCESS = new PublishingResponseDto(true, SUCCESS_MESSAGE);
+	public static final PublishingResponseDto NO_OP = new PublishingResponseDto(null, "noOp");
+	public static final PublishingResponseDto SUCCESS = new PublishingResponseDto(true, "success");
 	public static final PublishingResponseDto DISABLED_ON_CLIENT = new PublishingResponseDto(null,
-			DISABLED_ON_CLIENT_MESSAGE);
+			"disabled on client");
+	public static final PublishingResponseDto UNAVAILABLE = new PublishingResponseDto(null,
+			"unavailable");
 
 	public final Boolean success;
 	public final String message;

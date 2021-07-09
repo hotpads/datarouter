@@ -91,7 +91,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Name", row -> row.getClass().getSimpleName())
 				.withColumn("Type", row -> row.method.name())
-				.withColumn("Response Type", row -> row.responseType.getSimpleName())
+				.withColumn("Response Type", row -> row.responseType.getTypeName())
 				.withColumn("Path", row -> row.urlPrefix + row.pathNode.toSlashedString())
 				.withColumn("Entity", row -> EndpointTool.hasEntity(row)
 						.map(Class::getSimpleName)

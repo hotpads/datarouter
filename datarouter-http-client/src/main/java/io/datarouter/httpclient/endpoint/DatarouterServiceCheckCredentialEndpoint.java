@@ -16,19 +16,18 @@
 package io.datarouter.httpclient.endpoint;
 
 import io.datarouter.httpclient.DatarouterServicePaths;
+import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
 import io.datarouter.httpclient.request.HttpRequestMethod;
-import io.datarouter.pathnode.PathNode;
 
-public class DatarouterServiceHealthcheckEndpoint extends BaseEndpoint<Object>{
+public class DatarouterServiceCheckCredentialEndpoint extends BaseEndpoint<DatarouterAccountCredentialStatusDto>{
 
-	private static final PathNode PATH = new DatarouterServicePaths().datarouter.healthcheck;
-
-	private DatarouterServiceHealthcheckEndpoint(){
-		super(HttpRequestMethod.GET, PATH, Object.class, false, true, true);
+	private DatarouterServiceCheckCredentialEndpoint(){
+		super(HttpRequestMethod.GET, new DatarouterServicePaths().datarouter.api.accounts.checkCredential,
+				DatarouterAccountCredentialStatusDto.class, true, false, true);
 	}
 
-	public static DatarouterServiceHealthcheckEndpoint getEndpoint(){
-		return new DatarouterServiceHealthcheckEndpoint();
+	public static DatarouterServiceCheckCredentialEndpoint getEndpoint(){
+		return new DatarouterServiceCheckCredentialEndpoint();
 	}
 
 }

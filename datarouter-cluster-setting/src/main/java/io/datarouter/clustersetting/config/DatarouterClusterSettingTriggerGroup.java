@@ -22,13 +22,14 @@ import io.datarouter.clustersetting.job.ClusterSettingCacheRefreshJob;
 import io.datarouter.clustersetting.job.ClusterSettingConfigurationScanJob;
 import io.datarouter.clustersetting.job.LongRunningTaskConfigurationScanJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterClusterSettingTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterClusterSettingTriggerGroup(DatarouterClusterSettingRoot settings){
-		super("DatarouterClusterSetting", true);
+		super("DatarouterClusterSetting", true, ZoneIds.AMERICA_NEW_YORK);
 		registerParallel(
 				"5/10 * * * * ?",
 				() -> true,

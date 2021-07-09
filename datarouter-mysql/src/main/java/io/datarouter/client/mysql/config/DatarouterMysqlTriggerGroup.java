@@ -21,13 +21,14 @@ import javax.inject.Singleton;
 import io.datarouter.client.mysql.job.FastMysqlLiveTableOptionsRefresherJob;
 import io.datarouter.client.mysql.job.MysqlLiveTableOptionsRefresherJob;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterMysqlTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterMysqlTriggerGroup(DatarouterMysqlSettingRoot settings){
-		super("DatarouterMysql", true);
+		super("DatarouterMysql", true, ZoneIds.AMERICA_NEW_YORK);
 		registerParallel(
 				"5/15 * * * * ? *",
 				() -> settings.runFastMysqlLiveTableOptionsRefresherSpeed.get().equals("slow"),

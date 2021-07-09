@@ -20,13 +20,14 @@ import javax.inject.Singleton;
 
 import io.datarouter.batchsizeoptimizer.config.DatarouterBatchSizeOptimizerSettings;
 import io.datarouter.job.BaseTriggerGroup;
+import io.datarouter.util.time.ZoneIds;
 
 @Singleton
 public class DatarouterBatchSizeOptimizerTriggerGroup extends BaseTriggerGroup{
 
 	@Inject
 	public DatarouterBatchSizeOptimizerTriggerGroup(DatarouterBatchSizeOptimizerSettings batchSizeOptimizerSettings){
-		super("DatarouterBatchSizeOptimizer", true);
+		super("DatarouterBatchSizeOptimizer", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				"24 * * * * ?",
 				batchSizeOptimizerSettings.runOpPerformanceRecordAggregationJob,
