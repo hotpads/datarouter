@@ -46,7 +46,7 @@ public class HBaseSubEntityResultParserFactory{
 		Supplier<D> databeanSupplier = fieldInfo.getDatabeanSupplier();
 		int prefixByteLength = entityFieldInfo.getEntityPartitioner().getNumPrefixBytes();
 		return new HBaseSubEntityResultParser<>(
-				fieldInfo.getPrimaryKeyClass(),
+				fieldInfo.getPrimaryKeySupplier(),
 				entityFieldInfo.getEntityKeySupplier(),
 				fieldInfo.getEkFields(),
 				fieldInfo.getEkPkFields(),
@@ -64,7 +64,7 @@ public class HBaseSubEntityResultParserFactory{
 			F extends DatabeanFielder<PK,D>>
 	HBaseSubEntityResultParser<EK,PK,D> create(
 			Supplier<EK> entityKeySupplier,
-			Class<PK> primaryKeyClass,
+			Supplier<PK> primaryKeySupplier,
 			Supplier<D> databeanSupplier,
 			F databeanFielder,
 			int numPrefixBytes,
@@ -80,7 +80,7 @@ public class HBaseSubEntityResultParserFactory{
 				prototypeDatabean.getClass(), prototypeDatabean.getKeyFieldName());
 
 		return new HBaseSubEntityResultParser<>(
-				primaryKeyClass,
+				primaryKeySupplier,
 				entityKeySupplier,
 				primaryKey.getEntityKey().getFields(),
 				primaryKey.getEntityKeyFields(),

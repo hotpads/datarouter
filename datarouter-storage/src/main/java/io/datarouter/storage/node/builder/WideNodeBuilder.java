@@ -30,7 +30,6 @@ import io.datarouter.storage.node.entity.DefaultEntity;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.node.op.NodeOps;
-import io.datarouter.util.lang.ReflectionTool;
 
 public class WideNodeBuilder<
 		PK extends RegularPrimaryKey<PK>,
@@ -58,7 +57,7 @@ public class WideNodeBuilder<
 		this.wideNodeFactory = wideNodeFactory;
 		this.storageSettings = storageSettings;
 		this.clientId = clientId;
-		this.entityKeySupplier = () -> ReflectionTool.create(databeanSupplier.get().getKeyClass());
+		this.entityKeySupplier = databeanSupplier.get().getKeySupplier();
 		this.databeanSupplier = databeanSupplier;
 		this.fielderSupplier = fielderSupplier;
 	}

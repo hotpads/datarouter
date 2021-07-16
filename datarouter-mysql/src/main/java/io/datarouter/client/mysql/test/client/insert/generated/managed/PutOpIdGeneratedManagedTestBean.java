@@ -16,6 +16,7 @@
 package io.datarouter.client.mysql.test.client.insert.generated.managed;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.client.mysql.test.client.insert.generated.PutOpGeneratedTestBean;
 import io.datarouter.model.databean.BaseDatabean;
@@ -58,8 +59,8 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedManagedTestBeanKey,PutOpIdGene
 	}
 
 	@Override
-	public Class<PutOpIdGeneratedManagedTestBeanKey> getKeyClass(){
-		return PutOpIdGeneratedManagedTestBeanKey.class;
+	public Supplier<PutOpIdGeneratedManagedTestBeanKey> getKeySupplier(){
+		return PutOpIdGeneratedManagedTestBeanKey::new;
 	}
 
 }

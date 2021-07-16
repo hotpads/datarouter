@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Level;
 
@@ -113,8 +114,8 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 	}
 
 	@Override
-	public Class<LoggerConfigKey> getKeyClass(){
-		return LoggerConfigKey.class;
+	public Supplier<LoggerConfigKey> getKeySupplier(){
+		return LoggerConfigKey::new;
 	}
 
 	public Boolean getAdditive(){

@@ -16,6 +16,7 @@
 package io.datarouter.trace.storage.span;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Traceparent;
@@ -109,8 +110,8 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 	}
 
 	@Override
-	public Class<Trace2SpanKey> getKeyClass(){
-		return Trace2SpanKey.class;
+	public Supplier<Trace2SpanKey> getKeySupplier(){
+		return Trace2SpanKey::new;
 	}
 
 	public boolean isTopLevel(){

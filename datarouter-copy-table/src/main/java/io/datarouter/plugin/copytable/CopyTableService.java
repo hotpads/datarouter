@@ -76,9 +76,9 @@ public class CopyTableService{
 		SortedMapStorageNode<PK,D,?> targetNode = (SortedMapStorageNode<PK,D,?>) nodes.getNode(targetNodeName);
 		Objects.requireNonNull(targetNode, targetNodeName + " not found");
 
-		PK fromKeyExclusive = PrimaryKeyPercentCodecTool.decode(sourceNode.getFieldInfo().getPrimaryKeyClass(),
+		PK fromKeyExclusive = PrimaryKeyPercentCodecTool.decode(sourceNode.getFieldInfo().getPrimaryKeySupplier(),
 				fromKeyExclusiveString);
-		PK toKeyInclusive = PrimaryKeyPercentCodecTool.decode(sourceNode.getFieldInfo().getPrimaryKeyClass(),
+		PK toKeyInclusive = PrimaryKeyPercentCodecTool.decode(sourceNode.getFieldInfo().getPrimaryKeySupplier(),
 				toKeyInclusiveString);
 
 		@SuppressWarnings("unchecked")

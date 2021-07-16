@@ -17,6 +17,7 @@ package io.datarouter.client.hbase.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.entity.BaseEntity;
@@ -179,8 +180,8 @@ public class TestEntity{
 		}
 
 		@Override
-		public Class<TestTraceKey> getKeyClass(){
-			return TestTraceKey.class;
+		public Supplier<TestTraceKey> getKeySupplier(){
+			return TestTraceKey::new;
 		}
 
 		public String getTraceId(){
@@ -297,8 +298,8 @@ public class TestEntity{
 		}
 
 		@Override
-		public Class<TestTraceSpanKey> getKeyClass(){
-			return TestTraceSpanKey.class;
+		public Supplier<TestTraceSpanKey> getKeySupplier(){
+			return TestTraceSpanKey::new;
 		}
 
 		public String getTraceId(){
@@ -415,8 +416,8 @@ public class TestEntity{
 		}
 
 		@Override
-		public Class<TestTraceThreadKey> getKeyClass(){
-			return TestTraceThreadKey.class;
+		public Supplier<TestTraceThreadKey> getKeySupplier(){
+			return TestTraceThreadKey::new;
 		}
 
 		public Long getThreadId(){

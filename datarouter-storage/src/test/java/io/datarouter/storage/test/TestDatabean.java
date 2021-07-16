@@ -15,6 +15,8 @@
  */
 package io.datarouter.storage.test;
 
+import java.util.function.Supplier;
+
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.imp.StringFieldKey;
 
@@ -39,8 +41,8 @@ public class TestDatabean extends BaseDatabean<TestDatabeanKey,TestDatabean>{
 	}
 
 	@Override
-	public Class<TestDatabeanKey> getKeyClass(){
-		return TestDatabeanKey.class;
+	public Supplier<TestDatabeanKey> getKeySupplier(){
+		return TestDatabeanKey::new;
 	}
 
 	public String getBar(){

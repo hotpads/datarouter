@@ -16,6 +16,7 @@
 package io.datarouter.client.mysql.test.client.txn;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -44,8 +45,8 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 	}
 
 	@Override
-	public Class<TxnBeanKey> getKeyClass(){
-		return TxnBeanKey.class;
+	public Supplier<TxnBeanKey> getKeySupplier(){
+		return TxnBeanKey::new;
 	}
 
 }

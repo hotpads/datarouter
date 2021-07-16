@@ -16,6 +16,7 @@
 package io.datarouter.nodewatch.storage.tablesample;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -37,8 +38,8 @@ public class TableSamplerTestBean extends BaseDatabean<TableSamplerTestBeanKey,T
 	}
 
 	@Override
-	public Class<TableSamplerTestBeanKey> getKeyClass(){
-		return TableSamplerTestBeanKey.class;
+	public Supplier<TableSamplerTestBeanKey> getKeySupplier(){
+		return TableSamplerTestBeanKey::new;
 	}
 
 	public TableSamplerTestBean(){

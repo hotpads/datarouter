@@ -30,7 +30,7 @@ public class TableSamplerTool{
 		return Optional.ofNullable(sampleKey)
 				.map(TableSampleKey::getRowKeyBytes)
 				.map(bytes -> FieldSetTool.fromConcatenatedValueBytes(
-						node.getFieldInfo().getPrimaryKeyClass(),
+						node.getFieldInfo().getPrimaryKeySupplier(),
 						node.getFieldInfo().getPrimaryKeyFields(),
 						bytes))
 				.orElse(null);

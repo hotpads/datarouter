@@ -43,7 +43,7 @@ public class HBaseSubEntityResultParser<
 		D extends Databean<PK,D>>{
 
 	private final Supplier<EK> entityKeySupplier;
-	private final Class<PK> primaryKeyClass;
+	private final Supplier<PK> primaryKeySupplier;
 	private final Supplier<D> databeanSupplier;
 	private final int numPrefixBytes;
 	private final byte[] entityColumnPrefixBytes;
@@ -54,7 +54,7 @@ public class HBaseSubEntityResultParser<
 	private final List<Field<?>> postEkPkFields;
 
 	protected HBaseSubEntityResultParser(
-			Class<PK> primaryKeyClass,
+			Supplier<PK> primaryKeySupplier,
 			Supplier<EK> entityKeySupplier,
 			List<Field<?>> ekFields,
 			List<Field<?>> ekPkKeyFields,
@@ -63,7 +63,7 @@ public class HBaseSubEntityResultParser<
 			int numPrefixBytes,
 			byte[] entityColumnPrefixBytes,
 			java.lang.reflect.Field keyJavaField, Supplier<D> databeanSupplier){
-		this.primaryKeyClass = primaryKeyClass;
+		this.primaryKeySupplier = primaryKeySupplier;
 		this.databeanSupplier = databeanSupplier;
 		this.entityKeySupplier = entityKeySupplier;
 		this.ekPkKeyFields = ekPkKeyFields;
@@ -82,7 +82,7 @@ public class HBaseSubEntityResultParser<
 	}
 
 	public Pair<PK,String> parsePrimaryKeyAndFieldName(Cell cell){
-		PK pk = ReflectionTool.create(primaryKeyClass);
+		PK pk = primaryKeySupplier.get();
 		//EK
 		//be sure to get the entity key fields from DatabeanFieldInfo in case the PK overrode the EK field names
 		parseEkFieldsFromBytesToPk(cell, pk);

@@ -33,7 +33,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class SpannerGetByIndexRangesOp<
@@ -82,8 +81,9 @@ extends SpannerBaseReadIndexOp<PK,D>{
 						buildKeySet(),
 						fieldInfo.getPrimaryKeyFieldColumnNames());
 			}
-			keyList = createFromResultSet(rs, ReflectionTool.supplier(
-					fieldInfo.getPrimaryKeyClass()),
+			keyList = createFromResultSet(
+					rs,
+					fieldInfo.getPrimaryKeySupplier(),
 					fieldInfo.getPrimaryKeyFields());
 			if(config.getLimit() != null){
 				databeanRs = txn.read(

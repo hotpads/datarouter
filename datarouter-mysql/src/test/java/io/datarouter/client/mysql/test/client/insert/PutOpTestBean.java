@@ -16,6 +16,7 @@
 package io.datarouter.client.mysql.test.client.insert;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -54,8 +55,8 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey,PutOpTestBean>{
 	}
 
 	@Override
-	public Class<PutOpTestBeanKey> getKeyClass(){
-		return PutOpTestBeanKey.class;
+	public Supplier<PutOpTestBeanKey> getKeySupplier(){
+		return PutOpTestBeanKey::new;
 	}
 
 	public String getC(){

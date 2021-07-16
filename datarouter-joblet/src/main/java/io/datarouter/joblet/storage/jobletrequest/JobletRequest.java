@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.datarouter.joblet.enums.JobletPriority;
@@ -116,8 +117,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 
 	}
 
-	/*-------------------- construct --------------------*/
-
 	public JobletRequest(){
 		super(new JobletRequestKey((String) null, null, null, null));
 	}
@@ -129,14 +128,10 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		this.dataSignature = dataSignature;
 	}
 
-	/*-------------------- databean --------------------*/
-
 	@Override
-	public Class<JobletRequestKey> getKeyClass(){
-		return JobletRequestKey.class;
+	public Supplier<JobletRequestKey> getKeySupplier(){
+		return JobletRequestKey::new;
 	}
-
-	/*----------------------------- static ----------------------------*/
 
 	public static ArrayList<JobletRequest> filterByTypeStatusReservedByPrefix(Iterable<JobletRequest> ins,
 			JobletType<?> type, JobletStatus status, String reservedByPrefix){
@@ -162,8 +157,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 				.map(JobletRequest::getJobletDataKey)
 				.collect(Collectors.toList());
 	}
-
-    /*-------------------- methods --------------------*/
 
 	public JobletDataKey getJobletDataKey(){
 		return new JobletDataKey(jobletDataId);
@@ -197,8 +190,6 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 		numTimeouts = NumberTool.nullSafe(numTimeouts) + 1;
 		return numTimeouts;
 	}
-
-    /*-------------------- get/set --------------------*/
 
 	public String getReservedBy(){
 		return reservedBy;

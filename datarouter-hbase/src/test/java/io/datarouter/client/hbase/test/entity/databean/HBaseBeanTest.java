@@ -16,6 +16,7 @@
 package io.datarouter.client.hbase.test.entity.databean;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -58,8 +59,8 @@ public class HBaseBeanTest extends BaseDatabean<HBaseBeanTestKey,HBaseBeanTest>{
 	}
 
 	@Override
-	public Class<HBaseBeanTestKey> getKeyClass(){
-		return HBaseBeanTestKey.class;
+	public Supplier<HBaseBeanTestKey> getKeySupplier(){
+		return HBaseBeanTestKey::new;
 	}
 
 }

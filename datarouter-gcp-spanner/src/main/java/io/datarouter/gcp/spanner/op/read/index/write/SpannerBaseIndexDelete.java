@@ -43,7 +43,6 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.lang.ReflectionTool;
 
 public abstract class SpannerBaseIndexDelete<
 		PK extends PrimaryKey<PK>,
@@ -103,7 +102,7 @@ extends SpannerBaseOp<Void>{
 				}
 				List<PK> keyList = createFromResultSet(
 						rs,
-						ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
+						fieldInfo.getPrimaryKeySupplier(),
 						fieldInfo.getPrimaryKeyFields());
 				Scanner.of(keyList)
 						.map(key -> keyToDeleteMutation(key))

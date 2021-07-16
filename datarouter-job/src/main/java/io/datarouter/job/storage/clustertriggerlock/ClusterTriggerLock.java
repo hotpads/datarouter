@@ -17,6 +17,7 @@ package io.datarouter.job.storage.clustertriggerlock;
 
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.job.storage.clusterjoblock.ClusterJobLock;
 import io.datarouter.model.databean.BaseDatabean;
@@ -64,8 +65,8 @@ public class ClusterTriggerLock extends BaseDatabean<ClusterTriggerLockKey,Clust
 	}
 
 	@Override
-	public Class<ClusterTriggerLockKey> getKeyClass(){
-		return ClusterTriggerLockKey.class;
+	public Supplier<ClusterTriggerLockKey> getKeySupplier(){
+		return ClusterTriggerLockKey::new;
 	}
 
 	public ClusterJobLock toClusterJobLock(){

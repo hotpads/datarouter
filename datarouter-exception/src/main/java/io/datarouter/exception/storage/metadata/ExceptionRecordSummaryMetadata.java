@@ -15,6 +15,8 @@
  */
 package io.datarouter.exception.storage.metadata;
 
+import java.util.function.Supplier;
+
 public class ExceptionRecordSummaryMetadata
 extends BaseExceptionRecordSummaryMetadata<
 		ExceptionRecordSummaryMetadataKey,
@@ -40,8 +42,8 @@ extends BaseExceptionRecordSummaryMetadata<
 	}
 
 	@Override
-	public Class<ExceptionRecordSummaryMetadataKey> getKeyClass(){
-		return ExceptionRecordSummaryMetadataKey.class;
+	public Supplier<ExceptionRecordSummaryMetadataKey> getKeySupplier(){
+		return ExceptionRecordSummaryMetadataKey::new;
 	}
 
 }

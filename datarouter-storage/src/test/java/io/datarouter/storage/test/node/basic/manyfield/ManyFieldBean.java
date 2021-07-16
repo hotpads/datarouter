@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -290,8 +291,8 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	}
 
 	@Override
-	public Class<ManyFieldBeanKey> getKeyClass(){
-		return ManyFieldBeanKey.class;
+	public Supplier<ManyFieldBeanKey> getKeySupplier(){
+		return ManyFieldBeanKey::new;
 	}
 
 	public List<Long> appendToLongArrayField(long val){

@@ -16,6 +16,7 @@
 package io.datarouter.storage.test.node.basic.sorted;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -77,8 +78,8 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	}
 
 	@Override
-	public Class<SortedBeanKey> getKeyClass(){
-		return SortedBeanKey.class;
+	public Supplier<SortedBeanKey> getKeySupplier(){
+		return SortedBeanKey::new;
 	}
 
 	public String getF1(){

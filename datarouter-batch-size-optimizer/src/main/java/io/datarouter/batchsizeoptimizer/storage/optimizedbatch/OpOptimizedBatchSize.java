@@ -16,6 +16,7 @@
 package io.datarouter.batchsizeoptimizer.storage.optimizedbatch;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.batchsizeoptimizer.BatchSizeOptimizer;
 import io.datarouter.model.databean.BaseDatabean;
@@ -63,8 +64,8 @@ public class OpOptimizedBatchSize extends BaseDatabean<OpOptimizedBatchSizeKey,O
 	}
 
 	@Override
-	public Class<OpOptimizedBatchSizeKey> getKeyClass(){
-		return OpOptimizedBatchSizeKey.class;
+	public Supplier<OpOptimizedBatchSizeKey> getKeySupplier(){
+		return OpOptimizedBatchSizeKey::new;
 	}
 
 	public Integer getBatchSize(){

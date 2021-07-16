@@ -18,6 +18,7 @@ package io.datarouter.loadtest.storage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -74,8 +75,8 @@ public class RandomValue extends BaseDatabean<RandomValueKey,RandomValue>{
 	}
 
 	@Override
-	public Class<RandomValueKey> getKeyClass(){
-		return RandomValueKey.class;
+	public Supplier<RandomValueKey> getKeySupplier(){
+		return RandomValueKey::new;
 	}
 
 	public String getV(){

@@ -90,6 +90,7 @@ public class HBaseSubEntityResultParserIntegrationTests extends BaseSortedBeanIn
 		resetTable(true);
 	}
 
+	@Override
 	@AfterClass
 	public void afterClass(){
 		dao.delete(savedBean.getKey());
@@ -98,8 +99,13 @@ public class HBaseSubEntityResultParserIntegrationTests extends BaseSortedBeanIn
 
 	@Test
 	public void testParseHBaseResultToPrimaryKey() throws IOException{
-		resultParser = HBaseSubEntityResultParserFactory.create(SortedBeanEntityKey::new, SortedBeanKey.class,
-				SortedBean::new, new SortedBeanFielder(), 1, directHBaseGet.fieldInfo.getEntityColumnPrefixBytes());
+		resultParser = HBaseSubEntityResultParserFactory.create(
+				SortedBeanEntityKey::new,
+				SortedBeanKey::new,
+				SortedBean::new,
+				new SortedBeanFielder(),
+				1,
+				directHBaseGet.fieldInfo.getEntityColumnPrefixBytes());
 		doParseHBaseResultToPrimaryKey();
 	}
 
@@ -119,8 +125,13 @@ public class HBaseSubEntityResultParserIntegrationTests extends BaseSortedBeanIn
 
 	@Test
 	public void testParseHBaseResultToDatabean() throws IOException{
-		resultParser = HBaseSubEntityResultParserFactory.create(SortedBeanEntityKey::new, SortedBeanKey.class,
-				SortedBean::new, new SortedBeanFielder(), 1, directHBaseGet.fieldInfo.getEntityColumnPrefixBytes());
+		resultParser = HBaseSubEntityResultParserFactory.create(
+				SortedBeanEntityKey::new,
+				SortedBeanKey::new,
+				SortedBean::new,
+				new SortedBeanFielder(),
+				1,
+				directHBaseGet.fieldInfo.getEntityColumnPrefixBytes());
 		doParseHBaseResultToDatabean();
 	}
 

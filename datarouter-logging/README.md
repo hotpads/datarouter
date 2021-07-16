@@ -8,7 +8,7 @@ datarouter-logging extends log4j2 to provide logging configuration using type-sa
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-logging</artifactId>
-	<version>0.0.81</version>
+	<version>0.0.82</version>
 </dependency>
 ```
 

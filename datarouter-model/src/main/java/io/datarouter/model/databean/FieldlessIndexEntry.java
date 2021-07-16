@@ -16,6 +16,7 @@
 package io.datarouter.model.databean;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.index.unique.UniqueIndexEntry;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
@@ -41,8 +42,8 @@ implements UniqueIndexEntry<IK,FieldlessIndexEntry<IK,PK,D>,PK,D>{
 	}
 
 	@Override
-	public Class<IK> getKeyClass(){
-		return keyClass;
+	public Supplier<IK> getKeySupplier(){
+		return ReflectionTool.supplier(keyClass);
 	}
 
 	@Override

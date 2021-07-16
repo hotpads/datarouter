@@ -16,6 +16,7 @@
 package io.datarouter.clustersetting.storage.clustersetting;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.clustersetting.ClusterSettingScope;
 import io.datarouter.model.databean.BaseDatabean;
@@ -67,8 +68,8 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 	}
 
 	@Override
-	public Class<ClusterSettingKey> getKeyClass(){
-		return ClusterSettingKey.class;
+	public Supplier<ClusterSettingKey> getKeySupplier(){
+		return ClusterSettingKey::new;
 	}
 
 	@Override

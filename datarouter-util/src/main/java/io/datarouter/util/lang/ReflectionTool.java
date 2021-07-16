@@ -42,6 +42,7 @@ import io.datarouter.util.string.StringTool;
 
 public class ReflectionTool{
 	private static final Logger logger = LoggerFactory.getLogger(ReflectionTool.class);
+
 	private static final UnsafeAllocator UNSAFE_ALLOCATOR = UnsafeAllocator.create();
 
 	public static <T> Supplier<T> supplier(Class<T> type){

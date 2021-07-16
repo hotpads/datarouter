@@ -35,7 +35,6 @@ import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.builder.NodeBuilder;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
-import io.datarouter.util.lang.ReflectionTool;
 
 public abstract class BaseNodeFactory{
 
@@ -86,7 +85,7 @@ public abstract class BaseNodeFactory{
 			ClientId clientId,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-		Supplier<PK> entityKeySupplier = () -> ReflectionTool.create(databeanSupplier.get().getKeyClass());
+		Supplier<PK> entityKeySupplier = databeanSupplier.get().getKeySupplier();
 		return create(clientId, entityKeySupplier, databeanSupplier, fielderSupplier);
 	}
 

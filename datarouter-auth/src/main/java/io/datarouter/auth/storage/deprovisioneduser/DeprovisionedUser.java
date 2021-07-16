@@ -18,6 +18,7 @@ package io.datarouter.auth.storage.deprovisioneduser;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.datarouter.auth.web.deprovisioning.DeprovisionedUserDto;
@@ -74,8 +75,8 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 	}
 
 	@Override
-	public Class<DeprovisionedUserKey> getKeyClass(){
-		return DeprovisionedUserKey.class;
+	public Supplier<DeprovisionedUserKey> getKeySupplier(){
+		return DeprovisionedUserKey::new;
 	}
 
 	public String getUsername(){

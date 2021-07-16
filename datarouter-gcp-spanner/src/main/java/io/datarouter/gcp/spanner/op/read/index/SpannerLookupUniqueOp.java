@@ -37,7 +37,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.lang.ReflectionTool;
 
 public class SpannerLookupUniqueOp<
 		PK extends PrimaryKey<PK>,
@@ -82,8 +81,9 @@ extends SpannerBaseReadIndexOp<PK,D>{
 						buildKeySet(),
 						fieldInfo.getPrimaryKeyFieldColumnNames());
 			}
-			List<PK> keyList = createFromResultSet(rs, ReflectionTool.supplier(
-					fieldInfo.getPrimaryKeyClass()),
+			List<PK> keyList = createFromResultSet(
+					rs,
+					fieldInfo.getPrimaryKeySupplier(),
 					fieldInfo.getPrimaryKeyFields());
 			if(config.getLimit() != null){
 				databeanRs = txn.read(

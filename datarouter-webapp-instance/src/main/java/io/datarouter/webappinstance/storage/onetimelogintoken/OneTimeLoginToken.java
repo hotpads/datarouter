@@ -17,6 +17,7 @@ package io.datarouter.webappinstance.storage.onetimelogintoken;
 
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -75,8 +76,8 @@ public class OneTimeLoginToken extends BaseDatabean<OneTimeLoginTokenKey,OneTime
 	}
 
 	@Override
-	public Class<OneTimeLoginTokenKey> getKeyClass(){
-		return OneTimeLoginTokenKey.class;
+	public Supplier<OneTimeLoginTokenKey> getKeySupplier(){
+		return OneTimeLoginTokenKey::new;
 	}
 
 	public String getToken(){

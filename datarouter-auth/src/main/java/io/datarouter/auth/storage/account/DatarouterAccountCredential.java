@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -93,8 +94,8 @@ extends BaseDatabean<DatarouterAccountCredentialKey,DatarouterAccountCredential>
 	}
 
 	@Override
-	public Class<DatarouterAccountCredentialKey> getKeyClass(){
-		return DatarouterAccountCredentialKey.class;
+	public Supplier<DatarouterAccountCredentialKey> getKeySupplier(){
+		return DatarouterAccountCredentialKey::new;
 	}
 
 	public String getAccountName(){

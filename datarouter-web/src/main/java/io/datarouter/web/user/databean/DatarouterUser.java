@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.datarouter.model.databean.BaseDatabean;
@@ -118,8 +119,8 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	}
 
 	@Override
-	public Class<DatarouterUserKey> getKeyClass(){
-		return DatarouterUserKey.class;
+	public Supplier<DatarouterUserKey> getKeySupplier(){
+		return DatarouterUserKey::new;
 	}
 
 	public static class DatarouterUserByUsernameLookup extends BaseStringUniqueKey<DatarouterUserKey>{

@@ -16,6 +16,7 @@
 package io.datarouter.nodewatch.storage.alertthreshold;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -59,8 +60,8 @@ public class TableSizeAlertThreshold extends BaseDatabean<TableSizeAlertThreshol
 	}
 
 	@Override
-	public Class<TableSizeAlertThresholdKey> getKeyClass(){
-		return TableSizeAlertThresholdKey.class;
+	public Supplier<TableSizeAlertThresholdKey> getKeySupplier(){
+		return TableSizeAlertThresholdKey::new;
 	}
 
 	public void setMaxRows(Long maxRows){

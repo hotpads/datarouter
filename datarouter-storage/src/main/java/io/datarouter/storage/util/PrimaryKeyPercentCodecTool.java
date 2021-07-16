@@ -17,6 +17,7 @@ package io.datarouter.storage.util;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.datarouter.model.field.Field;
@@ -40,10 +41,14 @@ public class PrimaryKeyPercentCodecTool{
 	}
 
 	public static <PK extends PrimaryKey<PK>> PK decode(Class<PK> pkClass, String encodedPk){
+		return decode(ReflectionTool.supplier(pkClass), encodedPk);
+	}
+
+	public static <PK extends PrimaryKey<PK>> PK decode(Supplier<PK> pkSupplier, String encodedPk){
 		if(encodedPk == null){
 			return null;
 		}
-		PK pk = ReflectionTool.create(pkClass);
+		PK pk = pkSupplier.get();
 		List<String> tokens = PercentFieldCodec.decode(encodedPk);
 		int index = 0;
 		for(Field<?> field : pk.getFields(pk)){
@@ -57,6 +62,7 @@ public class PrimaryKeyPercentCodecTool{
 		}
 		return pk;
 	}
+
 
 	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(Class<PK> pkClass, char delimiter,
 			String encodedPks){

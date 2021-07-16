@@ -52,10 +52,10 @@ public class FieldSetTool{
 	}
 
 	public static <F extends FieldSet<?>> F fromConcatenatedValueBytes(
-			Class<F> cls,
+			Supplier<F> cls,
 			List<Field<?>> fields,
 			byte[] bytes){
-		F fieldSet = ReflectionTool.create(cls);
+		F fieldSet = cls.get();
 		if(ArrayTool.isEmpty(bytes)){
 			return fieldSet;
 		}
@@ -69,8 +69,11 @@ public class FieldSetTool{
 			try{
 				value = field.fromBytesWithSeparatorButDoNotSet(bytes, byteOffset);
 			}catch(Exception e){
-				throw new RuntimeException("could not decode class=" + cls.getName() + " field=" + field + " offset="
-						+ byteOffset + " bytes=" + Base64.getEncoder().encodeToString(bytes), e);
+				throw new RuntimeException("could not decode class=" + cls.get().getClass().getName()
+						+ " field=" + field
+						+ " offset=" + byteOffset
+						+ " bytes=" + Base64.getEncoder().encodeToString(bytes),
+						e);
 			}
 			field.setUsingReflection(fieldSet, value);
 			byteOffset += numBytesWithSeparator;

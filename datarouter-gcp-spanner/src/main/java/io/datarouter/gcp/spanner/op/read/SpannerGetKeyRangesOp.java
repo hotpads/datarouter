@@ -27,7 +27,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Range;
 
 public class SpannerGetKeyRangesOp<
@@ -65,7 +64,7 @@ extends SpannerBaseReadOp<PK>{
 		return callClient(
 				fieldInfo.getPrimaryKeyFieldColumnNames(),
 				fieldInfo.getPrimaryKeyFields(),
-				ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()));
+				fieldInfo.getPrimaryKeySupplier());
 	}
 
 	@Override

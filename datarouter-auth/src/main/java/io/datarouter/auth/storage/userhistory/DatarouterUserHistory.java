@@ -17,6 +17,7 @@ package io.datarouter.auth.storage.userhistory;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.model.databean.BaseDatabean;
@@ -80,8 +81,8 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 	}
 
 	@Override
-	public Class<DatarouterUserHistoryKey> getKeyClass(){
-		return DatarouterUserHistoryKey.class;
+	public Supplier<DatarouterUserHistoryKey> getKeySupplier(){
+		return DatarouterUserHistoryKey::new;
 	}
 
 	public Long getEditor(){

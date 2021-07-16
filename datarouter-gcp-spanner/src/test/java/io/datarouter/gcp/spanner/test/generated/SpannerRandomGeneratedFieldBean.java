@@ -16,6 +16,7 @@
 package io.datarouter.gcp.spanner.test.generated;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.gcp.spanner.test.generated.SpannerRandomGeneratedFieldBean.SpannerRandomGeneratedFieldBeanKey;
 import io.datarouter.model.databean.BaseDatabean;
@@ -47,8 +48,8 @@ extends BaseDatabean<SpannerRandomGeneratedFieldBeanKey,SpannerRandomGeneratedFi
 	}
 
 	@Override
-	public Class<SpannerRandomGeneratedFieldBeanKey> getKeyClass(){
-		return SpannerRandomGeneratedFieldBeanKey.class;
+	public Supplier<SpannerRandomGeneratedFieldBeanKey> getKeySupplier(){
+		return SpannerRandomGeneratedFieldBeanKey::new;
 	}
 
 	public static class FieldKeys{

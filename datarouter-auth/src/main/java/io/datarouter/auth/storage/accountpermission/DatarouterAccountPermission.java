@@ -16,6 +16,7 @@
 package io.datarouter.auth.storage.accountpermission;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -47,8 +48,8 @@ extends BaseDatabean<DatarouterAccountPermissionKey,DatarouterAccountPermission>
 	}
 
 	@Override
-	public Class<DatarouterAccountPermissionKey> getKeyClass(){
-		return DatarouterAccountPermissionKey.class;
+	public Supplier<DatarouterAccountPermissionKey> getKeySupplier(){
+		return DatarouterAccountPermissionKey::new;
 	}
 
 }

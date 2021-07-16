@@ -55,7 +55,6 @@ import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.StreamTool;
 import io.datarouter.util.duration.DatarouterDuration;
-import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
 
@@ -240,7 +239,7 @@ public class LatencyMonitoringService{
 
 	private <PK extends PrimaryKey<PK>> Runnable makeGet(PhysicalMapStorageNode<PK,?,?> node){
 		PhysicalDatabeanFieldInfo<PK,?,?> fieldInfo = node.getFieldInfo();
-		PK pk = ReflectionTool.create(fieldInfo.getPrimaryKeyClass());
+		PK pk = fieldInfo.getPrimaryKeySupplier().get();
 		// assumes the node will complete a valid RPC for a PK with null fields
 		return () -> node.exists(pk);
 	}

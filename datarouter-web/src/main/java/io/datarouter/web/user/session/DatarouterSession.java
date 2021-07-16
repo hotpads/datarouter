@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -93,8 +94,8 @@ implements Session{
 	}
 
 	@Override
-	public Class<DatarouterSessionKey> getKeyClass(){
-		return DatarouterSessionKey.class;
+	public Supplier<DatarouterSessionKey> getKeySupplier(){
+		return DatarouterSessionKey::new;
 	}
 
 	public DatarouterSession(){

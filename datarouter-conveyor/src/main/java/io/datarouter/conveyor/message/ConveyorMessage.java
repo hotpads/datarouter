@@ -16,6 +16,7 @@
 package io.datarouter.conveyor.message;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -64,8 +65,8 @@ public class ConveyorMessage extends BaseDatabean<ConveyorMessageKey,ConveyorMes
 	}
 
 	@Override
-	public Class<ConveyorMessageKey> getKeyClass(){
-		return ConveyorMessageKey.class;
+	public Supplier<ConveyorMessageKey> getKeySupplier(){
+		return ConveyorMessageKey::new;
 	}
 
 	public String getMessage(){

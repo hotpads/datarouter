@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
@@ -117,8 +118,8 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 	}
 
 	@Override
-	public Class<DatarouterPermissionRequestKey> getKeyClass(){
-		return DatarouterPermissionRequestKey.class;
+	public Supplier<DatarouterPermissionRequestKey> getKeySupplier(){
+		return DatarouterPermissionRequestKey::new;
 	}
 
 	public String getRequestText(){

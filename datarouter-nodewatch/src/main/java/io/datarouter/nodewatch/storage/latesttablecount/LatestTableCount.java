@@ -17,6 +17,7 @@ package io.datarouter.nodewatch.storage.latesttablecount;
 
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -65,8 +66,8 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 	}
 
 	@Override
-	public Class<LatestTableCountKey> getKeyClass(){
-		return LatestTableCountKey.class;
+	public Supplier<LatestTableCountKey> getKeySupplier(){
+		return LatestTableCountKey::new;
 	}
 
 	public LatestTableCount(){

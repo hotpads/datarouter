@@ -25,7 +25,7 @@ public class ZonedDateFormaterTool{
 
 	// TODO: Should we rather use DateTimeFormatter.RFC_1123_DATE_TIME ?
 	// 'Tue, 3 Jun 2008 11:05:30 GMT'.
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
+	public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
 
 	public static String formatDateWithZone(Date date, ZoneId zoneId){
 		ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), zoneId);

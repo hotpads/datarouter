@@ -15,6 +15,8 @@
  */
 package io.datarouter.webappinstance.storage.webappinstancelog;
 
+import java.util.function.Supplier;
+
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 
 public class WebappInstanceLog extends BaseWebappInstanceLog<WebappInstanceLogKey,WebappInstanceLog>{
@@ -40,8 +42,8 @@ public class WebappInstanceLog extends BaseWebappInstanceLog<WebappInstanceLogKe
 	}
 
 	@Override
-	public Class<WebappInstanceLogKey> getKeyClass(){
-		return WebappInstanceLogKey.class;
+	public Supplier<WebappInstanceLogKey> getKeySupplier(){
+		return WebappInstanceLogKey::new;
 	}
 
 }

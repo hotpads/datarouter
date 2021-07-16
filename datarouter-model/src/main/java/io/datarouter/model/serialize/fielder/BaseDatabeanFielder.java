@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
@@ -40,8 +41,13 @@ implements DatabeanFielder<PK,D>{
 	private final StringDatabeanCodec stringDatabeanCodec;
 	private final Map<FielderConfigKey<?>,FielderConfigValue<?>> configuration;
 
+	@Deprecated // use BaseDatabeanFielder(supplier)
 	protected BaseDatabeanFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
-		this.primaryKeyFielder = ReflectionTool.create(primaryKeyFielderClass);
+		this(ReflectionTool.supplier(primaryKeyFielderClass));
+	}
+
+	protected BaseDatabeanFielder(Supplier<? extends Fielder<PK>> primaryKeyFielderSupplier){
+		this.primaryKeyFielder = primaryKeyFielderSupplier.get();
 		this.stringDatabeanCodec = ReflectionTool.create(getStringDatabeanCodecClass());
 		this.configuration = new HashMap<>();
 		configure();

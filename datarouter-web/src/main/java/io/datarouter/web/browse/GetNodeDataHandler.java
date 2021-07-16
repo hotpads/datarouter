@@ -61,7 +61,7 @@ public class GetNodeDataHandler extends InspectNodeDataHandler{
 		List<String> fieldValues = getFieldValues(node);
 
 		String encodedPk = PercentFieldCodec.encode(fieldValues.stream());
-		PK primaryKey = PrimaryKeyPercentCodecTool.decode(node.getFieldInfo().getPrimaryKeyClass(), encodedPk);
+		PK primaryKey = PrimaryKeyPercentCodecTool.decode(node.getFieldInfo().getPrimaryKeySupplier(), encodedPk);
 		@SuppressWarnings("unchecked")
 		MapStorageReader<PK,D> mapStorageNode = (MapStorageReader<PK,D>)node;
 		if(!mapStorageNode.exists(primaryKey)){

@@ -16,6 +16,7 @@
 package io.datarouter.secretweb.storage.oprecord;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -24,8 +25,8 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.secret.op.SecretOpType;
 import io.datarouter.secret.op.SecretOpReason.SecretOpReasonType;
+import io.datarouter.secret.op.SecretOpType;
 
 public class DatarouterSecretOpRecord
 extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
@@ -74,8 +75,8 @@ extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
 	}
 
 	@Override
-	public Class<DatarouterSecretOpRecordKey> getKeyClass(){
-		return DatarouterSecretOpRecordKey.class;
+	public Supplier<DatarouterSecretOpRecordKey> getKeySupplier(){
+		return DatarouterSecretOpRecordKey::new;
 	}
 
 	public SecretOpType getSecretOp(){

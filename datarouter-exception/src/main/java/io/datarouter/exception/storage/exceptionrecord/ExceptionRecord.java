@@ -15,6 +15,8 @@
  */
 package io.datarouter.exception.storage.exceptionrecord;
 
+import java.util.function.Supplier;
+
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.util.lang.ClassTool;
@@ -63,8 +65,8 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 	}
 
 	@Override
-	public Class<ExceptionRecordKey> getKeyClass(){
-		return ExceptionRecordKey.class;
+	public Supplier<ExceptionRecordKey> getKeySupplier(){
+		return ExceptionRecordKey::new;
 	}
 
 	@Override

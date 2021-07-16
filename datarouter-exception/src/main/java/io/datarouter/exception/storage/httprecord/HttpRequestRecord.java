@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -181,8 +182,8 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 	}
 
 	@Override
-	public Class<HttpRequestRecordKey> getKeyClass(){
-		return HttpRequestRecordKey.class;
+	public Supplier<HttpRequestRecordKey> getKeySupplier(){
+		return HttpRequestRecordKey::new;
 	}
 
 	public ExceptionRecordKey getExceptionRecordKey(){

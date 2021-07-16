@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.81</version>
+	<version>0.0.82</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -28,7 +28,6 @@ You can install this module by adding its plugin to the `WebappBuilder`.
 This class represents the primary key of the MySQL table. Datarouter will define a `PRIMARY KEY` with the columns defined in this class.
 
 ```java
-import java.util.Arrays;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
@@ -53,7 +52,7 @@ public class MysqlExampleDatabeanKey extends BaseRegularPrimaryKey<MysqlExampleD
 
 	@Override
 	public List<Field<?>> getFields(){ // the list of columns of the PRIMARY KEY
-		return Arrays.asList(new StringField(FieldKeys.id, id));
+		return List.of(new StringField(FieldKeys.id, id));
 	}
 
 }
@@ -74,8 +73,8 @@ When using composite primary keys, the ordering of the `getFields` method matter
 This class represents a MySQL table. Each instance will be a row of that table. Besides its primary key, this one defines an `INT` column called `someInt`.
 
 ```java
-import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -104,19 +103,19 @@ public class MysqlExampleDatabean extends BaseDatabean<MysqlExampleDatabeanKey,M
 	extends BaseDatabeanFielder<MysqlExampleDatabeanKey,MysqlExampleDatabean>{
 
 		public MysqlExampleDatabeanFielder(){
-			super(MysqlExampleDatabeanKey.class);
+			super(MysqlExampleDatabeanKey::new);
 		}
 
 		@Override
 		public List<Field<?>> getNonKeyFields(MysqlExampleDatabean databean){
-			return Arrays.asList(new IntegerField(FieldKeys.someInt, databean.someInt));
+			return List.of(new IntegerField(FieldKeys.someInt, databean.someInt));
 		}
 
 	}
 
 	@Override
-	public Class<MysqlExampleDatabeanKey> getKeyClass(){
-		return MysqlExampleDatabeanKey.class;
+	public Supplier<MysqlExampleDatabeanKey> getKeySupplier(){
+		return MysqlExampleDatabeanKey::new;
 	}
 
 	public Integer getSomeInt(){
@@ -137,7 +136,7 @@ create table testDatabase.ExampleDatabean (
 ```
 
 
-### Router
+### Dao
 
 Now that we have a databean class, we can create a node that will allow us to perform database queries. In the following router, we define a simple node.
 The node is configured to use a database client called `mysqlClient`. We will use a configuration file to tell datarouter how to connect this client to the database.

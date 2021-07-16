@@ -18,6 +18,7 @@ package io.datarouter.trace.storage.thread;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
 import io.datarouter.model.databean.BaseDatabean;
@@ -120,8 +121,8 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 	}
 
 	@Override
-	public Class<Trace2ThreadKey> getKeyClass(){
-		return Trace2ThreadKey.class;
+	public Supplier<Trace2ThreadKey> getKeySupplier(){
+		return Trace2ThreadKey::new;
 	}
 
 	public Date getTime(){

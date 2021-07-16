@@ -16,6 +16,7 @@
 package io.datarouter.storage.file;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -46,8 +47,8 @@ public class Pathbean extends BaseDatabean<PathbeanKey,Pathbean>{
 	}
 
 	@Override
-	public Class<PathbeanKey> getKeyClass(){
-		return PathbeanKey.class;
+	public Supplier<PathbeanKey> getKeySupplier(){
+		return PathbeanKey::new;
 	}
 
 	public Pathbean(){

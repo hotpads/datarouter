@@ -16,6 +16,7 @@
 package io.datarouter.joblet.storage.jobletdata;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -64,8 +65,8 @@ public class JobletData extends BaseDatabean<JobletDataKey,JobletData>{
 	}
 
 	@Override
-	public Class<JobletDataKey> getKeyClass(){
-		return JobletDataKey.class;
+	public Supplier<JobletDataKey> getKeySupplier(){
+		return JobletDataKey::new;
 	}
 
 	public String getData(){

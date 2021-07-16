@@ -16,6 +16,7 @@
 package io.datarouter.loggerconfig.storage.fileappender;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -59,8 +60,8 @@ public class FileAppender extends BaseDatabean<FileAppenderKey,FileAppender>{
 	}
 
 	@Override
-	public Class<FileAppenderKey> getKeyClass(){
-		return FileAppenderKey.class;
+	public Supplier<FileAppenderKey> getKeySupplier(){
+		return FileAppenderKey::new;
 	}
 
 	public String getLayout(){

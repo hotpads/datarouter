@@ -16,6 +16,7 @@
 package io.datarouter.model.databean;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -42,7 +43,7 @@ extends Comparable<Databean<?,?>>{
 
 	String getDatabeanName();
 
-	Class<PK> getKeyClass();
+	Supplier<PK> getKeySupplier();
 	String getKeyFieldName();
 	PK getKey();
 

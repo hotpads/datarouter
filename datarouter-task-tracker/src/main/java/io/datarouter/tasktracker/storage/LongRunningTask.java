@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.task.TaskTrackerDto;
 import io.datarouter.model.databean.BaseDatabean;
@@ -116,8 +117,8 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	}
 
 	@Override
-	public Class<LongRunningTaskKey> getKeyClass(){
-		return LongRunningTaskKey.class;
+	public Supplier<LongRunningTaskKey> getKeySupplier(){
+		return LongRunningTaskKey::new;
 	}
 
 	public Duration getDuration(){

@@ -16,6 +16,7 @@
 package io.datarouter.aws.sqs.storage.sqs;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -61,8 +62,8 @@ public class SqsMessage extends BaseDatabean<SqsMessageKey,SqsMessage>{
 	}
 
 	@Override
-	public Class<SqsMessageKey> getKeyClass(){
-		return SqsMessageKey.class;
+	public Supplier<SqsMessageKey> getKeySupplier(){
+		return SqsMessageKey::new;
 	}
 
 	public String getMessage(){

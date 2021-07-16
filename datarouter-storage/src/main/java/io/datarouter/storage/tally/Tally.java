@@ -16,6 +16,7 @@
 package io.datarouter.storage.tally;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -58,8 +59,8 @@ public class Tally extends BaseDatabean<TallyKey,Tally>{
 	}
 
 	@Override
-	public Class<TallyKey> getKeyClass(){
-		return TallyKey.class;
+	public Supplier<TallyKey> getKeySupplier(){
+		return TallyKey::new;
 	}
 
 	public Long getTally(){

@@ -16,13 +16,18 @@
 		.copyable { cursor: pointer; }
 	</style>
 	<script>
+		function addPath(path){
+			const docs = window.location.origin + window.location.pathname;
+			return docs.replace(/\/$/, '') + '/' + path.replace(/^\//, '')
+		}
+
 		function fetchCsrf(obj) {
-			const url = window.location.origin + window.location.pathname + "getCsrfIv?" + $.param(obj)
+			const url = addPath("getCsrfIv") + '?' + $.param(obj)
 			return fetch(url, {method: 'GET'})
 		}
 
 		function fetchSignature(theParams, requestBody){
-			const url = window.location.origin + window.location.pathname + "getSignature?" + $.param(theParams);
+			const url = addPath("getSignature") + '?' + $.param(theParams);
 			const options = !!requestBody ? {method: 'POST', body: requestBody} : {method: 'GET'}
 			return fetch(url, options);
 		}

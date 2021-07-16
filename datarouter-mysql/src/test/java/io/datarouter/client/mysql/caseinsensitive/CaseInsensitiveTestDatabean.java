@@ -16,6 +16,7 @@
 package io.datarouter.client.mysql.caseinsensitive;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.client.mysql.ddl.domain.MysqlCollation;
 import io.datarouter.model.databean.BaseDatabean;
@@ -49,8 +50,8 @@ extends BaseDatabean<CaseInsensitiveTestPrimaryKey,CaseInsensitiveTestDatabean>{
 	}
 
 	@Override
-	public Class<CaseInsensitiveTestPrimaryKey> getKeyClass(){
-		return CaseInsensitiveTestPrimaryKey.class;
+	public Supplier<CaseInsensitiveTestPrimaryKey> getKeySupplier(){
+		return CaseInsensitiveTestPrimaryKey::new;
 	}
 
 }

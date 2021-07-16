@@ -36,6 +36,8 @@ implements BlobStorage<PathbeanKey,Pathbean>{
 	private final Subpath subpathInParent;
 	private final String counterName;
 
+	/*---------- construct ------------*/
+
 	public Directory(BlobStorage<PathbeanKey,Pathbean> parent){
 		this(parent, Subpath.empty(), null);
 	}
@@ -50,13 +52,17 @@ implements BlobStorage<PathbeanKey,Pathbean>{
 		this.counterName = counterName;
 	}
 
-	public Directory subdirectory(Subpath subpathInThisDirectory){
-		return new Directory(parent, subpathInParent.append(subpathInThisDirectory));
+	/*---------- subdirectory ------------*/
+
+	public Directory subdirectory(Subpath subpathInParent){
+		return new Directory(this, subpathInParent);
 	}
 
-	public Directory subdirectory(Subpath subpathInThisDirectory, String counterName){
-		return new Directory(parent, subpathInParent.append(subpathInThisDirectory), counterName);
+	public Directory subdirectory(Subpath subpathInParent, String counterName){
+		return new Directory(this, subpathInParent, counterName);
 	}
+
+	/*---------- write ------------*/
 
 	@Override
 	public void write(PathbeanKey key, byte[] value){
@@ -81,7 +87,11 @@ implements BlobStorage<PathbeanKey,Pathbean>{
 	@Override
 	public void write(PathbeanKey key, InputStream inputStream){
 		parent.write(prependStoragePath(key), inputStream);
+		//TODO count bytes
+		count("writeInputStream ops", 1);
 	}
+
+	/*---------- delete ------------*/
 
 	@Override
 	public void delete(PathbeanKey key){
@@ -95,6 +105,8 @@ implements BlobStorage<PathbeanKey,Pathbean>{
 		count("deleteAll ops", 1);
 	}
 
+	/*---------- metadata ------------*/
+
 	@Override
 	public String getBucket(){
 		return parent.getBucket();
@@ -104,6 +116,8 @@ implements BlobStorage<PathbeanKey,Pathbean>{
 	public Subpath getRootPath(){
 		return parent.getRootPath().append(subpathInParent);
 	}
+
+	/*---------- read ------------*/
 
 	@Override
 	public boolean exists(PathbeanKey key){
@@ -136,6 +150,8 @@ implements BlobStorage<PathbeanKey,Pathbean>{
 				.ifPresent(actualLength -> count("readOffsetLimit bytes", actualLength));
 		return optBytes.orElse(null);
 	}
+
+	/*---------- scan ------------*/
 
 	@Override
 	public Scanner<List<PathbeanKey>> scanKeysPaged(Subpath subpath){
@@ -176,6 +192,13 @@ implements BlobStorage<PathbeanKey,Pathbean>{
 			String name = String.format("Directory %s %s", counterName, suffix);
 			Counters.inc(name, by);
 		}
+	}
+
+	/*------------------ Object ---------------------*/
+
+	@Override
+	public String toString(){
+		return getRootPath().toString();
 	}
 
 }

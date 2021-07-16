@@ -16,6 +16,7 @@
 package io.datarouter.aws.sqs.storage.sns;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -56,8 +57,8 @@ public class SnsMessage extends BaseDatabean<SnsMessageKey,SnsMessage>{
 	}
 
 	@Override
-	public Class<SnsMessageKey> getKeyClass(){
-		return SnsMessageKey.class;
+	public Supplier<SnsMessageKey> getKeySupplier(){
+		return SnsMessageKey::new;
 	}
 
 	public String getMessage(){

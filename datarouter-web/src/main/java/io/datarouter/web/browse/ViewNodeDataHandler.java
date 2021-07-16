@@ -106,7 +106,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		PK startKey = null;
 		if(StringTool.notEmpty(startKeyString)){
 			try{
-				startKey = (PK)PrimaryKeyPercentCodecTool.decode(node.getFieldInfo().getPrimaryKeyClass(),
+				startKey = (PK)PrimaryKeyPercentCodecTool.decode(node.getFieldInfo().getPrimaryKeySupplier(),
 						startKeyString);
 				mav.put(PARAM_startKey, PrimaryKeyPercentCodecTool.encode(startKey));
 			}catch(RuntimeException e){

@@ -110,7 +110,7 @@ public abstract class BaseTriggerGroup{
 		registerDetached(cronString, shouldRunSupplier, jobClass, warnOnReachingDuration, null);
 	}
 
-		protected void registerDetached(
+	protected void registerDetached(
 				String cronString,
 				Supplier<Boolean> shouldRunSupplier,
 				Class<? extends BaseJob> jobClass,

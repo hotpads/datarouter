@@ -16,6 +16,7 @@
 package io.datarouter.loggerconfig.storage.consoleappender;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.apache.logging.log4j.core.appender.ConsoleAppender.Target;
 
@@ -61,8 +62,8 @@ public class ConsoleAppender extends BaseDatabean<ConsoleAppenderKey,ConsoleAppe
 	}
 
 	@Override
-	public Class<ConsoleAppenderKey> getKeyClass(){
-		return ConsoleAppenderKey.class;
+	public Supplier<ConsoleAppenderKey> getKeySupplier(){
+		return ConsoleAppenderKey::new;
 	}
 
 	public String getLayout(){

@@ -8,7 +8,7 @@ A client that implements the `BlobStorage` interface using the local filesystem.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-filesystem</artifactId>
-	<version>0.0.81</version>
+	<version>0.0.82</version>
 </dependency>
 ```
 

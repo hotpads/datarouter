@@ -17,9 +17,10 @@ package io.datarouter.job.monitoring;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
@@ -35,7 +36,6 @@ import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.scheduler.JobScheduler;
 import io.datarouter.job.storage.clusterjoblock.ClusterJobLockKey;
 import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.util.Count;
 import io.datarouter.util.Count.Counts;
@@ -69,18 +69,18 @@ public class JobRetriggeringJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		List<? extends BaseTriggerGroup> triggerGroups = injector.getInstances(triggerGroupClasses.get());
-		Scanner.of(triggerGroups)
-				.concatIter(BaseTriggerGroup::getJobPackages)
-				.each(total::increment)
-				.include(JobPackage::usesLocking)
-				.each(usesLocking::increment)
-				.exclude(this::runningAgainSoon)// avoid LongRunningTask scan for frequent jobs
-				.each(notRunningAgainSoon::increment)
-				.include(JobPackage::shouldRun)
-				.each(shouldRun::increment)
-				.exclude(this::isLocked)
-				.each(notLocked::increment)
+		injector.getInstances(triggerGroupClasses.get()).stream()
+				.map(BaseTriggerGroup::getJobPackages)
+				.flatMap(Collection::stream)
+				.peek(total::increment)
+				.filter(JobPackage::usesLocking)
+				.peek(usesLocking::increment)
+				.filter(Predicate.not(this::runningAgainSoon))// avoid LongRunningTask scan for frequent jobs
+				.peek(notRunningAgainSoon::increment)
+				.filter(JobPackage::shouldRun)
+				.peek(shouldRun::increment)
+				.filter(Predicate.not(this::isLocked))
+				.peek(notLocked::increment)
 				.forEach(jobPackage -> retriggerIfNecessary(jobPackage, tracker));
 		logger.warn(counts.toString());
 	}

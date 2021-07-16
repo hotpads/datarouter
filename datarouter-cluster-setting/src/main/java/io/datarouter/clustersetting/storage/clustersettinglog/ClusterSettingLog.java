@@ -17,6 +17,7 @@ package io.datarouter.clustersetting.storage.clustersettinglog;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.clustersetting.ClusterSettingLogAction;
 import io.datarouter.clustersetting.ClusterSettingScope;
@@ -92,8 +93,8 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 	}
 
 	@Override
-	public Class<ClusterSettingLogKey> getKeyClass(){
-		return ClusterSettingLogKey.class;
+	public Supplier<ClusterSettingLogKey> getKeySupplier(){
+		return ClusterSettingLogKey::new;
 	}
 
 	@Override

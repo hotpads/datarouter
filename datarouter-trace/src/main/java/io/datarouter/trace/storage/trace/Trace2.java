@@ -18,6 +18,7 @@ package io.datarouter.trace.storage.trace;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Traceparent;
@@ -124,8 +125,8 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 	}
 
 	@Override
-	public Class<Trace2Key> getKeyClass(){
-		return Trace2Key.class;
+	public Supplier<Trace2Key> getKeySupplier(){
+		return Trace2Key::new;
 	}
 
 	public String getTraceId(){

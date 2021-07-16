@@ -17,6 +17,7 @@ package io.datarouter.websocket.storage.session;
 
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -63,8 +64,8 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 	}
 
 	@Override
-	public Class<WebSocketSessionKey> getKeyClass(){
-		return WebSocketSessionKey.class;
+	public Supplier<WebSocketSessionKey> getKeySupplier(){
+		return WebSocketSessionKey::new;
 	}
 
 	public Date getOpeningDate(){

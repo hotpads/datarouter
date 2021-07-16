@@ -59,7 +59,7 @@ public class HBaseTableManager<PK extends PrimaryKey<PK>>{
 					physicalNode,
 					hbaseBalancerFactory.getBalancerForTable(clientId, tableName))
 					.getRegions();
-			return new HBaseTableManager<>(physicalNode.getFieldInfo().getPrimaryKeyClass(), regionSupplier);
+			return new HBaseTableManager<>(physicalNode.getFieldInfo().getPrimaryKeySupplier(), regionSupplier);
 		}
 
 	}
@@ -67,8 +67,9 @@ public class HBaseTableManager<PK extends PrimaryKey<PK>>{
 	private final Class<PK> pkClass;
 	private final Supplier<List<DrRegionInfo<?>>> regionSupplier;
 
-	public HBaseTableManager(Class<PK> pkClass, Supplier<List<DrRegionInfo<?>>> regionSupplier){
-		this.pkClass = pkClass;
+	@SuppressWarnings("unchecked")
+	public HBaseTableManager(Supplier<PK> pkSupplier, Supplier<List<DrRegionInfo<?>>> regionSupplier){
+		this.pkClass = (Class<PK>)pkSupplier.get().getClass();
 		this.regionSupplier = regionSupplier;
 	}
 

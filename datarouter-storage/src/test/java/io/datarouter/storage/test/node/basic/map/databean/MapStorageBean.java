@@ -16,6 +16,7 @@
 package io.datarouter.storage.test.node.basic.map.databean;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -54,8 +55,8 @@ public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBea
 	}
 
 	@Override
-	public Class<MapStorageBeanKey> getKeyClass(){
-		return MapStorageBeanKey.class;
+	public Supplier<MapStorageBeanKey> getKeySupplier(){
+		return MapStorageBeanKey::new;
 	}
 
 	public String getData(){

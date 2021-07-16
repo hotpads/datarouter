@@ -16,6 +16,7 @@
 package io.datarouter.webappinstance.storage.webappinstance;
 
 import java.time.Instant;
+import java.util.function.Supplier;
 
 public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappInstance>{
 
@@ -81,8 +82,8 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 	}
 
 	@Override
-	public Class<WebappInstanceKey> getKeyClass(){
-		return WebappInstanceKey.class;
+	public Supplier<WebappInstanceKey> getKeySupplier(){
+		return WebappInstanceKey::new;
 	}
 
 }

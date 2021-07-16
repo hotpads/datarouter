@@ -15,6 +15,8 @@
  */
 package io.datarouter.exception.storage.summary;
 
+import java.util.function.Supplier;
+
 public class ExceptionRecordSummary
 extends BaseExceptionRecordSummary<ExceptionRecordSummaryKey,ExceptionRecordSummary>{
 
@@ -36,8 +38,8 @@ extends BaseExceptionRecordSummary<ExceptionRecordSummaryKey,ExceptionRecordSumm
 	}
 
 	@Override
-	public Class<ExceptionRecordSummaryKey> getKeyClass(){
-		return ExceptionRecordSummaryKey.class;
+	public Supplier<ExceptionRecordSummaryKey> getKeySupplier(){
+		return ExceptionRecordSummaryKey::new;
 	}
 
 }

@@ -42,7 +42,6 @@ public class DatabeanFieldInfo<
 
 	private static final byte ENTITY_PREFIX_TERMINATOR = 0;
 
-	private final Class<PK> primaryKeyClass;
 	private final Supplier<PK> primaryKeySupplier;
 	private final PK samplePrimaryKey;
 	private final Supplier<D> databeanSupplier;
@@ -82,8 +81,7 @@ public class DatabeanFieldInfo<
 	public DatabeanFieldInfo(NodeParams<PK,D,F> params){
 		this.databeanSupplier = params.getDatabeanSupplier();
 		this.sampleDatabean = databeanSupplier.get();
-		this.primaryKeyClass = sampleDatabean.getKeyClass();
-		this.primaryKeySupplier = ReflectionTool.supplier(primaryKeyClass);
+		this.primaryKeySupplier = sampleDatabean.getKeySupplier();
 		this.samplePrimaryKey = primaryKeySupplier.get();
 		this.fielderSupplier = params.getFielderSupplier();
 		this.sampleFielder = fielderSupplier.get();
@@ -159,10 +157,6 @@ public class DatabeanFieldInfo<
 
 
 	/*----------------------------- get/set ---------------------------------*/
-
-	public Class<PK> getPrimaryKeyClass(){
-		return primaryKeyClass;
-	}
 
 	public Supplier<PK> getPrimaryKeySupplier(){
 		return primaryKeySupplier;

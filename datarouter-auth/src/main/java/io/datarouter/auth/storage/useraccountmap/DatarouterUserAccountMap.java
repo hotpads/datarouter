@@ -16,6 +16,7 @@
 package io.datarouter.auth.storage.useraccountmap;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -46,8 +47,8 @@ public class DatarouterUserAccountMap extends BaseDatabean<DatarouterUserAccount
 	}
 
 	@Override
-	public Class<DatarouterUserAccountMapKey> getKeyClass(){
-		return DatarouterUserAccountMapKey.class;
+	public Supplier<DatarouterUserAccountMapKey> getKeySupplier(){
+		return DatarouterUserAccountMapKey::new;
 	}
 
 }

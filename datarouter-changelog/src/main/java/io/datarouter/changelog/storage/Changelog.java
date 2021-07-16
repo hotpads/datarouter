@@ -16,6 +16,7 @@
 package io.datarouter.changelog.storage;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.changelog.ChangelogDto;
 import io.datarouter.model.databean.BaseDatabean;
@@ -44,7 +45,7 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 	public static class ChangelogFielder extends BaseDatabeanFielder<ChangelogKey,Changelog>{
 
 		public ChangelogFielder(){
-			super(ChangelogKey.class);
+			super(ChangelogKey::new);
 		}
 
 		@Override
@@ -71,8 +72,8 @@ public class Changelog extends BaseDatabean<ChangelogKey,Changelog>{
 	}
 
 	@Override
-	public Class<ChangelogKey> getKeyClass(){
-		return ChangelogKey.class;
+	public Supplier<ChangelogKey> getKeySupplier(){
+		return ChangelogKey::new;
 	}
 
 	public String getAction(){

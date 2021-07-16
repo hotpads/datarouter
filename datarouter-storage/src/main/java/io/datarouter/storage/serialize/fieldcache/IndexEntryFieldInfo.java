@@ -24,7 +24,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.util.lang.ReflectionTool;
 
 public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK,D>,F extends DatabeanFielder<PK,D>>{
 
@@ -33,7 +32,7 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 	private final Supplier<F> fielderSupplier;
 	private final D sampleDatabean;
 	private final F sampleFielder;
-	private final Class<PK> primaryKeyClass;
+	private final Supplier<PK> primaryKeySupplier;
 	private final List<Field<?>> fields;
 	private final List<Field<?>> primaryKeyFields;
 	private final List<String> primaryKeyFieldColumnNames;
@@ -45,9 +44,9 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 		this.fielderSupplier = fielderSupplier;
 		this.sampleDatabean = databeanSupplier.get();
 		this.sampleFielder = fielderSupplier.get();
-		this.primaryKeyClass = sampleDatabean.getKeyClass();
+		this.primaryKeySupplier = sampleDatabean.getKeySupplier();
 		this.fields = sampleFielder.getFields(sampleDatabean);
-		this.primaryKeyFields = ReflectionTool.create(primaryKeyClass).getFields();
+		this.primaryKeyFields = primaryKeySupplier.get().getFields();
 		this.primaryKeyFieldColumnNames = createFieldColumnNames(this.primaryKeyFields);
 		this.fieldColumnNames = createFieldColumnNames(this.fields);
 	}
@@ -79,8 +78,8 @@ public class IndexEntryFieldInfo<PK extends PrimaryKey<PK>,D extends Databean<PK
 		return sampleFielder;
 	}
 
-	public Class<PK> getPrimaryKeyClass(){
-		return primaryKeyClass;
+	public Supplier<PK> getPrimaryKeySupplier(){
+		return primaryKeySupplier;
 	}
 
 	public List<Field<?>> getFields(){

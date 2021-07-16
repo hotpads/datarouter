@@ -15,8 +15,10 @@
  */
 package io.datarouter.job.metriclink;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -42,16 +44,38 @@ public abstract class JobMetricLinkPage implements MetricLinkPage{
 	}
 
 	protected List<MetricLinkDto> buildMetricLinks(boolean isSystem){
-		List<? extends BaseTriggerGroup> triggerGroups = injector.getInstances(triggerGroupClasses.get());
-		return Scanner.of(triggerGroups)
-				.include(triggerGroup -> {
+		return injector.getInstances(triggerGroupClasses.get()).stream()
+				.filter(triggerGroup -> {
 					if(isSystem){
 						return triggerGroup.isSystemTriggerGroup;
 					}
 					return !triggerGroup.isSystemTriggerGroup;
 				})
 				.map(BaseTriggerGroup::getJobPackages)
-				.concat(Scanner::of)
+				.flatMap(Collection::stream)
+				.map(JobPackage::toString)
+				.map(jobName -> {
+					var availbleMetric = LinkDto.of("Datarouter job " + jobName);
+					return new MetricLinkDto(jobName, Optional.empty(), Optional.of(availbleMetric));
+				})
+				.collect(Collectors.toList());
+	}
+
+	/*
+	 * DO NOT DELETE
+	 * unused but keep this example to figure out why IntelliJ throws an error
+	 * the eclipse compiler doesn't show any errors or warnings
+	 */
+	@SuppressWarnings("unused")
+	private List<MetricLinkDto> buildMetricLinksScanner(boolean isSystem){
+		return Scanner.of(injector.getInstances(triggerGroupClasses.get()))
+				.include(triggerGroup -> {
+					if(isSystem){
+						return triggerGroup.isSystemTriggerGroup;
+					}
+					return !triggerGroup.isSystemTriggerGroup;
+				})
+				.concatIter(BaseTriggerGroup::getJobPackages)
 				.map(JobPackage::toString)
 				.map(jobName -> {
 					var availbleMetric = LinkDto.of("Datarouter job " + jobName);

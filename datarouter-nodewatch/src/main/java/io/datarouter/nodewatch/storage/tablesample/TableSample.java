@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import io.datarouter.client.mysql.ddl.domain.MysqlRowFormat;
 import io.datarouter.model.databean.BaseDatabean;
@@ -182,8 +183,8 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 	/*--------------- Databean ---------------*/
 
 	@Override
-	public Class<TableSampleKey> getKeyClass(){
-		return TableSampleKey.class;
+	public Supplier<TableSampleKey> getKeySupplier(){
+		return TableSampleKey::new;
 	}
 
 	@Override

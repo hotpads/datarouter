@@ -17,6 +17,7 @@ package io.datarouter.storage.test.node.type.index.databean;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -60,8 +61,8 @@ implements UniqueIndexEntry<
 	}
 
 	@Override
-	public Class<TestDatabeanWithManagedIndexByBarKey> getKeyClass(){
-		return TestDatabeanWithManagedIndexByBarKey.class;
+	public Supplier<TestDatabeanWithManagedIndexByBarKey> getKeySupplier(){
+		return TestDatabeanWithManagedIndexByBarKey::new;
 	}
 
 	@Override

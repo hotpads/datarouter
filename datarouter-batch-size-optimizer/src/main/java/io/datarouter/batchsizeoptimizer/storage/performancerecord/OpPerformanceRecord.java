@@ -16,6 +16,7 @@
 package io.datarouter.batchsizeoptimizer.storage.performancerecord;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -66,8 +67,8 @@ public class OpPerformanceRecord extends BaseDatabean<OpPerformanceRecordKey,OpP
 	}
 
 	@Override
-	public Class<OpPerformanceRecordKey> getKeyClass(){
-		return OpPerformanceRecordKey.class;
+	public Supplier<OpPerformanceRecordKey> getKeySupplier(){
+		return OpPerformanceRecordKey::new;
 	}
 
 	public Integer getBatchSize(){

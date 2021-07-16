@@ -16,6 +16,7 @@
 package io.datarouter.client.mysql.test.client.insert.generated.random;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.client.mysql.test.client.insert.generated.PutOpGeneratedTestBean;
 import io.datarouter.model.databean.BaseDatabean;
@@ -58,8 +59,8 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey,PutOpIdGener
 	}
 
 	@Override
-	public Class<PutOpIdGeneratedRandomTestBeanKey> getKeyClass(){
-		return PutOpIdGeneratedRandomTestBeanKey.class;
+	public Supplier<PutOpIdGeneratedRandomTestBeanKey> getKeySupplier(){
+		return PutOpIdGeneratedRandomTestBeanKey::new;
 	}
 
 }

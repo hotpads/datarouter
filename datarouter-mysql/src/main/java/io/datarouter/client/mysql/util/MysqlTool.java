@@ -42,7 +42,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
-import io.datarouter.util.lang.ReflectionTool;
 
 public class MysqlTool{
 	private static final Logger logger = LoggerFactory.getLogger(MysqlTool.class);
@@ -104,7 +103,7 @@ public class MysqlTool{
 					DatabeanFieldInfo<PK,D,F> fieldInfo,
 					PreparedStatement ps){
 		try{
-			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
+			String spanName = fieldInfo.getPrimaryKeySupplier().get().getClass().getSimpleName()
 					+ " selectPrimaryKeys PreparedStatement.execute";
 			try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 				ps.execute();
@@ -114,7 +113,7 @@ public class MysqlTool{
 			while(rs.next()){
 				PK primaryKey = fieldSetFromMysqlResultSetUsingReflection(
 						fieldCodecFactory,
-						ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
+						fieldInfo.getPrimaryKeySupplier(),
 						fieldInfo.getPrimaryKeyFields(),
 						rs);
 				primaryKeys.add(primaryKey);
@@ -159,7 +158,7 @@ public class MysqlTool{
 			IndexEntryFieldInfo<IK,IE,IF> fieldInfo,
 			PreparedStatement ps){
 		try{
-			String spanName = fieldInfo.getPrimaryKeyClass().getSimpleName()
+			String spanName = fieldInfo.getPrimaryKeySupplier().get().getClass().getSimpleName()
 					+ " selectIndexEntryKeys PreparedStatement.execute";
 			try(var $ = TracerTool.startSpan(spanName, TraceSpanGroupType.DATABASE)){
 				ps.execute();
@@ -169,7 +168,7 @@ public class MysqlTool{
 			while(rs.next()){
 				IK key = fieldSetFromMysqlResultSetUsingReflection(
 						fieldCodecFactory,
-						ReflectionTool.supplier(fieldInfo.getPrimaryKeyClass()),
+						fieldInfo.getPrimaryKeySupplier(),
 						fieldInfo.getPrimaryKeyFields(),
 						rs);
 				keys.add(key);
