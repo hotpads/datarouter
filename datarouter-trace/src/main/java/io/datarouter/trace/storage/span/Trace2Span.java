@@ -66,7 +66,7 @@ extends BaseDatabean<Trace2SpanKey,Trace2Span>{
 	public static class Trace2SpanFielder extends BaseDatabeanFielder<Trace2SpanKey,Trace2Span>{
 
 		public Trace2SpanFielder(){
-			super(Trace2SpanKey.class);
+			super(Trace2SpanKey::new);
 			addOption(Trace2.TTL_FIELDER_CONFIG);
 		}
 

@@ -353,7 +353,11 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	private void persist(){
 		if(node != null && persistSetting != null && persistSetting.get()){
-			node.put(new LongRunningTask(task));
+			try{
+				node.put(new LongRunningTask(task));
+			}catch(RuntimeException e){
+				logger.error("Failed to persist task={} with {}", task, e);
+			}
 		}
 	}
 

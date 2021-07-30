@@ -70,7 +70,7 @@ public class DatarouterHttpRequestRecordDao extends BaseDao{
 				})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
 		byExceptionRecordId = indexingNodeFactory.createKeyOnlyManagedIndex(
-				HttpRequestRecordByExceptionRecordIdKey.class, node)
+				HttpRequestRecordByExceptionRecordIdKey::new, node)
 				.build();
 		datarouter.register(node);
 	}

@@ -55,7 +55,7 @@ public class RandomValue extends BaseDatabean<RandomValueKey,RandomValue>{
 	public static class RandomValueFielder extends BaseDatabeanFielder<RandomValueKey,RandomValue>{
 
 		public RandomValueFielder(){
-			super(RandomValueKey.class);
+			super(RandomValueKey::new);
 		}
 
 		@Override

@@ -35,7 +35,7 @@ public class MapStorageBean extends BaseDatabean<MapStorageBeanKey,MapStorageBea
 	public static class MapStorageBeanFielder extends BaseDatabeanFielder<MapStorageBeanKey,MapStorageBean>{
 
 		public MapStorageBeanFielder(){
-			super(MapStorageBeanKey.class);
+			super(MapStorageBeanKey::new);
 		}
 
 		@Override

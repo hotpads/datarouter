@@ -44,6 +44,14 @@ public class J2HtmlLegendTable{
 		return this;
 	}
 
+	public J2HtmlLegendTable withEntry(String name, long value){
+		return withEntry(name, value + "");
+	}
+
+	public J2HtmlLegendTable withEntry(String name, int value){
+		return withEntry(name, value + "");
+	}
+
 	public J2HtmlLegendTable withEntry(String name, String value){
 		entries.add(new J2HtmlTableEntry(name, value));
 		return this;

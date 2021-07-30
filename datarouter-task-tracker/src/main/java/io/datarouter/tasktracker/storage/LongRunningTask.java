@@ -80,7 +80,7 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 	public static class LongRunningTaskFielder extends BaseDatabeanFielder<LongRunningTaskKey,LongRunningTask>{
 
 		public LongRunningTaskFielder(){
-			super(LongRunningTaskKey.class);
+			super(LongRunningTaskKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

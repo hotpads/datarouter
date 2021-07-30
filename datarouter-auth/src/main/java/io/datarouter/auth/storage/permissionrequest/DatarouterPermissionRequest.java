@@ -74,8 +74,9 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 
 	public static class DatarouterPermissionRequestFielder
 	extends BaseDatabeanFielder<DatarouterPermissionRequestKey,DatarouterPermissionRequest>{
+
 		public DatarouterPermissionRequestFielder(){
-			super(DatarouterPermissionRequestKey.class);
+			super(DatarouterPermissionRequestKey::new);
 		}
 
 		@SuppressWarnings("deprecation")
@@ -86,6 +87,7 @@ extends BaseDatabean<DatarouterPermissionRequestKey,DatarouterPermissionRequest>
 					new StringEnumField<>(FieldKeys.resolution, databean.resolution),
 					new DateField(FieldKeys.resolutionTime, databean.resolutionTime));
 		}
+
 	}
 
 	public Optional<DatarouterUserHistoryKey> toUserHistoryKey(){

@@ -36,7 +36,7 @@ public class WebSocketSubscription extends BaseDatabean<WebSocketSubscriptionKey
 	extends BaseDatabeanFielder<WebSocketSubscriptionKey,WebSocketSubscription>{
 
 		public WebSocketSubscriptionFielder(){
-			super(WebSocketSubscriptionKey.class);
+			super(WebSocketSubscriptionKey::new);
 		}
 
 		@Override

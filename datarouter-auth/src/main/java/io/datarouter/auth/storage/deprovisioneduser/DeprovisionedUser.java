@@ -48,7 +48,7 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 	public static class DeprovisionedUserFielder extends BaseDatabeanFielder<DeprovisionedUserKey,DeprovisionedUser>{
 
 		public DeprovisionedUserFielder(){
-			super(DeprovisionedUserKey.class);
+			super(DeprovisionedUserKey::new);
 		}
 
 		@Override

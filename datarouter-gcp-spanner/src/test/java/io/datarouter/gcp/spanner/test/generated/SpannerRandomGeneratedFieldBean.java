@@ -60,7 +60,7 @@ extends BaseDatabean<SpannerRandomGeneratedFieldBeanKey,SpannerRandomGeneratedFi
 	extends BaseDatabeanFielder<SpannerRandomGeneratedFieldBeanKey,SpannerRandomGeneratedFieldBean>{
 
 		public SpannerRandomGeneratedFieldBeanFielder(){
-			super(SpannerRandomGeneratedFieldBeanKey.class);
+			super(SpannerRandomGeneratedFieldBeanKey::new);
 		}
 
 		@Override

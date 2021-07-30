@@ -41,7 +41,7 @@ public class OpOptimizedBatchSize extends BaseDatabean<OpOptimizedBatchSizeKey,O
 	extends BaseDatabeanFielder<OpOptimizedBatchSizeKey,OpOptimizedBatchSize>{
 
 		public OpOptimizedBatchSizeFielder(){
-			super(OpOptimizedBatchSizeKey.class);
+			super(OpOptimizedBatchSizeKey::new);
 		}
 
 		@Override

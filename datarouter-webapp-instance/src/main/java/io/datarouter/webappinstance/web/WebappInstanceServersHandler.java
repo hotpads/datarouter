@@ -110,6 +110,7 @@ public class WebappInstanceServersHandler extends BaseHandler{
 					return td();
 				})
 				.withColumn("Server Name", row -> row.key.serverName)
+				.withColumn("Private IP", row -> row.key.serverPrivateIp)
 				.withColumn("Build Date", row -> ZonedDateFormaterTool.formatInstantWithZone(row.key.buildDate, zoneId))
 				.withColumn("Startup Range", row ->
 						row.startup
@@ -138,12 +139,14 @@ public class WebappInstanceServersHandler extends BaseHandler{
 		public final Instant buildDate;
 		public final String buildId;
 		public final String commitId;
+		public final String serverPrivateIp;
 
 		public WebappInstanceLogKeyDto(WebappInstanceLog log){
 			this.serverName = log.getKey().getServerName();
 			this.buildDate = log.getKey().getBuild();
 			this.buildId = log.getBuildId();
 			this.commitId = log.getCommitId();
+			this.serverPrivateIp = log.getServerPrivateIp();
 		}
 
 		@Override
@@ -159,12 +162,13 @@ public class WebappInstanceServersHandler extends BaseHandler{
 			return Objects.equals(this.serverName, that.serverName)
 					&& Objects.equals(this.buildDate, that.buildDate)
 					&& Objects.equals(this.buildId, that.buildId)
-					&& Objects.equals(this.commitId, that.commitId);
+					&& Objects.equals(this.commitId, that.commitId)
+					&& Objects.equals(this.serverPrivateIp, that.serverPrivateIp);
 		}
 
 		@Override
 		public int hashCode(){
-			return Objects.hash(serverName, buildDate, buildId, commitId);
+			return Objects.hash(serverName, buildDate, buildId, commitId, serverPrivateIp);
 		}
 
 	}

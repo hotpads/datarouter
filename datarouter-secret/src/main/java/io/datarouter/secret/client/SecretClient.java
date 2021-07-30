@@ -83,6 +83,7 @@ public interface SecretClient{
 	 */
 	default void validateSecret(Secret secret){
 		Secret.validateSecret(secret);
+		validateName(secret.getName());
 	}
 
 	public interface SecretClientSupplier extends Supplier<SecretClient>{

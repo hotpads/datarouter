@@ -94,7 +94,7 @@ public class JobletRequest extends BaseDatabean<JobletRequestKey,JobletRequest>{
 	public static class JobletRequestFielder extends BaseDatabeanFielder<JobletRequestKey,JobletRequest>{
 
 		public JobletRequestFielder(){
-			super(JobletRequestKey.class);
+			super(JobletRequestKey::new);
 		}
 
 		@Override

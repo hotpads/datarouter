@@ -92,8 +92,8 @@ extends SpannerBaseReadIndexOp<PK,D>{
 			}else{
 				databeanRs = txn.read(tableName, buildKeySet(keyList), fieldInfo.getFieldColumnNames());
 			}
+			return createFromResultSet(databeanRs, fieldInfo.getDatabeanSupplier(), fieldInfo.getFields());
 		}
-		return createFromResultSet(databeanRs, fieldInfo.getDatabeanSupplier(), fieldInfo.getFields());
 	}
 
 }

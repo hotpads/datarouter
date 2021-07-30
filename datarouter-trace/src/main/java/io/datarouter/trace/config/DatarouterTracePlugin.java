@@ -52,6 +52,7 @@ public class DatarouterTracePlugin extends BaseJobPlugin{
 	private final Class<? extends TracePublisher> tracePublisher;
 	private final Class<? extends TraceUrlBuilder> traceUrlBuilder;
 
+	@SuppressWarnings("unused")
 	private final boolean enableLocalTraces;
 	private final boolean enablePublisherTraces;
 

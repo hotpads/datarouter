@@ -41,7 +41,7 @@ implements UniqueIndexEntry<
 	extends BaseDatabeanFielder<TestDatabeanWithManagedIndexByBarKey,TestDatabeanWithManagedIndexByBar>{
 
 		public TestDatabeanWithManagedIndexByBFielder(){
-			super(TestDatabeanWithManagedIndexByBarKey.class);
+			super(TestDatabeanWithManagedIndexByBarKey::new);
 		}
 
 		@Override

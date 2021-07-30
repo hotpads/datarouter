@@ -44,7 +44,7 @@ public class PutOpTestBean extends BaseDatabean<PutOpTestBeanKey,PutOpTestBean>{
 	public static class PutOpTestBeanFielder extends BaseDatabeanFielder<PutOpTestBeanKey,PutOpTestBean>{
 
 		public PutOpTestBeanFielder(){
-			super(PutOpTestBeanKey.class);
+			super(PutOpTestBeanKey::new);
 		}
 
 		@Override

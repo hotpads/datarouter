@@ -55,7 +55,7 @@ extends BaseDatabean<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>
 	extends BaseDatabeanFielder<SamlAuthnRequestRedirectUrlKey,SamlAuthnRequestRedirectUrl>{
 
 		public SamlAuthnRequestRedirectUrlFielder(){
-			super(SamlAuthnRequestRedirectUrlKey.class);
+			super(SamlAuthnRequestRedirectUrlKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

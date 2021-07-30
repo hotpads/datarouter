@@ -15,6 +15,7 @@
  */
 package io.datarouter.storage.config.storage.clusterschemaupdatelock;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -38,14 +39,9 @@ public class DatarouterClusterSchemaUpdateLockDao extends BaseDao{
 
 		public final Optional<ClientId> optRedundantClientId;
 
-		public DatarouterClusterSchemaUpdateLockDaoParams(ClientId clientId){
-			super(clientId);
-			this.optRedundantClientId = Optional.empty();
-		}
-
-		public DatarouterClusterSchemaUpdateLockDaoParams(ClientId clientId, ClientId optRedundantClientId){
-			super(clientId);
-			this.optRedundantClientId = Optional.of(optRedundantClientId);
+		public DatarouterClusterSchemaUpdateLockDaoParams(List<ClientId> clientIds){
+			super(clientIds.get(0));
+			this.optRedundantClientId = clientIds.size() > 1 ? Optional.of(clientIds.get(1)) : Optional.empty();
 		}
 
 	}

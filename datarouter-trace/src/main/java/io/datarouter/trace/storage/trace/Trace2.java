@@ -74,7 +74,7 @@ public class Trace2 extends BaseDatabean<Trace2Key,Trace2>{
 	public static class Trace2Fielder extends BaseDatabeanFielder<Trace2Key,Trace2>{
 
 		public Trace2Fielder(){
-			super(Trace2Key.class);
+			super(Trace2Key::new);
 			addOption(TTL_FIELDER_CONFIG);
 		}
 

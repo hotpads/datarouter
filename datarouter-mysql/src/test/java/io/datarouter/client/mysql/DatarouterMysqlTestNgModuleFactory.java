@@ -58,7 +58,7 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 			bindActual(SchemaUpdateOptionsFactory.class, DatarouterMysqlSchemaUpdateOptionsFactory.class);
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
-							DatarouterMysqlTestClientids.MYSQL));
+							List.of(DatarouterMysqlTestClientids.MYSQL)));
 		}
 
 	}

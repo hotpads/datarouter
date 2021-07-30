@@ -68,7 +68,7 @@ public class DatarouterUserHistory extends BaseDatabean<DatarouterUserHistoryKey
 	extends BaseDatabeanFielder<DatarouterUserHistoryKey,DatarouterUserHistory>{
 
 		public DatarouterUserHistoryFielder(){
-			super(DatarouterUserHistoryKey.class);
+			super(DatarouterUserHistoryKey::new);
 		}
 
 		@Override

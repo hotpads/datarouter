@@ -147,7 +147,7 @@ public class TestEntity{
 		public static class TestTraceFielder extends BaseDatabeanFielder<TestTraceKey,TestTrace>{
 
 			public TestTraceFielder(){
-				super(TestTraceKey.class);
+				super(TestTraceKey::new);
 			}
 
 			@Override
@@ -273,7 +273,7 @@ public class TestEntity{
 		public static class TestTraceSpanFielder extends BaseDatabeanFielder<TestTraceSpanKey,TestTraceSpan>{
 
 			public TestTraceSpanFielder(){
-				super(TestTraceSpanKey.class);
+				super(TestTraceSpanKey::new);
 			}
 
 			@Override
@@ -390,7 +390,7 @@ public class TestEntity{
 		public static class TestTraceThreadFielder extends BaseDatabeanFielder<TestTraceThreadKey,TestTraceThread>{
 
 			public TestTraceThreadFielder(){
-				super(TestTraceThreadKey.class);
+				super(TestTraceThreadKey::new);
 			}
 
 			@Override

@@ -49,10 +49,10 @@ import io.datarouter.instrumentation.trace.Trace2BundleDto;
 import io.datarouter.instrumentation.trace.Trace2Dto;
 import io.datarouter.instrumentation.trace.Trace2SpanDto;
 import io.datarouter.instrumentation.trace.Trace2ThreadDto;
-import io.datarouter.instrumentation.trace.TraceContextFlagTool;
 import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalFilterToMemoryBuffer;
@@ -109,15 +109,11 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 
 			// get or create TraceContext
 			Long traceCreated = Trace2Dto.getCurrentTimeInNs();
-			String traceparent = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
-			String tracestate = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACESTATE);
-			W3TraceContext traceContext = new W3TraceContext(traceparent, tracestate, traceCreated);
+			String traceparentStr = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT);
+			String tracestateStr = request.getHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACESTATE);
+			W3TraceContext traceContext = new W3TraceContext(traceparentStr, tracestateStr, traceCreated);
 			String initialParentId = traceContext.getTraceparent().parentId;
 			traceContext.updateParentIdAndAddTracestateMember();
-			if(traceSettings.addTraceparentHeader.get()){
-				response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT, traceContext
-						.getTraceparent().toString());
-			}
 			RequestAttributeTool.set(request, BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE, urlBuilder
 					.buildTraceForCurrentServer(traceContext.getTraceId(), traceContext.getParentId()));
 			RequestAttributeTool.set(request, BaseHandler.TRACE_CONTEXT, traceContext.copy());
@@ -148,6 +144,12 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				errored = true;
 				throw e;
 			}finally{
+				// we use traceparent from tracer because traceflag might be modified during the process
+				Traceparent traceparent = tracer.getTraceContext().get().getTraceparent();
+				if(traceSettings.addTraceparentHeader.get()){
+					response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT, traceparent
+							.toString());
+				}
 				Long cpuTimeEnded = saveCpuTime ? THREAD_MX_BEAN.getCurrentThreadCpuTime() : null;
 				Long threadAllocatedBytesEnded = saveAllocatedBytes ? THREAD_MX_BEAN.getThreadAllocatedBytes(threadId)
 						: null;
@@ -160,7 +162,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					((DatarouterTracer)tracer).setCurrentThread(null);
 				}
 				Trace2Dto trace2 = new Trace2Dto(
-						traceContext.getTraceparent(),
+						traceparent,
 						initialParentId,
 						request.getContextPath(),
 						request.getRequestURI().toString(),
@@ -181,9 +183,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				if(traceSettings.saveTraces.get()
 						&& traceDurationMs > traceSettings.saveTracesOverMs.get()
 						|| RequestTool.getBoolean(request, "trace", false)
-						|| tracer.getForceSave()
-						|| errored
-						|| TraceContextFlagTool.shouldSample()){
+						|| tracer.shouldSample()
+						|| errored){
 					List<Trace2ThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
 					List<Trace2SpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 					if(rootThread != null){
@@ -195,13 +196,13 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							.map(Session::getUserToken)
 							.orElse("unknown");
 					HttpRequestRecordDto httpRequestRecord = buildHttpRequestRecord(errored, request, traceCreated,
-							userToken, traceContext.getTraceparent());
+							userToken, traceparent);
 					String destination = offerTrace2(new Trace2BundleDto(trace2, threads, spans),
 							httpRequestRecord);
 					logger.warn("Trace saved to={} traceparent={} initialParentId={} durationMs={}"
 							+ " cpuTimeMs={} threadAllocatedKB={} path={} query={} userAgent=\"{}\" userToken={}",
 							destination,
-							traceContext.getTraceparent(),
+							traceparent,
 							initialParentId,
 							traceDurationMs,
 							cpuTime,
@@ -211,11 +212,11 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 							userAgent,
 							userToken);
 				}else if(traceDurationMs > traceSettings.logTracesOverMs.get()
-						|| TraceContextFlagTool.shouldLog()){
+						|| TracerTool.shouldLog()){
 					// only log once
 					logger.warn("Trace logged durationMs={} cpuTimeMs={} threadAllocatedKB={} path={}"
-							+ " query={}, traceContext={}", traceDurationMs, cpuTime, threadAllocatedKB, trace2.type,
-							trace2.params, traceContext);
+							+ " query={}, traceparent={}", traceDurationMs, cpuTime, threadAllocatedKB, trace2.type,
+							trace2.params, traceparent);
 				}
 				Optional<Class<? extends BaseHandler>> handlerClassOpt = RequestAttributeTool
 						.get(request, BaseHandler.HANDLER_CLASS);

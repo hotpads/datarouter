@@ -39,7 +39,7 @@ implements PutOpGeneratedTestBean<PutOpIdGeneratedRandomTestBeanKey,PutOpIdGener
 	extends BaseDatabeanFielder<PutOpIdGeneratedRandomTestBeanKey,PutOpIdGeneratedRandomTestBean>{
 
 		public PutOpIdGeneratedRandomTestBeanFielder(){
-			super(PutOpIdGeneratedRandomTestBeanKey.class);
+			super(PutOpIdGeneratedRandomTestBeanKey::new);
 		}
 
 		@Override

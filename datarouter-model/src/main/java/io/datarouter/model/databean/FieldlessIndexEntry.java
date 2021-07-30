@@ -30,20 +30,30 @@ public class FieldlessIndexEntry<
 extends BaseDatabean<IK,FieldlessIndexEntry<IK,PK,D>>
 implements UniqueIndexEntry<IK,FieldlessIndexEntry<IK,PK,D>,PK,D>{
 
-	private final Class<IK> keyClass;
+	private final Supplier<IK> keySupplier;
 
+	public FieldlessIndexEntry(Supplier<IK> keySupplier){
+		this(keySupplier, keySupplier.get());
+	}
+
+	@Deprecated
 	public FieldlessIndexEntry(Class<IK> keyClass){
 		this(keyClass, ReflectionTool.create(keyClass));
 	}
 
-	public FieldlessIndexEntry(Class<IK> keyClass, IK key){
+	public FieldlessIndexEntry(Supplier<IK> keySupplier, IK key){
 		super(key);
-		this.keyClass = keyClass;
+		this.keySupplier = keySupplier;
+	}
+
+	@Deprecated
+	public FieldlessIndexEntry(Class<IK> keyClass, IK key){
+		this(ReflectionTool.supplier(keyClass), key);
 	}
 
 	@Override
 	public Supplier<IK> getKeySupplier(){
-		return ReflectionTool.supplier(keyClass);
+		return keySupplier;
 	}
 
 	@Override

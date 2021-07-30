@@ -64,6 +64,7 @@ extends SpannerBaseReadIndexOp<PK,D>{
 		Integer offset = config.findOffset().orElse(0);
 		ResultSet databeanRs;
 		List<PK> keyList;
+		List<D> databeans;
 		try(ReadOnlyTransaction txn = client.readOnlyTransaction()){
 			ResultSet rs;
 			if(config.getLimit() != null){
@@ -94,8 +95,8 @@ extends SpannerBaseReadIndexOp<PK,D>{
 			}else{
 				databeanRs = txn.read(tableName, buildKeySet(keyList), fieldInfo.getFieldColumnNames());
 			}
+			databeans = createFromResultSet(databeanRs, fieldInfo.getDatabeanSupplier(), fieldInfo.getFields());
 		}
-		List<D> databeans = createFromResultSet(databeanRs, fieldInfo.getDatabeanSupplier(), fieldInfo.getFields());
 		Map<PK,D> databeanByKey = databeans.stream()
 				.collect(Collectors.toMap(Databean::getKey, Function.identity()));
 		List<D> sortedDatabeans = keyList.stream()

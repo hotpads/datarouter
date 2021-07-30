@@ -86,7 +86,7 @@ public class DatarouterAccountCredentialDao extends BaseDao implements BaseDatar
 					return node;
 				})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
-		byAccountName = indexingNodeFactory.createKeyOnlyManagedIndex(DatarouterAccountCredentialByAccountNameKey.class,
+		byAccountName = indexingNodeFactory.createKeyOnlyManagedIndex(DatarouterAccountCredentialByAccountNameKey::new,
 				node).build();
 		datarouter.register(node);
 	}

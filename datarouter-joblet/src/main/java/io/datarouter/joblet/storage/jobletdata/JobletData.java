@@ -42,7 +42,7 @@ public class JobletData extends BaseDatabean<JobletDataKey,JobletData>{
 	public static class JobletDataFielder extends BaseDatabeanFielder<JobletDataKey,JobletData>{
 
 		public JobletDataFielder(){
-			super(JobletDataKey.class);
+			super(JobletDataKey::new);
 		}
 
 		@Override

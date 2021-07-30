@@ -22,32 +22,30 @@ import java.util.function.Supplier;
 
 import io.datarouter.conveyor.BaseConveyor;
 import io.datarouter.conveyor.ConveyorCounters;
-import io.datarouter.conveyor.DatabeanBuffer;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.conveyor.MemoryBuffer;
 import io.datarouter.web.exception.ExceptionRecorder;
 
-public class DatabeanBufferConveyor<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends BaseConveyor{
+public class DatabeanBufferConveyor<D> extends BaseConveyor{
 
 	private static final int BATCH_SIZE = 100;
 
-	private final DatabeanBuffer<PK,D> databeanBuffer;
+	private final MemoryBuffer<D> memoryBuffer;
 	private final Consumer<Collection<D>> putMultiConsumer;
 
 	public DatabeanBufferConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
-			DatabeanBuffer<PK,D> databeanBuffer,
+			MemoryBuffer<D> databeanBuffer,
 			Consumer<Collection<D>> putMultiConsumer,
 			ExceptionRecorder exceptionRecorder){
 		super(name, shouldRun, () -> false, exceptionRecorder);
-		this.databeanBuffer = databeanBuffer;
+		this.memoryBuffer = databeanBuffer;
 		this.putMultiConsumer = putMultiConsumer;
 	}
 
 	@Override
 	public ProcessBatchResult processBatch(){
-		List<D> databeans = databeanBuffer.pollMultiWithLimit(BATCH_SIZE);
+		List<D> databeans = memoryBuffer.pollMultiWithLimit(BATCH_SIZE);
 		if(databeans.isEmpty()){
 			return new ProcessBatchResult(false);
 		}
@@ -56,7 +54,7 @@ public class DatabeanBufferConveyor<PK extends PrimaryKey<PK>,D extends Databean
 			ConveyorCounters.incPutMultiOpAndDatabeans(this, databeans.size());
 			return new ProcessBatchResult(true);
 		}catch(RuntimeException putMultiException){
-			databeans.forEach(databeanBuffer::offer);// might as well try to save them for later
+			databeans.forEach(memoryBuffer::offer);// might as well try to save them for later
 			ConveyorCounters.inc(this, "putMulti exception", 1);
 			throw putMultiException;
 		}

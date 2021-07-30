@@ -194,7 +194,7 @@ public class DatarouterStoragePlugin extends BaseStoragePlugin{
 		@Override
 		public void configure(){
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
-					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(defaultClientIds.get(0)));
+					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(defaultClientIds));
 		}
 	}
 

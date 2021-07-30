@@ -39,7 +39,7 @@ public class ConsoleAppender extends BaseDatabean<ConsoleAppenderKey,ConsoleAppe
 	public static class ConsoleAppenderFielder extends BaseDatabeanFielder<ConsoleAppenderKey,ConsoleAppender>{
 
 		public ConsoleAppenderFielder(){
-			super(ConsoleAppenderKey.class);
+			super(ConsoleAppenderKey::new);
 		}
 
 		@Override

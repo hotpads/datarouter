@@ -45,7 +45,7 @@ public class ClusterSchemaUpdateLock extends BaseDatabean<ClusterSchemaUpdateLoc
 	extends BaseDatabeanFielder<ClusterSchemaUpdateLockKey,ClusterSchemaUpdateLock>{
 
 		public ClusterSchemaUpdateLockFielder(){
-			super(ClusterSchemaUpdateLockKey.class);
+			super(ClusterSchemaUpdateLockKey::new);
 		}
 
 		@Override

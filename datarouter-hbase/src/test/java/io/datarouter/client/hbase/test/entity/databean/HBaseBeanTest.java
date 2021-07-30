@@ -48,7 +48,7 @@ public class HBaseBeanTest extends BaseDatabean<HBaseBeanTestKey,HBaseBeanTest>{
 	public static class HBaseBeanTestFielder extends BaseDatabeanFielder<HBaseBeanTestKey,HBaseBeanTest>{
 
 		public HBaseBeanTestFielder(){
-			super(HBaseBeanTestKey.class);
+			super(HBaseBeanTestKey::new);
 		}
 
 		@Override

@@ -26,7 +26,7 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 	public static class ExceptionRecordFielder extends BaseExceptionRecordFielder<ExceptionRecordKey,ExceptionRecord>{
 
 		public ExceptionRecordFielder(){
-			super(ExceptionRecordKey.class);
+			super(ExceptionRecordKey::new);
 		}
 
 	}

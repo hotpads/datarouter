@@ -85,7 +85,7 @@ public class DatarouterJobletRequestDao extends BaseDao{
 				})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
 		byTypeAndDataSignature = indexingNodeFactory.createKeyOnlyManagedIndex(
-				JobletRequestByTypeAndDataSignatureKey.class,
+				JobletRequestByTypeAndDataSignatureKey::new,
 				node)
 				.build();
 		datarouter.register(node);

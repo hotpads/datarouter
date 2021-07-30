@@ -90,6 +90,10 @@ public class DatarouterHttpRequestBuilder{
 				.setRetrySafe(true);
 	}
 
+	public DatarouterHttpRequest createPut(PathNode pathNode){
+		return createPut(pathNode.toSlashedString());
+	}
+
 	public DatarouterHttpRequest createDelete(String path){
 		return new DatarouterHttpRequest(HttpRequestMethod.DELETE, buildUrl(path))
 				.setRetrySafe(true);

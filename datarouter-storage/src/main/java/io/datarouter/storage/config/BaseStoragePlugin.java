@@ -18,6 +18,8 @@ package io.datarouter.storage.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.inject.Module;
+
 import io.datarouter.inject.InjectionTool;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.scanner.Scanner;
@@ -89,7 +91,7 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 		return settingRoots;
 	}
 
-	/*--------------------------- add Storage plugins ---------------------------*/
+	/*------------------------- add Storage plugins -------------------------*/
 
 	private final List<BaseStoragePlugin> storagePlugins = new ArrayList<>();
 
@@ -101,5 +103,16 @@ public abstract class BaseStoragePlugin extends BasePlugin{
 		return storagePlugins;
 	}
 
+	/*--------------------------- add test modules --------------------------*/
+
+	private final List<Module> testModules = new ArrayList<>();
+
+	protected void addTestModule(Module testModule){
+		testModules.add(testModule);
+	}
+
+	public List<Module> getTestModules(){
+		return testModules;
+	}
 
 }

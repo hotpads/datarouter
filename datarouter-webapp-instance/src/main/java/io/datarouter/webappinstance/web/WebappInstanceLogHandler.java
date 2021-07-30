@@ -76,6 +76,7 @@ public class WebappInstanceLogHandler extends BaseHandler{
 		private final String commitId;
 		private final String javaVersion;
 		private final String servletContainerVersion;
+		private final String serverPrivateIp;
 
 		private final ZoneId zoneId;
 
@@ -90,6 +91,7 @@ public class WebappInstanceLogHandler extends BaseHandler{
 					log.getCommitId(),
 					log.getJavaVersion(),
 					log.getServletContainerVersion(),
+					log.getServerPrivateIp(),
 					zoneId);
 		}
 
@@ -103,6 +105,7 @@ public class WebappInstanceLogHandler extends BaseHandler{
 				String commitId,
 				String javaVersion,
 				String servletContainerVersion,
+				String serverPrivateIp,
 				ZoneId zoneId){
 			this.webappName = webappName;
 			this.serverName = serverName;
@@ -113,6 +116,7 @@ public class WebappInstanceLogHandler extends BaseHandler{
 			this.commitId = commitId;
 			this.javaVersion = javaVersion;
 			this.servletContainerVersion = servletContainerVersion;
+			this.serverPrivateIp = serverPrivateIp;
 
 			this.zoneId = zoneId;
 		}
@@ -180,6 +184,10 @@ public class WebappInstanceLogHandler extends BaseHandler{
 
 		public String getServletContainerVersion(){
 			return servletContainerVersion;
+		}
+
+		public String getServerPrivateIp(){
+			return serverPrivateIp;
 		}
 
 	}

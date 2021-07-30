@@ -50,7 +50,7 @@ public class LatestTableCount extends BaseDatabean<LatestTableCountKey,LatestTab
 	extends BaseDatabeanFielder<LatestTableCountKey,LatestTableCount>{
 
 		public LatestTableCountFielder(){
-			super(LatestTableCountKey.class);
+			super(LatestTableCountKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

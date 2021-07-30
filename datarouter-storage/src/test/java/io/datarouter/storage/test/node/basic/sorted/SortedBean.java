@@ -46,7 +46,7 @@ public class SortedBean extends BaseDatabean<SortedBeanKey,SortedBean>{
 	public static class SortedBeanFielder extends BaseDatabeanFielder<SortedBeanKey,SortedBean>{
 
 		public SortedBeanFielder(){
-			super(SortedBeanKey.class);
+			super(SortedBeanKey::new);
 		}
 
 		@Override

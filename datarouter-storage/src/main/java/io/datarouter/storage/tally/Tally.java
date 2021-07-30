@@ -35,7 +35,7 @@ public class Tally extends BaseDatabean<TallyKey,Tally>{
 	public static class TallyFielder extends BaseDatabeanFielder<TallyKey,Tally>{
 
 		public TallyFielder(){
-			super(TallyKey.class);
+			super(TallyKey::new);
 		}
 
 		@Override

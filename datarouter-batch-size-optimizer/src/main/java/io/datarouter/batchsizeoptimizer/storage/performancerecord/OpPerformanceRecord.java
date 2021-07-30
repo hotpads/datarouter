@@ -42,7 +42,7 @@ public class OpPerformanceRecord extends BaseDatabean<OpPerformanceRecordKey,OpP
 	extends BaseDatabeanFielder<OpPerformanceRecordKey,OpPerformanceRecord>{
 
 		public OpPerformanceRecordFielder(){
-			super(OpPerformanceRecordKey.class);
+			super(OpPerformanceRecordKey::new);
 		}
 
 		@Override

@@ -78,7 +78,7 @@ extends BaseDatabean<DatarouterAccountSecretCredentialKey,DatarouterAccountSecre
 	extends BaseDatabeanFielder<DatarouterAccountSecretCredentialKey,DatarouterAccountSecretCredential>{
 
 		public DatarouterAccountSecretCredentialFielder(){
-			super(DatarouterAccountSecretCredentialKey.class);
+			super(DatarouterAccountSecretCredentialKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

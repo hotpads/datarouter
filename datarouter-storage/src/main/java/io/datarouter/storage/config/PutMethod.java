@@ -17,51 +17,47 @@ package io.datarouter.storage.config;
 
 import java.util.Set;
 
-import io.datarouter.util.enums.DatarouterEnumTool;
-import io.datarouter.util.enums.IntegerEnum;
-import io.datarouter.util.enums.StringEnum;
-
 /**
  * Defines the strategy used when writing a databean to a datastore, especially the behavior when trying to put a
  * databean which has a key that already exists.
  */
-public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
+public enum PutMethod{
 
 	/**
 	 * Get the primary key first to determine whether to update or insert. Slow, and may not be thread safe.
 	 */
-	SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY(20, "selectFirstOrLookAtPrimaryKey", false),
+	SELECT_FIRST_OR_LOOK_AT_PRIMARY_KEY(false),
 	/**
 	 * Try to update, and in case of failure, issue an insert. Good to use when rows are usually there.
 	 */
-	UPDATE_OR_INSERT(20, "updateOrInsert", false),
+	UPDATE_OR_INSERT(false),
 	/**
 	 * Try to insert, and in case of failure, issue an update.
 	 */
-	INSERT_OR_UPDATE(21, "insertOrUpdate", false),
+	INSERT_OR_UPDATE(false),
 	/**
 	 * Try to insert the databean, and throw an exception if the primary key already exists.
 	 */
-	INSERT_OR_BUST(22, "insertOrBust", true),
+	INSERT_OR_BUST(true),
 	/**
 	 * Try to update the row at this primary key, and throw an exception if the primary key does not exist.
 	 */
-	UPDATE_OR_BUST(23, "updateOrBust", true),
-	MERGE(24, "merge", false),
+	UPDATE_OR_BUST(true),
+	MERGE(false),
 	/**
 	 * Try to insert the databean and ignore any error that may come up. If the key already exists, or any other
 	 * error happens, silently abort the put.
 	 */
-	INSERT_IGNORE(25, "insertIgnore", false),
+	INSERT_IGNORE(false),
 	/**
 	 * Try to insert, or update all the non-key fields if the key already exists. Performs the put as a single operation
 	 * if the datastore supports it. This is the default.
 	 */
-	INSERT_ON_DUPLICATE_UPDATE(26, "insertOnDuplicateUpdate", false),
+	INSERT_ON_DUPLICATE_UPDATE(false),
 	/**
 	 * Try to update the databean and ignore any error that may come up, like if the primary key does not exist.
 	 */
-	UPDATE_IGNORE(27, "updateIgnore", false);
+	UPDATE_IGNORE(false);
 
 	//need to flush immediately so we can catch insert/update exceptions if they are thrown,
 	//   otherwise the exception will ruin the whole batch
@@ -69,13 +65,9 @@ public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 
 	public static final PutMethod DEFAULT_PUT_METHOD = PutMethod.INSERT_ON_DUPLICATE_UPDATE;
 
-	private int persistentInteger;
-	private String persistentString;
 	private boolean shouldAutoCommit;
 
-	private PutMethod(int persistentInteger, String persistentString, boolean shouldAutoCommit){
-		this.persistentInteger = persistentInteger;
-		this.persistentString = persistentString;
+	private PutMethod(boolean shouldAutoCommit){
 		this.shouldAutoCommit = shouldAutoCommit;
 	}
 
@@ -83,28 +75,4 @@ public enum PutMethod implements IntegerEnum<PutMethod>, StringEnum<PutMethod>{
 		return shouldAutoCommit;
 	}
 
-	/*-------------------------- IntegerEnum methods -------------------------*/
-
-	@Override
-	public Integer getPersistentInteger(){
-		return persistentInteger;
-	}
-
-	@Override
-	public PutMethod fromPersistentInteger(Integer integer){
-		return DatarouterEnumTool.getEnumFromInteger(values(), integer, null);
-	}
-
-
-	/*-------------------------- StringEnum methods -------------------------*/
-
-	@Override
-	public String getPersistentString(){
-		return persistentString;
-	}
-
-	@Override
-	public PutMethod fromPersistentString(String string){
-		return DatarouterEnumTool.getEnumFromString(values(), string, null);
-	}
 }

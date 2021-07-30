@@ -56,7 +56,7 @@ public class ClusterSettingLog extends BaseDatabean<ClusterSettingLogKey,Cluster
 	public static class ClusterSettingLogFielder extends BaseDatabeanFielder<ClusterSettingLogKey,ClusterSettingLog>{
 
 		public ClusterSettingLogFielder(){
-			super(ClusterSettingLogKey.class);
+			super(ClusterSettingLogKey::new);
 		}
 
 		@Override

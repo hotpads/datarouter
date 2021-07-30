@@ -29,12 +29,20 @@ public enum TraceContextFlagMask{
 		this.mask = mask;
 	}
 
+	public static String enableTrace(String curTraceFlags){
+		return isTraceEnabled(curTraceFlags) ? curTraceFlags : setFlag(curTraceFlags, TRACE);
+	}
+
+	public static String enableLog(String curTraceFlags){
+		return isLogEnabled(curTraceFlags) ? curTraceFlags : setFlag(curTraceFlags, LOG);
+	}
+
 	public static boolean isTraceEnabled(String hex){
-		return doMask(hex, TRACE);
+		return isFlagSet(hex, TRACE);
 	}
 
 	public static boolean isLogEnabled(String hex){
-		return doMask(hex, LOG);
+		return isFlagSet(hex, LOG);
 	}
 
 	public String toHexCode(){
@@ -48,12 +56,20 @@ public enum TraceContextFlagMask{
 	/*
 	 * trace-flags is hex-encoded ranged from 00 to ff (all 8 flags/bits set)
 	 */
-	private static boolean doMask(String hexflags, TraceContextFlagMask sample){
+	private static boolean isFlagSet(String hexflags, TraceContextFlagMask sample){
 		if(hexflags == null || hexflags.length() < 2){
 			return false;
 		}
 		byte flag = (byte)Integer.parseInt(hexflags, 16);
 		return (flag & sample.mask) == sample.mask;
+	}
+
+	private static String setFlag(String hexflags, TraceContextFlagMask sample){
+		if(hexflags == null || hexflags.length() < 2){
+			return hexflags;
+		}
+		byte flag = (byte)Integer.parseInt(hexflags, 16);
+		return String.format("%02x", flag | sample.mask);
 	}
 
 }

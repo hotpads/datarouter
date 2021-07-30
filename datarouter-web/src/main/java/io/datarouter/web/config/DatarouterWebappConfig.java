@@ -24,17 +24,24 @@ import com.google.inject.Module;
 public class DatarouterWebappConfig{
 
 	private final List<Module> modules;
+	private final List<Module> testModules;
 	private final List<ServletContextListener> servletContextListeners;
 
 	public DatarouterWebappConfig(
 			List<Module> modules,
+			List<Module> testModules,
 			List<ServletContextListener> servletContextListeners){
-		this.servletContextListeners = servletContextListeners;
 		this.modules = modules;
+		this.testModules = testModules;
+		this.servletContextListeners = servletContextListeners;
 	}
 
 	public List<Module> getModules(){
 		return modules;
+	}
+
+	public List<Module> getTestModules(){
+		return testModules;
 	}
 
 	public List<ServletContextListener> getServletContextListeners(){

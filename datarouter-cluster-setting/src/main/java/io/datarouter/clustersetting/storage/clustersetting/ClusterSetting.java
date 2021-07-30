@@ -39,7 +39,7 @@ public class ClusterSetting extends BaseDatabean<ClusterSettingKey,ClusterSettin
 	public static class ClusterSettingFielder extends BaseDatabeanFielder<ClusterSettingKey,ClusterSetting>{
 
 		public ClusterSettingFielder(){
-			super(ClusterSettingKey.class);
+			super(ClusterSettingKey::new);
 		}
 
 		@Override

@@ -142,6 +142,7 @@ public class IndexingNodeFactory{
 				indexEntryClass), manageTxn, indexEntryClass.getSimpleName());
 	}
 
+	@Deprecated // use createKeyOnlyManagedIndex(Supplier, IndexedMapStorageNode);
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
@@ -150,13 +151,24 @@ public class IndexingNodeFactory{
 	createKeyOnlyManagedIndex(
 			Class<IK> indexEntryKeyClass,
 			IndexedMapStorageNode<PK,D,F> backingNode){
-		return new ManagedNodeBuilder<>(
-				indexEntryKeyClass,
-				() -> new FieldlessIndexEntry<>(indexEntryKeyClass),
-				() -> new FieldlessIndexEntryFielder<>(
-						indexEntryKeyClass,
-						backingNode.getFieldInfo().getSampleFielder()),
-				backingNode);
+		return createKeyOnlyManagedIndex(ReflectionTool.supplier(indexEntryKeyClass), backingNode);
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>,
+			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
+	ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
+	createKeyOnlyManagedIndex(
+			Supplier<IK> indexEntryKeySupplier,
+			IndexedMapStorageNode<PK,D,F> backingNode){
+	return new ManagedNodeBuilder<>(
+			indexEntryKeySupplier,
+			() -> new FieldlessIndexEntry<>(indexEntryKeySupplier),
+			() -> new FieldlessIndexEntryFielder<>(
+					indexEntryKeySupplier,
+					backingNode.getFieldInfo().getSampleFielder()),
+			backingNode);
 	}
 
 }

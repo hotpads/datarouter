@@ -61,7 +61,7 @@ public class DatarouterAccount extends BaseDatabean<DatarouterAccountKey,Datarou
 	public static class DatarouterAccountFielder extends BaseDatabeanFielder<DatarouterAccountKey,DatarouterAccount>{
 
 		public DatarouterAccountFielder(){
-			super(DatarouterAccountKey.class);
+			super(DatarouterAccountKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

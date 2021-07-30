@@ -116,7 +116,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 
 	public static class DatarouterExceptionPluginBuilder{
 
-		private final ClientId defaultClientId;
+		private final List<ClientId> defaultClientIds;
 
 		private List<ClientId> defaultQueueClientId;
 		private Class<? extends ExceptionGraphLink> exceptionGraphLinkClass = NoOpExceptionGraphLink.class;
@@ -128,8 +128,8 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 				= NoOpExemptDailyDigestExceptions.class;
 		private String issueLinkPrefix;
 
-		public DatarouterExceptionPluginBuilder(ClientId defaultClientId){
-			this.defaultClientId = defaultClientId;
+		public DatarouterExceptionPluginBuilder(List<ClientId> defaultClientIds){
+			this.defaultClientIds = defaultClientIds;
 		}
 
 		public DatarouterExceptionPluginBuilder setExceptionGraphLinkClass(
@@ -171,7 +171,7 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 
 		public DatarouterExceptionPlugin build(){
 			return new DatarouterExceptionPlugin(
-					new DatarouterExceptionDaoModule(defaultClientId, defaultQueueClientId),
+					new DatarouterExceptionDaoModule(defaultClientIds, defaultQueueClientId),
 					exceptionGraphLinkClass,
 					exceptionRecorderClass,
 					exceptionHandlingConfigClass,
@@ -192,8 +192,8 @@ public class DatarouterExceptionPlugin extends BaseJobPlugin{
 		private final List<ClientId> datarouterExceptionRecordPublisherClientId;
 		private final List<ClientId> datarouterHttpRequestRecordPublisherClientId;
 
-		public DatarouterExceptionDaoModule(ClientId defaultClientId, List<ClientId> queueClientId){
-			this(List.of(defaultClientId), List.of(defaultClientId), List.of(defaultClientId), List.of(defaultClientId),
+		public DatarouterExceptionDaoModule(List<ClientId> defaultClientIds, List<ClientId> queueClientId){
+			this(defaultClientIds, defaultClientIds, defaultClientIds, defaultClientIds,
 					queueClientId, queueClientId);
 		}
 

@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.82</version>
+		<version>0.0.83</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>io.lettuce</groupId>
 			<artifactId>lettuce-core</artifactId>
-			<version>6.1.0.M1</version>
+			<version>6.1.4.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>io.datarouter</groupId>

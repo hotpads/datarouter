@@ -64,7 +64,7 @@ public class LoggerConfig extends BaseDatabean<LoggerConfigKey,LoggerConfig>{
 	public static class LoggerConfigFielder extends BaseDatabeanFielder<LoggerConfigKey,LoggerConfig>{
 
 		public LoggerConfigFielder(){
-			super(LoggerConfigKey.class);
+			super(LoggerConfigKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

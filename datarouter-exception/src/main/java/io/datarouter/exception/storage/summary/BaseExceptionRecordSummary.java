@@ -16,6 +16,7 @@
 package io.datarouter.exception.storage.summary;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -44,8 +45,8 @@ extends BaseDatabean<PK,D>{
 			D extends BaseExceptionRecordSummary<PK,D>>
 	extends BaseDatabeanFielder<PK,D>{
 
-		public BaseExceptionRecordSummaryFielder(Class<? extends Fielder<PK>> fielderClass){
-			super(fielderClass);
+		public BaseExceptionRecordSummaryFielder(Supplier<? extends Fielder<PK>> primaryKeyFielderSupplier){
+			super(primaryKeyFielderSupplier);
 		}
 
 		@Override

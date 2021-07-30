@@ -244,7 +244,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	public static class ManyFieldTypeBeanFielder extends BaseDatabeanFielder<ManyFieldBeanKey,ManyFieldBean>{
 
 		public ManyFieldTypeBeanFielder(){
-			super(ManyFieldBeanKey.class);
+			super(ManyFieldBeanKey::new);
 		}
 
 		@Override

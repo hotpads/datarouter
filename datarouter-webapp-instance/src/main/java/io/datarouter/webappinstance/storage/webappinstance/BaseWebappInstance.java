@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.webappinstance.WebappInstanceDto;
 import io.datarouter.model.databean.BaseDatabean;
@@ -74,8 +75,8 @@ extends BaseDatabean<PK,D>{
 			D extends BaseWebappInstance<PK,D>>
 	extends BaseDatabeanFielder<PK,D>{
 
-		public BaseWebappInstanceFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
-			super(primaryKeyFielderClass);
+		public BaseWebappInstanceFielder(Supplier<? extends Fielder<PK>> primaryKeyFielderSupplier){
+			super(primaryKeyFielderSupplier);
 		}
 
 		@Override

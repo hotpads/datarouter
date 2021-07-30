@@ -58,7 +58,7 @@ implements FieldlessIndexEntryPrimaryKey<
 	public FieldlessIndexEntry<HttpRequestRecordByExceptionRecordIdKey,HttpRequestRecordKey,HttpRequestRecord>
 			createFromDatabean(HttpRequestRecord target){
 		var index = new HttpRequestRecordByExceptionRecordIdKey(target.getExceptionRecordId(), target.getKey().getId());
-		return new FieldlessIndexEntry<>(HttpRequestRecordByExceptionRecordIdKey.class, index);
+		return new FieldlessIndexEntry<>(HttpRequestRecordByExceptionRecordIdKey::new, index);
 	}
 
 }

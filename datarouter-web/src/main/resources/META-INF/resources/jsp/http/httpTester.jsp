@@ -190,11 +190,11 @@
 
 	function removeHeader(index) {
 		document.getElementById(headerDivPrefix + index).remove();
-		reallignHeaderIds();
+		realignHeaderIds();
 		allHeaders = allHeaders - 1;
 	}
 
-	function reallignHeaderIds() {
+	function realignHeaderIds() {
 		let formDiv = document.getElementById('headerRows');
 		let foundMissing = false;
 		for (i = 1; i < allHeaders; i++) {

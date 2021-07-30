@@ -61,7 +61,7 @@ extends BaseDatabean<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
 	extends BaseDatabeanFielder<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord>{
 
 		public DatarouterSecretOpRecordFielder(){
-			super(DatarouterSecretOpRecordKey.class);
+			super(DatarouterSecretOpRecordKey::new);
 		}
 
 		@Override

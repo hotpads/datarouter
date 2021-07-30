@@ -76,7 +76,7 @@ implements Session{
 	public static class DatarouterSessionFielder extends BaseDatabeanFielder<DatarouterSessionKey,DatarouterSession>{
 
 		public DatarouterSessionFielder(){
-			super(DatarouterSessionKey.class);
+			super(DatarouterSessionKey::new);
 		}
 
 		@SuppressWarnings("deprecation")
@@ -113,6 +113,7 @@ implements Session{
 		return session;
 	}
 
+	@SuppressWarnings("deprecation")
 	public static DatarouterSession createFromUser(DatarouterUser user){
 		DatarouterSession session = createAnonymousSession(user.getUserToken());
 		session.setUserId(user.getId());

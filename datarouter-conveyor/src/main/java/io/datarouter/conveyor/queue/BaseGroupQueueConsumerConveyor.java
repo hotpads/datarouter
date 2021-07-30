@@ -36,6 +36,9 @@ public abstract class BaseGroupQueueConsumerConveyor<
 extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseGroupQueueConsumerConveyor.class);
 
+	// same as the default BaseSqsNode.DEFAULT_VISIBILITY_TIMEOUT_MS
+	private static final Duration VISIBILITY_TIMEOUT = Duration.ofSeconds(30);
+
 	private final GroupQueueConsumer<PK,D> consumer;
 	private final Duration peekTimeout;
 
@@ -54,7 +57,7 @@ extends BaseConveyor{
 	@Override
 	public ProcessBatchResult processBatch(){
 		var timer = new PhaseTimer();
-		GroupQueueMessage<PK,D> message = consumer.peek(peekTimeout);
+		GroupQueueMessage<PK,D> message = consumer.peek(peekTimeout, VISIBILITY_TIMEOUT);
 		if(message == null){
 			logger.info("peeked conveyor={} nullMessage", name);
 			return new ProcessBatchResult(false);
@@ -62,8 +65,13 @@ extends BaseConveyor{
 		List<D> databeans = message.getDatabeans();
 		logger.info("peeked conveyor={} messageCount={}", name, databeans.size());
 		timer.add("peek");
+		long start = System.currentTimeMillis();
 		if(!processDatabeansShouldAck(databeans)){
 			return new ProcessBatchResult(true);
+		}
+		long durationMs = System.currentTimeMillis() - start;
+		if(durationMs > VISIBILITY_TIMEOUT.toMillis()){
+			logger.warn("slow conveyor conveyor={} durationMs={} databeanCount={}", name, durationMs, databeans.size());
 		}
 		logger.info("wrote conveyor={} messageCount={}", name, databeans.size());
 		timer.add("wrote");

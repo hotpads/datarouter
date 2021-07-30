@@ -17,6 +17,7 @@ package io.datarouter.webappinstance.storage.webappinstancelog;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -36,14 +37,15 @@ extends BaseDatabean<PK,D>{
 	protected String javaVersion;
 	protected String servletContainerVersion;
 	protected Instant refreshedLastInstant;
+	protected String serverPrivateIp;
 
 	public abstract static class BaseWebappInstanceLogFielder<
 			PK extends BaseWebappInstanceLogKey<PK>,
 			D extends BaseWebappInstanceLog<PK,D>>
 	extends BaseDatabeanFielder<PK,D>{
 
-		public BaseWebappInstanceLogFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
-			super(primaryKeyFielderClass);
+		public BaseWebappInstanceLogFielder(Supplier<? extends Fielder<PK>> primaryKeyFielderSupplier){
+			super(primaryKeyFielderSupplier);
 		}
 
 		@Override
@@ -55,7 +57,8 @@ extends BaseDatabean<PK,D>{
 					new StringField(BaseWebappInstance.FieldKeys.servletContainerVersion,
 						databean.getServletContainerVersion()),
 					new InstantField(BaseWebappInstance.FieldKeys.refreshedLastInstant,
-							databean.getRefreshedLast()));
+							databean.getRefreshedLast()),
+					new StringField(BaseWebappInstance.FieldKeys.serverPrivateIp, databean.getServerPrivateIp()));
 		}
 	}
 
@@ -69,13 +72,15 @@ extends BaseDatabean<PK,D>{
 			String commitId,
 			String javaVersion,
 			String servletContainerVersion,
-			Instant refreshedInstant){
+			Instant refreshedInstant,
+			String serverPrivateIp){
 		super(key);
 		this.buildId = buildId;
 		this.commitId = commitId;
 		this.javaVersion = javaVersion;
 		this.servletContainerVersion = servletContainerVersion;
 		this.refreshedLastInstant = refreshedInstant;
+		this.serverPrivateIp = serverPrivateIp;
 	}
 
 	public BaseWebappInstanceLog(PK key, BaseWebappInstance<?,?> instance){
@@ -85,6 +90,7 @@ extends BaseDatabean<PK,D>{
 		this.javaVersion = instance.getJavaVersion();
 		this.servletContainerVersion = instance.getServletContainerVersion();
 		this.refreshedLastInstant = instance.getRefreshedLastInstant();
+		this.serverPrivateIp = instance.getServerPrivateIp();
 	}
 
 	public String getBuildId(){
@@ -105,6 +111,10 @@ extends BaseDatabean<PK,D>{
 
 	public Instant getRefreshedLast(){
 		return refreshedLastInstant;
+	}
+
+	public String getServerPrivateIp(){
+		return serverPrivateIp;
 	}
 
 }

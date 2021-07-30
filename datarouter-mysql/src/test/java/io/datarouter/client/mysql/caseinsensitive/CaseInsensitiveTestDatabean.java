@@ -30,7 +30,7 @@ extends BaseDatabean<CaseInsensitiveTestPrimaryKey,CaseInsensitiveTestDatabean>{
 	extends BaseDatabeanFielder<CaseInsensitiveTestPrimaryKey,CaseInsensitiveTestDatabean>{
 
 		public CaseInsensitiveTestFielder(){
-			super(CaseInsensitiveTestPrimaryKey.class);
+			super(CaseInsensitiveTestPrimaryKey::new);
 			addOption(MysqlCollation.utf8mb4_unicode_ci);
 		}
 

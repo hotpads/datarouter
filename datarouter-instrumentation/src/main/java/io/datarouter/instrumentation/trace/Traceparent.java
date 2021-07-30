@@ -36,7 +36,7 @@ public class Traceparent{
 	public final String version = CURRENT_VERSION;
 	public final String traceId;
 	public final String parentId;
-	public final String traceFlags;
+	private String traceFlags;
 
 	public Traceparent(String traceId, String parentId, String traceFlags){
 		this.traceId = traceId;
@@ -49,17 +49,17 @@ public class Traceparent{
 	}
 
 	public Traceparent(String traceId, String parentId){
-		this(traceId, parentId, createNewTraceFlag());
+		this(traceId, parentId, createDefaultTraceFlag());
 	}
 
 	public static Traceparent generateNew(long createdTimestamp){
 		return new Traceparent(createNewTraceId(createdTimestamp), createNewParentId(),
-				createNewTraceFlag());
+				createDefaultTraceFlag());
 	}
 
 	public static Traceparent generateNewWithCurrentTimeInNs(){
 		return new Traceparent(createNewTraceId(Trace2Dto.getCurrentTimeInNs()), createNewParentId(),
-				createNewTraceFlag());
+				createDefaultTraceFlag());
 	}
 
 	public Traceparent updateParentId(){
@@ -90,9 +90,26 @@ public class Traceparent{
 		return Instant.ofEpochMilli(getTimestampInMs());
 	}
 
-	// TODO: we need to update the logic to determine the traceflag
-	private static String createNewTraceFlag(){
+	/*----------- trace flags ------------*/
+
+	private static String createDefaultTraceFlag(){
 		return TraceContextFlagMask.DEFAULT.toHexCode();
+	}
+
+	public void enableSample(){
+		this.traceFlags = TraceContextFlagMask.enableTrace(traceFlags);
+	}
+
+	public void enableLog(){
+		this.traceFlags = TraceContextFlagMask.enableLog(traceFlags);
+	}
+
+	public boolean shouldSample(){
+		return TraceContextFlagMask.isTraceEnabled(traceFlags);
+	}
+
+	public boolean shouldLog(){
+		return TraceContextFlagMask.isLogEnabled(traceFlags);
 	}
 
 	@Override

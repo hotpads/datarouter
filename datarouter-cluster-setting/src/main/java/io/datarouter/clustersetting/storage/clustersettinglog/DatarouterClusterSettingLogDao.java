@@ -77,7 +77,7 @@ public class DatarouterClusterSettingLogDao extends BaseDao{
 					})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
 		byReversedCreatedMs = indexingNodeFactory.createKeyOnlyManagedIndex(
-				ClusterSettingLogByReversedCreatedMsKey.class, node)
+				ClusterSettingLogByReversedCreatedMsKey::new, node)
 				.build();
 		datarouter.register(node);
 	}

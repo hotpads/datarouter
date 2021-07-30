@@ -54,11 +54,13 @@ public class DatarouterOpencensusTraceExporter extends Handler{
 
 	@Override
 	public void export(Collection<SpanData> spanDataList){
+		logger.info("DatarouterOpencensusTraceExporter starts exporting spanData from opencensus");
 		Map<SpanId,SpanData> bindingSpans = Scanner.of(spanDataList)
 				.include(spanData -> spanData.getAttributes().getAttributeMap()
 						.containsKey(DatarouterOpencensusTool.TRACEPARENT_ATTRIBUTE_KEY))
 				.toMap(spanData -> spanData.getContext().getSpanId());
 		if(bindingSpans.isEmpty()){
+			logger.info("no binding spans found.");
 			return;
 		}
 		Map<SpanId,SpanId> parents = Scanner.of(spanDataList)

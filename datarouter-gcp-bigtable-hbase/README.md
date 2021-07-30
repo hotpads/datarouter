@@ -9,7 +9,7 @@ datarouter-gcp-bigtable-hbase uses the HBase client to talk to Google's Bigtable
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-gcp-bigtable-hbase</artifactId>
-	<version>0.0.82</version>
+	<version>0.0.83</version>
 </dependency>
 ```
 

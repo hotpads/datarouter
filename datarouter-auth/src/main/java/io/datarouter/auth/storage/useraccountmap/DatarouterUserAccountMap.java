@@ -36,7 +36,7 @@ public class DatarouterUserAccountMap extends BaseDatabean<DatarouterUserAccount
 	extends BaseDatabeanFielder<DatarouterUserAccountMapKey,DatarouterUserAccountMap>{
 
 		public DatarouterUserAccountMapFielder(){
-			super(DatarouterUserAccountMapKey.class);
+			super(DatarouterUserAccountMapKey::new);
 		}
 
 		@Override

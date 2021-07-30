@@ -61,7 +61,7 @@ public class OneTimeLoginToken extends BaseDatabean<OneTimeLoginTokenKey,OneTime
 	public static class OneTimeLoginTokenFielder extends BaseDatabeanFielder<OneTimeLoginTokenKey,OneTimeLoginToken>{
 
 		public OneTimeLoginTokenFielder(){
-			super(OneTimeLoginTokenKey.class);
+			super(OneTimeLoginTokenKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

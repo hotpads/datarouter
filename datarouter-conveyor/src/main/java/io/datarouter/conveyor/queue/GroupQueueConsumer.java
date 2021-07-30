@@ -37,8 +37,10 @@ public class GroupQueueConsumer<PK extends PrimaryKey<PK>,D extends Databean<PK,
 		this.ackConsumer = ackConsumer;
 	}
 
-	public GroupQueueMessage<PK,D> peek(Duration timeout){
-		return peekFunction.apply(new Config().setTimeout(timeout));
+	public GroupQueueMessage<PK,D> peek(Duration timeout, Duration visibilityTimeout){
+		return peekFunction.apply(new Config()
+				.setTimeout(timeout)
+				.setVisibilityTimeoutMs(visibilityTimeout.toMillis()));
 	}
 
 	public void ack(QueueMessageKey key){

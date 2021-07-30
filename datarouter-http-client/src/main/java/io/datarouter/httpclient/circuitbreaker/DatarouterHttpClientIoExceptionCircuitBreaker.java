@@ -116,12 +116,16 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				logger.warn("null http entity statusCode={} target={} duration={}", statusCode, request.getPath(),
 						duration);
 			}
-			Optional<Traceparent> remoteTraceparent = Optional.ofNullable(httpResponse.getFirstHeader(X_TRACEPARENT))
+			Optional<Traceparent> remoteTraceparent = Optional.ofNullable(httpResponse.getFirstHeader(TRACEPARENT))
 					.map(Header::getValue)
 					.map(Traceparent::parse)
 					.filter(Optional::isPresent)
 					.map(Optional::get);
-			remoteTraceparent.ifPresent(tp -> TracerTool.appendToSpanInfo("remote parentId=", tp.parentId));
+			remoteTraceparent.ifPresent(tp -> TracerTool.appendToSpanInfo("remote parentId", tp.parentId));
+			if(remoteTraceparent.isPresent() && remoteTraceparent.get().shouldSample()){
+				// if remote server has forced sample for trace, we also force sample the client's trace
+				TracerTool.setForceSample();
+			}
 			if(duration.compareTo(LOG_SLOW_REQUEST_THRESHOLD) > 0){
 				logger.warn("Slow request target={} duration={} remoteTraceparent={}", request.getPath(), duration,
 						remoteTraceparent.orElse(null));

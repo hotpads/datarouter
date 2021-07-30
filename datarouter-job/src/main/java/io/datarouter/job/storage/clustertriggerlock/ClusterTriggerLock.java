@@ -42,7 +42,7 @@ public class ClusterTriggerLock extends BaseDatabean<ClusterTriggerLockKey,Clust
 	public static class ClusterTriggerLockFielder extends BaseDatabeanFielder<ClusterTriggerLockKey,ClusterTriggerLock>{
 
 		public ClusterTriggerLockFielder(){
-			super(ClusterTriggerLockKey.class);
+			super(ClusterTriggerLockKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

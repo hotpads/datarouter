@@ -113,12 +113,23 @@ public class TraceContextTestTracer implements Tracer{
 	}
 
 	@Override
-	public boolean getForceSave(){
-		return false;
+	public boolean shouldSample(){
+		return traceContext.getTraceparent().shouldSample();
 	}
 
 	@Override
-	public void setForceSave(){
+	public void setForceSample(){
+		traceContext.getTraceparent().enableSample();
+	}
+
+	@Override
+	public boolean shouldLog(){
+		return traceContext.getTraceparent().shouldLog();
+	}
+
+	@Override
+	public void setForceLog(){
+		traceContext.getTraceparent().enableLog();
 	}
 
 	@Override

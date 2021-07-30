@@ -40,7 +40,7 @@ public class ConveyorMessage extends BaseDatabean<ConveyorMessageKey,ConveyorMes
 	public static class ConveyorMessageFielder extends BaseDatabeanFielder<ConveyorMessageKey,ConveyorMessage>{
 
 		public ConveyorMessageFielder(){
-			super(ConveyorMessageKey.class);
+			super(ConveyorMessageKey::new);
 		}
 
 		@Override

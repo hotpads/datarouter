@@ -25,7 +25,7 @@ public class WebappInstanceLog extends BaseWebappInstanceLog<WebappInstanceLogKe
 	extends BaseWebappInstanceLogFielder<WebappInstanceLogKey,WebappInstanceLog>{
 
 		public WebappInstanceLogFielder(){
-			super(WebappInstanceLogKey.class);
+			super(WebappInstanceLogKey::new);
 		}
 
 	}

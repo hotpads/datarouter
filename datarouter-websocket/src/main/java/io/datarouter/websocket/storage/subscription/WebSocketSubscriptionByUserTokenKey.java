@@ -62,7 +62,7 @@ implements FieldlessIndexEntryPrimaryKey<
 	@Override
 	public FieldlessIndexEntry<WebSocketSubscriptionByUserTokenKey,WebSocketSubscriptionKey,WebSocketSubscription>
 			createFromDatabean(WebSocketSubscription target){
-		return new FieldlessIndexEntry<>(WebSocketSubscriptionByUserTokenKey.class,
+		return new FieldlessIndexEntry<>(WebSocketSubscriptionByUserTokenKey::new,
 				new WebSocketSubscriptionByUserTokenKey(
 						target.getKey().getUserToken(),
 						target.getKey().getWebSocketSessionId(),

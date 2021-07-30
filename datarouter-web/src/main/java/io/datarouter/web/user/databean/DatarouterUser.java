@@ -77,7 +77,7 @@ public class DatarouterUser extends BaseDatabean<DatarouterUserKey,DatarouterUse
 	public static class DatarouterUserFielder extends BaseDatabeanFielder<DatarouterUserKey,DatarouterUser>{
 
 		public DatarouterUserFielder(){
-			super(DatarouterUserKey.class);
+			super(DatarouterUserKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

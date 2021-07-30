@@ -56,7 +56,6 @@ public class DatarouterTracer implements Tracer{
 	private Integer nextSpanSequence = 0;
 	private int discardedSpanCount = 0;
 	private int discardedThreadCount = 0;
-	private boolean forceSave = false;
 	private Trace2ThreadDto currentThread;//should we be holding a map of current threads?  not sure yet
 
 	private boolean saveThreadCpuTime = false;
@@ -310,13 +309,23 @@ public class DatarouterTracer implements Tracer{
 	}
 
 	@Override
-	public void setForceSave(){
-		this.forceSave = true;
+	public void setForceSample(){
+		w3TraceContext.getTraceparent().enableSample();
 	}
 
 	@Override
-	public boolean getForceSave(){
-		return forceSave;
+	public boolean shouldSample(){
+		return w3TraceContext.getTraceparent().shouldSample();
+	}
+
+	@Override
+	public void setForceLog(){
+		w3TraceContext.getTraceparent().enableLog();
+	}
+
+	@Override
+	public boolean shouldLog(){
+		return w3TraceContext.getTraceparent().shouldLog();
 	}
 
 	@Override

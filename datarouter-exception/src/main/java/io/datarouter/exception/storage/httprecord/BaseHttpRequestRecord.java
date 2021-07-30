@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,8 +157,8 @@ extends BaseDatabean<PK,D>{
 			D extends BaseHttpRequestRecord<PK,D>>
 	extends BaseDatabeanFielder<PK,D>{
 
-		protected BaseHttpRequestRecordFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
-			super(primaryKeyFielderClass);
+		protected BaseHttpRequestRecordFielder(Supplier<? extends Fielder<PK>> primaryKeyFielderSupplier){
+			super(primaryKeyFielderSupplier);
 		}
 
 		@SuppressWarnings("deprecation")

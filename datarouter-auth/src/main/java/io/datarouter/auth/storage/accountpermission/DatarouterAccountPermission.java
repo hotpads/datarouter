@@ -37,7 +37,7 @@ extends BaseDatabean<DatarouterAccountPermissionKey,DatarouterAccountPermission>
 	extends BaseDatabeanFielder<DatarouterAccountPermissionKey,DatarouterAccountPermission>{
 
 		public DatarouterAccountPermissionFielder(){
-			super(DatarouterAccountPermissionKey.class);
+			super(DatarouterAccountPermissionKey::new);
 		}
 
 		@Override

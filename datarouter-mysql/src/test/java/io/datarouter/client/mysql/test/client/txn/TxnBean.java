@@ -27,7 +27,7 @@ public class TxnBean extends BaseDatabean<TxnBeanKey,TxnBean>{
 	public static class TxnBeanFielder extends BaseDatabeanFielder<TxnBeanKey,TxnBean>{
 
 		public TxnBeanFielder(){
-			super(TxnBeanKey.class);
+			super(TxnBeanKey::new);
 		}
 
 		@Override

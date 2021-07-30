@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.instrumentation.trace;
+package io.datarouter.testng;
 
-public class TraceContextFlagTool{
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
 
-	public static boolean shouldSample(){
-		Tracer tracer = TracerThreadLocal.get();
-		if(tracer.getTraceContext().isPresent()){
-			return TraceContextFlagMask.isTraceEnabled(tracer.getTraceContext().get().getTraceparent().traceFlags);
-		}
-		return false;
-	}
+public class LoggingTestNgListener implements ITestListener{
+	private static final Logger logger = LoggerFactory.getLogger(LoggingTestNgListener.class);
 
-	public static boolean shouldLog(){
-		Tracer tracer = TracerThreadLocal.get();
-		if(tracer.getTraceContext().isPresent()){
-			return TraceContextFlagMask.isLogEnabled(tracer.getTraceContext().get().getTraceparent().traceFlags);
-		}
-		return false;
+	@Override
+	public void onTestStart(ITestResult result){
+		logger.warn("starting test for {}", result.getMethod().getQualifiedName());
 	}
 
 }

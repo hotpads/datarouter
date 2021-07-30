@@ -199,13 +199,22 @@ public class DatarouterSummaryTracer implements Tracer{
 	}
 
 	@Override
-	public boolean getForceSave(){
+	public boolean shouldSample(){
 		return false;
 	}
 
 	@Override
-	public void setForceSave(){
+	public void setForceSample(){
 		return;
+	}
+
+	@Override
+	public boolean shouldLog(){
+		return false;
+	}
+
+	@Override
+	public void setForceLog(){
 	}
 
 	@Override

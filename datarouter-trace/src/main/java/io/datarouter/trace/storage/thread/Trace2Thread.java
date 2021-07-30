@@ -69,7 +69,7 @@ public class Trace2Thread extends BaseDatabean<Trace2ThreadKey,Trace2Thread>{
 	public static class Trace2ThreadFielder extends BaseDatabeanFielder<Trace2ThreadKey,Trace2Thread>{
 
 		public Trace2ThreadFielder(){
-			super(Trace2ThreadKey.class);
+			super(Trace2ThreadKey::new);
 			addOption(Trace2.TTL_FIELDER_CONFIG);
 		}
 

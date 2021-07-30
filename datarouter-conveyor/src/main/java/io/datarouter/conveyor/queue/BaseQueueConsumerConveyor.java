@@ -50,19 +50,25 @@ extends BaseConveyor{
 
 	@Override
 	public ProcessBatchResult processBatch(){
-		QueueMessage<PK,D> message = queueConsumer.peek(PEEK_TIMEOUT, getVisibilityTimeout());
+		Duration visibilityTimeout = getVisibilityTimeout();
+		QueueMessage<PK,D> message = queueConsumer.peek(PEEK_TIMEOUT, visibilityTimeout);
 		if(message == null){
 			logger.info("peeked conveyor={} nullMessage", name);
 			return new ProcessBatchResult(false);
 		}
 		D databean = message.getDatabean();
 		logger.info("peeked conveyor={} messageCount={}", name, 1);
+		long start = System.currentTimeMillis();
 		try{
 			if(!processOneShouldAck(databean)){
 				return new ProcessBatchResult(true);
 			}
 		}catch(Exception e){
 			throw new RuntimeException("databean=" + databean, e);
+		}
+		long durationMs = System.currentTimeMillis() - start;
+		if(durationMs > visibilityTimeout.toMillis()){
+			logger.warn("slow conveyor conveyor={} durationMs={} databean={}", name, durationMs, databean);
 		}
 		logger.info("consumed conveyor={} messageCount={}", name, 1);
 		ConveyorCounters.incConsumedOpAndDatabeans(this, 1);

@@ -37,7 +37,7 @@ public class ClusterJobLock extends BaseDatabean<ClusterJobLockKey,ClusterJobLoc
 	public static class ClusterJobLockFielder extends BaseDatabeanFielder<ClusterJobLockKey,ClusterJobLock>{
 
 		public ClusterJobLockFielder(){
-			super(ClusterJobLockKey.class);
+			super(ClusterJobLockKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

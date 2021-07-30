@@ -166,6 +166,9 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		String source = URLEncoder.encode(bucket + "/" + sourceKey, StandardCharsets.UTF_8);
 		CopyObjectRequest request = CopyObjectRequest.builder()
 				.copySource(source)
+				// .sourceKey(sourceKey)
+				// .sourceBucket(bucket)
+				// .sourceVersionId(?)
 				.destinationBucket(bucket)
 				.destinationKey(destinationKey)
 				.acl(acl)

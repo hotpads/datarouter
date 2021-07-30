@@ -73,18 +73,17 @@ implements FieldlessIndexEntryPrimaryKey<JobletRequestByTypeAndDataSignatureKey,
 
 	@Override
 	public FieldlessIndexEntry<
-		JobletRequestByTypeAndDataSignatureKey,
-		JobletRequestKey,
-		JobletRequest> createFromDatabean(
-			JobletRequest target){
-		return new FieldlessIndexEntry<>(
-				JobletRequestByTypeAndDataSignatureKey.class,
-				new JobletRequestByTypeAndDataSignatureKey(
-						target.getKey().getType(),
-						target.getDataSignature(),
-						target.getKey().getExecutionOrder(),
-						target.getKey().getCreated(),
-						target.getKey().getBatchSequence()));
+			JobletRequestByTypeAndDataSignatureKey,
+			JobletRequestKey,
+			JobletRequest>
+	createFromDatabean(JobletRequest target){
+		var index = new JobletRequestByTypeAndDataSignatureKey(
+				target.getKey().getType(),
+				target.getDataSignature(),
+				target.getKey().getExecutionOrder(),
+				target.getKey().getCreated(),
+				target.getKey().getBatchSequence());
+		return new FieldlessIndexEntry<>(JobletRequestByTypeAndDataSignatureKey::new, index);
 	}
 
 	public Long getDataSignature(){

@@ -66,7 +66,7 @@ public class DatarouterWebappInstanceLogDao extends BaseDao{
 					return node;
 					})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
-		byBuildInstant = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildInstantKey.class, node)
+		byBuildInstant = indexingNodeFactory.createKeyOnlyManagedIndex(WebappInstanceLogByBuildInstantKey::new, node)
 				.build();
 		datarouter.register(node);
 	}

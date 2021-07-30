@@ -118,11 +118,34 @@ public class TracerTool{
 		finishSpan(TracerThreadLocal.get());
 	}
 
-	public static void setForceSave(){
+	public static void setForceLog(){
 		Tracer tracer = TracerThreadLocal.get();
 		if(tracer != null){
-			tracer.setForceSave();
+			tracer.setForceLog();
 		}
+	}
+
+	public static void setForceSample(){
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer != null){
+			tracer.setForceSample();
+		}
+	}
+
+	public static boolean shouldSample(){
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer != null){
+			return tracer.shouldSample();
+		}
+		return false;
+	}
+
+	public static boolean shouldLog(){
+		Tracer tracer = TracerThreadLocal.get();
+		if(tracer != null){
+			return tracer.shouldLog();
+		}
+		return false;
 	}
 
 	public static class TraceSpanInfoBuilder{

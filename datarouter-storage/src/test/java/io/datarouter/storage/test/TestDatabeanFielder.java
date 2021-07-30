@@ -25,7 +25,7 @@ import io.datarouter.storage.test.TestDatabean.FieldKeys;
 public class TestDatabeanFielder extends BaseDatabeanFielder<TestDatabeanKey,TestDatabean>{
 
 	public TestDatabeanFielder(){
-		super(TestDatabeanKey.class);
+		super(TestDatabeanKey::new);
 	}
 
 	@Override

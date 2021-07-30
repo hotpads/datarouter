@@ -99,6 +99,7 @@ implements WebappBuilder{
 	private final List<Class<? extends Dao>> daoClasses;
 	protected final List<ClientId> defaultClientIds;
 	private final List<FieldKeyOverrider> fieldKeyOverriders;
+	private final List<Module> testModules;
 
 	private Class<? extends FilesRoot> filesRoot;
 	private Class<? extends ServerTypeDetector> serverTypeDetector;
@@ -189,6 +190,7 @@ implements WebappBuilder{
 		this.settingOverrides = NoOpDatarouterSettingOverrides.class;
 		this.daoClasses = new ArrayList<>();
 		this.fieldKeyOverriders = new ArrayList<>();
+		this.testModules = new ArrayList<>();
 
 		// datarouter-web
 		this.roleManager = DatarouterRoleManager.class;
@@ -348,7 +350,7 @@ implements WebappBuilder{
 				new DatarouterGuiceServletContextListener(modules),
 				appListenerServletContextListener);
 
-		return new DatarouterWebappConfig(modules, servletContextListeners);
+		return new DatarouterWebappConfig(modules, testModules, servletContextListeners);
 	}
 
 	/*-------------------------- add web plugins ----------------------------*/
@@ -435,6 +437,7 @@ implements WebappBuilder{
 		daoClasses.addAll(daosModule.getDaoClasses());
 		modules.add(daosModule);
 		settingRoots.addAll(plugin.getSettingRoots());
+		testModules.addAll(plugin.getTestModules());
 		return getSelf();
 	}
 
@@ -671,6 +674,11 @@ implements WebappBuilder{
 
 	public T setRequestProxy(Class<? extends RequestProxySetter> requestProxy){
 		this.requestProxy = requestProxy;
+		return getSelf();
+	}
+
+	public T addTestModule(Module testModule){
+		this.testModules.add(testModule);
 		return getSelf();
 	}
 

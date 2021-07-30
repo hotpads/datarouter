@@ -34,8 +34,14 @@ public class TestNgModuleFactory implements IModuleFactory{
 
 	@Override
 	public Module createModule(ITestContext context, Class<?> testClass){
-		Iterable<? extends Module> overriders = getOverriders();
+		List<Module> overriders = new ArrayList<>();
+		overriders.addAll(getOverriders());
+		overriders.addAll(getTestOverriders());
 		return Modules.override(modules).with(overriders);
+	}
+
+	protected List<Module> getTestOverriders(){
+		return new ArrayList<>();
 	}
 
 	protected List<Module> getOverriders(){

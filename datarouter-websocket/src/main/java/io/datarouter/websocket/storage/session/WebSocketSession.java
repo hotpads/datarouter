@@ -41,7 +41,7 @@ public class WebSocketSession extends BaseDatabean<WebSocketSessionKey,WebSocket
 	extends BaseDatabeanFielder<WebSocketSessionKey,WebSocketSession>{
 
 		public WebSocketSessionFielder(){
-			super(WebSocketSessionKey.class);
+			super(WebSocketSessionKey::new);
 		}
 
 		@Override

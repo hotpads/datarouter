@@ -24,7 +24,7 @@ extends BaseExceptionRecordSummary<ExceptionRecordSummaryKey,ExceptionRecordSumm
 	extends BaseExceptionRecordSummaryFielder<ExceptionRecordSummaryKey,ExceptionRecordSummary>{
 
 		public ExceptionRecordSummaryFielder(){
-			super(ExceptionRecordSummaryKey.class);
+			super(ExceptionRecordSummaryKey::new);
 		}
 
 	}

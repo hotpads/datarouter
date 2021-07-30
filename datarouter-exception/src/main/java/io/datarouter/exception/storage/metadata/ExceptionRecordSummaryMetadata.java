@@ -28,7 +28,7 @@ extends BaseExceptionRecordSummaryMetadata<
 			ExceptionRecordSummaryMetadata>{
 
 		public ExceptionRecordSummaryMetadataFielder(){
-			super(ExceptionRecordSummaryMetadataKey.class);
+			super(ExceptionRecordSummaryMetadataKey::new);
 		}
 
 	}

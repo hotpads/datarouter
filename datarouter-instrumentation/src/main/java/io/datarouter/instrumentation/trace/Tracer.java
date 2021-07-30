@@ -47,8 +47,10 @@ public interface Tracer{
 	void incrementDiscardedSpanCount(int discardedSpanCount);
 	Trace2SpanDto getCurrentSpan();
 
-	boolean getForceSave();
-	void setForceSave();
+	boolean shouldSample();
+	void setForceSample();
+	boolean shouldLog();
+	void setForceLog();
 
 	void setSaveThreadCpuTime(boolean saveThreadCpuTime);
 	void setSaveThreadMemoryAllocated(boolean saveThreadMemoryAllocated);

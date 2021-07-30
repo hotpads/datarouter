@@ -28,7 +28,7 @@ public class TableSamplerTestBean extends BaseDatabean<TableSamplerTestBeanKey,T
 	extends BaseDatabeanFielder<TableSamplerTestBeanKey,TableSamplerTestBean>{
 
 		public TableSamplerTestBeanFielder(){
-			super(TableSamplerTestBeanKey.class);
+			super(TableSamplerTestBeanKey::new);
 		}
 		@Override
 		public List<Field<?>> getNonKeyFields(TableSamplerTestBean databean){

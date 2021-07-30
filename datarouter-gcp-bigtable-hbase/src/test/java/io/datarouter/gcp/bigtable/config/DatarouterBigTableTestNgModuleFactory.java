@@ -50,7 +50,7 @@ public class DatarouterBigTableTestNgModuleFactory extends TestNgModuleFactory{
 			bindActual(SchemaUpdateOptionsFactory.class, DatarouterBigTableSchemaUpdateOptionsFactory.class);
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
-							DatarouterBigTableTestClientIds.BIG_TABLE));
+							List.of(DatarouterBigTableTestClientIds.BIG_TABLE)));
 		}
 
 	}

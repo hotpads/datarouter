@@ -31,13 +31,14 @@ public class SqsMessage extends BaseDatabean<SqsMessageKey,SqsMessage>{
 	private String message;
 
 	private static class FieldKeys{
-		private static final StringFieldKey message = new StringFieldKey("message").withColumnName("Message");
+		private static final StringFieldKey message = new StringFieldKey("message")
+				.withColumnName("Message");
 	}
 
 	public static class SqsMessageFielder extends BaseDatabeanFielder<SqsMessageKey,SqsMessage>{
 
 		public SqsMessageFielder(){
-			super(SqsMessageKey.class);
+			super(SqsMessageKey::new);
 		}
 
 		@Override

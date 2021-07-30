@@ -74,7 +74,7 @@ public class DatarouterWebSocketSubscriptionDao extends BaseDao{
 					return node;
 				})
 				.listTo(RedundantIndexedSortedMapStorageNode::new);
-		byToken = indexingNodeFactory.createKeyOnlyManagedIndex(WebSocketSubscriptionByUserTokenKey.class, node)
+		byToken = indexingNodeFactory.createKeyOnlyManagedIndex(WebSocketSubscriptionByUserTokenKey::new, node)
 				.build();
 		datarouter.register(node);
 	}

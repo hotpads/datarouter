@@ -362,7 +362,7 @@ public class SecretService{
 			}
 
 			public SecretClientException getException(){
-				return opResult.exception.get();
+				return opResult.exception.orElseGet(() -> new SecretClientException("unknown error"));
 			}
 
 		}

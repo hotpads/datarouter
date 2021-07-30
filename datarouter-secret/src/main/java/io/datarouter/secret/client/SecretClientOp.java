@@ -69,6 +69,9 @@ public abstract class SecretClientOp<I,O>{
 		}catch(SecretClientException e){
 			countError(opCounterName, e);
 			return SecretClientOpResult.opError(e);
+		}catch(RuntimeException e){
+			countError(opCounterName, e);
+			return SecretClientOpResult.opError(e);
 		}
 	}
 
@@ -142,6 +145,10 @@ public abstract class SecretClientOp<I,O>{
 					SecretClientOpStatus.OP_ERROR,
 					Optional.empty(),
 					Optional.of(opException));
+		}
+
+		public static <T> SecretClientOpResult<T> opError(RuntimeException opException){
+			return opError(new SecretClientException("uncaught SecretClient error", opException));
 		}
 
 		public Boolean isSuccess(){

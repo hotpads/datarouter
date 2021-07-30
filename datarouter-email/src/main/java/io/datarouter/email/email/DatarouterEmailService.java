@@ -20,14 +20,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
+import javax.activation.DataSource;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +40,7 @@ import io.datarouter.email.config.DatarouterEmailSettings.DatarouterEmailHostDet
 import io.datarouter.email.config.DatarouterEmailSettingsProvider;
 import io.datarouter.email.util.MimeMessageTool;
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -68,11 +73,12 @@ public class DatarouterEmailService{
 
 	public void send(String fromEmail, String toEmail, String subject, String body, boolean html)
 	throws MessagingException{
-		sendAndGetMessageId(fromEmail, toEmail, toEmail, subject, body, html, Collections.emptyMap());
+		sendAndGetMessageId(fromEmail, toEmail, toEmail, subject, body, html, Collections.emptyMap(),
+				Collections.emptyMap());
 	}
 
 	public Optional<String> sendAndGetMessageId(String fromEmail, String toEmail, String replyToEmail, String subject,
-			String body, boolean html, Map<String,String> headers)
+			String body, boolean html, Map<String,String> headers, Map<String,DataSource> attachmentDataSourceByName)
 	throws MessagingException{
 		if(!datarouterEmailSettingsProvider.get().sendDatarouterEmails.get()){
 			return Optional.empty();
@@ -98,8 +104,18 @@ public class DatarouterEmailService{
 			message.setReplyTo(InternetAddress.parse(replyToEmail));
 			message.setSubject(subject);
 			headers.entrySet().forEach(entry -> MimeMessageTool.setHeader(message, entry.getKey(), entry.getValue()));
+
+			Multipart multipart = new MimeMultipart();
+			MimeBodyPart textBodyPart = new MimeBodyPart();
 			String subType = html ? "html" : "plain";
-			message.setText(body, "UTF-8", subType);
+			textBodyPart.setText(body, "UTF-8", subType);
+			multipart.addBodyPart(textBodyPart);
+
+			Scanner.of(attachmentDataSourceByName.entrySet())
+					.map(entry -> MimeMessageTool.buildMimeBodyPartForAttachment(entry.getKey(), entry.getValue()))
+					.forEach(mimeBodyPart -> MimeMessageTool.addBodyPartToMultipart(multipart, mimeBodyPart));
+
+			message.setContent(multipart);
 			transport.sendMessage(message, addresses);
 			return Optional.ofNullable(message.getMessageID());
 		}

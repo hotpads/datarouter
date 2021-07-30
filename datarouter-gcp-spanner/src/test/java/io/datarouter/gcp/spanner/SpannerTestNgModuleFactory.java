@@ -49,7 +49,8 @@ public class SpannerTestNgModuleFactory extends TestNgModuleFactory{
 			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
 			bindActual(SchemaUpdateOptionsFactory.class, SpannerSchemaUpdateOptionsFactory.class);
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
-					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(SpannerTestCliendIds.SPANNER));
+					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
+							List.of(SpannerTestCliendIds.SPANNER)));
 		}
 
 	}

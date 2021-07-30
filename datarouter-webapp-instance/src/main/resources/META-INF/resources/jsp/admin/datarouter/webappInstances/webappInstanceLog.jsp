@@ -74,6 +74,7 @@
 				<tr>
 					<th>Build Id</th>
 					<th>Commit Id</th>
+					<th>Private IP</th>
 					<th>Startup Date</th>
 					<th>Build Date</th>
 					<th>Java Version</th>
@@ -85,6 +86,7 @@
 					<tr <c:if test="${webapp.latest}">class="info"</c:if>>
 						<td>${webapp.buildId}</td>
 						<td>${webapp.commitId}</td>
+						<td>${webapp.serverPrivateIp}</td>
 						<td sorttable_customkey="${webapp.startupDate.time}">${webapp.startupDate}</td>
 						<td sorttable_customkey="${webapp.buildDate.time}">${webapp.buildDate}</td>
 						<td>${webapp.javaVersion}</td>

@@ -68,7 +68,7 @@ implements FieldlessIndexEntryPrimaryKey<WebappInstanceLogByBuildInstantKey,Weba
 				target.getKey().getWebappName(),
 				target.getKey().getServerName(),
 				target.getKey().getStartup());
-		return new FieldlessIndexEntry<>(WebappInstanceLogByBuildInstantKey.class, index);
+		return new FieldlessIndexEntry<>(WebappInstanceLogByBuildInstantKey::new, index);
 	}
 
 	public Instant getBuild(){

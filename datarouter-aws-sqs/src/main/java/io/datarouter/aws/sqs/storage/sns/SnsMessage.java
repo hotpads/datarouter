@@ -37,7 +37,7 @@ public class SnsMessage extends BaseDatabean<SnsMessageKey,SnsMessage>{
 	public static class SnsMessageFielder extends BaseDatabeanFielder<SnsMessageKey,SnsMessage>{
 
 		public SnsMessageFielder(){
-			super(SnsMessageKey.class);
+			super(SnsMessageKey::new);
 		}
 
 		@Override

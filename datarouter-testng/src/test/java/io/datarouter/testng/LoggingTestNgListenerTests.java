@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.conveyor;
+package io.datarouter.testng;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-public class DatabeanBuffer<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends MemoryBuffer<D>{
+public class LoggingTestNgListenerTests{
 
-	public DatabeanBuffer(String name, int maxSize){
-		super(name, maxSize);
+	@Test // this string is persisted in src/main/resources/META-INF/services/org.testng.ITestNGListener
+	public void testPersistedString(){
+		Assert.assertEquals(LoggingTestNgListener.class.getName(), "io.datarouter.testng.LoggingTestNgListener");
 	}
 
 }

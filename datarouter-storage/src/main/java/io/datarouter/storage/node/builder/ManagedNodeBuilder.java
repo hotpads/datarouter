@@ -39,14 +39,14 @@ public class ManagedNodeBuilder<
 	private String indexName;
 
 	public ManagedNodeBuilder(
-			Class<IK> indexEntryKeyClass,
+			Supplier<IK> indexEntryKeySupplier,
 			Supplier<IE> databeanSupplier,
 			Supplier<IF> fielderSupplier,
 			IndexedMapStorage<PK,D> backingNode){
 		this.databeanSupplier = databeanSupplier;
 		this.fielderSupplier = fielderSupplier;
 		this.backingNode = backingNode;
-		this.indexName = indexEntryKeyClass.getSimpleName();
+		this.indexName = indexEntryKeySupplier.get().getClass().getSimpleName();
 	}
 
 	public ManagedNodeBuilder<PK,D,IK,IE,IF> withTableName(String tableName){

@@ -16,6 +16,7 @@
 package io.datarouter.model.field;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.FieldlessIndexEntry;
@@ -30,12 +31,12 @@ public class FieldlessIndexEntryFielder<
 		D extends Databean<PK,D>>
 extends BaseDatabeanFielder<IK,FieldlessIndexEntry<IK,PK,D>>{
 
-	public FieldlessIndexEntryFielder(Class<IK> keyClass){
-		super(keyClass);
+	public FieldlessIndexEntryFielder(Supplier<IK> keySupplier){
+		super(keySupplier);
 	}
 
-	public FieldlessIndexEntryFielder(Class<IK> keyClass, DatabeanFielder<PK,D> backingNodeFielder){
-		this(keyClass);
+	public FieldlessIndexEntryFielder(Supplier<IK> keySupplier, DatabeanFielder<PK,D> backingNodeFielder){
+		this(keySupplier);
 		backingNodeFielder.getOptions().forEach(this::addOption);
 	}
 

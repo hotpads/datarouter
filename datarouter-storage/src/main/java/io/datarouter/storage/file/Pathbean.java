@@ -35,7 +35,7 @@ public class Pathbean extends BaseDatabean<PathbeanKey,Pathbean>{
 	public static class PathbeanFielder extends BaseDatabeanFielder<PathbeanKey,Pathbean>{
 
 		public PathbeanFielder(){
-			super(PathbeanKey.class);
+			super(PathbeanKey::new);
 		}
 
 		@Override

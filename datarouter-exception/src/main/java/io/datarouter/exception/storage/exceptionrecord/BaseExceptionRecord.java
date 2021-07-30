@@ -17,6 +17,7 @@ package io.datarouter.exception.storage.exceptionrecord;
 
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.model.databean.BaseDatabean;
@@ -67,8 +68,8 @@ extends BaseDatabean<PK,D>{
 			D extends BaseExceptionRecord<PK,D>>
 	extends BaseDatabeanFielder<PK,D>{
 
-		public BaseExceptionRecordFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
-			super(primaryKeyFielderClass);
+		public BaseExceptionRecordFielder(Supplier<? extends Fielder<PK>> primaryKeyFielderSupplier){
+			super(primaryKeyFielderSupplier);
 		}
 
 		@SuppressWarnings("deprecation")

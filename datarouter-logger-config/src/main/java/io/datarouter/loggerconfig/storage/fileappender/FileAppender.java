@@ -37,7 +37,7 @@ public class FileAppender extends BaseDatabean<FileAppenderKey,FileAppender>{
 	public static class FileAppenderFielder extends BaseDatabeanFielder<FileAppenderKey,FileAppender>{
 
 		public FileAppenderFielder(){
-			super(FileAppenderKey.class);
+			super(FileAppenderKey::new);
 		}
 
 		@Override

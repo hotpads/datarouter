@@ -18,7 +18,6 @@ package io.datarouter.job.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
@@ -41,7 +40,7 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 	public final CachedSetting<Integer> taskTrackerPublisherPutMultiBatchSize;
 
 	@Inject
-	public DatarouterJobSettingRoot(SettingFinder finder, ServerTypes serverTypes){
+	public DatarouterJobSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterJob.");
 
 		runClusterJobLockVacuum = registerBoolean("runClusterJobLockVacuum", true);

@@ -15,7 +15,11 @@
  */
 package io.datarouter.email.util;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 
 public class MimeMessageTool{
@@ -23,6 +27,25 @@ public class MimeMessageTool{
 	public static void setHeader(MimeMessage message, String key, String value){
 		try{
 			message.setHeader(key, value);
+		}catch(MessagingException e){
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static MimeBodyPart buildMimeBodyPartForAttachment(String fileName, DataSource attachmentDataSource){
+		MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+		try{
+			attachmentBodyPart.setDataHandler(new DataHandler(attachmentDataSource));
+			attachmentBodyPart.setFileName(fileName);
+			return attachmentBodyPart;
+		}catch(MessagingException e){
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void addBodyPartToMultipart(Multipart multipart, MimeBodyPart mimeBodyPart){
+		try{
+			multipart.addBodyPart(mimeBodyPart);
 		}catch(MessagingException e){
 			throw new RuntimeException(e);
 		}

@@ -49,7 +49,7 @@ public class TableCount extends BaseDatabean<TableCountKey,TableCount>{
 	public static class TableCountFielder extends BaseDatabeanFielder<TableCountKey,TableCount>{
 
 		public TableCountFielder(){
-			super(TableCountKey.class);
+			super(TableCountKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

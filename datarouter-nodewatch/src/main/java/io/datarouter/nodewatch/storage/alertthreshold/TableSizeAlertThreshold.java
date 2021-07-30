@@ -36,7 +36,7 @@ public class TableSizeAlertThreshold extends BaseDatabean<TableSizeAlertThreshol
 	extends BaseDatabeanFielder<TableSizeAlertThresholdKey,TableSizeAlertThreshold>{
 
 		public TableSizeAlertThresholdFielder(){
-			super(TableSizeAlertThresholdKey.class);
+			super(TableSizeAlertThresholdKey::new);
 		}
 
 		@Override

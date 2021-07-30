@@ -23,7 +23,7 @@ public class WebappInstance extends BaseWebappInstance<WebappInstanceKey,WebappI
 	public static class WebappInstanceFielder extends BaseWebappInstanceFielder<WebappInstanceKey,WebappInstance>{
 
 		public WebappInstanceFielder(){
-			super(WebappInstanceKey.class);
+			super(WebappInstanceKey::new);
 		}
 
 	}

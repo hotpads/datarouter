@@ -118,6 +118,7 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 		@SuppressWarnings("deprecation")
 		private static final DateFieldKey dateUpdated = new DateFieldKey("dateUpdated");
 		private static final LongFieldKey samplerId = new LongFieldKey("samplerId");
+		@SuppressWarnings("deprecation")
 		private static final DateFieldKey dateScheduled = new DateFieldKey("dateScheduled");
 		private static final StringFieldKey stringKey = new StringFieldKey("stringKey")
 				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
@@ -130,7 +131,7 @@ public class TableSample extends BaseDatabean<TableSampleKey,TableSample>{
 	public static class TableSampleFielder extends BaseDatabeanFielder<TableSampleKey,TableSample>{
 
 		public TableSampleFielder(){
-			super(TableSampleKey.class);
+			super(TableSampleKey::new);
 		}
 
 		@SuppressWarnings("deprecation")

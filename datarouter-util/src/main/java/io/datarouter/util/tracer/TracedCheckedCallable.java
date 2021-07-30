@@ -65,8 +65,8 @@ public abstract class TracedCheckedCallable<V> implements Callable<V>{
 			tracer.getSpanQueue().forEach(parentTracer::addSpan);
 			parentTracer.incrementDiscardedThreadCount(tracer.getDiscardedThreadCount());
 			parentTracer.incrementDiscardedSpanCount(tracer.getDiscardedSpanCount());
-			if(tracer.getForceSave()){
-				parentTracer.setForceSave();
+			if(tracer.shouldSample()){
+				parentTracer.setForceSample();
 			}
 			TracerThreadLocal.clearFromThread();
 		}

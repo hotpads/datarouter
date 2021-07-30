@@ -43,7 +43,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 	extends BaseHttpRequestRecordFielder<HttpRequestRecordKey,HttpRequestRecord>{
 
 		public HttpRequestRecordFielder(){
-			super(HttpRequestRecordKey.class);
+			super(HttpRequestRecordKey::new);
 		}
 
 		@Override

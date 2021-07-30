@@ -25,7 +25,9 @@ import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public class DatarouterAccountCredentialByAccountNameKey
 extends BaseRegularPrimaryKey<DatarouterAccountCredentialByAccountNameKey>
-implements FieldlessIndexEntryPrimaryKey<DatarouterAccountCredentialByAccountNameKey,DatarouterAccountCredentialKey,
+implements FieldlessIndexEntryPrimaryKey<
+		DatarouterAccountCredentialByAccountNameKey,
+		DatarouterAccountCredentialKey,
 		DatarouterAccountCredential>{
 
 	private String accountName;
@@ -52,10 +54,15 @@ implements FieldlessIndexEntryPrimaryKey<DatarouterAccountCredentialByAccountNam
 	}
 
 	@Override
-	public FieldlessIndexEntry<DatarouterAccountCredentialByAccountNameKey,DatarouterAccountCredentialKey,
-	DatarouterAccountCredential> createFromDatabean(DatarouterAccountCredential target){
-		return new FieldlessIndexEntry<>(DatarouterAccountCredentialByAccountNameKey.class,
-				new DatarouterAccountCredentialByAccountNameKey(target.getAccountName(), target.getKey().getApiKey()));
+	public FieldlessIndexEntry<
+			DatarouterAccountCredentialByAccountNameKey,
+			DatarouterAccountCredentialKey,
+			DatarouterAccountCredential>
+	createFromDatabean(DatarouterAccountCredential target){
+		var index = new DatarouterAccountCredentialByAccountNameKey(
+				target.getAccountName(),
+				target.getKey().getApiKey());
+		return new FieldlessIndexEntry<>(DatarouterAccountCredentialByAccountNameKey::new, index);
 	}
 
 }
