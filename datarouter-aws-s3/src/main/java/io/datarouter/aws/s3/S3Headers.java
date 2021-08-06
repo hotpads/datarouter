@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,6 +71,7 @@ public class S3Headers{
 		GZIP("application/x-gzip","gz"),
 		ZIP("application/zip","zip"),
 		BINARY("binary/octet-stream", null),
+		APPLICATION_OCTET_STREAM("application/octet-stream", null),
 		PDF("application/pdf", "pdf"),
 		;
 

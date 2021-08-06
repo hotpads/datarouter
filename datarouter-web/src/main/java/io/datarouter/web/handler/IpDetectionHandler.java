@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,30 +15,14 @@
  */
 package io.datarouter.web.handler;
 
-import java.util.Collections;
-import java.util.List;
-
-import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.web.util.http.RequestTool;
+import io.datarouter.web.util.http.RequestTool.IpDetectionDto;
 
 public class IpDetectionHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	public IpDetectionDto debugIpDetection(){
-		IpDetectionDto ipDetectionDto = new IpDetectionDto();
-		ipDetectionDto.clientIpHeaders = Collections.list(request.getHeaders(HttpHeaders.X_CLIENT_IP));
-		ipDetectionDto.forwardedForHeaders = Collections.list(request.getHeaders(HttpHeaders.X_FORWARDED_FOR));
-		ipDetectionDto.remoteAddr = request.getRemoteAddr();
-		ipDetectionDto.detectedIp = RequestTool.getIpAddress(request);
-		return ipDetectionDto;
-	}
-
-	@SuppressWarnings("unused") // used by serialization reflection
-	private static class IpDetectionDto{
-		private List<String> clientIpHeaders;
-		private List<String> forwardedForHeaders;
-		private String remoteAddr;
-		public String detectedIp;
+		return RequestTool.getIpDetectionDto(request);
 	}
 
 }

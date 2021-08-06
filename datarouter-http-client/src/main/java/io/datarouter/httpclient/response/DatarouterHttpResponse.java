@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@ package io.datarouter.httpclient.response;
 import java.util.List;
 
 import org.apache.http.Header;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
@@ -32,12 +33,14 @@ public class DatarouterHttpResponse{
 
 	private final HttpResponse response;
 	private final List<Cookie> cookies;
+	private final HttpRequest request;
 	private final int statusCode;
 	private final String entity;
 
 	public DatarouterHttpResponse(HttpResponse response, HttpClientContext context, int statusCode, String entity){
 		this.response = response;
 		this.cookies = context.getCookieStore().getCookies();
+		this.request = context.getRequest();
 		this.statusCode = statusCode;
 		this.entity = entity;
 	}
@@ -64,6 +67,10 @@ public class DatarouterHttpResponse{
 
 	public List<Cookie> getCookies(){
 		return cookies;
+	}
+
+	public HttpRequest getRequest(){
+		return request;
 	}
 
 	public void tryClose(){

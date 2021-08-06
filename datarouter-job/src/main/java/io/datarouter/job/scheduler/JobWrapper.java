@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,6 @@ import io.datarouter.tasktracker.service.LongRunningTaskTracker;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.duration.DatarouterDuration;
-import io.datarouter.util.tracer.DatarouterSummaryTracer;
 
 /**
  * A wrapper around jobs for instrumentation purposes.
@@ -225,7 +224,7 @@ public class JobWrapper implements Callable<Void>{
 
 	protected void startTraceSummary(){
 		if(logger.isInfoEnabled()){
-			TracerThreadLocal.bindToThread(new DatarouterSummaryTracer());
+//			TracerThreadLocal.bindToThread(new DatarouterSummaryTracer());
 		}
 	}
 

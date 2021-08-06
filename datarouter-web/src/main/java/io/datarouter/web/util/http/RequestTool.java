@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -479,6 +479,23 @@ public class RequestTool{
 			logger.debug("", new Exception());
 		}
 		return request.getRemoteAddr();
+	}
+
+	public static IpDetectionDto getIpDetectionDto(HttpServletRequest request){
+		IpDetectionDto ipDetectionDto = new IpDetectionDto();
+		ipDetectionDto.clientIpHeaders = Collections.list(request.getHeaders(HttpHeaders.X_CLIENT_IP));
+		ipDetectionDto.forwardedForHeaders = Collections.list(request.getHeaders(HttpHeaders.X_FORWARDED_FOR));
+		ipDetectionDto.remoteAddr = request.getRemoteAddr();
+		ipDetectionDto.detectedIp = RequestTool.getIpAddress(request);
+		return ipDetectionDto;
+	}
+
+	@SuppressWarnings("unused") // used by serialization reflection
+	public static class IpDetectionDto{
+		private List<String> clientIpHeaders;
+		private List<String> forwardedForHeaders;
+		private String remoteAddr;
+		public String detectedIp;
 	}
 
 	private static Optional<String> getLastNonInternalIp(List<String> headerValues){

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,14 +104,15 @@ public class CachedSecretFactory{
 
 		@Override
 		protected T reload(){
+			boolean hasDefaultFallback = secretNamespacer.isDevelopment() && defaultValue.isPresent();
 			try{
-				return isShared ? secretService.readShared(nameSupplier, secretClass, SecretOpReason.automatedOp(
-						"CachedSecret")) : secretService.read(nameSupplier, secretClass, SecretOpReason.automatedOp(
-						"CachedSecret"));
+				return isShared ? secretService.readSharedCachedSecret(nameSupplier, secretClass, SecretOpReason
+						.automatedOp("CachedSecret"), hasDefaultFallback) : secretService.readCachedSecret(nameSupplier,
+						secretClass, SecretOpReason.automatedOp("CachedSecret"), hasDefaultFallback);
 			}catch(RuntimeException e){
 				//TODO consider making environment-based behavior possible (unless removing cached defaults)
-				if(secretNamespacer.isDevelopment()){
-					return defaultValue.orElseThrow(() -> e);
+				if(hasDefaultFallback){
+					return defaultValue.get();
 				}
 				throw e;
 			}

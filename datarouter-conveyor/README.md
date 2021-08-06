@@ -6,7 +6,7 @@
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-conveyor</artifactId>
-	<version>0.0.83</version>
+	<version>0.0.84</version>
 </dependency>
 ```
 

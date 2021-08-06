@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,6 +66,10 @@ public abstract class BaseConveyors implements DatarouterAppListener{
 		}
 		instanceRegistry.register(exec);
 		execsAndConveyorsByName.put(name, new Pair<>(exec, conveyor));
+	}
+
+	public Map<String,Pair<ExecutorService,Conveyor>> getExecsAndConveyorsbyName(){
+		return execsAndConveyorsByName;
 	}
 
 	@Override

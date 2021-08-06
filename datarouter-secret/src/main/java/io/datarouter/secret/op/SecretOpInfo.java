@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,23 +26,25 @@ public class SecretOpInfo{
 	public final String name;
 	public final SecretOpReason reason;
 	public final boolean shouldRecord;
+	public final boolean shouldLog;
 	public final Optional<String> targetSecretClientConfig;
 
 	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason){
-		this(op, namespace, name, reason, false);
+		this(op, namespace, name, reason, false, true);
 	}
 
-	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason, boolean shouldRecord){
-		this(op, namespace, name, reason, shouldRecord, Optional.empty());
+	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason, boolean shouldRecord,
+			boolean shouldLog){
+		this(op, namespace, name, reason, shouldRecord, shouldLog, Optional.empty());
 	}
 
 	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason,
 			Optional<String> targetSecretClientConfig){
-		this(op, namespace, name, reason, false, targetSecretClientConfig);
+		this(op, namespace, name, reason, false, true, targetSecretClientConfig);
 	}
 
 	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason, boolean shouldRecord,
-			Optional<String> targetSecretClientConfig){
+			boolean shouldLog, Optional<String> targetSecretClientConfig){
 		ObjectTool.requireNonNulls(op, namespace, name, reason, targetSecretClientConfig);
 
 		this.op = op;
@@ -50,6 +52,7 @@ public class SecretOpInfo{
 		this.name = name;
 		this.reason = reason;
 		this.shouldRecord = shouldRecord;
+		this.shouldLog = shouldLog;
 		this.targetSecretClientConfig = targetSecretClientConfig;
 	}
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -120,20 +120,12 @@ public class SecretService{
 		return helper.apply(opInfo, ListNamesOp::new, namespacedPrefix, true);
 	}
 
-	public <T> T read(Supplier<String> secretName, Class<T> secretClass, SecretOpReason reason){
-		return deserialize(readRaw(Optional.empty(), secretName.get(), reason), secretClass);
-	}
-
 	public <T> T read(String secretName, Class<T> secretClass, SecretOpReason reason){
 		return deserialize(readRaw(Optional.empty(), secretName, reason), secretClass);
 	}
 
 	public <T> T readNamespaced(String secretNamespace, String secretName, Class<T> secretClass, SecretOpReason reason){
 		return deserialize(readRawInternal(Optional.empty(), secretNamespace, secretName, reason), secretClass);
-	}
-
-	public <T> T readShared(Supplier<String> secretName, Class<T> secretClass, SecretOpReason reason){
-		return deserialize(readRawShared(Optional.empty(), secretName.get(), reason), secretClass);
 	}
 
 	public <T> T readShared(String secretName, Class<T> secretClass, SecretOpReason reason){
@@ -148,7 +140,7 @@ public class SecretService{
 	//skips the recording step. this is necessary if the recorder uses the same DB that the secret is needed to init.
 	public String readRawSharedWithoutRecord(String secretName, SecretOpReason reason){
 		String namespace = secretNamespacer.getSharedNamespace();
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.READ, namespace, secretName, reason, false);
+		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.READ, namespace, secretName, reason, false, true);
 		return helper.apply(opInfo, ReadOp::new, opInfo.getNamespaced()).getValue();
 	}
 
@@ -169,6 +161,20 @@ public class SecretService{
 		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.READ, namespace, secretName, reason,
 				targetSecretClientSupplierConfigName);
 		return helper.apply(opInfo, ReadOp::new, opInfo.getNamespaced()).getValue();
+	}
+
+	public <T> T readCachedSecret(Supplier<String> secretName, Class<T> secretClass, SecretOpReason reason,
+			boolean hasDefaultFallback){
+		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.READ, secretNamespacer.getAppNamespace(), secretName.get(),
+				reason, false, !hasDefaultFallback);
+		return deserialize(helper.apply(opInfo, ReadOp::new, opInfo.getNamespaced()).getValue(), secretClass);
+	}
+
+	public <T> T readSharedCachedSecret(Supplier<String> secretName, Class<T> secretClass, SecretOpReason reason,
+			boolean hasDefaultFallback){
+		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.READ, secretNamespacer.getSharedNamespace(), secretName
+				.get(), reason, false, !hasDefaultFallback);
+		return deserialize(helper.apply(opInfo, ReadOp::new, opInfo.getNamespaced()).getValue(), secretClass);
 	}
 
 	public <T> void create(String secretName, T secretValue, SecretOpReason reason){
@@ -325,7 +331,7 @@ public class SecretService{
 			}
 			//overall failure
 			if(attemptedOps.size() > 0){
-				attemptedOps.forEach(SecretClientHelper::logIfError);
+				attemptedOps.forEach(attemptedOp -> SecretClientHelper.logIfError(attemptedOp, opInfo));
 				//throw the most recent failed op exception
 				throw attemptedOps.get(attemptedOps.size() - 1).getException();
 			}
@@ -333,8 +339,8 @@ public class SecretService{
 			throw new NoConfiguredSecretClientSupplierException(opInfo);
 		}
 
-		private static <T> void logIfError(SecretClientOpAttempt<T> opAttempt){
-			if(opAttempt.isSuccess()){
+		private static <T> void logIfError(SecretClientOpAttempt<T> opAttempt, SecretOpInfo secretOpInfo){
+			if(opAttempt.isSuccess() || !secretOpInfo.shouldLog){
 				return;
 			}
 			logger.error(opAttempt.secretClientConfig.getConfigName() + " failed op", opAttempt.getException());

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,9 +67,9 @@ public class RefreshableIntegrationTests{
 	public void testMinimumTtlBehavior(){
 		String[] values = {"first", "second"};
 		PredictableSupplier predictable = new PredictableSupplier(values);
-		//refresh will not mutate unless 10ms have elapsed since last refresh
-		RefreshableSupplier<String> refreshable = new RefreshableStringSupplier(predictable, Duration.ofMillis(10L),
-				Duration.ofMillis(10L));
+		//refresh will not mutate unless 50ms have elapsed since last refresh
+		RefreshableSupplier<String> refreshable = new RefreshableStringSupplier(predictable, Duration.ofMillis(50L),
+				Duration.ofMillis(50L));
 
 		//this all executes before the TTL passes, so nothing is mutated
 		passTime();
@@ -79,7 +79,7 @@ public class RefreshableIntegrationTests{
 		}
 
 		//after the minimum TTL has passed, a refresh will trigger a mutation
-		passTime(10L);
+		passTime(100L);
 		Assert.assertTrue(getNowAndPassTime().isBefore(refreshable.refresh()));
 		Assert.assertEquals(refreshable.get(), values[1]);
 		Assert.assertEquals(refreshable.get(), values[1]);
@@ -120,11 +120,11 @@ public class RefreshableIntegrationTests{
 		//subsequent refreshes will not be allowed within the attemptInterval
 		Assert.assertEquals(predictable.getCount(), 0);
 		RefreshableSupplier<String> refreshable = new RefreshableStringSupplier(predictable, Duration.ZERO, Duration
-				.ofMillis(15L));
+				.ofMillis(75L));
 		Assert.assertEquals(predictable.getCount(), 1);
 		Instant firstRefreshInstant = refreshable.refresh();
 
-		//no refreshes are attempted for 10+ms due to attemptInterval
+		//no refreshes are attempted for 50+ms due to attemptInterval
 		for(int i = 0; i < 5; i++){
 			Assert.assertEquals(refreshable.get(), values[0]);
 			Assert.assertTrue(getNowAndPassTime().isAfter(refreshable.refresh()));
@@ -133,7 +133,7 @@ public class RefreshableIntegrationTests{
 
 		//after attemptInterval has passed, a new refresh attempt will be made, but since the value is the same, no
 		//refresh will happen
-		passTime(5L);
+		passTime(25L);
 		Assert.assertEquals(predictable.getCount(), 1);
 		Assert.assertEquals(refreshable.get(), values[0]);
 		Assert.assertTrue(getNowAndPassTime().isAfter(refreshable.refresh()));
@@ -155,7 +155,7 @@ public class RefreshableIntegrationTests{
 	}
 
 	private static void passTime(){
-		passTime(1L);
+		passTime(5L);
 	}
 
 	private static void passTime(long duration){
@@ -167,7 +167,7 @@ public class RefreshableIntegrationTests{
 	}
 
 	//NOTE: getNowAndPassTime avoids issues with comparing Instants in test code, the TTL really is zero
-	//passes ~2ms
+	//passes ~10ms
 	private static Instant getNowAndPassTime(){
 		passTime();
 		Instant now = Instant.now();

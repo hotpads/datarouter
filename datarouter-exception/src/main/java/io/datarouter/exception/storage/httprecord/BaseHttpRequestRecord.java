@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
+import io.datarouter.instrumentation.trace.Traceparent;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.DateField;
@@ -107,8 +108,10 @@ extends BaseDatabean<PK,D>{
 		public static final LongDateFieldKey receivedAt = new LongDateFieldKey("receivedAt");
 		public static final LongFieldKey duration = new LongFieldKey("duration");
 		public static final StringFieldKey exceptionRecordId = new StringFieldKey("exceptionRecordId");
-		public static final StringFieldKey traceId = new StringFieldKey("traceId");
-		public static final StringFieldKey parentId = new StringFieldKey("parentId");
+		public static final StringFieldKey traceId = new StringFieldKey("traceId")
+				.withSize(Traceparent.TRACE_ID_HEX_SIZE);
+		public static final StringFieldKey parentId = new StringFieldKey("parentId")
+				.withSize(Traceparent.PARENT_ID_HEX_SIZE);
 		public static final StringFieldKey httpMethod = new StringFieldKey("httpMethod").withSize(16);
 		public static final StringFieldKey httpParams = new StringFieldKey("httpParams")
 				.withSize(CommonFieldSizes.INT_LENGTH_LONGTEXT);
@@ -374,6 +377,7 @@ extends BaseDatabean<PK,D>{
 		this.otherHeaders = GsonTool.GSON.toJson(dto.others);
 	}
 
+	@Deprecated // remove when new index is added
 	public abstract static class BaseHttpRequestRecordByTraceContext<
 			PK extends BaseHttpRequestRecordKey<PK>,
 			D extends BaseHttpRequestRecord<PK,D>>

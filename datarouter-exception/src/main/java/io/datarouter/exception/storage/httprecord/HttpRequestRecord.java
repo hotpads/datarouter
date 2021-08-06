@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 			super(HttpRequestRecordKey::new);
 		}
 
+		@Deprecated // remove when new index is added
 		@Override
 		public Map<String,List<Field<?>>> getUniqueIndexes(HttpRequestRecord record){
 			Map<String,List<Field<?>>> indexes = new TreeMap<>();
@@ -165,6 +166,7 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 				getOtherHeaders());
 	}
 
+	@Deprecated // remove when new index is added
 	public static class HttpRequestRecordByTraceContext
 	extends BaseHttpRequestRecordByTraceContext<
 			HttpRequestRecordKey,

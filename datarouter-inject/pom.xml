@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.83</version>
+		<version>0.0.84</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -51,7 +51,6 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>${guava-version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -88,7 +87,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.0</version>
+					<version>${maven-compiler-plugin-version}</version>
 					<configuration>
 						<compilerId>eclipse</compilerId>
 						<source>11</source>

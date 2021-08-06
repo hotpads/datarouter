@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.83</version>
+		<version>0.0.84</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -51,7 +51,6 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>${guava-version}</version>
 			<scope>runtime</scope>
 		</dependency>
 	</dependencies>

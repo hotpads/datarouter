@@ -15,7 +15,7 @@ same webapp, where the fleet of services will have a ClusterSetting table for ea
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-cluster-setting</artifactId>
-	<version>0.0.83</version>
+	<version>0.0.84</version>
 </dependency>
 ```
 

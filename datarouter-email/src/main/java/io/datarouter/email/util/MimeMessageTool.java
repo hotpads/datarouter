@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,9 @@
  */
 package io.datarouter.email.util;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
+import java.io.File;
+import java.io.IOException;
+
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
@@ -32,13 +33,15 @@ public class MimeMessageTool{
 		}
 	}
 
-	public static MimeBodyPart buildMimeBodyPartForAttachment(String fileName, DataSource attachmentDataSource){
-		MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+	public static MimeBodyPart buildMimeBodyPartForAttachment(String fileName, File file){
 		try{
-			attachmentBodyPart.setDataHandler(new DataHandler(attachmentDataSource));
+			MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+			attachmentBodyPart.attachFile(file);
 			attachmentBodyPart.setFileName(fileName);
 			return attachmentBodyPart;
 		}catch(MessagingException e){
+			throw new RuntimeException(e);
+		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 	}

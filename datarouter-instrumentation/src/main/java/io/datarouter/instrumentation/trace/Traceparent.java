@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,10 +28,8 @@ public class Traceparent{
 	private static final String TRACEPARENT_DELIMITER = "-";
 	private static final Integer MIN_CHARS_TRACEPARENT = 55;
 	private static final String CURRENT_VERSION = "00";
-	@SuppressWarnings("unused")
-	private static final int TRACE_ID_HEX_SIZE = 32;
-	@SuppressWarnings("unused")
-	private static final int PARENT_ID_HEX_SIZE = 16;
+	public static final int TRACE_ID_HEX_SIZE = 32;
+	public static final int PARENT_ID_HEX_SIZE = 16;
 
 	public final String version = CURRENT_VERSION;
 	public final String traceId;

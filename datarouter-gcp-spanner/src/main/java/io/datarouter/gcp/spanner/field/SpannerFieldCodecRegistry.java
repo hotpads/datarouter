@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,7 @@ import io.datarouter.gcp.spanner.field.array.SpannerDelimitedStringArrayFieldCod
 import io.datarouter.gcp.spanner.field.array.SpannerDoubleArrayFieldCodec;
 import io.datarouter.gcp.spanner.field.array.SpannerIntegerArrayFieldCodec;
 import io.datarouter.gcp.spanner.field.array.SpannerUInt63ArrayFieldCodec;
+import io.datarouter.gcp.spanner.field.array.SpannerUInt7ArrayFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerDateFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerInstantFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerLocalDateFieldCodec;
@@ -58,6 +59,7 @@ import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
 import io.datarouter.model.field.imp.array.DoubleArrayField;
 import io.datarouter.model.field.imp.array.IntegerArrayField;
 import io.datarouter.model.field.imp.array.UInt63ArrayField;
+import io.datarouter.model.field.imp.array.UInt7ArrayField;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.DoubleField;
 import io.datarouter.model.field.imp.comparable.FloatField;
@@ -95,23 +97,29 @@ public class SpannerFieldCodecRegistry{
 		addCodec(IntegerField.class, SpannerIntegerFieldCodec.class);
 		addCodec(LongField.class, SpannerLongFieldCodec.class);
 		addCodec(ShortField.class, SpannerShortFieldCodec.class);
+
 		addCodec(UInt7Field.class, SpannerUInt7FieldCodec.class);
 		addCodec(UInt15Field.class, SpannerUInt15FieldCodec.class);
 		addCodec(UInt31Field.class, SpannerUInt31FieldCodec.class);
 		addCodec(UInt63Field.class, SpannerUInt63FieldCodec.class);
 		addCodec(VarIntField.class, SpannerVarIntFieldCodec.class);
+
 		addCodec(SignedByteField.class, SpannerSignedByteFieldCodec.class);
+
 		addCodec(IntegerEnumField.class, SpannerIntegerEnumFieldCodec.class);
 		addCodec(StringEnumField.class, SpannerStringEnumFieldCodec.class);
 		addCodec(VarIntEnumField.class, SpannerVarIntEnumFieldCodec.class);
+
 		addCodec(DateField.class, SpannerDateFieldCodec.class);
 		addCodec(InstantField.class, SpannerInstantFieldCodec.class);
 		addCodec(LocalDateField.class, SpannerLocalDateFieldCodec.class);
 		addCodec(LocalDateTimeField.class, SpannerLocalDateTimeFieldCodec.class);
 		addCodec(LongDateField.class, SpannerLongDateFieldCodec.class);
+
 		addCodec(BooleanArrayField.class, SpannerBooleanArrayFieldCodec.class);
 		addCodec(ByteArrayField.class, SpannerByteArrayFieldCodec.class);
 		addCodec(DelimitedStringArrayField.class, SpannerDelimitedStringArrayFieldCodec.class);
+		addCodec(UInt7ArrayField.class, SpannerUInt7ArrayFieldCodec.class);
 		addCodec(UInt63ArrayField.class, SpannerUInt63ArrayFieldCodec.class);
 		addCodec(DoubleArrayField.class, SpannerDoubleArrayFieldCodec.class);
 		addCodec(IntegerArrayField.class, SpannerIntegerArrayFieldCodec.class);

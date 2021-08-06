@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2009 HotPads (admin@hotpads.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +16,11 @@
 package io.datarouter.email.email;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-import javax.activation.DataSource;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.mail.Message.RecipientType;
@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.config.DatarouterEmailSettings.DatarouterEmailHostDetails;
 import io.datarouter.email.config.DatarouterEmailSettingsProvider;
+import io.datarouter.email.dto.DatarouterEmailFileAttachmentDto;
 import io.datarouter.email.util.MimeMessageTool;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
@@ -74,11 +75,12 @@ public class DatarouterEmailService{
 	public void send(String fromEmail, String toEmail, String subject, String body, boolean html)
 	throws MessagingException{
 		sendAndGetMessageId(fromEmail, toEmail, toEmail, subject, body, html, Collections.emptyMap(),
-				Collections.emptyMap());
+				List.of());
 	}
 
 	public Optional<String> sendAndGetMessageId(String fromEmail, String toEmail, String replyToEmail, String subject,
-			String body, boolean html, Map<String,String> headers, Map<String,DataSource> attachmentDataSourceByName)
+			String body, boolean html, Map<String,String> headers,
+			List<DatarouterEmailFileAttachmentDto> fileAttachmentDtos)
 	throws MessagingException{
 		if(!datarouterEmailSettingsProvider.get().sendDatarouterEmails.get()){
 			return Optional.empty();
@@ -111,8 +113,8 @@ public class DatarouterEmailService{
 			textBodyPart.setText(body, "UTF-8", subType);
 			multipart.addBodyPart(textBodyPart);
 
-			Scanner.of(attachmentDataSourceByName.entrySet())
-					.map(entry -> MimeMessageTool.buildMimeBodyPartForAttachment(entry.getKey(), entry.getValue()))
+			Scanner.of(fileAttachmentDtos)
+					.map(dto -> MimeMessageTool.buildMimeBodyPartForAttachment(dto.fileName, dto.file))
 					.forEach(mimeBodyPart -> MimeMessageTool.addBodyPartToMultipart(multipart, mimeBodyPart));
 
 			message.setContent(multipart);
