@@ -96,7 +96,7 @@
 				<tr><td>Web server</td><td>${serverVersion}</td></tr>
 				<tr title="${jvmVersion}"><td>Java version</td><td>${javaVersion}</td></tr>
 				<tr><td>Web application</td><td>${appName}</td></tr>
-				<tr title="${ipSource}"><td>outgoing ip</td><td>${ipAddr}</td></tr>
+				<tr title="${ipSource}"><td>Outgoing ip</td><td>${ipAddr}</td></tr>
 				<tr title="${manifest}"><td colspan="2">Version</td></tr>
 				<tr class="sub" title="${gitDescribeShort}"><td>Branch</td><td>${gitBranch}</td></tr>
 				<tr class="sub" title="${gitCommitTime} by ${gitCommitUserName}"><td>Commit</td><td class="code">${gitCommit}</td></tr>
@@ -177,6 +177,10 @@
 				</table>
 			</c:forEach>
 		</div>
+	</div>
+	<div class="row">
+		${vmNativeMemoryStats}
+		${cgroupMemoryStats}
 	</div>
 	<div class="row mt-4">
 		<div class="col-12 col-md-6">

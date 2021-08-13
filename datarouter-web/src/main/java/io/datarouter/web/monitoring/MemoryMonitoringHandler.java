@@ -15,6 +15,15 @@
  */
 package io.datarouter.web.monitoring;
 
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.table;
+import static j2html.TagCreator.tbody;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
+import static j2html.TagCreator.thead;
+import static j2html.TagCreator.tr;
+
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -24,6 +33,7 @@ import java.lang.management.ThreadMXBean;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -45,6 +55,10 @@ import io.datarouter.web.dispatcher.NonEagerInitHandler;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.monitoring.OutgoingIpFinderService.OutGoingIpWrapper;
+import io.datarouter.web.monitoring.memory.CgroupMemoryStatsDto;
+import io.datarouter.web.monitoring.memory.HostMemoryTool;
+import io.datarouter.web.monitoring.memory.VmNativeMemoryStatsDto;
+import j2html.attributes.Attr;
 
 /**
  * This class needs to access a folder containing a library which doesn't exist during unit tests
@@ -124,6 +138,9 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 			mav.put("cgroupMemoryLimit", ByteUnitTool.byteCountToDisplaySize(cgroupMemoryStats.limit));
 		});
 
+		mav.put("vmNativeMemoryStats", buildNativeMemoryStatsTable());
+		mav.put("cgroupMemoryStats", buildCgroupMemoryStatsTable());
+
 		List<MemoryPoolMXBean> memoryPoolMxBeans = ManagementFactory.getMemoryPoolMXBeans();
 		List<MemoryPoolForDisplay> heaps = new LinkedList<>();
 		List<MemoryPoolForDisplay> nonHeaps = new LinkedList<>();
@@ -161,6 +178,41 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("gcs", gcs);
 
 		return mav;
+	}
+
+	private String buildNativeMemoryStatsTable(){
+		List<VmNativeMemoryStatsDto> memoryStats = HostMemoryTool.getVmNativeMemoryStats()
+				.orElseGet($ -> new ArrayList<>());
+		var tbody = tbody()
+				.with(thead(tr(th("Category"), th("Reserved Memory"), th("Committed Memory"))));
+		Scanner.of(memoryStats)
+				.map(stat -> tr(
+						td(stat.category),
+						td(ByteUnitTool.byteCountToDisplaySize(stat.reservedMemoryBytes)).attr(Attr.ALIGN, "right"),
+						td(ByteUnitTool.byteCountToDisplaySize(stat.committedMemoryBytes)).attr(Attr.ALIGN, "right")))
+				.forEach(tbody::with);
+		var table = table(tbody)
+				.withClass("table table-striped table-bordered table-sm");
+		return div(h2("VM Native Memory Stats"), table)
+				.withClass("col-12 col-sm-6")
+				.render();
+	}
+
+	private String buildCgroupMemoryStatsTable(){
+		List<CgroupMemoryStatsDto> memoryStats = HostMemoryTool.getCgroupMemoryStatsExtended()
+				.orElseGet($ -> new ArrayList<>());
+		var tbody = tbody()
+				.with(thead(tr(th("Category"), th("Memory value"))));
+		Scanner.of(memoryStats)
+				.map(stat -> tr(
+						td(stat.category),
+						td(ByteUnitTool.byteCountToDisplaySize(stat.memoryBytes)).attr(Attr.ALIGN, "right")))
+				.forEach(tbody::with);
+		var table = table(tbody)
+				.withClass("table table-striped table-bordered table-sm");
+		return div(h2("Cgroup Memory Stats"), table)
+				.withClass("col-12 col-sm-6")
+				.render();
 	}
 
 	@Handler

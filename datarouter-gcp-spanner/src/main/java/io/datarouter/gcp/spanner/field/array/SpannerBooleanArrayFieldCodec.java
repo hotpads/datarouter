@@ -15,6 +15,7 @@
  */
 package io.datarouter.gcp.spanner.field.array;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.cloud.spanner.Key.Builder;
@@ -48,7 +49,8 @@ public class SpannerBooleanArrayFieldCodec extends SpannerBaseFieldCodec<List<Bo
 
 	@Override
 	public List<Boolean> getValueFromResultSet(ResultSet rs){
-		return rs.getBooleanList(field.getKey().getColumnName());
+		// copy to mutable list
+		return new ArrayList<>(rs.getBooleanList(field.getKey().getColumnName()));
 	}
 
 }

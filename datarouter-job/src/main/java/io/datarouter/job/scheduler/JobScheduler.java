@@ -258,8 +258,9 @@ public class JobScheduler{
 					// Try running the job detached, but fallback to local execution if not possible.
 					// Maybe this should be an option when registering the job.
 					return runDetached(jobWrapper);
-				}catch(RejectedExecutionException e){
-					logger.warn("Falling back to local execution...");
+				}catch(RuntimeException e){
+					logger.warn("Unable to run detached-job: {}. Falling back to local execution",
+							jobWrapper.jobClass.getSimpleName(), e);
 				}
 			}
 			return runLocal(jobWrapper);
@@ -274,7 +275,7 @@ public class JobScheduler{
 			detachedJobExecutor.submit(jobWrapper);
 			return Outcome.success();
 		}catch(RejectedExecutionException e){
-			logger.warn("Unable to run detached-job: {}", jobClass.getSimpleName(), e);
+			logger.warn("detached-job: {} was rejected by detached executor.", jobClass.getSimpleName(), e);
 			throw e;
 		}
 	}

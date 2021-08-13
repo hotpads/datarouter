@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.config;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier.NodeWidgetDatabeanExporterLink;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier.NodeWidgetTableCountLink;
+import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestRegistry;
 import io.datarouter.web.dispatcher.DatarouterWebDocsRouteSet;
@@ -145,6 +147,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final List<Class<? extends DailyDigest>> dailyDigest;
 	private final Class<? extends RequestProxySetter> requestProxy;
 	private final List<Class<? extends MetricLinkPage>> metricLinkPages;
+	private final ZoneId defaultEmailDistributionListZoneId;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
@@ -153,7 +156,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			String customStaticFileFilterRegex){
 		this(null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
 				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null, null,
-				null, null, null, null);
+				null, null, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
@@ -185,7 +188,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems,
 			List<Class<? extends DailyDigest>> dailyDigest,
 			Class<? extends RequestProxySetter> requestProxy,
-			List<Class<? extends MetricLinkPage>> metricLinkPages){
+			List<Class<? extends MetricLinkPage>> metricLinkPages,
+			ZoneId defaultEmailDistributionListZoneId){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 		addRouteSet(DatarouterWebDocsRouteSet.class);
@@ -281,6 +285,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.dailyDigest = dailyDigest;
 		this.requestProxy = requestProxy;
 		this.metricLinkPages = metricLinkPages;
+		this.defaultEmailDistributionListZoneId = defaultEmailDistributionListZoneId;
 	}
 
 	@Override
@@ -321,6 +326,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(DailyDigestRegistry.class, new DailyDigestRegistry(dailyDigest));
 		bind(RequestProxySetter.class).to(requestProxy);
 		bindActualInstance(MetricLinkPageRegistry.class, new DefaultMetricLinkPageRegistry(metricLinkPages));
+		bindActualInstance(DefaultEmailDistributionListZoneId.class,
+				new DefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -396,6 +403,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private List<Class<? extends DailyDigest>> dailyDigest = new ArrayList<>();
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
 		private final List<Class<? extends MetricLinkPage>> metricLinkPages = new ArrayList<>();
+		private ZoneId defaultEmailDistributionListZoneId;
 
 		public DatarouterWebPluginBuilder(DatarouterService datarouterService, List<ClientId> defaultClientIds){
 			this.datarouterService = datarouterService;
@@ -555,6 +563,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setDefaultEmailDistributionListZoneId(ZoneId zoneId){
+			this.defaultEmailDistributionListZoneId = zoneId;
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
 					new DatarouterWebDaoModule(defaultClientIds),
@@ -593,7 +606,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					dynamicNavBarItems,
 					dailyDigest,
 					requestProxy,
-					metricLinkPages);
+					metricLinkPages,
+					defaultEmailDistributionListZoneId);
 		}
 
 	}

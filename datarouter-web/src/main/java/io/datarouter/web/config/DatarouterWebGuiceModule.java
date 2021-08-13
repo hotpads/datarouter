@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.config;
 
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.util.serialization.GsonTool;
+import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.ExceptionRecorder.NoOpExceptionRecorder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
@@ -109,6 +111,9 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
 		// define as singleton for everybody
 		bind(Gson.class).toInstance(GsonTool.GSON);
+
+		bindDefaultInstance(DefaultEmailDistributionListZoneId.class,
+				new DefaultEmailDistributionListZoneId(ZoneId.systemDefault()));
 	}
 
 	// allows this module to be installed multiple times

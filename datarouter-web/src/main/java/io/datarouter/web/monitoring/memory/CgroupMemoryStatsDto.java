@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.monitoring;
+package io.datarouter.web.monitoring.memory;
 
-public class CgroupMemoryStats{
+public class CgroupMemoryStatsDto{
 
-	public final long usage;
-	public final long limit;
+	public final String category;
+	public final long memoryBytes;
 
-	public CgroupMemoryStats(long usage, long limit){
-		this.usage = usage;
-		this.limit = limit;
+	public CgroupMemoryStatsDto(String category, long memoryBytes){
+		this.category = category;
+		this.memoryBytes = memoryBytes;
 	}
 
 }

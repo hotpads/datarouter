@@ -87,7 +87,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 			String toEmail;
 			if(serverTypeDetector.mightBeProduction()){
 				toEmail = longRunningTaskFailureAlertEmailType.getAsCsv(adminEmailService
-						.getAdministratorEmailAddresses());
+						.getAdditionalAdministratorOnlyCsv());
 			}else{
 				toEmail = datarouterProperties.getAdministratorEmail();
 			}

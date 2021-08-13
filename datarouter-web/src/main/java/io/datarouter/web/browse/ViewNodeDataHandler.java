@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
+import io.datarouter.email.type.DatarouterEmailTypes.CountKeysEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.model.databean.Databean;
@@ -33,7 +34,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
@@ -61,8 +61,6 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private static final String PARAM_outputBatchSize = "outputBatchSize";
 
 	@Inject
-	private DatarouterAdministratorEmailService administratorEmailService;
-	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
 	private DatarouterWebPaths paths;
@@ -72,6 +70,8 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private CountKeysEmailType countKeysEmailType;
 
 	@Override
 	protected PathNode getFormPath(){
@@ -213,7 +213,7 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 
 	private void sendEmail(String nodeName, List<Twin<String>> kvs){
 		String from = getSessionInfo().getRequiredSession().getUsername();
-		String to = administratorEmailService.getAdministratorEmailAddressesCsv(from);
+		String to = from;
 		String title = "Count Keys Result";
 		var table = standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplementsText(kvs);
 		String primaryHref = htmlEmailService.startLinkBuilder()

@@ -41,7 +41,6 @@ import io.datarouter.storage.node.type.index.ManualUniqueIndexNode;
 import io.datarouter.storage.node.type.indexing.IndexingMapStorageNode;
 import io.datarouter.storage.node.type.indexing.IndexingSortedMapStorageNode;
 import io.datarouter.storage.serialize.fieldcache.IndexEntryFieldInfo;
-import io.datarouter.util.lang.ReflectionTool;
 
 public class IndexingNodeFactory{
 
@@ -91,7 +90,8 @@ public class IndexingNodeFactory{
 			IK extends PrimaryKey<IK>,
 			IF extends DatabeanFielder<IK,IE>,
 			IE extends UniqueIndexEntry<IK,IE,PK,D>>
-	ManualUniqueIndexNode<PK,D,IK,IE> newManualUnique(MapStorage<PK,D> mainNode,
+	ManualUniqueIndexNode<PK,D,IK,IE> newManualUnique(
+			MapStorage<PK,D> mainNode,
 			SortedMapStorageNode<IK,IE,IF> indexNode){
 		return new ManualUniqueIndexNode<>(mainNode, indexNode);
 	}
@@ -101,7 +101,8 @@ public class IndexingNodeFactory{
 			IK extends PrimaryKey<IK>,
 			IE extends MultiIndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	ManualMultiIndexNode<PK,D,IK,IE> newManualMulti(MapStorage<PK,D> mainNode,
+	ManualMultiIndexNode<PK,D,IK,IE> newManualMulti(
+			MapStorage<PK,D> mainNode,
 			SortedMapStorageNode<IK,IE,IF> indexNode){
 		return new ManualMultiIndexNode<>(mainNode, indexNode);
 	}
@@ -117,8 +118,12 @@ public class IndexingNodeFactory{
 			IK extends PrimaryKey<IK>,
 			IE extends UniqueIndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	ManagedUniqueIndexNode<PK,D,IK,IE,IF> newManagedUnique(IndexedMapStorage<PK, D> backingNode,
-			Supplier<IF> indexFielderSupplier, Supplier<IE> indexEntrySupplier, boolean manageTxn, String indexName){
+	ManagedUniqueIndexNode<PK,D,IK,IE,IF> newManagedUnique(
+			IndexedMapStorage<PK, D> backingNode,
+			Supplier<IF> indexFielderSupplier,
+			Supplier<IE> indexEntrySupplier,
+			boolean manageTxn,
+			String indexName){
 		IndexEntryFieldInfo<IK,IE,IF> fieldInfo = new IndexEntryFieldInfo<>(indexName, indexEntrySupplier,
 				indexFielderSupplier);
 		if(manageTxn){
@@ -136,29 +141,24 @@ public class IndexingNodeFactory{
 			IK extends PrimaryKey<IK>,
 			IE extends UniqueIndexEntry<IK,IE,PK,D>,
 			IF extends DatabeanFielder<IK,IE>>
-	ManagedUniqueIndexNode<PK,D,IK,IE,IF> newManagedUnique(IndexedMapStorage<PK, D> backingNode,
-			Class<IF> indexFielder, Class<IE> indexEntryClass, boolean manageTxn){
-		return newManagedUnique(backingNode, ReflectionTool.supplier(indexFielder), ReflectionTool.supplier(
-				indexEntryClass), manageTxn, indexEntryClass.getSimpleName());
-	}
-
-	@Deprecated // use createKeyOnlyManagedIndex(Supplier, IndexedMapStorageNode);
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>,
-			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
-	ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
-	createKeyOnlyManagedIndex(
-			Class<IK> indexEntryKeyClass,
-			IndexedMapStorageNode<PK,D,F> backingNode){
-		return createKeyOnlyManagedIndex(ReflectionTool.supplier(indexEntryKeyClass), backingNode);
+	ManagedUniqueIndexNode<PK,D,IK,IE,IF> newManagedUnique(
+			IndexedMapStorage<PK, D> backingNode,
+			Supplier<IF> indexFielderSupplier,
+			Supplier<IE> indexEntrySupplier,
+			boolean manageTxn){
+		return newManagedUnique(
+				backingNode,
+				indexFielderSupplier,
+				indexEntrySupplier,
+				manageTxn,
+				indexEntrySupplier.get().getClass().getSimpleName());
 	}
 
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>,
 			IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>>
-	ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
+			ManagedNodeBuilder<PK,D,IK,FieldlessIndexEntry<IK,PK,D>,FieldlessIndexEntryFielder<IK,PK,D>>
 	createKeyOnlyManagedIndex(
 			Supplier<IK> indexEntryKeySupplier,
 			IndexedMapStorageNode<PK,D,F> backingNode){

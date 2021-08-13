@@ -8,7 +8,7 @@ datarouter-mockito is used to test other modules that require injection with the
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mockito</artifactId>
-	<version>0.0.84</version>
+	<version>0.0.85</version>
 	<scope>test</scope>
 </dependency>
 ```

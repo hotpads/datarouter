@@ -41,7 +41,6 @@ import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.field.imp.custom.LongDateField;
 import io.datarouter.model.field.imp.custom.LongDateFieldKey;
-import io.datarouter.model.key.unique.BaseUniqueKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.serialize.fielder.Fielder;
 import io.datarouter.model.util.CommonFieldSizes;
@@ -375,33 +374,6 @@ extends BaseDatabean<PK,D>{
 		this.xRequestedWith = dto.requestedWith;
 
 		this.otherHeaders = GsonTool.GSON.toJson(dto.others);
-	}
-
-	@Deprecated // remove when new index is added
-	public abstract static class BaseHttpRequestRecordByTraceContext<
-			PK extends BaseHttpRequestRecordKey<PK>,
-			D extends BaseHttpRequestRecord<PK,D>>
-	extends BaseUniqueKey<PK>{
-
-		private String traceId;
-		private String parentId;
-
-		public BaseHttpRequestRecordByTraceContext(D httpRequestRecord){
-			this.traceId = httpRequestRecord.getTraceId();
-			this.parentId = httpRequestRecord.getParentId();
-		}
-
-		public BaseHttpRequestRecordByTraceContext(String traceId, String parentId){
-			this.traceId = traceId;
-			this.parentId = parentId;
-		}
-
-		@Override
-		public List<Field<?>> getFields(){
-			return List.of(new StringField(FieldKeys.traceId, traceId),
-					new StringField(FieldKeys.parentId, parentId));
-		}
-
 	}
 
  	public Map<String,String> getHeaders(){

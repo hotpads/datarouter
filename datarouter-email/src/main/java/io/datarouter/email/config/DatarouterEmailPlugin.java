@@ -21,6 +21,7 @@ import java.util.List;
 import io.datarouter.email.type.DatarouterEmailTypes.AvailabilitySwitchEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.AwsRdsEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.ClusterSettingEmailType;
+import io.datarouter.email.type.DatarouterEmailTypes.CountKeysEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.DailyDigestEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.LoggerConfigCleanupEmailType;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskFailureAlertEmailType;
@@ -32,6 +33,7 @@ import io.datarouter.storage.config.BaseStoragePlugin;
 
 public class DatarouterEmailPlugin extends BaseStoragePlugin{
 
+	private final List<String> emailRecipientsCountKeys;
 	private final List<String> emailRecipientsClusterSettingUpdate;
 	private final List<String> emailRecipientsPermissionRequests;
 	private final List<String> emailRecipientsNodewatch;
@@ -44,6 +46,7 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 	private final List<String> emailRecipientsDailyDigest;
 
 	private DatarouterEmailPlugin(
+			List<String> emailRecipientsCountKeys,
 			List<String> emailRecipientsClusterSettingUpdate,
 			List<String> emailRecipientsPermissionRequests,
 			List<String> emailRecipientsNodewatch,
@@ -56,6 +59,7 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 			List<String> emailRecipientsDailyDigest){
 		addSettingRoot(DatarouterEmailSettingRoot.class);
 
+		this.emailRecipientsCountKeys = emailRecipientsCountKeys;
 		this.emailRecipientsClusterSettingUpdate = emailRecipientsClusterSettingUpdate;
 		this.emailRecipientsPermissionRequests = emailRecipientsPermissionRequests;
 		this.emailRecipientsNodewatch = emailRecipientsNodewatch;
@@ -70,12 +74,12 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 
 	@Override
 	protected void configure(){
+		bind(CountKeysEmailType.class).toInstance(new CountKeysEmailType(emailRecipientsCountKeys));
 		bind(ClusterSettingEmailType.class)
 				.toInstance(new ClusterSettingEmailType(emailRecipientsClusterSettingUpdate));
 		bind(PermissionRequestEmailType.class)
 				.toInstance(new PermissionRequestEmailType(emailRecipientsPermissionRequests));
-		bind(NodewatchEmailType.class)
-				.toInstance(new NodewatchEmailType(emailRecipientsNodewatch));
+		bind(NodewatchEmailType.class).toInstance(new NodewatchEmailType(emailRecipientsNodewatch));
 		bind(WebappInstanceAlertEmailType.class)
 				.toInstance(new WebappInstanceAlertEmailType(emailRecipientsWebappInstanceAlert));
 		bind(LongRunningTaskFailureAlertEmailType.class)
@@ -86,14 +90,13 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 				.toInstance(new LoggerConfigCleanupEmailType(emailRecipientsLoggerConfigCleanup));
 		bind(AvailabilitySwitchEmailType.class)
 				.toInstance(new AvailabilitySwitchEmailType(emailRecipientsAvailabilitySwitch));
-		bind(AwsRdsEmailType.class)
-				.toInstance(new AwsRdsEmailType(emailRecipientsAwsRds));
-		bind(DailyDigestEmailType.class)
-				.toInstance(new DailyDigestEmailType(emailRecipientsDailyDigest));
+		bind(AwsRdsEmailType.class).toInstance(new AwsRdsEmailType(emailRecipientsAwsRds));
+		bind(DailyDigestEmailType.class).toInstance(new DailyDigestEmailType(emailRecipientsDailyDigest));
 	}
 
 	public static class DatarouterEmailPluginBuilder{
 
+		private final List<String> emailRecipientsCountKeys = new ArrayList<>();
 		private final List<String> emailRecipientsClusterSettingUpdate = new ArrayList<>();
 		private final List<String> emailRecipientsPermissionRequests = new ArrayList<>();
 		private final List<String> emailRecipientsNodewatch = new ArrayList<>();
@@ -104,6 +107,11 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 		private final List<String> emailRecipientsAvailabilitySwitch = new ArrayList<>();
 		private final List<String> emailRecipientsAwsRds = new ArrayList<>();
 		private final List<String> emailRecipientsDailyDigest = new ArrayList<>();
+
+		public DatarouterEmailPluginBuilder addCountKeysEmailRecipients(List<String> tos){
+			emailRecipientsCountKeys.addAll(tos);
+			return this;
+		}
 
 		public DatarouterEmailPluginBuilder addClusterSettingEmailRecipients(List<String> tos){
 			emailRecipientsClusterSettingUpdate.addAll(tos);
@@ -157,6 +165,7 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 
 		public DatarouterEmailPlugin build(){
 			return new DatarouterEmailPlugin(
+					emailRecipientsCountKeys,
 					emailRecipientsClusterSettingUpdate,
 					emailRecipientsPermissionRequests,
 					emailRecipientsNodewatch,

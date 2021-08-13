@@ -406,6 +406,8 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
 		Assert.assertEquals(roundTripped.getLongArrayField(), bean.getLongArrayField());
+
+		roundTripped.appendToLongArrayField(3);//assert mutability of returned list
 	}
 
 	@Test
@@ -418,6 +420,8 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
 		Assert.assertEquals(roundTripped.getBooleanArrayField(), bean.getBooleanArrayField());
+
+		roundTripped.appendToBooleanArrayField(true);//assert mutability of returned list
 	}
 
 	@Test
@@ -430,6 +434,8 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
 		Assert.assertEquals(roundTripped.getIntegerArrayField(), bean.getIntegerArrayField());
+
+		roundTripped.appendToIntegerArrayField(3);//assert mutability of returned list
 	}
 
 	@Test
@@ -444,6 +450,8 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
 		Assert.assertEquals(roundTripped.getDoubleArrayField(), bean.getDoubleArrayField());
+
+		roundTripped.appendToDoubleArrayField(3.0);//assert mutability of returned list
 	}
 
 	@Test
@@ -455,6 +463,8 @@ public abstract class BaseManyFieldIntegrationTests{
 
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
 		Assert.assertEquals(roundTripped.getDelimitedStringArrayField().toArray(), strings.toArray());
+
+		roundTripped.appendToDelimitedStringArrayField("later");//assert mutability of returned list
 	}
 
 }

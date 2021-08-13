@@ -68,6 +68,7 @@ import io.datarouter.web.js.DatarouterWebJsTool;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationConfig;
 import io.datarouter.web.user.databean.DatarouterUser;
 import io.datarouter.web.user.databean.DatarouterUser.DatarouterUserByUsernameLookup;
+import io.datarouter.web.user.detail.DatarouterUserExternalDetailService;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleManager;
@@ -115,6 +116,8 @@ public class AdminEditUserHandler extends BaseHandler{
 	private CurrentUserSessionInfoService currentUserSessionInfoService;
 	@Inject
 	private CopyUserListener copyUserListener;
+	@Inject
+	private DatarouterUserExternalDetailService detailsService;
 
 	@Handler
 	private Mav viewUsers(){
@@ -130,7 +133,8 @@ public class AdminEditUserHandler extends BaseHandler{
 						user.getId().toString(),
 						user.getUsername(),
 						user.getToken(),
-						userIdsWithPermissionRequests.contains(user.getId())))
+						userIdsWithPermissionRequests.contains(user.getId()),
+						detailsService.getUserProfileUrl(user).orElse("")))
 				.list();
 	}
 
@@ -440,12 +444,17 @@ public class AdminEditUserHandler extends BaseHandler{
 		public final String username;
 		public final String token;
 		public final boolean hasPermissionRequest;
+		public final String profileLink;
+		public final String profileClass;
 
-		public DatarouterUserListEntry(String id, String username, String token, boolean hasPermissionRequest){
+		public DatarouterUserListEntry(String id, String username, String token, boolean hasPermissionRequest,
+				String profileLink){
 			this.id = id;
 			this.username = username;
 			this.token = token;
 			this.hasPermissionRequest = hasPermissionRequest;
+			this.profileLink = profileLink;
+			this.profileClass = profileLink.isEmpty() ? "hidden" : "";
 		}
 
 	}

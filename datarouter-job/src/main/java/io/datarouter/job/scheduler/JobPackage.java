@@ -72,7 +72,8 @@ public class JobPackage implements Comparable<JobPackage>{
 		TriggerLockConfig manualTriggerLockConfig = scheduled.triggerLockConfig
 				.map(trigger -> new TriggerLockConfig(trigger.jobName, null, Duration.ofSeconds(Long.MAX_VALUE), false))
 				.orElse(null);
-		return new JobPackage(scheduled.jobCategoryName, null, () -> true, scheduled.jobClass, manualTriggerLockConfig);
+		return new JobPackage(scheduled.jobCategoryName, null, () -> true, scheduled.jobClass, manualTriggerLockConfig,
+				scheduled.shouldRunDetached, scheduled.detachedJobResource);
 	}
 
 	private JobPackage(

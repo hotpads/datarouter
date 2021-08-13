@@ -19,10 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
+import io.datarouter.httpclient.endpoint.BaseInternalLink;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.types.EndpointDecoder;
+import io.datarouter.web.handler.types.InternalLinkDecoder;
 
 public abstract class BaseRouteSet{
 
@@ -60,6 +62,15 @@ public abstract class BaseRouteSet{
 		BaseEndpoint<?> baseEndpoint = ReflectionTool.createWithoutNoArgs(baseEndpointClass);
 		return handle(baseEndpoint.pathNode)
 				.withDefaultHandlerDecoder(EndpointDecoder.class)
+				.withHandler(handler);
+	}
+
+	protected DispatchRule handleInternalLink(
+			Class<? extends BaseInternalLink> baseInternalLink,
+			Class<? extends BaseHandler> handler){
+		BaseInternalLink link = ReflectionTool.createWithoutNoArgs(baseInternalLink);
+		return handle(link.pathNode)
+				.withDefaultHandlerDecoder(InternalLinkDecoder.class)
 				.withHandler(handler);
 	}
 

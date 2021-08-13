@@ -25,6 +25,12 @@ import java.util.List;
  */
 public class DatarouterEmailTypes{
 
+	public static class CountKeysEmailType extends SimpleEmailType{
+		public CountKeysEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
 	public static class ClusterSettingEmailType extends SimpleEmailType{
 		public ClusterSettingEmailType(List<String> tos){
 			super(tos);

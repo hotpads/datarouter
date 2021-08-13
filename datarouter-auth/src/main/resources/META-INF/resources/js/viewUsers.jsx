@@ -184,6 +184,7 @@ const UserList = props =>
 					<th>Username</th>
 					<th>ID</th>
 					<th>Token</th>
+					<th>Profile</th>
 					<th></th>
 					<th></th>
 				</tr>
@@ -195,6 +196,7 @@ const UserList = props =>
 								<td>{user.username}</td>
 								<td>{user.id}</td>
 								<td>{user.token}</td>
+								<td><a href={user.profileLink} class={user.profileClass}>profile</a></td>
 								<td><Badges badges={user.hasPermissionRequest ? ['Permission Request'] : []} /></td>
 								<td><button type="button" class="btn btn-primary" name={user.username} onClick={props.openEditUser}>Edit</button></td>
 							</tr>

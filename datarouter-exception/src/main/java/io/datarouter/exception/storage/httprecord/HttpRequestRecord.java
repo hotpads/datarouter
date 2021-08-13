@@ -16,10 +16,7 @@
 package io.datarouter.exception.storage.httprecord;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.W3TraceContext;
-import io.datarouter.model.field.Field;
 import io.datarouter.util.UuidTool;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
@@ -44,14 +40,6 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 
 		public HttpRequestRecordFielder(){
 			super(HttpRequestRecordKey::new);
-		}
-
-		@Deprecated // remove when new index is added
-		@Override
-		public Map<String,List<Field<?>>> getUniqueIndexes(HttpRequestRecord record){
-			Map<String,List<Field<?>>> indexes = new TreeMap<>();
-			indexes.put("unique_traceContext", new HttpRequestRecordByTraceContext(record).getFields());
-			return indexes;
 		}
 
 	}
@@ -164,18 +152,6 @@ public class HttpRequestRecord extends BaseHttpRequestRecord<HttpRequestRecordKe
 				getxForwardedFor(),
 				getxRequestedWith(),
 				getOtherHeaders());
-	}
-
-	@Deprecated // remove when new index is added
-	public static class HttpRequestRecordByTraceContext
-	extends BaseHttpRequestRecordByTraceContext<
-			HttpRequestRecordKey,
-			HttpRequestRecord>{
-
-		public HttpRequestRecordByTraceContext(HttpRequestRecord httpRequestRecord){
-			super(httpRequestRecord);
-		}
-
 	}
 
 	public static HttpRequestRecord createEmptyForTesting(){

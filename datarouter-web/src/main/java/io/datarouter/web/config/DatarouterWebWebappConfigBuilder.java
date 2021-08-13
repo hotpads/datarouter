@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.config;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -133,6 +134,7 @@ implements WebappBuilder{
 	private String serviceDescription;
 	protected boolean useDatarouterAuth;
 	private Class<? extends RequestProxySetter> requestProxy;
+	private ZoneId defaultEmailDistributionListZoneId = ZoneId.systemDefault();
 
 	// datarouter-web servlet
 	private final List<Ordered<FilterParams>> filterParamsOrdered;
@@ -286,6 +288,7 @@ implements WebappBuilder{
 				.setDailyDigest(dailyDigest)
 				.setRequestProxy(requestProxy)
 				.setMetricLinkPages(metricLinkPages)
+				.setDefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId)
 				.build();
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginWithoutInstalling);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginWithoutInstalling);
@@ -674,6 +677,11 @@ implements WebappBuilder{
 
 	public T setRequestProxy(Class<? extends RequestProxySetter> requestProxy){
 		this.requestProxy = requestProxy;
+		return getSelf();
+	}
+
+	public T setDefaultEmailDistributionListZoneId(ZoneId defaultEmailDistributionListZoneId){
+		this.defaultEmailDistributionListZoneId = defaultEmailDistributionListZoneId;
 		return getSelf();
 	}
 
