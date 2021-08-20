@@ -63,7 +63,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	private DatarouterService datarouterService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
+	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
 		List<LongRunningTask> failedTasks = longRunningTaskDao.scan()
 				.include(task -> task.getKey().getTriggerTime().getTime()
 						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
@@ -79,7 +79,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(){
 		List<LongRunningTask> failedTasks = longRunningTaskDao.scan()
 				.include(task -> task.getKey().getTriggerTime().getTime()
 						> System.currentTimeMillis() - Duration.ofDays(1).toMillis())
@@ -109,7 +109,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 		return DailyDigestType.SUMMARY;
 	}
 
-	private ContainerTag buildPageTable(List<LongRunningTask> rows, ZoneId zoneId){
+	private ContainerTag<?> buildPageTable(List<LongRunningTask> rows, ZoneId zoneId){
 		return new J2HtmlTable<LongRunningTask>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Name", row -> td(makeTaskLink(row.getKey().getName())))
@@ -122,7 +122,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag buildEmailTable(List<LongRunningTask> rows){
+	private ContainerTag<?> buildEmailTable(List<LongRunningTask> rows){
 		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> makeTaskLink(row.getKey().getName())))
@@ -136,7 +136,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag makeTaskLink(String longRunningTaskName){
+	private ContainerTag<?> makeTaskLink(String longRunningTaskName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.longRunningTasks)
 				.withParam("name", longRunningTaskName)
@@ -146,7 +146,7 @@ public class LongRunningTaskDailyDigest implements DailyDigest{
 				.withHref(href);
 	}
 
-	private ContainerTag makeExceptionLink(String exceptionRecordId){
+	private ContainerTag<?> makeExceptionLink(String exceptionRecordId){
 		String href = "https://" + datarouterService.getDomainPreferPublic() + contextSupplier.get().getContextPath()
 				+ exceptionLink.buildExceptionDetailLink(exceptionRecordId);
 		return a(exceptionRecordId)

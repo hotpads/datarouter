@@ -151,9 +151,6 @@
 						<tr><td>Host memory</td></tr>
 						<tr class="sub"><td>Used</td><td>${hostMemoryUsed}</td>
 						<tr class="sub"><td>Total</td><td>${hostMemoryTotal}</td>
-						<tr><td>Cgroup memory</td></tr>
-						<tr class="sub"><td>Usage</td><td>${cgroupMemoryUsage}</td>
-						<tr class="sub"><td>Limit</td><td>${cgroupMemoryLimit}</td>
 					</tbody>
 				</table>
 			</div>

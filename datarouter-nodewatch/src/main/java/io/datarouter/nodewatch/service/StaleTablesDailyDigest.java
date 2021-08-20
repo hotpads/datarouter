@@ -53,7 +53,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	private DatarouterService datarouterService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
+	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
 		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
 		if(staleTables.isEmpty()){
 			return Optional.empty();
@@ -64,7 +64,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(){
 		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
 		if(staleTables.isEmpty()){
 			return Optional.empty();
@@ -89,7 +89,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 		return DailyDigestType.ACTIONABLE;
 	}
 
-	private ContainerTag makePageTable(List<LatestTableCount> staleRows){
+	private ContainerTag<?> makePageTable(List<LatestTableCount> staleRows){
 		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlTable<LatestTableCount>()
 				.withClasses("sortable table table-sm table-striped my-4 border")

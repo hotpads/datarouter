@@ -20,7 +20,6 @@ import java.util.List;
 /*
  * TODO
  * - changelog (count keys)
- * - schema update
  * - configuration scan (job)
  */
 public class DatarouterEmailTypes{
@@ -85,8 +84,20 @@ public class DatarouterEmailTypes{
 		}
 	}
 
-	public static class DailyDigestEmailType extends SimpleEmailType{
-		public DailyDigestEmailType(List<String> tos){
+	public static class DailyDigestActionableEmailType extends SimpleEmailType{
+		public DailyDigestActionableEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class DailyDigestSummaryEmailType extends SimpleEmailType{
+		public DailyDigestSummaryEmailType(List<String> tos){
+			super(tos);
+		}
+	}
+
+	public static class SchemaUpdatesEmailType extends SimpleEmailType{
+		public SchemaUpdatesEmailType(List<String> tos){
 			super(tos);
 		}
 	}

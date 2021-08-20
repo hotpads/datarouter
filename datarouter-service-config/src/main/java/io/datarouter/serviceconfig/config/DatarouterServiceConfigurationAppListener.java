@@ -25,8 +25,8 @@ import javax.inject.Singleton;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationDto;
 import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationPublisher;
-import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
@@ -39,7 +39,7 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 	@Inject
 	private ServiceConfigurationPublisher serviceConfigurationPublisher;
 	@Inject
-	private DatarouterAdditionalAdministratorsSupplier additionalAdministrators;
+	private DatarouterSubscribersSupplier subscribers;
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
@@ -56,10 +56,12 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 		}
 		Set<String> admins = new HashSet<>();
 		Optional.ofNullable(datarouterProperties.getAdministratorEmail()).ifPresent(admins::add);
-		admins.addAll(additionalAdministrators.get());
+		//TODO remove this
+		admins.addAll(subscribers.get());
 		ServiceConfigurationDto dto = new ServiceConfigurationDto(
 				datarouterService.getServiceName(),
 				admins,
+				subscribers.get(),
 				serviceDescriptionSupplier.get(),
 				datarouterService.getDomainPreferPublic(),
 				datarouterService.getContextName(),

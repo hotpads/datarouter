@@ -70,7 +70,7 @@ public class ConfigurationScanReportService{
 		if(splitFromEmail.length == 2){
 			fromEmail = splitFromEmail[0] + "+configurationreport@" + splitFromEmail[1];
 		}
-		String toEmail = adminEmailService.getAdministratorEmailAddressesCsv();
+		List<String> toEmails = adminEmailService.getAdminAndSubscribers();
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter)//TODO link to a new page that mirrors the email?
 				.build();
@@ -78,7 +78,7 @@ public class ConfigurationScanReportService{
 				.withTitle(subject)
 				.withTitleHref(primaryHref)
 				.withContent(content);
-		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
+		htmlEmailService.trySendJ2Html(fromEmail, toEmails, emailBuilder);
 	}
 
 }

@@ -39,7 +39,7 @@ import io.datarouter.web.metriclinks.MetricLinkDto;
 import io.datarouter.web.metriclinks.MetricLinkPage;
 import io.datarouter.web.metriclinks.MetricLinkPageRegistry;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 
 public class MetricLinksHandler extends BaseHandler{
@@ -61,7 +61,7 @@ public class MetricLinksHandler extends BaseHandler{
 				.exclude(page -> page.getMetricLinks().isEmpty())
 				.map(this::makeContent)
 				.list();
-		var content = div(each(tags, TagCreator::div));
+		var content = div(each(tags, tag -> div(tag)));
 		return pageFactory.startBuilder(request)
 				.withTitle("Metric Links")
 				.withContent(content)
@@ -93,7 +93,7 @@ public class MetricLinksHandler extends BaseHandler{
 					}
 					return td(a(row.availableMetricPrefix.get().display)
 							.withHref(linkBuilder.availableMetricsLink(row.availableMetricPrefix.get().metric)))
-							.withTarget("_blank");
+							.attr(Attr.TARGET, "_blank");
 				})
 				.withCaption("Total " + metricLinks.size())
 				.build(metricLinks);

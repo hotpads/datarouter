@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -33,6 +34,8 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.util.DatarouterRuntimeTool;
 import io.datarouter.util.RunNativeDto;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.web.monitoring.memory.CgroupMemoryStatsDto.CgroupMemoryStatsCategory;
+import io.datarouter.web.monitoring.memory.VmNativeMemoryStatsDto.VmNativeMemoryStatsCategory;
 
 public class HostMemoryTool{
 	private static final Logger logger = LoggerFactory.getLogger(HostMemoryTool.class);
@@ -78,41 +81,44 @@ public class HostMemoryTool{
 	public static Conditional<List<VmNativeMemoryStatsDto>> getVmNativeMemoryStats(){
 		Optional<String> javaProcessId = getJavaProcessId();
 		if(javaProcessId.isEmpty()){
-			logger.error("Unable to get java pid");
 			return Conditional.failure(new RuntimeException("Unable to get java pid"));
 		}
-		RunNativeDto output = DatarouterRuntimeTool.runNative(
-				"jcmd",
-				javaProcessId.get(),
-				"VM.native_memory",
-				"summary");
+		Optional<String[]> lines = getVmMemoryStatLines(javaProcessId.get());
+		if(lines.isEmpty()){
+			return Conditional.failure(new RuntimeException("Unable to get VM Native Memory Stats"));
+		}
 		List<VmNativeMemoryStatsDto> stats = new ArrayList<>();
-		String[] lines = output.stdout.split("\n");
-		for(String line : lines){
+		for(String line : lines.get()){
 			if(line.contains("Total: reserved")){
-				VmNativeMemoryStatsDto totalStats = extractMemoryStats(line, true);
+				VmNativeMemoryStatsDto totalStats = extractVmMemoryStats(line, true);
 				stats.add(totalStats);
 			}
 			if(!line.startsWith("-")){
 				continue;
 			}
-			VmNativeMemoryStatsDto stat = extractMemoryStats(line, false);
-			stats.add(stat);
+			VmNativeMemoryStatsDto stat = extractVmMemoryStats(line, false);
+			if(stat != null){
+				stats.add(stat);
+			}
 		}
 		return Conditional.success(stats);
 	}
 
-	private static VmNativeMemoryStatsDto extractMemoryStats(String line, boolean isTotal){
-		String category;
+	private static VmNativeMemoryStatsDto extractVmMemoryStats(String line, boolean isTotal){
+		VmNativeMemoryStatsCategory category;
 		String reserved = "";
 		String committed = "";
 		String[] parts;
 		if(isTotal){
-			category = VmNativeMemoryStatsDto.TOTAL_STAT_CATEGORY;
+			category = VmNativeMemoryStatsCategory.TOTAL;
 			parts = StringTool.getStringAfterLastOccurrence("Total:", line).replace(" ", "").split(",");
 		}else{
 			String trimmedLine = line.replaceFirst("-", "").trim();
-			category = StringTool.getStringBeforeFirstOccurrence("(", trimmedLine).trim();
+			String categoryString = StringTool.getStringBeforeFirstOccurrence("(", trimmedLine).trim();
+			category = VmNativeMemoryStatsCategory.fromDisplay(categoryString);
+			if(category == null){
+				return null;
+			}
 			parts = StringTool.getStringSurroundedWith(trimmedLine, "(", ")").trim().replace(" ", "").split(",");
 		}
 		for(String part : parts){
@@ -135,25 +141,36 @@ public class HostMemoryTool{
 	}
 
 	private static Optional<String> getJavaProcessId(){
-		String[] lines = DatarouterRuntimeTool.runNative("jps").stdout.split("\n");
+		RunNativeDto output;
+		try{
+			output = DatarouterRuntimeTool.runNative("jps");
+		}catch(RuntimeException e){
+			logger.error("Unable to get java pid", e);
+			return Optional.empty();
+		}
+		String[] lines = output.stdout.split("\n");
 		return Stream.of(lines)
 				.filter(line -> line.contains("Bootstrap"))
 				.map(line -> StringTool.getStringBeforeFirstOccurrence(" ", line))
 				.findFirst();
 	}
 
-	public static Conditional<CgroupMemoryStats> getCgroupMemoryStats(){
+	private static Optional<String[]> getVmMemoryStatLines(String javaProcessId){
+		RunNativeDto output;
 		try{
-			var stats = new CgroupMemoryStats(
-					readFileToLong("/sys/fs/cgroup/memory/memory.usage_in_bytes"),
-					readFileToLong("/sys/fs/cgroup/memory/memory.limit_in_bytes"));
-			return Conditional.success(stats);
-		}catch(Exception e){
-			return Conditional.failure(e);
+			output = DatarouterRuntimeTool.runNative(
+					"jcmd",
+					javaProcessId,
+					"VM.native_memory",
+					"summary");
+		}catch(RuntimeException e){
+			logger.error("Unable to get VM native memory stats", e);
+			return Optional.empty();
 		}
+		return Optional.of(output.stdout.split("\n"));
 	}
 
-	public static Conditional<List<CgroupMemoryStatsDto>> getCgroupMemoryStatsExtended(){
+	public static Conditional<List<CgroupMemoryStatsDto>> extractCgroupMemoryStats(){
 		List<String> lines;
 		long totalUsage;
 		long totalLimit;
@@ -166,18 +183,32 @@ public class HostMemoryTool{
 		}catch(Exception e){
 			return Conditional.failure(e);
 		}
-		List<CgroupMemoryStatsDto> stats = new ArrayList<>();
-		stats.add(new CgroupMemoryStatsDto("Total limit", totalLimit));
-		stats.add(new CgroupMemoryStatsDto("Total usage", totalUsage));
-		stats.add(new CgroupMemoryStatsDto("Kernel usage", kernelMemUsage));
-		Scanner.of(lines)
+
+		List<CgroupMemoryStatsDto> stats = Scanner.of(lines)
 				.include(line -> line.contains("total_"))
 				.map(line -> line.split(" "))
-				.map(lineParts -> new CgroupMemoryStatsDto(
-						StringTool.capitalizeFirstLetter(lineParts[0]).replace("_", " "),
-						Long.parseLong(lineParts[1])))
-				.forEach(stats::add);
-		return Conditional.success(stats);
+				.map(lineParts -> {
+					String categoryString = StringTool.capitalizeFirstLetter(lineParts[0]).replace("_", " ");
+					CgroupMemoryStatsCategory category = CgroupMemoryStatsCategory.fromDisplay(categoryString);
+					return category == null ? null : new CgroupMemoryStatsDto(category, Long.parseLong(lineParts[1]));
+				})
+				.exclude(Objects::isNull)
+				.list();
+
+		// https://github.com/google/cadvisor/blob/master/container/libcontainer/handler.go#L827-L835
+		long workingSet = Scanner.of(stats)
+				.include(stat -> stat.category == CgroupMemoryStatsCategory.INACTIVE_FILE)
+				.findFirst()
+				.map(stat -> totalUsage - stat.memoryBytes)
+				.orElse(totalUsage);
+
+		List<CgroupMemoryStatsDto> finalStats = new ArrayList<>();
+		finalStats.add(new CgroupMemoryStatsDto(CgroupMemoryStatsCategory.LIMIT, totalLimit));
+		finalStats.add(new CgroupMemoryStatsDto(CgroupMemoryStatsCategory.USAGE, totalUsage));
+		finalStats.add(new CgroupMemoryStatsDto(CgroupMemoryStatsCategory.WORKING_SET, workingSet));
+		finalStats.add(new CgroupMemoryStatsDto(CgroupMemoryStatsCategory.KERNEL_USAGE, kernelMemUsage));
+		finalStats.addAll(stats);
+		return Conditional.success(finalStats);
 	}
 
 	private static long readFileToLong(String path){
@@ -190,8 +221,8 @@ public class HostMemoryTool{
 
 	public static void main(String[] args){
 		logger.warn(getHostMemoryStats().toString());
-		CgroupMemoryStats cgroupMemoryStats = getCgroupMemoryStats().orElseThrow();
-		logger.warn(cgroupMemoryStats.usage + " / " + cgroupMemoryStats.limit);
+		List<CgroupMemoryStatsDto> cgroupMemoryStats = extractCgroupMemoryStats().orElseThrow();
+		cgroupMemoryStats.forEach(stat -> logger.warn(stat.category.getPersistentString() + " - " + stat.memoryBytes));
 	}
 
 }

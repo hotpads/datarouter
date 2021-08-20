@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.dl;
 import static j2html.TagCreator.dt;
 import static j2html.TagCreator.each;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.pre;
 import static j2html.TagCreator.ul;
 
@@ -44,7 +45,6 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.params.Params;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
 public class RedisWebInspector implements DatarouterClientWebInspector{
@@ -86,8 +86,8 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag buildRegularOverview(ClientId clientId){
-		ContainerTag infoDiv = null;
+	private ContainerTag<?> buildRegularOverview(ClientId clientId){
+		ContainerTag<?> infoDiv = null;
 		try{
 			infoDiv = pre(clientManager.getClient(clientId).info().get());
 		}catch(InterruptedException | ExecutionException e){
@@ -99,7 +99,7 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 	private Mav inspectClusterClient(ClientId clientId, HttpServletRequest request){
 		var clientName = clientId.getName();
 		Map<String,String> allClientOptions = clientOptions.getAllClientOptions(clientName);
-		ContainerTag overview = null;
+		ContainerTag<?> overview = null;
 		try{
 			overview = buildClusterOverview(clientId);
 		}catch(InterruptedException | ExecutionException e){
@@ -116,14 +116,14 @@ public class RedisWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag buildClusterOverview(ClientId clientId) throws InterruptedException, ExecutionException{
+	private ContainerTag<?> buildClusterOverview(ClientId clientId) throws InterruptedException, ExecutionException{
 		var client = clientManager.getClient(clientId);
 		List<String> clusterNodes = Scanner.of(client.clusterNodes().get().split("\n"))
 				.list();
 		String clusterInfo = client.clusterInfo().get();
 		String info = client.info().get();
 		return dl(
-				dt("Nodes: " + clusterNodes.size()), dd(ul(each(clusterNodes, TagCreator::li))),
+				dt("Nodes: " + clusterNodes.size()), dd(ul(each(clusterNodes, tag -> li(tag)))),
 				dt("Cluster Info:"), dd(pre(clusterInfo)),
 				dt("Info:"), dd(pre(info)));
 	}

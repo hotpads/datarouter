@@ -69,7 +69,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	private StandardDeploymentCount standardDeploymentCount;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
+	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
 		var logs = getLogs();
 		if(logs.isEmpty()){
 			return Optional.empty();
@@ -80,7 +80,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(){
 		var logs = getLogs();
 		if(logs.isEmpty() || logs.size() <= standardDeploymentCount.getNumberOfStandardDeployments()){
 			return Optional.empty();
@@ -117,7 +117,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.list();
 	}
 
-	private ContainerTag buildPageTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
+	private ContainerTag<?> buildPageTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
 		return new J2HtmlTable<WebappInstanceLogDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Build Date", row -> ZonedDateFormaterTool.formatInstantWithZone(row.key.build, zoneId))
@@ -133,7 +133,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag buildEmailTable(List<WebappInstanceLogDto> rows){
+	private ContainerTag<?> buildEmailTable(List<WebappInstanceLogDto> rows){
 		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<WebappInstanceLogDto>()
 				.withColumn("Build Date", row -> ZonedDateFormaterTool.formatInstantWithZone(row.key.build, zoneId))

@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.web.app.WebappName;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
@@ -34,6 +35,8 @@ public class DatarouterPropertiesViewHandler extends BaseHandler{
 	private DatarouterProperties properties;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private WebappName webappName;
 
 	@Handler(defaultHandler = true)
 	public Mav view(){
@@ -50,7 +53,7 @@ public class DatarouterPropertiesViewHandler extends BaseHandler{
 				.withClass("sortable table table-sm border table-striped")
 				.withSingleRow(false)
 
-				.withEntry("webappName", properties.getWebappName())
+				.withEntry("webappName", webappName.getName())
 
 				.withEntry("server.name", properties.getServerName())
 				.withEntry("server.type", properties.getServerType().getPersistentString())

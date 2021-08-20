@@ -15,6 +15,7 @@
  */
 package io.datarouter.email.type;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,16 +24,18 @@ import io.datarouter.scanner.Scanner;
 
 public abstract class SimpleEmailType{
 
-	public final List<String> tos;
+	public final Set<String> tos;
 
-	public SimpleEmailType(List<String> tos){
-		this.tos = tos;
+	public SimpleEmailType(Collection<String> tos){
+		this.tos = Scanner.of(tos).collect(HashSet::new);
 	}
 
+	@Deprecated
 	public String getAsCsv(String...additionalTos){
 		return getAsCsv(Scanner.of(additionalTos).list());
 	}
 
+	@Deprecated
 	public String getAsCsv(List<String> additionalTos){
 		Set<String> toEmails = new HashSet<>();
 		toEmails.addAll(tos);

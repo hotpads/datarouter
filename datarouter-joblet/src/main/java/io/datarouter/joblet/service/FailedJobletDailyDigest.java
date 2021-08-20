@@ -40,7 +40,7 @@ public class FailedJobletDailyDigest implements DailyDigest{
 	private JobletDailyDigestService jobletDailyDigestService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
+	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
 		var rows = jobletDailyDigestService.getFailedJoblets();
 		if(rows.isEmpty()){
 			return Optional.empty();
@@ -51,7 +51,7 @@ public class FailedJobletDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(){
 		var rows = jobletDailyDigestService.getFailedJoblets();
 		if(rows.isEmpty()){
 			return Optional.empty();

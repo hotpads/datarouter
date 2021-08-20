@@ -15,11 +15,13 @@
  */
 package io.datarouter.email.email;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -60,26 +62,48 @@ public class DatarouterEmailService{
 				.withContextPath(datarouterService.getContextPath());
 	}
 
-	public void trySend(String fromEmail, String toEmail, String subject, String body){
-		trySend(fromEmail, toEmail, subject, body, false);
+	@Deprecated
+	public void trySend(String fromEmail, String toEmails, String subject, String body){
+		trySend(fromEmail, List.of(toEmails), subject, body, false);
 	}
 
-	public void trySend(String fromEmail, String toEmail, String subject, String body, boolean html){
+	public void trySend(String fromEmail, Collection<String> toEmails, String subject, String body){
+		trySend(fromEmail, toEmails, subject, body, false);
+	}
+
+	@Deprecated
+	public void trySend(String fromEmail, String toEmails, String subject, String body, boolean html){
+		trySend(fromEmail, List.of(toEmails), subject, body, html);
+	}
+
+	public void trySend(String fromEmail, Collection<String> toEmails, String subject, String body, boolean html){
 		try{
-			send(fromEmail, toEmail, subject, body, html);
+			send(fromEmail, toEmails, subject, body, html);
 		}catch(MessagingException e){
-			logger.error("failed to send email from={} to={}", fromEmail, toEmail, e);
+			logger.error("failed to send email from={} to={}", fromEmail, toEmails, e);
 		}
 	}
 
-	public void send(String fromEmail, String toEmail, String subject, String body, boolean html)
+	@Deprecated
+	public void send(String fromEmail, String toEmails, String subject, String body, boolean html)
 	throws MessagingException{
-		sendAndGetMessageId(fromEmail, toEmail, toEmail, subject, body, html, Collections.emptyMap(),
+		send(fromEmail, List.of(toEmails), subject, body, html);
+	}
+
+	public void send(String fromEmail, Collection<String> toEmails, String subject, String body, boolean html)
+	throws MessagingException{
+		sendAndGetMessageId(fromEmail, toEmails, toEmails, subject, body, html, Collections.emptyMap(),
 				List.of());
 	}
 
-	public Optional<String> sendAndGetMessageId(String fromEmail, String toEmail, String replyToEmail, String subject,
-			String body, boolean html, Map<String,String> headers,
+	public Optional<String> sendAndGetMessageId(
+			String fromEmail,
+			Collection<String> toEmails,
+			Collection<String> replyToEmails,
+			String subject,
+			String body,
+			boolean html,
+			Map<String,String> headers,
 			List<DatarouterEmailFileAttachmentDto> fileAttachmentDtos)
 	throws MessagingException{
 		if(!datarouterEmailSettingsProvider.get().sendDatarouterEmails.get()){
@@ -101,9 +125,18 @@ public class DatarouterEmailService{
 			transport.connect(host, port, username, password);
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(fromEmail));
-			InternetAddress[] addresses = InternetAddress.parse(toEmail);// one or more addresses
+			// one or more addresses
+			String toRecipients = Scanner.of(toEmails)
+					.distinct()
+					.sort()
+					.collect(Collectors.joining(","));
+			InternetAddress[] addresses = InternetAddress.parse(toRecipients);
 			message.addRecipients(RecipientType.TO, addresses);
-			message.setReplyTo(InternetAddress.parse(replyToEmail));
+			String replyToEmailsString = Scanner.of(replyToEmails)
+					.distinct()
+					.sort()
+					.collect(Collectors.joining(","));
+			message.setReplyTo(InternetAddress.parse(replyToEmailsString));
 			message.setSubject(subject);
 			headers.entrySet().forEach(entry -> MimeMessageTool.setHeader(message, entry.getKey(), entry.getValue()));
 

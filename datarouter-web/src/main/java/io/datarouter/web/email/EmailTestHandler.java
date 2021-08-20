@@ -21,6 +21,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
@@ -70,7 +72,7 @@ public class EmailTestHandler extends BaseHandler{
 					.buildMav();
 		}
 		String fromEmail = getSessionInfo().getRequiredSession().getUsername();
-		String toEmail = adminEmailService.getAdministratorEmailAddressesCsv();
+		List<String> toEmail = adminEmailService.getAdminAndSubscribers();
 		String server = datarouterProperties.getServerName();
 		String webapp = webappName.getName();
 		String primaryHref = htmlEmailService.startLinkBuilder()

@@ -37,13 +37,13 @@ public interface DatarouterClientWebInspector{
 
 	Mav inspectClient(Params params, HttpServletRequest request);
 
-	default ContainerTag buildClientPageHeader(String clientName){
+	default ContainerTag<?> buildClientPageHeader(String clientName){
 		return div(
 				h4("Client Summary"),
 				p(b("Client Name: " + clientName)));
 	}
 
-	default ContainerTag buildClientOptionsTable(Map<String,String> allClientOptions){
+	default ContainerTag<?> buildClientOptionsTable(Map<String,String> allClientOptions){
 		var thead = thead(tr(th("Option Key"), th("Option Value")));
 		var table = table()
 				.withClasses("sortable table table-sm table-striped my-4 border")
@@ -51,7 +51,7 @@ public interface DatarouterClientWebInspector{
 		allClientOptions.entrySet().stream()
 				.map(entry -> tr(td(entry.getKey()), td(entry.getValue())))
 				.forEach(table::with);
-		ContainerTag header = h4("Client Options");
+		ContainerTag<?> header = h4("Client Options");
 		return div(header, table)
 				.withClass("container-fluid my-4")
 				.withStyle("padding-left: 0px");

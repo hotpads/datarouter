@@ -15,6 +15,8 @@
  */
 package io.datarouter.email.email;
 
+import java.util.Collection;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -46,18 +48,34 @@ public class DatarouterHtmlEmailService{
 	@Inject
 	private DatarouterEmailSettingsProvider datarouterEmailSettingsProvider;
 
-	public void trySend(String fromEmail, String toEmail, String subject, String body){
-		datarouterEmailService.trySend(fromEmail, toEmail, subject, body, true);
+	@Deprecated
+	public void trySend(String fromEmail, String toEmails, String subject, String body){
+		datarouterEmailService.trySend(fromEmail, toEmails, subject, body, true);
 	}
 
+	public void trySend(String fromEmail, Collection<String> toEmails, String subject, String body){
+		datarouterEmailService.trySend(fromEmail, toEmails, subject, body, true);
+	}
+
+	@Deprecated
 	public void trySendJ2Html(
 			String fromEmail,
-			String toEmail,
+			String toEmails,
 			J2HtmlDatarouterEmailBuilder emailBuilder){
 		J2HtmlDatarouterEmail email = emailBuilder.build();
 		ContainerTag body = email.build();
 		String bodyString = body.render();
-		trySend(fromEmail, toEmail, emailBuilder.getSubject(), bodyString);
+		trySend(fromEmail, toEmails, emailBuilder.getSubject(), bodyString);
+	}
+
+	public void trySendJ2Html(
+			String fromEmail,
+			Collection<String> toEmails,
+			J2HtmlDatarouterEmailBuilder emailBuilder){
+		J2HtmlDatarouterEmail email = emailBuilder.build();
+		ContainerTag body = email.build();
+		String bodyString = body.render();
+		trySend(fromEmail, toEmails, emailBuilder.getSubject(), bodyString);
 	}
 
 	public DatarouterEmailLinkBuilder startLinkBuilder(){

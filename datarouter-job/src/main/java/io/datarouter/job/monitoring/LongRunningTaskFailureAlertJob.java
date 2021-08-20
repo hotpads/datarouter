@@ -23,6 +23,7 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.span;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -39,6 +40,7 @@ import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobPaths;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
@@ -71,6 +73,8 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private AdminEmail adminEmail;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -83,24 +87,23 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 
 	private void sendEmail(List<LongRunningTask> longRunningTaskList){
 		if(longRunningTaskList.size() > 0){
-			String fromEmail = datarouterProperties.getAdministratorEmail();
-			String toEmail;
+			String fromEmail = adminEmail.get();
+			List<String> toEmails = new ArrayList<>();
 			if(serverTypeDetector.mightBeProduction()){
-				toEmail = longRunningTaskFailureAlertEmailType.getAsCsv(adminEmailService
-						.getAdditionalAdministratorOnlyCsv());
+				toEmails.addAll(longRunningTaskFailureAlertEmailType.tos);
+				toEmails.addAll(adminEmailService.getSubscribers());
 			}else{
-				toEmail = datarouterProperties.getAdministratorEmail();
+				toEmails.add(adminEmail.get());
 			}
 			String primaryHref = emailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.triggers)
 					.build();
-			ContainerTag content = buildEmail(datarouterProperties.getServerName(),
-					longRunningTaskList);
+			ContainerTag content = buildEmail(datarouterProperties.getServerName(), longRunningTaskList);
 			J2HtmlDatarouterEmailBuilder emailBuilder = emailService.startEmailBuilder()
 					.withTitle("LongRunningTaskFailure")
 					.withTitleHref(primaryHref)
 					.withContent(content);
-			emailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
+			emailService.trySendJ2Html(fromEmail, toEmails, emailBuilder);
 		}
 	}
 

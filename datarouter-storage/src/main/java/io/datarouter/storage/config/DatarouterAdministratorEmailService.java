@@ -24,51 +24,52 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.setting.DatarouterAdminEmailSettings;
+import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.util.EmailTool;
 
+@Deprecated // IN-7968 - Split up DatarouterAdministratorEmailService
 @Singleton
 public class DatarouterAdministratorEmailService{
 
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private DatarouterAdditionalAdministratorsSupplier additionalAdministrators;
+	private DatarouterSubscribersSupplier subscribers;
 	@Inject
-	private DatarouterAdminEmailSettings adminEmailSettings;
+	private DatarouterEmailSubscriberSettings adminEmailSettings;
 
-	public List<String> getAdministratorEmailAddresses(){
+	public List<String> getAdminAndSubscribers(){
 		List<String> administrators = new ArrayList<>();
 		administrators.add(datarouterProperties.getAdministratorEmail());
-		if(adminEmailSettings.includeAdditionalAdministratorsEmails.get()){
-			administrators.addAll(additionalAdministrators.get());
+		if(adminEmailSettings.includeSubscribers.get()){
+			administrators.addAll(subscribers.get());
 		}
 		return administrators;
 	}
 
-	public String getAdministratorEmailAddressesCsv(){
-		return String.join(",", getAdministratorEmailAddresses());
+	public String getAdminAndSubscribersCsv(){
+		return String.join(",", getAdminAndSubscribers());
 	}
 
-	public String getAdministratorEmailAddressesCsv(String... additionalEmailAddresses){
-		return getAdministratorEmailAddressesCsv(Set.of(additionalEmailAddresses));
+	public String getAdminAndSubscribersCsv(String... additional){
+		return getAdminAndSubscribersCsv(Set.of(additional));
 	}
 
-	public String getAdministratorEmailAddressesCsv(Collection<String> additionalEmailAddresses){
-		Set<String> emails = new HashSet<>(getAdministratorEmailAddresses());
-		emails.addAll(additionalEmailAddresses);
+	public String getAdminAndSubscribersCsv(Collection<String> additional){
+		Set<String> emails = new HashSet<>(getAdminAndSubscribers());
+		emails.addAll(additional);
 		return String.join(",", emails);
 	}
 
 	// excludes main administrator email
-	public String getAdditionalAdministratorOnlyCsv(String... additionalEmailAddresses){
-		return String.join(",", getAdditionalAdministratorOnly(additionalEmailAddresses));
+	public String getSubscribersCsv(String... additionalEmailAddresses){
+		return String.join(",", getSubscribers(additionalEmailAddresses));
 	}
 
-	public List<String> getAdditionalAdministratorOnly(String... additionalEmailAddresses){
-		List<String> emails = new ArrayList<>();
-		if(adminEmailSettings.includeAdditionalAdministratorsEmails.get()){
-			emails.addAll(additionalAdministrators.get());
+	public Set<String> getSubscribers(String... additionalEmailAddresses){
+		Set<String> emails = new HashSet<>();
+		if(adminEmailSettings.includeSubscribers.get()){
+			emails.addAll(subscribers.get());
 		}
 		emails.addAll(Set.of(additionalEmailAddresses));
 		return emails;

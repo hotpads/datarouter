@@ -18,6 +18,7 @@ package io.datarouter.gcp.spanner;
 import java.util.List;
 import java.util.Properties;
 
+import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.gcp.spanner.test.SpannerTestCliendIds;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
@@ -51,6 +52,7 @@ public class SpannerTestNgModuleFactory extends TestNgModuleFactory{
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
 							List.of(SpannerTestCliendIds.SPANNER)));
+			bind(SchemaUpdatesEmailType.class).toInstance(new SchemaUpdatesEmailType(List.of()));
 		}
 
 	}

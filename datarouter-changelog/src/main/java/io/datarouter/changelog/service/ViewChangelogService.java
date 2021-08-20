@@ -37,6 +37,7 @@ import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.html.j2html.J2HtmlTable;
+import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 
@@ -48,7 +49,7 @@ public class ViewChangelogService{
 	@Inject
 	private DatarouterChangelogPaths paths;
 
-	public ContainerTag buildTable(List<Changelog> rows, ZoneId zoneId){
+	public ContainerTag<?> buildTable(List<Changelog> rows, ZoneId zoneId){
 		return new J2HtmlTable<Changelog>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withHtmlColumn("", row -> td(a().withClass("fa fa-link").withHref(buildViewExactHref(row))))
@@ -96,12 +97,12 @@ public class ViewChangelogService{
 				.withClass("modal-content");
 		var modalDialog = div(modalContent)
 				.withClass("modal-dialog")
-				.withRole("document");
+				.attr(Attr.ROLE, "document");
 		var modal = div(modalDialog)
 				.withClass("modal fade")
 				.withId(modalId)
 				.attr("tabindex", "-1")
-				.withRole("dialog");
+				.attr(Attr.ROLE, "dialog");
 		return td(div(commentButton, modal))
 				.withStyle("text-align:center");
 	}

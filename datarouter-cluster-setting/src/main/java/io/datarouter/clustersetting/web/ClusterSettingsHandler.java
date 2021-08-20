@@ -416,12 +416,11 @@ public class ClusterSettingsHandler extends BaseHandler{
 			return;
 		}
 		String from = datarouterProperties.getAdministratorEmail();
-		String to;
+		List<String> to = new ArrayList<>();
 		if(serverTypeDetector.mightBeProduction()){
-			to = clusterSettingEmailType.getAsCsv(user.get());
-		}else{
-			to = user.get();
+			to.addAll(clusterSettingEmailType.tos);
 		}
+		to.add(user.get());
 		String title = "Setting Update";
 		String primaryHref = completeLink(datarouterHtmlEmailService.startLinkBuilder(), log)
 				.build();

@@ -30,15 +30,18 @@ import io.datarouter.client.mysql.connection.MysqlConnectionPoolHolder;
 import io.datarouter.client.mysql.util.MysqlTool;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
+import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
+import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
 import io.datarouter.web.handler.EmailingSchemaUpdateService;
 import io.datarouter.web.monitoring.BuildProperties;
 
@@ -60,7 +63,10 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
 			Provider<ChangelogRecorder> changelogRecorder,
 			BuildProperties buildProperties,
-			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService){
+			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
+			SchemaUpdatesEmailType schemaUpdatesEmailType,
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
+			AdminEmail adminEmail){
 		super(datarouterProperties,
 				adminEmailService,
 				executor,
@@ -69,7 +75,10 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 				buildProperties.getBuildId(),
 				htmlEmailService,
 				datarouterWebPaths,
-				standardDatarouterEmailHeaderService);
+				standardDatarouterEmailHeaderService,
+				schemaUpdatesEmailType,
+				schemaUpdateEmailSettings,
+				adminEmail);
 		this.mysqlSingleTableSchemaUpdateService = mysqlSingleTableSchemaUpdateService;
 		this.mysqlConnectionPoolHolder = mysqlConnectionPoolHolder;
 	}

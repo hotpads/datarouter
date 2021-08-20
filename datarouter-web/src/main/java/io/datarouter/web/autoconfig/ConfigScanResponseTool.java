@@ -17,12 +17,12 @@ package io.datarouter.web.autoconfig;
 
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.ul;
 
 import java.util.Collection;
 import java.util.List;
 
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
 public class ConfigScanResponseTool{
@@ -37,17 +37,17 @@ public class ConfigScanResponseTool{
 
 	public static ConfigScanDto buildResponse(String description, Collection<String> items){
 		var h4 = h4(description);
-		var ul = ul().with(each(items, TagCreator::li));
-		return new ConfigScanDto(h4.renderFormatted() + "\n" + ul.renderFormatted(), true);
+		var ul = ul().with(each(items, tag -> li(tag)));
+		return new ConfigScanDto(h4.renderFormatted() + "\n" + ul.render(), true);
 	}
 
-	public static ConfigScanDto buildResponse(String description, List<ContainerTag> links){
+	public static ConfigScanDto buildResponse(String description, List<ContainerTag<?>> links){
 		var h4 = h4(description);
-		var ul = ul().with(each(links, TagCreator::li));
-		return new ConfigScanDto(h4.renderFormatted() + "\n" + ul.renderFormatted(), true);
+		var ul = ul().with(each(links, tag -> li(tag)));
+		return new ConfigScanDto(h4.renderFormatted() + "\n" + ul.render(), true);
 	}
 
-	public static ConfigScanDto buildResponse(ContainerTag containerTag){
+	public static ConfigScanDto buildResponse(ContainerTag<?> containerTag){
 		return new ConfigScanDto(containerTag.renderFormatted(), true);
 	}
 

@@ -216,18 +216,22 @@ public class DatarouterUserEditService{
 		return name + ": " + before + " => " + after;
 	}
 
-	public String getUserEditEmailRecipients(DatarouterUser... users){
+	public Set<String> getUserEditEmailRecipients(DatarouterUser... users){
 		Set<String> recipients = Scanner.of(users)
 				.map(DatarouterUser::getUsername)
 				.collect(HashSet::new);
 		if(serverTypeDetector.mightBeProduction()){
 			permissionRequestEmailType.tos.forEach(recipients::add);
-			adminEmailService.getAdditionalAdministratorOnly().forEach(recipients::add);
+			adminEmailService.getSubscribers().forEach(recipients::add);
 		}
 		if(serverTypeDetector.mightBeDevelopment()){
 			recipients.add(datarouterProperties.getAdministratorEmail());
 		}
-		return String.join(",", recipients);
+		return recipients;
+	}
+
+	public String getUserEditEmailRecipientsCsv(DatarouterUser... users){
+		return String.join(",", getUserEditEmailRecipients(users));
 	}
 
 	// similar to standard datarouter-email subject, but required for proper email threading

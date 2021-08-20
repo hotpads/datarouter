@@ -21,7 +21,6 @@ import java.util.function.Supplier;
 import io.datarouter.model.index.unique.UniqueIndexEntry;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.util.lang.ReflectionTool;
 
 public class FieldlessIndexEntry<
 		IK extends FieldlessIndexEntryPrimaryKey<IK,PK,D>,
@@ -36,19 +35,9 @@ implements UniqueIndexEntry<IK,FieldlessIndexEntry<IK,PK,D>,PK,D>{
 		this(keySupplier, keySupplier.get());
 	}
 
-	@Deprecated
-	public FieldlessIndexEntry(Class<IK> keyClass){
-		this(keyClass, ReflectionTool.create(keyClass));
-	}
-
 	public FieldlessIndexEntry(Supplier<IK> keySupplier, IK key){
 		super(key);
 		this.keySupplier = keySupplier;
-	}
-
-	@Deprecated
-	public FieldlessIndexEntry(Class<IK> keyClass, IK key){
-		this(ReflectionTool.supplier(keyClass), key);
 	}
 
 	@Override

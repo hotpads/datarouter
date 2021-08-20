@@ -27,8 +27,8 @@ public interface DailyDigest{
 			.comparing(DailyDigest::getGrouping)
 			.thenComparing(DailyDigest::getTitle);
 
-	Optional<ContainerTag> getPageContent(ZoneId zoneId);
-	Optional<ContainerTag> getEmailContent();
+	Optional<ContainerTag<?>> getPageContent(ZoneId zoneId);
+	Optional<ContainerTag<?>> getEmailContent();
 
 	DailyDigestGrouping getGrouping();
 	String getTitle();

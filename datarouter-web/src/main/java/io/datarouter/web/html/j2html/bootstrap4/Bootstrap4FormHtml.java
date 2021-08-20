@@ -47,25 +47,25 @@ public class Bootstrap4FormHtml{
 	private static final String LABEL_CLASS = "form-label mr-2";
 	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-	public static ContainerTag render(HtmlForm htmlForm){
+	public static ContainerTag<?> render(HtmlForm htmlForm){
 		return render(htmlForm, false);
 	}
 
-	public static ContainerTag render(HtmlForm form, boolean inline){
+	public static ContainerTag<?> render(HtmlForm form, boolean inline){
 		return form(renderFields(form))
 				.withAction(form.getAction())
 				.withCondClass(inline, "form-inline")
 				.withMethod(form.getMethod());
 	}
 
-	private static ContainerTag[] renderFields(HtmlForm form){
+	private static ContainerTag<?>[] renderFields(HtmlForm form){
 		return form.getFields().stream()
 				.map(Bootstrap4FormHtml::renderField)
 				.toArray(ContainerTag[]::new);
 	}
 
-	private static ContainerTag renderField(BaseHtmlFormField field){
-		ContainerTag div;
+	private static ContainerTag<?> renderField(BaseHtmlFormField field){
+		ContainerTag<?> div;
 		if(field instanceof HtmlFormButton){
 			div = submitButton((HtmlFormButton)field);
 		}else if(field instanceof HtmlFormCheckbox){
@@ -90,7 +90,7 @@ public class Bootstrap4FormHtml{
 				.withClass("mx-3");
 	}
 
-	private static ContainerTag submitButton(HtmlFormButton field){
+	private static ContainerTag<?> submitButton(HtmlFormButton field){
 		var button = button(field.getDisplay())
 				.withClass("btn btn-success mx-1")
 				.withName(BaseHandler.SUBMIT_ACTION)
@@ -100,7 +100,7 @@ public class Bootstrap4FormHtml{
 				.withClass("form-group");
 	}
 
-	private static ContainerTag checkboxField(HtmlFormCheckbox field){
+	private static ContainerTag<?> checkboxField(HtmlFormCheckbox field){
 		var input = input()
 				.withClass("form-check-input")
 				.withName(field.getName())
@@ -112,7 +112,7 @@ public class Bootstrap4FormHtml{
 				.withClass("form-group form-check");
 	}
 
-	private static ContainerTag emailField(HtmlFormEmail field){
+	private static ContainerTag<?> emailField(HtmlFormEmail field){
 		var label = label(field.getDisplay())
 				.withClass(LABEL_CLASS);
 		var input = input()
@@ -126,7 +126,7 @@ public class Bootstrap4FormHtml{
 				.withClass("form-group");
 	}
 
-	private static ContainerTag passwordField(HtmlFormPassword field){
+	private static ContainerTag<?> passwordField(HtmlFormPassword field){
 		var label = label(field.getDisplay())
 				.withClass(LABEL_CLASS);
 		var input = input()
@@ -139,7 +139,7 @@ public class Bootstrap4FormHtml{
 				.withClass("form-group");
 	}
 
-	private static ContainerTag selectField(HtmlFormSelect field){
+	private static ContainerTag<?> selectField(HtmlFormSelect field){
 		var label = label(field.getDisplay())
 				.withClass(LABEL_CLASS);
 		var options = field.getDisplayByValue().entrySet().stream()
@@ -160,7 +160,7 @@ public class Bootstrap4FormHtml{
 				.withClass("form-group");
 	}
 
-	private static ContainerTag textField(HtmlFormText field){
+	private static ContainerTag<?> textField(HtmlFormText field){
 		String inputClass = "form-control";
 		if(field.getError() != null){
 			inputClass += " is-invalid";
@@ -180,7 +180,7 @@ public class Bootstrap4FormHtml{
 				.withClass("form-group");
 	}
 
-	private static ContainerTag textField(HtmlFormTextArea field){
+	private static ContainerTag<?> textField(HtmlFormTextArea field){
 		String inputClass = "form-control";
 		if(field.getError() != null){
 			inputClass += " is-invalid";
@@ -192,15 +192,15 @@ public class Bootstrap4FormHtml{
 				.withClass(inputClass)
 				.withName(field.getName())
 				.withPlaceholder(field.getPlaceholder())
-				.withType("textarea")
-				.withValue(field.getValue());
+				.attr(Attr.TYPE, "textarea")
+				.attr(Attr.VALUE, field.getValue());
 		var error = field.getError() == null ? null : div(field.getError())
 				.withClass("invalid-feedback");
 		return div(label, input, error)
 				.withClass("form-group");
 	}
 
-	private static ContainerTag dateField(HtmlFormDate field){
+	private static ContainerTag<?> dateField(HtmlFormDate field){
 		String inputClass = "form-control";
 		if(field.getError() != null){
 			inputClass += " is-invalid";

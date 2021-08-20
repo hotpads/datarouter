@@ -20,6 +20,7 @@ public enum TraceSpanGroupType{
 	HTTP("http"),
 	SERIALIZATION("serialization"),
 	CLOUD_STORAGE("cloudStorage"),
+	MULTITHREADING("multithreading"),
 	NONE("none"),
 	;
 

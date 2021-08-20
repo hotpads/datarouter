@@ -209,9 +209,19 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	}
 
 	@Override
+	public OutputStream putWithPublicRead(String bucket, String key, S3ContentType contentType){
+		return put(bucket, key, contentType, Optional.of(ObjectCannedACL.PUBLIC_READ));
+	}
+
+	@Override
 	public OutputStream put(String bucket, String key, S3ContentType contentType){
+		return put(bucket, key, contentType, Optional.empty());
+	}
+
+	private OutputStream put(String bucket, String key, S3ContentType contentType, Optional<ObjectCannedACL> aclOpt){
 		S3Client s3Client = getS3ClientForBucket(bucket);
 		CreateMultipartUploadRequest request = CreateMultipartUploadRequest.builder()
+				.acl(aclOpt.orElse(null))
 				.bucket(bucket)
 				.key(key)
 				.contentType(contentType.getMimeType())
@@ -549,6 +559,11 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 	@Override
 	public boolean existsPrefix(String bucket, String prefix){
 		return scanObjects(bucket, prefix).hasAny();
+	}
+
+	@Override
+	public Region getCachedOrLatestRegionForBucket(String bucket){
+		return regionByBucket.computeIfAbsent(bucket, this::getBucketRegion);
 	}
 
 	private void putObjectWithAcl(String bucket, String key, ContentType contentType, Path path, ObjectCannedACL acl){

@@ -18,6 +18,7 @@ package io.datarouter.web.endpoint;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.li;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.ul;
 
@@ -49,7 +50,6 @@ import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
 public class EndpointInspectorHandler extends BaseHandler{
@@ -104,7 +104,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 							.map(field -> new EndpointInspectorParamDto(row, field))
 							.map(EndpointInspectorParamDto::toString)
 							.list();
-					return td(ul(each(paramDtos, TagCreator::li)));
+					return td(ul(each(paramDtos, tag -> li(tag))));
 				})
 				.withHtmlColumn("Optional Params", row -> {
 					List<String> paramDtos = Scanner.of(row.getClass().getFields())
@@ -114,7 +114,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 							.map(field -> new EndpointInspectorParamDto(row, field))
 							.map(EndpointInspectorParamDto::toString)
 							.list();
-					return td(ul(each(paramDtos, TagCreator::li)));
+					return td(ul(each(paramDtos, tag -> li(tag))));
 				})
 				.withCaption("Total " + rows.size())
 				.build(rows);

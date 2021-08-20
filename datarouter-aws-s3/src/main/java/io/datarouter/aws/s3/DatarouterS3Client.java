@@ -55,6 +55,8 @@ public interface DatarouterS3Client{
 
 	BufferedWriter putAsWriter(String bucket, String key, ContentType contentType);
 
+	OutputStream putWithPublicRead(String bucket, String key, S3ContentType contentType);
+
 	OutputStream put(String bucket, String key, S3ContentType contentType);
 
 	default void put(String bucket, String key, S3ContentType contentType, InputStream inputStream){
@@ -137,5 +139,7 @@ public interface DatarouterS3Client{
 	boolean exists(String bucket, String key);
 
 	boolean existsPrefix(String bucket, String prefix);
+
+	Region getCachedOrLatestRegionForBucket(String bucketName);
 
 }

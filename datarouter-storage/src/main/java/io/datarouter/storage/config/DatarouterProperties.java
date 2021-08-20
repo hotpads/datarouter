@@ -87,13 +87,13 @@ public abstract class DatarouterProperties{
 
 	/*----------------- construct ------------------*/
 
-	protected DatarouterProperties(ServerTypes serverTypeOptions, String serviceName){
-		this(serverTypeOptions, serviceName, ConfigDirectory.CONFIG_DIRECTORY, SERVER_CONFIG_FILE_NAME);
+	protected DatarouterProperties(ServerTypes serverTypeOptions, String webappName){
+		this(serverTypeOptions, webappName, ConfigDirectoryConstants.getConfigDirectory(), SERVER_CONFIG_FILE_NAME);
 	}
 
-	protected DatarouterProperties(ServerTypes serverTypeOptions, String serviceName, String configDirectory,
+	protected DatarouterProperties(ServerTypes serverTypeOptions, String webappName, String configDirectory,
 			String filename){
-		this(serverTypeOptions, serviceName, configDirectory, true, false, filename, true);
+		this(serverTypeOptions, webappName, configDirectory, true, false, filename, true);
 	}
 
 	private DatarouterProperties(ServerTypes serverTypeOptions, String webappName, String configDirectory,
@@ -106,7 +106,7 @@ public abstract class DatarouterProperties{
 
 		this.allComputedServerProperties = new Properties();
 		this.webappName = webappName;
-		this.testConfigDirectory = ConfigDirectory.TEST_CONFIG_DIRECTORY;
+		this.testConfigDirectory = ConfigDirectoryConstants.getTestConfigDirectory();
 
 		this.environment = findProperty(ENVIRONMENT);
 		this.environmentDomain = findProperty(ENVIRONMENT_DOMAIN);
@@ -154,7 +154,7 @@ public abstract class DatarouterProperties{
 			if(directoryFromJvmArg){
 				logJvmArgSource(CONFIG_DIRECTORY_PROP, configDirectory, JVM_ARG_PREFIX + CONFIG_DIRECTORY_PROP);
 			}else{
-				logSource("config directory", configDirectory, ConfigDirectory.SOURCE);
+				logSource("config directory", configDirectory, ConfigDirectoryConstants.getSource());
 			}
 		}else{
 			Require.isTrue(!directoryRequired, "config directory required but not found");
@@ -316,6 +316,7 @@ public abstract class DatarouterProperties{
 
 	/*---------------- getters -------------------*/
 
+	@Deprecated // use ServerName.get
 	public String getServerName(){
 		return serverName;
 	}
@@ -324,10 +325,12 @@ public abstract class DatarouterProperties{
 		return serverType;
 	}
 
+	@Deprecated // use ServerPublicIp.get
 	public String getServerPublicIp(){
 		return publicIp;
 	}
 
+	@Deprecated // use ServerPrivateIp.get
 	public String getServerPrivateIp(){
 		return privateIp;
 	}
@@ -336,42 +339,53 @@ public abstract class DatarouterProperties{
 		return clusterDomains;
 	}
 
+	@Deprecated // use AdminEmail.get
 	public String getAdministratorEmail(){
 		return administratorEmail;
 	}
 
+	@Deprecated // use ConfigDirectory.get
 	public String getConfigDirectory(){
 		return configDirectory;
 	}
 
+	@Deprecated // use TestConfigDirectory.get
 	public String getTestConfigDirectory(){
 		return testConfigDirectory;
 	}
 
+	@Deprecated // use ConfigFileLocation.get
 	public String getConfigFileLocation(){
 		return configFileLocation;
 	}
 
+	@Deprecated // use EnvironmentName.get
 	public String getEnvironment(){
 		return environment;
 	}
 
+	@Deprecated // use EnvironmentDomain.get
 	public String getEnvironmentDomain(){
 		return environmentDomain;
 	}
 
+	@Deprecated // use EnvironmentType.get
 	public String getEnvironmentType(){
 		return environmentType;
 	}
 
+	@Deprecated // use WebappName.getName
 	public String getWebappName(){
 		return webappName;
 	}
 
 	public String getFirstServerClusterDomain(){
-		return getServerClusterDomains().stream().findFirst().orElse(null);
+		return getServerClusterDomains().stream()
+				.findFirst()
+				.orElse(null);
 	}
 
+	@Deprecated // use InternalConfigDirectory.getName
 	public String getInternalConfigDirectory(){
 		return internalConfigDirectory;
 	}

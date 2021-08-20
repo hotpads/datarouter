@@ -133,10 +133,6 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 			mav.put("hostMemoryTotal", ByteUnitTool.byteCountToDisplaySize(hostMemoryStats.get(
 					HostMemoryTool.HOST_MEM_NAME).get(HostMemoryTool.HOST_TOTAL_LABEL)));
 		});
-		HostMemoryTool.getCgroupMemoryStats().ifSuccess(cgroupMemoryStats -> {
-			mav.put("cgroupMemoryUsage", ByteUnitTool.byteCountToDisplaySize(cgroupMemoryStats.usage));
-			mav.put("cgroupMemoryLimit", ByteUnitTool.byteCountToDisplaySize(cgroupMemoryStats.limit));
-		});
 
 		mav.put("vmNativeMemoryStats", buildNativeMemoryStatsTable());
 		mav.put("cgroupMemoryStats", buildCgroupMemoryStatsTable());
@@ -187,7 +183,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 				.with(thead(tr(th("Category"), th("Reserved Memory"), th("Committed Memory"))));
 		Scanner.of(memoryStats)
 				.map(stat -> tr(
-						td(stat.category),
+						td(stat.category.getDisplay()),
 						td(ByteUnitTool.byteCountToDisplaySize(stat.reservedMemoryBytes)).attr(Attr.ALIGN, "right"),
 						td(ByteUnitTool.byteCountToDisplaySize(stat.committedMemoryBytes)).attr(Attr.ALIGN, "right")))
 				.forEach(tbody::with);
@@ -199,13 +195,13 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	}
 
 	private String buildCgroupMemoryStatsTable(){
-		List<CgroupMemoryStatsDto> memoryStats = HostMemoryTool.getCgroupMemoryStatsExtended()
+		List<CgroupMemoryStatsDto> memoryStats = HostMemoryTool.extractCgroupMemoryStats()
 				.orElseGet($ -> new ArrayList<>());
 		var tbody = tbody()
 				.with(thead(tr(th("Category"), th("Memory value"))));
 		Scanner.of(memoryStats)
 				.map(stat -> tr(
-						td(stat.category),
+						td(stat.category.getDisplay()),
 						td(ByteUnitTool.byteCountToDisplaySize(stat.memoryBytes)).attr(Attr.ALIGN, "right")))
 				.forEach(tbody::with);
 		var table = table(tbody)

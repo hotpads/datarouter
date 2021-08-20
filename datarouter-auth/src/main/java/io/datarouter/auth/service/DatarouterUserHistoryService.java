@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import javax.inject.Inject;
@@ -160,7 +161,7 @@ public class DatarouterUserHistoryService{
 	private void sendRoleEditEmail(DatarouterUser user, DatarouterUserHistory history, String signInUrl){
 		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor());
 		String from = user.getUsername();
-		String to = userEditService.getUserEditEmailRecipients(user, editor);
+		Set<String> to = userEditService.getUserEditEmailRecipients(user, editor);
 		var p1 = p(String.format("%s permissions have been edited by %s", user.getUsername(), editor.getUsername()));
 		var p2 = p("Changes: " + history.getChanges());
 		var content = div(p1, p2, makeSignInParagraph(signInUrl));

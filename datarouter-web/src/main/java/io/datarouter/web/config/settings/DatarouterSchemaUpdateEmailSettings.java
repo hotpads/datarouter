@@ -13,16 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.monitoring.memory;
+package io.datarouter.web.config.settings;
 
-public class CgroupMemoryStats{
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-	public final long usage;
-	public final long limit;
+import io.datarouter.storage.setting.SettingFinder;
+import io.datarouter.storage.setting.SettingNode;
+import io.datarouter.storage.setting.cached.CachedSetting;
 
-	public CgroupMemoryStats(long usage, long limit){
-		this.usage = usage;
-		this.limit = limit;
+@Singleton
+public class DatarouterSchemaUpdateEmailSettings extends SettingNode{
+
+	public final CachedSetting<Boolean> sendToAdmin;
+
+	@Inject
+	public DatarouterSchemaUpdateEmailSettings(SettingFinder finder){
+		super(finder, "datarouterWeb.schemaUpdateEmail.");
+		sendToAdmin = registerBooleans("sendToAdmin", defaultTo(true));
 	}
 
 }

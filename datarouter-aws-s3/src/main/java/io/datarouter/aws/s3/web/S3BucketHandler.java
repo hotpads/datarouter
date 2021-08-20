@@ -130,7 +130,6 @@ public class S3BucketHandler extends BaseHandler{
 
 		ClientId clientId = clients.getClientId(client);
 		DatarouterS3Client s3Client = s3ClientManager.getClient(clientId);
-		ContainerTag table = null;
 		List<DirectoryDto> objects = s3Client.scanSubdirectories(
 				bucket,
 				prefix.orElse(null),
@@ -140,7 +139,7 @@ public class S3BucketHandler extends BaseHandler{
 				currentDirectory.orElse(false))
 				.list();
 		int sizePadding = sizePadding(objects);
-		table = new J2HtmlTable<DirectoryDto>()
+		ContainerTag<?> table = new J2HtmlTable<DirectoryDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("Key", object -> {
 					String name = object.name;
@@ -171,12 +170,12 @@ public class S3BucketHandler extends BaseHandler{
 				})
 				.withColumn("Last Modified", object -> object.lastModified)
 				.withColumn("Storage Class", object -> object.storageClass)
-				.build(objects)
-				.withStyle("font-family:monospace; font-size:.9em;");
+				.build(objects);
+		ContainerTag<?> tableWrapper = table.withStyle("font-family:monospace; font-size:.9em;");
 		var content = div(
 				htmlForm,
 				h4(bucket),
-				table)
+				tableWrapper)
 				.withClass("container-fluid my-4");
 		return pageFactory.startBuilder(request)
 				.withTitle("S3 Bucket")

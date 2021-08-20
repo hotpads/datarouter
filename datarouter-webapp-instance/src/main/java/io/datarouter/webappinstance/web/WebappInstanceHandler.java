@@ -370,7 +370,7 @@ public class WebappInstanceHandler extends BaseHandler{
 		}
 
 		public String getBuildIdRendered(){
-			var tag = span(buildId);
+			ContainerTag<?> tag = span(buildId);
 			if(highlightBuildId){
 				tag.withClass("badge badge-warning");
 			}
@@ -391,7 +391,7 @@ public class WebappInstanceHandler extends BaseHandler{
 		}
 
 		public String getCommitIdRendered(){
-			var tag = span(commitId);
+			ContainerTag<?> tag = span(commitId);
 			if(highlightCommitId){
 				tag.withClass("badge badge-warning");
 			}

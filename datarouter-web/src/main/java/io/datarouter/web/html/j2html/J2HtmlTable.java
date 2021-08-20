@@ -104,11 +104,11 @@ public class J2HtmlTable<T>{
 		}
 	}
 
-	public ContainerTag build(Collection<T> rows){
+	public ContainerTag<?> build(Collection<T> rows){
 		return build(rows, J2HtmlTableRow::new);
 	}
 
-	public ContainerTag build(Collection<T> values, Function<T,J2HtmlTableRow<T>> rowFunction){
+	public ContainerTag<?> build(Collection<T> values, Function<T,J2HtmlTableRow<T>> rowFunction){
 		List<J2HtmlTableRow<T>> rows = Scanner.of(values)
 				.map(rowFunction)
 				.list();
@@ -124,7 +124,7 @@ public class J2HtmlTable<T>{
 				.with(tbody);
 	}
 
-	private ContainerTag makeTr(J2HtmlTableRow<T> row){
+	private ContainerTag<?> makeTr(J2HtmlTableRow<T> row){
 		var tr = TagCreator.tr();
 		if(!row.styles.isEmpty()){
 			tr.withStyle(String.join(";", row.styles) + ";");
@@ -132,7 +132,7 @@ public class J2HtmlTable<T>{
 		return makeTd(tr, row.value);
 	}
 
-	private ContainerTag makeTd(ContainerTag tableRow, T value){
+	private ContainerTag<?> makeTd(ContainerTag<?> tableRow, T value){
 		return tableRow.with(each(columns, column -> column.valueFunction.apply(value)));
 	}
 

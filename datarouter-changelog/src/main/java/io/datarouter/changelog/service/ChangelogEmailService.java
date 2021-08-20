@@ -58,10 +58,8 @@ public class ChangelogEmailService{
 			toEmails.add(datarouterProperties.getAdministratorEmail());
 		}
 		if(dto.includeAdditionalAdministrators){
-			toEmails.addAll(additionalAdministratorEmailService.getAdditionalAdministratorOnly());
+			toEmails.addAll(additionalAdministratorEmailService.getSubscribers());
 		}
-		String to = String.join(",", toEmails);
-
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.changelog.viewAll)
 				.build();
@@ -74,7 +72,7 @@ public class ChangelogEmailService{
 						dto.action,
 						dto.username,
 						dto.comment.orElse("")));
-		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
+		htmlEmailService.trySendJ2Html(from, toEmails, emailBuilder);
 	}
 
 	private ContainerTag makeEmailContent(String changelogType, String name, String action, String username,

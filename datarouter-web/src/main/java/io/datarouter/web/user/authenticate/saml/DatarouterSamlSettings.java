@@ -72,14 +72,6 @@ public class DatarouterSamlSettings extends SettingNode{
 				.getEnvironmentType());
 	}
 
-	public void expireAutoConfigSettings(){
-		idpHomeUrl.expire();
-		idpSamlUrl.expire();
-		shouldUseSaml.expire();
-		encodedIdpPublicKey.expire();
-		encodedIdpX509Certificate.expire();
-	}
-
 	public Boolean getShouldProcess(){
 		return isLive && shouldUseSaml.get();
 	}

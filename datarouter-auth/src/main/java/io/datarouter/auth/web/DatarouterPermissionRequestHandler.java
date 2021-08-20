@@ -125,7 +125,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		if(serverTypeDetector.mightBeProduction()){
 			additionalPermissionEmails.addAll(permissionRequestEmailType.tos);
 		}
-		mav.put("email", administratorEmailService.getAdministratorEmailAddressesCsv(additionalPermissionEmails));
+		mav.put("email", administratorEmailService.getAdminAndSubscribersCsv(additionalPermissionEmails));
 		mav.put("submitPath", paths.permissionRequest.submit.join("/"));
 		mav.put("declinePath", paths.permissionRequest.declineAll.join("/"));
 		return mav;
@@ -215,7 +215,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		String userProfileDescription = userExternalDetailService.getUserProfileDescription()
 				.orElse("user profile");
 		String userEmail = user.getUsername();
-		String recipients = userEditService.getUserEditEmailRecipients(user);
+		Set<String> recipients = userEditService.getUserEditEmailRecipients(user);
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.admin.editUser.toSlashedString())
 				.withParam("userId", user.getId() + "")
@@ -238,7 +238,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 	private void sendDeclineEmail(DatarouterUser editedUser, DatarouterUser currentUser){
 		String from = editedUser.getUsername();
-		String to = userEditService.getUserEditEmailRecipients(editedUser);
+		Set<String> to = userEditService.getUserEditEmailRecipients(editedUser);
 		String titleHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.admin.editUser.toSlashedString())
 				.withParam("userId", editedUser.getId() + "")

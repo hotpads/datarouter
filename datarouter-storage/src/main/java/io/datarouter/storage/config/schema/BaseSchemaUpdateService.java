@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.ClusterSchemaUpdateLock;
@@ -53,24 +52,21 @@ public abstract class BaseSchemaUpdateService{
 	private static final long THROTTLING_DELAY_SECONDS = 10;
 
 	private final DatarouterProperties datarouterProperties;
-	private final DatarouterAdministratorEmailService adminEmailService;
 	private final DatarouterSchemaUpdateScheduler executor;
 	private final Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao;
 	private final Provider<ChangelogRecorder> changelogRecorder;
-	private final String buildId;
 
+	private final String buildId;
 	private final Map<ClientId,Supplier<List<String>>> existingTableNamesByClient;
 	private final List<Future<Optional<SchemaUpdateResult>>> futures;
 
 	public BaseSchemaUpdateService(
 			DatarouterProperties datarouterProperties,
-			DatarouterAdministratorEmailService adminEmailService,
 			DatarouterSchemaUpdateScheduler executor,
 			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
 			Provider<ChangelogRecorder> changelogRecorder,
 			String buildId){
 		this.datarouterProperties = datarouterProperties;
-		this.adminEmailService = adminEmailService;
 		this.executor = executor;
 		this.schemaUpdateLockDao = schemaUpdateLockDao;
 		this.changelogRecorder = changelogRecorder;
@@ -149,13 +145,12 @@ public abstract class BaseSchemaUpdateService{
 			logger.warn("Sending schema update email for client={}", clientId.getName());
 			sendEmail(
 					datarouterProperties.getAdministratorEmail(),
-					adminEmailService.getAdministratorEmailAddressesCsv(),
 					subject,
 					allStatements.toString());
 		});
 	}
 
-	protected abstract void sendEmail(String fromEmail, String toEmail, String subject, String body);
+	protected abstract void sendEmail(String fromEmail, String subject, String body);
 
 	private Supplier<List<String>> lazyFetchExistingTables(ClientId clientId){
 		return SingletonSupplier.of(() -> fetchExistingTables(clientId));

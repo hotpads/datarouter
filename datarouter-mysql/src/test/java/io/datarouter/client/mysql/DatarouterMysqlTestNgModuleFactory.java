@@ -22,6 +22,7 @@ import java.util.Properties;
 import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
 import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
+import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
@@ -59,6 +60,7 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
 							List.of(DatarouterMysqlTestClientids.MYSQL)));
+			bind(SchemaUpdatesEmailType.class).toInstance(new SchemaUpdatesEmailType(List.of()));
 		}
 
 	}

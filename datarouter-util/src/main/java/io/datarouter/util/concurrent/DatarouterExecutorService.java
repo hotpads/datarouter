@@ -17,12 +17,19 @@ package io.datarouter.util.concurrent;
 
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.instrumentation.trace.TraceSpanFinisher;
+import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.util.lang.LineOfCode;
 import io.datarouter.util.tracer.TracedCheckedCallable;
 
@@ -63,6 +70,42 @@ public class DatarouterExecutorService extends ThreadPoolExecutor{
 	@Override
 	public void execute(Runnable command){
 		super.execute(new TracedCheckedRunnable(command));
+	}
+
+	@Override
+	protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable){
+		return new DatarouterFutureTask<>(callable);
+	}
+
+	@Override
+	protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value){
+		return new DatarouterFutureTask<>(runnable, value);
+	}
+
+	private static class DatarouterFutureTask<V> extends FutureTask<V>{
+
+		public DatarouterFutureTask(Callable<V> callable){
+			super(callable);
+		}
+
+		public DatarouterFutureTask(Runnable runnable, V result){
+			super(runnable, result);
+		}
+
+		@Override
+		public V get() throws InterruptedException, ExecutionException{
+			try(TraceSpanFinisher $ = TracerTool.startSpanNoGroupType("waiting for subtask")){
+				return super.get();
+			}
+		}
+
+		@Override
+		public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException{
+			try(TraceSpanFinisher $ = TracerTool.startSpanNoGroupType("waiting for subtask")){
+				return super.get(timeout, unit);
+			}
+		}
+
 	}
 
 	private static class TracedCheckedRunnable extends TracedCheckedCallable<Void> implements Runnable{

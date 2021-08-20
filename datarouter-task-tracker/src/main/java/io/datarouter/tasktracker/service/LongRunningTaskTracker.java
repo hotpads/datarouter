@@ -23,7 +23,9 @@ import static j2html.TagCreator.text;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -284,12 +286,12 @@ public class LongRunningTaskTracker implements TaskTracker{
 		}
 		deadlineAlertAttempted = true;
 		String from = datarouterProperties.getAdministratorEmail();
-		String to;
+		List<String> to = new ArrayList<>();
 		if(serverTypeDetector.mightBeDevelopment()){
-			to = datarouterProperties.getAdministratorEmail();
+			to.add(datarouterProperties.getAdministratorEmail());
 		}else{
-			to = longRunningTaskTrackerEmailType.getAsCsv(
-					datarouterAdministratorEmailService.getAdministratorEmailAddresses());
+			to.addAll(longRunningTaskTrackerEmailType.tos);
+			to.addAll(datarouterAdministratorEmailService.getSubscribers());
 		}
 		String primaryHref = datarouterHtmlEmailService.startLinkBuilder()
 				.withLocalPath(datarouterTaskTrackerPaths.datarouter.longRunningTasks)

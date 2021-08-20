@@ -186,7 +186,6 @@ public class TableSizeMonitoringService{
 			List<CountStat> abovePercentageList,
 			List<LatestTableCount> staleList){
 		String fromEmail = datarouterProperties.getAdministratorEmail();
-		String toEmail = nodewatchEmailType.getAsCsv();
 		String primaryHref = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.build();
@@ -199,7 +198,7 @@ public class TableSizeMonitoringService{
 				.withTitle("Nodewatch")
 				.withTitleHref(primaryHref)
 				.withContent(content);
-		emailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
+		emailService.trySendJ2Html(fromEmail, nodewatchEmailType.tos, emailBuilder);
 	}
 
 	public static class CountStat{

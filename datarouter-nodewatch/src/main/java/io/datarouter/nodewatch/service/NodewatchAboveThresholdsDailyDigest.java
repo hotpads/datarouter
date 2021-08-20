@@ -24,6 +24,8 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,7 +40,6 @@ import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -54,43 +55,47 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 	private DatarouterNodewatchPaths paths;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
-		var aboveThresholdList = Scanner.of(monitoringService.getAboveThresholdLists().getLeft())
+	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
+		Optional<Pair<String,ContainerTag<?>>> aboveThresholdList = Scanner
+				.of(monitoringService.getAboveThresholdLists().getLeft())
 				.listTo(rows -> makePageTable(rows, "Tables exceeding threshold", zoneId));
-		var abovePercentageList = Scanner.of(monitoringService.getAboveThresholdLists().getRight())
+		Optional<Pair<String,ContainerTag<?>>> abovePercentageList = Scanner
+				.of(monitoringService.getAboveThresholdLists().getRight())
 				.listTo(rows -> makePageTable(rows, "Tables that grew or shrank by more than "
 						+ TableSizeMonitoringService.PERCENTAGE_THRESHOLD + "%", zoneId));
-		List<ContainerTag> tables = Scanner.of(aboveThresholdList, abovePercentageList)
-				.include(Optional::isPresent)
+		List<ContainerTag<?>> tables = Stream.of(aboveThresholdList, abovePercentageList)
+				.filter(Optional::isPresent)
 				.map(Optional::get)
-				.sort(Comparator.comparing(Pair::getLeft))
+				.sorted(Comparator.comparing(Pair::getLeft))
 				.map(Pair::getRight)
-				.list();
+				.collect(Collectors.toList());
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
-		return Optional.of(div(header, each(tables, TagCreator::div)));
+		return Optional.of(div(header, each(tables, tag -> div(tag))));
 	}
 
 	@Override
-	public Optional<ContainerTag> getEmailContent(){
-		var aboveThresholdList = Scanner.of(monitoringService.getAboveThresholdLists().getLeft())
+	public Optional<ContainerTag<?>> getEmailContent(){
+		Optional<Pair<String,ContainerTag<?>>> aboveThresholdList = Scanner
+				.of(monitoringService.getAboveThresholdLists().getLeft())
 				.listTo(rows -> makeEmailTable(rows, "Tables exceeding threshold"));
-		var abovePercentageList = Scanner.of(monitoringService.getAboveThresholdLists().getRight())
+		Optional<Pair<String,ContainerTag<?>>> abovePercentageList = Scanner
+				.of(monitoringService.getAboveThresholdLists().getRight())
 				.listTo(rows -> makeEmailTable(rows, "Tables that grew or shrank by more than "
 						+ TableSizeMonitoringService.PERCENTAGE_THRESHOLD + "%"));
-		List<ContainerTag> tables = Scanner.of(aboveThresholdList, abovePercentageList)
-				.include(Optional::isPresent)
+		List<ContainerTag<?>> tables = Stream.of(aboveThresholdList, abovePercentageList)
+				.filter(Optional::isPresent)
 				.map(Optional::get)
-				.sort(Comparator.comparing(Pair::getLeft))
+				.sorted(Comparator.comparing(Pair::getLeft))
 				.map(Pair::getRight)
-				.list();
+				.collect(Collectors.toList());
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Table Thresholds", paths.datarouter.nodewatch.threshold);
-		return Optional.of(div(header, each(tables, TagCreator::div)));
+		return Optional.of(div(header, each(tables, tag -> div(tag))));
 	}
 
 	@Override
@@ -98,7 +103,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		return DailyDigestType.SUMMARY;
 	}
 
-	private Optional<Pair<String,ContainerTag>> makePageTable(List<CountStat> rows, String header, ZoneId zoneId){
+	private Optional<Pair<String,ContainerTag<?>>> makePageTable(List<CountStat> rows, String header, ZoneId zoneId){
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}
@@ -118,7 +123,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 		return Optional.of(new Pair<>(header, div(h4(header), table)));
 	}
 
-	private Optional<Pair<String,ContainerTag>> makeEmailTable(List<CountStat> rows, String header){
+	private Optional<Pair<String,ContainerTag<?>>> makeEmailTable(List<CountStat> rows, String header){
 		if(rows.isEmpty()){
 			return Optional.empty();
 		}

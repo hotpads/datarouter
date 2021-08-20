@@ -94,6 +94,11 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	}
 
 	@Override
+	public OutputStream putWithPublicRead(String bucket, String key, S3ContentType contentType){
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public void putObjectAsString(String bucket, String key, ContentType contentType, String content){
 		throw new UnsupportedOperationException();
 	}
@@ -238,6 +243,11 @@ public class TestDatarouterS3Client implements DatarouterS3Client{
 	@Override
 	public boolean existsPrefix(String bucket, String prefix){
 		return false;
+	}
+
+	@Override
+	public Region getCachedOrLatestRegionForBucket(String bucketName){
+		throw new UnsupportedOperationException();
 	}
 
 }

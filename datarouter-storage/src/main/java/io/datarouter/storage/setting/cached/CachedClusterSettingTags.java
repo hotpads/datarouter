@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.ConfigDirectory;
+import io.datarouter.storage.config.ConfigDirectoryConstants;
 import io.datarouter.storage.servertype.DatarouterServerTypeDetector;
 import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.util.cached.Cached;
@@ -83,7 +83,7 @@ public class CachedClusterSettingTags extends Cached<List<DatarouterSettingTag>>
 	}
 
 	public static String getConfigFilePath(){
-		return ConfigDirectory.CONFIG_DIRECTORY + '/' + DEFAULT_CONFIG_FILENAME;
+		return ConfigDirectoryConstants.getConfigDirectory() + '/' + DEFAULT_CONFIG_FILENAME;
 	}
 
 }

@@ -21,10 +21,15 @@ import java.util.function.Supplier;
 
 import javax.inject.Singleton;
 
-public interface DatarouterAdditionalAdministratorsSupplier extends Supplier<Set<String>>{
+// Set of email aliases to receive all datarouter emails
+public interface DatarouterSubscribersSupplier extends Supplier<Set<String>>{
+
+	default String getAsCsv(){
+		return String.join(",", get());
+	}
 
 	@Singleton
-	static class NoOpDatarouterAdditionalAdministratorsSupplier implements DatarouterAdditionalAdministratorsSupplier{
+	class NoOpDatarouterSubscribers implements DatarouterSubscribersSupplier{
 
 		@Override
 		public Set<String> get(){
@@ -34,17 +39,17 @@ public interface DatarouterAdditionalAdministratorsSupplier extends Supplier<Set
 	}
 
 	@Singleton
-	static class DatarouterAdditionalAdministrators implements DatarouterAdditionalAdministratorsSupplier{
+	class DatarouterSubscribers implements DatarouterSubscribersSupplier{
 
-		private final Set<String> additionalAdministratorEmailAddress;
+		private final Set<String> subscribers;
 
-		public DatarouterAdditionalAdministrators(Set<String> additionalAdministratorEmailAddress){
-			this.additionalAdministratorEmailAddress = additionalAdministratorEmailAddress;
+		public DatarouterSubscribers(Set<String> subscribers){
+			this.subscribers = subscribers;
 		}
 
 		@Override
 		public Set<String> get(){
-			return additionalAdministratorEmailAddress;
+			return subscribers;
 		}
 
 	}

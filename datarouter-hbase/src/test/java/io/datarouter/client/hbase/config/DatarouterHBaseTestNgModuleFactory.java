@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Properties;
 
 import io.datarouter.client.hbase.test.DatarouterHBaseTestClientIds;
+import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
@@ -51,6 +52,7 @@ public class DatarouterHBaseTestNgModuleFactory extends TestNgModuleFactory{
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
 							List.of(DatarouterHBaseTestClientIds.HBASE)));
+			bind(SchemaUpdatesEmailType.class).toInstance(new SchemaUpdatesEmailType(List.of()));
 		}
 
 	}

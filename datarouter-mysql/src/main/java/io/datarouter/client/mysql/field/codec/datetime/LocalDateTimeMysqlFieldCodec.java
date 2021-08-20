@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
@@ -57,7 +56,7 @@ public class LocalDateTimeMysqlFieldCodec extends BaseMysqlFieldCodec<LocalDateT
 			}else{
 				LocalDateTime value = field.getValue();
 				Timestamp timestamp = Timestamp.valueOf(value);
-				ps.setTimestamp(parameterIndex, timestamp, Calendar.getInstance());
+				ps.setTimestamp(parameterIndex, timestamp, java.util.Calendar.getInstance());
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -67,7 +66,7 @@ public class LocalDateTimeMysqlFieldCodec extends BaseMysqlFieldCodec<LocalDateT
 	@Override
 	public LocalDateTime fromMysqlResultSetButDoNotSet(ResultSet rs){
 		try{
-			Timestamp timestamp = rs.getTimestamp(field.getKey().getColumnName(), Calendar.getInstance());
+			Timestamp timestamp = rs.getTimestamp(field.getKey().getColumnName(), java.util.Calendar.getInstance());
 			if(rs.wasNull()){
 				return null;
 			}

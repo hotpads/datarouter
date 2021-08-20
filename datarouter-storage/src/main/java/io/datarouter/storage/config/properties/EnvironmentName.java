@@ -13,28 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.config.setting;
+package io.datarouter.storage.config.properties;
+
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.environment.EnvironmentType;
-import io.datarouter.storage.setting.SettingFinder;
-import io.datarouter.storage.setting.SettingNode;
-import io.datarouter.storage.setting.cached.CachedSetting;
+import io.datarouter.storage.config.DatarouterProperties;
 
+// Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
+// so we don't have to do multiple major refactors with every split.
 @Singleton
-public class DatarouterAdminEmailSettings extends SettingNode{
+public class EnvironmentName implements Supplier<String>{
 
-	public final CachedSetting<Boolean> includeAdditionalAdministratorsEmails;
+	private final String environmentName;
 
 	@Inject
-	public DatarouterAdminEmailSettings(SettingFinder finder){
-		super(finder, "datarouterStorage.adminEmail.");
+	private EnvironmentName(DatarouterProperties datarouterProperties){
+		this.environmentName = datarouterProperties.getEnvironment();
+	}
 
-		includeAdditionalAdministratorsEmails = registerBooleans("includeAdditionalAdministratorEmails",
-				defaultTo(true)
-				.withEnvironmentType(EnvironmentType.DEVELOPMENT, false));
+	@Override
+	public String get(){
+		return environmentName;
 	}
 
 }

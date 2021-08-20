@@ -95,7 +95,7 @@ implements WebappBuilder{
 	private final DatarouterProperties datarouterProperties;
 	private final DatarouterService datarouterService;
 	private final ServerTypes serverTypes;
-	private final Set<String> additionalAdministrators;
+	private final Set<String> subscribers;
 	private final List<Class<? extends SettingRoot>> settingRoots;
 	private final List<Class<? extends Dao>> daoClasses;
 	protected final List<ClientId> defaultClientIds;
@@ -205,7 +205,7 @@ implements WebappBuilder{
 		this.webAppListenersOrdered = new ArrayList<>();
 		this.webAppListenersUnordered = new ArrayList<>();
 		this.authenticationConfig = null;
-		this.additionalAdministrators = new HashSet<>();
+		this.subscribers = new HashSet<>();
 		this.customStaticFileFilterRegex = null;
 		this.homepageRouteSet = DefaultHomepageRouteSet.class;
 		this.homepageHandler = SimpleHomepageHandler.class;
@@ -267,7 +267,7 @@ implements WebappBuilder{
 				.setFilesClass(filesRoot)
 				.setDatarouterAuthConfig(authenticationConfig)
 				.setCurrentSessionInfoClass(currentSessionInfo)
-				.setAdditionalAdministrators(additionalAdministrators)
+				.addSubscribers(subscribers)
 				.setRoleManagerClass(roleManager)
 				.setUserSesssionServiceClass(userSessionService)
 				.setAppListenerClasses(OrderedTool.combine(appListenersOrdered, appListenersUnordered))
@@ -533,8 +533,14 @@ implements WebappBuilder{
 		return getSelf();
 	}
 
-	public T addAdministratorEmail(String additionalAdministrator){
-		additionalAdministrators.add(additionalAdministrator);
+	@Deprecated
+	public T addAdministratorEmail(String subscriber){
+		addSubscriber(subscriber);
+		return getSelf();
+	}
+
+	public T addSubscriber(String subscriber){
+		subscribers.add(subscriber);
 		return getSelf();
 	}
 

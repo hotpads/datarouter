@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -81,12 +82,12 @@ public class WebappInstanceAlertJob extends BaseJob{
 
 	private void sendEmail(WebappInstance webappInstance){
 		String from = datarouterProperties.getAdministratorEmail();
-		String to;
+		List<String> to = new ArrayList<>();
 		if(serverTypeDetector.mightBeProduction()){
-			to = webappInstanceAlertEmailType.getAsCsv(additionalAdministratorEmailService
-					.getAdministratorEmailAddresses());
+			to.addAll(webappInstanceAlertEmailType.tos);
+			to.addAll(additionalAdministratorEmailService.getAdminAndSubscribers());
 		}else{
-			to = datarouterProperties.getAdministratorEmail();
+			to.add(datarouterProperties.getAdministratorEmail());
 		}
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.webappInstances)

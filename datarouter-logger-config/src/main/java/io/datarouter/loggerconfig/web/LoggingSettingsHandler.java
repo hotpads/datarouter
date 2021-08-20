@@ -311,8 +311,9 @@ public class LoggingSettingsHandler extends BaseHandler{
 
 	private void sendEmail(ContainerTag content){
 		String fromEmail = datarouterProperties.getAdministratorEmail();
-		String toEmail = datarouterAdministratorEmailService.getAdministratorEmailAddressesCsv() + ","
-				+ getCurrentUsername();
+		List<String> toEmail = new ArrayList<>();
+		toEmail.addAll(datarouterAdministratorEmailService.getAdminAndSubscribers());
+		toEmail.add(getCurrentUsername());
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.logging)
 				.build();

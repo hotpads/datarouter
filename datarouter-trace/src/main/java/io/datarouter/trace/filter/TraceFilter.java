@@ -181,10 +181,10 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				Long threadAllocatedKB = saveAllocatedBytes ? (threadAllocatedBytesEnded - threadAllocatedBytesBegin)
 						/ 1024 : null;
 				if(traceSettings.saveTraces.get()
-						&& traceDurationMs > traceSettings.saveTracesOverMs.get()
+						&& (traceDurationMs > traceSettings.saveTracesOverMs.get()
 						|| RequestTool.getBoolean(request, "trace", false)
 						|| tracer.shouldSample()
-						|| errored){
+						|| errored)){
 					List<Trace2ThreadDto> threads = new ArrayList<>(tracer.getThreadQueue());
 					List<Trace2SpanDto> spans = new ArrayList<>(tracer.getSpanQueue());
 					if(rootThread != null){

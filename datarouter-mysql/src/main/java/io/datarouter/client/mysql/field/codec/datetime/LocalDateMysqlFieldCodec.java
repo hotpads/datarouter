@@ -21,7 +21,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.LocalDate;
-import java.util.Calendar;
 
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
@@ -55,7 +54,7 @@ public class LocalDateMysqlFieldCodec extends BaseMysqlFieldCodec<LocalDate,Loca
 			if(field.getValue() == null){
 				ps.setNull(parameterIndex, Types.DATE);
 			}else{
-				ps.setDate(parameterIndex, Date.valueOf(field.getValue()), Calendar.getInstance());
+				ps.setDate(parameterIndex, Date.valueOf(field.getValue()), java.util.Calendar.getInstance());
 			}
 		}catch(SQLException e){
 			throw new DataAccessException(e);
@@ -65,7 +64,7 @@ public class LocalDateMysqlFieldCodec extends BaseMysqlFieldCodec<LocalDate,Loca
 	@Override
 	public LocalDate fromMysqlResultSetButDoNotSet(ResultSet rs){
 		try{
-			Date date = rs.getDate(field.getKey().getColumnName(), Calendar.getInstance());
+			Date date = rs.getDate(field.getKey().getColumnName(), java.util.Calendar.getInstance());
 			if(rs.wasNull()){
 				return null;
 			}

@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-parent</artifactId>
-		<version>0.0.85</version>
+		<version>0.0.86</version>
 		<relativePath>../datarouter-parent</relativePath>
 	</parent>
 
@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>com.j2html</groupId>
 			<artifactId>j2html</artifactId>
-			<version>1.4.0</version>
+			<version>1.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.mail</groupId>

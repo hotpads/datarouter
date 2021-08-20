@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -99,14 +100,13 @@ public class LoggerConfigCleanupJob extends BaseJob{
 
 		boolean handleLoggerConfigDeletionAlerts = settings.handleLoggerConfigDeletionAlerts.get();
 		if(!handleLoggerConfigDeletionAlerts && settings.sendLoggerConfigCleanupJobEmails.get()){
-			String toEmails;
+			List<String> toEmails = new ArrayList<>();
 			if(serverTypeDetector.mightBeProduction()){
-				List<String> emails = new ArrayList<>();
-				emails.addAll(adminEmailService.getAdministratorEmailAddresses());
-				emails.add(log.getEmail());
-				toEmails = loggerConfigCleanupEmailType.getAsCsv(emails);
+				toEmails.addAll(adminEmailService.getAdminAndSubscribers());
+				toEmails.add(log.getEmail());
+				toEmails.addAll(loggerConfigCleanupEmailType.tos);
 			}else{
-				toEmails = log.getEmail();
+				toEmails.add(log.getEmail());
 			}
 			sendAlertEmail(toEmails, makeDefaultOldLoggerConfigDetails(log));
 			return;
@@ -116,7 +116,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 		Level rootLoggerLevel = log4j2Configurator.getRootLoggerLevel();
 		if(databaseLoggerLevel.isMoreSpecificThan(rootLoggerLevel)
 				&& settings.sendLoggerConfigCleanupJobEmails.get()){
-			sendAlertEmail(log.getEmail(), makeLoggerLevelAlertDetails(log, rootLoggerLevel));
+			sendAlertEmail(List.of(log.getEmail()), makeLoggerLevelAlertDetails(log, rootLoggerLevel));
 		}
 		int daysSinceLastUpdatedThreshold = (int)Duration.between(loggerLastUpdatedDate, lastUpdatedThreshold).toDays();
 		int daysLeftBeforeDeletingLogger = loggingConfigSendEmailAlertDays - daysSinceLastUpdatedThreshold;
@@ -129,14 +129,16 @@ public class LoggerConfigCleanupJob extends BaseJob{
 					.build();
 			changelogRecorder.record(dto);
 			if(settings.sendLoggerConfigCleanupJobEmails.get()){
-				String toEmails = adminEmailService.getAdministratorEmailAddressesCsv(log.getEmail());
+				List<String> toEmails = new ArrayList<>();
+				toEmails.addAll(adminEmailService.getAdminAndSubscribers());
+				toEmails.add(log.getEmail());
 				sendAlertEmail(toEmails, makeDeleteLoggerConfigAlertDetails(log));
 			}
 			return;
 		}
 		if(settings.sendLoggerConfigCleanupJobEmails.get()){
 			String toEmails = log.getEmail();
-			sendAlertEmail(toEmails, makeOldLoggerConfigAlertDetails(log, daysLeftBeforeDeletingLogger));
+			sendAlertEmail(List.of(toEmails), makeOldLoggerConfigAlertDetails(log, daysLeftBeforeDeletingLogger));
 		}
 	}
 
@@ -195,7 +197,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text(" days of alerts."));
 	}
 
-	private void sendAlertEmail(String toEmails, ContainerTag details){
+	private void sendAlertEmail(Collection<String> toEmails, ContainerTag details){
 		String fromEmail = datarouterProperties.getAdministratorEmail();
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.logging)

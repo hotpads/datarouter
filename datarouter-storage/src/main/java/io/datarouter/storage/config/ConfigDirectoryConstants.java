@@ -15,15 +15,20 @@
  */
 package io.datarouter.storage.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.util.string.StringTool;
 
-public class ConfigDirectory{
+@Deprecated// stop using environment variables
+public class ConfigDirectoryConstants{
+	private static final Logger logger = LoggerFactory.getLogger(ConfigDirectoryConstants.class);
 
 	private static final String BASE_CONFIG_DIRECTORY_ENV_VARIABLE = "BASE_CONFIG_DIRECTORY";
 	private static final String DEFAULT_BASE_CONFIG_DIRECTORY = "/etc/datarouter";
-	public static final String CONFIG_DIRECTORY;
-	public static final String TEST_CONFIG_DIRECTORY;
-	public static final String SOURCE;
+	private static final String CONFIG_DIRECTORY;
+	private static final String TEST_CONFIG_DIRECTORY;
+	private static final String SOURCE;
 
 	static{
 		String baseConfigDirectory = System.getenv(BASE_CONFIG_DIRECTORY_ENV_VARIABLE);
@@ -35,6 +40,21 @@ public class ConfigDirectory{
 		}
 		CONFIG_DIRECTORY = baseConfigDirectory + "/config";
 		TEST_CONFIG_DIRECTORY = baseConfigDirectory + "/test";
+	}
+
+	public static String getSource(){
+		logger.warn("source={}", SOURCE);
+		return SOURCE;
+	}
+
+	public static String getConfigDirectory(){
+		logger.warn("configDirectory={}", CONFIG_DIRECTORY);
+		return CONFIG_DIRECTORY;
+	}
+
+	public static String getTestConfigDirectory(){
+		logger.warn("testConfigDirectory={}", TEST_CONFIG_DIRECTORY);
+		return TEST_CONFIG_DIRECTORY;
 	}
 
 }

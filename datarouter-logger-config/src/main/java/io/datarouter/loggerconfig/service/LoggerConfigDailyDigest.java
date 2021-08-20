@@ -51,7 +51,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private DatarouterService datarouterService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
+	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
 		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
 		if(loggers.size() == 0){
 			return Optional.empty();
@@ -69,7 +69,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(){
 		List<LoggerConfig> loggers = getTodaysLoggers(datarouterService.getZoneId());
 		if(loggers.size() == 0){
 			return Optional.empty();
@@ -104,8 +104,7 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private List<LoggerConfig> getTodaysLoggers(ZoneId zoneId){
 		return dao.scan()
 				.exclude(config -> config.getLastUpdated() == null)
-				.exclude(config -> config.getLastUpdated()
-						.isBefore(LocalDateTimeTool.atStartOfDay(zoneId)))
+				.exclude(config -> config.getLastUpdated().isBefore(LocalDateTimeTool.atStartOfDay(zoneId)))
 				.list();
 	}
 

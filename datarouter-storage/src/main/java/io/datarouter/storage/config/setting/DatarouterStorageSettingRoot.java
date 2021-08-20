@@ -33,10 +33,10 @@ public class DatarouterStorageSettingRoot extends SettingRoot{
 	public DatarouterStorageSettingRoot(
 			SettingFinder finder,
 			DatarouterClientAvailabilitySettingsProvider clientAvailabilitySettings,
-			DatarouterAdminEmailSettings adminEmailSettings){
+			DatarouterEmailSubscriberSettings emailSubscriberSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterStorage.");
 		registerChild(clientAvailabilitySettings.get());
-		registerChild(adminEmailSettings);
+		registerChild(emailSubscriberSettings);
 
 		recordCallsites = registerBoolean("recordCallsites", false);
 	}

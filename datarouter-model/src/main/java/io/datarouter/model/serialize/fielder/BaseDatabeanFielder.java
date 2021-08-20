@@ -41,11 +41,6 @@ implements DatabeanFielder<PK,D>{
 	private final StringDatabeanCodec stringDatabeanCodec;
 	private final Map<FielderConfigKey<?>,FielderConfigValue<?>> configuration;
 
-	@Deprecated // use BaseDatabeanFielder(supplier)
-	protected BaseDatabeanFielder(Class<? extends Fielder<PK>> primaryKeyFielderClass){
-		this(ReflectionTool.supplier(primaryKeyFielderClass));
-	}
-
 	protected BaseDatabeanFielder(Supplier<? extends Fielder<PK>> primaryKeyFielderSupplier){
 		this.primaryKeyFielder = primaryKeyFielderSupplier.get();
 		this.stringDatabeanCodec = ReflectionTool.create(getStringDatabeanCodecClass());

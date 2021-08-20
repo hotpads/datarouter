@@ -65,7 +65,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	private DatarouterService datarouterService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
+	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
 		List<PermissionRequestDto> openRequests = getOpenRequests();
 		if(openRequests.size() == 0){
 			return Optional.empty();
@@ -76,7 +76,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(){
 		List<PermissionRequestDto> openRequests = getOpenRequests();
 		if(openRequests.size() == 0){
 			return Optional.empty();
@@ -114,7 +114,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 				.list();
 	}
 
-	private ContainerTag buildPageTable(List<PermissionRequestDto> rows, ZoneId zoneId){
+	private ContainerTag<?> buildPageTable(List<PermissionRequestDto> rows, ZoneId zoneId){
 		return new J2HtmlTable<PermissionRequestDto>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withColumn("Username", row -> row.user.getUsername())
@@ -134,7 +134,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag buildEmailTable(List<PermissionRequestDto> rows, ZoneId zoneId){
+	private ContainerTag<?> buildEmailTable(List<PermissionRequestDto> rows, ZoneId zoneId){
 		return new J2HtmlEmailTable<PermissionRequestDto>()
 				.withColumn("Username", row -> row.user.getUsername())
 				.withColumn(new J2HtmlEmailTableColumn<>(

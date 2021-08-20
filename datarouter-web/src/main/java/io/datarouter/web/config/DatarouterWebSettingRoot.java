@@ -27,6 +27,7 @@ import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
 import io.datarouter.util.duration.DatarouterDuration;
+import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
 import io.datarouter.web.user.authenticate.config.DatarouterAuthenticationSettings;
 import io.datarouter.web.user.authenticate.saml.DatarouterSamlSettings;
 
@@ -45,11 +46,13 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 	public DatarouterWebSettingRoot(
 			SettingFinder finder,
 			DatarouterAuthenticationSettings authenticationSettings,
-			DatarouterSamlSettings samlSettings){
+			DatarouterSamlSettings samlSettings,
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterWeb.");
 
 		registerChild(authenticationSettings);
 		registerChild(samlSettings);
+		registerChild(schemaUpdateEmailSettings);
 
 		maxCacheableContentLength = registerInteger("maxCacheableContentLength", ONE_MB);
 		shutdownSecret = registerString("shutdownSecret", "");

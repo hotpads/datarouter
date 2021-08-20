@@ -74,7 +74,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private DatarouterService datarouterService;
 
 	@Override
-	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
+	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
 		List<AggregatedExceptionDto> aggregated = getExceptions(zoneId);
 		if(aggregated.size() == 0){
 			return Optional.empty();
@@ -85,7 +85,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(){
 		List<AggregatedExceptionDto> aggregated = getExceptions(datarouterService.getZoneId());
 		if(aggregated.size() == 0){
 			return Optional.empty();
@@ -134,7 +134,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 				.list();
 	}
 
-	private ContainerTag makePageTable(List<AggregatedExceptionDto> rows){
+	private ContainerTag<?> makePageTable(List<AggregatedExceptionDto> rows){
 		return new J2HtmlTable<AggregatedExceptionDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.key.type)
@@ -148,7 +148,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag makeEmailTable(List<AggregatedExceptionDto> rows){
+	private ContainerTag<?> makeEmailTable(List<AggregatedExceptionDto> rows){
 		return new J2HtmlEmailTable<AggregatedExceptionDto>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Type", row -> digestService.makeATagLink(row.key.type,
 						makeExceptionRecordPath(row))))
@@ -157,7 +157,7 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag makeNumericPageTableCell(long value){
+	private ContainerTag<?> makeNumericPageTableCell(long value){
 		return td(NumberFormatter.addCommas(value))
 				.attr("sorttable_customkey", value)
 				.withStyle("text-align:right");

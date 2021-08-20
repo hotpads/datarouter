@@ -15,18 +15,79 @@
  */
 package io.datarouter.web.monitoring.memory;
 
+import io.datarouter.util.enums.DisplayablePersistentString;
+
 public class VmNativeMemoryStatsDto{
 
-	public static final String TOTAL_STAT_CATEGORY = "Total";
-
-	public final String category;
+	public final VmNativeMemoryStatsCategory category;
 	public final long reservedMemoryBytes;
 	public final long committedMemoryBytes;
 
-	public VmNativeMemoryStatsDto(String category, long reservedMemoryBytes, long committedMemoryBytes){
+	public VmNativeMemoryStatsDto(
+			VmNativeMemoryStatsCategory category,
+			long reservedMemoryBytes,
+			long committedMemoryBytes){
 		this.category = category;
 		this.reservedMemoryBytes = reservedMemoryBytes;
 		this.committedMemoryBytes = committedMemoryBytes;
+	}
+
+	public enum VmNativeMemoryStatsCategory implements DisplayablePersistentString{
+		ARENA_CHUNK("Arena Chunk", "arenaChunk"),
+		ARGUMENTS("Arguments", "arguments"),
+		CLASS("Class", "class"),
+		CODE("Code", "code"),
+		COMPILER("Compiler", "compiler"),
+		GC("GC", "gc"),
+		INTERNAL("Internal", "internal"),
+		JAVA_HEAP("Java Heap", "heap"),
+		LOGGING("Logging", "logging"),
+		MODULE("Module", "module"),
+		NATIVE_MEMORY_TRACKING("Native Memory Tracking", "nativeMemoryTracking"),
+		OTHER("Other", "other"),
+		SAFEPOINT("Safepoint", "safepoint"),
+		SHARED_CLASS_SPACE("Shared class space", "sharedClassSpace"),
+		SYMBOL("Symbol", "symbol"),
+		SYNCHRONIZATION("Synchronization", "synchronization"),
+		THREAD("Thread", "thread"),
+		TOTAL("Total", "total"),
+		;
+
+		private final String display;
+		private final String persistentString;
+
+		VmNativeMemoryStatsCategory(String display, String persistentString){
+			this.display = display;
+			this.persistentString = persistentString;
+		}
+
+		@Override
+		public String getDisplay(){
+			return display;
+		}
+
+		@Override
+		public String getPersistentString(){
+			return persistentString;
+		}
+
+		public static VmNativeMemoryStatsCategory fromDisplay(String displayString){
+			for(VmNativeMemoryStatsCategory enumEntry : values()){
+				String display = enumEntry.getDisplay();
+				if(display == null){
+					if(displayString == null){
+						return enumEntry;
+					}
+					continue;
+				}
+				if(display.equals(displayString)
+						|| display.equalsIgnoreCase(displayString)){
+					return enumEntry;
+				}
+			}
+			return null;
+		}
+
 	}
 
 }

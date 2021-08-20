@@ -25,6 +25,8 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,13 +37,11 @@ import io.datarouter.clustersetting.config.DatarouterClusterSettingPaths;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
 import io.datarouter.web.html.j2html.J2HtmlTable;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -67,12 +67,12 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag> getPageContent(ZoneId zoneId){
+	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
 		return makeContent(new ClusterSettingDailyDigestPageTableFormatter());
 	}
 
 	@Override
-	public Optional<ContainerTag> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(){
 		return makeContent(new ClusterSettingDailyDigestEmailTableFormatter());
 	}
 
@@ -81,36 +81,41 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 		return DailyDigestType.ACTIONABLE;
 	}
 
-	private Optional<ContainerTag> makeContent(ClusterSettingDailyDigestTableFormatter tableFormatter){
-		var redundantTable = settingService.scanWithValidity(ClusterSettingValidity.REDUNDANT)
+	private Optional<ContainerTag<?>> makeContent(ClusterSettingDailyDigestTableFormatter tableFormatter){
+		Optional<Pair<String,ContainerTag<?>>> redundantTable = settingService
+				.scanWithValidity(ClusterSettingValidity.REDUNDANT)
 				.listTo(settings -> tableFormatter.makeTable(settings, "Redundant"));
-		var unreferencedTable = settingService.scanWithValidity(ClusterSettingValidity.UNREFERENCED)
+		Optional<Pair<String,ContainerTag<?>>> unreferencedTable = settingService
+				.scanWithValidity(ClusterSettingValidity.UNREFERENCED)
 				.listTo(settings -> tableFormatter.makeTable(settings, "Unreferenced"));
-		var oldTable = settingService.scanWithValidity(ClusterSettingValidity.OLD)
+		Optional<Pair<String,ContainerTag<?>>> oldTable = settingService
+				.scanWithValidity(ClusterSettingValidity.OLD)
 				.listTo(settings -> tableFormatter.makeTable(settings, "Old"));
-		var unknownTable = settingService.scanWithValidity(ClusterSettingValidity.UNKNOWN)
+		Optional<Pair<String,ContainerTag<?>>> unknownTable = settingService
+				.scanWithValidity(ClusterSettingValidity.UNKNOWN)
 				.listTo(settings -> tableFormatter.makeTable(settings, "Unknown"));
 
-		List<ContainerTag> tables = Scanner.of(redundantTable, unreferencedTable, oldTable, unknownTable)
-				.include(Optional::isPresent)
+		// Scanners can't figure out types
+		List<ContainerTag<?>> tables = Stream.of(redundantTable, unreferencedTable, oldTable, unknownTable)
+				.filter(Optional::isPresent)
 				.map(Optional::get)
-				.sort(Comparator.comparing(Pair::getLeft))
+				.sorted(Comparator.comparing(Pair::getLeft))
 				.map(Pair::getRight)
-				.list();
+				.collect(Collectors.toList());
 		if(tables.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Settings", paths.datarouter.settings, "?submitAction=browseSettings");
-		return Optional.of(div(header, each(tables, TagCreator::div)));
+		return Optional.of(div(header, each(tables, tag -> div(tag))));
 	}
 
 	private abstract static class ClusterSettingDailyDigestTableFormatter{
-		public abstract Optional<Pair<String,ContainerTag>> makeTable(List<ClusterSetting> settings, String header);
+		public abstract Optional<Pair<String,ContainerTag<?>>> makeTable(List<ClusterSetting> settings, String header);
 	}
 
 	private class ClusterSettingDailyDigestEmailTableFormatter extends ClusterSettingDailyDigestTableFormatter{
 		@Override
-		public Optional<Pair<String,ContainerTag>> makeTable(List<ClusterSetting> settings, String header){
+		public Optional<Pair<String,ContainerTag<?>>> makeTable(List<ClusterSetting> settings, String header){
 			if(settings.isEmpty()){
 				return Optional.empty();
 			}
@@ -125,7 +130,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 
 	private class ClusterSettingDailyDigestPageTableFormatter extends ClusterSettingDailyDigestTableFormatter{
 		@Override
-		public Optional<Pair<String,ContainerTag>> makeTable(List<ClusterSetting> settings, String header){
+		public Optional<Pair<String,ContainerTag<?>>> makeTable(List<ClusterSetting> settings, String header){
 			if(settings.isEmpty()){
 				return Optional.empty();
 			}

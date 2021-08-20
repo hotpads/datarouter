@@ -24,6 +24,7 @@ public enum Trace2SpanGroupType implements StringEnum<Trace2SpanGroupType>{
 	HTTP(TraceSpanGroupType.HTTP, "http call"),
 	SERIALIZATION(TraceSpanGroupType.SERIALIZATION, "serialization/deserialization"),
 	CLOUD_STORAGE(TraceSpanGroupType.CLOUD_STORAGE, "cloud storage(e.g. s3, gcs and etc)"),
+	MULTITHREADING(TraceSpanGroupType.MULTITHREADING, "multithreading"),
 	NONE(TraceSpanGroupType.NONE, "no group categrized"),
 	;
 

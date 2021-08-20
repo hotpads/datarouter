@@ -17,8 +17,10 @@ package io.datarouter.web.config;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,8 +31,8 @@ import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
 import io.datarouter.pathnode.FilesRoot.NoOpFilesRoot;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier;
-import io.datarouter.storage.config.DatarouterAdditionalAdministratorsSupplier.DatarouterAdditionalAdministrators;
+import io.datarouter.storage.config.DatarouterSubscribersSupplier;
+import io.datarouter.storage.config.DatarouterSubscribersSupplier.DatarouterSubscribers;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.setting.SettingBootstrapIntegrationService;
@@ -125,7 +127,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends CurrentSessionInfo> currentSessionInfoClass;
 	private final Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass;
 	private final Class<? extends ExceptionRecorder> exceptionRecorderClass;
-	private final Set<String> additionalAdministrators;
+	private final Set<String> subscribers;
 	private final List<Class<? extends DatarouterAppListener>> appListenerClasses;
 	private final List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
 
@@ -166,7 +168,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			Class<? extends CurrentSessionInfo> currentSessionInfoClass,
 			Class<? extends ExceptionHandlingConfig> exceptionHandlingConfigClass,
 			Class<? extends ExceptionRecorder> exceptionRecorderClass,
-			Set<String> additionalAdministrators,
+			Set<String> subscribers,
 			List<Class<? extends DatarouterAppListener>> appListenerClasses,
 			List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses,
 			Class<? extends RoleManager> roleManagerClass,
@@ -264,7 +266,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.currentSessionInfoClass = currentSessionInfoClass;
 		this.exceptionHandlingConfigClass = exceptionHandlingConfigClass;
 		this.exceptionRecorderClass = exceptionRecorderClass;
-		this.additionalAdministrators = additionalAdministrators;
+		this.subscribers = subscribers;
 		this.appListenerClasses = appListenerClasses;
 		this.webAppListenerClasses = webAppListenerClasses;
 		this.roleManagerClass = roleManagerClass;
@@ -297,8 +299,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualNullSafe(DatarouterAuthenticationConfig.class, authenticationConfigClass);
 		bindActualNullSafe(CurrentSessionInfo.class, currentSessionInfoClass);
 		bindDefault(ExceptionHandlingConfig.class, exceptionHandlingConfigClass);
-		bindActualInstanceNullSafe(DatarouterAdditionalAdministratorsSupplier.class,
-				new DatarouterAdditionalAdministrators(additionalAdministrators));
+		bindActualInstanceNullSafe(DatarouterSubscribersSupplier.class, new DatarouterSubscribers(subscribers));
 		bindActualInstance(AppListenersClasses.class, new DatarouterAppListenersClasses(appListenerClasses));
 		bindActualInstance(WebAppListenersClasses.class, new DatarouterWebAppListenersClasses(webAppListenerClasses));
 		bindActualNullSafe(RoleManager.class, roleManagerClass);
@@ -381,7 +382,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends CurrentSessionInfo> currentSessionInfo = NoOpCurrentSessionInfo.class;
 		private Class<? extends ExceptionHandlingConfig> exceptionHandlingConfig = NoOpExceptionHandlingConfig.class;
 		private Class<? extends ExceptionRecorder> exceptionRecorder;
-		private Set<String> additionalAdministrators = Collections.emptySet();
+		private Set<String> subscribers = new HashSet<>();
 		private List<Class<? extends DatarouterAppListener>> appListenerClasses;
 		private List<Class<? extends DatarouterWebAppListener>> webAppListenerClasses;
 		private Class<? extends RoleManager> roleManagerClass;
@@ -443,8 +444,19 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		@Deprecated
 		public DatarouterWebPluginBuilder setAdditionalAdministrators(Set<String> additionalAdministrators){
-			this.additionalAdministrators = additionalAdministrators;
+			this.subscribers = additionalAdministrators;
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder addSubscriber(String subscriber){
+			this.subscribers.add(subscriber);
+			return this;
+		}
+
+		public DatarouterWebPluginBuilder addSubscribers(Collection<String> subscribers){
+			this.subscribers.addAll(subscribers);
 			return this;
 		}
 
@@ -584,7 +596,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					currentSessionInfo,
 					exceptionHandlingConfig,
 					exceptionRecorder,
-					additionalAdministrators,
+					subscribers,
 					appListenerClasses,
 					webAppListenerClasses,
 					roleManagerClass,

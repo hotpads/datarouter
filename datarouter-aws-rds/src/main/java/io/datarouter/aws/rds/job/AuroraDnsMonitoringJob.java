@@ -21,6 +21,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.rawHtml;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -77,8 +78,9 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 
 	private void sendEmail(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
 		String fromEmail = datarouterProperties.getAdministratorEmail();
-		String toEmail = awsRdsEmailType.getAsCsv(additionalAdministratorEmailService
-				.getAdministratorEmailAddressesCsv());
+		List<String> toEmails = new ArrayList<>();
+		toEmails.addAll(awsRdsEmailType.tos);
+		toEmails.addAll(additionalAdministratorEmailService.getAdminAndSubscribers());
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.auroraInstances)
 				.build();
@@ -86,7 +88,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 				.withTitle("Aurora DNS")
 				.withTitleHref(primaryHref)
 				.withContent(makeEmailContent(mismatchedReaderEntries, fixes));
-		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
+		htmlEmailService.trySendJ2Html(fromEmail, toEmails, emailBuilder);
 	}
 
 	private ContainerTag makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){

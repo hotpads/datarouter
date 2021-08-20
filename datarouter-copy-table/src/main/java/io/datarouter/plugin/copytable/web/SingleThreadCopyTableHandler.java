@@ -21,6 +21,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -232,7 +233,7 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 				sourceNodeName.get(),
 				targetNodeName.get());
 		var body = body(header, p(message));
-		if(!toEmail.get().isEmpty()){
+		if(toEmail.filter(str -> !str.isEmpty()).isPresent()){
 			String fromEmail = datarouterProperties.getAdministratorEmail();
 			String primaryHref = htmlEmailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.copyTableSingleThread)
@@ -241,7 +242,7 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 					.withTitle("Copy Table")
 					.withTitleHref(primaryHref)
 					.withContent(body);
-			htmlEmailService.trySendJ2Html(fromEmail, toEmail.get(), emailBuilder);
+			htmlEmailService.trySendJ2Html(fromEmail, List.of(toEmail.get()), emailBuilder);
 		}
 		changelogRecorderService.recordChangelog(getSessionInfo(), "Single Thread", sourceNodeName.get(), targetNodeName
 				.get());
