@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
+import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -42,6 +43,11 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
 
+	public final Setting<Integer> exceptionRecordPublishThreadCount;
+	public final Setting<Integer> httpRequestRecordPublishThreadCount;
+	public final Setting<Integer> exceptionRecordMemoryToDatabaseThreadCount;
+	public final Setting<Integer> httpRequestRecordMemoryToDatabaseThreadCount;
+
 	@Inject
 	public DatarouterExceptionSettingRoot(SettingFinder finder){
 		super(finder, DatarouterSettingCategory.DATAROUTER, "datarouterException.");
@@ -63,6 +69,11 @@ public class DatarouterExceptionSettingRoot extends SettingRoot{
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
+		exceptionRecordPublishThreadCount = registerInteger("exceptionRecordPublishThreadCount", 1);
+		httpRequestRecordPublishThreadCount = registerInteger("httpRequestRecordPublishThreadCount", 1);
+		exceptionRecordMemoryToDatabaseThreadCount = registerInteger("exceptionRecordMemoryToDatabaseThreadCount", 1);
+		httpRequestRecordMemoryToDatabaseThreadCount = registerInteger("httpRequestRecordMemoryToDatabaseThreadCount",
+				1);
 	}
 
 }

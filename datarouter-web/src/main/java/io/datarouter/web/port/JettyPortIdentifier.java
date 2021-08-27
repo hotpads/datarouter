@@ -15,13 +15,12 @@
  */
 package io.datarouter.web.port;
 
-import java.lang.management.ManagementFactory;
-
 import javax.inject.Singleton;
 import javax.management.JMException;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
+import io.datarouter.util.MxBeans;
 
 @Singleton
 public class JettyPortIdentifier implements PortIdentifier{
@@ -37,17 +36,16 @@ public class JettyPortIdentifier implements PortIdentifier{
 	private int httpsPort;
 
 	public JettyPortIdentifier() throws MalformedObjectNameException{
-		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 		ObjectName jettyServerNames = new ObjectName(CompoundPortIdentifier.JETTY_SERVER_JMX_DOMAIN + ":*");
-		server.queryNames(jettyServerNames, null).stream()
+		MxBeans.SERVER.queryNames(jettyServerNames, null).stream()
 				.filter(objectName -> objectName.getKeyPropertyList().get(TYPE_PROPERTY)
 						.equals(SERVERCONNECTOR_MBEAN_TYPE))
 				.forEach(objectName -> {
 					int port;
 					String defaultProtocol;
 					try{
-						port = (int)server.getAttribute(objectName, PORT);
-						defaultProtocol = (String)server.getAttribute(objectName, DEFAULT_PROTOCOL);
+						port = (int)MxBeans.SERVER.getAttribute(objectName, PORT);
+						defaultProtocol = (String)MxBeans.SERVER.getAttribute(objectName, DEFAULT_PROTOCOL);
 					}catch(JMException e){
 						throw new RuntimeException(e);
 					}

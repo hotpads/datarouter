@@ -57,7 +57,7 @@ public class ExceptionQueueConveyors extends BaseConveyors{
 				exceptionRecordPublisher,
 				exceptionsSettings.compactExceptionLoggingForConveyors,
 				exceptionRecorder),
-				1);
+				exceptionsSettings.exceptionRecordPublishThreadCount.get());
 		start(new HttpRequestRecordQueueConveyor(
 				"httpRequestRecordQueuePublisher",
 				exceptionsSettings.publishRecords,
@@ -65,21 +65,21 @@ public class ExceptionQueueConveyors extends BaseConveyors{
 				exceptionRecordPublisher,
 				exceptionsSettings.compactExceptionLoggingForConveyors,
 				exceptionRecorder),
-				1);
+				exceptionsSettings.httpRequestRecordPublishThreadCount.get());
 		start(new DatabeanBufferConveyor<>(
 				"exceptionRecordMemoryToDatabase",
 				exceptionsSettings.runExceptionRecordMemoryToDatabaseConveyor,
 				exceptionBuffers.exceptionRecordBuffer,
 				exceptionRecordDao::putMulti,
 				exceptionRecorder),
-				1);
+				exceptionsSettings.exceptionRecordMemoryToDatabaseThreadCount.get());
 		start(new DatabeanBufferConveyor<>(
 				"httpRequestRecordMemoryToDatabase",
 				exceptionsSettings.runHttpRequestRecordMemoryToDatabaseConveyor,
 				exceptionBuffers.httpRequestRecordBuffer,
 				httpRequestRecordDao::putMulti,
 				exceptionRecorder),
-				1);
+				exceptionsSettings.httpRequestRecordMemoryToDatabaseThreadCount.get());
 	}
 
 }

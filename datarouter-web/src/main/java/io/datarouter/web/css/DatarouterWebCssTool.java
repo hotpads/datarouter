@@ -15,23 +15,24 @@
  */
 package io.datarouter.web.css;
 
+import static j2html.TagCreator.link;
+
 import java.util.List;
 
 import io.datarouter.pathnode.PathNode;
-import j2html.TagCreator;
 import j2html.attributes.Attr;
 import j2html.tags.EmptyTag;
 
 public class DatarouterWebCssTool{
 
-	public static EmptyTag makeCssImportTag(String contextPath, PathNode pathNode){
+	public static EmptyTag<?> makeCssImportTag(String contextPath, PathNode pathNode){
 		String path = contextPath + pathNode.toSlashedString();
-		return TagCreator.link()
+		return link()
 				.attr(Attr.REL, "stylesheet")
 				.attr(Attr.HREF, path);
 	}
 
-	public static EmptyTag[] makeCssImportTags(String contextPath, List<PathNode> pathNodes){
+	public static EmptyTag<?>[] makeCssImportTags(String contextPath, List<PathNode> pathNodes){
 		return pathNodes.stream()
 				.map(pathNode -> makeCssImportTag(contextPath, pathNode))
 				.toArray(EmptyTag[]::new);

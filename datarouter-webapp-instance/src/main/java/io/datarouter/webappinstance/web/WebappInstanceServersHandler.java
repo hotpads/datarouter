@@ -89,7 +89,7 @@ public class WebappInstanceServersHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(Page<WebappInstanceLogDto> page, List<String> activeServerNames){
+	private ContainerTag<?> makeContent(Page<WebappInstanceLogDto> page, List<String> activeServerNames){
 		var form = Bootstrap4PagerHtml.renderForm(page)
 				.withClass("mt-4");
 		var linkBar = Bootstrap4PagerHtml.renderLinkBar(page)

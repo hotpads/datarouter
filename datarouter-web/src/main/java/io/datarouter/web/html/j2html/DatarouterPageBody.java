@@ -22,15 +22,15 @@ import j2html.tags.ContainerTag;
 
 public class DatarouterPageBody{
 
-	private final ContainerTag[] navbars;
-	private final ContainerTag content;
+	private final ContainerTag<?>[] navbars;
+	private final ContainerTag<?> content;
 
-	public DatarouterPageBody(ContainerTag[] navbars, ContainerTag content){
+	public DatarouterPageBody(ContainerTag<?>[] navbars, ContainerTag<?> content){
 		this.navbars = navbars;
 		this.content = content;
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		var header = header(navbars);
 		return body(header, content);
 	}

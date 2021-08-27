@@ -59,7 +59,7 @@ public class DatarouterSnapshotGroupsHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag buildGroupList(){
+	private ContainerTag<?> buildGroupList(){
 		var thead = thead(tr(th("ID"), th("numSnapshots")));
 		var table = table()
 				.withClasses("sortable table table-sm table-striped my-4 border")

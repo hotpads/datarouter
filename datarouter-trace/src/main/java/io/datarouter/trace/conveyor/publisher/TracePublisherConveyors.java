@@ -59,7 +59,7 @@ public class TracePublisherConveyors extends BaseConveyors{
 				trace2HttpRequestRecordQueueDao,
 				gson,
 				exceptionRecorder),
-				1);
+				settings.runMemoryToSqsForTrace2ThreadCount.get());
 
 		start(new Trace2ForPublisherSqsDrainConveyor(
 				"trace2SqsToPublisher",
@@ -69,7 +69,7 @@ public class TracePublisherConveyors extends BaseConveyors{
 				tracePublisher,
 				settings.compactExceptionLoggingForConveyors,
 				exceptionRecorder),
-				1);
+				settings.runMemoryToSqsForTrace2ThreadCount.get());
 
 		start(new Trace2ForPublisherHttpRequestRecordSqsDrainConveyor(
 				"trace2HttpRequestRecordSqsToPublisher",
@@ -79,7 +79,7 @@ public class TracePublisherConveyors extends BaseConveyors{
 				httpRequstRecordPublisher,
 				settings.compactExceptionLoggingForConveyors,
 				exceptionRecorder),
-				1);
+				settings.runMemoryToSqsForTrace2ThreadCount.get());
 	}
 
 }

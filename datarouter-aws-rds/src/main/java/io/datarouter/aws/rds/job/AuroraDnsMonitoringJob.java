@@ -21,7 +21,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.rawHtml;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -39,7 +38,6 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChang
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import j2html.tags.ContainerTag;
 
@@ -53,8 +51,6 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 	private AuroraDnsService dnsService;
 	@Inject
 	private DatabaseAdministrationConfiguration config;
-	@Inject
-	private DatarouterAdministratorEmailService additionalAdministratorEmailService;
 	@Inject
 	private DatarouterAwsPaths paths;
 	@Inject
@@ -77,21 +73,21 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 	}
 
 	private void sendEmail(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
-		String fromEmail = datarouterProperties.getAdministratorEmail();
-		List<String> toEmails = new ArrayList<>();
-		toEmails.addAll(awsRdsEmailType.tos);
-		toEmails.addAll(additionalAdministratorEmailService.getAdminAndSubscribers());
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.auroraInstances)
 				.build();
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withTitle("Aurora DNS")
 				.withTitleHref(primaryHref)
-				.withContent(makeEmailContent(mismatchedReaderEntries, fixes));
-		htmlEmailService.trySendJ2Html(fromEmail, toEmails, emailBuilder);
+				.withContent(makeEmailContent(mismatchedReaderEntries, fixes))
+				.fromAdmin()
+				.toAdmin()
+				.toSubscribers()
+				.to(awsRdsEmailType.tos);
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
+	private ContainerTag<?> makeEmailContent(List<DnsHostEntryDto> mismatchedReaderEntries, List<String> fixes){
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var message = h3("Some of the reader DB instances are pointed to the writer instance.");
 		var table = new J2HtmlEmailTable<DnsHostEntryDto>()

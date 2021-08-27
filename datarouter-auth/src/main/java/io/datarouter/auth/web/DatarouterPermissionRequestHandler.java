@@ -49,8 +49,9 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestD
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.DatarouterSubscribersSupplier;
+import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.ZonedDateFormaterTool;
@@ -83,8 +84,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private DatarouterAuthFiles files;
 	@Inject
 	private DatarouterAuthPaths paths;
@@ -93,8 +92,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private DatarouterUserInfo datarouterUserInfo;
 	@Inject
-	private DatarouterAdministratorEmailService administratorEmailService;
-	@Inject
 	private DatarouterUserExternalDetailService userExternalDetailService;
 	@Inject
 	private PermissionRequestEmailType permissionRequestEmailType;
@@ -102,6 +99,12 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	private DatarouterService datarouterService;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
+	@Inject
+	private AdminEmail adminEmail;
+	@Inject
+	private DatarouterSubscribersSupplier subscibersEmail;
+	@Inject
+	private DatarouterEmailSubscriberSettings subscribersSettings;
 
 	@Handler(defaultHandler = true)
 	private Mav showForm(OptionalString deniedUrl, OptionalString allowedRoles){
@@ -121,11 +124,15 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		mav.put("currentRequest", datarouterPermissionRequestDao.scanOpenPermissionRequestsForUser(user.getId())
 				.findMax(Comparator.comparing(request -> request.getKey().getRequestTime()))
 				.orElse(null));
-		Set<String> additionalPermissionEmails = new HashSet<>();
+		Set<String> emails = new HashSet<>();
 		if(serverTypeDetector.mightBeProduction()){
-			additionalPermissionEmails.addAll(permissionRequestEmailType.tos);
+			emails.addAll(permissionRequestEmailType.tos);
 		}
-		mav.put("email", administratorEmailService.getAdminAndSubscribersCsv(additionalPermissionEmails));
+		emails.add(adminEmail.get());
+		if(subscribersSettings.includeSubscribers.get()){
+			emails.addAll(subscibersEmail.get());
+		}
+		mav.put("email", emails);
 		mav.put("submitPath", paths.permissionRequest.submit.join("/"));
 		mav.put("declinePath", paths.permissionRequest.declineAll.join("/"));
 		return mav;
@@ -215,7 +222,6 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 		String userProfileDescription = userExternalDetailService.getUserProfileDescription()
 				.orElse("user profile");
 		String userEmail = user.getUsername();
-		Set<String> recipients = userEditService.getUserEditEmailRecipients(user);
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.admin.editUser.toSlashedString())
 				.withParam("userId", user.getId() + "")
@@ -232,13 +238,16 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withSubject(userEditService.getPermissionRequestEmailSubject(user))
 				.withTitle(EMAIL_TITLE)
 				.withTitleHref(primaryHref)
-				.withContent(content);
-		htmlEmailService.trySendJ2Html(userEmail, recipients, emailBuilder);
+				.withContent(content)
+				.from(userEmail)
+				.to(userEmail)
+				.to(permissionRequestEmailType, serverTypeDetector.mightBeProduction())
+				.toSubscribers(serverTypeDetector.mightBeProduction())
+				.toAdmin(serverTypeDetector.mightBeDevelopment());
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
 	private void sendDeclineEmail(DatarouterUser editedUser, DatarouterUser currentUser){
-		String from = editedUser.getUsername();
-		Set<String> to = userEditService.getUserEditEmailRecipients(editedUser);
 		String titleHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.admin.editUser.toSlashedString())
 				.withParam("userId", editedUser.getId() + "")
@@ -251,19 +260,24 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withSubject(userEditService.getPermissionRequestEmailSubject(editedUser))
 				.withTitle(EMAIL_TITLE)
 				.withTitleHref(titleHref)
-				.withContent(content);
-		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
+				.withContent(content)
+				.from(editedUser.getUsername())
+				.to(editedUser.getUsername())
+				.to(permissionRequestEmailType, serverTypeDetector.mightBeProduction())
+				.toSubscribers(serverTypeDetector.mightBeProduction())
+				.toAdmin(serverTypeDetector.mightBeDevelopment());
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private static ContainerTag createLabelValueTr(String label, DomContent...values){
+	private static ContainerTag<?> createLabelValueTr(String label, DomContent...values){
 		return tr(td(b(label + ' ')).withStyle("text-align: right"), td().with(values).withStyle("padding-left: 8px"))
 				.withStyle("vertical-align: top");
 	}
 
 	private String noDatarouterAuthentication(){
 		logger.warn("{} went to non-DR permission request page.", getSessionInfo().getRequiredSession().getUsername());
-		return "This is only available when using datarouter authentication. Please email " + datarouterProperties
-				.getAdministratorEmail() + " for assistance.";
+		return "This is only available when using datarouter authentication. Please email " + adminEmail.get()
+				+ " for assistance.";
 	}
 
 	public static class PermissionRequestDto{

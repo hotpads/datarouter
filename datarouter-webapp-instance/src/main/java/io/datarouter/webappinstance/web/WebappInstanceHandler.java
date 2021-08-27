@@ -506,7 +506,7 @@ public class WebappInstanceHandler extends BaseHandler{
 		}
 
 		public String getUsageBreakdownHtml(){
-			ContainerTag ul = ul();
+			ContainerTag<?> ul = ul();
 			for(UsageEntry entry : usage){
 				String entryValue = " - " + Optional.ofNullable(entry.key)
 					.map(Object::toString)

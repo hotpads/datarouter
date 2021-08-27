@@ -37,10 +37,8 @@ import io.datarouter.gcp.spanner.ddl.SpannerSingleTableSchemaUpdateService;
 import io.datarouter.gcp.spanner.ddl.SpannerTableOperationsGenerator;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
-import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -59,7 +57,6 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 	@Inject
 	public SpannerSchemaUpdateService(
 			DatarouterProperties datarouterProperties,
-			DatarouterAdministratorEmailService adminEmailService,
 			SpannerSingleTableSchemaUpdateService singleTableSchemaUpdateFactory,
 			SpannerTableOperationsGenerator tableOperationsGenerator,
 			DatarouterSchemaUpdateScheduler executor,
@@ -71,10 +68,8 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 			BuildProperties buildProperties,
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
-			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
-			AdminEmail adminEmail){
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
 		super(datarouterProperties,
-				adminEmailService,
 				executor,
 				schemaUpdateLockDao,
 				changelogRecorder,
@@ -83,8 +78,7 @@ public class SpannerSchemaUpdateService extends EmailingSchemaUpdateService{
 				datarouterWebPaths,
 				standardDatarouterEmailHeaderService,
 				schemaUpdatesEmailType,
-				schemaUpdateEmailSettings,
-				adminEmail);
+				schemaUpdateEmailSettings);
 		this.singleTableSchemaUpdateFactory = singleTableSchemaUpdateFactory;
 		this.tableOperationsGenerator = tableOperationsGenerator;
 		this.clientPoolHolder = clientPoolHolder;

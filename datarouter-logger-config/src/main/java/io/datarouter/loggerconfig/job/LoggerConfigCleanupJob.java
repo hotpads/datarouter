@@ -47,8 +47,9 @@ import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
 import io.datarouter.logging.Log4j2Configurator;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.DatarouterSubscribersSupplier;
+import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import j2html.tags.ContainerTag;
@@ -60,11 +61,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	@Inject
 	private DatarouterLoggerConfigSettingRoot settings;
 	@Inject
-	private DatarouterAdministratorEmailService adminEmailService;
-	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
-	@Inject
-	private DatarouterProperties datarouterProperties;
 	@Inject
 	private Log4j2Configurator log4j2Configurator;
 	@Inject
@@ -79,20 +76,30 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
-
-	private int maxAgeLimitDays;
-	private int loggingConfigSendEmailAlertDays;
+	@Inject
+	private AdminEmail adminEmail;
+	@Inject
+	private DatarouterSubscribersSupplier subscribers;
+	@Inject
+	private DatarouterEmailSubscriberSettings subscriberSettings;
 
 	@Override
 	public void run(TaskTracker tracker){
-		maxAgeLimitDays = settings.loggingConfigMaxAgeDays.get();
-		loggingConfigSendEmailAlertDays = settings.loggingConfigSendEmailAlertDays.get();
-		loggerConfigDao.scan()
-				.forEach(this::handleCustomLogLevel);
+		loggerConfigDao.scan().forEach(this::handleCustomLogLevel);
+	}
+
+	@Deprecated
+	private List<String> toAdminsAndSubscribers(){
+		List<String> tos = new ArrayList<>();
+		tos.add(adminEmail.get());
+		if(subscriberSettings.includeSubscribers.get()){
+			tos.addAll(subscribers.get());
+		}
+		return tos;
 	}
 
 	private void handleCustomLogLevel(LoggerConfig log){
-		Instant lastUpdatedThreshold = Instant.now().minus(maxAgeLimitDays, ChronoUnit.DAYS);
+		Instant lastUpdatedThreshold = Instant.now().minus(settings.loggingConfigMaxAgeDays.get(), ChronoUnit.DAYS);
 		Instant loggerLastUpdatedDate = log.getLastUpdated();
 		if(loggerLastUpdatedDate.isAfter(lastUpdatedThreshold)){
 			return;
@@ -102,24 +109,21 @@ public class LoggerConfigCleanupJob extends BaseJob{
 		if(!handleLoggerConfigDeletionAlerts && settings.sendLoggerConfigCleanupJobEmails.get()){
 			List<String> toEmails = new ArrayList<>();
 			if(serverTypeDetector.mightBeProduction()){
-				toEmails.addAll(adminEmailService.getAdminAndSubscribers());
-				toEmails.add(log.getEmail());
+				toEmails.addAll(toAdminsAndSubscribers());
 				toEmails.addAll(loggerConfigCleanupEmailType.tos);
-			}else{
-				toEmails.add(log.getEmail());
 			}
-			sendAlertEmail(toEmails, makeDefaultOldLoggerConfigDetails(log));
+			sendAlertEmail(toEmails, log, makeDefaultOldLoggerConfigDetails(log));
 			return;
 		}
 
 		Level databaseLoggerLevel = log.getLevel().getLevel();
 		Level rootLoggerLevel = log4j2Configurator.getRootLoggerLevel();
-		if(databaseLoggerLevel.isMoreSpecificThan(rootLoggerLevel)
-				&& settings.sendLoggerConfigCleanupJobEmails.get()){
-			sendAlertEmail(List.of(log.getEmail()), makeLoggerLevelAlertDetails(log, rootLoggerLevel));
+		if(databaseLoggerLevel.isMoreSpecificThan(rootLoggerLevel) && settings.sendLoggerConfigCleanupJobEmails.get()){
+			sendAlertEmail(List.of(), log, makeLoggerLevelAlertDetails(log, rootLoggerLevel));
 		}
 		int daysSinceLastUpdatedThreshold = (int)Duration.between(loggerLastUpdatedDate, lastUpdatedThreshold).toDays();
-		int daysLeftBeforeDeletingLogger = loggingConfigSendEmailAlertDays - daysSinceLastUpdatedThreshold;
+		int daysLeftBeforeDeletingLogger = settings.loggingConfigSendEmailAlertDays.get()
+				- daysSinceLastUpdatedThreshold;
 		if(daysLeftBeforeDeletingLogger <= 0){
 			loggerConfigDao.delete(log.getKey());
 			var dto = new DatarouterChangelogDtoBuilder("LoggerConfig", log.getKey().getName(), "delete", "cleanup job")
@@ -129,33 +133,29 @@ public class LoggerConfigCleanupJob extends BaseJob{
 					.build();
 			changelogRecorder.record(dto);
 			if(settings.sendLoggerConfigCleanupJobEmails.get()){
-				List<String> toEmails = new ArrayList<>();
-				toEmails.addAll(adminEmailService.getAdminAndSubscribers());
-				toEmails.add(log.getEmail());
-				sendAlertEmail(toEmails, makeDeleteLoggerConfigAlertDetails(log));
+				sendAlertEmail(toAdminsAndSubscribers(), log, makeDeleteLoggerConfigAlertDetails(log));
 			}
 			return;
 		}
 		if(settings.sendLoggerConfigCleanupJobEmails.get()){
-			String toEmails = log.getEmail();
-			sendAlertEmail(List.of(toEmails), makeOldLoggerConfigAlertDetails(log, daysLeftBeforeDeletingLogger));
+			sendAlertEmail(List.of(), log, makeOldLoggerConfigAlertDetails(log, daysLeftBeforeDeletingLogger));
 		}
 	}
 
-	private ContainerTag makeDefaultOldLoggerConfigDetails(LoggerConfig log){
+	private ContainerTag<?> makeDefaultOldLoggerConfigDetails(LoggerConfig log){
 		return p(
 				text("The LoggerConfig named "),
 				b(log.getName()),
 				text(" was last updated on "),
 				b(log.getLastUpdated() + ""),
 				text(" so it's older than the maximum age threshold of "),
-				b(maxAgeLimitDays + ""),
+				b(settings.loggingConfigMaxAgeDays.get() + ""),
 				text(" days."),
 				br(),
 				text("Either the LoggerConfig should be deleted or the code updated."));
 	}
 
-	private ContainerTag makeLoggerLevelAlertDetails(LoggerConfig log, Level rootLoggerLevel){
+	private ContainerTag<?> makeLoggerLevelAlertDetails(LoggerConfig log, Level rootLoggerLevel){
 		return p(
 				text("The LoggerConfig "),
 				b(log.getName()),
@@ -167,14 +167,14 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text(" or is redundant if the two levels are equal."));
 	}
 
-	private ContainerTag makeOldLoggerConfigAlertDetails(LoggerConfig log, int daysLeft){
+	private ContainerTag<?> makeOldLoggerConfigAlertDetails(LoggerConfig log, int daysLeft){
 		return p(
 				text("The LoggerConfig "),
 				b(log.getName()),
 				text(" was last updated on "),
 				text(log.getLastUpdated() + ""),
 				text(" so it's older than the maximum age threshold of "),
-				b(maxAgeLimitDays + ""),
+				b(settings.loggingConfigMaxAgeDays.get() + ""),
 				text(" days."),
 				br(),
 				text("This LoggerConfig will be automatically deleted in "),
@@ -182,23 +182,22 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text(" days if not updated."));
 	}
 
-	private ContainerTag makeDeleteLoggerConfigAlertDetails(LoggerConfig log){
+	private ContainerTag<?> makeDeleteLoggerConfigAlertDetails(LoggerConfig log){
 		return p(
 				text("The LoggerConfig "),
 				b(log.getName()),
 				text(" was last updated on "),
 				b(ZonedDateFormaterTool.formatInstantWithZone(log.getLastUpdated(), datarouterService.getZoneId())),
 				text(" so it's older than the maximum age threshold of "),
-				b(maxAgeLimitDays + ""),
+				b(settings.loggingConfigMaxAgeDays.get() + ""),
 				text(" days."),
 				br(),
 				text("This LoggerConfig has been automatically deleted after "),
-				b(loggingConfigSendEmailAlertDays + ""),
+				b(settings.loggingConfigSendEmailAlertDays.get() + ""),
 				text(" days of alerts."));
 	}
 
-	private void sendAlertEmail(Collection<String> toEmails, ContainerTag details){
-		String fromEmail = datarouterProperties.getAdministratorEmail();
+	private void sendAlertEmail(Collection<String> toEmails, LoggerConfig log, ContainerTag<?> details){
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.logging)
 				.build();
@@ -206,11 +205,14 @@ public class LoggerConfigCleanupJob extends BaseJob{
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withTitle("Logger Config")
 				.withTitleHref(primaryHref)
-				.withContent(content);
-		htmlEmailService.trySendJ2Html(fromEmail, toEmails, emailBuilder);
+				.withContent(content)
+				.fromAdmin()
+				.to(toEmails)
+				.to(log.getEmail());
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag makeEmailContent(ContainerTag details){
+	private ContainerTag<?> makeEmailContent(ContainerTag<?> details){
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var description = h3("Old LoggerConfig alert from:");
 		var detailsHeader = h4("Details:");

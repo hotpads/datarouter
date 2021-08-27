@@ -64,10 +64,10 @@ public class Bootstrap4ReactPage{
 
 		//admin content
 		boolean isAdmin = mavProperties.getIsAdmin();
-		EmptyTag[] datarouterNavbarCssImports = new EmptyTag[]{};
-		ContainerTag datarouterNavbarRequestTimingJsImport = null;
-		ContainerTag datarouterNavbar = null;
-		ContainerTag datarouterNavbarRequestTimingScript = null;
+		EmptyTag<?>[] datarouterNavbarCssImports = new EmptyTag[]{};
+		ContainerTag<?> datarouterNavbarRequestTimingJsImport = null;
+		ContainerTag<?> datarouterNavbar = null;
+		ContainerTag<?> datarouterNavbarRequestTimingScript = null;
 		if(isAdmin){
 			int numWebapps = mavProperties.getTomcatWebApps().size();
 			datarouterNavbarCssImports = DatarouterNavbarFactory.makeNavbarV2CssImportTags(contextPath, numWebapps);

@@ -90,11 +90,11 @@ public class DatarouterClusterSettingConfigScanner{
 		int size = clusterSettings.size();
 		String header = "Found " + size + " " + validity.persistentString + " cluster setting" + (size > 1 ? "s" : "")
 				+ (additionalMessage.isEmpty() ? "" : additionalMessage);
-		ContainerTag settingsTable = makeBrowserSettingTable(clusterSettings, header);
+		ContainerTag<?> settingsTable = makeBrowserSettingTable(clusterSettings, header);
 		return ConfigScanResponseTool.buildResponse(settingsTable);
 	}
 
-	private ContainerTag makeBrowserSettingTable(List<ClusterSetting> settings, String header){
+	private ContainerTag<?> makeBrowserSettingTable(List<ClusterSetting> settings, String header){
 		var table = new J2HtmlEmailTable<ClusterSetting>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name", row -> makeSettingLink(row.getName())))
 				.withColumn("Scope", row -> row.getScope().getPersistentString())
@@ -110,7 +110,7 @@ public class DatarouterClusterSettingConfigScanner{
 		return div(h4(header), table);
 	}
 
-	public ContainerTag makeSettingLink(String settingName){
+	public ContainerTag<?> makeSettingLink(String settingName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.settings)
 				.withParam("submitAction", "browseSettings")

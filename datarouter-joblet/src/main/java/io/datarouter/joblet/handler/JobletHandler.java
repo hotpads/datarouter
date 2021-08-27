@@ -77,7 +77,7 @@ public class JobletHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(Collection<JobletSummary> rows){
+	private ContainerTag<?> makeContent(Collection<JobletSummary> rows){
 		String contextPath = request.getContextPath();
 		var title = h4(TITLE)
 				.withClass("mt-2");
@@ -135,11 +135,11 @@ public class JobletHandler extends BaseHandler{
 				.withClass("container-fluid");
 	}
 
-	private ContainerTag tdAlignRight(String text){
+	private ContainerTag<?> tdAlignRight(String text){
 		return tdAlignRight(text(text));
 	}
 
-	private ContainerTag tdAlignRight(DomContent content){
+	private ContainerTag<?> tdAlignRight(DomContent content){
 		return td(content)
 				.withStyle("text-align:right");
 	}

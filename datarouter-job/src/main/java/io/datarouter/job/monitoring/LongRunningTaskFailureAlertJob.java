@@ -23,7 +23,6 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.span;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -38,9 +37,7 @@ import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobPaths;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
@@ -51,8 +48,6 @@ import j2html.tags.ContainerTag;
 
 public class LongRunningTaskFailureAlertJob extends BaseJob{
 
-	@Inject
-	private DatarouterAdministratorEmailService adminEmailService;
 	@Inject
 	private DatarouterHtmlEmailService emailService;
 	@Inject
@@ -73,8 +68,6 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
-	@Inject
-	private AdminEmail adminEmail;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -87,34 +80,30 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 
 	private void sendEmail(List<LongRunningTask> longRunningTaskList){
 		if(longRunningTaskList.size() > 0){
-			String fromEmail = adminEmail.get();
-			List<String> toEmails = new ArrayList<>();
-			if(serverTypeDetector.mightBeProduction()){
-				toEmails.addAll(longRunningTaskFailureAlertEmailType.tos);
-				toEmails.addAll(adminEmailService.getSubscribers());
-			}else{
-				toEmails.add(adminEmail.get());
-			}
 			String primaryHref = emailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.triggers)
 					.build();
-			ContainerTag content = buildEmail(datarouterProperties.getServerName(), longRunningTaskList);
+			ContainerTag<?> content = buildEmail(datarouterProperties.getServerName(), longRunningTaskList);
 			J2HtmlDatarouterEmailBuilder emailBuilder = emailService.startEmailBuilder()
 					.withTitle("LongRunningTaskFailure")
 					.withTitleHref(primaryHref)
-					.withContent(content);
-			emailService.trySendJ2Html(fromEmail, toEmails, emailBuilder);
+					.withContent(content)
+					.fromAdmin()
+					.toSubscribers(serverTypeDetector.mightBeProduction())
+					.to(longRunningTaskFailureAlertEmailType.tos, serverTypeDetector.mightBeProduction())
+					.toAdmin(!serverTypeDetector.mightBeProduction());
+			emailService.trySendJ2Html(emailBuilder);
 		}
 	}
 
-	private ContainerTag buildEmail(String serverNameString,
+	private ContainerTag<?> buildEmail(String serverNameString,
 			List<LongRunningTask> longRunningTaskList){
 		var body = body();
 		String headerVerb = longRunningTaskList.size() == 1 ? " is " : " are ";
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var description = h4("There" + headerVerb + longRunningTaskList.size()
 				+ " non-successful long running tasks in the last 24 hours.");
-		ContainerTag taskTable = new J2HtmlEmailTable<LongRunningTask>()
+		ContainerTag<?> taskTable = new J2HtmlEmailTable<LongRunningTask>()
 				.withColumn(new J2HtmlEmailTableColumn<>("Name",
 						row -> makeTaskLink(row.getKey().getName())))
 				.withColumn("Trigger Time", row -> ZonedDateFormaterTool.formatDateWithZone(row.getKey()
@@ -132,7 +121,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 				span("Sent from: " + serverNameString));
 	}
 
-	private ContainerTag makeTaskLink(String longRunningTaskName){
+	private ContainerTag<?> makeTaskLink(String longRunningTaskName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(taskPaths.datarouter.longRunningTasks)
 				.withParam("name", longRunningTaskName)
@@ -142,7 +131,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 				.withHref(href);
 	}
 
-	private ContainerTag makeExceptionLink(String exceptionRecordId){
+	private ContainerTag<?> makeExceptionLink(String exceptionRecordId){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(exceptionLink.getPath())
 				.withParam(exceptionLink.getParamName(), exceptionRecordId)

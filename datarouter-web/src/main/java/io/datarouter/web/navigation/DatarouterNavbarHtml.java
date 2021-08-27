@@ -41,7 +41,7 @@ public class DatarouterNavbarHtml{
 		this.props = Objects.requireNonNull(props);
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		String productionStyle = props.getIsProduction() ? "productionEnv" : "";
 		var span = span()
 				.withClass("icon-bar");
@@ -63,20 +63,20 @@ public class DatarouterNavbarHtml{
 				.withClasses("navbar", "navbar-inverse", "navbar-static-top", "navbar-thin", productionStyle);
 	}
 
-	private ContainerTag[] makeWebappList(){
+	private ContainerTag<?>[] makeWebappList(){
 		return props.getTomcatWebApps().entrySet().stream()
 				.map(webapp -> makeWebappListItem(webapp.getKey(), webapp.getValue()))
 				.toArray(ContainerTag[]::new);
 	}
 
-	private ContainerTag makeWebappListItem(String name, String href){
+	private ContainerTag<?> makeWebappListItem(String name, String href){
 		var link = a(name)
 				.withHref(href);
 		return li(link)
 				.withId("common-menu-" + name);
 	}
 
-	private ContainerTag[] makeAfterWebappList(){
+	private ContainerTag<?>[] makeAfterWebappList(){
 		var divider = li()
 				.withClass("divider-vertical");
 		var datarouterLink = a("datarouter")
@@ -86,7 +86,7 @@ public class DatarouterNavbarHtml{
 		return new ContainerTag[]{divider, li, divider, makeTraceSection()};
 	}
 
-	private ContainerTag makeTraceSection(){
+	private ContainerTag<?> makeTraceSection(){
 		String traceHref = RequestAttributeTool.get(props.getRequest(), BaseHandler.TRACE_URL_REQUEST_ATTRIBUTE).orElse(
 				"");
 		String javaTime = RequestDurationTool.getRequestElapsedDurationString(props.getRequest()).orElse("?");

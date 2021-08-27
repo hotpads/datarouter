@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,11 +78,8 @@ public class HostMemoryTool{
 	}
 
 	public static Conditional<List<VmNativeMemoryStatsDto>> getVmNativeMemoryStats(){
-		Optional<String> javaProcessId = getJavaProcessId();
-		if(javaProcessId.isEmpty()){
-			return Conditional.failure(new RuntimeException("Unable to get java pid"));
-		}
-		Optional<String[]> lines = getVmMemoryStatLines(javaProcessId.get());
+		String javaProcessId = String.valueOf(ProcessHandle.current().pid());
+		Optional<String[]> lines = getVmMemoryStatLines(javaProcessId);
 		if(lines.isEmpty()){
 			return Conditional.failure(new RuntimeException("Unable to get VM Native Memory Stats"));
 		}
@@ -140,21 +136,6 @@ public class HostMemoryTool{
 		return new VmNativeMemoryStatsDto(category, reservedLong, committedLong);
 	}
 
-	private static Optional<String> getJavaProcessId(){
-		RunNativeDto output;
-		try{
-			output = DatarouterRuntimeTool.runNative("jps");
-		}catch(RuntimeException e){
-			logger.error("Unable to get java pid", e);
-			return Optional.empty();
-		}
-		String[] lines = output.stdout.split("\n");
-		return Stream.of(lines)
-				.filter(line -> line.contains("Bootstrap"))
-				.map(line -> StringTool.getStringBeforeFirstOccurrence(" ", line))
-				.findFirst();
-	}
-
 	private static Optional<String[]> getVmMemoryStatLines(String javaProcessId){
 		RunNativeDto output;
 		try{
@@ -167,7 +148,13 @@ public class HostMemoryTool{
 			logger.error("Unable to get VM native memory stats", e);
 			return Optional.empty();
 		}
-		return Optional.of(output.stdout.split("\n"));
+		String[] lines = output.stdout.split("\n");
+		boolean notEnabled = Scanner.of(lines)
+				.anyMatch(line -> line.contains("Native memory tracking is not enabled"));
+		if(notEnabled){
+			return Optional.empty();
+		}
+		return Optional.of(lines);
 	}
 
 	public static Conditional<List<CgroupMemoryStatsDto>> extractCgroupMemoryStats(){

@@ -65,7 +65,7 @@ public class ViewChangelogHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(Page<Changelog> page){
+	private ContainerTag<?> makeContent(Page<Changelog> page){
 		var form = Bootstrap4PagerHtml.renderForm(page)
 				.withClass("mt-4");
 		var linkBar = Bootstrap4PagerHtml.renderLinkBar(page)

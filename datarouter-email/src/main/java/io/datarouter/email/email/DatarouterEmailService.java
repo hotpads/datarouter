@@ -55,6 +55,7 @@ public class DatarouterEmailService{
 	@Inject
 	private DatarouterEmailSettingsProvider datarouterEmailSettingsProvider;
 
+	// move this out of DatarouterEmailService
 	public DatarouterEmailLinkBuilder startLinkBuilder(){
 		return new DatarouterEmailLinkBuilder()
 				.withProtocol("https")
@@ -80,7 +81,7 @@ public class DatarouterEmailService{
 		try{
 			send(fromEmail, toEmails, subject, body, html);
 		}catch(MessagingException e){
-			logger.error("failed to send email from={} to={}", fromEmail, toEmails, e);
+			logger.error("failed to send email from={} to={}", fromEmail, String.join(",", toEmails), e);
 		}
 	}
 

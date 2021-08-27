@@ -60,7 +60,7 @@ public class DatarouterSnapshotEntryHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag buildTable(
+	private ContainerTag<?> buildTable(
 			SnapshotKey snapshotKey,
 			long id){
 		SnapshotGroup group = groups.getGroup(snapshotKey.groupId);

@@ -23,9 +23,7 @@ import static j2html.TagCreator.text;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -37,7 +35,6 @@ import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
 import io.datarouter.instrumentation.task.TaskStatus;
 import io.datarouter.instrumentation.task.TaskTracker;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.servertype.ServerTypeDetector;
@@ -61,7 +58,6 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private final DatarouterTaskTrackerPaths datarouterTaskTrackerPaths;
 	private final DatarouterHtmlEmailService datarouterHtmlEmailService;
 	private final DatarouterProperties datarouterProperties;
-	private final DatarouterAdministratorEmailService datarouterAdministratorEmailService;
 	private final LongRunningTaskGraphLink longRunningTaskGraphLink;
 	private final Setting<Boolean> persistSetting;
 	private final SortedMapStorage<LongRunningTaskKey,LongRunningTask> node;
@@ -84,7 +80,6 @@ public class LongRunningTaskTracker implements TaskTracker{
 			DatarouterTaskTrackerPaths datarouterTaskTrackerPaths,
 			DatarouterHtmlEmailService datarouterHtmlEmailService,
 			DatarouterProperties datarouterProperties,
-			DatarouterAdministratorEmailService datarouterAdministratorEmailService,
 			LongRunningTaskGraphLink longRunningTaskGraphLink,
 			Setting<Boolean> persistSetting,
 			SortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
@@ -99,7 +94,6 @@ public class LongRunningTaskTracker implements TaskTracker{
 		this.datarouterTaskTrackerPaths = datarouterTaskTrackerPaths;
 		this.datarouterHtmlEmailService = datarouterHtmlEmailService;
 		this.datarouterProperties = datarouterProperties;
-		this.datarouterAdministratorEmailService = datarouterAdministratorEmailService;
 		this.longRunningTaskGraphLink = longRunningTaskGraphLink;
 		this.persistSetting = persistSetting;
 		this.node = node;
@@ -285,14 +279,6 @@ public class LongRunningTaskTracker implements TaskTracker{
 			return;
 		}
 		deadlineAlertAttempted = true;
-		String from = datarouterProperties.getAdministratorEmail();
-		List<String> to = new ArrayList<>();
-		if(serverTypeDetector.mightBeDevelopment()){
-			to.add(datarouterProperties.getAdministratorEmail());
-		}else{
-			to.addAll(longRunningTaskTrackerEmailType.tos);
-			to.addAll(datarouterAdministratorEmailService.getSubscribers());
-		}
 		String primaryHref = datarouterHtmlEmailService.startLinkBuilder()
 				.withLocalPath(datarouterTaskTrackerPaths.datarouter.longRunningTasks)
 				.withParam(LongRunningTasksHandler.P_name, task.name)
@@ -301,11 +287,15 @@ public class LongRunningTaskTracker implements TaskTracker{
 		var emailBuilder = datarouterHtmlEmailService.startEmailBuilder()
 				.withTitle("Task Timeout")
 				.withTitleHref(primaryHref)
-				.withContent(makeEmailBody(task.name, datarouterProperties.getServerName(), primaryHref));
-		datarouterHtmlEmailService.trySendJ2Html(from, to, emailBuilder);
+				.withContent(makeEmailBody(task.name, datarouterProperties.getServerName(), primaryHref))
+				.fromAdmin()
+				.toAdmin(serverTypeDetector.mightBeDevelopment())
+				.toSubscribers(serverTypeDetector.mightBeProduction())
+				.to(longRunningTaskTrackerEmailType.tos, serverTypeDetector.mightBeProduction());
+		datarouterHtmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag makeEmailBody(String name, String serverName, String detailsHref){
+	private ContainerTag<?> makeEmailBody(String name, String serverName, String detailsHref){
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var message = p(
 				a("Deadline reached for " + name).withHref(detailsHref),

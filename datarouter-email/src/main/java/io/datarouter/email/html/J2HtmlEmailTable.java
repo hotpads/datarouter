@@ -104,11 +104,11 @@ public class J2HtmlEmailTable<T>{
 
 	}
 
-	public ContainerTag build(Collection<T> values){
+	public ContainerTag<?> build(Collection<T> values){
 		return build(values, J2HtmlEmailTableRow::new);
 	}
 
-	public ContainerTag build(Collection<T> values, Function<T,J2HtmlEmailTableRow<T>> rowFunction){
+	public ContainerTag<?> build(Collection<T> values, Function<T,J2HtmlEmailTableRow<T>> rowFunction){
 		Collection<J2HtmlEmailTableRow<T>> rows = Scanner.of(values).map(rowFunction).list();
 		boolean includeHead = Scanner.of(j2HtmlEmailTableColumns)
 				.map(column -> column.name)
@@ -124,7 +124,7 @@ public class J2HtmlEmailTable<T>{
 			.with(tbody);
 	}
 
-	private ContainerTag makeTr(J2HtmlEmailTableRow<T> row){
+	private ContainerTag<?> makeTr(J2HtmlEmailTableRow<T> row){
 		var tableRow = TagCreator.tr();
 		if(!row.styles.isEmpty()){
 			tableRow.withStyle(String.join(";", row.styles) + ";");
@@ -132,7 +132,7 @@ public class J2HtmlEmailTable<T>{
 		return tableRow.with(each(j2HtmlEmailTableColumns, column -> makeTd(column, row.value)));
 	}
 
-	private ContainerTag makeTd(J2HtmlEmailTableColumn<T> column, T row){
+	private ContainerTag<?> makeTd(J2HtmlEmailTableColumn<T> column, T row){
 		var td = TagCreator.td(column.valueFunction.apply(row));
 		if(!column.styles.isEmpty()){
 			td.withStyle(String.join(";", column.styles) + ";");

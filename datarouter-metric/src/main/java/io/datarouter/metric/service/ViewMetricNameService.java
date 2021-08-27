@@ -49,7 +49,7 @@ public class ViewMetricNameService{
 	@Inject
 	private MiscMetricsLinksRegistry miscMetricLinksRegistry;
 
-	public ContainerTag makeMetricNameTable(String header, List<MetricName> rows){
+	public ContainerTag<?> makeMetricNameTable(String header, List<MetricName> rows){
 		if(rows.size() == 0){
 			return div();
 		}
@@ -77,7 +77,7 @@ public class ViewMetricNameService{
 	}
 
 
-	public ContainerTag getDashboardsTable(){
+	public ContainerTag<?> getDashboardsTable(){
 		var dasboards = dashboardRegistry.dashboards;
 		if(dasboards.size() == 0){
 			return div();
@@ -101,7 +101,7 @@ public class ViewMetricNameService{
 				.withTarget("_blank"));
 	}
 
-	public ContainerTag miscMetricLinksTable(){
+	public ContainerTag<?> miscMetricLinksTable(){
 		var links = miscMetricLinksRegistry.miscMetricLinks;
 		if(links.size() == 0){
 			return div();

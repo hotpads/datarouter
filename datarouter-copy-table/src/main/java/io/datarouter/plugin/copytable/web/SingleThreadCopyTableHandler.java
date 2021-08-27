@@ -21,7 +21,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
-import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -34,7 +33,6 @@ import io.datarouter.plugin.copytable.CopyTableConfiguration;
 import io.datarouter.plugin.copytable.CopyTableService;
 import io.datarouter.plugin.copytable.CopyTableService.CopyTableSpanResult;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTablePaths;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
@@ -69,8 +67,6 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 	private DatarouterNodes nodes;
 	@Inject
 	private CopyTableService copyTableService;
-	@Inject
-	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
@@ -234,15 +230,16 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 				targetNodeName.get());
 		var body = body(header, p(message));
 		if(toEmail.filter(str -> !str.isEmpty()).isPresent()){
-			String fromEmail = datarouterProperties.getAdministratorEmail();
 			String primaryHref = htmlEmailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.copyTableSingleThread)
 					.build();
 			var emailBuilder = htmlEmailService.startEmailBuilder()
 					.withTitle("Copy Table")
 					.withTitleHref(primaryHref)
-					.withContent(body);
-			htmlEmailService.trySendJ2Html(fromEmail, List.of(toEmail.get()), emailBuilder);
+					.withContent(body)
+					.fromAdmin()
+					.to(toEmail.get());
+			htmlEmailService.trySendJ2Html(emailBuilder);
 		}
 		changelogRecorderService.recordChangelog(getSessionInfo(), "Single Thread", sourceNodeName.get(), targetNodeName
 				.get());
@@ -251,7 +248,7 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 
 	private static class Html{
 
-		public static ContainerTag makeContent(HtmlForm htmlForm){
+		public static ContainerTag<?> makeContent(HtmlForm htmlForm){
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
 			return div(

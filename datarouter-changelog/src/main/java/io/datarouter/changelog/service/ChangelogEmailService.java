@@ -18,7 +18,6 @@ package io.datarouter.changelog.service;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.span;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -30,7 +29,6 @@ import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.tuple.Twin;
 import j2html.tags.ContainerTag;
@@ -46,20 +44,9 @@ public class ChangelogEmailService{
 	@Inject
 	private DatarouterProperties datarouterProperties;
 	@Inject
-	private DatarouterAdministratorEmailService additionalAdministratorEmailService;
-	@Inject
 	private DatarouterChangelogPaths paths;
 
 	public void sendEmail(DatarouterChangelogDto dto){
-		String from = datarouterProperties.getAdministratorEmail();
-		List<String> toEmails = new ArrayList<>();
-		toEmails.add(dto.username);
-		if(dto.includeMainDatarouterAdmin){
-			toEmails.add(datarouterProperties.getAdministratorEmail());
-		}
-		if(dto.includeAdditionalAdministrators){
-			toEmails.addAll(additionalAdministratorEmailService.getSubscribers());
-		}
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.changelog.viewAll)
 				.build();
@@ -71,11 +58,15 @@ public class ChangelogEmailService{
 						dto.name,
 						dto.action,
 						dto.username,
-						dto.comment.orElse("")));
-		htmlEmailService.trySendJ2Html(from, toEmails, emailBuilder);
+						dto.comment.orElse("")))
+				.fromAdmin()
+				.toAdmin(dto.includeMainDatarouterAdmin)
+				.toSubscribers(dto.includeSubscribers)
+				.to(dto.username);
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag makeEmailContent(String changelogType, String name, String action, String username,
+	private ContainerTag<?> makeEmailContent(String changelogType, String name, String action, String username,
 			String comment){
 		var rows = List.of(
 				new Twin<>("Service", datarouterService.getServiceName()),

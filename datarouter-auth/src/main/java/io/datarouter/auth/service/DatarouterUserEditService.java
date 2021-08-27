@@ -36,14 +36,11 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMap;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
-import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -57,8 +54,6 @@ public class DatarouterUserEditService{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterUserEditService.class);
 
 	@Inject
-	private DatarouterAdministratorEmailService adminEmailService;
-	@Inject
 	private BaseDatarouterUserAccountMapDao datarouterUserAccountMapDao;
 	@Inject
 	private DatarouterUserHistoryService userHistoryService;
@@ -67,15 +62,11 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterUserService datarouterUserService;
 	@Inject
-	private PermissionRequestEmailType permissionRequestEmailType;
-	@Inject
 	private DatarouterService datarouterService;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private DatarouterProperties datarouterProperties;
-	@Inject
-	private ServerTypeDetector serverTypeDetector;
 
 	public void editUser(
 			DatarouterUser user,
@@ -214,24 +205,6 @@ public class DatarouterUserEditService{
 
 	private static String change(String name, Object before, Object after){
 		return name + ": " + before + " => " + after;
-	}
-
-	public Set<String> getUserEditEmailRecipients(DatarouterUser... users){
-		Set<String> recipients = Scanner.of(users)
-				.map(DatarouterUser::getUsername)
-				.collect(HashSet::new);
-		if(serverTypeDetector.mightBeProduction()){
-			permissionRequestEmailType.tos.forEach(recipients::add);
-			adminEmailService.getSubscribers().forEach(recipients::add);
-		}
-		if(serverTypeDetector.mightBeDevelopment()){
-			recipients.add(datarouterProperties.getAdministratorEmail());
-		}
-		return recipients;
-	}
-
-	public String getUserEditEmailRecipientsCsv(DatarouterUser... users){
-		return String.join(",", getUserEditEmailRecipients(users));
 	}
 
 	// similar to standard datarouter-email subject, but required for proper email threading

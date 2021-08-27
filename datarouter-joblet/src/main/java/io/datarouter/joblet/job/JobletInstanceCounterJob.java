@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.joblet.DatarouterJobletCounters;
-import io.datarouter.joblet.service.JobletScaler;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
 import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
@@ -37,17 +36,14 @@ public class JobletInstanceCounterJob extends BaseJob{
 	@Inject
 	private DatarouterWebappInstanceDao webappInstanceDao;
 	@Inject
-	private JobletScaler jobletScaler;
-	@Inject
 	private DatarouterJobletCounters datarouterJobletCounters;
 
 	@Override
 	public void run(TaskTracker tracker){
-		List<WebappInstance> jobletInstances = webappInstanceDao.getWebappInstancesOfServerType(serverTypes
-				.getJobletServerType(), HEARTBEAT_WITHIN);
+		List<WebappInstance> jobletInstances = webappInstanceDao.getWebappInstancesOfServerType(
+				serverTypes.getJobletServerType(),
+				HEARTBEAT_WITHIN);
 		datarouterJobletCounters.saveNumServers(WebappInstance.getUniqueServerNames(jobletInstances).size());
-		datarouterJobletCounters.saveTargetServers(jobletScaler.getNumJobletServers(jobletInstances.stream().findFirst()
-				.orElse(null)));
 	}
 
 }

@@ -18,9 +18,6 @@ package io.datarouter.web.handler;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.pre;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.inject.Provider;
 
 import org.slf4j.Logger;
@@ -30,10 +27,8 @@ import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
-import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -46,12 +41,9 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 	private final DatarouterWebPaths datarouterWebPaths;
 	private final StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 	private final SchemaUpdatesEmailType schemaUpdatesEmailType;
-	private final DatarouterAdministratorEmailService adminEmailService;
 	private final DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings;
-	private final AdminEmail adminEmail;
 
 	public EmailingSchemaUpdateService(DatarouterProperties datarouterProperties,
-			DatarouterAdministratorEmailService adminEmailService,
 			DatarouterSchemaUpdateScheduler executor,
 			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
 			Provider<ChangelogRecorder> changelogRecorder,
@@ -60,20 +52,17 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 			DatarouterWebPaths datarouterWebPaths,
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
-			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
-			AdminEmail adminEmail){
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
 		super(datarouterProperties, executor, schemaUpdateLockDao, changelogRecorder, buildId);
 		this.htmlEmailService = htmlEmailService;
 		this.datarouterWebPaths = datarouterWebPaths;
 		this.standardDatarouterEmailHeaderService = standardDatarouterEmailHeaderService;
 		this.schemaUpdatesEmailType = schemaUpdatesEmailType;
-		this.adminEmailService = adminEmailService;
 		this.schemaUpdateEmailSettings = schemaUpdateEmailSettings;
-		this.adminEmail = adminEmail;
 	}
 
 	@Override
-	protected void sendEmail(String fromEmail, String subject, String body){
+	protected void sendEmail(String subject, String body){
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(datarouterWebPaths.datarouter)
@@ -82,19 +71,13 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 				.withSubject(subject)
 				.withTitle("Schema Update")
 				.withTitleHref(primaryHref)
-				.withContent(body(header, pre(body)));
-		htmlEmailService.trySendJ2Html(fromEmail, getTos(), emailBuilder);
-		logger.warn("Sending Schema update email from={}, with subject={}", fromEmail, subject);
-	}
-
-	private List<String> getTos(){
-		List<String> recipients = new ArrayList<>();
-		if(schemaUpdateEmailSettings.sendToAdmin.get()){
-			recipients.add(adminEmail.get());
-		}
-		recipients.addAll(schemaUpdatesEmailType.tos);
-		recipients.addAll(adminEmailService.getSubscribers());
-		return recipients;
+				.withContent(body(header, pre(body)))
+				.fromAdmin()
+				.to(schemaUpdatesEmailType.tos)
+				.toSubscribers()
+				.toAdmin(schemaUpdateEmailSettings.sendToAdmin.get());
+		htmlEmailService.trySendJ2Html(emailBuilder);
+		logger.warn("Sending Schema update email fromAdmin with subject={}", subject);
 	}
 
 }

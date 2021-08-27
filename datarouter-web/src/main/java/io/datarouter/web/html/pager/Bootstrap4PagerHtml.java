@@ -29,11 +29,11 @@ import j2html.tags.ContainerTag;
 
 public class Bootstrap4PagerHtml{
 
-	public static ContainerTag renderForm(Page<?> page){
+	public static ContainerTag<?> renderForm(Page<?> page){
 		return div(Bootstrap4FormHtml.render(page.makeHtmlForm(), true));
 	}
 
-	public static ContainerTag renderLinkBar(Page<?> page){
+	public static ContainerTag<?> renderLinkBar(Page<?> page){
 		String message = String.format("Showing %s to %s of %s",
 				NumberFormatter.addCommas(page.from),
 				NumberFormatter.addCommas(page.to),

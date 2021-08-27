@@ -26,6 +26,7 @@ import static j2html.TagCreator.th;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -55,12 +56,12 @@ public class MetricLinksHandler extends BaseHandler{
 
 	@Handler
 	public Mav view(){
-		List<ContainerTag> tags = Scanner.of(registry.getMetricLinkPages())
+		List<ContainerTag<?>> tags = registry.getMetricLinkPages().stream()
 				.map(injector::getInstance)
-				.sort(Comparator.comparing(MetricLinkPage::getHtmlName))
-				.exclude(page -> page.getMetricLinks().isEmpty())
+				.sorted(Comparator.comparing(MetricLinkPage::getHtmlName))
+				.filter(page -> !page.getMetricLinks().isEmpty())
 				.map(this::makeContent)
-				.list();
+				.collect(Collectors.toList());
 		var content = div(each(tags, tag -> div(tag)));
 		return pageFactory.startBuilder(request)
 				.withTitle("Metric Links")
@@ -69,7 +70,7 @@ public class MetricLinksHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(MetricLinkPage page){
+	private ContainerTag<?> makeContent(MetricLinkPage page){
 		var h2 = h2(join(page.getHtmlName(), a(i().withClass("fas fa-home"))
 				.withHref("#" + MetricNamesSubnavFactory.ID)))
 				.withId(page.getHtmlId());

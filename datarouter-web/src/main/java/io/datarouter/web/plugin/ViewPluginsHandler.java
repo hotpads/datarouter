@@ -48,7 +48,7 @@ public class ViewPluginsHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag makeContent(List<String> rows){
+	private static ContainerTag<?> makeContent(List<String> rows){
 		var h2 = h2("Registered Plugins");
 		var table = new J2HtmlTable<String>()
 				.withClasses("table table-sm table-striped my-4 border")

@@ -130,7 +130,7 @@ public class SleepingJobletHandler extends BaseHandler{
 		return pageFactory.message(request, String.format("created %s @%s ms each", numJoblets.get(), sleepMs.get()));
 	}
 
-	public ContainerTag makeContent(HtmlForm htmlForm){
+	public ContainerTag<?> makeContent(HtmlForm htmlForm){
 		var form = Bootstrap4FormHtml.render(htmlForm)
 				.withClass("card card-body bg-light");
 		return div(TagCreator.h4(TITLE), form)

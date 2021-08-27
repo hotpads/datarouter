@@ -65,7 +65,7 @@ public class JobletDailyDigestService{
 				.list();
 	}
 
-	public ContainerTag makePageTableForOldJoblets(List<JobletRequest> joblets, ZoneId zoneId){
+	public ContainerTag<?> makePageTableForOldJoblets(List<JobletRequest> joblets, ZoneId zoneId){
 		return new J2HtmlTable<JobletRequest>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.getKey().getType())
@@ -78,7 +78,7 @@ public class JobletDailyDigestService{
 				.build(joblets);
 	}
 
-	public ContainerTag makeEmailTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
+	public ContainerTag<?> makeEmailTableForOldJoblets(Map<OldJobletDto,List<OldJobletDto>> joblets){
 		return new J2HtmlEmailTable<Entry<OldJobletDto,List<OldJobletDto>>>()
 				.withColumn("Type", row -> row.getKey().type)
 				.withColumn("Execution Order", row -> row.getKey().executionOrder)
@@ -89,7 +89,7 @@ public class JobletDailyDigestService{
 				.build(joblets.entrySet());
 	}
 
-	public ContainerTag makePageTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
+	public ContainerTag<?> makePageTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
 		return new J2HtmlTable<Entry<FailedJobletDto,List<JobletRequest>>>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Type", row -> row.getKey().type)
@@ -107,7 +107,7 @@ public class JobletDailyDigestService{
 				.build(map.entrySet());
 	}
 
-	public ContainerTag makeEmailTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
+	public ContainerTag<?> makeEmailTableForFailedJoblets(Map<FailedJobletDto,List<JobletRequest>> map){
 		return new J2HtmlEmailTable<Entry<FailedJobletDto,List<JobletRequest>>>()
 				.withColumn("Type", row -> row.getKey().type)
 				.withColumn("Execution Order", row -> row.getKey().executionOrder)
@@ -126,7 +126,7 @@ public class JobletDailyDigestService{
 				.build(map.entrySet());
 	}
 
-	private ContainerTag makeExceptionLink(String exceptionRecordId){
+	private ContainerTag<?> makeExceptionLink(String exceptionRecordId){
 		String href = "https://" + datarouterService.getDomainPreferPublic() + contextSupplier.get().getContextPath()
 				+ exceptionLink.buildExceptionDetailLink(exceptionRecordId);
 		return a(exceptionRecordId)

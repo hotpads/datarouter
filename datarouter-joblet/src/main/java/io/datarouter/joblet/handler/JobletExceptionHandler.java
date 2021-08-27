@@ -67,7 +67,7 @@ public class JobletExceptionHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(List<JobletRequest> rows){
+	private ContainerTag<?> makeContent(List<JobletRequest> rows){
 		var title = h4(TITLE)
 				.withClass("mt-2");
 		var table = new J2HtmlTable<JobletRequest>()

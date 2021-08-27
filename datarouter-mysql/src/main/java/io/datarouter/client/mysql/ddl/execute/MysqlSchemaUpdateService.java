@@ -33,10 +33,8 @@ import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
-import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -54,7 +52,6 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 	@Inject
 	public MysqlSchemaUpdateService(
 			DatarouterProperties datarouterProperties,
-			DatarouterAdministratorEmailService adminEmailService,
 			MysqlSingleTableSchemaUpdateService mysqlSingleTableSchemaUpdateService,
 			DatarouterSchemaUpdateScheduler executor,
 			DatarouterHtmlEmailService htmlEmailService,
@@ -65,10 +62,8 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 			BuildProperties buildProperties,
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
-			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
-			AdminEmail adminEmail){
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
 		super(datarouterProperties,
-				adminEmailService,
 				executor,
 				schemaUpdateLockDao,
 				changelogRecorder,
@@ -77,8 +72,7 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 				datarouterWebPaths,
 				standardDatarouterEmailHeaderService,
 				schemaUpdatesEmailType,
-				schemaUpdateEmailSettings,
-				adminEmail);
+				schemaUpdateEmailSettings);
 		this.mysqlSingleTableSchemaUpdateService = mysqlSingleTableSchemaUpdateService;
 		this.mysqlConnectionPoolHolder = mysqlConnectionPoolHolder;
 	}

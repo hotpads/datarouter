@@ -72,11 +72,11 @@ public class DatarouterWebRequireJsV2{
 		SHIMS.put(JQUERY_VALIDATE, List.of(JQUERY));
 	}
 
-	public static ContainerTag makeImportTag(String contextPath){
+	public static ContainerTag<?> makeImportTag(String contextPath){
 		return RequireJsTool.makeRequireJsImportTag(contextPath, FILES.requirejs.requireJs);
 	}
 
-	public static ContainerTag makeConfigScriptTag(String contextPath){
+	public static ContainerTag<?> makeConfigScriptTag(String contextPath){
 		return RequireJsTool.makeConfigScriptTag(makeConfigJsonString(contextPath));
 	}
 

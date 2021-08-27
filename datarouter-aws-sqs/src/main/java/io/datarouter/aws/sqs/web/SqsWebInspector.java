@@ -86,7 +86,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag buildQueueNodeTable(ClientId clientId){
+	private ContainerTag<?> buildQueueNodeTable(ClientId clientId){
 		List<SqsWebInspectorDto> queueStatsRows = nodes.getPhysicalNodesForClient(clientId.getName()).stream()
 				.map(NodeTool::extractSinglePhysicalNode)
 				.map(physicalNode -> (BaseSqsNode<?,?,?>)physicalNode)
@@ -113,13 +113,13 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.withColumn("Messages InFlight", row -> row.messagesInFlight)
 				.withColumn("Total Messages (Available + InFlight)", SqsWebInspectorDto::getTotalMessagesAvailable)
 				.build(queueStatsRows);
-		ContainerTag header = h4("Queues");
+		ContainerTag<?> header = h4("Queues");
 		return div(header, table)
 				.withClass("container-fluid my-4")
 				.withStyle("padding-left: 0px");
 	}
 
-	private ContainerTag buildReferenceTable(){
+	private ContainerTag<?> buildReferenceTable(){
 		return new J2HtmlLegendTable()
 				.withHeader("Legend")
 				.withClass("sortable table table-sm my-4 border")

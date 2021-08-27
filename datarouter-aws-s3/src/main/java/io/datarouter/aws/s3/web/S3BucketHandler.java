@@ -212,7 +212,7 @@ public class S3BucketHandler extends BaseHandler{
 		return pageFactory.message(request, message.get());
 	}
 
-	private ContainerTag makePrefixLink(String client, String bucket, String prefix, String delimiter){
+	private ContainerTag<?> makePrefixLink(String client, String bucket, String prefix, String delimiter){
 		String href = new URIBuilder()
 				.setPath(request.getContextPath() + paths.datarouter.clients.awsS3.listObjects
 						.toSlashedString())

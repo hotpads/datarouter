@@ -95,7 +95,7 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag buildNodeTable(String contextPath, ClientId clientId){
+	private ContainerTag<?> buildNodeTable(String contextPath, ClientId clientId){
 		List<S3NodeDto> nodeDtos = Scanner.of(nodes.getTableNamesForClient(clientId.getName()))
 				.map(tableName -> nodes.getPhysicalNodeForClientAndTable(
 						clientId.getName(),
@@ -135,7 +135,7 @@ public class S3WebInspector implements DatarouterClientWebInspector{
 
 	}
 
-	private ContainerTag buildBucketTable(String contextPath, ClientId clientId){
+	private ContainerTag<?> buildBucketTable(String contextPath, ClientId clientId){
 		DatarouterS3Client client = s3ClientManager.getClient(clientId);
 		List<S3BucketDto> buckets = client.scanBuckets()
 				.parallel(new ParallelScannerContext(

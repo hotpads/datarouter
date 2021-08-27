@@ -131,10 +131,10 @@ public class DatarouterHomepageHandler extends BaseHandler{
 
 		clients.forEach(clientsJspDto -> {
 			String clientName = clientsJspDto.clientName;
-			ContainerTag leftTd;
-			ContainerTag rightTd;
+			ContainerTag<?> leftTd;
+			ContainerTag<?> rightTd;
 			if(clientsJspDto.initialized){
-				ContainerTag latencyGraphTag;
+				ContainerTag<?> latencyGraphTag;
 				CheckResultJspDto checkResultJspDto = clientsJspDto.checkResult;
 				if(checkResultJspDto == null || checkResultJspDto.getCheckResult() == null){
 					latencyGraphTag = span().withClass("status");

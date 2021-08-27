@@ -28,26 +28,26 @@ import j2html.tags.EmptyTag;
 
 public class DatarouterPageHead{
 
-	private final EmptyTag[] datarouterWebCssImports;
-	private final ContainerTag datarouterWebRequireJsImport;
-	private final ContainerTag datarouterWebRequireJsConfig;
-	private final ContainerTag webappRequireJsConfig;
-	private final ContainerTag requireScript;
-	private final EmptyTag[] datarouterNavbarCssImports;
-	private final ContainerTag datarouterNavbarRequestTimingJsImport;
-	private final ContainerTag datarouterNavbarRequestTimingScript;
+	private final EmptyTag<?>[] datarouterWebCssImports;
+	private final ContainerTag<?> datarouterWebRequireJsImport;
+	private final ContainerTag<?> datarouterWebRequireJsConfig;
+	private final ContainerTag<?> webappRequireJsConfig;
+	private final ContainerTag<?> requireScript;
+	private final EmptyTag<?>[] datarouterNavbarCssImports;
+	private final ContainerTag<?> datarouterNavbarRequestTimingJsImport;
+	private final ContainerTag<?> datarouterNavbarRequestTimingScript;
 	private final String title;
 	private final Map<String,String> httpEquivs;
 
 	public DatarouterPageHead(
-			EmptyTag[] datarouterWebCssImports,
-			ContainerTag datarouterWebRequireJsImport,
-			ContainerTag datarouterWebRequireJsConfig,
-			ContainerTag webappRequireJsConfig,
-			ContainerTag requireScript,
-			EmptyTag[] datarouterNavbarCssImports,
-			ContainerTag datarouterNavbarRequestTimingJsImport,
-			ContainerTag datarouterNavbarRequestTimingScript,
+			EmptyTag<?>[] datarouterWebCssImports,
+			ContainerTag<?> datarouterWebRequireJsImport,
+			ContainerTag<?> datarouterWebRequireJsConfig,
+			ContainerTag<?> webappRequireJsConfig,
+			ContainerTag<?> requireScript,
+			EmptyTag<?>[] datarouterNavbarCssImports,
+			ContainerTag<?> datarouterNavbarRequestTimingJsImport,
+			ContainerTag<?> datarouterNavbarRequestTimingScript,
 			String title,
 			Map<String,String> httpEquivs){
 		this.datarouterWebCssImports = datarouterWebCssImports;
@@ -62,7 +62,7 @@ public class DatarouterPageHead{
 		this.httpEquivs = httpEquivs;
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		var meta = meta()
 				.withName("viewport")
 				.withContent("width=device-width, initial-scale=1");

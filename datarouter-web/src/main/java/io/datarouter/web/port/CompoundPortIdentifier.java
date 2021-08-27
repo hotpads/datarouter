@@ -15,19 +15,18 @@
  */
 package io.datarouter.web.port;
 
-import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.management.MBeanServer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.util.MxBeans;
 import io.datarouter.util.tuple.Triple;
 
 @Singleton
@@ -49,8 +48,7 @@ public class CompoundPortIdentifier implements PortIdentifier{
 
 	@Inject
 	public CompoundPortIdentifier(DatarouterInjector injector){
-		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-		List<String> domains = Arrays.asList(server.getDomains());
+		List<String> domains = Arrays.asList(MxBeans.SERVER.getDomains());
 		Optional<Triple<String,String,Class<? extends PortIdentifier>>> optIdentifier = IDENTIFIERS.stream()
 				.filter(triple -> domains.contains(triple.getSecond()))
 				.findAny();

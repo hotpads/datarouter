@@ -40,7 +40,7 @@ public class CreateUserFormHtml{
 		this.submitAction = submitAction;
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		return div(
 				h2("Create User"),
 				Bootstrap4FormHtml.render(makeForm()))

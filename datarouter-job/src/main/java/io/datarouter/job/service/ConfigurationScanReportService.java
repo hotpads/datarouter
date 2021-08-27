@@ -27,8 +27,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.config.DatarouterWebPaths;
 import j2html.TagCreator;
@@ -38,11 +36,7 @@ import j2html.tags.ContainerTag;
 public class ConfigurationScanReportService{
 
 	@Inject
-	private DatarouterAdministratorEmailService adminEmailService;
-	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
-	@Inject
-	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterWebPaths paths;
 	@Inject
@@ -64,21 +58,18 @@ public class ConfigurationScanReportService{
 		sendEmail(content, description);
 	}
 
-	private void sendEmail(ContainerTag content, String subject){
-		String fromEmail = datarouterProperties.getAdministratorEmail();
-		String[] splitFromEmail = datarouterProperties.getAdministratorEmail().split("@");
-		if(splitFromEmail.length == 2){
-			fromEmail = splitFromEmail[0] + "+configurationreport@" + splitFromEmail[1];
-		}
-		List<String> toEmails = adminEmailService.getAdminAndSubscribers();
+	private void sendEmail(ContainerTag<?> content, String subject){
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter)//TODO link to a new page that mirrors the email?
 				.build();
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withTitle(subject)
 				.withTitleHref(primaryHref)
-				.withContent(content);
-		htmlEmailService.trySendJ2Html(fromEmail, toEmails, emailBuilder);
+				.withContent(content)
+				.fromAdmin()
+				.toAdmin()
+				.toSubscribers();
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
 }

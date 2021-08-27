@@ -37,8 +37,6 @@ import j2html.tags.ContainerTag;
 
 public class ConveyorHandler extends BaseHandler{
 
-	private static final String TITLE = "Conveyors";
-
 	@Inject
 	private DatarouterInjector injector;
 	@Inject
@@ -53,14 +51,14 @@ public class ConveyorHandler extends BaseHandler{
 				.flatMap(Collection::stream)
 				.collect(Collectors.toList());
 		return pageFactory.startBuilder(request)
-				.withTitle(TITLE)
+				.withTitle("Conveyors")
 				.withRequires(DatarouterWebRequireJsV2.SORTTABLE)
 				.withContent(makeContent(collect))
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(Collection<ConveyorSummary> rows){
-		var title = h4(TITLE)
+	private ContainerTag<?> makeContent(Collection<ConveyorSummary> rows){
+		var title = h4("Conveyors")
 				.withClass("mt-2");
 		var table = new J2HtmlTable<ConveyorSummary>()
 				.withClasses("sortable table table-sm table-striped border")

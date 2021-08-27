@@ -34,9 +34,6 @@ import io.datarouter.util.duration.DatarouterDuration;
 public class DatarouterJobletSettingRoot extends SettingRoot{
 
 	public final CachedSetting<Boolean> runJoblets;
-	public final CachedSetting<Integer> maxJobletServers;
-	public final CachedSetting<Integer> minJobletServers;
-	public final CachedSetting<Integer> numServersToAddPerPeriod;
 	public final CachedSetting<String> queueMechanism;
 	public final CachedSetting<Boolean> runJobletCounterJob;
 	public final CachedSetting<Boolean> runJobletRequeueJob;
@@ -56,12 +53,9 @@ public class DatarouterJobletSettingRoot extends SettingRoot{
 		registerChild(jobletClusterThreadCountSettings);
 
 		runJoblets = registerBoolean("runJoblets", false);
-		maxJobletServers = registerInteger("maxJobletServers", 16);
-		minJobletServers = registerInteger("minJobletServers", 8);
-		numServersToAddPerPeriod = registerInteger("numServersToAddPerPeriod", 1);
-
-		queueMechanism = registerString("queueMechanism", JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE
-				.getPersistentString());
+		queueMechanism = registerString(
+				"queueMechanism",
+				JobletQueueMechanism.JDBC_LOCK_FOR_UPDATE.getPersistentString());
 		runJobletCounterJob = registerBoolean("runJobletCounterJob", false);
 		runJobletRequeueJob = registerBoolean("runJobletRequeueJob", false);
 		runJobletInstanceCounterJob = registerBoolean("runJobletInstanceCounterJob", false);

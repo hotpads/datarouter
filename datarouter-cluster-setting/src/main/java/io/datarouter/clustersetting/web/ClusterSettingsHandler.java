@@ -66,7 +66,6 @@ import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.DatarouterServerTypeDetector;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypeDetector;
@@ -101,8 +100,6 @@ public class ClusterSettingsHandler extends BaseHandler{
 
 	@Inject
 	private DatarouterHtmlEmailService datarouterHtmlEmailService;
-	@Inject
-	private DatarouterProperties datarouterProperties;
 	@Inject
 	private SettingRootFinder settingRootFinder;
 	@Inject
@@ -415,12 +412,6 @@ public class ClusterSettingsHandler extends BaseHandler{
 		if(user.isEmpty()){
 			return;
 		}
-		String from = datarouterProperties.getAdministratorEmail();
-		List<String> to = new ArrayList<>();
-		if(serverTypeDetector.mightBeProduction()){
-			to.addAll(clusterSettingEmailType.tos);
-		}
-		to.add(user.get());
 		String title = "Setting Update";
 		String primaryHref = completeLink(datarouterHtmlEmailService.startLinkBuilder(), log)
 				.build();
@@ -428,8 +419,11 @@ public class ClusterSettingsHandler extends BaseHandler{
 		J2HtmlDatarouterEmailBuilder emailBuilder = datarouterHtmlEmailService.startEmailBuilder()
 				.withTitle(title)
 				.withTitleHref(primaryHref)
-				.withContent(new ClusterSettingChangeEmailContent(log, oldValue, displayValue).build());
-		datarouterHtmlEmailService.trySendJ2Html(from, to, emailBuilder);
+				.withContent(new ClusterSettingChangeEmailContent(log, oldValue, displayValue).build())
+				.fromAdmin()
+				.to(clusterSettingEmailType.tos, serverTypeDetector.mightBeProduction())
+				.to(user.get());
+		datarouterHtmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
 	private static String buildLegend(){
@@ -468,7 +462,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 			this.displayValue = displayValue;
 		}
 
-		private ContainerTag build(){
+		private ContainerTag<?> build(){
 			List<Pair<String,DomContent>> kvs = new ArrayList<>();
 			kvs.add(new Pair<>("user", text(log.getChangedBy())));
 			kvs.add(new Pair<>("action", text(log.getAction().getPersistentString())));

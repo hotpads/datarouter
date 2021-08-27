@@ -61,8 +61,6 @@ import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao
 import io.datarouter.logging.BaseLog4j2Configuration;
 import io.datarouter.logging.Log4j2Configurator;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -86,13 +84,9 @@ public class LoggingSettingsHandler extends BaseHandler{
 			Level.OFF};
 
 	@Inject
-	private DatarouterAdministratorEmailService datarouterAdministratorEmailService;
-	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
 	private DatarouterLoggerConfigSettingRoot datarouterLoggerConfigSettings;
-	@Inject
-	private DatarouterProperties datarouterProperties;
 	@Inject
 	private DatarouterLoggerConfigFiles files;
 	@Inject
@@ -309,22 +303,21 @@ public class LoggingSettingsHandler extends BaseHandler{
 		loggingConfigService.setPreviousLoggingConfigSignatureForUpdaterJob(signature);
 	}
 
-	private void sendEmail(ContainerTag content){
-		String fromEmail = datarouterProperties.getAdministratorEmail();
-		List<String> toEmail = new ArrayList<>();
-		toEmail.addAll(datarouterAdministratorEmailService.getAdminAndSubscribers());
-		toEmail.add(getCurrentUsername());
+	private void sendEmail(ContainerTag<?> content){
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.logging)
 				.build();
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withTitle("Logger Update")
 				.withTitleHref(primaryHref)
-				.withContent(content);
-		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
+				.withContent(content)
+				.fromAdmin()
+				.toSubscribers()
+				.to(getCurrentUsername());
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private ContainerTag makeEmailContent(
+	private ContainerTag<?> makeEmailContent(
 			String loggerConfigName,
 			String oldLevel,
 			LoggingSettingAction action){

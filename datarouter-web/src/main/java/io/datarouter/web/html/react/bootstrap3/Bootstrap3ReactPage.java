@@ -60,10 +60,10 @@ public class Bootstrap3ReactPage{
 
 		//admin content
 		boolean isAdmin = mavProperties.getIsAdmin();
-		EmptyTag[] datarouterNavbarCssImports = new EmptyTag[]{};
-		ContainerTag datarouterNavbarRequestTimingJsImport = null;
-		ContainerTag datarouterNavbar = null;
-		ContainerTag datarouterNavbarRequestTimingScript = null;
+		EmptyTag<?>[] datarouterNavbarCssImports = new EmptyTag[]{};
+		ContainerTag<?> datarouterNavbarRequestTimingJsImport = null;
+		ContainerTag<?> datarouterNavbar = null;
+		ContainerTag<?> datarouterNavbarRequestTimingScript = null;
 		if(isAdmin){
 			datarouterNavbarCssImports = DatarouterNavbarFactory.makeNavbarCssImportTags(contextPath);
 			datarouterNavbarRequestTimingJsImport = DatarouterWebJsTool.makeJsImport(contextPath,

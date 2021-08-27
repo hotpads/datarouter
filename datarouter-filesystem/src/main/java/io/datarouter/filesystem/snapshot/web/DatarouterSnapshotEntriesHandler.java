@@ -71,7 +71,7 @@ public class DatarouterSnapshotEntriesHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag buildTable(
+	private ContainerTag<?> buildTable(
 			SnapshotKey snapshotKey,
 			long offset,
 			long limit){

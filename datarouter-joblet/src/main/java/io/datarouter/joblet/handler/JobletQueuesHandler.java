@@ -67,7 +67,7 @@ public class JobletQueuesHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(JobletType<?> type, Integer executionOrder, Collection<JobletSummary> rows){
+	private ContainerTag<?> makeContent(JobletType<?> type, Integer executionOrder, Collection<JobletSummary> rows){
 		var title = h4(TITLE)
 				.withClass("mt-2");
 		var subtitle = p(String.format("type: %s, executionOrder: %s", type.getPersistentString(), executionOrder));

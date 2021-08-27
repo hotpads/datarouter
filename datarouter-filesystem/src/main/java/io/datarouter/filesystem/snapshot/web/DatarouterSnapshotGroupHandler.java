@@ -60,7 +60,7 @@ public class DatarouterSnapshotGroupHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag buildSnapshotList(String groupId){
+	private ContainerTag<?> buildSnapshotList(String groupId){
 		logger.warn("hello");
 		SnapshotGroup group = groups.getGroup(groupId);
 		var thead = thead(tr(th("id"), th("summary"), td("entries")));

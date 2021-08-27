@@ -50,10 +50,8 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
-import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateTool;
@@ -82,7 +80,6 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 
 	@Inject
 	public HBaseSchemaUpdateService(DatarouterProperties datarouterProperties,
-			DatarouterAdministratorEmailService adminEmailService,
 			DatarouterSchemaUpdateScheduler executor,
 			DatarouterHtmlEmailService htmlEmailService,
 			HBaseConnectionHolder hBaseConnectionHolder,
@@ -93,10 +90,8 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 			BuildProperties buildProperties,
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
-			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings,
-			AdminEmail adminEmail){
+			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
 		super(datarouterProperties,
-				adminEmailService,
 				executor,
 				schemaUpdateLockDao,
 				changelogRecorder,
@@ -105,8 +100,7 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 				datarouterWebPaths,
 				standardDatarouterEmailHeaderService,
 				schemaUpdatesEmailType,
-				schemaUpdateEmailSettings,
-				adminEmail);
+				schemaUpdateEmailSettings);
 		this.hBaseConnectionHolder = hBaseConnectionHolder;
 		this.schemaUpdateOptions = schemaUpdateOptions;
 	}

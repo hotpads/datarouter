@@ -29,7 +29,7 @@ public class DatarouterWebCss{
 			FILES.bootstrap.v3.css.bootstrapCss,
 			FILES.css.commonB3Css);
 
-	public static EmptyTag[] makeCssImportTags(String contextPath){
+	public static EmptyTag<?>[] makeCssImportTags(String contextPath){
 		return DatarouterWebCssTool.makeCssImportTags(contextPath, CSS_PATHS);
 	}
 

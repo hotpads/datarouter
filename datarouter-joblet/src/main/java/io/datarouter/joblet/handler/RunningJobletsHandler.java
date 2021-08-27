@@ -71,7 +71,7 @@ public class RunningJobletsHandler extends BaseHandler{
 		return new InContextRedirectMav(request, paths.datarouter.joblets.running);
 	}
 
-	private ContainerTag makeContent(List<RunningJoblet> rows){
+	private ContainerTag<?> makeContent(List<RunningJoblet> rows){
 		var title = h4(TITLE)
 				.withClass("mt-2");
 		var table = new J2HtmlTable<RunningJoblet>()

@@ -15,7 +15,6 @@
  */
 package io.datarouter.web.listener;
 
-import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -25,6 +24,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import io.datarouter.util.MxBeans;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
 
@@ -56,10 +56,9 @@ public class TomcatWebAppNamesWebAppListener extends DatarouterWebAppListener{
 	}
 
 	private static MBeanServer getTomcat(){
-		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-		for(String domain : server.getDomains()){
+		for(String domain : MxBeans.SERVER.getDomains()){
 			if("Catalina".equals(domain)){
-				return server;
+				return MxBeans.SERVER;
 			}
 		}
 		return null;

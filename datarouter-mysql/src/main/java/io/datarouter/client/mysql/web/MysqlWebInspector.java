@@ -82,7 +82,7 @@ public class MysqlWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag getC3P0Stats(ClientId clientId, DatarouterWebRequestParams<MysqlClientType> clientParams){
+	private ContainerTag<?> getC3P0Stats(ClientId clientId, DatarouterWebRequestParams<MysqlClientType> clientParams){
 		MysqlClientManager clientManager = injector.getInstance(clientParams.getClientType().getClientManagerClass());
 		Optional<C3p0StatsDto> c3p0Stats = c3p0StatsService.getC3p0Stats().stream()
 				.filter(stats -> stats.clientName.equals(clientId.getName()))

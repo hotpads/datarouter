@@ -69,7 +69,7 @@ public class ViewExactChangelogHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(Changelog changelog){
+	private ContainerTag<?> makeContent(Changelog changelog){
 		var table = new J2HtmlLegendTable()
 				.withClass("table table-sm border table-striped")
 				.withSingleRow(false)

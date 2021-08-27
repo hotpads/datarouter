@@ -31,7 +31,7 @@ public class DatarouterEmailSubscriberSettings extends SettingNode{
 	@Inject
 	public DatarouterEmailSubscriberSettings(SettingFinder finder){
 		super(finder, "datarouterStorage.emailSubscribers.");
-		includeSubscribers = registerBooleans("splitBy", defaultTo(true)
+		includeSubscribers = registerBooleans("includeSubscribers", defaultTo(true)
 				.withEnvironmentType(EnvironmentType.DEVELOPMENT, false));
 	}
 

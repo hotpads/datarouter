@@ -47,7 +47,7 @@ public class DatarouterPropertiesViewHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeTable(){
+	private ContainerTag<?> makeTable(){
 		var table = new J2HtmlLegendTable()
 				.withHeader("Datarouter Properties")
 				.withClass("sortable table table-sm border table-striped")

@@ -21,14 +21,17 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
-import io.datarouter.storage.config.DatarouterAdministratorEmailService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.DatarouterSubscribersSupplier;
+import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.handler.BaseHandler;
@@ -55,9 +58,13 @@ public class EmailTestHandler extends BaseHandler{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private DatarouterAdministratorEmailService adminEmailService;
+	private AdminEmail adminEmail;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private DatarouterEmailSubscriberSettings adminEmailSettings;
+	@Inject
+	private DatarouterSubscribersSupplier subscribers;
 
 	@Handler(defaultHandler = true)
 	private Mav sendEmailTest(@Param(P_submitAction) OptionalString submitAction){
@@ -72,7 +79,11 @@ public class EmailTestHandler extends BaseHandler{
 					.buildMav();
 		}
 		String fromEmail = getSessionInfo().getRequiredSession().getUsername();
-		List<String> toEmail = adminEmailService.getAdminAndSubscribers();
+		List<String> toEmail = new ArrayList<>();
+		toEmail.add(adminEmail.get());
+		if(adminEmailSettings.includeSubscribers.get()){
+			toEmail.addAll(subscribers.get());
+		}
 		String server = datarouterProperties.getServerName();
 		String webapp = webappName.getName();
 		String primaryHref = htmlEmailService.startLinkBuilder()
@@ -80,19 +91,21 @@ public class EmailTestHandler extends BaseHandler{
 				.build();
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		String message = String.format("Test email sent to %s, from server %s, webapp %s. Email initiated by %s.",
-				toEmail, server, webapp, fromEmail);
+				String.join(",", toEmail), server, webapp, fromEmail);
 		var content = body(header, p(message));
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withTitle("Email Test")
 				.withTitleHref(primaryHref)
-				.withContent(content);
-		htmlEmailService.trySendJ2Html(fromEmail, toEmail, emailBuilder);
+				.withContent(content)
+				.from(fromEmail)
+				.to(toEmail);
+		htmlEmailService.trySendJ2Html(emailBuilder);
 		return pageFactory.message(request, message);
 	}
 
 	private static class Html{
 
-		public static ContainerTag makeContent(HtmlForm htmlForm){
+		public static ContainerTag<?> makeContent(HtmlForm htmlForm){
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
 			return div(

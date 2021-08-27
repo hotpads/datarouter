@@ -43,8 +43,8 @@ public class Bootstrap4PageBuilder{
 	private Set<String> require = new TreeSet<>();
 	private String title;
 	private boolean includeNav = true;
-	private List<ContainerTag> navbars = new ArrayList<>();
-	private ContainerTag content;
+	private List<ContainerTag<?>> navbars = new ArrayList<>();
+	private ContainerTag<?> content;
 	private final Map<String,String> httpEquivs = new LinkedHashMap<>();
 
 	public DatarouterPage build(){
@@ -61,7 +61,7 @@ public class Bootstrap4PageBuilder{
 		NavBar navbar = mavProperties.getIsDatarouterPage()
 				? mavProperties.getDatarouterNavBar()
 				: mavProperties.getNavBar();
-		List<ContainerTag> allNavbars = new ArrayList<>();
+		List<ContainerTag<?>> allNavbars = new ArrayList<>();
 		if(includeNav){
 			if(isAdmin){
 				allNavbars.add(new DatarouterNavbarV2Html(mavProperties).build());
@@ -111,12 +111,12 @@ public class Bootstrap4PageBuilder{
 		return this;
 	}
 
-	public Bootstrap4PageBuilder withNavbar(ContainerTag navbar){
+	public Bootstrap4PageBuilder withNavbar(ContainerTag<?> navbar){
 		navbars.add(navbar);
 		return this;
 	}
 
-	public Bootstrap4PageBuilder withContent(ContainerTag content){
+	public Bootstrap4PageBuilder withContent(ContainerTag<?> content){
 		this.content = content;
 		return this;
 	}

@@ -54,7 +54,7 @@ public class DatarouterSnapshotHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag buildSummary(RootBlock rootBlock){
+	private ContainerTag<?> buildSummary(RootBlock rootBlock){
 		var table = new J2HtmlTable<Map.Entry<String,String>>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Key", row -> row.getKey())

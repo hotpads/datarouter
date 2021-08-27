@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import io.datarouter.joblet.JobletPageFactory;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.service.JobletService.JobletServiceThreadCountResponse;
-import io.datarouter.joblet.setting.DatarouterJobletSettingRoot;
 import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -47,8 +46,6 @@ public class JobletThreadCountHandler extends BaseHandler{
 	@Inject
 	private JobletTypeFactory jobletTypeFactory;
 	@Inject
-	private DatarouterJobletSettingRoot jobletSettings;
-	@Inject
 	private JobletPageFactory pageFactory;
 
 	@Handler
@@ -59,8 +56,6 @@ public class JobletThreadCountHandler extends BaseHandler{
 				.collect(Collectors.toList());
 		var content = makeContent(
 				serverNames,
-				jobletSettings.maxJobletServers.get(),
-				jobletSettings.maxJobletServers.get(),
 				threadCountResponses);
 		return pageFactory.startBuilder(request)
 				.withTitle(TITLE)
@@ -69,17 +64,12 @@ public class JobletThreadCountHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(
+	private ContainerTag<?> makeContent(
 			List<String> serverNames,
-			int minServers,
-			int maxServers,
 			List<JobletServiceThreadCountResponse> rows){
 		var title = h4(TITLE)
 				.withClass("mt-2");
-		var subtitle = p(String.format("numServers: current: %s, min: %s, max: %s",
-				serverNames.size(),
-				minServers,
-				maxServers));
+		var subtitle = p(String.format("numServers: %s", serverNames.size()));
 		var table = new J2HtmlTable<JobletServiceThreadCountResponse>()
 				.withClasses("sortable table table-sm table-striped border")
 				.withColumn("jobletType", row -> row.jobletType.getPersistentString())

@@ -93,27 +93,27 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 		return memcachedClientManager.getSpyMemcachedClient(clientId);
 	}
 
-	protected Pair<Integer,ContainerTag> getDetails(ClientId clientId){
-		Pair<Integer,ContainerTag> nodeCountByNodeTag = new Pair<>();
-		List<ContainerTag> socketAddresses = memcachedOptions.getServers(clientId.getName()).stream()
+	protected Pair<Integer,ContainerTag<?>> getDetails(ClientId clientId){
+		Pair<Integer,ContainerTag<?>> nodeCountByNodeTag = new Pair<>();
+		List<ContainerTag<?>> socketAddresses = memcachedOptions.getServers(clientId.getName()).stream()
 				.map(InetSocketAddress::toString)
 				.map(TagCreator::li)
 				.collect(Collectors.toList());
-		ContainerTag div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
+		ContainerTag<?> div = div(ul(socketAddresses.toArray(new ContainerTag[0])));
 		nodeCountByNodeTag.setLeft(socketAddresses.size());
 		nodeCountByNodeTag.setRight(div);
 		return nodeCountByNodeTag;
 	}
 
-	private ContainerTag buildOverview(ClientId clientId){
-		Pair<Integer,ContainerTag> listElements = getDetails(clientId);
+	private ContainerTag<?> buildOverview(ClientId clientId){
+		Pair<Integer,ContainerTag<?>> listElements = getDetails(clientId);
 		return div(
 				p(b("Number of nodes: " + listElements.getLeft())),
 				h4("Nodes"),
 				listElements.getRight());
 	}
 
-	private ContainerTag buildStats(Map<SocketAddress,Map<String,String>> statsPerSocketAddress){
+	private ContainerTag<?> buildStats(Map<SocketAddress,Map<String,String>> statsPerSocketAddress){
 		var allStats = div();
 		statsPerSocketAddress.entrySet().stream()
 				.map(entry -> buildSingleNodeStats(entry.getKey().toString(), entry.getValue()))
@@ -121,7 +121,7 @@ public class MemcachedWebInspector implements DatarouterClientWebInspector{
 		return allStats;
 	}
 
-	private ContainerTag buildSingleNodeStats(String socketAddress, Map<String,String> stats){
+	private ContainerTag<?> buildSingleNodeStats(String socketAddress, Map<String,String> stats){
 		var tbody = TagCreator.tbody();
 		stats.entrySet().stream()
 				.sorted(Entry.comparingByKey())

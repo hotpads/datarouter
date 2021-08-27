@@ -85,7 +85,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private <T extends BaseEndpoint<?>> ContainerTag makeContent(List<T> rows){
+	private <T extends BaseEndpoint<?>> ContainerTag<?> makeContent(List<T> rows){
 		var h2 = h2("Endpoints that " + datarouterService.getServiceName() + " can hit");
 		var table = new J2HtmlTable<T>()
 				.withClasses("sortable table table-sm table-striped my-4 border")

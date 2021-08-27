@@ -15,7 +15,7 @@
  */
 package io.datarouter.email.email;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,12 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.config.DatarouterEmailSettingsProvider;
+import io.datarouter.email.html.EmailDto;
 import io.datarouter.email.html.J2HtmlDatarouterEmail;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.DatarouterSubscribersSupplier;
+import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.util.string.StringTool;
-import j2html.tags.ContainerTag;
 
 @Singleton
 public class DatarouterHtmlEmailService{
@@ -47,35 +50,57 @@ public class DatarouterHtmlEmailService{
 	private DatarouterEmailService datarouterEmailService;
 	@Inject
 	private DatarouterEmailSettingsProvider datarouterEmailSettingsProvider;
+	@Inject
+	private AdminEmail adminEmail;
+	@Inject
+	private DatarouterSubscribersSupplier subscribersEmail;
+	@Deprecated // push this logic down to each email
+	@Inject
+	private DatarouterEmailSubscriberSettings subscriberSettings;
 
-	@Deprecated
-	public void trySend(String fromEmail, String toEmails, String subject, String body){
-		datarouterEmailService.trySend(fromEmail, toEmails, subject, body, true);
+	public void trySend(EmailDto email){
+		String fromEmail;
+		if(email.fromAdmin){
+			fromEmail = adminEmail.get();
+		}else{
+			fromEmail = email.fromEmail;
+		}
+
+		List<String> toEmails = email.toEmails;
+		if(email.toAdmin){
+			toEmails.add(adminEmail.get());
+		}
+		if(email.toSubscribers){
+			if(subscriberSettings.includeSubscribers.get()){
+				logger.info("subscribers are not included");
+				toEmails.addAll(subscribersEmail.get());
+			}
+		}
+		datarouterEmailService.trySend(fromEmail, toEmails, email.subject, email.content, email.html);
 	}
 
-	public void trySend(String fromEmail, Collection<String> toEmails, String subject, String body){
-		datarouterEmailService.trySend(fromEmail, toEmails, subject, body, true);
-	}
-
-	@Deprecated
-	public void trySendJ2Html(
-			String fromEmail,
-			String toEmails,
-			J2HtmlDatarouterEmailBuilder emailBuilder){
+	public void trySendJ2Html(J2HtmlDatarouterEmailBuilder emailBuilder){
 		J2HtmlDatarouterEmail email = emailBuilder.build();
-		ContainerTag body = email.build();
-		String bodyString = body.render();
-		trySend(fromEmail, toEmails, emailBuilder.getSubject(), bodyString);
-	}
 
-	public void trySendJ2Html(
-			String fromEmail,
-			Collection<String> toEmails,
-			J2HtmlDatarouterEmailBuilder emailBuilder){
-		J2HtmlDatarouterEmail email = emailBuilder.build();
-		ContainerTag body = email.build();
-		String bodyString = body.render();
-		trySend(fromEmail, toEmails, emailBuilder.getSubject(), bodyString);
+		String fromEmail;
+		if(email.fromAdmin){
+			fromEmail = adminEmail.get();
+		}else{
+			fromEmail = email.fromEmail;
+		}
+
+		List<String> toEmails = email.toEmails;
+		if(email.toAdmin){
+			toEmails.add(adminEmail.get());
+		}
+		if(email.toSubscribers){
+			if(subscriberSettings.includeSubscribers.get()){
+				logger.info("subscribers are not included");
+				toEmails.addAll(subscribersEmail.get());
+			}
+		}
+		String bodyString = email.build().render();
+		datarouterEmailService.trySend(fromEmail, toEmails, emailBuilder.getSubject(), bodyString, true);
 	}
 
 	public DatarouterEmailLinkBuilder startLinkBuilder(){

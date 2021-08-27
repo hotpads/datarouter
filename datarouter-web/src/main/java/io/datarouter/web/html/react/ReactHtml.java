@@ -35,37 +35,37 @@ public class ReactHtml{
 
 	//head
 	private final List<String> externalReactScripts;
-	private final EmptyTag[] datarouterWebCssImports;
-	private final ContainerTag datarouterWebRequireJsImport;
-	private final ContainerTag datarouterWebRequireJsConfig;
-	private final ContainerTag requireScript;
-	private final EmptyTag[] datarouterNavbarCssImports;
-	private final ContainerTag datarouterNavbarRequestTimingJsImport;
-	private final ContainerTag datarouterNavbarRequestTimingScript;
+	private final EmptyTag<?>[] datarouterWebCssImports;
+	private final ContainerTag<?> datarouterWebRequireJsImport;
+	private final ContainerTag<?> datarouterWebRequireJsConfig;
+	private final ContainerTag<?> requireScript;
+	private final EmptyTag<?>[] datarouterNavbarCssImports;
+	private final ContainerTag<?> datarouterNavbarRequestTimingJsImport;
+	private final ContainerTag<?> datarouterNavbarRequestTimingScript;
 	private final String title;
 	//react
 	private final String reactScriptPath;
 	private final Map<String,String> jsStringConstants;
 	private final Map<String,String> jsRawConstants;
 	//body header
-	private final ContainerTag datarouterNavbar;
-	private final ContainerTag webappNavbar;
+	private final ContainerTag<?> datarouterNavbar;
+	private final ContainerTag<?> webappNavbar;
 
 	public ReactHtml(
 			List<String> externalReactScripts,
-			EmptyTag[] datarouterWebCssImports,
-			ContainerTag datarouterWebRequireJsImport,
-			ContainerTag datarouterWebRequireJsConfig,
-			ContainerTag requireScript,
-			EmptyTag[] datarouterNavbarCssImports,
-			ContainerTag datarouterNavbarRequestTimingJsImport,
-			ContainerTag datarouterNavbarRequestTimingScript,
+			EmptyTag<?>[] datarouterWebCssImports,
+			ContainerTag<?> datarouterWebRequireJsImport,
+			ContainerTag<?> datarouterWebRequireJsConfig,
+			ContainerTag<?> requireScript,
+			EmptyTag<?>[] datarouterNavbarCssImports,
+			ContainerTag<?> datarouterNavbarRequestTimingJsImport,
+			ContainerTag<?> datarouterNavbarRequestTimingScript,
 			String title,
 			String reactScriptPath,
 			Map<String,String> jsStringConstants,
 			Map<String,String> jsRawConstants,
-			ContainerTag datarouterNavbar,
-			ContainerTag webappNavbar){
+			ContainerTag<?> datarouterNavbar,
+			ContainerTag<?> webappNavbar){
 		this.externalReactScripts = externalReactScripts;
 		this.datarouterWebCssImports = datarouterWebCssImports;
 		this.datarouterWebRequireJsImport = datarouterWebRequireJsImport;
@@ -82,11 +82,11 @@ public class ReactHtml{
 		this.webappNavbar = webappNavbar;
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		return html(makeHead(), makeBody());
 	}
 
-	private ContainerTag makeHead(){
+	private ContainerTag<?> makeHead(){
 		var meta = meta()
 				.withName("viewport")
 				.withContent("width=device-width, initial-scale=1");
@@ -108,27 +108,27 @@ public class ReactHtml{
 				.with(script);
 	}
 
-	private ContainerTag[] makeExternalReactScriptTags(){
+	private ContainerTag<?>[] makeExternalReactScriptTags(){
 		return externalReactScripts.stream()
 				.map(src -> script().withCharset("UTF-8").withSrc(src))
 				.toArray(ContainerTag[]::new);
 	}
 
-	private ContainerTag makeJsConstantScript(){
+	private ContainerTag<?> makeJsConstantScript(){
 		var script = script();
 		addJsConstantsToScript(jsStringConstants, "const %S = \"%s\";", script);
 		addJsConstantsToScript(jsRawConstants, "const %S = %s;", script);
 		return script;
 	}
 
-	private static void addJsConstantsToScript(Map<String,String> constants, String format, ContainerTag script){
+	private static void addJsConstantsToScript(Map<String,String> constants, String format, ContainerTag<?> script){
 		constants.entrySet().stream()
 				.map(entry -> String.format(format, entry.getKey(), entry.getValue()))
 				.map(TagCreator::rawHtml)
 				.forEach(script::with);
 	}
 
-	private ContainerTag makeBody(){
+	private ContainerTag<?> makeBody(){
 		var app = div()
 				.withId("app");
 		return body(header(datarouterNavbar, webappNavbar), app);

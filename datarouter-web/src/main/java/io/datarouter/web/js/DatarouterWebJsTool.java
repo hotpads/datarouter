@@ -25,7 +25,7 @@ import j2html.tags.ContainerTag;
 
 public class DatarouterWebJsTool{
 
-	public static ContainerTag makeJsImport(String contextPath, PathNode path){
+	public static ContainerTag<?> makeJsImport(String contextPath, PathNode path){
 		return TagCreator.script()
 				.withSrc(contextPath + path.toSlashedString());
 	}

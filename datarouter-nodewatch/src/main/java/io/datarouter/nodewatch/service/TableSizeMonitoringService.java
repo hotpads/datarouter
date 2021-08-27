@@ -37,7 +37,6 @@ import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
 import io.datarouter.storage.Datarouter;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
@@ -63,8 +62,6 @@ public class TableSizeMonitoringService{
 	private DatarouterTableCountDao tableCountDao;
 	@Inject
 	private DatarouterHtmlEmailService emailService;
-	@Inject
-	private DatarouterProperties datarouterProperties;
 	@Inject
 	private TableConfigurationService tableConfigurationService;
 	@Inject
@@ -185,11 +182,10 @@ public class TableSizeMonitoringService{
 			List<CountStat> aboveThresholdList,
 			List<CountStat> abovePercentageList,
 			List<LatestTableCount> staleList){
-		String fromEmail = datarouterProperties.getAdministratorEmail();
 		String primaryHref = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.build();
-		ContainerTag content = emailBuilder.build(
+		ContainerTag<?> content = emailBuilder.build(
 				aboveThresholdList,
 				PERCENTAGE_THRESHOLD,
 				abovePercentageList,
@@ -197,8 +193,10 @@ public class TableSizeMonitoringService{
 		J2HtmlDatarouterEmailBuilder emailBuilder = emailService.startEmailBuilder()
 				.withTitle("Nodewatch")
 				.withTitleHref(primaryHref)
-				.withContent(content);
-		emailService.trySendJ2Html(fromEmail, nodewatchEmailType.tos, emailBuilder);
+				.withContent(content)
+				.fromAdmin()
+				.to(nodewatchEmailType.tos);
+		emailService.trySendJ2Html(emailBuilder);
 	}
 
 	public static class CountStat{

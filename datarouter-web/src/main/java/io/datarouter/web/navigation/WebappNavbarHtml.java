@@ -43,14 +43,14 @@ public class WebappNavbarHtml{
 		this.navbarTargetId = props.getIsDatarouterPage() ? "dr-navbar" : "mav-navbar";
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		var container = div(makeHeader(), makeContent())
 				.withClass("container-fluid");
 		return div(container)
 				.withClass("navbar navbar-inverse navbar-static-top");
 	}
 
-	private ContainerTag makeHeader(){
+	private ContainerTag<?> makeHeader(){
 		var iconBar = span()
 				.withClass("icon-bar");
 		var button = button(iconBar, iconBar, iconBar)
@@ -63,7 +63,7 @@ public class WebappNavbarHtml{
 				.condWith(props.getIsDatarouterPage(), makeDatarouterLogo());
 	}
 
-	private ContainerTag makeDatarouterLogo(){
+	private ContainerTag<?> makeDatarouterLogo(){
 		var img = img()
 				.withClass("logo-brand")
 				.withSrc(props.getContextPath() + navbar.getLogoSrc())
@@ -74,13 +74,13 @@ public class WebappNavbarHtml{
 				.withHref("#");
 	}
 
-	private ContainerTag makeContent(){
+	private ContainerTag<?> makeContent(){
 		return div(makeMenu(), makeSignOut())
 				.withId(navbarTargetId)
 				.withClass("navbar-collapse collapse");
 	}
 
-	private ContainerTag makeMenu(){
+	private ContainerTag<?> makeMenu(){
 		var menus = navbar.getMenuItems(props.getRequest()).stream()
 				.map(menuItem -> menuItem.isDropdown() ? makeDropdownMenuItem(menuItem)
 						: makeNonDropdownMenuItem(menuItem))
@@ -89,7 +89,7 @@ public class WebappNavbarHtml{
 				.withClass("nav navbar-nav");
 	}
 
-	private ContainerTag makeDropdownMenuItem(NavBarMenuItem menuItem){
+	private ContainerTag<?> makeDropdownMenuItem(NavBarMenuItem menuItem){
 		var caret = span()
 				.withClass("caret");
 		var link = a(caret, text(menuItem.getText()))
@@ -100,24 +100,24 @@ public class WebappNavbarHtml{
 				.withClass("dropdown");
 	}
 
-	private ContainerTag makeDropdown(NavBarMenuItem menuItem){
+	private ContainerTag<?> makeDropdown(NavBarMenuItem menuItem){
 		return ul(each(menuItem.getSubItems(props.getRequest()), this::makeDropdownListItem))
 				.withClass("dropdown-menu");
 	}
 
-	private ContainerTag makeDropdownListItem(NavBarMenuItem menuItem){
+	private ContainerTag<?> makeDropdownListItem(NavBarMenuItem menuItem){
 		var link = a(menuItem.getText())
 				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString());
 		return li(link);
 	}
 
-	private ContainerTag makeNonDropdownMenuItem(NavBarMenuItem menuItem){
+	private ContainerTag<?> makeNonDropdownMenuItem(NavBarMenuItem menuItem){
 		var link = a(menuItem.getText())
 				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString());
 		return li(link);
 	}
 
-	private ContainerTag makeSignOut(){
+	private ContainerTag<?> makeSignOut(){
 		var link = a("Sign out")
 				.withHref(props.getContextPath() + "/signout");
 		return ul(li(link))

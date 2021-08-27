@@ -34,7 +34,14 @@ public class J2HtmlDatarouterEmail{
 	private final String logoHref;
 	private final String title;
 	private final String titleHref;
-	private final ContainerTag content;
+	private final ContainerTag<?> content;
+
+	public final String fromEmail;
+	public final boolean fromAdmin;
+
+	public final List<String> toEmails;
+	public final boolean toAdmin;
+	public final boolean toSubscribers;
 
 	public J2HtmlDatarouterEmail(
 			boolean includeLogo,
@@ -42,21 +49,35 @@ public class J2HtmlDatarouterEmail{
 			String logoHref,
 			String title,
 			String titleHref,
-			ContainerTag content){
+			ContainerTag<?> content,
+
+			String fromEmail,
+			boolean fromAdmin,
+
+			List<String> toEmails,
+			boolean toAdmin,
+			boolean toSubscribers){
 		this.includeLogo = includeLogo;
 		this.logoImgSrc = logoImgSrc;
 		this.logoHref = logoHref;
 		this.title = title;
 		this.titleHref = titleHref;
 		this.content = content;
+
+		this.fromEmail = fromEmail;
+		this.fromAdmin = fromAdmin;
+
+		this.toEmails = toEmails;
+		this.toAdmin = toAdmin;
+		this.toSubscribers = toSubscribers;
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		return body(makeHeader(), content, makeFooter())
 				.withStyle(String.join("", makeBodyStyles()));
 	}
 
-	private ContainerTag makeHeader(){
+	private ContainerTag<?> makeHeader(){
 		var titleLink = a(title)
 				.withHref(titleHref)
 				.withStyle(String.join("", makeTitleStyles()));
@@ -71,7 +92,7 @@ public class J2HtmlDatarouterEmail{
 		return table(tr(td(logoLink), td(titleLink)));
 	}
 
-	private ContainerTag makeFooter(){
+	private ContainerTag<?> makeFooter(){
 		return div("eZEjPLFSzS")//unique string for email filters
 				.withStyle(String.join("", makeFilterStringStyles()));
 	}

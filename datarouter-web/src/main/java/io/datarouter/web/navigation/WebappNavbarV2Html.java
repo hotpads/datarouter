@@ -41,7 +41,7 @@ public class WebappNavbarV2Html{
 		this.navbar = Objects.requireNonNull(navbar);
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		var span = span()
 				.withClass("navbar-toggler-icon");
 		var button = button(span)
@@ -57,7 +57,7 @@ public class WebappNavbarV2Html{
 				.with(makeAppNavbarContent());
 	}
 
-	private ContainerTag makeDatarouterLogo(){
+	private ContainerTag<?> makeDatarouterLogo(){
 		var img = img()
 				.withClass("align-top")
 				.withStyle("height: 1.5rem")
@@ -68,13 +68,13 @@ public class WebappNavbarV2Html{
 				.withHref(props.getContextPath() + "/datarouter");
 	}
 
-	private ContainerTag makeAppNavbarContent(){
+	private ContainerTag<?> makeAppNavbarContent(){
 		return div(makeAppNavBarList(), makeSignOut())
 				.withId("app-navbar-content")
 				.withClass("collapse navbar-collapse");
 	}
 
-	private ContainerTag makeAppNavBarList(){
+	private ContainerTag<?> makeAppNavBarList(){
 		var menus = navbar.getMenuItems(props.getRequest()).stream()
 				.map(menuItem -> menuItem.isDropdown() ? makeDropdownMenuItem(menuItem)
 						: makeNonDropdownMenuItem(menuItem))
@@ -83,7 +83,7 @@ public class WebappNavbarV2Html{
 				.withClass("navbar-nav mr-auto");
 	}
 
-	private ContainerTag makeDropdownMenuItem(NavBarMenuItem menuItem){
+	private ContainerTag<?> makeDropdownMenuItem(NavBarMenuItem menuItem){
 		var span = span()
 				.withClass("caret");
 		var link = a()
@@ -96,7 +96,7 @@ public class WebappNavbarV2Html{
 				.withClass("nav-item dropdown");
 	}
 
-	private ContainerTag makeDropdown(NavBarMenuItem menuItem){
+	private ContainerTag<?> makeDropdown(NavBarMenuItem menuItem){
 		var links = menuItem.getSubItems(props.getRequest()).stream()
 				.map(this::makeDropdownLink)
 				.toArray(ContainerTag[]::new);
@@ -104,7 +104,7 @@ public class WebappNavbarV2Html{
 				.withClass("dropdown-menu");
 	}
 
-	private ContainerTag makeDropdownLink(NavBarMenuItem menuItem){
+	private ContainerTag<?> makeDropdownLink(NavBarMenuItem menuItem){
 		String target = menuItem.openInNewTab() ? "_blank" : "";
 		return a(menuItem.getText())
 				.withClass("dropdown-item")
@@ -112,7 +112,7 @@ public class WebappNavbarV2Html{
 				.withTarget(target);
 	}
 
-	private ContainerTag makeNonDropdownMenuItem(NavBarMenuItem menuItem){
+	private ContainerTag<?> makeNonDropdownMenuItem(NavBarMenuItem menuItem){
 		var link = a(menuItem.getText())
 				.withClass("nav-link")
 				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString());
@@ -120,7 +120,7 @@ public class WebappNavbarV2Html{
 				.withClass("nav-item");
 	}
 
-	private ContainerTag makeSignOut(){
+	private ContainerTag<?> makeSignOut(){
 		var link = a("Sign out")
 				.withClass("nav-link")
 				.withHref(props.getContextPath() + "/signout");

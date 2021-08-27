@@ -42,11 +42,11 @@ public class StandardDatarouterEmailHeaderService{
 	@Inject
 	private DatarouterService datarouterService;
 
-	public ContainerTag makeStandardHeader(){
+	public ContainerTag<?> makeStandardHeader(){
 		return makeStandardHeaderWithSupplements(List.of());
 	}
 
-	public ContainerTag makeStandardHeaderWithSupplements(List<Pair<String,DomContent>> supplements){
+	public ContainerTag<?> makeStandardHeaderWithSupplements(List<Pair<String,DomContent>> supplements){
 		List<Pair<String,DomContent>> rows = new ArrayList<>();
 		rows.add(new Pair<>("environment", makeText(datarouterProperties.getEnvironment())));
 		rows.add(new Pair<>("service", makeText(datarouterService.getServiceName())));
@@ -59,7 +59,7 @@ public class StandardDatarouterEmailHeaderService{
 		return div(table, br());
 	}
 
-	public ContainerTag makeStandardHeaderWithSupplementsText(List<Twin<String>> supplements){
+	public ContainerTag<?> makeStandardHeaderWithSupplementsText(List<Twin<String>> supplements){
 		List<Pair<String,DomContent>> rows = new ArrayList<>();
 		rows.add(new Pair<>("environment", makeText(datarouterProperties.getEnvironment())));
 		rows.add(new Pair<>("service", makeText(datarouterService.getServiceName())));

@@ -16,7 +16,6 @@
 package io.datarouter.web.browse;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -213,10 +212,6 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 	}
 
 	private void sendEmail(String nodeName, List<Twin<String>> kvs){
-		String from = getSessionInfo().getRequiredSession().getUsername();
-		List<String> to = new ArrayList<>();
-		to.addAll(countKeysEmailType.tos);
-		to.add(from);
 		String title = "Count Keys Result";
 		var table = standardDatarouterEmailHeaderService.makeStandardHeaderWithSupplementsText(kvs);
 		String primaryHref = htmlEmailService.startLinkBuilder()
@@ -226,8 +221,11 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withTitle(title)
 				.withTitleHref(primaryHref)
-				.withContent(table);
-		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
+				.withContent(table)
+				.from(getSessionInfo().getRequiredSession().getUsername())
+				.to(countKeysEmailType)
+				.to(getSessionInfo().getRequiredSession().getUsername());
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
 }

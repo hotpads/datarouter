@@ -16,7 +16,6 @@
 package io.datarouter.trace.filter;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,8 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.management.ThreadMXBean;
-
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.inject.DatarouterInjector;
@@ -59,6 +56,7 @@ import io.datarouter.trace.conveyor.local.Trace2ForLocalFilterToMemoryBuffer;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherFilterToMemoryBuffer;
 import io.datarouter.trace.service.TraceUrlBuilder;
 import io.datarouter.trace.settings.DatarouterTraceFilterSettingRoot;
+import io.datarouter.util.MxBeans;
 import io.datarouter.util.UuidTool;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.serialization.GsonTool;
@@ -76,8 +74,6 @@ import io.datarouter.web.util.http.RequestTool;
 
 public abstract class TraceFilter implements Filter, InjectorRetriever{
 	private static final Logger logger = LoggerFactory.getLogger(TraceFilter.class);
-
-	private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getPlatformMXBean(ThreadMXBean.class);
 
 	private DatarouterProperties datarouterProperties;
 	private DatarouterTraceFilterSettingRoot traceSettings;
@@ -131,10 +127,10 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 
 			Long threadId = Thread.currentThread().getId();
 			boolean saveCpuTime = traceSettings.saveTraceCpuTime.get();
-			Long cpuTimeBegin = saveCpuTime ? THREAD_MX_BEAN.getCurrentThreadCpuTime() : null;
+			Long cpuTimeBegin = saveCpuTime ? MxBeans.THREAD.getCurrentThreadCpuTime() : null;
 			boolean saveAllocatedBytes = traceSettings.saveTraceAllocatedBytes.get();
 			Long threadAllocatedBytesBegin = saveAllocatedBytes
-					? THREAD_MX_BEAN.getThreadAllocatedBytes(threadId)
+					? MxBeans.THREAD.getThreadAllocatedBytes(threadId)
 					: null;
 
 			boolean errored = false;
@@ -150,8 +146,8 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT, traceparent
 							.toString());
 				}
-				Long cpuTimeEnded = saveCpuTime ? THREAD_MX_BEAN.getCurrentThreadCpuTime() : null;
-				Long threadAllocatedBytesEnded = saveAllocatedBytes ? THREAD_MX_BEAN.getThreadAllocatedBytes(threadId)
+				Long cpuTimeEnded = saveCpuTime ? MxBeans.THREAD.getCurrentThreadCpuTime() : null;
+				Long threadAllocatedBytesEnded = saveAllocatedBytes ? MxBeans.THREAD.getThreadAllocatedBytes(threadId)
 						: null;
 				Trace2ThreadDto rootThread = null;
 				if(tracer.getCurrentThreadId() != null){

@@ -76,12 +76,12 @@ public class Bootstrap4HomepageCreatorService{
 				.buildMav();
 	}
 
-	public ContainerTag header(){
+	public ContainerTag<?> header(){
 		return div(h2(datarouterService.getServiceName()).withClass("text-capitalize"))
 				.withClass("pb-2 mt-4 mb-2 border-bottom");
 	}
 
-	public ContainerTag headerAndDescription(){
+	public ContainerTag<?> headerAndDescription(){
 		String description = serviceDescriptionSupplier.get();
 		if(description.isBlank()){
 			return h2(text(datarouterService.getServiceName()));
@@ -92,25 +92,25 @@ public class Bootstrap4HomepageCreatorService{
 				.withClass("pb-2 mt-4 mb-2 border-bottom");
 	}
 
-	public ContainerTag docLinks(){
+	public ContainerTag<?> docLinks(){
 		return ul(each(documentationNamesAndLinksSupplier.getReadmeDocs().entrySet(), entry -> {
 			return li(a(entry.getKey()).withHref(entry.getValue()));
 		}));
 	}
 
-	public ContainerTag appNavbarCards(){
+	public ContainerTag<?> appNavbarCards(){
 		List<NavBarItem> navBarItems = appNavBarSupplier.get();
 		return div(each(NavBarItemGroup.fromNavBarItems(navBarItems), this::makeLinkBox))
 				.withClass("container-fluid row");
 	}
 
-	public ContainerTag pluginNavbarCards(){
+	public ContainerTag<?> pluginNavbarCards(){
 		List<NavBarItem> navBarItems = appPluginNavBarSupplier.get();
 		return div(each(NavBarItemGroup.fromNavBarItems(navBarItems), this::makeLinkBox))
 				.withClass("container-fluid row");
 	}
 
-	private ContainerTag makeLinkBox(NavBarItemGroup group){
+	private ContainerTag<?> makeLinkBox(NavBarItemGroup group){
 		var title = div(group.category.getDisplay())
 				.withClass("card-header");
 		var body = div(each(group.items, this::makeLink))
@@ -121,7 +121,7 @@ public class Bootstrap4HomepageCreatorService{
 				.withClass("col-md-4 col-sm-12");
 	}
 
-	private ContainerTag makeLink(NavBarItem item){
+	private ContainerTag<?> makeLink(NavBarItem item){
 		String href = URI.create(item.path).isAbsolute() ? item.path : datarouterService.getContextPath() + item.path;
 		return a(item.name)
 				.withClass("list-group-item list-group-item-action")

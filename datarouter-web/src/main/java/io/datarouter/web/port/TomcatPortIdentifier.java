@@ -15,15 +15,13 @@
  */
 package io.datarouter.web.port;
 
-import java.lang.management.ManagementFactory;
-
 import javax.inject.Singleton;
 import javax.management.JMException;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import io.datarouter.httpclient.security.UrlScheme;
+import io.datarouter.util.MxBeans;
 
 @Singleton
 public class TomcatPortIdentifier implements PortIdentifier{
@@ -32,18 +30,17 @@ public class TomcatPortIdentifier implements PortIdentifier{
 	private Integer httpsPort;
 
 	public TomcatPortIdentifier() throws MalformedObjectNameException{
-		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 		ObjectName query = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ProtocolHandler,*");
-		server.queryNames(query, null).forEach(objectName -> {
+		MxBeans.SERVER.queryNames(query, null).forEach(objectName -> {
 			int port;
 			boolean sslEnabled;
 			String scheme;
 			try{
-				port = (int)server.getAttribute(objectName, "port");
-				sslEnabled = (boolean)server.getAttribute(objectName, "sSLEnabled");
+				port = (int)MxBeans.SERVER.getAttribute(objectName, "port");
+				sslEnabled = (boolean)MxBeans.SERVER.getAttribute(objectName, "sSLEnabled");
 				objectName = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=Connector,port="
 						+ port);
-				scheme = (String)server.getAttribute(objectName, "scheme");
+				scheme = (String)MxBeans.SERVER.getAttribute(objectName, "scheme");
 			}catch(JMException e){
 				throw new RuntimeException(e);
 			}

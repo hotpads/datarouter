@@ -55,7 +55,7 @@ public class ViewReadmesHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	public static ContainerTag makeContent(String title, Map<String,String> rows){
+	public static ContainerTag<?> makeContent(String title, Map<String,String> rows){
 		var header = h2(title);
 		Set<Entry<String,String>> entrySet = rows.entrySet().stream()
 				.sorted(Comparator.comparing(Entry::getKey))

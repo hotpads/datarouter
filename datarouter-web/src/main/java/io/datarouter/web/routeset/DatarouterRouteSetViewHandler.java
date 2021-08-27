@@ -46,7 +46,7 @@ public class DatarouterRouteSetViewHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag makeContent(List<BaseRouteSet> rows){
+	private static ContainerTag<?> makeContent(List<BaseRouteSet> rows){
 		var h2 = h2("Registered RouteSets");
 		var table = new J2HtmlTable<BaseRouteSet>()
 				.withClasses("table table-sm table-striped my-4 border")

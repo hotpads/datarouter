@@ -29,7 +29,7 @@ import j2html.tags.ContainerTag;
 
 public class Bootstrap4SubnavHtml{
 
-	public static ContainerTag render(Subnav subnav){
+	public static ContainerTag<?> render(Subnav subnav){
 		var title = a(subnav.name)
 				.withClass("navbar-brand mb-0 h1")
 				.withHref(subnav.href);
@@ -43,7 +43,7 @@ public class Bootstrap4SubnavHtml{
 				.withClass("navbar navbar-light bg-light navbar-expand-md border-bottom");
 	}
 
-	private static ContainerTag makeDropdown(Dropdown dropdown){
+	private static ContainerTag<?> makeDropdown(Dropdown dropdown){
 		if(dropdown.items.isEmpty()){
 			return null;
 		}
@@ -57,7 +57,7 @@ public class Bootstrap4SubnavHtml{
 				.withClass("nav-item dropdown");
 	}
 
-	private static ContainerTag makeItem(DropdownItem item){
+	private static ContainerTag<?> makeItem(DropdownItem item){
 		return a(item.name)
 				.condAttr(item.confirm, "onclick", "return confirm('Are you sure?');")
 				.withClass("dropdown-item")

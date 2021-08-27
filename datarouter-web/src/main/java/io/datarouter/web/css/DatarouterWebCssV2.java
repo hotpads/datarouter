@@ -33,7 +33,7 @@ public class DatarouterWebCssV2{
 			FILES.bootstrap.v4.css.bootstrapCss,
 			FILES.bootstrap.v4.css.datarouterBoostrap4OverrideCss);
 
-	public static EmptyTag[] makeCssImportTags(String contextPath){
+	public static EmptyTag<?>[] makeCssImportTags(String contextPath){
 		return DatarouterWebCssTool.makeCssImportTags(contextPath, CSS_PATHS);
 	}
 

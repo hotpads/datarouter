@@ -53,7 +53,7 @@ public class ViewTableConfigurationHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag makeContent(List<NodewatchConfiguration> rows){
+	private static ContainerTag<?> makeContent(List<NodewatchConfiguration> rows){
 		var header = h2("Custom Table Configurations");
 		var overview = dl(
 				dt("Default Sample Interval"),

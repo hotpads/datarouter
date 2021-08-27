@@ -54,7 +54,7 @@ public class TableSizeMonitoringEmailBuilder{
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 
-	public ContainerTag build(
+	public ContainerTag<?> build(
 			List<CountStat> thresholdRows,
 			float percentageThreshold,
 			List<CountStat> percentageRows,
@@ -81,7 +81,7 @@ public class TableSizeMonitoringEmailBuilder{
 		return body;
 	}
 
-	public ContainerTag makeEmailStaleTable(List<LatestTableCount> staleRows){
+	public ContainerTag<?> makeEmailStaleTable(List<LatestTableCount> staleRows){
 		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<LatestTableCount>()
 				.withColumn("Client", row -> row.getKey().getClientName())
@@ -95,7 +95,7 @@ public class TableSizeMonitoringEmailBuilder{
 				.build(staleRows);
 	}
 
-	public ContainerTag makeCountStatTable(String comparableCount, List<CountStat> stats){
+	public ContainerTag<?> makeCountStatTable(String comparableCount, List<CountStat> stats){
 		ZoneId zoneId = datarouterService.getZoneId();
 		return new J2HtmlEmailTable<CountStat>()
 				.withColumn("Client", row -> row.latestSample.getKey().getClientName())
@@ -117,7 +117,7 @@ public class TableSizeMonitoringEmailBuilder{
 				.withStyle("text-align:right");
 	}
 
-	public ContainerTag makeTableLink(String tableName, String clientName){
+	public ContainerTag<?> makeTableLink(String tableName, String clientName){
 		String href = emailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.nodewatch.tableCount)
 				.withParam("submitAction", "singleTable")

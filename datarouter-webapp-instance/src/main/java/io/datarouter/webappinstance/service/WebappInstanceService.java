@@ -15,7 +15,6 @@
  */
 package io.datarouter.webappinstance.service;
 
-import java.lang.management.ManagementFactory;
 import java.time.Instant;
 import java.util.List;
 
@@ -26,6 +25,7 @@ import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.instrumentation.webappinstance.WebappInstanceDto;
 import io.datarouter.instrumentation.webappinstance.WebappInstancePublisher;
 import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.util.MxBeans;
 import io.datarouter.util.SystemTool;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -78,7 +78,7 @@ public class WebappInstanceService{
 		this.settings = settings;
 		this.portIdentifier = portIdentifier;
 
-		this.startup = Instant.ofEpochMilli(ManagementFactory.getRuntimeMXBean().getStartTime());
+		this.startup = Instant.ofEpochMilli(MxBeans.RUNTIME.getStartTime());
 	}
 
 	public List<WebappInstance> getAll(){

@@ -65,11 +65,11 @@ public class DatarouterNavbarFactory{
 	}
 
 	private static String makeNavbarCssImportTagsRendered(String contextPath){
-		EmptyTag[] tags = makeNavbarCssImportTags(contextPath);
+		EmptyTag<?>[] tags = makeNavbarCssImportTags(contextPath);
 		return J2HtmlTool.renderWithLineBreaks(tags);
 	}
 
-	public static EmptyTag[] makeNavbarCssImportTags(String contextPath){
+	public static EmptyTag<?>[] makeNavbarCssImportTags(String contextPath){
 		return DatarouterWebCssTool.makeCssImportTags(contextPath, Arrays.asList(
 				DATAROUTER_WEB_FILES.css.navbar.navbarCss));
 	}
@@ -80,7 +80,7 @@ public class DatarouterNavbarFactory{
 				makeNavbarRequestTimingScript(contextPath));
 	}
 
-	public static ContainerTag makeNavbarRequestTimingScript(String contextPath){
+	public static ContainerTag<?> makeNavbarRequestTimingScript(String contextPath){
 		String rawHtml = String.format("addNavbarRequestTiming('%s')", contextPath);
 		return script(rawHtml(rawHtml));
 	}
@@ -106,11 +106,11 @@ public class DatarouterNavbarFactory{
 	}
 
 	public static String makeNavbarV2CssImportTagsRendered(String contextPath, int numWebapps){
-		EmptyTag[] tags = makeNavbarV2CssImportTags(contextPath, numWebapps);
+		EmptyTag<?>[] tags = makeNavbarV2CssImportTags(contextPath, numWebapps);
 		return J2HtmlTool.renderWithLineBreaks(tags);
 	}
 
-	public static EmptyTag[] makeNavbarV2CssImportTags(String contextPath, int numWebapps){
+	public static EmptyTag<?>[] makeNavbarV2CssImportTags(String contextPath, int numWebapps){
 		PathNode mainCss = DATAROUTER_WEB_FILES.css.navbar.navbarV2Css;
 		PathNode multiOrSingleWebappCss = numWebapps > 1
 				? DATAROUTER_WEB_FILES.css.navbar.navbarV2MultiWebappCss
@@ -124,7 +124,7 @@ public class DatarouterNavbarFactory{
 				makeNavbarRequestTimingScriptV2(contextPath));
 	}
 
-	public static ContainerTag makeNavbarRequestTimingScriptV2(String contextPath){
+	public static ContainerTag<?> makeNavbarRequestTimingScriptV2(String contextPath){
 		String rawHtml = String.format("addNavbarRequestTiming('%s')", contextPath);
 		return script(rawHtml(rawHtml));
 	}

@@ -144,13 +144,12 @@ public abstract class BaseSchemaUpdateService{
 			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));
 			logger.warn("Sending schema update email for client={}", clientId.getName());
 			sendEmail(
-					datarouterProperties.getAdministratorEmail(),
 					subject,
 					allStatements.toString());
 		});
 	}
 
-	protected abstract void sendEmail(String fromEmail, String subject, String body);
+	protected abstract void sendEmail(String subject, String body);
 
 	private Supplier<List<String>> lazyFetchExistingTables(ClientId clientId){
 		return SingletonSupplier.of(() -> fetchExistingTables(clientId));

@@ -86,7 +86,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 		if(clientsMissingOtherInstances.size() != 0){
 			fragments.add(makeForm(clientsMissingOtherInstances));
 		}
-		ContainerTag content = div(each(fragments.stream()))
+		ContainerTag<?> content = div(each(fragments.stream()))
 				.withClass("container my-4");
 		return pageFactory.startBuilder(request)
 				.withTitle("Aurora Clients")
@@ -102,7 +102,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 		return new InContextRedirectMav(request, paths.datarouter.auroraInstances.toSlashedString());
 	}
 
-	private static ContainerTag makeAuroraClientsTable(String header, Collection<DnsHostEntryDto> rows){
+	private static ContainerTag<?> makeAuroraClientsTable(String header, Collection<DnsHostEntryDto> rows){
 		var h2 = h2(header);
 		var table = new J2HtmlTable<DnsHostEntryDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
@@ -123,7 +123,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 				.withClass("container my-4");
 	}
 
-	private ContainerTag makeForm(Collection<ClientId> rows){
+	private ContainerTag<?> makeForm(Collection<ClientId> rows){
 		var h2 = h2("Create a read only other Instance");
 		var innerFormTable = table(tbody(each(rows, AuroraInstancesHandler::makeRow)));
 		return form(join(h2, innerFormTable))
@@ -131,7 +131,7 @@ public class AuroraInstancesHandler extends BaseHandler{
 				.withAction(servletContext.getContextPath() + paths.datarouter.auroraInstances.toSlashedString());
 	}
 
-	private static ContainerTag makeRow(ClientId row){
+	private static ContainerTag<?> makeRow(ClientId row){
 		return tr(
 				td(input()
 						.withType("text")

@@ -254,7 +254,7 @@ public class JobletCopyTableHandler extends BaseHandler{
 
 	private static class Html{
 
-		public static ContainerTag makeContent(HtmlForm htmlForm){
+		public static ContainerTag<?> makeContent(HtmlForm htmlForm){
 			var form = Bootstrap4FormHtml.render(htmlForm)
 					.withClass("card card-body bg-light");
 			return div(

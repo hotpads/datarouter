@@ -38,8 +38,8 @@ public abstract class BaseExceptionRecordSummaryKey<PK extends RegularPrimaryKey
 	public BaseExceptionRecordSummaryKey(){
 	}
 
-	public BaseExceptionRecordSummaryKey(long periodStart, String type, String exceptionLocation){
-		this.reversePeriodStart = Long.MAX_VALUE - periodStart;
+	public BaseExceptionRecordSummaryKey(Long periodStart, String type, String exceptionLocation){
+		this.reversePeriodStart = periodStart != null ? Long.MAX_VALUE - periodStart : null;
 		this.type = type;
 		this.exceptionLocation = exceptionLocation;
 	}

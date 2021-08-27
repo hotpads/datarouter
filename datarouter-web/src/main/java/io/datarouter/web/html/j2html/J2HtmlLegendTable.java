@@ -77,7 +77,7 @@ public class J2HtmlLegendTable{
 		return this;
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		var table = table()
 				.withClasses(classes.toArray(String[]::new))
 				.condWith(caption != null, caption(caption));
@@ -90,8 +90,8 @@ public class J2HtmlLegendTable{
 		return table;
 	}
 
-	private ContainerTag makeTr(J2HtmlTableEntry entry){
-		ContainerTag row = tr();
+	private ContainerTag<?> makeTr(J2HtmlTableEntry entry){
+		ContainerTag<?> row = tr();
 		if(entry.classes != null){
 			row.withClass(entry.classes);
 		}

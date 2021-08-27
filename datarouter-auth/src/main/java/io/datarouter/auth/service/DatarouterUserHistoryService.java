@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 
 import javax.inject.Inject;
@@ -39,7 +38,9 @@ import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUs
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.user.databean.DatarouterUser;
 import j2html.tags.ContainerTag;
 
@@ -58,6 +59,10 @@ public class DatarouterUserHistoryService{
 	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
 	private DatarouterUserEditService userEditService;
+	@Inject
+	private PermissionRequestEmailType permissionRequestEmailType;
+	@Inject
+	private ServerTypeDetector serverTypeDetector;
 
 	public Map<DatarouterPermissionRequest,Optional<String>> getResolvedRequestToHistoryChangesMap(
 			List<DatarouterPermissionRequest> requests){
@@ -141,8 +146,6 @@ public class DatarouterUserHistoryService{
 	}
 
 	private void sendPasswordChangeEmail(DatarouterUser user, DatarouterUserHistory history, String signInUrl){
-		String from = user.getUsername();
-		String to = user.getUsername();
 		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor());
 		var p1 = p(String.format("Your user (%s) password has been changed by user %s (%s).",
 				user.getUsername(),
@@ -154,14 +157,14 @@ public class DatarouterUserHistoryService{
 				.withSubject(userEditService.getPermissionRequestEmailSubject(user))
 				.withTitle("Password Changed")
 				.withTitleHref(signInUrl)
-				.withContent(content);
-		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
+				.withContent(content)
+				.from(user.getUsername())
+				.to(user.getUsername());
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
 	private void sendRoleEditEmail(DatarouterUser user, DatarouterUserHistory history, String signInUrl){
 		DatarouterUser editor = datarouterUserService.getUserById(history.getEditor());
-		String from = user.getUsername();
-		Set<String> to = userEditService.getUserEditEmailRecipients(user, editor);
 		var p1 = p(String.format("%s permissions have been edited by %s", user.getUsername(), editor.getUsername()));
 		var p2 = p("Changes: " + history.getChanges());
 		var content = div(p1, p2, makeSignInParagraph(signInUrl));
@@ -169,8 +172,14 @@ public class DatarouterUserHistoryService{
 				.withSubject(userEditService.getPermissionRequestEmailSubject(user))
 				.withTitle("Permissions Changed")
 				.withTitleHref(signInUrl)
-				.withContent(content);
-		htmlEmailService.trySendJ2Html(from, to, emailBuilder);
+				.withContent(content)
+				.from(user.getUsername())
+				.to(user.getUsername())
+				.to(editor.getUsername())
+				.to(permissionRequestEmailType, serverTypeDetector.mightBeProduction())
+				.toSubscribers(serverTypeDetector.mightBeProduction())
+				.toAdmin(serverTypeDetector.mightBeDevelopment());
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
 	private void sendDeprovisioningEmail(DatarouterUser user, DatarouterUserHistory history, DatarouterUser editor){
@@ -182,11 +191,13 @@ public class DatarouterUserHistoryService{
 		var emailBuilder = htmlEmailService.startEmailBuilder()
 				.withSubject(userEditService.getPermissionRequestEmailSubject(user))
 				.withTitle("Permissions Changed")
-				.withContent(content);
-		htmlEmailService.trySendJ2Html(user.getUsername(), user.getUsername(), emailBuilder);
+				.withContent(content)
+				.from(user.getUsername())
+				.to(user.getUsername());
+		htmlEmailService.trySendJ2Html(emailBuilder);
 	}
 
-	private static ContainerTag makeSignInParagraph(String signInUrl){
+	private static ContainerTag<?> makeSignInParagraph(String signInUrl){
 		return p(text("Please sign in again to refresh your session: "), a("sign in").withHref(signInUrl));
 	}
 

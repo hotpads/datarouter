@@ -15,7 +15,6 @@
  */
 package io.datarouter.client.mysql.connection;
 
-import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -23,33 +22,32 @@ import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 import javax.management.JMException;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import io.datarouter.util.MxBeans;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
 public class C3p0StatsService{
 
 	public List<C3p0StatsDto> getC3p0Stats(){
-		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 		ObjectName query;
 		try{
 			query = new ObjectName("com.mchange.v2.c3p0:type=PooledDataSource,*");
 		}catch(MalformedObjectNameException e){
 			throw new RuntimeException(e);
 		}
-		return server.queryNames(query, null).stream()
+		return MxBeans.SERVER.queryNames(query, null).stream()
 				.<Optional<C3p0StatsDto>>map(objectName -> {
 						try{
-							String jdbcUrl = (String)server.getAttribute(objectName, "jdbcUrl");
+							String jdbcUrl = (String)MxBeans.SERVER.getAttribute(objectName, "jdbcUrl");
 							Optional<String> clientName = extractClientName(jdbcUrl);
 							if(clientName.isEmpty()){
 								return Optional.empty();
 							}
-							int total = (int)server.getAttribute(objectName, "numConnections");
-							int busy = (int)server.getAttribute(objectName, "numBusyConnections");
+							int total = (int)MxBeans.SERVER.getAttribute(objectName, "numConnections");
+							int busy = (int)MxBeans.SERVER.getAttribute(objectName, "numBusyConnections");
 							return Optional.of(new C3p0StatsDto(clientName.get(), total, busy));
 						}catch(JMException e){
 							throw new RuntimeException(e);

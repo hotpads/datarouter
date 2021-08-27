@@ -48,7 +48,7 @@ public interface ChangelogRecorder{
 		public List<String> additionalSendTos = new ArrayList<>();
 		public boolean sendEmail = false;
 		public boolean includeMainDatarouterAdmin = true;
-		public boolean includeAdditionalAdministrators = true;
+		public boolean includeSubscribers = true;
 
 		public DatarouterChangelogDtoBuilder(String changelogType, String name, String action, String username){
 			this.changelogType = changelogType;
@@ -77,9 +77,14 @@ public interface ChangelogRecorder{
 			return this;
 		}
 
-		public DatarouterChangelogDtoBuilder excludeAdditionalAdministrators(){
-			includeAdditionalAdministrators = false;
+		public DatarouterChangelogDtoBuilder excludeSubscribers(){
+			includeSubscribers = false;
 			return this;
+		}
+
+		@Deprecated
+		public DatarouterChangelogDtoBuilder excludeAdditionalAdministrators(){
+			return excludeSubscribers();
 		}
 
 		public DatarouterChangelogDtoBuilder additionalSendTos(String additionalSendTo){
@@ -98,7 +103,7 @@ public interface ChangelogRecorder{
 					additionalSendTos,
 					sendEmail,
 					includeMainDatarouterAdmin,
-					includeAdditionalAdministrators);
+					includeSubscribers);
 		}
 
 	}
@@ -116,7 +121,7 @@ public interface ChangelogRecorder{
 		public final List<String> additionalSendTos;
 		public final boolean sendEmail;
 		public final boolean includeMainDatarouterAdmin;
-		public final boolean includeAdditionalAdministrators;
+		public final boolean includeSubscribers;
 
 		private DatarouterChangelogDto(
 				String changelogType,
@@ -128,7 +133,7 @@ public interface ChangelogRecorder{
 				List<String> additionalSendTos,
 				boolean sendEmail,
 				boolean includeMainDatarouterAdmin,
-				boolean includeAdditionalAdministrators){
+				boolean includeSubscribers){
 			this.changelogType = changelogType;
 			this.name = name;
 			this.action = action;
@@ -138,7 +143,7 @@ public interface ChangelogRecorder{
 			this.additionalSendTos = additionalSendTos;
 			this.sendEmail = sendEmail;
 			this.includeMainDatarouterAdmin = includeMainDatarouterAdmin;
-			this.includeAdditionalAdministrators = includeAdditionalAdministrators;
+			this.includeSubscribers = includeSubscribers;
 		}
 
 	}

@@ -15,13 +15,12 @@
  */
 package io.datarouter.web.port;
 
-import java.lang.management.ManagementFactory;
 import java.util.function.Supplier;
 
 import javax.inject.Singleton;
-import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import io.datarouter.util.MxBeans;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.tuple.Pair;
 
@@ -37,12 +36,11 @@ public class WildFlyPortIdentifier implements PortIdentifier{
 
 	public WildFlyPortIdentifier(){
 		this.ports = SingletonSupplier.of(() -> {
-			MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 			try{
 				ObjectName objectName = new ObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTP);
-				int http = (int)server.getAttribute(objectName, PORT_ATTRIBUTE);
+				int http = (int)MxBeans.SERVER.getAttribute(objectName, PORT_ATTRIBUTE);
 				objectName = new ObjectName(CompoundPortIdentifier.JBOSS_JMX_DOMAIN + ":" + HTTPS);
-				int https = (int)server.getAttribute(objectName, PORT_ATTRIBUTE);
+				int https = (int)MxBeans.SERVER.getAttribute(objectName, PORT_ATTRIBUTE);
 				return new Pair<>(http, https);
 			}catch(Exception e){
 				throw new RuntimeException(e);

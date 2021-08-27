@@ -31,7 +31,7 @@ public class DatarouterPage{
 		this.body = body;
 	}
 
-	public ContainerTag build(){
+	public ContainerTag<?> build(){
 		return html(head.build(), body.build());
 	}
 

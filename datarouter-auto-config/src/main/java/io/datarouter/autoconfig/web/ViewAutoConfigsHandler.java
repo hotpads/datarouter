@@ -71,7 +71,7 @@ public class ViewAutoConfigsHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(){
+	private ContainerTag<?> makeContent(){
 		var table = new J2HtmlTable<Entry<String,Callable<String>>>()
 				.withClasses("table table-sm table-striped my-4 border")
 				.withColumn("AutoConfig", Entry::getKey)

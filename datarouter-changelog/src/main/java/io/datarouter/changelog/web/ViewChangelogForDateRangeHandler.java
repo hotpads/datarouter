@@ -93,8 +93,8 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 				.withValue("anything");
 		formRange.withAction(servletContext.getContextPath() + paths.datarouter.changelog.viewForDateRange
 				.toSlashedString());
-		ContainerTag formExactTag = Bootstrap4FormHtml.render(formExact, true);
-		ContainerTag formRangeTag = Bootstrap4FormHtml.render(formRange, true);
+		ContainerTag<?> formExactTag = Bootstrap4FormHtml.render(formExact, true);
+		ContainerTag<?> formRangeTag = Bootstrap4FormHtml.render(formRange, true);
 		Scanner<Changelog> scanner = Scanner.empty();
 
 		if(dateExact.isPresent() && dateStart.isEmpty() && dateEnd.isEmpty()){
@@ -116,7 +116,7 @@ public class ViewChangelogForDateRangeHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private ContainerTag makeContent(ContainerTag formExact, ContainerTag formRange, List<Changelog> rows){
+	private ContainerTag<?> makeContent(ContainerTag<?> formExact, ContainerTag<?> formRange, List<Changelog> rows){
 		var table = service.buildTable(rows, currentSessionInfoService.getZoneId(request));
 		return div(br(), formExact, h5("or"), formRange, table)
 				.withClass("container-fluid");

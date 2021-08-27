@@ -20,8 +20,6 @@ import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterConveyorPlugin extends BaseWebPlugin{
 
-	private static final DatarouterConveyorPaths PATHS = new DatarouterConveyorPaths();
-
 	public DatarouterConveyorPlugin(){
 		addRouteSet(DatarouterConveyorRouteSet.class);
 		addDatarouterNavBarItem(

@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.DatarouterSettingTagType;
+import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -32,6 +33,9 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> drainSqsToPublisherForTrace2;
 	public final CachedSetting<Boolean> drainSqsToPublisherForTrace2HttpRequestRecord;
 	public final CachedSetting<Boolean> compactExceptionLoggingForConveyors;
+	public final Setting<Integer> runMemoryToSqsForTrace2ThreadCount;
+	public final Setting<Integer> drainSqsToPublisherForTrace2ThreadCount;
+	public final Setting<Integer> drainSqsToPublisherForTrace2HttpRequestRecordThreadCount;
 
 	@Inject
 	public DatarouterTracePublisherSettingRoot(SettingFinder finder){
@@ -47,6 +51,10 @@ public class DatarouterTracePublisherSettingRoot extends SettingRoot{
 				"drainSqsToPublisherForTrace2HttpRequestRecord", defaultTo(false)
 				.withTag(DatarouterSettingTagType.TRACE2PIPELINE, () -> true));
 		compactExceptionLoggingForConveyors = registerBoolean("compactExceptionLoggingForConveyors", true);
+		runMemoryToSqsForTrace2ThreadCount = registerInteger("runMemoryToSqsForTrace2ThreadCount", 1);
+		drainSqsToPublisherForTrace2ThreadCount = registerInteger("drainSqsToPublisherForTrace2ThreadCount", 1);
+		drainSqsToPublisherForTrace2HttpRequestRecordThreadCount = registerInteger(
+				"drainSqsToPublisherForTrace2HttpRequestRecordThreadCount", 1);
 	}
 
 }

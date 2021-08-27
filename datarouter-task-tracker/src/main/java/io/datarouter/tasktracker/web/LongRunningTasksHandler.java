@@ -97,7 +97,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 		return mav;
 	}
 
-	public static ContainerTag legend(){
+	public static ContainerTag<?> legend(){
 		var table = new J2HtmlLegendTable()
 				.withHeader("Legend")
 				.withClass("table table-sm my-4 border")

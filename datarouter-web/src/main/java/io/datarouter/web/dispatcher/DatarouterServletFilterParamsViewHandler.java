@@ -44,7 +44,7 @@ public class DatarouterServletFilterParamsViewHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag makeContent(List<FilterParams> rows){
+	private static ContainerTag<?> makeContent(List<FilterParams> rows){
 		var h2 = h2("Servlet FilterParams");
 		var table = new J2HtmlTable<FilterParams>()
 				.withClasses("table table-sm table-striped my-4 border")

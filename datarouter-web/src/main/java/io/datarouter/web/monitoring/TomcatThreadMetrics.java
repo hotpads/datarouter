@@ -15,36 +15,34 @@
  */
 package io.datarouter.web.monitoring;
 
-import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 import javax.management.JMException;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import io.datarouter.util.MxBeans;
 import io.datarouter.web.port.CompoundPortIdentifier;
 
 @Singleton
 public class TomcatThreadMetrics{
 
 	public List<TomcatThreadsJspDto> getTomcatPoolMetrics(){
-		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 		ObjectName query;
 		try{
 			query = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ThreadPool,name=*");
 		}catch(MalformedObjectNameException e){
 			throw new RuntimeException(e);
 		}
-		return server.queryNames(query, null).stream()
+		return MxBeans.SERVER.queryNames(query, null).stream()
 			.map(poolMxBean -> {
 				int currentThreadCount;
 				int currentThreadsBusy;
 				try{
-					currentThreadCount = (int)server.getAttribute(poolMxBean, "currentThreadCount");
-					currentThreadsBusy = (int)server.getAttribute(poolMxBean, "currentThreadsBusy");
+					currentThreadCount = (int)MxBeans.SERVER.getAttribute(poolMxBean, "currentThreadCount");
+					currentThreadsBusy = (int)MxBeans.SERVER.getAttribute(poolMxBean, "currentThreadsBusy");
 				}catch(JMException e){
 					throw new RuntimeException(e);
 				}

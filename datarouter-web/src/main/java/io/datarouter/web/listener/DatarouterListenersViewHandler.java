@@ -48,7 +48,7 @@ public class DatarouterListenersViewHandler extends BaseHandler{
 				.buildMav();
 	}
 
-	private static ContainerTag makeAppListenersTable(List<Class<? extends DatarouterAppListener>> rows){
+	private static ContainerTag<?> makeAppListenersTable(List<Class<? extends DatarouterAppListener>> rows){
 		var h2 = h2("Registered App Listeners");
 		var table = new J2HtmlTable<Class<? extends DatarouterAppListener>>()
 				.withClasses("table table-sm table-striped my-4 border")
@@ -59,7 +59,7 @@ public class DatarouterListenersViewHandler extends BaseHandler{
 				.withClass("container my-4");
 	}
 
-	private static ContainerTag makeWebAppListenersTable(List<Class<? extends DatarouterWebAppListener>> rows){
+	private static ContainerTag<?> makeWebAppListenersTable(List<Class<? extends DatarouterWebAppListener>> rows){
 		var h2 = h2("Registered WebApp Listeners");
 		var table = new J2HtmlTable<Class<? extends DatarouterWebAppListener>>()
 				.withClasses("table table-sm table-striped my-4 border")

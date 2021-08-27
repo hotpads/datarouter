@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.requirejs;
 
+import static j2html.TagCreator.script;
+
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,14 +30,14 @@ import j2html.tags.ContainerTag;
 
 public class RequireJsTool{
 
-	public static ContainerTag makeRequireJsImportTag(String contextPath, PathNode path){
-		return TagCreator.script()
+	public static ContainerTag<?> makeRequireJsImportTag(String contextPath, PathNode path){
+		return script()
 				.withSrc(contextPath + path.toSlashedString());
 	}
 
-	public static ContainerTag makeConfigScriptTag(String config){
+	public static ContainerTag<?> makeConfigScriptTag(String config){
 		String rawHtml = String.format("require.config(%s)", config);
-		return TagCreator.script(TagCreator.rawHtml(rawHtml));
+		return script(TagCreator.rawHtml(rawHtml));
 	}
 
 	public static String makeConfigJsonString(
@@ -50,9 +52,9 @@ public class RequireJsTool{
 		return GsonTool.GSON_PRETTY_PRINT.toJson(requireJsConfigParam);
 	}
 
-	public static ContainerTag makeRequireScriptTag(String... names){
+	public static ContainerTag<?> makeRequireScriptTag(String... names){
 		String rawHtml = String.format("require(%s)", makeRequireParams(names));
-		return TagCreator.script(TagCreator.rawHtml(rawHtml));
+		return script(TagCreator.rawHtml(rawHtml));
 	}
 
 	public static String makeRequireParams(String... names){
