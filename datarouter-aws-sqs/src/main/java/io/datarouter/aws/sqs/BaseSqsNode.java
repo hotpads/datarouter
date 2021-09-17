@@ -25,13 +25,13 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.write.QueueStorageWriter;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
@@ -60,8 +60,8 @@ implements QueueStorageWriter<PK,D>{
 	public static final long DEFAULT_VISIBILITY_TIMEOUT_MS = Duration.ofSeconds(30).toMillis();
 	private static final long RETENTION_S = Duration.ofDays(14).getSeconds();
 
-	private final DatarouterProperties datarouterProperties;
-	private final DatarouterService datarouterService;
+	private final EnvironmentName environmentName;
+	private final ServiceName serviceName;
 	private final NodeParams<PK,D,F> params;
 	private final Supplier<Twin<String>> queueUrlAndName;
 	private final SqsClientManager sqsClientManager;
@@ -70,15 +70,15 @@ implements QueueStorageWriter<PK,D>{
 	private final boolean owned;
 
 	public BaseSqsNode(
-			DatarouterProperties datarouterProperties,
-			DatarouterService datarouterService,
+			EnvironmentName environmentName,
+			ServiceName serviceName,
 			NodeParams<PK,D,F> params,
 			SqsClientType sqsClientType,
 			SqsClientManager sqsClientManager,
 			ClientId clientId){
 		super(params, sqsClientType);
-		this.datarouterProperties = datarouterProperties;
-		this.datarouterService = datarouterService;
+		this.environmentName = environmentName;
+		this.serviceName = serviceName;
 		this.params = params;
 		this.sqsClientManager = sqsClientManager;
 		this.clientId = clientId;
@@ -95,13 +95,11 @@ implements QueueStorageWriter<PK,D>{
 			queueName = queueUrl.substring(queueUrl.lastIndexOf('/') + 1);
 			//don't issue the createQueue request because it is probably someone else's queue
 		}else{
-			String serviceName = datarouterService.getServiceName();
-			String namespace = params.getNamespace().orElse(buildFullNameSpace(datarouterProperties.getEnvironment(),
-					serviceName));
+			String namespace = params.getNamespace()
+					.orElse(buildFullNameSpace(environmentName.get(), serviceName.get()));
 			queueName = StringTool.isEmpty(namespace)
 					? getFieldInfo().getTableName()
-					: buildFullQueueName(datarouterProperties.getEnvironment(), serviceName,
-							getFieldInfo().getTableName());
+					: buildFullQueueName(environmentName.get(), serviceName.get(), getFieldInfo().getTableName());
 			if(queueName.length() > MAX_QUEUE_NAME_LENGTH){
 				// Future change to a throw.
 				logger.error("queue={} overflows the max size {}", queueName, MAX_QUEUE_NAME_LENGTH);

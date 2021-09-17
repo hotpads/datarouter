@@ -32,7 +32,7 @@ import io.datarouter.joblet.service.JobletFactory;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.joblet.type.JobletType;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
 import io.datarouter.util.mutable.MutableBoolean;
@@ -46,7 +46,7 @@ public class JobletCallable implements Callable<Void>{
 
 	private static final Duration LOG_JOBLETS_SLOWER_THAN = Duration.ofMinutes(5);
 
-	private final DatarouterProperties datarouterProperties;
+	private final ServerName serverName;
 	private final JobletService jobletService;
 	private final JobletFactory jobletFactory;
 	private final DatarouterJobletCounters datarouterJobletCounters;
@@ -59,7 +59,7 @@ public class JobletCallable implements Callable<Void>{
 	private Optional<JobletPackage> jobletPackage;
 
 	public JobletCallable(
-			DatarouterProperties datarouterProperties,
+			ServerName serverName,
 			JobletService jobletService,
 			JobletFactory jobletFactory,
 			DatarouterJobletCounters datarouterJobletCounters,
@@ -67,7 +67,7 @@ public class JobletCallable implements Callable<Void>{
 			JobletProcessor processor,
 			JobletType<?> jobletType,
 			long id){
-		this.datarouterProperties = datarouterProperties;
+		this.serverName = serverName;
 		this.jobletService = jobletService;
 		this.jobletFactory = jobletFactory;
 		this.datarouterJobletCounters = datarouterJobletCounters;
@@ -146,11 +146,10 @@ public class JobletCallable implements Callable<Void>{
 	}
 
 	private String getReservedByString(){
-		String serverName = datarouterProperties.getServerName();
 		String timeString = DateTool.getYyyyMmDdHhMmSsMmmWithPunctuationNoSpaces(System.currentTimeMillis());
 		String threadIdString = Thread.currentThread().getId() + "";
 		String idString = id + "";
-		return String.join("_", serverName, timeString, threadIdString, idString);
+		return String.join("_", serverName.get(), timeString, threadIdString, idString);
 	}
 
 	private void processJobletWithStats(PhaseTimer timer, JobletPackage jobletPackage) throws Throwable{

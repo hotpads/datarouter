@@ -33,7 +33,6 @@ import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.util.time.LocalDateTimeTool;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.util.tuple.Range;
@@ -53,8 +52,6 @@ public class ChangelogDailyDigest implements DailyDigest{
 	private DatarouterChangelogPaths paths;
 	@Inject
 	private ViewChangelogService viewChangelogService;
-	@Inject
-	private DatarouterService datarouterService;
 
 	@Override
 	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
@@ -69,14 +66,14 @@ public class ChangelogDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(){
-		var list = getChangelogs(datarouterService.getZoneId());
+	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+		var list = getChangelogs(zoneId);
 		if(list.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Changelog", paths.datarouter.changelog.viewAll);
 		var description = small("For the current day");
-		var table = buildEmailTable(list);
+		var table = buildEmailTable(list, zoneId);
 		return Optional.of(div(header, description, table));
 	}
 
@@ -102,8 +99,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 		return dao.scan(range).list();
 	}
 
-	private ContainerTag<?> buildEmailTable(List<Changelog> rows){
-		ZoneId zoneId = datarouterService.getZoneId();
+	private ContainerTag<?> buildEmailTable(List<Changelog> rows, ZoneId zoneId){
 		return new J2HtmlEmailTable<Changelog>()
 				.withColumn(new J2HtmlEmailTableColumn<>("", row -> {
 					String href = paths.datarouter.changelog.viewExact.toSlashedString()

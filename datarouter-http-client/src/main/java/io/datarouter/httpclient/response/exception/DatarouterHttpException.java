@@ -16,6 +16,7 @@
 package io.datarouter.httpclient.response.exception;
 
 @SuppressWarnings("serial")
+@ServerErrorDoc(DownstreamFailedError.class)
 public abstract class DatarouterHttpException extends Exception{
 
 	protected DatarouterHttpException(String message, Exception exception){

@@ -18,19 +18,20 @@ package io.datarouter.web.html.j2html;
 import static j2html.TagCreator.body;
 import static j2html.TagCreator.header;
 
-import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
+import j2html.tags.specialized.BodyTag;
 
 public class DatarouterPageBody{
 
-	private final ContainerTag<?>[] navbars;
-	private final ContainerTag<?> content;
+	private final DomContent[] navbars;
+	private final DomContent content;
 
-	public DatarouterPageBody(ContainerTag<?>[] navbars, ContainerTag<?> content){
+	public DatarouterPageBody(DomContent[] navbars, DomContent content){
 		this.navbars = navbars;
 		this.content = content;
 	}
 
-	public ContainerTag<?> build(){
+	public BodyTag build(){
 		var header = header(navbars);
 		return body(header, content);
 	}

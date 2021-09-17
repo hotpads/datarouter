@@ -31,7 +31,6 @@ import io.datarouter.job.config.DatarouterJobPlugin.DatarouterJobPluginBuilder;
 import io.datarouter.job.detached.DefaultDetachedJobExecutor;
 import io.datarouter.job.detached.DetachedJobExecutor;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.web.config.DatarouterWebWebappConfigBuilder;
 import io.datarouter.web.config.DatarouterWebappConfig;
@@ -50,11 +49,11 @@ extends DatarouterWebWebappConfigBuilder<T>{
 
 		public DatarouterJobWebappBuilderImpl(
 				DatarouterService datarouterService,
+				String contextName,
 				ServerTypes serverTypes,
-				DatarouterProperties datarouterProperties,
 				List<ClientId> defaultClientIds,
 				ServletContextListener log4jServletContextListener){
-			super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, log4jServletContextListener);
+			super(datarouterService, contextName, serverTypes, defaultClientIds, log4jServletContextListener);
 		}
 
 		@Override
@@ -66,11 +65,11 @@ extends DatarouterWebWebappConfigBuilder<T>{
 
 	protected DatarouterJobWebappConfigBuilder(
 			DatarouterService datarouterService,
+			String contextName,
 			ServerTypes serverTypes,
-			DatarouterProperties datarouterProperties,
 			List<ClientId> defaultClientIds,
 			ServletContextListener log4jServletContextListener){
-		super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, log4jServletContextListener);
+		super(datarouterService, contextName, serverTypes, defaultClientIds, log4jServletContextListener);
 		this.triggerGroups = new ArrayList<>();
 		this.jobPlugins = new ArrayList<>();
 	}

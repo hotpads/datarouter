@@ -30,10 +30,10 @@ import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecord
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.exception.ExceptionCategory;
 import io.datarouter.storage.exception.UnknownExceptionCategory;
 import io.datarouter.web.app.WebappName;
@@ -64,19 +64,19 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	@Inject
 	private DatarouterHttpRequestRecordPublisherDao httpRequestRecordPublisherDao;
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private DatarouterWebSettingRoot datarouterWebSettingRoot;
 	@Inject
 	private CurrentSessionInfo currentSessionInfo;
 	@Inject
 	private WebappName webappName;
 	@Inject
-	private DatarouterService datarouterService;
-	@Inject
 	private DatarouterExceptionSettingRoot settings;
 	@Inject
 	private DatarouterExceptionBuffers exceptionBuffers;
+	@Inject
+	private ServerName serverName;
+	@Inject
+	private ServiceName serviceName;
 
 	@Override
 	public Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin){
@@ -120,8 +120,8 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		ExceptionCounters.inc(callOrigin);
 		ExceptionCounters.inc(exception.getClass().getName() + " " + callOrigin);
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
-				datarouterService.getServiceName(),
-				datarouterProperties.getServerName(),
+				serviceName.get(),
+				serverName.get(),
 				ExceptionTool.getStackTraceAsString(exception),
 				exception.getClass().getName(),
 				gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING),

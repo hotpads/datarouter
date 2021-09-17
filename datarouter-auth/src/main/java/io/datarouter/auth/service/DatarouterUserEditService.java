@@ -36,11 +36,11 @@ import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMap;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.web.user.DatarouterSessionDao;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -62,11 +62,11 @@ public class DatarouterUserEditService{
 	@Inject
 	private DatarouterUserService datarouterUserService;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private EnvironmentName environmentName;
 
 	public void editUser(
 			DatarouterUser user,
@@ -211,8 +211,8 @@ public class DatarouterUserEditService{
 	public String getPermissionRequestEmailSubject(DatarouterUser user){
 		return String.format("Permission Request %s - %s - %s",
 				user.getUsername(),
-				datarouterProperties.getEnvironment(),
-				datarouterService.getServiceName());
+				environmentName.get(),
+				serviceName.get());
 	}
 
 }

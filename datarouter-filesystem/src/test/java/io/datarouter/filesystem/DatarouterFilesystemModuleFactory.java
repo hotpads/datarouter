@@ -20,11 +20,8 @@ import java.util.List;
 import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.storage.TestDatarouterProperties;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
-import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
+import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.testng.TestNgModuleFactory;
 
 public class DatarouterFilesystemModuleFactory extends TestNgModuleFactory{
@@ -39,18 +36,10 @@ public class DatarouterFilesystemModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
+			// bind serviceName instead of DatarouterService
 			bind(DatarouterService.class).to(NoOpDatarouterService.class);
-			bind(DatarouterProperties.class).to(FilesystemDatarouterProperties.class);
-			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
-		}
-
-	}
-
-	public static class FilesystemDatarouterProperties extends TestDatarouterProperties{
-
-		@Override
-		public String getDatarouterPropertiesFileLocation(){
-			return getTestConfigDirectory() + "/filesystem.properties";
+			bindActualInstance(DatarouterTestPropertiesFile.class,
+					new DatarouterTestPropertiesFile("filesystem.properties"));
 		}
 
 	}

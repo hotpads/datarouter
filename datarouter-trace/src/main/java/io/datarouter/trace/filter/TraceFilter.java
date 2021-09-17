@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
@@ -51,7 +51,7 @@ import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.W3TraceContext;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.trace.conveyor.local.Trace2ForLocalFilterToMemoryBuffer;
 import io.datarouter.trace.conveyor.publisher.Trace2ForPublisherFilterToMemoryBuffer;
 import io.datarouter.trace.service.TraceUrlBuilder;
@@ -75,26 +75,26 @@ import io.datarouter.web.util.http.RequestTool;
 public abstract class TraceFilter implements Filter, InjectorRetriever{
 	private static final Logger logger = LoggerFactory.getLogger(TraceFilter.class);
 
-	private DatarouterProperties datarouterProperties;
+	private ServerName serverName;
 	private DatarouterTraceFilterSettingRoot traceSettings;
 	private Trace2ForLocalFilterToMemoryBuffer trace2BufferForLocal;
 	private Trace2ForPublisherFilterToMemoryBuffer trace2BufferForPublisher;
 	private TraceUrlBuilder urlBuilder;
 	private CurrentSessionInfo currentSessionInfo;
 	private HandlerMetrics handlerMetrics;
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 
 	@Override
 	public void init(FilterConfig filterConfig){
 		DatarouterInjector injector = getInjector(filterConfig.getServletContext());
-		datarouterProperties = injector.getInstance(DatarouterProperties.class);
+		serverName = injector.getInstance(ServerName.class);
 		trace2BufferForLocal = injector.getInstance(Trace2ForLocalFilterToMemoryBuffer.class);
 		trace2BufferForPublisher = injector.getInstance(Trace2ForPublisherFilterToMemoryBuffer.class);
 		traceSettings = injector.getInstance(DatarouterTraceFilterSettingRoot.class);
 		urlBuilder = injector.getInstance(TraceUrlBuilder.class);
 		currentSessionInfo = injector.getInstance(CurrentSessionInfo.class);
 		handlerMetrics = injector.getInstance(HandlerMetrics.class);
-		datarouterService = injector.getInstance(DatarouterService.class);
+		serviceName = injector.getInstance(ServiceName.class);
 	}
 
 	@Override
@@ -115,8 +115,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 			RequestAttributeTool.set(request, BaseHandler.TRACE_CONTEXT, traceContext.copy());
 
 			// bind these to all threads, even if tracing is disabled
-			String serverName = datarouterProperties.getServerName();
-			Tracer tracer = new DatarouterTracer(serverName, null, traceContext);
+			Tracer tracer = new DatarouterTracer(serverName.get(), null, traceContext);
 			tracer.setSaveThreadCpuTime(traceSettings.saveThreadCpuTime.get());
 			tracer.setSaveThreadMemoryAllocated(traceSettings.saveThreadMemoryAllocated.get());
 			tracer.setSaveSpanCpuTime(traceSettings.saveSpanCpuTime.get());
@@ -164,7 +163,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 						request.getRequestURI().toString(),
 						request.getQueryString(),
 						traceCreated,
-						datarouterService.getServiceName(),
+						serviceName.get(),
 						tracer.getDiscardedThreadCount(),
 						tracer.getThreadQueue().size(),
 						cpuTimeBegin,

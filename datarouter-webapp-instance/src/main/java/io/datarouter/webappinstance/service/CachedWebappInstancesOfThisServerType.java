@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.util.cached.Cached;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.webappinstance.storage.webappinstance.DatarouterWebappInstanceDao;
@@ -35,17 +35,17 @@ public class CachedWebappInstancesOfThisServerType extends Cached<List<WebappIns
 
 	private static final Duration HEARTBEAT_WITHIN = Duration.ofMinutes(3);
 
-	private final DatarouterProperties datarouterProperties;
+	private final DatarouterServerTypeSupplier serverType;
 	private final WebappName webappName;
 	private final DatarouterWebappInstanceDao webappInstanceDao;
 
 	@Inject
 	public CachedWebappInstancesOfThisServerType(
-			DatarouterProperties datarouterProperties,
+			DatarouterServerTypeSupplier serverType,
 			WebappName webappName,
 			DatarouterWebappInstanceDao webappInstanceDao){
 		super(20, TimeUnit.SECONDS);
-		this.datarouterProperties = datarouterProperties;
+		this.serverType = serverType;
 		this.webappName = webappName;
 		this.webappInstanceDao = webappInstanceDao;
 	}
@@ -66,7 +66,7 @@ public class CachedWebappInstancesOfThisServerType extends Cached<List<WebappIns
 	@Override
 	protected List<WebappInstance> reload(){
 		return webappInstanceDao.getWebappInstancesOfServerType(
-				datarouterProperties.getServerType(),
+				serverType.get(),
 				HEARTBEAT_WITHIN);
 	}
 

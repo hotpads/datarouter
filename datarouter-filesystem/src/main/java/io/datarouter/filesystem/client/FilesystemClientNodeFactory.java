@@ -32,7 +32,7 @@ import io.datarouter.filesystem.node.queue.DirectoryQueueNode;
 import io.datarouter.filesystem.raw.DirectoryManager;
 import io.datarouter.filesystem.raw.DirectoryManager.DirectoryManagerFactory;
 import io.datarouter.filesystem.raw.queue.DirectoryQueue;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
@@ -63,7 +63,7 @@ implements BlobClientNodeFactory, QueueClientNodeFactory{
 	@Inject
 	private FilesystemClientType clientType;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 	@Inject
 	private FilesystemNodeFactory filesystemNodeFactory;
 	@Inject
@@ -165,7 +165,7 @@ implements BlobClientNodeFactory, QueueClientNodeFactory{
 
 	private DirectoryQueue makeDirectoryQueue(NodeParams<?,?,?> nodeParams){
 		Path rootPath = filesystemOptions.getRoot(nodeParams.getClientName());
-		String relativePathString = String.join("/", datarouterService.getServiceName(), nodeParams.getPhysicalName());
+		String relativePathString = String.join("/", serviceName.get(), nodeParams.getPhysicalName());
 		Path relativePath = Paths.get(relativePathString);
 		Path fullPath = rootPath.resolve(relativePath);
 		DirectoryManager directoryManager = directoryManagerFactory.create(fullPath.toString());

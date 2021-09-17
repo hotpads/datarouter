@@ -29,8 +29,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.util.number.RandomTool;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -54,20 +53,18 @@ public class DatarouterUserCreationService{
 			.collect(Collectors.toSet());
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private AdminEmail adminEmail;
 	@Inject
 	private DatarouterUserService datarouterUserService;
 	@Inject
 	private DatarouterUserHistoryService userHistoryService;
-	@Inject
-	private DatarouterService datarouterService;
 
 	/*---------------- creation methods, helpers, and enum ------------------*/
 
 	public void createFirstAdminUser(String defaultPassword){
 		var user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.ADMIN, defaultPassword, Optional.empty());
-		populateManualFields(user, datarouterProperties.getAdministratorEmail(), DEFAULT_ADMIN_ROLES, true);
+		populateManualFields(user, adminEmail.get(), DEFAULT_ADMIN_ROLES, true);
 		finishCreate(user, ADMIN_ID, "Automatically created admin user.");
 		logger.warn("Created default admin user account");
 	}
@@ -130,12 +127,13 @@ public class DatarouterUserCreationService{
 
 		//AUTO users have no passwords. ADMIN and MANUAL users do have passwords.
 		user.setPasswordSalt(type == CreateType.AUTO ? null : PasswordTool.generateSalt());
-		user.setPasswordDigest(type == CreateType.AUTO || password == null ? null : PasswordTool.digest(user
-				.getPasswordSalt(), password));
+		String digest = type == CreateType.AUTO || password == null
+				? null
+				: PasswordTool.digest(user.getPasswordSalt(), password);
+		user.setPasswordDigest(digest);
 
-		if(zoneId.isPresent()){
-			user.setZoneId(datarouterService.getZoneId());
-		}
+		// zoneId can be configured through the UI, fallback to system default
+		user.setZoneId(zoneId.orElse(ZoneId.systemDefault()));
 	}
 
 	private void populateManualFields(DatarouterUser user, String username, Set<Role> roles, Boolean enabled){

@@ -72,7 +72,7 @@ public class ClusterSettingDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
 		return makeContent(new ClusterSettingDailyDigestEmailTableFormatter());
 	}
 

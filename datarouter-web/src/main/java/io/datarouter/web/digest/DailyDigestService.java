@@ -21,7 +21,7 @@ import static j2html.TagCreator.h3;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.DomainFinder;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.ServletContextSupplier;
 import j2html.tags.ContainerTag;
@@ -31,18 +31,18 @@ import j2html.tags.ContainerTag;
 public class DailyDigestService{
 
 	@Inject
-	private DatarouterService datarouterService;
+	private DomainFinder domainFinder;
 	@Inject
 	private ServletContextSupplier servletContext;
 
 	public ContainerTag<?> makeHeader(String title, PathNode path, String pathSupplement){
-		String link = "https://" + datarouterService.getDomainPreferPublic() + servletContext.get().getContextPath()
+		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath()
 				+ path.join("/", "/", "") + pathSupplement;
 		return makeHeader(title, link);
 	}
 
 	public ContainerTag<?> makeHeader(String title, PathNode path){
-		String link = "https://" + datarouterService.getDomainPreferPublic() + servletContext.get().getContextPath()
+		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath()
 				+ path.join("/", "/", "");
 		return makeHeader(title, link);
 	}
@@ -53,14 +53,13 @@ public class DailyDigestService{
 	}
 
 	public ContainerTag<?> makeATagLink(String title, PathNode path){
-		String link = "https://" + datarouterService.getDomainPreferPublic() + servletContext.get().getContextPath()
+		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath()
 				+ path.join("/", "/", "");
 		return a(title).withHref(link);
 	}
 
 	public ContainerTag<?> makeATagLink(String title, String path){
-		String link = "https://" + datarouterService.getDomainPreferPublic() + servletContext.get().getContextPath()
-				+ path;
+		String link = "https://" + domainFinder.getDomainPreferPublic() + servletContext.get().getContextPath() + path;
 		return a(title).withHref(link);
 	}
 

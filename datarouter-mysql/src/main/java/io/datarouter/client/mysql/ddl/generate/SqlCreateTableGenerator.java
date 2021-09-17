@@ -28,18 +28,14 @@ import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.ddl.domain.SqlIndex;
 import io.datarouter.client.mysql.ddl.domain.SqlTable;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
 public class SqlCreateTableGenerator{
 
-	private final DatarouterProperties datarouterProperties;
-
 	@Inject
-	public SqlCreateTableGenerator(DatarouterProperties datarouterProperties){
-		this.datarouterProperties = datarouterProperties;
-	}
+	private ServerName serverName;
 
 	public String generateDdl(SqlTable table, String databaseName){
 		StringBuilder sb = new StringBuilder("create table ");
@@ -122,7 +118,7 @@ public class SqlCreateTableGenerator{
 		tableOptions.put("engine", table.getEngine().toString());
 		tableOptions.put("character set", table.getCharacterSet().toString());
 		tableOptions.put("collate", table.getCollation().toString());
-		String comment = "created by " + datarouterProperties.getServerName() + " ["
+		String comment = "created by " + serverName.get() + " ["
 				+ DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(ZonedDateTime.now()) + "]";
 		tableOptions.put("comment", "'" + comment + "'");
 		tableOptions.put("row_format", table.getRowFormat().getPersistentString());

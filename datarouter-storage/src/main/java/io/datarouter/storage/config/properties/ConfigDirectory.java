@@ -17,20 +17,16 @@ package io.datarouter.storage.config.properties;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.storage.config.ConfigDirectoryConstants;
 
-//Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
-//so we don't have to do multiple major refactors with every split.
 @Singleton
 public class ConfigDirectory implements Supplier<String>{
 
 	private final String configDirectory;
 
-	@Inject
-	private ConfigDirectory(){
+	public ConfigDirectory(){
 		this.configDirectory = ConfigDirectoryConstants.getConfigDirectory();
 	}
 

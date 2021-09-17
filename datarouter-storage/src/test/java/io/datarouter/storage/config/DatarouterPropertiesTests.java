@@ -24,14 +24,16 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.properties.InternalConfigDirectory;
 import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 
+// TODO rename
 @Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
 public class DatarouterPropertiesTests{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterPropertiesTests.class);
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private InternalConfigDirectory configFileLocation;
 
 	@Test
 	public void testInternalConfigDirectory(){
@@ -41,7 +43,7 @@ public class DatarouterPropertiesTests{
 		System.getenv().forEach((key,value) -> {
 			logger.warn("env-" + key + "=" + value);
 		});
-		Assert.assertNotEquals("production", datarouterProperties.getInternalConfigDirectory());
+		Assert.assertNotEquals("production", configFileLocation.get());
 	}
 
 	@Test

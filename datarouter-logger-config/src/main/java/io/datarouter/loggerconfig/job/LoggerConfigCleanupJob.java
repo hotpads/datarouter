@@ -25,6 +25,7 @@ import static j2html.TagCreator.text;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,7 +38,6 @@ import org.apache.logging.log4j.Level;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.LoggerConfigCleanupEmailType;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.instrumentation.task.TaskTracker;
@@ -52,6 +52,7 @@ import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import j2html.tags.ContainerTag;
 
 public class LoggerConfigCleanupJob extends BaseJob{
@@ -67,8 +68,6 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	@Inject
 	private DatarouterLoggingConfigPaths paths;
 	@Inject
-	private DatarouterService datarouterService;
-	@Inject
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private LoggerConfigCleanupEmailType loggerConfigCleanupEmailType;
@@ -82,6 +81,8 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	private DatarouterSubscribersSupplier subscribers;
 	@Inject
 	private DatarouterEmailSubscriberSettings subscriberSettings;
+	@Inject
+	private DefaultEmailDistributionListZoneId defaultEmailDistributionListZoneId;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -129,7 +130,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 			var dto = new DatarouterChangelogDtoBuilder("LoggerConfig", log.getKey().getName(), "delete", "cleanup job")
 					.sendEmail()
 					.excludeMainDatarouterAdmin()
-					.excludeAdditionalAdministrators()
+					.excludeSubscribers()
 					.build();
 			changelogRecorder.record(dto);
 			if(settings.sendLoggerConfigCleanupJobEmails.get()){
@@ -183,11 +184,12 @@ public class LoggerConfigCleanupJob extends BaseJob{
 	}
 
 	private ContainerTag<?> makeDeleteLoggerConfigAlertDetails(LoggerConfig log){
+		ZoneId zoneId = defaultEmailDistributionListZoneId.get();
 		return p(
 				text("The LoggerConfig "),
 				b(log.getName()),
 				text(" was last updated on "),
-				b(ZonedDateFormaterTool.formatInstantWithZone(log.getLastUpdated(), datarouterService.getZoneId())),
+				b(ZonedDateFormaterTool.formatInstantWithZone(log.getLastUpdated(), zoneId)),
 				text(" so it's older than the maximum age threshold of "),
 				b(settings.loggingConfigMaxAgeDays.get() + ""),
 				text(" days."),

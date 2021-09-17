@@ -27,9 +27,9 @@ import io.datarouter.changelog.config.DatarouterChangelogPaths;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.tuple.Twin;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -38,13 +38,13 @@ import j2html.tags.DomContent;
 public class ChangelogEmailService{
 
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private DatarouterChangelogPaths paths;
+	@Inject
+	private ServerName serverName;
 
 	public void sendEmail(DatarouterChangelogDto dto){
 		String primaryHref = htmlEmailService.startLinkBuilder()
@@ -69,8 +69,8 @@ public class ChangelogEmailService{
 	private ContainerTag<?> makeEmailContent(String changelogType, String name, String action, String username,
 			String comment){
 		var rows = List.of(
-				new Twin<>("Service", datarouterService.getServiceName()),
-				new Twin<>("ServerName", datarouterProperties.getServerName()),
+				new Twin<>("Service", serviceName.get()),
+				new Twin<>("ServerName", serverName.get()),
 				new Twin<>("ChangelogType", changelogType),
 				new Twin<>("Name", name),
 				new Twin<>("Action", action),

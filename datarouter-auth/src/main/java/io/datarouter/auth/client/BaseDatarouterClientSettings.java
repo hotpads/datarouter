@@ -19,7 +19,6 @@ import java.net.URI;
 
 import io.datarouter.auth.service.DefaultDatarouterAccountKeysSupplier;
 import io.datarouter.httpclient.client.DatarouterHttpClientSettings;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.refreshable.RefreshableSupplier;
 import io.datarouter.storage.setting.DefaultSettingValue;
 import io.datarouter.storage.setting.SettingFinder;
@@ -47,21 +46,6 @@ implements DatarouterHttpClientSettings{
 		super(finder, settingNodeName);
 		endpointDomain = registerStrings("endpointDomain", endpointDomainDefaults);
 		endpointPath = registerString("endpointPath", contextPath);
-		apiKey = registerString("apiKey", defaultDatarouterAccountKeys.getDefaultApiKey());
-		privateKey = registerString("privateKey", defaultDatarouterAccountKeys.getDefaultSecretKey());
-		refreshableApiKey = new RefreshableStringCachedSetting(apiKey);
-		refreshablePrivateKey = new RefreshableStringCachedSetting(privateKey);
-	}
-
-	public BaseDatarouterClientSettings(
-			SettingFinder finder,
-			DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys,
-			String settingNodeName,
-			DatarouterService service,
-			DefaultSettingValue<String> endpointDomainDefaults){
-		super(finder, settingNodeName);
-		endpointDomain = registerStrings("endpointDomain", endpointDomainDefaults);
-		endpointPath = registerString("endpointPath", service.getContextPath());
 		apiKey = registerString("apiKey", defaultDatarouterAccountKeys.getDefaultApiKey());
 		privateKey = registerString("privateKey", defaultDatarouterAccountKeys.getDefaultSecretKey());
 		refreshableApiKey = new RefreshableStringCachedSetting(apiKey);

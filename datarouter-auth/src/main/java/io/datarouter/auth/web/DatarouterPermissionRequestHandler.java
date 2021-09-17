@@ -48,7 +48,7 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequest;
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestDao;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
@@ -96,7 +96,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Inject
 	private PermissionRequestEmailType permissionRequestEmailType;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
@@ -112,7 +112,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 			 return new MessageMav(noDatarouterAuthentication());
 		}
 		Mav mav = new Mav(files.jsp.authentication.permissionRequestJsp);
-		mav.put("serviceName", datarouterService.getServiceName());
+		mav.put("serviceName", serviceName.get());
 		mav.put("permissionRequestPath", paths.permissionRequest.toSlashedString());
 		Optional<String> defaultSpecifics = deniedUrl.map(url -> {
 			return "I tried to go to this URL: " + url + "." + allowedRoles
@@ -227,7 +227,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 				.withParam("userId", user.getId() + "")
 				.build();
 		var table = table(tbody()
-				.with(createLabelValueTr("Service", text(datarouterService.getServiceName()))
+				.with(createLabelValueTr("Service", text(serviceName.get()))
 				.with(createLabelValueTr("User", text(userEmail + " - "), userProfileUrl == null ? null
 						: a("view " + userProfileDescription).withHref(userProfileUrl))))
 				.with(createLabelValueTr("Reason", text(reason)))

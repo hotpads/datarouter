@@ -15,13 +15,24 @@
  */
 package io.datarouter.websocket.service;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
+import io.datarouter.storage.config.properties.ServerPrivateIp;
+import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.web.port.CompoundPortIdentifier;
 
 @Singleton
 public class DefaultServerAddressProvider extends BaseServerAddressProvider{
 
-	public DefaultServerAddressProvider(){
-		super("");
+	@Inject
+	public DefaultServerAddressProvider(
+			ServletContextSupplier servletContext,
+			CompoundPortIdentifier portIdentifier,
+			ServerPrivateIp serverPrivateIp,
+			DatarouterServerTypeSupplier serverType){
+		super(servletContext, portIdentifier, serverPrivateIp, serverType, "");
 	}
 
 }

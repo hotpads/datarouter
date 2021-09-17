@@ -22,11 +22,13 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.DomainFinder;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationDto;
 import io.datarouter.instrumentation.serviceconfig.ServiceConfigurationPublisher;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
+import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.service.DocumentationNamesAndLinksSupplier;
 import io.datarouter.web.service.ServiceDescriptionSupplier;
@@ -41,13 +43,17 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 	@Inject
 	private DatarouterSubscribersSupplier subscribers;
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServiceName serviceName;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServletContextSupplier servletContext;
+	@Inject
+	private DomainFinder domainFinder;
 	@Inject
 	private ServiceDescriptionSupplier serviceDescriptionSupplier;
 	@Inject
 	private DocumentationNamesAndLinksSupplier documentationNamesAndLinksSupplier;
+	@Inject
+	private AdminEmail adminEmail;
 
 	@Override
 	public void onStartUp(){
@@ -55,16 +61,16 @@ public class DatarouterServiceConfigurationAppListener implements DatarouterAppL
 			return;
 		}
 		Set<String> admins = new HashSet<>();
-		Optional.ofNullable(datarouterProperties.getAdministratorEmail()).ifPresent(admins::add);
+		Optional.ofNullable(adminEmail.get()).ifPresent(admins::add);
 		//TODO remove this
 		admins.addAll(subscribers.get());
 		ServiceConfigurationDto dto = new ServiceConfigurationDto(
-				datarouterService.getServiceName(),
+				serviceName.get(),
 				admins,
 				subscribers.get(),
 				serviceDescriptionSupplier.get(),
-				datarouterService.getDomainPreferPublic(),
-				datarouterService.getContextName(),
+				domainFinder.getDomainPreferPublic(),
+				servletContext.getContextName(),
 				documentationNamesAndLinksSupplier.getReadmeDocs());
 		try{
 			serviceConfigurationPublisher.add(dto);

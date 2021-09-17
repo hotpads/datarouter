@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.InternalConfigDirectory;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.properties.PropertiesTool;
 import io.datarouter.util.string.StringTool;
@@ -79,15 +79,15 @@ public class SchemaUpdateOptions{
 
 	@Inject
 	public SchemaUpdateOptions(
-			DatarouterProperties datarouterProperties,
-			SchemaUpdateOptionsFactory schemaUpdateOptionsFactory){
+			SchemaUpdateOptionsFactory schemaUpdateOptionsFactory,
+			InternalConfigDirectory internalConfigDirectory){
 		properties = schemaUpdateOptionsFactory.getInternalConfigDirectoryTypeSchemaUpdateOptions(
-				datarouterProperties.getInternalConfigDirectory());
+				internalConfigDirectory.get());
 		if(!properties.isEmpty()){
 			logger.warn("Got schema update properties from class {}", schemaUpdateOptionsFactory.getClass()
 					.getCanonicalName());
 		}else{
-			String configFileLocation = datarouterProperties.findConfigFile(SCHEMA_UPDATE_FILENAME);
+			String configFileLocation = internalConfigDirectory.findConfigFile(SCHEMA_UPDATE_FILENAME);
 			try{
 				properties = PropertiesTool.parse(configFileLocation);
 				logger.warn("Got schema update properties from file {}", configFileLocation);

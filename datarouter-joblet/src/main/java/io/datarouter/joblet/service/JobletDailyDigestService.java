@@ -29,7 +29,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.DomainFinder;
 import io.datarouter.httpclient.dto.BaseGsonDto;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
@@ -50,7 +50,7 @@ public class JobletDailyDigestService{
 	@Inject
 	private TaskTrackerExceptionLink exceptionLink;
 	@Inject
-	private DatarouterService datarouterService;
+	private DomainFinder domainFinder;
 	@Inject
 	private ServletContextSupplier contextSupplier;
 
@@ -127,7 +127,7 @@ public class JobletDailyDigestService{
 	}
 
 	private ContainerTag<?> makeExceptionLink(String exceptionRecordId){
-		String href = "https://" + datarouterService.getDomainPreferPublic() + contextSupplier.get().getContextPath()
+		String href = "https://" + domainFinder.getDomainPreferPublic() + contextSupplier.get().getContextPath()
 				+ exceptionLink.buildExceptionDetailLink(exceptionRecordId);
 		return a(exceptionRecordId)
 				.withHref(href);

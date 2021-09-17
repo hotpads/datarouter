@@ -20,4 +20,13 @@ import java.util.function.Supplier;
 import javax.servlet.ServletContext;
 
 public interface ServletContextSupplier extends Supplier<ServletContext>{
+
+	default String getContextName(){
+		return get().getServletContextName();
+	}
+
+	default String getContextPath(){
+		return get().getContextPath();
+	}
+
 }

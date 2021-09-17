@@ -107,6 +107,10 @@ public class DatarouterJobletRequestDao extends BaseDao{
 		return node.scan(Configs.anyDelay());
 	}
 
+	public Scanner<JobletRequestKey> scanKeysWithPrefix(JobletRequestKey prefix){
+		return node.scanKeysWithPrefix(prefix);
+	}
+
 	public String getName(){
 		return node.getName();
 	}

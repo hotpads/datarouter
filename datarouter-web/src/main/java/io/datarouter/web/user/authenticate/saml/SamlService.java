@@ -46,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.web.exception.ExceptionRecorder;
@@ -79,20 +79,25 @@ public class SamlService{
 	private final Optional<SamlRegistrar> samlRegistrar;
 	private final KeyPair signingKeyPair;
 	private final BaseDatarouterSamlDao samlDao;
-	private final DatarouterProperties datarouterProperties;
 	private final ExceptionRecorder exceptionRecorder;
+	private final AdminEmail adminEmail;
 
 	@Inject
-	public SamlService(DatarouterSamlSettings samlSettings, UserSessionService userSessionService,
-			RoleManager roleManager, Optional<SamlRegistrar> jitSamlRegistrar, BaseDatarouterSamlDao samlDao,
-			DatarouterProperties datarouterProperties, ExceptionRecorder exceptionRecorder){
+	public SamlService(
+			DatarouterSamlSettings samlSettings,
+			UserSessionService userSessionService,
+			RoleManager roleManager,
+			Optional<SamlRegistrar> jitSamlRegistrar,
+			BaseDatarouterSamlDao samlDao,
+			AdminEmail adminEmail,
+			ExceptionRecorder exceptionRecorder){
 		this.samlSettings = samlSettings;
 		this.userSessionService = userSessionService;
 		this.roleManager = roleManager;
 		this.samlRegistrar = jitSamlRegistrar;
 		this.samlDao = samlDao;
-		this.datarouterProperties = datarouterProperties;
 		this.exceptionRecorder = exceptionRecorder;
+		this.adminEmail = adminEmail;
 
 		PhaseTimer phaseTimer = new PhaseTimer();
 		if(logger.isDebugEnabled()){
@@ -218,8 +223,9 @@ public class SamlService{
 				.map(roleManager::getRoleFromPersistentString)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		Set<Role> superRolesForAdminUsers = username.equals(datarouterProperties.getAdministratorEmail()) ? roleManager
-				.getRolesForSuperGroup() : Collections.emptySet();
+		Set<Role> superRolesForAdminUsers = username.equals(adminEmail.get())
+				? roleManager.getRolesForSuperGroup()
+				: Collections.emptySet();
 		return Scanner.concat(rolesForDefaultGroup, rolesForGroupAttributes, rolesForRoleAttributes,
 				superRolesForAdminUsers).collect(HashSet::new);
 	}

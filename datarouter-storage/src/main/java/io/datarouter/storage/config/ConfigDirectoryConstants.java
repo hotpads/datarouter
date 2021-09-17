@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.util.string.StringTool;
 
-@Deprecated// stop using environment variables
 public class ConfigDirectoryConstants{
 	private static final Logger logger = LoggerFactory.getLogger(ConfigDirectoryConstants.class);
 
@@ -43,17 +42,17 @@ public class ConfigDirectoryConstants{
 	}
 
 	public static String getSource(){
-		logger.warn("source={}", SOURCE);
+		logger.info("source={}", SOURCE);
 		return SOURCE;
 	}
 
 	public static String getConfigDirectory(){
-		logger.warn("configDirectory={}", CONFIG_DIRECTORY);
+		logger.info("configDirectory={}", CONFIG_DIRECTORY);
 		return CONFIG_DIRECTORY;
 	}
 
 	public static String getTestConfigDirectory(){
-		logger.warn("testConfigDirectory={}", TEST_CONFIG_DIRECTORY);
+		logger.info("testConfigDirectory={}", TEST_CONFIG_DIRECTORY);
 		return TEST_CONFIG_DIRECTORY;
 	}
 

@@ -15,28 +15,49 @@
  */
 package io.datarouter.storage.config.properties;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.ComputedPropertiesFinder;
+import io.datarouter.storage.config.ConfigDirectoryConstants;
 
-//Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
-//so we don't have to do multiple major refactors with every split.
 @Singleton
 public class InternalConfigDirectory implements Supplier<String>{
+
+	public static final String INTERNAL_CONFIG_DIRECTORY = "internalConfigDirectory";
 
 	private final String internalConfigDirectory;
 
 	@Inject
-	private InternalConfigDirectory(DatarouterProperties datarouterProperties){
-		this.internalConfigDirectory = datarouterProperties.getInternalConfigDirectory();
+	public InternalConfigDirectory(ComputedPropertiesFinder finder){
+		this.internalConfigDirectory = finder.findProperty(INTERNAL_CONFIG_DIRECTORY);
 	}
 
 	@Override
 	public String get(){
 		return internalConfigDirectory;
+	}
+
+	// TODO move this out to a service class.
+	public String findConfigFile(String filename){
+		// call ConfigDirectory.get()
+		String configDirectory = ConfigDirectoryConstants.getConfigDirectory();
+		String externalLocation = configDirectory + "/" + filename;
+		if(Files.exists(Paths.get(externalLocation))){
+			return externalLocation;
+		}
+		Objects.requireNonNull(internalConfigDirectory, externalLocation + " doesn't exist and "
+				+ INTERNAL_CONFIG_DIRECTORY + " property is not set");
+		externalLocation = configDirectory + "/" + internalConfigDirectory + "/" + filename;
+		if(Files.exists(Paths.get(externalLocation))){
+			return externalLocation;
+		}
+		return "/config/" + internalConfigDirectory + "/" + filename;
 	}
 
 }

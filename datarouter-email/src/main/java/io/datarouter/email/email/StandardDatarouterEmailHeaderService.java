@@ -27,8 +27,9 @@ import javax.inject.Singleton;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.httpclient.client.service.ServiceName;
+import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.util.tuple.Twin;
 import j2html.tags.ContainerTag;
@@ -38,9 +39,11 @@ import j2html.tags.DomContent;
 public class StandardDatarouterEmailHeaderService{
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServiceName serviceName;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServerName serverName;
+	@Inject
+	private EnvironmentName environmentName;
 
 	public ContainerTag<?> makeStandardHeader(){
 		return makeStandardHeaderWithSupplements(List.of());
@@ -48,9 +51,9 @@ public class StandardDatarouterEmailHeaderService{
 
 	public ContainerTag<?> makeStandardHeaderWithSupplements(List<Pair<String,DomContent>> supplements){
 		List<Pair<String,DomContent>> rows = new ArrayList<>();
-		rows.add(new Pair<>("environment", makeText(datarouterProperties.getEnvironment())));
-		rows.add(new Pair<>("service", makeText(datarouterService.getServiceName())));
-		rows.add(new Pair<>("serverName", makeText(datarouterProperties.getServerName())));
+		rows.add(new Pair<>("environment", makeText(environmentName.get())));
+		rows.add(new Pair<>("service", makeText(serviceName.get())));
+		rows.add(new Pair<>("serverName", makeText(serverName.get())));
 		supplements.forEach(row -> rows.add(new Pair<>(row.getLeft(), row.getRight())));
 		var table = new J2HtmlEmailTable<Pair<String,DomContent>>()
 				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
@@ -61,9 +64,9 @@ public class StandardDatarouterEmailHeaderService{
 
 	public ContainerTag<?> makeStandardHeaderWithSupplementsText(List<Twin<String>> supplements){
 		List<Pair<String,DomContent>> rows = new ArrayList<>();
-		rows.add(new Pair<>("environment", makeText(datarouterProperties.getEnvironment())));
-		rows.add(new Pair<>("service", makeText(datarouterService.getServiceName())));
-		rows.add(new Pair<>("serverName", makeText(datarouterProperties.getServerName())));
+		rows.add(new Pair<>("environment", makeText(environmentName.get())));
+		rows.add(new Pair<>("service", makeText(serviceName.get())));
+		rows.add(new Pair<>("serverName", makeText(serverName.get())));
 		supplements.forEach(row -> rows.add(new Pair<>(row.getLeft(), text(row.getRight()))));
 		var table = new J2HtmlEmailTable<Pair<String,DomContent>>()
 				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))

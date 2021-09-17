@@ -17,7 +17,7 @@ package io.datarouter.nodewatch.job;
 
 import javax.inject.Inject;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.tablecount.TableCountBatchDto;
 import io.datarouter.instrumentation.tablecount.TableCountDto;
 import io.datarouter.instrumentation.tablecount.TableCountPublisher;
@@ -33,7 +33,7 @@ public class LatestTableCountPublisherJob extends BaseJob{
 	@Inject
 	private DatarouterLatestTableCountDao dao;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -46,7 +46,7 @@ public class LatestTableCountPublisherJob extends BaseJob{
 
 	private TableCountDto toDto(LatestTableCount count){
 		return new TableCountDto(
-				datarouterService.getServiceName(),
+				serviceName.get(),
 				count.getKey().getClientName(),
 				count.getKey().getTableName(),
 				count.getNumRows(),

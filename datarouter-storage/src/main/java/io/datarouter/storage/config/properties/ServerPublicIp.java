@@ -20,18 +20,20 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.ComputedPropertiesFinder;
+import io.datarouter.util.aws.Ec2InstanceTool;
 
-//Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
-//so we don't have to do multiple major refactors with every split.
 @Singleton
 public class ServerPublicIp implements Supplier<String>{
+
+	public static final String SERVER_PUBLIC_IP = "server.publicIp";
 
 	private final String serverPublicIp;
 
 	@Inject
-	private ServerPublicIp(DatarouterProperties datarouterProperties){
-		this.serverPublicIp = datarouterProperties.getServerPublicIp();
+	private ServerPublicIp(ComputedPropertiesFinder finder){
+		this.serverPublicIp = finder.findProperty(SERVER_PUBLIC_IP, Ec2InstanceTool::getEc2InstancePublicIp,
+				Ec2InstanceTool.EC2_PUBLIC_IP_URL);
 	}
 
 	@Override

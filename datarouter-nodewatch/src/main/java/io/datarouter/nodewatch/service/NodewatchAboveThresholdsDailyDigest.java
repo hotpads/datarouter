@@ -77,7 +77,7 @@ public class NodewatchAboveThresholdsDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
 		Optional<Pair<String,ContainerTag<?>>> aboveThresholdList = Scanner
 				.of(monitoringService.getAboveThresholdLists().getLeft())
 				.listTo(rows -> makeEmailTable(rows, "Tables exceeding threshold"));

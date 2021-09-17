@@ -22,26 +22,24 @@ import javax.inject.Inject;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.email.email.DatarouterEmailService;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.email.email.DatarouterHtmlEmailService;
+import io.datarouter.email.html.EmailDto.EmailDtoBuilder;
 import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 
 @Guice(moduleFactory = DatarouterWebTestNgModuleFactory.class)
 public class DatarouterEmailServiceIntegrationTester{
 
 	@Inject
-	private DatarouterEmailService datarouterEmailService;
-	@Inject
-	private DatarouterProperties datarouterProperties;
+	private DatarouterHtmlEmailService emailService;
 
 	@Test
 	public void trySendEmailTest(){
-		datarouterEmailService.trySend(
-				datarouterProperties.getAdministratorEmail(),
-				datarouterProperties.getAdministratorEmail(),
-				getClass().getName(),
-				"Hello there, it's " + new Date(),
-				false);
+		var emailDto = new EmailDtoBuilder()
+				.fromAdmin()
+				.toAdmin()
+				.withSubject(getClass().getName())
+				.withContent("Hello there, it's " + new Date(), false);
+		emailService.trySend(emailDto.build());
 	}
 
 }

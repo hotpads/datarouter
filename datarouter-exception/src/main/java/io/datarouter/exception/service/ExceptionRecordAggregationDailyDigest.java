@@ -40,7 +40,6 @@ import io.datarouter.exception.storage.summary.DatarouterExceptionRecordSummaryD
 import io.datarouter.exception.storage.summary.ExceptionRecordSummary;
 import io.datarouter.exception.storage.summary.ExceptionRecordSummaryKey;
 import io.datarouter.exception.web.ExceptionAnalysisHandler;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.time.LocalDateTimeTool;
@@ -70,8 +69,6 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 	@Inject
 	private ExemptDailyDigestExceptions exemptDailyDigestExceptions;
-	@Inject
-	private DatarouterService datarouterService;
 
 	@Override
 	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
@@ -85,8 +82,8 @@ public class ExceptionRecordAggregationDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(){
-		List<AggregatedExceptionDto> aggregated = getExceptions(datarouterService.getZoneId());
+	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+		List<AggregatedExceptionDto> aggregated = getExceptions(zoneId);
 		if(aggregated.size() == 0){
 			return Optional.empty();
 		}

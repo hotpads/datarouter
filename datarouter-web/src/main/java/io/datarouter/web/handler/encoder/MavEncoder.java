@@ -27,10 +27,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.datarouter.httpclient.response.exception.DocumentedServerError;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.HandledException;
+import io.datarouter.web.handler.documentation.HttpDocumentedExceptionTool;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.security.SecurityValidationResult;
@@ -100,6 +102,8 @@ public class MavEncoder implements HandlerEncoder{
 	throws IOException{
 		response.setContentType("text/html;charset=" + StandardCharsets.UTF_8.name());
 		PrintWriter out = response.getWriter();
+		Optional<DocumentedServerError> optDoc = HttpDocumentedExceptionTool
+				.findDocumentationInChain(exception);
 		if(exceptionHandlingConfig.shouldDisplayStackTrace(request, exception)){
 			try{
 				response.resetBuffer();
@@ -107,14 +111,19 @@ public class MavEncoder implements HandlerEncoder{
 				// ignore resetBuffer error for committed response
 			}
 			out.println("<html><body>");
+			out.print("Error");
 			exceptionId
 					.map(exceptionHandlingConfig::buildExceptionLinkForCurrentServer)
-					.ifPresent(link -> out.println("<a href=\"" + link + "\">Error " + exceptionId.get() + "</a>"));
+					.ifPresent(link -> out.print("<a href=\"" + link + "\"> " + exceptionId.get() + "</a>"));
+			optDoc.ifPresent(doc -> out.print(": " + doc.getErrorMessage()));
+			out.println();
 			out.println("<pre>");
 			out.print(exceptionService.getStackTraceStringForHtmlPreBlock(exception));
 			out.println("</pre></body></html>");
 		}else{
-			exceptionId.ifPresent(id -> out.println("Error " + id));
+			out.print("Error");
+			exceptionId.ifPresent(id -> out.print(" " + id));
+			optDoc.ifPresent(doc -> out.print(": " + doc.getErrorMessage()));
 		}
 	}
 

@@ -35,7 +35,6 @@ import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletTypeGroup;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebappConfig;
@@ -56,12 +55,16 @@ extends DatarouterJobWebappConfigBuilder<T>{
 
 		public DatarouterJobletWebappBuilderImpl(
 				DatarouterService datarouterService,
+				String contextName,
 				ServerTypes serverTypes,
-				DatarouterProperties datarouterProperties,
 				List<ClientId> defaultClientIds,
 				List<ClientId> defaultQueueClientIds,
 				ServletContextListener log4jServletContextListener){
-			super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, defaultQueueClientIds,
+			super(datarouterService,
+					contextName,
+					serverTypes,
+					defaultClientIds,
+					defaultQueueClientIds,
 					log4jServletContextListener);
 		}
 
@@ -74,12 +77,12 @@ extends DatarouterJobWebappConfigBuilder<T>{
 
 	public DatarouterJobletWebappConfigBuilder(
 			DatarouterService datarouterService,
+			String contextName,
 			ServerTypes serverTypes,
-			DatarouterProperties datarouterProperties,
 			List<ClientId> defaultClientIds,
 			List<ClientId> defaultQueueClientIds,
 			ServletContextListener log4jServletContextListener){
-		super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, log4jServletContextListener);
+		super(datarouterService, contextName, serverTypes, defaultClientIds, log4jServletContextListener);
 		this.defaultQueueClientIds = defaultQueueClientIds;
 		this.jobletTypes = new ArrayList<>();
 		this.jobletExternalLinkBuilder = NoOpJobletExternalLinkBuilder.class;

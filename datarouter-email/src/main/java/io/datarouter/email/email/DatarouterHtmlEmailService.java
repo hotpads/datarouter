@@ -27,10 +27,10 @@ import io.datarouter.email.config.DatarouterEmailSettingsProvider;
 import io.datarouter.email.html.EmailDto;
 import io.datarouter.email.html.J2HtmlDatarouterEmail;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.util.string.StringTool;
 
@@ -43,9 +43,7 @@ public class DatarouterHtmlEmailService{
 	@Inject
 	private DatarouterEmailPaths paths;
 	@Inject
-	private DatarouterService datarouterService;
-	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServiceName serviceName;
 	@Inject
 	private DatarouterEmailService datarouterEmailService;
 	@Inject
@@ -57,6 +55,8 @@ public class DatarouterHtmlEmailService{
 	@Deprecated // push this logic down to each email
 	@Inject
 	private DatarouterEmailSubscriberSettings subscriberSettings;
+	@Inject
+	private EnvironmentName environmentName;
 
 	public void trySend(EmailDto email){
 		String fromEmail;
@@ -110,8 +110,8 @@ public class DatarouterHtmlEmailService{
 	public J2HtmlDatarouterEmailBuilder startEmailBuilder(){
 		boolean includeLogo = datarouterEmailSettingsProvider.get().includeLogo.get();
 		var emailBuilder = new J2HtmlDatarouterEmailBuilder()
-				.withWebappName(datarouterService.getServiceName())
-				.withEnvironment(datarouterProperties.getEnvironment())
+				.withWebappName(serviceName.get())
+				.withEnvironment(environmentName.get())
 				.withIncludeLogo(includeLogo);
 		if(includeLogo){
 			String logoHref = datarouterEmailService.startLinkBuilder()
@@ -121,7 +121,10 @@ public class DatarouterHtmlEmailService{
 					.withLogoImgSrc(getEmailLogoHref())
 					.withLogoHref(logoHref);
 			logger.warn("building email for service={}, environment={}, includelogo={}, logoHref={}",
-					datarouterService.getServiceName(), datarouterProperties.getEnvironment(), includeLogo, logoHref);
+					serviceName.get(),
+					environmentName.get(),
+					includeLogo,
+					logoHref);
 		}
 		return emailBuilder;
 	}

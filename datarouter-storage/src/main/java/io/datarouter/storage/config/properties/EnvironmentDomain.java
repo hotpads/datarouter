@@ -20,18 +20,18 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.ComputedPropertiesFinder;
 
-//Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
-//so we don't have to do multiple major refactors with every split.
 @Singleton
 public class EnvironmentDomain implements Supplier<String>{
+
+	public static final String ENVIRONMENT_DOMAIN = "environmentDomain";
 
 	private final String environmentDomain;
 
 	@Inject
-	private EnvironmentDomain(DatarouterProperties datarouterProperties){
-		this.environmentDomain = datarouterProperties.getEnvironmentDomain();
+	public EnvironmentDomain(ComputedPropertiesFinder finder){
+		this.environmentDomain = finder.findProperty(ENVIRONMENT_DOMAIN);
 	}
 
 	@Override

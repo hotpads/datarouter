@@ -15,16 +15,20 @@
  */
 package io.datarouter.email.dto;
 
-import java.io.File;
+import java.io.InputStream;
+import java.util.function.Supplier;
 
 public class DatarouterEmailFileAttachmentDto{
 
 	public final String fileName;
-	public final File file;
+	public final String contentType;
+	public final Supplier<InputStream> attachmentInputStreamSupplier;
 
-	public DatarouterEmailFileAttachmentDto(String fileName, File file){
+	public DatarouterEmailFileAttachmentDto(String fileName, String contentType,
+			Supplier<InputStream> attachmentInputStreamSupplier){
 		this.fileName = fileName;
-		this.file = file;
+		this.attachmentInputStreamSupplier = attachmentInputStreamSupplier;
+		this.contentType = contentType;
 	}
 
 }

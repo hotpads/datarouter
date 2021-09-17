@@ -37,7 +37,7 @@
 							<td>${count.numSpans}</td>
 							<td>${count.numSlowSpans}</td>
 							<td>
-								<a href="?submitAction=deleteSampleEntries&tableName=${count.tableName}&clientName=${count.clientName}" onclick="return window.confirm('Are you sure, you want to delete all entries of ${count.tableName}? from TableRowCount,TableRowSample, LatestTableRowCount tables');">
+								<a href="?submitAction=deleteAllMetadata&tableName=${count.tableName}&clientName=${count.clientName}" onclick="return window.confirm('Are you sure, you want to delete all entries of ${count.tableName}? from TableRowCount,TableRowSample, LatestTableRowCount tables');">
 									<i class="far fa-trash-alt"></i>
 								</a>
 							</td>

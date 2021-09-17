@@ -17,7 +17,7 @@ package io.datarouter.web.html.j2html;
 
 import static j2html.TagCreator.html;
 
-import j2html.tags.ContainerTag;
+import j2html.tags.specialized.HtmlTag;
 
 public class DatarouterPage{
 
@@ -31,7 +31,7 @@ public class DatarouterPage{
 		this.body = body;
 	}
 
-	public ContainerTag<?> build(){
+	public HtmlTag build(){
 		return html(head.build(), body.build());
 	}
 

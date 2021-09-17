@@ -38,7 +38,7 @@ import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.httpclient.response.DatarouterHttpResponse;
 import io.datarouter.httpclient.response.exception.DatarouterHttpResponseException;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.config.DatarouterWebFiles;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -56,7 +56,7 @@ public class HttpTestHandler extends BaseHandler{
 	@Inject
 	private HttpTesterWithoutRedirectClient httpTesterWithoutRedirectClient;
 	@Inject
-	private DatarouterProperties properties;
+	private ServerName serverName;
 	@Inject
 	private RequestProxySetter proxySetter;
 	@Inject
@@ -138,7 +138,7 @@ public class HttpTestHandler extends BaseHandler{
 	public void addResponseToMavModel(Mav mav, String requestUrl, Long responseMs,
 			Optional<DatarouterHttpResponse> response){
 		mav.put("url", requestUrl);
-		mav.put("serverName", properties.getServerName());
+		mav.put("serverName", serverName.get());
 		mav.put("responseMs", responseMs);
 		if(response.isPresent()){
 			mav.put("statusCode", response.get().getStatusCode());

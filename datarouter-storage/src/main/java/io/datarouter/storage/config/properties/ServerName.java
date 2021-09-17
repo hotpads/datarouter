@@ -20,18 +20,20 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.ComputedPropertiesFinder;
+import io.datarouter.util.SystemTool;
 
-//Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
-//so we don't have to do multiple major refactors with every split.
 @Singleton
 public class ServerName implements Supplier<String>{
+
+	public static final String SERVER_NAME = "server.name";
 
 	private final String serverName;
 
 	@Inject
-	private ServerName(DatarouterProperties datarouterProperties){
-		this.serverName = datarouterProperties.getServerName();
+	public ServerName(ComputedPropertiesFinder finder){
+		this.serverName = finder.findProperty(SERVER_NAME, SystemTool::getHostname,
+				"InetAddress.getLocalHost().getHostName()");
 	}
 
 	@Override

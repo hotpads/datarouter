@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
 import j2html.tags.EmptyTag;
+import j2html.tags.specialized.HeadTag;
 
 public class DatarouterPageHead{
 
@@ -62,7 +63,7 @@ public class DatarouterPageHead{
 		this.httpEquivs = httpEquivs;
 	}
 
-	public ContainerTag<?> build(){
+	public HeadTag build(){
 		var meta = meta()
 				.withName("viewport")
 				.withContent("width=device-width, initial-scale=1");

@@ -34,7 +34,6 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestD
 import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestKey;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.config.ServletContextSupplier;
@@ -61,8 +60,6 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	private UserInfo userInfo;
 	@Inject
 	private DailyDigestService digestService;
-	@Inject
-	private DatarouterService datarouterService;
 
 	@Override
 	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
@@ -76,13 +73,13 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
 		List<PermissionRequestDto> openRequests = getOpenRequests();
 		if(openRequests.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Open Permission Requests", paths.admin.viewUsers);
-		var table = buildEmailTable(openRequests, datarouterService.getZoneId());
+		var table = buildEmailTable(openRequests, zoneId);
 		return Optional.of(div(header, table));
 	}
 

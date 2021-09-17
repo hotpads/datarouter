@@ -26,10 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.datarouter.httpclient.json.JsonSerializer;
+import io.datarouter.httpclient.response.exception.DocumentedServerError;
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.HandledException;
+import io.datarouter.web.handler.documentation.HttpDocumentedExceptionTool;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.security.SecurityValidationResult;
 import io.datarouter.web.util.ExceptionTool;
@@ -125,7 +127,12 @@ public class JsonEncoder implements HandlerEncoder{
 		String exceptionRecordUrl = exceptionId
 				.map(exceptionHandlingConfig::buildExceptionLinkForCurrentServer)
 				.orElse(null);
-		return Optional.of(new DetailedError(ExceptionTool.getStackTraceAsString(exception), exceptionRecordUrl));
+		Optional<DocumentedServerError> optDoc = HttpDocumentedExceptionTool
+				.findDocumentationInChain(exception);
+		return Optional.of(new DetailedError(
+				ExceptionTool.getStackTraceAsString(exception),
+				exceptionRecordUrl,
+				optDoc.map(DocumentedServerError::getErrorMessage).orElse(null)));
 	}
 
 	/**
@@ -136,7 +143,11 @@ public class JsonEncoder implements HandlerEncoder{
 	 */
 	protected Optional<Object> buildSimpleErrorObject(@SuppressWarnings("unused") Throwable exception,
 			@SuppressWarnings("unused") int httpStatusCode, Optional<String> exceptionId){
-		return exceptionId.map(SimpleError::new);
+		Optional<DocumentedServerError> optDoc = HttpDocumentedExceptionTool
+				.findDocumentationInChain(exception);
+		return Optional.of(new SimpleError(
+				exceptionId.orElse(null),
+				optDoc.map(DocumentedServerError::getErrorMessage).orElse(null)));
 	}
 
 	@SuppressWarnings("unused")
@@ -150,19 +161,25 @@ public class JsonEncoder implements HandlerEncoder{
 		private final String stackTrace;
 		@SuppressWarnings("unused")
 		private final String exceptionRecordUrl;
+		@SuppressWarnings("unused")
+		private final String message;
 
-		private DetailedError(String stackTrace, String exceptionRecordUrl){
+		private DetailedError(String stackTrace, String exceptionRecordUrl, String message){
 			this.stackTrace = stackTrace;
 			this.exceptionRecordUrl = exceptionRecordUrl;
+			this.message = message;
 		}
 	}
 
 	private static class SimpleError{
 		@SuppressWarnings("unused")
 		private final String errorId;
+		@SuppressWarnings("unused")
+		private final String message;
 
-		private SimpleError(String errorId){
+		private SimpleError(String errorId, String message){
 			this.errorId = errorId;
+			this.message = message;
 		}
 	}
 

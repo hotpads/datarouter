@@ -23,7 +23,7 @@ import javax.inject.Singleton;
 import io.datarouter.changelog.config.DatarouterChangelogSettingRoot;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.changelog.ChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogPublisher;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -34,7 +34,7 @@ public class ChangelogRecorderService implements ChangelogRecorder{
 	@Inject
 	private ChangelogPublisher publisher;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 	@Inject
 	private DatarouterChangelogSettingRoot settings;
 	@Inject
@@ -45,7 +45,7 @@ public class ChangelogRecorderService implements ChangelogRecorder{
 	@Override
 	public void record(DatarouterChangelogDto changelogDto){
 		var dto = new ChangelogDto(
-				datarouterService.getServiceName(),
+				serviceName.get(),
 				changelogDto.changelogType,
 				changelogDto.name,
 				Instant.now().toEpochMilli(),

@@ -18,11 +18,11 @@ package io.datarouter.metric.metric;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.gauge.GaugeDto;
 import io.datarouter.metric.config.DatarouterGaugeSettingRoot;
 import io.datarouter.metric.metric.conveyor.GaugeBuffers;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.util.UlidTool;
 
@@ -30,9 +30,9 @@ import io.datarouter.util.UlidTool;
 public class DatabeanGauges implements Gauges{
 
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServerName serverName;
 	@Inject
 	private GaugeBuffers buffers;
 	@Inject
@@ -45,8 +45,8 @@ public class DatabeanGauges implements Gauges{
 		}
 		GaugeDto dto = new GaugeDto(
 				key,
-				datarouterService.getServiceName(),
-				datarouterProperties.getServerName(),
+				serviceName.get(),
+				serverName.get(),
 				UlidTool.nextUlid(),//pass the timestamp of the event.  periods are a server-side concern
 				value);
 		buffers.offer(dto);

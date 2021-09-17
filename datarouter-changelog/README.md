@@ -8,7 +8,7 @@ Datarouter-changelog is a tool that records changes or user actions, which can b
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-changelog</artifactId>
-	<version>0.0.87</version>
+	<version>0.0.88</version>
 </dependency>
 ```
 

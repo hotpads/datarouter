@@ -33,7 +33,7 @@ import javax.inject.Inject;
 
 import io.datarouter.httpclient.client.BaseDatarouterEndpointHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.EndpointParam;
 import io.datarouter.httpclient.endpoint.EndpointRegistry;
@@ -59,7 +59,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 
 	@Handler(defaultHandler = true)
 	public Mav view(){
@@ -86,7 +86,7 @@ public class EndpointInspectorHandler extends BaseHandler{
 	}
 
 	private <T extends BaseEndpoint<?>> ContainerTag<?> makeContent(List<T> rows){
-		var h2 = h2("Endpoints that " + datarouterService.getServiceName() + " can hit");
+		var h2 = h2("Endpoints that " + serviceName.get() + " can hit");
 		var table = new J2HtmlTable<T>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Name", row -> row.getClass().getSimpleName())

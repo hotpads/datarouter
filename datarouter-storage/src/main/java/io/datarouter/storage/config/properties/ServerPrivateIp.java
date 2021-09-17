@@ -15,23 +15,35 @@
  */
 package io.datarouter.storage.config.properties;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.ComputedPropertiesFinder;
+import io.datarouter.storage.config.ComputedPropertiesFinder.FallbackPropertyValueSupplierDto;
+import io.datarouter.util.SystemTool;
+import io.datarouter.util.aws.Ec2InstanceTool;
 
-//Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
-//so we don't have to do multiple major refactors with every split.
 @Singleton
 public class ServerPrivateIp implements Supplier<String>{
+
+	public static final String SERVER_PRIVATE_IP = "server.privateIp";
 
 	private final String serverPrivateIp;
 
 	@Inject
-	private ServerPrivateIp(DatarouterProperties datarouterProperties){
-		this.serverPrivateIp = datarouterProperties.getServerPrivateIp();
+	private ServerPrivateIp(ComputedPropertiesFinder finder){
+		this.serverPrivateIp = finder.findProperty(
+				SERVER_PRIVATE_IP,
+				List.of(
+						new FallbackPropertyValueSupplierDto(
+								"InetAddress.getLocalHost().getHostAddress()",
+								SystemTool::getHostPrivateIp),
+						new FallbackPropertyValueSupplierDto(
+								Ec2InstanceTool.EC2_PRIVATE_IP_URL,
+								Ec2InstanceTool::getEc2InstancePrivateIp)));
 	}
 
 	@Override

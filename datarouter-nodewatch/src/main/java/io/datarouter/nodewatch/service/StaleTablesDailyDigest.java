@@ -26,7 +26,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
@@ -49,8 +48,6 @@ public class StaleTablesDailyDigest implements DailyDigest{
 	private DatarouterNodewatchPaths paths;
 	@Inject
 	private DailyDigestService digestService;
-	@Inject
-	private DatarouterService datarouterService;
 
 	@Override
 	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
@@ -59,18 +56,18 @@ public class StaleTablesDailyDigest implements DailyDigest{
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount);
-		var table = makePageTable(staleTables);
+		var table = makePageTable(staleTables, zoneId);
 		return Optional.of(div(header, table));
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
 		List<LatestTableCount> staleTables = monitoringService.getStaleTableEntries();
 		if(staleTables.isEmpty()){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Stale Tables", paths.datarouter.nodewatch.tableCount);
-		var table = emailBuilder.makeEmailStaleTable(staleTables);
+		var table = emailBuilder.makeEmailStaleTable(staleTables, zoneId);
 		return Optional.of(div(header, table));
 	}
 
@@ -89,8 +86,7 @@ public class StaleTablesDailyDigest implements DailyDigest{
 		return DailyDigestType.ACTIONABLE;
 	}
 
-	private ContainerTag<?> makePageTable(List<LatestTableCount> staleRows){
-		ZoneId zoneId = datarouterService.getZoneId();
+	private ContainerTag<?> makePageTable(List<LatestTableCount> staleRows, ZoneId zoneId){
 		return new J2HtmlTable<LatestTableCount>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withColumn("Client", row -> row.getKey().getClientName())

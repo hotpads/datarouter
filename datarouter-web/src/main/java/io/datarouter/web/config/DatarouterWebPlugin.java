@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ContextName;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.pathnode.FilesRoot;
@@ -43,6 +44,7 @@ import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier.NodeWidgetTableCountLink;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.digest.DailyDigest;
+import io.datarouter.web.digest.DailyDigestEmailZoneId;
 import io.datarouter.web.digest.DailyDigestRegistry;
 import io.datarouter.web.dispatcher.DatarouterWebDocsRouteSet;
 import io.datarouter.web.dispatcher.DatarouterWebRouteSet;
@@ -60,6 +62,7 @@ import io.datarouter.web.homepage.HomepageRouteSet;
 import io.datarouter.web.homepage.SimpleHomepageHandler;
 import io.datarouter.web.listener.AppListenersClasses;
 import io.datarouter.web.listener.AppListenersClasses.DatarouterAppListenersClasses;
+import io.datarouter.web.listener.ComputedPropertiesAppListener;
 import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterShutdownAppListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
@@ -150,19 +153,22 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private final Class<? extends RequestProxySetter> requestProxy;
 	private final List<Class<? extends MetricLinkPage>> metricLinkPages;
 	private final ZoneId defaultEmailDistributionListZoneId;
+	private final ZoneId dailyDigestEmailZoneId;
+	private final String contextName;
 
 	// only used to get simple data from plugin
 	private DatarouterWebPlugin(
 			DatarouterWebDaoModule daosModuleBuilder,
 			Class<? extends HomepageRouteSet> homepageRouteSet,
 			String customStaticFileFilterRegex){
-		this(null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
+		this(null, null, null, null, null, null, null, null, null, null, null, null, daosModuleBuilder, null, null,
 				null, null, homepageRouteSet, null, customStaticFileFilterRegex, null, null, null, null, null, null,
-				null, null, null, null, null);
+				null, null, null, null, null, null);
 	}
 
 	private DatarouterWebPlugin(
 			DatarouterService datarouterService,
+			String contextName,
 			Class<? extends FilesRoot> filesClass,
 			Class<? extends DatarouterAuthenticationConfig> authenticationConfigClass,
 			Class<? extends CurrentSessionInfo> currentSessionInfoClass,
@@ -191,7 +197,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			List<Class<? extends DailyDigest>> dailyDigest,
 			Class<? extends RequestProxySetter> requestProxy,
 			List<Class<? extends MetricLinkPage>> metricLinkPages,
-			ZoneId defaultEmailDistributionListZoneId){
+			ZoneId defaultEmailDistributionListZoneId,
+			ZoneId dailyDigestEmailZoneId){
 		addRouteSetOrdered(DatarouterWebRouteSet.class, null);
 		addRouteSet(homepageRouteSet);
 		addRouteSet(DatarouterWebDocsRouteSet.class);
@@ -203,6 +210,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addAppListenerOrdered(DatarouterShutdownAppListener.class, InitializeEagerClientsAppListener.class);
 		addAppListenerOrdered(HttpClientAppListener.class, DatarouterShutdownAppListener.class);
 		addAppListenerOrdered(ExecutorsAppListener.class, HttpClientAppListener.class);
+		addAppListener(ComputedPropertiesAppListener.class);
 
 		addWebListenerOrdered(TomcatWebAppNamesWebAppListener.class, null);
 		addWebListenerOrdered(JspWebappListener.class, TomcatWebAppNamesWebAppListener.class);
@@ -288,13 +296,15 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		this.requestProxy = requestProxy;
 		this.metricLinkPages = metricLinkPages;
 		this.defaultEmailDistributionListZoneId = defaultEmailDistributionListZoneId;
+		this.dailyDigestEmailZoneId = dailyDigestEmailZoneId;
+		this.contextName = contextName;
 	}
 
 	@Override
 	public void configure(){
 		bind(FilesRoot.class).to(filesClass);
 		bindActualNullSafe(ExceptionRecorder.class, exceptionRecorderClass);
-		bind(DatarouterService.class).toInstance(datarouterService);
+		bindActualInstance(DatarouterService.class, datarouterService);
 
 		bindActualNullSafe(DatarouterAuthenticationConfig.class, authenticationConfigClass);
 		bindActualNullSafe(CurrentSessionInfo.class, currentSessionInfoClass);
@@ -329,6 +339,9 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		bindActualInstance(MetricLinkPageRegistry.class, new DefaultMetricLinkPageRegistry(metricLinkPages));
 		bindActualInstance(DefaultEmailDistributionListZoneId.class,
 				new DefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId));
+		bindActualInstance(DailyDigestEmailZoneId.class, new DailyDigestEmailZoneId(dailyDigestEmailZoneId));
+
+		bindActualInstance(ContextName.class, new ContextName(contextName));
 	}
 
 	public List<Class<? extends DatarouterAppListener>> getFinalAppListeners(){
@@ -375,6 +388,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	public static class DatarouterWebPluginBuilder{
 
 		private final DatarouterService datarouterService;
+		private final String contextName;
 		private final List<ClientId> defaultClientIds;
 
 		private Class<? extends FilesRoot> filesClass = NoOpFilesRoot.class;
@@ -405,14 +419,18 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
 		private final List<Class<? extends MetricLinkPage>> metricLinkPages = new ArrayList<>();
 		private ZoneId defaultEmailDistributionListZoneId;
+		private ZoneId dailyDigestEmailZoneId = ZoneId.systemDefault();
 
-		public DatarouterWebPluginBuilder(DatarouterService datarouterService, List<ClientId> defaultClientIds){
+		public DatarouterWebPluginBuilder(DatarouterService datarouterService, String contextName,
+				List<ClientId> defaultClientIds){
 			this.datarouterService = datarouterService;
+			this.contextName = contextName;
 			this.defaultClientIds = defaultClientIds;
 		}
 
-		public DatarouterWebPluginBuilder(DatarouterService datarouterService, ClientId defaultClientId){
-			this(datarouterService, List.of(defaultClientId));
+		public DatarouterWebPluginBuilder(DatarouterService datarouterService, String contextName,
+				ClientId defaultClientId){
+			this(datarouterService, contextName, List.of(defaultClientId));
 		}
 
 		public DatarouterWebPluginBuilder setFilesClass(Class<? extends FilesRoot> filesClass){
@@ -580,6 +598,11 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			return this;
 		}
 
+		public DatarouterWebPluginBuilder setDailyDigestEmailZoneId(ZoneId zoneId){
+			this.dailyDigestEmailZoneId = zoneId;
+			return this;
+		}
+
 		public DatarouterWebPlugin getSimplePluginData(){
 			return new DatarouterWebPlugin(
 					new DatarouterWebDaoModule(defaultClientIds),
@@ -591,6 +614,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 			return new DatarouterWebPlugin(
 					datarouterService,
+					contextName,
 					filesClass,
 					authenticationConfig,
 					currentSessionInfo,
@@ -619,7 +643,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 					dailyDigest,
 					requestProxy,
 					metricLinkPages,
-					defaultEmailDistributionListZoneId);
+					defaultEmailDistributionListZoneId,
+					dailyDigestEmailZoneId);
 		}
 
 	}

@@ -23,8 +23,9 @@ import javax.inject.Singleton;
 
 import org.opensaml.security.credential.Credential;
 
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.environment.EnvironmentType;
+import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -51,10 +52,10 @@ public class DatarouterSamlSettings extends SettingNode{
 	private final Boolean isLive;
 
 	@Inject
-	public DatarouterSamlSettings(SettingFinder finder, DatarouterProperties datarouterProperties,
-			DatarouterWebPaths paths){
+	public DatarouterSamlSettings(SettingFinder finder, EnvironmentName environmentName, DatarouterWebPaths paths,
+			ServerName serverName){
 		super(finder, "datarouterWeb.saml.");
-		entityId = registerString("entityId", "https://" + datarouterProperties.getServerName());
+		entityId = registerString("entityId", "https://" + serverName.get());
 		assertionConsumerServicePath = registerString("assertionConsumerServletPath", paths.consumer.toSlashedString());
 		idpHomeUrl = registerString("idpHomeUrl", "");
 		idpSamlUrl = registerString("idpSamlUrl", "");
@@ -68,8 +69,8 @@ public class DatarouterSamlSettings extends SettingNode{
 		idpX509CertificatePublicKey = new MemoizedComputation<>(SamlTool
 				::getCredentialFromEncodedX509Certificate);
 
-		isLive = !EnvironmentType.DEVELOPMENT.get().getPersistentString().equals(datarouterProperties
-				.getEnvironmentType());
+		// use serverTypeDetectror?
+		isLive = !EnvironmentType.DEVELOPMENT.get().getPersistentString().equals(environmentName.get());
 	}
 
 	public Boolean getShouldProcess(){

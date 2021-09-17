@@ -27,8 +27,10 @@ import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
+import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -43,7 +45,10 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 	private final SchemaUpdatesEmailType schemaUpdatesEmailType;
 	private final DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings;
 
-	public EmailingSchemaUpdateService(DatarouterProperties datarouterProperties,
+	public EmailingSchemaUpdateService(
+			ServerName serverName,
+			EnvironmentName environmentName,
+			AdminEmail adminEmail,
 			DatarouterSchemaUpdateScheduler executor,
 			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
 			Provider<ChangelogRecorder> changelogRecorder,
@@ -53,7 +58,7 @@ public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateServic
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
 			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
-		super(datarouterProperties, executor, schemaUpdateLockDao, changelogRecorder, buildId);
+		super(serverName, environmentName, adminEmail, executor, schemaUpdateLockDao, changelogRecorder, buildId);
 		this.htmlEmailService = htmlEmailService;
 		this.datarouterWebPaths = datarouterWebPaths;
 		this.standardDatarouterEmailHeaderService = standardDatarouterEmailHeaderService;

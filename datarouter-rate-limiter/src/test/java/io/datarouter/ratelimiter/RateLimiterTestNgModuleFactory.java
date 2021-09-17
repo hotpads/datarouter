@@ -17,15 +17,10 @@ package io.datarouter.ratelimiter;
 
 import java.util.List;
 
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.ratelimiter.storage.BaseTallyDao;
-import io.datarouter.storage.TestDatarouterProperties;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
+import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 
@@ -43,19 +38,9 @@ public class RateLimiterTestNgModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
-			bind(DatarouterService.class).to(NoOpDatarouterService.class);
-			bind(DatarouterProperties.class).to(RateLimiterDatarouterProperties.class);
-			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+			bindActualInstance(DatarouterTestPropertiesFile.class,
+					new DatarouterTestPropertiesFile("rate-limiter.properties"));
 			bind(BaseTallyDao.class).to(TallyCacheRateLimiterTestDao.class);
-		}
-
-	}
-
-	public static class RateLimiterDatarouterProperties extends TestDatarouterProperties{
-
-		@Override
-		public String getDatarouterPropertiesFileLocation(){
-			return getTestConfigDirectory() + "/rate-limiter.properties";
 		}
 
 	}

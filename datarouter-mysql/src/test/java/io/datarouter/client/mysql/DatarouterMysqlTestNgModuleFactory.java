@@ -23,17 +23,12 @@ import io.datarouter.client.mysql.field.codec.factory.MysqlFieldCodecFactory;
 import io.datarouter.client.mysql.field.codec.factory.StandardMysqlFieldCodecFactory;
 import io.datarouter.client.mysql.test.DatarouterMysqlTestClientids;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.secret.config.DatarouterSecretPlugin.DatarouterSecretPluginBuilder.DatarouterSecretPluginBuilderImpl;
-import io.datarouter.storage.TestDatarouterProperties;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsBuilder;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao.DatarouterClusterSchemaUpdateLockDaoParams;
-import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 
@@ -51,25 +46,15 @@ public class DatarouterMysqlTestNgModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
-			bind(DatarouterService.class).to(NoOpDatarouterService.class);
 			bindActualInstance(MysqlFieldCodecFactory.class,
 					new StandardMysqlFieldCodecFactory(Collections.emptyMap()));
-			bind(DatarouterProperties.class).to(MysqlDatarouterProperties.class);
-			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+			bindActualInstance(DatarouterTestPropertiesFile.class,
+					new DatarouterTestPropertiesFile("mysql.properties"));
 			bindActual(SchemaUpdateOptionsFactory.class, DatarouterMysqlSchemaUpdateOptionsFactory.class);
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
 							List.of(DatarouterMysqlTestClientids.MYSQL)));
 			bind(SchemaUpdatesEmailType.class).toInstance(new SchemaUpdatesEmailType(List.of()));
-		}
-
-	}
-
-	public static class MysqlDatarouterProperties extends TestDatarouterProperties{
-
-		@Override
-		public String getDatarouterPropertiesFileLocation(){
-			return getTestConfigDirectory() + "/mysql.properties";
 		}
 
 	}

@@ -35,7 +35,7 @@ import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
 import io.datarouter.instrumentation.task.TaskStatus;
 import io.datarouter.instrumentation.task.TaskTracker;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.storage.setting.Setting;
@@ -57,7 +57,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	private final DatarouterTaskTrackerPaths datarouterTaskTrackerPaths;
 	private final DatarouterHtmlEmailService datarouterHtmlEmailService;
-	private final DatarouterProperties datarouterProperties;
+	private final ServerName serverName;
 	private final LongRunningTaskGraphLink longRunningTaskGraphLink;
 	private final Setting<Boolean> persistSetting;
 	private final SortedMapStorage<LongRunningTaskKey,LongRunningTask> node;
@@ -79,7 +79,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 	public LongRunningTaskTracker(
 			DatarouterTaskTrackerPaths datarouterTaskTrackerPaths,
 			DatarouterHtmlEmailService datarouterHtmlEmailService,
-			DatarouterProperties datarouterProperties,
+			ServerName serverName,
 			LongRunningTaskGraphLink longRunningTaskGraphLink,
 			Setting<Boolean> persistSetting,
 			SortedMapStorage<LongRunningTaskKey,LongRunningTask> node,
@@ -93,7 +93,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 			boolean warnOnReachingInterrupt){
 		this.datarouterTaskTrackerPaths = datarouterTaskTrackerPaths;
 		this.datarouterHtmlEmailService = datarouterHtmlEmailService;
-		this.datarouterProperties = datarouterProperties;
+		this.serverName = serverName;
 		this.longRunningTaskGraphLink = longRunningTaskGraphLink;
 		this.persistSetting = persistSetting;
 		this.node = node;
@@ -287,7 +287,7 @@ public class LongRunningTaskTracker implements TaskTracker{
 		var emailBuilder = datarouterHtmlEmailService.startEmailBuilder()
 				.withTitle("Task Timeout")
 				.withTitleHref(primaryHref)
-				.withContent(makeEmailBody(task.name, datarouterProperties.getServerName(), primaryHref))
+				.withContent(makeEmailBody(task.name, serverName.get(), primaryHref))
 				.fromAdmin()
 				.toAdmin(serverTypeDetector.mightBeDevelopment())
 				.toSubscribers(serverTypeDetector.mightBeProduction())

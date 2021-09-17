@@ -42,7 +42,7 @@ import io.datarouter.email.config.DatarouterEmailSettings.DatarouterEmailHostDet
 import io.datarouter.email.config.DatarouterEmailSettingsProvider;
 import io.datarouter.email.dto.DatarouterEmailFileAttachmentDto;
 import io.datarouter.email.util.MimeMessageTool;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ContextName;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 
@@ -51,7 +51,7 @@ public class DatarouterEmailService{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterEmailService.class);
 
 	@Inject
-	private DatarouterService datarouterService;
+	private ContextName contextName;
 	@Inject
 	private DatarouterEmailSettingsProvider datarouterEmailSettingsProvider;
 
@@ -60,7 +60,7 @@ public class DatarouterEmailService{
 		return new DatarouterEmailLinkBuilder()
 				.withProtocol("https")
 				.withHostPort(datarouterEmailSettingsProvider.get().emailLinkHostPort.get())
-				.withContextPath(datarouterService.getContextPath());
+				.withContextPath(contextName.getContextPath());
 	}
 
 	@Deprecated
@@ -148,7 +148,7 @@ public class DatarouterEmailService{
 			multipart.addBodyPart(textBodyPart);
 
 			Scanner.of(fileAttachmentDtos)
-					.map(dto -> MimeMessageTool.buildMimeBodyPartForAttachment(dto.fileName, dto.file))
+					.map(MimeMessageTool::buildMimeBodyPartForAttachment)
 					.forEach(mimeBodyPart -> MimeMessageTool.addBodyPartToMultipart(multipart, mimeBodyPart));
 
 			message.setContent(multipart);

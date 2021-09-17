@@ -36,8 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterClientFactoryExecutor;
+import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
+import io.datarouter.storage.config.properties.InternalConfigDirectory;
 import io.datarouter.util.concurrent.FutureTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.properties.PropertiesTool;
@@ -69,13 +70,14 @@ public class DatarouterClients{
 
 	@Inject
 	public DatarouterClients(
-			DatarouterProperties properties,
+			DatarouterTestPropertiesFile testPropertiesFile,
 			ClientTypeRegistry clientTypeRegistry,
 			DatarouterClientFactoryExecutor executorService,
 			DatarouterInjector datarouterInjector,
 			ClientOptions clientOptions,
 			ClientInitializationTracker clientInitializationTracker,
-			ClientOptionsFactory clientOptionsFactory){
+			ClientOptionsFactory clientOptionsFactory,
+			InternalConfigDirectory internalConfigDirectory){
 		this.clientTypeRegistry = clientTypeRegistry;
 		this.executorService = executorService;
 		this.datarouterInjector = datarouterInjector;
@@ -84,12 +86,13 @@ public class DatarouterClients{
 		this.clientOptionsFactory = clientOptionsFactory;
 		this.configFilePaths = new TreeSet<>();
 		this.clientIdByClientName = new TreeMap<>();
-		loadClientOptions(properties.getDatarouterPropertiesFileLocation(), properties.getInternalConfigDirectory());
+		loadClientOptions(testPropertiesFile.getFileLocation(), internalConfigDirectory.get());
 	}
 
 	private void loadClientOptions(String configFilePath, String internalConfigDirectoryType){
 		Properties properties = clientOptionsFactory.getInternalConfigDirectoryTypeOptions(internalConfigDirectoryType);
-		if(!properties.isEmpty()){
+		boolean useClientOptionsFactory = configFilePath.isEmpty() || !properties.isEmpty();
+		if(useClientOptionsFactory){
 			logger.warn("Got client properties from class {}", clientOptionsFactory.getClass().getCanonicalName());
 			clientOptions.addProperties(properties);
 		}else if(StringTool.notEmpty(configFilePath) && !configFilePaths.contains(configFilePath)){

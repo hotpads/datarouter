@@ -19,7 +19,6 @@ import static j2html.TagCreator.caption;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
-import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.thead;
 import static j2html.TagCreator.tr;
@@ -34,8 +33,9 @@ import java.util.function.Function;
 
 import io.datarouter.scanner.Scanner;
 import j2html.TagCreator;
-import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.TableTag;
+import j2html.tags.specialized.TrTag;
 
 public class J2HtmlTable<T>{
 
@@ -51,7 +51,7 @@ public class J2HtmlTable<T>{
 	public J2HtmlTable<T> withColumn(String name, Function<T,Object> valueFunction){
 		Function<T,DomContent> function = dto -> Optional.ofNullable(valueFunction.apply(dto))
 				.map(Object::toString)
-				.map(text -> td(text))
+				.map(TagCreator::td)
 				.orElseGet(TagCreator::td);
 		columns.add(new J2HtmlTableColumn<>(name, function));
 		return this;
@@ -104,11 +104,11 @@ public class J2HtmlTable<T>{
 		}
 	}
 
-	public ContainerTag<?> build(Collection<T> rows){
+	public TableTag build(Collection<T> rows){
 		return build(rows, J2HtmlTableRow::new);
 	}
 
-	public ContainerTag<?> build(Collection<T> values, Function<T,J2HtmlTableRow<T>> rowFunction){
+	public TableTag build(Collection<T> values, Function<T,J2HtmlTableRow<T>> rowFunction){
 		List<J2HtmlTableRow<T>> rows = Scanner.of(values)
 				.map(rowFunction)
 				.list();
@@ -124,16 +124,13 @@ public class J2HtmlTable<T>{
 				.with(tbody);
 	}
 
-	private ContainerTag<?> makeTr(J2HtmlTableRow<T> row){
-		var tr = TagCreator.tr();
-		if(!row.styles.isEmpty()){
-			tr.withStyle(String.join(";", row.styles) + ";");
-		}
-		return makeTd(tr, row.value);
+	private TrTag makeTr(J2HtmlTableRow<T> row){
+		return TagCreator.tr(makeTds(row.value))
+				.withCondStyle(!row.styles.isEmpty(), String.join(";", row.styles));
 	}
 
-	private ContainerTag<?> makeTd(ContainerTag<?> tableRow, T value){
-		return tableRow.with(each(columns, column -> column.valueFunction.apply(value)));
+	private DomContent makeTds(T value){
+		return each(columns, column -> column.valueFunction.apply(value));
 	}
 
 }

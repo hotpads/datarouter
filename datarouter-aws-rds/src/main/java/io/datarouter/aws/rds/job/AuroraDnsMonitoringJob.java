@@ -38,15 +38,13 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChang
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.AdminEmail;
 import j2html.tags.ContainerTag;
 
 public class AuroraDnsMonitoringJob extends BaseJob{
 
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
-	@Inject
-	private DatarouterProperties datarouterProperties;
 	@Inject
 	private AuroraDnsService dnsService;
 	@Inject
@@ -59,6 +57,8 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 	private AwsRdsEmailType awsRdsEmailType;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private AdminEmail adminEmail;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -104,8 +104,7 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 	}
 
 	private void recordChangelog(String database){
-		var dto = new DatarouterChangelogDtoBuilder("AuroraDns", database, "mismatch",
-				datarouterProperties.getAdministratorEmail())
+		var dto = new DatarouterChangelogDtoBuilder("AuroraDns", database, "mismatch", adminEmail.get())
 				.build();
 		changelogRecorder.record(dto);
 	}

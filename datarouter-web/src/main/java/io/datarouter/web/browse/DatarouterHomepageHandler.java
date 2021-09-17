@@ -26,7 +26,6 @@ import static j2html.TagCreator.tr;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -34,7 +33,7 @@ import javax.inject.Inject;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.DatarouterPropertiesService;
 import io.datarouter.web.browse.widget.NodeWidgetDatabeanExporterLinkSupplier;
 import io.datarouter.web.browse.widget.NodeWidgetTableCountLinkSupplier;
 import io.datarouter.web.config.DatarouterWebFiles;
@@ -51,8 +50,6 @@ import j2html.tags.ContainerTag;
 public class DatarouterHomepageHandler extends BaseHandler{
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private DatarouterClients datarouterClients;
 	@Inject
 	private LatencyMonitoringService monitoringService;
@@ -68,6 +65,8 @@ public class DatarouterHomepageHandler extends BaseHandler{
 	private NodeWidgetTableCountLinkSupplier nodeWidgetTableCountLink;
 	@Inject
 	private ServletContextSupplier servletContext;
+	@Inject
+	private DatarouterPropertiesService datarouterPropertiesService;
 
 	@Handler(defaultHandler = true)
 	protected Mav view(){
@@ -102,9 +101,8 @@ public class DatarouterHomepageHandler extends BaseHandler{
 
 	private String buildDatarouterPropertiesTable(){
 		var tbody = tbody();
-		datarouterProperties.getAllComputedServerPropertiesMap().entrySet().stream()
-				.sorted(Entry.comparingByKey())
-				.map(entry -> tr(td(entry.getKey()), td(entry.getValue())))
+		datarouterPropertiesService.getAllProperties().stream()
+				.map(entry -> tr(td(entry.getLeft()), td(entry.getRight())))
 				.forEach(tbody::with);
 		var table = table(caption("Server Info").withStyle("caption-side: top"), tbody)
 				.withClass("table table-striped table-bordered table-sm");

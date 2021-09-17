@@ -18,23 +18,32 @@ package io.datarouter.websocket.service;
 import javax.inject.Inject;
 
 import io.datarouter.httpclient.security.UrlConstants;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
+import io.datarouter.storage.config.properties.ServerPrivateIp;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.port.CompoundPortIdentifier;
 
 public abstract class BaseServerAddressProvider implements ServerAddressProvider{
 
-	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
-	private ServletContextSupplier servletContext;
-	@Inject
-	private CompoundPortIdentifier portIdentifier;
+	private final ServletContextSupplier servletContext;
+	private final CompoundPortIdentifier portIdentifier;
+	private final ServerPrivateIp serverPrivateIp;
+	private final DatarouterServerTypeSupplier serverType;
 
 	private final String dispatcherUrl;
 
-	public BaseServerAddressProvider(String dispatcherUrl){
+	@Inject
+	public BaseServerAddressProvider(
+			ServletContextSupplier servletContext,
+			CompoundPortIdentifier portIdentifier,
+			ServerPrivateIp serverPrivateIp,
+			DatarouterServerTypeSupplier serverType,
+			String dispatcherUrl){
+		this.servletContext = servletContext;
+		this.portIdentifier = portIdentifier;
+		this.serverPrivateIp = serverPrivateIp;
+		this.serverType = serverType;
 		this.dispatcherUrl = dispatcherUrl;
 	}
 
@@ -47,7 +56,7 @@ public abstract class BaseServerAddressProvider implements ServerAddressProvider
 	}
 
 	protected String getHostName(){
-		String localIp = datarouterProperties.getServerPrivateIp();
+		String localIp = serverPrivateIp.get();
 		if(localIp != null){
 			return localIp;
 		}
@@ -55,7 +64,7 @@ public abstract class BaseServerAddressProvider implements ServerAddressProvider
 	}
 
 	protected int getPort(){
-		if(datarouterProperties.getServerType().getPersistentString().equals(ServerType.DEV.getPersistentString())){
+		if(serverType.get().getPersistentString().equals(ServerType.DEV.getPersistentString())){
 			return UrlConstants.PORT_HTTP_DEV;
 		}
 		return portIdentifier.getHttpPort();

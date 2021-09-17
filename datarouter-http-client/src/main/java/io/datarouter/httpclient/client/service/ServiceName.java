@@ -13,30 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.config.properties;
+package io.datarouter.httpclient.client.service;
 
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.httpclient.client.DatarouterService;
 
-//Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
-//so we don't have to do multiple major refactors with every split.
 @Singleton
-public class EnvironmentType implements Supplier<String>{
+public class ServiceName implements Supplier<String>{
 
-	private final String environmentType;
+	private final String serviceName;
 
 	@Inject
-	private EnvironmentType(DatarouterProperties datarouterProperties){
-		this.environmentType = datarouterProperties.getEnvironmentType();
+	public ServiceName(DatarouterService service){
+		this.serviceName = service.getServiceName();
 	}
 
 	@Override
 	public String get(){
-		return environmentType;
+		return serviceName;
 	}
 
 }

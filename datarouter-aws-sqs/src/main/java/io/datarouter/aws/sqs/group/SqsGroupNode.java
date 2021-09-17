@@ -22,14 +22,14 @@ import java.util.List;
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.GroupQueueStorage.PhysicalGroupQueueStorageNode;
 import io.datarouter.storage.op.scan.queue.group.PeekMultiGroupUntilEmptyQueueStorageScanner;
@@ -44,13 +44,13 @@ extends BaseSqsNode<PK,D,F>
 implements PhysicalGroupQueueStorageNode<PK,D,F>{
 
 	public SqsGroupNode(
-			DatarouterProperties datarouterProperties,
-			DatarouterService datarouterService,
+			EnvironmentName environmentName,
+			ServiceName serviceName,
 			NodeParams<PK,D,F> params,
 			SqsClientType sqsClientType,
 			SqsClientManager sqsClientManager,
 			ClientId clientId){
-		super(datarouterProperties, datarouterService, params, sqsClientType, sqsClientManager, clientId);
+		super(environmentName, serviceName, params, sqsClientType, sqsClientManager, clientId);
 	}
 
 	/*------------ writer ---------------*/

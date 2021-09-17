@@ -17,7 +17,7 @@ package io.datarouter.auth.web;
 
 import javax.inject.Inject;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.RouteSetRegistry;
 import io.datarouter.web.handler.documentation.DocumentationRouteSet;
@@ -28,13 +28,13 @@ public class DatarouterDocumentationHandler extends DatarouterUserBasedDocumenta
 	@Inject
 	private RouteSetRegistry routeSetRegistry;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 
 	@Handler(defaultHandler = true)
 	public Mav viewDocumentation(){
 		return Scanner.of(routeSetRegistry.get())
 				.include(clazz -> clazz instanceof DocumentationRouteSet)
-				.listTo(routeSets -> createDocumentationMav(datarouterService.getServiceName(), "", routeSets));
+				.listTo(routeSets -> createDocumentationMav(serviceName.get(), "", routeSets));
 	}
 
 }

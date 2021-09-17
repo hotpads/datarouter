@@ -20,26 +20,26 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.secret.service.SecretNamespacer;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.environment.EnvironmentType;
+import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
 
 @Singleton
 public class DatarouterPropertiesAndServiceSecretNamespacer implements SecretNamespacer{
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private DatarouterEnvironmentTypeSupplier environmentType;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 
 	private String getEnvironment(){
-		return Objects.requireNonNull(datarouterProperties.getEnvironmentType());
+		return Objects.requireNonNull(environmentType.get());
 	}
 
 	@Override
 	public String getAppNamespace(){
-		return getEnvironment() + '/' + Objects.requireNonNull(datarouterService.getServiceName()) + '/';
+		return getEnvironment() + '/' + Objects.requireNonNull(serviceName.get()) + '/';
 	}
 
 	@Override

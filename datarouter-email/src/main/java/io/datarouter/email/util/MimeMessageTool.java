@@ -15,13 +15,14 @@
  */
 package io.datarouter.email.util;
 
-import java.io.File;
-import java.io.IOException;
-
+import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+
+import io.datarouter.email.dto.DatarouterEmailFileAttachmentDto;
+import io.datarouter.email.dto.InputStreamDataSource;
 
 public class MimeMessageTool{
 
@@ -33,15 +34,14 @@ public class MimeMessageTool{
 		}
 	}
 
-	public static MimeBodyPart buildMimeBodyPartForAttachment(String fileName, File file){
+	public static MimeBodyPart buildMimeBodyPartForAttachment(DatarouterEmailFileAttachmentDto emailFileAttachmentDto){
 		try{
 			MimeBodyPart attachmentBodyPart = new MimeBodyPart();
-			attachmentBodyPart.attachFile(file);
-			attachmentBodyPart.setFileName(fileName);
+			InputStreamDataSource dataSource = new InputStreamDataSource(emailFileAttachmentDto);
+			attachmentBodyPart.setDataHandler(new DataHandler(dataSource));
+			attachmentBodyPart.setFileName(emailFileAttachmentDto.fileName);
 			return attachmentBodyPart;
 		}catch(MessagingException e){
-			throw new RuntimeException(e);
-		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
 	}

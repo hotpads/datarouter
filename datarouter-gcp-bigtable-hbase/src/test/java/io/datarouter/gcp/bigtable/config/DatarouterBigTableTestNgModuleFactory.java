@@ -20,16 +20,11 @@ import java.util.Properties;
 
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.gcp.bigtable.test.DatarouterBigTableTestClientIds;
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
-import io.datarouter.storage.TestDatarouterProperties;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsBuilder;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao.DatarouterClusterSchemaUpdateLockDaoParams;
-import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.testng.TestNgModuleFactory;
 import io.datarouter.web.config.DatarouterWebGuiceModule;
 
@@ -45,23 +40,13 @@ public class DatarouterBigTableTestNgModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
-			bind(DatarouterService.class).to(NoOpDatarouterService.class);
-			bind(DatarouterProperties.class).to(BigTableTestDatarouterProperties.class);
-			bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
+			bindActualInstance(DatarouterTestPropertiesFile.class,
+					new DatarouterTestPropertiesFile("bigtable.properties"));
 			bindActual(SchemaUpdateOptionsFactory.class, DatarouterBigTableSchemaUpdateOptionsFactory.class);
 			bind(DatarouterClusterSchemaUpdateLockDaoParams.class)
 					.toInstance(new DatarouterClusterSchemaUpdateLockDaoParams(
 							List.of(DatarouterBigTableTestClientIds.BIG_TABLE)));
 			bind(SchemaUpdatesEmailType.class).toInstance(new SchemaUpdatesEmailType(List.of()));
-		}
-
-	}
-
-	public static class BigTableTestDatarouterProperties extends TestDatarouterProperties{
-
-		@Override
-		public String getDatarouterPropertiesFileLocation(){
-			return getTestConfigDirectory() + "/bigtable.properties";
 		}
 
 	}

@@ -18,14 +18,14 @@ package io.datarouter.metric.counter;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.collection.CountFlusher;
 import io.datarouter.metric.counter.collection.CountFlusher.CountFlusherFactory;
 import io.datarouter.metric.counter.collection.CountPartitions;
 import io.datarouter.metric.counter.collection.DatarouterCountCollector;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.web.listener.DatarouterAppListener;
 
 @Singleton
@@ -33,25 +33,19 @@ public class CountersAppListener implements DatarouterAppListener{
 
 	private static final long ROLL_PERIOD_MS = CountPartitions.PERIOD_5s.getPeriodMs();
 
-	private final DatarouterCountSettingRoot settings;
-	private final CountFlusherFactory flusherFactory;
-
-	private final String serverName;
-	private final String serviceName;
-
 	@Inject
-	public CountersAppListener(DatarouterProperties datarouterProperties, DatarouterService datarouterService,
-			DatarouterCountSettingRoot settings, CountFlusherFactory flusherFactory){
-		this.serverName = datarouterProperties.getServerName();
-		this.serviceName = datarouterService.getServiceName();
-		this.settings = settings;
-		this.flusherFactory = flusherFactory;
-	}
+	private DatarouterCountSettingRoot settings;
+	@Inject
+	private CountFlusherFactory flusherFactory;
+	@Inject
+	private ServerName serverName;
+	@Inject
+	private ServiceName serviceName;
 
 	// add flushers to a collector and register it with the global Counters class
 	@Override
 	public void onStartUp(){
-		CountFlusher flusher = flusherFactory.create(serviceName, serverName);
+		CountFlusher flusher = flusherFactory.create(serviceName.get(), serverName.get());
 		var collector = new DatarouterCountCollector(ROLL_PERIOD_MS, flusher, settings.runCountsToQueue);
 		Counters.addCollector(collector);
 	}

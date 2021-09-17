@@ -35,6 +35,7 @@ import io.datarouter.web.navigation.NavBar;
 import io.datarouter.web.navigation.WebappNavbarV2Html;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
 import j2html.tags.ContainerTag;
+import j2html.tags.DomContent;
 
 public class Bootstrap4PageBuilder{
 
@@ -44,7 +45,7 @@ public class Bootstrap4PageBuilder{
 	private String title;
 	private boolean includeNav = true;
 	private List<ContainerTag<?>> navbars = new ArrayList<>();
-	private ContainerTag<?> content;
+	private DomContent content;
 	private final Map<String,String> httpEquivs = new LinkedHashMap<>();
 
 	public DatarouterPage build(){
@@ -116,7 +117,7 @@ public class Bootstrap4PageBuilder{
 		return this;
 	}
 
-	public Bootstrap4PageBuilder withContent(ContainerTag<?> content){
+	public Bootstrap4PageBuilder withContent(DomContent content){
 		this.content = content;
 		return this;
 	}

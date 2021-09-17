@@ -28,9 +28,9 @@ import javax.inject.Inject;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -50,8 +50,6 @@ public class EmailTestHandler extends BaseHandler{
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private WebappName webappName;
 	@Inject
 	private DatarouterWebPaths paths;
@@ -65,6 +63,8 @@ public class EmailTestHandler extends BaseHandler{
 	private DatarouterEmailSubscriberSettings adminEmailSettings;
 	@Inject
 	private DatarouterSubscribersSupplier subscribers;
+	@Inject
+	private ServerName serverName;
 
 	@Handler(defaultHandler = true)
 	private Mav sendEmailTest(@Param(P_submitAction) OptionalString submitAction){
@@ -84,7 +84,7 @@ public class EmailTestHandler extends BaseHandler{
 		if(adminEmailSettings.includeSubscribers.get()){
 			toEmail.addAll(subscribers.get());
 		}
-		String server = datarouterProperties.getServerName();
+		String server = serverName.get();
 		String webapp = webappName.getName();
 		String primaryHref = htmlEmailService.startLinkBuilder()
 				.withLocalPath(paths.datarouter.emailTest)

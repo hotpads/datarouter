@@ -62,7 +62,6 @@ import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.type.DatarouterEmailTypes.ClusterSettingEmailType;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
@@ -112,8 +111,6 @@ public class ClusterSettingsHandler extends BaseHandler{
 	private DatarouterClusterSettingFiles files;
 	@Inject
 	private ClusterSettingService clusterSettingService;
-	@Inject
-	private DatarouterService datarouterService;
 	@Inject
 	private DatarouterWebPaths datarouterWebPaths;
 	@Inject
@@ -220,7 +217,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 			logScanner = clusterSettingLogDao.scanWithPrefix(prefix);
 		}
 		logScanner
-				.map(setting -> new ClusterSettingLogJspDto(setting, datarouterService.getZoneId()))
+				.map(setting -> new ClusterSettingLogJspDto(setting, getUserZoneId()))
 				.flush(logs -> mav.put("logs", logs));
 		return mav;
 	}
@@ -240,7 +237,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 				new ClusterSettingLogByReversedCreatedMsKey(reverseStartCreatedMs, null), inclusiveStart.orElse(false));
 		clusterSettingLogDao
 				.scanByReversedCreatedMs(range, CLUSTER_SETTING_LOGS_PAGE_SIZE)
-				.map(setting -> new ClusterSettingLogJspDto(setting, datarouterService.getZoneId()))
+				.map(setting -> new ClusterSettingLogJspDto(setting, getUserZoneId()))
 				.flush(logs -> mav.put("logs", logs))
 				.flush(logs -> mav.put("hasNextPage", logs.size() == CLUSTER_SETTING_LOGS_PAGE_SIZE));
 		mav.put("hasPreviousPage", explicitStartIso.isPresent());
@@ -468,7 +465,7 @@ public class ClusterSettingsHandler extends BaseHandler{
 			kvs.add(new Pair<>("action", text(log.getAction().getPersistentString())));
 			kvs.add(new Pair<>("setting", makeClusterSettingLogLink()));
 			String timestamp = ZonedDateFormaterTool.formatReversedLongMsWithZone(log.getKey().getReverseCreatedMs(),
-					datarouterService.getZoneId());
+					getUserZoneId());
 			kvs.add(new Pair<>("timestamp", text(timestamp)));
 			if(ObjectTool.notEquals(ServerType.UNKNOWN.getPersistentString(), log.getServerType())){
 				kvs.add(new Pair<>("serverType", text(log.getServerType())));

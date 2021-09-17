@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.changelog.ChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.util.time.ZonedDateFormaterTool;
@@ -60,7 +60,7 @@ public class EditChangelogHandler extends BaseHandler{
 	@Inject
 	private ChangelogRecorder recorder;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 
 	@Handler(defaultHandler = true)
 	public Mav edit(
@@ -102,7 +102,7 @@ public class EditChangelogHandler extends BaseHandler{
 		}
 		note.ifPresent(newNote -> {
 			changelog.setNote(newNote);
-			ChangelogDto dto = changelog.toDto(datarouterService.getServiceName());
+			ChangelogDto dto = changelog.toDto(serviceName.get());
 			recorder.update(dto);
 		});
 		return pageFactory.preformattedMessage(request, "Updated changelog entry.");

@@ -24,11 +24,14 @@ import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.client.ClientOptionsFactory;
 import io.datarouter.storage.client.ClientOptionsFactory.NoOpClientOptionsFactory;
+import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory.NoOpSchemaUpdateOptionsFactory;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.metric.Gauges.NoOpGauges;
 import io.datarouter.storage.node.DatarouterNodes;
+import io.datarouter.storage.servertype.ServerTypeDetector;
+import io.datarouter.storage.servertype.ServerTypeDetector.NoOpServerTypeDetector;
 import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRootsSupplier;
@@ -51,6 +54,10 @@ public class DatarouterStorageGuiceModule extends BaseGuiceModule{
 		bind(DatarouterNodes.class);
 		bind(ClientOptions.class);
 		bind(ClientInitializationTracker.class);
+
+		bindDefaultInstance(DatarouterTestPropertiesFile.class, new DatarouterTestPropertiesFile(""));
+
+		bindDefault(ServerTypeDetector.class, NoOpServerTypeDetector.class);
 	}
 
 }

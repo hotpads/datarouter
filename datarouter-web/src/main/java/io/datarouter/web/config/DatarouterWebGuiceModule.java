@@ -22,6 +22,9 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.inject.name.Names;
 
+import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
+import io.datarouter.httpclient.client.service.ContextName;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -67,6 +70,8 @@ import io.datarouter.web.user.session.CurrentSessionInfo;
 import io.datarouter.web.user.session.CurrentSessionInfo.NoOpCurrentSessionInfo;
 import io.datarouter.web.user.session.service.DatarouterRoleManager;
 import io.datarouter.web.user.session.service.RoleManager;
+import io.datarouter.web.user.session.service.UserSessionService;
+import io.datarouter.web.user.session.service.UserSessionService.NoOpUserSessionService;
 
 public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 
@@ -84,6 +89,8 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 				.to(CompoundPortIdentifier.class);
 
 		bindDefault(DatarouterAuthenticationConfig.class, BaseDatarouterAuthenticationConfig.class);
+		bindDefault(DatarouterService.class, NoOpDatarouterService.class);
+		bindDefaultInstance(ContextName.class, new ContextName(""));
 
 		bindDefault(BaseDatarouterSessionDao.class, NoOpDatarouterSessionDao.class);
 		bindDefault(BaseDatarouterSamlDao.class, NoOpDatarouterSamlDao.class);
@@ -94,6 +101,7 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 		bindDefault(RoleManager.class, DatarouterRoleManager.class);
 		optionalBinder(SamlRegistrar.class);
 		bindDefault(SettingFinder.class, MemorySettingFinder.class);
+		bindDefault(UserSessionService.class, NoOpUserSessionService.class);
 		bindDefault(CurrentSessionInfo.class, NoOpCurrentSessionInfo.class);
 
 		bindDefaultInstance(DatarouterSubscribersSupplier.class, new DatarouterSubscribers(Collections.emptySet()));

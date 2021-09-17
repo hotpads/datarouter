@@ -42,7 +42,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptionsFactory;
 import io.datarouter.storage.config.BaseStoragePlugin;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.DatarouterStoragePlugin.DatarouterStoragePluginBuilder;
 import io.datarouter.storage.config.schema.SchemaUpdateOptionsFactory;
 import io.datarouter.storage.config.setting.DatarouterSettingOverrides;
@@ -92,8 +91,8 @@ public abstract class DatarouterWebWebappConfigBuilder<T extends DatarouterWebWe
 implements WebappBuilder{
 
 	// datarouter-storage
-	private final DatarouterProperties datarouterProperties;
 	private final DatarouterService datarouterService;
+	private final String contextName;
 	private final ServerTypes serverTypes;
 	private final Set<String> subscribers;
 	private final List<Class<? extends SettingRoot>> settingRoots;
@@ -134,7 +133,8 @@ implements WebappBuilder{
 	private String serviceDescription;
 	protected boolean useDatarouterAuth;
 	private Class<? extends RequestProxySetter> requestProxy;
-	private ZoneId defaultEmailDistributionListZoneId = ZoneId.systemDefault();
+	private ZoneId defaultEmailDistributionListZoneId;
+	private ZoneId dailyDigestEmailZoneId;
 
 	// datarouter-web servlet
 	private final List<Ordered<FilterParams>> filterParamsOrdered;
@@ -161,11 +161,11 @@ implements WebappBuilder{
 
 		public DatarouterWebWebappBuilderImpl(
 				DatarouterService datarouterService,
+				String contextName,
 				ServerTypes serverTypes,
-				DatarouterProperties datarouterProperties,
 				List<ClientId> defaultClientIds,
 				ServletContextListener log4jServletContextListener){
-			super(datarouterService, serverTypes, datarouterProperties, defaultClientIds, log4jServletContextListener);
+			super(datarouterService, contextName, serverTypes, defaultClientIds, log4jServletContextListener);
 		}
 
 		@Override
@@ -177,13 +177,13 @@ implements WebappBuilder{
 
 	protected DatarouterWebWebappConfigBuilder(
 			DatarouterService datarouterService,
+			String contextName,
 			ServerTypes serverTypes,
-			DatarouterProperties datarouterProperties,
 			List<ClientId> defaultClientIds,
 			ServletContextListener log4jServletContextListener){
 		this.datarouterService = datarouterService;
+		this.contextName = contextName;
 		this.serverTypes = serverTypes;
-		this.datarouterProperties = datarouterProperties;
 		this.defaultClientIds = defaultClientIds;
 		this.log4jServletContextListener = log4jServletContextListener;
 
@@ -213,6 +213,9 @@ implements WebappBuilder{
 		this.dailyDigest = new ArrayList<>();
 		this.metricLinkPages = new ArrayList<>();
 		this.useDatarouterAuth = true;
+		this.defaultEmailDistributionListZoneId = ZoneId.systemDefault();
+		this.dailyDigestEmailZoneId = ZoneId.systemDefault();
+		this.testableServiceClasses = new ArrayList<>();
 
 		// datarouter-web servlet
 		this.filterParamsOrdered = new ArrayList<>();
@@ -225,7 +228,6 @@ implements WebappBuilder{
 		this.datarouterNavBarPluginItems = new ArrayList<>();
 		this.appNavBarPluginItems = new ArrayList<>();
 		this.dynamicNavBarItems = new ArrayList<>();
-		this.testableServiceClasses = new ArrayList<>();
 		this.requestProxy = NoOpRequestProxySetter.class;
 
 		// additional
@@ -258,6 +260,7 @@ implements WebappBuilder{
 
 		DatarouterWebPluginBuilder webPluginBuilder = new DatarouterWebPluginBuilder(
 				datarouterService,
+				contextName,
 				defaultClientIds)
 				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex)
 				.setHomepageRouteSet(homepageRouteSet);
@@ -289,6 +292,7 @@ implements WebappBuilder{
 				.setRequestProxy(requestProxy)
 				.setMetricLinkPages(metricLinkPages)
 				.setDefaultEmailDistributionListZoneId(defaultEmailDistributionListZoneId)
+				.setDailyDigestEmailZoneId(dailyDigestEmailZoneId)
 				.build();
 		webPlugin.getStoragePlugins().forEach(this::addStoragePluginWithoutInstalling);
 		webPlugin.getWebPlugins().forEach(this::addWebPluginWithoutInstalling);
@@ -303,7 +307,6 @@ implements WebappBuilder{
 
 		DatarouterStoragePluginBuilder storagePluginBuilder = new DatarouterStoragePluginBuilder(
 				serverTypes,
-				datarouterProperties,
 				defaultClientIds)
 				.setSettingOverridesClass(settingOverrides)
 				.setSettingRootsClass(new SettingRootsSupplier(settingRoots))
@@ -688,6 +691,11 @@ implements WebappBuilder{
 
 	public T setDefaultEmailDistributionListZoneId(ZoneId defaultEmailDistributionListZoneId){
 		this.defaultEmailDistributionListZoneId = defaultEmailDistributionListZoneId;
+		return getSelf();
+	}
+
+	public T setDailyDigestEmailZoneId(ZoneId zoneId){
+		this.dailyDigestEmailZoneId = zoneId;
 		return getSelf();
 	}
 

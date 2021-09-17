@@ -23,7 +23,7 @@ import io.datarouter.auth.storage.account.DatarouterAccount;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapDao;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.AdminEmail;
 
 @Singleton
 public class DatarouterAccountDeleteAction{
@@ -33,9 +33,9 @@ public class DatarouterAccountDeleteAction{
 	@Inject
 	private ChangelogRecorder changelogRecorder;
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private DatarouterAccountDeleteActionExecutor executor;
+	@Inject
+	private AdminEmail adminEmail;
 
 	// DatarouterAccount will be deleted from the DB after this method is called
 	public final void onDelete(DatarouterAccount account){
@@ -66,7 +66,7 @@ public class DatarouterAccountDeleteAction{
 				"DatarouterAccount",
 				account.getKey().getAccountName(),
 				action,
-				datarouterProperties.getAdministratorEmail());
+				adminEmail.get());
 		changelogRecorder.record(changelogBuilder.build());
 	}
 

@@ -34,7 +34,7 @@ import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermission;
 import io.datarouter.auth.storage.accountpermission.DatarouterAccountPermissionKey;
 import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMap;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.util.lang.ObjectTool;
 
@@ -54,12 +54,12 @@ public class DatarouterAccountConfigAppListenerService{
 	@Inject
 	private BaseDatarouterAccountPermissionDao accountPermissionDao;
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private DatarouterServerTypeSupplier serverType;
 	@Inject
 	private DefaultDatarouterAccountKeysSupplier defaultDatarouterAccountKeys;
 
 	public void createDefaultAccountAndMapToDefaultAdminUser(){
-		if(ObjectTool.notEquals(datarouterProperties.getServerTypeString(), ServerType.DEV.getPersistentString())){
+		if(ObjectTool.notEquals(serverType.getServerTypeString(), ServerType.DEV.getPersistentString())){
 			return;
 		}
 
@@ -93,7 +93,7 @@ public class DatarouterAccountConfigAppListenerService{
 	}
 
 	public void createDefaultAccountPermission(){
-		if(ObjectTool.notEquals(datarouterProperties.getServerTypeString(), ServerType.DEV.getPersistentString())){
+		if(ObjectTool.notEquals(serverType.getServerTypeString(), ServerType.DEV.getPersistentString())){
 			return;
 		}
 		accountPermissionDao.put(new DatarouterAccountPermission(DEFAULT_ACCOUNT_NAME,

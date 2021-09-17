@@ -82,11 +82,6 @@ public interface ChangelogRecorder{
 			return this;
 		}
 
-		@Deprecated
-		public DatarouterChangelogDtoBuilder excludeAdditionalAdministrators(){
-			return excludeSubscribers();
-		}
-
 		public DatarouterChangelogDtoBuilder additionalSendTos(String additionalSendTo){
 			additionalSendTos.add(additionalSendTo);
 			return this;

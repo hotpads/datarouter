@@ -20,18 +20,18 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.ComputedPropertiesFinder;
 
-//Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
-//so we don't have to do multiple major refactors with every split.
 @Singleton
 public class AdminEmail implements Supplier<String>{
+
+	public static final String ADMINISTRATOR_EMAIL = "administrator.email";
 
 	private final String adminEmail;
 
 	@Inject
-	private AdminEmail(DatarouterProperties datarouterProperties){
-		this.adminEmail = datarouterProperties.getAdministratorEmail();
+	public AdminEmail(ComputedPropertiesFinder finder){
+		this.adminEmail = finder.findProperty(ADMINISTRATOR_EMAIL);
 	}
 
 	@Override

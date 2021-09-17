@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.MxBeans;
 import io.datarouter.util.SystemTool;
 import io.datarouter.util.bytes.ByteUnitTool;
@@ -68,8 +68,6 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 			.withZone(ZoneId.systemDefault());
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private WebappName webappName;
 	@Inject
 	private GitProperties gitProperties;
@@ -85,6 +83,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	private ManifestDetails manifestDetails;
 	@Inject
 	private OutgoingIpFinderService ipService;
+	@Inject
+	private ServerName serverName;
 
 	@Handler
 	public Mav view(){
@@ -99,7 +99,7 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 		mav.put("ipAddr", ipAddress.ipAddress);
 		mav.put("startTime", FORMATTER.format(Instant.ofEpochMilli(startTime)));
 		mav.put("upTime", new DatarouterDuration(uptime, TimeUnit.MILLISECONDS).toString(TimeUnit.MINUTES));
-		mav.put("serverName", datarouterProperties.getServerName());
+		mav.put("serverName", serverName.get());
 		mav.put("serverVersion", servletContext.getServerInfo());
 		mav.put("javaVersion", SystemTool.getJavaVersion());
 		mav.put("jvmVersion", MxBeans.RUNTIME.getVmName() + " (build " + MxBeans.RUNTIME.getVmVersion() + ")");
@@ -213,8 +213,8 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 
 	@Handler
 	public GarbabeCollectingResult garbageCollector(){
-		String serverName = params.required("serverName");
-		if(!serverName.equals(datarouterProperties.getServerName())){
+		String paramsServerName = params.required("serverName");
+		if(!paramsServerName.equals(serverName.get())){
 			return new GarbabeCollectingResult(false, null, null);
 		}
 		Map<String,Long> map = new HashMap<>();

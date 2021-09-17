@@ -20,8 +20,10 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.environment.EnvironmentType;
+import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
+import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
+import io.datarouter.storage.config.properties.EnvironmentName;
 
 @Singleton
 public class DatarouterServerTypeDetector implements ServerTypeDetector{
@@ -31,10 +33,13 @@ public class DatarouterServerTypeDetector implements ServerTypeDetector{
 	private final String environment;
 
 	@Inject
-	protected DatarouterServerTypeDetector(DatarouterProperties datarouterProperties){
-		this.environmentType = datarouterProperties.getEnvironmentType();
-		this.serverType = datarouterProperties.getServerType();
-		this.environment = datarouterProperties.getEnvironment();
+	protected DatarouterServerTypeDetector(
+			DatarouterServerTypeSupplier serverType,
+			DatarouterEnvironmentTypeSupplier environmentType,
+			EnvironmentName environmentName){
+		this.environmentType = environmentType.get();
+		this.serverType = serverType.get();
+		this.environment = environmentName.get();
 	}
 
 	@Override

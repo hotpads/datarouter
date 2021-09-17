@@ -24,18 +24,18 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 
 public class ExampleJob extends BaseJob{
 	private static final Logger logger = LoggerFactory.getLogger(ExampleJob.class);
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServerName serverName;
 
 	@Override
 	public void run(TaskTracker tracker){
 		logger.warn("Running on {} at {}",
-				datarouterProperties.getServerName(),
+				serverName.get(),
 				Instant.now());
 	}
 

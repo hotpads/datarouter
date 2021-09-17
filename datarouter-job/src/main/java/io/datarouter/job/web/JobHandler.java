@@ -38,7 +38,7 @@ import io.datarouter.job.lock.LocalTriggerLockService;
 import io.datarouter.job.scheduler.JobCategoryTracker;
 import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.scheduler.JobScheduler;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.tasktracker.service.LongRunningTaskService.LongRunningTaskSummaryDto;
 import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
@@ -60,8 +60,6 @@ public class JobHandler extends BaseHandler{
 	@Inject
 	private DatarouterJobFiles files;
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private JobScheduler jobScheduler;
 	@Inject
 	private JobCategoryTracker jobCategoryTracker;
@@ -75,6 +73,8 @@ public class JobHandler extends BaseHandler{
 	private DatarouterJobPaths datarouterJobPaths;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
+	@Inject
+	private ServerName serverName;
 
 	@Handler(defaultHandler = true)
 	Mav defaultMethod(){
@@ -91,7 +91,7 @@ public class JobHandler extends BaseHandler{
 		Optional<String> jobCategoryName = category.getOptional();
 		boolean hideEnabled = enabled.orElse(false);
 		boolean hideDisabled = disabled.orElse(false);
-		mav.put("serverName", datarouterProperties.getServerName());
+		mav.put("serverName", serverName.get());
 		mav.put("categoryRows", getJobCategoryDtos(jobCategoryName));
 
 		LongRunningTaskSummaryDto longRunningTaskSummary = longRunningTaskService.getSummary();

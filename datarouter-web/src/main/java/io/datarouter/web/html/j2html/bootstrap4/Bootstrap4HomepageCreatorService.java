@@ -31,7 +31,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
+import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppPluginNavBarSupplier;
@@ -46,7 +47,9 @@ import j2html.tags.DomContent;
 public class Bootstrap4HomepageCreatorService{
 
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
+	@Inject
+	private ServletContextSupplier servletContext;
 	@Inject
 	private Bootstrap4PageFactory factory;
 	@Inject
@@ -62,7 +65,7 @@ public class Bootstrap4HomepageCreatorService{
 		var content = div(tags)
 				.withClass("container-fluid");
 		return factory.startBuilder(request)
-				.withTitle(datarouterService.getServiceName())
+				.withTitle(serviceName.get())
 				.withContent(content)
 				.buildMav();
 	}
@@ -71,23 +74,23 @@ public class Bootstrap4HomepageCreatorService{
 		var content = div(tags)
 				.withClass(containerClass);
 		return factory.startBuilder(request)
-				.withTitle(datarouterService.getServiceName())
+				.withTitle(serviceName.get())
 				.withContent(content)
 				.buildMav();
 	}
 
 	public ContainerTag<?> header(){
-		return div(h2(datarouterService.getServiceName()).withClass("text-capitalize"))
+		return div(h2(serviceName.get()).withClass("text-capitalize"))
 				.withClass("pb-2 mt-4 mb-2 border-bottom");
 	}
 
 	public ContainerTag<?> headerAndDescription(){
 		String description = serviceDescriptionSupplier.get();
 		if(description.isBlank()){
-			return h2(text(datarouterService.getServiceName()));
+			return h2(text(serviceName.get()));
 		}
 		return div(
-				h2(datarouterService.getServiceName()).withClass("text-capitalize"),
+				h2(serviceName.get()).withClass("text-capitalize"),
 				h4(description))
 				.withClass("pb-2 mt-4 mb-2 border-bottom");
 	}
@@ -122,7 +125,7 @@ public class Bootstrap4HomepageCreatorService{
 	}
 
 	private ContainerTag<?> makeLink(NavBarItem item){
-		String href = URI.create(item.path).isAbsolute() ? item.path : datarouterService.getContextPath() + item.path;
+		String href = URI.create(item.path).isAbsolute() ? item.path : servletContext.getContextPath() + item.path;
 		return a(item.name)
 				.withClass("list-group-item list-group-item-action")
 				.withHref(href);

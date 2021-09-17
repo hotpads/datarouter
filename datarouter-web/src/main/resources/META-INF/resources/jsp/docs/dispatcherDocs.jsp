@@ -273,11 +273,11 @@
 							<form id="parameterForm" method="POST">
 							<c:choose>
 								<c:when test="${not empty endpoint.parameters}">
-									<table class=table>
+									<table class="table">
 										<tr>
-											<th>Parameter</th>
+											<th>Name</th>
 											<th>Value</th>
-											<th>Data Type</th>
+											<th>Type</th>
 										</tr>
 										<c:forEach var="parameter" items="${endpoint.parameters}">
 											<c:choose>
@@ -347,6 +347,21 @@
 							</c:if>
 							<c:if test="${not empty endpoint.response.example}">
 								<pre class="bg-light border p-2 json">${endpoint.response.example}</pre>
+							</c:if>
+							<c:if test="${not empty endpoint.errors}">
+								<h3>Errors</h3>
+								<table class="table">
+									<tr>
+										<th>Message</th>
+										<th>Status code</th>
+									</tr>
+									<c:forEach var="error" items="${endpoint.errors}">
+										<tr>
+											<td>${error.message}</td>
+											<td>${error.statusCode}</td>
+										</tr>
+									</c:forEach>
+								</table>
 							</c:if>
 							<div>
 								<button id="sendRequest" type="button" class="btn btn-primary"

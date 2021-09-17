@@ -50,7 +50,7 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChang
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.secretweb.service.WebSecretOpReason;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.util.DatarouterCounters;
 import io.datarouter.util.Require;
@@ -70,7 +70,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 	private final BaseDatarouterAccountDao datarouterAccountDao;
 	private final BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao;
 	private final DatarouterAccountCredentialService acccountCredentialService;
-	private final DatarouterProperties datarouterProperties;
+	private final DatarouterServerTypeSupplier serverType;
 	private final DatarouterAuthFiles files;
 	private final DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider;
 	private final Bootstrap4ReactPageFactory reactPageFactory;
@@ -85,7 +85,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			BaseDatarouterAccountDao datarouterAccountDao,
 			BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao,
 			DatarouterAccountCredentialService acccountCredentialService,
-			DatarouterProperties datarouterProperties,
+			DatarouterServerTypeSupplier serverType,
 			DatarouterAuthFiles files,
 			DatarouterAuthPaths paths,
 			DefaultDatarouterAccountAvailableEndpointsProvider defaultDatarouterAccountAvailableEndpointsProvider,
@@ -97,7 +97,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this(datarouterAccountDao,
 				datarouterAccountPermissionDao,
 				acccountCredentialService,
-				datarouterProperties,
+				serverType,
 				files,
 				defaultDatarouterAccountAvailableEndpointsProvider,
 				reactPageFactory,
@@ -112,7 +112,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 			BaseDatarouterAccountDao datarouterAccountDao,
 			BaseDatarouterAccountPermissionDao datarouterAccountPermissionDao,
 			DatarouterAccountCredentialService acccountCredentialService,
-			DatarouterProperties datarouterProperties,
+			DatarouterServerTypeSupplier serverType,
 			DatarouterAuthFiles files,
 			DatarouterAccountAvailableEndpointsProvider datarouterAccountAvailableEndpointsProvider,
 			Bootstrap4ReactPageFactory reactPageFactory,
@@ -124,7 +124,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 		this.datarouterAccountDao = datarouterAccountDao;
 		this.datarouterAccountPermissionDao = datarouterAccountPermissionDao;
 		this.acccountCredentialService = acccountCredentialService;
-		this.datarouterProperties = datarouterProperties;
+		this.serverType = serverType;
 		this.files = files;
 		this.datarouterAccountAvailableEndpointsProvider = datarouterAccountAvailableEndpointsProvider;
 		this.reactPageFactory = reactPageFactory;
@@ -272,9 +272,7 @@ public class DatarouterAccountManagerHandler extends BaseHandler{
 
 	@Handler
 	public boolean isServerTypeDev(){
-		return StringTool.equalsCaseInsensitive(
-				datarouterProperties.getServerTypeString(),
-				ServerType.DEV.getPersistentString());
+		return StringTool.equalsCaseInsensitive(serverType.getServerTypeString(), ServerType.DEV.getPersistentString());
 	}
 
 	private List<DatarouterAccountDetails> getDetailsForAccounts(List<DatarouterAccount> accounts){

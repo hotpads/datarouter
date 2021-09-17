@@ -86,7 +86,18 @@ implements MapStorageWriter<PK,D>{
 			}
 			target.updateLastContact();
 		}
-		target.getBackingNode().put(databean, config);
+		try{
+			target.getBackingNode().put(databean, config);
+		}catch(Exception ex){
+			if(BaseMapCachingNode.useCache(config)){
+				target.updateLastAttemptedContact();
+				Config effectiveCachingNodeConfig = MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(
+						config);
+				target.getCachingNode().delete(databean.getKey(), effectiveCachingNodeConfig);
+				target.updateLastContact();
+			}
+			throw ex;
+		}
 	}
 
 	@Override
@@ -106,7 +117,20 @@ implements MapStorageWriter<PK,D>{
 			}
 			target.updateLastContact();
 		}
-		target.getBackingNode().putMulti(databeans, config);
+		try{
+			target.getBackingNode().putMulti(databeans, config);
+		}catch(Exception ex){
+			if(BaseMapCachingNode.useCache(config)){
+				target.updateLastAttemptedContact();
+				Config effectiveCachingNodeConfig = MapCachingMapStorageReaderNode.getEffectiveCachingNodeConfig(
+						config);
+				Scanner.of(databeans)
+						.map(Databean::getKey)
+						.flush(keys -> target.getCachingNode().deleteMulti(keys, effectiveCachingNodeConfig));
+				target.updateLastContact();
+			}
+			throw ex;
+		}
 	}
 
 }

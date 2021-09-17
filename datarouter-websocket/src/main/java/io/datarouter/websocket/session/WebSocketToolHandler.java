@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Pair;
@@ -67,8 +67,6 @@ public class WebSocketToolHandler extends BaseHandler{
 	@Inject
 	private ServerAddressProvider serverAddressProvider;
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private DatarouterWebSocketFiles files;
 	@Inject
 	private PushService pushService;
@@ -76,11 +74,13 @@ public class WebSocketToolHandler extends BaseHandler{
 	private DatarouterWebSocketSubscriptionDao subscriptionDao;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private ServerName serverName;
 
 	@Handler(defaultHandler = true)
 	private Mav list(){
 		Mav mav = new Mav(files.jsp.websocketToolJsp);
-		mav.put("serverName", datarouterProperties.getServerName());
+		mav.put("serverName", serverName.get());
 		mav.put("serverAddress", serverAddressProvider.get());
 		mav.put("localStoreSize", webSocketConnectionStore.list().size());
 		Map<String,Integer> persistentStorageByServerCount = new HashMap<>();

@@ -50,8 +50,10 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.model.serialize.fielder.TtlFielderConfig;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
+import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.schema.SchemaUpdateOptions;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.schema.SchemaUpdateTool;
@@ -79,7 +81,10 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 	private final SchemaUpdateOptions schemaUpdateOptions;
 
 	@Inject
-	public HBaseSchemaUpdateService(DatarouterProperties datarouterProperties,
+	public HBaseSchemaUpdateService(
+			ServerName serverName,
+			EnvironmentName environmentName,
+			AdminEmail adminEmail,
 			DatarouterSchemaUpdateScheduler executor,
 			DatarouterHtmlEmailService htmlEmailService,
 			HBaseConnectionHolder hBaseConnectionHolder,
@@ -91,7 +96,10 @@ public class HBaseSchemaUpdateService extends EmailingSchemaUpdateService{
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
 			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
-		super(datarouterProperties,
+		super(
+				serverName,
+				environmentName,
+				adminEmail,
 				executor,
 				schemaUpdateLockDao,
 				changelogRecorder,

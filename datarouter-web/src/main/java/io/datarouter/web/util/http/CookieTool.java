@@ -28,19 +28,19 @@ import io.datarouter.util.string.StringTool;
 public class CookieTool{
 
 	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
-			int maxAge){
+			int maxAgeSeconds){
 		Cookie cookie = new Cookie(cookieName, value);
 		if(path != null){
 			cookie.setPath(path);
 		}
-		cookie.setMaxAge(maxAge);
+		cookie.setMaxAge(maxAgeSeconds);
 		cookie.setHttpOnly(true); //enforce HttpOnly cookies (can't be accessed by javascript) to prevent XSS attacks
 		response.addCookie(cookie);
 	}
 
 	public static void addCookie(HttpServletResponse response, String cookieName, String value, String path,
-			long maxAge){
-		addCookie(response, cookieName, value, path, NumberTool.limitLongToIntRange(maxAge));
+			long maxAgeSeconds){
+		addCookie(response, cookieName, value, path, NumberTool.limitLongToIntRange(maxAgeSeconds));
 	}
 
 	public static String getCookieValue(HttpServletRequest request, String cookieName){

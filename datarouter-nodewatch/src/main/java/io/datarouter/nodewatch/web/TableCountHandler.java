@@ -29,7 +29,6 @@ import javax.inject.Inject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.joblet.service.JobletService;
@@ -82,8 +81,6 @@ public class TableCountHandler extends BaseHandler{
 	private DatarouterNodes datarouterNodes;
 	@Inject
 	private ChangelogRecorder changelogRecorder;
-	@Inject
-	private DatarouterService datarouterService;
 
 	@Handler(defaultHandler = true)
 	private Mav latestTableCounts(){
@@ -94,7 +91,7 @@ public class TableCountHandler extends BaseHandler{
 				.forEach(clientName -> {
 					latestTableCountDao.scanWithPrefix(new LatestTableCountKey(clientName, null))
 							.sort(Comparator.comparing(LatestTableCount::getNumRows).reversed())
-							.map(count -> new TableCountJspDto(count, datarouterService.getZoneId()))
+							.map(count -> new TableCountJspDto(count, getUserZoneId()))
 							.flush(list -> latestTableCountDtoMap.put(clientName, list));
 				});
 		mav.put("latestTableCountDtoMap", latestTableCountDtoMap);
@@ -117,7 +114,7 @@ public class TableCountHandler extends BaseHandler{
 		List<TableCount> results = tableCountDao.getForTable(clientName, tableName);
 		Collections.sort(results, new TableCount.TableCountLatestEntryComparator());
 		mav.put("results", Scanner.of(results)
-				.map(count -> new TableCountJspDto(count, datarouterService.getZoneId()))
+				.map(count -> new TableCountJspDto(count, getUserZoneId()))
 				.list());
 		mav.put("jsonData", getRowCountData(clientName, tableName));
 		return mav;
@@ -126,7 +123,7 @@ public class TableCountHandler extends BaseHandler{
 	@Handler
 	private TableCountJspDto recount(String clientName, String tableName){
 		TableCount recount = tableSamplerService.getCurrentTableCountFromSamples(clientName, tableName);
-		return new TableCountJspDto(recount, datarouterService.getZoneId());
+		return new TableCountJspDto(recount, getUserZoneId());
 	}
 
 	@Handler
@@ -153,7 +150,7 @@ public class TableCountHandler extends BaseHandler{
 	}
 
 	@Handler
-	private Mav deleteSampleEntries(String clientName, String tableName){
+	private Mav deleteAllMetadata(String clientName, String tableName){
 		//delete rows from TableCount
 		var tableCountKeyPrefix = new TableCountKey(clientName, tableName, null);
 		tableCountDao.deleteWithPrefix(tableCountKeyPrefix);
@@ -170,6 +167,21 @@ public class TableCountHandler extends BaseHandler{
 				"Nodewatch",
 				clientName + "." + tableName,
 				"deleted metadata",
+				getSessionInfo().getNonEmptyUsernameOrElse(""))
+				.build();
+		changelogRecorder.record(dto);
+		return new InContextRedirectMav(request, paths.datarouter.nodewatch.tableCount.toSlashedString());
+	}
+
+	@Handler
+	private Mav deleteRowSamples(String clientName, String tableName){
+		//delete rows from TableSample
+		var tableSampleKeyPrefix = new TableSampleKey(clientName, tableName, null, null);
+		tableSampleDao.deleteWithPrefix(tableSampleKeyPrefix);
+		var dto = new DatarouterChangelogDtoBuilder(
+				"Nodewatch",
+				clientName + "." + tableName,
+				"deleted row samples",
 				getSessionInfo().getNonEmptyUsernameOrElse(""))
 				.build();
 		changelogRecorder.record(dto);

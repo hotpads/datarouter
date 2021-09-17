@@ -23,8 +23,7 @@ import io.datarouter.exception.storage.metadata.DatarouterExceptionRecordSummary
 import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadata;
 import io.datarouter.exception.storage.metadata.ExceptionRecordSummaryMetadataKey;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.monitoring.exception.ExceptionDto;
 import io.datarouter.web.user.session.DatarouterSession;
@@ -36,7 +35,7 @@ public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 	@Inject
 	private DatarouterExceptionSettingRoot settings;
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServerTypeDetector serverTypeDetector;
 	@Inject
 	private DatarouterExceptionRecordSummaryMetadataDao exceptionSummaryMetadataDao;
 	@Inject
@@ -82,8 +81,7 @@ public class DefaultExceptionHandlingConfig implements ExceptionHandlingConfig{
 
 	@Override
 	public boolean isDevServer(){
-		return datarouterProperties.getServerType().getPersistentString().equals(ServerType.DEV
-				.getPersistentString());
+		return serverTypeDetector.mightBeDevelopment();
 	}
 
 	@Override

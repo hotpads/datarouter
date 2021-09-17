@@ -26,7 +26,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
@@ -47,8 +46,6 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	private DailyDigestService digestService;
 	@Inject
 	private DatarouterLoggingConfigPaths paths;
-	@Inject
-	private DatarouterService datarouterService;
 
 	@Override
 	public Optional<ContainerTag<?>> getPageContent(ZoneId zoneId){
@@ -69,14 +66,13 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(){
-		List<LoggerConfig> loggers = getTodaysLoggers(datarouterService.getZoneId());
+	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
+		List<LoggerConfig> loggers = getTodaysLoggers(zoneId);
 		if(loggers.size() == 0){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Logger Configs", paths.datarouter.logging);
 		var description = small("Updated Today");
-		ZoneId zoneId = datarouterService.getZoneId();
 		var table = new J2HtmlEmailTable<LoggerConfig>()
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())

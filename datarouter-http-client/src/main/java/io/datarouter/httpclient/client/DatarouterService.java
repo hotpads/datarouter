@@ -15,14 +15,11 @@
  */
 package io.datarouter.httpclient.client;
 
-import java.time.ZoneId;
-
 public interface DatarouterService{
 
 	String getServiceName();
 	String getPrivateDomain();// includes host and port, like localhost:8443
 	String getPublicDomain();// includes host and port, like localhost:8443
-	String getContextName();// root path segment
 
 	default String getDomainPreferPrivate(){
 		return getPrivateDomain() != null ? getPrivateDomain() : getPublicDomain();
@@ -30,22 +27,6 @@ public interface DatarouterService{
 
 	default String getDomainPreferPublic(){
 		return getPublicDomain() != null ? getPublicDomain() : getPrivateDomain();
-	}
-
-	default boolean hasPublicDomain(){
-		return getPublicDomain() != null;
-	}
-
-	default boolean hasPrivateDomain(){
-		return getPrivateDomain() != null;
-	}
-
-	default String getContextPath(){
-		return getContextName() == null ? "" : "/" + getContextName();
-	}
-
-	default ZoneId getZoneId(){
-		return ZoneId.systemDefault();
 	}
 
 	class NoOpDatarouterService implements DatarouterService{
@@ -62,11 +43,6 @@ public interface DatarouterService{
 
 		@Override
 		public String getPublicDomain(){
-			return "";
-		}
-
-		@Override
-		public String getContextName(){
 			return "";
 		}
 

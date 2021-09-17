@@ -33,8 +33,10 @@ import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
+import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -51,7 +53,9 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 
 	@Inject
 	public MysqlSchemaUpdateService(
-			DatarouterProperties datarouterProperties,
+			ServerName serverName,
+			EnvironmentName environmentName,
+			AdminEmail adminEmail,
 			MysqlSingleTableSchemaUpdateService mysqlSingleTableSchemaUpdateService,
 			DatarouterSchemaUpdateScheduler executor,
 			DatarouterHtmlEmailService htmlEmailService,
@@ -63,7 +67,10 @@ public class MysqlSchemaUpdateService extends EmailingSchemaUpdateService{
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			SchemaUpdatesEmailType schemaUpdatesEmailType,
 			DatarouterSchemaUpdateEmailSettings schemaUpdateEmailSettings){
-		super(datarouterProperties,
+		super(
+				serverName,
+				environmentName,
+				adminEmail,
 				executor,
 				schemaUpdateLockDao,
 				changelogRecorder,

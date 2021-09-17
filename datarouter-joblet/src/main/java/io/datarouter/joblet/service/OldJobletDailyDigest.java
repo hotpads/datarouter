@@ -55,7 +55,7 @@ public class OldJobletDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
 		Map<OldJobletDto,List<OldJobletDto>> rows = Scanner.of(jobletDailyDigestService.getOldJoblets())
 				.groupBy(OldJobletDto::new, OldJobletDto::new);
 		if(rows.isEmpty()){

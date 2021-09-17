@@ -36,8 +36,10 @@ import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSett
 import io.datarouter.clustersetting.storage.clustersettinglog.DatarouterClusterSettingLogDao;
 import io.datarouter.clustersetting.web.dto.ClusterSettingAndValidityJspDto;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.config.environment.DatarouterEnvironmentType;
+import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
+import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
+import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.servertype.ServerTypes;
 import io.datarouter.storage.setting.DatarouterSettingTag;
@@ -57,8 +59,6 @@ import io.datarouter.webappinstance.storage.webappinstance.WebappInstance;
 public class ClusterSettingService{
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private DatarouterClusterSettingRoot clusterSettingRoot;
 	@Inject
 	private DatarouterClusterSettingDao clusterSettingDao;
@@ -76,6 +76,14 @@ public class ClusterSettingService{
 	private WebappInstanceService webappInstanceService;
 	@Inject
 	private CachedClusterSettingTags cachedClusterSettingTags;
+	@Inject
+	private ServerName serverName;
+	@Inject
+	private EnvironmentName environmentName;
+	@Inject
+	private DatarouterServerTypeSupplier serverTypeSupplier;
+	@Inject
+	private DatarouterEnvironmentTypeSupplier environmentTypeSupplier;
 
 	public <T> T getSettingValueForWebappInstance(CachedSetting<T> memorySetting, WebappInstance webappInstance){
 		// try database first
@@ -86,13 +94,15 @@ public class ClusterSettingService{
 			return ClusterSettingComparisonTool.getTypedValueOrUseDefaultFrom(mostSpecificSetting, memorySetting);
 		}
 		// use default
-		var environmentType = new DatarouterEnvironmentType(datarouterProperties.getEnvironmentType());
+		var environmentType = environmentTypeSupplier.getDatarouterEnvironmentType();
 		DefaultSettingValue<T> defaultSettingValue = memorySetting.getDefaultSettingValue();
-		ServerType webAppInstanceServerType = serverTypes.fromPersistentString(webappInstance.getServerType());
-		String serverName = datarouterProperties.getServerName();
-		String environmentName = datarouterProperties.getEnvironment();
+		ServerType serverType = serverTypes.fromPersistentString(webappInstance.getServerType());
 		List<DatarouterSettingTag> settingTags = cachedClusterSettingTags.get();
-		return defaultSettingValue.getValue(environmentType, environmentName, webAppInstanceServerType, serverName,
+		return defaultSettingValue.getValue(
+				environmentType,
+				environmentName.get(),
+				serverType,
+				serverName.get(),
 				settingTags);
 	}
 
@@ -213,10 +223,10 @@ public class ClusterSettingService{
 		if(allMatch){
 			DefaultSettingValue<?> defaultSettingValue = memorySetting.getDefaultSettingValue();
 			Object defaultValue = defaultSettingValue.getValue(
-					new DatarouterEnvironmentType(datarouterProperties.getEnvironmentType()),
-					datarouterProperties.getEnvironment(),
-					datarouterProperties.getServerType(),
-					datarouterProperties.getServerName(),
+					environmentTypeSupplier.getDatarouterEnvironmentType(),
+					environmentName.get(),
+					serverTypeSupplier.get(),
+					serverName.get(),
 					cachedClusterSettingTags.get());
 			Object databeanSettingValue = databeanSetting.getTypedValue(memorySetting);
 			return Objects.equals(defaultValue, databeanSettingValue);

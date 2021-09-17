@@ -20,20 +20,20 @@ import javax.inject.Singleton;
 
 import io.datarouter.aws.sqs.group.SqsGroupNode;
 import io.datarouter.aws.sqs.single.SqsNode;
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.node.NodeParams;
 
 @Singleton
 public class SqsNodeFactory{
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private EnvironmentName environmentName;
 	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 	@Inject
 	private SqsClientType sqsClientType;
 	@Inject
@@ -44,8 +44,8 @@ public class SqsNodeFactory{
 			F extends DatabeanFielder<PK,D>>
 	SqsNode<PK,D,F> createSingleNode(NodeParams<PK,D,F> params){
 		return new SqsNode<>(
-				datarouterProperties,
-				datarouterService,
+				environmentName,
+				serviceName,
 				params,
 				sqsClientType,
 				sqsClientManager,
@@ -57,8 +57,8 @@ public class SqsNodeFactory{
 			F extends DatabeanFielder<PK,D>>
 	SqsGroupNode<PK,D,F> createGroupNode(NodeParams<PK,D,F> params){
 		return new SqsGroupNode<>(
-				datarouterProperties,
-				datarouterService,
+				environmentName,
+				serviceName,
 				params,
 				sqsClientType,
 				sqsClientManager,

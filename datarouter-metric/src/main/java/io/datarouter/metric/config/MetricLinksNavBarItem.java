@@ -17,6 +17,8 @@ package io.datarouter.metric.config;
 
 import javax.inject.Inject;
 
+import io.datarouter.httpclient.client.service.ContextName;
+import io.datarouter.httpclient.client.service.DomainFinder;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;
@@ -28,12 +30,16 @@ public class MetricLinksNavBarItem implements DynamicNavBarItem{
 
 	@Inject
 	private DatarouterMetricPaths paths;
+	@Inject
+	private DomainFinder domainFinder;
+	@Inject
+	private ContextName contextName;
 
 	@Override
 	public NavBarItem getNavBarItem(){
-		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL,
-				paths.datarouter.metric.metricLinks.view,
-				"Metric Links")
+		String href = "https://" + domainFinder.getDomainPreferPublic() + contextName.getContextPath()
+				+ paths.datarouter.metric.metricLinks.view.toSlashedString();
+		return new NavBarItemBuilder(DatarouterNavBarCategory.EXTERNAL, href, "Metric Links")
 				.setDispatchRule(new DispatchRule()
 						.allowRoles(DatarouterUserRole.DATAROUTER_ADMIN, DatarouterUserRole.USER))
 				.build();

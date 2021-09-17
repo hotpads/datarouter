@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.loggerconfig.LoggingConfigService;
@@ -105,8 +104,6 @@ public class LoggingSettingsHandler extends BaseHandler{
 	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
-	@Inject
-	private DatarouterService datarouterService;
 
 	@Handler(defaultHandler = true)
 	protected Mav showForm(){
@@ -148,7 +145,7 @@ public class LoggingSettingsHandler extends BaseHandler{
 					lastUpdated,
 					canDelete,
 					ttlMinutes,
-					datarouterService.getZoneId());
+					getUserZoneId());
 			mergedConfigs.put(name, mergedLoggerConfig);
 			appenderMap.put(mergedLoggerConfig, config.getAppenders().keySet());
 		}

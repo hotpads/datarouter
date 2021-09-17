@@ -114,6 +114,7 @@ public class MysqlConnectionPoolHolder{
 			standardUrlParams.add("connectionCollation=" + UTF8MB4_COLLATION);
 			standardUrlParams.add("characterEncoding=" + UTF8);
 			standardUrlParams.add("logger=" + Slf4JLogger.class.getName());
+			standardUrlParams.add("enabledTLSProtocols=TLSv1.2");
 			standardUrlParams.add(CLIENT_NAME_KEY + clientId.getName());
 
 			List<String> allUrlParams = Scanner.of(standardUrlParams, additionalUrlParams).concat(Scanner::of).list();

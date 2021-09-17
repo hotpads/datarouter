@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage.config;
+package io.datarouter.httpclient.response.exception;
 
-import io.datarouter.storage.servertype.BaseServerTypes;
-import io.datarouter.storage.servertype.SingleServerType;
+public interface DocumentedServerError{
 
-public class SimpleDatarouterProperties extends DatarouterProperties{
+	/**
+	 * subclasses should return only one static status code
+	 */
+	int getStatusCode();
 
-	private final String serviceName;
-
-	public SimpleDatarouterProperties(String serviceName){
-		super(new BaseServerTypes(new SingleServerType(serviceName, false)), serviceName);
-		this.serviceName = serviceName;
-	}
-
-	@Override
-	public String getDatarouterPropertiesFileLocation(){
-		return getConfigDirectory() + "/datarouter-" + serviceName + ".properties";
-	}
+	/**
+	 * subclasses should return only one static error message
+	 */
+	String getErrorMessage();
 
 }

@@ -129,8 +129,12 @@ public class Require{
 	}
 
 	public static String notBlank(String string){
+		return notBlank(string, null);
+	}
+
+	public static String notBlank(String string, String message){
 		if(string == null || Java11.isBlank(string)){
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(message);
 		}
 		return string;
 	}

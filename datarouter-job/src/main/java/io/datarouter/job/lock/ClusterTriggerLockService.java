@@ -33,7 +33,7 @@ import io.datarouter.job.storage.clustertriggerlock.ClusterTriggerLockKey;
 import io.datarouter.job.storage.clustertriggerlock.DatarouterClusterTriggerLockDao;
 import io.datarouter.job.util.Outcome;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.DateTool;
 
 @Singleton
@@ -41,11 +41,11 @@ public class ClusterTriggerLockService{
 	private static final Logger logger = LoggerFactory.getLogger(ClusterTriggerLockService.class);
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private DatarouterClusterJobLockDao jobLockDao;
 	@Inject
 	private DatarouterClusterTriggerLockDao triggerLockDao;
+	@Inject
+	private ServerName serverName;
 
 	public Outcome acquireJobAndTriggerLocks(TriggerLockConfig triggerLockConfig, Date triggerTime, Duration delay){
 		var jobLockAcquired = acquireJobLock(triggerLockConfig, triggerTime, delay);
@@ -117,7 +117,7 @@ public class ClusterTriggerLockService{
 
 	public void releaseThisServersJobLocks(){
 		jobLockDao.scan()
-				.include(triggerLock -> triggerLock.getServerName().equals(datarouterProperties.getServerName()))
+				.include(triggerLock -> triggerLock.getServerName().equals(serverName.get()))
 				.each(lock -> logger.info("releasing clusterJobLock {}", lock.getKey().getJobName()))
 				.map(Databean::getKey)
 				.forEach(jobLockDao::delete);
@@ -148,15 +148,14 @@ public class ClusterTriggerLockService{
 
 	private ClusterTriggerLock toTriggerLock(TriggerLockConfig triggerLockConfig, Date triggerTime){
 		String lockName = triggerLockConfig.jobName;
-		String serverName = datarouterProperties.getServerName();
 		Instant deadline = triggerLockConfig.getSoftDeadline(triggerTime);//should we use hard or soft deadline?
 		Date expirationTime = Date.from(deadline);
-		return new ClusterTriggerLock(lockName, triggerTime, expirationTime, serverName);
+		return new ClusterTriggerLock(lockName, triggerTime, expirationTime, serverName.get());
 	}
 
 	private void logAction(String jobName, Date triggerTime, String action){
 		String logName = jobName + "-" + DateTool.formatAlphanumeric(triggerTime.getTime());
-		logger.info("{} {} lockId {}", datarouterProperties.getServerName(), action, logName);
+		logger.info("{} {} lockId {}", serverName.get(), action, logName);
 	}
 
 	private static void logStrangeTriggerTime(String jobName, Date triggerTime){

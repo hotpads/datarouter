@@ -19,17 +19,17 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.secret.client.local.LocalStorageConfig;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ConfigDirectory;
 
 @Singleton
 public class DatarouterPropertiesLocalStorageConfig implements LocalStorageConfig{
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ConfigDirectory configDirectory;
 
 	@Override
 	public String getConfigDirectory(){
-		return datarouterProperties.getConfigDirectory();
+		return configDirectory.get();
 	}
 
 }

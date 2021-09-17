@@ -34,7 +34,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.time.ZonedDateFormaterTool;
@@ -64,8 +63,6 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	@Inject
 	private DailyDigestService digestService;
 	@Inject
-	private DatarouterService datarouterService;
-	@Inject
 	private StandardDeploymentCount standardDeploymentCount;
 
 	@Override
@@ -80,13 +77,13 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	}
 
 	@Override
-	public Optional<ContainerTag<?>> getEmailContent(){
+	public Optional<ContainerTag<?>> getEmailContent(ZoneId zoneId){
 		var logs = getLogs();
 		if(logs.isEmpty() || logs.size() <= standardDeploymentCount.getNumberOfStandardDeployments()){
 			return Optional.empty();
 		}
 		var header = digestService.makeHeader("Deployments", paths.datarouter.webappInstances);
-		var table = buildEmailTable(logs);
+		var table = buildEmailTable(logs, zoneId);
 		return Optional.of(div(header, table));
 	}
 
@@ -133,8 +130,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 				.build(rows);
 	}
 
-	private ContainerTag<?> buildEmailTable(List<WebappInstanceLogDto> rows){
-		ZoneId zoneId = datarouterService.getZoneId();
+	private ContainerTag<?> buildEmailTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
 		return new J2HtmlEmailTable<WebappInstanceLogDto>()
 				.withColumn("Build Date", row -> ZonedDateFormaterTool.formatInstantWithZone(row.key.build, zoneId))
 				.withColumn("Startup Range", row ->

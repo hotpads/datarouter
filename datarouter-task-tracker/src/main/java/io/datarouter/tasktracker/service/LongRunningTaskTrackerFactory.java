@@ -23,7 +23,7 @@ import javax.inject.Singleton;
 import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.tasktracker.TaskTrackerCounters;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
@@ -40,7 +40,7 @@ public class LongRunningTaskTrackerFactory{
 	@Inject
 	private DatarouterHtmlEmailService datarouterHtmlEmailService;
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServerName serverName;
 	@Inject
 	private LongRunningTaskGraphLink longRunningTaskGraphLink;
 	@Inject
@@ -64,13 +64,13 @@ public class LongRunningTaskTrackerFactory{
 			String triggeredBy){
 		LongRunningTaskInfo task = new LongRunningTaskInfo(
 				trackedClass,
-				datarouterProperties.getServerName(),
+				serverName.get(),
 				type,
 				triggeredBy);
 		return new LongRunningTaskTracker(
 				datarouterTaskTrackerPaths,
 				datarouterHtmlEmailService,
-				datarouterProperties,
+				serverName,
 				longRunningTaskGraphLink,
 				settings.saveLongRunningTasks,
 				longRunningTaskDao.getNode(),

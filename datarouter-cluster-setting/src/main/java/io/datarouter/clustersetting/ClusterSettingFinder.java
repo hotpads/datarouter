@@ -26,7 +26,10 @@ import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSettingKey;
 import io.datarouter.clustersetting.storage.clustersetting.DatarouterClusterSettingDao;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
+import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
+import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.servertype.ServerType;
 import io.datarouter.storage.setting.DatarouterSettingTag;
 import io.datarouter.storage.setting.SettingFinder;
@@ -40,11 +43,17 @@ public class ClusterSettingFinder implements SettingFinder{
 	public static final String EMPTY_STRING = "";
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
 	private DatarouterClusterSettingDao clusterSettingDao;
 	@Inject
 	private CachedClusterSettingTags cachedClusterSettingTags;
+	@Inject
+	private ServerName serverName;
+	@Inject
+	private EnvironmentName environmentName;
+	@Inject
+	private DatarouterServerTypeSupplier serverTypeSupplier;
+	@Inject
+	private DatarouterEnvironmentTypeSupplier environmentType;
 
 	private final List<CachedSetting<?>> allCachedSettings = new ArrayList<>();
 	private Boolean started = false;
@@ -80,22 +89,22 @@ public class ClusterSettingFinder implements SettingFinder{
 
 	@Override
 	public String getEnvironmentType(){
-		return datarouterProperties.getEnvironmentType();
+		return environmentType.get();
 	}
 
 	@Override
 	public String getEnvironmentName(){
-		return datarouterProperties.getEnvironment();
+		return environmentName.get();
 	}
 
 	@Override
 	public ServerType getServerType(){
-		return datarouterProperties.getServerType();
+		return serverTypeSupplier.get();
 	}
 
 	@Override
 	public String getServerName(){
-		return datarouterProperties.getServerName();
+		return serverName.get();
 	}
 
 	@Override
@@ -144,7 +153,7 @@ public class ClusterSettingFinder implements SettingFinder{
 	}
 
 	private ClusterSettingKey getKeyForServerType(String name){
-		ServerType serverType = datarouterProperties.getServerType();
+		ServerType serverType = serverTypeSupplier.get();
 		if(serverType == null || serverType.getPersistentString().equals(ServerType.UNKNOWN.getPersistentString())){
 			return null;
 		}
@@ -156,15 +165,14 @@ public class ClusterSettingFinder implements SettingFinder{
 	}
 
 	private ClusterSettingKey getKeyForServerName(String name){
-		String serverName = datarouterProperties.getServerName();
-		if(StringTool.isEmpty(serverName)){
+		if(StringTool.isEmpty(serverName.get())){
 			return null;
 		}
 		return new ClusterSettingKey(
 				name,
 				ClusterSettingScope.SERVER_NAME,
 				ServerType.UNKNOWN.getPersistentString(),
-				serverName);
+				serverName.get());
 	}
 
 }

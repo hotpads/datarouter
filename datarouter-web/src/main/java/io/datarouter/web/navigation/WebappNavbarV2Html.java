@@ -29,6 +29,11 @@ import java.util.Objects;
 import io.datarouter.web.handler.mav.MavProperties;
 import j2html.attributes.Attr;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
+import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.LiTag;
+import j2html.tags.specialized.NavTag;
+import j2html.tags.specialized.UlTag;
 
 //for bootstrap 4
 public class WebappNavbarV2Html{
@@ -41,7 +46,7 @@ public class WebappNavbarV2Html{
 		this.navbar = Objects.requireNonNull(navbar);
 	}
 
-	public ContainerTag<?> build(){
+	public NavTag build(){
 		var span = span()
 				.withClass("navbar-toggler-icon");
 		var button = button(span)
@@ -57,7 +62,7 @@ public class WebappNavbarV2Html{
 				.with(makeAppNavbarContent());
 	}
 
-	private ContainerTag<?> makeDatarouterLogo(){
+	private ATag makeDatarouterLogo(){
 		var img = img()
 				.withClass("align-top")
 				.withStyle("height: 1.5rem")
@@ -68,13 +73,13 @@ public class WebappNavbarV2Html{
 				.withHref(props.getContextPath() + "/datarouter");
 	}
 
-	private ContainerTag<?> makeAppNavbarContent(){
+	private DivTag makeAppNavbarContent(){
 		return div(makeAppNavBarList(), makeSignOut())
 				.withId("app-navbar-content")
 				.withClass("collapse navbar-collapse");
 	}
 
-	private ContainerTag<?> makeAppNavBarList(){
+	private UlTag makeAppNavBarList(){
 		var menus = navbar.getMenuItems(props.getRequest()).stream()
 				.map(menuItem -> menuItem.isDropdown() ? makeDropdownMenuItem(menuItem)
 						: makeNonDropdownMenuItem(menuItem))
@@ -83,7 +88,7 @@ public class WebappNavbarV2Html{
 				.withClass("navbar-nav mr-auto");
 	}
 
-	private ContainerTag<?> makeDropdownMenuItem(NavBarMenuItem menuItem){
+	private LiTag makeDropdownMenuItem(NavBarMenuItem menuItem){
 		var span = span()
 				.withClass("caret");
 		var link = a()
@@ -96,7 +101,7 @@ public class WebappNavbarV2Html{
 				.withClass("nav-item dropdown");
 	}
 
-	private ContainerTag<?> makeDropdown(NavBarMenuItem menuItem){
+	private DivTag makeDropdown(NavBarMenuItem menuItem){
 		var links = menuItem.getSubItems(props.getRequest()).stream()
 				.map(this::makeDropdownLink)
 				.toArray(ContainerTag[]::new);
@@ -104,7 +109,7 @@ public class WebappNavbarV2Html{
 				.withClass("dropdown-menu");
 	}
 
-	private ContainerTag<?> makeDropdownLink(NavBarMenuItem menuItem){
+	private ATag makeDropdownLink(NavBarMenuItem menuItem){
 		String target = menuItem.openInNewTab() ? "_blank" : "";
 		return a(menuItem.getText())
 				.withClass("dropdown-item")
@@ -112,7 +117,7 @@ public class WebappNavbarV2Html{
 				.withTarget(target);
 	}
 
-	private ContainerTag<?> makeNonDropdownMenuItem(NavBarMenuItem menuItem){
+	private LiTag makeNonDropdownMenuItem(NavBarMenuItem menuItem){
 		var link = a(menuItem.getText())
 				.withClass("nav-link")
 				.withHref(menuItem.getAbsoluteHref(props.getRequest()).toString());
@@ -120,7 +125,7 @@ public class WebappNavbarV2Html{
 				.withClass("nav-item");
 	}
 
-	private ContainerTag<?> makeSignOut(){
+	private UlTag makeSignOut(){
 		var link = a("Sign out")
 				.withClass("nav-link")
 				.withHref(props.getContextPath() + "/signout");

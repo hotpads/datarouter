@@ -33,17 +33,17 @@ import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskFailureAlertEmailType;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobPaths;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.tasktracker.config.DatarouterTaskTrackerPaths;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import j2html.tags.ContainerTag;
 
 public class LongRunningTaskFailureAlertJob extends BaseJob{
@@ -53,7 +53,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	@Inject
 	private DatarouterJobPaths paths;
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServerName serverName;
 	@Inject
 	private LongRunningTaskDao longRunningTaskDao;
 	@Inject
@@ -61,13 +61,13 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 	@Inject
 	private TaskTrackerExceptionLink exceptionLink;
 	@Inject
-	private DatarouterService datarouterService;
-	@Inject
 	private LongRunningTaskFailureAlertEmailType longRunningTaskFailureAlertEmailType;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private DefaultEmailDistributionListZoneId defaultDistributionListZoneId;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -83,7 +83,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 			String primaryHref = emailService.startLinkBuilder()
 					.withLocalPath(paths.datarouter.triggers)
 					.build();
-			ContainerTag<?> content = buildEmail(datarouterProperties.getServerName(), longRunningTaskList);
+			ContainerTag<?> content = buildEmail(serverName.get(), longRunningTaskList);
 			J2HtmlDatarouterEmailBuilder emailBuilder = emailService.startEmailBuilder()
 					.withTitle("LongRunningTaskFailure")
 					.withTitleHref(primaryHref)
@@ -107,7 +107,7 @@ public class LongRunningTaskFailureAlertJob extends BaseJob{
 				.withColumn(new J2HtmlEmailTableColumn<>("Name",
 						row -> makeTaskLink(row.getKey().getName())))
 				.withColumn("Trigger Time", row -> ZonedDateFormaterTool.formatDateWithZone(row.getKey()
-						.getTriggerTime(), datarouterService.getZoneId()))
+						.getTriggerTime(), defaultDistributionListZoneId.get()))
 				.withColumn("Duration", row -> row.getDurationString())
 				.withColumn("Triggered By", row -> row.getTriggeredBy())
 				.withColumn("Status", row -> row.getJobExecutionStatus().getPersistentString())

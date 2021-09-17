@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -68,6 +69,7 @@ import io.datarouter.web.handler.validator.RequestParamValidator;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorErrorResponseDto;
 import io.datarouter.web.handler.validator.RequestParamValidator.RequestParamValidatorResponseDto;
 import io.datarouter.web.security.SecurityValidationResult;
+import io.datarouter.web.user.session.CurrentUserSessionInfoService;
 import io.datarouter.web.user.session.RequestAwareCurrentSessionInfoFactory;
 import io.datarouter.web.user.session.RequestAwareCurrentSessionInfoFactory.RequestAwareCurrentSessionInfo;
 import io.datarouter.web.util.RequestAttributeKey;
@@ -111,6 +113,8 @@ public abstract class BaseHandler{
 	private HandlerMetrics handlerMetrics;
 	@Inject
 	private RequestAwareCurrentSessionInfoFactory requestAwareCurrentSessionInfoFactory;
+	@Inject
+	private CurrentUserSessionInfoService currentUserSessionInfoService;
 
 	private Class<? extends HandlerEncoder> defaultHandlerEncoder;
 	private Class<? extends HandlerDecoder> defaultHandlerDecoder;
@@ -354,6 +358,10 @@ public abstract class BaseHandler{
 
 	protected RequestAwareCurrentSessionInfo getSessionInfo(){
 		return requestAwareCurrentSessionInfo.get();
+	}
+
+	protected ZoneId getUserZoneId(){
+		return currentUserSessionInfoService.getZoneId(request);
 	}
 
 	/*---------------- optionally override these -----------------*/

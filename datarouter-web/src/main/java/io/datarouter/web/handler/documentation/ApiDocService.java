@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
@@ -54,6 +57,7 @@ import io.datarouter.httpclient.endpoint.EndpointRequestBody;
 import io.datarouter.httpclient.endpoint.EndpointTool;
 import io.datarouter.httpclient.endpoint.IgnoredField;
 import io.datarouter.httpclient.security.SecurityParameters;
+import io.datarouter.scanner.OptionalScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.serialization.CompatibleDateTypeAdapter;
@@ -131,18 +135,28 @@ public class ApiDocService{
 				var response = new DocumentedResponseJspDto(responseTypeString, responseExample);
 				boolean isDeprecated = method.isAnnotationPresent(Deprecated.class)
 						|| handler.isAnnotationPresent(Deprecated.class);
+				List<DocumentedErrorJspDto> errors = buildError(method);
 				var endpoint = new DocumentedEndpointJspDto(
 						url,
 						implementation,
 						parameters,
 						description,
 						response,
-						isDeprecated);
+						isDeprecated,
+						errors);
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
 		}
 		return endpoints;
+	}
+
+	private List<DocumentedErrorJspDto> buildError(Method method){
+		return Scanner.of(method.getExceptionTypes())
+				.map(HttpDocumentedExceptionTool::findDocumentation)
+				.concat(OptionalScanner::of)
+				.map(exception -> new DocumentedErrorJspDto(exception.getStatusCode(), exception.getErrorMessage()))
+				.list();
 	}
 
 	private static String buildTypeString(Type type){
@@ -305,6 +319,11 @@ public class ApiDocService{
 			if(Map.class.isAssignableFrom(rawType)){
 				Object key = createBestExample(type0, parentsWithType);
 				Object value = createBestExample(parameterizedType.getActualTypeArguments()[1], parentsWithType);
+				if(SortedMap.class.isAssignableFrom(rawType)){
+					Map<Object,Object> map = new TreeMap<>();
+					map.put(key, value);
+					return map;
+				}
 				return Collections.singletonMap(key, value);
 			}
 			if(Optional.class.isAssignableFrom(rawType)){
@@ -373,19 +392,33 @@ public class ApiDocService{
 		if(clazz == Date.class){
 			return new Date();
 		}
+		if(clazz == Long.class){
+			return 0L;
+		}
+		if(clazz == Short.class){
+			return (short)0;
+		}
 		if(clazz == Integer.class
-				|| clazz == Long.class
 				|| clazz == Number.class){
 			return 0;
 		}
 		if(clazz == LocalDateTime.class){
 			return LocalDateTime.now();
 		}
+		if(clazz == LocalTime.class){
+			return LocalTime.now();
+		}
 		if(clazz == JsonArray.class){
 			return new JsonArray();
 		}
 		if(clazz == JsonObject.class){
 			return new JsonObject();
+		}
+		if(clazz.isEnum()){
+			return clazz.getEnumConstants()[0];
+		}
+		if(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())){
+			return null;
 		}
 		Object example = ReflectionTool.createNullArgsWithUnsafeAllocator(clazz);
 		for(Field field : ReflectionTool.getDeclaredFieldsIncludingAncestors(clazz)){

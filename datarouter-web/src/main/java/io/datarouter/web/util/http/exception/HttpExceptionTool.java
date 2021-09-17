@@ -15,13 +15,23 @@
  */
 package io.datarouter.web.util.http.exception;
 
+import java.util.Optional;
+
 import javax.servlet.http.HttpServletResponse;
+
+import io.datarouter.httpclient.response.exception.DocumentedServerError;
+import io.datarouter.web.handler.documentation.HttpDocumentedExceptionTool;
 
 public class HttpExceptionTool{
 
 	public static int getHttpStatusCodeForException(HttpServletResponse response, Throwable exception){
 		int httpStatusCode;
-		if(exception instanceof HttpException){
+
+		Optional<DocumentedServerError> optDoc = HttpDocumentedExceptionTool
+				.findDocumentationInChain(exception);
+		if(optDoc.isPresent()){
+			httpStatusCode = optDoc.get().getStatusCode();
+		}else if(exception instanceof HttpException){
 			httpStatusCode = ((HttpException)exception).getHttpResponseCode();
 		}else{
 			httpStatusCode = response.getStatus();

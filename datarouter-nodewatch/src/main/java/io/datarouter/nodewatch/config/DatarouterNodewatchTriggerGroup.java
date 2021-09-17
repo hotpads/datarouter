@@ -22,6 +22,7 @@ import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.nodewatch.job.NodewatchConfigurationScanJob;
 import io.datarouter.nodewatch.job.TableCountJob;
 import io.datarouter.nodewatch.job.TableSamplerJob;
+import io.datarouter.nodewatch.job.TableSamplerJobletVacuumJob;
 import io.datarouter.nodewatch.job.TableSizeMonitoringJob;
 import io.datarouter.util.time.ZoneIds;
 
@@ -50,6 +51,11 @@ public class DatarouterNodewatchTriggerGroup extends BaseTriggerGroup{
 				"0 0 14 ? * MON,TUE,WED,THU,FRI *",
 				settings.runConfigurationScanReportEmailJob,
 				NodewatchConfigurationScanJob.class,
+				true);
+		registerLocked(
+				"0 0 6 ? * * *",
+				settings.runTableSamplerJobletVacuumJob,
+				TableSamplerJobletVacuumJob.class,
 				true);
 	}
 

@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.time.ZonedDateFormaterTool;
@@ -62,8 +61,6 @@ public class WebappInstanceServersHandler extends BaseHandler{
 	private DatarouterWebappInstancePaths paths;
 	@Inject
 	private DatarouterWebappInstanceDao webappInstanceDao;
-	@Inject
-	private DatarouterService datarouterService;
 
 	@Handler(defaultHandler = true)
 	private Mav view(){
@@ -94,7 +91,7 @@ public class WebappInstanceServersHandler extends BaseHandler{
 				.withClass("mt-4");
 		var linkBar = Bootstrap4PagerHtml.renderLinkBar(page)
 				.withClass("mt-2");
-		ZoneId zoneId = datarouterService.getZoneId();
+		ZoneId zoneId = getUserZoneId();
 		var table = new J2HtmlTable<WebappInstanceLogDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn("", row -> {

@@ -17,26 +17,23 @@ package io.datarouter.storage.config.properties;
 
 import java.util.function.Supplier;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import io.datarouter.storage.config.ConfigDirectoryConstants;
 
-import io.datarouter.storage.config.DatarouterProperties;
+public class DatarouterTestPropertiesFile implements Supplier<String>{
 
-//Eventually this won't rely on DatarouterProperties. It is temporary while we break up DatarouterProperties
-//so we don't have to do multiple major refactors with every split.
-@Singleton
-public class ConfigFileLocation implements Supplier<String>{
+	private final String testPropertiesFileName;
 
-	private final String configFileLocation;
-
-	@Inject
-	private ConfigFileLocation(DatarouterProperties datarouterProperties){
-		this.configFileLocation = datarouterProperties.getConfigFileLocation();
+	public DatarouterTestPropertiesFile(String testPropertiesFileName){
+		this.testPropertiesFileName = testPropertiesFileName;
 	}
 
 	@Override
 	public String get(){
-		return configFileLocation;
+		return testPropertiesFileName;
+	}
+
+	public String getFileLocation(){
+		return ConfigDirectoryConstants.getTestConfigDirectory() + "/" + testPropertiesFileName;
 	}
 
 }

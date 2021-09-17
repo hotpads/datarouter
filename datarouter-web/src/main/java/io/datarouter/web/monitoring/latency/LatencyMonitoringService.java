@@ -38,14 +38,14 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.client.DatarouterService;
+import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientInitializationTracker;
 import io.datarouter.storage.client.DatarouterClients;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.setting.impl.DatarouterClientAvailabilitySwitchThresholdSettingsProvider;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.storage.node.DatarouterNodes;
@@ -77,9 +77,7 @@ public class LatencyMonitoringService{
 	@Inject
 	private Gauges gauges;
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
-	private DatarouterService datarouterService;
+	private ServiceName serviceName;
 	@Inject
 	private DatarouterClientAvailabilitySwitchThresholdSettingsProvider availabilitySwitchThresholdSettingsProvider;
 	@Inject
@@ -88,6 +86,8 @@ public class LatencyMonitoringService{
 	private LatencyMonitoringGraphLink latencyMonitoringGraphLink;
 	@Inject
 	private DatarouterWebSettingRoot datarouterWebSettingRoot;
+	@Inject
+	private ServerName serverName;
 
 	private final Map<String,Deque<CheckResult>> lastResultsByName = new ConcurrentHashMap<>();
 
@@ -175,8 +175,8 @@ public class LatencyMonitoringService{
 	}
 
 	public String getGraphLink(String checkName){
-		String webapps = datarouterService.getServiceName();
-		String servers = datarouterProperties.getServerName();
+		String webapps = serviceName.get();
+		String servers = serverName.get();
 		String counters = GAUGE_PREFIX + checkName;
 		return latencyMonitoringGraphLink.getGraphLink(webapps, servers, counters);
 	}

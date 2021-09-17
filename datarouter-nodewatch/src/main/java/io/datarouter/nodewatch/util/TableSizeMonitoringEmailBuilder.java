@@ -33,13 +33,14 @@ import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.service.TableSizeMonitoringService.CountStat;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
+import io.datarouter.web.digest.DailyDigestEmailZoneId;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -50,9 +51,11 @@ public class TableSizeMonitoringEmailBuilder{
 	@Inject
 	private DatarouterNodewatchPaths paths;
 	@Inject
-	private DatarouterService datarouterService;
-	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private DailyDigestEmailZoneId dailyDigestEmailZoneId;
+	@Inject
+	private DefaultEmailDistributionListZoneId defaultDistributionListZoneId;
 
 	public ContainerTag<?> build(
 			List<CountStat> thresholdRows,
@@ -75,14 +78,13 @@ public class TableSizeMonitoringEmailBuilder{
 		if(staleRows.size() > 0){
 			var header = h4("Unrecognized tables");
 			var header2 = p("Please reply-all to confirm these tables can be dropped from the database.");
-			var table = makeEmailStaleTable(staleRows);
+			var table = makeEmailStaleTable(staleRows, dailyDigestEmailZoneId.get());
 			body.with(div(header, header2, table));
 		}
 		return body;
 	}
 
-	public ContainerTag<?> makeEmailStaleTable(List<LatestTableCount> staleRows){
-		ZoneId zoneId = datarouterService.getZoneId();
+	public ContainerTag<?> makeEmailStaleTable(List<LatestTableCount> staleRows, ZoneId zoneId){
 		return new J2HtmlEmailTable<LatestTableCount>()
 				.withColumn("Client", row -> row.getKey().getClientName())
 				.withColumn(new J2HtmlEmailTableColumn<>("TABLE", row -> makeTableLink(
@@ -96,7 +98,7 @@ public class TableSizeMonitoringEmailBuilder{
 	}
 
 	public ContainerTag<?> makeCountStatTable(String comparableCount, List<CountStat> stats){
-		ZoneId zoneId = datarouterService.getZoneId();
+		ZoneId zoneId = defaultDistributionListZoneId.get();
 		return new J2HtmlEmailTable<CountStat>()
 				.withColumn("Client", row -> row.latestSample.getKey().getClientName())
 				.withColumn(new J2HtmlEmailTableColumn<>("Table", row -> makeTableLink(

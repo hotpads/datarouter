@@ -38,8 +38,10 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
+import io.datarouter.storage.config.properties.AdminEmail;
+import io.datarouter.storage.config.properties.EnvironmentName;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.ClusterSchemaUpdateLock;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -51,7 +53,9 @@ public abstract class BaseSchemaUpdateService{
 
 	private static final long THROTTLING_DELAY_SECONDS = 10;
 
-	private final DatarouterProperties datarouterProperties;
+	private final ServerName serverName;
+	private final EnvironmentName environmentName;
+	private final AdminEmail adminEmail;
 	private final DatarouterSchemaUpdateScheduler executor;
 	private final Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao;
 	private final Provider<ChangelogRecorder> changelogRecorder;
@@ -61,12 +65,16 @@ public abstract class BaseSchemaUpdateService{
 	private final List<Future<Optional<SchemaUpdateResult>>> futures;
 
 	public BaseSchemaUpdateService(
-			DatarouterProperties datarouterProperties,
+			ServerName serverName,
+			EnvironmentName environmentName,
+			AdminEmail adminEmail,
 			DatarouterSchemaUpdateScheduler executor,
 			Provider<DatarouterClusterSchemaUpdateLockDao> schemaUpdateLockDao,
 			Provider<ChangelogRecorder> changelogRecorder,
 			String buildId){
-		this.datarouterProperties = datarouterProperties;
+		this.serverName = serverName;
+		this.environmentName = environmentName;
+		this.adminEmail = adminEmail;
 		this.executor = executor;
 		this.schemaUpdateLockDao = schemaUpdateLockDao;
 		this.changelogRecorder = changelogRecorder;
@@ -139,7 +147,7 @@ public abstract class BaseSchemaUpdateService{
 		printedSchemaUpdates.forEach((clientId, ddlList) -> {
 			String blocking = isBlocking ? " - Blocking " : " ";
 			String subject = "SchemaUpdate Request" + blocking + "on " + clientId.getName() + " from "
-					+ datarouterProperties.getEnvironment();
+					+ environmentName.get();
 			StringBuilder allStatements = new StringBuilder();
 			ddlList.forEach(ddl -> allStatements.append(ddl).append("\n\n"));
 			logger.warn("Sending schema update email for client={}", clientId.getName());
@@ -173,7 +181,7 @@ public abstract class BaseSchemaUpdateService{
 		ClusterSchemaUpdateLock lock = new ClusterSchemaUpdateLock(
 				build,
 				statement,
-				datarouterProperties.getServerName(),
+				serverName.get(),
 				now);
 		try{
 			schemaUpdateLockDao.get().putAndAcquire(lock);
@@ -193,7 +201,7 @@ public abstract class BaseSchemaUpdateService{
 					"SchemaUpdate",
 					"clientId: " + clientId.getName(),
 					"SchemaUpdate request",
-					datarouterProperties.getAdministratorEmail())
+					adminEmail.get())
 					.withComment(allStatements.toString())
 					.build();
 				changelogRecorder.get().record(dto);

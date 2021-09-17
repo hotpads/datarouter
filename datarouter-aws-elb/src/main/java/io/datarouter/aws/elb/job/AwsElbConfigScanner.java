@@ -26,8 +26,9 @@ import com.amazonaws.services.elasticloadbalancingv2.model.LoadBalancer;
 import com.amazonaws.services.elasticloadbalancingv2.model.LoadBalancerSchemeEnum;
 
 import io.datarouter.aws.elb.service.ElbService;
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.httpclient.client.service.PrivateDomain;
+import io.datarouter.httpclient.client.service.PublicDomain;
+import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.util.aws.Ec2InstanceDetailsDto;
 import io.datarouter.util.aws.Ec2InstanceTool;
 import io.datarouter.web.autoconfig.ConfigScanDto;
@@ -41,15 +42,17 @@ public class AwsElbConfigScanner{
 	private static final String UNKNOWN_LOAD_BALANCER = "unknownAlb";
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
-	@Inject
-	private DatarouterService datarouterService;
+	private DatarouterServerTypeSupplier serverTypeSupplier;
 	@Inject
 	private ElbService elbService;
+	@Inject
+	private PrivateDomain privateDomain;
+	@Inject
+	private PublicDomain publicDomain;
 
 	public ConfigScanDto checkAlbSchemeForEc2Instance(){
 		Optional<Ec2InstanceDetailsDto> ec2InstanceDetailsDto = Ec2InstanceTool.getEc2InstanceDetails();
-		String serverType = datarouterProperties.getServerTypeString();
+		String serverType = serverTypeSupplier.getServerTypeString();
 
 		if(ec2InstanceDetailsDto.isEmpty()){
 			return ConfigScanResponseTool.buildEmptyResponse();
@@ -67,14 +70,16 @@ public class AwsElbConfigScanner{
 					+ " target group, etc");
 		}
 
-		if(datarouterService.hasPublicDomain() && !hasPublicAlb){
+		if(publicDomain.hasPublicDomain() && !hasPublicAlb){
 			return ConfigScanResponseTool.buildResponse("Server expects public load balancer");
 		}
-		if(!datarouterService.hasPublicDomain() && hasPublicAlb){
+		if(!publicDomain.hasPublicDomain() && hasPublicAlb){
 			return ConfigScanResponseTool.buildResponse("Server has unexpected public load balancer");
 		}
-		if(datarouterService.hasPublicDomain() && !hasPublicAlb
-				&& datarouterService.hasPrivateDomain() && !hasPrivateAlb){
+		if(publicDomain.hasPublicDomain()
+				&& !hasPublicAlb
+				&& privateDomain.hasPrivateDomain()
+				&& !hasPrivateAlb){
 			return ConfigScanResponseTool.buildResponse("Server expects both public and private load"
 					+ " balancers but it is " + hasPublicAlb + " for public ALB and " + hasPrivateAlb
 					+ " for private ALB");

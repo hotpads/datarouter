@@ -20,6 +20,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -29,13 +30,13 @@ import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.email.type.DatarouterEmailTypes.WebappInstanceAlertEmailType;
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.util.tuple.Twin;
+import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceSettingRoot;
 import io.datarouter.webappinstance.service.WebappInstanceService;
@@ -54,13 +55,13 @@ public class WebappInstanceAlertJob extends BaseJob{
 	@Inject
 	private DatarouterWebappInstancePaths paths;
 	@Inject
-	private DatarouterService datarouterService;
-	@Inject
 	private WebappInstanceAlertEmailType webappInstanceAlertEmailType;
 	@Inject
 	private ServerTypeDetector serverTypeDetector;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private DefaultEmailDistributionListZoneId defaultDistributionListZoneId;
 
 	@Override
 	public void run(TaskTracker tracker){
@@ -91,14 +92,15 @@ public class WebappInstanceAlertJob extends BaseJob{
 	}
 
 	private ContainerTag<?> makeContent(WebappInstance webappInstance){
+		ZoneId zoneId = defaultDistributionListZoneId.get();
 		var rows = List.of(
 				new Twin<>("webapp", webappInstance.getKey().getWebappName()),
 				new Twin<>("build date", ZonedDateFormaterTool.formatInstantWithZone(
 						webappInstance.getBuildInstant(),
-						datarouterService.getZoneId())),
+						zoneId)),
 				new Twin<>("startup date", ZonedDateFormaterTool.formatInstantWithZone(
 						webappInstance.getStartupInstant(),
-						datarouterService.getZoneId())),
+						zoneId)),
 				new Twin<>("commitId", webappInstance.getCommitId()));
 		return new J2HtmlEmailTable<Twin<String>>()
 				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))

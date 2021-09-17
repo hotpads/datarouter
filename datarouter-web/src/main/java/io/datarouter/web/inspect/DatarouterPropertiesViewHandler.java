@@ -17,12 +17,9 @@ package io.datarouter.web.inspect;
 
 import static j2html.TagCreator.div;
 
-import java.util.stream.Collectors;
-
 import javax.inject.Inject;
 
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.web.app.WebappName;
+import io.datarouter.storage.config.DatarouterPropertiesService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlLegendTable;
@@ -32,11 +29,9 @@ import j2html.tags.ContainerTag;
 public class DatarouterPropertiesViewHandler extends BaseHandler{
 
 	@Inject
-	private DatarouterProperties properties;
-	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
-	private WebappName webappName;
+	private DatarouterPropertiesService service;
 
 	@Handler(defaultHandler = true)
 	public Mav view(){
@@ -49,31 +44,10 @@ public class DatarouterPropertiesViewHandler extends BaseHandler{
 
 	private ContainerTag<?> makeTable(){
 		var table = new J2HtmlLegendTable()
-				.withHeader("Datarouter Properties")
 				.withClass("sortable table table-sm border table-striped")
-				.withSingleRow(false)
-
-				.withEntry("webappName", webappName.getName())
-
-				.withEntry("server.name", properties.getServerName())
-				.withEntry("server.type", properties.getServerType().getPersistentString())
-				.withEntry("server.publicIp", properties.getServerPublicIp())
-				.withEntry("server.privateIp", properties.getServerPrivateIp())
-
-				.withEntry("enviornment", properties.getEnvironment())
-				.withEntry("enviornmentDomain", properties.getEnvironmentDomain())
-				.withEntry("enviornmentType", properties.getEnvironmentType())
-
-				.withEntry("internalConfigDirectory", properties.getInternalConfigDirectory())
-				.withEntry("configDirectory", properties.getConfigDirectory())
-				.withEntry("configFileLocation", properties.getConfigFileLocation())
-
-				.withEntry("clusterDomains", properties.getServerClusterDomains().stream()
-						.collect(Collectors.joining("\n")))
-				.withEntry("datarouterPropertiesFileLocation", properties.getDatarouterPropertiesFileLocation())
-
-				.build();
-		return div(table)
+				.withSingleRow(false);
+		service.getAllProperties().forEach(row -> table.withEntry(row.getLeft(), row.getRight()));
+		return div(table.build())
 				.withClass("container my-4");
 	}
 

@@ -9,7 +9,7 @@ datarouter-copy-table is tool that allows you to easily migrate tables of any si
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-copy-table</artifactId>
-	<version>0.0.87</version>
+	<version>0.0.88</version>
 </dependency>
 ```
 

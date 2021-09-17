@@ -54,8 +54,8 @@ import io.datarouter.joblet.type.JobletTypeFactory;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
-import io.datarouter.storage.config.DatarouterProperties;
 import io.datarouter.storage.config.PutMethod;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.HashMethods;
 import io.datarouter.util.timer.PhaseTimer;
 import io.datarouter.util.tuple.Range;
@@ -69,7 +69,7 @@ public class JobletService{
 	public static final int MAX_JOBLET_RETRIES = 10;
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServerName serverName;
 	@Inject
 	private JobletRequestQueueManager jobletRequestQueueManager;
 	@Inject
@@ -357,7 +357,7 @@ public class JobletService{
 		if(minThreadsPerInstance >= instanceLimit){
 			effectiveLimit = instanceLimit;
 		}else{
-			String thisServerName = datarouterProperties.getServerName();
+			String thisServerName = serverName.get();
 			runExtraThread = IntStream.range(0, numExtraThreads)
 					.mapToObj(threadIdx -> (firstExtraInstanceIdx + threadIdx) % numInstances)
 					.map(serverNames::get)

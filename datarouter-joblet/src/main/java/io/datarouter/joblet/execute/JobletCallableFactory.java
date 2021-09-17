@@ -22,14 +22,14 @@ import io.datarouter.joblet.DatarouterJobletCounters;
 import io.datarouter.joblet.service.JobletFactory;
 import io.datarouter.joblet.service.JobletService;
 import io.datarouter.joblet.type.JobletType;
-import io.datarouter.storage.config.DatarouterProperties;
+import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.mutable.MutableBoolean;
 
 @Singleton
 public class JobletCallableFactory{
 
 	@Inject
-	private DatarouterProperties datarouterProperties;
+	private ServerName serverName;
 	@Inject
 	private JobletService jobletService;
 	@Inject
@@ -39,8 +39,15 @@ public class JobletCallableFactory{
 
 	public JobletCallable create(MutableBoolean shutdownRequested, JobletProcessor jobletProcessor,
 			JobletType<?> jobletType, long id){
-		return new JobletCallable(datarouterProperties, jobletService, jobletFactory, datarouterJobletCounters,
-				shutdownRequested, jobletProcessor, jobletType, id);
+		return new JobletCallable(
+				serverName,
+				jobletService,
+				jobletFactory,
+				datarouterJobletCounters,
+				shutdownRequested,
+				jobletProcessor,
+				jobletType,
+				id);
 	}
 
 }

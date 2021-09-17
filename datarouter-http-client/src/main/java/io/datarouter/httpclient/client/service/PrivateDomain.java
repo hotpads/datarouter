@@ -13,31 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.storage;
+package io.datarouter.httpclient.client.service;
 
+import java.util.function.Supplier;
+
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.storage.config.DatarouterProperties;
-import io.datarouter.storage.servertype.BaseServerTypes;
-import io.datarouter.storage.servertype.ServerType;
+import io.datarouter.httpclient.client.DatarouterService;
 
+//includes host and port, like localhost:8443
 @Singleton
-public class TestDatarouterProperties extends DatarouterProperties{
+public class PrivateDomain implements Supplier<String>{
 
-	private final String datarouterTestFileLocation;
+	private final String privateDomain;
 
-	public TestDatarouterProperties(){
-		this("datarouter-test");
-	}
-
-	public TestDatarouterProperties(String serviceName){
-		super(new BaseServerTypes(ServerType.DEV), serviceName);
-		datarouterTestFileLocation = findConfigFile("datarouter-test.properties");
+	@Inject
+	public PrivateDomain(DatarouterService service){
+		this.privateDomain = service.getPrivateDomain();
 	}
 
 	@Override
-	public String getDatarouterPropertiesFileLocation(){
-		return datarouterTestFileLocation;
+	public String get(){
+		return privateDomain;
+	}
+
+	public boolean hasPrivateDomain(){
+		return privateDomain != null;
 	}
 
 }
