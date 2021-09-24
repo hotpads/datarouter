@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.util.lang.ObjectTool;
+import io.datarouter.util.Require;
 import io.datarouter.web.exception.InvalidCredentialsException;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.GlobalRedirectMav;
@@ -54,7 +54,7 @@ public class OneTimeLoginService{
 			String serverName,
 			Boolean shouldUseIp,
 			HttpServletRequest request){
-		ObjectTool.requireNonNulls(session, session.getUserId());
+		Require.noNulls(session, session.getUserId());
 		WebappInstance target = webappInstanceDao.get(new WebappInstanceKey(webappName, serverName));
 		if(target == null){
 			return new MessageMav("specified web app instance does not exist: " + serverName);

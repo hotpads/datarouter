@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Java11;
-import io.datarouter.util.UlidTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.tuple.Pair;
 
@@ -38,11 +37,10 @@ import io.datarouter.util.tuple.Pair;
  */
 public class PhaseTimer{
 
-	private final String id;
-	private final List<Pair<String,Long>> phaseNamesAndTimes = new ArrayList<>();
-	private String name;
+	private final String name;
 
-	private long lastMarker = System.currentTimeMillis();
+	private final List<Pair<String,Long>> phaseNamesAndTimes = new ArrayList<>();
+	private long lastMarker;
 
 	public PhaseTimer(){
 		this(null);
@@ -50,7 +48,7 @@ public class PhaseTimer{
 
 	public PhaseTimer(String name){
 		this.name = name;
-		id = UlidTool.nextUlid();
+		this.lastMarker = System.currentTimeMillis();
 	}
 
 	/*------------------------- static factories ----------------------------*/
@@ -99,21 +97,11 @@ public class PhaseTimer{
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append("[total=").append(getElapsedTimeBetweenFirstAndLastEvent()).append("]");
+		sb.append("[total=").append(getElapsedTimeBetweenFirstAndLastEvent());
 		if(name != null){
-			sb.append("<").append(name).append(">");
+			sb.append(" name=").append(name);
 		}
-		phaseNamesAndTimes.forEach(pair -> sb.append("[" + pair.getLeft() + "=" + pair.getRight() + "]"));
-		return sb.toString();
-	}
-
-	public String intermediateToString(){
-		StringBuilder sb = new StringBuilder();
-		sb.append("[intermediate total=").append(getElapsedTimeBetweenFirstAndLastEvent()).append("]");
-		sb.append("<id=").append(id).append(">");
-		if(name != null){
-			sb.append("<name=").append(name).append(">");
-		}
+		sb.append("]");
 		phaseNamesAndTimes.forEach(pair -> sb.append("[" + pair.getLeft() + "=" + pair.getRight() + "]"));
 		return sb.toString();
 	}
@@ -141,10 +129,6 @@ public class PhaseTimer{
 	public Map<String,Long> asMap(){
 		return Scanner.of(phaseNamesAndTimes)
 				.toMapSupplied(Pair::getLeft, Pair::getRight, LinkedHashMap::new);
-	}
-
-	public void setName(String name){
-		this.name = name;
 	}
 
 	public String getName(){

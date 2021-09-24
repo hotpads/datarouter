@@ -32,7 +32,6 @@ import io.datarouter.filesystem.node.queue.DirectoryQueueNode;
 import io.datarouter.filesystem.raw.DirectoryManager;
 import io.datarouter.filesystem.raw.DirectoryManager.DirectoryManagerFactory;
 import io.datarouter.filesystem.raw.queue.DirectoryQueue;
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
 import io.datarouter.model.key.entity.EntityKey;
@@ -54,6 +53,7 @@ import io.datarouter.storage.node.adapter.trace.physical.PhysicalQueueStorageTra
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.op.raw.QueueStorage.PhysicalQueueStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class FilesystemClientNodeFactory

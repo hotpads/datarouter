@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient.client.service;
+package io.datarouter.web.config.service;
+
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class DomainFinder{
+public class ServiceName implements Supplier<String>{
+
+	private final String serviceName;
 
 	@Inject
-	private PrivateDomain privateDomain;
-	@Inject
-	private PublicDomain publicDomain;
-
-	public String getDomainPreferPrivate(){
-		return privateDomain.hasPrivateDomain() ? privateDomain.get() : publicDomain.get();
+	public ServiceName(String serviceName){
+		this.serviceName = serviceName;
 	}
 
-	public String getDomainPreferPublic(){
-		return publicDomain.hasPublicDomain() ? publicDomain.get() : privateDomain.get();
+	@Override
+	public String get(){
+		return serviceName;
 	}
 
 }

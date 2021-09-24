@@ -31,8 +31,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.navigation.AppNavBarRegistrySupplier;
 import io.datarouter.web.navigation.AppPluginNavBarSupplier;

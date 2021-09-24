@@ -24,7 +24,6 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.job.config.DatarouterJobWebappConfigBuilder;
 import io.datarouter.joblet.config.DatarouterJobletPlugin.DatarouterJobletPluginBuilder;
@@ -54,13 +53,18 @@ extends DatarouterJobWebappConfigBuilder<T>{
 	extends DatarouterJobletWebappConfigBuilder<DatarouterJobletWebappBuilderImpl>{
 
 		public DatarouterJobletWebappBuilderImpl(
-				DatarouterService datarouterService,
+				String serviceName,
+				String publicDomain,
+				String privateDomain,
 				String contextName,
 				ServerTypes serverTypes,
 				List<ClientId> defaultClientIds,
 				List<ClientId> defaultQueueClientIds,
 				ServletContextListener log4jServletContextListener){
-			super(datarouterService,
+			super(
+					serviceName,
+					publicDomain,
+					privateDomain,
 					contextName,
 					serverTypes,
 					defaultClientIds,
@@ -76,13 +80,22 @@ extends DatarouterJobWebappConfigBuilder<T>{
 	}
 
 	public DatarouterJobletWebappConfigBuilder(
-			DatarouterService datarouterService,
+			String serviceName,
+			String publicDomain,
+			String privateDomain,
 			String contextName,
 			ServerTypes serverTypes,
 			List<ClientId> defaultClientIds,
 			List<ClientId> defaultQueueClientIds,
 			ServletContextListener log4jServletContextListener){
-		super(datarouterService, contextName, serverTypes, defaultClientIds, log4jServletContextListener);
+		super(
+				serviceName,
+				publicDomain,
+				privateDomain,
+				contextName,
+				serverTypes,
+				defaultClientIds,
+				log4jServletContextListener);
 		this.defaultQueueClientIds = defaultQueueClientIds;
 		this.jobletTypes = new ArrayList<>();
 		this.jobletExternalLinkBuilder = NoOpJobletExternalLinkBuilder.class;

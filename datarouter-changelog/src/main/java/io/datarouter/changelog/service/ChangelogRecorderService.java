@@ -23,10 +23,10 @@ import javax.inject.Singleton;
 import io.datarouter.changelog.config.DatarouterChangelogSettingRoot;
 import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogDao;
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.changelog.ChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogPublisher;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class ChangelogRecorderService implements ChangelogRecorder{

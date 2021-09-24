@@ -17,9 +17,9 @@ package io.datarouter.auth.web;
 
 import javax.inject.Inject;
 
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.config.RouteSetRegistry;
+import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.handler.documentation.DocumentationRouteSet;
 import io.datarouter.web.handler.mav.Mav;
 

@@ -80,8 +80,7 @@ extends BaseConveyor{
 		logger.info("acked conveyor={} messageCount={}", name, databeans.size());
 		timer.add("acked");
 		ConveyorCounters.incAck(this);
-		timer.setName("messageCount=" + databeans.size());
-		logger.debug("{}", timer);
+		logger.debug("messageCount={} {}", databeans.size(), timer);
 		return new ProcessBatchResult(true);
 	}
 

@@ -75,6 +75,7 @@ implements Callable<List<JobletPackage>>{
 	private final long periodStartMs;
 
 	private final List<JobletPackage> jobletPackages = new ArrayList<>();
+	private int jobletBatchSequence = RandomTool.nextPositiveInt();//in case multiple threads start in the same millisec
 	private int numExisting = 0;
 	private int numMerged = 0;
 	private int numConsidered = 0;
@@ -319,7 +320,7 @@ implements Callable<List<JobletPackage>>{
 		Objects.requireNonNull(end);
 		//we want all joblets created by the parent job to have the same creation time so none have execution priority
 		Instant jobletCreationDate = Instant.ofEpochMilli(samplerStartMs);
-		int batchSequence = RandomTool.nextPositiveInt();
+		int batchSequence = jobletBatchSequence++;
 		TableSampleKey startSampleKey = Optional.ofNullable(start)
 				.map(TableSample::getKey)
 				.orElse(null);

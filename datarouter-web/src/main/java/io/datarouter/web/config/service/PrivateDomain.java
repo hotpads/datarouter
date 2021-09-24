@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient.client.service;
+package io.datarouter.web.config.service;
 
 import java.util.function.Supplier;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-/**
- * root path segment
- *
- * inject this class when unable to inject ServletContextSuppleir
- *
- */
+//includes host and port, like localhost:8443
 @Singleton
-public class ContextName implements Supplier<String>{
+public class PrivateDomain implements Supplier<String>{
 
-	private final String contextName;
+	private final String privateDomain;
 
-	public ContextName(String contextName){
-		this.contextName = contextName;
+	@Inject
+	public PrivateDomain(String privateDomain){
+		this.privateDomain = privateDomain;
 	}
 
 	@Override
 	public String get(){
-		return contextName;
+		return privateDomain;
 	}
 
-	public String getContextPath(){
-		return contextName == null ? "" : "/" + contextName;
+	public boolean hasPrivateDomain(){
+		return privateDomain != null;
 	}
 
 }

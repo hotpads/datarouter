@@ -18,7 +18,6 @@ package io.datarouter.secret.client;
 import java.util.Objects;
 
 import io.datarouter.util.Require;
-import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 
 //TODO metadata would include version(s), tags, description, created/updated info, etc.
@@ -49,7 +48,7 @@ public final class Secret{
 	}
 
 	public static void validateSecret(Secret secret){
-		ObjectTool.requireNonNulls(secret, secret.value);
+		Require.noNulls(secret, secret.value);
 		validateName(secret.name);
 	}
 

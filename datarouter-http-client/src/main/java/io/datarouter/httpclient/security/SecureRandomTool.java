@@ -13,33 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient.client.service;
+package io.datarouter.httpclient.security;
 
-import java.util.function.Supplier;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+public class SecureRandomTool{
 
-import io.datarouter.httpclient.client.DatarouterService;
-
-//includes host and port, like localhost:8443
-@Singleton
-public class PrivateDomain implements Supplier<String>{
-
-	private final String privateDomain;
-
-	@Inject
-	public PrivateDomain(DatarouterService service){
-		this.privateDomain = service.getPrivateDomain();
-	}
-
-	@Override
-	public String get(){
-		return privateDomain;
-	}
-
-	public boolean hasPrivateDomain(){
-		return privateDomain != null;
+	public static SecureRandom getInstance(String algorithm){
+		try{
+			return SecureRandom.getInstance(algorithm);
+		}catch(NoSuchAlgorithmException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 }

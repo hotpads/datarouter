@@ -30,7 +30,6 @@ import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecord
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.storage.config.properties.ServerName;
@@ -38,6 +37,7 @@ import io.datarouter.storage.exception.ExceptionCategory;
 import io.datarouter.storage.exception.UnknownExceptionCategory;
 import io.datarouter.web.app.WebappName;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
+import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.dispatcher.Dispatcher;
 import io.datarouter.web.exception.ExceptionCounters;
 import io.datarouter.web.exception.ExceptionHandlingConfig;

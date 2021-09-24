@@ -20,7 +20,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import io.datarouter.util.lang.ObjectTool;
+import io.datarouter.util.Require;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.user.authenticate.authenticator.DatarouterAuthenticator;
@@ -62,7 +62,7 @@ public interface DatarouterAuthenticationConfig{
 	Duration getSessionTokenTimeoutDuration();
 
 	default boolean isSessionExpired(Session session){
-		ObjectTool.requireNonNulls(session, session.getUpdated());
+		Require.noNulls(session, session.getUpdated());
 		return getSessionTokenTimeoutDuration().minus(DurationTool.sinceDate(session.getUpdated())).isNegative();
 	}
 

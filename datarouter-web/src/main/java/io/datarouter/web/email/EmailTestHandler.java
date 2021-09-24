@@ -26,8 +26,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.properties.ServerName;

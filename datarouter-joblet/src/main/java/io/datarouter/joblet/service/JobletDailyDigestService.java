@@ -29,7 +29,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.service.DomainFinder;
 import io.datarouter.httpclient.dto.BaseGsonDto;
 import io.datarouter.joblet.enums.JobletStatus;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
@@ -37,6 +36,7 @@ import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.web.config.service.DomainFinder;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.tags.ContainerTag;
 

@@ -125,7 +125,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 		String nodeName = getName();
 		Durability durability = HBaseConfigTool.getDurability(config);
 		int batchSize = config.findInputBatchSize().orElse(DEFAULT_WRITE_BATCH_SIZE);
-		for(List<D> databeanBatch : Scanner.of(databeans).batch(batchSize).iterable()){
+		Scanner.of(databeans).batch(batchSize).forEach(databeanBatch -> {
 			List<Row> actions = new ArrayList<>();
 			int numCellsPut = 0;
 			int putBytes = 0;
@@ -206,7 +206,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 					throw new RuntimeException(e);
 				}
 			}
-		}
+		});
 	}
 
 	@Override
@@ -314,7 +314,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 		String nodeName = getName();
 		Collection<String> nonKeyColumnNames = getFieldInfo().getNonKeyFieldByColumnName().keySet();
 		int batchSize = config.findInputBatchSize().orElse(DEFAULT_WRITE_BATCH_SIZE);
-		for(List<PK> keyBatch : Scanner.of(keys).batch(batchSize).iterable()){
+		Scanner.of(keys).batch(batchSize).forEach(keyBatch -> {
 			Map<EK,List<PK>> pksByEk = EntityTool.getPrimaryKeysByEntityKey(keyBatch);
 			ArrayList<Row> deletes = new ArrayList<>();// api requires ArrayList
 			for(Entry<EK,List<PK>> ekAndPks : pksByEk.entrySet()){
@@ -351,7 +351,7 @@ implements PhysicalSubEntitySortedMapStorageNode<EK,PK,D,F>, HBaseIncrement<PK>{
 			}catch(IOException | InterruptedException e){
 				throw new RuntimeException(e);
 			}
-		}
+		});
 	}
 
 }

@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServlet;
 
 import com.google.inject.Module;
 
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.httpclient.proxy.RequestProxySetter;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.instrumentation.test.TestableService;
@@ -91,7 +90,9 @@ public abstract class DatarouterWebWebappConfigBuilder<T extends DatarouterWebWe
 implements WebappBuilder{
 
 	// datarouter-storage
-	private final DatarouterService datarouterService;
+	private final String serviceName;
+	private final String publicDomain;
+	private final String privateDomain;
 	private final String contextName;
 	private final ServerTypes serverTypes;
 	private final Set<String> subscribers;
@@ -160,12 +161,21 @@ implements WebappBuilder{
 	extends DatarouterWebWebappConfigBuilder<DatarouterWebWebappBuilderImpl>{
 
 		public DatarouterWebWebappBuilderImpl(
-				DatarouterService datarouterService,
+				String serviceName,
+				String publicDomain,
+				String privateDomain,
 				String contextName,
 				ServerTypes serverTypes,
 				List<ClientId> defaultClientIds,
 				ServletContextListener log4jServletContextListener){
-			super(datarouterService, contextName, serverTypes, defaultClientIds, log4jServletContextListener);
+			super(
+					serviceName,
+					publicDomain,
+					privateDomain,
+					contextName,
+					serverTypes,
+					defaultClientIds,
+					log4jServletContextListener);
 		}
 
 		@Override
@@ -176,12 +186,16 @@ implements WebappBuilder{
 	}
 
 	protected DatarouterWebWebappConfigBuilder(
-			DatarouterService datarouterService,
+			String serviceName,
+			String publicDomain,
+			String privateDomain,
 			String contextName,
 			ServerTypes serverTypes,
 			List<ClientId> defaultClientIds,
 			ServletContextListener log4jServletContextListener){
-		this.datarouterService = datarouterService;
+		this.serviceName = serviceName;
+		this.publicDomain = publicDomain;
+		this.privateDomain = privateDomain;
 		this.contextName = contextName;
 		this.serverTypes = serverTypes;
 		this.defaultClientIds = defaultClientIds;
@@ -259,7 +273,9 @@ implements WebappBuilder{
 		modules.addAll(webPlugins);
 
 		DatarouterWebPluginBuilder webPluginBuilder = new DatarouterWebPluginBuilder(
-				datarouterService,
+				serviceName,
+				publicDomain,
+				privateDomain,
 				contextName,
 				defaultClientIds)
 				.setCustomStaticFileFilterRegex(customStaticFileFilterRegex)

@@ -22,7 +22,6 @@ import java.util.List;
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -35,6 +34,7 @@ import io.datarouter.storage.node.op.raw.GroupQueueStorage.PhysicalGroupQueueSto
 import io.datarouter.storage.op.scan.queue.group.PeekMultiGroupUntilEmptyQueueStorageScanner;
 import io.datarouter.storage.queue.BaseQueueMessage;
 import io.datarouter.storage.queue.GroupQueueMessage;
+import io.datarouter.web.config.service.ServiceName;
 
 public class SqsGroupNode<
 		PK extends PrimaryKey<PK>,

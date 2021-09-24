@@ -25,7 +25,6 @@ import javax.inject.Singleton;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.util.Require;
 import io.datarouter.util.cached.Cached;
-import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
@@ -81,7 +80,7 @@ public class CachedSecretFactory{
 
 	private <T> CachedSecret<T> cacheSecretInternal(Supplier<String> nameSupplier, Class<T> secretClass,
 			Optional<T> defaultValue, boolean isShared){
-		ObjectTool.requireNonNulls(nameSupplier, secretClass);
+		Require.noNulls(nameSupplier, secretClass);
 		Require.isFalse(StringTool.isNullOrEmptyOrWhitespace(nameSupplier.get()));
 		return new CachedSecret<>(nameSupplier, secretClass, isShared, defaultValue);
 	}

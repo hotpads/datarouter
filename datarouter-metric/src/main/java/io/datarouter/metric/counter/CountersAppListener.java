@@ -18,7 +18,6 @@ package io.datarouter.metric.counter;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.metric.config.DatarouterCountSettingRoot;
 import io.datarouter.metric.counter.collection.CountFlusher;
@@ -26,6 +25,7 @@ import io.datarouter.metric.counter.collection.CountFlusher.CountFlusherFactory;
 import io.datarouter.metric.counter.collection.CountPartitions;
 import io.datarouter.metric.counter.collection.DatarouterCountCollector;
 import io.datarouter.storage.config.properties.ServerName;
+import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.listener.DatarouterAppListener;
 
 @Singleton

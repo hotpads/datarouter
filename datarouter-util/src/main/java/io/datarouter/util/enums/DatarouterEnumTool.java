@@ -24,6 +24,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.Java9;
@@ -31,6 +34,7 @@ import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 
 public class DatarouterEnumTool{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterEnumTool.class);
 
 	/*--------------- comparator that compares the persistent values --------*/
 
@@ -97,22 +101,20 @@ public class DatarouterEnumTool{
 
 	public static <T extends PersistentString> Optional<T> findEnumFromString(T[] values, String value,
 			boolean caseSensitive){
-		for(T enumEntry : values){
-			String persistentString = enumEntry.getPersistentString();
-			if(persistentString == null){
-				if(value == null){
-					return Optional.of(enumEntry);
-				}
-				continue;
-			}
-			if(caseSensitive && persistentString.equals(value)
-					|| !caseSensitive && persistentString.equalsIgnoreCase(value)){
-				return Optional.of(enumEntry);
-			}
+		if(value == null){
+			return Optional.empty();
 		}
-		return Optional.empty();
+		return Scanner.of(values)
+				.exclude(enumEntry -> enumEntry.getPersistentString() == null)
+				.include(enumEntry -> {
+					String persistentString = enumEntry.getPersistentString();
+					if(caseSensitive){
+						return persistentString.equals(value);
+					}
+					return persistentString.equalsIgnoreCase(value);
+				})
+				.findFirst();
 	}
-
 
 	/*------------------------- multiple values -----------------------------*/
 

@@ -24,7 +24,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.type.DatarouterEmailTypes.NodewatchEmailType;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
@@ -43,6 +42,7 @@ import io.datarouter.storage.node.tableconfig.TableConfigurationService;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.tuple.Twin;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.ContainerTag;
 
 @Singleton

@@ -24,8 +24,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.CountKeysEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
@@ -47,6 +45,8 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.MessageMav;
 import io.datarouter.web.handler.types.optional.OptionalBoolean;

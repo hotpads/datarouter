@@ -15,6 +15,7 @@
  */
 package io.datarouter.util;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,6 +47,16 @@ public class Require{
 			throw new IllegalArgumentException(message);
 		}
 		return argument;
+	}
+
+	public static void noNulls(Object... objects){
+		noNulls(Optional.empty(), objects);
+	}
+
+	public static void noNulls(Optional<String> message, Object... objects){
+		String messageStr = message.orElse(null);
+		Arrays.stream(objects)
+				.forEach(object -> notNull(object, messageStr));
 	}
 
 	public static <T> void equals(T first, T second){

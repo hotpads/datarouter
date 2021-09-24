@@ -20,12 +20,12 @@ import javax.inject.Singleton;
 
 import io.datarouter.aws.sqs.group.SqsGroupNode;
 import io.datarouter.aws.sqs.single.SqsNode;
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.node.NodeParams;
+import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class SqsNodeFactory{

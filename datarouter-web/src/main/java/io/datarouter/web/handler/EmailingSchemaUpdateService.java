@@ -23,8 +23,6 @@ import javax.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.SchemaUpdatesEmailType;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.storage.config.executor.DatarouterStorageExecutors.DatarouterSchemaUpdateScheduler;
@@ -35,6 +33,8 @@ import io.datarouter.storage.config.schema.BaseSchemaUpdateService;
 import io.datarouter.storage.config.storage.clusterschemaupdatelock.DatarouterClusterSchemaUpdateLockDao;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.config.settings.DatarouterSchemaUpdateEmailSettings;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 
 public abstract class EmailingSchemaUpdateService extends BaseSchemaUpdateService{
 	private static final Logger logger = LoggerFactory.getLogger(EmailingSchemaUpdateService.class);

@@ -25,8 +25,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -163,12 +161,9 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 
 	@Override
 	public void copyObject(String bucket, String sourceKey, String destinationKey, ObjectCannedACL acl){
-		String source = URLEncoder.encode(bucket + "/" + sourceKey, StandardCharsets.UTF_8);
 		CopyObjectRequest request = CopyObjectRequest.builder()
-				.copySource(source)
-				// .sourceKey(sourceKey)
-				// .sourceBucket(bucket)
-				// .sourceVersionId(?)
+				.sourceBucket(bucket)
+				.sourceKey(sourceKey)
 				.destinationBucket(bucket)
 				.destinationKey(destinationKey)
 				.acl(acl)

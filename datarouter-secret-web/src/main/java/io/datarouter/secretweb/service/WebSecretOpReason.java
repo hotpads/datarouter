@@ -18,7 +18,6 @@ package io.datarouter.secretweb.service;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.op.SecretOpReason.SecretOpReasonType;
 import io.datarouter.util.Require;
-import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.user.session.service.Session;
 
@@ -31,7 +30,7 @@ public class WebSecretOpReason{
 	}
 
 	public static SecretOpReason manualOp(Session session, String reason){
-		ObjectTool.requireNonNulls(session, session.getUserToken(), session.getUsername());
+		Require.noNulls(session, session.getUserToken(), session.getUsername());
 		Require.isTrue(StringTool.notEmptyNorWhitespace(session.getUserToken()));
 		Require.isTrue(StringTool.notEmptyNorWhitespace(session.getUsername()));
 		Require.isTrue(StringTool.notEmptyNorWhitespace(reason));

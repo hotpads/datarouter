@@ -13,33 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.httpclient.client.service;
-
-import java.util.function.Supplier;
+package io.datarouter.web.config.service;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.DatarouterService;
-
-//includes host and port, like localhost:8443
 @Singleton
-public class PublicDomain implements Supplier<String>{
-
-	private final String publicDomain;
+public class DomainFinder{
 
 	@Inject
-	public PublicDomain(DatarouterService service){
-		this.publicDomain = service.getPublicDomain();
+	private PrivateDomain privateDomain;
+	@Inject
+	private PublicDomain publicDomain;
+
+	public String getDomainPreferPrivate(){
+		return privateDomain.hasPrivateDomain() ? privateDomain.get() : publicDomain.get();
 	}
 
-	@Override
-	public String get(){
-		return publicDomain;
-	}
-
-	public boolean hasPublicDomain(){
-		return publicDomain != null;
+	public String getDomainPreferPublic(){
+		return publicDomain.hasPublicDomain() ? publicDomain.get() : privateDomain.get();
 	}
 
 }

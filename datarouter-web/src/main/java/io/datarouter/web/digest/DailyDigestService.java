@@ -21,9 +21,9 @@ import static j2html.TagCreator.h3;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.service.DomainFinder;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.web.config.ServletContextSupplier;
+import io.datarouter.web.config.service.DomainFinder;
 import j2html.tags.ContainerTag;
 
 // helper class for making html fragments

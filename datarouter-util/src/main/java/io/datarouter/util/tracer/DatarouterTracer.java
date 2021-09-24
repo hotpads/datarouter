@@ -109,6 +109,7 @@ public class DatarouterTracer implements Tracer{
 		setCurrentThread(thread);
 	}
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void startThread(){
 		if(getCurrentThread() == null){
@@ -134,6 +135,7 @@ public class DatarouterTracer implements Tracer{
 		thread.setInfo(StringTool.nullSafe(thread.getInfo()) + (addSpace ? " " : "") + text);
 	}
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void finishThread(){
 		if(getCurrentThread() == null){
@@ -164,6 +166,7 @@ public class DatarouterTracer implements Tracer{
 
 	/*---------------------------- TraceSpan --------------------------------*/
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void startSpan(String name, TraceSpanGroupType groupType){
 		if(currentThread == null){
@@ -202,6 +205,7 @@ public class DatarouterTracer implements Tracer{
 		span.setInfo(StringTool.nullSafe(span.getInfo()) + '[' + text + ']');
 	}
 
+	@SuppressWarnings("restriction")
 	@Override
 	public void finishSpan(){
 		if(getCurrentSpan() == null){

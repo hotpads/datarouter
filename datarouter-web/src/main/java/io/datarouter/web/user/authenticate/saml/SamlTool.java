@@ -81,7 +81,6 @@ import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Scoping;
 import org.opensaml.saml.saml2.core.impl.AuthnContextClassRefBuilder;
-import org.opensaml.saml.saml2.core.impl.ScopingImpl;
 import org.opensaml.saml.saml2.metadata.Endpoint;
 import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
@@ -129,7 +128,7 @@ public class SamlTool{
 		authnRequest.setNameIDPolicy(buildNameIdPolicy());
 		authnRequest.setRequestedAuthnContext(buildRequestedAuthnContext());
 		config.proxyCount.ifPresent(proxyCount -> authnRequest.setScoping(buildScoping(proxyCount)));
-		logSamlObject(authnRequest);
+		logSamlObject("SamlTool.buildAuthnRequestAndContext", authnRequest);
 
 		MessageContext authnRequestContext = new MessageContext();
 		authnRequestContext.setMessage(authnRequest);
@@ -150,7 +149,7 @@ public class SamlTool{
 
 	//limit number of times the next IdP can proxy an AuthnRequest
 	private static Scoping buildScoping(Integer proxyCount){
-		Scoping scoping = build(ScopingImpl.DEFAULT_ELEMENT_NAME);
+		Scoping scoping = build(Scoping.DEFAULT_ELEMENT_NAME);
 		scoping.setProxyCount(proxyCount);
 		return scoping;
 	}
@@ -197,7 +196,7 @@ public class SamlTool{
 	public static MessageContext getAndValidateResponseMessageContext(HttpServletRequest request,
 			Credential signatureCredential){
 		MessageContext responseMessageContext = decodeResponse(request);
-		logSamlObject((SAMLObject)responseMessageContext.getMessage());
+		logSamlObject("SamlTool.getAndValidateResponseMessageContext", (SAMLObject)responseMessageContext.getMessage());
 		validateMessageContext(responseMessageContext, request);
 		Response response = (Response)responseMessageContext.getMessage();
 		verifySignature(response, signatureCredential);
@@ -339,9 +338,9 @@ public class SamlTool{
 		}
 	}
 
-	public static void logSamlObject(SAMLObject object){
+	public static void logSamlObject(String callsite, SAMLObject object){
 		if(object == null){
-			logger.debug("SAMLObject is null");
+			logger.debug(callsite + " - SAMLObject is null");
 			return;
 		}
 
@@ -352,7 +351,7 @@ public class SamlTool{
 				out.marshall(object);
 				element = object.getDOM();
 			}catch(MarshallingException e){
-				logger.error("Failed to marshall SAMLObject", e);
+				logger.error(callsite + " - Failed to marshall SAMLObject", e);
 				return;
 			}
 		}
@@ -363,9 +362,9 @@ public class SamlTool{
 			DOMSource source = new DOMSource(element);
 			transformer.transform(source, result);
 			String xmlString = result.getWriter().toString();
-			logger.debug(xmlString);
+			logger.debug(callsite + " - " + xmlString);
 		}catch(TransformerException e){
-			logger.error("Failed to log SAML object.", e);
+			logger.error(callsite + " - Failed to log SAML object.", e);
 		}
 	}
 

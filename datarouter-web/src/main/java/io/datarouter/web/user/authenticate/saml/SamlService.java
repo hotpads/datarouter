@@ -135,7 +135,7 @@ public class SamlService{
 				logger.warn("received OPTIONS request URL={}", request.getRequestURL());
 			}
 			try{
-				samlRegistrar.ifPresent(registrar -> registrar.register());
+				samlRegistrar.ifPresent(SamlRegistrar::register);
 			}catch(RuntimeException e){
 				if(samlSettings.ignoreServiceProviderRegistrationFailures.get()){
 					logger.warn("Ignoring failure to register with IdP.", e);
@@ -181,6 +181,7 @@ public class SamlService{
 		MessageContext responseMessageContext = SamlTool.getAndValidateResponseMessageContext(request,
 				samlSettings.getSignatureCredential());
 		Response message = (Response)responseMessageContext.getMessage();
+		SamlTool.logSamlObject("SamlService.consumeAssertion", message);
 
 		for(Assertion assertion : message.getAssertions()){
 			Session session = createAndSetSession(request, response, assertion);

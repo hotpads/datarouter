@@ -59,7 +59,7 @@ public class DatarouterWebSettingRoot extends SettingRoot{
 		stackTraceHighlights = registerCommaSeparatedString("stackTraceHighlights", Set.of("io.datarouter"));
 		saveLatencyGauges = registerBooleans("saveLatencyGauges", defaultTo(true));
 		keepAliveTimeout = registerDurations("keepAliveTimeout",
-				defaultTo(new DatarouterDuration(9, TimeUnit.MINUTES)));
+				defaultTo(new DatarouterDuration(0, TimeUnit.MINUTES)));
 	}
 
 }

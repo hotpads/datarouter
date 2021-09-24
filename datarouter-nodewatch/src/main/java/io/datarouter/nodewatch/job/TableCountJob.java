@@ -23,8 +23,6 @@ import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.nodewatch.storage.latesttablecount.DatarouterLatestTableCountDao;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
-import io.datarouter.nodewatch.storage.tablecount.TableCount;
-import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 
 public class TableCountJob extends BaseJob{
@@ -38,16 +36,18 @@ public class TableCountJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker){
-		for(PhysicalSortedStorageReaderNode<?,?,?> node : tableSamplerService.scanCountableNodes().iterable()){
-			ClientTableEntityPrefixNameWrapper nodeNames = new ClientTableEntityPrefixNameWrapper(node);
-			String clientName = nodeNames.getClientName();
-			String tableName = nodeNames.getTableName();
-			TableCount tableCount = tableSamplerService.getCurrentTableCountFromSamples(clientName, tableName);
-			tableCountDao.put(tableCount);
-			latestTableCountDao.put(new LatestTableCount(tableCount));
-			if(tracker.increment().setLastItemProcessed(nodeNames.toString()).shouldStop()){
-				return;
-			}
-		}
+		tableSamplerService.scanCountableNodes()
+				.advanceUntil($ -> tracker.shouldStop())
+				.each($ -> tracker.increment())
+				.map(ClientTableEntityPrefixNameWrapper::new)
+				.each(item -> tracker.setLastItemProcessed(item.toString()))
+				.map(nodeNames -> tableSamplerService.getCurrentTableCountFromSamples(
+						nodeNames.getClientName(),
+						nodeNames.getTableName()))
+				.forEach(tableCount -> {
+					tableCountDao.put(tableCount);
+					latestTableCountDao.put(new LatestTableCount(tableCount));
+				});
 	}
+
 }

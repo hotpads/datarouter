@@ -26,13 +26,13 @@ import com.amazonaws.services.elasticloadbalancingv2.model.LoadBalancer;
 import com.amazonaws.services.elasticloadbalancingv2.model.LoadBalancerSchemeEnum;
 
 import io.datarouter.aws.elb.service.ElbService;
-import io.datarouter.httpclient.client.service.PrivateDomain;
-import io.datarouter.httpclient.client.service.PublicDomain;
 import io.datarouter.storage.config.properties.DatarouterServerTypeSupplier;
 import io.datarouter.util.aws.Ec2InstanceDetailsDto;
 import io.datarouter.util.aws.Ec2InstanceTool;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.autoconfig.ConfigScanResponseTool;
+import io.datarouter.web.config.service.PrivateDomain;
+import io.datarouter.web.config.service.PublicDomain;
 
 @Singleton
 public class AwsElbConfigScanner{

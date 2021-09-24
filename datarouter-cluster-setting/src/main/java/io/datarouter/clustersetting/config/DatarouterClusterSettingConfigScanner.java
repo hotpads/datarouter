@@ -29,13 +29,13 @@ import io.datarouter.clustersetting.ClusterSettingScopeComparator;
 import io.datarouter.clustersetting.ClusterSettingValidity;
 import io.datarouter.clustersetting.service.ClusterSettingService;
 import io.datarouter.clustersetting.storage.clustersetting.ClusterSetting;
-import io.datarouter.email.email.DatarouterEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.autoconfig.ConfigScanResponseTool;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.ContainerTag;
 
 @Singleton
@@ -46,7 +46,7 @@ public class DatarouterClusterSettingConfigScanner{
 	@Inject
 	private DatarouterClusterSettingRoot clusterSettingsRoot;
 	@Inject
-	private DatarouterEmailService emailService;
+	private DatarouterHtmlEmailService emailService;
 	@Inject
 	private DatarouterClusterSettingPaths paths;
 

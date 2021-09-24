@@ -29,8 +29,6 @@ import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
@@ -41,6 +39,8 @@ import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.digest.DailyDigestEmailZoneId;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.ContainerTag;
 
 @Singleton

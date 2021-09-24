@@ -17,8 +17,6 @@ package io.datarouter.filesystem;
 
 import java.util.List;
 
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
 import io.datarouter.inject.guice.BaseGuiceModule;
 import io.datarouter.storage.config.guice.DatarouterStorageGuiceModule;
 import io.datarouter.storage.config.properties.DatarouterTestPropertiesFile;
@@ -36,8 +34,6 @@ public class DatarouterFilesystemModuleFactory extends TestNgModuleFactory{
 
 		@Override
 		protected void configure(){
-			// bind serviceName instead of DatarouterService
-			bind(DatarouterService.class).to(NoOpDatarouterService.class);
 			bindActualInstance(DatarouterTestPropertiesFile.class,
 					new DatarouterTestPropertiesFile("filesystem.properties"));
 		}

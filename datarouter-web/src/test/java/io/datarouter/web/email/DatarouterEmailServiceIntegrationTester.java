@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.EmailDto.EmailDtoBuilder;
 import io.datarouter.web.test.DatarouterWebTestNgModuleFactory;
 

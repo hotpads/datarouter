@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -39,6 +38,7 @@ import io.datarouter.storage.queue.QueueMessageKey;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tuple.Twin;
+import io.datarouter.web.config.service.ServiceName;
 
 public abstract class BaseSqsNode<
 		PK extends PrimaryKey<PK>,

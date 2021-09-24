@@ -27,8 +27,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
@@ -44,6 +42,8 @@ import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.TaskTrackerExceptionLink;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.ContainerTag;
 
 public class LongRunningTaskFailureAlertJob extends BaseJob{

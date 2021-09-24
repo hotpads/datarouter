@@ -22,9 +22,6 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.inject.name.Names;
 
-import io.datarouter.httpclient.client.DatarouterService;
-import io.datarouter.httpclient.client.DatarouterService.NoOpDatarouterService;
-import io.datarouter.httpclient.client.service.ContextName;
 import io.datarouter.httpclient.json.GsonJsonSerializer;
 import io.datarouter.httpclient.json.JsonSerializer;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
@@ -37,6 +34,10 @@ import io.datarouter.storage.setting.MemorySettingFinder;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
+import io.datarouter.web.config.service.ContextName;
+import io.datarouter.web.config.service.PrivateDomain;
+import io.datarouter.web.config.service.PublicDomain;
+import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.exception.ExceptionRecorder.NoOpExceptionRecorder;
 import io.datarouter.web.handler.encoder.HandlerEncoder;
@@ -89,7 +90,10 @@ public class DatarouterWebGuiceModule extends BaseGuiceServletModule{
 				.to(CompoundPortIdentifier.class);
 
 		bindDefault(DatarouterAuthenticationConfig.class, BaseDatarouterAuthenticationConfig.class);
-		bindDefault(DatarouterService.class, NoOpDatarouterService.class);
+
+		bindDefaultInstance(ServiceName.class, new ServiceName(""));
+		bindDefaultInstance(PublicDomain.class, new PublicDomain(""));
+		bindDefaultInstance(PrivateDomain.class, new PrivateDomain(""));
 		bindDefaultInstance(ContextName.class, new ContextName(""));
 
 		bindDefault(BaseDatarouterSessionDao.class, NoOpDatarouterSessionDao.class);

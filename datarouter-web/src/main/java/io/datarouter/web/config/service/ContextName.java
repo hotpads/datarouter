@@ -13,24 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.util.split;
+package io.datarouter.web.config.service;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import java.util.function.Supplier;
 
-public class ChunkScannerToolTests{
+import javax.inject.Singleton;
 
-	@Test
-	public void testSimple(){
-		long totalLength = 7;
-		int chunkSize = 3;
-		long actualNumChunks = ChunkScannerTool.scanChunks(totalLength, chunkSize).count();
-		Assert.assertEquals(actualNumChunks, 3);
-		int actualLastChunkSize = ChunkScannerTool.scanChunks(totalLength, chunkSize)
-				.findLast()
-				.map(chunkRange -> chunkRange.length)
-				.get();
-		Assert.assertEquals(actualLastChunkSize, 1);
+/**
+ * root path segment
+ *
+ * inject this class when unable to inject ServletContextSuppleir
+ *
+ */
+@Singleton
+public class ContextName implements Supplier<String>{
+
+	private final String contextName;
+
+	public ContextName(String contextName){
+		this.contextName = contextName;
+	}
+
+	@Override
+	public String get(){
+		return contextName;
+	}
+
+	public String getContextPath(){
+		return contextName == null ? "" : "/" + contextName;
 	}
 
 }

@@ -17,7 +17,7 @@ package io.datarouter.secret.op;
 
 import java.util.Optional;
 
-import io.datarouter.util.lang.ObjectTool;
+import io.datarouter.util.Require;
 
 public class SecretOpInfo{
 
@@ -45,7 +45,7 @@ public class SecretOpInfo{
 
 	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason, boolean shouldRecord,
 			boolean shouldLog, Optional<String> targetSecretClientConfig){
-		ObjectTool.requireNonNulls(op, namespace, name, reason, targetSecretClientConfig);
+		Require.noNulls(op, namespace, name, reason, targetSecretClientConfig);
 
 		this.op = op;
 		this.namespace = namespace;

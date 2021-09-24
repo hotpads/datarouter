@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.httpclient.circuitbreaker.DatarouterHttpClientIoExceptionCircuitBreaker;
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.instrumentation.trace.Trace2BundleAndHttpRequestRecordDto;
@@ -62,6 +61,7 @@ import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.util.tracer.DatarouterTracer;
+import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.dispatcher.Dispatcher;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.HandlerMetrics;
@@ -114,6 +114,13 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 					.buildTraceForCurrentServer(traceContext.getTraceId(), traceContext.getParentId()));
 			RequestAttributeTool.set(request, BaseHandler.TRACE_CONTEXT, traceContext.copy());
 
+			// need to set the header before doFilter
+			// traceflag might be incorrect because it might have been modified during request processing
+			if(traceSettings.addTraceparentHeader.get()){
+				response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT,
+						traceContext.getTraceparent().toString());
+			}
+
 			// bind these to all threads, even if tracing is disabled
 			Tracer tracer = new DatarouterTracer(serverName.get(), null, traceContext);
 			tracer.setSaveThreadCpuTime(traceSettings.saveThreadCpuTime.get());
@@ -139,12 +146,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				errored = true;
 				throw e;
 			}finally{
-				// we use traceparent from tracer because traceflag might be modified during the process
 				Traceparent traceparent = tracer.getTraceContext().get().getTraceparent();
-				if(traceSettings.addTraceparentHeader.get()){
-					response.setHeader(DatarouterHttpClientIoExceptionCircuitBreaker.TRACEPARENT, traceparent
-							.toString());
-				}
 				Long cpuTimeEnded = saveCpuTime ? MxBeans.THREAD.getCurrentThreadCpuTime() : null;
 				Long threadAllocatedBytesEnded = saveAllocatedBytes ? MxBeans.THREAD.getThreadAllocatedBytes(threadId)
 						: null;

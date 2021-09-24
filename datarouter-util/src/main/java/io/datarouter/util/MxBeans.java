@@ -29,6 +29,7 @@ import javax.management.MBeanServer;
 import com.sun.management.OperatingSystemMXBean;
 import com.sun.management.ThreadMXBean;
 
+@SuppressWarnings("restriction")
 public class MxBeans{
 
 	public static final MBeanServer SERVER = ManagementFactory.getPlatformMBeanServer();

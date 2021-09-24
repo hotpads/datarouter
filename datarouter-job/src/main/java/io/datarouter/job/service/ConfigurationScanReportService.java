@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.autoconfig.ConfigScanDto;
 import io.datarouter.web.config.DatarouterWebPaths;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 

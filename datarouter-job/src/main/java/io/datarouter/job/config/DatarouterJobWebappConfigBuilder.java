@@ -24,7 +24,6 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.client.DatarouterService;
 import io.datarouter.inject.guice.BasePlugin;
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.job.config.DatarouterJobPlugin.DatarouterJobPluginBuilder;
@@ -48,12 +47,21 @@ extends DatarouterWebWebappConfigBuilder<T>{
 	extends DatarouterJobWebappConfigBuilder<DatarouterJobWebappBuilderImpl>{
 
 		public DatarouterJobWebappBuilderImpl(
-				DatarouterService datarouterService,
+				String serviceName,
+				String publicDomain,
+				String privateDomain,
 				String contextName,
 				ServerTypes serverTypes,
 				List<ClientId> defaultClientIds,
 				ServletContextListener log4jServletContextListener){
-			super(datarouterService, contextName, serverTypes, defaultClientIds, log4jServletContextListener);
+			super(
+					serviceName,
+					publicDomain,
+					privateDomain,
+					contextName,
+					serverTypes,
+					defaultClientIds,
+					log4jServletContextListener);
 		}
 
 		@Override
@@ -64,12 +72,21 @@ extends DatarouterWebWebappConfigBuilder<T>{
 	}
 
 	protected DatarouterJobWebappConfigBuilder(
-			DatarouterService datarouterService,
+			String serviceName,
+			String publicDomain,
+			String privateDomain,
 			String contextName,
 			ServerTypes serverTypes,
 			List<ClientId> defaultClientIds,
 			ServletContextListener log4jServletContextListener){
-		super(datarouterService, contextName, serverTypes, defaultClientIds, log4jServletContextListener);
+		super(
+				serviceName,
+				publicDomain,
+				privateDomain,
+				contextName,
+				serverTypes,
+				defaultClientIds,
+				log4jServletContextListener);
 		this.triggerGroups = new ArrayList<>();
 		this.jobPlugins = new ArrayList<>();
 	}

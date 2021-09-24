@@ -105,7 +105,6 @@ public class DatarouterEmailPlugin extends BaseStoragePlugin{
 				.toInstance(new DailyDigestSummaryEmailType(emailRecipientsDailyDigestSummary));
 		bind(SchemaUpdatesEmailType.class)
 				.toInstance(new SchemaUpdatesEmailType(emailRecipientsSchemaUpdates));
-		// contextName binding is required for this plugin to work
 	}
 
 	public static class DatarouterEmailPluginBuilder{

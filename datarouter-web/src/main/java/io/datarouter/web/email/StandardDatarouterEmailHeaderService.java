@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.email.email;
+package io.datarouter.web.email;
 
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
@@ -27,11 +27,11 @@ import javax.inject.Singleton;
 
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.util.tuple.Twin;
+import io.datarouter.web.config.service.ServiceName;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 

@@ -17,8 +17,8 @@ package io.datarouter.metric.config;
 
 import javax.inject.Inject;
 
-import io.datarouter.httpclient.client.service.ContextName;
-import io.datarouter.httpclient.client.service.DomainFinder;
+import io.datarouter.web.config.service.ContextName;
+import io.datarouter.web.config.service.DomainFinder;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.web.navigation.DynamicNavBarItem;

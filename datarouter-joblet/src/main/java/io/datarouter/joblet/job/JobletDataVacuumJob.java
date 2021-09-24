@@ -17,6 +17,8 @@ package io.datarouter.joblet.job;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -27,12 +29,8 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.joblet.storage.jobletdata.DatarouterJobletDataDao;
-import io.datarouter.joblet.storage.jobletdata.JobletData;
-import io.datarouter.joblet.storage.jobletdata.JobletDataKey;
 import io.datarouter.joblet.storage.jobletrequest.DatarouterJobletRequestDao;
-import io.datarouter.joblet.storage.jobletrequest.JobletRequest;
 import io.datarouter.model.databean.Databean;
-import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.NumberFormatter;
 
 public class JobletDataVacuumJob extends BaseJob{
@@ -45,31 +43,32 @@ public class JobletDataVacuumJob extends BaseJob{
 
 	@Override
 	public void run(TaskTracker tracker) throws RuntimeException{
-		long earliestCreated = Instant.now().toEpochMilli();
-		for(JobletRequest jobletRequest : jobletRequestDao.scan().iterable()){
-			if(tracker.increment().shouldStop()){
-				return;
-			}
-			if(jobletRequest.getKey().getCreated() <= earliestCreated){
-				earliestCreated = jobletRequest.getKey().getCreated();
-			}
-		}
-		int jobletDeletionCount = 0;
-		Scanner<JobletData> scanner = jobletDataDao.scan();
-		for(List<JobletData> batch : scanner.batch(1000).iterable()){
-			if(tracker.shouldStop()){
-				return;
-			}
-			final long finalEarliestCreated = earliestCreated;
-			List<JobletDataKey> jobletDataKeysToDelete = batch.stream()
-					.filter(data -> data.getCreated() == null || data.getCreated() < finalEarliestCreated)
-					.map(Databean::getKey)
-					.collect(Collectors.toList());
-			jobletDataDao.deleteMulti(jobletDataKeysToDelete);
-			jobletDeletionCount = jobletDeletionCount + jobletDataKeysToDelete.size();
-			logger.warn("JobletDataVacuumJob deleted {} JobletDatas", NumberFormatter.addCommas(jobletDeletionCount));
-			tracker.increment(batch.size());
-		}
+		AtomicLong earliestCreated = new AtomicLong(Instant.now().toEpochMilli());
+		jobletRequestDao.scan()
+				.advanceUntil($ -> tracker.shouldStop())
+				.each($ -> tracker.increment())
+				.forEach(jobletRequest -> {
+					if(jobletRequest.getKey().getCreated() <= earliestCreated.longValue()){
+						earliestCreated.set(jobletRequest.getKey().getCreated());
+					}
+				});
+		AtomicInteger jobletDeletionCount = new AtomicInteger(0);
+		jobletDataDao.scan()
+				.advanceUntil($ -> tracker.shouldStop())
+				.batch(1_000)
+				.each(batch -> tracker.increment(batch.size()))
+				.map(batch -> {
+					return batch.stream()
+							.filter(data -> data.getCreated() == null
+									|| data.getCreated() < earliestCreated.longValue())
+							.map(Databean::getKey)
+							.collect(Collectors.toList());
+				})
+				.each(jobletDataDao::deleteMulti)
+				.map(List::size)
+				.each(jobletDeletionCount::getAndAdd)
+				.forEach($ -> logger.warn("JobletDataVacuumJob deleted {} JobletDatas",
+							NumberFormatter.addCommas(jobletDeletionCount)));
 		logger.warn("Completed JobletDataVacuumJob deleted {} total JobletDatas",
 				NumberFormatter.addCommas(jobletDeletionCount));
 	}

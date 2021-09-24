@@ -53,9 +53,8 @@ import io.datarouter.instrumentation.trace.W3TraceContext;
 public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCircuitBreaker{
 	private static final Logger logger = LoggerFactory.getLogger(DatarouterHttpClientIoExceptionCircuitBreaker.class);
 
-	private static final Duration LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(10);
+	private static final Duration LOG_SLOW_REQUEST_THRESHOLD = Duration.ofSeconds(2);
 
-	public static final String X_TRACEPARENT = "x-traceparent";
 	public static final String TRACEPARENT = "traceparent";
 	public static final String TRACESTATE = "tracestate";
 
@@ -127,8 +126,8 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				TracerTool.setForceSample();
 			}
 			if(duration.compareTo(LOG_SLOW_REQUEST_THRESHOLD) > 0){
-				logger.warn("Slow request target={} duration={} remoteTraceparent={}", request.getPath(), duration,
-						remoteTraceparent.orElse(null));
+				logger.warn("Slow request target={} durationS={} remoteTraceparent={}", request.getPath(),
+						duration.getSeconds(), remoteTraceparent.orElse(null));
 			}
 			DatarouterHttpResponse response = new DatarouterHttpResponse(httpResponse, context, statusCode, entity);
 			if(isBadStatusCode){

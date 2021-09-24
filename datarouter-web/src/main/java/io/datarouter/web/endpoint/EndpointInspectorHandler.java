@@ -33,7 +33,6 @@ import javax.inject.Inject;
 
 import io.datarouter.httpclient.client.BaseDatarouterEndpointHttpClientWrapper;
 import io.datarouter.httpclient.client.DatarouterHttpClient;
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.httpclient.endpoint.BaseEndpoint;
 import io.datarouter.httpclient.endpoint.EndpointParam;
 import io.datarouter.httpclient.endpoint.EndpointRegistry;
@@ -45,6 +44,7 @@ import io.datarouter.httpclient.endpoint.ParamType;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
+import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.html.j2html.J2HtmlTable;

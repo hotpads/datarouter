@@ -39,11 +39,6 @@ public class ObjectTool{
 		return Objects.toString(object, null);
 	}
 
-	public static void requireNonNulls(Object... objects){
-		Arrays.stream(objects)
-				.forEach(Objects::requireNonNull);
-	}
-
 	public static boolean anyNull(Object... objects){
 		return Arrays.stream(objects)
 				.anyMatch(Objects::isNull);

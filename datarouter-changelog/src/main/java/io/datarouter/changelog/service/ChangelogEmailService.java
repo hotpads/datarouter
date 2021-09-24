@@ -24,13 +24,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.changelog.config.DatarouterChangelogPaths;
-import io.datarouter.email.email.DatarouterHtmlEmailService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.util.tuple.Twin;
+import io.datarouter.web.config.service.ServiceName;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 

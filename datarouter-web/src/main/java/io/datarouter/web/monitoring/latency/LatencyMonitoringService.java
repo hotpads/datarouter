@@ -38,7 +38,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.client.ClientId;
@@ -57,6 +56,7 @@ import io.datarouter.util.StreamTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.config.DatarouterWebSettingRoot;
+import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class LatencyMonitoringService{

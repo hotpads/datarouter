@@ -15,13 +15,17 @@
  */
 package io.datarouter.web.util.http;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.number.NumberTool;
 import io.datarouter.util.string.StringTool;
 
@@ -111,6 +115,16 @@ public class CookieTool{
 			}
 		}
 		return null;
+	}
+
+	public static Optional<String> getFormattedCookie(Cookie[] cookies, String cookieName, String regex,
+			String replacement){
+		return Scanner.of(cookies)
+				.include(cookie -> cookieName.equals(cookie.getName()))
+				.map(Cookie::getValue)
+				.map(value -> value.replaceFirst(regex, replacement))
+				.map(value -> URLDecoder.decode(value, StandardCharsets.UTF_8))
+				.findFirst();
 	}
 
 	public static void deleteCookie(HttpServletResponse response, String cookieName){

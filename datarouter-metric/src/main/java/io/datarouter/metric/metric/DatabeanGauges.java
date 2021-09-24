@@ -18,13 +18,13 @@ package io.datarouter.metric.metric;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.instrumentation.gauge.GaugeDto;
 import io.datarouter.metric.config.DatarouterGaugeSettingRoot;
 import io.datarouter.metric.metric.conveyor.GaugeBuffers;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.util.UlidTool;
+import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class DatabeanGauges implements Gauges{

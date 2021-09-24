@@ -15,7 +15,6 @@
  */
 package io.datarouter.email.dto;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Supplier;
@@ -35,12 +34,12 @@ public class InputStreamDataSource implements DataSource{
 	}
 
 	@Override
-	public InputStream getInputStream() throws IOException{
+	public InputStream getInputStream(){
 		return attachmentInputStreamSupplier.get();
 	}
 
 	@Override
-	public OutputStream getOutputStream() throws IOException{
+	public OutputStream getOutputStream(){
 		throw new UnsupportedOperationException();
 	}
 

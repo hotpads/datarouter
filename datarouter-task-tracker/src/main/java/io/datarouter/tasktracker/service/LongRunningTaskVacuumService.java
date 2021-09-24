@@ -42,21 +42,22 @@ public class LongRunningTaskVacuumService{
 
 	public void run(TaskTracker tracker){
 		List<LongRunningTask> relatedTasks = new ArrayList<>();
-		for(LongRunningTask task : dao.scan().iterable()){
-			String name = task.getKey().getName();
-			if(!relatedTasks.isEmpty()){
-				String previousName = ListTool.getLast(relatedTasks).getKey().getName();
-				if(ObjectTool.notEquals(previousName, name)){
-					vacuumRelatedTasks(relatedTasks);
-					relatedTasks = new ArrayList<>();
-				}
-			}
-			relatedTasks.add(task);
-			if(tracker.increment().setLastItemProcessed(name).shouldStop()){
-				return;
-			}
-		}
-		vacuumRelatedTasks(relatedTasks);
+		dao.scan()
+				.each($ -> tracker.increment())
+				.advanceUntil($ -> tracker.shouldStop())
+				.forEach(task -> {
+					String name = task.getKey().getName();
+					if(!relatedTasks.isEmpty()){
+						String previousName = ListTool.getLast(relatedTasks).getKey().getName();
+						if(ObjectTool.notEquals(previousName, name)){
+							vacuumRelatedTasks(new ArrayList<>(relatedTasks));
+							relatedTasks.clear();
+						}
+					}
+					relatedTasks.add(task);
+					tracker.setLastItemProcessed(name);
+				});
+		vacuumRelatedTasks(new ArrayList<>(relatedTasks));
 	}
 
 	private void vacuumRelatedTasks(List<LongRunningTask> tasks){

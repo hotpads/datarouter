@@ -21,14 +21,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 import io.datarouter.util.io.FileTool;
 import io.datarouter.util.properties.PropertiesTool;
@@ -43,11 +42,11 @@ public class ComputedPropertiesFinder{
 	private static final String CONFIG_DIRECTORY_PROP = "config.directory";
 	public static final String SERVER_CONFIG_FILE_NAME = "server.properties";
 
+	private static final boolean SHOW_LOGGER = false;
+
 	private final String configDirectory;
 	private final String configFileLocation;
 
-	// delete
-	private final Properties allComputedServerProperties;
 	private Optional<Properties> propertiesFromConfigFile = Optional.empty();
 
 	public ComputedPropertiesFinder(){
@@ -70,13 +69,6 @@ public class ComputedPropertiesFinder{
 
 		this.configDirectory = validateConfigDirectory(configDirectory, directoryRequired, directoryFromJvmArg);
 		this.configFileLocation = findConfigFileLocation(filename, fileRequired);
-
-		this.allComputedServerProperties = new Properties();
-	}
-
-	// delete
-	public Properties getAllComputedServerProperties(){
-		return allComputedServerProperties;
 	}
 
 	/*--------------- methods to find config values -----------------*/
@@ -148,18 +140,24 @@ public class ComputedPropertiesFinder{
 				.or(() -> getPropFromDefaults(propertyName, defaultValueSupplierDtos));
 		if(propertyValueBySource.isPresent() && !propertyValueBySource.get().getLeft().isEmpty()){
 			//successfully found property name and non-empty value
-			allComputedServerProperties.setProperty(propertyName, propertyValueBySource.get().getLeft());
 			return propertyValueBySource.get().getLeft();
 		}
 
 		if(propertyValueBySource.isPresent()){
 			//property name is found, but the value is empty
-			logger.warn("found {} with empty value from {}", propertyName, propertyValueBySource.get().getRight());
+			if(SHOW_LOGGER){
+				logger.warn("found {} with empty value from {}", propertyName, propertyValueBySource.get().getRight());
+			}else{
+				logger.info("found {} with empty value from {}", propertyName, propertyValueBySource.get().getRight());
+			}
 		}else{
 			//both name and value are unknown
-			logger.warn("couldn't find " + propertyName + ", no default provided");
+			if(SHOW_LOGGER){
+				logger.warn("couldn't find " + propertyName + ", no default provided");
+			}else{
+				logger.info("couldn't find " + propertyName + ", no default provided");
+			}
 		}
-		allComputedServerProperties.setProperty(propertyName, "");
 		return null;
 	}
 
@@ -204,18 +202,26 @@ public class ComputedPropertiesFinder{
 
 	private void logConfigFileProperties(){
 		Properties allProperties = propertiesFromConfigFile.orElseGet(Properties::new);
-		allProperties.stringPropertyNames().stream()
+		Scanner.of(allProperties.stringPropertyNames())
 				.map(name -> name + "=" + allProperties.getProperty(name))
-				.sorted()
+				.sort()
 				.forEach(logger::info);
 	}
 
 	private void logSource(String name, String value, String source){
-		logger.warn("found {}={} from {}", name, value, source);
+		if(SHOW_LOGGER){
+			logger.warn("found {}={} from {}", name, value, source);
+		}else{
+			logger.info("found {}={} from {}", name, value, source);
+		}
 	}
 
 	private void logJvmArgSource(String name, String value, String jvmArgName){
-		logger.warn("found {}={} from -D{} JVM arg", name, value, jvmArgName);
+		if(SHOW_LOGGER){
+			logger.warn("found {}={} from -D{} JVM arg", name, value, jvmArgName);
+		}else{
+			logger.info("found {}={} from -D{} JVM arg", name, value, jvmArgName);
+		}
 	}
 
 	public List<String> findPropertyStringsSplitWithComma(String propertyName){
@@ -223,10 +229,10 @@ public class ComputedPropertiesFinder{
 		if(StringTool.isNullOrEmptyOrWhitespace(propertyValue)){
 			return List.of();
 		}
-		return Stream.of(propertyValue.split(","))
-				.filter(StringTool::notEmptyNorWhitespace)
+		return Scanner.of(propertyValue.split(","))
+				.include(StringTool::notEmptyNorWhitespace)
 				.map(String::trim)
-				.collect(Collectors.toUnmodifiableList());
+				.list();
 	}
 
 	public static class FallbackPropertyValueSupplierDto{

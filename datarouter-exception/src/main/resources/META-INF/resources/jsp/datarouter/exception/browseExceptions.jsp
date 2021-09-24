@@ -74,11 +74,11 @@
 			const exceptionMetadata = {
 				type: muteCell.parent().data('type'),
 				exceptionLocation: muteCell.parent().data('exceptionLocation'),
-				muted: muteButton.find('i').hasClass("fa-bell")
+				muted: Boolean(muteButton.find('.showing').data('mute'))
 			}
 			$.post('mute', $.param(exceptionMetadata))
 				.done(function(){
-					muteButton.find('i').toggleClass("fa-bell fa-bell-slash");
+					muteButton.find('.mute-text').toggleClass('d-none').toggleClass('showing');
 				})
 		})
 	});
@@ -122,7 +122,12 @@
 					</td>
 					<td class="numExceptions align-right">${exceptionRecordSummary.numExceptions}</td>
 					<td class="align-center"><a tabindex="0" href="${contextPath}${detailsPath}?exceptionRecord=${exceptionRecordSummary.sampleExceptionRecordId}" class="btn btn-link p-0 w-100"><i class="far fa-file-alt"></i></a></td>
-					<td class="align-center"><a tabindex="0" class="mute btn btn-link p-0 w-100"><i class="fas fa-bell${metadata.muted ? '' : '-slash'}"></i></a></td>
+					<td class="align-center">
+						<a tabindex="0" class="mute btn btn-link p-0 w-100">
+							<span class="mute-text ${metadata.muted ? 'showing' : 'd-none'}" data-mute="false">unmute</span>
+							<span class="mute-text ${metadata.muted ? 'd-none' : 'showing'}" data-mute="true">mute</span>
+						</a>
+					</td>
 				</tr>
 			</c:forEach>
 		</tbody>

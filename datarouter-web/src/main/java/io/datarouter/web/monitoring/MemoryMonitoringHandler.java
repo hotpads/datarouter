@@ -212,10 +212,10 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 	}
 
 	@Handler
-	public GarbabeCollectingResult garbageCollector(){
+	public GarbageCollectingResult garbageCollector(){
 		String paramsServerName = params.required("serverName");
 		if(!paramsServerName.equals(serverName.get())){
-			return new GarbabeCollectingResult(false, null, null);
+			return new GarbageCollectingResult(false, null, null);
 		}
 		Map<String,Long> map = new HashMap<>();
 		for(MemoryPoolMXBean memoryPoolMxBean : MxBeans.MEMEORY_POOLS){
@@ -230,17 +230,17 @@ public class MemoryMonitoringHandler extends BaseHandler implements NonEagerInit
 					memoryPoolMxBean.getUsage().getUsed());
 			effects.add(gcEffect);
 		}
-		return new GarbabeCollectingResult(true, duration, effects);
+		return new GarbageCollectingResult(true, duration, effects);
 	}
 
 	@SuppressWarnings("unused")
-	private static class GarbabeCollectingResult{
+	private static class GarbageCollectingResult{
 
 		private final boolean success;
 		private final Long duration;
 		private final List<GcEffect> effects;
 
-		private GarbabeCollectingResult(boolean success, Long duration, List<GcEffect> effects){
+		private GarbageCollectingResult(boolean success, Long duration, List<GcEffect> effects){
 			this.success = success;
 			this.duration = duration;
 			this.effects = effects;

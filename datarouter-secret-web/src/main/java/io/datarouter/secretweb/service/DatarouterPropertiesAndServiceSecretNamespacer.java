@@ -20,10 +20,10 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import io.datarouter.httpclient.client.service.ServiceName;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.storage.config.environment.EnvironmentType;
 import io.datarouter.storage.config.properties.DatarouterEnvironmentTypeSupplier;
+import io.datarouter.web.config.service.ServiceName;
 
 @Singleton
 public class DatarouterPropertiesAndServiceSecretNamespacer implements SecretNamespacer{

@@ -37,19 +37,20 @@ public class TomcatThreadMetrics{
 			throw new RuntimeException(e);
 		}
 		return MxBeans.SERVER.queryNames(query, null).stream()
-			.map(poolMxBean -> {
-				int currentThreadCount;
-				int currentThreadsBusy;
-				try{
-					currentThreadCount = (int)MxBeans.SERVER.getAttribute(poolMxBean, "currentThreadCount");
-					currentThreadsBusy = (int)MxBeans.SERVER.getAttribute(poolMxBean, "currentThreadsBusy");
-				}catch(JMException e){
-					throw new RuntimeException(e);
-				}
-				String poolMxBeanName = poolMxBean.getKeyProperty("name");
-				String poolName = poolMxBeanName.substring(1, poolMxBeanName.length() - 1);
-				return new TomcatThreadsJspDto(poolName, currentThreadCount, currentThreadsBusy);
-		}).collect(Collectors.toList());
+				.map(poolMxBean -> {
+					int currentThreadCount;
+					int currentThreadsBusy;
+					try{
+						currentThreadCount = (int)MxBeans.SERVER.getAttribute(poolMxBean, "currentThreadCount");
+						currentThreadsBusy = (int)MxBeans.SERVER.getAttribute(poolMxBean, "currentThreadsBusy");
+					}catch(JMException e){
+						throw new RuntimeException(e);
+					}
+					String poolMxBeanName = poolMxBean.getKeyProperty("name");
+					String poolName = poolMxBeanName.substring(1, poolMxBeanName.length() - 1);
+					return new TomcatThreadsJspDto(poolName, currentThreadCount, currentThreadsBusy);
+				})
+				.collect(Collectors.toList());
 	}
 
 }

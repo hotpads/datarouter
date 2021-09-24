@@ -30,8 +30,6 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.type.DatarouterEmailTypes.LongRunningTaskTrackerEmailType;
 import io.datarouter.instrumentation.task.TaskStatus;
 import io.datarouter.instrumentation.task.TaskTracker;
@@ -48,6 +46,8 @@ import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.mutable.MutableBoolean;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.ContainerTag;
 
 public class LongRunningTaskTracker implements TaskTracker{

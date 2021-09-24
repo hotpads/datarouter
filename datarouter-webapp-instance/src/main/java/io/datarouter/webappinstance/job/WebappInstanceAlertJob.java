@@ -25,8 +25,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.datarouter.email.email.DatarouterHtmlEmailService;
-import io.datarouter.email.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.email.type.DatarouterEmailTypes.WebappInstanceAlertEmailType;
@@ -37,6 +35,8 @@ import io.datarouter.util.time.DurationTool;
 import io.datarouter.util.time.ZonedDateFormaterTool;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
+import io.datarouter.web.email.DatarouterHtmlEmailService;
+import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.webappinstance.config.DatarouterWebappInstancePaths;
 import io.datarouter.webappinstance.config.DatarouterWebappInstanceSettingRoot;
 import io.datarouter.webappinstance.service.WebappInstanceService;

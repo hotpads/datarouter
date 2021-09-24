@@ -30,11 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.datarouter.instrumentation.trace.TraceSpanGroupType;
-import io.datarouter.instrumentation.trace.Traceparent;
-import io.datarouter.instrumentation.trace.Tracer;
-import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.instrumentation.trace.TracerTool;
-import io.datarouter.instrumentation.trace.W3TraceContext;
 import io.datarouter.util.duration.DatarouterDuration;
 
 public class ResponseTool{
@@ -81,11 +77,7 @@ public class ResponseTool{
 					duration,
 					duration.toMillis(),
 					body.length(),
-					TracerThreadLocal.opt()
-							.flatMap(Tracer::getTraceContext)
-							.map(W3TraceContext::getTraceparent)
-							.map(Traceparent::toString)
-							.orElse(""));
+					TracerTool.getCurrentTraceparent().orElse(null));
 		}
 	}
 

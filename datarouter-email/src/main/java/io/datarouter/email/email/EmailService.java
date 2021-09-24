@@ -42,26 +42,15 @@ import io.datarouter.email.config.DatarouterEmailSettings.DatarouterEmailHostDet
 import io.datarouter.email.config.DatarouterEmailSettingsProvider;
 import io.datarouter.email.dto.DatarouterEmailFileAttachmentDto;
 import io.datarouter.email.util.MimeMessageTool;
-import io.datarouter.httpclient.client.service.ContextName;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.string.StringTool;
 
 @Singleton
-public class DatarouterEmailService{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterEmailService.class);
+public class EmailService{
+	private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-	@Inject
-	private ContextName contextName;
 	@Inject
 	private DatarouterEmailSettingsProvider datarouterEmailSettingsProvider;
-
-	// move this out of DatarouterEmailService
-	public DatarouterEmailLinkBuilder startLinkBuilder(){
-		return new DatarouterEmailLinkBuilder()
-				.withProtocol("https")
-				.withHostPort(datarouterEmailSettingsProvider.get().emailLinkHostPort.get())
-				.withContextPath(contextName.getContextPath());
-	}
 
 	@Deprecated
 	public void trySend(String fromEmail, String toEmails, String subject, String body){
