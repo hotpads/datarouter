@@ -85,4 +85,16 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 				.flush(targetKeys -> node.deleteMulti(targetKeys, config));
 	}
 
+	@Override
+	public Scanner<IE> scanMulti(Collection<IK> uniqueKeys, Config config){
+		return Scanner.of(node.getMultiFromIndex(uniqueKeys, config, indexEntryFieldInfo));
+	}
+
+	@Override
+	public Scanner<D> scanLookupMultiUnique(Collection<IK> uniqueKeys, Config config){
+		return Scanner.of(getMulti(uniqueKeys, config))
+				.map(IE::getTargetKey)
+				.listTo(targetKeys -> node.scanMulti(targetKeys, config));
+	}
+
 }

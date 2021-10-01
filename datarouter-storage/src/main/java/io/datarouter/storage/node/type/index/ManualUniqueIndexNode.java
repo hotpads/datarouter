@@ -44,9 +44,6 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 		this.indexNode = indexNode;
 	}
 
-	//TODO should i be passing config options around blindly?
-
-
 	@Override
 	public D lookupUnique(IK uniqueKey, Config config){
 		if(uniqueKey == null){
@@ -61,7 +58,6 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 		return databean;
 	}
 
-
 	@Override
 	public List<D> lookupMultiUnique(Collection<IK> uniqueKeys, Config config){
 		if(uniqueKeys == null || uniqueKeys.isEmpty()){
@@ -71,7 +67,6 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 				.map(IE::getTargetKey)
 				.listTo(primaryKeys -> mainNode.getMulti(primaryKeys, config));
 	}
-
 
 	@Override
 	public void deleteUnique(IK indexKey, Config config){
@@ -86,7 +81,6 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 		indexNode.delete(indexKey, config);
 		mainNode.delete(primaryKey, config);
 	}
-
 
 	@Override
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
@@ -123,6 +117,21 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 	@Override
 	public List<IE> getMulti(Collection<IK> uniqueKeys, Config config){
 		return indexNode.getMulti(uniqueKeys, config);
+	}
+
+	@Override
+	public Scanner<IE> scanMulti(Collection<IK> uniqueKeys, Config config){
+		return indexNode.scanMulti(uniqueKeys, config);
+	}
+
+	@Override
+	public Scanner<D> scanLookupMultiUnique(Collection<IK> uniqueKeys, Config config){
+		if(uniqueKeys == null || uniqueKeys.isEmpty()){
+			return Scanner.empty();
+		}
+		return Scanner.of(indexNode.getMulti(uniqueKeys, config))
+				.map(IE::getTargetKey)
+				.listTo(primaryKeys -> mainNode.scanMulti(primaryKeys, config));
 	}
 
 }

@@ -65,6 +65,8 @@ import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.BaseHandler.Handler;
+import io.datarouter.web.handler.documentation.DocumentedExampleDto.DocumentedExampleEnumDto;
+import io.datarouter.web.handler.types.ParamDefaultEnum;
 import io.datarouter.web.handler.types.Param;
 import io.datarouter.web.handler.types.RequestBody;
 import io.datarouter.web.handler.types.optional.OptionalParameter;
@@ -120,22 +122,30 @@ public class ApiDocService{
 
 				Type responseType = method.getGenericReturnType();
 				String responseExample;
+				Set<DocumentedExampleEnumDto> responseExampleEnumDtos = new HashSet<>();
 				if(responseType == Void.TYPE){
 					responseExample = null;
 				}else{
 					try{
-						Object responseObject = createBestExample(responseType, new HashSet<>());
-						responseExample = GSON.toJson(responseObject);
+						DocumentedExampleDto responseObject = createBestExample(responseType, new HashSet<>());
+						responseExampleEnumDtos = responseObject.exampleEnumDtos;
+						responseExample = GSON.toJson(responseObject.exampleObject);
 					}catch(Exception e){
 						responseExample = "Impossible to render";
 						logger.warn("Could not create response example for {}", responseType, e);
 					}
 				}
 				String responseTypeString = buildTypeString(responseType);
-				var response = new DocumentedResponseJspDto(responseTypeString, responseExample);
+				var response = new DocumentedResponseJspDto(
+						responseTypeString,
+						responseExample,
+						buildEnumValuesString(responseExampleEnumDtos));
 				boolean isDeprecated = method.isAnnotationPresent(Deprecated.class)
 						|| handler.isAnnotationPresent(Deprecated.class);
 				List<DocumentedErrorJspDto> errors = buildError(method);
+				Set<DocumentedExampleEnumDto> requestParamExampleEnumDtos = Scanner.of(parameters)
+						.concatIter(parameter -> parameter.exampleEnumDtos)
+						.collect(Collectors.toSet());
 				var endpoint = new DocumentedEndpointJspDto(
 						url,
 						implementation,
@@ -143,7 +153,8 @@ public class ApiDocService{
 						description,
 						response,
 						isDeprecated,
-						errors);
+						errors,
+						buildEnumValuesString(requestParamExampleEnumDtos));
 				endpoints.add(endpoint);
 			}
 			handler = handler.getSuperclass().asSubclass(BaseHandler.class);
@@ -195,17 +206,25 @@ public class ApiDocService{
 		String description = null;
 		String name = parameter.getName();
 		Param param = parameter.getAnnotation(Param.class);
+		Set<DocumentedExampleEnumDto> exampleEnumDtos = new HashSet<>();
 		if(param != null){
 			description = param.description();
 			if(!param.value().isEmpty()){
 				name = param.value();
+			}
+			if(!param.enumClass().equals(ParamDefaultEnum.class)){
+				String enumValuesDisplay = Scanner.of(param.enumClass().getEnumConstants())
+						.map(Enum::name)
+						.collect(Collectors.joining(","));
+				exampleEnumDtos.add(new DocumentedExampleEnumDto(param.enumClass().getSimpleName(), enumValuesDisplay));
 			}
 		}
 		return createDocumentedParameter(
 				name,
 				parameter.getParameterizedType(),
 				parameter.isAnnotationPresent(RequestBody.class),
-				description);
+				description,
+				exampleEnumDtos);
 	}
 
 	private List<DocumentedParameterJspDto> createApplicableSecurityParameters(DispatchRule rule){
@@ -220,19 +239,22 @@ public class ApiDocService{
 			applicableSecurityParameterNames.add(SecurityParameters.CSRF_TOKEN);
 			applicableSecurityParameterNames.add(SecurityParameters.CSRF_IV);
 		}
-		return applicableSecurityParameterNames.stream()
-				.map(parameterName -> createDocumentedParameter(parameterName, String.class, false, null))
-				.collect(Collectors.toList());
+		return Scanner.of(applicableSecurityParameterNames)
+				.map(parameterName -> createDocumentedParameter(parameterName, String.class, false, null,
+						new HashSet<>()))
+				.list();
 	}
 
 	private DocumentedParameterJspDto createDocumentedParameter(String parameterName, Type parameterType,
-			boolean requestBody, String description){
+			boolean requestBody, String description, Set<DocumentedExampleEnumDto> exampleEnumDtos){
 		Type type = OptionalParameter.getOptionalInternalType(parameterType);
 		Optional<Class<?>> clazz = type instanceof Class ? Optional.of((Class<?>)type) : Optional.empty();
 		String example = null;
 		if(includeType(clazz)){
 			try{
-				example = GSON.toJson(createBestExample(type, new HashSet<>()));
+				DocumentedExampleDto exampleDto = createBestExample(type, new HashSet<>());
+				exampleEnumDtos.addAll(exampleDto.exampleEnumDtos);
+				example = GSON.toJson(exampleDto.exampleObject);
 			}catch(Exception e){
 				logger.warn("Could not create parameter example {} for {}", type, parameterName, e);
 			}
@@ -247,20 +269,24 @@ public class ApiDocService{
 				isRequired,
 				requestBody,
 				HIDDEN_SPEC_PARAMS.contains(parameterName),
-				description);
+				description,
+				exampleEnumDtos);
 	}
 
 	private DocumentedParameterJspDto createDocumentedParameterFromField(Field field){
 		boolean isOptional = field.getType().isAssignableFrom(Optional.class);
 		String type;
 		String example = null;
+		Set<DocumentedExampleEnumDto> exampleEnumDtos = new HashSet<>();
 		if(isOptional){
 			Class<?> parameterizedType = (Class<?>)((ParameterizedType)field.getGenericType())
 					.getActualTypeArguments()[0];
 			type = parameterizedType.getSimpleName();
 			if(includeType(Optional.of(parameterizedType))){
 				try{
-					example = GSON.toJson(createBestExample(parameterizedType, new HashSet<>()));
+					DocumentedExampleDto exampleDto = createBestExample(parameterizedType, new HashSet<>());
+					exampleEnumDtos = exampleDto.exampleEnumDtos;
+					example = GSON.toJson(exampleDto.exampleObject);
 				}catch(Exception e){
 					logger.warn("Could not create parameter example {} for {}", field.getType(), field.getName(), e);
 				}
@@ -269,7 +295,9 @@ public class ApiDocService{
 			type = field.getType().getSimpleName();
 			if(includeType(Optional.of(field.getType()))){
 				try{
-					example = GSON.toJson(createBestExample(field.getType(), new HashSet<>()));
+					DocumentedExampleDto exampleDto = createBestExample(field.getType(), new HashSet<>());
+					exampleEnumDtos = exampleDto.exampleEnumDtos;
+					example = GSON.toJson(exampleDto.exampleObject);
 				}catch(Exception e){
 					logger.warn("Could not create parameter example {} for {}", field.getType(), field.getName(), e);
 				}
@@ -284,7 +312,8 @@ public class ApiDocService{
 				HIDDEN_SPEC_PARAMS.contains(field.getName()),
 				Optional.ofNullable(field.getAnnotation(EndpointParam.class))
 						.map(EndpointParam::description)
-						.orElse(null));
+						.orElse(null),
+				exampleEnumDtos);
 	}
 
 	private boolean includeType(Optional<Class<?>> type){
@@ -294,13 +323,13 @@ public class ApiDocService{
 				&& !type.map(Class::isPrimitive).orElse(false);
 	}
 
-	private static Object createBestExample(Type type, Set<Type> parents){
+	private static DocumentedExampleDto createBestExample(Type type, Set<Type> parents){
 		return createBestExample(type, parents, 0);
 	}
 
-	private static Object createBestExample(Type type, Set<Type> parents, int callWithoutWarning){
+	private static DocumentedExampleDto createBestExample(Type type, Set<Type> parents, int callWithoutWarning){
 		if(parents.contains(type)){
-			return null;
+			return new DocumentedExampleDto(null, new HashSet<>());
 		}
 		callWithoutWarning = callWithoutWarning - 1;
 		Set<Type> parentsWithType = Scanner.of(parents)
@@ -311,27 +340,37 @@ public class ApiDocService{
 			Class<?> rawType = (Class<?>)parameterizedType.getRawType();
 			Type type0 = parameterizedType.getActualTypeArguments()[0];
 			if(List.class.isAssignableFrom(rawType)){
-				return List.of(createBestExample(type0, parentsWithType));
+				DocumentedExampleDto exampleDto = createBestExample(type0, parentsWithType);
+				return new DocumentedExampleDto(List.of(exampleDto.exampleObject), exampleDto.exampleEnumDtos);
 			}
 			if(Set.class.isAssignableFrom(rawType) || Collection.class.isAssignableFrom(rawType)){
-				return Collections.singleton(createBestExample(type0, parentsWithType));
+				DocumentedExampleDto exampleDto = createBestExample(type0, parentsWithType);
+				return new DocumentedExampleDto(Collections.singleton(exampleDto.exampleObject),
+						exampleDto.exampleEnumDtos);
 			}
 			if(Map.class.isAssignableFrom(rawType)){
-				Object key = createBestExample(type0, parentsWithType);
-				Object value = createBestExample(parameterizedType.getActualTypeArguments()[1], parentsWithType);
+				DocumentedExampleDto key = createBestExample(type0, parentsWithType);
+				DocumentedExampleDto value = createBestExample(parameterizedType.getActualTypeArguments()[1],
+						parentsWithType);
+				Set<DocumentedExampleEnumDto> exampleEnumDtos = Scanner.concat(key.exampleEnumDtos,
+						value.exampleEnumDtos)
+						.collect(Collectors.toSet());
 				if(SortedMap.class.isAssignableFrom(rawType)){
 					Map<Object,Object> map = new TreeMap<>();
-					map.put(key, value);
-					return map;
+					map.put(key.exampleObject, value.exampleObject);
+					return new DocumentedExampleDto(map, exampleEnumDtos);
 				}
-				return Collections.singletonMap(key, value);
+				return new DocumentedExampleDto(Collections.singletonMap(key.exampleObject, value.exampleObject),
+						exampleEnumDtos);
 			}
 			if(Optional.class.isAssignableFrom(rawType)){
-				return Optional.of(createBestExample(type0, parentsWithType));
+				DocumentedExampleDto exampleDto = createBestExample(type0, parentsWithType);
+				return new DocumentedExampleDto(Optional.of(exampleDto.exampleObject), exampleDto.exampleEnumDtos);
 			}
 			if(DocumentedGenericHolder.class.isAssignableFrom(rawType)){
-				DocumentedGenericHolder autoBuildable = (DocumentedGenericHolder)createBestExample(rawType, parents, 3);
-				List<Object> innerObjects = Scanner.of(parameterizedType.getActualTypeArguments())
+				DocumentedExampleDto exampleDto = createBestExample(rawType, parents, 3);
+				DocumentedGenericHolder autoBuildable = (DocumentedGenericHolder)exampleDto.exampleObject;
+				List<DocumentedExampleDto> innerObjects = Scanner.of(parameterizedType.getActualTypeArguments())
 						.map(paramType -> createBestExample(paramType, parentsWithType))
 						.list();
 				List<String> fieldNames = autoBuildable.getGenericFieldNames();
@@ -345,81 +384,93 @@ public class ApiDocService{
 						continue;
 					}
 					field.setAccessible(true);
-					Object value = innerObjects.get(i);
+					Object value = innerObjects.get(i).exampleObject;
 					ReflectionTool.set(field, autoBuildable, value);
 				}
-				return autoBuildable;
+				Set<DocumentedExampleEnumDto> enums = Scanner.of(innerObjects)
+						.concatIter(dto -> dto.exampleEnumDtos)
+						.collect(Collectors.toSet());
+				enums.addAll(exampleDto.exampleEnumDtos);
+				return new DocumentedExampleDto(autoBuildable, enums);
 			}
-			return createBestExample(rawType, parentsWithType);
+			return new DocumentedExampleDto(createBestExample(rawType, parentsWithType), new HashSet<>());
 		}
 		// undocumented generic (T or E or PK)
 		if(type instanceof TypeVariable){
 			if(callWithoutWarning < 1){
 				logger.warn("undocumneted generic, please use AutoBuildable type={} parents={}", type, parents);
 			}
-			return null;
+			return new DocumentedExampleDto(null, new HashSet<>());
 		}
 		if(type instanceof WildcardType){
 			logger.warn("please document type={} parents={}", type, parents);
-			return null;
+			return new DocumentedExampleDto(null, new HashSet<>());
 		}
 		Class<?> clazz = (Class<?>)type;
 		if(clazz.isArray()){
 			if(clazz.getComponentType().isPrimitive()){
 				Object array = Array.newInstance(clazz.getComponentType(), 1);
-				return array;
+				return new DocumentedExampleDto(array, new HashSet<>());
 			}else{
 				Object[] array = (Object[])Array.newInstance(clazz.getComponentType(), 1);
 				array[0] = createBestExample(clazz.getComponentType(), parentsWithType);
-				return array;
+				return new DocumentedExampleDto(array, new HashSet<>());
 			}
 		}
 		if(clazz.isPrimitive()){
 			if(type == Boolean.TYPE){ // boolean is the only primitive that doesnt support 0
-				return false;
+				return new DocumentedExampleDto(false, new HashSet<>());
 			}
-			return 0;
+			return new DocumentedExampleDto(0, new HashSet<>());
 		}
 		if(clazz == Boolean.class){
-			return false;
+			return new DocumentedExampleDto(false, new HashSet<>());
 		}
 		if(clazz == String.class){
-			return "";
+			return new DocumentedExampleDto("", new HashSet<>());
 		}
 		if(clazz == char.class || clazz == Character.class){
-			return 'c';
+			return new DocumentedExampleDto('c', new HashSet<>());
 		}
 		if(clazz == Date.class){
-			return new Date();
+			return new DocumentedExampleDto(new Date(), new HashSet<>());
 		}
 		if(clazz == Long.class){
-			return 0L;
+			return new DocumentedExampleDto(0L, new HashSet<>());
 		}
 		if(clazz == Short.class){
-			return (short)0;
+			return new DocumentedExampleDto((short)0, new HashSet<>());
 		}
 		if(clazz == Integer.class
 				|| clazz == Number.class){
-			return 0;
+			return new DocumentedExampleDto(0, new HashSet<>());
 		}
 		if(clazz == LocalDateTime.class){
-			return LocalDateTime.now();
+			return new DocumentedExampleDto(LocalDateTime.now(), new HashSet<>());
 		}
 		if(clazz == LocalTime.class){
-			return LocalTime.now();
+			return new DocumentedExampleDto(LocalTime.now(), new HashSet<>());
 		}
 		if(clazz == JsonArray.class){
-			return new JsonArray();
+			return new DocumentedExampleDto(new JsonArray(), new HashSet<>());
 		}
 		if(clazz == JsonObject.class){
-			return new JsonObject();
+			return new DocumentedExampleDto(new JsonObject(), new HashSet<>());
 		}
 		if(clazz.isEnum()){
-			return clazz.getEnumConstants()[0];
+			@SuppressWarnings({"unchecked", "rawtypes"})
+			Class<? extends Enum> enumClass = (Class<? extends Enum>)clazz;
+			String enumValuesDisplay = Scanner.of(enumClass.getEnumConstants())
+					.map(Enum::name)
+					.collect(Collectors.joining(","));
+			Set<DocumentedExampleEnumDto> exampleEnumDtos = new HashSet<>();
+			exampleEnumDtos.add(new DocumentedExampleEnumDto(clazz.getSimpleName(), enumValuesDisplay));
+			return new DocumentedExampleDto(clazz.getEnumConstants()[0], exampleEnumDtos);
 		}
 		if(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())){
-			return null;
+			return new DocumentedExampleDto(null, new HashSet<>());
 		}
+		Set<DocumentedExampleEnumDto> exampleEnumDtos = new HashSet<>();
 		Object example = ReflectionTool.createNullArgsWithUnsafeAllocator(clazz);
 		for(Field field : ReflectionTool.getDeclaredFieldsIncludingAncestors(clazz)){
 			if(clazz.equals(field.getType())){
@@ -430,9 +481,11 @@ public class ApiDocService{
 			}
 			field.setAccessible(true);
 			try{
-				Object fieldExample = createBestExample(field.getGenericType(), parentsWithType, callWithoutWarning);
+				DocumentedExampleDto exampleDto = createBestExample(field.getGenericType(), parentsWithType,
+						callWithoutWarning);
+				exampleEnumDtos.addAll(exampleDto.exampleEnumDtos);
 				try{
-					field.set(example, fieldExample);
+					field.set(example, exampleDto.exampleObject);
 				}catch(Exception e){
 					logger.warn("error setting {}", field, e);
 				}
@@ -440,7 +493,19 @@ public class ApiDocService{
 				logger.warn("error creating {}", type, e);
 			}
 		}
-		return example;
+		return new DocumentedExampleDto(example, exampleEnumDtos);
+	}
+
+	private static String buildEnumValuesString(Collection<DocumentedExampleEnumDto> exampleEnumDtos){
+		StringBuilder builder = new StringBuilder();
+		Scanner.of(exampleEnumDtos)
+				.forEach(dto -> {
+					builder.append(dto.enumName);
+					builder.append(": ");
+					builder.append(dto.enumValuesDisplay);
+					builder.append("\n");
+				});
+		return builder.toString();
 	}
 
 }

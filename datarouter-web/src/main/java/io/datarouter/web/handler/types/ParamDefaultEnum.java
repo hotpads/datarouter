@@ -13,30 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.web.handler.documentation;
+package io.datarouter.web.handler.types;
 
-public class DocumentedResponseJspDto{
-
-	private final String type;
-	private final String example;
-	private final String enumValuesDisplay;
-
-	public DocumentedResponseJspDto(String type, String example, String enumValuesDisplay){
-		this.type = type;
-		this.example = example;
-		this.enumValuesDisplay = enumValuesDisplay;
-	}
-
-	public String getType(){
-		return type;
-	}
-
-	public String getExample(){
-		return example;
-	}
-
-	public String getEnumValuesDisplay(){
-		return enumValuesDisplay;
-	}
+public enum ParamDefaultEnum{
+	NOOP,
+	;
 
 }

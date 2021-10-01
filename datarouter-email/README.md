@@ -8,7 +8,7 @@ Instrumentation and tools for sending emails
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-email</artifactId>
-	<version>0.0.89</version>
+	<version>0.0.90</version>
 </dependency>
 ```
 

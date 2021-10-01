@@ -23,6 +23,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.model.index.unique.UniqueIndexEntry;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.op.combo.IndexedMapStorage;
 import io.datarouter.storage.node.type.index.ManagedUniqueIndexNode;
@@ -44,7 +45,9 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 
 	@Override
 	public D lookupUnique(IK indexKey, Config config){
-		return lookupMultiUnique(Collections.singleton(indexKey), config).stream().findFirst().orElse(null);
+		return lookupMultiUnique(Collections.singleton(indexKey), config).stream()
+				.findFirst()
+				.orElse(null);
 	}
 
 	@Override
@@ -70,6 +73,16 @@ implements ManagedUniqueIndexNode<PK,D,IK,IE,IF>{
 	@Override
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
 		node.deleteByIndex(uniqueKeys, config, indexEntryFieldInfo);
+	}
+
+	@Override
+	public Scanner<IE> scanMulti(Collection<IK> uniqueKeys, Config config){
+		return Scanner.of(node.getMultiFromIndex(uniqueKeys, config, indexEntryFieldInfo));
+	}
+
+	@Override
+	public Scanner<D> scanLookupMultiUnique(Collection<IK> uniqueKeys, Config config){
+		return Scanner.of(node.getMultiByIndex(uniqueKeys, config, indexEntryFieldInfo));
 	}
 
 }

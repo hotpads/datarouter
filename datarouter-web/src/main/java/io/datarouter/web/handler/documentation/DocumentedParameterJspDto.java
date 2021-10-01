@@ -15,6 +15,10 @@
  */
 package io.datarouter.web.handler.documentation;
 
+import java.util.Set;
+
+import io.datarouter.web.handler.documentation.DocumentedExampleDto.DocumentedExampleEnumDto;
+
 public class DocumentedParameterJspDto{
 
 	private final String name;
@@ -25,8 +29,10 @@ public class DocumentedParameterJspDto{
 	private final Boolean hidden;
 	private final String description;
 
+	public final Set<DocumentedExampleEnumDto> exampleEnumDtos;
+
 	public DocumentedParameterJspDto(String name, String type, String example, Boolean required, Boolean requestBody,
-			Boolean hidden, String description){
+			Boolean hidden, String description, Set<DocumentedExampleEnumDto> exampleEnumDtos){
 		this.name = name;
 		this.type = type;
 		this.example = example;
@@ -34,6 +40,7 @@ public class DocumentedParameterJspDto{
 		this.requestBody = requestBody;
 		this.hidden = hidden;
 		this.description = description;
+		this.exampleEnumDtos = exampleEnumDtos;
 	}
 
 	public String getName(){

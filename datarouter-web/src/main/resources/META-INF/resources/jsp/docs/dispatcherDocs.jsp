@@ -337,6 +337,10 @@
 											</tr>
 										</c:forEach>
 									</table>
+									<c:if test="${not empty endpoint.paramsEnumValuesDisplay}">
+										<h5>Parameter Enum Values</h5>
+										<pre class="bg-light border p-2 json">${endpoint.paramsEnumValuesDisplay}</pre>
+									</c:if>
 								</c:when>
 								<c:otherwise>None</c:otherwise>
 							</c:choose>
@@ -347,6 +351,10 @@
 							</c:if>
 							<c:if test="${not empty endpoint.response.example}">
 								<pre class="bg-light border p-2 json">${endpoint.response.example}</pre>
+							</c:if>
+							<c:if test="${not empty endpoint.response.enumValuesDisplay}">
+								<h5>Response Enum Values</h5>
+								<pre class="bg-light border p-2 json">${endpoint.response.enumValuesDisplay}</pre>
 							</c:if>
 							<c:if test="${not empty endpoint.errors}">
 								<h3>Errors</h3>

@@ -30,5 +30,6 @@ public @interface Param{
 	String value() default "";
 	String description() default "";
 	Class<? extends RequestParamValidator<?>> validator() default DefaultRequestParamValidator.class;
+	Class<? extends Enum<?>> enumClass() default ParamDefaultEnum.class;
 
 }

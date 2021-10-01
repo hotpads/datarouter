@@ -32,10 +32,6 @@ public interface ServerTypes{
 		return getJobServerType();
 	}
 
-	default ServerType getDetachedServerType(){
-		return getWebServerType();
-	}
-
 	Scanner<ServerType> values();
 
 	List<HtmlSelectOptionBean> getHtmlSelectOptionsVarNames();

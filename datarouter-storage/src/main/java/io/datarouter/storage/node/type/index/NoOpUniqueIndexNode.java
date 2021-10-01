@@ -75,4 +75,14 @@ implements UniqueIndexNode<PK,D,IK,IE>{
 	public void deleteMultiUnique(Collection<IK> uniqueKeys, Config config){
 	}
 
+	@Override
+	public Scanner<IE> scanMulti(Collection<IK> uniqueKeys, Config config){
+		return Scanner.empty();
+	}
+
+	@Override
+	public Scanner<D> scanLookupMultiUnique(Collection<IK> uniqueKeys, Config config){
+		return Scanner.empty();
+	}
+
 }

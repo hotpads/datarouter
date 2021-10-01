@@ -18,6 +18,7 @@ package io.datarouter.httpclient.response;
 import java.util.List;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -75,7 +76,12 @@ public class DatarouterHttpResponse{
 
 	public void tryClose(){
 		try{
-			response.getEntity().getContent().close();
+			HttpEntity entity = response.getEntity();
+			if(entity == null){
+				//response had no entity to close, as in a response to a HEAD request
+				return;
+			}
+			entity.getContent().close();
 		}catch(Exception e){
 			logger.warn("failed to close", e);
 		}

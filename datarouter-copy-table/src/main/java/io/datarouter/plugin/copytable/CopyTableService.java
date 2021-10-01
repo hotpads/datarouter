@@ -111,14 +111,31 @@ public class CopyTableService{
 					.parallel(putMultiScannerContext.get(numThreads))
 					.each(batch -> processor.accept(batch, putConfig))
 					.each($ -> Counters.inc("copyTable " + sourceNodeName + " write"))
-					.forEach(batch -> {
-						numCopied.addAndGet(batch.size());
-						lastKey.set(ListTool.getLast(batch).getKey());
-						logProgress(false, numSkipped.get(), numScanned.get(), numCopied.get(), batchId, numBatches,
-								sourceNodeName, targetNodeName, lastKey.get(), null);
-					});
-			logProgress(true, numSkipped.get(), numScanned.get(), numCopied.get(), batchId, numBatches,
-					sourceNodeName, targetNodeName, lastKey.get(), null);
+					.each(batch -> numCopied.addAndGet(batch.size()))
+					.each(batch -> lastKey.set(ListTool.getLast(batch).getKey()))
+					.sample(10, true)
+					.forEach(batch -> logProgress(
+							false,
+							numSkipped.get(),
+							numScanned.get(),
+							numCopied.get(),
+							batchId,
+							numBatches,
+							sourceNodeName,
+							targetNodeName,
+							lastKey.get(),
+							null));
+			logProgress(
+					true,
+					numSkipped.get(),
+					numScanned.get(),
+					numCopied.get(),
+					batchId,
+					numBatches,
+					sourceNodeName,
+					targetNodeName,
+					lastKey.get(),
+					null);
 			return new CopyTableSpanResult(true, null, numCopied.get(), null);
 		}catch(Throwable e){
 			PK pk = lastKey.get();

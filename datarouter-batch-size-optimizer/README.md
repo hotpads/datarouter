@@ -11,7 +11,7 @@ datarouter-batch-size-optimizer optimizes the batching operation by trying to fi
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-batch-size-optimizer</artifactId>
-	<version>0.0.89</version>
+	<version>0.0.90</version>
 </dependency>
 ```
 

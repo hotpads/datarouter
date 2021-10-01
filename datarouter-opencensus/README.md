@@ -9,7 +9,7 @@ Instrumentation tools to interact with opencensus.io tracing.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-opencensus</artifactId>
-	<version>0.0.89</version>
+	<version>0.0.90</version>
 </dependency>
 ```
 
