@@ -52,7 +52,7 @@ import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.handler.BaseHandler;
@@ -288,10 +288,10 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 
 		public PermissionRequestDto(Instant requestTime, String requestText, Optional<Instant> resolutionTime,
 				String resolution, ZoneId zoneId){
-			this.requestTime = ZonedDateFormaterTool.formatInstantWithZone(requestTime, zoneId);
+			this.requestTime = ZonedDateFormatterTool.formatInstantWithZone(requestTime, zoneId);
 			this.requestText = requestText;
 			this.resolutionTime = resolutionTime
-					.map(instant -> ZonedDateFormaterTool.formatInstantWithZone(instant, zoneId))
+					.map(instant -> ZonedDateFormatterTool.formatInstantWithZone(instant, zoneId))
 					.orElse(null);
 			this.resolution = resolution;
 		}

@@ -30,7 +30,7 @@ import io.datarouter.changelog.storage.ChangelogDao;
 import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.instrumentation.changelog.ChangelogDto;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -127,7 +127,7 @@ public class EditChangelogHandler extends BaseHandler{
 		ZoneId zoneId = sessionInfoService.getZoneId(request);
 		Long reversedDateMs = row.getKey().getReversedDateMs();
 		Date date = new Date(Long.MAX_VALUE - reversedDateMs);
-		return ZonedDateFormaterTool.formatDateWithZone(date, zoneId);
+		return ZonedDateFormatterTool.formatDateWithZone(date, zoneId);
 	}
 
 }

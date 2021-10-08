@@ -60,4 +60,15 @@ public class BinarySmallFileServiceIntegrationTests{
 		testDirectory.delete(filename);
 	}
 
+	@Test
+	public void testWriteToReplaceExistingFile(){
+		String filename = "testfile";
+		String initialContent = "hello";
+		String replaceContent = "ByeBye";
+		testDirectory.write(filename, initialContent.getBytes());
+		Assert.assertEquals(new String(testDirectory.read(filename)), initialContent);
+		testDirectory.write(filename, replaceContent.getBytes());
+		Assert.assertEquals(new String(testDirectory.read(filename)), replaceContent);
+	}
+
 }

@@ -15,6 +15,8 @@
  */
 package io.datarouter.web.port;
 
+import java.util.ArrayList;
+
 import javax.inject.Singleton;
 import javax.management.JMException;
 import javax.management.MalformedObjectNameException;
@@ -31,29 +33,28 @@ public class TomcatPortIdentifier implements PortIdentifier{
 
 	public TomcatPortIdentifier() throws MalformedObjectNameException{
 		ObjectName query = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ProtocolHandler,*");
+		var handlers = new ArrayList<>();
 		MxBeans.SERVER.queryNames(query, null).forEach(objectName -> {
+			handlers.add(objectName.toString());
 			int port;
-			boolean sslEnabled;
 			String scheme;
 			try{
 				port = (int)MxBeans.SERVER.getAttribute(objectName, "port");
-				sslEnabled = (boolean)MxBeans.SERVER.getAttribute(objectName, "sSLEnabled");
 				objectName = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=Connector,port="
 						+ port);
 				scheme = (String)MxBeans.SERVER.getAttribute(objectName, "scheme");
 			}catch(JMException e){
 				throw new RuntimeException(e);
 			}
-			if(sslEnabled){
-				this.httpsPort = port;
-			}else{
-				if(scheme.equals(UrlScheme.HTTP.getStringRepresentation())){
-					this.httpPort = port;
-				}
+			if(scheme.equals(UrlScheme.HTTPS.getStringRepresentation())){
+				httpsPort = port;
+			}else if(scheme.equals(UrlScheme.HTTP.getStringRepresentation())){
+				httpPort = port;
 			}
 		});
-		if(this.httpPort == null || this.httpsPort == null){
-			throw new RuntimeException("TomcatPortIdentifier didn't find port numbers in jmx");
+		if(httpPort == null || httpsPort == null){
+			throw new RuntimeException("port not found httpPort=" + httpPort + " httpsPort=" + httpsPort + " handlers="
+					+ handlers);
 		}
 	}
 

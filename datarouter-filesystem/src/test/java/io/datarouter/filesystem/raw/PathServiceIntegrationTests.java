@@ -25,6 +25,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
@@ -67,6 +68,16 @@ public class PathServiceIntegrationTests{
 						? path.toString() + "/"
 						: path.getFileName().toString())
 				.collect(Collectors.joining(", "));
+	}
+
+	@Test
+	public void testScanforNonDirectoryPath(){
+		Assert.assertEquals(pathService.listChildren(Path.of("", ""), null, 0, false), List.of());
+	}
+
+	@Test
+	public void testDeletingNonExistentFile(){
+		pathService.delete(Path.of("../testDeletingNonExistentFile", ""));
 	}
 
 }

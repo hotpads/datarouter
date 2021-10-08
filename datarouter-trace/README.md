@@ -9,7 +9,7 @@ datarouter-trace is a tool to collect and visualize distributed request traces.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-trace</artifactId>
-	<version>0.0.90</version>
+	<version>0.0.91</version>
 </dependency>
 ```
 

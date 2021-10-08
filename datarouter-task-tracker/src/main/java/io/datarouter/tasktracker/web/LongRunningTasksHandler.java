@@ -35,7 +35,7 @@ import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -176,9 +176,9 @@ public class LongRunningTasksHandler extends BaseHandler{
 
 		public String getStartString(){
 			if(startTime == null){
-				return ZonedDateFormaterTool.formatDateWithZone(triggerTime, zoneId) + " (trigger)";
+				return ZonedDateFormatterTool.formatDateWithZone(triggerTime, zoneId) + " (trigger)";
 			}else{
-				return ZonedDateFormaterTool.formatDateWithZone(startTime, zoneId);
+				return ZonedDateFormatterTool.formatDateWithZone(startTime, zoneId);
 			}
 		}
 
@@ -186,7 +186,7 @@ public class LongRunningTasksHandler extends BaseHandler{
 			if(finishTime == null){
 				return "";
 			}
-			return ZonedDateFormaterTool.formatDateWithZone(finishTime, zoneId);
+			return ZonedDateFormatterTool.formatDateWithZone(finishTime, zoneId);
 		}
 
 		public Long getSortableDuration(){

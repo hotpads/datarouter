@@ -39,7 +39,7 @@ import javax.inject.Inject;
 
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.user.session.CurrentUserSessionInfoService;
@@ -107,7 +107,7 @@ public class WebappInstanceHandler extends BaseHandler{
 				WebappInstance::getServerPublicIp);
 		var buildDateStats = new UsageStatsJspDto(
 				webappInstances,
-				webappInstance -> ZonedDateFormaterTool.formatInstantWithZone(webappInstance.getBuildInstant(),
+				webappInstance -> ZonedDateFormatterTool.formatInstantWithZone(webappInstance.getBuildInstant(),
 						zoneId));
 		var javaVersionStats = new UsageStatsJspDto(
 				webappInstances,
@@ -278,11 +278,11 @@ public class WebappInstanceHandler extends BaseHandler{
 		}
 
 		public String getStartupDatePrintable(){
-			return ZonedDateFormaterTool.formatInstantWithZone(startup, zoneId);
+			return ZonedDateFormatterTool.formatInstantWithZone(startup, zoneId);
 		}
 
 		public String getBuildDatePrintable(){
-			return ZonedDateFormaterTool.formatInstantWithZone(build, zoneId);
+			return ZonedDateFormatterTool.formatInstantWithZone(build, zoneId);
 		}
 
 		public String getUpTimePrintable(){

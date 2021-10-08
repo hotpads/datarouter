@@ -110,6 +110,10 @@ public class JobPackage implements Comparable<JobPackage>{
 		return cronExpression.map(CronExpression::toString);
 	}
 
+	public Optional<CronExpression> getCronExpression(){
+		return cronExpression;
+	}
+
 	public Optional<Date> getNextValidTimeAfter(Date date){
 		return cronExpression.map(cronExpression -> cronExpression.getNextValidTimeAfter(date));
 	}

@@ -90,24 +90,18 @@ public class DatarouterWebappInstanceDao extends BaseDao{
 		return node.get(key);
 	}
 
-	public List<String> getWebappInstanceServerNamesForWebapp(String webappName){
-		return node.scanWithPrefix(new WebappInstanceKey(webappName, null))
-				.map(WebappInstance::getKey)
-				.map(WebappInstanceKey::getServerName)
-				.list();
-	}
-
 	/**
 	 * Callers should use {@link WebappInstance#getUniqueServerNames} on result if only serverNames are desired
 	 * (not each webApp on the server)
 	 */
-	public List<WebappInstance> getWebappInstancesOfServerType(ServerType type, Duration heartbeatWithin){
-		return getWebappInstancesWithServerTypeString(type.getPersistentString(), heartbeatWithin);
+	public List<WebappInstance> getWebappInstancesOfServerType(ServerType serverType, Duration heartbeatWithin){
+		return getWebappInstancesWithServerTypeString(serverType, heartbeatWithin);
 	}
 
-	public List<WebappInstance> getWebappInstancesWithServerTypeString(String typeString, Duration heartbeatWithin){
+	public List<WebappInstance> getWebappInstancesWithServerTypeString(ServerType serverType, Duration heartbeatWithin){
+		String serverTypeString = serverType.getPersistentString();
 		return node.scan()
-				.include(webappInstance -> typeString.equals(webappInstance.getServerType()))
+				.include(webappInstance -> serverTypeString.equals(webappInstance.getServerType()))
 				.include(webappInstance -> webappInstance.getDurationSinceLastUpdatedMs()
 						.compareTo(heartbeatWithin) < 0)
 				.list();

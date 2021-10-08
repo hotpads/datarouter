@@ -35,7 +35,7 @@ import io.datarouter.auth.storage.permissionrequest.DatarouterPermissionRequestK
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.scanner.OptionalScanner;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -163,7 +163,7 @@ public class PermissionRequestDailyDigest implements DailyDigest{
 		}
 
 		public String getInstantRequested(ZoneId zoneId){
-			return ZonedDateFormaterTool.formatInstantWithZone(instantRequested, zoneId);
+			return ZonedDateFormatterTool.formatInstantWithZone(instantRequested, zoneId);
 		}
 
 	}

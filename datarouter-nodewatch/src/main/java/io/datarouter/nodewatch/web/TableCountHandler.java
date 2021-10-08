@@ -51,7 +51,7 @@ import io.datarouter.storage.node.NodeTool;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.util.duration.DatarouterDuration;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.mav.imp.InContextRedirectMav;
@@ -259,7 +259,7 @@ public class TableCountHandler extends BaseHandler{
 		}
 
 		public String getDateCreated(){
-			return ZonedDateFormaterTool.formatDateWithZone(dateCreated, zoneId);
+			return ZonedDateFormatterTool.formatDateWithZone(dateCreated, zoneId);
 		}
 
 		public Long getDateCreatedTime(){
@@ -287,7 +287,7 @@ public class TableCountHandler extends BaseHandler{
 		}
 
 		public String getDateUpdated(){
-			return ZonedDateFormaterTool.formatDateWithZone(dateUpdated, zoneId);
+			return ZonedDateFormatterTool.formatDateWithZone(dateUpdated, zoneId);
 		}
 
 		public Long getnumSpans(){

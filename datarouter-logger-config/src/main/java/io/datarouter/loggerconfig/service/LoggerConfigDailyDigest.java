@@ -30,7 +30,7 @@ import io.datarouter.loggerconfig.config.DatarouterLoggingConfigPaths;
 import io.datarouter.loggerconfig.storage.loggerconfig.DatarouterLoggerConfigDao;
 import io.datarouter.loggerconfig.storage.loggerconfig.LoggerConfig;
 import io.datarouter.util.time.LocalDateTimeTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
 import io.datarouter.web.digest.DailyDigestService;
@@ -60,7 +60,8 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
 				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> ZonedDateFormaterTool.formatInstantWithZone(row.getLastUpdated(), zoneId))
+				.withColumn("Updated", row -> ZonedDateFormatterTool.formatInstantWithZone(row.getLastUpdated(),
+						zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}
@@ -77,7 +78,8 @@ public class LoggerConfigDailyDigest implements DailyDigest{
 				.withColumn("Name", row -> row.getKey().getName())
 				.withColumn("Level", row -> row.getLevel().getPersistentString())
 				.withColumn("User", row -> row.getEmail())
-				.withColumn("Updated", row -> ZonedDateFormaterTool.formatInstantWithZone(row.getLastUpdated(), zoneId))
+				.withColumn("Updated", row -> ZonedDateFormatterTool.formatInstantWithZone(row.getLastUpdated(),
+						zoneId))
 				.build(loggers);
 		return Optional.of(div(header, description, table));
 	}

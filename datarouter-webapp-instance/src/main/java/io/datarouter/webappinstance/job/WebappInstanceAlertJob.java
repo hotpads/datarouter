@@ -32,7 +32,7 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.util.time.DurationTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -95,10 +95,10 @@ public class WebappInstanceAlertJob extends BaseJob{
 		ZoneId zoneId = defaultDistributionListZoneId.get();
 		var rows = List.of(
 				new Twin<>("webapp", webappInstance.getKey().getWebappName()),
-				new Twin<>("build date", ZonedDateFormaterTool.formatInstantWithZone(
+				new Twin<>("build date", ZonedDateFormatterTool.formatInstantWithZone(
 						webappInstance.getBuildInstant(),
 						zoneId)),
-				new Twin<>("startup date", ZonedDateFormaterTool.formatInstantWithZone(
+				new Twin<>("startup date", ZonedDateFormatterTool.formatInstantWithZone(
 						webappInstance.getStartupInstant(),
 						zoneId)),
 				new Twin<>("commitId", webappInstance.getCommitId()));

@@ -258,7 +258,7 @@ public abstract class BaseHandler{
 			}
 			invokeHandlerMethod(method, args, encoder);
 		}catch(IOException | ServletException e){
-			throw new RuntimeException(e);
+			throw new RuntimeException("", e);
 		}
 	}
 

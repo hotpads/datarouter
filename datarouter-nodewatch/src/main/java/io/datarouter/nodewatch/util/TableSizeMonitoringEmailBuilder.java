@@ -36,7 +36,7 @@ import io.datarouter.nodewatch.service.TableSizeMonitoringService.CountStat;
 import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.number.NumberFormatter;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.digest.DailyDigestEmailZoneId;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -92,7 +92,7 @@ public class TableSizeMonitoringEmailBuilder{
 						row.getKey().getClientName())))
 				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.getNumRows())))
 				.withColumn(alignRight("Date Updated",
-						row -> ZonedDateFormaterTool.formatDateWithZone(row.getDateUpdated(), zoneId)))
+						row -> ZonedDateFormatterTool.formatDateWithZone(row.getDateUpdated(), zoneId)))
 				.withColumn(alignRight("Updated Ago", row -> DateTool.getAgoString(row.getDateUpdated().getTime())))
 				.build(staleRows);
 	}
@@ -105,7 +105,7 @@ public class TableSizeMonitoringEmailBuilder{
 						row.latestSample.getKey().getTableName(),
 						row.latestSample.getKey().getClientName())))
 				.withColumn("Date Updated",
-						row -> ZonedDateFormaterTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
+						row -> ZonedDateFormatterTool.formatDateWithZone(row.latestSample.getDateUpdated(), zoneId))
 				.withColumn(alignRight(comparableCount, row -> NumberFormatter.addCommas(row.previousCount)))
 				.withColumn(alignRight("Latest Count", row -> NumberFormatter.addCommas(row.latestSample.getNumRows())))
 				.withColumn(alignRight("% Increase", row -> new DecimalFormat("#,###.##").format(row.percentageIncrease)

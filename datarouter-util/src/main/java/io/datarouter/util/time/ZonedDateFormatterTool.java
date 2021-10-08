@@ -21,7 +21,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-public class ZonedDateFormaterTool{
+public class ZonedDateFormatterTool{
 
 	// TODO: Should we rather use DateTimeFormatter.RFC_1123_DATE_TIME ?
 	// 'Tue, 3 Jun 2008 11:05:30 GMT'.

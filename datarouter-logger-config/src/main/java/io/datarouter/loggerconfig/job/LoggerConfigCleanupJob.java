@@ -49,7 +49,7 @@ import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.config.setting.DatarouterEmailSubscriberSettings;
 import io.datarouter.storage.servertype.ServerTypeDetector;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.properties.DefaultEmailDistributionListZoneId;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
@@ -189,7 +189,7 @@ public class LoggerConfigCleanupJob extends BaseJob{
 				text("The LoggerConfig "),
 				b(log.getName()),
 				text(" was last updated on "),
-				b(ZonedDateFormaterTool.formatInstantWithZone(log.getLastUpdated(), zoneId)),
+				b(ZonedDateFormatterTool.formatInstantWithZone(log.getLastUpdated(), zoneId)),
 				text(" so it's older than the maximum age threshold of "),
 				b(settings.loggingConfigMaxAgeDays.get() + ""),
 				text(" days."),

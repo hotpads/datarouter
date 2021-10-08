@@ -8,7 +8,7 @@ datarouter-job makes it easy to schedule jobs across a cluster of servers.
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-job</artifactId>
-	<version>0.0.90</version>
+	<version>0.0.91</version>
 </dependency>
 ```
 ## Installation with Datarouter

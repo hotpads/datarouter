@@ -108,7 +108,7 @@ public class BinaryFileService{
 		throws IOException{
 			fullPath.getParent().toFile().mkdirs();
 			fullPath.toFile().createNewFile();
-			try(OutputStream outputStream = Files.newOutputStream(fullPath, StandardOpenOption.APPEND)){
+			try(OutputStream outputStream = Files.newOutputStream(fullPath)){
 				for(byte[] chunk : chunks.iterable()){
 					outputStream.write(chunk);
 				}
@@ -119,7 +119,7 @@ public class BinaryFileService{
 		throws IOException{
 			fullPath.getParent().toFile().mkdirs();
 			fullPath.toFile().createNewFile();
-			try(OutputStream outputStream = Files.newOutputStream(fullPath, StandardOpenOption.APPEND)){
+			try(OutputStream outputStream = Files.newOutputStream(fullPath)){
 				inputStream.transferTo(outputStream);
 			}
 		}

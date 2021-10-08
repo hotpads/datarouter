@@ -18,6 +18,7 @@ package io.datarouter.filesystem.raw;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
@@ -44,6 +45,8 @@ public class PathService{
 	public List<Path> listChildren(Path fullPath, Set<String> excludingFilenames, int limit, boolean sorted){
 		try{
 			return checkedPathService.listChildren(fullPath, excludingFilenames, limit, sorted);
+		}catch(NoSuchFileException e){
+			return List.of();
 		}catch(IOException e){
 			throw new RuntimeException(e);
 		}
@@ -104,8 +107,7 @@ public class PathService{
 				Path fullPath,
 				Set<String> excludingFilenames,
 				int limit,
-				boolean sorted)
-		throws IOException{
+				boolean sorted) throws IOException{
 			try(DirectoryStream<Path> iterable = Files.newDirectoryStream(fullPath)){
 				Scanner<Path> childPaths = Scanner.of(iterable)
 						.exclude(path -> excludingFilenames.contains(path.getFileName().toString()));
@@ -125,7 +127,7 @@ public class PathService{
 
 		public void delete(Path fullPath)
 		throws IOException{
-			Files.delete(fullPath);
+			Files.deleteIfExists(fullPath);
 		}
 
 	}

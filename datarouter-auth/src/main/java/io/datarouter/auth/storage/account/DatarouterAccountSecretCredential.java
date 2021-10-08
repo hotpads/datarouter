@@ -30,7 +30,7 @@ import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.BooleanField;
 import io.datarouter.model.field.imp.comparable.BooleanFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.util.PasswordTool;
 
 public class DatarouterAccountSecretCredential
@@ -109,7 +109,7 @@ extends BaseDatabean<DatarouterAccountSecretCredentialKey,DatarouterAccountSecre
 	}
 
 	public String getCreatedDate(ZoneId zoneId){
-		return ZonedDateFormaterTool.formatInstantWithZone(getCreatedInstant(), zoneId);
+		return ZonedDateFormatterTool.formatInstantWithZone(getCreatedInstant(), zoneId);
 	}
 
 	public Instant getCreatedInstant(){
@@ -128,7 +128,7 @@ extends BaseDatabean<DatarouterAccountSecretCredentialKey,DatarouterAccountSecre
 	}
 
 	public String getLastUsedDate(ZoneId zoneId){
-		return ZonedDateFormaterTool.formatInstantWithZone(getLastUsedInstant(), zoneId);
+		return ZonedDateFormatterTool.formatInstantWithZone(getLastUsedInstant(), zoneId);
 	}
 
 	public Instant getLastUsedInstant(){

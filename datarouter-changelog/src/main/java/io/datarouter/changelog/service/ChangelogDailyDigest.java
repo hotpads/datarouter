@@ -34,7 +34,7 @@ import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.util.time.LocalDateTimeTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -110,7 +110,7 @@ public class ChangelogDailyDigest implements DailyDigest{
 				}))
 				.withColumn("Date", row -> {
 					Long reversedDateMs = row.getKey().getReversedDateMs();
-					return ZonedDateFormaterTool.formatDateWithZone(new Date(Long.MAX_VALUE - reversedDateMs), zoneId);
+					return ZonedDateFormatterTool.formatDateWithZone(new Date(Long.MAX_VALUE - reversedDateMs), zoneId);
 				})
 				.withColumn("Type", row -> row.getKey().getChangelogType())
 				.withColumn("Name", row -> row.getKey().getName())

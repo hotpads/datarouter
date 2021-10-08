@@ -15,6 +15,7 @@
  */
 package io.datarouter.auth.storage.deprovisioneduser;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,8 @@ import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
+import io.datarouter.model.field.imp.comparable.InstantField;
+import io.datarouter.model.field.imp.comparable.InstantFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
@@ -38,11 +41,13 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 
 	private List<String> roles;
 	private UserDeprovisioningStatus status;
+	private Instant updated;
 
 	public static class FieldKeys{
 		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
 		public static final StringEnumFieldKey<UserDeprovisioningStatus> status = new StringEnumFieldKey<>("status",
 				UserDeprovisioningStatus.class);
+		public static final InstantFieldKey updated = new InstantFieldKey("updated");
 	}
 
 	public static class DeprovisionedUserFielder extends BaseDatabeanFielder<DeprovisionedUserKey,DeprovisionedUser>{
@@ -55,7 +60,8 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 		public List<Field<?>> getNonKeyFields(DeprovisionedUser user){
 			return List.of(
 					new DelimitedStringArrayField(FieldKeys.roles, user.roles),
-					new StringEnumField<>(FieldKeys.status, user.status));
+					new StringEnumField<>(FieldKeys.status, user.status),
+					new InstantField(FieldKeys.updated, user.updated));
 		}
 
 	}
@@ -68,6 +74,7 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 		super(new DeprovisionedUserKey(username));
 		setRoles(roles);
 		this.status = status;
+		this.updated = Instant.now();
 	}
 
 	public DeprovisionedUserDto toDto(){
@@ -99,6 +106,15 @@ public class DeprovisionedUser extends BaseDatabean<DeprovisionedUserKey,Deprovi
 
 	public UserDeprovisioningStatus getStatus(){
 		return status;
+	}
+
+	public Instant getUpdated(){
+		return updated;
+	}
+
+	//TODO delete after migration
+	public void setUpdated(Instant updated){
+		this.updated = updated;
 	}
 
 	public static enum UserDeprovisioningStatus implements StringEnum<UserDeprovisioningStatus>{

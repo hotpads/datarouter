@@ -54,7 +54,7 @@ import io.datarouter.model.databean.Databean;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.serialization.GsonTool;
 import io.datarouter.util.string.StringTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.exception.ExceptionCounters;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -289,7 +289,7 @@ public class ExceptionAnalysisHandler extends BaseHandler{
 		}
 
 		public String getCreated(){
-			return ZonedDateFormaterTool.formatDateWithZone(created, zoneId);
+			return ZonedDateFormatterTool.formatDateWithZone(created, zoneId);
 		}
 
 		public String getServerName(){

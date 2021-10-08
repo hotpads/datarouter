@@ -34,7 +34,7 @@ import io.datarouter.changelog.storage.Changelog;
 import io.datarouter.changelog.storage.ChangelogKey;
 import io.datarouter.changelog.web.ViewExactChangelogHandler;
 import io.datarouter.util.number.RandomTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.web.config.ServletContextSupplier;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import j2html.attributes.Attr;
@@ -56,7 +56,7 @@ public class ViewChangelogService{
 				.withColumn("Date", row -> {
 					Long reversedDateMs = row.getKey().getReversedDateMs();
 					Date date = new Date(Long.MAX_VALUE - reversedDateMs);
-					return ZonedDateFormaterTool.formatDateWithZone(date, zoneId);
+					return ZonedDateFormatterTool.formatDateWithZone(date, zoneId);
 				})
 				.withColumn("Type", row -> row.getKey().getChangelogType())
 				.withColumn("Name", row -> row.getKey().getName())

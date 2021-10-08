@@ -8,7 +8,7 @@ datarouter-logger-config provides an easy way to control output logging through 
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-logger-config</artifactId>
-	<version>0.0.90</version>
+	<version>0.0.91</version>
 </dependency>
 ```
 

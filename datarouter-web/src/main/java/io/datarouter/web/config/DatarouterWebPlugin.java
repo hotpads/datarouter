@@ -62,6 +62,7 @@ import io.datarouter.web.homepage.DefaultHomepageRouteSet;
 import io.datarouter.web.homepage.HomepageHandler;
 import io.datarouter.web.homepage.HomepageRouteSet;
 import io.datarouter.web.homepage.SimpleHomepageHandler;
+import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.listener.AppListenersClasses;
 import io.datarouter.web.listener.AppListenersClasses.DatarouterAppListenersClasses;
 import io.datarouter.web.listener.ComputedPropertiesAppListener;
@@ -69,6 +70,7 @@ import io.datarouter.web.listener.DatarouterAppListener;
 import io.datarouter.web.listener.DatarouterShutdownAppListener;
 import io.datarouter.web.listener.DatarouterWebAppListener;
 import io.datarouter.web.listener.ExecutorsAppListener;
+import io.datarouter.web.listener.GcNotificationReceiver;
 import io.datarouter.web.listener.HttpClientAppListener;
 import io.datarouter.web.listener.InitializeEagerClientsAppListener;
 import io.datarouter.web.listener.JspWebappListener;
@@ -212,7 +214,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addSettingRoot(DatarouterWebSettingRoot.class);
 		setDaosModule(daosModuleBuilder);
 
-		addAppListenerOrdered(InitializeEagerClientsAppListener.class, null);
+		addAppListenerOrdered(GcNotificationReceiver.class, null);
+		addAppListenerOrdered(InitializeEagerClientsAppListener.class, GcNotificationReceiver.class);
 		addAppListenerOrdered(DatarouterShutdownAppListener.class, InitializeEagerClientsAppListener.class);
 		addAppListenerOrdered(HttpClientAppListener.class, DatarouterShutdownAppListener.class);
 		addAppListenerOrdered(ExecutorsAppListener.class, HttpClientAppListener.class);
@@ -236,7 +239,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 
 		addFilterParamsOrdered(staticFileFilterParams, null);
 		addFilterParamsOrdered(REQUEST_CACHING_FILTER_PARAMS, staticFileFilterParams);
-		addFilterParams(new FilterParams(false, DatarouterServletGuiceModule.ROOT_PATH, HttpsFilter.class,
+		addFilterParams(new FilterParams(false, BaseGuiceServletModule.ROOT_PATH, HttpsFilter.class,
 				FilterParamGrouping.DATAROUTER));
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.executors, "Executors");
@@ -426,8 +429,8 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		private String serviceDescription;
 		private Map<String,Pair<String,Boolean>> documentationNamesAndLinks = new HashMap<>();
 		private List<Class<? extends TestableService>> testableServiceClasses = new ArrayList<>();
-		private List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
-		private List<Class<? extends DailyDigest>> dailyDigest = new ArrayList<>();
+		private final List<Class<? extends DynamicNavBarItem>> dynamicNavBarItems = new ArrayList<>();
+		private final List<Class<? extends DailyDigest>> dailyDigest = new ArrayList<>();
 		private Class<? extends RequestProxySetter> requestProxy = NoOpRequestProxySetter.class;
 		private final List<Class<? extends MetricLinkPage>> metricLinkPages = new ArrayList<>();
 		private ZoneId defaultEmailDistributionListZoneId;

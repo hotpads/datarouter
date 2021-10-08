@@ -23,34 +23,31 @@ import org.testng.Assert;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
-import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.InternalConfigDirectory;
 import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 
-// TODO rename
 @Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
-public class DatarouterPropertiesTests{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterPropertiesTests.class);
+public class TestConfigurationTest{
+	private static final Logger logger = LoggerFactory.getLogger(TestConfigurationTest.class);
 
 	@Inject
-	private InternalConfigDirectory configFileLocation;
+	private InternalConfigDirectory internalConfigDirectory;
 
 	@Test
 	public void testInternalConfigDirectory(){
 		System.getProperties().forEach((key,value) -> {
-			logger.warn("property-" + key + "=" + value);
+			logger.warn("property_" + key + "=" + value);
 		});
 		System.getenv().forEach((key,value) -> {
-			logger.warn("env-" + key + "=" + value);
+			logger.warn("env_" + key + "=" + value);
 		});
-		Assert.assertNotEquals("production", configFileLocation.get());
+		logger.warn("internalConfigDirectory={}", internalConfigDirectory.get());
+		Assert.assertNotEquals("production", internalConfigDirectory.get());
 	}
 
 	@Test
 	public void isInTestng(){
-		boolean isTestNgTest = Scanner.of(new Exception().getStackTrace())
-				.anyMatch(element -> element.getClassName().startsWith("org.testng"));
-		Assert.assertTrue(isTestNgTest);
+		Assert.assertTrue(TestDetector.isTestNg());
 	}
 
 }

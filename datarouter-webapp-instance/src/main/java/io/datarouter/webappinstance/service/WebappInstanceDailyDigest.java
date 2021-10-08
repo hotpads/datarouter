@@ -36,7 +36,7 @@ import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.email.html.J2HtmlEmailTable.J2HtmlEmailTableColumn;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.collection.ListTool;
-import io.datarouter.util.time.ZonedDateFormaterTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -117,7 +117,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 	private ContainerTag<?> buildPageTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
 		return new J2HtmlTable<WebappInstanceLogDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Build Date", row -> ZonedDateFormaterTool.formatInstantWithZone(row.key.build, zoneId))
+				.withColumn("Build Date", row -> ZonedDateFormatterTool.formatInstantWithZone(row.key.build, zoneId))
 				.withColumn("Startup Range", row -> row.getStartupRangeStart(zoneId)
 						+ " - "
 						+ row.getStartupRangeEnd(zoneId))
@@ -132,7 +132,7 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 
 	private ContainerTag<?> buildEmailTable(List<WebappInstanceLogDto> rows, ZoneId zoneId){
 		return new J2HtmlEmailTable<WebappInstanceLogDto>()
-				.withColumn("Build Date", row -> ZonedDateFormaterTool.formatInstantWithZone(row.key.build, zoneId))
+				.withColumn("Build Date", row -> ZonedDateFormatterTool.formatInstantWithZone(row.key.build, zoneId))
 				.withColumn("Startup Range", row ->
 						row.getStartupRangeStart(zoneId)
 						+ " - "
@@ -208,14 +208,14 @@ public class WebappInstanceDailyDigest implements DailyDigest{
 		public String getStartupRangeStart(ZoneId zoneId){
 			return Scanner.of(startupInstants)
 					.findFirst()
-					.map(date -> ZonedDateFormaterTool.formatInstantWithZone(date, zoneId))
+					.map(date -> ZonedDateFormatterTool.formatInstantWithZone(date, zoneId))
 					.get();
 		}
 
 		// this should check the refreshed last fields, not the startup dates
 		public String getStartupRangeEnd(ZoneId zoneId){
 			return ListTool.findLast(startupInstants)
-						.map(date -> ZonedDateFormaterTool.formatInstantWithZone(date, zoneId))
+						.map(date -> ZonedDateFormatterTool.formatInstantWithZone(date, zoneId))
 						.get();
 
 		}

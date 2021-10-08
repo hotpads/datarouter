@@ -38,20 +38,6 @@ public interface DatarouterServiceHttpClient extends DatarouterHttpClient{
 		return call(DatarouterServiceHealthcheckEndpoint.getEndpoint());
 	}
 
-	default <E> Conditional<E> callWithHealthcheck(BaseEndpoint<E> endpoint, Supplier<Boolean> shouldCheckHealth){
-		return shouldCheckHealth.get()
-				? callWithHealthcheck(endpoint)
-				: call(endpoint);
-	}
-
-	default <E> Conditional<E> callWithHealthcheck(BaseEndpoint<E> endpoint){
-		Conditional<Object> healthcheckResponse = checkHealth();
-		if(healthcheckResponse.isFailure()){
-			return Conditional.failure(new RuntimeException("healthcheck failed"));
-		}
-		return call(endpoint);
-	}
-
 	default <E> Conditional<E> callWithHealthcheckV2(
 			BaseEndpoint<E> endpoint,
 			Supplier<Boolean> shouldCheckHealth,
