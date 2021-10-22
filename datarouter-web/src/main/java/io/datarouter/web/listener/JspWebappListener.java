@@ -63,6 +63,11 @@ public class JspWebappListener extends DatarouterWebAppListener{
 		ATTRIBUTES.forEach(servletContext::removeAttribute);
 	}
 
+	@Override
+	public boolean safeToShutdownInParallel(){
+		return false;
+	}
+
 	private static String register(String attribute){
 		ATTRIBUTES.add(attribute);
 		return attribute;

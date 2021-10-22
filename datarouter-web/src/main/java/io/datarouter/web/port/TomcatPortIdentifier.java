@@ -33,7 +33,7 @@ public class TomcatPortIdentifier implements PortIdentifier{
 
 	public TomcatPortIdentifier() throws MalformedObjectNameException{
 		ObjectName query = new ObjectName(CompoundPortIdentifier.CATALINA_JMX_DOMAIN + ":type=ProtocolHandler,*");
-		var handlers = new ArrayList<>();
+		var handlers = new ArrayList<String>();
 		MxBeans.SERVER.queryNames(query, null).forEach(objectName -> {
 			handlers.add(objectName.toString());
 			int port;

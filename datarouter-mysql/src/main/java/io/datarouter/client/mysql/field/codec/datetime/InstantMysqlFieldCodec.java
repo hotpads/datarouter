@@ -30,10 +30,6 @@ import io.datarouter.model.field.imp.comparable.InstantField;
 
 public class InstantMysqlFieldCodec extends BaseMysqlFieldCodec<Instant,InstantField>{
 
-	public InstantMysqlFieldCodec(){// no-arg for reflection
-		this(null);
-	}
-
 	public InstantMysqlFieldCodec(InstantField field){
 		super(field);
 	}

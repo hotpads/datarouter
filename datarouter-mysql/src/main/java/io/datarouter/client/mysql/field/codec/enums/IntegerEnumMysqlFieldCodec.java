@@ -29,10 +29,6 @@ import io.datarouter.util.enums.IntegerEnum;
 
 public class IntegerEnumMysqlFieldCodec<E extends IntegerEnum<E>> extends BaseMysqlFieldCodec<E,IntegerEnumField<E>>{
 
-	public IntegerEnumMysqlFieldCodec(){// no-arg for reflection
-		this(null);
-	}
-
 	public IntegerEnumMysqlFieldCodec(IntegerEnumField<E> field){
 		super(field);
 	}

@@ -17,64 +17,99 @@ package io.datarouter.secret.client;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+
+import io.datarouter.secret.op.SecretOpType;
 
 public class SecretClientOps{
 
-	public static class CreateOp extends SecretClientOp<Secret,Void>{
+	public static final CreateOp CREATE = new CreateOp();
+	public static final ReadOp READ = new ReadOp();
+	public static final UpdateOp UPDATE = new UpdateOp();
+	public static final DeleteOp DELETE = new DeleteOp();
+	public static final ListNamesOp LIST = new ListNamesOp();
+	public static final PutOp PUT = new PutOp();
 
-		public CreateOp(SecretClient secretClient){
-			super("validateSecret", "create", secretClient::validateSecret, SecretClientOp.wrapVoid(secretClient
-					::create));
+	public static final class CreateOp extends SecretClientOp<Secret,Void>{
+
+		private CreateOp(){
+			super(
+					"validateSecret",
+					"create",
+					(client, input) -> client.validateSecret(input),
+					SecretClientOp.wrapVoid((client, input) -> client.create(input)),
+					SecretOpType.CREATE);
 		}
 
 	}
 
 	public static class ReadOp extends SecretClientOp<String,Secret>{
 
-		public ReadOp(SecretClient secretClient){
-			super("validateName", "read", secretClient::validateName, secretClient::read);
+		private ReadOp(){
+			super(
+					"validateName",
+					"read",
+					(client, input) -> client.validateName(input),
+					(client, input) -> client.read(input),
+					SecretOpType.READ);
 		}
 
 	}
 
 	public static class UpdateOp extends SecretClientOp<Secret,Void>{
 
-		public UpdateOp(SecretClient secretClient){
-			super("validateSecret", "update", secretClient::validateSecret, SecretClientOp.wrapVoid(secretClient
-					::update));
+		private UpdateOp(){
+			super(
+					"validateSecret",
+					"update",
+					(client, input) -> client.validateSecret(input),
+					SecretClientOp.wrapVoid((client, input) -> client.update(input)),
+					SecretOpType.UPDATE);
 		}
 
 	}
 
 	public static class DeleteOp extends SecretClientOp<String,Void>{
 
-		public DeleteOp(SecretClient secretClient){
-			super("validateName", "delete", secretClient::validateName, SecretClientOp.wrapVoid(secretClient::delete));
+		private DeleteOp(){
+			super(
+					"validateName",
+					"delete",
+					(client, input) -> client.validateName(input),
+					SecretClientOp.wrapVoid((client, input) -> client.delete(input)),
+					SecretOpType.DELETE);
 		}
 
 	}
 
 	public static class ListNamesOp extends SecretClientOp<Optional<String>,List<String>>{
 
-		public ListNamesOp(SecretClient secretClient){
-			super("list", secretClient::listNames);
+		private ListNamesOp(){
+			super(
+					"list",
+					(client, input) -> client.listNames(input),
+					SecretOpType.LIST);
 		}
 
 	}
 
 	public static class PutOp extends SecretClientOp<Secret,Void>{
 
-		public PutOp(SecretClient secretClient){
-			super("validateSecret", "create", secretClient::validateSecret, PutOp.getPutFunction(secretClient));
+		private PutOp(){
+			super(
+					"validateSecret",
+					"create",
+					(client, input) -> client.validateSecret(input),
+					getPutFunction(),
+					SecretOpType.PUT);
 		}
 
-		private static Function<Secret,Void> getPutFunction(SecretClient secretClient){
-			return secret -> {
+		private static BiFunction<SecretClient,Secret,Void> getPutFunction(){
+			return (client, input) -> {
 				try{
-					secretClient.create(secret);
+					client.create(input);
 				}catch(RuntimeException e){
-					secretClient.update(secret);
+					client.update(input);
 				}
 				return null;
 			};

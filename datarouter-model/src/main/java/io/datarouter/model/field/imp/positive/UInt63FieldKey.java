@@ -23,6 +23,10 @@ import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.util.number.RandomTool;
 
+/**
+ * @deprecated use LongFieldKey instead
+ */
+@Deprecated
 public class UInt63FieldKey extends PrimitiveFieldKey<Long,UInt63FieldKey>{
 
 	public UInt63FieldKey(String name){

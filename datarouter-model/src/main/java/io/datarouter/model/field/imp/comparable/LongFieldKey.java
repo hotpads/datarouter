@@ -21,6 +21,7 @@ import io.datarouter.model.field.FieldKeyAttribute;
 import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
+import io.datarouter.util.number.RandomTool;
 
 public class LongFieldKey extends PrimitiveFieldKey<Long,LongFieldKey>{
 
@@ -46,9 +47,18 @@ public class LongFieldKey extends PrimitiveFieldKey<Long,LongFieldKey>{
 		return new LongFieldKey(name, columnName, false, fieldGeneratorType, defaultValue, attributes);
 	}
 
+	public LongFieldKey withFieldGeneratorType(FieldGeneratorType fieldGeneratorTypeOverride){
+		return new LongFieldKey(name, columnName, nullable, fieldGeneratorTypeOverride, defaultValue, attributes);
+	}
+
 	@Override
 	public LongField createValueField(Long value){
 		return new LongField(this, value);
+	}
+
+	@Override
+	public Long generateRandomValue(){
+		return RandomTool.nextPositiveLong();
 	}
 
 }

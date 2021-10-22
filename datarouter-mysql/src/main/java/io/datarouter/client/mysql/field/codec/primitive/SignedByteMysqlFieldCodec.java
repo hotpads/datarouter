@@ -22,10 +22,6 @@ import io.datarouter.model.field.imp.comparable.SignedByteField;
 
 public class SignedByteMysqlFieldCodec extends BaseByteMysqlFieldCodec<SignedByteField>{
 
-	public SignedByteMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public SignedByteMysqlFieldCodec(SignedByteField field){
 		super(field);
 	}

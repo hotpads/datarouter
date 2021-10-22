@@ -29,14 +29,9 @@ import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
 public class DelimitedStringArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<String,List<String>,DelimitedStringArrayField>{
 
-	public DelimitedStringArrayMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public DelimitedStringArrayMysqlFieldCodec(DelimitedStringArrayField field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){

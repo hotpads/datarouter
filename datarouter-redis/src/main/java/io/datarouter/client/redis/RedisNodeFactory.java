@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.client.redis.config.RedisExecutors.RedisBatchOpExecutor;
+import io.datarouter.client.redis.node.RedisBlobNode;
 import io.datarouter.client.redis.node.RedisNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -41,6 +42,13 @@ public class RedisNodeFactory{
 			F extends DatabeanFielder<PK,D>>
 	RedisNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> params){
 		return new RedisNode<>(params, clientType, clientManager, executor);
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	RedisBlobNode<PK,D,F> createBlobNode(NodeParams<PK,D,F> params){
+		return new RedisBlobNode<>(params, clientType, clientManager);
 	}
 
 }

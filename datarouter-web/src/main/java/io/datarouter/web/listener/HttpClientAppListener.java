@@ -34,4 +34,9 @@ public class HttpClientAppListener implements DatarouterAppListener{
 		}
 	}
 
+	@Override
+	public boolean safeToShutdownInParallel(){
+		return false;
+	}
+
 }

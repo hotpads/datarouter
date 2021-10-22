@@ -28,6 +28,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.web.config.AwsSupport;
 
 @Singleton
 public class AmazonSqsHolder{
@@ -36,13 +37,15 @@ public class AmazonSqsHolder{
 
 	@Inject
 	private SqsOptions sqsOptions;
+	@Inject
+	private AwsSupport awsSupport;
 
 	public void registerClient(ClientId clientId){
 		if(amazonSqsByClient.containsKey(clientId)){
 			throw new RuntimeException(clientId + " already registered an sqs client");
 		}
 		var conf = new ClientConfiguration()
-				.withMaxConnections(100);
+				.withMaxConnections(200);
 		var credentials = new BasicAWSCredentials(sqsOptions.getAccessKey(clientId.getName()),
 				sqsOptions.getSecretKey(clientId.getName()));
 		var credentialsProvider = new AWSStaticCredentialsProvider(credentials);
@@ -51,6 +54,7 @@ public class AmazonSqsHolder{
 				.withCredentials(credentialsProvider)
 				.withRegion(sqsOptions.getRegion(clientId.getName()))
 				.build();
+		awsSupport.registerConnectionManager("sqs " + clientId.getName(), amazonSqs);
 		amazonSqsByClient.put(clientId, amazonSqs);
 	}
 

@@ -20,8 +20,8 @@ import java.util.List;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt63FieldKey;
+import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public class WebSocketSubscriptionKey extends BaseRegularPrimaryKey<WebSocketSubscriptionKey>{
@@ -33,7 +33,7 @@ public class WebSocketSubscriptionKey extends BaseRegularPrimaryKey<WebSocketSub
 	public static class FieldKeys{
 		public static final StringFieldKey topic = new StringFieldKey("topic");
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
-		public static final UInt63FieldKey webSocketSessionId = new UInt63FieldKey("webSocketSessionId");
+		public static final LongFieldKey webSocketSessionId = new LongFieldKey("webSocketSessionId");
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class WebSocketSubscriptionKey extends BaseRegularPrimaryKey<WebSocketSub
 		return List.of(
 				new StringField(FieldKeys.topic, topic),
 				new StringField(FieldKeys.userToken, userToken),
-				new UInt63Field(FieldKeys.webSocketSessionId, webSocketSessionId));
+				new LongField(FieldKeys.webSocketSessionId, webSocketSessionId));
 	}
 
 	public WebSocketSubscriptionKey(){

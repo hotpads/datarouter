@@ -43,7 +43,7 @@ public class SecretClientConfigHolder{
 	}
 
 	public Scanner<SecretClientConfig> getAllowedSecretClientConfigs(boolean isDevelopment,
-			SecretOpInfo secretOpInfo){
+			SecretOpInfo<?,?> secretOpInfo){
 		return Scanner.of(isDevelopment ? developmentConfigs : configs)
 				.include(secretClientSupplierConfig -> secretClientSupplierConfig.allowed(secretOpInfo));
 	}

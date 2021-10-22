@@ -31,10 +31,6 @@ import io.datarouter.util.bytes.LongByteTool;
 public class UInt63ArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Long,List<Long>,UInt63ArrayField>{
 
-	public UInt63ArrayMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public UInt63ArrayMysqlFieldCodec(UInt63ArrayField field){
 		super(field);
 	}

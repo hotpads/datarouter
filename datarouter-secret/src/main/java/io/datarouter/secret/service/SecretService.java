@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -37,19 +36,12 @@ import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.SecretClientOp;
 import io.datarouter.secret.client.SecretClientOp.SecretClientOpResult;
 import io.datarouter.secret.client.SecretClientOps;
-import io.datarouter.secret.client.SecretClientOps.CreateOp;
-import io.datarouter.secret.client.SecretClientOps.DeleteOp;
-import io.datarouter.secret.client.SecretClientOps.ListNamesOp;
-import io.datarouter.secret.client.SecretClientOps.PutOp;
-import io.datarouter.secret.client.SecretClientOps.ReadOp;
-import io.datarouter.secret.client.SecretClientOps.UpdateOp;
 import io.datarouter.secret.config.SecretClientConfig;
 import io.datarouter.secret.config.SecretClientConfigHolder;
 import io.datarouter.secret.exception.NoConfiguredSecretClientSupplierException;
 import io.datarouter.secret.exception.SecretClientException;
 import io.datarouter.secret.op.SecretOpInfo;
 import io.datarouter.secret.op.SecretOpReason;
-import io.datarouter.secret.op.SecretOpType;
 
 /**
  * This is the recommended interface for accessing {@link Secret}s that need to be written to, and namespacing is
@@ -93,9 +85,9 @@ public class SecretService{
 	private List<String> listSecretNamesInternal(Optional<String> targetSecretClientSupplierConfigName,
 			Optional<String> exclusivePrefix, String namespace, SecretOpReason reason){
 		Optional<String> namespacedPrefix = Optional.of(namespace + exclusivePrefix.orElse(""));
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.LIST, namespace, "", reason,
+		var opInfo = new SecretOpInfo<>(SecretClientOps.LIST, namespace, "", reason,
 				targetSecretClientSupplierConfigName);
-		return removePrefixes(helper.apply(opInfo, ListNamesOp::new, namespacedPrefix), namespace);
+		return removePrefixes(helper.apply(opInfo, namespacedPrefix), namespace);
 	}
 
 	public List<String> listSecretNameSuffixes(String exclusivePrefix, SecretOpReason reason){
@@ -116,8 +108,8 @@ public class SecretService{
 	private io.datarouter.secret.service.SecretService.SecretClientHelper.SecretClientHelperApplyResult<List<String>>
 	doListSecretNamesInternal(Optional<String> exclusivePrefix, String namespace, SecretOpReason reason){
 		Optional<String> namespacedPrefix = Optional.of(namespace + exclusivePrefix.orElse(""));
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.LIST, namespace, "", reason);
-		return helper.apply(opInfo, ListNamesOp::new, namespacedPrefix, true);
+		var opInfo = new SecretOpInfo<>(SecretClientOps.LIST, namespace, "", reason);
+		return helper.apply(opInfo, namespacedPrefix, true);
 	}
 
 	public <T> T read(String secretName, Class<T> secretClass, SecretOpReason reason){
@@ -140,8 +132,8 @@ public class SecretService{
 	//skips the recording step. this is necessary if the recorder uses the same DB that the secret is needed to init.
 	public String readRawSharedWithoutRecord(String secretName, SecretOpReason reason){
 		String namespace = secretNamespacer.getSharedNamespace();
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.READ, namespace, secretName, reason, false, true);
-		return helper.apply(opInfo, ReadOp::new, opInfo.getNamespaced()).getValue();
+		var opInfo = new SecretOpInfo<>(SecretClientOps.READ, namespace, secretName, reason, false, true);
+		return helper.apply(opInfo, opInfo.getNamespaced()).getValue();
 	}
 
 	public String readRaw(Optional<String> targetSecretClientSupplierConfigName, String secretName,
@@ -158,23 +150,23 @@ public class SecretService{
 
 	private String readRawInternal(Optional<String> targetSecretClientSupplierConfigName, String namespace,
 			String secretName, SecretOpReason reason){
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.READ, namespace, secretName, reason,
+		var opInfo = new SecretOpInfo<>(SecretClientOps.READ, namespace, secretName, reason,
 				targetSecretClientSupplierConfigName);
-		return helper.apply(opInfo, ReadOp::new, opInfo.getNamespaced()).getValue();
+		return helper.apply(opInfo, opInfo.getNamespaced()).getValue();
 	}
 
 	public <T> T readCachedSecret(Supplier<String> secretName, Class<T> secretClass, SecretOpReason reason,
 			boolean hasDefaultFallback){
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.READ, secretNamespacer.getAppNamespace(), secretName.get(),
+		var opInfo = new SecretOpInfo<>(SecretClientOps.READ, secretNamespacer.getAppNamespace(), secretName.get(),
 				reason, false, !hasDefaultFallback);
-		return deserialize(helper.apply(opInfo, ReadOp::new, opInfo.getNamespaced()).getValue(), secretClass);
+		return deserialize(helper.apply(opInfo, opInfo.getNamespaced()).getValue(), secretClass);
 	}
 
 	public <T> T readSharedCachedSecret(Supplier<String> secretName, Class<T> secretClass, SecretOpReason reason,
 			boolean hasDefaultFallback){
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.READ, secretNamespacer.getSharedNamespace(), secretName
-				.get(), reason, false, !hasDefaultFallback);
-		return deserialize(helper.apply(opInfo, ReadOp::new, opInfo.getNamespaced()).getValue(), secretClass);
+		var opInfo = new SecretOpInfo<>(SecretClientOps.READ, secretNamespacer.getSharedNamespace(), secretName.get(),
+				reason, false, !hasDefaultFallback);
+		return deserialize(helper.apply(opInfo, opInfo.getNamespaced()).getValue(), secretClass);
 	}
 
 	public <T> void create(String secretName, T secretValue, SecretOpReason reason){
@@ -199,9 +191,9 @@ public class SecretService{
 
 	private void createRawNamespaced(Optional<String> targetSecretClientSupplierConfigName, String secretNamespace,
 			String secretName, String serializedValue, SecretOpReason reason){
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.CREATE, secretNamespace, secretName,
-				reason, targetSecretClientSupplierConfigName);
-		helper.apply(opInfo, CreateOp::new, new Secret(opInfo.getNamespaced(), serializedValue));
+		var opInfo = new SecretOpInfo<>(SecretClientOps.CREATE, secretNamespace, secretName, reason,
+				targetSecretClientSupplierConfigName);
+		helper.apply(opInfo, new Secret(opInfo.getNamespaced(), serializedValue));
 	}
 
 	public <T> void update(String secretName, T secretValue, SecretOpReason reason){
@@ -210,9 +202,9 @@ public class SecretService{
 
 	public void updateRaw(Optional<String> targetSecretClientSupplierConfigName, String secretName,
 			String serializedValue, SecretOpReason reason){
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.UPDATE, secretNamespacer.getAppNamespace(), secretName,
-				reason, targetSecretClientSupplierConfigName);
-		helper.apply(opInfo, UpdateOp::new, new Secret(opInfo.getNamespaced(), serializedValue));
+		var opInfo = new SecretOpInfo<>(SecretClientOps.UPDATE, secretNamespacer.getAppNamespace(), secretName, reason,
+				targetSecretClientSupplierConfigName);
+		helper.apply(opInfo, new Secret(opInfo.getNamespaced(), serializedValue));
 	}
 
 	public <T> void put(Supplier<String> secretName, T secretValue, SecretOpReason reason){
@@ -220,11 +212,10 @@ public class SecretService{
 	}
 
 	public <T> void put(String secretName, T secretValue, SecretOpReason reason){
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.PUT, secretNamespacer.getAppNamespace(), secretName,
-				reason);
+		var opInfo = new SecretOpInfo<>(SecretClientOps.PUT, secretNamespacer.getAppNamespace(), secretName, reason);
 		String namespacedName = opInfo.getNamespaced();
 		String serializedValue = serialize(secretValue);
-		helper.apply(opInfo, PutOp::new, new Secret(namespacedName, serializedValue));
+		helper.apply(opInfo, new Secret(namespacedName, serializedValue));
 	}
 
 	public void delete(Optional<String> targetSecretClientSupplierConfigName, String secretName, SecretOpReason reason){
@@ -233,9 +224,9 @@ public class SecretService{
 
 	public void deleteNamespaced(Optional<String> targetSecretClientSupplierConfigName, String secretNamespace,
 			String secretName, SecretOpReason reason){
-		SecretOpInfo opInfo = new SecretOpInfo(SecretOpType.DELETE, secretNamespace, secretName, reason,
+		var opInfo = new SecretOpInfo<>(SecretClientOps.DELETE, secretNamespace, secretName, reason,
 				targetSecretClientSupplierConfigName);
-		helper.apply(opInfo, DeleteOp::new, opInfo.getNamespaced());
+		helper.apply(opInfo, opInfo.getNamespaced());
 	}
 
 	private <T> String serialize(T value){
@@ -266,12 +257,12 @@ public class SecretService{
 		 * returns usable {@link SecretClientConfig}s based on opInfo
 		 * @param opInfo passed to {@link SecretClientConfig#allowed(SecretOpInfo)}
 		 */
-		private Iterator<SecretClientConfig> getSecretClientConfigs(SecretOpInfo opInfo){
+		private Iterator<SecretClientConfig> getSecretClientConfigs(SecretOpInfo<?,?> opInfo){
 			return config.getAllowedSecretClientConfigs(secretNamespacer.isDevelopment(), opInfo).iterator();
 		}
 
-		private <I,O> O apply(SecretOpInfo opInfo, Function<SecretClient,SecretClientOp<I,O>> opSupplier, I input){
-			return apply(opInfo, opSupplier, input, false).getSingleSupplierResult();
+		private <I,O> O apply(SecretOpInfo<I,O> opInfo, I input){
+			return apply(opInfo, input, false).getSingleSupplierResult();
 		}
 
 		/**
@@ -280,9 +271,8 @@ public class SecretService{
 		 * @param <I> {@link SecretClientOp} input type
 		 * @param <O> {@link SecretClientOp} output type
 		 * @param opInfo determines whether to record the op and which configured suppliers may be used
-		 * @param opSupplier function to build the op using the client (usually its constructor reference)
 		 * @param input input to op
-		 * @param shouldApplyToAllSuppliers if true, then func is executed with each client, instead of stopping after
+		 * @param shouldApplyToAllSuppliers if true, then the op is executed with each client, instead of stopping after
 		 * the first success
 		 * @return if shouldApplyToAllSuppliers, then the result will contain all successful op attempts, otherwise
 		 * every failed op attempt followed by the one successful op attempt
@@ -290,17 +280,17 @@ public class SecretService{
 		 * by func on last failure or {@link NoConfiguredSecretClientSupplierException} if no suppliers are
 		 * appropriately configured
 		 */
-		private <I,O> SecretClientHelperApplyResult<O> apply(SecretOpInfo opInfo,
-				Function<SecretClient,SecretClientOp<I,O>> opSupplier, I input, boolean shouldApplyToAllSuppliers){
+		private <I,O> SecretClientHelperApplyResult<O> apply(SecretOpInfo<I,O> opInfo, I input,
+				boolean shouldApplyToAllSuppliers){
 			if(opInfo.shouldRecord){
 				secretOpRecorderSupplier.get().recordOp(opInfo);
 			}
+			SecretClientOp<I,O> op = opInfo.clientOp;
 			List<SecretClientOpAttempt<O>> attemptedOps = new ArrayList<>();
 			for(Iterator<SecretClientConfig> iter = getSecretClientConfigs(opInfo); iter.hasNext();){
 				SecretClientConfig supplierConfig = iter.next();
 				var clientSupplier = injector.getInstance(supplierConfig.getSecretClientSupplierClass());
-				//TODO could get from enum based on opInfo type?
-				SecretClientOpResult<O> result = opSupplier.apply(clientSupplier.get()).validateAndExecute(input);
+				SecretClientOpResult<O> result = op.validateAndExecute(clientSupplier.get(), input);
 				//TODO add supplier counters?
 				attemptedOps.add(new SecretClientOpAttempt<>(supplierConfig, result));
 
@@ -339,7 +329,7 @@ public class SecretService{
 			throw new NoConfiguredSecretClientSupplierException(opInfo);
 		}
 
-		private static <T> void logIfError(SecretClientOpAttempt<T> opAttempt, SecretOpInfo secretOpInfo){
+		private static <T> void logIfError(SecretClientOpAttempt<T> opAttempt, SecretOpInfo<?,?> secretOpInfo){
 			if(opAttempt.isSuccess() || !secretOpInfo.shouldLog){
 				return;
 			}

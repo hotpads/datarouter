@@ -48,8 +48,8 @@ public class GcNotificationReceiver implements DatarouterAppListener{
 				Map<String,MemoryUsage> memoryUsageBeforeGc = gcInfo.getMemoryUsageBeforeGc();
 				Map<String,MemoryUsage> emoryUsageAfterGc = gcInfo.getMemoryUsageAfterGc();
 				Map<String,Long> byteChangeByPool = Scanner.of(memoryUsageBeforeGc.entrySet())
-						.toMap(Entry::getKey,
-								entry -> emoryUsageAfterGc.get(entry.getKey()).getUsed() - entry.getValue().getUsed());
+						.toMap(Entry::getKey, entry ->
+								emoryUsageAfterGc.get(entry.getKey()).getUsed() - entry.getValue().getUsed());
 				String memoryPoolChange = Scanner.of(byteChangeByPool.entrySet())
 						.include(entry -> entry.getKey().startsWith("G1"))
 						.map(entry -> entry.getKey().replace(' ', '_') + "_change="
@@ -61,18 +61,31 @@ public class GcNotificationReceiver implements DatarouterAppListener{
 						.streamLongs(Entry::getValue)
 						.sum();
 				Counters.inc("estimatedAllocatedByte", estimatedAllocatedByte);
-				logger.info(""
-						+ " gcName=\"" + gc.getName() + "\""
-						+ " gcCount=" + gc.getCollectionCount()
-						+ " notifId=" + notification.getSequenceNumber()
-						+ " gcId=" + gcInfo.getId()
-						+ " getGcAction=\"" + gcNotifInfo.getGcAction() + "\""
-						+ " getGcCause=\"" + gcNotifInfo.getGcCause() + "\""
-						+ " durationMs=" + gcInfo.getDuration()
-						+ " " + memoryPoolChange
-						+ " estimatedAllocatedMB=" + estimatedAllocatedByte / 1024 / 1024);
+				logger.info("gcName=\"{}\""
+						+ " gcCount={}"
+						+ " notifId={}"
+						+ " gcId={}"
+						+ " getGcAction=\"{}\""
+						+ " getGcCause=\"{}\""
+						+ " durationMs={}"
+						+ " {}"
+						+ " estimatedAllocatedMB={}",
+						gc.getName(),
+						gc.getCollectionCount(),
+						notification.getSequenceNumber(),
+						gcInfo.getId(),
+						gcNotifInfo.getGcAction(),
+						gcNotifInfo.getGcCause(),
+						gcInfo.getDuration(),
+						memoryPoolChange,
+						estimatedAllocatedByte / 1024 / 1024);
 			}, null, null);
 		}
+	}
+
+	@Override
+	public boolean safeToShutdownInParallel(){
+		return false;
 	}
 
 }

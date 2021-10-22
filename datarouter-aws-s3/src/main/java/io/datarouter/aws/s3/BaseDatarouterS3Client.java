@@ -194,8 +194,10 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		ObjectMetadata metadata = new ObjectMetadata();
 		metadata.setContentType(contentType.getMimeType());
 		putObjectRequest.setMetadata(metadata);
-		Upload upload = getTransferManagerForBucket(bucket).upload(putObjectRequest);
-		handleTransfer(upload, heartbeat);
+		try(var $ = TracerTool.startSpan("S3 upload", TraceSpanGroupType.CLOUD_STORAGE)){
+			Upload upload = getTransferManagerForBucket(bucket).upload(putObjectRequest);
+			handleTransfer(upload, heartbeat);
+		}
 	}
 
 	@Override
@@ -363,8 +365,8 @@ public abstract class BaseDatarouterS3Client implements DatarouterS3Client, Seri
 		Download download;
 		try(var $ = TracerTool.startSpan("S3 download", TraceSpanGroupType.CLOUD_STORAGE)){
 			download = transferManager.download(bucket, key, path.toFile());
+			handleTransfer(download, heartbeat);
 		}
-		handleTransfer(download, heartbeat);
 	}
 
 	@Override

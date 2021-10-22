@@ -74,4 +74,9 @@ public class TomcatWebAppNamesWebAppListener extends DatarouterWebAppListener{
 		servletContext.removeAttribute(SERVLET_CONTEXT_ATTRIBUTE_NAME);
 	}
 
+	@Override
+	public boolean safeToShutdownInParallel(){
+		return false;
+	}
+
 }

@@ -24,7 +24,7 @@ public interface WebAppListenersClasses{
 	List<Class<? extends DatarouterWebAppListener>> getWebAppListenerClasses();
 
 	@Singleton
-	static class DatarouterWebAppListenersClasses implements WebAppListenersClasses{
+	class DatarouterWebAppListenersClasses implements WebAppListenersClasses{
 
 		private final List<Class<? extends DatarouterWebAppListener>> classes;
 

@@ -20,7 +20,7 @@ import java.util.List;
 import io.datarouter.model.databean.FieldlessIndexEntry;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.field.imp.positive.UInt63Field;
+import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.key.FieldlessIndexEntryPrimaryKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.websocket.storage.subscription.WebSocketSubscriptionKey.FieldKeys;
@@ -40,7 +40,7 @@ implements FieldlessIndexEntryPrimaryKey<
 	public List<Field<?>> getFields(){
 		return List.of(
 				new StringField(FieldKeys.userToken, userToken),
-				new UInt63Field(FieldKeys.webSocketSessionId, webSocketSessionId),
+				new LongField(FieldKeys.webSocketSessionId, webSocketSessionId),
 				new StringField(FieldKeys.topic, topic));
 	}
 
@@ -62,11 +62,11 @@ implements FieldlessIndexEntryPrimaryKey<
 	@Override
 	public FieldlessIndexEntry<WebSocketSubscriptionByUserTokenKey,WebSocketSubscriptionKey,WebSocketSubscription>
 			createFromDatabean(WebSocketSubscription target){
-		return new FieldlessIndexEntry<>(WebSocketSubscriptionByUserTokenKey::new,
-				new WebSocketSubscriptionByUserTokenKey(
-						target.getKey().getUserToken(),
-						target.getKey().getWebSocketSessionId(),
-						target.getKey().getTopic()));
+		var index = new WebSocketSubscriptionByUserTokenKey(
+				target.getKey().getUserToken(),
+				target.getKey().getWebSocketSessionId(),
+				target.getKey().getTopic());
+		return new FieldlessIndexEntry<>(WebSocketSubscriptionByUserTokenKey::new, index);
 	}
 
 }

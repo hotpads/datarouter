@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.datarouter.exception.storage.httprecord.FieldTrimTool;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
@@ -199,6 +200,18 @@ extends BaseDatabean<PK,D>{
 
 	public String getCallOrigin(){
 		return callOrigin;
+	}
+
+	public void trimFields(){
+		trimstackTrace();
+	}
+
+	public void trimstackTrace(){
+		stackTrace = trimField(FieldKeys.stackTrace, stackTrace);
+	}
+
+	private String trimField(StringFieldKey fieldKey, String field){
+		return FieldTrimTool.trimField(fieldKey, field, "exceptionRecordId=" + getKey().getId());
 	}
 
 }

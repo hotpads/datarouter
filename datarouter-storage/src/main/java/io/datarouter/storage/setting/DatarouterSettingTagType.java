@@ -34,5 +34,4 @@ public enum DatarouterSettingTagType implements Supplier<DatarouterSettingTag>{
 		return datarouterSettingTag;
 	}
 
-
 }

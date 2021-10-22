@@ -52,7 +52,7 @@ public class DatarouterListenersViewHandler extends BaseHandler{
 		var h2 = h2("Registered App Listeners");
 		var table = new J2HtmlTable<Class<? extends DatarouterAppListener>>()
 				.withClasses("table table-sm table-striped my-4 border")
-				.withColumn("AppListeners", row -> row.getSimpleName())
+				.withColumn("AppListeners", Class::getSimpleName)
 				.withCaption("Total " + rows.size())
 				.build(rows);
 		return div(h2, table)
@@ -63,7 +63,7 @@ public class DatarouterListenersViewHandler extends BaseHandler{
 		var h2 = h2("Registered WebApp Listeners");
 		var table = new J2HtmlTable<Class<? extends DatarouterWebAppListener>>()
 				.withClasses("table table-sm table-striped my-4 border")
-				.withColumn("WebAppListeners", row -> row.getSimpleName())
+				.withColumn("WebAppListeners", Class::getSimpleName)
 				.withCaption("Total " + rows.size())
 				.build(rows);
 		return div(h2, table)

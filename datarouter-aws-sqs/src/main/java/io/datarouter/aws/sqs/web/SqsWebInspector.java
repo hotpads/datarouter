@@ -19,25 +19,29 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h4;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import com.amazonaws.services.sqs.model.ListQueuesResult;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.NumberTool;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.handler.mav.Mav;
@@ -87,14 +91,18 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag<?> buildQueueNodeTable(ClientId clientId){
-		List<SqsWebInspectorDto> queueStatsRows = nodes.getPhysicalNodesForClient(clientId.getName()).stream()
+		Set<String> knownQueuesUrls = new HashSet<>();
+		List<? extends BaseSqsNode<?,?,?>> sqsNodes = Scanner.of(nodes.getPhysicalNodesForClient(clientId.getName()))
 				.map(NodeTool::extractSinglePhysicalNode)
 				.map(physicalNode -> (BaseSqsNode<?,?,?>)physicalNode)
+				.list();
+		List<SqsWebInspectorDto> queueStatsRows = Scanner.of(sqsNodes)
 				.map(BaseSqsNode::getQueueUrlAndName)
 				.map(Supplier::get)
 				.map(queueUrlAndName -> {
 					String queueName = queueUrlAndName.getRight();
 					String queueUrl = queueUrlAndName.getLeft();
+					knownQueuesUrls.add(queueUrl);
 					Map<String,String> attributesMap = sqsClientManager.getAllQueueAttributes(clientId, queueUrl);
 					return new SqsWebInspectorDto(
 							queueName,
@@ -102,8 +110,16 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesDelayed.name()),
 							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name()));
 				})
-				.sorted(Comparator.comparing(dto -> dto.queueName))
-				.collect(Collectors.toList());
+				.sort(Comparator.comparing(dto -> dto.queueName))
+				.list();
+		List<String> unreferencedQueues = Scanner.of(sqsNodes)
+				.map(BaseSqsNode::getOrBuildFullNamespace)
+				.distinct()
+				.map(namespace -> sqsClientManager.getAmazonSqs(clientId).listQueues(namespace))
+				.concatIter(ListQueuesResult::getQueueUrls)
+				.exclude(knownQueuesUrls::contains)
+				.map(queueUrl -> StringTool.getStringAfterLastOccurrence("/", queueUrl))
+				.list();
 
 		var table = new J2HtmlTable<SqsWebInspectorDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
@@ -113,8 +129,11 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.withColumn("Messages InFlight", row -> row.messagesInFlight)
 				.withColumn("Total Messages (Available + InFlight)", SqsWebInspectorDto::getTotalMessagesAvailable)
 				.build(queueStatsRows);
-		ContainerTag<?> header = h4("Queues");
-		return div(header, table)
+		var unreferencedQueuesTable = new J2HtmlTable<String>()
+				.withClasses("sortable table table-sm table-striped my-4 border")
+				.withColumn("Queue Name", row -> row)
+				.build(unreferencedQueues);
+		return div(h4("Queues"), table, h4("Unreferenced Queues"), unreferencedQueuesTable)
 				.withClass("container-fluid my-4")
 				.withStyle("padding-left: 0px");
 	}

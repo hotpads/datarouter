@@ -30,10 +30,6 @@ import io.datarouter.model.field.imp.comparable.DoubleField;
 public class DoubleMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Double,Field<Double>>{
 
-	public DoubleMysqlFieldCodec(){//no-arg for reflection
-		this((DoubleField)null);
-	}
-
 	public DoubleMysqlFieldCodec(DoubleField field){
 		super(field);
 	}

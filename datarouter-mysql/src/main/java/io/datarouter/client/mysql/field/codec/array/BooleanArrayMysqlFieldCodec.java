@@ -33,10 +33,6 @@ import io.datarouter.util.bytes.BooleanByteTool;
 public class BooleanArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 
-	public BooleanArrayMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public BooleanArrayMysqlFieldCodec(BooleanArrayField field){
 		super(field);
 	}

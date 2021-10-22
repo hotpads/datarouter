@@ -34,8 +34,8 @@ import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayField;
 import io.datarouter.model.field.imp.array.DelimitedStringArrayFieldKey;
-import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt63FieldKey;
+import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.scanner.IterableScanner;
 import io.datarouter.web.user.authenticate.DatarouterTokenGenerator;
@@ -65,7 +65,7 @@ implements Session{
 	private Boolean persistent = true;
 
 	public static class FieldKeys{
-		public static final UInt63FieldKey userId = new UInt63FieldKey("userId");
+		public static final LongFieldKey userId = new LongFieldKey("userId");
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
 		public static final StringFieldKey username = new StringFieldKey("username");
 		public static final DelimitedStringArrayFieldKey roles = new DelimitedStringArrayFieldKey("roles");
@@ -83,7 +83,7 @@ implements Session{
 		@Override
 		public List<Field<?>> getNonKeyFields(DatarouterSession databean){
 			List<Field<?>> nonKeyFields = new ArrayList<>(databean.getNonKeyFields());
-			nonKeyFields.add(new UInt63Field(FieldKeys.userId, databean.userId));
+			nonKeyFields.add(new LongField(FieldKeys.userId, databean.userId));
 			nonKeyFields.add(new StringField(FieldKeys.userToken, databean.userToken));
 			nonKeyFields.add(new StringField(FieldKeys.username, databean.username));
 			nonKeyFields.add(new DelimitedStringArrayField(FieldKeys.roles, databean.roles));

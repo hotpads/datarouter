@@ -20,8 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.inject.Singleton;
+import java.util.function.Function;
 
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
 import io.datarouter.client.mysql.field.StringMysqlFieldCodec;
@@ -85,63 +84,66 @@ import io.datarouter.model.field.imp.positive.UInt31Field;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt7Field;
 import io.datarouter.model.field.imp.positive.VarIntField;
-import io.datarouter.util.lang.ReflectionTool;
 
 @SuppressWarnings("deprecation")
-@Singleton
 public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 
-	private final Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> codecClassByFieldClass;
+	private final Map<
+			Class<? extends Field<?>>,
+			Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> codecClassByFieldClass;
 
-	public StandardMysqlFieldCodecFactory(
-			Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additional){
+	public StandardMysqlFieldCodecFactory(Map<
+			Class<? extends Field<?>>,
+			Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> additional){
 		codecClassByFieldClass = new HashMap<>();
 
-		addCodec(BooleanField.class, BooleanMysqlFieldCodec.class);
-		addCodec(SignedByteField.class, SignedByteMysqlFieldCodec.class);
-		addCodec(ShortField.class, ShortMysqlFieldCodec.class);
-		addCodec(IntegerField.class, IntegerMysqlFieldCodec.class);
-		addCodec(LongField.class, LongMysqlFieldCodec.class);
-		addCodec(FloatField.class, FloatMysqlFieldCodec.class);
-		addCodec(DoubleField.class, DoubleMysqlFieldCodec.class);
+		addCodec(BooleanField.class, BooleanMysqlFieldCodec::new);
+		addCodec(SignedByteField.class, SignedByteMysqlFieldCodec::new);
+		addCodec(ShortField.class, ShortMysqlFieldCodec::new);
+		addCodec(IntegerField.class, IntegerMysqlFieldCodec::new);
+		addCodec(LongField.class, LongMysqlFieldCodec::new);
+		addCodec(FloatField.class, FloatMysqlFieldCodec::new);
+		addCodec(DoubleField.class, DoubleMysqlFieldCodec::new);
 
-		addCodec(StringField.class, StringMysqlFieldCodec.class);
-		addCodec(DateField.class, DateMysqlFieldCodec.class);
-		addCodec(LongDateField.class, LongDateMysqlFieldCodec.class);
-		addCodec(LocalDateField.class, LocalDateMysqlFieldCodec.class);
-		addCodec(LocalDateTimeField.class, LocalDateTimeMysqlFieldCodec.class);
-		addCodec(InstantField.class, InstantMysqlFieldCodec.class);
+		addCodec(StringField.class, StringMysqlFieldCodec::new);
+		addCodec(DateField.class, DateMysqlFieldCodec::new);
+		addCodec(LongDateField.class, LongDateMysqlFieldCodec::new);
+		addCodec(LocalDateField.class, LocalDateMysqlFieldCodec::new);
+		addCodec(LocalDateTimeField.class, LocalDateTimeMysqlFieldCodec::new);
+		addCodec(InstantField.class, InstantMysqlFieldCodec::new);
 
 		//enums
-		addCodec(IntegerEnumField.class, IntegerEnumMysqlFieldCodec.class);
-		addCodec(StringEnumField.class, StringEnumMysqlFieldCodec.class);
-		addCodec(VarIntEnumField.class, VarIntEnumMysqlFieldCodec.class);
+		addCodec(IntegerEnumField.class, IntegerEnumMysqlFieldCodec::new);
+		addCodec(StringEnumField.class, StringEnumMysqlFieldCodec::new);
+		addCodec(VarIntEnumField.class, VarIntEnumMysqlFieldCodec::new);
 
 		//BaseListMysqlFieldCodec
-		addCodec(BooleanArrayField.class, BooleanArrayMysqlFieldCodec.class);
-		addCodec(DelimitedStringArrayField.class, DelimitedStringArrayMysqlFieldCodec.class);
-		addCodec(DoubleArrayField.class, DoubleArrayMysqlFieldCodec.class);
-		addCodec(IntegerArrayField.class, IntegerArrayMysqlFieldCodec.class);
-		addCodec(UInt63ArrayField.class, UInt63ArrayMysqlFieldCodec.class);
-		addCodec(UInt7ArrayField.class, UInt7ArrayMysqlFieldCodec.class);
+		addCodec(BooleanArrayField.class, BooleanArrayMysqlFieldCodec::new);
+		addCodec(DelimitedStringArrayField.class, DelimitedStringArrayMysqlFieldCodec::new);
+		addCodec(DoubleArrayField.class, DoubleArrayMysqlFieldCodec::new);
+		addCodec(IntegerArrayField.class, IntegerArrayMysqlFieldCodec::new);
+		addCodec(UInt63ArrayField.class, UInt63ArrayMysqlFieldCodec::new);
+		addCodec(UInt7ArrayField.class, UInt7ArrayMysqlFieldCodec::new);
 
 		//primitive arrays
-		addCodec(ByteArrayField.class, ByteArrayMysqlFieldCodec.class);
-		addCodec(PrimitiveIntegerArrayField.class, PrimitiveIntegerArrayMysqlFieldCodec.class);
-		addCodec(PrimitiveLongArrayField.class, PrimitiveLongArrayMysqlFieldCodec.class);
+		addCodec(ByteArrayField.class, ByteArrayMysqlFieldCodec::new);
+		addCodec(PrimitiveIntegerArrayField.class, PrimitiveIntegerArrayMysqlFieldCodec::new);
+		addCodec(PrimitiveLongArrayField.class, PrimitiveLongArrayMysqlFieldCodec::new);
 
 		//positive numbers only
-		addCodec(UInt15Field.class, UInt15MysqlFieldCodec.class);
-		addCodec(UInt31Field.class, UInt31MysqlFieldCodec.class);
-		addCodec(UInt63Field.class, UInt63MysqlFieldCodec.class);
-		addCodec(UInt7Field.class, UInt7MysqlFieldCodec.class);
-		addCodec(VarIntField.class, VarIntMysqlFieldCodec.class);
+		addCodec(UInt15Field.class, UInt15MysqlFieldCodec::new);
+		addCodec(UInt31Field.class, UInt31MysqlFieldCodec::new);
+		addCodec(UInt63Field.class, UInt63MysqlFieldCodec::new);
+		addCodec(UInt7Field.class, UInt7MysqlFieldCodec::new);
+		addCodec(VarIntField.class, VarIntMysqlFieldCodec::new);
 
-		additional.forEach((fieldClass, codecClass) -> addCodec(fieldClass, codecClass));
+		additional.forEach(codecClassByFieldClass::put);
 	}
 
-	protected <F extends Field<?>,C extends MysqlFieldCodec<?>> void addCodec(Class<F> fieldClass, Class<C> codecClass){
-		codecClassByFieldClass.put(fieldClass, codecClass);
+	protected <F extends Field<?>,C extends MysqlFieldCodec<?>> void addCodec(
+			Class<F> fieldClass,
+			Function<F,C> codecSupplier){
+		codecClassByFieldClass.put(fieldClass, codecSupplier);
 	}
 
 	@Override
@@ -150,12 +152,13 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 	}
 
 	@Override
-	public MysqlFieldCodec<?> createCodec(Field<?> field){
-		Class<? extends MysqlFieldCodec<?>> codecType = codecClassByFieldClass.get(field.getClass());
-		if(codecType == null){
+	public <C extends MysqlFieldCodec<?>,F extends Field<?>> C createCodec(F field){
+		@SuppressWarnings("unchecked") // safe because of the type safety in the addCodec()
+		Function<F,C> codecSupplier = (Function<F,C>)codecClassByFieldClass.get(field.getClass());
+		if(codecSupplier == null){
 			throw new RuntimeException("no codec found for " + field.getClass());
 		}
-		return ReflectionTool.createWithParameters(codecType, List.of(field));
+		return codecSupplier.apply(field);
 	}
 
 	@Override

@@ -130,11 +130,11 @@ public abstract class SpannerBaseReadOp<T> extends SpannerBaseOp<List<T>>{
 		return builder.build();
 	}
 
-	protected <F> List<F> createFromResultSet(ResultSet set, Supplier<F> emtpyObject, List<Field<?>> fields){
+	protected <F> List<F> createFromResultSet(ResultSet set, Supplier<F> objectSupplier, List<Field<?>> fields){
 		List<? extends SpannerBaseFieldCodec<?,?>> codecs = codecRegistry.createCodecs(fields);
 		List<F> objects = new ArrayList<>();
 		while(set.next()){
-			F object = emtpyObject.get();
+			F object = objectSupplier.get();
 			codecs.forEach(codec -> codec.setField(object, set));
 			objects.add(object);
 		}

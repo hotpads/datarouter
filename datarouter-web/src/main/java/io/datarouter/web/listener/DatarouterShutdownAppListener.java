@@ -49,4 +49,9 @@ public class DatarouterShutdownAppListener implements DatarouterAppListener{
 		datarouter.shutdown();
 	}
 
+	@Override
+	public boolean safeToShutdownInParallel(){
+		return false;
+	}
+
 }

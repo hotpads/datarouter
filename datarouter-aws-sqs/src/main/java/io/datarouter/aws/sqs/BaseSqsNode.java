@@ -93,13 +93,11 @@ implements QueueStorageWriter<PK,D>{
 		if(!owned){
 			queueUrl = params.getQueueUrl();
 			queueName = queueUrl.substring(queueUrl.lastIndexOf('/') + 1);
-			//don't issue the createQueue request because it is probably someone else's queue
+		//don't issue the createQueue request because it is probably someone else's queue
 		}else{
-			String namespace = params.getNamespace()
-					.orElse(buildFullNameSpace(environmentName.get(), serviceName.get()));
-			queueName = StringTool.isEmpty(namespace)
-					? getFieldInfo().getTableName()
-					: buildFullQueueName(environmentName.get(), serviceName.get(), getFieldInfo().getTableName());
+			String namespace = getOrBuildFullNamespace();
+			String tableName = getFieldInfo().getTableName();
+			queueName = StringTool.isEmpty(namespace) ? tableName : (namespace + "-" + tableName);
 			if(queueName.length() > MAX_QUEUE_NAME_LENGTH){
 				// Future change to a throw.
 				logger.error("queue={} overflows the max size {}", queueName, MAX_QUEUE_NAME_LENGTH);
@@ -122,12 +120,8 @@ implements QueueStorageWriter<PK,D>{
 		}
 	}
 
-	private static String buildFullNameSpace(String environment, String serviceName){
-		return environment + "-" + serviceName;
-	}
-
-	public static String buildFullQueueName(String environment, String serviceName, String tableName){
-		return buildFullNameSpace(environment, serviceName) + "-" + tableName;
+	public String getOrBuildFullNamespace(){
+		return params.getNamespace().orElseGet(() -> environmentName.get() + "-" + serviceName.get());
 	}
 
 	public Supplier<Twin<String>> getQueueUrlAndName(){

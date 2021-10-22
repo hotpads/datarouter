@@ -30,10 +30,6 @@ import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 
 public class LocalDateTimeMysqlFieldCodec extends BaseMysqlFieldCodec<LocalDateTime,LocalDateTimeField>{
 
-	public LocalDateTimeMysqlFieldCodec(){// no-arg for reflection
-		this(null);
-	}
-
 	public LocalDateTimeMysqlFieldCodec(LocalDateTimeField field){
 		super(field);
 	}

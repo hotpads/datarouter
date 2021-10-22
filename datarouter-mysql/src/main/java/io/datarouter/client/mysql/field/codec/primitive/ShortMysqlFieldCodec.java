@@ -29,14 +29,9 @@ import io.datarouter.model.field.Field;
 public class ShortMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Short,Field<Short>>{
 
-	public ShortMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public ShortMysqlFieldCodec(Field<Short> field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){

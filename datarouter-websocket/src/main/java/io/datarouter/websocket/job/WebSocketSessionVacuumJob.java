@@ -83,7 +83,8 @@ public class WebSocketSessionVacuumJob extends BaseJob{
 					throw e;
 				}
 			}else{
-				throw e;
+				logger.warn("error check websocket webSocketSession={}", webSocketSession, e);
+				return false;
 			}
 		}
 		if(!isAlive){

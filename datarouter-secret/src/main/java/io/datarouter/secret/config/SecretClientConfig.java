@@ -84,12 +84,12 @@ public class SecretClientConfig{
 		return allowedNames;
 	}
 
-	public boolean allowed(SecretOpInfo opInfo){
+	public boolean allowed(SecretOpInfo<?,?> opInfo){
 		if(opInfo.targetSecretClientConfig.isPresent() && !opInfo.targetSecretClientConfig.get().equals(configName)){
 			logNotAllowed(opInfo, "Config name not allowed.");
 			return false;
 		}
-		if(!allowedOps.contains(opInfo.op)){
+		if(!allowedOps.contains(opInfo.clientOp.getOpType())){
 			logNotAllowed(opInfo, "Op not allowed.");
 			return false;
 		}
@@ -101,7 +101,7 @@ public class SecretClientConfig{
 		return true;
 	}
 
-	private void logNotAllowed(SecretOpInfo opInfo, String reason){
+	private void logNotAllowed(SecretOpInfo<?,?> opInfo, String reason){
 		String allowedOpsString = Scanner.of(allowedOps)
 				.map(SecretOpType::getPersistentString)
 				.collect(Collectors.joining(",", "[", "]"));

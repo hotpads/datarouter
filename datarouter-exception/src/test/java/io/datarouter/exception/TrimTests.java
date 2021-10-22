@@ -33,12 +33,15 @@ public class TrimTests{
 		for(int i = 0; i < FieldKeys.path.getSize(); i++){
 			path.append(" ");
 		}
-		path.append(" ");
+		path.append(" "); // one too many
 		HttpRequestRecord httpRequestRecord = new HttpRequestRecord(new Date(), "123", "", "exceptionRecordId",
 				"httpMethod", "httpParams", "protocol", "hostname", 443, "contextPath", path.toString(), "queryString",
 				null, "ip", "sessionRoles", "userToken", new RecordedHttpHeaders(new TreeMap<>()));
 		httpRequestRecord.trimPath();
-		Assert.assertEquals(httpRequestRecord.getPath().length(), FieldKeys.path.getSize());
+		String sanitizedPath = httpRequestRecord.getPath();
+		Assert.assertEquals(sanitizedPath.length(), FieldKeys.path.getSize());
+		String end = sanitizedPath.substring(sanitizedPath.length() - 8, sanitizedPath.length());
+		Assert.assertEquals(end, " trimmed");
 	}
 
 }

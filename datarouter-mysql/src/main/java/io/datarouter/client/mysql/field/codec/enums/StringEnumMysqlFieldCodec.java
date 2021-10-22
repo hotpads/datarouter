@@ -28,11 +28,7 @@ import io.datarouter.util.enums.StringEnum;
 public class StringEnumMysqlFieldCodec<E extends StringEnum<E>>
 extends BaseMysqlFieldCodec<E,StringEnumField<E>>{
 
-	private StringMysqlFieldCodec stringMysqlFieldCodec;
-
-	public StringEnumMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
+	private final StringMysqlFieldCodec stringMysqlFieldCodec;
 
 	public StringEnumMysqlFieldCodec(StringEnumField<E> field){
 		super(field);

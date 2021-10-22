@@ -91,8 +91,8 @@ public class Trace2ThreadDto{
 		return ended;
 	}
 
-	public void markFinish(){
-		this.ended = Trace2Dto.getCurrentTimeInNs();
+	public void setEnded(Long ended){
+		this.ended = ended;
 	}
 
 	public String getServerName(){

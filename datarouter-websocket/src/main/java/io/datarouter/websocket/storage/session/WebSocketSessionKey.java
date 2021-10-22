@@ -21,8 +21,8 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt63FieldKey;
+import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public class WebSocketSessionKey extends BaseRegularPrimaryKey<WebSocketSessionKey>{
@@ -32,7 +32,7 @@ public class WebSocketSessionKey extends BaseRegularPrimaryKey<WebSocketSessionK
 
 	public static class FieldKeys{
 		public static final StringFieldKey userToken = new StringFieldKey("userToken");
-		public static final UInt63FieldKey id = new UInt63FieldKey("id")
+		public static final LongFieldKey id = new LongFieldKey("id")
 				.withFieldGeneratorType(FieldGeneratorType.RANDOM);
 	}
 
@@ -40,7 +40,7 @@ public class WebSocketSessionKey extends BaseRegularPrimaryKey<WebSocketSessionK
 	public List<Field<?>> getFields(){
 		return List.of(
 				new StringField(FieldKeys.userToken, userToken),
-				new UInt63Field(FieldKeys.id, id));
+				new LongField(FieldKeys.id, id));
 	}
 
 	public WebSocketSessionKey(){

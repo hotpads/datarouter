@@ -163,7 +163,7 @@ public class JobHandler extends BaseHandler{
 				jobPackage.jobClass.getSimpleName(),
 				jobPackage.shouldRunSupplier.get(),
 				heartbeatStatus,
-				jobPackage.triggerLockConfig.isEmpty() ? "parallel" : "locked",
+				jobPackage.usesLocking() ? "locked" : "parallel",
 				jobPackage.getCronExpressionString().orElse(""),
 				jobPackage.jobCategoryName,
 				lastFinishedTask == null ? null : lastFinishedTask.getFinishTimeString(),

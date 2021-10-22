@@ -30,10 +30,6 @@ import io.datarouter.model.field.imp.DateField;
 
 public class DateMysqlFieldCodec extends BaseMysqlFieldCodec<Date,DateField>{
 
-	public DateMysqlFieldCodec(){// no-arg for reflection
-		this(null);
-	}
-
 	public DateMysqlFieldCodec(DateField field){
 		super(field);
 	}

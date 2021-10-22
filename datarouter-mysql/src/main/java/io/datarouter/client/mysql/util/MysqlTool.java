@@ -110,11 +110,11 @@ public class MysqlTool{
 			}
 			ResultSet rs = ps.getResultSet();
 			List<PK> primaryKeys = new ArrayList<>();
+			List<MysqlFieldCodec<?>> codecs = fieldCodecFactory.createCodecs(fieldInfo.getPrimaryKeyFields());
 			while(rs.next()){
 				PK primaryKey = fieldSetFromMysqlResultSetUsingReflection(
-						fieldCodecFactory,
 						fieldInfo.getPrimaryKeySupplier(),
-						fieldInfo.getPrimaryKeyFields(),
+						codecs,
 						rs);
 				primaryKeys.add(primaryKey);
 			}
@@ -137,8 +137,9 @@ public class MysqlTool{
 			}
 			ResultSet rs = ps.getResultSet();
 			List<D> databeans = new ArrayList<>();
+			List<MysqlFieldCodec<?>> codecs = fieldCodecFactory.createCodecs(fields);
 			while(rs.next()){
-				D databean = fieldSetFromMysqlResultSetUsingReflection(fieldCodecFactory, databeanSupplier, fields, rs);
+				D databean = fieldSetFromMysqlResultSetUsingReflection(databeanSupplier, codecs, rs);
 				databeans.add(databean);
 			}
 			return databeans;
@@ -165,11 +166,11 @@ public class MysqlTool{
 			}
 			ResultSet rs = ps.getResultSet();
 			List<IK> keys = new ArrayList<>();
+			List<MysqlFieldCodec<?>> codecs = fieldCodecFactory.createCodecs(fieldInfo.getPrimaryKeyFields());
 			while(rs.next()){
 				IK key = fieldSetFromMysqlResultSetUsingReflection(
-						fieldCodecFactory,
 						fieldInfo.getPrimaryKeySupplier(),
-						fieldInfo.getPrimaryKeyFields(),
+						codecs,
 						rs);
 				keys.add(key);
 			}
@@ -191,13 +192,12 @@ public class MysqlTool{
 	}
 
 	public static <F> F fieldSetFromMysqlResultSetUsingReflection(
-			MysqlFieldCodecFactory fieldCodecFactory,
 			Supplier<F> supplier,
-			List<Field<?>> fields,
+			List<MysqlFieldCodec<?>> codecs,
 			ResultSet rs){
 		F targetFieldSet = supplier.get();
-		for(MysqlFieldCodec<?> field : fieldCodecFactory.createCodecs(fields)){
-			field.fromMysqlResultSetUsingReflection(targetFieldSet, rs);
+		for(MysqlFieldCodec<?> codec : codecs){
+			codec.fromMysqlResultSetUsingReflection(targetFieldSet, rs);
 		}
 		return targetFieldSet;
 	}

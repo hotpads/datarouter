@@ -29,14 +29,9 @@ import io.datarouter.model.util.CommonFieldSizes;
 public class ByteArrayMysqlFieldCodec
 extends BaseMysqlFieldCodec<byte[],ByteArrayField>{
 
-	public ByteArrayMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public ByteArrayMysqlFieldCodec(ByteArrayField field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){

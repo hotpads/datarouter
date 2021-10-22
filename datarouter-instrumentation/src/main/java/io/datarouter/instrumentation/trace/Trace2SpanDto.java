@@ -26,6 +26,7 @@ public class Trace2SpanDto{
 	public final String name;
 	public final TraceSpanGroupType groupType;
 	public final Long created;
+
 	private String info;
 	private Long ended;
 	private Long cpuTimeCreatedNs;

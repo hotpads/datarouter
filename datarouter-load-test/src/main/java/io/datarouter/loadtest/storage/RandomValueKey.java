@@ -18,8 +18,8 @@ package io.datarouter.loadtest.storage;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.positive.UInt31Field;
-import io.datarouter.model.field.imp.positive.UInt31FieldKey;
+import io.datarouter.model.field.imp.comparable.IntegerField;
+import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
 public class RandomValueKey extends BaseRegularPrimaryKey<RandomValueKey>{
@@ -27,13 +27,14 @@ public class RandomValueKey extends BaseRegularPrimaryKey<RandomValueKey>{
 	private Integer key;
 
 	public static class FieldKeys{
-		public static final UInt31FieldKey key = new UInt31FieldKey("key")
+		public static final IntegerFieldKey key = new IntegerFieldKey("key")
 				.withColumnName("k");//"key" is reserved in mysql
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
-		return List.of(new UInt31Field(FieldKeys.key, key));
+		return List.of(
+				new IntegerField(FieldKeys.key, key));
 	}
 
 	RandomValueKey(){

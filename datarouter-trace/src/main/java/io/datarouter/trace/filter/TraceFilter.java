@@ -146,16 +146,17 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 				errored = true;
 				throw e;
 			}finally{
-				Traceparent traceparent = tracer.getTraceContext().get().getTraceparent();
+				long ended = Trace2Dto.getCurrentTimeInNs();
 				Long cpuTimeEnded = saveCpuTime ? MxBeans.THREAD.getCurrentThreadCpuTime() : null;
 				Long threadAllocatedBytesEnded = saveAllocatedBytes ? MxBeans.THREAD.getThreadAllocatedBytes(threadId)
 						: null;
+				Traceparent traceparent = tracer.getTraceContext().get().getTraceparent();
 				Trace2ThreadDto rootThread = null;
 				if(tracer.getCurrentThreadId() != null){
 					rootThread = ((DatarouterTracer)tracer).getCurrentThread();
 					rootThread.setCpuTimeEndedNs(cpuTimeEnded);
 					rootThread.setMemoryAllocatedBytesEnded(threadAllocatedBytesEnded);
-					rootThread.markFinish();
+					rootThread.setEnded(ended);
 					((DatarouterTracer)tracer).setCurrentThread(null);
 				}
 				Trace2Dto trace2 = new Trace2Dto(
@@ -165,6 +166,7 @@ public abstract class TraceFilter implements Filter, InjectorRetriever{
 						request.getRequestURI().toString(),
 						request.getQueryString(),
 						traceCreated,
+						ended,
 						serviceName.get(),
 						tracer.getDiscardedThreadCount(),
 						tracer.getThreadQueue().size(),

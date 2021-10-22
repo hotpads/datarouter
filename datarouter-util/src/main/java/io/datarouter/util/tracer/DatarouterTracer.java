@@ -148,7 +148,7 @@ public class DatarouterTracer implements Tracer{
 		if(saveThreadMemoryAllocated){
 			thread.setMemoryAllocatedBytesEnded(MxBeans.THREAD.getThreadAllocatedBytes(hostThreadId));
 		}
-		thread.markFinish();
+		thread.setEnded(Trace2Dto.getCurrentTimeInNs());
 		thread.setTotalSpanCount(getSpanQueue().size());
 		setCurrentThread(null);
 		addThread(thread);

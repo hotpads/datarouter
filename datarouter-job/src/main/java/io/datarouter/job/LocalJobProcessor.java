@@ -35,12 +35,15 @@ import io.datarouter.job.scheduler.JobWrapper;
 import io.datarouter.job.util.Outcome;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskStatus;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
+import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.web.exception.ExceptionRecorder;
 import io.datarouter.web.util.ExceptionTool;
 
 @Singleton
 public class LocalJobProcessor{
 	private static final Logger logger = LoggerFactory.getLogger(LocalJobProcessor.class);
+
+	private static final Duration MAX_JOB_TIMEOUT = Duration.ofDays(60);
 
 	@Inject
 	private DatarouterJobExecutor jobExecutor;
@@ -60,7 +63,7 @@ public class LocalJobProcessor{
 			try{
 				future = jobExecutor.submit(jobWrapper);
 			}catch(RejectedExecutionException e){
-				jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.ERRORED);
+				jobWrapper.finishWithStatus(LongRunningTaskStatus.ERRORED);
 				throw wrapAndSaveException("rejected", jobWrapper, hardTimeout, e);
 			}
 			try{
@@ -72,16 +75,16 @@ public class LocalJobProcessor{
 						UncheckedInterruptedException.class,
 						InterruptedIOException.class)){
 					future.cancel(true);
-					jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.INTERRUPTED);
+					jobWrapper.finishWithStatus(LongRunningTaskStatus.INTERRUPTED);
 					jobCounters.interrupted(jobWrapper.jobClass);
-					logger.warn(wrapAndSaveException("interrupted", jobWrapper, hardTimeout, e).getMessage());
+					logger.warn("", wrapAndSaveException("interrupted", jobWrapper, hardTimeout, e));
 					return Outcome.failure("Interrupted. exception=" + e);
 				}
-				jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.ERRORED);
+				jobWrapper.finishWithStatus(LongRunningTaskStatus.ERRORED);
 				throw wrapAndSaveException("failed", jobWrapper, hardTimeout, e);
 			}catch(TimeoutException e){
 				future.cancel(true);
-				jobWrapper.setStatusFinishTimeAndPersist(LongRunningTaskStatus.TIMED_OUT);
+				jobWrapper.finishWithStatus(LongRunningTaskStatus.TIMED_OUT);
 				jobCounters.timedOut(jobWrapper.jobClass);
 				throw wrapAndSaveException("didn't complete on time", jobWrapper, hardTimeout, e);
 			}
@@ -94,11 +97,11 @@ public class LocalJobProcessor{
 
 	private RuntimeException wrapAndSaveException(String msg, JobWrapper jobWrapper, Duration hardTimeout,
 			Exception ex){
-		var elapsed = Duration.between(jobWrapper.triggerTime.toInstant(), Instant.now());
+		var elapsed = DatarouterDuration.age(jobWrapper.triggerTime);
 		var exception = new RuntimeException(msg
 				+ " jobName=" + jobWrapper.jobClass.getName()
 				+ " elapsed=" + elapsed
-				+ " deadline=" + hardTimeout, ex);
+				+ " deadline=" + new DatarouterDuration(hardTimeout), ex);
 		exceptionRecorder
 				.tryRecordException(exception, jobWrapper.jobClass.getName(), JobExceptionCategory.JOB)
 				.ifPresent(exceptionRecord -> jobWrapper.setExceptionRecordId(exceptionRecord.id));
@@ -108,6 +111,6 @@ public class LocalJobProcessor{
 	private Duration getHardTimeout(JobWrapper jobWrapper){
 		return jobWrapper.jobPackage.getHardDeadline(jobWrapper.triggerTime)
 				.map(deadline -> Duration.between(Instant.now(), deadline))
-				.orElse(Duration.ofMillis(Long.MAX_VALUE));
+				.orElse(MAX_JOB_TIMEOUT);
 	}
 }

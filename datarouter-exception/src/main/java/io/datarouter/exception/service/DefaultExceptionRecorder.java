@@ -129,6 +129,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				methodName,
 				lineNumber,
 				callOrigin);
+		exceptionRecord.trimFields();
 		exceptionBuffers.exceptionRecordBuffer.offer(exceptionRecord);
 		logger.warn("Exception recorded ({})", exceptionRecordService.buildExceptionLinkForCurrentServer(
 				exceptionRecord));

@@ -29,14 +29,9 @@ import io.datarouter.model.field.Field;
 public class BooleanMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Boolean,Field<Boolean>>{
 
-	public BooleanMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public BooleanMysqlFieldCodec(Field<Boolean> field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){

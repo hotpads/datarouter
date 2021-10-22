@@ -21,19 +21,20 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
+import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
+import io.datarouter.secret.client.SecretClientOps;
 import io.datarouter.secret.client.local.LocalStorageSecretClientSupplier;
 import io.datarouter.secret.client.memory.MemorySecretClientSupplier;
 import io.datarouter.secret.op.SecretOpInfo;
 import io.datarouter.secret.op.SecretOpReason;
-import io.datarouter.secret.op.SecretOpType;
 
 public class SecretClientConfigHolderIntegrationTests{
 
-	private static final SecretOpInfo READ_OP = new SecretOpInfo(SecretOpType.READ, "", "", SecretOpReason.automatedOp(
-			SecretClientConfigHolderIntegrationTests.class.getSimpleName()));
-	private static final SecretOpInfo WRITE_OP = new SecretOpInfo(SecretOpType.CREATE, "", "", SecretOpReason
-			.automatedOp(SecretClientConfigHolderIntegrationTests.class.getSimpleName()));
+	private static final SecretOpInfo<String,Secret> READ_OP = new SecretOpInfo<>(SecretClientOps.READ, "", "",
+			SecretOpReason.automatedOp(SecretClientConfigHolderIntegrationTests.class.getSimpleName()));
+	private static final SecretOpInfo<Secret,Void> WRITE_OP = new SecretOpInfo<>(SecretClientOps.CREATE, "", "",
+			SecretOpReason.automatedOp(SecretClientConfigHolderIntegrationTests.class.getSimpleName()));
 
 	private static final List<Class<? extends SecretClientSupplier>> ONE_CLASSES = List.of(
 			MemorySecretClientSupplier.class);

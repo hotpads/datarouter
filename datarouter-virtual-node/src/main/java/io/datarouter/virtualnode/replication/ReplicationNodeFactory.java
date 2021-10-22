@@ -55,7 +55,7 @@ public class ReplicationNodeFactory{
 			Collection<ClientId> replicaClientIds,
 			Supplier<D> databeanSupplier,
 			Supplier<F> fielderSupplier){
-	N primary = nodeFactory.create(primaryClientId, databeanSupplier, fielderSupplier).build();
+		N primary = nodeFactory.create(primaryClientId, databeanSupplier, fielderSupplier).build();
 		Function<ClientId,N> buildReplicaFunction = clientId -> nodeFactory.create(clientId, databeanSupplier,
 				fielderSupplier).build();
 		List<N> replicas = Scanner.of(replicaClientIds).map(buildReplicaFunction).list();

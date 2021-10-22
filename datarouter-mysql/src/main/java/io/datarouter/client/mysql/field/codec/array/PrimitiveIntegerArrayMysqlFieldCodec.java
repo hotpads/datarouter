@@ -25,10 +25,6 @@ import io.datarouter.model.field.Field;
 
 public class PrimitiveIntegerArrayMysqlFieldCodec extends BaseMysqlFieldCodec<int[],Field<int[]>>{
 
-	public PrimitiveIntegerArrayMysqlFieldCodec(){
-		this(null);
-	}
-
 	public PrimitiveIntegerArrayMysqlFieldCodec(Field<int[]> field){
 		super(field);
 	}

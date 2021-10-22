@@ -19,12 +19,12 @@ import io.datarouter.secret.op.SecretOpInfo;
 
 public interface SecretOpRecorder{
 
-	void recordOp(SecretOpInfo opInfo);
+	void recordOp(SecretOpInfo<?,?> opInfo);
 
 	public static class NoOpSecretOpRecorder implements SecretOpRecorder{
 
 		@Override
-		public void recordOp(SecretOpInfo opInfo){
+		public void recordOp(SecretOpInfo<?,?> opInfo){
 		}
 
 	}

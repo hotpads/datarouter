@@ -42,7 +42,7 @@ public class ExecutorServiceTool{
 			}
 		}
 		Duration halfTimeout = timeout.dividedBy(2);
-		long halfTimeoutMs = timeout.toMillis();
+		long halfTimeoutMs = halfTimeout.toMillis();
 		if(verboseLogging){
 			logger.warn("shutting down name={} {}", name, exec);
 		}
@@ -57,7 +57,7 @@ public class ExecutorServiceTool{
 				if(!exec.awaitTermination(halfTimeoutMs, TimeUnit.MILLISECONDS)){
 					logger.error("not terminated name={} timeout={} {}", name, timeout, exec);
 				}else{
-					logger.warn("executor shutdown after interupt name={} {}", name, exec);
+					logger.warn("executor shutdown after interrupt name={} {}", name, exec);
 				}
 			}else{
 				if(verboseLogging){

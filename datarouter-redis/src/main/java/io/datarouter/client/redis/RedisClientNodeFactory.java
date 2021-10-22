@@ -31,6 +31,7 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.imp.BaseClientNodeFactory;
+import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
 import io.datarouter.storage.node.NodeParams;
@@ -46,7 +47,8 @@ import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 @Singleton
-public class RedisClientNodeFactory extends BaseClientNodeFactory implements TallyClientNodeFactory{
+public class RedisClientNodeFactory extends BaseClientNodeFactory
+implements BlobClientNodeFactory,TallyClientNodeFactory{
 
 	@Inject
 	private PhysicalMapStorageAvailabilityAdapterFactory physicalMapStorageAvailabilityAdapterFactory;
@@ -93,6 +95,14 @@ public class RedisClientNodeFactory extends BaseClientNodeFactory implements Tal
 			F extends DatabeanFielder<PK,D>>
 	WrappedNodeFactory<EK,E,PK,D,F,PhysicalMapStorageNode<PK,D,F>> makeWrappedNodeFactory(){
 		return new RedisWrappedNodeFactory<>();
+	}
+
+	@Override
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	PhysicalNode<PK,D,F> createBlobNode(NodeParams<PK,D,F> nodeParams){
+		return redisNodeFactory.createBlobNode(nodeParams);
 	}
 
 	@Override

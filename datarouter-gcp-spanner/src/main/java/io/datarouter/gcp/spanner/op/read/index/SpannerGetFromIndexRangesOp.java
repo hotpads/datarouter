@@ -82,7 +82,7 @@ extends SpannerBaseReadIndexOp<PK,IE>{
 		List<IE> keys = createFromResultSet(
 				rs,
 				indexEntryFieldInfo.getDatabeanSupplier(),
-				fieldInfo.getPrimaryKeyFields());
+				indexEntryFieldInfo.getFields());
 		if(offset > 0){
 			return keys.subList(offset, keys.size());
 		}

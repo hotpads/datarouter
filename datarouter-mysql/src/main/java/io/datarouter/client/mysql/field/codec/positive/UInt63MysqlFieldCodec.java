@@ -30,14 +30,9 @@ import io.datarouter.model.field.imp.positive.UInt63Field;
 public class UInt63MysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Long,UInt63Field>{
 
-	public UInt63MysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public UInt63MysqlFieldCodec(UInt63Field field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){

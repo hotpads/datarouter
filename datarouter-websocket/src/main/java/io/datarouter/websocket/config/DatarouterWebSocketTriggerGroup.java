@@ -30,7 +30,7 @@ public class DatarouterWebSocketTriggerGroup extends BaseTriggerGroup{
 		super("DatarouterWebSocket", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				// High frequency to keep the table as consistent as possible after some sessions failed to delete
-				"1/30 * * * * ?",
+				"1 1/5 * * * ?",
 				settings.runWebSocketSessionVacuumJob,
 				WebSocketSessionVacuumJob.class,
 				true);

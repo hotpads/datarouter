@@ -30,10 +30,6 @@ import io.datarouter.model.field.Field;
 public class LongDateMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Date,Field<Date>>{
 
-	public LongDateMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public LongDateMysqlFieldCodec(Field<Date> field){
 		super(field);
 	}

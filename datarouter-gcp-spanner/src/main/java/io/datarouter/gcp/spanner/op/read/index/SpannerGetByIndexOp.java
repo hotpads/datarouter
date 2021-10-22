@@ -62,7 +62,6 @@ extends SpannerBaseReadIndexOp<PK,D>{
 
 	@Override
 	public List<D> wrappedCall(){
-		ResultSet databeanRs;
 		try(ReadOnlyTransaction txn = client.readOnlyTransaction()){
 			ResultSet rs;
 			if(config.getLimit() != null){
@@ -83,6 +82,7 @@ extends SpannerBaseReadIndexOp<PK,D>{
 					rs,
 					fieldInfo.getPrimaryKeySupplier(),
 					fieldInfo.getPrimaryKeyFields());
+			ResultSet databeanRs;
 			if(config.getLimit() != null){
 				databeanRs = txn.read(
 						tableName,

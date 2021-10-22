@@ -27,4 +27,9 @@ public class NoJavaSessionWebAppListener extends DatarouterWebAppListener{
 		servletContext.setSessionTrackingModes(new HashSet<>());
 	}
 
+	@Override
+	public boolean safeToShutdownInParallel(){
+		return false;
+	}
+
 }

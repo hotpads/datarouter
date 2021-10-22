@@ -72,15 +72,15 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 	}
 
 	@Override
-	public void recordOp(SecretOpInfo opInfo){
+	public void recordOp(SecretOpInfo<?,?> opInfo){
 		String reasonString = opInfo.reason.toString();
 		if(reasonString.length() > CommonFieldSizes.DEFAULT_LENGTH_VARCHAR){
 			logger.warn("SecretOpReason too long: {}. Max length={}", reasonString,
 					CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
 			reasonString = StringTool.trimToSize(reasonString, CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
 		}
-		node.put(new DatarouterSecretOpRecord(opInfo.namespace, opInfo.name, opInfo.op, opInfo.reason.type,
-				reasonString));
+		node.put(new DatarouterSecretOpRecord(opInfo.namespace, opInfo.name, opInfo.clientOp.getOpType(), opInfo.reason
+				.type, reasonString));
 	}
 
 	@Singleton

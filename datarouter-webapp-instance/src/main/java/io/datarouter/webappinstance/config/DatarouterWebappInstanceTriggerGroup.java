@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.util.time.ZoneIds;
+import io.datarouter.webappinstance.job.DeadClusterJobLockVacuumJob;
 import io.datarouter.webappinstance.job.OneTimeLoginTokenVacuumJob;
 import io.datarouter.webappinstance.job.WebappInstanceAlertJob;
 import io.datarouter.webappinstance.job.WebappInstanceUpdateJob;
@@ -49,6 +50,10 @@ public class DatarouterWebappInstanceTriggerGroup extends BaseTriggerGroup{
 				settings.runOneTimeLoginTokenVacuumJob,
 				OneTimeLoginTokenVacuumJob.class,
 				true);
+		registerParallel(
+				"0 10/20 * * * ?",
+				settings.runDeadClusterJobLockVacuumJob,
+				DeadClusterJobLockVacuumJob.class);
 	}
 
 }

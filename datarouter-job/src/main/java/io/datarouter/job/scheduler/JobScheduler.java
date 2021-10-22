@@ -16,6 +16,7 @@
 package io.datarouter.job.scheduler;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.RejectedExecutionException;
@@ -119,30 +120,35 @@ public class JobScheduler{
 	/*-------------- schedule ----------------*/
 
 	private void scheduleNextRun(JobPackage jobPackage){
-		long nowMs = System.currentTimeMillis();
-		Optional<Long> optionalDelay = getDelayBeforeNextTriggerTimeMs(jobPackage, nowMs);
-		if(optionalDelay.isEmpty()){
+		Instant now = Instant.now();
+		Optional<Date> nextValidTimeAfter = jobPackage.getNextValidTimeAfter(Date.from(now));
+		if(nextValidTimeAfter.isEmpty()){
 			logger.warn("couldn't schedule " + getClass() + " because no trigger defined");
 			return;
 		}
-		long delayMs = optionalDelay.get();
+		Instant nextTriggerTime = nextValidTimeAfter.get().toInstant();
+		Duration durationUntilNextTrigger = Duration.between(now, nextTriggerTime);
 		BaseJob nextJobInstance = injector.getInstance(jobPackage.jobClass);
-		Date nextTriggerTime = new Date(nowMs + delayMs);
 		JobWrapper jobWrapper = jobWrapperFactory.createScheduled(jobPackage, nextJobInstance, nextTriggerTime,
 				nextTriggerTime, getClass().getSimpleName());
-		schedule(jobWrapper, delayMs, false, false);
+		schedule(jobWrapper, durationUntilNextTrigger.toMillis(), false, false);
 	}
 
+	@Deprecated
 	public void scheduleRetriggeredJob(JobPackage jobPackage, Date officialTriggerTime){
+		scheduleRetriggeredJob(jobPackage, officialTriggerTime.toInstant());
+	}
+
+	public void scheduleRetriggeredJob(JobPackage jobPackage, Instant officialTriggerTime){
 		logger.warn("retriggering {} with official triggerTime {} to run immediately",
 				jobPackage.jobClass.getSimpleName(),
-				DateTool.formatAlphanumeric(officialTriggerTime.getTime()));
+				DateTool.formatAlphanumeric(officialTriggerTime.toEpochMilli()));
 		BaseJob nextJobInstance = injector.getInstance(jobPackage.jobClass);
 		JobWrapper jobWrapper = jobWrapperFactory.createRetriggered(
 				jobPackage,
 				nextJobInstance,
 				officialTriggerTime,
-				new Date(),
+				Instant.now(),
 				getClass().getSimpleName() + " JobRetriggeringJob");
 		schedule(jobWrapper, 0, true, true);
 	}
@@ -154,12 +160,6 @@ public class JobScheduler{
 		}
 		triggerExecutor.schedule(() -> triggerScheduled(jobWrapper, logIfRan, logIfDidNotRun), delayMs,
 				TimeUnit.MILLISECONDS);
-	}
-
-	private Optional<Long> getDelayBeforeNextTriggerTimeMs(JobPackage jobPackage, long nowMs){
-		return jobPackage.getNextValidTimeAfter(new Date())
-				.map(Date::getTime)
-				.map(time -> time - nowMs);
 	}
 
 	/*-------------- trigger/run ----------------*/
@@ -176,9 +176,9 @@ public class JobScheduler{
 				return;
 			}
 			Outcome didRun;
-			if(jobPackage.triggerLockConfig.isPresent()){
+			if(jobPackage.usesLocking()){
 				Duration delay = delayLockAquisitionBasedOnCurrentWorkload();
-				didRun = tryAcquireClusterLockAndRun(jobWrapper, jobPackage.triggerLockConfig.get(), delay);
+				didRun = tryAcquireClusterLockAndRun(jobWrapper, jobPackage.triggerLockConfig, delay);
 			}else{
 				didRun = tryAcquireLocalLockAndRun(jobWrapper);
 			}
@@ -204,9 +204,9 @@ public class JobScheduler{
 
 	private Outcome triggerManual(JobWrapper jobWrapper){
 		JobPackage jobPackage = jobWrapper.jobPackage;
-		return jobPackage.triggerLockConfig
-				.map(triggerLockConfig -> tryAcquireClusterLockAndRun(jobWrapper, triggerLockConfig, Duration.ZERO))
-				.orElseGet(() -> tryAcquireLocalLockAndRun(jobWrapper));
+		return jobPackage.usesLocking()
+				? tryAcquireClusterLockAndRun(jobWrapper, jobPackage.triggerLockConfig, Duration.ZERO)
+				: tryAcquireLocalLockAndRun(jobWrapper);
 	}
 
 	private Duration delayLockAquisitionBasedOnCurrentWorkload(){
@@ -302,7 +302,7 @@ public class JobScheduler{
 	private void releaseThisServersActiveTriggerLocks(){
 		localTriggerLockService.getJobWrappers().forEach(jobWrapper -> {
 			String jobName = BaseTriggerGroup.lockName(jobWrapper.jobClass);
-			Date triggerTime = jobWrapper.triggerTime;
+			Instant triggerTime = jobWrapper.triggerTime;
 			clusterTriggerLockService.releaseTriggerLock(jobName, triggerTime);
 		});
 	}

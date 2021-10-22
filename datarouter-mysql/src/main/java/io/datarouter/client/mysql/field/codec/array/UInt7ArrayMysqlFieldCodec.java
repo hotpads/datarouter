@@ -30,14 +30,9 @@ import io.datarouter.util.bytes.ByteTool;
 public class UInt7ArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Byte,List<Byte>,UInt7ArrayField>{
 
-	public UInt7ArrayMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public UInt7ArrayMysqlFieldCodec(UInt7ArrayField field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){

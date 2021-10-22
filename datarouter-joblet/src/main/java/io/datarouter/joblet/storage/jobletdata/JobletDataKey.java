@@ -18,8 +18,8 @@ package io.datarouter.joblet.storage.jobletdata;
 import java.util.List;
 
 import io.datarouter.model.field.Field;
-import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt63FieldKey;
+import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.util.number.RandomTool;
 
@@ -28,12 +28,12 @@ public class JobletDataKey extends BaseRegularPrimaryKey<JobletDataKey>{
 	private Long id;
 
 	public static class FieldKeys{
-		public static final UInt63FieldKey id = new UInt63FieldKey("id");
+		public static final LongFieldKey id = new LongFieldKey("id");
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
-		return List.of(new UInt63Field(FieldKeys.id, id));
+		return List.of(new LongField(FieldKeys.id, id));
 	}
 
 	public JobletDataKey(Long id){

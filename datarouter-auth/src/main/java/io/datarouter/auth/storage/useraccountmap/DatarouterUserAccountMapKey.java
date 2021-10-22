@@ -20,8 +20,8 @@ import java.util.List;
 import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
-import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt63FieldKey;
+import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.web.user.databean.DatarouterUserKey;
 
@@ -39,13 +39,13 @@ public class DatarouterUserAccountMapKey extends BaseRegularPrimaryKey<Dataroute
 	}
 
 	private static class FieldKeys{
-		private static final UInt63FieldKey userId = new UInt63FieldKey("userId");
+		private static final LongFieldKey userId = new LongFieldKey("userId");
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
 		return List.of(
-				new UInt63Field(FieldKeys.userId, userId),
+				new LongField(FieldKeys.userId, userId),
 				new StringField(DatarouterAccountKey.FieldKeys.accountName, accountName));
 	}
 

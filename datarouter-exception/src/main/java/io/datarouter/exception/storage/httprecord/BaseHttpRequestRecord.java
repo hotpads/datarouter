@@ -46,7 +46,6 @@ import io.datarouter.model.serialize.fielder.Fielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.array.ArrayTool;
 import io.datarouter.util.serialization.GsonTool;
-import io.datarouter.util.string.StringTool;
 import io.datarouter.web.monitoring.exception.ExceptionDto;
 import io.datarouter.web.util.http.RecordedHttpHeaders;
 
@@ -585,6 +584,7 @@ extends BaseDatabean<PK,D>{
 		trimAcceptLanguage();
 		trimOrigin();
 		trimPragma();
+		trimAccept();
 	}
 
 	public void trimBinaryBody(int size){
@@ -624,18 +624,12 @@ extends BaseDatabean<PK,D>{
 		pragma = trimField(FieldKeys.pragma, pragma);
 	}
 
+	public void trimAccept(){
+		accept = trimField(FieldKeys.accept, accept);
+	}
+
 	private String trimField(StringFieldKey fieldKey, String field){
-		if(field == null){
-			return field;
-		}
-		int fieldSize = fieldKey.getSize();
-		int fieldValueLength = field.length();
-		if(fieldValueLength > fieldSize){
-			logger.warn("Trimmed {} to {} from {}, exceptionRecordId={}", fieldKey.getName(), fieldSize,
-					fieldValueLength, exceptionRecordId);
-			return StringTool.trimToSize(field, fieldSize);
-		}
-		return field;
+		return FieldTrimTool.trimField(fieldKey, field, "exceptionRecordId=" + exceptionRecordId);
 	}
 
 }

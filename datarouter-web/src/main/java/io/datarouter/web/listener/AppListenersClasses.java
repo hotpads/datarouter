@@ -24,7 +24,7 @@ public interface AppListenersClasses{
 	List<Class<? extends DatarouterAppListener>> getAppListenerClasses();
 
 	@Singleton
-	static class DatarouterAppListenersClasses implements AppListenersClasses{
+	class DatarouterAppListenersClasses implements AppListenersClasses{
 
 		private final List<Class<? extends DatarouterAppListener>> classes;
 

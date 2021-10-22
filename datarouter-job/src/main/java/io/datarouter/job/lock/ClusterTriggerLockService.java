@@ -47,7 +47,7 @@ public class ClusterTriggerLockService{
 	@Inject
 	private ServerName serverName;
 
-	public Outcome acquireJobAndTriggerLocks(TriggerLockConfig triggerLockConfig, Date triggerTime, Duration delay){
+	public Outcome acquireJobAndTriggerLocks(TriggerLockConfig triggerLockConfig, Instant triggerTime, Duration delay){
 		var jobLockAcquired = acquireJobLock(triggerLockConfig, triggerTime, delay);
 		if(jobLockAcquired.failed()){
 			return jobLockAcquired;
@@ -60,7 +60,7 @@ public class ClusterTriggerLockService{
 		return Outcome.success();
 	}
 
-	private Outcome acquireJobLock(TriggerLockConfig triggerLockConfig, Date triggerTime, Duration delay){
+	private Outcome acquireJobLock(TriggerLockConfig triggerLockConfig, Instant triggerTime, Duration delay){
 		logStrangeTriggerTime(triggerLockConfig.jobName, triggerTime);
 		ClusterJobLock jobLock = toJobLock(triggerLockConfig, triggerTime);
 		try{
@@ -79,7 +79,7 @@ public class ClusterTriggerLockService{
 		}
 	}
 
-	private Outcome acquireTriggerLock(TriggerLockConfig triggerLockConfig, Date triggerTime){
+	private Outcome acquireTriggerLock(TriggerLockConfig triggerLockConfig, Instant triggerTime){
 		ClusterTriggerLock triggerLock = toTriggerLock(triggerLockConfig, triggerTime);
 		try{
 			triggerLockDao.putAndAcquire(triggerLock);
@@ -97,7 +97,7 @@ public class ClusterTriggerLockService{
 		}
 	}
 
-	public void releaseJobLock(TriggerLockConfig triggerLockConfig, Date triggerTime){
+	public void releaseJobLock(TriggerLockConfig triggerLockConfig, Instant triggerTime){
 		ClusterJobLock jobLock = toJobLock(triggerLockConfig, triggerTime);
 		jobLockDao.delete(jobLock.getKey());
 		logAction(triggerLockConfig.jobName, triggerTime, "released clusterJobLock");
@@ -123,13 +123,13 @@ public class ClusterTriggerLockService{
 				.forEach(jobLockDao::delete);
 	}
 
-	public void releaseTriggerLock(String jobName, Date triggerTime){
-		ClusterTriggerLockKey key = new ClusterTriggerLockKey(jobName, triggerTime);
+	public void releaseTriggerLock(String jobName, Instant triggerTime){
+		ClusterTriggerLockKey key = new ClusterTriggerLockKey(jobName, Date.from(triggerTime));
 		triggerLockDao.delete(key);
 		logger.info("releasing clusterTriggerLock {}, {}", key.getJobName(), key.getTriggerTime());
 	}
 
-	public void tryReleasingJobAndTriggerLocks(TriggerLockConfig triggerLockConfig, Date triggerTime){
+	public void tryReleasingJobAndTriggerLocks(TriggerLockConfig triggerLockConfig, Instant triggerTime){
 		try{
 			releaseTriggerLock(triggerLockConfig.jobName, triggerTime);
 		}catch(Exception e){
@@ -142,24 +142,25 @@ public class ClusterTriggerLockService{
 		}
 	}
 
-	private ClusterJobLock toJobLock(TriggerLockConfig triggerLockConfig, Date triggerTime){
+	private ClusterJobLock toJobLock(TriggerLockConfig triggerLockConfig, Instant triggerTime){
 		return toTriggerLock(triggerLockConfig, triggerTime).toClusterJobLock();
 	}
 
-	private ClusterTriggerLock toTriggerLock(TriggerLockConfig triggerLockConfig, Date triggerTime){
+	private ClusterTriggerLock toTriggerLock(TriggerLockConfig triggerLockConfig, Instant triggerTime){
+		Date dateTriggerTime = Date.from(triggerTime);
 		String lockName = triggerLockConfig.jobName;
-		Instant deadline = triggerLockConfig.getSoftDeadline(triggerTime);//should we use hard or soft deadline?
+		Instant deadline = triggerLockConfig.getSoftDeadline(dateTriggerTime);//should we use hard or soft deadline?
 		Date expirationTime = Date.from(deadline);
-		return new ClusterTriggerLock(lockName, triggerTime, expirationTime, serverName.get());
+		return new ClusterTriggerLock(lockName, dateTriggerTime, expirationTime, serverName.get());
 	}
 
-	private void logAction(String jobName, Date triggerTime, String action){
-		String logName = jobName + "-" + DateTool.formatAlphanumeric(triggerTime.getTime());
+	private void logAction(String jobName, Instant triggerTime, String action){
+		String logName = jobName + "-" + DateTool.formatAlphanumeric(triggerTime.toEpochMilli());
 		logger.info("{} {} lockId {}", serverName.get(), action, logName);
 	}
 
-	private static void logStrangeTriggerTime(String jobName, Date triggerTime){
-		long ms = triggerTime.getTime() % 1000;
+	private static void logStrangeTriggerTime(String jobName, Instant triggerTime){
+		long ms = triggerTime.toEpochMilli() % 1000;
 		if(ms != 0){
 			logger.info("{} had unexpected partial second triggerTime:{} with {}ms", jobName, triggerTime, ms);
 		}

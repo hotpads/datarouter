@@ -214,6 +214,8 @@ public abstract class BaseManagedIndexIntegrationTests{
 		TestDatabeanWithManagedIndexByBar previous = null;
 		int count = 0;
 		for(TestDatabeanWithManagedIndexByBar indexEntry : genericDao.scanByB().iterable()){
+			Assert.assertNotNull(indexEntry.getKey().getBar());
+			Assert.assertNotNull(indexEntry.getFoo());
 			if(previous != null){
 				Assert.assertTrue(indexEntry.getKey().compareTo(previous.getKey()) >= 0);
 			}

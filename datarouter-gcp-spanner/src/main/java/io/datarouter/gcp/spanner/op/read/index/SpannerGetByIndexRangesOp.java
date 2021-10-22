@@ -62,7 +62,6 @@ extends SpannerBaseReadIndexOp<PK,D>{
 	@Override
 	public List<D> wrappedCall(){
 		Integer offset = config.findOffset().orElse(0);
-		ResultSet databeanRs;
 		List<PK> keyList;
 		List<D> databeans;
 		try(ReadOnlyTransaction txn = client.readOnlyTransaction()){
@@ -86,6 +85,7 @@ extends SpannerBaseReadIndexOp<PK,D>{
 					rs,
 					fieldInfo.getPrimaryKeySupplier(),
 					fieldInfo.getPrimaryKeyFields());
+			ResultSet databeanRs;
 			if(config.getLimit() != null){
 				databeanRs = txn.read(
 						tableName,

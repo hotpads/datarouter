@@ -15,6 +15,7 @@
  */
 package io.datarouter.job.storage.clusterjoblock;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -82,6 +83,10 @@ public class DatarouterClusterJobLockDao extends BaseDao{
 
 	public void delete(ClusterJobLockKey key){
 		node.delete(key);
+	}
+
+	public void deleteMulti(Collection<ClusterJobLockKey> keys){
+		node.deleteMulti(keys);
 	}
 
 	public Scanner<ClusterJobLock> scan(){

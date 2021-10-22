@@ -43,7 +43,7 @@ public class DatarouterPropertiesService{
 	@Inject
 	private AdminEmail adminEmail;
 	@Inject
-	private EnvironmentName enviornmenteName;
+	private EnvironmentName environmentName;
 	@Inject
 	private EnvironmentDomain environmentDomain;
 	@Inject
@@ -68,7 +68,7 @@ public class DatarouterPropertiesService{
 	public List<Twin<String>> getAllProperties(){
 		return Scanner.of(
 				Twin.of(AdminEmail.ADMINISTRATOR_EMAIL, adminEmail.get()),
-				Twin.of(EnvironmentName.ENVIRONMENT, enviornmenteName.get()),
+				Twin.of(EnvironmentName.ENVIRONMENT, environmentName.get()),
 				Twin.of(EnvironmentDomain.ENVIRONMENT_DOMAIN, environmentDomain.get()),
 				Twin.of(DatarouterEnvironmentTypeSupplier.ENVIRONMENT_TYPE, environmentType.get()),
 				Twin.of(InternalConfigDirectory.INTERNAL_CONFIG_DIRECTORY, internalConfigDirectory.get()),
@@ -89,7 +89,7 @@ public class DatarouterPropertiesService{
 
 	public void assertRequired(){
 		Require.notNull(adminEmail.get());
-		Require.notNull(enviornmenteName.get());
+		Require.notNull(environmentName.get());
 		Require.notNull(environmentType.get());
 		Require.notNull(serverName.get());
 		Require.notNull(serverType.get());

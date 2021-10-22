@@ -26,10 +26,6 @@ import io.datarouter.model.field.imp.array.PrimitiveLongArrayField;
 @Deprecated
 public class PrimitiveLongArrayMysqlFieldCodec extends BaseMysqlFieldCodec<long[],PrimitiveLongArrayField>{
 
-	public PrimitiveLongArrayMysqlFieldCodec(){
-		this(null);
-	}
-
 	public PrimitiveLongArrayMysqlFieldCodec(PrimitiveLongArrayField field){
 		super(field);
 	}

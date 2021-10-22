@@ -23,10 +23,6 @@ import io.datarouter.model.field.imp.positive.UInt7Field;
 
 public class UInt7MysqlFieldCodec extends BaseByteMysqlFieldCodec<UInt7Field>{
 
-	public UInt7MysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public UInt7MysqlFieldCodec(UInt7Field field){
 		super(field);
 	}

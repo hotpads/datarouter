@@ -39,14 +39,9 @@ extends BaseMysqlFieldCodec<String,StringField>{
 	public static final MysqlCharacterSet DEFAULT_CHARACTER_SET = MysqlCharacterSet.utf8mb4;
 	public static final MysqlCollation DEFAULT_COLLATION = MysqlCollation.utf8mb4_bin;
 
-	public StringMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public StringMysqlFieldCodec(StringField field){
 		super(field);
 	}
-
 
 	@Override
 	public SqlColumn getSqlColumnDefinition(boolean allowNullable){

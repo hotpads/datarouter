@@ -17,11 +17,12 @@ package io.datarouter.secret.op;
 
 import java.util.Optional;
 
+import io.datarouter.secret.client.SecretClientOp;
 import io.datarouter.util.Require;
 
-public class SecretOpInfo{
+public class SecretOpInfo<I,O>{
 
-	public final SecretOpType op;
+	public final SecretClientOp<I,O> clientOp;
 	public final String namespace;
 	public final String name;
 	public final SecretOpReason reason;
@@ -29,25 +30,25 @@ public class SecretOpInfo{
 	public final boolean shouldLog;
 	public final Optional<String> targetSecretClientConfig;
 
-	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason){
-		this(op, namespace, name, reason, false, true);
+	public SecretOpInfo(SecretClientOp<I,O> clientOp, String namespace, String name, SecretOpReason reason){
+		this(clientOp, namespace, name, reason, false, true);
 	}
 
-	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason, boolean shouldRecord,
-			boolean shouldLog){
-		this(op, namespace, name, reason, shouldRecord, shouldLog, Optional.empty());
+	public SecretOpInfo(SecretClientOp<I,O> clientOp, String namespace, String name, SecretOpReason reason,
+			boolean shouldRecord, boolean shouldLog){
+		this(clientOp, namespace, name, reason, shouldRecord, shouldLog, Optional.empty());
 	}
 
-	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason,
+	public SecretOpInfo(SecretClientOp<I,O> clientOp, String namespace, String name, SecretOpReason reason,
 			Optional<String> targetSecretClientConfig){
-		this(op, namespace, name, reason, false, true, targetSecretClientConfig);
+		this(clientOp, namespace, name, reason, false, true, targetSecretClientConfig);
 	}
 
-	public SecretOpInfo(SecretOpType op, String namespace, String name, SecretOpReason reason, boolean shouldRecord,
-			boolean shouldLog, Optional<String> targetSecretClientConfig){
-		Require.noNulls(op, namespace, name, reason, targetSecretClientConfig);
+	public SecretOpInfo(SecretClientOp<I,O> clientOp, String namespace, String name, SecretOpReason reason,
+			boolean shouldRecord, boolean shouldLog, Optional<String> targetSecretClientConfig){
+		Require.noNulls(clientOp, namespace, name, reason, targetSecretClientConfig);
 
-		this.op = op;
+		this.clientOp = clientOp;
 		this.namespace = namespace;
 		this.name = name;
 		this.reason = reason;
@@ -62,8 +63,8 @@ public class SecretOpInfo{
 
 	@Override
 	public String toString(){
-		return String.format("{op=%s, namespace=%s, name=%s, reason=\"%s\" targetSecretClientConfig=%s}", op.name(),
-				namespace, name, reason, targetSecretClientConfig.orElse(""));
+		return String.format("{op=%s, namespace=%s, name=%s, reason=\"%s\" targetSecretClientConfig=%s}", clientOp
+				.getOpType().name(), namespace, name, reason, targetSecretClientConfig.orElse(""));
 	}
 
 }

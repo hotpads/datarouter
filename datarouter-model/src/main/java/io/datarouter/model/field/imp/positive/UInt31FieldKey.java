@@ -22,6 +22,10 @@ import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
+/**
+ * @deprecated use IntegerFieldKey
+ */
+@Deprecated
 public class UInt31FieldKey extends PrimitiveFieldKey<Integer,UInt31FieldKey>{
 
 	public UInt31FieldKey(String name){

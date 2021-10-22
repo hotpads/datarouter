@@ -30,10 +30,6 @@ import io.datarouter.model.field.imp.comparable.FloatField;
 public class FloatMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Float,Field<Float>>{
 
-	public FloatMysqlFieldCodec(){//no-arg for reflection
-		this((FloatField)null);
-	}
-
 	public FloatMysqlFieldCodec(FloatField field){
 		super(field);
 	}

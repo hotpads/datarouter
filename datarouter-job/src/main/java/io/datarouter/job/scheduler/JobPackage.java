@@ -30,12 +30,12 @@ import io.datarouter.job.lock.TriggerLockConfig;
 //TODO Job system currently limited to one class simpleName
 public class JobPackage implements Comparable<JobPackage>{
 
-	private final Optional<CronExpression> cronExpression;
+	private final CronExpression cronExpression;
 
 	public final String jobCategoryName;
 	public final Supplier<Boolean> shouldRunSupplier;
 	public final Class<? extends BaseJob> jobClass;
-	public final Optional<TriggerLockConfig> triggerLockConfig;
+	public final TriggerLockConfig triggerLockConfig;
 	public final boolean shouldRunDetached;
 	public final DetachedJobResource detachedJobResource;
 
@@ -69,9 +69,10 @@ public class JobPackage implements Comparable<JobPackage>{
 
 	public static JobPackage createManualFromScheduledPackage(JobPackage scheduled){
 		//if the job normally requires locking, then the manual trigger will respect that, but there is no deadline
-		TriggerLockConfig manualTriggerLockConfig = scheduled.triggerLockConfig
-				.map(trigger -> new TriggerLockConfig(trigger.jobName, null, Duration.ofSeconds(Long.MAX_VALUE), false))
-				.orElse(null);
+		TriggerLockConfig manualTriggerLockConfig = scheduled.triggerLockConfig != null
+				? new TriggerLockConfig(
+						scheduled.triggerLockConfig.jobName, null, Duration.ofSeconds(Long.MAX_VALUE), false)
+				: null;
 		return new JobPackage(scheduled.jobCategoryName, null, () -> true, scheduled.jobClass, manualTriggerLockConfig,
 				scheduled.shouldRunDetached, scheduled.detachedJobResource);
 	}
@@ -94,10 +95,10 @@ public class JobPackage implements Comparable<JobPackage>{
 			boolean shouldRunDetached,
 			DetachedJobResource detachedJobResource){
 		this.jobCategoryName = jobCategoryName;
-		this.cronExpression = Optional.ofNullable(cronExpression);
+		this.cronExpression = cronExpression;
 		this.shouldRunSupplier = shouldRunSupplier;
 		this.jobClass = jobClass;
-		this.triggerLockConfig = Optional.ofNullable(triggerLockConfig);
+		this.triggerLockConfig = triggerLockConfig;
 		this.shouldRunDetached = shouldRunDetached;
 		this.detachedJobResource = detachedJobResource;
 	}
@@ -107,31 +108,31 @@ public class JobPackage implements Comparable<JobPackage>{
 	}
 
 	public Optional<String> getCronExpressionString(){
-		return cronExpression.map(CronExpression::toString);
+		return Optional.ofNullable(cronExpression).map(CronExpression::toString);
 	}
 
 	public Optional<CronExpression> getCronExpression(){
-		return cronExpression;
+		return Optional.ofNullable(cronExpression);
 	}
 
 	public Optional<Date> getNextValidTimeAfter(Date date){
-		return cronExpression.map(cronExpression -> cronExpression.getNextValidTimeAfter(date));
+		return Optional.ofNullable(cronExpression).map(cronExpression -> cronExpression.getNextValidTimeAfter(date));
 	}
 
 	public boolean usesLocking(){
-		return triggerLockConfig.isPresent();
+		return triggerLockConfig != null;
 	}
 
-	public Optional<Instant> getSoftDeadline(Date triggerTime){
-		return triggerLockConfig.map(config -> config.getSoftDeadline(triggerTime));
+	public Optional<Instant> getSoftDeadline(Instant triggerTime){
+		return Optional.ofNullable(triggerLockConfig).map(config -> config.getSoftDeadline(Date.from(triggerTime)));
 	}
 
-	public Optional<Instant> getHardDeadline(Date triggerTime){
-		return triggerLockConfig.map(config -> config.getHardDeadline(triggerTime));
+	public Optional<Instant> getHardDeadline(Instant triggerTime){
+		return Optional.ofNullable(triggerLockConfig).map(config -> config.getHardDeadline(Date.from(triggerTime)));
 	}
 
 	public Optional<Boolean> getWarnOnReachingDuration(){
-		return triggerLockConfig.map(config -> config.warnOnReachingMaxDuration);
+		return Optional.ofNullable(triggerLockConfig).map(config -> config.warnOnReachingMaxDuration);
 	}
 
 	@Override

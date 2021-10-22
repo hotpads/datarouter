@@ -28,10 +28,6 @@ import io.datarouter.model.field.Field;
 
 public class IntegerMysqlFieldCodec extends BasePrimitiveMysqlFieldCodec<Integer,Field<Integer>>{
 
-	public IntegerMysqlFieldCodec(){// no-arg for reflection
-		this(null);
-	}
-
 	public IntegerMysqlFieldCodec(Field<Integer> field){
 		super(field);
 	}

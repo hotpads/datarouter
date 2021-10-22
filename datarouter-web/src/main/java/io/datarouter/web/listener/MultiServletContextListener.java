@@ -60,6 +60,7 @@ public abstract class MultiServletContextListener implements ServletContextListe
 		Collections.reverse(listeners);
 		PhaseTimer timer = new PhaseTimer();
 		listeners.forEach(listener -> {
+			logger.warn("shutting down {}", listener.getClass().getSimpleName());
 			listener.contextDestroyed(sce);
 			timer.add(listener.getClass().getSimpleName());
 		});

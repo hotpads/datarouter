@@ -17,53 +17,61 @@ package io.datarouter.secret.client;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.secret.exception.SecretClientException;
 import io.datarouter.secret.exception.SecretValidationException;
+import io.datarouter.secret.op.SecretOpType;
 
 public abstract class SecretClientOp<I,O>{
 
 	private final String validationCounterName;
 	private final String opCounterName;
-	private final Optional<Consumer<I>> validationMethod;
-	private final Function<I,O> opMethod;
+	private final Optional<BiConsumer<SecretClient,I>> validationMethod;
+	private final BiFunction<SecretClient,I,O> opMethod;
+	private final SecretOpType opType;
 
-	public SecretClientOp(String opCounterName, Function<I,O> opMethod){
-		this(null, opCounterName, Optional.empty(), opMethod);
+	public SecretClientOp(String opCounterName, BiFunction<SecretClient,I,O> opMethod, SecretOpType opType){
+		this(null, opCounterName, Optional.empty(), opMethod, opType);
 	}
 
-	public SecretClientOp(String validationCounterName, String opCounterName, Consumer<I> validationMethod,
-			Function<I,O> opMethod){
-		this(validationCounterName, opCounterName, Optional.of(validationMethod), opMethod);
+	public SecretClientOp(String validationCounterName, String opCounterName,
+			BiConsumer<SecretClient,I> validationMethod, BiFunction<SecretClient,I,O> opMethod, SecretOpType opType){
+		this(validationCounterName, opCounterName, Optional.of(validationMethod), opMethod, opType);
 	}
 
 	private SecretClientOp(String validationCounterName, String opCounterName,
-			Optional<Consumer<I>> validationMethod, Function<I,O> opMethod){
+			Optional<BiConsumer<SecretClient,I>> validationMethod, BiFunction<SecretClient,I,O> opMethod,
+			SecretOpType opType){
 		this.validationCounterName = validationCounterName;
 		this.opCounterName = opCounterName;
 		this.validationMethod = validationMethod;
 		this.opMethod = opMethod;
+		this.opType = opType;
 	}
 
-	public SecretClientOpResult<O> validateAndExecute(I input){
+	public SecretOpType getOpType(){
+		return opType;
+	}
+
+	public SecretClientOpResult<O> validateAndExecute(SecretClient secretClient, I input){
 		try{
 			validationMethod.ifPresent(validator -> {
-				validator.accept(input);
+				validator.accept(secretClient, input);
 				countSuccess(validationCounterName);
 			});
 		}catch(RuntimeException e){
 			countError(validationCounterName, e);
 			return SecretClientOpResult.validationError(new SecretValidationException(e));
 		}
-		return execute(input);
+		return execute(secretClient, input);
 	}
 
-	private SecretClientOpResult<O> execute(I input){
+	private SecretClientOpResult<O> execute(SecretClient secretClient, I input){
 		try{
-			O opResult = opMethod.apply(input);
+			O opResult = opMethod.apply(secretClient, input);
 			countSuccess(opCounterName);
 			return SecretClientOpResult.opSuccess(opResult);
 		}catch(SecretClientException e){
@@ -100,9 +108,9 @@ public abstract class SecretClientOp<I,O>{
 				.forEach(Counters::inc);
 	}
 
-	static <I> Function<I,Void> wrapVoid(Consumer<I> function){
-		return input -> {
-			function.accept(input);
+	static <I> BiFunction<SecretClient,I,Void> wrapVoid(BiConsumer<SecretClient,I> function){
+		return (secretClient, input) -> {
+			function.accept(secretClient, input);
 			return null;
 		};
 	}

@@ -126,7 +126,7 @@ implements WebappBuilder{
 	private Class<? extends UserSessionService> userSessionService;
 	private Class<? extends DatarouterAuthenticationConfig> authenticationConfig;
 	private Class<? extends DatarouterUserExternalDetailService> datarouterUserExternalDetail;
-	private Class<? extends HomepageRouteSet> homepageRouteSet = DefaultHomepageRouteSet.class;
+	private Class<? extends HomepageRouteSet> homepageRouteSet;
 	private Class<? extends HomepageHandler> homepageHandler;
 	private String customStaticFileFilterRegex;
 	private String nodeWidgetDatabeanExporterLink;

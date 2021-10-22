@@ -23,4 +23,8 @@ public interface DatarouterAppListener{
 	default void onShutDown(){
 	}
 
+	default boolean safeToShutdownInParallel(){
+		return true;
+	}
+
 }

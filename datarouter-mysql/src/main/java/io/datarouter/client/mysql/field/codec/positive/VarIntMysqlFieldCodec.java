@@ -26,11 +26,7 @@ import io.datarouter.model.field.imp.positive.VarIntField;
 public class VarIntMysqlFieldCodec
 extends BasePrimitiveMysqlFieldCodec<Integer,VarIntField>{
 
-	private UInt31MysqlFieldCodec uint31MysqlFieldCodec;
-
-	public VarIntMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
+	private final UInt31MysqlFieldCodec uint31MysqlFieldCodec;
 
 	public VarIntMysqlFieldCodec(VarIntField field){
 		super(field);

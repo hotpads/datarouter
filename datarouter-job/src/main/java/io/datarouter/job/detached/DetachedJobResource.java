@@ -15,23 +15,25 @@
  */
 package io.datarouter.job.detached;
 
+import java.util.Objects;
+
 public class DetachedJobResource{
 
-	private final Integer cpuMilli;
-	private final Integer memoryMb;
+	private final int cpuMilli;
+	private final int memoryMb;
 	private final String targetCluster;
 
-	private DetachedJobResource(Integer cpuMilli, Integer memoryMb, String targetCluster){
+	private DetachedJobResource(int cpuMilli, int memoryMb, String targetCluster){
 		this.cpuMilli = cpuMilli;
 		this.memoryMb = memoryMb;
 		this.targetCluster = targetCluster;
 	}
 
-	public Integer getCpuMilli(){
+	public int getCpuMilli(){
 		return cpuMilli;
 	}
 
-	public Integer getMemoryMb(){
+	public int getMemoryMb(){
 		return memoryMb;
 	}
 
@@ -43,6 +45,13 @@ public class DetachedJobResource{
 		private Integer cpuMilli = null;
 		private Integer memoryMb = null;
 		private String targetCluster = null;
+
+		public DetachedJobResourceBuilder withResource(DetachedJobResource resource){
+			this.cpuMilli = resource.getCpuMilli();
+			this.memoryMb = resource.getMemoryMb();
+			this.targetCluster = resource.getTargetCluster();
+			return this;
+		}
 
 		public DetachedJobResourceBuilder withCpuMilli(Integer cpuMilli){
 			this.cpuMilli = cpuMilli;
@@ -60,6 +69,8 @@ public class DetachedJobResource{
 		}
 
 		public DetachedJobResource build(){
+			Objects.requireNonNull(cpuMilli, "cpuMilli");
+			Objects.requireNonNull(memoryMb, "memoryMb");
 			return new DetachedJobResource(cpuMilli, memoryMb, targetCluster);
 		}
 	}

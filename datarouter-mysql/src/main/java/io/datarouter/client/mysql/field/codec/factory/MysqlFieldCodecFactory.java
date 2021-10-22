@@ -25,7 +25,7 @@ public interface MysqlFieldCodecFactory{
 
 	boolean hasCodec(Class<?> fieldType);
 
-	MysqlFieldCodec<?> createCodec(Field<?> field);
+	<C extends MysqlFieldCodec<?>,F extends Field<?>> C createCodec(F field);
 
 	List<MysqlFieldCodec<?>> createCodecs(Collection<Field<?>> fields);
 

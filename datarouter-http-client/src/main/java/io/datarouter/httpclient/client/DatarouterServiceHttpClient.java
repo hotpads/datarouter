@@ -46,7 +46,7 @@ public interface DatarouterServiceHttpClient extends DatarouterHttpClient{
 			Conditional<Object> healthcheckResponse = checkHealth();
 			if(healthcheckResponse.isFailure()){
 				logger.warn("{} is unavailable", endpoint.getClass().getSimpleName());
-				return Conditional.failure(new Exception("healthcheck fialed"), healthCheckFailureResponse);
+				return Conditional.failure(new Exception("healthcheck failed"), healthCheckFailureResponse);
 			}
 		}
 		return call(endpoint);

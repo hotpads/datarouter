@@ -15,9 +15,13 @@
  */
 package io.datarouter.web.listener;
 
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -26,8 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.inject.DatarouterInjector;
+import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.util.concurrent.ExecutorServiceTool;
+import io.datarouter.util.concurrent.NamedThreadFactory;
 import io.datarouter.util.timer.PhaseTimer;
+import io.datarouter.util.tuple.Pair;
 import io.datarouter.web.inject.InjectorRetriever;
 
 /**
@@ -40,6 +48,7 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 	private final List<Class<? extends DatarouterAppListener>> listenerClasses;
 	private final List<Class<? extends DatarouterWebAppListener>> webListenerClasses;
 	private final List<DatarouterAppListener> listenersToShutdown;
+	private final List<Pair<ShutdownMode,List<DatarouterAppListener>>> listenersByShutdownMods;
 
 	public BaseDatarouterServletContextListener(
 			List<Class<? extends DatarouterAppListener>> listenerClasses,
@@ -47,6 +56,7 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 		this.listenerClasses = listenerClasses;
 		this.webListenerClasses = webListenerClasses;
 		this.listenersToShutdown = new ArrayList<>();
+		this.listenersByShutdownMods = new ArrayList<>();
 	}
 
 	@Override
@@ -69,20 +79,63 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 				.map(Class::getSimpleName)
 				.forEach(timer::add);
 		logger.warn("startUp {}", timer);
+
+		Scanner.of(listenersToShutdown)
+				.reverse()
+				.splitBy(DatarouterAppListener::safeToShutdownInParallel)
+				.map(Scanner::list)
+				.map(listeners -> new Pair<>(
+						listeners.get(0).safeToShutdownInParallel() ? ShutdownMode.PARALLEL : ShutdownMode.SYNCHRONOUS,
+						listeners))
+				.forEach(listenersByShutdownMods::add);
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent event){
-		Collections.reverse(listenersToShutdown);
+		ThreadFactory factory = new NamedThreadFactory("datarouterListenerShutdownExecutor", false);
+		ExecutorService executor = Executors.newFixedThreadPool(listenersToShutdown.size(), factory);
 		var timer = new PhaseTimer();
-		Scanner.of(listenersToShutdown)
-				.each(listener -> logger.warn("shuting down {}", listener.getClass().getSimpleName()))
-				.each(DatarouterAppListener::onShutDown)
-				.map(Object::getClass)
-				.map(Class::getSimpleName)
-				.forEach(timer::add);
+		for(Pair<ShutdownMode,List<DatarouterAppListener>> listenersByShutdownMode : listenersByShutdownMods){
+			List<DatarouterAppListener> listeners = listenersByShutdownMode.getRight();
+			ShutdownMode shutdownMode = listenersByShutdownMode.getLeft();
+			logger.warn("shutting down {}: [{}", shutdownMode.display, listeners.stream()
+					.map(listener -> listener.getClass().getSimpleName())
+					.collect(Collectors.joining(", ")) + "]");
+			if(shutdownMode == ShutdownMode.SYNCHRONOUS){
+				Scanner.of(listeners)
+						.each(listener -> logger.warn("shutting down: {}", listener.getClass().getSimpleName()))
+						.each(DatarouterAppListener::onShutDown)
+						.map(Object::getClass)
+						.map(Class::getSimpleName)
+						.forEach(timer::add);
+			}else if(shutdownMode == ShutdownMode.PARALLEL){
+				Scanner.of(listeners)
+						.parallel(new ParallelScannerContext(executor, listeners.size(), true))
+						.each(listener -> {
+							logger.warn("shutting down: {}", listener.getClass().getSimpleName());
+							listener.onShutDown();
+						})
+						.map(Object::getClass)
+						.map(Class::getSimpleName)
+						.forEach(timer::add);
+			}
+		}
 		logger.warn("shutDown {}", timer);
+		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(2));
+		listenersByShutdownMods.clear();
 		listenersToShutdown.clear();
+	}
+
+	private enum ShutdownMode{
+		SYNCHRONOUS("synchronously"),
+		PARALLEL("in parallel");
+
+		public final String display;
+
+		ShutdownMode(String display){
+			this.display = display;
+		}
+
 	}
 
 }

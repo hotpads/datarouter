@@ -36,4 +36,9 @@ public class InitializeEagerClientsAppListener implements DatarouterAppListener{
 		datarouterClients.initializeEagerClients();
 	}
 
+	@Override
+	public boolean safeToShutdownInParallel(){
+		return false;
+	}
+
 }

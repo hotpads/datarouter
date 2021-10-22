@@ -17,6 +17,7 @@ package io.datarouter.client.mysql.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import io.datarouter.client.mysql.config.MysqlSchemaProvider.GenericMysqlSchemaProvider;
 import io.datarouter.client.mysql.field.MysqlFieldCodec;
@@ -28,11 +29,14 @@ import io.datarouter.model.field.Field;
 
 public class DatarouterMysqlPlugin extends BaseJobPlugin{
 
-	private final Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByField;
+	private final Map<
+			Class<? extends Field<?>>,
+			Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> additionalCodecClassByField;
 	private final boolean isPrimarySchema;
 
-	private DatarouterMysqlPlugin(
-			Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> additionalCodecClassByField,
+	private DatarouterMysqlPlugin(Map<
+			Class<? extends Field<?>>,
+			Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> additionalCodecClassByField,
 					boolean isPrimarySchema){
 		this.additionalCodecClassByField = additionalCodecClassByField;
 		this.isPrimarySchema = isPrimarySchema;
@@ -51,13 +55,15 @@ public class DatarouterMysqlPlugin extends BaseJobPlugin{
 
 	public static class DatarouterMysqlPluginBuilder{
 
-		private Map<Class<? extends Field<?>>,Class<? extends MysqlFieldCodec<?>>> codecsByField = new HashMap<>();
+		private final Map<
+				Class<? extends Field<?>>,
+				Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> codecsByField = new HashMap<>();
 		private boolean isPrimarySchema = true;
 
-		public DatarouterMysqlPluginBuilder addMysqlFieldCodec(
-				Class<? extends Field<?>> field,
-				Class<? extends MysqlFieldCodec<?>> codec){
-			codecsByField.put(field, codec);
+		public <F extends Field<?>,C extends MysqlFieldCodec<?>> DatarouterMysqlPluginBuilder addCodec(
+				Class<F> fieldClass,
+				Function<F,C> codecSupplier){
+			codecsByField.put(fieldClass, codecSupplier);
 			return this;
 		}
 

@@ -27,7 +27,6 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.instrumentation.task.TaskStatus;
 import io.datarouter.instrumentation.trace.Tracer;
 import io.datarouter.instrumentation.trace.TracerThreadLocal;
 import io.datarouter.job.BaseJob;
@@ -56,8 +55,8 @@ public class JobWrapper implements Callable<Void>{
 		public JobWrapper createScheduled(
 				JobPackage jobPackage,
 				BaseJob job,
-				Date triggerTime,
-				Date scheduledTime,
+				Instant triggerTime,
+				Instant scheduledTime,
 				String triggeredBy){
 			return new JobWrapper(
 					jobPackage,
@@ -73,8 +72,8 @@ public class JobWrapper implements Callable<Void>{
 		public JobWrapper createRetriggered(
 				JobPackage jobPackage,
 				BaseJob job,
-				Date triggerTime,
-				Date scheduledTime,
+				Instant triggerTime,
+				Instant scheduledTime,
 				String triggeredBy){
 			return new JobWrapper(
 					jobPackage,
@@ -88,7 +87,7 @@ public class JobWrapper implements Callable<Void>{
 		}
 
 		public JobWrapper createManual(JobPackage jobPackage, BaseJob job, String triggeredBy){
-			Date now = new Date();
+			Instant now = Instant.now();
 			return new JobWrapper(
 					jobPackage,
 					longRunningTaskTrackerFactory,
@@ -101,7 +100,7 @@ public class JobWrapper implements Callable<Void>{
 		}
 
 		public JobWrapper createRequestTriggered(BaseJob job, String triggeredBy){
-			Date now = new Date();
+			Instant now = Instant.now();
 			return new JobWrapper(longRunningTaskTrackerFactory, jobCounters, job, now, now, false, triggeredBy);
 		}
 	}
@@ -111,23 +110,21 @@ public class JobWrapper implements Callable<Void>{
 	//final fields
 	public final JobPackage jobPackage;
 	public final BaseJob job;
-	public final Date triggerTime;//time the job should run, used for locking
-	public final Date scheduledTime;//can be different from triggerTime if a job is scheduled late
+	public final Instant triggerTime;//time the job should run, used for locking
+	public final Instant scheduledTime;//can be different from triggerTime if a job is scheduled late
 	public final boolean reschedule;//not created by the normal scheduler
 	public final String triggeredBy;
 	protected final LongRunningTaskTracker tracker;
 	//convenience
 	public final Class<? extends BaseJob> jobClass;
-	//mutable tracking fields
-	public Instant startedAt;
 
 	private JobWrapper(
 			JobPackage jobPackage,
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
 			JobCounters jobCounters,
 			BaseJob job,
-			Date triggerTime,
-			Date scheduledTime,
+			Instant triggerTime,
+			Instant scheduledTime,
 			boolean reschedule,
 			String triggeredBy){
 		this(
@@ -138,15 +135,16 @@ public class JobWrapper implements Callable<Void>{
 				scheduledTime,
 				reschedule,
 				triggeredBy,
-				initTracker(jobPackage, scheduledTime, longRunningTaskTrackerFactory, triggeredBy, job.getClass()));
+				initTracker(jobPackage, job.getClass(), triggerTime, scheduledTime, longRunningTaskTrackerFactory,
+						triggeredBy));
 	}
 
 	protected JobWrapper(
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
 			JobCounters jobCounters,
 			BaseJob job,
-			Date triggerTime,
-			Date scheduledTime,
+			Instant triggerTime,
+			Instant scheduledTime,
 			boolean reschedule,
 			String triggeredBy){
 		this(
@@ -157,16 +155,16 @@ public class JobWrapper implements Callable<Void>{
 				scheduledTime,
 				reschedule,
 				triggeredBy,
-				longRunningTaskTrackerFactory.create(
-						job.getClass(), LongRunningTaskType.JOB, null, false, triggeredBy));
+				initTracker(null, job.getClass(), triggerTime, scheduledTime, longRunningTaskTrackerFactory,
+						triggeredBy));
 	}
 
 	protected JobWrapper(
 			JobPackage jobPackage,
 			JobCounters jobCounters,
 			BaseJob job,
-			Date triggerTime,
-			Date scheduledTime,
+			Instant triggerTime,
+			Instant scheduledTime,
 			boolean reschedule,
 			String triggeredBy,
 			LongRunningTaskTracker taskTracker){
@@ -196,10 +194,8 @@ public class JobWrapper implements Callable<Void>{
 		tracker.requestStop();
 	}
 
-	public void setStatusFinishTimeAndPersist(LongRunningTaskStatus status){
-		tracker.onFinish();
-		tracker.setStatus(status.getStatus());
-		tryPersistTracker();
+	public void finishWithStatus(LongRunningTaskStatus status){
+		tracker.onFinish(status.getStatus());
 	}
 
 	public void setExceptionRecordId(String exceptionRecordId){
@@ -208,18 +204,25 @@ public class JobWrapper implements Callable<Void>{
 
 	private static LongRunningTaskTracker initTracker(
 			JobPackage jobPackage,
-			Date triggerTime,
+			Class<? extends BaseJob> jobClass,
+			Instant triggerTime,
+			Instant scheduledTime,
 			LongRunningTaskTrackerFactory longRunningTaskTrackerFactory,
-			String triggeredBy,
-			Class<? extends BaseJob> jobClass){
-		Instant deadline = jobPackage.getSoftDeadline(triggerTime).orElse(null);
-		boolean warnOnReachingDeadline = jobPackage.getWarnOnReachingDuration().orElse(false);
+			String triggeredBy){
+		Instant deadline = Optional.ofNullable(jobPackage)
+				.flatMap(jp -> jp.getSoftDeadline(triggerTime))
+				.orElse(null);
+		boolean warnOnReachingDeadline = Optional.ofNullable(jobPackage)
+				.flatMap(JobPackage::getWarnOnReachingDuration)
+				.orElse(false);
 		return longRunningTaskTrackerFactory.create(
 				jobClass,
 				LongRunningTaskType.JOB,
 				deadline,
 				warnOnReachingDeadline,
-				triggeredBy);
+				triggeredBy)
+				.setTriggerTime(triggerTime)
+				.setScheduledTime(scheduledTime);
 	}
 
 	protected void startTraceSummary(){
@@ -238,20 +241,12 @@ public class JobWrapper implements Callable<Void>{
 
 	protected void trackBefore(){
 		jobCounters.started(jobClass);
-		startedAt = Instant.now();
-		tracker.setStartTime(startedAt);
-		tracker.setStatus(TaskStatus.RUNNING);
-		tracker.setScheduledTime(scheduledTime.toInstant());
-		tracker.doReportTasks();
+		tracker.onStart();
 	}
 
 	protected void trackAfter(){
 		jobCounters.finished(jobClass);
 		tracker.onFinish();
-		if(tracker.getStatus() == TaskStatus.RUNNING){
-			tracker.setStatus(TaskStatus.SUCCESS);
-		}
-		tryPersistTracker();
 	}
 
 	private void tryPersistTracker(){
@@ -263,17 +258,18 @@ public class JobWrapper implements Callable<Void>{
 	}
 
 	protected void logSuccess(){
-		long startDelayMs = startedAt.toEpochMilli() - scheduledTime.getTime();
-		Duration elapsedTime = Duration.between(startedAt, tracker.getFinishTime());
+		long startDelayMs = Duration.between(scheduledTime, tracker.getStartTime()).toMillis();
+		Duration elapsedTime = Duration.between(tracker.getStartTime(), tracker.getFinishTime());
 		jobCounters.duration(jobClass, elapsedTime);
-		Optional<Date> nextJobTriggerTime = jobPackage.getNextValidTimeAfter(scheduledTime);
+		Optional<Instant> nextJobTriggerTime = jobPackage.getNextValidTimeAfter(Date.from(scheduledTime))
+				.map(Date::toInstant);
 		String jobCompletionLog = "finished in " + new DatarouterDuration(elapsedTime) + " jobName="
 				+ jobClass.getSimpleName() + " durationMs=" + elapsedTime.toMillis();
 		if(startDelayMs > 1000){
 			jobCounters.startedAfterLongDelay(jobClass);
 			jobCompletionLog += " startDelayMs= " + startDelayMs;
 		}
-		if(nextJobTriggerTime.isPresent() && new Date().after(nextJobTriggerTime.get())){
+		if(nextJobTriggerTime.isPresent() && Instant.now().isAfter(nextJobTriggerTime.get())){
 			jobCounters.missedNextTrigger(jobClass);
 			jobCompletionLog += " missed next trigger";
 		}

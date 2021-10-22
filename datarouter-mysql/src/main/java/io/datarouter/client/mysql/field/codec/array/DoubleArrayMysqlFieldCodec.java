@@ -32,10 +32,6 @@ import io.datarouter.util.bytes.DoubleByteTool;
 public class DoubleArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Double,List<Double>,Field<List<Double>>>{
 
-	public DoubleArrayMysqlFieldCodec(){//no-arg for reflection
-		this(null);
-	}
-
 	public DoubleArrayMysqlFieldCodec(Field<List<Double>> field){
 		super(field);
 	}
