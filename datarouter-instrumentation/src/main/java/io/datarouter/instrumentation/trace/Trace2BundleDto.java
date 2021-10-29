@@ -19,8 +19,6 @@ import java.util.Collection;
 
 public class Trace2BundleDto{
 
-	public static final String CONSTANT = "";
-
 	public final Trace2Dto traceDto;
 	public final Collection<Trace2ThreadDto> traceThreadDtos;
 	public final Collection<Trace2SpanDto> traceSpanDtos;
@@ -32,11 +30,6 @@ public class Trace2BundleDto{
 		this.traceDto = traceDto;
 		this.traceThreadDtos = traceThreadDtos;
 		this.traceSpanDtos = traceSpanDtos;
-	}
-
-	@SuppressWarnings("unused")
-	private String nothing(){
-		return new Trace2BundleDto(null, null, null).CONSTANT;
 	}
 
 }

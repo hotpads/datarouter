@@ -415,11 +415,11 @@ public class StringTool{
 		if(sourceString == null){
 			return null;
 		}
-		int firstOccurence = sourceString.indexOf(searchFor);
-		if(firstOccurence == -1){
+		int firstOccurrence = sourceString.indexOf(searchFor);
+		if(firstOccurrence == -1){
 			return sourceString;
 		}
-		return sourceString.substring(0, firstOccurence);
+		return sourceString.substring(0, firstOccurrence);
 	}
 
 	public static String getStringBeforeLastOccurrence(char ch, String sourceString){

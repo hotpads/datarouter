@@ -80,7 +80,7 @@ implements RedundantNode<PK,D,F,N>{
 
 	@Override
 	public List<ClientId> getClientIds(){
-		 return writeNodes.stream()
+		return writeNodes.stream()
 				.map(N::getClientIds)
 				.flatMap(Collection::stream)
 				.distinct()

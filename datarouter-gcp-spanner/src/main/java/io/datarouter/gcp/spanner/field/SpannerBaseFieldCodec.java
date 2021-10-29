@@ -70,7 +70,7 @@ public abstract class SpannerBaseFieldCodec<T,F extends Field<T>>{
 	}
 
 	public void setParameterValue(Statement.Builder statementBuilder, int index){
-		 statementBuilder.bind(getParameterName(index, false)).to(getSpannerValue());
+		statementBuilder.bind(getParameterName(index, false)).to(getSpannerValue());
 	}
 
 }

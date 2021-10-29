@@ -180,7 +180,7 @@ public class DefaultSettingValue<T>{
 			}
 		}
 		T valueForEnvironmentType = valueByEnvironmentType.get(environmentType);
-        if(valueForEnvironmentType != null){
+		if(valueForEnvironmentType != null){
 			defaultSettingValueWinner = new DefaultSettingValueWinner(DefaultSettingValueWinnerType.ENVIRONMENT_TYPE,
 					environmentType.getPersistentString(), environmentName, serverTypeString, serverName, String
 							.valueOf(valueForEnvironmentType));

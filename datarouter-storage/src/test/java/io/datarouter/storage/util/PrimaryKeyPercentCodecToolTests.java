@@ -42,7 +42,7 @@ public class PrimaryKeyPercentCodecToolTests{
 		String id = "355";
 		TestKey pk = new TestKey(id);
 		String encoded = PrimaryKeyPercentCodecTool.encode(pk);
-		TestKey decoded = PrimaryKeyPercentCodecTool.decode(TestKey.class, encoded);
+		TestKey decoded = PrimaryKeyPercentCodecTool.decode(TestKey::new, encoded);
 		Assert.assertEquals(decoded.getId(), id);
 	}
 
@@ -52,7 +52,7 @@ public class PrimaryKeyPercentCodecToolTests{
 		List<String> ids = List.of("23", "52", "103");
 		List<TestKey> pks = Scanner.of(ids).map(TestKey::new).list();
 		String encoded = PrimaryKeyPercentCodecTool.encodeMulti(pks, delimiter);
-		List<TestKey> decodedPks = PrimaryKeyPercentCodecTool.decodeMulti(TestKey.class, delimiter, encoded);
+		List<TestKey> decodedPks = PrimaryKeyPercentCodecTool.decodeMulti(TestKey::new, delimiter, encoded);
 		List<String> decodedIds = Scanner.of(decodedPks).map(TestKey::getId).list();
 		Assert.assertEquals(ids, decodedIds);
 	}
@@ -60,14 +60,14 @@ public class PrimaryKeyPercentCodecToolTests{
 	@Test
 	public void testStringPk(){
 		String encoded = PrimaryKeyPercentCodecTool.encode(SBK_0);
-		SortedBeanKey decoded = PrimaryKeyPercentCodecTool.decode(SortedBeanKey.class, encoded);
+		SortedBeanKey decoded = PrimaryKeyPercentCodecTool.decode(SortedBeanKey::new, encoded);
 		Assert.assertEquals(decoded, SBK_0);
 	}
 
 	@Test
 	public void testStringPkWithReservedCharacters(){
 		String encoded = PrimaryKeyPercentCodecTool.encode(SBK_1);
-		SortedBeanKey decoded = PrimaryKeyPercentCodecTool.decode(SortedBeanKey.class, encoded);
+		SortedBeanKey decoded = PrimaryKeyPercentCodecTool.decode(SortedBeanKey::new, encoded);
 		Assert.assertEquals(decoded, SBK_1);
 	}
 
@@ -80,14 +80,14 @@ public class PrimaryKeyPercentCodecToolTests{
 	public void testEncodeMulti(){
 		char delimiter = ',';
 		String encoded = PrimaryKeyPercentCodecTool.encodeMulti(SBK_MULTI, delimiter);
-		List<SortedBeanKey> decoded = PrimaryKeyPercentCodecTool.decodeMulti(SortedBeanKey.class, delimiter, encoded);
+		List<SortedBeanKey> decoded = PrimaryKeyPercentCodecTool.decodeMulti(SortedBeanKey::new, delimiter, encoded);
 		Assert.assertEquals(decoded, SBK_MULTI);
 	}
 
 	@Test
 	public void testNullsBecomeEmptyStrings(){
 		String encoded = PrimaryKeyPercentCodecTool.encode(SBK_NULL);
-		SortedBeanKey decoded = PrimaryKeyPercentCodecTool.decode(SortedBeanKey.class, encoded);
+		SortedBeanKey decoded = PrimaryKeyPercentCodecTool.decode(SortedBeanKey::new, encoded);
 		Assert.assertEquals(decoded, SBK_EMPTY_STRING);
 	}
 

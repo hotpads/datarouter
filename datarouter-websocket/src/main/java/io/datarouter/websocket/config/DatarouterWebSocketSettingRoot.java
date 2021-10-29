@@ -24,13 +24,14 @@ import io.datarouter.storage.setting.DatarouterSettingCategory;
 import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingRoot;
-import io.datarouter.storage.setting.cached.CachedSetting;
 
 @Singleton
 public class DatarouterWebSocketSettingRoot extends SettingRoot{
 
 	public final Setting<Boolean> testConnectionWithPing;
-	public final CachedSetting<Boolean> runWebSocketSessionVacuumJob;
+	public final Setting<Boolean> runWebSocketSessionVacuumJob;
+	public final Setting<Boolean> runWebSocketSessionDatabaseMonitoringJob;
+	public final Setting<Boolean> runWebSocketSessionMemoryMonitoringJob;
 
 	@Inject
 	public DatarouterWebSocketSettingRoot(SettingFinder finder, ServerTypes serverTypes){
@@ -40,6 +41,8 @@ public class DatarouterWebSocketSettingRoot extends SettingRoot{
 		runWebSocketSessionVacuumJob = registerBooleans("runWebSocketSessionVacuumJob", defaultTo(false)
 				.withServerType(EnvironmentType.PRODUCTION, serverTypes.getJobServerType(), true)
 				.withEnvironmentType(EnvironmentType.DEVELOPMENT, true));
+		runWebSocketSessionDatabaseMonitoringJob = registerBoolean("runWebSocketSessionDatabaseMonitoringJob", true);
+		runWebSocketSessionMemoryMonitoringJob = registerBoolean("runWebSocketSessionMemoryMonitoringJob", true);
 	}
 
 }

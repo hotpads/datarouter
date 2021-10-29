@@ -17,6 +17,7 @@ package io.datarouter.client.memcached.codec;
 
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
+import io.datarouter.util.lang.ReflectionTool;
 
 public class MemcachedKey<PK extends PrimaryKey<PK>>{
 
@@ -56,7 +57,7 @@ public class MemcachedKey<PK extends PrimaryKey<PK>>{
 		int codecVersion = Integer.parseInt(tokens[0]);
 		String nodeName = tokens[1];
 		int databeanVersion = Integer.parseInt(tokens[2]);
-		PK primaryKey = PrimaryKeyPercentCodecTool.decode(pkClass, tokens[3]);
+		PK primaryKey = PrimaryKeyPercentCodecTool.decode(ReflectionTool.supplier(pkClass), tokens[3]);
 		return new MemcachedKey<>(codecVersion, nodeName, databeanVersion, primaryKey);
 	}
 

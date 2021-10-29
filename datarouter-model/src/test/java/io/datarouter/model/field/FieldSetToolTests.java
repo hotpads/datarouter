@@ -22,8 +22,8 @@ import org.testng.annotations.Test;
 
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.positive.UInt31Field;
-import io.datarouter.model.field.imp.positive.UInt31FieldKey;
+import io.datarouter.model.field.imp.comparable.IntegerField;
+import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.util.Bytes;
 
 public class FieldSetToolTests{
@@ -31,7 +31,7 @@ public class FieldSetToolTests{
 	@Test
 	public void testGetConcatenatedValueBytes(){
 		List<Field<?>> fields = List.of(
-				new UInt31Field(new UInt31FieldKey("a"), 55),
+				new IntegerField(new IntegerFieldKey("a"), 55),
 				new StringField(new StringFieldKey("b"), "abc"),
 				new StringField(new StringFieldKey("c"), "xyz"));
 		int lengthWithout = 4 + 3 + 1 + 3;

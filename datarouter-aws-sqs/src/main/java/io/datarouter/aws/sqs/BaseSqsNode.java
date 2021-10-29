@@ -95,13 +95,7 @@ implements QueueStorageWriter<PK,D>{
 			queueName = queueUrl.substring(queueUrl.lastIndexOf('/') + 1);
 		//don't issue the createQueue request because it is probably someone else's queue
 		}else{
-			String namespace = getOrBuildFullNamespace();
-			String tableName = getFieldInfo().getTableName();
-			queueName = StringTool.isEmpty(namespace) ? tableName : (namespace + "-" + tableName);
-			if(queueName.length() > MAX_QUEUE_NAME_LENGTH){
-				// Future change to a throw.
-				logger.error("queue={} overflows the max size {}", queueName, MAX_QUEUE_NAME_LENGTH);
-			}
+			queueName = buildQueueName(environmentName.get(), serviceName.get());
 			queueUrl = createQueueAndGetUrl(queueName);
 			sqsClientManager.updateAttr(clientId, queueUrl, QueueAttributeName.MessageRetentionPeriod, RETENTION_S);
 			logger.warn("retention updated queueName=" + queueName);
@@ -120,8 +114,28 @@ implements QueueStorageWriter<PK,D>{
 		}
 	}
 
+	public String buildQueueName(String environmentName, String serviceName){
+		String namespace = getOrBuildFullNamespace(environmentName, serviceName);
+		String tableName = getFieldInfo().getTableName();
+		String queueName = StringTool.isEmpty(namespace) ? tableName : (namespace + "-" + tableName);
+		if(queueName.length() > MAX_QUEUE_NAME_LENGTH){
+			// Future change to a throw.
+			logger.error("queue={} overflows the max size {}", queueName, MAX_QUEUE_NAME_LENGTH);
+		}
+		return queueName;
+	}
+
 	public String getOrBuildFullNamespace(){
-		return params.getNamespace().orElseGet(() -> environmentName.get() + "-" + serviceName.get());
+		return getOrBuildFullNamespace(environmentName.get(), serviceName.get());
+	}
+
+	public String getOrBuildFullNamespace(String environmentName, String serviceName){
+		return params.getNamespace().orElseGet(() -> {
+			if(environmentName == null){
+				return serviceName;
+			}
+			return environmentName + (serviceName == null ? "" : "-" + serviceName);
+		});
 	}
 
 	public Supplier<Twin<String>> getQueueUrlAndName(){

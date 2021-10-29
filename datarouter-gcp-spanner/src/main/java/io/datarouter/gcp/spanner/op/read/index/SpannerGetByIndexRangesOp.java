@@ -105,7 +105,7 @@ extends SpannerBaseReadIndexOp<PK,D>{
 		if(offset > 0){
 			return sortedDatabeans.subList(offset, sortedDatabeans.size());
 		}
- 		return sortedDatabeans;
+		return sortedDatabeans;
 	}
 
 	@Override

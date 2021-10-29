@@ -249,6 +249,7 @@ public class JobWrapper implements Callable<Void>{
 		tracker.onFinish();
 	}
 
+	@SuppressWarnings("unused")
 	private void tryPersistTracker(){
 		try{
 			tracker.doReportTasks();

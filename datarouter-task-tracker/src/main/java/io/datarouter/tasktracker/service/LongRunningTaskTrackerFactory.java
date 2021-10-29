@@ -29,6 +29,7 @@ import io.datarouter.tasktracker.config.DatarouterTaskTrackerSettingRoot;
 import io.datarouter.tasktracker.scheduler.LongRunningTaskType;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
+import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 
@@ -55,6 +56,10 @@ public class LongRunningTaskTrackerFactory{
 	private LongRunningTaskTrackerEmailType longRunningTaskTrackerEmailType;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
+	@Inject
+	private TaskTrackerAlertReportService alertReportService;
+	@Inject
+	private ServiceName serviceName;
 
 	public LongRunningTaskTracker create(
 			Class<?> trackedClass,
@@ -81,7 +86,9 @@ public class LongRunningTaskTrackerFactory{
 				standardDatarouterEmailHeaderService,
 				task,
 				deadline,
-				warnOnReachingDeadline);
+				warnOnReachingDeadline,
+				alertReportService,
+				serviceName);
 	}
 
 	public static String taskNameForClass(Class<?> cls){

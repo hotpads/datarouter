@@ -88,7 +88,7 @@ public class UlidTool{
 	}
 
 	public static Date getDateFromUlid(String ulid){
-		 return Date.from(getInstant(ulid));
+		return Date.from(getInstant(ulid));
 	}
 
 }

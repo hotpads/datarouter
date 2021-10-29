@@ -43,6 +43,7 @@ public class SpannerGetFromIndexRangesOp<
 extends SpannerBaseReadIndexOp<PK,IE>{
 
 	private final Collection<Range<IK>> ranges;
+	@SuppressWarnings("unused")
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final IndexEntryFieldInfo<IK,IE,IF> indexEntryFieldInfo;
 

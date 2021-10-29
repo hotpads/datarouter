@@ -23,12 +23,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.util.lang.ClassTool;
 
 public class DatarouterDuration{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterDuration.class);
 
 	public static final DatarouterDuration ZERO = new DatarouterDuration(0, TimeUnit.MILLISECONDS);
-
 	public static final DatarouterDuration MAX_VALUE = new DatarouterDuration(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
 	public static final String REGEX =
@@ -77,7 +80,12 @@ public class DatarouterDuration{
 	}
 
 	public DatarouterDuration(Duration duration){
-		nano = duration.toNanos();
+		try{
+			nano = duration.toNanos();
+		}catch(ArithmeticException e){
+			logger.warn("truncating very long duration={}", duration, e);
+			nano = Long.MAX_VALUE;
+		}
 	}
 
 	public long toSecond(){

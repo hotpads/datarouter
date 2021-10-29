@@ -20,8 +20,8 @@ import java.util.List;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.model.field.imp.positive.UInt31Field;
-import io.datarouter.model.field.imp.positive.UInt31FieldKey;
+import io.datarouter.model.field.imp.comparable.IntegerField;
+import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.key.primary.base.BaseEntityPrimaryKey;
 import io.datarouter.model.util.CommonFieldSizes;
 
@@ -33,7 +33,7 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 	private String qux;
 
 	public static class FieldKeys{
-		public static final UInt31FieldKey baz = new UInt31FieldKey("baz");
+		public static final IntegerFieldKey baz = new IntegerFieldKey("baz");
 		public static final StringFieldKey qux = new StringFieldKey("qux")
 				.withSize(CommonFieldSizes.MAX_KEY_LENGTH_UTF8MB4);
 	}
@@ -41,7 +41,7 @@ public class SortedBeanKey extends BaseEntityPrimaryKey<SortedBeanEntityKey,Sort
 	@Override
 	public List<Field<?>> getPostEntityKeyFields(){
 		return List.of(
-				new UInt31Field(FieldKeys.baz, baz),
+				new IntegerField(FieldKeys.baz, baz),
 				new StringField(FieldKeys.qux, qux));
 	}
 

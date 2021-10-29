@@ -15,6 +15,9 @@
  */
 package io.datarouter.web.email;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -22,6 +25,7 @@ import io.datarouter.email.config.DatarouterEmailSettingsProvider;
 import io.datarouter.email.email.DatarouterEmailLinkBuilder;
 import io.datarouter.email.email.IDatarouterEmailService;
 import io.datarouter.email.html.EmailDto;
+import io.datarouter.email.html.J2HtmlDatarouterEmail;
 import io.datarouter.email.html.J2HtmlDatarouterEmailBuilder;
 import io.datarouter.storage.config.DatarouterSubscribersSupplier;
 import io.datarouter.storage.config.properties.AdminEmail;
@@ -65,6 +69,18 @@ public class DatarouterHtmlEmailService{
 				adminEmail.get(),
 				subscriberSettings.includeSubscribers.get(),
 				subscribersEmail.get());
+	}
+
+	public Set<String> getCompleteToEmails(J2HtmlDatarouterEmail email){
+		if(email.toAdmin){
+			email.toEmails.add(adminEmail.get());
+		}
+		if(email.toSubscribers){
+			if(subscriberSettings.includeSubscribers.get()){
+				email.toEmails.addAll(subscribersEmail.get());
+			}
+		}
+		return new HashSet<>(email.toEmails);
 	}
 
 	public DatarouterEmailLinkBuilder startLinkBuilder(){

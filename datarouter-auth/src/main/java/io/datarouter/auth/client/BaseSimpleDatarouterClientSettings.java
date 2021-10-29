@@ -16,7 +16,6 @@
 package io.datarouter.auth.client;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
@@ -73,7 +72,7 @@ implements SimpleDatarouterHttpClientSettings{
 	}
 
 	protected DefaultSettingValue<DatarouterDuration> getTimeoutDefaultSettingValue(){
-		return defaultTo(new DatarouterDuration(getTimeoutDefault().toMillis(), TimeUnit.MILLISECONDS));
+		return defaultTo(new DatarouterDuration(getTimeoutDefault()));
 	}
 
 }

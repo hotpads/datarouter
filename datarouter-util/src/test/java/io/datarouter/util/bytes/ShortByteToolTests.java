@@ -133,10 +133,8 @@ public class ShortByteToolTests{
 			 * parenthesis are extremely important here because of the automatic int upgrading
 			 */
 
-			//more compact
-			out[i] = (short)(Short.MIN_VALUE ^ (
-						 (bytes[startIdx] & 0xff) << 8
-						| bytes[startIdx + 1] & 0xff));
+			// more compact
+			out[i] = (short)(Short.MIN_VALUE ^ ((bytes[startIdx] & 0xff) << 8 | bytes[startIdx + 1] & 0xff));
 		}
 		return out;
 	}

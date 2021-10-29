@@ -82,7 +82,7 @@ public class SqlCreateTableGenerator{
 			boolean appendedAnyCol = false;
 			for(String columnName : index.getColumnNames()){
 				if(appendedAnyCol){
-					 sb.append(", ");
+					sb.append(", ");
 				}
 				appendedAnyCol = true;
 				sb.append(columnName);

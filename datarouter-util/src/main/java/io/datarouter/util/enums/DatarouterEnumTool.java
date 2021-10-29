@@ -24,9 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.Java9;
@@ -34,7 +31,6 @@ import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.string.StringTool;
 
 public class DatarouterEnumTool{
-	private static final Logger logger = LoggerFactory.getLogger(DatarouterEnumTool.class);
 
 	/*--------------- comparator that compares the persistent values --------*/
 

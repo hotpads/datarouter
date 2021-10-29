@@ -13,40 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.datarouter.client.mysql.test.client.insert.generated.random;
+package io.datarouter.client.mysql.test.client.insert.generated.managed;
 
 import java.util.List;
 
 import io.datarouter.client.mysql.test.client.insert.generated.PutOpGeneratedTestBeanKey;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
-import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt63FieldKey;
+import io.datarouter.model.field.imp.comparable.LongField;
+import io.datarouter.model.field.imp.comparable.LongFieldKey;
 import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 
-public class PutOpIdGeneratedRandomTestBeanKey
-extends BaseRegularPrimaryKey<PutOpIdGeneratedRandomTestBeanKey>
-implements PutOpGeneratedTestBeanKey<PutOpIdGeneratedRandomTestBeanKey>{
+public class PutOpIdGeneratedManagedTestBeanKey
+extends BaseRegularPrimaryKey<PutOpIdGeneratedManagedTestBeanKey>
+implements PutOpGeneratedTestBeanKey<PutOpIdGeneratedManagedTestBeanKey>{
 
 	private Long id;
 
 	public static class FieldKeys{
-		public static final UInt63FieldKey id = new UInt63FieldKey("id")
-				.withFieldGeneratorType(FieldGeneratorType.RANDOM);
+		public static final LongFieldKey id = new LongFieldKey("id")
+				.withFieldGeneratorType(FieldGeneratorType.MANAGED);
 	}
 
 	@Override
 	public List<Field<?>> getFields(){
-		return List.of(new UInt63Field(FieldKeys.id, id));
+		return List.of(new LongField(FieldKeys.id, id));
 	}
 
 	@Override
 	public Long getId(){
 		return id;
-	}
-
-	public void setId(Long id){
-		this.id = id;
 	}
 
 }

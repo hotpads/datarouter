@@ -24,7 +24,6 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.util.PercentFieldCodec;
 import io.datarouter.util.Require;
-import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 
 public class PrimaryKeyPercentCodecTool{
@@ -38,10 +37,6 @@ public class PrimaryKeyPercentCodecTool{
 		return pks.stream()
 				.map(PrimaryKeyPercentCodecTool::encode)
 				.collect(Collectors.joining(Character.toString(delimiter)));
-	}
-
-	public static <PK extends PrimaryKey<PK>> PK decode(Class<PK> pkClass, String encodedPk){
-		return decode(ReflectionTool.supplier(pkClass), encodedPk);
 	}
 
 	public static <PK extends PrimaryKey<PK>> PK decode(Supplier<PK> pkSupplier, String encodedPk){
@@ -63,12 +58,11 @@ public class PrimaryKeyPercentCodecTool{
 		return pk;
 	}
 
-
-	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(Class<PK> pkClass, char delimiter,
+	public static <PK extends PrimaryKey<PK>> List<PK> decodeMulti(Supplier<PK> pkSupplier, char delimiter,
 			String encodedPks){
 		List<String> eachEncodedPk = StringTool.splitOnCharNoRegex(encodedPks, delimiter, false);
 		return eachEncodedPk.stream()
-				.map(encodedPk -> decode(pkClass, encodedPk))
+				.map(encodedPk -> decode(pkSupplier, encodedPk))
 				.collect(Collectors.toList());
 	}
 

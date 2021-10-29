@@ -8,7 +8,7 @@ datarouter-mysql is an implementation of [datarouter-storage](../datarouter-stor
 <dependency>
 	<groupId>io.datarouter</groupId>
 	<artifactId>datarouter-mysql</artifactId>
-	<version>0.0.92</version>
+	<version>0.0.93</version>
 </dependency>
 ```
 ## Installation with Datarouter
@@ -61,7 +61,7 @@ public class MysqlExampleDatabeanKey extends BaseRegularPrimaryKey<MysqlExampleD
 You can define an `AUTO_INCREMENT` key column by specifying a `FieldGeneratorType` with value `MANAGED` on the field key.
 
 ```java
-public static final UInt63FieldKey id = new UInt63FieldKey("id")
+public static final LongFieldKey id = new LongFieldKey("id")
 		.withFieldGeneratorType(FieldGeneratorType.MANAGED);
 ```
 

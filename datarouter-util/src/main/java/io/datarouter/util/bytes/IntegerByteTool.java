@@ -140,10 +140,10 @@ public class IntegerByteTool{
 
 			//more compact
 			out[i] = Integer.MIN_VALUE ^ (
-						  (bytes[startIdx] & 0xff) << 24
-						| (bytes[startIdx + 1] & 0xff) << 16
-						| (bytes[startIdx + 2] & 0xff) << 8
-						| bytes[startIdx + 3] & 0xff);
+					(bytes[startIdx] & 0xff) << 24
+					| (bytes[startIdx + 1] & 0xff) << 16
+					| (bytes[startIdx + 2] & 0xff) << 8
+					| bytes[startIdx + 3] & 0xff);
 		}
 		return out;
 	}

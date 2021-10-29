@@ -201,9 +201,9 @@ public class HBaseSubEntityResultParser<
 	/*---------------------------- private ----------------------------------*/
 
 	private boolean matchesNodePrefix(Cell cell){
-		  return cell.getQualifierLength() >= entityColumnPrefixBytes.length && Bytes.equals(cell.getQualifierArray(),
-				  cell.getQualifierOffset(), entityColumnPrefixBytes.length, entityColumnPrefixBytes, 0,
-				  entityColumnPrefixBytes.length);
+		return cell.getQualifierLength() >= entityColumnPrefixBytes.length && Bytes.equals(cell.getQualifierArray(),
+				cell.getQualifierOffset(), entityColumnPrefixBytes.length, entityColumnPrefixBytes, 0,
+				entityColumnPrefixBytes.length);
 	}
 
 	//parse the hbase row bytes after the partition offset

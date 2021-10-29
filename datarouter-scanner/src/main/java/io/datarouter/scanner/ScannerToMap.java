@@ -32,7 +32,7 @@ public class ScannerToMap<T,K,V,M extends Map<K,V>> implements Function<Scanner<
 	}
 
 	private interface PutFunction<K,V,M>{
-	    void apply(K key, V value, M map);
+		void apply(K key, V value, M map);
 	}
 
 	private final Function<T,K> keyFunction;

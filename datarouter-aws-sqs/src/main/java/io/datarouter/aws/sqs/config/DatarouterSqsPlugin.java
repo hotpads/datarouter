@@ -15,14 +15,36 @@
  */
 package io.datarouter.aws.sqs.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.job.config.BaseJobPlugin;
 
 public class DatarouterSqsPlugin extends BaseJobPlugin{
 
-	public DatarouterSqsPlugin(){
+	private DatarouterSqsPlugin(DatarouterSqsPluginBuilder builder){
 		addSettingRoot(DatarouterSqsSettingsRoot.class);
+		addRouteSet(DatarouterSqsRouteSet.class);
 		addTriggerGroup(DatarouterSqsTriggerGroup.class);
 		addDatarouterGithubDocLink("datarouter-aws-sqs");
+
+		builder.testableServiceClasses.forEach(this::addTestable);
+	}
+
+	public static class DatarouterSqsPluginBuilder{
+
+		private final List<Class<? extends TestableService>> testableServiceClasses = new ArrayList<>();
+
+		public DatarouterSqsPluginBuilder addTestableClass(Class<? extends TestableService> testableService){
+			testableServiceClasses.add(testableService);
+			return this;
+		}
+
+		public DatarouterSqsPlugin build(){
+			return new DatarouterSqsPlugin(this);
+		}
+
 	}
 
 }

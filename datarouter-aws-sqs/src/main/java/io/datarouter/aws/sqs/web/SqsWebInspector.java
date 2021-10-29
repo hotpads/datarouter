@@ -15,8 +15,12 @@
  */
 package io.datarouter.aws.sqs.web;
 
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h4;
+import static j2html.TagCreator.i;
+import static j2html.TagCreator.td;
+import static j2html.TagCreator.th;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -28,12 +32,17 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.http.client.utils.URIBuilder;
+
 import com.amazonaws.services.sqs.model.ListQueuesResult;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
+import io.datarouter.aws.sqs.config.DatarouterSqsPaths;
+import io.datarouter.aws.sqs.web.handler.SqsUpdateQueueHandler;
+import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
@@ -51,7 +60,9 @@ import io.datarouter.web.html.j2html.J2HtmlLegendTable;
 import io.datarouter.web.html.j2html.J2HtmlTable;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4PageFactory;
 import io.datarouter.web.requirejs.DatarouterWebRequireJsV2;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
 
 public class SqsWebInspector implements DatarouterClientWebInspector{
 
@@ -65,6 +76,8 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private ClientOptions clientOptions;
+	@Inject
+	private DatarouterSqsPaths paths;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
@@ -79,9 +92,9 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 		var content = div(
 				buildClientPageHeader(clientName),
 				buildClientOptionsTable(allClientOptions),
-				buildQueueNodeTable(clientId),
+				buildQueueNodeTable(clientId, request),
 				buildReferenceTable())
-				.withClass("container my-3");
+				.withClass("container my-4");
 
 		return pageFactory.startBuilder(request)
 				.withTitle("Datarouter Client - SQS")
@@ -90,7 +103,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.buildMav();
 	}
 
-	private ContainerTag<?> buildQueueNodeTable(ClientId clientId){
+	private ContainerTag<?> buildQueueNodeTable(ClientId clientId, HttpServletRequest request){
 		Set<String> knownQueuesUrls = new HashSet<>();
 		List<? extends BaseSqsNode<?,?,?>> sqsNodes = Scanner.of(nodes.getPhysicalNodesForClient(clientId.getName()))
 				.map(NodeTool::extractSinglePhysicalNode)
@@ -123,15 +136,32 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 
 		var table = new J2HtmlTable<SqsWebInspectorDto>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Queue Name", row -> row.queueName)
-				.withColumn("Messages Available For Retrieval", row -> row.messagesAvailableForRetrieval)
-				.withColumn("Messages Delayed", row -> row.messagesDelayed)
-				.withColumn("Messages InFlight", row -> row.messagesInFlight)
-				.withColumn("Total Messages (Available + InFlight)", SqsWebInspectorDto::getTotalMessagesAvailable)
+				.withHtmlColumn(th("Queue Name").withClass("col-xs-5"), row -> td(row.queueName))
+				.withHtmlColumn(th("Available For Retrieval").withClass("col-xs-3"),
+						row -> td(row.messagesAvailableForRetrieval))
+				.withHtmlColumn(th("Delayed").withClass("col-xs-1"), row -> td(row.messagesDelayed))
+				.withHtmlColumn(th("InFlight").withClass("col-xs-1"), row -> td(row.messagesInFlight))
+				.withHtmlColumn(th("Total").withClass("col-xs-1"), row -> td(row.getTotalMessagesAvailable()))
+				.withHtmlColumn(th("").attr("width", "50"), row -> {
+					String href = buildActionPath(request, clientId, row.queueName, SqsQueueAction.PURGE);
+					ATag purgeIcon = a(i().withClass("fas fa-skull-crossbones fa-lg"))
+							.withHref(href)
+							.attr("data-toggle", "tooltip")
+							.attr("title", "Purge queue " + row.queueName);
+					return td(purgeIcon).withStyle("text-align:center");
+				})
 				.build(queueStatsRows);
 		var unreferencedQueuesTable = new J2HtmlTable<String>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
-				.withColumn("Queue Name", row -> row)
+				.withHtmlColumn(th("Queue Name"), TagCreator::td)
+				.withHtmlColumn(th("").attr("width", "50"), row -> {
+					String href = buildActionPath(request, clientId, row, SqsQueueAction.DELETE);
+					ATag trashIcon = a(i().withClass("fas fa-trash fa-lg"))
+							.withHref(href)
+							.attr("data-toggle", "tooltip")
+							.attr("title", "Delete queue " + row);
+					return td(trashIcon).withStyle("text-align:center");
+				})
 				.build(unreferencedQueues);
 		return div(h4("Queues"), table, h4("Unreferenced Queues"), unreferencedQueuesTable)
 				.withClass("container-fluid my-4")
@@ -154,7 +184,30 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 						"Messages In Flight",
 						"Messages are considered to be in flight if they have been sent to a client but have not yet "
 								+ "been deleted or have not yet reached the end of their visibility window.")
+				.withEntry("Total Messages", " A total of Available + InFlight messages")
 				.build();
+	}
+
+	private String buildActionPath(
+			HttpServletRequest request,
+			ClientId clientId,
+			String queueName,
+			SqsQueueAction action){
+		PathNode path;
+		if(action == SqsQueueAction.DELETE){
+			path = paths.datarouter.sqs.deleteQueue;
+		}else if(action == SqsQueueAction.PURGE){
+			path = paths.datarouter.sqs.purgeQueue;
+		}else{
+			return null;
+		}
+		String referer = request.getRequestURI() + "?" + request.getQueryString();
+		return new URIBuilder()
+				.setPath(request.getContextPath() + path.toSlashedString())
+				.addParameter(SqsUpdateQueueHandler.PARAM_clientName, clientId.getName())
+				.addParameter(SqsUpdateQueueHandler.PARAM_queueName, queueName)
+				.addParameter(SqsUpdateQueueHandler.PARAM_referer, referer)
+				.toString();
 	}
 
 	private static class SqsWebInspectorDto{
@@ -164,7 +217,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 		private final String messagesDelayed;
 		private final String messagesInFlight;
 
-		public SqsWebInspectorDto(
+		private SqsWebInspectorDto(
 				String queueName,
 				String messagesAvailableForRetrieval,
 				String messagesDelayed,
@@ -175,13 +228,18 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 			this.messagesInFlight = messagesInFlight;
 		}
 
-		public String getTotalMessagesAvailable(){
+		private String getTotalMessagesAvailable(){
 			long available = NumberTool.getLongNullSafe(messagesAvailableForRetrieval, 0L);
 			long inFlight = NumberTool.getLongNullSafe(messagesInFlight, 0L);
 			long total = available + inFlight;
 			return NumberFormatter.addCommas(total);
 		}
 
+	}
+
+	private enum SqsQueueAction{
+		DELETE,
+		PURGE
 	}
 
 }

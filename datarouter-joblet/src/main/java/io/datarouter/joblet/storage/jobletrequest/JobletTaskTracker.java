@@ -27,7 +27,7 @@ import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.util.concurrent.UncheckedInterruptedException;
 
 public class JobletTaskTracker implements TaskTracker{
-private static final Logger logger = LoggerFactory.getLogger(JobletTaskTracker.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobletTaskTracker.class);
 
 	private final String name;
 	private final JobletRequest jobletRequest;

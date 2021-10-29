@@ -240,5 +240,10 @@
 		<module name="AvoidStaticImport">
 			<property name="excludes" value="org.mockito.Mockito.*,org.mockito.ArgumentMatchers.*,j2html.TagCreator.*"/>
 		</module>
+		<module name="RegexpSinglelineJava">
+			<property name="format" value="^\t* "/>
+			<property name="message" value="Indent must use tab characters"/>
+			<property name="ignoreComments" value="true"/>
+		</module>
 	</module>
 </module>

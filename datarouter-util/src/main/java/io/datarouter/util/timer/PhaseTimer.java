@@ -66,6 +66,11 @@ public class PhaseTimer{
 		return this;
 	}
 
+	public PhaseTimer add(PhaseTimer timer){
+		phaseNamesAndTimes.addAll(timer.getPhaseNamesAndTimes());
+		return this;
+	}
+
 	public PhaseTimer sum(String eventName){
 		Optional<Pair<String,Long>> nameAndTimeOpt = searchForName(eventName);
 		if(Java11.isEmpty(nameAndTimeOpt)){

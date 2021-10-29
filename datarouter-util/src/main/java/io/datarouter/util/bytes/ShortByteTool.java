@@ -40,7 +40,7 @@ public class ShortByteTool{
 
 	private static short fromRawBytes(byte[] bytes, int startIdx){
 		return (short)(
-				 (bytes[startIdx] & 0xff) << 8
+				(bytes[startIdx] & 0xff) << 8
 				| bytes[startIdx + 1] & 0xff);
 	}
 
@@ -72,8 +72,8 @@ public class ShortByteTool{
 
 	public static short fromUInt15Bytes(byte[] bytes, int startIdx){
 		return (short)(
-			 (bytes[startIdx + 0] & 0xff) << 8
-			| bytes[startIdx + 1] & 0xff);
+				(bytes[startIdx + 0] & 0xff) << 8
+				| bytes[startIdx + 1] & 0xff);
 	}
 
 }

@@ -28,7 +28,7 @@ public class RandomSamlKeyPair{
 	}
 
 	public static String getPublicKeyString(){
-		 return publicKeyString;
+		return publicKeyString;
 	}
 
 }

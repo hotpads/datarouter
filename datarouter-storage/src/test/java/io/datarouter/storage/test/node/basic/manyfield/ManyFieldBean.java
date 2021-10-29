@@ -78,6 +78,7 @@ import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.array.LongArray;
 import io.datarouter.util.lang.ObjectTool;
 
+@SuppressWarnings("deprecation")
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public static final int DEFAULT_STRING_LENGTH = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;

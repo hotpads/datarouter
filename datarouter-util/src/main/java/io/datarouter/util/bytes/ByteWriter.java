@@ -112,7 +112,7 @@ public class ByteWriter{
 	}
 
 	public long crc32(){
-	    Checksum checksum = new CRC32();
+		Checksum checksum = new CRC32();
 		Scanner.iterate(0, i -> i + 1)
 				.limit(pages.size())
 				.forEach(pageIndex -> checksum.update(pages.get(pageIndex), 0, getPageSize(pageIndex)));

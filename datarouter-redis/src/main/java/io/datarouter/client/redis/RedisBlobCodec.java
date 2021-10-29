@@ -31,6 +31,7 @@ public class RedisBlobCodec<
 
 	private static final int CODEC_VERSION = 1;
 
+	@SuppressWarnings("unused")
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final int schemaVersion;
 

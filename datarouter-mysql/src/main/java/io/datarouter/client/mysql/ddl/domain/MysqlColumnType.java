@@ -22,10 +22,8 @@ import io.datarouter.util.string.StringTool;
 
 public enum MysqlColumnType{
 
-	/*
-	 * NOT TAKING INTO ACCOUNT OPTIONS AVAILABLE FOR THE DIFFERENT TYPES
-	 */
-	 //  Numeric Type Overview
+	/* NOT TAKING INTO ACCOUNT OPTIONS AVAILABLE FOR THE DIFFERENT TYPES */
+	// Numeric Type Overview
 	BIT(true, false, false),
 	TINYINT(true, true, false),
 	BOOL(true, false, false),

@@ -66,7 +66,7 @@ public abstract class BaseFilesTests implements TestableService{
 				.map(File::toString)
 				.collect(Collectors.toSet());
 		for(String file : getDirectoryFiles()){
-			if(!filterOmited(file)){
+			if(!filterOmitted(file)){
 				continue;
 			}
 			String message = "add file to PathNodes - " + file;
@@ -97,7 +97,7 @@ public abstract class BaseFilesTests implements TestableService{
 		return getNode().paths().stream()
 				.filter(PathNode::isLeaf)
 				.map(PathNode::toSlashedString)
-				.filter(this::filterOmited)
+				.filter(this::filterOmitted)
 				.map(getRootDirectory()::concat)
 				.map(Paths::get)
 				.map(Path::toFile)
@@ -108,9 +108,9 @@ public abstract class BaseFilesTests implements TestableService{
 		return Scanner.concat(getNode().filesToOmit(), OMITTED_WORDS).collect(HashSet::new);
 	}
 
-	private boolean filterOmited(String path){
-		return !getFilesToOmit().stream()
-				.anyMatch(path::contains);
+	private boolean filterOmitted(String path){
+		return getFilesToOmit().stream()
+				.noneMatch(path::contains);
 	}
 
 	private boolean skipTests(){

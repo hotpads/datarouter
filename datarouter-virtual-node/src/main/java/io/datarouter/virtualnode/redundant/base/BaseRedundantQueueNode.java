@@ -78,7 +78,7 @@ implements RedundantQueueNode<PK,D,F,N>{
 
 	@Override
 	public List<ClientId> getClientIds(){
-		 return readNodes.stream()
+		return readNodes.stream()
 				.map(N::getClientIds)
 				.flatMap(Collection::stream)
 				.distinct()

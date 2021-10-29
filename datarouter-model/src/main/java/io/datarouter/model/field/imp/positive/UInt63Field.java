@@ -15,16 +15,12 @@
  */
 package io.datarouter.model.field.imp.positive;
 
-import java.util.Random;
-
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.bytes.LongByteTool;
-import io.datarouter.util.number.RandomTool;
 import io.datarouter.util.string.StringTool;
 
+@SuppressWarnings("deprecation")
 public class UInt63Field extends BasePrimitiveField<Long,UInt63FieldKey>{
-
-	private static final Random random = new Random();
 
 	public UInt63Field(String prefix, UInt63FieldKey key, Long value){
 		super(prefix, key, value);
@@ -32,10 +28,6 @@ public class UInt63Field extends BasePrimitiveField<Long,UInt63FieldKey>{
 
 	public UInt63Field(UInt63FieldKey key, Long value){
 		this(null, key, value);
-	}
-
-	public static long nextPositiveRandom(){
-		return RandomTool.nextPositiveLong(random);
 	}
 
 	@Override

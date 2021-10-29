@@ -27,17 +27,17 @@ import io.datarouter.util.tuple.Pair;
 
 public interface DocumentationNamesAndLinksSupplier extends Supplier<Map<String,Pair<String,Boolean>>>{
 
-	 default Map<String,String> getSystemDocs(){
-		 return Scanner.of(get().entrySet())
+	default Map<String,String> getSystemDocs(){
+		return Scanner.of(get().entrySet())
 				.include(entry -> entry.getValue().getRight())
 				.toMap(Entry::getKey, entry -> entry.getValue().getLeft());
-	 }
+	}
 
-	 default Map<String,String> getReadmeDocs(){
-		 return Scanner.of(get().entrySet())
+	default Map<String,String> getReadmeDocs(){
+		return Scanner.of(get().entrySet())
 				.exclude(entry -> entry.getValue().getRight())
 				.toMap(Entry::getKey, entry -> entry.getValue().getLeft());
-	 }
+	}
 
 	@Singleton
 	class NoOpDocumentationNamesAndLinks implements DocumentationNamesAndLinksSupplier{

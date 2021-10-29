@@ -46,6 +46,7 @@ import io.datarouter.tasktracker.storage.LongRunningTaskKey;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
 import io.datarouter.util.mutable.MutableBoolean;
+import io.datarouter.web.config.service.ServiceName;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import j2html.tags.ContainerTag;
@@ -68,6 +69,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 	private final Setting<Boolean> sendAlertEmail;
 	private final StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
 	private final List<Consumer<LongRunningTaskTracker>> callbacks;
+	private final TaskTrackerAlertReportService alertReportService;
+	private final ServiceName serviceName;
 
 	private final LongRunningTaskInfo task;
 	private final Instant deadline;
@@ -93,7 +96,9 @@ public class LongRunningTaskTracker implements TaskTracker{
 			StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService,
 			LongRunningTaskInfo task,
 			Instant deadline,
-			boolean warnOnReachingInterrupt){
+			boolean warnOnReachingInterrupt,
+			TaskTrackerAlertReportService alertReportService,
+			ServiceName serviceName){
 		this.datarouterTaskTrackerPaths = datarouterTaskTrackerPaths;
 		this.datarouterHtmlEmailService = datarouterHtmlEmailService;
 		this.serverName = serverName;
@@ -105,6 +110,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 		this.longRunningTaskTrackerEmailType = longRunningTaskTrackerEmailType;
 		this.sendAlertEmail = sendAlertEmail;
 		this.standardDatarouterEmailHeaderService = standardDatarouterEmailHeaderService;
+		this.alertReportService = alertReportService;
+		this.serviceName = serviceName;
 
 		this.task = task;
 		this.deadline = deadline;
@@ -317,7 +324,8 @@ public class LongRunningTaskTracker implements TaskTracker{
 				.toAdmin(serverTypeDetector.mightBeDevelopment())
 				.toSubscribers(serverTypeDetector.mightBeProduction())
 				.to(longRunningTaskTrackerEmailType.tos, serverTypeDetector.mightBeProduction());
-		datarouterHtmlEmailService.trySendJ2Html(emailBuilder);
+		alertReportService.reportTaskTimeoutAlert(serviceName.get(), serverName.get(), task.name,
+				emailBuilder.getSubject(), emailBuilder);
 	}
 
 	private ContainerTag<?> makeEmailBody(String name, String serverName, String detailsHref){

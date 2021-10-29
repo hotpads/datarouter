@@ -79,7 +79,7 @@ public class ExceptionRecord extends BaseExceptionRecord<ExceptionRecordKey,Exce
 	}
 
 	public ExceptionRecordDto toDto(){
-		 return new ExceptionRecordDto(
+		return new ExceptionRecordDto(
 				getKey().getId(),
 				getCreated(),
 				getServiceName(),

@@ -109,7 +109,7 @@ public class DatarouterPermissionRequestHandler extends BaseHandler{
 	@Handler(defaultHandler = true)
 	private Mav showForm(OptionalString deniedUrl, OptionalString allowedRoles){
 		if(!authenticationConfig.useDatarouterAuthentication()){
-			 return new MessageMav(noDatarouterAuthentication());
+			return new MessageMav(noDatarouterAuthentication());
 		}
 		Mav mav = new Mav(files.jsp.authentication.permissionRequestJsp);
 		mav.put("serviceName", serviceName.get());

@@ -22,7 +22,9 @@ import io.datarouter.instrumentation.task.TaskTrackerPublisher.NoOpTaskTrackerPu
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
+import io.datarouter.tasktracker.service.DefaultTaskTrackerAlertReportService;
 import io.datarouter.tasktracker.service.LongRunningTaskDailyDigest;
+import io.datarouter.tasktracker.service.TaskTrackerAlertReportService;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao;
 import io.datarouter.tasktracker.storage.LongRunningTaskDao.LongRunningTaskDaoParams;
 import io.datarouter.tasktracker.web.LongRunningTaskGraphLink;
@@ -40,16 +42,19 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 	private final DatarouterTaskTrackerDaoModule daosModuleBuilder;
 	private final Class<? extends TaskTrackerExceptionLink> exceptionLink;
 	private final Class<? extends TaskTrackerPublisher> longRunningTaskPublisher;
+	private final Class<? extends TaskTrackerAlertReportService> taskTrackerAlertReportService;
 
 	private DatarouterTaskTrackerPlugin(
 			Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLink,
 			Class<? extends TaskTrackerExceptionLink> exceptionLink,
 			Class<? extends TaskTrackerPublisher> longRunningTaskPublisher,
+			Class<? extends TaskTrackerAlertReportService> taskTrackerAlertReportService,
 			DatarouterTaskTrackerDaoModule daosModuleBuilder){
 		this.longRunningTaskGraphLink = longRunningTaskGraphLink;
 		this.exceptionLink = exceptionLink;
 		this.longRunningTaskPublisher = longRunningTaskPublisher;
 		this.daosModuleBuilder = daosModuleBuilder;
+		this.taskTrackerAlertReportService = taskTrackerAlertReportService;
 
 		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, PATHS.datarouter.longRunningTasks, "Long running tasks");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.JOBS, PATHS.datarouter.jobsHealth, "Jobs Health");
@@ -71,6 +76,7 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 		}
 		bind(TaskTrackerExceptionLink.class).to(exceptionLink);
 		bind(TaskTrackerPublisher.class).to(longRunningTaskPublisher);
+		bind(TaskTrackerAlertReportService.class).to(taskTrackerAlertReportService);
 	}
 
 	public static class DatarouterTaskTrackerDaoModule extends DaosModuleBuilder{
@@ -100,6 +106,8 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 		private Class<? extends LongRunningTaskGraphLink> longRunningTaskGraphLink = NoOpLongRunningTaskGraphLink.class;
 		private Class<? extends TaskTrackerExceptionLink> exceptionLink = NoOpTaskTrackerExceptionLink.class;
 		private Class<? extends TaskTrackerPublisher> longRunningTaskPublisher = NoOpTaskTrackerPublisher.class;
+		private Class<? extends TaskTrackerAlertReportService> taskTrackerAlertReportService =
+				DefaultTaskTrackerAlertReportService.class;
 
 		public DatarouterTaskTrackerPluginBuilder(List<ClientId> defaultClientId){
 			this.defaultClientId = defaultClientId;
@@ -122,8 +130,14 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 		}
 
 		public DatarouterTaskTrackerPluginBuilder setLongRunningTaskPublisher(
-				 Class<? extends TaskTrackerPublisher> longRunningTaskPublisher){
+				Class<? extends TaskTrackerPublisher> longRunningTaskPublisher){
 			this.longRunningTaskPublisher = longRunningTaskPublisher;
+			return this;
+		}
+
+		public DatarouterTaskTrackerPluginBuilder setTaskTrackerAlertReportService(
+				Class<? extends TaskTrackerAlertReportService> taskTrackerAlertReportService){
+			this.taskTrackerAlertReportService = taskTrackerAlertReportService;
 			return this;
 		}
 
@@ -132,6 +146,7 @@ public class DatarouterTaskTrackerPlugin extends BaseWebPlugin{
 					longRunningTaskGraphLink,
 					exceptionLink,
 					longRunningTaskPublisher,
+					taskTrackerAlertReportService,
 					new DatarouterTaskTrackerDaoModule(defaultClientId));
 		}
 

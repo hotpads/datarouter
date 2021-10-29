@@ -28,10 +28,6 @@ import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.positive.UInt31Field;
-import io.datarouter.model.field.imp.positive.UInt31FieldKey;
-import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.key.entity.base.BaseEntityKey;
 import io.datarouter.model.key.entity.base.BaseStringDjb16EntityPartitioner;
 import io.datarouter.model.key.primary.base.BaseEntityPrimaryKey;
@@ -140,8 +136,8 @@ public class TestEntity{
 			public static final StringFieldKey context = new StringFieldKey("context");
 			public static final StringFieldKey type = new StringFieldKey("type");
 			public static final StringFieldKey params = new StringFieldKey("params");
-			public static final UInt63FieldKey created = new UInt63FieldKey("created");
-			public static final UInt63FieldKey duration = new UInt63FieldKey("duration");
+			public static final LongFieldKey created = new LongFieldKey("created");
+			public static final LongFieldKey duration = new LongFieldKey("duration");
 		}
 
 		public static class TestTraceFielder extends BaseDatabeanFielder<TestTraceKey,TestTrace>{
@@ -156,8 +152,8 @@ public class TestEntity{
 						new StringField(FieldKeys.context, databean.context),
 						new StringField(FieldKeys.type, databean.type),
 						new StringField(FieldKeys.params, databean.params),
-						new UInt63Field(FieldKeys.created, databean.created),
-						new UInt63Field(FieldKeys.duration, databean.duration));
+						new LongField(FieldKeys.created, databean.created),
+						new LongField(FieldKeys.duration, databean.duration));
 			}
 
 		}
@@ -263,11 +259,11 @@ public class TestEntity{
 		private String info;
 
 		public static class FieldKeys{
-			public static final UInt31FieldKey parentSequence = new UInt31FieldKey("parentSequence");
+			public static final IntegerFieldKey parentSequence = new IntegerFieldKey("parentSequence");
 			public static final StringFieldKey name = new StringFieldKey("name");
 			public static final StringFieldKey info = new StringFieldKey("info");
-			public static final UInt63FieldKey created = new UInt63FieldKey("created");
-			public static final UInt63FieldKey duration = new UInt63FieldKey("duration");
+			public static final LongFieldKey created = new LongFieldKey("created");
+			public static final LongFieldKey duration = new LongFieldKey("duration");
 		}
 
 		public static class TestTraceSpanFielder extends BaseDatabeanFielder<TestTraceSpanKey,TestTraceSpan>{
@@ -279,11 +275,11 @@ public class TestEntity{
 			@Override
 			public List<Field<?>> getNonKeyFields(TestTraceSpan databean){
 				return List.of(
-						new UInt31Field(FieldKeys.parentSequence, databean.parentSequence),
+						new IntegerField(FieldKeys.parentSequence, databean.parentSequence),
 						new StringField(FieldKeys.name, databean.name),
 						new StringField(FieldKeys.info, databean.info),
-						new UInt63Field(FieldKeys.created, databean.created),
-						new UInt63Field(FieldKeys.duration, databean.duration));
+						new LongField(FieldKeys.created, databean.created),
+						new LongField(FieldKeys.duration, databean.duration));
 			}
 
 		}
@@ -378,13 +374,13 @@ public class TestEntity{
 		private Long runningDuration;
 
 		public static class FieldKeys{
-			public static final UInt63FieldKey parentId = new UInt63FieldKey("parentId");
+			public static final LongFieldKey parentId = new LongFieldKey("parentId");
 			public static final StringFieldKey name = new StringFieldKey("name");
 			public static final StringFieldKey info = new StringFieldKey("info");
 			public static final StringFieldKey serverId = new StringFieldKey("serverId");
-			public static final UInt63FieldKey created = new UInt63FieldKey("created");
-			public static final UInt63FieldKey queuedDuration = new UInt63FieldKey("queuedDuration");
-			public static final UInt63FieldKey runningDuration = new UInt63FieldKey("runningDuration");
+			public static final LongFieldKey created = new LongFieldKey("created");
+			public static final LongFieldKey queuedDuration = new LongFieldKey("queuedDuration");
+			public static final LongFieldKey runningDuration = new LongFieldKey("runningDuration");
 		}
 
 		public static class TestTraceThreadFielder extends BaseDatabeanFielder<TestTraceThreadKey,TestTraceThread>{
@@ -396,13 +392,13 @@ public class TestEntity{
 			@Override
 			public List<Field<?>> getNonKeyFields(TestTraceThread databean){
 				return List.of(
-						new UInt63Field(FieldKeys.parentId, databean.parentId),
+						new LongField(FieldKeys.parentId, databean.parentId),
 						new StringField(FieldKeys.name, databean.name),
 						new StringField(FieldKeys.info, databean.info),
 						new StringField(FieldKeys.serverId, databean.serverId),
-						new UInt63Field(FieldKeys.created, databean.created),
-						new UInt63Field(FieldKeys.queuedDuration, databean.queuedDuration),
-						new UInt63Field(FieldKeys.runningDuration, databean.runningDuration));
+						new LongField(FieldKeys.created, databean.created),
+						new LongField(FieldKeys.queuedDuration, databean.queuedDuration),
+						new LongField(FieldKeys.runningDuration, databean.runningDuration));
 			}
 
 		}

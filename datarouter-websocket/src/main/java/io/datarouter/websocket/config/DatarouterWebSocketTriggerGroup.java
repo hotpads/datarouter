@@ -20,6 +20,8 @@ import javax.inject.Singleton;
 
 import io.datarouter.job.BaseTriggerGroup;
 import io.datarouter.util.time.ZoneIds;
+import io.datarouter.websocket.job.WebSocketSessionDatabaseMonitoringJob;
+import io.datarouter.websocket.job.WebSocketSessionMemoryMonitoringJob;
 import io.datarouter.websocket.job.WebSocketSessionVacuumJob;
 
 @Singleton
@@ -30,10 +32,19 @@ public class DatarouterWebSocketTriggerGroup extends BaseTriggerGroup{
 		super("DatarouterWebSocket", true, ZoneIds.AMERICA_NEW_YORK);
 		registerLocked(
 				// High frequency to keep the table as consistent as possible after some sessions failed to delete
-				"1 1/5 * * * ?",
+				"1 * * * * ?",
 				settings.runWebSocketSessionVacuumJob,
 				WebSocketSessionVacuumJob.class,
 				true);
+		registerLocked(
+				"31 * * * * ?",
+				settings.runWebSocketSessionDatabaseMonitoringJob,
+				WebSocketSessionDatabaseMonitoringJob.class,
+				true);
+		registerParallel(
+				"31 * * * * ?",
+				settings.runWebSocketSessionMemoryMonitoringJob,
+				WebSocketSessionMemoryMonitoringJob.class);
 	}
 
 }

@@ -54,12 +54,12 @@ public class SqsClientManager extends BaseClientManager{
 		return getQueueAttributes(clientId, queueUrl, List.of(attributeName.name())).get(attributeName.name());
 	}
 
-	public Map<String,String> getQueueAttributes(ClientId clientId, String queueUrl, List<String> attributes){
-		return getAmazonSqs(clientId).getQueueAttributes(queueUrl, attributes).getAttributes();
-	}
-
 	public Map<String,String> getAllQueueAttributes(ClientId clientId, String sqsQueueUrl){
 		return getQueueAttributes(clientId, sqsQueueUrl, List.of(QueueAttributeName.All.name()));
+	}
+
+	public Map<String,String> getQueueAttributes(ClientId clientId, String queueUrl, List<String> attributes){
+		return getAmazonSqs(clientId).getQueueAttributes(queueUrl, attributes).getAttributes();
 	}
 
 	public void updateAttr(ClientId clientId, String queueUrl, QueueAttributeName key, Object value){

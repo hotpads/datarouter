@@ -15,14 +15,24 @@
  */
 package io.datarouter.websocket;
 
-import io.datarouter.instrumentation.count.Counters;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
+import io.datarouter.instrumentation.count.Counters;
+import io.datarouter.storage.metric.Gauges;
+
+@Singleton
 public class WebSocketCounters{
 
-	private static final String PREFIX = "websocket ";
+	@Inject
+	private Gauges gauges;
 
 	public static void inc(String key){
-		Counters.inc(PREFIX + key);
+		Counters.inc("websocket " + key);
+	}
+
+	public void saveCount(String key, long value){
+		gauges.save("websocketCount " + key, value);
 	}
 
 }

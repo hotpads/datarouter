@@ -20,8 +20,8 @@ import java.util.List;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.comparable.LongField;
 import io.datarouter.model.field.imp.comparable.LongFieldKey;
-import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.key.primary.base.BaseEntityPrimaryKey;
+import io.datarouter.util.number.RandomTool;
 
 public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntityKey,MapStorageBeanKey>{
 
@@ -38,7 +38,7 @@ public class MapStorageBeanKey extends BaseEntityPrimaryKey<MapStorageBeanEntity
 	}
 
 	public MapStorageBeanKey(){
-		this(new MapStorageBeanEntityKey(UInt63Field.nextPositiveRandom()), UInt63Field.nextPositiveRandom());
+		this(new MapStorageBeanEntityKey(RandomTool.nextPositiveLong()), RandomTool.nextPositiveLong());
 	}
 
 	public MapStorageBeanKey(MapStorageBeanEntityKey entityKey, Long id){

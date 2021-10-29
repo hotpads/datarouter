@@ -95,6 +95,7 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 		ThreadFactory factory = new NamedThreadFactory("datarouterListenerShutdownExecutor", false);
 		ExecutorService executor = Executors.newFixedThreadPool(listenersToShutdown.size(), factory);
 		var timer = new PhaseTimer();
+		long shutdownStartMillis = System.currentTimeMillis();
 		for(Pair<ShutdownMode,List<DatarouterAppListener>> listenersByShutdownMode : listenersByShutdownMods){
 			List<DatarouterAppListener> listeners = listenersByShutdownMode.getRight();
 			ShutdownMode shutdownMode = listenersByShutdownMode.getLeft();
@@ -103,24 +104,34 @@ public abstract class BaseDatarouterServletContextListener implements ServletCon
 					.collect(Collectors.joining(", ")) + "]");
 			if(shutdownMode == ShutdownMode.SYNCHRONOUS){
 				Scanner.of(listeners)
-						.each(listener -> logger.warn("shutting down: {}", listener.getClass().getSimpleName()))
-						.each(DatarouterAppListener::onShutDown)
-						.map(Object::getClass)
-						.map(Class::getSimpleName)
+						.map(listener -> {
+							String className = listener.getClass().getSimpleName();
+							logger.warn("shutting down listener={}", className);
+							var phaseTimer = new PhaseTimer();
+							listener.onShutDown();
+							return phaseTimer.add(className);
+						})
 						.forEach(timer::add);
 			}else if(shutdownMode == ShutdownMode.PARALLEL){
+				long shutdownParallelStartMillis = System.currentTimeMillis();
 				Scanner.of(listeners)
 						.parallel(new ParallelScannerContext(executor, listeners.size(), true))
-						.each(listener -> {
-							logger.warn("shutting down: {}", listener.getClass().getSimpleName());
+						.map(listener -> {
+							String className = listener.getClass().getSimpleName();
+							logger.warn("shutting down listener={}", className);
+							var phaseTimer = new PhaseTimer();
 							listener.onShutDown();
+							return phaseTimer.add(className);
 						})
-						.map(Object::getClass)
-						.map(Class::getSimpleName)
 						.forEach(timer::add);
+				//TODO remove
+				logger.warn("Parallel shutDown total={}", System.currentTimeMillis() - shutdownParallelStartMillis);
 			}
 		}
-		logger.warn("shutDown {}", timer);
+		logger.warn(String.format("shutDown [total=%d][%s]", System.currentTimeMillis() - shutdownStartMillis,
+				timer.getPhaseNamesAndTimes().stream()
+						.map(pair -> pair.getLeft() + "=" + pair.getRight())
+						.collect(Collectors.joining("]["))));
 		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(2));
 		listenersByShutdownMods.clear();
 		listenersToShutdown.clear();
