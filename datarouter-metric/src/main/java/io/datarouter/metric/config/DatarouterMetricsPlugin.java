@@ -43,7 +43,7 @@ import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
 import io.datarouter.storage.metric.Gauges;
 import io.datarouter.web.config.BaseWebPlugin;
-import io.datarouter.web.listener.ExecutorsAppListener;
+import io.datarouter.web.listener.ComputedPropertiesAppListener;
 
 public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
@@ -73,7 +73,7 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		if(enableCountPublishing){
 			addAppListener(CountConveyors.class);
-			addAppListenerOrdered(CountersAppListener.class, ExecutorsAppListener.class);
+			addAppListenerOrdered(CountersAppListener.class, ComputedPropertiesAppListener.class);
 			addSettingRoot(DatarouterCountSettingRoot.class);
 		}
 		if(enableGaugePublishing){

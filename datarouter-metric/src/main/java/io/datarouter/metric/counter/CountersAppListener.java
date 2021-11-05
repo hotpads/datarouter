@@ -55,4 +55,9 @@ public class CountersAppListener implements DatarouterAppListener{
 		Counters.stopAndFlushAll();
 	}
 
+	@Override
+	public boolean safeToExecuteInParallel(){
+		return false;
+	}
+
 }

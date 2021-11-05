@@ -50,7 +50,7 @@ public class DatarouterShutdownAppListener implements DatarouterAppListener{
 	}
 
 	@Override
-	public boolean safeToShutdownInParallel(){
+	public boolean safeToExecuteInParallel(){
 		return false;
 	}
 

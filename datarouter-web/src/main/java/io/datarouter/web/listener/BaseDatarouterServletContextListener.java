@@ -17,10 +17,12 @@ package io.datarouter.web.listener;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletContextEvent;
@@ -45,105 +47,124 @@ import io.datarouter.web.inject.InjectorRetriever;
 public abstract class BaseDatarouterServletContextListener implements ServletContextListener, InjectorRetriever{
 	private static final Logger logger = LoggerFactory.getLogger(BaseDatarouterServletContextListener.class);
 
+	private static final boolean STARTUP_ALL_LISTENERS_SYNCHRONOUSLY = false;
+	private static final boolean SHUTDOWN_ALL_LISTENERS_SYNCHRONOUSLY = false;
+
 	private final List<Class<? extends DatarouterAppListener>> listenerClasses;
 	private final List<Class<? extends DatarouterWebAppListener>> webListenerClasses;
-	private final List<DatarouterAppListener> listenersToShutdown;
-	private final List<Pair<ShutdownMode,List<DatarouterAppListener>>> listenersByShutdownMods;
+	private final List<DatarouterAppListener> allListeners;
+	private final List<Pair<ExecutionMode,List<DatarouterAppListener>>> listenersByExecutionMods;
 
 	public BaseDatarouterServletContextListener(
 			List<Class<? extends DatarouterAppListener>> listenerClasses,
 			List<Class<? extends DatarouterWebAppListener>> webListenerClasses){
 		this.listenerClasses = listenerClasses;
 		this.webListenerClasses = webListenerClasses;
-		this.listenersToShutdown = new ArrayList<>();
-		this.listenersByShutdownMods = new ArrayList<>();
+		this.allListeners = new ArrayList<>();
+		this.listenersByExecutionMods = new ArrayList<>();
 	}
 
 	@Override
 	public void contextInitialized(ServletContextEvent event){
-		DatarouterInjector injector = getInjector(event.getServletContext());
-		var timer = new PhaseTimer();
-		Scanner.of(listenerClasses)
-				.map(injector::getInstance)
-				.each(listenersToShutdown::add)
-				.each(DatarouterAppListener::onStartUp)
-				.map(Object::getClass)
-				.map(Class::getSimpleName)
-				.forEach(timer::add);
-		Scanner.of(webListenerClasses)
-				.map(injector::getInstance)
-				.each(listenersToShutdown::add)
-				.each(listener -> listener.setServletContext(event.getServletContext()))
-				.each(DatarouterWebAppListener::onStartUp)
-				.map(Object::getClass)
-				.map(Class::getSimpleName)
-				.forEach(timer::add);
-		logger.warn("startUp {}", timer);
-
-		Scanner.of(listenersToShutdown)
-				.reverse()
-				.splitBy(DatarouterAppListener::safeToShutdownInParallel)
-				.map(Scanner::list)
-				.map(listeners -> new Pair<>(
-						listeners.get(0).safeToShutdownInParallel() ? ShutdownMode.PARALLEL : ShutdownMode.SYNCHRONOUS,
-						listeners))
-				.forEach(listenersByShutdownMods::add);
+		buildExecuteOnActionsLists(event);
+		processListeners(OnAction.STARTUP, STARTUP_ALL_LISTENERS_SYNCHRONOUSLY);
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent event){
-		ThreadFactory factory = new NamedThreadFactory("datarouterListenerShutdownExecutor", false);
-		ExecutorService executor = Executors.newFixedThreadPool(listenersToShutdown.size(), factory);
+		Collections.reverse(listenersByExecutionMods);
+		listenersByExecutionMods.forEach(pair -> Collections.reverse(pair.getRight()));
+		processListeners(OnAction.SHUTDOWN, SHUTDOWN_ALL_LISTENERS_SYNCHRONOUSLY);
+		listenersByExecutionMods.clear();
+		allListeners.clear();
+	}
+
+	private void buildExecuteOnActionsLists(ServletContextEvent event){
+		DatarouterInjector injector = getInjector(event.getServletContext());
+		Scanner.of(listenerClasses)
+				.map(injector::getInstance)
+				.forEach(allListeners::add);
+		Scanner.of(webListenerClasses)
+				.map(injector::getInstance)
+				.each(listener -> listener.setServletContext(event.getServletContext()))
+				.forEach(allListeners::add);
+
+		Scanner.of(allListeners)
+				.splitBy(DatarouterAppListener::safeToExecuteInParallel)
+				.map(Scanner::list)
+				.map(listeners -> new Pair<>(
+						listeners.get(0).safeToExecuteInParallel() ? ExecutionMode.PARALLEL : ExecutionMode.SYNCHRONOUS,
+						listeners))
+				.forEach(listenersByExecutionMods::add);
+	}
+
+	private void processListeners(OnAction onAction, boolean executeAllListenersSynchronously){
+		ThreadFactory factory = new NamedThreadFactory("datarouterListenerExecutor", false);
+		ExecutorService executor = Executors.newFixedThreadPool(allListeners.size(), factory);
 		var timer = new PhaseTimer();
 		long shutdownStartMillis = System.currentTimeMillis();
-		for(Pair<ShutdownMode,List<DatarouterAppListener>> listenersByShutdownMode : listenersByShutdownMods){
+		for(Pair<ExecutionMode,List<DatarouterAppListener>> listenersByShutdownMode : listenersByExecutionMods){
 			List<DatarouterAppListener> listeners = listenersByShutdownMode.getRight();
-			ShutdownMode shutdownMode = listenersByShutdownMode.getLeft();
-			logger.warn("shutting down {}: [{}", shutdownMode.display, listeners.stream()
+			ExecutionMode executionMode = executeAllListenersSynchronously
+					? ExecutionMode.SYNCHRONOUS
+					: listenersByShutdownMode.getLeft();
+			logger.warn("{} {}: [{}", onAction.display, executionMode.display, listeners.stream()
 					.map(listener -> listener.getClass().getSimpleName())
 					.collect(Collectors.joining(", ")) + "]");
-			if(shutdownMode == ShutdownMode.SYNCHRONOUS){
+			if(executionMode == ExecutionMode.SYNCHRONOUS){
 				Scanner.of(listeners)
-						.map(listener -> {
-							String className = listener.getClass().getSimpleName();
-							logger.warn("shutting down listener={}", className);
-							var phaseTimer = new PhaseTimer();
-							listener.onShutDown();
-							return phaseTimer.add(className);
-						})
+						.map(executeOnAction(onAction))
 						.forEach(timer::add);
-			}else if(shutdownMode == ShutdownMode.PARALLEL){
+			}else if(executionMode == ExecutionMode.PARALLEL){
 				long shutdownParallelStartMillis = System.currentTimeMillis();
 				Scanner.of(listeners)
 						.parallel(new ParallelScannerContext(executor, listeners.size(), true))
-						.map(listener -> {
-							String className = listener.getClass().getSimpleName();
-							logger.warn("shutting down listener={}", className);
-							var phaseTimer = new PhaseTimer();
-							listener.onShutDown();
-							return phaseTimer.add(className);
-						})
+						.map(executeOnAction(onAction))
 						.forEach(timer::add);
-				//TODO remove
-				logger.warn("Parallel shutDown total={}", System.currentTimeMillis() - shutdownParallelStartMillis);
+				logger.info("Parallel {} total={}", onAction.display,
+						System.currentTimeMillis() - shutdownParallelStartMillis);
 			}
 		}
-		logger.warn(String.format("shutDown [total=%d][%s]", System.currentTimeMillis() - shutdownStartMillis,
+		logger.warn(String.format("%s [total=%d][%s]", onAction, System.currentTimeMillis() - shutdownStartMillis,
 				timer.getPhaseNamesAndTimes().stream()
 						.map(pair -> pair.getLeft() + "=" + pair.getRight())
 						.collect(Collectors.joining("]["))));
 		ExecutorServiceTool.shutdown(executor, Duration.ofSeconds(2));
-		listenersByShutdownMods.clear();
-		listenersToShutdown.clear();
 	}
 
-	private enum ShutdownMode{
+	private Function<DatarouterAppListener,PhaseTimer> executeOnAction(OnAction onAction){
+		return listener -> {
+			String className = listener.getClass().getSimpleName();
+			logger.info("{} listener={}", onAction.display, className);
+			var phaseTimer = new PhaseTimer();
+			if(onAction == OnAction.STARTUP){
+				listener.onStartUp();
+			}else if(onAction == OnAction.SHUTDOWN){
+				listener.onShutDown();
+			}
+			return phaseTimer.add(className);
+		};
+	}
+
+	private enum OnAction{
+		STARTUP("starting"),
+		SHUTDOWN("shutting down");
+
+		private final String display;
+
+		OnAction(String display){
+			this.display = display;
+		}
+
+	}
+
+	private enum ExecutionMode{
 		SYNCHRONOUS("synchronously"),
 		PARALLEL("in parallel");
 
-		public final String display;
+		private final String display;
 
-		ShutdownMode(String display){
+		ExecutionMode(String display){
 			this.display = display;
 		}
 

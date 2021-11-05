@@ -15,19 +15,32 @@
  */
 package io.datarouter.websocket.job;
 
+import java.time.Instant;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
+import io.datarouter.joblet.enums.JobletPriority;
+import io.datarouter.joblet.model.JobletPackage;
+import io.datarouter.joblet.service.JobletService;
 
 public class WebSocketSessionVacuumJob extends BaseJob{
 
 	@Inject
-	private WebSocketSessionVacuum webSocketSessionVacuum;
+	private JobletService jobletService;
 
 	@Override
 	public void run(TaskTracker tracker){
-		webSocketSessionVacuum.run(tracker);
+		JobletPackage jobletPackage = JobletPackage.create(
+				WebSocketSessionVacuumJoblet.JOBLET_TYPE,
+				JobletPriority.DEFAULT,
+				true,
+				null,
+				null,
+				Instant.now());
+		jobletService.submitJobletPackages(List.of(jobletPackage));
 	}
 
 }

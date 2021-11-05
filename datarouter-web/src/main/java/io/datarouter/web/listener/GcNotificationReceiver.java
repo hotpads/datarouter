@@ -84,7 +84,7 @@ public class GcNotificationReceiver implements DatarouterAppListener{
 	}
 
 	@Override
-	public boolean safeToShutdownInParallel(){
+	public boolean safeToExecuteInParallel(){
 		return false;
 	}
 

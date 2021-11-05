@@ -37,7 +37,7 @@ public class InitializeEagerClientsAppListener implements DatarouterAppListener{
 	}
 
 	@Override
-	public boolean safeToShutdownInParallel(){
+	public boolean safeToExecuteInParallel(){
 		return false;
 	}
 

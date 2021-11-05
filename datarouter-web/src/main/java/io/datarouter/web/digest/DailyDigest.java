@@ -23,7 +23,7 @@ import j2html.tags.ContainerTag;
 
 public interface DailyDigest{
 
-	static final Comparator<DailyDigest> COMPARATOR = Comparator
+	Comparator<DailyDigest> COMPARATOR = Comparator
 			.comparing(DailyDigest::getGrouping)
 			.thenComparing(DailyDigest::getTitle);
 

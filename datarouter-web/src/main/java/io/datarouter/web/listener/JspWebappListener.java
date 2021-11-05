@@ -64,7 +64,7 @@ public class JspWebappListener extends DatarouterWebAppListener{
 	}
 
 	@Override
-	public boolean safeToShutdownInParallel(){
+	public boolean safeToExecuteInParallel(){
 		return false;
 	}
 

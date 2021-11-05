@@ -18,16 +18,17 @@ package io.datarouter.websocket.config;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.job.config.BaseJobPlugin;
+import io.datarouter.joblet.setting.BaseJobletPlugin;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
-import io.datarouter.web.config.DatarouterServletGuiceModule;
 import io.datarouter.web.dispatcher.FilterParamGrouping;
 import io.datarouter.web.dispatcher.FilterParams;
+import io.datarouter.web.inject.guice.BaseGuiceServletModule;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 import io.datarouter.websocket.auth.GuiceWebSocketAuthenticationFilter;
 import io.datarouter.websocket.endpoint.WebSocketServices;
+import io.datarouter.websocket.job.WebSocketSessionVacuumJoblet;
 import io.datarouter.websocket.service.DefaultServerAddressProvider;
 import io.datarouter.websocket.service.GuiceWebSocketConfig;
 import io.datarouter.websocket.service.ServerAddressProvider;
@@ -38,7 +39,7 @@ import io.datarouter.websocket.storage.session.DatarouterWebSocketSessionDao.Dat
 import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao;
 import io.datarouter.websocket.storage.subscription.DatarouterWebSocketSubscriptionDao.DatarouterWebSocketSubscriptionDaoParams;
 
-public class DatarouterWebSocketPlugin extends BaseJobPlugin{
+public class DatarouterWebSocketPlugin extends BaseJobletPlugin{
 
 	private static final DatarouterWebSocketPaths PATHS = new DatarouterWebSocketPaths();
 
@@ -67,12 +68,13 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 		addTriggerGroup(DatarouterWebSocketTriggerGroup.class);
 		addFilterParams(new FilterParams(
 				false,
-				DatarouterServletGuiceModule.ROOT_PATH,
+				BaseGuiceServletModule.ROOT_PATH,
 				GuiceWebSocketAuthenticationFilter.class,
 				FilterParamGrouping.DATAROUTER));
 		addRouteSet(DatarouterWebSocketApiRouteSet.class);
 		setDaosModule(daosModule);
 		addDatarouterGithubDocLink("datarouter-websocket");
+		addJobletType(WebSocketSessionVacuumJoblet.JOBLET_TYPE);
 	}
 
 	@Override
@@ -81,6 +83,7 @@ public class DatarouterWebSocketPlugin extends BaseJobPlugin{
 		bind(ServerAddressProvider.class).to(serverAddressProvider);
 		bind(PushServiceSettingsSupplier.class)
 				.toInstance(new PushServiceSettings(pushServiceCipherKey, pushServiceSalt, pushServiceApiKey));
+		bind(WebSocketSettingOverrides.class).asEagerSingleton();
 	}
 
 	public static class DatarouterWebSocketPluginBuilder{

@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -142,7 +143,9 @@ public class LongRunningTaskTracker implements TaskTracker{
 
 	@Override
 	public Instant getScheduledTime(){
-		return task.triggerTime.toInstant();
+		return Optional.ofNullable(task.triggerTime)
+				.map(Date::toInstant)
+				.orElse(null);
 	}
 
 	public LongRunningTaskTracker setTriggerTime(Instant triggerTime){

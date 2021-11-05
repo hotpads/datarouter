@@ -23,34 +23,29 @@ import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.client.utils.URIBuilder;
 
-import com.amazonaws.services.sqs.model.ListQueuesResult;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 
-import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsClientType;
 import io.datarouter.aws.sqs.config.DatarouterSqsPaths;
+import io.datarouter.aws.sqs.service.SqsQueueRegistryService;
 import io.datarouter.aws.sqs.web.handler.SqsUpdateQueueHandler;
 import io.datarouter.pathnode.PathNode;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientOptions;
-import io.datarouter.storage.node.DatarouterNodes;
-import io.datarouter.storage.node.NodeTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.number.NumberTool;
-import io.datarouter.util.string.StringTool;
+import io.datarouter.util.tuple.Pair;
+import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.browse.DatarouterClientWebInspector;
 import io.datarouter.web.browse.dto.DatarouterWebRequestParamsFactory;
 import io.datarouter.web.handler.mav.Mav;
@@ -67,8 +62,6 @@ import j2html.tags.specialized.ATag;
 public class SqsWebInspector implements DatarouterClientWebInspector{
 
 	@Inject
-	private DatarouterNodes nodes;
-	@Inject
 	private DatarouterWebRequestParamsFactory paramsFactory;
 	@Inject
 	private SqsClientManager sqsClientManager;
@@ -78,6 +71,8 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	private ClientOptions clientOptions;
 	@Inject
 	private DatarouterSqsPaths paths;
+	@Inject
+	private SqsQueueRegistryService queueRegistryService;
 
 	@Override
 	public Mav inspectClient(Params params, HttpServletRequest request){
@@ -104,18 +99,13 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	}
 
 	private ContainerTag<?> buildQueueNodeTable(ClientId clientId, HttpServletRequest request){
-		Set<String> knownQueuesUrls = new HashSet<>();
-		List<? extends BaseSqsNode<?,?,?>> sqsNodes = Scanner.of(nodes.getPhysicalNodesForClient(clientId.getName()))
-				.map(NodeTool::extractSinglePhysicalNode)
-				.map(physicalNode -> (BaseSqsNode<?,?,?>)physicalNode)
-				.list();
-		List<SqsWebInspectorDto> queueStatsRows = Scanner.of(sqsNodes)
-				.map(BaseSqsNode::getQueueUrlAndName)
-				.map(Supplier::get)
+		Pair<List<Twin<String>>,List<String>> queueRegistry = queueRegistryService.getSqsQueuesForClient(clientId);
+		List<Twin<String>> knownQueueUrlByName = queueRegistry.getLeft();
+		List<String> unreferencedQueues = queueRegistry.getRight();
+		List<SqsWebInspectorDto> queueStatsRows = Scanner.of(knownQueueUrlByName)
 				.map(queueUrlAndName -> {
 					String queueName = queueUrlAndName.getRight();
 					String queueUrl = queueUrlAndName.getLeft();
-					knownQueuesUrls.add(queueUrl);
 					Map<String,String> attributesMap = sqsClientManager.getAllQueueAttributes(clientId, queueUrl);
 					return new SqsWebInspectorDto(
 							queueName,
@@ -124,14 +114,6 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 							attributesMap.get(QueueAttributeName.ApproximateNumberOfMessagesNotVisible.name()));
 				})
 				.sort(Comparator.comparing(dto -> dto.queueName))
-				.list();
-		List<String> unreferencedQueues = Scanner.of(sqsNodes)
-				.map(BaseSqsNode::getOrBuildFullNamespace)
-				.distinct()
-				.map(namespace -> sqsClientManager.getAmazonSqs(clientId).listQueues(namespace))
-				.concatIter(ListQueuesResult::getQueueUrls)
-				.exclude(knownQueuesUrls::contains)
-				.map(queueUrl -> StringTool.getStringAfterLastOccurrence("/", queueUrl))
 				.list();
 
 		var table = new J2HtmlTable<SqsWebInspectorDto>()
@@ -185,7 +167,9 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 						"Messages are considered to be in flight if they have been sent to a client but have not yet "
 								+ "been deleted or have not yet reached the end of their visibility window.")
 				.withEntry("Total Messages", " A total of Available + InFlight messages")
-				.build();
+				.build()
+				.withClass("container-fluid my-4")
+				.withStyle("padding-left: 0px");
 	}
 
 	private String buildActionPath(

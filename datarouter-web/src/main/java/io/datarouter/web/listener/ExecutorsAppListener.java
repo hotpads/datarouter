@@ -38,7 +38,7 @@ public class ExecutorsAppListener implements DatarouterAppListener{
 	}
 
 	@Override
-	public boolean safeToShutdownInParallel(){
+	public boolean safeToExecuteInParallel(){
 		return false;
 	}
 

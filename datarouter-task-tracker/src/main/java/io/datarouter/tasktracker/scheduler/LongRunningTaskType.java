@@ -20,10 +20,12 @@ import io.datarouter.util.enums.StringEnum;
 
 public enum LongRunningTaskType implements StringEnum<LongRunningTaskType>{
 	JOB("job"),
+	JOBLET("joblet"),
 	REQUEST("request"),
 	MIGRATION("migration"),
 	TEST("test"),
-	NOOP("noop");
+	NOOP("noop"),
+	;
 
 	private final String persistentString;
 

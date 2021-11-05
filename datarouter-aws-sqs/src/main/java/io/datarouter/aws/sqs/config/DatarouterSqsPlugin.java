@@ -18,6 +18,7 @@ package io.datarouter.aws.sqs.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.aws.sqs.service.SqsQueuesDailyDigest;
 import io.datarouter.instrumentation.test.TestableService;
 import io.datarouter.job.config.BaseJobPlugin;
 
@@ -28,6 +29,7 @@ public class DatarouterSqsPlugin extends BaseJobPlugin{
 		addRouteSet(DatarouterSqsRouteSet.class);
 		addTriggerGroup(DatarouterSqsTriggerGroup.class);
 		addDatarouterGithubDocLink("datarouter-aws-sqs");
+		addDailyDigest(SqsQueuesDailyDigest.class);
 
 		builder.testableServiceClasses.forEach(this::addTestable);
 	}

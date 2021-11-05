@@ -31,4 +31,9 @@ public class ComputedPropertiesAppListener implements DatarouterAppListener{
 		service.assertRequired();
 	}
 
+	@Override
+	public boolean safeToExecuteInParallel(){
+		return false;
+	}
+
 }

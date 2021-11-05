@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-java8-parent</artifactId>
-		<version>0.0.93</version>
+		<version>0.0.94</version>
 		<relativePath>../datarouter-java8-parent</relativePath>
 	</parent>
 

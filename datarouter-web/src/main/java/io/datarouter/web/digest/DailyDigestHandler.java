@@ -71,7 +71,7 @@ public class DailyDigestHandler extends BaseHandler{
 				.list();
 
 		ContainerTag<?> content;
-		if(digestsWithContent.size() == 0){
+		if(digestsWithContent.isEmpty()){
 			content = div("No content for the daily digest.")
 					.withClass("container-fluid");
 		}else{

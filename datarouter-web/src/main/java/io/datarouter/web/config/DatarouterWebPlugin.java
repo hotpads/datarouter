@@ -219,7 +219,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 		addAppListenerOrdered(DatarouterShutdownAppListener.class, InitializeEagerClientsAppListener.class);
 		addAppListenerOrdered(HttpClientAppListener.class, DatarouterShutdownAppListener.class);
 		addAppListenerOrdered(ExecutorsAppListener.class, HttpClientAppListener.class);
-		addAppListener(ComputedPropertiesAppListener.class);
+		addAppListenerOrdered(ComputedPropertiesAppListener.class, ExecutorsAppListener.class);
 
 		addWebListenerOrdered(TomcatWebAppNamesWebAppListener.class, null);
 		addWebListenerOrdered(JspWebappListener.class, TomcatWebAppNamesWebAppListener.class);

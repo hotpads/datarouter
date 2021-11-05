@@ -28,7 +28,7 @@ public class NoJavaSessionWebAppListener extends DatarouterWebAppListener{
 	}
 
 	@Override
-	public boolean safeToShutdownInParallel(){
+	public boolean safeToExecuteInParallel(){
 		return false;
 	}
 

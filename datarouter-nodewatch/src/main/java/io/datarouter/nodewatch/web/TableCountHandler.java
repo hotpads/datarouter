@@ -21,7 +21,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -84,16 +83,14 @@ public class TableCountHandler extends BaseHandler{
 
 	@Handler(defaultHandler = true)
 	private Mav latestTableCounts(){
+		ZoneId userZoneId = getUserZoneId();
 		Mav mav = new Mav(files.jsp.datarouter.nodewatch.latestTableCountsJsp);
-		Map<String,List<TableCountJspDto>> latestTableCountDtoMap = new TreeMap<>();
-		latestTableCountDao.scanKeys()
-				.map(LatestTableCountKey::getClientName)
-				.forEach(clientName -> {
-					latestTableCountDao.scanWithPrefix(new LatestTableCountKey(clientName, null))
-							.sort(Comparator.comparing(LatestTableCount::getNumRows).reversed())
-							.map(count -> new TableCountJspDto(count, getUserZoneId()))
-							.flush(list -> latestTableCountDtoMap.put(clientName, list));
-				});
+		Map<String,List<TableCountJspDto>> latestTableCountDtoMap = latestTableCountDao.scan()
+				.splitBy(count -> count.getKey().getClientName())
+				.concat(counts -> counts.sort(Comparator.comparing(LatestTableCount::getNumRows).reversed()))
+				.map(count -> new TableCountJspDto(count, userZoneId))
+				.groupBy(dto -> dto.clientName);
+
 		mav.put("latestTableCountDtoMap", latestTableCountDtoMap);
 		return mav;
 	}
@@ -108,13 +105,14 @@ public class TableCountHandler extends BaseHandler{
 
 	@Handler
 	private Mav singleTable(String clientName, String tableName){
+		ZoneId userZoneId = getUserZoneId();
 		Mav mav = new Mav(files.jsp.datarouter.nodewatch.singleTableCountsJsp);
 		mav.put("clientName", clientName);
 		mav.put("tableName", tableName);
 		List<TableCount> results = tableCountDao.getForTable(clientName, tableName);
 		Collections.sort(results, new TableCount.TableCountLatestEntryComparator());
 		mav.put("results", Scanner.of(results)
-				.map(count -> new TableCountJspDto(count, getUserZoneId()))
+				.map(count -> new TableCountJspDto(count, userZoneId))
 				.list());
 		mav.put("jsonData", getRowCountData(clientName, tableName));
 		return mav;
