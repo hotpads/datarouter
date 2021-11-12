@@ -15,31 +15,22 @@
  */
 package io.datarouter.storage.node.op.raw;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.raw.write.BlobStorageWriter;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
-public interface BlobStorage<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>>
-extends BlobStorageWriter<PK,D>{
+public interface BlobStorage extends BlobStorageWriter{
 
 	/*---------------------------- sub-interfaces ---------------------------*/
 
-	public interface BlobStorageNode<
-			PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	extends BlobStorage<PK,D>{
+	public interface BlobStorageNode extends BlobStorage{
+
 	}
 
-	public interface PhysicalBlobStorageNode<
-			PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	extends BlobStorageNode<PK,D,F>, PhysicalNode<PK,D,F>{
+	public interface PhysicalBlobStorageNode
+	extends BlobStorageNode, PhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>{
 	}
 
 }

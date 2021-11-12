@@ -30,8 +30,6 @@ import io.datarouter.email.html.J2HtmlEmailTable;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.util.tuple.Pair;
-import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.DatarouterWebPaths;
 import io.datarouter.web.digest.DailyDigest;
 import io.datarouter.web.digest.DailyDigestGrouping;
@@ -87,8 +85,7 @@ public class SqsQueuesDailyDigest implements DailyDigest{
 			return Optional.empty();
 		}
 
-		Pair<List<Twin<String>>,List<String>> queueRegistry = queueRegistryService.getSqsQueuesForClient(clientId);
-		List<String> unreferencedQueues = queueRegistry.getRight();
+		List<String> unreferencedQueues = queueRegistryService.getSqsQueuesForClient(clientId).getRight();
 		if(unreferencedQueues.isEmpty()){
 			return Optional.empty();
 		}

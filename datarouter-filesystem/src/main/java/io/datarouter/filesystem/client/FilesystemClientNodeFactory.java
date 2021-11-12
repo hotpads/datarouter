@@ -43,6 +43,9 @@ import io.datarouter.storage.client.imp.BaseClientNodeFactory;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.QueueClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
+import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalGroupQueueStorageCounterAdapter;
 import io.datarouter.storage.node.adapter.counter.physical.PhysicalQueueStorageCounterAdapter;
@@ -51,6 +54,7 @@ import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalQueueSto
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalGroupQueueStorageTraceAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalQueueStorageTraceAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.op.raw.QueueStorage.PhysicalQueueStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.config.service.ServiceName;
@@ -109,12 +113,9 @@ implements BlobClientNodeFactory, QueueClientNodeFactory{
 	/*-------------- ObjectClientNodeFactory --------------*/
 
 	@Override
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	PhysicalNode<PK,D,F> createBlobNode(NodeParams<PK,D,F> nodeParams){
+	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
 		DirectoryBlobStorage directoryBlobStorage = makeDirectoryObjectStorage(nodeParams);
-		return new DirectoryBlobStorageNode<>(
+		return new DirectoryBlobStorageNode(
 				nodeParams,
 				clientType,
 				directoryBlobStorage,

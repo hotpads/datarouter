@@ -19,25 +19,20 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
 
-public class DirectoryBlobStorageNode<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements PhysicalBlobStorageNode<PK,D,F>{
+public class DirectoryBlobStorageNode
+extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
+implements PhysicalBlobStorageNode{
 
 	private final DirectoryBlobStorage directoryBlobStorage;
 	//keep these for creating subdirectories
@@ -45,7 +40,7 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	private final Subpath rootPath;
 
 	public DirectoryBlobStorageNode(
-			NodeParams<PK,D,F> params,
+			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
 			ClientType<?,?> clientType,
 			DirectoryBlobStorage directoryBlobStorage,
 			String bucket,

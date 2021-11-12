@@ -20,9 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.file.Pathbean;
@@ -33,29 +30,21 @@ import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
 import io.datarouter.storage.util.Subpath;
 
-public class S3Node<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements PhysicalBlobStorageNode<PK,D,F>{
+public class S3Node
+extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
+implements PhysicalBlobStorageNode{
 
 	private final DatarouterS3Client datarouterS3Client;
 	private final S3DirectoryManager s3DirectoryManager;
 
 	public S3Node(
-			NodeParams<PK,D,F> params,
+			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
 			ClientType<?,?> clientType,
 			DatarouterS3Client datarouterS3Client,
 			S3DirectoryManager directoryManager){
 		super(params, clientType);
 		this.datarouterS3Client = datarouterS3Client;
 		this.s3DirectoryManager = directoryManager;
-	}
-
-	public static S3Node<PathbeanKey,Pathbean,PathbeanFielder> cast(
-			BlobStorageNode<PathbeanKey,Pathbean,PathbeanFielder> objectStorageNode){
-		return (S3Node<PathbeanKey,Pathbean,PathbeanFielder>)objectStorageNode;
 	}
 
 	public DatarouterS3Client getDatarouterS3Client(){

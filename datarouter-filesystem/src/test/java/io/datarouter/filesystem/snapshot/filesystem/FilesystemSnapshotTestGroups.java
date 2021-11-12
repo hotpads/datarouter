@@ -27,9 +27,6 @@ import io.datarouter.pathnode.PathNode;
 import io.datarouter.pathnode.PathsRoot;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.file.Directory;
-import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
-import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.factory.BlobNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.util.Subpath;
@@ -68,7 +65,7 @@ public class FilesystemSnapshotTestGroups{
 			BlobNodeFactory blobNodeFactory,
 			SnapshotGroupFactory snapshotGroupFactory,
 			Paths paths){
-		PhysicalBlobStorageNode<PathbeanKey,Pathbean,PathbeanFielder> node = blobNodeFactory.create(
+		PhysicalBlobStorageNode node = blobNodeFactory.create(
 				FilesystemTestClientIds.TEST,
 				"snapshot",
 				Subpath.empty());

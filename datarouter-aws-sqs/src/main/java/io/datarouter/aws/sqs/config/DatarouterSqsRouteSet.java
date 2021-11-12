@@ -30,6 +30,7 @@ public class DatarouterSqsRouteSet extends BaseRouteSet{
 	public DatarouterSqsRouteSet(DatarouterSqsPaths paths){
 		super(paths.datarouter.sqs);
 		handle(paths.datarouter.sqs.deleteQueue).withHandler(SqsUpdateQueueHandler.class);
+		handle(paths.datarouter.sqs.deleteAllUnreferencedQueues).withHandler(SqsUpdateQueueHandler.class);
 		handle(paths.datarouter.sqs.purgeQueue).withHandler(SqsUpdateQueueHandler.class);
 	}
 

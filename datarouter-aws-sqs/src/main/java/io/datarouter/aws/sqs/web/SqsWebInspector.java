@@ -124,7 +124,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 				.withHtmlColumn(th("Delayed").withClass("col-xs-1"), row -> td(row.messagesDelayed))
 				.withHtmlColumn(th("InFlight").withClass("col-xs-1"), row -> td(row.messagesInFlight))
 				.withHtmlColumn(th("Total").withClass("col-xs-1"), row -> td(row.getTotalMessagesAvailable()))
-				.withHtmlColumn(th("").attr("width", "50"), row -> {
+				.withHtmlColumn(th("").attr("width", "80"), row -> {
 					String href = buildActionPath(request, clientId, row.queueName, SqsQueueAction.PURGE);
 					ATag purgeIcon = a(i().withClass("fas fa-skull-crossbones fa-lg"))
 							.withHref(href)
@@ -133,16 +133,26 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 					return td(purgeIcon).withStyle("text-align:center");
 				})
 				.build(queueStatsRows);
+		if(unreferencedQueues.isEmpty()){
+			return div(h4("Queues"), table)
+					.withClass("container-fluid my-4")
+					.withStyle("padding-left: 0px");
+		}
 		var unreferencedQueuesTable = new J2HtmlTable<String>()
 				.withClasses("sortable table table-sm table-striped my-4 border")
 				.withHtmlColumn(th("Queue Name"), TagCreator::td)
-				.withHtmlColumn(th("").attr("width", "50"), row -> {
-					String href = buildActionPath(request, clientId, row, SqsQueueAction.DELETE);
-					ATag trashIcon = a(i().withClass("fas fa-trash fa-lg"))
-							.withHref(href)
-							.attr("data-toggle", "tooltip")
-							.attr("title", "Delete queue " + row);
-					return td(trashIcon).withStyle("text-align:center");
+				.withHtmlColumn(
+						th(a("Delete All")
+								.withHref(buildActionPath(request, clientId, "", SqsQueueAction.DELETE_ALL)))
+								.withStyle("text-align:center")
+								.attr("width", "80"),
+						row -> {
+							String href = buildActionPath(request, clientId, row, SqsQueueAction.DELETE);
+							ATag trashIcon = a(i().withClass("fas fa-trash fa-lg"))
+									.withHref(href)
+									.attr("data-toggle", "tooltip")
+									.attr("title", "Delete queue " + row);
+							return td(trashIcon).withStyle("text-align:center");
 				})
 				.build(unreferencedQueues);
 		return div(h4("Queues"), table, h4("Unreferenced Queues"), unreferencedQueuesTable)
@@ -177,21 +187,23 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 			ClientId clientId,
 			String queueName,
 			SqsQueueAction action){
+		String referer = request.getRequestURI() + "?" + request.getQueryString();
+		URIBuilder uriBuilder = new URIBuilder()
+				.addParameter(SqsUpdateQueueHandler.PARAM_clientName, clientId.getName())
+				.addParameter(SqsUpdateQueueHandler.PARAM_referer, referer);
 		PathNode path;
 		if(action == SqsQueueAction.DELETE){
 			path = paths.datarouter.sqs.deleteQueue;
+			uriBuilder.addParameter(SqsUpdateQueueHandler.PARAM_queueName, queueName);
 		}else if(action == SqsQueueAction.PURGE){
 			path = paths.datarouter.sqs.purgeQueue;
+			uriBuilder.addParameter(SqsUpdateQueueHandler.PARAM_queueName, queueName);
+		}else if(action == SqsQueueAction.DELETE_ALL){
+			path = paths.datarouter.sqs.deleteAllUnreferencedQueues;
 		}else{
 			return null;
 		}
-		String referer = request.getRequestURI() + "?" + request.getQueryString();
-		return new URIBuilder()
-				.setPath(request.getContextPath() + path.toSlashedString())
-				.addParameter(SqsUpdateQueueHandler.PARAM_clientName, clientId.getName())
-				.addParameter(SqsUpdateQueueHandler.PARAM_queueName, queueName)
-				.addParameter(SqsUpdateQueueHandler.PARAM_referer, referer)
-				.toString();
+		return uriBuilder.setPath(request.getContextPath() + path.toSlashedString()).toString();
 	}
 
 	private static class SqsWebInspectorDto{
@@ -223,6 +235,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 
 	private enum SqsQueueAction{
 		DELETE,
+		DELETE_ALL,
 		PURGE
 	}
 

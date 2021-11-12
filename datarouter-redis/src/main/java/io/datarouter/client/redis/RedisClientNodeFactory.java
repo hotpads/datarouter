@@ -34,6 +34,9 @@ import io.datarouter.storage.client.imp.BaseClientNodeFactory;
 import io.datarouter.storage.client.imp.BlobClientNodeFactory;
 import io.datarouter.storage.client.imp.TallyClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
+import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.adapter.availability.PhysicalMapStorageAvailabilityAdapterFactory;
 import io.datarouter.storage.node.adapter.callsite.physical.PhysicalMapStorageCallsiteAdapter;
@@ -43,6 +46,7 @@ import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalTallySto
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalMapStorageTraceAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalTallyStorageTraceAdapter;
 import io.datarouter.storage.node.entity.EntityNodeParams;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
@@ -98,10 +102,7 @@ implements BlobClientNodeFactory,TallyClientNodeFactory{
 	}
 
 	@Override
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	PhysicalNode<PK,D,F> createBlobNode(NodeParams<PK,D,F> nodeParams){
+	public PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams){
 		return redisNodeFactory.createBlobNode(nodeParams);
 	}
 

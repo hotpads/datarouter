@@ -8,13 +8,11 @@ import java.util.Optional;
 import io.datarouter.client.redis.RedisBlobCodec;
 import io.datarouter.client.redis.client.RedisClientManager;
 import io.datarouter.client.redis.client.RedisOps;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
@@ -26,23 +24,20 @@ import io.datarouter.util.tuple.Twin;
 import io.lettuce.core.KeyValue;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 
-public class RedisBlobNode<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements PhysicalBlobStorageNode<PK,D,F>{
+public class RedisBlobNode
+extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
+implements PhysicalBlobStorageNode{
 
 	private final ClientId clientId;
 	private final String bucket;
 	private final Subpath rootPath;
 	private final Integer schemaVersion;
-	private final RedisBlobCodec<PK,D,F> codec;
+	private final RedisBlobCodec codec;
 	private final RedisClientManager redisClientManager;
 	private final RedisOps ops;
 
 	public RedisBlobNode(
-			NodeParams<PK,D,F> params,
+			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
 			ClientType<?,?> clientType,
 			RedisClientManager redisClientManager){
 		super(params, clientType);
@@ -50,7 +45,7 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 		this.bucket = params.getPhysicalName();
 		this.rootPath = params.getPath();
 		this.schemaVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
-		this.codec = new RedisBlobCodec<>(getFieldInfo(), schemaVersion);
+		this.codec = new RedisBlobCodec(schemaVersion);
 		this.redisClientManager = redisClientManager;
 		this.ops = new RedisOps(client());
 	}

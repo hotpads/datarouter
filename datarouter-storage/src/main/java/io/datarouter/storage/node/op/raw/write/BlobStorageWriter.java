@@ -17,8 +17,6 @@ package io.datarouter.storage.node.op.raw.write;
 
 import java.io.InputStream;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.raw.read.BlobStorageReader;
@@ -27,10 +25,7 @@ import io.datarouter.storage.util.Subpath;
 /**
  * Methods for writing to an object store such as the filesystem or S3.
  */
-public interface BlobStorageWriter<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>>
-extends BlobStorageReader<PK,D>{
+public interface BlobStorageWriter extends BlobStorageReader{
 
 	void write(PathbeanKey key, byte[] value);
 

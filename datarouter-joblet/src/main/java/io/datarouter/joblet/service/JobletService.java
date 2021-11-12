@@ -312,13 +312,19 @@ public class JobletService{
 				setStatusTo, jobletRequest.getNumFailures());
 	}
 
+	/*
+	 * Delete the joblet request before the queue message:
+	 * - if the request deletion fails, the joblet will be restarted by the queue message
+	 * - if the request deletion succeeds, but the ack doesn't, the queue message will be drained
+	 * Both are acceptable outcomes that leave the system in a clean state.
+	 */
 	public void handleJobletCompletion(PhaseTimer timer, JobletRequest jobletRequest){
+		deleteJobletRequestAndData(jobletRequest);
+		timer.add("deleteJobletRequestAndData");
 		if(jobletRequest.getQueueMessageKey() != null){
 			ack(jobletRequest);
 			timer.add("ack");
 		}
-		deleteJobletRequestAndData(jobletRequest);
-		timer.add("deleteJobletRequestAndData");
 	}
 
 	private void requeueJobletRequest(PhaseTimer timer, JobletRequest jobletRequest){

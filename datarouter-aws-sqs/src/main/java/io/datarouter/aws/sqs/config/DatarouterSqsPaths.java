@@ -31,6 +31,7 @@ public class DatarouterSqsPaths extends PathNode implements PathsRoot{
 
 	public static class SqsPaths extends PathNode{
 		public final PathNode deleteQueue = leaf("deleteQueue");
+		public final PathNode deleteAllUnreferencedQueues = leaf("deleteAllUnreferencedQueues");
 		public final PathNode purgeQueue = leaf("purgeQueue");
 	}
 

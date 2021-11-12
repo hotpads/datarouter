@@ -83,7 +83,11 @@ public class AnsiParsingScanner extends BaseLinkedScanner<String,String>{
 					inTag = false;
 				}
 				isHtml = true;
-				currentColors.add(sgrMatcher.group("color"));
+				String color = sgrMatcher.group("color");
+				if(color.startsWith("0;")){
+					currentColors.clear();
+				}
+				currentColors.add(color);
 				inTag = true;
 				lineIndex = sgrMatcher.end();
 			}else{

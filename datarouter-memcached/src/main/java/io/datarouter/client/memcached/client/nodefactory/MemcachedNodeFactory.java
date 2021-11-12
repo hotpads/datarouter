@@ -25,6 +25,9 @@ import io.datarouter.client.memcached.node.MemcachedNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 
 @Singleton
@@ -35,11 +38,8 @@ public class MemcachedNodeFactory{
 	@Inject
 	private MemcachedClientManager clientManager;
 
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	MemcachedBlobNode<PK,D,F> createBlobNode(NodeParams<PK,D,F> params){
-		return new MemcachedBlobNode<>(params, clientType, clientManager);
+	public MemcachedBlobNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params){
+		return new MemcachedBlobNode(params, clientType, clientManager);
 	}
 
 	public <PK extends PrimaryKey<PK>,

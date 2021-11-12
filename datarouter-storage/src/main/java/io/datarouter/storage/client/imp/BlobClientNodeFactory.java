@@ -15,18 +15,15 @@
  */
 package io.datarouter.storage.client.imp;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientNodeFactory;
+import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
+import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 
 public interface BlobClientNodeFactory extends ClientNodeFactory{
 
-	<PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	PhysicalNode<PK,D,F> createBlobNode(NodeParams<PK,D,F> nodeParams);
+	PhysicalBlobStorageNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> nodeParams);
 
 }

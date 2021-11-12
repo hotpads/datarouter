@@ -25,8 +25,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
-import io.datarouter.storage.file.Pathbean;
-import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.factory.BlobNodeFactory;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
@@ -37,7 +35,7 @@ public class RedisBlobTestDao extends BaseDao implements TestDao{
 
 	public static final Subpath SUBPATH = new Subpath("app");
 
-	private final PhysicalBlobStorageNode<PathbeanKey,Pathbean,PathbeanFielder> node;
+	private final PhysicalBlobStorageNode node;
 
 	@Inject
 	public RedisBlobTestDao(

@@ -30,23 +30,23 @@ import io.datarouter.util.Require;
  * convenience in the application.
  */
 public class Directory
-implements BlobStorage<PathbeanKey,Pathbean>{
+implements BlobStorage{
 
-	private final BlobStorage<PathbeanKey,Pathbean> parent;
+	private final BlobStorage parent;
 	private final Subpath subpathInParent;
 	private final String counterName;
 
 	/*---------- construct ------------*/
 
-	public Directory(BlobStorage<PathbeanKey,Pathbean> parent){
+	public Directory(BlobStorage parent){
 		this(parent, Subpath.empty(), null);
 	}
 
-	public Directory(BlobStorage<PathbeanKey,Pathbean> parent, Subpath subpathInParent){
+	public Directory(BlobStorage parent, Subpath subpathInParent){
 		this(parent, subpathInParent, null);
 	}
 
-	public Directory(BlobStorage<PathbeanKey,Pathbean> parent, Subpath subpathInParent, String counterName){
+	public Directory(BlobStorage parent, Subpath subpathInParent, String counterName){
 		this.parent = parent;
 		this.subpathInParent = subpathInParent;
 		this.counterName = counterName;

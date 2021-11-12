@@ -19,21 +19,21 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.i;
 
-import java.time.Duration;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.GetQueueUrlResult;
 import com.amazonaws.services.sqs.model.PurgeQueueRequest;
-import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 
 import io.datarouter.aws.sqs.SqsClientManager;
+import io.datarouter.aws.sqs.service.SqsQueueRegistryService;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
@@ -54,6 +54,8 @@ public class SqsUpdateQueueHandler extends BaseHandler{
 	private DatarouterClients datarouterClients;
 	@Inject
 	private Bootstrap4PageFactory pageFactory;
+	@Inject
+	private SqsQueueRegistryService queueRegistryService;
 
 	@Handler
 	private Mav deleteQueue(
@@ -71,10 +73,28 @@ public class SqsUpdateQueueHandler extends BaseHandler{
 				"deleteQueue",
 				getSessionInfo().getRequiredSession().getUsername())
 				.build();
-		// the deletion process takes up to 60 second
-		while(sqsQueueExists(sqs, queueName)){
-			ThreadTool.trySleep(Duration.ofSeconds(15).toMillis());
-		}
+		changelogRecorder.record(dto);
+		return buildPage(referer, message);
+	}
+
+	@Handler
+	private Mav deleteAllUnreferencedQueues(
+			@Param(PARAM_clientName) String clientName,
+			@Param(PARAM_referer) String referer){
+		ClientId clientId = datarouterClients.getClientId(clientName);
+		List<String> unreferencedQueueNames = queueRegistryService.getSqsQueuesForClient(clientId).getRight();
+		AmazonSQS sqs = sqsClientManager.getAmazonSqs(clientId);
+		Scanner.of(unreferencedQueueNames)
+				.map(sqs::getQueueUrl)
+				.map(GetQueueUrlResult::getQueueUrl)
+				.forEach(sqs::deleteQueue);
+		String message = "Deleted all unreferenced SQS queues";
+		var dto = new DatarouterChangelogDtoBuilder(
+				"Sqs",
+				"",
+				"deleteAllUnreferencedQueues",
+				getSessionInfo().getRequiredSession().getUsername())
+				.build();
 		changelogRecorder.record(dto);
 		return buildPage(referer, message);
 	}
@@ -97,15 +117,6 @@ public class SqsUpdateQueueHandler extends BaseHandler{
 				.build();
 		changelogRecorder.record(dto);
 		return buildPage(referer, message);
-	}
-
-	private boolean sqsQueueExists(AmazonSQS sqs, String queueName){
-		try{
-			sqs.getQueueUrl(queueName);
-			return true;
-		}catch(QueueDoesNotExistException e){
-			return false;
-		}
 	}
 
 	private Mav buildPage(String href, String message){

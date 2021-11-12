@@ -25,6 +25,9 @@ import io.datarouter.client.redis.node.RedisNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 
 @Singleton
@@ -44,11 +47,8 @@ public class RedisNodeFactory{
 		return new RedisNode<>(params, clientType, clientManager, executor);
 	}
 
-	public <PK extends PrimaryKey<PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	RedisBlobNode<PK,D,F> createBlobNode(NodeParams<PK,D,F> params){
-		return new RedisBlobNode<>(params, clientType, clientManager);
+	public RedisBlobNode createBlobNode(NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params){
+		return new RedisBlobNode(params, clientType, clientManager);
 	}
 
 }

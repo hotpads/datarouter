@@ -26,13 +26,11 @@ import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.MemcachedOps;
 import io.datarouter.client.memcached.codec.MemcachedBlobCodec;
 import io.datarouter.client.memcached.util.MemcachedExpirationTool;
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.file.Pathbean;
+import io.datarouter.storage.file.Pathbean.PathbeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
@@ -42,12 +40,9 @@ import io.datarouter.storage.util.Subpath;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.tuple.Pair;
 
-public class MemcachedBlobNode<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-extends BasePhysicalNode<PK,D,F>
-implements PhysicalBlobStorageNode<PK,D,F>{
+public class MemcachedBlobNode
+extends BasePhysicalNode<PathbeanKey,Pathbean,PathbeanFielder>
+implements PhysicalBlobStorageNode{
 
 	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(3);
 	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
@@ -60,7 +55,7 @@ implements PhysicalBlobStorageNode<PK,D,F>{
 	private final MemcachedOps ops;
 
 	public MemcachedBlobNode(
-			NodeParams<PK,D,F> params,
+			NodeParams<PathbeanKey,Pathbean,PathbeanFielder> params,
 			ClientType<?,?> clientType,
 			MemcachedClientManager memcachedClientManager){
 		super(params, clientType);

@@ -23,7 +23,9 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.ListQueuesResult;
+import com.amazonaws.services.sqs.model.QueueDoesNotExistException;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
@@ -45,6 +47,7 @@ public class SqsQueueRegistryService{
 
 	public Pair<List<Twin<String>>,List<String>> getSqsQueuesForClient(ClientId clientId){
 		Set<String> knownQueuesUrls = new HashSet<>();
+		AmazonSQS sqs = sqsClientManager.getAmazonSqs(clientId);
 		List<? extends BaseSqsNode<?,?,?>> sqsNodes = Scanner.of(nodes.getPhysicalNodesForClient(clientId.getName()))
 				.map(NodeTool::extractSinglePhysicalNode)
 				.map(physicalNode -> (BaseSqsNode<?,?,?>)physicalNode)
@@ -57,12 +60,22 @@ public class SqsQueueRegistryService{
 		List<String> unreferencedQueues = Scanner.of(sqsNodes)
 				.map(BaseSqsNode::getOrBuildFullNamespace)
 				.distinct()
-				.map(namespace -> sqsClientManager.getAmazonSqs(clientId).listQueues(namespace))
+				.map(sqs::listQueues)
 				.concatIter(ListQueuesResult::getQueueUrls)
 				.exclude(knownQueuesUrls::contains)
 				.map(queueUrl -> StringTool.getStringAfterLastOccurrence("/", queueUrl))
+				.include(queueName -> sqsQueueExists(sqs, queueName))
 				.list();
 		return new Pair<>(knownQueueUrlByName, unreferencedQueues);
+	}
+
+	private boolean sqsQueueExists(AmazonSQS sqs, String queueName){
+		try{
+			sqs.getQueueUrl(queueName);
+			return true;
+		}catch(QueueDoesNotExistException e){
+			return false;
+		}
 	}
 
 }

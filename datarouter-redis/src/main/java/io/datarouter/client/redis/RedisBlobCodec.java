@@ -15,28 +15,18 @@
  */
 package io.datarouter.client.redis;
 
-import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.FieldTool;
-import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
 import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.bytes.IntegerByteTool;
 
-public class RedisBlobCodec<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>{
+public class RedisBlobCodec{
 
 	private static final int CODEC_VERSION = 1;
 
-	@SuppressWarnings("unused")
-	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 	private final int schemaVersion;
 
-	public RedisBlobCodec(PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo, int nodeVersion){
-		this.fieldInfo = fieldInfo;
+	public RedisBlobCodec(int nodeVersion){
 		this.schemaVersion = nodeVersion;
 	}
 

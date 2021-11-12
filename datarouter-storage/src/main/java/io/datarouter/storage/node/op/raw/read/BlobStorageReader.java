@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.file.Pathbean;
@@ -32,10 +30,8 @@ import io.datarouter.util.split.ChunkScannerTool;
 /**
  * Methods for reading from an blob store such as the filesystem or S3.
  */
-public interface BlobStorageReader<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>>
-extends NodeOps<PK,D>{
+public interface BlobStorageReader
+extends NodeOps<PathbeanKey,Pathbean>{
 
 	String getBucket();
 	Subpath getRootPath();

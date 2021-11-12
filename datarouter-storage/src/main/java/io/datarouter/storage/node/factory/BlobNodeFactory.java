@@ -59,7 +59,7 @@ public class BlobNodeFactory{
 	}
 
 	public <PK extends PrimaryKey<PK>,
-			N extends PhysicalBlobStorageNode<PathbeanKey,Pathbean,PathbeanFielder>>
+			N extends PhysicalBlobStorageNode>
 	N create(
 			ClientId clientId,
 			String bucketName,
@@ -76,12 +76,9 @@ public class BlobNodeFactory{
 		return BaseNodeFactory.cast(clientFactories.createBlobNode(params));
 	}
 
-	public PhysicalBlobStorageNode<
-			PathbeanKey,
-			Pathbean,
-			PathbeanFielder>
+	public PhysicalBlobStorageNode
 	createSubdirectory(
-			PhysicalBlobStorageNode<PathbeanKey,Pathbean,PathbeanFielder> node,
+			PhysicalBlobStorageNode node,
 			Subpath subdirectoryPath){
 		Subpath fullPath = node.getRootPath().append(subdirectoryPath);
 		return create(

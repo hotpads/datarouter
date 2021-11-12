@@ -73,6 +73,7 @@ public class S3Headers{
 		BINARY("binary/octet-stream", null),
 		APPLICATION_OCTET_STREAM("application/octet-stream", null),
 		PDF("application/pdf", "pdf"),
+		MP3("audio/mpeg", "mp3")
 		;
 
 		private final String mimeType;
