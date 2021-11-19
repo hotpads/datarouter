@@ -68,6 +68,9 @@ public class NodeParams<
 	// indicate if is a system table (to filter when exploring)
 	private final boolean isSystemTable;
 
+	// for mysql utf8 to utf8mb4 migrations
+	private final boolean disableIntroducer;
+
 	private NodeParams(
 			ClientId clientId,
 			String parentName,
@@ -85,7 +88,8 @@ public class NodeParams<
 			String queueUrl,
 			NodewatchConfiguration nodewatchConfiguration,
 			boolean disableForcePrimary,
-			boolean isSystemTable){
+			boolean isSystemTable,
+			boolean disableIntroducer){
 		this.clientId = clientId;
 		this.parentName = parentName;
 		this.databeanSupplier = databeanSupplier;
@@ -104,6 +108,7 @@ public class NodeParams<
 		this.nodewatchConfiguration = nodewatchConfiguration;
 		this.disableForcePrimary = disableForcePrimary;
 		this.isSystemTable = isSystemTable;
+		this.disableIntroducer = disableIntroducer;
 	}
 
 	/*----------------------------- builder ---------------------------------*/
@@ -114,6 +119,7 @@ public class NodeParams<
 			F extends DatabeanFielder<PK,D>>{
 		private final Supplier<D> databeanSupplier;
 		private final Supplier<F> fielderSupplier;
+
 		private String parentName;
 		private ClientId clientId;
 		private Integer schemaVersion;
@@ -124,16 +130,12 @@ public class NodeParams<
 		private String remoteRouterName;
 		private String remoteNodeName;
 		private Supplier<Boolean> recordCallsites;
-
 		private String streamName;
-
 		private String queueUrl;
-
 		private NodewatchConfiguration nodewatchConfiguration;
-
 		private boolean disableForcePrimary;
-
 		private boolean isSystemTable;
+		private boolean disableIntroducer;
 
 		/*--------------------------- construct -----------------------------*/
 
@@ -215,6 +217,11 @@ public class NodeParams<
 			return this;
 		}
 
+		public NodeParamsBuilder<PK,D,F> withDisableIntroducer(boolean disableIntroducer){
+			this.disableIntroducer = disableIntroducer;
+			return this;
+		}
+
 		/*----------------------------- build -------------------------------*/
 
 		public NodeParams<PK,D,F> build(){
@@ -235,7 +242,8 @@ public class NodeParams<
 					queueUrl,
 					nodewatchConfiguration,
 					disableForcePrimary,
-					isSystemTable);
+					isSystemTable,
+					disableIntroducer);
 		}
 
 	}
@@ -319,6 +327,10 @@ public class NodeParams<
 
 	public boolean getIsSystemTable(){
 		return isSystemTable;
+	}
+
+	public boolean getDisableIntroducer(){
+		return disableIntroducer;
 	}
 
 }

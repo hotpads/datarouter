@@ -74,8 +74,9 @@ extends BaseMysqlOp<List<PK>>{
 		Connection connection = getConnection();
 		String tableName = fieldInfo.getTableName();
 		String indexName = fieldInfo.getDisableForcePrimary() ? null : MysqlTool.PRIMARY_KEY_INDEX_NAME;
+		boolean disableIntroducer = fieldInfo.getDisableIntroducer();
 		PreparedStatement statement = mysqlSqlFactory
-				.createSql(getClientId(), tableName)
+				.createSql(getClientId(), tableName, disableIntroducer)
 				.getInRanges(
 						tableName,
 						config,

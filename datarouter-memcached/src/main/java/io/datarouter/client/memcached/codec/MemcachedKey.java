@@ -16,6 +16,7 @@
 package io.datarouter.client.memcached.codec;
 
 import io.datarouter.model.key.primary.PrimaryKey;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.util.PrimaryKeyPercentCodecTool;
 import io.datarouter.util.lang.ReflectionTool;
 
@@ -26,23 +27,28 @@ public class MemcachedKey<PK extends PrimaryKey<PK>>{
 
 	public final int codecVersion;
 	public final String nodeName;
-	public final int databeanVersion;
+	public final int schemaVersion;
 	public final PK primaryKey;
 
 	public MemcachedKey(
 			int codecVersion,
 			String nodeName,
-			int databeanVersion,
+			int schemaVersion,
 			PK primaryKey){
 		this.codecVersion = codecVersion;
 		this.nodeName = nodeName;
-		this.databeanVersion = databeanVersion;
+		this.schemaVersion = schemaVersion;
 		this.primaryKey = primaryKey;
 	}
 
-	public static String encode(String nodeName, int databeanVersion, PrimaryKey<?> pk){
+	public static String encode(String nodeName, int schemaVersion, PrimaryKey<?> pk){
 		String encodedPk = PrimaryKeyPercentCodecTool.encode(pk);
-		return CODEC_VERSION + ":" + nodeName + ":" + databeanVersion + ":" + encodedPk;
+		return CODEC_VERSION + ":" + nodeName + ":" + schemaVersion + ":" + encodedPk;
+	}
+
+	public static PathbeanKey encodeToPathbeanKey(PrimaryKey<?> pk){
+		String encodedPk = PrimaryKeyPercentCodecTool.encode(pk);
+		return new PathbeanKey(encodedPk + "/", encodedPk); //TODO change path to have directory like structure
 	}
 
 	public static <PK extends PrimaryKey<PK>> MemcachedKey<PK> decode(String stringKey, Class<PK> pkClass){
@@ -56,9 +62,9 @@ public class MemcachedKey<PK extends PrimaryKey<PK>>{
 		}
 		int codecVersion = Integer.parseInt(tokens[0]);
 		String nodeName = tokens[1];
-		int databeanVersion = Integer.parseInt(tokens[2]);
+		int schemaVersion = Integer.parseInt(tokens[2]);
 		PK primaryKey = PrimaryKeyPercentCodecTool.decode(ReflectionTool.supplier(pkClass), tokens[3]);
-		return new MemcachedKey<>(codecVersion, nodeName, databeanVersion, primaryKey);
+		return new MemcachedKey<>(codecVersion, nodeName, schemaVersion, primaryKey);
 	}
 
 }

@@ -50,6 +50,7 @@ import io.datarouter.auth.web.DatarouterAccountManagerHandler.AccountCredentialD
 import io.datarouter.httpclient.dto.DatarouterAccountCredentialStatusDto;
 import io.datarouter.httpclient.security.SecurityParameters;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretService;
@@ -192,8 +193,10 @@ public class DatarouterAccountCredentialService{
 		datarouterAccountSecretCredentialDao.scan()
 				.include(secretCredential -> accountName.equals(secretCredential.getAccountName()))
 				.each(secretCredential -> {
-					secretService.deleteNamespaced(Optional.empty(), secretCredential.getSecretNamespace(),
-							secretCredential.getKey().getSecretName(), reason);
+					deleteSecret(
+							secretCredential.getSecretNamespace(),
+							secretCredential.getKey().getSecretName(),
+							reason);
 					//not batching the DB deletes, in order to keep the secret and DB deletes close together
 					datarouterAccountSecretCredentialDao.delete(secretCredential.getKey());
 				});
@@ -232,7 +235,10 @@ public class DatarouterAccountCredentialService{
 		}while(findAccountKeyApiKeyAuth(keypair.apiKey, false).isPresent());
 		//delete from DB if creating the secret fails
 		try{
-			secretService.createNamespaced(secretNamespace, credential.getKey().getSecretName(), keypair, reason);
+			SecretOpConfig config = SecretOpConfig.builder(reason)
+					.useManualNamespace(secretNamespace)
+					.build();
+			secretService.create(credential.getKey().getSecretName(), keypair, config);
 		}catch(RuntimeException e){
 			datarouterAccountSecretCredentialDao.delete(credential.getKey());
 			throw e;
@@ -246,7 +252,7 @@ public class DatarouterAccountCredentialService{
 		if(databean == null){
 			return false;
 		}
-		secretService.deleteNamespaced(Optional.empty(), databean.getSecretNamespace(), secretName, reason);
+		deleteSecret(databean.getSecretNamespace(), secretName, reason);
 		datarouterAccountSecretCredentialDao.delete(key);
 		return true;
 	}
@@ -353,8 +359,20 @@ public class DatarouterAccountCredentialService{
 
 	private DatarouterAccountSecretCredentialKeypairDto readKeypair(DatarouterAccountSecretCredential secretCredential,
 			SecretOpReason reason){
-		return secretService.readNamespaced(secretCredential.getSecretNamespace(), secretCredential.getKey()
-				.getSecretName(), DatarouterAccountSecretCredentialKeypairDto.class, reason);
+		SecretOpConfig config = SecretOpConfig.builder(reason)
+				.useManualNamespace(secretCredential.getSecretNamespace())
+				.build();
+		return secretService.read(
+				secretCredential.getKey().getSecretName(),
+				DatarouterAccountSecretCredentialKeypairDto.class,
+				config);
+	}
+
+	private void deleteSecret(String secretNamespace, String secretName, SecretOpReason reason){
+		var config = SecretOpConfig.builder(reason)
+				.useManualNamespace(secretNamespace)
+				.build();
+		secretService.delete(secretName, config);
 	}
 
 	private void refreshCaches(){

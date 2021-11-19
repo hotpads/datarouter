@@ -67,7 +67,9 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 			DatarouterHttpRequest request,
 			Consumer<HttpEntity> httpEntityConsumer,
 			HttpClientContext context,
-			Supplier<Boolean> enableBreakers)
+			Supplier<Boolean> enableBreakers,
+			Supplier<Boolean> traceInQueryString,
+			Supplier<Boolean> debugLog)
 	throws DatarouterHttpException{
 		CircuitBreakerState state = getState();
 		if(state == CircuitBreakerState.OPEN && enableBreakers.get()){
@@ -76,27 +78,31 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		}
 
 		DatarouterHttpException ex;
-		HttpRequestBase internalHttpRequest = null;
-		long requestStartTimeNs = Trace2Dto.getCurrentTimeInNs();
 		Tracer tracer = TracerThreadLocal.get();
 		TracerTool.startSpan(tracer, "http call " + request.getPath(), TraceSpanGroupType.HTTP);
-		internalHttpRequest = request.getRequest();
 		W3TraceContext traceContext;
 		if(tracer != null && tracer.getTraceContext().isPresent()){
 			traceContext = tracer.getTraceContext().get().copy();
 			traceContext.updateParentIdAndAddTracestateMember();
 		}else{
 			count("traceContext null");
-			traceContext = new W3TraceContext(requestStartTimeNs);
+			traceContext = new W3TraceContext(Trace2Dto.getCurrentTimeInNs());
 		}
 		String traceparent = traceContext.getTraceparent().toString();
+		if(traceInQueryString.get()){
+			request.addGetParam(TRACEPARENT, traceparent);
+		}
+		HttpRequestBase internalHttpRequest = request.getRequest();
+		count("request");
+		logger.debug("traceparent={} passing to request={}", traceparent, request.getPath());
+		internalHttpRequest.addHeader(TRACEPARENT, traceparent);
+		internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
+		context.setAttribute(TRACEPARENT, traceContext.getTraceparent().toString());
+		if(debugLog.get()){
+			logger.warn("sending http request url={}", internalHttpRequest.getURI());
+		}
+		long requestStartTimeNs = Trace2Dto.getCurrentTimeInNs();
 		try{
-			count("request");
-			logger.debug("traceparent={} passing to request={}", traceContext.getTraceparent(), request.getPath());
-			internalHttpRequest.addHeader(TRACEPARENT, traceparent);
-			internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
-			context.setAttribute(TRACEPARENT, traceContext.getTraceparent().toString());
-			requestStartTimeNs = Trace2Dto.getCurrentTimeInNs();
 			HttpResponse httpResponse = httpClient.execute(internalHttpRequest, context);
 			Duration duration = Duration.ofNanos(Trace2Dto.getCurrentTimeInNs() - requestStartTimeNs);
 			String entity = null;
@@ -111,9 +117,6 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 				}else{
 					entity = EntityUtils.toString(httpEntity);
 				}
-			}else{
-				logger.warn("null http entity statusCode={} target={} duration={}", statusCode, request.getPath(),
-						duration);
 			}
 			Optional<Traceparent> remoteTraceparent = Optional.ofNullable(httpResponse.getFirstHeader(TRACEPARENT))
 					.map(Header::getValue)

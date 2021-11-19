@@ -25,7 +25,7 @@ public class AwsMemcachedMapStorageIntegrationTests extends BaseMapStorageIntegr
 
 	@BeforeClass
 	protected void beforeClass(){
-		setup(DatarouterAwsMemcachedTestClientIds.AWS_MEMCACHED, false);
+		setup(DatarouterAwsMemcachedTestClientIds.AWS_MEMCACHED);
 	}
 
 }

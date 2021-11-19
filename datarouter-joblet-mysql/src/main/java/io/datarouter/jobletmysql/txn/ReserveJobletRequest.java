@@ -31,6 +31,7 @@ public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 
 	private final ClientId clientId;
 	private final String tableName;
+	private final boolean disableIntroducer;
 	private final String reservedBy;
 	private final JobletType<?> jobletType;
 	private final MysqlSqlFactory mysqlSqlFactory;
@@ -49,6 +50,8 @@ public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 				false);
 		this.clientId = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getClientId();
 		this.tableName = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getFieldInfo().getTableName();
+		this.disableIntroducer = NodeTool.extractSinglePhysicalNode(jobletRequestDao.getNode()).getFieldInfo()
+				.getDisableIntroducer();
 		this.reservedBy = reservedBy;
 		this.jobletType = jobletType;
 		this.mysqlSqlFactory = mysqlSqlFactory;
@@ -57,7 +60,7 @@ public class ReserveJobletRequest extends BaseMysqlOp<Boolean>{
 
 	@Override
 	public Boolean runOnce(){
-		MysqlSql sql = mysqlSqlFactory.createSql(clientId, tableName);
+		MysqlSql sql = mysqlSqlFactory.createSql(clientId, tableName, disableIntroducer);
 		jobletRequestSqlBuilder.makeReserveJobletRequest(sql, jobletType, reservedBy);
 		int numRowsModified = MysqlTool.update(sql.prepare(getConnection()));
 		return numRowsModified > 0;

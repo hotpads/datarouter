@@ -21,9 +21,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.key.entity.base.BaseEntityKey;
-import io.datarouter.model.key.entity.base.BaseStringEntityPartitioner;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.util.HashMethods;
 
 public class SortedBeanEntityKey
 extends BaseEntityKey<SortedBeanEntityKey>{
@@ -43,19 +41,6 @@ extends BaseEntityKey<SortedBeanEntityKey>{
 		return List.of(
 				new StringField(FieldKeys.foo, foo),
 				new StringField(FieldKeys.bar, bar));
-	}
-
-	public static class SortedBeanEntityPartitioner4 extends BaseStringEntityPartitioner<SortedBeanEntityKey>{
-
-		public SortedBeanEntityPartitioner4(){
-			super(HashMethods::longDjbHash, 4);
-		}
-
-		@Override
-		protected String makeStringHashInput(SortedBeanEntityKey ek){
-			return ek.foo + ek.bar;
-		}
-
 	}
 
 	public SortedBeanEntityKey(){

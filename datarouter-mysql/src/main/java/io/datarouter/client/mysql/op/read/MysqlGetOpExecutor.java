@@ -67,12 +67,13 @@ public class MysqlGetOpExecutor{
 		String tableName = databeanFieldInfo.getTableName();
 		String clientName = databeanFieldInfo.getClientId().getName();
 		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
+		boolean disableIntroducer = databeanFieldInfo.getDisableIntroducer();
 		List<T> result = new ArrayList<>(keys.size());
 		for(List<? extends FieldSet<?>> keyBatch : Scanner.of(dedupedSortedKeys)
 				.batch(config.findInputBatchSize().orElse(BATCH_SIZE))
 				.iterable()){
 			PreparedStatement ps = mysqlSqlFactory
-					.createSql(databeanFieldInfo.getClientId(), tableName)
+					.createSql(databeanFieldInfo.getClientId(), tableName, disableIntroducer)
 					.getMulti(tableName, config, selectFields, keyBatch, indexName)
 					.prepare(connection);
 			DatarouterCounters.incClientNodeCustom(mysqlClientType, opName + " selects", clientName, nodeName, 1L);

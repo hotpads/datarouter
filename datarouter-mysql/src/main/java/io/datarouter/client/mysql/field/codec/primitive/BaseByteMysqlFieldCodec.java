@@ -32,7 +32,6 @@ extends BasePrimitiveMysqlFieldCodec<Byte,F>{
 	}
 
 	protected abstract Integer getMaxColumnLength();
-
 	protected abstract Integer getJavaSqlType();
 
 	@Override

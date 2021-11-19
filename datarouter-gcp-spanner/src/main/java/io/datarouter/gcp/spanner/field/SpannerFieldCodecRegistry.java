@@ -37,11 +37,7 @@ import io.datarouter.gcp.spanner.field.date.SpannerLongDateFieldCodec;
 import io.datarouter.gcp.spanner.field.enums.SpannerIntegerEnumFieldCodec;
 import io.datarouter.gcp.spanner.field.enums.SpannerStringEnumFieldCodec;
 import io.datarouter.gcp.spanner.field.enums.SpannerVarIntEnumFieldCodec;
-import io.datarouter.gcp.spanner.field.positive.SpannerUInt15FieldCodec;
-import io.datarouter.gcp.spanner.field.positive.SpannerUInt31FieldCodec;
 import io.datarouter.gcp.spanner.field.positive.SpannerUInt63FieldCodec;
-import io.datarouter.gcp.spanner.field.positive.SpannerUInt7FieldCodec;
-import io.datarouter.gcp.spanner.field.positive.SpannerVarIntFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerBooleanFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerDoubleFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerFloatFieldCodec;
@@ -73,11 +69,7 @@ import io.datarouter.model.field.imp.custom.LongDateField;
 import io.datarouter.model.field.imp.enums.IntegerEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.VarIntEnumField;
-import io.datarouter.model.field.imp.positive.UInt15Field;
-import io.datarouter.model.field.imp.positive.UInt31Field;
 import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt7Field;
-import io.datarouter.model.field.imp.positive.VarIntField;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 
@@ -98,11 +90,7 @@ public class SpannerFieldCodecRegistry{
 		addCodec(LongField.class, SpannerLongFieldCodec.class);
 		addCodec(ShortField.class, SpannerShortFieldCodec.class);
 
-		addCodec(UInt7Field.class, SpannerUInt7FieldCodec.class);
-		addCodec(UInt15Field.class, SpannerUInt15FieldCodec.class);
-		addCodec(UInt31Field.class, SpannerUInt31FieldCodec.class);
 		addCodec(UInt63Field.class, SpannerUInt63FieldCodec.class);
-		addCodec(VarIntField.class, SpannerVarIntFieldCodec.class);
 
 		addCodec(SignedByteField.class, SpannerSignedByteFieldCodec.class);
 

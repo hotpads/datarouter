@@ -24,6 +24,7 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretService;
@@ -74,8 +75,11 @@ public class SqsOptions{
 			return optionalCredentialsLocation.map(credentialsLocation -> {
 				String namespacedLocationForLogs = secretNamespacer.sharedNamespaced(credentialsLocation);
 				try{
-					SqsCredentialsDto result = secretService.readShared(credentialsLocation, SqsCredentialsDto.class,
-							SecretOpReason.automatedOp(this.getClass().getName()));
+					SecretOpConfig config = SecretOpConfig.builder(
+							SecretOpReason.automatedOp(this.getClass().getName()))
+							.useSharedNamespace()
+							.build();
+					SqsCredentialsDto result = secretService.read(credentialsLocation, SqsCredentialsDto.class, config);
 					logger.info("using secret at credentialsLocation={}", namespacedLocationForLogs);
 					return result;
 				}catch(RuntimeException e){

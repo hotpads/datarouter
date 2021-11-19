@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.google.cloud.bigtable.hbase.BigtableOptionsFactory;
 
 import io.datarouter.client.hbase.client.HBaseOptions;
+import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
@@ -95,9 +96,14 @@ public class BigTableOptions extends HBaseOptions{
 			return Optional.empty();
 		}
 		return optSecretLocation
-				.map($ -> secretService.readRawSharedWithoutRecord($, SecretOpReason.automatedOp(this.getClass()
-						.getSimpleName())))
-				.map($ -> new Twin<>(BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_VALUE_KEY, $));
+				.map($ -> {
+					var config = SecretOpConfig.builder(SecretOpReason.automatedOp(this.getClass().getSimpleName()))
+							.useSharedNamespace()
+							.disableRecording()
+							.disableSerialization()
+							.build();
+					return secretService.read($, String.class, config);
+				}).map($ -> new Twin<>(BigtableOptionsFactory.BIGTABLE_SERVICE_ACCOUNT_JSON_VALUE_KEY, $));
 	}
 
 	protected static String makeBigtableKey(String propertyKey){

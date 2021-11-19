@@ -23,9 +23,9 @@ public class MemcachedBlobCodec{
 	private final String nodeName;
 	private final int schemaVersion;
 
-	public MemcachedBlobCodec(String nodeName, int nodeVersion){
+	public MemcachedBlobCodec(String nodeName, int schemaVersion){
 		this.nodeName = nodeName;
-		this.schemaVersion = nodeVersion;
+		this.schemaVersion = schemaVersion;
 	}
 
 	public String encodeKey(PathbeanKey pk){

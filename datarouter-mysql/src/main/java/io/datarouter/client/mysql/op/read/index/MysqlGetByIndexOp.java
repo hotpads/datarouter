@@ -85,12 +85,13 @@ extends BaseMysqlOp<List<D>>{
 		String clientName = databeanFieldInfo.getClientId().getName();
 		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
 		String opName = IndexedStorageReader.OP_getByIndex;
+		boolean disableIntroducer = databeanFieldInfo.getDisableIntroducer();
 		List<D> result = new ArrayList<>();
 		for(List<IK> indexKeysBatch : Scanner.of(indexKeys)
 				.batch(MysqlReaderNode.DEFAULT_ITERATE_BATCH_SIZE)
 				.iterable()){
 			PreparedStatement statement = mysqlSqlFactory
-					.createSql(getClientId(), tableName)
+					.createSql(getClientId(), tableName, disableIntroducer)
 					.getWithPrefixes(
 							tableName,
 							config,

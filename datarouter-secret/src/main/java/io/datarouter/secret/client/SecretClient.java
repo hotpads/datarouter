@@ -50,9 +50,9 @@ public interface SecretClient{
 	Secret read(String name);
 
 	/**
-	 * returns the full {@link Secret} names that start with exclusive prefix
+	 * returns the full {@link Secret} names that start with prefix
 	 */
-	List<String> listNames(Optional<String> exclusivePrefix);
+	List<String> listNames(Optional<String> prefix);
 
 	/**
 	 * update the current value of the {@link Secret} in the secret storage

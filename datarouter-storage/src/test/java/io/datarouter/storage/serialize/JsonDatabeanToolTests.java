@@ -56,7 +56,6 @@ public class JsonDatabeanToolTests{
 		bean.setStringEnumField(TestEnum.beast);
 		bean.setStringField("_%crazy-string\\asdf");
 		bean.setVarIntEnumField(TestEnum.cat);
-		bean.setVarIntField(5555);
 		return bean;
 	}
 

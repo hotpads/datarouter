@@ -21,79 +21,77 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import io.datarouter.scanner.Scanner;
-import io.datarouter.secret.client.Secret;
 import io.datarouter.secret.client.SecretClient.SecretClientSupplier;
-import io.datarouter.secret.client.SecretClientOps;
 import io.datarouter.secret.client.local.LocalStorageSecretClientSupplier;
 import io.datarouter.secret.client.memory.MemorySecretClientSupplier;
-import io.datarouter.secret.op.SecretOpInfo;
-import io.datarouter.secret.op.SecretOpReason;
+import io.datarouter.secret.op.SecretOp;
+import io.datarouter.secret.op.client.SecretClientOpType;
 
 public class SecretClientConfigHolderIntegrationTests{
 
-	private static final SecretOpInfo<String,Secret> READ_OP = new SecretOpInfo<>(SecretClientOps.READ, "", "",
-			SecretOpReason.automatedOp(SecretClientConfigHolderIntegrationTests.class.getSimpleName()));
-	private static final SecretOpInfo<Secret,Void> WRITE_OP = new SecretOpInfo<>(SecretClientOps.CREATE, "", "",
-			SecretOpReason.automatedOp(SecretClientConfigHolderIntegrationTests.class.getSimpleName()));
+	private static final SecretOp<?,?,?,?> READ_OP = SecretClientConfigUnitTests.emptyOpInfo(SecretClientOpType.READ);
+	private static final SecretOp<?,?,?,?> WRITE_OP = SecretClientConfigUnitTests.emptyOpInfo(
+			SecretClientOpType.CREATE);
 
 	private static final List<Class<? extends SecretClientSupplier>> ONE_CLASSES = List.of(
 			MemorySecretClientSupplier.class);
-	private static final List<SecretClientConfig> ONE_CONFIG = Scanner.of(ONE_CLASSES)
+	private static final List<SecretClientSupplierConfig> ONE_CONFIG = Scanner.of(ONE_CLASSES)
 			.map(SecretClientConfigHolderIntegrationTests::makeConfig)
 			.list();
 
 	private static final List<Class<? extends SecretClientSupplier>> TWO_CLASSES = List.of(
 			MemorySecretClientSupplier.class,
 			LocalStorageSecretClientSupplier.class);
-	private static final List<SecretClientConfig> TWO_CONFIG = Scanner.of(TWO_CLASSES)
+	private static final List<SecretClientSupplierConfig> TWO_CONFIG = Scanner.of(TWO_CLASSES)
 			.map(SecretClientConfigHolderIntegrationTests::makeConfig)
 			.list();
 
 	@Test
 	public void testInit(){
-		SecretClientConfigHolder empty = new SecretClientConfigHolder();
-		assertConfigsContainClasses(empty.getAllowedSecretClientConfigs(true, READ_OP), List.of());
-		assertConfigsContainClasses(empty.getAllowedSecretClientConfigs(false, READ_OP), List.of());
+		SecretClientSupplierConfigHolder empty = new SecretClientSupplierConfigHolder();
+		assertConfigsContainClasses(empty.getAllowedConfigs(true, READ_OP), List.of());
+		assertConfigsContainClasses(empty.getAllowedConfigs(false, READ_OP), List.of());
 
-		SecretClientConfigHolder singleList = new SecretClientConfigHolder(ONE_CONFIG);
-		assertConfigsContainClasses(singleList.getAllowedSecretClientConfigs(true, READ_OP), ONE_CLASSES);
-		assertConfigsContainClasses(singleList.getAllowedSecretClientConfigs(false, READ_OP), ONE_CLASSES);
+		SecretClientSupplierConfigHolder singleList = new SecretClientSupplierConfigHolder(ONE_CONFIG);
+		assertConfigsContainClasses(singleList.getAllowedConfigs(true, READ_OP), ONE_CLASSES);
+		assertConfigsContainClasses(singleList.getAllowedConfigs(false, READ_OP), ONE_CLASSES);
 
-		SecretClientConfigHolder separateLists = new SecretClientConfigHolder(ONE_CONFIG, TWO_CONFIG);
-		assertConfigsContainClasses(separateLists.getAllowedSecretClientConfigs(true, READ_OP), ONE_CLASSES);
-		assertConfigsContainClasses(separateLists.getAllowedSecretClientConfigs(false, READ_OP), TWO_CLASSES);
+		SecretClientSupplierConfigHolder separateLists = new SecretClientSupplierConfigHolder(ONE_CONFIG, TWO_CONFIG);
+		assertConfigsContainClasses(separateLists.getAllowedConfigs(true, READ_OP), ONE_CLASSES);
+		assertConfigsContainClasses(separateLists.getAllowedConfigs(false, READ_OP), TWO_CLASSES);
 	}
 
 	//NOTE: this is meant to test results of SecretClientConfigHolder#getAllowedSecretClientSupplierClasses, not the
 	//possibilities of SecretClientConfig#allowed, which has its own tests in SecretClientConfigUnitTests
 	@Test
 	public void testAllowed(){
-		SecretClientConfigHolder readWrite = new SecretClientConfigHolder(List.of(
-				SecretClientConfig.readOnly("TEST", MemorySecretClientSupplier.class),
-				SecretClientConfig.allOps("TEST", LocalStorageSecretClientSupplier.class)));
+		SecretClientSupplierConfigHolder readWrite = new SecretClientSupplierConfigHolder(List.of(
+				SecretClientSupplierConfig.readOnly("TEST", MemorySecretClientSupplier.class),
+				SecretClientSupplierConfig.allOps("TEST", LocalStorageSecretClientSupplier.class)));
 
-		assertConfigsContainClasses(readWrite.getAllowedSecretClientConfigs(true, READ_OP), TWO_CLASSES);
-		assertConfigsContainClasses(readWrite.getAllowedSecretClientConfigs(true, WRITE_OP), List.of(
-				LocalStorageSecretClientSupplier.class));
+		assertConfigsContainClasses(readWrite.getAllowedConfigs(true, READ_OP), TWO_CLASSES);
+		assertConfigsContainClasses(
+				readWrite.getAllowedConfigs(true, WRITE_OP),
+				List.of(LocalStorageSecretClientSupplier.class));
 
 
-		SecretClientConfigHolder writeRead = new SecretClientConfigHolder(List.of(
-				SecretClientConfig.allOps("TEST", MemorySecretClientSupplier.class),
-				SecretClientConfig.readOnly("TEST", LocalStorageSecretClientSupplier.class)));
-		assertConfigsContainClasses(writeRead.getAllowedSecretClientConfigs(true, READ_OP), TWO_CLASSES);
-		assertConfigsContainClasses(writeRead.getAllowedSecretClientConfigs(true, WRITE_OP), List.of(
-				MemorySecretClientSupplier.class));
+		SecretClientSupplierConfigHolder writeRead = new SecretClientSupplierConfigHolder(List.of(
+				SecretClientSupplierConfig.allOps("TEST", MemorySecretClientSupplier.class),
+				SecretClientSupplierConfig.readOnly("TEST", LocalStorageSecretClientSupplier.class)));
+		assertConfigsContainClasses(writeRead.getAllowedConfigs(true, READ_OP), TWO_CLASSES);
+		assertConfigsContainClasses(
+				writeRead.getAllowedConfigs(true, WRITE_OP),
+				List.of(MemorySecretClientSupplier.class));
 	}
 
-	private static SecretClientConfig makeConfig(Class<? extends SecretClientSupplier> cls){
-		return SecretClientConfig.allOps("TEST", cls);
+	private static SecretClientSupplierConfig makeConfig(Class<? extends SecretClientSupplier> cls){
+		return SecretClientSupplierConfig.allOps("TEST", cls);
 	}
 
-	private static void assertConfigsContainClasses(Scanner<SecretClientConfig> secretClientConfigScanner,
+	private static void assertConfigsContainClasses(Scanner<SecretClientSupplierConfig> secretClientConfigScanner,
 			List<Class<? extends SecretClientSupplier>> expected){
-		Assert.assertEquals(secretClientConfigScanner
-				.map(SecretClientConfig::getSecretClientSupplierClass)
-				.list(),
+		Assert.assertEquals(
+				secretClientConfigScanner.map(SecretClientSupplierConfig::getSecretClientSupplierClass).list(),
 				expected);
 	}
 

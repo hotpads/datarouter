@@ -58,7 +58,7 @@ public class SqsQueueRegistryService{
 				.each(twin -> knownQueuesUrls.add(twin.getLeft()))
 				.list();
 		List<String> unreferencedQueues = Scanner.of(sqsNodes)
-				.map(BaseSqsNode::getOrBuildFullNamespace)
+				.map(BaseSqsNode::buildNamespace)
 				.distinct()
 				.map(sqs::listQueues)
 				.concatIter(ListQueuesResult::getQueueUrls)

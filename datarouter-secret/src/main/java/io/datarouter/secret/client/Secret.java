@@ -15,41 +15,17 @@
  */
 package io.datarouter.secret.client;
 
-import java.util.Objects;
-
+import io.datarouter.secret.op.adapter.TypedSecret;
 import io.datarouter.util.Require;
-import io.datarouter.util.string.StringTool;
 
 //TODO metadata would include version(s), tags, description, created/updated info, etc.
 //TODO add metadata here or in a separate class?
 //TODO how to get around difficulty of requiring value to always exist when getting only metadata?
 //TODO gonna need a builder for this probably (description, version, tags, etc.)
-public final class Secret{
-
-	private final String name;
-	private final String value;
+public final class Secret extends TypedSecret<String>{
 
 	public Secret(String name, String value){
-		Require.isFalse(StringTool.isNullOrEmptyOrWhitespace(name));
-		this.name = name;
-		this.value = Objects.requireNonNull(value);
-	}
-
-	public String getName(){
-		return name;
-	}
-
-	public String getValue(){
-		return value;
-	}
-
-	public static void validateName(String name){
-		Require.isFalse(StringTool.isNullOrEmptyOrWhitespace(name));
-	}
-
-	public static void validateSecret(Secret secret){
-		Require.noNulls(secret, secret.value);
-		validateName(secret.name);
+		super(Require.notBlank(name), Require.notNull(value));
 	}
 
 }

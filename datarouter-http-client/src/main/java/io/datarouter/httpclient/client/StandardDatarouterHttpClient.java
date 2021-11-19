@@ -82,6 +82,8 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 	private final DatarouterHttpClientIoExceptionCircuitBreaker circuitWrappedHttpClient;
 	private final Supplier<Boolean> enableBreakers;
 	private final Supplier<URI> urlPrefix;
+	private final Supplier<Boolean> traceInQueryString;
+	private final Supplier<Boolean> debugLog;
 
 	StandardDatarouterHttpClient(
 			CloseableHttpClient httpClient,
@@ -96,7 +98,9 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 			PoolingHttpClientConnectionManager connectionManager,
 			String name,
 			Supplier<Boolean> enableBreakers,
-			Supplier<URI> urlPrefix){
+			Supplier<URI> urlPrefix,
+			Supplier<Boolean> traceInQueryString,
+			Supplier<Boolean> debugLog){
 		this.httpClient = httpClient;
 		this.jsonSerializer = jsonSerializer;
 		this.signatureGenerator = signatureGenerator;
@@ -110,6 +114,8 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 		this.circuitWrappedHttpClient = new DatarouterHttpClientIoExceptionCircuitBreaker(name);
 		this.enableBreakers = enableBreakers;
 		this.urlPrefix = urlPrefix;
+		this.traceInQueryString = traceInQueryString;
+		this.debugLog = debugLog;
 	}
 
 	@Override
@@ -190,7 +196,8 @@ public class StandardDatarouterHttpClient implements DatarouterHttpClient{
 			cookieStore.addCookie(cookie);
 		}
 		context.setCookieStore(cookieStore);
-		return circuitWrappedHttpClient.call(httpClient, request, httpEntityConsumer, context, enableBreakers);
+		return circuitWrappedHttpClient.call(httpClient, request, httpEntityConsumer, context, enableBreakers,
+				traceInQueryString, debugLog);
 	}
 
 	@Override

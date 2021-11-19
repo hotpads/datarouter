@@ -20,13 +20,14 @@ import javax.inject.Singleton;
 
 import io.datarouter.secret.client.SecretClient;
 import io.datarouter.secret.client.memory.MemorySecretClientSupplier;
+import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.CachedSecretFactory;
 import io.datarouter.secret.service.CachedSecretFactory.CachedSecret;
 import io.datarouter.secret.service.SecretService;
 
 @Singleton
-public class DatarouterSecretExample{
+public class DatarouterSecretExample{//TODO update this and md next pass
 
 	//formatting doesn't really matter as long as the underlying implementation allows it (SecretClient#validateName)
 	private static final String SECRET_NAME = "examples/example-secret";
@@ -40,8 +41,10 @@ public class DatarouterSecretExample{
 
 	//SecretOpReason will be recorded using the configured SecretOpRecorder implementation
 	public void copySharedSecretToAppSecret(){
-		String sharedSecret = secretService.readShared(SECRET_NAME, String.class, SecretOpReason.automatedOp(
-				"a job might do this"));
+		SecretOpConfig config = SecretOpConfig.builder(SecretOpReason.automatedOp("a job might do this"))
+				.useSharedNamespace()
+				.build();
+		String sharedSecret = secretService.read(SECRET_NAME, String.class, config);
 		secretService.put(SECRET_NAME, sharedSecret, SecretOpReason.automatedOp("a job might do this"));
 	}
 
@@ -49,7 +52,9 @@ public class DatarouterSecretExample{
 	//There is no reason to use a CachedSecret in a local variable, since it will probably only be read once.
 	public void readCachedSecrets(){
 		//the provided default value will be returned in development, if no client returns a value
-		CachedSecret<String> appSpecificSecret = cachedSecretFactory.cacheSecret(() -> SECRET_NAME, String.class,
+		CachedSecret<String> appSpecificSecret = cachedSecretFactory.cacheSecret(
+				() -> SECRET_NAME,
+				String.class,
 				"development");
 		CachedSecret<String> sharedSecret = cachedSecretFactory.cacheSharedSecretString(() -> SECRET_NAME);
 

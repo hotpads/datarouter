@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.node.nonentity.HBaseNode;
-import io.datarouter.client.hbase.node.subentity.HBaseSubEntityNode;
 import io.datarouter.client.hbase.util.DatarouterHBaseCounters;
 import io.datarouter.instrumentation.trace.TracerTool;
 import io.datarouter.instrumentation.trace.TracerTool.TraceSpanInfoBuilder;
@@ -52,10 +51,6 @@ public class CountingBatchCallbackFactory{
 		private final String opName;
 
 		public CountingBatchCallback(HBaseNode<?,?,?,?,?> node, String opName){
-			this(node.getClientIds().get(0), node.getClientTableNodeNames(), opName);
-		}
-
-		public CountingBatchCallback(HBaseSubEntityNode<?,?,?,?,?> node, String opName){
 			this(node.getClientIds().get(0), node.getClientTableNodeNames(), opName);
 		}
 

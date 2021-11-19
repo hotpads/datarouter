@@ -26,7 +26,7 @@ public interface MysqlFieldCodec<T>{
 
 	MysqlColumnType getMysqlColumnType();
 	SqlColumn getSqlColumnDefinition(boolean allowNullable);
-	String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions);
+	String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions, boolean disableIntroducer);
 	String getSqlParameter();
 	void setPreparedStatementValue(PreparedStatement ps, int parameterIndex);
 	void fromMysqlResultSetUsingReflection(Object targetFieldSet, ResultSet resultSet);

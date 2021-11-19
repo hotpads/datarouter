@@ -32,7 +32,7 @@ public class HBaseSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTe
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterHBaseTestClientIds.HBASE, false);
+		setup(DatarouterHBaseTestClientIds.HBASE);
 	}
 
 	@AfterClass

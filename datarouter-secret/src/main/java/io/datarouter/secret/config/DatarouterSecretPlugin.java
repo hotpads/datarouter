@@ -32,7 +32,7 @@ import io.datarouter.secret.service.SecretOpRecorderSupplier.NoOpSecretOpRecorde
 
 public class DatarouterSecretPlugin extends BasePlugin{
 
-	private final SecretClientConfigHolder secretClientConfigHolder;
+	private final SecretClientSupplierConfigHolder secretClientConfigHolder;
 	private final Class<? extends SecretNamespacer> secretNamespacer;
 	private final Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier;
 	private final Class<? extends SecretJsonSerializer> jsonSerializer;
@@ -40,7 +40,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 	private final DefaultMemorySecrets defaultMemorySecrets;
 
 	private DatarouterSecretPlugin(
-			SecretClientConfigHolder secretClientConfigHolder,
+			SecretClientSupplierConfigHolder secretClientConfigHolder,
 			Class<? extends SecretNamespacer> secretNamespacer,
 			Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier,
 			Class<? extends SecretJsonSerializer> jsonSerializer,
@@ -56,7 +56,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 	@Override
 	public void configure(){
-		bindActualInstance(SecretClientConfigHolder.class, secretClientConfigHolder);
+		bindActualInstance(SecretClientSupplierConfigHolder.class, secretClientConfigHolder);
 		bindActual(SecretNamespacer.class, secretNamespacer);
 		bindActual(SecretOpRecorderSupplier.class, secretOpRecorderSupplier);
 		bindActual(SecretJsonSerializer.class, jsonSerializer);
@@ -73,7 +73,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 		@Override
 		public void configure(){
-			bindDefaultInstance(SecretClientConfigHolder.class, secretClientConfigHolder);
+			bindDefaultInstance(SecretClientSupplierConfigHolder.class, secretClientConfigHolder);
 			bindDefault(SecretNamespacer.class, secretNamespacer);
 			bindDefault(SecretOpRecorderSupplier.class, secretOpRecorderSupplier);
 			bindDefault(SecretJsonSerializer.class, jsonSerializer);
@@ -85,11 +85,12 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 	public abstract static class DatarouterSecretPluginBuilder<T extends DatarouterSecretPluginBuilder<T>>{
 
-		public static final SecretClientConfig LOCAL_STORAGE_ALL_OPS = SecretClientConfig.allOps(
-				"LOCAL_STORAGE_ALL_OPS", LocalStorageSecretClientSupplier.class);
+		public static final SecretClientSupplierConfig LOCAL_STORAGE_ALL_OPS = SecretClientSupplierConfig.allOps(
+				"LOCAL_STORAGE_ALL_OPS",
+				LocalStorageSecretClientSupplier.class);
 
-		private SecretClientConfigHolder secretClientConfigHolder = new SecretClientConfigHolder(List.of(
-				LOCAL_STORAGE_ALL_OPS));
+		private SecretClientSupplierConfigHolder secretClientConfigHolder = new SecretClientSupplierConfigHolder(
+				List.of(LOCAL_STORAGE_ALL_OPS));
 		private Class<? extends SecretNamespacer> secretNamespacer = DevelopmentNamespacer.class;
 		private Class<? extends SecretOpRecorderSupplier> secretOpRecorderSupplier = NoOpSecretOpRecorderSupplier.class;
 		private Class<? extends SecretJsonSerializer> jsonSerializer = GsonToolJsonSerializer.class;
@@ -108,7 +109,7 @@ public class DatarouterSecretPlugin extends BasePlugin{
 
 		protected abstract T getSelf();
 
-		public T setSecretClientConfigHolder(SecretClientConfigHolder secretClientConfigHolder){
+		public T setSecretClientSupplierConfigHolder(SecretClientSupplierConfigHolder secretClientConfigHolder){
 			this.secretClientConfigHolder = secretClientConfigHolder;
 			return getSelf();
 		}

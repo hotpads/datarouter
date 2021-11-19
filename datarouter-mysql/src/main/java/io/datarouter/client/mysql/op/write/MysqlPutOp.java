@@ -181,7 +181,7 @@ extends BaseMysqlOp<Void>{
 
 	private void mysqlInsert(Connection connection, D databean, boolean ignore){
 		PreparedStatement preparedStatement = mysqlSqlFactory
-				.createSql(getClientId(), fieldInfo.getTableName())
+				.createSql(getClientId(), fieldInfo.getTableName(), fieldInfo.getDisableIntroducer())
 				.insert(
 						fieldInfo.getTableName(),
 						Collections.singletonList(fieldInfo.getFieldsWithValues(databean)), ignore)
@@ -214,7 +214,7 @@ extends BaseMysqlOp<Void>{
 				.map(fieldInfo::getFieldsWithValues)
 				.collect(Collectors.toList());
 		var sql = mysqlSqlFactory
-				.createSql(getClientId(), fieldInfo.getTableName())
+				.createSql(getClientId(), fieldInfo.getTableName(), fieldInfo.getDisableIntroducer())
 				.insert(fieldInfo.getTableName(), databeansFields, false)
 				.append(" on duplicate key update ");
 		for(Iterator<Field<?>> iterator = fieldInfo.getFields().iterator(); iterator.hasNext();){
@@ -247,8 +247,9 @@ extends BaseMysqlOp<Void>{
 			return;
 		}
 		String tableName = fieldInfo.getTableName();
+		boolean disableIntroducer = fieldInfo.getDisableIntroducer();
 		PreparedStatement statement = mysqlSqlFactory
-				.createSql(getClientId(), tableName)
+				.createSql(getClientId(), tableName, disableIntroducer)
 				.update(
 						tableName,
 						nonKeyFields,

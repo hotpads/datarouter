@@ -21,17 +21,17 @@ import io.datarouter.util.tuple.Pair;
 public class MemcachedTallyCodec{
 
 	private final String nodeName;
-	private final int databeanVersion;
+	private final int schemaVersion;
 
 	public MemcachedTallyCodec(
 			String nodeName,
-			int databeanVersion){
+			int schemaVersion){
 		this.nodeName = nodeName;
-		this.databeanVersion = databeanVersion;
+		this.schemaVersion = schemaVersion;
 	}
 
 	public String encodeKey(TallyKey pk){
-		return MemcachedKey.encode(nodeName, databeanVersion, pk);
+		return MemcachedKey.encode(nodeName, schemaVersion, pk);
 	}
 
 	public Pair<String,Long> decodeResult(Pair<String,Object> result){

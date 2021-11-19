@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.datarouter.aws.s3.SerializableStaticAwsCredentialsProviderProvider;
 import io.datarouter.aws.s3.SerializableStaticAwsCredentialsProviderProvider.S3CredentialsDto;
+import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.SecretNamespacer;
 import io.datarouter.secret.service.SecretService;
@@ -76,8 +77,11 @@ public class S3Options{
 			return optionalCredentialsLocation.map(credentialsLocation -> {
 				String namespacedLocationForLogs = secretNamespacer.sharedNamespaced(credentialsLocation);
 				try{
-					S3CredentialsDto result = secretService.readShared(credentialsLocation, S3CredentialsDto.class,
-							SecretOpReason.automatedOp(this.getClass().getName()));
+					SecretOpConfig config = SecretOpConfig.builder(
+							SecretOpReason.automatedOp(this.getClass().getName()))
+							.useSharedNamespace()
+							.build();
+					S3CredentialsDto result = secretService.read(credentialsLocation, S3CredentialsDto.class, config);
 					logger.info("using secret at credentialsLocation={}", namespacedLocationForLogs);
 					return result;
 				}catch(RuntimeException e){

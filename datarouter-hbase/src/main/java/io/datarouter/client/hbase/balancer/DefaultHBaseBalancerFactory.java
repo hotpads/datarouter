@@ -20,27 +20,20 @@ import javax.inject.Singleton;
 
 import io.datarouter.client.hbase.HBaseClientType;
 import io.datarouter.client.hbase.balancer.imp.ConsistentHashBalancer;
-import io.datarouter.client.hbase.balancer.imp.EntityPartitionBalancer;
 import io.datarouter.client.hbase.balancer.imp.NoOpBalancer;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.client.DatarouterClients;
-import io.datarouter.storage.node.DatarouterNodes;
 
 @Singleton
 public class DefaultHBaseBalancerFactory implements HBaseBalancerFactory{
 
 	@Inject
 	private DatarouterClients clients;
-	@Inject
-	private DatarouterNodes nodes;
 
 	@Override
 	public BaseHBaseRegionBalancer getBalancerForTable(ClientId clientId, String tableName){
 		if(!isHBase(clientId)){
 			return new NoOpBalancer(tableName);
-		}
-		if(nodes.getPhysicalNodeForClientAndTable(clientId.getName(), tableName).getFieldInfo().isSubEntity()){
-			return new EntityPartitionBalancer(tableName);
 		}
 		return new ConsistentHashBalancer(tableName);
 	}

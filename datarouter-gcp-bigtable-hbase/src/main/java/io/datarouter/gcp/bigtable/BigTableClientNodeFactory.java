@@ -23,7 +23,6 @@ import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory;
 import io.datarouter.client.hbase.config.DatarouterHBaseExecutors.DatarouterHbaseClientExecutor;
 import io.datarouter.gcp.bigtable.client.BigTableClientManager;
 import io.datarouter.storage.node.adapter.availability.PhysicalSortedMapStorageAvailabilityAdapterFactory;
-import io.datarouter.storage.node.adapter.availability.PhysicalSubEntitySortedMapStorageAvailabilityAdapterFactory;
 
 @Singleton
 public class BigTableClientNodeFactory extends BaseHBaseClientNodeFactory{
@@ -32,14 +31,11 @@ public class BigTableClientNodeFactory extends BaseHBaseClientNodeFactory{
 	public BigTableClientNodeFactory(
 			BigTableClientType clientType,
 			PhysicalSortedMapStorageAvailabilityAdapterFactory physicalSortedMapStorageAvailabilityAdapterFactory,
-			PhysicalSubEntitySortedMapStorageAvailabilityAdapterFactory
-			physicalSubEntitySortedMapStorageAvailabilityAdapterFactory,
 			CountingBatchCallbackFactory countingBatchCallbackFactory,
 			BigTableClientManager bigTableClientManager,
 			DatarouterHbaseClientExecutor datarouterHbaseClientExecutor){
 		super(clientType,
 				physicalSortedMapStorageAvailabilityAdapterFactory,
-				physicalSubEntitySortedMapStorageAvailabilityAdapterFactory,
 				countingBatchCallbackFactory,
 				bigTableClientManager,
 				datarouterHbaseClientExecutor);

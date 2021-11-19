@@ -25,9 +25,7 @@ import org.testng.annotations.Guice;
 
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.test.DatarouterStorageTestNgModuleFactory;
 
 @Guice(moduleFactory = DatarouterStorageTestNgModuleFactory.class)
@@ -36,24 +34,16 @@ public abstract class BaseSortedBeanIntegrationTests{
 	@Inject
 	protected Datarouter datarouter;
 	@Inject
-	private EntityNodeFactory entityNodeFactory;
-	@Inject
 	private NodeFactory nodeFactory;
-	@Inject
-	private WideNodeFactory wideNodeFactory;
 
 	protected DatarouterSortedNodeTestDao dao;
 	protected List<SortedBean> allBeans = SortedBeans.generatedSortedBeans();
 
-	protected void setup(ClientId clientId, boolean entity){
+	protected void setup(ClientId clientId){
 		dao = new DatarouterSortedNodeTestDao(
 				datarouter,
-				entityNodeFactory,
-				SortedBeanEntityNode.ENTITY_NODE_PARAMS_1,
 				nodeFactory,
-				wideNodeFactory,
-				clientId,
-				entity);
+				clientId);
 		resetTable(true);
 	}
 

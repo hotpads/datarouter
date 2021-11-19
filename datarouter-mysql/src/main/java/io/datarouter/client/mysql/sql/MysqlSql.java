@@ -30,13 +30,16 @@ public class MysqlSql extends Sql<Connection,PreparedStatement,MysqlSql>{
 
 	private final MysqlFieldCodecFactory codecFactory;
 	private final MysqlLiveTableOptions mysqlLiveTableOptions;
+	private final boolean disableIntroducer;
 
 	public MysqlSql(
 			MysqlFieldCodecFactory codecFactory,
-			MysqlLiveTableOptions mysqlTableOptions){
+			MysqlLiveTableOptions mysqlTableOptions,
+			boolean disableIntroducer){
 		super(MysqlSql.class);
 		this.codecFactory = codecFactory;
 		this.mysqlLiveTableOptions = mysqlTableOptions;
+		this.disableIntroducer = disableIntroducer;
 	}
 
 	@Override
@@ -60,7 +63,7 @@ public class MysqlSql extends Sql<Connection,PreparedStatement,MysqlSql>{
 		MysqlFieldCodec<?> codec = codecFactory.createCodec(field);
 		String parameter = field.getValue() == null
 				? codec.getSqlParameter()
-				: codec.getIntroducedParameter(mysqlLiveTableOptions);
+				: codec.getIntroducedParameter(mysqlLiveTableOptions, disableIntroducer);
 		appendParameter(parameter, codec::setPreparedStatementValue);
 		return this;
 	}

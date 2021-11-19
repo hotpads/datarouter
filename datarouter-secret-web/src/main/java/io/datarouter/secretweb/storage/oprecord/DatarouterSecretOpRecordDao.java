@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.secret.op.SecretOpInfo;
+import io.datarouter.secret.op.SecretOp;
 import io.datarouter.secret.service.SecretOpRecorder;
 import io.datarouter.secret.service.SecretOpRecorderSupplier;
 import io.datarouter.secretweb.storage.oprecord.DatarouterSecretOpRecord.DatarouterSecretOpRecordFielder;
@@ -51,7 +51,7 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 	}
 
 	private final SortedMapStorageNode<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord,
-		DatarouterSecretOpRecordFielder> node;
+	DatarouterSecretOpRecordFielder> node;
 
 	@Inject
 	public DatarouterSecretOpRecordDao(Datarouter datarouter, NodeFactory nodeFactory,
@@ -61,7 +61,9 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 				.map(clientId -> {
 					SortedMapStorageNode<DatarouterSecretOpRecordKey,DatarouterSecretOpRecord,
 					DatarouterSecretOpRecordFielder> node =
-							nodeFactory.create(clientId, DatarouterSecretOpRecord::new,
+							nodeFactory.create(
+									clientId,
+									DatarouterSecretOpRecord::new,
 									DatarouterSecretOpRecordFielder::new)
 							.withIsSystemTable(true)
 							.build();
@@ -72,15 +74,19 @@ public class DatarouterSecretOpRecordDao extends BaseDao implements SecretOpReco
 	}
 
 	@Override
-	public void recordOp(SecretOpInfo<?,?> opInfo){
-		String reasonString = opInfo.reason.toString();
+	public void recordOp(SecretOp<?,?,?,?> secretOp){
+		String reasonString = secretOp.getSecretOpReason().toString();
 		if(reasonString.length() > CommonFieldSizes.DEFAULT_LENGTH_VARCHAR){
-			logger.warn("SecretOpReason too long: {}. Max length={}", reasonString,
-					CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
+			logger.warn("SecretOpReason too long: {}. Max length={}", reasonString, CommonFieldSizes
+					.DEFAULT_LENGTH_VARCHAR);
 			reasonString = StringTool.trimToSize(reasonString, CommonFieldSizes.DEFAULT_LENGTH_VARCHAR);
 		}
-		node.put(new DatarouterSecretOpRecord(opInfo.namespace, opInfo.name, opInfo.clientOp.getOpType(), opInfo.reason
-				.type, reasonString));
+		node.put(new DatarouterSecretOpRecord(
+				secretOp.getNamespace(),
+				secretOp.getName(),
+				secretOp.getSecretClientOpType(),
+				secretOp.getSecretOpReason().type,
+				reasonString));
 	}
 
 	@Singleton

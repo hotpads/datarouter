@@ -52,6 +52,7 @@ public class NodeBuilder<
 	private NodewatchConfigurationBuilder nodewatchConfigurationBuilder;
 	private boolean disableForcePrimary;
 	private boolean isSystemTable;
+	private boolean disableIntroducer = false;
 
 	public NodeBuilder(
 			BaseNodeFactory nodeFactory,
@@ -91,6 +92,11 @@ public class NodeBuilder<
 
 	public NodeBuilder<EK,PK,D,F> withIsSystemTable(boolean isSystemTable){
 		this.isSystemTable = isSystemTable;
+		return this;
+	}
+
+	public NodeBuilder<EK,PK,D,F> disableIntroducer(){
+		this.disableIntroducer = true;
 		return this;
 	}
 
@@ -172,6 +178,7 @@ public class NodeBuilder<
 				.withTableConfiguration(tableConfig)
 				.withDisableForcePrimary(disableForcePrimary)
 				.withIsSystemTable(isSystemTable)
+				.withDisableIntroducer(disableIntroducer)
 				.build();
 		EntityNodeParams<EK,DefaultEntity<EK>> entityNodeParams = new EntityNodeParams<>(
 				clientId.getName() + "." + entityName,

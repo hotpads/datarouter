@@ -62,11 +62,11 @@ public class MysqlPreparedStatementBuilderIntegrationTests{
 	private MysqlSqlFactory sqlFactory;
 
 	private MysqlSql makeSql(){
-		return sqlFactory.createSql(CONNECTION_OPTIONS);
+		return sqlFactory.createSql(CONNECTION_OPTIONS, false);
 	}
 
 	private MysqlSql makeUtf8BinSql(){
-		return sqlFactory.createSql(UTF8_BIN_OPTIONS);
+		return sqlFactory.createSql(UTF8_BIN_OPTIONS, false);
 	}
 
 	@Test

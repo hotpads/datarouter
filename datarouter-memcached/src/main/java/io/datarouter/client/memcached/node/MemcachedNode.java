@@ -52,7 +52,7 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 
 	private static final Boolean DEFAULT_IGNORE_EXCEPTION = true;
 
-	private final Integer databeanVersion;
+	private final Integer schemaVersion;
 	private final MemcachedOps ops;
 	private final ClientId clientId;
 	private final MemcachedDatabeanCodec<PK,D,F> codec;
@@ -65,16 +65,16 @@ implements PhysicalTallyStorageNode<PK,D,F>{
 		super(params, clientType);
 		this.ops = new MemcachedOps(memcachedClientManager);
 		this.clientId = params.getClientId();
-		this.databeanVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
+		this.schemaVersion = Optional.ofNullable(params.getSchemaVersion()).orElse(1);
 		this.codec = new MemcachedDatabeanCodec<>(
 				getName(),
-				databeanVersion,
+				schemaVersion,
 				getFieldInfo().getSampleFielder(),
 				getFieldInfo().getDatabeanSupplier(),
 				getFieldInfo().getFieldByPrefixedName());
 		this.tallyCodec = new MemcachedTallyCodec(
 				getName(),
-				databeanVersion);
+				schemaVersion);
 	}
 
 	/*--------------- MapStorage write ---------------*/

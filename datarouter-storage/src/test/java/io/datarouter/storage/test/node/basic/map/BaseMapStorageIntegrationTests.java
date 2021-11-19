@@ -31,7 +31,6 @@ import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBeanKey;
@@ -42,13 +41,11 @@ public abstract class BaseMapStorageIntegrationTests{
 	private Datarouter datarouter;
 	@Inject
 	private NodeFactory nodeFactory;
-	@Inject
-	private WideNodeFactory wideNodeFactory;
 
 	private DatarouterMapStorageTestDao dao;
 
-	protected void setup(ClientId clientId, boolean entity){
-		this.dao = new DatarouterMapStorageTestDao(datarouter, nodeFactory, wideNodeFactory, clientId, entity);
+	protected void setup(ClientId clientId){
+		this.dao = new DatarouterMapStorageTestDao(datarouter, nodeFactory, clientId);
 	}
 
 	@AfterClass

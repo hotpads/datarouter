@@ -23,5 +23,7 @@ public interface SimpleDatarouterHttpClientSettings{
 	Duration getTimeout();
 	Supplier<Integer> getNumRetries();
 	Supplier<Boolean> getEnableBreakers();
+	Supplier<Boolean> getTraceInQueryString();
+	Supplier<Boolean> getDebugLog();
 
 }

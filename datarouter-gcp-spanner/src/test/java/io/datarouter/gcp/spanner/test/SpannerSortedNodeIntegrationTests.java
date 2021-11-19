@@ -26,7 +26,7 @@ public class SpannerSortedNodeIntegrationTests extends BaseSortedNodeIntegration
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(SpannerTestCliendIds.SPANNER, false);
+		setup(SpannerTestCliendIds.SPANNER);
 	}
 
 }

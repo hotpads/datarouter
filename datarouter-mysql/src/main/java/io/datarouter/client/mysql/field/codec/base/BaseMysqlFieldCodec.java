@@ -36,20 +36,20 @@ public abstract class BaseMysqlFieldCodec<T,F extends Field<T>> implements Mysql
 	}
 
 	@Override
-	public String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions){
-		return introduce(mysqlTableOptions, "?");
+	public String getIntroducedParameter(MysqlLiveTableOptions mysqlTableOptions, boolean disableIntroducer){
+		return introduce(mysqlTableOptions, "?", disableIntroducer);
 	}
 
-	private String introduce(MysqlLiveTableOptions mysqlTableOptions, String parameter){
-		if(!shouldIntroduceLiteral(mysqlTableOptions)){
+	private String introduce(MysqlLiveTableOptions mysqlTableOptions, String parameter, boolean disableIntroducer){
+		if(!shouldIntroduceLiteral(mysqlTableOptions, disableIntroducer)){
 			return parameter;
 		}
 		return "_" + mysqlTableOptions.getCharacterSet().name() + " " + parameter + " COLLATE "
 				+ mysqlTableOptions.getCollation().name();
 	}
 
-	private boolean shouldIntroduceLiteral(MysqlLiveTableOptions mysqlTableOptions){
-		if(!getMysqlColumnType().isIntroducible()){
+	private boolean shouldIntroduceLiteral(MysqlLiveTableOptions mysqlTableOptions, boolean disableIntroducer){
+		if(!getMysqlColumnType().isIntroducible() || disableIntroducer){
 			return false;
 		}
 		boolean characterSetConnectionMismatch = mysqlTableOptions

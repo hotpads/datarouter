@@ -3,6 +3,7 @@ package io.datarouter.client.redis.node;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.client.redis.RedisBlobCodec;
@@ -93,6 +94,11 @@ implements PhysicalBlobStorageNode{
 				.map(KeyValue::getValue)
 				.map(bytes -> ByteTool.copyOfRange(bytes, (int)offset, length))
 				.orElse(null);
+	}
+
+	@Override
+	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+		return Map.of();
 	}
 
 	@Override

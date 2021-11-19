@@ -293,36 +293,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
-	public void testVarInt(){
-		var bean0 = new ManyFieldBean();
-		bean0.setVarIntField(0);
-		dao.put(bean0);
-
-		ManyFieldBean roundTripped0 = dao.get(bean0.getKey());
-		Assert.assertNotSame(roundTripped0, bean0);
-		Assert.assertEquals(roundTripped0.getVarIntField(), bean0.getVarIntField());
-
-		//1234567
-		ManyFieldBean bean1234567 = new ManyFieldBean();
-		bean1234567.setVarIntField(1234567);
-		dao.put(bean1234567);
-
-		ManyFieldBean roundTripped1234567 = dao.get(bean1234567.getKey());
-		Assert.assertNotSame(roundTripped1234567, bean1234567);
-		Assert.assertEquals(roundTripped1234567.getVarIntField(), bean1234567.getVarIntField());
-
-		//Integer.MAX_VALUE
-		ManyFieldBean beanMax = new ManyFieldBean();
-		beanMax.setVarIntField(Integer.MAX_VALUE);
-		dao.put(beanMax);
-
-		ManyFieldBean roundTrippedMax = dao.get(beanMax.getKey());
-		Assert.assertNotSame(roundTrippedMax, beanMax);
-
-		Assert.assertEquals(roundTrippedMax.getVarIntField(), beanMax.getVarIntField());
-	}
-
-	@Test
 	public void testIntegerEnum(){
 		var bean = new ManyFieldBean();
 		bean.setIntEnumField(TestEnum.beast);
@@ -371,26 +341,6 @@ public abstract class BaseManyFieldIntegrationTests{
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
 		Assert.assertEquals(LongByteTool.fromComparableByteArray(roundTripped.getData()),
 				ArrayTool.primitiveLongArray(ids));
-	}
-
-	@Test
-	public void testUInt7(){
-		var bean = new ManyFieldBean();
-		bean.setUint7Field((byte)35);
-		dao.put(bean);
-
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
-		Assert.assertEquals(roundTripped.getUint7Field(), bean.getUint7Field());
-	}
-
-	@Test
-	public void testUInt31(){
-		var bean = new ManyFieldBean();
-		bean.setIntegerField(7888);
-		dao.put(bean);
-
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
-		Assert.assertEquals(roundTripped.getIntegerField(), bean.getIntegerField());
 	}
 
 	@Test

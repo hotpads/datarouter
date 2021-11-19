@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.client.memcached.client.MemcachedClientManager;
@@ -101,6 +102,12 @@ implements PhysicalBlobStorageNode{
 				.findFirst()
 				.map(Pair::getRight)
 				.orElse(null);
+	}
+
+	@Override
+	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+		return scanMultiInternal(keys)
+				.toMap(Pair::getLeft, Pair::getRight);
 	}
 
 	@Override

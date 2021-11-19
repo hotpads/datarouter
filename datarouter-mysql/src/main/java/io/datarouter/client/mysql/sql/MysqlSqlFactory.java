@@ -31,13 +31,13 @@ public class MysqlSqlFactory{
 	@Inject
 	private MysqlLiveTableOptionsRefresher mysqlLiveTableOptionsRefresher;
 
-	public MysqlSql createSql(ClientId clientId, String tableName){
-		MysqlLiveTableOptions mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(clientId, tableName);
-		return new MysqlSql(codecFactory, mysqlLiveTableOptions);
+	public MysqlSql createSql(ClientId clientId, String tableName, boolean disableIntroducer){
+		var mysqlLiveTableOptions = mysqlLiveTableOptionsRefresher.get(clientId, tableName);
+		return new MysqlSql(codecFactory, mysqlLiveTableOptions, disableIntroducer);
 	}
 
-	public MysqlSql createSql(MysqlLiveTableOptions mysqlLiveTableOptions){
-		return new MysqlSql(codecFactory, mysqlLiveTableOptions);
+	public MysqlSql createSql(MysqlLiveTableOptions mysqlLiveTableOptions, boolean disableIntroducer){
+		return new MysqlSql(codecFactory, mysqlLiveTableOptions, disableIntroducer);
 	}
 
 }

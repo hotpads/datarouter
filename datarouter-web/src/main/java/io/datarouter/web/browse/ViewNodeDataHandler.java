@@ -16,6 +16,7 @@
 package io.datarouter.web.browse;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +43,7 @@ import io.datarouter.util.ComparableTool;
 import io.datarouter.util.duration.DatarouterDuration;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
+import io.datarouter.util.time.ZonedDateFormatterTool;
 import io.datarouter.util.tuple.Range;
 import io.datarouter.util.tuple.Twin;
 import io.datarouter.web.config.DatarouterWebPaths;
@@ -181,10 +183,10 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 		if(count < 1){
 			return pageFactory.message(request, "no rows found");
 		}
-		long ms = System.currentTimeMillis() - startMs;
-		DatarouterDuration duration = new DatarouterDuration(System.currentTimeMillis() - startMs,
-				TimeUnit.MILLISECONDS);
-		double avgRps = count * 1000 / ms;
+		long endMs = System.currentTimeMillis();
+		long durationMs = endMs - startMs;
+		DatarouterDuration duration = new DatarouterDuration(durationMs, TimeUnit.MILLISECONDS);
+		double avgRps = count * 1_000 / durationMs;
 		String message = String.format("finished counting %s at %s %s @%srps totalDuration=%s",
 				node.getName(),
 				NumberFormatter.addCommas(count),
@@ -199,6 +201,8 @@ public class ViewNodeDataHandler extends InspectNodeDataHandler{
 				Twin.of("totalCount", NumberFormatter.addCommas(count)),
 				Twin.of("lastKey", last == null ? "?" : last.toString()),
 				Twin.of("averageRps", NumberFormatter.addCommas(avgRps)),
+				Twin.of("start", ZonedDateFormatterTool.formatLongMsWithZone(startMs, ZoneId.systemDefault())),
+				Twin.of("end", ZonedDateFormatterTool.formatLongMsWithZone(endMs, ZoneId.systemDefault())),
 				Twin.of("duration", duration + ""),
 				Twin.of("triggeredBy", getSessionInfo().getRequiredSession().getUsername()));
 		sendEmail(node.getName(), emailKvs);

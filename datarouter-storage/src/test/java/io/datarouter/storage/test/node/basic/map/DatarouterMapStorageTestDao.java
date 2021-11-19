@@ -25,7 +25,6 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean;
 import io.datarouter.storage.test.node.basic.map.databean.MapStorageBean.MapStorageBeanFielder;
@@ -38,17 +37,12 @@ public class DatarouterMapStorageTestDao extends BaseDao implements TestDao{
 	private final MapStorage<MapStorageBeanKey,MapStorageBean> node;
 
 	public DatarouterMapStorageTestDao(Datarouter datarouter, NodeFactory nodeFactory,
-			WideNodeFactory wideNodeFactory, ClientId clientId, boolean entity){
+			ClientId clientId){
 		super(datarouter);
-
-		if(entity){
-			node = new MapStorageEntityNode(wideNodeFactory, datarouter, clientId).mapStorageNode;
-		}else{
-			node = nodeFactory.create(clientId, MapStorageBeanEntityKey::new, MapStorageBean::new,
-					MapStorageBeanFielder::new)
-					.withSchemaVersion(1)
-					.buildAndRegister();
-		}
+		node = nodeFactory.create(clientId, MapStorageBeanEntityKey::new, MapStorageBean::new,
+				MapStorageBeanFielder::new)
+				.withSchemaVersion(1)
+				.buildAndRegister();
 	}
 
 	public List<MapStorageBeanKey> getKeys(Collection<MapStorageBeanKey> keys){

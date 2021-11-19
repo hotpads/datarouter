@@ -60,7 +60,7 @@ public class DatarouterHttpClientBuilder{
 	private int maxTotalConnections;
 	private int maxConnectionsPerRoute;
 	private Optional<Integer> validateAfterInactivityMs;
-	private HttpClientBuilder httpClientBuilder;
+	private final HttpClientBuilder httpClientBuilder;
 	private Supplier<Integer> retryCount;
 	private JsonSerializer jsonSerializer;
 	private CloseableHttpClient customHttpClient;
@@ -73,9 +73,11 @@ public class DatarouterHttpClientBuilder{
 	private DatarouterHttpClientConfig config;
 	private boolean ignoreSsl;
 	private SSLContext customSslContext;
-	private String name;
+	private final String name;
 	private Supplier<Boolean> enableBreakers;
 	private Supplier<URI> urlPrefix;
+	private Supplier<Boolean> traceInQueryString;
+	private Supplier<Boolean> debugLog;
 
 	public DatarouterHttpClientBuilder(){
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
@@ -88,6 +90,8 @@ public class DatarouterHttpClientBuilder{
 		this.retryCount = () -> HttpRetryTool.DEFAULT_RETRY_COUNT;
 		String className = new Throwable().getStackTrace()[1].getClassName();
 		this.name = className.substring(className.lastIndexOf(".") + 1, className.length());
+		this.traceInQueryString = () -> false;
+		this.debugLog = () -> false;
 	}
 
 	public DatarouterHttpClient build(){
@@ -159,7 +163,9 @@ public class DatarouterHttpClientBuilder{
 				connectionManager,
 				name,
 				enableBreakers,
-				urlPrefix);
+				urlPrefix,
+				traceInQueryString,
+				debugLog);
 	}
 
 	public DatarouterHttpClientBuilder setRetryCount(Supplier<Integer> retryCount){
@@ -273,11 +279,23 @@ public class DatarouterHttpClientBuilder{
 		return this;
 	}
 
+	public DatarouterHttpClientBuilder setTraceInQueryString(Supplier<Boolean> traceInQueryString){
+		this.traceInQueryString = traceInQueryString;
+		return this;
+	}
+
+	public DatarouterHttpClientBuilder setDebugLog(Supplier<Boolean> debugLog){
+		this.debugLog = debugLog;
+		return this;
+	}
+
 	public DatarouterHttpClientBuilder forDatarouterHttpClientSettings(SimpleDatarouterHttpClientSettings settings){
 		return this
 				.setTimeout(settings.getTimeout())
 				.setRetryCount(settings.getNumRetries())
-				.setEnableBreakers(settings.getEnableBreakers());
+				.setEnableBreakers(settings.getEnableBreakers())
+				.setTraceInQueryString(settings.getTraceInQueryString())
+				.setDebugLog(settings.getDebugLog());
 	}
 
 	public DatarouterHttpClientBuilder forDatarouterHttpClientSettings(DatarouterHttpClientSettings settings){

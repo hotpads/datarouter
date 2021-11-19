@@ -22,6 +22,8 @@ import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 
+import io.datarouter.storage.config.TestDetector;
+import io.datarouter.storage.config.properties.InternalConfigDirectory;
 import io.datarouter.storage.config.schema.SchemaUpdateResult;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
@@ -33,6 +35,8 @@ public abstract class BaseClientManager implements ClientManager{
 	private ClientInitializationTracker clientInitializationTracker;
 	@Inject
 	private DatarouterNodes datarouterNodes;
+	@Inject
+	private InternalConfigDirectory internalConfigDirectory;
 
 	@Override
 	public boolean monitorLatency(){
@@ -64,6 +68,9 @@ public abstract class BaseClientManager implements ClientManager{
 		synchronized(clientId){
 			if(clientInitializationTracker.isInitialized(clientId)){
 				return;
+			}
+			if(TestDetector.isTestNg() && "production".equals(internalConfigDirectory.get())){
+				throw new RuntimeException("preventing test againt production");
 			}
 			safeInitClient(clientId);
 			clientInitializationTracker.setInitialized(clientId);

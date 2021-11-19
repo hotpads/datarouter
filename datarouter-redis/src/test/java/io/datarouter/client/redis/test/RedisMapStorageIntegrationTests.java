@@ -27,7 +27,7 @@ public class RedisMapStorageIntegrationTests extends BaseMapStorageIntegrationTe
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(RedisTestClientIds.REDIS, false);
+		setup(RedisTestClientIds.REDIS);
 	}
 
 }

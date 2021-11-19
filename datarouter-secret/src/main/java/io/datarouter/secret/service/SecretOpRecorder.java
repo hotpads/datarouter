@@ -15,16 +15,16 @@
  */
 package io.datarouter.secret.service;
 
-import io.datarouter.secret.op.SecretOpInfo;
+import io.datarouter.secret.op.SecretOp;
 
 public interface SecretOpRecorder{
 
-	void recordOp(SecretOpInfo<?,?> opInfo);
+	void recordOp(SecretOp<?,?,?,?> opInfo);
 
 	public static class NoOpSecretOpRecorder implements SecretOpRecorder{
 
 		@Override
-		public void recordOp(SecretOpInfo<?,?> opInfo){
+		public void recordOp(SecretOp<?,?,?,?> opInfo){
 		}
 
 	}

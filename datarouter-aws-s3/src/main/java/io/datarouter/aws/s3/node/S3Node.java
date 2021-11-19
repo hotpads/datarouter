@@ -17,7 +17,9 @@ package io.datarouter.aws.s3.node;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import io.datarouter.aws.s3.DatarouterS3Client;
 import io.datarouter.scanner.Scanner;
@@ -74,6 +76,12 @@ implements PhysicalBlobStorageNode{
 	@Override
 	public byte[] read(PathbeanKey key, long offset, int length){
 		return s3DirectoryManager.read(key.getPathAndFile(), offset, length);
+	}
+
+	@Override
+	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+		return Scanner.of(keys)
+				.toMap(Function.identity(), this::read);
 	}
 
 	@Override

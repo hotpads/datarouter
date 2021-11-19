@@ -120,14 +120,4 @@ public class MysqlClientNodeFactory extends BaseClientNodeFactory{
 		return new MysqlWrappedNodeFactory<>();
 	}
 
-	@Override
-	protected <EK extends EntityKey<EK>,
-			E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	WrappedSubEntityNodeFactory<EK,E,PK,D,F,?> makeWrappedSubEntityNodeFactory(){
-		return new MysqlWrappedSubEntityNodeFactory<>();
-	}
-
 }

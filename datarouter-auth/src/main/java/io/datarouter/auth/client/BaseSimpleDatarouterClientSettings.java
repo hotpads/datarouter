@@ -22,6 +22,7 @@ import io.datarouter.httpclient.client.DatarouterHttpClientBuilder;
 import io.datarouter.httpclient.client.HttpRetryTool;
 import io.datarouter.httpclient.client.SimpleDatarouterHttpClientSettings;
 import io.datarouter.storage.setting.DefaultSettingValue;
+import io.datarouter.storage.setting.Setting;
 import io.datarouter.storage.setting.SettingFinder;
 import io.datarouter.storage.setting.SettingNode;
 import io.datarouter.storage.setting.cached.CachedSetting;
@@ -34,6 +35,8 @@ implements SimpleDatarouterHttpClientSettings{
 	public final CachedSetting<DatarouterDuration> timeout;
 	public final CachedSetting<Integer> numRetries;
 	public final CachedSetting<Boolean> enableBreakers;
+	public final Setting<Boolean> traceInQueryString;
+	public final Setting<Boolean> debugLog;
 
 	public BaseSimpleDatarouterClientSettings(
 			SettingFinder finder,
@@ -42,6 +45,8 @@ implements SimpleDatarouterHttpClientSettings{
 		timeout = registerDurations("timeout", getTimeoutDefaultSettingValue());
 		numRetries = registerIntegers("numRetries", getNumRetriesDefault());
 		enableBreakers = registerBooleans("enableBreakers", getEnableBreakersDefault());
+		traceInQueryString = registerBoolean("traceInQueryString", false);
+		debugLog = registerBoolean("debugLog", false);
 	}
 
 	@Override
@@ -57,6 +62,16 @@ implements SimpleDatarouterHttpClientSettings{
 	@Override
 	public final Supplier<Boolean> getEnableBreakers(){
 		return enableBreakers;
+	}
+
+	@Override
+	public Setting<Boolean> getTraceInQueryString(){
+		return traceInQueryString;
+	}
+
+	@Override
+	public Setting<Boolean> getDebugLog(){
+		return debugLog;
 	}
 
 	protected Duration getTimeoutDefault(){

@@ -83,7 +83,10 @@ public class GetJobletRequest extends BaseMysqlOp<JobletRequest>{
 	}
 
 	private MysqlSql makeSelectStatement(){
-		MysqlSql sql = mysqlSqlFactory.createSql(fieldInfo.getClientId(), fieldInfo.getTableName());
+		MysqlSql sql = mysqlSqlFactory.createSql(
+				fieldInfo.getClientId(),
+				fieldInfo.getTableName(),
+				fieldInfo.getDisableIntroducer());
 		jobletRequestSqlBuilder.makeGetJobletRequest(sql, jobletType);
 		return sql;
 	}

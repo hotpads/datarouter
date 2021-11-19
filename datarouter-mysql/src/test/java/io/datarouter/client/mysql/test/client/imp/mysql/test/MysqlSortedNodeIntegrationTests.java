@@ -28,7 +28,7 @@ public class MysqlSortedNodeIntegrationTests extends BaseSortedNodeIntegrationTe
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(DatarouterMysqlTestClientids.MYSQL, false);
+		setup(DatarouterMysqlTestClientids.MYSQL);
 	}
 
 	@AfterClass

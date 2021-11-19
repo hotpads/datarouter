@@ -34,7 +34,11 @@ public class WebSecretOpReason{
 		Require.isTrue(StringTool.notEmptyNorWhitespace(session.getUserToken()));
 		Require.isTrue(StringTool.notEmptyNorWhitespace(session.getUsername()));
 		Require.isTrue(StringTool.notEmptyNorWhitespace(reason));
-		return new SecretOpReason(SecretOpReasonType.MANUAL, session.getUsername(), session.getUserToken(), null,
+		return new SecretOpReason(
+				SecretOpReasonType.MANUAL,
+				session.getUsername(),
+				session.getUserToken(),
+				null,
 				reason);
 	}
 

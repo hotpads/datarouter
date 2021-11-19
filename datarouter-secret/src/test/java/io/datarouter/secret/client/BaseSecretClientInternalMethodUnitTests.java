@@ -66,8 +66,9 @@ public abstract class BaseSecretClientInternalMethodUnitTests<T extends SecretCl
 		client.create("other", "");
 		client.create("first", "");
 		client.create("no", "");
-		Assert.assertEquals(Set.copyOf(client.listNames(Optional.empty())), Set.of("first", "name1", "name2", "no",
-				"other"));
+		Assert.assertEquals(
+				Set.copyOf(client.listNames(Optional.empty())),
+				Set.of("first", "name1", "name2", "no", "other"));
 
 		//prefix
 		Assert.assertEquals(client.listNames(Optional.of("missing")).size(), 0);

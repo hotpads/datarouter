@@ -21,9 +21,7 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.node.NodeParams;
-import io.datarouter.storage.node.entity.EntityNode;
 import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 public interface ClientNodeFactory{
@@ -34,22 +32,6 @@ public interface ClientNodeFactory{
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>
 	PhysicalNode<PK,D,F> createWrappedNode(
-			EntityNodeParams<EK,E> entityNodeParams,
-			NodeParams<PK,D,F> nodeParams);
-
-	<EK extends EntityKey<EK>,
-			E extends Entity<EK>>
-	EntityNode<EK,E> createEntityNode(
-			NodeFactory nodeFactory,
-			EntityNodeParams<EK,E> entityNodeParams,
-			ClientId clientId);
-
-	<EK extends EntityKey<EK>,
-			E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK, D>,
-			F extends DatabeanFielder<PK, D>>
-	PhysicalNode<PK,D,F> createWrappedSubEntityNode(
 			EntityNodeParams<EK,E> entityNodeParams,
 			NodeParams<PK,D,F> nodeParams);
 

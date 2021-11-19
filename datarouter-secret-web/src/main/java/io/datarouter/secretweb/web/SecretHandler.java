@@ -29,9 +29,11 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder;
 import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.secret.config.SecretClientConfig;
+import io.datarouter.secret.config.SecretClientSupplierConfig;
+import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
-import io.datarouter.secret.op.SecretOpType;
+import io.datarouter.secret.op.client.SecretClientOpType;
+import io.datarouter.secret.service.SecretJsonSerializer;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.secretweb.config.DatarouterSecretFiles;
 import io.datarouter.secretweb.config.DatarouterSecretPaths;
@@ -54,6 +56,8 @@ public class SecretHandler extends BaseHandler{
 	@Inject
 	private SecretHandlerPermissions permissions;
 	@Inject
+	private SecretJsonSerializer jsonSerializer;
+	@Inject
 	private SecretService secretService;
 	@Inject
 	private Bootstrap4ReactPageFactory reactPageFactory;
@@ -65,19 +69,22 @@ public class SecretHandler extends BaseHandler{
 		return reactPageFactory.startBuilder(request)
 				.withTitle("Datarouter - Secrets")
 				.withReactScript(files.js.secretsJsx)
-				.withJsStringConstant("PATH_HANDLE", request.getContextPath() + paths.datarouter.secrets.handle
-						.toSlashedString())
-				.withJsStringConstant("PATH_CONFIG", request.getContextPath() + paths.datarouter.secrets
-						.getSecretClientSupplierConfig.toSlashedString())
+				.withJsStringConstant(
+						"PATH_HANDLE",
+						request.getContextPath() + paths.datarouter.secrets.handle.toSlashedString())
+				.withJsStringConstant(
+						"PATH_CONFIG",
+						request.getContextPath() + paths.datarouter.secrets.getSecretClientSupplierConfig
+								.toSlashedString())
 				.buildMav();
 	}
 
 	//TODO add Session-based permission/allowedOp UI features
 	@Handler
 	public SecretClientSupplierConfigsDto getSecretClientSupplierConfig(){
-		List<SecretClientConfig> secretClientSupplierConfigs = secretService.getSecretClientSupplierConfigs();
+		List<SecretClientSupplierConfig> secretClientSupplierConfigs = secretService.getSecretClientSupplierConfigs();
 		List<String> orderedConfigs = Scanner.of(secretClientSupplierConfigs)
-				.map(SecretClientConfig::getConfigName)
+				.map(SecretClientSupplierConfig::getConfigName)
 				.list();
 		return new SecretClientSupplierConfigsDto(orderedConfigs, Scanner.of(secretClientSupplierConfigs)
 				.map(config -> {
@@ -85,8 +92,10 @@ public class SecretHandler extends BaseHandler{
 							config.getConfigName(),
 							config.getSecretClientSupplierClass().getSimpleName(),
 							buildAllowedOps(config.getAllowedOps()),
-							config.getAllowedNames().isPresent() ? Scanner.of(config.getAllowedNames().get()).toMap()
-									: Map.of());
+							config.getAllowedNames()
+									.map(Scanner::of)
+									.map(Scanner::toMap)
+									.orElseGet(Map::of));
 				}).toMap(dto -> dto.configName));
 	}
 
@@ -107,21 +116,21 @@ public class SecretHandler extends BaseHandler{
 		return result;
 	}
 
-	private Map<SecretOpDto,SecretOpDto> buildAllowedOps(Set<SecretOpType> serviceOps){
+	private Map<SecretOpDto,SecretOpDto> buildAllowedOps(Set<SecretClientOpType> serviceOps){
 		Set<SecretOpDto> allowedOps = new HashSet<>();
-		if(serviceOps.contains(SecretOpType.CREATE) || serviceOps.contains(SecretOpType.PUT)){
+		if(serviceOps.contains(SecretClientOpType.CREATE) || serviceOps.contains(SecretClientOpType.PUT)){
 			allowedOps.add(SecretOpDto.CREATE);
 		}
-		if(serviceOps.contains(SecretOpType.READ)){
+		if(serviceOps.contains(SecretClientOpType.READ)){
 			allowedOps.add(SecretOpDto.READ);
 		}
-		if(serviceOps.contains(SecretOpType.UPDATE) || serviceOps.contains(SecretOpType.PUT)){
+		if(serviceOps.contains(SecretClientOpType.UPDATE) || serviceOps.contains(SecretClientOpType.PUT)){
 			allowedOps.add(SecretOpDto.UPDATE);
 		}
-		if(serviceOps.contains(SecretOpType.DELETE)){
+		if(serviceOps.contains(SecretClientOpType.DELETE)){
 			allowedOps.add(SecretOpDto.DELETE);
 		}
-		if(serviceOps.contains(SecretOpType.LIST)){
+		if(serviceOps.contains(SecretClientOpType.LIST)){
 			allowedOps.add(SecretOpDto.LIST_ALL);
 		}
 		return Scanner.of(allowedOps).toMap();
@@ -163,32 +172,59 @@ public class SecretHandler extends BaseHandler{
 
 	private SecretHandlerOpResultDto executeAuthorizedRequest(SecretHandlerOpRequestDto requestDto){
 		try{
-			SecretOpReason opReason = WebSecretOpReason.manualOp(getSessionInfo().getRequiredSession(),
+			SecretOpReason opReason = WebSecretOpReason.manualOp(
+					getSessionInfo().getRequiredSession(),
 					"SecretHandler");
-			Optional<String> configName = StringTool.isEmptyOrWhitespace(requestDto.configName) ? Optional.empty()
+			Optional<String> configName = StringTool.isEmptyOrWhitespace(requestDto.configName)
+					? Optional.empty()
 					: Optional.ofNullable(requestDto.configName);
+			SecretOpConfig config;
 			switch(requestDto.op){
 			case CREATE:
 				try{
-					secretService.create(configName, requestDto.name, requestDto.value, Class.forName(requestDto
-							.secretClass), opReason);
+					String secretValue = requestDto.value;
+					//test that the raw value is de/serializable
+					jsonSerializer.serialize(
+							jsonSerializer.deserialize(secretValue, Class.forName(requestDto.secretClass)));
+					config = SecretOpConfig.builder(opReason)
+							.useTargetSecretClientConfig(configName)
+							.disableSerialization()
+							.build();
+					secretService.create(requestDto.name, secretValue, config);
 				}catch(ClassNotFoundException e){
 					return SecretHandlerOpResultDto.error("Provided class cannot be found.");
 				}
 				return SecretHandlerOpResultDto.success();
 			case UPDATE:
-				secretService.updateRaw(configName, requestDto.name, requestDto.value, opReason);
+				config = SecretOpConfig.builder(opReason)
+						.useTargetSecretClientConfig(configName)
+						.disableSerialization()
+						.build();
+				secretService.update(requestDto.name, requestDto.value, config);
 				return SecretHandlerOpResultDto.success();
 			case READ:
-				return SecretHandlerOpResultDto.read(secretService.readRaw(configName, requestDto.name,
-						opReason));
+				config = SecretOpConfig.builder(opReason)
+						.useTargetSecretClientConfig(configName)
+						.disableSerialization()
+						.build();
+				return SecretHandlerOpResultDto.read(secretService.read(requestDto.name, String.class, config));
 			case DELETE:
-				secretService.delete(configName, requestDto.name, opReason);
+				config = SecretOpConfig.builder(opReason)
+						.useTargetSecretClientConfig(configName)
+						.build();
+				secretService.delete(requestDto.name, config);
 				return SecretHandlerOpResultDto.success();
 			case LIST_ALL:
-				List<String> appNames = secretService.listSecretNames(configName, opReason);
+				config = SecretOpConfig.builder(opReason)
+						.useTargetSecretClientConfig(configName)
+						.build();
+				List<String> appNames = secretService.listSecretNames(Optional.empty(), config);
 				appNames.sort(String.CASE_INSENSITIVE_ORDER);
-				List<String> sharedNames = secretService.listSecretNamesShared(configName, opReason);
+				config = SecretOpConfig.builder(opReason)
+						.useSharedNamespace()
+						.useTargetSecretClientConfig(configName)
+						.build();
+				List<String> sharedNames = secretService.listSecretNames(Optional.empty(), config);
 				sharedNames.sort(String.CASE_INSENSITIVE_ORDER);
 				return SecretHandlerOpResultDto.list(appNames, sharedNames);
 			default:

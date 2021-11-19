@@ -27,19 +27,19 @@ public class DatarouterMemcachedKeyTests{
 	@Test
 	public void roundTrip(){
 		String nodeName = "myClient.Tally";
-		int databeanVersion = 1;
+		int schemaVersion = 1;
 		var tallyKey = new TallyKey("one1566858501940!20190826152821");
 
-		String versionedKeyString = MemcachedKey.encode(nodeName, databeanVersion, tallyKey);
+		String versionedKeyString = MemcachedKey.encode(nodeName, schemaVersion, tallyKey);
 		String expected = MemcachedKey.CODEC_VERSION
 				+ ":" + nodeName
-				+ ":" + databeanVersion
+				+ ":" + schemaVersion
 				+ ":" + PrimaryKeyPercentCodecTool.encode(tallyKey);
 		Assert.assertEquals(versionedKeyString, expected);
 
 		var decodedMemcachedKey = MemcachedKey.decode(versionedKeyString, TallyKey.class);
 		Assert.assertEquals(decodedMemcachedKey.nodeName, nodeName);
-		Assert.assertEquals(decodedMemcachedKey.databeanVersion, databeanVersion);
+		Assert.assertEquals(decodedMemcachedKey.schemaVersion, schemaVersion);
 		Assert.assertEquals(decodedMemcachedKey.primaryKey, tallyKey);
 	}
 

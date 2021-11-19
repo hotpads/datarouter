@@ -16,7 +16,9 @@
 package io.datarouter.storage.file;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import io.datarouter.instrumentation.count.Counters;
@@ -149,6 +151,19 @@ implements BlobStorage{
 		optBytes.map(bytes -> bytes.length)
 				.ifPresent(actualLength -> count("readOffsetLimit bytes", actualLength));
 		return optBytes.orElse(null);
+	}
+
+	@Override
+	public Map<PathbeanKey,byte[]> read(List<PathbeanKey> keys){
+		Map<PathbeanKey,byte[]> keyValue = new HashMap<>();
+		keys.forEach(key -> {
+				Optional<byte[]> optBytes = Optional.ofNullable(parent.read(prependStoragePath(key)));
+				count("read ops", 1);
+				optBytes.map(bytes -> bytes.length)
+						.ifPresent(actualLength -> count("read bytes", actualLength));
+				keyValue.putIfAbsent(key, optBytes.orElse(null));
+			});
+		return keyValue;
 	}
 
 	/*---------- scan ------------*/

@@ -35,6 +35,7 @@ extends DatabeanFieldInfo<PK,D,F>{
 	private final NodewatchConfiguration nodewatchConfiguration;
 	private final boolean disableForcePrimary;
 	private final boolean isSystemTable;
+	private final boolean disableIntroducer;
 
 	public PhysicalDatabeanFieldInfo(NodeParams<PK,D,F> params){
 		super(params);
@@ -60,6 +61,7 @@ extends DatabeanFieldInfo<PK,D,F>{
 		this.nodewatchConfiguration = params.getTableConfiguration();
 		this.disableForcePrimary = params.getDisableForcePrimary();
 		this.isSystemTable = params.getIsSystemTable();
+		this.disableIntroducer = params.getDisableIntroducer();
 	}
 
 	public ClientId getClientId(){
@@ -84,6 +86,10 @@ extends DatabeanFieldInfo<PK,D,F>{
 
 	public boolean getIsSystemTable(){
 		return isSystemTable;
+	}
+
+	public boolean getDisableIntroducer(){
+		return disableIntroducer;
 	}
 
 	@Override

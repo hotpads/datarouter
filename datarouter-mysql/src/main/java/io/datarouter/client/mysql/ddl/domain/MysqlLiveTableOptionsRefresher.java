@@ -83,7 +83,9 @@ public class MysqlLiveTableOptionsRefresher{
 		}
 		logger.debug("{} {}", clientAndTable, phaseTimer);
 		counter.addAndGet(phaseTimer.getElapsedTimeBetweenFirstAndLastEvent());
-		return new MysqlLiveTableOptions(sqlTableMetadata.characterSet, sqlTableMetadata.collation);
+		return new MysqlLiveTableOptions(
+				sqlTableMetadata.characterSet,
+				sqlTableMetadata.collation);
 	}
 
 	public MysqlLiveTableOptions get(ClientId clientId, String tableName){
@@ -134,7 +136,8 @@ public class MysqlLiveTableOptionsRefresher{
 				return false;
 			}
 			ClientAndTable other = (ClientAndTable)obj;
-			return Objects.equals(other.clientId, clientId) && Objects.equals(other.tableName, tableName);
+			return Objects.equals(other.clientId, clientId)
+					&& Objects.equals(other.tableName, tableName);
 		}
 
 		@Override

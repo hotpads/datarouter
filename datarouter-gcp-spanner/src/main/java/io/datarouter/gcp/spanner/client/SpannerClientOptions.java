@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 
+import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.secret.service.SecretService;
 import io.datarouter.storage.client.ClientOptions;
@@ -120,9 +121,15 @@ public class SpannerClientOptions{
 			return Optional.empty();
 		}
 		return optSecretLocation
-				.map($ -> secretService.readRawSharedWithoutRecord($, SecretOpReason.automatedOp(this.getClass()
-						.getSimpleName())))
-				.map(str -> str.getBytes(StandardCharsets.UTF_8))
+				.map($ -> {
+					SecretOpConfig config = SecretOpConfig.builder(
+							SecretOpReason.automatedOp(this.getClass().getSimpleName()))
+							.useSharedNamespace()
+							.disableRecording()
+							.disableSerialization()
+							.build();
+					return secretService.read($, String.class, config);
+				}).map(str -> str.getBytes(StandardCharsets.UTF_8))
 				.map(ByteArrayInputStream::new);
 	}
 

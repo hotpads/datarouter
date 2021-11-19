@@ -23,7 +23,6 @@ import javax.inject.Singleton;
 
 import io.datarouter.gcp.spanner.field.SpannerFieldCodecRegistry;
 import io.datarouter.gcp.spanner.node.SpannerNode;
-import io.datarouter.gcp.spanner.node.entity.SpannerEntityNode;
 import io.datarouter.gcp.spanner.node.entity.SpannerSubEntityNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.entity.Entity;
@@ -32,8 +31,6 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.opencensus.adapter.physical.PhysicalIndexedSortedMapStorageOpencensusAdapter;
 import io.datarouter.opencensus.adapter.physical.PhysicalSubEntitySortedMapStorageOpencensusAdapter;
-import io.datarouter.storage.client.ClientId;
-import io.datarouter.storage.client.ClientTableNodeNames;
 import io.datarouter.storage.client.imp.BaseClientNodeFactory;
 import io.datarouter.storage.client.imp.WrappedNodeFactory;
 import io.datarouter.storage.client.imp.WrappedSubEntityNodeFactory;
@@ -48,10 +45,8 @@ import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalIndexedS
 import io.datarouter.storage.node.adapter.sanitization.physical.PhysicalSubEntitySortedMapStorageSanitizationAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalIndexedSortedMapStorageTraceAdapter;
 import io.datarouter.storage.node.adapter.trace.physical.PhysicalSubEntitySortedMapStorageTraceAdapter;
-import io.datarouter.storage.node.entity.EntityNode;
 import io.datarouter.storage.node.entity.EntityNodeParams;
 import io.datarouter.storage.node.entity.PhysicalSubEntitySortedMapStorageNode;
-import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.node.op.combo.IndexedSortedMapStorage.PhysicalIndexedSortedMapStorageNode;
 import io.datarouter.storage.node.type.index.ManagedNodesHolder;
 
@@ -147,28 +142,6 @@ public class SpannerClientNodeFactory extends BaseClientNodeFactory{
 			F extends DatabeanFielder<PK,D>>
 	WrappedNodeFactory<EK,E,PK,D,F,?> makeWrappedNodeFactory(){
 		return new SpannerWrappedNodeFactory<>();
-	}
-
-	@Override
-	protected <
-			EK extends EntityKey<EK>,
-			E extends Entity<EK>,
-			PK extends EntityPrimaryKey<EK,PK>,
-			D extends Databean<PK,D>,
-			F extends DatabeanFielder<PK,D>>
-	WrappedSubEntityNodeFactory<EK,E,PK,D,F,?> makeWrappedSubEntityNodeFactory(){
-		return new SpannerWrappedSubEntityNodeFactory<>();
-	}
-
-	@Override
-	public <EK extends EntityKey<EK>, E extends Entity<EK>> EntityNode<EK,E> createEntityNode(
-			NodeFactory nodeFactory, EntityNodeParams<EK,E> entityNodeParams, ClientId clientId){
-		ClientTableNodeNames clientTableNodeNames = new ClientTableNodeNames(
-				clientId,
-				entityNodeParams.getEntityTableName(),
-				entityNodeParams.getNodeName());
-		return new SpannerEntityNode<>(entityNodeParams, clientTableNodeNames, spannerClientManager,
-				spannerFieldCodecRegistry, clientId);
 	}
 
 }

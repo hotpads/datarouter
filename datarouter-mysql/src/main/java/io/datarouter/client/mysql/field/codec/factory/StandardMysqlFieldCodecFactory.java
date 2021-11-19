@@ -41,11 +41,7 @@ import io.datarouter.client.mysql.field.codec.datetime.LocalDateTimeMysqlFieldCo
 import io.datarouter.client.mysql.field.codec.enums.IntegerEnumMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.enums.StringEnumMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.enums.VarIntEnumMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.positive.UInt15MysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.positive.UInt31MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.positive.UInt63MysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.positive.UInt7MysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.positive.VarIntMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.BooleanMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.DoubleMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.FloatMysqlFieldCodec;
@@ -79,11 +75,7 @@ import io.datarouter.model.field.imp.custom.LongDateField;
 import io.datarouter.model.field.imp.enums.IntegerEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.VarIntEnumField;
-import io.datarouter.model.field.imp.positive.UInt15Field;
-import io.datarouter.model.field.imp.positive.UInt31Field;
 import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt7Field;
-import io.datarouter.model.field.imp.positive.VarIntField;
 
 @SuppressWarnings("deprecation")
 public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
@@ -131,11 +123,7 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(PrimitiveLongArrayField.class, PrimitiveLongArrayMysqlFieldCodec::new);
 
 		//positive numbers only
-		addCodec(UInt15Field.class, UInt15MysqlFieldCodec::new);
-		addCodec(UInt31Field.class, UInt31MysqlFieldCodec::new);
 		addCodec(UInt63Field.class, UInt63MysqlFieldCodec::new);
-		addCodec(UInt7Field.class, UInt7MysqlFieldCodec::new);
-		addCodec(VarIntField.class, VarIntMysqlFieldCodec::new);
 
 		additional.forEach(codecClassByFieldClass::put);
 	}

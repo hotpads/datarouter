@@ -26,7 +26,7 @@ public class SpannerMapStorageIntegrationTests extends BaseMapStorageIntegration
 
 	@BeforeClass
 	public void beforeClass(){
-		setup(SpannerTestCliendIds.SPANNER, false);
+		setup(SpannerTestCliendIds.SPANNER);
 	}
 
 }

@@ -27,10 +27,7 @@ import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.dao.BaseDao;
 import io.datarouter.storage.dao.TestDao;
-import io.datarouter.storage.node.entity.EntityNodeParams;
-import io.datarouter.storage.node.factory.EntityNodeFactory;
 import io.datarouter.storage.node.factory.NodeFactory;
-import io.datarouter.storage.node.factory.WideNodeFactory;
 import io.datarouter.storage.node.op.combo.SortedMapStorage;
 import io.datarouter.storage.test.node.basic.sorted.SortedBean.SortedBeanFielder;
 import io.datarouter.util.tuple.Range;
@@ -39,58 +36,21 @@ import io.datarouter.util.tuple.Range;
 public class DatarouterSortedNodeTestDao extends BaseDao implements TestDao{
 
 	private final SortedMapStorage<SortedBeanKey,SortedBean> node;
-	private final SortedBeanEntityNode entityNode;
 
 	public DatarouterSortedNodeTestDao(
 			Datarouter datarouter,
-			EntityNodeFactory entityNodeFactory,
-			EntityNodeParams<SortedBeanEntityKey,SortedBeanEntity> entityNodeParams,
 			NodeFactory nodeFactory,
-			WideNodeFactory wideNodeFactory,
-			ClientId clientId,
-			boolean entity){
+			ClientId clientId){
 		super(datarouter);
-		if(entity){
-			entityNode = new SortedBeanEntityNode(entityNodeFactory, wideNodeFactory, datarouter, clientId,
-					entityNodeParams);
-			node = entityNode.sortedBean;
-		}else{
-			entityNode = null;
-			node = nodeFactory.create(clientId, SortedBeanEntityKey::new, SortedBean::new, SortedBeanFielder::new)
-					.withTableName("SortedBean")
-					.buildAndRegister();
-		}
+		node = nodeFactory.create(clientId, SortedBeanEntityKey::new, SortedBean::new, SortedBeanFielder::new)
+				.withTableName("SortedBean")
+				.buildAndRegister();
 	}
 
 	/*-------------------------------- entity -------------------------------*/
 
-	public SortedMapStorage<SortedBeanKey,SortedBean> getNodeFromEntity(){
-		return entityNode.sortedBean;
-	}
-
 	public SortedMapStorage<SortedBeanKey,SortedBean> getNode(){
 		return node;
-	}
-
-	public void putMultiEntity(Collection<SortedBean> databeans){
-		entityNode.sortedBean.putMulti(databeans);
-	}
-
-	public void deleteAllEntity(){
-		entityNode.sortedBean.deleteAll();
-	}
-
-	public Scanner<SortedBean> scanEntity(int batchSize){
-		var config = new Config().setOutputBatchSize(batchSize);
-		return entityNode.sortedBean.scan(config);
-	}
-
-	public SortedBeanEntity getEntity(SortedBeanEntityKey key){
-		return entityNode.entity.getEntity(key);
-	}
-
-	public void deleteEntity(SortedBeanEntityKey key){
-		entityNode.entity.deleteEntity(key);
 	}
 
 	/*---------------------------- sub entity -------------------------------*/

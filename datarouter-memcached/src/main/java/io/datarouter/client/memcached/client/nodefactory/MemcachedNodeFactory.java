@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 import io.datarouter.client.memcached.MemcachedClientType;
 import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.node.MemcachedBlobNode;
+import io.datarouter.client.memcached.node.MemcachedMapStorageNode;
 import io.datarouter.client.memcached.node.MemcachedNode;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -47,6 +48,15 @@ public class MemcachedNodeFactory{
 			F extends DatabeanFielder<PK,D>>
 	MemcachedNode<PK,D,F> createTallyNode(NodeParams<PK,D,F> params){
 		return new MemcachedNode<>(params, clientType, clientManager);
+	}
+
+	public <PK extends PrimaryKey<PK>,
+			D extends Databean<PK,D>,
+			F extends DatabeanFielder<PK,D>>
+	MemcachedMapStorageNode<PK,D,F> createMemcachedMapStorageNode(NodeParams<PK,D,F> params){
+		return new MemcachedMapStorageNode<>(params, clientType,
+				new MemcachedBlobNode((NodeParams<PathbeanKey,Pathbean,PathbeanFielder>)params, clientType,
+						clientManager));
 	}
 
 }

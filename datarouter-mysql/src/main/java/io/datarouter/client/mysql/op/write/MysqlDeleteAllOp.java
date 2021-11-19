@@ -52,7 +52,7 @@ extends BaseMysqlOp<Integer>{
 	@Override
 	public Integer runOnce(){
 		PreparedStatement statement = mysqlSqlFactory
-				.createSql(getClientId(), fieldInfo.getTableName())
+				.createSql(getClientId(), fieldInfo.getTableName(), fieldInfo.getDisableIntroducer())
 				.deleteAll(config, fieldInfo.getTableName())
 				.prepare(getConnection());
 		return MysqlTool.update(statement);

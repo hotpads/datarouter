@@ -28,6 +28,7 @@ import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.util.tuple.Pair;
 
 public class MemcachedDatabeanCodec<
@@ -78,12 +79,25 @@ public class MemcachedDatabeanCodec<
 		return Optional.of(new Pair<>(key, value));
 	}
 
+	public Optional<Pair<PathbeanKey,byte[]>> encodeKeyToPathbeanKeyValueIfValid(D databean){
+		//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
+		//  could be big savings for small or key-only databeans
+		byte[] value = encode(databean);
+		if(value.length > 2 * MEGABYTE){
+			//memcached max size is 1mb for a compressed object, so don't PUT things that won't compress well
+			logger.warn("object too big for memcached length={} key={}", value.length, databean.getKey());
+			return Optional.empty();
+		}
+		PathbeanKey key = MemcachedKey.encodeToPathbeanKey(databean.getKey());
+		return Optional.of(new Pair<>(key, value));
+	}
+
 	public D decodeResultValue(Pair<String,Object> result){
 		byte[] byteValue = (byte[])result.getRight();
 		return decodeBytes(byteValue);
 	}
 
-	private D decodeBytes(byte[] bytes){
+	public D decodeBytes(byte[] bytes){
 		return FieldSetTool.fieldSetFromBytes(
 				databeanSupplier,
 				fieldByPrefixedName,

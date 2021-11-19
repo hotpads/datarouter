@@ -21,7 +21,6 @@ import javax.inject.Singleton;
 import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory;
 import io.datarouter.client.hbase.config.DatarouterHBaseExecutors.DatarouterHbaseClientExecutor;
 import io.datarouter.storage.node.adapter.availability.PhysicalSortedMapStorageAvailabilityAdapterFactory;
-import io.datarouter.storage.node.adapter.availability.PhysicalSubEntitySortedMapStorageAvailabilityAdapterFactory;
 
 @Singleton
 public class HBaseClientNodeFactory extends BaseHBaseClientNodeFactory{
@@ -30,13 +29,11 @@ public class HBaseClientNodeFactory extends BaseHBaseClientNodeFactory{
 	public HBaseClientNodeFactory(
 			HBaseClientType clientType,
 			PhysicalSortedMapStorageAvailabilityAdapterFactory physicalSortedMapStorageAvailabilityAdapterFactory,
-			PhysicalSubEntitySortedMapStorageAvailabilityAdapterFactory
-			physicalSubEntitySortedMapStorageAvailabilityAdapterFactory,
 			CountingBatchCallbackFactory countingBatchCallbackFactory,
 			HBaseClientManager hBaseClientManager,
 			DatarouterHbaseClientExecutor datarouterHbaseClientExecutor){
 		super(clientType, physicalSortedMapStorageAvailabilityAdapterFactory,
-				physicalSubEntitySortedMapStorageAvailabilityAdapterFactory, countingBatchCallbackFactory,
+				countingBatchCallbackFactory,
 				hBaseClientManager, datarouterHbaseClientExecutor);
 	}
 

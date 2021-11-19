@@ -83,9 +83,10 @@ extends BaseMysqlOp<List<D>>{
 		String clientName = databeanFieldInfo.getClientId().getName();
 		String nodeName = databeanFieldInfo.getNodeName() + "." + indexName;
 		String opName = IndexedStorageReader.OP_getByIndexRange;
+		boolean disableIntroducer = databeanFieldInfo.getDisableIntroducer();
 		Connection connection = getConnection();
 		PreparedStatement statement = mysqlSqlFactory
-				.createSql(getClientId(), tableName)
+				.createSql(getClientId(), tableName, disableIntroducer)
 				.getInRanges(
 						tableName,
 						config,

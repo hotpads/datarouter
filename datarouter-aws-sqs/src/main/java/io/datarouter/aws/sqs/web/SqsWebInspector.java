@@ -101,7 +101,6 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 	private ContainerTag<?> buildQueueNodeTable(ClientId clientId, HttpServletRequest request){
 		Pair<List<Twin<String>>,List<String>> queueRegistry = queueRegistryService.getSqsQueuesForClient(clientId);
 		List<Twin<String>> knownQueueUrlByName = queueRegistry.getLeft();
-		List<String> unreferencedQueues = queueRegistry.getRight();
 		List<SqsWebInspectorDto> queueStatsRows = Scanner.of(knownQueueUrlByName)
 				.map(queueUrlAndName -> {
 					String queueName = queueUrlAndName.getRight();
@@ -133,6 +132,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 					return td(purgeIcon).withStyle("text-align:center");
 				})
 				.build(queueStatsRows);
+		List<String> unreferencedQueues = queueRegistry.getRight();
 		if(unreferencedQueues.isEmpty()){
 			return div(h4("Queues"), table)
 					.withClass("container-fluid my-4")
@@ -153,7 +153,7 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 									.attr("data-toggle", "tooltip")
 									.attr("title", "Delete queue " + row);
 							return td(trashIcon).withStyle("text-align:center");
-				})
+						})
 				.build(unreferencedQueues);
 		return div(h4("Queues"), table, h4("Unreferenced Queues"), unreferencedQueuesTable)
 				.withClass("container-fluid my-4")
@@ -176,7 +176,9 @@ public class SqsWebInspector implements DatarouterClientWebInspector{
 						"Messages In Flight",
 						"Messages are considered to be in flight if they have been sent to a client but have not yet "
 								+ "been deleted or have not yet reached the end of their visibility window.")
-				.withEntry("Total Messages", " A total of Available + InFlight messages")
+				.withEntry("Total Messages", "A total of Available + InFlight messages")
+				.withEntry("Unreferenced Queue", "Queue which exists but the application is not aware of, "
+						+ "usually a result of the queue being renamed, or code refactored")
 				.build()
 				.withClass("container-fluid my-4")
 				.withStyle("padding-left: 0px");

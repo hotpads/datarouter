@@ -86,7 +86,7 @@ public class AwsSecretClient implements SecretClient{
 	}
 
 	@Override
-	public final List<String> listNames(Optional<String> exclusivePrefix){
+	public final List<String> listNames(Optional<String> prefix){
 		List<String> secretNames = new ArrayList<>();
 		String nextToken = null;
 		do{
@@ -95,10 +95,9 @@ public class AwsSecretClient implements SecretClient{
 			nextToken = result.getNextToken();
 			result.getSecretList().stream()
 					.map(SecretListEntry::getName)
-					.filter(name -> {
-						return exclusivePrefix.map(prefix -> prefix.length() < name.length() && name.startsWith(prefix))
-								.orElse(true);
-					})
+					.filter(name -> prefix.map(
+							current -> current.length() < name.length() && name.startsWith(current))
+									.orElse(true))
 					.forEach(secretNames::add);
 		}while(nextToken != null);
 		return secretNames;

@@ -15,16 +15,16 @@
  */
 package io.datarouter.secret.exception;
 
-import io.datarouter.secret.op.SecretOpInfo;
+import io.datarouter.secret.op.SecretOp;
 
 @SuppressWarnings("serial")
 public class NoConfiguredSecretClientSupplierException extends RuntimeException{
 
-	public final SecretOpInfo<?,?> secretOpInfo;
+	public final SecretOp<?,?,?,?> secretOp;
 
-	public NoConfiguredSecretClientSupplierException(SecretOpInfo<?,?> secretOpInfo){
-		super("No SecretClientSupplier is configured to handle opInfo=" + secretOpInfo);
-		this.secretOpInfo = secretOpInfo;
+	public NoConfiguredSecretClientSupplierException(SecretOp<?,?,?,?> secretOp){
+		super("No SecretClientSupplier is configured to handle opInfo=" + secretOp);
+		this.secretOp = secretOp;
 	}
 
 }

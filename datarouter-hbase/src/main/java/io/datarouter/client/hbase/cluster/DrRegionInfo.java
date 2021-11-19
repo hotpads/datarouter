@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.client.hbase.compaction.DrhCompactionScheduler;
 import io.datarouter.client.hbase.compaction.HBaseCompactionInfo;
 import io.datarouter.client.hbase.node.nonentity.HBaseReaderNode;
-import io.datarouter.client.hbase.node.subentity.HBaseSubEntityReaderNode;
 import io.datarouter.httpclient.response.Conditional;
 import io.datarouter.model.field.FieldSet;
 import io.datarouter.model.key.primary.PrimaryKey;
@@ -76,13 +75,8 @@ public class DrRegionInfo<PK extends PrimaryKey<PK>> implements Comparable<DrReg
 		// unwrap from adapters to expose real implementation and the getResultParser method
 		// it's ok to do so because the node is used only for non rpc byte parsing methods
 		Node<?,?,?> node = NodeTool.getUnderlyingNode(nodeOrAdapter);
-		if(node.getFieldInfo().isSubEntity()){
-			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)node;
-			keyParser = subEntityNode.getResultParser()::getEkFromRowBytes;
-		}else{
-			HBaseReaderNode<?,?,?,?,?> nonEntityNode = (HBaseReaderNode<?,?,?,?,?>)node;
-			keyParser = nonEntityNode.getResultParser()::toPk;
-		}
+		HBaseReaderNode<?,?,?,?,?> nonEntityNode = (HBaseReaderNode<?,?,?,?,?>)node;
+		keyParser = nonEntityNode.getResultParser()::toPk;
 		this.load = load;
 		this.compactionScheduler = new DrhCompactionScheduler<>(compactionInfo, this);
 		this.entityFieldInfo = entityFieldInfo;

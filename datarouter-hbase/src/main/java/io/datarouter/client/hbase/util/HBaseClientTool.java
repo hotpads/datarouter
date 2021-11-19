@@ -16,7 +16,6 @@
 package io.datarouter.client.hbase.util;
 
 import io.datarouter.client.hbase.node.nonentity.HBaseReaderNode;
-import io.datarouter.client.hbase.node.subentity.HBaseSubEntityReaderNode;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.storage.node.Node;
 import io.datarouter.storage.node.NodeTool;
@@ -40,10 +39,6 @@ public class HBaseClientTool{
 
 	public static EntityFieldInfo<?,?> getEntityFieldInfo(Node<?,?,?> node){
 		PhysicalNode<?,?,?> physicalNode = NodeTool.extractSinglePhysicalNode(node);
-		if(physicalNode instanceof HBaseSubEntityReaderNode){
-			HBaseSubEntityReaderNode<?,?,?,?,?> subEntityNode = (HBaseSubEntityReaderNode<?,?,?,?,?>)physicalNode;
-			return subEntityNode.getEntityFieldInfo();
-		}
 		HBaseReaderNode<?,?,?,?,?> nonEntityNode = (HBaseReaderNode<?,?,?,?,?>)physicalNode;
 		return nonEntityNode.getEntityFieldInfo();
 	}

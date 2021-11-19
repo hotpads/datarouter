@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.secret.op.SecretOpConfig;
 import io.datarouter.secret.op.SecretOpReason;
 import io.datarouter.util.Require;
 import io.datarouter.util.cached.Cached;
@@ -105,9 +106,14 @@ public class CachedSecretFactory{
 		protected T reload(){
 			boolean hasDefaultFallback = secretNamespacer.isDevelopment() && defaultValue.isPresent();
 			try{
-				return isShared ? secretService.readSharedCachedSecret(nameSupplier, secretClass, SecretOpReason
-						.automatedOp("CachedSecret"), hasDefaultFallback) : secretService.readCachedSecret(nameSupplier,
-						secretClass, SecretOpReason.automatedOp("CachedSecret"), hasDefaultFallback);
+				SecretOpConfig.Builder builder = SecretOpConfig.builder(SecretOpReason.automatedOp("CachedSecret"));
+				if(isShared){
+					builder.useSharedNamespace();
+				}
+				if(hasDefaultFallback){
+					builder.disableLogging();
+				}
+				return secretService.read(nameSupplier.get(), secretClass, builder.build());
 			}catch(RuntimeException e){
 				//TODO consider making environment-based behavior possible (unless removing cached defaults)
 				if(hasDefaultFallback){
