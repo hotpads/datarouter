@@ -28,6 +28,8 @@ public class DatarouterCopyTablePaths extends PathNode implements PathsRoot{
 	public static class DatarouterPaths extends PathNode{
 		public final PathNode copyTableJoblets = leaf("copyTableJoblets");
 		public final PathNode copyTableSingleThread = leaf("copyTableSingleThread");
+		public final PathNode tableProcessorJoblets = leaf("tableProcessorJoblets");
+		public final PathNode tableProcessorSingleThread = leaf("tableProcessorSingleThread");
 	}
 
 }

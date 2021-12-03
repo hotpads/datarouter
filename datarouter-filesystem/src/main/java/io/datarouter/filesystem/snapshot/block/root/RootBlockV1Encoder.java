@@ -19,11 +19,11 @@ import java.util.Arrays;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import io.datarouter.bytes.ByteWriter;
+import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.encode.RootBlockEncoder;
 import io.datarouter.filesystem.snapshot.encode.RootBlockFields;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.ByteWriter;
 
 public class RootBlockV1Encoder implements RootBlockEncoder{
 
@@ -40,7 +40,7 @@ public class RootBlockV1Encoder implements RootBlockEncoder{
 	public void addDictionaryEntry(byte[] key, byte[] value){
 		byte[] previousKey = dictionary.put(key, value);
 		if(previousKey != null){
-			throw new IllegalArgumentException("duplicate key " + ByteTool.getIntString(key));
+			throw new IllegalArgumentException("duplicate key [" + CsvIntByteStringCodec.INSTANCE.encode(key) + "]");
 		}
 	}
 

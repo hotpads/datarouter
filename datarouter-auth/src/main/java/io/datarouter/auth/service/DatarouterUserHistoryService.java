@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,7 +39,11 @@ import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUs
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryDao;
 import io.datarouter.auth.storage.userhistory.DatarouterUserHistoryKey;
 import io.datarouter.email.type.DatarouterEmailTypes.PermissionRequestEmailType;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDto;
+import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.config.properties.AdminEmail;
 import io.datarouter.storage.servertype.ServerTypeDetector;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
 import io.datarouter.web.user.databean.DatarouterUser;
@@ -47,6 +52,12 @@ import j2html.tags.ContainerTag;
 @Singleton
 public class DatarouterUserHistoryService{
 
+	private static final String CHANGELOG_TYPE = "DatarouterUserHistory";
+
+	@Inject
+	private AdminEmail adminEmail;
+	@Inject
+	private ChangelogRecorder changelogRecorder;
 	@Inject
 	private DatarouterUserDao baseDatarouterUserDao;
 	@Inject
@@ -87,20 +98,55 @@ public class DatarouterUserHistoryService{
 				.map(historyKey -> historyMap.getOrDefault(historyKey, request.getResolution().getPersistentString()));
 	}
 
-	public void putAndRecordCreate(DatarouterUser user, Long editorId, String description){
+	public void putAndRecordCreate(DatarouterUser user, Long editorId, String editorUsername, String description){
 		baseDatarouterUserDao.put(user);
 		baseDatarouterUserHistoryDao.put(new DatarouterUserHistory(user.getId(), user.getCreatedInstant(), editorId,
 				DatarouterUserChangeType.CREATE, description));
+		var dto = new DatarouterChangelogDtoBuilder(
+				CHANGELOG_TYPE,
+				user.getUsername(),
+				DatarouterUserChangeType.CREATE.getPersistentString(),
+				editorUsername)
+				.withComment(description)
+				.build();
+		changelogRecorder.record(dto);
 	}
 
-	public void putAndRecordPasswordChange(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
+	public void putAndRecordPasswordChange(DatarouterUser user, DatarouterUser editor, String signinUrl){
+		var history = new DatarouterUserHistory(
+				user.getId(),
+				Instant.now(),
+				editor.getId(),
+				DatarouterUserChangeType.RESET,
+				"password");
 		doPutAndRecordEdit(user, history);
 		sendPasswordChangeEmail(user, history, signinUrl);
+		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder(
+				CHANGELOG_TYPE,
+				user.getUsername(),
+				DatarouterUserChangeType.RESET.getPersistentString(),
+				editor.getUsername())
+				.build();
+		changelogRecorder.record(dto);
 	}
 
-	public void putAndRecordRoleEdit(DatarouterUser user, DatarouterUserHistory history, String signinUrl){
+	public void putAndRecordEdit(DatarouterUser user, DatarouterUser editor, String changes, String signinUrl){
+		var history = new DatarouterUserHistory(
+				user.getId(),
+				Instant.now(),
+				editor.getId(),
+				DatarouterUserChangeType.EDIT,
+				changes);
 		doPutAndRecordEdit(user, history);
 		sendRoleEditEmail(user, history, signinUrl);
+		DatarouterChangelogDto dto = new DatarouterChangelogDtoBuilder(
+				CHANGELOG_TYPE,
+				user.getUsername(),
+				DatarouterUserChangeType.EDIT.getPersistentString(),
+				editor.getUsername())
+				.withComment(changes)
+				.build();
+		changelogRecorder.record(dto);
 	}
 
 	public void recordMessage(DatarouterUser user, DatarouterUser editor, String message){
@@ -125,6 +171,7 @@ public class DatarouterUserHistoryService{
 		editor.ifPresent(editorUser -> {
 			users.forEach(user -> sendDeprovisioningEmail(user, histories.get(user.getId()), editorUser));
 		});
+		recordProvisioningChangelogs(users, editor, DatarouterUserChangeType.DEPROVISION);
 	}
 
 	public void recordRestores(List<DatarouterUser> users, Optional<DatarouterUser> editor){
@@ -135,6 +182,25 @@ public class DatarouterUserHistoryService{
 				.map(user -> new DatarouterUserHistory(user.getId(), time, editorId, DatarouterUserChangeType.RESTORE,
 						"restored"))
 				.flush(baseDatarouterUserHistoryDao::putMulti);
+		recordProvisioningChangelogs(users, editor, DatarouterUserChangeType.RESTORE);
+	}
+
+	private void recordProvisioningChangelogs(List<DatarouterUser> users, Optional<DatarouterUser> editor,
+			DatarouterUserChangeType action){
+		if(users.isEmpty()){
+			return;
+		}
+		String comment = "usernames: " + Scanner.of(users)
+				.map(DatarouterUser::getUsername)
+				.collect(Collectors.joining(", ", "usernames: ", ""));
+		var dto = new DatarouterChangelogDtoBuilder(
+				CHANGELOG_TYPE,
+				"user count: " + users.size() + " (see comment for usernames)",
+				action.getPersistentString(),
+				editor.map(DatarouterUser::getUsername).orElse(adminEmail.get()))
+				.withComment(comment)
+				.build();
+		changelogRecorder.record(dto);
 	}
 
 	private void doPutAndRecordEdit(DatarouterUser user, DatarouterUserHistory history){

@@ -26,6 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.EmptyArray;
+import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 import io.datarouter.filesystem.snapshot.block.leaf.LeafBlock;
 import io.datarouter.filesystem.snapshot.block.leaf.LeafBlockV1;
 import io.datarouter.filesystem.snapshot.block.leaf.LeafBlockV1Encoder;
@@ -39,7 +42,6 @@ import io.datarouter.scanner.Ref;
 import io.datarouter.scanner.RetainingGroup;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
-import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.lang.ObjectTool;
 
 public class WordTests{
@@ -53,7 +55,7 @@ public class WordTests{
 		List<String> inputs = WordDataset.scanWords(getClass().getSimpleName() + "-testValueBlockV1").list();
 		List<byte[]> blocks = Scanner.of(inputs)
 				.map(str -> str.getBytes(StandardCharsets.UTF_8))
-				.map(value -> new SnapshotEntry(ByteTool.EMPTY_ARRAY, ByteTool.EMPTY_ARRAY, new byte[][]{value}))
+				.map(value -> new SnapshotEntry(EmptyArray.BYTE, EmptyArray.BYTE, new byte[][]{value}))
 				.concat(value -> {
 					encoder.get().add(value, 0);
 					if(encoder.get().numBytes() >= blockSize){
@@ -78,9 +80,9 @@ public class WordTests{
 		for(int i = 0; i < inputs.size(); ++i){
 			if(ObjectTool.notEquals(outputs.get(i), inputs.get(i))){
 				logger.warn("actual=[{}] expected=[{}]", outputs.get(i), inputs.get(i));
-				String message = String.format("actual=%s does not equal expected=%s",
-						ByteTool.getIntString(outputs.get(i).getBytes(StandardCharsets.UTF_8)),
-						ByteTool.getIntString(inputs.get(i).getBytes(StandardCharsets.UTF_8)));
+				String message = String.format("actual=[%s] does not equal expected=[%s]",
+						CsvIntByteStringCodec.INSTANCE.encode(outputs.get(i).getBytes(StandardCharsets.UTF_8)),
+						CsvIntByteStringCodec.INSTANCE.encode(inputs.get(i).getBytes(StandardCharsets.UTF_8)));
 				throw new IllegalArgumentException(message);
 			}
 		}
@@ -131,16 +133,16 @@ public class WordTests{
 		for(int i = 0; i < outputs.size(); ++i){
 			if(!Arrays.equals(outputs.get(i).key, inputs.get(i).key())){
 				logger.warn("actual=[{}] expected=[{}]", outputs.get(i), inputs.get(i));
-				String message = String.format("key: actual=%s does not equal expected=%s",
-						ByteTool.getIntString(outputs.get(i).key),
-						ByteTool.getIntString(inputs.get(i).key()));
+				String message = String.format("key: actual=[%s] does not equal expected=[%s]",
+						CsvIntByteStringCodec.INSTANCE.encode(outputs.get(i).key),
+						CsvIntByteStringCodec.INSTANCE.encode(inputs.get(i).key()));
 				throw new IllegalArgumentException(message);
 			}
 			if(!Arrays.equals(outputs.get(i).value, inputs.get(i).value())){
 				logger.warn("actual=[{}] expected=[{}]", outputs.get(i), inputs.get(i));
-				String message = String.format("value: actual=%s does not equal expected=%s",
-						ByteTool.getIntString(outputs.get(i).value),
-						ByteTool.getIntString(inputs.get(i).value()));
+				String message = String.format("value: actual=[%s] does not equal expected=[%s]",
+						CsvIntByteStringCodec.INSTANCE.encode(outputs.get(i).value),
+						CsvIntByteStringCodec.INSTANCE.encode(inputs.get(i).value()));
 				throw new IllegalArgumentException(message);
 			}
 		}

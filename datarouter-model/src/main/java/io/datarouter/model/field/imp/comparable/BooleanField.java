@@ -15,9 +15,9 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import io.datarouter.bytes.BooleanByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.BooleanTool;
-import io.datarouter.util.bytes.BooleanByteTool;
 import io.datarouter.util.string.StringTool;
 
 public class BooleanField extends BasePrimitiveField<Boolean,BooleanFieldKey>{

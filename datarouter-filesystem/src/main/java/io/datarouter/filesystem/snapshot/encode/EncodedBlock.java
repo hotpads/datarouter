@@ -18,7 +18,7 @@ package io.datarouter.filesystem.snapshot.encode;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import io.datarouter.util.bytes.ByteTool;
+import io.datarouter.bytes.ByteTool;
 
 public class EncodedBlock{
 

@@ -21,7 +21,7 @@ import java.util.TreeSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.util.bytes.StringByteTool;
+import io.datarouter.bytes.StringByteTool;
 
 public class HashMethodsTests{
 

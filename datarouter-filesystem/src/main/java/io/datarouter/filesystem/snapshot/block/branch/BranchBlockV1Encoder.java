@@ -15,14 +15,14 @@
  */
 package io.datarouter.filesystem.snapshot.block.branch;
 
+import io.datarouter.bytes.ByteWriter;
+import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.PagedObjectArray;
 import io.datarouter.filesystem.snapshot.encode.BranchBlockEncoder;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.writer.BlockQueue.FileIdsAndEndings;
-import io.datarouter.util.array.PagedObjectArray;
-import io.datarouter.util.bytes.ByteWriter;
-import io.datarouter.util.bytes.IntegerByteTool;
-import io.datarouter.util.bytes.LongByteTool;
 
 public class BranchBlockV1Encoder implements BranchBlockEncoder{
 

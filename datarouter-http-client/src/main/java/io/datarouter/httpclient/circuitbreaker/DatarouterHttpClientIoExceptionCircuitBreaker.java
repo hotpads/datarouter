@@ -99,7 +99,9 @@ public class DatarouterHttpClientIoExceptionCircuitBreaker extends ExceptionCirc
 		internalHttpRequest.addHeader(TRACESTATE, traceContext.getTracestate().toString());
 		context.setAttribute(TRACEPARENT, traceContext.getTraceparent().toString());
 		if(debugLog.get()){
-			logger.warn("sending http request url={}", internalHttpRequest.getURI());
+			logger.warn("sending http request method={} url={}",
+					internalHttpRequest.getMethod(),
+					internalHttpRequest.getURI());
 		}
 		long requestStartTimeNs = Trace2Dto.getCurrentTimeInNs();
 		try{

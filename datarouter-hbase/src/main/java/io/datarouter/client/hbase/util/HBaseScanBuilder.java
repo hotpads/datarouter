@@ -25,9 +25,9 @@ import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.PageFilter;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.model.util.Bytes;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseScanBuilder{

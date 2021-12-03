@@ -79,14 +79,8 @@ public class JobletTaskTracker implements TaskTracker{
 	}
 
 	@Override
-	public TaskTracker onStart(){
+	public TaskTracker start(){
 		startTimeMs.set(System.currentTimeMillis());
-		return this;
-	}
-
-	@Override
-	public TaskTracker setStartTime(Instant startTime){
-		startTimeMs.set(startTime.toEpochMilli());
 		return this;
 	}
 
@@ -96,14 +90,8 @@ public class JobletTaskTracker implements TaskTracker{
 	}
 
 	@Override
-	public TaskTracker onFinish(){
+	public TaskTracker finish(){
 		finishTimeMs.set(System.currentTimeMillis());
-		return this;
-	}
-
-	@Override
-	public TaskTracker setFinishTime(Instant finishTime){
-		finishTimeMs.set(finishTime.toEpochMilli());
 		return this;
 	}
 

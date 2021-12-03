@@ -18,12 +18,12 @@ package io.datarouter.model.serialize.codec;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.IntegerByteTool;
 
 public class BinaryDatabeanCodec{
 

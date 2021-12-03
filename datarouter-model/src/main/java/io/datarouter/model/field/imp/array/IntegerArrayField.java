@@ -17,8 +17,8 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.model.field.BaseListField;
-import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.serialization.GsonTool;
 
 public class IntegerArrayField extends BaseListField<Integer,List<Integer>,IntegerArrayFieldKey>{

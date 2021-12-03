@@ -17,9 +17,9 @@ package io.datarouter.filesystem.snapshot.compress;
 
 import java.util.zip.CRC32;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.LongByteTool;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.LongByteTool;
 
 public class ChecksumBlockCompressor implements BlockCompressor{
 

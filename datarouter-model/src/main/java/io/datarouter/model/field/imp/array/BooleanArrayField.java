@@ -17,8 +17,8 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
+import io.datarouter.bytes.BooleanByteTool;
 import io.datarouter.model.field.BaseListField;
-import io.datarouter.util.bytes.BooleanByteTool;
 import io.datarouter.util.serialization.GsonTool;
 
 public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>,BooleanArrayFieldKey>{

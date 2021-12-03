@@ -17,11 +17,11 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.serialization.GsonTool;
 

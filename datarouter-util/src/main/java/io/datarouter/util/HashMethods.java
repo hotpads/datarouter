@@ -18,8 +18,8 @@ package io.datarouter.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.StringByteTool;
+import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.bytestringcodec.Base16ByteStringCodec;
 
 public class HashMethods{
 
@@ -75,7 +75,7 @@ public class HashMethods{
 	 */
 	public static String md5Hash(byte[] in){
 		byte[] hash = md5MessageDigest().digest(in);
-		return ByteTool.getHexString(hash);
+		return Base16ByteStringCodec.INSTANCE.encode(hash);
 	}
 
 	/**

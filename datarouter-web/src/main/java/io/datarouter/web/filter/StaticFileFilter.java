@@ -18,7 +18,6 @@ package io.datarouter.web.filter;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -29,18 +28,22 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.util.io.FileTool;
+import io.datarouter.web.inject.InjectorRetriever;
 
-@Singleton
-public class StaticFileFilter implements Filter{
+public abstract class StaticFileFilter implements Filter, InjectorRetriever{
 
 	private FilterConfig filterConfig;
 	private RequestDispatcher requestDispatcher;
+	private StaticFileFilterConfig staticFileFilterConfig;
 
 	@Override
 	public void init(FilterConfig filterConfig){
 		this.filterConfig = filterConfig;
 		this.requestDispatcher = filterConfig.getServletContext().getNamedDispatcher("default");
+		DatarouterInjector injector = getInjector(filterConfig.getServletContext());
+		staticFileFilterConfig = injector.getInstance(StaticFileFilterConfig.class);
 	}
 
 	@Override
@@ -52,7 +55,7 @@ public class StaticFileFilter implements Filter{
 
 		String path = request.getRequestURI();
 
-		if(!FileTool.hasAStaticFileExtension(path)){
+		if(!FileTool.hasAStaticFileExtension(path) || staticFileFilterConfig.skip(request)){
 			filterChain.doFilter(request, response);
 			return;
 		}

@@ -21,8 +21,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.ByteTool;
 
 public class MultiByteArrayInputStream extends InputStream{
 
@@ -36,7 +36,7 @@ public class MultiByteArrayInputStream extends InputStream{
 
 	public MultiByteArrayInputStream(Scanner<byte[]> arrays){
 		this.scanner = arrays;
-		this.current = ByteTool.EMPTY_ARRAY;
+		this.current = EmptyArray.BYTE;
 		this.position = 0;
 	}
 
@@ -84,7 +84,7 @@ public class MultiByteArrayInputStream extends InputStream{
 		while(advance()){
 			buffer.write(current, position, remainingInCurrent());
 		}
-		current = ByteTool.EMPTY_ARRAY;
+		current = EmptyArray.BYTE;
 		position = 0;
 		return buffer.toByteArray();
 	}
@@ -113,7 +113,7 @@ public class MultiByteArrayInputStream extends InputStream{
 			count += remainingInCurrent();
 			out.write(current, position, remainingInCurrent());
 		}
-		current = ByteTool.EMPTY_ARRAY;
+		current = EmptyArray.BYTE;
 		position = 0;
 		return count;
 	}
@@ -128,7 +128,7 @@ public class MultiByteArrayInputStream extends InputStream{
 			current = scanner.current();
 			return true;
 		}else{
-			current = ByteTool.EMPTY_ARRAY;
+			current = EmptyArray.BYTE;
 			return false;
 		}
 	}

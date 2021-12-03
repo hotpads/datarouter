@@ -22,6 +22,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.FieldSetTool;
@@ -30,8 +32,6 @@ import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.tuple.Twin;
 
 public class RedisDatabeanCodec<

@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.datarouter.bytes.LongArray;
 import io.datarouter.model.databean.BaseDatabean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.LocalDateField;
@@ -71,7 +72,6 @@ import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
-import io.datarouter.util.array.LongArray;
 import io.datarouter.util.lang.ObjectTool;
 
 @SuppressWarnings("deprecation")

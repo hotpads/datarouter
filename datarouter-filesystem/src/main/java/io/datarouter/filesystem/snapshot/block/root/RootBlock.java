@@ -19,10 +19,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 
+import io.datarouter.bytes.ByteReader;
 import io.datarouter.filesystem.snapshot.block.Block;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
-import io.datarouter.util.bytes.ByteReader;
 import io.datarouter.util.number.NumberFormatter;
 
 public interface RootBlock extends Block{

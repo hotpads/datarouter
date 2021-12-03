@@ -17,9 +17,9 @@ package io.datarouter.model.field;
 
 import java.util.List;
 
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.StringByteTool;
-import io.datarouter.util.bytes.VarIntTool;
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.VarIntTool;
 import io.datarouter.util.lang.ReflectionTool;
 import io.datarouter.util.string.StringTool;
 

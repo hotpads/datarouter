@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.filesystem.DatarouterFilesystemModuleFactory;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.cache.MemoryBlockCache;
@@ -53,7 +54,6 @@ import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
-import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.timer.PhaseTimer;
@@ -154,6 +154,10 @@ public abstract class BaseSnapshotTests{
 		return false;
 	}
 
+	protected boolean shouldCleanup(){
+		return true;
+	}
+
 	@BeforeClass
 	public void beforeClass(){
 		var wordId = new AtomicLong();
@@ -174,8 +178,10 @@ public abstract class BaseSnapshotTests{
 
 	@AfterClass
 	public void afterClass(){
-		getGroup().deleteOps().deleteSnapshot(snapshotKey, exec, getNumThreads());
-		getGroup().deleteOps().deleteGroup(exec, getNumThreads());
+		if(shouldCleanup()){
+			getGroup().deleteOps().deleteSnapshot(snapshotKey, exec, getNumThreads());
+			getGroup().deleteOps().deleteGroup(exec, getNumThreads());
+		}
 	}
 
 	@Test

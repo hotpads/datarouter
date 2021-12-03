@@ -33,9 +33,9 @@ import io.datarouter.virtualnode.writebehind.mixin.WriteBehindMapStorageWriterMi
 import io.datarouter.virtualnode.writebehind.mixin.WriteBehindSortedStorageWriterMixin;
 
 public class WriteBehindIndexedSortedMapStorageNode<
-	PK extends PrimaryKey<PK>,
-	D extends Databean<PK,D>,
-	N extends IndexedSortedMapStorage<PK,D>>
+		PK extends PrimaryKey<PK>,
+		D extends Databean<PK,D>,
+		N extends IndexedSortedMapStorage<PK,D>>
 extends WriteBehindIndexedMapStorageReaderNode<PK,D,N>
 implements IndexedSortedMapStorage<PK,D>,
 		WriteBehindMapStorageWriterMixin<PK,D,N>,

@@ -33,7 +33,7 @@ import javax.inject.Singleton;
 import io.datarouter.scanner.ObjectScanner;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.split.ChunkScannerTool;
+import io.datarouter.bytes.split.ChunkScannerTool;
 
 @Singleton
 public class BinaryFileService{

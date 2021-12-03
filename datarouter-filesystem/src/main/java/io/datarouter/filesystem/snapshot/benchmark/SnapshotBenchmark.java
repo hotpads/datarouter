@@ -24,6 +24,8 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.LongByteTool;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.compress.PassthroughBlockCompressor;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
@@ -34,8 +36,6 @@ import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfig;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfigBuilder;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.concurrent.ExecutorServiceTool;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.timer.PhaseTimer;

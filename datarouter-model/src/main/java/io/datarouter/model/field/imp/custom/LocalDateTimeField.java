@@ -18,9 +18,9 @@ package io.datarouter.model.field.imp.custom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.ShortByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.bytes.IntegerByteTool;
-import io.datarouter.util.bytes.ShortByteTool;
 import io.datarouter.util.string.StringTool;
 
 /**

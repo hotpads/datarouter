@@ -18,10 +18,10 @@ package io.datarouter.model.key.entity.base;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.IntegerByteTool;
 
 public abstract class BaseEntityPartitioner<EK extends EntityKey<EK>>
 implements EntityPartitioner<EK>{

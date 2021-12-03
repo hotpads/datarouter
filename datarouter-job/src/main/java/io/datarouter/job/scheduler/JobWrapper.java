@@ -99,6 +99,18 @@ public class JobWrapper implements Callable<Void>{
 					triggeredBy);
 		}
 
+		public JobWrapper createManual(JobPackage jobPackage, BaseJob job, Instant triggerTime, String triggeredBy){
+			return new JobWrapper(
+					jobPackage,
+					longRunningTaskTrackerFactory,
+					jobCounters,
+					job,
+					triggerTime,
+					Instant.now(),
+					false,
+					triggeredBy);
+		}
+
 		public JobWrapper createRequestTriggered(BaseJob job, String triggeredBy){
 			Instant now = Instant.now();
 			return new JobWrapper(longRunningTaskTrackerFactory, jobCounters, job, now, now, false, triggeredBy);
@@ -241,12 +253,12 @@ public class JobWrapper implements Callable<Void>{
 
 	protected void trackBefore(){
 		jobCounters.started(jobClass);
-		tracker.onStart();
+		tracker.start();
 	}
 
 	protected void trackAfter(){
 		jobCounters.finished(jobClass);
-		tracker.onFinish();
+		tracker.finish();
 	}
 
 	@SuppressWarnings("unused")

@@ -52,7 +52,7 @@ public class MysqlTool{
 	public static Connection openConnection(String hostname, int port, String user, String password){
 		logger.warn("hostname={}, port={}, user={}", hostname, port, user);
 		try{
-			String url = String.format("jdbc:mysql://%s:%s?user=%s&password=%s&logger=%s",
+			String url = String.format("jdbc:mysql://%s:%s?user=%s&password=%s&logger=%s&enabledTLSProtocols=TLSv1.2",
 					hostname,
 					port,
 					user,

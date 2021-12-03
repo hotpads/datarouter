@@ -17,9 +17,6 @@ package io.datarouter.storage;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.NavigableSet;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,7 +32,6 @@ import io.datarouter.storage.dao.DaoClasses;
 import io.datarouter.storage.dao.TestDao;
 import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.Node;
-import io.datarouter.storage.node.type.physical.PhysicalNode;
 
 /**
  * Datarouter is the top-level scope through which various components can share things like clients,
@@ -79,15 +75,6 @@ public class Datarouter{
 
 	public void shutdown(){
 		clients.shutdown();
-	}
-
-	public NavigableSet<PhysicalNode<?,?,?>> getWritableNodes(){
-		return clients.getClientIds().stream()
-				.filter(ClientId::getWritable)
-				.map(ClientId::getName)
-				.map(nodes::getPhysicalNodesForClient)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toCollection(TreeSet::new));
 	}
 
 	public DatarouterClients getClientPool(){

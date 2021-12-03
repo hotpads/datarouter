@@ -22,10 +22,10 @@ import com.google.cloud.spanner.Key.Builder;
 import com.google.cloud.spanner.ResultSet;
 import com.google.cloud.spanner.Value;
 
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.gcp.spanner.ddl.SpannerColumnType;
 import io.datarouter.gcp.spanner.field.SpannerBaseFieldCodec;
 import io.datarouter.model.field.imp.array.UInt7ArrayField;
-import io.datarouter.util.bytes.ByteTool;
 
 public class SpannerUInt7ArrayFieldCodec extends SpannerBaseFieldCodec<List<Byte>,UInt7ArrayField>{
 

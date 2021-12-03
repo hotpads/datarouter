@@ -35,8 +35,10 @@ import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.nodewatch.util.TableSamplerTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
+import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.storage.node.DatarouterNodes;
+import io.datarouter.storage.node.op.raw.read.SortedStorageReader;
 import io.datarouter.storage.node.op.raw.read.SortedStorageReader.PhysicalSortedStorageReaderNode;
 import io.datarouter.storage.node.op.raw.write.SortedStorageWriter;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
@@ -53,7 +55,9 @@ public class TableSamplerService{
 	public static final long COUNT_TIME_MS_SLOW_SPAN_THRESHOLD = Duration.ofMinutes(5).toMillis();
 
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterNodes datarouterNodes;
+	@Inject
+	private DatarouterClients clients;
 	@Inject
 	private NodewatchClientConfiguration nodewatchClientConfiguration;
 	@Inject
@@ -77,8 +81,14 @@ public class TableSamplerService{
 	}
 
 	public Scanner<PhysicalSortedStorageReaderNode<?,?,?>> scanCountableNodes(){
-		return Scanner.of(datarouter.getWritableNodes())
+		return Scanner.of(datarouterNodes.getWritableNodes(clients.getClientIds()))
 				.include(this::isCountableNode)
+				.map(PhysicalSortedStorageReaderNode.class::cast);
+	}
+
+	public Scanner<PhysicalSortedStorageReaderNode<?,?,?>> scanAllSortedMapStorageNodes(){
+		return Scanner.of(datarouterNodes.getWritableAndReadableNodes(clients.getClientIds()))
+				.include(node -> isCountableNode(node) || node instanceof SortedStorageReader)
 				.map(PhysicalSortedStorageReaderNode.class::cast);
 	}
 

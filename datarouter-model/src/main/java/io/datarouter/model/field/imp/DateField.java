@@ -19,9 +19,9 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+import io.datarouter.bytes.LongByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.DateTool;
-import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.string.StringTool;
 
 public class DateField extends BasePrimitiveField<Date,DateFieldKey>{

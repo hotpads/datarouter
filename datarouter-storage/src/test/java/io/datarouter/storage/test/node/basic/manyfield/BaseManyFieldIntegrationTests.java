@@ -29,14 +29,14 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.LongArray;
+import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.array.LongArray;
-import io.datarouter.util.bytes.LongByteTool;
-import io.datarouter.util.bytes.StringByteTool;
 
 public abstract class BaseManyFieldIntegrationTests{
 

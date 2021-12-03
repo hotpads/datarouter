@@ -15,8 +15,8 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.string.StringTool;
 
 //recognizes -128 to -1 using two's complement.  therefore max value is 127

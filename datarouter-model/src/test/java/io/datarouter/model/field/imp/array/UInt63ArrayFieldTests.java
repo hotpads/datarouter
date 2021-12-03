@@ -20,8 +20,8 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.LongArray;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.array.LongArray;
 
 public class UInt63ArrayFieldTests{
 

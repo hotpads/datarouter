@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.InputStreamTool;
 import io.datarouter.client.memcached.client.MemcachedClientManager;
 import io.datarouter.client.memcached.client.MemcachedOps;
 import io.datarouter.client.memcached.codec.MemcachedBlobCodec;
@@ -36,9 +38,7 @@ import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.BlobStorage.PhysicalBlobStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
-import io.datarouter.storage.util.InputStreamTool;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.tuple.Pair;
 
 public class MemcachedBlobNode
@@ -146,7 +146,7 @@ implements PhysicalBlobStorageNode{
 	@Override
 	public void write(PathbeanKey key, InputStream inputStream){
 		var baos = new ByteArrayOutputStream();
-		InputStreamTool.transfer(inputStream, baos);
+		InputStreamTool.transferTo(inputStream, baos);
 		write(key, baos.toByteArray());
 	}
 

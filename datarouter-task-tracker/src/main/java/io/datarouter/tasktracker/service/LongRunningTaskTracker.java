@@ -158,9 +158,9 @@ public class LongRunningTaskTracker implements TaskTracker{
 	}
 
 	@Override
-	public LongRunningTaskTracker onStart(){
+	public LongRunningTaskTracker start(){
 		Instant now = Instant.now();
-		setStartTime(now);
+		task.startTime = Date.from(now);
 		if(getScheduledTime() == null){
 			setScheduledTime(now);
 		}
@@ -170,32 +170,20 @@ public class LongRunningTaskTracker implements TaskTracker{
 	}
 
 	@Override
-	public LongRunningTaskTracker setStartTime(Instant instant){
-		task.startTime = Date.from(instant);
-		return this;
-	}
-
-	@Override
 	public Instant getStartTime(){
 		return task.startTime.toInstant();
 	}
 
 	@Override
-	public LongRunningTaskTracker onFinish(){
+	public LongRunningTaskTracker finish(){
 		TaskStatus finishStatus = getStatus() == TaskStatus.RUNNING ? TaskStatus.SUCCESS : getStatus();
 		return onFinish(finishStatus);
 	}
 
 	public LongRunningTaskTracker onFinish(TaskStatus status){
-		setFinishTime(Instant.now());
+		task.finishTime = new Date();
 		setStatus(status);
 		doReportTasks();
-		return this;
-	}
-
-	@Override
-	public LongRunningTaskTracker setFinishTime(Instant instant){
-		task.finishTime = Date.from(instant);
 		return this;
 	}
 

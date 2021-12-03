@@ -15,11 +15,14 @@
  */
 package io.datarouter.model.field.imp.positive;
 
+import io.datarouter.bytes.LongByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.string.StringTool;
 
-@SuppressWarnings("deprecation")
+/**
+ * @deprecated use LongField instead
+ */
+@Deprecated
 public class UInt63Field extends BasePrimitiveField<Long,UInt63FieldKey>{
 
 	public UInt63Field(String prefix, UInt63FieldKey key, Long value){

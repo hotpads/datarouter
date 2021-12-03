@@ -15,9 +15,9 @@
  */
 package io.datarouter.model.field.imp.enums;
 
+import io.datarouter.bytes.VarIntTool;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
-import io.datarouter.util.bytes.VarIntTool;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.IntegerEnum;
 

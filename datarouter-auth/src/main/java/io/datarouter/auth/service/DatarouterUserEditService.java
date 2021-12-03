@@ -15,7 +15,6 @@
  */
 package io.datarouter.auth.service;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,10 +33,6 @@ import io.datarouter.auth.storage.account.DatarouterAccountKey;
 import io.datarouter.auth.storage.useraccountmap.BaseDatarouterUserAccountMapDao;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMap;
 import io.datarouter.auth.storage.useraccountmap.DatarouterUserAccountMapKey;
-import io.datarouter.auth.storage.userhistory.DatarouterUserHistory;
-import io.datarouter.auth.storage.userhistory.DatarouterUserHistory.DatarouterUserChangeType;
-import io.datarouter.instrumentation.changelog.ChangelogRecorder;
-import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChangelogDtoBuilder;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.EnvironmentName;
 import io.datarouter.util.BooleanTool;
@@ -64,8 +59,6 @@ public class DatarouterUserEditService{
 	@Inject
 	private ServiceName serviceName;
 	@Inject
-	private ChangelogRecorder changelogRecorder;
-	@Inject
 	private EnvironmentName environmentName;
 
 	public void editUser(
@@ -77,12 +70,6 @@ public class DatarouterUserEditService{
 			Set<DatarouterAccountKey> requestedAccounts,
 			Optional<ZoneId> optionalZoneId,
 			Optional<String> description){
-		var history = new DatarouterUserHistory(
-				user.getId(),
-				Instant.now(),
-				editor.getId(),
-				DatarouterUserChangeType.EDIT,
-				null);
 		List<String> changes = new ArrayList<>();
 
 		Set<Role> currentRoles = new HashSet<>(user.getRoles());
@@ -124,8 +111,8 @@ public class DatarouterUserEditService{
 
 		if(changes.size() > 0 || description.isPresent()){
 			String colon = changes.size() > 0 && description.isPresent() ? ": " : "";
-			history.setChanges(description.orElse("") + colon + String.join(", ", changes));
-			userHistoryService.putAndRecordRoleEdit(user, history, signinUrl);
+			String changesStr = description.orElse("") + colon + String.join(", ", changes);
+			userHistoryService.putAndRecordEdit(user, editor, changesStr, signinUrl);
 			if(shouldUpdateSessions || shouldDeleteSessions){
 				Scanner<DatarouterSession> sessions = datarouterSessionDao.scan()
 						.include(session -> session.getUserToken().equals(user.getUserToken()));
@@ -137,14 +124,6 @@ public class DatarouterUserEditService{
 							.flush(datarouterSessionDao::putMulti);
 				}
 			}
-			var dto = new DatarouterChangelogDtoBuilder(
-					"Admin Edit User",
-					"User Edited - " + user.getUsername(),
-					"Edit",
-					editor.getUsername())
-					.withComment(String.join(", ", changes))
-					.build();
-			changelogRecorder.record(dto);
 		}else{
 			logger.warn("User {} submitted edit request for user {}, but no changes were made.", editor.toString(),
 					user.toString());
@@ -185,15 +164,8 @@ public class DatarouterUserEditService{
 	}
 
 	public void changePassword(DatarouterUser user, DatarouterUser editor, String newPassword, String signinUrl){
-		var history = new DatarouterUserHistory(
-				user.getId(),
-				Instant.now(),
-				editor.getId(),
-				DatarouterUserChangeType.RESET,
-				null);
 		updateUserPassword(user, newPassword);
-		history.setChanges("password");
-		userHistoryService.putAndRecordPasswordChange(user, history, signinUrl);
+		userHistoryService.putAndRecordPasswordChange(user, editor, signinUrl);
 	}
 
 	private void updateUserPassword(DatarouterUser user, String password){

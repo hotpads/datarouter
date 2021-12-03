@@ -25,10 +25,11 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.writer.BlockQueue.FileIdsAndEndings;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.ByteTool;
 
 public class BranchBlockV1Tests{
 	private static final Logger logger = LoggerFactory.getLogger(BranchBlockV1Tests.class);
@@ -41,7 +42,7 @@ public class BranchBlockV1Tests{
 		var childBlockId = new AtomicInteger();//generate fake blockIds
 		Scanner.of(inputs)
 				.map(String::getBytes)
-				.map(bytes -> new SnapshotEntry(bytes, ByteTool.EMPTY_ARRAY, ByteTool.EMPTY_ARRAY_2))
+				.map(bytes -> new SnapshotEntry(bytes, EmptyArray.BYTE, ByteTool.EMPTY_ARRAY_2))
 				.forEach(entry -> encoder.add(0, keyId.getAndIncrement(), entry, childBlockId.getAndIncrement()));
 		var fileIdsAndEndings = new FileIdsAndEndings(
 				new int[]{0, 1, 2, 3},

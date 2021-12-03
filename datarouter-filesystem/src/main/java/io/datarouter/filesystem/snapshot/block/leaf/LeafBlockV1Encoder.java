@@ -20,14 +20,15 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.ByteWriter;
+import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.PagedObjectArray;
+import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.encode.LeafBlockEncoder;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.writer.BlockQueue.FileIdsAndEndings;
-import io.datarouter.util.array.PagedObjectArray;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.ByteWriter;
-import io.datarouter.util.bytes.IntegerByteTool;
 
 public class LeafBlockV1Encoder implements LeafBlockEncoder{
 
@@ -122,9 +123,9 @@ public class LeafBlockV1Encoder implements LeafBlockEncoder{
 		while(iter.hasNext()){
 			SnapshotEntry current = iter.next();
 			if(previous != null && !SnapshotEntry.isSorted(previous, current, false)){
-				String message = String.format("key=%s must sort after previous=%s",
-						ByteTool.getIntString(current.key()),
-						ByteTool.getIntString(previous.key()));
+				String message = String.format("key=[%s] must sort after previous=[%s]",
+						CsvIntByteStringCodec.INSTANCE.encode(current.key()),
+						CsvIntByteStringCodec.INSTANCE.encode(previous.key()));
 				throw new IllegalStateException(message);
 			}
 			previous = current;

@@ -20,12 +20,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.imp.array.UInt7ArrayField;
-import io.datarouter.util.bytes.ByteTool;
 
 public class UInt7ArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Byte,List<Byte>,UInt7ArrayField>{

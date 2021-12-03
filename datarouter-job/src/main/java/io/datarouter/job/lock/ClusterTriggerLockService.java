@@ -75,7 +75,7 @@ public class ClusterTriggerLockService{
 			}catch(Exception ex){
 				reason = "Unable to acquire JobLock.";
 			}
-			return Outcome.failure(reason + "exception= " + e);
+			return Outcome.failure(reason + " exception=\"" + e + "\"");
 		}
 	}
 

@@ -18,9 +18,9 @@ package io.datarouter.model.field.imp.array;
 import java.util.Arrays;
 import java.util.Optional;
 
+import io.datarouter.bytes.LongByteTool;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
-import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.serialization.GsonTool;
 
 @Deprecated

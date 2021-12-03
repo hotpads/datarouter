@@ -19,6 +19,8 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
@@ -28,8 +30,6 @@ import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.lang.ReflectionTool;
 
 public class HBaseNonEntityResultParser<

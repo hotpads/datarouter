@@ -44,6 +44,7 @@ public class TableSamplerJob extends BaseJob{
 	public void run(TaskTracker tracker){
 		long startTimeMs = System.currentTimeMillis();
 		tableSamplerService.scanCountableNodes()
+				.advanceUntil($ -> tracker.increment().shouldStop())
 				.map(node -> jobletCreatorFactory.create(
 						node,
 						tableSamplerService.getSampleInterval(node),

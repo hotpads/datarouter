@@ -39,4 +39,15 @@ public class CopyTableChangelogRecorderService{
 		changelogRecorder.record(dto);
 	}
 
+	public void recordChangelogForTableProcessor(RequestAwareCurrentSessionInfo sessionInfo, String changelogType,
+			String node, String processor){
+		var dto = new DatarouterChangelogDtoBuilder(
+				"TableProcessor-" + changelogType,
+				node + " -" + processor,
+				"process",
+				sessionInfo.getNonEmptyUsernameOrElse(""))
+				.build();
+		changelogRecorder.record(dto);
+	}
+
 }

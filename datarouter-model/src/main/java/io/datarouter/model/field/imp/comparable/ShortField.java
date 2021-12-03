@@ -15,8 +15,8 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import io.datarouter.bytes.ShortByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.bytes.ShortByteTool;
 import io.datarouter.util.string.StringTool;
 
 public class ShortField extends BasePrimitiveField<Short,ShortFieldKey>{

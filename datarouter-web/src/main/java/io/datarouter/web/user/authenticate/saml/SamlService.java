@@ -58,7 +58,6 @@ import io.datarouter.web.user.session.service.Role;
 import io.datarouter.web.user.session.service.RoleManager;
 import io.datarouter.web.user.session.service.Session;
 import io.datarouter.web.user.session.service.UserSessionService;
-import io.datarouter.web.util.http.RequestTool;
 
 /**
  * To configure SAML:<ol>
@@ -81,6 +80,7 @@ public class SamlService{
 	private final BaseDatarouterSamlDao samlDao;
 	private final ExceptionRecorder exceptionRecorder;
 	private final AdminEmail adminEmail;
+	private final SamlConfigService samlConfigService;
 
 	@Inject
 	public SamlService(
@@ -90,7 +90,8 @@ public class SamlService{
 			Optional<SamlRegistrar> jitSamlRegistrar,
 			BaseDatarouterSamlDao samlDao,
 			AdminEmail adminEmail,
-			ExceptionRecorder exceptionRecorder){
+			ExceptionRecorder exceptionRecorder,
+			SamlConfigService samlConfigService){
 		this.samlSettings = samlSettings;
 		this.userSessionService = userSessionService;
 		this.roleManager = roleManager;
@@ -98,6 +99,7 @@ public class SamlService{
 		this.samlDao = samlDao;
 		this.exceptionRecorder = exceptionRecorder;
 		this.adminEmail = adminEmail;
+		this.samlConfigService = samlConfigService;
 
 		PhaseTimer phaseTimer = new PhaseTimer();
 		if(logger.isDebugEnabled()){
@@ -159,7 +161,7 @@ public class SamlService{
 	}
 
 	private void persistAuthnRequestIdRedirectUrl(MessageContext authnRequest, HttpServletRequest request){
-		String requestUrl = RequestTool.getRequestUrlString(request);
+		String requestUrl = samlConfigService.getRequestUrl(request);
 		if(!isUrlOkForRedirect(requestUrl)){
 			//skip persisting bad URLs
 			logger.info("URL is not OK for redirect: {}", requestUrl);

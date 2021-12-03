@@ -161,6 +161,10 @@ public class SnapshotGroup implements BlockLoader{
 
 	/*---------------- other --------------*/
 
+	public String getDirectoryLocation(){
+		return String.format("%s:%s", directory.getBucket(), directory.getRootPath());
+	}
+
 	public String getGroupId(){
 		return groupId;
 	}

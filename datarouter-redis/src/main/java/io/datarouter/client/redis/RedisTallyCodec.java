@@ -18,6 +18,8 @@ package io.datarouter.client.redis;
 import java.util.Arrays;
 import java.util.Optional;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldTool;
@@ -26,8 +28,6 @@ import io.datarouter.storage.tally.Tally;
 import io.datarouter.storage.tally.Tally.TallyFielder;
 import io.datarouter.storage.tally.TallyKey;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.IntegerByteTool;
 import io.lettuce.core.KeyValue;
 
 public class RedisTallyCodec{

@@ -23,8 +23,8 @@ import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
-import io.datarouter.util.bytes.StringByteTool;
 
 public abstract class BaseFieldKey<T,K extends BaseFieldKey<T,K>>
 implements FieldKey<T>{

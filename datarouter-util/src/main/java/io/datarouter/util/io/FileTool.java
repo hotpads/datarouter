@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.util.Java11;
-import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.string.StringTool;
 
 public final class FileTool{

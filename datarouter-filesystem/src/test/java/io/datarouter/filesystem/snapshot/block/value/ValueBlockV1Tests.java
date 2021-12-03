@@ -20,9 +20,9 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.EmptyArray;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.ByteTool;
 
 public class ValueBlockV1Tests{
 
@@ -32,7 +32,7 @@ public class ValueBlockV1Tests{
 		var encoder = new ValueBlockV1Encoder();
 		Scanner.of(input)
 				.map(String::getBytes)
-				.map(value -> new SnapshotEntry(ByteTool.EMPTY_ARRAY, ByteTool.EMPTY_ARRAY, new byte[][]{value}))
+				.map(value -> new SnapshotEntry(EmptyArray.BYTE, EmptyArray.BYTE, new byte[][]{value}))
 				.forEach(entry -> encoder.add(entry, 0));
 		byte[] bytes = encoder.encode().concat();
 		var block = new ValueBlockV1(bytes);

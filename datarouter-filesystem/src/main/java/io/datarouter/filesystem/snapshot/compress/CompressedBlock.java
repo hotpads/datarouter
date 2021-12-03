@@ -15,8 +15,8 @@
  */
 package io.datarouter.filesystem.snapshot.compress;
 
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.ByteTool;
 
 public class CompressedBlock{
 

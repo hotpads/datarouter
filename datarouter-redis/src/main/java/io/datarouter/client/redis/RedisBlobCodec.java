@@ -15,10 +15,10 @@
  */
 package io.datarouter.client.redis;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.storage.file.PathbeanKey;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.IntegerByteTool;
 
 public class RedisBlobCodec{
 

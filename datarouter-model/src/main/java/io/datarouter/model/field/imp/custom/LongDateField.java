@@ -17,8 +17,8 @@ package io.datarouter.model.field.imp.custom;
 
 import java.util.Date;
 
+import io.datarouter.bytes.LongByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.bytes.LongByteTool;
 import io.datarouter.util.string.StringTool;
 
 public class LongDateField extends BasePrimitiveField<Date,LongDateFieldKey>{

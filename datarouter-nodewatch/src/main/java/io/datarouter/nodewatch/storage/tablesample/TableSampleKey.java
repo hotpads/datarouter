@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.field.imp.StringField;
@@ -29,8 +31,6 @@ import io.datarouter.model.key.primary.base.BaseRegularPrimaryKey;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.util.HashMethods;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.StringByteTool;
 
 public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 

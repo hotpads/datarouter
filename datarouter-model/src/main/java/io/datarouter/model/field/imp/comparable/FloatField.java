@@ -15,11 +15,13 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import io.datarouter.bytes.codec.floatcodec.ComparableFloatCodec;
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.bytes.FloatByteTool;
 import io.datarouter.util.string.StringTool;
 
 public class FloatField extends BasePrimitiveField<Float,FloatFieldKey>{
+
+	private static final ComparableFloatCodec CODEC = ComparableFloatCodec.INSTANCE;
 
 	public FloatField(FloatFieldKey key, Float value){
 		super(key, value);
@@ -43,7 +45,7 @@ public class FloatField extends BasePrimitiveField<Float,FloatFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : FloatByteTool.toComparableBytes(value);
+		return value == null ? null : CODEC.encode(value);
 	}
 
 	@Override
@@ -53,7 +55,7 @@ public class FloatField extends BasePrimitiveField<Float,FloatFieldKey>{
 
 	@Override
 	public Float fromBytesButDoNotSet(byte[] bytes, int offset){
-		return FloatByteTool.fromComparableBytes(bytes, offset);
+		return CODEC.decode(bytes, offset);
 	}
 
 }

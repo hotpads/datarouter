@@ -26,7 +26,7 @@ import io.datarouter.storage.file.Pathbean;
 import io.datarouter.storage.file.PathbeanKey;
 import io.datarouter.storage.node.op.NodeOps;
 import io.datarouter.storage.util.Subpath;
-import io.datarouter.util.split.ChunkScannerTool;
+import io.datarouter.bytes.split.ChunkScannerTool;
 
 /**
  * Methods for reading from an blob store such as the filesystem or S3.

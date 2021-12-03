@@ -18,8 +18,8 @@ package io.datarouter.model.field.imp.array;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.StringByteTool;
 
 public class DelimitedStringArrayField extends KeyedListField<String,List<String>, DelimitedStringArrayFieldKey>{
 

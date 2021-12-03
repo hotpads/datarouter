@@ -26,9 +26,9 @@ import org.testng.Assert;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanFielder;
-import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.concurrent.ThreadTool;
 
 public class SqsTestHelper{

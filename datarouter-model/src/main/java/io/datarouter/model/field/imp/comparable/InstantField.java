@@ -17,9 +17,9 @@ package io.datarouter.model.field.imp.comparable;
 
 import java.time.Instant;
 
+import io.datarouter.bytes.LongArray;
+import io.datarouter.bytes.LongByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.array.LongArray;
-import io.datarouter.util.bytes.LongByteTool;
 
 public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 

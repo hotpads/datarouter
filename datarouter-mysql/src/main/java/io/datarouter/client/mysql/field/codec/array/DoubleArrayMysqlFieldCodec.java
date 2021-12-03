@@ -21,13 +21,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.datarouter.bytes.DoubleByteTool;
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
 import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.bytes.DoubleByteTool;
 
 public class DoubleArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Double,List<Double>,Field<List<Double>>>{

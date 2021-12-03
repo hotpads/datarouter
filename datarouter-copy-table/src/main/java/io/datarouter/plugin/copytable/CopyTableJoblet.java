@@ -16,7 +16,6 @@
 package io.datarouter.plugin.copytable;
 
 import java.time.Duration;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -26,7 +25,6 @@ import io.datarouter.joblet.type.JobletType;
 import io.datarouter.joblet.type.JobletType.JobletTypeBuilder;
 import io.datarouter.plugin.copytable.CopyTableJoblet.CopyTableJobletParams;
 import io.datarouter.plugin.copytable.CopyTableService.CopyTableSpanResult;
-import io.datarouter.util.BooleanTool;
 import io.datarouter.util.number.NumberTool;
 
 public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
@@ -40,27 +38,18 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 			.isSystem()
 			.build();
 
-	private static final boolean PERSISTENT_PUT = false;
-
 	@Inject
 	private CopyTableService copyTableService;
-	@Inject
-	private CopyTableConfiguration copyTableConfiguration;
 
 	@Override
 	public void process() throws Throwable{
-		params.optFilterName().ifPresent(copyTableConfiguration::assertValidFilter);
 		CopyTableSpanResult result = copyTableService.copyTableSpan(
 				params.sourceNodeName,
 				params.targetNodeName,
 				params.fromKeyExclusive,
 				params.toKeyInclusive,
-				copyTableConfiguration.findFilter(params.filterName).orElse(null),
-				copyTableConfiguration.findProcessor(params.processorName).orElse(null),
-				BooleanTool.isTrue(params.autoResume),//TODO remove null check after 2019-09-01
 				1,//single thread, rely on joblet system for parallelism
 				params.batchSize,
-				PERSISTENT_PUT,
 				NumberTool.nullSafeLong(params.jobletId, 0L),//can remove null check after migration period
 				NumberTool.nullSafeLong(params.numJoblets, 0L));
 		if(!result.success){
@@ -74,9 +63,6 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 		public final String targetNodeName;
 		public final String fromKeyExclusive;
 		public final String toKeyInclusive;
-		public final String filterName;
-		public final String processorName;
-		public final Boolean autoResume;
 		public final Integer batchSize;
 		public final Long estNumDatabeans;
 		public final Long jobletId;
@@ -87,9 +73,6 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 				String targetNodeName,
 				String fromKeyExclusive,
 				String toKeyInclusive,
-				String filterName,
-				String processorName,
-				Boolean autoResume,
 				Integer batchSize,
 				Long estNumDatabeans,
 				Long jobletId,
@@ -98,18 +81,12 @@ public class CopyTableJoblet extends BaseJoblet<CopyTableJobletParams>{
 			this.targetNodeName = targetNodeName;
 			this.fromKeyExclusive = fromKeyExclusive;
 			this.toKeyInclusive = toKeyInclusive;
-			this.filterName = filterName;
-			this.processorName = processorName;
-			this.autoResume = autoResume;
 			this.batchSize = batchSize;
 			this.estNumDatabeans = estNumDatabeans;
 			this.jobletId = jobletId;
 			this.numJoblets = numJoblets;
 		}
 
-		public Optional<String> optFilterName(){
-			return Optional.ofNullable(filterName);
-		}
 	}
 
 	public static class CopyTableJobletCodec extends BaseGsonJobletCodec<CopyTableJobletParams>{

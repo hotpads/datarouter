@@ -18,8 +18,8 @@ package io.datarouter.filesystem.snapshot.entry;
 import java.util.Arrays;
 import java.util.List;
 
-import io.datarouter.util.array.PagedObjectArray;
-import io.datarouter.util.bytes.ByteWriter;
+import io.datarouter.bytes.ByteWriter;
+import io.datarouter.bytes.PagedObjectArray;
 
 public class SnapshotEntrySlabBuilder{
 

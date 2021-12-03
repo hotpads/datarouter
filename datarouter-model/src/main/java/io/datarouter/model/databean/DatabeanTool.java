@@ -15,10 +15,10 @@
  */
 package io.datarouter.model.databean;
 
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.util.bytes.ByteTool;
 
 public class DatabeanTool{
 

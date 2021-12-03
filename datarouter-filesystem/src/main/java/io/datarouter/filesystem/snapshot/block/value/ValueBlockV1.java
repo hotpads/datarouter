@@ -15,11 +15,11 @@
  */
 package io.datarouter.filesystem.snapshot.block.value;
 
+import io.datarouter.bytes.ByteReader;
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.filesystem.snapshot.block.BlockSizeCalculator;
 import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.ByteReader;
-import io.datarouter.util.bytes.IntegerByteTool;
 
 /**
  * Simple format using 4-byte ints.  Contains 4 parts:

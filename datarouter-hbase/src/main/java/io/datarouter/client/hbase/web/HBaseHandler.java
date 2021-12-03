@@ -42,6 +42,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.HBaseClientType;
 import io.datarouter.client.hbase.balancer.HBaseBalancerFactory;
@@ -57,7 +58,6 @@ import io.datarouter.client.hbase.util.ServerNameTool;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientType;
 import io.datarouter.storage.node.NodeTool;
-import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.concurrent.ThreadTool;
 import io.datarouter.util.singletonsupplier.SingletonSupplier;
 import io.datarouter.util.timer.PhaseTimer;

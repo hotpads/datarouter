@@ -21,9 +21,11 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
@@ -33,6 +35,8 @@ import javax.inject.Singleton;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.storage.serialize.fieldcache.DatabeanFieldInfo;
 import io.datarouter.storage.serialize.fieldcache.PhysicalDatabeanFieldInfo;
@@ -158,6 +162,21 @@ public class DatarouterNodes{
 
 	public SortedSet<Node<?,?,?>> getTopLevelNodes(){
 		return topLevelNodes;
+	}
+
+	public NavigableSet<PhysicalNode<?,?,?>> getWritableNodes(Collection<ClientId> clientIds){
+		return Scanner.of(clientIds)
+				.include(ClientId::getWritable)
+				.map(ClientId::getName)
+				.concatIter(this::getPhysicalNodesForClient)
+				.collect(TreeSet::new);
+	}
+
+	public NavigableSet<PhysicalNode<?,?,?>> getWritableAndReadableNodes(Collection<ClientId> clientIds){
+		return Scanner.of(clientIds)
+				.map(ClientId::getName)
+				.concatIter(this::getPhysicalNodesForClient)
+				.collect(TreeSet::new);
 	}
 
 }

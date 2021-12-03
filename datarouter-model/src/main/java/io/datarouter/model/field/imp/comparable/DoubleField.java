@@ -15,8 +15,8 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import io.datarouter.bytes.DoubleByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.bytes.DoubleByteTool;
 import io.datarouter.util.string.StringTool;
 
 public class DoubleField extends BasePrimitiveField<Double,DoubleFieldKey>{

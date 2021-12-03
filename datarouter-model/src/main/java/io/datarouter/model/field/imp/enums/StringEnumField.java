@@ -15,12 +15,12 @@
  */
 package io.datarouter.model.field.imp.enums;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
-import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.StringEnum;
 

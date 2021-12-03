@@ -17,9 +17,9 @@ package io.datarouter.filesystem.snapshot.block.root;
 
 import java.util.Arrays;
 
+import io.datarouter.bytes.ByteReader;
 import io.datarouter.filesystem.snapshot.block.BlockSizeCalculator;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.ByteReader;
 
 public class RootBlockV1 implements RootBlock{
 

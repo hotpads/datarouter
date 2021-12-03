@@ -17,7 +17,7 @@ package io.datarouter.model.util;
 
 import java.util.Arrays;
 
-import io.datarouter.util.bytes.ByteTool;
+import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 
 public class Bytes implements Comparable<Bytes>{
 
@@ -82,7 +82,7 @@ public class Bytes implements Comparable<Bytes>{
 
 	@Override
 	public String toString(){
-		return ByteTool.getIntString(toArray());
+		return "[" + CsvIntByteStringCodec.INSTANCE.encode(toArray()) + "]";
 	}
 
 }

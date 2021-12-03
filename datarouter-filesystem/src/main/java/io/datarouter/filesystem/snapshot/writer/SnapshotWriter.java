@@ -27,6 +27,7 @@ import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.encode.BranchBlockEncoder;
 import io.datarouter.filesystem.snapshot.encode.LeafBlockEncoder;
@@ -36,7 +37,6 @@ import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.storage.block.SnapshotBlockStorage;
 import io.datarouter.filesystem.snapshot.storage.file.SnapshotFileStorage;
 import io.datarouter.scanner.Scanner;
-import io.datarouter.util.bytes.ByteTool;
 import io.datarouter.util.concurrent.CountDownLatchTool;
 import io.datarouter.util.concurrent.LinkedBlockingDequeTool;
 
@@ -162,9 +162,9 @@ public class SnapshotWriter implements AutoCloseable{
 					lastEntry.keyFrom(),
 					lastEntry.keyTo());
 			if(diff <= 0){
-				String message = String.format("key=%s must sort after lastKey=%s",
-						ByteTool.getIntString(entry.key()),
-						ByteTool.getIntString(lastEntry.key()));
+				String message = String.format("key=[%s] must sort after lastKey=[%s]",
+						CsvIntByteStringCodec.INSTANCE.encode(entry.key()),
+						CsvIntByteStringCodec.INSTANCE.encode(lastEntry.key()));
 				throw new IllegalArgumentException(message);
 			}
 		}

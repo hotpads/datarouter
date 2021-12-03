@@ -18,12 +18,12 @@ package io.datarouter.model.field.imp;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
 import io.datarouter.util.ComparableTool;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.bytes.StringByteTool;
 
 public class StringField extends BaseField<String>{
 

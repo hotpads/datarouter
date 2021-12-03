@@ -16,48 +16,64 @@
 package io.datarouter.plugin.copytable.config;
 
 import io.datarouter.joblet.setting.BaseJobletPlugin;
-import io.datarouter.plugin.copytable.CopyTableConfiguration;
-import io.datarouter.plugin.copytable.CopyTableConfiguration.NoOpCopyTableConfiguration;
 import io.datarouter.plugin.copytable.CopyTableJoblet;
+import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet;
+import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
+import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry.NoOpTableProcessorRegistry;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterCopyTablePlugin extends BaseJobletPlugin{
 
 	private static final DatarouterCopyTablePaths PATHS = new DatarouterCopyTablePaths();
 
-	private final Class<? extends CopyTableConfiguration> copyTableConfiguration;
+	private final Class<? extends TableProcessorRegistry> tableProcessorRegistry;
 
 	private DatarouterCopyTablePlugin(
-			Class<? extends CopyTableConfiguration> copyTableConfiguration){
-		this.copyTableConfiguration = copyTableConfiguration;
+			Class<? extends TableProcessorRegistry> tableProcessorRegistry){
+		this.tableProcessorRegistry = tableProcessorRegistry;
 
 		addRouteSet(DatarouterCopyTableRouteSet.class);
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.copyTableJoblets,
-				"Copy Table - Joblets");
-		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.copyTableSingleThread,
-				"Copy Table - Single Thread");
 		addJobletType(CopyTableJoblet.JOBLET_TYPE);
+		addJobletType(TableProcessorJoblet.JOBLET_TYPE);
+
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.TOOLS,
+				PATHS.datarouter.copyTableJoblets,
+				"Copy Table - Joblets");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.TOOLS,
+				PATHS.datarouter.copyTableSingleThread,
+				"Copy Table - Single Thread");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.TOOLS,
+				PATHS.datarouter.tableProcessorJoblets,
+				"Table Processor - Joblets");
+		addDatarouterNavBarItem(
+				DatarouterNavBarCategory.TOOLS,
+				PATHS.datarouter.tableProcessorSingleThread,
+				"Table Processor - Single Thread");
+
 		addDatarouterGithubDocLink("datarouter-copy-table");
 	}
 
 	@Override
 	public void configure(){
-		bind(CopyTableConfiguration.class).to(copyTableConfiguration);
+		bind(TableProcessorRegistry.class).to(tableProcessorRegistry);
 	}
 
 	public static class DatarouterCopyTablePluginBuilder{
 
-		private Class<? extends CopyTableConfiguration> copyTableConfiguration = NoOpCopyTableConfiguration.class;
+		private Class<? extends TableProcessorRegistry> tableProcessorRegistry = NoOpTableProcessorRegistry.class;
 
-		public DatarouterCopyTablePluginBuilder withCopyTableConfiguration(
-				Class<? extends CopyTableConfiguration> copyTableConfiguration){
-			this.copyTableConfiguration = copyTableConfiguration;
+		public DatarouterCopyTablePluginBuilder withTableProcessorRegistry(
+				Class<? extends TableProcessorRegistry> tableProcessorRegistry){
+			this.tableProcessorRegistry = tableProcessorRegistry;
 			return this;
 		}
 
 		public DatarouterCopyTablePlugin build(){
 			return new DatarouterCopyTablePlugin(
-					copyTableConfiguration);
+					tableProcessorRegistry);
 		}
 
 	}

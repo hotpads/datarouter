@@ -55,7 +55,7 @@ import io.datarouter.web.dispatcher.FilterParams;
 import io.datarouter.web.exception.ExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionHandlingConfig.NoOpExceptionHandlingConfig;
 import io.datarouter.web.exception.ExceptionRecorder;
-import io.datarouter.web.filter.StaticFileFilter;
+import io.datarouter.web.filter.GuiceStaticFileFilter;
 import io.datarouter.web.filter.https.HttpsFilter;
 import io.datarouter.web.filter.requestcaching.GuiceRequestCachingFilter;
 import io.datarouter.web.homepage.DefaultHomepageRouteSet;
@@ -117,7 +117,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 	private static final FilterParams DEFAULT_STATIC_FILE_FILTER_PARAMS = new FilterParams(
 			false,
 			DatarouterServletGuiceModule.ROOT_PATH,
-			StaticFileFilter.class,
+			GuiceStaticFileFilter.class,
 			FilterParamGrouping.DATAROUTER);
 
 	public static final FilterParams REQUEST_CACHING_FILTER_PARAMS = new FilterParams(
@@ -233,7 +233,7 @@ public class DatarouterWebPlugin extends BaseWebPlugin{
 			staticFileFilterParams = new FilterParams(
 					true,
 					customStaticFileFilterRegex,
-					StaticFileFilter.class,
+					GuiceStaticFileFilter.class,
 					FilterParamGrouping.DATAROUTER);
 		}
 

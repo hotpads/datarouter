@@ -65,7 +65,7 @@ public class DatarouterUserCreationService{
 		var user = new DatarouterUser();
 		populateGeneratedFields(user, CreateType.ADMIN, defaultPassword, Optional.empty());
 		populateManualFields(user, adminEmail.get(), DEFAULT_ADMIN_ROLES, true);
-		finishCreate(user, ADMIN_ID, "Automatically created admin user.");
+		finishCreate(user, ADMIN_ID, adminEmail.get(), "Automatically created admin user.");
 		logger.warn("Created default admin user account");
 	}
 
@@ -92,7 +92,7 @@ public class DatarouterUserCreationService{
 		populateGeneratedFields(user, CreateType.AUTO, null, Optional.empty());
 		populateManualFields(user, username, roles, true);
 		if(shouldPersist){
-			return finishCreate(user, ADMIN_ID, description);
+			return finishCreate(user, ADMIN_ID, adminEmail.get(), description);
 		}
 		return user;
 	}
@@ -114,7 +114,7 @@ public class DatarouterUserCreationService{
 				enabled);
 		String roles = user.getRoles().isEmpty() ? "" : (": roles: " + List.of() + " => " + user.getRoles());
 		String historyDescription = description.orElse("User manually created by " + creator.getUsername()) + roles;
-		return finishCreate(user, creator.getId(), historyDescription);
+		return finishCreate(user, creator.getId(), creator.getUsername(), historyDescription);
 	}
 
 	private void populateGeneratedFields(DatarouterUser user, CreateType type, String password,
@@ -142,9 +142,9 @@ public class DatarouterUserCreationService{
 		user.setEnabled(enabled);
 	}
 
-	private DatarouterUser finishCreate(DatarouterUser user, Long editorId, String description){
+	private DatarouterUser finishCreate(DatarouterUser user, Long editorId, String editorUsername, String description){
 		datarouterUserService.assertUserDoesNotExist(user.getId(), user.getUserToken(), user.getUsername());
-		userHistoryService.putAndRecordCreate(user, editorId, description);
+		userHistoryService.putAndRecordCreate(user, editorId, editorUsername, description);
 		return user;
 	}
 

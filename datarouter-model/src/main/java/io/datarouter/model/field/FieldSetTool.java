@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import io.datarouter.bytes.ByteReader;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.bytes.ByteReader;
 import io.datarouter.util.lang.ReflectionTool;
 
 public class FieldSetTool{

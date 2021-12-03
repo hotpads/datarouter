@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.util.bytes.StringByteTool;
 
 public interface StringDatabeanCodec{
 

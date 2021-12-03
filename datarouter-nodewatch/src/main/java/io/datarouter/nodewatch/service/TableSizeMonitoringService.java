@@ -35,7 +35,8 @@ import io.datarouter.nodewatch.storage.latesttablecount.LatestTableCount;
 import io.datarouter.nodewatch.storage.tablecount.DatarouterTableCountDao;
 import io.datarouter.nodewatch.storage.tablecount.TableCount;
 import io.datarouter.nodewatch.util.TableSizeMonitoringEmailBuilder;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.tableconfig.ClientTableEntityPrefixNameWrapper;
 import io.datarouter.storage.node.tableconfig.NodewatchConfiguration;
 import io.datarouter.storage.node.tableconfig.TableConfigurationService;
@@ -53,7 +54,9 @@ public class TableSizeMonitoringService{
 	private static final int REPORT_DAYS_AFTER = 1;
 
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterNodes datarouterNodes;
+	@Inject
+	private DatarouterClients clients;
 	@Inject
 	private NodewatchEmailType nodewatchEmailType;
 	@Inject
@@ -87,7 +90,7 @@ public class TableSizeMonitoringService{
 		List<CountStat> aboveThresholdList = new ArrayList<>();
 		List<CountStat> abovePercentageList = new ArrayList<>();
 
-		for(PhysicalNode<?,?,?> node : datarouter.getWritableNodes()){
+		for(PhysicalNode<?,?,?> node : datarouterNodes.getWritableNodes(clients.getClientIds())){
 			ClientTableEntityPrefixNameWrapper nodeNames = new ClientTableEntityPrefixNameWrapper(node);
 			String tableName = nodeNames.getTableName();
 			String clientName = nodeNames.getClientName();

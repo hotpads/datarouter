@@ -30,6 +30,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.EmptyArray;
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.filesystem.DatarouterFilesystemModuleFactory;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
@@ -45,8 +48,6 @@ import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfigBuilder;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Count;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.concurrent.ScalingThreadPoolExecutor;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.timer.PhaseTimer;
@@ -185,7 +186,7 @@ public class FilesystemSnapshotSortingTests{
 	}
 
 	private static SnapshotEntry makeEntry(int id){
-		return new SnapshotEntry(makeKey(id), ByteTool.EMPTY_ARRAY, ByteTool.EMPTY_ARRAY_2);
+		return new SnapshotEntry(makeKey(id), EmptyArray.BYTE, ByteTool.EMPTY_ARRAY_2);
 	}
 
 	private static byte[] makeKey(int id){

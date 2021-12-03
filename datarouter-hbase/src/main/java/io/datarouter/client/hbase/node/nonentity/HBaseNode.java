@@ -32,6 +32,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Table;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory;
 import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory.CountingBatchCallback;
@@ -60,7 +61,6 @@ import io.datarouter.storage.node.op.combo.SortedMapStorage.PhysicalSortedMapSto
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.bytes.StringByteTool;
 import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.tuple.Range;
 

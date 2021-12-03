@@ -21,17 +21,16 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
-import java.util.Objects;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.plugin.copytable.CopyTableConfiguration;
+import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.plugin.copytable.CopyTableService;
 import io.datarouter.plugin.copytable.CopyTableService.CopyTableSpanResult;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTablePaths;
-import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.util.number.NumberFormatter;
 import io.datarouter.util.string.StringTool;
 import io.datarouter.web.email.DatarouterHtmlEmailService;
@@ -39,7 +38,6 @@ import io.datarouter.web.email.StandardDatarouterEmailHeaderService;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
@@ -51,8 +49,6 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 	private static final String
 			P_sourceNodeName = "sourceNodeName",
 			P_targetNodeName = "targetNodeName",
-			P_filterName = "filterName",
-			P_autoResume = "autoResume",
 			P_lastKeyString = "lastKeyString",
 			P_numThreads = "numThreads",
 			P_putBatchSize = "putBatchSize",
@@ -61,16 +57,11 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 
 	private static final int DEFAULT_NUM_THREADS = 4;
 	private static final int DEFAULT_BATCH_SIZE = 1_000;
-	private static final boolean PERSISTENT_PUT = false;
 
-	@Inject
-	private DatarouterNodes nodes;
 	@Inject
 	private CopyTableService copyTableService;
 	@Inject
 	private DatarouterHtmlEmailService htmlEmailService;
-	@Inject
-	private CopyTableConfiguration copyTableConfiguration;
 	@Inject
 	private DatarouterCopyTablePaths paths;
 	@Inject
@@ -79,7 +70,8 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 	private CopyTableChangelogRecorderService changelogRecorderService;
 	@Inject
 	private StandardDatarouterEmailHeaderService standardDatarouterEmailHeaderService;
-
+	@Inject
+	private TableSamplerService tableSamplerService;
 
 	@Handler(defaultHandler = true)
 	private <PK extends PrimaryKey<PK>,
@@ -87,39 +79,15 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 	Mav defaultHandler(
 			@Param(P_sourceNodeName) OptionalString sourceNodeName,
 			@Param(P_targetNodeName) OptionalString targetNodeName,
-			@Param(P_filterName) OptionalString filterName,
-			@Param(P_autoResume) OptionalBoolean autoResume,
 			@Param(P_lastKeyString) OptionalString lastKeyString,
 			@Param(P_toEmail) OptionalString toEmail,
 			@Param(P_numThreads) OptionalString numThreads,
 			@Param(P_putBatchSize) OptionalString putBatchSize,
 			@Param(P_submitAction) OptionalString submitAction){
-		String errorSourceNode = null;
-		String errorTargetNode = null;
-		String errorFilterName = null;
 		String errorNumThreads = null;
 		String errorPutBatchSize = null;
 
 		if(submitAction.isPresent()){
-			try{
-				Objects.requireNonNull(nodes.getNode(sourceNodeName.get()));
-			}catch(Exception e){
-				errorSourceNode = StringTool.isEmpty(sourceNodeName.get())
-						? "Please specify source node"
-						: "Unknown sourceNode: " + sourceNodeName.get();
-			}
-			try{
-				Objects.requireNonNull(nodes.getNode(targetNodeName.get()));
-			}catch(Exception e){
-				errorTargetNode = StringTool.isEmpty(targetNodeName.get())
-						? "Please specify target node"
-						: "Unknown targetNode: " + targetNodeName.get();
-			}
-			try{
-				copyTableConfiguration.getValidFilter(filterName);
-			}catch(Exception e){
-				errorFilterName = "Unknown filter: " + filterName.get();
-			}
 			try{
 				if(numThreads.map(StringTool::nullIfEmpty).isPresent()){
 					Integer.valueOf(numThreads.get());
@@ -136,30 +104,26 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 			}
 		}
 
+		List<String> possibleSourceNodes = tableSamplerService.scanAllSortedMapStorageNodes()
+				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
+				.append("")
+				.sort()
+				.list();
+		List<String> possibleTargetNodes = tableSamplerService.scanCountableNodes()
+				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
+				.append("")
+				.sort()
+				.list();
 		var form = new HtmlForm()
 				.withMethod("post");
-		form.addTextField()
+		form.addSelectField()
 				.withDisplay("Source Node Name")
-				.withError(errorSourceNode)
 				.withName(P_sourceNodeName)
-				.withPlaceholder("client.TableName")
-				.withValue(sourceNodeName.orElse(null));
-		form.addTextField()
+				.withValues(possibleSourceNodes);
+		form.addSelectField()
 				.withDisplay("Target Node Name")
-				.withError(errorTargetNode)
 				.withName(P_targetNodeName)
-				.withPlaceholder("client.TableName")
-				.withValue(targetNodeName.orElse(null));
-		form.addTextField()
-				.withDisplay("Filter Name")
-				.withError(errorFilterName)
-				.withName(P_filterName)
-				.withPlaceholder("filterName")
-				.withValue(filterName.orElse(null));
-		form.addCheckboxField()
-				.withDisplay("Auto-resume")
-				.withName(P_autoResume)
-				.withChecked(autoResume.orElse(false));
+				.withValues(possibleTargetNodes);
 		form.addTextField()
 				.withDisplay("Last Key String")
 				//add validation
@@ -208,12 +172,8 @@ public class SingleThreadCopyTableHandler extends BaseHandler{
 				targetNodeName.get(),
 				lastKeyString.map(StringTool::nullIfEmpty).orElse(null),
 				null,
-				copyTableConfiguration.getValidFilter(filterName),
-				copyTableConfiguration.findProcessor(null).orElse(null),
-				autoResume.orElse(false),
 				actualNumThreads,
 				actualPutBatchSize,
-				PERSISTENT_PUT,
 				1,
 				1);
 		if(!result.success){

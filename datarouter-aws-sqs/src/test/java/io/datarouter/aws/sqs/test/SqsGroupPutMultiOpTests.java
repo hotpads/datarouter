@@ -23,9 +23,9 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.model.serialize.StringDatabeanCodec;
 import io.datarouter.model.serialize.codec.JsonDatabeanCodec;
-import io.datarouter.util.bytes.StringByteTool;
 
 public class SqsGroupPutMultiOpTests{
 

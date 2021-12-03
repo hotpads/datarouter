@@ -21,6 +21,10 @@ public interface DynamicNavBarItem{
 	Boolean shouldDisplay();
 	DynamicNavBarItemType getType();
 
+	default boolean changesFrequently(){
+		return false;
+	}
+
 	enum DynamicNavBarItemType{
 		APP,
 		DATAROUTER,

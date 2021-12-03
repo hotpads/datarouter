@@ -19,7 +19,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.datarouter.plugin.copytable.web.JobletCopyTableHandler;
+import io.datarouter.plugin.copytable.web.JobletTableProcessorHandler;
 import io.datarouter.plugin.copytable.web.SingleThreadCopyTableHandler;
+import io.datarouter.plugin.copytable.web.SingleThreadTableProcessorHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
 import io.datarouter.web.dispatcher.DispatchRule;
 import io.datarouter.web.user.role.DatarouterUserRole;
@@ -30,10 +32,10 @@ public class DatarouterCopyTableRouteSet extends BaseRouteSet{
 	@Inject
 	public DatarouterCopyTableRouteSet(DatarouterCopyTablePaths paths){
 		super(paths.datarouter);
-		handleDir(paths.datarouter.copyTableJoblets)
-				.withHandler(JobletCopyTableHandler.class);
-		handleDir(paths.datarouter.copyTableSingleThread)
-				.withHandler(SingleThreadCopyTableHandler.class);
+		handleDir(paths.datarouter.copyTableJoblets).withHandler(JobletCopyTableHandler.class);
+		handleDir(paths.datarouter.copyTableSingleThread).withHandler(SingleThreadCopyTableHandler.class);
+		handleDir(paths.datarouter.tableProcessorJoblets).withHandler(JobletTableProcessorHandler.class);
+		handleDir(paths.datarouter.tableProcessorSingleThread).withHandler(SingleThreadTableProcessorHandler.class);
 	}
 
 	@Override

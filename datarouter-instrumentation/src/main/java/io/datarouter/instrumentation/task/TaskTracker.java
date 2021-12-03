@@ -33,12 +33,10 @@ public interface TaskTracker{
 	/**
 	 * Call when the task starts executing, potentially after waiting in a queue
 	 */
-	TaskTracker onStart();
-	TaskTracker setStartTime(Instant startTime);
-	Instant getStartTime();
+	TaskTracker start();
+	TaskTracker finish();
 
-	TaskTracker onFinish();
-	TaskTracker setFinishTime(Instant finishTime);
+	Instant getStartTime();
 	Instant getFinishTime();
 
 	TaskTracker heartbeat();

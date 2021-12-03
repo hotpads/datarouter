@@ -27,7 +27,8 @@ import io.datarouter.nodewatch.config.DatarouterNodewatchPaths;
 import io.datarouter.nodewatch.storage.alertthreshold.DatarouterTableSizeAlertThresholdDao;
 import io.datarouter.nodewatch.storage.alertthreshold.TableSizeAlertThreshold;
 import io.datarouter.nodewatch.storage.alertthreshold.TableSizeAlertThresholdKey;
-import io.datarouter.storage.Datarouter;
+import io.datarouter.storage.client.DatarouterClients;
+import io.datarouter.storage.node.DatarouterNodes;
 import io.datarouter.storage.node.type.physical.PhysicalNode;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -42,7 +43,9 @@ public class TableSizeAlertThresholdHandler extends BaseHandler{
 	@Inject
 	private DatarouterTableSizeAlertThresholdDao tableSizeAlertThresholdDao;
 	@Inject
-	private Datarouter datarouter;
+	private DatarouterNodes datarouterNodes;
+	@Inject
+	private DatarouterClients clients;
 	@Inject
 	private DatarouterNodewatchPaths paths;
 	@Inject
@@ -54,10 +57,9 @@ public class TableSizeAlertThresholdHandler extends BaseHandler{
 	public Mav displayThreshold(){
 		Mav mav = new Mav(files.jsp.datarouter.nodewatch.thresholdSettingsJsp);
 		List<TableSizeAlertThreshold> thresholdSettings = new ArrayList<>();
-		for(PhysicalNode<?,?,?> node : datarouter.getWritableNodes()){
+		for(PhysicalNode<?,?,?> node : datarouterNodes.getWritableNodes(clients.getClientIds())){
 			String clientName = node.getClientId().getName();
-			TableSizeAlertThresholdKey key = new TableSizeAlertThresholdKey(clientName, node.getFieldInfo()
-					.getTableName());
+			var key = new TableSizeAlertThresholdKey(clientName, node.getFieldInfo().getTableName());
 			TableSizeAlertThreshold row = tableSizeAlertThresholdDao.find(key)
 					.orElse(new TableSizeAlertThreshold(key, 0L));
 			thresholdSettings.add(row);

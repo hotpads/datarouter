@@ -21,7 +21,6 @@ import static j2html.TagCreator.h2;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -34,7 +33,6 @@ import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.nodewatch.storage.tablesample.TableSample;
 import io.datarouter.nodewatch.storage.tablesample.TableSampleKey;
 import io.datarouter.nodewatch.util.TableSamplerTool;
-import io.datarouter.plugin.copytable.CopyTableConfiguration;
 import io.datarouter.plugin.copytable.CopyTableJoblet;
 import io.datarouter.plugin.copytable.CopyTableJoblet.CopyTableJobletParams;
 import io.datarouter.scanner.Scanner;
@@ -45,7 +43,6 @@ import io.datarouter.util.string.StringTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
 import io.datarouter.web.handler.types.Param;
-import io.datarouter.web.handler.types.optional.OptionalBoolean;
 import io.datarouter.web.handler.types.optional.OptionalString;
 import io.datarouter.web.html.form.HtmlForm;
 import io.datarouter.web.html.j2html.bootstrap4.Bootstrap4FormHtml;
@@ -57,9 +54,6 @@ public class JobletCopyTableHandler extends BaseHandler{
 	private static final String
 			P_sourceNodeName = "sourceNodeName",
 			P_targetNodeName = "targetNodeName",
-			P_filterName = "filterName",
-			P_processorName = "processorName",
-			P_autoResume = "autoResume",
 			P_putBatchSize = "putBatchSize",
 			P_submitAction = "submitAction";
 
@@ -72,8 +66,6 @@ public class JobletCopyTableHandler extends BaseHandler{
 	@Inject
 	private JobletService jobletService;
 	@Inject
-	private CopyTableConfiguration copyTableConfiguration;
-	@Inject
 	private Bootstrap4PageFactory pageFactory;
 	@Inject
 	private CopyTableChangelogRecorderService changelogRecorderService;
@@ -84,36 +76,11 @@ public class JobletCopyTableHandler extends BaseHandler{
 	Mav defaultHandler(
 			@Param(P_sourceNodeName) OptionalString sourceNodeName,
 			@Param(P_targetNodeName) OptionalString targetNodeName,
-			@Param(P_filterName) OptionalString filterName,
-			@Param(P_processorName) OptionalString processorName,
-			@Param(P_autoResume) OptionalBoolean autoResume,
 			@Param(P_putBatchSize) OptionalString putBatchSize,
 			@Param(P_submitAction) OptionalString submitAction){
-		String errorSourceNode = null;
-		String errorTargetNode = null;
-		String errorFilterName = null;
 		String errorPutBatchSize = null;
 
 		if(submitAction.isPresent()){
-			try{
-				Objects.requireNonNull(nodes.getNode(sourceNodeName.get()));
-			}catch(Exception e){
-				errorSourceNode = StringTool.isEmpty(sourceNodeName.get())
-						? "Please specify source node"
-						: "Unknown sourceNode: " + sourceNodeName.get();
-			}
-			try{
-				Objects.requireNonNull(nodes.getNode(targetNodeName.get()));
-			}catch(Exception e){
-				errorTargetNode = StringTool.isEmpty(targetNodeName.get())
-						? "Please specify target node"
-						: "Unknown targetNode: " + targetNodeName.get();
-			}
-			try{
-				copyTableConfiguration.getValidFilter(filterName);
-			}catch(Exception e){
-				errorFilterName = "Unknown filter: " + filterName.get();
-			}
 			try{
 				if(putBatchSize.map(StringTool::nullIfEmpty).isPresent()){
 					Integer.valueOf(putBatchSize.get());
@@ -122,35 +89,21 @@ public class JobletCopyTableHandler extends BaseHandler{
 				errorPutBatchSize = "Please specify an integer";
 			}
 		}
-
+		List<String> possibleNodes = tableSamplerService.scanCountableNodes()
+				.map(node -> node.getClientId().getName() + "." + node.getFieldInfo().getTableName())
+				.append("")
+				.sort()
+				.list();
 		var form = new HtmlForm()
 				.withMethod("post");
-		form.addTextField()
+		form.addSelectField()
 				.withDisplay("Source Node Name")
-				.withError(errorSourceNode)
 				.withName(P_sourceNodeName)
-				.withPlaceholder("client.TableName")
-				.withValue(sourceNodeName.orElse(null));
-		form.addTextField()
+				.withValues(possibleNodes);
+		form.addSelectField()
 				.withDisplay("Target Node Name")
-				.withError(errorTargetNode)
 				.withName(P_targetNodeName)
-				.withPlaceholder("client.TableName")
-				.withValue(targetNodeName.orElse(null));
-		form.addTextField()
-				.withDisplay("Filter Name")
-				.withError(errorFilterName)
-				.withName(P_filterName)
-				.withPlaceholder("filterName")
-				.withValue(filterName.orElse(null));
-		form.addTextField()
-				.withDisplay("Processor Name")
-				.withName(P_processorName)
-				.withValue(processorName.orElse(null));
-		form.addCheckboxField()
-				.withDisplay("Auto-resume")
-				.withName(P_autoResume)
-				.withChecked(autoResume.orElse(false));
+				.withValues(possibleNodes);
 		form.addTextField()
 				.withDisplay("Batch Size")
 				.withError(errorPutBatchSize)
@@ -190,9 +143,6 @@ public class JobletCopyTableHandler extends BaseHandler{
 					targetNodeName.get(),
 					fromKeyExclusive,
 					toKeyInclusive,
-					filterName.map(StringTool::nullIfEmpty).orElse(null),
-					processorName.map(StringTool::nullIfEmpty).orElse(null),
-					autoResume.orElse(false),
 					batchSize,
 					sample.getNumRows(),
 					counter,
@@ -208,9 +158,6 @@ public class JobletCopyTableHandler extends BaseHandler{
 				targetNodeName.get(),
 				fromKeyExclusive,
 				null, //open-ended
-				filterName.map(StringTool::nullIfEmpty).orElse(null),
-				processorName.map(StringTool::nullIfEmpty).orElse(null),
-				autoResume.orElse(false),
 				batchSize,
 				1, //we have no idea about the true estNumDatabeans
 				counter,
@@ -229,9 +176,6 @@ public class JobletCopyTableHandler extends BaseHandler{
 			String targetNodeName,
 			PK fromKeyExclusive,
 			PK toKeyInclusive,
-			String filterName,
-			String processorName,
-			boolean autoResume,
 			int putBatchSize,
 			long estNumDatabeans,
 			long jobletId,
@@ -241,15 +185,17 @@ public class JobletCopyTableHandler extends BaseHandler{
 				targetNodeName,
 				fromKeyExclusive == null ? null : PrimaryKeyPercentCodecTool.encode(fromKeyExclusive),
 				toKeyInclusive == null ? null : PrimaryKeyPercentCodecTool.encode(toKeyInclusive),
-				filterName,
-				processorName,
-				autoResume,
 				putBatchSize,
 				estNumDatabeans,
 				jobletId,
 				numJoblets);
-		return JobletPackage.create(CopyTableJoblet.JOBLET_TYPE, JobletPriority.DEFAULT, true, tableName,
-				sourceNodeName, jobletParams);
+		return JobletPackage.create(
+				CopyTableJoblet.JOBLET_TYPE,
+				JobletPriority.DEFAULT,
+				true,
+				tableName,
+				sourceNodeName,
+				jobletParams);
 	}
 
 	private static class Html{

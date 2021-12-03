@@ -20,8 +20,8 @@ import java.security.SecureRandom;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import io.datarouter.bytes.StringByteTool;
 import io.datarouter.httpclient.security.SecureRandomTool;
-import io.datarouter.util.bytes.StringByteTool;
 
 public class DatarouterTokenGenerator{
 

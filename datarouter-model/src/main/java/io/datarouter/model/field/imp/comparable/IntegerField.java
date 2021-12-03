@@ -15,8 +15,8 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.model.field.BasePrimitiveField;
-import io.datarouter.util.bytes.IntegerByteTool;
 import io.datarouter.util.string.StringTool;
 
 public class IntegerField extends BasePrimitiveField<Integer,IntegerFieldKey>{

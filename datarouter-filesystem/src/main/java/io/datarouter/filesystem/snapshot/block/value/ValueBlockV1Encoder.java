@@ -15,12 +15,12 @@
  */
 package io.datarouter.filesystem.snapshot.block.value;
 
+import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.VarIntTool;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.encode.ValueBlockEncoder;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
-import io.datarouter.util.array.PagedObjectArray;
-import io.datarouter.util.bytes.IntegerByteTool;
-import io.datarouter.util.bytes.VarIntTool;
+import io.datarouter.bytes.PagedObjectArray;
 
 public class ValueBlockV1Encoder implements ValueBlockEncoder{
 

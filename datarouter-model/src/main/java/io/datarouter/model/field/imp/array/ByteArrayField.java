@@ -20,11 +20,11 @@ import java.util.Base64;
 
 import org.apache.commons.codec.binary.Hex;
 
+import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
-import io.datarouter.util.bytes.ByteTool;
-import io.datarouter.util.bytes.IntegerByteTool;
 
 public class ByteArrayField extends BaseField<byte[]>{
 
