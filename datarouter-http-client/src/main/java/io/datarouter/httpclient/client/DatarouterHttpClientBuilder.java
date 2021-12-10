@@ -82,8 +82,8 @@ public class DatarouterHttpClientBuilder{
 	public DatarouterHttpClientBuilder(){
 		this.timeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
 		this.connectTimeoutMs = (int)DEFAULT_TIMEOUT.toMillis();
-		this.maxTotalConnections = 100;
-		this.maxConnectionsPerRoute = 100;
+		this.maxTotalConnections = 200;
+		this.maxConnectionsPerRoute = 200;
 		this.validateAfterInactivityMs = Optional.empty();
 		this.httpClientBuilder = HttpClientBuilder.create()
 				.setRedirectStrategy(LaxRedirectStrategy.INSTANCE);

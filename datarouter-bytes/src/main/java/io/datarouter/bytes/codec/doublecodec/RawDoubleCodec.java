@@ -24,6 +24,10 @@ public class RawDoubleCodec implements DoubleCodec{
 	private static final int LENGTH = 8;
 	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 
+	public int length(){
+		return LENGTH;
+	}
+
 	@Override
 	public byte[] encode(double value){
 		byte[] bytes = new byte[LENGTH];

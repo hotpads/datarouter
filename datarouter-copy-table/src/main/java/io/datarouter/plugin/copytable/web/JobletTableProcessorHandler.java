@@ -134,15 +134,17 @@ public class JobletTableProcessorHandler extends BaseHandler{
 		@SuppressWarnings("unchecked")
 		PhysicalSortedStorageNode<PK,D,?> sourceNode = (PhysicalSortedStorageNode<PK,D,?>)nodes.getNode(nodeName.get());
 		String tableName = sourceNode.getFieldInfo().getTableName();
-		List<TableSample> samples = tableSamplerService.scanSamplesForNode(sourceNode).list();
+		List<TableSample> samples = tableSamplerService.scanSamplesForNode(sourceNode)
+				.list();
 		TableSampleKey previousSampleKey = null;
 		List<JobletPackage> jobletPackages = new ArrayList<>();
-		long numJoblets = samples.size() + 1;//+1 for databeans beyond the final sample
+		long totalItemsProcessed = 1;
 		long counter = 1;
 		int batchSize = putBatchSize
 				.map(StringTool::nullIfEmpty)
 				.map(Integer::valueOf)
 				.orElse(DEFAULT_BATCH_SIZE);
+		long numJoblets = samples.size();
 		for(TableSample sample : samples){
 			PK fromKeyExclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, previousSampleKey);
 			PK toKeyInclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, sample.getKey());
@@ -156,10 +158,12 @@ public class JobletTableProcessorHandler extends BaseHandler{
 					sample.getNumRows(),
 					counter,
 					numJoblets);
-			jobletPackages.add(jobletPackage);
-			++counter;
+				jobletPackages.add(jobletPackage);
+			counter++;
+			totalItemsProcessed++;
 			previousSampleKey = sample.getKey();
 		}
+
 		//include any rows created since the last sample
 		PK fromKeyExclusive = TableSamplerTool.extractPrimaryKeyFromSampleKey(sourceNode, previousSampleKey);
 		var jobletPackage = createJobletPackage(
@@ -173,12 +177,19 @@ public class JobletTableProcessorHandler extends BaseHandler{
 				counter,
 				numJoblets);
 		jobletPackages.add(jobletPackage);
-		++counter;
+		totalItemsProcessed++;
+		counter++; //  jobletPackage.size() == counter == numJoblets
 		// shuffle as optimization to spread write load. could be optional
-		Scanner.of(jobletPackages).shuffle().flush(jobletService::submitJobletPackages);
-		changelogRecorderService.recordChangelogForTableProcessor(getSessionInfo(), "Joblet", nodeName.get(),
+		Scanner.of(jobletPackages)
+				.shuffle()
+				.flush(jobletService::submitJobletPackages);
+		changelogRecorderService.recordChangelogForTableProcessor(
+				getSessionInfo(),
+				"Joblet",
+				nodeName.get(),
 				processorName.get());
-		return pageFactory.message(request, "created " + numJoblets + " joblets");
+		return pageFactory.message(request, "jobletsCreated=" + numJoblets + " totalSamplesProcessed="
+				+ totalItemsProcessed);
 	}
 
 	private <PK extends PrimaryKey<PK>> JobletPackage createJobletPackage(

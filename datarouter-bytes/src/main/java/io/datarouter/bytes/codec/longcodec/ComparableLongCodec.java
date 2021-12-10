@@ -22,6 +22,10 @@ public class ComparableLongCodec implements LongCodec{
 	private static final int LENGTH = 8;
 	private static final RawLongCodec RAW_CODEC = RawLongCodec.INSTANCE;
 
+	public int length(){
+		return LENGTH;
+	}
+
 	@Override
 	public int length(long value){
 		return LENGTH;

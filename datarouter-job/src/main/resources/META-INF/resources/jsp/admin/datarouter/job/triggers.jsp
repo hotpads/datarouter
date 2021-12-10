@@ -93,7 +93,7 @@
 					<td>${row.runningOnServers}</td>
 					<td>
 						<a class="btn btn-danger text-monospace" 
-								href="interrupt?name=${row.className}" 
+								href="interrupt?name=${row.className}&servers=${row.runningOnServers}"
 								onclick="return window.confirm('Are you sure?');">
 							interrupt
 						</a>

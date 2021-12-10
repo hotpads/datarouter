@@ -32,8 +32,7 @@ public class DurationWithCarriedUnits{
 		unitValues[DurationUnit.SECONDS.getIndex()] = (millis / 1000L) % 60;
 		unitValues[DurationUnit.MINUTES.getIndex()] = (millis / (1000L * 60)) % 60;
 		unitValues[DurationUnit.HOURS.getIndex()] = (millis / (1000L * 60 * 60)) % 24;
-		//not exact for millis > 1 year due to rounding on the 365/12
-		unitValues[DurationUnit.DAYS.getIndex()] = (millis / (1000L * 60 * 60 * 24)) % (365 / 12);
+		unitValues[DurationUnit.DAYS.getIndex()] = (long)((millis / (1000L * 60 * 60 * 24)) % (365.0 / 12.0));
 		unitValues[DurationUnit.MONTHS.getIndex()] = (long)(Math.floor(millis / (1000.0 * 60.0 * 60.0 * 24.0
 				* (365.0 / 12.0))) % 12);
 		unitValues[DurationUnit.YEARS.getIndex()] = millis / (1000L * 60 * 60 * 24 * 365);

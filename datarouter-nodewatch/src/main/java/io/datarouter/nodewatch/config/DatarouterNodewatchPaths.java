@@ -33,6 +33,7 @@ public class DatarouterNodewatchPaths extends PathNode implements PathsRoot{
 		public final ThresholdPaths threshold = branch(ThresholdPaths::new, "threshold");
 		public final PathNode tableCount = leaf("tableCount");
 		public final PathNode tableCountChart = leaf("tableCountChart");
+		public final PathNode migrateTableCountMetadata = leaf("migrateTableCountMetadata");
 	}
 
 	public static class ThresholdPaths extends PathNode{

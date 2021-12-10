@@ -21,6 +21,10 @@ public class RawIntCodec implements IntCodec{
 
 	private static final int LENGTH = 4;
 
+	public int length(){
+		return LENGTH;
+	}
+
 	@Override
 	public int length(int value){
 		return LENGTH;

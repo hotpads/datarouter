@@ -20,6 +20,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.codec.array.longarray.ComparableLongArrayCodec;
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 
@@ -31,6 +32,7 @@ public class LongByteTool{
 
 	private static final RawLongCodec RAW_CODEC = RawLongCodec.INSTANCE;
 	private static final ComparableLongCodec COMPARABLE_CODEC = ComparableLongCodec.INSTANCE;
+	private static final ComparableLongArrayCodec COMPARABLE_ARRAY_CODEC = ComparableLongArrayCodec.INSTANCE;
 
 	/*------------------------- serialize to bytes --------------------------*/
 
@@ -65,48 +67,14 @@ public class LongByteTool{
 
 	/*------------------------- arrays and collections ----------------------*/
 
-	public static byte[] getComparableByteArray(List<Long> valuesWithNulls){
-		if(valuesWithNulls == null){
-			return EmptyArray.BYTE;
-		}
-		LongArray values;
-		if(valuesWithNulls instanceof LongArray){
-			values = (LongArray)valuesWithNulls;
-		}else{
-			values = new LongArray(valuesWithNulls);
-		}
-		byte[] out = new byte[8 * values.size()];
-		for(int i = 0; i < values.size(); ++i){
-			System.arraycopy(getComparableBytes(values.getPrimitive(i)), 0, out, i * 8, 8);
-		}
-		return out;
-	}
-
-
 	public static byte[] getComparableByteArray(long[] values){
-		byte[] out = new byte[8 * values.length];
-		for(int i = 0; i < values.length; ++i){
-			System.arraycopy(getComparableBytes(values[i]), 0, out, i * 8, 8);
-		}
-		return out;
+		return COMPARABLE_ARRAY_CODEC.encode(values);
 	}
 
 	public static long[] fromComparableByteArray(byte[] bytes){
-		if(bytes == null || bytes.length == 0){ //TODO remove null check
-			return EmptyArray.LONG;
-		}
-		return fromComparableByteArray(bytes, 0, bytes.length);
+		return COMPARABLE_ARRAY_CODEC.decode(bytes);
 	}
 
-	private static long[] fromComparableByteArray(byte[] bytes, int startIdx, int length){
-		long[] out = new long[length / 8];
-		int byteOffset = startIdx;
-		for(int i = 0; i < out.length; ++i){
-			out[i] = Long.MIN_VALUE ^ fromRawBytes(bytes, byteOffset);
-			byteOffset += 8;
-		}
-		return out;
-	}
 
 	// uInt63 -- first bit must be 0, reject others
 

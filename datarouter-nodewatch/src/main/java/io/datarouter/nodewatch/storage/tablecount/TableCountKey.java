@@ -69,4 +69,12 @@ public class TableCountKey extends BaseRegularPrimaryKey<TableCountKey>{
 		return createdMs;
 	}
 
+	public void setClientName(String clientName){
+		this.clientName = clientName;
+	}
+
+	public void setTableName(String tableName){
+		this.tableName = tableName;
+	}
+
 }

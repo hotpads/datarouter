@@ -19,6 +19,7 @@ import static j2html.TagCreator.body;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h3;
+import static j2html.TagCreator.pre;
 import static j2html.TagCreator.rawHtml;
 
 import java.util.List;
@@ -91,16 +92,16 @@ public class AuroraDnsMonitoringJob extends BaseJob{
 		var header = standardDatarouterEmailHeaderService.makeStandardHeader();
 		var message = h3("Some of the reader DB instances are pointed to the writer instance.");
 		var table = new J2HtmlEmailTable<DnsHostEntryDto>()
-				.withColumn("client name", row -> row.getClientName())
-				.withColumn("hostname", row -> row.getHostname())
-				.withColumn("instance hostname", row -> row.getInstanceHostname())
+				.withColumn("client name", DnsHostEntryDto::getClientName)
+				.withColumn("hostname", DnsHostEntryDto::getHostname)
+				.withColumn("instance hostname", DnsHostEntryDto::getInstanceHostname)
 				.build(mismatchedReaderEntries);
-		var fixList = div()
-				.with(h3("Executing suggested fixes to reset DNS:"));
+		var fixHeader = h3("Executing suggested fixes to reset DNS:");
+		var fixList = pre();
 		fixes.forEach(fix -> fixList
 				.with(rawHtml(fix))
 				.with(br()));
-		return body(header, message, table, fixList);
+		return body(header, message, table, div(fixHeader, fixList));
 	}
 
 	private void recordChangelog(String database){

@@ -22,7 +22,7 @@
 	<parent>
 		<groupId>io.datarouter</groupId>
 		<artifactId>datarouter-metadata-parent</artifactId>
-		<version>0.0.97</version>
+		<version>0.0.98</version>
 		<relativePath>../datarouter-metadata-parent</relativePath>
 	</parent>
 
@@ -38,12 +38,12 @@
 		<aws-sdk-software-v2-version>2.17.6</aws-sdk-software-v2-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<commons-io-version>2.11.0</commons-io-version>
-		<datarouter-version>0.0.97</datarouter-version>
+		<datarouter-version>0.0.98</datarouter-version>
 		<gson-version>2.8.7</gson-version>
 		<guice-version>5.0.1</guice-version>
 		<guava-version>30.1.1-jre</guava-version>
 		<httpclient-version>4.5.13</httpclient-version>
-		<log4j-version>2.14.1</log4j-version>
+		<log4j-version>2.15.0</log4j-version>
 		<maven-jar-plugin-version>3.2.0</maven-jar-plugin-version>
 		<mockito-core-version>3.11.2</mockito-core-version>
 		<slf4j-version>1.7.32</slf4j-version>

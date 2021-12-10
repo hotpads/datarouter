@@ -16,15 +16,17 @@
 package io.datarouter.bytes.codec.doublecodec;
 
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
-import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 
 public class ComparableDoubleCodec implements DoubleCodec{
 
 	public static final ComparableDoubleCodec INSTANCE = new ComparableDoubleCodec();
 
 	private static final int LENGTH = 8;
-	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 	private static final ComparableLongCodec COMPARABLE_LONG_CODEC = ComparableLongCodec.INSTANCE;
+
+	public int length(){
+		return LENGTH;
+	}
 
 	@Override
 	public byte[] encode(double value){

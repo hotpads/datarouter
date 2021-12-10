@@ -22,6 +22,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
@@ -38,6 +41,7 @@ import io.datarouter.web.user.databean.SamlAuthnRequestRedirectUrlKey;
 
 @Singleton
 public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
+	private static final Logger logger = LoggerFactory.getLogger(DatarouterSamlDao.class);
 
 	public static class DatarouterSamlDaoParams extends BaseRedundantDaoParams{
 
@@ -82,9 +86,18 @@ public class DatarouterSamlDao extends BaseDao implements BaseDatarouterSamlDao{
 		Instant deleteBefore = Instant.now().minus(Duration.ofSeconds(5));
 		return new DatabeanVacuumBuilder<>(
 				node.scan(),
-				databean -> databean.getCreated().toInstant().isBefore(deleteBefore),
-				node::deleteMulti)
-				.build();
+				databean -> {
+					boolean willDelete = databean.getCreated().toInstant().isBefore(deleteBefore);
+					if(willDelete){
+						logger.warn(
+								"will delete old SamlAuthnRequestRedirectUrl authnRequestId={} created={} url={}",
+								databean.getKey().getAuthnRequestId(),
+								databean.getCreated(),
+								databean.getRedirectUrl());
+					}
+					return willDelete;
+				},
+				node::deleteMulti).build();
 	}
 
 }

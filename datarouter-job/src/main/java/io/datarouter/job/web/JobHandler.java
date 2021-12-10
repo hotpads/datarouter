@@ -34,10 +34,11 @@ import io.datarouter.instrumentation.changelog.ChangelogRecorder.DatarouterChang
 import io.datarouter.job.BaseJob;
 import io.datarouter.job.config.DatarouterJobFiles;
 import io.datarouter.job.config.DatarouterJobPaths;
-import io.datarouter.job.lock.LocalTriggerLockService;
 import io.datarouter.job.scheduler.JobCategoryTracker;
 import io.datarouter.job.scheduler.JobPackage;
 import io.datarouter.job.scheduler.JobScheduler;
+import io.datarouter.job.service.JobStopperService;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.properties.ServerName;
 import io.datarouter.tasktracker.service.LongRunningTaskService;
 import io.datarouter.tasktracker.service.LongRunningTaskService.LongRunningTaskSummaryDto;
@@ -45,6 +46,8 @@ import io.datarouter.tasktracker.service.LongRunningTaskTrackerFactory;
 import io.datarouter.tasktracker.storage.LongRunningTask;
 import io.datarouter.tasktracker.storage.LongRunningTaskHeartBeatStatus;
 import io.datarouter.tasktracker.web.LongRunningTasksHandler;
+import io.datarouter.util.Require;
+import io.datarouter.util.string.StringTool;
 import io.datarouter.util.time.DurationTool;
 import io.datarouter.web.handler.BaseHandler;
 import io.datarouter.web.handler.mav.Mav;
@@ -64,7 +67,7 @@ public class JobHandler extends BaseHandler{
 	@Inject
 	private JobCategoryTracker jobCategoryTracker;
 	@Inject
-	private LocalTriggerLockService localTriggerLockService;
+	private JobStopperService jobStopperService;
 	@Inject
 	private JobPackageFilter jobPackageFilter;
 	@Inject
@@ -126,12 +129,19 @@ public class JobHandler extends BaseHandler{
 	}
 
 	@Handler
-	Mav interrupt(String name){
-		Class<? extends BaseJob> jobClass = BaseJob.parseClass(name);
-		localTriggerLockService.getForClass(jobClass).requestStop();
-		changelogRecorder.record(new DatarouterChangelogDtoBuilder("Job", name, "interrupt",
-				getSessionInfo().getRequiredSession().getUsername()).build());
-		return new MessageMav("requested stop for " + name);
+	Mav interrupt(String name, String servers){
+		Require.notBlank(name);
+		List<String> serverNames = Optional.ofNullable(servers)
+				.map(string -> string.split(","))
+				.map(strings -> Scanner.of(strings)
+						.include(StringTool::notEmpty)
+						.list())
+				.orElseGet(List::of);
+		if(serverNames.isEmpty()){
+			return new MessageMav("Selected job is not running.");
+		}
+		jobStopperService.requestStop(name, serverNames, getSessionInfo().findNonEmptyUsername().get());
+		return new MessageMav("Stop/interrupt requested for " + name + ". Stopping may take a minute.");
 	}
 
 	private List<JobCategoryJspDto> getJobCategoryDtos(Optional<String> selectedJobCategory){

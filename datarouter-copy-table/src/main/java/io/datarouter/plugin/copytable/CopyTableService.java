@@ -71,7 +71,10 @@ public class CopyTableService{
 				fromKeyExclusiveString);
 		PK toKeyInclusive = PrimaryKeyPercentCodecTool.decode(sourceNode.getFieldInfo().getPrimaryKeySupplier(),
 				toKeyInclusiveString);
-
+		// hbase and bigtable put config
+		Config putConfig = new Config();
+				//.setPersistentPut(persistentPut)
+				//.setIgnoreNullFields(true);//could be configurable
 		var numSkipped = new AtomicLong();
 		Range<PK> range = new Range<>(fromKeyExclusive, false, toKeyInclusive, true);
 		var numScanned = new AtomicLong();
@@ -83,6 +86,7 @@ public class CopyTableService{
 					.each($ -> Counters.inc("copyTable " + sourceNodeName + " read"))
 					.batch(batchSize)
 					.parallel(putMultiScannerContext.get(numThreads))
+					.each(batch -> targetNode.putMulti(batch, putConfig))
 					.each($ -> Counters.inc("copyTable " + sourceNodeName + " write"))
 					.each(batch -> numCopied.addAndGet(batch.size()))
 					.each(batch -> lastKey.set(ListTool.getLast(batch).getKey()))

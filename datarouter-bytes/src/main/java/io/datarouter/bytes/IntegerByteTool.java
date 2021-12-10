@@ -22,8 +22,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.datarouter.bytes.codec.array.intarray.ComparableIntArrayCodec;
 import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 import io.datarouter.bytes.codec.intcodec.RawIntCodec;
+import io.datarouter.bytes.codec.intcodec.UInt31Codec;
 
 /**
  * methods for converting ints into bytes
@@ -34,6 +36,9 @@ public class IntegerByteTool{
 	private static final int NULL = Integer.MIN_VALUE;
 	private static final RawIntCodec RAW_CODEC = RawIntCodec.INSTANCE;
 	private static final ComparableIntCodec COMPARABLE_CODEC = ComparableIntCodec.INSTANCE;
+	private static final ComparableIntArrayCodec COMPARABLE_ARRAY_CODEC = ComparableIntArrayCodec.INSTANCE;
+	private static final UInt31Codec U_INT_31_CODEC = UInt31Codec.INSTANCE;
+
 	/*
 	 * int32
 	 *
@@ -107,33 +112,11 @@ public class IntegerByteTool{
 	}
 
 	public static byte[] getComparableByteArray(int[] values){
-		byte[] out = new byte[4 * values.length];
-		for(int i = 0; i < values.length; ++i){
-			System.arraycopy(getComparableBytes(values[i]), 0, out, i * 4, 4);
-		}
-		return out;
+		return COMPARABLE_ARRAY_CODEC.encode(values);
 	}
 
 	public static int[] fromComparableByteArray(byte[] bytes){
-		if(bytes == null || bytes.length == 0){ //TODO remove null check
-			return EmptyArray.INT;
-		}
-		int[] out = new int[bytes.length / 4];
-		for(int i = 0; i < out.length; ++i){
-			int startIdx = i * 4;
-
-			// i think the first bitwise operation causes the operand to be zero-padded
-			// to an integer before the operation happens
-			// parenthesis are extremely important here because of the automatic int upgrading
-
-			//more compact
-			out[i] = Integer.MIN_VALUE ^ (
-					(bytes[startIdx] & 0xff) << 24
-					| (bytes[startIdx + 1] & 0xff) << 16
-					| (bytes[startIdx + 2] & 0xff) << 8
-					| bytes[startIdx + 3] & 0xff);
-		}
-		return out;
+		return COMPARABLE_ARRAY_CODEC.decode(bytes);
 	}
 
 	/*
@@ -142,19 +125,11 @@ public class IntegerByteTool{
 	 * first bit must be 0, reject others
 	 */
 	public static byte[] getUInt31Bytes(int value){
-		byte[] out = new byte[4];
-		out[0] = (byte) (value >>> 24);
-		out[1] = (byte) (value >>> 16);
-		out[2] = (byte) (value >>> 8);
-		out[3] = (byte) value;
-		return out;
+		return U_INT_31_CODEC.encode(value);
 	}
 
 	public static int fromUInt31Bytes(byte[] bytes, int startIdx){
-		return (bytes[startIdx] & 0xff) << 24
-				| (bytes[startIdx + 1] & 0xff) << 16
-				| (bytes[startIdx + 2] & 0xff) << 8
-				| bytes[startIdx + 3] & 0xff;
+		return U_INT_31_CODEC.decode(bytes, startIdx);
 	}
 
 }

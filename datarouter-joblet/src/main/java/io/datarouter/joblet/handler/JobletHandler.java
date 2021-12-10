@@ -50,6 +50,7 @@ public class JobletHandler extends BaseHandler{
 
 	private static final String TITLE = "Joblets";
 	public static final String PARAM_whereStatus = "whereStatus";
+	public static final String PARAM_type = "type";
 
 	@Inject
 	private DatarouterJobletRequestDao jobletRequestDao;
@@ -63,11 +64,22 @@ public class JobletHandler extends BaseHandler{
 	private MetricLinkBuilder metricLinkBuilder;
 
 	@Handler
-	private Mav list(@Param(PARAM_whereStatus) OptionalString pStatus){
+	private Mav list(
+			@Param(PARAM_whereStatus) OptionalString pStatus,
+			@Param(PARAM_type) OptionalString pType){
 		Scanner<JobletRequest> requests = jobletRequestDao.scan();
-		if(pStatus.isPresent()){
+		if(pStatus.isPresent() && pType.isPresent()){
 			JobletStatus status = JobletStatus.fromPersistentStringStatic(pStatus.get());
-			requests = requests.include(request -> status == request.getStatus());
+			requests = requests
+					.include(request -> status == request.getStatus())
+					.include(request -> request.getKey().getType().equals(pType.get()));
+		}else if(pStatus.isPresent() && pType.isEmpty()){
+			JobletStatus status = JobletStatus.fromPersistentStringStatic(pStatus.get());
+			requests = requests
+					.include(request -> status == request.getStatus());
+		}else if(pStatus.isEmpty() && pType.isPresent()){
+			requests = requests
+					.include(request -> request.getKey().getType().equals(pType.get()));
 		}
 		Collection<JobletSummary> summaries = JobletSummary.summarizeByTypeExecutionOrderStatus(requests);
 		return pageFactory.startBuilder(request)
@@ -82,7 +94,7 @@ public class JobletHandler extends BaseHandler{
 		var title = h4(TITLE)
 				.withClass("mt-2");
 		var table = new J2HtmlTable<JobletSummary>()
-				.withClasses("sortable table table-sm table-striped border")
+				.withClasses("sortable table table-sm table-striped table-bordered table-hover")
 				.withHtmlColumn("Type", row -> {
 					String metricNamePrefix = DatarouterJobletCounters.makeQueueLengthJobletsCreatedPrefix(row
 							.getType());
@@ -91,7 +103,7 @@ public class JobletHandler extends BaseHandler{
 							.map(href -> td(a(text).withHref(href)))
 							.orElse(td(text));
 				})
-				.withColumn("Execution order", row -> row.getExecutionOrder())
+				.withColumn("Execution order", JobletSummary::getExecutionOrder)
 				.withColumn("Status", row -> row.getStatus().getPersistentString())
 				.withHtmlColumn("Num Joblets", row -> tdAlignRight(NumberFormatter.addCommas(row.getNumType())))
 				.withHtmlColumn("Sum items", row -> tdAlignRight(NumberFormatter.addCommas(row.getSumItems())))
@@ -108,14 +120,10 @@ public class JobletHandler extends BaseHandler{
 					String href = localLinkBuilder.exceptions(contextPath, row.getType());
 					return tdAlignRight(a(row.getNumFailures() + "").withHref(href));
 				})
-				.withHtmlColumn("First reserved", row -> {
-					return tdAlignRight(row.getFirstReservedAgo())
-							.attr("sorttable_customkey", row.getFirstReservedMsAgo());
-				})
-				.withHtmlColumn("First created", row -> {
-					return tdAlignRight(row.getFirstCreatedAgo())
-							.attr("sorttable_customkey", row.getFirstCreatedMsAgo());
-				})
+				.withHtmlColumn("First reserved", row -> tdAlignRight(row.getFirstReservedAgo())
+						.attr("sorttable_customkey", row.getFirstReservedMsAgo()))
+				.withHtmlColumn("First created", row -> tdAlignRight(row.getFirstCreatedAgo())
+						.attr("sorttable_customkey", row.getFirstCreatedMsAgo()))
 				.withHtmlColumn("", row -> {
 					var chartIcon = i().withClass("fas fa-chart-line");
 					var href = metricLinkBuilder.availableMetricsLink("Joblet .* " + row.getType() + "$");

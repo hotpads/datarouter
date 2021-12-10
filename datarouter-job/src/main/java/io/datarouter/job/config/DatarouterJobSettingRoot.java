@@ -29,12 +29,14 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 	public final CachedSetting<Boolean> runClusterJobLockVacuum;
 	public final CachedSetting<Boolean> runClusterJobLockVacuumUnlockJob;
 	public final CachedSetting<Boolean> runClusterTriggerLockVacuumJob;
+	public final CachedSetting<Boolean> runStopJobRequestVacuumJob;
 
 	public final CachedSetting<Boolean> runLongRunningTaskVacuum;
 	public final CachedSetting<Boolean> runTaskFailureAlertJob;
 
 	public final CachedSetting<Boolean> processJobs;
 	public final CachedSetting<Boolean> runJobRetriggeringJob;
+	public final CachedSetting<Boolean> runJobStopperJob;
 
 	public final CachedSetting<Boolean> runTaskTrackingPublishingJob;
 	public final CachedSetting<Integer> taskTrackerPublisherPutMultiBatchSize;
@@ -46,6 +48,7 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 		runClusterJobLockVacuum = registerBoolean("runClusterJobLockVacuum", true);
 		runClusterJobLockVacuumUnlockJob = registerBoolean("runClusterJobLockVacuumUnlockJob", true);
 		runClusterTriggerLockVacuumJob = registerBoolean("runClusterTriggerLockVacuumJob", true);
+		runStopJobRequestVacuumJob = registerBoolean("runStopJobRequestVacuumJob", true);
 
 		runLongRunningTaskVacuum = registerBoolean("runLongRunningTaskVacuum", false);
 		// this is included with the daily-digest-summary email
@@ -53,6 +56,7 @@ public class DatarouterJobSettingRoot extends SettingRoot{
 
 		processJobs = registerBoolean("processJobs", true);
 		runJobRetriggeringJob = registerBoolean("runJobRetriggeringJob", false);
+		runJobStopperJob = registerBoolean("runJobStopperJob", true);
 
 		runTaskTrackingPublishingJob = registerBoolean("runTaskTrackingPublishingJob", false);
 		taskTrackerPublisherPutMultiBatchSize = registerInteger("taskTrackerPublisherPutMultiBatchSize", 50);

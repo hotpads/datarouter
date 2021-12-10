@@ -15,6 +15,7 @@
  */
 package io.datarouter.nodewatch.storage.tablecount;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -74,8 +75,16 @@ public class DatarouterTableCountDao extends BaseDao{
 		node.put(databean);
 	}
 
+	public void putMulti(Collection<TableCount> databeans){
+		node.putMulti(databeans);
+	}
+
 	public void deleteWithPrefix(TableCountKey prefix){
 		node.deleteWithPrefix(prefix);
+	}
+
+	public Scanner<TableCount> scanWithPrefix(TableCountKey prefix){
+		return node.scanWithPrefix(prefix);
 	}
 
 }

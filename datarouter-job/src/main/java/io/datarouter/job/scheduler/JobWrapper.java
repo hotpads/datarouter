@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -127,6 +128,7 @@ public class JobWrapper implements Callable<Void>{
 	public final boolean reschedule;//not created by the normal scheduler
 	public final String triggeredBy;
 	protected final LongRunningTaskTracker tracker;
+	private Future<Void> future;
 	//convenience
 	public final Class<? extends BaseJob> jobClass;
 
@@ -212,6 +214,14 @@ public class JobWrapper implements Callable<Void>{
 
 	public void setExceptionRecordId(String exceptionRecordId){
 		tracker.setExceptionRecordId(exceptionRecordId);
+	}
+
+	public void setFuture(Future<Void> future){
+		this.future = future;
+	}
+
+	public Future<Void> getFuture(){
+		return future;
 	}
 
 	private static LongRunningTaskTracker initTracker(

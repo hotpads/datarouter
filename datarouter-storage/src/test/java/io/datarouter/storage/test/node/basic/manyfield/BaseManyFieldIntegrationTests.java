@@ -29,14 +29,10 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.LongArray;
-import io.datarouter.bytes.LongByteTool;
-import io.datarouter.bytes.StringByteTool;
 import io.datarouter.storage.Datarouter;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.node.factory.NodeFactory;
 import io.datarouter.storage.test.node.basic.manyfield.ManyFieldBean.ManyFieldTypeBeanFielder;
-import io.datarouter.util.array.ArrayTool;
 
 public abstract class BaseManyFieldIntegrationTests{
 
@@ -271,7 +267,7 @@ public abstract class BaseManyFieldIntegrationTests{
 		String multiByteUtf8Char = "😀";
 		String val = "abcdef" + multiByteUtf8Char;
 		bean.setStringField(val);
-		bean.setStringByteField(StringByteTool.getByteArray(val, StandardCharsets.UTF_8));
+		bean.setStringByteField(val.getBytes(StandardCharsets.UTF_8));
 		dao.put(bean);
 
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
@@ -304,17 +300,6 @@ public abstract class BaseManyFieldIntegrationTests{
 	}
 
 	@Test
-	public void testVarIntEnum(){
-		var bean = new ManyFieldBean();
-		bean.setVarIntEnumField(TestEnum.fish);
-		dao.put(bean);
-
-		ManyFieldBean roundTripped = dao.get(bean.getKey());
-		Assert.assertEquals(roundTripped.getVarIntEnumField(), bean.getVarIntEnumField());
-		Assert.assertEquals(roundTripped.getVarIntEnumField(), TestEnum.fish);
-	}
-
-	@Test
 	public void testStringEnum(){
 		var bean = new ManyFieldBean();
 		bean.setStringEnumField(TestEnum.cat);
@@ -327,20 +312,12 @@ public abstract class BaseManyFieldIntegrationTests{
 
 	@Test
 	public void testBlob(){
-		var ids = new LongArray();
-		ids.add(5L);
-		ids.add(10L);
-		ids.add(15L);
-		ids.add(126L);
-		byte[] bytes = LongByteTool.getComparableByteArray(ids);
-
+		byte[] bytes = "This string is encoded as bytes.".getBytes();
 		var bean = new ManyFieldBean();
 		bean.setData(bytes);
 		dao.put(bean);
-
 		ManyFieldBean roundTripped = dao.get(bean.getKey());
-		Assert.assertEquals(LongByteTool.fromComparableByteArray(roundTripped.getData()),
-				ArrayTool.primitiveLongArray(ids));
+		Assert.assertEquals(roundTripped.getData(), bytes);
 	}
 
 	@Test

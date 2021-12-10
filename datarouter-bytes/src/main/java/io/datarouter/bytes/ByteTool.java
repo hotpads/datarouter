@@ -61,10 +61,9 @@ public class ByteTool{
 		return outs;
 	}
 
-	public static byte[] copyOfRange(byte[] in, int offset, int length){
-		byte[] out = new byte[length];
-		System.arraycopy(in, offset, out, 0, length);
-		return out;
+	public static byte[] copyOfRange(byte[] original, int from, int length){
+		int to = from + length;
+		return Arrays.copyOfRange(original, from, to);
 	}
 
 	public static byte[] unsignedIncrement(byte[] in){

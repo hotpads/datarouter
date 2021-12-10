@@ -15,7 +15,6 @@
  */
 package io.datarouter.bytes;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +22,6 @@ import java.util.List;
 public class StringByteTool{
 
 	private static final int NULL_LENGTH = 0;
-
-	public static byte[] getByteArray(String str, Charset charset){
-		if(str == null){
-			return null;
-		}
-		return str.getBytes(charset);
-	}
-
-	public static int numUtf8Bytes(String str){
-		return getUtf8Bytes(str).length;
-	}
 
 	public static byte[] getUtf8Bytes(String str){
 		if(str == null){
@@ -95,11 +83,5 @@ public class StringByteTool{
 	public static String fromUtf8Bytes(byte[] bytes){
 		return new String(bytes, StandardCharsets.UTF_8);
 	}
-
-	public static String fromUtf8BytesOffset(byte[] bytes, int offset){
-		int length = bytes.length - offset;
-		return new String(bytes, offset, length, StandardCharsets.UTF_8);
-	}
-
 
 }

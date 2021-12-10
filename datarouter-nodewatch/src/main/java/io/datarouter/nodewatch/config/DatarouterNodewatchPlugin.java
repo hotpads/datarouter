@@ -62,6 +62,8 @@ public class DatarouterNodewatchPlugin extends BaseJobletPlugin{
 				"Table Count Thresholds");
 		addDatarouterNavBarItem(DatarouterNavBarCategory.MONITORING, PATHS.datarouter.nodewatch.tableCount,
 				"Latest Table Counts");
+		addDatarouterNavBarItem(DatarouterNavBarCategory.TOOLS, PATHS.datarouter.nodewatch.migrateTableCountMetadata,
+				"Migrate Table Counts");
 		addJobletType(TableSpanSamplerJoblet.JOBLET_TYPE);
 		addRouteSet(DatarouterNodewatchRouteSet.class);
 		addSettingRoot(DatarouterNodewatchSettingRoot.class);

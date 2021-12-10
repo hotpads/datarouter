@@ -22,6 +22,10 @@ public class ComparableIntCodec implements IntCodec{
 	private static final int LENGTH = 4;
 	private static final RawIntCodec RAW_CODEC = RawIntCodec.INSTANCE;
 
+	public int length(){
+		return LENGTH;
+	}
+
 	@Override
 	public int length(int value){
 		return LENGTH;

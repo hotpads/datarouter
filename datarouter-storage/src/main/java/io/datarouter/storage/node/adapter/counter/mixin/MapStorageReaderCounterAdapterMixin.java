@@ -19,9 +19,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
+import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.adapter.counter.CounterAdapter;
 import io.datarouter.storage.node.op.raw.read.MapStorageReader;
@@ -33,6 +37,7 @@ public interface MapStorageReaderCounterAdapterMixin<
 		F extends DatabeanFielder<PK,D>,
 		N extends MapStorageReaderNode<PK,D,F>>
 extends MapStorageReader<PK,D>, CounterAdapter<PK,D,F,N>{
+	static final Logger logger = LoggerFactory.getLogger(MapStorageReaderCounterAdapterMixin.class);
 
 	@Override
 	public default boolean exists(PK key, Config config){
@@ -65,6 +70,15 @@ extends MapStorageReader<PK,D>, CounterAdapter<PK,D,F,N>{
 		List<D> results = getBackingNode().getMulti(keys, config);
 		int numHits = results.size();
 		int numMisses = keys.size() - numHits;
+		if(numMisses < 0){
+			logger.warn("negative misses on {}, numKeys={}, numHits={}, numMisses={}, keys={}, results={}",
+					getBackingNode().getName(),
+					keys.size(),
+					numHits,
+					numMisses,
+					keys,
+					Scanner.of(results).map(Databean::getKey).list());
+		}
 		getCounter().count(opName + " hit", numHits);
 		getCounter().count(opName + " miss", numMisses);
 		return results;

@@ -26,9 +26,9 @@ import org.testng.annotations.Test;
 public class StringByteToolTests{
 
 	private String letterA = "a";
-	private byte[] letterAUsAscii = StringByteTool.getByteArray(letterA, StandardCharsets.US_ASCII);
-	private byte[] letterAUtf16 = StringByteTool.getByteArray(letterA, StandardCharsets.UTF_16BE);
-	private byte[] letterAUtf8 = StringByteTool.getByteArray(letterA, StandardCharsets.UTF_8);
+	private byte[] letterAUsAscii = letterA.getBytes(StandardCharsets.US_ASCII);
+	private byte[] letterAUtf16 = letterA.getBytes(StandardCharsets.UTF_16BE);
+	private byte[] letterAUtf8 = letterA.getBytes(StandardCharsets.UTF_8);
 
 	private String euroFromUsAscii = new String(new byte[]{(byte)128, (byte)128}, StandardCharsets.US_ASCII);
 
@@ -39,9 +39,9 @@ public class StringByteToolTests{
 	private Integer unknownCharacterInt = (int)unknownCharacter.charValue();
 
 	private String euro = euroFromLatin1;
-	private byte[] euroUsAscii = StringByteTool.getByteArray(euro, StandardCharsets.US_ASCII);
-	private byte[] euroUtf16 = StringByteTool.getByteArray(euro, StandardCharsets.UTF_16BE);
-	private byte[] euroUtf8 = StringByteTool.getByteArray(euro, StandardCharsets.UTF_8);
+	private byte[] euroUsAscii = euro.getBytes(StandardCharsets.US_ASCII);
+	private byte[] euroUtf16 = euro.getBytes(StandardCharsets.UTF_16BE);
+	private byte[] euroUtf8 = euro.getBytes(StandardCharsets.UTF_8);
 
 	@Test
 	public void testUnicode(){

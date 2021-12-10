@@ -29,6 +29,8 @@ import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao;
 import io.datarouter.job.storage.clusterjoblock.DatarouterClusterJobLockDao.DatarouterClusterJobLockDaoParams;
 import io.datarouter.job.storage.clustertriggerlock.DatarouterClusterTriggerLockDao;
 import io.datarouter.job.storage.clustertriggerlock.DatarouterClusterTriggerLockDao.DatarouterClusterTriggerLockDaoParams;
+import io.datarouter.job.storage.stopjobrequest.StopJobRequestDao;
+import io.datarouter.job.storage.stopjobrequest.StopJobRequestDao.StopJobRequestDaoParams;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.dao.Dao;
 import io.datarouter.storage.dao.DaosModuleBuilder;
@@ -76,19 +78,23 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 
 		private final List<ClientId> datarouterClusterJobLockClientIds;
 		private final List<ClientId> datarouterClusterTriggerLockClientIds;
+		private final List<ClientId> stopJobRequestClientIds;
 
 		public DatarouterJobDaoModule(
 				List<ClientId> datarouterClusterJobLockClientIds,
-				List<ClientId> datarouterClusterTriggerLockClientIds){
+				List<ClientId> datarouterClusterTriggerLockClientIds,
+				List<ClientId> stopJobRequestClientIds){
 			this.datarouterClusterJobLockClientIds = datarouterClusterJobLockClientIds;
 			this.datarouterClusterTriggerLockClientIds = datarouterClusterTriggerLockClientIds;
+			this.stopJobRequestClientIds = stopJobRequestClientIds;
 		}
 
 		@Override
 		public List<Class<? extends Dao>> getDaoClasses(){
 			return List.of(
 					DatarouterClusterJobLockDao.class,
-					DatarouterClusterTriggerLockDao.class);
+					DatarouterClusterTriggerLockDao.class,
+					StopJobRequestDao.class);
 		}
 
 		@Override
@@ -97,6 +103,8 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 					.toInstance(new DatarouterClusterTriggerLockDaoParams(datarouterClusterTriggerLockClientIds));
 			bind(DatarouterClusterJobLockDaoParams.class)
 					.toInstance(new DatarouterClusterJobLockDaoParams(datarouterClusterJobLockClientIds));
+			bind(StopJobRequestDaoParams.class)
+					.toInstance(new StopJobRequestDaoParams(stopJobRequestClientIds));
 		}
 
 	}
@@ -127,14 +135,14 @@ public class DatarouterJobPlugin extends BaseJobPlugin{
 
 		public DatarouterJobPlugin getSimplePluginData(){
 			return new DatarouterJobPlugin(
-					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds),
+					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds, defaultClientIds),
 					detachedJobExecutorClass);
 		}
 
 		public DatarouterJobPlugin build(){
 			return new DatarouterJobPlugin(
 					triggerGroupClasses,
-					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds),
+					new DatarouterJobDaoModule(defaultClientIds, defaultClientIds, defaultClientIds),
 					detachedJobExecutorClass);
 		}
 

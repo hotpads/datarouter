@@ -23,6 +23,10 @@ public class RawBooleanCodec implements BooleanCodec{
 	private static final byte TRUE = -1;
 	private static final byte FALSE = 0;
 
+	public final int length(){
+		return LENGTH;
+	}
+
 	@Override
 	public byte[] encode(boolean value){
 		byte[] bytes = new byte[LENGTH];

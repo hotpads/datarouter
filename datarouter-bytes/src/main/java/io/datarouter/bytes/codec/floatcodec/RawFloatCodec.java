@@ -21,6 +21,10 @@ public class RawFloatCodec implements FloatCodec{
 
 	private static final int LENGTH = 4;
 
+	public int length(){
+		return LENGTH;
+	}
+
 	@Override
 	public byte[] encode(float value){
 		int bits = Float.floatToIntBits(value);

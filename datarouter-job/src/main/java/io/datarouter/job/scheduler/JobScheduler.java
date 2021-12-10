@@ -55,6 +55,8 @@ public class JobScheduler{
 
 	private static final Duration LOCK_ACQUISITION_DELAY_INCREMENT = Duration.ofMillis(100);
 
+	public static final long JOB_STOP_GRACE_PERIOD_MS = Duration.ofSeconds(5L).toMillis();
+
 	private final DatarouterInjector injector;
 	private final DatarouterJobScheduler triggerExecutor;
 	private final DetachedJobExecutor detachedJobExecutor;
@@ -110,7 +112,7 @@ public class JobScheduler{
 		shutdown.set(true); // stop scheduling new jobs
 		localTriggerLockService.onShutdown(); // tell currently running jobs to stop
 		triggerExecutor.shutdown(); // start rejecting new triggers
-		ThreadTool.sleepUnchecked(5_000); // give some time for currently running jobs to stop
+		ThreadTool.sleepUnchecked(JOB_STOP_GRACE_PERIOD_MS); // give some time for currently running jobs to stop
 		localJobProcessor.shutdown(); // interrupt all jobs
 		triggerExecutor.shutdownNow(); // interrupt all triggers
 		releaseThisServersActiveTriggerLocks();

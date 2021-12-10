@@ -18,6 +18,7 @@ package io.datarouter.job;
 import java.io.InterruptedIOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -62,6 +63,7 @@ public class LocalJobProcessor{
 			Future<Void> future;
 			try{
 				future = jobExecutor.submit(jobWrapper);
+				jobWrapper.setFuture(future);
 			}catch(RejectedExecutionException e){
 				jobWrapper.finishWithStatus(LongRunningTaskStatus.ERRORED);
 				throw wrapAndSaveException("rejected", jobWrapper, hardTimeout, e);
@@ -69,11 +71,12 @@ public class LocalJobProcessor{
 			try{
 				future.get(hardTimeout.toMillis(), TimeUnit.MILLISECONDS);
 				return Outcome.success();
-			}catch(InterruptedException | ExecutionException e){
+			}catch(InterruptedException | ExecutionException | CancellationException e){
 				if(ExceptionTool.isFromInstanceOf(e,
 						InterruptedException.class,
-						UncheckedInterruptedException.class,
-						InterruptedIOException.class)){
+						UncheckedInterruptedException.class,//TODO this can't match here, since it's not in catch?
+						InterruptedIOException.class,
+						CancellationException.class)){
 					future.cancel(true);
 					jobWrapper.finishWithStatus(LongRunningTaskStatus.INTERRUPTED);
 					jobCounters.interrupted(jobWrapper.jobClass);

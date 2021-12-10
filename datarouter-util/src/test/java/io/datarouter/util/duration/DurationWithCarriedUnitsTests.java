@@ -15,6 +15,11 @@
  */
 package io.datarouter.util.duration;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -85,6 +90,20 @@ public class DurationWithCarriedUnitsTests{
 		long millis = convert(0, 3,5,0,0,0,0);
 		DurationWithCarriedUnits wpd = new DurationWithCarriedUnits(millis);
 		Assert.assertEquals(wpd.toStringByMaxUnits(1), "3 months");
+
+		Instant sixMonthsAgo = LocalDateTime.of(2021, 6, 7, 10, 45).toInstant(ZoneOffset.UTC);
+		Instant now = LocalDateTime.of(2021, 12, 7, 11, 00).toInstant(ZoneOffset.UTC);
+		wpd = new DurationWithCarriedUnits(sixMonthsAgo.until(now, ChronoUnit.MILLIS));
+		Assert.assertEquals(wpd.toStringByMaxUnits(1), "6 months");
+		Assert.assertEquals(wpd.toStringByMaxUnits(2), "6 months");
+
+		wpd = new DurationWithCarriedUnits(sixMonthsAgo.until(now.minus(3, ChronoUnit.HOURS), ChronoUnit.MILLIS));
+		Assert.assertEquals(wpd.toStringByMaxUnits(1), "6 months");
+		Assert.assertEquals(wpd.toStringByMaxUnits(2), "6 months, 29 days");
+
+		wpd = new DurationWithCarriedUnits(sixMonthsAgo.plus(1, ChronoUnit.DAYS).until(now, ChronoUnit.MILLIS));
+		Assert.assertEquals(wpd.toStringByMaxUnits(1), "5 months");
+		Assert.assertEquals(wpd.toStringByMaxUnits(2), "5 months, 29 days");
 	}
 
 	@Test
@@ -93,7 +112,31 @@ public class DurationWithCarriedUnitsTests{
 		DurationWithCarriedUnits wpd = new DurationWithCarriedUnits(millis);
 		Assert.assertEquals(wpd.toStringByMaxUnits(1), "2 years");
 		Assert.assertEquals(wpd.toStringByMaxUnits(2), "2 years, 3 months");
+	}
 
+	@Test
+	public void testThirtyDays(){
+		DurationWithCarriedUnits wpd = new DurationWithCarriedUnits(convert(0, 0, 30, 0, 0, 0, 0));
+		Assert.assertEquals(wpd.toStringByMaxUnits(1), "30 days");
+		Assert.assertEquals(wpd.toStringByMaxUnits(2), "30 days");
+
+		wpd = new DurationWithCarriedUnits(convert(0, 0, 30, 1, 0, 0, 0));
+		Assert.assertEquals(wpd.toStringByMaxUnits(2), "30 days, 1 hour");
+	}
+
+	@Test
+	public void testMillisGreaterThanOneYear(){
+		Instant moreThanOneYear = LocalDateTime.of(2019, 12, 6, 10, 45).toInstant(ZoneOffset.UTC);
+		Instant now = LocalDateTime.of(2021, 12, 7, 11, 00).toInstant(ZoneOffset.UTC);
+		DurationWithCarriedUnits wpd = new DurationWithCarriedUnits(moreThanOneYear.until(now, ChronoUnit.MILLIS));
+		Assert.assertEquals(wpd.toStringByMaxUnits(1), "2 years");
+		Assert.assertEquals(wpd.toStringByMaxUnits(2), "2 years");
+		Assert.assertEquals(wpd.toStringByMaxUnits(3), "2 years, 1 day");
+
+		wpd = new DurationWithCarriedUnits(moreThanOneYear.minus(30, ChronoUnit.DAYS).until(now, ChronoUnit.MILLIS));
+		Assert.assertEquals(wpd.toStringByMaxUnits(1), "2 years");
+		Assert.assertEquals(wpd.toStringByMaxUnits(2), "2 years, 1 month");
+		Assert.assertEquals(wpd.toStringByMaxUnits(3), "2 years, 1 month, 1 day");
 	}
 
 	private static long convert(int years, int months, int day, int hour, int minute, int sec, int ms){

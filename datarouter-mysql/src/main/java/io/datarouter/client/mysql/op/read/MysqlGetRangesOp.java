@@ -56,7 +56,8 @@ extends BaseMysqlOp<List<D>>{
 			PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo,
 			MysqlFieldCodecFactory fieldCodecFactory,
 			MysqlSqlFactory mysqlSqlFactory,
-			Collection<Range<PK>> ranges, Config config,
+			Collection<Range<PK>> ranges,
+			Config config,
 			MysqlClientType mysqlClientType){
 		super(datarouter, fieldInfo.getClientId(), config.getOption(Isolation.KEY).orElse(Isolation.DEFAULT), true);
 		this.fieldInfo = fieldInfo;

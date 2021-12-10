@@ -18,6 +18,7 @@ package io.datarouter.nodewatch.config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.datarouter.nodewatch.web.MigrateTableCountMetadataHandler;
 import io.datarouter.nodewatch.web.TableCountHandler;
 import io.datarouter.nodewatch.web.TableSizeAlertThresholdHandler;
 import io.datarouter.web.dispatcher.BaseRouteSet;
@@ -44,6 +45,8 @@ public class DatarouterNodewatchRouteSet extends BaseRouteSet{
 		handle(paths.datarouter.nodewatch.threshold.updateThreshold)
 				.withHandler(TableSizeAlertThresholdHandler.class)
 				.allowRoles(DatarouterUserRole.DATAROUTER_SETTINGS);
+		handle(paths.datarouter.nodewatch.migrateTableCountMetadata)
+				.withHandler(MigrateTableCountMetadataHandler.class);
 	}
 
 	@Override

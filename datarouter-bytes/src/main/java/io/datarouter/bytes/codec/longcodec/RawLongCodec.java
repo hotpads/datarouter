@@ -21,6 +21,10 @@ public class RawLongCodec implements LongCodec{
 
 	private static final int LENGTH = 8;
 
+	public int length(){
+		return LENGTH;
+	}
+
 	@Override
 	public int length(long value){
 		return LENGTH;

@@ -66,8 +66,6 @@ import io.datarouter.model.field.imp.enums.IntegerEnumField;
 import io.datarouter.model.field.imp.enums.IntegerEnumFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
-import io.datarouter.model.field.imp.enums.VarIntEnumField;
-import io.datarouter.model.field.imp.enums.VarIntEnumFieldKey;
 import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
@@ -94,7 +92,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private Instant instantField;
 	private String stringField;
 	private TestEnum intEnumField;
-	private TestEnum varIntEnumField;
 	private TestEnum stringEnumField;
 
 	private byte[] stringByteField;
@@ -125,8 +122,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		public static final StringFieldKey stringField = new StringFieldKey("stringField")
 				.withSize(CommonFieldSizes.MAX_KEY_LENGTH_UTF8MB4);
 		public static final IntegerEnumFieldKey<TestEnum> intEnumField = new IntegerEnumFieldKey<>("intEnumField",
-				TestEnum.class);
-		public static final VarIntEnumFieldKey<TestEnum> varIntEnumField = new VarIntEnumFieldKey<>("varIntEnumField",
 				TestEnum.class);
 		public static final StringEnumFieldKey<TestEnum> stringEnumField = new StringEnumFieldKey<>("stringEnumField",
 				TestEnum.class).withSize(LEN_STRING_ENUM_FIELD);
@@ -189,9 +184,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(ObjectTool.notEquals(intEnumField, that.intEnumField)){
 			return false;
 		}
-		if(ObjectTool.notEquals(varIntEnumField, that.varIntEnumField)){
-			return false;
-		}
 		if(ObjectTool.notEquals(stringEnumField, that.stringEnumField)){
 			return false;
 		}
@@ -250,7 +242,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new InstantField(FieldKeys.instantField, databean.instantField),
 					new StringField(FieldKeys.stringField, databean.stringField),
 					new IntegerEnumField<>(FieldKeys.intEnumField, databean.intEnumField),
-					new VarIntEnumField<>(FieldKeys.varIntEnumField, databean.varIntEnumField),
 					new StringEnumField<>(FieldKeys.stringEnumField, databean.stringEnumField),
 					new ByteArrayField(FieldKeys.stringByteField, databean.stringByteField),
 					new ByteArrayField(FieldKeys.data, databean.data),
@@ -470,14 +461,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setIntEnumField(TestEnum intEnumField){
 		this.intEnumField = intEnumField;
-	}
-
-	public TestEnum getVarIntEnumField(){
-		return varIntEnumField;
-	}
-
-	public void setVarIntEnumField(TestEnum varIntEnumField){
-		this.varIntEnumField = varIntEnumField;
 	}
 
 	public TestEnum getStringEnumField(){

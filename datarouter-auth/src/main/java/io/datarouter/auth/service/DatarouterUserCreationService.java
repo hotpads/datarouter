@@ -63,7 +63,7 @@ public class DatarouterUserCreationService{
 
 	public void createFirstAdminUser(String defaultPassword){
 		var user = new DatarouterUser();
-		populateGeneratedFields(user, CreateType.ADMIN, defaultPassword, Optional.empty());
+		populateGeneratedFields(user, CreateType.ADMIN, defaultPassword, Optional.of(ZoneId.systemDefault()));
 		populateManualFields(user, adminEmail.get(), DEFAULT_ADMIN_ROLES, true);
 		finishCreate(user, ADMIN_ID, adminEmail.get(), "Automatically created admin user.");
 		logger.warn("Created default admin user account");
