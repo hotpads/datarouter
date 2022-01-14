@@ -15,9 +15,11 @@
  */
 package io.datarouter.tasktracker.service;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -48,12 +50,22 @@ public class LongRunningTaskService{
 				.reduce((firstRun, secondRun) -> secondRun);
 	}
 
+	@Deprecated // use instants
 	public Optional<Date> findLastSuccessDate(String name){
 		LongRunningTaskKey key = new LongRunningTaskKey(name, null, null);
 		return dao.scanWithPrefix(key)
 				.include(task -> task.getJobExecutionStatus() == LongRunningTaskStatus.SUCCESS)
 				.map(LongRunningTask::getFinishTime)
 				.findMax(Date::compareTo);
+	}
+
+	public Optional<Instant> findLastSuccessInstant(String name){
+		LongRunningTaskKey key = new LongRunningTaskKey(name, null, null);
+		return dao.scanWithPrefix(key)
+				.include(task -> task.getJobExecutionStatus() == LongRunningTaskStatus.SUCCESS)
+				.map(LongRunningTask::getFinishTimeInstant)
+				.exclude(Objects::isNull)
+				.findMax(Instant::compareTo);
 	}
 
 	public LongRunningTaskSummaryDto getSummary(){
@@ -75,7 +87,7 @@ public class LongRunningTaskService{
 			// lastCompletions
 			if(task.isSuccess()){
 				LongRunningTask current = lastCompletions.get(name);
-				if(current == null || task.getFinishTime().after(current.getFinishTime())){
+				if(current == null || task.getFinishTimeInstant().isAfter(current.getFinishTimeInstant())){
 					lastCompletions.put(name, task);
 				}
 			}

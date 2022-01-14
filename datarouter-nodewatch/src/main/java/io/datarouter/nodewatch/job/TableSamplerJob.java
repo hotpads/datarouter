@@ -22,10 +22,10 @@ import javax.inject.Inject;
 import io.datarouter.instrumentation.task.TaskTracker;
 import io.datarouter.job.BaseJob;
 import io.datarouter.nodewatch.config.DatarouterNodewatchExecutors.DatarouterTableSamplerExecutor;
+import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreator;
 import io.datarouter.nodewatch.joblet.TableSpanSamplerJobletCreatorFactory;
 import io.datarouter.nodewatch.service.TableSamplerService;
 import io.datarouter.scanner.ParallelScannerContext;
-import io.datarouter.util.concurrent.CallableTool;
 
 public class TableSamplerJob extends BaseJob{
 
@@ -44,7 +44,6 @@ public class TableSamplerJob extends BaseJob{
 	public void run(TaskTracker tracker){
 		long startTimeMs = System.currentTimeMillis();
 		tableSamplerService.scanCountableNodes()
-				.advanceUntil($ -> tracker.increment().shouldStop())
 				.map(node -> jobletCreatorFactory.create(
 						node,
 						tableSamplerService.getSampleInterval(node),
@@ -53,7 +52,9 @@ public class TableSamplerJob extends BaseJob{
 						true,
 						startTimeMs))
 				.parallel(new ParallelScannerContext(executor, 10, true))
-				.forEach(CallableTool::callUnchecked);
+				.each(TableSpanSamplerJobletCreator::createJoblets)
+				.advanceUntil($ -> tracker.increment().shouldStop())
+				.count();
 	}
 
 }

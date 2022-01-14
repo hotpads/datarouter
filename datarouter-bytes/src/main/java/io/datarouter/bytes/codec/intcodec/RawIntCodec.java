@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.codec.intcodec;
 
-public class RawIntCodec implements IntCodec{
+public class RawIntCodec{
 
 	public static final RawIntCodec INSTANCE = new RawIntCodec();
 
@@ -25,19 +25,16 @@ public class RawIntCodec implements IntCodec{
 		return LENGTH;
 	}
 
-	@Override
 	public int length(int value){
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(int value){
 		byte[] bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}
 
-	@Override
 	public int encode(int value, byte[] bytes, int offset){
 		bytes[offset] = (byte) (value >>> 24);
 		bytes[offset + 1] = (byte) (value >>> 16);
@@ -46,7 +43,10 @@ public class RawIntCodec implements IntCodec{
 		return LENGTH;
 	}
 
-	@Override
+	public int decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public int decode(byte[] bytes, int offset){
 		return (bytes[offset] & 0xff) << 24
 				| (bytes[offset + 1] & 0xff) << 16

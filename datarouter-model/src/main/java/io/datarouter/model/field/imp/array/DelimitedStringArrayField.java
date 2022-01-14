@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.scanner.Scanner;
 
 public class DelimitedStringArrayField extends KeyedListField<String,List<String>, DelimitedStringArrayFieldKey>{
@@ -55,7 +56,7 @@ public class DelimitedStringArrayField extends KeyedListField<String,List<String
 		if(bytes == null){
 			return null;
 		}
-		String encodedString = StringByteTool.fromUtf8Bytes(bytes);
+		String encodedString = StringCodec.UTF_8.decode(bytes);
 		return decode(encodedString, key.separator);
 	}
 

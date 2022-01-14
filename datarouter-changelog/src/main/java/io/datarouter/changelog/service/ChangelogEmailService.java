@@ -58,7 +58,8 @@ public class ChangelogEmailService{
 						dto.name,
 						dto.action,
 						dto.username,
-						dto.comment.orElse("")))
+						dto.comment.orElse(""),
+						dto.note.orElse("")))
 				.fromAdmin()
 				.toAdmin(dto.includeMainDatarouterAdmin)
 				.toSubscribers(dto.includeSubscribers)
@@ -67,7 +68,7 @@ public class ChangelogEmailService{
 	}
 
 	private ContainerTag<?> makeEmailContent(String changelogType, String name, String action, String username,
-			String comment){
+			String comment, String note){
 		var rows = List.of(
 				new Twin<>("Service", serviceName.get()),
 				new Twin<>("ServerName", serverName.get()),
@@ -75,7 +76,8 @@ public class ChangelogEmailService{
 				new Twin<>("Name", name),
 				new Twin<>("Action", action),
 				new Twin<>("Username", username),
-				new Twin<>("Comment", comment));
+				new Twin<>("Comment", comment),
+				new Twin<>("Note", note));
 		return new J2HtmlEmailTable<Twin<String>>()
 				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeDivBoldRight(row.getLeft())))
 				.withColumn(new J2HtmlEmailTableColumn<>(null, row -> makeSpanWhiteSpacePre(row.getRight())))

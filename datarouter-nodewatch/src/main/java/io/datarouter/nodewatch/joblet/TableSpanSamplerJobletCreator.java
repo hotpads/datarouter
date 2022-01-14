@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +50,7 @@ import io.datarouter.util.tuple.Pair;
 public class TableSpanSamplerJobletCreator<
 		PK extends PrimaryKey<PK>,
 		D extends Databean<PK,D>,
-		F extends DatabeanFielder<PK,D>>
-implements Callable<List<JobletPackage>>{
+		F extends DatabeanFielder<PK,D>>{
 	private static final Logger logger = LoggerFactory.getLogger(TableSpanSamplerJobletCreator.class);
 
 	private static final long RESAMPLE_PERIOD_MS = Duration.ofDays(7).toMillis();
@@ -109,11 +107,9 @@ implements Callable<List<JobletPackage>>{
 		this.periodStartMs = calcPeriodStartMs(samplerStartMs);
 	}
 
-	@Override
-	public List<JobletPackage> call(){
+	public List<JobletPackage> createJoblets(){
 		var timer = new PhaseTimer(nodeNames.toString());
-		PeekingIterator<TableSample> existingSamples = new PeekingIterator<>(tableSampleDao.streamForNode(
-				nodeNames).iterator());
+		var existingSamples = new PeekingIterator<>(tableSampleDao.streamForNode(nodeNames).iterator());
 		if(!existingSamples.hasNext()){
 			handleNoExistingSamples();
 		}else{

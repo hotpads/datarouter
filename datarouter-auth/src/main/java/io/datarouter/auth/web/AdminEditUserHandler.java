@@ -409,7 +409,7 @@ public class AdminEditUserHandler extends BaseHandler{
 	private static DeprovisionedUserDto buildDeprovisionedUserDto(SessionBasedUser user, Set<Role> roles){
 		UserDeprovisioningStatusDto status = user.isEnabled()
 				? UserDeprovisioningStatusDto.PROVISIONED
-				: UserDeprovisioningStatusDto.UNRESTORABLE;
+				: UserDeprovisioningStatusDto.NO_RECORD;
 		return new DeprovisionedUserDto(user.getUsername(), Scanner.of(roles).map(Role::getPersistentString).list(),
 				status);
 	}

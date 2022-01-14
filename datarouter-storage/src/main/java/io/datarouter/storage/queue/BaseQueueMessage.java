@@ -15,10 +15,7 @@
  */
 package io.datarouter.storage.queue;
 
-import io.datarouter.model.databean.Databean;
-import io.datarouter.model.key.primary.PrimaryKey;
-
-public class BaseQueueMessage<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
+public class BaseQueueMessage{
 
 	private QueueMessageKey key;
 

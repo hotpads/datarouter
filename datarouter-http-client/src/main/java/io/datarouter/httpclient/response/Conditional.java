@@ -86,6 +86,10 @@ public class Conditional<T>{
 		return !success;
 	}
 
+	public boolean isSuccess(){
+		return success;
+	}
+
 	public void assertSuccess(){
 		orElseThrow();
 	}

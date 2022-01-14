@@ -136,7 +136,7 @@ public class JobScheduler{
 		schedule(jobWrapper, durationUntilNextTrigger.toMillis(), false, false);
 	}
 
-	@Deprecated
+	@Deprecated // use scheduleRetriggeredJob(JobPackage, Instant)
 	public void scheduleRetriggeredJob(JobPackage jobPackage, Date officialTriggerTime){
 		scheduleRetriggeredJob(jobPackage, officialTriggerTime.toInstant());
 	}

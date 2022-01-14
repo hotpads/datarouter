@@ -66,13 +66,10 @@ import io.datarouter.model.field.imp.enums.IntegerEnumField;
 import io.datarouter.model.field.imp.enums.IntegerEnumFieldKey;
 import io.datarouter.model.field.imp.enums.StringEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumFieldKey;
-import io.datarouter.model.field.imp.positive.UInt63Field;
-import io.datarouter.model.field.imp.positive.UInt63FieldKey;
 import io.datarouter.model.serialize.fielder.BaseDatabeanFielder;
 import io.datarouter.model.util.CommonFieldSizes;
 import io.datarouter.util.lang.ObjectTool;
 
-@SuppressWarnings("deprecation")
 public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public static final int DEFAULT_STRING_LENGTH = CommonFieldSizes.DEFAULT_LENGTH_VARCHAR;
@@ -105,7 +102,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 	private List<String> delimitedStringArrayField;
 	private byte[] byteArrayField;
 	private String testSchemaUpdateField;
-	private Long incrementField;
 
 	public static class FieldKeys{
 		public static final BooleanFieldKey booleanField = new BooleanFieldKey("booleanField");
@@ -138,7 +134,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 				"delimitedStringArrayField");
 		public static final StringFieldKey testSchemaUpdateField = new StringFieldKey("testSchemaUpdateField")
 				.withSize(CommonFieldSizes.MAX_KEY_LENGTH_UTF8MB4);
-		public static final UInt63FieldKey incrementField = new UInt63FieldKey("incrementField");
 	}
 
 	public boolean equalsAllPersistentFields(ManyFieldBean that){
@@ -214,9 +209,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 		if(ObjectTool.notEquals(testSchemaUpdateField, that.testSchemaUpdateField)){
 			return false;
 		}
-		if(ObjectTool.notEquals(incrementField, that.incrementField)){
-			return false;
-		}
 		return true;
 	}
 
@@ -252,8 +244,7 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 					new DoubleArrayField(FieldKeys.doubleArrayField, databean.doubleArrayField),
 					new DelimitedStringArrayField(FieldKeys.delimitedStringArrayField,
 							databean.delimitedStringArrayField),
-					new StringField(FieldKeys.testSchemaUpdateField, databean.testSchemaUpdateField),
-					new UInt63Field(FieldKeys.incrementField, databean.incrementField));
+					new StringField(FieldKeys.testSchemaUpdateField, databean.testSchemaUpdateField));
 		}
 
 	}
@@ -493,14 +484,6 @@ public class ManyFieldBean extends BaseDatabean<ManyFieldBeanKey,ManyFieldBean>{
 
 	public void setTestSchemaUpdateField(String testSchemaUpdateField){
 		this.testSchemaUpdateField = testSchemaUpdateField;
-	}
-
-	public Long getIncrementField(){
-		return incrementField;
-	}
-
-	public void setIncrementField(Long incrementField){
-		this.incrementField = incrementField;
 	}
 
 }

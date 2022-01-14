@@ -49,7 +49,7 @@ public class WordTests{
 
 	@Test
 	public void testValueBlockV1(){
-		Supplier<ValueBlockV1Encoder> encoderSupplier = () -> new ValueBlockV1Encoder();
+		Supplier<ValueBlockV1Encoder> encoderSupplier = ValueBlockV1Encoder::new;
 		Ref<ValueBlockV1Encoder> encoder = new Ref<>(encoderSupplier.get());
 		int blockSize = 4096;
 		List<String> inputs = WordDataset.scanWords(getClass().getSimpleName() + "-testValueBlockV1").list();
@@ -97,7 +97,7 @@ public class WordTests{
 		List<SnapshotEntry> inputs = WordDataset.scanWords(getClass().getSimpleName() + "-testLeafBlockV1")
 				.map(word -> {
 					byte[] keyBytes = word.getBytes(StandardCharsets.UTF_8);
-					byte[] valueBytes = ByteTool.concatenate(valuePrefix.getBytes(StandardCharsets.UTF_8), keyBytes);
+					byte[] valueBytes = ByteTool.concatenate2(valuePrefix.getBytes(StandardCharsets.UTF_8), keyBytes);
 					return new SnapshotEntry(keyBytes, valueBytes, ByteTool.EMPTY_ARRAY_2);
 				})
 				.list();

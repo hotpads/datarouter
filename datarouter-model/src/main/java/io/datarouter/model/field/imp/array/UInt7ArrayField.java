@@ -18,7 +18,7 @@ package io.datarouter.model.field.imp.array;
 import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.UInt31Codec;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
@@ -26,6 +26,8 @@ import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.serialization.GsonTool;
 
 public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFieldKey>{
+
+	private static final UInt31Codec U_INT_31_CODEC = UInt31Codec.INSTANCE;
 
 	public UInt7ArrayField(UInt7ArrayFieldKey key, List<Byte> value){
 		super(key, value);
@@ -43,19 +45,19 @@ public class UInt7ArrayField extends BaseListField<Byte,List<Byte>,UInt7ArrayFie
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return IntegerByteTool.fromUInt31Bytes(bytes, byteOffset);
+		return U_INT_31_CODEC.decode(bytes, byteOffset);
 	}
 
 	@Override
 	public List<Byte> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
-		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
+		return ByteTool.getArrayList2(ByteTool.fromUInt7ByteArray(bytes, byteOffset + 4, numBytes));
 	}
 
 	@Override
 	public List<Byte> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = ArrayTool.length(bytes) - byteOffset;
-		return ByteTool.getArrayList(ByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
+		return ByteTool.getArrayList2(ByteTool.fromUInt7ByteArray(bytes, byteOffset, numBytes));
 	}
 
 	@Override

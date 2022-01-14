@@ -23,9 +23,18 @@ import java.util.stream.Collectors;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
+import io.datarouter.bytes.codec.booleancodec.RawBooleanCodec;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
+import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.scanner.Scanner;
 
 public class ByteWriter{
+
+	private static final RawBooleanCodec RAW_BOOLEAN_CODEC = RawBooleanCodec.INSTANCE;
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
+	private static final ComparableLongCodec COMPARABLE_LONG_CODEC = ComparableLongCodec.INSTANCE;
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 
 	private final int pageSize;
 	private final List<byte[]> pages;
@@ -159,15 +168,15 @@ public class ByteWriter{
 	}
 
 	public ByteWriter booleanByte(boolean value){
-		bytes(BooleanByteTool.getBytes(value));
+		bytes(RAW_BOOLEAN_CODEC.encode(value));
 		return this;
 	}
 
 	public ByteWriter rawInt(int value){
 		if(lastPageFreeSpace() < 4){
-			bytes(IntegerByteTool.getRawBytes(value));
+			bytes(RAW_INT_CODEC.encode(value));
 		}else{
-			IntegerByteTool.toRawBytes(value, lastPage(), lastPageSize);
+			RAW_INT_CODEC.encode(value, lastPage(), lastPageSize);
 			lastPageSize += 4;
 		}
 		return this;
@@ -188,9 +197,9 @@ public class ByteWriter{
 
 	public ByteWriter comparableLong(long value){
 		if(lastPageFreeSpace() < 8){
-			bytes(LongByteTool.getComparableBytes(value));
+			bytes(COMPARABLE_LONG_CODEC.encode(value));
 		}else{
-			LongByteTool.toComparableBytes(value, lastPage(), lastPageSize);
+			COMPARABLE_LONG_CODEC.encode(value, lastPage(), lastPageSize);
 			lastPageSize += 8;
 		}
 		return this;
@@ -198,9 +207,9 @@ public class ByteWriter{
 
 	public ByteWriter rawLong(long value){
 		if(lastPageFreeSpace() < 8){
-			bytes(LongByteTool.getRawBytes(value));
+			bytes(RAW_LONG_CODEC.encode(value));
 		}else{
-			LongByteTool.toRawBytes(value, lastPage(), lastPageSize);
+			RAW_LONG_CODEC.encode(value, lastPage(), lastPageSize);
 			lastPageSize += 8;
 		}
 		return this;

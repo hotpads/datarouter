@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.FieldSetTool;
@@ -45,6 +45,8 @@ public class RedisDatabeanCodec<
 	//redis can handle a max keys size of 32 megabytes
 	private static final int MAX_REDIS_KEY_SIZE = 1024 * 64;
 
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
+
 	private final int version;
 	private final PhysicalDatabeanFieldInfo<PK,D,F> fieldInfo;
 
@@ -54,10 +56,10 @@ public class RedisDatabeanCodec<
 	}
 
 	public byte[] encodeKey(PK pk){
-		byte[] codecVersion = IntegerByteTool.getRawBytes(CODEC_VERSION);
+		byte[] codecVersion = RAW_INT_CODEC.encode(CODEC_VERSION);
 		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
-		byte[] schemaVersion = IntegerByteTool.getRawBytes(version);
-		return ByteTool.concatenate(codecVersion, schemaVersion, key);
+		byte[] schemaVersion = RAW_INT_CODEC.encode(version);
+		return ByteTool.concatenate2(codecVersion, schemaVersion, key);
 	}
 
 	public List<byte[]> encodeKeys(Collection<PK> pks){

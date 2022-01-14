@@ -17,11 +17,13 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.list.intlist.IntListCodec;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.util.serialization.GsonTool;
 
 public class IntegerArrayField extends BaseListField<Integer,List<Integer>,IntegerArrayFieldKey>{
+
+	private static final IntListCodec INT_LIST_CODEC = IntListCodec.INSTANCE;
 
 	public IntegerArrayField(IntegerArrayFieldKey key, List<Integer> value){
 		super(key, value);
@@ -34,12 +36,12 @@ public class IntegerArrayField extends BaseListField<Integer,List<Integer>,Integ
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : IntegerByteTool.getIntegerByteArray(value);
+		return value == null ? null : INT_LIST_CODEC.encode(value);
 	}
 
 	@Override
 	public List<Integer> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		return IntegerByteTool.fromIntegerByteArray(bytes, byteOffset);
+		return INT_LIST_CODEC.decode(bytes, byteOffset);
 	}
 
 	@Override

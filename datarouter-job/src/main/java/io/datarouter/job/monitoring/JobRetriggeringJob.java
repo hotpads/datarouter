@@ -100,7 +100,7 @@ public class JobRetriggeringJob extends BaseJob{
 	}
 
 	private void retriggerIfNecessary(JobPackage jobPackage, TaskTracker tracker){
-		Optional<Date> lastCompletionTime = longRunningTaskService.findLastSuccessDate(jobPackage.jobClass
+		Optional<Instant> lastCompletionTime = longRunningTaskService.findLastSuccessInstant(jobPackage.jobClass
 				.getSimpleName());
 		if(lastCompletionTime.isEmpty()){
 			return;
@@ -108,17 +108,17 @@ public class JobRetriggeringJob extends BaseJob{
 		hasLastCompletionTime.increment();
 
 		//getNextValidTimeAfter should be present, because only non-manual jobs get scheduled
-		Date testTriggerTime = jobPackage.getNextValidTimeAfter(lastCompletionTime.get()).get();
-		Date now = new Date();
-		if(testTriggerTime.after(now)){
+		Instant testTriggerTime = jobPackage.getNextValidTimeAfter(lastCompletionTime.get()).get();
+		Instant now = Instant.now();
+		if(testTriggerTime.isAfter(now)){
 			return;
 		}
 
 		//advance to the latest trigger time before the current date
-		Date triggerTime = testTriggerTime;
-		while(testTriggerTime.before(now)){
+		Instant triggerTime = testTriggerTime;
+		while(testTriggerTime.isBefore(now)){
 			testTriggerTime = jobPackage.getNextValidTimeAfter(testTriggerTime).get();
-			if(testTriggerTime.before(now)){
+			if(testTriggerTime.isBefore(now)){
 				triggerTime = testTriggerTime;
 			}
 		}

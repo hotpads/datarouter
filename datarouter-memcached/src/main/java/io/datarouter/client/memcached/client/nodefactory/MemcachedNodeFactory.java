@@ -50,6 +50,7 @@ public class MemcachedNodeFactory{
 		return new MemcachedNode<>(params, clientType, clientManager);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <PK extends PrimaryKey<PK>,
 			D extends Databean<PK,D>,
 			F extends DatabeanFielder<PK,D>>

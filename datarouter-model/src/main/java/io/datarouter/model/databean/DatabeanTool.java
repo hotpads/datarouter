@@ -30,7 +30,7 @@ public class DatabeanTool{
 		// skip zero-length fields in non-key bytes
 		// TODO should this distinguish between null and empty Strings?
 		byte[] nonKeyBytes = FieldTool.getSerializedKeyValues(fielder.getNonKeyFields(databean), true, true);
-		return ByteTool.concatenate(keyBytes, nonKeyBytes);
+		return ByteTool.concatenate2(keyBytes, nonKeyBytes);
 	}
 
 }

@@ -15,11 +15,13 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 
 public class IntegerField extends BasePrimitiveField<Integer,IntegerFieldKey>{
+
+	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
 
 	public IntegerField(IntegerFieldKey key, Integer value){
 		this(null, key, value);
@@ -47,7 +49,7 @@ public class IntegerField extends BasePrimitiveField<Integer,IntegerFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : IntegerByteTool.getComparableBytes(value);
+		return value == null ? null : COMPARABLE_INT_CODEC.encode(value);
 	}
 
 	@Override
@@ -57,7 +59,7 @@ public class IntegerField extends BasePrimitiveField<Integer,IntegerFieldKey>{
 
 	@Override
 	public Integer fromBytesButDoNotSet(byte[] bytes, int offset){
-		return IntegerByteTool.fromComparableBytes(bytes, offset);
+		return COMPARABLE_INT_CODEC.decode(bytes, offset);
 	}
 
 }

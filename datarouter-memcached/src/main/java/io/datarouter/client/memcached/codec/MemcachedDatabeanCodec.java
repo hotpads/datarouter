@@ -79,7 +79,8 @@ public class MemcachedDatabeanCodec<
 		return Optional.of(new Pair<>(key, value));
 	}
 
-	public Optional<Pair<PathbeanKey,byte[]>> encodeKeyToPathbeanKeyValueIfValid(D databean){
+	public Optional<Pair<PathbeanKey,byte[]>> encodeDatabeanToPathbeanKeyValueIfValid(D databean,
+			Long autoSchemaVersion){
 		//TODO put only the nonKeyFields in the byte[] and figure out the keyFields from the key string
 		//  could be big savings for small or key-only databeans
 		byte[] value = encode(databean);
@@ -88,8 +89,12 @@ public class MemcachedDatabeanCodec<
 			logger.warn("object too big for memcached length={} key={}", value.length, databean.getKey());
 			return Optional.empty();
 		}
-		PathbeanKey key = MemcachedKey.encodeToPathbeanKey(databean.getKey());
+		PathbeanKey key = MemcachedKey.encodeKeyToPathbeanKey(databean.getKey(), autoSchemaVersion);
 		return Optional.of(new Pair<>(key, value));
+	}
+
+	public PathbeanKey encodeKeyToPathbeanKey(PK key, Long autoSchemaVersion){
+		return MemcachedKey.encodeKeyToPathbeanKey(key, autoSchemaVersion);
 	}
 
 	public D decodeResultValue(Pair<String,Object> result){

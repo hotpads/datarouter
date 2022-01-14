@@ -17,12 +17,12 @@ package io.datarouter.filesystem.snapshot.block.leaf;
 
 import java.util.Optional;
 
+import io.datarouter.bytes.Bytes;
 import io.datarouter.filesystem.snapshot.block.Block;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafRecord;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafSearchResult;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
 
 public interface LeafBlock extends Block{

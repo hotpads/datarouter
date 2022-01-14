@@ -116,7 +116,14 @@ public class JobPackage implements Comparable<JobPackage>{
 	}
 
 	public Optional<Date> getNextValidTimeAfter(Date date){
-		return Optional.ofNullable(cronExpression).map(cronExpression -> cronExpression.getNextValidTimeAfter(date));
+		return Optional.ofNullable(cronExpression)
+				.map(cronExpression -> cronExpression.getNextValidTimeAfter(date));
+	}
+
+	public Optional<Instant> getNextValidTimeAfter(Instant instant){
+		return Optional.ofNullable(cronExpression)
+				.map(cronExpression -> cronExpression.getNextValidTimeAfter(Date.from(instant)))
+				.map(Date::toInstant);
 	}
 
 	public boolean usesLocking(){

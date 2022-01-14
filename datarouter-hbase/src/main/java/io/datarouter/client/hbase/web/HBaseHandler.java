@@ -42,7 +42,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.HBaseClientType;
 import io.datarouter.client.hbase.balancer.HBaseBalancerFactory;
@@ -196,7 +196,7 @@ public class HBaseHandler extends BaseHandler{
 			memstoreFlushSizeMb
 					.map(mb -> mb * 1024 * 1024)
 					.ifPresent(table::setMemStoreFlushSize);
-			admin.modifyTable(TableName.valueOf(StringByteTool.getUtf8Bytes(datarouterWebRequestParams.getTableName())),
+			admin.modifyTable(TableName.valueOf(StringCodec.UTF_8.encode(datarouterWebRequestParams.getTableName())),
 					table);
 		}finally{
 			admin.enableTable(TableName.valueOf(datarouterWebRequestParams.getTableName()));
@@ -393,8 +393,8 @@ public class HBaseHandler extends BaseHandler{
 		Map<String,String> outs = new TreeMap<>();
 		for(Entry<ImmutableBytesWritable,ImmutableBytesWritable> entry : ins.entrySet()){
 			outs.put(
-					StringByteTool.fromUtf8Bytes(entry.getKey().get()),
-					StringByteTool.fromUtf8Bytes(entry.getValue().get()));
+					StringCodec.UTF_8.decode(entry.getKey().get()),
+					StringCodec.UTF_8.decode(entry.getValue().get()));
 		}
 		if(!outs.containsKey(DrTableSettings.DATA_BLOCK_ENCODING)){
 			outs.put(DrTableSettings.DATA_BLOCK_ENCODING, DrTableSettings.DEFAULT_DATA_BLOCK_ENCODING);

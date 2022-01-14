@@ -118,7 +118,6 @@ public class DatarouterWebBoostrapIntegrationService implements TestableService{
 		appListeners.getAppListenerClasses().forEach(clazz -> AnnotationTool.checkSingletonForClass(clazz, true));
 	}
 
-
 	private void testSingletonsForSeralizers(){
 		injector.getInstancesOfType(DatarouterHttpClient.class).values().stream()
 				.map(DatarouterHttpClient::getJsonSerializer)

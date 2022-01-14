@@ -36,7 +36,6 @@ import io.datarouter.gcp.spanner.field.date.SpannerLocalDateTimeFieldCodec;
 import io.datarouter.gcp.spanner.field.date.SpannerLongDateFieldCodec;
 import io.datarouter.gcp.spanner.field.enums.SpannerIntegerEnumFieldCodec;
 import io.datarouter.gcp.spanner.field.enums.SpannerStringEnumFieldCodec;
-import io.datarouter.gcp.spanner.field.positive.SpannerUInt63FieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerBooleanFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerDoubleFieldCodec;
 import io.datarouter.gcp.spanner.field.primitive.SpannerFloatFieldCodec;
@@ -67,10 +66,10 @@ import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 import io.datarouter.model.field.imp.custom.LongDateField;
 import io.datarouter.model.field.imp.enums.IntegerEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.lang.ReflectionTool;
 
+@SuppressWarnings("deprecation")
 @Singleton
 public class SpannerFieldCodecRegistry{
 
@@ -87,8 +86,6 @@ public class SpannerFieldCodecRegistry{
 		addCodec(IntegerField.class, SpannerIntegerFieldCodec.class);
 		addCodec(LongField.class, SpannerLongFieldCodec.class);
 		addCodec(ShortField.class, SpannerShortFieldCodec.class);
-
-		addCodec(UInt63Field.class, SpannerUInt63FieldCodec.class);
 
 		addCodec(SignedByteField.class, SpannerSignedByteFieldCodec.class);
 

@@ -88,7 +88,7 @@ public abstract class NavBar implements DispatcherServletListener{
 			return Optional.empty();
 		}
 		return dispatcherServlets.stream()
-				.map(servlet -> servlet.findRuleInContext(href.toString()))
+				.map(servlet -> servlet.findRuleInContext(href.getPath()))
 				.flatMap(Optional::stream)
 				.findFirst();
 	}

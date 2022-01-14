@@ -18,13 +18,14 @@ package io.datarouter.client.hbase.node.nonentity;
 import java.util.Objects;
 
 import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.Bytes;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
+import io.datarouter.storage.util.NullsTool;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseNonEntityQueryBuilder<
@@ -59,7 +60,8 @@ public class HBaseNonEntityQueryBuilder<
 
 	public byte[] getPkBytesWithPartition(PK pk){
 		byte[] prefix = partitioner.getPrefix(pk.getEntityKey());
-		return ByteTool.concatenate(prefix, getPkBytes(pk));
+		NullsTool.logStackIfNull(prefix);
+		return ByteTool.concatenateNullSafe(prefix, getPkBytes(pk));
 	}
 
 	public Bytes getEkByteRange(EK ek){

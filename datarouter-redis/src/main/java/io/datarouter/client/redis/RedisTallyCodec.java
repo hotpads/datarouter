@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.model.databean.DatabeanTool;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldTool;
@@ -32,6 +32,7 @@ import io.lettuce.core.KeyValue;
 
 public class RedisTallyCodec{
 
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 	private static final TallyFielder SAMPLE_FIELDER = new TallyFielder();
 
 	private final int version;
@@ -45,8 +46,8 @@ public class RedisTallyCodec{
 
 	public byte[] encodeKey(TallyKey pk){
 		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
-		byte[] schemaVersion = IntegerByteTool.getRawBytes(version);
-		return ByteTool.concatenate(schemaVersion, key);
+		byte[] schemaVersion = RAW_INT_CODEC.encode(version);
+		return ByteTool.concatenate2(schemaVersion, key);
 	}
 
 	public byte[] encode(Tally databean){

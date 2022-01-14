@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.datarouter.bytes.ByteReader;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.Bytes;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.block.BlockSizeCalculator;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
 /**
  * Sections:
@@ -37,6 +37,8 @@ import io.datarouter.scanner.Scanner;
 public class LeafBlockV1 implements LeafBlock{
 
 	public static final String FORMAT = "keyV1";
+
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
 	private static final int HEAP_SIZE_OVERHEAD = new BlockSizeCalculator()
 			.addObjectHeaders(1)
@@ -168,14 +170,14 @@ public class LeafBlockV1 implements LeafBlock{
 	private int fileId(int column, int valueBlockId){
 		int valueBlockIndex = valueBlockId - firstValueBlockId[column] + 1;
 		int cursor = valueFileIdsSectionOffset[column] + 4 * valueBlockIndex;
-		return IntegerByteTool.fromRawBytes(bytes, cursor);
+		return RAW_INT_CODEC.decode(bytes, cursor);
 	}
 
 	@Override
 	public int valueBlockEnding(int column, int valueBlockId){
 		int valueBlockIndex = valueBlockId - firstValueBlockId[column] + 1;
 		int cursor = valueBlockEndingsSectionOffset[column] + 4 * valueBlockIndex;
-		return IntegerByteTool.fromRawBytes(bytes, cursor);
+		return RAW_INT_CODEC.decode(bytes, cursor);
 	}
 
 	@Override
@@ -206,17 +208,17 @@ public class LeafBlockV1 implements LeafBlock{
 	@Override
 	public int valueBlockOffset(int column, int valueBlockOffsetIndex){
 		int bytesOffset = valueBlockOffsetSectionOffset[column] + (4 * valueBlockOffsetIndex);
-		return IntegerByteTool.fromRawBytes(bytes, bytesOffset);
+		return RAW_INT_CODEC.decode(bytes, bytesOffset);
 	}
 
 	private int keyEnding(int index){
 		int endingOffset = 4 * index;
-		return IntegerByteTool.fromRawBytes(bytes, keyEndingSectionOffset + endingOffset);
+		return RAW_INT_CODEC.decode(bytes, keyEndingSectionOffset + endingOffset);
 	}
 
 	private int valueEnding(int index){
 		int endingOffset = 4 * index;
-		return IntegerByteTool.fromRawBytes(bytes, valueEndingSectionOffset + endingOffset);
+		return RAW_INT_CODEC.decode(bytes, valueEndingSectionOffset + endingOffset);
 	}
 
 	public String toDetailedString(){

@@ -15,73 +15,31 @@
  */
 package io.datarouter.bytes;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 
 public class StringByteTool{
 
-	private static final int NULL_LENGTH = 0;
-
+	/**
+	 * @deprecated Please use StringCodec.UTF_8.encode(str)
+	 */
+	@Deprecated
 	public static byte[] getUtf8Bytes(String str){
-		if(str == null){
+		return getUtf8BytesNullSafe(str);
+	}
+
+	public static byte[] getUtf8Bytes2(String str){
+		return StringCodec.UTF_8.encode(str);
+	}
+
+	/**
+	 * @deprecated Please use StringCodec.UTF_8.encode(str)
+	 */
+	@Deprecated
+	public static byte[] getUtf8BytesNullSafe(String str){
+		if(str == null){//TODO remove null check
 			return null;
 		}
-		return str.getBytes(StandardCharsets.UTF_8);
-	}
-
-	public static byte[] getNullableStringByteArray(List<String> valuesWithNulls){
-		if(valuesWithNulls == null){
-			throw new RuntimeException("String list cannot be null");
-		}
-		List<byte[]> byteArrays = new ArrayList<>(valuesWithNulls.size());
-		// prepend the size of the string list at the very beginning so that when decoding, we can use it to set the
-		// ArrayList capacity
-		byteArrays.add(VarIntTool.encode(valuesWithNulls.size()));
-		for(int i = 0; i < valuesWithNulls.size(); i++){
-			String str = valuesWithNulls.get(i);
-			byte[] stringByteValue = str == null ? new byte[0] : getUtf8Bytes(str);
-			// byteLen=0 means null, byteLen=1 represents an empty string, byteLen=2 means the string is length 1, etc.
-			// (byteLen equals 1+stringLength)
-			byte[] byteLen = VarIntTool.encode(str == null ? NULL_LENGTH : stringByteValue.length + 1);
-			byteArrays.add(ByteTool.concatenate(byteLen, stringByteValue));
-		}
-		return ByteTool.concatenate(byteArrays);
-	}
-
-	public static List<String> fromNullableStringByteArray(byte[] values){
-		int position = 0;
-		int listLength = VarIntTool.decodeInt(values, position);
-		position += VarIntTool.length(listLength);
-		List<String> strings = new ArrayList<>(listLength);
-
-		while(position < values.length){
-			int stringLength = VarIntTool.decodeInt(values, position);
-			position += VarIntTool.length(stringLength);
-			if(stringLength == NULL_LENGTH){
-				strings.add(null);
-				continue;
-			}
-			byte[] stringBytes = ByteTool.copyOfRange(values, position, stringLength - 1);
-			position += stringBytes.length;
-			String string = fromUtf8Bytes(stringBytes);
-			strings.add(string);
-		}
-		return strings;
-	}
-
-	public static int toUtf8Bytes(String str, byte[] destination, int offset){
-		byte[] bytes = getUtf8Bytes(str);
-		System.arraycopy(bytes, 0, destination, offset, bytes.length);
-		return bytes.length;
-	}
-
-	public static String fromUtf8Bytes(byte[] bytes, int offset, int length){
-		return new String(bytes, offset, length, StandardCharsets.UTF_8);
-	}
-
-	public static String fromUtf8Bytes(byte[] bytes){
-		return new String(bytes, StandardCharsets.UTF_8);
+		return StringCodec.UTF_8.encode(str);
 	}
 
 }

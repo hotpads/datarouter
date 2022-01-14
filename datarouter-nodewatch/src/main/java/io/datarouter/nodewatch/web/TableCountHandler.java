@@ -135,7 +135,7 @@ public class TableCountHandler extends BaseHandler{
 				true,
 				true,
 				System.currentTimeMillis())
-				.call();
+				.createJoblets();
 		var dto = new DatarouterChangelogDtoBuilder(
 				"Nodewatch",
 				clientName + "." + tableName,

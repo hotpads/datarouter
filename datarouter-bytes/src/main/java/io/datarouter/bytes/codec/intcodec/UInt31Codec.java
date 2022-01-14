@@ -15,36 +15,36 @@
  */
 package io.datarouter.bytes.codec.intcodec;
 
-public class UInt31Codec implements IntCodec{
+public class UInt31Codec{
 
 	public static final UInt31Codec INSTANCE = new UInt31Codec();
 
-	private static final int LENGTH = 4;
 	private static final RawIntCodec RAW_CODEC = RawIntCodec.INSTANCE;
+	private static final int LENGTH = RAW_CODEC.length();
 
 	public int length(){
 		return LENGTH;
 	}
 
-	@Override
 	public int length(int value){
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(int value){
 		byte[] bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}
 
-	@Override
 	public int encode(int value, byte[] bytes, int offset){
 		//TODO reject negatives
 		return RAW_CODEC.encode(value, bytes, offset);
 	}
 
-	@Override
+	public int decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public int decode(byte[] bytes, int offset){
 		return RAW_CODEC.decode(bytes, offset);
 	}

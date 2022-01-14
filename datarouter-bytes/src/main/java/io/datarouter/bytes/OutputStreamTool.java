@@ -29,4 +29,12 @@ public class OutputStreamTool{
 		}
 	}
 
+	public static void close(OutputStream outputStream){
+		try{
+			outputStream.close();
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
+	}
+
 }

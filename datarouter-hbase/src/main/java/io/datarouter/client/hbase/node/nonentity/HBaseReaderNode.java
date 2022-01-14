@@ -30,6 +30,7 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FirstKeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 
+import io.datarouter.bytes.Bytes;
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.config.DatarouterHBaseExecutors.DatarouterHbaseClientExecutor;
 import io.datarouter.client.hbase.util.HBaseResultComparator;
@@ -42,7 +43,6 @@ import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.PagingScanner;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.storage.client.ClientTableNodeNames;

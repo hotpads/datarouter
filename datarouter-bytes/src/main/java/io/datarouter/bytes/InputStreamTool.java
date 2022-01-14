@@ -26,7 +26,7 @@ import io.datarouter.scanner.Scanner;
 
 public class InputStreamTool{
 
-	public static final long count(InputStream inputStream, int bufferSize){
+	public static long count(InputStream inputStream, int bufferSize){
 		long count = 0;
 		try{
 			byte[] buffer = new byte[bufferSize];
@@ -43,7 +43,7 @@ public class InputStreamTool{
 		return count;
 	}
 
-	public static final long countByte(InputStream inputStream, int bufferSize, byte matchByte){
+	public static long countByte(InputStream inputStream, int bufferSize, byte matchByte){
 		long count = 0;
 		try{
 			byte[] buffer = new byte[bufferSize];
@@ -64,7 +64,7 @@ public class InputStreamTool{
 		return count;
 	}
 
-	public static final byte[] readThroughByte(InputStream inputStream, byte throughByte){
+	public static byte[] readThroughByte(InputStream inputStream, byte throughByte){
 		int throughInt = Byte.toUnsignedInt(throughByte);
 		ByteArrayOutputStream result = new ByteArrayOutputStream();
 		try{
@@ -81,7 +81,7 @@ public class InputStreamTool{
 		return result.toByteArray();
 	}
 
-	public static final byte[] readNBytes(InputStream inputStream, int len){
+	public static byte[] readNBytes(InputStream inputStream, int len){
 		byte[] bytes = new byte[len];
 		try{
 			//avoid InputStream.readNBytes(int) which builds an ArrayList of small chunks then concatenates
@@ -95,7 +95,7 @@ public class InputStreamTool{
 		}
 	}
 
-	public static final void transferTo(InputStream inputStream, OutputStream outputStream){
+	public static void transferTo(InputStream inputStream, OutputStream outputStream){
 		try{
 			Java9.transferTo(inputStream, outputStream);
 		}catch(IOException e){
@@ -103,9 +103,17 @@ public class InputStreamTool{
 		}
 	}
 
-	public static final Scanner<byte[]> scanChunks(InputStream inputStream, int chunkSize){
+	public static Scanner<byte[]> scanChunks(InputStream inputStream, int chunkSize){
 		return Scanner.generate(() -> InputStreamTool.readNBytes(inputStream, chunkSize))
 				.advanceWhile(chunk -> chunk.length > 0);
+	}
+
+	public static void close(InputStream inputStream){
+		try{
+			inputStream.close();
+		}catch(IOException e){
+			throw new RuntimeException(e);
+		}
 	}
 
 }

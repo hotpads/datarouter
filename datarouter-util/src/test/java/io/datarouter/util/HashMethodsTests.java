@@ -15,13 +15,12 @@
  */
 package io.datarouter.util;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import io.datarouter.bytes.StringByteTool;
 
 public class HashMethodsTests{
 
@@ -39,7 +38,9 @@ public class HashMethodsTests{
 		for(int serverNum = 98; serverNum <= 101; ++serverNum){
 			String serverName = "HadoopNode98:10012:" + serverNum;
 			for(int i = 0; i < 1000; ++i){
-				Long bucket = HashMethods.longMd5DjbHash(StringByteTool.getUtf8Bytes(serverName + i));
+				String indexedServerName = serverName + i;
+				byte[] indexedServerNameBytes = indexedServerName.getBytes(StandardCharsets.UTF_8);
+				Long bucket = HashMethods.longMd5DjbHash(indexedServerNameBytes);
 				buckets.add(bucket);
 			}
 		}

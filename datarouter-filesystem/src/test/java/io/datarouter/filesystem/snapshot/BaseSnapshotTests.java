@@ -34,6 +34,7 @@ import org.testng.annotations.Guice;
 import org.testng.annotations.Test;
 
 import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.Bytes;
 import io.datarouter.filesystem.DatarouterFilesystemModuleFactory;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.cache.MemoryBlockCache;
@@ -50,7 +51,6 @@ import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafRecord;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotRecord;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfig;
 import io.datarouter.filesystem.snapshot.writer.SnapshotWriterConfigBuilder;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
@@ -163,7 +163,7 @@ public abstract class BaseSnapshotTests{
 		var wordId = new AtomicLong();
 		sortedInputs = Scanner.of(getInputs())
 				.map(str -> str.getBytes(StandardCharsets.UTF_8))
-				.map(key -> makeEntry(key))
+				.map(BaseSnapshotTests::makeEntry)
 				.map(entry -> new Input(wordId.getAndIncrement(), entry))
 				.list();
 		Require.equals(sortedInputs.get(0).entry.columnValues.length, NUM_COLUMNS);
@@ -367,7 +367,7 @@ public abstract class BaseSnapshotTests{
 					}
 
 					//fake first key (should act like exclusive)
-					byte[] nonExistentKey = ByteTool.concatenate(searchKey, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0});
+					byte[] nonExistentKey = ByteTool.concatenate2(searchKey, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0});
 					List<SnapshotLeafRecord> outputsNonExistentKey = reader.scanLeafRecords(nonExistentKey, true)
 							.limit(limit)
 							.list();
@@ -706,8 +706,8 @@ public abstract class BaseSnapshotTests{
 	}
 
 	protected static SnapshotEntry makeEntry(byte[] key){
-		byte[] value = ByteTool.concatenate("v".getBytes(), key);
-		byte[] columnValue0 = ByteTool.concatenate(key, key, key);
+		byte[] value = ByteTool.concatenate2("v".getBytes(), key);
+		byte[] columnValue0 = ByteTool.concatenate2(key, key, key);
 		byte[] columnValue1 = new byte[]{key[0], key[0]};
 		byte[][] columnValues = new byte[][]{columnValue0, columnValue1};
 		return new SnapshotEntry(key, value, columnValues);

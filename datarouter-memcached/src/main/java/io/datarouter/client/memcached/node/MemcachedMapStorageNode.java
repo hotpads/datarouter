@@ -15,12 +15,13 @@
  */
 package io.datarouter.client.memcached.node;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import io.datarouter.client.memcached.codec.MemcachedDatabeanCodec;
-import io.datarouter.client.memcached.codec.MemcachedKey;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -31,6 +32,7 @@ import io.datarouter.storage.config.Config;
 import io.datarouter.storage.node.NodeParams;
 import io.datarouter.storage.node.op.raw.MapStorage.PhysicalMapStorageNode;
 import io.datarouter.storage.node.type.physical.base.BasePhysicalNode;
+import io.datarouter.util.HashMethods;
 
 public class MemcachedMapStorageNode<
 		PK extends PrimaryKey<PK>,
@@ -42,6 +44,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	private final Integer schemaVersion;
 	private final MemcachedDatabeanCodec<PK,D,F> codec;
 	private final MemcachedBlobNode blobNode;
+	private final Long autoSchemaVersion;
 
 	public MemcachedMapStorageNode(NodeParams<PK,D,F> params, ClientType<?,?> clientType,
 			MemcachedBlobNode blobNode){
@@ -54,6 +57,15 @@ implements PhysicalMapStorageNode<PK,D,F>{
 				getFieldInfo().getDatabeanSupplier(),
 				getFieldInfo().getFieldByPrefixedName());
 		this.blobNode = blobNode;
+		this.autoSchemaVersion = createAutoSchemaVersion();
+	}
+
+	public Long createAutoSchemaVersion(){
+		List<String> fieldNames = new ArrayList<>();
+		fieldNames.addAll(getFieldInfo().getNonKeyFieldColumnNames());
+		fieldNames.addAll(getFieldInfo().getPrimaryKeyFieldColumnNames());
+		String allFieldNamesConcatenated = fieldNames.stream().collect(Collectors.joining("+"));
+		return HashMethods.longDjbHash(allFieldNamesConcatenated);
 	}
 
 	@Override
@@ -90,7 +102,7 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	@Override
 	public void deleteMulti(Collection<PK> keys, Config config){
 		Scanner.of(keys)
-				.map(MemcachedKey::encodeToPathbeanKey)
+				.map(key -> codec.encodeKeyToPathbeanKey(key, autoSchemaVersion))
 				.forEach(blobNode::delete);
 	}
 
@@ -107,14 +119,14 @@ implements PhysicalMapStorageNode<PK,D,F>{
 	@Override
 	public void putMulti(Collection<D> databeans, Config config){
 		Scanner.of(databeans)
-				.map(codec::encodeKeyToPathbeanKeyValueIfValid)
+				.map(databean -> codec.encodeDatabeanToPathbeanKeyValueIfValid(databean, autoSchemaVersion))
 				.concat(OptionalScanner::of)
 				.forEach(keyAndValue -> blobNode.write(keyAndValue.getLeft(), keyAndValue.getRight()));
 	}
 
 	private Scanner<D> scanMultiInternal(Collection<PK> keys){
 		return Scanner.of(Scanner.of(keys)
-				.map(MemcachedKey::encodeToPathbeanKey)
+				.map(key -> codec.encodeKeyToPathbeanKey(key, autoSchemaVersion))
 				.listTo(blobNode::read)
 				.values()
 				.stream()

@@ -16,15 +16,18 @@
 package io.datarouter.filesystem.snapshot.block.branch;
 
 import io.datarouter.bytes.ByteWriter;
-import io.datarouter.bytes.IntegerByteTool;
-import io.datarouter.bytes.LongByteTool;
 import io.datarouter.bytes.PagedObjectArray;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.filesystem.snapshot.encode.BranchBlockEncoder;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.writer.BlockQueue.FileIdsAndEndings;
 
 public class BranchBlockV1Encoder implements BranchBlockEncoder{
+
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 
 	private int blockId;
 
@@ -82,7 +85,7 @@ public class BranchBlockV1Encoder implements BranchBlockEncoder{
 		byte[] recordIdsChunk = new byte[numRecords * 8];
 		int recordIdsCursor = 0;
 		for(long recordId : recordIds){
-			LongByteTool.toRawBytes(recordId, recordIdsChunk, recordIdsCursor);
+			RAW_LONG_CODEC.encode(recordId, recordIdsChunk, recordIdsCursor);
 			recordIdsCursor += 8;
 		}
 
@@ -92,7 +95,7 @@ public class BranchBlockV1Encoder implements BranchBlockEncoder{
 		for(byte[] key : keys){
 			int keyLength = key.length;
 			keyEnding += keyLength;
-			IntegerByteTool.toRawBytes(keyEnding, keyEndingsChunk, keyEndingsCursor);
+			RAW_INT_CODEC.encode(keyEnding, keyEndingsChunk, keyEndingsCursor);
 			keyEndingsCursor += 4;
 		}
 
@@ -107,14 +110,14 @@ public class BranchBlockV1Encoder implements BranchBlockEncoder{
 		byte[] fileIdsChunk = new byte[fileIdsAndEndings.fileIds.length * 4];
 		int fileIdsCursor = 0;
 		for(int fileId : fileIdsAndEndings.fileIds){
-			IntegerByteTool.toRawBytes(fileId, fileIdsChunk, fileIdsCursor);
+			RAW_INT_CODEC.encode(fileId, fileIdsChunk, fileIdsCursor);
 			fileIdsCursor += 4;
 		}
 
 		byte[] fileEndingsChunk = new byte[fileIdsAndEndings.endings.length * 4];
 		int fileEndingsCursor = 0;
 		for(int fileEnding : fileIdsAndEndings.endings){
-			IntegerByteTool.toRawBytes(fileEnding, fileEndingsChunk, fileEndingsCursor);
+			RAW_INT_CODEC.encode(fileEnding, fileEndingsChunk, fileEndingsCursor);
 			fileEndingsCursor += 4;
 		}
 

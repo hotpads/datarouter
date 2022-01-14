@@ -15,8 +15,8 @@
  */
 package io.datarouter.filesystem.snapshot.block.value;
 
+import io.datarouter.bytes.Bytes;
 import io.datarouter.filesystem.snapshot.block.Block;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
 
 public interface ValueBlock extends Block{

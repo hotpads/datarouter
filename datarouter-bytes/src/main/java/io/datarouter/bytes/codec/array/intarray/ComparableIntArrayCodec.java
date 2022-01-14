@@ -23,13 +23,17 @@ public class ComparableIntArrayCodec{
 	public static final ComparableIntArrayCodec INSTANCE = new ComparableIntArrayCodec();
 
 	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
-	private static final int LENGTH = COMPARABLE_INT_CODEC.length();
+	private static final int ITEM_LENGTH = COMPARABLE_INT_CODEC.length();
+
+	public int itemLength(){
+		return ITEM_LENGTH;
+	}
 
 	public byte[] encode(int[] values){
 		if(values.length == 0){
 			return EmptyArray.BYTE;
 		}
-		byte[] bytes = new byte[LENGTH * values.length];
+		byte[] bytes = new byte[ITEM_LENGTH * values.length];
 		encode(values, bytes, 0);
 		return bytes;
 	}
@@ -38,9 +42,9 @@ public class ComparableIntArrayCodec{
 		int cursor = offset;
 		for(int i = 0; i < values.length; ++i){
 			COMPARABLE_INT_CODEC.encode(values[i], bytes, cursor);
-			cursor += LENGTH;
+			cursor += ITEM_LENGTH;
 		}
-		return values.length * LENGTH;
+		return values.length * ITEM_LENGTH;
 	}
 
 	public int[] decode(byte[] bytes){
@@ -54,15 +58,15 @@ public class ComparableIntArrayCodec{
 		if(bytesLength == 0){
 			return EmptyArray.INT;
 		}
-		if(bytesLength % LENGTH != 0){
-			throw new IllegalArgumentException("bytesLength must be multiple of " + LENGTH);
+		if(bytesLength % ITEM_LENGTH != 0){
+			throw new IllegalArgumentException("bytesLength must be multiple of " + ITEM_LENGTH);
 		}
-		int resultLength = bytesLength / LENGTH;
+		int resultLength = bytesLength / ITEM_LENGTH;
 		int[] result = new int[resultLength];
 		int cursor = offset;
 		for(int i = 0; i < resultLength; ++i){
 			result[i] = COMPARABLE_INT_CODEC.decode(bytes, cursor);
-			cursor += LENGTH;
+			cursor += ITEM_LENGTH;
 		}
 		return result;
 	}

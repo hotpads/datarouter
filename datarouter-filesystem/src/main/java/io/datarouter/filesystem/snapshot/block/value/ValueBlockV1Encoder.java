@@ -15,14 +15,16 @@
  */
 package io.datarouter.filesystem.snapshot.block.value;
 
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.PagedObjectArray;
 import io.datarouter.bytes.VarIntTool;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.encode.ValueBlockEncoder;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
-import io.datarouter.bytes.PagedObjectArray;
 
 public class ValueBlockV1Encoder implements ValueBlockEncoder{
+
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
 	private int numRecords;
 	private int numBytes;
@@ -69,7 +71,7 @@ public class ValueBlockV1Encoder implements ValueBlockEncoder{
 		for(byte[] value : values){
 			int valueLength = value.length;
 			ending += valueLength;
-			IntegerByteTool.toRawBytes(ending, endingsChunk, endingsCursor);
+			RAW_INT_CODEC.encode(ending, endingsChunk, endingsCursor);
 			endingsCursor += 4;
 			System.arraycopy(value, 0, valuesChunk, valuesCursor, valueLength);
 			valuesCursor += valueLength;

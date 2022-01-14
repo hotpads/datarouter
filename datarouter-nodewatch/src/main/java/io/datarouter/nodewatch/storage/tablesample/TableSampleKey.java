@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.field.imp.StringField;
@@ -98,10 +98,10 @@ public class TableSampleKey extends BaseRegularPrimaryKey<TableSampleKey>{
 
 	//DJB shifts left 5 bits after each byte, so should be plenty large
 	public long positiveLongHashCode(){
-		byte[] hashInput = ByteTool.concatenate(
-				StringByteTool.getUtf8Bytes(clientName),
-				StringByteTool.getUtf8Bytes(tableName),
-				StringByteTool.getUtf8Bytes(subEntityPrefix),
+		byte[] hashInput = ByteTool.concatenate2(
+				StringCodec.UTF_8.encode(clientName),
+				StringCodec.UTF_8.encode(tableName),
+				StringCodec.UTF_8.encode(subEntityPrefix),
 				rowKeyBytes);
 		return HashMethods.longDjbHash(hashInput);
 	}

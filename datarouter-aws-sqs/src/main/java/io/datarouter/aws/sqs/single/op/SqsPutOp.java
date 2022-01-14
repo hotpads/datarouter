@@ -24,7 +24,7 @@ import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
 import io.datarouter.aws.sqs.op.SqsOp;
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -59,7 +59,7 @@ extends SqsOp<PK,D,F,Void>{
 	protected Void run(){
 		FieldGeneratorTool.generateAndSetValueForFieldIfNecessary(fieldInfo, databean);
 		String encodedDatabean = codec.toString(databean, fielder);
-		if(StringByteTool.getUtf8Bytes(encodedDatabean).length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
+		if(StringCodec.UTF_8.encode(encodedDatabean).length > BaseSqsNode.MAX_BYTES_PER_MESSAGE){
 			throw new SqsDataTooLargeException(List.of(encodedDatabean));
 		}
 		var request = new SendMessageRequest(queueUrl, encodedDatabean);

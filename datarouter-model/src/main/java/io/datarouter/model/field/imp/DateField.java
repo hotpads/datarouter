@@ -19,12 +19,18 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.codec.longcodec.UInt63Codec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.DateTool;
 import io.datarouter.util.string.StringTool;
 
+/**
+ * @deprecated use InstantField or LongField instead
+ */
+@Deprecated
 public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
+
+	private static final UInt63Codec U_INT_63_CODEC = UInt63Codec.INSTANCE;
 
 	/**
 	 * New usages should try to use Instants, LocalDate, LocalDateTime, or Longs. Daylight savings and database timezone
@@ -78,7 +84,7 @@ public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : LongByteTool.getUInt63Bytes(value.getTime());
+		return value == null ? null : U_INT_63_CODEC.encode(value.getTime());
 	}
 
 	@Override
@@ -88,7 +94,7 @@ public class DateField extends BasePrimitiveField<Date,DateFieldKey>{
 
 	@Override
 	public Date fromBytesButDoNotSet(byte[] bytes, int offset){
-		return new Date(LongByteTool.fromUInt63Bytes(bytes, offset));
+		return new Date(U_INT_63_CODEC.decode(bytes, offset));
 	}
 
 }

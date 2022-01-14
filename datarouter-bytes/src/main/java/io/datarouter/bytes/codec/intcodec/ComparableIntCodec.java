@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.codec.intcodec;
 
-public class ComparableIntCodec implements IntCodec{
+public class ComparableIntCodec{
 
 	public static final ComparableIntCodec INSTANCE = new ComparableIntCodec();
 
@@ -26,25 +26,25 @@ public class ComparableIntCodec implements IntCodec{
 		return LENGTH;
 	}
 
-	@Override
 	public int length(int value){
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(int value){
 		byte[] bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}
 
-	@Override
 	public int encode(int value, byte[] bytes, int offset){
 		int shifted = value ^ Integer.MIN_VALUE;
 		return RAW_CODEC.encode(shifted, bytes, offset);
 	}
 
-	@Override
+	public int decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public int decode(byte[] bytes, int offset){
 		return Integer.MIN_VALUE ^ RAW_CODEC.decode(bytes, offset);
 	}

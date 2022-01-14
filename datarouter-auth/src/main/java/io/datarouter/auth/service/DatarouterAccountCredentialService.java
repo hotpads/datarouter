@@ -173,9 +173,7 @@ public class DatarouterAccountCredentialService{
 	}
 
 	public Optional<String> getCurrentDatarouterAccountName(HttpServletRequest request){
-		String apiKey = RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY);
-		return findAccountKeyApiKeyAuth(apiKey, false)
-				.map(accountKey -> accountKey.accountName);
+		return findAccountNameForApiKey(RequestTool.getParameterOrHeader(request, SecurityParameters.API_KEY));
 	}
 
 	public String getAccountNameForRequest(HttpServletRequest request, String alreadyKnown){
@@ -185,6 +183,11 @@ public class DatarouterAccountCredentialService{
 			logger.warn("redoLogic={} alreadyknown={} path={}", redoLogic, alreadyKnown, RequestTool.getPath(request));
 		}
 		return redoLogic;
+	}
+
+	public Optional<String> findAccountNameForApiKey(String apiKey){
+		return findAccountKeyApiKeyAuth(apiKey, false)
+				.map(accountKey -> accountKey.accountName);
 	}
 
 	public void deleteAllCredentialsForAccount(String accountName, Session session){

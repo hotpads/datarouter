@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.codec.longcodec;
 
-public class RawLongCodec implements LongCodec{
+public class RawLongCodec{
 
 	public static final RawLongCodec INSTANCE = new RawLongCodec();
 
@@ -25,19 +25,16 @@ public class RawLongCodec implements LongCodec{
 		return LENGTH;
 	}
 
-	@Override
 	public int length(long value){
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(long value){
 		byte[] bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}
 
-	@Override
 	public int encode(long value, byte[] bytes, int offset){
 		bytes[offset] = (byte) (value >>> 56);
 		bytes[offset + 1] = (byte) (value >>> 48);
@@ -50,7 +47,10 @@ public class RawLongCodec implements LongCodec{
 		return LENGTH;
 	}
 
-	@Override
+	public long decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public long decode(byte[] bytes, int offset){
 		return (bytes[offset] & (long)0xff) << 56
 				| (bytes[offset + 1] & (long)0xff) << 48

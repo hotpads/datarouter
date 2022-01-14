@@ -32,7 +32,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.Table;
 
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory;
 import io.datarouter.client.hbase.callback.CountingBatchCallbackFactory.CountingBatchCallback;
@@ -48,7 +48,6 @@ import io.datarouter.model.exception.DataAccessException;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.imp.comparable.SignedByteField;
 import io.datarouter.model.field.imp.comparable.SignedByteFieldKey;
-import io.datarouter.model.field.imp.positive.UInt63Field;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.primary.EntityPrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -61,7 +60,6 @@ import io.datarouter.storage.node.op.combo.SortedMapStorage.PhysicalSortedMapSto
 import io.datarouter.storage.node.op.raw.MapStorage;
 import io.datarouter.storage.node.op.raw.write.StorageWriter;
 import io.datarouter.storage.util.DatarouterCounters;
-import io.datarouter.util.lang.ObjectTool;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseNode<
@@ -267,8 +265,7 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 			Increment increment = new Increment(keyBytesWithPrefix);
 			for(Entry<String,Long> columnCount : row.getValue().entrySet()){
 				String columnName = columnCount.getKey();
-				assertColumnIsUInt63Field(columnName);
-				byte[] columnNameBytes = StringByteTool.getUtf8Bytes(columnName);
+				byte[] columnNameBytes = StringCodec.UTF_8.encode(columnName);
 				increment.addColumn(HBaseNode.FAM, columnNameBytes, columnCount.getValue());
 				++cellCount;
 			}
@@ -303,14 +300,6 @@ implements PhysicalSortedMapStorageNode<PK,D,F>, HBaseIncrement<PK>{
 			table.batchCallback(actions, new Object[actions.size()], callback);
 		}catch(Exception e){
 			throw new DataAccessException(e);
-		}
-	}
-
-	private void assertColumnIsUInt63Field(String columnName){
-		Field<?> field = getFieldInfo().getFieldForColumnName(columnName);
-		if(ObjectTool.notEquals(field.getClass(), UInt63Field.class)){
-			throw new IllegalArgumentException(columnName + " is a " + field.getClass()
-					+ ", but you can only increment a UInt63Field");
 		}
 	}
 

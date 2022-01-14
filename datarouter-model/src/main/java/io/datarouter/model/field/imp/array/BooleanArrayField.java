@@ -17,11 +17,13 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
-import io.datarouter.bytes.BooleanByteTool;
+import io.datarouter.bytes.codec.list.booleanlist.BooleanListCodec;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.util.serialization.GsonTool;
 
 public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>,BooleanArrayFieldKey>{
+
+	private static final BooleanListCodec BOOLEAN_LIST_CODEC = BooleanListCodec.INSTANCE;
 
 	public BooleanArrayField(BooleanArrayFieldKey key, List<Boolean> value){
 		super(key, value);
@@ -34,12 +36,12 @@ public class BooleanArrayField extends BaseListField<Boolean,List<Boolean>,Boole
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : BooleanByteTool.getBooleanByteArray(value);
+		return value == null ? null : BOOLEAN_LIST_CODEC.encode(value);
 	}
 
 	@Override
 	public List<Boolean> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		return BooleanByteTool.fromBooleanByteArray(bytes, byteOffset);
+		return BOOLEAN_LIST_CODEC.decode(bytes, byteOffset);
 	}
 
 	@Override

@@ -16,14 +16,10 @@
 package io.datarouter.plugin.copytable.tableprocessor;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.scanner.Scanner;
 
-public interface TableProcessor<
-		PK extends PrimaryKey<PK>,
-		D extends Databean<PK,D>>
-extends Supplier<Consumer<Scanner<D>>>{
+public interface TableProcessor<PK extends PrimaryKey<PK>,D extends Databean<PK,D>> extends Consumer<Scanner<D>>{
 }

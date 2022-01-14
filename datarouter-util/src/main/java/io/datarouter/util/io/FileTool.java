@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import io.datarouter.bytes.StringByteTool;
 import io.datarouter.util.Java11;
 import io.datarouter.util.string.StringTool;
 
@@ -84,7 +84,7 @@ public final class FileTool{
 
 	public static String readFile(File file) throws IOException{
 		byte[] bytes = Files.readAllBytes(file.toPath());
-		return StringByteTool.fromUtf8Bytes(bytes);
+		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
 	public static void cacheRemoteFile(String remoteUrl, String localPath){

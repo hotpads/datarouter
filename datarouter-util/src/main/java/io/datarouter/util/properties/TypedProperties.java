@@ -59,11 +59,14 @@ public class TypedProperties{
 	}
 
 	public String getString(String key){
-		return PropertiesTool.getFirstOccurrence(propertiesList, key);
+		return optString(key).orElse(null);
 	}
 
 	public Optional<String> optString(String key){
-		return Optional.ofNullable(getString(key));
+		Optional<String> fromProperties = PropertiesTool.findFirstOccurrence(propertiesList, key);
+		return fromProperties.isPresent()
+				? fromProperties
+				: EnvironmentVariableTool.findEnvVar(key);
 	}
 
 	/*------------------------- typed ---------------------------------------*/

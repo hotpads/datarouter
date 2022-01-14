@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.codec.floatcodec;
 
-public class RawFloatCodec implements FloatCodec{
+public class RawFloatCodec{
 
 	public static final RawFloatCodec INSTANCE = new RawFloatCodec();
 
@@ -25,18 +25,25 @@ public class RawFloatCodec implements FloatCodec{
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(float value){
-		int bits = Float.floatToIntBits(value);
-		byte[] out = new byte[LENGTH];
-		out[0] = (byte) (bits >>> 24);
-		out[1] = (byte) (bits >>> 16);
-		out[2] = (byte) (bits >>> 8);
-		out[3] = (byte) bits;
-		return out;
+		byte[] bytes = new byte[LENGTH];
+		encode(value, bytes, 0);
+		return bytes;
 	}
 
-	@Override
+	public int encode(float value, byte[] bytes, int offset){
+		int bits = Float.floatToIntBits(value);
+		bytes[offset] = (byte) (bits >>> 24);
+		bytes[offset + 1] = (byte) (bits >>> 16);
+		bytes[offset + 2] = (byte) (bits >>> 8);
+		bytes[offset + 3] = (byte) bits;
+		return LENGTH;
+	}
+
+	public float decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public float decode(byte[] bytes, int offset){
 		int bits = ((bytes[offset] & 0xff) << 24)
 				| ((bytes[offset + 1] & 0xff) << 16)

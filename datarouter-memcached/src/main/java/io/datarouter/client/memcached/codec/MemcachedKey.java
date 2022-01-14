@@ -46,9 +46,10 @@ public class MemcachedKey<PK extends PrimaryKey<PK>>{
 		return CODEC_VERSION + ":" + nodeName + ":" + schemaVersion + ":" + encodedPk;
 	}
 
-	public static PathbeanKey encodeToPathbeanKey(PrimaryKey<?> pk){
+	public static PathbeanKey encodeKeyToPathbeanKey(PrimaryKey<?> pk, Long autoSchemaVersion){
 		String encodedPk = PrimaryKeyPercentCodecTool.encode(pk);
-		return new PathbeanKey(encodedPk + "/", encodedPk); //TODO change path to have directory like structure
+		//TODO change path to have directory like structure
+		return new PathbeanKey(CODEC_VERSION + "/" + autoSchemaVersion + "/", encodedPk);
 	}
 
 	public static <PK extends PrimaryKey<PK>> MemcachedKey<PK> decode(String stringKey, Class<PK> pkClass){

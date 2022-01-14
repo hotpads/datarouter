@@ -15,11 +15,13 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
-import io.datarouter.bytes.DoubleByteTool;
+import io.datarouter.bytes.codec.doublecodec.ComparableDoubleCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 
 public class DoubleField extends BasePrimitiveField<Double,DoubleFieldKey>{
+
+	private static final ComparableDoubleCodec COMPARABLE_CODEC = ComparableDoubleCodec.INSTANCE;
 
 	public DoubleField(DoubleFieldKey key, Double value){
 		super(key, value);
@@ -43,17 +45,17 @@ public class DoubleField extends BasePrimitiveField<Double,DoubleFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : DoubleByteTool.toComparableBytes(value);
+		return value == null ? null : COMPARABLE_CODEC.encode(value);
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
+		return COMPARABLE_CODEC.length();
 	}
 
 	@Override
 	public Double fromBytesButDoNotSet(byte[] bytes, int offset){
-		return DoubleByteTool.fromComparableBytes(bytes, offset);
+		return COMPARABLE_CODEC.decode(bytes, offset);
 	}
 
 }

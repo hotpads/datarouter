@@ -17,7 +17,7 @@ package io.datarouter.bytes.codec.doublecodec;
 
 import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 
-public class RawDoubleCodec implements DoubleCodec{
+public class RawDoubleCodec{
 
 	public static final RawDoubleCodec INSTANCE = new RawDoubleCodec();
 
@@ -28,21 +28,22 @@ public class RawDoubleCodec implements DoubleCodec{
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(double value){
 		byte[] bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}
 
-	@Override
 	public int encode(double value, byte[] bytes, int offset){
 		long longValue = Double.doubleToLongBits(value);
 		RAW_LONG_CODEC.encode(longValue, bytes, offset);
 		return LENGTH;
 	}
 
-	@Override
+	public double decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public double decode(byte[] bytes, int offset){
 		long longValue = RAW_LONG_CODEC.decode(bytes, offset);
 		return Double.longBitsToDouble(longValue);

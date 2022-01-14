@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
 import io.datarouter.filesystem.snapshot.compress.PassthroughBlockCompressor;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
@@ -43,6 +43,7 @@ import io.datarouter.util.timer.PhaseTimer;
 public class SnapshotBenchmark{
 	private static final Logger logger = LoggerFactory.getLogger(SnapshotBenchmark.class);
 
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 	private static final int KEY_LENGTH = 8;
 	private static final int VALUE_LENGTH = 8;
 	public static final int WRITE_BATCH_SIZE = 10_000;
@@ -125,10 +126,10 @@ public class SnapshotBenchmark{
 			long id = from + i;
 			int keyFrom = i * KEY_LENGTH;
 			int keyTo = keyFrom + KEY_LENGTH;
-			LongByteTool.toRawBytes(id, keySlab, keyFrom);
+			RAW_LONG_CODEC.encode(id, keySlab, keyFrom);
 			int valueFrom = i * VALUE_LENGTH;
 			int valueTo = valueFrom + VALUE_LENGTH;
-			LongByteTool.toRawBytes(id, valueSlab, valueFrom);
+			RAW_LONG_CODEC.encode(id, valueSlab, valueFrom);
 			entries[i] = new SnapshotEntry(
 					keySlab, keyFrom, keyTo,
 					valueSlab, valueFrom, valueTo,
@@ -138,11 +139,11 @@ public class SnapshotBenchmark{
 	}
 
 	public static byte[] makeKey(long id){
-		return LongByteTool.getRawBytes(id);
+		return RAW_LONG_CODEC.encode(id);
 	}
 
 	public static byte[] makeValue(long id){
-		return LongByteTool.getRawBytes(id);
+		return RAW_LONG_CODEC.encode(id);
 	}
 
 }

@@ -16,9 +16,9 @@
 package io.datarouter.filesystem.snapshot.block.value;
 
 import io.datarouter.bytes.ByteReader;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.Bytes;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.filesystem.snapshot.block.BlockSizeCalculator;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
 
 /**
@@ -32,6 +32,8 @@ import io.datarouter.scanner.Scanner;
 public class ValueBlockV1 implements ValueBlock{
 
 	public static final String FORMAT = "valueV1";
+
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
 	private static final int HEAP_SIZE_OVERHEAD = new BlockSizeCalculator()
 			.addObjectHeaders(1)
@@ -82,7 +84,7 @@ public class ValueBlockV1 implements ValueBlock{
 
 	private int valueEnding(int index){
 		int endingOffset = 4 * index;
-		return IntegerByteTool.fromRawBytes(bytes, endingSectionOffset + endingOffset);
+		return RAW_INT_CODEC.decode(bytes, endingSectionOffset + endingOffset);
 	}
 
 }

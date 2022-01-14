@@ -16,13 +16,15 @@
 package io.datarouter.client.redis;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.storage.file.PathbeanKey;
 
 public class RedisBlobCodec{
 
 	private static final int CODEC_VERSION = 1;
+
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
 	private final int schemaVersion;
 
@@ -31,10 +33,10 @@ public class RedisBlobCodec{
 	}
 
 	public byte[] encodeKey(PathbeanKey pk){
-		byte[] codecVersion = IntegerByteTool.getRawBytes(CODEC_VERSION);
+		byte[] codecVersion = RAW_INT_CODEC.encode(CODEC_VERSION);
 		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
-		byte[] version = IntegerByteTool.getRawBytes(schemaVersion);
-		return ByteTool.concatenate(codecVersion, version, key);
+		byte[] version = RAW_INT_CODEC.encode(schemaVersion);
+		return ByteTool.concatenate2(codecVersion, version, key);
 	}
 
 }

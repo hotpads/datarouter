@@ -20,11 +20,11 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.Bytes;
 import io.datarouter.model.field.imp.StringField;
 import io.datarouter.model.field.imp.StringFieldKey;
 import io.datarouter.model.field.imp.comparable.IntegerField;
 import io.datarouter.model.field.imp.comparable.IntegerFieldKey;
-import io.datarouter.model.util.Bytes;
 
 public class FieldSetToolTests{
 

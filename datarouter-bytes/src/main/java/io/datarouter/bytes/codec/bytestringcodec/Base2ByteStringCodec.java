@@ -21,9 +21,6 @@ public class Base2ByteStringCodec implements ByteStringCodec{
 
 	@Override
 	public String encode(byte[] bytes){
-		if(bytes == null){//TODO remove null handling
-			return "";
-		}
 		StringBuilder sb = new StringBuilder();
 		for(int n = 0; n < bytes.length; ++n){
 			for(int i = 7; i >= 0; --i){

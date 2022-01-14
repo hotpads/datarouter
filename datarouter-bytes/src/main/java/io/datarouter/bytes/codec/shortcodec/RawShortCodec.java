@@ -15,32 +15,32 @@
  */
 package io.datarouter.bytes.codec.shortcodec;
 
-public class RawShortCodec implements ShortCodec{
+public class RawShortCodec{
 
 	public static final RawShortCodec INSTANCE = new RawShortCodec();
 
 	private static final int LENGTH = 2;
 
-	@Override
 	public int length(short value){
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(short value){
 		byte[] bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}
 
-	@Override
 	public int encode(short value, byte[] bytes, int offset){
 		bytes[offset] = (byte) (value >>> 8);
 		bytes[offset + 1] = (byte) value;
 		return LENGTH;
 	}
 
-	@Override
+	public short decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public short decode(byte[] bytes, int offset){
 		return (short)(
 				(bytes[offset] & 0xff) << 8

@@ -17,7 +17,7 @@ package io.datarouter.bytes.codec.doublecodec;
 
 import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 
-public class ComparableDoubleCodec implements DoubleCodec{
+public class ComparableDoubleCodec{
 
 	public static final ComparableDoubleCodec INSTANCE = new ComparableDoubleCodec();
 
@@ -28,14 +28,12 @@ public class ComparableDoubleCodec implements DoubleCodec{
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(double value){
 		byte[] bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}
 
-	@Override
 	public int encode(double value, byte[] bytes, int offset){
 		long longValue = Double.doubleToLongBits(value);
 		if(longValue < 0){
@@ -44,7 +42,10 @@ public class ComparableDoubleCodec implements DoubleCodec{
 		return COMPARABLE_LONG_CODEC.encode(longValue, bytes, offset);
 	}
 
-	@Override
+	public double decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public double decode(byte[] bytes, int offset){
 		long longBits = COMPARABLE_LONG_CODEC.decode(bytes, offset);
 		if(longBits < 0){

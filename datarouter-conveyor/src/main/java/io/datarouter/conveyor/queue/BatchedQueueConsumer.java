@@ -38,8 +38,10 @@ public class BatchedQueueConsumer<PK extends PrimaryKey<PK>,D extends Databean<P
 		this.ackMultiConsumer = ackMultiConsumer;
 	}
 
-	public QueueMessage<PK,D> peek(Duration timeout){
-		return peekFunction.apply(new Config().setTimeout(timeout));
+	public QueueMessage<PK,D> peek(Duration timeout, Duration visibilityTimeout){
+		return peekFunction.apply(new Config()
+				.setTimeout(timeout)
+				.setVisibilityTimeoutMs(visibilityTimeout.toMillis()));
 	}
 
 	public void ackMulti(Collection<QueueMessageKey> keys){

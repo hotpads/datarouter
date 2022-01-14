@@ -15,6 +15,7 @@
  */
 package io.datarouter.filesystem.snapshot.reader;
 
+import io.datarouter.bytes.Bytes;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.block.branch.BranchBlock;
 import io.datarouter.filesystem.snapshot.block.leaf.LeafBlock;
@@ -26,7 +27,6 @@ import io.datarouter.filesystem.snapshot.key.SnapshotKey;
 import io.datarouter.filesystem.snapshot.reader.block.BlockLoader;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotLeafRecord;
 import io.datarouter.filesystem.snapshot.reader.record.SnapshotRecord;
-import io.datarouter.model.util.Bytes;
 
 /**
  * Not thread-safe because of LatestBlockCache

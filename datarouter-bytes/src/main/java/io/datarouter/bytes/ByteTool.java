@@ -23,10 +23,7 @@ public class ByteTool{
 
 	public static final byte[][] EMPTY_ARRAY_2 = new byte[0][];
 
-	public static ArrayList<Byte> getArrayList(byte[] ins){
-		if(ins == null){//TODO remove null handling
-			return new ArrayList<>();
-		}
+	public static ArrayList<Byte> getArrayList2(byte[] ins){
 		ArrayList<Byte> outs = new ArrayList<>(ins.length);
 		for(int i = 0; i < ins.length; ++i){
 			outs.add(ins[i]);
@@ -34,11 +31,12 @@ public class ByteTool{
 		return outs;
 	}
 
-	public static byte[] getComparableBytes(byte value){
-		if(value >= 0){
-			return new byte[]{(byte)(value + Byte.MIN_VALUE)};
+	@Deprecated // use getArrayList2(byte[])
+	public static ArrayList<Byte> getArrayListNullSafe(byte[] ins){
+		if(ins == null){//TODO remove null handling
+			return new ArrayList<>();
 		}
-		return new byte[]{(byte)(value - Byte.MIN_VALUE)};
+		return getArrayList2(ins);
 	}
 
 	public static byte getComparableByte(byte value){
@@ -115,13 +113,11 @@ public class ByteTool{
 		for(int i = 0; i < ins.size(); ++i){
 			arrays[i] = ins.get(i);
 		}
-		return concatenate(arrays);
+		return concatenate2(arrays);
 	}
 
-	public static byte[] concatenate(byte[]... ins){
-		if(ins == null){
-			return new byte[0];
-		}
+	// TODO rename to concatenate
+	public static byte[] concatenate2(byte[]... ins){
 		byte[] out = new byte[totalLength(ins)];
 		int startIndex = 0;
 		for(int i = 0; i < ins.length; ++i){
@@ -134,6 +130,14 @@ public class ByteTool{
 		return out;
 	}
 
+	@Deprecated // use ByteTool.concatenate(byte[]...)
+	public static byte[] concatenateNullSafe(byte[]... ins){
+		if(ins == null){
+			return new byte[0];
+		}
+		return concatenate2(ins);
+	}
+
 	public static byte[] padPrefix(byte[] in, int finalWidth){
 		byte[] out = new byte[finalWidth];
 		int numPaddingBytes = finalWidth - in.length;
@@ -144,7 +148,7 @@ public class ByteTool{
 	/*------------------------- serialize -----------------------------------*/
 
 	public static byte[] getUInt7Bytes(List<Byte> values){
-		if(values == null || values.isEmpty()){
+		if(values.isEmpty()){
 			return new byte[0];
 		}
 		byte[] out = new byte[values.size()];

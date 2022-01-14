@@ -15,11 +15,9 @@
  */
 package io.datarouter.util;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import io.datarouter.bytes.StringByteTool;
-import io.datarouter.bytes.codec.bytestringcodec.Base16ByteStringCodec;
 
 public class HashMethods{
 
@@ -42,7 +40,7 @@ public class HashMethods{
 	}
 
 	public static Long longMd5DjbHash(String in){
-		return longMd5DjbHash(StringByteTool.getUtf8Bytes(in));
+		return longMd5DjbHash(in.getBytes(StandardCharsets.UTF_8));
 	}
 
 	public static Long longMd5DjbHash(byte[] in){
@@ -82,7 +80,7 @@ public class HashMethods{
 	 * get md5 hash of given string in UTF-8 charset
 	 */
 	public static String md5Hash(String in){
-		return md5Hash(StringByteTool.getUtf8Bytes(in));
+		return md5Hash(in.getBytes(StandardCharsets.UTF_8));
 	}
 
 	private static MessageDigest initCloneableMd5(){

@@ -40,7 +40,6 @@ import io.datarouter.client.mysql.field.codec.datetime.LocalDateMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.datetime.LocalDateTimeMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.enums.IntegerEnumMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.enums.StringEnumMysqlFieldCodec;
-import io.datarouter.client.mysql.field.codec.positive.UInt63MysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.BooleanMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.DoubleMysqlFieldCodec;
 import io.datarouter.client.mysql.field.codec.primitive.FloatMysqlFieldCodec;
@@ -73,7 +72,6 @@ import io.datarouter.model.field.imp.custom.LocalDateTimeField;
 import io.datarouter.model.field.imp.custom.LongDateField;
 import io.datarouter.model.field.imp.enums.IntegerEnumField;
 import io.datarouter.model.field.imp.enums.StringEnumField;
-import io.datarouter.model.field.imp.positive.UInt63Field;
 
 @SuppressWarnings("deprecation")
 public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
@@ -82,6 +80,7 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 			Class<? extends Field<?>>,
 			Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> codecClassByFieldClass;
 
+	@SuppressWarnings("unchecked")
 	public StandardMysqlFieldCodecFactory(Map<
 			Class<? extends Field<?>>,
 			Function<? extends Field<?>,? extends MysqlFieldCodec<?>>> additional){
@@ -118,9 +117,6 @@ public class StandardMysqlFieldCodecFactory implements MysqlFieldCodecFactory{
 		addCodec(ByteArrayField.class, ByteArrayMysqlFieldCodec::new);
 		addCodec(PrimitiveIntegerArrayField.class, PrimitiveIntegerArrayMysqlFieldCodec::new);
 		addCodec(PrimitiveLongArrayField.class, PrimitiveLongArrayMysqlFieldCodec::new);
-
-		//positive numbers only
-		addCodec(UInt63Field.class, UInt63MysqlFieldCodec::new);
 
 		additional.forEach(codecClassByFieldClass::put);
 	}

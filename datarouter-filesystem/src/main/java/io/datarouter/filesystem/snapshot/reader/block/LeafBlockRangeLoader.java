@@ -19,9 +19,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.datarouter.bytes.Bytes;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
 import io.datarouter.util.Require;
 import io.datarouter.util.collection.ListTool;

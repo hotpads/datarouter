@@ -27,7 +27,7 @@ public class DatarouterJobStopperJob extends BaseJob{
 	private JobStopperService jobStopperService;
 
 	@Override
-	public void run(TaskTracker tracker) throws Exception{
+	public void run(TaskTracker tracker){
 		jobStopperService.stopRequestedLocalJobs(tracker::shouldStop);
 	}
 

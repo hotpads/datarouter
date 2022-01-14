@@ -23,6 +23,10 @@ import io.datarouter.model.field.FieldKeyAttributeKey;
 import io.datarouter.model.field.PrimitiveFieldKey;
 import io.datarouter.model.field.encoding.FieldGeneratorType;
 
+/**
+ * @deprecated use InstantFieldKey or LongFieldKey instead
+ */
+@Deprecated
 public class DateFieldKey extends PrimitiveFieldKey<Date,DateFieldKey>{
 
 	private static final int DEFAULT_DECIMAL_SECONDS = 3;// match java's millisecond precision
@@ -75,7 +79,6 @@ public class DateFieldKey extends PrimitiveFieldKey<Date,DateFieldKey>{
 		return new DateFieldKey(name, columnName, nullable, fieldGeneratorType, defaultValue, precision, attributes);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public DateField createValueField(Date value){
 		return new DateField(this, value);

@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import io.datarouter.bytes.LongArray;
-import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.codec.array.longarray.UInt63ArrayCodec;
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
@@ -30,6 +30,8 @@ import io.datarouter.model.field.imp.array.UInt63ArrayField;
 
 public class UInt63ArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Long,List<Long>,UInt63ArrayField>{
+
+	private static final UInt63ArrayCodec U_INT_63_ARRAY_CODEC = UInt63ArrayCodec.INSTANCE;
 
 	public UInt63ArrayMysqlFieldCodec(UInt63ArrayField field){
 		super(field);
@@ -47,11 +49,15 @@ extends BaseListMysqlFieldCodec<Long,List<Long>,UInt63ArrayField>{
 
 	@Override
 	public void setPreparedStatementValue(PreparedStatement ps, int parameterIndex){
+		byte[] bytes = null;
+		if(field.getValue() != null){
+			LongArray longArray = field.getValue() instanceof LongArray
+					? (LongArray)field.getValue()
+					: new LongArray(field.getValue());
+			bytes = U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
+		}
 		try{
-			byte[] value = field.getValue() == null
-					? null
-					: LongByteTool.getUInt63ByteArray(field.getValue());
-			ps.setBytes(parameterIndex, value);
+			ps.setBytes(parameterIndex, bytes);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -61,7 +67,7 @@ extends BaseListMysqlFieldCodec<Long,List<Long>,UInt63ArrayField>{
 	public List<Long> fromMysqlResultSetButDoNotSet(ResultSet rs){
 		try{
 			byte[] bytes = rs.getBytes(field.getKey().getColumnName());
-			return new LongArray(LongByteTool.fromUInt63ByteArray(bytes));
+			return new LongArray(U_INT_63_ARRAY_CODEC.decode(bytes));
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}

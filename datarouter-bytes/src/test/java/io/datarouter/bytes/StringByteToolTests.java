@@ -17,8 +17,6 @@ package io.datarouter.bytes;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -97,27 +95,6 @@ public class StringByteToolTests{
 																		// byte is junk
 			}
 		}
-	}
-
-	@Test
-	public void testGetAndFromNullableStringByteArray(){
-		List<String> strings = new ArrayList<>();
-		strings.add("abc123");
-		strings.add("abc234");
-		strings.add("abc345");
-		strings.add(null);
-		strings.add("def123");
-		strings.add("");
-		strings.add("def234");
-		strings.add(null);
-
-		byte[] byteArray = StringByteTool.getNullableStringByteArray(strings);
-		List<String> deserializedStrings = StringByteTool.fromNullableStringByteArray(byteArray);
-		Assert.assertEquals(deserializedStrings.size(), strings.size());
-		Assert.assertEquals(deserializedStrings.get(0), strings.get(0));
-		Assert.assertNull(deserializedStrings.get(3));
-		Assert.assertEquals(deserializedStrings.get(5), "");
-		Assert.assertNull(deserializedStrings.get(7));
 	}
 
 }

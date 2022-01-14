@@ -20,7 +20,7 @@ import java.security.SecureRandom;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.httpclient.security.SecureRandomTool;
 
 public class DatarouterTokenGenerator{
@@ -32,7 +32,7 @@ public class DatarouterTokenGenerator{
 		SECURE_RANDOM.nextBytes(sha1Bytes);
 		byte[] sha256Bytes = DigestUtils.sha256(sha1Bytes);//further encode older sha1
 		byte[] base64Bytes = Base64.encodeBase64URLSafe(sha256Bytes);
-		return StringByteTool.fromUtf8Bytes(base64Bytes);
+		return StringCodec.UTF_8.decode(base64Bytes);
 	}
 
 }

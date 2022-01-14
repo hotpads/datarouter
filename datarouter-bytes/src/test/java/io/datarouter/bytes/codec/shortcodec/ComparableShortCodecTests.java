@@ -22,7 +22,7 @@ import io.datarouter.bytes.Java9;
 
 public class ComparableShortCodecTests{
 
-	private static final ComparableShortCodec CODEC = new ComparableShortCodec();
+	private static final ComparableShortCodec CODEC = ComparableShortCodec.INSTANCE;
 
 	@Test
 	public void testGetOrderedBytes(){

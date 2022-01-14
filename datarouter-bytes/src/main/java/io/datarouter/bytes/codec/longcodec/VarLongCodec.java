@@ -17,26 +17,26 @@ package io.datarouter.bytes.codec.longcodec;
 
 import io.datarouter.bytes.VarIntTool;
 
-public class VarLongCodec implements LongCodec{
+public class VarLongCodec{
 
-	@Override
 	public int length(long value){
 		return VarIntTool.length(value);
 	}
 
-	@Override
 	public byte[] encode(long value){
 		return VarIntTool.encode(value);
 	}
 
-	@Override
 	public int encode(long value, byte[] bytes, int offset){
 		byte[] tempBytes = VarIntTool.encode(value);
 		System.arraycopy(tempBytes, 0, bytes, offset, tempBytes.length);
 		return tempBytes.length;
 	}
 
-	@Override
+	public long decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public long decode(byte[] bytes, int offset){
 		return VarIntTool.decodeLong(bytes, offset);
 	}

@@ -196,6 +196,10 @@ public class LongRunningTask extends BaseDatabean<LongRunningTaskKey,LongRunning
 		return finishTime;
 	}
 
+	public Instant getFinishTimeInstant(){
+		return finishTime == null ? null : finishTime.toInstant();
+	}
+
 	public void setFinishTime(Date finishTime){
 		this.finishTime = finishTime;
 	}

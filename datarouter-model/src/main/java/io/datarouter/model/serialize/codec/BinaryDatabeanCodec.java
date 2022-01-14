@@ -19,13 +19,15 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldSetTool;
 import io.datarouter.model.field.FieldTool;
 import io.datarouter.model.key.primary.PrimaryKey;
 
 public class BinaryDatabeanCodec{
+
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
 	private final int databeanSchemaVersion;
 
@@ -35,8 +37,8 @@ public class BinaryDatabeanCodec{
 
 	public byte[] encode(PrimaryKey<?> pk){
 		byte[] key = FieldTool.getConcatenatedValueBytes(pk.getFields());
-		byte[] schemaVersion = IntegerByteTool.getRawBytes(databeanSchemaVersion);
-		return ByteTool.concatenate(schemaVersion, key);
+		byte[] schemaVersion = RAW_INT_CODEC.encode(databeanSchemaVersion);
+		return ByteTool.concatenate2(schemaVersion, key);
 	}
 
 	public <D> D decode(Supplier<D> supplier, Map<String,Field<?>> fieldByPrefixedName, byte[] bytes){

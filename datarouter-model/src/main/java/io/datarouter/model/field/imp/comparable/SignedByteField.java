@@ -15,12 +15,14 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
-import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.codec.bytecodec.ComparableByteCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 
 //recognizes -128 to -1 using two's complement.  therefore max value is 127
 public class SignedByteField extends BasePrimitiveField<Byte,SignedByteFieldKey>{
+
+	private static final ComparableByteCodec COMPARABLE_BYTE_CODEC = ComparableByteCodec.INSTANCE;
 
 	public SignedByteField(SignedByteFieldKey key, Byte value){
 		super(key, value);
@@ -45,7 +47,7 @@ public class SignedByteField extends BasePrimitiveField<Byte,SignedByteFieldKey>
 	//recognizes -128 to -1 using two's complement.  therefore max value is 127
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : ByteTool.getComparableBytes(value);
+		return value == null ? null : COMPARABLE_BYTE_CODEC.encode(value);
 	}
 
 	@Override
@@ -55,7 +57,7 @@ public class SignedByteField extends BasePrimitiveField<Byte,SignedByteFieldKey>
 
 	@Override
 	public Byte fromBytesButDoNotSet(byte[] bytes, int offset){
-		return ByteTool.getComparableByte(bytes[offset]);
+		return COMPARABLE_BYTE_CODEC.decode(bytes, offset);
 	}
 
 }

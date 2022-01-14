@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.EmptyArray;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.filesystem.DatarouterFilesystemModuleFactory;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.block.root.RootBlock;
@@ -59,6 +59,7 @@ public class FilesystemSnapshotSortingTests{
 	private static final int NUM_ENTRIES = 10_000_000;
 	private static final int CHUNK_SIZE = 100_000;
 	private static final boolean CLEANUP = true;
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
 	private final SnapshotGroup inputGroup;
 	private final SnapshotGroup chunkGroup;
@@ -190,11 +191,11 @@ public class FilesystemSnapshotSortingTests{
 	}
 
 	private static byte[] makeKey(int id){
-		return IntegerByteTool.getRawBytes(id);
+		return RAW_INT_CODEC.encode(id);
 	}
 
 	private static int parseKey(byte[] key){
-		return IntegerByteTool.fromRawBytes(key, 0);
+		return RAW_INT_CODEC.decode(key, 0);
 	}
 
 	private void deleteSnapshot(SnapshotGroup group, SnapshotKey key){

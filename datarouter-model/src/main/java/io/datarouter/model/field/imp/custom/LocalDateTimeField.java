@@ -18,8 +18,8 @@ package io.datarouter.model.field.imp.custom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import io.datarouter.bytes.IntegerByteTool;
-import io.datarouter.bytes.ShortByteTool;
+import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
+import io.datarouter.bytes.codec.shortcodec.ComparableShortCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 
@@ -39,6 +39,8 @@ import io.datarouter.util.string.StringTool;
  */
 public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime,LocalDateTimeFieldKey>{
 
+	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
+	private static final ComparableShortCodec COMPARABLE_SHORT_CODEC = ComparableShortCodec.INSTANCE;
 	private static final int NUM_BYTES = 15;
 	private static final int TOTAL_NUM_FRACTIONAL_SECONDS = 9;
 	public static final String pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS";
@@ -92,13 +94,13 @@ public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime,LocalDa
 		}
 		byte[] bytes = new byte[NUM_BYTES];
 		int offset = 0;
-		offset += IntegerByteTool.toComparableBytes(value.getYear(), bytes, offset);
-		offset += ShortByteTool.toComparableBytes((short) value.getMonthValue(), bytes, offset);
-		offset += ShortByteTool.toComparableBytes((short) value.getDayOfMonth(), bytes, offset);
+		offset += COMPARABLE_INT_CODEC.encode(value.getYear(), bytes, offset);
+		offset += COMPARABLE_SHORT_CODEC.encode((short) value.getMonthValue(), bytes, offset);
+		offset += COMPARABLE_SHORT_CODEC.encode((short) value.getDayOfMonth(), bytes, offset);
 		bytes[offset++] = (byte) value.getHour();
 		bytes[offset++] = (byte) value.getMinute();
 		bytes[offset++] = (byte) value.getSecond();
-		offset += IntegerByteTool.toComparableBytes(value.getNano(), bytes, offset);
+		offset += COMPARABLE_INT_CODEC.encode(value.getNano(), bytes, offset);
 		return bytes;
 	}
 
@@ -109,16 +111,16 @@ public class LocalDateTimeField extends BasePrimitiveField<LocalDateTime,LocalDa
 
 	@Override
 	public LocalDateTime fromBytesButDoNotSet(byte[] bytes, int offset){
-		int year = IntegerByteTool.fromComparableBytes(bytes, offset);
+		int year = COMPARABLE_INT_CODEC.decode(bytes, offset);
 		offset += 4;
-		int month = ShortByteTool.fromComparableBytes(bytes, offset);
+		int month = COMPARABLE_SHORT_CODEC.decode(bytes, offset);
 		offset += 2;
-		int day = ShortByteTool.fromComparableBytes(bytes, offset);
+		int day = COMPARABLE_SHORT_CODEC.decode(bytes, offset);
 		offset += 2;
 		int hour = bytes[offset++];
 		int minute = bytes[offset++];
 		int second = bytes[offset++];
-		int nano = IntegerByteTool.fromComparableBytes(bytes, offset);
+		int nano = COMPARABLE_INT_CODEC.decode(bytes, offset);
 		return LocalDateTime.of(year, month, day, hour, minute, second, nano);
 	}
 

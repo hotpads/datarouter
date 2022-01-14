@@ -15,6 +15,7 @@
  */
 package io.datarouter.filesystem.snapshot.reader.block;
 
+import io.datarouter.bytes.Bytes;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.block.branch.BranchBlock;
 import io.datarouter.filesystem.snapshot.block.leaf.LeafBlock;
@@ -25,7 +26,6 @@ import io.datarouter.filesystem.snapshot.encode.BlockDecoder;
 import io.datarouter.filesystem.snapshot.path.SnapshotPaths;
 import io.datarouter.filesystem.snapshot.reader.block.LeafBlockRangeLoader.LeafBlockRange;
 import io.datarouter.filesystem.snapshot.storage.block.SnapshotBlockStorageReader;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
 
 public class DecodingBlockLoader implements BlockLoader{

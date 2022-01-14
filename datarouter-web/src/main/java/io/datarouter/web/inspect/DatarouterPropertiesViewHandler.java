@@ -46,7 +46,8 @@ public class DatarouterPropertiesViewHandler extends BaseHandler{
 		var table = new J2HtmlLegendTable()
 				.withClass("sortable table table-sm border table-striped")
 				.withSingleRow(false);
-		service.getAllProperties().forEach(row -> table.withEntry(row.getLeft(), row.getRight()));
+		service.getAllProperties()
+				.forEach(row -> table.withEntry(row.getLeft(), row.getRight() == null ? "" : row.getRight()));
 		return div(table.build())
 				.withClass("container my-4");
 	}

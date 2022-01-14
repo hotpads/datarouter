@@ -32,9 +32,12 @@ public interface IntegerEnum<E> extends Comparable<E>{
 		}
 		E enumValue = sampleValue.fromPersistentInteger(persistentInteger);
 		if(enumValue == null || !persistentInteger.equals(enumValue.getPersistentInteger())){
-			throw new RuntimeException(sampleValue.getClass().getSimpleName() + ".fromPersistentInteger returned "
-					+ (enumValue == null ? "null" : enumValue.getPersistentInteger()) + " instead of "
-					+ persistentInteger);
+			String message = String.format(
+					"%s.fromPersistentInteger returned %s instead of %s",
+					sampleValue.getClass().getSimpleName(),
+					enumValue == null ? "null" : enumValue.getPersistentInteger(),
+					persistentInteger);
+			throw new RuntimeException(message);
 		}
 		return enumValue;
 	}

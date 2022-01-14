@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.codec.booleancodec;
 
-public class RawBooleanCodec implements BooleanCodec{
+public class RawBooleanCodec{
 
 	public static final RawBooleanCodec INSTANCE = new RawBooleanCodec();
 
@@ -27,20 +27,21 @@ public class RawBooleanCodec implements BooleanCodec{
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(boolean value){
 		byte[] bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}
 
-	@Override
 	public int encode(boolean value, byte[] bytes, int offset){
 		bytes[offset] = value ? TRUE : FALSE;
 		return LENGTH;
 	}
 
-	@Override
+	public boolean decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public boolean decode(byte[] bytes, int offset){
 		return bytes[offset] != FALSE;
 	}

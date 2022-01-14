@@ -328,6 +328,7 @@ public abstract class BaseHandler{
 							try{
 								return recorder.recordExceptionAndHttpRequest(
 										exception,
+										exception.getClass().getName(),
 										getClass().getName(),
 										method.getName(),
 										null,

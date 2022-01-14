@@ -17,26 +17,28 @@ package io.datarouter.bytes.codec.intcodec;
 
 import io.datarouter.bytes.VarIntTool;
 
-public class VarIntCodec implements IntCodec{
+public class VarIntCodec{
 
-	@Override
+	public static final VarIntCodec INSTANCE = new VarIntCodec();
+
 	public int length(int value){
 		return VarIntTool.length(value);
 	}
 
-	@Override
 	public byte[] encode(int value){
 		return VarIntTool.encode(value);
 	}
 
-	@Override
 	public int encode(int value, byte[] bytes, int offset){
 		byte[] tempBytes = VarIntTool.encode(value);
 		System.arraycopy(tempBytes, 0, bytes, offset, tempBytes.length);
 		return tempBytes.length;
 	}
 
-	@Override
+	public int decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public int decode(byte[] bytes, int offset){
 		return VarIntTool.decodeInt(bytes, offset);
 	}

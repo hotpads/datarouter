@@ -26,8 +26,8 @@ import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.PageFilter;
 
 import io.datarouter.bytes.ByteTool;
+import io.datarouter.bytes.Bytes;
 import io.datarouter.bytes.StringByteTool;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.util.tuple.Range;
 
 public class HBaseScanBuilder{
@@ -100,7 +100,7 @@ public class HBaseScanBuilder{
 	}
 
 	private Scan getScanForRange(){
-		byte[] startWithPrefix = ByteTool.concatenate(prefix, getStart());
+		byte[] startWithPrefix = ByteTool.concatenate2(prefix, getStart());
 		byte[] endExclusiveWithoutPrefix = getEndExclusive();
 		Scan scan;
 		if(prefix.length == 0){
@@ -122,7 +122,7 @@ public class HBaseScanBuilder{
 			}else{
 				scan = new Scan()
 						.withStartRow(startWithPrefix, range.getStartInclusive())
-						.withStopRow(ByteTool.concatenate(prefix, endExclusiveWithoutPrefix), false);
+						.withStopRow(ByteTool.concatenate2(prefix, endExclusiveWithoutPrefix), false);
 			}
 		}
 		return scan;

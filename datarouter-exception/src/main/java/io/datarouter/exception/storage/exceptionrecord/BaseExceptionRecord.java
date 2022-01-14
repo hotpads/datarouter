@@ -42,18 +42,27 @@ extends BaseDatabean<PK,D>{
 	private Date created;
 	private String serviceName;
 	private String serverName;
+	// exception category, e.g. job, joblet, web(http request or node), conveyor and etc.
+	private String category;
+	// smart exception naming, e.g. "{$serverName} error", "read timeout", "null pointer exception" and etc.
+	private String name;
 	private String stackTrace;
+	// class name of the Throwable, e.g. java.lang.IllegalArgumentException, java.lang.RuntimeException
 	private String type;
 	private String appVersion;
+	// the exception root cause class which has path prefix as "io.datarouter" or "com.hotpads"
 	private String exceptionLocation;
 	private String methodName;
 	private Integer lineNumber;
+	// the caller that's getting the exception
 	private String callOrigin;
 
 	public static class FieldKeys{
 		@SuppressWarnings("deprecation")
 		public static final DateFieldKey created = new DateFieldKey("created");
 		public static final StringFieldKey serverName = new StringFieldKey("serverName");
+		public static final StringFieldKey category = new StringFieldKey("category");
+		public static final StringFieldKey name = new StringFieldKey("name");
 		public static final StringFieldKey stackTrace = new StringFieldKey("stackTrace")
 				.withSize(CommonFieldSizes.MAX_LENGTH_MEDIUMTEXT);
 		public static final StringFieldKey type = new StringFieldKey("type");
@@ -80,6 +89,8 @@ extends BaseDatabean<PK,D>{
 					new DateField(FieldKeys.created, databean.getCreated()),
 					new StringField(DatarouterServiceFieldKeys.serviceName, databean.getServiceName()),
 					new StringField(FieldKeys.serverName, databean.getServerName()),
+					new StringField(FieldKeys.category, databean.getCategory()),
+					new StringField(FieldKeys.name, databean.getName()),
 					new StringField(FieldKeys.stackTrace, databean.getStackTrace()),
 					new StringField(FieldKeys.type, databean.getType()),
 					new StringField(FieldKeys.appVersion, databean.getAppVersion()),
@@ -99,6 +110,8 @@ extends BaseDatabean<PK,D>{
 			PK key,
 			String serviceName,
 			String serverName,
+			String category,
+			String name,
 			String stackTrace,
 			String type,
 			String appVersion,
@@ -110,6 +123,8 @@ extends BaseDatabean<PK,D>{
 				System.currentTimeMillis(),
 				serviceName,
 				serverName,
+				category,
+				name,
 				stackTrace,
 				type,
 				appVersion,
@@ -124,6 +139,8 @@ extends BaseDatabean<PK,D>{
 			long dateMs,
 			String serviceName,
 			String serverName,
+			String category,
+			String name,
 			String stackTrace,
 			String type,
 			String appVersion,
@@ -135,6 +152,8 @@ extends BaseDatabean<PK,D>{
 		this.created = new Date(dateMs);
 		this.serviceName = serviceName;
 		this.serverName = serverName;
+		this.category = category;
+		this.name = name;
 		this.stackTrace = stackTrace;
 		this.type = type;
 		this.appVersion = appVersion;
@@ -149,6 +168,8 @@ extends BaseDatabean<PK,D>{
 		this.created = exceptionRecordDto.created;
 		this.serviceName = exceptionRecordDto.serviceName;
 		this.serverName = exceptionRecordDto.serverName;
+		this.category = exceptionRecordDto.category;
+		this.name = exceptionRecordDto.name;
 		this.stackTrace = exceptionRecordDto.stackTrace;
 		this.type = exceptionRecordDto.type;
 		this.appVersion = exceptionRecordDto.appVersion;
@@ -172,6 +193,14 @@ extends BaseDatabean<PK,D>{
 
 	public String getServerName(){
 		return serverName;
+	}
+
+	public String getCategory(){
+		return category;
+	}
+
+	public String getName(){
+		return name;
 	}
 
 	public String getStackTrace(){

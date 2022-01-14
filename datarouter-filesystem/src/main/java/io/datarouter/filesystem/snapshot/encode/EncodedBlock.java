@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import io.datarouter.bytes.ByteTool;
+import io.datarouter.storage.util.NullsTool;
 
 public class EncodedBlock{
 
@@ -39,7 +40,8 @@ public class EncodedBlock{
 	}
 
 	public byte[] concat(){
-		return ByteTool.concatenate(chunks);
+		NullsTool.logStackIfNull(chunks);
+		return ByteTool.concatenateNullSafe(chunks);
 	}
 
 	public Iterator<byte[]> chunkIterator(){

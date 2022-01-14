@@ -18,12 +18,14 @@ package io.datarouter.filesystem.snapshot.compress;
 import java.util.zip.CRC32;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 
 public class ChecksumBlockCompressor implements BlockCompressor{
 
 	public static final String NAME = "checksum";
+
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 
 	@Override
 	public String name(){
@@ -38,7 +40,7 @@ public class ChecksumBlockCompressor implements BlockCompressor{
 			crc.update(encodedBlock.chunks[i]);
 			chunksAndChecksum[i] = encodedBlock.chunks[i];
 		}
-		byte[] checksum = LongByteTool.getRawBytes(crc.getValue());
+		byte[] checksum = RAW_LONG_CODEC.encode(crc.getValue());
 		chunksAndChecksum[encodedBlock.chunks.length] = checksum;
 		return new CompressedBlock(chunksAndChecksum);
 	}
@@ -49,7 +51,7 @@ public class ChecksumBlockCompressor implements BlockCompressor{
 		if(validateChecksum){
 			var crc = new CRC32();
 			crc.update(withoutChecksum);
-			long expectedChecksum = LongByteTool.fromRawBytes(withChecksum, withChecksum.length - 8);
+			long expectedChecksum = RAW_LONG_CODEC.decode(withChecksum, withChecksum.length - 8);
 			long actualChecksum = crc.getValue();
 			if(expectedChecksum != actualChecksum){
 				String message = String.format("invalid checksum, expected=%s, actual=%s",

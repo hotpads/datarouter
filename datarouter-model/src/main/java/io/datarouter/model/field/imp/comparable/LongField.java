@@ -15,11 +15,13 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
-import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 
 public class LongField extends BasePrimitiveField<Long,LongFieldKey>{
+
+	private static final ComparableLongCodec COMPARABLE_LONG_CODEC = ComparableLongCodec.INSTANCE;
 
 	public LongField(LongFieldKey key, Long value){
 		this(null, key, value);
@@ -47,17 +49,17 @@ public class LongField extends BasePrimitiveField<Long,LongFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : LongByteTool.getComparableBytes(value);
+		return value == null ? null : COMPARABLE_LONG_CODEC.encode(value);
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return 8;
+		return COMPARABLE_LONG_CODEC.length();
 	}
 
 	@Override
 	public Long fromBytesButDoNotSet(byte[] bytes, int offset){
-		return LongByteTool.fromComparableBytes(bytes, offset);
+		return COMPARABLE_LONG_CODEC.decode(bytes, offset);
 	}
 
 }

@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.bytes.DoubleByteTool;
+import io.datarouter.bytes.codec.list.doublelist.DoubleListCodec;
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
@@ -31,6 +31,8 @@ import io.datarouter.util.array.ArrayTool;
 
 public class DoubleArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Double,List<Double>,Field<List<Double>>>{
+
+	private static final DoubleListCodec DOUBLE_LIST_CODEC = DoubleListCodec.INSTANCE;
 
 	public DoubleArrayMysqlFieldCodec(Field<List<Double>> field){
 		super(field);
@@ -53,7 +55,7 @@ extends BaseListMysqlFieldCodec<Double,List<Double>,Field<List<Double>>>{
 			if(ArrayTool.isEmpty(bytes)){
 				return new ArrayList<>();
 			}
-			return DoubleByteTool.fromDoubleByteArray(bytes, 0);
+			return DOUBLE_LIST_CODEC.decode(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -64,7 +66,7 @@ extends BaseListMysqlFieldCodec<Double,List<Double>,Field<List<Double>>>{
 		try{
 			byte[] value = field.getValue() == null
 					? null
-					: DoubleByteTool.getDoubleByteArray(field.getValue());
+					: DOUBLE_LIST_CODEC.encode(field.getValue());
 			ps.setBytes(parameterIndex, value);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

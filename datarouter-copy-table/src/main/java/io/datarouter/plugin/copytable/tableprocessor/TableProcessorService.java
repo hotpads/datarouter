@@ -18,7 +18,6 @@ package io.datarouter.plugin.copytable.tableprocessor;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import io.datarouter.instrumentation.count.Counters;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
-import io.datarouter.plugin.copytable.CopyTableService;
 import io.datarouter.plugin.copytable.config.DatarouterCopyTableExecutors.DatarouterTableProcessorExecutor;
 import io.datarouter.scanner.ParallelScannerContext;
 import io.datarouter.scanner.Scanner;
@@ -43,7 +41,7 @@ import io.datarouter.util.tuple.Range;
 
 @Singleton
 public class TableProcessorService{
-	private static final Logger logger = LoggerFactory.getLogger(CopyTableService.class);
+	private static final Logger logger = LoggerFactory.getLogger(TableProcessorService.class);
 
 	private static final Config SCAN_CONFIG = new Config().setOutputBatchSize(1_000);
 
@@ -71,7 +69,6 @@ public class TableProcessorService{
 				fromKeyExclusiveString);
 		PK toKeyInclusive = PrimaryKeyPercentCodecTool.decode(node.getFieldInfo().getPrimaryKeySupplier(),
 				toKeyInclusiveString);
-		Consumer<Scanner<D>> processor = tableProcessor.get();
 		Range<PK> range = new Range<>(fromKeyExclusive, false, toKeyInclusive, true);
 		var numScanned = new AtomicLong();
 		var numProcessed = new AtomicLong();
@@ -82,7 +79,7 @@ public class TableProcessorService{
 					.each($ -> Counters.inc("tableProcessor " + nodeName + " read"))
 					.batch(batchSize)
 					.parallel(scannerContext.get(numThreads))
-					.each(batch -> processor.accept(Scanner.of(batch)))
+					.each(batch -> tableProcessor.accept(Scanner.of(batch)))
 					.each($ -> Counters.inc("tableProcessor " + nodeName + " processed"))
 					.each(batch -> numProcessed.addAndGet(batch.size()))
 					.each(batch -> lastKey.set(ListTool.getLast(batch).getKey()))

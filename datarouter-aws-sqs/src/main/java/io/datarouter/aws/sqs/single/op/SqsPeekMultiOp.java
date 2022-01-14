@@ -30,6 +30,7 @@ import io.datarouter.model.serialize.fielder.DatabeanFielder;
 import io.datarouter.storage.client.ClientId;
 import io.datarouter.storage.config.Config;
 import io.datarouter.storage.queue.QueueMessage;
+import io.datarouter.storage.util.NullsTool;
 
 public class SqsPeekMultiOp<
 		PK extends PrimaryKey<PK>,
@@ -50,7 +51,9 @@ extends BaseSqsPeekMultiOp<PK,D,F,QueueMessage<PK,D>>{
 		return messages.stream()
 				.map(message -> {
 					D databean = codec.fromString(message.getBody(), fielder, databeanSupplier);
-					byte[] receiptHandle = StringByteTool.getUtf8Bytes(message.getReceiptHandle());
+					String receiptHandleStr = message.getReceiptHandle();
+					NullsTool.logStackIfNull(receiptHandleStr);
+					byte[] receiptHandle = StringByteTool.getUtf8BytesNullSafe(receiptHandleStr);
 					return new QueueMessage<>(receiptHandle, databean);
 				})
 				.collect(Collectors.toList());

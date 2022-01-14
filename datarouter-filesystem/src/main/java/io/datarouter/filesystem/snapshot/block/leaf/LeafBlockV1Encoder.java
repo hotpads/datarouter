@@ -22,15 +22,17 @@ import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.ByteWriter;
-import io.datarouter.bytes.IntegerByteTool;
 import io.datarouter.bytes.PagedObjectArray;
 import io.datarouter.bytes.codec.bytestringcodec.CsvIntByteStringCodec;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.filesystem.snapshot.encode.EncodedBlock;
 import io.datarouter.filesystem.snapshot.encode.LeafBlockEncoder;
 import io.datarouter.filesystem.snapshot.entry.SnapshotEntry;
 import io.datarouter.filesystem.snapshot.writer.BlockQueue.FileIdsAndEndings;
 
 public class LeafBlockV1Encoder implements LeafBlockEncoder{
+
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 
 	private final int leafEncoderChunkSize;
 
@@ -162,9 +164,9 @@ public class LeafBlockV1Encoder implements LeafBlockEncoder{
 		int cursor = 0;
 		for(SnapshotEntry entry : entries){
 			latestKeyEnding += entry.keyLength();
-			IntegerByteTool.toRawBytes(latestKeyEnding, keyEndings, cursor);
+			RAW_INT_CODEC.encode(latestKeyEnding, keyEndings, cursor);
 			latestValueEnding += entry.valueLength();
-			IntegerByteTool.toRawBytes(latestValueEnding, valueEndings, cursor);
+			RAW_INT_CODEC.encode(latestValueEnding, valueEndings, cursor);
 			cursor += 4;
 		}
 

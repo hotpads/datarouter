@@ -21,12 +21,14 @@ import java.util.Base64;
 import org.apache.commons.codec.binary.Hex;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.UInt31Codec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
 
 public class ByteArrayField extends BaseField<byte[]>{
+
+	private static final UInt31Codec U_INT_31_CODEC = UInt31Codec.INSTANCE;
 
 	private ByteArrayFieldKey key;
 
@@ -68,14 +70,14 @@ public class ByteArrayField extends BaseField<byte[]>{
 		// TODO write directly to the allBytes array
 		byte[] dataBytes = ByteTool.flipToAndFromComparableByteArray(value);
 		byte[] allBytes = new byte[4 + ArrayTool.length(dataBytes)];
-		System.arraycopy(IntegerByteTool.getUInt31Bytes(0), 0, allBytes, 4, 4);
+		System.arraycopy(U_INT_31_CODEC.encode(0), 0, allBytes, 4, 4);
 		System.arraycopy(dataBytes, 0, allBytes, 4, ArrayTool.length(dataBytes));
 		return allBytes;
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int offset){
-		return IntegerByteTool.fromUInt31Bytes(bytes, offset);// should we be adding 4 here?
+		return U_INT_31_CODEC.decode(bytes, offset);// should we be adding 4 here?
 	}
 
 	@Override

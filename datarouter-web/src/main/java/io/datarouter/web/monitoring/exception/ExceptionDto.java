@@ -22,6 +22,8 @@ public class ExceptionDto{
 	public long dateMs;
 	public String appName;
 	public String serverName;
+	public String category;
+	public String name;
 	public String stackTrace;
 	public String errorClass;
 

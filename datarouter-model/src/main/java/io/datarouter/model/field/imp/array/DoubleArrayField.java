@@ -17,11 +17,13 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
-import io.datarouter.bytes.DoubleByteTool;
+import io.datarouter.bytes.codec.list.doublelist.DoubleListCodec;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.util.serialization.GsonTool;
 
 public class DoubleArrayField extends BaseListField<Double,List<Double>,DoubleArrayFieldKey>{
+
+	private static final DoubleListCodec DOUBLE_LIST_CODEC = DoubleListCodec.INSTANCE;
 
 	public DoubleArrayField(DoubleArrayFieldKey key, List<Double> value){
 		super(key, value);
@@ -34,12 +36,12 @@ public class DoubleArrayField extends BaseListField<Double,List<Double>,DoubleAr
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : DoubleByteTool.getDoubleByteArray(value);
+		return value == null ? null : DOUBLE_LIST_CODEC.encode(value);
 	}
 
 	@Override
 	public List<Double> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		return DoubleByteTool.fromDoubleByteArray(bytes, byteOffset);
+		return DOUBLE_LIST_CODEC.decode(bytes, byteOffset);
 	}
 
 	@Override

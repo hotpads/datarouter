@@ -18,10 +18,12 @@ package io.datarouter.model.field.imp.comparable;
 import java.time.Instant;
 
 import io.datarouter.bytes.LongArray;
-import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.codec.array.longarray.UInt63ArrayCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 
 public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
+
+	private static final UInt63ArrayCodec U_INT_63_ARRAY_CODEC = UInt63ArrayCodec.INSTANCE;
 
 	public InstantField(InstantFieldKey key, Instant value){
 		super(key, value);
@@ -48,12 +50,12 @@ public class InstantField extends BasePrimitiveField<Instant,InstantFieldKey>{
 		LongArray longArray = new LongArray(2);
 		longArray.add(value.getEpochSecond());
 		longArray.add(value.getNano());
-		return LongByteTool.getUInt63ByteArray(longArray);
+		return U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
 	}
 
 	@Override
 	public Instant fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		long[] secondsAndNanos = LongByteTool.fromUInt63ByteArray(bytes, byteOffset, 16);
+		long[] secondsAndNanos = U_INT_63_ARRAY_CODEC.decode(bytes, byteOffset, 16);
 		return Instant.ofEpochSecond(secondsAndNanos[0], secondsAndNanos[1]);
 	}
 

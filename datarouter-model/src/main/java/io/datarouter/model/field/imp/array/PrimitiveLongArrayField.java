@@ -18,13 +18,15 @@ package io.datarouter.model.field.imp.array;
 import java.util.Arrays;
 import java.util.Optional;
 
-import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.codec.array.longarray.ComparableLongArrayCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.serialization.GsonTool;
 
 @Deprecated
 public class PrimitiveLongArrayField extends BaseField<long[]>{
+
+	private static final ComparableLongArrayCodec COMPARABLE_LONG_ARRAY_CODEC = ComparableLongArrayCodec.INSTANCE;
 
 	private final PrimitiveLongArrayFieldKey key;
 
@@ -70,12 +72,12 @@ public class PrimitiveLongArrayField extends BaseField<long[]>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : LongByteTool.getComparableByteArray(value);
+		return value == null ? null : COMPARABLE_LONG_ARRAY_CODEC.encode(value);
 	}
 
 	@Override
 	public long[] fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		return LongByteTool.fromComparableByteArray(bytes);
+		return COMPARABLE_LONG_ARRAY_CODEC.decode(bytes);
 	}
 
 	@Override

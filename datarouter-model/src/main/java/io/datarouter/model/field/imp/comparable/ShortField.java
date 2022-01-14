@@ -15,11 +15,13 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
-import io.datarouter.bytes.ShortByteTool;
+import io.datarouter.bytes.codec.shortcodec.ComparableShortCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 
 public class ShortField extends BasePrimitiveField<Short,ShortFieldKey>{
+
+	private static final ComparableShortCodec COMPARABLE_SHORT_CODEC = ComparableShortCodec.INSTANCE;
 
 	public ShortField(ShortFieldKey key, Short value){
 		super(key, value);
@@ -43,7 +45,7 @@ public class ShortField extends BasePrimitiveField<Short,ShortFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : ShortByteTool.getComparableBytes(this.value);
+		return value == null ? null : COMPARABLE_SHORT_CODEC.encode(this.value);
 	}
 
 	@Override
@@ -53,7 +55,7 @@ public class ShortField extends BasePrimitiveField<Short,ShortFieldKey>{
 
 	@Override
 	public Short fromBytesButDoNotSet(byte[] bytes, int offset){
-		return ShortByteTool.fromComparableBytes(bytes, offset);
+		return COMPARABLE_SHORT_CODEC.decode(bytes, offset);
 	}
 
 }

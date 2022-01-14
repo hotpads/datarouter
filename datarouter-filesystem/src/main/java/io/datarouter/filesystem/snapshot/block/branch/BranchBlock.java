@@ -15,10 +15,10 @@
  */
 package io.datarouter.filesystem.snapshot.block.branch;
 
+import io.datarouter.bytes.Bytes;
 import io.datarouter.filesystem.snapshot.block.Block;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
 
 public interface BranchBlock extends Block{

@@ -17,22 +17,35 @@ package io.datarouter.bytes.codec.floatcodec;
 
 import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 
-public class ComparableFloatCodec implements FloatCodec{
+public class ComparableFloatCodec{
 
 	public static final ComparableFloatCodec INSTANCE = new ComparableFloatCodec();
 
 	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
+	private static final int LENGTH = COMPARABLE_INT_CODEC.length();
 
-	@Override
+	public int length(){
+		return LENGTH;
+	}
+
 	public byte[] encode(float value){
+		byte[] bytes = new byte[LENGTH];
+		encode(value, bytes, 0);
+		return bytes;
+	}
+
+	public int encode(float value, byte[] bytes, int offset){
 		int intBits = Float.floatToRawIntBits(value);
 		if(intBits < 0){
 			intBits ^= Integer.MAX_VALUE;
 		}
-		return COMPARABLE_INT_CODEC.encode(intBits);
+		return COMPARABLE_INT_CODEC.encode(intBits, bytes, offset);
 	}
 
-	@Override
+	public float decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public float decode(byte[] bytes, int offset){
 		int intBits = COMPARABLE_INT_CODEC.decode(bytes, offset);
 		if(intBits < 0){

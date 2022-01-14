@@ -47,12 +47,10 @@ public class LongArray implements List<Long>, RandomAccess{
 
 	public LongArray(Collection<Long> elements){
 		this(elements == null ? 0 : elements.size());
-		for(Long element : elements){
-			this.add(element);
-		}
+		addAll(0, elements);
 	}
 
-	protected void expandIfNecessary(int delta){
+	private void expandAndShiftIfNecessary(int insertIndex, int delta){
 		int neededSize = this.size + delta;
 		if(neededSize > this.array.length){
 			int newSize = Integer.highestOneBit(neededSize) << 1;
@@ -60,6 +58,7 @@ public class LongArray implements List<Long>, RandomAccess{
 			System.arraycopy(this.array, 0, newArray, 0, this.size);
 			this.array = newArray;
 		}
+		System.arraycopy(this.array, insertIndex, this.array, insertIndex + delta, size - insertIndex);
 	}
 
 	protected void shrinkIfNecessary(){
@@ -74,13 +73,13 @@ public class LongArray implements List<Long>, RandomAccess{
 
 	@Override
 	public void add(int index, Long value){
-		this.expandIfNecessary(1);
+		expandAndShiftIfNecessary(index, 1);
 		this.array[index] = value == null ? NULL : value;
 		++this.size;
 	}
 
 	public void add(int index, long value){
-		this.expandIfNecessary(1);
+		expandAndShiftIfNecessary(index, 1);
 		this.array[index] = value;
 		++this.size;
 	}
@@ -98,10 +97,7 @@ public class LongArray implements List<Long>, RandomAccess{
 
 	@Override
 	public boolean addAll(Collection<? extends Long> values){
-		for(Long value : values){
-			add(value);
-		}
-		return true;
+		return addAll(size, values);
 	}
 
 	@Override
@@ -110,8 +106,7 @@ public class LongArray implements List<Long>, RandomAccess{
 		if(delta == 0){
 			return false;
 		}
-		this.expandIfNecessary(delta);
-		System.arraycopy(this.array, firstIndex, this.array, firstIndex + delta, delta);
+		expandAndShiftIfNecessary(firstIndex, delta);
 		int nextIndex = firstIndex;
 		for(Long value : values){
 			this.array[nextIndex] = value == null ? NULL : value;

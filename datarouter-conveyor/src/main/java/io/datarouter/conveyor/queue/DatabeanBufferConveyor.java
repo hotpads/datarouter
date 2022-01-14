@@ -35,11 +35,11 @@ public class DatabeanBufferConveyor<D> extends BaseConveyor{
 	public DatabeanBufferConveyor(
 			String name,
 			Supplier<Boolean> shouldRun,
-			MemoryBuffer<D> databeanBuffer,
+			MemoryBuffer<D> memoryBuffer,
 			Consumer<Collection<D>> putMultiConsumer,
 			ExceptionRecorder exceptionRecorder){
 		super(name, shouldRun, () -> false, exceptionRecorder);
-		this.memoryBuffer = databeanBuffer;
+		this.memoryBuffer = memoryBuffer;
 		this.putMultiConsumer = putMultiConsumer;
 	}
 

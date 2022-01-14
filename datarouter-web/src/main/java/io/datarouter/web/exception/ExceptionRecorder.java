@@ -15,6 +15,7 @@
  */
 package io.datarouter.web.exception;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,15 +27,25 @@ public interface ExceptionRecorder{
 
 	Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin);
 	Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin, ExceptionCategory category);
+	Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin, ExceptionCategory category,
+			List<String> additionalEmailRecipients);
+
 	ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
-			String methodName, Integer lineNumber, String callOrigin);
+			String methodName, String type, Integer lineNumber, String callOrigin);
+
+	ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
+			String methodName, String type, Integer lineNumber, String callOrigin,
+			List<String> additionalEmailRecipients);
+
 	Optional<ExceptionRecordDto> tryRecordExceptionAndHttpRequest(Throwable exception, String callOrigin,
 			HttpServletRequest request);
+
 	ExceptionRecordDto recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
-			Integer lineNumber, HttpServletRequest request, String callOrigin);
+			String type, Integer lineNumber, HttpServletRequest request, String callOrigin);
+
 	void recordHttpRequest(HttpServletRequest request);
 
-	static class NoOpExceptionRecorder implements ExceptionRecorder{
+	class NoOpExceptionRecorder implements ExceptionRecorder{
 
 		@Override
 		public Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin){
@@ -48,8 +59,21 @@ public interface ExceptionRecorder{
 		}
 
 		@Override
+		public Optional<ExceptionRecordDto> tryRecordException(Throwable exception, String callOrigin,
+				ExceptionCategory category, List<String> additionalEmailRecipients){
+			return Optional.empty();
+		}
+
+		@Override
 		public ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
-				String methodName, Integer lineNumber, String callOrigin){
+				String methodName, String type, Integer lineNumber, String callOrigin){
+			return null;
+		}
+
+		@Override
+		public ExceptionRecordDto recordException(Throwable exception, ExceptionCategory category, String location,
+				String methodName, String type, Integer lineNumber, String callOrigin,
+				List<String> additionalEmailRecipients){
 			return null;
 		}
 
@@ -61,7 +85,7 @@ public interface ExceptionRecorder{
 
 		@Override
 		public ExceptionRecordDto recordExceptionAndHttpRequest(Throwable exception, String location, String methodName,
-				Integer lineNumber, HttpServletRequest request, String callOrigin){
+				String type, Integer lineNumber, HttpServletRequest request, String callOrigin){
 			return null;
 		}
 

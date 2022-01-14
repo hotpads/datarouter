@@ -20,7 +20,7 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.client.hbase.HBaseClientManager;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
@@ -81,7 +81,7 @@ public class HBaseNonEntityResultParser<
 		ReflectionTool.set(fieldInfo.getKeyJavaField(), databean, pk);
 		while(result.advance()){
 			Cell cell = result.current();
-			String qualifier = StringByteTool.fromUtf8Bytes(CellUtil.cloneQualifier(cell));
+			String qualifier = StringCodec.UTF_8.decode(CellUtil.cloneQualifier(cell));
 			if(HBaseClientManager.DUMMY_COL_NAME.equals(qualifier)){
 				continue;
 			}

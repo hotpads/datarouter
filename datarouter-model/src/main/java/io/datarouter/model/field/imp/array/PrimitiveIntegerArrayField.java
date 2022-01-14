@@ -18,12 +18,14 @@ package io.datarouter.model.field.imp.array;
 import java.util.Arrays;
 import java.util.Optional;
 
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.array.intarray.ComparableIntArrayCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.serialization.GsonTool;
 
 public class PrimitiveIntegerArrayField extends BaseField<int[]>{
+
+	private static final ComparableIntArrayCodec COMPARABLE_INT_ARRAY_CODEC = ComparableIntArrayCodec.INSTANCE;
 
 	private final PrimitiveIntegerArrayFieldKey key;
 
@@ -69,12 +71,12 @@ public class PrimitiveIntegerArrayField extends BaseField<int[]>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : IntegerByteTool.getComparableByteArray(value);
+		return value == null ? null : COMPARABLE_INT_ARRAY_CODEC.encode(value);
 	}
 
 	@Override
 	public int[] fromBytesButDoNotSet(byte[] bytes, int byteOffset){
-		return IntegerByteTool.fromComparableByteArray(bytes);
+		return COMPARABLE_INT_ARRAY_CODEC.decode(bytes);
 	}
 
 	@Override

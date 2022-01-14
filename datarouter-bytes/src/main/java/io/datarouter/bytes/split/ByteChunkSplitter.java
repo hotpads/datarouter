@@ -152,14 +152,14 @@ public class ByteChunkSplitter<T>{
 			while(true){
 				if(carryover != null){
 					if(pending.hasFirst()){
-						carryover = ByteTool.concatenate(carryover, pending.takeFirst());
+						carryover = ByteTool.concatenate2(carryover, pending.takeFirst());
 						T mappedCarryover = collector.encode(carryover, 0, carryover.length);
 						current = Collections.singletonList(mappedCarryover);
 						carryover = null;
 						return true;
 					}
 					if(pending.hasLast()){
-						carryover = ByteTool.concatenate(carryover, pending.takeLast());
+						carryover = ByteTool.concatenate2(carryover, pending.takeLast());
 					}
 				}
 				if(pending.hasFirst()){

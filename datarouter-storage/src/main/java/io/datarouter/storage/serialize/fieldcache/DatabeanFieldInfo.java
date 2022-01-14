@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.field.Field;
 import io.datarouter.model.field.FieldKey;
@@ -102,8 +102,11 @@ public class DatabeanFieldInfo<
 				.getKeyFieldName());
 		this.subEntity = StringTool.notEmpty(params.getEntityNodePrefix());
 		this.entityNodePrefix = params.getEntityNodePrefix();
-		this.entityNodeColumnPrefixBytes = ByteTool.concatenate(StringByteTool.getUtf8Bytes(entityNodePrefix),
-				new byte[]{ENTITY_PREFIX_TERMINATOR});
+		this.entityNodeColumnPrefixBytes = entityNodePrefix == null
+				? null
+				: ByteTool.concatenate2(
+						StringCodec.UTF_8.encode(entityNodePrefix),
+						new byte[]{ENTITY_PREFIX_TERMINATOR});
 		EntityPrimaryKey<?,?> sampleEntityPrimaryKey = (EntityPrimaryKey<?,?>)samplePrimaryKey;
 		this.ekFields = sampleEntityPrimaryKey.getEntityKey().getFields();
 		this.ekPkFields = sampleEntityPrimaryKey.getEntityKeyFields();

@@ -15,12 +15,12 @@
  */
 package io.datarouter.exception.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +30,8 @@ import io.datarouter.exception.storage.exceptionrecord.DatarouterExceptionRecord
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecord;
 import io.datarouter.exception.storage.httprecord.DatarouterHttpRequestRecordPublisherDao;
 import io.datarouter.exception.storage.httprecord.HttpRequestRecord;
+import io.datarouter.exception.utils.ExceptionDetailsDetector;
+import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
 import io.datarouter.instrumentation.exception.ExceptionRecordDto;
 import io.datarouter.instrumentation.exception.HttpRequestRecordDto;
 import io.datarouter.storage.config.properties.ServerName;
@@ -88,15 +90,27 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			Throwable exception,
 			String callOrigin,
 			ExceptionCategory category){
+		return tryRecordException(exception, callOrigin, category, List.of());
+	}
+
+	@Override
+	public Optional<ExceptionRecordDto> tryRecordException(
+			Throwable exception,
+			String callOrigin,
+			ExceptionCategory category,
+			List<String> additionalEmailRecipients){
 		try{
-			DefaultExceptionRecorderDetails exceptionDetails = detectExceptionLocation(exception);
+			ExceptionRecorderDetails exceptionDetails = ExceptionDetailsDetector.detect(exception,
+					datarouterWebSettingRoot.stackTraceHighlights.get());
 			return Optional.of(recordException(
 					exception,
 					category,
-					exceptionDetails.className,
+					exceptionDetails.className, // location
 					exceptionDetails.methodName,
+					exceptionDetails.type,
 					exceptionDetails.lineNumber,
-					callOrigin));
+					callOrigin,
+					additionalEmailRecipients));
 		}catch(Exception e){
 			logger.warn("Exception while recording an exception", e);
 		}
@@ -109,21 +123,37 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			ExceptionCategory category,
 			String location,
 			String methodName,
+			String type,
 			Integer lineNumber,
 			String callOrigin){
+		return recordException(exception, category, location, methodName, type, lineNumber, callOrigin, List.of());
+	}
+
+	@Override
+	public ExceptionRecordDto recordException(
+			Throwable exception,
+			ExceptionCategory category,
+			String location,
+			String methodName,
+			String type,
+			Integer lineNumber,
+			String callOrigin,
+			List<String> additionalEmailRecipients){
 		if(callOrigin == null){
 			callOrigin = location;
 		}
 		ExceptionCounters.inc(category.name());
 		ExceptionCounters.inc(category.name() + " " + webappName);
-		ExceptionCounters.inc(exception.getClass().getName());
+		ExceptionCounters.inc(type);
 		ExceptionCounters.inc(callOrigin);
-		ExceptionCounters.inc(exception.getClass().getName() + " " + callOrigin);
+		ExceptionCounters.inc(type + " " + callOrigin);
 		ExceptionRecord exceptionRecord = new ExceptionRecord(
 				serviceName.get(),
 				serverName.get(),
+				category.name(),
+				null, // TODO a helper tool is needed to define the exception name
 				ExceptionTool.getStackTraceAsString(exception),
-				exception.getClass().getName(),
+				type, // type
 				gitProperties.getIdAbbrev().orElse(GitProperties.UNKNOWN_STRING),
 				location,
 				methodName,
@@ -137,7 +167,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			exceptionRecordPublisherDao.put(exceptionRecord);
 		}
 		if(exceptionHandlingConfig.shouldReportError(exceptionRecord.toDto())){
-			report(exceptionRecord, category);
+			report(exceptionRecord, category, additionalEmailRecipients);
 		}
 		return exceptionRecord.toDto();
 	}
@@ -148,11 +178,13 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			String callOrigin,
 			HttpServletRequest request){
 		try{
-			DefaultExceptionRecorderDetails exceptionDetails = detectExceptionLocation(exception);
+			ExceptionRecorderDetails exceptionDetails = ExceptionDetailsDetector.detect(exception,
+					datarouterWebSettingRoot.stackTraceHighlights.get());
 			return Optional.of(recordExceptionAndHttpRequest(
 					exception,
 					exceptionDetails.className,
 					exceptionDetails.methodName,
+					exceptionDetails.type,
 					exceptionDetails.lineNumber,
 					request,
 					callOrigin));
@@ -167,6 +199,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 			Throwable exception,
 			String location,
 			String methodName,
+			String type,
 			Integer lineNumber,
 			HttpServletRequest request,
 			String callOrigin){
@@ -175,6 +208,7 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 				WebExceptionCategory.HTTP_REQUEST,
 				location,
 				methodName,
+				type,
 				lineNumber,
 				callOrigin);
 		recordHttpRequest(request, exceptionRecord, true);
@@ -182,7 +216,8 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 	}
 
 	protected void report(@SuppressWarnings("unused") ExceptionRecord exceptionRecord,
-			@SuppressWarnings("unused") ExceptionCategory category){
+			@SuppressWarnings("unused") ExceptionCategory category,
+			@SuppressWarnings("unused") List<String> additionalEmailRecipients){
 	}
 
 	@Override
@@ -211,52 +246,6 @@ public class DefaultExceptionRecorder implements ExceptionRecorder{
 		if(publish && settings.publishRecords.get()){
 			httpRequestRecordPublisherDao.put(httpRequestRecord);
 		}
-	}
-
-	private DefaultExceptionRecorderDetails detectExceptionLocation(Throwable wholeException){
-		Throwable rootCause = ExceptionUtils.getRootCause(wholeException);
-		Throwable exception = Optional.ofNullable(rootCause).orElse(wholeException);
-		StackTraceElement stackTraceElement = searchClassName(exception)
-				.orElseGet(() -> {
-					StackTraceElement[] stackTrace = exception.getStackTrace();
-					// stackTrace is often null in case of OOM
-					return stackTrace.length == 0 ? null : stackTrace[0];
-				});
-		if(stackTraceElement == null){
-			return new DefaultExceptionRecorderDetails(
-					"noClass",
-					"noMethod",
-					0);
-		}
-		return new DefaultExceptionRecorderDetails(
-				stackTraceElement.getClassName(),
-				stackTraceElement.getMethodName(),
-				stackTraceElement.getLineNumber());
-	}
-
-	private Optional<StackTraceElement> searchClassName(Throwable cause){
-		for(StackTraceElement element : cause.getStackTrace()){
-			for(String highlight : datarouterWebSettingRoot.stackTraceHighlights.get()){
-				if(element.getClassName().contains(highlight)){
-					return Optional.of(element);
-				}
-			}
-		}
-		return Optional.empty();
-	}
-
-	private static class DefaultExceptionRecorderDetails{
-
-		public final String className;
-		public final String methodName;
-		public final int lineNumber;
-
-		protected DefaultExceptionRecorderDetails(String className, String methodName, int lineNumber){
-			this.className = className;
-			this.methodName = methodName;
-			this.lineNumber = lineNumber;
-		}
-
 	}
 
 }

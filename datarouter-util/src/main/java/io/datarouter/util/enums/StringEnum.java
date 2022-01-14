@@ -17,8 +17,6 @@ package io.datarouter.util.enums;
 
 import java.util.Optional;
 
-import io.datarouter.scanner.Scanner;
-
 public interface StringEnum<E> extends Comparable<E>, PersistentString{
 
 	E fromPersistentString(String string);
@@ -33,20 +31,14 @@ public interface StringEnum<E> extends Comparable<E>, PersistentString{
 		}
 		E enumValue = sampleValue.fromPersistentString(persistentString);
 		if(enumValue == null || !persistentString.equals(enumValue.getPersistentString())){
-			throw new RuntimeException(sampleValue.getClass().getSimpleName() + ".fromPersistentString returned "
-					+ (enumValue == null ? "null" : enumValue.getPersistentString()) + " instead of "
-					+ persistentString);
+			String message = String.format(
+					"%s.fromPersistentString returned %s instead of %s",
+					sampleValue.getClass().getSimpleName(),
+					enumValue == null ? "null" : enumValue.getPersistentString(),
+					persistentString);
+			throw new RuntimeException(message);
 		}
 		return enumValue;
-	}
-
-	static int findLongestPersistentString(StringEnum<?>... values){
-		return Scanner.of(values)
-				.map(StringEnum::getPersistentString)
-				.stream()
-				.mapToInt(String::length)
-				.max()
-				.orElse(0);
 	}
 
 }

@@ -15,12 +15,14 @@
  */
 package io.datarouter.model.field.imp.comparable;
 
-import io.datarouter.bytes.BooleanByteTool;
+import io.datarouter.bytes.codec.booleancodec.RawBooleanCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.BooleanTool;
 import io.datarouter.util.string.StringTool;
 
 public class BooleanField extends BasePrimitiveField<Boolean,BooleanFieldKey>{
+
+	private static final RawBooleanCodec RAW_BOOLEAN_CODEC = RawBooleanCodec.INSTANCE;
 
 	public BooleanField(BooleanFieldKey key, Boolean value){
 		super(key, value);
@@ -44,7 +46,7 @@ public class BooleanField extends BasePrimitiveField<Boolean,BooleanFieldKey>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : BooleanByteTool.getBytes(value);
+		return value == null ? null : RAW_BOOLEAN_CODEC.encode(value);
 	}
 
 	@Override
@@ -54,7 +56,7 @@ public class BooleanField extends BasePrimitiveField<Boolean,BooleanFieldKey>{
 
 	@Override
 	public Boolean fromBytesButDoNotSet(byte[] bytes, int offset){
-		return BooleanByteTool.fromBytes(bytes, offset);
+		return RAW_BOOLEAN_CODEC.decode(bytes, offset);
 	}
 
 }

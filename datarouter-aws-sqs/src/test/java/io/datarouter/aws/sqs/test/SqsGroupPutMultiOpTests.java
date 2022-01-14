@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.serialize.StringDatabeanCodec;
 import io.datarouter.model.serialize.codec.JsonDatabeanCodec;
 
@@ -35,7 +35,7 @@ public class SqsGroupPutMultiOpTests{
 	@Test
 	public void testConcatGroups(){
 		List<byte[]> group = Stream.of("foo", "bar", "baz")
-				.map(StringByteTool::getUtf8Bytes)
+				.map(StringCodec.UTF_8::encode)
 				.collect(Collectors.toList());
 		Assert.assertEquals(CODEC.concatGroup(group), "[foo,bar,baz]");
 		Assert.assertEquals(CODEC.concatGroup(List.of("foo".getBytes())), "[foo]");

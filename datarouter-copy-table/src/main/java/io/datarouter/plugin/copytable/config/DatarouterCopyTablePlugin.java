@@ -20,6 +20,7 @@ import io.datarouter.plugin.copytable.CopyTableJoblet;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorJoblet;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry;
 import io.datarouter.plugin.copytable.tableprocessor.TableProcessorRegistry.NoOpTableProcessorRegistry;
+import io.datarouter.plugin.copytable.tableprocessor.TableProcessorTestableService;
 import io.datarouter.web.navigation.DatarouterNavBarCategory;
 
 public class DatarouterCopyTablePlugin extends BaseJobletPlugin{
@@ -35,6 +36,7 @@ public class DatarouterCopyTablePlugin extends BaseJobletPlugin{
 		addRouteSet(DatarouterCopyTableRouteSet.class);
 		addJobletType(CopyTableJoblet.JOBLET_TYPE);
 		addJobletType(TableProcessorJoblet.JOBLET_TYPE);
+		addTestable(TableProcessorTestableService.class);
 
 		addDatarouterNavBarItem(
 				DatarouterNavBarCategory.TOOLS,

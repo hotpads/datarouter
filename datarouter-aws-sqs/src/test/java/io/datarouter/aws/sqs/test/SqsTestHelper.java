@@ -26,7 +26,7 @@ import org.testng.Assert;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.storage.test.TestDatabean;
 import io.datarouter.storage.test.TestDatabeanFielder;
 import io.datarouter.util.concurrent.ThreadTool;
@@ -63,7 +63,7 @@ public class SqsTestHelper{
 	}
 
 	public static String makeStringOfByteSize(int requiredSize){
-		Assert.assertEquals(StringByteTool.getUtf8Bytes("a").length, 1);
+		Assert.assertEquals(StringCodec.UTF_8.encode("a").length, 1);
 		var longString = new StringBuilder();
 		for(int size = 0; size < requiredSize; size++){
 			longString.append("a");
@@ -75,7 +75,7 @@ public class SqsTestHelper{
 		var emptyDatabean = new TestDatabean("", "", "");
 		var fielder = new TestDatabeanFielder();
 		String stringDatabean = fielder.getStringDatabeanCodec().toString(emptyDatabean, fielder);
-		int emptyDatabeanSize = StringByteTool.getUtf8Bytes(stringDatabean).length;
+		int emptyDatabeanSize = StringCodec.UTF_8.encode(stringDatabean).length;
 		return SqsTestHelper.makeStringOfByteSize(size - emptyDatabeanSize);
 	}
 

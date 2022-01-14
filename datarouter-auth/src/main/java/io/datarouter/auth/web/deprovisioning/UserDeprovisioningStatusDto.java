@@ -17,14 +17,30 @@ package io.datarouter.auth.web.deprovisioning;
 
 public class UserDeprovisioningStatusDto{
 
-	public static UserDeprovisioningStatusDto PROVISIONED = new UserDeprovisioningStatusDto("PROVISIONED",
-			"This user is provisioned.", true, true, false);
-	public static UserDeprovisioningStatusDto DEPROVISIONED = new UserDeprovisioningStatusDto("DEPROVISIONED",
-			"This user is deprovisioned.", false, false, true);
-	public static UserDeprovisioningStatusDto FLAGGED = new UserDeprovisioningStatusDto("FLAGGED",
-			"This user is provisioned but is flagged for deprovisioning.", true, true, false);
-	public static UserDeprovisioningStatusDto UNRESTORABLE = new UserDeprovisioningStatusDto("UNRESTORABLE",
-			"This user is deprovisioned and in a state that cannot be restored.", false, false, false);
+	public static UserDeprovisioningStatusDto PROVISIONED = new UserDeprovisioningStatusDto(
+			"PROVISIONED",
+			"This user is provisioned.",
+			true,
+			true,
+			false);
+	public static UserDeprovisioningStatusDto DEPROVISIONED = new UserDeprovisioningStatusDto(
+			"DEPROVISIONED",
+			"This user is deprovisioned.",
+			false,
+			false,
+			true);
+	public static UserDeprovisioningStatusDto FLAGGED = new UserDeprovisioningStatusDto(
+			"FLAGGED",
+			"This user is provisioned but is flagged for deprovisioning.",
+			true,
+			true,
+			false);
+	public static UserDeprovisioningStatusDto NO_RECORD = new UserDeprovisioningStatusDto(
+			"NO_RECORD",
+			"This user is deprovisioned and missing a record of the deprovisoning.",
+			false,
+			false,
+			true);
 
 	public final String name;
 	public final String description;

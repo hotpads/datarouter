@@ -37,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.datarouter.exception.storage.exceptionrecord.ExceptionRecordKey;
+import io.datarouter.exception.utils.ExceptionDetailsDetector;
+import io.datarouter.exception.utils.ExceptionDetailsDetector.ExceptionRecorderDetails;
 import io.datarouter.httpclient.HttpHeaders;
 import io.datarouter.inject.DatarouterInjector;
 import io.datarouter.instrumentation.count.Counters;
@@ -118,19 +120,18 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 		try{
 			String location;
 			String methodName = null;
+			String type = null;
 			Integer lineNumber;
 			Pair<String,Integer> pair = searchJspName(exception);
 			location = pair.getLeft();
 			lineNumber = pair.getRight();
 			if(location == null){
-				Optional<StackTraceElement> element = searchClassName(exception);
-				if(element.isPresent()){
-					location = element.get().getClassName();
-					methodName = element.get().getMethodName();
-					lineNumber = element.get().getLineNumber();
-				}else{
-					location = "unknown location";
-				}
+				ExceptionRecorderDetails details = ExceptionDetailsDetector.detect(exception,
+						webSettings.stackTraceHighlights.get());
+				location = details.className;
+				methodName = details.methodName;
+				type = details.type;
+				lineNumber = details.lineNumber;
 			}
 			String callOrigin;
 			Optional<Class<? extends BaseHandler>> handlerClass = RequestAttributeTool.get(request,
@@ -143,29 +144,13 @@ public abstract class ExceptionHandlingFilter implements Filter, InjectorRetriev
 			}
 
 			ExceptionRecordDto exceptionRecord = exceptionRecorder.recordExceptionAndHttpRequest(exception, location,
-					methodName, lineNumber, request, callOrigin);
+					methodName, type, lineNumber, request, callOrigin);
 
 			return Optional.of(new ExceptionRecordKey(exceptionRecord.id));
 		}catch(Exception e){
 			logger.error("Exception while logging", e);
 			return Optional.empty();
 		}
-	}
-
-	private Optional<StackTraceElement> searchClassName(Throwable exception){
-		Throwable cause = exception;
-		Set<String> highlights = webSettings.stackTraceHighlights.get();
-		do{
-			for(StackTraceElement element : cause.getStackTrace()){
-				for(String highlight : highlights){
-					if(element.getClassName().contains(highlight)){
-						return Optional.of(element);
-					}
-				}
-			}
-			cause = cause.getCause();
-		}while(cause != null);
-		return Optional.empty();
 	}
 
 	private static Pair<String,Integer> searchJspName(Throwable exception){

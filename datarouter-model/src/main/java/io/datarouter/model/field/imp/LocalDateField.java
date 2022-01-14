@@ -18,12 +18,13 @@ package io.datarouter.model.field.imp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import io.datarouter.bytes.ShortByteTool;
+import io.datarouter.bytes.codec.shortcodec.ComparableShortCodec;
 import io.datarouter.model.field.BasePrimitiveField;
 import io.datarouter.util.string.StringTool;
 
 public class LocalDateField extends BasePrimitiveField<LocalDate,LocalDateFieldKey>{
 
+	private static final ComparableShortCodec COMPARABLE_SHORT_CODEC = ComparableShortCodec.INSTANCE;
 	private static final int NUM_BYTES = 4;
 
 	public LocalDateField(LocalDateFieldKey key, LocalDate value){
@@ -56,7 +57,8 @@ public class LocalDateField extends BasePrimitiveField<LocalDate,LocalDateFieldK
 			return null;
 		}
 		byte[] bytes = new byte[NUM_BYTES];
-		ShortByteTool.toComparableBytes((short)value.getYear(), bytes, 0);//limited to year 32,767 (16 bits signed)
+		//limited to year 32,767 (16 bits signed)
+		COMPARABLE_SHORT_CODEC.encode((short)value.getYear(), bytes, 0);
 		bytes[2] = (byte)value.getMonthValue();//at most 5 bits signed
 		bytes[3] = (byte)value.getDayOfMonth();//at most 6 bits signed
 		return bytes;
@@ -69,7 +71,7 @@ public class LocalDateField extends BasePrimitiveField<LocalDate,LocalDateFieldK
 
 	@Override
 	public LocalDate fromBytesButDoNotSet(byte[] bytes, int offset){
-		int year = ShortByteTool.fromComparableBytes(bytes, offset);
+		int year = COMPARABLE_SHORT_CODEC.decode(bytes, offset);
 		int month = bytes[offset + 2];
 		int day = bytes[offset + 3];
 		return LocalDate.of(year, month, day);

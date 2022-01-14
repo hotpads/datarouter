@@ -102,8 +102,9 @@ public class DatarouterUserDeprovisioningStrategy implements UserDeprovisioningS
 				.listTo(datarouterUserDao::getMultiByUsername)
 				.stream()
 				.collect(Collectors.toMap(DatarouterUser::getUsername, Function.identity()));
-		return Scanner.of(usernames)
-				.include(deprovisionedRolesByUsername::containsKey)
+
+		Scanner<DatarouterUser> normalUsersToRestore = Scanner.of(usernames)
+				.include(deprovisionedRolesByUsername::containsKey)//record of roles
 				.include(datarouterUserByUsername::containsKey)
 				.map(username -> {
 					var rolesToRestore = deprovisionedRolesByUsername.get(username).stream()
@@ -113,7 +114,20 @@ public class DatarouterUserDeprovisioningStrategy implements UserDeprovisioningS
 					datarouterUser.setRoles(rolesToRestore);
 					datarouterUser.setEnabled(true);
 					return datarouterUser;
-				})
+				});
+		Scanner<DatarouterUser> unrecordedUsersToRestore = Scanner.of(usernames)
+				.exclude(deprovisionedRolesByUsername::containsKey)//no record of roles
+				.include(datarouterUserByUsername::containsKey)
+				.map(username -> {
+					var datarouterUser = datarouterUserByUsername.get(username);
+					var rolesToRestore = roleManager.getRolesForDefaultGroup();
+					rolesToRestore.addAll(datarouterUser.getRoles());
+					datarouterUser.setRoles(rolesToRestore);
+					datarouterUser.setEnabled(true);
+					return datarouterUser;
+				});
+
+		return normalUsersToRestore.append(unrecordedUsersToRestore)
 				.flush(datarouterUserDao::putMulti)
 				.flush(buildRecordRestoreConsumer(editorUsername))
 				.map(DatarouterUser::getUsername)

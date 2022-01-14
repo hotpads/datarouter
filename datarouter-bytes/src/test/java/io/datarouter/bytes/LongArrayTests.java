@@ -23,11 +23,10 @@ import org.testng.annotations.Test;
 
 public class LongArrayTests{
 
-	private List<Long> list = new LongArray();
-	private int max = 150;
-
 	@Test
 	public void testBasics(){
+		List<Long> list = new LongArray();
+		final int max = 150;
 
 		// expanding
 		for(long l = 0; l < max; ++l){
@@ -51,34 +50,34 @@ public class LongArrayTests{
 
 		// removing indexes
 		long valueRemoved = list.remove(31);
-		Assert.assertTrue(31L == valueRemoved);
+		Assert.assertEquals(valueRemoved, 31L);
 		Assert.assertEquals(list.size(), max - 1);
-		Assert.assertTrue(list.get(31).equals(32L));
+		Assert.assertEquals(list.get(31).longValue(), 32L);
 
 		// removing objects
 		boolean modified = list.remove(5L);
 		Assert.assertTrue(modified);
 		Assert.assertEquals(list.size(), max - 2);
-		Assert.assertTrue(list.get(5).equals(6L));
+		Assert.assertEquals(list.get(5).longValue(), 6L);
 		modified = list.remove(5L);
 		Assert.assertFalse(modified);
 		Assert.assertEquals(list.size(), max - 2);
-		Assert.assertTrue(list.get(5).equals(6L));
+		Assert.assertEquals(list.get(5).longValue(), 6L);
 
 		// retain objects
 		List<Long> toRetain = Java9.listOf(55L, 57L, 7L);
 		modified = list.retainAll(toRetain);
 		Assert.assertTrue(modified);
 		Assert.assertEquals(list.size(), 3);
-		Assert.assertTrue(list.get(0).equals(7L));
-		Assert.assertTrue(list.get(1).equals(55L));
-		Assert.assertTrue(list.get(2).equals(57L));
+		Assert.assertEquals(list.get(0).longValue(), 7L);
+		Assert.assertEquals(list.get(1).longValue(), 55L);
+		Assert.assertEquals(list.get(2).longValue(), 57L);
 		modified = list.retainAll(Java9.listOf(55L, 57L, 7L));
 		Assert.assertFalse(modified);
 		Assert.assertEquals(list.size(), 3);
-		Assert.assertTrue(list.get(0).equals(7L));
-		Assert.assertTrue(list.get(1).equals(55L));
-		Assert.assertTrue(list.get(2).equals(57L));
+		Assert.assertEquals(list.get(0).longValue(), 7L);
+		Assert.assertEquals(list.get(1).longValue(), 55L);
+		Assert.assertEquals(list.get(2).longValue(), 57L);
 
 		// nulls
 		List<Long> nullableList = new LinkedList<>();
@@ -93,8 +92,8 @@ public class LongArrayTests{
 		primitiveList.add(null);
 		nullableList.add(Long.MAX_VALUE);
 		primitiveList.add(Long.MAX_VALUE);
-		Assert.assertTrue(5 == nullableList.size());
-		Assert.assertTrue(5 == primitiveList.size());
+		Assert.assertEquals(nullableList.size(), 5);
+		Assert.assertEquals(primitiveList.size(), 5);
 		Assert.assertNull(primitiveList.get(1));
 	}
 
@@ -114,4 +113,47 @@ public class LongArrayTests{
 		Assert.assertEquals(sortedDeduped, new LongArray(new long[]{1, 2, 3}));
 	}
 
+	@Test
+	public void testAddByIndex(){
+		LongArray list = new LongArray(new long[]{1, 2, 3, 4, 5, 6, 7});
+		list.add(7, 700);
+		Assert.assertEquals(list.size(), 8);
+		list.add(2, 200);
+		list.add(0, -100);
+		Assert.assertEquals(list.size(), 10);
+		Assert.assertEquals(list, new LongArray(new long[]{-100, 1, 2, 200, 3, 4, 5, 6, 7, 700}));
+		Assert.assertEquals(list.get(0).longValue(), -100L);
+		Assert.assertEquals(list.get(1).longValue(), 1L);
+		Assert.assertEquals(list.get(3).longValue(), 200L);
+		Assert.assertEquals(list.get(6).longValue(), 5L);
+	}
+
+	@Test
+	public void testAddAllByIndex(){
+		LongArray list = new LongArray(new long[]{1, 2, 3, 4, 5, 6, 7});
+		list.addAll(7, new LongArray(new long[]{700}));
+		Assert.assertEquals(list.size(), 8);
+		list.addAll(2, new LongArray(new long[]{200, 201}));
+		list.addAll(0, new LongArray(new long[]{-100, -101, -102}));
+		Assert.assertEquals(list.size(), 13);
+		Assert.assertEquals(list, new LongArray(new long[]{-100, -101, -102, 1, 2, 200, 201, 3, 4, 5, 6, 7, 700}));
+		Assert.assertEquals(list.get(0).longValue(), -100L);
+		Assert.assertEquals(list.get(3).longValue(), 1L);
+		Assert.assertEquals(list.get(6).longValue(), 201L);
+		Assert.assertEquals(list.get(10).longValue(), 6L);
+	}
+
+	@Test
+	public void testSetByIndex(){
+		LongArray list = new LongArray(new long[]{1, 2, 3, 4, 5, 6, 7});
+		list.set(6, 700L);
+		Assert.assertEquals(list.size(), 7);
+		list.set(2, 300L);
+		list.set(0, -100L);
+		Assert.assertEquals(list.size(), 7);
+		Assert.assertEquals(list, new LongArray(new long[]{-100, 2, 300, 4, 5, 6, 700}));
+		Assert.assertEquals(list.get(0).longValue(), -100L);
+		Assert.assertEquals(list.get(2).longValue(), 300L);
+		Assert.assertEquals(list.get(6).longValue(), 700L);
+	}
 }

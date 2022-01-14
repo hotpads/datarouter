@@ -15,7 +15,7 @@
  */
 package io.datarouter.bytes.codec.longcodec;
 
-public class ComparableLongCodec implements LongCodec{
+public class ComparableLongCodec{
 
 	public static final ComparableLongCodec INSTANCE = new ComparableLongCodec();
 
@@ -26,25 +26,25 @@ public class ComparableLongCodec implements LongCodec{
 		return LENGTH;
 	}
 
-	@Override
 	public int length(long value){
 		return LENGTH;
 	}
 
-	@Override
 	public byte[] encode(long value){
 		byte[] bytes = new byte[LENGTH];
 		encode(value, bytes, 0);
 		return bytes;
 	}
 
-	@Override
 	public int encode(long value, byte[] bytes, int offset){
 		long shifted = value ^ Long.MIN_VALUE;
 		return RAW_CODEC.encode(shifted, bytes, offset);
 	}
 
-	@Override
+	public long decode(byte[] bytes){
+		return decode(bytes, 0);
+	}
+
 	public long decode(byte[] bytes, int offset){
 		return Long.MIN_VALUE ^ RAW_CODEC.decode(bytes, offset);
 	}

@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.datarouter.bytes.ByteReader;
-import io.datarouter.bytes.IntegerByteTool;
-import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.Bytes;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
 import io.datarouter.filesystem.snapshot.block.BlockKey;
 import io.datarouter.filesystem.snapshot.block.BlockSizeCalculator;
 import io.datarouter.filesystem.snapshot.key.SnapshotKey;
-import io.datarouter.model.util.Bytes;
 import io.datarouter.scanner.Scanner;
 
 /**
@@ -40,6 +40,9 @@ import io.datarouter.scanner.Scanner;
 public class BranchBlockV1 implements BranchBlock{
 
 	public static final String FORMAT = "branchV1";
+
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 
 	private static final int HEAP_SIZE_OVERHEAD = new BlockSizeCalculator()
 			.addObjectHeaders(1)
@@ -95,7 +98,7 @@ public class BranchBlockV1 implements BranchBlock{
 	@Override
 	public long recordId(int index){
 		int bytesOffset = recordIdsSectionOffset + index * 8;
-		return LongByteTool.fromRawBytes(bytes, bytesOffset);
+		return RAW_LONG_CODEC.decode(bytes, bytesOffset);
 	}
 
 	@Override
@@ -149,7 +152,7 @@ public class BranchBlockV1 implements BranchBlock{
 
 	private int keyEnding(int index){
 		int endingOffset = 4 * index;
-		return IntegerByteTool.fromRawBytes(bytes, endingSectionOffset + endingOffset);
+		return RAW_INT_CODEC.decode(bytes, endingSectionOffset + endingOffset);
 	}
 
 	private boolean isFirstBlockInFile(int childBlockId){
@@ -165,14 +168,14 @@ public class BranchBlockV1 implements BranchBlock{
 		int childBlockIndex = childBlockId - firstChildBlockId;
 		int indexExcludingPreviousEndings = childBlockIndex + 1;
 		int endingOffset = 4 * indexExcludingPreviousEndings;
-		return IntegerByteTool.fromRawBytes(bytes, childFileIdsSectionOffset + endingOffset);
+		return RAW_INT_CODEC.decode(bytes, childFileIdsSectionOffset + endingOffset);
 	}
 
 	private int childBlockEnding(int childBlockId){
 		int childBlockIndex = childBlockId - firstChildBlockId;
 		int indexExcludingPreviousEndings = childBlockIndex + 1;
 		int endingOffset = 4 * indexExcludingPreviousEndings;
-		return IntegerByteTool.fromRawBytes(bytes, childEndingsSectionOffset + endingOffset);
+		return RAW_INT_CODEC.decode(bytes, childEndingsSectionOffset + endingOffset);
 	}
 
 	@Override

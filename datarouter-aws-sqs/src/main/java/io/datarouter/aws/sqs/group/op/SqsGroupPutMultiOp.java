@@ -26,7 +26,7 @@ import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
 import io.datarouter.aws.sqs.SqsDataTooLargeException;
 import io.datarouter.aws.sqs.op.SqsOp;
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -68,7 +68,7 @@ extends SqsOp<PK,D,F,Void>{
 		List<byte[]> encodedDatabeans = new ArrayList<>();
 		for(D databean : databeans){
 			String databeanAsString = codec.toString(databean, fielder);
-			byte[] databeanAsBytes = StringByteTool.getUtf8Bytes(databeanAsString);
+			byte[] databeanAsBytes = StringCodec.UTF_8.encode(databeanAsString);
 			if(databeanAsBytes.length > maxBoundedBytesPerMessage){
 				rejectedDatabeans.add(databeanAsString);
 				continue;

@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
 import io.datarouter.scanner.Scanner;
@@ -70,12 +71,11 @@ public class PropertiesTool{
 		return PropertiesTool.class.getResource(pathToFile);
 	}
 
-	public static String getFirstOccurrence(Collection<Properties> multiProperties, String key){
+	public static Optional<String> findFirstOccurrence(Collection<Properties> multiProperties, String key){
 		return multiProperties.stream()
 				.map(properties -> properties.getProperty(key))
 				.filter(Objects::nonNull)
-				.findFirst()
-				.orElse(null);
+				.findFirst();
 	}
 
 	public static void writeToFile(Properties properties, String pathToFile){

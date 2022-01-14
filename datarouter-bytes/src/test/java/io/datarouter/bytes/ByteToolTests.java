@@ -18,57 +18,40 @@ package io.datarouter.bytes;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import io.datarouter.bytes.codec.intcodec.UInt31Codec;
+
 public class ByteToolTests{
 
-	@Test
-	public void testGetComparableBytes(){
-		byte min = Byte.MIN_VALUE;
-		Assert.assertEquals(min, -128);
-		byte max = Byte.MAX_VALUE;
-		Assert.assertEquals(max, 127);
-		Assert.assertTrue(min < max);
-
-		byte[] minArray = ByteTool.getComparableBytes(min);
-		byte[] maxArray = ByteTool.getComparableBytes(max);
-		Assert.assertTrue(Java9.compareUnsigned(maxArray, minArray) > 0);
-
-		byte negative = -3;
-		byte positive = 5;
-		Assert.assertTrue(negative < positive);
-
-		byte[] negativeArray = ByteTool.getComparableBytes(negative);
-		byte[] positiveArray = ByteTool.getComparableBytes(positive);
-		Assert.assertTrue(Java9.compareUnsigned(positiveArray, negativeArray) > 0);
-	}
+	private static final UInt31Codec U_INT_31_CODEC = UInt31Codec.INSTANCE;
 
 	@Test
 	public void testUnsignedIncrement(){
-		byte[] bytesA = IntegerByteTool.getUInt31Bytes(0);
-		int a2 = IntegerByteTool.fromUInt31Bytes(ByteTool.unsignedIncrement(bytesA), 0);
+		byte[] bytesA = U_INT_31_CODEC.encode(0);
+		int a2 = U_INT_31_CODEC.decode(ByteTool.unsignedIncrement(bytesA), 0);
 		Assert.assertTrue(a2 == 1);
 
-		byte[] bytesB = IntegerByteTool.getUInt31Bytes(-1);
+		byte[] bytesB = U_INT_31_CODEC.encode(-1);
 		byte[] actuals = ByteTool.unsignedIncrement(bytesB);
 		byte[] expected = new byte[]{1, 0, 0, 0, 0};
 		Assert.assertEquals(actuals, expected);
 
-		byte[] bytesC = IntegerByteTool.getUInt31Bytes(255);// should wrap to the next significant byte
-		int c2 = IntegerByteTool.fromUInt31Bytes(ByteTool.unsignedIncrement(bytesC), 0);
+		byte[] bytesC = U_INT_31_CODEC.encode(255);// should wrap to the next significant byte
+		int c2 = U_INT_31_CODEC.decode(ByteTool.unsignedIncrement(bytesC), 0);
 		Assert.assertTrue(c2 == 256);
 	}
 
 	@Test
 	public void testUnsignedIncrementOverflowToNull(){
-		byte[] bytesA = IntegerByteTool.getUInt31Bytes(0);
-		int a2 = IntegerByteTool.fromUInt31Bytes(ByteTool.unsignedIncrementOverflowToNull(bytesA), 0);
+		byte[] bytesA = U_INT_31_CODEC.encode(0);
+		int a2 = U_INT_31_CODEC.decode(ByteTool.unsignedIncrementOverflowToNull(bytesA), 0);
 		Assert.assertTrue(a2 == 1);
 
-		byte[] bytesB = IntegerByteTool.getUInt31Bytes(-1);
+		byte[] bytesB = U_INT_31_CODEC.encode(-1);
 		byte[] b2 = ByteTool.unsignedIncrementOverflowToNull(bytesB);
 		Assert.assertTrue(b2 == null);
 
-		byte[] bytesC = IntegerByteTool.getUInt31Bytes(255);// should wrap to the next significant byte
-		int c2 = IntegerByteTool.fromUInt31Bytes(ByteTool.unsignedIncrementOverflowToNull(bytesC), 0);
+		byte[] bytesC = U_INT_31_CODEC.encode(255);// should wrap to the next significant byte
+		int c2 = U_INT_31_CODEC.decode(ByteTool.unsignedIncrementOverflowToNull(bytesC), 0);
 		Assert.assertTrue(c2 == 256);
 	}
 

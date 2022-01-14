@@ -17,9 +17,10 @@ package io.datarouter.model.field.imp.array;
 
 import java.util.List;
 
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.ByteTool;
 import io.datarouter.bytes.LongArray;
-import io.datarouter.bytes.LongByteTool;
+import io.datarouter.bytes.codec.array.longarray.UInt63ArrayCodec;
+import io.datarouter.bytes.codec.intcodec.UInt31Codec;
 import io.datarouter.model.field.BaseListField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.array.ArrayTool;
@@ -27,6 +28,9 @@ import io.datarouter.util.collection.ListTool;
 import io.datarouter.util.serialization.GsonTool;
 
 public class UInt63ArrayField extends BaseListField<Long,List<Long>,UInt63ArrayFieldKey>{
+
+	private static final UInt31Codec U_INT_31_CODEC = UInt31Codec.INSTANCE;
+	private static final UInt63ArrayCodec U_INT_63_ARRAY_CODEC = UInt63ArrayCodec.INSTANCE;
 
 	public UInt63ArrayField(UInt63ArrayFieldKey key, List<Long> value){
 		super(key, value);
@@ -45,37 +49,43 @@ public class UInt63ArrayField extends BaseListField<Long,List<Long>,UInt63ArrayF
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : LongByteTool.getUInt63ByteArray(value);
+		if(value == null){
+			return null;
+		}
+		LongArray longArray = value instanceof LongArray
+				? (LongArray)value
+				: new LongArray(value);
+		return U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
 	}
 
 	@Override
 	public List<Long> fromBytesButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = ArrayTool.length(bytes) - byteOffset;
-		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset, numBytes));
+		return new LongArray(U_INT_63_ARRAY_CODEC.decode(bytes, byteOffset, numBytes));
 	}
 
 	@Override
 	public int numBytesWithSeparator(byte[] bytes, int byteOffset){
-		return bytes == null ? 0 : IntegerByteTool.fromUInt31Bytes(bytes, byteOffset) + 4;
+		return bytes == null ? 0 : U_INT_31_CODEC.decode(bytes, byteOffset) + 4;
 	}
 
 	@Override
 	public byte[] getBytesWithSeparator(){
 		if(value == null){
-			return IntegerByteTool.getUInt31Bytes(0);
+			return U_INT_31_CODEC.encode(0);
 		}
-		// prepend the length (in bytes) as a positive integer (not bitwise comparable =()
-		//TODO replace with varint
-		byte[] dataBytes = LongByteTool.getUInt63ByteArray(value);
-		byte[] allBytes = new byte[4 + dataBytes.length];
-		System.arraycopy(IntegerByteTool.getUInt31Bytes(dataBytes.length), 0, allBytes, 0, 4);
-		System.arraycopy(dataBytes, 0, allBytes, 4, dataBytes.length);
-		return allBytes;
+		LongArray longArray = value instanceof LongArray
+				? (LongArray)value
+				: new LongArray(value);
+		byte[] dataBytes = U_INT_63_ARRAY_CODEC.encode(longArray.getPrimitiveArray());
+		byte[] lengthBytes = U_INT_31_CODEC.encode(dataBytes.length);
+		return ByteTool.concatenate2(lengthBytes, dataBytes);
 	}
 
 	@Override
 	public List<Long> fromBytesWithSeparatorButDoNotSet(byte[] bytes, int byteOffset){
 		int numBytes = numBytesWithSeparator(bytes, byteOffset) - 4;
-		return new LongArray(LongByteTool.fromUInt63ByteArray(bytes, byteOffset + 4, numBytes));
+		return new LongArray(U_INT_63_ARRAY_CODEC.decode(bytes, byteOffset + 4, numBytes));
 	}
+
 }

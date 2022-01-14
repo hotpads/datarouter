@@ -15,13 +15,15 @@
  */
 package io.datarouter.model.field.imp.enums;
 
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.ComparableIntCodec;
 import io.datarouter.model.field.BaseField;
 import io.datarouter.model.field.Field;
 import io.datarouter.util.enums.DatarouterEnumTool;
 import io.datarouter.util.enums.IntegerEnum;
 
 public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
+
+	private static final ComparableIntCodec COMPARABLE_INT_CODEC = ComparableIntCodec.INSTANCE;
 
 	private final IntegerEnumFieldKey<E> key;
 
@@ -62,7 +64,7 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 
 	@Override
 	public byte[] getBytes(){
-		return value == null ? null : IntegerByteTool.getComparableBytes(value.getPersistentInteger());
+		return value == null ? null : COMPARABLE_INT_CODEC.encode(value.getPersistentInteger());
 	}
 
 	@Override
@@ -74,7 +76,7 @@ public class IntegerEnumField<E extends IntegerEnum<E>> extends BaseField<E>{
 	public E fromBytesButDoNotSet(byte[] bytes, int offset){
 		return IntegerEnum.fromPersistentIntegerSafe(
 				getSampleValue(),
-				IntegerByteTool.fromComparableBytes(bytes, offset));
+				COMPARABLE_INT_CODEC.decode(bytes, offset));
 	}
 
 	@Override

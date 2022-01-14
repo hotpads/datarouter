@@ -20,7 +20,7 @@ import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 
 import io.datarouter.aws.sqs.BaseSqsNode;
 import io.datarouter.aws.sqs.SqsClientManager;
-import io.datarouter.bytes.StringByteTool;
+import io.datarouter.bytes.codec.stringcodec.StringCodec;
 import io.datarouter.model.databean.Databean;
 import io.datarouter.model.key.primary.PrimaryKey;
 import io.datarouter.model.serialize.fielder.DatabeanFielder;
@@ -53,7 +53,7 @@ extends SqsOp<PK,D,F,Void>{
 
 	@Override
 	protected Void run(){
-		String handle = StringByteTool.fromUtf8Bytes(key.getHandle());
+		String handle = StringCodec.UTF_8.decode(key.getHandle());
 		var deleteRequest = new DeleteMessageRequest(queueUrl, handle);
 		try{
 			sqsClientManager.getAmazonSqs(clientId).deleteMessage(deleteRequest);

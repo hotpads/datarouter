@@ -17,7 +17,17 @@ package io.datarouter.bytes;
 
 import java.nio.charset.StandardCharsets;
 
+import io.datarouter.bytes.codec.booleancodec.RawBooleanCodec;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
+import io.datarouter.bytes.codec.longcodec.ComparableLongCodec;
+import io.datarouter.bytes.codec.longcodec.RawLongCodec;
+
 public class ByteReader{
+
+	private static final RawBooleanCodec RAW_BOOLEAN_CODEC = RawBooleanCodec.INSTANCE;
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
+	private static final ComparableLongCodec COMPARABLE_LONG_CODEC = ComparableLongCodec.INSTANCE;
+	private static final RawLongCodec RAW_LONG_CODEC = RawLongCodec.INSTANCE;
 
 	private final byte[] bytes;
 	private int position;
@@ -54,7 +64,7 @@ public class ByteReader{
 	/*-------------- boolean -----------------*/
 
 	public boolean booleanByte(){
-		boolean value = BooleanByteTool.fromBytes(bytes, position);
+		boolean value = RAW_BOOLEAN_CODEC.decode(bytes, position);
 		++position;
 		return value;
 	}
@@ -66,7 +76,7 @@ public class ByteReader{
 	}
 
 	public int rawInt(){
-		int value = IntegerByteTool.fromRawBytes(bytes, position);
+		int value = RAW_INT_CODEC.decode(bytes, position);
 		position += 4;
 		return value;
 	}
@@ -100,13 +110,13 @@ public class ByteReader{
 	}
 
 	public long comparableLong(){
-		long value = LongByteTool.fromComparableBytes(bytes, position);
+		long value = COMPARABLE_LONG_CODEC.decode(bytes, position);
 		position += 8;
 		return value;
 	}
 
 	public long rawLong(){
-		long value = LongByteTool.fromRawBytes(bytes, position);
+		long value = RAW_LONG_CODEC.decode(bytes, position);
 		position += 8;
 		return value;
 	}

@@ -48,7 +48,7 @@ public class FieldTool{
 					? field.getBytes()
 					: field.getBytesWithSeparator();
 		}
-		return ByteTool.concatenate(tokens);
+		return ByteTool.concatenate2(tokens);
 	}
 
 	public static byte[] getConcatenatedValueBytesUnterminated(List<Field<?>> fields){
@@ -64,7 +64,7 @@ public class FieldTool{
 					? field.getBytes()
 					: field.getBytesWithSeparator();
 		}
-		return ByteTool.concatenate(tokens);
+		return ByteTool.concatenate2(tokens);
 	}
 
 	public static byte[] getConcatenatedValueBytes(List<Field<?>> fields){
@@ -76,7 +76,7 @@ public class FieldTool{
 		for(int i = 0; i < numTokens; ++i){
 			tokens[i] = fields.get(i).getBytesWithSeparator();
 		}
-		return ByteTool.concatenate(tokens);
+		return ByteTool.concatenate2(tokens);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class FieldTool{
 			tokens[index++] = VarIntTool.encode(value.length);
 			tokens[index++] = value;
 		}
-		return ByteTool.concatenate(tokens);
+		return ByteTool.concatenate2(tokens);
 	}
 
 	//prepend a new prefix to an existing prefix

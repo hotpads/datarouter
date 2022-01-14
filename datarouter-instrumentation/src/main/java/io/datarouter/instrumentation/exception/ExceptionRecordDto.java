@@ -23,6 +23,8 @@ public class ExceptionRecordDto{
 	public final Date created;
 	public final String serviceName;
 	public final String serverName;
+	public final String category;
+	public final String name;
 	public final String stackTrace;
 	public final String type;
 	public final String appVersion;
@@ -36,6 +38,8 @@ public class ExceptionRecordDto{
 			Date created,
 			String serviceName,
 			String serverName,
+			String category,
+			String name,
 			String stackTrace,
 			String type,
 			String appVersion,
@@ -47,6 +51,8 @@ public class ExceptionRecordDto{
 		this.created = created;
 		this.serviceName = serviceName;
 		this.serverName = serverName;
+		this.category = category;
+		this.name = name;
 		this.stackTrace = stackTrace;
 		this.type = type;
 		this.appVersion = appVersion;

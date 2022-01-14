@@ -102,7 +102,7 @@ public class DatarouterHomepageHandler extends BaseHandler{
 	private String buildDatarouterPropertiesTable(){
 		var tbody = tbody();
 		datarouterPropertiesService.getAllProperties().stream()
-				.map(entry -> tr(td(entry.getLeft()), td(entry.getRight())))
+				.map(entry -> tr(td(entry.getLeft()), td(entry.getRight() == null ? "" : entry.getRight())))
 				.forEach(tbody::with);
 		var table = table(caption("Server Info").withStyle("caption-side: top"), tbody)
 				.withClass("table table-striped table-bordered table-sm");

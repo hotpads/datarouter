@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.list.intlist.IntListCodec;
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
@@ -31,6 +31,8 @@ import io.datarouter.util.array.ArrayTool;
 
 public class IntegerArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Integer,List<Integer>,IntegerArrayField>{
+
+	private static final IntListCodec INT_LIST_CODEC = IntListCodec.INSTANCE;
 
 	public IntegerArrayMysqlFieldCodec(IntegerArrayField field){
 		super(field);
@@ -53,7 +55,7 @@ extends BaseListMysqlFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 			if(ArrayTool.isEmpty(bytes)){
 				return new ArrayList<>();
 			}
-			return IntegerByteTool.fromIntegerByteArray(bytes, 0);
+			return INT_LIST_CODEC.decode(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -64,7 +66,7 @@ extends BaseListMysqlFieldCodec<Integer,List<Integer>,IntegerArrayField>{
 		try{
 			byte[] value = field.getValue() == null
 					? null
-					: IntegerByteTool.getIntegerByteArray(field.getValue());
+					: INT_LIST_CODEC.encode(field.getValue());
 			ps.setBytes(parameterIndex, value);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

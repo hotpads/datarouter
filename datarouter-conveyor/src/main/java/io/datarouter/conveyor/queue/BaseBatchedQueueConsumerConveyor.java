@@ -47,11 +47,24 @@ extends BaseConveyor{
 	private static final Logger logger = LoggerFactory.getLogger(BaseBatchedQueueConsumerConveyor.class);
 
 	private static final Duration PEEK_TIMEOUT = Duration.ofSeconds(10);
+	private static final Duration VISIBILITY_TIMEOUT = Duration.ofSeconds(30);
 	private static final int BATCH_SIZE = 100;
 
 	private final BatchedQueueConsumer<PK,D> queueConsumer;
 	private final Object lock = new Object();
-	private List<QueueMessage<PK,D>> buffer;
+	private final List<MessageAndTime<PK,D>> buffer;
+
+	private static class MessageAndTime<PK extends PrimaryKey<PK>,D extends Databean<PK,D>>{
+		private final QueueMessageKey queueMessageKey;
+		private final D message;
+		private final long peekTime;
+
+		public MessageAndTime(QueueMessageKey queueMessageKey, D message, long peekTime){
+			this.queueMessageKey = queueMessageKey;
+			this.message = message;
+			this.peekTime = peekTime;
+		}
+	}
 
 	public BaseBatchedQueueConsumerConveyor(
 			String name,
@@ -65,8 +78,8 @@ extends BaseConveyor{
 
 	@Override
 	public ProcessBatchResult processBatch(){
-		List<QueueMessage<PK,D>> currentBuffer = Collections.emptyList();
-		QueueMessage<PK,D> message = queueConsumer.peek(PEEK_TIMEOUT);
+		List<MessageAndTime<PK,D>> currentBuffer = Collections.emptyList();
+		QueueMessage<PK,D> message = queueConsumer.peek(PEEK_TIMEOUT, VISIBILITY_TIMEOUT);
 		if(message == null){
 			logger.info("peeked conveyor={} nullMessage", name);
 			synchronized(lock){
@@ -77,7 +90,7 @@ extends BaseConveyor{
 		}
 		synchronized(lock){
 			logger.info("peeked conveyor={} messageCount={}", name, 1);
-			buffer.add(message);
+			buffer.add(new MessageAndTime<>(message.getKey(), message.getDatabean(), System.currentTimeMillis()));
 			if(buffer.size() >= BATCH_SIZE){
 				currentBuffer = copyAndClearBuffer();
 			}
@@ -89,7 +102,7 @@ extends BaseConveyor{
 	@Override
 	public void interrupted() throws Exception{
 		try{
-			List<QueueMessage<PK,D>> currentBuffer;
+			List<MessageAndTime<PK,D>> currentBuffer;
 			synchronized(lock){
 				currentBuffer = copyAndClearBuffer();
 			}
@@ -100,32 +113,42 @@ extends BaseConveyor{
 		}
 	}
 
-	private void flushBuffer(List<QueueMessage<PK,D>> currentBuffer){
+	private void flushBuffer(List<MessageAndTime<PK,D>> currentBuffer){
 		if(currentBuffer.isEmpty()){
 				return;
 		}
+		long processingStart = System.currentTimeMillis();
 		Scanner.of(currentBuffer)
-				.map(QueueMessage::getDatabean)
+				.each(MessageAndTime::toString)
+				.map(mat -> mat.message)
 				.flush(this::processBuffer);
 		ConveyorCounters.incFlushBuffer(this, currentBuffer.size());
+		logger.info("consumed conveyor={} messageCount={}", name, currentBuffer.size());
+		ConveyorCounters.incConsumedOpAndDatabeans(this, currentBuffer.size());
 		Scanner.of(currentBuffer)
-				.map(QueueMessage::getKey)
-				.flush(this::ackMessageLogAndIncCounter);
+				.forEach(mat -> {
+					long waitDurationMs = processingStart - mat.peekTime;
+					long processingDurationMs = System.currentTimeMillis() - waitDurationMs;
+					if(waitDurationMs + processingDurationMs > VISIBILITY_TIMEOUT.toMillis()){
+						logger.warn("slow conveyor conveyor={} waitDurationMs={} processingDurationMs={} databean={}",
+								name,
+								waitDurationMs,
+								processingDurationMs,
+								mat.message);
+					}
+				});
+		Scanner.of(currentBuffer)
+				.map(mat -> mat.queueMessageKey)
+				.flush(queueConsumer::ackMulti);
+		logger.info("acked conveyor={} messageCount={}", name, currentBuffer.size());
+		ConveyorCounters.incAck(this, currentBuffer.size());
 	}
 
-	private List<QueueMessage<PK,D>> copyAndClearBuffer(){
-		List<QueueMessage<PK,D>> currentBuffer = buffer.stream()
+	private List<MessageAndTime<PK,D>> copyAndClearBuffer(){
+		List<MessageAndTime<PK,D>> currentBuffer = buffer.stream()
 				.collect(Collectors.toList());
 		buffer.clear();
 		return currentBuffer;
-	}
-
-	private void ackMessageLogAndIncCounter(List<QueueMessageKey> messageKeys){
-		logger.info("consumed conveyor={} messageCount={}", name, messageKeys.size());
-		ConveyorCounters.incConsumedOpAndDatabeans(this, messageKeys.size());
-		queueConsumer.ackMulti(messageKeys);
-		logger.info("acked conveyor={} messageCount={}", name, messageKeys.size());
-		ConveyorCounters.incAck(this, messageKeys.size());
 	}
 
 	protected abstract void processBuffer(List<D> databeans);

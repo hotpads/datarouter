@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.datarouter.bytes.BooleanByteTool;
+import io.datarouter.bytes.codec.list.booleanlist.BooleanListCodec;
 import io.datarouter.client.mysql.ddl.domain.MysqlColumnType;
 import io.datarouter.client.mysql.ddl.domain.SqlColumn;
 import io.datarouter.client.mysql.field.codec.base.BaseListMysqlFieldCodec;
@@ -32,6 +32,8 @@ import io.datarouter.util.array.ArrayTool;
 
 public class BooleanArrayMysqlFieldCodec
 extends BaseListMysqlFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
+
+	private static final BooleanListCodec BOOLEAN_LIST_CODEC = BooleanListCodec.INSTANCE;
 
 	public BooleanArrayMysqlFieldCodec(BooleanArrayField field){
 		super(field);
@@ -54,7 +56,7 @@ extends BaseListMysqlFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 			if(ArrayTool.isEmpty(bytes)){
 				return new ArrayList<>();
 			}
-			return BooleanByteTool.fromBooleanByteArray(bytes, 0);
+			return BOOLEAN_LIST_CODEC.decode(bytes, 0);
 		}catch(SQLException e){
 			throw new DataAccessException(e);
 		}
@@ -65,7 +67,7 @@ extends BaseListMysqlFieldCodec<Boolean,List<Boolean>,Field<List<Boolean>>>{
 		try{
 			byte[] value = field.getValue() == null
 					? null
-					: BooleanByteTool.getBooleanByteArray(field.getValue());
+					: BOOLEAN_LIST_CODEC.encode(field.getValue());
 			ps.setBytes(parameterIndex, value);
 		}catch(SQLException e){
 			throw new DataAccessException(e);

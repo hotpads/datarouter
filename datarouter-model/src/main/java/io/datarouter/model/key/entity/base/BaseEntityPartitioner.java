@@ -19,13 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.datarouter.bytes.ByteTool;
-import io.datarouter.bytes.IntegerByteTool;
+import io.datarouter.bytes.codec.intcodec.RawIntCodec;
 import io.datarouter.model.key.entity.EntityKey;
 import io.datarouter.model.key.entity.EntityPartitioner;
 
 public abstract class BaseEntityPartitioner<EK extends EntityKey<EK>>
 implements EntityPartitioner<EK>{
 
+	private static final RawIntCodec RAW_INT_CODEC = RawIntCodec.INSTANCE;
 	private static final int MIN_PARTITIONS = 1;
 	private static final int MAX_ONE_BYTE_NUM_PARTITIONS = 256;
 	private static final int MAX_PARTITIONS = 1 << 16;
@@ -94,7 +95,7 @@ implements EntityPartitioner<EK>{
 
 	@Override
 	public byte[] getPrefix(int partition){
-		byte[] fourBytePrefix = IntegerByteTool.getRawBytes(partition);
+		byte[] fourBytePrefix = RAW_INT_CODEC.encode(partition);
 		int numPrefixBytes = getNumPrefixBytes();
 		byte[] prefix = new byte[numPrefixBytes];
 		int offset = 4 - numPrefixBytes;
@@ -127,7 +128,7 @@ implements EntityPartitioner<EK>{
 
 	private int getPartition(byte[] bytes){
 		byte[] fourBytePrefix = ByteTool.padPrefix(bytes, 4);
-		return IntegerByteTool.fromRawBytes(fourBytePrefix, 0);
+		return RAW_INT_CODEC.decode(fourBytePrefix, 0);
 	}
 
 	/*------------- for testing -------------*/

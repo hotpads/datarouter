@@ -24,6 +24,10 @@ import io.datarouter.instrumentation.gauge.GaugePublisher;
 import io.datarouter.instrumentation.gauge.GaugePublisher.NoOpGaugePublisher;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder;
 import io.datarouter.instrumentation.metric.MetricLinkBuilder.NoOpMetricLinkBuilder;
+import io.datarouter.metric.counter.CountBlobDirectorySupplier;
+import io.datarouter.metric.counter.CountBlobDirectorySupplier.NoOpCountBlobDirectorySupplier;
+import io.datarouter.metric.counter.CountBlobPublishingSettings;
+import io.datarouter.metric.counter.CountBlobPublishingSettings.NoOpCountBlobPublishingSettings;
 import io.datarouter.metric.counter.CountersAppListener;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao;
 import io.datarouter.metric.counter.DatarouterCountPublisherDao.DatarouterCountPublisherDaoParams;
@@ -48,6 +52,8 @@ import io.datarouter.web.listener.ComputedPropertiesAppListener;
 public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 	private final Class<? extends CountPublisher> countPublisher;
+	private final Class<? extends CountBlobDirectorySupplier> countBlobDirectorySupplier;
+	private final Class<? extends CountBlobPublishingSettings> countBlobPublishingSettings;
 	private final Class<? extends GaugePublisher> gaugePublisher;
 	private final Class<? extends MetricLinkBuilder> metricLinkBuilder;
 	private final List<MetricName> metricNames;
@@ -57,6 +63,8 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 	private DatarouterMetricsPlugin(
 			DatarouterMetricsDaosModule daosModuleBuilder,
 			Class<? extends CountPublisher> countPublisher,
+			Class<? extends CountBlobDirectorySupplier> countBlobDirectorySupplier,
+			Class<? extends CountBlobPublishingSettings> countBlobPublishingSettings,
 			Class<? extends GaugePublisher> gaugePublisher,
 			Class<? extends MetricLinkBuilder> metricLinkBuilder,
 			boolean enableCountPublishing,
@@ -65,6 +73,8 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 			List<MetricDashboardDto> dashboards,
 			List<MiscMetricLinksDto> miscMetricLinks){
 		this.countPublisher = countPublisher;
+		this.countBlobDirectorySupplier = countBlobDirectorySupplier;
+		this.countBlobPublishingSettings = countBlobPublishingSettings;
 		this.gaugePublisher = gaugePublisher;
 		this.metricLinkBuilder = metricLinkBuilder;
 		this.metricNames = metricNames;
@@ -92,6 +102,8 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 	@Override
 	public void configure(){
 		bind(CountPublisher.class).to(countPublisher);
+		bind(CountBlobDirectorySupplier.class).to(countBlobDirectorySupplier);
+		bind(CountBlobPublishingSettings.class).to(countBlobPublishingSettings);
 		bind(GaugePublisher.class).to(gaugePublisher);
 		bindActual(Gauges.class, DatabeanGauges.class);
 		bind(MetricNameRegistry.class).toInstance(new MetricNameRegistry(metricNames));
@@ -108,6 +120,10 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		private final List<MiscMetricLinksDto> miscMetricLinks;
 
 		private Class<? extends CountPublisher> countPublisher = NoOpCountPublisher.class;
+		private Class<? extends CountBlobDirectorySupplier> countBlobDirectorySupplier =
+				NoOpCountBlobDirectorySupplier.class;
+		private Class<? extends CountBlobPublishingSettings> countBlobPublishingSettings =
+				NoOpCountBlobPublishingSettings.class;
 		private Class<? extends GaugePublisher> gaugePublisher = NoOpGaugePublisher.class;
 		private Class<? extends MetricLinkBuilder> metricLinkBuilder = NoOpMetricLinkBuilder.class;
 
@@ -116,9 +132,13 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 		public DatarouterMetricsPluginBuilder(
 				List<ClientId> defaultQueueClientId,
 				Class<? extends CountPublisher> countPublisher,
+				Class<? extends CountBlobDirectorySupplier> countBlobDirectorySupplier,
+				Class<? extends CountBlobPublishingSettings> countBlobPublishingSettings,
 				Class<? extends GaugePublisher> gaugePublisher){
 			this.defaultQueueClientId = defaultQueueClientId;
 			this.countPublisher = countPublisher;
+			this.countBlobDirectorySupplier = countBlobDirectorySupplier;
+			this.countBlobPublishingSettings = countBlobPublishingSettings;
 			this.gaugePublisher = gaugePublisher;
 			this.metricNames = new ArrayList<>();
 			this.dashboards = new ArrayList<>();
@@ -132,6 +152,18 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 
 		public DatarouterMetricsPluginBuilder withCountPublisher(Class<? extends CountPublisher> countPublisher){
 			this.countPublisher = countPublisher;
+			return this;
+		}
+
+		public DatarouterMetricsPluginBuilder withCountBlobDirectorySupplier(
+				Class<? extends CountBlobDirectorySupplier> countBlobDirectorySupplier){
+			this.countBlobDirectorySupplier = countBlobDirectorySupplier;
+			return this;
+		}
+
+		public DatarouterMetricsPluginBuilder withCountBlobPublishingSettings(
+				Class<? extends CountBlobPublishingSettings> countBlobPublishingSettings){
+			this.countBlobPublishingSettings = countBlobPublishingSettings;
 			return this;
 		}
 
@@ -186,6 +218,8 @@ public class DatarouterMetricsPlugin extends BaseWebPlugin{
 									enableGaugePublishing)
 							: daosModule,
 					countPublisher,
+					countBlobDirectorySupplier,
+					countBlobPublishingSettings,
 					gaugePublisher,
 					metricLinkBuilder,
 					enableCountPublishing,
